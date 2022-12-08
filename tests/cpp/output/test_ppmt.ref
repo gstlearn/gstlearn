@@ -2,10 +2,10 @@
 PPMT Method
 -----------
 - Using Van der Corput method
-- Space dimension = 2
+- Number of iterations = 100
 - Number of Directions = 10
-- Number of Iterations = 100
-- Exponent value = 2.000000
+- Number of Hermite Polynomials = 30
+- Exponent value = 2
 
 Data Base Characteristics
 =========================

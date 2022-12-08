@@ -405,7 +405,6 @@ void mestitle(int level, const char *format, ...)
   }
   (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
-
   return;
 }
 

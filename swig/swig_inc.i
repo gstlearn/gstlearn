@@ -37,6 +37,8 @@
   #include "Enum/ESpaceType.hpp"
   #include "Enum/ESelectivity.hpp"
   #include "Enum/EStatOption.hpp"
+  #include "Enum/EDirGen.hpp"
+  #include "Enum/EGaussInv.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"

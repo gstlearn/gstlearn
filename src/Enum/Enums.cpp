@@ -37,6 +37,8 @@
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ESelectivity.hpp"
 #include "Enum/EStatOption.hpp"
+#include "Enum/EDirGen.hpp"
+#include "Enum/EGaussInv.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -67,3 +69,6 @@ ENUM_DEFINE(ENUM_SELECTIVITY)
 ENUM_DEFINE(ENUM_SPACETYPE)
 ENUM_DEFINE(ENUM_MORPHO)
 ENUM_DEFINE(ENUM_ROTATION)
+ENUM_DEFINE(ENUM_DIRGEN)
+ENUM_DEFINE(ENUM_GAUSSINV)
+

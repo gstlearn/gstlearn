@@ -11,6 +11,9 @@
 #include "geoslib_d.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/EDirGen.hpp"
+#include "Enum/EGaussInv.hpp"
+
 #include "Anamorphosis/PPMT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -32,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PPMT-");
@@ -42,14 +45,27 @@ int main(int /*argc*/, char */*argv*/[])
   
   Db* data = Db::createFromNF("Data.ascii");
 
+  DbStringFormat dbfmt;
+  dbfmt.setFlags(false, false, false, true, false, false, {"U*"});
+
   // Creating PPMT model
   int ndir = 10;
-  int niter = 100;
-  PPMT ppmt(ndir, niter);
+  bool flagPreprocessing = false;
+  EDirGen methodDir = EDirGen::VDC;
+  EGaussInv methodTrans = EGaussInv::HMT;
+  PPMT ppmt(ndir=10, flagPreprocessing, methodDir, methodTrans);
 
-  // Fitting the PPMT model
-  ppmt.rawToGaussian(data, {"Y1","Y2"}, false, true, NamingConvention("U"));
-  data->display();
+  // Fit and store the Gaussian transformed values
+  int niter = 100;
+  bool flagStoreInDb = true;
+  (void) ppmt.fit(data, {"Y*"}, flagStoreInDb, niter, false, NamingConvention("U"));
+  dbfmt.setFlags(false, false, false, true, false, false, {"U*"});
+  data->display(&dbfmt);
+
+  // Back-transform
+  (void) ppmt.gaussianToRaw(data, {"U*"}, NamingConvention("V"));
+  dbfmt.setFlags(false, false, false, true, false, false, {"V*"});
+  data->display(&dbfmt);
 
   return 0;
 }

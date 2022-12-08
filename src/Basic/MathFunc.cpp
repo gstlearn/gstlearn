@@ -2957,3 +2957,28 @@ MatrixRectangular* vanDerCorput(int n, int nd)
   }
   return res;
 }
+
+MatrixRectangular fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
+{
+  int nrow = (int) r.size();
+  int ncol = legendreOrder + 1;
+  MatrixRectangular lp(nrow, ncol);
+
+  // Initialization
+
+  for (int i = 0; i < nrow; i++)
+  {
+    lp.setValue(i, 0, 1.);
+    lp.setValue(i, 1, r[i]);
+  }
+
+  // Recursion
+
+  for (int j = 1; j < legendreOrder; j++)
+    for (int i = 0; i < nrow; i++)
+    {
+      lp.setValue(i, j+1,
+                  ((2*j+1) * r[i] * lp.getValue(i,j) - (j) * lp.getValue(i,j-1))/(j+1));
+    }
+  return lp;
+}

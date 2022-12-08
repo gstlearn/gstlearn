@@ -10,18 +10,10 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "Enum/AEnum.hpp"
 
-class GSTLEARN_EXPORT AStringFormat
-{
-public:
-  AStringFormat(int level = 1);
-  AStringFormat(const AStringFormat& r);
-  AStringFormat& operator=(const AStringFormat& r);
-  virtual ~AStringFormat();
+#define ENUM_DIRGEN EDirGen, VDC,\
+                 VDC,    0, "Van der Corput",\
+                 RND,    1, "Random Directions"
 
-  int getLevel() const { return _level; }
-
-private:
-  int _level;
-};
+ENUM_DECLARE(ENUM_DIRGEN)

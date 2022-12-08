@@ -10,18 +10,11 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
+#include "Enum/AEnum.hpp"
 
-class GSTLEARN_EXPORT AStringFormat
-{
-public:
-  AStringFormat(int level = 1);
-  AStringFormat(const AStringFormat& r);
-  AStringFormat& operator=(const AStringFormat& r);
-  virtual ~AStringFormat();
+#define ENUM_GAUSSINV EGaussInv, EMP,\
+                 EMP,    0, "Empirical",\
+                 HMT,    1, "Using Hermite Polynomials",\
+                 NN,     2, "Nearest Neighbor"
 
-  int getLevel() const { return _level; }
-
-private:
-  int _level;
-};
+ENUM_DECLARE(ENUM_GAUSSINV)

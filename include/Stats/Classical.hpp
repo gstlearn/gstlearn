@@ -119,3 +119,5 @@ GSTLEARN_EXPORT int regressionApply(Db *db1,
                                     bool flagCste = false,
                                     Db *db2 = nullptr,
                                     const Model *model = nullptr);
+GSTLEARN_EXPORT MatrixRectangular* sphering(const AMatrix* X);
+

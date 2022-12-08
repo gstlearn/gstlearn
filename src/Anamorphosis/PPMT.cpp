@@ -13,10 +13,12 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/PPMT.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
+#include "Stats/Classical.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
@@ -24,12 +26,28 @@
 
 #include <math.h>
 
-PPMT::PPMT(int ndir, int niter, double alpha, const String &method)
+PPMT::PPMT(int ndir,
+           bool flagPreprocessing,
+           const EDirGen& methodDir,
+           const EGaussInv& methodTrans,
+           int nbpoly,
+           double alpha)
     : AStringable(),
-      _niter(niter),
+      _niter(0),
       _ndir(ndir),
+      _nbpoly(nbpoly),
       _alpha(alpha),
-      _method(method)
+      _methodDir(methodDir),
+      _methodTrans(methodTrans),
+      _flagPreprocessing(flagPreprocessing),
+      _isFitted(false),
+      _ndim(0),
+      _serieAngle(),
+      _serieScore(),
+      _dirmat(nullptr),
+      _anams(),
+      _initAnams(),
+      _initSphering(nullptr)
 {
 }
 
@@ -37,8 +55,19 @@ PPMT::PPMT(const PPMT &m)
     : AStringable(m),
       _niter(m._niter),
       _ndir(m._ndir),
+      _nbpoly(m._nbpoly),
       _alpha(m._alpha),
-      _method(m._method)
+      _methodDir(m._methodDir),
+      _methodTrans(m._methodTrans),
+      _flagPreprocessing(m._flagPreprocessing),
+      _isFitted(m._isFitted),
+      _ndim(m._ndim),
+      _serieAngle(m._serieAngle),
+      _serieScore(m._serieScore),
+      _dirmat(m._dirmat),
+      _anams(m._anams),
+      _initAnams(m._initAnams),
+      _initSphering(m._initSphering)
 {
 }
 
@@ -49,20 +78,59 @@ PPMT& PPMT::operator=(const PPMT &m)
     AStringable::operator=(m);
     _niter = m._niter;
     _ndir = m._ndir;
+    _nbpoly = m._nbpoly;
     _ndim = m._ndim;
     _alpha = m._alpha;
-    _method = m._method;
+    _methodDir = m._methodDir;
+    _methodTrans = m._methodTrans;
+    _flagPreprocessing = m._flagPreprocessing;
+    _isFitted = m._isFitted;
+    _ndim = m._ndim;
+    _serieAngle = m._serieAngle;
+    _serieScore = m._serieScore;
+    _dirmat = m._dirmat;
+    _anams = m._anams;
+    _initAnams = m._initAnams;
+    _initSphering = m._initSphering;
   }
   return *this;
 }
 
 PPMT::~PPMT()
 {
+  if (_dirmat != nullptr) delete _dirmat;
+  if (! _anams.empty())
+  {
+    for (int i = 0; i < (int) _anams.size(); i++)
+      delete _anams[i];
+  }
+  if (! _initAnams.empty())
+  {
+    for (int i = 0; i < (int) _initAnams.size(); i++)
+      delete _initAnams[i];
+  }
+  if (_initSphering != nullptr)
+    delete _initSphering;
 }
 
-PPMT* PPMT::create(int ndir, int niter, double alpha, const String &method)
+/**
+ * Create the Multivariate Gaussian anamorphosis
+ * @param ndir Number of Directions to be tested at each iteration
+ * @param flagPreprocessing True for pre-processing (Normal Score and Sphering)
+ * @param methodDir Method for Direction Generation
+ * @param methodTrans Method for Gaussian Transformation
+ * @param nbpoly Number of Polynomial (only used for "hermite" transformation)
+ * @param alpha Distance exponent
+ * @return An instance of PPMT class
+ */
+PPMT* PPMT::create(int ndir,
+                   bool flagPreprocessing,
+                   const EDirGen& methodDir,
+                   const EGaussInv& methodTrans,
+                   int nbpoly,
+                   double alpha)
 {
-  return new PPMT(ndir, niter, alpha, method);
+  return new PPMT(ndir, flagPreprocessing, methodDir, methodTrans, nbpoly, alpha);
 }
 
 String PPMT::toString(const AStringFormat* strfmt) const
@@ -71,116 +139,122 @@ String PPMT::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  mestitle(1, "PPMT Method");
-  if (getMethod() == "vdc")
-    sstr << "- Using Van der Corput method" << std::endl;
+  sstr << toTitle(1, "PPMT");
+  if (_flagPreprocessing)
+    sstr << "- Initial Anamorphosis per component and Sphering" << std::endl;
+  if (getMethodDir() == EDirGen::VDC)
+    sstr << "- Using Van der Corput method for generating Directions" << std::endl;
   else
-    sstr << "- Using Uniform method" << std::endl;
-  sstr << "- Number of Directions =" << getNdir() << std::endl;
-  sstr << "- Number of iterations =" << getNiter() << std::endl;
-  sstr << "- Exponent value =" << getAlpha() << std::endl;
+    sstr << "- Using Uniform method for generating Directions" << std::endl;
+  sstr << "- Number of iterations = " << getNiter() << std::endl;
+  sstr << "- Number of Directions = " << getNdir() << std::endl;
+  if (getMethodTrans() == EGaussInv::HMT)
+    sstr << "- Number of Hermite Polynomials = " << getNbpoly() << std::endl;
+  sstr << "- Exponent value       = " << getAlpha() << std::endl;
+
+  sstr << std::endl;
+  if (isFitted())
+    sstr << "Fitting has been performed" << std::endl;
+  else
+    sstr << "Fitting has not been performed yet" << std::endl;
 
   return sstr.str();
 }
 
-MatrixRectangular PPMT::_fillLegendre(const VectorDouble& r, int legendreOrder) const
+double PPMT::_gaussianizeForward(double Yi,
+                                 int rank,
+                                 const AnamHermite *anam,
+                                 const VectorDouble &N0) const
 {
-  int nrow = (int) r.size();
-  int ncol = legendreOrder + 1;
-  MatrixRectangular lp(nrow, ncol);
+  double theo = 0.;
+  if (anam != nullptr)
+    theo = anam->RawToTransformValue(Yi);
+  else
+    theo = N0[rank];
+  return (theo - Yi);
+}
 
-  // Initialization
+/**
+ * Calculate the Inverse normal score transform. This is only available for Hermite
+ * @param Yi   Input value
+ * @param anam Anamorphosis
+ * @return The back-anamorphosed value
+ */
+double PPMT::_gaussianizeBackward(double Yi, const AnamHermite *anam) const
+{
+  double theo = anam->TransformToRawValue(Yi);
+  return (theo - Yi);
+}
 
-  for (int i = 0; i < nrow; i++)
+void PPMT::_initGaussianizeForward(AMatrix* Y)
+{
+  int ncol = getNdim();
+
+  for (int icol = 0; icol < ncol; icol++)
   {
-    lp.setValue(i, 0, 1.);
-    lp.setValue(i, 1, r[i]);
+    VectorDouble Zvec = Y->getColumn(icol);
+    VectorDouble Yvec = _initAnams[icol]->RawToGaussianVector(Zvec);
+    Y->setColumn(icol, Yvec);
   }
-
-  // Recursion
-
-  for (int j = 1; j < legendreOrder; j++)
-    for (int i = 0; i < nrow; i++)
-    {
-      lp.setValue(i, j+1,
-                  ((2*j+1) * r[i] * lp.getValue(i,j) -
-                  (j) * lp.getValue(i,j-1))/(j+1));
-    }
-  return lp;
 }
 
-AMatrix* PPMT::_sphering(const AMatrix* X)
+void PPMT::_initGaussianizeBackward(AMatrix* Y)
 {
-  if (X->isEmpty()) return nullptr;
-  int nech = X->getNRows();
-  int nvar = X->getNCols();
+  int ncol = getNdim();
 
-  AMatrix* TX = X->transpose();
-  AMatrix* prod = prodMatrix(TX, X);
-  prod->prodScalar(1. / (double) nech);
-
-  VectorDouble eigen_values(nvar);
-  VectorDouble eigen_vectors(nvar * nvar);
-  if (matrix_eigen(prod->getValues().data(), nvar,
-                   eigen_values.data(), eigen_vectors.data()))
-    return nullptr;
-
-  // Invert the sign of the second Eigen vector (for compatibility with R output)
-  MatrixRectangular S(nvar, nvar);
-  S.setValues(eigen_vectors.data(),true);
-  for (int ivar = 0; ivar < nvar ; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-    {
-      double signe = (jvar < nvar-1) ? 1 : -1;
-      S.setValue(ivar, jvar,
-                 signe * S.getValue(ivar, jvar) / sqrt(eigen_values[jvar]));
-    }
-
-  AMatrix* Y = prodMatrix(X, &S);
-
-  delete TX;
-  delete prod;
-
-  return Y;
+  for (int icol = 0; icol < ncol; icol++)
+  {
+    VectorDouble Zvec = Y->getColumn(icol);
+    VectorDouble Yvec = _initAnams[icol]->GaussianToRawVector(Zvec);
+    Y->setColumn(icol, Yvec);
+  }
 }
 
-void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
+double PPMT::_getGaussianDistance(const VectorDouble &Yi,
+                                  const VectorInt &Ri,
+                                  const VectorDouble &N0) const
+{
+  int np = (int) Yi.size();
+
+  double di = 0.;
+  for (int ip = 0; ip < np; ip++)
+  {
+    double value = _gaussianizeForward(Yi[ip], Ri[ip], nullptr, N0);
+    di += pow(ABS(value), getAlpha());
+  }
+  di /= (double) np;
+  return di;
+}
+
+void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0, int iter)
 {
   int np   = Y->getNRows();
-  int ndim = getNdim();
-  int nd   = getNdir();
-  double alpha = getAlpha();
 
   // Initialization
-  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
-  VectorDouble N0 = VH::qnormVec(sequence);
 
   VectorDouble Y0(np, TEST);
-  VectorInt R0(np, ITEST);
+  VectorDouble Yi(np, TEST);
+  VectorInt    R0(np, ITEST);
   int    idmax = -1;
   double ddmax = -1.e30;
 
   // Loop on directions
-  VectorDouble Yi(np);
-  for (int id = 0; id < nd; id++)
+
+  AnamHermite* anam = nullptr;
+  if (getMethodTrans() == EGaussInv::HMT) anam = new AnamHermite(getNbpoly());
+
+  for (int id = 0; id < getNdir(); id++)
   {
-    for (int ip = 0; ip < np; ip++)
-    {
-      double value = 0.;
-      for (int idim = 0; idim < ndim; idim++)
-        value += Y->getValue(ip, idim) * dir->getValue(id, idim);
-      Yi[ip] = value;
-    }
+    // Projection of the data set on the target direction
+    _projectOnDirection(Y, id, Yi);
 
+    // Preparing the Normal scoring for the target distance
     VectorInt Ri = VH::sortRanks(Yi);
-    double di = 0.;
-    for (int ip = 0; ip < np; ip++)
-    {
-      double value = ABS(Yi[ip] - N0[Ri[ip]]);
-      di += pow(value, alpha);
-    }
-    di /= (double) np;
 
+    // Calculate the distance on the projected axis
+    double di = _getGaussianDistance(Yi, Ri, N0);
+
+    // Keep the Direction corresponding to the largest Gaussian scPreore
     if (ddmax < di)
     {
       idmax = id;
@@ -190,37 +264,112 @@ void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
     }
   }
 
-  for (int ip = 0; ip < np; ip++)
-  {
-    double value = 0.;
-    double scale = N0[R0[ip]] - Y0[ip];
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      value = Y->getValue(ip, idim) + scale * dir->getValue(idmax, idim);
-      Y->setValue(ip, idim, value);
-    }
-  }
+  if (getMethodTrans() == EGaussInv::HMT) anam->fitFromArray(Y0);
+  _shiftForward(Y, idmax, anam, Y0, R0, N0);
 
   // Returning arguments
   _serieAngle.push_back(idmax);
   _serieScore.push_back(ddmax);
-  _directions.push_back(dir->getRow(idmax));
+  if (getMethodTrans() == EGaussInv::HMT) _anams.push_back(anam);
 }
 
-void PPMT::fit(AMatrix *Y, bool verbose)
+void PPMT::_shiftForward(AMatrix *Y,
+                         int id,
+                         const AnamHermite *anam,
+                         const VectorDouble &Y0,
+                         const VectorInt    &R0,
+                         const VectorDouble &N0) const
 {
-  if (Y == nullptr)
-  {
-    messerr("Input Argument 'Y' (matrix) should be provided. Nothing is done");
-  }
-  _ndim  = Y->getNCols();
-  int ndir = getNdir();
-  int niter = getNiter();
+  int np   = Y->getNRows();
+  int ndim = getNdim();
 
-  // Creating the directions
+  for (int ip = 0; ip < np; ip++)
+  {
+    double scale = _gaussianizeForward(Y0[ip], R0[ip], anam, N0);
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double value = Y->getValue(ip, idim) + scale * _dirmat->getValue(id, idim);
+      Y->setValue(ip, idim, value);
+    }
+  }
+}
+
+void PPMT::_shiftBackward(AMatrix *Y,
+                          int id,
+                          const AnamHermite *anam,
+                          const VectorDouble &Y0) const
+{
+  int np   = Y->getNRows();
+  int ndim = getNdim();
+
+  for (int ip = 0; ip < np; ip++)
+  {
+    double scale = _gaussianizeBackward(Y0[ip], anam);
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double value = Y->getValue(ip, idim) - scale * _dirmat->getValue(id, idim);
+      Y->setValue(ip, idim, value);
+    }
+  }
+}
+
+/**
+ * Project the data set on the direction rank 'id'
+ * @param Y   Matrix containing the data set
+ * @param id  Rank of the target direction
+ * @param Y0  Vector of projected coordinates
+ */
+void PPMT::_projectOnDirection(const AMatrix* Y, int id, VectorDouble& Y0)
+{
+  int np   = Y->getNRows();
+  int ndim = getNdim();
+
+  for (int ip = 0; ip < np; ip++)
+  {
+    double value = 0.;
+    for (int idim = 0; idim < ndim; idim++)
+      value += Y->getValue(ip, idim) * _dirmat->getValue(id, idim);
+    Y0[ip] = value;
+  }
+}
+
+void PPMT::_iterationForward(AMatrix *Y, const VectorDouble& N0, int iter)
+{
+  int np    = Y->getNRows();
+  int idmax = _serieAngle[iter];
+
+  // Projection of the data set on the optimal direction
+  VectorDouble Y0(np, TEST);
+  _projectOnDirection(Y, idmax, Y0);
+
+  // Preparing the Normal scoring for the target distance
+  VectorInt R0 = VH::sortRanks(Y0);
+  AnamHermite* anam = nullptr;
+  if (getMethodTrans() == EGaussInv::HMT) anam = _anams[iter];
+
+  // Forward Shift
+  _shiftForward(Y, idmax, anam, Y0, R0, N0);
+}
+
+void PPMT::_iterationBackward(AMatrix *Y, const VectorDouble& N0, int iter)
+{
+  int np    = Y->getNRows();
+  int idmax = _serieAngle[iter];
+
+  // Projection of the data set on the optimal direction
+  VectorDouble Y0(np, TEST);
+  _projectOnDirection(Y, idmax, Y0);
+
+  // Forward Shift
+  _shiftBackward(Y, idmax, _anams[iter], Y0);
+}
+
+void PPMT::_generateAllDirections()
+{
+  int ndir = getNdir();
 
   MatrixRectangular* Umat;
-  if (getMethod() == "vdc")
+  if (getMethodDir() == EDirGen::VDC)
   {
     Umat = vanDerCorput(ndir, _ndim);
   }
@@ -229,58 +378,205 @@ void PPMT::fit(AMatrix *Y, bool verbose)
     VectorDouble X = VH::simulateUniform(ndir * _ndim);
     Umat = MatrixRectangular::createFromVD(X, ndir, _ndim);
   }
-  MatrixRectangular* dirmat = GeometryHelper::getDirectionsInRn(Umat);
+  _dirmat = GeometryHelper::getDirectionsInRn(Umat);
   delete Umat;
+}
+
+void PPMT::_fitInitHermite(AMatrix* Y)
+{
+  int ncol = getNdim();
+
+  for (int icol = 0; icol < ncol; icol++)
+  {
+    VectorDouble Yvec = Y->getColumn(icol);
+    AnamHermite* anam = new AnamHermite(getNbpoly());
+    anam->fitFromArray(Yvec);
+    _initAnams.push_back(anam);
+  }
+}
+
+int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
+{
+  if (Y == nullptr)
+  {
+    messerr("Input Argument 'Y' (matrix) should be provided. Nothing is done");
+  }
+  _ndim  = Y->getNCols();
+  _niter = niter;
 
   // Clearing the storage
   _serieAngle.clear();
   _serieScore.clear();
-  _directions.clear();
+  _initAnams.clear();
+  _anams.clear();
+
+  // Creating the directions
+  _generateAllDirections();
+
+  int np = Y->getNRows();
+  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble N0 = VH::qnormVec(sequence);
+
+  // Optional Pre-processing
+  if (_flagPreprocessing)
+  {
+    if (verbose) message("Pre-processing:\n");
+
+    // Anamorphosis transform of each component of the input vector
+    if (verbose) message("- Normal scoring each component\n");
+    _fitInitHermite(Y);
+    _initGaussianizeForward(Y);
+
+    // Sphering
+    if (verbose) message("- Sphering\n");
+    _initSphering = sphering(Y);
+    prodMatrixInPlace(Y, _initSphering);
+  }
 
   // Loop on the iterations
-  for (int iter = 0; iter < niter; iter++)
-    _iteration(Y, dirmat, iter);
-  delete dirmat;
 
-  // Optional printout
-  if (verbose)
+  if (verbose) message("\nLoop on iterations to find best direction:\n");
+  for (int iter = 0; iter < niter; iter++)
   {
-    mestitle(1, "PPMT Method");
-    if (getMethod() == "vdc")
-      message("- Using Van der Corput method\n");
-    else
-      message("- Using Uniform method\n");
-    message("- Space dimension = %d\n",getNdim());
-    message("- Number of Directions = %d\n",getNdir());
-    message("- Number of Iterations = %d\n",getNiter());
-    message("- Exponent value = %lf\n", getAlpha());
+    _iterationFit(Y, N0, iter);
+
+    if (verbose)
+    {
+      message("Iteration %3d/%3d: Score = %lf\n",iter+1,niter, _serieScore[iter]);
+    }
   }
+
+  // Set the flag saying that the PPMT model has been fitted correctly
+  _isFitted = true;
+
+  return 0;
+}
+
+int PPMT::fit(Db *db,
+              const VectorString &names,
+              bool flagStoreInDb,
+              int niter,
+              bool verbose,
+              const NamingConvention &namconv)
+{
+  VectorString exp_names = db->expandNameList(names);
+  MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
+  if (Y.isEmpty())
+  {
+    messerr("This Multivariate Transform requires several variables to be defined");
+    return 1;
+  }
+
+  // Fitting the PPMT model
+  if (fitFromMatrix(&Y, niter, verbose)) return 1;
+
+  // Add the newly created information in the Db (optional)
+
+  if (flagStoreInDb)
+  {
+    int iptr = db->addColumns(Y.getValues(), String(), ELoc::UNKNOWN, 0, true);
+    namconv.setNamesAndLocators(exp_names, db, iptr);
+  }
+  return 0;
 }
 
 int PPMT::rawToGaussian(Db *db,
                         const VectorString &names,
-                        bool useSel,
-                        bool verbose,
                         const NamingConvention &namconv)
 {
   // Extract the relevant information
 
-  MatrixRectangular Y = db->getColumnsAsMatrix(names, useSel);
-  if (Y.isEmpty())
+  if (db == nullptr)
   {
-    messerr("This method requires several variables to be defined");
+    messerr("The argument 'db' must be provided");
     return 1;
   }
+  VectorString exp_names = db->expandNameList(names);
+  MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
+  if (Y.isEmpty())
+  {
+    messerr("This Multivariate Transform requires several variables to be defined");
+    return 1;
+  }
+  if (! isFitted())
+  {
+    messerr("You must Fit PPMT beforehand");
+    return 1;
+  }
+  int np = Y.getNRows();
+  int niter = getNiter();
 
-  // Perform the PPMT procedure and transform the argument in place
+  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble N0 = VH::qnormVec(sequence);
 
-  fit(&Y, verbose);
+  // Pre-processing
+  if (_flagPreprocessing)
+  {
+    _initGaussianizeForward(&Y);
+    prodMatrixInPlace(dynamic_cast<AMatrix*>(&Y), _initSphering);
+  }
+
+  // Loop on the iterations
+  for (int iter = 0; iter < niter; iter++)
+    _iterationForward(&Y, N0, iter);
 
   // Add the newly created information in the Db
+  int iptr = db->addColumns(Y.getValues(), String(), ELoc::UNKNOWN, 0, true);
+  namconv.setNamesAndLocators(exp_names, db, iptr);
 
-  int iptr = db->addColumns(Y.getValues());
+  return 0;
+}
 
-  namconv.setNamesAndLocators(names, db, iptr);
+int PPMT::gaussianToRaw(Db *db,
+                        const VectorString &names,
+                        const NamingConvention &namconv)
+{
+  // Extract the relevant information
+
+  if (db == nullptr)
+  {
+    messerr("The argument 'db' must be provided");
+    return 1;
+  }
+  VectorString exp_names = db->expandNameList(names);
+  MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
+  if (Y.isEmpty())
+  {
+    messerr("This Multivariate Back-Transform requires several variables to be defined");
+    return 1;
+  }
+  if (getMethodTrans() != EGaussInv::HMT)
+  {
+    messerr("The PPMT back-trasform is only available when methodTrans = 'hermite'");
+    return 1;
+  }
+  if (! isFitted())
+  {
+    messerr("You must Fit PPMT beforehand");
+    return 1;
+  }
+  int np = Y.getNRows();
+  int niter = getNiter();
+
+  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble N0 = VH::qnormVec(sequence);
+
+  // Loop on the iterations (reverse order)
+  for (int iter = niter-1; iter >= 0; iter--)
+    _iterationBackward(&Y, N0, iter);
+
+  // Post-processing
+  if (_flagPreprocessing)
+  {
+    AMatrix* backSphering = _initSphering->transpose();
+    prodMatrixInPlace(dynamic_cast<AMatrix*>(&Y), backSphering);
+
+    _initGaussianizeBackward(&Y);
+  }
+
+  // Add the newly created information in the Db
+  int iptr = db->addColumns(Y.getValues(), String(), ELoc::UNKNOWN, 0, true);
+  namconv.setNamesAndLocators(exp_names, db, iptr);
 
   return 0;
 }

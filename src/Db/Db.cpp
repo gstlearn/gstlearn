@@ -3761,12 +3761,15 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString& names, bool useSel) c
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
                                          bool useSel) const
 {
-  int nvar = (int) names.size();
+  if (names.empty()) return MatrixRectangular();
+  VectorInt iuids =  _ids(names, false);
+  int nvar = (int) iuids.size();
   int nech = getSampleNumber(useSel);
+
   MatrixRectangular mat(nech,nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble X = getColumn(names[ivar], useSel);
+    VectorDouble X = getColumnByUID(iuids[ivar], useSel);
     mat.setColumn(ivar, X);
   }
   return mat;

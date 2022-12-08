@@ -1078,6 +1078,14 @@ AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
   return MatrixFactory::matProduct(mat1, mat2);
 }
 
+void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
+{
+  AMatrix* res = prodMatrix(mat1, mat2);
+  for (int i = 0; i < res->getNTotal(); i++)
+    mat1->setValue(i, res->getValue(i));
+  delete res;
+}
+
 void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
 {
   if (_sparse)
