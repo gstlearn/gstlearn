@@ -20,6 +20,7 @@
 
 class ELoc;
 
+// TODO : Create InterpolatorParam ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
 class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDbToDb
 {
 public:

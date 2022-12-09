@@ -14,6 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 
+// TODO : Inherits from AParam which inherits from ASerializable, AStringable, IClonable
 class GSTLEARN_EXPORT CSVformat: public AStringable
 {
 public:

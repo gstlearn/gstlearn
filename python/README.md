@@ -160,12 +160,12 @@ cd gstlearn
 
 ...or any other single configuration compilers:
 
-    cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
+    cmake -Bbuild -H. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
     cmake --build build --target python_install
 
 or for those who prefer a single command line:
 
-    mkdir -p build & cd build & cmake .. & make python_install
+    mkdir -p build & cd build & cmake .. -DBUILD_PYTHON=ON & make python_install
 
 or even faster:
 
@@ -175,11 +175,12 @@ or even faster:
 
 ...or any other multiple configurations compilers:
 
-    cmake -Bbuild -H.
+    cmake -Bbuild -H. -DBUILD_PYTHON=ON
     cmake --build build --target python_install --config Release
 
 ### Important Notes
 
+* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:

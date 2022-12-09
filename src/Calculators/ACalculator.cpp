@@ -23,6 +23,11 @@ ACalculator::~ACalculator()
 {
 }
 
+/**
+ * Run the calculator
+ *
+ * \return false if error, true otherwise
+ */
 bool ACalculator::run()
 {
   try
