@@ -1159,11 +1159,6 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
  **  Perform non-conditional simulations on a set of gradient points using
  **  Turning Bands method.
  **
- ** \return  Error return code :
- ** \return    0 no problem
- ** \return    1 a structure cannot be simulated
- ** \return    2 no structure to be simulated 1 core problem
- **
  ** \param[in]  dbgrd      Gradient Db structure
  ** \param[in]  aic        Array 'aic'
  ** \param[in]  delta      Value of the increment
@@ -1240,11 +1235,6 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
  **  Perform non-conditional simulations on a set of tangent points using
  **  Turning Bands method.
  **
- ** \return  Error return code :
- ** \return    0 no problem
- ** \return    1 a structure cannot be simulated
- ** \return    2 no structure to be simulated 1 core problem
- **
  ** \param[in]  dbtgt      Tangent Db structure
  ** \param[in]  aic        Array 'aic'
  ** \param[in]  delta      Value of the increment
@@ -1255,8 +1245,8 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
-                                        const VectorDouble &aic,
-                                        double delta)
+                                            const VectorDouble &aic,
+                                            double delta)
 {
   int icase = 0;
   int nvar = _getNVar();

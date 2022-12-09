@@ -50,7 +50,7 @@ Data Base Contents
      [  4,]      -0.643      -0.761
      [  5,]      -0.115      -0.284
      [  6,]      -0.212      -0.284
-(Ncols=2,Nrows=7[from 600])
+(Nrows=7[from 600])
 
 Data Base Grid Characteristics
 ==============================
@@ -65,4 +65,4 @@ Data Base Contents
      [  4,]       1.000       0.000       0.000       0.000
      [  5,]       0.000       1.000       0.000       0.000
      [  6,]       0.000       1.000       0.000       0.000
-(Ncols=4,Nrows=7[from 600])
+(Nrows=7[from 600])

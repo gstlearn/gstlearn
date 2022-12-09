@@ -14,6 +14,7 @@
 
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Law.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -1451,4 +1452,82 @@ MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble &angles,
     M.setValue(k, k,  cj * ci);
   }
   return M;
+}
+
+MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
+{
+  int np = U->getNRows();
+  int nd = U->getNCols();
+  if (np <= 0)
+  {
+    messerr("The number of samples must be positive");
+    return nullptr;
+  }
+  if (nd < 2)
+  {
+    messerr("This method requires at least 2 columns in U");
+    return nullptr;
+  }
+
+  MatrixRectangular* X = new MatrixRectangular(np, 3);
+  for (int ip = 0; ip < np; ip++)
+  {
+    double u1 = U->getValue(ip,0);
+    double u2 = U->getValue(ip,1);
+    X->setValue(ip,0, cos(2*GV_PI*u1)*sqrt(1 - u2*u2));
+    X->setValue(ip,1, sin(2*GV_PI*u1)*sqrt(1 - u2*u2));
+    X->setValue(ip,2, u2);
+  }
+  return X;
+}
+
+/**
+ * Function to compute directions in Rd
+ * @param U a matrix [n, d] of uniform values between [0,1].
+ * 'n' is the number of direction and 'd' is the dimension of the space
+ * @return A vector of a matrix [n, d] of the coordinates of the 'n' directions
+ * in the Euclidean space Rd.
+ */
+MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
+{
+  int np = U->getNRows();
+  int nd = U->getNCols();
+  if (np <= 0)
+  {
+    messerr("The number of samples must be positive");
+    return nullptr;
+  }
+  if (nd <= 0)
+  {
+    messerr("This method requires several columns in U");
+    return nullptr;
+  }
+
+  // Check that all values in U lie in [0,1] interval
+  if (U->getMinimum() < 0. || U->getMaximum() > 1.)
+  {
+    messerr("The argument 'U' must contain values lying within [0,1]");
+    return nullptr;
+  }
+
+  MatrixRectangular* Y = new MatrixRectangular(np, nd);
+  for (int ip = 0; ip < np; ip++)
+  {
+    double total = 0.;
+    for (int id = 0; id < nd; id++)
+    {
+      double value = law_invcdf_gaussian(U->getValue(ip, id));
+      Y->setValue(ip, id, value);
+      total += value * value;
+    }
+    total = sqrt(total);
+    for (int id = 0; id < nd; id++)
+    {
+      double value = Y->getValue(ip, id);
+      value /= total;
+      if (id == nd -1) value = ABS(value);
+      Y->setValue(ip, id, value);
+    }
+  }
+  return Y;
 }

@@ -24,5 +24,4 @@ public:
 
 private:
   int _level;
-
 };

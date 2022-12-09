@@ -12,9 +12,11 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
+
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
@@ -34,6 +36,58 @@ typedef struct
 static double c_b11 = 1.;
 #define COORD(i,ip)  (coord[3 * (ip) + (i)])
 #define RCOORD(i,ip) (R_coor->coor[3 * (ip) + (i)])
+
+/**
+ * Function to compute the Van der Corput sequence
+ * @param n The number of values to be computed
+ * @param b The base in which the numbers are represented
+ * @return A vector of first n values of the the Van Der Corput sequence
+ *
+ * @note The base should be a prime number
+ */
+static VectorDouble _corputVector(int n, int b)
+{
+  VectorDouble retval(n, 0.);
+
+  int L = (int) ceil(log(n-1) / log(b));
+  VectorDouble un(L,0.);
+  un[0] = 1.;
+
+  MatrixRectangular d(n, L);
+
+  if (L == 1)
+  {
+    for (int l = 0; l < n; l++)
+      retval[l] = (double) (l + 1.) / (double) b;
+  }
+  else
+  {
+    d.setValue(0, 0, 1.);
+    for (int l = 1; l < n; l++)
+    {
+      for (int p = 0; p < L; p++)
+        d.setValue(l, p, d.getValue(l-1, p) + un[p]);
+
+      for (int p = 0; p < L-1; p++)
+      {
+        if (d.getValue(l,p) == b)
+        {
+          d.setValue(l,p,0.);
+          d.setValue(l,p+1, d.getValue(l,p+1) + 1.);
+        }
+      }
+    }
+
+    for (int l = 0; l < n; l++)
+    {
+      double total = 0.;
+      for (int p = 0; p < L; p++)
+        total += d.getValue(l,p) * pow(1./b, (double) p+1.);
+      retval[l] = total;
+    }
+  }
+  return retval;
+}
 
 /*****************************************************************************/
 /*!
@@ -2874,3 +2928,57 @@ double ut_factorial(int k)
 }
 
 DISABLE_WARNING_POP
+
+/**
+ * Function to compute the vector Van der Corput sequence or the Halton sequence
+ * @param n  The number of values to be computed
+ * @param nd The dimension of output sequence
+ * @return A matrix of dimensions [n,nd] with the sequence values (between 0 and 1)
+ * @note The dimension nd should be lower or equal to 50.
+ */
+MatrixRectangular* vanDerCorput(int n, int nd)
+{
+  VectorDouble primes = { 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,
+                          73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,
+                          151,157,163,167,173,179,181,191,193,197,199,211,223,227,229
+  };
+
+  if (nd > (int) primes.size())
+  {
+    messerr("Argument 'nd' should be smaller than 50.");
+    return nullptr;
+  }
+
+  MatrixRectangular* res = new MatrixRectangular(n, nd);
+  for (int k = 0; k < nd; k++)
+  {
+    VectorDouble local = _corputVector(n, primes[k]);
+    res->setColumn(k, local);
+  }
+  return res;
+}
+
+MatrixRectangular fillLegendreMatrix(const VectorDouble &r, int legendreOrder)
+{
+  int nrow = (int) r.size();
+  int ncol = legendreOrder + 1;
+  MatrixRectangular lp(nrow, ncol);
+
+  // Initialization
+
+  for (int i = 0; i < nrow; i++)
+  {
+    lp.setValue(i, 0, 1.);
+    lp.setValue(i, 1, r[i]);
+  }
+
+  // Recursion
+
+  for (int j = 1; j < legendreOrder; j++)
+    for (int i = 0; i < nrow; i++)
+    {
+      lp.setValue(i, j+1,
+                  ((2*j+1) * r[i] * lp.getValue(i,j) - (j) * lp.getValue(i,j-1))/(j+1));
+    }
+  return lp;
+}

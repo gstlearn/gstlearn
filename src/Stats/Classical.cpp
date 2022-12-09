@@ -1462,3 +1462,44 @@ void dbStatisticsPrint(const Db *db,
   return;
 }
 
+/**
+ * Sphering procedure
+ * @param X Input Data vector
+ * @return The Sphering matrix (or nullptr if problem)
+ *
+ * @remark When performing the (forward) sphering, you must perform the following operation
+ * @remark        X <- prodMatrix(X, S)
+ */
+MatrixRectangular* sphering(const AMatrix* X)
+{
+  if (X->isEmpty()) return nullptr;
+  int nech = X->getNRows();
+  int nvar = X->getNCols();
+
+  AMatrix* TX = X->transpose();
+  AMatrix* prod = prodMatrix(TX, X);
+  prod->prodScalar(1. / (double) nech);
+
+  VectorDouble eigen_values(nvar);
+  VectorDouble eigen_vectors(nvar * nvar);
+  if (matrix_eigen(prod->getValues().data(), nvar,
+                   eigen_values.data(), eigen_vectors.data()))
+    return nullptr;
+
+  // Invert the sign of the second Eigen vector (for compatibility with R output)
+  MatrixRectangular* S = new MatrixRectangular(nvar, nvar);
+  S->setValues(eigen_vectors.data(),true);
+  for (int ivar = 0; ivar < nvar ; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      double signe = (jvar < nvar-1) ? 1 : -1;
+      S->setValue(ivar, jvar,
+                 signe * S->getValue(ivar, jvar) / sqrt(eigen_values[jvar]));
+    }
+
+  delete TX;
+  delete prod;
+
+  return S;
+}
+

@@ -11,10 +11,14 @@
 #include "geoslib_d.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/EDirGen.hpp"
+#include "Enum/EGaussInv.hpp"
+
 #include "Anamorphosis/PPMT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
@@ -31,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PPMT-");
@@ -40,19 +44,28 @@ int main(int /*argc*/, char */*argv*/[])
   OptCst::define(ECst::NTROW, 15);
   
   Db* data = Db::createFromNF("Data.ascii");
-  int nech = data->getSampleNumber();
 
-  VectorDouble XX = data->getColumns({"Y1","Y2"});
-  MatrixRectangular X(nech, 2);
-  X.setValues(XX.data(),true);
+  DbStringFormat dbfmt;
+  dbfmt.setFlags(false, false, false, true, false, false, {"U*"});
 
-  int nbpoly = 30;
-  int legendre_order = 5;
+  // Creating PPMT model
   int ndir = 10;
-  PPMT ppmt(nbpoly, ndir, legendre_order);
+  bool flagPreprocessing = false;
+  EDirGen methodDir = EDirGen::VDC;
+  EGaussInv methodTrans = EGaussInv::HMT;
+  PPMT ppmt(ndir=10, flagPreprocessing, methodDir, methodTrans);
 
+  // Fit and store the Gaussian transformed values
   int niter = 100;
-  ppmt.fit(&X, niter);
+  bool flagStoreInDb = true;
+  (void) ppmt.fit(data, {"Y*"}, flagStoreInDb, niter, false, NamingConvention("U"));
+  dbfmt.setFlags(false, false, false, true, false, false, {"U*"});
+  data->display(&dbfmt);
 
-  return(0);
+  // Back-transform
+  (void) ppmt.gaussianToRaw(data, {"U*"}, NamingConvention("V"));
+  dbfmt.setFlags(false, false, false, true, false, false, {"V*"});
+  data->display(&dbfmt);
+
+  return 0;
 }

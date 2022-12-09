@@ -367,6 +367,51 @@ double VectorHelper::correlation(const VectorDouble &veca, const VectorDouble& v
   return corr;
 }
 
+/**
+ * Calculate the quantiles
+ * @param vec    Array of values
+ * @param probas Array of probabilities (sorted by ascending order)
+ * @return Vector of data values for the different probabilities
+ */
+VectorDouble VectorHelper::quantiles(const VectorDouble &vec,
+                                     const VectorDouble &probas)
+{
+  int nproba = (int) probas.size();
+  int nech   = (int) vec.size();
+  if (nech <= 0 || nproba <= 0) return VectorDouble();
+
+  VectorDouble retval(nproba, TEST);
+
+  // Sort the data in ascending order
+  VectorDouble sorted = VH::sort(vec, true);
+
+  for (int ip = 0; ip < nproba; ip++)
+  {
+    double proba = probas[ip];
+    int rank = (int) (proba * (double) nech);
+
+    double value = TEST;
+    if (rank < 0)
+    {
+      value = TEST;
+    }
+    else if (rank < nech - 1)
+    {
+      double v1 = sorted[rank];
+      double v2 = sorted[rank + 1];
+      double p1 = (double) rank / (double) nech;
+      double p2 = (double) (1 + rank) / (double) nech;
+      value = v1 + (proba - p1) * (v2 - v1) / (p2 - p1);
+    }
+    else
+    {
+      value = sorted[nech-1];
+    }
+    retval[ip] = value;
+  }
+  return retval;
+}
+
 double VectorHelper::stdv(const VectorDouble &vec)
 {
   double var = variance(vec);
@@ -417,6 +462,77 @@ void VectorHelper::normalizeFromGaussianDistribution(VectorDouble &vec,
     if (! FFFF(vec[i]))
       vec[i] = mini + (maxi - mini) * law_cdf_gaussian(vec[i]);
   }
+}
+
+VectorDouble VectorHelper::qnormVec(const VectorDouble& vec)
+{
+  int number = (int) vec.size();
+  VectorDouble retvec(number, TEST);
+  for (int i = 0; i < number; i++)
+    retvec[i] = law_invcdf_gaussian(vec[i]);
+  return retvec;
+}
+
+VectorDouble VectorHelper::pnormVec(const VectorDouble& vec)
+{
+  int number = (int) vec.size();
+  VectorDouble retvec(number, TEST);
+  for (int i = 0; i < number; i++)
+    retvec[i] = law_cdf_gaussian(vec[i]);
+  return retvec;
+}
+
+VectorDouble VectorHelper::normalScore(const VectorDouble &data,
+                                       const VectorDouble &wt)
+{
+  int nech = (int) data.size();
+  VectorDouble vec = VectorDouble(nech, TEST);
+  if (nech <= 0) return vec;
+
+  // Check dimension of vector
+  if (! wt.empty() && nech != (int) wt.size())
+  {
+    messerr("Arguments 'data' and 'wt' should have the same dimension");
+    return VectorDouble();
+  }
+
+  // Check that weights of active samples are positive
+  double wtotal = 0.;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (FFFF(data[iech])) continue;
+
+    double wtloc = 1.;
+    if (! wt.empty()) wtloc = wt[iech];
+    if (wtloc < 0.)
+    {
+      messerr("The weight of sample (%d) is negative (%lf)", iech + 1, wtloc);
+      return VectorDouble();
+    }
+    wtotal += wtloc;
+  }
+  if (wtotal <= 0.)
+  {
+    messerr("The sum of weights of active samples is not positive");
+    return VectorDouble();
+  }
+  wtotal *= (1. + nech) / (double) nech;
+
+  // Get the list of indices sorted by increasing values of data
+  VectorInt idx = VH::orderRanks(data);
+
+  // Loop on the samples
+  double wpartial = 0.;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    int jech = idx[iech];
+    double wtloc = 1.;
+    if (! wt.empty()) wtloc = wt[jech];
+    wpartial += wtloc;
+    double z = wpartial / wtotal;
+    vec[jech] = law_invcdf_gaussian(z);
+  }
+  return vec;
 }
 
 /**
@@ -503,14 +619,26 @@ VectorInt VectorHelper::sequence(int number, int ideb)
 /**
  * Create an output vector going from 'valFrom' to 'ValTo' by step of 'valStep'
  */
-VectorDouble VectorHelper::sequence(double valFrom, double valTo, double valStep)
+
+/**
+ * Create a vector containing the a seauence of numbers
+ * @param valFrom Starting value
+ * @param valTo   Ending value
+ * @param valStep Step
+ * @param ratio   The whole sequence can be ultimately scaled by 'ratio'
+ * @return
+ */
+VectorDouble VectorHelper::sequence(double valFrom,
+                                    double valTo,
+                                    double valStep,
+                                    double ratio)
 {
   VectorDouble vec;
 
   double value = valFrom;
   while (value <= valTo)
   {
-    vec.push_back(value);
+    vec.push_back(value / ratio);
     value = value + valStep;
   }
   return vec;
@@ -721,7 +849,9 @@ void VectorHelper::divideConstant(VectorDouble &vec, double v)
   if (ABS(v) < EPSILON10)
   my_throw("division by 0");
   std::for_each(vec.begin(), vec.end(), [v](double &d)
-  { d /= v;});
+  {
+    d /= v;
+  });
 }
 
 void VectorHelper::copy(VectorDouble &veca, const VectorDouble &vecb)
@@ -828,19 +958,33 @@ VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending)
   return vecout;
 }
 
-VectorInt VectorHelper::sortRanks(const VectorDouble& vecin)
+/**
+ * Returns the permutation which rearranges the input vector into ascending order
+ * @param vecin Input vector
+ * @return Vector of orders
+ */
+VectorInt VectorHelper::orderRanks(const VectorDouble& vecin)
 {
   if (vecin.empty()) return VectorInt();
 
   VectorInt idx(vecin.size());
   for (int i = 0; i < (int) vecin.size(); i++) idx[i] = i;
 
-  // sort indexes based on comparing values in v
-  // using std::stable_sort instead of std::sort
-  // to avoid unnecessary index re-orderings
-  // when v contains elements of equal values
+  // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings when v contains elements of equal values
   stable_sort(idx.begin(), idx.end(),
        [&vecin](size_t i1, size_t i2) {return vecin[i1] < vecin[i2];});
+
+  return idx;
+}
+
+VectorInt VectorHelper::sortRanks(const VectorDouble& vecin)
+{
+  if (vecin.empty()) return VectorInt();
+
+  VectorInt order = orderRanks(vecin);
+  VectorInt idx(vecin.size());
+  for (int i = 0; i < (int) vecin.size(); i++) idx[order[i]] = i;
 
   return idx;
 }

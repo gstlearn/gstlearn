@@ -1954,7 +1954,6 @@ int Vario::getDirSize(int idir) const
 
 /**
  * Get the Asymmetrical flag
- * @return
  */
 
 void Vario::_setFlagAsym()

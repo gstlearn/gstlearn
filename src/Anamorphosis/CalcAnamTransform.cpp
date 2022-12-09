@@ -393,44 +393,9 @@ bool CalcAnamTransform::_ZToYByNormalScore()
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble data = getDb()->getColumnByLocator(ELoc::Z, ivar);
-
-    // Check that all weights are positive
-    double wtotal = 0.;
-    for (int iech = 0; iech < nech; iech++)
-    {
-      bool defined = false;
-      if (getDb()->isActive(iech) && !FFFF(data[iech]))
-      {
-        defined = true;
-        if (wt[iech] < 0.)
-        {
-          messerr("The weight of sample (%d) is negative (%lf)", iech + 1,
-                  wt[iech]);
-          return false;
-        }
-        wtotal += wt[iech];
-      }
-      if (!defined) data[iech] = TEST;
-    }
-    if (wtotal <= 0.)
-    {
-      messerr("The sum of the weights is not positive");
-      return false;
-    }
-
-    // Get the list of indices sorted by increasing values of data
-    VectorInt idx = VH::sortRanks(data);
-
-    // Loop on the samples
-    double wlocal = 0.;
-    for (int iech = 0; iech < nech; iech++)
-    {
-      int jech = idx[iech];
-      wlocal += wt[jech];
-      double z = wlocal / ((double) nech + 1.);
-      double gaus = law_invcdf_gaussian(z);
-      getDb()->setArray(iech, _iattVar + ivar, gaus);
-    }
+    VectorDouble vec = VH::normalScore(data, wt);
+    if (! vec.empty())
+      getDb()->setColumnByUID(vec, _iattVar + ivar);
   }
   return true;
 }

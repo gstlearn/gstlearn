@@ -1,0 +1,195 @@
+---
+title: "Tutorial PPM"
+author: "D. Renard, N. Desassis, X. Freulon"
+date: "December 6th 2022"
+output:
+  pdf_document: default
+  html_document: default
+  editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+OptCst_defineByKey("ASP",0)
+```
+
+# General Introduction
+
+This notebook presents an example for the PPMT algorithm.
+
+# Simulation of a reference data set
+
+We create a reference data set (lognormal distribution) based on a model that we simulate using the Turning Band algorithm.
+
+```{r simu_data_set, echo=TRUE, eval=TRUE}
+grd = DbGrid_create(x0=c(0.0,0.0), dx=c(0.01,0.01), nx=c(100,100))
+
+# Simulate two independent Gaussian Random variables
+model1 = Model_createFromParam(ECov_GAUSSIAN(), range=0.2, sill=1.0)
+err = simtub(NULL, dbout = grd, model = model1, nbsimu = 1)
+grd$setName("Simu","Y1")
+
+model2 = Model_createFromParam(ECov_EXPONENTIAL(), range=0.1, sill=1.0)
+err = simtub(NULL, dbout = grd, model = model2, nbsimu = 1)
+grd$setName("Simu","Y2")
+
+# Non linear transform
+grd["Z"] = grd["Y1"] * grd["Y1"] + 0.5 * grd["Y1"] + 0.2 * grd["Y2"]
+```
+
+## Initial dataset
+
+Two transforms are applied to the simulated variables:
+
+* a normal score transform
+
+* a lognormal transform
+
+```{r}
+# Normal transform
+grd["Y1.NS"] = VectorHelper_normalScore(grd["Y1"])
+grd["Z.NS"]  = VectorHelper_normalScore(grd["Z"])
+
+grd$deleteColumns(c("Y1","Y2","Z"))
+grd$setName("Y1.NS","Y1")
+grd$setName("Z.NS","Y2")
+
+# histograms and correlation
+plot.hist(grd, name = "Y1", title = "Y1", col = "gray", fill = "orange")
+plot.hist(grd, name = "Y2", title = "Y2", col = "gray", fill = "skyblue")
+
+plot.correlation(grd, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
+                 title = "Initial Gaussian variables (grid)")
+
+# maps
+plot.grid(grd, name = "Y1", title = "Y1")
+plot.grid(grd, name = "Y2", title = "Y2")
+
+```
+
+```{r}
+## Lognormal transform
+m_1 = 1.0; sigma_1 = 0.25
+m_2 = 0.5; sigma_2 = 0.5
+grd["Z1"] = m_1 * exp(sigma_1 * grd["Y1"] - 1/2 * sigma_1 * sigma_1 )
+grd["Z2"] = m_2 * exp(sigma_2 * grd["Y2"] - 1/2 * sigma_2 * sigma_2 )
+
+dum = grd$statistics(c("Z*","Y*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
+# histograms and correlation
+plot.hist(grd, name = "Z1", title = "Z1", col = "gray", fill = "orange")
+plot.hist(grd, name = "Z2", title = "Z2", col = "gray", fill = "skyblue")
+plot.correlation(grd, name1 = "Z1", name2 = "Z2", flagDiag = TRUE, xlab = "Z1", ylab = "Z2", 
+                 title = "Initial lognormal variables (grid)")
+
+# maps
+plot.grid(grd, name = "Z1", title = "Z1")
+plot.grid(grd, name = "Z2", title = "Z2")
+
+```
+
+## Extraction of the dataset
+
+```{r}
+nump  = 500
+data = Db_createSamplingDb(grd, number=nump, names = c("x1", "x2", "Z1", "Z2"))
+
+dum = data$statistics(c("Z*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
+# histograms and correlation
+plot.hist(data, name = "Z1", title = "Z1", col = "gray", fill = "orange")
+plot.hist(data, name = "Z2", title = "Z2", col = "gray", fill = "skyblue")
+plot.correlation(data, name1 = "Z1", name2 = "Z2", flagDiag = TRUE, xlab = "Z1", ylab = "Z2", 
+                 title = "Initial lognormal variables (data)")
+# maps
+ax = plot.grid(grd,name="Z1")
+plot.point(data, color_name = "Z1",padd = ax, title = "Initial lognormal variable - Z1")
+
+ax = plot.grid(grd,name="Z2")
+plot.point(data, color_name = "Z2",padd = ax, title = "Initial lognormal variable - Z2")
+
+```
+
+# Implementing PPMT
+
+## Computation
+
+```{r}
+nd  <- 100
+nit <- 100
+
+# normal score
+data["Z1.NS"] = VectorHelper_normalScore(data["Z1"])
+data["Z2.NS"] = VectorHelper_normalScore(data["Z2"])
+data$setName("Z1.NS","Y1")
+data$setName("Z2.NS","Y2")
+
+# Launching PPMT and fitting it on the vector of Input data
+Xmat <- data$getColumnsAsMatrix(names = c("Y1", "Y2"))
+ppmt = PPMT_create(ndir=nd, niter=nit, alpha=2., method="vdc")
+ppmt$fit(Xmat, FALSE)
+
+# scores vs. iterations
+plot(x = 1:nit, y = log(ppmt$getSerieScore(), base = 10), type = "l", col = "red", lty = 3,
+     xlab = "Iterations", ylab = "Logarithm of index", main = "Wasserstein distance")
+
+# --------------
+# results
+# --------------
+
+# adding the results to the data base
+iuid = data$addColumns(Xmat$getValues(), radix = "U")
+dum  = data$statistics(c("Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
+# Q-Q plots for initial Gaussian
+probas = (1:99)/(1+99)
+q2 = VectorHelper_qnormVec(probas)
+
+# Initial Gaussian variables
+
+# First components
+q1 = VectorHelper_quantiles(data$getColumns("Y1"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "First Intial Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+# Second components
+q1 = VectorHelper_quantiles(data$getColumns("Y2"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Intial Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
+                 title = "Initial Gaussian variables (data)")
+
+# Final Gaussian variables
+
+# First components
+q1 = VectorHelper_quantiles(data$getColumns("U-1"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "First Final Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+# Second components
+q1 = VectorHelper_quantiles(data$getColumns("U-2"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Final Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE, xlab = "U-1", ylab = "U-2", 
+                 title = "Final Gaussian variables (data)")
+
+```
+
+# Discussion and further works
+
+* other indices ?
+
+* implementations of the back transform (hermite expension or nearest neighbors
+
+* Do we need to apply a initial normal, sphering, and ppmt?
+
+# References
+
+* Rivoirard, J. (1994). Introduction to disjunctive kriging and non-linear geostatistics. Number 551.021 R626i. Clarendon Press.

@@ -905,7 +905,6 @@ void NeighWork::_resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose)
  * @param rankColCok Vector of Colocated Variables
  * @param ranks      Vector of samples already selected
  * @param iech_out   Rank of the targt site (in dbout)
- * @return
  */
 void NeighWork::_updateColCok(const VectorInt &rankColCok,
                               VectorInt &ranks,

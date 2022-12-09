@@ -1366,8 +1366,6 @@ VectorDouble FracList::fractureToWell(int nval,
 /*!
  **  Add an end point to the wellout array
  **
- **  \return New allocated wellout array
- **
  ** \param[in]  wellout      Array provided as input
  ** \param[in]  x            Ascissae of the intersection
  ** \param[in]  y            Ordinate of the intersection

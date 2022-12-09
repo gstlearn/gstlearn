@@ -770,7 +770,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
     '''
     Function for plotting a variable (referred by its name) informed in a DbGrid
 
-    dbgrid: Db, organized as a Grid, containing the variable to be plotted
+    dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
@@ -842,7 +842,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
     update_xylim(ax, xlim=xlim, ylim=ylim) 
     
     if title is None:
-        title = dbgrid.getNames(name)[0]
+        title = dbgrid.getName(name)[0]
         
     drawDecor(ax, title=title, aspect=aspect)
     
@@ -859,7 +859,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
     '''
     Function for plotting a variable (referred by its name) informed in a DbGrid
 
-    dbgrid: Db, organized as a Grid, containing the variable to be plotted
+    dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
@@ -939,7 +939,7 @@ def hist(db, name, xlabel=None, ylabel=None, title = None, ax=None,
         return None
     
     if title is None:
-        title = db.getNames(name)[0]
+        title = db.getName(name)[0]
     ax = hist_tab(val, title=title, xlabel=xlabel, ylabel=ylabel, ax=ax, figsize=figsize, end_plot=end_plot, **hist_args)
     
     return ax
@@ -1274,9 +1274,9 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
         
     if flagAxisLabel:
         if xlabel is None:
-            xlabel = db.getNames(namex)[0]
+            xlabel = db.getName(namex)[0]
         if ylabel is None:
-            ylabel = db.getNames(namey)[0]
+            ylabel = db.getName(namey)[0]
 
     drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, aspect=aspect)
     
@@ -1384,7 +1384,7 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
     '''
     Function for plotting several variables (referred by their names) informed in a grid Db in subplots (Nsubplots=Nvariables)
 
-    dbgrid: Db, organized as a Grid, containing the variable to be plotted
+    dbgrid: DbGrid containing the variable to be plotted
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)

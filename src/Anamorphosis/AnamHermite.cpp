@@ -346,7 +346,7 @@ int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
     Gy2 = law_df_gaussian(ys[icl]);
 
     for( ih=1 ; ih<nbpoly ; ih++ )
-      _psiHn[ih] += zs[icl] * (h2[ih-1]*Gy2 - h1[ih-1]*Gy1) /sqrt((double) ih);
+      _psiHn[ih] += zs[icl] * (h2[ih-1]*Gy2 - h1[ih-1]*Gy1) / sqrt((double) ih);
 
     Gy1 = Gy2;
     for( ih=0 ; ih<nbpoly ; ih++) h1[ih] = h2[ih];

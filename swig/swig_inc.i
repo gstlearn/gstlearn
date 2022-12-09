@@ -37,6 +37,8 @@
   #include "Enum/ESpaceType.hpp"
   #include "Enum/ESelectivity.hpp"
   #include "Enum/EStatOption.hpp"
+  #include "Enum/EDirGen.hpp"
+  #include "Enum/EGaussInv.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
@@ -57,7 +59,6 @@
   #include "Basic/AFunctional.hpp"
   #include "Basic/FunctionalSpirale.hpp"
   #include "Basic/Table.hpp"
-  #include "Basic/Utilities.hpp"
   #include "Basic/NamingConvention.hpp"
   #include "Basic/OptDbg.hpp"
   #include "Basic/OptCst.hpp"
@@ -68,6 +69,7 @@
   #include "Basic/FFT.hpp"
   #include "Basic/PolyLine2D.hpp"
   #include "Basic/Law.hpp"
+  #include "Basic/MathFunc.hpp"
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"

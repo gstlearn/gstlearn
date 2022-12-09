@@ -186,6 +186,8 @@ public:
                  const VectorInt& icols,
                  const VectorDouble& values);
   double getMeanByColumn(int icol) const;
+  double getMinimum() const;
+  double getMaximum() const;
 
 #ifndef SWIG
   /*! Get value operator override */
@@ -241,3 +243,4 @@ private:
 GSTLEARN_EXPORT AMatrix* createIdentity(int nrow, bool sparse);
 GSTLEARN_EXPORT AMatrix* transpose(const AMatrix* mat);
 GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
+GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);

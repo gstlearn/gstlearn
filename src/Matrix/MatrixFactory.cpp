@@ -99,8 +99,7 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
  ** \param[in]  y          Second AMatrix matrix
  **
  *****************************************************************************/
-AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare* x,
-                                        const AMatrix* y)
+AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare *x, const AMatrix *y)
 {
   if (x->getNCols() != y->getNRows())
   {
@@ -157,7 +156,7 @@ AMatrix* MatrixFactory::createIdentity(int nrow, bool sparse)
  ** \param[in]  nrow       Number of rows
  **
  *****************************************************************************/
-AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare* x,
+AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
                                                  int nrow)
 {
   /// TODO : use typeinfo

@@ -327,8 +327,6 @@ void CalcSimuEden::_printParams(bool verbose)
 /*!
  **  Allocate the Eden_Stats structure
  **
- ** \return  Pointer to the allocated Eden_Stats structure (or NULL)
- **
  *****************************************************************************/
 void CalcSimuEden::_statsDefine(void)
 
