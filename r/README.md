@@ -180,7 +180,7 @@ cd gstlearn
 2. Then, these instructions will compile and install the *gstlearn* R package in your usual R libraries directory:
 
 ````
-cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -H. -DBUILD_R=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target r_install
 ````
 
@@ -190,6 +190,7 @@ or even faster:
 
 Note :
 
+* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command above (at least one time). This will create a *personal R library folder* having writing permissions.
 
 ### Execute Non-regression Tests
