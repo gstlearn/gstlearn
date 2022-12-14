@@ -20,6 +20,7 @@ class Db;
 class DbGrid;
 class KrigingSystem;
 
+// TODO : Create KrigingParam which inherits from InterpolatorParam
 class GSTLEARN_EXPORT CalcKriging: public ACalcInterpolator
 {
 public:

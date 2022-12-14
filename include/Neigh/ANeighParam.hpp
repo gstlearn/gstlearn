@@ -21,6 +21,7 @@
 
 class Db;
 
+// TODO : Inherits from ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
 class GSTLEARN_EXPORT ANeighParam: public ASpaceObject, public ASerializable
 {
 public:

@@ -105,6 +105,7 @@ Note:
 
 Notes:
 
+* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
 * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
@@ -167,7 +168,7 @@ Download and install the following tools using default options during installati
 
 Notes:
 
-* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder in the *Path* variable and restart Windows)
+* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder (ex: `C:\Program Files\doxygen\bin`) in the *Path* System variable and restart Windows)
 * You must restart your computer after installing these requirements
 
 ### Windows - MinGW (via RTools):
@@ -272,9 +273,10 @@ or faster:
 
 The Doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
+    cmake -Bbuild -H. -DBUILD_DOXYGEN=ON
     cmake --build build --target doxygen
 
-or faster:
+or faster (for Makefile user):
 
     make doxygen
 

@@ -606,7 +606,7 @@ int xvalid(Db *db,
 /*!
  **  Check the Neighborhood
  **
- ** \return  Error return code
+ ** \return  Error return code (0: success, 1: error)
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure

@@ -23,6 +23,7 @@ class DbGrid;
 /**
  * Experimental Variogram calculation direction parameters TODO : to be improved
  */
+// TODO : Inherits from ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
 class GSTLEARN_EXPORT DirParam : public ASpaceObject
 {
 public:

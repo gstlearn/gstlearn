@@ -70,7 +70,7 @@ Style::~Style()
 /**
  * A method with standard argument documentation
  *
- * \param myArg Here should be placed the description of this argument
+ * \param[in] myArg Here should be placed the description of this argument
  *
  * \return Description of the returned value
  */
@@ -88,7 +88,7 @@ int Style::DocumentedStandard(int myArg) const
  *
  * \see SpaceRN::getDistance
  *
- * \param myArg Here should be placed the description of this argument
+ * \param[in] myArg Here should be placed the description of this argument
  *
  * \return The value of the argument + 1
  */
@@ -101,8 +101,8 @@ int Style::DocumentedWithFormula(int myArg) const
 /**
  * Description of a static function
  *
- * \param myArgInt Integer argument
- * \param myArgDoubleDef Double argument
+ * \param[in] myArgInt Integer argument
+ * \param[in] myArgDoubleDef Double argument
  */
 void Style::myFunction(int myArgInt, double myArgDoubleDef)
 {
@@ -113,7 +113,7 @@ void Style::myFunction(int myArgInt, double myArgDoubleDef)
 /**
  * A function where the argument is not used (could be the case in abstract methods)
  *
- * \param a Input argument not used (but documented)
+ * \param[in] a Input argument not used (but documented)
  *
  * \return Error returned code
  */
@@ -128,7 +128,7 @@ int Style::UnusedArgument(int a)
 /**
  *  Example of a private method
  *
- *  \param arg Input integer argument
+ *  \param[in] arg Input integer argument
  *
  *  \return The input argument incremented
  */
