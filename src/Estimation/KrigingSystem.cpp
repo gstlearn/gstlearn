@@ -1367,7 +1367,7 @@ void KrigingSystem::_simulateCalcul(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateCalcul(int status)
 {
-  int nech   = getNech();
+  int nech   =  getNech();
   int nfeq   = _getNFeq();
   int nvarCL = _getNVarCL();
 
@@ -1383,16 +1383,9 @@ void KrigingSystem::_estimateCalcul(int status)
       if (status == 0 && (_nred > 0 || nfeq <= 0 || _flagBayes))
       {
         if (_flagBayes)
-          estim = _model->_evalDriftCoef(_dbout, _iechOut, ivarCL,
-                                         _postMean.data());
+          estim = _model->_evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
         for (int i = 0; i < _nred; i++)
           estim += _getRHSC(i,ivarCL) * _zam[i];
-
-        if (_neighParam->getFlagXvalid() && _xvalidEstim)
-        {
-          double valdat = _dbin->getVariable(_iechOut, ivarCL);
-          estim = (FFFF(valdat)) ? TEST : estim - valdat;
-        }
       }
       else
       {
@@ -1415,12 +1408,6 @@ void KrigingSystem::_estimateCalcul(int status)
         stdv = _variance(ivarCL, ivarCL);
         if (stdv < 0) stdv = 0.;
         stdv = sqrt(stdv);
-
-        if (_neighParam->getFlagXvalid() && _xvalidStdev)
-        {
-          double estim = _dbout->getArray(_iechOut, _iptrEst + ivarCL);
-          stdv = (FFFF(estim) || stdv <= 0.) ? TEST : estim / stdv;
-        }
       }
       _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
     }
@@ -1436,6 +1423,40 @@ void KrigingSystem::_estimateCalcul(int status)
       if (status == 0 && (_nred > 0 || nfeq <= 0))
         varZ = _estimateVarZ(ivarCL, ivarCL);
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
+    }
+  }
+
+  // Modification specific to Xvalid options
+
+  if (_neighParam->getFlagXvalid())
+  {
+    for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
+    {
+      double valdat = _dbin->getVariable(_iechOut, ivarCL);
+      double estim  = (_flagEst) ? _dbout->getArray(_iechOut, _iptrEst + ivarCL) : TEST;
+      double stdv   = (_flagStd) ? _dbout->getArray(_iechOut, _iptrStd + ivarCL) : TEST;
+
+      // Modification of Estimation
+
+      if (_flagEst)
+      {
+        if (_xvalidEstim)
+        {
+          estim = (FFFF(valdat)) ? TEST : estim - valdat;
+          _dbout->setArray(_iechOut, _iptrEst + ivarCL, estim);
+        }
+      }
+
+      // Modification of Standard Deviation
+
+      if (_flagStd)
+      {
+        if (_xvalidStdev)
+        {
+          stdv = (FFFF(estim) || FFFF(valdat) || stdv <= 0.) ? TEST : (estim - valdat) / stdv;
+          _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
+        }
+      }
     }
   }
 
@@ -1560,33 +1581,36 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
   // Do not process as this sample is either masked or its variable undefined
   if (iiech < 0) return;
 
-  double trueval = _dbin->getVariable(iech, 0);
-  if (! FFFF(trueval))
+  double valdat = _dbin->getVariable(iech, 0);
+  if (! FFFF(valdat))
   {
     double variance = 1. / _getLHSINV(iiech, 0, iiech, 0);
     double stdv = sqrt(variance);
 
     /* Perform the estimation */
 
-    double value = (_xvalidEstim) ? -trueval : 0.;
+    double valest = 0.;
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
       if (iiech != jjech)
-        value -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getVariable(jech, 0);
+        valest -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getVariable(jech, 0);
       jjech++;
     }
 
-    if (_flagEst) _dbin->setArray(iech, _iptrEst, value);
+    if (_flagEst)
+    {
+      if (_xvalidEstim) valest -= valdat;
+      _dbin->setArray(iech, _iptrEst, valest);
+    }
     if (_flagStd)
     {
-      if (_xvalidStdev) stdv = value / stdv;
+      if (_xvalidStdev) stdv = (valest - valdat) / stdv;
       _dbin->setArray(iech, _iptrStd, stdv);
     }
     if (_flagVarZ)
     {
-      // TODO Do something
       _dbin->setArray(iech, _iptrVarZ, TEST);
     }
   }

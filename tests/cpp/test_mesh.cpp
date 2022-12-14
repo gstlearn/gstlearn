@@ -145,6 +145,11 @@ int main(int /*argc*/, char */*argv*/[])
   else
     shiftop.initFromMesh(meshb,model,NULL,0,0,verbose);
   
+  // External meshing
+
+  String filetri = ASerializable::getTestData("Meshings","cow_mesh.npy");
+  String filepts = ASerializable::getTestData("Meshings","cow_points.txt");
+
   message("Test performed successfully\n");
 
   return(0);

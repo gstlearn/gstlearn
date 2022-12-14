@@ -56,6 +56,8 @@ public:
   int getNRows() const { return _nRows; }
   void setNRows(int rows) { _nRows = rows; }
 
+  static MatrixInt* createFromVVD(const VectorVectorInt& X);
+
 private:
   int    _getIndexToRank(int irow,int icol) const;
   void   _allocate();

@@ -24,22 +24,47 @@ def getCscale():
         ]
     return cscale
 
-def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='lightpink', 
-                  opacity=0.50):
+def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white', 
+                  opacity=0.50, showlegend=False):
     
     tab = np.array(mesh.getEmbeddedApexCoordinates())
-    meshes = np.array(mesh.getMeshes())-1
+    meshes = np.array(mesh.getMeshesAsVVI())
     
     if cscale is None:
         cscale = getCscale()
     
     if intensity is None:
         intensity = np.zeros(mesh.getNApices())
+    else:
+        if type(intensity) == gl.VectorDouble:
+            intensity = np.array(intensity.getVector())
 
     surface = go.Mesh3d(x=tab[0,:], y=tab[1,:], z=tab[2,:], 
-                        color=color, colorbar_title='z', intensity=intensity,
+                        color=color, colorbar_title='z', name='y',
                         i=meshes[:,0],j=meshes[:,1],k=meshes[:,2],
-                        name='y', colorscale=cscale, showscale=False)
+                        colorscale=cscale, intensity=intensity,
+                        opacity=opacity, showscale=showlegend)
+
+    return surface
+    
+def ScatterOnMesh(points, meshes, intensity=None, cscale=None, color='white', 
+                  opacity=0.50, showlegend=False):
+    
+    napices = meshes.shape[0]
+    if cscale is None:
+        cscale = getCscale()
+    
+    if intensity is None:
+        intensity = np.zeros(napices)
+    else:
+        if type(intensity) == gl.VectorDouble:
+            intensity = np.array(intensity.getVector())
+
+    surface = go.Mesh3d(x=points[:,0], y=points[:,1], z=points[:,2], 
+                        color=color, colorbar_title='z', name='y',
+                        i=meshes[:,0],j=meshes[:,1],k=meshes[:,2],
+                        colorscale=cscale, intensity=intensity,
+                        opacity=opacity, showscale=showlegend)
 
     return surface
     

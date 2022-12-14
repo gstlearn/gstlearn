@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -18,8 +17,10 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
+
 #include "csparse_f.h"
 
 MeshSpherical::MeshSpherical(const MatrixRectangular& apices, const MatrixInt& meshes)
@@ -100,72 +101,6 @@ String MeshSpherical::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-/****************************************************************************/
-/*!
-** Create the meshing
-**
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-** \param[in]  triswitch       Construction switch
-** \param[in]  verbose         Verbose flag
-**
-*****************************************************************************/
-int MeshSpherical::resetFromDb(Db *dbin,
-                               Db *dbout,
-                               const String &triswitch,
-                               int verbose)
-{
-  SphTriangle in;
-
-  /* Initializations */
-
-  int ndim_ref = 2;
-
-  /* Define the environment */
-
-  _setNDim(ndim_ref);
-
-  /* Initialize the Meshing output structure */
-  
-  meshes_2D_sph_init(&in);
-
-  /* Set the control points for the triangulation */
-
-  if (dbout != nullptr)
-  {
-    if (meshes_2D_sph_from_db(dbout,&in)) return 1;
-  }
-  if (dbin != nullptr)
-  {
-    if (meshes_2D_sph_from_db(dbin,&in)) return 1;
-  }
-
-  /* Add auxiliary random points */
-
-  if (meshes_2D_sph_from_auxiliary(triswitch.c_str(),&in)) return 1;
-  
-  /* Perform the triangulation */
-
-  if (meshes_2D_sph_create(verbose,&in)) return 1;
-
-  /* Final meshing */
-
-  MeshEStandard* ameshSt = meshes_2D_sph_load_vertices(&in);
-  _meshes = ameshSt->getMeshes();
-  _apices = ameshSt->getApices();
-  
-  /* Define and store the Bounding Box extension */
-
-  _defineBoundingBox();
-
-  // Optional printout
-  
-  if (verbose) messageFlush(toString());
-
-  meshes_2D_sph_free(&in,0);
-  return 0;
-}
-
 /**
  * Create a MeshSpherical by loading the contents of a Neutral File
  *
@@ -194,6 +129,53 @@ MeshSpherical* MeshSpherical::create(const MatrixRectangular &apices,
                                      const MatrixInt &meshes)
 {
   return new MeshSpherical(apices, meshes);
+}
+
+/****************************************************************************/
+/*!
+** Create the meshing (from mesh information)
+**
+** \param[in]  ndim            Space Dimension
+** \param[in]  napexpermesh    Number of apices per mesh
+** \param[in]  apices          Vector of Apex information
+** \param[in]  meshes          Vector of mesh indices
+** \param[in]  byCol           true for Column major; false for Row Major
+** \param[in]  verbose         Verbose flag
+**
+** \remark The argument 'byCol' concerns 'apices' and 'meshes'
+**
+*****************************************************************************/
+int MeshSpherical::reset(int ndim,
+                         int napexpermesh,
+                         const VectorDouble &apices,
+                         const VectorInt &meshes,
+                         bool byCol,
+                         bool verbose)
+{
+  _setNDim(ndim);
+  int npoints = static_cast<int> (apices.size()) / ndim;
+  int nmeshes = static_cast<int> (meshes.size()) / napexpermesh;
+
+  // Core allocation
+
+  _apices.reset(npoints,ndim);
+  _apices.setValues(apices, byCol);
+  _meshes.reset(nmeshes,napexpermesh);
+  _meshes.setValues(meshes, byCol);
+
+  // Check consistency
+
+  _checkConsistency();
+
+  // Define and store the Bounding Box extension
+
+  _defineBoundingBox();
+
+  // Optional printout
+
+  if (verbose) messageFlush(toString());
+
+  return(0);
 }
 
 /****************************************************************************/
@@ -518,3 +500,21 @@ bool MeshSpherical::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
   return ret;
 }
+
+/**
+ * This function checks the consistency between the number of points
+ * and the vertices indication
+ */
+void MeshSpherical::_checkConsistency() const
+{
+  for (int imesh = 0; imesh < getNMeshes(); imesh++)
+    for (int ic = 0; ic < getNApexPerMesh(); ic++)
+    {
+      int apex = getApex(imesh, ic);
+      if (apex < 0 || apex >= getNApices())
+      {
+        my_throw("Mesh indices are not compatible with the Points");
+      }
+    }
+}
+

@@ -16,7 +16,6 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Db/Db.hpp"
-#include "Mesh/tetgen.h"
 #include "Basic/VectorHelper.hpp"
 
 #include "csparse_f.h"
@@ -82,74 +81,6 @@ double MeshEStandard::getMeshSize(int imesh) const
 {
   VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
   return _getMeshUnit(corners);
-}
-
-/****************************************************************************/
-/*!
-** Create the meshing
-**
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-** \param[in]  dilate          Dilation of the Bounding box (optional)
-** \param[in]  triswitch       Construction switch
-** \param[in]  verbose         Verbose flag
-**
-*****************************************************************************/
-int MeshEStandard::resetFromDb(Db* dbin,
-                               Db* dbout,
-                               const VectorDouble& dilate,
-                               const String& triswitch,
-                               bool verbose)
-{
-  int error = 1;
-
-  // Discover the space dimension
-  int ndim = 0;
-  if (dbin != NULL)
-    ndim = dbin->getNDim();
-  if (dbout != NULL)
-  {
-    if (ndim > 0 && ndim != dbout->getNDim())
-      my_throw("'dbin' and 'dbout' are both defined but with different 'ndim'");
-    ndim = dbout->getNDim();
-  }
-  _setNDim(ndim);
-
-  // Preliminary checks 
-
-  if (! dilate.empty())
-  {
-    for (int idim=0; idim<ndim; idim++)
-      if (dilate[idim] < 0)
-      {
-        messerr("The dilation[%d] is negative",idim+1);
-        return(1);
-      }
-  }
-
-  // Dispatch according to Space Dimension
-
-  if (ndim == 1)
-    error = _create1D(verbose,dbin,dbout,dilate);
-  else if (ndim == 2)
-    error = _create2D(verbose,dbin,dbout,dilate,triswitch.c_str());
-  else if (ndim == 3)
-    error = _create3D(verbose,dbin,dbout,dilate,triswitch.c_str());
-  else
-  {
-    messerr("Meshing is only provided for Space Dimension 1, 2 or 3");
-  }
-  if (error) return(error);
-  
-  // Define and store the Bounding Box extension
-
-  _defineBoundingBox();
-
-  // Optional printout
-  
-  if (verbose) messageFlush(toString());
-
-  return(error);
 }
 
 int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
@@ -541,185 +472,6 @@ VectorDouble MeshEStandard::getPointList(bool byCol) const
   return list;
 }
 
-/****************************************************************************/
-/*!
-** Create the meshing in 1D
-**
-** \param[in]  verbose         Verbose flag
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-** \param[in]  dilate          Dilation of the Bounding box (optional)
-**
-*****************************************************************************/
-int MeshEStandard::_create1D(int                 verbose,
-                             Db*                 dbin,
-                             Db*                 dbout,
-                             const VectorDouble& dilate)
-{
-  segmentio in, out;
-
-  /* Initialize the Meshing structure */
-  
-  meshes_1D_init(&in);
-  meshes_1D_init(&out);
-  
-  /* Set the control points for the triangulation */
-  
-  bool flag_defined = false;
-  if (dbout != nullptr)
-  {
-    if (meshes_1D_from_db(dbout,&in)) return 1;
-    flag_defined = true;
-  }
-  if (dbin != nullptr)
-  {
-    if (meshes_1D_from_db(dbin,&in)) return 1;
-    flag_defined = true;
-  }
-  if (! flag_defined)
-  {
-    meshes_1D_default(dbin,dbout,&in);
-    flag_defined = 1;
-  }
-  
-  /* Extend the domain if 'dilate' is specified */
-  
-  if (dbout != nullptr && ! dilate.empty())
-    meshes_1D_extended_domain(dbout,dilate.data(),&in);
-  
-  /* Perform the triangulation */
-  
-  meshes_1D_create(verbose,&in,&out);
-  
-  /* Create the final meshing */
-  
-  reset(1, 2, out.numberofpoints, out.numberofsegments, out.pointlist,
-                out.segmentlist);
-
-  meshes_1D_free(&in,1);
-  meshes_1D_free(&out,0);
-  return 0;
-}
-
-/****************************************************************************/
-/*!
-** Create the meshing in 2D
-**
-** \param[in]  verbose         Verbose flag
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-** \param[in]  dilate          Dilation of the Bounding box (optional)
-** \param[in]  triswitch       Construction switch
-**
-*****************************************************************************/
-int MeshEStandard::_create2D(int                 verbose,
-                             Db*                 dbin,
-                             Db*                 dbout,
-                             const VectorDouble& dilate,
-                             const char*         triswitch)
-{
-  triangulateio in, out, vorout;
-
-  /* Initialize the Meshing structure */
-  
-  meshes_2D_init(&in);
-  meshes_2D_init(&out);
-  meshes_2D_init(&vorout);
-  
-  /* Set the control points for the triangulation */
-
-  bool flag_defined = false;
-  if (dbout != nullptr)
-  {
-    if (meshes_2D_from_db(dbout,1,&in)) return 1;
-    flag_defined = true;
-  }
-  if (dbin != nullptr)
-  {
-    if (meshes_2D_from_db(dbin,1, &in)) return 1;
-    flag_defined = true;
-  }
-  if (! flag_defined)
-  {
-    meshes_2D_default(dbin,dbout,&in);
-    flag_defined = 1;
-  }
-  
-  /* Extend the domain if 'dilate' is specified */
-  
-  if (dbout != nullptr && ! dilate.empty())
-    meshes_2D_extended_domain(dbout,dilate.data(),&in);
-  
-  /* Perform the triangulation */
-  
-  meshes_2D_create(verbose,triswitch,&in,&out,&vorout);
-  
-  /* Coordinates of the triangle vertices */
-  
-  reset(2, 3, out.numberofpoints, out.numberoftriangles, out.pointlist,
-        out.trianglelist, false);
-
-  meshes_2D_free(&in,1);
-  meshes_2D_free(&out,0);
-  meshes_2D_free(&vorout,0);
-  return 0;
-}
-
-/****************************************************************************/
-/*!
-** Create the meshing in 3D
-**
-** \param[in]  verbose         Verbose flag
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-** \param[in]  dilate          Dilation of the Bounding box (optional)
-** \param[in]  triswitch       Construction switch
-**
-*****************************************************************************/
-int MeshEStandard::_create3D(int                 verbose,
-                             Db*                 dbin,
-                             Db*                 dbout,
-                             const VectorDouble& dilate,
-                             const char*         triswitch)
-{
-  tetgenio in, out;
-
-  /* Set the control points for the tetrahedralization */
-
-  bool flag_defined = false;
-  if (dbout != nullptr)
-  {
-    if (meshes_3D_from_db(dbout,&in)) return 1;
-    flag_defined = true;
-  }
-  if (dbin != nullptr)
-  {
-    if (meshes_3D_from_db(dbin,&in)) return 1;
-    flag_defined = true;
-  }
-  if (! flag_defined)
-    meshes_3D_default(dbin,dbout,&in);
-
-  /* Extend the domain if 'dilate' is specified */
-
-  if (dbout != nullptr && ! dilate.empty())
-    meshes_3D_extended_domain(dbout,dilate.data(),&in);
-
-  /* Perform the tetrahedralization */
-
-  meshes_3D_create(verbose,triswitch,&in,&out);
-
-  /* Coordinates of the vertices */
-
-  reset(3, 4, out.numberofpoints, out.numberoftetrahedra, out.pointlist,
-                out.tetrahedronlist);
-
-
-  meshes_3D_free(&in);
-  meshes_3D_free(&out);
-  return 0;
-}
-
 double MeshEStandard::getApexCoor(int i, int idim) const
 {
   return _apices(i, idim);
@@ -732,37 +484,6 @@ VectorDouble MeshEStandard::_defineUnits(void) const
   for (int imesh=0; imesh<nmeshes; imesh++)
     units[imesh ] = getMeshSize(imesh);
   return units;
-}
-
-void MeshEStandard::_defineBoundingBox(void)
-{
-  VectorDouble extendmin, extendmax;
-  double coor,mini,maxi;
-  int ndim = getNDim();
-
-  // Initializations
-  extendmin.resize(ndim);
-  extendmax.resize(ndim);
-
-  // Loop on the Space dimensions
-  for (int idim=0; idim<ndim; idim++)
-  {
-    mini =  1.e30;
-    maxi = -1.e30;
-
-    // Loop on the apices
-    for (int i=0; i<getNApices(); i++)
-    {
-      coor = getApexCoor(i,idim);
-      if (coor < mini) mini = coor;
-      if (coor > maxi) maxi = coor;
-    }
-    extendmin[idim] = mini;
-    extendmax[idim] = maxi;
-  }
-
-  // Store the Bounding Box extension
-  (void) _setExtend(extendmin,extendmax);
 }
 
 /****************************************************************************/
@@ -951,8 +672,9 @@ void MeshEStandard::_checkConsistency() const
     }
 }
 
-bool MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
+bool MeshEStandard::_deserialize(std::istream& is, bool verbose)
 {
+  SYMBOL_UNUSED(verbose);
   int ndim = 0;
   int napices = 0;
   int napexpermesh = 0;
@@ -1028,5 +750,36 @@ void MeshEStandard::_validate()
       for (int ic = 0; ic < ncorner; ic++)
         _setApex(imesh, ic, getApex(imesh, ic) - shift_min);
   }
+}
+
+void MeshEStandard::_defineBoundingBox(void)
+{
+  VectorDouble extendmin, extendmax;
+  double coor,mini,maxi;
+  int ndim = getNDim();
+
+  // Initializations
+  extendmin.resize(ndim);
+  extendmax.resize(ndim);
+
+  // Loop on the Space dimensions
+  for (int idim=0; idim<ndim; idim++)
+  {
+    mini =  1.e30;
+    maxi = -1.e30;
+
+    // Loop on the apices
+    for (int i=0; i<getNApices(); i++)
+    {
+      coor = getApexCoor(i,idim);
+      if (coor < mini) mini = coor;
+      if (coor > maxi) maxi = coor;
+    }
+    extendmin[idim] = mini;
+    extendmax[idim] = maxi;
+  }
+
+  // Store the Bounding Box extension
+  (void) _setExtend(extendmin,extendmax);
 }
 

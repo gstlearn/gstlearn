@@ -157,16 +157,15 @@ VectorString generateMultipleNames(const String &radix, int number, const String
  * Check that the names in 'list' are not conflicting with any previous name.
  * If it does, increment its name by a version number.
  * @param list
- * @return Number of items whose names are modified
  */
-int correctNamesForDuplicates(VectorString &list)
+void correctNamesForDuplicates(VectorString &list)
 {
-  int numberRenamed = 0;
   int number = static_cast<int>(list.size());
   for (int i = 1; i < number; i++)
   {
     // Check that a similar name does not appear among the previous names in list
 
+    label_try:
     int found = -1;
     for (int j = 0; j < i && found < 0; j++)
     {
@@ -174,13 +173,11 @@ int correctNamesForDuplicates(VectorString &list)
     }
     if (found < 0) continue;
 
-    // We have found a similar name
+    // We have found a similar name. Modify it as long as it matches an already existing name
 
-    while (list[found].compare(list[i]) == 0)
-      list[i] = incrementStringVersion(list[i]);
-    numberRenamed++;
+    list[i] = incrementStringVersion(list[i]);
+    goto label_try;
   }
-  return numberRenamed;
 }
 
 void correctNewNameForDuplicates(VectorString &list, int rank)

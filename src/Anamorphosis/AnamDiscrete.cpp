@@ -73,6 +73,9 @@ void AnamDiscrete::_resize()
 String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+
+  if (! _isFitted()) return sstr.str();
+
   sstr << "Number of cutoffs = " << _nCut << std::endl;
   sstr << "Number of classes = " << getNClass() << std::endl;
   if (! FFFF(_mean))

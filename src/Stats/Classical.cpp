@@ -417,10 +417,9 @@ VectorDouble dbStatisticsMono(Db *db,
                               double vmin,
                               double vmax)
 {
-  VectorInt iatts = db->getUIDs(names);
-  return dbStatisticsMono(db, iatts, opers, flagIso, proba, vmin, vmax);
+  VectorInt iuids = db->getUIDs(names);
+  return dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
 }
-
 
 /****************************************************************************/
 /*!
@@ -437,13 +436,13 @@ VectorDouble dbStatisticsMono(Db *db,
  ** \param[in]  vmax       Maximum threshold
  **
  *****************************************************************************/
-VectorDouble dbStatisticsMono(Db *db,
-                              const VectorInt &iatts,
-                              const std::vector<EStatOption>& opers,
-                              bool flagIso,
-                              double proba,
-                              double vmin,
-                              double vmax)
+VectorDouble dbStatisticsMonoByUID(Db *db,
+                                   const VectorInt &iatts,
+                                   const std::vector<EStatOption> &opers,
+                                   bool flagIso,
+                                   double proba,
+                                   double vmin,
+                                   double vmax)
 {
   int noper = static_cast<int>(opers.size());
   int natt = static_cast<int>(iatts.size());

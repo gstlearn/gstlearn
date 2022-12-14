@@ -4091,7 +4091,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
   }
   else
   {
-    stats = dbStatisticsMono(this, iuids, opers, flagIso, proba, vmin, vmax);
+    stats = dbStatisticsMonoByUID(this, iuids, opers, flagIso, proba, vmin, vmax);
 
     if (verbose)
     {

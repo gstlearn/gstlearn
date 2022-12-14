@@ -47,7 +47,7 @@ GSTLEARN_EXPORT int decodeInList(const VectorString &symbols,
                                  int *rank,
                                  int *facies,
                                  bool caseSenstive = true);
-GSTLEARN_EXPORT int correctNamesForDuplicates(VectorString &list);
+GSTLEARN_EXPORT void correctNamesForDuplicates(VectorString &list);
 GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank);
 
 GSTLEARN_EXPORT String incrementStringVersion(const String &string,

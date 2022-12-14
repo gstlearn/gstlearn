@@ -8,11 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
+#include "Enum/ELoadBy.hpp"
 
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -29,10 +30,10 @@
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Mesh/tetgen.h"
 #include "Mesh/AMesh.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 #include "csparse_f.h"
 #include "csparse_d.h"
@@ -261,22 +262,6 @@ SPDE_Option spde_option_alloc(void)
   SPDE_Option s_option;
   s_option.options = std::vector<SPDE_SS_Option>();
   return s_option;
-}
-
-/****************************************************************************/
-/*!
- **  Get the current value for triswitch parameter
- **
- ** \param[in]  s_option   SPDE_Option structure
- **
- *****************************************************************************/
-static String st_get_current_triswitch(SPDE_Option &s_option)
-{
-  int rank_cov = SPDE_CURRENT_ICOV;
-  int noption = static_cast<int>(s_option.options.size());
-  int rank = MIN(rank_cov, noption - 1);
-  String triswitch = s_option.options[rank].triswitch;
-  return (triswitch);
 }
 
 /****************************************************************************/
@@ -5397,238 +5382,6 @@ int spde_process(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Load the segments and vertex coordinates
- **
- ** \return  AMesh structure
- **
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  gext       Array of domain dilation
- **
- *****************************************************************************/
-static AMesh* st_load_meshes_1D(int /*verbose*/,
-                                Db *dbin,
-                                Db *dbout,
-                                const VectorDouble &gext)
-{
-  segmentio in, out;
-
-  /* Initialize the Meshing output structure */
-
-  meshes_1D_init(&in);
-  meshes_1D_init(&out);
-
-  /* Set the control points for the triangulation */
-
-  if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
-  {
-    if (meshes_1D_from_db(dbout, &in)) return nullptr;
-  }
-  if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
-  {
-    if (meshes_1D_from_db(dbin, &in)) return nullptr;
-  }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) &&
-      !(dbout != nullptr && S_DECIDE.flag_mesh_dbout))
-  {
-    meshes_1D_default(dbin, dbout, &in);
-  }
-
-  /* Extend the domain if gext is specified */
-
-  if (!gext.empty())
-  {
-    meshes_1D_extended_domain(dbout, gext.data(), &in);
-  }
-
-  /* Perform the triangulation */
-
-  meshes_1D_create(VERBOSE, &in, &out);
-
-  /* Create the final meshing */
-
-  AMesh* amesh = meshes_1D_load_vertices(&out);
-
-  /* Set the error return code */
-
-  meshes_1D_free(&in, 1);
-  meshes_1D_free(&out, 0);
-  return amesh;
-}
-
-/****************************************************************************/
-/*!
- **  Load the triangles and vertex coordinates
- **
- ** \return  AMesh structure
- **
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  gext       Array of domain dilation
- ** \param[in]  s_option   SPDE_Option structure
- **
- *****************************************************************************/
-static AMesh* st_load_meshes_2D(int /*verbose*/,
-                                Db *dbin,
-                                Db *dbout,
-                                const VectorDouble &gext,
-                                SPDE_Option &s_option)
-{
-  triangulateio in, out, vorout;
-
-  /* Initialize the Meshing output structure */
-
-  meshes_2D_init(&in);
-  meshes_2D_init(&out);
-  meshes_2D_init(&vorout);
-
-  /* Set the control points for the triangulation */
-
-  if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
-  {
-    if (meshes_2D_from_db(dbout, 1, &in)) return nullptr;
-  }
-  if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
-  {
-    if (meshes_2D_from_db(dbin, 1, &in)) return nullptr;
-  }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
-      && S_DECIDE.flag_mesh_dbout))
-  {
-    meshes_2D_default(dbin, dbout, &in);
-  }
-
-  /* Extend the domain if gext is specified */
-
-  if (!gext.empty())
-  {
-    meshes_2D_extended_domain(dbout, gext.data(), &in);
-  }
-
-  /* Perform the triangulation */
-
-  meshes_2D_create(VERBOSE, st_get_current_triswitch(s_option), &in, &out,
-                   &vorout);
-
-  /* Create the final meshing */
-
-  AMesh* amesh = meshes_2D_load_vertices(&out);
-
-  meshes_2D_free(&in, 1);
-  meshes_2D_free(&out, 0);
-  meshes_2D_free(&vorout, 0);
-  return amesh;
-}
-
-/****************************************************************************/
-/*!
- **  Load the spherical triangles and vertex coordinates
- **
- ** \return  The newly created AMesh structure
- **
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  s_option   SPDE_Option structure
- **
- *****************************************************************************/
-static AMesh* st_load_meshes_2D_sph(int /*verbose*/,
-                                    Db *dbin,
-                                    Db *dbout,
-                                    SPDE_Option &s_option)
-{
-  SphTriangle in;
-
-  /* Initialize the Meshing output structure */
-
-  meshes_2D_sph_init(&in);
-
-  /* Set the control points for the triangulation */
-
-  if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
-  {
-    if (meshes_2D_sph_from_db(dbout, &in)) return nullptr;
-  }
-  if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
-  {
-    if (meshes_2D_sph_from_db(dbin, &in)) return nullptr;
-  }
-
-  /* Add auxiliary random points */
-
-  if (meshes_2D_sph_from_auxiliary(st_get_current_triswitch(s_option), &in))
-    return nullptr;
-
-  /* Perform the triangulation */
-
-  if (meshes_2D_sph_create(VERBOSE, &in)) return nullptr;
-
-  /* Final meshing */
-
-  AMesh* amesh = meshes_2D_sph_load_vertices(&in);
-
-  meshes_2D_sph_free(&in, 0);
-
-  return amesh;
-}
-
-/****************************************************************************/
-/*!
- **  Load the tetrahedra and vertex coordinates
- **
- ** \return  Pointer to the newly created AMesh structure
- **
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  gext       Array of domain dilation
- ** \param[in]  s_option   SPDE_Option structure
- **
- *****************************************************************************/
-static AMesh* st_load_meshes_3D(int /*verbose*/,
-                                Db *dbin,
-                                Db *dbout,
-                                const VectorDouble &gext,
-                                SPDE_Option &s_option)
-{
-  tetgenio in, out;
-
-  /* Set the control points for the tetrahedralization */
-
-  if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
-  {
-    if (meshes_3D_from_db(dbout, &in)) return nullptr;
-  }
-  if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
-  {
-    if (meshes_3D_from_db(dbin, &in)) return nullptr;
-  }
-  if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
-      && S_DECIDE.flag_mesh_dbout))
-  {
-    meshes_3D_default(dbin, dbout, &in);
-  }
-
-  /* Extend the domain if gext is specified */
-
-  if (!gext.empty())
-  {
-    meshes_3D_extended_domain(dbout, gext.data(), &in);
-  }
-
-  /* Perform the tetrahedralization */
-
-  meshes_3D_create(VERBOSE, st_get_current_triswitch(s_option), &in, &out);
-
-  /* Final meshing */
-
-  AMesh* amesh = meshes_3D_load_vertices(&out);
-
-  meshes_3D_free(&in);
-  meshes_3D_free(&out);
-  return amesh;
-}
-
-/****************************************************************************/
-/*!
  **  Load the meshes
  **
  ** \return  Pointer to the newly created AMesh structure
@@ -5669,7 +5422,9 @@ static AMesh* st_load_all_meshes(Db *dbin,
 
     /* Particular case of data on the sphere */
 
-    return st_load_meshes_2D_sph(VERBOSE, dbin, dbout, s_option);
+    messerr("This is not possible in Standard Meshing technique");
+    messerr("Use MeshEStandardExt meshing technique instead");
+    return nullptr;
   }
   else
   {
@@ -5707,24 +5462,12 @@ static AMesh* st_load_all_meshes(Db *dbin,
       {
         return meshes_turbo_3D_grid_build(dbgrid);
       }
-
     }
     else
     {
-      if (VERBOSE) message("Using Regular Meshing\n");
-
-      if (ndim_loc == 1)
-      {
-        return st_load_meshes_1D(VERBOSE, dbin, dbout, gext);
-      }
-      else if (ndim_loc == 2)
-      {
-        return st_load_meshes_2D(VERBOSE, dbin, dbout, gext, s_option);
-      }
-      else if (ndim_loc == 3)
-      {
-        return st_load_meshes_3D(VERBOSE, dbin, dbout, gext, s_option);
-      }
+      messerr("This type of Meshing is not available in Standard");
+      messerr("Use MeshEStandardExt meshing technique instead");
+      return nullptr;
     }
   }
   return nullptr;
@@ -5782,18 +5525,18 @@ int spde_external_copy(SPDE_Matelem &matelem, int icov0)
  **
  ** \return  Pointer on the newly allocated AMesh
  **
- ** \param[in]  verbose    Verbose option
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
  ** \param[in]  s_option   SPDE_Option structure
+ ** \param[in]  verbose    Verbose option
  **
  *****************************************************************************/
-AMesh* spde_mesh_load(int verbose,
-                      Db *dbin,
+AMesh* spde_mesh_load(Db *dbin,
                       Db *dbout,
                       const VectorDouble &gext,
-                      SPDE_Option &s_option)
+                      SPDE_Option &s_option,
+                      bool verbose)
 {
   VERBOSE = verbose;
 
@@ -5950,7 +5693,7 @@ int spde_prepar(Db *dbin,
 
       if (!flag_AQ_defined)
       {
-        Matelem.amesh = spde_mesh_load(VERBOSE, dbin, dbout, gext, s_option);
+        Matelem.amesh = spde_mesh_load(dbin, dbout, gext, s_option, VERBOSE);
         if (Matelem.amesh == nullptr) return 1;
       }
 

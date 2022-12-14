@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
+#include "ExternalTools/MeshEStandardExt.hpp"
+#include "ExternalTools/MeshSphericalExt.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "Mesh/MeshSpherical.hpp"
@@ -71,7 +73,7 @@ AMesh* MeshFactory::createMesh(int variety,
         }
         ndim = dbout->getNDim();
       }
-      MeshEStandard* mesh = new MeshEStandard();
+      MeshEStandardExt* mesh = new MeshEStandardExt();
       if (!mesh->resetFromDb(dbin, dbout, dilate, triswitch, verbose))
         return ((AMesh *) mesh);
     }
@@ -108,7 +110,7 @@ AMesh* MeshFactory::createMesh(int variety,
     {
       mestitle(0,"Spherical Meshing");
     }
-    MeshSpherical* mesh = new MeshSpherical();
+    MeshSphericalExt* mesh = new MeshSphericalExt();
     if (!mesh->resetFromDb(dbin, dbout, triswitch, verbose))
       return ((AMesh *) mesh);
   }

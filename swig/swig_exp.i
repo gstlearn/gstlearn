@@ -339,6 +339,9 @@
 
 %include segy.h
 
+%include ExternalTools/MeshEStandardExt.hpp
+%include ExternalTools/MeshSphericalExt.hpp
+
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506

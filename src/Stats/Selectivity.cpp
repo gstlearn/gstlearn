@@ -108,7 +108,7 @@ Selectivity* Selectivity::create(int ncut)
   return selectivity;
 }
 
-Selectivity* Selectivity::create(const VectorDouble& zcut)
+Selectivity* Selectivity::createByCuts(const VectorDouble& zcut)
 {
   Selectivity* selectivity = new Selectivity(zcut);
   return selectivity;
@@ -295,14 +295,14 @@ const Table Selectivity::eval(const Db *db, bool autoCuts)
   (void) calculateFromDb(db, autoCuts);
   return getStats();
 }
-const Table Selectivity::eval(const VectorDouble &tab,
-                              const VectorDouble &weights,
-                              bool autoCuts)
+const Table Selectivity::evalFromArray(const VectorDouble &tab,
+                                       const VectorDouble &weights,
+                                       bool autoCuts)
 {
   (void) calculateFromArray(tab, weights, autoCuts);
   return getStats();
 }
-const Table Selectivity::eval(AAnam *anam)
+const Table Selectivity::evalFromAnamorphosis(AAnam *anam)
 {
   (void) calculateFromAnam(anam);
   return getStats();

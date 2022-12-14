@@ -20,8 +20,8 @@
 /**
  * Meshing defined in the Spherical Space
  */
-class GSTLEARN_EXPORT MeshSpherical : public AMesh {
-
+class GSTLEARN_EXPORT MeshSpherical : public AMesh
+{
 public:
 	MeshSpherical(const MatrixRectangular& apices = MatrixRectangular(),
 	              const MatrixInt& meshes = MatrixInt());
@@ -48,11 +48,19 @@ public:
   static MeshSpherical* create(const MatrixRectangular &apices = MatrixRectangular(),
                                const MatrixInt &meshes = MatrixInt());
 
+  int reset(int ndim,
+            int napexpermesh,
+            const VectorDouble &apices,
+            const VectorInt &meshes,
+            bool byCol,
+            bool verbose = false);
+
   cs*     getMeshToDb(const Db *db, bool verbose = false) const override;
   int     getVariety() const { return 1; }
 
-  VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
-  int     resetFromDb(Db* dbin,Db *dbout,const String& triswitch, int verbose);
+  const MatrixRectangular& getApices() const { return _apices; }
+  const MatrixInt& getMeshes() const { return _meshes; }
+  VectorVectorInt getMeshesAsVVI() const {return _meshes.getMatrix();}
 
 protected:
   /// Interface for ASerializable
@@ -70,6 +78,7 @@ private:
                    bool flag_approx = true) const;
   int _recopy(const MeshSpherical &m);
   double _closestValue(double ref, double coor, double period) const;
+  void _checkConsistency() const;
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)

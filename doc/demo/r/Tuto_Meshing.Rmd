@@ -1,0 +1,47 @@
+---
+title: "Tutorial Meshing"
+author: "D. Renard"
+date: "25 juin 2022"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+# Standard Meshing based on Irregular data set
+
+We construct a Meshing Standard based on a set of Data Points 
+
+```{r}
+nech = 40
+extendmin = c(0,0)
+extendmax = c(150,100)
+data = Db_createFromBox(nech,extendmin, extendmax)
+data
+```
+
+```{r}
+plot.point(data,title="Display of Data Set")
+```
+
+Creating the Meshing
+
+```{r}
+mesh1 = MeshEStandardExt()
+err = mesh1$resetFromDb(data)
+mesh1$display()
+```
+
+```{r}
+plot.mesh(mesh1,flagApex=TRUE,title="Standard Meshing")
+```
+

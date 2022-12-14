@@ -115,6 +115,8 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 
   sstr << AnamDiscrete::toString(strfmt);
 
+  if (! _isFitted()) return sstr.str();
+
   if (_sCoef != 0.)
   {
     sstr << "Mu Coefficient    = " << _mu << std::endl;

@@ -40,13 +40,14 @@ GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            double proba = TEST,
                                            double vmin = TEST,
                                            double vmax = TEST);
-GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
-                                              const VectorInt &iatts,
-                                              const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
-                                              bool flagIso = true,
-                                              double proba = TEST,
-                                              double vmin = TEST,
-                                              double vmax = TEST);
+GSTLEARN_EXPORT VectorDouble dbStatisticsMonoByUID(Db *db,
+                                                    const VectorInt &iatts,
+                                                    const std::vector<
+                                                        EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
+                                                    bool flagIso = true,
+                                                    double proba = TEST,
+                                                    double vmin = TEST,
+                                                    double vmax = TEST);
 GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               const VectorString& names,
                                               const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),

@@ -112,7 +112,7 @@ int main(int /*argc*/, char */*argv*/[])
   selectivity->eval(data).display();
 
   // Selectivity in the model
-  selectivity->eval(anam).display();
+  selectivity->evalFromAnamorphosis(anam).display();
 
   // Define the variogram calculation parameters
   VarioParam* varioparam = VarioParam::createOmniDirection(10, 0.025);

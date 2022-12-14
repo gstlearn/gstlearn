@@ -52,11 +52,6 @@ public:
 
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
-  int resetFromDb(Db *dbin,
-                  Db *dbout = nullptr,
-                  const VectorDouble& dilate = VectorDouble(),
-                  const String& triswitch = "Q",
-                  bool verbose = false);
   int reset(const MatrixRectangular& apices,
             const MatrixInt& meshes,
             bool verbose = false);
@@ -84,23 +79,9 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
   String _getNFName() const override { return "MeshEStandard"; }
+  void _defineBoundingBox(void);
 
 private:
-  int _create1D(int verbose,
-                Db *dbin,
-                Db *dbout,
-                const VectorDouble& dilate);
-  int _create2D(int verbose,
-                Db *dbin,
-                Db *dbout,
-                const VectorDouble& dilate,
-                const char *triswitch);
-  int _create3D(int verbose,
-                Db *dbin,
-                Db *dbout,
-                const VectorDouble& dilate,
-                const char *triswitch);
-  void    _defineBoundingBox();
   VectorDouble _defineUnits() const;
   VectorDouble _defineContainers() const;
   bool _coorInMeshContainer(const VectorDouble& coor,

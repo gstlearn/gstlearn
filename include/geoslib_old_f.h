@@ -26,15 +26,11 @@
 #include "Enum/ENeigh.hpp"
 
 #include "Covariances/CovCalcMode.hpp"
-
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
-
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
-
 #include "Neigh/NeighWork.hpp"
-
 #include "Basic/PolyLine2D.hpp"
 
 class AAnam;
@@ -65,7 +61,6 @@ class AMesh;
 
 class cs;
 class QChol;
-class tetgenio;
 
 /**********************************************/
 /* Prototyping the functions in acknowledge.c */
@@ -1836,40 +1831,10 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
 /*******************************************/
 /* Prototyping the functions in delaunay.c */
 /*******************************************/
+GSTLEARN_EXPORT double* get_db_extension(Db *dbin, Db *dbout, int *nout);
+GSTLEARN_EXPORT double* extend_grid(DbGrid *db, const double *gext, int *nout);
+GSTLEARN_EXPORT double* extend_point(Db *db, const double *gext, int *nout);
 GSTLEARN_EXPORT int MSS(int idim, int ipol, int icas, int icorn, int icoor);
-GSTLEARN_EXPORT void triangulate(const char *triswitches,
-                                 struct triangulateio *in,
-                                 struct triangulateio *out,
-                                 struct triangulateio *vorout);
-GSTLEARN_EXPORT void meshes_1D_free(segmentio *t, int mode);
-GSTLEARN_EXPORT void meshes_1D_init(segmentio *t);
-GSTLEARN_EXPORT int meshes_1D_from_db(Db *db,segmentio *t);
-GSTLEARN_EXPORT int meshes_1D_from_points(int nech, double *x, segmentio *t);
-GSTLEARN_EXPORT void meshes_1D_default(Db *dbin, Db *dbout, segmentio *t);
-GSTLEARN_EXPORT void meshes_1D_print(segmentio *t, int brief);
-GSTLEARN_EXPORT AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT void meshes_1D_create(int verbose,
-                                      struct segmentio *in,
-                                      struct segmentio *out);
-GSTLEARN_EXPORT MeshEStandard* meshes_1D_load_vertices(segmentio *t);
-GSTLEARN_EXPORT void meshes_1D_extended_domain(Db *dbout,
-                                               const double *gext,
-                                               segmentio *t);
-GSTLEARN_EXPORT void meshes_2D_free(triangulateio *t, int mode);
-GSTLEARN_EXPORT void meshes_2D_init(triangulateio *t);
-GSTLEARN_EXPORT int meshes_2D_from_db(Db *db,
-                                      int use_code,
-                                      triangulateio *t);
-GSTLEARN_EXPORT int meshes_2D_from_points(int nech,
-                                          double *x,
-                                          double *y,
-                                          triangulateio *t);
-GSTLEARN_EXPORT void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t);
-GSTLEARN_EXPORT int meshes_2D_from_mem(int nseg,
-                                       int ncol,
-                                       int *segments,
-                                       triangulateio *t);
-GSTLEARN_EXPORT void meshes_2D_print(triangulateio *t, int brief);
 GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                     const char *obj_name,
                                     int verbose,
@@ -1880,51 +1845,15 @@ GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                     const VectorInt& ntcode,
                                     const VectorInt& triangles,
                                     const VectorDouble& points);
+GSTLEARN_EXPORT AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid);
 GSTLEARN_EXPORT AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT void meshes_2D_create(int verbose,
-                                      const String &triswitches,
-                                      struct triangulateio *in,
-                                      struct triangulateio *out,
-                                      struct triangulateio *vorout);
-GSTLEARN_EXPORT MeshEStandard* meshes_2D_load_vertices(triangulateio *t);
-GSTLEARN_EXPORT void meshes_2D_extended_domain(Db *dbout,
-                                               const double *gext,
-                                               triangulateio *t);
-GSTLEARN_EXPORT void meshes_3D_create(int verbose,
-                                      const String &triswitch,
-                                      tetgenio *in,
-                                      tetgenio *out);
-GSTLEARN_EXPORT int meshes_3D_from_db(Db *db,tetgenio *t);
-GSTLEARN_EXPORT int meshes_3D_from_points(int nech,
-                                          double *x,
-                                          double *y,
-                                          double *z,
-                                          tetgenio *t);
-GSTLEARN_EXPORT void meshes_3D_default(Db *dbin, Db *dbout, tetgenio *t);
-GSTLEARN_EXPORT void meshes_3D_free(tetgenio *t);
-GSTLEARN_EXPORT void meshes_3D_extended_domain(Db *dbout,
-                                               const double *gext,
-                                               tetgenio *t);
 GSTLEARN_EXPORT AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid);
-GSTLEARN_EXPORT MeshEStandard* meshes_3D_load_vertices(tetgenio *t);
-GSTLEARN_EXPORT void meshes_3D_print(tetgenio *t, int brief);
+
 GSTLEARN_EXPORT void mesh_stats(int ndim,
                                 int ncorner,
                                 int nmesh,
                                 int *meshes,
                                 double *points);
-GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t);
-GSTLEARN_EXPORT void meshes_2D_sph_free(SphTriangle *t, int mode);
-GSTLEARN_EXPORT int meshes_2D_sph_from_db(Db *db, SphTriangle *t);
-GSTLEARN_EXPORT int meshes_2D_sph_from_points(int nech,
-                                              double *x,
-                                              double *y,
-                                              SphTriangle *t);
-GSTLEARN_EXPORT int meshes_2D_sph_from_auxiliary(const String &triswitch,
-                                                 SphTriangle *t);
-GSTLEARN_EXPORT void meshes_2D_sph_print(SphTriangle *t, int brief);
-GSTLEARN_EXPORT int meshes_2D_sph_create(int verbose, SphTriangle *t);
-GSTLEARN_EXPORT MeshEStandard* meshes_2D_sph_load_vertices(SphTriangle *t);
 GSTLEARN_EXPORT int trmesh_(int *n,
                             double *x,
                             double *y,
@@ -1994,11 +1923,11 @@ GSTLEARN_EXPORT int spde_process(Db *dbin,
                                  int gibbs_niter,
                                  int ngibbs_int);
 GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov);
-GSTLEARN_EXPORT AMesh* spde_mesh_load(int verbose,
-                                      Db *dbin,
+GSTLEARN_EXPORT AMesh* spde_mesh_load(Db *dbin,
                                       Db *dbout,
                                       const VectorDouble &gext,
-                                      SPDE_Option &s_option);
+                                      SPDE_Option &s_option,
+                                      bool verbose = false);
 GSTLEARN_EXPORT void spde_mesh_assign(AMesh *amesh,
                                       int ndim,
                                       int ncorner,

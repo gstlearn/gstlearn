@@ -111,56 +111,6 @@ typedef struct
   double *coor;
 } PL_Dist;
 
-struct triangulateio
-{
-  double *pointlist; /* In / out */
-  double *pointattributelist; /* In / out */
-  int *pointmarkerlist; /* In / out */
-  int numberofpoints; /* In / out */
-  int numberofpointattributes; /* In / out */
-  int *trianglelist; /* In / out */
-  double *triangleattributelist; /* In / out */
-  double *trianglearealist; /* In only  */
-  int *neighborlist; /* Out only */
-  int numberoftriangles; /* In / out */
-  int numberofcorners; /* In / out */
-  int numberoftriangleattributes; /* In / out */
-  int *segmentlist; /* In / out */
-  int *segmentmarkerlist; /* In / out */
-  int numberofsegments; /* In / out */
-  double *holelist; /* In / pointer to array copied out */
-  int numberofholes; /* In / copied out */
-  double *regionlist; /* In / pointer to array copied out */
-  int numberofregions; /* In / copied out */
-  int *edgelist; /* Out only */
-  int *edgemarkerlist; /* Not used with Voronoi diagram; out only */
-  double *normlist; /* Used only with Voronoi diagram; out only */
-  int numberofedges; /* Out only */
-};
-
-struct segmentio
-{
-  double *pointlist; /* In / out */
-  double *pointattributelist; /* In / out */
-  int numberofpoints; /* In / out */
-  int numberofpointattributes; /* In / out */
-  int *segmentlist; /* In / out */
-  int numberofsegments; /* In / out */
-  int numberofcorners; /* In / out */
-};
-
-typedef struct
-{
-  int n_nodes; /* Number of nodes */
-  int sph_size; /* Size of arrays sph_list and sph_lptr */
-  double *sph_x; /* Array of X-coordinates for nodes */
-  double *sph_y; /* Array of Y-coordinates for nodes */
-  double *sph_z; /* Array of Z-coordinates for nodes */
-  int *sph_list; /* Set of nodal indexes */
-  int *sph_lptr; /* Set of pointers (sph_list indexes) */
-  int *sph_lend; /* Set of pointers to adjacency lists */
-} SphTriangle;
-
 class QChol;
 typedef struct
 {

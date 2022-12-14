@@ -25,13 +25,15 @@
 
 AAnam::AAnam()
     : AStringable(),
-      ASerializable()
+      ASerializable(),
+      _flagFitted(false)
 {
 }
 
 AAnam::AAnam(const AAnam &m)
     : AStringable(m),
-      ASerializable(m)
+      ASerializable(m),
+      _flagFitted(m._flagFitted)
 {
 }
 
@@ -41,6 +43,7 @@ AAnam& AAnam::operator=(const AAnam &m)
   {
     AStringable::operator=(m);
     ASerializable::operator=(m);
+    _flagFitted = m._flagFitted;
   }
   return *this;
 }
@@ -249,7 +252,9 @@ int AAnam::fitFromLocator(Db *db, const ELoc& locatorType)
   if (db->hasWeight())
     wt = db->getColumnByLocator(ELoc::W,0,true);
 
-  return fitFromArray(tab, wt);
+  if (fitFromArray(tab, wt)) return 1;
+  _flagFitted = true;
+  return 0;
 }
 
 int AAnam::fit(Db *db, const String& name)
@@ -259,5 +264,7 @@ int AAnam::fit(Db *db, const String& name)
   if (db->hasWeight())
     wt = db->getColumnByLocator(ELoc::W,0,true);
 
-  return fitFromArray(tab, wt);
+  if (fitFromArray(tab, wt)) return 1;
+  _flagFitted = true;
+  return 0;
 }

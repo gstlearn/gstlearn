@@ -357,7 +357,7 @@ DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
 
 DbGrid* DbGrid::coarsify(const VectorInt &nmult)
 {
-  return createCoarse(this,nmult,0);
+  return createCoarse(this,nmult,1);
 }
 
 DbGrid* DbGrid::createCoarse(DbGrid *dbin,
@@ -377,7 +377,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
                   VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
-  // Migrate all variables (except 'rank'  and coordinates
+  // Migrate all variables (except 'rank' and coordinates
   (void) migrateAllVariables(dbin, dbgrid, flag_add_rank);
 
   return dbgrid;
@@ -606,7 +606,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
   int icolOut = dbout->getColumnNumber();
   if (migrateByAttribute(dbin, dbout, icols,
                          2, VectorDouble(), true, true,
-                         NamingConvention(String()))) return false;
+                         NamingConvention(String(), false))) return false;
 
   // Duplicate the locators
   for (int icol = 0; icol < ncol; icol++)

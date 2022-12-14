@@ -272,3 +272,24 @@ String MatrixInt::toString(const AStringFormat* /* strfmt*/) const
   return sstr.str();
 }
 
+/**
+ * Converts a VectorVectorInt into a MatrixInt
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorInt argument
+ * @return The returned rectangular matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixInt* MatrixInt::createFromVVD(const VectorVectorInt& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+
+  MatrixInt* mat = new MatrixInt(nrow, ncol);
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      mat->setValue(irow, icol, X[irow][icol]);
+
+  return mat;
+}
+

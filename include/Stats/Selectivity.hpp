@@ -42,7 +42,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Selectivity* create(int ncut);
-  static Selectivity* create(const VectorDouble& zcut);
+  static Selectivity* createByCuts(const VectorDouble& zcut);
   static Selectivity* createByCodes(const std::vector<ESelectivity>& codes,
                                     const VectorDouble& zcuts,
                                     bool flag_est,
@@ -68,10 +68,10 @@ public:
   int calculateFromAnam(AAnam* anam);
 
   const Table eval(const Db *db, bool autoCuts = false);
-  const Table eval(const VectorDouble &tab,
-                   const VectorDouble &weights = VectorDouble(),
-                   bool autoCuts = false);
-  const Table eval(AAnam *anam);
+  const Table evalFromArray(const VectorDouble &tab,
+                            const VectorDouble &weights = VectorDouble(),
+                            bool autoCuts = false);
+  const Table evalFromAnamorphosis(AAnam *anam);
 
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return static_cast<int>(_Zcut.size()); }

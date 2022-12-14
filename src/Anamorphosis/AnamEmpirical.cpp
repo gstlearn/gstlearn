@@ -68,6 +68,9 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Additional variance           = " << _sigma2e << std::endl;
   sstr << std::endl;
   sstr << "Discretization intervals Y - Z" << std::endl;
+
+  if (! _isFitted()) return sstr.str();
+
   sstr << toMatrix(String(), VectorString(), VectorString(), true, 2, _nDisc, _tDisc);
 
   return sstr.str();

@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "../Basic/PolyLine2D.hpp"
+#include "Basic/PolyLine2D.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 

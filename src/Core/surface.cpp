@@ -730,7 +730,7 @@ int db_trisurf(Db *db,
 
     st_transform_init2proj(surf_reference, db, iptr_init, iptr_proj);
 
-    if (!flag_rectangle_surface)
+    if (! flag_rectangle_surface)
     {
 
       /* Perform the estimation of the elevation (in the projected space) */

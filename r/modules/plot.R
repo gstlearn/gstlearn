@@ -192,8 +192,8 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   ensure_dependencies()
   # Creating the necessary data frame
   np   = db$getSampleNumber(TRUE)
-  tabx = db$getCoordinates(0,TRUE)
-  taby = db$getCoordinates(1,TRUE)
+  xtab = db$getCoordinates(0,TRUE)
+  ytab = db$getCoordinates(1,TRUE)
     
   # Color of symbol
   if (! is.null(color_name))
@@ -231,11 +231,11 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
     labval = rep(0,np)
   }
   
-  df = data.frame(tabx,taby,colval,sizval,labval)
+  df = data.frame(xtab,ytab,colval,sizval,labval)
   
   p <- getFigure(padd)
      
-  p <- p + geom_point(data=df, aes(x=tabx,y=taby,color=colval,size=sizval),
+  p <- p + geom_point(data=df, aes(x=xtab,y=ytab,color=colval,size=sizval),
       na.rm=TRUE)
   
   if (! is.null(label_name)) 
@@ -293,10 +293,9 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   df = data.frame(x,y,data)
   
   p <- getFigure(padd)
-   
-  p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data), 
-                       show.legend=show.legend) + 
-                       scale_fill_viridis_c(option = "inferno", na.value = color_NA)
+  
+  p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data)) + 
+           scale_fill_viridis_c(option = "inferno", na.value = color_NA)
        
   if (show.legend) {
     p <- p + guides(fill = guide_legend(title=name_legend))
@@ -337,9 +336,10 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
   
   for (ipol in 1:npol)
   {
-    x = poly$getX(ipol)
-    y = poly$getY(ipol)
-    p <- p + plt.fill(x, y, color)
+    xtab = poly$getX(ipol)
+    ytab = poly$getY(ipol)
+    rp = data.frame(xtab, ytab)
+	p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color)
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
@@ -506,4 +506,35 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=N
   
   p
 }
+ 
+ 
+# Function to display a polygon (not tested)
+plot.mesh <- function(mesh, 
+         flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, asp=1,
+         xlim="", ylim="", facecolor="yellow", edgecolor="blue", linewidth=1,
+         show.legend = FALSE, xlab="", ylab="", title="", padd = NULL)
+{
+  p <- getFigure(padd)
+  
+  if (! flagFace) facecolor = "white"
+  if (! flagEdge) edgecolor = facecolor
+  
+  nmesh = mesh$getNMeshes()
+  for (imesh in 1:nmesh)
+  {
+	xtab = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
+	ytab = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
+	rp = data.frame(xtab, ytab)
+	p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), 
+		linewidth=linewidth, 
+		fill=facecolor, 
+		color=edgecolor, show.legend=show.legend)
+	if (flagApex)
+	  p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
+  }  
+  
+  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p
+}
+#setMethod("mesh", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
  

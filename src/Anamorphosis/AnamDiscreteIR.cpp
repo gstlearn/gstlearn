@@ -91,6 +91,8 @@ String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
 
   sstr << AnamDiscrete::toString(strfmt);
 
+  if (! _isFitted()) return sstr.str();
+
   if (_sCoef != 1.)
   {
     sstr << "Change of Support = " << _sCoef << std::endl;

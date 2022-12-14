@@ -80,6 +80,9 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
   sstr << "Number of Hermite polynomials = " << nbpoly << std::endl;
   if (_rCoef > 0. && _rCoef < 1.)
     sstr << "Change of Support Coefficient = " << _rCoef << std::endl;
+
+  if (! _isFitted()) return sstr.str();
+
   sstr << toVector("Normalized coefficients for Hermite polynomials",_psiHn);
 
   return sstr.str();

@@ -59,9 +59,13 @@ protected:
                         int iech,
                         const VectorInt& cols_est,
                         const VectorInt& cols_std);
+  bool _isFitted() const { return _flagFitted; }
 
 private:
   bool _isNcutValid(int ncut) const;
   bool _isProbaValid(double proba) const;
   void _printQTvars(const char *title, int type, int number) const;
+
+private:
+  bool _flagFitted;
 };
