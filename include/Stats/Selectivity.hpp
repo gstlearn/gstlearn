@@ -65,7 +65,7 @@ public:
   int calculateFromArray(const VectorDouble& tab,
                          const VectorDouble& weights = VectorDouble(),
                          bool autoCuts = false);
-  int calculateFromAnam(AAnam* anam);
+  int calculateFromAnamorphosis(AAnam* anam);
 
   const Table eval(const Db *db, bool autoCuts = false);
   const Table evalFromArray(const VectorDouble &tab,

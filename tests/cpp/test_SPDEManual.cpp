@@ -16,7 +16,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Mesh/MeshFactory.hpp"
+#include "ExternalTools/MeshFactory.hpp"
 
 #include <algorithm>
 #include <math.h>

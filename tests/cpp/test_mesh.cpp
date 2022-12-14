@@ -23,7 +23,6 @@
 #include "Mesh/MeshSpherical.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
-#include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Basic/String.hpp"
@@ -31,9 +30,9 @@
 #include "Basic/File.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
+#include "ExternalTools/MeshFactory.hpp"
 
 #include <math.h>
-
 
 /*********************/
 /* Program principal */

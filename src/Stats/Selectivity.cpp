@@ -263,7 +263,7 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
   return 0;
 }
 
-int Selectivity::calculateFromAnam(AAnam* anam)
+int Selectivity::calculateFromAnamorphosis(AAnam* anam)
 {
   AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam);
   if (anamH != nullptr)
@@ -304,7 +304,7 @@ const Table Selectivity::evalFromArray(const VectorDouble &tab,
 }
 const Table Selectivity::evalFromAnamorphosis(AAnam *anam)
 {
-  (void) calculateFromAnam(anam);
+  (void) calculateFromAnamorphosis(anam);
   return getStats();
 }
 

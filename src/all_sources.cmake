@@ -226,7 +226,6 @@ set(SRC
   Mesh/MeshETurbo.cpp
   Mesh/m_delaunay.cpp
   Mesh/MeshSpherical.cpp
-  Mesh/MeshFactory.cpp
   Mesh/MeshEStandard.cpp
   Mesh/AMesh.cpp
   Morpho/Morpho.cpp
@@ -298,6 +297,7 @@ set(SRC
   API/TestInheritance.cpp
   Style.cpp
   
+  ExternalTools/MeshFactory.cpp
   ExternalTools/MeshEStandardExt.cpp
   ExternalTools/MeshSphericalExt.cpp
   ExternalTools/LinkTriangle.cpp
