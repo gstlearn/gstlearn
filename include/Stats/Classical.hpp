@@ -55,20 +55,21 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               double proba = TEST,
                                               double vmin = TEST,
                                               double vmax = TEST);
-GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
-                                               const VectorInt &iatts,
-                                               bool flagIso = true);
-GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
+GSTLEARN_EXPORT VectorDouble dbStatisticsMultiByUID(Db *db,
+                                                    const VectorInt &iatts,
+                                                    bool flagIso = true);
+GSTLEARN_EXPORT VectorDouble dbStatisticsMultiByUID(Db *db,
                                                const VectorString& names,
                                                bool flagIso = true);
-GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
-                                       const VectorInt &iatts = VectorInt(),
-                                       const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
-                                       bool flagIso = false,
-                                       bool flagCorrel = false,
-                                       const String &title = String(),
-                                       const String &radix = String());
-GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
+GSTLEARN_EXPORT void dbStatisticsPrintByUID(const Db *db,
+                                            const VectorInt &iatts = VectorInt(),
+                                            const std::vector<EStatOption> &opers = EStatOption::fromKeys(
+                                                { "MEAN" }),
+                                            bool flagIso = false,
+                                            bool flagCorrel = false,
+                                            const String &title = String(),
+                                            const String &radix = String());
+GSTLEARN_EXPORT void dbStatisticsPrintByUID(const Db *db,
                                        const VectorString &names,
                                        const std::vector<EStatOption> &opers = EStatOption::fromKeys({"MEAN"}),
                                        bool flagIso = false,

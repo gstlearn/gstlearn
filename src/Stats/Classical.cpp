@@ -639,10 +639,10 @@ double dbStatisticsIndicator(Db *db)
   return prop;
 }
 
-VectorDouble dbStatisticsMulti(Db *db, const VectorString &names, bool flagIso)
+VectorDouble dbStatisticsMultiByUID(Db *db, const VectorString &names, bool flagIso)
 {
-  VectorInt iatts = db->getUIDs(names);
-  return dbStatisticsMulti(db, iatts, flagIso);
+  VectorInt iuids = db->getUIDs(names);
+  return dbStatisticsMultiByUID(db, iuids, flagIso);
 }
 
 /****************************************************************************/
@@ -656,7 +656,7 @@ VectorDouble dbStatisticsMulti(Db *db, const VectorString &names, bool flagIso)
  ** \param[in]  flagIso    Restrain statistics to isotopic samples
  **
  *****************************************************************************/
-VectorDouble dbStatisticsMulti(Db *db, const VectorInt &iatts, bool flagIso)
+VectorDouble dbStatisticsMultiByUID(Db *db, const VectorInt &iatts, bool flagIso)
 {
   int natt = static_cast<int>(iatts.size());
 
@@ -1245,17 +1245,17 @@ void _getRowname(const String &radix,
     (void) gslSPrintf(string, "Variable");
 }
 
-void dbStatisticsPrint(const Db *db,
-                    const VectorString &names,
-                    const std::vector<EStatOption>& opers,
-                    bool flagIso,
-                    bool flagCorrel,
-                    const String &title,
-                    const String &radix)
+void dbStatisticsPrintByUID(const Db *db,
+                       const VectorString &names,
+                       const std::vector<EStatOption> &opers,
+                       bool flagIso,
+                       bool flagCorrel,
+                       const String &title,
+                       const String &radix)
 {
-  VectorInt iatts = db->getUIDs(names);
-  if (iatts.size() <= 0) return;
-  dbStatisticsPrint(db, iatts, opers, flagIso, flagCorrel, title, radix);
+  VectorInt iuids = db->getUIDs(names);
+  if (iuids.size() <= 0) return;
+  dbStatisticsPrintByUID(db, iuids, opers, flagIso, flagCorrel, title, radix);
 }
 
 /****************************************************************************/
@@ -1272,7 +1272,7 @@ void dbStatisticsPrint(const Db *db,
 
  **
  *****************************************************************************/
-void dbStatisticsPrint(const Db *db,
+void dbStatisticsPrintByUID(const Db *db,
                        const VectorInt &iatts_arg,
                        const std::vector<EStatOption>& opers,
                        bool flagIso,

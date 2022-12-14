@@ -4164,7 +4164,7 @@ VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
 
   if (iuids.empty()) return stats;
 
-  stats = dbStatisticsMulti(this, iuids, flagIso);
+  stats = dbStatisticsMultiByUID(this, iuids, flagIso);
 
   if (verbose)
   {
