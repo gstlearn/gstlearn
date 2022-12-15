@@ -1247,7 +1247,7 @@ Exponential
 - Sill         =      1.000
 - Range        =      0.076
 - Theo. Range  =      0.025
-Total Sill     =      0.687
+Total Sill     =      0.352
 
 Hermitian Anamorphosis
 ----------------------
@@ -1265,9 +1265,9 @@ Number of Hermite polynomials = 20
 Change of Support Coefficient = 0.730539
 Normalized coefficients for Hermite polynomials
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.568    -0.772     0.285    -0.082     0.017     0.015    -0.030
-     [  7,]     0.023     0.001    -0.019     0.016     0.003    -0.016     0.009
-     [ 14,]     0.009    -0.013    -0.001     0.012    -0.004    -0.008
+     [  0,]     1.568    -0.782     0.292    -0.086     0.018     0.016    -0.033
+     [  7,]     0.025     0.001    -0.022     0.018     0.004    -0.019     0.011
+     [ 14,]     0.011    -0.016    -0.002     0.015    -0.005    -0.010
 
 Processing Factor 1 / 1
 
@@ -1518,7 +1518,7 @@ Exponential
 - Sill         =      1.000
 - Range        =      0.379
 - Theo. Range  =      0.126
-Total Sill     =      0.687
+Total Sill     =      0.350
 
 Hermitian Anamorphosis
 ----------------------
@@ -1536,9 +1536,9 @@ Number of Hermite polynomials = 20
 Change of Support Coefficient = 0.728116
 Normalized coefficients for Hermite polynomials
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.568    -0.772     0.285    -0.082     0.017     0.015    -0.030
-     [  7,]     0.023     0.001    -0.019     0.016     0.003    -0.016     0.009
-     [ 14,]     0.009    -0.013    -0.001     0.012    -0.004    -0.008
+     [  0,]     1.568    -0.782     0.292    -0.086     0.018     0.016    -0.033
+     [  7,]     0.025     0.001    -0.022     0.018     0.004    -0.019     0.011
+     [ 14,]     0.011    -0.016    -0.002     0.015    -0.005    -0.010
 
 Processing Factor 1 / 1
 
