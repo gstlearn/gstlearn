@@ -71,7 +71,7 @@ public:
              const VectorDouble &psi_hn);
 
   int    getNbPoly() const { return (int) _psiHn.size(); }
-  const  VectorDouble& getPsiHn() const { return _psiHn; }
+  VectorDouble getPsiHns() const;
   double getPsiHn(int i) const;
   double getRCoef() const { return _rCoef; }
   bool   getFlagBound() const { return _flagBound; }

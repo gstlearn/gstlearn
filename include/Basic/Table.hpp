@@ -56,6 +56,7 @@ public:
   VectorDouble getAllRange() const;
   void plot(int isimu) const;
   void fill(double valinit = 0);
+  VectorDouble getValues() const { return _tab.getValues(); }
 
   void setColumnNames(const VectorString &colNames) { _colNames = colNames; }
   void setColumnName(int icol, const String& name);

@@ -248,13 +248,13 @@ static int st_ce_Z(Db *db,
 
   if (nbsimu <= 0)
   {
-    valest = hermiteCondExp(krigest, krigstd, anam->getPsiHn());
-    valstd = hermiteCondStd(krigest, krigstd, anam->getPsiHn());
+    valest = hermiteCondExp(krigest, krigstd, anam->getPsiHns());
+    valstd = hermiteCondStd(krigest, krigstd, anam->getPsiHns());
   }
   else
   {
-    valest = MCCondExp(krigest, krigstd, anam->getPsiHn(), nbsimu);
-    valstd = MCCondStd(krigest, krigstd, anam->getPsiHn(), nbsimu);
+    valest = MCCondExp(krigest, krigstd, anam->getPsiHns(), nbsimu);
+    valstd = MCCondStd(krigest, krigstd, anam->getPsiHns(), nbsimu);
   }
 
   int iptrEst = selectivity->getAddressQTEst(ESelectivity::Z, iptr0);
@@ -416,13 +416,13 @@ static int st_ce_Q(Db *db,
 
     if (nbsimu <= 0)
     {
-      valest = hermiteMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn());
-      valstd = hermiteMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn());
+      valest = hermiteMetal(ycuts[icut], krigest, krigstd, anam->getPsiHns());
+      valstd = hermiteMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHns());
     }
     else
     {
-      valest = MCMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
-      valstd = MCMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
+      valest = MCMetal(ycuts[icut], krigest, krigstd, anam->getPsiHns(), nbsimu);
+      valstd = MCMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHns(), nbsimu);
     }
 
     int iptrEst = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
@@ -675,7 +675,7 @@ int _uniformConditioning(Db *db,
 
   /* Memorize the punctual Hermite polynomials */
 
-  VectorDouble psi_hn = anam_hermite->getPsiHn();
+  VectorDouble psi_hn = anam_hermite->getPsiHns();
 
   /* Add variables for storage */
 

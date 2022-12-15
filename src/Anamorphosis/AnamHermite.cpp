@@ -47,7 +47,6 @@ AnamHermite::AnamHermite(const AnamHermite &m)
       _rCoef(m._rCoef),
       _psiHn(m._psiHn)
 {
-
 }
 
 AnamHermite& AnamHermite::operator=(const AnamHermite &m)
@@ -64,7 +63,6 @@ AnamHermite& AnamHermite::operator=(const AnamHermite &m)
 
 AnamHermite::~AnamHermite()
 {
-
 }
 
 String AnamHermite::toString(const AStringFormat* strfmt) const
@@ -78,7 +76,7 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
   sstr << AnamContinuous::toString(strfmt);
 
   sstr << "Number of Hermite polynomials = " << nbpoly << std::endl;
-  if (_rCoef > 0. && _rCoef < 1.)
+  if (isChangeSupportDefined())
     sstr << "Change of Support Coefficient = " << _rCoef << std::endl;
 
   if (! _isFitted()) return sstr.str();
@@ -271,7 +269,7 @@ double AnamHermite::TransformToRawValue(double y) const
 
   /* Normal inversion */
 
-  z = hermiteCondExpElement(y, 0., _psiHn);
+  z = hermiteCondExpElement(y, 0., getPsiHns());
 
   /* Truncate within the bounds */
 
@@ -297,7 +295,7 @@ double AnamHermite::computeVariance(double chh) const
   for (int ih = 1; ih < nbpoly; ih++)
   {
     rho *= chh;
-    var += _psiHn[ih] * _psiHn[ih] * rho;
+    var += getPsiHn(ih) * getPsiHn(ih) * rho;
   }
   return var;
 }
@@ -320,7 +318,7 @@ int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
   int nbpoly = getNbPoly();
   zs.resize(nech+2);
   ys.resize(nech+2);
-  for (ih=0; ih<nbpoly; ih++) _psiHn[ih] = 0.;
+  _psiHn.resize(nbpoly, 0.);
 
   /* Sort the data by classes */
 
@@ -367,7 +365,27 @@ int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
 double AnamHermite::getPsiHn(int i) const
 {
   if (! _isIndexValid(i)) return TEST;
-  return _psiHn[i];
+  double value = _psiHn[i];
+  if (isChangeSupportDefined())
+    value *= pow(_rCoef, (double) i);
+  return value;
+}
+
+VectorDouble AnamHermite::getPsiHns() const
+{
+  if (isChangeSupportDefined())
+  {
+    VectorDouble psi = _psiHn;
+    double rval = 1.;
+    for (int ih = 1; ih < getNbPoly(); ih++)
+    {
+      rval *= _rCoef;
+      psi[ih] *= rval;
+    }
+    return psi;
+  }
+  else
+    return _psiHn;
 }
 
 void AnamHermite::setPsiHn(int i, double psi_hn)
@@ -605,7 +623,7 @@ bool AnamHermite::_serialize(std::ostream& os, bool verbose) const
   ret && ret && AnamContinuous::_serialize(os, verbose);
   ret = ret && _recordWrite<int>(os, "Number of Hermite Polynomials", getNbPoly());
   ret = ret && _recordWrite<double>(os,"Change of support coefficient", getRCoef());
-  ret = ret && _tableWrite(os, "Hermite Polynomial", getNbPoly(), getPsiHn());
+  ret = ret && _tableWrite(os, "Hermite Polynomial", getNbPoly(), getPsiHns());
   return ret;
 }
 
@@ -619,15 +637,11 @@ bool AnamHermite::_deserialize(std::istream& is, bool verbose)
 
   ret = ret && AnamContinuous::_deserialize(is, verbose);
   ret = _recordRead<int>(is, "Number of Hermite Polynomials", nbpoly);
-  ret = ret && _recordRead<double>(is, "Change of Support Coefficient", r);
   if (ret) hermite.resize(nbpoly);
+  ret = ret && _recordRead<double>(is, "Change of Support Coefficient", r);
+  if (ret) setRCoef(r);
   ret = ret && _tableRead(is, nbpoly, hermite.data());
 
-  if (ret)
-  {
-    setRCoef(r);
-    setPsiHn(hermite);
-  }
   return ret;
 }
 
@@ -640,15 +654,6 @@ int AnamHermite::updatePointToBlock(double r_coef)
 {
   if (! allowChangeSupport()) return 1;
   setRCoef(r_coef);
-
-  /* Update the anamorphosis coefficients */
-
-  double rval = 1.;
-  for (int ih = 1; ih < getNbPoly(); ih++)
-  {
-    rval *= r_coef;
-    setPsiHn(ih, _psiHn[ih] * rval);
-  }
 
   /* Update mean and variance */
 

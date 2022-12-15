@@ -539,7 +539,7 @@ function (x,i,j,...,drop=TRUE)
     if (is.numeric(j)) {
       icol <- j
     } else {
-      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      icol <- db$getColIdxs(i)
       if (length(icol) > 0) icol = icol - 1
     }
   } else if (nargs == 1) {
@@ -551,8 +551,7 @@ function (x,i,j,...,drop=TRUE)
     if (is.numeric(k)) {
       icol <- k
     } else {
-      icol <- grep(paste(k,collapse="|"),db$getAllNames())
-      if (length(icol) > 0) icol = icol - 1
+      icol <- db$getColIdxs(k)
     }
   }
 
@@ -571,20 +570,20 @@ function (x,i,j,...,drop=TRUE)
     messerr("This is not authorized in this function")
     stop()
   } else {
-  if (! is.undef(irow) && ! is.undef(icol))
-    res <- db$getValuesByColIdx(irow_dim,icol_dim)
-  if (! is.undef(irow) &&   is.undef(icol))
-    res <- db$getArrayBySample(irow_dim)
-  if (  is.undef(irow) && ! is.undef(icol))
-    res <- db$getColumnsByColIdx(icol_dim)
-  if (  is.undef(irow) &&   is.undef(icol))
-    res <- db$getAllColumns()
-  if (nrow_dim > 1 && ncol_dim > 1)
-  {
-    res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
-    names(res) = col_names
-    row.names(res) = row_names
-  }
+  	if (! is.undef(irow) && ! is.undef(icol))
+  	  res <- db$getValuesByColIdx(irow_dim,icol_dim)
+ 	 if (! is.undef(irow) &&   is.undef(icol))
+  	  res <- db$getArrayBySample(irow_dim)
+  	if (  is.undef(irow) && ! is.undef(icol))
+  	  res <- db$getColumnsByColIdx(icol_dim)
+  	if (  is.undef(irow) &&   is.undef(icol))
+  	  res <- db$getAllColumns()
+ 	 if (nrow_dim > 1 && ncol_dim > 1)
+ 	 {
+  	  res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+   	  names(res) = col_names
+      row.names(res) = row_names
+  	}
   }
   res
 }
@@ -615,8 +614,7 @@ function (x,i,j,...,drop=TRUE)
     if (is.numeric(j) || is.logical(j)) {
       icol <- j
     } else {
-      icol <- grep(paste(i,collapse="|"),db$getAllNames())
-      if (length(icol) > 0) icol = icol - 1
+      icol <- db$getColIdxs(i)
       new_names = j
     }
   } else if (nargs == 1) {
@@ -628,8 +626,7 @@ function (x,i,j,...,drop=TRUE)
     if (is.numeric(k)) {
       icol <- k
     } else {
-      icol <- grep(paste(k,collapse="|"),db$getAllNames())
-      if (length(icol) > 0) icol = icol - 1
+      icol <- db$getColIdxs(k)
       new_names = k
     }
   }

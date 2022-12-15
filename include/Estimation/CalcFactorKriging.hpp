@@ -55,13 +55,14 @@ private:
   VectorInt _iuidFactors;
 };
 
-GSTLEARN_EXPORT int DisjunctiveKriging(Db *dbin,
-                                       DbGrid *dbgrid,
-                                       Model *model,
-                                       ANeighParam *neighparam,
-                                       const EKrigOpt &calcul = EKrigOpt::fromKey("PONCTUAL"),
-                                       const VectorInt &ndisc = VectorInt(),
-                                       bool flag_est = true,
-                                       bool flag_std = true,
-                                       const NamingConvention &namconv = NamingConvention(
-                                           "KD"));
+GSTLEARN_EXPORT int KrigingFactors(Db *dbin,
+                                   DbGrid *dbgrid,
+                                   Model *model,
+                                   ANeighParam *neighparam,
+                                   const EKrigOpt &calcul = EKrigOpt::fromKey(
+                                       "PONCTUAL"),
+                                   const VectorInt &ndisc = VectorInt(),
+                                   bool flag_est = true,
+                                   bool flag_std = true,
+                                   const NamingConvention &namconv = NamingConvention(
+                                       "KD"));

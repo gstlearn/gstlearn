@@ -7,6 +7,17 @@ ensure_dependencies <- function() {
   }
 }
 
+end.func <- function(p, end.plot=TRUE)
+{
+	padd = p
+	if (end.plot)
+	{
+		print(padd)
+		padd = NULL
+	}
+	padd
+}
+
 get.colors <- function()
 {
   c("blue", "red", "green", "brown", "orange", "purple", "yellow")
@@ -38,7 +49,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
-                       title="", nh=100, padd=NULL)
+                       title="", nh=100, padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   if (is.null(codir))
@@ -59,7 +70,7 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=as, title = title)
   
-  p
+  end.func(p, end.plot)
 }
 setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
 
@@ -70,7 +81,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                         nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
                         color_psize="black", ratio_psize=3,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
-                        title="", ...)
+                        title="", end.plot=TRUE, ...)
 {
   ensure_dependencies()
   ndir = vario$getDirectionNumber()
@@ -176,7 +187,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
   
   p <- decor(p, title = title)
   
-  p
+  end.func(p, end.plot)
 }
 setMethod("plot", signature(x="_p_Vario"), function(x,y,...) plot.varmod(x,...))
 
@@ -187,7 +198,8 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
               show.legend.color=FALSE, name.legend.color="P-Color",
               show.legend.size =FALSE, name.legend.size ="P-Size",
               show.legend.label=FALSE, name.legend.label="P-Label",
-              asp=1, xlab="", ylab="", title="", padd = NULL, ...) 
+              asp=1, xlab="", ylab="", title="", 
+              padd = NULL, end.plot=TRUE, ...) 
 {  
   ensure_dependencies()
   # Creating the necessary data frame
@@ -263,13 +275,14 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
       
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
   
-  p
+  end.func(p, end.plot)
 }
 
 # Function for plotting a variable (referred by its name) informed in a grid Db
 plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
       show.legend=TRUE, name_legend="G-Fill",
-      xlab="", ylab="", title="", padd=NULL)
+      xlab="", ylab="", title="", 
+      padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   if (! dbgrid$isGrid())
@@ -304,23 +317,25 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   }
        
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
-  p
+  
+  end.func(p, end.plot)
 }
 
-plot.db <- function(db, padd=NULL, ...)
+plot.db <- function(db, padd=NULL, end.plot=TRUE, ...)
 {
   ensure_dependencies()
   if (db$isGrid())
-    p = plot.grid(db, padd=padd, ...)
+    p = plot.grid(db, padd=padd, end.plot=end.plot, ...)
   else
-    p = plot.point(db, padd=padd, ...)
+    p = plot.point(db, padd=padd, end.plot=end.plot, ...)
   p
 }
 
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)
-plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
+plot.polygon <- function(poly, xlab="", ylab="", title="", 
+		padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   npol = poly$getPolySetNumber()
@@ -343,13 +358,15 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
-  p
+  
+  end.func(p, end.plot)
 }
 #setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
         
 # Function for plotting the histogram of a variable
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
-                      xlab="", ylab="", title="", padd = NULL)
+                      xlab="", ylab="", title="", 
+                      padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   val  = Db_getColumn(db,name)
@@ -362,11 +379,12 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
-  p
+  end.func(p, end.plot)
 }
 
 # Function for plotting histogram for a table of values
-plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
+plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", 
+		padd=FALSE, end.plot=TRUE)
 {
   ensure_dependencies()
   rp = data.frame(val)
@@ -377,11 +395,12 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
 
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
 
-  p
+  end.func(p, end.plot)
 }
 
 # Function for plotting a curve of regularly sampled values
-plot.curve <- function(data, color="black", xlab="", ylab="", title="", padd=NULL)
+plot.curve <- function(data, color="black", xlab="", ylab="", title="", 
+		padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   nbpoint = length(data)
@@ -394,7 +413,7 @@ plot.curve <- function(data, color="black", xlab="", ylab="", title="", padd=NUL
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
-  p
+  end.func(p, end.plot)
 }
 
 # Function for representing a line between points provided as arguments
@@ -402,7 +421,8 @@ plot.XY <-function(xtab, ytab, join=TRUE,
                    color="black", linetype="solid", shape=20,
                    flagDiag = FALSE, 
                    diag_color = "red", diag_line = "solid",
-                   xlim="", ylim="", xlab="", ylab="", title="", padd=NULL)
+                   xlim="", ylim="", xlab="", ylab="", title="", 
+                   padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   if (length(ytab) != length(xtab))
@@ -436,13 +456,14 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
-  p
+  end.func(p, end.plot)
 }
 
 # Function for representing an anamorphosis
 plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, 
                       color="black", linetype="solid",
-                      xlim="", ylim="", xlab="Y", ylab="Z", title="", padd=NULL)
+                      xlim="", ylim="", xlab="Y", ylab="Z", title="", 
+                      padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   res = anam$sample(ndisc, aymin, aymax)
@@ -453,7 +474,8 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
               color=color, linetype=linetype, 
               xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, title=title, 
               padd=padd)
-  p
+  
+  end.func(p, end.plot)
 }
 
 # Function for representing a scatter plot
@@ -461,7 +483,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
                              color="black", linetype = "solid",
                              diag_color = "red", diag_line = "solid",
                              xlim="", ylim="", xlab="", ylab="", title="", 
-                             padd=NULL)
+                             padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   if (is.null(db2)) db2 = db1
@@ -472,11 +494,13 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
               diag_color = diag_color, diag_line = diag_line,
               xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
               padd=padd)
-  p 
+  
+  end.func(p, end.plot) 
 }
 
 # Representing a Lithotype rule
-plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=NULL)
+plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
+			padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   nrect = rule$getFaciesNumber()
@@ -486,7 +510,8 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=N
     rule$setProportions()
   cols = get.colors()
 
-  df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),ymin=rep(0,nrect),ymax=rep(0,nrect),
+  df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
+  				  ymin=rep(0,nrect),ymax=rep(0,nrect),
                   colors=cols[1:nrect])
   for (ifac in 1:nrect)
   {
@@ -504,7 +529,7 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=N
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
-  p
+  end.func(p, end.plot)
 }
  
  
@@ -512,7 +537,8 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=N
 plot.mesh <- function(mesh, 
          flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, asp=1,
          xlim="", ylim="", facecolor="yellow", edgecolor="blue", linewidth=1,
-         show.legend = FALSE, xlab="", ylab="", title="", padd = NULL)
+         show.legend = FALSE, xlab="", ylab="", title="", 
+         padd = NULL, end.plot=TRUE)
 {
   p <- getFigure(padd)
   
@@ -534,7 +560,8 @@ plot.mesh <- function(mesh,
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
-  p
+  
+  end.func(p, end.plot)
 }
 #setMethod("mesh", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
  

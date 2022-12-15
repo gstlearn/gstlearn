@@ -3659,12 +3659,12 @@ void KrigingSystem::_transformGaussianToRaw()
 
   /* Calculate the conditional expectation */
 
-  double condexp = hermiteCondExpElement(est, std, anam_hermite->getPsiHn());
+  double condexp = hermiteCondExpElement(est, std, anam_hermite->getPsiHns());
   _dbout->setArray(_iechOut, _iptrEst, condexp);
 
   /* Calculate the conditional variance */
 
-  double condvar = hermiteCondStdElement(est, std, anam_hermite->getPsiHn());
+  double condvar = hermiteCondStdElement(est, std, anam_hermite->getPsiHns());
   _dbout->setArray(_iechOut, _iptrStd, condvar);
 }
 

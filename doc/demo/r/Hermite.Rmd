@@ -396,7 +396,7 @@ cov_theo<- C_theo(rho = r)
 
 model.eval.GM <- function(model, anam, h){
   r = model$evalIvarNpas(0,0,h)
-  psi <- anam$getPsiHn()
+  psi <- anam$getPsiHns()
   nh <- length(psi) - 1
   outer(X = r, Y = 1:nh, FUN = function(rho,n){rho^n}) %*% (psi[-1])^2
 }

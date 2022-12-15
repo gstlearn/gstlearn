@@ -196,15 +196,15 @@ bool CalcFactorKriging::_run()
  ** \remark have to be defined
  **
  *****************************************************************************/
-int DisjunctiveKriging(Db *dbin,
-                       DbGrid *dbgrid,
-                       Model *model,
-                       ANeighParam *neighparam,
-                       const EKrigOpt &calcul,
-                       const VectorInt &ndisc,
-                       bool flag_est,
-                       bool flag_std,
-                       const NamingConvention &namconv)
+int KrigingFactors(Db *dbin,
+                   DbGrid *dbgrid,
+                   Model *model,
+                   ANeighParam *neighparam,
+                   const EKrigOpt &calcul,
+                   const VectorInt &ndisc,
+                   bool flag_est,
+                   bool flag_std,
+                   const NamingConvention &namconv)
 {
   CalcFactorKriging krige(flag_est, flag_std);
   krige.setDbin(dbin);
