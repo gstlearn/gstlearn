@@ -91,8 +91,19 @@ def Meshing(mesh, color='black', width=1, showlegend=False):
 def Scatter(x, y, z, mode='lines', color='black', width=1, 
             m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
             showlegend=False):
-    ''' 
+    '''
+    Represent a set of points in 3-D
+    
+    x, y, z Vector of coordinates (same dimension)
     mode can be 'lines' or 'markers'
+    color Color assigned to the lines (if mode == 'lines')
+    width Width of the line (if mode == 'lines')
+    m_symbol Type of symbol (if mode == 'markers')
+    m_color  Color assigned to the symbol (if mode == 'markers')
+    m_line   Type of line for symbol (if mode == 'markers')
+    m_size   Size of the symbol (if mode == 'markers')
+    m_width  Width of the line for symbol (if mode == 'markers')
+    showlegend True if the Legend should be represented
     '''
     meshing = dict(type='scatter3d',x=x, y=y, z=z, mode=mode,
                    marker_symbol=m_symbol,
@@ -105,8 +116,7 @@ def Scatter(x, y, z, mode='lines', color='black', width=1,
     
 def ScatterOnSphere(long, lat, mode='lines', color='black', width=1, 
                     m_symbol = 'circle', m_color='black', m_line = 'black', 
-                    m_size=15, m_width=2, dilate=1,
-                    showlegend=False):
+                    m_size=15, m_width=2, dilate=1, showlegend=False):
     
     tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
     meshing = Scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, 
@@ -118,8 +128,7 @@ def ScatterOnSphere(long, lat, mode='lines', color='black', width=1,
 
     return meshing
 
-def Line(x, y, z, color='black', width=1, 
-         showlegend=False):
+def Line(x, y, z, color='black', width=1, showlegend=False):
     
     line = dict(type='scatter3d',x=x, y=y, z=z, mode='lines',
                 line=dict(color=color, width=width),
@@ -146,7 +155,7 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1,
     for i in range(poly.getPolySetNumber()):
         a = poly.getX(i)
         b = poly.getY(i)
-        tab = np.array(gl.GH.convertLongLat(a, b,dilate,np.nan))
+        tab = np.array(gl.GH.convertLongLat(a, b, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -177,9 +186,7 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False,
     x = np.array(vect[0]).reshape(shape)
     y = np.array(vect[1]).reshape(shape)
     z = np.array(vect[2]).reshape(shape)
-    values = np.array(vect[3])
-#    values[np.where(values == gl.TEST)[0]] = None
-    values = values.reshape(shape)
+    values = np.array(vect[3]).reshape(shape)
     
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values,
                        coloraxis='coloraxis', cmin = cmin, cmax = cmax)
