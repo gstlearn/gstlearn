@@ -168,6 +168,20 @@ file(GENERATE
   INPUT ${CMAKE_CURRENT_BINARY_DIR}/setup.py.in
 )
 
+# Generate version.py automatically for each configuration
+# First step: replace variables (@VAR@)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/version.py.in 
+  ${CMAKE_CURRENT_BINARY_DIR}/version.py.in
+  @ONLY
+)
+
+# Second step: replace generator expression ($<>)
+file(GENERATE
+  OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/${PYTHON_PACKAGE_NAME}/version.py
+  INPUT ${CMAKE_CURRENT_BINARY_DIR}/version.py.in
+)
+
 # Generate README.md for each configuration
 file(GENERATE
   OUTPUT ${PYTHON_PACKAGE_ROOT_FOLDER}/README.md

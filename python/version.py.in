@@ -1,0 +1,2 @@
+__version__ = "@PROJECT_VERSION@"
+__author__ = "Team gstlearn"
