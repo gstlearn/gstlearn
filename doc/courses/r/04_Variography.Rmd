@@ -19,6 +19,8 @@ In this preamble, we load the **gstlearn** library and clean the workspace.
 
 ```{r Preamble, include=FALSE}
 library(gstlearn)
+library(ggplot2)
+library(ggpubr)
 rm(list=ls())
 knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center") 
 ```
@@ -56,10 +58,10 @@ where $N(h)$ is the number of pairs of points distant by $h$
 
 
 ```{r Variogram_Cloud}
-varioParamOmni = VarioParam_createOmniDirection(100)
+varioParamOmni = VarioParam_createOmniDirection(npas = 100)
 grid.cloud = db_variogram_cloud(dat, varioParamOmni)
 grid.cloud$display()
-plot.grid(grid.cloud, name="Cloud.January*")
+plot.grid(grid.cloud, name="Cloud.January*",asp=NULL)
 ```
 
 ---
@@ -69,7 +71,7 @@ plot.grid(grid.cloud, name="Cloud.January*")
 We calculate the omni-directional variogram of the temperatures.
 
 ```{r Experimental_Variogram}
-varioParamOmni = VarioParam_createOmniDirection(40, 10)
+varioParamOmni = VarioParam_createOmniDirection(npas=40, dpas=10)
 varioexp = Vario(varioParamOmni, dat)
 err = varioexp$compute()
 ```
@@ -95,7 +97,7 @@ plot.varmod(varioexp)
 \frametitle {Experimental Variogram}
 
 ```{r Plot_Experimental_Variogram_continued}
-plot.varmod(varioexp,draw_psize=TRUE, draw_plabels=TRUE, ratio_psize=3)
+plot.varmod(varioexp,draw_psize=TRUE, draw_plabels=TRUE, ratio_psize=100)
 ```
 
 ---
@@ -129,7 +131,8 @@ ECov_printAll()
 \frametitle {Automatic Fitting (with given basic structures)}
 
 ```{r Model_Fitting_List1}
-err = fitmod$fit(varioexp, types=ECov_fromValues(c(0,4,2)))
+types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL"))
+err = fitmod$fit(varioexp, types=types)
 plot.varmod(varioexp, fitmod)
 ```
 
@@ -147,9 +150,9 @@ fitmod
 
 ```{r Model_Fitting_Inequality_1}
 constraints = Constraints()
-err = constraints$addItemFromParamId(EConsElem_RANGE(),1,0,0,EConsType_UPPER(),20.)
-err = constraints$addItemFromParamId(EConsElem_SILL(),1,0,0,EConsType_LOWER(),0.03)
-err = fitmod$fit(varioexp, types=ECov_fromValues(c(0,4,2)), constraints, Option_VarioFit(TRUE))
+err = constraints$addItemFromParamId(EConsElem_RANGE(),icov=1,type=EConsType_UPPER(),value=20.)
+err = constraints$addItemFromParamId(EConsElem_SILL(),icov=1,type=EConsType_LOWER(),value=0.03)
+err = fitmod$fit(varioexp, types=types, constraints, Option_VarioFit(TRUE))
 plot.varmod(varioexp, fitmod)
 ```
 
@@ -167,9 +170,9 @@ fitmod
 
 ```{r Model_Fitting_Equality_1}
 constraints = Constraints()
-err = constraints$addItemFromParamId(EConsElem_RANGE(),1,0,0,EConsType_EQUAL(),1000.)
-err = constraints$addItemFromParamId(EConsElem_SILL(),1,0,0,EConsType_EQUAL(),0.4)
-err = fitmod$fit(varioexp, types=ECov_fromValues(c(0,4,2)), constraints, Option_VarioFit(TRUE))
+err = constraints$addItemFromParamId(EConsElem_RANGE(),icov=1,type=EConsType_EQUAL(),value=1000.)
+err = constraints$addItemFromParamId(EConsElem_SILL(),icov=1,type=EConsType_EQUAL(),value=0.4)
+err = fitmod$fit(varioexp, types=types, constraints, Option_VarioFit(flag_noreduce=TRUE))
 plot.varmod(varioexp, fitmod)
 ```
 
@@ -186,7 +189,7 @@ fitmod
 \frametitle{Directional Variograms}
 
 ```{r Directional_Variograms}
-varioParamMulti = VarioParam_createMultiple(4, 15, 15.)
+varioParamMulti = VarioParam_createMultiple(ndir=4, npas=15, dpas=15.)
 vario.4dir = Vario(varioParamMulti, dat)
 err = vario.4dir$compute()
 plot.varmod(vario.4dir)
@@ -198,7 +201,7 @@ plot.varmod(vario.4dir)
 
 ```{r Directional_Variograms_Fitting}
 model.4dir = Model()
-err = model.4dir$fit(vario.4dir,types=ECov_fromValues(c(0,4,2)))
+err = model.4dir$fit(vario.4dir,types=types)
 plot.varmod(vario.4dir, model.4dir)
 ```
 
@@ -217,7 +220,7 @@ plot.grid(grid.vmap)
 
 ```{r Fitting_Variogram_Map_Fit}
 modelVM = Model()
-err = modelVM$fitFromVMap(grid.vmap, ECov_fromValues(c(0,4,2)))
+err = modelVM$fitFromVMap(grid.vmap, types=types)
 modelVM
 ```
 
