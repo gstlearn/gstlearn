@@ -179,7 +179,6 @@ int main(int /*argc*/, char */*argv*/[])
   (void) KrigingFactors(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
                             VectorInt(), true, true,
                             NamingConvention("DK_Pts"));
-
   blocs->display();
 
   // Simple Block Kriging over the blocks
@@ -315,7 +314,6 @@ int main(int /*argc*/, char */*argv*/[])
   if (vario_b1_Z != nullptr) delete vario_b1_Z;
   if (vario_b1_Y != nullptr) delete vario_b1_Y;
   if (vario_b2_Y != nullptr) delete vario_b2_Y;
-
   if (neigh      != nullptr) delete neigh;
 
   return (0);

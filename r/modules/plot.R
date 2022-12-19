@@ -78,7 +78,7 @@ setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.mode
 
 plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                         nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
-                        color_psize="black", ratio_psize=3,
+                        color_psize="black", ratio_psize=10,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
                         title="", show.legend=FALSE, end.plot=TRUE, ...)
 {
