@@ -292,7 +292,7 @@
 
 %include Estimation/KrigingSystem.hpp
 %include Estimation/CalcKriging.hpp
-%include Estimation/CalcFactorKriging.hpp
+%include Estimation/CalcKrigingFactors.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
 %include Estimation/CalcImage.hpp
 

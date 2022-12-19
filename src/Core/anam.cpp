@@ -336,7 +336,6 @@ static int st_ce_T(int mode,
       }
     }
   }
-
   return (0);
 }
 
@@ -532,7 +531,6 @@ static int st_ce_M(Db *db, const Selectivity *selectivity, int iptr0)
  ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
  ** \param[in]  proba        Probability
  ** \param[in]  nbsimu       Number of Simulation outcomes
- ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/
 int _conditionalExpextation(Db *db,
@@ -543,34 +541,14 @@ int _conditionalExpextation(Db *db,
                             int col_std,
                             bool flag_OK,
                             double proba,
-                            int nbsimu,
-                            bool verbose)
+                            int nbsimu)
 {
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  int ncuts = selectivity->getNCuts();
-  int nbpoly = anam_hermite->getNbPoly();
 
   /* Analyzing the codes */
 
   VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
   int need_T = selectivity->isNeededT();
-
-  /* Optional printout */
-
-  if (verbose)
-  {
-    if (nbsimu > 0)
-      message(
-          "Conditional expectation within Gaussian model (Monte-Carlo)\n");
-    else
-      message("Conditional expectation within Gaussian model (Hermite)\n");
-    message(" Max. degree of Hermite polynomials : %6d\n", nbpoly - 1);
-    message(" Number of values                   : %6d\n",
-            db->getSampleNumber(true));
-    message(" Number of cutoffs                  : %6d\n", ncuts);
-    if (nbsimu > 0)
-      message(" Number of Monte-Carlo simulations  : %6d\n", nbsimu);
-  }
 
   /* Computing the estimation */
 
@@ -650,7 +628,6 @@ int _conditionalExpextation(Db *db,
  ** \param[in]  col_est      Rank of variable containing Kriging estimate
  ** \param[in]  col_var      Rank of Variable containing Variance of Kriging estimate
  ** \param[in]  cvv          Mean covariance over block
- ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/
 int _uniformConditioning(Db *db,
@@ -659,14 +636,11 @@ int _uniformConditioning(Db *db,
                          int iptr0,
                          int col_est,
                          int col_var,
-                         double cvv,
-                         bool verbose)
+                         double cvv)
 {
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   anam_hermite->setFlagBound(1);
   int nbpoly  = anam_hermite->getNbPoly();
-  double mean = anam_hermite->getMean();
-  double varp = anam_hermite->getVariance();
   int ncuts = selectivity->getNCuts();
 
   /* Core allocation */
@@ -689,14 +663,7 @@ int _uniformConditioning(Db *db,
   // Calculate the change of support coefficient
 
   double r_coef = sqrt(anam->invertVariance(cvv));
-  if (verbose)
-  {
-    mestitle(1, "Calculation of the Change of Support Coefficient");
-    message("Average Block covariance      = %lf\n", cvv);
-    message("Change of support coefficient = %lf\n", r_coef);
-  }
   anam_hermite->setRCoef(r_coef);
-  double varb = anam_hermite->getVariance();
 
   /* Transform zcuts into gaussian equivalent */
 
@@ -752,8 +719,7 @@ int _uniformConditioning(Db *db,
     {
       double yc = ycuts[icut];
       double ore = 1. - law_cdf_gaussian(
-              (yc - yv * sv / r_coef) / sqrt(
-                  1. - (sv / r_coef) * (sv / r_coef)));
+              (yc - yv * sv / r_coef) / sqrt(1. - (sv / r_coef) * (sv / r_coef)));
       VectorDouble hn = hermitePolynomials(yv, 1., nbpoly);
       for (int ih = 0; ih < nbpoly; ih++)
         hn[ih] *= pow(sv / r_coef, (double) ih);
@@ -770,26 +736,8 @@ int _uniformConditioning(Db *db,
       selectivity->setTest(icut, ore);
       selectivity->setQest(icut, metal);
     }
-
     selectivity->calculateBenefitAndGrade();
     selectivity->storeInDb(db, iech, iptr0, TEST, TEST);
-  }
-
-  /* Verbose printout (optional) */
-
-  if (verbose)
-  {
-    message("Uniform Conditioning on %d panels and %d cutoffs\n",
-            db->getSampleNumber(true), ncuts);
-    message("- Number of Polynomials = %d\n", nbpoly);
-    message("- Mean                  = %lf\n", mean);
-    message("- Punctual Variance     = %lf\n", varp);
-    message("- Block Variance        = %lf\n", varb);
-    message("- Change of Support     = %lf\n", r_coef);
-    message("- var_V in [%lf, %lf]\n", vv_min, vv_max);
-    message("- S_V   in [%lf, %lf]\n", sv_min, sv_max);
-    message("- Z_V   in [%lf, %lf]\n", zv_min, zv_max);
-    message("- Y_V   in [%lf, %lf]\n", yv_min, yv_max);
   }
 
   if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);

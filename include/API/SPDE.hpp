@@ -73,7 +73,6 @@ private:
           || _calcul == ESPDECalcMode::LIKELIHOOD)
           && _data != nullptr);
   }
-  
 
 private:
   const Db*_data;

@@ -31,7 +31,7 @@ CalcAnamTransform::CalcAnamTransform(AAnam* anam)
       _iattSel(-1),
       _flagVars(false),
       _flagToFactors(false),
-      _flagFromFactors(false),
+      _flagDisjKrig(false),
       _flagCondExp(false),
       _flagUniCond(false),
       _flagZToY(true),
@@ -41,7 +41,6 @@ CalcAnamTransform::CalcAnamTransform(AAnam* anam)
       _iptrStd(),
       _nbsimu(0),
       _flagOK(false),
-      _verbose(false),
       _proba(TEST),
       _cvv(TEST),
       _anam(anam),
@@ -181,7 +180,7 @@ bool CalcAnamTransform::_check()
     return true;
   }
 
-  if (_flagFromFactors)
+  if (_flagDisjKrig)
   {
     if (! _hasInputVarDefined()) return false;
     if (! _hasSelectivity()) return false;
@@ -237,7 +236,7 @@ bool CalcAnamTransform::_preprocess()
     return true;
   }
 
-  if (_flagFromFactors)
+  if (_flagDisjKrig)
   {
     int nvarout = _getNSel();
     _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
@@ -283,7 +282,7 @@ bool CalcAnamTransform::_postprocess()
     return true;
   }
 
-  if (_flagFromFactors)
+  if (_flagDisjKrig)
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
@@ -350,7 +349,7 @@ bool CalcAnamTransform::_run()
     return false;
   }
 
-  if (_flagFromFactors)
+  if (_flagDisjKrig)
   {
     if (_FactorsToSelectivity()) return true;
     return false;
@@ -359,16 +358,15 @@ bool CalcAnamTransform::_run()
   if (_flagCondExp)
   {
     if (!_conditionalExpextation(getDb(), _anam, _selectivity, _iattSel,
-                                _iptrEst[0], _iptrStd[0], _flagOK, _proba,
-                                _nbsimu, _verbose)) return true;
+                                 _iptrEst[0], _iptrStd[0], _flagOK, _proba,
+                                 _nbsimu)) return true;
     return false;
   }
 
   if (_flagUniCond)
   {
     if (!_uniformConditioning(getDb(), _anam, _selectivity, _iattSel,
-                             _iptrEst[0], _iptrStd[0], _cvv, _verbose))
-      return true;
+                              _iptrEst[0], _iptrStd[0], _cvv)) return true;
     return false;
   }
 
@@ -449,7 +447,7 @@ bool CalcAnamTransform::_ZToFactors()
 
 bool CalcAnamTransform::_FactorsToSelectivity()
 {
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+  AnamHermite    *anam_hermite     = dynamic_cast<AnamHermite*>(_anam);
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
 
@@ -647,24 +645,24 @@ int RawToFactor(Db *db,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  names_est    Array of variable names for factor estimation
- ** \param[in]  names_std    Array of variable names for factor St. Dev.
+ ** \param[in]  name_est     Array of variable names for factor estimation
+ ** \param[in]  name_std     Array of variable names for factor St. Dev.
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int FactorToSelectivity(Db *db,
+int DisjunctiveKriging(Db *db,
                         AAnam *anam,
                         Selectivity *selectivity,
-                        const VectorString &names_est,
-                        const VectorString &names_std,
+                        const VectorString &name_est,
+                        const VectorString &name_std,
                         const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
   transfo.setSelectivity(selectivity);
-  transfo.setIptrEst(db->getUIDs(names_est));
-  transfo.setIptrStd(db->getUIDs(names_std));
-  transfo.setFlagFromFactors(true);
+  transfo.setIptrEst(db->getUIDs(name_est));
+  transfo.setIptrStd(db->getUIDs(name_std));
+  transfo.setFlagDisjKrig(true);
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
@@ -686,7 +684,6 @@ int FactorToSelectivity(Db *db,
  ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
  ** \param[in]  proba        Probability
  ** \param[in]  nbsimu       Number of Simulation outcomes
- ** \param[in]  verbose      Verbose option
  ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
@@ -698,7 +695,6 @@ int ConditionalExpectation(Db *db,
                            bool flag_OK,
                            double proba,
                            int nbsimu,
-                           bool verbose,
                            const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
@@ -710,7 +706,6 @@ int ConditionalExpectation(Db *db,
   transfo.setFlagOk(flag_OK);
   transfo.setNbsimu(nbsimu);
   transfo.setProba(proba);
-  transfo.setVerbose(verbose);
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
@@ -730,7 +725,6 @@ int ConditionalExpectation(Db *db,
  ** \param[in]  name_est     Name of the Kriging estimate
  ** \param[in]  name_var     Name of the Variance of Kriging estimate
  ** \param[in]  cvv          Mean covariance over block
- ** \param[in]  verbose      Verbose option
  ** \param[in]  namconv      Naming Convention
  **
  ** \remark We need the variance of Estimation Error... even if it will be
@@ -743,7 +737,6 @@ int UniformConditioning(Db *db,
                         const String &name_est,
                         const String &name_var,
                         double cvv,
-                        bool verbose,
                         const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
@@ -753,7 +746,6 @@ int UniformConditioning(Db *db,
   transfo.setIptrStd({db->getUID(name_var)});
   transfo.setFlagUniCond(true);
   transfo.setCvv(cvv);
-  transfo.setVerbose(verbose);
   transfo.setNamingConvention(namconv);
 
   // Run the calculator

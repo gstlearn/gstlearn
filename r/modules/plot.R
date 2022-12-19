@@ -74,14 +74,13 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
 }
 setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
 
-
 # Function for representing the Experimental Variogram together with the Model (optional)
 
 plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                         nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
                         color_psize="black", ratio_psize=3,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
-                        title="", end.plot=TRUE, ...)
+                        title="", show.legend=FALSE, end.plot=TRUE, ...)
 {
   ensure_dependencies()
   ndir = vario$getDirectionNumber()
@@ -140,12 +139,12 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           if (draw_psize)
             g <- g + geom_point(data = df, aes(x=hh, y=gg), 
               size=sw/ratio_psize, color=color_psize, 
-              na.rm=TRUE, show.legend=FALSE)
+              na.rm=TRUE, show.legend=show.legend)
             
           if (draw_plabels)
              g <- g + geom_text(data = df, aes(x=hh, y=gg, label=as.character(sw)),
                color=color_plabel, size=size_plabel, nudge_y=nudge_y, 
-               show.legend=FALSE, check_overlap=TRUE)
+               show.legend=show.legend, check_overlap=TRUE)
    
           # Plotting the Model (optional)
           if (! is.null(model))
@@ -195,9 +194,9 @@ setMethod("plot", signature(x="_p_Vario"), function(x,y,...) plot.varmod(x,...))
 plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
               color0='red', size0=0.2, color_label="black", nudge_y=0.1,
               sizmin=10, sizmax=100, flagAbsSize = FALSE, 
-              show.legend.color=FALSE, name.legend.color="P-Color",
-              show.legend.size =FALSE, name.legend.size ="P-Size",
-              show.legend.label=FALSE, name.legend.label="P-Label",
+              show.legend.color=FALSE, legend.name.color="P-Color",
+              show.legend.size =FALSE, legend.name.size ="P-Size",
+              show.legend.label=FALSE, legend.name.label="P-Label",
               asp=1, xlab="", ylab="", title="", 
               padd = NULL, end.plot=TRUE, ...) 
 {  
@@ -242,33 +241,32 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   {
     labval = rep(0,np)
   }
-  
   df = data.frame(xtab,ytab,colval,sizval,labval)
   
   p <- getFigure(padd)
      
   p <- p + geom_point(data=df, aes(x=xtab,y=ytab,color=colval,size=sizval),
-      na.rm=TRUE)
+           na.rm=TRUE)
   
   if (! is.null(label_name)) 
   {
-   p <- p + geom_text(data = df, aes(x=x, y=y, label=as.character(labval)),
+    p <- p + geom_text(data = df, aes(x=x, y=y, label=as.character(labval)),
                nudge_y=nudge_y, color=color_label, check_overlap=TRUE)
-  if (show.legend.label) {
-    p <- p + guides(label = guide_legend(title = name.legend.label))
-  } else {
-    p <- p + guides(label = "none")
-  }
+    if (show.legend.label) {
+      p <- p + guides(label = guide_legend(title = legend.name.label))
+    } else {
+      p <- p + guides(label = "none")
+    }
   }
   
   if (show.legend.color) {
-    p <- p + guides(color = guide_legend(title = name.legend.color))
+    p <- p + guides(color = guide_legend(title = legend.name.color))
   } else {
     p <- p + guides(color = "none")
   }
     
   if (show.legend.size) {
-    p <- p + guides(size = guide_legend(title = name.legend.size))
+    p <- p + guides(size = guide_legend(title = legend.name.size))
   } else {
     p <- p + guides(size = "none")
   }
@@ -279,8 +277,11 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
 }
 
 # Function for plotting a variable (referred by its name) informed in a grid Db
+#
+# option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
 plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
-      show.legend=TRUE, name_legend="G-Fill",
+	  option="B",
+      show.legend=TRUE, legend.name="G-Fill",
       xlab="", ylab="", title="", 
       padd=NULL, end.plot=TRUE)
 {
@@ -303,15 +304,34 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
       name = dbgrid$getLastName()
   }
   data = Db_getColumn(dbgrid, name)
-  df = data.frame(x,y,data)
   
   p <- getFigure(padd)
   
-  p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data)) + 
-           scale_fill_viridis_c(option = "inferno", na.value = color_NA)
-       
+  angle = dbgrid$getAngles()[1]
+  
+  if (angle == 0)
+  {
+    df = data.frame(x,y,data)
+	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data)) + 
+   	        scale_fill_viridis_c(option = option, na.value = color_NA)
+  }
+  else
+  {
+    ids = seq(1, dbgrid$getNTotal())
+ 	coords = dbgrid$getAllCellsEdges()
+ 	positions = data.frame(
+  	id = rep(ids, each=4),
+  	x = coords[[1]],
+  	y = coords[[2]])
+  	data = Db_getColumn(dbgrid, name)
+  	values = data.frame(id = ids, value = data)
+  	df <- merge(values, positions, by = c("id"))
+  	p <- ggplot(df, aes(x = x, y = y)) +
+    	geom_polygon(aes(fill = value, group = id))
+  }
+  
   if (show.legend) {
-    p <- p + guides(fill = guide_legend(title=name_legend))
+    p <- p + guides(fill = guide_legend(title=legend.name))
   } else {
     p <- p + guides(fill = "none")
   }
@@ -472,8 +492,9 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
   
   p = plot.XY(valY, valZ, join=TRUE, flagDiag = FALSE,
               color=color, linetype=linetype, 
-              xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, title=title, 
-              padd=padd)
+              xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, 
+              title=title, 
+              padd=padd, end.plot=end.plot)
   
   end.func(p, end.plot)
 }
@@ -493,7 +514,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
               color=color, linetype = linetype, 
               diag_color = diag_color, diag_line = diag_line,
               xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
-              padd=padd)
+              padd=padd, end.plot=end.plot)
   
   end.func(p, end.plot) 
 }

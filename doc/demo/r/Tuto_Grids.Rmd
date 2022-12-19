@@ -30,14 +30,13 @@ grid
 Displaying the grid cells
 
 ```{r}
-plot.grid(grid,title="Display of Grid")
+plot.grid(grid,title="Display of Regular Grid")
 ```
 
 Displaying the grid nodes only
 
-
 ```{r}
-plot.point(grid,color_name="var",title="Display of Grid",show.legend.color = TRUE)
+plot.point(grid,color_name="var",title="Display of Grid Nodes",show.legend.color = TRUE)
 ```
 
 # Rotated grid
@@ -51,11 +50,13 @@ grid
 Displaying the cells
 
 ```{r}
-plot.grid(grid,title="Display of Grid")
+plot.grid(grid,title="Display of Rotated Grid")
 ```
 
 As a set of grid nodes
 
 ```{r}
-plot.point(grid,color_name="var",title="Display of Grid",show.legend.color = TRUE)
+plot.point(grid,color_name="var",title="Display of Rotated Grid Nodes",
+           show.legend.color = TRUE)
 ```
+

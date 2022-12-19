@@ -8,15 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Estimation/CalcKrigingFactors.hpp"
 #include "geoslib_old_f.h"
 
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/KrigingSystem.hpp"
-#include "Estimation/CalcFactorKriging.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
-CalcFactorKriging::CalcFactorKriging(bool flag_est, bool flag_std)
+CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
     : ACalcInterpolator(),
       _flagEst(flag_est),
       _flagStd(flag_std),
@@ -28,11 +28,11 @@ CalcFactorKriging::CalcFactorKriging(bool flag_est, bool flag_std)
 {
 }
 
-CalcFactorKriging::~CalcFactorKriging()
+CalcKrigingFactors::~CalcKrigingFactors()
 {
 }
 
-bool CalcFactorKriging::_check()
+bool CalcKrigingFactors::_check()
 {
   // Turn the problem to Monovariate before checking consistency with 'Model'
   getDbin()->clearLocators(ELoc::Z);
@@ -76,7 +76,7 @@ bool CalcFactorKriging::_check()
   return true;
 }
 
-bool CalcFactorKriging::_preprocess()
+bool CalcKrigingFactors::_preprocess()
 {
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   const AAnam* anam = getModel()->getAnam();
@@ -115,7 +115,7 @@ bool CalcFactorKriging::_preprocess()
   return true;
 }
 
-bool CalcFactorKriging::_postprocess()
+bool CalcKrigingFactors::_postprocess()
 {
   /* Free the temporary variables */
   _cleanVariableDb(2);
@@ -129,12 +129,12 @@ bool CalcFactorKriging::_postprocess()
   return true;
 }
 
-void CalcFactorKriging::_rollback()
+void CalcKrigingFactors::_rollback()
 {
   _cleanVariableDb(1);
 }
 
-int CalcFactorKriging::_getNFactors() const
+int CalcKrigingFactors::_getNFactors() const
 {
   return (int) _iuidFactors.size();
 }
@@ -146,7 +146,7 @@ int CalcFactorKriging::_getNFactors() const
  ** \return  Error return code
  **
  *****************************************************************************/
-bool CalcFactorKriging::_run()
+bool CalcKrigingFactors::_run()
 {
   KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeighparam());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, -1)) return 1;
@@ -206,7 +206,7 @@ int KrigingFactors(Db *dbin,
                    bool flag_std,
                    const NamingConvention &namconv)
 {
-  CalcFactorKriging krige(flag_est, flag_std);
+  CalcKrigingFactors krige(flag_est, flag_std);
   krige.setDbin(dbin);
   krige.setDbout(dbgrid);
   krige.setModel(model);

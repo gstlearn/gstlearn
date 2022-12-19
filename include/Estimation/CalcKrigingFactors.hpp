@@ -20,13 +20,13 @@ class Db;
 class DbGrid;
 class KrigingSystem;
 
-class GSTLEARN_EXPORT CalcFactorKriging: public ACalcInterpolator
+class GSTLEARN_EXPORT CalcKrigingFactors: public ACalcInterpolator
 {
 public:
-  CalcFactorKriging(bool flag_est = true, bool flag_std = true);
-  CalcFactorKriging(const CalcFactorKriging &r) = delete;
-  CalcFactorKriging& operator=(const CalcFactorKriging &r) = delete;
-  virtual ~CalcFactorKriging();
+  CalcKrigingFactors(bool flag_est = true, bool flag_std = true);
+  CalcKrigingFactors(const CalcKrigingFactors &r) = delete;
+  CalcKrigingFactors& operator=(const CalcKrigingFactors &r) = delete;
+  virtual ~CalcKrigingFactors();
 
   void setCalcul(const EKrigOpt &calcul) { _calcul = calcul; }
   void setNdisc(const VectorInt &ndisc) { _ndisc = ndisc; }

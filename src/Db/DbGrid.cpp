@@ -1211,6 +1211,48 @@ VectorVectorDouble DbGrid::getCellEdges(int node, bool forceGridMesh) const
   return coords;
 }
 
+VectorVectorDouble DbGrid::getAllCellsEdges(bool forceGridMesh) const
+{
+  VectorVectorDouble coords(2);
+  int ndim = getNDim();
+  VectorInt icorner(ndim,0);
+  VectorDouble local;
+
+  // Get the extension of the target cell (possibly variable)
+  VectorDouble dxsPerCell;
+  if (forceGridMesh) dxsPerCell = getDXs();
+
+  for (int node = 0; node < getNTotal(); node++)
+  {
+    if (! forceGridMesh) dxsPerCell = getBlockExtensions(node);
+
+    icorner[0] = -1;
+    icorner[1] = -1;
+    local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+    coords[0].push_back(local[0]);
+    coords[1].push_back(local[1]);
+
+    icorner[0] = -1;
+    icorner[1] = 1;
+    local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+    coords[0].push_back(local[0]);
+    coords[1].push_back(local[1]);
+
+    icorner[0] = 1;
+    icorner[1] = 1;
+    local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+    coords[0].push_back(local[0]);
+    coords[1].push_back(local[1]);
+
+    icorner[0] = 1;
+    icorner[1] = -1;
+    local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+    coords[0].push_back(local[0]);
+    coords[1].push_back(local[1]);
+  }
+  return coords;
+}
+
 /**
  * Return the VectorVectorDouble containing the borders of the grid
  * @return

@@ -31,7 +31,6 @@ public:
   const AAnam* getAnam() const { return _anam; }
   void setFlagVars(bool flagVars) { _flagVars = flagVars; }
   void setFlagToFactors(bool flagToFactors) { _flagToFactors = flagToFactors; }
-  void setFlagFromFactors(bool flagFromFactors) { _flagFromFactors = flagFromFactors; }
   void setFlagZToY(bool flagZToY) { _flagZToY = flagZToY; }
   void setFlagNormalScore(bool flagNormalScore) { _flagNormalScore = flagNormalScore; }
   void setIfacs(const VectorInt &ifacs) { _ifacs = ifacs; }
@@ -41,7 +40,7 @@ public:
   void setFlagOk(bool flagOk) { _flagOK = flagOk; }
   void setNbsimu(int nbsimu) { _nbsimu = nbsimu; }
   void setProba(double proba) { _proba = proba; }
-  void setVerbose(bool verbose) { _verbose = verbose; }
+  void setFlagDisjKrig(bool flagDisjKrig) { _flagDisjKrig = flagDisjKrig; }
   void setFlagCondExp(bool flagCondExp) { _flagCondExp = flagCondExp; }
   void setFlagUniCond(bool flagUniCond) { _flagUniCond = flagUniCond; }
   void setCvv(double cvv) { _cvv = cvv; }
@@ -73,7 +72,7 @@ private:
   int _iattSel;
   bool _flagVars;
   bool _flagToFactors;
-  bool _flagFromFactors;
+  bool _flagDisjKrig;
   bool _flagCondExp;
   bool _flagUniCond;
   bool _flagZToY;
@@ -83,7 +82,6 @@ private:
   VectorInt _iptrStd;
   int _nbsimu;
   bool _flagOK;
-  bool _verbose;
   double _proba;
   double _cvv;
   AAnam* _anam;
@@ -124,13 +122,13 @@ GSTLEARN_EXPORT int RawToFactor(Db *db,
                                 const NamingConvention &namconv = NamingConvention(
                                     "Factor"));
 
-GSTLEARN_EXPORT int FactorToSelectivity(Db *db,
-                                        AAnam *anam,
-                                        Selectivity *selectivity,
-                                        const VectorString &names_est,
-                                        const VectorString &names_std,
-                                        const NamingConvention &namconv = NamingConvention(
-                                            "QT"));
+GSTLEARN_EXPORT int DisjunctiveKriging(Db *db,
+                                       AAnam *anam,
+                                       Selectivity *selectivity,
+                                       const VectorString &name_est,
+                                       const VectorString &name_std,
+                                       const NamingConvention &namconv = NamingConvention(
+                                           "DK"));
 GSTLEARN_EXPORT int ConditionalExpectation(Db *db,
                                            AAnam *anam,
                                            Selectivity *selectivity = nullptr,
@@ -139,7 +137,6 @@ GSTLEARN_EXPORT int ConditionalExpectation(Db *db,
                                            bool flag_OK = false,
                                            double proba = TEST,
                                            int nbsimu = 0,
-                                           bool verbose = false,
                                            const NamingConvention &namconv = NamingConvention(
                                                "CE"));
 GSTLEARN_EXPORT int UniformConditioning(Db *db,
@@ -148,6 +145,5 @@ GSTLEARN_EXPORT int UniformConditioning(Db *db,
                                         const String &names_est,
                                         const String &names_std,
                                         double cvv,
-                                        bool verbose = false,
                                         const NamingConvention &namconv = NamingConvention(
                                             "UC"));

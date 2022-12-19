@@ -37,7 +37,7 @@ public:
   virtual int          getNFactor() const { return 0; }
   virtual int          getNClass() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
-  virtual VectorDouble z2factor(double z, const VectorInt& nfact) const;
+  virtual VectorDouble z2factor(double z, const VectorInt& ifqcs) const;
   virtual double       computeVariance(double sval) const;
   virtual int          updatePointToBlock(double r_coef);
   virtual bool         allowChangeSupport() const { return false; }

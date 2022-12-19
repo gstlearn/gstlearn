@@ -36,11 +36,11 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Estimation/CalcKriging.hpp"
-#include "Estimation/CalcFactorKriging.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Calculators/CalcStatistics.hpp"
 
 #include <math.h>
+#include "../../include/Estimation/CalcKrigingFactors.hpp"
 
 /****************************************************************************/
 /*!
@@ -158,7 +158,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Calculating the Conditional Expectation
   (void) ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
-                                "G_PTS*stdev", false, TEST, 0, false,
+                                "G_PTS*stdev", false, TEST, 0,
                                 NamingConvention("PTS_Recovery",false));
   blocs->display();
 
@@ -210,7 +210,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Perform the Uniform Conditioning over Blocks
   (void) UniformConditioning(blocs, anam, selectivity,
-                             "Z_PTS*estim", "Z_PTS*stdev", cvv_Z, false,
+                             "Z_PTS*estim", "Z_PTS*stdev", cvv_Z,
                              NamingConvention("UC",false));
   blocs->display();
   data->setLocator("Gauss.Z",ELoc::Z);
@@ -291,7 +291,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Selectivity Function ==================================
 
-  FactorToSelectivity(blocs, anam, selectivity,
+  DisjunctiveKriging(blocs, anam, selectivity,
                       blocs->getName("DK_Pts*estim"),
                       blocs->getName("DK_Pts*stdev"),
                       NamingConvention("QT",false));

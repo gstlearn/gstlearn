@@ -829,8 +829,8 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
         im = ax.pcolormesh(X, Y, data, **plot_args)
         im.set_transform(trans_data)
         
-        if flagColorBar:
-            addColorbar(im, ax)
+    if flagColorBar:
+        addColorbar(im, ax)
     
     if levels is not None:
         ax.contour(X, Y, data, levels, colors=colorL, linestyles=linestyleL)

@@ -261,7 +261,7 @@ set(SRC
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
-  Estimation/CalcFactorKriging.cpp
+  Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
   OutputFormat/AOF.cpp

@@ -176,20 +176,18 @@ int _migrate(Db *db1,
 /***************************************/
 
 int _conditionalExpextation(Db *db,
-             AAnam *anam,
-             const Selectivity *selectivity,
-             int iptr0,
-             int col_est,
-             int col_std,
-             bool flag_OK,
-             double proba,
-             int nbsimu,
-             bool verbose = false);
+                            AAnam *anam,
+                            const Selectivity *selectivity,
+                            int iptr0,
+                            int col_est,
+                            int col_std,
+                            bool flag_OK,
+                            double proba,
+                            int nbsimu);
 int _uniformConditioning(Db *db,
                          AAnam *anam,
                          Selectivity *selectivity,
                          int iptr0,
                          int col_est,
                          int col_var,
-                         double cvv,
-                         bool verbose = false);
+                         double cvv);
