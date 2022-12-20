@@ -43,7 +43,6 @@ public:
   void setFlagDisjKrig(bool flagDisjKrig) { _flagDisjKrig = flagDisjKrig; }
   void setFlagCondExp(bool flagCondExp) { _flagCondExp = flagCondExp; }
   void setFlagUniCond(bool flagUniCond) { _flagUniCond = flagUniCond; }
-  void setCvv(double cvv) { _cvv = cvv; }
 
 private:
   virtual bool _check() override;
@@ -83,45 +82,11 @@ private:
   int _nbsimu;
   bool _flagOK;
   double _proba;
-  double _cvv;
   AAnam* _anam;
   Selectivity* _selectivity;
 };
 
 // TODO : rename functions with a lower case at the beginning
-GSTLEARN_EXPORT int RawToGaussianByLocator(Db *db,
-                                           AAnam *anam,
-                                           const NamingConvention &namconv = NamingConvention(
-                                               "Y"));
-GSTLEARN_EXPORT int RawToGaussian(Db *db,
-                                  AAnam *anam,
-                                  const String &name,
-                                  const NamingConvention &namconv = NamingConvention(
-                                      "Y"));
-GSTLEARN_EXPORT int NormalScore(Db *db,
-                                const NamingConvention &namconv = NamingConvention(
-                                    "Gaussian"));
-GSTLEARN_EXPORT int GaussianToRawByLocator(Db *db,
-                                           AAnam *anam,
-                                           const NamingConvention &namconv = NamingConvention(
-                                               "Z"));
-GSTLEARN_EXPORT int GaussianToRaw(Db *db,
-                                  AAnam *anam,
-                                  const String& name,
-                                  const NamingConvention &namconv = NamingConvention(
-                                      "Z"));
-
-GSTLEARN_EXPORT int RawToFactor(Db *db,
-                                AAnam* anam,
-                                const VectorInt &ifacs,
-                                const NamingConvention &namconv = NamingConvention(
-                                    "Factor"));
-GSTLEARN_EXPORT int RawToFactor(Db *db,
-                                AAnam* anam,
-                                int nfactor,
-                                const NamingConvention &namconv = NamingConvention(
-                                    "Factor"));
-
 GSTLEARN_EXPORT int DisjunctiveKriging(Db *db,
                                        AAnam *anam,
                                        Selectivity *selectivity,
@@ -142,8 +107,7 @@ GSTLEARN_EXPORT int ConditionalExpectation(Db *db,
 GSTLEARN_EXPORT int UniformConditioning(Db *db,
                                         AAnam *anam,
                                         Selectivity *selectivity,
-                                        const String &names_est,
-                                        const String &names_std,
-                                        double cvv,
+                                        const String &name_est,
+                                        const String &name_varz,
                                         const NamingConvention &namconv = NamingConvention(
                                             "UC"));

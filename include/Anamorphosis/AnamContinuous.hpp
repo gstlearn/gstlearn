@@ -63,6 +63,7 @@ public:
 
   /// Interface for AnamContinuous
   virtual void   calculateMeanAndVariance();
+  virtual double getVariance() const override { return _variance; }
 
   void setABounds(double azmin = TEST,
                   double azmax = TEST,
@@ -81,7 +82,7 @@ public:
                            double aymax = +10);
 
   double getMean() const { return _mean; }
-  double getVariance() const { return _variance; }
+
   double getAymax() const { return _ay.getVmax(); }
   double getAymin() const { return _ay.getVmin(); }
   double getAzmax() const { return _az.getVmax(); }

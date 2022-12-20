@@ -64,13 +64,12 @@ public:
                                           const VarioParam* varioparam,
                                           const VectorDouble& ext,
                                           const VectorInt& ndisc,
-                                          const VectorDouble& angles);
+                                          const VectorDouble& angles,
+                                          bool asCov = false);
   static Vario* createTransformZToY(const Vario* varioZ,
-                                    const AAnam* anam,
-                                    double cvv);
+                                    const AAnam* anam);
   static Vario* createTransformYToZ(const Vario* varioY,
-                                    const AAnam* anam,
-                                    const Model* model);
+                                    const AAnam* anam);
   static Vario* createReduce(const Vario *varioIn,
                              const VectorInt &varcols,
                              const VectorInt &dircols,
@@ -207,13 +206,14 @@ public:
                    Model *model = nullptr,
                    bool verbose = false,
                    int nfacmax = -1);
-  int transformZToY(const AAnam *anam, double cvv);
-  int transformYToZ(const AAnam *anam, const Model *model);
+  int transformZToY(const AAnam *anam);
+  int transformYToZ(const AAnam *anam);
   int modelRegularize(const Model* model,
                       const VectorDouble& ext,
                       const VectorInt& ndisc,
                       const VectorDouble& angles = VectorDouble(),
-                      const CovCalcMode& mode = CovCalcMode());
+                      const CovCalcMode& mode = CovCalcMode(),
+                      bool asCov = false);
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }
@@ -248,6 +248,7 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Vario"; }
+  void setCalcul(const ECalcVario &calcul) { _calcul = calcul; }
 
 private:
   bool _isVariableValid(int ivar) const;

@@ -307,13 +307,20 @@ int ACovAnisoList::getGradParamNumber(unsigned int icov) const
 
 /**
  * Calculate the total sill of the model for given pair of variables
- * Returns 0 as soon as one structure has no range
+ * Returns TEST as soon as one structure has no sill
  * @param ivar Rank of the first variable
  * @param jvar Rank of the second variable
  */
 double ACovAnisoList::getTotalSill(int ivar, int jvar) const
 {
-  return eval0(ivar, jvar);
+  double sill_total = 0.;
+  for (int icov = 0; icov < getCovNumber(); icov++)
+  {
+    const CovAniso* cova = getCova(icov);
+    if (cova->getMinOrder() >= 0) return TEST;
+    sill_total += cova->getSill(ivar, jvar);
+  }
+  return sill_total;
 }
 
 MatrixSquareGeneral ACovAnisoList::getTotalSill() const
@@ -322,7 +329,7 @@ MatrixSquareGeneral ACovAnisoList::getTotalSill() const
   MatrixSquareGeneral mat(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      mat.setValue(ivar,jvar,eval0(ivar,jvar));
+      mat.setValue(ivar,jvar,getTotalSill(ivar,jvar));
   return mat;
 }
 
@@ -389,9 +396,7 @@ void ACovAnisoList::normalize(double sill)
 {
   double covval = 0.;
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
-  {
     covval += _covs[i]->eval0(0, 0);
-  }
 
   if (covval <= 0. || covval == sill) return;
   double ratio = sill / covval;

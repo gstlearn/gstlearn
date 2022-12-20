@@ -25,6 +25,7 @@ class Cheb_Elem;
 class Rule;
 class VarioParam;
 class AAnam;
+class AnamHermite;
 class Selectivity;
 class DbGrid;
 class NeighImage;
@@ -185,9 +186,8 @@ int _conditionalExpextation(Db *db,
                             double proba,
                             int nbsimu);
 int _uniformConditioning(Db *db,
-                         AAnam *anam,
+                         AnamHermite *anam,
                          Selectivity *selectivity,
                          int iptr0,
                          int col_est,
-                         int col_var,
-                         double cvv);
+                         int col_var);

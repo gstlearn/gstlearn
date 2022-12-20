@@ -81,7 +81,8 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
 
   if (! _isFitted()) return sstr.str();
 
-  sstr << toVector("Normalized coefficients for Hermite polynomials",_psiHn);
+  sstr << toVector("Normalized coefficients for Hermite polynomials (punctual variable)",
+                   _psiHn);
 
   return sstr.str();
 }
@@ -306,6 +307,12 @@ void AnamHermite::calculateMeanAndVariance()
   _variance = computeVariance(1.);
 }
 
+void AnamHermite::setRCoef(double r_coef)
+{
+  _rCoef = r_coef;
+  calculateMeanAndVariance();
+}
+
 int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
 {
   int     icl,ih,ncl;
@@ -362,12 +369,12 @@ int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
   return 0;
 }
 
-double AnamHermite::getPsiHn(int i) const
+double AnamHermite::getPsiHn(int ih) const
 {
-  if (! _isIndexValid(i)) return TEST;
-  double value = _psiHn[i];
+  if (! _isIndexValid(ih)) return TEST;
+  double value = _psiHn[ih];
   if (isChangeSupportDefined())
-    value *= pow(_rCoef, (double) i);
+    value *= pow(_rCoef, (double) ih);
   return value;
 }
 

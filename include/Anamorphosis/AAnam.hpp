@@ -33,6 +33,7 @@ public:
 
   /// Interface for AAnam
   virtual const EAnam& getType() const = 0;
+  virtual double       getVariance() const { return TEST; }
   virtual bool         hasFactor() const { return false; }
   virtual int          getNFactor() const { return 0; }
   virtual int          getNClass() const { return 0; }
@@ -53,6 +54,29 @@ public:
 
   int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::Z);
   int fit(Db *db, const String& name);
+
+  int RawToGaussianByLocator(Db *db,
+                             const NamingConvention &namconv = NamingConvention(
+                                 "Y"));
+  int RawToGaussian(Db *db,
+                    const String &name,
+                    const NamingConvention &namconv = NamingConvention("Y"));
+  int NormalScore(Db *db,
+                  const NamingConvention &namconv = NamingConvention(
+                      "Gaussian"));
+  int GaussianToRawByLocator(Db *db,
+                             const NamingConvention &namconv = NamingConvention(
+                                 "Z"));
+  int GaussianToRaw(Db *db,
+                    const String &name,
+                    const NamingConvention &namconv = NamingConvention("Z"));
+
+  int RawToFactor(Db *db,
+                  const VectorInt &ifacs,
+                  const NamingConvention &namconv = NamingConvention("Factor"));
+  int RawToFactor(Db *db,
+                  int nfactor,
+                  const NamingConvention &namconv = NamingConvention("Factor"));
 
 protected:
   bool _isSampleSkipped(Db *db,

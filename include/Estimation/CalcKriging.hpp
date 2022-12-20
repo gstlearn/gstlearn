@@ -127,7 +127,7 @@ GSTLEARN_EXPORT int krigcell(Db *dbin,
                              VectorInt rank_colcok = VectorInt(),
                              const NamingConvention& namconv = NamingConvention("KrigCell"));
 GSTLEARN_EXPORT int krigdgm(Db *dbin,
-                            DbGrid *dbgrid,
+                            DbGrid *dbout,
                             Model *model,
                             ANeighParam *neighparam,
                             bool flag_est = true,

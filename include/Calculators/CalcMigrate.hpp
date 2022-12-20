@@ -53,7 +53,6 @@ private:
   VectorDouble _dmax;
   bool _flagFill;
   bool _flagInter;
-
   bool _flagLocate;
   ELoc _locatorType;
 };

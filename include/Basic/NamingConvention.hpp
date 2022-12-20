@@ -31,6 +31,14 @@ public:
   NamingConvention& operator=(const NamingConvention &m);
   virtual ~NamingConvention();
 
+  static NamingConvention* create(String prefix = String(),
+                                  bool flag_varname = true,
+                                  bool flag_qualifier = true,
+                                  bool flag_locator = true,
+                                  const ELoc &locatorOutType = ELoc::fromKey("Z"),
+                                  String delim = ".",
+                                  bool cleanSameLocator = true);
+
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
                            const String& qualifier = String(),
