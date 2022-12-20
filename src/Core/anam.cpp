@@ -622,25 +622,22 @@ int _conditionalExpextation(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  anam         Block Hermite anamorphosis
  ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  iptr0        Pointer for storage
  ** \param[in]  col_est      Rank of variable containing Kriging estimate
  ** \param[in]  col_var      Rank of Variable containing Variance of Kriging estimate
- ** \param[in]  cvv          Mean covariance over block
  **
  *****************************************************************************/
 int _uniformConditioning(Db *db,
-                         AAnam *anam,
+                         AnamHermite *anam,
                          Selectivity *selectivity,
                          int iptr0,
                          int col_est,
-                         int col_var,
-                         double cvv)
+                         int col_var)
 {
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  anam_hermite->setFlagBound(1);
-  int nbpoly  = anam_hermite->getNbPoly();
+//  anam->setFlagBound(1);
+  int nbpoly  = anam->getNbPoly();
   int ncuts = selectivity->getNCuts();
 
   /* Core allocation */
@@ -649,7 +646,7 @@ int _uniformConditioning(Db *db,
 
   /* Memorize the punctual Hermite polynomials */
 
-  VectorDouble psi_hn = anam_hermite->getPsiHns();
+  VectorDouble psi_hn = anam->getPsiHns();
 
   /* Add variables for storage */
 
@@ -658,16 +655,13 @@ int _uniformConditioning(Db *db,
   int iptr_yV = db->addColumnsByConstant(1, TEST);
   if (iptr_yV < 0) return 1;
 
-  /* Transforming Point anamorphosis into Block Anamorphosis */
-
   // Calculate the change of support coefficient
 
-  double r_coef = sqrt(anam->invertVariance(cvv));
-  anam_hermite->setRCoef(r_coef);
+  double r_coef = anam->getRCoef();
 
   /* Transform zcuts into gaussian equivalent */
 
-  VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
+  VectorDouble ycuts = anam->RawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 
@@ -691,13 +685,13 @@ int _uniformConditioning(Db *db,
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    anam_hermite->setPsiHn(psi_hn);
-    anam_hermite->calculateMeanAndVariance();
+    anam->setPsiHn(psi_hn);
+    anam->calculateMeanAndVariance();
     double zvstar = db->getArray(iech, col_est);
     double varv = db->getArray(iech, col_var);
     if (anam_point_to_block(anam, 0, varv, TEST, TEST)) continue;
-    db->setArray(iech, iptr_sV, anam_hermite->getRCoef());
-    db->setArray(iech, iptr_yV, anam_hermite->RawToTransformValue(zvstar));
+    db->setArray(iech, iptr_sV, anam->getRCoef());
+    db->setArray(iech, iptr_yV, anam->RawToTransformValue(zvstar));
 
     if (varv < vv_min) vv_min = varv;
     if (varv > vv_max) vv_max = varv;

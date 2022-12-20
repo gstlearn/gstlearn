@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Estimation/CalcKrigingFactors.hpp"
 #include "geoslib_old_f.h"
 
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Estimation/CalcKrigingFactors.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
 CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
@@ -78,7 +78,6 @@ bool CalcKrigingFactors::_check()
 
 bool CalcKrigingFactors::_preprocess()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   const AAnam* anam = getModel()->getAnam();
 
   // Check if the change of support is defined in the Anamorphosis
@@ -87,6 +86,12 @@ bool CalcKrigingFactors::_preprocess()
   // Centering the information (onyl when a change of support is defined)
   if (flag_change_support)
   {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    if (dbgrid == nullptr)
+    {
+      messerr("Due to change of support, 'dbout' should be a Grid");
+      return false;
+    }
     if (_ndisc.empty())
     {
       // Center the information in the blocks of the output grid
@@ -182,7 +187,7 @@ bool CalcKrigingFactors::_run()
  ** \return  Error return code
  **
  ** \param[in]  dbin       input Db structure (containing the factors)
- ** \param[in]  dbgrid     output Grid Db structure
+ ** \param[in]  dbout      output Grid Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
@@ -197,7 +202,7 @@ bool CalcKrigingFactors::_run()
  **
  *****************************************************************************/
 int KrigingFactors(Db *dbin,
-                   DbGrid *dbgrid,
+                   Db *dbout,
                    Model *model,
                    ANeighParam *neighparam,
                    const EKrigOpt &calcul,
@@ -208,7 +213,7 @@ int KrigingFactors(Db *dbin,
 {
   CalcKrigingFactors krige(flag_est, flag_std);
   krige.setDbin(dbin);
-  krige.setDbout(dbgrid);
+  krige.setDbout(dbout);
   krige.setModel(model);
   krige.setNeighparam(neighparam);
   krige.setNamingConvention(namconv);

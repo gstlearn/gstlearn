@@ -172,8 +172,8 @@ private:
                      int ip1,
                      double value,
                      double tol = EPSILON10) const;
-
   void _determineFlagNoStatByHH();
+
 private:
   VectorDouble _TildeC;
   VectorDouble _Lambda;

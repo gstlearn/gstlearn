@@ -12,6 +12,7 @@
 #include "geoslib_old_f.h"
 
 #include "Anamorphosis/AAnam.hpp"
+#include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
 
@@ -268,4 +269,153 @@ int AAnam::fit(Db *db, const String& name)
   if (fitFromArray(tab, wt)) return 1;
   _flagFitted = true;
   return 0;
+}
+
+/**
+ * Process the variable(s) stored with locator Z
+ * @param db      Db structure
+ * @param anam    AAnam structure
+ * @param namconv Naming Convention
+ * @return
+ */
+int AAnam::RawToGaussianByLocator(Db *db, const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(this);
+  transfo.setFlagVars(true);
+  transfo.setFlagZToY(true);
+  transfo.setFlagNormalScore(false);
+  transfo.setDb(db);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+int AAnam::RawToGaussian(Db *db,
+                         const String &name,
+                         const NamingConvention &namconv)
+{
+  if (db == nullptr) return 1;
+  db->setLocator(name, ELoc::Z);
+
+  CalcAnamTransform transfo(this);
+  transfo.setFlagVars(true);
+  transfo.setFlagZToY(true);
+  transfo.setFlagNormalScore(false);
+  transfo.setDb(db);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+int AAnam::GaussianToRawByLocator(Db *db, const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(this);
+  transfo.setFlagZToY(true);
+  transfo.setFlagNormalScore(false);
+  transfo.setDb(db);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+int AAnam::GaussianToRaw(Db *db,
+                         const String &name,
+                         const NamingConvention &namconv)
+{
+  if (db == nullptr) return 1;
+  db->setLocator(name, ELoc::Z);
+
+  CalcAnamTransform transfo(this);
+  transfo.setFlagVars(true);
+  transfo.setFlagZToY(true);
+  transfo.setFlagNormalScore(false);
+  transfo.setDb(db);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Transform the target variable inti Gaussian by Normal Score
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db         Db Structure
+ ** \param[in]  namconv    Naming convention
+ **
+ *****************************************************************************/
+int AAnam::NormalScore(Db *db, const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(this);
+  transfo.setDb(db);
+  transfo.setFlagVars(true);
+  transfo.setFlagZToY(true);
+  transfo.setFlagNormalScore(true);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the factors corresponding to an input data vector
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db          Db structure
+ ** \param[in]  ifacs       Array of factor ranks
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int AAnam::RawToFactor(Db *db,
+                       const VectorInt &ifacs,
+                       const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(this);
+  transfo.setDb(db);
+  transfo.setFlagToFactors(true);
+  transfo.setIfacs(ifacs);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the factors corresponding to an input data vector
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db          Db structure
+ ** \param[in]  nfactor     Number of first factors
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int AAnam::RawToFactor(Db *db,
+                       int nfactor,
+                       const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(this);
+  transfo.setDb(db);
+  transfo.setFlagToFactors(true);
+  VectorInt ifacs = VH::sequence(nfactor, 1);
+  transfo.setIfacs(ifacs);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
 }

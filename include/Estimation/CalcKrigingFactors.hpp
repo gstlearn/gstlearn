@@ -56,7 +56,7 @@ private:
 };
 
 GSTLEARN_EXPORT int KrigingFactors(Db *dbin,
-                                   DbGrid *dbgrid,
+                                   Db *dbout,
                                    Model *model,
                                    ANeighParam *neighparam,
                                    const EKrigOpt &calcul = EKrigOpt::fromKey(

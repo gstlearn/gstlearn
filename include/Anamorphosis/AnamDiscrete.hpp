@@ -35,13 +35,13 @@ public:
 
   /// Interface for AnamDiscrete
   virtual void calculateMeanAndVariance();
+  virtual double getVariance() const override { return _variance; }
 
   int getNCut() const { return _nCut; }
   int getNElem() const { return _nElem; }
   const VectorDouble& getZCut() const { return _zCut; }
   double getZCut(int i) const { return _zCut[i]; }
   double getMean() const { return _mean; }
-  double getVariance() const { return _variance; }
 
   void setMean(double mean) { _mean = mean; }
   void setVariance(double variance) { _variance = variance; }

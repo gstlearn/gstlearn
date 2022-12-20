@@ -127,7 +127,7 @@ int main(int /*argc*/, char */*argv*/[])
   model_raw->display();
 
   // Transform Data into Gaussian variable
-  (void) RawToGaussianByLocator(data, anam);
+  (void) anam->RawToGaussianByLocator(data);
   data->setName("Y.Z","Gauss.Z");
   data->display();
 
@@ -172,14 +172,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Computing the Point factors
   int nfactor = 3;
-  (void) RawToFactor(data, anam, nfactor);
+  (void) anam->RawToFactor(data, nfactor);
   data->display();
 
   // Simple Point Kriging over the blocks
   (void) KrigingFactors(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
                             VectorInt(), true, true,
                             NamingConvention("DK_Pts"));
-
   blocs->display();
 
   // Simple Block Kriging over the blocks
@@ -210,7 +209,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Perform the Uniform Conditioning over Blocks
   (void) UniformConditioning(blocs, anam, selectivity,
-                             "Z_PTS*estim", "Z_PTS*stdev", cvv_Z,
+                             "Z_PTS*estim", "Z_PTS*stdev",
                              NamingConvention("UC",false));
   blocs->display();
   data->setLocator("Gauss.Z",ELoc::Z);
@@ -227,8 +226,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Regularization of the point model by the block support
   Vario* vario_b1_Z = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
                                                  ndisc_B, blocs->getAngles());
-  double cvv = model->evalCvv(blocs->getDXs(), ndisc_B);
-  Vario* vario_b1_Y = Vario::createTransformZToY(vario_b1_Z, anam, cvv);
+  Vario* vario_b1_Y = Vario::createTransformZToY(vario_b1_Z, anam);
 
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b1_Y = new Model(1, ndim);
@@ -315,7 +313,6 @@ int main(int /*argc*/, char */*argv*/[])
   if (vario_b1_Z != nullptr) delete vario_b1_Z;
   if (vario_b1_Y != nullptr) delete vario_b1_Y;
   if (vario_b2_Y != nullptr) delete vario_b2_Y;
-
   if (neigh      != nullptr) delete neigh;
 
   return (0);

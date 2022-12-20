@@ -62,6 +62,18 @@ NamingConvention::~NamingConvention()
 {
 }
 
+NamingConvention* NamingConvention::create(String prefix,
+                                           bool flag_varname,
+                                           bool flag_qualifier,
+                                           bool flag_locator,
+                                           const ELoc &locatorOutType,
+                                           String delim,
+                                           bool cleanSameLocator)
+{
+  return new NamingConvention(prefix, flag_varname, flag_qualifier,
+    flag_locator, locatorOutType, delim, cleanSameLocator);
+}
+
 /**
  * Naming a set of variables of 'dbout' identified by their names
  * @param dbout Pointer to the output Db

@@ -156,7 +156,8 @@ Vario* Vario::createRegularizeFromModel(const Model* model,
                                         const VarioParam* varioparam,
                                         const VectorDouble& ext,
                                         const VectorInt& ndisc,
-                                        const VectorDouble& angles)
+                                        const VectorDouble& angles,
+                                        bool asCov)
 {
   Vario* vario = nullptr;
   vario = new Vario(varioparam, nullptr);
@@ -169,11 +170,10 @@ Vario* Vario::createRegularizeFromModel(const Model* model,
 }
 
 Vario* Vario::createTransformZToY(const Vario* varioZ,
-                                  const AAnam* anam,
-                                  double cvv)
+                                  const AAnam* anam)
 {
   Vario* varioY = varioZ->clone();
-  if (varioY->transformZToY(anam, cvv))
+  if (varioY->transformZToY(anam))
   {
     messerr("Error when transforming Raw Variogram into Gaussian");
     return nullptr;
@@ -182,11 +182,10 @@ Vario* Vario::createTransformZToY(const Vario* varioZ,
 }
 
 Vario* Vario::createTransformYToZ(const Vario* varioY,
-                                  const AAnam* anam,
-                                  const Model* model)
+                                  const AAnam* anam)
 {
   Vario* varioZ = varioY->clone();
-  if (varioZ->transformYToZ(anam, model))
+  if (varioZ->transformYToZ(anam))
   {
     messerr("Error when transforming Gaussian Variogram into Raw");
     return nullptr;
@@ -495,7 +494,7 @@ int Vario::computeIndicByKey(const String& calcul_name,
  ** \param[in]  cvv         Block variance
  **
  *****************************************************************************/
-int Vario::transformZToY(const AAnam *anam, double cvv)
+int Vario::transformZToY(const AAnam *anam)
 {
   if (anam == nullptr)
   {
@@ -516,6 +515,7 @@ int Vario::transformZToY(const AAnam *anam, double cvv)
 
   /* Loop on the directions of the variogram */
 
+  double cvv = anam->getVariance();
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     /* Loop on the lags */
@@ -526,6 +526,10 @@ int Vario::transformZToY(const AAnam *anam, double cvv)
       setGgByIndex(idir,i,1. - anamH->invertVariance(cvv-getGgByIndex(idir, i)));
     }
   }
+
+  // Modify the variance array
+  setVar(0,  0, 1.);
+
   return 0;
 }
 
@@ -537,18 +541,15 @@ int Vario::transformZToY(const AAnam *anam, double cvv)
  ** \return  Error return code
  **
  ** \param[in]  anam        Point anamorphosis
- ** \param[in]  model       Model of the Punctual Gaussian
  **
  *****************************************************************************/
-int Vario::transformYToZ(const AAnam *anam, const Model *model)
+int Vario::transformYToZ(const AAnam *anam)
 {
   CovCalcMode mode;
 
   /* Preliminary checks */
 
-  int ndim = getDimensionNumber();
   if (anam == (AAnam*) NULL) return 1;
-  if (model == nullptr) return 1;
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("This function is restricted to Gaussian Anamorphosis");
@@ -570,48 +571,19 @@ int Vario::transformYToZ(const AAnam *anam, const Model *model)
     messerr("This function is restricted to Monovariate Variogram");
     return 1;
   }
-  if (model->getVariableNumber() != 1)
-  {
-    messerr("This function requires a Monovariate Model");
-    return 1;
-  }
-  if (model->getDimensionNumber() != ndim)
-  {
-    messerr("Variogram and Model should share the same Space Dimension");
-    return 1;
-  }
-
-  /* Calculate the theoretical variance of Z */
-
-  double varz = anam_hermite->computeVariance(1.);
 
   /* Loop on the directions of the variogram */
 
-  VectorDouble shift(ndim);
-  SpacePoint p1(model->getContext().getSpace());
-  SpacePoint p2(model->getContext().getSpace());
+  double c0 = anam_hermite->computeVariance(1.);
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     /* Loop on the lags */
 
     for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
     {
-      for (int idim = 0; idim < ndim; idim++)
-        shift[idim] = (ipas + 1) * getDPas(idir) * getCodir(idir, idim);
-
-      p2 = p1;
-      p2.move(shift);
-      double chh = model->eval(0,0,p1,p2,mode);
-      if (chh < 0.)
-      {
-        messerr("Gaussian covariance is negative in direction %d for lag %d",
-                idir + 1, ipas + 1);
-        messerr("Calculation is impossible");
-        return 1;
-      }
-
-      double cov = anam_hermite->computeVariance(chh);
-      setGg(idir, 0, 0, ipas, varz - cov);
+      double chh = 1. - getGg(idir, 0, 0, ipas, false);
+      double var = anam_hermite->computeVariance(chh);
+      setGg(idir, 0, 0, ipas, c0 - var);
       setHh(idir, 0, 0, ipas, (ipas + 1) * getDPas(idir));
       setSw(idir, 0, 0, ipas, 1.);
     }
@@ -630,13 +602,15 @@ int Vario::transformYToZ(const AAnam *anam, const Model *model)
  ** \param[in]  ndisc     Vector of discretization counts
  ** \param[in]  angles    Vector of rotation angles (optional)
  ** \param[in]  mode      CovCalcMode structure
+ ** \param[in]  asCov     When true; produces a covariance
  **
  *****************************************************************************/
 int Vario::modelRegularize(const Model* model,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
                            const VectorDouble& angles,
-                           const CovCalcMode& mode)
+                           const CovCalcMode& mode,
+                           bool asCov)
 {
   if (model == nullptr)
   {
@@ -651,6 +625,10 @@ int Vario::modelRegularize(const Model* model,
   setNVar(nvar);
   internalVariableResize();
   internalDirectionResize();
+  if (asCov)
+    setCalcul(ECalcVario::COVARIANCE);
+  else
+    setCalcul(ECalcVario::VARIOGRAM);
 
   /* Initialize the variance array */
 
@@ -681,7 +659,9 @@ int Vario::modelRegularize(const Model* model,
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++)
         {
-          double value = model->evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
+          double value = model->evalCvvShift(ext, ndisc, shift, angles, ivar,
+                                             jvar, mode);
+          if (! asCov) value = getVar(ivar, jvar) - value;
           int iad = getDirAddress(idir, ivar, jvar, ipas, false, 0);
           setGgByIndex(idir, iad, value);
           setHhByIndex(idir, iad, dist);
@@ -1250,7 +1230,7 @@ double Vario::getGg(int idir,
                     int ivar,
                     int jvar,
                     int ipas,
-                    bool flagCov,
+                    bool asCov,
                     bool flagNorm) const
 {
   if (! _isVariableValid(ivar)) return TEST;
@@ -1258,11 +1238,20 @@ double Vario::getGg(int idir,
   int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
   if (IFFFF(iad)) return TEST;
   double val = _gg[idir][iad];
-  if (flagCov || flagNorm)
+  double c0 = getVar(ivar, jvar);
+
+  if (_flagAsym)
   {
-    double c0 = getVar(ivar, jvar);
-    if (flagCov && ! getFlagAsym())  val = c0 - val;
-    if (flagNorm) val /= c0;
+    if (! asCov) val = c0 - val;
+  }
+  else
+  {
+    if (asCov) val = c0 - val;
+  }
+
+  if (flagNorm)
+  {
+    val /= c0;
   }
   return val;
 }

@@ -42,7 +42,6 @@ CalcAnamTransform::CalcAnamTransform(AAnam* anam)
       _nbsimu(0),
       _flagOK(false),
       _proba(TEST),
-      _cvv(TEST),
       _anam(anam),
       _selectivity(nullptr)
 {
@@ -182,6 +181,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagDisjKrig)
   {
+    if (! _hasAnam(EAnam::HERMITIAN)) return false;
     if (! _hasInputVarDefined()) return false;
     if (! _hasSelectivity()) return false;
     return true;
@@ -365,8 +365,9 @@ bool CalcAnamTransform::_run()
 
   if (_flagUniCond)
   {
-    if (!_uniformConditioning(getDb(), _anam, _selectivity, _iattSel,
-                              _iptrEst[0], _iptrStd[0], _cvv)) return true;
+    AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+    if (!_uniformConditioning(getDb(), anam_hermite, _selectivity, _iattSel,
+                              _iptrEst[0], _iptrStd[0])) return true;
     return false;
   }
 
@@ -476,165 +477,6 @@ bool CalcAnamTransform::_FactorsToSelectivity()
   }
 }
 
-/**
- * Process the variable(s) stored with locator Z
- * @param db      Db structure
- * @param anam    AAnam structure
- * @param namconv Naming Convention
- * @return
- */
-int RawToGaussianByLocator(Db *db,
-                           AAnam *anam,
-                           const NamingConvention &namconv)
-{
-  CalcAnamTransform transfo(anam);
-  transfo.setFlagVars(true);
-  transfo.setFlagZToY(true);
-  transfo.setFlagNormalScore(false);
-  transfo.setDb(db);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
-
-int RawToGaussian(Db *db,
-                  AAnam* anam,
-                  const String &name,
-                  const NamingConvention &namconv)
-{
-  if (db == nullptr) return 1;
-  db->setLocator(name, ELoc::Z);
-
-  CalcAnamTransform transfo(anam);
-  transfo.setFlagVars(true);
-  transfo.setFlagZToY(true);
-  transfo.setFlagNormalScore(false);
-  transfo.setDb(db);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
-
-int GaussianToRawByLocator(Db *db,
-                           AAnam *anam,
-                           const NamingConvention &namconv)
-{
-  CalcAnamTransform transfo(anam);
-  transfo.setFlagZToY(true);
-  transfo.setFlagNormalScore(false);
-  transfo.setDb(db);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
-
-int GaussianToRaw(Db *db,
-                  AAnam *anam,
-                  const String& name,
-                  const NamingConvention &namconv)
-{
-  if (db == nullptr) return 1;
-  db->setLocator(name, ELoc::Z);
-
-  CalcAnamTransform transfo(anam);
-  transfo.setFlagVars(true);
-  transfo.setFlagZToY(true);
-  transfo.setFlagNormalScore(false);
-  transfo.setDb(db);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
-
-/****************************************************************************/
-/*!
- **  Transform the target variable inti Gaussian by Normal Score
- **
- ** \return  Error return code
- **
- ** \param[in]  db         Db Structure
- ** \param[in]  namconv    Naming convention
- **
- *****************************************************************************/
-int NormalScore(Db *db, const NamingConvention &namconv)
-{
-  AnamHermite anam = AnamHermite(1);
-  CalcAnamTransform transfo(&anam);
-  transfo.setDb(db);
-  transfo.setFlagVars(true);
-  transfo.setFlagZToY(true);
-  transfo.setFlagNormalScore(true);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the factors corresponding to an input data vector
- **
- ** \return  Error return code
- **
- ** \param[in]  db          Db structure
- ** \param[in]  anam        Anamorphosis structure
- ** \param[in]  ifacs       Array of factor ranks
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int RawToFactor(Db *db,
-                AAnam *anam,
-                const VectorInt &ifacs,
-                const NamingConvention &namconv)
-{
-  CalcAnamTransform transfo(anam);
-  transfo.setDb(db);
-  transfo.setFlagToFactors(true);
-  transfo.setIfacs(ifacs);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the factors corresponding to an input data vector
- **
- ** \return  Error return code
- **
- ** \param[in]  db          Db structure
- ** \param[in]  anam        Anamorphosis structure
- ** \param[in]  nfactor     Number of first factors
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int RawToFactor(Db *db,
-                AAnam *anam,
-                int nfactor,
-                const NamingConvention &namconv)
-{
-  CalcAnamTransform transfo(anam);
-  transfo.setDb(db);
-  transfo.setFlagToFactors(true);
-  VectorInt ifacs = VH::sequence(nfactor, 1);
-  transfo.setIfacs(ifacs);
-  transfo.setNamingConvention(namconv);
-
-  // Run the calculator
-  int error = (transfo.run()) ? 0 : 1;
-  return error;
-}
 
 /*****************************************************************************/
 /*!
@@ -723,8 +565,7 @@ int ConditionalExpectation(Db *db,
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  name_est     Name of the Kriging estimate
- ** \param[in]  name_var     Name of the Variance of Kriging estimate
- ** \param[in]  cvv          Mean covariance over block
+ ** \param[in]  name_varz    Name of the Variance of Kriging estimate
  ** \param[in]  namconv      Naming Convention
  **
  ** \remark We need the variance of Estimation Error... even if it will be
@@ -735,17 +576,15 @@ int UniformConditioning(Db *db,
                         AAnam *anam,
                         Selectivity *selectivity,
                         const String &name_est,
-                        const String &name_var,
-                        double cvv,
+                        const String &name_varz,
                         const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
   transfo.setSelectivity(selectivity);
   transfo.setIptrEst({db->getUID(name_est)});
-  transfo.setIptrStd({db->getUID(name_var)});
+  transfo.setIptrStd({db->getUID(name_varz)});
   transfo.setFlagUniCond(true);
-  transfo.setCvv(cvv);
   transfo.setNamingConvention(namconv);
 
   // Run the calculator

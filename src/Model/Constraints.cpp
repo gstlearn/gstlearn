@@ -86,7 +86,7 @@ String Constraints::toString(const AStringFormat* strfmt) const
   }
 
   if (! FFFF(getConstantSillValue()))
-    sstr << "- Constraints on the sills          " << getConstantSillValue() << std::endl;
+    sstr << "- Constraints on the sills =" << getConstantSillValue() << std::endl;
 
   return sstr.str();
 }

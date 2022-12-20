@@ -48,15 +48,24 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 }
 
 # Function for representing a Model
-plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
-                       title="", nh=100, padd=NULL, end.plot=TRUE)
+plot.model <- function(model, vario=NULL, hmax=1, codir=NULL, 
+					   ivar=0, jvar=0, idir=0, asp=1,
+                       xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
-  if (is.null(codir))
+  if (! is.null(vario))
   {
-    ndim = model$getDimensionNumber()
-    codir = rep(0,ndim)
-    codir[1] = 1
+  	codir = vario$getCodirs(idir)
+  	hmax = vario$getHmax(ivar, jvar, idir)
+  }
+  else
+  {
+	if (is.null(codir))
+ 	{
+ 		ndim = model$getDimensionNumber()
+  		codir = rep(0,ndim)
+    	codir[1] = 1
+     }
   }
 
   p <- getFigure(padd)
@@ -68,7 +77,7 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
   plot(hh, gg, type="l")
   p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
   
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=as, title = title)
+  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   
   end.func(p, end.plot)
 }
@@ -77,8 +86,8 @@ setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.mode
 # Function for representing the Experimental Variogram together with the Model (optional)
 
 plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
-                        nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
-                        color_psize="black", ratio_psize=3,
+                        asCov=FALSE, nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
+                        color_psize="black", ratio_psize=10,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
                         title="", show.legend=FALSE, end.plot=TRUE, ...)
 {
@@ -118,7 +127,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           sill = vario$getVar(iv,jv)
           nlag = vario$getLagNumber(id)
           sw = vario$getSwVec(id,iv,jv)
-          gg = vario$getGgVec(id,iv,jv)
+          gg = vario$getGgVec(id,iv,jv, asCov=asCov)
           hh = vario$getHhVec(id,iv,jv)
           hmax = max(hh)
           gmax = max(abs(gg))
@@ -231,7 +240,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
     sizval = rep(size0,np)
   }
 
-  # Label of sylbols
+  # Label of symbols
   if (! is.null(label_name))
   {
     label_round = 2
@@ -245,7 +254,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   
   p <- getFigure(padd)
      
-  p <- p + geom_point(data=df, aes(x=xtab,y=ytab,color=colval,size=sizval),
+  p <- p + geom_point(data=df, aes(x=xtab,y=ytab),color=colval,size=sizval,
            na.rm=TRUE)
   
   if (! is.null(label_name)) 
@@ -289,7 +298,7 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   if (! dbgrid$isGrid())
   {
     cat("This function is restricted to Grid Db and cannot be used here")
-    return
+    stop()
   }
 
   # Building the necessary data frame
@@ -304,6 +313,11 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
       name = dbgrid$getLastName()
   }
   data = Db_getColumn(dbgrid, name)
+  if (length(data) <= 0)
+  {
+  	cat("Variable",name,"does not exist\n")
+  	stop()
+  }
   
   p <- getFigure(padd)
   
@@ -448,7 +462,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   if (length(ytab) != length(xtab))
   {
     cat("Arrays 'xtab' and 'ytab' should have same dimensions")
-    return
+    stop()
   }
   rp = data.frame(xtab, ytab)
 

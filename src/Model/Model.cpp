@@ -570,7 +570,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     if (cov == nullptr)
     {
       messerr("Impossible to add 'anam' to the covariance part of the Model");
-      messerr("This covariance is probably not a 'CovLMC'");
+      messerr("The original covariance is probably not a 'CovLMC'");
       return 1;
     }
 

@@ -72,14 +72,14 @@ public:
 
   int    getNbPoly() const { return (int) _psiHn.size(); }
   VectorDouble getPsiHns() const;
-  double getPsiHn(int i) const;
+  double getPsiHn(int ih) const;
   double getRCoef() const { return _rCoef; }
   bool   getFlagBound() const { return _flagBound; }
 
   void   setPsiHn(const VectorDouble& psi_hn) { _psiHn = psi_hn; }
   void   setFlagBound(bool flagBound) { _flagBound = flagBound; }
   void   setPsiHn(int i, double psi_hn);
-  void   setRCoef(double r_coef) { _rCoef = r_coef; }
+  void   setRCoef(double r_coef);
 
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,

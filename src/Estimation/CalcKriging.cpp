@@ -361,7 +361,7 @@ int krigcell(Db *dbin,
  ** \return  Error return code
  **
  ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbgrid      Output DbGrid structure
+ ** \param[in]  dbout       Output DbGrid structure
  ** \param[in]  model       Model structure
  ** \param[in]  neighparam  ANeighParam structure
  ** \param[in]  flag_est    Option for storing the estimation
@@ -372,7 +372,7 @@ int krigcell(Db *dbin,
  **
  *****************************************************************************/
 int krigdgm(Db *dbin,
-            DbGrid *dbgrid,
+            DbGrid *dbout,
             Model *model,
             ANeighParam *neighparam,
             bool flag_est,
@@ -383,7 +383,7 @@ int krigdgm(Db *dbin,
  {
   CalcKriging krige(flag_est, flag_std, flag_varz);
   krige.setDbin(dbin);
-  krige.setDbout(dbgrid);
+  krige.setDbout(dbout);
   krige.setModel(model);
   krige.setNeighparam(neighparam);
   krige.setNamingConvention(namconv);
