@@ -114,13 +114,13 @@ if (APPLE)
   set_target_properties(python_build PROPERTIES SUFFIX ".so")
 endif()
 
-# Link to static library and NumPy headers
-target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static Python3::NumPy)
+# Link to static library
+target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 if (MSVC)
-  set(COMP_FLAGS "${COMP_FLAGS} /wd4706 /wd4456 /wd4127") # SWIG generated code warnings
+  set(COMP_FLAGS "${COMP_FLAGS} /wd4706 /wd4456 /wd4127 /wd4100") # SWIG generated code warnings
 endif()
 if ("${FLAVOR}" STREQUAL "Debug")
   set(COMP_FLAGS "${COMP_FLAGS} -g")
@@ -143,13 +143,15 @@ set_target_properties(python_build PROPERTIES
 # Find appropriate Python.h
 target_include_directories(python_build PRIVATE ${Python3_INCLUDE_DIRS})
 
-# Link to python's libraries (needed for MSVC and MacOS)
-# Prefer using Python3::Module (which works for MacOS) in place of ${Python3_LIBRARIES}
-# https://gitlab.kitware.com/cmake/cmake/-/issues/17664
-target_link_libraries(python_build PRIVATE Python3::Module)
+if (MSVC OR APPLE)
+  # Link to python's libraries and to NumPy library (needed for MSVC and MacOS)
+  # Prefer using Python3::Module (which works for MacOS) in place of ${Python3_LIBRARIES}
+  # https://gitlab.kitware.com/cmake/cmake/-/issues/17664
+  target_link_libraries(python_build PRIVATE Python3::Module Python3::NumPy)
+endif()
 
 # Link to pybind11 
-target_link_libraries(python_build PRIVATE pybind11::module) # TODO: use swig_link_library
+#target_link_libraries(python_build PRIVATE pybind11::module) # TODO: use swig_link_library
 
 ########################################
 # PACKAGING (target independent)
