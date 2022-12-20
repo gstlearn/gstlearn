@@ -4,7 +4,6 @@ import gstlearn             as gl
 from numpy import pi
 from scipy.optimize._basinhopping import AdaptiveStepsize
 from matplotlib.animation import adjusted_figsize
-from matplotlib.tests.test_axes import test_bad_plot_args
 
 def getCscale():
     cscale = [

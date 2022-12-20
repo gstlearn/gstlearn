@@ -713,6 +713,9 @@ void exit_f(void)
 import gstlearn as gl
 import numpy as np
 
+from gstlearn.version import __version__
+from gstlearn.version import __author__
+
 ## Integer NaN custom value
 inan = np.asarray(np.array([np.nan]), dtype=int)[0]
 

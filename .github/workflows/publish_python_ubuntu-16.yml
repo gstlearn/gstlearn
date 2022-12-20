@@ -24,7 +24,7 @@ jobs:
         #python: ["py35","py36","py37","py38","py39","py310"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name : Create Wheels
       run : |
