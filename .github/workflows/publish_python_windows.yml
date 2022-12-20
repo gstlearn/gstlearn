@@ -27,7 +27,7 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        python: ["3.8","3.9","3.10","3.11"]
+        python: ["3.8","3.9","3.10"]
         arch:
           - ["win_amd64", "x64", "x64"]
           - ["win32",     "x86", "Win32"]
@@ -45,7 +45,7 @@ jobs:
       # Force specific old version for Numpy (see issue https://github.com/gstlearn/gstlearn/issues/64)
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==1.20.3 twine wheel pybind11
+        python -m pip install numpy==1.21.6 twine wheel pybind11
 
 #####################################################################################################
 # HDF5 download and install
