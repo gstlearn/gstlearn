@@ -27,7 +27,12 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        python: ["3.8","3.9","3.10"]
+        # Python version + Numpy version
+        python:
+          - ["3.8",  "1.20.3"]
+          - ["3.9",  "1.20.3"]
+          - ["3.10", "1.21.6"]
+          - ["3.11", "1.23.5"]
         arch:
           - ["win_amd64", "x64", "x64"]
           - ["win32",     "x86", "Win32"]
@@ -38,14 +43,14 @@ jobs:
     - name: Setup Python Version
       uses: actions/setup-python@v4
       with:
-        python-version: ${{matrix.python}}
+        python-version: ${{matrix.python[0]}}
         architecture: ${{matrix.arch[1]}}
 
     - name: Install Python dependencies
-      # Force specific old version for Numpy (see issue https://github.com/gstlearn/gstlearn/issues/64)
+      # Force specific old version for Numpy
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==1.21.1 twine wheel pybind11
+        python -m pip install numpy==${{matrix.python[1]}} twine wheel pybind11
 
 #####################################################################################################
 # HDF5 download and install
@@ -88,7 +93,7 @@ jobs:
 ########################################################################################################
 # Configuration to prepare compilation
 
-    - name : Configure Cmake
+    - name : Configure CMake
       run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF
            #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} 
 
