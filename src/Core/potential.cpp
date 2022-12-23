@@ -2758,7 +2758,7 @@ static void st_check_data(Pot_Env *pot_env,
       for (int j = 0; j < pot_env->nb_per_layer[ic]; j++, rank++)
       {
         OptDbg::setIndex(rank);
-        int iech = dbiso->getActiveSampleRank(rank);
+        int iech = dbiso->getRankRelativeToAbsolute(rank);
         st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                       zdual, rhs, dbiso, iech, result);
         result[0] -= refpot;
@@ -2794,7 +2794,7 @@ static void st_check_data(Pot_Env *pot_env,
     for (int ig = 0; ig < pot_env->ngrd; ig++)
     {
       OptDbg::setIndex(ig);
-      int iech = dbgrd->getActiveSampleRank(ig);
+      int iech = dbgrd->getRankRelativeToAbsolute(ig);
       st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbgrd, iech, result);
       result[0] -= refpot;
@@ -2835,7 +2835,7 @@ static void st_check_data(Pot_Env *pot_env,
     for (int it = 0; it < pot_env->ntgt; it++)
     {
       OptDbg::setIndex(it);
-      int iech = dbtgt->getActiveSampleRank(it);
+      int iech = dbtgt->getRankRelativeToAbsolute(it);
       if (!dbtgt->isActive(iech)) continue;
       st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbtgt, iech, result);

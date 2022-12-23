@@ -1326,17 +1326,33 @@ VectorInt getListActiveToAbsolute(const VectorDouble& sel)
  * Returns the map such that MAP[iabs] = iact.
  * A sample is active if its 'sel' value is equal to 1
  * @param sel Vector giving the status of all samples (Dimension: absolute)
- * @return
+ * @return The map (dimension: nrel)
  */
-std::map<int, int> getMapAbsoluteToActive(const VectorDouble& sel)
+std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel)
 {
   std::map<int, int> map;
-  int nech = (int) sel.size();
-  int iact = 0;
-  for (int iabs = 0; iabs < nech; iabs++)
+  int nabs = (int) sel.size();
+  int irel = 0;
+  for (int iabs = 0; iabs < nabs; iabs++)
   {
     if (! sel[iabs] == 0)
-      map[iabs] = iact++;
+      map[iabs] = irel++;
   }
   return map;
+}
+
+/**
+ * Returns the rank of the relative grid node from its absolute index using the Map
+ * @param iabs Absolute rank of the grid node
+ * @return Rank of the corresponding active grid node (or -1)
+ */
+int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs)
+{
+  int iact = iabs;
+  if (map.empty()) return iact;
+  if (map.find(iabs) == map.end())
+    iact = -1;
+  else
+    iact = map.find(iabs)->second;
+  return iact;
 }

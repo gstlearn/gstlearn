@@ -1065,18 +1065,12 @@ GSTLEARN_EXPORT int point_to_point(Db *db, double *coor);
 GSTLEARN_EXPORT int point_inside_grid(Db *db, int iech, const DbGrid *dbgrid);
 GSTLEARN_EXPORT int migrate_grid_to_coor(const DbGrid *db_grid,
                                          int iv_grid,
-                                         int np,
-                                         double *xp,
-                                         double *yp,
-                                         double *zp,
-                                         double *tab);
+                                         const VectorVectorDouble& coords,
+                                         VectorDouble& tab);
 GSTLEARN_EXPORT int expand_point_to_coor(const Db *db1,
                                          int iatt,
-                                         int np,
-                                         double *xp,
-                                         double *yp,
-                                         double *zp,
-                                         double *tab);
+                                         const VectorVectorDouble& coords,
+                                         VectorDouble& tab);
 GSTLEARN_EXPORT int expand_point_to_grid(Db *db_point,
                                          DbGrid *db_grid,
                                          int iatt,

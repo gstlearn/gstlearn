@@ -49,8 +49,7 @@ private:
   int    _getNpoints() const { return _tab.getNRows(); }
   double _interpolate(int ipar, int icas1, int iech1, int icas2, int iech2) const;
   int    _informField(int ipar,
-                      int nech,
-                      double* coor[3],
+                      const VectorVectorDouble& coords,
                       VectorDouble& tab,
                       bool verbose) const;
   String _displayStats(int ipar, int icas) const;
@@ -59,4 +58,5 @@ private:
 private:
   const Db* _dbnostat;
 	mutable MatrixRectangular _tab; // Dimension: nvertex * npar
+  mutable std::map<int, int> _sampleAbsoluteToActive;
 };

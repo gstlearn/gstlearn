@@ -180,6 +180,15 @@ VectorDouble AMesh::getCoordinates(int idim) const
   return coor;
 }
 
+VectorVectorDouble AMesh::getAllCoordinates() const
+{
+  VectorVectorDouble coords;
+
+  for (int idim = 0; idim < _nDim; idim++)
+    coords.push_back(getCoordinates(idim));
+  return coords;
+}
+
 VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
 {
   VectorInt list;

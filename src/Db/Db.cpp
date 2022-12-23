@@ -2340,39 +2340,33 @@ GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
 
 /**
  * Return the absolute rank of a sample from its relative rank
- * @param iech Relative rank
+ * @param irel Relative rank
  * @return
  */
-int Db::getActiveSampleRank(int iech) const
+int Db::getRankRelativeToAbsolute(int irel) const
 {
+  if (! hasSelection()) return irel;
   int nech = getSampleNumber(false);
   int jech = 0;
-  for (int i = 0; i < nech; i++)
+  for (int iabs = 0; iabs < nech; iabs++)
   {
-    if (! isActive(i)) continue;
-    if (iech == jech) return i;
+    if (! isActive(iabs)) continue;
+    if (irel == jech) return iabs;
     jech++;
   }
   return -1;
 }
 
-/**
- * Return the absolute rank of a sample where the variable 'item' is defined
- * from its relative rank
- * @param iech Relative rank
- * @param item Rank of the item
- * @return
- */
-int Db::getActiveAndDefinedSampleRank(int iech, int item) const
+int Db::getRankAbsoluteToRelative(int iabs) const
 {
+  if (! hasSelection()) return iabs;
   int nech = getSampleNumber(false);
-  int jech = 0;
-  for (int i = 0; i < nech; i++)
+  int irel = 0;
+  for (int jabs = 0; jabs < nech; jabs++)
   {
-    if (! isActive(i)) continue;
-    if (FFFF(getVariable(i, item))) continue;
-    if (iech == jech) return i;
-    jech++;
+    if (! isActive(jabs)) continue;
+    if (jabs == iabs) return irel;
+    irel++;
   }
   return -1;
 }

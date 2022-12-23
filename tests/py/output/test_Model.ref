@@ -142,7 +142,7 @@ Exponential
 - Sill         =      1.500
 - Range        =      2.000
 - Theo. Range  =      0.668
-Total Sill     =      1.062
+Total Sill     =      1.500
 Convolution type      = Exponential
 Convolution direction = Along X
 Nb. discretization    = 10

@@ -92,7 +92,6 @@ public:
 
 private:
   int  _getMeshActiveToAbsolute(int iact) const;
-  int  _getGridAbsoluteToActive(int iabs) const;
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
   int  _getPolarized(VectorInt indg) const;

@@ -100,4 +100,5 @@ GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);
 GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
 
 GSTLEARN_EXPORT VectorInt getListActiveToAbsolute(const VectorDouble &sel);
-GSTLEARN_EXPORT std::map<int, int> getMapAbsoluteToActive(const VectorDouble &sel);
+GSTLEARN_EXPORT std::map<int, int> getMapAbsoluteToRelative(const VectorDouble &sel);
+GSTLEARN_EXPORT int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs);

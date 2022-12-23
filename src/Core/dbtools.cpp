@@ -163,10 +163,8 @@ static int st_locate_point_on_grid(const Db *db_point,
  **
  ** \return  Number of samples located on the grid
  **
- ** \param[in]  np        Number of discretized points
- ** \param[in]  xp        Array of first coordinates
- ** \param[in]  yp        Array of second coordinates
- ** \param[in]  zp        Array of third coordinates
+ ** \param[in]  np        Number of samples
+ ** \param[in]  coords    Array of coordinates
  ** \param[in]  db_grid   descriptor of the grid parameters
  **
  ** \param[out]  tab      Output array (Dimension: Number of discretized points)
@@ -178,24 +176,22 @@ static int st_locate_point_on_grid(const Db *db_point,
  **
  *****************************************************************************/
 static int st_locate_coor_on_grid(int np,
-                                  double *xp,
-                                  double *yp,
-                                  double *zp,
+                                  const VectorVectorDouble& coords,
                                   const DbGrid *db_grid,
-                                  double *tab)
+                                  VectorDouble& tab)
 {
   int iech, iad, number;
-  VectorDouble coor(3,0.);
+  int ndim = (int) coords.size();
+  VectorDouble local(ndim,0.);
 
   /* Loop on the point samples */
 
   for (iech = number = 0; iech < np; iech++)
   {
     tab[iech] = TEST;
-    if (xp != nullptr) coor[0] = xp[iech];
-    if (yp != nullptr) coor[1] = yp[iech];
-    if (zp != nullptr) coor[2] = zp[iech];
-    iad = db_grid->coordinateToRank(coor);
+    for (int idim = 0; idim < ndim; idim++)
+      local[idim] = coords[idim][iech];
+    iad = db_grid->coordinateToRank(local);
     if (iad >= 0)
     {
       tab[iech] = iad;
@@ -317,50 +313,25 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
 
 /*****************************************************************************/
 /*!
- **  Find the Space dimension for a set of coordinate arrays (limited to 3-D)
- **
- ** \return  Space Dimension
- **
- ** \param[in]  xp        Array of first coordinates
- ** \param[in]  yp        Array of second coordinates
- ** \param[in]  zp        Array of third coordinates
- **
- *****************************************************************************/
-static int st_get_ndim(double *xp, double *yp, double *zp)
-{
-  int ndim = 0;
-  if (xp != nullptr) ndim = 1;
-  if (yp != nullptr) ndim = 2;
-  if (zp != nullptr) ndim = 3;
-  return ndim;
-}
-
-/*****************************************************************************/
-/*!
  **  Migrates a variable from the grid structure
- **  into a variable at points defined by coordinate vectors (maximum 3D)
+ **  into a variable at points defined by coordinate vectors
  **
  ** \return  Error return code
  **
  ** \param[in]  db_grid   descriptor of the grid parameters
  ** \param[in]  iatt      rank of the grid attribute
- ** \param[in]  np        Number of discretized points
- ** \param[in]  xp        Array of first coordinates
- ** \param[in]  yp        Array of second coordinates
- ** \param[in]  zp        Array of third coordinates
+ ** \param[in]  coords    Array of coordinates
  **
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
 int migrate_grid_to_coor(const DbGrid *db_grid,
                          int iatt,
-                         int np,
-                         double *xp,
-                         double *yp,
-                         double *zp,
-                         double *tab)
+                         const VectorVectorDouble& coords,
+                         VectorDouble& tab)
 {
-  int ndim = st_get_ndim(xp, yp, zp);
+  int ndim = (int) coords.size();
+  int np = (int) coords[0].size();
   if (db_grid->getNDim() != ndim)
   {
     messerr("The Space Dimension of the First Db (%d)", db_grid->getNDim());
@@ -371,7 +342,7 @@ int migrate_grid_to_coor(const DbGrid *db_grid,
 
   /* Locate the samples on the grid */
 
-  (void) st_locate_coor_on_grid(np, xp, yp, zp, db_grid, tab);
+  (void) st_locate_coor_on_grid(np, coords, db_grid, tab);
 
   /* Loop on the point samples */
 
@@ -634,22 +605,15 @@ static int st_expand_point_to_point(Db *db1,
  **
  ** \param[in]  db1   descriptor of the input parameters
  ** \param[in]  iatt  rank of the input attribute
- **
- ** \param[in]  np        Number of discretized points
- ** \param[in]  xp        Array of first coordinates
- ** \param[in]  yp        Array of second coordinates
- ** \param[in]  zp        Array of third coordinates
+ ** \param[in]  coords    Array of coordinates
  **
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **
  *****************************************************************************/
 int expand_point_to_coor(const Db *db1,
                          int iatt,
-                         int np,
-                         double *xp,
-                         double *yp,
-                         double *zp,
-                         double *tab)
+                         const VectorVectorDouble& coords,
+                         VectorDouble& tab)
 {
   double *tab1 = nullptr;
   double *tab2 = nullptr;
@@ -657,12 +621,8 @@ int expand_point_to_coor(const Db *db1,
   /* Preliminary checks */
 
   int ndim = db1->getNDim();
-  if (ndim > 3)
-  {
-    messerr("Function 'expand_point_to_coor' is limited to space <= 3");
-    return 1;
-  }
-  int ndimp = st_get_ndim(xp, yp, zp);
+  int ndimp = (int) coords.size();
+  int np = (int) coords[0].size();
   if (ndim != ndimp)
   {
     messerr("The Space Dimension of the First Db (%d)", ndim);
@@ -679,9 +639,9 @@ int expand_point_to_coor(const Db *db1,
   {
     /* Store the coordinates */
 
-    if (ndim >= 1) tab2[0] = xp[iech2];
-    if (ndim >= 2) tab2[1] = yp[iech2];
-    if (ndim >= 3) tab2[2] = zp[iech2];
+    if (ndim >= 1) tab2[0] = coords[0][iech2];
+    if (ndim >= 2) tab2[1] = coords[1][iech2];
+    if (ndim >= 3) tab2[2] = coords[2][iech2];
 
     /* Loop on the input structure */
 

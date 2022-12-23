@@ -121,13 +121,13 @@ void SPDE::init(Model* model,
                 const DbGrid* field,
                 const Db* dat,
                 const ESPDECalcMode& calc,
-                const AMesh* meshUser)
+                const AMesh* meshUser,
+                bool verbose)
 {
   //_purge();
   _model = model;
   _calcul = calc;
   _data =  dat;
-  bool verbose = false;
   bool useSel = true;
   VectorDouble varianceData;
   double totalSill = 0.;
@@ -156,10 +156,10 @@ void SPDE::init(Model* model,
             _deleteMesh = true;
          }
 
-         precision = new PrecisionOp(mesh, model,icov, EPowerPT::MINUSHALF);
+         precision = new PrecisionOp(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
         _pilePrecisions.push_back(precision);
 
-         proj = new ProjMatrix(_data,mesh);
+         proj = new ProjMatrix(_data, mesh, verbose);
         _pileProjMatrix.push_back(proj);
 
         _simuMeshing.push_back(mesh);

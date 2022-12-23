@@ -27,14 +27,16 @@
 NoStatArray::NoStatArray()
 : ANoStat(),
   _dbnostat(nullptr),
-  _tab()
+  _tab(),
+  _sampleAbsoluteToActive()
 {
 }
 
 NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 : ANoStat(codes),
   _dbnostat(dbnostat),
-  _tab()
+  _tab(),
+  _sampleAbsoluteToActive()
 {
   if (! _checkValid())
   {
@@ -46,7 +48,8 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 NoStatArray::NoStatArray(const NoStatArray &m)
 : ANoStat(m),
   _dbnostat(m._dbnostat),
-  _tab(m._tab)
+  _tab(m._tab),
+  _sampleAbsoluteToActive(m._sampleAbsoluteToActive)
 {
 
 }
@@ -58,6 +61,7 @@ NoStatArray& NoStatArray::operator= (const NoStatArray &m)
     ANoStat::operator=(m);
     _dbnostat = m._dbnostat;
     _tab = m._tab;
+    _sampleAbsoluteToActive = m._sampleAbsoluteToActive;
   }
   return *this;
 }
@@ -86,9 +90,6 @@ bool NoStatArray::_checkValid() const
 
 int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
 {
-  double* coorloc[3];
-
-  // Preliminary checks
   if (_dbnostat == nullptr)
   {
     messerr("dbNoStat must be defined beforehand");
@@ -98,34 +99,31 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
   // Create the array of coordinates
 
   ANoStat::attachToMesh(mesh,verbose);
-  int ndim    = _dbnostat->getNDim();
   int nvertex = mesh->getNApices();
   VectorDouble tab(nvertex,0);
-  double* coor = (double *) mem_alloc(sizeof(double) * ndim * nvertex, 1);
-  int ecr = 0;
-  for (int idim=0; idim<ndim; idim++)
-    for (int ip=0; ip<nvertex; ip++,ecr++)
-      coor[ecr] = mesh->getApexCoor(ip,idim);
-  for (int idim=0; idim<3; idim++)
-    coorloc[idim] = (idim < ndim) ? &coor[idim * nvertex] : NULL;
+  VectorVectorDouble coords = mesh->getAllCoordinates();
 
   // Create the internal array
 
   int npar = getNoStatElemNumber();
   _tab.reset(nvertex, npar);
+  _sampleAbsoluteToActive.clear();
 
   /* Evaluate the non-stationary parameters */
 
   for (int ipar=0; ipar<npar; ipar++)
   {
     // Evaluate the non-stationary attribute at the target points
-    if (_informField(ipar, nvertex, coorloc, tab, verbose)) return 1;
+    if (_informField(ipar, coords, tab, verbose)) return 1;
+
+    // Store the indirection map (only if a selection is present in '_dbnostat'
+    if (_dbnostat->hasSelection())
+      _sampleAbsoluteToActive = getMapAbsoluteToRelative(_dbnostat->getSelection());
 
     // Store the local vector within the Matrix
     _tab.setColumn(ipar, tab);
   }
 
-  coor = (double *) mem_free((char *) coor);
   return 0;
 }
 
@@ -146,7 +144,6 @@ void NoStatArray::detachFromMesh() const
  */
 int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
 {
-  double* coorloc[3];
   if (db == nullptr) return 0;
 
   // Preliminary checks
@@ -164,20 +161,9 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
 
   // Create the array of coordinates
 
-  int ndim = _dbnostat->getNDim();
   int nech = db->getSampleNumber(true);
-
   VectorDouble tab(nech,0);
-  double* coor = (double *) mem_alloc(sizeof(double) * ndim * nech, 1);
-  int ecr = 0;
-  for (int idim=0; idim<ndim; idim++)
-    for (int iech=0; iech<db->getSampleNumber(); iech++)
-    {
-      if (! db->isActive(iech)) continue;
-      coor[ecr++] = db->getCoordinate(iech,idim);
-    }
-  for (int idim=0; idim<3; idim++)
-    coorloc[idim] = (idim < ndim) ? &coor[idim * nech] : NULL;
+  VectorVectorDouble coords = db->getAllCoordinates(true);
 
   /* Identify the non-stationary parameters within data base(s) */
 
@@ -186,7 +172,7 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
   for (int ipar=0; ipar<npar; ipar++)
   {
     // Evaluate the non-stationary attribute at the target points
-    if (_informField(ipar, nech, coorloc, tab, verbose)) return 1;
+    if (_informField(ipar, coords, tab, verbose)) return 1;
 
     // Store the local vector within the Db as a new field
     db->addColumns(tab,names[ipar],ELoc::UNKNOWN,0,true);
@@ -195,7 +181,6 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
   // Set locators to the newly created variables
   db->setLocators(names,ELoc::NOSTAT);
 
-  coor = (double *) mem_free((char *) coor);
   return 0;
 }
 
@@ -276,8 +261,12 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     // From Meshing
 
-    if (rank < 0 || rank > _tab.getNRows()) return TEST;
-    return _tab(rank, ipar);
+    if (_dbnostat == nullptr) return rank;
+
+    int irel = rank;
+    if (! _sampleAbsoluteToActive.empty())
+      irel = getRankMapAbsoluteToRelative(_sampleAbsoluteToActive, rank);
+    if (irel >= 0) return _tab(irel, ipar);
   }
   else if (icas == 1)
   {
@@ -374,8 +363,7 @@ String NoStatArray::toString(const AStringFormat* strfmt) const
 }
 
 int NoStatArray::_informField(int ipar,
-                              int nech,
-                              double* coor[3],
+                              const VectorVectorDouble& coords,
                               VectorDouble& tab,
                               bool verbose) const
 {
@@ -394,13 +382,11 @@ int NoStatArray::_informField(int ipar,
   if (_dbnostat->isGrid())
   {
     const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbnostat);
-    if (migrate_grid_to_coor(dbgrid, iatt, nech, coor[0], coor[1], coor[2],
-                             tab.data())) return 1;
+    if (migrate_grid_to_coor(dbgrid, iatt, coords, tab)) return 1;
   }
   else
   {
-    if (expand_point_to_coor(_dbnostat, iatt, nech, coor[0], coor[1],
-                             coor[2], tab.data())) return 1;
+    if (expand_point_to_coor(_dbnostat, iatt, coords, tab)) return 1;
   }
 
   int ndef = VH::countUndefined(tab);
@@ -423,7 +409,7 @@ int NoStatArray::_informField(int ipar,
 
     // Modify the TEST values to the mean value
 
-    for (int ip = 0; ip < nech; ip++)
+    for (int ip = 0; ip < (int) tab.size(); ip++)
     {
       if (FFFF(tab[ip])) tab[ip] = mean;
     }

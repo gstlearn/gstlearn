@@ -105,6 +105,10 @@ elif filetype == "Table":
 elif filetype == "Polygon":
     poly = gl.Polygons.createFromNF(filename,False)
     gp.polygon(poly,colorPerSet=True,flagFace=True,end_plot=True)
-       
+      
+elif filetype == "MeshETurbo":
+    mesh = gl.MeshETurbo.createFromNF(filename, False)
+    gp.mesh(mesh)
+ 
 else:
     print("Unknown type")

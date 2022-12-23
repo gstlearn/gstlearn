@@ -151,8 +151,8 @@ public:
   double getColumnSize(bool useSel = false) const;
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
-  int getActiveSampleRank(int iech) const;
-  int getActiveAndDefinedSampleRank(int iech, int item=0) const;
+  int getRankRelativeToAbsolute(int irel) const;
+  int getRankAbsoluteToRelative(int iabs) const;
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;

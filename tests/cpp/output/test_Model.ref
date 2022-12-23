@@ -79,7 +79,7 @@ Cubic
 - Ranges       =      1.200     2.100
 Nugget Effect
 - Sill         =      0.500
-Total Sill     =      0.267
+Total Sill     =      2.000
 Convolution type      = Exponential
 Convolution direction = Along X
 Nb. discretization    = 10

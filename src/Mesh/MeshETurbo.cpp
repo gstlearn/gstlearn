@@ -184,14 +184,20 @@ int MeshETurbo::getApex(int imesh, int rank, bool inAbsolute) const
 
   // If the returned grid index must be in relative system,
   // translate the absolute rank into the relative one
-  int irel = _getGridAbsoluteToActive(igrid);
+  int irel = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, igrid);
   if (irel < 0)
   {
-    messerr("For mesh=%d rank=%d igrid=%d- Problem",imesh,rank,igrid);
+    messerr("Problem for mesh=%d rank=%d igrid=%d -> Relative rank is negative",
+            imesh,rank,igrid);
   }
   return irel;
 }
 
+/**
+ * Returns the rank of the absolute grid node from its active index
+ * @param iact Active rank of the grid node
+ * @return Rank of the corresponding absolute grid node
+ */
 int MeshETurbo::_getMeshActiveToAbsolute(int iact) const
 {
   int iabs = iact;
@@ -206,26 +212,6 @@ int MeshETurbo::_getMeshActiveToAbsolute(int iact) const
       iabs = _meshActiveToAbsolute.find(iact)->second;
   }
   return iabs;
-}
-
-/**
- * Returns the rank of the active grid node from its absolute index
- * @param iabs Absolute rank of the grid node
- * @return
- */
-int MeshETurbo::_getGridAbsoluteToActive(int iabs) const
-{
-  int iact = iabs;
-  if (_isMaskDefined())
-  {
-    if (_gridAbsoluteToActive.find(iabs) == _gridAbsoluteToActive.end())
-    {
-      return -1;
-    }
-    else
-      iact = _gridAbsoluteToActive.find(iabs)->second;
-  }
-  return iact;
 }
 
 double MeshETurbo::getCoor(int imesh, int rank, int idim) const
@@ -346,7 +332,7 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
   // Creating the Masking information for Grid 'grid AbsoluteToActive'
   // which gives the Active Grid index from its Absolute index
 
-  _gridAbsoluteToActive = getMapAbsoluteToActive(sel);
+  _gridAbsoluteToActive = getMapAbsoluteToRelative(sel);
 
   return;
 }
@@ -689,7 +675,7 @@ int MeshETurbo::_addWeights(int icas,
     indices[icorner] = _grid.indiceToRank(indgg);
     if (indices[icorner] < 0) return 1; // grid node outside grid
 
-    indices[icorner] = _getGridAbsoluteToActive(indices[icorner]);
+    indices[icorner] = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, indices[icorner]);
     if (indices[icorner] < 0) return 1; // grid node not active
 
     // Update the LHS matrix

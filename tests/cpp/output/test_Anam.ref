@@ -97,7 +97,7 @@ Maximum practical value for Z = 7.05246
 Mean                          = 1.56826
 Variance                      = 0.709296
 Number of Hermite polynomials = 20
-Normalized coefficients for Hermite polynomials
+Normalized coefficients for Hermite polynomials (punctual variable)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.568    -0.782     0.292    -0.086     0.018     0.016    -0.033
      [  7,]     0.025     0.001    -0.022     0.018     0.004    -0.019     0.011

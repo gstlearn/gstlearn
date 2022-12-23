@@ -72,10 +72,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
   _work3.resize(_shiftOp->getSize());
-
 }
-
-
 
 PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
   : _shiftOp(pmat._shiftOp)
@@ -343,7 +340,6 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   _shiftOp->prodLambda(ei, result, EPowerPT::MINUSONE);
 
   return result;
-
 }
 
 VectorVectorDouble PrecisionOp::simulate(int nbsimus)
@@ -390,7 +386,7 @@ std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
   double delta = sMax/(ndiscr-1);
 
   double val =  _polynomials[EPowerPT::ONE]->eval(x);
-  rangeVals.first = val;
+  rangeVals.first  = val;
   rangeVals.second = val;
 
   for(int i = 1; i < ndiscr; i++)

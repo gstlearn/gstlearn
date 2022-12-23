@@ -588,7 +588,7 @@ void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
  * @param ip Rank of the point
  */
 void ShiftOpCs::_loadHHByApex(const AMesh *amesh,
-                              MatrixSquareSymmetric& hh,
+                              MatrixSquareSymmetric &hh,
                               int ip)
 {
   if (amesh->getVariety() == 0)
@@ -604,8 +604,7 @@ void ShiftOpCs::_loadHHByApex(const AMesh *amesh,
  * @param hh Output Array
  * @param ip Rank of the point
  */
-void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric& hh,
-                                     int ip)
+void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric &hh, int ip)
 {
   int ndim = getNDim();
   const CovAniso* covini = _getCova();

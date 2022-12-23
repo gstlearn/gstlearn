@@ -195,9 +195,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Uniform Conditioning ==================================
 
-  // Calculate the Mean covariance over block
-  double cvv_Z = model_raw->evalCvv(blocs->getDXs(), ndisc_B);
-
   // Perform the Point Kriging of the Raw Variable
   data->clearLocators(ELoc::Z);
   data->setLocator("Z",ELoc::Z);
