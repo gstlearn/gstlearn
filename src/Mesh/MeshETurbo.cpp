@@ -30,8 +30,6 @@ MeshETurbo::MeshETurbo()
       _grid(),
       _nPerCell(0),
       _isPolarized(false),
-      _gridNactive(0),
-      _meshNactive(0),
       _meshActiveToAbsolute(),
       _gridAbsoluteToActive()
 {
@@ -68,8 +66,6 @@ MeshETurbo::MeshETurbo(const MeshETurbo &r)
       _grid(),
       _nPerCell(0),
       _isPolarized(false),
-      _gridNactive(r._gridNactive),
-      _meshNactive(r._meshNactive),
       _meshActiveToAbsolute(r._meshActiveToAbsolute),
       _gridAbsoluteToActive(r._gridAbsoluteToActive)
 {
@@ -81,8 +77,6 @@ MeshETurbo& MeshETurbo::operator= (const MeshETurbo &r)
   _grid = r._grid;
   _nPerCell = r._nPerCell;
   _isPolarized = r._isPolarized;
-  _gridNactive = r._gridNactive;
-  _meshNactive = r._meshNactive;
   _meshActiveToAbsolute = r._meshActiveToAbsolute;
   _gridAbsoluteToActive = r._gridAbsoluteToActive;
 
@@ -100,9 +94,9 @@ MeshETurbo::~MeshETurbo()
  */
 int MeshETurbo::getNApices() const
 {
-  if (_isMaskDefined())
+  if (! _gridAbsoluteToActive.empty())
   {
-    return _gridNactive;
+    return (int) _gridAbsoluteToActive.size();
   }
   else
   {
@@ -132,9 +126,9 @@ int MeshETurbo::_nmeshInCompleteGrid() const
  */
 int MeshETurbo::getNMeshes() const
 {
-  if (_isMaskDefined())
+  if (! _meshActiveToAbsolute.empty())
   {
-    return _meshNactive;
+    return _meshActiveToAbsolute.size();
   }
   else
   {
@@ -200,18 +194,17 @@ int MeshETurbo::getApex(int imesh, int rank, bool inAbsolute) const
  */
 int MeshETurbo::_getMeshActiveToAbsolute(int iact) const
 {
-  int iabs = iact;
-  if (_isMaskDefined())
+  if (_meshActiveToAbsolute.empty()) return iact;
+
+  if (_meshActiveToAbsolute.find(iact) == _meshActiveToAbsolute.end())
   {
-    if (_meshActiveToAbsolute.find(iact) == _meshActiveToAbsolute.end())
-    {
-      messerr("Impossible to translate Mesh Active(%d)",iact);
-      return -1;
-    }
-    else
-      iabs = _meshActiveToAbsolute.find(iact)->second;
+    messerr("Impossible to translate Mesh Active(%d)",iact);
+    return -1;
   }
-  return iabs;
+  else
+  {
+    return _meshActiveToAbsolute.find(iact)->second;
+  }
 }
 
 double MeshETurbo::getCoor(int imesh, int rank, int idim) const
@@ -284,15 +277,9 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
   int node, icas;
   _meshActiveToAbsolute.clear();
   _gridAbsoluteToActive.clear();
-  _gridNactive = 0;
-  _meshNactive = 0;
 
   // If no selection is defined on the grid, the vector of Meshing Mask is cancelled
   if (sel.empty()) return;
-
-  // Counting the number of active samples
-  for (int i = 0; i < (int) sel.size(); i++)
-    if (sel[i] != 0) _gridNactive++;
 
   // Creating the Masking information for Meshing 'meshActiveToAbsolute'
   // which gives the Absolute meshing index from its Active index
@@ -304,6 +291,7 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
   VectorInt indg(ndim);
 
   // Loop on all possible meshes
+  int meshNactive = 0;
   for (int imesh = 0; imesh < nmesh; imesh++)
   {
     _getGridFromMesh(imesh,&node,&icas);
@@ -325,8 +313,8 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
 
     // The triangle is not masked, store its index
     if (flagMasked) continue;
-    _meshActiveToAbsolute[_meshNactive] = imesh;
-    _meshNactive++;
+    _meshActiveToAbsolute[meshNactive] = imesh;
+    meshNactive++;
   }
 
   // Creating the Masking information for Grid 'grid AbsoluteToActive'
@@ -828,7 +816,6 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
   VectorDouble x0;
   VectorDouble rotmat;
   int flag_polarized = 0;
-  int nmasked = 0;
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
@@ -837,13 +824,13 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordReadVec<double>(is, "X0", x0, ndim);
   ret = ret && _recordReadVec<double>(is, "Rotation", rotmat, ndim * ndim);
   ret = ret && _recordRead<int>(is, "Polarization", flag_polarized);
-  ret = ret && _recordRead<int>(is, "Number Masked", nmasked);
 
   if (ret)
     (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), (bool) flag_polarized, 0);
 
-//  if (nmasked > 0)
-//    ret = ret && _recordReadVec<int>(is, "Mask", _meshActiveToAbsolute, nmasked);
+  ret = ret && _recordReadMap(is, "Mesh Masking", _meshActiveToAbsolute);
+
+  ret = ret && _recordReadMap(is, "Grid Masking", _gridAbsoluteToActive);
 
   return ret;
 }
@@ -858,16 +845,68 @@ bool MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWriteVec<double>(os, "Rotation", _grid.getRotMat());
   ret = ret && _recordWrite<int>(os, "Polarization", _isPolarized);
 
-  if (_isMaskDefined())
-  {
-    ret = ret && _recordWrite<int>(os, "Number Masked", getNMeshes());
-//    ret = ret && _recordWriteVec<int>(os, "Mask", _meshActiveToAbsolute);
-  }
-  else
-  {
-    int nmasked = 0;
-    ret = ret && _recordWrite<int>(os, "Number Masked", nmasked);
-  }
+  // Dumping the Mesh Masking map
+  ret = ret && _recordWriteMap(os, "Mesh Masking", _meshActiveToAbsolute);
 
+  // Dumping the Grid Masking map
+  ret = ret && _recordWriteMap(os, "Grid Masking", _gridAbsoluteToActive);
+
+  // Dumping the Grid Masking map
   return ret;
+}
+
+bool MeshETurbo::_recordWriteMap(std::ostream &os,
+                                 const String &subtitle,
+                                 const std::map<int, int> &map) const
+{
+  String title;
+  int number = (int) map.size();
+
+  title = subtitle + " Number";
+  if (! _recordWrite<int>(os, title, number)) return false;
+
+  // Write the arrays out
+
+  if (number > 0)
+  {
+    // Constituting two vectors of Int
+    VectorInt keys, vals;
+    for(auto const& imap: map)
+    {
+      keys.push_back(imap.first);
+      vals.push_back(imap.second);
+    }
+
+    title = subtitle + " Keys";
+    if (! _recordWriteVec<int>(os, title, keys)) return false;
+
+    title = subtitle + " Values";
+    if (! _recordWriteVec<int>(os, title, vals)) return false;
+  }
+  return true;
+}
+
+bool MeshETurbo::_recordReadMap(std::istream &is,
+                                const String &subtitle,
+                                std::map<int, int> &map)
+{
+  String title;
+  int number;
+
+  title = subtitle + " Number";
+  if (! _recordRead<int>(is, title, number)) return false;
+  if (number <= 0) return true;
+
+  VectorInt keys;
+  title = subtitle + " Keys";
+  if (! _recordReadVec<int>(is, title, keys, number)) return false;
+
+  VectorInt values;
+  title = subtitle + " Values";
+  if (! _recordReadVec<int>(is, title, values, number)) return false;
+
+  if (keys.size() != values.size()) return false;
+  for (size_t i = 0; i < keys.size(); ++i)
+    map[keys[i]] = values[i];
+  return true;
 }

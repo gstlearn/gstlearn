@@ -80,10 +80,8 @@ SPDE::~SPDE()
 
 void SPDE::_purge()
 {
-
   delete _precisionsKriging;
   delete _precisionsSimu;
-
 
   for(auto &e : _pilePrecisions)
   {
@@ -114,28 +112,29 @@ void SPDE::_purge()
   }
   _simuMeshing.clear();
   _krigingMeshing.clear();
-
 }
 
 void SPDE::init(Model* model,
                 const DbGrid* field,
-                const Db* dat,
+                const Db* data,
                 const ESPDECalcMode& calc,
                 const AMesh* meshUser,
                 bool verbose)
 {
   //_purge();
-  _model = model;
+  _model  = model;
   _calcul = calc;
-  _data =  dat;
+  _data   =  data;
   bool useSel = true;
   VectorDouble varianceData;
   double totalSill = 0.;
   PrecisionOp* precision;
   const AMesh* mesh = meshUser;
   ProjMatrix* proj;
-  _driftTab = _model->getDrifts(_data, useSel);
+  if (_data != nullptr) _driftTab = _model->getDrifts(_data, useSel);
   _requireCoeffs = _driftTab.size()>0 && _data != nullptr;
+
+  // Loop on the basic structures
   for(int icov = 0 ; icov < model->getCovaNumber(); icov++)
   {
     const CovAniso* cova = model->getCova(icov);
@@ -150,16 +149,17 @@ void SPDE::init(Model* model,
       if (_calculSimu())
       {
         if (meshUser == nullptr)
-         {
-            mesh = new MeshETurbo();
-            ((MeshETurbo*)mesh)->initFromCova(*cova,field,18,5,useSel,verbose);
-            _deleteMesh = true;
-         }
+        {
+          mesh = new MeshETurbo();
+          ((MeshETurbo*)mesh)->initFromCova(*cova,field,18,5,useSel,verbose);
+          _deleteMesh = true;
+        }
 
-         precision = new PrecisionOp(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
+        precision = new PrecisionOp(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
         _pilePrecisions.push_back(precision);
 
-         proj = new ProjMatrix(_data, mesh, verbose);
+        proj = new ProjMatrix(_data, mesh, verbose);
+
         _pileProjMatrix.push_back(proj);
 
         _simuMeshing.push_back(mesh);
@@ -178,7 +178,6 @@ void SPDE::init(Model* model,
           mesh = new MeshETurbo();
           ((MeshETurbo*)mesh)->initFromCova(*cova,field,11,5,useSel,verbose);
           _deleteMesh = true;
-
         }
         _krigingMeshing.push_back(mesh);
         precision = new PrecisionOp(mesh, model, icov, EPowerPT::ONE);
@@ -197,14 +196,14 @@ void SPDE::init(Model* model,
     }
   }
 
-//
-//  // Evaluation of the variance at data point (nugget + measurement error or minimum proportion of total sill)
+  // Evaluation of the variance at data point
+  // (nugget + measurement error or minimum proportion of total sill)
   if (_calculKriging())
   {
-    if(dat->getVarianceErrorNumber() > 0)
+    if (_data->getVarianceErrorNumber() > 0)
     {
-      varianceData = dat->getColumnByLocator(ELoc::V,0,useSel);
-      for (int iech = 0; iech < dat->getSampleNumber(true); iech++)
+      varianceData = _data->getColumnByLocator(ELoc::V,0,useSel);
+      for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
       {
         double *temp = &varianceData[iech];
         *temp = MAX(*temp+_nugget,0.01 * totalSill);
@@ -213,19 +212,16 @@ void SPDE::init(Model* model,
     else
     {
       VH::fill(varianceData, MAX(_nugget, 0.01 * totalSill),
-               dat->getSampleNumber(true));
+               _data->getSampleNumber(true));
     }
-
     _precisionsKriging->setVarianceDataVector(varianceData);
-    if(_calculSimu())
+
+    if (_calculSimu())
     {
       _precisionsSimu->setVarianceDataVector(varianceData);
     }
   }
 }
-
-
-
 
 void SPDE::computeLk() const
 {
@@ -233,12 +229,10 @@ void SPDE::computeLk() const
   _precisionsKriging->initLk(rhs,_workKriging); // Same as evalInverse but with just one iteration
 }
 
-
 void SPDE::computeKriging() const
 {
   VectorVectorDouble rhs = _precisionsKriging->computeRhs(_workingData);
   _precisionsKriging->evalInverse(rhs,_workKriging);
-
 }
 
 void SPDE::computeSimuNonCond(int nbsimus, int seed) const
@@ -253,7 +247,7 @@ void SPDE::computeSimuNonCond(int nbsimus, int seed) const
       gauss = VH::simulateGaussian(_simuMeshing[icov]->getNApices());
       _precisionsSimu->simulateOnMeshing(gauss,_workingSimu);
     }
- }
+  }
 }
 
 void SPDE::computeSimuCond(int nbsimus, int seed) const
@@ -284,12 +278,12 @@ void SPDE::centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) cons
   }
   else
   {
-      _workingData = _model->evalDrifts(_data,_driftCoeffs,ivar,useSel);
+    _workingData = _model->evalDrifts(_data,_driftCoeffs,ivar,useSel);
 
-      for(int iech = 0; iech<(int)_workingData.size();iech++)
-      {
-        _workingData[iech] = dataVect[iech] - _workingData[iech];
-      }
+    for(int iech = 0; iech<(int)_workingData.size();iech++)
+    {
+      _workingData[iech] = dataVect[iech] - _workingData[iech];
+    }
   }
 }
 
@@ -302,9 +296,7 @@ void SPDE::compute(int nbsimus, int seed)
   if (_data != nullptr)
   {
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
-
     centerByDrift(dataVect,ivar,useSel);
-
   }
 
   if (_calcul == ESPDECalcMode::KRIGING)
@@ -315,12 +307,13 @@ void SPDE::compute(int nbsimus, int seed)
   if (_calcul == ESPDECalcMode::SIMUNONCOND)
   {
     computeSimuNonCond(nbsimus,seed);
-
   }
+
   if (_calcul == ESPDECalcMode::SIMUCOND)
   {
     computeSimuCond(nbsimus,seed);
   }
+
   if (_calcul == ESPDECalcMode::LIKELIHOOD)
   {
     computeLk();
@@ -404,8 +397,11 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
       suffix = "condSimu";
   }
 
-  temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
-  VH::addInPlace(result,temp);
+  if (_requireCoeffs)
+  {
+    temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
+    VH::addInPlace(result,temp);
+  }
   int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
@@ -427,12 +423,12 @@ double SPDE::computeQuad() const
   centerByDrift(dataVect,ivar,useSel);
   return _precisionsKriging->computeQuadratic(_workingData);
 }
+
 double SPDE::computeLogLike(int nbsimus, int seed) const
 {
   if (!_isCoeffsComputed)
   {
     _computeDriftCoeffs();
-
   }
   return - 0.5 * (computeLogDet(nbsimus,seed) + computeQuad()) ;
 }
@@ -440,20 +436,17 @@ double SPDE::computeLogLike(int nbsimus, int seed) const
 double SPDE::computeProfiledLogLike(int nbsimus, int seed) const
 {
   _isCoeffsComputed = false; // we assume that covariance parameters have changed when using this function
-                            //  so driftCoeffs have to be recomputed
+  //  so driftCoeffs have to be recomputed
 
   return computeLogLike(nbsimus,seed);
-
 }
-
 
 void SPDE::_computeDriftCoeffs() const
 {
-
-  if(!_isCoeffsComputed)
+  if (!_isCoeffsComputed)
    {
     _isCoeffsComputed = true;
-    if(_requireCoeffs)
+    if (_requireCoeffs)
     {
       _driftCoeffs = _precisionsKriging->computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),_driftTab);
     }

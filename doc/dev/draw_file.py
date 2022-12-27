@@ -108,7 +108,7 @@ elif filetype == "Polygon":
       
 elif filetype == "MeshETurbo":
     mesh = gl.MeshETurbo.createFromNF(filename, False)
-    gp.mesh(mesh)
+    gp.mesh(mesh, end_plot=True)
  
 else:
     print("Unknown type")

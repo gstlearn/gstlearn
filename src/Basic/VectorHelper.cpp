@@ -601,6 +601,14 @@ void VectorHelper::fill(VectorVectorDouble &vec, double value)
   }
 }
 
+void VectorHelper::fillUndef(VectorDouble& vec, double repl)
+{
+  for (int i = 0; i < (int) vec.size(); i++)
+  {
+    if (FFFF(vec[i])) vec[i] = repl;
+  }
+}
+
 /**
  * Create an output vector containing the 'number' consecutive numbers starting from 'ideb'
  *
@@ -765,7 +773,7 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
 {
   VectorDouble res;
   if (dest.size() != src.size())
-  my_throw("Wrong size");
+    my_throw("Wrong size");
   for (int i = 0, n = static_cast<int>(dest.size()); i < n; i++)
     dest[i] += src[i];
 }
@@ -1018,7 +1026,7 @@ double VectorHelper::innerProduct(const VectorDouble &veca,
  * @return
  */
 VectorDouble VectorHelper::crossProduct(const VectorDouble &veca,
-                                     const VectorDouble &vecb)
+                                        const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
   my_throw("Wrong size");

@@ -116,13 +116,13 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
     // Evaluate the non-stationary attribute at the target points
     if (_informField(ipar, coords, tab, verbose)) return 1;
 
-    // Store the indirection map (only if a selection is present in '_dbnostat'
-    if (_dbnostat->hasSelection())
-      _sampleAbsoluteToActive = getMapAbsoluteToRelative(_dbnostat->getSelection());
-
     // Store the local vector within the Matrix
     _tab.setColumn(ipar, tab);
   }
+
+  // Store the indirection map (only if a selection is present in '_dbnostat'
+  if (_dbnostat->hasSelection())
+    _sampleAbsoluteToActive = getMapAbsoluteToRelative(_dbnostat->getSelection());
 
   return 0;
 }
@@ -403,16 +403,16 @@ int NoStatArray::_informField(int ipar,
       return 1;
     }
 
-    message("For Non-Stationary Parameter (%d), there are some undefined values (%d)\n",
-            ipar + 1, ndef);
-    message("They have been replaced by its average value (%lf)\n", mean);
+    if (verbose)
+    {
+      message("For Non-Stationary Parameter (%d), there are %d undefined values\n",
+              ipar + 1, ndef);
+      message("They have been replaced by its average value (%lf)\n", mean);
+    }
 
     // Modify the TEST values to the mean value
 
-    for (int ip = 0; ip < (int) tab.size(); ip++)
-    {
-      if (FFFF(tab[ip])) tab[ip] = mean;
-    }
+    VH::fillUndef(tab, mean);
   }
 
   // Printout some statistics (optional)

@@ -2935,6 +2935,7 @@ VectorString Db::getNamesByColIdx(const VectorInt& icols) const
   for (int i = 0; i < (int) icols.size(); i++)
   {
     int icol = icols[i];
+    if (icol < 0 || icol >= (int) _colNames.size()) continue;
     namelist.push_back(_colNames[icol]);
   }
   return namelist;
@@ -4771,3 +4772,28 @@ VectorInt Db::filter(const String& name,
   }
   return rows;
 }
+
+VectorInt Db::shrinkToValidRows(const VectorInt& rows)
+{
+  if (rows.empty()) return rows;
+
+  VectorInt new_rows;
+  for (int i = 0; i < (int) rows.size(); i++)
+  {
+    if (rows[i] >= 0 && rows[i] < _nech) new_rows.push_back(rows[i]);
+  }
+  return new_rows;
+}
+
+VectorInt Db::shrinkToValidCols(const VectorInt& cols)
+{
+  if (cols.empty()) return cols;
+
+  VectorInt new_cols;
+  for (int i = 0; i < (int) cols.size(); i++)
+  {
+    if (cols[i] >= 0 && cols[i] < _ncol) new_cols.push_back(cols[i]);
+  }
+  return new_cols;
+}
+

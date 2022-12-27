@@ -22,7 +22,7 @@ public:
   SPDE();
   SPDE(Model *model,
        const DbGrid* field,
-       const Db* dat = nullptr,
+       const Db* data = nullptr,
        const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"));
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
@@ -53,7 +53,6 @@ public:
   const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKriging;}
   double computeQuad() const;
   const Db* getData() const {return  _data;}
-
 
 private:
   void _computeDriftCoeffs() const;

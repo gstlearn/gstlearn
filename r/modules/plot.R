@@ -14,8 +14,10 @@ end.func <- function(p, end.plot=TRUE)
 	{
 		print(padd)
 		padd = NULL
+		invisible()
+	} else {
+		padd
 	}
-	padd
 }
 
 get.colors <- function()
@@ -288,8 +290,8 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
 # Function for plotting a variable (referred by its name) informed in a grid Db
 #
 # option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
-plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
-	  option="B",
+plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
+	  option="B", zlim = NULL,
       show.legend=TRUE, legend.name="G-Fill",
       xlab="", ylab="", title="", 
       padd=NULL, end.plot=TRUE)
@@ -301,10 +303,6 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
     stop()
   }
 
-  # Building the necessary data frame
-  x = dbgrid$getColumnByLocator(ELoc_X(),0)
-  y = dbgrid$getColumnByLocator(ELoc_X(),1)
-  
   if (is.null(name))
   {
     if (dbgrid$getLocatorNumber(ELoc_Z()) > 0) 
@@ -312,6 +310,10 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
     else
       name = dbgrid$getLastName()
   }
+
+  # Building the necessary data frame
+  x = dbgrid$getColumnByLocator(ELoc_X(),0)
+  y = dbgrid$getColumnByLocator(ELoc_X(),1)
   data = Db_getColumn(dbgrid, name)
   if (length(data) <= 0)
   {
@@ -321,31 +323,27 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   
   p <- getFigure(padd)
   
-  angle = dbgrid$getAngles()[1]
-  
-  if (angle == 0)
+  # Define the contents
+  if (dbgrid$getAngles()[1] == 0)
   {
     df = data.frame(x,y,data)
-	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data)) + 
-   	        scale_fill_viridis_c(option = option, na.value = color_NA)
+	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
   }
   else
   {
     ids = seq(1, dbgrid$getNTotal())
  	coords = dbgrid$getAllCellsEdges()
- 	positions = data.frame(
-  	id = rep(ids, each=4),
-  	x = coords[[1]],
-  	y = coords[[2]])
-  	data = Db_getColumn(dbgrid, name)
+ 	positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
   	values = data.frame(id = ids, value = data)
   	df <- merge(values, positions, by = c("id"))
-  	p <- ggplot(df, aes(x = x, y = y)) +
-    	geom_polygon(aes(fill = value, group = id))
+  	p <- p + geom_polygon(data = df, aes(x = x, y = y, fill = value, group = id))
   }
   
+  # Define the color scale
+  p = p + scale_fill_viridis_c(option = option, na.value = na.color, limits=zlim)
+  
   if (show.legend) {
-    p <- p + guides(fill = guide_legend(title=legend.name))
+  	p <- p + guides(fill = guide_colorbar(title=legend.name, reverse=FALSE))
   } else {
     p <- p + guides(fill = "none")
   }
@@ -508,7 +506,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
               color=color, linetype=linetype, 
               xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, 
               title=title, 
-              padd=padd, end.plot=end.plot)
+              padd=padd, end.plot=FALSE)
   
   end.func(p, end.plot)
 }
@@ -525,10 +523,10 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
   val1 = Db_getColumn(db1,name1)
   val2 = Db_getColumn(db2,name2)
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
-              color=color, linetype = linetype, 
+              color = color, linetype = linetype, 
               diag_color = diag_color, diag_line = diag_line,
               xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
-              padd=padd, end.plot=end.plot)
+              padd=padd, end.plot=FALSE)
   
   end.func(p, end.plot) 
 }

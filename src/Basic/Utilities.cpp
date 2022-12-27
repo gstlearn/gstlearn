@@ -1343,6 +1343,7 @@ std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel)
 
 /**
  * Returns the rank of the relative grid node from its absolute index using the Map
+ * @param map  The <int,int> map
  * @param iabs Absolute rank of the grid node
  * @return Rank of the corresponding active grid node (or -1)
  */

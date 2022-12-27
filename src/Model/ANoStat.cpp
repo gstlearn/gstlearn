@@ -587,7 +587,7 @@ void ANoStat::updateModel(Model* model,
 /**
  * Update the Model according to the Non-stationary parameters
  * @param model Model to be patched
- * @param vertex Rank of the target vertex
+ * @param vertex Rank of the meshing vertex
  */
 void ANoStat::updateModelByVertex(Model* model, int vertex) const
 {

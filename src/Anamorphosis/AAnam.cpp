@@ -274,7 +274,6 @@ int AAnam::fit(Db *db, const String& name)
 /**
  * Process the variable(s) stored with locator Z
  * @param db      Db structure
- * @param anam    AAnam structure
  * @param namconv Naming Convention
  * @return
  */

@@ -578,6 +578,9 @@ public:
 
   void generateRank(const String& radix = "rank");
 
+  VectorInt shrinkToValidRows(const VectorInt& rows);
+  VectorInt shrinkToValidCols(const VectorInt& cols);
+
   // Statistics
   VectorDouble statistics(const VectorString& names,
                           const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),

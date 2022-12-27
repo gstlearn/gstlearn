@@ -110,7 +110,6 @@ private:
                        const VectorDouble &coor,
                        const VectorInt &indg0,
                        bool verbose) const;
-  bool _isMaskDefined() const { return (_gridNactive > 0 || _meshNactive > 0); }
 
 protected:
   /// Interface for ASerializable
@@ -118,12 +117,17 @@ protected:
   virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
   String _getNFName() const override { return "MeshETurbo"; }
 
+  bool _recordWriteMap(std::ostream &os,
+                       const String &subtitle,
+                       const std::map<int, int> &map) const;
+  bool _recordReadMap(std::istream &is,
+                      const String &subtitle,
+                      std::map<int, int> &map);
+
 private:
   Grid  _grid;
   int   _nPerCell;
   bool  _isPolarized;
-  int   _gridNactive;
-  int   _meshNactive;
   std::map<int, int> _meshActiveToAbsolute;
   std::map<int, int> _gridAbsoluteToActive;
 };

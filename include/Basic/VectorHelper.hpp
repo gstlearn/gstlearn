@@ -77,6 +77,7 @@ public:
   static void fill(VectorDouble& vec, double v, int size = 0);
   static void fill(VectorInt& vec, int v, int size = 0);
   static void fill(VectorVectorDouble &vec, double value);
+  static void fillUndef(VectorDouble& vec, double repl);
 
   static VectorDouble add(const VectorDouble &veca, const VectorDouble &vecb);
   static void addInPlace(VectorDouble &dest, const VectorDouble &src);

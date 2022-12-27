@@ -1201,7 +1201,7 @@ def mesh(mesh,
         fig, ax = newFigure(figsize, xlim, ylim)   
 
     nmesh = mesh.getNMeshes()
-            
+    
     for imesh in range(nmesh):
         tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
         taby = mesh.getCoordinatesPerMesh(imesh, 1, True)

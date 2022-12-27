@@ -175,14 +175,15 @@ private:
   void _determineFlagNoStatByHH();
 
 private:
-  VectorDouble _TildeC;
-  VectorDouble _Lambda;
-  cs* _S;
-  int _nModelGradParam;
-  VectorT<cs *> _SGrad;
+  VectorDouble       _TildeC;
+  VectorDouble       _Lambda;
+  cs*                _S;
+  int                _nModelGradParam;
+  VectorT<cs *>      _SGrad;
   VectorVectorDouble _LambdaGrad;
-  bool _flagNoStatByHH;
-  int _variety;
+  bool               _flagNoStatByHH;
+  int                _variety;
+
   // Following list of members are there to ease the manipulation and reduce argument list
   const Model* _model;
   int _igrf;
