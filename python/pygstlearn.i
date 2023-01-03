@@ -896,6 +896,10 @@ def getdbitem(self,arg):
             
     # extract rows
     temp = temp[rows,]
+    if len(temp.shape) == 2:
+    	if temp.shape[1] == 1:
+    		return temp[:,0]
+    		
     return temp
         
 # This function will add a set of vectors (as a numpy array) to a db. 
