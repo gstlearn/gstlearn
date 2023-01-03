@@ -107,12 +107,11 @@ plot.hist(data, name = "Z2", title = "Z2", col = "gray", fill = "skyblue")
 plot.correlation(data, name1 = "Z1", name2 = "Z2", flagDiag = TRUE, xlab = "Z1", ylab = "Z2", 
                  title = "Initial lognormal variables (data)")
 # maps
-ax = plot.grid(grd,name="Z1")
+ax = plot.grid(grd,name="Z1",end.plot=FALSE)
 plot.point(data, color_name = "Z1",padd = ax, title = "Initial lognormal variable - Z1")
 
-ax = plot.grid(grd,name="Z2")
+ax = plot.grid(grd,name="Z2",end.plot=FALSE)
 plot.point(data, color_name = "Z2",padd = ax, title = "Initial lognormal variable - Z2")
-
 ```
 
 # Implementing PPMT
@@ -120,8 +119,8 @@ plot.point(data, color_name = "Z2",padd = ax, title = "Initial lognormal variabl
 ## Computation
 
 ```{r}
-nd  <- 100
-nit <- 100
+ndir  <- 100
+niter <- 100
 
 # normal score
 data["Z1.NS"] = VectorHelper_normalScore(data["Z1"])
@@ -131,17 +130,18 @@ data$setName("Z2.NS","Y2")
 
 # Launching PPMT and fitting it on the vector of Input data
 Xmat <- data$getColumnsAsMatrix(names = c("Y1", "Y2"))
-ppmt = PPMT_create(ndir=nd, niter=nit, alpha=2., method="vdc")
-ppmt$fit(Xmat, FALSE)
+ppmt = PPMT_create(ndir=ndir, alpha=2.)
+err = ppmt$fitFromMatrix(Xmat, niter)
 
 # scores vs. iterations
-plot(x = 1:nit, y = log(ppmt$getSerieScore(), base = 10), type = "l", col = "red", lty = 3,
+plot(x = 1:niter, y = ppmt$getSerieScore(TRUE), type = "l", col = "black", lty = 1,
      xlab = "Iterations", ylab = "Logarithm of index", main = "Wasserstein distance")
+```
 
-# --------------
-# results
-# --------------
 
+Results
+
+```{r}
 # adding the results to the data base
 iuid = data$addColumns(Xmat$getValues(), radix = "U")
 dum  = data$statistics(c("Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
@@ -154,12 +154,14 @@ q2 = VectorHelper_qnormVec(probas)
 
 # First components
 q1 = VectorHelper_quantiles(data$getColumns("Y1"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "First Intial Variable")
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+     main = "First Intial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Second components
 q1 = VectorHelper_quantiles(data$getColumns("Y2"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Intial Variable")
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+     main = "Second Intial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
@@ -169,17 +171,18 @@ plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1",
 
 # First components
 q1 = VectorHelper_quantiles(data$getColumns("U-1"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "First Final Variable")
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+     main = "First Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 # Second components
 q1 = VectorHelper_quantiles(data$getColumns("U-2"), probas)
-plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Final Variable")
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", 
+     main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
 plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE, xlab = "U-1", ylab = "U-2", 
                  title = "Final Gaussian variables (data)")
-
 ```
 
 # Discussion and further works

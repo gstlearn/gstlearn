@@ -31,6 +31,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
@@ -5395,10 +5396,10 @@ int spde_process(Db *dbin,
  ** \remarks than the Turbo one
  **
  *****************************************************************************/
-static AMesh* st_load_all_meshes(Db *dbin,
-                                 Db *dbout,
-                                 const VectorDouble &gext,
-                                 SPDE_Option &s_option)
+static AMesh* st_create_meshes(Db *dbin,
+                               Db *dbout,
+                               const VectorDouble &gext,
+                               SPDE_Option &s_option)
 {
   bool flag_force = (int) get_keypone("Force_Regular_Meshing", 0);
   if (VERBOSE)
@@ -5450,18 +5451,20 @@ static AMesh* st_load_all_meshes(Db *dbin,
 
       /* Regular meshing */
 
-      if (ndim_loc == 1)
-      {
-        return meshes_turbo_1D_grid_build(dbgrid);
-      }
-      else if (ndim_loc == 2)
-      {
-        return meshes_turbo_2D_grid_build(dbgrid);
-      }
-      else if (ndim_loc == 3)
-      {
-        return meshes_turbo_3D_grid_build(dbgrid);
-      }
+      return MeshETurbo::createFromGrid(dbgrid, VERBOSE);
+
+//      if (ndim_loc == 1)
+//      {
+//        return meshes_turbo_1D_grid_build(dbgrid);
+//      }
+//      else if (ndim_loc == 2)
+//      {
+//        return meshes_turbo_2D_grid_build(dbgrid);
+//      }
+//      else if (ndim_loc == 3)
+//      {
+//        return meshes_turbo_3D_grid_build(dbgrid);
+//      }
     }
     else
     {
@@ -5542,7 +5545,7 @@ AMesh* spde_mesh_load(Db *dbin,
 
   /* Load the meshing */
 
-  AMesh* amesh = st_load_all_meshes(dbin, dbout, gext, s_option);
+  AMesh* amesh = st_create_meshes(dbin, dbout, gext, s_option);
 
   return amesh;
 }
@@ -8113,16 +8116,16 @@ cs *db_mesh_neigh(const Db *db,
                   int *nactive_arg,
                   int **ranks_arg)
 {
-  double *coor, *caux, total;
+  double *coor, total;
   int *pts, *ranks, error, ncorner, ip, ndimd, ndimv, ndim, jech;
   int jech_max, ip_max, nech, nactive;
   cs *A, *Atriplet;
+  VectorDouble caux;
 
   /* Initializations */
 
   error = 1;
   coor = nullptr;
-  caux = nullptr;
   pts = nullptr;
   Atriplet = A = nullptr;
   ncorner = amesh->getNApexPerMesh();
@@ -8153,8 +8156,7 @@ cs *db_mesh_neigh(const Db *db,
   ndim = MIN(ndimd, ndimv);
   coor = db_sample_alloc(db, ELoc::X);
   if (coor == nullptr) goto label_end;
-  caux = db_sample_alloc(db, ELoc::X);
-  if (caux == nullptr) goto label_end;
+  caux.resize(ndimd);
   pts = (int*) mem_alloc(sizeof(int) * amesh->getNApices(), 0);
   if (pts == nullptr) goto label_end;
 
@@ -8184,9 +8186,8 @@ cs *db_mesh_neigh(const Db *db,
         for (int icorn = 0; icorn < amesh->getNApexPerMesh(); icorn++)
         {
           ip = amesh->getApex(imesh, icorn);
-          for (int idim = 0; idim < ndim; idim++)
-            caux[idim] = amesh->getApexCoor(ip, idim);
-          if (ut_distance(ndim, coor, caux) <= radius)
+          amesh->getApexCoordinatesInPlace(ip, caux);
+          if (ut_distance(ndim, coor, caux.data()) <= radius)
           {
             pts[ip] = 1;
             break;
@@ -8195,7 +8196,7 @@ cs *db_mesh_neigh(const Db *db,
       }
       else
       {
-        if (!is_in_mesh_neigh(amesh, coor, caux, ndim, imesh, radius))
+        if (!is_in_mesh_neigh(amesh, coor, caux.data(), ndim, imesh, radius))
           continue;
 
         /* The meshing element is in the neighborhood of the sample */
@@ -8253,7 +8254,6 @@ cs *db_mesh_neigh(const Db *db,
   label_end: Atriplet = cs_spfree(Atriplet);
   pts = (int*) mem_free((char* ) pts);
   coor = db_sample_free(coor);
-  caux = db_sample_free(caux);
   if (error) A = cs_spfree(A);
   return (A);
 }

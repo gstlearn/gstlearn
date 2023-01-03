@@ -123,11 +123,13 @@ DbStringFormat* DbStringFormat::createFromFlags(bool flag_resume,
                                                 bool flag_stats,
                                                 bool flag_array,
                                                 bool flag_locator,
+                                                const VectorString &names,
+                                                const VectorInt &cols,
                                                 bool useSel)
 {
   DbStringFormat *dbfmt = new DbStringFormat();
   dbfmt->setFlags(flag_resume, flag_vars, flag_extend, flag_stats, flag_array,
-                  flag_locator, VectorString(), VectorInt(), useSel);
+                  flag_locator, names, cols, useSel);
   return dbfmt;
 }
 

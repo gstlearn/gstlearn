@@ -172,10 +172,10 @@ public:
                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                   int locatorIndex = 0,
                   bool cleanSameLocator = false);
-  void setLocators(const VectorString& names,
-                    const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
-                    int locatorIndex = 0,
-                    bool cleanSameLocator = false);
+  void setLocators(const VectorString &names,
+                   const ELoc &locatorType = ELoc::fromKey("UNKNOWN"),
+                   int locatorIndex = 0,
+                   bool cleanSameLocator = false);
   void setLocatorsByUID(int number,
                         int iuid,
                         const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
@@ -193,9 +193,9 @@ public:
                        const String &radix,
                        const ELoc& locatorType,
                        int locatorIndex,
-                       bool useSel,
-                       double valinit,
-                       int nvar);
+                       bool useSel = false,
+                       double valinit = 0.,
+                       int nvar = 1);
   int addColumns(const VectorDouble& tab,
                  const String& radix = "New",
                  const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
@@ -533,7 +533,7 @@ public:
   VectorDouble getColumnsByUIDRange(int iuid_beg,
                                     int iuid_end,
                                     bool useSel = false) const;
-  void setAllColumns(const VectorVectorDouble& tabs,bool useSel);
+  void setAllColumns(const VectorVectorDouble& tabs,bool useSel = false);
 
   void deleteColumn(const String& name);
   void deleteColumnByUID(int iuid_del);

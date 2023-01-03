@@ -66,6 +66,8 @@ public:
                                          bool flag_stats = false,
                                          bool flag_array = false,
                                          bool flag_locator = false,
+                                         const VectorString &names = VectorString(),
+                                         const VectorInt &cols = VectorInt(),
                                          bool useSel = true);
 
   const VectorInt& getCols() const { return _cols; }

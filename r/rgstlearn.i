@@ -533,7 +533,7 @@ function (x,i,j,...,drop=TRUE)
   
     # Case of both arguments are defined
     
-    # Decode the row number
+    # Decode the Row number
     if (is.numeric(i)) {
       # Translate info 0-based number if numeric
       irow <- i - 1
@@ -612,8 +612,8 @@ function (x,i,j,...,drop=TRUE)
   if (flag_i_defined) nargs = nargs + 1
   if (flag_j_defined) nargs = nargs + 1
 
-  nech = db$getSampleNumber()
-  ncol = db$getColumnNumber()
+  nech_abs = db$getSampleNumber()
+  ncol_abs = db$getColumnNumber()
   value = as.numeric(unlist(value))
 
   new_names = "New"
@@ -621,10 +621,19 @@ function (x,i,j,...,drop=TRUE)
   
     # Both arguments are defined
     
-    if (is.numeric(i) || is.logical(i)) irow <- i
+    # Decode the Row number
+    if (is.numeric(i)) {
+      # Translate into 0-based number if numeric
+      irow <- i - 1
+    } else {
+      messerr("The Row index should be numeric")
+      stop()
+    }
   
-    if (is.numeric(j) || is.logical(j)) {
-      icol <- j
+  	# Decode the Column number
+    if (is.numeric(j)) {
+      # Translate into 0-based number if numeric
+      icol <- j - 1
     } else {
       icol <- db$getColIdxs(j)
       new_names = j
@@ -636,41 +645,49 @@ function (x,i,j,...,drop=TRUE)
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
     if (is.numeric(k)) {
-      icol <- k
+    # Translate into 0-based number if numeric
+      icol <- k - 1
     } else {
       icol <- db$getColIdxs(k)
       new_names = k
     }
   }
 
-  icol_dim = icol
-  irow_dim = irow
-  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
-  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
-  col_names = db$getNamesByColIdx(icol_dim)
-  row_names = irow_dim
-  ncol_dim = length(icol_dim)
-  nrow_dim = length(irow_dim)
+  isRowUndefined = is.undef(irow)
+  isColUndefined = is.undef(icol)
+  if (isRowUndefined) irow = seq(0, nech_abs - 1)
+  
+  # Next line is commented in order to allow having no existing column
+  # This corresponds to the creation of the NEW variable
+  #  if (isColUndefined) icol = seq(0, ncol_abs - 1)
+  
+  irow = db$shrinkToValidRows(irow)
+  icol = db$shrinkToValidCols(icol)
+  
+  col_names = db$getNamesByColIdx(icol)
+  row_names = irow
+  ncol = length(icol)
+  nrow = length(irow)
 
   if (ncol <= 0)
   {
   
     # Case of a new variable
     
-    icol = db$addColumns(value, new_names)
+    icol_new = db$addColumns(value, new_names)
   }
   else
   {
   
     # Case of already an existing variable: replacement
     
-    if (! is.undef(irow) && ! is.undef(icol))
-      db$setValuesByColIdx(irow_dim,icol_dim,value)
-    if (! is.undef(irow) &&   is.undef(icol))
-      db$setArrayBySample(irow_dim,value)
-    if (  is.undef(irow) && ! is.undef(icol))
-      db$setColumnsByColIdx(value,icol_dim)
-    if (  is.undef(irow) &&   is.undef(icol))
+    if (! isRowUndefined && ! isColUndefined)
+      db$setValuesByColIdx(irow,icol,value)
+    if (! isRowUndefined &&   isColUndefined)
+      db$setArrayBySample(irow,value)
+    if (  isRowUndefined && ! isColUndefined)
+      db$setColumnsByColIdx(value,icol)
+    if (  isRowUndefined &&   isColUndefined)
       db$setAllColumns(value)
   }
   db

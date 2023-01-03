@@ -74,9 +74,11 @@ public:
   int fitFromMatrix(AMatrix *X, int niter, bool verbose = false);
   int rawToGaussian(Db *db,
                     const VectorString &names,
+                    int niter = 0,
                     const NamingConvention &namconv = NamingConvention("Y"));
   int gaussianToRaw(Db *db,
                     const VectorString &names,
+                    int niter = 0,
                     const NamingConvention &namconv = NamingConvention("Z"));
 
 private:
@@ -84,7 +86,7 @@ private:
   void _fitInitHermite(AMatrix* Y);
   void _initGaussianizeForward(AMatrix* Y);
   void _initGaussianizeBackward(AMatrix* Y);
-  void _iterationFit(AMatrix *Y, const VectorDouble &N0, int iter = 0);
+  void _iterationFit(AMatrix *Y, const VectorDouble &N0);
   void _iterationForward(AMatrix *Y, const VectorDouble &N0, int iter = 0);
   void _iterationBackward(AMatrix *Y, const VectorDouble &N0, int iter = 0);
   double _gaussianizeForward(double Yi,

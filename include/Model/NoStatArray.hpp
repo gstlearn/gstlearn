@@ -58,5 +58,4 @@ private:
 private:
   const Db* _dbnostat;
 	mutable MatrixRectangular _tab; // Dimension: nvertex * npar
-  mutable std::map<int, int> _sampleAbsoluteToActive;
 };

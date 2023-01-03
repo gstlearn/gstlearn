@@ -103,7 +103,6 @@ int Db::resetFromSamples(int nech,
   return 0;
 }
 
-
 /**
  * Creating a Db by reading a CSV file
  *

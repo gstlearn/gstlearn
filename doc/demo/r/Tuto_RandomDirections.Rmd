@@ -11,9 +11,6 @@ output: pdf_document
 knitr::opts_chunk$set(fig.width=5, fig.height=4, 
                       out.height="70%", out.width="70%",
                       fig.align = "center") 
-```
-
-```{r loading_library, message=FALSE}
 rm(list=ls())
 library("gstlearn")
 ```

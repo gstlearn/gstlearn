@@ -138,10 +138,9 @@ private:
   void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
                          int ip);
-
   void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                           const AMesh* amesh,
-                          int igp0,
+                          int igp,
                           int igparam);
   bool _buildLambdaGrad(const AMesh *amesh);
 

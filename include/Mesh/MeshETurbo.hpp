@@ -49,9 +49,11 @@ public:
   /// Interface to AMesh
   int     getNApices() const override;
   int     getNMeshes() const override;
-  int     getApex(int imesh, int rank, bool inAbsolute = true) const override;
+  int     getApex(int imesh, int rank) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
+  void    getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const;
   double  getApexCoor(int i, int idim) const override;
+  void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
 
   cs* getMeshToDb(const Db *db, bool verbose = false) const override;

@@ -20,6 +20,7 @@
 #include "Model/ANoStat.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "geoslib_old_f.h"
 
 #include <math.h>
@@ -27,16 +28,14 @@
 NoStatArray::NoStatArray()
 : ANoStat(),
   _dbnostat(nullptr),
-  _tab(),
-  _sampleAbsoluteToActive()
+  _tab()
 {
 }
 
 NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 : ANoStat(codes),
   _dbnostat(dbnostat),
-  _tab(),
-  _sampleAbsoluteToActive()
+  _tab()
 {
   if (! _checkValid())
   {
@@ -48,8 +47,7 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 NoStatArray::NoStatArray(const NoStatArray &m)
 : ANoStat(m),
   _dbnostat(m._dbnostat),
-  _tab(m._tab),
-  _sampleAbsoluteToActive(m._sampleAbsoluteToActive)
+  _tab(m._tab)
 {
 
 }
@@ -61,7 +59,6 @@ NoStatArray& NoStatArray::operator= (const NoStatArray &m)
     ANoStat::operator=(m);
     _dbnostat = m._dbnostat;
     _tab = m._tab;
-    _sampleAbsoluteToActive = m._sampleAbsoluteToActive;
   }
   return *this;
 }
@@ -107,7 +104,6 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
 
   int npar = getNoStatElemNumber();
   _tab.reset(nvertex, npar);
-  _sampleAbsoluteToActive.clear();
 
   /* Evaluate the non-stationary parameters */
 
@@ -119,10 +115,6 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
     // Store the local vector within the Matrix
     _tab.setColumn(ipar, tab);
   }
-
-  // Store the indirection map (only if a selection is present in '_dbnostat'
-  if (_dbnostat->hasSelection())
-    _sampleAbsoluteToActive = getMapAbsoluteToRelative(_dbnostat->getSelection());
 
   return 0;
 }
@@ -243,7 +235,10 @@ bool NoStatArray::isEmpty(int icas) const
 /**
  * Return the value of the non-stationary parameter (ipar) at target (rank)
  * @param ipar  Rank of the non-stationary parameter
- * @param icas  Additional identifier
+ * @param icas  Source definition:
+ *              0 : from Meshing (rank: absolute rank to be converted into relative)
+ *              1 : from Dbin
+ *              2 : from Dbout
  * @param rank  Rank of the target
  * @return
  */
@@ -261,12 +256,23 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     // From Meshing
 
-    if (_dbnostat == nullptr) return rank;
+    if (_amesh == nullptr) return TEST;
 
     int irel = rank;
-    if (! _sampleAbsoluteToActive.empty())
-      irel = getRankMapAbsoluteToRelative(_sampleAbsoluteToActive, rank);
-    if (irel >= 0) return _tab(irel, ipar);
+    // Checking the presence of a mask in the AMesh (considered as MeshETurbo)
+//    const MeshETurbo* meshE = dynamic_cast<const MeshETurbo*>(_amesh);
+//    if (meshE != nullptr) irel = meshE->getRankWithMask(rank);
+//    if (irel < 0)
+//    {
+//      messerr("NoStatArray: Absolute address (%d) could not be converted into Relative",
+//              rank);
+//      return TEST;
+//    }
+//    else
+//    {
+//      return _tab(irel, ipar);
+//    }
+    return _tab(irel, ipar);
   }
   else if (icas == 1)
   {

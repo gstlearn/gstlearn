@@ -17,6 +17,7 @@
 #include "Basic/Law.hpp"
 
 #include <cmath>
+#include <map>
 
 #define LSTACK    1000
 #define MINI        10
@@ -1326,17 +1327,33 @@ VectorInt getListActiveToAbsolute(const VectorDouble& sel)
  * Returns the map such that MAP[iabs] = iact.
  * A sample is active if its 'sel' value is equal to 1
  * @param sel Vector giving the status of all samples (Dimension: absolute)
+ * @param verbose Verbose flag
  * @return The map (dimension: nrel)
  */
-std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel)
+std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel, bool verbose)
 {
   std::map<int, int> map;
   int nabs = (int) sel.size();
-  int irel = 0;
+  int ifirst = ITEST;
+  int ilast  = ITEST;
+  int irel   = 0;
   for (int iabs = 0; iabs < nabs; iabs++)
   {
-    if (! sel[iabs] == 0)
-      map[iabs] = irel++;
+    if (sel[iabs] == 0) continue;
+    map[iabs] = irel++;
+
+    if (IFFFF(ifirst)) ifirst = iabs;
+    ilast = iabs;
+  }
+
+  // Optional control printout
+  if (verbose)
+  {
+    message("Map Absolute to Relative\n");
+    message("- Number of absolute positions = %d\n", nabs);
+    message("- Number of active positions   = %d\n", irel);
+    message("- Absolute address of the first active sample = %d\n",ifirst);
+    message("- Absolute address of the last active sample  = %d\n",ilast);
   }
   return map;
 }
@@ -1345,15 +1362,21 @@ std::map<int, int> getMapAbsoluteToRelative(const VectorDouble& sel)
  * Returns the rank of the relative grid node from its absolute index using the Map
  * @param map  The <int,int> map
  * @param iabs Absolute rank of the grid node
- * @return Rank of the corresponding active grid node (or -1)
+ * @return Rank of the corresponding active (relative) grid node (or -1 is not found)
  */
 int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs)
 {
-  int iact = iabs;
-  if (map.empty()) return iact;
+  if (map.empty()) return iabs;
   if (map.find(iabs) == map.end())
-    iact = -1;
+    return -1;
   else
-    iact = map.find(iabs)->second;
-  return iact;
+    return map.find(iabs)->second;
+}
+
+int getRankMapRelativeToAbsolute(const std::map<int, int>& map, int irel)
+{
+  if (map.empty()) return irel;
+  auto it = map.begin();
+  std::advance(it, irel);
+  return it->first;
 }

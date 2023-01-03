@@ -131,7 +131,8 @@ public:
   static VectorInt sampleRanks(int ntotal,
                                double proportion = 0.,
                                int number = 0,
-                               int seed = 242141);
+                               int seed = 242141,
+                               int optSort = 0);
 
   static VectorInt    sort(const VectorInt& vecin, bool ascending = true);
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true);
@@ -139,9 +140,6 @@ public:
   static VectorInt    sortRanks(const VectorDouble& vecin);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
-
-private:
-  static int _myrandom (int i);
 };
 
 //typedef VectorHelper VH;

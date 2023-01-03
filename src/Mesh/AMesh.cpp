@@ -99,6 +99,18 @@ String AMesh::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+void AMesh::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+{
+  for (int idim = 0; idim < getNDim(); idim++)
+    coords[idim] = getCoor(imesh, rank, idim);
+}
+
+void AMesh::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
+{
+  for (int idim = 0; idim < getNDim(); idim++)
+      coords[idim] = getApexCoor(i, idim);
+}
+
 /****************************************************************************/
 /*!
 ** Checks that the Db is compatible with the Meshing
@@ -138,7 +150,7 @@ void AMesh::printMesh(int imesh0) const
     message("Mesh #%d\n",imesh+1);
     for (int icorn=0; icorn<getNApexPerMesh(); icorn++)
     {
-      message("Point #%d");
+      message("Point #%d",getApex(imesh, icorn));
       for (int idim=0; idim<getNDim(); idim++)
       {
         message(" %lf",getCoor(imesh,icorn,idim));
@@ -182,10 +194,18 @@ VectorDouble AMesh::getCoordinates(int idim) const
 
 VectorVectorDouble AMesh::getAllCoordinates() const
 {
-  VectorVectorDouble coords;
-
+  int napices = getNApices();
+  VectorDouble local(_nDim);
+  VectorVectorDouble coords(_nDim);
   for (int idim = 0; idim < _nDim; idim++)
-    coords.push_back(getCoordinates(idim));
+    coords[idim].resize(napices);
+
+  for (int ip = 0; ip < napices; ip++)
+  {
+    getApexCoordinatesInPlace(ip, local);
+    for (int idim = 0; idim < _nDim; idim++)
+      coords[idim][ip] = local[idim];
+  }
   return coords;
 }
 
@@ -237,15 +257,21 @@ void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
 
   // Load the Apices
 
+  VectorDouble local(ndim);
   for (int i = 0; i < napices; i++)
+  {
+    getApexCoordinatesInPlace(i, local);
     for (int idim = 0; idim < ndim; idim++)
-      apices.setValue(i,idim,getApexCoor(i, idim));
+      apices.setValue(i,idim,local[idim]);
+  }
 
   // Load the Meshes
 
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int icorner= 0; icorner < ncorner; icorner++)
       meshes.setValue(imesh, icorner, getApex(imesh, icorner));
+
+  return;
  }
 
 bool AMesh::_isSpaceDimensionValid(int idim) const
@@ -291,8 +317,7 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
  */
 void AMesh::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const
 {
-  for (int idim = 0; idim < _nDim; idim++)
-    coords[idim] = getCoor(imesh, ic, idim);
+  getCoordinatesInPlace(imesh, ic, coords);
 }
 
 /**
@@ -302,8 +327,7 @@ void AMesh::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) cons
  */
 void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 {
-  for (int idim = 0; idim < _nDim; idim++)
-    coords[idim] = getApexCoor(iapex, idim);
+  getApexCoordinatesInPlace(iapex, coords);
 }
 
 /**

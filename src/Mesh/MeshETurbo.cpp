@@ -155,10 +155,9 @@ double MeshETurbo::getMeshSize(int /*imesh*/) const
 **
 ** \param[in]  imesh    Rank of active Mesh (starting from 0)
 ** \param[in]  rank     Rank of Apex within a Mesh (from 0 to _nApexPerMesh-1)
-** \param[in]  inAbsolute TRUE to return the absolute index (otherwise relative)
 **
 *****************************************************************************/
-int MeshETurbo::getApex(int imesh, int rank, bool inAbsolute) const
+int MeshETurbo::getApex(int imesh, int rank) const
 {
   int node,icas;
   int ndim = getNDim();
@@ -174,10 +173,6 @@ int MeshETurbo::getApex(int imesh, int rank, bool inAbsolute) const
 
   int igrid = _grid.indiceToRank(indg);
 
-  if (inAbsolute) return igrid;
-
-  // If the returned grid index must be in relative system,
-  // translate the absolute rank into the relative one
   int irel = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, igrid);
   if (irel < 0)
   {
@@ -187,41 +182,46 @@ int MeshETurbo::getApex(int imesh, int rank, bool inAbsolute) const
   return irel;
 }
 
-/**
- * Returns the rank of the absolute grid node from its active index
- * @param iact Active rank of the grid node
- * @return Rank of the corresponding absolute grid node
- */
-int MeshETurbo::_getMeshActiveToAbsolute(int iact) const
-{
-  if (_meshActiveToAbsolute.empty()) return iact;
-
-  if (_meshActiveToAbsolute.find(iact) == _meshActiveToAbsolute.end())
-  {
-    messerr("Impossible to translate Mesh Active(%d)",iact);
-    return -1;
-  }
-  else
-  {
-    return _meshActiveToAbsolute.find(iact)->second;
-  }
-}
-
 double MeshETurbo::getCoor(int imesh, int rank, int idim) const
 {
   VectorInt indg(getNDim());
 
   int node = getApex(imesh,rank);
-  _grid.rankToIndice(node, indg);
+  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, node);
+  _grid.rankToIndice(iabs, indg);
   return _grid.indiceToCoordinate(idim, indg, VectorDouble());
+}
+
+void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const
+{
+  VectorInt indg(getNDim());
+
+  int node = getApex(imesh,rank);
+  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, node);
+  _grid.rankToIndice(iabs, indg);
+
+  for (int idim = 0; idim < getNDim(); idim++)
+    coords[idim] = _grid.indiceToCoordinate(idim, indg, VectorDouble());
 }
 
 double MeshETurbo::getApexCoor(int i, int idim) const
 {
   VectorInt indg(getNDim());
 
-  _grid.rankToIndice(i, indg);
+  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, i);
+  _grid.rankToIndice(iabs, indg);
   return _grid.indiceToCoordinate(idim, indg, VectorDouble());
+}
+
+void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
+{
+  VectorInt indg(getNDim());
+
+  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, i);
+  _grid.rankToIndice(iabs, indg);
+
+  for (int idim = 0; idim < getNDim(); idim++)
+    coords[idim] = _grid.indiceToCoordinate(idim, indg, VectorDouble());
 }
 
 int MeshETurbo::initFromGrid(const VectorInt&    nx,
@@ -229,8 +229,8 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
                              const VectorDouble& x0,
                              const VectorDouble& rotmat,
                              const VectorDouble& sel,
-                             bool flag_polarized,
-                             bool verbose)
+                             bool  flag_polarized,
+                             bool  verbose)
 {
   int ndim = static_cast<int> (nx.size());
   _setNDim(ndim);
@@ -571,6 +571,9 @@ String MeshETurbo::toString(const AStringFormat* strfmt) const
   if (_isPolarized) sstr << "Diamond construction is activated" << std::endl;
   _grid.display();
   sstr << AMesh::toString(strfmt);
+
+  if (! _meshActiveToAbsolute.empty())
+    sstr << "(A mask is applied to this Turbo-Meshing)" << std::endl;
   return sstr.str();
 }
 
@@ -660,10 +663,10 @@ int MeshETurbo::_addWeights(int icas,
     // Generate the indices of the mesh apex
     for (int idim=0; idim<ndim; idim++) 
       indgg[idim] = indg0[idim] + MSS(ndim,ipol,icas,icorner,idim);
-    indices[icorner] = _grid.indiceToRank(indgg);
-    if (indices[icorner] < 0) return 1; // grid node outside grid
+    int igrid = _grid.indiceToRank(indgg);
+    if (igrid < 0) return 1; // grid node outside grid
 
-    indices[icorner] = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, indices[icorner]);
+    indices[icorner] = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, igrid);
     if (indices[icorner] < 0) return 1; // grid node not active
 
     // Update the LHS matrix
@@ -909,4 +912,24 @@ bool MeshETurbo::_recordReadMap(std::istream &is,
   for (size_t i = 0; i < keys.size(); ++i)
     map[keys[i]] = values[i];
   return true;
+}
+
+/**
+ * Returns the rank of the absolute grid node from its active index
+ * @param iact Active rank of the grid node
+ * @return Rank of the corresponding absolute grid node
+ */
+int MeshETurbo::_getMeshActiveToAbsolute(int iact) const
+{
+  if (_meshActiveToAbsolute.empty()) return iact;
+
+  if (_meshActiveToAbsolute.find(iact) == _meshActiveToAbsolute.end())
+  {
+    messerr("Impossible to translate Mesh Active(%d)",iact);
+    return -1;
+  }
+  else
+  {
+    return _meshActiveToAbsolute.find(iact)->second;
+  }
 }
