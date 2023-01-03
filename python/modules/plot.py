@@ -7,6 +7,7 @@ import numpy.ma              as ma
 import gstlearn              as gl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy import shape
+import math
 
 def get_cmap(n, name='gist_rainbow'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
@@ -697,7 +698,6 @@ def gradient(db, coorX_name=None, coorY_name=None, usesel=True,
 
     return ax
 
-
 def tangent(db, usesel=True, color='black', scale=20, 
             xlim=None, ylim=None, aspect=None,
             title=None, ax=None, figsize=None, end_plot=False):
@@ -738,6 +738,39 @@ def tangent(db, usesel=True, color='black', scale=20,
 
     return ax
 
+def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
+                aspect=None, xlim=None, ylim=None,
+                title=None, ax=None, figsize=None, 
+                end_plot=False):
+    '''Function to display the Model characteristics on a Grid
+    This makes sense when the model contains some non-stationarity
+    '''
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+
+    # Extracting coordinates
+    tabx = db.getCoordinates(0,usesel)
+    taby = db.getCoordinates(1,usesel)
+    if len(tabx) <= 0 or len(taby) <= 0:
+        return None
+    
+    gl.db_model_nostat(db, model, icov)
+    tabR1 = db.getColumn("Nostat.Range-1", usesel)
+    tabR2 = db.getColumn("Nostat.Range-2", usesel)
+    tabA  = db.getColumn("Nostat.Angle-1", usesel)
+    if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
+        return None
+    
+    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color)
+            
+    drawDecor(ax, title=title, aspect=aspect)
+        
+    if end_plot:
+        plt.show()
+
+    return ax
+
+    
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):

@@ -263,7 +263,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   
   /* Convert the triplet into a sparse matrix */
 
-  if (nout > 0)
+  if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
   A = cs_triplet(Atriplet);

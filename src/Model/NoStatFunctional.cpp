@@ -120,6 +120,7 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
   {
 
     // From Meshing
+
     if (_amesh == nullptr) return TEST;
     if (rank < 0 || rank > _amesh->getNApices()) return TEST;
     for (int idim = 0; idim < _amesh->getNDim(); idim++)

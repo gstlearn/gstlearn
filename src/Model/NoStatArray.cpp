@@ -204,7 +204,10 @@ double NoStatArray::getValue(int igrf,
                              int rank) const
 {
   int ipar = getRank(igrf, icov, type, iv1, iv2);
-  return getValueByParam(ipar, icas, rank);
+  if (ipar < 0)
+    return TEST;
+  else
+    return getValueByParam(ipar, icas, rank);
 }
 
 /**

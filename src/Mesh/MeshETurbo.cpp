@@ -455,28 +455,20 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
 *****************************************************************************/
 cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
 {
-  int iech, nout;
-
-  // Initializations
-
-  int error    = 1;
   cs* Atriplet = nullptr;
-  cs* A = nullptr;
+  cs* A        = nullptr;
   int ndim     = getNDim();
-  int ncorner  = getNApexPerMesh();
   VectorInt indg0(ndim);
-  VectorInt indices(ncorner);
   VectorDouble coor(ndim);
-  VectorDouble lambda(ncorner);
 
   // Preliminary checks
 
-  if (isCompatibleDb(db)) goto label_end;
+  if (isCompatibleDb(db)) return NULL;
 
   // Core allocation
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) goto label_end;
+  if (Atriplet == nullptr) return NULL;
 
   /* Optional title */
 
@@ -484,8 +476,8 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
 
   /* Loop on the samples */
 
-  iech = 0;
-  nout = 0;
+  int iech = 0;
+  int nout = 0;
   for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
@@ -506,17 +498,17 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
     /* Optional printout */
 
     if (verbose)
-      message("Sample %4d in Mesh %4d :",jech+1,_grid.indiceToRank(indg0)+1);
+      message("Sample %4d assigned to Grid Node %4d :",
+              jech+1,_grid.indiceToRank(indg0)+1);
 
-    // Loop on the different meshes constituting the cell
+    // Finding the active mesh to which the sample belongs
 
-    bool found = false;
-    found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
+    bool found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
 
+    // In the case the target coordinate is on the edge of the grid
+    // try to shift the point down by one node
     if (! found)
     {
-      // In the case the target coordinate is on the edge of the grid
-      // try to shift the point down by one node
       bool flag_correct = false;
       for (int idim = 0; idim < ndim; idim++)
       {
@@ -527,6 +519,8 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
       if (flag_correct)
         found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
     }
+
+    // The point does not belong to any active mesh, issue a message (optional)
     if (! found)
     {
       nout++;
@@ -546,14 +540,11 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
 
   // Set the error return code
 
-  error = 0;
-  if (nout > 0)
+  if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
 
-label_end:
   Atriplet  = cs_spfree(Atriplet);
-  if (error) A = cs_spfree(A);
   return(A);
 }
 
