@@ -151,7 +151,7 @@ if (MSVC OR APPLE)
 endif()
 
 # Link to pybind11 
-#target_link_libraries(python_build PRIVATE pybind11::module) # TODO: use swig_link_library
+target_link_libraries(python_build PRIVATE pybind11::module) # TODO: use swig_link_library
 
 ########################################
 # PACKAGING (target independent)
