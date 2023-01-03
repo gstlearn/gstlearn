@@ -378,7 +378,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     //TODO check variance
     for(int iech = 0 ; iech< (int)result.size(); iech++)
     {
-      result[iech]+= law_gaussian(0.,sqrt(_nugget));
+      result[iech] += law_gaussian(0.,sqrt(_nugget));
     }
     suffix = "simu";
   }
@@ -394,7 +394,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
       VH::addInPlace(result,temp);
       // TODO add nugget
      }
-      suffix = "condSimu";
+    suffix = "condSimu";
   }
 
   if (_requireCoeffs)
@@ -402,8 +402,8 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
     VH::addInPlace(result,temp);
   }
-  int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel,TEST);
-  namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
+  int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel);
+  namconv.setNamesAndLocators(db,iptr,suffix);
   return iptr;
 }
 

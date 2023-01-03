@@ -30,7 +30,7 @@ public:
 
   void init(Model* model,
             const DbGrid* field,
-            const Db* dat = nullptr,
+            const Db* data = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"),
             const AMesh* mesh = nullptr,
             bool verbose = false);
@@ -79,18 +79,18 @@ private:
   ESPDECalcMode _calcul;
   PrecisionOpMultiConditional* _precisionsKriging;
   PrecisionOpMultiConditional* _precisionsSimu;
-  std::vector<PrecisionOp*>   _pilePrecisions;
-  std::vector<ProjMatrix*>    _pileProjMatrix;
-  std::vector<const AMesh*>         _simuMeshing;
-  std::vector<const AMesh*>         _krigingMeshing;
-  mutable VectorDouble        _driftCoeffs;
-  Model*                      _model;
-  mutable VectorVectorDouble  _workKriging;
-  mutable VectorVectorDouble  _workingSimu;
-  mutable VectorDouble        _workingData;
-  mutable VectorDouble        _workingData2;
-  std::vector<ProjMatrix*>    _projOnDbOut;
-  VectorInt                   _adressesICov;
+  std::vector<PrecisionOp*>    _pilePrecisions;
+  std::vector<ProjMatrix*>     _pileProjMatrix;
+  std::vector<const AMesh*>    _simuMeshing;
+  std::vector<const AMesh*>    _krigingMeshing;
+  mutable VectorDouble         _driftCoeffs;
+  Model*                       _model;
+  mutable VectorVectorDouble   _workKriging;
+  mutable VectorVectorDouble   _workingSimu;
+  mutable VectorDouble         _workingData;
+  mutable VectorDouble         _workingData2;
+  std::vector<ProjMatrix*>     _projOnDbOut;
+  VectorInt                    _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
   bool _requireCoeffs;
