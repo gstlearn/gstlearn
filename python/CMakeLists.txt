@@ -9,8 +9,10 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 ###################################
 # DEPENDENCIES
 
-# Look for Python3
+# Debug find package instruction
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
+
+# Look for Python3
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
 # Look for SWIG 4 [No need for customized swig]
@@ -18,9 +20,7 @@ find_package(SWIG 4.0 REQUIRED)
 include(${SWIG_USE_FILE})
 
 # Look for pybind11
-#set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 QUIET) # try locally
-# TODO : here is an issue https://github.com/pybind/pybind11/issues/2661
 if(NOT pybind11_FOUND) # else fetch it from github
   message(STATUS "Could NOT find pybind11 (fetching it from GitHub)")
   include(FetchContent)
@@ -218,7 +218,7 @@ add_dependencies(python_install python_build)
 ######################################
 # UPLOAD
 
-# Warning : Need to customize your TestPyPi token :
+# Warning: Need to customize your TestPyPi token:
 # https://pypi.org/help/#apitoken
  
 # Add a custom target for python package distribution uploading to PyPi

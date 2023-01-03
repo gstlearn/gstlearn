@@ -23,7 +23,7 @@ For using this Python package you only need Python 3 (or higher) and execute the
     pip install -i https://test.pypi.org/simple/ gstlearn
     
 This will automatically install the following dependencies:
- * pybind11,
+ * pybind11-global,
  * numpy,
  * matplolib
  
@@ -78,7 +78,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pybind11* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pybind11-global* and *matplotlib* modules installed
 * *pypandoc*, *geopandas* and *jupyter* Python modules [Optional]
   
 #### Linux (Ubuntu)
@@ -94,14 +94,13 @@ sudo apt install swig
 sudo apt install jupyter
 sudo apt install python3-numpy
 python3 -m ensurepip --upgrade # [may be not needed]
-python3 -m pip install pybind11 numpy matplotlib
+python3 -m pip install pybind11-global numpy matplotlib
 python3 -m pip install pypandoc geopandas jupyter
 ````
 
 Notes:
 
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
-* According to your Linux distribution you may have to replace `pybind11` by the quoted string `"pybind11[global]"`
 
 #### MacOS
 
@@ -113,7 +112,7 @@ Notes:
 brew install python3
 brew install swig
 python3 -m ensurepip --upgrade
-python3 -m pip install pybind11 numpy matplotlib
+python3 -m pip install pybind11-global numpy matplotlib
 python3 -m pip install pypandoc geopandas jupyter
 ````
 
@@ -121,7 +120,6 @@ Notes:
 
 * These instructions for MacOS are currently not tested - above packages may not exist
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
-* According to your MacOS distribution you may have to replace `pybind11` by the quoted string `"pybind11[global]"` 
 
 #### Windows
 
