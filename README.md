@@ -124,12 +124,13 @@ Please, look at *tests* [C++ code](https://github.com/gstlearn/gstlearn/tree/mai
 
 ## Required Tools Installation
 
-These tools are needed for compiling the *gstlearn* C++ library. Please note that HDF5 and Doxygen installation are optional.
+These tools are needed for compiling the *gstlearn* C++ library. Please note that HDF5 and Doxygen (and Latex) installation are optional.
 
 ### Linux (Ubuntu)
 
     sudo apt install git
     sudo apt install cmake
+    sudo apt install texlive-latex-recommended texlive-science
     sudo apt install doxygen
     sudo apt install libboost-all-dev
     sudo apt install libhdf5-dev
@@ -143,6 +144,7 @@ Notes:
 
     brew install git
     brew install cmake
+    brew install texlive-latex-recommended texlive-science
     brew install doxygen
     brew install libboost-all-dev
     brew install libhdf5-dev
@@ -168,6 +170,7 @@ Download and install the following tools using default options during installati
 
 Notes:
 
+* Windows users who want using doxygen, should also follow instructions [here](https://www.doxygen.nl/manual/install.html#install_bin_windows) for installing LaTeX and Ghostscipts
 * The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder (ex: `C:\Program Files\doxygen\bin`) in the *Path* System variable and restart Windows)
 * You must restart your computer after installing these requirements
 
