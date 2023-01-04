@@ -81,7 +81,7 @@ sudo apt install pcre2-devel # Ubuntu 18
 sudo apt install libpcre2-dev # Ubuntu 20
 ````
 
-4. In a folder of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
 ````
 git clone https://github.com/fabien-ors/swig.git
@@ -116,7 +116,7 @@ brew install bison
 brew install pcre2-devel
 ````
 
-4. In a folder of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
 ````
 git clone https://github.com/fabien-ors/swig.git
@@ -151,7 +151,7 @@ pacman -Sy bison
 pacman -Sy mingw-w64-x86_64-pcre2
 ````
     
-4. In a directory of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a directory of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
 ````
 git clone https://github.com/fabien-ors/swig.git
@@ -211,9 +211,9 @@ or even faster:
 * Under Windows, you may need to add `-G "MSYS Makefiles"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * You may need to precise the location of Boost, SWIG or HDF5 installation directory. In that case, add the following variables in the first command above (do not use Makefile shortcuts):
-  * `-DBoost_ROOT=<path/to/boost>`
-  * `-DSWIG_ROOT=<path/to/swig>`
-  * `-DHDF5_ROOT=<path/to/hdf5>`
+  * `-DBoost_ROOT="path/to/boost"`
+  * `-DSWIG_ROOT="path/to/swig"`
+  * `-DHDF5_ROOT="path/to/hdf5"`
 
 ### Remove Installed Package
 

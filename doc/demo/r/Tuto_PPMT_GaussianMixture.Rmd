@@ -1,0 +1,299 @@
+---
+title: "Application of PPMT to a Gaussian mixture"
+author: "D. Renard, N. Desassis, X. Freulon"
+date: "December 6th 2022"
+output:
+  pdf_document: default
+  html_document: default
+  editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+OptCst_defineByKey("ASP",0)
+```
+
+# General Introduction
+
+This notebook presents an example for the PPMT algorithm.
+
+# Simulation of a reference data set
+
+The data set is a mixture of 4 Gaussian random vectors in $\mathbb{R}^3$.
+
+```{r simu_data_set, echo=TRUE, eval=TRUE}
+np  <- 10000
+nd  <- 3
+nit <- 200
+ndir<- 100
+flag.ns <- FALSE
+
+# mixing probabilities
+pg <- c(0.25, 0.5, 0.2, 0.05)
+ng <- table(sample(1:length(pg), prob = pg, size = np, replace = TRUE))
+
+# center of the Gaussians
+mu  <- vanDerCorput(n = length(pg), nd = nd)
+mu  <- matrix(mu$getValues(), nrow = mu$getNRows(), ncol = mu$getNCols())
+
+# dispersion of the Gaussians
+ls <- list()
+ls[[1+length(ls)]] <- 0.05 * diag(c(0.25,0.25,0.1))
+ls[[1+length(ls)]] <- 0.05 * diag(c(0.2,0.01,0.1))
+ls[[1+length(ls)]] <- 0.05 * diag(c(0.1,0.1,0.05))
+ls[[1+length(ls)]] <- 0.05 * diag(c(0.25,0.01,0.25))
+
+
+X <- data.frame()
+for (k in seq_along(pg)){
+  U <- rep(1,ng[k]) %*% t(mu[k,]) + matrix(rnorm(ng[k]*nd), nrow = ng[k], ncol = nd) %*% t(chol(ls[[k]]))
+  X <- rbind(X,U)
+}
+
+# creation of a database
+
+data <- Db_createFromSamples(nech = np)
+data["x1"] <- X[,1]
+data["x2"] <- X[,2]
+data["x3"] <- X[,3]
+
+dum = data$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
+# histograms and correlation
+plot.hist(data, name = "x1", title = "X1", col = "gray", fill = "orange")
+plot.hist(data, name = "x2", title = "X2", col = "gray", fill = "skyblue")
+plot.hist(data, name = "x3", title = "X3", col = "gray", fill = "green")
+plot.correlation(data, name1 = "x1", name2 = "x2", flagDiag = TRUE, xlab = "x1", ylab = "x2", 
+                 title = "Gaussian mixture (data)")
+plot.correlation(data, name1 = "x1", name2 = "x3", flagDiag = TRUE, xlab = "x1", ylab = "x3", 
+                 title = "Gaussian mixture (data)")
+plot.correlation(data, name1 = "x2", name2 = "x3", flagDiag = TRUE, xlab = "x2", ylab = "x3", 
+                 title = "Gaussian mixture (data)")
+
+```
+
+# Application of PPMT
+
+## Normal score
+
+```{r}
+# normal score
+if(flag.ns){
+  data["x1.NS"] = VectorHelper_normalScore(data["x1"])
+  data["x2.NS"] = VectorHelper_normalScore(data["x2"])
+  data["x3.NS"] = VectorHelper_normalScore(data["x3"])
+} else {
+  data["x1.NS"] = data["x1"]
+  data["x2.NS"] = data["x2"]
+  data["x3.NS"] = data["x3"]
+}
+data$setName("x1.NS","Y1")
+data$setName("x2.NS","Y2")
+data$setName("x3.NS","Y3")
+```
+
+## PPMT
+
+```{r}
+nd  <- 100
+nit <- 100
+
+data$setName("Y1","Z1")
+data$setName("Y2","Z2")
+data$setName("Y3","Z3")
+
+# normal score
+data["Y1"] = VectorHelper_normalScore(data["Z1"])
+data["Y2"] = VectorHelper_normalScore(data["Z2"])
+data["Y3"] = VectorHelper_normalScore(data["Z3"])
+
+# Launching PPMT and fitting it on the vector of Input data
+ppmt = PPMT_create(ndir=nd, FALSE, EDirGen_fromKey("vdc"))
+Xmat <- data$getColumnsAsMatrix(names = c("Y1", "Y2", "Y3"))
+ppmt$fitFromMatrix(Xmat, niter = nit, FALSE)
+
+# scores vs. iterations
+plot(x = 1:nit, y = log(ppmt$getSerieScore(), base = 10), type = "l", col = "red", lty = 3,
+     xlab = "Iterations", ylab = "Logarithm of index", main = "Wasserstein distance")
+
+# adding the results to the data base
+iuid = data$addColumns(Xmat$getValues(), radix = "U")
+dum  = data$statistics(c("x*", "Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
+```
+
+## Results
+
+### Initial Gaussian values
+
+```{r}
+# Q-Q plots for initial Gaussian
+probas = (1:99)/(1+99)
+q2 = VectorHelper_qnormVec(probas)
+
+# First components
+q1 = VectorHelper_quantiles(data$getColumns("Y1"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "First Initial Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+# Second components
+q1 = VectorHelper_quantiles(data$getColumns("Y2"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Initial Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+# Third components
+q1 = VectorHelper_quantiles(data$getColumns("Y3"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Initial Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
+                 title = "Initial Gaussian variables (data)")
+
+plot.correlation(data, name1 = "Y1", name2 = "Y3", flagDiag = TRUE, xlab = "Y1", ylab = "Y3", 
+                 title = "Initial Gaussian variables (data)")
+
+plot.correlation(data, name1 = "Y2", name2 = "Y3", flagDiag = TRUE, xlab = "Y1", ylab = "Y3", 
+                 title = "Initial Gaussian variables (data)")
+
+
+```
+
+
+### Final Gaussian values
+
+```{r}
+# First components
+q1 = VectorHelper_quantiles(data$getColumns("U-1"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "First Final Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+# Second components
+q1 = VectorHelper_quantiles(data$getColumns("U-2"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Final Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+# Third components
+q1 = VectorHelper_quantiles(data$getColumns("U-3"), probas)
+plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles", main = "Second Final Variable")
+abline(a = 0, b = 1, col = "red", lty = 3)
+
+plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE, xlab = "U-1", ylab = "U-2", 
+                 title = "Final Gaussian variables (data)")
+
+plot.correlation(data, name1 = "U-1", name2 = "U-3", flagDiag = TRUE, xlab = "U-1", ylab = "U-3", 
+                 title = "Final Gaussian variables (data)")
+
+plot.correlation(data, name1 = "U-2", name2 = "U-3", flagDiag = TRUE, xlab = "U-2", ylab = "U-3", 
+                 title = "Final Gaussian variables (data)")
+```
+
+# Back transform
+
+## Implementation of the transform
+
+```{r}
+library(FNN)
+
+PPMT.anam <- function(this, X){
+  X  <- as.matrix(X)
+  np <- dim(X)[1]
+  nd <- dim(X)[2]
+  stopifnot(nd == dim(this$X)[2])
+  
+  res<- get.knnx(data = this$X, query = X, k = 1+nd)
+  Y  <- matrix(NaN, nrow = np, ncol = nd)
+  for (i in 1:np) {
+    idx <- res$nn.index[i,]
+    w   <- res$nn.dist[i,]
+    if (max(w == 0)){
+      w   <- as.numeric(w == 0)
+    } else {
+      w   <- 1/w^2
+      w   <- w / sum(w)
+    }
+    Y[i,] <- t(w) %*% this$Z[idx,]
+  }
+  Y
+}
+```
+
+## Simulations and application of the transform
+
+```{r}
+# mapping Y to Z
+anam <- list(
+  Z = as.matrix(cbind(data["Z1"], data["Z2"], data["Z3"])),
+  X = as.matrix(cbind(data["U-1"], data["U-2"], data["U-3"]))
+  )
+
+# simulations
+ntest <- 10000
+Y <- matrix(rnorm(n = ntest*3), nrow = ntest, ncol = 3)
+Z <- PPMT.anam(this = anam, X = Y)
+
+simu <- Db_createFromSamples(nech = ntest)
+simu["x1"] <- Z[,1]
+simu["x2"] <- Z[,2]
+simu["x3"] <- Z[,3]
+
+# Results
+dum = simu$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
+# histograms and correlation
+plot.hist(simu, name = "x1", title = "X1", col = "gray", fill = "orange")
+plot.hist(simu, name = "x2", title = "X2", col = "gray", fill = "skyblue")
+plot.hist(simu, name = "x3", title = "X3", col = "gray", fill = "green")
+plot.correlation(simu, name1 = "x1", name2 = "x2", flagDiag = TRUE, xlab = "x1", ylab = "x2", 
+                 title = "Gaussian mixture (simulation)")
+plot.correlation(simu, name1 = "x1", name2 = "x3", flagDiag = TRUE, xlab = "x1", ylab = "x3", 
+                 title = "Gaussian mixture (simulation)")
+plot.correlation(simu, name1 = "x2", name2 = "x3", flagDiag = TRUE, xlab = "x2", ylab = "x3", 
+                 title = "Gaussian mixture (simulation)")
+
+# Functions
+fun_corr <- function(i1, i2){
+plot(Z[,i1], Z[,i2], pch = 19, cex = 0.5, col = "red",
+     xlab = paste0("Z", i1), ylab = paste0("Z", i2), asp = 1)
+points(anam$Z[,i1], anam$Z[,i2], pch = 19, cex = 0.1, col = "black")
+legend("topleft", legend = c("Initial", "Simulated"), col = c("black", "red"), pch = 19)
+  NULL
+}
+
+fun_qq <- function(i1, nq = 100){
+  p <- (1:(nq-1))/nq
+  q_ini <- quantile(x = anam$Z[,i1], probs = p)
+  q_sim <- quantile(x = Z[,i1], probs = p)
+  
+  plot(q_sim, q_ini, xlab = "Simulated values", ylab = "Initial values", asp = 1, 
+       main = paste0("Q-Q plot - Z", i1), type = "b")
+  abline(a = 0, b = 1, col = "red", lty = 3)
+  NULL
+}
+
+# Q-Q plots between initial an final variables
+fun_qq(1, nq = 100)
+fun_qq(2, nq = 100)
+fun_qq(3, nq = 100)
+
+# correations
+fun_corr(1,2)
+fun_corr(1,3)
+fun_corr(2,3)
+```
+
+# Discussion and further works
+
+* other indices ?
+
+* implementations of the back transform (hermite expension or nearest neighbors
+
+* Do we need to apply a initial normal, sphering, and ppmt?
+
+# References
+
+* Rivoirard, J. (1994). Introduction to disjunctive kriging and non-linear geostatistics. Number 551.021 R626i. Clarendon Press.

@@ -128,7 +128,7 @@ Notes:
 2. Then, download and install the following tools using default options during installation:
 
   * Python 3+ [from here](https://www.python.org/downloads) (*Windows installer* [exe] - check 'Add python.exe to PATH' in the first panel)
-  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], Archive file [zip] to be extracted in a folder of your own - and remind that folder)
+  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], Archive file [zip] to be extracted in a folder of your choice, but not in the *gstlearn* folder - and remind that folder)
 
 3. Finally, install additional Python modules by running following instructions in a command prompt:
 
@@ -182,10 +182,10 @@ or even faster:
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
-  * `-DBoost_ROOT=<path/to/boost>`
-  * `-DSWIG_ROOT=<path/to/swig>`
-  * `-DDoxygen_ROOT=<path/to/doxygen>`
-  * `-DHDF5_ROOT=<path/to/hdf5>`
+  * `-DBoost_ROOT="path/to/boost"`
+  * `-DSWIG_ROOT="path/to/swig"`
+  * `-DDoxygen_ROOT="path/to/doxygen"`
+  * `-DHDF5_ROOT="path/to/hdf5"`
 
 ### Execute Non-regression Tests
 
