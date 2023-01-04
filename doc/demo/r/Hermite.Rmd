@@ -361,8 +361,7 @@ db <- Db_createFromSamples(np,ELoadBy_SAMPLE(),zz_theo)
 db$setNameByUID(db$getLastUID(),"zz_theo")
 
 ana = AnamHermite_create(nh)
-# TODO : Use base class AAnam_fit function (instead of ana$fit) - don't know why!
-err = AAnam_fit(ana, db, name="zz_theo")
+err = ana$fit(db, name="zz_theo")
 
 # Patch the Hermite coefficients to have exact numerical values
 localPsi <- GM_LN_psi(lambda = lambda, nh = nh-2)
