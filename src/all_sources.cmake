@@ -184,6 +184,7 @@ set(SRC
   Basic/FunctionalSpirale.cpp
   Basic/Law.cpp
   Basic/Interval.cpp
+  Basic/Indirection.cpp
   Basic/Tensor.cpp
   Basic/Timer.cpp
   Basic/Rotation.cpp

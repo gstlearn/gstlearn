@@ -263,13 +263,13 @@ Visualizing the results
 
 ```{r}
 if (graphics)
-    ax = plot.grid(mygrid,"Kriging.Pb.estim")
+    ax = plot.grid(mygrid,"Kriging.Pb.estim",end.plot = FALSE)
     plot.point(mydb,"Pb",title="Estimate of Pb",padd=ax)
 ```
 
 ```{r}
 if (graphics)
-    ax = plot.grid(mygrid,"Kriging.Pb.stdev")
+    ax = plot.grid(mygrid,"Kriging.Pb.stdev", end.plot=FALSE)
     plot.point(mydb,"Pb",title="St. Deviation of Pb",padd=ax)
 ```
 
@@ -344,9 +344,8 @@ We visualize a conditional simulation in Gaussian scale
 ```{r}
 if (graphics)
 {
-    ax = plot.grid(mygrid,"Simu.Y.Pb.1")
-    plot.point(mydb,"Pb",title="One Simulation of Pb in Gaussian Scale",
-             padd=ax)
+    ax = plot.grid(mygrid,"Simu.Y.Pb.1",end.plot=FALSE)
+    plot.point(mydb,"Pb",title="One Simulation of Pb in Gaussian Scale",padd=ax)
 }
 ```
 
@@ -372,9 +371,8 @@ We visualize a Conditional Simulation in Raw Scale
 ```{r}
 if (graphics)
 {
-  ax = plot.grid(mygrid,"Z.Simu.Y.Pb.1")
-  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", 
-             padd=ax)
+  ax = plot.grid(mygrid,"Z.Simu.Y.Pb.1",end.plot=FALSE)
+  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", padd=ax)
 }
 ```
 
@@ -394,7 +392,7 @@ Displaying the average of the Conditional Simulations
 ```{r}
 if (graphics)
 {
-  ax = plot.grid(mygrid,"Stats*MEAN")
+  ax = plot.grid(mygrid,"Stats*MEAN", end.plot=FALSE)
   plot.point(mydb,"Pb",title="Mean of Pb simulations",padd=ax)
 }
 ```

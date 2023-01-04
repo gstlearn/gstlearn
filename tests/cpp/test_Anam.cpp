@@ -57,6 +57,7 @@ int main(int /*argc*/, char */*argv*/[])
   Model* model_init = Model::createFromParam(ECov::EXPONENTIAL, 0.1, 1.);
   (void) simtub(NULL, grid, model_init);
   grid->setName("Simu", "Y");
+
   // Nonlinear transform (lognormal)
   double m_Z = 1.5;
   double s_Z = 0.5;

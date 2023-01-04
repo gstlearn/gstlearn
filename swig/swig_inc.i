@@ -70,6 +70,7 @@
   #include "Basic/PolyLine2D.hpp"
   #include "Basic/Law.hpp"
   #include "Basic/MathFunc.hpp"
+  #include "Basic/Indirection.hpp"
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"

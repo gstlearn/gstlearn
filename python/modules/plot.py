@@ -882,7 +882,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
         im = ax.pcolormesh(X, Y, data, **plot_args)
         im.set_transform(trans_data)
         
-    if flagColorBar:
+    if flagColorBar and flagRaster:
         addColorbar(im, ax)
     
     if levels is not None:

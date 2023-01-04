@@ -403,7 +403,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     VH::addInPlace(result,temp);
   }
   int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel);
-  namconv.setNamesAndLocators(db,iptr,suffix);
+  namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix);
   return iptr;
 }
 
