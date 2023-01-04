@@ -66,7 +66,7 @@ void Indirection::buildFromSel(const VectorDouble& sel, bool verbose)
  * Build the list of absolute indices for the only active samples
  * A sample is active if its 'sel' value is equal to 1
  * @param sel Vector giving the status of all samples (Dimension: absolute)
- * @return
+ * @param verbose Verbose flag
  */
 void Indirection::_buildArrays(const VectorDouble& sel, bool verbose)
 {
