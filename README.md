@@ -45,7 +45,7 @@ For compiling and installing *gstlearn* C++ library, the following tools must be
     * Python users: Microsoft Visual Studio C++ 14 or higher
     * R users: MinGW 7 (RTools) or higher
 * Boost header files
-* Doxygen [Optional] 1.8.3 or higher
+* Doxygen [Optional] 1.8.3 or higher and LaTeX [Optional]
 * HDF5 [Optional] C++ library and header files 1.8 or higher
 
 See [required tools installation](#required-tools-installation) instructions below
@@ -109,14 +109,14 @@ Notes:
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
 * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
-    * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
+    * Add `-DGSTLEARN_INSTALL_DIR="path/of/gstlearn/install/dir"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
 * Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
 * You may need to precise the location of Boost, HDF5 or Doxygen installation directory. In that case, add the following variables in the first cmake command above:
-    * `-DBoost_ROOT=<path/to/boost>`
-    * `-DHDF5_ROOT=<path/to/hdf5>`
-    * `-DDoxygen_ROOT=<path/to/doxygen>`
+    * `-DBoost_ROOT="path/to/boost"`
+    * `-DHDF5_ROOT="path/to/hdf5"`
+    * `-DDoxygen_ROOT="path/to/doxygen"`
 
 ## Usage
 
@@ -162,7 +162,7 @@ Download and install the following tools using default options during installati
 * Git client [from here](https://gitforwindows.org) (*Setup program* [exe])
 * CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
 * Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component)
-* Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
+* Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your choice, but not in the *gstlearn* source code - and remind that folder)
 * HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder, we assume it is `C:\Program Files\HDF_Group\HDF5\1.12.2`)
 * Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder, we assume it is `C:\Program Files\doxygen`)
 
