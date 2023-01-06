@@ -76,7 +76,7 @@ public:
   double getRCoef() const { return _rCoef; }
   bool   getFlagBound() const { return _flagBound; }
 
-  void   setPsiHn(const VectorDouble& psi_hn) { _psiHn = psi_hn; }
+  void   setPsiHns(const VectorDouble& psi_hn) { _psiHn = psi_hn; }
   void   setFlagBound(bool flagBound) { _flagBound = flagBound; }
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef);

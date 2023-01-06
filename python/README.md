@@ -18,15 +18,11 @@ The *gstlearn* Python package is a derivative work based on the *swigex* project
 
 ## Installation
 
-For using this Python package you only need Python 3 (or higher) and execute the following command:
+For using this Python package you only need Python 3 (or higher) (with numpy and matplotlib) and execute the following command:
 
     pip install -i https://test.pypi.org/simple/ gstlearn
     
-This will automatically install the following dependencies:
- * pybind11-global,
- * numpy,
- * matplolib
- 
+
 Note: In a close future, *gstlearn* will be available directly on *pypi* repository (not the test version)
 
 ## Usage

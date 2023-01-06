@@ -140,7 +140,7 @@ Notes:
 
 #### Windows
 
-1. Install *gstlearn C++ library* requirements for Windows (RTools) [here](https://github.com/gstlearn/gstlearn#Windows - MinGW (via RTools))
+1. Install *gstlearn C++ library* requirements for Windows (RTools) [here](https://github.com/gstlearn/gstlearn#windows---mingw-via-rtools)
 
 2. Remove any previous installation of SWIG (if any)
 

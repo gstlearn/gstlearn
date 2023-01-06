@@ -685,7 +685,7 @@ int _uniformConditioning(Db *db,
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    anam->setPsiHn(psi_hn);
+    anam->setPsiHns(psi_hn);
     anam->calculateMeanAndVariance();
     double zvstar = db->getArray(iech, col_est);
     double varv = db->getArray(iech, col_var);

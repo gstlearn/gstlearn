@@ -121,7 +121,7 @@ void AnamHermite::reset(double pymin,
                         double r,
                         const VectorDouble &psi_hn)
 {
-  setPsiHn(psi_hn);
+  setPsiHns(psi_hn);
   setRCoef(r);
   calculateMeanAndVariance();
   setABounds(azmin, azmax, aymin, aymax);
