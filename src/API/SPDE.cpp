@@ -350,6 +350,20 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
   return mesh;
 }
 
+bool SPDE::_calculSimu() const
+{
+  return _calcul == ESPDECalcMode::SIMUCOND
+      || _calcul == ESPDECalcMode::SIMUNONCOND;
+}
+
+bool SPDE::_calculKriging() const
+{
+  return ((_calcul == ESPDECalcMode::SIMUCOND
+        || _calcul == ESPDECalcMode::KRIGING
+        || _calcul == ESPDECalcMode::LIKELIHOOD)
+        && _data != nullptr);
+}
+
 int SPDE::query(Db* db, const NamingConvention& namconv) const
 {
   int ivar = 0;

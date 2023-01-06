@@ -174,11 +174,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     // Define if parameterization is in HH or in range/angle
     _determineFlagNoStatByHH();
 
-    // Attach the Model
-//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
-//        false, false, false, true, true, false, false))
-//      my_throw("Problem with spde_check() method");
-
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
 
@@ -276,10 +271,6 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
       }
     }
 
-    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
-                   false, false, false, true, true, false, false))
-      my_throw("Problem with spde_check() method");
-
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
 
@@ -328,12 +319,6 @@ int ShiftOpCs::initFromCS(const cs* S,
 
   try
   {
-    // Attach the Model
-
-    if (spde_check(NULL, NULL, model, NULL, verbose, VectorDouble(),
-                   false, false, false, true, true, false, false))
-      my_throw("Problem with spde_check() method");
-
     // Store the TildeC & Lambda vectors
 
     _TildeC = TildeC;

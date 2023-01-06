@@ -23,7 +23,7 @@
 
 class Db;
 
-class GSTLEARN_EXPORT AAnam : public ICloneable, public AStringable, public ASerializable
+class GSTLEARN_EXPORT AAnam : public AStringable, public ASerializable, public ICloneable
 {
 public:
   AAnam();
@@ -52,7 +52,7 @@ public:
   VectorDouble RawToTransformVec(const VectorDouble& z) const;
   VectorDouble TransformToRawVec(const VectorDouble& z) const;
 
-  int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::Z);
+  int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::fromKey("Z"));
   int fit(Db *db, const String& name);
 
   int RawToGaussianByLocator(Db *db,
@@ -62,11 +62,9 @@ public:
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Y"));
   int NormalScore(Db *db,
-                  const NamingConvention &namconv = NamingConvention(
-                      "Gaussian"));
+                  const NamingConvention &namconv = NamingConvention("Gaussian"));
   int GaussianToRawByLocator(Db *db,
-                             const NamingConvention &namconv = NamingConvention(
-                                 "Z"));
+                             const NamingConvention &namconv = NamingConvention("Z"));
   int GaussianToRaw(Db *db,
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Z"));

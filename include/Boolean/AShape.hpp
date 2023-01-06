@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/ETLaw.hpp"
-#include "Enum/ETShape.hpp"
+#include "Enum/EShape.hpp"
+#include "Enum/ELaw.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
@@ -36,7 +36,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for AShape
-  virtual ETShape getType() const = 0;
+  virtual EShape getType() const = 0;
   virtual int  getNParams() const = 0;
   virtual bool getFlagCutZ() const = 0;
   virtual BooleanObject* generateObject(int ndim = 3) = 0;
@@ -57,7 +57,7 @@ public:
   void setParamName(int ipar, const String& name);
   void setParam(int ipar, int iarg, double value);
   void setParamDefault(int ipar, const String& name, double value);
-  void setLaw(int ipar, ETLaw law);
+  void setLaw(int ipar, ELaw law);
 
   void initParams(int count);
 

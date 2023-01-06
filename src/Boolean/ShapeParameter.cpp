@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Enum/ETLaw.hpp"
-
 #include "Boolean/ShapeParameter.hpp"
+
+#include "../../include/Enum/ELaw.hpp"
 #include "Basic/Law.hpp"
 
-ShapeParameter::ShapeParameter(ETLaw law, double value)
+ShapeParameter::ShapeParameter(ELaw law, double value)
     : AStringable(),
       _law(law),
       _valarg()
@@ -45,28 +45,28 @@ ShapeParameter::~ShapeParameter()
 
 double ShapeParameter::generateValue() const
 {
-  if (_law == ETLaw::CONSTANT)
+  if (_law == ELaw::CONSTANT)
     return _valarg[0];
 
-  if (_law == ETLaw::UNIFORM)
+  if (_law == ELaw::UNIFORM)
     return law_uniform(_valarg[0], _valarg[1]);
 
-  if (_law == ETLaw::GAUSSIAN)
+  if (_law == ELaw::GAUSSIAN)
     return _valarg[0] + _valarg[1] * law_gaussian();
 
-  if (_law == ETLaw::EXPONENTIAL)
+  if (_law == ELaw::EXPONENTIAL)
     return _valarg[0] + law_exponential(_valarg[1]);
 
-  if (_law == ETLaw::GAMMA)
+  if (_law == ELaw::GAMMA)
     return _valarg[0] + law_gamma(_valarg[1]);
 
-  if (_law == ETLaw::STABLE)
+  if (_law == ELaw::STABLE)
     return law_stable(_valarg[0], _valarg[1], _valarg[2], _valarg[3]);
 
-  if (_law == ETLaw::BETA1)
+  if (_law == ELaw::BETA1)
     return law_beta1(_valarg[0], _valarg[1]);
 
-  if (_law == ETLaw::BETA2)
+  if (_law == ELaw::BETA2)
     return law_beta2(_valarg[0], _valarg[1]);
 
   return TEST;
@@ -78,36 +78,36 @@ String ShapeParameter::toString(const AStringFormat* /*strfmt*/) const
 
   switch (_law.toEnum())
   {
-    case ETLaw::E_CONSTANT:
+    case ELaw::E_CONSTANT:
       sstr << " Constant=" << _valarg[0] << std::endl;
       break;
 
-    case ETLaw::E_UNIFORM:
+    case ELaw::E_UNIFORM:
       sstr << " Uniform within [" << _valarg[0] << ";" << _valarg[1];
       break;
 
-    case ETLaw::E_GAUSSIAN:
+    case ELaw::E_GAUSSIAN:
       sstr << " Gaussian - Mean=" << _valarg[0] << "- Stdv=" << _valarg[1];
       break;
 
-    case ETLaw::E_EXPONENTIAL:
+    case ELaw::E_EXPONENTIAL:
       sstr << " Exponential - Mean=" << _valarg[0] << " - Scale=" << _valarg[1];
       break;
 
-    case ETLaw::E_GAMMA:
+    case ELaw::E_GAMMA:
       sstr << " Gamma - Mean=" << _valarg[0] << " - Scale=" << _valarg[1];
       break;
 
-    case ETLaw::E_STABLE:
+    case ELaw::E_STABLE:
       sstr << " Stable - Alpha=" << _valarg[0] << " - Beta=" << _valarg[1]
            << " - Gamma=" << _valarg[2] << " - Delta=" << _valarg[3];
       break;
 
-    case ETLaw::E_BETA1:
+    case ELaw::E_BETA1:
       sstr << " Beta1 - Par1=" << _valarg[0] << " - Par2=" << _valarg[1];
       break;
 
-    case ETLaw::E_BETA2:
+    case ELaw::E_BETA2:
       sstr << " Beta2 - Par1=" << _valarg[0] << " - Par2=" << _valarg[1];
       break;
     }

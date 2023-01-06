@@ -260,22 +260,7 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
     // From Meshing
 
     if (_amesh == nullptr) return TEST;
-
-    int irel = rank;
-    // Checking the presence of a mask in the AMesh (considered as MeshETurbo)
-//    const MeshETurbo* meshE = dynamic_cast<const MeshETurbo*>(_amesh);
-//    if (meshE != nullptr) irel = meshE->getRankWithMask(rank);
-//    if (irel < 0)
-//    {
-//      messerr("NoStatArray: Absolute address (%d) could not be converted into Relative",
-//              rank);
-//      return TEST;
-//    }
-//    else
-//    {
-//      return _tab(irel, ipar);
-//    }
-    return _tab(irel, ipar);
+    return _tab(rank, ipar);
   }
   else if (icas == 1)
   {

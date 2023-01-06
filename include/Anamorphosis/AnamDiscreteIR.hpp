@@ -40,7 +40,7 @@ public:
   static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = true);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam::DISCRETE_IR; }
+  const EAnam&  getType() const override { return EAnam::fromKey("DISCRETE_IR"); }
   bool hasFactor() const override { return true; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double computeVariance(double sval) const override;

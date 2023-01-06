@@ -25,13 +25,13 @@
 
 #include <math.h>
 
-MeshETurbo::MeshETurbo()
+MeshETurbo::MeshETurbo(int mode)
     : AMesh(),
       _grid(),
       _nPerCell(0),
       _isPolarized(false),
-      _meshActiveToAbsolute(),
-      _gridAbsoluteToActive()
+      _meshIndirect(mode),
+      _gridIndirect(mode)
 {
 }
 
@@ -40,20 +40,25 @@ MeshETurbo::MeshETurbo(const VectorInt& nx,
                        const VectorDouble& x0,
                        const VectorDouble& rotmat,
                        bool flag_polarized,
-                       bool verbose)
+                       bool verbose,
+                       int mode)
     : AMesh(),
       _grid(),
       _nPerCell(0),
-      _isPolarized(flag_polarized)
+      _isPolarized(flag_polarized),
+      _meshIndirect(mode),
+      _gridIndirect(mode)
 {
   (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), flag_polarized, verbose);
 }
 
-MeshETurbo::MeshETurbo(const DbGrid* dbgrid, bool verbose)
+MeshETurbo::MeshETurbo(const DbGrid* dbgrid, bool verbose, int mode)
     : AMesh(),
       _grid(),
       _nPerCell(0),
-      _isPolarized(false)
+      _isPolarized(false),
+      _meshIndirect(mode),
+      _gridIndirect(mode)
 {
   if (!dbgrid->isGrid()) return;
   VectorDouble sel = dbgrid->getSelection();
@@ -66,8 +71,8 @@ MeshETurbo::MeshETurbo(const MeshETurbo &r)
       _grid(),
       _nPerCell(0),
       _isPolarized(false),
-      _meshActiveToAbsolute(r._meshActiveToAbsolute),
-      _gridAbsoluteToActive(r._gridAbsoluteToActive)
+      _meshIndirect(r._meshIndirect),
+      _gridIndirect(r._gridIndirect)
 {
   _grid = r._grid;
 }
@@ -77,8 +82,8 @@ MeshETurbo& MeshETurbo::operator= (const MeshETurbo &r)
   _grid = r._grid;
   _nPerCell = r._nPerCell;
   _isPolarized = r._isPolarized;
-  _meshActiveToAbsolute = r._meshActiveToAbsolute;
-  _gridAbsoluteToActive = r._gridAbsoluteToActive;
+  _meshIndirect = r._meshIndirect;
+  _gridIndirect = r._gridIndirect;
 
   return *this;
 }
@@ -94,9 +99,9 @@ MeshETurbo::~MeshETurbo()
  */
 int MeshETurbo::getNApices() const
 {
-  if (! _gridAbsoluteToActive.empty())
+  if (_gridIndirect.isDefined())
   {
-    return (int) _gridAbsoluteToActive.size();
+    return _gridIndirect.getRelSize();
   }
   else
   {
@@ -116,7 +121,7 @@ int MeshETurbo::_nmeshInCompleteGrid() const
   int nmesh = 1;
   for (int idim=0; idim<ndim; idim++)
     nmesh *= (_grid.getNX(idim) - 1);
-  nmesh *= _nPerCell;
+  nmesh *= _nPerCell; _meshIndirect.getRelSize();
   return nmesh;
 }
 
@@ -126,9 +131,9 @@ int MeshETurbo::_nmeshInCompleteGrid() const
  */
 int MeshETurbo::getNMeshes() const
 {
-  if (! _meshActiveToAbsolute.empty())
+  if (_meshIndirect.isDefined())
   {
-    return _meshActiveToAbsolute.size();
+    return _meshIndirect.getRelSize();
   }
   else
   {
@@ -163,7 +168,7 @@ int MeshETurbo::getApex(int imesh, int rank) const
   int ndim = getNDim();
   VectorInt indg(ndim);
 
-  int jmesh = _getMeshActiveToAbsolute(imesh);
+  int jmesh = _meshIndirect.getRToA(imesh);
   _getGridFromMesh(jmesh,&node,&icas);
   _grid.rankToIndice(node,indg);
   int ipol = _getPolarized(indg);
@@ -173,11 +178,11 @@ int MeshETurbo::getApex(int imesh, int rank) const
 
   int igrid = _grid.indiceToRank(indg);
 
-  int irel = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, igrid);
+  int irel = _gridIndirect.getAToR(igrid);
   if (irel < 0)
   {
-    messerr("Problem for mesh=%d rank=%d igrid=%d -> Relative rank is negative",
-            imesh,rank,igrid);
+    messerr("Problem for mesh=%d rank=%d grid=%d -> Mesh relative rank is negative",
+            imesh+1,rank+1,igrid+1);
   }
   return irel;
 }
@@ -186,8 +191,8 @@ double MeshETurbo::getCoor(int imesh, int rank, int idim) const
 {
   VectorInt indg(getNDim());
 
-  int node = getApex(imesh,rank);
-  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, node);
+  int irel = getApex(imesh,rank);
+  int iabs = _gridIndirect.getRToA(irel);
   _grid.rankToIndice(iabs, indg);
   return _grid.indiceToCoordinate(idim, indg, VectorDouble());
 }
@@ -196,8 +201,8 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
 {
   VectorInt indg(getNDim());
 
-  int node = getApex(imesh,rank);
-  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, node);
+  int irel = getApex(imesh,rank);
+  int iabs = _gridIndirect.getRToA(irel);
   _grid.rankToIndice(iabs, indg);
 
   for (int idim = 0; idim < getNDim(); idim++)
@@ -205,10 +210,10 @@ void MeshETurbo::getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords
 }
 
 double MeshETurbo::getApexCoor(int i, int idim) const
-{
+{ _meshIndirect.getRelSize();
   VectorInt indg(getNDim());
 
-  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, i);
+  int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
   return _grid.indiceToCoordinate(idim, indg, VectorDouble());
 }
@@ -217,7 +222,7 @@ void MeshETurbo::getApexCoordinatesInPlace(int i, VectorDouble& coords) const
 {
   VectorInt indg(getNDim());
 
-  int iabs = getRankMapRelativeToAbsolute(_gridAbsoluteToActive, i);
+  int iabs = _gridIndirect.getRToA(i);
   _grid.rankToIndice(iabs, indg);
 
   for (int idim = 0; idim < getNDim(); idim++)
@@ -271,12 +276,10 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
   return 0;
 }
 
-
 void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
 {
   int node, icas;
-  _meshActiveToAbsolute.clear();
-  _gridAbsoluteToActive.clear();
+  std::map<int,int> map;
 
   // If no selection is defined on the grid, the vector of Meshing Mask is cancelled
   if (sel.empty()) return;
@@ -313,14 +316,15 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
 
     // The triangle is not masked, store its index
     if (flagMasked) continue;
-    _meshActiveToAbsolute[meshNactive] = imesh;
+    map[imesh] = meshNactive;
     meshNactive++;
   }
 
-  // Creating the Masking information for Grid 'grid AbsoluteToActive'
-  // which gives the Active Grid index from its Absolute index
+  // Creating the Indirection informations
 
-  _gridAbsoluteToActive = getMapAbsoluteToRelative(sel);
+  _meshIndirect.buildFromMap(map, nmesh);
+
+  _gridIndirect.buildFromSel(sel);
 
   return;
 }
@@ -360,15 +364,15 @@ MeshETurbo* MeshETurbo::create(const VectorInt &nx,
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::createFromGrid(const DbGrid* dbgrid, bool verbose)
+MeshETurbo* MeshETurbo::createFromGrid(const DbGrid* dbgrid, bool verbose, int mode)
 {
-  MeshETurbo* mesh = new MeshETurbo(dbgrid, verbose);
+  MeshETurbo* mesh = new MeshETurbo(dbgrid, verbose, mode);
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::createFromGridInfo(const Grid* grid, bool verbose)
+MeshETurbo* MeshETurbo::createFromGridInfo(const Grid* grid, bool verbose, int mode)
 {
-  MeshETurbo* mesh = new MeshETurbo();
+  MeshETurbo* mesh = new MeshETurbo(mode);
   if (mesh->initFromGrid(grid->getNXs(), grid->getDXs(), grid->getX0s(),
                          grid->getRotMat(), VectorDouble(), true, verbose))
     return nullptr;
@@ -403,7 +407,7 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   if (_defineGrid(cellsize)) return(1);
   _grid.setRotationByVector(rotmat);
 
-  // Define the number of Elements per Cell 
+  // Define the number of Elements per Cell
 
   _setNumberElementPerCell();
 
@@ -412,7 +416,7 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   _isPolarized = flag_polarized;
 
   // Optional printout
-  
+
   if (verbose) messageFlush(toString());
 
   return 0;
@@ -486,7 +490,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
 
     for (int idim=0; idim<ndim; idim++)
       coor[idim] = db->getCoordinate(jech,idim);
-    
+
     /* Calculate the grid indices */
 
     if (_grid.coordinateToIndicesInPlace(coor,indg0) != 0)
@@ -533,9 +537,9 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
   /* Add the extreme value to force dimension */
 
   cs_force_dimension(Atriplet, db->getSampleNumber(true), getNApices());
-  
+
   /* Convert the triplet into a sparse matrix */
-  
+
   A = cs_triplet(Atriplet);
 
   // Set the error return code
@@ -563,8 +567,15 @@ String MeshETurbo::toString(const AStringFormat* strfmt) const
   _grid.display();
   sstr << AMesh::toString(strfmt);
 
-  if (! _meshActiveToAbsolute.empty())
-    sstr << "(A mask is applied to this Turbo-Meshing)" << std::endl;
+  if (_meshIndirect.isDefined())
+  {
+    sstr << toTitle(2, "Mask Information");
+    sstr << "Mesh Masking Indexing" << std::endl;
+    sstr << _meshIndirect.toString(strfmt) << std::endl;
+    sstr << "Grid Masking Indexing" << std::endl;
+    sstr << _gridIndirect.toString(strfmt) << std::endl;
+  }
+
   return sstr.str();
 }
 
@@ -588,7 +599,7 @@ int MeshETurbo::_defineGrid(const VectorDouble& cellsize)
     return(1);
   }
   ndim = getNDim();
-  
+
   // Create the grid internal structure
 
   _grid.resetFromSpaceDimension(ndim);
@@ -652,12 +663,12 @@ int MeshETurbo::_addWeights(int icas,
   for (int icorner=0; icorner<ncorner; icorner++)
   {
     // Generate the indices of the mesh apex
-    for (int idim=0; idim<ndim; idim++) 
+    for (int idim=0; idim<ndim; idim++)
       indgg[idim] = indg0[idim] + MSS(ndim,ipol,icas,icorner,idim);
     int igrid = _grid.indiceToRank(indgg);
     if (igrid < 0) return 1; // grid node outside grid
 
-    indices[icorner] = getRankMapAbsoluteToRelative(_gridAbsoluteToActive, igrid);
+    indices[icorner] = _gridIndirect.getAToR(igrid);
     if (indices[icorner] < 0) return 1; // grid node not active
 
     // Update the LHS matrix
@@ -687,7 +698,7 @@ int MeshETurbo::_addWeights(int icas,
   }
 
   // Optional printout
-  if (verbose) 
+  if (verbose)
   {
     for (int icorner=0; icorner<ncorner; icorner++)
       message(" %4d (%4.2lf)",indices[icorner],lambda[icorner]);
@@ -809,7 +820,11 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
   VectorDouble dx;
   VectorDouble x0;
   VectorDouble rotmat;
+  VectorInt relranks;
   int flag_polarized = 0;
+  int nmesh_active = 0;
+  int ngrid_active = 0;
+  int mode = 0;
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
@@ -818,13 +833,24 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordReadVec<double>(is, "X0", x0, ndim);
   ret = ret && _recordReadVec<double>(is, "Rotation", rotmat, ndim * ndim);
   ret = ret && _recordRead<int>(is, "Polarization", flag_polarized);
+  ret = ret && _recordRead<int>(is, "Storing Mode", mode);
+
+  if (ret)
+  {
+    _meshIndirect.setMode(mode);
+    _gridIndirect.setMode(mode);
+  }
 
   if (ret)
     (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), (bool) flag_polarized, 0);
 
-  ret = ret && _recordReadMap(is, "Mesh Masking", _meshActiveToAbsolute);
+  ret = ret && _recordRead<int>(is, "Mesh Active Count", nmesh_active);
+  ret = ret && _recordReadVec<int>(is, "Mesh Masking", relranks, nmesh_active);
+  if (ret) _meshIndirect.buildFromRankRInA(relranks, _nmeshInCompleteGrid());
 
-  ret = ret && _recordReadMap(is, "Grid Masking", _gridAbsoluteToActive);
+  ret = ret && _recordRead<int>(is, "Grid Active Count", ngrid_active);
+  ret = ret && _recordReadVec<int>(is, "Grid Masking", relranks, ngrid_active);
+  if (ret) _gridIndirect.buildFromRankRInA(relranks, _grid.getNTotal());
 
   return ret;
 }
@@ -838,89 +864,16 @@ bool MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWriteVec<double>(os, "X0", _grid.getX0s());
   ret = ret && _recordWriteVec<double>(os, "Rotation", _grid.getRotMat());
   ret = ret && _recordWrite<int>(os, "Polarization", _isPolarized);
+  ret = ret && _recordWrite<int>(os, "Storing Mode", _meshIndirect.getMode());
 
   // Dumping the Mesh Masking map
-  ret = ret && _recordWriteMap(os, "Mesh Masking", _meshActiveToAbsolute);
+  ret = ret && _recordWrite<int>(os, "Mesh Active Count", getNMeshes());
+  ret = ret && _recordWriteVec<int>(os, "Mesh Masking", _meshIndirect.getRelRanks());
 
   // Dumping the Grid Masking map
-  ret = ret && _recordWriteMap(os, "Grid Masking", _gridAbsoluteToActive);
+  ret = ret && _recordWrite<int>(os, "Grid Active Count", getNApices());
+  ret = ret && _recordWriteVec<int>(os, "Grid Masking", _gridIndirect.getRelRanks());
 
   // Dumping the Grid Masking map
   return ret;
-}
-
-bool MeshETurbo::_recordWriteMap(std::ostream &os,
-                                 const String &subtitle,
-                                 const std::map<int, int> &map) const
-{
-  String title;
-  int number = (int) map.size();
-
-  title = subtitle + " Number";
-  if (! _recordWrite<int>(os, title, number)) return false;
-
-  // Write the arrays out
-
-  if (number > 0)
-  {
-    // Constituting two vectors of Int
-    VectorInt keys, vals;
-    for(auto const& imap: map)
-    {
-      keys.push_back(imap.first);
-      vals.push_back(imap.second);
-    }
-
-    title = subtitle + " Keys";
-    if (! _recordWriteVec<int>(os, title, keys)) return false;
-
-    title = subtitle + " Values";
-    if (! _recordWriteVec<int>(os, title, vals)) return false;
-  }
-  return true;
-}
-
-bool MeshETurbo::_recordReadMap(std::istream &is,
-                                const String &subtitle,
-                                std::map<int, int> &map)
-{
-  String title;
-  int number;
-
-  title = subtitle + " Number";
-  if (! _recordRead<int>(is, title, number)) return false;
-  if (number <= 0) return true;
-
-  VectorInt keys;
-  title = subtitle + " Keys";
-  if (! _recordReadVec<int>(is, title, keys, number)) return false;
-
-  VectorInt values;
-  title = subtitle + " Values";
-  if (! _recordReadVec<int>(is, title, values, number)) return false;
-
-  if (keys.size() != values.size()) return false;
-  for (size_t i = 0; i < keys.size(); ++i)
-    map[keys[i]] = values[i];
-  return true;
-}
-
-/**
- * Returns the rank of the absolute grid node from its active index
- * @param iact Active rank of the grid node
- * @return Rank of the corresponding absolute grid node
- */
-int MeshETurbo::_getMeshActiveToAbsolute(int iact) const
-{
-  if (_meshActiveToAbsolute.empty()) return iact;
-
-  if (_meshActiveToAbsolute.find(iact) == _meshActiveToAbsolute.end())
-  {
-    messerr("Impossible to translate Mesh Active(%d)",iact);
-    return -1;
-  }
-  else
-  {
-    return _meshActiveToAbsolute.find(iact)->second;
-  }
 }

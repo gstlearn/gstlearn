@@ -13,22 +13,26 @@
 #include "Basic/AStringable.hpp"
 
 Indirection::Indirection(int mode)
-    : _mode(mode),
+    : AStringable(),
+      _defined(false),
+      _mode(mode),
       _nabs(0),
       _nrel(0),
-      _AToR(),
-      _RToA(),
-      _map()
+      _vecRToA(),
+      _vecAToR(),
+      _mapAToR()
 {
 }
 
 Indirection::Indirection(const Indirection &m)
-    : _mode(m._mode),
+    : AStringable(m),
+      _defined(m._defined),
+      _mode(m._mode),
       _nabs(m._nabs),
       _nrel(m._nrel),
-      _AToR(m._AToR),
-      _RToA(m._RToA),
-      _map(m._map)
+      _vecRToA(m._vecRToA),
+      _vecAToR(m._vecAToR),
+      _mapAToR(m._mapAToR)
 {
 }
 
@@ -36,12 +40,14 @@ Indirection& Indirection::operator=(const Indirection &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
+    _defined = m._defined;
     _mode = m._mode;
     _nabs = m._nabs;
     _nrel = m._nrel;
-    _AToR = m._AToR;
-    _RToA = m._RToA;
-    _map  = m._map;
+    _vecRToA = m._vecRToA;
+    _vecAToR = m._vecAToR;
+    _mapAToR = m._mapAToR;
   }
   return *this;
 }
@@ -50,146 +56,125 @@ Indirection::~Indirection()
 {
 }
 
-void Indirection::buildFromSel(const VectorDouble& sel, bool verbose)
+String Indirection::toString(const AStringFormat* strfmt) const
 {
-  _map.clear();
-  _AToR.clear();
-  _RToA.clear();
+  std::stringstream sstr;
 
   if (_mode == 0)
-    _buildArrays(sel, verbose);
+    sstr << "- Information (AToR) is stored as Array of Integers" << std::endl;
   else
-    _buildMap(sel, verbose);
+    sstr << "- Information (AToR) is stored as a Map" << std::endl;
+  sstr << "- Number of absolute positions = " <<  _nabs << std::endl;
+  sstr << "- Number of active positions   = " <<  _nrel << std::endl;
+
+  return sstr.str();
+}
+
+void Indirection::_resetMap()
+{
+  _mapAToR.clear();
+  _vecAToR.clear();
+  _vecRToA.clear();
+}
+
+void Indirection::setMode(int mode)
+{
+  if (mode == _mode) return;
+  _resetMap();
+  _mode = mode;
 }
 
 /**
- * Build the list of absolute indices for the only active samples
+ * Build the needed information from Selection array
  * A sample is active if its 'sel' value is equal to 1
  * @param sel Vector giving the status of all samples (Dimension: absolute)
- * @param verbose Verbose flag
  */
-void Indirection::_buildArrays(const VectorDouble& sel, bool verbose)
+void Indirection::buildFromSel(const VectorDouble& sel)
 {
+  _resetMap();
   _nabs = (int) sel.size();
-  _AToR.resize(_nabs,-1);
+  if (_mode == 0) _vecAToR.resize(_nabs,-1);
+
   int irel = 0;
   for (int iabs = 0; iabs < _nabs; iabs++)
   {
     if (! sel[iabs]) continue;
-    _AToR[iabs] = irel;
-    _RToA.push_back(iabs);
+    if (_mode == 0)
+      _vecAToR[iabs] = irel;
+    else
+      _mapAToR[iabs] = irel;
+    _vecRToA.push_back(iabs);
     irel++;
   }
   _nrel = irel;
-
-  _mode = 0;
-  if (verbose) _printInfo();
+  _defined = true;
 }
 
-void Indirection::buildFromMap(const std::map<int, int> &map,
-                               int nabs,
-                               bool verbose)
+void Indirection::buildFromMap(const std::map<int, int> &map, int nabs)
 {
-  _map.clear();
-  _AToR.clear();
-  _RToA.clear();
-
-  if (_mode == 0)
-    _buildArraysFromMap(map, nabs, verbose);
-  else
-    _setMap(map);
-}
-
-void Indirection::_buildArraysFromMap(const std::map<int, int> &map,
-                                     int nabs,
-                                     bool verbose)
-{
+  _resetMap();
   _nabs = nabs;
   _nrel = (int) map.size();
-  _AToR.resize(_nabs, -1);
-  _RToA.resize(_nrel, -1);
+
+  if (_mode == 0)
+    _vecAToR.resize(_nabs, -1);
+  else
+    _mapAToR = map;
+  _vecRToA.resize(_nrel, -1);
 
   for (auto it = map.begin(); it != map.end(); it++)
   {
-    _AToR[it->first] = it->second;
-    _RToA[it->second] = it->first;
+    _vecRToA[it->second]  = it->first;
+    if (_mode == 0) _vecAToR[it->first] = it->second;
   }
-
-  _mode = 0;
-  if (verbose) _printInfo();
+  _defined = true;
 }
 
-void Indirection::_setMap(const std::map<int, int> &map)
+void Indirection::buildFromRankRInA(const VectorInt& rels, int nabs)
 {
-  _map = map;
-  _mode = 1;
-}
+  _resetMap();
+  _nabs = nabs;
+  _nrel = (int) rels.size();
 
-void Indirection::_printInfo() const
-{
-  message("Indexing between Absolute to Relative\n");
-  if (_mode == 0)
-    message("- Using information stored in Arrays of Integers\n");
-  else
-    message("- Using information stored in a Map\n");
-  message("- Number of absolute positions = %d\n", _nabs);
-  message("- Number of active positions   = %d\n", _nrel);
-}
+  if (_mode == 0) _vecAToR.resize(_nabs,-1);
 
-/**
- * Creates the map such that MAP[iabs] = iact.
- * A sample is active if its 'sel' value is equal to 1
- * @param sel Vector giving the status of all samples (Dimension: absolute)
- * @param verbose Verbose flag
- */
-void Indirection::_buildMap(const VectorDouble& sel, bool verbose)
-{
-  _map.clear();
-  _AToR.clear();
-  _RToA.clear();
-
-  _nabs = (int) sel.size();
-  int irel   = 0;
-  for (int iabs = 0; iabs < _nabs; iabs++)
+  int iabs;
+  for (int irel = 0; irel < _nrel; irel++)
   {
-    if (sel[iabs] == 0) continue;
-    _map[iabs] = irel++;
+    iabs = rels[irel];
+    if (_mode == 0)
+      _vecAToR[iabs] = irel;
+    else
+      _mapAToR[iabs] = irel;
   }
-
-  // Optional control printout
-  _mode = 1;
-  if (verbose) _printInfo();
+  _vecRToA = rels;
+  _defined = true;
 }
 
 int Indirection::getAToR(int iabs) const
 {
   if (_mode == 0)
   {
-    return _getArrayAbsoluteToRelative(iabs);
+    return _getArrayAToR(iabs);
   }
   else
   {
-    return _getMapAbsoluteToRelative(iabs);
+    return _getMapAToR(iabs);
   }
 }
 
-int Indirection::getRtoA(int irel) const
+int Indirection::getRToA(int irel) const
 {
-  if (_mode == 0)
-  {
-    return _getArrayRelativeToAbsolute(irel);
-  }
-  else
-  {
-    return _getMapRelativeToAbsolute(irel);
-  }
+  if (_vecRToA.empty()) return irel;
+  if (! _isValidRel(irel)) return ITEST;
+  return _vecRToA[irel];
 }
 
 bool Indirection::_isValidAbs(int iabs) const
 {
-  if (iabs < 0 || iabs >= _getAbsSize())
+  if (iabs < 0 || iabs >= getAbsSize())
   {
-    mesArg("Absolute Rank", iabs, _getAbsSize());
+    mesArg("Absolute Rank", iabs, getAbsSize());
     return false;
   }
   return true;
@@ -197,26 +182,19 @@ bool Indirection::_isValidAbs(int iabs) const
 
 bool Indirection::_isValidRel(int irel) const
 {
-  if (irel < 0 || irel >= _getRelSize())
+  if (irel < 0 || irel >= getRelSize())
   {
-    mesArg("Relative Rank", irel, _getRelSize());
+    mesArg("Relative Rank", irel, getRelSize());
     return false;
   }
   return true;
 }
 
-int Indirection::_getArrayAbsoluteToRelative(int iabs) const
+int Indirection::_getArrayAToR(int iabs) const
 {
-  if (_AToR.empty()) return iabs;
+  if (_vecAToR.empty()) return iabs;
   if (! _isValidAbs(iabs)) return ITEST;
-  return _AToR[iabs];
-}
-
-int Indirection::_getArrayRelativeToAbsolute(int irel) const
-{
-  if (_RToA.empty()) return irel;
-  if (! _isValidRel(irel)) return ITEST;
-  return _RToA[irel];
+  return _vecAToR[iabs];
 }
 
 /**
@@ -224,19 +202,14 @@ int Indirection::_getArrayRelativeToAbsolute(int irel) const
  * @param iabs Absolute rank of the grid node
  * @return Rank of the corresponding active (relative) grid node (or -1 is not found)
  */
-int Indirection::_getMapAbsoluteToRelative(int iabs) const
+int Indirection::_getMapAToR(int iabs) const
 {
-  if (_map.empty()) return iabs;
-  if (_map.find(iabs) == _map.end())
+  if (_mapAToR.empty()) return iabs;
+  if (_mapAToR.find(iabs) == _mapAToR.end())
     return -1;
   else
-    return _map.find(iabs)->second;
-}
-
-int Indirection::_getMapRelativeToAbsolute(int irel) const
-{
-  if (_map.empty()) return irel;
-  auto it = _map.begin();
-  std::advance(it, irel);
-  return it->first;
+  {
+    int irel = _mapAToR.find(iabs)->second;
+    return irel;
+  }
 }

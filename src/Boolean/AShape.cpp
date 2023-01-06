@@ -85,7 +85,7 @@ void AShape::initParams(int count)
   }
 }
 
-void AShape::setLaw(int ipar, ETLaw law)
+void AShape::setLaw(int ipar, ELaw law)
 {
   if (! _isValidParamIndex(ipar)) return;
   _params[ipar].setLaw(law);
