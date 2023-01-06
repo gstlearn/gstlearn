@@ -34,7 +34,7 @@ public:
             const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"),
             const AMesh* mesh = nullptr,
             bool verbose = false);
-  void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
+  void compute(int nbsimus = 1, int seed = 131323);
   void computeLk() const;
   void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;

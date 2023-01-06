@@ -23,7 +23,7 @@
 
 class Db;
 
-class GSTLEARN_EXPORT AAnam : public ICloneable, public AStringable, public ASerializable
+class GSTLEARN_EXPORT AAnam : public AStringable, public ASerializable, public ICloneable
 {
 public:
   AAnam();

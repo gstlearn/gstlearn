@@ -27,7 +27,7 @@ class MatrixSquareSymmetric;
 class MatrixRectangular;
 class AMatrix;
 
-class GSTLEARN_EXPORT PPMT : public ICloneable, public AStringable
+class GSTLEARN_EXPORT PPMT : public AStringable, public ICloneable
 {
 public:
   PPMT(int ndir = 50,

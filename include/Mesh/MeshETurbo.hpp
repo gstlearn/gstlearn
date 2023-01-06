@@ -15,9 +15,9 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Mesh/AMesh.hpp"
-
+#include "Basic/Indirection.hpp"
 #include "Basic/Grid.hpp"
+#include "Mesh/AMesh.hpp"
 
 class MatrixRectangular;
 class DbGrid;
@@ -31,14 +31,15 @@ class CovAniso;
 class GSTLEARN_EXPORT MeshETurbo: public AMesh
 {
 public:
-  MeshETurbo();
+  MeshETurbo(int mode = 1);
   MeshETurbo(const VectorInt& nx,
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
              const VectorDouble& rotmat = VectorDouble(),
              bool flag_polarized = false,
-             bool verbose = false);
-  MeshETurbo(const DbGrid* dbgrid, bool verbose = false);
+             bool verbose = false,
+             int mode = 1);
+  MeshETurbo(const DbGrid* dbgrid, bool verbose = false, int mode = 1);
   MeshETurbo(const MeshETurbo &m);
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
@@ -68,8 +69,12 @@ public:
                             bool verbose = false);
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
-  static MeshETurbo* createFromGrid(const DbGrid* dbgrid, bool verbose = false);
-  static MeshETurbo* createFromGridInfo(const Grid* grid, bool verbose = false);
+  static MeshETurbo* createFromGrid(const DbGrid *dbgrid,
+                                    bool verbose = false,
+                                    int mode = 1);
+  static MeshETurbo* createFromGridInfo(const Grid *grid,
+                                        bool verbose = false,
+                                        int mode = 1);
 
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
@@ -92,8 +97,10 @@ public:
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
 
+  const Indirection& getGridIndirect() const { return _gridIndirect; }
+  const Indirection& getMeshIndirect() const { return _meshIndirect; }
+
 private:
-  int  _getMeshActiveToAbsolute(int iact) const;
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
   int  _getPolarized(VectorInt indg) const;
@@ -119,17 +126,10 @@ protected:
   virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
   String _getNFName() const override { return "MeshETurbo"; }
 
-  bool _recordWriteMap(std::ostream &os,
-                       const String &subtitle,
-                       const std::map<int, int> &map) const;
-  bool _recordReadMap(std::istream &is,
-                      const String &subtitle,
-                      std::map<int, int> &map);
-
 private:
   Grid  _grid;
   int   _nPerCell;
   bool  _isPolarized;
-  std::map<int, int> _meshActiveToAbsolute;
-  std::map<int, int> _gridAbsoluteToActive;
+  Indirection _meshIndirect;
+  Indirection _gridIndirect;
 };

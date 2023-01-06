@@ -23,7 +23,7 @@
 class Db;
 class AAnam;
 
-class GSTLEARN_EXPORT Selectivity: public ICloneable, public AStringable
+class GSTLEARN_EXPORT Selectivity: public AStringable, public ICloneable
 {
 public:
   Selectivity(int ncut = 0);

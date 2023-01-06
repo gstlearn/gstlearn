@@ -5452,19 +5452,6 @@ static AMesh* st_create_meshes(Db *dbin,
       /* Regular meshing */
 
       return MeshETurbo::createFromGrid(dbgrid, VERBOSE);
-
-//      if (ndim_loc == 1)
-//      {
-//        return meshes_turbo_1D_grid_build(dbgrid);
-//      }
-//      else if (ndim_loc == 2)
-//      {
-//        return meshes_turbo_2D_grid_build(dbgrid);
-//      }
-//      else if (ndim_loc == 3)
-//      {
-//        return meshes_turbo_3D_grid_build(dbgrid);
-//      }
     }
     else
     {
