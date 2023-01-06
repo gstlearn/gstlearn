@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_TLAW ETLaw, CONSTANT,\
+#define ENUM_LAW ELaw, CONSTANT,\
                  CONSTANT,    0, "Constant",\
                  UNIFORM,     1, "Uniform",\
                  GAUSSIAN,    2, "Gaussian",\
@@ -22,5 +22,5 @@
                  BETA1,       6, "Beta-1",\
                  BETA2,       7, "Beta-2"
 
-ENUM_DECLARE(ENUM_TLAW)
+ENUM_DECLARE(ENUM_LAW)
 

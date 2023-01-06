@@ -34,7 +34,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual int getMaxSampleNumber(const Db* db) const override;
-  virtual ENeigh getType() const override { return ENeigh::IMAGE; }
+  virtual ENeigh getType() const override { return ENeigh::fromKey("IMAGE"); }
 
   static NeighImage* create(const VectorInt& image, int skip = 0, const ASpace* space = nullptr);
   static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);

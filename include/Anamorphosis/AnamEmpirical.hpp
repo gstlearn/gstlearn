@@ -49,7 +49,7 @@ public:
              const VectorDouble &tdisc);
 
   /// AAnam Interface
-  const EAnam& getType() const override { return EAnam::EMPIRICAL; }
+  const EAnam& getType() const override { return EAnam::fromKey("EMPIRICAL"); }
   int getNFactor() const override { return _nDisc; }
   int fitFromArray(const VectorDouble &tab,
                    const VectorDouble &wt = VectorDouble()) override;

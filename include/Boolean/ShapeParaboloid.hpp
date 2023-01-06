@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/ETShape.hpp"
+#include "Enum/EShape.hpp"
 
 #include "Boolean/AShape.hpp"
 #include "Boolean/ShapeParameter.hpp"
@@ -34,7 +34,7 @@ public:
   /// Interface for ICloneable
   IMPLEMENT_CLONING(ShapeParaboloid)
 
-  ETShape getType() const override { return ETShape::PARABOLOID; }
+  EShape getType() const override { return EShape::fromKey("PARABOLOID"); }
   int  getNParams() const override { return 4; }
   bool getFlagCutZ() const override { return false; }
   BooleanObject* generateObject(int ndim = 3) override;

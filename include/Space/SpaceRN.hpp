@@ -34,7 +34,7 @@ public:
   static SpaceRN* create(unsigned int ndim);
 
   /// Return the concrete space type
-  ESpaceType getType() const override { return ESpaceType::RN; }
+  ESpaceType getType() const override { return ESpaceType::fromKey("RN"); }
   /// Move the given space point by the given vector
   void move(SpacePoint& p1,
             const VectorDouble& vec) const override;

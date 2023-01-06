@@ -279,7 +279,7 @@ We must first transform the Data into Gaussian
 
 ```{r}
 myanamPb = AnamHermite_create(nbpoly=30)
-err = myanamPb$fit(mydb, "Pb")
+err = myanamPb$fitFromLocator(mydb)
 if (verbose)
     myanamPb
 ```

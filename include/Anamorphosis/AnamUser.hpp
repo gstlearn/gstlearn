@@ -35,7 +35,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// AAnam Interface
-  const EAnam& getType() const override { return EAnam::EXTERNAL; }
+  const EAnam& getType() const override { return EAnam::fromKey("EXTERNAL"); }
   bool isChangeSupportDefined() const override { return false; }
 
   /// AnamContinuous Interface

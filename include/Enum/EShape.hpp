@@ -12,7 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_TSHAPE ETShape, PARALLELEPIPED,\
+#define ENUM_SHAPE EShape, PARALLELEPIPED,\
                  PARALLELEPIPED,    0, "Parallelepiped",\
                  ELLIPSOID,         1, "Full Ellipsoid",\
                  PARABOLOID,        2, "Full Paraboloid",\
@@ -20,5 +20,5 @@
                  HALFPARABOLOID,    4, "Lower-Hald Paraboloid",\
                  HALFSINUSOID,      5, "Lower-Half Sinusoid"
 
-ENUM_DECLARE(ENUM_TSHAPE)
+ENUM_DECLARE(ENUM_SHAPE)
 
