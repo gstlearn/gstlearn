@@ -189,7 +189,8 @@
    * return NULL.
    */
   PyArrayObject* obj_to_array_no_conversion(PyObject* input,
-                                            int        typecode)
+                                   
+Slot "ref":         int        typecode)
   {
     PyArrayObject* ary = NULL;
     if (is_array(input) && (typecode == NPY_NOTYPE ||
@@ -207,6 +208,7 @@
       ary = NULL;
     }
     else
+Slot "ref":
     {
       const char* desired_type = typecode_string(typecode);
       const char* actual_type  = pytype_string(input);

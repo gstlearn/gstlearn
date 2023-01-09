@@ -20,6 +20,7 @@
 #include "Model/ANoStat.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "geoslib_old_f.h"
 
 #include <math.h>
@@ -27,16 +28,14 @@
 NoStatArray::NoStatArray()
 : ANoStat(),
   _dbnostat(nullptr),
-  _tab(),
-  _sampleAbsoluteToActive()
+  _tab()
 {
 }
 
 NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 : ANoStat(codes),
   _dbnostat(dbnostat),
-  _tab(),
-  _sampleAbsoluteToActive()
+  _tab()
 {
   if (! _checkValid())
   {
@@ -48,8 +47,7 @@ NoStatArray::NoStatArray(const VectorString& codes, const Db* dbnostat)
 NoStatArray::NoStatArray(const NoStatArray &m)
 : ANoStat(m),
   _dbnostat(m._dbnostat),
-  _tab(m._tab),
-  _sampleAbsoluteToActive(m._sampleAbsoluteToActive)
+  _tab(m._tab)
 {
 
 }
@@ -61,7 +59,6 @@ NoStatArray& NoStatArray::operator= (const NoStatArray &m)
     ANoStat::operator=(m);
     _dbnostat = m._dbnostat;
     _tab = m._tab;
-    _sampleAbsoluteToActive = m._sampleAbsoluteToActive;
   }
   return *this;
 }
@@ -107,7 +104,6 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
 
   int npar = getNoStatElemNumber();
   _tab.reset(nvertex, npar);
-  _sampleAbsoluteToActive.clear();
 
   /* Evaluate the non-stationary parameters */
 
@@ -115,10 +111,6 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
   {
     // Evaluate the non-stationary attribute at the target points
     if (_informField(ipar, coords, tab, verbose)) return 1;
-
-    // Store the indirection map (only if a selection is present in '_dbnostat'
-    if (_dbnostat->hasSelection())
-      _sampleAbsoluteToActive = getMapAbsoluteToRelative(_dbnostat->getSelection());
 
     // Store the local vector within the Matrix
     _tab.setColumn(ipar, tab);
@@ -212,7 +204,10 @@ double NoStatArray::getValue(int igrf,
                              int rank) const
 {
   int ipar = getRank(igrf, icov, type, iv1, iv2);
-  return getValueByParam(ipar, icas, rank);
+  if (ipar < 0)
+    return TEST;
+  else
+    return getValueByParam(ipar, icas, rank);
 }
 
 /**
@@ -243,7 +238,10 @@ bool NoStatArray::isEmpty(int icas) const
 /**
  * Return the value of the non-stationary parameter (ipar) at target (rank)
  * @param ipar  Rank of the non-stationary parameter
- * @param icas  Additional identifier
+ * @param icas  Source definition:
+ *              0 : from Meshing (rank: absolute rank to be converted into relative)
+ *              1 : from Dbin
+ *              2 : from Dbout
  * @param rank  Rank of the target
  * @return
  */
@@ -261,12 +259,8 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     // From Meshing
 
-    if (_dbnostat == nullptr) return rank;
-
-    int irel = rank;
-    if (! _sampleAbsoluteToActive.empty())
-      irel = getRankMapAbsoluteToRelative(_sampleAbsoluteToActive, rank);
-    if (irel >= 0) return _tab(irel, ipar);
+    if (_amesh == nullptr) return TEST;
+    return _tab(rank, ipar);
   }
   else if (icas == 1)
   {
@@ -403,16 +397,16 @@ int NoStatArray::_informField(int ipar,
       return 1;
     }
 
-    message("For Non-Stationary Parameter (%d), there are some undefined values (%d)\n",
-            ipar + 1, ndef);
-    message("They have been replaced by its average value (%lf)\n", mean);
+    if (verbose)
+    {
+      message("For Non-Stationary Parameter (%d), there are %d undefined values\n",
+              ipar + 1, ndef);
+      message("They have been replaced by its average value (%lf)\n", mean);
+    }
 
     // Modify the TEST values to the mean value
 
-    for (int ip = 0; ip < (int) tab.size(); ip++)
-    {
-      if (FFFF(tab[ip])) tab[ip] = mean;
-    }
+    VH::fillUndef(tab, mean);
   }
 
   // Printout some statistics (optional)

@@ -5,8 +5,6 @@ fontsize: 8pt
 output:
   beamer_presentation:
     colortheme: beaver
-    fig_height: 5
-    fig_width: 8
     theme: Boadilla
   ioslides_presentation: default
 theme: Boadilla
@@ -14,8 +12,8 @@ colortheme: beaver
 ---
 
 ```{r setup,include=FALSE, fig.show='hide'}
-knitr::opts_chunk$set(fig.width=5, fig.height=4, 
-                      out.height="70%", out.width="70%",
+knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+                      out.width="50%",
                       fig.align = "center") 
 ```
 
@@ -107,7 +105,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging Estimation}
 
 ```{r Plot_Ordinary_Kriging}
-plot.grid(grid, title="Ordinary Kriging over whole Grid")
+plot.grid(grid, title="Ordinary Kriging over whole Grid", legend.name="°C",asp=1,zlim= c(0.,8.))
 ```
 
 ---
@@ -138,7 +136,8 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging - Estimation}
 
 ```{r Ordinary_Kriging_Estimation}
-ax = plot.grid(grid,name="OK*estim",title="Estimation by Ordinary Kriging",end.plot=FALSE)
+ax = plot.grid(grid,name="OK*estim",title="Estimation by Ordinary Kriging",asp=1,
+               legend.name="°C", zlim=c(0.,8.), end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 ```
 
@@ -147,7 +146,8 @@ plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 \frametitle{Ordinary Kriging - Standard Deviation}
 
 ```{r Ordinary_Kriging_St_Dev}
-ax = plot.grid(grid,name="OK*stdev",title="St. dev. by Ordinary Kriging",end.plot=FALSE)
+ax = plot.grid(grid,name="OK*stdev",title="St. dev. by Ordinary Kriging",asp=1,
+               legend.name="°C", zlim=c(0.,1.), end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 ```
 
@@ -167,7 +167,7 @@ Simple Kriging is performed
 
 ```{r Simple_Kriging}
 err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
-              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              flag_est=TRUE, flag_std=TRUE, 
               namconv=NamingConvention("SK"))
 ```
 
@@ -176,7 +176,8 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
 \frametitle{Simple kriging - Estimation}
 
 ```{r Simple_Kriging_Estimation}
-ax = plot.grid(grid,name="SK*estim",title="Estimation by Simple Kriging",end.plot=FALSE)
+ax = plot.grid(grid,name="SK*estim",title="Estimation by Simple Kriging",asp=1,
+               legend.name="°C", zlim=c(0.,8.), end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 ```
 
@@ -185,7 +186,8 @@ plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 \frametitle{Simple kriging - Standard Deviation}
 
 ```{r Simple_Kriging_St_Dev}
-ax = plot.grid(grid,name="SK*stdev",title="St. dev. by Simple Kriging",end.plot=FALSE)
+ax = plot.grid(grid,name="SK*stdev",title="St. dev. by Simple Kriging",asp=1,
+               legend.name="°C", zlim=c(0.,1.), end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 ```
 
@@ -216,8 +218,8 @@ plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", flagDiag=TRUE,
 
 ```{r Cross_Validation}
 err = xvalid(db=dat, model=fitmodOK, neighparam=unique.neigh, 
-             flag_xvalid_est=1, flag_xvalid_std=1, flag_xvalid_varz=0, 
-             namconv=NamingConvention("Xvalid", TRUE, TRUE, FALSE))
+             flag_xvalid_est=1, flag_xvalid_std=1,  
+             namconv=NamingConvention_create("Xvalid", flag_locator = FALSE))
 ```
 
 ---
@@ -253,8 +255,8 @@ mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Errors_Display}
-ax = plot.grid(grid,name="inshore",show.legend=FALSE)
-plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
+ax = plot.grid(grid,name="inshore",show.legend=FALSE, asp=1,end.plot=FALSE)
+plot.point(dat,size_name="*esterr",padd=ax,sizmax=300, 
            title="Cross-Validation scores")
 ```
 
@@ -263,7 +265,7 @@ plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Absolute_Error}
-ax = plot.grid(grid,name="inshore",show.legend=FALSE)
+ax = plot.grid(grid,name="inshore",show.legend=FALSE, asp=1,end.plot=FALSE)
 plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
            flagAbsSize=TRUE,title="Cross-Validation scores (abs. value)")
 ```
@@ -275,17 +277,14 @@ plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
 We design a small Moving Neighborhood **small.neigh** with only 1 sample per neighborhood.
 
 ```{r}
-small.neigh = NeighMoving_create(flag_xvalid=FALSE,
-                                 nmini=1, nmaxi=1, radius=1000000)
+small.neigh = NeighMoving_create(flag_xvalid=FALSE,nmini=1, nmaxi=1, radius=1000000)
 ```
 
 We perform Ordinary Kriging 
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood}
-err = kriging(dat,grid,fitmodOK,small.neigh,
-              calcul=EKrigOpt_PONCTUAL(),
-              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
-              ndisc=c(), rank_colcok=c(), matCL=c(),
+err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=small.neigh,
+              flag_est=TRUE, flag_std=TRUE, 
               namconv=NamingConvention("Small"))
 ```
 
@@ -296,7 +295,8 @@ err = kriging(dat,grid,fitmodOK,small.neigh,
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood_Estimation}
 ax = plot.grid(grid,name="Small*estim",
-               title="Estimation by Ordinary Kriging (Small Moving Neigh.)")
+               title="Estimation by Ordinary Kriging (Small Neigh.)", zlim=c(0.,8.), asp=1,
+               legend.name="°C", end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
@@ -307,17 +307,14 @@ plot.point(dat,size_name="January_temp",padd=ax)
 Building a reasonable Moving Neighborhood, although with a limited extension (*radius*)
 
 ```{r Reduced_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(flag_xvalid=FALSE,
-                                  nmini=1, nmaxi=10, radius=20)
+moving.neigh = NeighMoving_create(flag_xvalid=FALSE,nmini=1, nmaxi=10, radius=20)
 ```
 
 Running the Ordinary Kriging
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood}
 err = kriging(dat,grid,fitmodOK,moving.neigh,
-              calcul=EKrigOpt_PONCTUAL(),
-              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
-              ndisc=c(), rank_colcok=c(), matCL=c(),
+              flag_est=TRUE, flag_std=TRUE, 
               namconv=NamingConvention("Reduced"))
 ```
 
@@ -327,7 +324,8 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood_Estimation}
 ax = plot.grid(grid,name="Reduced*estim",
-               title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
+               title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)", zlim=c(0.,8.), asp=1,
+               legend.name="°C", end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
@@ -340,17 +338,14 @@ Lots of target sites are not estimated as no sample is found within the neighbor
 Building a reasonable Moving Neighborhood correctly tuned: 10 samples (maximum) selected in a radius of 150 around the target site.
 
 ```{r Large_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(flag_xvalid=FALSE,
-                                  nmini=1, nmaxi=10, radius=150)
+moving.neigh = NeighMoving_create(flag_xvalid=FALSE,nmini=1, nmaxi=10, radius=150)
 ```
 
 Running the Ordinary Kriging
 
 ```{r Ordinary_Kriging_Moving_Neighborhood}
 err = kriging(dat,grid,fitmodOK,moving.neigh,
-              calcul=EKrigOpt_PONCTUAL(),
-              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
-              ndisc=c(), rank_colcok=c(), matCL=c(),
+              flag_est=TRUE, flag_std=TRUE, 
               namconv=NamingConvention("Moving"))
 ```
 
@@ -360,7 +355,8 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_Estimation}
 ax = plot.grid(grid,name="Moving*estim",
-               title="Estimation by Ordinary Kriging (Moving Neigh.)")
+               title="Estimation by Ordinary Kriging (Moving Neigh.)", zlim=c(0.,8.), asp=1,
+               legend.name="°C", end.plot=FALSE)
 plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
@@ -370,7 +366,8 @@ plot.point(dat,size_name="January_temp",padd=ax)
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_stdev}
 ax = plot.grid(grid,name="Moving*stdev",
-               title="St. dev. by Ordinary Kriging (Moving Neigh.)")
+               title="St. dev. by Ordinary Kriging (Moving Neigh.)", zlim=c(0.,1.), asp=1,
+               legend.name="°C", end.plot=FALSE,)
 plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
@@ -380,7 +377,7 @@ plot.point(dat,size_name="January_temp",padd=ax)
 
 ```{r Comparing_unique_moving_estimation}
 plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE, 
-                 title="Unique vs. Moving Neighborhood", 
+                 title="Ordinary Kriging Estimation", 
                  xlab="Unique", ylab="Moving")
 ```
 
@@ -390,6 +387,6 @@ plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE,
 
 ```{r Comparing_unique_moving_stdev}
 plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", flagDiag=TRUE, 
-                 title="Unique vs. Moving Neighborhood", 
+                 title="Ordinary Kriging St. Dev.", 
                  xlab="Unique", ylab="Moving")
 ```

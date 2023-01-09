@@ -104,7 +104,7 @@ double NoStatFunctional::getValue(int igrf,
 /**
  * Return the value of the non-stationary parameter (ipar) at target (rank)
  * @param ipar  Rank of the non-stationary parameter
- * @param icas  Additional identifier (not used here)
+ * @param icas  Additional identifier
  * @param rank  Rank of the target
  * @return
  */
@@ -115,15 +115,16 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 
   // Dispatch
 
-  VectorDouble vec(2);
+  VectorDouble vec;
   if (icas == 0)
   {
 
     // From Meshing
+
     if (_amesh == nullptr) return TEST;
     if (rank < 0 || rank > _amesh->getNApices()) return TEST;
     for (int idim = 0; idim < _amesh->getNDim(); idim++)
-      vec[idim] = _amesh->getApexCoor(rank, idim);
+      vec.push_back(_amesh->getApexCoor(rank, idim));
   }
   else if (icas == 1)
   {
@@ -133,7 +134,7 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
     if (_dbin == nullptr) return TEST;
     if (rank < 0 || rank > _dbin->getSampleNumber()) return TEST;
     for (int idim = 0; idim < _dbin->getNDim(); idim++)
-      vec[idim] = _dbin->getCoordinate(rank, idim);
+      vec.push_back(_dbin->getCoordinate(rank, idim));
   }
   else if (icas == 2)
   {
@@ -143,7 +144,7 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
     if (_dbout == nullptr) return TEST;
     if (rank < 0 || rank > _dbout->getSampleNumber()) return TEST;
     for (int idim = 0; idim < _dbin->getNDim(); idim++)
-       vec[idim] = _dbout->getCoordinate(rank, idim);
+       vec.push_back(_dbout->getCoordinate(rank, idim));
   }
   else
   {

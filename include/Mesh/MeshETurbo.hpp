@@ -15,9 +15,9 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Mesh/AMesh.hpp"
-
+#include "Basic/Indirection.hpp"
 #include "Basic/Grid.hpp"
+#include "Mesh/AMesh.hpp"
 
 class MatrixRectangular;
 class DbGrid;
@@ -31,14 +31,15 @@ class CovAniso;
 class GSTLEARN_EXPORT MeshETurbo: public AMesh
 {
 public:
-  MeshETurbo();
+  MeshETurbo(int mode = 1);
   MeshETurbo(const VectorInt& nx,
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
              const VectorDouble& rotmat = VectorDouble(),
              bool flag_polarized = false,
-             bool verbose = false);
-  MeshETurbo(const DbGrid* dbgrid, bool verbose = false);
+             bool verbose = false,
+             int mode = 1);
+  MeshETurbo(const DbGrid* dbgrid, bool verbose = false, int mode = 1);
   MeshETurbo(const MeshETurbo &m);
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
@@ -49,9 +50,11 @@ public:
   /// Interface to AMesh
   int     getNApices() const override;
   int     getNMeshes() const override;
-  int     getApex(int imesh, int rank, bool inAbsolute = true) const override;
+  int     getApex(int imesh, int rank) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
+  void    getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const;
   double  getApexCoor(int i, int idim) const override;
+  void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
 
   cs* getMeshToDb(const Db *db, bool verbose = false) const override;
@@ -66,8 +69,12 @@ public:
                             bool verbose = false);
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
-  static MeshETurbo* createFromGrid(const DbGrid* dbgrid, bool verbose = false);
-  static MeshETurbo* createFromGridInfo(const Grid* grid, bool verbose = false);
+  static MeshETurbo* createFromGrid(const DbGrid *dbgrid,
+                                    bool verbose = false,
+                                    int mode = 1);
+  static MeshETurbo* createFromGridInfo(const Grid *grid,
+                                        bool verbose = false,
+                                        int mode = 1);
 
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
@@ -90,8 +97,10 @@ public:
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
 
+  const Indirection& getGridIndirect() const { return _gridIndirect; }
+  const Indirection& getMeshIndirect() const { return _meshIndirect; }
+
 private:
-  int  _getMeshActiveToAbsolute(int iact) const;
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
   int  _getPolarized(VectorInt indg) const;
@@ -110,7 +119,6 @@ private:
                        const VectorDouble &coor,
                        const VectorInt &indg0,
                        bool verbose) const;
-  bool _isMaskDefined() const { return (_gridNactive > 0 || _meshNactive > 0); }
 
 protected:
   /// Interface for ASerializable
@@ -122,8 +130,6 @@ private:
   Grid  _grid;
   int   _nPerCell;
   bool  _isPolarized;
-  int   _gridNactive;
-  int   _meshNactive;
-  std::map<int, int> _meshActiveToAbsolute;
-  std::map<int, int> _gridAbsoluteToActive;
+  Indirection _meshIndirect;
+  Indirection _gridIndirect;
 };

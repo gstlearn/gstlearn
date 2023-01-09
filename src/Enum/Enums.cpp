@@ -8,9 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Enum/ELaw.hpp>
 #include "Enum/ECalcMember.hpp"
-#include "Enum/ETShape.hpp"
-#include "Enum/ETLaw.hpp"
+#include "Enum/EShape.hpp"
 #include "Enum/EJustify.hpp"
 #include "Enum/EDbg.hpp"
 #include "Enum/ECst.hpp"
@@ -62,8 +62,8 @@ ENUM_DEFINE(ENUM_SPDE_CALC_MODE)
 ENUM_DEFINE(ENUM_TAPE)
 ENUM_DEFINE(ENUM_CONVTYPE)
 ENUM_DEFINE(ENUM_CONVDIR)
-ENUM_DEFINE(ENUM_TLAW)
-ENUM_DEFINE(ENUM_TSHAPE)
+ENUM_DEFINE(ENUM_LAW)
+ENUM_DEFINE(ENUM_SHAPE)
 ENUM_DEFINE(ENUM_STATOPTION)
 ENUM_DEFINE(ENUM_SELECTIVITY)
 ENUM_DEFINE(ENUM_SPACETYPE)

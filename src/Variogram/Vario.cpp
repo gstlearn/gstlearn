@@ -491,7 +491,6 @@ int Vario::computeIndicByKey(const String& calcul_name,
  ** \return  Error return code
  **
  ** \param[in]  anam        Point Hermite anamorphosis
- ** \param[in]  cvv         Block variance
  **
  *****************************************************************************/
 int Vario::transformZToY(const AAnam *anam)

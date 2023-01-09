@@ -43,11 +43,12 @@
  *    - Enumerations (see AEnum) - TODO
  *    - `SYMBOL_UNUSED` macro
  *    - ...to be expanded
- * - Some coding constraints due to the customized SWIG version:
+ * - Some coding constraints due to the [customized] SWIG for R version:
  *    - limit the use of function overriding
  *    - do not use namespace or static variables in default argument values
  *    - do not comment the argument name when it is unused (use  `SYMBOL_UNUSED`)
  *    - do not use following argument names: 'in', '_*'
+ *    - always inherit from pure virtual classes in last position (ex: ICloneable)
  *
  * ## C++ naming convention
  *

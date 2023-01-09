@@ -263,7 +263,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   
   /* Convert the triplet into a sparse matrix */
 
-  if (nout > 0)
+  if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
   A = cs_triplet(Atriplet);
@@ -279,10 +279,9 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
 **
 ** \param[in]  imesh    Rank of the Mesh (from 0 to _nMeshes-1))
 ** \param[in]  rank     Rank of the Apex within a Mesh (from 0 to _nApices-1)
-** \param[in]  inAbsolute TRUE to return the absolute index (otherwise relative)
 **
 *****************************************************************************/
-int MeshSpherical::getApex(int imesh, int rank, bool /*inAbsolute*/) const
+int MeshSpherical::getApex(int imesh, int rank) const
 {
   return _meshes.getValue(imesh,rank);
 }

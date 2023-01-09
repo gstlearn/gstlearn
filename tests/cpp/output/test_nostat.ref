@@ -48,12 +48,6 @@ Non-Stationary Parameters
 Anis-Matrix : GRF=1 Str=1 V#1=1 V#2=1
 Anis-Matrix : GRF=1 Str=1 V#1=1 V#2=2
 Anis-Matrix : GRF=1 Str=1 V#1=2 V#2=2
-For Non-Stationary Parameter (1), there are some undefined values (1)
-They have been replaced by its average value (91.947912)
-For Non-Stationary Parameter (2), there are some undefined values (1)
-They have been replaced by its average value (-33.438433)
-For Non-Stationary Parameter (3), there are some undefined values (1)
-They have been replaced by its average value (85.135422)
 
 Data Base Grid Characteristics
 ==============================

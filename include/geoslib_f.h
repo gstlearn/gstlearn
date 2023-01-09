@@ -119,12 +119,12 @@ GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      int opt_correl = 2);
 GSTLEARN_EXPORT int vmap_compute(Db *db,
                                  DbGrid *dbmap,
-                                 const ECalcVario &calcul_type = ECalcVario::VARIOGRAM,
+                                 const ECalcVario &calcul_type = ECalcVario::fromKey("VARIOGRAM"),
                                  int radius = 0,
                                  bool flag_FFT = true,
                                  const NamingConvention& namconv = NamingConvention("VMAP"));
 GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db,
-                                        const ECalcVario &calcul_type = ECalcVario::VARIOGRAM,
+                                        const ECalcVario &calcul_type = ECalcVario::fromKey("VARIOGRAM"),
                                         const VectorInt& nxx = VectorInt(),
                                         const VectorDouble& dxx = VectorDouble(),
                                         int radius = 0.,
@@ -197,13 +197,15 @@ GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
                                double dilate = 0.,
                                bool verbose = false,
-                               const NamingConvention& namconv = NamingConvention("Hull", true, true, true, ELoc::SEL));
+                               const NamingConvention& namconv = NamingConvention("Hull", true, true, true,
+                                                                                  ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT void db_polygon(Db *db,
                                 Polygons *polygon,
                                 int flag_sel = 0,
                                 int flag_period = 0,
                                 int flag_nested = 0,
-                                const NamingConvention& namconv = NamingConvention("Polygon", true, true, true, ELoc::SEL));
+                                const NamingConvention& namconv = NamingConvention("Polygon", true, true, true,
+                                                                                   ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT int db_grid_fill(DbGrid *dbgrid,
                                  int mode = 0,
                                  int seed = 34243,
@@ -219,7 +221,8 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  double *dist = nullptr,
                                  int opt_code = 0,
                                  double tolcode = 0.,
-                                 const NamingConvention& namconv = NamingConvention("Duplicate", true, true, true, ELoc::SEL));
+                                 const NamingConvention& namconv = NamingConvention("Duplicate", true, true, true,
+                                                                                    ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
                                           Db *dbout,
                                           Model *model,
@@ -261,7 +264,8 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            int nboot = 10,
                            int niter = 100,
                            double percent = 5.,
-                           const NamingConvention& namconv = NamingConvention("Facies", true, true, true, ELoc::FACIES));
+                           const NamingConvention& namconv = NamingConvention("Facies", true, true, true,
+                                                                              ELoc::fromKey("FACIES")));
 GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Db *dbout,
                              RuleProp *ruleprop,
@@ -280,7 +284,8 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              int nboot = 10,
                              int niter = 100,
                              double percent = 5.,
-                             const NamingConvention& namconv = NamingConvention("Facies", true, true, true, ELoc::FACIES));
+                             const NamingConvention& namconv = NamingConvention("Facies", true, true, true,
+                                                                                ELoc::fromKey("FACIES")));
 GSTLEARN_EXPORT int simbool(Db *dbin,
                             DbGrid *dbout,
                             ModelBoolean *tokens,
@@ -354,7 +359,8 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            Model *model,
                                            int niter = 100,
                                            bool verbose = false,
-                                           const NamingConvention& namconv = NamingConvention("Prop", true, true, true, ELoc::P));
+                                           const NamingConvention& namconv = NamingConvention("Prop", true, true, true,
+                                                                                              ELoc::fromKey("P")));
 GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   Model *model,
                                   ANeighParam *neighparam,

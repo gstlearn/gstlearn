@@ -226,9 +226,9 @@ double PPMT::_getGaussianDistance(const VectorDouble &Yi,
   return di;
 }
 
-void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0, int iter)
+void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
 {
-  int np   = Y->getNRows();
+  int np = Y->getNRows();
 
   // Initialization
 
@@ -337,31 +337,29 @@ void PPMT::_iterationForward(AMatrix *Y, const VectorDouble& N0, int iter)
 {
   int np    = Y->getNRows();
   int idmax = _serieAngle[iter];
+  VectorDouble Y0(np, TEST);
 
   // Projection of the data set on the optimal direction
-  VectorDouble Y0(np, TEST);
   _projectOnDirection(Y, idmax, Y0);
 
   // Preparing the Normal scoring for the target distance
   VectorInt R0 = VH::sortRanks(Y0);
-  AnamHermite* anam = nullptr;
-  if (getMethodTrans() == EGaussInv::HMT) anam = _anams[iter];
 
   // Forward Shift
-  _shiftForward(Y, idmax, anam, Y0, R0, N0);
+  _shiftForward(Y, idmax, _anams[iter], Y0, R0, N0);
 }
 
 void PPMT::_iterationBackward(AMatrix *Y, const VectorDouble& N0, int iter)
 {
   int np    = Y->getNRows();
   int idmax = _serieAngle[iter];
-
-  // Projection of the data set on the optimal direction
   VectorDouble Y0(np, TEST);
-  _projectOnDirection(Y, idmax, Y0);
 
   // Forward Shift
   _shiftBackward(Y, idmax, _anams[iter], Y0);
+
+  // Projection of the data set on the optimal direction
+  _projectOnDirection(Y, idmax, Y0);
 }
 
 void PPMT::_generateAllDirections()
@@ -438,7 +436,7 @@ int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
   if (verbose) message("\nLoop on iterations to find best direction:\n");
   for (int iter = 0; iter < niter; iter++)
   {
-    _iterationFit(Y, N0, iter);
+    _iterationFit(Y, N0);
 
     if (verbose)
     {
@@ -482,6 +480,7 @@ int PPMT::fit(Db *db,
 
 int PPMT::rawToGaussian(Db *db,
                         const VectorString &names,
+                        int niter,
                         const NamingConvention &namconv)
 {
   // Extract the relevant information
@@ -504,7 +503,8 @@ int PPMT::rawToGaussian(Db *db,
     return 1;
   }
   int np = Y.getNRows();
-  int niter = getNiter();
+  if (niter <= 0) niter = getNiter();
+  niter = MIN(niter, getNiter());
 
   VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
   VectorDouble N0 = VH::qnormVec(sequence);
@@ -529,6 +529,7 @@ int PPMT::rawToGaussian(Db *db,
 
 int PPMT::gaussianToRaw(Db *db,
                         const VectorString &names,
+                        int niter,
                         const NamingConvention &namconv)
 {
   // Extract the relevant information
@@ -556,7 +557,8 @@ int PPMT::gaussianToRaw(Db *db,
     return 1;
   }
   int np = Y.getNRows();
-  int niter = getNiter();
+  if (niter <= 0) niter = getNiter();
+  niter = MIN(niter, getNiter());
 
   VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
   VectorDouble N0 = VH::qnormVec(sequence);

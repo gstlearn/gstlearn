@@ -155,7 +155,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
   _napices = amesh->getNApices();
   try
   {
-    if (verbose) message(">>> Using the new calculation module <<<\n");
     _ndim = amesh->getEmbeddedNDim();
 
     // Attach the Non-stationary to Mesh and Db (optional)
@@ -174,11 +173,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 
     // Define if parameterization is in HH or in range/angle
     _determineFlagNoStatByHH();
-
-    // Attach the Model
-//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
-//        false, false, false, true, true, false, false))
-//      my_throw("Problem with spde_check() method");
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
@@ -277,10 +271,6 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
       }
     }
 
-    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
-                   false, false, false, true, true, false, false))
-      my_throw("Problem with spde_check() method");
-
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
 
@@ -329,12 +319,6 @@ int ShiftOpCs::initFromCS(const cs* S,
 
   try
   {
-    // Attach the Model
-
-    if (spde_check(NULL, NULL, model, NULL, verbose, VectorDouble(),
-                   false, false, false, true, true, false, false))
-      my_throw("Problem with spde_check() method");
-
     // Store the TildeC & Lambda vectors
 
     _TildeC = TildeC;
@@ -511,7 +495,7 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
 /**
  * Locally update the covariance (does nothing in Stationary Case)
  * @param cova Local CovAniso structure (updated here)
- * @param ip   Rank of the point
+ * @param ip   Rank of the active point
  */
 void ShiftOpCs::_updateCova(CovAniso* cova, int ip)
 {
@@ -585,7 +569,7 @@ void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
  * So it must be workable without any updates
  * @param amesh AMesh structure
  * @param hh Output Array
- * @param ip Rank of the point
+ * @param ip Rank of the active point
  */
 void ShiftOpCs::_loadHHByApex(const AMesh *amesh,
                               MatrixSquareSymmetric &hh,
@@ -602,7 +586,7 @@ void ShiftOpCs::_loadHHByApex(const AMesh *amesh,
  * Note that this function is also called in Stationary case...
  * So it must be workable without any updates
  * @param hh Output Array
- * @param ip Rank of the point
+ * @param ip Rank of the active point
  */
 void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric &hh, int ip)
 {
@@ -733,13 +717,11 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
   const ANoStat* nostat = _getModel()->getNoStat();
   for (int i = 0; i < (int) tab.size(); i++)
     if (nostat->isDefined(igrf, icov, type, i, -1))
-    {
       tab[i] = nostat->getValue(igrf, icov, type, i, -1, 0, ip);
-    }
 }
 
 /**
- * Constitue HH (only in non-stationary case)
+ * Constitute HH (only in non-stationary case)
  * @param hh   Returned HH symmetric matrix
  * @param amesh Pointer to the meshing
  * @param imesh Rank of the mesh
@@ -768,17 +750,17 @@ void ShiftOpCs::_loadHHPerMesh(const AMesh* amesh,
  * - the Model parameter 'igparam' and the Apex 'igp0'
  * @param hh      Resulting HH derivative matrix
  * @param amesh   Meshing structure
- * @param igp0    Rank of the Apex for derivation (between 0 to nApices-1)
+ * @param igp     Rank of the Apex for derivation (between 0 to nApices-1)
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  */
 void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                                    const AMesh* amesh,
-                                   int igp0,
+                                   int igp,
                                    int igparam)
 {
   int number = amesh->getNApexPerMesh();
   hh.fill(0.);
-  _loadHHGradByApex(hh, igparam, igp0);
+  _loadHHGradByApex(hh, igparam, igp);
   hh.prodScalar(1. / number);
 }
 
@@ -1180,23 +1162,23 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
     {
       // Update TildeC
 
-      int ip0 = amesh->getApex(imesh, j0, false);
+      int ip0 = amesh->getApex(imesh, j0);
       _TildeC[ip0] += ratio / 6.;
 
       double s = 0.;
       for (int j1 = 0; j1 < ncorner-1; j1++)
       {
-        int ip1 = amesh->getApex(imesh, j1, false);
+        int ip1 = amesh->getApex(imesh, j1);
         double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
         s += vald;
         _mapUpdate(tab[ip0], ip1, vald, tol);
       }
-      int ip1 = amesh->getApex(imesh, ncorner - 1, false);
+      int ip1 = amesh->getApex(imesh, ncorner - 1);
       _mapUpdate(tab[ip0], ip1, -s, tol);
       _mapUpdate(tab[ip1], ip0, -s, tol);
       S += s;
     }
-    int ip0 = amesh->getApex(imesh, ncorner - 1, false);
+    int ip0 = amesh->getApex(imesh, ncorner - 1);
     _TildeC[ip0] += ratio / 6.;
     _mapUpdate(tab[ip0], ip0, S, tol);
   }
@@ -1512,7 +1494,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     }
     else
     {
-        _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * pow(r, 2. * param)  * pow(sqdeth, - (2. * param  - 1.)/3.)/ (sill*sill)));
+      _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * pow(r, 2. * param)  * pow(sqdeth, - (2. * param  - 1.)/3.)/ (sill*sill)));
     }
   }
 }

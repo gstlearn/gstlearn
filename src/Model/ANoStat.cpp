@@ -587,9 +587,9 @@ void ANoStat::updateModel(Model* model,
 /**
  * Update the Model according to the Non-stationary parameters
  * @param model Model to be patched
- * @param vertex Rank of the target vertex
+ * @param ivert Rank of the meshing vertex
  */
-void ANoStat::updateModelByVertex(Model* model, int vertex) const
+void ANoStat::updateModelByVertex(Model* model, int ivert) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! model->isNoStat()) return;
@@ -603,7 +603,7 @@ void ANoStat::updateModelByVertex(Model* model, int vertex) const
 
     if (type == EConsElem::SILL)
     {
-      double sill = getValueByParam(ipar, 0, vertex);
+      double sill = getValueByParam(ipar, 0, ivert);
       int iv1  = getIV1(ipar);
       int iv2  = getIV2(ipar);
       model->setSill(icov, iv1, iv2, sill);
@@ -632,7 +632,7 @@ void ANoStat::updateModelByVertex(Model* model, int vertex) const
         {
           int ipar = getRank(-1, icov, EConsElem::ANGLE, idim, -1);
           if (ipar < 0) continue;
-          angle[idim] = getValueByParam(ipar, 0, vertex);
+          angle[idim] = getValueByParam(ipar, 0, ivert);
         }
       }
     }
@@ -649,7 +649,7 @@ void ANoStat::updateModelByVertex(Model* model, int vertex) const
         {
           int ipar = getRank(-1, icov, EConsElem::SCALE, idim, -1);
           if (ipar < 0) continue;
-          scale[idim] = getValueByParam(ipar, 0, vertex);
+          scale[idim] = getValueByParam(ipar, 0, ivert);
         }
       }
     }
@@ -666,7 +666,7 @@ void ANoStat::updateModelByVertex(Model* model, int vertex) const
         {
           int ipar = getRank(-1, icov, EConsElem::RANGE, idim, -1);
           if (ipar < 0) continue;
-          range[idim] = getValueByParam(ipar, 0, vertex);
+          range[idim] = getValueByParam(ipar, 0, ivert);
         }
       }
     }

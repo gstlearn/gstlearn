@@ -39,7 +39,7 @@ public:
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = true);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam::DISCRETE_DD; }
+  const EAnam&  getType() const override { return EAnam::fromKey("DISCRETE_DD"); }
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return 0; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;

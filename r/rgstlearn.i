@@ -526,61 +526,73 @@ function (x,i,j,...,drop=TRUE)
   if (flag_i_defined) nargs = nargs + 1
   if (flag_j_defined) nargs = nargs + 1
   
-  nech = db$getSampleNumber()
-  ncol = db$getColumnNumber()
+  nech_abs = db$getSampleNumber()
+  ncol_abs = db$getColumnNumber()
 
   if (nargs == 2) {
   
     # Case of both arguments are defined
     
-    if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
-    if (is.numeric(i)) irow <- i
-  
-    if (is.numeric(j)) {
-      icol <- j
+    # Decode the Row number
+    if (is.numeric(i)) {
+      # Translate info 0-based number if numeric
+      irow <- i - 1
     } else {
-      icol <- db$getColIdxs(i)
-      if (length(icol) > 0) icol = icol - 1
+      messerr("The Row index should be numeric")
+      stop()
+    }
+  
+  	# Decode the Column number
+    if (is.numeric(j)) {
+      # Translate into 0-based number if numeric
+      icol <- j - 1
+    } else {
+      icol <- db$getColIdxs(j)
     }
   } else if (nargs == 1) {
   
-    # Case where only one argument in defined
+    # Case where only one argument in defined: it is the column identification
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
     if (is.numeric(k)) {
-      icol <- k
+      # translate into 0-based number if numeric
+      icol <- k - 1
     } else {
       icol <- db$getColIdxs(k)
     }
   }
-
-  icol_dim = icol
-  irow_dim = irow
-  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
-  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
-  col_names = db$getNamesByColIdx(icol_dim)
-  row_names = irow_dim
-  ncol_dim = length(icol_dim)
-  nrow_dim = length(irow_dim)
+  
+  isRowUndefined = is.undef(irow)
+  isColUndefined = is.undef(icol)
+  if (isRowUndefined) irow = seq(0, nech_abs - 1)
+  if (isColUndefined) icol = seq(0, ncol_abs - 1)
+  
+  irow = db$shrinkToValidRows(irow)
+  icol = db$shrinkToValidCols(icol)
+  
+  col_names = db$getNamesByColIdx(icol)
+  row_names = irow
+  ncol = length(icol)
+  nrow = length(irow)
     
-  if (length(icol) <= 0)
+  if (ncol <= 0)
   {
     messerr("The variable does not exist")
     messerr("This is not authorized in this function")
     stop()
   } else {
-  	if (! is.undef(irow) && ! is.undef(icol))
-  	  res <- db$getValuesByColIdx(irow_dim,icol_dim)
- 	 if (! is.undef(irow) &&   is.undef(icol))
-  	  res <- db$getArrayBySample(irow_dim)
-  	if (  is.undef(irow) && ! is.undef(icol))
-  	  res <- db$getColumnsByColIdx(icol_dim)
-  	if (  is.undef(irow) &&   is.undef(icol))
+  	if (! isRowUndefined && ! isColUndefined)
+  	  res <- db$getValuesByColIdx(irow,icol)
+ 	if (! isRowUndefined &&   isColUndefined)
+  	  res <- db$getArrayBySample(irow)
+  	if (  isRowUndefined && ! isColUndefined)
+  	  res <- db$getColumnsByColIdx(icol)
+  	if (  isRowUndefined &&   isColUndefined)
   	  res <- db$getAllColumns()
- 	 if (nrow_dim > 1 && ncol_dim > 1)
- 	 {
-  	  res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+ 	if (nrow > 1 && ncol > 1)
+ 	{
+  	  res <- as.data.frame(matrix(res, nrow=nrow, ncol=ncol))
    	  names(res) = col_names
       row.names(res) = row_names
   	}
@@ -600,8 +612,8 @@ function (x,i,j,...,drop=TRUE)
   if (flag_i_defined) nargs = nargs + 1
   if (flag_j_defined) nargs = nargs + 1
 
-  nech = db$getSampleNumber()
-  ncol = db$getColumnNumber()
+  nech_abs = db$getSampleNumber()
+  ncol_abs = db$getColumnNumber()
   value = as.numeric(unlist(value))
 
   new_names = "New"
@@ -609,12 +621,21 @@ function (x,i,j,...,drop=TRUE)
   
     # Both arguments are defined
     
-    if (is.numeric(i) || is.logical(i)) irow <- i
-  
-    if (is.numeric(j) || is.logical(j)) {
-      icol <- j
+    # Decode the Row number
+    if (is.numeric(i)) {
+      # Translate into 0-based number if numeric
+      irow <- i - 1
     } else {
-      icol <- db$getColIdxs(i)
+      messerr("The Row index should be numeric")
+      stop()
+    }
+  
+  	# Decode the Column number
+    if (is.numeric(j)) {
+      # Translate into 0-based number if numeric
+      icol <- j - 1
+    } else {
+      icol <- db$getColIdxs(j)
       new_names = j
     }
   } else if (nargs == 1) {
@@ -624,41 +645,49 @@ function (x,i,j,...,drop=TRUE)
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
     if (is.numeric(k)) {
-      icol <- k
+    # Translate into 0-based number if numeric
+      icol <- k - 1
     } else {
       icol <- db$getColIdxs(k)
       new_names = k
     }
   }
 
-  icol_dim = icol
-  irow_dim = irow
-  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
-  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
-  col_names = db$getNamesByColIdx(icol_dim)
-  row_names = irow_dim
-  ncol_dim = length(icol_dim)
-  nrow_dim = length(irow_dim)
+  isRowUndefined = is.undef(irow)
+  isColUndefined = is.undef(icol)
+  if (isRowUndefined) irow = seq(0, nech_abs - 1)
+  
+  # Next line is commented in order to allow having no existing column
+  # This corresponds to the creation of the NEW variable
+  #  if (isColUndefined) icol = seq(0, ncol_abs - 1)
+  
+  irow = db$shrinkToValidRows(irow)
+  icol = db$shrinkToValidCols(icol)
+  
+  col_names = db$getNamesByColIdx(icol)
+  row_names = irow
+  ncol = length(icol)
+  nrow = length(irow)
 
-  if (length(icol) <= 0)
+  if (ncol <= 0)
   {
   
     # Case of a new variable
     
-    icol = db$addColumns(value, new_names)
+    icol_new = db$addColumns(value, new_names)
   }
   else
   {
   
     # Case of already an existing variable: replacement
     
-    if (! is.undef(irow) && ! is.undef(icol))
-      db$setValuesByColIdx(irow_dim,icol_dim,value)
-    if (! is.undef(irow) &&   is.undef(icol))
-      db$setArrayBySample(irow_dim,value)
-    if (  is.undef(irow) && ! is.undef(icol))
-      db$setColumnsByColIdx(value,icol_dim)
-    if (  is.undef(irow) &&   is.undef(icol))
+    if (! isRowUndefined && ! isColUndefined)
+      db$setValuesByColIdx(irow,icol,value)
+    if (! isRowUndefined &&   isColUndefined)
+      db$setArrayBySample(irow,value)
+    if (  isRowUndefined && ! isColUndefined)
+      db$setColumnsByColIdx(value,icol)
+    if (  isRowUndefined &&   isColUndefined)
       db$setAllColumns(value)
   }
   db

@@ -36,14 +36,6 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = variable - Locator = z1
-For Non-Stationary Parameter (1), there are some undefined values (2038)
-They have been replaced by its average value (25.592716)
-For Non-Stationary Parameter (1), there are some undefined values (2038)
-They have been replaced by its average value (25.592716)
-For Non-Stationary Parameter (1), there are some undefined values (1400)
-They have been replaced by its average value (26.988128)
-For Non-Stationary Parameter (1), there are some undefined values (1400)
-They have been replaced by its average value (26.988128)
 
 Data Base Grid Characteristics
 ==============================

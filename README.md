@@ -27,8 +27,17 @@ When using the *gstlearn* C++ library, please use the citation from [doc/gstlear
 
 The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
-The *gstlearn* C++ library uses the following third party products:
-* ANN (LGPL): http://www.cs.umd.edu/~mount/ANN/ (TODO: to be checked)
+The *gstlearn* C++ library uses the following third party products (see licenses notices in doc/licenses):
+
+| Name       | License        | URL                                                | Copyright
+|------------|----------------|----------------------------------------------------|-----------
+| ANN        | LGPL v3        | http://www.cs.umd.edu/~mount/ANN                   | Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount
+| Boost      | see notice     | https://www.boost.org                              | see boost headers
+| HDF5       | see notice     | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
+| csparse    | LGPL v2.1      | https://github.com/DrTimothyAldenDavis/SuiteSparse | Copyright 2011, Timothy A. Davis
+| vtk        | see notice     | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+| clustering | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
+| fft        | see notice     | NA                                                 | Copyright(c)1995,97 Mark Olesen
 
 ## Requirements
 
@@ -44,13 +53,17 @@ For compiling and installing *gstlearn* C++ library, the following tools must be
   * Windows:
     * Python users: Microsoft Visual Studio C++ 14 or higher
     * R users: MinGW 7 (RTools) or higher
-* Boost header files
-* Doxygen [Optional] 1.8.3 or higher
+* Boost header files 1.65 or higher
+* Doxygen [Optional] 1.8.3 or higher with LaTeX and Ghostscripts
 * HDF5 [Optional] C++ library and header files 1.8 or higher
 
 See [required tools installation](#required-tools-installation) instructions below
 
 ## Get the sources
+
+If you only want to use Python or R packages, you should switch to corresponding README:
+* Python: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
+* R: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 For getting the sources files, just clone the github repository:
 
@@ -64,10 +77,6 @@ Notes:
 ## C++ Library Compilation & Installation
 
 For compiling and installing the *gstlearn* C++ shared library, execute the following instructions. Please note that you can choose another destination folder (currently named *build*).
-
-If you only want to use Python or R packages, you should switch to corresponding README:
-* Python: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
-* R: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 ### GCC, Clang, MinGW, ...
 
@@ -109,14 +118,14 @@ Notes:
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
 * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
-    * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
+    * Add `-DGSTLEARN_INSTALL_DIR="path/of/gstlearn/install/dir"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
 * Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
 * You may need to precise the location of Boost, HDF5 or Doxygen installation directory. In that case, add the following variables in the first cmake command above:
-    * `-DBoost_ROOT=<path/to/boost>`
-    * `-DHDF5_ROOT=<path/to/hdf5>`
-    * `-DDoxygen_ROOT=<path/to/doxygen>`
+    * `-DBoost_ROOT="path/to/boost"`
+    * `-DHDF5_ROOT="path/to/hdf5"`
+    * `-DDoxygen_ROOT="path/to/doxygen"`
 
 ## Usage
 
@@ -124,12 +133,14 @@ Please, look at *tests* [C++ code](https://github.com/gstlearn/gstlearn/tree/mai
 
 ## Required Tools Installation
 
-These tools are needed for compiling the *gstlearn* C++ library. Please note that HDF5 and Doxygen installation are optional.
+These tools are needed for compiling the *gstlearn* C++ library. Please note that HDF5 and Doxygen (and Latex) installation are optional.
 
 ### Linux (Ubuntu)
 
     sudo apt install git
     sudo apt install cmake
+    sudo apt install texlive-latex-recommended
+    sudo apt install texlive-science
     sudo apt install doxygen
     sudo apt install libboost-all-dev
     sudo apt install libhdf5-dev
@@ -143,6 +154,8 @@ Notes:
 
     brew install git
     brew install cmake
+    brew install texlive-latex-recommended
+    brew install texlive-science
     brew install doxygen
     brew install libboost-all-dev
     brew install libhdf5-dev
@@ -162,12 +175,13 @@ Download and install the following tools using default options during installati
 * Git client [from here](https://gitforwindows.org) (*Setup program* [exe])
 * CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
 * Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component)
-* Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
+* Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your choice, but not in the *gstlearn* source code - and remind that folder)
 * HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder, we assume it is `C:\Program Files\HDF_Group\HDF5\1.12.2`)
 * Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder, we assume it is `C:\Program Files\doxygen`)
 
 Notes:
 
+* Windows users who want using doxygen, should also follow instructions [here](https://www.doxygen.nl/manual/install.html#install_bin_windows) for installing LaTeX and Ghostscripts
 * The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder (ex: `C:\Program Files\doxygen\bin`) in the *Path* System variable and restart Windows)
 * You must restart your computer after installing these requirements
 
@@ -213,6 +227,8 @@ pacman -Sy mingw-w64-x86_64-cmake
 pacman -Sy mingw-w64-x86_64-gcc
 pacman -Sy mingw-w64-x86_64-boost
 pacman -Sy mingw-w64-x86_64-hdf5
+pacman -Sy mingw-w64-x86_64-texlive-latex-recommended
+pacman -Sy mingw-w64-x86_64-texlive-science
 pacman -Sy mingw-w64-x86_64-doxygen
 ````
 

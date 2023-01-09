@@ -17,8 +17,8 @@
   #include "Enum/EAnam.hpp"
   #include "Enum/ECst.hpp"
   #include "Enum/EDbg.hpp"
-  #include "Enum/ETLaw.hpp"
-  #include "Enum/ETShape.hpp"
+  #include "Enum/ELaw.hpp"
+  #include "Enum/EShape.hpp"
   #include "Enum/EConvDir.hpp"
   #include "Enum/ECalcVario.hpp"
   #include "Enum/EConvType.hpp"
@@ -70,6 +70,7 @@
   #include "Basic/PolyLine2D.hpp"
   #include "Basic/Law.hpp"
   #include "Basic/MathFunc.hpp"
+  #include "Basic/Indirection.hpp"
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"

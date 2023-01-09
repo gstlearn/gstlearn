@@ -96,9 +96,13 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
   _meshes = MatrixInt(nmeshes, npermesh);
 
   // Load the apices;
+  VectorDouble local(ndim);
   for (int ip = 0; ip < napices; ip++)
+  {
+    turbo.getApexCoordinatesInPlace(ip, local);
     for (int idim = 0; idim < ndim; idim++)
-      _apices.setValue(ip, idim, turbo.getApexCoor(ip, idim));
+      _apices.setValue(ip, idim, local[idim]);
+  }
 
   // Load the meshes
   for (int imesh = 0; imesh < nmeshes; imesh++)
@@ -264,10 +268,9 @@ int MeshEStandard::reset(int ndim,
 **
 ** \param[in]  imesh    Rank of Mesh (from 0 to _nMeshes-1))
 ** \param[in]  rank     Rank of Apex within a Mesh (from 0 to _nApexPerMesh)
-** \param[in]  inAbsolute TRUE to return the absolute index (otherwise relative)
 **
 *****************************************************************************/
-int MeshEStandard::getApex(int imesh, int rank, bool /*inAbsolute*/) const
+int MeshEStandard::getApex(int imesh, int rank) const
 {
   return _meshes.getValue(imesh,rank);
 }
@@ -401,7 +404,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool verbose) const
   
   /* Convert the triplet into a sparse matrix */
 
-  if (nout > 0)
+  if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
   A = cs_triplet(Atriplet);
@@ -455,18 +458,18 @@ VectorDouble MeshEStandard::getPointList(bool byCol) const
 
   if (byCol)
   {
-    for (int icol = 0; icol < getNDim(); icol++)
+    for (int idim = 0; idim < getNDim(); idim++)
       for (int irow = 0; irow < getNApices(); irow++)
       {
-        list.push_back(getApexCoor(irow, icol));
+        list.push_back(getApexCoor(irow, idim));
       }
   }
   else
   {
     for (int irow = 0; irow < getNApices(); irow++)
-      for (int icol = 0; icol < getNDim(); icol++)
+      for (int idim = 0; idim < getNDim(); idim++)
       {
-        list.push_back(getApexCoor(irow, icol));
+        list.push_back(getApexCoor(irow, idim));
       }
   }
   return list;

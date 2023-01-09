@@ -44,8 +44,7 @@ void SpaceRN::move(SpacePoint& p1,
 
 /**
  * Return the distance between two space points in RN Space
-   The distance between \f$p1=(x_1,y_1)\f$ and \f$p2=(x_2,y_2)\f$ is
-   \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
+   The distance between \f$p1=(x_1,y_1)\f$ and \f$p2=(x_2,y_2)\f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
    \param[in] p1 First point
    \param[in] p2 Second point
    \return The distance between p1 and p2

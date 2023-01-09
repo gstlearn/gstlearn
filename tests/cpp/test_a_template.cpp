@@ -53,46 +53,22 @@ int main(int /*argc*/, char */*argv*/[])
   //  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("TestBugSpde-");
+  ASerializable::setPrefixName("AAA_");
 
-  bool flagSel = true;
-  bool flagNoStat = true;
+  DbGrid* grid = DbGrid::createFromNF("db.ascii");
+  grid->display();
 
-  DbGrid* grid = DbGrid::create({ 100, 100 });
-  VectorDouble x1 = grid->getColumn("x1");
-  VectorDouble x2 = grid->getColumn("x2");
-  int size = (int) x2.size();
+  Model* model = Model::createFromNF("Model.ascii");
+  NoStatArray NoStat({"A","R"},grid);
+  model->addNoStat(&NoStat);
+  model->display();
 
-  if (flagSel)
-  {
-    VectorDouble selvec = VectorDouble(size, 0.);
-    for (int i = 0; i < size; i++)
-      selvec[i] = (x2[i] > 10.);
-    grid->addColumns(selvec, "sel", ELoc::UNKNOWN);
-    grid->setLocator("sel", ELoc::SEL);
-  }
+  model->display();
 
-  MeshETurbo* mesh = MeshETurbo::createFromGrid(grid);
-
-  NoStatArray nostat;
-  if (flagNoStat)
-  {
-    VectorDouble temp = VectorDouble(size, 0.);
-    for (int i = 0; i < size; i++)
-      if (x1[i] > 50.) temp[i] = 40.;
-    grid->addColumns(temp, "nostat", ELoc::NOSTAT);
-    nostat = NoStatArray({"A"},grid);
-  }
-
-  Model* model = Model::createFromParam(ECov::BESSEL_K,0.,1.,1.,{20.,2.});
-  if (flagNoStat) (void) model->addNoStat(&nostat);
-
-  SPDE spde;
-  spde.init(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND,mesh);
+  SPDE spde(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND);
   spde.compute();
-  (void) spde.query(grid);
-
-  (void) grid->dumpToNF("Grid.ascii");
+  spde.query(grid);
+  (void) grid->dumpToNF("Result.ascii");
 
   return (0);
 }

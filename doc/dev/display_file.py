@@ -43,7 +43,7 @@ elif filetype == "Model":
     
 elif filetype == "Rule":
     rule = gl.Rule.createFromNF(filename,False)
-    rule.display()
+    rule.display()/home/drenard/Command/show
     
 elif filetype == "Table":
     table = gl.Table.createFromNF(filename,False)
@@ -53,5 +53,9 @@ elif filetype == "Polygon":
     poly = gl.Polygons.createFromNF(filename,False)
     poly.display()
         
+elif filetype == "MeshETurbo":
+    mesh = gl.MeshETurbo.createFromNF(filename, False)
+    mesh.display()
+    
 else:
     print("Unknown type")

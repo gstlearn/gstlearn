@@ -36,7 +36,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface AAnam
-  const EAnam&  getType() const override { return EAnam::HERMITIAN; }
+  const EAnam&  getType() const override { return EAnam::fromKey("HERMITIAN"); }
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return getNbPoly(); }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
@@ -76,7 +76,7 @@ public:
   double getRCoef() const { return _rCoef; }
   bool   getFlagBound() const { return _flagBound; }
 
-  void   setPsiHn(const VectorDouble& psi_hn) { _psiHn = psi_hn; }
+  void   setPsiHns(const VectorDouble& psi_hn) { _psiHn = psi_hn; }
   void   setFlagBound(bool flagBound) { _flagBound = flagBound; }
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef);

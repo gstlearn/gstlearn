@@ -22,7 +22,7 @@ public:
   SPDE();
   SPDE(Model *model,
        const DbGrid* field,
-       const Db* dat = nullptr,
+       const Db* data = nullptr,
        const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"));
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
@@ -30,11 +30,11 @@ public:
 
   void init(Model* model,
             const DbGrid* field,
-            const Db* dat = nullptr,
+            const Db* data = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"),
             const AMesh* mesh = nullptr,
             bool verbose = false);
-  void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
+  void compute(int nbsimus = 1, int seed = 131323);
   void computeLk() const;
   void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;
@@ -54,7 +54,6 @@ public:
   double computeQuad() const;
   const Db* getData() const {return  _data;}
 
-
 private:
   void _computeDriftCoeffs() const;
   void _purge();
@@ -62,36 +61,26 @@ private:
                              const DbGrid &field,
                              double discr,
                              double ext = 0.);
-  bool _calculSimu() const
-  {
-    return _calcul == ESPDECalcMode::SIMUCOND
-        || _calcul == ESPDECalcMode::SIMUNONCOND;
-  }
-  bool _calculKriging() const
-  {
-    return ((_calcul == ESPDECalcMode::SIMUCOND
-          || _calcul == ESPDECalcMode::KRIGING
-          || _calcul == ESPDECalcMode::LIKELIHOOD)
-          && _data != nullptr);
-  }
+  bool _calculSimu() const;
+  bool _calculKriging() const;
 
 private:
   const Db*_data;
   ESPDECalcMode _calcul;
   PrecisionOpMultiConditional* _precisionsKriging;
   PrecisionOpMultiConditional* _precisionsSimu;
-  std::vector<PrecisionOp*>   _pilePrecisions;
-  std::vector<ProjMatrix*>    _pileProjMatrix;
-  std::vector<const AMesh*>         _simuMeshing;
-  std::vector<const AMesh*>         _krigingMeshing;
-  mutable VectorDouble        _driftCoeffs;
-  Model*                      _model;
-  mutable VectorVectorDouble  _workKriging;
-  mutable VectorVectorDouble  _workingSimu;
-  mutable VectorDouble        _workingData;
-  mutable VectorDouble        _workingData2;
-  std::vector<ProjMatrix*>    _projOnDbOut;
-  VectorInt                   _adressesICov;
+  std::vector<PrecisionOp*>    _pilePrecisions;
+  std::vector<ProjMatrix*>     _pileProjMatrix;
+  std::vector<const AMesh*>    _simuMeshing;
+  std::vector<const AMesh*>    _krigingMeshing;
+  mutable VectorDouble         _driftCoeffs;
+  Model*                       _model;
+  mutable VectorVectorDouble   _workKriging;
+  mutable VectorVectorDouble   _workingSimu;
+  mutable VectorDouble         _workingData;
+  mutable VectorDouble         _workingData2;
+  std::vector<ProjMatrix*>     _projOnDbOut;
+  VectorInt                    _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
   bool _requireCoeffs;

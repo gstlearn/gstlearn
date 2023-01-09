@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/VectorT.hpp"
 #include "Basic/VectorNumT.hpp"
 
@@ -35,7 +36,7 @@
  static unsigned char FLAG_ARRAY = 16; //!< Print the variable contents
  static unsigned char FLAG_LOCATOR = 32;  //!< Print the locators
 
-class GSTLEARN_EXPORT DbStringFormat: public AStringFormat
+class GSTLEARN_EXPORT DbStringFormat: public AStringable, public AStringFormat
 {
 public:
   DbStringFormat(unsigned char params = FLAG_RESUME | FLAG_VARS,
@@ -45,6 +46,9 @@ public:
   DbStringFormat(const DbStringFormat& r);
   DbStringFormat& operator=(const DbStringFormat& r);
   virtual ~DbStringFormat();
+
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static DbStringFormat* create(unsigned char params = FLAG_RESUME | FLAG_VARS,
                                 const VectorString& names = VectorString(),
@@ -62,6 +66,8 @@ public:
                                          bool flag_stats = false,
                                          bool flag_array = false,
                                          bool flag_locator = false,
+                                         const VectorString &names = VectorString(),
+                                         const VectorInt &cols = VectorInt(),
                                          bool useSel = true);
 
   const VectorInt& getCols() const { return _cols; }

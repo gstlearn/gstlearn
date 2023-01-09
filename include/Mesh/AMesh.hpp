@@ -41,11 +41,15 @@ public:
   /*! Returns the number of meshes */
   virtual int getNMeshes() const = 0;
   /*! Returns the rank of apex 'rank' for mesh 'imesh' */
-  virtual int getApex(int imesh, int rank, bool inAbsolute = true) const = 0;
+  virtual int getApex(int imesh, int rank) const = 0;
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
   virtual double getCoor(int imesh, int rank, int idim) const = 0;
+  /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
+  virtual void getCoordinatesInPlace(int imesh, int rank, VectorDouble& coords) const;
   /*! Returns coordinate 'idim' of apex 'i' */
   virtual double getApexCoor(int i, int idim) const = 0;
+  /*! Returns coordinates of apex 'i' */
+  virtual void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */

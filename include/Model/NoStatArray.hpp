@@ -17,7 +17,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Model/ANoStat.hpp"
-
 class GSTLEARN_EXPORT NoStatArray : public ANoStat
 {
 public:
@@ -33,8 +32,13 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
-                  int icas, int rank) const override;
+  double getValue(int igrf,
+                  int icov,
+                  const EConsElem &type,
+                  int iv1,
+                  int iv2,
+                  int icas,
+                  int rank) const override;
   double getValueByParam(int ipar, int icas, int rank) const override;
 
   int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
@@ -58,5 +62,4 @@ private:
 private:
   const Db* _dbnostat;
 	mutable MatrixRectangular _tab; // Dimension: nvertex * npar
-  mutable std::map<int, int> _sampleAbsoluteToActive;
 };

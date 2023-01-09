@@ -34,7 +34,7 @@ public:
   virtual bool isEqual(const ASpace* space) const override;
 
   /// Return the concrete space type
-  ESpaceType getType() const override { return ESpaceType::SN; }
+  ESpaceType getType() const override { return ESpaceType::fromKey("SN"); }
 
   /// Move the given space point by the given vector
   void move(SpacePoint& p1,

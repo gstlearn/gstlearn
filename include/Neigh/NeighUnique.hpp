@@ -31,7 +31,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual ENeigh getType() const override { return ENeigh::UNIQUE; }
+  virtual ENeigh getType() const override { return ENeigh::fromKey("UNIQUE"); }
   virtual int getMaxSampleNumber(const Db* db) const override;
 
   static NeighUnique* create(bool flag_xvalid = false, const ASpace* space = nullptr);

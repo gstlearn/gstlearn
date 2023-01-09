@@ -7,6 +7,7 @@ import numpy.ma              as ma
 import gstlearn              as gl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy import shape
+import math
 
 def get_cmap(n, name='gist_rainbow'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
@@ -537,7 +538,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     return ax
 
 def point(db, 
-          color_name=None, size_name=None, elev1D_name=None, label_name=None, usesel=True, 
+          color_name=None, size_name=None, 
+          coorX_name=None, coorY_name=None, label_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, edgecolors=None,
           xlim=None, ylim=None, directColor=False, flagAbsSize=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
@@ -548,7 +550,8 @@ def point(db,
     db: Db containing the variable to be plotted
     color_name: Name of the variable containing the color per sample
     size_name: Name of the variable containing the size per sample
-    elev1D_name: Name of the variable standing for Y coordinate in 1-D case
+    coorX_name: Name of the variable standing for X coordinate 
+    coorY_name: Name of the variable standing for Y coordinate 
     label_name: Name of the variable containing the label per sample
     usesel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'color_name' is not defined)
@@ -579,11 +582,16 @@ def point(db,
         fig, ax = newFigure(figsize, xlim, ylim)
 
     # Extracting coordinates
-    tabx = db.getCoordinates(posX,usesel)
-    if db.getNDim() > 1:
-        taby = db.getCoordinates(posY,usesel)
+    if coorX_name is not None:
+        tabx = db.getColumn(coorX_name, usesel)
     else:
-        taby = db.getColumn(elev1D_name, usesel)
+        if db.getNDim() > 0:
+            tabx = db.getCoordinates(posX,usesel)
+    if coorY_name is not None:
+        taby = db.getColumn(coorY_name, usesel)
+    else:
+        if db.getNDim() > 1:
+            taby = db.getCoordinates(posY,usesel)
     if len(tabx) <= 0 or len(taby) <= 0:
         return
     
@@ -633,12 +641,15 @@ def point(db,
 
     return ax
 
-def gradient(db, elev1D_name=None, usesel=True, color='black', scale=20, 
+def gradient(db, coorX_name=None, coorY_name=None, usesel=True, 
+             color='black', scale=20, 
              xlim=None, ylim=None, aspect=None,
              title=None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting a gradient data base
     
     db: Db containing the variable to be plotted
+    coorX_name: Name of the variable standing for X coordinate 
+    coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
     color: Constant color 
     scale: Constant scale
@@ -655,11 +666,18 @@ def gradient(db, elev1D_name=None, usesel=True, color='black', scale=20,
         fig, ax = newFigure(figsize, xlim, ylim)
 
     # Extracting coordinates
-    tabx  = db.getCoordinates(0,usesel)
-    if db.getNDim() > 1:
-        taby  = db.getCoordinates(1,usesel)
+    if coorX_name is not None:
+        tabx = db.getColumn(coorX_name, usesel)
     else:
-        taby = db.getColumn(elev1D_name, usesel)
+        if db.getNDim() > 0:
+            tabx = db.getCoordinates(0,usesel)
+    if coorY_name is not None:
+        taby = db.getColumn(coorY_name, usesel)
+    else:
+        if db.getNDim() > 1:
+            taby = db.getCoordinates(1,usesel)
+    if len(tabx) <= 0 or len(taby) <= 0:
+        return
 
     if db.getNDim() > 1:
         tabgx = db.getGradients(0,usesel)
@@ -679,7 +697,6 @@ def gradient(db, elev1D_name=None, usesel=True, color='black', scale=20,
         plt.show()
 
     return ax
-
 
 def tangent(db, usesel=True, color='black', scale=20, 
             xlim=None, ylim=None, aspect=None,
@@ -721,6 +738,39 @@ def tangent(db, usesel=True, color='black', scale=20,
 
     return ax
 
+def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
+                aspect=None, xlim=None, ylim=None,
+                title=None, ax=None, figsize=None, 
+                end_plot=False):
+    '''Function to display the Model characteristics on a Grid
+    This makes sense when the model contains some non-stationarity
+    '''
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+
+    # Extracting coordinates
+    tabx = db.getCoordinates(0,usesel)
+    taby = db.getCoordinates(1,usesel)
+    if len(tabx) <= 0 or len(taby) <= 0:
+        return None
+    
+    gl.db_model_nostat(db, model, icov)
+    tabR1 = db.getColumn("Nostat.Range-1", usesel)
+    tabR2 = db.getColumn("Nostat.Range-2", usesel)
+    tabA  = db.getColumn("Nostat.Angle-1", usesel)
+    if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
+        return None
+    
+    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color)
+            
+    drawDecor(ax, title=title, aspect=aspect)
+        
+    if end_plot:
+        plt.show()
+
+    return ax
+
+    
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
@@ -763,7 +813,7 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
         
 def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, posx=0, posy=1, corner=None, 
-         levels=None, colorL='black', linestyleL = 'solid', 
+         levels=None, colorL='black', linestyleL = 'solid', zlim=None,
          flagRaster=True,
          title = None, ax=None, figsize = None, end_plot=False, 
          **plot_args):
@@ -786,6 +836,9 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
     '''
     clip_on = plot_args.setdefault('clip_on', True)
     shading = plot_args.setdefault('shading', 'nearest')
+    if zlim is not None:
+        plot_args.setdefault('vmin', zlim[0])
+        plot_args.setdefault('vmax', zlim[1])
     
     if not(dbgrid.isGrid()):
         print("This function is dedicated to Grid Db and cannot be used here")
@@ -829,7 +882,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
         im = ax.pcolormesh(X, Y, data, **plot_args)
         im.set_transform(trans_data)
         
-    if flagColorBar:
+    if flagColorBar and flagRaster:
         addColorbar(im, ax)
     
     if levels is not None:
@@ -1201,7 +1254,7 @@ def mesh(mesh,
         fig, ax = newFigure(figsize, xlim, ylim)   
 
     nmesh = mesh.getNMeshes()
-            
+    
     for imesh in range(nmesh):
         tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
         taby = mesh.getCoordinatesPerMesh(imesh, 1, True)

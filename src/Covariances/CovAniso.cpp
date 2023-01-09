@@ -198,14 +198,14 @@ void CovAniso::setRanges(const VectorDouble &ranges)
   if (!hasRange()) return;
   if (ranges.size() != getNDim())
   {
-    message("Inconsistency on Space Dimension");
+    messerr("Inconsistency on Space Dimension");
     return;
   }
   for (unsigned int i = 0; i < ranges.size(); i++)
   {
     if (ranges[i] <= EPSILON20)
     {
-      message("The range in Space dimension (%d) should not be too small", i);
+      messerr("The range in Space dimension (%d) should not be too small", i);
     }
   }
   VectorDouble scales = ranges;
@@ -219,7 +219,7 @@ void CovAniso::setRange(int idim, double range)
   if (!hasRange()) return;
   if (range <= EPSILON20)
   {
-    message("The range should not be too small");
+    messerr("The range should not be too small");
     return;
   }
   double scadef = _cova->getScadef();
@@ -231,7 +231,7 @@ void CovAniso::setScale(double scale)
   if (!hasRange()) return;
   if (scale <= EPSILON20)
   {
-    message("A scale should not be too small");
+    messerr("A scale should not be too small");
     return;
   }
   _aniso.setRadius(scale);
@@ -246,7 +246,7 @@ void CovAniso::setScales(const VectorDouble &scales)
   {
     if (scales[i] <= EPSILON20)
     {
-      message("The scale in Space Dimension (%d) should not be too small", i);
+      messerr("The scale in Space Dimension (%d) should not be too small", i);
       return;
     }
   }
@@ -259,7 +259,7 @@ void CovAniso::setScale(int idim, double scale)
 {
   if (scale <= EPSILON20)
   {
-    message("A scale should not be too small");
+    messerr("A scale should not be too small");
     return;
   }
   _aniso.setRadiusDir(idim, scale);
@@ -279,7 +279,7 @@ void CovAniso::setAnisoRotation(const VectorDouble &rot)
   int ndim = getNDim();
   if ((int) rot.size() != ndim * ndim)
   {
-    message(
+    messerr(
         "Dimension of 'rot' (%d) is not compatible with Space Dimension (%d)",
         (int) rot.size(), ndim);
   }
@@ -671,7 +671,7 @@ const VectorDouble CovAniso::getAnisoCoeffs() const
   double max = VH::maximum(coef);
   if (max < EPSILON10)
   {
-    message("Range is null");
+    messerr("Range is null");
     return VectorDouble();
   }
   VH::divideConstant(coef, max);

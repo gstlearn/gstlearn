@@ -26,7 +26,7 @@
 
 class Db;
 
-class GSTLEARN_EXPORT ADriftElem : public ADrift, public ICloneable, public ASerializable
+class GSTLEARN_EXPORT ADriftElem : public ADrift, public ASerializable, public ICloneable
 {
 public:
   ADriftElem(const EDrift &type,

@@ -14,7 +14,8 @@ DbStringFormat::DbStringFormat(unsigned char params,
                                const VectorString& names,
                                const VectorInt& cols,
                                bool useSel)
-    : AStringFormat(1),
+    : AStringable(),
+      AStringFormat(1),
       _params(params),
       _cols(cols),
       _names(names),
@@ -24,7 +25,8 @@ DbStringFormat::DbStringFormat(unsigned char params,
 }
 
 DbStringFormat::DbStringFormat(const DbStringFormat& r)
-    : AStringFormat(r),
+    : AStringable(r),
+      AStringFormat(r),
       _params(r._params),
       _cols(r._cols),
       _names(r._names),
@@ -37,6 +39,7 @@ DbStringFormat& DbStringFormat::operator=(const DbStringFormat& r)
 {
   if (this != &r)
   {
+    AStringable::operator=(r);
     AStringFormat::operator=(r);
     _params = r._params;
     _cols = r._cols;
@@ -49,6 +52,44 @@ DbStringFormat& DbStringFormat::operator=(const DbStringFormat& r)
 
 DbStringFormat::~DbStringFormat()
 {
+}
+
+String DbStringFormat::toString(const AStringFormat* strfmt) const
+{
+  SYMBOL_UNUSED(strfmt);
+
+  std::stringstream sstr;
+
+  sstr << toTitle(1, "Db Format Specification");
+
+  if (_matchFlag(FLAG_RESUME))
+    sstr << "- Summary" << std::endl;
+  if (_matchFlag(FLAG_VARS))
+    sstr << "- Variable characteristics" << std::endl;
+  if (_matchFlag(FLAG_EXTEND))
+    sstr << "- Data Base Extension" << std::endl;
+  if (_matchFlag(FLAG_STATS))
+    sstr << "- Statistics on Variables" << std::endl;
+  if (_matchFlag(FLAG_ARRAY))
+    sstr << "- Printout of Variables" << std::endl;
+  if (_matchFlag(FLAG_LOCATOR))
+    sstr << "- Locator Assignments" << std::endl;
+
+  if (! _cols.empty())
+    sstr << _cols.toString();
+
+  if (! _names.empty())
+    sstr << _names.toString();
+
+  if (_useSel)
+    sstr << "- Takes the Selection into account (if available)" << std::endl;
+
+  if (_mode == 1)
+    sstr << "- Statistics are performed on Real values" << std::endl;
+  else
+    sstr << "- Statistics are performed on Categorical values" << std::endl;
+
+  return sstr.str();
 }
 
 bool DbStringFormat::_matchFlag(int flag) const
@@ -82,11 +123,13 @@ DbStringFormat* DbStringFormat::createFromFlags(bool flag_resume,
                                                 bool flag_stats,
                                                 bool flag_array,
                                                 bool flag_locator,
+                                                const VectorString &names,
+                                                const VectorInt &cols,
                                                 bool useSel)
 {
   DbStringFormat *dbfmt = new DbStringFormat();
   dbfmt->setFlags(flag_resume, flag_vars, flag_extend, flag_stats, flag_array,
-                  flag_locator, VectorString(), VectorInt(), useSel);
+                  flag_locator, names, cols, useSel);
   return dbfmt;
 }
 
