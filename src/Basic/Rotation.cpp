@@ -102,7 +102,7 @@ int Rotation::setMatrixDirectOldStyle(const double* rotmat)
   if (rotmat != nullptr)
   {
     if (! is_matrix_rotation(_nDim, rotmat, 1)) return 1;
-    _rotMat.setValues(rotmat);
+    _rotMat.setValuesOldStyle(rotmat);
     GH::rotationGetAngles(_nDim, rotmat, _angles.data());
     _directToInverse();
     _checkRot();

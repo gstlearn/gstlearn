@@ -19,8 +19,11 @@
 class GSTLEARN_EXPORT ALinearOp {
 
 public:
-  ALinearOp();
+  ALinearOp(int nitermax = 1000, double eps = EPSILON8);
+  ALinearOp(const ALinearOp &m);
+  ALinearOp& operator=(const ALinearOp &m);
   virtual ~ALinearOp();
+
   void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
   virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
   virtual int getSize() const = 0;
@@ -40,5 +43,5 @@ private:
   double           _eps;
   VectorDouble     _x0;
   int              _precondStatus;
-  const ALinearOp* _precond;
+  const ALinearOp* _precond; // Pointer copied
 };

@@ -107,7 +107,14 @@ GSTLEARN_EXPORT csd    *cs_ddone (csd *D, cs *C, void *w, int ok) ;
 GSTLEARN_EXPORT void    cs_sparse_to_triplet (const cs *A, int flag_from_1,
                                               int *number,int **cols,int **rows,double ** vals);
 GSTLEARN_EXPORT cs     *cs_arrays_to_sparse(int n, int nrow, int ncol,
-                                            double *rows, double *cols, double *vals);
+                                            const double *rows,
+                                            const double *cols,
+                                            const double *vals);
+GSTLEARN_EXPORT cs     *cs_vectors_to_sparse(int nrow,
+                                             int ncol,
+                                             const VectorDouble &rows,
+                                             const VectorDouble &cols,
+                                             const VectorDouble &values);
 GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
                                              int row_from, int row_length,
                                              int col_from, int col_length);

@@ -715,6 +715,7 @@ void exit_f(void)
 
 import gstlearn as gl
 import numpy as np
+import scipy.sparse as sc
 
 from gstlearn.version import __version__
 from gstlearn.version import __author__
@@ -983,10 +984,27 @@ def setdbitem(self,name,tab):
         
     return
 
+def getMatrix(self):
+	if self.isSparse():
+		A = gl.csToTriplet(self.getCs())
+		Acs = sc.csc_matrix((np.array(A.values), 
+						    (np.array(A.rows), np.array(A.cols))),
+                        	 shape=(A.nrows,A.ncols))
+		return Acs
+	else:
+		Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
+		return Anp
+	return
+
 setattr(gl.Db,"useSel",False)    
     
 setattr(gl.Db,"__getitem__",getdbitem)
 
 setattr(gl.Db,"__setitem__",setdbitem)
 
+setattr(gl.MatrixRectangular, "getMatrix", getMatrix)
+setattr(gl.MatrixSquareDiagonal, "getMatrix", getMatrix)
+setattr(gl.MatrixSquareDiagonalCst, "getMatrix", getMatrix)
+setattr(gl.MatrixSquareGeneral, "getMatrix", getMatrix)
+setattr(gl.MatrixSquareSymmetric, "getMatrix", getMatrix)
 %}

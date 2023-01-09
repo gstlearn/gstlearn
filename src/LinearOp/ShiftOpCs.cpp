@@ -127,6 +127,25 @@ ShiftOpCs::~ShiftOpCs()
   _reset();
 }
 
+ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
+                             Model *model,
+                             const Db *dbout,
+                             int igrf,
+                             int icov,
+                             bool verbose)
+{
+  return new ShiftOpCs(amesh, model, dbout, igrf, icov, verbose);
+}
+
+ShiftOpCs* ShiftOpCs::createFromSparse(const cs *S,
+                                       const VectorDouble &TildeC,
+                                       const VectorDouble &Lambda,
+                                       Model *model,
+                                       bool verbose)
+{
+  return new ShiftOpCs(S, TildeC, Lambda, model, verbose);
+}
+
 /**
  *
  * @param amesh Meshing description (New format)

@@ -18,20 +18,57 @@
 
 #include <iostream>
 
-ALinearOpMulti::ALinearOpMulti()
-: _temp(VectorVectorDouble())
-, _p(VectorVectorDouble())
-, _nIterMax(100)
-, _eps(1.e-12)
-, _precondStatus(false)
-, _userInitialValue(false)
-, _precond(nullptr)
-, _initialized(false)
-, _r(VectorVectorDouble())
-, _timeCG(0)
-, _niterCG(0)
-, _numberCG(0)
+ALinearOpMulti::ALinearOpMulti(int nitermax, double eps)
+    : _temp(VectorVectorDouble()),
+      _p(VectorVectorDouble()),
+      _nIterMax(nitermax),
+      _eps(eps),
+      _precondStatus(false),
+      _userInitialValue(false),
+      _precond(nullptr),
+      _initialized(false),
+      _r(VectorVectorDouble()),
+      _timeCG(0),
+      _niterCG(0),
+      _numberCG(0)
 {
+}
+
+ALinearOpMulti::ALinearOpMulti(const ALinearOpMulti &m)
+    : _temp(m._temp),
+      _p(m._p),
+      _nIterMax(m._nIterMax),
+      _eps(m._eps),
+      _precondStatus(m._precondStatus),
+      _userInitialValue(m._userInitialValue),
+      _precond(m._precond),
+      _initialized(m._initialized),
+      _r(m._r),
+      _timeCG(m._timeCG),
+      _niterCG(m._niterCG),
+      _numberCG(m._numberCG)
+{
+}
+
+ALinearOpMulti& ALinearOpMulti::operator=(const ALinearOpMulti &m)
+{
+  if (this != &m)
+  {
+    _temp = m._temp;
+    _p = m._p;
+    _nIterMax = m._nIterMax;
+    _eps = m._eps;
+    _precondStatus = m._precondStatus;
+    _userInitialValue = m._userInitialValue;
+    _precond = m._precond;
+    _initialized = m._initialized;
+    _r = m._r;
+    _timeCG = m._timeCG;
+    _niterCG = m._niterCG;
+    _numberCG = m._numberCG;
+  }
+  return *this;
+
 }
 
 ALinearOpMulti::~ALinearOpMulti()
@@ -133,7 +170,8 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& inv,
     _copyVals(inv,_r);   // r = b
   }
 
-  if (OptDbg::query(EDbg::CONVERGE)) message("initial crit %lg \n",innerProduct(_r,_r));
+  if (OptDbg::query(EDbg::CONVERGE))
+    message("initial crit %lg \n",innerProduct(_r,_r));
 
   if(_precondStatus)
   {
@@ -175,7 +213,8 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& inv,
 
     }
 
-//    message("%d iterations (max=%d)  crit %lg \n",niter,_nIterMax,crit);
+    if (OptDbg::query(EDbg::CONVERGE))
+      message("%d iterations (max=%d)  crit %lg \n",niter,_nIterMax,crit);
     rsold = rsnew;
 
   }

@@ -26,6 +26,21 @@
 
 #include <math.h>
 
+PrecisionOp::PrecisionOp()
+  : _shiftOp(nullptr)
+  , _cova(nullptr)
+  , _power(EPowerPT::fromKey("UNDEFINED"))
+  , _polynomials()
+  , _verbose(false)
+  , _training(false)
+  , _destroyShiftOp(false)
+  , _userPoly(false)
+  , _work()
+  , _work2()
+  , _work3()
+{
+}
+
 PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
                          const CovAniso* cova,
                          const EPowerPT& power,
@@ -52,11 +67,11 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
-                         int igrf,
+                         int icov,
                          const EPowerPT& power,
                          bool verbose)
   : _shiftOp(nullptr)
-  , _cova(model->getCova(igrf))
+  , _cova(model->getCova(icov))
   , _power(power)
   , _polynomials()
   , _verbose(verbose)
@@ -67,7 +82,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work2()
   , _work3()
 {
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,igrf,verbose);
+  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
 
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
@@ -91,18 +106,20 @@ PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
 
 PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
 {
-  _shiftOp        = pmat._shiftOp;
-  _cova           = pmat._cova;
-  _power          = pmat._power;
-  _polynomials    = pmat._polynomials;
-  _verbose        = pmat._verbose;
-  _training       = pmat._training;
-  _destroyShiftOp = pmat._destroyShiftOp;
-  _userPoly       = pmat._userPoly;
-  _work           = pmat._work;
-  _work2          = pmat._work2;
-  _work3          = pmat._work3;
-
+  if (this != &pmat)
+  {
+    _shiftOp = pmat._shiftOp;
+    _cova = pmat._cova;
+    _power = pmat._power;
+    _polynomials = pmat._polynomials;
+    _verbose = pmat._verbose;
+    _training = pmat._training;
+    _destroyShiftOp = pmat._destroyShiftOp;
+    _userPoly = pmat._userPoly;
+    _work = pmat._work;
+    _work2 = pmat._work2;
+    _work3 = pmat._work3;
+  }
   return *this;
 }
 
@@ -124,6 +141,23 @@ PrecisionOp::~PrecisionOp()
   {
     delete _shiftOp;
   }
+}
+
+PrecisionOp* PrecisionOp::createFromShiftOp(ShiftOpCs *shiftop,
+                                            const CovAniso *cova,
+                                            const EPowerPT &power,
+                                            bool verbose)
+{
+  return new PrecisionOp(shiftop, cova, power, verbose);
+}
+
+PrecisionOp* PrecisionOp::create(const AMesh *mesh,
+                           Model *model,
+                           int icov,
+                           const EPowerPT &power,
+                           bool verbose)
+{
+  return new PrecisionOp(mesh, model, icov, power, verbose);
 }
 
 int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
@@ -408,4 +442,16 @@ APolynomial* PrecisionOp::getPoly(const EPowerPT& power)
   if (_preparePoly(power))
     my_throw("Problem in function getPoly");
   return _polynomials[power];
+}
+
+void PrecisionOp::setNIterMax(int nitermax)
+{
+  if (_shiftOp != nullptr)
+    _shiftOp->setNIterMax(nitermax);
+}
+
+void PrecisionOp::setEps(double eps)
+{
+  if (_shiftOp != nullptr)
+    _shiftOp->setEps(eps);
 }

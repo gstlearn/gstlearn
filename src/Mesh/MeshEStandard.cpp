@@ -237,9 +237,9 @@ int MeshEStandard::reset(int ndim,
   // Core allocation
 
   _apices.reset(npoints,ndim);
-  _apices.setValues(apices, byCol);
+  _apices.setValuesOldStyle(apices, byCol);
   _meshes.reset(nmeshes,napexpermesh);
-  _meshes.setValues(meshes, byCol);
+  _meshes.setValuesOldStyle(meshes, byCol);
 
   // Perform possible transform for compatibility
 

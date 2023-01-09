@@ -82,10 +82,10 @@ public:
   virtual void setDiagonal(const VectorDouble& tab);
   virtual void setDiagonal(double value = 1.);
 
-#ifndef SWIG
+//#ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
   const cs* getCs() const { return _csMatrix; }
-#endif
+//#endif
 
   /*! Check that both matrix have the same number of rows and columns */
   bool isSameSize(const AMatrix& m) const;
@@ -179,12 +179,12 @@ public:
   void fill(double value);
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
 #ifndef SWIG
-  void setValues(const double* values, bool byCol=true);
+  void setValuesOldStyle(const double* values, bool byCol=true);
 #endif
   void setValues(const VectorDouble& values, bool byCol=true);
-  void setValues(const VectorInt& irows,
-                 const VectorInt& icols,
-                 const VectorDouble& values);
+  void setValuesByArrays(const VectorInt &irows,
+                         const VectorInt &icols,
+                         const VectorDouble &values);
   double getMeanByColumn(int icol) const;
   double getMinimum() const;
   double getMaximum() const;
