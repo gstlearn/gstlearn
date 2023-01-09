@@ -1,0 +1,141 @@
+---
+title: "Tutorial PPM"
+author: "D. Renard, N. Desassis, X. Freulon"
+date: "December 6th 2022"
+output:
+  pdf_document: default
+  html_document: default
+  editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+library(Matrix)
+OptCst_defineByKey("ASP",0)
+```
+
+# General Introduction
+
+This notebook presents sevral possibilities of the SPDE procedure
+
+## Creating the Data Bases
+
+Some global constants
+
+```{r}
+ndat = 1000
+rangev = 0.2
+sill = 1.
+nugget = 0.1
+law_set_random_seed(123)
+```
+
+Creating the Data Base for conditioning information
+
+```{r}
+dat = Db_create()
+dat["x"] = VectorHelper_simulateUniform(ndat)
+dat["y"] = VectorHelper_simulateUniform(ndat)
+dat$setLocators(c("x","y"),ELoc_X())
+dat
+```
+
+Creating the Data Base for the output grid
+
+```{r}
+grid = DbGrid_create(nx=c(50,50),dx=c(0.02,0.02))
+```
+
+Creating the Meshing (Turbo) based on extended grid
+
+```{r}
+gridExt = DbGrid_create(nx=c(75,75),dx=c(0.02,0.02),x0=c(-0.25,-0.25))
+mesh = MeshETurbo(gridExt)
+mesh
+```
+
+Creating the Model
+
+```{r}
+model = Model_createFromParam(type=ECov_BESSEL_K(),param=1,range=rangev,sill=sill)
+model$addCovFromParam(ECov_NUGGET(),sill=nugget)
+model
+```
+
+# SPDE processing
+
+## Non-conditional simulation
+
+Building the SPDE environment for Non-conditional environments
+
+```{r}
+spdeS = SPDE()
+spdeS$init(model=model, field=grid, calc=ESPDECalcMode_SIMUNONCOND(), mesh=mesh)
+spdeS$compute()
+```
+
+Apply the SPDE system in order to obtain a non-conditional simulation on the input and output Data Bases
+
+```{r}
+iuid = spdeS$query(dat)
+iuid = spdeS$query(grid)
+```
+
+Representing the resulting non-conditional simulation on the Grid
+
+```{r}
+ax = plot.grid(grid, name="spde.simu",title="Non Conditional Simulation")
+```
+
+## Estimation by Kriging
+
+Preparing the SPDE environment
+
+```{r}
+spdeK = SPDE()
+spdeK$init(model=model, field=grid, data=dat, calc=ESPDECalcMode_KRIGING(), mesh=mesh)
+spdeK$compute()
+```
+
+Apply the SPDE system in order to obtain an estimation on the output Data Base
+
+```{r}
+iuid = spdeK$query(grid, namconv=NamingConvention("spde",FALSE))
+```
+
+Representing the resulting estimation on the Grid
+
+```{r}
+ax = plot.grid(grid, name="spde.kriging",title="Estimation")
+```
+
+## Producing the internal elements of the SPDE environment
+
+Extracting the internal elements from 'spdeK' in order to perform calculations by hand (if necessary).
+
+```{r}
+Qtr = csToTriplet(PrecisionOpCs(mesh, model)$getQ(), flag_from_1=TRUE)
+Atr = csToTriplet(ProjMatrix(dat,mesh)$getAproj(), flag_from_1=TRUE)
+
+Q = sparseMatrix(i=Qtr$rows,j=Qtr$cols,x=Qtr$values)
+Aproj = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+                     dims=c(Atr$nrows,Atr$ncols))
+```
+
+Posterior calculations
+
+```{r}
+size = dim(Q)[1]
+cholQ = Cholesky(Q)
+u = VectorHelper_simulateGaussian(size)
+```
+
+```{r}
+Qop = Q + 1/nugget * t(Aproj) %*% Aproj
+```
+

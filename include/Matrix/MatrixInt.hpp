@@ -46,7 +46,7 @@ public:
   VectorInt getValuesPerColumn(int icol) const;
   VectorVectorInt getMatrix() const;
   void   setValues(const VectorInt& values, bool byCol = true);
-  void   setValues(const int* values, bool byCol = true);
+  void   setValuesOldStyle(const int* values, bool byCol = true);
   void   transposeInPlace();
   bool   empty() const { return _nRows <= 0 || _nCols <= 0; }
   void   fill(int value);

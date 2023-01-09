@@ -57,6 +57,18 @@ public:
 
   void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
+  static ShiftOpCs* create(const AMesh *amesh,
+                           Model *model,
+                           const Db *dbout = nullptr,
+                           int igrf = 0,
+                           int icov = 0,
+                           bool verbose = false);
+  static ShiftOpCs* createFromSparse(const cs *S,
+                                     const VectorDouble &TildeC,
+                                     const VectorDouble &Lambda,
+                                     Model *model,
+                                     bool verbose = false);
+
   int initFromMesh(const AMesh* amesh,
                    Model* model,
                    const Db* dbout = nullptr,

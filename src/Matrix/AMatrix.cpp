@@ -416,7 +416,7 @@ AMatrix* AMatrix::toSparse() const
 
   // Load the triplet information in the cloned matrix
 
-  mat->setValues(irows, icols, values);
+  mat->setValuesByArrays(irows, icols, values);
 
   return mat;
 }
@@ -437,7 +437,7 @@ void AMatrix::toSparseInPlace()
 
   // Load the triplet information in the cloned matrix
 
-  setValues(irows, icols, values);
+  setValuesByArrays(irows, icols, values);
 }
 
 /*! Gets the value at row 'irow' and column 'icol' */
@@ -541,7 +541,7 @@ void AMatrix::fill(double value)
  * @param byCol true for Column major; false for Row Major
  */
 #ifndef SWIG
-void AMatrix::setValues(const double* values, bool byCol)
+void AMatrix::setValuesOldStyle(const double* values, bool byCol)
 {
   if (_sparse)
   {
@@ -575,6 +575,7 @@ void AMatrix::setValues(const double* values, bool byCol)
   }
 }
 #endif
+
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -592,13 +593,14 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
     messerr("Operation cancelled");
     return;
   }
-  setValues(values.data(),byCol);
+  setValuesOldStyle(values.data(),byCol);
 }
 
-void AMatrix::setValues(const VectorInt& irows,
-                        const VectorInt& icols,
-                        const VectorDouble& values)
+void AMatrix::setValuesByArrays(const VectorInt &irows,
+                                const VectorInt &icols,
+                                const VectorDouble &values)
 {
+  int nelements = static_cast<int> (values.size());
   if (irows.size() != values.size() ||
       icols.size() != values.size())
   {
@@ -606,7 +608,7 @@ void AMatrix::setValues(const VectorInt& irows,
     messerr("Operation cancelled");
     return;
   }
-    int nelements = static_cast<int> (values.size());
+
   if (_sparse)
   {
     cs* Mtriplet = cs_spalloc(0,0,1,1,1);
@@ -948,6 +950,7 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
 
    if (_sparse)
    {
+     sstr << "- Sparse Format" << std::endl;
      sstr << toMatrix(String(), _csMatrix);
    }
    else

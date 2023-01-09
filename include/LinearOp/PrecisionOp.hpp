@@ -28,28 +28,39 @@ class Model;
 class GSTLEARN_EXPORT PrecisionOp {
 
 public:
-  PrecisionOp(ShiftOpCs* shiftop = nullptr,
-              const CovAniso* cova = nullptr,
+  PrecisionOp();
+  PrecisionOp(ShiftOpCs* shiftop,
+              const CovAniso* cova,
               const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
               Model* model,
-              int igrf = 0,
+              int icov = 0,
               const EPowerPT& power = EPowerPT::fromKey("ONE"),
               bool verbose = false);
-  PrecisionOp(const PrecisionOp &pmat);
-  PrecisionOp& operator=(const PrecisionOp &pmat);
-
+  PrecisionOp(const PrecisionOp &m);
+  PrecisionOp& operator=(const PrecisionOp &m);
   virtual ~PrecisionOp();
 
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
+
+  static PrecisionOp* createFromShiftOp(ShiftOpCs *shiftop = nullptr,
+                                        const CovAniso *cova = nullptr,
+                                        const EPowerPT &power = EPowerPT::fromKey(
+                                            "UNDEFINED"),
+                                        bool verbose = false);
+  static PrecisionOp* create(const AMesh *mesh,
+                             Model *model,
+                             int icov = 0,
+                             const EPowerPT &power = EPowerPT::fromKey("ONE"),
+                             bool verbose = false);
+
   int reset(const ShiftOpCs* shiftop,
             const CovAniso* cova = nullptr,
             const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
             bool verbose = false);
 
-  void   eval(const VectorDouble& inv, VectorDouble& outv);
-
+  void eval(const VectorDouble &inv, VectorDouble &outv);
   VectorDouble evalCov(int imesh);
   VectorVectorDouble simulate(int nbsimus = 1);
 
@@ -91,9 +102,13 @@ public:
   VectorDouble getPolyCoeffs(EPowerPT power);
   void setPolynomialFromPoly(APolynomial* polynomial);
 
+  // Talking to ShiftOp
+  void setNIterMax(int nitermax);
+  void setEps(double eps);
+
 protected:
-  APolynomial* getPoly(const EPowerPT& power);
-  const EPowerPT&   getPower()const{return _power;}
+  APolynomial*     getPoly(const EPowerPT& power);
+  const EPowerPT&  getPower()const{return _power;}
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
 
 private:

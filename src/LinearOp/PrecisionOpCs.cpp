@@ -30,15 +30,14 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
 }
 
 
-PrecisionOpCs::PrecisionOpCs(AMesh* mesh,
+PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
                              Model* model,
-                             int igrf,
+                             int icov,
                              const EPowerPT& power,
                              bool verbose)
-    : PrecisionOp(mesh, model,igrf, power, verbose)
+    : PrecisionOp(mesh, model, icov, power, verbose)
 {
 }
-
 
 PrecisionOpCs::~PrecisionOpCs()
 {

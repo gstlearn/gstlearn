@@ -2773,9 +2773,9 @@ void cs_sparse_to_triplet(const cs *A,
 cs* cs_arrays_to_sparse(int n,
                         int nrow,
                         int ncol,
-                        double *rows,
-                        double *cols,
-                        double *vals)
+                        const double *rows,
+                        const double *cols,
+                        const double *vals)
 {
   cs *Q, *Qtriplet;
   int ip1, ip2, error, row_max, col_max;
@@ -2818,6 +2818,16 @@ cs* cs_arrays_to_sparse(int n,
   label_end: Qtriplet = cs_spfree(Qtriplet);
   if (error) Q = cs_spfree(Q);
   return (Q);
+}
+
+cs* cs_vectors_to_sparse(int nrow,
+                         int ncol,
+                         const VectorDouble &rows,
+                         const VectorDouble &cols,
+                         const VectorDouble &values)
+{
+  int n = (int) rows.size();
+  return cs_arrays_to_sparse(n, nrow, ncol, rows.data(), cols.data(), values.data());
 }
 
 /* Extract a sparse submatrix */

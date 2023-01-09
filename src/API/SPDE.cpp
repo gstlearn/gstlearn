@@ -40,7 +40,9 @@ SPDE::SPDE()
       _driftTab(),
       _requireCoeffs(false),
       _isCoeffsComputed(false),
-      _deleteMesh(false)
+      _deleteMesh(false),
+      _nIterMax(1000),
+      _eps(EPSILON8)
 {
 }
 
@@ -68,7 +70,9 @@ SPDE::SPDE(Model* model,
       _driftTab(),
       _requireCoeffs(false),
       _isCoeffsComputed(false),
-      _deleteMesh(false)
+      _deleteMesh(false),
+      _nIterMax(1000),
+      _eps(EPSILON8)
 {
   init(model, field, dat, calc);
 }
@@ -112,6 +116,14 @@ void SPDE::_purge()
   }
   _simuMeshing.clear();
   _krigingMeshing.clear();
+}
+
+SPDE* SPDE::create(Model *model,
+                   const DbGrid *field,
+                   const Db *data,
+                   const ESPDECalcMode &calc)
+{
+  return new SPDE(model, field, data, calc);
 }
 
 void SPDE::init(Model* model,
@@ -181,11 +193,14 @@ void SPDE::init(Model* model,
         }
         _krigingMeshing.push_back(mesh);
         precision = new PrecisionOp(mesh, model, icov, EPowerPT::ONE);
-        proj = new ProjMatrix(_data,mesh);
         _pilePrecisions.push_back(precision);
+
+        proj = new ProjMatrix(_data,mesh);
         _pileProjMatrix.push_back(proj);
 
         _precisionsKriging = new PrecisionOpMultiConditional();
+        _precisionsKriging->setNIterMax(_nIterMax);
+        _precisionsKriging->setEps(_eps);
         _precisionsKriging->push_back(precision,proj);
         _workKriging.push_back(VectorDouble(precision->getSize()));
       }
