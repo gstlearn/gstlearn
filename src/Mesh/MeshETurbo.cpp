@@ -52,18 +52,21 @@ MeshETurbo::MeshETurbo(const VectorInt& nx,
   (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), flag_polarized, verbose);
 }
 
-MeshETurbo::MeshETurbo(const DbGrid* dbgrid, bool verbose, int mode)
+MeshETurbo::MeshETurbo(const DbGrid *dbgrid,
+                       bool flag_polarized,
+                       bool verbose,
+                       int mode)
     : AMesh(),
       _grid(),
       _nPerCell(0),
-      _isPolarized(false),
+      _isPolarized(flag_polarized),
       _meshIndirect(mode),
       _gridIndirect(mode)
 {
   if (!dbgrid->isGrid()) return;
   VectorDouble sel = dbgrid->getSelection();
   (void) initFromGrid(dbgrid->getNXs(), dbgrid->getDXs(), dbgrid->getX0s(),
-                      dbgrid->getRotMat(), sel, true, verbose);
+                      dbgrid->getRotMat(), sel, flag_polarized, verbose);
 }
 
 MeshETurbo::MeshETurbo(const MeshETurbo &r)

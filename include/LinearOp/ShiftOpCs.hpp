@@ -166,9 +166,8 @@ private:
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
-  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab, int nmax = -1);
-  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab,
-                        int nmax = -1);
+  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab);
+  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab);
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   VectorT<std::map<int, double>> _mapCreate() const;
