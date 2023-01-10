@@ -254,7 +254,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
  * Initialize the environment for calculation of derivatives of S
  * @param amesh Meshing description (New format)
  * @param model Pointer to the Model structure
- * @param dbout Pointer to the Db structure
  * @param igrf Rank of the GRF
  * @param icov Rank of the Covariance within the Model
  * @param verbose Verbose flag
@@ -263,7 +262,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
  */
 int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
                                 Model* model,
-                                Db* dbout,
                                 int igrf,
                                 int icov,
                                 bool verbose,
@@ -994,7 +992,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   _SGrad.resize(number);
   for (int i = 0; i < (int) Mtab.size(); i++)
   {
-    _SGrad[i] = _BuildVecSfromMap(Mtab[i]);
+    _SGrad[i] = _BuildVecSfromMap(Mtab[i],getSize());
     if (_SGrad[i] == nullptr) goto label_end;
     cs_matvecnorm_inplace(_SGrad[i], _TildeC.data(), 2);
   }
