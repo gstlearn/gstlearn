@@ -78,7 +78,6 @@ public:
                    bool verbose = false);
   int initGradFromMesh(const AMesh* amesh,
                        Model* model,
-                       Db* dbout,
                        int igrf = 0,
                        int icov = 0,
                        bool verbose = false,
