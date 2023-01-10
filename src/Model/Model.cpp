@@ -98,6 +98,7 @@ Model& Model::operator=(const Model &m)
 
 Model::~Model()
 {
+  message("on passe dans clear\n");
   _clear();
 }
 

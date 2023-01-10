@@ -365,6 +365,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the constraints
 
+  if (spde_check(NULL,dbgrid,model2,NULL,verbose,VectorDouble(),
+                 true, true, true, false, false, false, false)) goto label_end;
   if (spde_f(NULL, dbgrid, model2, VectorDouble(), s_option, 1, 1, seed, 2, 0,
              0, 0, 0, 0, 0, 0, 0)) goto label_end;
   rank  = dbgrid->getColumnNumber();
