@@ -2412,6 +2412,8 @@ int db_selhull(Db *db1,
   if (polygons == nullptr) return 1;
 
   /* Loop on the samples of the second Db */
+  // Note that all samples must be checked as a sample, initially masked, can be
+  // masked OFF as it belongs to the convex hull.
 
   int ntotal = db2->getSampleNumber();
   int nactive = 0;
@@ -2419,12 +2421,6 @@ int db_selhull(Db *db1,
   int nin = 0;
   for (int iech = 0; iech < ntotal; iech++)
   {
-    if (!db2->isActive(iech))
-    {
-      db2->setArray(iech, isel, 0.);
-      nout++;
-      continue;
-    }
     if (!polygon_inside(db2->getCoordinate(iech, 0),
                         db2->getCoordinate(iech, 1),
                         db2->getCoordinate(iech, 2), 0, polygons))
