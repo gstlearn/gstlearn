@@ -1487,7 +1487,7 @@ MatrixRectangular* sphering(const AMatrix* X)
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
   MatrixRectangular* S = new MatrixRectangular(nvar, nvar);
-  S->setValues(eigen_vectors.data(),true);
+  S->setValues(eigen_vectors,true);
   for (int ivar = 0; ivar < nvar ; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {

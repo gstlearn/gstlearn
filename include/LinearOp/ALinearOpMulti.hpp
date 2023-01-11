@@ -21,12 +21,16 @@ class ALinearOpMulti;
 class GSTLEARN_EXPORT ALinearOpMulti {
 
 public:
-  ALinearOpMulti();
+  ALinearOpMulti(int nitermax = 1000, double eps = EPSILON8);
+  ALinearOpMulti(const ALinearOpMulti &m);
+  ALinearOpMulti& operator=(const ALinearOpMulti &m);
   virtual ~ALinearOpMulti();
-  void evalDirect(const VectorVectorDouble& inv,
-                  VectorVectorDouble& outv) const;
+
   virtual void evalInverse(const VectorVectorDouble& inv,
                            VectorVectorDouble& outv) const;
+
+  void evalDirect(const VectorVectorDouble& inv,
+                  VectorVectorDouble& outv) const;
   void initLk(const VectorVectorDouble& inv,
                            VectorVectorDouble& outv) const;
   virtual int sizes() const = 0;
@@ -87,15 +91,11 @@ private:
   bool                      _userInitialValue;
   const ALinearOpMulti*     _precond;
 
-
   // Work arrays
-
   mutable bool               _initialized;
   mutable VectorVectorDouble _r;
 
-
   // Environment parameters
-
   mutable double     _timeCG;
   mutable int        _niterCG;
   mutable int        _numberCG;

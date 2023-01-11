@@ -10,9 +10,11 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
+
 #include "Polygon/Polygons.hpp"
 #include "Polygon/PolySet.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
 #include "csparse_d.h"
@@ -132,21 +134,20 @@ static int st_polyset_inside_3D(double zz, double zmin, double zmax)
  **
  ** \param[in]  xx  array of point coordinates of the point along X
  ** \param[in]  yy  array of point coordinates of the point along Y
- ** \param[in]  np  number of vertices of the polygon
  ** \param[in]  xp  array containing the polygon vertices along X
  ** \param[in]  yp  array containing the polygon vertices along Y
  **
  *****************************************************************************/
 static int st_polyset_inside(double xx,
                              double yy,
-                             int np,
-                             const double *xp,
-                             const double *yp)
+                             const VectorDouble& xp,
+                             const VectorDouble& yp)
 {
   double dx, dy, xinter;
   int inter, j, sel;
 
   inter = 0;
+  int np = (int) xp.size();
 
   /* Loop on the polygon vertices */
 
@@ -244,8 +245,7 @@ int polygon_inside(double xx,
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
       PolySet polyset = polygon->getClosedPolySet(ipol);
-      if (st_polyset_inside(xx, yy, polyset.getNPoints(),
-                            polyset.getX().data(), polyset.getY().data()))
+      if (st_polyset_inside(xx, yy, polyset.getX(), polyset.getY()))
         number++;
       if (number % 2 != 0 && st_polyset_inside_3D(zz, polyset.getZmin(),
                                                   polyset.getZmax()))
@@ -257,8 +257,7 @@ int polygon_inside(double xx,
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
       PolySet polyset = polygon->getClosedPolySet(ipol);
-      if (st_polyset_inside(xx, yy, polyset.getNPoints(),
-                            polyset.getX().data(), polyset.getY().data())
+      if (st_polyset_inside(xx, yy, polyset.getX(), polyset.getY())
           && st_polyset_inside_3D(zz, polyset.getZmin(), polyset.getZmax()))
         return (1);
     }
@@ -305,7 +304,7 @@ double polygon_surface(Polygons *polygon)
 static void _polygonHullPrintout(const VectorInt& index)
 {
   mestitle(1,"Polygon Hull");
-  message("Rank of the Active Samples included in the Convex Hull\n");
+  message("Ranks (1-based) of the Active Samples included in the Convex Hull\n");
   for (int i = 0; i < (int) index.size(); i++)
     message(" %d",index[i]+1);
   message("\n");
@@ -442,7 +441,7 @@ Polygons* polygon_hull(const Db *db, double dilate, bool verbose)
     messerr("The input Db must be contain at least 2 coordinates");
     return polygons;
   }
-  int number = db->getSampleNumber();
+  int number = db->getSampleNumber(true);
   if (number <= 0)
   {
     messerr("No active data in the input Db. Convex Hull impossible");

@@ -214,7 +214,7 @@ void MatrixInt::setValues(const VectorInt& values, bool byCol)
   }
 }
 
-void MatrixInt::setValues(const int* values, bool byCol)
+void MatrixInt::setValuesOldStyle(const int* values, bool byCol)
 {
   if (byCol)
   {

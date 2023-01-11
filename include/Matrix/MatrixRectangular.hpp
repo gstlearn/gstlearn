@@ -36,11 +36,12 @@ public:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
-  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
+  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, bool sparse = false);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
                                          int ncol,
-                                         bool byCol = false);
+                                         bool byCol = false,
+                                         bool sparse = false);
 
 protected:
 #ifndef SWIG

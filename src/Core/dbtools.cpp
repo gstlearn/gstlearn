@@ -2419,8 +2419,12 @@ int db_selhull(Db *db1,
   int nin = 0;
   for (int iech = 0; iech < ntotal; iech++)
   {
-    if (!db2->isActive(iech)) continue;
-    nactive++;
+    if (!db2->isActive(iech))
+    {
+      db2->setArray(iech, isel, 0.);
+      nout++;
+      continue;
+    }
     if (!polygon_inside(db2->getCoordinate(iech, 0),
                         db2->getCoordinate(iech, 1),
                         db2->getCoordinate(iech, 2), 0, polygons))

@@ -31,20 +31,18 @@ public:
                 const CovAniso* cova = nullptr,
                 const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
                 bool verbose = false);
-
-  PrecisionOpCs(AMesh* mesh,
+  PrecisionOpCs(const AMesh* mesh,
                 Model* model,
-                int igrf,
-                const EPowerPT& power,
-                bool verbose);
-
+                int icov = 0,
+                const EPowerPT& power = EPowerPT::fromKey("ONE"),
+                bool verbose = false);
+  virtual ~PrecisionOpCs();
 
   void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   void evalDerivOptim(VectorDouble& outv,int iapex,int igparam) override;
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
-  virtual ~PrecisionOpCs();
   VectorDouble getCoeffs();
   cs* getQ();
 };

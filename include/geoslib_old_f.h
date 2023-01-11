@@ -1957,12 +1957,8 @@ GSTLEARN_EXPORT int spde_eval(int nblin,
                               double power,
                               double *x,
                               double *y);
-GSTLEARN_EXPORT MeshEStandard* spde_external_mesh_define(int icov0,
-                                                         int ndim,
-                                                         int ncorner,
-                                                         VectorInt &meshes,
-                                                         VectorDouble &points);
-GSTLEARN_EXPORT MeshEStandard* spde_external_mesh_undefine(int icov0);
+GSTLEARN_EXPORT void spde_external_mesh_define(int icov0, AMesh *mesh);
+GSTLEARN_EXPORT void spde_external_mesh_undefine(int icov0);
 GSTLEARN_EXPORT int spde_external_copy(SPDE_Matelem &matelem, int icov0);
 GSTLEARN_EXPORT cs* spde_external_A_define(int icov0, cs *A);
 GSTLEARN_EXPORT cs* spde_external_Q_define(int icov0, cs *Q);

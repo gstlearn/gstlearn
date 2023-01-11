@@ -697,4 +697,20 @@ setMethod('[',    '_p_Db',               getDbitem)
 setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
+
+
+"getMatrix" <-
+  function (x)
+{
+	if (x$isSparse())
+	{
+		Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+		Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+                         dims=c(Atr$nrows,Atr$ncols))
+    } else {
+		Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
+    }                     
+	Q
+}
+
 %}

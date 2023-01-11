@@ -9,6 +9,8 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy import shape
 import math
 
+global_aspect = 1
+
 def get_cmap(n, name='gist_rainbow'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
         RGB color; the keyword argument name must be a standard mpl colormap name.'''
@@ -811,12 +813,13 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
         
     return ax
         
-def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
+def grid(dbgrid, name = None, usesel = True, flagColorBar=True, 
+         aspect=None,
          xlim=None, ylim=None, posx=0, posy=1, corner=None, 
          levels=None, colorL='black', linestyleL = 'solid', zlim=None,
          flagRaster=True,
          title = None, ax=None, figsize = None, end_plot=False, 
-         **plot_args):
+         **pcolormesh_args):
     '''
     Function for plotting a variable (referred by its name) informed in a DbGrid
 
@@ -824,7 +827,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. Default=global_aspect
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     title: Title given to the plot
@@ -832,13 +835,17 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
     end_plot: Flag for closing the graphics
     
-    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
+    **pcolormesh_args : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    clip_on = plot_args.setdefault('clip_on', True)
-    shading = plot_args.setdefault('shading', 'nearest')
+    
+    if aspect is None:
+        aspect = global_aspect
+        
+    clip_on = pcolormesh_args.setdefault('clip_on', True)
+    shading = pcolormesh_args.setdefault('shading', 'nearest')
     if zlim is not None:
-        plot_args.setdefault('vmin', zlim[0])
-        plot_args.setdefault('vmax', zlim[1])
+        pcolormesh_args.setdefault('vmin', zlim[0])
+        pcolormesh_args.setdefault('vmax', zlim[1])
     
     if not(dbgrid.isGrid()):
         print("This function is dedicated to Grid Db and cannot be used here")
@@ -879,7 +886,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
               " or 'flat' for cells with low-left corner in (x,y)")
 
     if flagRaster:
-        im = ax.pcolormesh(X, Y, data, **plot_args)
+        im = ax.pcolormesh(X, Y, data, **pcolormesh_args)
         im.set_transform(trans_data)
         
     if flagColorBar and flagRaster:

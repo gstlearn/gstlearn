@@ -292,7 +292,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
 # option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
 plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
 	  option="B", zlim = NULL,
-      show.legend=TRUE, legend.name="G-Fill",
+      show.legend=TRUE, legend.name="",
       xlab="", ylab="", title="", 
       padd=NULL, end.plot=TRUE)
 {

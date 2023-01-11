@@ -57,6 +57,18 @@ public:
 
   void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
+  static ShiftOpCs* create(const AMesh *amesh,
+                           Model *model,
+                           const Db *dbout = nullptr,
+                           int igrf = 0,
+                           int icov = 0,
+                           bool verbose = false);
+  static ShiftOpCs* createFromSparse(const cs *S,
+                                     const VectorDouble &TildeC,
+                                     const VectorDouble &Lambda,
+                                     Model *model,
+                                     bool verbose = false);
+
   int initFromMesh(const AMesh* amesh,
                    Model* model,
                    const Db* dbout = nullptr,
@@ -66,7 +78,6 @@ public:
                    bool verbose = false);
   int initGradFromMesh(const AMesh* amesh,
                        Model* model,
-                       Db* dbout,
                        int igrf = 0,
                        int icov = 0,
                        bool verbose = false,
@@ -155,9 +166,8 @@ private:
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
-  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab, int nmax = -1);
-  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab,
-                        int nmax = -1);
+  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab);
+  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab);
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   VectorT<std::map<int, double>> _mapCreate() const;

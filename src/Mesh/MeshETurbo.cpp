@@ -52,18 +52,21 @@ MeshETurbo::MeshETurbo(const VectorInt& nx,
   (void) initFromGrid(nx, dx, x0, rotmat, VectorDouble(), flag_polarized, verbose);
 }
 
-MeshETurbo::MeshETurbo(const DbGrid* dbgrid, bool verbose, int mode)
+MeshETurbo::MeshETurbo(const DbGrid *dbgrid,
+                       bool flag_polarized,
+                       bool verbose,
+                       int mode)
     : AMesh(),
       _grid(),
       _nPerCell(0),
-      _isPolarized(false),
+      _isPolarized(flag_polarized),
       _meshIndirect(mode),
       _gridIndirect(mode)
 {
   if (!dbgrid->isGrid()) return;
   VectorDouble sel = dbgrid->getSelection();
   (void) initFromGrid(dbgrid->getNXs(), dbgrid->getDXs(), dbgrid->getX0s(),
-                      dbgrid->getRotMat(), sel, true, verbose);
+                      dbgrid->getRotMat(), sel, flag_polarized, verbose);
 }
 
 MeshETurbo::MeshETurbo(const MeshETurbo &r)
@@ -309,7 +312,6 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
       // Generate the indices of the mesh apex
       for (int idim = 0; idim < ndim; idim++)
         indg[idim] = indg0[idim] + MSS(ndim, ipol, icas, icorner, idim);
-
       int iad = _grid.indiceToRank(indg);
       if (sel[iad] == 0.) flagMasked = true;
     }
@@ -320,11 +322,30 @@ void MeshETurbo::_buildMaskInMeshing(const VectorDouble& sel)
     meshNactive++;
   }
 
-  // Creating the Indirection informations
+  // Creating the Indirection information for Meshing
 
   _meshIndirect.buildFromMap(map, nmesh);
 
-  _gridIndirect.buildFromSel(sel);
+  // Creating the selection of the active grid nodes
+  // It is at least equal to 'sel'. In addition, non active grid nodes are also discarded
+
+  VectorDouble selbis = VectorDouble(sel.size(),0.);
+  for (int imesh = 0; imesh < meshNactive; imesh++)
+  {
+    int jmesh = _meshIndirect.getRToA(imesh);
+    _getGridFromMesh(jmesh,&node,&icas);
+    _grid.rankToIndice(node,indg0);
+    int ipol = _getPolarized(indg0);
+    for (int icorner=0; icorner<ncorner; icorner++)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+        indg[idim] = indg0[idim] + MSS(ndim, ipol, icas, icorner, idim);
+      int iad = _grid.indiceToRank(indg);
+      selbis[iad] = 1;
+    }
+  }
+
+  _gridIndirect.buildFromSel(selbis);
 
   return;
 }

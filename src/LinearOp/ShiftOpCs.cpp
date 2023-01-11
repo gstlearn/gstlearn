@@ -127,6 +127,25 @@ ShiftOpCs::~ShiftOpCs()
   _reset();
 }
 
+ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
+                             Model *model,
+                             const Db *dbout,
+                             int igrf,
+                             int icov,
+                             bool verbose)
+{
+  return new ShiftOpCs(amesh, model, dbout, igrf, icov, verbose);
+}
+
+ShiftOpCs* ShiftOpCs::createFromSparse(const cs *S,
+                                       const VectorDouble &TildeC,
+                                       const VectorDouble &Lambda,
+                                       Model *model,
+                                       bool verbose)
+{
+  return new ShiftOpCs(S, TildeC, Lambda, model, verbose);
+}
+
 /**
  *
  * @param amesh Meshing description (New format)
@@ -235,7 +254,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
  * Initialize the environment for calculation of derivatives of S
  * @param amesh Meshing description (New format)
  * @param model Pointer to the Model structure
- * @param dbout Pointer to the Db structure
  * @param igrf Rank of the GRF
  * @param icov Rank of the Covariance within the Model
  * @param verbose Verbose flag
@@ -244,7 +262,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
  */
 int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
                                 Model* model,
-                                Db* dbout,
                                 int igrf,
                                 int icov,
                                 bool verbose,
@@ -817,13 +834,9 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
 /**
  * Transform the Map into a square cparse matrix
  * @param tab   Vector of Input Maps
- * @param nmax  Dimension of the matrix (if provided)
  * @return
- *
- * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
- * @remark has the full dimension (by adding a fictitious value equal to eps)
  */
-cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
+cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab)
 {
   std::map<int, double>::iterator it;
 
@@ -845,11 +858,6 @@ cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
     }
   }
 
-  // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
-
-  if (nmax > 0)
-    cs_force_dimension(Striplet, nmax, nmax);
-
   /* Optional printout */
 
   cs* S = cs_triplet(Striplet);
@@ -862,14 +870,9 @@ cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
 /**
  * Transform the Map into a square cparse matrix
  * @param tab   Vector of Input Maps
- * @param nmax  Dimension of the matrix (if provided)
  * @return
- *
- * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
- * @remark has the full dimension (by adding a fictitious value equal to eps)
  */
-cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab,
-                                 int nmax)
+cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab)
 {
   std::map<std::pair<int,int>, double>::iterator it;
   cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
@@ -889,8 +892,7 @@ cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab,
 
   // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
 
-  if (nmax > 0)
-    cs_force_dimension(Striplet, nmax, nmax);
+  cs_force_dimension(Striplet, getSize(), getSize());
 
   /* Optional printout */
 
@@ -949,20 +951,20 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
     for (int igparam = 0; igparam < ngparam; igparam++)
     {
-      for (int j2 = 0; j2 < ncorner; j2++)
+      for (int jref = 0; jref < ncorner; jref++)
       {
-        int ip2 = amesh->getApex(imesh, j2);
+        int ipref = amesh->getApex(imesh, jref);
         for (int j0 = 0; j0 < ncorner; j0++)
         {
           int ip0 = amesh->getApex(imesh, j0);
           for (int j1 = 0; j1 < ncorner; j1++)
           {
             int ip1 = amesh->getApex(imesh, j1);
-            _loadHHGradPerMesh(hh, amesh, ip2, igparam);
+            _loadHHGradPerMesh(hh, amesh, ipref, igparam);
             mat.normMatrix(hh, matw);
 
             double vald = mat.getValue(j0, j1) * meshSize;
-            int iad = getSize() * igparam + ip2;
+            int iad = getSize() * igparam + ipref;
             _mapVecUpdate(Mtab[iad], ip0, ip1, vald, tol);
           }
         }
@@ -1001,7 +1003,7 @@ void ShiftOpCs::_mapUpdate(std::map<int, double>& tab,
   if (!ret.second) ret.first->second += value;
 }
 
-void ShiftOpCs::_mapVecUpdate(std::map<std::pair<int, int>, double>&tab,
+void ShiftOpCs::_mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
                               int ip0,
                               int ip1,
                               double value,
@@ -1184,7 +1186,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   }
 
   _S = cs_spfree(_S);
-  _S = _BuildSfromMap(tab, napices);
+  _S = _BuildSfromMap(tab);
   if (_S == nullptr) goto label_end;
 
   /* Set the error return code */

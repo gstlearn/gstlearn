@@ -6,6 +6,7 @@
 #include "Enum/ESPDECalcMode.hpp"
 
 #include "Basic/NamingConvention.hpp"
+#include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
 class ShiftOpCs;
@@ -27,6 +28,12 @@ public:
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
   virtual ~SPDE();
+
+  static SPDE* create(Model *model,
+                      const DbGrid *field,
+                      const Db *data = nullptr,
+                      const ESPDECalcMode &calc = ESPDECalcMode::fromKey(
+                          "SIMUCOND"));
 
   void init(Model* model,
             const DbGrid* field,
@@ -51,8 +58,12 @@ public:
   const PrecisionOpCs* getPrecisionOp(int i = 0) const  { return (PrecisionOpCs*)_pilePrecisions[i];}
   const ProjMatrix* getProj(int i = 0) const  { return _pileProjMatrix[i];}
   const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKriging;}
+
   double computeQuad() const;
   const Db* getData() const {return  _data;}
+
+  void setEps(double eps) { _eps = eps; }
+  void setNIterMax(int nitermax) { _nIterMax = nitermax; }
 
 private:
   void _computeDriftCoeffs() const;
@@ -87,4 +98,8 @@ private:
   mutable bool _isCoeffsComputed;
   bool _deleteMesh;
   // query sur aproj ou // TODO ??
+
+  // Parameters specific invertion using Conjugate Gradient (used for Kriging)
+  int _nIterMax;
+  double _eps;
 };

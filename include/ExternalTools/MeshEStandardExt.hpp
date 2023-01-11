@@ -31,11 +31,14 @@ public:
                   const VectorDouble &dilate = VectorDouble(),
                   const String &triswitch = "nqQ",
                   bool verbose = false);
-  AMesh* spde_mesh_load(Db *dbin,
-                        Db *dbout = nullptr,
-                        const VectorDouble &gext = VectorDouble(),
-                        const String &triswitch = "nqQ",
-                        bool verbose = false);
+
+  static AMesh* initMeshExternal(Db *dbin,
+                                 Db *dbout = nullptr,
+                                 const VectorDouble &gext = VectorDouble(),
+                                 const String &triswitch = "nqQ",
+                                 bool verbose = false,
+                                 bool flag_mesh_dbin = true,
+                                 bool flag_mesh_dbout = true);
 
 private:
   int _create1D(int verbose, Db *dbin, Db *dbout, const VectorDouble &dilate);
@@ -49,15 +52,19 @@ private:
                 Db *dbout,
                 const VectorDouble &dilate,
                 const String& triswitch);
-  AMesh* _load1D(bool verbose, Db *dbin, Db *dbout, const VectorDouble &gext);
-  AMesh* _load2D(bool verbose,
-                 Db *dbin,
-                 Db *dbout,
-                 const VectorDouble &gext,
-                 const String& triswitch);
-  AMesh* _load3D(bool verbose,
-                 Db *dbin,
-                 Db *dbout,
-                 const VectorDouble &gext,
-                 const String &triswitch);
+
+  static AMesh* _load1D(bool verbose,
+                        Db *dbin,
+                        Db *dbout,
+                        const VectorDouble &gext);
+  static AMesh* _load2D(bool verbose,
+                        Db *dbin,
+                        Db *dbout,
+                        const VectorDouble &gext,
+                        const String &triswitch);
+  static AMesh* _load3D(bool verbose,
+                        Db *dbin,
+                        Db *dbout,
+                        const VectorDouble &gext,
+                        const String &triswitch);
 };

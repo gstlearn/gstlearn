@@ -47,16 +47,17 @@ MatrixRectangular::~MatrixRectangular()
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
+ * @param sparse True for a Sparse matrix
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
+MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X, bool sparse)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
 
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, sparse);
   for (int irow = 0; irow < nrow; irow++)
     for (int icol = 0; icol < ncol; icol++)
       mat->setValue(irow, icol, X[irow][icol]);
@@ -67,14 +68,15 @@ MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
 MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
                                                    int nrow,
                                                    int ncol,
-                                                   bool byCol)
+                                                   bool byCol,
+                                                   bool sparse)
 {
   if (nrow * ncol != (int) X.size())
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
     messerr("and the dimension of the input Vector (%d)", (int) X.size());
   }
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, sparse);
 
   int lec = 0;
   if (byCol)

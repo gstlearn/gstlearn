@@ -17,13 +17,35 @@
 
 #include <iostream>
 
-ALinearOp::ALinearOp()
-  : _nIterMax(100)
-  , _eps(1.e-06)
+ALinearOp::ALinearOp(int nitermax, double eps)
+  : _nIterMax(nitermax)
+  , _eps(eps)
   , _x0()
   , _precondStatus(0)
   , _precond(nullptr)
 {
+}
+
+ALinearOp::ALinearOp(const ALinearOp &m)
+    : _nIterMax(m._nIterMax),
+      _eps(m._eps),
+      _x0(m._x0),
+      _precondStatus(m._precondStatus),
+      _precond(m._precond)
+{
+}
+
+ALinearOp& ALinearOp::operator=(const ALinearOp &m)
+{
+  if (this != &m)
+  {
+    _nIterMax = m._nIterMax;
+    _eps = m._eps;
+    _x0 = m._x0;
+    _precondStatus = m._precondStatus;
+    _precond = m._precond;
+  }
+  return *this;
 }
 
 ALinearOp::~ALinearOp() 
