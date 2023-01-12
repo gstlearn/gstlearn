@@ -716,6 +716,7 @@ void exit_f(void)
 import gstlearn as gl
 import numpy as np
 import scipy.sparse as sc
+import pandas as pd
 
 from gstlearn.version import __version__
 from gstlearn.version import __author__
@@ -1003,11 +1004,18 @@ def getCsMatrix(self):
                          shape=(A.nrows,A.ncols))
 	return Acs
 
+def getDb(self):
+	dat = pd.DataFrame()
+	for j,i in enumerate(self.getAllNames()) :
+  	  dat[i] = self[i]
+  	  dat[i].locator = self.getLocators()[j]
+	return dat
+
 setattr(gl.Db,"useSel",False)    
     
 setattr(gl.Db,"__getitem__",getdbitem)
-
 setattr(gl.Db,"__setitem__",setdbitem)
+setattr(gl.Db,"toTL", getDb)
 
 setattr(gl.MatrixRectangular, "toTL", getMatrix)
 setattr(gl.MatrixSquareDiagonal, "toTL", getMatrix)
