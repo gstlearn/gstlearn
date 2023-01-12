@@ -1004,11 +1004,12 @@ def getCsMatrix(self):
                          shape=(A.nrows,A.ncols))
 	return Acs
 
-def getDb(self):
-	dat = pd.DataFrame()
-	for j,i in enumerate(self.getAllNames()) :
-  	  dat[i] = self[i]
-  	  dat[i].locator = self.getLocators()[j]
+def getDb(self, flagLocate=False):
+	dat = pd.DataFrame(self.getAllColumns().reshape(self.getSampleNumber(),-1), 
+		columns = self.getAllNames())
+	if flagLocate:
+		for j,i in enumerate(self.getAllNames()):
+			dat[i].locator = self.getLocators()[j] 
 	return dat
 
 setattr(gl.Db,"useSel",False)    
