@@ -29,6 +29,7 @@ typedef struct
 } ResRegr;
 
 class Db;
+class Table;
 
 GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
@@ -55,6 +56,14 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               double proba = TEST,
                                               double vmin = TEST,
                                               double vmax = TEST);
+GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
+                                        const VectorString &names,
+                                        const std::vector<EStatOption> &opers = EStatOption::fromKeys(
+                                            { "MEAN" }),
+                                        bool flagIso = true,
+                                        double proba = TEST,
+                                        double vmin = TEST,
+                                        double vmax = TEST);
 GSTLEARN_EXPORT VectorDouble dbStatisticsMultiByUID(Db *db,
                                                     const VectorInt &iatts,
                                                     bool flagIso = true);

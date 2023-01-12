@@ -1927,8 +1927,8 @@ GSTLEARN_EXPORT void spde_mesh_assign(AMesh *amesh,
                                       int ncorner,
                                       int nvertex,
                                       int nmesh,
-                                      int *meshes,
-                                      double *points,
+                                      const VectorInt& arg_meshes,
+                                      const VectorDouble& arg_points,
                                       int verbose);
 GSTLEARN_EXPORT int spde_build_matrices(Model *model, int verbose);
 GSTLEARN_EXPORT int spde_build_stdev(double *vcur);

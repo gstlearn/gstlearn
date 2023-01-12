@@ -154,7 +154,7 @@ int main(int /*argc*/, char */*argv*/[])
   table.resize(ncols);
   for (int icol = 0; icol < ncols; icol++)
     table[icol] = VH::simulateUniform(nrows);
-  Table* table1 = Table::createFromArray(table, false);
+  Table* table1 = Table::createFromVVD(table, false);
   table1->display();
 
   // Serialize table

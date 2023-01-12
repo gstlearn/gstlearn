@@ -698,7 +698,6 @@ setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
-
 "getMatrix" <-
   function (x)
 {
@@ -712,5 +711,5 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
     }                     
 	Q
 }
-
+#setMethod("toTL", signature=(x='_p_MatrixRectangular'), getMatrix)
 %}

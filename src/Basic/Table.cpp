@@ -54,9 +54,17 @@ Table::~Table()
 {
 }
 
-int Table::resetFromArray(const VectorVectorDouble& table, bool flagByRow)
+int Table::resetFromVVD(const VectorVectorDouble& tabin, bool flagByRow)
 {
-  _tab.reset(table, flagByRow);
+  _tab.reset(tabin, flagByRow);
+  _rowNames.clear();
+  _colNames.clear();
+  return 0;
+}
+
+int Table::resetFromVD(const VectorDouble& tabin, bool flagByRow)
+{
+  _tab.reset(_tab.getNRows(), _tab.getNCols(), tabin, false, flagByRow);
   _rowNames.clear();
   _colNames.clear();
   return 0;
@@ -85,12 +93,32 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   return table;
 }
 
-Table* Table::createFromArray(const VectorVectorDouble& tabin, bool flagByRow)
+Table* Table::createFromVVD(const VectorVectorDouble& tabin, bool flagByRow)
 {
   Table* table = new Table();
-  if (table->resetFromArray(tabin, flagByRow))
+  if (table->resetFromVVD(tabin, flagByRow))
   {
     messerr("Problem when loading a Table from Array");
+    delete table;
+    table = nullptr;
+  }
+  return table;
+}
+
+Table* Table::createFromVD(int nrows, int ncols, const VectorDouble& tabin)
+{
+
+  if ((int) tabin.size() != nrows * ncols)
+  {
+    messerr("Inconsistency between 'tabin'(dimension=%d) and nrows(%d) and ncols(%d)",
+            (int) tabin.size(), nrows, ncols);
+    return nullptr;
+  }
+
+  Table* table = new Table(nrows, ncols);
+  if (table->resetFromVD(tabin))
+  {
+    messerr("Problem when loading a Table from VectorDouble");
     delete table;
     table = nullptr;
   }

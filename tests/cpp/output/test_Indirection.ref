@@ -32,7 +32,6 @@ Number :          5         4
 
 Turbo Meshing
 =============
-Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -72,10 +71,10 @@ Mesh #    2/    6
 Mesh #    3/    6
  Apex    2:  13.000000 22.000000
  Apex    3:  14.000000 22.000000
- Apex    5:  14.000000 24.000000
-Mesh #    4/    6
- Apex    2:  13.000000 22.000000
  Apex    4:  13.000000 24.000000
+Mesh #    4/    6
+ Apex    4:  13.000000 24.000000
+ Apex    3:  14.000000 22.000000
  Apex    5:  14.000000 24.000000
 Mesh #    5/    6
  Apex    4:  13.000000 24.000000
@@ -97,7 +96,6 @@ Number :          5         4
 
 Turbo Meshing
 =============
-Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
@@ -137,10 +135,10 @@ Mesh #    2/    6
 Mesh #    3/    6
  Apex    2:  13.000000 22.000000
  Apex    3:  14.000000 22.000000
- Apex    5:  14.000000 24.000000
-Mesh #    4/    6
- Apex    2:  13.000000 22.000000
  Apex    4:  13.000000 24.000000
+Mesh #    4/    6
+ Apex    4:  13.000000 24.000000
+ Apex    3:  14.000000 22.000000
  Apex    5:  14.000000 24.000000
 Mesh #    5/    6
  Apex    4:  13.000000 24.000000
