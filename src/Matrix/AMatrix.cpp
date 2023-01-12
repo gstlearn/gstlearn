@@ -211,9 +211,11 @@ void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
   }
 }
 
-void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
+void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, bool flagByRow)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
+  _nRows = nrows;
+  _nCols = ncols;
   _sparse = sparse;
   if (_sparse)
   {
@@ -223,9 +225,18 @@ void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
   {
     _allocate();
     int lec = 0;
-    for (int icol=0; icol<ncols; icol++)
+    if (flagByRow)
+    {
+      for (int icol=0; icol<ncols; icol++)
+        for (int irow=0; irow<nrows; irow++)
+          _setValue(irow,icol,tab[lec++]);
+    }
+    else
+    {
       for (int irow=0; irow<nrows; irow++)
-        _setValue(irow,icol,tab[lec++]);
+        for (int icol=0; icol<ncols; icol++)
+          _setValue(irow,icol,tab[lec++]);
+    }
   }
 }
 

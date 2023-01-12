@@ -996,15 +996,24 @@ def getMatrix(self):
 		return Anp
 	return
 
+def getCsMatrix(self):
+	A = gl.csToTriplet(self)
+	Acs = sc.csc_matrix((np.array(A.values), 
+						(np.array(A.rows), np.array(A.cols))),
+                         shape=(A.nrows,A.ncols))
+	return Acs
+
 setattr(gl.Db,"useSel",False)    
     
 setattr(gl.Db,"__getitem__",getdbitem)
 
 setattr(gl.Db,"__setitem__",setdbitem)
 
-setattr(gl.MatrixRectangular, "getMatrix", getMatrix)
-setattr(gl.MatrixSquareDiagonal, "getMatrix", getMatrix)
-setattr(gl.MatrixSquareDiagonalCst, "getMatrix", getMatrix)
-setattr(gl.MatrixSquareGeneral, "getMatrix", getMatrix)
-setattr(gl.MatrixSquareSymmetric, "getMatrix", getMatrix)
+setattr(gl.MatrixRectangular, "toTL", getMatrix)
+setattr(gl.MatrixSquareDiagonal, "toTL", getMatrix)
+setattr(gl.MatrixSquareDiagonalCst, "toTL", getMatrix)
+setattr(gl.MatrixSquareGeneral, "toTL", getMatrix)
+setattr(gl.MatrixSquareSymmetric, "toTL", getMatrix)
+
+setattr(gl.cs, "toTL", getCsMatrix)
 %}

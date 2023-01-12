@@ -5451,7 +5451,9 @@ static AMesh* st_create_meshes(Db *dbin,
 
       /* Regular meshing */
 
-      return MeshETurbo::createFromGrid(dbgrid, VERBOSE);
+      MeshETurbo* mesh = MeshETurbo::createFromGrid(dbgrid, false, VERBOSE);
+      mesh->setPolarized(false);
+      return mesh;
     }
     else
     {
@@ -5592,8 +5594,8 @@ cs* spde_external_Q_undefine(int icov0)
  ** \param[in]  ncorner   Number of vertices per element
  ** \param[in]  nvertex   Number of points
  ** \param[in]  nmesh     Number of meshes
- ** \param[in]  meshes    Array containing the meshes
- ** \param[in]  points    Array containing the vertex coordinates
+ ** \param[in]  arg_meshes    Array containing the meshes
+ ** \param[in]  arg_points    Array containing the vertex coordinates
  **
  ** \param[in,out]  amesh   Pointer to AMesh to be assigned
  **
@@ -5603,15 +5605,23 @@ void spde_mesh_assign(AMesh *amesh,
                       int ncorner,
                       int nvertex,
                       int nmesh,
-                      int *meshes,
-                      double *points,
-                      int /*verbose*/)
+                      const VectorInt& arg_meshes,
+                      const VectorDouble& arg_points,
+                      int verbose)
 {
   static bool debug = false;
 
   if (amesh != nullptr) delete amesh;
-  MeshEStandard* ameshSt = nullptr;
-  ameshSt->reset(ndim, ncorner, nvertex, nmesh, points, meshes);
+
+  MatrixRectangular apices;
+  apices.reset(nvertex,ndim);
+  apices.setValues(arg_points, true);
+
+  MatrixInt meshes;
+  meshes.reset(nmesh,ncorner);
+  meshes.setValues(arg_meshes, true);
+
+  MeshEStandard* ameshSt = MeshEStandard::createFromExternal(apices, meshes, verbose);
   amesh = dynamic_cast<AMesh*>(ameshSt);
 
   if (debug) amesh->display();

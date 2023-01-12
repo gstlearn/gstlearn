@@ -148,10 +148,10 @@ private:
   void _loadHHByApex(const AMesh* amesh, MatrixSquareSymmetric& hh, int ip);
   void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
-                         int ip);
+                         int ipref);
   void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                           const AMesh* amesh,
-                          int igp,
+                          int ipref,
                           int igparam);
   bool _buildLambdaGrad(const AMesh *amesh);
 
@@ -171,7 +171,7 @@ private:
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   VectorT<std::map<int, double>> _mapCreate() const;
-  VectorT<std::map<std::pair<int, int>, double>> _mapVectorCreate() const;
+  VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
   void _mapUpdate(std::map<int, double>& tab,
                   int ip1,
                   double value,
@@ -182,6 +182,14 @@ private:
                      double value,
                      double tol = EPSILON10) const;
   void _determineFlagNoStatByHH();
+
+  void _mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
+                      int ip0,
+                      int ip1,
+                      double value,
+                      double tol);
+  cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab, int nmax=-1);
+
 
 private:
   VectorDouble       _TildeC;

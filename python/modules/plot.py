@@ -108,7 +108,7 @@ def drawDecor(ax=None, xlabel=None, ylabel=None, aspect=None, title=None, flagLe
             ax.set_ylabel(ylabel)
         if title is not None:
             ax.set_title(title)
-        if aspect is not None:
+        if aspect is None:
             ax.set_aspect(default_aspect)
         else:
             ax.set_aspect(aspect)

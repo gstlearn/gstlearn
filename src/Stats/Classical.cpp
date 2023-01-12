@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Table.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Model/Model.hpp"
 
@@ -419,6 +420,26 @@ VectorDouble dbStatisticsMono(Db *db,
 {
   VectorInt iuids = db->getUIDs(names);
   return dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
+}
+
+GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
+                                        const VectorString &names,
+                                        const std::vector<EStatOption> &opers,
+                                        bool flagIso,
+                                        double proba,
+                                        double vmin,
+                                        double vmax)
+{
+  VectorInt iuids = db->getUIDs(names);
+  VectorDouble stats = dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
+  int nrows = (int) iuids.size();
+  int ncols = (int) opers.size();
+  Table table = Table(nrows, ncols);
+  table.resetFromVD(stats, false);
+  for (int irow=0; irow<nrows; irow++)
+    table.setRowName(irow, db->getNameByUID(iuids[irow]));
+
+  return table;
 }
 
 /****************************************************************************/

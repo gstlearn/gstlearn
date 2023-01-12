@@ -50,94 +50,94 @@ Data Base Statistics
 4 - Name ncsimu1 - Locator ncsimu1
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -3.374
- Maximum value       =      3.915
- Mean value          =      0.113
- Standard Deviation  =      1.112
- Variance            =      1.236
+ Minimum value       =     -3.370
+ Maximum value       =      4.081
+ Mean value          =      0.180
+ Standard Deviation  =      1.108
+ Variance            =      1.228
 5 - Name ncsimu2 - Locator ncsimu2
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -3.583
- Maximum value       =      3.578
- Mean value          =     -0.434
- Standard Deviation  =      1.023
- Variance            =      1.047
+ Minimum value       =     -3.738
+ Maximum value       =      2.913
+ Mean value          =     -0.428
+ Standard Deviation  =      1.014
+ Variance            =      1.028
 6 - Name ncsimu3 - Locator ncsimu3
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -3.940
- Maximum value       =      3.621
- Mean value          =     -0.135
- Standard Deviation  =      1.121
- Variance            =      1.257
+ Minimum value       =     -3.860
+ Maximum value       =      3.718
+ Mean value          =     -0.133
+ Standard Deviation  =      1.126
+ Variance            =      1.269
 7 - Name ncsimu4 - Locator ncsimu4
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -4.507
- Maximum value       =      3.292
+ Minimum value       =     -4.316
+ Maximum value       =      3.106
  Mean value          =     -0.467
- Standard Deviation  =      1.200
- Variance            =      1.441
+ Standard Deviation  =      1.145
+ Variance            =      1.311
 8 - Name ncsimu5 - Locator ncsimu5
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -3.473
- Maximum value       =      3.511
- Mean value          =      0.418
- Standard Deviation  =      1.060
- Variance            =      1.124
+ Minimum value       =     -3.711
+ Maximum value       =      3.507
+ Mean value          =      0.438
+ Standard Deviation  =      1.077
+ Variance            =      1.161
 9 - Name ncsimu6 - Locator ncsimu6
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -2.683
- Maximum value       =      4.003
- Mean value          =      0.220
- Standard Deviation  =      1.071
- Variance            =      1.147
+ Minimum value       =     -2.604
+ Maximum value       =      3.934
+ Mean value          =      0.207
+ Standard Deviation  =      1.052
+ Variance            =      1.106
 10 - Name ncsimu7 - Locator ncsimu7
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -3.626
- Maximum value       =      2.544
- Mean value          =     -0.214
- Standard Deviation  =      1.009
+ Minimum value       =     -3.521
+ Maximum value       =      2.492
+ Mean value          =     -0.239
+ Standard Deviation  =      1.010
  Variance            =      1.019
 11 - Name ncsimu8 - Locator ncsimu8
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -3.130
- Maximum value       =      6.445
- Mean value          =     -0.113
- Standard Deviation  =      1.169
- Variance            =      1.366
+ Minimum value       =     -3.167
+ Maximum value       =      6.013
+ Mean value          =     -0.120
+ Standard Deviation  =      1.161
+ Variance            =      1.347
 12 - Name ncsimu9 - Locator ncsimu9
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -4.163
- Maximum value       =      7.264
- Mean value          =      0.472
- Standard Deviation  =      1.142
- Variance            =      1.305
+ Minimum value       =     -3.981
+ Maximum value       =      7.620
+ Mean value          =      0.463
+ Standard Deviation  =      1.132
+ Variance            =      1.281
 13 - Name ncsimu10 - Locator ncsimu10
  Nb of data          =     120000
  Nb of active values =     120000
- Minimum value       =     -5.354
- Maximum value       =      3.838
- Mean value          =     -0.146
- Standard Deviation  =      1.227
- Variance            =      1.505
+ Minimum value       =     -5.471
+ Maximum value       =      4.111
+ Mean value          =     -0.107
+ Standard Deviation  =      1.207
+ Variance            =      1.458
 
 Data Base Contents
 ------------------
                  rank        x1        x2   ncsimu1   ncsimu2   ncsimu3   ncsimu4
-     [  0,]     1.000     0.000     0.000    -1.433     3.578    -1.270    -0.341
-     [  1,]     2.000     1.000     0.000    -1.259     3.512    -1.213    -0.312
-     [  2,]     3.000     2.000     0.000    -1.220     3.556    -1.264    -0.362
-     [  3,]     4.000     3.000     0.000    -1.134     3.388    -1.458    -0.334
-     [  4,]     5.000     4.000     0.000    -1.337     3.272    -1.496    -0.343
-     [  5,]     6.000     5.000     0.000    -1.231     3.351    -1.367    -0.277
-     [  6,]     7.000     6.000     0.000    -1.011     3.188    -1.224    -0.366
+     [  0,]     1.000     0.000     0.000    -1.417     2.913    -1.794    -0.062
+     [  1,]     2.000     1.000     0.000    -1.248     2.838    -1.758    -0.036
+     [  2,]     3.000     2.000     0.000    -1.221     2.855    -1.835    -0.118
+     [  3,]     4.000     3.000     0.000    -1.134     2.708    -2.041    -0.090
+     [  4,]     5.000     4.000     0.000    -1.361     2.613    -2.035    -0.097
+     [  5,]     6.000     5.000     0.000    -1.275     2.697    -1.893    -0.011
+     [  6,]     7.000     6.000     0.000    -1.074     2.543    -1.767    -0.110
 (Ncols=7[from 13],Nrows=7[from 120000])
 
 Variables

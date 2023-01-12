@@ -660,7 +660,7 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
  * for the given Apex.
  * @param hh      Output Array (updated here)
  * @param igparam Rank of the parameter for derivation
- * @param ip      Rank of the point
+ * @param ipref   Rank of the point
  *
  * @details: The parameters 'igparam' are sorted as follows:
  * @details: - 0:(ndim-1)   : ranges in each Space direction
@@ -668,7 +668,7 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
  */
 void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
                                   int igparam,
-                                  int ip)
+                                  int ipref)
 {
   int ndim = getNDim();
 
@@ -696,7 +696,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     VectorDouble diag = VH::power(cova->getScales(), 2.);
 
     // Locally update the covariance for non-stationarity (if necessary)
-    _updateCova(cova, ip);
+    _updateCova(cova, ipref);
 
     MatrixSquareSymmetric temp(ndim);
     if (igparam < ndim)
@@ -767,17 +767,17 @@ void ShiftOpCs::_loadHHPerMesh(const AMesh* amesh,
  * - the Model parameter 'igparam' and the Apex 'igp0'
  * @param hh      Resulting HH derivative matrix
  * @param amesh   Meshing structure
- * @param igp     Rank of the Apex for derivation (between 0 to nApices-1)
+ * @param ipref   Rank of the Apex for derivation (between 0 to nApices-1)
  * @param igparam Rank of the Model parameter (from 0 to ngparam-1)
  */
 void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                                    const AMesh* amesh,
-                                   int igp,
+                                   int ipref,
                                    int igparam)
 {
   int number = amesh->getNApexPerMesh();
   hh.fill(0.);
-  _loadHHGradByApex(hh, igparam, igp);
+  _loadHHGradByApex(hh, igparam, ipref);
   hh.prodScalar(1. / number);
 }
 
@@ -858,6 +858,10 @@ cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab)
     }
   }
 
+  // Add the fictitious value at maximum sparse matrix dimension
+
+  cs_force_dimension(Striplet, getSize(), getSize());
+
   /* Optional printout */
 
   cs* S = cs_triplet(Striplet);
@@ -900,142 +904,6 @@ cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab)
   if (S == nullptr) return nullptr;
   Striplet = cs_spfree(Striplet);
   return S;
-}
-
-/**
- * Calculate the private member "_SGrad" directly from the Mesh
- * @param amesh Description of the Mesh (New class)
- * @param tol Tolerance beyond which elements are not stored in S matrix
- * @return Error return code
- */
-int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
-{
-  const CovAniso* cova = _getCova();
-  _nModelGradParam = cova->getGradParamNumber();
-  int number = _nModelGradParam * getSize();
-  auto Mtab = _mapVectorCreate();
-
-  int error = 1;
-  int ndim = getNDim();
-  int ncorner = amesh->getNApexPerMesh();
-  int ngparam = _nModelGradParam;
-
-  // Initialize the arrays
-
-  VectorDouble matv(ncorner);
-  MatrixSquareSymmetric hh(ndim);
-  MatrixSquareGeneral matu(ncorner);
-  MatrixSquareGeneral mat(ncorner);
-  MatrixRectangular matw(ndim, ncorner);
-
-  // Define the global matrices
-
-  int igrf = _getIgrf();
-  int icov = _getIcov();
-  if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(amesh, hh, 0);
-
-  /* Loop on the meshes */
-
-  for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
-  {
-    OptDbg::setIndex(imesh + 1);
-    double meshSize = amesh->getMeshSize(imesh);
-
-    // Calculate geometry
-
-    if (_preparMatrices(amesh, imesh, matu, matw))
-    my_throw("Problem in matrix inversion");
-
-    // Loop on the derivative terms
-
-    for (int igparam = 0; igparam < ngparam; igparam++)
-    {
-      for (int jref = 0; jref < ncorner; jref++)
-      {
-        int ipref = amesh->getApex(imesh, jref);
-        for (int j0 = 0; j0 < ncorner; j0++)
-        {
-          int ip0 = amesh->getApex(imesh, j0);
-          for (int j1 = 0; j1 < ncorner; j1++)
-          {
-            int ip1 = amesh->getApex(imesh, j1);
-            _loadHHGradPerMesh(hh, amesh, ipref, igparam);
-            mat.normMatrix(hh, matw);
-
-            double vald = mat.getValue(j0, j1) * meshSize;
-            int iad = getSize() * igparam + ipref;
-            _mapVecUpdate(Mtab[iad], ip0, ip1, vald, tol);
-          }
-        }
-      }
-    }
-  }
-
-  // Construct the SGrad member
-  _resetGrad();
-  _SGrad.resize(number);
-  for (int i = 0; i < (int) Mtab.size(); i++)
-  {
-    _SGrad[i] = _BuildVecSfromMap(Mtab[i]);
-    if (_SGrad[i] == nullptr) goto label_end;
-    cs_matvecnorm_inplace(_SGrad[i], _TildeC.data(), 2);
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  if (error) _resetGrad();
-  return error;
-}
-
-void ShiftOpCs::_mapUpdate(std::map<int, double>& tab,
-                           int ip1,
-                           double value,
-                           double tol) const
-{
-  std::pair<std::map<int,double>::iterator, bool> ret;
-
-  if (ABS(value) < tol) return;
-  ret = tab.insert(std::pair<int, double>(ip1, value));
-  if (!ret.second) ret.first->second += value;
-}
-
-void ShiftOpCs::_mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
-                              int ip0,
-                              int ip1,
-                              double value,
-                              double tol) const
-{
-  std::pair<std::map<std::pair<int,int>,double>::iterator, bool> ret;
-
-  if (ABS(value) < tol) return;
-  std::pair<int, int> pair = std::pair<int,int>(ip0, ip1);
-  ret = tab.insert(std::pair<std::pair<int,int>, double>(pair, value));
-  if (!ret.second) ret.first->second += value;
-}
-
-VectorT<std::map<int, double>> ShiftOpCs::_mapCreate() const
-{
-  int size = getSize();
-  if (size <= 0) my_throw("_mapCreate");
-  VectorT<std::map<int, double>> tab(size);
-  return tab;
-}
-
-VectorT<std::map<std::pair<int, int>, double>> ShiftOpCs::_mapVectorCreate() const
-{
-  int number = _nModelGradParam * getSize();
-  if (number <= 0) my_throw("_mapVectorCreate");
-  VectorT<std::map<std::pair<int, int>, double>> tab;
-  for (int i = 0; i < number; i++)
-  {
-    std::map<std::pair<int, int>, double> maploc;
-    tab.push_back(maploc);
-  }
-  return tab;
 }
 
 /**
@@ -1102,6 +970,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
     }
 
     // Load M matrix
+
     amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
 
     MatrixRectangular matM(ndim, ncorner-1);
@@ -1110,7 +979,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       for (int idim = 0; idim < ndim; idim++)
       {
         double val = coords[icorn][idim] - coords[ncorner-1][idim];
-        if(amesh->getVariety()==1)
+        if (amesh->getVariety() == 1)
         {
           matM.setValue(idim, icorn, val);
         }
@@ -1121,7 +990,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       }
     }
 
-    if(amesh->getVariety() == 1)
+    if (amesh->getVariety() == 1)
     {
       // Calculate M^t %*% M
       matMtM.normSingleMatrix(matM);
@@ -1152,10 +1021,10 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
         messerr("Problem for Mesh #%d", imesh + 1);
         amesh->printMesh(imesh);
         my_throw("Matrix inversion");
-
       }
       matPinvHPt.normTMatrix(hh, matMs);
     }
+
     // Storing in the Map
 
     double ratio = sqrt(dethh * detMtM);
@@ -1196,6 +1065,183 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   label_end: if (error) _S = cs_spfree(_S);
   return error;
 }
+
+/**
+ * Calculate the private member "_SGrad" directly from the Mesh
+ * @param amesh Description of the Mesh (New class)
+ * @param tol Tolerance beyond which elements are not stored in S matrix
+ * @return Error return code
+ */
+int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
+{
+  const CovAniso* cova = _getCova();
+  _nModelGradParam = cova->getGradParamNumber();
+  int number = _nModelGradParam * getSize();
+  std::vector<std::map<std::pair<int, int>, double> > Mtab(number);
+
+  int error = 1;
+  int ndim = getNDim();
+  int ncorner = amesh->getNApexPerMesh();
+  int ngparam = _nModelGradParam;
+
+  // Initialize the arrays
+
+  VectorDouble matv(ncorner);
+  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
+  MatrixRectangular matw(ndim, ncorner);
+
+  // Define the global matrices
+
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  if (_isGlobalHH(igrf, icov))
+    _loadHHByApex(amesh, hh, 0);
+
+  /* Loop on the meshes */
+
+  for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
+  {
+    OptDbg::setIndex(imesh + 1);
+
+    // Calculate geometry
+
+    if (_preparMatrices(amesh, imesh, matu, matw))
+      my_throw("Problem in matrix inversion");
+
+    // Loop on the derivative terms
+
+    for (int igparam = 0; igparam < ngparam; igparam++)
+    {
+      for (int jref = 0; jref < ncorner; jref++)
+      {
+        int ipref = amesh->getApex(imesh, jref);
+        int iad = getSGradAddress(ipref, igparam);
+        _loadHHGradPerMesh(hh, amesh, ipref, igparam);
+        mat.normMatrix(hh, matw);
+
+        // Storing in the Map
+
+//        double ratio = sqrt(dethh * detMtM);
+        double ratio = 1.;
+        double S = 0.;
+        for (int j0 = 0; j0 < ncorner-1; j0++)
+        {
+          // Update TildeC
+
+          int ip0 = amesh->getApex(imesh, j0);
+
+          double s = 0.;
+          for (int j1 = 0; j1 < ncorner-1; j1++)
+          {
+            int ip1 = amesh->getApex(imesh, j1);
+            double vald = mat.getValue(j0, j1) * ratio / 2.;
+            s += vald;
+            _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
+            if (ipref == 1051 && igparam == 0)
+              message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
+                      imesh,jref,iad,ip0,ip1,vald);
+          }
+          int ip1 = amesh->getApex(imesh, ncorner - 1);
+          _mapGradUpdate(Mtab[iad],ip0, ip1, -s, tol);
+          if (ipref == 1051 && igparam == 0)
+            message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
+                    imesh,jref,iad,ip0,ip1,-s);
+          _mapGradUpdate(Mtab[iad],ip1, ip0, -s, tol);
+          if (ipref == 1051 && igparam == 0)
+            message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
+                    imesh,jref,iad,ip1,ip0,-s);
+          S += s;
+        }
+        int ip0 = amesh->getApex(imesh, ncorner - 1);
+        _mapGradUpdate(Mtab[iad], ip0, ip0, S, tol);
+        if (ipref == 1051 && igparam == 0)
+          message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
+                  imesh,jref,iad,ip0,ip0,-S);
+      }
+
+//        for (int j0 = 0; j0 < ncorner; j0++)
+//        {
+//          int ip0 = amesh->getApex(imesh, j0);
+//          for (int j1 = 0; j1 < ncorner; j1++)
+//          {
+//            int ip1 = amesh->getApex(imesh, j1);
+//            double vald = mat.getValue(j0, j1) * meshSize;
+//            int iad = getSize() * igparam + ipref;
+//            _mapUpdate(Mtab[iad][ip0], ip1, vald, tol);
+////            _mapVecUpdate(Mtab[iad], ip0, ip1, vald, tol);
+//          }
+//        }
+//      }
+    }
+  }
+
+  // Construct the SGrad member
+  _resetGrad();
+  _SGrad.resize(number);
+  for (int i = 0; i < number; i++)
+  {
+    _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
+    if (_SGrad[i] == nullptr) goto label_end;
+    cs_matvecnorm_inplace(_SGrad[i], _TildeC.data(), 2);
+  }
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end:
+  if (error) _resetGrad();
+  return error;
+}
+
+void ShiftOpCs::_mapUpdate(std::map<int, double>& tab,
+                           int ip1,
+                           double value,
+                           double tol) const
+{
+  std::pair<std::map<int,double>::iterator, bool> ret;
+
+  if (ABS(value) < tol) return;
+  ret = tab.insert(std::pair<int, double>(ip1, value));
+  if (!ret.second) ret.first->second += value;
+}
+
+void ShiftOpCs::_mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
+                              int ip0,
+                              int ip1,
+                              double value,
+                              double tol) const
+{
+  std::pair<std::map<std::pair<int,int>,double>::iterator, bool> ret;
+
+  if (ABS(value) < tol) return;
+  std::pair<int, int> pair = std::pair<int,int>(ip0, ip1);
+  ret = tab.insert(std::pair<std::pair<int,int>, double>(pair, value));
+  if (!ret.second) ret.first->second += value;
+}
+
+VectorT<std::map<int, double>> ShiftOpCs::_mapCreate() const
+{
+  int size = getSize();
+  if (size <= 0) my_throw("_mapCreate");
+  VectorT<std::map<int, double>> tab(size);
+  return tab;
+}
+
+VectorT<VectorT<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
+{
+  int number = _nModelGradParam * getSize();
+  if (number <= 0) my_throw("_mapVectorCreate");
+  VectorT<VectorT<std::map<int, double>>> Mtab(number);
+  for (int i = 0; i < number; i++)
+  {
+    Mtab[i] = _mapCreate();
+  }
+  return Mtab;
+}
+
 
 /**
  * Calculate the private member "_S" directly from the Mesh
@@ -1646,10 +1692,10 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
 int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
 {
   int ngparam = _nModelGradParam;
-  int napex = getSize();
-  if (iapex < 0 || iapex >= napex)
+  int napices = getSize();
+  if (iapex < 0 || iapex >= napices)
   {
-    mesArg("Mesh Apex index", iapex, napex);
+    mesArg("Mesh Apex index", iapex, napices);
     return -1;
   }
   if (igparam < 0 || igparam >= ngparam)
@@ -1657,7 +1703,7 @@ int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
     mesArg("Rank of the Model parameter", igparam, ngparam);
     return -1;
   }
-  return napex * igparam + iapex;
+  return napices * igparam + iapex;
 }
 
 double ShiftOpCs::getMaxEigenValue() const
@@ -1710,4 +1756,61 @@ void ShiftOpCs::_determineFlagNoStatByHH()
 const CovAniso* ShiftOpCs::_getCova()
 {
   return _getModel()->getCova(_getIcov());
+}
+
+void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
+                               int ip0,
+                               int ip1,
+                               double value,
+                               double tol)
+{
+  std::pair<std::map<std::pair<int, int>, double>::iterator, bool> ret;
+
+  if (ABS(value) < tol) return;
+  std::pair<int, int> key(ip0, ip1);
+  ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
+  if (!ret.second) ret.first->second += value;
+}
+
+/**
+ * Transform the Map into a square cparse matrix
+ * @param tab   Input Map
+ * @param nmax  Dimension of the matrix (if provided)
+ * @return
+ *
+ * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
+ * @remark has the full dimension (by adding a fictitious value equal to eps)
+ */
+cs* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab, int nmax)
+{
+  std::map<std::pair<int, int>, double>::iterator it;
+
+  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  int ip0_max = -1;
+  int ip1_max = -1;
+
+  it = tab.begin();
+  while (it != tab.end())
+  {
+    int ip0 = it->first.first;
+    int ip1 = it->first.second;
+    if (!cs_entry(Striplet, ip0, ip1, it->second)) return nullptr;
+    if (ip0 > ip0_max) ip0_max = ip0;
+    if (ip1 > ip1_max) ip1_max = ip1;
+    it++;
+  }
+
+  // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
+
+  if (nmax > 0)
+    cs_force_dimension(Striplet, nmax, nmax);
+
+  /* Optional printout */
+
+  cs* S = cs_triplet(Striplet);
+  if (S == nullptr) return nullptr;
+
+  Striplet = cs_spfree(Striplet);
+
+  return S;
 }
