@@ -61,6 +61,7 @@ int MeshEStandardExt::resetFromDb(Db *dbin,
                                   const VectorDouble &dilate,
                                   const String &triswitch,
                                   bool verbose)
+
 {
   int error = 1;
 
@@ -306,13 +307,17 @@ int MeshEStandardExt::_create3D(bool verbose,
  ** \param[in]  gext       Array of domain dilation
  ** \param[in]  triswitch  Triswitch option
  ** \param[in]  verbose    Verbose option
+ ** \param[in]  flag_mesh_dbin  True if dbin information is used for meshing
+ ** \param[in]  flag_mesh_dbout  True if dbout information is used for meshing
  **
  *****************************************************************************/
-AMesh* MeshEStandardExt::spde_mesh_load(Db *dbin,
-                                        Db *dbout,
-                                        const VectorDouble &gext,
-                                        const String &triswitch,
-                                        bool verbose)
+AMesh* MeshEStandardExt::initMeshExternal(Db *dbin,
+                                          Db *dbout,
+                                          const VectorDouble &gext,
+                                          const String &triswitch,
+                                          bool verbose,
+                                          bool flag_mesh_dbin,
+                                          bool flag_mesh_dbout)
 {
   int ndim_loc = 0;
   if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
@@ -323,10 +328,10 @@ AMesh* MeshEStandardExt::spde_mesh_load(Db *dbin,
 
   if (verbose)  message("Generating the meshes\n");
 
+  AMesh* mesh = nullptr;
   if (flag_sphere)
   {
     messerr("This method cannot be run on a Spherical space");
-    return nullptr;
   }
   else
   {
@@ -334,18 +339,18 @@ AMesh* MeshEStandardExt::spde_mesh_load(Db *dbin,
 
     if (ndim_loc == 1)
     {
-      return _load1D(verbose, dbin, dbout, gext);
+      mesh =  MeshEStandardExt::_load1D(verbose, dbin, dbout, gext);
     }
     else if (ndim_loc == 2)
     {
-      return _load2D(verbose, dbin, dbout, gext, triswitch);
+      mesh = MeshEStandardExt::_load2D(verbose, dbin, dbout, gext, triswitch);
     }
     else if (ndim_loc == 3)
     {
-      return _load3D(verbose, dbin, dbout, gext, triswitch);
+      mesh = MeshEStandardExt::_load3D(verbose, dbin, dbout, gext, triswitch);
     }
   }
-  return nullptr;
+  return mesh;
 }
 
 /****************************************************************************/

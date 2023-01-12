@@ -21,7 +21,6 @@ The *gstlearn* Python package is a derivative work based on the *swigex* project
 For using this Python package you only need Python 3 (or higher) (with numpy and matplotlib) and execute the following command:
 
     pip install -i https://test.pypi.org/simple/ gstlearn
-    
 
 Note: In a close future, *gstlearn* will be available directly on *pypi* repository (not the test version)
 
@@ -42,7 +41,6 @@ Simply import the *gstlearn* Python package and its plot module, then enjoy:
     mygrid.addColumns(var, "var1")
     # Display the field
     gp.grid(mygrid, title="Gaussian random field", end_plot = True)
-    
 
 Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) directory of the *gstlearn* github repository.
 

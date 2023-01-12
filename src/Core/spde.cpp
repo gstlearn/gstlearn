@@ -5455,6 +5455,7 @@ static AMesh* st_create_meshes(Db *dbin,
     }
     else
     {
+
       messerr("This type of Meshing is not available in Standard");
       messerr("Use MeshEStandardExt meshing technique instead");
       return nullptr;
@@ -5474,8 +5475,7 @@ static AMesh* st_create_meshes(Db *dbin,
  *****************************************************************************/
 static int st_is_external_AQ_defined(int icov0)
 {
-  return (S_EXTERNAL_MESH[icov0] != nullptr &&
-          S_EXTERNAL_Q[icov0] != nullptr &&
+  return (S_EXTERNAL_Q[icov0] != nullptr &&
           S_EXTERNAL_A[icov0] != nullptr);
 }
 
@@ -5542,33 +5542,19 @@ AMesh* spde_mesh_load(Db *dbin,
  **  Manage the contents of the External AMesh structure used for
  **  storing external meshing information
  **
- **  \return A pointer on the Mesh
- **
  ** \param[in]  icov0     Rank of the current covariance (from 0 to 2)
- ** \param[in]  ndim      Space dimension
- ** \param[in]  ncorner   Number of vertices per element
- ** \param[in]  meshes    Array containing the meshes
- ** \param[in]  points    Array containing the vertex coordinates
+ ** \param[in]  mesh      AMesh pointer
  **
  *****************************************************************************/
-MeshEStandard* spde_external_mesh_define(int icov0,
-                                         int ndim,
-                                         int ncorner,
-                                         VectorInt &meshes,
-                                         VectorDouble &points)
+void spde_external_mesh_define(int icov0, AMesh *mesh)
 {
-  MeshEStandard* mesh = dynamic_cast<MeshEStandard*>(S_EXTERNAL_MESH[icov0]);
-  if (mesh != nullptr)
-    mesh->reset(ndim, ncorner, points, meshes);
   S_EXTERNAL_MESH[icov0] = mesh;
-  return mesh;
 }
 
-MeshEStandard* spde_external_mesh_undefine(int icov0)
+void spde_external_mesh_undefine(int icov0)
 {
   if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
   S_EXTERNAL_MESH[icov0] = nullptr;
-  return nullptr;
 }
 
 cs* spde_external_A_define(int icov0, cs *A)
@@ -5681,7 +5667,8 @@ int spde_prepar(Db *dbin,
 
       /* Load the AMesh structure */
 
-      if (!flag_AQ_defined)
+      Matelem.amesh = S_EXTERNAL_MESH[icov];
+      if (Matelem.amesh == nullptr)
       {
         Matelem.amesh = spde_mesh_load(dbin, dbout, gext, s_option, VERBOSE);
         if (Matelem.amesh == nullptr) return 1;
@@ -6325,8 +6312,8 @@ int spde_f(Db *dbin,
 
   error = 1;
 
-  if (spde_check(dbin, dbout, model, NULL, verbose, gext, mesh_dbin, mesh_dbout,
-                 true, flag_est, flag_std, flag_gibbs, flag_modif)) return (1);
+//  if (spde_check(dbin, dbout, model, NULL, verbose, gext, mesh_dbin, mesh_dbout,
+//                 true, flag_est, flag_std, flag_gibbs, flag_modif)) return (1);
   simu_define_func_transf(NULL);
   simu_define_func_update(simu_func_continuous_update);
   simu_define_func_scale(simu_func_continuous_scale);
