@@ -985,7 +985,7 @@ def setdbitem(self,name,tab):
         
     return
 
-def getMatrix(self):
+def MatrixToTL(self):
 	if self.isSparse():
 		A = gl.csToTriplet(self.getCs())
 		Acs = sc.csc_matrix((np.array(A.values), 
@@ -997,7 +997,7 @@ def getMatrix(self):
 		return Anp
 	return
 
-def getCsMatrix(self):
+def CsMatrixToTL(self):
 	A = gl.csToTriplet(self)
 	Acs = sc.csc_matrix((np.array(A.values), 
 						(np.array(A.rows), np.array(A.cols))),
@@ -1018,11 +1018,11 @@ setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
 setattr(gl.Db,"toTL", getDb)
 
-setattr(gl.MatrixRectangular, "toTL", getMatrix)
-setattr(gl.MatrixSquareDiagonal, "toTL", getMatrix)
-setattr(gl.MatrixSquareDiagonalCst, "toTL", getMatrix)
-setattr(gl.MatrixSquareGeneral, "toTL", getMatrix)
-setattr(gl.MatrixSquareSymmetric, "toTL", getMatrix)
+setattr(gl.MatrixRectangular, "toTL", MatrixToTL)
+setattr(gl.MatrixSquareDiagonal, "toTL", MatrixToTL)
+setattr(gl.MatrixSquareDiagonalCst, "toTL", MatrixToTL)
+setattr(gl.MatrixSquareGeneral, "toTL", MatrixToTL)
+setattr(gl.MatrixSquareSymmetric, "toTL", MatrixToTL)
 
-setattr(gl.cs, "toTL", getCsMatrix)
+setattr(gl.cs, "toTL", CsMatrixToTL)
 %}

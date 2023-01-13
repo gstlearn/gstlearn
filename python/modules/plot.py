@@ -253,7 +253,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
             ax.annotate(str(int(pairs[i])), (hh[i],gg[i]), xytext=(0,5), xycoords = 'data',
                         textcoords = 'offset points', ha='center')
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect='auto', xlabel=xlabel, ylabel=ylabel, 
+              title=title, flagLegend=flagLegend)
     
     if vario.drawOnlyPositiveX(ivar, jvar):
         ax.set_xlim(left=0)
@@ -317,7 +318,8 @@ def varioDir(vario, ivar=0, jvar=0,
                   flagLabelSill=flagLabelSill, label=label,
                   **plot_args)
         
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect='auto', xlabel=xlabel, ylabel=ylabel, 
+              title=title, flagLegend=flagLegend)
     
     ax.autoscale(True)
     
@@ -551,7 +553,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect='auto', xlabel=xlabel, ylabel=ylabel, 
+              title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
