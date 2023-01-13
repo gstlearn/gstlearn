@@ -698,18 +698,24 @@ setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
-"getMatrix" <-
-  function (x)
+"csToTL" <-
+  function(x)
 {
-	if (x$isSparse())
-	{
-		Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
-		Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-                         dims=c(Atr$nrows,Atr$ncols))
-    } else {
-		Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
-    }                     
-	Q
+	cat("On entre dans getMatrix\n")
+#	if (x$isSparse())#
+#   {
+#		Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+#		Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+#                         dims=c(Atr$nrows,Atr$ncols))
+#    } else {
+#	Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
+#   }                     
+#   Q
+	invisible()
 }
-#setMethod("toTL", signature=(x='_p_MatrixRectangular'), getMatrix)
+
+setGeneric("toTL", function(x) { 
+	standardGeneric("toTL") 
+})
+setMethod("toTL", signature=(x='_p_MatrixRectangular'), csToTL)
 %}
