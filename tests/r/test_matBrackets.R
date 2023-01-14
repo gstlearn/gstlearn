@@ -13,8 +13,8 @@ print("Case of a Standard Matrix")
 mat = MatrixRectangular_createFromVD(vec, nrow, ncol)
 mat$display()
 print(class(mat))
-mat2 = getMatrix(mat)
 
+mat2 = mat$toTL()
 print(class(mat2))
 print(dim(mat2))
 
@@ -24,8 +24,8 @@ matS = MatrixRectangular(nrow, ncol, TRUE)
 matS$setValues(vec)
 matS$display()
 print(class(mat))
-matS2 = getMatrix(mat) 
 
+matS2 = mat$toTL()
 print(class(matS2))
 print(dim(matS2))
 

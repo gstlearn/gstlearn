@@ -39,7 +39,7 @@ mesh = gl.MeshETurbo(workingDb)
 # Create shift operator
 S = gl.ShiftOpCs(mesh, model, resultDb)
 
-S.initGradFromMesh(mesh,model,resultDb)
+S.initGradFromMesh(mesh,model)
 
 S.getSGrad(0,0)
 

@@ -698,19 +698,47 @@ setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
+appendMethod <- function(c, m, f)
+{
+	cmd = paste0("setMethod('$', '_p_", c ,
+	             "',\
+	              function(x, name) { \
+	                if (! match(name, '",m,"', nomatch=0)) \
+	                  return(callNextMethod(x, name)) \
+	                else { \
+	                  function(...) {",f,"(x, ...)} }})")
+	eval(parse(text=cmd))
+}
 
-"getMatrix" <-
-  function (x)
+"matrixToTL" <-
+  function(x)
 {
 	if (x$isSparse())
-	{
+   	{
 		Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
 		Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
                          dims=c(Atr$nrows,Atr$ncols))
     } else {
-		Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
-    }                     
+	Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
+   }                     
+   Q
+}
+
+"csMatrixToTL" <-
+  function(x)
+{
+	Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+	Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+                     dims=c(Atr$nrows,Atr$ncols))
 	Q
 }
+
+appendMethod("MatrixRectangular", "toTL", "matrixToTL")
+appendMethod("MatrixSquareDiagonal", "toTL", "matrixToTL")
+appendMethod("MatrixSquareDiagonalCst", "toTL", "matrixToTL")
+appendMethod("MatrixSquareGeneral", "toTL", "matrixToTL")
+appendMethod("MatrixSquareSymmetric", "toTL", "matrixToTL")
+
+appendMethod("cs", "toTL", "csMatrixToTL")
 
 %}

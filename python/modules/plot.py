@@ -9,11 +9,14 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy import shape
 import math
 
-global_aspect = 1
+default_aspect = 1
+default_figsize = [8, 8]
 
 def get_cmap(n, name='gist_rainbow'):
-    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
-        RGB color; the keyword argument name must be a standard mpl colormap name.'''
+    '''
+    Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+    RGB color; the keyword argument name must be a standard mpl colormap name.
+    '''
     return plt.cm.get_cmap(name, n)
     
 def selectItems(nvalues, sitem=-1):
@@ -24,24 +27,28 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def newFigure(figsize = (8,8), xlim = None, ylim = None, nx=1, ny=1, ylimnodiag = None,
+def newFigure(figsize = None, xlim = None, ylim = None, nx=1, ny=1, ylimnodiag = None,
               sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
     
         Parameters
         ----------
-        figsize:    Vector of dimensions along X and Y (per subplot), default is (8,8).
+        figsize:    Vector of dimensions along X and Y (per subplot). 
+                    If not defined (None), use the global variable 'default_figsize'
         xlim, ylim: Limits along X and Y (this applies to all subplots of the figure)
         ylimnodiag: Same as ylim for non-diagonal subplot
         nx, ny:     Number of subplots along X and Y
-        sharex, sharey: if the subplots should all share respectively X and Y axis (default are False)
+        sharex, sharey: If the subplots should all share respectively X and Y axis (default are False)
         
         Returns
         -------
-        Tuple composed of a figure and ax description'''
+        Tuple composed of a figure and ax description
+    '''
         
     if figsize is not None:
         figsize = [figsize[0]*nx, figsize[1]*ny]
+    else:
+        figsize = default_figsize
         
     fig, ax = plt.subplots(nx, ny, figsize=figsize, squeeze=False, sharex=sharex, sharey=sharey)
     
@@ -74,6 +81,19 @@ def shape_Nsubplots(N):
     return int(nlines), int(ncols)
 
 def drawDecor(ax=None, xlabel=None, ylabel=None, aspect=None, title=None, flagLegend=False):
+    '''
+    Add the decoration to a figure.
+    
+    Parameters
+    ----------
+    The procedure depends whether 'ax' is already defined or not.
+    xlabel: label along the horizontal axis
+    ylabel: label along the vertical axis
+    title: contents of the title 
+    aspect: the Y/X ratio.
+            If not defined (None) use 'default_aspect' value.
+    flagLegend: adding the Legend
+    '''
     if ax is None:
         if xlabel is not None:
             plt.xlabel(xlabel)
@@ -88,7 +108,9 @@ def drawDecor(ax=None, xlabel=None, ylabel=None, aspect=None, title=None, flagLe
             ax.set_ylabel(ylabel)
         if title is not None:
             ax.set_title(title)
-        if aspect is not None:
+        if aspect is None:
+            ax.set_aspect(default_aspect)
+        else:
             ax.set_aspect(aspect)
         if flagLegend:
             ax.legend()
@@ -186,7 +208,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     flagLabelSill : Flag to define the label for the sill (The default is True).
     title : Optional title for the axes.
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
-    figsize : (if ax is None) Sizes (width, height) of figure (in inches).
+    figsize:  Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot : Flag for closing the graphics (the default is False).
     flagDrawVariance : Flag to add the variance (default is True)
     **plot_args : arguments passed to matplotlib.pyplot.plot
@@ -194,7 +216,6 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     Returns
     -------
     ax : axes where the variogram is represented
-
     """
     color = plot_args.setdefault('color', color0)
     linestyle = plot_args.setdefault('linestyle', linestyle)    
@@ -232,7 +253,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
             ax.annotate(str(int(pairs[i])), (hh[i],gg[i]), xytext=(0,5), xycoords = 'data',
                         textcoords = 'offset points', ha='center')
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect='auto', xlabel=xlabel, ylabel=ylabel, 
+              title=title, flagLegend=flagLegend)
     
     if vario.drawOnlyPositiveX(ivar, jvar):
         ax.set_xlim(left=0)
@@ -249,7 +271,8 @@ def varioDir(vario, ivar=0, jvar=0,
              show_pairs=False, cmap=None, flagLegend=False, title=None, 
              xlabel=None, ylabel=None, label=None, ax=None, figsize=None, 
              end_plot=False, **plot_args):
-    """Plot a single directional experimental variogram (all available directions, for fixed variable(s)).
+    """
+    Plot a single directional experimental variogram (all available directions, for fixed variable(s)).
     
     Calls the function varioElem for each direction, and labels are automatically set with direction vectors.
     
@@ -265,7 +288,7 @@ def varioDir(vario, ivar=0, jvar=0,
     flagLegend : Flag to display the axes legend (The default is False).
     title : Optional title for the axes.
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
-    figsize : (if ax is None) Sizes (width, height) of figure (in inches).
+    ffigsize:    Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot : Flag for closing the graphics (the default is False).
 
     **plot_args : arguments passed to matplotlib.pyplot.plot for all directions plotted
@@ -273,7 +296,6 @@ def varioDir(vario, ivar=0, jvar=0,
     Returns
     -------
     ax : axes where the variogram is represented
-
     """
     
     if hmax is None:
@@ -296,7 +318,8 @@ def varioDir(vario, ivar=0, jvar=0,
                   flagLabelSill=flagLabelSill, label=label,
                   **plot_args)
         
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect='auto', xlabel=xlabel, ylabel=ylabel, 
+              title=title, flagLegend=flagLegend)
     
     ax.autoscale(True)
     
@@ -315,7 +338,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
            nh = 100, hmax = None, gmax = None, show_pairs=False, asCov=False,
            cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, 
            **plot_args):
-    """Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
+    """
+    Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
     
     Same as vario plus the possible model.
     
@@ -338,7 +362,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     title : Optional title for the figure (suptitle).
     axs : Reference for the plot(s) within the figure. If None (default),
           it creates a new figure (with multiple axes for multivariate variograms).
-    figsize : (if ax is None) Sizes (width, height) of figure (in inches).
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot : Flag for closing the graphics (the default is False).
 
     **plot_args : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
@@ -346,7 +370,6 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     Returns
     -------
     ax : axes where the variograms are represented
-
     """
     
     if hmax is None:
@@ -422,7 +445,8 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
           linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None, 
           cmap = None, flagLegend=False, 
           title = None, axs = None, figsize = None, end_plot=False, **plot_args):
-    """Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
+    """
+    Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
     Parameters
     ----------
@@ -440,15 +464,12 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
     title : Optional title for the figure (suptitle).
     axs : Reference for the plot(s) within the figure. If None (default),
           it creates a new figure (with multiple axes for multivariate variograms).
-    figsize : (if ax is None) Sizes (width, height) of figure (in inches).
-    end_plot : Flag for closing the graphics (the default is False).
-
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     **plot_args : arguments passed to matplotlib.pyplot.plot for all variograms plotted
 
     Returns
     -------
     ax : axes where the variograms are represented
-
     """
     axs = varmod(vario, mymodel=None, ivar=ivar, jvar=jvar, idir=idir, 
                  linestyle=linestyle, color0=color0, linestyle0=linestyle0, 
@@ -463,7 +484,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
           flagLabelDir=False, flagLegend=False, asCov=False,
           title=None, xlabel=None, ylabel=None, ax=None, 
           figsize = None, end_plot =False, **plot_args):
-    """Plot a single and unidirectional variogram model (one direction and fixed variable(s)).
+    """
+    Plot a single and unidirectional variogram model (one direction and fixed variable(s)).
     
     Parameters
     ----------
@@ -484,13 +506,12 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     asCov : Present the Model as a Covariance (rather than as a Variogram)
     title : Optional title for the axes.
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
-    figsize : (if ax is None) Sizes (width, height) of figure (in inches).
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot : Flag for closing the graphics (the default is False).
 
     Returns
     -------
     ax : axes where the variogram is represented
-
     """
     color = plot_args.setdefault('color', color0)    
     
@@ -532,7 +553,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect='auto', xlabel=xlabel, ylabel=ylabel, 
+              title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -547,7 +569,8 @@ def point(db,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
           posX=0, posY=1, xlabel=None, ylabel=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
-    '''Function for plotting a point data base, with optional color and size variables
+    '''
+    Plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
     color_name: Name of the variable containing the color per sample
@@ -567,12 +590,12 @@ def point(db,
     cmap: Optional Color scale
     flagColorBar: Flag for representing the Color Bar (not represented if color_name=None)
     flagSizeLegend: Flag for representing the Legend for marker size (not represented if size_name=None)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    aspect: see drawDecor()
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     title: Title given to the plot
     ax: Reference for the plot within the figure
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot: Flag for closing the graphics
 
     **scatter_args : arguments passed to matplotllib.pyplot.scatter
@@ -647,7 +670,8 @@ def gradient(db, coorX_name=None, coorY_name=None, usesel=True,
              color='black', scale=20, 
              xlim=None, ylim=None, aspect=None,
              title=None, ax=None, figsize=None, end_plot=False):
-    '''Function for plotting a gradient data base
+    '''
+    Plotting a gradient data base
     
     db: Db containing the variable to be plotted
     coorX_name: Name of the variable standing for X coordinate 
@@ -657,13 +681,12 @@ def gradient(db, coorX_name=None, coorY_name=None, usesel=True,
     scale: Constant scale
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    aspect: see drawDecor()
     title: Title given to the plot
     ax: Reference for the plot within the figure
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None    
     end_plot: Flag for closing the graphics
     '''
-    
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
 
@@ -703,7 +726,8 @@ def gradient(db, coorX_name=None, coorY_name=None, usesel=True,
 def tangent(db, usesel=True, color='black', scale=20, 
             xlim=None, ylim=None, aspect=None,
             title=None, ax=None, figsize=None, end_plot=False):
-    '''Function for plotting a tangent data base
+    '''
+    Plotting a tangent data base
     
     db: Db containing the variable to be plotted
     usesel : Boolean to indicate if the selection has to be considered
@@ -711,10 +735,10 @@ def tangent(db, usesel=True, color='black', scale=20,
     scale: Constant scale
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    aspect: see drawDecor()
     title: Title given to the plot
     ax: Reference for the plot within the figure
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None)
     end_plot: Flag for closing the graphics
     '''
     
@@ -744,7 +768,8 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
                 aspect=None, xlim=None, ylim=None,
                 title=None, ax=None, figsize=None, 
                 end_plot=False):
-    '''Function to display the Model characteristics on a Grid
+    '''
+    Display the Model characteristics on a Grid
     This makes sense when the model contains some non-stationarity
     '''
     if ax is None:
@@ -776,8 +801,8 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
-    '''Function to display a polygon
-    
+    '''
+    Display a polygon
     **fill_args: arguments passed to ax.fill
     '''
     
@@ -821,26 +846,22 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True,
          title = None, ax=None, figsize = None, end_plot=False, 
          **pcolormesh_args):
     '''
-    Function for plotting a variable (referred by its name) informed in a DbGrid
+    Plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. Default=global_aspect
+    aspect: see drawDecor()
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     title: Title given to the plot
     ax: Reference for the plot within the figure
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot: Flag for closing the graphics
     
     **pcolormesh_args : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    
-    if aspect is None:
-        aspect = global_aspect
-        
     clip_on = pcolormesh_args.setdefault('clip_on', True)
     shading = pcolormesh_args.setdefault('shading', 'nearest')
     if zlim is not None:
@@ -917,18 +938,18 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
          title = None, ax=None, figsize = None, end_plot=False, 
          **plot_args):
     '''
-    Function for plotting a variable (referred by its name) informed in a DbGrid
+    Plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
+    aspect: see drawDecor()
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     title: Title given to the plot
     ax: Reference for the plot within the figure
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot: Flag for closing the graphics
     
     **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
@@ -967,7 +988,8 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
 
 def hist_tab(val, xlabel=None, ylabel=None, nbins=30, color='yellow', edgecolor='red',
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):
-    '''Function for plotting the histogram of an array (argument 'val')
+    '''
+    Plotting the histogram of an array (argument 'val')
     
     hist_args : arguments passed to matplotlib.pyplot.hist
     '''
@@ -989,7 +1011,8 @@ def hist_tab(val, xlabel=None, ylabel=None, nbins=30, color='yellow', edgecolor=
     
 def hist(db, name, xlabel=None, ylabel=None, title = None, ax=None,
          figsize=None, end_plot=False, usesel=True, **hist_args):
-    '''Function for plotting the histogram of a variable contained in a Db
+    '''
+    Plotting the histogram of a variable contained in a Db
     
     hist_args : arguments passed to matplotlib.pyplot.hist'''
     
@@ -1009,7 +1032,7 @@ def sortedcurve(tabx, taby, color='black', flagLegend=False,
                 title=None, ax=None, figsize=None, end_plot=False, 
                 **plot_args):
     '''
-    Function for plotting a set of points after they have been sorted in increasing X
+    Plotting a set of points after they have been sorted in increasing X
     '''
         # Account for possible 'nan'  values
     mask = np.logical_and(np.isfinite(tabx), np.isfinite(taby))
@@ -1028,7 +1051,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
           label='curve', xlabel=None, ylabel=None, 
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting the curve of an array (argument 'data1')
+    Plotting the curve of an array (argument 'data1')
         if data1 is a tuple, it should contain x=data1[0] and y=data1[1]
         or
         'data1' and 'data2' are provided
@@ -1083,7 +1106,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
 def multisegments(center, data, color='black',flagLegend=False, label="segments",
                   title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting a set of segments joining 'center' to any of vertices
+    Plotting a set of segments joining 'center' to any of vertices
     stored in 'data'.
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
@@ -1111,7 +1134,7 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
 def fault(faults, color='black',flagLegend=False, label="segments",
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting a Fault system.
+    Plotting a Fault system.
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
     color = plot_args.setdefault('color', color)
@@ -1211,7 +1234,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
           color0='b', linestyle0='-', marker0='', label='table',
           title=None, ax=None, figsize=None, end_plot=False, **plot_args):
     '''
-    Function for plotting the contents of a Table (argument 'tablr')
+    Plotting the contents of a Table (argument 'table')
         icols designates the ranks of the variable (0: ordinate; 1: abscissae [or regular]) 
         fmt designates [marker][line][color] information
     **plot_args
@@ -1246,6 +1269,7 @@ def mesh(mesh,
          xlim=None, ylim=None, facecolor="yellow", edgecolor="blue", linewidth=1,
          title=None, ax=None, figsize = None, end_plot =False, **plot_args):
     """
+    Plotting the contents of a Mesh
     **plot_args : arguments passed to matplotlib.pyplot.fill
     """
     if flagFace:
@@ -1283,7 +1307,9 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
                 regrLine=False, regrColor="blue", regrLineStyle='-',
                 xlabel=None, ylabel=None, aspect=None, 
                 title = None, ax=None, figsize=None, end_plot=False):
-    '''Function for plotting the scatter plot between two variables contained in a Db'''
+    '''
+    Plotting the scatter plot between two variables contained in a Db
+    '''
  
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
@@ -1442,13 +1468,13 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, norm=None,
          title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting several variables (referred by their names) informed in a grid Db in subplots (Nsubplots=Nvariables)
+    Plotting several variables (referred by their names) informed in a grid Db in subplots (Nsubplots=Nvariables)
 
     dbgrid: DbGrid containing the variable to be plotted
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
+    aspect: see drawDecor()
     norm: Optional norm. It can be either an instance of matplotlib.colors.Normalize when using a unique norm for 
           all variables (e.g. matplotlib.colors.LogNorm()), or a class of matplotlib.colors.Normalize when using 
           a type of normalization scaled independently for each variable (e.g. matplotlib.colors.LogNorm). 
@@ -1456,9 +1482,7 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
     ylim: Bounds defined along the second axis
     title: Title given to the figure (each subplot is titled with the name of the variable represented)
     axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
-    end_plot: Flag for closing the graphics
-    
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None    end_plot: Flag for closing the graphics
     **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
     '''
     
@@ -1506,25 +1530,25 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
         
     return axs
 
-def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto',
+def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, size=20, cmap=None,
          title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting several variables (referred by their names) informed in a Db in subplots (Nsubplots=Nvariables).
+    Plotting several variables (referred by their names) informed in a Db in subplots (Nsubplots=Nvariables).
     Variables are represented with color plots, i.e. each data point is represented with a color corresponding to the data value.
 
     db: Db containing the variable to be plotted
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale.
+    aspect: see drawDecor()
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     size: Size of the data points (default 20)
     cmap: Optional color scale
     title: Title given to the figure (each subplot is titled with the name of the variable represented)
     axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot: Flag for closing the graphics
     
     **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
@@ -1574,14 +1598,14 @@ def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
                xlim=None, ylim=None, color='r', sizmin=20, sizmax=200,
                title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting several variables (referred by their names) informed in a Db in subplots (Nsubplots=Nvariables)
+    Plotting several variables (referred by their names) informed in a Db in subplots (Nsubplots=Nvariables)
     Variables are represented with size plots, i.e. each data point is represented with a size corresponding to the data value.
 
     db: Db containing the variable to be plotted
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale.
+    aspect: see drawDecor()
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     color: Color of data points
@@ -1589,7 +1613,7 @@ def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
     sizmax: Size corresponding to the largest value
     title: Title given to the figure (each subplot is titled with the name of the variable represented)
     axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
     end_plot: Flag for closing the graphics
     
     **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots

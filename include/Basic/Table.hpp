@@ -35,11 +35,13 @@ public:
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int resetFromArray(const VectorVectorDouble& table, bool flagByRow = true);
+  int resetFromVVD(const VectorVectorDouble& tabin, bool flagByRow = true);
+  int resetFromVD(const VectorDouble& tabin, bool flagByRow = true);
 
   static Table* create(int nrows = 0, int ncols = 0);
   static Table* createFromNF(const String& neutralFilename, bool verbose = true);
-  static Table* createFromArray(const VectorVectorDouble& tabin, bool flagByRow = true);
+  static Table* createFromVVD(const VectorVectorDouble& tabin, bool flagByRow = true);
+  static Table* createFromVD(int nrows, int ncols, const VectorDouble& tabin);
 
   void init(int nrows, int ncols) { _tab.reset(nrows, ncols); }
   bool isEmpty() const { return _tab.isEmpty(); }

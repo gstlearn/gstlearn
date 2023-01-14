@@ -53,16 +53,16 @@ Data Base Statistics
 5 - Name Simu - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -4.483
- Maximum value       =      3.701
- Mean value          =     -0.304
- Standard Deviation  =      1.004
- Variance            =      1.008
+ Minimum value       =     -4.320
+ Maximum value       =      2.865
+ Mean value          =     -0.335
+ Standard Deviation  =      0.950
+ Variance            =      0.903
 6 - Name Kriging - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -0.417
- Maximum value       =      0.372
- Mean value          =     -0.031
- Standard Deviation  =      0.098
- Variance            =      0.010
+ Minimum value       =     -0.371
+ Maximum value       =      0.269
+ Mean value          =     -0.034
+ Standard Deviation  =      0.093
+ Variance            =      0.009

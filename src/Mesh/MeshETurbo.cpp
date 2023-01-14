@@ -385,17 +385,24 @@ MeshETurbo* MeshETurbo::create(const VectorInt &nx,
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::createFromGrid(const DbGrid* dbgrid, bool verbose, int mode)
+MeshETurbo* MeshETurbo::createFromGrid(const DbGrid *dbgrid,
+                                       bool flag_polarized,
+                                       bool verbose,
+                                       int mode)
 {
-  MeshETurbo* mesh = new MeshETurbo(dbgrid, verbose, mode);
+  MeshETurbo* mesh = new MeshETurbo(dbgrid, flag_polarized, verbose, mode);
   return mesh;
 }
 
-MeshETurbo* MeshETurbo::createFromGridInfo(const Grid* grid, bool verbose, int mode)
+MeshETurbo* MeshETurbo::createFromGridInfo(const Grid *grid,
+                                           bool flag_polarized,
+                                           bool verbose,
+                                           int mode)
 {
   MeshETurbo* mesh = new MeshETurbo(mode);
   if (mesh->initFromGrid(grid->getNXs(), grid->getDXs(), grid->getX0s(),
-                         grid->getRotMat(), VectorDouble(), true, verbose))
+                         grid->getRotMat(), VectorDouble(), flag_polarized,
+                         verbose))
     return nullptr;
   return mesh;
 }

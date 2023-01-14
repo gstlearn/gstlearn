@@ -73,9 +73,11 @@ public:
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
   static MeshETurbo* createFromGrid(const DbGrid *dbgrid,
+                                    bool flag_polarized = false,
                                     bool verbose = false,
                                     int mode = 1);
   static MeshETurbo* createFromGridInfo(const Grid *grid,
+                                        bool flag_polarized = false,
                                         bool verbose = false,
                                         int mode = 1);
 

@@ -4440,9 +4440,11 @@ static void st_vario_varchol_manage(const Vario *vario,
     /* The matrix is filled arbitrarily */
     for (ivar = 0; ivar < nvar; ivar++)
       for (jvar = 0; jvar < nvar; jvar++)
+      {
         AUX(ivar,jvar)= (ivar == jvar);
         (void) matrix_cholesky_decompose(aux.data(),varchol.data(),nvar);
       }
+  }
   delete model_nugget;
   return;
 }

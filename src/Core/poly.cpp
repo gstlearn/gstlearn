@@ -245,8 +245,7 @@ int polygon_inside(double xx,
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
       PolySet polyset = polygon->getClosedPolySet(ipol);
-      if (st_polyset_inside(xx, yy, polyset.getX(), polyset.getY()))
-        number++;
+      if (st_polyset_inside(xx, yy, polyset.getX(), polyset.getY())) number++;
       if (number % 2 != 0 && st_polyset_inside_3D(zz, polyset.getZmin(),
                                                   polyset.getZmax()))
         return (1);
@@ -257,9 +256,8 @@ int polygon_inside(double xx,
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
       PolySet polyset = polygon->getClosedPolySet(ipol);
-      if (st_polyset_inside(xx, yy, polyset.getX(), polyset.getY())
-          && st_polyset_inside_3D(zz, polyset.getZmin(), polyset.getZmax()))
-        return (1);
+      if (st_polyset_inside(xx, yy, polyset.getX(), polyset.getY()) && st_polyset_inside_3D(
+          zz, polyset.getZmin(), polyset.getZmax())) return (1);
     }
   }
   return (0);
@@ -301,13 +299,17 @@ double polygon_surface(Polygons *polygon)
   return polygon->getSurface();
 }
 
-static void _polygonHullPrintout(const VectorInt& index)
+static void _polygonHullPrintout(const VectorInt &index,
+                                 const VectorDouble &x,
+                                 const VectorDouble &y)
 {
   mestitle(1,"Polygon Hull");
-  message("Ranks (1-based) of the Active Samples included in the Convex Hull\n");
+  message("Ranks (1-based) and coordinates of the Active Samples included in the Convex Hull\n");
   for (int i = 0; i < (int) index.size(); i++)
-    message(" %d",index[i]+1);
-  message("\n");
+  {
+    int j = index[i];
+    message("%3d : %lf %lf\n",j+1, x[j], y[j]);
+  }
 }
 
 /*****************************************************************************/
@@ -459,7 +461,7 @@ Polygons* polygon_hull(const Db *db, double dilate, bool verbose)
 
   // Optional printout
 
-  if (verbose) _polygonHullPrintout(index);
+  if (verbose) _polygonHullPrintout(index, xinit, yinit);
 
   /* Create the polygons */
 
