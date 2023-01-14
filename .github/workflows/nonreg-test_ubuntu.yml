@@ -36,7 +36,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev python3-numpy python3-pybind11 python3-scipy r-base
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev python3-numpy python3-pandas python3-pybind11 python3-scipy r-base
 
     - name: Setup personal R libraries directory
       # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
