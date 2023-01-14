@@ -18,7 +18,7 @@ The *gstlearn* Python package is a derivative work based on the *swigex* project
 
 ## Installation
 
-For using this Python package you only need Python 3 (or higher) (with numpy and matplotlib) and execute the following command:
+For using this Python package you only need Python 3 (or higher) (with numpy, pandas and matplotlib) and execute the following command:
 
     pip install -i https://test.pypi.org/simple/ gstlearn
 
@@ -72,7 +72,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pybind11-global* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pandas*, *pybind11-global* and *matplotlib* modules installed
 * *pypandoc*, *geopandas* and *jupyter* Python modules [Optional]
   
 #### Linux (Ubuntu)
@@ -86,9 +86,8 @@ sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
 sudo apt install jupyter
-sudo apt install python3-numpy
 python3 -m ensurepip --upgrade # [may be not needed]
-python3 -m pip install pybind11-global numpy matplotlib
+python3 -m pip install pybind11-global numpy pandas matplotlib
 python3 -m pip install pypandoc geopandas jupyter
 ````
 
@@ -106,7 +105,7 @@ Notes:
 brew install python3
 brew install swig
 python3 -m ensurepip --upgrade
-python3 -m pip install pybind11-global numpy matplotlib
+python3 -m pip install pybind11-global numpy pandas matplotlib
 python3 -m pip install pypandoc geopandas jupyter
 ````
 
@@ -127,7 +126,7 @@ Notes:
 3. Finally, install additional Python modules by running following instructions in a command prompt:
 
 ````
-python -m pip install "pybind11[global]" numpy matplotlib
+python -m pip install "pybind11[global]" numpy pandas matplotlib
 python -m pip install pypandoc geopandas jupyter
 ````
 

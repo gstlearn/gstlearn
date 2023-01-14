@@ -34,7 +34,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==1.20.3 twine wheel pybind11
+        python -m pip install numpy==1.20.3 twine wheel pybind11 pandas
 
     - name : Create Wheels
       run : |
