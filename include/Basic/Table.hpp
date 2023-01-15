@@ -60,15 +60,17 @@ public:
   void fill(double valinit = 0);
   VectorDouble getValues() const { return _tab.getValues(); }
 
-  void setColumnNames(const VectorString &colNames) { _colNames = colNames; }
+  void setColumnNames(const VectorString &colNames);
   void setColumnName(int icol, const String& name);
-  void setRowNames(const VectorString &rowNames) { _rowNames = rowNames; }
+  void setRowNames(const VectorString &rowNames);
   void setRowName(int irow, const String& name);
 
   VectorString getColumnNames() const {  return _colNames; }
   VectorString getRowNames() const {  return _rowNames; }
   String getColumnName(int icol) const {  return _colNames[icol]; }
   String getRowName(int irow) const {  return _rowNames[irow]; }
+
+  void toTL() {};
 
 protected:
   /// Interface for ASerializable

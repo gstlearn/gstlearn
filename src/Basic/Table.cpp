@@ -339,6 +339,17 @@ bool Table::_isRowValid(int irow) const
   return true;
 }
 
+void Table::setColumnNames(const VectorString &colNames)
+{
+  if (getColumnNumber() != (int) colNames.size())
+  {
+    messerr("The size of 'colNames' (%d) does not match the number of columns (%d)",
+            (int) colNames.size(), getColumnNumber());
+    return;
+  }
+    _colNames = colNames;
+}
+
 void Table::setColumnName(int icol, const String& name)
 {
   if (! _isColValid(icol)) return;
@@ -355,6 +366,17 @@ void Table::setRowName(int irow, const String& name)
   if (_rowNames.empty())
     _rowNames.resize(nrows, "  ");
   _rowNames[irow] = name;
+}
+
+void Table::setRowNames(const VectorString &rowNames)
+{
+  if (getRowNumber() != (int) rowNames.size())
+  {
+    messerr("The size of 'rowNames' (%d) does not match the number of rows (%d)",
+            (int) rowNames.size(), getRowNumber());
+    return;
+  }
+  _rowNames = rowNames;
 }
 
 void Table::fill(double valinit)

@@ -35,6 +35,7 @@ public:
   bool mustBeDiagonal() const override { return false; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
+  void toTL() override {};
 
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, bool sparse = false);
   static MatrixRectangular* createFromVD(const VectorDouble &X,

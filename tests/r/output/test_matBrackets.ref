@@ -29,3 +29,18 @@ attr(,"package")
 [1] "gstlearn"
 [1] "matrix" "array" 
 [1] 4 5
+NULL
+NULL
+
+Table contents
+--------------
+- Number of Rows    = 2
+- Number of Columns = 3
+
+                 Col1       Col2       Col3
+      Row1      0.000      0.000      0.000
+      Row2      0.000      0.000      0.000
+[1] "matrix" "array" 
+     Col1 Col2 Col3
+Row1    0    0    0
+Row2    0    0    0

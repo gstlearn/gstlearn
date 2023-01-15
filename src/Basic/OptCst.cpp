@@ -30,10 +30,7 @@ std::map<const ECst, double> OptCst::_cst =
   { ECst::NTBATCH, 7. },
   { ECst::NTNAME, 12. },
   { ECst::NTRANK,  3. },
-  { ECst::NPROC,   0. },
-  { ECst::LOCMOD,  1. },
-  { ECst::LOCNEW,  0. },
-  { ECst::ASP,     1.}};
+  { ECst::NPROC,   0. };
 */
 std::map<int, double> OptCst::_cst =
  {{ ECst::E_NTCAR,  10. },
@@ -43,10 +40,7 @@ std::map<int, double> OptCst::_cst =
   { ECst::E_NTBATCH, 7. },
   { ECst::E_NTNAME, 12. },
   { ECst::E_NTRANK,  3. },
-  { ECst::E_NPROC,   0. },
-  { ECst::E_LOCMOD,  1. },
-  { ECst::E_LOCNEW,  0. },
-  { ECst::E_ASP,     1. }};
+  { ECst::E_NPROC,   0. }};
 
 double OptCst::query(const ECst& option)
 {

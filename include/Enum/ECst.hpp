@@ -20,9 +20,6 @@
                      NTBATCH, 5, "Number of elements per line for display", \
                      NTNAME,  6, "Maximum number of characters for Names", \
                      NTRANK,  7, "Maximum Number of characters for Ranks", \
-                     NPROC,   8, "Percentage for Display the Progress Bar", \
-                     LOCMOD,  9, "Option for updating locator of new variable", \
-                     LOCNEW, 10, "When defining new locator, option for old ones", \
-                     ASP,    11, "Graphic Aspect Ratio"
+                     NPROC,   8, "Percentage for Display the Progress Bar"
 
 ENUM_DECLARE(ENUM_CST)

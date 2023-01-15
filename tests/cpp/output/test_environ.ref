@@ -35,9 +35,6 @@ List of Options of internal Constant values
             Maximum number of characters for Names [ NTNAME] : 12
             Maximum Number of characters for Ranks [ NTRANK] : 3
            Percentage for Display the Progress Bar [  NPROC] : 0
-       Option for updating locator of new variable [ LOCMOD] : 1
-    When defining new locator, option for old ones [ LOCNEW] : 0
-                              Graphic Aspect Ratio [    ASP] : 1
 Use 'OptCst::define' to modify previous values
 
 Vector Display (initial)
@@ -56,9 +53,6 @@ List of Options of internal Constant values
             Maximum number of characters for Names [ NTNAME] : 12
             Maximum Number of characters for Ranks [ NTRANK] : 3
            Percentage for Display the Progress Bar [  NPROC] : 0
-       Option for updating locator of new variable [ LOCMOD] : 1
-    When defining new locator, option for old ones [ LOCNEW] : 0
-                              Graphic Aspect Ratio [    ASP] : 1
 Use 'OptCst::define' to modify previous values
 
 Vector Display (modified)

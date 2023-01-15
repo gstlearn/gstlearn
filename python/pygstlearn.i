@@ -985,7 +985,22 @@ def setdbitem(self,name,tab):
         
     return
 
-def MatrixToTL(self):
+setattr(gl.Db,"useSel",False)    
+    
+setattr(gl.Db,"__getitem__",getdbitem)
+setattr(gl.Db,"__setitem__",setdbitem)
+
+def Db_toTL(self, flagLocate=False):
+	dat = pd.DataFrame(self.getAllColumns().reshape(self.getSampleNumber(),-1), 
+		columns = self.getAllNames())
+	if flagLocate:
+		for j,i in enumerate(self.getAllNames()):
+			dat[i].locator = self.getLocators()[j] 
+	return dat
+
+setattr(gl.Db, "toTL", Db_toTL)
+
+def matrix_toTL(self):
 	if self.isSparse():
 		A = gl.csToTriplet(self.getCs())
 		Acs = sc.csc_matrix((np.array(A.values), 
@@ -997,32 +1012,26 @@ def MatrixToTL(self):
 		return Anp
 	return
 
-def CsMatrixToTL(self):
+setattr(gl.MatrixRectangular, "toTL", matrix_toTL)
+setattr(gl.MatrixSquareDiagonal, "toTL", matrix_toTL)
+setattr(gl.MatrixSquareDiagonalCst, "toTL", matrix_toTL)
+setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
+setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
+
+def cs_toTL(self):
 	A = gl.csToTriplet(self)
 	Acs = sc.csc_matrix((np.array(A.values), 
 						(np.array(A.rows), np.array(A.cols))),
                          shape=(A.nrows,A.ncols))
 	return Acs
 
-def getDb(self, flagLocate=False):
-	dat = pd.DataFrame(self.getAllColumns().reshape(self.getSampleNumber(),-1), 
-		columns = self.getAllNames())
-	if flagLocate:
-		for j,i in enumerate(self.getAllNames()):
-			dat[i].locator = self.getLocators()[j] 
-	return dat
+setattr(gl.cs, "toTL", cs_toTL)
 
-setattr(gl.Db,"useSel",False)    
-    
-setattr(gl.Db,"__getitem__",getdbitem)
-setattr(gl.Db,"__setitem__",setdbitem)
-setattr(gl.Db,"toTL", getDb)
+def table_toTL(self):
+	Anp = np.array(self.getValues()).reshape(self.getRowNumber(),self.getColumnNumber())
+    #colnames(mat) <- tab$getColumnNames()
+    #rownames(mat) <- tab$getRowNames()
+	return Anp
 
-setattr(gl.MatrixRectangular, "toTL", MatrixToTL)
-setattr(gl.MatrixSquareDiagonal, "toTL", MatrixToTL)
-setattr(gl.MatrixSquareDiagonalCst, "toTL", MatrixToTL)
-setattr(gl.MatrixSquareGeneral, "toTL", MatrixToTL)
-setattr(gl.MatrixSquareSymmetric, "toTL", MatrixToTL)
-
-setattr(gl.cs, "toTL", CsMatrixToTL)
+setattr(gl.Table, "toTL", table_toTL)
 %}

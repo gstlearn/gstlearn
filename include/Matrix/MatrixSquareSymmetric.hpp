@@ -53,6 +53,8 @@ public:
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
+  void toTL() override {};
+
 protected:
 #ifndef SWIG
   virtual double& _getValueRef(int irow, int icol) override;

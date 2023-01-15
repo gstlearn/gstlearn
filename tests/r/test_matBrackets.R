@@ -29,3 +29,12 @@ matS2 = mat$toTL()
 print(class(matS2))
 print(dim(matS2))
 
+# Creating a Table
+table = Table(2,3)
+table$setRowNames(c("Row1","Row2"))
+table$setColumnNames(c("Col1","Col2","Col3"))
+table
+
+newtab = table$toTL()
+class(newtab)
+newtab

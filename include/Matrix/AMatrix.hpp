@@ -53,6 +53,9 @@ public:
   virtual double getValue(int rank) const;
   /*! Gets a reference to the value at row 'irow' and column 'icol' */
   virtual double& getValueRef(int irow, int icol);
+  /*! Convert to external format */
+  virtual void toTL() {};
+
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues() const;
 #ifndef SWIG
@@ -198,6 +201,8 @@ public:
   double  operator()(int row, int col) const { return getValue(row, col); }
   /*! Set value operator override */
   double &operator()(int row, int col)       { return getValueRef(row, col); }
+
+
 
 protected:
   /*! Say if (irow, icol) is stored physically or not */
