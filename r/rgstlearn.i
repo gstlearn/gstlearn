@@ -737,8 +737,8 @@ appendMethod <- function(c, m, f)
 "Table_toTL" <- function(tab)
 {
 	mat <- matrix(tab$getValues(), byrow = FALSE,
-                nrow = tab$getRowNumber(), 
-                ncol = tab$getColumnNumber())
+                nrow = tab$getNRows(), 
+                ncol = tab$getNCols())
     colnames(mat) <- tab$getColumnNames()
     rownames(mat) <- tab$getRowNames()
 	mat

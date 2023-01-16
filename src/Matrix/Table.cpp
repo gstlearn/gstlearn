@@ -8,7 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Table.hpp"
+#include "Matrix/Table.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -18,9 +18,8 @@
 #include "Basic/AStringable.hpp"
 
 Table::Table(int nrows, int ncols)
-  : ASerializable(),
-    AStringable(),
-    _tab(),
+  : MatrixRectangular(nrows, ncols),
+    ASerializable(),
     _rowNames(),
     _colNames()
 {
@@ -28,9 +27,8 @@ Table::Table(int nrows, int ncols)
 }
 
 Table::Table(const Table &m)
-    : ASerializable(m),
-      AStringable(m),
-      _tab(m._tab),
+    : MatrixRectangular(m),
+      ASerializable(m),
       _rowNames(m._rowNames),
       _colNames(m._colNames)
 {
@@ -41,9 +39,8 @@ Table& Table::operator=(const Table &m)
 {
   if (this != &m)
   {
+    MatrixRectangular::operator=(m);
     ASerializable::operator=(m);
-    AStringable::operator=(m);
-    _tab = m._tab;
     _rowNames = m._rowNames;
     _colNames = m._colNames;
   }
@@ -54,20 +51,11 @@ Table::~Table()
 {
 }
 
-int Table::resetFromVVD(const VectorVectorDouble& tabin, bool flagByRow)
+void Table::_clearContents()
 {
-  _tab.reset(tabin, flagByRow);
   _rowNames.clear();
   _colNames.clear();
-  return 0;
-}
-
-int Table::resetFromVD(const VectorDouble& tabin, bool flagByRow)
-{
-  _tab.reset(_tab.getNRows(), _tab.getNCols(), tabin, false, flagByRow);
-  _rowNames.clear();
-  _colNames.clear();
-  return 0;
+  return;
 }
 
 Table* Table::create(int nrows, int ncols)
@@ -93,111 +81,6 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   return table;
 }
 
-Table* Table::createFromVVD(const VectorVectorDouble& tabin, bool flagByRow)
-{
-  Table* table = new Table();
-  if (table->resetFromVVD(tabin, flagByRow))
-  {
-    messerr("Problem when loading a Table from Array");
-    delete table;
-    table = nullptr;
-  }
-  return table;
-}
-
-Table* Table::createFromVD(int nrows, int ncols, const VectorDouble& tabin)
-{
-
-  if ((int) tabin.size() != nrows * ncols)
-  {
-    messerr("Inconsistency between 'tabin'(dimension=%d) and nrows(%d) and ncols(%d)",
-            (int) tabin.size(), nrows, ncols);
-    return nullptr;
-  }
-
-  Table* table = new Table(nrows, ncols);
-  if (table->resetFromVD(tabin))
-  {
-    messerr("Problem when loading a Table from VectorDouble");
-    delete table;
-    table = nullptr;
-  }
-  return table;
-}
-
-int Table::getRowNumber() const
-{
-  if (isEmpty()) return 0;
-  return _tab.getNRows();
-}
-
-int Table::getColumnNumber() const
-{
-  if (isEmpty()) return 0;
-  return _tab.getNCols();
-}
-
-/**
- * Extract a Column from a Table, stripping the TEST values
- * @param icol Rank of the target column
- * @return
- */
-VectorDouble Table::getColumn(int icol) const
-{
-  if (! _isColValid(icol)) return VectorDouble();
-  VectorDouble vec = _tab.getColumn(icol);
-  return vec;
-}
-
-/**
- * Extract a Row, stripping the TEST values
- * @param irow Rank of the target row
- * @return
- */
-VectorDouble Table::getRow(int irow) const
-{
-  if (! _isRowValid(irow)) return VectorDouble();
-  return _tab.getRow(irow);
-}
-
-void Table::update(int irow, int icol, double value)
-{
-  _tab.setValue(irow, icol, value);
-}
-
-void Table::increment(int irow, int icol, double value)
-{
-  _tab.setValue(irow, icol, _tab.getValue(irow, icol) + value);
-}
-
-void Table::addRow()
-{
-  MatrixRectangular statsSave(_tab);
-  int nrows = _tab.getNRows();
-  int ncols = _tab.getNCols();
-
-  _tab.reset(nrows+1, ncols);
-  for (int irow=0; irow< nrows; irow++)
-    for (int icol=0; icol<ncols; icol++)
-    {
-      _tab.setValue(irow, icol, statsSave.getValue(irow, icol));
-    }
-}
-
-double Table::getValue(int irow, int icol) const
-{
-  if (icol < 0 || icol >= getColumnNumber()) return 0.;
-  if (irow < 0 || irow >= getRowNumber()) return 0.;
-  return _tab.getValue(irow, icol);
-}
-
-void Table::setValue(int irow, int icol, double value)
-{
-  if (icol < 0 || icol >= getColumnNumber()) return;
-  if (irow < 0 || irow >= getRowNumber()) return;
-  _tab.setValue(irow, icol, value);
-}
-
 VectorDouble Table::getRange(int icol) const
 {
   VectorDouble vec = getColumn(icol);
@@ -210,7 +93,7 @@ VectorDouble Table::getRange(int icol) const
 
 VectorDouble Table::getAllRange() const
 {
-  int ncols = getColumnNumber();
+  int ncols = getNCols();
   VectorDouble limits(2);
   limits[0] =  1.e30;
   limits[1] = -1.e30;
@@ -226,16 +109,16 @@ VectorDouble Table::getAllRange() const
 bool Table::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<int>(os, "Number of Columns", getColumnNumber());
-  ret = ret && _recordWrite<int>(os, "Number of Rows", getRowNumber());
+  ret = ret && _recordWrite<int>(os, "Number of Columns", getNCols());
+  ret = ret && _recordWrite<int>(os, "Number of Rows", getNRows());
 
   /* Writing the tail of the file */
 
-  for (int irow = 0; ret && irow < getRowNumber(); irow++)
+  for (int irow = 0; ret && irow < getNRows(); irow++)
   {
-    for (int icol = 0; ret && icol < getColumnNumber(); icol++)
+    for (int icol = 0; ret && icol < getNCols(); icol++)
     {
-      ret = ret && _recordWrite<double>(os, "", _tab.getValue(irow, icol));
+      ret = ret && _recordWrite<double>(os, "", getValue(irow, icol));
     }
     ret = ret && _commentWrite(os, "");
   }
@@ -253,7 +136,7 @@ bool Table::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<int>(is, "Number of Rows", nrows);
   if (! ret) return false;
 
-  _tab.reset(nrows, ncols);
+  reset(nrows, ncols);
 
   /* Loop on the lines */
 
@@ -262,12 +145,11 @@ bool Table::_deserialize(std::istream& is, bool /*verbose*/)
     for (int icol = 0; ret && icol < ncols; icol++)
     {
       ret = ret && _recordRead<double>(is, "Numerical value", value);
-      if (ret) _tab.setValue(irow, icol, value);
+      if (ret) setValue(irow, icol, value);
     }
   }
   return ret;
 }
-
 
 /**
  * Print the contents of the statistics
@@ -275,11 +157,11 @@ bool Table::_deserialize(std::istream& is, bool /*verbose*/)
 String Table::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  if (_tab.isEmpty()) return sstr.str();
+  if (isEmpty()) return sstr.str();
 
   sstr << toTitle(1, "Table contents");
-  int ncols = getColumnNumber();
-  int nrows = getRowNumber();
+  int ncols = getNCols();
+  int nrows = getNRows();
   sstr << "- Number of Rows    = " << nrows << std::endl;
   sstr << "- Number of Columns = " << ncols << std::endl;
   sstr << std::endl;
@@ -300,7 +182,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
     if (! _rowNames.empty()) sstr << toStr(_rowNames[irow]);
     for (int icol = 0; icol < ncols; icol++)
     {
-      sstr << " " << toDouble(_tab.getValue(irow, icol));
+      sstr << " " << toDouble(getValue(irow, icol));
     }
     sstr << std::endl;
   }
@@ -312,39 +194,17 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
  */
 void Table::plot(int isimu) const
 {
-  if (_tab.isEmpty()) return;
+  if (isEmpty()) return;
   String filename = incrementStringVersion("TableStats",isimu+1);
   (void) dumpToNF(filename);
 }
 
-bool Table::_isColValid(int icol) const
-{
-  int ncols = getColumnNumber();
-  if (icol < 0 || icol >= ncols)
-  {
-    mesArg("Table Column", icol, ncols);
-    return false;
-  }
-  return true;
-}
-
-bool Table::_isRowValid(int irow) const
-{
-  int nrows = getRowNumber();
-  if (irow < 0 || irow >= nrows)
-  {
-    mesArg("Table Row", irow, nrows);
-    return false;
-  }
-  return true;
-}
-
 void Table::setColumnNames(const VectorString &colNames)
 {
-  if (getColumnNumber() != (int) colNames.size())
+  if (getNCols() != (int) colNames.size())
   {
     messerr("The size of 'colNames' (%d) does not match the number of columns (%d)",
-            (int) colNames.size(), getColumnNumber());
+            (int) colNames.size(), getNCols());
     return;
   }
     _colNames = colNames;
@@ -352,8 +212,8 @@ void Table::setColumnNames(const VectorString &colNames)
 
 void Table::setColumnName(int icol, const String& name)
 {
-  if (! _isColValid(icol)) return;
-  int ncols = getColumnNumber();
+  if (! _isColumnValid(icol)) return;
+  int ncols = getNCols();
   if (_colNames.empty())
     _colNames.resize(ncols, "  ");
   _colNames[icol] = name;
@@ -362,7 +222,7 @@ void Table::setColumnName(int icol, const String& name)
 void Table::setRowName(int irow, const String& name)
 {
   if (! _isRowValid(irow)) return;
-  int nrows = getRowNumber();
+  int nrows = getNRows();
   if (_rowNames.empty())
     _rowNames.resize(nrows, "  ");
   _rowNames[irow] = name;
@@ -370,18 +230,23 @@ void Table::setRowName(int irow, const String& name)
 
 void Table::setRowNames(const VectorString &rowNames)
 {
-  if (getRowNumber() != (int) rowNames.size())
+  if (getNRows() != (int) rowNames.size())
   {
     messerr("The size of 'rowNames' (%d) does not match the number of rows (%d)",
-            (int) rowNames.size(), getRowNumber());
+            (int) rowNames.size(), getNRows());
     return;
   }
   _rowNames = rowNames;
 }
 
-void Table::fill(double valinit)
+String Table::getColumnName(int icol) const
 {
-  for (int irow = 0; irow < getRowNumber(); irow++)
-    for (int icol = 0; icol < getColumnNumber(); icol++)
-      _tab.setValue(irow, icol, valinit);
+  if (! _isColumnValid(icol)) return String();
+  return _colNames[icol];
+}
+
+String Table::getRowName(int irow) const
+{
+  if (! _isRowValid(irow)) return String();
+  return _rowNames[irow];
 }

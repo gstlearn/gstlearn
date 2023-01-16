@@ -41,7 +41,7 @@ public:
   /*! Check if the matrix is (non empty) square */
   bool isSquare(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return 1; }
 
-  void toTL() override {};
+  void toTL() const {};
 
 protected:
 #ifndef SWIG

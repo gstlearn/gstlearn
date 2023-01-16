@@ -62,7 +62,7 @@ public:
   /*! Set the contents of the (main) Diagonal */
   void setDiagonal(const VectorDouble& tab) override;
 
-  void toTL() override {};
+  void toTL() const {};
 
 protected:
 #ifndef SWIG

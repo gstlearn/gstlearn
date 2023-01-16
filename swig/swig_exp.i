@@ -90,7 +90,6 @@
 %include Basic/FunctionalSpirale.hpp
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
-%include Basic/Table.hpp
 %include Basic/OptDbg.hpp
 %include Basic/OptCst.hpp
 %include Basic/OptCustom.hpp
@@ -252,6 +251,7 @@
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
 %include Matrix/MatrixInt.hpp
+%include Matrix/Table.hpp
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp

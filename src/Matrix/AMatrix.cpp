@@ -169,6 +169,7 @@ void AMatrix::reset(int nrows, int ncols, bool sparse)
     _nCols = ncols;
     _allocate();
   }
+  _clearContents();
 }
 
 void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
@@ -188,6 +189,7 @@ void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
     for (int i=0; i<_getMatrixSize(); i++)
       _setValue(i, value);
   }
+  _clearContents();
 }
 
 void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
@@ -209,6 +211,7 @@ void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
       for (int irow=0; irow<nrows; irow++)
         _setValue(irow,icol,tab[lec++]);
   }
+  _clearContents();
 }
 
 void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, bool flagByRow)
@@ -238,6 +241,7 @@ void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, 
           _setValue(irow,icol,tab[lec++]);
     }
   }
+  _clearContents();
 }
 
 void AMatrix::reset(const VectorVectorDouble& tab, bool flagByRow)
@@ -260,6 +264,7 @@ void AMatrix::reset(const VectorVectorDouble& tab, bool flagByRow)
       for (int irow = 0; irow < _nRows; irow++)
         _setValue(irow, icol, tab[icol][irow]);
   }
+  _clearContents();
 }
 
 void AMatrix::fillRandom(int seed, double zeroPercent)
@@ -987,18 +992,30 @@ bool AMatrix::_isNumbersValid(int nrows, int ncols) const
   return true;
 }
 
-bool AMatrix::_isIndexValid(int irow, int icol) const
+bool AMatrix::_isRowValid(int irow) const
 {
   if (irow < 0 || irow >= getNRows())
   {
     mesArg("Row index invalid",irow,getNRows());
     return false;
   }
+  return true;
+}
+
+bool AMatrix::_isColumnValid(int icol) const
+{
   if (icol < 0 || icol >= getNCols())
   {
     mesArg("Column index invalid",icol,getNCols());
     return false;
   }
+  return true;
+}
+
+bool AMatrix::_isIndexValid(int irow, int icol) const
+{
+  if (! _isRowValid(irow)) return false;
+  if (! _isColumnValid(icol)) return false;
   return true;
 }
 
@@ -1400,3 +1417,4 @@ double AMatrix::getMaximum() const
   if (maximum == -1.e30) maximum = TEST;
   return maximum;
 }
+

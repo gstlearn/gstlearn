@@ -53,9 +53,6 @@ public:
   virtual double getValue(int rank) const;
   /*! Gets a reference to the value at row 'irow' and column 'icol' */
   virtual double& getValueRef(int irow, int icol);
-  /*! Convert to external format */
-  virtual void toTL() {};
-
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues() const;
 #ifndef SWIG
@@ -202,8 +199,6 @@ public:
   /*! Set value operator override */
   double &operator()(int row, int col)       { return getValueRef(row, col); }
 
-
-
 protected:
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
@@ -222,10 +217,13 @@ protected:
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
   virtual double  _determinant() const = 0;
+  virtual void    _clearContents() {};
 
   void _setNCols(int ncols) { _nCols = ncols; }
   void _setNRows(int nrows) { _nRows = nrows; }
   bool _isNumbersValid(int nrows,int ncols) const;
+  bool _isColumnValid(int icol) const;
+  bool _isRowValid(int irow) const;
   bool _isIndexValid(int irow, int icol) const;
   bool _isRowVectorConsistent(const VectorDouble& tab);
   bool _isColVectorConsistent(const VectorDouble& tab);

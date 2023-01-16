@@ -53,7 +53,7 @@ public:
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
-  void toTL() override {};
+  void toTL() const {};
 
 protected:
 #ifndef SWIG

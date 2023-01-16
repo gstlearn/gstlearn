@@ -18,14 +18,12 @@
 #include "Basic/AStringable.hpp"
 
 /**
- * Stores the multivariate statistics
- * - each line corresponds to a sample
- * - each column corresponds to a variable
- * The organization stands as a vector (variables) or samples.
- * This allows adding the statistics for all variables for a new sample
+ * Stores an array of values as a Table, i.e. a MatrixRectangular
+ * where rows and columns can be optionally decorated
  */
-class GSTLEARN_EXPORT Table: public ASerializable, public AStringable
-{
+
+class GSTLEARN_EXPORT Table : public MatrixRectangular, public ASerializable {
+
 public:
   Table(int nrows = 0, int ncols = 0);
   Table(const Table &m);
@@ -33,32 +31,17 @@ public:
   virtual ~Table();
 
 public:
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// Cloneable interface
+  IMPLEMENT_CLONING(MatrixRectangular)
 
-  int resetFromVVD(const VectorVectorDouble& tabin, bool flagByRow = true);
-  int resetFromVD(const VectorDouble& tabin, bool flagByRow = true);
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Table* create(int nrows = 0, int ncols = 0);
   static Table* createFromNF(const String& neutralFilename, bool verbose = true);
-  static Table* createFromVVD(const VectorVectorDouble& tabin, bool flagByRow = true);
-  static Table* createFromVD(int nrows, int ncols, const VectorDouble& tabin);
 
-  void init(int nrows, int ncols) { _tab.reset(nrows, ncols); }
-  bool isEmpty() const { return _tab.isEmpty(); }
-  int getRowNumber() const;
-  int getColumnNumber() const;
-  VectorDouble getColumn(int icol) const;
-  VectorDouble getRow(int irow) const;
-  void addRow();
-  void update(int irow, int icol, double value);
-  void increment(int irow, int icol, double value);
-  double getValue(int irow, int icol) const;
-  void setValue(int irow, int icol, double value);
   VectorDouble getRange(int icol) const;
   VectorDouble getAllRange() const;
   void plot(int isimu) const;
-  void fill(double valinit = 0);
-  VectorDouble getValues() const { return _tab.getValues(); }
 
   void setColumnNames(const VectorString &colNames);
   void setColumnName(int icol, const String& name);
@@ -67,23 +50,19 @@ public:
 
   VectorString getColumnNames() const {  return _colNames; }
   VectorString getRowNames() const {  return _rowNames; }
-  String getColumnName(int icol) const {  return _colNames[icol]; }
-  String getRowName(int irow) const {  return _rowNames[irow]; }
+  String getColumnName(int icol) const;
+  String getRowName(int irow) const;
 
-  void toTL() {};
+  void toTL() const {};
 
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Table"; }
+  void    _clearContents() override;
 
 private:
-  bool _isColValid(int icol) const;
-  bool _isRowValid(int irow) const;
-
-private:
-  MatrixRectangular _tab;
   VectorString _rowNames;
   VectorString _colNames;
 };

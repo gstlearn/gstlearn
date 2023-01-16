@@ -15,6 +15,7 @@ set(SRC
   Matrix/AMatrixSquare.cpp
   Matrix/MatrixSquareGeneral.cpp
   Matrix/MatrixInt.cpp
+  Matrix/Table.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   INIParser.cpp
@@ -176,7 +177,6 @@ set(SRC
   Basic/MathFunc.cpp
   Basic/Utilities.cpp
   Basic/ArgumentTest.cpp
-  Basic/Table.cpp
   Basic/File.cpp
   Basic/HDF5format.cpp
   Basic/Memory.cpp

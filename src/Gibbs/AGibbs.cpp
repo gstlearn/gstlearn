@@ -402,14 +402,14 @@ void AGibbs::updateStats(const VectorVectorDouble& y,
     double oldmean = _stats.getValue(iter-1, jcol);
     double newmean = VH::mean(y[icol]);
     result = (oldmean * oldw * amort + newmean) / neww;
-    _stats.update(iter, jcol, result);
+    _stats.setValue(iter, jcol, result);
 
     // The standard deviation
     jcol = _getColRankStats(ipgs, ivar, 1);
     double oldvar = _stats.getValue(iter-1,jcol);
     double newvar = VH::variance(y[icol]);
     result = (oldvar * oldw * amort + newvar) / neww;
-    _stats.update(iter, jcol, result);
+    _stats.setValue(iter, jcol, result);
   }
 }
 

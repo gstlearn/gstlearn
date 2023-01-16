@@ -212,3 +212,36 @@ double MatrixRectangular::_determinant() const
   return TEST;
 }
 
+void MatrixRectangular::addRow(int nrow_added)
+{
+  if (isSparse())
+  {
+    messerr("Adding a Row is not possible for Sparse Matrix");
+    return;
+  }
+  int nrows = getNRows();
+  int ncols = getNCols();
+
+  AMatrix* statsSave = this->clone();
+  reset(nrows+nrow_added, ncols);
+  for (int irow=0; irow< nrows; irow++)
+    for (int icol=0; icol<ncols; icol++)
+      setValue(irow, icol, statsSave->getValue(irow, icol));
+}
+
+void MatrixRectangular::addColumn(int ncolumn_added)
+{
+  if (isSparse())
+  {
+    messerr("Adding a Column is not possible for Sparse Matrix");
+    return;
+  }
+  int nrows = getNRows();
+  int ncols = getNCols();
+
+  AMatrix* statsSave = this->clone();
+  reset(nrows, ncols+ncolumn_added);
+  for (int irow=0; irow< nrows; irow++)
+    for (int icol=0; icol<ncols; icol++)
+      setValue(irow, icol, statsSave->getValue(irow, icol));
+}

@@ -12,9 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
+#include "../Matrix/Table.hpp"
 #include "Basic/AStringable.hpp"
 
-#include "Basic/Table.hpp"
 
 class Db;
 
