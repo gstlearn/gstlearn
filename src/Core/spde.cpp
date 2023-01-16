@@ -5596,6 +5596,7 @@ cs* spde_external_Q_undefine(int icov0)
  ** \param[in]  nmesh     Number of meshes
  ** \param[in]  arg_meshes    Array containing the meshes
  ** \param[in]  arg_points    Array containing the vertex coordinates
+ ** \param[in]  verbose   Verbose flag
  **
  ** \param[in,out]  amesh   Pointer to AMesh to be assigned
  **
