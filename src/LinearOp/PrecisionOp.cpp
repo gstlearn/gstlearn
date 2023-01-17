@@ -293,7 +293,7 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
   catch(const char * str)
   {
     error = 1;
-    std::cout << str << std::endl;
+    messerr("%s", str);
   }
   return error;
 }

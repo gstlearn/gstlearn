@@ -16,14 +16,15 @@
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+
 #include <math.h>
-#include "../../include/Geometry/GeometryHelper.hpp"
 
 CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
     : ACalcSimulation(nbsimu, seed),

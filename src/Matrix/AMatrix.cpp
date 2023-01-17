@@ -86,6 +86,7 @@ void AMatrix::init(int nrows, int ncols, bool sparse)
   _nRows = nrows;
   _nCols = ncols;
   _sparse = sparse;
+  _allocate();
 }
 
 bool AMatrix::isSquare(bool printWhyNot) const

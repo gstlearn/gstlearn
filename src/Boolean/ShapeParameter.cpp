@@ -8,9 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/ELaw.hpp"
 #include "Boolean/ShapeParameter.hpp"
-
-#include "../../include/Enum/ELaw.hpp"
 #include "Basic/Law.hpp"
 
 ShapeParameter::ShapeParameter(ELaw law, double value)

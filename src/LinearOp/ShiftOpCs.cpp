@@ -22,6 +22,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
@@ -906,6 +907,71 @@ cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab)
   return S;
 }
 
+int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
+                                         int imesh,
+                                         VectorVectorDouble& coords,
+                                         AMatrix& matres,
+                                         double *deter)
+{
+  int ndim = getNDim();
+  int ncorner = amesh->getNApexPerMesh();
+
+  amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
+
+  if (amesh->getVariety() == 1)
+  {
+    MatrixRectangular matM(ndim, ncorner-1);
+    for (int icorn = 0; icorn < ncorner-1; icorn++)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        double val = coords[icorn][idim] - coords[ncorner-1][idim];
+        matM.setValue(idim, icorn, val);
+      }
+    }
+
+    // Calculate M^t %*% M
+
+    MatrixSquareSymmetric matMtM(ncorner-1);
+    matMtM.normSingleMatrix(matM);
+    *deter = matMtM.determinant();
+
+    // Calculate (M^t %*% M)^{-1}
+
+    if (matMtM.invert())
+    {
+      messerr("Problem for Mesh #%d", imesh + 1);
+      amesh->printMesh(imesh);
+      return 1;
+    }
+
+    // Calculate P = (M^t %*% M)^{-1} %*% M^t
+    matM.transposeInPlace();
+    matres.prodMatrix(matMtM, matM);
+  }
+  else
+  {
+    for (int icorn = 0; icorn < ncorner-1; icorn++)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+       double val = coords[icorn][idim] - coords[ncorner-1][idim];
+       matres.setValue(idim, icorn, val);
+      }
+    }
+
+    double detM = matres.determinant();
+    *deter = detM * detM;
+    if (matres.invert())
+    {
+      messerr("Problem for Mesh #%d", imesh + 1);
+      amesh->printMesh(imesh);
+      return 1;
+    }
+  }
+  return 0;
+}
+
 /**
  * Calculate the private member "_S" directly from the Mesh on a Variety in 3-D space
  * @param amesh Description of the Mesh (New class)
@@ -971,57 +1037,16 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
     // Load M matrix
 
-    amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
-
-    MatrixRectangular matM(ndim, ncorner-1);
-    for (int icorn = 0; icorn < ncorner-1; icorn++)
-    {
-      for (int idim = 0; idim < ndim; idim++)
-      {
-        double val = coords[icorn][idim] - coords[ncorner-1][idim];
-        if (amesh->getVariety() == 1)
-        {
-          matM.setValue(idim, icorn, val);
-        }
-        else
-        {
-          matMs.setValue(idim, icorn, val);
-        }
-      }
-    }
-
     if (amesh->getVariety() == 1)
     {
-      // Calculate M^t %*% M
-      matMtM.normSingleMatrix(matM);
-      detMtM = matMtM.determinant();
-
-      // Calculate (M^t %*% M)^{-1}
-
-      if (matMtM.invert())
-      {
-        messerr("Problem for Mesh #%d", imesh + 1);
-        amesh->printMesh(imesh);
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matP, &detMtM))
         my_throw("Matrix inversion");
-      }
-      // Calculate P = (M^t %*% M)^{-1} %*% M^t
-      matM.transposeInPlace();
-      matP.prodMatrix(matMtM, matM);
-
-      // Calculate P %*% HH^{-1} %*% P^t
-
       matPinvHPt.normTMatrix(hh, matP);
     }
     else
     {
-      double detM = matMs.determinant();
-      detMtM = detM * detM;
-      if(matMs.invert())
-      {
-        messerr("Problem for Mesh #%d", imesh + 1);
-        amesh->printMesh(imesh);
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matMs, &detMtM))
         my_throw("Matrix inversion");
-      }
       matPinvHPt.normTMatrix(hh, matMs);
     }
 
@@ -1074,6 +1099,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
  */
 int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 {
+# define indref 5
   const CovAniso* cova = _getCova();
   _nModelGradParam = cova->getGradParamNumber();
   int number = _nModelGradParam * getSize();
@@ -1119,17 +1145,17 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
         int ipref = amesh->getApex(imesh, jref);
         int iad = getSGradAddress(ipref, igparam);
         _loadHHGradPerMesh(hh, amesh, ipref, igparam);
+        if (ipref == indref && igparam == 0)
+          hh.display();
         mat.normMatrix(hh, matw);
 
         // Storing in the Map
 
-//        double ratio = sqrt(dethh * detMtM);
+//        double ratio = sqrt(dethh * detMtM); Cancelled by DR during test
         double ratio = 1.;
         double S = 0.;
         for (int j0 = 0; j0 < ncorner-1; j0++)
         {
-          // Update TildeC
-
           int ip0 = amesh->getApex(imesh, j0);
 
           double s = 0.;
@@ -1139,41 +1165,27 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
             double vald = mat.getValue(j0, j1) * ratio / 2.;
             s += vald;
             _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
-            if (ipref == 1051 && igparam == 0)
-              message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
-                      imesh,jref,iad,ip0,ip1,vald);
+            if (ipref == indref && igparam == 0)
+              message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
+                      imesh,jref,ip0,ip1,vald);
           }
           int ip1 = amesh->getApex(imesh, ncorner - 1);
           _mapGradUpdate(Mtab[iad],ip0, ip1, -s, tol);
-          if (ipref == 1051 && igparam == 0)
-            message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
-                    imesh,jref,iad,ip0,ip1,-s);
+          if (ipref == indref && igparam == 0)
+            message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
+                    imesh,jref,ip0,ip1,-s);
           _mapGradUpdate(Mtab[iad],ip1, ip0, -s, tol);
-          if (ipref == 1051 && igparam == 0)
-            message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
-                    imesh,jref,iad,ip1,ip0,-s);
+          if (ipref == indref && igparam == 0)
+            message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
+                    imesh,jref,ip1,ip0,-s);
           S += s;
         }
         int ip0 = amesh->getApex(imesh, ncorner - 1);
         _mapGradUpdate(Mtab[iad], ip0, ip0, S, tol);
-        if (ipref == 1051 && igparam == 0)
-          message("imesh=%d jref=%d iad=%d ip0=%d ip1=%d val=%lf\n",
-                  imesh,jref,iad,ip0,ip0,-S);
+        if (ipref == indref && igparam == 0)
+          message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
+                  imesh,jref,ip0,ip0,-S);
       }
-
-//        for (int j0 = 0; j0 < ncorner; j0++)
-//        {
-//          int ip0 = amesh->getApex(imesh, j0);
-//          for (int j1 = 0; j1 < ncorner; j1++)
-//          {
-//            int ip1 = amesh->getApex(imesh, j1);
-//            double vald = mat.getValue(j0, j1) * meshSize;
-//            int iad = getSize() * igparam + ipref;
-//            _mapUpdate(Mtab[iad][ip0], ip1, vald, tol);
-////            _mapVecUpdate(Mtab[iad], ip0, ip1, vald, tol);
-//          }
-//        }
-//      }
     }
   }
 

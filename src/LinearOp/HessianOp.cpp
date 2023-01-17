@@ -96,7 +96,7 @@ int HessianOp::init(PrecisionOp*  pmat,
   catch(const char * str)
   {
     error = 1;
-    std::cout << str << std::endl;
+    messerr("%s", str);
   }
   return error;
 }

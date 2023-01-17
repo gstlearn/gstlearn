@@ -18,6 +18,7 @@
 #include "Matrix/Table.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Law.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/ANeighParam.hpp"
@@ -151,10 +152,10 @@ int main(int /*argc*/, char */*argv*/[])
   VectorVectorDouble table;
   int ncols = 3;
   int nrows = 10;
-  table.resize(ncols);
-  for (int icol = 0; icol < ncols; icol++)
-    table[icol] = VH::simulateUniform(nrows);
-  Table* table1 = Table::createFromVVD(table, false);
+  Table* table1 = Table::create(nrows, ncols);
+  for (int irow = 0; irow < nrows; irow++)
+    for (int icol = 0; icol < ncols; icol++)
+      table1->setValue(irow, icol, law_uniform());
   table1->display();
 
   // Serialize table

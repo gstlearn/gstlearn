@@ -166,6 +166,11 @@ private:
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
+  int _prepareMatricesSVariety(const AMesh *amesh,
+                               int imesh,
+                               VectorVectorDouble &coords,
+                               AMatrix &matres,
+                               double *deter);
   cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab);
   cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab);
   void _updateCova(CovAniso* cova, int ip);

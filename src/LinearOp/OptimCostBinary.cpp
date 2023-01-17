@@ -267,7 +267,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
 
   catch(const char * str)
   {
-    std::cout << str << std::endl;
+    messerr("%s", str);
   }
 
   delete(hess);

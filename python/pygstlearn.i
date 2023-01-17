@@ -1028,7 +1028,7 @@ def cs_toTL(self):
 setattr(gl.cs, "toTL", cs_toTL)
 
 def table_toTL(self):
-	Anp = np.array(self.getValues()).reshape(self.getRowNumber(),self.getColumnNumber())
+	Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
     #colnames(mat) <- tab$getColumnNames()
     #rownames(mat) <- tab$getRowNames()
 	return Anp

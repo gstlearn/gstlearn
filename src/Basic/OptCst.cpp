@@ -21,17 +21,9 @@
 #include <iomanip>
 #include <map>
 
-/* This doesn't work with MinGw / G++ 8.3
-std::map<const ECst, double> OptCst::_cst =
- {{ ECst::NTCAR,  10. },
-  { ECst::NTDEC,   3. },
-  { ECst::NTROW,   7. },
-  { ECst::NTCOL,   7. },
-  { ECst::NTBATCH, 7. },
-  { ECst::NTNAME, 12. },
-  { ECst::NTRANK,  3. },
-  { ECst::NPROC,   0. };
-*/
+/**
+ * Setting the default values for the parameters
+ */
 std::map<int, double> OptCst::_cst =
  {{ ECst::E_NTCAR,  10. },
   { ECst::E_NTDEC,   3. },
@@ -40,7 +32,8 @@ std::map<int, double> OptCst::_cst =
   { ECst::E_NTBATCH, 7. },
   { ECst::E_NTNAME, 12. },
   { ECst::E_NTRANK,  3. },
-  { ECst::E_NPROC,   0. }};
+  { ECst::E_NPROC,   0. },
+  { ECst::E_LOCMOD,  1. }};
 
 double OptCst::query(const ECst& option)
 {
@@ -60,7 +53,6 @@ double OptCst::queryByKey(const String& name)
   }
   return TEST;
 }
-
 
 void OptCst::define(const ECst& option, double value)
 {

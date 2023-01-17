@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Faults/Faults.hpp"
 
-#include "../../include/Geometry/GeometryHelper.hpp"
+#include "Geometry/GeometryHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
