@@ -21,13 +21,13 @@ include(${SWIG_USE_FILE})
 
 # Look for pybind11
 find_package(pybind11 QUIET) # try locally
-if(NOT pybind11_FOUND) # else fetch it from github
+if(NOT pybind11_FOUND) # else fetch it from github (keep this as long as runner have no pybind11-global)
   message(STATUS "Could NOT find pybind11 (fetching it from GitHub)")
   include(FetchContent)
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    #GIT_TAG v2.6.1 # TODO adjust pybind11 version
+    #GIT_TAG v2.6.1 # Comment: Use last pybind11 version available
   )
   FetchContent_MakeAvailable(pybind11)
 endif()
