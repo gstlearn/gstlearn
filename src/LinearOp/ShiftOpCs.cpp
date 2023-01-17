@@ -198,23 +198,15 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     CovAniso cova = *model->getCova(icov);
 
     // Construct S sparse Matrix
-    if (amesh->getVariety() == 0)
+    if (!_isVelocity())
     {
-      if (!_isVelocity())
-      {
-        if (_buildSVariety(amesh))
+      if (_buildSVariety(amesh))
         my_throw("Problem when buildS");
-      }
-      else
-      {
-        if (_buildSVel(amesh))
-        my_throw("Problem when buildSVel");
-      }
     }
     else
     {
-      if (_buildSVariety(amesh)) // TODO or _buildSSphere
-      my_throw("Problem when buildSVariety");
+      if (_buildSVel(amesh))
+        my_throw("Problem when buildSVel");
     }
 
     // Construct the TildeC vector
@@ -910,6 +902,7 @@ cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab)
 int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
                                          int imesh,
                                          VectorVectorDouble& coords,
+                                         MatrixSquareSymmetric& matMtM,
                                          AMatrix& matres,
                                          double *deter)
 {
@@ -918,56 +911,63 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
 
   amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
 
-  if (amesh->getVariety() == 1)
+  MatrixRectangular matM(ndim, ncorner - 1);
+  for (int icorn = 0; icorn < ncorner - 1; icorn++)
   {
-    MatrixRectangular matM(ndim, ncorner-1);
-    for (int icorn = 0; icorn < ncorner-1; icorn++)
+    for (int idim = 0; idim < ndim; idim++)
     {
-      for (int idim = 0; idim < ndim; idim++)
-      {
-        double val = coords[icorn][idim] - coords[ncorner-1][idim];
-        matM.setValue(idim, icorn, val);
-      }
+      double val = coords[icorn][idim] - coords[ncorner - 1][idim];
+      matM.setValue(idim, icorn, val);
     }
-
-    // Calculate M^t %*% M
-
-    MatrixSquareSymmetric matMtM(ncorner-1);
-    matMtM.normSingleMatrix(matM);
-    *deter = matMtM.determinant();
-
-    // Calculate (M^t %*% M)^{-1}
-
-    if (matMtM.invert())
-    {
-      messerr("Problem for Mesh #%d", imesh + 1);
-      amesh->printMesh(imesh);
-      return 1;
-    }
-
-    // Calculate P = (M^t %*% M)^{-1} %*% M^t
-    matM.transposeInPlace();
-    matres.prodMatrix(matMtM, matM);
   }
-  else
-  {
-    for (int icorn = 0; icorn < ncorner-1; icorn++)
-    {
-      for (int idim = 0; idim < ndim; idim++)
-      {
-       double val = coords[icorn][idim] - coords[ncorner-1][idim];
-       matres.setValue(idim, icorn, val);
-      }
-    }
 
-    double detM = matres.determinant();
-    *deter = detM * detM;
-    if (matres.invert())
+  // Calculate M^t %*% M
+
+  matMtM.normSingleMatrix(matM);
+  *deter = matMtM.determinant();
+
+  // Calculate (M^t %*% M)^{-1}
+
+  if (matMtM.invert())
+  {
+    messerr("Problem for Mesh #%d", imesh + 1);
+    amesh->printMesh(imesh);
+    return 1;
+  }
+
+  // Calculate P = (M^t %*% M)^{-1} %*% M^t
+  matM.transposeInPlace();
+  matres.prodMatrix(matMtM, matM);
+  return 0;
+}
+
+int ShiftOpCs::_prepareMatricesSphere(const AMesh *amesh,
+                                      int imesh,
+                                      VectorVectorDouble &coords,
+                                      AMatrix &matres,
+                                      double *deter)
+{
+  int ndim = getNDim();
+  int ncorner = amesh->getNApexPerMesh();
+
+  amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
+
+  for (int icorn = 0; icorn < ncorner - 1; icorn++)
+  {
+    for (int idim = 0; idim < ndim; idim++)
     {
-      messerr("Problem for Mesh #%d", imesh + 1);
-      amesh->printMesh(imesh);
-      return 1;
+      double val = coords[icorn][idim] - coords[ncorner - 1][idim];
+      matres.setValue(idim, icorn, val);
     }
+  }
+
+  double detM = matres.determinant();
+  *deter = detM * detM;
+  if (matres.invert())
+  {
+    messerr("Problem for Mesh #%d", imesh + 1);
+    amesh->printMesh(imesh);
+    return 1;
   }
   return 0;
 }
@@ -1035,17 +1035,17 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
         _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
     }
 
-    // Load M matrix
+    // Prepare M matrix
 
     if (amesh->getVariety() == 1)
     {
-      if (_prepareMatricesSVariety(amesh, imesh, coords, matP, &detMtM))
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
         my_throw("Matrix inversion");
       matPinvHPt.normTMatrix(hh, matP);
     }
     else
     {
-      if (_prepareMatricesSVariety(amesh, imesh, coords, matMs, &detMtM))
+      if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
         my_throw("Matrix inversion");
       matPinvHPt.normTMatrix(hh, matMs);
     }
@@ -1112,11 +1112,12 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
   // Initialize the arrays
 
-  VectorDouble matv(ncorner);
   MatrixSquareSymmetric hh(ndim);
-  MatrixSquareGeneral matu(ncorner);
-  MatrixSquareGeneral mat(ncorner);
-  MatrixRectangular matw(ndim, ncorner);
+  MatrixSquareSymmetric matMtM(ncorner-1);
+  MatrixRectangular matP(ncorner-1,ndim);
+  MatrixSquareGeneral matMs(ndim);
+  MatrixSquareSymmetric matPinvHPt(ncorner-1);
+  double detMtM = 0.;
 
   // Define the global matrices
 
@@ -1127,14 +1128,23 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
   /* Loop on the meshes */
 
+  VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
     OptDbg::setIndex(imesh + 1);
 
-    // Calculate geometry
+    // Prepare M matrix
 
-    if (_preparMatrices(amesh, imesh, matu, matw))
-      my_throw("Problem in matrix inversion");
+    if (amesh->getVariety() == 1)
+    {
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
+        my_throw("Matrix inversion");
+    }
+    else
+    {
+      if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
+        my_throw("Matrix inversion");
+    }
 
     // Loop on the derivative terms
 
@@ -1144,10 +1154,17 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
       {
         int ipref = amesh->getApex(imesh, jref);
         int iad = getSGradAddress(ipref, igparam);
+
+        // Update HH matrix
+
         _loadHHGradPerMesh(hh, amesh, ipref, igparam);
         if (ipref == indref && igparam == 0)
           hh.display();
-        mat.normMatrix(hh, matw);
+
+        if (amesh->getVariety() == 1)
+          matPinvHPt.normTMatrix(hh, matP);
+        else
+          matPinvHPt.normTMatrix(hh, matMs);
 
         // Storing in the Map
 
@@ -1162,7 +1179,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
           for (int j1 = 0; j1 < ncorner-1; j1++)
           {
             int ip1 = amesh->getApex(imesh, j1);
-            double vald = mat.getValue(j0, j1) * ratio / 2.;
+            double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
             s += vald;
             _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
             if (ipref == indref && igparam == 0)
@@ -1787,13 +1804,9 @@ void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
 /**
  * Transform the Map into a square cparse matrix
  * @param tab   Input Map
- * @param nmax  Dimension of the matrix (if provided)
  * @return
- *
- * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
- * @remark has the full dimension (by adding a fictitious value equal to eps)
  */
-cs* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab, int nmax)
+cs* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab)
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
@@ -1814,8 +1827,7 @@ cs* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab, in
 
   // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
 
-  if (nmax > 0)
-    cs_force_dimension(Striplet, nmax, nmax);
+  cs_force_dimension(Striplet, getSize(), getSize());
 
   /* Optional printout */
 

@@ -169,8 +169,14 @@ private:
   int _prepareMatricesSVariety(const AMesh *amesh,
                                int imesh,
                                VectorVectorDouble &coords,
+                               MatrixSquareSymmetric& matMtM,
                                AMatrix &matres,
                                double *deter);
+  int _prepareMatricesSphere(const AMesh *amesh,
+                             int imesh,
+                             VectorVectorDouble &coords,
+                             AMatrix &matres,
+                             double *deter);
   cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab);
   cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab);
   void _updateCova(CovAniso* cova, int ip);
@@ -193,7 +199,7 @@ private:
                       int ip1,
                       double value,
                       double tol);
-  cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab, int nmax=-1);
+  cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
 
 
 private:
