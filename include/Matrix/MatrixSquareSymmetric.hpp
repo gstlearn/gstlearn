@@ -31,6 +31,9 @@ public:
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
 	virtual ~MatrixSquareSymmetric();
 
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquareSymmetric)
 
@@ -47,13 +50,11 @@ public:
   /// TODO : isPositiveDefinite
 
   /// Is the matrix symmetrical ?
-  bool isSymmetric(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return true; }
+  bool isSymmetric(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
 
   void initMatTri(int nsize,double* tab);
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
-
-  void toTL() const {};
 
 protected:
 #ifndef SWIG

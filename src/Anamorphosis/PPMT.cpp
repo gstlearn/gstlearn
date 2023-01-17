@@ -135,7 +135,7 @@ PPMT* PPMT::create(int ndir,
 
 String PPMT::toString(const AStringFormat* strfmt) const
 {
-  SYMBOL_UNUSED(strfmt);
+  DECLARE_UNUSED(strfmt);
 
   std::stringstream sstr;
 

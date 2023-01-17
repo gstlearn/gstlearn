@@ -1514,7 +1514,7 @@ int ShiftOpCs::_buildTildeC(const AMesh *amesh, const VectorDouble& units)
 
 /**
  * Construct the _Lambda vector (Dimension: _napices)
- * @param amesh Description of the Mesh (New class)
+ * @param amesh Description of the Mesh
  */
 void ShiftOpCs::_buildLambda(const AMesh *amesh)
 {

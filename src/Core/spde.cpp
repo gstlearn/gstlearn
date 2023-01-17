@@ -696,8 +696,7 @@ static void st_qchol_print(const char *title, QChol *QC)
  *****************************************************************************/
 static cs* st_extract_Q_from_Q(cs *Q_in, int row_auth, int col_auth)
 {
-  SYMBOL_UNUSED(row_auth);
-  SYMBOL_UNUSED(col_auth);
+  DECLARE_UNUSED(row_auth, col_auth);
   int *rank_rows, *rank_cols, error;
   cs *Q = nullptr;
 

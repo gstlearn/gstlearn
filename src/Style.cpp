@@ -121,7 +121,7 @@ int Style::UnusedArgument(int a)
 {
   // Use the SYMBO_UNSED macro to prevent compiler warning
   // Do not comment the argument (NOT /*a*/)
-  SYMBOL_UNUSED(a);
+  DECLARE_UNUSED(a);
   return 0;
 }
 

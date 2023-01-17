@@ -1590,7 +1590,7 @@ int gibbs_sampler(Db *dbin,
                   bool verbose,
                   const NamingConvention &namconv)
 {
-  SYMBOL_UNUSED(flag_sym_neigh);
+  DECLARE_UNUSED(flag_sym_neigh);
   int error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
   PropDef *propdef;
 

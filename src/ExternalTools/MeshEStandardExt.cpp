@@ -370,7 +370,7 @@ AMesh* MeshEStandardExt::_load1D(bool verbose,
                                  Db *dbout,
                                  const VectorDouble &gext)
 {
-  SYMBOL_UNUSED(verbose);
+  DECLARE_UNUSED(verbose);
   segmentio in, out;
 
   /* Initialize the Meshing output structure */
@@ -434,7 +434,7 @@ AMesh* MeshEStandardExt::_load2D(bool verbose,
                                  const VectorDouble &gext,
                                  const String &triswitch)
 {
-  SYMBOL_UNUSED(verbose);
+  DECLARE_UNUSED(verbose);
   triangulateio in, out, vorout;
 
   /* Initialize the Meshing output structure */

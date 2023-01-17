@@ -30,7 +30,9 @@ public:
   Table& operator= (const Table &m);
   virtual ~Table();
 
-public:
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixRectangular)
 
@@ -52,8 +54,6 @@ public:
   VectorString getRowNames() const {  return _rowNames; }
   String getColumnName(int icol) const;
   String getRowName(int irow) const;
-
-  void toTL() const {};
 
 protected:
   /// Interface for ASerializable

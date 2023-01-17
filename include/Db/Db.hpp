@@ -40,6 +40,9 @@ public:
   virtual ~Db();
 
 public:
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// ICloneable interface
   IMPLEMENT_CLONING(Db)
 
@@ -631,7 +634,7 @@ public:
                    int belowRow = ITEST,
                    int aboveRow = ITEST) const;
 
-  void toTL() {};
+
 
 protected:
   /// Interface for ASerializable
