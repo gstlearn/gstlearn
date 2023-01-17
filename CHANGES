@@ -3,7 +3,7 @@ This file contains the logs between consecutive releases
 
 Release 0.1.36
 ==============
-- 
+- Add toTL generic method to convert gstlearn objects into corresponding target language objects
 
 
 Release 0.1.35
