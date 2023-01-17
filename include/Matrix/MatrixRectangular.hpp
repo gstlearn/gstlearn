@@ -36,12 +36,18 @@ public:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
+  void toTL() const {};
+
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, bool sparse = false);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
                                          int ncol,
                                          bool byCol = false,
                                          bool sparse = false);
+
+  /*! Adding a Row or a Column (at the bottom of Rectangular Matrix) */
+  void addRow(int nrow_added=1);
+  void addColumn(int ncolumn_added = 1);
 
 protected:
 #ifndef SWIG

@@ -12,13 +12,13 @@
 
 #include "gstlearn_export.hpp"
 
+#include "../Matrix/Table.hpp"
 #include "Enum/ESelectivity.hpp"
 
 #include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Matrix/MatrixInt.hpp"
-#include "Basic/Table.hpp"
 
 class Db;
 class AAnam;

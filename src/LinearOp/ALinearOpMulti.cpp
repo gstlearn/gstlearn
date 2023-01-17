@@ -126,7 +126,7 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble& inv,
   catch(const char * str)
   {
     // TODO : Check if std::exception can be used
-    std::cout << str << std::endl;
+    messerr("%s", str);
   }
 }
 

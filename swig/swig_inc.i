@@ -58,7 +58,6 @@
   #include "Basic/CSVformat.hpp"
   #include "Basic/AFunctional.hpp"
   #include "Basic/FunctionalSpirale.hpp"
-  #include "Basic/Table.hpp"
   #include "Basic/NamingConvention.hpp"
   #include "Basic/OptDbg.hpp"
   #include "Basic/OptCst.hpp"
@@ -226,6 +225,7 @@
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixInt.hpp"
+  #include "Matrix/Table.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"

@@ -13,12 +13,13 @@
 
 #include "Enum/ECst.hpp"
 
+#include "Geometry/GeometryHelper.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/File.hpp"
+
 #include <math.h>
-#include "../../include/Geometry/GeometryHelper.hpp"
 
 #define VERBOSE 0
 #define INTER 0

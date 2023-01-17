@@ -6460,7 +6460,7 @@ int db_proportion_estimate(Db *dbin,
   Oc.setCGParams(200, 1.e-10);
 
   VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
-  VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose,niter);
+  VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose, niter);
 
   // Loading the resulting results in the output 'dbout'
 

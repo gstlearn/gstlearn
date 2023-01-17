@@ -121,7 +121,7 @@
 #include <fpu_control.h>
 #endif /* LINUX */
 
-#include "../../include/ExternalTools/tetgen.hpp"        // Defines the symbol DREAL (float or double).
+#include "ExternalTools/tetgen.hpp"        // Defines the symbol DREAL (float or double).
 
 #ifdef USE_CGAL_PREDICATES
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>

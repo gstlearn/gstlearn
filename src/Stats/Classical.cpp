@@ -16,11 +16,11 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Table.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Model/Model.hpp"
 
 #include <math.h>
+#include <Matrix/Table.hpp>
 #include <string.h>
 
 /****************************************************************************/
@@ -434,10 +434,13 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   VectorDouble stats = dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
   int nrows = (int) iuids.size();
   int ncols = (int) opers.size();
-  Table table = Table(nrows, ncols);
-  table.resetFromVD(stats, false);
+  Table table = Table();
+  table.reset(nrows, ncols, stats, false);
   for (int irow=0; irow<nrows; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
+
+  for (int icol=0; icol<ncols; icol++)
+    table.setColumnName(icol, opers[icol].getDescr());
 
   return table;
 }

@@ -12,6 +12,11 @@
 
 #include "Enum/AEnum.hpp"
 
+/**
+ * Define a set of constant values.
+ * Their initial value is provided in the file OptCst.cpp
+ * Note: 'LOCMOD' is still in use in RGeostats (not to be deleted)
+ */
 #define ENUM_CST ECst, NTCAR, \
                      NTCAR,   1, "Number of characters in printout", \
                      NTDEC,   2, "Number of decimal digits in printout", \
@@ -21,8 +26,6 @@
                      NTNAME,  6, "Maximum number of characters for Names", \
                      NTRANK,  7, "Maximum Number of characters for Ranks", \
                      NPROC,   8, "Percentage for Display the Progress Bar", \
-                     LOCMOD,  9, "Option for updating locator of new variable", \
-                     LOCNEW, 10, "When defining new locator, option for old ones", \
-                     ASP,    11, "Graphic Aspect Ratio"
+                     LOCMOD,  9, "Default for setting Locator"
 
 ENUM_DECLARE(ENUM_CST)

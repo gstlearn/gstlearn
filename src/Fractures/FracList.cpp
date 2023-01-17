@@ -9,6 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
+#include "Geometry/GeometryHelper.hpp"
 #include "Fractures/FracList.hpp"
 #include "Fractures/FracDesc.hpp"
 #include "Fractures/FracEnviron.hpp"
@@ -21,8 +23,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
+
 #include <math.h>
-#include "../../include/Geometry/GeometryHelper.hpp"
 
 #define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
 #define WELL(iw,i)          (well[2*(iw) + (i)])

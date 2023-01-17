@@ -14,22 +14,22 @@
 
 #define ENUM_STATOPTION EStatOption, UNKNOWN, \
                  UNKNOWN, -1, "Unknown Option", \
-                 NUM,      0, "Number of defined values", \
-                 MEAN,     1, "Mean over the defined values", \
-                 VAR,      2, "Variance over the defined values", \
-                 STDV,     3, "Standard Deviation over the defined values", \
-                 MINI,     4, "Minimum over the defined values", \
-                 MAXI,     5, "Maximum over the defined values", \
-                 SUM,      6, "Sum over the variables", \
-                 PROP,     7, "Proportion of values within [vmin;vmax]", \
-                 QUANT,    8, "Quantile corresponding to given probability", \
-                 T,        9, "Tonnage within [vmin;vmax]", \
-                 Q,       10, "Metal quantity within [vmin;vmax]", \
-                 M,       11, "Recovered mean within [vmin;vmax]", \
-                 B,       12, "Conventional Benefit within [vmin;vmax]", \
+                 NUM,      0, "Count", \
+                 MEAN,     1, "Mean", \
+                 VAR,      2, "Variance", \
+                 STDV,     3, "St. Dev.", \
+                 MINI,     4, "Minimum", \
+                 MAXI,     5, "Maximum", \
+                 SUM,      6, "Sum", \
+                 PROP,     7, "Prop.", \
+                 QUANT,    8, "Quantile", \
+                 T,        9, "Tonnage", \
+                 Q,       10, "Metal", \
+                 M,       11, "Rec. Mean", \
+                 B,       12, "Benefit", \
                  COV,     13, "Covariance", \
                  CORR,    14, "Correlation", \
-                 ZERO,    15, "Count of zero values", \
+                 ZERO,    15, "Zero Count", \
                  MEDIAN,  16, "Median", \
                  MEAN2,   17, "Mean of the defined values for secondary variable", \
                  VAR2,    18, "Variance over the defined values f secondary variable", \
@@ -37,8 +37,8 @@
                  SUM2,    20, "Sum over the secondary variable", \
                  PLUS,    21, "Count of positive values", \
                  MOINS,   22, "Count of negative values", \
-                 ORE,     23, "Ore quantity", \
-                 METAL,   24, "Metal quantity"
+                 ORE,     23, "Ore", \
+                 METAL,   24, "Metal"
 
 
 ENUM_DECLARE(ENUM_STATOPTION)

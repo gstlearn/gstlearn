@@ -1,5 +1,4 @@
-#include "../../include/ExternalTools/tetgen.hpp"
-
+#include "ExternalTools/tetgen.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/WarningMacro.hpp"

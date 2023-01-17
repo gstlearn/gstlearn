@@ -360,12 +360,12 @@ void ASerializable::setContainerName(bool useDefault,
     {
       // Otherwise, it is set to HOME/gstlearn_dir
       pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
-      if (verbose) std::cout << "Results are stored in" << pygst << std::endl;
+      if (verbose) message("Results are stored in %s\n", pygst.c_str());
     }
     else
     {
       if (verbose)
-        std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
+        message("Results are stored in PYGSTLEARN_DIR\n");
     }
     myContainerName = pygst;
   }

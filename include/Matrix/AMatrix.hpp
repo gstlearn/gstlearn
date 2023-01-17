@@ -217,10 +217,13 @@ protected:
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
   virtual double  _determinant() const = 0;
+  virtual void    _clearContents() {};
 
   void _setNCols(int ncols) { _nCols = ncols; }
   void _setNRows(int nrows) { _nRows = nrows; }
   bool _isNumbersValid(int nrows,int ncols) const;
+  bool _isColumnValid(int icol) const;
+  bool _isRowValid(int irow) const;
   bool _isIndexValid(int irow, int icol) const;
   bool _isRowVectorConsistent(const VectorDouble& tab);
   bool _isColVectorConsistent(const VectorDouble& tab);

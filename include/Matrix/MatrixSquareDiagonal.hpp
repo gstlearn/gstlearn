@@ -63,6 +63,8 @@ protected:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
+  void toTL() const {};
+
 private:
   bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isDiagonal()); }
   double _getValue(int irow, int icol) const override;

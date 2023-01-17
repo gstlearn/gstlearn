@@ -177,7 +177,7 @@ VectorVectorDouble OptimCostColored::minimize(const VectorDouble& facies,
 
   catch(const char * str)
   {
-    std::cout << str << std::endl;
+    messerr("%s", str);
   }
   return propfacs;
 }
@@ -460,6 +460,12 @@ void OptimCostColored::_copyMultProportions(int level,
   }                                       
 }
 
+/**
+ * Provides the list of regrouped facies during Optimizaition
+ * @param nfacies Number of facies
+ * @param verbose Verbose flag
+ * @return For each level, Vector of regrouped facies
+ */
 VectorVectorInt OptimCostColored::initSplit(int nfacies, bool verbose) const
 {
   int nlevel = nfacies - 1;

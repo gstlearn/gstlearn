@@ -703,42 +703,63 @@ appendMethod <- function(c, m, f)
 	cmd = paste0("setMethod('$', '_p_", c ,
 	             "',\
 	              function(x, name) { \
-	                if (! match(name, '",m,"', nomatch=0)) \
-	                  return(callNextMethod(x, name)) \
-	                else { \
-	                  function(...) {",f,"(x, ...)} }})")
+	                if (is.na(match(name, '",m,"'))) \
+	                  return(callNextMethod(x, name));\
+	                  function(...) {",f,"(x, ...)}; })")
 	eval(parse(text=cmd))
 }
 
-"matrixToTL" <-
-  function(x)
+"matrix_toTL" <- function(x)
 {
+	Q = NULL
 	if (x$isSparse())
+   	{
+   		if (isNamespaceLoaded("Matrix"))
+   		{
+			Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+			Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+            	             dims=c(Atr$nrows,Atr$ncols))
+        }
+        else
+        	cat("This requires the library 'Matrix' to be installed\n")
+    } else {
+		Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
+    }                     
+    Q
+}
+
+"MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSquareDiagonal_toTL" <- function(x) { matrix_toTL }
+"MatrixSquareDiagonalCst_toTL" <- function(x) { matrix_toTL }
+"MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL }
+"MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL }
+
+"Table_toTL" <- function(tab)
+{
+	mat <- matrix(tab$getValues(), byrow = FALSE,
+                nrow = tab$getNRows(), 
+                ncol = tab$getNCols())
+    colnames(mat) <- tab$getColumnNames()
+    rownames(mat) <- tab$getRowNames()
+	mat
+}
+
+"cs_toTL" <- function(x)
+{
+	Q = nullptr
+   	if (isNamespaceLoaded("Matrix"))
    	{
 		Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
 		Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-                         dims=c(Atr$nrows,Atr$ncols))
-    } else {
-	Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
-   }                     
-   Q
-}
-
-"csMatrixToTL" <-
-  function(x)
-{
-	Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
-	Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-                     dims=c(Atr$nrows,Atr$ncols))
+       			         dims=c(Atr$nrows,Atr$ncols))
+    }
+    else
+      	cat("This requires the library 'Matrix' to be installed\n")
 	Q
 }
 
-appendMethod("MatrixRectangular", "toTL", "matrixToTL")
-appendMethod("MatrixSquareDiagonal", "toTL", "matrixToTL")
-appendMethod("MatrixSquareDiagonalCst", "toTL", "matrixToTL")
-appendMethod("MatrixSquareGeneral", "toTL", "matrixToTL")
-appendMethod("MatrixSquareSymmetric", "toTL", "matrixToTL")
-
-appendMethod("cs", "toTL", "csMatrixToTL")
-
+"Db_toTL" <- function(x)
+{
+	cat("To be implemented\n")
+}
 %}

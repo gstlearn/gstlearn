@@ -631,6 +631,8 @@ public:
                    int belowRow = ITEST,
                    int aboveRow = ITEST) const;
 
+  void toTL() {};
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

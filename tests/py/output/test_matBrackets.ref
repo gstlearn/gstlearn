@@ -1,3 +1,4 @@
+<class 'numpy.ndarray'>
 
 Case of a Standard Matrix
 
@@ -22,5 +23,4 @@ Case of a Sparse Matrix
      [  2,]     0.702     0.626     0.945     0.302     0.998
      [  3,]     0.707     0.678     0.268     0.728     0.771
 
- <class 'scipy.sparse._csc.csc_matrix'>
-(4, 5)
+ (4, 5)

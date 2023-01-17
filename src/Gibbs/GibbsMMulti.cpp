@@ -316,17 +316,17 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
 
       // Store the covariance cloud
       table.addRow();
-      table.update(ecr, 0, dist);
-      table.update(ecr, 1, value);
+      table.setValue(ecr, 0, dist);
+      table.setValue(ecr, 1, value);
       ecr++;
 
       // Store the contribution to the covariance model
       int ipas = (int) floor(dist / dx + 0.5);
       if (ipas >= 0 && ipas < npas)
       {
-        tabmod.increment(ipas, 0, 1.);
-        tabmod.increment(ipas, 1, dist);
-        tabmod.increment(ipas, 2, value);
+        tabmod.add(ipas, 0, 1.);
+        tabmod.add(ipas, 1, dist);
+        tabmod.add(ipas, 2, value);
       }
     }
 
@@ -342,8 +342,8 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
     double value = tabmod.getValue(ipas, 0);
     if (value > 0.)
     {
-      tabmod.update(ipas, 1, tabmod.getValue(ipas, 1) / value);
-      tabmod.update(ipas, 2, tabmod.getValue(ipas, 2) / value);
+      tabmod.setValue(ipas, 1, tabmod.getValue(ipas, 1) / value);
+      tabmod.setValue(ipas, 2, tabmod.getValue(ipas, 2) / value);
     }
   }
 

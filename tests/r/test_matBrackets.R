@@ -3,6 +3,16 @@
 suppressWarnings(suppressMessages(library(gstlearn)))
 set.seed(32421)
 
+# Creating a Table
+table = Table(2,3)
+table$setRowNames(c("Row1","Row2"))
+table$setColumnNames(c("Col1","Col2","Col3"))
+table
+
+newtab = table$toTL()
+class(newtab)
+newtab
+
 # Creating a vector of Uniform values to fill the Rectangular Matrix
 nrow = 4
 ncol = 5

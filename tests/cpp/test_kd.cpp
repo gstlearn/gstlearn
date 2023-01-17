@@ -38,9 +38,9 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Calculators/CalcStatistics.hpp"
+#include "Estimation/CalcKrigingFactors.hpp"
 
 #include <math.h>
-#include "../../include/Estimation/CalcKrigingFactors.hpp"
 
 /****************************************************************************/
 /*!
