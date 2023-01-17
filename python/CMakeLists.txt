@@ -27,7 +27,7 @@ if(NOT pybind11_FOUND) # else fetch it from github
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG v2.6.1 # TODO adjust pybind11 version
+    #GIT_TAG v2.6.1 # TODO adjust pybind11 version
   )
   FetchContent_MakeAvailable(pybind11)
 endif()
