@@ -209,22 +209,9 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
         my_throw("Problem when buildSVel");
     }
 
-    // Construct the TildeC vector
-
-    if (amesh->getVariety() == 2)
-    {
-      if (_buildTildeC(amesh, units))
-        my_throw("Problem with buildTildeC");
-    }
-
     // Construct the Lambda vector
 
     _buildLambda(amesh);
-
-    // Construct S sparse Matrix (locally stored in _S)
-
-    if (! flagAdvection)
-      cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
   }
 
   catch(const AException& e)
@@ -1083,6 +1070,10 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   _S = _BuildSfromMap(tab);
   if (_S == nullptr) goto label_end;
 
+  // Ending S construction
+
+  cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
+
   /* Set the error return code */
 
   error = 0;
@@ -1234,20 +1225,6 @@ void ShiftOpCs::_mapUpdate(std::map<int, double>& tab,
 
   if (ABS(value) < tol) return;
   ret = tab.insert(std::pair<int, double>(ip1, value));
-  if (!ret.second) ret.first->second += value;
-}
-
-void ShiftOpCs::_mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
-                              int ip0,
-                              int ip1,
-                              double value,
-                              double tol) const
-{
-  std::pair<std::map<std::pair<int,int>,double>::iterator, bool> ret;
-
-  if (ABS(value) < tol) return;
-  std::pair<int, int> pair = std::pair<int,int>(ip0, ip1);
-  ret = tab.insert(std::pair<std::pair<int,int>, double>(pair, value));
   if (!ret.second) ret.first->second += value;
 }
 

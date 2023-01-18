@@ -183,24 +183,17 @@ private:
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   VectorT<std::map<int, double>> _mapCreate() const;
   VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
+  void _determineFlagNoStatByHH();
   void _mapUpdate(std::map<int, double>& tab,
                   int ip1,
                   double value,
                   double tol = EPSILON10) const;
-  void _mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
-                     int ip2,
-                     int ip1,
-                     double value,
-                     double tol = EPSILON10) const;
-  void _determineFlagNoStatByHH();
-
   void _mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
                       int ip0,
                       int ip1,
                       double value,
-                      double tol);
+                      double tol = EPSILON10);
   cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
-
 
 private:
   VectorDouble       _TildeC;

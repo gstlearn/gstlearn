@@ -883,7 +883,7 @@ double AnamHermite::evalSupportCoefficient(int option,
 
     // DGM1 Method
 
-    model->setAnamIClass(0); // Z variable
+    model->setActiveFactor(0); // Z variable
     double cvv = model->evalCvv(dxs, ndisc, angles);
     double r1  = sqrt(invertVariance(cvv));
     if (verbose)
@@ -893,7 +893,7 @@ double AnamHermite::evalSupportCoefficient(int option,
 
   if (option == 2)
   {
-    model->setAnamIClass(1); // Y Variable
+    model->setActiveFactor(1); // Y Variable
     double cvv = model->evalCvv(dxs, ndisc, angles);
     double r2 = sqrt(cvv);
     if (verbose)

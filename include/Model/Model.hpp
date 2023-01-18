@@ -339,8 +339,8 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
-  int  setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
-  int  getAnamIClass() const { return _covaList->getAnamIClass(); }
+  int  setActiveFactor(int iclass) { return _covaList->setActiveFactor(iclass); }
+  int  getActiveFactor() const { return _covaList->getActiveFactor(); }
   int  getAnamNClass() const { return _covaList->getAnamNClass(); }
   /////////////////////////////////////////////////
 

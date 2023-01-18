@@ -33,7 +33,7 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
                                        const VectorInt& strcnt,
                                        const ASpace* space)
     : CovLMC(space),
-      _anamIClass(0),
+      _activeFactor(0),
       _anamStrCount(),
       _anam(anam)
 {
@@ -44,7 +44,7 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMC& lmc,
                                        const AAnam* anam,
                                        const VectorInt& strcnt)
     : CovLMC(lmc),
-      _anamIClass(0),
+      _activeFactor(0),
       _anamStrCount(),
       _anam(anam)
 {
@@ -53,7 +53,7 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMC& lmc,
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis &r)
     : CovLMC(r),
-      _anamIClass(r._anamIClass),
+      _activeFactor(r._activeFactor),
       _anamStrCount(r._anamStrCount),
       _anam(r._anam)
 {
@@ -64,7 +64,7 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   if (this != &r)
   {
     CovLMC::operator=(r);
-    _anamIClass = r._anamIClass;
+    _activeFactor = r._activeFactor;
     _anamStrCount = r._anamStrCount;
     _anam = r._anam;
   }
@@ -120,6 +120,12 @@ String CovLMCAnamorphosis::toString(const AStringFormat* strfmt) const
   sstr << ACovAnisoList::toString(strfmt);
 
   sstr << _anam->toString(strfmt);
+
+  int iclass = getActiveFactor();
+  if (iclass == -1)
+    sstr << "Option switch to Raw Variable" << std::endl;
+  else if (iclass > 0)
+    sstr << "Active Factor: Rank %d" << iclass << std::endl;
 
   return sstr.str();
 }
@@ -189,11 +195,20 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
   double cov = TEST;
-  int iclass = getAnamIClass();
+  int iclass = getActiveFactor();
+
   if (iclass == 0)
   {
 
-    // For the whole discretized variable
+    // For the Gaussian variable
+
+    cov = rho;
+  }
+  else if (iclass == -1)
+  {
+
+    // For the Raw variable
+
     cov = 0.;
     double rhon = 1.;
     double rn = 1.;
@@ -221,7 +236,8 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
   else
   {
 
-    // For the given factor 'iclass'
+    // For the factor 'iclass'
+
     double rhon = pow(rho, (double) iclass);
     double rn = pow(r, (double) iclass);
     switch (mode.getMember().getValue())
@@ -242,20 +258,28 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
   return cov;
 }
 
-double CovLMCAnamorphosis::_evalHermite0(int /*ivar*/,
-                                         int /*jvar*/,
+double CovLMCAnamorphosis::_evalHermite0(int ivar,
+                                         int jvar,
                                          const CovCalcMode& mode) const
 {
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
-  int iclass = getAnamIClass();
+  int iclass = getActiveFactor();
 
   if (mode.getMember().getValue() != ECalcMember::E_LHS)
     messageAbort("CovLMCAnamorphosis eval0");
 
-  double cov = 1.;
+  double cov = 0.;
   if (iclass == 0)
   {
-    // For the whole discretized variables
+    // For the Gaussian variable
+
+    cov = CovLMC::eval0(ivar, jvar, mode);
+  }
+  else if (iclass == -1)
+  {
+
+    // For the Raw variable
+
     cov = 0.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
@@ -263,6 +287,14 @@ double CovLMCAnamorphosis::_evalHermite0(int /*ivar*/,
       cov += psin * psin;
     }
   }
+  else
+  {
+
+    // For the factor 'iclass'
+
+    cov = 1.;
+  }
+
   return cov;
 }
 
@@ -273,7 +305,7 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
                                            const CovCalcMode& mode) const
 {
   const AnamDiscreteDD *anamDD = dynamic_cast<const AnamDiscreteDD*>(_anam);
-  int iclass = getAnamIClass();
+  int iclass = getActiveFactor();
 
   CovCalcMode modeloc(mode);
   modeloc.setAsVario(true);
@@ -343,7 +375,7 @@ double CovLMCAnamorphosis::_evalDiscreteDD0(int /*ivar*/,
                                             const CovCalcMode& mode) const
 {
   const AnamDiscreteDD *anamDD = dynamic_cast<const AnamDiscreteDD*>(_anam);
-  int iclass = getAnamIClass();
+  int iclass = getActiveFactor();
 
   double cov = TEST;
   if (iclass == 0)
@@ -412,7 +444,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
                                            const CovCalcMode& mode) const
 {
   const AnamDiscreteIR *anamIR = dynamic_cast<const AnamDiscreteIR*>(_anam);
-  int iclass = getAnamIClass();
+  int iclass = getActiveFactor();
   CovCalcMode mode_loc(mode);
 
   double r = 1.;
@@ -458,7 +490,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
                                             const CovCalcMode& mode) const
 {
   const AnamDiscreteIR *anamIR = dynamic_cast<const AnamDiscreteIR*>(_anam);
-  int iclass = getAnamIClass();
+  int iclass = getActiveFactor();
   CovCalcMode mode_loc(mode);
 
   double r = 1.;
@@ -488,7 +520,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
   return TEST;
 }
 
-int CovLMCAnamorphosis::setAnamIClass(int anam_iclass)
+int CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
 {
   if (! (anam_iclass == 0 || anam_iclass <= _anam->getNFactor()))
   {
@@ -497,7 +529,7 @@ int CovLMCAnamorphosis::setAnamIClass(int anam_iclass)
     messerr("or be set to 0 to estimate the whole discretized grade");
     return 1;
   }
-  _anamIClass = anam_iclass;
+  _activeFactor = anam_iclass;
   return 0;
 }
 
