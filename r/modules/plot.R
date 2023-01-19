@@ -9,15 +9,15 @@ ensure_dependencies <- function() {
 
 end.func <- function(p, end.plot=TRUE)
 {
-	padd = p
-	if (end.plot)
-	{
-		print(padd)
-		padd = NULL
-		invisible()
-	} else {
-		padd
-	}
+  padd = p
+  if (end.plot)
+  {
+    print(padd)
+    padd = NULL
+    invisible()
+  } else {
+    padd
+  }
 }
 
 get.colors <- function()
@@ -51,22 +51,22 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, vario=NULL, hmax=1, codir=NULL, 
-					   ivar=0, jvar=0, idir=0, asp=1,
+             ivar=0, jvar=0, idir=0, asp=1,
                        xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   if (! is.null(vario))
   {
-  	codir = vario$getCodirs(idir)
-  	hmax = vario$getHmax(ivar, jvar, idir)
+    codir = vario$getCodirs(idir)
+    hmax = vario$getHmax(ivar, jvar, idir)
   }
   else
   {
-	if (is.null(codir))
- 	{
- 		ndim = model$getDimensionNumber()
-  		codir = rep(0,ndim)
-    	codir[1] = 1
+  if (is.null(codir))
+   {
+     ndim = model$getDimensionNumber()
+      codir = rep(0,ndim)
+      codir[1] = 1
      }
   }
 
@@ -291,7 +291,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
 #
 # option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
 plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
-	  option="B", zlim = NULL,
+    option="B", zlim = NULL,
       show.legend=TRUE, legend.name="",
       xlab="", ylab="", title="", 
       padd=NULL, end.plot=TRUE)
@@ -317,8 +317,8 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   data = Db_getColumn(dbgrid, name)
   if (length(data) <= 0)
   {
-  	cat("Variable",name,"does not exist\n")
-  	stop()
+    cat("Variable",name,"does not exist\n")
+    stop()
   }
   
   p <- getFigure(padd)
@@ -327,23 +327,23 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   if (dbgrid$getAngles()[1] == 0)
   {
     df = data.frame(x,y,data)
-	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
+  p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
   }
   else
   {
     ids = seq(1, dbgrid$getNTotal())
- 	coords = dbgrid$getAllCellsEdges()
- 	positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
-  	values = data.frame(id = ids, value = data)
-  	df <- merge(values, positions, by = c("id"))
-  	p <- p + geom_polygon(data = df, aes(x = x, y = y, fill = value, group = id))
+   coords = dbgrid$getAllCellsEdges()
+   positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
+    values = data.frame(id = ids, value = data)
+    df <- merge(values, positions, by = c("id"))
+    p <- p + geom_polygon(data = df, aes(x = x, y = y, fill = value, group = id))
   }
   
   # Define the color scale
   p = p + scale_fill_viridis_c(option = option, na.value = na.color, limits=zlim)
   
   if (show.legend) {
-  	p <- p + guides(fill = guide_colorbar(title=legend.name, reverse=FALSE))
+    p <- p + guides(fill = guide_colorbar(title=legend.name, reverse=FALSE))
   } else {
     p <- p + guides(fill = "none")
   }
@@ -367,7 +367,7 @@ setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd
 
 # Function to display a polygon (not tested)
 plot.polygon <- function(poly, xlab="", ylab="", title="", 
-		padd = NULL, end.plot=TRUE)
+    padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   npol = poly$getPolySetNumber()
@@ -386,7 +386,7 @@ plot.polygon <- function(poly, xlab="", ylab="", title="",
     xtab = poly$getX(ipol)
     ytab = poly$getY(ipol)
     rp = data.frame(xtab, ytab)
-	p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color)
+  p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color)
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
@@ -416,7 +416,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
 
 # Function for plotting histogram for a table of values
 plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", 
-		padd=FALSE, end.plot=TRUE)
+    padd=FALSE, end.plot=TRUE)
 {
   ensure_dependencies()
   rp = data.frame(val)
@@ -432,7 +432,7 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="",
 
 # Function for plotting a curve of regularly sampled values
 plot.curve <- function(data, color="black", xlab="", ylab="", title="", 
-		padd=NULL, end.plot=TRUE)
+    padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   nbpoint = length(data)
@@ -533,7 +533,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
 
 # Representing a Lithotype rule
 plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
-			padd=NULL, end.plot=TRUE)
+      padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   nrect = rule$getFaciesNumber()
@@ -544,7 +544,7 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
   cols = get.colors()
 
   df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
-  				  ymin=rep(0,nrect),ymax=rep(0,nrect),
+            ymin=rep(0,nrect),ymax=rep(0,nrect),
                   colors=cols[1:nrect])
   for (ifac in 1:nrect)
   {
@@ -581,15 +581,15 @@ plot.mesh <- function(mesh,
   nmesh = mesh$getNMeshes()
   for (imesh in 1:nmesh)
   {
-	xtab = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
-	ytab = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
-	rp = data.frame(xtab, ytab)
-	p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), 
-		linewidth=linewidth, 
-		fill=facecolor, 
-		color=edgecolor, show.legend=show.legend)
-	if (flagApex)
-	  p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
+  xtab = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
+  ytab = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
+  rp = data.frame(xtab, ytab)
+  p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), 
+    linewidth=linewidth, 
+    fill=facecolor, 
+    color=edgecolor, show.legend=show.legend)
+  if (flagApex)
+    p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
