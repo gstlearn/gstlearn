@@ -344,7 +344,7 @@ bool AnamEmpirical::_deserialize(std::istream& is, bool verbose)
   if (ret)
   {
     tdisc.resize(2 * ndisc);
-    ret = ret && _tableRead(is, 2 * ndisc, tdisc.data());
+    ret = ret && _tableRead(is, "Coefficients", 2 * ndisc, tdisc.data());
   }
 
   if (ret)

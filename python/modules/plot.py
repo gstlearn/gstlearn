@@ -1002,7 +1002,7 @@ def hist_tab(val, xlabel=None, ylabel=None, nbins=30, color='yellow', edgecolor=
         
     ax.hist(val, **hist_args)
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, aspect = 'auto', title=title)
         
     if end_plot:
         plt.show()
@@ -1095,7 +1095,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
     
     ax.plot(tabx, taby, **plot_args)
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, 
+    drawDecor(ax, aspect = "auto", xlabel=xlabel, ylabel=ylabel, title=title, 
               flagLegend=flagLegend)
     
     if end_plot:
@@ -1222,7 +1222,7 @@ def rule(rule, proportions=[],cmap=None,
                               color=cols(ifac))
         ax.add_patch(rect)
 
-    drawDecor(ax, title=title)
+    drawDecor(ax, aspect="auto", title=title)
         
     if end_plot:
         plt.show()
@@ -1257,7 +1257,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 
             **plot_args)
     
-    drawDecor(ax, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect="auto", title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()

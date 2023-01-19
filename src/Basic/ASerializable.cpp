@@ -159,28 +159,22 @@ bool ASerializable::_tableWrite(std::ostream& os,
 {
   char local[10000];
   bool ret = true;
-
-  for (int i = 0; i < ntab; i++)
-  {
-    if (!string.empty())
-    {
-      (void) gslSPrintf(local, "%s (%d)", string.c_str(), i + 1);
-      ret = ret && _recordWrite<double>(os, local, tab[i]);
-    }
-    else
-    {
-      ret = ret && _recordWrite<double>(os, "", tab[i]);
-    }
-  }
+  VectorDouble loctab(ntab);
+  for (int i = 0; i < ntab; i++) loctab[i] = tab[i];
+  ret = ret && _recordWriteVec<double>(os, string, loctab);
   return ret;
 }
 
-int ASerializable::_tableRead(std::istream& is, int ntab, double *tab)
+int ASerializable::_tableRead(std::istream &is,
+                              const String &string,
+                              int ntab,
+                              double *tab)
 {
   bool ret = true;
-  for (int i = 0; i < ntab; i++)
-    ret = ret && _recordRead<double>(is, "Reading Table", tab[i]);
+  VectorDouble loctab(ntab);
+  ret = ret && _recordReadVec<double>(is, string, loctab, ntab);
   if (!ret) return 1;
+  for (int i = 0; i < ntab; i++) tab[i] = loctab[i];
   return 0;
 }
 

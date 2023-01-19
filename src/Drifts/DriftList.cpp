@@ -100,6 +100,7 @@ void DriftList::addDrift(const ADriftElem* drift)
 
 void DriftList::delDrift(unsigned int i)
 {
+  if (_drifts.empty()) return;
   if (! _isDriftIndexValid(i)) return;
   _drifts.erase(_drifts.begin() + i);
   _filtered.erase(_filtered.begin() + i);

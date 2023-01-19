@@ -290,7 +290,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
 #
 # option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
 plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
-    option="B", zlim = NULL,
+      option="B", zlim = NULL, useSel = TRUE,
       show.legend=TRUE, legend.name="",
       xlab="", ylab="", title="", 
       padd=NULL, end.plot=TRUE)
@@ -313,7 +313,7 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   # Building the necessary data frame
   x = dbgrid$getColumnByLocator(ELoc_X(),0)
   y = dbgrid$getColumnByLocator(ELoc_X(),1)
-  data = Db_getColumn(dbgrid, name)
+  data = Db_getColumn(dbgrid, name, useSel)
   if (length(data) <= 0)
   {
     cat("Variable",name,"does not exist\n")

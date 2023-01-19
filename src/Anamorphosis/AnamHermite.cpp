@@ -95,7 +95,7 @@ AnamHermite* AnamHermite::createFromNF(const String& neutralFilename, bool verbo
   bool success = false;
   if (anam->_fileOpenRead(neutralFilename, is, verbose))
   {
-    success =  anam->deserialize(is, verbose);
+    success = anam->deserialize(is, verbose);
   }
   if (! success)
   {
@@ -645,8 +645,8 @@ bool AnamHermite::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
   ret && ret && AnamContinuous::_serialize(os, verbose);
-  ret = ret && _recordWrite<int>(os, "Number of Hermite Polynomials", getNbPoly());
   ret = ret && _recordWrite<double>(os,"Change of support coefficient", getRCoef());
+  ret = ret && _recordWrite<int>(os, "Number of Hermite Polynomials", getNbPoly());
   ret = ret && _tableWrite(os, "Hermite Polynomial", getNbPoly(), getPsiHns());
   return ret;
 }
@@ -660,11 +660,13 @@ bool AnamHermite::_deserialize(std::istream& is, bool verbose)
   bool ret = true;
 
   ret = ret && AnamContinuous::_deserialize(is, verbose);
-  ret = _recordRead<int>(is, "Number of Hermite Polynomials", nbpoly);
-  if (ret) hermite.resize(nbpoly);
   ret = ret && _recordRead<double>(is, "Change of Support Coefficient", r);
+  ret = ret && _recordRead<int>(is, "Number of Hermite Polynomials", nbpoly);
+  if (ret) hermite.resize(nbpoly);
+  ret = ret && _tableRead(is, "Hermite Polynomial", nbpoly, hermite.data());
   if (ret) setRCoef(r);
-  ret = ret && _tableRead(is, nbpoly, hermite.data());
+
+  message("ret=%d\n",ret);
 
   return ret;
 }
