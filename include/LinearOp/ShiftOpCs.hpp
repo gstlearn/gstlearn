@@ -195,6 +195,8 @@ private:
                       double tol = EPSILON10);
   cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
 
+  bool _cond(int indref, int igparam, int ipref);
+
 private:
   VectorDouble       _TildeC;
   VectorDouble       _Lambda;
