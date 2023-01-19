@@ -1894,7 +1894,7 @@ int db_segy(const char *filesegy,
             double modif_scale,
             const NamingConvention& namconv)
 {
-  SYMBOL_UNUSED(nz_ss);
+  DECLARE_UNUSED(nz_ss);
   double xtrace, ytrace, coor[3];
   int iline, xline, nbvalues, iatt;
   int indg[3], rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;

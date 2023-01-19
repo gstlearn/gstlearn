@@ -2040,7 +2040,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           int iech0,
                           VectorDouble& result)
 {
-  SYMBOL_UNUSED(dbiso, dbgrd, dbtgt);
+  DECLARE_UNUSED(dbiso, dbgrd, dbtgt);
   int nsol;
   VectorDouble coor(3,0.);
 
@@ -2274,7 +2274,7 @@ static void st_dist_convert(Pot_Env *pot_env,
                             double *dist_euc,
                             double *dist_geo)
 {
-  SYMBOL_UNUSED(dbiso, dbgrd, dbtgt);
+  DECLARE_UNUSED(dbiso, dbgrd, dbtgt);
   double potval, delta;
   int nsol, nequa, neqm1, icol0;
   VectorDouble result(4);

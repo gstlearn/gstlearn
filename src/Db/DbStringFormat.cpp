@@ -56,7 +56,7 @@ DbStringFormat::~DbStringFormat()
 
 String DbStringFormat::toString(const AStringFormat* strfmt) const
 {
-  SYMBOL_UNUSED(strfmt);
+  DECLARE_UNUSED(strfmt);
 
   std::stringstream sstr;
 

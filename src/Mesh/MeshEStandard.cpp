@@ -677,7 +677,7 @@ void MeshEStandard::_checkConsistency() const
 
 bool MeshEStandard::_deserialize(std::istream& is, bool verbose)
 {
-  SYMBOL_UNUSED(verbose);
+  DECLARE_UNUSED(verbose);
   int ndim = 0;
   int napices = 0;
   int napexpermesh = 0;

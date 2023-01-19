@@ -207,7 +207,7 @@ AMesh* MeshSphericalExt::_load2DSph(bool verbose,
                                     Db *dbout,
                                     const String &triswitch)
 {
-  SYMBOL_UNUSED(verbose);
+  DECLARE_UNUSED(verbose);
   SphTriangle in;
 
   /* Initialize the Meshing output structure */

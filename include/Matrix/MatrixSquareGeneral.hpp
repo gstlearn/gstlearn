@@ -28,6 +28,9 @@ public:
   MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);
 	virtual ~MatrixSquareGeneral();
 
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquareGeneral)
 
@@ -39,9 +42,7 @@ public:
   bool mustBeDiagCst() const override { return false; }
 
   /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return 1; }
-
-  void toTL() const {};
+  bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
 protected:
 #ifndef SWIG

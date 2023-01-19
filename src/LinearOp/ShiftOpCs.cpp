@@ -1099,7 +1099,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
  */
 int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 {
-# define indref 5
+# define indref -1
   const CovAniso* cova = _getCova();
   _nModelGradParam = cova->getGradParamNumber();
   int number = _nModelGradParam * getSize();
@@ -1514,7 +1514,7 @@ int ShiftOpCs::_buildTildeC(const AMesh *amesh, const VectorDouble& units)
 
 /**
  * Construct the _Lambda vector (Dimension: _napices)
- * @param amesh Description of the Mesh (New class)
+ * @param amesh Description of the Mesh
  */
 void ShiftOpCs::_buildLambda(const AMesh *amesh)
 {

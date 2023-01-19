@@ -605,7 +605,7 @@ void GridBmp::_rgb2num(int red,
                        int a,
                        unsigned char *c)
 {
-  SYMBOL_UNUSED(a);
+  DECLARE_UNUSED(a);
   double value;
 
   value = (double) (red + green + blue) / 3.;

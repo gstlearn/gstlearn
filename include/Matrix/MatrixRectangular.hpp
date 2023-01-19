@@ -26,6 +26,9 @@ public:
   MatrixRectangular& operator= (const MatrixRectangular &r);
 	virtual ~MatrixRectangular();
 
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
 	/// Cloneable interface
   IMPLEMENT_CLONING(MatrixRectangular)
 
@@ -35,8 +38,6 @@ public:
   bool mustBeDiagonal() const override { return false; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
-
-  void toTL() const {};
 
   static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, bool sparse = false);
   static MatrixRectangular* createFromVD(const VectorDouble &X,

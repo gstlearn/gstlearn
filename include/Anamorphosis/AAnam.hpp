@@ -46,7 +46,7 @@ public:
   virtual double       RawToTransformValue(double z) const;
   virtual double       TransformToRawValue(double y) const;
   virtual int          fitFromArray(const VectorDouble &tab,
-                                    const VectorDouble &wt = VectorDouble()) { SYMBOL_UNUSED(tab,wt); return 0;}
+                                    const VectorDouble &wt = VectorDouble()) { DECLARE_UNUSED(tab,wt); return 0;}
 
   double invertVariance(double cvv) const;
   VectorDouble RawToTransformVec(const VectorDouble& z) const;

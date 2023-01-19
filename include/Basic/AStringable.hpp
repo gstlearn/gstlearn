@@ -10,10 +10,12 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "Basic/AStringFormat.hpp"
 #include "geoslib_define.h"
+#include "gstlearn_export.hpp"
+
 #include "Enum/EJustify.hpp"
+
+#include "Basic/AStringFormat.hpp"
 
 #include <sstream>
 

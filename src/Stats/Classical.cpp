@@ -435,7 +435,7 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   int nrows = (int) iuids.size();
   int ncols = (int) opers.size();
   Table table = Table();
-  table.reset(nrows, ncols, stats, false);
+  table.reset(nrows, ncols, stats, false, false);
   for (int irow=0; irow<nrows; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
 

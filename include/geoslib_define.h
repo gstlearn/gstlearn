@@ -32,12 +32,17 @@ typedef unsigned char UChar;
 
 #define EPSGRAD    1.e-5
 
-
 // Macro for preventing warning : unused variable.
-// To be used like: SYMBOL_UNUSED(a, b, c)
-#define SYMBOL_UNUSED_(x) (void)x;
-#define SYMBOL_UNUSED(...) EXPAND(REPEAT(SYMBOL_UNUSED_, __VA_ARGS__))
+// To be used like: DECLARE_UNUSED(a, b, c)
+#define DECLARE_UNUSED_(x) (void)x;
+#define DECLARE_UNUSED(...) EXPAND(REPEAT(DECLARE_UNUSED_, __VA_ARGS__))
 
+// Declare the function which has a specific implementation
+// in the Target language.
+// This function must be:
+// - declared in rgstlearn.i or pygstlearn.i
+// - be called as 'classname'_toTL
+#define DECLARE_TOTL void toTL() const {};
 
 // No need to this stuff through SWIG (using target language NAs)
 // => Not really : Using customized SWIG 4.2.0b, TEST is often a default argument value!

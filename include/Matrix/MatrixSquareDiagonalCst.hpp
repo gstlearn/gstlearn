@@ -28,6 +28,9 @@ public:
   MatrixSquareDiagonalCst& operator= (const MatrixSquareDiagonalCst &r);
 	virtual ~MatrixSquareDiagonalCst();
 
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquareDiagonalCst)
 
@@ -51,9 +54,9 @@ public:
   /*! Indicate if the given indices are valid for the current matrix size */
   bool isValid(int irow, int icol, bool printWhyNot = false) const override;
   /*! does the matrix is symmetrical ? */
-  bool isSymmetric(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return true; }
+  bool isSymmetric(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
   /*! Check if the (non empty) matrix is diagonal */
-  bool isDiagonal(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return true; }
+  bool isDiagonal(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
 
   /*! Set the contents of a Column */
   void setColumn(int icol, const VectorDouble& tab) override;
@@ -61,8 +64,6 @@ public:
   void setRow(int irow, const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal */
   void setDiagonal(const VectorDouble& tab) override;
-
-  void toTL() const {};
 
 protected:
 #ifndef SWIG

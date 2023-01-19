@@ -13,6 +13,7 @@
 // WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+
 #include "Basic/VectorT.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/RepeatMacro.hpp"
@@ -57,9 +58,7 @@ public:
   bool isEqual         (const AEnum& e) const { return e == *this; }
   bool isDifferent     (const AEnum& e) const { return e != *this; }
 
-  void printEnum() const { std::cout << std::setw(2)  << std::right << _value << " - "
-                                     << std::setw(10) << std::left  << _key
-                                     << ": "                        << _descr << std::endl; }
+  void printEnum() const;
 
 protected:
   AEnum(const String& key, int value, const String& descr)
@@ -69,6 +68,12 @@ protected:
   AEnum(const AEnum&) = default;
   ~AEnum() = default;
   AEnum& operator=(const AEnum&) = default;
+
+  template<typename ... Args>
+  static void _printMsg(const char *format, Args... args);
+  // TODO: Should be used for the error messages (not possible as this function
+  // (template), as it is present in a macro (thus expanded)
+  // would be embarked in SWIG... who does not know it.
  
 private:
   String _key;
@@ -209,11 +214,9 @@ NAME ## Iterator NAME::getIterator()\
 \
 void NAME::printAll()\
 {\
-  std::cout << #NAME << ":" << std::endl;\
   auto it(getIterator());\
   while (it.hasNext())\
   {\
-    std::cout << "  ";\
     (*it).printEnum();\
     it.toNext();\
   }\

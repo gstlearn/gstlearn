@@ -8,6 +8,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+#include "geoslib_define.h"
+
 #include "Basic/HDF5format.hpp"
 
 #include <stdlib.h>

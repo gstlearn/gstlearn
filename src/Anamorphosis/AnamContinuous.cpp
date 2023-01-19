@@ -75,7 +75,7 @@ void AnamContinuous::setPBounds(double pzmin,
 
 String AnamContinuous::toString(const AStringFormat* strfmt) const
 {
-  SYMBOL_UNUSED(strfmt);
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   if (! _isFitted()) return sstr.str();

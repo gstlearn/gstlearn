@@ -28,6 +28,9 @@ public:
   MatrixSquareDiagonal& operator= (const MatrixSquareDiagonal &r);
 	virtual ~MatrixSquareDiagonal();
 
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquareDiagonal)
 
@@ -40,9 +43,9 @@ public:
   /*! Indicate if the given indices are valid for the current matrix size */
   bool isValid(int irow, int icol, bool printWhyNot = false) const override;
   /*! does the matrix is symmetrical ? */
-  bool isSymmetric(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return true; }
+  bool isSymmetric(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
   /*! Check if the (non empty) matrix is diagonal */
-  bool isDiagonal(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return true; }
+  bool isDiagonal(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
 
   /*! Add a value to each matrix component */
   void addScalar(double v) override;
@@ -62,8 +65,6 @@ protected:
   bool mustBeDiagonal() const override { return true; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
-
-  void toTL() const {};
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isDiagonal()); }
