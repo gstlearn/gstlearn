@@ -602,6 +602,7 @@ void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric &hh, int ip)
 
     // Calculate the current HH matrix (using local covariance parameters)
     const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
+
     VectorDouble diag = VH::power(cova->getScales(), 2.);
     MatrixSquareSymmetric temp(ndim);
     temp.setDiagonal(diag);
@@ -609,6 +610,8 @@ void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric &hh, int ip)
   }
   delete cova;
 }
+
+// TODO : finish the job!!!!
 
 void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
 {
@@ -690,9 +693,8 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     {
       // Derivation with respect to the Angle 'igparam'-ndim
       int ir = igparam - ndim;
-      CovAniso* dcova = cova;
-      dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
-      const MatrixSquareGeneral& drotmat = dcova->getAnisoRotMat();
+      cova->setAnisoAngle(ir, cova->getAnisoAngles(ir) + 90.);
+      const MatrixSquareGeneral& drotmat = cova->getAnisoRotMat();
       VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, rotmat, drotmat);
@@ -1039,7 +1041,9 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
     // Storing in the Map
 
-    double ratio = sqrt(dethh * detMtM);
+    //double ratio = sqrt(dethh * detMtM);
+    double ratio = 1.;
+
     double S = 0.;
     for (int j0 = 0; j0 < ncorner-1; j0++)
     {
@@ -1072,7 +1076,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
   // Ending S construction
 
-  cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
+  //cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
 
   /* Set the error return code */
 
@@ -1090,7 +1094,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
  */
 int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 {
-# define indref -1
+# define indref 0
   const CovAniso* cova = _getCova();
   _nModelGradParam = cova->getGradParamNumber();
   int number = _nModelGradParam * getSize();
@@ -1103,7 +1107,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
   // Initialize the arrays
 
-  MatrixSquareSymmetric hh(ndim);
+  MatrixSquareSymmetric hhGrad(ndim);
   MatrixSquareSymmetric matMtM(ncorner-1);
   MatrixRectangular matP(ncorner-1,ndim);
   MatrixSquareGeneral matMs(ndim);
@@ -1115,7 +1119,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   int igrf = _getIgrf();
   int icov = _getIcov();
   if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(amesh, hh, 0);
+    _loadHHByApex(amesh, hhGrad, 0);
 
   /* Loop on the meshes */
 
@@ -1148,14 +1152,14 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
         // Update HH matrix
 
-        _loadHHGradPerMesh(hh, amesh, ipref, igparam);
+        _loadHHGradPerMesh(hhGrad, amesh, ipref, igparam);
         if (ipref == indref && igparam == 0)
-          hh.display();
+          hhGrad.display();
 
         if (amesh->getVariety() == 1)
-          matPinvHPt.normTMatrix(hh, matP);
+          matPinvHPt.normTMatrix(hhGrad, matP);
         else
-          matPinvHPt.normTMatrix(hh, matMs);
+          matPinvHPt.normTMatrix(hhGrad, matMs);
 
         // Storing in the Map
 
@@ -1173,26 +1177,18 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
             double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
             s += vald;
             _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
-            if (ipref == indref && igparam == 0)
-              message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
-                      imesh,jref,ip0,ip1,vald);
+            if (ipref == indref && igparam == 0)message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip0,ip1,vald);
           }
           int ip1 = amesh->getApex(imesh, ncorner - 1);
           _mapGradUpdate(Mtab[iad],ip0, ip1, -s, tol);
-          if (ipref == indref && igparam == 0)
-            message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
-                    imesh,jref,ip0,ip1,-s);
+          if (ipref == indref && igparam == 0) message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip0,ip1,-s);
           _mapGradUpdate(Mtab[iad],ip1, ip0, -s, tol);
-          if (ipref == indref && igparam == 0)
-            message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
-                    imesh,jref,ip1,ip0,-s);
+          if (ipref == indref && igparam == 0)message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip1,ip0,-s);
           S += s;
         }
         int ip0 = amesh->getApex(imesh, ncorner - 1);
         _mapGradUpdate(Mtab[iad], ip0, ip0, S, tol);
-        if (ipref == indref && igparam == 0)
-          message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",
-                  imesh,jref,ip0,ip0,-S);
+        if (ipref == indref && igparam == 0)message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip0,ip0,S);
       }
     }
   }
@@ -1203,8 +1199,8 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   for (int i = 0; i < number; i++)
   {
     _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
-    if (_SGrad[i] == nullptr) goto label_end;
-    cs_matvecnorm_inplace(_SGrad[i], _TildeC.data(), 2);
+    //if (_SGrad[i] == nullptr) goto label_end;
+    //cs_matvecnorm_inplace(_SGrad[i], _TildeC.data(), 2);
   }
 
   /* Set the error return code */
@@ -1774,7 +1770,7 @@ void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
 
   if (ABS(value) < tol) return;
   std::pair<int, int> key(ip0, ip1);
-  ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
+  ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value)); // ret.second = false if key is already in the map
   if (!ret.second) ret.first->second += value;
 }
 
