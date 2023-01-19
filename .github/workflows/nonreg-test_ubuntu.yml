@@ -41,7 +41,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==${{matrix.python[1]}} twine wheel pandas scipy
+        python -m pip install numpy twine wheel pandas scipy
 
     - name: Setup personal R libraries directory
       # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
