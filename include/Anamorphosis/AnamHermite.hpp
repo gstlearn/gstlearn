@@ -94,6 +94,8 @@ public:
                                 const VectorDouble& angles = VectorDouble(),
                                 bool verbose = true);
 
+  VectorDouble cumulateVarianceRatio(double chh) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

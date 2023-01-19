@@ -125,7 +125,7 @@ String CovLMCAnamorphosis::toString(const AStringFormat* strfmt) const
   if (iclass == -1)
     sstr << "Option switch to Raw Variable" << std::endl;
   else if (iclass > 0)
-    sstr << "Active Factor: Rank %d" << iclass << std::endl;
+    sstr << "Active Factor: Rank" << iclass << std::endl;
 
   return sstr.str();
 }
@@ -520,17 +520,19 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
   return TEST;
 }
 
-int CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
+void CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
 {
   if (! (anam_iclass == 0 || anam_iclass <= _anam->getNFactor()))
   {
     messerr("The rank of the active factor (%d) is incorrect", anam_iclass);
     messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);
     messerr("or be set to 0 to estimate the whole discretized grade");
-    return 1;
+    messerr("The rank is set back to 0 (Gaussian Variable)");
+    anam_iclass = 0;
+    return;
   }
   _activeFactor = anam_iclass;
-  return 0;
+  return;
 }
 
 const EAnam CovLMCAnamorphosis::getAnamType() const

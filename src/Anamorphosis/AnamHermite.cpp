@@ -301,6 +301,23 @@ double AnamHermite::computeVariance(double chh) const
   return var;
 }
 
+VectorDouble AnamHermite::cumulateVarianceRatio(double chh) const
+{
+  VectorDouble vec;
+
+  int nbpoly = getNbPoly();
+  double rho = 1.;
+  double var = 0.;
+  double total = getVariance();
+  for (int ih = 1; ih < nbpoly; ih++)
+  {
+    rho *= chh;
+    var += getPsiHn(ih) * getPsiHn(ih) * rho;
+    vec.push_back(var / total);
+  }
+  return vec;
+}
+
 void AnamHermite::calculateMeanAndVariance()
 {
   _mean = _psiHn[0];
@@ -893,7 +910,7 @@ double AnamHermite::evalSupportCoefficient(int option,
 
   if (option == 2)
   {
-    model->setActiveFactor(1); // Y Variable
+    model->setActiveFactor(-1); // Y Variable
     double cvv = model->evalCvv(dxs, ndisc, angles);
     double r2 = sqrt(cvv);
     if (verbose)

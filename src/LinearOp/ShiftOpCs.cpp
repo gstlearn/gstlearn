@@ -255,7 +255,6 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
 
   try
   {
-    if (verbose) message(">>> Using the new calculation module <<<\n");
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
@@ -1090,7 +1089,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
  */
 int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 {
-# define indref -1
+# define indref 0
   const CovAniso* cova = _getCova();
   _nModelGradParam = cova->getGradParamNumber();
   int number = _nModelGradParam * getSize();

@@ -51,7 +51,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, vario=NULL, hmax=1, codir=NULL, 
-					   ivar=0, jvar=0, idir=0, asp=1,
+					   ivar=0, jvar=0, idir=0, asCov=FALSE, asp=1,
                        xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
@@ -73,10 +73,9 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   p <- getFigure(padd)
   
   hh = seq(from=0, to=hmax, length.out=nh)
-  gg = model$sample(hmax, nh, ivar, jvar, codir)
+  gg = model$sample(hmax, nh, ivar, jvar, codir, asCov=asCov)
   df = data.frame(cbind(hh,gg))
   
-  plot(hh, gg, type="l")
   p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
@@ -163,7 +162,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             hh = seq(0, hmax, hmax/nh)
             nhh = length(hh)
             codir = vario$getCodirs(id)
-            gg = model$sample(hmax, nhh, iv, jv, codir)
+            gg = model$sample(hmax, nhh, iv, jv, codir, asCov=asCov)
             dfg = data.frame(cbind(hh,gg))
             g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
 
