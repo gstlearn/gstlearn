@@ -19,7 +19,7 @@ If you simply want to install the Python or R package for gstlearn you should lo
 
 ## References
 
-The *gstlearn* C++ library is the direct successor of the Geoslib C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
+The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
 The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
@@ -67,8 +67,10 @@ If you only want to use Python or R packages, you should switch to corresponding
 
 For getting the sources files, just clone the github repository:
 
-    git clone https://github.com/gstlearn/gstlearn.git
-    cd gstlearn
+```
+git clone https://github.com/gstlearn/gstlearn.git
+cd gstlearn
+```
 
 Notes:
 
@@ -82,17 +84,23 @@ For compiling and installing the *gstlearn* C++ shared library, execute the foll
 
 ...or any other single configuration compiler:
 
-    cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
-    cmake --build build --target shared
-    cmake --build build --target install
+```
+cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target shared
+cmake --build build --target install
+```
 
 or for those who prefer a single command line:
 
-    mkdir -p build & cd build & cmake .. & make shared & make install
+```
+mkdir -p build & cd build & cmake .. & make shared & make install
+```
 
 or even faster:
 
-    make
+```
+make
+```
 
 Note:
 
@@ -102,9 +110,11 @@ Note:
 
 ...or any other multiple configurations compiler:
 
-    cmake -Bbuild -H.
-    cmake --build build --target shared --config Release
-    cmake --build build --target install --config Release
+```
+cmake -Bbuild -H.
+cmake --build build --target shared --config Release
+cmake --build build --target install --config Release
+```
 
 Note:
 
@@ -137,13 +147,15 @@ These tools are needed for compiling the *gstlearn* C++ library. Please note tha
 
 ### Linux (Ubuntu)
 
-    sudo apt install git
-    sudo apt install cmake
-    sudo apt install texlive-latex-recommended
-    sudo apt install texlive-science
-    sudo apt install doxygen
-    sudo apt install libboost-all-dev
-    sudo apt install libhdf5-dev
+```
+sudo apt install git
+sudo apt install cmake
+sudo apt install texlive-latex-recommended
+sudo apt install texlive-science
+sudo apt install doxygen
+sudo apt install libboost-all-dev
+sudo apt install libhdf5-dev
+```
 
 Notes:
 
@@ -152,13 +164,15 @@ Notes:
 
 ### MacOS
 
-    brew install git
-    brew install cmake
-    brew install texlive-latex-recommended
-    brew install texlive-science
-    brew install doxygen
-    brew install libboost-all-dev
-    brew install libhdf5-dev
+```
+brew install git
+brew install cmake
+brew install texlive-latex-recommended
+brew install texlive-science
+brew install doxygen
+brew install libboost-all-dev
+brew install libhdf5-dev
+```
 
 Notes:
 
@@ -244,28 +258,36 @@ To build and launch non-regression tests, execute the following commands:
 
 ...or any other single configuration compiler:
 
-    cmake --build build --target build_tests
-    cmake --build build --target check_cpp
-    cmake --build build --target check_data
-    
+```
+cmake --build build --target build_tests
+cmake --build build --target check_cpp
+cmake --build build --target check_data
+```
+
 or even faster:
 
-    make check_cpp
-    make check_data
+```
+make check_cpp
+make check_data
+```
 
 #### Microsoft Visual Studio, ...
 
 ...or any other multiple configurations compiler:
 
-    cmake --build build --target build_tests --config Release
-    cmake --build build --target check_cpp --config Release
-    cmake --build build --target check_data --config Release
-  
+```
+cmake --build build --target build_tests --config Release
+cmake --build build --target check_cpp --config Release
+cmake --build build --target check_data --config Release
+```
+
 ### Clean
 
 To clean (partially) the build, execute the following command:
 
-    cmake --build build --target clean
+```
+cmake --build build --target clean
+```
 
 Notes:
 
@@ -279,26 +301,36 @@ make clean_all
 
 To uninstall all the installed files (only the files, not the directories), execute this command:
 
-    cmake --build build --target uninstall
+```
+cmake --build build --target uninstall
+```
 
 or faster:
 
-    make uninstall
+```
+make uninstall
+```
 
 ### Generate the Documentation
 
 The Doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
-    cmake -Bbuild -H. -DBUILD_DOXYGEN=ON
-    cmake --build build --target doxygen
+```
+cmake -Bbuild -H. -DBUILD_DOXYGEN=ON
+cmake --build build --target doxygen
+```
 
 or faster (for Makefile user):
 
-    make doxygen
+```
+make doxygen
+```
 
 The documentation is then available by opening the following HTML file with your favorite web-browser:
 
-    firefox build/doxygen/html/index.html
+```
+firefox build/doxygen/html/index.html
+```
 
 ---
 

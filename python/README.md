@@ -20,7 +20,9 @@ The *gstlearn* Python package is a derivative work based on the *swigex* project
 
 For using this Python package you only need Python 3 (or higher) (with numpy, pandas and matplotlib) and execute the following command:
 
-    pip install -i https://test.pypi.org/simple/ gstlearn
+```
+pip install -i https://test.pypi.org/simple/ gstlearn
+```
 
 Note: In a close future, *gstlearn* will be available directly on *pypi* repository (not the test version)
 
@@ -28,19 +30,21 @@ Note: In a close future, *gstlearn* will be available directly on *pypi* reposit
 
 Simply import the *gstlearn* Python package and its plot module, then enjoy:
 
-    # Import packages
-    import numpy as np
-    import gstlearn as gl
-    import gstlearn.plot as gp
-    # Grid size
-    nx = 60
-    ny = 30
-    mygrid = gl.DbGrid.create([nx,ny],[1,1])
-    # Add a gaussian random field
-    var = np.random.randn(nx * ny)
-    mygrid.addColumns(var, "var1")
-    # Display the field
-    gp.grid(mygrid, title="Gaussian random field", end_plot = True)
+```
+# Import packages
+import numpy as np
+import gstlearn as gl
+import gstlearn.plot as gp
+# Grid size
+nx = 60
+ny = 30
+mygrid = gl.DbGrid.create([nx,ny],[1,1])
+# Add a gaussian random field
+var = np.random.randn(nx * ny)
+mygrid.addColumns(var, "var1", gl.ELoc.Z)
+# Display the field
+gp.grid(mygrid, title="Gaussian random field", end_plot = True)
+```
 
 Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) directory of the *gstlearn* github repository.
 
@@ -50,11 +54,15 @@ Some tests (Python scripts) are available in the [tests](https://github.com/gstl
 
 If you experience the following error while importing *gstlearn* package under Python:
 
-    RuntimeError: module compiled against API version 0x10 but this version of numpy is 0xe
+ ```
+RuntimeError: module compiled against API version 0x10 but this version of numpy is 0xe
+```
 
 ... you may need to upgrade numpy:
 
-    python -m pip install --upgrade numpy
+```
+python -m pip install --upgrade numpy
+```
 
 
 ## Documentation
@@ -151,23 +159,31 @@ cd gstlearn
 
 ...or any other single configuration compilers:
 
-    cmake -Bbuild -H. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
-    cmake --build build --target python_install
+```
+cmake -Bbuild -H. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target python_install
+```
 
 or for those who prefer a single command line:
 
-    mkdir -p build & cd build & cmake .. -DBUILD_PYTHON=ON & make python_install
+```
+mkdir -p build & cd build & cmake .. -DBUILD_PYTHON=ON & make python_install
+```
 
 or even faster:
 
-    make python_install
+```
+make python_install
+```
 
 #### Microsoft Visual Studio, ...
 
 ...or any other multiple configurations compilers:
 
-    cmake -Bbuild -H. -DBUILD_PYTHON=ON
-    cmake --build build --target python_install --config Release
+```
+cmake -Bbuild -H. -DBUILD_PYTHON=ON
+cmake --build build --target python_install --config Release
+```
 
 ### Important Notes
 
@@ -190,23 +206,31 @@ To build and launch non-regression Python tests, execute the following command:
 
 ...or any other single configuration compiler:
 
-    cmake --build build --target check_py
+```
+cmake --build build --target check_py
+```
     
 or even faster:
 
-    make check_py
+```
+make check_py
+```
 
 #### Microsoft Visual Studio, ...
 
 ...or any other multiple configurations compiler:
 
-    cmake --build build --target check_py --config Release
+```
+cmake --build build --target check_py --config Release
+```
 
 ### Remove Installed Package
 
 To uninstall the *gstlearn* Python package, execute following command:
 
-    python3 -m pip uninstall gstlearn
+```
+python3 -m pip uninstall gstlearn
+```
 
 Note : You may need to directly modify your *site-packages* folder by:
 
