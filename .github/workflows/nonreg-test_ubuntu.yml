@@ -1,5 +1,5 @@
 name: nightly_tests_ubuntu-latest
-# Note: For mail notification, keep gstlearn github account last pusher
+# Note: For mail notification, keep gstlearn github account last pusher of this file
 on:
   # Deactivate the workflow
   #push:
