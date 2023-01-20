@@ -62,11 +62,11 @@ Their is currently no R documentation for the *gstlearn* R package. The user can
 
 * C++ classes are automatically converted into S4 classes. After creating an instance of an S4 class, methods (i.e. class function) must be called using `$` slot applied to the instance (i.e. an object) of that class (see `addColumns` in the example above which is a method of the class `Db`).
 
-* If you ask for the class type of an object under R (e.g. `class(mygrid)`), you will obtain the C++ class name prefixed with '_p_' (e.g. `_p_DbGrid`).
+* If you ask for the class type of a *gstlearn* object under R (e.g. `class(mygrid)`), you will obtain the C++ class name prefixed with '_p_' (e.g. `_p_DbGrid`).
 
-* Static C++ methods (e.g. `createFromNF`) defined in a class (e.g. `DbGrid`) are renamed by joining the class name and the method name (e.g. `DbGrid_createFromNF'`). Note: Static methods do not apply to object instances (e.g. `mygrid$createFromNF()` has no sense)
+* Static C++ methods (e.g. `createFromNF` method in `DbGrid` class) defined in a class (e.g. `DbGrid`) are renamed by joining the class name and the method name (e.g. `DbGrid_createFromNF'`). Note: Static methods do not apply to object instances (e.g. `mygrid$createFromNF()` has no sense)
 
-* Static C++ variables (e.g. `X`) defined in a class (e.g. `ELoc`) must be accessed in R using special functions which names follow the same rules as the static methods (e.g. `ELoc_X()`)
+* Static C++ variables (e.g. `X` locator) defined in a class (e.g. `ELoc` 'enum' class) must be accessed in R using special functions named following the same rules as static methods (e.g. `ELoc_X()` in example above)
 
 * All basic C++ types (`double`, `int`, `bool`, etc...) are automatically converted to/from R native types (`numeric`, `integer`, `logical`,...) (e.g. see `var` variable in the example above)
 
@@ -77,7 +77,7 @@ Their is currently no R documentation for the *gstlearn* R package. The user can
 * Some classes of the *gstlearn* C++ library have been extended in R:
   * `[]` operator permits to access content in a `Db` and a `DbGrid` in the same way as R an `dataframe`. (e.g. `mygrid["var1"]`, `mygrid[10,10]`).
   * But remind that a `Db` object is not a `data.frame` and `names(mygrid)` is not possible. To display all variable names of a `Db` instance, you need to use `mygrid$getAllNames()`.
-  * Almost all classes are 'Stringable', that means that you can type the object name in the R console prompt and hit 'Enter' to obtain a detailed description of the object content.
+  * Almost all classes are 'stringable' (those which inherit from `AStringable`), that means that you can type the object name in the R console prompt and hit 'Enter' key to obtain a detailed description of the object content. The same output text is obtained using the `display` method (e.g. `mygrid$display()`)
   * Some classes have an additional R method named `toTL` (i.e. 'to Target Language') that permits to convert an object into the corresponding type. For example, the instruction `df = mygrid$toTL()` permits to create an R `data.frame` from a `Db` object. In that case, the newly created `data.frame` will contain all variables from the Db (but locators and grid parameters (for DbGrid) are lost)
 
 ### RGeostats to gstlearn
@@ -91,6 +91,7 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 ```
 # Create a Neutral File storing mygrid content
 mygrid$dumpToNF("mygrid.backup")
+#...
 # Restart the R session
 #...
 # Load the Neutral File and recreate mygrid
@@ -100,7 +101,7 @@ mygrid = DbGrid_createFromNF("mygrid.backup")
 
 ### Known caveats
 
-When executing a method using the '$' slot, if you experience the following error...
+When executing a method using the `$` slot, if you experience the following error...
 
 ```
 Erreur dans validObject(.Object) : 
