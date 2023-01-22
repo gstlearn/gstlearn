@@ -251,7 +251,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   {
     labval = rep(0,np)
   }
-  df = data.frame(xtab,ytab,colval,sizval,labval)
+  df = data.frame(xtab,ytab)
   
   p <- getFigure(padd)
   
@@ -260,8 +260,8 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   
   if (! is.null(label_name)) 
   {
-    p <- p + geom_text(data = df, aes(x=x, y=y, label=as.character(labval)),
-               nudge_y=nudge_y, color=color_label, check_overlap=TRUE)
+    p <- p + geom_text(data = df, aes(x=x, y=y), label=as.character(labval),
+               nudge_y = nudge_y, color=color_label, check_overlap=TRUE)
     if (show.legend.label) {
       p <- p + guides(label = guide_legend(title = legend.name.label))
     } else {
