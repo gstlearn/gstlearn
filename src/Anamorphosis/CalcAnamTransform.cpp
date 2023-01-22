@@ -408,7 +408,7 @@ bool CalcAnamTransform::_ZToYByHermite()
   {
     VectorDouble z = getDb()->getColumnByLocator(ELoc::Z, ivar, true);
     if (z.size() <= 0) continue;
-    VectorDouble y = anamC->RawToGaussianVector(z);
+    VectorDouble y = anamC->rawToGaussianVector(z);
     getDb()->setColumnByUID(y, _iattVar + ivar, true);
   }
   return true;
@@ -423,7 +423,7 @@ bool CalcAnamTransform::_YToZByHermite()
   {
     VectorDouble y = getDb()->getColumnByLocator(ELoc::Z, ivar);
     if (y.size() <= 0) continue;
-    VectorDouble z = anamC->GaussianToRawVector(y);
+    VectorDouble z = anamC->gaussianToRawVector(y);
     getDb()->setColumnByUID(z, _iattVar + ivar, true);
   }
   return true;

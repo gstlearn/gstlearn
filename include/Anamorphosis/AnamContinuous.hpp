@@ -74,8 +74,8 @@ public:
                   double pymin = TEST,
                   double pymax = TEST);
 
-  VectorDouble RawToGaussianVector(const VectorDouble &z) const;
-  VectorDouble GaussianToRawVector(const VectorDouble &y) const;
+  VectorDouble rawToGaussianVector(const VectorDouble &z) const;
+  VectorDouble gaussianToRawVector(const VectorDouble &y) const;
 
   AnamContinuousFit sample(int ndisc = 100,
                            double aymin = -10,

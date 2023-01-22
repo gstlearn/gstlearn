@@ -89,10 +89,10 @@ protected:
 
   static bool _onlyBlanks(char *string);
 
-  static int _tableRead(std::istream &is,
-                        const String &string,
-                        int ntab,
-                        double *tab);
+  static bool _tableRead(std::istream &is,
+                         const String &string,
+                         int ntab,
+                         double *tab);
   static bool _tableWrite(std::ostream &os,
                           const String &string,
                           int ntab,

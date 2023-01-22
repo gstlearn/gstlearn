@@ -285,9 +285,52 @@ Polygons* Polygons::createFromDb(const Db* db)
   return polygons;
 }
 
+const PolySet Polygons::getPolySet(int ipol) const
+{
+  if (! _isValidPolySetIndex(ipol)) return PolySet();
+  return _polysets[ipol];
+}
+
 PolySet Polygons::getClosedPolySet(int ipol) const
 {
+  if (! _isValidPolySetIndex(ipol)) return PolySet();
   PolySet polyset = getPolySet(ipol);
   polyset.closePolySet();
   return polyset;
+}
+
+const VectorDouble Polygons::getX(int ipol) const
+{
+  if (! _isValidPolySetIndex(ipol)) return VectorDouble();
+  return _polysets[ipol].getX();
+}
+
+const VectorDouble Polygons::getY(int ipol) const
+{
+  if (! _isValidPolySetIndex(ipol)) return VectorDouble();
+  return _polysets[ipol].getY();
+}
+
+void Polygons::setX(int ipol, const VectorDouble& x)
+{
+  if (! _isValidPolySetIndex(ipol)) return;
+  return _polysets[ipol].setX(x);
+}
+
+void Polygons::setY(int ipol, const VectorDouble& y)
+{
+  if (! _isValidPolySetIndex(ipol)) return;
+  return _polysets[ipol].setY(y);
+}
+
+bool Polygons::_isValidPolySetIndex(int ipol) const
+{
+  int npol = getPolySetNumber();
+  if (ipol < 0 || ipol >= npol)
+  {
+    messerr("PolySet Index %d is not valid. It should lie in [0,%d[",
+            ipol,npol);
+    return false;
+  }
+  return true;
 }

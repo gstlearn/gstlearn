@@ -51,7 +51,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, vario=NULL, hmax=1, codir=NULL, 
-					   ivar=0, jvar=0, idir=0, asCov=FALSE, asp=1,
+					   ivar=0, jvar=0, idir=0, asCov=FALSE, 
                        xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
@@ -63,11 +63,11 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   else
   {
   if (is.null(codir))
-   {
-     ndim = model$getDimensionNumber()
+    {
+      ndim = model$getDimensionNumber()
       codir = rep(0,ndim)
       codir[1] = 1
-     }
+    }
   }
 
   p <- getFigure(padd)
@@ -78,7 +78,7 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   
   p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
   
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -227,9 +227,9 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   }
 
   # Size of symbol
-  reduction = 100
   if (! is.null(size_name))
   {
+  	reduction = 100
     sizval  = Db_getColumn(db,size_name,TRUE)
     if (flagAbsSize) sizval = abs(sizval)
     m = min(sizval,na.rm=TRUE)
@@ -254,8 +254,8 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   df = data.frame(xtab,ytab,colval,sizval,labval)
   
   p <- getFigure(padd)
-     
-  p <- p + geom_point(data=df, aes(x=xtab,y=ytab),color=colval,size=sizval,
+  
+  p <- p + geom_point(data=df, aes(x=xtab,y=ytab), color=colval, size=sizval,
            na.rm=TRUE)
   
   if (! is.null(label_name)) 
@@ -326,13 +326,13 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   if (dbgrid$getAngles()[1] == 0)
   {
     df = data.frame(x,y,data)
-  p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
+  	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
   }
   else
   {
     ids = seq(1, dbgrid$getNTotal())
-   coords = dbgrid$getAllCellsEdges()
-   positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
+    coords = dbgrid$getAllCellsEdges()
+    positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
     values = data.frame(id = ids, value = data)
     df <- merge(values, positions, by = c("id"))
     p <- p + geom_polygon(data = df, aes(x = x, y = y, fill = value, group = id))
@@ -365,34 +365,28 @@ plot.db <- function(db, padd=NULL, end.plot=TRUE, ...)
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)
-plot.polygon <- function(poly, xlab="", ylab="", title="", 
-    padd = NULL, end.plot=TRUE)
+plot.polygon <- function(poly, xlab="", ylab="", title="", color="black", 
+		fill=NA, asp=1, padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   npol = poly$getPolySetNumber()
-  cols = get.colors()
   
-  ids = seq(1,npol)
-  values = data.frame(
-    id = ids,
-    value = cols[ids]
-  )
-   
   p <- getFigure(padd)
   
   for (ipol in 1:npol)
   {
-    xtab = poly$getX(ipol)
-    ytab = poly$getY(ipol)
+    xtab = poly$getX(ipol-1)
+    ytab = poly$getY(ipol-1)
     rp = data.frame(xtab, ytab)
-  p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color)
+    
+    p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color=color, fill=fill)
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   
   end.func(p, end.plot)
 }
-#setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
         
 # Function for plotting the histogram of a variable
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
@@ -544,7 +538,7 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
 
   df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
             ymin=rep(0,nrect),ymax=rep(0,nrect),
-                  colors=cols[1:nrect])
+            colors=cols[1:nrect])
   for (ifac in 1:nrect)
   {
     rect = rule$getThresh(ifac)
@@ -595,5 +589,5 @@ plot.mesh <- function(mesh,
   
   end.func(p, end.plot)
 }
-#setMethod("mesh", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
+setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
  

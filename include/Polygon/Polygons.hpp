@@ -51,12 +51,12 @@ public:
   void addPolySet(const PolySet& polyset);
 
   const std::vector<PolySet>& getPolySets() const { return _polysets; }
-  const PolySet& getPolySet(int ipol) const { return _polysets[ipol]; }
+  const PolySet getPolySet(int ipol) const;
   PolySet getClosedPolySet(int ipol) const;
-  const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
-  const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
-  void setX(int ipol, const VectorDouble& x) { return _polysets[ipol].setX(x); }
-  void setY(int ipol, const VectorDouble& y) { return _polysets[ipol].setY(y); }
+  const VectorDouble getX(int ipol) const;
+  const VectorDouble getY(int ipol) const;
+  void setX(int ipol, const VectorDouble& x);
+  void setY(int ipol, const VectorDouble& y);
 
   void getExtension(double *xmin,
                     double *xmax,
@@ -75,6 +75,7 @@ private:
                           int ifin,
                           int ncol,
                           const VectorDouble& tab);
+  bool _isValidPolySetIndex(int ipol) const;
 
 private:
   std::vector<PolySet> _polysets;

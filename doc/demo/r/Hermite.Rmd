@@ -374,7 +374,7 @@ plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
 
 
 ```{r,eval=FALSE}
-zz_rg = ana$GaussianToRawVector(yy)
+zz_rg = ana$gaussianToRawVector(yy)
 plot.XY(zz_theo, zz_rg, join=TRUE, flagDiag=TRUE, color="blue", 
         xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
 #legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))

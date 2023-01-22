@@ -128,7 +128,7 @@ void AnamHermite::reset(double pymin,
   setPBounds(pzmin, pzmax, pymin, pymax);
 }
 
-double AnamHermite::RawToTransformValue(double z) const
+double AnamHermite::rawToTransformValue(double z) const
 {
   double y,y1,y2,yg,z1,z2,zg,dz,dzmax,dy,dymax;
   int i,iter;
@@ -162,23 +162,22 @@ double AnamHermite::RawToTransformValue(double z) const
 
   /* Calculate the precision on Z */
 
-  z1 = TransformToRawValue(-1);
-
-  z2 = TransformToRawValue( 1);
+  z1 = transformToRawValue(-1);
+  z2 = transformToRawValue( 1);
   dzmax = ABS((z2 - z1)/100000.);
 
   /* Look for a first interval in Y containing Z */
 
   dy = YPAS;
   y1 = 0.;
-  z1 = TransformToRawValue(y1);
+  z1 = transformToRawValue(y1);
 
   if (z > z1)
   {
     for( i=0 ; i<101 ; i++ )
     {
       y2 = y1 + dy;
-      z2 = TransformToRawValue(y2);
+      z2 = transformToRawValue(y2);
       if(z2 > z) break;
       y1 = y2;
       z1 = z2;
@@ -192,7 +191,7 @@ double AnamHermite::RawToTransformValue(double z) const
     for( i=0 ; i<101 ; i++ )
     {
       y1 = y2 - dy;
-      z1 = TransformToRawValue(y1);
+      z1 = transformToRawValue(y1);
       if(z1 < z) break;
       y2 = y1;
       z2 = z1;
@@ -208,7 +207,7 @@ double AnamHermite::RawToTransformValue(double z) const
   while( iter<1000000 && dz>dzmax && dy>dymax )
   {
     yg = (y1 + y2)/2.;
-    zg = TransformToRawValue(yg);
+    zg = transformToRawValue(yg);
 
     if(zg > z)
     {
@@ -240,7 +239,7 @@ double AnamHermite::RawToTransformValue(double z) const
   return(y);
 }
 
-double AnamHermite::TransformToRawValue(double y) const
+double AnamHermite::transformToRawValue(double y) const
 {
   double z;
   if (getNbPoly() < 1) return(TEST);
@@ -463,16 +462,16 @@ void AnamHermite::_defineBounds(double pymin,
 
   ind0 = (npas - 1) / 2;
   ym[ind0] = 0.;
-  zm[ind0] = TransformToRawValue(ym[ind0]);
+  zm[ind0] = transformToRawValue(ym[ind0]);
   for (ind=ind0-1; ind>=0; ind--)
   {
     ym[ind] = ym[ind+1] - YPAS;
-    zm[ind] = TransformToRawValue(ym[ind]);
+    zm[ind] = transformToRawValue(ym[ind]);
   }
   for (ind=ind0+1; ind<npas; ind++)
   {
     ym[ind] = ym[ind-1] + YPAS;
-    zm[ind] = TransformToRawValue(ym[ind]);
+    zm[ind] = transformToRawValue(ym[ind]);
   }
 
   /* Look for a starting search point */
@@ -490,7 +489,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (zm[ind] < azmin)
     {
       _az.setVmin(zm[ind+1]);
-      _ay.setVmin(RawToTransformValue(_az.getVmin()));
+      _ay.setVmin(rawToTransformValue(_az.getVmin()));
       break;
     }
     else if (ind == 0)
@@ -506,7 +505,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (zm[ind] > azmax)
     {
       _az.setVmax(zm[ind]);
-      _ay.setVmax(RawToTransformValue(_az.getVmax()));
+      _ay.setVmax(rawToTransformValue(_az.getVmax()));
       break;
     }
     else if (ind == npas-1)
@@ -523,22 +522,22 @@ void AnamHermite::_defineBounds(double pymin,
   if (FFFF(_az.getVmin()))
   {
     _ay.setVmin(ANAM_YMIN);
-    _az.setVmin(TransformToRawValue(_ay.getVmin()));
+    _az.setVmin(transformToRawValue(_ay.getVmin()));
   }
   if (FFFF(_pz.getVmin()))
   {
     _py.setVmin(MAX(ANAM_YMIN,_ay.getVmin()));
-    _pz.setVmin(TransformToRawValue(_py.getVmin()));
+    _pz.setVmin(transformToRawValue(_py.getVmin()));
   }
   if (FFFF(_az.getVmax()))
   {
     _ay.setVmax(ANAM_YMAX);
-    _az.setVmax(TransformToRawValue(_ay.getVmax()));
+    _az.setVmax(transformToRawValue(_ay.getVmax()));
   }
   if (FFFF(_pz.getVmax()))
   {
     _py.setVmax(MIN(ANAM_YMAX,_ay.getVmax()));
-    _pz.setVmax(TransformToRawValue(_py.getVmax()));
+    _pz.setVmax(transformToRawValue(_py.getVmax()));
   }
 
   // Set the FlagBound to its original status
@@ -664,9 +663,11 @@ bool AnamHermite::_deserialize(std::istream& is, bool verbose)
   ret = ret && _recordRead<int>(is, "Number of Hermite Polynomials", nbpoly);
   if (ret) hermite.resize(nbpoly);
   ret = ret && _tableRead(is, "Hermite Polynomial", nbpoly, hermite.data());
-  if (ret) setRCoef(r);
-
-  message("ret=%d\n",ret);
+  if (ret)
+  {
+    setPsiHns(hermite);
+    setRCoef(r);
+  }
 
   return ret;
 }
@@ -704,7 +705,7 @@ void AnamHermite::_globalSelectivity(Selectivity* selectivity)
   for (int icut = 0; icut < ncut; icut++)
   {
     double zval = selectivity->getZcut(icut);
-    double yval = RawToTransformValue(zval);
+    double yval = rawToTransformValue(zval);
     double tval = 1. - law_cdf_gaussian(yval);
     double gval = law_df_gaussian(yval);
     VectorDouble hn = hermitePolynomials(yval, 1., nbpoly);
@@ -804,7 +805,7 @@ int AnamHermite::factor2Selectivity(Db *db,
 
     for (int icut = 0; icut < ncut; icut++)
     {
-      double yc = RawToTransformValue(selectivity->getZcut(icut));
+      double yc = rawToTransformValue(selectivity->getZcut(icut));
       if (need_T)
       {
         VectorDouble s_cc = hermiteCoefIndicator(yc, nbpoly);

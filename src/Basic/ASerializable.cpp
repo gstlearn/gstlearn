@@ -165,17 +165,17 @@ bool ASerializable::_tableWrite(std::ostream& os,
   return ret;
 }
 
-int ASerializable::_tableRead(std::istream &is,
-                              const String &string,
-                              int ntab,
-                              double *tab)
+bool ASerializable::_tableRead(std::istream &is,
+                               const String &string,
+                               int ntab,
+                               double *tab)
 {
   bool ret = true;
   VectorDouble loctab(ntab);
   ret = ret && _recordReadVec<double>(is, string, loctab, ntab);
   if (!ret) return 1;
   for (int i = 0; i < ntab; i++) tab[i] = loctab[i];
-  return 0;
+  return ret;
 }
 
 bool ASerializable::_onlyBlanks(char *string)
