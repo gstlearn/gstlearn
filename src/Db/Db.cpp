@@ -1229,6 +1229,16 @@ void Db::setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bo
   }
 }
 
+/**
+ * Update the contents of an already existing variable in a Db
+ * @param tab    Vector containing the values to be written
+ * @param iuid   UID of the already existing variable to be written
+ * @param useSel When TRUE, take the Selection into account (seed remarks)
+ *
+ * @remarks When useSel=TRUE, the input vector should be dimensioned to
+ * @remarks the number of active samples. Only the active samples of the Db
+ * @remarks are updated using the contents of the input 'tab' vector.
+ */
 void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
 {
   if (!isUIDValid(iuid)) return;
@@ -1242,15 +1252,8 @@ void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
     bool defined = true;
     if (useSel && !sel.empty()) defined = (sel[iech] == 1);
 
-    double value = TEST;
     if (defined)
-      value = tab[lec++];
-    else
-    {
-      value = TEST;
-      if (!useSel) lec++;
-    }
-    setArray(iech, iuid, value);
+      setArray(iech, iuid, tab[lec++]);
   }
 }
 
@@ -1350,7 +1353,9 @@ void Db::deleteColumnsByUID(const VectorInt& iuids)
  * @remark If the dimension of 'tab' does not match the number of samples in the Db
  * @remark the action is cancelled (a message is issued)
  */
-int Db::addSelection(const VectorDouble& tab, const String& name, const String& combine)
+int Db::addSelection(const VectorDouble &tab,
+                     const String &name,
+                     const String &combine)
 {
   int nech = getSampleNumber();
   VectorDouble sel(nech);
@@ -1641,7 +1646,7 @@ VectorDouble Db::getCoorMaximum(bool useSel) const
   return ext;
 }
 
-VectorDouble Db::getCenter(bool useSel) const
+VectorDouble Db::getCenters(bool useSel) const
 {
   int ndim = getNDim();
   VectorDouble center(ndim);
@@ -3106,20 +3111,18 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 
   int nval, nmask, ntest, nout;
   double vmin, vmax, delta, mean, stdv;
-  int nech = getSampleNumber();
+  int nech = getSampleNumber(false);
   VectorDouble tab, wgt;
 
   // Loop on the columns
 
   for (int jcol = 0; jcol < ncol; jcol++)
   {
-    int icol = (cols.empty()) ? jcol :
-                                cols[jcol];
+    int icol = (cols.empty()) ? jcol : cols[jcol];
     if (!isColIdxValid(icol)) continue;
 
     tab = getColumnByColIdx(icol, true);
     wgt = getWeight(true);
-
     ut_statistics(static_cast<int> (tab.size()), tab.data(), NULL,
                   wgt.data(), &nval, &vmin, &vmax,
                   &delta, &mean, &stdv);
@@ -3279,14 +3282,18 @@ VectorDouble Db::getSelection(void) const
 }
 
 /**
- * Returns the contents of a Column of the Db refered by its column index
+ * Returns the contents of a Column of the Db referred by its column index
  * @param icol Column index (from [0,n[)
  * @param useSel Is the selection taken into account
+ * @param flagCompress When FALSE, the returned array is inflated
+ * to the total dimension (masked values are set to TEST)
  * @return The vector of values
  */
-VectorDouble Db::getColumnByColIdx(int icol, bool useSel) const
+VectorDouble Db::getColumnByColIdx(int icol,
+                                   bool useSel,
+                                   bool flagCompress) const
 {
-  int nech = getSampleNumber();
+  int nech = getSampleNumber(false);
   if (!isColIdxValid(icol)) return VectorDouble();
 
   VectorDouble tab(nech, TEST);
@@ -3294,50 +3301,66 @@ VectorDouble Db::getColumnByColIdx(int icol, bool useSel) const
   if (useSel) sel = getSelection();
 
   int ecr = 0;
+  double value = TEST;
   for (int iech = 0; iech < nech; iech++)
   {
     bool defined = true;
     if (useSel && !sel.empty()) defined = (sel[iech] == 1);
-    if (!defined) continue;
-    tab[ecr] = getValueByColIdx(iech, icol);
+    if (! defined)
+    {
+      if (flagCompress) continue;
+      value = TEST;
+    }
+    else
+    {
+      value = getValueByColIdx(iech, icol);
+    }
+    tab[ecr] = value;
     ecr++;
   }
   tab.resize(ecr);
   return tab;
 }
 
-VectorDouble Db::getColumnByUID(int iuid, bool useSel) const
+VectorDouble Db::getColumnByUID(int iuid, bool useSel, bool flagCompress) const
 {
   int icol = getColIdxByUID(iuid);
   if (icol < 0) return VectorDouble();
-  return getColumnByColIdx(icol, useSel);
+  return getColumnByColIdx(icol, useSel, flagCompress);
 }
 
 VectorDouble Db::getColumnByLocator(const ELoc& locatorType,
                                    int locatorIndex,
-                                   bool useSel) const
+                                   bool useSel,
+                                   bool flagCompress) const
 {
   int icol = getColIdxByLocator(locatorType, locatorIndex);
   if (icol < 0) return VectorDouble();
-  return getColumnByColIdx(icol, useSel);
+  return getColumnByColIdx(icol, useSel, flagCompress);
 }
 
-VectorDouble Db::getColumn(const String& name, bool useSel) const
+VectorDouble Db::getColumn(const String &name,
+                           bool useSel,
+                           bool flagCompress) const
 {
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return VectorDouble();
   int icol = getColIdxByUID(iuids[0]);
   if (icol < 0) return VectorDouble();
-  return getColumnByColIdx(icol, useSel);
+  return getColumnByColIdx(icol, useSel, flagCompress);
 }
 
-VectorDouble Db::getColumnsByLocator(const ELoc& locatorType, bool useSel) const
+VectorDouble Db::getColumnsByLocator(const ELoc &locatorType,
+                                     bool useSel,
+                                     bool flagCompress) const
 {
   VectorString names = getNamesByLocator(locatorType);
-  return getColumns(names, useSel);
+  return getColumns(names, useSel, flagCompress);
 }
 
-VectorDouble Db::getColumnsByUID(const VectorInt& iuids, bool useSel) const
+VectorDouble Db::getColumnsByUID(const VectorInt &iuids,
+                                 bool useSel,
+                                 bool flagCompress) const
 {
   if (iuids.empty()) return VectorDouble();
   int nech = getSampleNumber(useSel);
@@ -3349,14 +3372,16 @@ VectorDouble Db::getColumnsByUID(const VectorInt& iuids, bool useSel) const
   int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble local = getColumnByUID(iuids[ivar], useSel);
+    VectorDouble local = getColumnByUID(iuids[ivar], useSel, flagCompress);
     for (int iech = 0; iech < nech; iech++)
       retval[ecr++] = local[iech];
   }
   return retval;
 }
 
-VectorDouble Db::getColumnsByColIdx(const VectorInt& icols, bool useSel) const
+VectorDouble Db::getColumnsByColIdx(const VectorInt &icols,
+                                    bool useSel,
+                                    bool flagCompress) const
 {
   int nech = getSampleNumber();
   int nvar = static_cast<int> (icols.size());
@@ -3367,7 +3392,7 @@ VectorDouble Db::getColumnsByColIdx(const VectorInt& icols, bool useSel) const
   int ecr = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble local = getColumnByColIdx(icols[ivar], useSel);
+    VectorDouble local = getColumnByColIdx(icols[ivar], useSel, flagCompress);
     if (local.empty()) continue;
     for (int iech = 0; iech < nech; iech++)
       retval[ecr++] = local[iech];
@@ -3375,20 +3400,26 @@ VectorDouble Db::getColumnsByColIdx(const VectorInt& icols, bool useSel) const
   return retval;
 }
 
-VectorDouble Db::getColumnsByColIdxInterval(int icol_beg, int icol_end, bool useSel) const
+VectorDouble Db::getColumnsByColIdxInterval(int icol_beg,
+                                            int icol_end,
+                                            bool useSel,
+                                            bool flagCompress) const
 {
   VectorInt icols;
   for (int icol = icol_beg; icol < icol_end; icol++)
     icols.push_back(icol);
-  return getColumnsByColIdx(icols, useSel);
+  return getColumnsByColIdx(icols, useSel, flagCompress);
 }
 
-VectorDouble Db::getColumnsByUIDRange(int iuid_beg, int iuid_end, bool useSel) const
+VectorDouble Db::getColumnsByUIDRange(int iuid_beg,
+                                      int iuid_end,
+                                      bool useSel,
+                                      bool flagCompress) const
 {
   VectorInt iuids;
   for (int iuid = iuid_beg; iuid < iuid_end; iuid++)
     iuids.push_back(iuid);
-  return getColumnsByUID(iuids, useSel);
+  return getColumnsByUID(iuids, useSel, flagCompress);
 }
 
 VectorDouble Db::_getItem(const String& exp_name,
@@ -3721,10 +3752,10 @@ int Db::setItem(const String& colname,
   return 0;
 }
 
-VectorDouble Db::getAllColumns(bool useSel) const
+VectorDouble Db::getAllColumns(bool useSel, bool flagCompress) const
 {
   VectorInt iuids = getAllUIDs();
-  return getColumnsByUID(iuids, useSel);
+  return getColumnsByUID(iuids, useSel, flagCompress);
 }
 
 void Db::setAllColumns(const VectorVectorDouble& tabs,bool useSel)
@@ -3734,36 +3765,41 @@ void Db::setAllColumns(const VectorVectorDouble& tabs,bool useSel)
     setColumnByUID(tabs[iuid], iuids[iuid], useSel);
 }
 
-VectorDouble Db::getColumns(const VectorString& names, bool useSel) const
+VectorDouble Db::getColumns(const VectorString &names,
+                            bool useSel,
+                            bool flagCompress) const
 {
   if (names.empty()) return VectorDouble();
   VectorInt iuids =  _ids(names, false);
-  return getColumnsByUID(iuids, useSel);
+  return getColumnsByUID(iuids, useSel, flagCompress);
 }
 
-VectorVectorDouble Db::getColumnsAsVVD(const VectorString& names, bool useSel) const
+VectorVectorDouble Db::getColumnsAsVVD(const VectorString &names,
+                                       bool useSel,
+                                       bool flagCompress) const
 {
   VectorVectorDouble vec;
   if (names.empty()) return vec;
   VectorInt iuids =  _ids(names, false);
 
   for (int i = 0; i < (int) iuids.size(); i++)
-    vec.push_back(getColumnByUID(iuids[i], useSel));
+    vec.push_back(getColumnByUID(iuids[i], useSel, flagCompress));
   return vec;
 }
 
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
-                                         bool useSel) const
+                                         bool useSel,
+                                         bool flagCompress) const
 {
   if (names.empty()) return MatrixRectangular();
   VectorInt iuids =  _ids(names, false);
   int nvar = (int) iuids.size();
-  int nech = getSampleNumber(useSel);
+  int nech = getSampleNumber(useSel && flagCompress);
 
   MatrixRectangular mat(nech,nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble X = getColumnByUID(iuids[ivar], useSel);
+    VectorDouble X = getColumnByUID(iuids[ivar], useSel, flagCompress);
     mat.setColumn(ivar, X);
   }
   return mat;

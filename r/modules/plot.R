@@ -219,7 +219,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   # Color of symbol
   if (! is.null(color_name))
   {
-    colval  = Db_getColumn(db,color_name,TRUE)
+    colval  = db$getColumn(color_name)
   }
   else
   {
@@ -230,7 +230,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   if (! is.null(size_name))
   {
   	reduction = 100
-    sizval  = Db_getColumn(db,size_name,TRUE)
+    sizval  = db$getColumn(size_name)
     if (flagAbsSize) sizval = abs(sizval)
     m = min(sizval,na.rm=TRUE)
     M = max(sizval,na.rm=TRUE)
@@ -245,7 +245,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   if (! is.null(label_name))
   {
     label_round = 2
-    labval  = round(Db_getColumn(db,label_name,TRUE),label_round)
+    labval  = round(db$getColumn(label_name,TRUE),label_round)
   }
   else
   {
@@ -311,9 +311,9 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   }
 
   # Building the necessary data frame
-  x = dbgrid$getColumnByLocator(ELoc_X(),0)
-  y = dbgrid$getColumnByLocator(ELoc_X(),1)
-  data = Db_getColumn(dbgrid, name, useSel)
+  x = dbgrid$getColumnByLocator(ELoc_X(),0, FALSE, FALSE)
+  y = dbgrid$getColumnByLocator(ELoc_X(),1, FALSE, FALSE)
+  data = dbgrid$getColumn(name, useSel, FALSE)
   if (length(data) <= 0)
   {
     cat("Variable",name,"does not exist\n")
@@ -394,7 +394,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
                       padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
-  val  = Db_getColumn(db,name)
+  val  = dbg$etColumn(name)
   rp = data.frame(val)
     
   p <- getFigure(padd)
@@ -505,7 +505,8 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
 }
 
 # Function for representing a scatter plot
-plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
+plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
+							 flagDiag = FALSE,
                              color="black", linetype = "solid",
                              diag_color = "red", diag_line = "solid",
                              xlim="", ylim="", xlab="", ylab="", title="", 
@@ -513,8 +514,8 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
 {
   ensure_dependencies()
   if (is.null(db2)) db2 = db1
-  val1 = Db_getColumn(db1,name1)
-  val2 = Db_getColumn(db2,name2)
+  val1 = db1$getColumn(name1, useSel)
+  val2 = db2$getColumn(name2, useSel)
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
               color = color, linetype = linetype, 
               diag_color = diag_color, diag_line = diag_line,

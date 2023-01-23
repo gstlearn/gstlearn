@@ -135,11 +135,11 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
             corner = np.zeros(db.getNDim())
         
         if db.getNDim() == 1:
-            tabx = db.getColumn(name, usesel)
+            tabx = db.getColumn(name, usesel, False)
         else:
             tabx = db.getOneSlice(name, posx, posy, corner, usesel)
     else:
-        tabx = db.getColumn(name, usesel)
+        tabx = db.getColumn(name, usesel, False)
     tabx = np.array(tabx).transpose()
 
     if flagConvertNanToZero:

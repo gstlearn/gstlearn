@@ -76,10 +76,10 @@ String DbStringFormat::toString(const AStringFormat* strfmt) const
     sstr << "- Locator Assignments" << std::endl;
 
   if (! _cols.empty())
-    sstr << _cols.toString();
+    sstr << "- Statistics on following columns:" << _cols.toString() << std::endl;
 
   if (! _names.empty())
-    sstr << _names.toString();
+    sstr << "- Statistics on following variables:" << _names.toString() << std::endl;
 
   if (_useSel)
     sstr << "- Takes the Selection into account (if available)" << std::endl;
