@@ -221,7 +221,7 @@ void PolyLine2D::pointToPolyline(const VectorDouble &xy0,
  ** \param[in]  xy2     Coordinates of the second point
  ** \param[in]  ratio   Shifting ratio
  **
- ** \param[out] x0,y0   Shifted point
+ ** \param[out] xy0     Shifted point
  **
  ** \remarks 'ratio' varies between 0 and 1
  ** \remarks When 'ratio' =0, (x0,y0) coincides with (x1,y1)
