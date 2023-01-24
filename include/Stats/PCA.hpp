@@ -71,7 +71,7 @@ private:
   int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }
   VectorBool _getVectorIsotopic(const Db* db);
   void _loadData(const Db* db, int iech, VectorDouble& data);
-  int  _calculateEigen(VectorDouble& c0);
+  int _calculateEigen(VectorDouble& c0);
   int _pcaCalculate(const Db *db, const VectorBool& isoFlag, bool verbose);
   int _normalization(const Db *db,
                      const VectorBool& isoFlag,

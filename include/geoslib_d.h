@@ -103,14 +103,6 @@ typedef struct
   std::vector<SubPlan> plans;
 } SubPlanes;
 
-typedef struct
-{
-  int ndim;
-  int rank;
-  double dist;
-  double *coor;
-} PL_Dist;
-
 class QChol;
 typedef struct
 {

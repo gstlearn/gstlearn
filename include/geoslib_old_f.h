@@ -186,24 +186,6 @@ GSTLEARN_EXPORT void ut_trace_sample(Db *db,
                                      int **typ_arg);
 GSTLEARN_EXPORT int solve_P2(double a, double b, double c, double *x);
 GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, double *x);
-GSTLEARN_EXPORT PL_Dist* pldist_manage(int mode,
-                                       PL_Dist *pldist_loc,
-                                       int ndim,
-                                       int nvert);
-GSTLEARN_EXPORT void distance_point_to_polyline(double x0,
-                                                double y0,
-                                                const PolyLine2D& polyline,
-                                                PL_Dist *pldist);
-GSTLEARN_EXPORT double distance_along_polyline(PL_Dist *pldist1,
-                                               PL_Dist *pldist2,
-                                               const PolyLine2D& polyline);
-GSTLEARN_EXPORT double distance_points_to_polyline(double ap,
-                                                   double al,
-                                                   double x1,
-                                                   double y1,
-                                                   double x2,
-                                                   double y2,
-                                                   const PolyLine2D& polyline);
 GSTLEARN_EXPORT int db_unfold_polyline(Db *db, const PolyLine2D& polyline);
 GSTLEARN_EXPORT int db_fold_polyline(DbGrid *dbin,
                                      Db *dbout,

@@ -157,7 +157,6 @@ bool ASerializable::_tableWrite(std::ostream& os,
                                 int ntab,
                                 const VectorDouble& tab)
 {
-  char local[10000];
   bool ret = true;
   VectorDouble loctab(ntab);
   for (int i = 0; i < ntab; i++) loctab[i] = tab[i];
