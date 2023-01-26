@@ -45,7 +45,7 @@ public:
                                  int verbose = false,
                                  int ncol_max = -1,
                                  int nrow_max = -1);
-  static Polygons* createFromDb(const Db* db);
+  static Polygons* createFromDb(const Db* db, double dilate=0., bool verbose=false);
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
   void addPolySet(const PolySet& polyset);
@@ -63,6 +63,7 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
+  bool inside(double xx, double yy, double zz = TEST, bool flag_nested = false);
 
 protected:
   /// Interface for ASerializable
@@ -76,7 +77,21 @@ private:
                           int ncol,
                           const VectorDouble& tab);
   bool _isValidPolySetIndex(int ipol) const;
+  VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y) const;
+  void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);
+  int  _buildHull(const Db *db, double dilate, bool verbose);
+  void _polygonHullPrint(const VectorInt &index,
+                         const VectorDouble &x,
+                         const VectorDouble &y) const;
 
 private:
   std::vector<PolySet> _polysets;
 };
+
+GSTLEARN_EXPORT int dbPolygonDistance(Db *db,
+                                      Polygons *polygon,
+                                      double dmax,
+                                      int scale,
+                                      int polin,
+                                      const NamingConvention &namconv = NamingConvention(
+                                          "Distance"));

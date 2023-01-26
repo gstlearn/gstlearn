@@ -82,7 +82,6 @@ NamingConvention* NamingConvention::create(String prefix,
  * @param nitems Number of items
  * @param flagSetLocator True if the variable must be assigned the locator
  * @param locatorShift Shift to be applied to the locator currently defined
- *
  */
 void NamingConvention::setNamesAndLocators(Db* dbout,
                                            int iattout_start,

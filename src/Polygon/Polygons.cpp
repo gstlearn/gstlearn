@@ -49,7 +49,9 @@ int Polygons::resetFromDb(const Db* db, double dilate, bool verbose)
 {
   if (db == nullptr) return 1;
 
-  Polygons* polygons = polygon_hull(db, dilate, verbose);
+  Polygons *polygons = nullptr;
+  if (polygons->_buildHull(db, dilate, verbose)) return 1;
+
   *this = *polygons;
   delete polygons;
 
@@ -273,10 +275,10 @@ Polygons* Polygons::createFromCSV(const String& filename,
   }
   return polygons;
 }
-Polygons* Polygons::createFromDb(const Db* db)
+Polygons* Polygons::createFromDb(const Db* db, double dilate, bool verbose)
 {
   Polygons* polygons = new Polygons();
-  if (polygons->resetFromDb(db))
+  if (polygons->resetFromDb(db, dilate, verbose))
   {
     messerr("Problem building Polygons from DB.");
     delete polygons;
@@ -333,4 +335,403 @@ bool Polygons::_isValidPolySetIndex(int ipol) const
     return false;
   }
   return true;
+}
+
+/*****************************************************************************/
+/*!
+ **  Determine the distance to a polyline
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  polygon Polygons structure
+ ** \param[in]  dmax    Maximum distance
+ ** \param[in]  scale   Scaling option
+ **                     0 : no scaling
+ **                    >0 : scaling between 0 and 1
+ **                    <0 : scaling between 1 and 0
+ ** \param[in]  polin   Option for checking against the polygon
+ **                     0 : no check
+ **                    >0 : if sample is outside polygon, return TEST
+ **                    <0 : if sample is inside polygon, return TEST
+ ** \param[in] namconv Naming convention
+ **
+ ** \remarks When patching values with respect to the polygon, when abs(polin):
+ ** \remarks 1 : put NA
+ ** \remarks 2 : put minimum distance
+ ** \remarks 3 : put maximum distance
+ **
+ *****************************************************************************/
+int dbPolygonDistance(Db *db,
+                      Polygons *polygon,
+                      double dmax,
+                      int scale,
+                      int polin,
+                      const NamingConvention &namconv)
+{
+  PolyPoint2D pldist;
+  VectorDouble target(2);
+
+  // Initializations
+
+  int nech = db->getSampleNumber();
+
+  // Create a new attribute
+
+  int iptr = db->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return (1);
+
+  // Loop on the polysets
+
+  double distmax = 0.;
+  double distmin = TEST;
+  for (int iset = 0; iset < polygon->getPolySetNumber(); iset++)
+  {
+    const PolySet &polyset = polygon->getPolySet(iset);
+
+    // Loop on the samples
+
+    for (int iech = 0; iech < nech; iech++)
+    {
+      if (!db->isActive(iech)) continue;
+      target[0] = db->getCoordinate(iech, 0);
+      target[1] = db->getCoordinate(iech, 1);
+      PolyLine2D polyline(polyset.getX(), polyset.getY());
+      PolyPoint2D pldist = polyline.getPLIndex(target);
+      double distloc = pldist.dist;
+      if (FFFF(distloc)) continue;
+      distmin = db->getArray(iech, iptr);
+      if (FFFF(distmin))
+        distmin = distloc;
+      else
+        distmin = MIN(distmin, distloc);
+      if (!FFFF(dmax) && distmin > dmax) distmin = dmax;
+      db->setArray(iech, iptr, distmin);
+    }
+  }
+
+  // Calculate the extreme values
+
+  if (scale != 0 || polin != 0)
+  {
+    distmin = 1.e30;
+    distmax = 0.;
+    for (int iech = 0; iech < nech; iech++)
+    {
+      if (!db->isActive(iech)) continue;
+      double distloc = db->getArray(iech, iptr);
+      if (FFFF(distloc)) continue;
+      if (polin != 0)
+      {
+        int inside = polygon->inside(db->getCoordinate(iech, 0),
+                                    db->getCoordinate(iech, 1));
+        if (polin > 0)
+        {
+          if (!inside) continue;
+        }
+        else
+        {
+          if (inside) continue;
+        }
+      }
+      if (distloc > distmax) distmax = distloc;
+      if (distloc < distmin) distmin = distloc;
+    }
+  }
+
+  // Scaling option
+
+  if (scale != 0)
+  {
+    if (scale > 0)
+    {
+      for (int iech = 0; iech < nech; iech++)
+      {
+        if (!db->isActive(iech)) continue;
+        double distloc = db->getArray(iech, iptr);
+        if (FFFF(distloc)) continue;
+        double value = (distloc - distmin) / (distmax - distmin);
+        db->setArray(iech, iptr, value);
+      }
+    }
+    else
+    {
+      for (int iech = 0; iech < nech; iech++)
+      {
+        if (!db->isActive(iech)) continue;
+        double distloc = db->getArray(iech, iptr);
+        if (FFFF(distloc)) continue;
+        double value = (distloc - distmax) / (distmin - distmax);
+        db->setArray(iech, iptr, value);
+      }
+    }
+    distmin = 0.;
+    distmax = 1.;
+  }
+
+  // Check if the sample belongs to the polygon or not
+
+  if (polin != 0)
+  {
+    double valtest = TEST;
+    if (ABS(polin) == 2) valtest = distmin;
+    if (ABS(polin) == 3) valtest = distmax;
+    for (int iech = 0; iech < nech; iech++)
+    {
+      int inside = polygon->inside(db->getCoordinate(iech, 0),
+                                   db->getCoordinate(iech, 1));
+      if (polin > 0 && !inside) db->setArray(iech, iptr, valtest);
+      if (polin < 0 &&  inside) db->setArray(iech, iptr, valtest);
+    }
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Check if one point belongs to a Polygons
+ **
+ ** \return  1 if the point belongs to the Polygons; 0 otherwise
+ **
+ ** \param[in]  xx          coordinate of the point along X
+ ** \param[in]  yy          coordinate of the point along Y
+ ** \param[in]  zz          coordinate of the point along Z (or TEST)
+ ** \param[in]  flag_nested Option for nested polysets (see details)
+ **
+ ** \remarks If flag_nested=TRUE, a sample is masked off if the number of
+ ** \remarks polysets to which it belongs is odd
+ ** \remarks If flag_nested=FALSE, a sample is masked off as soon as it
+ ** \remarks belongs to one PolySet
+ **
+ *****************************************************************************/
+bool Polygons::inside(double xx, double yy, double zz, bool flag_nested)
+{
+  if (flag_nested)
+  {
+
+    /* Loop on the polysets */
+
+    int number = 0;
+    for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+    {
+      PolySet polyset = getClosedPolySet(ipol);
+      if (polyset.inside(xx, yy)) number++;
+      if (number % 2 != 0 && polyset.inside3D(zz)) return (1);
+    }
+  }
+  else
+  {
+    for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+    {
+      PolySet polyset = getClosedPolySet(ipol);
+      if (polyset.inside(xx, yy) && polyset.inside3D(zz)) return (1);
+    }
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Create a polygon from the convex hull of active samples
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  x    Vector of X coordinates
+ ** \param[in]  y    Vector of Y coordinates
+ **
+ *****************************************************************************/
+VectorInt Polygons::_getHullIndices(const VectorDouble &x,
+                                    const VectorDouble &y) const
+{
+  int number = (int) x.size();
+  VectorInt index(number + 1);
+
+  /* Calculate the center of gravity and the leftmost point */
+
+  int rank = 0;
+  int np = 0;
+  double xg = 0.;
+  double yg = 0.;
+  for (int i = 0; i < number; i++)
+  {
+    xg += x[i];
+    yg += y[i];
+    if (x[i] < x[rank]) rank = i;
+  }
+  xg /= number;
+  yg /= number;
+  index[0] = rank;
+  np++;
+
+  /* Implicit loop for finding the other points of the convex hull */
+
+  for (;;)
+  {
+    double x2, x3, y2, y3;
+    double x1 = x[index[np - 1]];
+    double y1 = y[index[np - 1]];
+    double x21 = xg - x1;
+    double y21 = yg - y1;
+
+    for (int i = 0; i < number; i++)
+    {
+      if ((x[i] - x1) * y21 - (y[i] - y1) * x21 <= 0.) continue;
+      x21 = x[i] - x1;
+      y21 = y[i] - y1;
+      rank = i;
+    }
+    if (rank == index[0]) goto label_cont;
+
+    /* Discard the previous point if on the line joining the current point */
+    /* to the one before the previous one */
+
+    if (np > 1)
+    {
+      x1 = x[rank];
+      y1 = y[rank];
+      x2 = x[index[np - 1]];
+      y2 = y[index[np - 1]];
+      x3 = x[index[np - 2]];
+      y3 = y[index[np - 2]];
+      if (ABS((x2-x3)*(y1-y3) - (x1-x3)*(y2-y3)) < EPSILON6) np--;
+    }
+    index[np] = rank;
+    np++;
+  }
+
+  label_cont:
+  index[np++] = index[0];
+  index.resize(np);
+
+  return index;
+}
+
+void Polygons::_polygonHullPrint(const VectorInt &index,
+                                 const VectorDouble &x,
+                                 const VectorDouble &y) const
+{
+  mestitle(1,"Polygon Hull");
+  message("Ranks (1-based) and coordinates of the Active Samples included in the Convex Hull\n");
+  for (int i = 0; i < (int) index.size(); i++)
+  {
+    int j = index[i];
+    message("%3d : %lf %lf\n",j+1, x[j], y[j]);
+  }
+}
+
+/**
+ * Create a set of fictitious samples obtained by dilating the initial ones
+ * @param ext Dilation distance
+ * @param x   Vector of X-coordinates or initial samples
+ * @param y   Vector of Y-coordinates of initial samples
+ * @param nsect Number of discretization points for dilation
+ */
+void Polygons::_getExtend(double ext,
+                          VectorDouble &x,
+                          VectorDouble &y,
+                          int nsect)
+{
+  int ninit = (int) x.size();
+
+  x.resize(nsect * ninit);
+  y.resize(nsect * ninit);
+
+  for (int j = 0; j < ninit; j++)
+  {
+    int i = ninit - j - 1;
+    double x0 = x[i];
+    double y0 = y[i];
+
+    int iad = i * nsect;
+    for (int k = 0; k < nsect; k++)
+    {
+      double angle = 2. * GV_PI * k / (double) nsect;
+      x[iad + k] = x0 + ext * cos(angle);
+      y[iad + k] = y0 + ext * sin(angle);
+    }
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Create a polygon from the convex hull of active samples
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db      descriptor of the Db serving for convex hull calculation
+ ** \param[in]  dilate  Radius of the dilation
+ ** \param[in]  verbose Verbose flag
+ **
+ *****************************************************************************/
+int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
+
+{
+  /* Preliminary check */
+
+  if (db->getNDim() < 2)
+  {
+    messerr("The input Db must be contain at least 2 coordinates");
+    return 1;
+  }
+  int number = db->getSampleNumber(true);
+  if (number <= 0)
+  {
+    messerr("No active data in the input Db. Convex Hull impossible");
+    return 1;
+  }
+
+  // Load the vector of coordinates (of active samples)
+
+  VectorDouble xinit = db->getColumnByLocator(ELoc::X, 0, true);
+  VectorDouble yinit = db->getColumnByLocator(ELoc::X, 1, true);
+
+  // Calculate the indices that are retained in the convex hull
+
+  VectorInt index = _getHullIndices(xinit, yinit);
+
+  // Optional printout
+
+  if (verbose) _polygonHullPrint(index, xinit, yinit);
+
+  /* Create the polygons */
+
+  int np = (int) index.size();
+  VectorDouble xret(np);
+  VectorDouble yret(np);
+  for (int i = 0; i < np; i++)
+  {
+    xret[i] = xinit[index[i]];
+    yret[i] = yinit[index[i]];
+  }
+
+  // Extend to dilated hull (optional)
+
+  if (dilate > 0.)
+  {
+    xinit = xret;
+    yinit = yret;
+    _getExtend(dilate, xinit, yinit);
+    index = _getHullIndices(xinit, yinit);
+
+    np = (int) index.size();
+    xret.resize(np);
+    yret.resize(np);
+    for (int i = 0; i < np; i++)
+    {
+      xret[i] = xinit[index[i]];
+      yret[i] = yinit[index[i]];
+    }
+  }
+
+  // Load the information within the polygon structure
+
+  PolySet polyset = PolySet(xret, yret);
+  addPolySet(polyset);
+
+  return 0;
 }

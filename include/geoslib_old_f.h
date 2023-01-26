@@ -31,7 +31,6 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Neigh/NeighWork.hpp"
-#include "Basic/PolyLine2D.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -186,12 +185,6 @@ GSTLEARN_EXPORT void ut_trace_sample(Db *db,
                                      int **typ_arg);
 GSTLEARN_EXPORT int solve_P2(double a, double b, double c, double *x);
 GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, double *x);
-GSTLEARN_EXPORT int db_unfold_polyline(Db *db, const PolyLine2D& polyline);
-GSTLEARN_EXPORT int db_fold_polyline(DbGrid *dbin,
-                                     Db *dbout,
-                                     int ncol,
-                                     int *cols,
-                                     const PolyLine2D& polyline);
 GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab1,
@@ -1207,11 +1200,6 @@ GSTLEARN_EXPORT int db_grid_patch(DbGrid* ss_grid,
                                   int new_rank,
                                   int oper,
                                   int verbose);
-GSTLEARN_EXPORT int db_polygon_distance(Db *db,
-                                        Polygons *polygon,
-                                        double dmax,
-                                        int scale,
-                                        int polin);
 
 /****************************************/
 /* Prototyping the functions in stats.c */
@@ -1686,33 +1674,6 @@ GSTLEARN_EXPORT int time_3db(double *HS,
                              double ZS,
                              double HS_EPS_INIT,
                              int MSG);
-
-/***************************************/
-/* Prototyping the functions in poly.c */
-/***************************************/
-
-GSTLEARN_EXPORT Polygons* polygon_create(void);
-GSTLEARN_EXPORT Polygons* polygon_free(Polygons *polygon);
-GSTLEARN_EXPORT Polygons* polygon_add(Polygons *polygon,
-                                      const VectorDouble &x,
-                                      const VectorDouble &y,
-                                      double zmin,
-                                      double zmax);
-GSTLEARN_EXPORT void polygon_print(Polygons *polygon, int flag_print);
-GSTLEARN_EXPORT int polygon_inside(double xx,
-                                   double yy,
-                                   double zz,
-                                   int flag_nested,
-                                   Polygons *polygon);
-GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
-                                       double *xmin,
-                                       double *xmax,
-                                       double *ymin,
-                                       double *ymax);
-GSTLEARN_EXPORT double polygon_surface(Polygons *polygon);
-GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db,
-                                       double dilate = 0.,
-                                       bool verbose = false);
 
 /*******************************************/
 /* Prototyping the functions in variopgs.c */

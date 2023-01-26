@@ -14,6 +14,7 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Db/Db.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 #include <math.h>

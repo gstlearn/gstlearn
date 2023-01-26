@@ -12,7 +12,10 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/PolyLine2D.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 PolyLine2D::PolyLine2D(const VectorDouble& x,
                const VectorDouble& y)
@@ -183,19 +186,25 @@ VectorDouble PolyLine2D::getPoint(int i) const
 
 /****************************************************************************/
 /*!
- **  Find the shortest distance between the point (x0,y0) and a polyline
+ **  Returns the point of the PolyLine located at shortest distance
+ **  from Target
+ **
+ ** \return PolyPoint2D structure
  **
  ** \param[in]  xy0      Coordinates of the target point
  **
- ** \param[out] pldist   PolyPoint2D structure
- **
  *****************************************************************************/
-void PolyLine2D::pointToPolyline(const VectorDouble &xy0,
-                                 PolyPoint2D &pldist) const
+PolyPoint2D PolyLine2D::getPLIndex(const VectorDouble &xy0) const
 {
+
   double xx, yy, dist;
   int nint;
   int nvert = getNPoints();
+
+  // Structure allocation
+
+  PolyPoint2D pldist;
+  pldist.coor.resize(2);
 
   /* Dispatch */
 
@@ -210,7 +219,7 @@ void PolyLine2D::pointToPolyline(const VectorDouble &xy0,
     pldist.coor[1] = yy;
     pldist.dist = dmin = ABS(dist);
   }
-  return;
+  return pldist;
 }
 
 /****************************************************************************/
@@ -261,19 +270,18 @@ void PolyLine2D::_shiftPoint(const VectorDouble& xy1,
  ** \param[in]  xy2     Coordinates of the second point
  **
  *****************************************************************************/
-double PolyLine2D::pointsToPolyline(double ap,
-                                    double al,
-                                    const VectorDouble& xy1,
-                                    const VectorDouble& xy2) const
+double PolyLine2D::distanceBetweenPoints(double ap,
+                                         double al,
+                                         const VectorDouble &xy1,
+                                         const VectorDouble &xy2) const
 {
   double dist, d1, d2, dh, dv, dloc, dmin, dist1, dist2;
-  PolyPoint2D pldist1, pldist2;
   VectorDouble xyp1(2), xyp2(2);
 
   /* Calculate the projection of each end point */
 
-  pointToPolyline(xy1, pldist1);
-  pointToPolyline(xy2, pldist2);
+  PolyPoint2D pldist1 = getPLIndex(xy1);
+  PolyPoint2D pldist2 = getPLIndex(xy2);
 
   /* Calculate the minimum distance */
 
@@ -285,7 +293,7 @@ double PolyLine2D::pointsToPolyline(double ap,
 
   if (al > 0.)
   {
-    dv = distanceAlongPolyline(pldist1, pldist2);
+    dv = distanceBetweenPlIndices(pldist1, pldist2);
     d1 = ABS(d1);
     d2 = ABS(d2);
     dmin = MIN(d1, d2);
@@ -305,7 +313,7 @@ double PolyLine2D::pointsToPolyline(double ap,
 /****************************************************************************/
 /*!
  **  Find the shortest distance between two points (x1,y1) and (x2,y2)
- **  which belong to the polyline
+ **  which belong to the current polyline
  **
  ** \return Minimum distance
  **
@@ -313,8 +321,8 @@ double PolyLine2D::pointsToPolyline(double ap,
  ** \param[in]  pldist2 Second PolyPoint2D structure
  **
  *****************************************************************************/
-double PolyLine2D::distanceAlongPolyline(const PolyPoint2D &pldist1,
-                                         const PolyPoint2D &pldist2) const
+double PolyLine2D::distanceBetweenPlIndices(const PolyPoint2D &pldist1,
+                                            const PolyPoint2D &pldist2) const
 {
   int i;
   double dist, local1[2], local2[2];
@@ -367,61 +375,244 @@ double PolyLine2D::distanceAlongPolyline(const PolyPoint2D &pldist1,
   return (dist);
 }
 
-double PolyLine2D::angleAlongPolyline(const PolyPoint2D &pldist,
-                                      int delta) const
+double PolyLine2D::angleAtPolyline(const PolyPoint2D &pldist) const
 {
+  int r1, r2;
+  int npoint = getNPoints();
   int rank = pldist.rank;
-
-  int r1 = rank - delta;
-  r1 = MAX(r1, 0);
-  int r2 = rank + delta;
-  r2 = MIN(r2, getNPoints() - 1);
+  if (rank < npoint - 1)
+  {
+    r1 = rank;
+    r2 = rank + 1;
+  }
+  else
+  {
+    r1 = rank - 1;
+    r2 = rank;
+  }
 
   double incr_y = getY(r2) - getY(r1);
   double incr_x = getX(r2) - getX(r1);
-  double angle  = atan2(incr_y, incr_x);
+  double angle  = atan2(incr_y, incr_x) * 180. / GV_PI;
   return angle;
+}
+
+/*****************************************************************************/
+/*!
+ **  Unfold a 2-D Db with respect to a polyline
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db       Db structure
+ ** \param[in]  polyline PolyLine2D structure
+ ** \param[in]  namconv  Naming convention
+ **
+ *****************************************************************************/
+int dbUnfoldPolyline(Db *db,
+                     const PolyLine2D &polyline,
+                     const NamingConvention &namconv)
+{
+  VectorDouble target(2);
+
+  /* Initializations */
+
+  int nvert = polyline.getNPoints();
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != 2)
+  {
+    messerr("This function is restricted to 2-D Db");
+    return 1;
+  }
+  if (nvert <= 1)
+  {
+    messerr("This function requires a Polyline with at least one segment");
+    return 1;
+  }
+
+  /* Add the variables */
+
+  int iptr = db->addColumnsByConstant(2, 0.);
+  if (iptr < 0) return 1;
+
+  /* Project the starting point */
+
+  PolyPoint2D pldist0 = polyline.getPLIndex(polyline.getPoint(0));
+
+  /* Loop on the samples of the Db */
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    target[0] = db->getCoordinate(iech, 0);
+    target[1] = db->getCoordinate(iech, 1);
+    PolyPoint2D pldist = polyline.getPLIndex(target);
+    double newx = pldist.dist;
+    double newy = polyline.distanceBetweenPlIndices(pldist0, pldist);
+    db->setArray(iech, iptr, newx);
+    db->setArray(iech, iptr + 1, newy);
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Fold an input Db into an output Db with respect to a polyline
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin    Input Db structure
+ ** \param[in]  dbout   Output Db structure
+ ** \param[in]  cols    Vector of the target variable ranks
+ ** \param[in]  polyline PolyLine2D structure
+ ** \param[in]  namconv  Naming convention
+ **
+ *****************************************************************************/
+int dbFoldPolyline(DbGrid *dbin,
+                   Db *dbout,
+                   const VectorInt& cols,
+                   const PolyLine2D &polyline,
+                   const NamingConvention &namconv)
+{
+  VectorDouble coor(2);
+
+  /* Initializations */
+
+  int nvert = polyline.getNPoints();
+
+  /* Preliminary checks */
+
+  if (dbin->getNDim() != 2 || ! dbin->isGrid())
+  {
+    messerr("This function is restricted to 2-D Input Grid Db");
+    return 1;
+  }
+  if (dbout->getNDim() != 2)
+  {
+    messerr("This function is restricted to 2-D Output Db");
+    return 1;
+  }
+  if (nvert <= 1)
+  {
+    messerr("This function requires a PolyLine2D with at least one segment");
+    return 1;
+  }
+
+  /* Add the variables */
+
+  int ncol = (int) cols.size();
+  int iptr = dbout->addColumnsByConstant(ncol, TEST);
+  if (iptr < 0) return 1;
+
+  /* Project the starting point */
+
+  PolyPoint2D pldist0 = polyline.getPLIndex(polyline.getPoint(0));
+
+  /* Loop on the samples of the output Db */
+
+  VectorDouble target(2);
+  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+  {
+    if (!dbout->isActive(iech)) continue;
+    target[0] = dbout->getCoordinate(iech, 0);
+    target[1] = dbout->getCoordinate(iech, 1);
+
+    /* Project the target point according to the line */
+
+    PolyPoint2D pldist = polyline.getPLIndex(target);
+    coor[0] = pldist.dist;
+    coor[1] = polyline.distanceBetweenPlIndices(pldist0, pldist);
+
+    /* Locate the sample on the Input Grid */
+
+    int iad = dbin->coordinateToRank(coor);
+    if (iad < 0) continue;
+
+    /* Loop on the variables */
+
+    for (int icol = 0; icol < ncol; icol++)
+    {
+      double value = dbin->getArray(iad, cols[icol]);
+      dbout->setArray(iech, iptr + icol, value);
+    }
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(dbout, ELoc::Z, -1, dbout, iptr);
+
+  return 0;
 }
 
 /**
- * Returns the distance between the current polyline and a second one,
- * calculated at target point location
- * @param xy0   Coordinates of the target point
- * @param poly2 Reference of the second polyline
- * @return Distance or TEST if target is located OUTSIDE the two polylines
+ * Calculate quantities on the Db by comparison with top and bottom polylines
+ * @param db    Pointer to the Db where relevant information will be stored
+ * @param top   2-D Polyline defining the Top surface
+ * @param bot   2-D Polyline defining the Bottom surface
+ * @param namconv Naming convention
+ * @return Error return code
  */
-double PolyLine2D::distanceToPolyLineAtPoint(VectorDouble& xy0,
-                                             const PolyLine2D &poly2)
+int dbFromPolylines(Db* db,
+                    const PolyLine2D& top,
+                    const PolyLine2D& bot,
+                    const NamingConvention &namconv)
 {
-  PolyPoint2D pldist1;
-  PolyPoint2D pldist2;
-  pointToPolyline(xy0, pldist1);
-  poly2.pointToPolyline(xy0, pldist2);
+  VectorDouble target(2);
 
-  double dist1 = ut_distance(2, xy0.data(), pldist1.coor.data());
-  double dist2 = ut_distance(2, xy0.data(), pldist2.coor.data());
-  double dist  = ut_distance(2, pldist1.coor.data(), pldist2.coor.data());
+  if (db == nullptr)
+  {
+    messerr("You must provide a Data Base for this method");
+    return 1;
+  }
+  if (db->getNDim() != 2)
+  {
+    messerr("This method is restricted to a 2-D Data Base");
+    return 1;
+  }
 
-  if (dist1 > dist && dist2 > dist)
-    return TEST;
-  else
-    return dist;
-}
+  // Allocate the output variables
 
-double PolyLine2D::angleToPolyLineAtPoint(const VectorDouble& xy0,
-                                          const PolyLine2D &poly2) const
-{
-  PolyPoint2D pldist1;
-  PolyPoint2D pldist2;
-  pointToPolyline(xy0, pldist1);
-  poly2.pointToPolyline(xy0, pldist2);
+  int iptr = db->addColumnsByConstant(2, TEST);
+  if (iptr < 0) return 1;
 
-  double angle1 = angleAlongPolyline(pldist1);
-  double angle2 = angleAlongPolyline(pldist2);
+  // Loop on the active samples of the Data Base
 
-  double dist1 = pldist1.dist;
-  double dist2 = pldist2.dist;
+  int nech = db->getSampleNumber();
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    target[0] = db->getCoordinate(iech, 0);
+    target[1] = db->getCoordinate(iech, 1);
 
-  double angle = (angle1 * dist1 + angle2 * dist2) / (dist1 + dist2);
-  return angle;
+    // Project the target point on the two polylines
+    PolyPoint2D pl_top = top.getPLIndex(target);
+    PolyPoint2D pl_bot = bot.getPLIndex(target);
+
+    // Get distances to the polyline projections
+    double dist_top = pl_top.dist;
+    double dist_bot = pl_bot.dist;
+
+    // Get the angles at the polyline projections
+    double angle_top = top.angleAtPolyline(pl_top);
+    double angle_bot = bot.angleAtPolyline(pl_bot);
+
+    // Calculate relevant quantities
+    double dist  = dist_bot + dist_top;
+    double angle = (angle_top * dist_bot + angle_bot * dist_top) / (dist_bot + dist_top);
+
+    db->setArray(iech, iptr  , dist);
+    db->setArray(iech, iptr+1, angle);
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, iptr  , "Dist");
+  namconv.setNamesAndLocators(db, iptr+1, "Angle");
+
+  return 0;
 }

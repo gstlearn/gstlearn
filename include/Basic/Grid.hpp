@@ -15,6 +15,7 @@
 #include "Geometry/Rotation.hpp"
 //#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 
 class GridOld;
 //class VectorInt;

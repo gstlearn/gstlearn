@@ -48,6 +48,8 @@ public:
                     double *ymax) const;
   double getSurface() const;
   void closePolySet();
+  bool inside(double xx, double yy);
+  bool inside3D(double zz);
 
 protected:
   /// Interface for ASerializable

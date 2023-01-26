@@ -15,6 +15,17 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/NamingConvention.hpp"
+
+class Db;
+class DbGrid;
+
+typedef struct
+{
+  int rank;
+  double dist;
+  VectorDouble coor;
+} PolyPoint2D;
 
 class GSTLEARN_EXPORT PolyLine2D : public AStringable, public ASerializable
 {
@@ -24,13 +35,6 @@ public:
   PolyLine2D(const PolyLine2D &m);
   PolyLine2D& operator=(const PolyLine2D &m);
   virtual ~PolyLine2D();
-
-  typedef struct
-  {
-    int rank;
-    double dist;
-    VectorDouble coor;
-  } PolyPoint2D;
 
   /// Interface of AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -56,17 +60,14 @@ public:
   void setX(const VectorDouble& x) { _x = x; }
   void setY(const VectorDouble& y) { _y = y; }
 
-  void pointToPolyline(const VectorDouble &xy0, PolyPoint2D &pldist) const;
-  double pointsToPolyline(double ap,
-                          double al,
-                          const VectorDouble &xy1,
-                          const VectorDouble &xy2) const;
-  double distanceAlongPolyline(const PolyPoint2D &pldist1,
-                               const PolyPoint2D &pldist2) const;
-  double angleAlongPolyline(const PolyPoint2D &pldist, int delta = 1) const;
-  double distanceToPolyLineAtPoint(VectorDouble &xy0, const PolyLine2D &poly2);
-  double angleToPolyLineAtPoint(const VectorDouble &xy0,
-                                const PolyLine2D &poly2) const;
+  PolyPoint2D getPLIndex(const VectorDouble &xy0) const;
+  double distanceBetweenPoints(double ap,
+                               double al,
+                               const VectorDouble &xy1,
+                               const VectorDouble &xy2) const;
+  double distanceBetweenPlIndices(const PolyPoint2D &pldist1,
+                                  const PolyPoint2D &pldist2) const;
+  double angleAtPolyline(const PolyPoint2D &pldist) const;
 
 protected:
   /// Interface for ASerializable
@@ -84,3 +85,19 @@ private:
   VectorDouble _x;
   VectorDouble _y;
 };
+
+GSTLEARN_EXPORT int dbUnfoldPolyline(Db *db,
+                                     const PolyLine2D &polyline,
+                                     const NamingConvention &namconv = NamingConvention(
+                                         "Unfold"));
+GSTLEARN_EXPORT int dbFoldPolyline(DbGrid *dbin,
+                                   Db *dbout,
+                                   const VectorInt &cols,
+                                   const PolyLine2D &polyline,
+                                   const NamingConvention &namconv = NamingConvention(
+                                       "Fold"));
+GSTLEARN_EXPORT int dbFromPolylines(Db* db,
+                                    const PolyLine2D &top,
+                                    const PolyLine2D &bot,
+                                    const NamingConvention &namconv = NamingConvention(
+                                        "Lines"));

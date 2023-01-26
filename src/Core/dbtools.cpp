@@ -2401,16 +2401,14 @@ int db_selhull(Db *db1,
                bool verbose,
                const NamingConvention &namconv)
 {
-  Polygons *polygons = nullptr;
+  /* Create the polygon as the convex hull of first Db */
+
+  Polygons* polygons = Polygons::createFromDb(db1, dilate, verbose);
+  if (polygons == nullptr) return 1;
 
   // Create the variable in the output Db
 
   int isel = db2->addColumnsByConstant(1, 1.);
-
-  /* Create the polygon as the convex hull of first Db */
-
-  polygons = polygon_hull(db1, dilate, verbose);
-  if (polygons == nullptr) return 1;
 
   /* Loop on the samples of the second Db */
   // Note that all samples must be checked as a sample, initially masked, can be
@@ -2422,9 +2420,9 @@ int db_selhull(Db *db1,
   int nin = 0;
   for (int iech = 0; iech < ntotal; iech++)
   {
-    if (!polygon_inside(db2->getCoordinate(iech, 0),
-                        db2->getCoordinate(iech, 1),
-                        db2->getCoordinate(iech, 2), 0, polygons))
+    if (!polygons->inside(db2->getCoordinate(iech, 0),
+                          db2->getCoordinate(iech, 1),
+                          db2->getCoordinate(iech, 2), false))
     {
       db2->setArray(iech, isel, 0.);
       nout++;
@@ -3890,147 +3888,6 @@ int db_compositional_transform(Db *db,
   label_end: tabin = (double*) mem_free((char* ) tabin);
   tabout = (double*) mem_free((char* ) tabout);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Unfold a 2-D Db with respect to a polyline
- **
- ** \return  Error return code
- **
- ** \param[in]  db      Db structure
- ** \param[in]  polyline PolyLine2D structure
- **
- *****************************************************************************/
-int db_unfold_polyline(Db *db, const PolyLine2D& polyline)
-{
-  PolyLine2D::PolyPoint2D pldist, pldist0;
-  VectorDouble target(2);
-
-  /* Initializations */
-
-  int nvert = polyline.getNPoints();
-
-  /* Preliminary checks */
-
-  if (db->getNDim() != 2)
-  {
-    messerr("This function is restricted to 2-D Db");
-    return 1;
-  }
-  if (nvert <= 1)
-  {
-    messerr("This function requires a Polyline with at least one segment");
-    return 1;
-  }
-
-  /* Add the variables */
-
-  int iptr = db->addColumnsByConstant(2, 0.);
-  if (iptr < 0) return 1;
-
-  /* Project the starting point */
-
-  polyline.pointToPolyline(polyline.getPoint(0), pldist0);
-
-  /* Loop on the samples of the Db */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    target[0] = db->getCoordinate(iech, 0);
-    target[1] = db->getCoordinate(iech, 1);
-    polyline.pointToPolyline(target, pldist);
-    double newx = pldist.dist;
-    double newy = polyline.distanceAlongPolyline(pldist0, pldist);
-    db->setArray(iech, iptr, newx);
-    db->setArray(iech, iptr + 1, newy);
-  }
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Fold an input Db into an output Db with respect to a polyline
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin    Input Db structure
- ** \param[in]  dbout   Output Db structure
- ** \param[in]  ncol    Number of target variables
- ** \param[in]  cols    Ranks of the target variables
- ** \param[in]  polyline PolyLine2D structure
-
- *****************************************************************************/
-int db_fold_polyline(DbGrid *dbin,
-                     Db *dbout,
-                     int ncol,
-                     int *cols,
-                     const PolyLine2D& polyline)
-{
-  PolyLine2D::PolyPoint2D pldist, pldist0;
-  VectorDouble coor(2);
-
-  /* Initializations */
-
-  int nvert = polyline.getNPoints();
-
-  /* Preliminary checks */
-
-  if (dbin->getNDim() != 2 || ! dbin->isGrid())
-  {
-    messerr("This function is restricted to 2-D Input Grid Db");
-    return 1;
-  }
-  if (dbout->getNDim() != 2)
-  {
-    messerr("This function is restricted to 2-D Output Db");
-    return 1;
-  }
-  if (nvert <= 1)
-  {
-    messerr("This function requires a PolyLine2D with at least one segment");
-    return 1;
-  }
-
-  /* Add the variables */
-
-  int iptr = dbout->addColumnsByConstant(ncol, TEST);
-  if (iptr < 0) return 1;
-
-  /* Project the starting point */
-
-  polyline.pointToPolyline(polyline.getPoint(0), pldist0);
-
-  /* Loop on the samples of the output Db */
-
-  VectorDouble target(2);
-  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
-  {
-    if (!dbout->isActive(iech)) continue;
-    target[0] = dbout->getCoordinate(iech, 0);
-    target[1] = dbout->getCoordinate(iech, 1);
-
-    /* Project the target point according to the line */
-
-    polyline.pointToPolyline(target, pldist);
-    coor[0] = pldist.dist;
-    coor[1] = polyline.distanceAlongPolyline(pldist0, pldist);
-
-    /* Locate the sample on the Input Grid */
-
-    int iad = dbin->coordinateToRank(coor);
-    if (iad < 0) continue;
-
-    /* Loop on the variables */
-
-    for (int icol = 0; icol < ncol; icol++)
-    {
-      double value = dbin->getArray(iad, cols[icol]);
-      dbout->setArray(iech, iptr + icol, value);
-    }
-  }
-  return 0;
 }
 
 /*****************************************************************************/
@@ -5792,162 +5649,6 @@ int db_grid2point_sampling(DbGrid *dbgrid,
   ranks = (int*) mem_free((char* ) ranks);
   rndval = (double*) mem_free((char* ) rndval);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Determine the distance to a polyline
- **
- ** \return  Error returned code
- **
- ** \param[in]  db      Db structure
- ** \param[in]  polygon Polygons structure
- ** \param[in]  dmax    Maximum distance
- ** \param[in]  scale   Scaling option
- **                     0 : no scaling
- **                    >0 : scaling between 0 and 1
- **                    <0 : scaling between 1 and 0
- ** \param[in]  polin   Option for checking against the polygon
- **                     0 : no check
- **                    >0 : if sample is outside polygon, return TEST
- **                    <0 : if sample is inside polygon, return TEST
- **
- ** \remarks When patching values with respect to the polygon, when abs(polin):
- ** \remarks 1 : put NA
- ** \remarks 2 : put minimum distance
- ** \remarks 3 : put maximum distance
- **
- *****************************************************************************/
-int db_polygon_distance(Db *db,
-                        Polygons *polygon,
-                        double dmax,
-                        int scale,
-                        int polin)
-{
-  PolyLine2D::PolyPoint2D pldist;
-  double distmin, distloc, distmax, value, valtest;
-  int iptr, nech, inside;
-  VectorDouble target(2);
-
-  // Initializations
-
-  iptr = -1;
-  nech = db->getSampleNumber();
-  distmin = distmax = 0.;
-
-  // Create a new attribute
-
-  iptr = db->addColumnsByConstant(1, TEST);
-  if (iptr < 0) return (1);
-
-  // Loop on the polysets 
-
-  distmin = TEST;
-  for (int iset = 0; iset < polygon->getPolySetNumber(); iset++)
-  {
-    const PolySet &polyset = polygon->getPolySet(iset);
-
-    // Loop on the samples
-
-    for (int iech = 0; iech < nech; iech++)
-    {
-      if (!db->isActive(iech)) continue;
-      target[0] = db->getCoordinate(iech, 0);
-      target[1] = db->getCoordinate(iech, 1);
-      PolyLine2D polyline(polyset.getX(), polyset.getY());
-      polyline.pointToPolyline(target, pldist);
-      distloc = pldist.dist;
-      if (FFFF(distloc)) continue;
-      distmin = db->getArray(iech, iptr);
-      if (FFFF(distmin))
-        distmin = distloc;
-      else
-        distmin = MIN(distmin, distloc);
-      if (!FFFF(dmax) && distmin > dmax) distmin = dmax;
-      db->setArray(iech, iptr, distmin);
-    }
-  }
-
-  // Calculate the extreme values
-
-  if (scale != 0 || polin != 0)
-  {
-    distmin = 1.e30;
-    distmax = 0.;
-    for (int iech = 0; iech < nech; iech++)
-    {
-      if (!db->isActive(iech)) continue;
-      distloc = db->getArray(iech, iptr);
-      if (FFFF(distloc)) continue;
-      if (polin != 0)
-      {
-        inside = polygon_inside(db->getCoordinate(iech, 0),
-                                db->getCoordinate(iech, 1),
-                                TEST,
-                                0, polygon);
-        if (polin > 0)
-        {
-          if (!inside) continue;
-        }
-        else
-        {
-          if (inside) continue;
-        }
-      }
-      if (distloc > distmax) distmax = distloc;
-      if (distloc < distmin) distmin = distloc;
-    }
-  }
-
-  // Scaling option
-
-  if (scale != 0)
-  {
-    if (scale > 0)
-    {
-      for (int iech = 0; iech < nech; iech++)
-      {
-        if (!db->isActive(iech)) continue;
-        distloc = db->getArray(iech, iptr);
-        if (FFFF(distloc)) continue;
-        value = (distloc - distmin) / (distmax - distmin);
-        db->setArray(iech, iptr, value);
-      }
-    }
-    else
-    {
-      for (int iech = 0; iech < nech; iech++)
-      {
-        if (!db->isActive(iech)) continue;
-        distloc = db->getArray(iech, iptr);
-        if (FFFF(distloc)) continue;
-        value = (distloc - distmax) / (distmin - distmax);
-        db->setArray(iech, iptr, value);
-      }
-    }
-    distmin = 0.;
-    distmax = 1.;
-  }
-
-  // Check if the sample belongs to the polygon or not
-
-  if (polin != 0)
-  {
-    valtest = TEST;
-    if (ABS(polin) == 2) valtest = distmin;
-    if (ABS(polin) == 3) valtest = distmax;
-    for (int iech = 0; iech < nech; iech++)
-    {
-      inside = polygon_inside(db->getCoordinate(iech, 0),
-                              db->getCoordinate(iech, 1),
-                              TEST,
-                              0, polygon);
-      if (polin > 0 && !inside) db->setArray(iech, iptr, valtest);
-      if (polin < 0 && inside) db->setArray(iech, iptr, valtest);
-    }
-  }
-
-  return (0);
 }
 
 /*****************************************************************************/

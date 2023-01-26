@@ -20,6 +20,7 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
+#include "Polygon/Polygons.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
@@ -3842,7 +3843,7 @@ int correlation_ident(Db *db1, Db *db2, int icol1, int icol2, Polygons *polygon)
 
     coor[0] = val1;
     coor[1] = val2;
-    if (!polygon_inside(coor[0], coor[1], TEST, 0, polygon)) continue;
+    if (!polygon->inside(coor[0], coor[1], TEST, false)) continue;
 
     /* Print the reference of the sample */
 
@@ -4020,7 +4021,7 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
         grid_to_point(dbgrid, indg, NULL, coor);
         zcoor = (dbgrid->getNDim() > 2) ? coor[2] :
                                           TEST;
-        if (!polygon_inside(coor[0], coor[1], zcoor, 0, polygon)) continue;
+        if (!polygon->inside(coor[0], coor[1], zcoor, false)) continue;
 
         /* Add the references */
 
