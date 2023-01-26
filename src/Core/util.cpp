@@ -930,7 +930,7 @@ int solve_P3(double a, double b, double c, double d, double *x)
  ** \param[in]  tab2   Array corresponding to the second endpoint
  **
  *****************************************************************************/
-double ut_distance(int ndim, double *tab1, double *tab2)
+double ut_distance(int ndim, const double *tab1, const double *tab2)
 {
   double distance, v1, v2, delta;
 

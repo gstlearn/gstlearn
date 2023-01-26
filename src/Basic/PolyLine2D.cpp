@@ -14,6 +14,7 @@
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Stats/Classical.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -293,7 +294,7 @@ double PolyLine2D::distanceBetweenPoints(double ap,
 
   if (al > 0.)
   {
-    dv = distanceBetweenPlIndices(pldist1, pldist2);
+    dv = distanceAlongPolyline(pldist1, pldist2);
     d1 = ABS(d1);
     d2 = ABS(d2);
     dmin = MIN(d1, d2);
@@ -321,8 +322,8 @@ double PolyLine2D::distanceBetweenPoints(double ap,
  ** \param[in]  pldist2 Second PolyPoint2D structure
  **
  *****************************************************************************/
-double PolyLine2D::distanceBetweenPlIndices(const PolyPoint2D &pldist1,
-                                            const PolyPoint2D &pldist2) const
+double PolyLine2D::distanceAlongPolyline(const PolyPoint2D &pldist1,
+                                         const PolyPoint2D &pldist2) const
 {
   int i;
   double dist, local1[2], local2[2];
@@ -375,26 +376,62 @@ double PolyLine2D::distanceBetweenPlIndices(const PolyPoint2D &pldist1,
   return (dist);
 }
 
-double PolyLine2D::angleAtPolyline(const PolyPoint2D &pldist) const
+void PolyLine2D::_getInterval(const PolyPoint2D &pldist,
+                              int nb_neigh,
+                              int *rfrom,
+                              int *rto) const
 {
-  int r1, r2;
   int npoint = getNPoints();
   int rank = pldist.rank;
-  if (rank < npoint - 1)
-  {
-    r1 = rank;
-    r2 = rank + 1;
-  }
-  else
-  {
-    r1 = rank - 1;
-    r2 = rank;
-  }
+  if (rank == npoint - 1) rank--;
+  *rfrom = MAX(0, rank - nb_neigh);
+  *rto   = MIN(npoint-1, rank + 1 + nb_neigh);
+}
 
-  double incr_y = getY(r2) - getY(r1);
-  double incr_x = getX(r2) - getX(r1);
-  double angle  = atan2(incr_y, incr_x) * 180. / GV_PI;
+double PolyLine2D::angleAtPolyline(const PolyPoint2D &pldist, int nb_neigh) const
+{
+  int rfrom, rto;
+  _getInterval(pldist, nb_neigh, &rfrom, &rto);
+
+  // Approach using the Deming regression
+
+  VectorDouble x;
+  VectorDouble y;
+  for (int i = rfrom; i <= rto; i++)
+  {
+    x.push_back(getX(i));
+    y.push_back(getY(i));
+  }
+  VectorDouble coeffs = regrDeming(x,y);
+  double angle = coeffs[1] * 180. / GV_PI;
+
   return angle;
+}
+
+double PolyLine2D::distanceAtPolyline(const PolyPoint2D &pldist,
+                                      const VectorDouble& target,
+                                      int nb_neigh) const
+{
+  if (nb_neigh <= 1) return pldist.dist;
+
+  VectorDouble local(2);
+  int rfrom, rto;
+  _getInterval(pldist, nb_neigh, &rfrom, &rto);
+
+  // Approach using the Deming regression
+
+  double dist = 0.;
+  int number = 0;
+  for (int i = rfrom; i <= rto; i++)
+  {
+    local[0] = getX(i);
+    local[1] = getY(i);
+    dist += ut_distance(2, target.data(), local.data());
+    number++;
+  }
+  dist /= (double) number;
+
+  return dist;
 }
 
 /*****************************************************************************/
@@ -449,7 +486,7 @@ int dbUnfoldPolyline(Db *db,
     target[1] = db->getCoordinate(iech, 1);
     PolyPoint2D pldist = polyline.getPLIndex(target);
     double newx = pldist.dist;
-    double newy = polyline.distanceBetweenPlIndices(pldist0, pldist);
+    double newy = polyline.distanceAlongPolyline(pldist0, pldist);
     db->setArray(iech, iptr, newx);
     db->setArray(iech, iptr + 1, newy);
   }
@@ -526,7 +563,7 @@ int dbFoldPolyline(DbGrid *dbin,
 
     PolyPoint2D pldist = polyline.getPLIndex(target);
     coor[0] = pldist.dist;
-    coor[1] = polyline.distanceBetweenPlIndices(pldist0, pldist);
+    coor[1] = polyline.distanceAlongPolyline(pldist0, pldist);
 
     /* Locate the sample on the Input Grid */
 
@@ -554,12 +591,21 @@ int dbFoldPolyline(DbGrid *dbin,
  * @param db    Pointer to the Db where relevant information will be stored
  * @param top   2-D Polyline defining the Top surface
  * @param bot   2-D Polyline defining the Bottom surface
+ * @param nb_neigh Size of neighborhood radius (for regularizing the angle calculation)
+ * @param flagMask Mask if the target is outside the two polylines
  * @param namconv Naming convention
  * @return Error return code
+ *
+ * @remarks Three variables are created:
+ * @remarks 1 - Minimum distance between Target and Polylines
+ * @remarks 2 - Distance between Polylines at Target location
+ * @remarks 3 - Average angle of Polylines at Target location
  */
 int dbFromPolylines(Db* db,
                     const PolyLine2D& top,
                     const PolyLine2D& bot,
+                    int nb_neigh,
+                    bool flagMask,
                     const NamingConvention &namconv)
 {
   VectorDouble target(2);
@@ -577,7 +623,7 @@ int dbFromPolylines(Db* db,
 
   // Allocate the output variables
 
-  int iptr = db->addColumnsByConstant(2, TEST);
+  int iptr = db->addColumnsByConstant(3, TEST);
   if (iptr < 0) return 1;
 
   // Loop on the active samples of the Data Base
@@ -593,26 +639,57 @@ int dbFromPolylines(Db* db,
     PolyPoint2D pl_top = top.getPLIndex(target);
     PolyPoint2D pl_bot = bot.getPLIndex(target);
 
-    // Get distances to the polyline projections
-    double dist_top = pl_top.dist;
-    double dist_bot = pl_bot.dist;
+    // Calculate distance between two polylines at Target
+    double distinter = distanceBetweenPolylines(top, bot, pl_top, pl_bot);
+    double distmin = TEST;
+    double angle   = TEST;
 
-    // Get the angles at the polyline projections
-    double angle_top = top.angleAtPolyline(pl_top);
-    double angle_bot = bot.angleAtPolyline(pl_bot);
+    // Perform calculations only when target is between polymines
+    if (! flagMask || (pl_top.dist <= distinter && pl_bot.dist <= distinter))
+    {
 
-    // Calculate relevant quantities
-    double dist  = dist_bot + dist_top;
-    double angle = (angle_top * dist_bot + angle_bot * dist_top) / (dist_bot + dist_top);
+      // Get distances to the polyline projections
+      double dist_top = top.distanceAtPolyline(pl_top, target, nb_neigh);
+      double dist_bot = bot.distanceAtPolyline(pl_bot, target, nb_neigh);
 
-    db->setArray(iech, iptr  , dist);
-    db->setArray(iech, iptr+1, angle);
+      // Get the angles at the polyline projections
+      double angle_top = top.angleAtPolyline(pl_top, nb_neigh);
+      double angle_bot = bot.angleAtPolyline(pl_bot, nb_neigh);
+
+      // Calculate relevant quantities
+      distmin = MIN(dist_bot, dist_top);
+      angle   = (angle_top * dist_bot + angle_bot * dist_top) / (dist_bot + dist_top);
+    }
+    else
+    {
+      distmin = TEST;
+      distinter = TEST;
+      angle = TEST;
+    }
+    db->setArray(iech, iptr  , distmin);
+    db->setArray(iech, iptr+1, distinter);
+    db->setArray(iech, iptr+2, angle);
   }
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, iptr  , "Dist");
-  namconv.setNamesAndLocators(db, iptr+1, "Angle");
+  namconv.setNamesAndLocators(db, iptr  , "DistMin");
+  namconv.setNamesAndLocators(db, iptr+1, "DistInter");
+  namconv.setNamesAndLocators(db, iptr+2, "Angle");
 
   return 0;
+}
+
+double distanceBetweenPolylines(const PolyLine2D& poly1,
+                                const PolyLine2D& poly2,
+                                const PolyPoint2D& pldist1,
+                                const PolyPoint2D& pldist2)
+{
+  VectorDouble coor1(2);
+  coor1[0] = poly1.getX(pldist1.rank);
+  coor1[1] = poly1.getY(pldist1.rank);
+  VectorDouble coor2(2);
+  coor2[0] = poly2.getX(pldist2.rank);
+  coor2[1] = poly2.getY(pldist2.rank);
+  return ut_distance(2, coor1.data(), coor2.data());
 }

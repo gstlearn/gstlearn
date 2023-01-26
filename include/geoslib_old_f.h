@@ -185,7 +185,7 @@ GSTLEARN_EXPORT void ut_trace_sample(Db *db,
                                      int **typ_arg);
 GSTLEARN_EXPORT int solve_P2(double a, double b, double c, double *x);
 GSTLEARN_EXPORT int solve_P3(double a, double b, double c, double d, double *x);
-GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2);
+GSTLEARN_EXPORT double ut_distance(int ndim, const double *tab1, const double *tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab1,
                                            double **tab2);

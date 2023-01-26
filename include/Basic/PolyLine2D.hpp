@@ -65,9 +65,12 @@ public:
                                double al,
                                const VectorDouble &xy1,
                                const VectorDouble &xy2) const;
-  double distanceBetweenPlIndices(const PolyPoint2D &pldist1,
-                                  const PolyPoint2D &pldist2) const;
-  double angleAtPolyline(const PolyPoint2D &pldist) const;
+  double distanceAlongPolyline(const PolyPoint2D &pldist1,
+                               const PolyPoint2D &pldist2) const;
+  double angleAtPolyline(const PolyPoint2D &pldist, int nb_neigh = 0) const;
+  double distanceAtPolyline(const PolyPoint2D &pldist,
+                            const VectorDouble &target,
+                            int nb_neigh) const;
 
 protected:
   /// Interface for ASerializable
@@ -80,12 +83,20 @@ private:
                    const VectorDouble &xy2,
                    double ratio,
                    VectorDouble &xy0) const;
+  void _getInterval(const PolyPoint2D &pldist,
+                    int nb_neigh,
+                    int *rfrom,
+                    int *rt0) const;
 
 private:
   VectorDouble _x;
   VectorDouble _y;
 };
 
+double distanceBetweenPolylines(const PolyLine2D& poly1,
+                                const PolyLine2D& poly2,
+                                const PolyPoint2D& pldist1,
+                                const PolyPoint2D& pldist2);
 GSTLEARN_EXPORT int dbUnfoldPolyline(Db *db,
                                      const PolyLine2D &polyline,
                                      const NamingConvention &namconv = NamingConvention(
@@ -99,5 +110,7 @@ GSTLEARN_EXPORT int dbFoldPolyline(DbGrid *dbin,
 GSTLEARN_EXPORT int dbFromPolylines(Db* db,
                                     const PolyLine2D &top,
                                     const PolyLine2D &bot,
+                                    int nb_neigh = 0,
+                                    bool flagMask = true,
                                     const NamingConvention &namconv = NamingConvention(
                                         "Lines"));

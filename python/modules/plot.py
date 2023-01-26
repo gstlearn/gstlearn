@@ -979,6 +979,8 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
           title=title, ax=ax, figsize = figsize, end_plot=end_plot,
           **plot_args)
 
+    drawDecor(ax, title=title, aspect=aspect)
+        
     return ax
 
 def hist_tab(val, xlabel=None, ylabel=None, nbins=30, color='yellow', edgecolor='red',

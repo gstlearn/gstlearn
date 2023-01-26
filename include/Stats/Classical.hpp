@@ -33,7 +33,9 @@ class Table;
 
 GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
-
+GSTLEARN_EXPORT VectorDouble regrDeming(const VectorDouble &x,
+                                        const VectorDouble &y,
+                                        double delta = 1);
 GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
                                            const std::vector<EStatOption>& opers,
