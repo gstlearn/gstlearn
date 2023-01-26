@@ -76,6 +76,15 @@ void AMatrixSquare::normMatrix(const AMatrixSquare& x, const AMatrix& y)
   }
 }
 
+
+double AMatrixSquare::trace() const
+{
+  double res = 0.;
+  for (int irow = 0; irow < getNSize(); irow++)
+    res += getValue(irow,irow);
+  return res;
+
+}
 /**
  * Perform the product: this = Y %*% X %*% t(Y)
  * @param x: Square matrix
