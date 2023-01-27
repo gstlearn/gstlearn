@@ -11,6 +11,8 @@ import math
 
 default_aspect = 1
 default_figsize = [8, 8]
+default_xlim = None
+default_ylim = None
 
 def get_cmap(n, name='gist_rainbow'):
     '''
@@ -27,15 +29,17 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def newFigure(figsize = None, xlim = None, ylim = None, nx=1, ny=1, ylimnodiag = None,
+def newFigure(flagGeo, figsize = None, xlim = None, ylim = None, nx=1, ny=1, ylimnodiag = None,
               sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
     
         Parameters
         ----------
+        flagGeo:    True for Geographical representation, False otherwise
         figsize:    Vector of dimensions along X and Y (per subplot). 
-                    If not defined (None), use the global variable 'default_figsize'
-        xlim, ylim: Limits along X and Y (this applies to all subplots of the figure)
+                    If None and Geographical, use global 'default_figsize'
+        xlim, ylim: Limits along X and Y when defined (this applies to all subplots of the figure)
+                    If None and Geographical, use global 'default_xlim' and 'default_ylim'
         ylimnodiag: Same as ylim for non-diagonal subplot
         nx, ny:     Number of subplots along X and Y
         sharex, sharey: If the subplots should all share respectively X and Y axis (default are False)
@@ -48,15 +52,20 @@ def newFigure(figsize = None, xlim = None, ylim = None, nx=1, ny=1, ylimnodiag =
     if figsize is not None:
         figsize = [figsize[0]*nx, figsize[1]*ny]
     else:
-        figsize = default_figsize
+        if flagGeo:
+            figsize = default_figsize
         
     fig, ax = plt.subplots(nx, ny, figsize=figsize, squeeze=False, sharex=sharex, sharey=sharey)
     
+    if xlim is None and flagGeo:
+        xlim = default_xlim
     if xlim is not None:
         for ix in range(nx):
             for iy in range(ny):
                 ax[ix,iy].set_xlim(xlim)
-
+    
+    if ylim is None and flagGeo:
+        ylim = default_ylim
     if ylim is not None:
         for ix in range(nx):
             for iy in range(ny):
@@ -65,17 +74,17 @@ def newFigure(figsize = None, xlim = None, ylim = None, nx=1, ny=1, ylimnodiag =
                         ax[ix,iy].set_ylim(ylimnodiag)
                 else:
                     ax[ix,iy].set_ylim(ylim)
-        
+    
     if nx * ny == 1:
         ax = ax[0,0]
     return fig, ax
 
 def shape_Nsubplots(N):
-    """
+    '''
     Calculates numbers of lines and columns for N subplots. 
     If N is a perfect square, then nlines = ncols = sqrt(N). 
     Else, the number of columns increase first.
-    """
+    '''
     nlines = np.floor(np.sqrt(N))
     ncols = np.ceil(N/nlines)
     return int(nlines), int(ncols)
@@ -108,6 +117,7 @@ def drawDecor(ax=None, xlabel=None, ylabel=None, aspect=None, title=None, flagLe
             ax.set_ylabel(ylabel)
         if title is not None:
             ax.set_title(title)
+            
         if aspect is None:
             ax.set_aspect(default_aspect)
         else:
@@ -135,22 +145,22 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
             corner = np.zeros(db.getNDim())
         
         if db.getNDim() == 1:
-            tabx = db.getColumn(name, usesel)
+            tab = db.getColumn(name, usesel, False)
         else:
-            tabx = db.getOneSlice(name, posx, posy, corner, usesel)
+            tab = db.getOneSlice(name, posx, posy, corner, usesel)
     else:
-        tabx = db.getColumn(name, usesel)
-    tabx = np.array(tabx).transpose()
+        tab = db.getColumn(name, usesel, compress)
+    tab = np.array(tab).transpose()
 
     if flagConvertNanToZero:
-        tabx[np.isnan(tabx)] = 0
+        tab[np.isnan(tab)] = 0
     else:
-        tabx = ma.array(tabx,mask=np.isnan(tabx))
+        tab = ma.array(tab,mask=np.isnan(tab))
     
     if compress:
-        tabx = tabx[np.logical_not(np.isnan(tabx))]
+        tab = tab[np.logical_not(np.isnan(tab))]
         
-    return tabx
+    return tab
 
 def getBiDefinedValues(db1, name1, name2, db2, usesel=True):
     tabx = db1.getColumn(name1, usesel)
@@ -168,21 +178,6 @@ def getFileIdentity(filename):
     type = gl.Aserializable.getFileIdentity(filename)
     print(type)
     return type
-
-def update_xylim(ax, xlim=None, ylim=None):
-    """Update x and y limits by keeping the maximum extent between initial limits and input."""
-    if xlim is not None:
-        xlim0 = ax.get_xlim()
-        if xlim[0] is not None and xlim[0] < xlim0[0]:
-            ax.set_xlim(left=xlim[0])
-        if xlim[1] is not None and xlim[1] > xlim0[1]:
-            ax.set_xlim(right=xlim[1])
-    if ylim is not None:
-        ylim0 = ax.get_ylim()
-        if ylim[0] is not None and ylim[0] < ylim0[0]:
-            ax.set_ylim(bottom=ylim[0])
-        if ylim[1] is not None and ylim[1] > ylim0[1]:
-            ax.set_ylim(top=ylim[1])
 
 def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black', 
               linestyle='solid', linestyle0='dashed', hmax=None, gmax=None, show_pairs = False,
@@ -221,7 +216,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     linestyle = plot_args.setdefault('linestyle', linestyle)    
     
     if ax is None:
-        fig, ax = newFigure(figsize, None, None)
+        fig, ax = newFigure(False, figsize)
 
     if label is None:
         label = "vario"
@@ -308,7 +303,7 @@ def varioDir(vario, ivar=0, jvar=0,
     cols = get_cmap(vario.getDirectionNumber(),cmap)
     
     if ax is None:
-        fig, ax = newFigure(figsize, None, None)
+        fig, ax = newFigure(False, figsize)
     
     for idirUtil in ndirUtil:
         flagLabelSill = idirUtil == 0
@@ -389,7 +384,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
         
     # Create a new figure
     if axs is None:
-        fig, axs = newFigure(figsize, None, None, ivarN, jvarN, ylimnodiag)   
+        fig, axs = newFigure(False, figsize, None, None, ivarN, jvarN, ylimnodiag)   
         
     # if several directions, label with the direction vectors
     if ndir > 1:
@@ -534,7 +529,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     gg = model.sample(hmax, nh, ivar, jvar, codir, asCov=asCov, addZero=True)
     
     if ax is None:
-        fig, ax = newFigure(figsize, None, None)
+        fig, ax = newFigure(False, figsize)
         
     label = "model"
     if flagLabelDir:
@@ -604,7 +599,7 @@ def point(db,
     edgecolors = scatter_args.setdefault('edgecolors', edgecolors)
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
 
     # Extracting coordinates
     if coorX_name is not None:
@@ -619,11 +614,12 @@ def point(db,
             taby = db.getCoordinates(posY,usesel)
     if len(tabx) <= 0 or len(taby) <= 0:
         return
+    number = len(tabx)
     
     # Color of symbol
     if color_name is not None:
         colval = getDefinedValues(db, color_name, 0, 1, None, usesel, 
-                                  compress=False, asGrid=False, flagConvertNanToZero=True)
+                                  compress=True, asGrid=False, flagConvertNanToZero=True)
         if (directColor and cmap is not None):
             colval = colval.astype(int)
             colval = cmap(colval)
@@ -633,8 +629,7 @@ def point(db,
     # Size of symbol
     if size_name is not None:
         sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, 
-                                  compress=False, asGrid=False, flagConvertNanToZero=True)
-        
+                                  compress=True, asGrid=False, flagConvertNanToZero=True)
         if flagAbsSize:
             sizval = np.absolute(sizval)
         m = np.nanmin(np.absolute(sizval))
@@ -688,7 +683,7 @@ def gradient(db, coorX_name=None, coorY_name=None, usesel=True,
     end_plot: Flag for closing the graphics
     '''
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
 
     # Extracting coordinates
     if coorX_name is not None:
@@ -743,7 +738,7 @@ def tangent(db, usesel=True, color='black', scale=20,
     '''
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
 
     # Extracting coordinates
     tabx  = db.getCoordinates(0,usesel)
@@ -773,7 +768,7 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
     This makes sense when the model contains some non-stationarity
     '''
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
@@ -798,7 +793,8 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
     return ax
 
     
-def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
+def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
+            aspect=None, xlim=None, ylim=None,
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
     '''
@@ -807,7 +803,7 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
     '''
     
     if ax is None:
-        fig, ax = newFigure(figsize)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
     
     npol = poly.getPolySetNumber()
     cols = get_cmap(npol)
@@ -840,9 +836,9 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
         
 def grid(dbgrid, name = None, usesel = True, flagColorBar=True, 
          aspect=None,
-         xlim=None, ylim=None, posx=0, posy=1, corner=None, 
+         xlim=None, ylim=None, asGeo = True, posx=0, posy=1, corner=None, 
          levels=None, colorL='black', linestyleL = 'solid', zlim=None,
-         flagRaster=True,
+         flagRaster=True, 
          title = None, ax=None, figsize = None, end_plot=False, 
          **pcolormesh_args):
     '''
@@ -855,6 +851,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True,
     aspect: see drawDecor()
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
+    asGeo: True if the grid is defined in Geographical coordinates; False otherwise
     title: Title given to the plot
     ax: Reference for the plot within the figure
     figsize: Vector of dimensions along X and Y (per subplot). Use default_figsize if None
@@ -879,7 +876,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True,
             name = dbgrid.getLastName()
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(asGeo, figsize, xlim, ylim)
         
     x0 = dbgrid.getX0(posx)
     y0 = dbgrid.getX0(posy)
@@ -919,8 +916,6 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True,
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
             transform=trans_data)
-    
-    update_xylim(ax, xlim=xlim, ylim=ylim) 
     
     if title is None:
         title = dbgrid.getName(name)[0]
@@ -969,7 +964,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
             name = dbgrid.getLastName()
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
         
     x0 = dbgrid.getX0(0)
     nx = dbgrid.getNX(0)
@@ -998,11 +993,11 @@ def hist_tab(val, xlabel=None, ylabel=None, nbins=30, color='yellow', edgecolor=
     bins      = hist_args.setdefault("bins", nbins)
     
     if ax is None:
-        fig, ax = newFigure(figsize)
+        fig, ax = newFigure(False, figsize)
         
     ax.hist(val, **hist_args)
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, aspect = 'auto', title=title)
         
     if end_plot:
         plt.show()
@@ -1067,7 +1062,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
         return None
 
     if ax is None:
-        fig, ax = newFigure(figsize)
+        fig, ax = newFigure(False, figsize)
     
     filetype = type(data1).__name__
     if filetype == "tuple":
@@ -1095,7 +1090,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
     
     ax.plot(tabx, taby, **plot_args)
     
-    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, 
+    drawDecor(ax, aspect = "auto", xlabel=xlabel, ylabel=ylabel, title=title, 
               flagLegend=flagLegend)
     
     if end_plot:
@@ -1117,7 +1112,7 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
         return None
     
     if ax is None:
-        fig, ax = newFigure(figsize)
+        fig, ax = newFigure(False, figsize)
     
     nseg = len(data[0])
     
@@ -1131,7 +1126,8 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
         
     return ax
 
-def fault(faults, color='black',flagLegend=False, label="segments",
+def fault(faults, color='black',
+          xlim = None, ylim = None, flagLegend=False, label="segments",
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Plotting a Fault system.
@@ -1141,7 +1137,7 @@ def fault(faults, color='black',flagLegend=False, label="segments",
     label = plot_args.setdefault('label', label)
         
     if ax is None:
-        fig, ax = newFigure(figsize)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
     
     nfaults = faults.getNFaults()
     for ifault in range(nfaults):
@@ -1176,7 +1172,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False,
         return None;
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
         
     ax.plot(xtab, ytab, **plot_args)
             
@@ -1193,7 +1189,7 @@ def sample(sample, xlim=None, ylim=None, aspect=None,
            title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
     
     ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
             label=label, **plot_args)
@@ -1209,7 +1205,7 @@ def rule(rule, proportions=[],cmap=None,
          title=None, xlim=[-5,+5], ylim=[-5,+5], ax=None, figsize=None, end_plot=False):
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim=xlim, ylim=ylim)
+        fig, ax = newFigure(True, figsize, xlim=xlim, ylim=ylim)
         
     nfac = rule.getFaciesNumber()
     rule.setProportions(proportions)
@@ -1222,7 +1218,7 @@ def rule(rule, proportions=[],cmap=None,
                               color=cols(ifac))
         ax.add_patch(rect)
 
-    drawDecor(ax, title=title)
+    drawDecor(ax, aspect="auto", title=title)
         
     if end_plot:
         plt.show()
@@ -1242,7 +1238,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     plot_args.setdefault('label', label)
     
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(True, figsize, xlim, ylim)
     
     if len(icols) == 1:
         datay = table.getColumn(int(icols[0]))
@@ -1257,7 +1253,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 
             **plot_args)
     
-    drawDecor(ax, title=title, flagLegend=flagLegend)
+    drawDecor(ax, aspect="auto", title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -1282,7 +1278,7 @@ def mesh(mesh,
         plot_args.setdefault('linewidth', linewidth)
 
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)   
+        fig, ax = newFigure(True, figsize, xlim, ylim)   
 
     nmesh = mesh.getNMeshes()
     
@@ -1312,7 +1308,7 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
     '''
  
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
+        fig, ax = newFigure(False, figsize, xlim, ylim)
         
     if db2 is None:
         db2 = db
@@ -1506,7 +1502,8 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
     
     if axs is None:
         nlines, ncols = shape_Nsubplots(Nplots)
-        fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
+        fig, axs = newFigure(True, figsize, xlim, ylim, nx=nlines, ny=ncols, 
+                             sharex=True, sharey=True)
     
     if title is not None:
         fig.suptitle(title)
@@ -1575,7 +1572,8 @@ def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
     else:
         if axs is None:
             nlines, ncols = shape_Nsubplots(Nplots)
-            fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
+            fig, axs = newFigure(True, figsize, xlim, ylim, nx=nlines, ny=ncols, 
+                                 sharex=True, sharey=True)
         
         if title is not None:
             fig.suptitle(title)
@@ -1640,7 +1638,8 @@ def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
     else:
         if axs is None:
             nlines, ncols = shape_Nsubplots(Nplots)
-            fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
+            fig, axs = newFigure(True, figsize, xlim, ylim, nx=nlines, ny=ncols, 
+                                 sharex=True, sharey=True)
         
         if title is not None:
             fig.suptitle(title)

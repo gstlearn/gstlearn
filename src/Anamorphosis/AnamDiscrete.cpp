@@ -257,13 +257,13 @@ bool AnamDiscrete::_deserialize(std::istream& is, bool /*verbose*/)
   if (ret)
   {
     zCut.resize(nCut);
-    ret = ret && _tableRead(is, nCut, zCut.data());
+    ret = ret && _tableRead(is, "Cutoff value", nCut, zCut.data());
   }
 
   if (ret)
   {
     stats.resize(nClass * nElem);
-    ret = ret && _tableRead(is, nClass * nElem, stats.data());
+    ret = ret && _tableRead(is, "DD Stats", nClass * nElem, stats.data());
   }
 
   if (ret)

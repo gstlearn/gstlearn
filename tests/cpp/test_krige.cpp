@@ -325,7 +325,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Create the Gaussian
   anam = AnamHermite::create(20);
   anam->fitFromArray(data->getColumn("Var"));
-  (void) anam->RawToGaussianByLocator(data);
+  (void) anam->rawToGaussianByLocator(data);
 
   message("\n<----- Test Kriging Anamorphosed Gaussian ----->\n");
   grid_res = grid->clone();

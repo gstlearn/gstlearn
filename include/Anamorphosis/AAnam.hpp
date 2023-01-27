@@ -43,36 +43,38 @@ public:
   virtual int          updatePointToBlock(double r_coef);
   virtual bool         allowChangeSupport() const { return false; }
   virtual bool         hasGaussian() const { return false; }
-  virtual double       RawToTransformValue(double z) const;
-  virtual double       TransformToRawValue(double y) const;
+  virtual double       rawToTransformValue(double z) const;
+  virtual double       transformToRawValue(double y) const;
   virtual int          fitFromArray(const VectorDouble &tab,
                                     const VectorDouble &wt = VectorDouble()) { DECLARE_UNUSED(tab,wt); return 0;}
 
   double invertVariance(double cvv) const;
-  VectorDouble RawToTransformVec(const VectorDouble& z) const;
-  VectorDouble TransformToRawVec(const VectorDouble& z) const;
+  VectorDouble rawToTransformVec(const VectorDouble& z) const;
+  VectorDouble transformToRawVec(const VectorDouble& z) const;
 
   int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::fromKey("Z"));
   int fit(Db *db, const String& name);
 
-  int RawToGaussianByLocator(Db *db,
+  int rawToGaussianByLocator(Db *db,
                              const NamingConvention &namconv = NamingConvention(
                                  "Y"));
-  int RawToGaussian(Db *db,
+  int rawToGaussian(Db *db,
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Y"));
-  int NormalScore(Db *db,
+  int normalScore(Db *db,
+                  const String& name,
                   const NamingConvention &namconv = NamingConvention("Gaussian"));
-  int GaussianToRawByLocator(Db *db,
+  int gaussianToRawByLocator(Db *db,
                              const NamingConvention &namconv = NamingConvention("Z"));
-  int GaussianToRaw(Db *db,
+  int gaussianToRaw(Db *db,
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Z"));
 
-  int RawToFactor(Db *db,
-                  const VectorInt &ifacs,
-                  const NamingConvention &namconv = NamingConvention("Factor"));
-  int RawToFactor(Db *db,
+  int rawToFactorByRanks(Db *db,
+                         const VectorInt &ifacs,
+                         const NamingConvention &namconv = NamingConvention(
+                             "Factor"));
+  int rawToFactor(Db *db,
                   int nfactor,
                   const NamingConvention &namconv = NamingConvention("Factor"));
 

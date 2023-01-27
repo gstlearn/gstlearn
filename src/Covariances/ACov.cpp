@@ -654,6 +654,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
                                       const CovCalcMode& mode) const
 {
   if (db2 == nullptr) db2 = db1;
+  int nechtot1 = db1->getSampleNumber(false);
+  int nechtot2 = db2->getSampleNumber(false);
   int nech1 = db1->getSampleNumber(true);
   int nech2 = db2->getSampleNumber(true);
   MatrixRectangular mat(nech1, nech2);
@@ -661,7 +663,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   /* Loop on the first sample */
 
   int jech1 = 0;
-  for (int iech1 = 0; iech1 < nech1; iech1++)
+  for (int iech1 = 0; iech1 < nechtot1; iech1++)
   {
     if (!db1->isActive(iech1)) continue;
     SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
@@ -669,7 +671,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     /* Loop on the second sample */
 
     int jech2 = 0;
-    for (int iech2 = 0; iech2 < nech2; iech2++)
+    for (int iech2 = 0; iech2 < nechtot2; iech2++)
     {
       if (!db2->isActive(iech2)) continue;
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());

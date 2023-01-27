@@ -815,7 +815,7 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
   bool success = false;
   if (dbgrid->_fileOpenRead(neutralFilename, is, verbose))
   {
-    success =  dbgrid->deserialize(is, verbose);
+    success = dbgrid->deserialize(is, verbose);
   }
   if (! success)
   {

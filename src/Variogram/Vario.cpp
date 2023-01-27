@@ -144,8 +144,7 @@ Vario* Vario::computeFromDb(const VarioParam* varioparam,
 {
   Vario* vario = nullptr;
   vario = new Vario(varioparam, db);
-  if (vario->compute(calcul, flag_gen, flag_sample, verr_mode, model,
-                 verbose))
+  if (vario->compute(calcul, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     return nullptr;
   }

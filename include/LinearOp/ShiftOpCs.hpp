@@ -207,6 +207,8 @@ private:
   cs* _BuildTildeCGradfromMap(std::map< int, double> &tab) const;
   cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
 
+  bool _cond(int indref, int igparam, int ipref);
+
 private:
   VectorDouble       _TildeC;
   VectorDouble       _Lambda;

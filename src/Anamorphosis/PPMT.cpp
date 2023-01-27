@@ -168,7 +168,7 @@ double PPMT::_gaussianizeForward(double Yi,
 {
   double theo = 0.;
   if (anam != nullptr)
-    theo = anam->RawToTransformValue(Yi);
+    theo = anam->rawToTransformValue(Yi);
   else
     theo = N0[rank];
   return (theo - Yi);
@@ -182,7 +182,7 @@ double PPMT::_gaussianizeForward(double Yi,
  */
 double PPMT::_gaussianizeBackward(double Yi, const AnamHermite *anam) const
 {
-  double theo = anam->TransformToRawValue(Yi);
+  double theo = anam->transformToRawValue(Yi);
   return (theo - Yi);
 }
 
@@ -193,7 +193,7 @@ void PPMT::_initGaussianizeForward(AMatrix* Y)
   for (int icol = 0; icol < ncol; icol++)
   {
     VectorDouble Zvec = Y->getColumn(icol);
-    VectorDouble Yvec = _initAnams[icol]->RawToGaussianVector(Zvec);
+    VectorDouble Yvec = _initAnams[icol]->rawToGaussianVector(Zvec);
     Y->setColumn(icol, Yvec);
   }
 }
@@ -205,7 +205,7 @@ void PPMT::_initGaussianizeBackward(AMatrix* Y)
   for (int icol = 0; icol < ncol; icol++)
   {
     VectorDouble Zvec = Y->getColumn(icol);
-    VectorDouble Yvec = _initAnams[icol]->GaussianToRawVector(Zvec);
+    VectorDouble Yvec = _initAnams[icol]->gaussianToRawVector(Zvec);
     Y->setColumn(icol, Yvec);
   }
 }

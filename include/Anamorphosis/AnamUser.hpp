@@ -40,8 +40,8 @@ public:
 
   /// AnamContinuous Interface
   void   calculateMeanAndVariance() override;
-  double TransformToRawValue(double h) const override;
-  double RawToTransformValue(double h) const override;
+  double transformToRawValue(double h) const override;
+  double rawToTransformValue(double h) const override;
 
   void setY2zFunction(double (*y2z_function)(double)) { _y2z_function = y2z_function; }
   void setZ2yFunction(double (*z2y_function)(double)) { _z2y_function = z2y_function; }

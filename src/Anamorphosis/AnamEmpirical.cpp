@@ -130,7 +130,7 @@ void AnamEmpirical::setTDisc(const VectorDouble& tdisc)
   _nDisc = static_cast<int> (tdisc.size()) / 2;
 }
 
-double AnamEmpirical::RawToTransformValue(double zz) const
+double AnamEmpirical::rawToTransformValue(double zz) const
 {
   double yy,za,zb,ya,yb;
   int    idisc,found;
@@ -165,7 +165,7 @@ double AnamEmpirical::RawToTransformValue(double zz) const
   return(yy);
 }
 
-double AnamEmpirical::TransformToRawValue(double yy) const
+double AnamEmpirical::transformToRawValue(double yy) const
 {
   double zz,za,zb,ya,yb;
   int    idisc,found;
@@ -344,7 +344,7 @@ bool AnamEmpirical::_deserialize(std::istream& is, bool verbose)
   if (ret)
   {
     tdisc.resize(2 * ndisc);
-    ret = ret && _tableRead(is, 2 * ndisc, tdisc.data());
+    ret = ret && _tableRead(is, "Coefficients", 2 * ndisc, tdisc.data());
   }
 
   if (ret)

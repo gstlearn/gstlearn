@@ -127,7 +127,7 @@ int main(int /*argc*/, char */*argv*/[])
   model_raw->display();
 
   // Transform Data into Gaussian variable
-  (void) anam->RawToGaussianByLocator(data);
+  (void) anam->rawToGaussianByLocator(data);
   data->setName("Y.Z","Gauss.Z");
   data->display();
 
@@ -172,7 +172,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Computing the Point factors
   int nfactor = 3;
-  (void) anam->RawToFactor(data, nfactor);
+  (void) anam->rawToFactor(data, nfactor);
   data->display();
 
   // Simple Point Kriging over the blocks

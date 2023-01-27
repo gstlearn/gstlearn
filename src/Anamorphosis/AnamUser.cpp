@@ -69,13 +69,13 @@ bool AnamUser::_serialize(std::ostream& /*os*/, bool /*verbose*/) const
   return false;
 }
 
-double AnamUser::TransformToRawValue(double h) const
+double AnamUser::transformToRawValue(double h) const
 {
   if (_y2z_function == nullptr) return TEST;
   return _y2z_function(h);
 }
 
-double AnamUser::RawToTransformValue(double h) const
+double AnamUser::rawToTransformValue(double h) const
 {
   if (_z2y_function == nullptr) return TEST;
   return _z2y_function(h);

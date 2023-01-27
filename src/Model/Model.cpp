@@ -225,7 +225,6 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   {
     sstr << _noStat->toString();
   }
-
   return sstr.str();
 }
 

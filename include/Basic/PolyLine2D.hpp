@@ -25,6 +25,13 @@ public:
   PolyLine2D& operator=(const PolyLine2D &m);
   virtual ~PolyLine2D();
 
+  typedef struct
+  {
+    int rank;
+    double dist;
+    VectorDouble coor;
+  } PolyPoint2D;
+
   /// Interface of AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
@@ -39,6 +46,7 @@ public:
   const VectorDouble& getY() const { return _y; }
   double getX(int i) const { return _x[i]; }
   double getY(int i) const { return _y[i]; }
+  VectorDouble getPoint(int i) const;
   double getXmin() const { return VH::minimum(_x); }
   double getYmin() const { return VH::minimum(_y); }
   double getXmax() const { return VH::maximum(_x); }
@@ -48,11 +56,29 @@ public:
   void setX(const VectorDouble& x) { _x = x; }
   void setY(const VectorDouble& y) { _y = y; }
 
+  void pointToPolyline(const VectorDouble &xy0, PolyPoint2D &pldist) const;
+  double pointsToPolyline(double ap,
+                          double al,
+                          const VectorDouble &xy1,
+                          const VectorDouble &xy2) const;
+  double distanceAlongPolyline(const PolyPoint2D &pldist1,
+                               const PolyPoint2D &pldist2) const;
+  double angleAlongPolyline(const PolyPoint2D &pldist, int delta = 1) const;
+  double distanceToPolyLineAtPoint(VectorDouble &xy0, const PolyLine2D &poly2);
+  double angleToPolyLineAtPoint(const VectorDouble &xy0,
+                                const PolyLine2D &poly2) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "PolyLine2D"; }
+
+private:
+  void _shiftPoint(const VectorDouble &xy1,
+                   const VectorDouble &xy2,
+                   double ratio,
+                   VectorDouble &xy0) const;
 
 private:
   VectorDouble _x;

@@ -51,7 +51,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, vario=NULL, hmax=1, codir=NULL, 
-                       ivar=0, jvar=0, idir=0, asp=1,
+					   ivar=0, jvar=0, idir=0, asCov=FALSE, 
                        xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
@@ -63,23 +63,22 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   else
   {
   if (is.null(codir))
-   {
-     ndim = model$getDimensionNumber()
+    {
+      ndim = model$getDimensionNumber()
       codir = rep(0,ndim)
       codir[1] = 1
-     }
+    }
   }
 
   p <- getFigure(padd)
   
   hh = seq(from=0, to=hmax, length.out=nh)
-  gg = model$sample(hmax, nh, ivar, jvar, codir)
+  gg = model$sample(hmax, nh, ivar, jvar, codir, asCov=asCov)
   df = data.frame(cbind(hh,gg))
   
-  plot(hh, gg, type="l")
-  p <- p + ggplot2::geom_line(data = df, ggplot2::aes(x=hh,y=gg), na.rm=TRUE)
+  p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
   
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -163,7 +162,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             hh = seq(0, hmax, hmax/nh)
             nhh = length(hh)
             codir = vario$getCodirs(id)
-            gg = model$sample(hmax, nhh, iv, jv, codir)
+            gg = model$sample(hmax, nhh, iv, jv, codir, asCov=asCov)
             dfg = data.frame(cbind(hh,gg))
             g <- g + ggplot2::geom_line(data = dfg, ggplot2::aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
 
@@ -220,7 +219,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   # Color of symbol
   if (! is.null(color_name))
   {
-    colval  = Db_getColumn(db,color_name,TRUE)
+    colval  = db$getColumn(color_name)
   }
   else
   {
@@ -228,10 +227,10 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   }
 
   # Size of symbol
-  reduction = 100
   if (! is.null(size_name))
   {
-    sizval  = Db_getColumn(db,size_name,TRUE)
+  	reduction = 100
+    sizval  = db$getColumn(size_name)
     if (flagAbsSize) sizval = abs(sizval)
     m = min(sizval,na.rm=TRUE)
     M = max(sizval,na.rm=TRUE)
@@ -246,23 +245,24 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   if (! is.null(label_name))
   {
     label_round = 2
-    labval  = round(Db_getColumn(db,label_name,TRUE),label_round)
+    labval  = round(db$getColumn(label_name,TRUE),label_round)
   }
   else
   {
     labval = rep(0,np)
   }
-  df = data.frame(xtab,ytab,colval,sizval,labval)
+  df = data.frame(xtab,ytab)
   
   p <- getFigure(padd)
-     
-  p <- p + ggplot2::geom_point(data=df, ggplot2::aes(x=xtab,y=ytab),color=colval,size=sizval,
-                               na.rm=TRUE)
+  
+  p <- p + geom_point(data=df, aes(x=xtab,y=ytab), color=colval, size=sizval,
+           na.rm=TRUE)
   
   if (! is.null(label_name)) 
   {
-    p <- p + ggplot2::geom_text(data = df, ggplot2::aes(x=x, y=y, label=as.character(labval)),
-               nudge_y=nudge_y, color=color_label, check_overlap=TRUE)
+    p <- p + geom_text(data = df, aes(x=x, y=y), label=as.character(labval),
+               nudge_y = nudge_y, color=color_label, check_overlap=TRUE)
+               
     if (show.legend.label) {
       p <- p + ggplot2::guides(label = ggplot2::guide_legend(title = legend.name.label))
     } else {
@@ -291,10 +291,10 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
 #
 # option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
 plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
-                      option="B", zlim = NULL,
-                      show.legend=TRUE, legend.name="",
-                      xlab="", ylab="", title="", 
-                      padd=NULL, end.plot=TRUE)
+      option="B", zlim = NULL, useSel = TRUE,
+      show.legend=TRUE, legend.name="",
+      xlab="", ylab="", title="", 
+      padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   if (! dbgrid$isGrid())
@@ -312,9 +312,9 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   }
 
   # Building the necessary data frame
-  x = dbgrid$getColumnByLocator(ELoc_X(),0)
-  y = dbgrid$getColumnByLocator(ELoc_X(),1)
-  data = Db_getColumn(dbgrid, name)
+  x = dbgrid$getColumnByLocator(ELoc_X(),0, FALSE, FALSE)
+  y = dbgrid$getColumnByLocator(ELoc_X(),1, FALSE, FALSE)
+  data = dbgrid$getColumn(name, useSel, FALSE)
   if (length(data) <= 0)
   {
     cat("Variable",name,"does not exist\n")
@@ -327,7 +327,7 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
   if (dbgrid$getAngles()[1] == 0)
   {
     df = data.frame(x,y,data)
-  p <- p + ggplot2::geom_tile(data = df, ggplot2::aes(x = x, y = y, fill = data))
+  	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
   }
   else
   {
@@ -366,34 +366,28 @@ plot.db <- function(db, padd=NULL, end.plot=TRUE, ...)
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)
-plot.polygon <- function(poly, xlab="", ylab="", title="", 
-                         padd = NULL, end.plot=TRUE)
+
+plot.polygon <- function(poly, xlab="", ylab="", title="", color="black", 
+		fill=NA, asp=1, padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   npol = poly$getPolySetNumber()
-  cols = get.colors()
   
-  ids = seq(1,npol)
-  values = data.frame(
-    id = ids,
-    value = cols[ids]
-  )
-   
   p <- getFigure(padd)
   
   for (ipol in 1:npol)
   {
-    xtab = poly$getX(ipol)
-    ytab = poly$getY(ipol)
+    xtab = poly$getX(ipol-1)
+    ytab = poly$getY(ipol-1)
     rp = data.frame(xtab, ytab)
-    p <- p + ggplot2::geom_polygon(data = rp, ggplot2::aes(x=xtab,y=ytab), color)
+    p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color=color, fill=fill)
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   
   end.func(p, end.plot)
 }
-#setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
         
 # Function for plotting the histogram of a variable
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
@@ -401,7 +395,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
                       padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
-  val  = Db_getColumn(db,name)
+  val  = dbg$etColumn(name)
   rp = data.frame(val)
     
   p <- getFigure(padd)
@@ -512,7 +506,8 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
 }
 
 # Function for representing a scatter plot
-plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
+plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
+							 flagDiag = FALSE,
                              color="black", linetype = "solid",
                              diag_color = "red", diag_line = "solid",
                              xlim="", ylim="", xlab="", ylab="", title="", 
@@ -520,8 +515,8 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
 {
   ensure_dependencies()
   if (is.null(db2)) db2 = db1
-  val1 = Db_getColumn(db1,name1)
-  val2 = Db_getColumn(db2,name2)
+  val1 = db1$getColumn(name1, useSel)
+  val2 = db2$getColumn(name2, useSel)
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
               color = color, linetype = linetype, 
               diag_color = diag_color, diag_line = diag_line,
@@ -544,8 +539,8 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
   cols = get.colors()
 
   df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
-                  ymin=rep(0,nrect),ymax=rep(0,nrect),
-                  colors=cols[1:nrect])
+            ymin=rep(0,nrect),ymax=rep(0,nrect),
+            colors=cols[1:nrect])
   for (ifac in 1:nrect)
   {
     rect = rule$getThresh(ifac)
@@ -596,5 +591,5 @@ plot.mesh <- function(mesh,
   
   end.func(p, end.plot)
 }
-#setMethod("mesh", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
+setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
  

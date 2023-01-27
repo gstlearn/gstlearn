@@ -1269,7 +1269,7 @@ void _getRowname(const String &radix,
     (void) gslSPrintf(string, "Variable");
 }
 
-void dbStatisticsPrintByUID(const Db *db,
+void dbStatisticsPrint(const Db *db,
                        const VectorString &names,
                        const std::vector<EStatOption> &opers,
                        bool flagIso,
@@ -1297,12 +1297,12 @@ void dbStatisticsPrintByUID(const Db *db,
  **
  *****************************************************************************/
 void dbStatisticsPrintByUID(const Db *db,
-                       const VectorInt &iatts_arg,
-                       const std::vector<EStatOption>& opers,
-                       bool flagIso,
-                       bool flagCorrel,
-                       const String &title,
-                       const String &radix)
+                            const VectorInt &iatts_arg,
+                            const std::vector<EStatOption> &opers,
+                            bool flagIso,
+                            bool flagCorrel,
+                            const String &title,
+                            const String &radix)
 {
   char string[50];
 

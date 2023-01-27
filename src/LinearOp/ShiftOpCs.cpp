@@ -258,7 +258,6 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
 
   try
   {
-    if (verbose) message(">>> Using the new calculation module <<<\n");
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
@@ -702,6 +701,9 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
 
     // Locally update the covariance for non-stationarity (if necessary)
 
+
+    const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
+    VectorDouble diag = VH::power(cova->getScales(), 2.);
 
     MatrixSquareSymmetric temp(ndim);
     if (igparam < ndim)
@@ -1191,6 +1193,12 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
   label_end: if (error) _S = cs_spfree(_S);
   return error;
+}
+
+bool ShiftOpCs::_cond(int indref, int igparam, int ipref)
+{
+  if (ipref == indref && igparam == 0) return true;
+  return false;
 }
 
 /**

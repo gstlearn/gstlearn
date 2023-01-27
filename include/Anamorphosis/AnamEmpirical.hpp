@@ -56,8 +56,8 @@ public:
 
   /// AnamContinuous Interface
   void    calculateMeanAndVariance() override;
-  double  RawToTransformValue(double zz) const override;
-  double  TransformToRawValue(double yy) const override;
+  double  rawToTransformValue(double zz) const override;
+  double  transformToRawValue(double yy) const override;
   bool    isChangeSupportDefined() const override { return false; }
 
   AnamEmpirical* create(int ndisc = 100, double sigma2e = TEST);

@@ -9,8 +9,10 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
 
 #include "Basic/PolyLine2D.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 PolyLine2D::PolyLine2D(const VectorDouble& x,
                const VectorDouble& y)
@@ -169,4 +171,257 @@ void PolyLine2D::addPoint(double x, double y)
   _y.resize(n+1);
   _x[n] = x;
   _y[n] = y;
+}
+
+VectorDouble PolyLine2D::getPoint(int i) const
+{
+  VectorDouble vec(2);
+  vec[0] = getX(i);
+  vec[1] = getY(i);
+  return vec;
+}
+
+/****************************************************************************/
+/*!
+ **  Find the shortest distance between the point (x0,y0) and a polyline
+ **
+ ** \param[in]  xy0      Coordinates of the target point
+ **
+ ** \param[out] pldist   PolyPoint2D structure
+ **
+ *****************************************************************************/
+void PolyLine2D::pointToPolyline(const VectorDouble &xy0,
+                                 PolyPoint2D &pldist) const
+{
+  double xx, yy, dist;
+  int nint;
+  int nvert = getNPoints();
+
+  /* Dispatch */
+
+  double dmin = 1.e30;
+  for (int i = 0; i < nvert - 1; i++)
+  {
+    dist = GH::distancePointToSegment(xy0[0], xy0[1], getX(i), getY(i), getX(i + 1),
+                                      getY(i + 1), &xx, &yy, &nint);
+    if (ABS(dist) > dmin) continue;
+    pldist.rank = i;
+    pldist.coor[0] = xx;
+    pldist.coor[1] = yy;
+    pldist.dist = dmin = ABS(dist);
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Shift a point along a segment
+ **
+ ** \param[in]  xy1     Coordinates of the first point
+ ** \param[in]  xy2     Coordinates of the second point
+ ** \param[in]  ratio   Shifting ratio
+ **
+ ** \param[out] xy0     Shifted point
+ **
+ ** \remarks 'ratio' varies between 0 and 1
+ ** \remarks When 'ratio' =0, (x0,y0) coincides with (x1,y1)
+ ** \remarks When 'ratio'>=1, (x0,y0) coincides with (x2,y2)
+ **
+ *****************************************************************************/
+void PolyLine2D::_shiftPoint(const VectorDouble& xy1,
+                             const VectorDouble& xy2,
+                             double ratio,
+                             VectorDouble& xy0) const
+{
+  if (ratio <= 0.)
+  {
+    xy0 = xy1;
+  }
+  else if (ratio >= 1.)
+  {
+    xy0 = xy2;
+  }
+  else
+  {
+    xy0[0] = xy1[0] + ratio * (xy2[0] - xy1[0]);
+    xy0[1] = xy1[1] + ratio * (xy2[1] - xy1[1]);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Find the shortest distance between two points (x1,y1) and (x2,y2)
+ **  passing through a polyline
+ **
+ ** \return Minimum distance
+ **
+ ** \param[in]  ap      Coefficient applied to the projected distances
+ ** \param[in]  al      Coefficient applied to the distance along line
+ ** \param[in]  xy1     Coordinates of the first point
+ ** \param[in]  xy2     Coordinates of the second point
+ **
+ *****************************************************************************/
+double PolyLine2D::pointsToPolyline(double ap,
+                                    double al,
+                                    const VectorDouble& xy1,
+                                    const VectorDouble& xy2) const
+{
+  double dist, d1, d2, dh, dv, dloc, dmin, dist1, dist2;
+  PolyPoint2D pldist1, pldist2;
+  VectorDouble xyp1(2), xyp2(2);
+
+  /* Calculate the projection of each end point */
+
+  pointToPolyline(xy1, pldist1);
+  pointToPolyline(xy2, pldist2);
+
+  /* Calculate the minimum distance */
+
+  dist = 1.e30;
+  dh = dv = 0.;
+  d1 = pldist1.dist;
+  d2 = pldist2.dist;
+  dh = ap * ABS(d1 - d2);
+
+  if (al > 0.)
+  {
+    dv = distanceAlongPolyline(pldist1, pldist2);
+    d1 = ABS(d1);
+    d2 = ABS(d2);
+    dmin = MIN(d1, d2);
+
+    dist1 = ut_distance(2, pldist1.coor.data(), pldist2.coor.data());
+    if (ABS(d1) > 0.) _shiftPoint(pldist1.coor, xy1, dmin / d1, xyp1);
+    if (ABS(d2) > 0.) _shiftPoint(pldist2.coor, xy2, dmin / d2, xyp2);
+    dist2 = ut_distance(2, xyp1.data(), xyp2.data());
+    dv = (dist1 <= 0.) ? 0. : dv * al * sqrt(dist2 / dist1);
+  }
+  dloc = sqrt(dh * dh + dv * dv);
+  if (dloc < dist) dist = dloc;
+
+  return (dist);
+}
+
+/****************************************************************************/
+/*!
+ **  Find the shortest distance between two points (x1,y1) and (x2,y2)
+ **  which belong to the polyline
+ **
+ ** \return Minimum distance
+ **
+ ** \param[in]  pldist1 First PolyPoint2D structure
+ ** \param[in]  pldist2 Second PolyPoint2D structure
+ **
+ *****************************************************************************/
+double PolyLine2D::distanceAlongPolyline(const PolyPoint2D &pldist1,
+                                         const PolyPoint2D &pldist2) const
+{
+  int i;
+  double dist, local1[2], local2[2];
+  PolyPoint2D pl1,pl2;
+
+  /* Initializations */
+
+  dist = 0.;
+  if (pldist1.rank < pldist2.rank)
+  {
+    pl1 = pldist1;
+    pl2 = pldist2;
+  }
+  else
+  {
+    pl1 = pldist2;
+    pl2 = pldist1;
+  }
+
+  /* If both projected points belong to the same segment */
+
+  if (pl1.rank == pl2.rank)
+  {
+    dist += ut_distance(2, pl1.coor.data(), pl2.coor.data());
+  }
+  else
+  {
+
+    /* Distance on the first segment */
+
+    local1[0] = getX(pl1.rank + 1);
+    local1[1] = getY(pl1.rank + 1);
+    dist += ut_distance(2, pl1.coor.data(), local1);
+
+    /* Distance on the last segment */
+
+    local2[0] = getX(pl2.rank + 1);
+    local2[1] = getY(pl2.rank + 1);
+    dist += ut_distance(2, pl2.coor.data(), local2);
+
+    for (i = pl1.rank + 1; i < pl2.rank; i++)
+    {
+      local1[0] = getX(i + 1);
+      local1[1] = getY(i + 1);
+      local2[0] = getX(i);
+      local2[1] = getY(i);
+      dist += ut_distance(2, local1, local2);
+    }
+  }
+  return (dist);
+}
+
+double PolyLine2D::angleAlongPolyline(const PolyPoint2D &pldist,
+                                      int delta) const
+{
+  int rank = pldist.rank;
+
+  int r1 = rank - delta;
+  r1 = MAX(r1, 0);
+  int r2 = rank + delta;
+  r2 = MIN(r2, getNPoints() - 1);
+
+  double incr_y = getY(r2) - getY(r1);
+  double incr_x = getX(r2) - getX(r1);
+  double angle  = atan2(incr_y, incr_x);
+  return angle;
+}
+
+/**
+ * Returns the distance between the current polyline and a second one,
+ * calculated at target point location
+ * @param xy0   Coordinates of the target point
+ * @param poly2 Reference of the second polyline
+ * @return Distance or TEST if target is located OUTSIDE the two polylines
+ */
+double PolyLine2D::distanceToPolyLineAtPoint(VectorDouble& xy0,
+                                             const PolyLine2D &poly2)
+{
+  PolyPoint2D pldist1;
+  PolyPoint2D pldist2;
+  pointToPolyline(xy0, pldist1);
+  poly2.pointToPolyline(xy0, pldist2);
+
+  double dist1 = ut_distance(2, xy0.data(), pldist1.coor.data());
+  double dist2 = ut_distance(2, xy0.data(), pldist2.coor.data());
+  double dist  = ut_distance(2, pldist1.coor.data(), pldist2.coor.data());
+
+  if (dist1 > dist && dist2 > dist)
+    return TEST;
+  else
+    return dist;
+}
+
+double PolyLine2D::angleToPolyLineAtPoint(const VectorDouble& xy0,
+                                          const PolyLine2D &poly2) const
+{
+  PolyPoint2D pldist1;
+  PolyPoint2D pldist2;
+  pointToPolyline(xy0, pldist1);
+  poly2.pointToPolyline(xy0, pldist2);
+
+  double angle1 = angleAlongPolyline(pldist1);
+  double angle2 = angleAlongPolyline(pldist2);
+
+  double dist1 = pldist1.dist;
+  double dist2 = pldist2.dist;
+
+  double angle = (angle1 * dist1 + angle2 * dist2) / (dist1 + dist2);
+  return angle;
 }

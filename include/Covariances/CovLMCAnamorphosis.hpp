@@ -59,7 +59,7 @@ public:
   void addCov(const CovAniso* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() override { return _anam; }
-  int setActiveFactor(int iclass) override;
+  void setActiveFactor(int iclass) override;
   int getActiveFactor() const override { return _activeFactor; }
   int getAnamNClass() const override { return _anam->getNClass(); }
 

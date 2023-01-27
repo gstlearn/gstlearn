@@ -36,6 +36,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/PolyLine2D.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
@@ -3903,14 +3904,11 @@ int db_compositional_transform(Db *db,
  *****************************************************************************/
 int db_unfold_polyline(Db *db, const PolyLine2D& polyline)
 {
-  PL_Dist *pldist, *pldist0;
-  double xx, yy, newx, newy;
-  int error, iptr;
+  PolyLine2D::PolyPoint2D pldist, pldist0;
+  VectorDouble target(2);
 
   /* Initializations */
 
-  error = 1;
-  pldist = pldist0 = nullptr;
   int nvert = polyline.getNPoints();
 
   /* Preliminary checks */
@@ -3918,49 +3916,37 @@ int db_unfold_polyline(Db *db, const PolyLine2D& polyline)
   if (db->getNDim() != 2)
   {
     messerr("This function is restricted to 2-D Db");
-    goto label_end;
+    return 1;
   }
   if (nvert <= 1)
   {
     messerr("This function requires a Polyline with at least one segment");
-    goto label_end;
+    return 1;
   }
 
   /* Add the variables */
 
-  iptr = db->addColumnsByConstant(2, 0.);
-  if (iptr < 0) goto label_end;
-
-  /* Define the internal structures */
-
-  pldist0 = pldist_manage(1, NULL, 2, nvert);
-  pldist = pldist_manage(1, NULL, 2, nvert);
+  int iptr = db->addColumnsByConstant(2, 0.);
+  if (iptr < 0) return 1;
 
   /* Project the starting point */
 
-  distance_point_to_polyline(polyline.getX(0), polyline.getY(0), polyline, pldist0);
+  polyline.pointToPolyline(polyline.getPoint(0), pldist0);
 
   /* Loop on the samples of the Db */
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    xx = db->getCoordinate(iech, 0);
-    yy = db->getCoordinate(iech, 1);
-    distance_point_to_polyline(xx, yy, polyline, pldist);
-    newx = pldist->dist;
-    newy = distance_along_polyline(pldist0, pldist, polyline);
+    target[0] = db->getCoordinate(iech, 0);
+    target[1] = db->getCoordinate(iech, 1);
+    polyline.pointToPolyline(target, pldist);
+    double newx = pldist.dist;
+    double newy = polyline.distanceAlongPolyline(pldist0, pldist);
     db->setArray(iech, iptr, newx);
     db->setArray(iech, iptr + 1, newy);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: pldist0 = pldist_manage(-1, pldist0, 2, nvert);
-  pldist = pldist_manage(-1, pldist, 2, nvert);
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -3982,15 +3968,11 @@ int db_fold_polyline(DbGrid *dbin,
                      int *cols,
                      const PolyLine2D& polyline)
 {
-  PL_Dist *pldist, *pldist0;
-  double xx, yy, value;
-  int error, iptr, iad;
+  PolyLine2D::PolyPoint2D pldist, pldist0;
   VectorDouble coor(2);
 
   /* Initializations */
 
-  error = 1;
-  pldist = pldist0 = nullptr;
   int nvert = polyline.getNPoints();
 
   /* Preliminary checks */
@@ -3998,68 +3980,57 @@ int db_fold_polyline(DbGrid *dbin,
   if (dbin->getNDim() != 2 || ! dbin->isGrid())
   {
     messerr("This function is restricted to 2-D Input Grid Db");
-    goto label_end;
+    return 1;
   }
   if (dbout->getNDim() != 2)
   {
     messerr("This function is restricted to 2-D Output Db");
-    goto label_end;
+    return 1;
   }
   if (nvert <= 1)
   {
     messerr("This function requires a PolyLine2D with at least one segment");
-    goto label_end;
+    return 1;
   }
 
   /* Add the variables */
 
-  iptr = dbout->addColumnsByConstant(ncol, TEST);
-  if (iptr < 0) goto label_end;
-
-  /* Define the internal structures */
-
-  pldist0 = pldist_manage(1, NULL, 2, nvert);
-  pldist = pldist_manage(1, NULL, 2, nvert);
+  int iptr = dbout->addColumnsByConstant(ncol, TEST);
+  if (iptr < 0) return 1;
 
   /* Project the starting point */
 
-  distance_point_to_polyline(polyline.getX(0), polyline.getY(0), polyline, pldist0);
+  polyline.pointToPolyline(polyline.getPoint(0), pldist0);
 
   /* Loop on the samples of the output Db */
 
+  VectorDouble target(2);
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     if (!dbout->isActive(iech)) continue;
-    xx = dbout->getCoordinate(iech, 0);
-    yy = dbout->getCoordinate(iech, 1);
+    target[0] = dbout->getCoordinate(iech, 0);
+    target[1] = dbout->getCoordinate(iech, 1);
 
     /* Project the target point according to the line */
 
-    distance_point_to_polyline(xx, yy, polyline, pldist);
-    coor[0] = pldist->dist;
-    coor[1] = distance_along_polyline(pldist0, pldist, polyline);
+    polyline.pointToPolyline(target, pldist);
+    coor[0] = pldist.dist;
+    coor[1] = polyline.distanceAlongPolyline(pldist0, pldist);
 
     /* Locate the sample on the Input Grid */
 
-    iad = dbin->coordinateToRank(coor);
+    int iad = dbin->coordinateToRank(coor);
     if (iad < 0) continue;
 
     /* Loop on the variables */
 
     for (int icol = 0; icol < ncol; icol++)
     {
-      value = dbin->getArray(iad, cols[icol]);
+      double value = dbin->getArray(iad, cols[icol]);
       dbout->setArray(iech, iptr + icol, value);
     }
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: pldist0 = pldist_manage(-1, pldist0, 2, nvert);
-  pldist = pldist_manage(-1, pldist, 2, nvert);
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -5853,9 +5824,10 @@ int db_polygon_distance(Db *db,
                         int scale,
                         int polin)
 {
-  PL_Dist *pldist;
+  PolyLine2D::PolyPoint2D pldist;
   double distmin, distloc, distmax, value, valtest;
   int iptr, nech, inside;
+  VectorDouble target(2);
 
   // Initializations
 
@@ -5874,18 +5846,17 @@ int db_polygon_distance(Db *db,
   for (int iset = 0; iset < polygon->getPolySetNumber(); iset++)
   {
     const PolySet &polyset = polygon->getPolySet(iset);
-    pldist = pldist_manage(1, NULL, 2, polyset.getNPoints());
 
     // Loop on the samples
 
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
+      target[0] = db->getCoordinate(iech, 0);
+      target[1] = db->getCoordinate(iech, 1);
       PolyLine2D polyline(polyset.getX(), polyset.getY());
-      distance_point_to_polyline(db->getCoordinate(iech, 0),
-                                 db->getCoordinate(iech, 1),
-                                 polyline, pldist);
-      distloc = pldist->dist;
+      polyline.pointToPolyline(target, pldist);
+      distloc = pldist.dist;
       if (FFFF(distloc)) continue;
       distmin = db->getArray(iech, iptr);
       if (FFFF(distmin))
@@ -5895,7 +5866,6 @@ int db_polygon_distance(Db *db,
       if (!FFFF(dmax) && distmin > dmax) distmin = dmax;
       db->setArray(iech, iptr, distmin);
     }
-    pldist = pldist_manage(-1, pldist, 2, polyset.getNPoints());
   }
 
   // Calculate the extreme values
