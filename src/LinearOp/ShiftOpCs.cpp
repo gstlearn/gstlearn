@@ -1328,10 +1328,9 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   {
     _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
     if (_SGrad[i] == nullptr) goto label_end;
-
     _TildeCGrad[i] = _BuildTildeCGradfromMap(tab[i]);
-
   }
+
 
 //  int ind = 0;
 //  for (int ipar = 0; ipar < _nModelGradParam; ipar++)

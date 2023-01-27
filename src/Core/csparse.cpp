@@ -3267,6 +3267,21 @@ double* csd_extract_diag(cs *C, int mode)
   label_end: return (diag);
 }
 
+VectorDouble csd_extract_diag_VD(cs *C, int mode)
+{
+  VectorDouble result;
+  double* diag = csd_extract_diag(C, mode);
+  if (diag == nullptr) return result;
+
+  int number = C->n;
+  result.resize(number, 0.);
+  for (int i = 0; i < number; i++)
+    result[i] = diag[i];
+
+  diag = (double *) mem_free((char *) diag);
+  return result;
+}
+
 void cs_diag_suppress(cs *C)
 {
   int *Ci, *Cp;

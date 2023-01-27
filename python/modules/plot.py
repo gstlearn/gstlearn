@@ -9,11 +9,35 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy import shape
 import math
 
+default_Working_mode = 0 # 0 for old and 1 for new
+
 default_aspect = 1
 default_figsize = [8, 8]
 default_xlim = None
 default_ylim = None
 
+default_Geo_figsize = [8,8]
+default_Geo_xlim = None
+default_Geo_ylim = None
+default_Geo_aspect = 1
+
+default_NoGeo_figsize = [8,8]
+default_NoGeo_Xlim = None
+default_NoGeo_ylim = None
+default_NoGeo_aspect = 1
+
+def set_default(flagGeo, figsize=None, xlim=None, ylim=None, aspect=None):
+    if flagGeo:
+        default_Geo_figsize = figsize
+        default_Geo_xlim = xlim
+        default_Geo_ylim = ylim
+        default_Geo_aspect = aspect
+    else:
+        default_NoGeo_figsize = figsize
+        default_NoGeo_xlim = xlim
+        default_NoGeo_ylim = ylim
+        default_NoGeo_aspect = aspect
+    
 def get_cmap(n, name='gist_rainbow'):
     '''
     Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 

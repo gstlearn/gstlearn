@@ -127,6 +127,7 @@ GSTLEARN_EXPORT cs     *cs_eye_tab(int number, double *values);
 GSTLEARN_EXPORT cs     *cs_extract_diag(cs *C,int mode);
 GSTLEARN_EXPORT void    cs_diag_suppress(cs *C);
 GSTLEARN_EXPORT double *csd_extract_diag(cs *C,int mode);
+GSTLEARN_EXPORT VectorDouble csd_extract_diag_VD(cs *C, int mode);
 GSTLEARN_EXPORT int     cs_sort_i(cs *C);
 GSTLEARN_EXPORT int     sparseinv(int n, int *Lp, int *Li, double *Lx, double *d, int *Up,
                                   int *Uj, double *Ux, int *Zp, int *Zi, double *Zx, double *z,
