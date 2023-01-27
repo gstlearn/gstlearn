@@ -1321,10 +1321,12 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   _resetGrad();
   _SGrad.resize(number);
   _TildeCGrad.resize(number);
+
   for (int i = 0; i < number; i++)
   {
     _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
     if (_SGrad[i] == nullptr) goto label_end;
+
     _TildeCGrad[i] = _BuildTildeCGradfromMap(tab[i]);
 
   }
