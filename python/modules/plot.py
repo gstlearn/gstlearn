@@ -61,9 +61,10 @@ def newFigure(flagGeo, figsize = None, aspect = 'auto',
     fig, ax = plt.subplots(nx, ny, figsize=figsize, squeeze=False, sharex=sharex, sharey=sharey)
     
     if aspect is None:
-        ax.set_aspect(default_aspect)
-    else:
-        ax.set_aspect(aspect)
+        aspect = default_aspect
+    for ix in range(nx):
+        for iy in range(ny):
+            ax[ix,iy].set_aspect(aspect)
 
     if xlim is None and flagGeo:
         xlim = default_xlim
