@@ -1165,7 +1165,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
         // Storing in the Map
 
-//        double ratio = sqrt(dethh * detMtM); Cancelled by DR during test
         double ratio = 1.;
         double S = 0.;
         for (int j0 = 0; j0 < ncorner-1; j0++)
@@ -1179,18 +1178,14 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
             double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
             s += vald;
             _mapGradUpdate(Mtab[iad], ip0, ip1, vald, tol);
-            if (_cond(0,igparam,ipref)) message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip0,ip1,vald);
           }
           int ip1 = amesh->getApex(imesh, ncorner - 1);
           _mapGradUpdate(Mtab[iad],ip0, ip1, -s, tol);
-          if (_cond(0,igparam,ipref)) message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip0,ip1,-s);
           _mapGradUpdate(Mtab[iad],ip1, ip0, -s, tol);
-          if (_cond(0,igparam,ipref)) message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip1,ip0,-s);
           S += s;
         }
         int ip0 = amesh->getApex(imesh, ncorner - 1);
         _mapGradUpdate(Mtab[iad], ip0, ip0, S, tol);
-        if (_cond(0,igparam,ipref)) message("imesh=%d jref=%d ip0=%d ip1=%d val=%lf\n",imesh,jref,ip0,ip0,S);
       }
     }
   }
