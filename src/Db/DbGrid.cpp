@@ -185,7 +185,7 @@ int DbGrid::resetCoveringDb(const Db* db,
   int nech = 1;
   for (int idim = 0; idim < ndim; idim++)
   {
-    VectorDouble coor = db->getExtrema(idim);
+    VectorDouble coor = db->getExtrema(idim, true);
 
     double marge = 0.;
     if (ndim == (int) margin.size()) marge = margin[idim];
@@ -332,7 +332,7 @@ DbGrid* DbGrid::createCoveringDb(const Db* db,
   DbGrid* dbgrid = new DbGrid;
   if (dbgrid->resetCoveringDb(db, nodes, dcell, origin, margin))
   {
-    messerr("Error when creating DbGrid covaring another Db");
+    messerr("Error when creating DbGrid covering another Db");
     delete dbgrid;
     return nullptr;
   }

@@ -772,7 +772,7 @@ int db_tool_duplicate(Db *db1,
   /* Set the selection */
 
   for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
-    sel[iech2] = 1;
+    sel[iech2] = db2->getSelection(iech2);
 
   /* Loop on the samples of the second Db */
 
@@ -788,7 +788,7 @@ int db_tool_duplicate(Db *db1,
         if (!sel[iech1]) continue;
       }
 
-      /* Check if the two points are collocated */
+      /* Check if the two points have similar coordinates */
 
       bool flag_diff = false;
       for (int idim = 0; idim < db1->getNDim() && !flag_diff; idim++)
@@ -800,8 +800,7 @@ int db_tool_duplicate(Db *db1,
           if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
-        double dval = (dist != nullptr) ? dist[idim] :
-                                          0.;
+        double dval = (dist != nullptr) ? dist[idim] : 0.;
         if (ABS(v1 - v2) > dval) flag_diff = true;
       }
       if (flag_diff) continue;
@@ -865,7 +864,7 @@ int db_duplicate(Db *db,
 
   // Adding a new variable
 
-  VectorDouble sel(db->getSampleNumber(true));
+  VectorDouble sel(db->getSampleNumber());
 
   // Check for duplicates
 
