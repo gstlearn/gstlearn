@@ -38,7 +38,7 @@ public:
   double evaluateSpectrum(double freq, int ndim) const override;
   VectorDouble getMarkovCoeffs() const override {return _markovCoeffs;}
   void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
-  double getCorrec() const override {return 1.;}//_correc;}
+  double getCorrec() const override {return _correc;}
   void setCorrec(double val) override { _correc = val;}
 
 protected:

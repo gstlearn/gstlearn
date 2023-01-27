@@ -20,8 +20,8 @@
 class GSTLEARN_EXPORT NoStatArray : public ANoStat
 {
 public:
-	NoStatArray();
-	NoStatArray(const VectorString& codes, const Db* dbnostat);
+  NoStatArray();
+  NoStatArray(const VectorString& codes, const Db* dbnostat);
   NoStatArray(const NoStatArray &m);
   NoStatArray& operator=(const NoStatArray &m);
   virtual ~NoStatArray();
@@ -61,5 +61,5 @@ private:
 
 private:
   const Db* _dbnostat;
-	mutable MatrixRectangular _tab; // Dimension: nvertex * npar
+  mutable MatrixRectangular _tab; // Dimension: nvertex * npar
 };

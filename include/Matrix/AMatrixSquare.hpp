@@ -33,6 +33,8 @@ public:
   void normMatrix(const AMatrixSquare& x, const AMatrix& y);
   void normTMatrix(const AMatrixSquare& x, const AMatrix& y);
 
+  double trace() const;
+
   /*! Perform inner product */
   void innerMatrix(const AMatrixSquare& x,
                    const AMatrix& r1,

@@ -31,7 +31,7 @@ getFigure <- function(padd = NULL)
   if (length(padd) > 0)
     p <- padd
   else
-    p <- ggplot()
+    p <- ggplot2::ggplot()
   p
 }
 
@@ -39,13 +39,13 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 {
   ensure_dependencies()
   if (xlab != "")
-    p <- p + labs(x = xlab)
+    p <- p + ggplot2::labs(x = xlab)
   if (ylab != "")
-    p <- p + labs(y = ylab)
+    p <- p + ggplot2::labs(y = ylab)
   if (title != "")
-    p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+    p <- p + ggplot2::ggtitle(title) + ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
   if (! is.null(asp))
-    suppressWarnings(suppressMessages(p <- p + coord_fixed(ratio = asp)))
+    suppressWarnings(suppressMessages(p <- p + ggplot2::coord_fixed(ratio = asp)))
   p
 }
 
@@ -113,7 +113,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
     for (jv in jvarUtil)
       {
         index = index + 1
-        g = ggplot()
+        g = ggplot2::ggplot()
         
         if (iv < jv) 
         {
@@ -144,17 +144,17 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                 
           # Plotting the experimental variogram
           df = data.frame(cbind(hh,gg))
-          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE)
+          g <- g + ggplot2::geom_line(data = df, ggplot2::aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE)
           
           if (draw_psize)
-            g <- g + geom_point(data = df, aes(x=hh, y=gg), 
-              size=sw/ratio_psize, color=color_psize, 
-              na.rm=TRUE, show.legend=show.legend)
+            g <- g + ggplot2::geom_point(data = df, ggplot2::aes(x=hh, y=gg), 
+                                         size=sw/ratio_psize, color=color_psize, 
+                                         na.rm=TRUE, show.legend=show.legend)
             
           if (draw_plabels)
-             g <- g + geom_text(data = df, aes(x=hh, y=gg, label=as.character(sw)),
-               color=color_plabel, size=size_plabel, nudge_y=nudge_y, 
-               show.legend=show.legend, check_overlap=TRUE)
+             g <- g + ggplot2::geom_text(data = df, ggplot2::aes(x=hh, y=gg, label=as.character(sw)),
+                                         color=color_plabel, size=size_plabel, nudge_y=nudge_y, 
+                                         show.legend=show.legend, check_overlap=TRUE)
    
           # Plotting the Model (optional)
           if (! is.null(model))
@@ -164,35 +164,35 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             codir = vario$getCodirs(id)
             gg = model$sample(hmax, nhh, iv, jv, codir, asCov=asCov)
             dfg = data.frame(cbind(hh,gg))
-            g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
+            g <- g + ggplot2::geom_line(data = dfg, ggplot2::aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
 
             if (iv != jv)
             {
               ggp = model$sample(hmax, nhh, iv, jv, codir, 1)
               dfg = data.frame(cbind(hh,ggp))
-              g <- g + geom_line(data = dfg, aes(x=hh,y=ggp), color=cols[id+1],
-                        linetype = 'twodash', na.rm=TRUE) 
+              g <- g + ggplot2::geom_line(data = dfg, ggplot2::aes(x=hh,y=ggp), color=cols[id+1],
+                                          linetype = 'twodash', na.rm=TRUE) 
               ggm = model$sample(hmax, nhh, iv, jv, codir,-1)
               dfm = data.frame(cbind(hh,ggp))
-              g <- g + geom_line(data = dfm, aes(x=hh,y=ggm), color=cols[id+1],
-                        linetype = 'twodash', na.rm=TRUE) 
+              g <- g + ggplot2::geom_line(data = dfm, ggplot2::aes(x=hh,y=ggm), color=cols[id+1],
+                                          linetype = 'twodash', na.rm=TRUE) 
             }
           } 
         } # End of loop on Directions
         
-        g <- g + scale_x_continuous("Distance", limits = xlim, expand = c(0,0))
+        g <- g + ggplot2::scale_x_continuous("Distance", limits = xlim, expand = c(0,0))
         if (iv == jv)
-          g <- g + scale_y_continuous("Variogram", limits = ylim, expand = c(0,0))
+          g <- g + ggplot2::scale_y_continuous("Variogram", limits = ylim, expand = c(0,0))
         else
-          g <- g + scale_y_continuous("Cross-Variogram", limits = ylim, expand = c(0,0))
+          g <- g + ggplot2::scale_y_continuous("Cross-Variogram", limits = ylim, expand = c(0,0))
                 
         # Plotting relevant control lines
         if (iv != jv)
-          g <- g + geom_hline(yintercept = 0.)
-        g <- g + geom_hline(yintercept = sill, linetype = 'longdash')
+          g <- g + ggplot2::geom_hline(yintercept = 0.)
+        g <- g + ggplot2::geom_hline(yintercept = sill, linetype = 'longdash')
         plot_lst[[index]] <- g
       }
-  p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
+  p = ggplot2::ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
   
   p <- decor(p, title = title)
   
@@ -202,13 +202,13 @@ setMethod("plot", signature(x="_p_Vario"), function(x,y,...) plot.varmod(x,...))
 
 # Function for plotting a point data base, with optional color and size variables
 plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
-              color0='red', size0=0.2, color_label="black", nudge_y=0.1,
-              sizmin=10, sizmax=100, flagAbsSize = FALSE, 
-              show.legend.color=FALSE, legend.name.color="P-Color",
-              show.legend.size =FALSE, legend.name.size ="P-Size",
-              show.legend.label=FALSE, legend.name.label="P-Label",
-              asp=1, xlab="", ylab="", title="", 
-              padd = NULL, end.plot=TRUE, ...) 
+                       color0='red', size0=0.2, color_label="black", nudge_y=0.1,
+                       sizmin=10, sizmax=100, flagAbsSize = FALSE, 
+                       show.legend.color=FALSE, legend.name.color="P-Color",
+                       show.legend.size =FALSE, legend.name.size ="P-Size",
+                       show.legend.label=FALSE, legend.name.label="P-Label",
+                       asp=1, xlab="", ylab="", title="", 
+                       padd = NULL, end.plot=TRUE, ...) 
 {  
   ensure_dependencies()
   # Creating the necessary data frame
@@ -262,23 +262,24 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   {
     p <- p + geom_text(data = df, aes(x=x, y=y), label=as.character(labval),
                nudge_y = nudge_y, color=color_label, check_overlap=TRUE)
+               
     if (show.legend.label) {
-      p <- p + guides(label = guide_legend(title = legend.name.label))
+      p <- p + ggplot2::guides(label = ggplot2::guide_legend(title = legend.name.label))
     } else {
-      p <- p + guides(label = "none")
+      p <- p + ggplot2::guides(label = "none")
     }
   }
   
   if (show.legend.color) {
-    p <- p + guides(color = guide_legend(title = legend.name.color))
+    p <- p + ggplot2::guides(color = ggplot2::guide_legend(title = legend.name.color))
   } else {
-    p <- p + guides(color = "none")
+    p <- p + ggplot2::guides(color = "none")
   }
     
   if (show.legend.size) {
-    p <- p + guides(size = guide_legend(title = legend.name.size))
+    p <- p + ggplot2::guides(size = ggplot2::guide_legend(title = legend.name.size))
   } else {
-    p <- p + guides(size = "none")
+    p <- p + ggplot2::guides(size = "none")
   }
       
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
@@ -335,16 +336,16 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
     positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
     values = data.frame(id = ids, value = data)
     df <- merge(values, positions, by = c("id"))
-    p <- p + geom_polygon(data = df, aes(x = x, y = y, fill = value, group = id))
+    p <- p + ggplot2::geom_polygon(data = df, ggplot2::aes(x = x, y = y, fill = value, group = id))
   }
   
   # Define the color scale
-  p = p + scale_fill_viridis_c(option = option, na.value = na.color, limits=zlim)
+  p = p + ggplot2::scale_fill_viridis_c(option = option, na.value = na.color, limits=zlim)
   
   if (show.legend) {
-    p <- p + guides(fill = guide_colorbar(title=legend.name, reverse=FALSE))
+    p <- p + ggplot2::guides(fill = ggplot2::guide_colorbar(title=legend.name, reverse=FALSE))
   } else {
-    p <- p + guides(fill = "none")
+    p <- p + ggplot2::guides(fill = "none")
   }
        
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
@@ -365,6 +366,7 @@ plot.db <- function(db, padd=NULL, end.plot=TRUE, ...)
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)
+
 plot.polygon <- function(poly, xlab="", ylab="", title="", color="black", 
 		fill=NA, asp=1, padd = NULL, end.plot=TRUE)
 {
@@ -378,7 +380,6 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", color="black",
     xtab = poly$getX(ipol-1)
     ytab = poly$getY(ipol-1)
     rp = data.frame(xtab, ytab)
-    
     p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color=color, fill=fill)
   }  
   
@@ -399,8 +400,8 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
     
   p <- getFigure(padd)
      
-  p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill,
-                          na.rm=TRUE) 
+  p <- p + ggplot2::geom_histogram(data=rp, ggplot2::aes(x=val), bins=nbins, color=col, fill=fill,
+                                   na.rm=TRUE) 
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
@@ -409,14 +410,14 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
 
 # Function for plotting histogram for a table of values
 plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", 
-    padd=FALSE, end.plot=TRUE)
+                          padd=FALSE, end.plot=TRUE)
 {
   ensure_dependencies()
   rp = data.frame(val)
   
   p <- getFigure(padd)
      
-  p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
+  p <- p + ggplot2::geom_histogram(data = rp, ggplot2::aes(x=val), bins=nbins, color='grey', fill='yellow') 
 
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
 
@@ -425,7 +426,7 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="",
 
 # Function for plotting a curve of regularly sampled values
 plot.curve <- function(data, color="black", xlab="", ylab="", title="", 
-    padd=NULL, end.plot=TRUE)
+                       padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   nbpoint = length(data)
@@ -434,7 +435,7 @@ plot.curve <- function(data, color="black", xlab="", ylab="", title="",
   
   p <- getFigure(padd)
     
-  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
+  p <- p + ggplot2::geom_line(data = rp, ggplot2::aes(x=absc,y=data), color=color, na.rm=TRUE)
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
@@ -460,24 +461,24 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   p <- getFigure(padd)
      
   if (is.numeric(xlim) && length(xlim) == 2)
-    p <- p + scale_x_continuous(limits = xlim, expand = c(0,0))
+    p <- p + ggplot2::scale_x_continuous(limits = xlim, expand = c(0,0))
   if (is.numeric(ylim) && length(ylim) == 2)
-    p <- p + scale_y_continuous(limits = ylim, expand = c(0,0))
+    p <- p + ggplot2::scale_y_continuous(limits = ylim, expand = c(0,0))
   
   if (flagDiag)
   {
     u = min(xtab, ytab, na.rm=TRUE)
     v = max(xtab, ytab, na.rm=TRUE)
-    p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
-                          linetype = diag_line, color = diag_color, na.rm=TRUE)
+    p <- p + ggplot2::geom_segment(ggplot2::aes(x=u,y=u,xend=v,yend=v),
+                                   linetype = diag_line, color = diag_color, na.rm=TRUE)
   }
   
   if (join)
-    p <- p + geom_line(data = rp, aes(x=xtab,y=ytab), 
-                       linetype = linetype, color=color, na.rm=TRUE)
+    p <- p + ggplot2::geom_line(data = rp, ggplot2::aes(x=xtab,y=ytab), 
+                                linetype = linetype, color=color, na.rm=TRUE)
   else 
-    p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
-                        shape=shape, color=color, na.rm=TRUE)
+    p <- p + ggplot2::geom_point(data = rp, ggplot2::aes(x=xtab,y=ytab), 
+                                 shape=shape, color=color, na.rm=TRUE)
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
@@ -527,7 +528,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
 
 # Representing a Lithotype rule
 plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
-      padd=NULL, end.plot=TRUE)
+                      padd=NULL, end.plot=TRUE)
 {
   ensure_dependencies()
   nrect = rule$getFaciesNumber()
@@ -551,8 +552,8 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
   
   p <- getFigure(padd)
      
-  p <- p + geom_rect(data = df, aes(xmin = xmin, xmax = xmax, 
-                                    ymin = ymin, ymax = ymax, fill = colors))
+  p <- p + ggplot2::geom_rect(data = df, ggplot2::aes(xmin = xmin, xmax = xmax, 
+                              ymin = ymin, ymax = ymax, fill = colors))
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
@@ -562,10 +563,10 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
  
 # Function to display a polygon (not tested)
 plot.mesh <- function(mesh, 
-         flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, asp=1,
-         xlim="", ylim="", facecolor="yellow", edgecolor="blue", linewidth=1,
-         show.legend = FALSE, xlab="", ylab="", title="", 
-         padd = NULL, end.plot=TRUE)
+                      flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, asp=1,
+                      xlim="", ylim="", facecolor="yellow", edgecolor="blue", linewidth=1,
+                      show.legend = FALSE, xlab="", ylab="", title="", 
+                      padd = NULL, end.plot=TRUE)
 {
   p <- getFigure(padd)
   
@@ -575,15 +576,15 @@ plot.mesh <- function(mesh,
   nmesh = mesh$getNMeshes()
   for (imesh in 1:nmesh)
   {
-  xtab = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
-  ytab = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
-  rp = data.frame(xtab, ytab)
-  p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), 
-    linewidth=linewidth, 
-    fill=facecolor, 
-    color=edgecolor, show.legend=show.legend)
+    xtab = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
+    ytab = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
+    rp = data.frame(xtab, ytab)
+    p <- p + ggplot2::geom_polygon(data = rp, ggplot2::aes(x=xtab,y=ytab), 
+                                   linewidth=linewidth, 
+                                   fill=facecolor, 
+                                   color=edgecolor, show.legend=show.legend)
   if (flagApex)
-    p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
+    p <- p + ggplot2::geom_point(data = rp, ggplot2::aes(x=xtab, y=ytab))
   }  
   
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)

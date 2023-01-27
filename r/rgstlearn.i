@@ -542,7 +542,7 @@ function (x,i,j,...,drop=TRUE)
       stop()
     }
   
-  	# Decode the Column number
+    # Decode the Column number
     if (is.numeric(j)) {
       # Translate into 0-based number if numeric
       icol <- j - 1
@@ -582,20 +582,20 @@ function (x,i,j,...,drop=TRUE)
     messerr("This is not authorized in this function")
     stop()
   } else {
-  	if (! isRowUndefined && ! isColUndefined)
-  	  res <- db$getValuesByColIdx(irow,icol)
- 	if (! isRowUndefined &&   isColUndefined)
-  	  res <- db$getArrayBySample(irow)
-  	if (  isRowUndefined && ! isColUndefined)
-  	  res <- db$getColumnsByColIdx(icol)
-  	if (  isRowUndefined &&   isColUndefined)
-  	  res <- db$getAllColumns()
- 	if (nrow > 1 && ncol > 1)
- 	{
-  	  res <- as.data.frame(matrix(res, nrow=nrow, ncol=ncol))
-   	  names(res) = col_names
+    if (! isRowUndefined && ! isColUndefined)
+      res <- db$getValuesByColIdx(irow,icol)
+   if (! isRowUndefined &&   isColUndefined)
+      res <- db$getArrayBySample(irow)
+    if (  isRowUndefined && ! isColUndefined)
+      res <- db$getColumnsByColIdx(icol)
+    if (  isRowUndefined &&   isColUndefined)
+      res <- db$getAllColumns()
+   if (nrow > 1 && ncol > 1)
+   {
+      res <- as.data.frame(matrix(res, nrow=nrow, ncol=ncol))
+       names(res) = col_names
       row.names(res) = row_names
-  	}
+    }
   }
   res
 }
@@ -630,7 +630,7 @@ function (x,i,j,...,drop=TRUE)
       stop()
     }
   
-  	# Decode the Column number
+    # Decode the Column number
     if (is.numeric(j)) {
       # Translate into 0-based number if numeric
       icol <- j - 1
@@ -698,34 +698,23 @@ setMethod('[<-',  '_p_Db',               setDbitem)
 setMethod('[',    '_p_DbGrid',           getDbitem)
 setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
-appendMethod <- function(c, m, f)
-{
-	cmd = paste0("setMethod('$', '_p_", c ,
-	             "',\
-	              function(x, name) { \
-	                if (is.na(match(name, '",m,"'))) \
-	                  return(callNextMethod(x, name));\
-	                  function(...) {",f,"(x, ...)}; })")
-	eval(parse(text=cmd))
-}
-
 "matrix_toTL" <- function(x)
 {
-	Q = NULL
-	if (x$isSparse())
-   	{
-   		if (isNamespaceLoaded("Matrix"))
-   		{
-			Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
-			Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-            	             dims=c(Atr$nrows,Atr$ncols))
-        }
-        else
-        	cat("This requires the library 'Matrix' to be installed\n")
-    } else {
-		Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
-    }                     
-    Q
+  Q = NULL
+  if (x$isSparse())
+  {
+    if (isNamespaceLoaded("Matrix"))
+    {
+      Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+      Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+                       dims=c(Atr$nrows,Atr$ncols))
+    }
+    else
+      cat("This requires the library 'Matrix' to be installed\n")
+  } else {
+    Q = matrix(x$getValues(), nrow=x$getNRows(), ncol=x$getNCols())
+  }
+  Q
 }
 
 "MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
@@ -736,30 +725,38 @@ appendMethod <- function(c, m, f)
 
 "Table_toTL" <- function(tab)
 {
-	mat <- matrix(tab$getValues(), byrow = FALSE,
-                  nrow = tab$getNRows(), 
-                  ncol = tab$getNCols())
-    colnames(mat) <- tab$getColumnNames()
-    rownames(mat) <- tab$getRowNames()
-	mat
+  mat <- matrix(tab$getValues(), byrow = FALSE,
+                nrow = tab$getNRows(), 
+                ncol = tab$getNCols())
+  colnames(mat) <- tab$getColumnNames()
+  rownames(mat) <- tab$getRowNames()
+  mat
 }
 
 "cs_toTL" <- function(x)
 {
-	Q = nullptr
-   	if (isNamespaceLoaded("Matrix"))
-   	{
-		Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
-		Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-       			         dims=c(Atr$nrows,Atr$ncols))
-    }
-    else
-      	cat("This requires the library 'Matrix' to be installed\n")
-	Q
+  Q = nullptr
+  if (isNamespaceLoaded("Matrix"))
+  {
+    Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+    Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+                     dims=c(Atr$nrows,Atr$ncols))
+  }
+  else
+    cat("This requires the library 'Matrix' to be installed\n")
+  Q
 }
 
 "Db_toTL" <- function(x)
 {
-	cat("To be implemented\n")
+    vals = list()
+    names = x$getAllNames()
+    nc = x$getColumnNumber()
+    for (i in seq(0,nc-1)) {
+         vals = cbind(vals,x$getColumnsByColIdx(i))
+    }
+    df = data.frame(vals)
+    names(df) = names
+    df
 }
 %}
