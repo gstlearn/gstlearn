@@ -694,14 +694,9 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     const CovAniso* covini = _getCova();
     CovAniso* cova = covini->clone();
 
-    _updateCova(cova, ipref);
-
-    const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
-    VectorDouble diag = VH::power(cova->getScales(), 2.);
-
     // Locally update the covariance for non-stationarity (if necessary)
 
-
+    _updateCova(cova, ipref);
     const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
     VectorDouble diag = VH::power(cova->getScales(), 2.);
 
