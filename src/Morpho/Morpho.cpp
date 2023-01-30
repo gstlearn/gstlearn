@@ -122,7 +122,7 @@ void morpho_duplicate(const BImage &imagin, BImage &imagout)
 /*!
  **  Labels the connected components for a 3D image
  **
- ** \return  Number of connected components
+ ** \return  Vector of connected component indices
  **
  ** \param[in]  option    connectivity option (CROSS or BLOCK)
  ** \param[in]  flag_size 1 if cell contains volume of connected component
@@ -132,22 +132,20 @@ void morpho_duplicate(const BImage &imagin, BImage &imagout)
  **                       connected component
  ** \param[in]  verbose   Verbose flag
  **
- ** \param[out] compnum   output array containing the component index
- **
  ** \remark  The labels are sorted by decreasing sizes and an optional message
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-int morpho_labelling(int option,
-                     int flag_size,
-                     const BImage &imagin,
-                     double ccvoid,
-                     VectorDouble &compnum,
-                     bool verbose)
+VectorDouble morpho_labelling(int option,
+                              int flag_size,
+                              const BImage &imagin,
+                              double ccvoid,
+                              bool verbose)
 {
   int jx, jy, jz, total, count, ref, iad, local, part_grain;
   int i, size, nbtest, nbcomp, ix, iy, iz, icomp, ival, itest, il, jcomp[26];
   VectorInt list_array, sizes, order;
+  VectorDouble compnum;
   int id[26][3] = { { -1, 00, 00 },
                     { 00, -1, 00 },
                     { 00, 00, -1 },
@@ -323,37 +321,6 @@ int morpho_labelling(int option,
               100. * part_grain / total);
     }
   }
-  return nbcomp;
-}
-
-/*****************************************************************************/
-/*!
- **  Labels the connected components for a 3D image
- **
- ** \return  The array of connected components newly created
- **
- ** \param[in]  option    connectivity option (CROSS or BLOCK)
- ** \param[in]  flag_size 1 if cell contains volume of connected component
- **                       0 if cell contains rank of connected component
- ** \param[in]  imagin    input image
- ** \param[in]  ccvoid    Value assigned to pixels which do not belong to any
- **                       connected component
- ** \param[in]  verbose   Verbose flag
- **
- ** \remark  The labels are sorted by decreasing sizes and an optional message
- ** \remark  is issued for displaying the component sizes
- **
- *****************************************************************************/
-VectorDouble morpho_labelling(int option,
-                              int flag_size,
-                              const BImage& imagin,
-                              double ccvoid,
-                              bool verbose)
-{
-  int nxyz = imagin.getNPixels();
-  VectorDouble compnum(nxyz);
-  (void) morpho_labelling(option, flag_size, imagin, ccvoid, compnum,
-                          verbose);
   return compnum;
 }
 
@@ -373,10 +340,8 @@ VectorDouble morpho_labelling(int option,
 VectorInt morpho_labelsize(int option, const BImage& imagin)
 {
   VectorInt sizes;
-
-  int nxyz = imagin.getNPixels();
-  VectorDouble compnum(nxyz);
-  int nbcomp = morpho_labelling(option, 0, imagin, TEST, compnum);
+  VectorDouble compnum = morpho_labelling(option, 0, imagin, TEST);
+  int nbcomp = compnum.size();
   if (nbcomp > 0)
   {
     sizes.resize(nbcomp, 0);
@@ -1272,14 +1237,16 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
   }
   else if (oper == EMorpho::CC)
   {
-    int ncomp = morpho_labelling(0, 0, image, TEST, tabout, verbose);
     alreadyLoaded = true;
+    tabout = morpho_labelling(0, 0, image, TEST, verbose);
+    int ncomp = (int) tabout.size();
     if (verbose)
       message("Number of Connected Components = %d\n",ncomp);
   }
   else if (oper == EMorpho::CCSIZE)
   {
-    int ncomp = morpho_labelling(0, 1, image, TEST, tabout, verbose);
+    tabout = morpho_labelling(0, 1, image, TEST, verbose);
+    int ncomp = (int) tabout.size();
     alreadyLoaded = true;
     if (verbose)
       message("Number of Connected Components = %d\n",ncomp);

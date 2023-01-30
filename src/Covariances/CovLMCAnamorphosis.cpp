@@ -190,7 +190,11 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
 
   double rho = 1.;
   if (getDistance(p1, p2) > 0.)
-    rho = CovLMC::eval(ivar, jvar, p1, p2, mode);
+  {
+    CovCalcMode mode_loc = mode;
+    mode_loc.setAsVario(false);
+    rho = CovLMC::eval(ivar, jvar, p1, p2, mode_loc);
+  }
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
@@ -203,6 +207,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
     // For the Gaussian variable
 
     cov = rho;
+    if (mode.getAsVario() == true) cov = 1. - cov;
   }
   else if (iclass == -1)
   {
@@ -212,23 +217,26 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
     cov = 0.;
     double rhon = 1.;
     double rn = 1.;
+    double val = 0.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
       rhon *= rho;
       rn *= r;
       double psin = anamH->getPsiHn(jclass);
+      val = rhon;
+      if (mode.getAsVario()) val = 1. - val;
       switch (mode.getMember().getValue())
       {
         case ECalcMember::E_LHS:
-          cov += psin * psin * rn * rn * rhon;
+          cov += psin * psin * rn * rn * val;
           break;
 
         case ECalcMember::E_RHS:
-          cov += psin * psin * rn * rhon;
+          cov += psin * psin * rn * val;
           break;
 
         case ECalcMember::E_VAR:
-          cov += psin * psin * rhon;
+          cov += psin * psin * val;
           break;
       }
     }
@@ -254,7 +262,9 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
         cov = rhon;
         break;
     }
+    if (mode.getAsVario() == true) cov = 1. - cov;
   }
+
   return cov;
 }
 
