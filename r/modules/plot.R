@@ -1,3 +1,12 @@
+#Set of global values
+default_working_mode <<- FALSE # False for old and True for new
+
+default_size <<- c(c(8,8), c(8,8))
+default_xlim <<- c( NA, NA )
+default_ylim <<- c( NA, NA )
+default_sameLim <<- c( FALSE, FALSE )
+default_aspect <- c('auto', 1 )
+
 ensure_dependencies <- function() {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("The ggplot2 package must be installed to use R plots functionality")
