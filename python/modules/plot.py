@@ -31,13 +31,13 @@ def args_deprecated(figsize=None, xlim=None, ylim=None, aspect=None,
             (ylim is not None) or \
             (aspect is not None):
             print("Arguments 'figsize', 'xlim', 'ylim' and 'aspect' are deprecated. Ignored")
-            print("Use geometry() to specify them.")
+            print("Use geometry() instead.")
             
         if (xlabel is not None) or \
             (ylabel is not None) or \
             (title is not None):
             print("Arguments 'xlabel', 'ylabel' and 'title' are deprecated. Ignored")
-            print("Use decoration() to specify them.")
+            print("Use decoration() instead.")
 
 def set_default(icas, size=None, xlim=None, ylim=None, sameLim=None, aspect=None):
     global default_size
@@ -948,7 +948,7 @@ def grid(dbgrid, name = None, usesel = True, flagLegendColor=True,
     **pcolormesh_args : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     
-        # Check the deprecated arguments
+    # Check the deprecated arguments
     args_deprecated(figsize=figsize, xlim=xlim, ylim=ylim, aspect=aspect,
                     xlabel=xlabel, ylabel=ylabel, title=title, end_plot=end_plot)
     
@@ -2007,3 +2007,6 @@ setattr(gl.Rule,"plot", gp.rule)
 setattr(gl.Table,"plot", gp.table)
 
 setattr(gl.Polygons,"plot", gp.polygon)
+
+setattr(plt.Axes, "decoration", gp.decoration)
+setattr(plt.Axes, "geometry", gp.geometry)

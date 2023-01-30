@@ -1,11 +1,17 @@
 #Set of global values
 default_working_mode <<- FALSE # False for old and True for new
 
-default_size <<- c(c(8,8), c(8,8))
-default_xlim <<- c( NA, NA )
-default_ylim <<- c( NA, NA )
-default_sameLim <<- c( FALSE, FALSE )
-default_aspect <- c('auto', 1 )
+plot.start <- function() 
+{
+	pkg.global <- new.env()
+
+	pkg.global$default_size <- c(c(8,8), c(8,8))
+	plot.default_xlim <<- c( NA, NA )
+	plot.default_ylim <<- c( NA, NA )
+	plot.default_sameLim <<- c( FALSE, FALSE )
+	plot.default_aspect <<- c('auto', 1 )
+	invisible()
+}
 
 ensure_dependencies <- function() {
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
