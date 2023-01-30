@@ -395,7 +395,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
                       padd = NULL, end.plot=TRUE)
 {
   ensure_dependencies()
-  val  = dbg$etColumn(name)
+  val  = db$etColumn(name)
   rp = data.frame(val)
     
   p <- getFigure(padd)
