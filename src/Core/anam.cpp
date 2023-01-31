@@ -533,7 +533,7 @@ static int st_ce_M(Db *db, const Selectivity *selectivity, int iptr0)
  ** \param[in]  nbsimu       Number of Simulation outcomes
  **
  *****************************************************************************/
-int _conditionalExpextation(Db *db,
+int _conditionalExpectation(Db *db,
                             AAnam *anam,
                             const Selectivity *selectivity,
                             int iptr0,

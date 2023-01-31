@@ -357,7 +357,7 @@ bool CalcAnamTransform::_run()
 
   if (_flagCondExp)
   {
-    if (!_conditionalExpextation(getDb(), _anam, _selectivity, _iattSel,
+    if (!_conditionalExpectation(getDb(), _anam, _selectivity, _iattSel,
                                  _iptrEst[0], _iptrStd[0], _flagOK, _proba,
                                  _nbsimu)) return true;
     return false;

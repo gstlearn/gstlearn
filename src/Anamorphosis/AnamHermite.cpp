@@ -765,6 +765,10 @@ int AnamHermite::factor2Selectivity(Db *db,
     return 1;
   }
 
+  /* Get the coefficients of the anamorphosis */
+
+  VectorDouble coeffs = getPsiHns();
+
   /* Loop on the samples */
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
@@ -776,27 +780,33 @@ int AnamHermite::factor2Selectivity(Db *db,
     double zestim = 0.;
     if (selectivity->isUsedEst(ESelectivity::Z))
     {
-      double total = getPsiHn(0);
+      double total = coeffs[0];
       for (int ivar = 0; ivar < nb_est; ivar++)
       {
         double value = db->getArray(iech, cols_est[ivar]);
-        double coeff = getPsiHn(ivar + 1);
-        total += coeff * value;
+        total += coeffs[ivar + 1] * value;
       }
       zestim = total;
     }
 
     /* Z: Standard Deviation */
 
+    /*
+     *  XF: adding the variance of the factors above nb_std
+     */
+
     double zstdev = 0.;
     if (selectivity->isUsedStD(ESelectivity::Z))
     {
       double total = 0.;
-      for (int ivar = 0; ivar < nb_std; ivar++)
+      for (int ivar = 0; ivar < nbpoly-1; ivar++)
       {
-        double value = db->getArray(iech, cols_std[ivar]);
-        double coeff = getPsiHn(ivar + 1);
-        total += coeff * coeff * value;
+    	double value = 1.0;
+    	  if (ivar < nb_std)
+    	  {
+    	   value = db->getArray(iech, cols_std[ivar]);
+    	  }
+		total += coeffs[ivar + 1] * coeffs[ivar + 1] * value * value;
       }
       zstdev = sqrt(total);
     }
@@ -828,10 +838,14 @@ int AnamHermite::factor2Selectivity(Db *db,
         if (selectivity->isUsedStD(ESelectivity::T))
         {
           double total = 0.;
-          for (int ivar = 0; ivar < nb_std; ivar++)
+          for (int ivar = 0; ivar < nbpoly - 1; ivar++)
           {
-            double value = db->getArray(iech, cols_std[ivar]);
-            total += s_cc[ivar + 1] * s_cc[ivar + 1] * value;
+            double value = 1.0;
+            if (ivar < nb_std)
+            {
+           	value = db->getArray(iech, cols_std[ivar]);
+            }
+            total += s_cc[ivar + 1] * s_cc[ivar + 1] * value * value;
           }
           selectivity->setTstd(icut, sqrt(total));
         }
@@ -839,23 +853,17 @@ int AnamHermite::factor2Selectivity(Db *db,
 
       if (need_Q)
       {
-        MatrixSquareGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
+        VectorDouble s_cc = hermiteCoefMetal(yc, coeffs);
 
         /* Metal Quantity: Estimation */
 
         if (selectivity->isUsedEst(ESelectivity::Q))
         {
-          double total = 0.;
+          double total = s_cc[0];
           for (int ivar = 0; ivar < nb_est; ivar++)
           {
             double value = db->getArray(iech, cols_est[ivar]);
-            double fn = 0.;
-            for (int jvar = 0; jvar < nbpoly; jvar++)
-            {
-              double coeff = getPsiHn(jvar);
-              fn += coeff * TAU.getValue(ivar, jvar);
-            }
-            total += fn * value;
+            total += s_cc[ivar + 1] * value;
           }
           selectivity->setQest(icut, total);
         }
@@ -865,16 +873,14 @@ int AnamHermite::factor2Selectivity(Db *db,
         if (selectivity->isUsedStD(ESelectivity::Q))
         {
           double total = 0.;
-          for (int ivar = 0; ivar < nb_std; ivar++)
+          for (int ivar = 0; ivar < nbpoly - 1; ivar++)
           {
-            double value = db->getArray(iech, cols_std[ivar]);
-            double fn = 0.;
-            for (int jvar = 0; jvar < nbpoly; jvar++)
-            {
-              double coeff = getPsiHn(jvar);
-              fn += coeff * TAU.getValue(ivar, jvar);
-            }
-            total += fn * fn * value;
+            double value = 1.0;
+            if (ivar < nb_std)
+			{
+			value = db->getArray(iech, cols_std[ivar]);
+			}
+            total += s_cc[ivar + 1] * s_cc[ivar + 1] * value * value;
           }
           selectivity->setQstd(icut, sqrt(total));
         }
