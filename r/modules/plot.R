@@ -1,25 +1,81 @@
 #Set of global values
 default_working_mode <<- FALSE # False for old and True for new
 
-plot.start <- function() 
+plot.initialize <- function() 
 {
-	pkg.global <- new.env()
-
-	pkg.global$default_size <- c(c(8,8), c(8,8))
+	plot.default_working_mode <<- FALSE
+	
+	plot.default_size <<- list(c(8,8), c(8,8))
 	plot.default_xlim <<- c( NA, NA )
 	plot.default_ylim <<- c( NA, NA )
 	plot.default_sameLim <<- c( FALSE, FALSE )
-	plot.default_aspect <<- c('auto', 1 )
+	plot.default_asp <<- c(NA, 1 )
 	invisible()
 }
 
-ensure_dependencies <- function() {
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop("The ggplot2 package must be installed to use R plots functionality")
-  }
-  if (!requireNamespace("ggpubr", quietly = TRUE)) {
-    stop("The ggpubr package must be installed to use R plots functionality")
-  }
+plot.setWorkingMode <- function(mode)
+{
+    plot.default_working_mode <<- mode
+} 
+
+isNotDef <- function(arg)
+{
+	if (length(arg) == 1)
+	{
+		if (is.na(arg)) return (TRUE)
+	}
+	else
+	{
+		for (i in 1:length(arg))
+		{
+			if (is.na(arg[i])) return (TRUE)
+		}
+	}
+	return (FALSE)
+}
+
+plot.setDefault <- function(icas=1, size=NA, xlim=NA, ylim=NA, sameLim=NA, asp=NA)
+{
+    if (!isNotDef(size))
+        plot.default_size[icas] <<- size
+    if (!isNotDef(xlim))
+        plot.default_xlim[icas] <<- xlim
+    if (!isNotDef(ylim))
+        plot.default_ylim[icas] <<- ylim
+    if (!isNotDef(sameLim))
+        plot.default_sameLim[icas] <<- sameLim
+    if (!isNotDef(asp))
+        plot.default_asp[icas] <<- asp
+}
+
+plot.printDefault <- function()
+{
+    if (plot.default_working_mode)
+        cat("Using the NEW working mode.\n")
+    else
+        cat("Using the OLD working mode.\n")
+    
+    for (icas in 1:2)
+    {
+        if (icas == 1)
+            cat("Non geographical defaults:\n")
+        else
+            cat("Geographical defaults:\n")
+            
+        if (!isNotDef(plot.default_size[[icas]]))
+             cat("- Figure size =", plot.default_size[[icas]],"\n")
+        if (!isNotDef(plot.default_xlim[icas]))
+            cat("- Limits along X =",plot.default_xlim[icas],"\n")
+        if (!isNotDef(plot.default_ylim[icas]))
+            cat("- Limits along Y =",plot.default_ylim[icas],"\n")
+        if (!isNotDef(plot.default_sameLim[icas]))
+        {
+        	if (plot.default_sameLim[icas])
+	            cat("- Limits are the same on both axes\n")
+	    }
+        if (!isNotDef(plot.default_asp[icas]))
+            cat("- Aspect =",plot.default_asp[icas],"\n")
+ 	}    
 }
 
 end.func <- function(p, end.plot=TRUE)
@@ -28,8 +84,9 @@ end.func <- function(p, end.plot=TRUE)
   if (end.plot)
   {
     print(padd)
-    padd = NULL
-    invisible()
+#    padd = NULL
+#    invisible()
+	padd
   } else {
     padd
   }
@@ -42,7 +99,6 @@ get.colors <- function()
 
 getFigure <- function(padd = NULL)
 {
-  ensure_dependencies()
   if (length(padd) > 0)
     p <- padd
   else
@@ -50,17 +106,107 @@ getFigure <- function(padd = NULL)
   p
 }
 
-decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
+is_array <- function(arg, ndim=NA)
 {
-  ensure_dependencies()
-  if (xlab != "")
+	if (length(arg) <= 1) return (FALSE)
+	
+	if (!isNotDef(ndim) && length(arg) != ndim) return (FALSE)
+	
+	TRUE
+}
+
+plot.geometry <- function(ax, icas=1, size=NA, xlim=NA, ylim=NA, asp=NA, 
+			        	  sameLim=NA)
+{
+    if (isNotDef(size[1]))
+        size = plot.default_size[[icas]]
+    if (! isNotDef(size[1]))
+    {
+        if (is_array(size, 2))
+        {
+            if (is_array(ax, 2))
+            {
+                for (ix in 1:dim(ax)[1])
+                    for (iy in 1:dim(ax)[2])
+                        ax[ix,iy] <- ax[ix,iy] + ggsave(ax, width=size[1], height=size[2])
+            }
+            else
+            {
+            	options(repr.ax.width  = size[1], 
+            	        repr.ax.height = size[2])
+            }
+        }
+        else
+            cat("'size' should be [a,b]. Ignored\n")
+    }
+    if (isNotDef(sameLim))
+        sameLim = plot.default_sameLim[icas]
+        
+    if (isNotDef(xlim[1]))
+        xlim = plot.default_xlim[icas]
+    if (!isNotDef(xlim[1]))
+    {
+        if (is_array(xlim, 2))
+        {
+            if (is_array(ax, 2))
+            {
+                for (ix in 1:dim(ax)[1])
+                    for (iy in 1:dim(ax)[2])
+                        ax[ix,iy] <- ax[ix,iy] + xlim(xlim)
+ 			}
+            else
+            {
+                ax <- ax + xlim(xlim)
+            }
+		}
+        else
+            cat("'xlim' should be [a,b] or [None,b] or [a,None]. Ignored\n")
+    }
+    
+    if (isNotDef(ylim[1]))
+        ylim = plot.default_ylim[icas]
+    if (!isNotDef(ylim[1]))
+    {
+        if (is_array(ylim, 2))
+        {
+            if (is_array(ax, 2))
+            {
+               for (ix in 1:dim(ax)[1])
+                    for (iy in 1:dim(ax)[2])
+                        ax[ix,iy] <- ax[ix,iy] + ylim(ylim)
+ 			}
+            else
+                ax <- ax + ylim(ylim)
+        }
+        else
+           cat("'ylim' should be [a,b] or [None,b] or [a,None]. Ignored\n")
+    }
+        
+    if (isNotDef(asp))
+        asp = plot.default_asp[icas]
+    if (!isNotDef(asp))
+    {
+        if (is_array(ax, 2))
+        {
+        	for (ix in 1:dim(ax)[1])
+            	for (iy in 1:dim(ax)[2])
+                    ax[ix,iy] <- ax[ix,iy] + coor_fixed(asp)
+        }
+        else
+            ax = ax + coord_fixed(asp)
+	}
+	ax
+}
+
+plot.decoration <- function(p, xlab = NA, ylab = NA, title = NA)
+{
+  if (!isNotDef(xlab))
     p <- p + labs(x = xlab)
-  if (ylab != "")
+  if (!isNotDef(ylab))
     p <- p + labs(y = ylab)
-  if (title != "")
+  if (!isNotDef(title))
     p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
-  if (! is.null(asp))
-    suppressWarnings(suppressMessages(p <- p + coord_fixed(ratio = asp)))
+
   p
 }
 
@@ -69,7 +215,6 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
 					   ivar=0, jvar=0, idir=0, asCov=FALSE, 
                        xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   if (! is.null(vario))
   {
     codir = vario$getCodirs(idir)
@@ -93,7 +238,7 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   
   p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
   
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -107,7 +252,6 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
                         title="", show.legend=FALSE, end.plot=TRUE, ...)
 {
-  ensure_dependencies()
   ndir = vario$getDirectionNumber()
   nvar = vario$getVariableNumber()
   cols = get.colors()
@@ -209,7 +353,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
       }
   p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
   
-  p <- decor(p, title = title)
+  p <- plot.decoration(p, title = title)
   
   end.func(p, end.plot)
 }
@@ -225,7 +369,6 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
                        asp=1, xlab="", ylab="", title="", 
                        padd = NULL, end.plot=TRUE, ...) 
 {  
-  ensure_dependencies()
   # Creating the necessary data frame
   np   = db$getSampleNumber(TRUE)
   xtab = db$getCoordinates(0,TRUE)
@@ -297,7 +440,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
     p <- p + guides(size = "none")
   }
       
-  p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -311,7 +454,6 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
       xlab="", ylab="", title="", 
       padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   if (! dbgrid$isGrid())
   {
     cat("This function is restricted to Grid Db and cannot be used here")
@@ -363,14 +505,13 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
     p <- p + guides(fill = "none")
   }
        
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
 
 plot.db <- function(db, padd=NULL, end.plot=TRUE, ...)
 {
-  ensure_dependencies()
   if (db$isGrid())
     p = plot.grid(db, padd=padd, end.plot=end.plot, ...)
   else
@@ -385,7 +526,6 @@ setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd
 plot.polygon <- function(poly, xlab="", ylab="", title="", color="black", 
 		fill=NA, asp=1, padd = NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   npol = poly$getPolySetNumber()
   
   p <- getFigure(padd)
@@ -398,7 +538,7 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", color="black",
     p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color=color, fill=fill)
   }  
   
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -409,7 +549,6 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
                       xlab="", ylab="", title="", 
                       padd = NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   val  = db$etColumn(name)
   rp = data.frame(val)
     
@@ -418,7 +557,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
   p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill,
                                    na.rm=TRUE) 
   
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -427,14 +566,13 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
 plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", 
                           padd=FALSE, end.plot=TRUE)
 {
-  ensure_dependencies()
   rp = data.frame(val)
   
   p <- getFigure(padd)
      
   p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
 
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
 
   end.func(p, end.plot)
 }
@@ -443,7 +581,6 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="",
 plot.curve <- function(data, color="black", xlab="", ylab="", title="", 
                        padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   nbpoint = length(data)
   absc = seq(1,nbpoint)
   rp = data.frame(absc,data)
@@ -452,7 +589,7 @@ plot.curve <- function(data, color="black", xlab="", ylab="", title="",
     
   p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
   
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -465,7 +602,6 @@ plot.XY <-function(xtab, ytab, join=TRUE,
                    xlim="", ylim="", xlab="", ylab="", title="", 
                    padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   if (length(ytab) != length(xtab))
   {
     cat("Arrays 'xtab' and 'ytab' should have same dimensions")
@@ -495,7 +631,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
     p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
                                  shape=shape, color=color, na.rm=TRUE)
   
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -506,7 +642,6 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
                       xlim="", ylim="", xlab="Y", ylab="Z", title="", 
                       padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   res = anam$sample(ndisc, aymin, aymax)
   valY = res$getY()
   valZ = res$getZ()
@@ -528,7 +663,6 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
                              xlim="", ylim="", xlab="", ylab="", title="", 
                              padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   if (is.null(db2)) db2 = db1
   val1 = db1$getColumn(name1, useSel)
   val2 = db2$getColumn(name2, useSel)
@@ -545,7 +679,6 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
 plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
                       padd=NULL, end.plot=TRUE)
 {
-  ensure_dependencies()
   nrect = rule$getFaciesNumber()
   if (! is.null(proportions)) 
     rule$setProportions(proportions)
@@ -570,7 +703,7 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
   p <- p + geom_rect(data = df, aes(xmin = xmin, xmax = xmax, 
                               ymin = ymin, ymax = ymax, fill = colors))
   
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
@@ -602,9 +735,10 @@ plot.mesh <- function(mesh,
     p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
   }  
   
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
   end.func(p, end.plot)
 }
 setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
- 
+
+#setMethod('decoration',    'ggplot',               plot.decoration)
