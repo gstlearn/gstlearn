@@ -1,10 +1,7 @@
 #Set of global values
-default_working_mode <<- FALSE # False for old and True for new
 
 plot.initialize <- function() 
 {
-	plot.default_working_mode <<- FALSE
-	
 	plot.default_size <<- list(c(8,8), c(8,8))
 	plot.default_xlim <<- c( NA, NA )
 	plot.default_ylim <<- c( NA, NA )
@@ -12,11 +9,6 @@ plot.initialize <- function()
 	plot.default_asp <<- c(NA, 1 )
 	invisible()
 }
-
-plot.setWorkingMode <- function(mode)
-{
-    plot.default_working_mode <<- mode
-} 
 
 isNotDef <- function(arg)
 {
@@ -50,11 +42,6 @@ plot.setDefault <- function(icas=1, size=NA, xlim=NA, ylim=NA, sameLim=NA, asp=N
 
 plot.printDefault <- function()
 {
-    if (plot.default_working_mode)
-        cat("Using the NEW working mode.\n")
-    else
-        cat("Using the OLD working mode.\n")
-    
     for (icas in 1:2)
     {
         if (icas == 1)
@@ -76,20 +63,6 @@ plot.printDefault <- function()
         if (!isNotDef(plot.default_asp[icas]))
             cat("- Aspect =",plot.default_asp[icas],"\n")
  	}    
-}
-
-end.func <- function(p, end.plot=TRUE)
-{
-  padd = p
-  if (end.plot)
-  {
-    print(padd)
-#    padd = NULL
-#    invisible()
-	padd
-  } else {
-    padd
-  }
 }
 
 get.colors <- function()
@@ -115,11 +88,10 @@ is_array <- function(arg, ndim=NA)
 	TRUE
 }
 
-plot.geometry <- function(ax, icas=1, size=NA, xlim=NA, ylim=NA, asp=NA, 
-			        	  sameLim=NA)
+plot.geometry <- function(ax, icas=1, size=NA, xlim=NA, ylim=NA, asp=NA, sameLim=NA)
 {
     if (isNotDef(size[1]))
-        size = plot.default_size[[icas]]
+    	size = plot.default_size[[icas]]
     if (! isNotDef(size[1]))
     {
         if (is_array(size, 2))
@@ -132,8 +104,7 @@ plot.geometry <- function(ax, icas=1, size=NA, xlim=NA, ylim=NA, asp=NA,
             }
             else
             {
-            	options(repr.ax.width  = size[1], 
-            	        repr.ax.height = size[2])
+            	options(repr.ax.width  = size[1], repr.ax.height = size[2])
             }
         }
         else
@@ -205,15 +176,14 @@ plot.decoration <- function(p, xlab = NA, ylab = NA, title = NA)
   if (!isNotDef(ylab))
     p <- p + labs(y = ylab)
   if (!isNotDef(title))
-    p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+    p <- p + ggtitle(title) #+ theme(plot.title = element_text(hjust = 0.5))
 
   p
 }
 
 # Function for representing a Model
 plot.model <- function(model, vario=NULL, hmax=1, codir=NULL, 
-					   ivar=0, jvar=0, idir=0, asCov=FALSE, 
-                       xlab = "", ylab = "",title="", nh=100, padd=NULL, end.plot=TRUE)
+					   ivar=0, jvar=0, idir=0, asCov=FALSE, nh=100, padd=NULL)
 {
   if (! is.null(vario))
   {
@@ -238,9 +208,7 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   
   p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p  
 }
 setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
 
@@ -250,7 +218,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                         asCov=FALSE, nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
                         color_psize="black", ratio_psize=10,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
-                        title="", show.legend=FALSE, end.plot=TRUE, ...)
+                        show.legend=FALSE, ...)
 {
   ndir = vario$getDirectionNumber()
   nvar = vario$getVariableNumber()
@@ -280,8 +248,8 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           next
         }
         
-        xlim = c(0,0)
-        ylim = c(0,0)
+        xvlim = c(0,0)
+        yvlim = c(0,0)
         for (id in idirUtil)
         {
           sill = vario$getVar(iv,jv)
@@ -295,11 +263,11 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           gmax = gmax * 1.1
 
           # Bounds
-          if (hmax > xlim[2]) xlim[2] = hmax 
+          if (hmax > xvlim[2]) xvlim[2] = hmax 
           gmin = 0
           if (iv != jv) gmin = -gmax
-          if (gmin < ylim[1]) ylim[1] = gmin
-          if (gmax > ylim[2]) ylim[2] = gmax
+          if (gmin < yvlim[1]) yvlim[1] = gmin
+          if (gmax > yvlim[2]) yvlim[2] = gmax
                 
           # Plotting the experimental variogram
           df = data.frame(cbind(hh,gg))
@@ -339,11 +307,11 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           } 
         } # End of loop on Directions
         
-        g <- g + scale_x_continuous("Distance", limits = xlim, expand = c(0,0))
+        g <- g + scale_x_continuous("Distance", limits = xvlim, expand = c(0,0))
         if (iv == jv)
-          g <- g + scale_y_continuous("Variogram", limits = ylim, expand = c(0,0))
+          g <- g + scale_y_continuous("Variogram", limits = yvlim, expand = c(0,0))
         else
-          g <- g + scale_y_continuous("Cross-Variogram", limits = ylim, expand = c(0,0))
+          g <- g + scale_y_continuous("Cross-Variogram", limits = yvlim, expand = c(0,0))
                 
         # Plotting relevant control lines
         if (iv != jv)
@@ -353,106 +321,125 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
       }
   p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
   
-  p <- plot.decoration(p, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 setMethod("plot", signature(x="_p_Vario"), function(x,y,...) plot.varmod(x,...))
 
-# Function for plotting a point data base, with optional color and size variables
-plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
-                       color0='red', size0=0.2, color_label="black", nudge_y=0.1,
-                       sizmin=10, sizmax=100, flagAbsSize = FALSE, 
-                       show.legend.color=FALSE, legend.name.color="P-Color",
-                       show.legend.size =FALSE, legend.name.size ="P-Size",
-                       show.legend.label=FALSE, legend.name.label="P-Label",
-                       asp=1, xlab="", ylab="", title="", 
-                       padd = NULL, end.plot=TRUE, ...) 
-{  
-  # Creating the necessary data frame
-  np   = db$getSampleNumber(TRUE)
+read.pointCoor <- function(db)
+{
   xtab = db$getCoordinates(0,TRUE)
   ytab = db$getCoordinates(1,TRUE)
+  df = data.frame(xtab,ytab)
+  df
+}
+
+# Function for plotting a point data base, with optional color and size variables
+plot.pointSymbol <- function(p, db, color_name=NULL, size_name=NULL,
+                      		 color0='red', size0=0.2, 
+                      		 sizmin=10, sizmax=100, flagAbsSize = FALSE, 
+                      		 show.legend.color=FALSE, legend.name.color = "P-Color", 
+                      		 show.legend.size=FALSE,  legend.name.size="P-Size", 
+                      		 ...) 
+{  
+  # Creating the necessary data frame
+  df = read.pointCoor(db)
+  np = dim(df)[2]
     
   # Color of symbol
-  if (! is.null(color_name))
-  {
+  if (! is.null(color_name)) {
     colval  = db$getColumn(color_name)
-  }
-  else
-  {
+  } else {
     colval = rep(color0,np)
   }
 
+
   # Size of symbol
-  if (! is.null(size_name))
-  {
+  if (! is.null(size_name)) {
   	reduction = 100
     sizval  = db$getColumn(size_name)
     if (flagAbsSize) sizval = abs(sizval)
     m = min(sizval,na.rm=TRUE)
     M = max(sizval,na.rm=TRUE)
     sizval = (sizmax * (sizval - m) / (M-m) + sizmin) / reduction
-  }
-  else
-  {
+  } else {
     sizval = rep(size0,np)
   }
 
-  # Label of symbols
-  if (! is.null(label_name))
-  {
-    label_round = 2
-    labval  = round(db$getColumn(label_name,TRUE),label_round)
-  }
-  else
-  {
-    labval = rep(0,np)
-  }
-  df = data.frame(xtab,ytab)
+  p <- p + geom_point(data = df, aes(x=xtab,y=ytab), color=colval, size=sizval,
+                      na.rm=TRUE)
   
-  p <- getFigure(padd)
-  
-  p <- p + geom_point(data=df, aes(x=xtab,y=ytab), color=colval, size=sizval,
-           na.rm=TRUE)
-  
-  if (! is.null(label_name)) 
-  {
-    p <- p + geom_text(data = df, aes(x=x, y=y), label=as.character(labval),
-               nudge_y = nudge_y, color=color_label, check_overlap=TRUE)
-               
-    if (show.legend.label) {
-      p <- p + guides(label = guide_legend(title = legend.name.label))
-    } else {
-      p <- p + guides(label = "none")
-    }
-  }
-  
-  if (show.legend.color) {
-    p <- p + guides(color = guide_legend(title = legend.name.color))
+  if (show.legend.color && ! is.null(color_name)) {
+  	p <- p + guides(color = guide_legend(title = legend.name.color))
   } else {
-    p <- p + guides(color = "none")
+ 	p <- p + guides(color = "none")
   }
     
-  if (show.legend.size) {
-    p <- p + guides(size = guide_legend(title = legend.name.size))
+  if (show.legend.size && ! is.null(size_name)) {
+	p <- p + guides(size = guide_legend(title = legend.name.size))
   } else {
-    p <- p + guides(size = "none")
+   	p <- p + guides(size = "none")
   }
-      
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
   
-  end.func(p, end.plot)
+  p
 }
 
+# Function for plotting a point data base, with optional color and size variables
+plot.pointLabel <- function(p, db, label_name=NULL,
+                  	  	    color="black", nudge_y=0.1, label_round=2,
+                   	 		show.legend=FALSE, legend.name.label = "P-Label", ...) 
+{  
+  # Creating the necessary data frame
+  df = read.pointCoor(db)
+  np = dim(df)[2]
+    
+  # Label of symbols
+  labval  = round(db$getColumn(label_name,TRUE),label_round)
+  
+  p <- p + geom_text(data = df, aes(x=xtab, y=ytab), label=as.character(labval),
+            		   nudge_y = nudge_y, color=color, check_overlap=TRUE)
+               
+  if (show.legend) {
+      p <- p + guides(label = guide_legend(title = legend.name.label))
+  } else {
+      p <- p + guides(label = "none")
+  }
+  p
+}
+
+# Function for plotting a point data base, with optional color and size variables
+plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
+                       color0='red', 
+                       size0=0.2, sizmin=10, sizmax=100, flagAbsSize = FALSE,  
+                       color_label="black", nudge_y=0.1, label_round=2,
+                       show.legend.color=FALSE, legend.name.color="P-Color",
+                       show.legend.size=FALSE,  legend.name.size="P-Size",
+                       show.legend.label=FALSE, legend.name.label="P-Label",
+                       padd = NULL, ...) 
+{ 
+  p <- getFigure(padd)
+  
+  if (! is.null(color_name) || ! is.null(size_name))
+	  p <- p + plot.pointSymbol(p, db, color_name=color_name, size_name=size_name,
+                      	  		color0=color0, size0=size0, 
+                      			sizmin=sizmin, sizmax=sizmax, flagAbsSize = flagAbsSize, 
+                      			show.legend.symbol=show.legend.symbol, 
+                      			legend.name.color = legend.name.color,
+                      			legend.name.size = legend.name.size, ...)
+  
+  if (! is.null(label_name)) 
+  	p <- p + plot.pointLabel(p, db, label_name=label_name,
+                    	     color=color_label, nudge_y=nudge_y, label_round=label_round,
+                      	   	 show.legend=show.legend.label, ...) 
+  p
+}
+
+#
 # Function for plotting a variable (referred by its name) informed in a grid Db
 #
 # option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
-plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
+plot.grid <- function(dbgrid, name=NULL, na.color = "white", 
       option="B", zlim = NULL, useSel = TRUE,
-      show.legend=TRUE, legend.name="",
-      xlab="", ylab="", title="", 
-      padd=NULL, end.plot=TRUE)
+      show.legend=TRUE, legend.name="", padd=NULL)
 {
   if (! dbgrid$isGrid())
   {
@@ -505,17 +492,15 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white", asp=1,
     p <- p + guides(fill = "none")
   }
        
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 
-plot.db <- function(db, padd=NULL, end.plot=TRUE, ...)
+plot.db <- function(db, padd=NULL, ...)
 {
   if (db$isGrid())
-    p = plot.grid(db, padd=padd, end.plot=end.plot, ...)
+    p = plot.grid(db, padd=padd, ...)
   else
-    p = plot.point(db, padd=padd, end.plot=end.plot, ...)
+    p = plot.point(db, padd=padd, ...)
   p
 }
 
@@ -523,8 +508,7 @@ setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd
 
 # Function to display a polygon (not tested)
 
-plot.polygon <- function(poly, xlab="", ylab="", title="", color="black", 
-		fill=NA, asp=1, padd = NULL, end.plot=TRUE)
+plot.polygon <- function(poly, color="black", fill=NA, padd = NULL)
 {
   npol = poly$getPolySetNumber()
   
@@ -538,18 +522,14 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", color="black",
     p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color=color, fill=fill)
   }  
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
         
 # Function for plotting the histogram of a variable
-plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
-                      xlab="", ylab="", title="", 
-                      padd = NULL, end.plot=TRUE)
+plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow', padd = NULL)
 {
-  val  = db$etColumn(name)
+  val  = db$getColumn(name)
   rp = data.frame(val)
     
   p <- getFigure(padd)
@@ -557,14 +537,11 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
   p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill,
                                    na.rm=TRUE) 
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 
 # Function for plotting histogram for a table of values
-plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", 
-                          padd=FALSE, end.plot=TRUE)
+plot.hist_tab <- function(val, nbins=30, padd=FALSE)
 {
   rp = data.frame(val)
   
@@ -572,14 +549,11 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="",
      
   p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
 
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-
-  end.func(p, end.plot)
+  p
 }
 
 # Function for plotting a curve of regularly sampled values
-plot.curve <- function(data, color="black", xlab="", ylab="", title="", 
-                       padd=NULL, end.plot=TRUE)
+plot.curve <- function(data, color="black", padd=NULL)
 {
   nbpoint = length(data)
   absc = seq(1,nbpoint)
@@ -589,18 +563,14 @@ plot.curve <- function(data, color="black", xlab="", ylab="", title="",
     
   p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 
 # Function for representing a line between points provided as arguments
 plot.XY <-function(xtab, ytab, join=TRUE,
                    color="black", linetype="solid", shape=20,
                    flagDiag = FALSE, 
-                   diag_color = "red", diag_line = "solid",
-                   xlim="", ylim="", xlab="", ylab="", title="", 
-                   padd=NULL, end.plot=TRUE)
+                   diag_color = "red", diag_line = "solid", padd=NULL)
 {
   if (length(ytab) != length(xtab))
   {
@@ -611,73 +581,57 @@ plot.XY <-function(xtab, ytab, join=TRUE,
 
   p <- getFigure(padd)
      
-  if (is.numeric(xlim) && length(xlim) == 2)
-    p <- p + scale_x_continuous(limits = xlim, expand = c(0,0))
-  if (is.numeric(ylim) && length(ylim) == 2)
-    p <- p + scale_y_continuous(limits = ylim, expand = c(0,0))
-  
   if (flagDiag)
   {
     u = min(xtab, ytab, na.rm=TRUE)
     v = max(xtab, ytab, na.rm=TRUE)
     p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
-                                   linetype = diag_line, color = diag_color, na.rm=TRUE)
+                          linetype = diag_line, color = diag_color, na.rm=TRUE)
   }
   
   if (join)
     p <- p + geom_line(data = rp, aes(x=xtab,y=ytab), 
-                                linetype = linetype, color=color, na.rm=TRUE)
+   		               linetype = linetype, color=color, na.rm=TRUE)
   else 
     p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
-                                 shape=shape, color=color, na.rm=TRUE)
+                        shape=shape, color=color, na.rm=TRUE)
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 
 # Function for representing an anamorphosis
 plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, 
-                      color="black", linetype="solid",
-                      xlim="", ylim="", xlab="Y", ylab="Z", title="", 
-                      padd=NULL, end.plot=TRUE)
+                      color="black", linetype="solid", padd=NULL)
 {
   res = anam$sample(ndisc, aymin, aymax)
-  valY = res$getY()
-  valZ = res$getZ()
   
-  p = plot.XY(valY, valZ, join=TRUE, flagDiag = FALSE,
-              color=color, linetype=linetype, 
-              xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, 
-              title=title, 
-              padd=padd, end.plot=FALSE)
+  p = plot.XY(res$getY(), res$getZ(), join=TRUE, flagDiag = FALSE,
+              color=color, linetype=linetype, padd=padd)
+              
+  p <- p + plot.geometry(p, xlim=res$getAylim(), ylim=res$getAzlim())
   
-  end.func(p, end.plot)
+  p <- p + plot.decoration(p, xlab = "X", ylab = "Z")
+  
+  p
 }
 
 # Function for representing a scatter plot
 plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
 							 flagDiag = FALSE,
                              color="black", linetype = "solid",
-                             diag_color = "red", diag_line = "solid",
-                             xlim="", ylim="", xlab="", ylab="", title="", 
-                             padd=NULL, end.plot=TRUE)
+                             diag_color = "red", diag_line = "solid", padd=NULL)
 {
   if (is.null(db2)) db2 = db1
   val1 = db1$getColumn(name1, useSel)
   val2 = db2$getColumn(name2, useSel)
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
               color = color, linetype = linetype, 
-              diag_color = diag_color, diag_line = diag_line,
-              xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
-              padd=padd, end.plot=FALSE)
-  
-  end.func(p, end.plot) 
+              diag_color = diag_color, diag_line = diag_line, padd=padd)
+  p 
 }
 
 # Representing a Lithotype rule
-plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
-                      padd=NULL, end.plot=TRUE)
+plot.rule <- function(rule, proportions=NULL, padd=NULL)
 {
   nrect = rule$getFaciesNumber()
   if (! is.null(proportions)) 
@@ -703,18 +657,15 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="",
   p <- p + geom_rect(data = df, aes(xmin = xmin, xmax = xmax, 
                               ymin = ymin, ymax = ymax, fill = colors))
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
  
  
 # Function to display a polygon (not tested)
 plot.mesh <- function(mesh, 
-                      flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, asp=1,
-                      xlim="", ylim="", facecolor="yellow", edgecolor="blue", linewidth=1,
-                      show.legend = FALSE, xlab="", ylab="", title="", 
-                      padd = NULL, end.plot=TRUE)
+                      flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, 
+                      facecolor="yellow", edgecolor="blue", linewidth=1,
+                      show.legend = FALSE, padd = NULL)
 {
   p <- getFigure(padd)
   
@@ -735,10 +686,8 @@ plot.mesh <- function(mesh,
     p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
   }  
   
-  p <- plot.decoration(p, xlab = xlab, ylab = ylab, title = title)
-  
-  end.func(p, end.plot)
+  p
 }
 setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
 
-#setMethod('decoration',    'ggplot',               plot.decoration)
+#setMethod('decoration', 'ggplot', plot.decoration)
