@@ -2,7 +2,7 @@
 
 plot.initialize <- function() 
 {
-	plot.default_size <<- list(c(8,8), c(8,8))
+	plot.default_dims <<- list(c(8,8), c(8,8))
 	plot.default_xlim <<- c( NA, NA )
 	plot.default_ylim <<- c( NA, NA )
 	plot.default_sameLim <<- c( FALSE, FALSE )
@@ -26,10 +26,10 @@ isNotDef <- function(arg)
 	return (FALSE)
 }
 
-plot.setDefault <- function(icas=1, size=NA, xlim=NA, ylim=NA, sameLim=NA, asp=NA)
+plot.setDefault <- function(icas=1, dims=NA, xlim=NA, ylim=NA, sameLim=NA, asp=NA)
 {
-    if (!isNotDef(size))
-        plot.default_size[icas] <<- size
+    if (!isNotDef(dims))
+        plot.default_dims[icas] <<- dims
     if (!isNotDef(xlim))
         plot.default_xlim[icas] <<- xlim
     if (!isNotDef(ylim))
@@ -49,8 +49,8 @@ plot.printDefault <- function()
         else
             cat("Geographical defaults:\n")
             
-        if (!isNotDef(plot.default_size[[icas]]))
-             cat("- Figure size =", plot.default_size[[icas]],"\n")
+        if (!isNotDef(plot.default_dims[[icas]]))
+             cat("- Figure dimensions =", plot.default_dims[[icas]],"\n")
         if (!isNotDef(plot.default_xlim[icas]))
             cat("- Limits along X =",plot.default_xlim[icas],"\n")
         if (!isNotDef(plot.default_ylim[icas]))
@@ -88,27 +88,27 @@ is_array <- function(arg, ndim=NA)
 	TRUE
 }
 
-plot.geometry <- function(ax, icas=1, size=NA, xlim=NA, ylim=NA, asp=NA, sameLim=NA)
+plot.geometry <- function(ax, icas=1, dims=NA, xlim=NA, ylim=NA, asp=NA, sameLim=NA)
 {
-    if (isNotDef(size[1]))
-    	size = plot.default_size[[icas]]
-    if (! isNotDef(size[1]))
+    if (isNotDef(dims[1]))
+    	dims = plot.default_dims[[icas]]
+    if (! isNotDef(dims[1]))
     {
-        if (is_array(size, 2))
+        if (is_array(dims, 2))
         {
             if (is_array(ax, 2))
             {
                 for (ix in 1:dim(ax)[1])
                     for (iy in 1:dim(ax)[2])
-                        ax[ix,iy] <- ax[ix,iy] + ggsave(ax, width=size[1], height=size[2])
+                        ax[ix,iy] <- ax[ix,iy] + ggsave(ax, width=dims[1], height=dims[2])
             }
             else
             {
-            	options(repr.ax.width  = size[1], repr.ax.height = size[2])
+            	options(repr.ax.width  = dims[1], repr.ax.height = dims[2])
             }
         }
         else
-            cat("'size' should be [a,b]. Ignored\n")
+            cat("'dims' should be [a,b]. Ignored\n")
     }
     if (isNotDef(sameLim))
         sameLim = plot.default_sameLim[icas]
@@ -206,7 +206,7 @@ plot.model <- function(model, vario=NULL, hmax=1, codir=NULL,
   gg = model$sample(hmax, nh, ivar, jvar, codir, asCov=asCov)
   df = data.frame(cbind(hh,gg))
   
-  p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
+  p <- p + geom_line(data = df, mapping=aes(x=hh,y=gg), na.rm=TRUE)
   
   p  
 }
@@ -271,17 +271,18 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                 
           # Plotting the experimental variogram
           df = data.frame(cbind(hh,gg))
-          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE)
+          g <- g + geom_line(data = df, 
+                             mapping=aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE)
           
           if (draw_psize)
-            g <- g + geom_point(data = df, aes(x=hh, y=gg), 
-                                         size=sw/ratio_psize, color=color_psize, 
-                                         na.rm=TRUE, show.legend=show.legend)
+            g <- g + geom_point(data = df, mapping=aes(x=hh, y=gg), 
+                                size=sw/ratio_psize, color=color_psize, 
+                                na.rm=TRUE, show.legend=show.legend)
             
           if (draw_plabels)
-             g <- g + geom_text(data = df, aes(x=hh, y=gg, label=as.character(sw)),
-                                         color=color_plabel, size=size_plabel, nudge_y=nudge_y, 
-                                         show.legend=show.legend, check_overlap=TRUE)
+             g <- g + geom_text(data = df, mapping=aes(x=hh, y=gg, label=as.character(sw)),
+                                color=color_plabel, size=size_plabel, nudge_y=nudge_y, 
+                                show.legend=show.legend, check_overlap=TRUE)
    
           # Plotting the Model (optional)
           if (! is.null(model))
@@ -290,18 +291,21 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             nhh = length(hh)
             codir = vario$getCodirs(id)
             gg = model$sample(hmax, nhh, iv, jv, codir, asCov=asCov)
-            dfg = data.frame(cbind(hh,gg))
-            g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
+            df = data.frame(cbind(hh,gg))
+            g <- g + geom_line(data = df, 
+            			       mapping=aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
 
             if (iv != jv)
             {
               ggp = model$sample(hmax, nhh, iv, jv, codir, 1)
-              dfg = data.frame(cbind(hh,ggp))
-              g <- g + geom_line(data = dfg, aes(x=hh,y=ggp), color=cols[id+1],
+              df = data.frame(cbind(hh,ggp))
+              g <- g + geom_line(data = df, 
+             					 mapping=aes(x=hh,y=ggp), color=cols[id+1],
                                           linetype = 'twodash', na.rm=TRUE) 
               ggm = model$sample(hmax, nhh, iv, jv, codir,-1)
-              dfm = data.frame(cbind(hh,ggp))
-              g <- g + geom_line(data = dfm, aes(x=hh,y=ggm), color=cols[id+1],
+              df = data.frame(cbind(hh,ggp))
+              g <- g + geom_line(data = df, 
+              					 mapping=aes(x=hh,y=ggm), color=cols[id+1],
                                           linetype = 'twodash', na.rm=TRUE) 
             }
           } 
@@ -325,153 +329,142 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 }
 setMethod("plot", signature(x="_p_Vario"), function(x,y,...) plot.varmod(x,...))
 
-read.pointCoor <- function(db)
+readPointCoor <- function(db)
 {
-  xtab = db$getCoordinates(0,TRUE)
-  ytab = db$getCoordinates(1,TRUE)
-  df = data.frame(xtab,ytab)
+  x = db$getCoordinates(0,TRUE)
+  y = db$getCoordinates(1,TRUE)
+  df = data.frame(x,y)
+  df
+}
+
+readGridCoor <- function(dbgrid, name, usesel)
+{
+  x = dbgrid$getColumnByLocator(ELoc_X(),0, FALSE, FALSE)
+  y = dbgrid$getColumnByLocator(ELoc_X(),1, FALSE, FALSE)
+  data = dbgrid$getColumn(name, usesel, FALSE)
+  if (length(data) != length(x))
+  {
+    cat("Variable",name,"does not exist or does not have correction dimension\n")
+    stop()
+  }
+  df = data.frame(x,y,data)
   df
 }
 
 # Function for plotting a point data base, with optional color and size variables
-plot.pointSymbol <- function(p, db, color_name=NULL, size_name=NULL,
-                      		 color0='red', size0=0.2, 
-                      		 sizmin=10, sizmax=100, flagAbsSize = FALSE, 
-                      		 show.legend.color=FALSE, legend.name.color = "P-Color", 
-                      		 show.legend.size=FALSE,  legend.name.size="P-Size", 
+plot.pointSymbol <- function(db, name_color=NULL, name_size=NULL,
+                      		 sizmin=10, sizmax=100, flagAbsSize = FALSE,
                       		 ...) 
 {  
   # Creating the necessary data frame
-  df = read.pointCoor(db)
-  np = dim(df)[2]
-    
+  df = readPointCoor(db)
+   
   # Color of symbol
-  if (! is.null(color_name)) {
-    colval  = db$getColumn(color_name)
-  } else {
-    colval = rep(color0,np)
+  colval = NULL
+  if (! is.null(name_color)) {
+    colval  = db$getColumn(name_color)
   }
-
+  df["colval"] = colval 
 
   # Size of symbol
-  if (! is.null(size_name)) {
+  sizval = NULL
+  if (! is.null(name_size)) {
   	reduction = 100
-    sizval  = db$getColumn(size_name)
+    sizval  = db$getColumn(name_size)
     if (flagAbsSize) sizval = abs(sizval)
     m = min(sizval,na.rm=TRUE)
     M = max(sizval,na.rm=TRUE)
     sizval = (sizmax * (sizval - m) / (M-m) + sizmin) / reduction
-  } else {
-    sizval = rep(size0,np)
   }
+  df["sizval"] = sizval
 
-  p <- p + geom_point(data = df, aes(x=xtab,y=ytab), color=colval, size=sizval,
-                      na.rm=TRUE)
-  
-  if (show.legend.color && ! is.null(color_name)) {
-  	p <- p + guides(color = guide_legend(title = legend.name.color))
-  } else {
- 	p <- p + guides(color = "none")
-  }
-    
-  if (show.legend.size && ! is.null(size_name)) {
-	p <- p + guides(size = guide_legend(title = legend.name.size))
-  } else {
-   	p <- p + guides(size = "none")
-  }
-  
-  p
+  layer <- geom_point(data = df, 
+  		   mapping = aes(x=x, y=y, color=colval, size=sizval), 
+  		   na.rm=TRUE, ...)
+  layer
 }
 
 # Function for plotting a point data base, with optional color and size variables
-plot.pointLabel <- function(p, db, label_name=NULL,
-                  	  	    color="black", nudge_y=0.1, label_round=2,
-                   	 		show.legend=FALSE, legend.name.label = "P-Label", ...) 
+plot.pointLabel <- function(db, name, digit=2, ...) 
 {  
   # Creating the necessary data frame
-  df = read.pointCoor(db)
-  np = dim(df)[2]
+  df = readPointCoor(db)
     
   # Label of symbols
-  labval  = round(db$getColumn(label_name,TRUE),label_round)
+  labval  = round(db$getColumn(name,TRUE),digit)
+  df["labval"] = as.character(labval)
   
-  p <- p + geom_text(data = df, aes(x=xtab, y=ytab), label=as.character(labval),
-            		   nudge_y = nudge_y, color=color, check_overlap=TRUE)
+  layer <- geom_text(data = df, 
+           mapping=aes(x=x, y=y, label=labval), ...)
                
-  if (show.legend) {
-      p <- p + guides(label = guide_legend(title = legend.name.label))
-  } else {
-      p <- p + guides(label = "none")
-  }
-  p
+  layer
 }
 
 # Function for plotting a point data base, with optional color and size variables
-plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
-                       color0='red', 
-                       size0=0.2, sizmin=10, sizmax=100, flagAbsSize = FALSE,  
-                       color_label="black", nudge_y=0.1, label_round=2,
-                       show.legend.color=FALSE, legend.name.color="P-Color",
-                       show.legend.size=FALSE,  legend.name.size="P-Size",
+plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
+                       sizmin=10, sizmax=100, flagAbsSize = FALSE,  
+                       color_label="black", nudge_y=0.1, digit_label=2,
+                       show.legend.symbol=FALSE, legend.name.color="P-Color",
+                       legend.name.size="P-Size",
                        show.legend.label=FALSE, legend.name.label="P-Label",
+                       show.title = FALSE, flag.title.center=TRUE,
                        padd = NULL, ...) 
 { 
   p <- getFigure(padd)
+  title = ""
   
-  if (! is.null(color_name) || ! is.null(size_name))
-	  p <- p + plot.pointSymbol(p, db, color_name=color_name, size_name=size_name,
-                      	  		color0=color0, size0=size0, 
+  if (! is.null(name_color) || ! is.null(name_size))
+  {
+	  p <- p + plot.pointSymbol(db, name_color=name_color, name_size=name_size,
                       			sizmin=sizmin, sizmax=sizmax, flagAbsSize = flagAbsSize, 
-                      			show.legend.symbol=show.legend.symbol, 
-                      			legend.name.color = legend.name.color,
-                      			legend.name.size = legend.name.size, ...)
+                      			show.legend = show.legend.symbol,
+                      			...)
+ 	  
+	  if (! is.null(name_color))
+	 	  title = paste(title, name_color)
+	  if (! is.null(name_size))
+	  	  title = paste(title, name_size)
+	  	  
+      if (show.legend.symbol)
+      {
+	    if (! is.null(name_color))
+		  p <- p + labs(color = legend.name.color)
+	  	if (! is.null(name_size))
+   		  p <- p + labs(size = legend.name.size)
+   	  }
+  }
   
-  if (! is.null(label_name)) 
-  	p <- p + plot.pointLabel(p, db, label_name=label_name,
-                    	     color=color_label, nudge_y=nudge_y, label_round=label_round,
-                      	   	 show.legend=show.legend.label, ...) 
+  if (! is.null(name_label))
+  {
+  	p <- p + plot.pointLabel(db, name=name_label,
+                    	     color=color_label, nudge_y=nudge_y, digit=digit_label,
+                      	   	 show.legend = show.legend.label, ...)
+                      	   	 
+   	title = paste(title, name_label)
+    
+    if (show.legend.label)            
+    	p <- p + labs(label = legend.name.label)
+  }
+  
+  # Decoration
+  if (show.title)
+  {
+	  p <- p + labs(title = title)
+	  if (flag.title.center)
+	  	p <- p + theme(plot.title = element_text(hjust = 0.5))
+  }
   p
 }
 
-#
-# Function for plotting a variable (referred by its name) informed in a grid Db
-#
-# option Indicates the color map (from "A", "B", "C", "D", "E", "F", "G", "H")
-plot.grid <- function(dbgrid, name=NULL, na.color = "white", 
-      option="B", zlim = NULL, useSel = TRUE,
-      show.legend=TRUE, legend.name="", padd=NULL)
+plot.gridRaster <- function(dbgrid, name, usesel = TRUE, ...)
 {
-  if (! dbgrid$isGrid())
-  {
-    cat("This function is restricted to Grid Db and cannot be used here")
-    stop()
-  }
-
-  if (is.null(name))
-  {
-    if (dbgrid$getLocatorNumber(ELoc_Z()) > 0) 
-      name = dbgrid$getNameByLocator(ELoc_Z())
-    else
-      name = dbgrid$getLastName()
-  }
-
-  # Building the necessary data frame
-  x = dbgrid$getColumnByLocator(ELoc_X(),0, FALSE, FALSE)
-  y = dbgrid$getColumnByLocator(ELoc_X(),1, FALSE, FALSE)
-  data = dbgrid$getColumn(name, useSel, FALSE)
-  if (length(data) <= 0)
-  {
-    cat("Variable",name,"does not exist\n")
-    stop()
-  }
-  
-  p <- getFigure(padd)
+  # Reading the Grid information
+  df = readGridCoor(dbgrid, name, usesel)
   
   # Define the contents
   if (dbgrid$getAngles()[1] == 0)
   {
-    df = data.frame(x,y,data)
-  	p <- p + geom_tile(data = df, aes(x = x, y = y, fill = data))
+  	layer <- geom_tile(data = df, mapping=aes(x = x, y = y, fill = data), ...)
   }
   else
   {
@@ -480,18 +473,79 @@ plot.grid <- function(dbgrid, name=NULL, na.color = "white",
     positions = data.frame(id = rep(ids, each=4),x=coords[[1]],y=coords[[2]])
     values = data.frame(id = ids, value = data)
     df <- merge(values, positions, by = c("id"))
-    p <- p + geom_polygon(data = df, aes(x = x, y = y, fill = value, group = id))
+    layer <- geom_polygon(data = df, mapping=aes(x = x, y = y, fill = value, group = id), ...)
+  }
+  layer
+}
+
+plot.gridContour <- function(dbgrid, name, usesel = TRUE, ...)
+{
+  # Reading the Grid information
+  df = readGridCoor(dbgrid, name, usesel)
+  
+  layer <- geom_contour(data = df, mapping=aes(x = x, y = y, z = data), ...)
+
+  layer
+}
+
+#
+# Function for plotting a variable informed in a grid Db
+#
+plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
+					  usesel = TRUE, 
+    				  option="B", na.color = "white", zlim = NULL, 
+    				  bins = 10, line.color="black",
+      				  show.legend.raster=FALSE, legend.name.raster="G-Raster", 
+      				  show.legend.contour=FALSE, legend.name.contour="G-contour", 
+      				  show.title = FALSE, flag.title.center=TRUE,
+      				  padd=NULL, ...)
+{
+  if (! dbgrid$isGrid())
+  {
+    cat("This function is restricted to Grid Db and cannot be used here\n")
+    stop()
+  }
+
+  p <- getFigure(padd)
+  title = ""
+  
+  # Raster representation
+   
+  if (! is.null(name_raster))
+  {
+  	p = p + plot.gridRaster(dbgrid, name=name_raster, usesel=usesel,
+      				 		show.legend = show.legend.raster, ...)
+ 
+  	p <- p + scale_color_viridis_c(option = option, na.value = na.color, limits=zlim)
+  
+  	title = paste(title,name_raster)
+  	
+  	if (show.legend.raster)
+	  	p <- p + guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))
   }
   
-  # Define the color scale
-  p = p + scale_fill_viridis_c(option = option, na.value = na.color, limits=zlim)
+  # Contour representation
   
-  if (show.legend) {
-    p <- p + guides(fill = guide_colorbar(title=legend.name, reverse=FALSE))
-  } else {
-    p <- p + guides(fill = "none")
+  if (! is.null(name_contour))
+  {
+  	p = p + plot.gridContour(dbgrid, name=name_contour, usesel=usesel,
+ 						     bins=bins, color=line.color,
+  							 show.legend=show.legend.contour, ...)
+  						
+  	title = paste(title, name_contour)
+  		 
+ 	if (show.legend.contour)
+	  	p <- p + labs(legend.name.contour)
+  }  
+  
+  # Decoration
+  if (show.title)
+  {
+	  p <- p + labs(title = title)
+	  if (flag.title.center)
+	  	p <- p + theme(plot.title = element_text(hjust = 0.5))
   }
-       
+  
   p
 }
 
@@ -503,7 +557,6 @@ plot.db <- function(db, padd=NULL, ...)
     p = plot.point(db, padd=padd, ...)
   p
 }
-
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)
@@ -516,10 +569,10 @@ plot.polygon <- function(poly, color="black", fill=NA, padd = NULL)
   
   for (ipol in 1:npol)
   {
-    xtab = poly$getX(ipol-1)
-    ytab = poly$getY(ipol-1)
-    rp = data.frame(xtab, ytab)
-    p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), color=color, fill=fill)
+    x = poly$getX(ipol-1)
+    y = poly$getY(ipol-1)
+    df = data.frame(x, y)
+    p <- p + geom_polygon(data = df, mapping=aes(x=x,y=y), color=color, fill=fill)
   }  
   
   p
@@ -530,12 +583,12 @@ setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.pol
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow', padd = NULL)
 {
   val  = db$getColumn(name)
-  rp = data.frame(val)
+  df = data.frame(val)
     
   p <- getFigure(padd)
      
-  p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill,
-                                   na.rm=TRUE) 
+  p <- p + geom_histogram(data=df, 
+  				mapping=aes(x=val), bins=nbins, color=col, fill=fill, na.rm=TRUE) 
   
   p
 }
@@ -543,11 +596,12 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow', padd = NULL
 # Function for plotting histogram for a table of values
 plot.hist_tab <- function(val, nbins=30, padd=FALSE)
 {
-  rp = data.frame(val)
+  df = data.frame(val)
   
   p <- getFigure(padd)
      
-  p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
+  p <- p + geom_histogram(data = df, 
+  						  mapping=aes(x=val), bins=nbins, color='grey', fill='yellow') 
 
   p
 }
@@ -557,43 +611,44 @@ plot.curve <- function(data, color="black", padd=NULL)
 {
   nbpoint = length(data)
   absc = seq(1,nbpoint)
-  rp = data.frame(absc,data)
+  df = data.frame(absc,data)
   
   p <- getFigure(padd)
     
-  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
+  p <- p + geom_line(data = df, 
+  					 mapping=aes(x=absc,y=data), color=color, na.rm=TRUE)
   
   p
 }
 
 # Function for representing a line between points provided as arguments
-plot.XY <-function(xtab, ytab, join=TRUE,
+plot.XY <-function(x, y, join=TRUE,
                    color="black", linetype="solid", shape=20,
                    flagDiag = FALSE, 
                    diag_color = "red", diag_line = "solid", padd=NULL)
 {
-  if (length(ytab) != length(xtab))
+  if (length(y) != length(x))
   {
-    cat("Arrays 'xtab' and 'ytab' should have same dimensions")
+    cat("Arrays 'x' and 'y' should have same dimensions")
     stop()
   }
-  rp = data.frame(xtab, ytab)
+  df = data.frame(x, y)
 
   p <- getFigure(padd)
      
   if (flagDiag)
   {
-    u = min(xtab, ytab, na.rm=TRUE)
-    v = max(xtab, ytab, na.rm=TRUE)
+    u = min(x, y, na.rm=TRUE)
+    v = max(x, y, na.rm=TRUE)
     p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
                           linetype = diag_line, color = diag_color, na.rm=TRUE)
   }
   
   if (join)
-    p <- p + geom_line(data = rp, aes(x=xtab,y=ytab), 
+    p <- p + geom_line(data = df, mapping=aes(x=x,y=y), 
    		               linetype = linetype, color=color, na.rm=TRUE)
   else 
-    p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
+    p <- p + geom_point(data = df, mapping=aes(x=x,y=y), 
                         shape=shape, color=color, na.rm=TRUE)
   
   p
@@ -616,14 +671,14 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
 }
 
 # Function for representing a scatter plot
-plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=FALSE,
+plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
 							 flagDiag = FALSE,
                              color="black", linetype = "solid",
                              diag_color = "red", diag_line = "solid", padd=NULL)
 {
   if (is.null(db2)) db2 = db1
-  val1 = db1$getColumn(name1, useSel)
-  val2 = db2$getColumn(name2, useSel)
+  val1 = db1$getColumn(name1, usesel)
+  val2 = db2$getColumn(name2, usesel)
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
               color = color, linetype = linetype, 
               diag_color = diag_color, diag_line = diag_line, padd=padd)
@@ -654,8 +709,8 @@ plot.rule <- function(rule, proportions=NULL, padd=NULL)
   
   p <- getFigure(padd)
      
-  p <- p + geom_rect(data = df, aes(xmin = xmin, xmax = xmax, 
-                              ymin = ymin, ymax = ymax, fill = colors))
+  p <- p + geom_rect(data = df, mapping=aes(xmin = xmin, xmax = xmax, 
+                     ymin = ymin, ymax = ymax, fill = colors))
   
   p
 }
@@ -675,15 +730,14 @@ plot.mesh <- function(mesh,
   nmesh = mesh$getNMeshes()
   for (imesh in 1:nmesh)
   {
-    xtab = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
-    ytab = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
-    rp = data.frame(xtab, ytab)
-    p <- p + geom_polygon(data = rp, aes(x=xtab,y=ytab), 
-                                   linewidth=linewidth, 
-                                   fill=facecolor, 
-                                   color=edgecolor, show.legend=show.legend)
+    x = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
+    y = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
+    df = data.frame(x, y)
+    p <- p + geom_polygon(data = df, mapping=aes(x=x,y=y), 
+                          linewidth=linewidth, fill=facecolor, 
+                          color=edgecolor, show.legend=show.legend)
   if (flagApex)
-    p <- p + geom_point(data = rp, aes(x=xtab, y=ytab))
+    p <- p + geom_point(data = df, mapping=aes(x=x, y=y))
   }  
   
   p

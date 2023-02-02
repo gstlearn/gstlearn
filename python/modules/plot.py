@@ -14,21 +14,21 @@ from plotly.matplotlylib     import mpltools
 import math
 
 #Set of global values
-default_size = [[8,8], [8,8]]
+default_dims = [[8,8], [8,8]]
 default_xlim = [ None, None ]
 default_ylim = [ None, None ]
 default_sameLim = [ False, False ]
 default_aspect = [ 'auto', 1 ]
 
-def setDefault(icas, size=None, xlim=None, ylim=None, sameLim=None, aspect=None):
-    global default_size
+def setDefault(icas, dims=None, xlim=None, ylim=None, sameLim=None, aspect=None):
+    global default_dims
     global default_xlim
     global default_ylim
     global default_sameLim
     global default_aspect
         
-    if size is not None:
-        default_size[icas] = size
+    if dims is not None:
+        default_dims[icas] = dims
     if xlim is not None:
         default_xlim[icas] = xlim
     if ylim is not None:
@@ -45,8 +45,8 @@ def printDefault():
         else:
             print("Geographical defaults:")
             
-        if default_size[icas] is not None:
-             print("- Figure size =", default_size[icas])
+        if default_dims[icas] is not None:
+             print("- Figure dimensions =", default_dims[icas])
         if default_xlim[icas] is not None:
             print("- Limits along X =",default_xlim[icas])
         if default_ylim[icas] is not None:
@@ -122,13 +122,13 @@ def is_array(tab, ndim=None):
     
     return True
 
-def geometry(ax, icas, size=None, xlim=None, ylim=None, aspect=None, sameLim=None):
+def geometry(ax, icas, dims=None, xlim=None, ylim=None, aspect=None, sameLim=None):
     '''
     Set the default values for the geometrical parameters for one or a set of Axes
     
     ax: Sepcifies the target Axes or set of Axes
     icas: 0 for Non-geographical or 1 for Geographical default parameters
-    size: Extension of graphic Axes
+    dims: Extension of graphic Axes
     xlim: Range of values along the X-axis
     ylim: Range of values along the Y-axis
     aspect: Y/X ratio
@@ -136,18 +136,18 @@ def geometry(ax, icas, size=None, xlim=None, ylim=None, aspect=None, sameLim=Non
     
     Remark: When 'ax' designates a set of Axes, parameters are applied to all of them.
     '''
-    if size is None:
-        size = default_size[icas]
-    if size is not None:
-        if is_array(size, 2):
+    if dims is None:
+        dims = default_dims[icas]
+    if dims is not None:
+        if is_array(dims, 2):
             if is_array(ax, 2):
                 for ix in range(ax.shape[0]):
                     for iy in range(ax.shape[1]):
-                        ax[ix,iy].figure.set_size_inches(size[0], size[1])
+                        ax[ix,iy].figure.set_size_inches(dims[0], dims[1])
             else:
-                ax.figure.set_size_inches(size[0], size[1])
+                ax.figure.set_size_inches(dims[0], dims[1])
         else:
-            print("'size' should be [a,b]. Ignored")
+            print("'dims' should be [a,b]. Ignored")
         
     if sameLim is None:
         sameLim = default_sameLim[icas]
