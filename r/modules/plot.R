@@ -743,5 +743,3 @@ plot.mesh <- function(mesh,
   p
 }
 setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...) plot.mesh(x,...))
-
-#setMethod('decoration', 'ggplot', plot.decoration)

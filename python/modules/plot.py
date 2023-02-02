@@ -172,9 +172,9 @@ def geometry(ax, icas, dims=None, xlim=None, ylim=None, aspect=None, sameLim=Non
             if is_array(ax, 2):
                 for ix in range(ax.shape[0]):
                     for iy in range(ax.shape[1]):
-                        ax[ix,iy].set_ylim(left = ylim[0], right = ylim[1])
+                        ax[ix,iy].set_ylim(bottom = ylim[0], top = ylim[1])
             else:
-                ax.set_ylim(left = ylim[0], right = ylim[1])
+                ax.set_ylim(bottom = ylim[0], top = ylim[1])
         else:
            print("'ylim' should be [a,b] or [None,b] or [a,None]. Ignored")
         
@@ -621,7 +621,7 @@ def readCoorPoint(db, coorX_name=None, coorY_name=None,
     
     return tabx, taby
     
-def pointSymbol(ax=None, db=None, color_name=None, size_name=None, 
+def pointSymbol(ax=None, db=None, name_color=None, name_size=None, 
                 coorX_name=None, coorY_name=None, usesel=True, 
                 c='r', s=20, sizmin=10, sizmax=200, 
                 directColor=False, flagAbsSize=False,
@@ -630,15 +630,15 @@ def pointSymbol(ax=None, db=None, color_name=None, size_name=None,
     Plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
-    color_name: Name of the variable containing the color per sample
-    size_name: Name of the variable containing the size per sample
+    name_color: Name of the variable containing the color per sample
+    name_size: Name of the variable containing the size per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    c: Constant color (used if 'color_name' is not defined)
-    s: Constant size (used if 'size_name' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'size_name' is defined)
-    sizmax: Size corresponding to the largest value (used if 'size_name' is defined)
+    c: Constant color (used if 'name_color' is not defined)
+    s: Constant size (used if 'name_size' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
+    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     directColor: True if the value of the field directly indicates the Rank in the Color Scale
     flagAbsSize: Represent the Absolute value in Size representation
     flagLegend: Flag for representing the Legend 
@@ -656,8 +656,8 @@ def pointSymbol(ax=None, db=None, color_name=None, size_name=None,
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
     
     # Color of symbol
-    if color_name is not None:
-        colval = getDefinedValues(db, color_name, 0, 1, None, usesel, 
+    if name_color is not None:
+        colval = getDefinedValues(db, name_color, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
         if (directColor and cmap is not None):
@@ -667,8 +667,8 @@ def pointSymbol(ax=None, db=None, color_name=None, size_name=None,
         colval = c
 
     # Size of symbol
-    if size_name is not None:
-        sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, 
+    if name_size is not None:
+        sizval = getDefinedValues(db, name_size, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
         if flagAbsSize:
@@ -682,10 +682,10 @@ def pointSymbol(ax=None, db=None, color_name=None, size_name=None,
     im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
 
     if flagLegend:
-        if color_name is not None:
+        if name_color is not None:
             addColorbar(im, ax)
     
-        if size_name is not None:
+        if name_size is not None:
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
             ax.legend(*im.legend_elements("sizes", num=5, color=cmap, func=labels))
          
@@ -701,7 +701,7 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    flagLegend: Flag for representing the Color Bar (only if color_name is defined)
+    flagLegend: Flag for representing the Color Bar 
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -798,7 +798,7 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
     return im
 
 def point(db, 
-          color_name=None, size_name=None, label_name=None,
+          name_color=None, name_size=None, name_label=None,
           coorX_name=None, coorY_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, cmap=None,
           directColor=False, flagAbsSize=False,
@@ -810,16 +810,16 @@ def point(db,
     Plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
-    color_name: Name of the variable containing the color per sample
-    size_name: Name of the variable containing the size per sample
-    label_name: Name of the variable containing the label per sample
+    name_color: Name of the variable containing the color per sample
+    name_size: Name of the variable containing the size per sample
+    name_label: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    color: Constant color (used if 'color_name' is not defined)
-    size: Constant size (used if 'size_name' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'size_name' is defined)
-    sizmax: Size corresponding to the largest value (used if 'size_name' is defined)
+    color: Constant color (used if 'name_color' is not defined)
+    size: Constant size (used if 'name_size' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
+    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     directColor: True if the value of the field directly indicates the Rank in the Color Scale
     flagAbsSize: Represent the Absolute value in Size representation
     cmap: Optional Color scale
@@ -829,8 +829,8 @@ def point(db,
     flagTangent: Draw Tangent (if Tangents are defined)
     colorTangent: Color attached to the Gradient representation
     scaleTangent: Scale of the Gradient representation
-    flagLegendSymbol: Flag for representing the Color Bar (only if color_name is defined)
-    flagLegendLabel: Flag for representing the Legend for marker size (only if size_name is defined)
+    flagLegendSymbol: Flag for representing the Color Bar (only if name_color is defined)
+    flagLegendLabel: Flag for representing the Legend for marker size (only if name_size is defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
 
@@ -838,16 +838,24 @@ def point(db,
     '''
     ax = getNewAxes(ax)
     
-    if (color_name is not None) or (size_name is not None):
-        pt = pointSymbol(ax, db, color_name=color_name, size_name=size_name, 
+    # If no variable is defined, use the default variable for Symbol(size) representation
+    # The default variable is the first Z-locator one, or the last variable in the file
+    if (name_color is None) and (name_size is None) and (name_label is None):
+        if db.getVariableNumber() > 0:
+            name_sizer = db.getNameByLocator(gl.ELoc.Z,0)
+        else : # if no Z locator, choose the last field
+            name_size = db.getLastName()
+
+    if (name_color is not None) or (name_size is not None):
+        pt = pointSymbol(ax, db, name_color=name_color, name_size=name_size, 
                          coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
                          directColor=directColor, flagAbsSize=flagAbsSize,
                          cmap=cmap, flagLegend=flagLegendSymbol, posX=posX, posY=posY, 
                          **kwargs)
     
-    if label_name is not None:
-        tx = pointLabel(ax, db, name=label_name, 
+    if name_label is not None:
+        tx = pointLabel(ax, db, name=name_label, 
                         coorX_name=coorX_name, coorY_name=coorY_name, 
                         usesel=usesel, flagLegend=flagLegendLabel,
                         posX=posX, posY=posY, **kwargs)
@@ -887,12 +895,12 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
             
     return ax
     
-def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
-            colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
+def polygon(poly, facecolor='yellow', edgecolor = 'blue', 
+            colorPerSet = False, flagEdge=True, flagFace=False, 
             ax=None,**fill_args):
     '''
     Display a polygon
-    **fill_args: arguments passed to ax.fill
+    **fill_args: arguments passed to matplotlib.fill
     '''
     ax = getNewAxes(ax)
     
@@ -903,20 +911,20 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
         x = poly.getX(ipol)
         y = poly.getY(ipol)
         
-        faceColor_local = 'none'
+        facecolor_local = 'none'
         if flagFace:
-            faceColor_local = faceColor
+            facecolor_local = facecolor
             if colorPerSet:
-                faceColor_local = cols(ipol)
+                facecolor_local = cols(ipol)
                 
-        edgeColor_local = 'none'
+        edgecolor_local = 'none'
         if flagEdge:
-            edgeColor_local = edgeColor
+            edgecolor_local = edgecolor
             if colorPerSet:
-                edgeColor_local = cols(ipol)
+                edgecolor_local = cols(ipol)
 
-        ax.fill(x, y, facecolor=faceColor_local, edgecolor=edgeColor_local,
-                linewidth=linewidth, **fill_args)
+        ax.fill(x, y, facecolor=facecolor_local, edgecolor=edgecolor_local,
+                **fill_args)
         
     return ax
 
@@ -990,6 +998,7 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
+    levels: Vector of isovalues to be represented
     flagLegend: Flag for representing the Color Bar (not represented if alpha=0)
     ax: Reference for the plot within the figure
     
@@ -1015,15 +1024,16 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
         
     return res
 
-def grid(dbgrid, name = None, usesel = True, 
+def grid(dbgrid, name_raster = None, name_contour = None, usesel = True, 
          posx=0, posy=1, corner=None, 
          flagLegendColor=True, flagLegendContour=True,
-         levels=None, flagRaster=True, ax=None, **kwargs):
+         levels=None, ax=None, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: DbGrid containing the variable to be plotted
-    name: Name of the variable to be represented (by default, the first Z locator, or the last field)
+    name_raster: Name of the variable to be represented as raster
+    name_contour: Name of the variable tp be represented as contours
     usesel : Boolean to indicate if the selection has to be considered
     flagLegendColor: Flag for representing the Color Bar (not represented if alpha=0)
     **pcolormesh_args : arguments passed to matplotlib.pyplot.pcolormesh
@@ -1032,24 +1042,26 @@ def grid(dbgrid, name = None, usesel = True,
         print("This function is dedicated to Grid Db and cannot be used here")
         return None;
     
-    if name is None:
-        if dbgrid.getVariableNumber() > 0:
-            name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
-        else : # if no Z locator, choose the last field
-            name = dbgrid.getLastName()
-    
     ax = getNewAxes(ax)
     
-    if flagRaster:
-        im = gridRaster(ax, dbgrid = dbgrid, name = name, usesel = usesel,  
+    # If no variable is defined, use the default variable for Raster representation
+    # The default variable is the first Z-locator one, or the last variable in the file
+    if (name_raster is None) and (name_contour is None):
+        if dbgrid.getVariableNumber() > 0:
+            name_raster = dbgrid.getNameByLocator(gl.ELoc.Z,0)
+        else : # if no Z locator, choose the last field
+            name_raster = dbgrid.getLastName()
+
+    if name_raster is not None:
+        im = gridRaster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
                         posx=posx, posy=posy, corner=corner, 
                         flagLegend=flagLegendColor,
                         **kwargs)
     
-    if levels is not None:
-        ct = gridContour(ax, dbgrid = dbgrid, name = name, usesel = usesel, 
-                         posx=posx, posy=posy, corner=corner, 
-                         levels=levels, flagLegend=flagLegendContour, 
+    if name_contour is not None:
+        ct = gridContour(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
+                         posx=posx, posy=posy, corner=corner, levels=levels, 
+                         flagLegend=flagLegendContour, 
                          **kwargs)
     
     return ax
@@ -1099,17 +1111,12 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
         
     return ax
 
-def hist_tab(val, nbins=30, color='yellow', edgecolor='red',
-             ax = None, **hist_args):
+def hist_tab(val, ax = None, **hist_args):
     '''
     Plotting the histogram of an array (argument 'val')
     
     hist_args : arguments passed to matplotlib.pyplot.hist
     '''
-    color     = hist_args.setdefault("color", color)
-    edgecolor = hist_args.setdefault("edgecolor", edgecolor)
-    bins      = hist_args.setdefault("bins", nbins)
-    
     ax = getNewAxes(ax)
         
     ax.hist(val, **hist_args)
@@ -1371,14 +1378,16 @@ def mesh(mesh,
 
     return ax
 
-def correlation(db, namex, namey, db2=None, bins=50, usesel=True, 
+def correlation(db, namex, namey, db2=None, usesel=True, 
                 asPoint = False, flagAxisLabel = True,
                 diagLine=False, diagColor="black", diagLineStyle='-',
                 bissLine=False, bissColor="red", bissLineStyle='-',
                 regrLine=False, regrColor="blue", regrLineStyle='-',
-                ax=None):
+                ax=None, **plot_args):
     '''
     Plotting the scatter plot between two variables contained in a Db
+    
+    plot_args: additional arguments used in hist2d
     '''
     ax = getNewAxes(ax)
         
@@ -1403,7 +1412,7 @@ def correlation(db, namex, namey, db2=None, bins=50, usesel=True,
     if asPoint:
         ax.scatter(tabx, taby)
     else:
-        ax.hist2d(tabx, taby, bins, cmin=1)
+        ax.hist2d(tabx, taby, **plot_args)
 
     if diagLine:
         u=[xmin, xmax]
@@ -1749,8 +1758,8 @@ setattr(gl.Table,"plot", gp.table)
 
 setattr(gl.Polygons,"plot", gp.polygon)
 
-setattr(plt.Axes, "decoration", gp.decoration)
-setattr(plt.Axes, "geometry", gp.geometry)
+setattr(plt.Axes, "decoration",    gp.decoration)
+setattr(plt.Axes, "geometry",      gp.geometry)
 
 setattr(plt.Axes, "pointSymbol",   gp.pointSymbol)
 setattr(plt.Axes, "pointLabel",    gp.pointLabel)
