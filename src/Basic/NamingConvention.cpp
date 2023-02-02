@@ -323,7 +323,6 @@ void NamingConvention::_setNames(Db *dbout,
 
   int ecr = 0;
   int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
-
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     for (int item = 0; item < nitems; item++)
