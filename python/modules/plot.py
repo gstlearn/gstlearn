@@ -14,7 +14,7 @@ from plotly.matplotlylib     import mpltools
 import math
 
 #Set of global values
-default_dims = [[8,8], [8,8]]
+default_dims = [[5,5], [8,8]]
 default_xlim = [ None, None ]
 default_ylim = [ None, None ]
 default_aspect = [ 'auto', 1 ]
