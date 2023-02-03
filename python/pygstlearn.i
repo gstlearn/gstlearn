@@ -936,7 +936,7 @@ def setdbitem(self,name,tab):
             tab = np.atleast_2d(tab[rows,:])
     else:
         tab = np.copy(np.float64(tab))
-        if len(tab.shape) == 1 :
+        if len(tab.shape) == 1:
             tab = np.atleast_2d(tab).T
         nrows, nvars = tab.shape
     
