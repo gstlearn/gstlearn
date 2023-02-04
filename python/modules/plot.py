@@ -73,7 +73,7 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
+def geometry(ax=None, dims=None, xlim=None, ylim=None, aspect=None):
     '''
     Set the default values for the geometrical parameters for one or a set of Axes
     
@@ -85,9 +85,14 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     
     Remark: When 'ax' designates a set of Axes, parameters are applied to all of them.
     '''
+    
+    if ax is None:
+        print("This method is only available in 'overlay' mode: 'ax' must be provided")
+        return None
+    
     if dims is not None:
         if is_array(dims, 2):
-            if is_array(ax, 2):
+            if type(ax) == np.ndarray:
                 ax[0,0].figure.set_size_inches(dims[0]*ax.shape[0], 
                                                dims[1]*ax.shape[1])
             else:
@@ -97,7 +102,7 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
         
     if xlim is not None:
         if is_array(xlim, 2):
-            if is_array(ax, 2):
+            if type(ax) == np.ndarray:
                 ax[ix,iy].set_xlim(left = xlim[0], right = xlim[1])
             else:
                 ax.set_xlim(left = xlim[0], right = xlim[1])
@@ -106,7 +111,7 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     
     if ylim is not None:
         if is_array(ylim, 2):
-            if is_array(ax, 2):
+            if type(ax) == np.ndarray:
                 for ix in range(ax.shape[0]):
                     for iy in range(ax.shape[1]):
                         ax[ix,iy].set_ylim(bottom = ylim[0], top = ylim[1])
@@ -116,14 +121,14 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
            print("'ylim' should be [a,b] or [None,b] or [a,None]. Ignored")
         
     if aspect is not None:
-        if is_array(ax, 2):
+        if type(ax) == np.ndarray:
             for ix in range(ax.shape[0]):
                 for iy in range(ax.shape[1]):
                     ax[ix,iy].set_aspect(aspect)
         else:
             ax.set_aspect(aspect)
 
-def decoration(ax, xlabel=None, ylabel=None, title=None):
+def decoration(ax=None, xlabel=None, ylabel=None, title=None, **kwargs):
     '''
     Add the decoration to a figure.
     
@@ -135,23 +140,26 @@ def decoration(ax, xlabel=None, ylabel=None, title=None):
     ylabel: label along the vertical axis
     title: title contents (for the main for a collection of Axes)
     '''
+    if ax is None:
+        print("This method is only available in 'overlay' mode: 'ax' must be provided")
+        return None
+
     if title is not None:
-        if is_array(ax, 2):
-            ax[0,0].figure.suptitle(title)
+        if type(ax) == np.ndarray:
+            ax[0,0].figure.suptitle(title, **kwargs)
         else:
-            ax.set_title(title)
+            ax.set_title(title, **kwargs)
 
     if xlabel is not None:
-        if is_array(ax):
+        if type(ax) == np.ndarray:
             print("decoration() cannot be used when 'ax' is an array. Ignored")
         else:
             ax.set_xlabel(xlabel)
     if ylabel is not None:
-        if is_array(ax):
+        if type(ax) == np.ndarray:
             print("decoration() cannot be used when 'ax' is an array. Ignored")
         else:
             ax.set_ylabel(ylabel)
-
 
 def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
@@ -181,6 +189,7 @@ def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
             
             if is_array(ax, 1):
                 ax = ax[0,0]
+                
             # Apply the Global Geometry parameters (when defined)
             geometry(ax,
                      dims = default_dims[mode], 
@@ -438,7 +447,10 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
             if vario.drawOnlyPositiveY(iv, jv):
                 ax.set_ylim(bottom=0)
     
-    return axs
+    if is_array(axs, 1):
+        return axs[0,0]
+    else:
+        return axs
 
 def vario(vario, ivar=0, jvar=0, idir=-0,
           var_color='black', var_linestyle='dashed', hmax=None,  
@@ -621,6 +633,8 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
     
     ax = getNewAxes(ax, 1)
 
+    name = ''
+    
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
     
@@ -629,6 +643,7 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
         colval = getDefinedValues(db, name_color, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
+        name = name + ' ' + name_color
     else:
         colval = c
 
@@ -642,9 +657,13 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
         m = np.nanmin(np.absolute(sizval))
         M = np.nanmax(np.absolute(sizval))
         sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
+        
+        name = name + ' ' + name_size
     else:
         sizval = s
 
+    decoration(ax, title = name)
+    
     res= ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
 
     if flagLegend:
@@ -653,7 +672,7 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
     
         if name_size is not None:
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
-            ax.legend(*res.legend_elements("sizes", num=5, color=cmap, func=labels))
+            ax.legend(*res.legend_elements("sizes", num=5, func=labels))
          
     return res
 
@@ -679,6 +698,8 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     
     ax = getNewAxes(ax, 1)
 
+    decoration(ax, title = dbgrid.getName(name)[0])
+    
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
     
@@ -810,7 +831,7 @@ def point(db,
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_color is None) and (name_size is None) and (name_label is None):
         if db.getVariableNumber() > 0:
-            name_sizer = db.getNameByLocator(gl.ELoc.Z,0)
+            name_size = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name_size = db.getLastName()
 
