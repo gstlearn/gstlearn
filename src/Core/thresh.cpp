@@ -276,8 +276,14 @@ static int st_proportion_define(PropDef *propdef,
 
       /* Load the proportions (into CST) */
 
+      double total = 0.;
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
+      {
         propdef->propfix[ifac] = propdef->dbprop->getProportion(*jech, ifac);
+        total += propdef->propfix[ifac];
+      }
+      // Discard case where the proportions are not available
+      if (total <= 0.) return 1;
     }
     else
     {

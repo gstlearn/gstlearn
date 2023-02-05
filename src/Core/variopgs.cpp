@@ -487,27 +487,23 @@ static void st_set_bounds(Db *db,
   int jfac;
   if (!TEST_DISCRET)
   {
-    jfac = (flag_one) ? 0 :
-                        ifac;
+    jfac = (flag_one) ? 0 : ifac;
     db->setBounds(iech, jfac, t1min, t1max);
     if (ngrf > 1)
     {
-      jfac = (flag_one) ? 1 :
-                          nfacies + ifac;
+      jfac = (flag_one) ? 1 : nfacies + ifac;
       db->setBounds(iech, jfac, t2min, t2max);
     }
   }
   else
   {
-    jfac = (flag_one) ? 0 :
-                        ifac;
+    jfac = (flag_one) ? 0 :  ifac;
     db->setIntervals(iech, jfac,
                      (double) ct_tableone_getrank_from_proba(CTABLES, t1min),
                      (double) ct_tableone_getrank_from_proba(CTABLES, t1max));
     if (ngrf > 1)
     {
-      jfac = (flag_one) ? 1 :
-                          nfacies + ifac;
+      jfac = (flag_one) ? 1 : nfacies + ifac;
       db->setIntervals(iech, jfac,
                        (double) ct_tableone_getrank_from_proba(CTABLES, t2min),
                        (double) ct_tableone_getrank_from_proba(CTABLES, t2max));
@@ -734,8 +730,7 @@ static int st_vario_pgs_variable(int mode,
 
   // Dispatch
 
-  number = (flag_one) ? ngrf :
-                        ngrf * nfacies;
+  number = (flag_one) ? ngrf : ngrf * nfacies;
   if (db == nullptr) return 0;
   switch (mode)
   {
@@ -776,18 +771,15 @@ static int st_vario_pgs_variable(int mode,
       /* Evaluate the bounds */
       /* Use dummy rho value in order to avoid discarding pairs in geometry */
 
-      nloop = (flag_one) ? 1 :
-                           nfacies;
+      nloop = (flag_one) ? 1 : nfacies;
       for (int iech = 0; iech < db->getSampleNumber(); iech++)
       {
         if (!db->isActive(iech)) continue;
 
         for (int i = 0; i < nloop; i++)
         {
-          ifac = (flag_one) ? (int) db->getVariable(iech, 0) :
-                              i;
-          jfac = (flag_one) ? ifac :
-                              ifac + 1;
+          ifac = (flag_one) ? (int) db->getVariable(iech, 0) : i;
+          jfac = (flag_one) ? ifac : ifac + 1;
           if (rule_thresh_define(propdef, db, rule, jfac, iech, 0, 0, 0, &t1min,
                                  &t1max, &t2min, &t2max)) return (1);
 

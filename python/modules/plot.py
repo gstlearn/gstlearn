@@ -605,7 +605,7 @@ def readCoorPoint(db, coorX_name=None, coorY_name=None,
     
 def pointSymbol(ax=None, db=None, name_color=None, name_size=None, 
                 coorX_name=None, coorY_name=None, usesel=True, 
-                c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False,
+                c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
                 flagLegend=True, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
@@ -622,6 +622,7 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
     sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
     sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
+    flagCst: When True, the size is kept constant (equal to 's')
     flagLegend: Flag for representing the Legend 
     posX: rank of the first coordinate
     posY: rank of the second coordinate
@@ -652,19 +653,23 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
         sizval = getDefinedValues(db, name_size, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
-        if flagAbsSize:
-            sizval = np.absolute(sizval)
-        m = np.nanmin(np.absolute(sizval))
-        M = np.nanmax(np.absolute(sizval))
-        sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
-        
+        if not flagCst:
+            if flagAbsSize:
+                sizval = np.absolute(sizval)
+            m = np.nanmin(np.absolute(sizval))
+            M = np.nanmax(np.absolute(sizval))
+            if M > m:
+                sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
+        else:
+            sizval = s
         name = name + ' ' + name_size
     else:
         sizval = s
 
-    decoration(ax, title = name)
+    if len(ax.get_title()) <= 0:
+        decoration(ax, title = name)
     
-    res= ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
+    res = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
 
     if flagLegend:
         if name_color is not None:
@@ -698,7 +703,8 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     
     ax = getNewAxes(ax, 1)
 
-    decoration(ax, title = dbgrid.getName(name)[0])
+    if len(ax.get_title()) <= 0:
+        decoration(ax, title = db.getName(name)[0])
     
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
@@ -715,7 +721,7 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     return res
 
 def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
-                  **kwargs):
+                  posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a gradient data base
     
@@ -753,7 +759,7 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
     return res
 
 def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
-                 **kwargs):
+                 posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a tangent data base
     
@@ -791,10 +797,10 @@ def point(db,
           name_color=None, name_size=None, name_label=None,
           coorX_name=None, coorY_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, cmap=None,
-          flagAbsSize=False,
+          flagAbsSize=False, flagCst=False,
           flagGradient=False, colorGradient='black', scaleGradient=20,
-          flagTangent=False, color_tangent='black', scale_tangent=20,
-          flagLegendSymbol=True, flagLegendLabel=True,
+          flagTangent=False, colorTangent='black', scaleTangent=20,
+          flagLegendSymbol=False, flagLegendLabel=False,
           posX=0, posY=1, ax=None, **kwargs):
     '''
     Construct a figure for plotting a point data base
@@ -811,6 +817,7 @@ def point(db,
     sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
     sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
+    flagCst: When True, the size is kept constant (equel to 's')
     cmap: Optional Color scale
     flagGradient: Draw Gradient (if Gradients are defined)
     colorGradient: Color attached to the Gradient representation
@@ -834,12 +841,13 @@ def point(db,
             name_size = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name_size = db.getLastName()
+            flagCst = True
 
     if (name_color is not None) or (name_size is not None):
         pt = pointSymbol(ax, db, name_color=name_color, name_size=name_size, 
                          coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
-                         flagAbsSize=flagAbsSize,
+                         flagAbsSize=flagAbsSize, flagCst=flagCst,
                          cmap=cmap, flagLegend=flagLegendSymbol, posX=posX, posY=posY, 
                          **kwargs)
     
@@ -851,11 +859,13 @@ def point(db,
         
     if flagGradient:
         gr = pointGradient(ax, db, coorX_name=coorX_name, coorY_name=coorY_name, 
-                           usesel=usesel, color=colorGradient, scale=scaleGradient)
+                           usesel=usesel, color=colorGradient, scale=scaleGradient,
+                           posX=posX, posY=posY)
 
     if flagTangent:
         tg = pointTangent(ax, db, coorX_name=coorX_name, coorY_name=coorY_name,
-                          usesel=usesel, color=colorTangent, scale=scaleTangent)
+                          usesel=usesel, color=colorTangent, scale=scaleTangent,
+                          posX=posX, posY=posY)
         
     return ax
 
@@ -964,7 +974,8 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
     
     ax = getNewAxes(ax, 1)
         
-    decoration(ax, title = dbgrid.getName(name)[0])
+    if len(ax.get_title()) <= 0:
+        decoration(ax, title = dbgrid.getName(name)[0])
     
     x0, y0, X, Y, data, tr = readGrid(dbgrid, name, usesel, 
                                       posx=posx, posy=posy, corner=corner)
@@ -1004,7 +1015,8 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
     
     ax = getNewAxes(ax, 1)
 
-    ax.decoration(title = dbgrid.getName(name)[0])
+    if len(ax.get_title()) <= 0:
+        ax.decoration(title = dbgrid.getName(name)[0])
     
     x0, y0, X, Y, data, tr = readGrid(dbgrid, name, usesel, 
                                       posx=posx, posy=posy, corner=corner)
@@ -1020,7 +1032,7 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
 
 def grid(dbgrid, name_raster = None, name_contour = None, usesel = True, 
          posx=0, posy=1, corner=None, 
-         flagLegendColor=True, flagLegendContour=True,
+         flagLegendRaster=False, flagLegendContour=False,
          levels=None, ax=None, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
@@ -1049,7 +1061,7 @@ def grid(dbgrid, name_raster = None, name_contour = None, usesel = True,
     if name_raster is not None:
         rs = gridRaster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
                         posx=posx, posy=posy, corner=corner, 
-                        flagLegend=flagLegendColor,
+                        flagLegend=flagLegendRaster,
                         **kwargs)
     
     if name_contour is not None:
@@ -1369,7 +1381,7 @@ def mesh(mesh,
     return ax
 
 def correlation(db, namex, namey, db2=None, usesel=True, 
-                asPoint = False, flagAxisLabel = True,
+                asPoint = False,  flagSameAxes=False,
                 diagLine=False, diagColor="black", diagLineStyle='-',
                 bissLine=False, bissColor="red", bissLineStyle='-',
                 regrLine=False, regrColor="blue", regrLineStyle='-',
@@ -1377,7 +1389,7 @@ def correlation(db, namex, namey, db2=None, usesel=True,
     '''
     Plotting the scatter plot between two variables contained in a Db
     
-    kwargs: additional arguments used in hist2d
+    kwargs: additional arguments used in hist2d or scatter
     '''
     ax = getNewAxes(ax, 0)
         
@@ -1399,10 +1411,17 @@ def correlation(db, namex, namey, db2=None, usesel=True,
     ymin = np.min(taby)
     ymax = np.max(taby)
     
+    range = None
+    if flagSameAxes:
+        mini = min(xmin, ymin)
+        maxi = max(xmax, ymax)
+        range = [[mini,maxi],[mini,maxi]]
+        ax.geometry(xlim=[mini, maxi], ylim=[mini, maxi])
+
     if asPoint:
-        ax.scatter(tabx, taby)
+        ax.scatter(tabx, taby, **kwargs)
     else:
-        ax.hist2d(tabx, taby, **kwargs)
+        ax.hist2d(tabx, taby, range=range, **kwargs)
 
     if diagLine:
         u=[xmin, xmax]
@@ -1425,9 +1444,7 @@ def correlation(db, namex, namey, db2=None, usesel=True,
         v=[a+b*xmin, a+b*xmax]
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
         
-    if flagAxisLabel:
-        ax.decoration(xlabel = db.getName(namex)[0],
-                      ylabel = db.getName(namey)[0])
+    ax.decoration(xlabel = db.getName(namex)[0], ylabel = db.getName(namey)[0])
 
     return ax
 
@@ -1742,7 +1759,14 @@ setattr(gl.Rule,"plot", gp.rule)
 
 setattr(gl.Table,"plot", gp.table)
 
+setattr(gl.Faults,"plot", gp.fault)
+
 setattr(gl.Polygons,"plot", gp.polygon)
+
+setattr(gl.AnamHermite,"plot", gp.anam)
+
+setattr(gl.MeshEStandardExt,"plot", gp.mesh)
+setattr(gl.MeshETurbo,"plot",       gp.mesh)
 
 setattr(plt.Axes, "decoration",    gp.decoration)
 setattr(plt.Axes, "geometry",      gp.geometry)

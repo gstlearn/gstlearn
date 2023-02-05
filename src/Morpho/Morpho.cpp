@@ -291,14 +291,14 @@ VectorDouble morpho_labelling(int option,
 
   if (verbose)
   {
-    message("Labelling: %d\n", total);
     if (nbcomp == 0)
     {
       message("No grain has been detected\n");
     }
     else
     {
-      message("Number of connected components = %d\n\n", nbcomp);
+      message("Number of connected components = %d\n", nbcomp);
+      message("Total connected volume = %d\n",total);
       message("   Component     Number         Total     Cumul (percent)\n");
       ref = sizes[order[nbcomp - 1] - 1];
       count = part_grain = 0;
@@ -1199,9 +1199,7 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
   VectorInt nxy = dbgrid->getNXs();
 
   VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);
-  BImage image2 = BImage(nxy);
   BImage image = morpho_double2image(nxy,tabin,vmin,vmax);
-  VectorDouble tabout = VectorDouble(ntotal);
 
   if (verbose)
   {
@@ -1211,6 +1209,8 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
 
   bool alreadyLoaded = false;
   bool alreadySaved = false;
+  BImage image2 = BImage(nxy);
+  VectorDouble tabout = VectorDouble(ntotal, TEST);
   if (oper == EMorpho::THRESH)
   {
     morpho_duplicate(image, image2);
@@ -1237,19 +1237,13 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
   }
   else if (oper == EMorpho::CC)
   {
-    alreadyLoaded = true;
     tabout = morpho_labelling(0, 0, image, TEST, verbose);
-    int ncomp = (int) tabout.size();
-    if (verbose)
-      message("Number of Connected Components = %d\n",ncomp);
+    alreadyLoaded = true;
   }
   else if (oper == EMorpho::CCSIZE)
   {
     tabout = morpho_labelling(0, 1, image, TEST, verbose);
-    int ncomp = (int) tabout.size();
     alreadyLoaded = true;
-    if (verbose)
-      message("Number of Connected Components = %d\n",ncomp);
   }
   else if (oper == EMorpho::DISTANCE)
   {
@@ -1281,6 +1275,8 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
     morpho_image2double(image2, 0, 1., 0., tabout);
   }
   if (! alreadySaved)
+  {
     dbgrid->setColumnByUID(tabout, iptr0);
+  }
   return 0;
 }

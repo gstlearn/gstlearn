@@ -711,7 +711,8 @@ int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
 
   // Extend to dilated hull (optional)
 
-  if (dilate > 0.)
+
+
   {
     xinit = xret;
     yinit = yret;

@@ -253,7 +253,7 @@ def SurfaceOnDbGrid(grid, name, usesel=False, levels=None,
                              )
     return surfaces
    
-def PointDb(db, color_name=None, size_name=None, usesel=False, 
+def PointDb(db, name_color=None, name_size=None, usesel=False, 
             color='black', size=3, opacity=1,
             posX=0, posY=1, posZ=2,
             **plot_args): 
@@ -271,13 +271,13 @@ def PointDb(db, color_name=None, size_name=None, usesel=False,
     y = db.getCoordinates(posY, usesel)
     z = db.getCoordinates(posZ, usesel)
     
-    if color_name is not None:
-        colors = db.getColumn(color_name, usesel)
+    if name_color is not None:
+        colors = db.getColumn(name_color, usesel)
     else:
         colors = color
     
-    if size_name is not None:
-        sizes = db.getColumn(size_name, usesel)
+    if name_size is not None:
+        sizes = db.getColumn(name_size, usesel)
     else:
         sizes = size
         

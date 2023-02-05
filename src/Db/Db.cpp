@@ -1162,8 +1162,8 @@ int Db::addColumns(const VectorDouble &tab,
   nvar = (int) tab.size() / nech;
   if ((int) tab.size() != nvar * nech)
   {
-    messerr("Db::addColumns : Incompatibility between dimension of 'tab' (%d)", tab.size());
-    messerr("and 'nvar'(%d) * 'nech'(%d)", nvar, nech);
+    messerr("Db::addColumns : Incompatibility between 'tab'(%d) and 'nvar'(%d) * 'nech'(%d)",
+            tab.size(), nvar, nech);
     return 1;
   }
 

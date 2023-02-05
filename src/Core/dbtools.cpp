@@ -6120,13 +6120,14 @@ int db_proportion_estimate(Db *dbin,
   MeshETurbo mesh = MeshETurbo(dbout);
   ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0), EPowerPT::ONE);
-  ProjMatrix Aproj = ProjMatrix(dbin, &mesh);
+  ProjMatrix AprojDat = ProjMatrix(dbin, &mesh);
+  ProjMatrix AprojOut = ProjMatrix(dbout, &mesh);
 
   // Invoke the calculation
 
   VectorDouble propGlob = dbStatisticsFacies(dbin);
   int ncat = static_cast<int>(propGlob.size());
-  OptimCostColored Oc = OptimCostColored(ncat, &Qprop, &Aproj);
+  OptimCostColored Oc = OptimCostColored(ncat, &Qprop, &AprojDat);
   Oc.setCGParams(200, 1.e-10);
 
   VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
@@ -6135,9 +6136,11 @@ int db_proportion_estimate(Db *dbin,
   // Loading the resulting results in the output 'dbout'
 
   int iptr0 = -1;
+  VectorDouble propout(dbout->getSampleNumber(true));
   for (int i = 0; i < ncat; i++)
   {
-    int iptr = dbout->addColumns(props[i],String(),ELoc::UNKNOWN,0,true);
+    AprojOut.mesh2point(props[i],propout);
+    int iptr = dbout->addColumns(propout,String(),ELoc::UNKNOWN,0,true);
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
                                 concatenateStrings("-", toString(i + 1)));
