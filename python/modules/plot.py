@@ -14,48 +14,49 @@ from plotly.matplotlylib     import mpltools
 import math
 
 #Set of global values
-default_size = [[8,8], [8,8]]
+default_dims = [[5,5], [8,8]]
 default_xlim = [ None, None ]
 default_ylim = [ None, None ]
-default_sameLim = [ False, False ]
 default_aspect = [ 'auto', 1 ]
 
-def setDefault(icas, size=None, xlim=None, ylim=None, sameLim=None, aspect=None):
-    global default_size
+def setDefault(mode, dims=None, xlim=None, ylim=None, aspect=None):
+    global default_dims
     global default_xlim
     global default_ylim
-    global default_sameLim
     global default_aspect
         
-    if size is not None:
-        default_size[icas] = size
+    if dims is not None:
+        default_dims[mode] = dims
     if xlim is not None:
-        default_xlim[icas] = xlim
+        default_xlim[mode] = xlim
     if ylim is not None:
-        default_ylim[icas] = ylim
-    if sameLim is not None:
-        default_sameLim[icas] = sameLim
+        default_ylim[mode] = ylim
     if aspect is not None:
-        default_aspect[icas] = aspect
+        default_aspect[mode] = aspect
 
 def printDefault():
-    for icas in range(2):
-        if icas == 0:
+    for mode in range(2):
+        if mode == 0:
             print("Non geographical defaults:")
         else:
             print("Geographical defaults:")
             
-        if default_size[icas] is not None:
-             print("- Figure size =", default_size[icas])
-        if default_xlim[icas] is not None:
-            print("- Limits along X =",default_xlim[icas])
-        if default_ylim[icas] is not None:
-            print("- Limits along Y =",default_ylim[icas])
-        if default_sameLim[icas] is not None:
-            if default_sameLim[icas]:
-                print("- Limits are the same on both axes")
-        if default_aspect[icas] is not None:
-            print("- Aspect =",default_aspect[icas])
+        if default_dims[mode] is not None:
+            print("- Figure dimensions =", default_dims[mode])
+        else:
+            print("- Figure dimensions (not defined)")
+        if default_xlim[mode] is not None:
+            print("- Limits along X =",default_xlim[mode])
+        else:
+            print("- Limits along X (not defined)")
+        if default_ylim[mode] is not None:
+            print("- Limits along Y =",default_ylim[mode])
+        else:
+            print("- Limits along Y (not defined)")
+        if default_aspect[mode] is not None:
+            print("- Aspect =",default_aspect[mode])
+        else:
+            print("- Aspect (not defined)")
         
 def get_cmap(n, name='gist_rainbow'):
     '''
@@ -72,22 +73,120 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def getNewAxes(ax=None, nx=1, ny=1, sharex=False, sharey=False):
+def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
+    '''
+    Set the default values for the geometrical parameters for one or a set of Axes
+    
+    ax: matplotlib.Axes (necessary when used as a method of the class)
+    dims: Extension of graphic Axes
+    xlim: Range of values along the X-axis
+    ylim: Range of values along the Y-axis
+    aspect: Y/X ratio
+    
+    Remark: When 'ax' designates a set of Axes, parameters are applied to all of them.
+    '''
+    if dims is not None:
+        if is_array(dims, 2):
+            if is_array(ax, 2):
+                ax[0,0].figure.set_size_inches(dims[0]*ax.shape[0], 
+                                               dims[1]*ax.shape[1])
+            else:
+                ax.figure.set_size_inches(dims[0], dims[1])
+        else:
+            print("'dims' should be [a,b]. Ignored")
+        
+    if xlim is not None:
+        if is_array(xlim, 2):
+            if is_array(ax, 2):
+                ax[ix,iy].set_xlim(left = xlim[0], right = xlim[1])
+            else:
+                ax.set_xlim(left = xlim[0], right = xlim[1])
+        else:
+            print("'xlim' should be [a,b] or [None,b] or [a,None]. Ignored")
+    
+    if ylim is not None:
+        if is_array(ylim, 2):
+            if is_array(ax, 2):
+                for ix in range(ax.shape[0]):
+                    for iy in range(ax.shape[1]):
+                        ax[ix,iy].set_ylim(bottom = ylim[0], top = ylim[1])
+            else:
+                ax.set_ylim(bottom = ylim[0], top = ylim[1])
+        else:
+           print("'ylim' should be [a,b] or [None,b] or [a,None]. Ignored")
+        
+    if aspect is not None:
+        if is_array(ax, 2):
+            for ix in range(ax.shape[0]):
+                for iy in range(ax.shape[1]):
+                    ax[ix,iy].set_aspect(aspect)
+        else:
+            ax.set_aspect(aspect)
+
+def decoration(ax, xlabel=None, ylabel=None, title=None):
+    '''
+    Add the decoration to a figure.
+    
+    Parameters
+    ----------
+    The procedure depends whether 'ax' is already defined or not.
+    ax: matplotlib.Axes (necessary when used as a method of the class)
+    xlabel: label along the horizontal axis
+    ylabel: label along the vertical axis
+    title: title contents (for the main for a collection of Axes)
+    '''
+    if title is not None:
+        if is_array(ax, 2):
+            ax[0,0].figure.suptitle(title)
+        else:
+            ax.set_title(title)
+
+    if xlabel is not None:
+        if is_array(ax):
+            print("decoration() cannot be used when 'ax' is an array. Ignored")
+        else:
+            ax.set_xlabel(xlabel)
+    if ylabel is not None:
+        if is_array(ax):
+            print("decoration() cannot be used when 'ax' is an array. Ignored")
+        else:
+            ax.set_ylabel(ylabel)
+
+
+def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
     
         Parameters
         ----------
+        ax: Axes description (or array of them). See remarks.
+        mode: Type of Global value (used for default assignment). 0 for Non_Geographical; 1 for Geographical
         nx, ny:     Number of subplots along X and Y
         sharex, sharey: If the subplots should all share respectively X and Y axis
         
         Returns
         -------
         ax description
+        
+        Remarks
+        -------
+        
+        If 'ax' does not exist (input argument), a new figure is created. 
+        Otherwise, the input argument is simply returned.
     '''
     if ax is None:
         if len(plt.get_fignums()) == 0:
+            
             # Axes is None and no Figure already exists. Create it
             fig, ax = plt.subplots(nx, ny, squeeze=False, sharex=sharex, sharey=sharey)
+            
+            if is_array(ax, 1):
+                ax = ax[0,0]
+            # Apply the Global Geometry parameters (when defined)
+            geometry(ax,
+                     dims = default_dims[mode], 
+                     xlim = default_xlim[mode], 
+                     ylim = default_ylim[mode], 
+                     aspect = default_aspect[mode])
             
         else:
             # Axes is None but a figure already exists, return the (last) Axes of Figure
@@ -121,100 +220,6 @@ def is_array(tab, ndim=None):
         return False
     
     return True
-
-def geometry(ax, icas, size=None, xlim=None, ylim=None, aspect=None, sameLim=None):
-    '''
-    Set the default values for the geometrical parameters for one or a set of Axes
-    
-    ax: Sepcifies the target Axes or set of Axes
-    icas: 0 for Non-geographical or 1 for Geographical default parameters
-    size: Extension of graphic Axes
-    xlim: Range of values along the X-axis
-    ylim: Range of values along the Y-axis
-    aspect: Y/X ratio
-    sameLim: when True, both axes must share the range of values
-    
-    Remark: When 'ax' designates a set of Axes, parameters are applied to all of them.
-    '''
-    if size is None:
-        size = default_size[icas]
-    if size is not None:
-        if is_array(size, 2):
-            if is_array(ax, 2):
-                for ix in range(ax.shape[0]):
-                    for iy in range(ax.shape[1]):
-                        ax[ix,iy].figure.set_size_inches(size[0], size[1])
-            else:
-                ax.figure.set_size_inches(size[0], size[1])
-        else:
-            print("'size' should be [a,b]. Ignored")
-        
-    if sameLim is None:
-        sameLim = default_sameLim[icas]
-        
-    if xlim is None:
-        xlim = default_xlim[icas]
-    if xlim is not None:
-        if is_array(xlim, 2):
-            if is_array(ax, 2):
-                for ix in range(ax.shape[0]):
-                    for iy in range(ax.shape[1]):
-                        ax[ix,iy].set_xlim(left = xlim[0], right = xlim[1])
-            else:
-                ax.set_xlim(left = xlim[0], right = xlim[1])
-        else:
-            print("'xlim' should be [a,b] or [None,b] or [a,None]. Ignored")
-    
-    if ylim is None:
-        ylim = default_ylim[icas]
-    if ylim is not None:
-        if is_array(ylim, 2):
-            if is_array(ax, 2):
-                for ix in range(ax.shape[0]):
-                    for iy in range(ax.shape[1]):
-                        ax[ix,iy].set_ylim(left = ylim[0], right = ylim[1])
-            else:
-                ax.set_ylim(left = ylim[0], right = ylim[1])
-        else:
-           print("'ylim' should be [a,b] or [None,b] or [a,None]. Ignored")
-        
-    if aspect is None:
-        aspect = default_aspect[icas]
-    if aspect is not None:
-        if is_array(ax, 2):
-            for ix in range(ax.shape[0]):
-                for iy in range(ax.shape[1]):
-                    ax[ix,iy].set_aspect(aspect)
-        else:
-            ax.set_aspect(aspect)
-
-def decoration(ax, xlabel=None, ylabel=None, title=None):
-    '''
-    Add the decoration to a figure.
-    
-    Parameters
-    ----------
-    The procedure depends whether 'ax' is already defined or not.
-    xlabel: label along the horizontal axis
-    ylabel: label along the vertical axis
-    title: title contents (for the main for a collection of Axes)
-    '''
-    if title is not None:
-        if is_array(ax, 2):
-            ax[0,0].figure.suptitle(title)
-        else:
-            ax.set_title(title)
-
-    if xlabel is not None:
-        if is_array(ax):
-            print("decoration() cannot be used when 'ax' is an array. Ignored")
-        else:
-            ax.set_xlabel(xlabel)
-    if ylabel is not None:
-        if is_array(ax):
-            print("decoration() cannot be used when 'ax' is an array. Ignored")
-        else:
-            ax.set_ylabel(ylabel)
 
 def addColorbar(im, ax):
     divider = make_axes_locatable(ax)
@@ -265,44 +270,43 @@ def getFileIdentity(filename):
     print(type)
     return type
 
-def varioElem(vario, ivar=0, jvar=0, idir=0, hmax=None, gmax=None,
-              color0='black', linestyle='solid', linestyle0='dashed',  
-              show_pairs = False,
-              flagLabelDir=False, flagLegend=False, 
-              label=None, ax=None, flagDrawVariance = True, **plot_args):
+def varioElem(ax=None, vario=None, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
+              var_color='black', var_linestyle='dashed', 
+              flagDrawVariance = True, flagLabelDir=False, flagLegend=False, 
+              label=None, **kwargs):
     """
-    Plot a single and unidirectional experimental variogram (one direction and fixed variable(s)).
+    Plot a single experimental variogram (one direction and fixed pair of variable(s)).
     
     Parameters
     ----------
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     vario : experimental variogram to be represented (gstlearn.Vario).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     idir : Index of the direction of the variogram to be represented (the default is 0).
-    color0 : color of the horizontal line representing the sill (the default is 'black').
-    linestyle0 : linestyle of the horizontal line representing the sill (the default is 'dashed').
     hmax : Maximum distance to be represented.
-    gmax : Maximum variogram value to be represented.
     show_pairs : Flag for annotating the number of pairs for each lag on the plot (the default is False).
-    label : Label to be drawn if flagLegend is switched ON
-    flagLabelDir : Flag to add the direction vector of the variogram in the label of the line. 
+    var_color : color of the horizontal line representing the sill (the default is 'black').
+    var_linestyle : linestyle of the horizontal line representing the sill (the default is 'dashed').
+    label : Label to be drawn (constructed if not provided)
+    flagDrawVariance : Flag to add the variance (default is True)    flagLabelDir : ENcode the direction in the label (when constructed)
     flagLegend : Flag to display the axes legend.
-    ax : Reference for the plot within the figure. If None (default), it creates a new figure.
-    flagDrawVariance : Flag to add the variance (default is True)
-    **plot_args : arguments passed to matplotlib.pyplot.plot
+    **kwargs : arguments passed to matplotlib.pyplot.plot
 
     Returns
     -------
     ax : axes where the variogram is represented
     """
-    color = plot_args.setdefault('color', color0)
-    linestyle = plot_args.setdefault('linestyle', linestyle)    
-    
-    ax = getNewAxes(ax)
+    if vario is None:
+        print("'vario' is compulsory")
+        return None
+
+    ax = getNewAxes(ax,0)
 
     if label is None:
-        label = "vario"
-    if flagLabelDir:
-        label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
+        if flagLabelDir:
+            label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
+        else:
+            label = "vario"
     
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
@@ -310,128 +314,76 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, hmax=None, gmax=None,
     if len(hh) == 0:
         return None
     
-    ax.plot(hh, gg, label = label, **plot_args)
-    hmax = np.nanmax(hh)
+    # Representing the variogram
+    res = ax.plot(hh, gg, label = label, **kwargs)
     
-    # Plotting relevant control lines
+    # Maximum distance to be represented
+    if hmax is None:
+        hmax = np.nanmax(hh)
+    
+    # Adding the Y=0 axis in multivariate case
     if ivar != jvar:
         ax.hlines(0, 0, hmax, colors="black", linewidth=0.5)
 
+    # Drawing the variance-covariance reference line (optional)
     if flagDrawVariance:
-        ax.hlines(vario.getVar(ivar,jvar), 0, hmax, color0, linestyle0)
+        ax.hlines(vario.getVar(ivar,jvar), 0, hmax, var_color, var_linestyle)
     
+    # Representing the number of pairs (optional)
     if show_pairs:
         pairs = vario.getSwVec(idir,ivar,jvar)
         for i in range(len(hh)):
             ax.annotate(str(int(pairs[i])), (hh[i],gg[i]), xytext=(0,5), xycoords = 'data',
                         textcoords = 'offset points', ha='center')
     
+    # Displaying the Legend (optional)
     if flagLegend:
         ax.legend()
-        
+    
+    # Hard code the lower bounds
     if vario.drawOnlyPositiveX(ivar, jvar):
         ax.set_xlim(left=0)
     if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
         
-    return ax
+    return res
 
-def varioDir(vario, ivar=0, jvar=0,
-             color0='black', linestyle0='dashed', hmax=None, gmax=None, 
-             show_pairs=False, cmap=None, flagLegend=False,  
-             label=None, ax=None, **plot_args):
-    """
-    Plot a single directional experimental variogram (all available directions, for fixed variable(s)).
-    
-    Calls the function varioElem for each direction, and labels are automatically set with direction vectors.
-    
-    Parameters
-    ----------
-    vario : experimental variogram to be represented (gstlearn.Vario).
-    ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
-    color0 : color of the horizontal line representing the sill (the default is 'black').
-    linestyle0 : linestyle of the horizontal line representing the sill (the default is 'dashed').
-    hmax : Maximum distance to be represented.
-    gmax : Maximum variogram value to be represented.
-    cmap : Optional Color scale
-    flagLegend : Flag to display the axes legend.
-    ax : Reference for the plot within the figure. If None (default), it creates a new figure.
-
-    **plot_args : arguments passed to matplotlib.pyplot.plot for all directions plotted
-    
-    Returns
-    -------
-    ax : axes where the variogram is represented
-    """
-    if hmax is None:
-        hmax = vario.getHmax(ivar, jvar, -1)
-    if gmax is None:
-        gmax = vario.getGmax(ivar, jvar, -1, True, True) * 1.1
-
-    ndir = vario.getDirectionNumber()
-    ndirUtil, ivarD = selectItems(ndir)
-    cols = get_cmap(vario.getDirectionNumber(),cmap)
-    
-    ax = getNewAxes(ax)
-    
-    for idirUtil in ndirUtil:
-        idirUtil == 0
-        varioElem(vario, ivar=ivar, jvar=jvar, idir=idirUtil, color=cols(idirUtil), 
-                  color0=color0, linestyle0=linestyle0, show_pairs=show_pairs,
-                  ax=ax, hmax=hmax, gmax=gmax, flagLabelDir=True, 
-                  label=label, **plot_args)
-    
-    if flagLegend:
-        ax.legend()
-        
-    ax.autoscale(True)
-    
-    if vario.drawOnlyPositiveX(ivar, jvar):
-        ax.set_xlim(left=0)
-    if vario.drawOnlyPositiveY(ivar, jvar):
-        ax.set_ylim(bottom=0)
-    
-    return ax
-
-def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
-           linestyle='solid', linestylem="dashed", color0='black', linestyle0="dotted",
-           nh = 100, hmax = None, gmax = None, show_pairs=False, asCov=False,
+def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
+           nh = 100, hmax = None, show_pairs=False, asCov=False, 
+           var_color='black', var_linestyle="dotted",
+           env_color='black', env_linestyle="dotted",
            cmap=None, flagLegend=False, axs=None, 
-           **plot_args):
+           **kwargs):
     """
-    Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
-    
-    Same as vario plus the possible model.
+    Construct a figure for plotting experimental variogram(s) and model.
     
     Parameters
     ----------
-    vario : experimental variogram to be represented (gstlearn.Vario).
-    model : optional, variogram model (gstlearn.Model).
+    vario : experimental variogram to be represented
+    model : optional, variogram model
     ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multidirectional variograms are represented.
-    linestylem : linestyle of the model lines (the default is 'dashed').
-    color0 : color of the horizontal lines representing the experimental sills (the default is 'black').
-    linestyle0 : linestyle of the horizontal lines representing the sills (the default is 'dotted').
+    var_color, var_linestyle: parameters for representing variance-covariance line
+    env_color, env_linestyle: parameters for representing coregionalization envelop
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
     hmax : Maximum distance to be represented.
-    gmax : Maximum variogram value to be represented.
     cmap : Optional Color scale
     flagLegend : Flag to display the axes legend.
     axs : Reference for the plot(s) within the figure. If None (default),
           it creates a new figure (with multiple axes for multivariate variograms).
 
-    **plot_args : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
+    **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
     
     Returns
     -------
     ax : axes where the variograms are represented
     """
+    color_in_kwargs = 'color' in kwargs
+    
     if hmax is None:
         hmax = vario.getHmax(ivar, jvar, idir)
-    if gmax is None:
-        gmax = vario.getGmax(ivar, jvar, idir)
         
     ndir = vario.getDirectionNumber()
     nvar = vario.getVariableNumber()
@@ -441,10 +393,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     ivarUtil, ivarN = selectItems(nvar, ivar)
     jvarUtil, jvarN = selectItems(nvar, jvar)
         
-    axs = getNewAxes(axs, nx=ivarN, ny=jvarN)
-        
-    ylimnodiag = [-gmax, gmax]
-    geometry(axs, 0, sameLim=ylimnodiag)  
+    axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
         
     # if several directions, label with the direction vectors
     if ndir > 1:
@@ -466,20 +415,21 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                 continue;
             
             for idirUtil in ndirUtil:
-                varioElem(vario, iv, jv, idirUtil, 
-                          color=cols(idirUtil), linestyle=linestyle,
-                          color0=color0, linestyle0=linestyle0, show_pairs=show_pairs,
-                          ax=ax, hmax=hmax, gmax=None, 
-                          flagLabelDir=flagLabelDir, flagLegend=flagLegend, **plot_args)
+                if not color_in_kwargs:
+                    kwargs.update({'color':cols(idirUtil)})
+                
+                varioElem(ax, vario, iv, jv, idirUtil, 
+                          show_pairs=show_pairs, hmax=hmax,
+                          var_color=var_color, var_linestyle=var_linestyle,  
+                          flagLabelDir=flagLabelDir, flagLegend=flagLegend, **kwargs)
 
                 # Plotting the Model (optional)
-                if mymodel is not None:
+                if model is not None:
                     codir = vario.getCodirs(idirUtil)
-                    model(mymodel, ivar=iv, jvar=jv, codir=codir, 
-                          color=cols(idirUtil), linestyle=linestylem, 
-                          color0=color0, linestyle0=linestyle0, ax=ax,
-                          hmax=hmax, gmax=None, nh=nh, asCov=asCov,
-                          flagLabelDir=flagLabelDir, flagLegend=flagLegend)
+                    modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
+                              hmax=hmax, nh=nh, asCov=asCov,
+                              env_color=env_color, env_linestyle=env_linestyle, 
+                              flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
             ax.autoscale(True)
             
@@ -490,10 +440,10 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     
     return axs
 
-def vario(vario, ivar=-1, jvar=-1, idir=-1,
-          linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None, 
+def vario(vario, ivar=0, jvar=0, idir=-0,
+          var_color='black', var_linestyle='dashed', hmax=None,  
           cmap = None, flagLegend=False, 
-          axs = None, **plot_args):
+          axs = None, **kwargs):
     """
     Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
@@ -504,65 +454,64 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multidirectional variograms are represented.
-    color0 : color of the horizontal lines representing the sills (the default is 'black').
-    linestyle0 : linestyle of the horizontal lines representing the sills (the default is 'dashed').
+    var_color, var_linestyle : parameters for representing variance-covariance line
     hmax : Maximum distance to be represented.
-    gmax : Maximum variogram value to be represented.
     cmap : Optional Color scale
     flagLegend : Flag to display the axes legend.
     axs : Reference for the plot(s) within the figure. If None (default),
           it creates a new figure (with multiple axes for multivariate variograms).
-    **plot_args : arguments passed to matplotlib.pyplot.plot for all variograms plotted
+    **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted
 
     Returns
     -------
     ax : axes where the variograms are represented
     """
-    axs = varmod(vario, mymodel=None, ivar=ivar, jvar=jvar, idir=idir, 
-                 linestyle=linestyle, color0=color0, linestyle0=linestyle0, 
-                 hmax=hmax, gmax=gmax, cmap=cmap, 
+    axs = varmod(vario, ivar=ivar, jvar=jvar, idir=idir, 
+                 var_color=var_color, var_linestyle=var_linestyle, 
+                 hmax=hmax, cmap=cmap, 
                  flagLegend=flagLegend, axs=axs, 
-                 **plot_args)
+                 **kwargs)
     
     return axs
 
-def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed',
-          nh = 100, flagEnv = True, hmax = None, gmax = None, 
-          flagLabelDir=False, flagLegend=False, asCov=False,
-          ax=None, **plot_args):
+def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, idir=0,
+              nh = 100, hmax = None, asCov=False,
+              env_color='black', env_linestyle='dashed',
+              label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
+              **kwargs):
     """
-    Plot a single and unidirectional variogram model (one direction and fixed variable(s)).
+    Construct a Layer for plotting a model
     
     Parameters
     ----------
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     model : variogram model to be represented (gstlearn.Model).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     codir : Vector of the direction of the variogram to be represented. The default is the unit 
             vector in the first space dimension.
-    color0, linestyle0 : (if flagEnv = True) color and linestyle of the correlation envelop 
-                         (the defaults are 'black' and 'dashed')
+    vario, idir: Vario information used to set the direction (when codir is not provided)
+    env_color, env_linestyle : color and linestyle for correlation envelop 
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
     flagEnv : flag for representing the correlation envelop (the default is True)
-    hmax : Maximum distance to be represented. The default is 3 times the maximum range of the
+    hmax : Maximum distance to be represented. By default: 3 times the maximum range of the
            basic structures, or 1 if no range is defined.
-    gmax : Maximum variogram value to be represented.
-    flagLabelDir : Flag to add the direction vector codir in the label of the line. 
-                   The default label is "model" (default is False).
-    flagLegend : Flag to display the axes legend.
     asCov : Present the Model as a Covariance (rather than as a Variogram)
-    ax : Reference for the plot within the figure. If None (default), it creates a new figure.
-
-    Returns
-    -------
-    ax : axes where the variogram is represented
+    label: Label displayed in the Legend (constructed if not provided)
+    flagLabelDir : Add the direction vector to the label (if constructed)
+    flagEnvelop: Represent the coregionalization envelop (in multivariate case only)
+    flagLegend : Flag to display the axes legend.
     """
-    color = plot_args.setdefault('color', color0)    
-    
-    if codir is None:
-        ndim = model.getDimensionNumber()
-        codir = [0] * ndim
-        codir[0] = 1
+    if model is None:
+        print("'model' is compulsory")
+        return None
 
+    if codir is None:
+        if vario is None:
+            codir = [0] * model.getDimensionNumber()
+            codir[0] = 1
+        else:
+            codir = vario.getCodirs(idir)
+            
     # if hmax not specified = 3*maximum range of the model's basic structures
     if hmax is None:
         hmax = 0
@@ -573,31 +522,52 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     if hmax == 0: # if the model has no range defined
         hmax = 1
             
-    hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, asCov=asCov, addZero=True)
+    ax = getNewAxes(ax, 0)
     
-    ax = getNewAxes(ax)
-        
-    label = "model"
-    if flagLabelDir:
-        label = "model dir={}".format(codir)
+    if label is None:
+        label = "model"
+        if flagLabelDir:
+            label = "model dir={}".format(codir)
     
     istart = 0
     for i in range(model.getCovaNumber()):
         if model.getCovName(i) == 'Nugget Effect':
             istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
-            
-    ax.plot(hh[istart:], gg[istart:], label=label, **plot_args)
+     
+    # Represent the Model 
+    hh = np.linspace(0, hmax, nh+1)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, asCov=asCov, addZero=True)
+    res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
-    if ivar != jvar and flagEnv:
+    # Represent the coregionalization envelop (optional)
+    if ivar != jvar and flagEnvelop:
         ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, asCov=asCov, addZero=True)
-        ax.plot(hh[istart:], ggp[istart:], color = color0, linestyle = linestyle0)
+        ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
         ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
-        ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0)
+        ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
+    # Draw the Legend (optional)
     if flagLegend:
         ax.legend()
         
+    return res
+
+def model(model = None, ivar=0, jvar=0, codir=None, vario=None, idir=0,
+          nh = 100, hmax = None, asCov=False,
+          env_color='black', env_linestyle='dashed',
+          label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
+          ax = None, **kwargs):
+    
+    ax = getNewAxes(ax, 0)
+    
+    modelElem(ax, model = model, ivar=ivar, jvar=jvar, codir=codir, 
+              vario=vario, idir=idir,
+              nh = nh, hmax = hmax, asCov=asCov,
+              env_color=env_color, env_linestyle=env_linestyle,
+              label=label, flagLabelDir=flagLabelDir, flagEnvelop = flagEnvelop, 
+              flagLegend=flagLegend, 
+              **kwargs)
+    
     return ax
 
 def readCoorPoint(db, coorX_name=None, coorY_name=None, 
@@ -621,25 +591,24 @@ def readCoorPoint(db, coorX_name=None, coorY_name=None,
     
     return tabx, taby
     
-def pointSymbol(ax=None, db=None, color_name=None, size_name=None, 
+def pointSymbol(ax=None, db=None, name_color=None, name_size=None, 
                 coorX_name=None, coorY_name=None, usesel=True, 
-                c='r', s=20, sizmin=10, sizmax=200, 
-                directColor=False, flagAbsSize=False,
+                c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False,
                 flagLegend=True, posX=0, posY=1, **kwargs):
     '''
-    Plotting a point data base, with optional color and size variables
+    Construct a Layer for plotting a point data base, with optional color and size variables
     
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     db: Db containing the variable to be plotted
-    color_name: Name of the variable containing the color per sample
-    size_name: Name of the variable containing the size per sample
+    name_color: Name of the variable containing the color per sample
+    name_size: Name of the variable containing the size per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    c: Constant color (used if 'color_name' is not defined)
-    s: Constant size (used if 'size_name' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'size_name' is defined)
-    sizmax: Size corresponding to the largest value (used if 'size_name' is defined)
-    directColor: True if the value of the field directly indicates the Rank in the Color Scale
+    c: Constant color (used if 'name_color' is not defined)
+    s: Constant size (used if 'name_size' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
+    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
     flagLegend: Flag for representing the Legend 
     posX: rank of the first coordinate
@@ -650,25 +619,22 @@ def pointSymbol(ax=None, db=None, color_name=None, size_name=None,
         print("'db' is compulsory")
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
 
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
     
     # Color of symbol
-    if color_name is not None:
-        colval = getDefinedValues(db, color_name, 0, 1, None, usesel, 
+    if name_color is not None:
+        colval = getDefinedValues(db, name_color, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
-        if (directColor and cmap is not None):
-            colval = colval.astype(int)
-            colval = cmap(colval)
     else:
         colval = c
 
     # Size of symbol
-    if size_name is not None:
-        sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, 
+    if name_size is not None:
+        sizval = getDefinedValues(db, name_size, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
         if flagAbsSize:
@@ -679,29 +645,30 @@ def pointSymbol(ax=None, db=None, color_name=None, size_name=None,
     else:
         sizval = s
 
-    im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
+    res= ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
 
     if flagLegend:
-        if color_name is not None:
-            addColorbar(im, ax)
+        if name_color is not None:
+            addColorbar(res, ax)
     
-        if size_name is not None:
+        if name_size is not None:
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
-            ax.legend(*im.legend_elements("sizes", num=5, color=cmap, func=labels))
+            ax.legend(*res.legend_elements("sizes", num=5, color=cmap, func=labels))
          
-    return im
+    return res
 
 def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None, 
                usesel=True, flagLegend=True, posX=0, posY=1, **kwargs):
     '''
-    Plotting a point data base, with optional color and size variables
+    Construct a layer for plotting a point data base, with optional color and size variables
     
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     db: Db containing the variable to be plotted
     name: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    flagLegend: Flag for representing the Color Bar (only if color_name is defined)
+    flagLegend: Flag for representing the Color Bar 
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -710,7 +677,7 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
         print("'db' and 'name' are compulsory")
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
 
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
@@ -719,18 +686,19 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
                               compress=True, asGrid=False, 
                               flagConvertNanToZero=True)
 
-    im = ax.scatter(x = tabx, y = taby, **kwargs)
+    res = ax.scatter(x = tabx, y = taby, **kwargs)
     
     for i, txt in enumerate(labval):
         ax.annotate(round(txt,2), (tabx[i], taby[i]))
   
-    return im
+    return res
 
 def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
                   **kwargs):
     '''
-    Plotting a gradient data base
+    Construct a layer for plotting a gradient data base
     
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     db: Db containing the variable to be plotted
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
@@ -740,7 +708,7 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
         print("'db' is compulsory")
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
 
     if db.getGradientNumber() <= 0:
         return None
@@ -759,15 +727,16 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabgx) <= 0 or len(tabgy) <= 0:
         return None
     
-    im = ax.quiver(tabx, taby, -tabgx, -tabgy, angles='xy', **kwargs)
+    res = ax.quiver(tabx, taby, -tabgx, -tabgy, angles='xy', **kwargs)
             
-    return im
+    return res
 
 def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
                  **kwargs):
     '''
-    Plotting a tangent data base
+    Construct a layer for plotting a tangent data base
     
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     db: Db containing the variable to be plotted
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
@@ -777,7 +746,7 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
         print("'db' is compulsory")
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
 
     if db.getTangentNumber() <= 0:
         return None
@@ -792,35 +761,34 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabtx) <= 0 or len(tabty) <= 0:
         return None
     
-    im = ax.quiver(tabx, taby, -tabtx, -tabty, **kwargs)
-    im = ax.quiver(tabx, taby,  tabtx,  tabty, **kwargs)
+    res = ax.quiver(tabx, taby, -tabtx, -tabty, **kwargs)
+    res = ax.quiver(tabx, taby,  tabtx,  tabty, **kwargs)
             
-    return im
+    return res
 
 def point(db, 
-          color_name=None, size_name=None, label_name=None,
+          name_color=None, name_size=None, name_label=None,
           coorX_name=None, coorY_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, cmap=None,
-          directColor=False, flagAbsSize=False,
+          flagAbsSize=False,
           flagGradient=False, colorGradient='black', scaleGradient=20,
           flagTangent=False, color_tangent='black', scale_tangent=20,
           flagLegendSymbol=True, flagLegendLabel=True,
           posX=0, posY=1, ax=None, **kwargs):
     '''
-    Plotting a point data base, with optional color and size variables
+    Construct a figure for plotting a point data base
     
     db: Db containing the variable to be plotted
-    color_name: Name of the variable containing the color per sample
-    size_name: Name of the variable containing the size per sample
-    label_name: Name of the variable containing the label per sample
+    name_color: Name of the variable containing the color per sample
+    name_size: Name of the variable containing the size per sample
+    name_label: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    color: Constant color (used if 'color_name' is not defined)
-    size: Constant size (used if 'size_name' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'size_name' is defined)
-    sizmax: Size corresponding to the largest value (used if 'size_name' is defined)
-    directColor: True if the value of the field directly indicates the Rank in the Color Scale
+    color: Constant color (used if 'name_color' is not defined)
+    size: Constant size (used if 'name_size' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
+    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
     cmap: Optional Color scale
     flagGradient: Draw Gradient (if Gradients are defined)
@@ -829,25 +797,33 @@ def point(db,
     flagTangent: Draw Tangent (if Tangents are defined)
     colorTangent: Color attached to the Gradient representation
     scaleTangent: Scale of the Gradient representation
-    flagLegendSymbol: Flag for representing the Color Bar (only if color_name is defined)
-    flagLegendLabel: Flag for representing the Legend for marker size (only if size_name is defined)
+    flagLegendSymbol: Flag for representing the Color Bar (only if name_color is defined)
+    flagLegendLabel: Flag for representing the Legend for marker size (only if name_size is defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
 
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     '''
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
     
-    if (color_name is not None) or (size_name is not None):
-        pt = pointSymbol(ax, db, color_name=color_name, size_name=size_name, 
+    # If no variable is defined, use the default variable for Symbol(size) representation
+    # The default variable is the first Z-locator one, or the last variable in the file
+    if (name_color is None) and (name_size is None) and (name_label is None):
+        if db.getVariableNumber() > 0:
+            name_sizer = db.getNameByLocator(gl.ELoc.Z,0)
+        else : # if no Z locator, choose the last field
+            name_size = db.getLastName()
+
+    if (name_color is not None) or (name_size is not None):
+        pt = pointSymbol(ax, db, name_color=name_color, name_size=name_size, 
                          coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
-                         directColor=directColor, flagAbsSize=flagAbsSize,
+                         flagAbsSize=flagAbsSize,
                          cmap=cmap, flagLegend=flagLegendSymbol, posX=posX, posY=posY, 
                          **kwargs)
     
-    if label_name is not None:
-        tx = pointLabel(ax, db, name=label_name, 
+    if name_label is not None:
+        tx = pointLabel(ax, db, name=name_label, 
                         coorX_name=coorX_name, coorY_name=coorY_name, 
                         usesel=usesel, flagLegend=flagLegendLabel,
                         posX=posX, posY=posY, **kwargs)
@@ -868,7 +844,7 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
     Display the Model characteristics on a Grid
     This makes sense when the model contains some non-stationarity
     '''
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
@@ -887,14 +863,14 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
             
     return ax
     
-def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
-            colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
-            ax=None,**fill_args):
+def polygon(poly, facecolor='yellow', edgecolor = 'blue', 
+            colorPerSet = False, flagEdge=True, flagFace=False, 
+            ax=None, **kwargs):
     '''
-    Display a polygon
-    **fill_args: arguments passed to ax.fill
+    Construct a Figure for plotting a polygon
+    **kwargs: arguments passed to matplotlib.fill
     '''
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
     
     npol = poly.getPolySetNumber()
     cols = get_cmap(npol)
@@ -903,20 +879,20 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
         x = poly.getX(ipol)
         y = poly.getY(ipol)
         
-        faceColor_local = 'none'
+        facecolor_local = 'none'
         if flagFace:
-            faceColor_local = faceColor
+            facecolor_local = facecolor
             if colorPerSet:
-                faceColor_local = cols(ipol)
+                facecolor_local = cols(ipol)
                 
-        edgeColor_local = 'none'
+        edgecolor_local = 'none'
         if flagEdge:
-            edgeColor_local = edgeColor
+            edgecolor_local = edgecolor
             if colorPerSet:
-                edgeColor_local = cols(ipol)
+                edgecolor_local = cols(ipol)
 
-        ax.fill(x, y, facecolor=faceColor_local, edgecolor=edgeColor_local,
-                linewidth=linewidth, **fill_args)
+        ax.fill(x, y, facecolor=facecolor_local, edgecolor=edgecolor_local,
+                **kwargs)
         
     return ax
 
@@ -954,7 +930,7 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
     '''
     Plotting a variable from a DbGrid in Raster
 
-    ax: Reference for the plot within the figure
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
@@ -965,7 +941,7 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
         print("'dbgrid' and 'name' are compulsory")
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
         
     decoration(ax, title = dbgrid.getName(name)[0])
     
@@ -973,13 +949,17 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
                                       posx=posx, posy=posy, corner=corner)
     trans_data = tr + ax.transData
     
-    im = ax.pcolormesh(X, Y, data, **kwargs)
-    im.set_transform(trans_data)
-        
-    if flagLegend:
-        addColorbar(im, ax)
+    res = ax.pcolormesh(X, Y, data, **kwargs)
+    res.set_transform(trans_data)
     
-    return im
+    x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
+    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
+            transform=trans_data)
+   
+    if flagLegend:
+        addColorbar(res, ax)
+    
+    return res
         
 def gridContour(ax=None, dbgrid=None, name=None, usesel = True, 
                 posx=0, posy=1, corner=None, levels=None,
@@ -987,9 +967,11 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
+    ax: matplotlib.Axes (necessary when used as a method of the class)
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
+    levels: Vector of isovalues to be represented
     flagLegend: Flag for representing the Color Bar (not represented if alpha=0)
     ax: Reference for the plot within the figure
     
@@ -999,7 +981,7 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
         print("'dbgrid' and 'name' are compulsory")
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
 
     ax.decoration(title = dbgrid.getName(name)[0])
     
@@ -1015,48 +997,51 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
         
     return res
 
-def grid(dbgrid, name = None, usesel = True, 
+def grid(dbgrid, name_raster = None, name_contour = None, usesel = True, 
          posx=0, posy=1, corner=None, 
          flagLegendColor=True, flagLegendContour=True,
-         levels=None, flagRaster=True, ax=None, **kwargs):
+         levels=None, ax=None, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: DbGrid containing the variable to be plotted
-    name: Name of the variable to be represented (by default, the first Z locator, or the last field)
+    name_raster: Name of the variable to be represented as raster
+    name_contour: Name of the variable tp be represented as contours
     usesel : Boolean to indicate if the selection has to be considered
     flagLegendColor: Flag for representing the Color Bar (not represented if alpha=0)
-    **pcolormesh_args : arguments passed to matplotlib.pyplot.pcolormesh
+    **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     if not(dbgrid.isGrid()):
         print("This function is dedicated to Grid Db and cannot be used here")
         return None;
     
-    if name is None:
+    ax = getNewAxes(ax, 1)
+    
+    # If no variable is defined, use the default variable for Raster representation
+    # The default variable is the first Z-locator one, or the last variable in the file
+    if (name_raster is None) and (name_contour is None):
         if dbgrid.getVariableNumber() > 0:
-            name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
+            name_raster = dbgrid.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
-            name = dbgrid.getLastName()
-    
-    ax = getNewAxes(ax)
-    
-    if flagRaster:
-        im = gridRaster(ax, dbgrid = dbgrid, name = name, usesel = usesel,  
+            name_raster = dbgrid.getLastName()
+
+    if name_raster is not None:
+        rs = gridRaster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
                         posx=posx, posy=posy, corner=corner, 
                         flagLegend=flagLegendColor,
                         **kwargs)
     
-    if levels is not None:
-        ct = gridContour(ax, dbgrid = dbgrid, name = name, usesel = usesel, 
-                         posx=posx, posy=posy, corner=corner, 
-                         levels=levels, flagLegend=flagLegendContour, 
+    if name_contour is not None:
+        ct = gridContour(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
+                         posx=posx, posy=posy, corner=corner, levels=levels, 
+                         flagLegend=flagLegendContour, 
                          **kwargs)
     
     return ax
 
 def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
            color='black',flagLegend=False, label='curve',
-           ax=None, **plot_args):
+           ax=None, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
@@ -1066,7 +1051,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
     flagLegendColor: Flag for representing the Color Bar
     ax: Reference for the plot within the figure
     
-    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
+    **kwargs : arguments passed to matplotlib.pyplot.curve
     '''
     if dbgrid.getNDim() != 1:
         print("This function is dedicated to 1-D Grid")
@@ -1082,7 +1067,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
         
     x0 = dbgrid.getX0(0)
     nx = dbgrid.getNX(0)
@@ -1093,48 +1078,43 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
                             compress=False, asGrid=True)
 
     curve(data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
-          ax=ax, **plot_args)
+          ax=ax, **kwargs)
 
     ax.decoration(title = dbgrid.getName(name)[0])
         
     return ax
 
-def hist_tab(val, nbins=30, color='yellow', edgecolor='red',
-             ax = None, **hist_args):
+def hist_tab(val, ax = None, **kwargs):
     '''
     Plotting the histogram of an array (argument 'val')
     
-    hist_args : arguments passed to matplotlib.pyplot.hist
+    kwargs : arguments passed to matplotlib.pyplot.hist
     '''
-    color     = hist_args.setdefault("color", color)
-    edgecolor = hist_args.setdefault("edgecolor", edgecolor)
-    bins      = hist_args.setdefault("bins", nbins)
-    
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
         
-    ax.hist(val, **hist_args)
+    ax.hist(val, **kwargs)
     
     return ax
     
-def hist(db, name, ax=None, usesel=True, **hist_args):
+def hist(db, name, ax=None, usesel=True, **kwargs):
     '''
     Plotting the histogram of a variable contained in a Db
     
-    hist_args : arguments passed to matplotlib.pyplot.hist
+    kwargs : arguments passed to matplotlib.pyplot.hist
     '''
     db.useSel = usesel
     val = db[name]
     if len(val) == 0:
         return None
     
-    ax = hist_tab(val, ax=ax, **hist_args)
+    ax = hist_tab(val, ax=ax, **kwargs)
     
     ax.decoration(title = db.getName(name)[0])
         
     return ax
 
 def sortedcurve(tabx, taby, color='black', flagLegend=False,
-                ax=None, **plot_args):
+                ax=None, **kwargs):
     '''
     Plotting a set of points after they have been sorted in increasing X
     '''
@@ -1146,12 +1126,12 @@ def sortedcurve(tabx, taby, color='black', flagLegend=False,
     # Indices of the sorted elements of stabx
     indices = np.argsort(stabx)
     ax = curve(stabx[indices], staby[indices], color=color, 
-               flagLegend=flagLegend, ax=ax)
+               flagLegend=flagLegend, ax=ax, **kwargs)
     
     return ax
     
-def curve(data1, data2=None, icas=1, color='black',flagLegend=False, 
-          ax=None, **plot_args):
+def curve(data1, data2=None, icas=1, color0='black',flagLegend=False, 
+          ax=None, **kwargs):
     '''
     Plotting the curve of an array (argument 'data1')
         if data1 is a tuple, it should contain x=data1[0] and y=data1[1]
@@ -1160,15 +1140,15 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
         otherwise:
         icas=1 when 'data1' contains the abscissa and ordinates are regular
         icas=2 when 'data1' contains the ordinate and abscissa are regular
-    **plot_args : arguments passed to matplotlib.pyplot.plot
+    **kwargs : arguments passed to matplotlib.pyplot.plot
     '''
-    color = plot_args.setdefault('color', color)
-    label = plot_args.setdefault('label', 'curve')
+    color = kwargs.setdefault('color', color0)
+    label = kwargs.setdefault('label', 'curve')
     
     if len(data1) == 0:
         return None
 
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
     
     filetype = type(data1).__name__
     if filetype == "tuple":
@@ -1194,7 +1174,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
                 tabx = regular
                 taby = data1
     
-    ax.plot(tabx, taby, **plot_args)
+    ax.plot(tabx, taby, **kwargs)
     
     if flagLegend:
         ax.legend()
@@ -1202,24 +1182,24 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
     return ax
 
 def multisegments(center, data, color='black',flagLegend=False, label="segments",
-                  ax=None, **plot_args):
+                  ax=None, **kwargs):
     '''
     Plotting a set of segments joining 'center' to any of vertices
     stored in 'data'.
-    **plot_args : arguments passed to matplotlib.pyplot.plot
+    **kwargs : arguments passed to matplotlib.pyplot.plot
     '''
-    color = plot_args.setdefault('color', color)
-    label = plot_args.setdefault('label', label)
+    color = kwargs.setdefault('color', color)
+    label = kwargs.setdefault('label', label)
         
     if len(data) == 0:
         return None
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
     
     nseg = len(data[0])
     
     for iseg in range(nseg):
-        ax.plot([center[0],data[0][iseg]], [center[1],data[1][iseg]], **plot_args)
+        ax.plot([center[0],data[0][iseg]], [center[1],data[1][iseg]], **kwargs)
     
     if flagLegend:
         ax.legend()
@@ -1227,15 +1207,15 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
     return ax
 
 def fault(faults, color='black', flagLegend=False, label="segments",
-          ax=None, **plot_args):
+          ax=None, **kwargs):
     '''
     Plotting a Fault system.
-    **plot_args : arguments passed to matplotlib.pyplot.plot
+    **kwargs : arguments passed to matplotlib.pyplot.plot
     '''
-    color = plot_args.setdefault('color', color)
-    label = plot_args.setdefault('label', label)
+    color = kwargs.setdefault('color', color)
+    label = kwargs.setdefault('label', label)
         
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 1)
     
     nfaults = faults.getNFaults()
     for ifault in range(nfaults):
@@ -1244,7 +1224,7 @@ def fault(faults, color='black', flagLegend=False, label="segments",
         npoints = fault.getNPoints() - 1
         xtab = fault.getX()
         ytab = fault.getY()
-        ax.plot(xtab, ytab, **plot_args)
+        ax.plot(xtab, ytab, **kwargs)
     
     if flagLegend:
         ax.legend()
@@ -1253,23 +1233,23 @@ def fault(faults, color='black', flagLegend=False, label="segments",
 
 def XY(xtab, ytab, flagAsPoint=False, flagLegend=False, 
        color='blue', marker='o', markersize=10, linestyle='-',
-       ax=None, label='data', **plot_args):
+       ax=None, label='data', **kwargs):
 
-    plot_args.setdefault('label', label)
-    plot_args.setdefault('color', color)
+    kwargs.setdefault('label', label)
+    kwargs.setdefault('color', color)
     if flagAsPoint:
-        plot_args.setdefault('markersize', markersize)
-        plot_args.setdefault('marker', marker)
+        kwargs.setdefault('markersize', markersize)
+        kwargs.setdefault('marker', marker)
     else:
-        plot_args.setdefault('linestyle',linestyle)
+        kwargs.setdefault('linestyle',linestyle)
 
     if not len(ytab) == len(xtab):
         print("Arrays 'xtab' and 'ytab' should have same dimensions")
         return None;
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
         
-    ax.plot(xtab, ytab, **plot_args)
+    ax.plot(xtab, ytab, **kwargs)
             
     if flagLegend:
         ax.legend()
@@ -1279,12 +1259,12 @@ def XY(xtab, ytab, flagAsPoint=False, flagLegend=False,
 def sample(sample, color='black', marker='o', markersize=10,
            flagLegend=False,
            ax=None, label='data', 
-           **plot_args):
+           **kwargs):
     
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
     
     ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
-            label=label, **plot_args)
+            label=label, **kwargs)
             
     if flagLegend:
         ax.legend()
@@ -1293,7 +1273,7 @@ def sample(sample, color='black', marker='o', markersize=10,
     
 def rule(rule, proportions=[],cmap=None, ax=None):
 
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
     
     ax.decoration(xlim=[-5,+5], ylim=[-5,+5])    
     nfac = rule.getFaciesNumber()
@@ -1310,18 +1290,14 @@ def rule(rule, proportions=[],cmap=None, ax=None):
     return ax
 
 
-def table(table, icols, fmt='ok', flagLegend=False,
-          color0='b', linestyle0='-', marker0='', label='table',
-          ax=None, **kwargs):
+def table(table, icols, fmt='ok', flagLegend=False, ax=None, **kwargs):
     '''
     Plotting the contents of a Table (argument 'table')
         icols designates the ranks of the variable (0: ordinate; 1: abscissae [or regular]) 
         fmt designates [marker][line][color] information
     **kwargs
     '''
-    plot_args.setdefault('label', label)
-    
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
     
     if len(icols) == 1:
         datay = table.getColumn(int(icols[0]))
@@ -1333,8 +1309,7 @@ def table(table, icols, fmt='ok', flagLegend=False,
     data = np.stack((np.array(datax), np.array(datay)))
     data = data[:, ~np.isnan(data).any(axis=0)]
 
-    ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 
-            **kwargs)
+    ax.plot(data[0,:], data[1,:], **kwargs)
     
     if flagLegend:
         ax.legend()
@@ -1344,43 +1319,46 @@ def table(table, icols, fmt='ok', flagLegend=False,
 def mesh(mesh, 
          flagEdge=True, flagFace=False, flagApex=False, 
          facecolor="yellow", edgecolor="blue", linewidth=1,
-         ax=None, **plot_args):
+         ax=None, **kwargs):
     """
     Plotting the contents of a Mesh
-    **plot_args : arguments passed to matplotlib.pyplot.fill
+    **kwargs : arguments passed to matplotlib.pyplot.fill
     """
     if flagFace:
-        plot_args.setdefault('facecolor', facecolor)
+        kwargs.setdefault('facecolor', facecolor)
     else:
-        plot_args.setdefault('facecolor', "white")
+        kwargs.setdefault('facecolor', "white")
        
     if flagEdge:
-        plot_args.setdefault('edgecolor', edgecolor) 
-        plot_args.setdefault('linewidth', linewidth)
+        kwargs.setdefault('edgecolor', edgecolor) 
+        kwargs.setdefault('linewidth', linewidth)
 
-    ax = getNewAxes(ax)   
+    ax = getNewAxes(ax, 1)   
 
     nmesh = mesh.getNMeshes()
     
     for imesh in range(nmesh):
         tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
         taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
-        ax.fill(tabx, taby, **plot_args)
+        ax.fill(tabx, taby, **kwargs)
+        
         if flagApex:
             ax.scatter(tabx, taby, color='black')
 
     return ax
 
-def correlation(db, namex, namey, db2=None, bins=50, usesel=True, 
+def correlation(db, namex, namey, db2=None, usesel=True, 
                 asPoint = False, flagAxisLabel = True,
                 diagLine=False, diagColor="black", diagLineStyle='-',
                 bissLine=False, bissColor="red", bissLineStyle='-',
                 regrLine=False, regrColor="blue", regrLineStyle='-',
-                ax=None):
+                ax=None, **kwargs):
     '''
     Plotting the scatter plot between two variables contained in a Db
+    
+    kwargs: additional arguments used in hist2d
     '''
-    ax = getNewAxes(ax)
+    ax = getNewAxes(ax, 0)
         
     if db2 is None:
         db2 = db
@@ -1403,7 +1381,7 @@ def correlation(db, namex, namey, db2=None, bins=50, usesel=True,
     if asPoint:
         ax.scatter(tabx, taby)
     else:
-        ax.hist2d(tabx, taby, bins, cmin=1)
+        ax.hist2d(tabx, taby, **kwargs)
 
     if diagLine:
         u=[xmin, xmax]
@@ -1737,10 +1715,6 @@ setattr(gl.DbGrid,"plot_point", gp.point)
 # plot_correlation and plot_hist are already inherited from the parent class Db
 
 setattr(gl.Vario,"plot", gp.vario)
-setattr(gl.Vario,"plot_varioElem", gp.varioElem)
-setattr(gl.Vario,"plot_varioDir", gp.varioDir)
-setattr(gl.Vario,"plot_varmod", gp.varmod)
-
 setattr(gl.Model,"plot", gp.model)
 
 setattr(gl.Rule,"plot", gp.rule)
@@ -1749,8 +1723,8 @@ setattr(gl.Table,"plot", gp.table)
 
 setattr(gl.Polygons,"plot", gp.polygon)
 
-setattr(plt.Axes, "decoration", gp.decoration)
-setattr(plt.Axes, "geometry", gp.geometry)
+setattr(plt.Axes, "decoration",    gp.decoration)
+setattr(plt.Axes, "geometry",      gp.geometry)
 
 setattr(plt.Axes, "pointSymbol",   gp.pointSymbol)
 setattr(plt.Axes, "pointLabel",    gp.pointLabel)
@@ -1759,3 +1733,6 @@ setattr(plt.Axes, "pointTangent",  gp.pointTangent)
 
 setattr(plt.Axes, "gridRaster",    gp.gridRaster)
 setattr(plt.Axes, "gridContour",   gp.gridContour)
+
+setattr(plt.Axes, "varioElem",     gp.varioElem)
+setattr(plt.Axes, "modelElem",     gp.modelElem)

@@ -163,6 +163,7 @@ public:
   // Locator and UID methods
 
   void clearLocators(const ELoc& locatorType);
+  void clearSelection() { clearLocators(ELoc::SEL); }
   void setLocatorByUID(int iuid,
                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                        int locatorIndex = 0,
