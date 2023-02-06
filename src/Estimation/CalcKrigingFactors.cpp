@@ -44,12 +44,14 @@ bool CalcKrigingFactors::_check()
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
   if (! hasNeighParam()) return false;
-
+/* check not necessary. Only used if a change of support already checked below
   if (! getDbout()->isGrid())
   {
     messerr("This application is limited to output Grid file");
     return false;
   }
+  */
+
   if (getNeighparam()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
