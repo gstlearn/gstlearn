@@ -452,7 +452,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
     else:
         return axs
 
-def vario(vario, ivar=0, jvar=0, idir=-0,
+def vario(vario, ivar=0, jvar=0, idir=0,
           var_color='black', var_linestyle='dashed', hmax=None,  
           cmap = None, flagLegend=False, 
           axs = None, **kwargs):
@@ -548,7 +548,7 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
      
     # Represent the Model 
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, asCov=asCov, addZero=True)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, 0, asCov=asCov, addZero=True)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)
@@ -667,7 +667,7 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
         sizval = s
 
     if len(ax.get_title()) <= 0:
-        decoration(ax, title = name)
+        ax.decoration(title = name)
     
     res = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
 
@@ -704,7 +704,7 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     ax = getNewAxes(ax, 1)
 
     if len(ax.get_title()) <= 0:
-        decoration(ax, title = db.getName(name)[0])
+        ax.decoration(title = db.getName(name)[0])
     
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
@@ -975,7 +975,7 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
     ax = getNewAxes(ax, 1)
         
     if len(ax.get_title()) <= 0:
-        decoration(ax, title = dbgrid.getName(name)[0])
+        ax.decoration(title = dbgrid.getName(name)[0])
     
     x0, y0, X, Y, data, tr = readGrid(dbgrid, name, usesel, 
                                       posx=posx, posy=posy, corner=corner)
@@ -1308,7 +1308,7 @@ def rule(rule, proportions=[],cmap=None, ax=None):
 
     ax = getNewAxes(ax, 0)
     
-    ax.decoration(xlim=[-5,+5], ylim=[-5,+5])    
+    ax.geometry(xlim=[-5,+5], ylim=[-5,+5])    
     nfac = rule.getFaciesNumber()
     rule.setProportions(proportions)
     
@@ -1454,7 +1454,7 @@ def anam(anam, color='blue', linestyle='-', flagLegend=False, ax=None):
     ax = XY(res.getY(), res.getZ(),
             flagLegend=flagLegend, color=color, linestyle=linestyle,
             label='Anamorphosis', ax=ax)
-    ax.decoration(xlim = res.getAylim(), ylim=res.getAzlim())
+    ax.geometry(xlim = res.getAylim(), ylim=res.getAzlim())
     
     return ax
 
@@ -1752,21 +1752,15 @@ setattr(gl.DbGrid,"plot_point", gp.point)
 
 # plot_correlation and plot_hist are already inherited from the parent class Db
 
-setattr(gl.Vario,"plot", gp.vario)
-setattr(gl.Model,"plot", gp.model)
-
-setattr(gl.Rule,"plot", gp.rule)
-
-setattr(gl.Table,"plot", gp.table)
-
-setattr(gl.Faults,"plot", gp.fault)
-
-setattr(gl.Polygons,"plot", gp.polygon)
-
-setattr(gl.AnamHermite,"plot", gp.anam)
-
-setattr(gl.MeshEStandardExt,"plot", gp.mesh)
-setattr(gl.MeshETurbo,"plot",       gp.mesh)
+setattr(gl.Vario,            "plot", gp.vario)
+setattr(gl.Model,            "plot", gp.model)
+setattr(gl.Rule,             "plot", gp.rule)
+setattr(gl.Table,            "plot", gp.table)
+setattr(gl.Faults,           "plot", gp.fault)
+setattr(gl.Polygons,         "plot", gp.polygon)
+setattr(gl.AnamHermite,      "plot", gp.anam)
+setattr(gl.MeshEStandardExt, "plot", gp.mesh)
+setattr(gl.MeshETurbo,       "plot", gp.mesh)
 
 setattr(plt.Axes, "decoration",    gp.decoration)
 setattr(plt.Axes, "geometry",      gp.geometry)

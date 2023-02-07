@@ -1210,7 +1210,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   VectorT<std::map<int, double> > tab(number);
   std::vector<std::map<std::pair<int, int>, double> > Mtab(number);
 
-  int error = 1;
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
   int ngparam = _nModelGradParam;
@@ -1327,27 +1326,43 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   for (int i = 0; i < number; i++)
   {
     _SGrad[i] = _BuildSGradfromMap(Mtab[i]);
-    if (_SGrad[i] == nullptr) goto label_end;
+    if (_SGrad[i] == nullptr) return 1;
     _TildeCGrad[i] = _BuildTildeCGradfromMap(tab[i]);
   }
 
+  VectorDouble sqrtTildeC = VH::power(_TildeC, 0.5);
+  VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
+  VectorDouble tempVec = VH::inverse(_TildeC);
+  VH::multiplyConstant(tempVec, -0.5);
 
-//  int ind = 0;
-//  for (int ipar = 0; ipar < _nModelGradParam; ipar++)
-//  {
-//    for (int iap = 0; iap < getSize(); iap++)
-//    {
-//      cs_matvecnorm_inplace(_SGrad[ind++], _TildeC.data(), 2);
-//    }
-//  }
+  int ind = 0;
+  for (int ipar = 0; ipar < _nModelGradParam; ipar++)
+  {
+    for (int iap = 0; iap < getSize(); iap++)
+    {
+      VectorDouble tildeCGrad = csd_extract_diag_VD(_TildeCGrad[ind], 1);
 
-  /* Set the error return code */
+      VH::multiplyInPlace(tildeCGrad, tempVec);
+      cs_matvecnorm_inplace(_SGrad[ind], invSqrtTildeC.data(), 0);
 
-  error = 0;
+      cs* tildeCGradMat = cs_diag(tildeCGrad);
+      cs* A = cs_multiply(_S, tildeCGradMat);
+      cs* At = cs_transpose(A, 1);
+      cs* Asym = cs_add(A, At, 1., 1.);
+      cs* ABmat = cs_add(Asym, _SGrad[ind], 1., 1.);
+      cs_free(_SGrad[ind]);
 
-  label_end:
-  if (error) _resetGrad();
-  return error;
+      _SGrad[ind] = ABmat;
+
+      cs_free(tildeCGradMat);
+      cs_free(A);
+      cs_free(At);
+      cs_free(Asym);
+      ind++;
+    }
+  }
+
+  return 0;
 }
 
 void ShiftOpCs::_mapUpdate(std::map<int, double>& tab,

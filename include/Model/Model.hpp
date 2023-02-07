@@ -445,10 +445,9 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
-                      int norder = 0,
+                      int nostd = 0,
                       bool asCov = false,
                       bool addZero = false);
-
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),

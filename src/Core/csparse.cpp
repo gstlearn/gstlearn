@@ -1644,10 +1644,11 @@ cs* cs_diag(VectorDouble diag)
       return nullptr;
     }
   }
-  Striplet = cs_spfree(Striplet);
-  return cs_triplet(Striplet);
-}
 
+  cs* Q = cs_triplet(Striplet);
+  Striplet = cs_spfree(Striplet);
+  return Q;
+}
 
 /* 1-norm of a sparse matrix = max (sum (abs (A))), largest column sum */
 double cs_norm(const cs *A)
