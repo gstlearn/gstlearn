@@ -16,7 +16,7 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 
-plot.initialize()
+#plot.initialize()
 plot.printDefault()
 ```
 
@@ -56,15 +56,16 @@ mygrid
 Displaying the grid cells
 
 ```{r}
-p = plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2",
-              show.legend.raster=TRUE)
-plot.decoration(p,title="Display of Grid Cells")
+p = plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
+              show.legend.raster=TRUE, legend.name.raster="ma Legende")
+p = plot.decoration(p,title="Display of Grid Cells")
+p
 ```
 
 Displaying the grid nodes only
 
 ```{r}
-p = plot.point(mygrid, name_color="Simu.1",show.legend.symbol = TRUE,
+p = plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", show.legend.symbol = TRUE,
                legend.name.color="myColor")
 plot.decoration(p,title="Display of Grid Nodes")
 ```
@@ -81,7 +82,7 @@ mygrid
 Displaying the cell contents in the rotated grid
 
 ```{r}
-p = plot.grid(mygrid, name_raster="Simu.1")
+p = plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
 plot.decoration(p,title="Display of Rotated Grid")
 ```
 
@@ -105,8 +106,9 @@ mypoly = Polygons_createFromDb(mypoint)
 
 ```{r}
 p = plot(mygrid)
-p = plot(mypoly, fill=NA, colour='yellow', linewidth=2, padd=p)
+p = plot(mypoly, fill=NA, colour='yellow', linewidth=1, padd=p)
 p = plot(mypoint,color="black", padd=p)
+p = plot.decoration(p, title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
 p
 ```
 
@@ -134,7 +136,7 @@ err = model$fit(vario,type=ECov_fromKeys(c("SPHERICAL", "CUBIC")))
 Displaying experimental variogram
 
 ```{r}
-p = plot(vario, draw_psize=T)
+p = plot(vario, draw_psize=F, linewidth=1, color="red")
 p = plot.decoration(p, title="First Variable - First Direction")
 p
 ```
@@ -146,20 +148,20 @@ p
 ```
 
 ```{r}
-p = plot(vario,color="black")
-p = plot(vario,idir=1, color='red', padd=p)
+p = plot(vario, color="black")
+p = plot(vario, idir=1, color='red', padd=p)
 p = plot.decoration(p, title="First Variable - Two directions")
 p
 ```
 
 ```{r}
-p = plot(vario, ivar=1,jvar=0,idir=-1)
+p = plot(vario, ivar=1, jvar=0, idir=-1, linewidth = 1)
 p = plot.decoration(p, title="Cross-variogram - Two directions")
 p
 ```
 
 ```{r}
-p = plot(vario, ivar=-1,jvar=-1,idir=-1)
+p = plot(vario, ivar=-1, jvar=-1, idir=-1, linewidth=1)
 p = plot.decoration(p,title="Simple and Cross Variograms in all directions")
 p
 ```
@@ -167,23 +169,15 @@ p
 Displaying the Model
 
 ```{r}
-p = plot(model,ivar=1,jvar=1, idir=0)
+p = plot(model, ivar=1, jvar=1, vario=vario, idir=0)
 p = plot.decoration(p, title="Model for the Second Variable in First Direction")
 p
 ```
 
+
 ```{r}
-p = plot.varmod(vario, model)
+p = plot.varmod(vario, model, linewidth=1)
 p = plot.decoration(p, title="All variograms in First Direction")
 p
-```
-
-Testing figure Overlay. This does not function correctly (yet).
-
-```{r}
-p = plot(vario, idir=0,ivar=-1,jvar=-1)
-p = plot.decoration(p, title="Overlay test")
-p = plot(model,ivar=1,jvar=1,codir=vario$getCodirs(0),
-                color='blue', padd=p$layers[[1]])
 ```
 
