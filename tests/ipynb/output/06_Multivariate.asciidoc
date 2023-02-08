@@ -1,0 +1,441 @@
+[[multivariate]]
+= Multivariate
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+Then we download the data base *dat*.
+
+Statistics
+
+
++*Out[5]:*+
+----
+                 MEAN
+Elevation       87.974
+Temperature      2.815
+ Target Elevation Mean   241.152
+ ----
+
+Observations
+
+
++*Out[6]:*+
+----
+![png](output_9_0.png)
+----
+
+Map of the elevations
+
+
++*Out[7]:*+
+----
+![png](output_11_0.png)
+----
+
+Temperature vs. Elevation
+
+
++*Out[8]:*+
+----
+![png](output_13_0.png)
+----
+
+Variograms and Non-stationarity
+
+Directional variograms (N-S and E-W): no drift or with first order
+global trend
+
+
++*Out[9]:*+
+----
+![png](output_15_0.png)
+----
+
+Global trend
+
+Find the coefficients of the global regression (first order polynomial)
+
+
++*Out[10]:*+
+----
+
+ Linear Regression
+ -----------------
+ - Calculated on 151 active values
+ - Explanatory Variable #1 = 3.521360
+ - Explanatory Variable #2 = -0.007466
+ - Explanatory Variable #3 = 0.001978
+ - Initial variance        = 1.019788
+ - Variance of residuals   = 0.735557
+ ----
+
+Modelling Variogram of Raw Data with Anisotropy
+
+
++*Out[12]:*+
+----
+![png](output_20_0.png)
+----
+
+Ordinary Kriging - Cross-Validation
+
+Perform Cross-validation (using Ordinary Kriging) and calculate the Mean
+Squared Error.
+
+
++*Out[13]:*+
+----
+                 MEAN
+OK.Temperature.esterr     -0.041
+OK.Temperature.stderr     -7.934
+ ----
+
+Ordinary Kriging - Estimation
+
+Graphic representation of Ordinary Kriging estimation
+
+
++*Out[15]:*+
+----
+![png](output_26_0.png)
+----
+
+Statistics on the Ordinary Kriging
+
+
++*Out[16]:*+
+----
+                 MEAN
+OK.Temperature.estim      2.806
+OK.Temperature.stdev      0.460
+ ----
+
+Fitting Variogram of Residuals
+
+
++*Out[18]:*+
+----
+![png](output_31_0.png)
+----
+
+Note that the residuals seem isotropic, hence use isotropic option for
+Fitting.
+
+Universal Kriging - Cross-Validation
+
+Perform Cross-validation (using Universal Kriging) and calculate the
+Mean Squared Error.
+
+
++*Out[19]:*+
+----
+                 MEAN
+UK.Temperature.esterr     -0.352
+UK.Temperature.stderr     -8.056
+ ----
+
+Universal Kriging - Estimation
+
+Graphic representation
+
+
++*Out[21]:*+
+----
+![png](output_38_0.png)
+----
+
+Statistics on Universal Kriging
+
+
++*Out[22]:*+
+----
+                 MEAN
+UK.Temperature.estim      2.514
+UK.Temperature.stdev      0.482
+ ----
+
+Comparing Ordinary and Universal Krigings
+
+
++*Out[23]:*+
+----
+![png](output_42_0.png)
+----
+
+Comparing Temperature and Elevation
+
+
++*Out[24]:*+
+----
+![png](output_44_0.png)
+----
+
+Average of Elevations of all data and average of Elevations of
+meteorological stations
+
+
++*Out[25]:*+
+----
+                 MEAN
+Elevation       87.974
+Temperature      2.815
+ ----
+
+Average of Elevations when Temperatures are defined
+
+
++*Out[26]:*+
+----
+                 MEAN
+Elevation       87.974
+Temperature      2.815
+ ----
+
+Bivariate Modelling
+
+Bivariate Modelling
+
+
++*Out[29]:*+
+----
+![png](output_53_0.png)
+----
+
+Cokriging with elevation - Cross-Validation
+
+Most of the processes are more time-consuming in Unique Neighborhood. We
+create a small neighborhood for demonstration.
+
+Perform Cross-validation (Bivariate Model) and calculate the Mean
+Squared Error.
+
+
++*Out[31]:*+
+----
+                 MEAN
+COK.Temperature.esterr     -0.407
+COK.Temperature.stderr     -8.735
+ ----
+
+Cokriging with elevation - Estimate
+
+Graphic representation
+
+
++*Out[33]:*+
+----
+![png](output_61_0.png)
+----
+
+Statistics
+
+
++*Out[34]:*+
+----
+                 MEAN
+COK.Temperature.estim      2.553
+COK.Temperature.stdev      0.388
+ ----
+
+Comparing Kriging and CoKriging
+
+
++*Out[35]:*+
+----
+![png](output_65_0.png)
+----
+
+Note that CoKriging produces estimates which are mostly larger than
+Kriging estimates.
+
+Kriging the residuals
+
+latexmath:[\[
+Z_2(s)=b + a Z_1(s) + R(s)
+\]]
+
+A first call to the regression function is done in order to retreive the
+coefficients of the regression
+
+
++*Out[36]:*+
+----
+
+ Linear Regression
+ -----------------
+ - Calculated on 151 active values
+ - Constant term           = 3.611970
+ - Explanatory Variable #1 = -0.009064
+ - Initial variance        = 1.019788
+ - Variance of residuals   = 0.363298
+ ----
+
+We calculate the Residuals and provide some statistics
+
+
++*Out[37]:*+
+----
+     0.000
+ ----
+
+
++*Out[38]:*+
+----
+![png](output_71_0.png)
+----
+
+Kriging the residuals - Variogram of the residual
+
+
++*Out[40]:*+
+----
+![png](output_74_0.png)
+----
+
+Kriging the residuals
+
+
++*Out[42]:*+
+----
+![png](output_77_0.png)
+----
+
+Kriging the residuals - Computing the estimate
+
+latexmath:[\[
+Z_2^{\star} = b + a Z_1(s) + R(s)^{OK}
+\]]
+
+
++*Out[44]:*+
+----
+![png](output_80_0.png)
+----
+
+Correlation between Ordinary Kriging and CoKriging
+
+
++*Out[45]:*+
+----
+![png](output_82_0.png)
+----
+
+Correlation between Ordinary Kriging and Kriging withResiduals
+
+
++*Out[46]:*+
+----
+![png](output_84_0.png)
+----
+
+Some statistics for comparison
+
+
++*Out[47]:*+
+----
+                 MEAN
+OK.Temperature.estim       2.806
+UK.Temperature.estim       2.514
+COK.Temperature.estim      2.553
+KR.Temperature.estim       1.445
+ ----
+
+[[using-elevation-map-as-external-drift]]
+== Using Elevation Map as External Drift
+
+Preparing the data bases
+
+Comparing the Experimental variograms
+
+
++*Out[50]:*+
+----
+![png](output_92_0.png)
+----
+
+Model of Residuals (External Drift)
+
+Cross-Validation with External Drift
+
+
++*Out[52]:*+
+----
+                 MEAN
+KED.Temperature.esterr     -0.009
+KED.Temperature.stderr     -7.569
+ ----
+
+Kriging with External Drift
+
+Graphic representation
+
+
++*Out[54]:*+
+----
+![png](output_100_0.png)
+----
+
+Statistics on Kriging with Elevation as External Drift
+
+
++*Out[55]:*+
+----
+                 MEAN
+KED.Temperature.estim      1.778
+KED.Temperature.stdev      0.396
+ ----
+
+Comparing Ordinary Kriging and Kriging with External Drift
+
+
++*Out[56]:*+
+----
+![png](output_104_0.png)
+----
+
+Note that negative Estimates are present when using External Drift.
+
+[[summary-of-cross-validation-scores]]
+== Summary of Cross-validation scores
+
+Statistics on the cross-validation Mean Squared Errors (for Temperature)
+
+
++*Out[57]:*+
+----
+                 MEAN
+OK.Temperature.esterr      -0.041
+UK.Temperature.esterr      -0.352
+COK.Temperature.esterr     -0.407
+COK.Elevation.esterr       41.809
+KED.Temperature.esterr     -0.009
+ ----
+
+Statistics on the various estimates
+
+
++*Out[58]:*+
+----
+                 MEAN
+OK.Temperature.estim            2.806
+UK.Temperature.estim            2.514
+COK.Temperature.estim           2.553
+ROK.Regr.Temperature.estim      0.019
+KR.Temperature.estim            1.445
+KED.Temperature.estim           1.778
+ ----
+
+Statistics on the various standard deviation of estimation errors
+
+
++*Out[59]:*+
+----
+                 MEAN
+OK.Temperature.stdev            0.460
+UK.Temperature.stdev            0.482
+COK.Temperature.stdev           0.388
+ROK.Regr.Temperature.stdev      0.362
+KED.Temperature.stdev           0.396
+ ----

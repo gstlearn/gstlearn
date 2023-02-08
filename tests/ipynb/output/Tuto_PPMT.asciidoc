@@ -1,0 +1,215 @@
+[[ppmt-method]]
+= PPMT Method
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[initialization]]
+== Initialization
+
+Simulation of a Reference data set on a Grid
+
+
++*Out[6]:*+
+----
+![png](output_8_0.png)
+----
+
+
++*Out[7]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*Out[8]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[9]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_12_0.png)
+----
+
+Lognormal transformation
+
+
++*Out[12]:*+
+----
+![png](output_15_0.png)
+----
+
+
++*Out[13]:*+
+----
+                 MINI      MAXI      MEAN      STDV
+Z1             0.382     2.456     1.000     0.254
+Z2             0.069     2.833     0.500     0.266
+Y1            -3.719     3.719     0.000     0.999
+Y2            -3.719     3.719     0.000     0.999
+ ----
+
+
++*Out[14]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[15]:*+
+----
+![png](output_18_0.png)
+----
+
+
++*Out[16]:*+
+----
+![png](output_19_0.png)
+----
+
+
++*Out[17]:*+
+----
+![png](output_20_0.png)
+----
+
+[[extraction-of-a-data-set]]
+== Extraction of a data set
+
+
++*Out[19]:*+
+----
+![png](output_23_0.png)
+----
+
+Normal score
+
+
++*Out[21]:*+
+----
+                 MINI      MAXI      MEAN      STDV
+Z1             0.419     2.154     0.982     0.241
+Z2             0.083     2.359     0.482     0.251
+Y1            -2.879     2.879     0.000     0.989
+Y2            -2.879     2.879     0.000     0.989
+ ----
+
+
++*Out[22]:*+
+----
+![png](output_27_0.png)
+----
+
+
++*Out[23]:*+
+----
+![png](output_28_0.png)
+----
+
+
++*Out[24]:*+
+----
+![png](output_29_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_30_0.png)
+----
+
+
++*Out[26]:*+
+----
+![png](output_31_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_32_0.png)
+----
+
+
++*Out[28]:*+
+----
+                 MINI      MAXI      MEAN      STDV
+Y1            -2.879     2.879     0.000     0.989
+Y2            -2.879     2.879     0.000     0.989
+ ----
+
+[[implementing-ppmt]]
+== Implementing PPMT
+
+Launching PPMT and fitting it on the vector of Input data
+
+Evolution of the Index
+
+
++*Out[30]:*+
+----
+![png](output_38_0.png)
+----
+
+Final results (non correlated variables)
+
+
++*Out[31]:*+
+----
+                 MINI      MAXI      MEAN      STDV
+U.Y1          -3.013     3.155     0.000     1.000
+U.Y2          -2.823     3.009     0.000     0.997
+ ----
+
+Transformed Gaussian variables
+
+
++*Out[32]:*+
+----
+![png](output_42_0.png)
+----
+
+
++*Out[33]:*+
+----
+![png](output_43_0.png)
+----
+
+
++*Out[34]:*+
+----
+![png](output_44_0.png)
+----
+
+
++*Out[35]:*+
+----
+![png](output_45_0.png)
+----
+
+
++*Out[36]:*+
+----
+![png](output_46_0.png)
+----
+
+
++*Out[38]:*+
+----
+![png](output_48_0.png)
+----
+
+
++*Out[39]:*+
+----
+![png](output_49_0.png)
+----

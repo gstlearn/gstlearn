@@ -1,0 +1,110 @@
+[[tutorial-for-potential-model]]
+= Tutorial for Potential Model
+
+This file is meant to demonstrate the use of gstlearn for Potential
+Model.
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[case-in-1-d]]
+= Case in 1-D
+
+[[defining-the-information]]
+== Defining the Information
+
+Setting some global variables
+
+Defining the data points used as controls
+
+The set of iso-potential data points. Each datum is characterized by its
+coordinate and an indicator of the set to which it belongs.
+
+The Gradient information
+
+The 1-D grid covering the field of estimation
+
+The Model is composed of a Gaussian Covariance with a scale 20. The
+model must be turned into a Gradient model.
+
+The Neighborhood (although parametrized) should be Unique
+
+[[launching-the-estimation]]
+== Launching the Estimation
+
+We launch the calculation of the Potential on the nodes of the grid. The
+use of OptDbg statement is maintained for spying the process when
+estimating a target node in particular (-1 stands for no control).
+
+Graphic representation
+
+
++*Out[10]:*+
+----<matplotlib.collections.LineCollection at 0x7efc7eaa70a0>
+![png](output_23_1.png)
+----
+
+[[case-in-2-d]]
+= Case in 2-D
+
+[[defining-the-information]]
+= Defining the Information
+
+We define the space dimension
+
+Defining the Iso-Potential information
+
+Defining the Gradient information
+
+Defining the Tangent information
+
+Defining the output grid
+
+Defining the Model and turn it into a Gradient Model
+
+Defining the Neighborhood
+
+[[launching-the-estimation]]
+== Launching the estimation
+
+Visualization
+
+
++*Out[19]:*+
+----
+![png](output_43_0.png)
+----
+
+[[case-in-3-d]]
+= Case in 3-D
+
+[[defining-the-information]]
+== Defining the Information
+
+We define the space dimension
+
+Defining the Iso-Potential information
+
+Defining the Gradient information
+
+Defining the Tangent information
+
+Defining the output grid
+
+Defining the Model (as IRF-1) and turn it into a Gradient Model
+
+Defining the Neighborhood
+
+[[launching-the-estimation]]
+== Launching the estimation
+
+3-D Visualization
+
+
++*Out[28]:*+
+----
+
+
+[[1608f324-640f-4483-bcb5-324f85578d81]]
+----

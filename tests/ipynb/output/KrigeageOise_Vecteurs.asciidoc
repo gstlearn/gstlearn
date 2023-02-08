@@ -1,0 +1,559 @@
+[[case-study-on-oise-data-set]]
+= Case Study on Oise Data Set
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+This case study reads information from the gstlearn repository.
+
+
++*Out[5]:*+
+----
+Column Name (1): X
+ Column Name (2): Y
+ Column Name (3): Epaisseur
+ Column Name (4): Epaisseur_1
+ Number of columns = 4
+ Data table read (Oise_Thickness.csv) successfully
+ - Number of columns = 4
+ - Number of rows    = 1022
+ 
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1022
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       1022
+ Nb of active values =       1022
+ Minimum value       =      1.000
+ Maximum value       =   1022.000
+ Mean value          =    511.500
+ Standard Deviation  =    295.026
+ Variance            =  87040.250
+2 - Name X - Locator x1
+ Nb of data          =       1022
+ Nb of active values =       1022
+ Minimum value       = 629450.000
+ Maximum value       = 741438.000
+ Mean value          = 679467.745
+ Standard Deviation  =  29334.862
+ Variance            = 860534131.372
+3 - Name Y - Locator x2
+ Nb of data          =       1022
+ Nb of active values =       1022
+ Minimum value       = 6875872.000
+ Maximum value       = 6981243.000
+ Mean value          = 6918746.035
+ Standard Deviation  =  23198.048
+ Variance            = 538149412.703
+4 - Name Epaisseur - Locator lower1
+ Nb of data          =       1022
+ Nb of active values =       1022
+ Minimum value       =      0.400
+ Maximum value       =     15.900
+ Mean value          =      7.237
+ Standard Deviation  =      2.892
+ Variance            =      8.363
+5 - Name Epaisseur_1 - Locator upper1
+ Nb of data          =       1022
+ Nb of active values =       1022
+ Minimum value       =      0.400
+ Maximum value       =     15.900
+ Mean value          =      7.237
+ Standard Deviation  =      2.892
+ Variance            =      8.363
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Epaisseur - Locator = lower1
+Column = 4 - Name = Epaisseur_1 - Locator = upper1
+ ----
+
+
++*Out[7]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 1022
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Epaisseur - Locator = lower1
+Column = 4 - Name = Epaisseur_1 - Locator = upper1
+Column = 5 - Name = Thickness - Locator = z1----
+
+
++*Out[8]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 1022
+Number of active samples     = 1007
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Epaisseur - Locator = lower1
+Column = 4 - Name = Epaisseur_1 - Locator = upper1
+Column = 5 - Name = Thickness - Locator = z1
+Column = 6 - Name = Duplicate - Locator = sel----
+
+
++*Out[9]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[11]:*+
+----
+Data table read (Alluvial.csv) successfully
+ - Number of columns = 2
+ - Number of rows    = 1437
+ ----
+
+
++*Out[12]:*+
+----
+![png](output_13_0.png)
+----
+
+
++*Out[14]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 1022
+Number of active samples     = 1007
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Epaisseur - Locator = lower1
+Column = 4 - Name = Epaisseur_1 - Locator = upper1
+Column = 5 - Name = Thickness - Locator = z1
+Column = 6 - Name = Duplicate - Locator = sel----
+
+
++*Out[15]:*+
+----
+![png](output_16_0.png)
+----
+
+
++*Out[16]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1320000
+Number of active samples     = 138248
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = sel----
+
+
++*Out[19]:*+
+----[<matplotlib.lines.Line2D at 0x7f9423e5d820>]
+![png](output_20_1.png)
+----
+
+
++*Out[21]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 40000
+
+Variables
+---------
+Column = 0 - Name = xx - Locator = x1
+Column = 1 - Name = yy - Locator = x2
+Column = 2 - Name = u_interp - Locator = z1
+Column = 3 - Name = v_interp - Locator = z2
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1320000
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+ ----
+
+
++*Out[22]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1320000
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+ ----
+
+
++*Out[25]:*+
+----[<matplotlib.lines.Line2D at 0x7f9423e13df0>]
+![png](output_26_1.png)
+----
+
+
++*Out[26]:*+
+----
+![png](output_27_0.png)
+----
+
+
++*Out[27]:*+
+----
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variance-Covariance Matrix     8.308
+
+Direction #1
+------------
+Number of lags              = 40
+Direction coefficients      =      1.000     1.000
+Direction angles (degrees)  =     45.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =    800.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0  1497.000   222.651     4.320
+         1  4144.000   817.595     6.006
+         2  4991.000  1597.901     5.768
+         3  5136.000  2402.202     7.184
+         4  4917.000  3203.355     7.062
+         5  5376.000  3996.992     6.872
+         6  5950.000  4805.500     6.823
+         7  5977.000  5607.812     6.221
+         8  5882.000  6391.725     6.132
+         9  5773.000  7198.759     7.200
+        10  5596.000  8003.985     6.710
+        11  4791.000  8802.836     7.648
+        12  5395.000  9590.811     6.759
+        13  5080.000 10419.575     6.715
+        14  5648.000 11189.883     6.848
+        15  6131.000 12007.431     6.499
+        16  5404.000 12773.473     6.806
+        17  4858.000 13605.535     6.477
+        18  4512.000 14393.349     6.468
+        19  4757.000 15203.934     6.522
+        20  4611.000 16000.736     5.907
+        21  4441.000 16793.025     6.945
+        22  4744.000 17616.342     7.342
+        23  6278.000 18421.513     7.217
+        24  5724.000 19187.978     7.032
+        25  5358.000 19995.792     6.630
+        26  5150.000 20792.670     7.825
+        27  5452.000 21594.321     7.903
+        28  4787.000 22407.797     7.569
+        29  5381.000 23190.746     9.347
+        30  4957.000 24010.196     7.407
+        31  5197.000 24797.916     8.004
+        32  5178.000 25608.936     7.778
+        33  5400.000 26409.634     8.091
+        34  4918.000 27190.981     7.408
+        35  4704.000 27990.733     7.810
+        36  4499.000 28793.542     7.391
+        37  5276.000 29647.480     7.027
+        38  5407.000 30398.366     7.499
+        39  6072.000 31199.740     7.748
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =     -1.000     1.000
+Direction angles (degrees)  =    135.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =    400.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   608.000   118.768     2.770
+         1  1411.000   393.556     4.525
+         2  1451.000   794.496     6.282
+         3  1231.000  1197.348     6.558
+         4  1028.000  1597.631     7.271
+         5   855.000  1982.172     7.292
+         6   696.000  2405.045     7.805
+         7   676.000  2795.556     7.764
+         8   417.000  3190.162     8.728
+         9   353.000  3598.353    11.266
+        10   337.000  3995.587    10.021
+        11   260.000  4401.091     7.744
+        12   233.000  4792.091     7.633
+        13   179.000  5181.753     7.729
+        14   169.000  5587.892     7.010
+        15   101.000  5976.535     9.957
+        16    89.000  6390.457     9.290
+        17    55.000  6800.051     5.859
+        18    29.000  7192.062     9.570
+        19    40.000  7634.709     4.950
+ 
+![png](output_28_1.png)
+
+![png](output_28_2.png)
+----
+
+
++*Out[28]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.208
+K-Bessel (Third Parameter = 1)
+- Sill         =      4.699
+- Ranges       =   1022.106  1497.510
+- Theo. Ranges =    295.057   432.294
+- Angles       =     45.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.707    -0.707
+     [  1,]     0.707     0.707
+Total Sill     =      6.907
+ 
+![png](output_29_1.png)
+
+![png](output_29_2.png)
+----
+
+
++*Out[32]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 1320000
+Number of active samples     = 138248
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = sel
+Column = 4 - Name = Migrate.u_interp - Locator = z1
+Column = 5 - Name = Migrate.v_interp - Locator = z2
+Column = 6 - Name = vec_define - Locator = NA----
+
+
++*Out[39]:*+
+----
+![png](output_40_0.png)
+----
+
+
++*Out[40]:*+
+----
+![png](output_41_0.png)
+----
+
+
++*Out[41]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
+Total number of samples      = 1320000
+Number of active samples     = 138248
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = sel
+Column = 4 - Name = Migrate.u_interp - Locator = NA
+Column = 5 - Name = Migrate.v_interp - Locator = NA
+Column = 6 - Name = vec_define - Locator = NA
+Column = 7 - Name = angles1 - Locator = nostat1
+Column = 8 - Name = spde.Thickness.kriging - Locator = z1
+![png](output_42_1.png)
+----

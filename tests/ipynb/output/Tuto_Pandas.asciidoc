@@ -1,0 +1,86 @@
+[[this-file-demonstrates-the-conversion-of-a-db-into-a-panda]]
+== This file demonstrates the conversion of a Db into a Panda
+
+Loading the required libraries
+
+We first create the Data Base 'db' with few samples and 4 variables.
+
+Each of these variables is assigned a Locator.
+
+The next printout shows the contents of the Db using gstlearn format
+
+
++*Out[4]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 10
+Number of active samples     = 5
+
+Variables
+---------
+Column = 0 - Name = long - Locator = x1
+Column = 1 - Name = lat - Locator = x2
+Column = 2 - Name = z - Locator = z1
+Column = 3 - Name = sel - Locator = sel----
+
+We now convert it into a Panda file
+
+We check its contents using Panda own format
+
+
++*Out[6]:*+
+----
+[cols=",,,,",options="header",]
+|============================================
+| |long |lat |z |sel
+|0 |0.350074 |0.248383 |0.847414 |0.484706
+|1 |0.863453 |0.979953 |0.004834 |0.131418
+|2 |0.467597 |0.408919 |0.293105 |0.189900
+|3 |0.674909 |0.478221 |0.710382 |0.375072
+|4 |0.257957 |0.108154 |0.892730 |0.853025
+|5 |-0.605024 |-1.103208 |-0.548920 |0.278128
+|6 |0.249570 |-0.053534 |0.997091 |0.394707
+|7 |1.068154 |-3.481653 |0.000000 |1.000000
+|8 |0.000000 |1.000000 |1.000000 |0.000000
+|9 |1.000000 |1.000000 |0.000000 |0.000000
+|============================================
+----
+
+The conversion is performed once more, but keeping track of the locator
+information assigned to each variable.
+
+The printout is not modified.
+
+
++*Out[8]:*+
+----
+[cols=",,,,",options="header",]
+|============================================
+| |long |lat |z |sel
+|0 |0.350074 |0.248383 |0.847414 |0.484706
+|1 |0.863453 |0.979953 |0.004834 |0.131418
+|2 |0.467597 |0.408919 |0.293105 |0.189900
+|3 |0.674909 |0.478221 |0.710382 |0.375072
+|4 |0.257957 |0.108154 |0.892730 |0.853025
+|5 |-0.605024 |-1.103208 |-0.548920 |0.278128
+|6 |0.249570 |-0.053534 |0.997091 |0.394707
+|7 |1.068154 |-3.481653 |0.000000 |1.000000
+|8 |0.000000 |1.000000 |1.000000 |0.000000
+|9 |1.000000 |1.000000 |0.000000 |0.000000
+|============================================
+----
+
+But each variable can show the locator which is attached to it. The
+syntax is as follows:
+
+
++*Out[9]:*+
+----'sel'----

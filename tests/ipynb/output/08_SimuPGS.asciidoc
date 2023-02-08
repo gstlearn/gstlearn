@@ -1,0 +1,130 @@
+[[plurigaussian-simulations]]
+= PluriGaussian simulations
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+Defining some essential parameters:
+
+Downloading the data base (from the distribution *Data.NF*)
+
+Creating the output Grid, the Model (Cubic) and the Neighborhood
+(Unique):
+
+[[displaying-data]]
+===== Displaying Data:
+
+Samples are represented with a different color per *facies*: - first
+facies in _red_ - second facies in _blue_ - third facies in _yellow_
+
+Samples which must belong to the same connected component (see variable
+*connect*) are displayed with large symbols.
+
+
++*Out[6]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 100
+Number of active samples     = 99
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.V1.S1 - Locator = NA
+Column = 4 - Name = facies - Locator = z1
+Column = 5 - Name = sel - Locator = sel
+Column = 6 - Name = connect - Locator = NA----
+
+
++*Out[7]:*+
+----
+![png](output_11_0.png)
+----
+
+Creating Proportions and Lithotype Rule
+
+
++*Out[9]:*+
+----
+![png](output_14_0.png)
+----
+
+Calculate the Experimental Variogram of the Underlying Gaussian Random
+Function and fit the Model (used in PGS).
+
+
++*Out[10]:*+
+----
+Warning: Dir=0 IV=0 JV=0 iad0=20 -> HH=99.000000
+ ----
+
+
++*Out[11]:*+
+----
+![png](output_17_0.png)
+----
+
+PluriGaussian Simulation
+
+Show several simulation outcomes
+
+
++*Out[13]:*+
+----
+![png](output_21_0.png)
+----
+
+Define an Acceptation-Rejection function
+
+Acceptation internal function: For a given simulation outcome
+
+* Select the *Target Facies* and build its Connected Components,
+* Read the indices of the connected component(s) at constraining wells,
+* Return the score: *True* if these indices are similar and *False*
+otherwise.
+
+Check the acceptation / rejection function on the Simulation outcome #1.
+
+
++*Out[15]:*+
+----
+Number of conditioning data = 4
+Their ranks in the input Data Base = [4, 12, 15, 16]
+Their ranks in the output Data Base = [6000 1270 6648 9712]
+List of their connected components indices = [1. 1. 1. 1.]
+Acceptation score = True
+----
+
+Check the acceptation function on all simulation outcomes
+
+
++*Out[16]:*+
+----
+Simulation  SimuPGS.1 is valid
+Simulation  SimuPGS.2 is valid
+Simulation  SimuPGS.4 is valid
+Simulation  SimuPGS.5 is valid
+Simulation  SimuPGS.6 is valid
+Simulation  SimuPGS.7 is valid
+Simulation  SimuPGS.9 is valid
+Simulation  SimuPGS.10 is valid
+----
+
+Derive the Probability Map
+
+
++*Out[18]:*+
+----
+![png](output_30_0.png)
+----

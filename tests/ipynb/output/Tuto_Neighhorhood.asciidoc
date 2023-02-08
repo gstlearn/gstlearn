@@ -1,0 +1,92 @@
+[[tutorial-for-checking-moving-neighborhood]]
+= Tutorial for checking Moving Neighborhood
+
+This file is meant to demonstrate the use of gstlearn for Moving
+Neighborhood search
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+Setting some global variables
+
+In this paragraph, we generate a Poisson data set and check various
+neighborhoods around one specific node of a regular grid.
+
+[[poisson-data-set]]
+= Poisson Data Set
+
+
++*Out[6]:*+
+----
+![png](output_10_0.png)
+----
+
+[[checking-standard-neighborhood]]
+== Checking standard neighborhood
+
+Defining a standard Moving Neighborhood
+
+
++*Out[7]:*+
+----
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 1
+Maximum number of samples           = 15
+Number of angular sectors           = 8
+Maximum number of points per sector = 3
+Maximum horizontal distance         = 0.3----
+
+Checking the neighborhood around a central grid node
+
+
++*Out[9]:*+
+----
+![png](output_16_0.png)
+----
+
+[[defining-variable-block-extensions]]
+== Defining variable block extensions
+
+In this section, we will generate variables in the Grid which contain
+the cell extension: this cell extension replaces the constant value of
+the mesh.
+
+The following display shows each block with its center and its cell
+extension.
+
+
++*Out[11]:*+
+----
+![png](output_21_0.png)
+----
+
+We choose a specific cell again and determine the standard neighrbohood
+
+
++*Out[13]:*+
+----
+![png](output_24_0.png)
+----
+
+Modify the neighborhood to set the option for forcing the selection of
+all samples belonging to the block
+
+
++*Out[14]:*+
+----
+
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 1
+Force Selection of all samples within target Block
+ ----
+
+
++*Out[16]:*+
+----
+![png](output_28_0.png)
+----

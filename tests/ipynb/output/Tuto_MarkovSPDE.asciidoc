@@ -1,0 +1,68 @@
+[[markovian-simulation]]
+= Markovian simulation
+
+
++*Out[5]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Markov (Third Parameter = 1)
+- Sill         =      2.000
+- Ranges       =     13.856    24.942
+- Theo. Ranges =      2.000     3.600
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      2.000----
+
+
++*Out[7]:*+
+----array([ 1.001, -2.   ,  0.25 ,  1.   ])----
+
+
++*Out[8]:*+
+----1.0----
+
+
++*Out[9]:*+
+----24.941531628991832----
+
+
++*Out[11]:*+
+----
+![png](output_11_0.png)
+<matplotlib.image.AxesImage at 0x7f8ebd8e0cd0>
+![png](output_11_2.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_12_0.png)
+----
+
+
++*Out[13]:*+
+----<matplotlib.image.AxesImage at 0x7f8ebca44bb0>
+![png](output_13_1.png)
+----
+
+
++*Out[14]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[15]:*+
+----28.68470083981035----

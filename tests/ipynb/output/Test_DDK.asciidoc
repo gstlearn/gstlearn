@@ -1,0 +1,286 @@
+[[discrete-disjunctive-kriging]]
+= Discrete Disjunctive Kriging
+
+This notebook presents an example for Discrete-Disjunctive Kriging
+(DDK). The theory is not detailed here, see for example: +
+Rivoirard, J. (1994). Introduction to disjunctive kriging and non-linear
+geostatistics. Number 551.021 R626i. Clarendon Press
+
+[[simulation-of-a-reference-data-set]]
+== Simulation of a reference data set
+
+We create a reference data set (lognormal distribution) based on a model
+that we define, using _simtub_ (based on Turning Bands).
+
+
++*Out[2]:*+
+----
+![png](output_3_0.png)
+
+![png](output_3_1.png)
+----
+
+[[elementary-statistics]]
+==== Elementary statistics
+
+We define cutoffs values corresponding to quantiles 0%, 30%, 50%, 70%
+and 90%.
+
+
++*Out[3]:*+
+----
+
+       Coupures sur la variable Z       
+   0.3       0.5       0.7       0.9    
+  0.731     0.936     1.233     1.770    
+
+Bound( 1 ) : [ 0 ; 0.73138 [
+Bound( 2 ) : [ 0.73138 ; 0.935746 [
+Bound( 3 ) : [ 0.935746 ; 1.23252 [
+Bound( 4 ) : [ 1.23252 ; 1.77013 [
+ ----
+
+[[discretization-of-the-variable-on-cutoff-values]]
+== Discretization of the variable on cutoff values
+
+From the cutoff values defined above, the variable _Z_ is discretized on
+the four intervals delimited by the cutoff values. The indicators of the
+intervals are latexmath:[$\mathbb{1}(z_i \le Z < z_{i+1})$]. The fifth
+indicator (latexmath:[$\mathbb{1}(Z \ge z_{5})$]) is not computed
+because it can be deducted from the four other ones as their sum equals
+to one.
+
+
++*Out[4]:*+
+----
+Proportions =  [0.3 0.2 0.2 0.2 0.1]
+----
+
+
++*Out[5]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 10
+Maximum Number of UIDs       = 10
+Total number of samples      = 1000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = NA
+Column = 5 - Name = Indicator.Z.Class.1 - Locator = NA
+Column = 6 - Name = Indicator.Z.Class.2 - Locator = NA
+Column = 7 - Name = Indicator.Z.Class.3 - Locator = NA
+Column = 8 - Name = Indicator.Z.Class.4 - Locator = NA
+Column = 9 - Name = Indicator.Z.Mean - Locator = z1
+
+
+![png](output_8_1.png)
+----
+
+[[variography-omnidirectional]]
+== Variography (omnidirectional)
+
+[[variogram-of-the-raw-variable-z]]
+==== Variogram of the raw variable _Z_
+
+
++*Out[6]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      0.188
+- Range        =      0.121
+- Theo. Range  =      0.040
+Exponential
+- Sill         =      0.144
+- Range        =      1.071
+- Theo. Range  =      0.357
+Total Sill     =      0.332
+ 
+![png](output_10_1.png)
+----
+
+[[variogram-of-the-discretized-variable]]
+==== Variogram of the discretized variable
+
+
++*Out[7]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      0.082
+- Range        =      0.083
+- Theo. Range  =      0.028
+Exponential
+- Sill         =      0.058
+- Range        =      0.837
+- Theo. Range  =      0.280
+Total Sill     =      0.140
+ 
+![png](output_12_1.png)
+----
+
+[[variograms-of-the-indicator-variables]]
+==== Variograms of the Indicator variables
+
+
++*Out[8]:*+
+----
+![png](output_14_0.png)
+----
+
+The indicators are spatially correlated. A method for disjunctive
+kriging would consist in cokriging all indicators. Instead, we will
+decompose them into factors that are not correlated spatially, so that
+they can all be estimated seperately by kriging.
+
+[[maf-minmax-autocorrelation-factors]]
+== MAF : Min/Max Autocorrelation Factors
+
+Indicators are decomposed on factors called MAF (Min/Max Autocorrelation
+Factors). MAFs are not correlated spatially, and the first MAFs
+represent the spatial structures with the most continuity.
+
+[[computing-mafs]]
+==== Computing MAFs
+
+
++*Out[9]:*+
+----
+
+PCA Contents
+------------
+Means
+               [,  0]
+     [  0,]     0.300
+     [  1,]     0.200
+     [  2,]     0.200
+     [  3,]     0.200
+Standard deviations
+               [,  0]
+     [  0,]     0.458
+     [  1,]     0.400
+     [  2,]     0.400
+     [  3,]     0.400
+Eigen Values
+               [,  0]
+     [  0,]     1.154
+     [  1,]     1.768
+     [  2,]     1.947
+     [  3,]     1.988
+Matrix M to transform standardized Variables Z into Factors Y
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     1.433     0.662    -0.478     0.283
+     [  1,]     0.949     1.003    -0.014    -0.702
+     [  2,]     0.685     1.280     0.269     0.470
+     [  3,]     0.426     1.199    -0.884     0.026
+Y = Z * M (columns  = eigen vectors)
+Matrix t(M) to back-transform Factors Y into standardized Variables Z
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     0.759     0.203    -0.128    -0.452
+     [  1,]    -0.477     0.167     0.512     0.411
+     [  2,]    -0.272     0.296     0.650    -0.791
+     [  3,]     0.350    -0.918     0.547    -0.008
+Z = Y * t(M) (rows  = eigen vectors)
+ ----
+
+
++*Out[10]:*+
+----
+Correlation between factors MAF
+[[ 1. -0. -0.  0. -0.]
+ [-0.  1. -0.  0. -0.]
+ [-0. -0.  1.  0. -0.]
+ [ 0.  0.  0.  1.  0.]
+ [-0. -0. -0.  0.  1.]]
+<matplotlib.legend.Legend at 0x7f614d6fa460>
+![png](output_18_2.png)
+----
+
+[[visualize-maf-and-their-variograms]]
+==== Visualize MAF and their variograms
+
+
++*Out[11]:*+
+----
+![png](output_20_0.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_21_0.png)
+----
+
+[[kriging-mafs]]
+= Kriging MAFs
+
+[[define-individual-models-for-the-mafs]]
+==== Define individual models for the MAFs
+
+Since the MAFs are orthogonal, we will only consider the simple
+variograms, in order to do kriging and not cokriging
+
+
++*Out[13]:*+
+----
+![png](output_23_0.png)
+----
+
+For example, we can obtain an estimation of the variable Z with DDK.
+Here we only consider the first two MAFs as an example, and because MAF3
+and MAF4 are not very structured and have a very small range. MAF1 and
+MAF2 reprensent the pattern of the most continuity, and large scale
+structures. +
+First, we can do the kriging of MAF1 and MAF2 separately, as they are
+built to be orthogonal.
+
+Then, we obtain the estimate of any variable that can be expressed as a
+linear combination of the indicators, and that are thus also a linear
+combination of the MAFs.
+
+
++*Out[15]:*+
+----
+The number of factors is less than the number of variables. The other factors will be neglected.
+The number of factors is less than the number of variables. The other factors will be neglected.
+----
+
+
++*Out[16]:*+
+----
+![png](output_28_0.png)
+
+![png](output_28_1.png)
+----

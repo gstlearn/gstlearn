@@ -1,0 +1,110 @@
+[[tutorial-for-grid-to-grid-manipulation]]
+= Tutorial for Grid To Grid Manipulation
+This file is meant to demonstrate the use of gstlearn for performing operations on Grids
+Setting some global variables
+
+We first define a 2-D grid with 150 x 100 nodes (unit mes size)
+
+On this grid we simulation (using Turning Bands method) two variables
+which will serve as the Top and Bottom for the next steps. For
+generality, we have truncated the two surfaces arbitrarily. Note taht we
+did not check that the Top surface is located _above_ the Bottom
+surface, nor that the masked areas coincide.
+
+
++*Out[5]:*+
+----
+Range for Bottom =  90.83105938182158 104.99958543205686
+Range for Top =  105.00084191866524 119.10100367815025
+----
+
+
++*Out[6]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[7]:*+
+----
+![png](output_11_0.png)
+----
+
+We now generate the maps of the Variable to be interpolated, with one
+version corresponding to the Top position and another version for the
+Bottom position. In order to enhance the interpolation feature, the two
+versions of this variable are simulated with different textures: short
+range at the Top and much longer range at the Top
+
+
++*Out[9]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_15_0.png)
+----
+
+
++*Out[11]:*+
+----
+Range for Bottom =  90.83105938182158 104.99958543205686
+Range for Top =  105.00084191866524 119.10100367815025
+----
+
+We create a 3D grid which covers the variation of the variables Top and
+Bot (as simulated above), i.e. from 91 to 119.
+
+We obtain the following statistics on the newly created variable
+
+
++*Out[14]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 3
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 450000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000    91.000
+Mesh   :      1.000     1.000     1.000
+Number :        150       100        30
+
+Data Base Statistics
+--------------------
+5 - Name Interpolation - Locator z1
+ Nb of data          =     450000
+ Nb of active values =     156484
+ Minimum value       =     -6.055
+ Maximum value       =      9.049
+ Mean value          =      0.861
+ Standard Deviation  =      2.189
+ Variance            =      4.790
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+Column = 4 - Name = Interpolation - Locator = z1
+ ----
+
+Let us now visualize some horizontal slices of the 3-D grid.
+
+
++*Out[15]:*+
+----
+![png](output_23_0.png)
+----

@@ -1,0 +1,54 @@
+[[plot-boundaries-on-the-earth]]
+= Plot boundaries on the Earth
+
+Ce notebook est un résumé du notebook situé ici
+
+https://chart-studio.plotly.com/~empet/14813/heatmap-plot-on-a-spherical-map/#/
+
+et se concentre sur le traçage des frontières (plus généralement d'un
+polygone) sur la sphère.
+
+Il nécessite l'installation de *mpl_toolkits* qui peut être assez
+complexe.
+
+Sous linux, sous réserve que la librairie GEOS soit installée, il suffit
+d'effectuer les commandes suivantes (le dossier à télécharger est assez
+lourd et la procédure peut prendre quelques minutes) :
+wget https://github.com/matplotlib/basemap/archive/refs/tags/v1.3.3.tar.gz
+tar -xvf basemap-1.3.3.tar.gz
+cd basemap-1.3.3/packages/basemap
+python3 -m pip install .
+En cas de problème, voir les détails ici :
+
+https://matplotlib.org/basemap/users/installing.html .
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[3]:*+
+----
+
+Option for constructing the covariance spectrum
+-----------------------------------------------
+For all standard covariances
+Number of basic functions = 1000
+Number of discretization  = 360
+Spectrum Tolerance        = 1e-05
+ Random generation seed    = 23234
+ Number of frequencies     = 116
+ Cumulated Spectrum        = 1.000166
+ Sum of negative weights   = 0.000000
+ Maximum degree            = 115
+ Minimum order             = -96
+ Maximum order             = 83
+ ----
+
+
++*Out[6]:*+
+----
+
+
+[[d7340356-8b8c-49cb-9c01-7d7da34cb058]]
+----

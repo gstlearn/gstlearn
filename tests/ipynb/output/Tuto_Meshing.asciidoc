@@ -1,0 +1,364 @@
+[[tutorial-on-meshing]]
+= Tutorial on Meshing
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[standard-meshing-based-on-an-irregular-data-set]]
+== Standard Meshing based on an Irregular Data Set
+
+We construct a Meshing Standard based on a set of Data Points
+
+
++*Out[3]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 40
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2----
+
+
++*Out[4]:*+
+----
+![png](output_6_0.png)
+----
+
+Creating the Meshing
+
+
++*Out[5]:*+
+----
+
+Standard Meshing
+================
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 128
+Number of Apices          = 79
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0.648392 - Max:142.336
+Dim #2 - Min:3.38503 - Max:97.8622
+ ----
+
+
++*Out[6]:*+
+----
+![png](output_9_0.png)
+----
+
+Improving the meshing in order to avoid hugly triangles
+
+
++*Out[7]:*+
+----
+
+Standard Meshing
+================
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 128
+Number of Apices          = 79
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0.648392 - Max:142.336
+Dim #2 - Min:3.38503 - Max:97.8622
+ ----
+
+
++*Out[8]:*+
+----
+![png](output_12_0.png)
+----
+
+[[turbo-meshing]]
+== Turbo Meshing
+
+Instead we can use Turbo Meshing to cover an area, without specifically
+honoring each datum
+
+
++*Out[9]:*+
+----
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      5.000     5.000
+Number :         31        21
+ 
+Turbo Meshing
+=============
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 1200
+Number of Apices          = 651
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0 - Max:150
+Dim #2 - Min:0 - Max:100
+ ----
+
+
++*Out[10]:*+
+----
+![png](output_16_0.png)
+----
+
+We can create a regular grid covering the same area (based on the data
+set)
+
+Define a Polygon as the Convex hull of the data
+
+Use the Polygon to mask off some nodes of the regular grid, located too
+far from the data
+
+We create a Turbo Meshing from the grid (which contains a selection)
+
+
++*Out[14]:*+
+----
+
+Grid characteristics:
+---------------------
+Origin :      0.648     3.385
+Mesh   :      2.892     1.928
+Number :         50        50
+ 
+Turbo Meshing
+=============
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 3481
+Number of Apices          = 1830
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0.648392 - Max:142.336
+Dim #2 - Min:3.38503 - Max:97.8622
+
+Mask Information
+................
+Mesh Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 4802
+- Number of active positions   = 3481
+
+Grid Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 2500
+- Number of active positions   = 1830
+
+ ----
+
+
++*Out[15]:*+
+----
+![png](output_25_0.png)
+----
+
+[[read-and-write-in-neutral-file]]
+== Read and Write in Neutral File
+
+Testing the read and write into a Neutral File (with masked meshes)
+
+
++*Out[16]:*+
+----
+
+Grid characteristics:
+---------------------
+Origin :      0.648     3.385
+Mesh   :      2.892     1.928
+Number :         50        50
+ 
+Turbo Meshing
+=============
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 3481
+Number of Apices          = 1830
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0.648392 - Max:142.336
+Dim #2 - Min:3.38503 - Max:97.8624
+
+Mask Information
+................
+Mesh Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 4802
+- Number of active positions   = 3481
+
+Grid Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 2500
+- Number of active positions   = 1830
+
+ ----
+
+
++*Out[17]:*+
+----
+
+Grid characteristics:
+---------------------
+Origin :      0.648     3.385
+Mesh   :      2.892     1.928
+Number :         50        50
+ 
+Turbo Meshing
+=============
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 3481
+Number of Apices          = 1830
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0.648392 - Max:142.336
+Dim #2 - Min:3.38503 - Max:97.8624
+
+Mask Information
+................
+Mesh Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 4802
+- Number of active positions   = 3481
+
+Grid Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 2500
+- Number of active positions   = 1830
+
+ ----
+
+[[turbo-meshing-on-rotated-grid]]
+== Turbo Meshing on Rotated Grid
+
+
++*Out[18]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 24
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     5.000
+Number :          6         4
+Rotation Angles        =    -80.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174    -0.985
+     [  1,]     0.985     0.174
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174     0.985
+     [  1,]    -0.985     0.174
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+ 
+![png](output_31_1.png)
+----
+
+
++*Out[19]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      1.000
+- Ranges       =     10.000     5.000
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      1.000
+ ----
+
+
++*Out[20]:*+
+----
+
+Grid characteristics:
+---------------------
+Origin :     12.201     8.767
+Mesh   :      1.000     0.500
+Number :         20        24
+Rotation Angles        =     30.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866     0.500
+     [  1,]    -0.500     0.866
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+ 
+Turbo Meshing
+=============
+Diamond construction is activated
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 874
+Number of Apices          = 480
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:12.2013 - Max:31.2013
+Dim #2 - Min:8.76696 - Max:20.267
+ ----
+
+
++*Out[21]:*+
+----
+![png](output_34_0.png)
+----

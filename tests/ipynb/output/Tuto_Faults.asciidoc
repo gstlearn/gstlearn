@@ -1,0 +1,75 @@
+[[tutorial-for-faulting]]
+= Tutorial for Faulting
+
+This file is meant to demonstrate the use of gstlearn for Faulting. It
+is recalled that Faulting is defined in 2-D.
+
+[[defining-the-information]]
+== Defining the Information
+
+Setting some global variables
+
+Defining the output grid
+
+Defining the data points
+
+Defining a Model which will serve in simulating the value at the data
+points.
+
+Simulate the information at the data points
+
+Define the set of Faults.
+
+Define the Moving Neighborhood (with a maximum of 'nmaxi' samples per
+neighborhood) an attach the Faults.
+
+Plot the information
+
+
++*Out[9]:*+
+----
+![png](output_19_0.png)
+----
+
+[[calculating-the-variogram]]
+== Calculating the Variogram
+
+We define the parameters for the calculation of an omni-directional
+variogram. In a first trial, we compute the variogram without taking
+faults into account.
+
+Represent the variogram with the number of pairs attached to each lag.
+
+
++*Out[11]:*+
+----
+![png](output_24_0.png)
+----
+
+Performing the same variogram calculation, taking the fault into account
+
+Represent the variogram again with the number of pairs attached to each
+lag.
+
+
++*Out[13]:*+
+----
+![png](output_28_0.png)
+----
+
+[[performing-the-estimation]]
+== Performing the Estimation
+
+Plotting the result
+
+
++*Out[15]:*+
+----
+![png](output_32_0.png)
+----
+
+
++*Out[16]:*+
+----
+![png](output_33_0.png)
+----

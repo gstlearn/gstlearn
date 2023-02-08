@@ -1,0 +1,101 @@
+[[spde]]
+= SPDE
+
+In this tutorial, we show how to use the API SPDE.
+
+[[grids-definition]]
+=== Grids definition
+
+[[model-definition]]
+=== Model definition
+
+[[spde-simulation]]
+=== SPDE simulation
+
+[[grid-query]]
+=== Grid query
+
+
++*Out[7]:*+
+----
+![png](output_11_0.png)
+----
+
+[[data-query]]
+=== Data query
+
+[[kriging]]
+=== Kriging
+
+
++*Out[10]:*+
+----
+![png](output_16_0.png)
+----
+
+[[manually]]
+== Manually
+
+[[aproj-mesh-to-grid]]
+=== Aproj mesh to grid
+
+[[simulation]]
+=== Simulation
+
+
++*Out[13]:*+
+----0.12196304811130831
+![png](output_22_1.png)
+----
+
+[[kriging]]
+=== Kriging
+
+
++*Out[16]:*+
+----[<matplotlib.lines.Line2D at 0x7fe23b1bfeb0>]
+![png](output_26_1.png)
+----
+
+[[likelihood]]
+== Likelihood
+
+Manually with Cholesky vs. matrix-free approach with SPDE api.
+
+
++*Out[17]:*+
+----
+logdet_chol -1947.9773936408528
+quad_chol 971.0832844541759
+like_chol 488.44705459333846
+----
+
+
++*Out[18]:*+
+----
+relative difference quadratic 0.0001418431623815852
+----
+
+
++*Out[19]:*+
+----
+log_det_op_chol 23151.409539565422
+log_det_op_api 22743.917410926308
+relative difference -0.017601180089822022
+----
+
+
++*Out[20]:*+
+----
+log_det_Q_chol 22796.80184021223
+log_det_Q_api 22549.05073740957
+relative difference -0.010867800866946243
+----
+
+
++*Out[21]:*+
+----
+likelihood api 488.44705459333846
+likelihood_chol 526.869899897112
+0.07866327566610638
+----

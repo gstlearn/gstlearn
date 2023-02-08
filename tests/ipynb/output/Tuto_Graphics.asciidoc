@@ -1,0 +1,470 @@
+[[demonstration-of-graphic-facilities-in-gstlearn-package]]
+= Demonstration of Graphic facilities in gstlearn package
+
+The module gstlearn.plot contains various plot functions for gstlearn
+objetcs: DbGrid, Db, Vario, Model, Polygons... These functions are also
+accesible as methods of each class. For example for a grid, we could use
+equivalently gp.grid(mygrid,...) or mygrid.plot(...), or for more
+specific functions: gp.point(mygrid,...) or mygrid.plot_point(...)
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[import-packages]]
+== Import packages
+
+We define the Space dimension
+
+Creating a dummy Model used for simulating a random field and display it
+
+
++*Out[4]:*+
+----
+![png](output_7_0.png)
+----
+
+You can also directly display the formula in an output cell of a
+notebook
+
+
++*Out[5]:*+
+----
+C(h)=1 - h^2 * \left(7 + h * \left(-8.75 + h^2 * \left(3.5 - 0.75 * h^2 \right) \right) \right)
+<IPython.core.display.Latex object>----
+
+[[grid-representations]]
+== Grid representations
+
+We create a rectangular non-rotated 2-D grid, and simulate random
+Gaussian field (using the Model previously defined). Two simulations are
+generated in order to emphasize the graphic posibilities in further
+parts of this note.
+
+
++*Out[6]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1750
+
+Grid characteristics:
+---------------------
+Origin :    -40.000    20.000
+Mesh   :      1.000     2.000
+Number :         70        25
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
+ ----
+
+Add a dummy selection to test visualization with Selection
+
+[[non-rotated-grid]]
+=== Non Rotated Grid
+
+We simply represent the grid (using the defaulted color scale). We also
+plot the legend on the right edge.
+
+
++*Out[8]:*+
+----
+![png](output_17_0.png)
+----
+
+We can overlay a set of isolines
+
+
++*Out[9]:*+
+----
+![png](output_19_0.png)
+----
+
+As a proof, we can also visualize the (last) variable using a Color
+Point representation
+
+
++*Out[10]:*+
+----
+![png](output_21_0.png)
+----
+
+We can create a specific ColorScale, containing a limited number of
+colors, and sampling a given reference Color Scale.
+
+For the next figure, we use the one defaulted by the system ('viridis')
+for sake of understanding. We simply reduce the number of colors
+
+
++*Out[11]:*+
+----
+![png](output_23_0.png)
+----
+
+We can also change the reference color scale (using the one defaulted by
+the method get_cmap for example: 'gist rainbow') and increase the number
+of colors
+
+
++*Out[12]:*+
+----
+![png](output_25_0.png)
+----
+
+Represent the histogram of the vaalues collected in the outcome over the
+grid. Here we can use either gp.hist(mygrid,...) or
+mygrid.plot_hist(...)
+
+
++*Out[13]:*+
+----
+![png](output_27_0.png)
+----
+
+Representing a scatter plot between two variables stored on the same Db
+
+
++*Out[14]:*+
+----
+![png](output_29_0.png)
+----
+
+[[set-of-points-and-polygon]]
+=== Set of Points and Polygon
+
+A set of points is sampled from the previous Grid and stored in a new
+Point Db. The number of samples if fixed to 1% of the number of grid
+nodes.
+
+
++*Out[15]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 17
+Number of active samples     = 17
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
+Column = 5 - Name = sel - Locator = sel
+ ----
+
+We create a polygon as the convex hull of the samples
+
+We now display the points and the polygon on top of the grid: the
+overlay is ensured by sugint eh argument 'ax'.
+
+
++*Out[17]:*+
+----
+![png](output_36_0.png)
+----
+
+[[rotated-grid-angle-20-degrees]]
+=== Rotated grid (angle = 20 degrees)
+
+We create the same grid as before but with a rotation of 20 degrees.
+
+
++*Out[18]:*+
+----
+![png](output_39_0.png)
+----
+
+A new set of Points is sampled from the rotated Grid. As the same seed
+is used, the ranks of the selected samples within the grid are the same.
+Furthermore, we generate the Polygon as the convex hull of the newly
+created Point db.
+
+We represent again the three components (grid, points and polygon) on
+the same view
+
+
++*Out[20]:*+
+----
+![png](output_43_0.png)
+----
+
+Let us now add a selection in order to restrict the previous
+representation to the only non-masked samples
+
+
++*Out[21]:*+
+----
+![png](output_45_0.png)
+----
+
+[[share-legend-between-two-plots]]
+== Share legend between two plots
+
+This paragraph is meant to present the possibility of splitting a figure
+in two scenes, to represent a grid in each scene (for example) and share
+the (same) color scale for the two scenes.
+
+
++*Out[22]:*+
+----
+![png](output_47_0.png)
+----
+
+[[display-points-with-fixed-colors]]
+== Display points with fixed colors
+
+In this paragraph, we wish to display sample points with given colors.
+
+
++*Out[23]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 3
+
+Data Base Contents
+------------------
+                 rank         x         y         z
+     [  0,]     1.000     1.000     1.000     1.000
+     [  1,]     2.000     2.000     2.000     3.000
+     [  2,]     3.000     3.000     3.000     5.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x - Locator = x1
+Column = 2 - Name = y - Locator = x2
+Column = 3 - Name = z - Locator = z1
+ ----
+
+We represent the samples without using any pre-specified color map. The
+system uses the default color scale and assigns the lowest value to be
+represented to the first color and the largest value to the last color.
+
+
++*Out[24]:*+
+----
+![png](output_51_0.png)
+----
+
+Representing using a given color map (based on few colors [5]). The
+color scale is now discrete but the system still assigns the lowest
+value (i.e. 1) to the first color and the largest value (i.e. 5) to the
+last color
+
+
++*Out[26]:*+
+----
+![png](output_54_0.png)
+----
+
+We use a new Db where the values at first sample has been modified (from
+1 to 4) while the other have been left unchanged. We use the same color
+scale as before. Again the lowest value (i.e. 3) is assigned to the
+first color and the largest value (i.e. 5) to the last color.
+
+
++*Out[27]:*+
+----
+![png](output_56_0.png)
+----
+
+We want to perform the same graphic again but setting the first and last
+value of the color scale explicitely
+
+
++*Out[28]:*+
+----
+![png](output_58_0.png)
+----
+
+[[superimposing-figures]]
+= Superimposing figures
+
+In this section, we demonstrate the possibilities offered by the
+graphics for working with multiple figures and overlaying graphics. This
+is described through the use of variograms and models. For this reason
+we consider the two non-conditional simulations created earllier on the
+existing grid. We calculate the simple and cross variograms along the
+two main axes of the grid and fit a model automatically.
+
+
++*Out[30]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     0.097     0.000
+     [  1,]     0.000     0.086
+- Range        =      0.500
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     0.097     0.000
+     [  1,]     0.000     0.086
+
+ ----
+
+[[several-ways-for-displaying-experimental-variograms]]
+=== Several ways for displaying experimental variograms
+
+In the next graphic, we produce the simple variogram of the first
+variable calculated in the first direction
+
+
++*Out[31]:*+
+----
+![png](output_65_0.png)
+----
+
+In the next graphic, we produce a single figure where the variograms of
+the first variable calculated in the first direction (black) and the
+second direction (red) are overlaid. The overlay is performed manually.
+
+
++*Out[32]:*+
+----
+![png](output_67_0.png)
+----
+
+In the next graphic, we produce a single graphic where the
+cross-variograms between first and second variables are displayed for
+all directions. The colors are extracted from the Color Map provided as
+argument.
+
+
++*Out[33]:*+
+----
+![png](output_69_0.png)
+----
+
+Representing all simple and cross variograms for all directions
+
+
++*Out[34]:*+
+----
+![png](output_71_0.png)
+----
+
+[[several-ways-for-representing-the-model]]
+=== Several ways for representing the Model
+
+Represent the Model calculated for the second variable in the first
+direction
+
+
++*Out[35]:*+
+----
+![png](output_74_0.png)
+----
+
+Representing all simple and cross variograms together with the fitted
+model for the first direction
+
+
++*Out[36]:*+
+----
+![png](output_76_0.png)
+----
+
+[[testing-figure-overlay]]
+=== Testing figure Overlay
+
+The next figure is meant to demonstrate the overlay possibilities. We
+first represent the experimental variograms for all variable (in the
+first direction only to be legible). Then we overlay the model ... only
+over the experimental simple variogram of the second variable (in dashed
+blue).
+
+
++*Out[37]:*+
+----
+![png](output_79_0.png)
+----
+
+In the next figure, we draw the first direction and overlay the second
+direction (on purpose using two orders)
+
+
++*Out[38]:*+
+----
+![png](output_81_0.png)
+----
+
+[[interactive-samples-selection]]
+== Interactive samples selection
+
+An interactive selection can be made on the figures, either by selecting
+points directly (with a gp.point), or selecting all the points inside a
+polygon. If a Db (or DbGrid) is provided, a new variable
+"interactive_selection" is created. In Jupyter Notebook, interactive
+plots require to use %matplotlib notebook
+
+
++*Out[39]:*+
+----<IPython.core.display.Javascript object>
+[[cdb4f4cc-8962-4cd0-a626-d9549b98cf68]]
+
+Draw a polygon on the plot to select points inside the polygon.Press 'escape' for deleting current polygon and starting a new one.
+----
+
+
++*Out[40]:*+
+----<IPython.core.display.Javascript object>
+[[5c475d07-6ebb-4e79-937b-0fcbdd427d77]]
+----
+
+
++*Out[41]:*+
+----<IPython.core.display.Javascript object>
+[[a30fd45f-6e7f-4eff-92a1-9f0e8888f22a]]
+
+Select points on the plot: left click for selecting, right click to remove selection, 'escape' for deleting current selection and starting a new one
+----
+
+
++*Out[42]:*+
+----<IPython.core.display.Javascript object>
+[[b7ffaf31-84bd-4756-ba2c-562b19d55f36]]
+----

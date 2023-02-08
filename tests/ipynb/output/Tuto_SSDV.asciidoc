@@ -1,0 +1,171 @@
+[[demonstration-of-ssdv-calculation]]
+= Demonstration of SSDV calculation
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[import-packages]]
+== Import packages
+
+[[introduction]]
+= Introduction
+
+This document is meant to give some introductory information on various
+tools derived from the geostatistical etimation variance, which have
+been developed to measusre the sampling density, either for a regular
+sampling design or an irregular one. It follows the paper entitled _From
+the Spatial Sampling of a Deposit to Mineral Resources Classification_,
+from Jacques Rivoirard, Didier Renard, Felipe Celhay, David Benado,
+Celeste Queiroz, Leandro Jose Oliveira, and Diniz Ribeiro, presented in
+Geostatistics Valencia 2016.
+
+[[the-concepts]]
+== The concepts
+
+In this paper, latexmath:[$Z(x)$] denotes the regionalized (additive)
+variable. Considering a domain V, the estimation of latexmath:[$Z(V)$]
+by inner samples of latexmath:[$V$] is denoted latexmath:[$Z(V)^*$] and
+the corresponding estimation variance latexmath:[$\sigma_E^2 (V)$] which
+is calculated from the variogram as follows:
+latexmath:[\[\sigma_E^2 (V)={2 \over N} \sum_i \bar \gamma(x_i,V) - {1 \over N^2} \sum_{ij} \gamma(x_i,x_j) - \bar \gamma(V,V)\]]
+
+The spatial sampling density variance (*ssdv*) corresponds is
+latexmath:[\[\chi(V) = {\sigma_E^2 (V) \times |V|}\]].
+
+The specific volume measures the density of a spatial sampling of the
+variable, relatively to its mean: the smaller the specific volume, the
+more precise the sampling pattern:
+latexmath:[\[V_0 = { {\sigma_E^2 (V) \times |V|} \over M^2 }\]]
+
+The coefficient of variation for a given Volume is:
+latexmath:[\[CoV = \sqrt{ V_0 \over V}\]]
+
+The specific area corresponding to a given CoV (area over which the mean
+variable has a given coefficient of variation) is:
+latexmath:[\[V = { V_0 \over CoV^2 }\]]
+
+[[application-to-regular-sampling]]
+== Application to regular sampling
+
+The previous concepts are be illustrated using the following example.
+
+Consider a large deposit in two dimensions, sampled with regular grid.
+the variable of interest is the thickness (with a mean of 10m), a sample
+point variance of 10, and a variogram equal to:
+latexmath:[\[1 nug(h) + 9sph(h/200m)\]]
+
+
++*Out[3]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      1.000
+Spherical
+- Sill         =      9.000
+- Range        =    200.000
+Total Sill     =     10.000----
+
+Most of the subsequent calculations need the determination of quantities
+which involve extension variance, the latter being based on calulation
+of average variogram over a block. This operation is performed by
+discretization which needs to be specified explicitely:
+
+The extension variance of a latexmath:[$100m \times 100m$] by its center
+is:
+
+
++*Out[5]:*+
+----
+Extension Variance = 2.697
+----
+
+Therefore, for a latexmath:[$100m \times 100m$] grid, the spatial
+sampling density variance is:
+
+
++*Out[6]:*+
+----
+Spatial Sampling Density Variance = 26972.85 m⁴
+----
+
+The specific area (i.e. the specific volume in two dimensions) is:
+
+
++*Out[7]:*+
+----
+Specific Area (case #1) = 269.73 m²
+----
+
+If the grid is now a latexmath:[$50m \times 50m$], the specific volume
+becomes:
+
+
++*Out[8]:*+
+----
+Specific Area (small block) = 45.77 m²
+----
+
+Another issue is whether the initial latexmath:[$100m \times 100m$] grid
+is better, or not, than a latexmath:[$70m \times 70m$] sampling in a
+similar deposit, where the thickness has a mean of 8 and a variogram
+equal to latexmath:[\[6 nug(h) + 6sph(h/200m)\]]
+
+
++*Out[9]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      6.000
+Spherical
+- Sill         =      6.000
+- Range        =    200.000
+Total Sill     =     12.000----
+
+
++*Out[10]:*+
+----
+Specific Area (case #2) = 518.70 m²
+----
+
+We can finally characterize resources given an assumption on the
+production volume (or more exactly the ore + waste volume to be
+extracted). For instance, a specific volume (3) of 6000 m3 gives a CoV
+of:
+
+
++*Out[11]:*+
+----
+Coefficient of Variation = 21.20
+----
+
+Conversely we can define the specific volume to be mined in order to
+ensure a given CoV. For instance we can deduce that the 5% CoV area
+(area over which the mean thickness has a coefficient of variation of
+5%) must practically reach 200,000 m2, while it is only108,000 m2 in the
+first case
+
+
++*Out[12]:*+
+----
+Specific area (case #1) = 107891.40 m²
+Specific area (case #2) = 207479.07 m²
+----

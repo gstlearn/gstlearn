@@ -1,0 +1,192 @@
+[[demonstration-of-gstlearn-for-a-2-d-case-study]]
+= Demonstration of gstlearn for a 2-D case study
+
+This file demonstrates the use of Selectivity curves
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[import-packages]]
+== Import packages
+
+Reading the Grid file
+
+
++*Out[3]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 100
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :         10        10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = z1 - Locator = z1
+ ----
+
+Plotting the grid of samples
+
+
++*Out[4]:*+
+----
+![png](output_8_0.png)
+----
+
+
++*Out[5]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*Out[6]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[7]:*+
+----
+     1.531     1.615
+ ----
+
+Creating the grid of blocks by averaging samples 2 by 2
+
+
++*Out[9]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_15_0.png)
+----
+
+
++*Out[11]:*+
+----
+![png](output_16_0.png)
+----
+
+
++*Out[12]:*+
+----
+     1.340     1.000
+ ----
+
+Creating a samping grid keeping only the upper right corner sample for
+each block
+
+
++*Out[14]:*+
+----
+![png](output_20_0.png)
+----
+
+
++*Out[15]:*+
+----
+![png](output_21_0.png)
+----
+
+
++*Out[16]:*+
+----
+     1.364     1.165
+ ----
+
+[[using-the-selectivity-curves]]
+== Using the Selectivity Curves
+
+We compare the selectivity curves between Data and Blocks:
+
+
++*Out[18]:*+
+----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim', 'T-stdev', 'Q-stdev')----
+
+* Ore tonnage as a function of the cutoff
+
+
++*Out[19]:*+
+----
+![png](output_28_0.png)
+----
+
+* Metal as a function of the cutoff
+
+
++*Out[20]:*+
+----
+![png](output_30_0.png)
+----
+
+* Recovered grade as a function of the cutoff
+
+
++*Out[21]:*+
+----
+![png](output_32_0.png)
+----
+
+* Conventional Benefit as a function of the cutoff
+
+
++*Out[22]:*+
+----
+![png](output_34_0.png)
+----
+
+* Metal as a function of Ore Tonnage
+
+
++*Out[23]:*+
+----
+![png](output_36_0.png)
+----
+
+[[regressions]]
+= Regressions
+
+Display regressions
+
+* of block knowing sample
+
+
++*Out[24]:*+
+----
+![png](output_40_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_41_0.png)
+----
+
+[[comparing-selectivity-curves]]
+== Comparing selectivity curves
+
+
++*Out[26]:*+
+----
+![png](output_43_0.png)
+----

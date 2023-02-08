@@ -1,0 +1,16 @@
+[[simulation-avec-gstlearn]]
+= Simulation avec gstlearn
+
+
++*Out[5]:*+
+----
+
+
+[[df1c9582-d68a-4b33-bb5c-597899aa9f88]]
+----
+
+
++*Out[6]:*+
+----
+![png](output_6_0.png)
+----

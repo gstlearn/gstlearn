@@ -1,0 +1,246 @@
+[[kriging]]
+= Kriging
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+Then we download the data base *dat*.
+
+Calculate the experimental variogram *vario2dir* (in 2 directions)
+
+Calculate the fitted model *fitmodOK* (add the Universality Condition)
+
+
++*Out[5]:*+
+----
+![png](output_8_0.png)
+----
+
+Define the Unique Neighborhood *unique.neigh*.
+
+Get the extension of the Data:
+
+
++*Out[7]:*+
+----array([[  78.2,  460.7],
+       [ 530.4, 1208.9]])----
+
+Create the Target file *grid*.
+
+
++*Out[8]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    460.200 - Ext = 395.2
+Coor #2 - Min =    535.000 - Max =   1209.560 - Ext = 674.56
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+ ----
+
+Perform Ordinary Kriging
+
+Plotting the results
+
+
++*Out[10]:*+
+----
+![png](output_18_0.png)
+----
+
+Reading the Elevation Grid
+
+
++*Out[11]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    455.123 - Ext = 390.123
+Coor #2 - Min =    535.000 - Max =   1200.109 - Ext = 665.109
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = x1
+Column = 1 - Name = Latitude - Locator = x2
+Column = 2 - Name = Elevation - Locator = f1
+Column = 3 - Name = inshore - Locator = sel
+ ----
+
+The output grid now contains the selection *inshore*. Estimation is
+restricted to the active cells only.
+
+Plotting the Estimation
+
+
++*Out[13]:*+
+----
+![png](output_24_0.png)
+----
+
+Plotting the Standard deviation of Estimation Error
+
+
++*Out[14]:*+
+----
+![png](output_26_0.png)
+----
+
+The Model *fitmodOK* is first duplicated into *fitmodSK*. Then the
+Universality Condition is deleted.
+
+Simple Kriging is performed
+
+Plotting the Estimation
+
+
++*Out[17]:*+
+----
+![png](output_32_0.png)
+----
+
+Plotting the Standard deviation of the Estimation error
+
+
++*Out[18]:*+
+----
+![png](output_34_0.png)
+----
+
+Comparing Ordinary and Simple Kriging - Estimations
+
+
++*Out[19]:*+
+----
+![png](output_36_0.png)
+----
+
+Comparing Ordinary and Simple Kriging - St. dev.
+
+
++*Out[20]:*+
+----
+![png](output_38_0.png)
+----
+
+Cross-Validation
+
+Cross-validation - Histogram of Errors
+
+
++*Out[22]:*+
+----
+![png](output_42_0.png)
+----
+
+Cross-validation - Histogram of Standardized Errors
+
+
++*Out[23]:*+
+----
+![png](output_44_0.png)
+----
+
+Cross-validation Scores
+
+
++*Out[24]:*+
+----
+-0.004167871597706889
+0.23937258167643688
+75.16446569397348
+----
+
+Display Errors of the Cross Validation
+
+
++*Out[25]:*+
+----
+![png](output_48_0.png)
+----
+
+Display Errors of the Cross Validation (in absolute value)
+
+
++*Out[26]:*+
+----
+![png](output_50_0.png)
+----
+
+We design a small Moving Neighborhood *small.neigh* with only 1 sample
+per neighborhood.
+
+We perform Ordinary Kriging
+
+Graphic representation
+
+
++*Out[29]:*+
+----
+![png](output_56_0.png)
+----
+
+Building a reasonable Moving Neighborhood, although with a limited
+extension (_radius_)
+
+Running the Ordinary Kriging
+
+Plotting the results
+
+
++*Out[32]:*+
+----
+![png](output_62_0.png)
+----
+
+Lots of target sites are not estimated as no sample is found within the
+neighborhood.
+
+Building a reasonable Moving Neighborhood correctly tuned: 10 samples
+(maximum) selected in a radius of 150 around the target site.
+
+Running the Ordinary Kriging
+
+Graphic representation
+
+
++*Out[35]:*+
+----
+![png](output_69_0.png)
+----
+
+For the standard deviation of Estimation error
+
+
++*Out[36]:*+
+----
+![png](output_71_0.png)
+----
+
+Comparing Unique and Moving Neighborhoods: Estimations
+
+
++*Out[37]:*+
+----
+![png](output_73_0.png)
+----
+
+Comparing Unique and Moving Neighborhoods: Standard deviations
+
+
++*Out[38]:*+
+----
+![png](output_75_0.png)
+----

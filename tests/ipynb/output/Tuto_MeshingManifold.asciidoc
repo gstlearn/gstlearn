@@ -1,0 +1,16 @@
+[[spde-on-a-manifold]]
+= SPDE on a Manifold
+
+
++*Out[6]:*+
+----
+
+
+[[c6063c02-2c22-4214-aad9-fbb4330cee74]]
+----
+
+
++*Out[8]:*+
+----
+[[7f2906fc-3b33-4b94-8a4b-8e91e2a89b09]]
+----

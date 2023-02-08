@@ -1,0 +1,38 @@
++*Out[3]:*+
+----array([1., 2., 1.])----
+
+
++*Out[4]:*+
+----3.141592653589793----
+
+[[spatial-trace]]
+=== Spatial Trace
+
+
++*Out[6]:*+
+----
+![png](output_6_0.png)
+<matplotlib.colorbar.Colorbar at 0x7f4461930820>
+![png](output_6_2.png)
+----
+
+
++*Out[7]:*+
+----<matplotlib.legend.Legend at 0x7f44618b8ac0>
+![png](output_7_1.png)
+----
+
+
++*Out[9]:*+
+----
+![png](output_9_0.png)
+----
+
+[[temporal-covariance]]
+=== Temporal covariance
+
+
++*Out[10]:*+
+----
+![png](output_11_0.png)
+----

@@ -1,0 +1,58 @@
+[[generation-of-points-at-random]]
+= Generation of points at random
+
+This file provides some illustration of the generation of sets of
+Points. We can create the set of Points which covers a Box (in any space
+dimension). For sake of demonstration, this is demonstrated in 2-D.
+
+We can create the set by drawing samples at random within the Box
+extension
+
+
++*Out[2]:*+
+----
+The number of samples = 1000
+
+![png](output_4_1.png)
+----
+
+We now generate a positive Regionalized variable over a grid that will
+serve as a density.
+
+
++*Out[3]:*+
+----
+![png](output_6_0.png)
+----
+
+Now we define the set of Points according to different models. The first
+one is according to Poisson process (i.e. points randomly located within
+a Box.
+
+
++*Out[4]:*+
+----
+Number of samples = 910
+
+![png](output_8_1.png)
+----
+
+We now try the repulsion on the Uniform Poisson
+
+
++*Out[5]:*+
+----
+The number of samples = 200
+
+![png](output_10_1.png)
+----
+
+Combining the repulsion with the regionalized Poisson internsity
+
+
++*Out[6]:*+
+----
+Number of samples = 145
+
+![png](output_12_1.png)
+----

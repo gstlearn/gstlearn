@@ -1,0 +1,143 @@
+[[spde-simulation-on-sphere]]
+= SPDE simulation on sphere
+
+_by N. Desassis and D. Renard_
+
+The aim of this tutorial is to show how to use gstlearn to simulate the
+solution of
+
+latexmath:[\[(\kappa^2-\Delta_{\mathcal{S}_R})^{\alpha/2}Z = \sigma\mathcal{W}\]]
+
+on the sphere latexmath:[$\mathcal{S}_R$] of radius latexmath:[$R$].
+
+* latexmath:[$\Delta_{{\mathcal{S}_R}}$] is the Laplace-Beltrami
+operator, i.e, it acts on each point of the sphere as the usual
+Laplacian on the tangent plane at this point.
+* latexmath:[$\kappa$] is the inverse of the scale parameter
+* latexmath:[$\alpha \geq 2$] is an integer describing the smoothness of
+the solution.
+* latexmath:[$\mathcal{W}$] is a Gaussian white-noise suitably
+normalized such as latexmath:[$\sigma^2$] is the variance of the
+solution.
+
+In this notebook, we will define the covariance of Matérn on the sphere,
+as the covariance of the solution of this SPDE (other extensions of the
+Matérn function are possible). By analogy with the Euclidian case, its
+smoothness parameter will be defined by latexmath:[$\nu = \alpha -1$].
+To compute the covariance function with respect on the geodetic
+distance, one have to use a decomposition on the Legendre polynomial
+(see below).
+
+We also treat the more general case
+latexmath:[\[P^{1/2}(-\Delta_{\mathcal{S}_R})Z = \sigma\mathcal{W}\]]
+
+where latexmath:[$P$] is a polynom positive on
+latexmath:[$\mathbb{R}^+$]
+
+[[parametrization]]
+=== Parametrization
+
+[[meshing]]
+=== Meshing
+
+Sampling Db creation
+
+[[covariance-model]]
+=== Covariance model
+
+The covariance model is Markov or Matérn.
+
+[[precision-matrix]]
+=== Precision matrix
+
+[[simulation]]
+=== Simulation
+
+[[display-the-realization]]
+=== Display the realization
+
+
++*Out[9]:*+
+----
+
+
+[[59c65444-9923-48ae-9e8d-68244f3419ad]]
+----
+
+[[compute-covariance-of-discretized-solution]]
+=== Compute covariance (of discretized solution)
+
+We use the fact that latexmath:[$\Sigma = Q^{-1}$] and solve
+latexmath:[$Qx = e_j$] for an arbitrary index latexmath:[$j$].
+
+*Get the distances*
+
+*Compute the covariances*
+
+*Sort for the plot*
+
+*Display the result*
+
+
++*Out[13]:*+
+----
+![png](output_25_0.png)
+----
+
+[[variogram-of-the-realization]]
+=== Variogram of the realization
+
+The empirical variogram is computed by using the great-circle distance.
+
+
++*Out[15]:*+
+----
+![png](output_28_0.png)
+----
+
+[[theoretical-covariance-function]]
+=== Theoretical covariance function
+
+The covariance between two points with great-circle distance
+latexmath:[$d$] on the sphere of radius latexmath:[$R$] is given by
+latexmath:[\[C(d) = \frac{\sigma^2}{\sum_{i=0}^\infty f(i)}\sum_{i=0}^\infty f(i) P_i\left(\cos \frac{d}{R}\right)\]]
+
+where the latexmath:[$P_i$]'s are the Legendre polynomials computed with
+the following reccurence formula
+
+latexmath:[\[P_0(x) = 1.\]]
+
+latexmath:[\[P_1(x) = x\]]
+
+latexmath:[\[P_{n+1}(x)=\frac{(2n+1)xP_n(x) - n P_{n-1}(x)}{n+1}\]]
+
+For latexmath:[$n\geq 0$],
+latexmath:[\[f(n) = \frac{2 (n + 1)}{ (R^2\kappa^2 + n ( n + 1))^\alpha}\]]
+
+For numerical computations, the sums are truncated at *N*.
+
+For more details on the covariances on sphere, see
+https://link.springer.com/content/pdf/10.1007/s11004-019-09799-4.pdf[Lantuejoul,
+Freulon and Renard (2019)]
+
+[[evaluation]]
+=== Evaluation
+
+
++*Out[16]:*+
+----
+![png](output_32_0.png)
+----
+
+There is a slight difference between the theoretical variogram and the
+one obtained from the SPDE discretization due to a numerical error on
+the variance introduced by the discretization. The comparison of the
+covariance shows that this numerical error is rather small :
+
+
++*Out[17]:*+
+----
+![png](output_34_0.png)
+----
+
+Kriging

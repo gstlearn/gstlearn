@@ -1,0 +1,10 @@
++*Out[7]:*+
+----
+Number of Apices: 12
+Number of Points: 12 ----
+
+
++*Out[8]:*+
+----
+![png](output_7_0.png)
+----

@@ -1,0 +1,446 @@
+[[tutorial-for-demonstrating-super-kriging]]
+= Tutorial for demonstrating Super Kriging
+
+This file is meant to demonstrate the use of gstlearn for Super Kriging.
+It is run on several 2-D cases.
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+Setting some global variables
+
+We define the grid on which all calculations will be performed. The grid
+is constituted of square meshes and has a rectangular extension of 200
+by 150.
+
+
++*Out[4]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 30000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        200       150
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2----
+
+[[poisson-data-set]]
+= Poisson Data Set
+
+In this paragraph, we generate a Poisson Data Set (data uniformy
+distributed along each space dimension) which covers the Grid expansion
+area. The Data Set contains 100 samples.
+
+A variable is generated on this data set, as the result of a
+non-conditional simulation with a build-in model.
+
+
++*Out[6]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = Simu - Locator = z1----
+
+
++*Out[7]:*+
+----
+![png](output_13_0.png)
+----
+
+[[defining-standard-neighborhood]]
+== Defining standard neighborhood
+
+We first define a standard Moving Neighborhood.
+
+
++*Out[8]:*+
+----
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 1
+Maximum number of samples           = 10
+Number of angular sectors           = 8
+Maximum number of points per sector = 3
+Maximum horizontal distance         = 30----
+
+Checking the neighborhood around a central grid node
+
+
++*Out[10]:*+
+----
+![png](output_19_0.png)
+----
+
+[[point-kriging]]
+=== Point Kriging
+
+Performing a Point Kriging with the current Neighborhood feature
+
+
++*Out[12]:*+
+----
+
+ Target location
+ ---------------
+ Sample #15301 (from 30000)
+ Coordinate #1 = 100.000000
+ Coordinate #2 = 76.000000
+ 
+ Data selected in neighborhood
+ -----------------------------
+        Rank      Sample          x1          x2      Sector 
+           1          20     114.631      72.031           4 
+           2          52     116.444      65.590           4 
+           3          56     114.720      79.035           5 
+           4          65     116.816      94.871           6 
+           5          69      89.960      69.482           1 
+ 
+ LHS of Kriging matrix (compressed)
+ ==================================
+ Number of active samples    = 5
+ Total number of equations   = 5
+ Reduced number of equations = 5
+ 
+        Rank                       1           2           3           4           5 
+                    Flag           1           2           3           4           5 
+           1           1       1.000       0.526       0.518       0.164       0.132 
+           2           2       0.526       1.000       0.358       0.069       0.102 
+           3           3       0.518       0.358       1.000       0.303       0.106 
+           4           4       0.164       0.069       0.303       1.000       0.006 
+           5           5       0.132       0.102       0.106       0.006       1.000 
+ 
+ RHS of Kriging matrix (compressed)
+ ==================================
+ Number of active samples    = 5
+ Total number of equations   = 5
+ Reduced number of equations = 5
+ Number of right-hand sides  = 1
+ Punctual Estimation
+ 
+        Rank        Flag           1 
+           1           1       0.321 
+           2           2       0.229 
+           3           3       0.324 
+           4           4       0.125 
+           5           5       0.395 
+ 
+ (Co-) Kriging weights
+ =====================
+        Rank          x1          x2        Data         Z1* 
+           1     114.631      72.031       0.057       0.150 
+           2     116.444      65.590       1.275       0.048 
+           3     114.720      79.035      -0.061       0.180 
+           4     116.816      94.871       1.144       0.040 
+           5      89.960      69.482       0.308       0.351 
+ Sum of weights                                     0.769 
+ 
+ (Co-) Kriging results
+ =====================
+ Target Sample = 15301
+ Variable Z1 
+  - Estimate  =        0.213 
+  - Std. Dev. =        0.860 
+  - Variance  =        0.739 
+  - Cov(h=0)  =        1.000 
+ ----
+
+The Point Kriging results are displayed (overlaying the control data
+points)
+
+
++*Out[13]:*+
+----
+![png](output_25_0.png)
+----
+
+We also display the standard deviation map of the Estimation error
+
+
++*Out[14]:*+
+----
+![png](output_27_0.png)
+----
+
+[[block-kriging]]
+=== Block Kriging
+
+Performing a Block Kriging with the current Neighborhood feature. Note
+that the discretization parameters have been set to small numbers in
+order to let the calculations be performed in a reasonable time frame
+(for a demonstration file).
+
+
++*Out[16]:*+
+----
+
+ Target location
+ ---------------
+ Sample #15301 (from 30000)
+ Coordinate #1 = 100.000000
+ Coordinate #2 = 76.000000
+ 
+ Data selected in neighborhood
+ -----------------------------
+        Rank      Sample          x1          x2      Sector 
+           1          20     114.631      72.031           4 
+           2          52     116.444      65.590           4 
+           3          56     114.720      79.035           5 
+           4          65     116.816      94.871           6 
+           5          69      89.960      69.482           1 
+ 
+ LHS of Kriging matrix (compressed)
+ ==================================
+ Number of active samples    = 5
+ Total number of equations   = 5
+ Reduced number of equations = 5
+ 
+        Rank                       1           2           3           4           5 
+                    Flag           1           2           3           4           5 
+           1           1       1.000       0.526       0.518       0.164       0.132 
+           2           2       0.526       1.000       0.358       0.069       0.102 
+           3           3       0.518       0.358       1.000       0.303       0.106 
+           4           4       0.164       0.069       0.303       1.000       0.006 
+           5           5       0.132       0.102       0.106       0.006       1.000 
+ 
+ RHS of Kriging matrix (compressed)
+ ==================================
+ Number of active samples    = 5
+ Total number of equations   = 5
+ Reduced number of equations = 5
+ Number of right-hand sides  = 1
+ Block Estimation : Discretization =  5  x  5 
+ 
+        Rank        Flag           1 
+           1           1       0.321 
+           2           2       0.229 
+           3           3       0.324 
+           4           4       0.125 
+           5           5       0.395 
+ 
+ (Co-) Kriging weights
+ =====================
+        Rank          x1          x2       Size1       Size2        Data         Z1* 
+           1     114.631      72.031       1.000       1.000       0.057       0.150 
+           2     116.444      65.590       1.000       1.000       1.275       0.048 
+           3     114.720      79.035       1.000       1.000      -0.061       0.180 
+           4     116.816      94.871       1.000       1.000       1.144       0.040 
+           5      89.960      69.482       1.000       1.000       0.308       0.351 
+ Sum of weights                                                           0.769 
+ 
+ (Co-) Kriging results
+ =====================
+ Target Sample = 15301
+ Variable Z1 
+  - Estimate  =        0.213 
+  - Std. Dev. =        0.652 
+  - Variance  =        0.425 
+  - Cov(h=0)  =        0.686 
+ ----
+
+The Block Kriging results are displayed (overlaying the control data
+points)
+
+
++*Out[17]:*+
+----
+![png](output_33_0.png)
+----
+
+We also display the standard deviation map of the Estimation error
+
+
++*Out[18]:*+
+----
+![png](output_35_0.png)
+----
+
+Comparing the Estimation maps
+
+
++*Out[19]:*+
+----
+![png](output_37_0.png)
+----
+
+Comparing the Error Estimation maps
+
+
++*Out[20]:*+
+----
+![png](output_39_0.png)
+----
+
+The difference is not very impressive due to the small size of block
+extensions
+
+[[defining-variable-block-extensions]]
+== Defining variable Block Extensions
+
+In this section, we will generate variables in the Grid File, which
+contain the cell extension. The square Block size is fixed to 50.
+
+The now check the neighborhood feature which consists in forcing any
+sample located within the cell extension centered on the target grid
+node.
+
+
++*Out[22]:*+
+----
+
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 1
+Force Selection of all samples within target Block
+ ----
+
+We check the new neighborhood on the same target grid node as before
+
+The next figure displays the samples selected in the neighborhood of the
+target node (same as before). As expected all samples lying within the
+super_block centered on the target node are considered (i.e. 34) rather
+than the samples which would have been considered in the standard
+neighborhood case (i.e. 15).
+
+
++*Out[24]:*+
+----
+![png](output_49_0.png)
+----
+
+We now perform the Super Kriging which is nothing but a standard Kriging
+with the new neighborhood feature (demonstrated above).
+
+
++*Out[26]:*+
+----
+
+ Target location
+ ---------------
+ Sample #15301 (from 30000)
+ Coordinate #1 = 100.000000
+ Coordinate #2 = 76.000000
+ 
+ Data selected in neighborhood
+ -----------------------------
+        Rank      Sample          x1          x2      Sector 
+           1          20     114.631      72.031           1 
+           2          52     116.444      65.590           1 
+           3          56     114.720      79.035           1 
+           4          65     116.816      94.871           1 
+           5          69      89.960      69.482           1 
+ 
+ LHS of Kriging matrix (compressed)
+ ==================================
+ Number of active samples    = 5
+ Total number of equations   = 5
+ Reduced number of equations = 5
+ 
+        Rank                       1           2           3           4           5 
+                    Flag           1           2           3           4           5 
+           1           1       1.000       0.526       0.518       0.164       0.132 
+           2           2       0.526       1.000       0.358       0.069       0.102 
+           3           3       0.518       0.358       1.000       0.303       0.106 
+           4           4       0.164       0.069       0.303       1.000       0.006 
+           5           5       0.132       0.102       0.106       0.006       1.000 
+ 
+ RHS of Kriging matrix (compressed)
+ ==================================
+ Number of active samples    = 5
+ Total number of equations   = 5
+ Reduced number of equations = 5
+ Number of right-hand sides  = 1
+ Block Estimation : Discretization =  5  x  5 
+ 
+        Rank        Flag           1 
+           1           1       0.205 
+           2           2       0.179 
+           3           3       0.206 
+           4           4       0.140 
+           5           5       0.224 
+ 
+ (Co-) Kriging weights
+ =====================
+        Rank          x1          x2       Size1       Size2        Data         Z1* 
+           1     114.631      72.031      50.000      50.000       0.057       0.075 
+           2     116.444      65.590      50.000      50.000       1.275       0.082 
+           3     114.720      79.035      50.000      50.000      -0.061       0.089 
+           4     116.816      94.871      50.000      50.000       1.144       0.094 
+           5      89.960      69.482      50.000      50.000       0.308       0.196 
+ Sum of weights                                                           0.535 
+ 
+ (Co-) Kriging results
+ =====================
+ Target Sample = 15301
+ Variable Z1 
+  - Estimate  =        0.270 
+  - Std. Dev. =        0.266 
+  - Variance  =        0.071 
+  - Cov(h=0)  =        0.176 
+ ----
+
+The results of the Super Kriging are visulized in the next figure,
+together with the ones of the standard neighborhood.
+
+
++*Out[27]:*+
+----
+![png](output_54_0.png)
+----
+
+We also display the standard deviation map of the Super Kriging
+Estimation error
+
+
++*Out[28]:*+
+----
+![png](output_56_0.png)
+----
+
+Comparing with Block Kriging with standard block extension (equal to the
+grid mesh)
+
+
++*Out[29]:*+
+----
+![png](output_58_0.png)
+----
+
+Comparing the error maps
+
+
++*Out[30]:*+
+----
+![png](output_60_0.png)
+----

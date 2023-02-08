@@ -1,0 +1,274 @@
+[[tutorial-for-mathematical-morphology]]
+= Tutorial for Mathematical Morphology
+
+This file is meant to demonstrate the use of gstlearn for Morphological
+Operations
+
+Setting some global variables
+
+In several usages, we will need a VectorDouble dimensionned to the total
+number of pixels. This is created next.
+
+Generating an initial square grid covering a 1 by 1 surface (100 meshes
+along each direction).
+
+
++*Out[5]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu - Locator = z1
+ 
+![png](output_9_1.png)
+----
+
+[[basic-operations]]
+== Basic operations
+
+We retreive the newly simulated variable (called _Simu_) from the _grid_
+Db into a local Vector (called _tab_). This vector is then transformed
+by thresholding and loaded into an image object (called _image_). This
+object is very efficient as each pixel is stored into a single _bit_. A
+second Image object (called _image2_) is created and will be used in
+subsequent diadic operations.
+
+
++*Out[7]:*+
+----
+Grain Volume = 6920  / 10000 (pixels)
+
+----
+
+For visualization (and i the current version), we must first convert the
+image into a vector and load it into a grid.
+
+
++*Out[8]:*+
+----
+![png](output_15_0.png)
+----
+
+The next step interchanges grain and pore
+
+
++*Out[10]:*+
+----
+![png](output_18_0.png)
+----
+
+[[basic-mophological-image-transformations]]
+== Basic Mophological Image transformations
+
+We start with the initial image and perform an erosion. The second
+argument defines the type of structuring element: either Cross (0) or
+Block (1)
+
+
++*Out[11]:*+
+----
+![png](output_21_0.png)
+----
+
+We check the result of ersosion when choosing the Block structuring
+element
+
+
++*Out[12]:*+
+----
+![png](output_23_0.png)
+----
+
+We now perform the dilation of the Initial image (only the Cross
+structuring element will be used in the next paragraphs)
+
+
++*Out[13]:*+
+----
+![png](output_25_0.png)
+----
+
+Combining the elementary operations (Erosion and Dilation), we can
+perform directly an opening
+
+
++*Out[14]:*+
+----
+![png](output_27_0.png)
+----
+
+And the closing
+
+
++*Out[15]:*+
+----
+![png](output_29_0.png)
+----
+
+[[connected-components]]
+== Connected components
+
+Starting from the Initial image, we now wish to determine the connected
+components
+
+
++*Out[16]:*+
+----
+![png](output_32_0.png)
+----
+
+
++*Out[17]:*+
+----
+Number of connected components = 118 
+
+
+![png](output_33_1.png)
+----
+
+
++*Out[18]:*+
+----
+Number of connected components = 118 
+
+
+![png](output_34_1.png)
+----
+
+[[some-shortcuts]]
+== Some shortcuts
+
+The procedure is made easier for basic morphological operations, using
+directly the method _morpho_. This method operates from a variable
+stored in a Db (organized as a Grid) and returns the result in the same
+Db.
+
+
++*Out[19]:*+
+----
+![png](output_37_0.png)
+----
+
+
++*Out[20]:*+
+----
+![png](output_38_0.png)
+----
+
+
++*Out[21]:*+
+----
+![png](output_39_0.png)
+----
+
+Calculation of distance to the edge of the grain
+
+
++*Out[23]:*+
+----
+![png](output_42_0.png)
+----
+
+Calculation of the 2-D angle of the gradient
+
+
++*Out[25]:*+
+----
+![png](output_45_0.png)
+----
+
+Calculation of Gradient components
+
+
++*Out[27]:*+
+----
+![png](output_48_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_49_0.png)
+----
+
+Smoothing the input image
+
+
++*Out[30]:*+
+----
+![png](output_52_0.png)
+----
+
+[[testing-the-bitmap-image-printout]]
+== Testing the Bitmap Image printout
+
+
++*Out[31]:*+
+----
+![png](output_54_0.png)
+----
+
+
++*Out[32]:*+
+----
+![png](output_55_0.png)
+----
+
+
++*Out[33]:*+
+----Array dimension = 2
+- Dimension #1 : 10
+- Dimension #2 : 12
+
+  1234567890
+1 1110010011
+2 1110011011
+3 1110011111
+4 1110011111
+5 1110001111
+6 1111001111
+7 1111111110
+8 1111111100
+9 1110111110
+0 0110011110
+1 0110000111
+2 0011011111----
+
+
++*Out[34]:*+
+----
+Array dimension = 2
+- Dimension #1 : 10
+- Dimension #2 : 12
+
+  34567890
+4 .++.....
+5 .+++....
+6 ..++....
+7 .......+
+8 ......++
+9 .+.....+
+0 .++....+
+1 .++++...
+2 ..+.....
+ ----

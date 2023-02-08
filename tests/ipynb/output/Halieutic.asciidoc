@@ -1,0 +1,52 @@
+Le jeu de données du groupe de travail CIEM WGACEGG: densités
+acoustiques (NASC) d'anchois et de sardine par unité d'échantillonnage
+de 1 mille nautique de long, observées au printemps 2018 et 2021.
+
+Description des colonnes : - survey : campagne - year : année - time :
+date/heure enregistrement donnée - x : longitude en ° décimal WGS84 - y
+: latitude en ° décimal WGS84 - NASC : densité acoustique en m2.MN-2 -
+sp : espèce anchois = "ENGR-ENC" - sardine ="SARD-PIL"
+
+Pour plus d'infos sur l'origine de ces données : Doray, M., Van Der
+Kooij, J., Boyra, G. (Eds.), 2021. ICES Survey Protocols - Manual for
+acoustic surveys coordinated under the ICES Working Group on Acoustic
+and Egg Surveys for Small Pelagic Fish (WGACEGG).
+https://doi.org/10.17895/ICES.PUB.7462.
+
+Lecture du fichier de données
+
+
++*Out[2]:*+
+----
+[cols=",,,,,,,",options="header",]
+|=======================================================================
+| |survey |year |time |x |y |NASC |sp
+|0 |AC_SPRING_IBBB |2018 |04/05/2018 19:20:00 |-9.295565 |40.381000 |0.0
+|ENGR-ENC
+
+|1 |AC_SPRING_IBBB |2018 |04/05/2018 19:43:00 |-9.229598 |40.381582 |0.0
+|ENGR-ENC
+
+|2 |AC_SPRING_IBBB |2018 |04/05/2018 19:58:00 |-9.185515 |40.382482 |0.0
+|ENGR-ENC
+
+|3 |AC_SPRING_IBBB |2018 |05/05/2018 07:32:00 |-9.036932 |40.382898 |0.0
+|ENGR-ENC
+
+|4 |AC_SPRING_IBBB |2018 |05/05/2018 07:39:00 |-9.014982 |40.382750 |0.0
+|ENGR-ENC
+|=======================================================================
+----
+
+Lecture du Polygone
+
+Lecture des traits de cotes.
+
+Plotting the world country lines as background and overlay the Points
+and the Polygon, suing the same CRS.
+
+
++*Out[9]:*+
+----
+![png](output_13_0.png)
+----
