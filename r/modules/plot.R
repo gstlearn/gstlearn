@@ -9,7 +9,7 @@ plot.initialize <- function()
 	plot.default_dims <<- list(c(8,8), c(8,8))
 	plot.default_xlim <<- list(c(NA,NA), c(NA,NA))
 	plot.default_ylim <<- list(c(NA,NA), c(NA,NA))
-	plot.default_asp  <<- c(NA, 1 )
+	plot.default_asp  <<- c(0, 1 )
 	invisible()
 }
 
@@ -49,9 +49,9 @@ plot.setDefault <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
     if (!isNotDef(xlim))
         plot.default_xlim[[mode]] <<- xlim
     if (!isNotDef(ylim))
-        plot.default_ylim[[mode]] <<- ylim
+        plot.default_ylim[[mode]] <<- ylim    
     if (!isNotDef(asp))
-        plot.default_asp[[mode]] <<- asp
+	    plot.default_asp[[mode]] <<- asp
 }
 
 plot.printDefault <- function()
@@ -67,18 +67,21 @@ plot.printDefault <- function()
              cat("- Figure dimensions =", plot.default_dims[[mode]],"\n")
         else
         	 cat("- Figure dimensions (not defined)\n")
-        if (!isNotDef(plot.default_xlim[mode]))
+        	 
+        if (!isNotDef(plot.default_xlim[[mode]]))
             cat("- Limits along X =",plot.default_xlim[[mode]],"\n")
         else
         	cat("- Limits along X (not defined)\n")
-        if (!isNotDef(plot.default_ylim[mode]))
+        	
+        if (!isNotDef(plot.default_ylim[[mode]]))
             cat("- Limits along Y =",plot.default_ylim[[mode]],"\n")
         else
         	cat("- Limits along Y (not defined)\n")
-        if (!isNotDef(plot.default_asp[mode]))
+        	
+        if (plot.default_asp[mode] != 0)
             cat("- Aspect =",plot.default_asp[mode],"\n")
         else
-        	cat("- Aspect (not defined)\n")
+        	cat("- Aspect (automatic)\n")
  	}    
 }
 
@@ -145,6 +148,9 @@ plot.empty <- function(p)
     p
 }
 
+# Set the Geometry for the plot 'p'
+# asp: Specify a value of "0" for an automatic aspect ratio
+#
 plot.geometry <- function(p, dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
 {
     if (! isNotDef(dims[1]))
@@ -203,18 +209,29 @@ plot.geometry <- function(p, dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
         else
            cat("'ylim' should be [a,b] or [NA,b] or [a,NA]. Ignored\n")
     }
-        
+    
     if (!isNotDef(asp))
-    {
-        if (is_array(p, 2))
-        {
-        	for (ix in 1:dim(p)[1])
-            	for (iy in 1:dim(p)[2])
-                    p[ix,iy] <- p[ix,iy] + coor_fixed(asp)
-        }
-        else
-            p = p + coord_fixed(asp)
-	}
+    {     
+    	if (is_array(p, 2))
+    	{
+	   		for (ix in 1:dim(p)[1])
+    	   		for (iy in 1:dim(p)[2])
+    	   		{
+    	   			if (asp != 0)
+	       	    		p[ix,iy] <- p[ix,iy] + coor_fixed(asp)
+	       	    	else
+	       	    		p[ix,iy] <- p[ix,iy] + theme(aspect.ratio = 1)
+	       	    }
+    	}
+    	else
+    	{
+    		if (asp != 0)
+	    		p = p + coord_fixed(asp)
+	    	else
+	    		p = p + theme(aspect.ratio = 1)
+	    }
+    }
+
 	p
 }
 
@@ -460,11 +477,12 @@ plot.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
         
         for (idir in idirUtil)
         {
+        	color = NA
        		if (! has_color) color=cols[idir+1]
         	g = varioElem(g, vario, ivar, jvar, idir, 
-        			var_color=var_color, var_linetype=var_linetype, var_size=var_size,
-   				    draw_variance=draw_variance, draw_psize=draw_psize, draw_plabel=draw_plabel,
-        			label=label, ...)
+        			      var_color=var_color, var_linetype=var_linetype, var_size=var_size,
+   				          draw_variance=draw_variance, draw_psize=draw_psize, draw_plabel=draw_plabel,
+        			      label=label, color=color, ...)
 
             # Plotting the Model (optional)
             if (! isNotDef(model))

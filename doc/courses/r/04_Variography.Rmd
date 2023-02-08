@@ -18,11 +18,29 @@ colortheme: beaver
 In this preamble, we load the **gstlearn** library and clean the workspace. 
 
 ```{r Preamble, include=FALSE}
+rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-rm(list=ls())
 knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center") 
+plot.initialize()
+```
+
+```{r}
+aaf <- function(titi=12, ...)
+{
+  dots = list(...)
+  print("dots dans aaf")
+  print(dots)
+}
+
+af <- function(toto=1, ...)
+{
+  dots = list(...)
+  dots = append(dots, list(tutu=3))
+  aaf(dots)
+  do.call('aaf', dots)
+}
 ```
 
 
@@ -61,7 +79,9 @@ where $N(h)$ is the number of pairs of points distant by $h$
 varioParamOmni = VarioParam_createOmniDirection(npas = 100)
 grid.cloud = db_variogram_cloud(dat, varioParamOmni)
 grid.cloud$display()
-plot.grid(grid.cloud, name="Cloud.January*",asp=NULL)
+p = plot.grid(grid.cloud, "Cloud.January*")
+p = plot.geometry(p, asp=0)
+p
 ```
 
 ---
@@ -97,7 +117,7 @@ plot.varmod(varioexp)
 \frametitle {Experimental Variogram}
 
 ```{r Plot_Experimental_Variogram_continued}
-plot.varmod(varioexp,draw_psize=TRUE, draw_plabels=TRUE, ratio_psize=100)
+plot.varmod(varioexp,draw_psize=TRUE)
 ```
 
 ---

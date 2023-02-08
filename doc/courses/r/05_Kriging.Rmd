@@ -27,6 +27,7 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 rm(list=ls())
+plot.initialize()
 ```
 
 Then we download the data base **dat**.
@@ -105,7 +106,9 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging Estimation}
 
 ```{r Plot_Ordinary_Kriging}
-plot.grid(grid, title="Ordinary Kriging over whole Grid", legend.name="°C",asp=1,zlim= c(0.,8.))
+p = plot.grid(grid, legend.name.raster="°C", zlim=c(0,8))
+p = plot.decoration(p, title="Ordinary Kriging over whole Grid")
+p
 ```
 
 ---
@@ -136,9 +139,10 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging - Estimation}
 
 ```{r Ordinary_Kriging_Estimation}
-ax = plot.grid(grid,name="OK*estim",title="Estimation by Ordinary Kriging",asp=1,
-               legend.name="°C", zlim=c(0.,8.), end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
+p = plot.grid(grid, "OK*estim", legend.name.raster="°C", zlim=c(0.,8.))
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.decoration(p, title="Estimation by Ordinary Kriging")
+p
 ```
 
 ---
@@ -146,9 +150,10 @@ plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 \frametitle{Ordinary Kriging - Standard Deviation}
 
 ```{r Ordinary_Kriging_St_Dev}
-ax = plot.grid(grid,name="OK*stdev",title="St. dev. by Ordinary Kriging",asp=1,
-               legend.name="°C", zlim=c(0.,1.), end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
+p = plot.grid(grid,"OK*stdev", legend.name.raster="°C", zlim=c(0.,1.))
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.decoration(p, title="St. dev. by Ordinary Kriging")
+p
 ```
 
 --- 
@@ -176,9 +181,10 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
 \frametitle{Simple kriging - Estimation}
 
 ```{r Simple_Kriging_Estimation}
-ax = plot.grid(grid,name="SK*estim",title="Estimation by Simple Kriging",asp=1,
-               legend.name="°C", zlim=c(0.,8.), end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
+p = plot.grid(grid,"SK*estim",legend.name.raster="°C", zlim=c(0.,8.))
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.decoration(p, title="Estimation by Simple Kriging")
+p
 ```
 
 ---
@@ -186,9 +192,10 @@ plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 \frametitle{Simple kriging - Standard Deviation}
 
 ```{r Simple_Kriging_St_Dev}
-ax = plot.grid(grid,name="SK*stdev",title="St. dev. by Simple Kriging",asp=1,
-               legend.name="°C", zlim=c(0.,1.), end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
+p = plot.grid(grid,"SK*stdev",legend.name.raster="°C", zlim=c(0.,1.))
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.decoration(p, title="St. dev. by Simple Kriging")
+p
 ```
 
 ---
@@ -196,9 +203,10 @@ plot.point(dat,size_name="January_temp",padd=ax,sizmax=300,color0='black')
 \frametitle{Comparing Ordinary and Simple Kriging - Estimations}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
-plot.correlation(grid,name1="OK*estim",name2="SK*estim", flagDiag=TRUE,
-                 title="Estimation Simple vs. Ordinary", 
-                 xlab="Ordinary Kriging", ylab="Simple Kriging")
+p = plot.correlation(grid,name1="OK*estim",name2="SK*estim", flagDiag=TRUE)
+p = plot.decoration(p, title="Estimation Simple vs. Ordinary", 
+                    xlab="Ordinary Kriging", ylab="Simple Kriging")
+p
 ```
 
 ---
@@ -206,9 +214,10 @@ plot.correlation(grid,name1="OK*estim",name2="SK*estim", flagDiag=TRUE,
 \frametitle{Comparing Ordinary and Simple Kriging - St. dev.}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
-plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", flagDiag=TRUE, 
-                 title="St. dev. Simple vs. Ordinary", 
-                 xlab="Ordinary Kriging", ylab="Simple Kriging")
+p = plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", flagDiag=TRUE)
+p = plot.decoration(p, title="St. dev. Simple vs. Ordinary", 
+                    xlab="Ordinary Kriging", ylab="Simple Kriging")
+p
 ```
 
 ---
@@ -227,8 +236,9 @@ err = xvalid(db=dat, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Cross-validation - Histogram of Errors}
 
 ```{r Cross_Validation_Errors}
-plot.hist(dat,name="*esterr*",nbins=30,fill="blue",xlab="Estimation Errors",
-          title="Cross-Validation")
+p = plot.hist(dat,name="*esterr*",nbins=30,fill="blue")
+p = plot.decoration(p, xlab="Estimation Errors", title="Cross-Validation")
+p
 ```
  
 ---
@@ -236,8 +246,9 @@ plot.hist(dat,name="*esterr*",nbins=30,fill="blue",xlab="Estimation Errors",
 \frametitle{Cross-validation - Histogram of Standardized Errors}
 
 ```{r}
-plot.hist(dat,name="*stderr*",nbins=30,fill="blue",xlab="Standardized Errors",
-          title="Cross-Validation")
+p = plot.hist(dat,name="*stderr*",nbins=30,fill="blue")
+p = plot.decoration(p, xlab="Standardized Errors", title="Cross-Validation")
+p
 ```
 
 ---
@@ -255,9 +266,10 @@ mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Errors_Display}
-ax = plot.grid(grid,name="inshore",show.legend=FALSE, asp=1,end.plot=FALSE)
-plot.point(dat,size_name="*esterr",padd=ax,sizmax=300, 
-           title="Cross-Validation scores")
+p = plot.grid(grid,"inshore")
+p = plot.point(dat,name_size="*esterr",padd=p,sizmax=300)
+p = plot.decoration(p, title="Cross-Validation scores")
+p
 ```
 
 ---
@@ -265,9 +277,10 @@ plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Absolute_Error}
-ax = plot.grid(grid,name="inshore",show.legend=FALSE, asp=1,end.plot=FALSE)
-plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
-           flagAbsSize=TRUE,title="Cross-Validation scores (abs. value)")
+p = plot.grid(grid,"inshore")
+p = plot.point(dat,name_size="*esterr",padd=p,sizmax=300,flagAbsSize=TRUE)
+p = plot.decoration(p, title="Cross-Validation scores (abs. value)")
+p
 ```
 
 ---
@@ -277,7 +290,7 @@ plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
 We design a small Moving Neighborhood **small.neigh** with only 1 sample per neighborhood.
 
 ```{r}
-small.neigh = NeighMoving_create(flag_xvalid=FALSE,nmini=1, nmaxi=1, radius=1000000)
+small.neigh = NeighMoving_create(nmini=1, nmaxi=1, radius=1000000)
 ```
 
 We perform Ordinary Kriging 
@@ -294,10 +307,10 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=small.neigh,
 
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood_Estimation}
-ax = plot.grid(grid,name="Small*estim",
-               title="Estimation by Ordinary Kriging (Small Neigh.)", zlim=c(0.,8.), asp=1,
-               legend.name="°C", end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax)
+p = plot.grid(grid,"Small*estim",zlim=c(0.,8.), legend.name.raster="°C")
+p = plot.point(dat,name_size="January_temp",padd=p)
+p = plot.decoration(p, title="Estimation by Ordinary Kriging (Small Neigh.)")
+p
 ```
 
 ---
@@ -307,7 +320,7 @@ plot.point(dat,size_name="January_temp",padd=ax)
 Building a reasonable Moving Neighborhood, although with a limited extension (*radius*)
 
 ```{r Reduced_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(flag_xvalid=FALSE,nmini=1, nmaxi=10, radius=20)
+moving.neigh = NeighMoving_create(nmini=1, nmaxi=10, radius=20)
 ```
 
 Running the Ordinary Kriging
@@ -323,10 +336,10 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 \frametitle{Ordinary Kriging (Moving Neighborhood 1)}
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood_Estimation}
-ax = plot.grid(grid,name="Reduced*estim",
-               title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)", zlim=c(0.,8.), asp=1,
-               legend.name="°C", end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax)
+p = plot.grid(grid,"Reduced*estim", zlim=c(0.,8.), legend.name.raster="°C")
+p = plot.point(dat,name_size="January_temp",padd=p)
+p = plot.decoration(p, title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
+p
 ```
 
 Lots of target sites are not estimated as no sample is found within the neighborhood.
@@ -338,7 +351,7 @@ Lots of target sites are not estimated as no sample is found within the neighbor
 Building a reasonable Moving Neighborhood correctly tuned: 10 samples (maximum) selected in a radius of 150 around the target site.
 
 ```{r Large_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(flag_xvalid=FALSE,nmini=1, nmaxi=10, radius=150)
+moving.neigh = NeighMoving_create(nmini=1, nmaxi=10, radius=150)
 ```
 
 Running the Ordinary Kriging
@@ -354,10 +367,10 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 \frametitle{Ordinary Kriging (Moving Neighborhood 2)}
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_Estimation}
-ax = plot.grid(grid,name="Moving*estim",
-               title="Estimation by Ordinary Kriging (Moving Neigh.)", zlim=c(0.,8.), asp=1,
-               legend.name="°C", end.plot=FALSE)
-plot.point(dat,size_name="January_temp",padd=ax)
+p = plot.grid(grid,"Moving*estim",zlim=c(0.,8.), legend.name.raster="°C")
+p = plot.point(dat,name_size="January_temp",padd=p)
+p = plot.decoration(p, title="Estimation by Ordinary Kriging (Moving Neigh.)")
+p
 ```
 
 ---
@@ -365,10 +378,10 @@ plot.point(dat,size_name="January_temp",padd=ax)
 \frametitle{Ordinary Kriging (Moving Neighborhood 2)}
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_stdev}
-ax = plot.grid(grid,name="Moving*stdev",
-               title="St. dev. by Ordinary Kriging (Moving Neigh.)", zlim=c(0.,1.), asp=1,
-               legend.name="°C", end.plot=FALSE,)
-plot.point(dat,size_name="January_temp",padd=ax)
+p = plot.grid(grid,"Moving*stdev", zlim=c(0.,1.), legend.name.raster="°C")
+p = plot.point(dat,name_size="January_temp",padd=p)
+p = plot.decoration(p, title="St. dev. by Ordinary Kriging (Moving Neigh.)")
+p
 ```
 
 ---
@@ -376,9 +389,10 @@ plot.point(dat,size_name="January_temp",padd=ax)
 \frametitle{Comparing Unique and Moving Neighborhoods}
 
 ```{r Comparing_unique_moving_estimation}
-plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE, 
-                 title="Ordinary Kriging Estimation", 
-                 xlab="Unique", ylab="Moving")
+p = plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE)
+p = plot.decoration(p, title="Ordinary Kriging Estimation", 
+                    xlab="Unique", ylab="Moving")
+p
 ```
 
 ---
@@ -386,7 +400,8 @@ plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE,
 \frametitle{Comparing Unique and Moving Neighborhoods}
 
 ```{r Comparing_unique_moving_stdev}
-plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", flagDiag=TRUE, 
-                 title="Ordinary Kriging St. Dev.", 
-                 xlab="Unique", ylab="Moving")
+p = plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", flagDiag=TRUE)
+p = plot.decoration(p, title="Ordinary Kriging St. Dev.", 
+                    xlab="Unique", ylab="Moving")
+p
 ```
