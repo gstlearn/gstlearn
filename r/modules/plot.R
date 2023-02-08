@@ -589,7 +589,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
                        show.legend.symbol=FALSE, legend.name.color="P-Color",
                        legend.name.size="P-Size",
                        show.legend.label=FALSE, legend.name.label="P-Label",
-                       show.title = FALSE, padd = NULL, ...) 
+                       show.title = TRUE, padd = NULL, ...) 
 { 
   p <- getNewFigure(padd, 2)
   title = ""
@@ -685,7 +685,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     				  bins = 10, line.color="black",
       				  show.legend.raster=FALSE, legend.name.raster="G-Raster", 
       				  show.legend.contour=FALSE, legend.name.contour="G-contour", 
-      				  show.title = FALSE, 
+      				  show.title = TRUE, 
       				  padd=NULL, ...)
 {
   if (! dbgrid$isGrid())
@@ -719,7 +719,8 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   	title = paste(title,name_raster)
   	
 	# Set the Legend
-  	p <- p + guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))
+	if (show.legend.raster)
+	  	p <- p + guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))
   }
   
   # Contour representation
@@ -731,8 +732,9 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   	# Set the title					
   	title = paste(title, name_contour)
   		
-  	# Set the Legend	 
-  	p <- p + labs(contour = legend.name.contour)
+  	# Set the Legend
+  	if (show.legend.contour)	 
+	  	p <- p + labs(contour = legend.name.contour)
   }  
   
   # Decoration
