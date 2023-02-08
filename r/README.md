@@ -152,15 +152,15 @@ sudo apt install pcre2-devel # Ubuntu 18
 sudo apt install libpcre2-dev # Ubuntu 20
 ````
 
-4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands (adapt installation folder for CMAKE_INSTALL_PREFIX variable):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
-cmake -Bbuild
+cmake -Bbuild -DCMAKE_INSTALL_PREFIX=:PATH=/home/user/Programs
 cd build
 make
-sudo make install
+make install
 ````
 
 5. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
@@ -187,12 +187,12 @@ brew install bison
 brew install pcre2-devel
 ````
 
-4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands (adapt installation folder for CMAKE_INSTALL_PREFIX variable):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
-cmake -Bbuild
+cmake -Bbuild -DCMAKE_INSTALL_PREFIX=:PATH=/home/user/Programs
 cd build
 make
 make install
