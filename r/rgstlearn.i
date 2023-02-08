@@ -735,7 +735,7 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
 "cs_toTL" <- function(x)
 {
-  Q = nullptr
+  Q = NULL
   if (isNamespaceLoaded("Matrix"))
   {
     Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
