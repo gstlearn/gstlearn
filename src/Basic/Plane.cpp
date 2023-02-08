@@ -74,7 +74,7 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
 {
   double ap[3];
 
-  VectorDouble center = dbgrid->getCenter();
+  VectorDouble center = dbgrid->getCenters();
   center.resize(3,0.);
   double diagonal = dbgrid->getExtensionDiagonal();
   std::vector<Plane> planes;

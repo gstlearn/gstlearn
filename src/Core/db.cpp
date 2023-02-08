@@ -12,6 +12,7 @@
 #include "geoslib_old_f.h"
 
 #include "Space/ASpaceObject.hpp"
+#include "Polygon/Polygons.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -2271,15 +2272,15 @@ void db_polygon(Db *db,
       double xx = db->getCoordinate(iech, 0);
       double yy = db->getCoordinate(iech, 1);
       double zz = db->getCoordinate(iech, 2);
-      selval = polygon_inside(xx, yy, zz, flag_nested, polygon);
+      selval = polygon->inside(xx, yy, zz, flag_nested);
 
       if (flag_period)
       {
         double xp;
         xp = xx - 360;
-        selval = selval || polygon_inside(xp, yy, zz, flag_nested, polygon);
+        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
         xp = xx + 360;
-        selval = selval || polygon_inside(xp, yy, zz, flag_nested, polygon);
+        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
       }
     }
     db->setArray(iech, iatt, (double) selval);

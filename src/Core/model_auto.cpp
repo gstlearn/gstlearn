@@ -621,9 +621,6 @@ static int st_get_vario_dimension(Vario *vario,
 
           hh0 = hh1 * sw0 / sw1;
           vario->setHhByIndex(idir, iad0, hh0);
-
-          message("Warning: Dir=%d IV=%d JV=%d iad0=%d -> HH=%lf\n",
-                  idir, ivar, jvar, iad0, hh0);
         }
       }
   }

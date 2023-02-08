@@ -714,7 +714,7 @@ void VectorHelper::cumulate(VectorDouble &veca,
 }
 
 /**
- * Sample a set of 'ntotal' ranks
+ * Sample a set of 'ntotal' ranks (unique occurrence)
  * @param ntotal      Dimension to be sampled
  * @param proportion  Proportion of elected samples (in [0,1])
  * @param number      Number of elected samples
@@ -752,9 +752,13 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
 
   // Sort them out
   if (optSort > 0)
-    sort(ranks, true);
+    ranks = sort(ranks, true);
   else if (optSort < 0)
-    sort(ranks, false);
+    ranks = sort(ranks, false);
+
+  std::vector<int>::iterator it;
+  it = unique(ranks.begin(), ranks.end());
+  ranks.resize(distance(ranks.begin(),it));
 
   return ranks;
 }

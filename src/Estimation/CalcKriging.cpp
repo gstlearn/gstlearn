@@ -641,4 +641,3 @@ int test_neigh(Db *dbin,
   int error = (krige.run()) ? 0 : 1;
   return error;
 }
-

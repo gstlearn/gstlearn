@@ -1,0 +1,183 @@
+---
+title: "Tutorial Graphics"
+author: "D. Renard"
+date: "5 february 2023"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+
+#plot.initialize()
+plot.printDefault()
+```
+
+```{r}
+defineDefaultSpace(ESpaceType_RN(), 2)
+```
+
+```{r}
+mymodel = Model_createFromParam(ECov_CUBIC(), range=10, sill=1)
+```
+
+# Grid representations
+
+## Standard Grid
+
+We construct a standard non rotated 2-D grid with two simulated variables
+
+```{r}
+nx = c(70,25)
+dx = c(1,2)
+x0 = c(-40, 20)
+mygrid = DbGrid_create(nx,dx,x0)
+
+err = simtub(NULL,mygrid,mymodel,nbsimu=2)
+mygrid$display()
+```
+
+We construct a Selection
+
+```{r}
+mygrid["sel"] = 1. - 
+  (mygrid["x1"] > 0) * (mygrid["x1"] < 15) * (mygrid["x2"] > 40) * (mygrid["x2"] < 50)
+mygrid$setLocator("sel",ELoc_SEL())
+mygrid
+```
+
+Displaying the grid cells
+
+```{r}
+p = plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
+              show.legend.raster=TRUE, legend.name.raster="ma Legende")
+p = plot.decoration(p,title="Display of Grid Cells")
+p
+```
+
+Displaying the grid nodes only
+
+```{r}
+p = plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", show.legend.symbol = TRUE,
+               legend.name.color="myColor")
+plot.decoration(p,title="Display of Grid Nodes")
+```
+
+## Rotated grid
+
+```{r}
+
+mygrid = DbGrid_create(nx,dx,x0,angles=c(10,0))
+err = simtub(NULL,mygrid,mymodel,nbsimu=2)
+mygrid
+```
+
+Displaying the cell contents in the rotated grid
+
+```{r}
+p = plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
+plot.decoration(p,title="Display of Rotated Grid")
+```
+
+As a set of grid nodes
+
+```{r}
+p = plot.point(mygrid,name_color="Simu.1", show.legend.symbol = TRUE)
+plot.decoration(p, title="Display of Rotated Grid Nodes")
+```
+
+# Points and Polygon
+
+```{r}
+mypoint = Db_createSamplingDb(mygrid,0.01)
+mypoint$display()
+```
+
+```{r}
+mypoly = Polygons_createFromDb(mypoint)
+```
+
+```{r}
+p = plot(mygrid)
+p = plot(mypoly, fill=NA, colour='yellow', linewidth=1, padd=p)
+p = plot(mypoint,color="black", padd=p)
+p = plot.decoration(p, title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
+p
+```
+
+# Several plots on the same figure
+
+```{r}
+p1 = plot(mygrid)
+p2 = plot(mypoint)
+ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
+```
+
+# Variograms and Models
+
+```{r}
+varioparam = VarioParam_createMultipleFromGrid(npas=10)
+vario = Vario(varioparam, mygrid)
+err = vario$compute(ECalcVario_VARIOGRAM())
+```
+
+```{r}
+model = Model()
+err = model$fit(vario,type=ECov_fromKeys(c("SPHERICAL", "CUBIC")))
+```
+
+Displaying experimental variogram
+
+```{r}
+p = plot(vario, draw_psize=F, linewidth=1, color="red")
+p = plot.decoration(p, title="First Variable - First Direction")
+p
+```
+
+```{r}
+p = plot(vario, idir=1)
+p = plot.decoration(p, title="First Variable - Second Direction")
+p
+```
+
+```{r}
+p = plot(vario, color="black")
+p = plot(vario, idir=1, color='red', padd=p)
+p = plot.decoration(p, title="First Variable - Two directions")
+p
+```
+
+```{r}
+p = plot(vario, ivar=1, jvar=0, idir=-1, linewidth = 1)
+p = plot.decoration(p, title="Cross-variogram - Two directions")
+p
+```
+
+```{r}
+p = plot(vario, ivar=-1, jvar=-1, idir=-1, linewidth=1)
+p = plot.decoration(p,title="Simple and Cross Variograms in all directions")
+p
+```
+
+Displaying the Model
+
+```{r}
+p = plot(model, ivar=1, jvar=1, vario=vario, idir=0)
+p = plot.decoration(p, title="Model for the Second Variable in First Direction")
+p
+```
+
+
+```{r}
+p = plot.varmod(vario, model, linewidth=1)
+p = plot.decoration(p, title="All variograms in First Direction")
+p
+```
+

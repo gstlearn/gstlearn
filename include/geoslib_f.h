@@ -401,16 +401,6 @@ GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
                                       double *dist,
                                       double *sel);
 
-/***************************************/
-/* Prototyping the functions in poly.c */
-/***************************************/
-
-GSTLEARN_EXPORT int polygon_inside(double xx,
-                                   double yy,
-                                   double zz,
-                                   int flag_nested,
-                                   Polygons *polygon);
-
 /********************************************/
 /* Prototyping the functions in potential.c */
 /********************************************/

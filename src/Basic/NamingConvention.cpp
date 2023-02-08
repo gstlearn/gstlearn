@@ -82,7 +82,6 @@ NamingConvention* NamingConvention::create(String prefix,
  * @param nitems Number of items
  * @param flagSetLocator True if the variable must be assigned the locator
  * @param locatorShift Shift to be applied to the locator currently defined
- *
  */
 void NamingConvention::setNamesAndLocators(Db* dbout,
                                            int iattout_start,
@@ -310,7 +309,7 @@ void NamingConvention::setLocators(Db *dbout,
  *
  * @param dbout   Pointer to the output Db structure
  * @param iattout_start Rank of the first variable to be named
- * @param names Vector of Names (dimension: nvar) or String()
+ * @param names Vector of Names (dimension: nvar)
  * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
  */
@@ -320,7 +319,33 @@ void NamingConvention::_setNames(Db *dbout,
                                  const String& qualifier,
                                  int nitems) const
 {
+  VectorString outnames = createNames(names, qualifier, nitems);
+
   int ecr = 0;
+  int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    for (int item = 0; item < nitems; item++)
+    {
+      dbout->setNameByUID(iattout_start + ecr, outnames[ecr]);
+      ecr++;
+    }
+  }
+}
+
+/**
+ * Defines the names of the output variables.
+ *
+ * @param names Vector of Names (dimension: nvar)
+ * @param qualifier Optional qualifier
+ * @param nitems Number of items to be renamed
+ */
+VectorString NamingConvention::createNames(const VectorString& names,
+                                           const String& qualifier,
+                                           int nitems) const
+{
+  VectorString outnames;
+
   int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
 
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -344,10 +369,13 @@ void NamingConvention::_setNames(Db *dbout,
         loc_qualifier = qualifier;
         if (nitems > 1) loc_number = std::to_string(item+1);
       }
+
+      // Compose the variable name
       String name = concatenateStrings(_delim, _prefix,
                                        loc_varname, loc_qualifier, loc_number);
-      dbout->setNameByUID(iattout_start + ecr, name);
-      ecr++;
+
+      outnames.push_back(name);
     }
   }
+  return outnames;
 }

@@ -144,8 +144,7 @@ Vario* Vario::computeFromDb(const VarioParam* varioparam,
 {
   Vario* vario = nullptr;
   vario = new Vario(varioparam, db);
-  if (vario->compute(calcul, flag_gen, flag_sample, verr_mode, model,
-                 verbose))
+  if (vario->compute(calcul, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     return nullptr;
   }
@@ -560,11 +559,13 @@ int Vario::transformYToZ(const AAnam *anam)
     messerr("This function needs a Hermite Anamorphosis");
     return 1;
   }
+  /* XF: 2023-02-06 - to be used also with a bloc anamorphosis
   if (anam_hermite->getRCoef() != 1.)
   {
     messerr("This function is restricted to Punctual Anamorphosis");
     return 1;
   }
+  */
   if (getVariableNumber() != 1)
   {
     messerr("This function is restricted to Monovariate Variogram");

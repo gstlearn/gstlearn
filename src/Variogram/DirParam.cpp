@@ -16,6 +16,7 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
 
 #include <math.h>

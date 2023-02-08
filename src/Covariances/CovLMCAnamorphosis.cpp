@@ -125,7 +125,7 @@ String CovLMCAnamorphosis::toString(const AStringFormat* strfmt) const
   if (iclass == -1)
     sstr << "Option switch to Raw Variable" << std::endl;
   else if (iclass > 0)
-    sstr << "Active Factor: Rank %d" << iclass << std::endl;
+    sstr << "Active Factor: Rank" << iclass << std::endl;
 
   return sstr.str();
 }
@@ -190,7 +190,11 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
 
   double rho = 1.;
   if (getDistance(p1, p2) > 0.)
-    rho = CovLMC::eval(ivar, jvar, p1, p2, mode);
+  {
+    CovCalcMode mode_loc = mode;
+    mode_loc.setAsVario(false);
+    rho = CovLMC::eval(ivar, jvar, p1, p2, mode_loc);
+  }
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
@@ -203,6 +207,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
     // For the Gaussian variable
 
     cov = rho;
+    if (mode.getAsVario() == true) cov = 1. - cov;
   }
   else if (iclass == -1)
   {
@@ -212,23 +217,26 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
     cov = 0.;
     double rhon = 1.;
     double rn = 1.;
+    double val = 0.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
       rhon *= rho;
       rn *= r;
       double psin = anamH->getPsiHn(jclass);
+      val = rhon;
+      if (mode.getAsVario()) val = 1. - val;
       switch (mode.getMember().getValue())
       {
         case ECalcMember::E_LHS:
-          cov += psin * psin * rn * rn * rhon;
+          cov += psin * psin * rn * rn * val;
           break;
 
         case ECalcMember::E_RHS:
-          cov += psin * psin * rn * rhon;
+          cov += psin * psin * rn * val;
           break;
 
         case ECalcMember::E_VAR:
-          cov += psin * psin * rhon;
+          cov += psin * psin * val;
           break;
       }
     }
@@ -254,7 +262,9 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
         cov = rhon;
         break;
     }
+    if (mode.getAsVario() == true) cov = 1. - cov;
   }
+
   return cov;
 }
 
@@ -520,17 +530,19 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
   return TEST;
 }
 
-int CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
+void CovLMCAnamorphosis::setActiveFactor(int anam_iclass)
 {
   if (! (anam_iclass == 0 || anam_iclass <= _anam->getNFactor()))
   {
     messerr("The rank of the active factor (%d) is incorrect", anam_iclass);
     messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);
     messerr("or be set to 0 to estimate the whole discretized grade");
-    return 1;
+    messerr("The rank is set back to 0 (Gaussian Variable)");
+    anam_iclass = 0;
+    return;
   }
   _activeFactor = anam_iclass;
-  return 0;
+  return;
 }
 
 const EAnam CovLMCAnamorphosis::getAnamType() const

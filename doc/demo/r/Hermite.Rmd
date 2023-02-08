@@ -326,18 +326,18 @@ Anamorphosis in the lognormal case (Hermite pol.)
 ```{r ana_test, echo=TRUE, eval=TRUE}
 zz_hm   <- GM_hermite(y = yy, nh = nh) %*% GM_LN_psi(lambda = lambda, nh = nh)
 
-p = plot.XY(yy, zz_theo, join=TRUE, color = "red", xlab = "Y", ylab = "Z", 
-     title = "Lognormal transform")
-plot.XY(yy, zz_hm, color = "blue", linetype="dashed", padd=p)
-#legend("topleft", legend = c("theoretical", "Hermite pol."), col = c("red", "blue"), 
-#       lty = c(1,2))
+p = plot.XY(yy, zz_theo, join=TRUE, color = "red")
+p = plot.XY(yy, zz_hm, color = "blue", linetype="dashed", padd=p)
+p = plot.decoration(p, xlab = "Y", ylab = "Z", title = "Lognormal transform")
+p
 ```
 
 
 ```{r}
-plot.XY(zz_theo, zz_hm, join=TRUE, flagDiag=TRUE, color = "blue", 
-        xlab = "theoretical", ylab = "Hermite pol.", title = "Lognormal transform")
-#legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
+p = plot.XY(zz_theo, zz_hm, join=TRUE, flagDiag=TRUE, color = "blue")
+p = plot.decoration(p , xlab = "theoretical", ylab = "Hermite pol.", 
+                    title = "Lognormal transform")
+p
 ```
 
 Covariance
@@ -346,15 +346,14 @@ Covariance
 r <- seq(from = 0, to =1, by = 0.01)
 C_theo <- GM_LN_Cov_theo(lambda = lambda)
 C_nh   <- GM_LN_Cov_nh(lambda = lambda, nh = nh)
-p = plot.XY(r, C_theo(r), color = "red", join=TRUE, 
-            xlab = "Covariance of Y", ylab = "Covarariance of Z", title = "Lognormal transform")
-plot.XY(r,C_nh(r), join=TRUE, color = "blue", linetype="dashed",  padd=p)
-
-#legend("topleft", legend = c("theoretical", "Hermite pol."), col = c("red", "blue"), 
-#       lty = c(1,2))
+p = plot.XY(r, C_theo(r), color = "red", join=TRUE)
+p = plot.XY(r,C_nh(r), join=TRUE, color = "blue", linetype="dashed",  padd=p)
+p = plot.decoration(p, xlab = "Covariance of Y", ylab = "Covarariance of Z", 
+                    title = "Lognormal transform")
+p
 ```
 
-## Performing similar tests with rgstlearn
+## Performing similar tests with gstlearn
 
 ```{r rgeostats_test, echo=TRUE, eval=TRUE}
 db <- Db_createFromSamples(np,ELoadBy_SAMPLE(),zz_theo)
@@ -367,16 +366,19 @@ err = ana$fit(db, name="zz_theo")
 localPsi <- GM_LN_psi(lambda = lambda, nh = nh-2)
 err = ana$setPsiHns(localPsi)
 
-p = plot.anam(ana, aymin=aymin, aymax=aymax, title="Lognormal Transform")
-plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
+p = plot.anam(ana, aymin=aymin, aymax=aymax)
+p = plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
+p = plot.decoration(p, title="Lognormal Transform")
+p
 #legend("topleft", legend = c("theoretical", "RGeostats"), col = c("red", "black"), lty = c(1,1))
 ```
 
 
 ```{r,eval=FALSE}
-zz_rg = ana$GaussianToRawVector(yy)
-plot.XY(zz_theo, zz_rg, join=TRUE, flagDiag=TRUE, color="blue", 
-        xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
+zz_rg = ana$gaussianToRawVector(yy)
+p = plot.XY(zz_theo, zz_rg, join=TRUE, flagDiag=TRUE, color="blue")
+p = plot5decoration(p, xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
+p
 #legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
 ```
 
@@ -402,9 +404,11 @@ model.eval.GM <- function(model, anam, h){
 }
 cov_rg <- model.eval.GM(model = mod_y, anam = ana, h = h)
 
-p = plot.XY(r, cov_theo, color = "red", join=TRUE, 
-            xlab = "Covariance of Y", ylab = "Covariance of Z", title = "Lognormal transform")
-plot.XY(r, cov_rg, color = "blue", linetype = "dashed", padd=p)
+p = plot.XY(r, cov_theo, color = "red", join=TRUE) 
+p = plot.decoration(p, xlab = "Covariance of Y", ylab = "Covariance of Z", 
+                    title = "Lognormal transform")
+p = plot.XY(r, cov_rg, color = "blue", linetype = "dashed", padd=p)
+p
 
 #legend("topleft", legend = c("theoretical", "RGeostats."), col = c("red", "blue"), lty = c(1,2))
 ```
@@ -444,10 +448,12 @@ Floor variable Z = max(yc, Y)
 psi = hermiteCoefLower(yc, nh)
 zz <- hm %*% psi
 ylim = c(-3.5, 3.5)
-p = plot.XY(yy, zz, join=TRUE, 
-     xlab = "Y", ylab = "Z", title = paste0("cut = ",round(yc,2), " nh = ", nh), 
-     color = "red", ylim=ylim)
-plot.XY(yy, pmax(yc, yy), color = "blue", join=TRUE, linetype = "dashed", padd=p)
+p = plot.XY(yy, zz, join=TRUE, color = "red")
+p = plot.XY(yy, pmax(yc, yy), color = "blue", join=TRUE, linetype = "dashed", padd=p)
+p = plot.decoration(p, xlab = "Y", ylab = "Z", 
+                    title = paste0("cut = ",round(yc,2), " nh = ", nh))
+p = plot.geometry(p, ylim=ylim)
+p
 #legend("topleft", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
 ```
 
@@ -456,10 +462,11 @@ QC Indicator
 ```{r}
 psi = hermiteIndicatorLower(yc, nh)
 zz <- hm %*% psi
-p = plot.XY(yy, zz, join=TRUE, 
-     xlab = "Y", ylab = "Indicator", title = paste0("cut = ",round(yc,2), " nh = ", nh), 
-     color = "red",  ylim = range(-0.5, 1.5)
-     )
-plot.XY(yy, as.numeric(yy >= yc), color = "blue", join=TRUE, linetype="dashed", padd=p)
+p = plot.XY(yy, zz, join=TRUE, color = "red")
+p = plot.decoration(p, xlab = "Y", ylab = "Indicator", 
+                    title = paste0("cut = ",round(yc,2), " nh = ", nh)) 
+p = plot.geometry(p, ylim = range(-0.5, 1.5))
+p = plot.XY(yy, as.numeric(yy >= yc), color = "blue", join=TRUE, linetype="dashed", padd=p)
+p
 #legend("bottomright", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
 ```

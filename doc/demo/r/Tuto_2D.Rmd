@@ -295,7 +295,7 @@ The next step consists in translating the target variable ('Pb') into its Gaussi
 
 ```{r}
 mydb$setLocator("Pb",ELoc_Z())
-err = myanamPb$RawToGaussianByLocator(mydb)
+err = myanamPb$rawToGaussianByLocator(mydb)
 if (verbose)
     mydb$display()
 ```
@@ -352,7 +352,7 @@ if (graphics)
 We turn the Gaussian conditional simulations into Raw scale (using the Anamorphosis back transform) and get rid of the Gaussian conditional simulations.
 
 ```{r}
-err = myanamPb$GaussianToRaw(mygrid,name="Simu.Y.*")
+err = myanamPb$gaussianToRaw(mygrid,name="Simu.Y.*")
 mygrid$deleteColumn("Simu.Y.*")
 if (verbose)
     mygrid$display()
@@ -412,7 +412,8 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  plot.anam(myanamZn,title="Gaussian Anamorphosis for Zn")
+  p = plot.anam(myanamZn)
+  plot.decoration(p, title="Gaussian Anamorphosis for Zn")
 }
 ```
 
@@ -420,7 +421,7 @@ We convert the raw data into its Gaussian equivalent
 
 ```{r}
 mydb$setLocator("Zn",ELoc_Z())
-err = myanamZn$RawToGaussianByLocator(mydb)
+err = myanamZn$rawToGaussianByLocator(mydb)
 if (verbose)
     mydb$display()
 ```
@@ -435,7 +436,10 @@ err = myvario$compute(ECalcVario_VARIOGRAM())
 mymodelM = Model_createFromDb(mydb)
 err = mymodelM$fit(myvario,ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-    plot.varmod(myvario,mymodelM,title="Multivariate Model")
+{
+  p = plot.varmod(myvario,mymodelM)
+  plot.decoration(p, title="Multivariate Model")
+}
 ```
 
 We perform 10 bivariate conditional simulations (deleting the previous monovariate simulation outcomes first for better legibility).
@@ -450,8 +454,8 @@ if (verbose)
 We back-transform each set of simulation outcomes using its own Gaussian Anamorphosis function. Finally we delete the Gaussian variables and ask for the statistics on the simulated variables in the Raw Scale.
 
 ```{r}
-err = myanamZn$GaussianToRaw(mygrid,"Simu.Y.Zn*")
-err = myanamPb$GaussianToRaw(mygrid,"Simu.Y.Pb*")
+err = myanamZn$gaussianToRaw(mygrid,"Simu.Y.Zn*")
+err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
 mygrid$deleteColumn("Simu.Y*")
 if (verbose)
     err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),

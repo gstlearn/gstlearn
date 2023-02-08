@@ -33,7 +33,9 @@ class Table;
 
 GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
-
+GSTLEARN_EXPORT VectorDouble regrDeming(const VectorDouble &x,
+                                        const VectorDouble &y,
+                                        double delta = 1);
 GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
                                            const std::vector<EStatOption>& opers,
@@ -78,9 +80,10 @@ GSTLEARN_EXPORT void dbStatisticsPrintByUID(const Db *db,
                                             bool flagCorrel = false,
                                             const String &title = String(),
                                             const String &radix = String());
-GSTLEARN_EXPORT void dbStatisticsPrintByUID(const Db *db,
+GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
                                        const VectorString &names,
-                                       const std::vector<EStatOption> &opers = EStatOption::fromKeys({"MEAN"}),
+                                       const std::vector<EStatOption> &opers = EStatOption::fromKeys(
+                                           { "MEAN" }),
                                        bool flagIso = false,
                                        bool flagCorrel = false,
                                        const String &title = String(),

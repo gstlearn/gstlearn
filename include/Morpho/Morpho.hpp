@@ -20,12 +20,6 @@
 
 GSTLEARN_EXPORT int morpho_count(const BImage& imagin);
 GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);
-GSTLEARN_EXPORT int morpho_labelling(int option,
-                                     int flag_size,
-                                     const BImage& imagin,
-                                     double ccvoid,
-                                     VectorDouble &compnum,
-                                     bool verbose = false);
 GSTLEARN_EXPORT VectorDouble morpho_labelling(int option,
                                               int flag_size,
                                               const BImage& imagin,

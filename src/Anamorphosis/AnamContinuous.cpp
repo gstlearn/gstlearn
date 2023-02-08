@@ -100,23 +100,23 @@ void AnamContinuous::calculateMeanAndVariance()
   _variance = TEST;
 }
 
-VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble &z) const
+VectorDouble AnamContinuous::rawToGaussianVector(const VectorDouble &z) const
 {
   int number = static_cast<int>(z.size());
   VectorDouble y;
   y.resize(number);
   for (int i = 0; i < number; i++)
-    y[i] = RawToTransformValue(z[i]);
+    y[i] = rawToTransformValue(z[i]);
   return y;
 }
 
-VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble &y) const
+VectorDouble AnamContinuous::gaussianToRawVector(const VectorDouble &y) const
 {
   int number = static_cast<int>(y.size());
   VectorDouble z;
   z.resize(number);
   for (int i = 0; i < number; i++)
-    z[i] = TransformToRawValue(y[i]);
+    z[i] = transformToRawValue(y[i]);
   return z;
 }
 
@@ -134,14 +134,14 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   double pas = (aymax - aymin) / ndisc;
   int ind0 = ndisc / 2;
   y[ind0] = 0.;
-  z[ind0] = TransformToRawValue(y[ind0]);
+  z[ind0] = transformToRawValue(y[ind0]);
 
   /* Calculating the values below y=0 */
 
   for (int ind = ind0 - 1; ind >= 0; ind--)
   {
     y[ind] = y[ind + 1] - pas;
-    z[ind] = TransformToRawValue(y[ind]);
+    z[ind] = transformToRawValue(y[ind]);
   }
 
   /* Calculating the values above y=0 */
@@ -149,7 +149,7 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   for (int ind = ind0 + 1; ind < ndisc; ind++)
   {
     y[ind] = y[ind - 1] + pas;
-    z[ind] = TransformToRawValue(y[ind]);
+    z[ind] = transformToRawValue(y[ind]);
   }
 
   // Preparing the returned structure
@@ -218,5 +218,5 @@ bool AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
   setMean(mean);
   setVariance(variance);
 
-  return 0;
+  return ret;
 }

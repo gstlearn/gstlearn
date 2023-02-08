@@ -53,8 +53,8 @@ public:
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = true);
 
   /// AnamContinuous Interface
-  double RawToTransformValue(double z) const override;
-  double TransformToRawValue(double y) const override;
+  double rawToTransformValue(double z) const override;
+  double transformToRawValue(double y) const override;
   void   calculateMeanAndVariance() override;
 
   static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
@@ -93,6 +93,8 @@ public:
                                 const VectorInt &ndisc,
                                 const VectorDouble& angles = VectorDouble(),
                                 bool verbose = true);
+
+  VectorDouble cumulateVarianceRatio(double chh) const;
 
 protected:
   /// Interface for ASerializable

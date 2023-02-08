@@ -643,13 +643,13 @@ bool AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
   if (ret)
   {
     pcaz2f.resize(getNCut() * getNCut());
-    ret = ret && _tableRead(is, getNCut() * getNCut(), pcaz2f.data());
+    ret = ret && _tableRead(is, "PCA Z2Y", getNCut() * getNCut(), pcaz2f.data());
   }
 
   if (ret)
   {
     pcaf2z.resize(getNCut() * getNCut());
-    ret = ret && _tableRead(is, getNCut() * getNCut(), pcaf2z.data());
+    ret = ret && _tableRead(is, "PCA Y2Z", getNCut() * getNCut(), pcaf2z.data());
   }
 
   if (ret)

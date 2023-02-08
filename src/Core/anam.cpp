@@ -373,7 +373,7 @@ static int st_ce_quant(Db *db,
     if (!db->isActive(iech)) continue;
     st_correct_from_OK(db, iech, col_est, col_std, flag_OK, &krigest, &krigstd);
     double y = krigest + krigstd * law_invcdf_gaussian(proba);
-    db->setArray(iech, iptrQuant, anam->TransformToRawValue(y));
+    db->setArray(iech, iptrQuant, anam->transformToRawValue(y));
   }
   return (0);
 }
@@ -533,7 +533,7 @@ static int st_ce_M(Db *db, const Selectivity *selectivity, int iptr0)
  ** \param[in]  nbsimu       Number of Simulation outcomes
  **
  *****************************************************************************/
-int _conditionalExpextation(Db *db,
+int _conditionalExpectation(Db *db,
                             AAnam *anam,
                             const Selectivity *selectivity,
                             int iptr0,
@@ -547,7 +547,7 @@ int _conditionalExpextation(Db *db,
 
   /* Analyzing the codes */
 
-  VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
+  VectorDouble ycuts = anam_hermite->rawToTransformVec(selectivity->getZcut());
   int need_T = selectivity->isNeededT();
 
   /* Computing the estimation */
@@ -661,7 +661,7 @@ int _uniformConditioning(Db *db,
 
   /* Transform zcuts into gaussian equivalent */
 
-  VectorDouble ycuts = anam->RawToTransformVec(selectivity->getZcut());
+  VectorDouble ycuts = anam->rawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 
@@ -691,7 +691,7 @@ int _uniformConditioning(Db *db,
     double varv = db->getArray(iech, col_var);
     if (anam_point_to_block(anam, 0, varv, TEST, TEST)) continue;
     db->setArray(iech, iptr_sV, anam->getRCoef());
-    db->setArray(iech, iptr_yV, anam->RawToTransformValue(zvstar));
+    db->setArray(iech, iptr_yV, anam->rawToTransformValue(zvstar));
 
     if (varv < vv_min) vv_min = varv;
     if (varv > vv_max) vv_max = varv;

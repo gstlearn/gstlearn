@@ -39,6 +39,10 @@ public:
                                   String delim = ".",
                                   bool cleanSameLocator = true);
 
+  VectorString createNames(const VectorString &names,
+                           const String &qualifier = String(),
+                           int nitems = 1) const;
+
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
                            const String& qualifier = String(),

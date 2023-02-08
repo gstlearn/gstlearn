@@ -251,6 +251,55 @@ void _regrprint(const ResRegr& regr)
   message("- Variance of residuals   = %lf\n",regr.varres);
 }
 
+/**
+ * Calculate the coefficients of the Deming regression (with 2 variables)
+ * @param x Vector for the first variable
+ * @param y Vector for the second variable
+ * @param delta ratio of error variances (s_y^2 / s_x^2)
+ * @return Vector of coefficients for the equation
+ * @return y = beta[0] + beta[1] * x
+ * @remark Both input vectors are assumed to contain valid values
+ * @remark From: https://en.wikipedia.org/wiki/Deming_regression
+ */
+VectorDouble regrDeming(const VectorDouble &x,
+                        const VectorDouble &y,
+                        double delta)
+{
+  VectorDouble beta(2,TEST);
+  int nech = (int) x.size();
+  if (nech <= 1) return beta;
+
+  double xmean = 0.;
+  double ymean = 0.;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    xmean += x[iech];
+    ymean += y[iech];
+  }
+  xmean /= (double) nech;
+  ymean /= (double) nech;
+
+  double sxx = 0.;
+  double sxy = 0.;
+  double syy = 0.;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    double deltax = (x[iech] - xmean);
+    double deltay = (y[iech] - ymean);
+    sxx += deltax * deltax;
+    sxy += deltax * deltay;
+    syy += deltay * deltay;
+  }
+  sxx /= (double) nech;
+  sxy /= (double) nech;
+  syy /= (double) nech;
+
+  double T = syy - delta * sxx;
+  beta[1] = (T + sqrt(T * T + 4. * delta * sxy * sxy)) / (2. * sxy);
+  beta[0] = ymean - beta[1] * xmean;
+  return beta;
+}
+
 /****************************************************************************/
 /*!
  **  Calculate the quantile which corresponds to a given probability
@@ -1269,7 +1318,7 @@ void _getRowname(const String &radix,
     (void) gslSPrintf(string, "Variable");
 }
 
-void dbStatisticsPrintByUID(const Db *db,
+void dbStatisticsPrint(const Db *db,
                        const VectorString &names,
                        const std::vector<EStatOption> &opers,
                        bool flagIso,
@@ -1297,12 +1346,12 @@ void dbStatisticsPrintByUID(const Db *db,
  **
  *****************************************************************************/
 void dbStatisticsPrintByUID(const Db *db,
-                       const VectorInt &iatts_arg,
-                       const std::vector<EStatOption>& opers,
-                       bool flagIso,
-                       bool flagCorrel,
-                       const String &title,
-                       const String &radix)
+                            const VectorInt &iatts_arg,
+                            const std::vector<EStatOption> &opers,
+                            bool flagIso,
+                            bool flagCorrel,
+                            const String &title,
+                            const String &radix)
 {
   char string[50];
 

@@ -15,7 +15,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-OptCst_defineByKey("ASP",0)
+plot.initialize()
 ```
 
 # General Introduction
@@ -32,11 +32,11 @@ grd = DbGrid_create(x0=c(0.0,0.0), dx=c(0.01,0.01), nx=c(100,100))
 # Simulate two independent Gaussian Random variables
 model1 = Model_createFromParam(ECov_GAUSSIAN(), range=0.2, sill=1.0)
 err = simtub(NULL, dbout = grd, model = model1, nbsimu = 1)
-grd$setName("Simu","Y1")
+err = grd$setName("Simu","Y1")
 
 model2 = Model_createFromParam(ECov_EXPONENTIAL(), range=0.1, sill=1.0)
 err = simtub(NULL, dbout = grd, model = model2, nbsimu = 1)
-grd$setName("Simu","Y2")
+err = grd$setName("Simu","Y2")
 
 # Non linear transform
 grd["Z"] = grd["Y1"] * grd["Y1"] + 0.5 * grd["Y1"] + 0.2 * grd["Y2"]
@@ -55,20 +55,20 @@ Two transforms are applied to the simulated variables:
 grd["Y1.NS"] = VectorHelper_normalScore(grd["Y1"])
 grd["Z.NS"]  = VectorHelper_normalScore(grd["Z"])
 
-grd$deleteColumns(c("Y1","Y2","Z"))
-grd$setName("Y1.NS","Y1")
-grd$setName("Z.NS","Y2")
+err = grd$deleteColumns(c("Y1","Y2","Z"))
+err = grd$setName("Y1.NS","Y1")
+err = grd$setName("Z.NS","Y2")
 
 # histograms and correlation
-plot.hist(grd, name = "Y1", title = "Y1", col = "gray", fill = "orange")
-plot.hist(grd, name = "Y2", title = "Y2", col = "gray", fill = "skyblue")
+plot.hist(grd, name = "Y1", col = "gray", fill = "orange")
+plot.hist(grd, name = "Y2", col = "gray", fill = "skyblue")
 
-plot.correlation(grd, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
-                 title = "Initial Gaussian variables (grid)")
+p = plot.correlation(grd, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
+plot.decoration(p, title = "Initial Gaussian variables (grid)")
 
 # maps
-plot.grid(grd, name = "Y1", title = "Y1")
-plot.grid(grd, name = "Y2", title = "Y2")
+plot.grid(grd, "Y1")
+plot.grid(grd, "Y2")
 
 ```
 
@@ -82,14 +82,14 @@ grd["Z2"] = m_2 * exp(sigma_2 * grd["Y2"] - 1/2 * sigma_2 * sigma_2 )
 dum = grd$statistics(c("Z*","Y*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
-plot.hist(grd, name = "Z1", title = "Z1", col = "gray", fill = "orange")
-plot.hist(grd, name = "Z2", title = "Z2", col = "gray", fill = "skyblue")
-plot.correlation(grd, name1 = "Z1", name2 = "Z2", flagDiag = TRUE, xlab = "Z1", ylab = "Z2", 
-                 title = "Initial lognormal variables (grid)")
+plot.hist(grd, name = "Z1", col = "gray", fill = "orange")
+plot.hist(grd, name = "Z2", col = "gray", fill = "skyblue")
+p = plot.correlation(grd, name1 = "Z1", name2 = "Z2", flagDiag = TRUE)
+plot.decoration(p, title = "Initial lognormal variables (grid)")
 
 # maps
-plot.grid(grd, name = "Z1", title = "Z1")
-plot.grid(grd, name = "Z2", title = "Z2")
+plot.grid(grd, "Z1")
+plot.grid(grd, "Z2")
 
 ```
 
@@ -102,16 +102,19 @@ data = Db_createSamplingDb(grd, number=nump, names = c("x1", "x2", "Z1", "Z2"))
 dum = data$statistics(c("Z*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
-plot.hist(data, name = "Z1", title = "Z1", col = "gray", fill = "orange")
-plot.hist(data, name = "Z2", title = "Z2", col = "gray", fill = "skyblue")
-plot.correlation(data, name1 = "Z1", name2 = "Z2", flagDiag = TRUE, xlab = "Z1", ylab = "Z2", 
-                 title = "Initial lognormal variables (data)")
-# maps
-ax = plot.grid(grd,name="Z1",end.plot=FALSE)
-plot.point(data, color_name = "Z1",padd = ax, title = "Initial lognormal variable - Z1")
+plot.hist(data, name = "Z1", col = "gray", fill = "orange")
+plot.hist(data, name = "Z2", col = "gray", fill = "skyblue")
+p = plot.correlation(data, name1 = "Z1", name2 = "Z2", flagDiag = TRUE)
+plot.decoration(p, title = "Initial lognormal variables (data)")
 
-ax = plot.grid(grd,name="Z2",end.plot=FALSE)
-plot.point(data, color_name = "Z2",padd = ax, title = "Initial lognormal variable - Z2")
+# maps
+p = plot.grid(grd,"Z1")
+p = plot.point(data, name_color = "Z1",padd = p)
+plot.decoration(p, title = "Initial lognormal variable - Z1")
+
+p = plot.grid(grd,"Z2")
+p = plot.point(data, name_color = "Z2",padd = p)
+plot.decoration(p, title = "Initial lognormal variable - Z2")
 ```
 
 # Implementing PPMT
@@ -126,8 +129,8 @@ flag.knn = TRUE
 # normal score
 data["Z1.NS"] = VectorHelper_normalScore(data["Z1"])
 data["Z2.NS"] = VectorHelper_normalScore(data["Z2"])
-data$setName("Z1.NS","Y1")
-data$setName("Z2.NS","Y2")
+err = data$setName("Z1.NS","Y1")
+err = data$setName("Z2.NS","Y2")
 
 # Launching PPMT and fitting it on the vector of Input data
 if(flag.knn){
@@ -171,8 +174,8 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Intial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
-                 title = "Initial Gaussian variables (data)")
+p = plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
+plot.decoration(p, title = "Initial Gaussian variables (data)")
 
 # Final Gaussian variables
 
@@ -188,8 +191,8 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE, xlab = "U-1", ylab = "U-2", 
-                 title = "Final Gaussian variables (data)")
+p = plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE)
+plot.decoration(p, title = "Final Gaussian variables (data)")
 ```
 
 
@@ -252,12 +255,12 @@ ppmt$gaussianToRaw(simu, names = c("Y1", "Y2"))
 }
 
 # Simulation of independent Gaussian variables
-plot.correlation(simu, name1 = "Y1", name2 = "Y2", flagDiag = TRUE, xlab = "Y1", ylab = "Y2", 
-                 title = "Initial Gaussian variables (simulation)")
+p = plot.correlation(simu, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
+plot.decoration(p, title = "Initial Gaussian variables (simulation)")
 
 # Back-tranform of the simulated Gaussian variables
-plot.correlation(simu, name1 = "Z.Y1", name2 = "Z.Y2", flagDiag = TRUE, xlab = "Z1", ylab = "Z2", 
-                 title = "Simulations of the raw variables")
+p = plot.correlation(simu, name1 = "Z.Y1", name2 = "Z.Y2", flagDiag = TRUE)
+plot.decoration(p, title = "Simulations of the raw variables")
 ```
 
 

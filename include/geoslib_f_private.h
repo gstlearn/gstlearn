@@ -176,7 +176,7 @@ int _migrate(Db *db1,
 /* Prototyping the functions in anam.c */
 /***************************************/
 
-int _conditionalExpextation(Db *db,
+int _conditionalExpectation(Db *db,
                             AAnam *anam,
                             const Selectivity *selectivity,
                             int iptr0,

@@ -14,6 +14,7 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Db/Db.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 #include <math.h>
@@ -121,7 +122,7 @@ int AAnam::updatePointToBlock(double /*r_coef*/)
   return 1;
 }
 
-double AAnam::RawToTransformValue(double /*z*/) const
+double AAnam::rawToTransformValue(double /*z*/) const
 {
   if (! hasGaussian())
     messerr("This function is not possible");
@@ -130,7 +131,7 @@ double AAnam::RawToTransformValue(double /*z*/) const
   return TEST;
 }
 
-double AAnam::TransformToRawValue(double /*y*/) const
+double AAnam::transformToRawValue(double /*y*/) const
 {
   if (! hasGaussian())
     messerr("This function is not available");
@@ -224,19 +225,19 @@ void AAnam::_printQTvars(const char *title, int type, int number) const
   message(": %d\n", number);
 }
 
-VectorDouble AAnam::RawToTransformVec(const VectorDouble& z) const
+VectorDouble AAnam::rawToTransformVec(const VectorDouble& z) const
 {
   VectorDouble y = VectorDouble(z.size(), TEST);
   for (int i = 0; i < (int) z.size(); i++)
-    y[i] = RawToTransformValue(z[i]);
+    y[i] = rawToTransformValue(z[i]);
   return y;
 }
 
-VectorDouble AAnam::TransformToRawVec(const VectorDouble& y) const
+VectorDouble AAnam::transformToRawVec(const VectorDouble& y) const
 {
   VectorDouble z = VectorDouble(y.size(), TEST);
   for (int i = 0; i < (int) z.size(); i++)
-    z[i] = TransformToRawValue(y[i]);
+    z[i] = transformToRawValue(y[i]);
   return z;
 }
 
@@ -277,7 +278,7 @@ int AAnam::fit(Db *db, const String& name)
  * @param namconv Naming Convention
  * @return
  */
-int AAnam::RawToGaussianByLocator(Db *db, const NamingConvention &namconv)
+int AAnam::rawToGaussianByLocator(Db *db, const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setFlagVars(true);
@@ -291,7 +292,7 @@ int AAnam::RawToGaussianByLocator(Db *db, const NamingConvention &namconv)
   return error;
 }
 
-int AAnam::RawToGaussian(Db *db,
+int AAnam::rawToGaussian(Db *db,
                          const String &name,
                          const NamingConvention &namconv)
 {
@@ -310,7 +311,7 @@ int AAnam::RawToGaussian(Db *db,
   return error;
 }
 
-int AAnam::GaussianToRawByLocator(Db *db, const NamingConvention &namconv)
+int AAnam::gaussianToRawByLocator(Db *db, const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setFlagZToY(true);
@@ -323,7 +324,7 @@ int AAnam::GaussianToRawByLocator(Db *db, const NamingConvention &namconv)
   return error;
 }
 
-int AAnam::GaussianToRaw(Db *db,
+int AAnam::gaussianToRaw(Db *db,
                          const String &name,
                          const NamingConvention &namconv)
 {
@@ -349,11 +350,17 @@ int AAnam::GaussianToRaw(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  db         Db Structure
+ ** \param[in]  name       Target variable
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int AAnam::NormalScore(Db *db, const NamingConvention &namconv)
+int AAnam::normalScore(Db *db,
+                       const String &name,
+                       const NamingConvention &namconv)
 {
+  if (db == nullptr) return 1;
+  db->setLocator(name, ELoc::Z);
+
   CalcAnamTransform transfo(this);
   transfo.setDb(db);
   transfo.setFlagVars(true);
@@ -377,9 +384,9 @@ int AAnam::NormalScore(Db *db, const NamingConvention &namconv)
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int AAnam::RawToFactor(Db *db,
-                       const VectorInt &ifacs,
-                       const NamingConvention &namconv)
+int AAnam::rawToFactorByRanks(Db *db,
+                              const VectorInt &ifacs,
+                              const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(this);
   transfo.setDb(db);
@@ -403,7 +410,7 @@ int AAnam::RawToFactor(Db *db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int AAnam::RawToFactor(Db *db,
+int AAnam::rawToFactor(Db *db,
                        int nfactor,
                        const NamingConvention &namconv)
 {

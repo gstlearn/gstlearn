@@ -102,6 +102,7 @@ public:
   double getMaxEigenValue() const;
   int getVariety()const {return _variety;}
   cs* getS() const { return _S; }
+  cs* getTildeCGrad(int iapex, int igparam) const;
   cs* getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambdas() const { return _Lambda; }
@@ -149,6 +150,10 @@ private:
   void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
                          int ipref);
+  double _computeGradLogDetHH(const AMesh* amesh, int igparam,int ipref,
+                              const MatrixSquareSymmetric& HH,
+                              MatrixSquareSymmetric& work,
+                              MatrixSquareSymmetric& work2);
   void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                           const AMesh* amesh,
                           int ipref,
@@ -183,17 +188,26 @@ private:
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   VectorT<std::map<int, double>> _mapCreate() const;
   VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
+  VectorT<std::map<int,double>> _mapTildeCCreate()const;
   void _determineFlagNoStatByHH();
   void _mapUpdate(std::map<int, double>& tab,
                   int ip1,
                   double value,
                   double tol = EPSILON10) const;
+  void _mapTildeCUpdate(std::map<int, double>& tab,
+                        int ip1,
+                        double value,
+                        double tol = EPSILON10) const;
+
   void _mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
                       int ip0,
                       int ip1,
                       double value,
                       double tol = EPSILON10);
+  cs* _BuildTildeCGradfromMap(std::map< int, double> &tab) const;
   cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
+
+  bool _cond(int indref, int igparam, int ipref);
 
 private:
   VectorDouble       _TildeC;
@@ -201,6 +215,7 @@ private:
   cs*                _S;
   int                _nModelGradParam;
   VectorT<cs *>      _SGrad;
+  VectorT<cs *>      _TildeCGrad;
   VectorVectorDouble _LambdaGrad;
   bool               _flagNoStatByHH;
   int                _variety;

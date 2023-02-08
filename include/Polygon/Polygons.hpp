@@ -45,24 +45,25 @@ public:
                                  int verbose = false,
                                  int ncol_max = -1,
                                  int nrow_max = -1);
-  static Polygons* createFromDb(const Db* db);
+  static Polygons* createFromDb(const Db* db, double dilate=0., bool verbose=false);
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
   void addPolySet(const PolySet& polyset);
 
   const std::vector<PolySet>& getPolySets() const { return _polysets; }
-  const PolySet& getPolySet(int ipol) const { return _polysets[ipol]; }
+  const PolySet getPolySet(int ipol) const;
   PolySet getClosedPolySet(int ipol) const;
-  const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
-  const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
-  void setX(int ipol, const VectorDouble& x) { return _polysets[ipol].setX(x); }
-  void setY(int ipol, const VectorDouble& y) { return _polysets[ipol].setY(y); }
+  const VectorDouble getX(int ipol) const;
+  const VectorDouble getY(int ipol) const;
+  void setX(int ipol, const VectorDouble& x);
+  void setY(int ipol, const VectorDouble& y);
 
   void getExtension(double *xmin,
                     double *xmax,
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
+  bool inside(double xx, double yy, double zz = TEST, bool flag_nested = false);
 
 protected:
   /// Interface for ASerializable
@@ -75,7 +76,22 @@ private:
                           int ifin,
                           int ncol,
                           const VectorDouble& tab);
+  bool _isValidPolySetIndex(int ipol) const;
+  VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y) const;
+  void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);
+  int  _buildHull(const Db *db, double dilate, bool verbose);
+  void _polygonHullPrint(const VectorInt &index,
+                         const VectorDouble &x,
+                         const VectorDouble &y) const;
 
 private:
   std::vector<PolySet> _polysets;
 };
+
+GSTLEARN_EXPORT int dbPolygonDistance(Db *db,
+                                      Polygons *polygon,
+                                      double dmax,
+                                      int scale,
+                                      int polin,
+                                      const NamingConvention &namconv = NamingConvention(
+                                          "Distance"));
