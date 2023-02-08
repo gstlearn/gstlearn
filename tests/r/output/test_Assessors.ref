@@ -1,0 +1,171 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+NULL
+[1] -0.6833277 -1.1301354 -2.4392946  0.7419877
+[1] 1.2251098 0.8211658 0.1537982 0.7252239
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA
+NULL
+       var1        var2
+0 1.2251098 -0.28178531
+1 0.8211658  1.53703351
+2 0.1537982 -0.43177770
+3 0.7252239 -0.00755856
+  var1 var2
+0    1    0
+1    1    1
+2    1    0
+3    1    0
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA
+Column = 5 - Name = newvar-1 - Locator = NA
+Column = 6 - Name = newvar-2 - Locator = NA
+NULL
+   newvar-1   newvar-2
+0 0.4734910  0.1617478
+1 0.6131213 -0.9835053
+2 0.4461058 -1.3778506
+3 0.3660199 -1.6900733
+   newvar-1   newvar-2
+0        NA  0.1617478
+1 0.6131213 -0.9835053
+2 0.4461058 -1.3778506
+3 0.3660199 -1.6900733
+NULL
+NULL
+
+Table contents
+--------------
+- Number of Rows    = 2
+- Number of Columns = 3
+
+                 Col1       Col2       Col3
+      Row1      0.000      0.000      0.000
+      Row2      0.000      0.000      0.000
+[1] "matrix" "array" 
+     Col1 Col2 Col3
+Row1    0    0    0
+Row2    0    0    0
+[1] "Case of a Standard Matrix"
+- Number of rows    = 4
+- Number of columns = 5
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
+     [  0,]     0.269     0.262     0.214     0.165     0.417
+     [  1,]     0.245     0.558     0.457     0.374     0.733
+     [  2,]     0.702     0.626     0.945     0.302     0.998
+     [  3,]     0.707     0.678     0.268     0.728     0.771
+NULL
+[1] "_p_MatrixRectangular"
+attr(,"package")
+[1] "gstlearn"
+[1] "matrix" "array" 
+[1] 4 5
+[1] "Case of a Sparse Matrix"
+NULL
+- Number of rows    = 4
+- Number of columns = 5
+- Sparse Format
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
+     [  0,]     0.269     0.262     0.214     0.165     0.417
+     [  1,]     0.245     0.558     0.457     0.374     0.733
+     [  2,]     0.702     0.626     0.945     0.302     0.998
+     [  3,]     0.707     0.678     0.268     0.728     0.771
+
+NULL
+[1] "_p_MatrixRectangular"
+attr(,"package")
+[1] "gstlearn"
+[1] "matrix" "array" 
+[1] 4 5
