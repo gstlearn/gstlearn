@@ -412,7 +412,8 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  plot.anam(myanamZn,title="Gaussian Anamorphosis for Zn")
+  p = plot.anam(myanamZn)
+  plot.decoration(p, title="Gaussian Anamorphosis for Zn")
 }
 ```
 
@@ -435,7 +436,10 @@ err = myvario$compute(ECalcVario_VARIOGRAM())
 mymodelM = Model_createFromDb(mydb)
 err = mymodelM$fit(myvario,ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-    plot.varmod(myvario,mymodelM,title="Multivariate Model")
+{
+  p = plot.varmod(myvario,mymodelM)
+  plot.decoration(p, title="Multivariate Model")
+}
 ```
 
 We perform 10 bivariate conditional simulations (deleting the previous monovariate simulation outcomes first for better legibility).

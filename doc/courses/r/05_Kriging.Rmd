@@ -23,11 +23,10 @@ knitr::opts_chunk$set(fig.width=4, fig.height=4,
 In this preamble, we load the **gstlearn** library, clean the workspace.
 
 ```{r loading_library, message=FALSE}
+rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-rm(list=ls())
-plot.initialize()
 ```
 
 Then we download the data base **dat**.

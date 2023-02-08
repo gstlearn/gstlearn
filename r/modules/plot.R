@@ -534,7 +534,7 @@ readGridCoor <- function(dbgrid, name, usesel= FALSE)
 
 # Function for plotting a point data base, with optional color and size variables
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-                      	sizmin=10, sizmax=100, flagAbsSize = FALSE,
+                      	sizmin=10, sizmax=100, flagAbsSize = FALSE, flagCst=FALSE,
                       	...) 
 {  
   # Creating the necessary data frame
@@ -550,12 +550,15 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   # Size of symbol
   sizval = NULL
   if (! is.null(name_size)) {
-  	reduction = 100
-    sizval  = db$getColumn(name_size, TRUE)
-    if (flagAbsSize) sizval = abs(sizval)
-    m = min(sizval,na.rm=TRUE)
-    M = max(sizval,na.rm=TRUE)
-    sizval = (sizmax * (sizval - m) / (M-m) + sizmin) / reduction
+  	if (! flagCst)
+   	{
+	  	reduction = 100
+  	  	sizval  = db$getColumn(name_size, TRUE)
+  		if (flagAbsSize) sizval = abs(sizval)
+    	m = min(sizval,na.rm=TRUE)
+    	M = max(sizval,na.rm=TRUE)
+    	sizval = (sizmax * (sizval - m) / (M-m) + sizmin) / reduction
+    }
   }
   df["sizval"] = sizval
 
@@ -581,7 +584,7 @@ pointLabel <- function(db, name, digit=2, ...)
 
 # Function for plotting a point data base, with optional color and size variables
 plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
-                       sizmin=10, sizmax=100, flagAbsSize = FALSE,  
+                       sizmin=10, sizmax=100, flagAbsSize = FALSE, flagCst=FALSE,
                        color_label="black", nudge_y=0.1, digit_label=2,
                        show.legend.symbol=FALSE, legend.name.color="P-Color",
                        legend.name.size="P-Size",
@@ -608,7 +611,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   if (! is.null(name_color) || ! is.null(name_size))
   {
 	  p <- p + pointSymbol(db, name_color=name_color, name_size=name_size,
-                      	   sizmin=sizmin, sizmax=sizmax, flagAbsSize = flagAbsSize, 
+                      	   sizmin=sizmin, sizmax=sizmax, flagAbsSize = flagAbsSize, flagCst=flagCst,
                       	   show.legend = show.legend.symbol,
                       	   ...)
  	  
@@ -765,6 +768,8 @@ plot.hist <- function(db, name, usesel=TRUE, nbins=30, col='grey', fill='yellow'
     
   p <- p + geom_histogram(data=df, 
   				mapping=aes(x=val), bins=nbins, color=col, fill=fill, na.rm=TRUE) 
+  				
+  p <- plot.decoration(p, title=name)
   
   p
 }
@@ -858,6 +863,9 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
               color = color, linetype = linetype, 
               diag_color = diag_color, diag_line = diag_line, padd=padd)
+  
+  p = plot.decoration(p, xlab=name1, ylab=name2)
+  
   p 
 }
 

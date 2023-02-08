@@ -16,7 +16,6 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(Matrix)
-OptCst_defineByKey("ASP",0)
 ```
 
 # General Introduction
@@ -89,7 +88,9 @@ iuid = spdeS$query(grid)
 Representing the resulting non-conditional simulation on the Grid
 
 ```{r}
-ax = plot.grid(grid, name="spde.simu",title="Non Conditional Simulation")
+p = plot.grid(grid, "spde.simu")
+p = plot.decoration(p, title="Non Conditional Simulation")
+p
 ```
 
 ## Estimation by Kriging
@@ -111,7 +112,9 @@ iuid = spdeK$query(grid, namconv=NamingConvention("spde",FALSE))
 Representing the resulting estimation on the Grid
 
 ```{r}
-ax = plot.grid(grid, name="spde.kriging",title="Estimation")
+p = plot.grid(grid, "spde.kriging")
+p = plot.decoration(p, title="Estimation")
+p
 ```
 
 ## Producing the internal elements of the SPDE environment
