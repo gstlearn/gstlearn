@@ -139,8 +139,8 @@ Data Base Statistics
 5 - Name spde.January_temp.kriging - Locator z1
  Nb of data          =      11097
  Nb of active values =       3092
- Minimum value       =     -5.631
- Maximum value       =      4.950
- Mean value          =      1.838
- Standard Deviation  =      1.525
- Variance            =      2.325
+ Minimum value       =     -6.695
+ Maximum value       =      4.434
+ Mean value          =      1.702
+ Standard Deviation  =      1.608
+ Variance            =      2.584

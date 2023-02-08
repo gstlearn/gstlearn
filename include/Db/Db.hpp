@@ -85,7 +85,10 @@ public:
                       const VectorString& names = VectorString(),
                       int seed = 23241,
                       bool verbose = false);
-
+  int resetReduce(const Db *dbin,
+                  const VectorString &names = VectorString(),
+                  const VectorInt &ranks = VectorInt(),
+                  bool verbose = false);
   static Db* create();
   static Db* createFromSamples(int nech,
                                const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
@@ -124,6 +127,10 @@ public:
                               double range = 0.,
                               double beta = 0.,
                               int flag_add_rank = 1);
+  static Db* createReduce(const Db *dbin,
+                          const VectorString &names = VectorString(),
+                          const VectorInt &ranks = VectorInt(),
+                          bool verbose = false);
 
   DbGrid* coveringDb(const VectorInt& nodes = VectorInt(),
                      const VectorDouble& dcell = VectorDouble(),
@@ -413,6 +420,7 @@ public:
   int    getSelection(int iech) const;
   void   setSelection(int iech, int value);
   VectorDouble getSelection(void) const;
+  VectorInt getSelectionRanks() const;
 
   bool   hasWeight() const;
   double getWeight(int iech) const;

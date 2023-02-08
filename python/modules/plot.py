@@ -660,9 +660,10 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
             M = np.nanmax(np.absolute(sizval))
             if M > m:
                 sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
+                
+            name = name + ' ' + name_size
         else:
             sizval = s
-        name = name + ' ' + name_size
     else:
         sizval = s
 

@@ -3281,6 +3281,23 @@ VectorDouble Db::getSelection(void) const
   return tab;
 }
 
+VectorInt Db::getSelectionRanks() const
+{
+  int nech = getSampleNumber();
+  VectorInt ranks;
+
+  int icol = getColIdxByLocator(ELoc::SEL,0);
+  if (!isColIdxValid(icol)) return ranks;
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    double value = getValueByColIdx(iech, icol);
+    if (value > 0) ranks.push_back(iech);
+  }
+  return ranks;
+
+}
+
 /**
  * Returns the contents of a Column of the Db referred by its column index
  * @param icol Column index (from [0,n[)
@@ -4567,6 +4584,60 @@ int Db::resetSamplingDb(const Db* dbin,
   return 0;
 }
 
+int Db::resetReduce(const Db *dbin,
+                    const VectorString &names,
+                    const VectorInt &ranks,
+                    bool verbose)
+{
+  // Creating the vector of selected samples
+
+  VectorInt ranksel = ranks;
+  if (ranksel.empty())
+  {
+    if (!dbin->hasSelection())
+    {
+      messerr("You did not provide a vector of sample ranks and the 'db' has no selection");
+      return 1;
+    }
+    ranksel = dbin->getSelectionRanks();
+  }
+  _nech = static_cast<int> (ranksel.size());
+  if (verbose)
+    message("From %d samples, the extraction concerns %d samples\n", dbin->getSampleNumber(),_nech);
+
+  // Create the new data base
+
+  VectorString namloc = names;
+  if (namloc.empty())
+    namloc = dbin->getAllNames();
+  _ncol = static_cast<int> (namloc.size());
+  resetDims(_ncol, _nech);
+
+  // Create Variables and Locators
+
+  ELoc locatorType;
+  int locatorIndex;
+  for (int icol = 0; icol < _ncol; icol++)
+  {
+    setNameByUID(icol, namloc[icol]);
+    if (dbin->getLocator(namloc[icol],&locatorType,&locatorIndex))
+      setLocator(namloc[icol],locatorType,locatorIndex);
+  }
+
+  // Load samples
+
+  VectorDouble values(_nech);
+  for (int icol = 0; icol < _ncol; icol++)
+  {
+    int jcol = dbin->getColIdx(namloc[icol]);
+    for (int iech = 0; iech < _nech; iech++)
+      values[iech] = dbin->getValueByColIdx(ranksel[iech],jcol);
+    setColumnByColIdx(values, icol);
+  }
+
+  return 0;
+}
+
 /*****************************************************************************/
 /*!
  **  Create a new Data Base with points generated at random
@@ -4723,6 +4794,7 @@ Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
   }
   return db;
 }
+
 Db* Db::createSamplingDb(const Db* dbin,
                          double proportion,
                          int number,
@@ -4734,6 +4806,21 @@ Db* Db::createSamplingDb(const Db* dbin,
   if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose))
   {
     messerr("Error when clearing Db by Sampling another Db");
+    delete db;
+    return nullptr;
+  }
+  return db;
+}
+
+Db* Db::createReduce(const Db *dbin,
+                     const VectorString &names,
+                     const VectorInt &ranks,
+                     bool verbose)
+{
+  Db* db = new Db;
+  if (db->resetReduce(dbin, names, ranks, verbose))
+  {
+    messerr("Error when creating a new Db by reducing another one");
     delete db;
     return nullptr;
   }
