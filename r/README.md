@@ -170,6 +170,7 @@ install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
 
 Notes:
+
 * If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
@@ -205,6 +206,7 @@ install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
 
 Notes:
+
 * If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * These instructions for MacOS are currently not tested - above packages may not exist
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
