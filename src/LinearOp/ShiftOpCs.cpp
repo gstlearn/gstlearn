@@ -994,11 +994,9 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
   int igrf = _getIgrf();
   int icov = _getIcov();
-  double dethh = 0.;
   if (_isGlobalHH(igrf, icov))
   {
     _loadHHByApex(amesh, hh, 0);
-    dethh = 1./hh.determinant();
   }
   if (! _isNoStat())
     _loadAux(srot, EConsElem::SPHEROT, 0);
@@ -1018,7 +1016,6 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
         _loadHHPerMesh(amesh, hh, imesh);
-        dethh = 1./hh.determinant();
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
         _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
@@ -1207,7 +1204,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
   error = 0;
 
-  label_end:
   if (error) _resetGrad();
   return error;
 }

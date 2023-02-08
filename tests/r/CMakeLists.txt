@@ -2,7 +2,7 @@ if(NOT BUILD_R)
   return()
 endif()
 
-# TODO : All CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similar (factorization ?)
+# TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similar (factorization ?)
 
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
@@ -11,7 +11,7 @@ endif()
 file(GLOB TEST_SOURCES test*.R)
 # Without GLOB:
 #set(TEST_SOURCES 
-#  test_Arguments.R)
+#    test_Arguments.R)
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)

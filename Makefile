@@ -33,6 +33,7 @@
 #  - check_data     Execute non-regression tests (data)
 #  - check_cpp      Execute non-regression tests (cpp)
 #  - check_py       Execute non-regression tests (python)
+#  - check_ipynb    Execute non-regression tests (jupyter notebooks)
 #  - check_r        Execute non-regression tests (R)
 #  - check          Execute non-regression tests (data + cpp + python + R)
 #
@@ -172,7 +173,7 @@ r_upload: r_build
 
 
 
-.PHONY: check_data check_cpp check_py check_r check
+.PHONY: check_data check_cpp check_py check_ipynb check_r check
 
 check_data: cmake
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_data -- --no-print-directory $(N_PROC_OPT)
@@ -182,6 +183,9 @@ check_cpp: cmake
 
 check_py: cmake-python
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_py -- --no-print-directory $(N_PROC_OPT)
+
+check_ipynb: cmake-python
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_ipynb -- --no-print-directory $(N_PROC_OPT)
 
 check_r: cmake-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_r -- --no-print-directory $(N_PROC_OPT)

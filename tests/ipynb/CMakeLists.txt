@@ -3,18 +3,27 @@ if(NOT BUILD_PYTHON)
 endif()
 
 # TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similar (factorization ?)
-
-# Using GLOB could be a bad idea (but use it for the tests)
-# https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
+# Jupyter notebooks are located in doc/ folder
+# They are not executed automatically for non-regression (see parent CMakeLists)
 
 # Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
 find_package(Python3 REQUIRED)
 
+# Where are located jupyter notebooks?
 # With GLOB:
-file(GLOB TEST_SOURCES test*.py)
+# Using GLOB could be a bad idea (but use it for the tests)
+# https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
+cmake_path(APPEND PROJECT_SOURCE_DIR doc demo python
+           OUTPUT_VARIABLE DEMO_DIR)
+file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.ipynb)
+cmake_path(APPEND PROJECT_SOURCE_DIR doc courses python
+           OUTPUT_VARIABLE COURSES_DIR)
+file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.ipynb)
+set(TEST_SOURCES ${DEMO_SOURCES})
+list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(TEST_SOURCES 
-#    test_Arguments.py)
+#    ../../doc/demo/python/Inheritance.ipynb)
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)
@@ -29,33 +38,33 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 
 # Create the target and the output directory for logs
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
-add_custom_target(check_py
+add_custom_target(check_ipynb
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
                   COMMAND ${MY_CTEST_COMMAND})
 
-# Add dependency for check_py
-add_dependencies(check_py python_install)
+# Add dependency for check_ipynb
+add_dependencies(check_ipynb python_install)
 
 # Python script test runner path
-cmake_path(APPEND PROJECT_SOURCE_DIR python run_test.py
+cmake_path(APPEND PROJECT_SOURCE_DIR python run_test_ipynb.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)
 
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
-# Run each python scripts
+# Run each jupyter notebook scripts
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Retrieve script file name without extension
     get_filename_component(TEST_NAME ${TEST_SOURCE_FILE} NAME_WE)
-    # Build the path to the python test script
+    # Build the path to the jupyter notebook script
     cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR ${TEST_SOURCE_FILE}
                OUTPUT_VARIABLE TEST_SOURCE_FILE)
-    # Run the test (and generate log in ${TEST_DST_DIR}) (use a test runner script for stdout redirection)
-    add_test(NAME ${TEST_NAME}_py
+    # Run the test (and generate log in ${TEST_DST_DIR})
+    add_test(NAME ${TEST_NAME}_ipynb
              COMMAND ${Python3_EXECUTABLE} ${RUN_TEST_SCRIPT} ${TEST_SOURCE_FILE} ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
-    add_test(NAME ${TEST_NAME}_py_cmp
-             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
+    add_test(NAME ${TEST_NAME}_ipynb_cmp
+             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.asciidoc ${TEST_DST_DIR}/${TEST_NAME}.asciidoc)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 

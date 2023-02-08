@@ -153,6 +153,13 @@ git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ````
 
+Next time, you will only need to pull the repository:
+
+````
+cd gstlearn
+git pull
+````
+
 2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
 
 #### GCC, Clang, ...
@@ -185,9 +192,10 @@ cmake -Bbuild -H. -DBUILD_PYTHON=ON
 cmake --build build --target python_install --config Release
 ```
 
-### Important Notes
+Notes:
 
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
+* If you don't know how to execute github commands, you may (read this)[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token].
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
@@ -242,5 +250,5 @@ Note : You may need to directly modify your *site-packages* folder by:
 
 ## License
 
-MIT
+BSD
 2022 Team gstlearn

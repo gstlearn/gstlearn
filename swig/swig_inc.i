@@ -186,6 +186,7 @@
 %shared_ptr(SpaceRN)
 %shared_ptr(Table)
 %shared_ptr(Tensor)
+%shared_ptr(TestInheritance)
 %shared_ptr(Vario)
 %shared_ptr(VarioParam)
 
