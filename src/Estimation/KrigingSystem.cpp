@@ -2242,7 +2242,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     NeighMoving* neighM = dynamic_cast<NeighMoving*>(_neighParam);
     if (neighM != nullptr)
     {
-      _flagPerCell = neighM->getForceWithinBlock();
+      if (neighM->getForceWithinBlock()) _flagPerCell = true;
     }
 
     // Discretization is stored

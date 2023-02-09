@@ -501,6 +501,7 @@ Krigtest_Res krigtest(Db *dbin,
                       int iech0,
                       const EKrigOpt &calcul,
                       VectorInt ndisc,
+                      bool flagPerCell,
                       bool forceDebug)
 {
   CalcKriging krige(true, true, false);
@@ -512,6 +513,7 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setCalcul(calcul);
   krige.setNdisc(ndisc);
   krige.setIechSingleTarget(iech0);
+  krige.setFlagPerCell(flagPerCell);
 
   int memo = OptDbg::getReference();
   if (forceDebug) OptDbg::setReference(iech0);

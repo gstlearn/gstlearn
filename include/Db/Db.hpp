@@ -232,6 +232,7 @@ public:
                           const String& combine = "set");
   int addSamples(int nadd, double valinit);
   int deleteSample(int e_del);
+  int deleteSamples(const VectorInt& e_dels);
   void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
   int  getLastUID(int number = 0) const;
   String getLastName(int number = 0) const;

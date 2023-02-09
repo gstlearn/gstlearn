@@ -1423,8 +1423,7 @@ static void krige_wgt_print(int status,
       sum[ivar_m] = 0.;
     for (iech = 0; iech < nech; iech++, lec++)
     {
-      flag_value = (flag != nullptr) ? flag[lec] :
-                                       1;
+      flag_value = (flag != nullptr) ? flag[lec] : 1;
       tab_printi(NULL, iech + 1);
       for (idim = 0; idim < ndim; idim++)
         tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
@@ -1455,7 +1454,7 @@ static void krige_wgt_print(int status,
 
     number = 1 + ndim + 1;
     if (DBIN->getVarianceErrorNumber() > 0) number++;
-    if (KOPTION->flag_data_disc) number += ndim;
+    if (KOPTION->flag_data_disc) number += ndim + 1;
     tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
     {

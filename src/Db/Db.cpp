@@ -1321,6 +1321,7 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
 {
   if (icols.empty()) return;
 
+  // Reverse order of the columns in order to start by the furthest one.
   VectorInt v = VH::sort(icols, false);
 
   for (unsigned int i = 0; i < v.size(); i++)
@@ -1488,6 +1489,19 @@ int Db::addSamples(int nadd, double valinit)
   return (nech);
 }
 
+int Db::deleteSamples(const VectorInt& e_dels)
+{
+  if (e_dels.empty()) return 0;
+
+  // Reverse order of the samples in order to start by the furthest one.
+  VectorInt v = VH::sort(e_dels, false);
+
+  for (unsigned int i = 0; i < v.size(); i++)
+    if (deleteSample(v[i])) return 1;
+
+  return 0;
+}
+
 /**
  * Deleting a sample
  * @param e_del Index of the sample to be deleted
@@ -1514,8 +1528,7 @@ int Db::deleteSample(int e_del)
     for (int iech = 0; iech < nech; iech++)
     {
       if (iech == e_del) continue;
-      int jech = (iech < e_del) ? iech :
-                                  iech - 1;
+      int jech = (iech < e_del) ? iech : iech - 1;
       int iad1 = jech + nnew * icol;
       new_array[iad1] = _array[_getAddress(iech, icol)];
     }
