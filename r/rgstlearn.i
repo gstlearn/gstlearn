@@ -738,7 +738,7 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
   Q = NULL
   if (isNamespaceLoaded("Matrix"))
   {
-    Atr = csToTriplet(x$getCs(), flag_from_1=TRUE)
+    Atr = csToTriplet(x, flag_from_1=TRUE)
     Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
                      dims=c(Atr$nrows,Atr$ncols))
   }

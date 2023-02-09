@@ -3,13 +3,13 @@
 # plots easily 
 #
 
-# Define the global values
-plot.initialize <- function() 
+# Define the global values in the given environment position (search)
+plot.initialize <- function(pos=1) 
 {
-	plot.default_dims <<- list(c(8,8), c(8,8))
-	plot.default_xlim <<- list(c(NA,NA), c(NA,NA))
-	plot.default_ylim <<- list(c(NA,NA), c(NA,NA))
-	plot.default_asp  <<- c(0, 1 )
+	assign("plot.default_dims", list(c(8,8), c(8,8)), pos=pos)
+	assign("plot.default_xlim", list(c(NA,NA), c(NA,NA)), pos=pos)
+	assign("plot.default_ylim", list(c(NA,NA), c(NA,NA)), pos=pos)
+	assign("plot.default_asp",  c(0, 1), pos=pos)
 	invisible()
 }
 
@@ -45,13 +45,13 @@ isNotDef <- function(arg)
 plot.setDefault <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
     if (!isNotDef(dims))
-        plot.default_dims[[mode]] <<- dims
+        plot.default_dims[[mode]] = dims
     if (!isNotDef(xlim))
-        plot.default_xlim[[mode]] <<- xlim
+        plot.default_xlim[[mode]] = xlim
     if (!isNotDef(ylim))
-        plot.default_ylim[[mode]] <<- ylim    
+        plot.default_ylim[[mode]] = ylim    
     if (!isNotDef(asp))
-	    plot.default_asp[[mode]] <<- asp
+	    plot.default_asp[[mode]] = asp
 }
 
 plot.printDefault <- function()
@@ -619,7 +619,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
 	  if (! is.null(name_color))
 	 	  title = paste(title, name_color)
 	  if (! is.null(name_size))
-	  	  title = paste(title, name_size)
+	  	  title = paste(title, name_size, sep="-")
 	  
 	  # Set the Legend
 	  p <- p + labs(color = legend.name.color)

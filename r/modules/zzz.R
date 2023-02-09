@@ -2,7 +2,8 @@
 # Initialization of plot.R
 #
 ".onAttach" <- 
-function(...)
+function(libname, pkgname)
 {
-	plot.initialize()
+	pos = match(paste0("package:", pkgname), search())
+	plot.initialize(pos)
 }
