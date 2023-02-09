@@ -152,15 +152,15 @@ sudo apt install pcre2-devel # Ubuntu 18
 sudo apt install libpcre2-dev # Ubuntu 20
 ````
 
-4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands (adapt installation folder for CMAKE_INSTALL_PREFIX variable):
+4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
-cmake -Bbuild -DCMAKE_INSTALL_PREFIX=:PATH=/home/user/Programs
+cmake -Bbuild
 cd build
 make
-make install
+sudo make install
 ````
 
 5. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
@@ -171,6 +171,7 @@ install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Notes:
 
+* If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 #### MacOS
@@ -187,15 +188,15 @@ brew install bison
 brew install pcre2-devel
 ````
 
-4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands (adapt installation folder for CMAKE_INSTALL_PREFIX variable):
+4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
-cmake -Bbuild -DCMAKE_INSTALL_PREFIX=:PATH=/home/user/Programs
+cmake -Bbuild
 cd build
 make
-make install
+sudo make install
 ````
 
 5. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
@@ -206,6 +207,7 @@ install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Notes:
 
+* If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * These instructions for MacOS are currently not tested - above packages may not exist
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
