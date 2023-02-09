@@ -217,19 +217,29 @@ Notes:
 
 2. Remove any previous installation of SWIG (if any)
 
-3. Then, from a MSYS2 shell command prompt, execute following instructions:
+3. Launch *mingw64.exe* in RTools installation directory (ie: `C:\rtools42`) and pin the icon to the task bar
 
 ````
 pacman -Sy bison
 pacman -Sy mingw-w64-x86_64-pcre2
 ````
     
-4. In a directory of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a directory of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
 cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=/mingw64/
+cd build
+make
+make install
+````
+
+Next time (if a future release of customized swig is available), you will only need to pull the repository:
+
+````
+cd swig
+git pull
 cd build
 make
 make install
@@ -272,7 +282,7 @@ make r_install
 
 Note :
 
-* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
+* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command above (at least one time). This will create a *personal R library folder* having writing permissions.
 * If you don't know how to execute github commands, you may (read this)[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token].
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
