@@ -23,7 +23,6 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center") 
-plot.initialize()
 ```
 
 Then the necessary data set is downloaded and named **dat**: the target variable is **January_temp**

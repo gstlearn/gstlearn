@@ -30,6 +30,9 @@ public:
   CalcStatistics& operator=(const CalcStatistics &r) = delete;
   virtual ~CalcStatistics();
 
+  bool getDboutMustBeGrid() const { return _dboutMustBeGrid; }
+  void setDboutMustBeGrid(bool dboutMustBeGrid) { _dboutMustBeGrid = dboutMustBeGrid; }
+
   void setFlagStats(bool flagStats) { _flagStats = flagStats; }
   void setRadius(int radius) { _radius = radius; }
   void setOper(const EStatOption &oper) { _oper = oper; }
@@ -50,6 +53,7 @@ private:
 
 private:
   int    _iattOut;
+  bool   _dboutMustBeGrid;
 
   bool _flagStats;
   EStatOption _oper;

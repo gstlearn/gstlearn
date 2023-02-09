@@ -69,8 +69,8 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
 GSTLEARN_EXPORT VectorDouble dbStatisticsMultiByUID(Db *db,
                                                     const VectorInt &iatts,
                                                     bool flagIso = true);
-GSTLEARN_EXPORT VectorDouble dbStatisticsMultiByUID(Db *db,
-                                               const VectorString& names,
+GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
+                                               const VectorString &names,
                                                bool flagIso = true);
 GSTLEARN_EXPORT void dbStatisticsPrintByUID(const Db *db,
                                             const VectorInt &iatts = VectorInt(),
@@ -90,7 +90,23 @@ GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
                                        const String &radix = String());
 GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
 GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
-
+GSTLEARN_EXPORT VectorDouble dbStatisticsPerCell(Db *db,
+                                                 DbGrid *dbgrid,
+                                                 const EStatOption &oper,
+                                                 int iatt,
+                                                 int jatt,
+                                                 const VectorDouble &cuts);
+GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
+                                               const EStatOption &oper,
+                                               const VectorInt &cols,
+                                               bool flagMono,
+                                               bool verbose = false);
+GSTLEARN_EXPORT int dbStatisticsInGrid(Db *db,
+                                       DbGrid *dbgrid,
+                                       const EStatOption &oper,
+                                       const VectorInt &cols,
+                                       int radius,
+                                       int iptr0);
 GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &tab,
                                            const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                            const VectorString& names = VectorString(),
@@ -134,4 +150,3 @@ GSTLEARN_EXPORT int regressionApply(Db *db1,
                                     Db *db2 = nullptr,
                                     const Model *model = nullptr);
 GSTLEARN_EXPORT MatrixRectangular* sphering(const AMatrix* X);
-

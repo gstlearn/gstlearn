@@ -44,5 +44,11 @@ public:
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
   VectorDouble getCoeffs();
-  cs* getQ();
+  const cs* getQ() const { return _Q; }
+
+private:
+  void _buildQ();
+
+private:
+  cs* _Q;
 };

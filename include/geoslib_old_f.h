@@ -1205,17 +1205,6 @@ GSTLEARN_EXPORT int db_grid_patch(DbGrid* ss_grid,
 /* Prototyping the functions in stats.c */
 /****************************************/
 
-GSTLEARN_EXPORT int db_stats_grid(Db *db,
-                                  DbGrid *dbgrid,
-                                  const EStatOption& oper,
-                                  const VectorInt& cols,
-                                  int radius,
-                                  int iptr0);
-GSTLEARN_EXPORT VectorDouble db_stats(Db *db,
-                                      const EStatOption& oper,
-                                      const VectorInt &cols,
-                                      bool flagMono = true,
-                                      bool verbose = false);
 GSTLEARN_EXPORT int stats_residuals(int verbose,
                                     int nech,
                                     double *tab,

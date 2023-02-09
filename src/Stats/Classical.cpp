@@ -25,6 +25,88 @@
 
 /****************************************************************************/
 /*!
+ **  Check the operator name
+ **
+ ** \return  1 if the operator is valid; 0 otherwise
+ **
+ ** \param[in]  oper A EStatOption item
+ ** \param[in]  flag_multi  1 if multivariate operator is authorized
+ ** \param[in]  flag_indic  1 if indicator ("plus","minus","zero") is authorized
+ ** \param[in]  flag_sum    1 if sum of variable is authorized
+ ** \param[in]  flag_median 1 if median is authorized
+ ** \param[in]  flag_qt     1 if QT ("ore","metal") is authorized
+ **
+ ** \remarks If an error occurred, the message is printed
+ **
+ *****************************************************************************/
+bool _operStatisticsCheck(const EStatOption &oper,
+                          int flag_multi,
+                          int flag_indic,
+                          int flag_sum,
+                          int flag_median,
+                          int flag_qt)
+{
+  bool valid;
+
+  /* Initializations */
+
+  valid = false;
+
+  /* Monovariate check */
+
+  if (oper == EStatOption::NUM)  valid = true;
+  if (oper == EStatOption::MEAN) valid = true;
+  if (oper == EStatOption::VAR)  valid = true;
+  if (oper == EStatOption::CORR) valid = true;
+  if (oper == EStatOption::STDV) valid = true;
+  if (oper == EStatOption::MINI) valid = true;
+  if (oper == EStatOption::MAXI) valid = true;
+  if (flag_sum)
+  {
+    if (oper == EStatOption::SUM) valid = true;
+  }
+  if (flag_median)
+  {
+    if (oper == EStatOption::MEDIAN) valid = true;
+  }
+
+  /* Multivariate check */
+
+  if (flag_multi)
+  {
+    if (oper == EStatOption::MEAN2) valid = true;
+    if (oper == EStatOption::VAR2)  valid = true;
+    if (oper == EStatOption::STDV2) valid = true;
+    if (flag_sum)
+    {
+      if (oper == EStatOption::SUM2) valid = true;
+    }
+  }
+
+  /* Indicator check */
+
+  if (flag_indic)
+  {
+    if (oper == EStatOption::PLUS)  valid = true;
+    if (oper == EStatOption::MOINS) valid = true;
+    if (oper == EStatOption::ZERO)  valid = true;
+  }
+
+  /* QT variables check */
+
+  if (flag_qt)
+  {
+    if (oper == EStatOption::ORE)   valid = true;
+    if (oper == EStatOption::METAL) valid = true;
+  }
+
+  if (!valid) messerr("Invalid operator");
+
+  return (valid);
+}
+
+/****************************************************************************/
+/*!
  **  Update the proportions
  **
  ** \param[in]  dbin       Db for the input grid
@@ -131,6 +213,86 @@ bool _operExists(const std::vector<EStatOption>& opers,
     if (opers[i] == refe) return (1);
   }
   return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Copy the multivariate into monovariate statistics (before printout)
+ **
+ ** \param[in]  ncol  Dimension of the (square) matrix
+ ** \param[in,out]  tab   Array to be refactored
+ **
+ *****************************************************************************/
+void _refactor(int ncol, VectorDouble& tab)
+{
+  int ix, iy;
+
+  for (ix = 0; ix < ncol; ix++)
+    for (iy = 0; iy < ncol; iy++)
+      tab[ix * ncol + iy] = tab[iy * ncol + iy];
+}
+
+/****************************************************************************/
+/*!
+ **  Copy the multivariate or monovariate statistics into the returned array
+ **
+ ** \param[in]  nx    First dimension of the matrix
+ ** \param[in]  ny    First dimension of the matrix
+ ** \param[in]  tabin Array to be refactored
+ **
+ ** \param[out]  tabout Array to be refactored
+ **
+ *****************************************************************************/
+void _copyResults(int nx,
+                  int ny,
+                  const VectorDouble &tabin,
+                  VectorDouble &tabout)
+{
+  int ix, iy, lec;
+
+  for (ix = lec = 0; ix < nx; ix++)
+    for (iy = 0; iy < ny; iy++, lec++)
+      tabout[lec] = tabin[lec];
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the indices of the cell neighboring a target cell
+ **
+ ** \param[in]  ndim   Space dimension
+ ** \param[in]  radius Neighborhood radius
+ ** \param[in]  rank0  Rank of the neighbor
+ ** \param[in]  indg0  Array of indices of the target cell
+ **
+ ** \param[out] indg   Array of indices of the neighboring cell
+ **
+ *****************************************************************************/
+void _neighboringCell(int ndim,
+                      int radius,
+                      int rank0,
+                      const VectorInt &indg0,
+                      VectorInt &indg)
+{
+  int nei1d, value, divid, count, reste, ratio, idim;
+
+  /* Initializations */
+
+  nei1d = 2 * radius + 1;
+  count = (int) pow(nei1d, (double) ndim);
+  value = rank0;
+
+  /* Loop on the space dimensions */
+
+  divid = count;
+  for (int jdim = 0; jdim < ndim; jdim++)
+  {
+    idim = ndim - jdim - 1;
+    divid /= nei1d;
+    ratio = value / divid;
+    reste = value - ratio * divid;
+    value = reste;
+    indg[idim] = indg0[idim] + ratio - radius;
+  }
 }
 
 bool _regressionCheck(Db *db1,
@@ -712,7 +874,7 @@ double dbStatisticsIndicator(Db *db)
   return prop;
 }
 
-VectorDouble dbStatisticsMultiByUID(Db *db, const VectorString &names, bool flagIso)
+VectorDouble dbStatisticsMulti(Db *db, const VectorString &names, bool flagIso)
 {
   VectorInt iuids = db->getUIDs(names);
   return dbStatisticsMultiByUID(db, iuids, flagIso);
@@ -1573,5 +1735,711 @@ MatrixRectangular* sphering(const AMatrix* X)
   delete prod;
 
   return S;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculates the statistics of points within cells of a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db         Db for the points
+ ** \param[in]  dbgrid     Db for the grid
+ ** \param[in]  oper       A EStatOption item
+ ** \param[in]  iatt       Rank of the first attribute
+ ** \param[in]  jatt       Rank of the second attribute
+ ** \param[in]  cuts       Array of cutoffs (optional)
+ **
+ *****************************************************************************/
+VectorDouble dbStatisticsPerCell(Db *db,
+                                 DbGrid *dbgrid,
+                                 const EStatOption &oper,
+                                 int iatt,
+                                 int jatt,
+                                 const VectorDouble &cuts)
+{
+  VectorDouble result;
+  double z1 = 0.;
+  double z2 = 0.;
+  int nxyz = dbgrid->getSampleNumber();
+  int ncut = (int) cuts.size();
+  int ndim = dbgrid->getNDim();
+
+  bool flag1 = false;
+  bool flag2 = false;
+  bool flag_denorm = false;
+  bool flag_q = false;
+  bool flag_t = false;
+  bool flag_s1 = false;
+  bool flag_s2 = false;
+  bool flag_v1 = false;
+  bool flag_v2 = false;
+  bool flag_v12 = false;
+  bool flag_mini = false;
+  bool flag_maxi =false;
+
+  /* Check the operator validity */
+
+  if (! _operStatisticsCheck(oper, 1, 0, 1, 0, 1)) return result;
+
+  /* Set the relevant flags */
+
+  if (oper == EStatOption::NUM)
+    flag1 = 1;
+  else if (oper == EStatOption::MEAN)
+    flag1 = flag_s1 = 1;
+  else if (oper == EStatOption::SUM)
+    flag1 = flag_s1 = flag_denorm = 1;
+  else if (oper == EStatOption::STDV)
+    flag1 = flag_s1 = flag_v1 = 1;
+  else if (oper == EStatOption::VAR)
+    flag1 = flag_s1 = flag_v1 = 1;
+  else if (oper == EStatOption::MEAN2)
+    flag2 = flag_s2 = 1;
+  else if (oper == EStatOption::SUM2)
+    flag2 = flag_s2 = flag_denorm = 1;
+  else if (oper == EStatOption::STDV2)
+    flag2 = flag_s2 = flag_v2 = 1;
+  else if (oper == EStatOption::VAR2)
+    flag2 = flag_s2 = flag_v2 = 1;
+  else if (oper == EStatOption::COV)
+    flag2 = flag_s1 = flag_s2 = flag_v12 = 1;
+  else if (oper == EStatOption::CORR)
+    flag2 = flag_s1 = flag_s2 = flag_v1 = flag_v2 = flag_v12 = 1;
+  else if (oper == EStatOption::MINI)
+    flag1 = flag_mini = 1;
+  else if (oper == EStatOption::MAXI)
+    flag1 = flag_maxi = 1;
+  else if (oper == EStatOption::ORE)
+    flag1 = flag_t = 1;
+  else if (oper == EStatOption::METAL)
+    flag1 = flag_q = 1;
+  else
+    return (1);
+
+  /* Core allocation */
+
+  VectorDouble coor(ndim);
+  VectorInt indg(ndim);
+  VectorDouble nn(nxyz, 0.);
+  VectorDouble s1;
+  VectorDouble s2;
+  VectorDouble v1;
+  VectorDouble v2;
+  VectorDouble v12;
+  VectorDouble mini;
+  VectorDouble maxi;
+  VectorDouble cutval;
+  if (flag_s1)
+    s1.resize(nxyz, 0.);
+  if (flag_s2)
+    s2.resize(nxyz, 0.);
+  if (flag_v1)
+    v1.resize(nxyz, 0.);
+  if (flag_v2)
+    v2.resize(nxyz, 0.);
+  if (flag_v12)
+    v12.resize(nxyz, 0.);
+  if (flag_mini)
+    mini.resize(nxyz, TEST);
+  if (flag_maxi)
+    maxi.resize(nxyz, TEST);
+  if (flag_t || flag_q)
+    cutval.resize(nxyz * ncut, 0.);
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+
+    /* Check the variable(s) */
+
+    if (flag1)
+    {
+      z1 = db->getArray(iech, iatt);
+      if (FFFF(z1)) continue;
+    }
+    if (flag2)
+    {
+      z2 = db->getArray(iech, jatt);
+      if (FFFF(z2)) continue;
+    }
+
+    /* Check the location of the data in the grid */
+
+    db->getCoordinatesInPlace(iech, coor);
+    int iad = dbgrid->getGrid().coordinateToRank(coor);
+    if (iad < 0 || iad >= nxyz) continue;
+    nn[iad]++;
+    if (flag_s1) s1[iad] += z1;
+    if (flag_s2) s2[iad] += z2;
+    if (flag_v1) v1[iad] += z1 * z1;
+    if (flag_v2) v2[iad] += z2 * z2;
+    if (flag_v12) v12[iad] += z1 * z2;
+    if (flag_mini)
+    {
+      if (FFFF(mini[iad]) || z1 < mini[iad]) mini[iad] = z1;
+    }
+    if (flag_maxi)
+    {
+      if (FFFF(maxi[iad]) || z1 > maxi[iad]) maxi[iad] = z1;
+    }
+    if (flag_t)
+    {
+      for (int icut = 0; icut < ncut; icut++)
+        if (z1 >= cuts[icut]) cutval[icut + iech * ncut] += 1.;
+    }
+    if (flag_q)
+    {
+      for (int icut = 0; icut < ncut; icut++)
+        if (z1 >= cuts[icut]) cutval[icut + iech * ncut] += z1;
+    }
+  }
+
+  /* Normalization */
+
+  for (int i = 0; i < nxyz; i++)
+  {
+    double ratio = nn[i];
+    if (ratio <= 0)
+    {
+      if (flag_s1) s1[i] = TEST;
+      if (flag_s2) s2[i] = TEST;
+      if (flag_v1) v1[i] = TEST;
+      if (flag_v2) v2[i] = TEST;
+      if (flag_v12) v12[i] = TEST;
+      if (flag_mini) mini[i] = TEST;
+      if (flag_maxi) maxi[i] = TEST;
+      if (flag_t || flag_q) for (int icut = 0; icut < ncut; icut++)
+        cutval[icut + i * ncut] = TEST;
+    }
+    else
+    {
+      if (flag_s1) s1[i] /= ratio;
+      if (flag_s2) s2[i] /= ratio;
+      if (flag_v1)
+      {
+        v1[i] = v1[i] / ratio - s1[i] * s1[i];
+        v1[i] = (v1[i] < 0.) ? 0. : sqrt(v1[i]);
+      }
+      if (flag_v2)
+      {
+        v2[i] = v2[i] / ratio - s2[i] * s2[i];
+        v2[i] = (v2[i] < 0.) ? 0. : sqrt(v2[i]);
+      }
+      if (flag_v12)
+      {
+        v12[i] = v12[i] / ratio - s1[i] * s2[i];
+      }
+      if (flag_denorm)
+      {
+        if (flag_s1) s1[i] *= ratio;
+        if (flag_s2) s2[i] *= ratio;
+      }
+      if (flag_t || flag_q)
+      {
+        for (int icut = 0; icut < ncut; icut++)
+          cutval[icut + i * ncut] /= ratio;
+      }
+    }
+  }
+
+  /* Dispatch according to the type of result expected */
+
+  for (int i = 0; i < nxyz; i++)
+  {
+    if (oper == EStatOption::NUM)
+      result[i] = nn[i];
+    else if (oper == EStatOption::MEAN)
+      result[i] = s1[i];
+    else if (oper == EStatOption::SUM)
+      result[i] = s1[i];
+    else if (oper == EStatOption::STDV)
+      result[i] = v1[i];
+    else if (oper == EStatOption::VAR)
+      result[i] = v1[i] * v1[i];
+    else if (oper == EStatOption::MEAN2)
+      result[i] = s2[i];
+    else if (oper == EStatOption::SUM2)
+      result[i] = s2[i];
+    else if (oper == EStatOption::STDV2)
+      result[i] = v2[i];
+    else if (oper == EStatOption::VAR2)
+      result[i] = v2[i] * v2[i];
+    else if (oper == EStatOption::COV)
+      result[i] = v12[i];
+    else if (oper == EStatOption::CORR)
+    {
+      if (v1[i] > 0. && v2[i] > 0.) result[i] = v12[i] / (v1[i] * v2[i]);
+    }
+    else if (oper == EStatOption::MINI)
+      result[i] = mini[i];
+    else if (oper == EStatOption::MAXI)
+      result[i] = maxi[i];
+    else if (oper == EStatOption::ORE)
+      for (int icut = 0; icut < ncut; icut++)
+        result[i + icut * nxyz] = cutval[icut + i * ncut];
+    else if (oper == EStatOption::METAL)
+      for (int icut = 0; icut < ncut; icut++)
+        result[i + icut * nxyz] = cutval[icut + i * ncut];
+    else
+      return result;
+  }
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the multivariate statistics between different variables of a Db
+ **
+ ** \return  Resulting array (dimension; ncol if flag_mono or ncol*ncol)
+ **
+ ** \param[in]  db   Db structure
+ ** \param[in]  oper A StatOption item
+ ** \param[in]  cols Ranks of the variables
+ ** \param[in]  flagMono 1 for a monovariate output
+ ** \param[in]  verbose  1 for a verbose output
+ **
+ *****************************************************************************/
+VectorDouble dbStatisticsMulti(Db *db,
+                               const EStatOption &oper,
+                               const VectorInt &cols,
+                               bool flagMono,
+                               bool verbose)
+{
+  VectorDouble result;
+
+  /* Initializations */
+
+  int nech = db->getSampleNumber();
+  int ncol = static_cast<int>(cols.size());
+  int ncol2 = ncol * ncol;
+
+  /* Check that all variables are defined */
+
+  for (int icol = 0; icol < ncol; icol++)
+  {
+    int jcol = cols[icol];
+    if (!db->isColIdxValid(jcol))
+    {
+      messerr("Error: Variable %d is not defined", cols[icol]);
+      return result;
+    }
+  }
+
+  /* Check the validity of the operator */
+
+  if (! _operStatisticsCheck(oper, 0, 1, 0, 0, 0)) return result;
+
+  /* Core allocation */
+
+  if (flagMono)
+    result.resize(ncol);
+  else
+    result.resize(ncol2);
+
+  VectorDouble num(ncol2, 0.);
+  VectorDouble m1(ncol2, 0.);
+  VectorDouble m2(ncol2, 0.);
+  VectorDouble v1(ncol2, 0.);
+  VectorDouble v2(ncol2, 0.);
+  VectorDouble v12(ncol2, 0.);
+  VectorDouble mini(ncol2, 0.);
+  VectorDouble maxi(ncol2, 0.);
+  VectorDouble plus(ncol2, 0.);
+  VectorDouble moins(ncol2, 0.);
+  VectorDouble zero(ncol2, 0.);
+
+  /* Initializations */
+
+  for (int i = 0; i < ncol * ncol; i++)
+  {
+    num[i] = m1[i] = m2[i] = v1[i] = v2[i] = v12[i] = 0.;
+    plus[i] = moins[i] = zero[i] = 0;
+    mini[i] = 1.e30;
+    maxi[i] = -1.e30;
+  }
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    double weight = db->getWeight(iech);
+
+    /* Loop on the first variable */
+
+    for (int icol1 = 0; icol1 < ncol; icol1++)
+    {
+      int jcol1 = cols[icol1];
+      double val1 = db->getArray(iech, jcol1);
+      if (FFFF(val1)) continue;
+
+      /* Loop on the second variable */
+
+      for (int icol2 = 0; icol2 < ncol; icol2++)
+      {
+        int jcol2 = cols[icol2];
+        double val2 = db->getArray(iech, jcol2);
+        if (FFFF(val2)) continue;
+
+        /* Update statistics */
+
+        int iad = icol1 * ncol + icol2;
+        num[iad] += weight;
+        m1[iad] += weight * val1;
+        m2[iad] += weight * val2;
+        v1[iad] += weight * val1 * val1;
+        v2[iad] += weight * val2 * val2;
+        v12[iad] += weight * val1 * val2;
+        if (val1 < mini[iad]) mini[iad] = val1;
+        if (val1 > maxi[iad]) maxi[iad] = val1;
+        if (val1 > 0) plus[iad] += 1;
+        if (val1 < 0) moins[iad] += 1;
+        if (val1 == 0) zero[iad] += 1;
+      }
+    }
+  }
+
+  /* Normalization */
+
+  for (int icol1 = 0; icol1 < ncol; icol1++)
+    for (int icol2 = 0; icol2 < ncol; icol2++)
+    {
+      int iad = icol1 * ncol + icol2;
+      if (num[iad] <= 0)
+      {
+        m1[iad] = TEST;
+        m2[iad] = TEST;
+        v1[iad] = TEST;
+        m2[iad] = TEST;
+        v12[iad] = TEST;
+        mini[iad] = TEST;
+        maxi[iad] = TEST;
+        plus[iad] = TEST;
+        moins[iad] = TEST;
+        zero[iad] = TEST;
+      }
+      else
+      {
+        m1[iad] /= num[iad];
+        m2[iad] /= num[iad];
+        v1[iad] = v1[iad] / num[iad] - m1[iad] * m1[iad];
+        v2[iad] = v2[iad] / num[iad] - m2[iad] * m2[iad];
+        v12[iad] = v12[iad] / num[iad] - m1[iad] * m2[iad];
+
+        if (oper == EStatOption::STDV)
+        {
+          v12[iad] = (v12[iad] > 0) ? sqrt(v12[iad]) : 0.;
+        }
+        if (oper == EStatOption::CORR)
+        {
+          v12[iad] = (v1[iad] > 0 && v2[iad] > 0) ? v12[iad] / sqrt(v1[iad] * v2[iad]) : 0.;
+        }
+      }
+    }
+
+  /* Printout */
+
+  int nx = 0;
+  int ny = 0;
+  if (flagMono)
+  {
+    nx = 1;
+    ny = ncol;
+    _refactor(ncol, num);
+    _refactor(ncol, m1);
+    _refactor(ncol, v1);
+    _refactor(ncol, v12);
+    _refactor(ncol, mini);
+    _refactor(ncol, maxi);
+    _refactor(ncol, plus);
+    _refactor(ncol, moins);
+    _refactor(ncol, zero);
+  }
+  else
+  {
+    nx = ncol;
+    ny = ncol;
+  }
+
+  /* Optional printout */
+
+  if (verbose)
+  {
+    message("\n");
+    if (oper == EStatOption::NUM)
+      print_matrix("Matrix of Number of defined samples", 0, 1, nx, ny, NULL,
+                   num.data());
+    else if (oper == EStatOption::MEAN)
+      print_matrix("Matrix of Variable Means", 0, 1, nx, ny, NULL, m1.data());
+    else if (oper == EStatOption::VAR)
+      print_matrix("Matrix of Variable Variances", 0, 1, nx, ny, NULL, v12.data());
+    else if (oper == EStatOption::CORR)
+      print_matrix("Matrix of Variable Correlations", 0, 1, nx, ny, NULL, v12.data());
+    else if (oper == EStatOption::STDV)
+      print_matrix("Matrix of Variable Standard Deviations", 0, 1, nx, ny, NULL,
+                   v12.data());
+    else if (oper == EStatOption::MINI)
+      print_matrix("Matrix of Variable Minima", 0, 1, nx, ny, NULL, mini.data());
+    else if (oper == EStatOption::MAXI)
+      print_matrix("Matrix of Variable Maxima", 0, 1, nx, ny, NULL, maxi.data());
+    else if (oper == EStatOption::PLUS)
+      print_matrix("Matrix of Number of positive samples", 0, 1, nx, ny, NULL,
+                   plus.data());
+    else if (oper == EStatOption::MOINS)
+      print_matrix("Matrix of Number of negative samples", 0, 1, nx, ny, NULL,
+                   moins.data());
+    else if (oper == EStatOption::ZERO)
+      print_matrix("Matrix of Number of zero samples", 0, 1, nx, ny, NULL,
+                   zero.data());
+    else
+      messageAbort("This error should never happen");
+  }
+
+  /* Set the return array */
+
+  if (oper == EStatOption::NUM)
+    _copyResults(nx, ny, num, result);
+  else if (oper == EStatOption::MEAN)
+    _copyResults(nx, ny, m1, result);
+  else if (oper == EStatOption::VAR)
+    _copyResults(nx, ny, v12, result);
+  else if (oper == EStatOption::CORR)
+    _copyResults(nx, ny, v12, result);
+  else if (oper == EStatOption::STDV)
+    _copyResults(nx, ny, v12, result);
+  else if (oper == EStatOption::MINI)
+    _copyResults(nx, ny, mini, result);
+  else if (oper == EStatOption::MAXI)
+    _copyResults(nx, ny, maxi, result);
+  else if (oper == EStatOption::PLUS)
+    _copyResults(nx, ny, plus, result);
+  else if (oper == EStatOption::MOINS)
+    _copyResults(nx, ny, moins, result);
+  else if (oper == EStatOption::ZERO)
+    _copyResults(nx, ny, zero, result);
+  else
+    messageAbort("This error should never happen");
+
+  return result;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculates the monovariate statistics within cells of a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db for the points
+ ** \param[in]  dbgrid Db for the grid
+ ** \param[in]  oper   A EStatOption item
+ ** \param[in]  cols   Ranks of the variables
+ ** \param[in]  radius Neighborhood radius
+ ** \param[in]  iptr0  Storage address (first variable)
+ **
+ *****************************************************************************/
+int dbStatisticsInGrid(Db *db,
+                       DbGrid *dbgrid,
+                       const EStatOption &oper,
+                       const VectorInt &cols,
+                       int radius,
+                       int iptr0)
+{
+  int iptm = -1;
+  int iptn = -1;
+  int nxyz = dbgrid->getSampleNumber();
+  int ndim = dbgrid->getNDim();
+  int ncol = (int) cols.size();
+  int count = (int) pow(2. * radius + 1., (double) ndim);
+
+  /* Check that all variables are defined */
+
+  for (int icol = 0; icol < ncol; icol++)
+  {
+    int jcol = cols[icol];
+    if (!db->isColIdxValid(jcol))
+    {
+      messerr("Error: Variable %d is not defined", cols[icol]);
+      return 1;
+    }
+  }
+
+  /* Check the validity of the requested function */
+
+  if (! _operStatisticsCheck(oper, 0, 1, 0, 1, 0)) return 1;
+
+  /* Create and initialize the new attributes */
+
+  double valdef = 0.;
+  if (oper == EStatOption::MINI) valdef = 1.e30;
+  if (oper == EStatOption::MAXI) valdef = -1.e30;
+
+  /* Create the attributes */
+
+  if (oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
+    iptn = dbgrid->addColumnsByConstant(1, 0.);
+  if (oper == EStatOption::VAR || oper == EStatOption::STDV)
+    iptm = dbgrid->addColumnsByConstant(1, 0.);
+
+  /* Core allocation */
+
+  VectorDouble coor(ndim);
+  VectorInt indg0(ndim);
+  VectorInt indg(ndim);
+  VectorDouble medtab;
+  if (oper == EStatOption::MEDIAN) medtab.resize(ndim);
+
+  /* Loop on the variables */
+
+  for (int icol = 0; icol < ncol; icol++)
+  {
+
+    /* Create the output attribute */
+
+    int jcol = cols[icol];
+    int iptr = iptr0 + icol;
+    if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
+    if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
+    db_attribute_init(dbgrid, 1, iptr, valdef);
+
+    /* Loop on the samples */
+
+    int nmed = 0;
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+
+      /* Read a sample */
+
+      if (!db->isActive(iech)) continue;
+      db->getCoordinatesInPlace(iech, coor);
+      if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0)) continue;
+      double value = db->getArray(iech, jcol);
+      if (FFFF(value)) continue;
+
+      /* Loop on the neighboring cells */
+
+      for (int ic = 0; ic < count; ic++)
+      {
+        _neighboringCell(ndim, radius, ic, indg0, indg);
+        int iad = dbgrid->getGrid().indiceToRank(indg);
+        if (iad < 0 || iad >= nxyz) continue;
+
+        if (oper == EStatOption::NUM)
+        {
+          dbgrid->updArray(iad, iptr, 0, 1.);
+        }
+        else if (oper == EStatOption::MEAN)
+        {
+          dbgrid->updArray(iad, iptn, 0, 1.);
+          dbgrid->updArray(iad, iptr, 0, value);
+        }
+        else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
+        {
+          dbgrid->updArray(iad, iptn, 0, 1.);
+          dbgrid->updArray(iad, iptm, 0, value);
+          dbgrid->updArray(iad, iptr, 0, value * value);
+        }
+        else if (oper == EStatOption::MINI)
+        {
+          if (value < dbgrid->getArray(iad, iptr))
+            dbgrid->setArray(iad, iptr, value);
+        }
+        else if (oper == EStatOption::MAXI)
+        {
+          if (value > dbgrid->getArray(iad, iptr))
+            dbgrid->setArray(iad, iptr, value);
+        }
+        else if (oper == EStatOption::MEDIAN)
+        {
+          medtab[nmed++] = value;
+        }
+        else if (oper == EStatOption::PLUS)
+        {
+          if (value > 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+        }
+        else if (oper == EStatOption::MOINS)
+        {
+          if (value < 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+        }
+        else if (oper == EStatOption::ZERO)
+        {
+          if (value == 0.) dbgrid->updArray(iad, iptr, 0, 1.);
+        }
+        else
+        {
+          value = 0.;
+        }
+      }
+    }
+
+    /* Normalization */
+
+    if (oper == EStatOption::MEAN)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        double ratio = dbgrid->getArray(i, iptn);
+        if (ratio <= 0.)
+          dbgrid->setArray(i, iptr, TEST);
+        else
+          dbgrid->updArray(i, iptr, 3, ratio);
+      }
+    }
+    else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        double ratio = dbgrid->getArray(i, iptn);
+        if (ratio <= 0.)
+          dbgrid->setArray(i, iptr, TEST);
+        else
+        {
+          double mean = dbgrid->getArray(i, iptm) / ratio;
+          double value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
+          if (value < 0) value = 0.;
+          if (oper == EStatOption::VAR)
+            dbgrid->setArray(i, iptr, value);
+          else
+            dbgrid->setArray(i, iptr, sqrt(value));
+        }
+      }
+    }
+    else if (oper == EStatOption::MEDIAN)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        double value = (nmed > 0) ? medtab[nmed / 2] : TEST;
+        dbgrid->setArray(i, iptr, value);
+      }
+    }
+    else if (oper == EStatOption::MINI)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        double value = dbgrid->getArray(i, iptr);
+        if (value == 1.e30) dbgrid->setArray(i, iptr, TEST);
+      }
+    }
+    else if (oper == EStatOption::MAXI)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        double value = dbgrid->getArray(i, iptr);
+        if (value == -1.e30) dbgrid->setArray(i, iptr, TEST);
+      }
+    }
+  }
+
+  /* Delete auxiliary attributes for local calculations */
+
+  if ((oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
+      && iptn > 0) dbgrid->deleteColumnByUID(iptn);
+  if ((oper == EStatOption::VAR || oper == EStatOption::STDV) && iptm > 0)
+    dbgrid->deleteColumnByUID(iptm);
+
+  return 0;
 }
 

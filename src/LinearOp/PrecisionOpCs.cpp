@@ -16,7 +16,7 @@
 #include "Polynomials/APolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "csparse_d.h"
+#include "csparse_f.h"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
@@ -25,23 +25,26 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
                              const EPowerPT& power,
                              bool verbose)
-    : PrecisionOp(shiftop, cova, power, verbose)
+    : PrecisionOp(shiftop, cova, power, verbose),
+      _Q(nullptr)
 {
+  _buildQ();
 }
-
 
 PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
                              Model* model,
                              int icov,
                              const EPowerPT& power,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, power, verbose)
+    : PrecisionOp(mesh, model, icov, power, verbose),
+      _Q(nullptr)
 {
+  _buildQ();
 }
 
 PrecisionOpCs::~PrecisionOpCs()
 {
-  // TODO Auto-generated destructor stub
+  _Q = cs_spfree(_Q);
 }
 
 VectorDouble PrecisionOpCs::getCoeffs()
@@ -50,8 +53,7 @@ VectorDouble PrecisionOpCs::getCoeffs()
   return coeffs;
 }
 
-
-void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result)
+void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result)
 {
   if (_work2.empty()) _work2.resize(getSize());
   if (_work3.empty()) _work3.resize(getSize());
@@ -174,7 +176,6 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 
     // Post-processing
        getShiftOp()->prodLambda(outv, outv ,EPowerPT::ONE);
-
 }
 
 
@@ -192,10 +193,10 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 //
 //}
 
-cs *PrecisionOpCs::getQ()
+void PrecisionOpCs::_buildQ()
 {
+  if (_Q != nullptr) _Q = cs_spfree(_Q);
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
-  cs* Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
-                        static_cast<int> (blin.size()), blin.data());
-  return Q;
+  _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
+                     static_cast<int>(blin.size()), blin.data());
 }

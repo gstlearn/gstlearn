@@ -727,6 +727,10 @@ private:
   // Higher level methods
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
 
+protected:
+  void _defineVariableAndLocators(const Db* dbin, const VectorString& names);
+  void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks);
+
 private:
   int _ncol;                 //!< Number of Columns of data
   int _nech;                 //!< Number of samples

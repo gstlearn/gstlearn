@@ -134,17 +134,6 @@ GSTLEARN_EXPORT int dbgrid_model(DbGrid *dbgrid,
                                  Model *model,
                                  const NamingConvention &namconv = NamingConvention("VMAP"));
 
-/****************************/
-/* Functions for Statistics */
-/****************************/
-
-GSTLEARN_EXPORT VectorDouble stats_point_to_grid(DbGrid *dbgrid,
-                                                 Db *db,
-                                                 const EStatOption& oper,
-                                                 int iatt = 0,
-                                                 int jatt = 0,
-                                                 const VectorDouble &cuts = VectorDouble());
-
 /***********************/
 /* Functions for Model */
 /***********************/

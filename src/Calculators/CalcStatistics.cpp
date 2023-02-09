@@ -24,6 +24,7 @@
 CalcStatistics::CalcStatistics()
     : ACalcDbToDb(),
       _iattOut(-1),
+      _dboutMustBeGrid(false),
       _flagStats(false),
       _oper(EStatOption::UNKNOWN),
       _radius(0),
@@ -53,7 +54,7 @@ bool CalcStatistics::_check()
     return false;
   }
 
-  if (_flagStats)
+  if (getDboutMustBeGrid())
   {
     if (! getDbout()->isGrid())
     {
@@ -61,6 +62,7 @@ bool CalcStatistics::_check()
       return false;
     }
   }
+
   if (_flagRegr)
   {
     if (! _flagCste && _namaux.empty())
@@ -116,7 +118,7 @@ bool CalcStatistics::_run()
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     VectorInt cols = getDbin()->getColIdxsByLocator(ELoc::Z);
-    db_stats_grid(getDbin(), dbgrid, _oper, cols, _radius, _iattOut);
+    dbStatisticsInGrid(getDbin(), dbgrid, _oper, cols, _radius, _iattOut);
   }
 
   if (_flagRegr)
@@ -124,6 +126,7 @@ bool CalcStatistics::_run()
     regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCste,
                     getDbout(), _model);
   }
+
   return true;
 }
 
@@ -139,6 +142,7 @@ int dbStatisticsOnGrid(Db *db,
   stats.setNamingConvention(namconv);
 
   stats.setFlagStats(true);
+  stats.setDboutMustBeGrid(true);
   stats.setOper(oper);
   stats.setRadius(radius);
 

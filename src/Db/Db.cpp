@@ -4564,37 +4564,63 @@ int Db::resetSamplingDb(const Db* dbin,
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", nfrom,_nech);
 
-  // Create the new data base
+  // Creating the vector of variables
 
   VectorString namloc = names;
   if (namloc.empty())
     namloc = dbin->getAllNames();
   _ncol = static_cast<int> (namloc.size());
+
+  // Create the (empty) architecture
+
   resetDims(_ncol, _nech);
 
-  // Create Variables and Locators
+  // Define the variables and the Locators
 
+  _defineVariableAndLocators(dbin, namloc);
+
+  // Load samples
+
+  _loadValues(dbin, namloc, ranks);
+
+  return 0;
+}
+
+/**
+ * Define the Name and Locator of the variables, coming from the list of variables
+ * contained in 'dbin' whose names are contained in 'names'.
+ * @param dbin Input Db
+ * @param names List of variables to be copied
+ */
+void Db::_defineVariableAndLocators(const Db* dbin, const VectorString& names)
+{
   ELoc locatorType;
   int locatorIndex;
   for (int icol = 0; icol < _ncol; icol++)
   {
-    setNameByUID(icol, namloc[icol]);
-    if (dbin->getLocator(namloc[icol],&locatorType,&locatorIndex))
-      setLocator(namloc[icol],locatorType,locatorIndex);
+    setNameByUID(icol, names[icol]);
+    if (dbin->getLocator(names[icol],&locatorType,&locatorIndex))
+      setLocator(names[icol],locatorType,locatorIndex);
   }
+}
 
-  // Load samples
-
+/**
+ * Load values of the variables 'names' of 'dbin' into the current Db
+ * This lcopy is restricted to only active samples of 'dbin' (given by 'ranks')
+ * @param db    Input Db
+ * @param names List of variables to be copied
+ * @param ranks Vector of ranks of the samples to be copied
+ */
+void Db::_loadValues(const Db* db, const VectorString& names, const VectorInt& ranks)
+{
   VectorDouble values(_nech);
   for (int icol = 0; icol < _ncol; icol++)
   {
-    int jcol = dbin->getColIdx(namloc[icol]);
+    int jcol = db->getColIdx(names[icol]);
     for (int iech = 0; iech < _nech; iech++)
-      values[iech] = dbin->getValueByColIdx(ranks[iech],jcol);
+      values[iech] = db->getValueByColIdx(ranks[iech],jcol);
     setColumnByColIdx(values, icol);
   }
-
-  return 0;
 }
 
 int Db::resetReduce(const Db *dbin,
@@ -4618,35 +4644,24 @@ int Db::resetReduce(const Db *dbin,
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", dbin->getSampleNumber(),_nech);
 
-  // Create the new data base
+  // Creating the vector of variables
 
   VectorString namloc = names;
   if (namloc.empty())
     namloc = dbin->getAllNames();
   _ncol = static_cast<int> (namloc.size());
+
+  // Create the (empty) architecture
+
   resetDims(_ncol, _nech);
 
-  // Create Variables and Locators
+  // Define the variables and the Locators
 
-  ELoc locatorType;
-  int locatorIndex;
-  for (int icol = 0; icol < _ncol; icol++)
-  {
-    setNameByUID(icol, namloc[icol]);
-    if (dbin->getLocator(namloc[icol],&locatorType,&locatorIndex))
-      setLocator(namloc[icol],locatorType,locatorIndex);
-  }
+  _defineVariableAndLocators(dbin, namloc);
 
   // Load samples
 
-  VectorDouble values(_nech);
-  for (int icol = 0; icol < _ncol; icol++)
-  {
-    int jcol = dbin->getColIdx(namloc[icol]);
-    for (int iech = 0; iech < _nech; iech++)
-      values[iech] = dbin->getValueByColIdx(ranksel[iech],jcol);
-    setColumnByColIdx(values, icol);
-  }
+  _loadValues(dbin, namloc, ranksel);
 
   return 0;
 }

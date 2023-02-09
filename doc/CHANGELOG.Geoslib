@@ -254,7 +254,7 @@ model_auto: Adding the possibility to check the validity of the resulting
 model.print: Print the matrix of the total sills (if can be calculated)
 	even in the multivariate case.
 kd: It is now called dk().
-stats_point_to_grid: New option for calculating ore and metal quantty
+stats_point_to_grid: New option for calculating ore and metal quantity
 keypair: The machanism can work with matrices rather than scalar only
 model_auto: Storing the sill matrices in keypair
 	
