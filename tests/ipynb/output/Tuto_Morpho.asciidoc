@@ -50,7 +50,7 @@ We retreive the newly simulated variable (called _Simu_) from the _grid_
 Db into a local Vector (called _tab_). This vector is then transformed
 by thresholding and loaded into an image object (called _image_). This
 object is very efficient as each pixel is stored into a single _bit_. A
-second Image object (called _image2_) is created and will be used in
+secondary Image object (called _image2_) is created and will be used in
 subsequent diadic operations.
 
 
@@ -72,9 +72,9 @@ image into a vector and load it into a grid.
 The next step interchanges grain and pore
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
-![png](output_18_0.png)
+![png](output_17_0.png)
 ----
 
 [[basic-mophological-image-transformations]]
@@ -85,74 +85,70 @@ argument defines the type of structuring element: either Cross (0) or
 Block (1)
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
-![png](output_21_0.png)
+![png](output_20_0.png)
 ----
 
 We check the result of ersosion when choosing the Block structuring
 element
 
 
-+*Out[12]:*+
++*Out[11]:*+
 ----
-![png](output_23_0.png)
+![png](output_22_0.png)
 ----
 
 We now perform the dilation of the Initial image (only the Cross
 structuring element will be used in the next paragraphs)
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
-![png](output_25_0.png)
+![png](output_24_0.png)
 ----
 
 Combining the elementary operations (Erosion and Dilation), we can
 perform directly an opening
 
 
-+*Out[14]:*+
++*Out[13]:*+
 ----
-![png](output_27_0.png)
+![png](output_26_0.png)
 ----
 
 And the closing
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
-![png](output_29_0.png)
+![png](output_28_0.png)
 ----
 
 [[connected-components]]
 == Connected components
 
-Starting from the Initial image, we now wish to determine the connected
-components
+Starting from the Initial image (stored in the Data Base as
+_Reference_), we now wish to determine the connected components
+
+
++*Out[15]:*+
+----
+![png](output_31_0.png)
+----
+
+Compute the connected components
 
 
 +*Out[16]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[17]:*+
 ----
-Number of connected components = 118 
-
-
-![png](output_33_1.png)
-----
-
-
-+*Out[18]:*+
-----
-Number of connected components = 118 
-
-
-![png](output_34_1.png)
+![png](output_34_0.png)
 ----
 
 [[some-shortcuts]]
@@ -164,19 +160,19 @@ stored in a Db (organized as a Grid) and returns the result in the same
 Db.
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
 ![png](output_37_0.png)
 ----
 
 
-+*Out[20]:*+
++*Out[19]:*+
 ----
 ![png](output_38_0.png)
 ----
 
 
-+*Out[21]:*+
++*Out[20]:*+
 ----
 ![png](output_39_0.png)
 ----
@@ -184,58 +180,52 @@ Db.
 Calculation of distance to the edge of the grain
 
 
-+*Out[23]:*+
++*Out[21]:*+
 ----
-![png](output_42_0.png)
+![png](output_41_0.png)
 ----
 
 Calculation of the 2-D angle of the gradient
 
 
-+*Out[25]:*+
++*Out[22]:*+
 ----
-![png](output_45_0.png)
+![png](output_43_0.png)
 ----
 
 Calculation of Gradient components
 
 
-+*Out[27]:*+
++*Out[23]:*+
 ----
-![png](output_48_0.png)
-----
-
-
-+*Out[28]:*+
-----
-![png](output_49_0.png)
+![png](output_45_0.png)
 ----
 
 Smoothing the input image
 
 
-+*Out[30]:*+
++*Out[24]:*+
 ----
-![png](output_52_0.png)
+![png](output_47_0.png)
 ----
 
 [[testing-the-bitmap-image-printout]]
 == Testing the Bitmap Image printout
 
 
-+*Out[31]:*+
++*Out[25]:*+
 ----
-![png](output_54_0.png)
-----
-
-
-+*Out[32]:*+
-----
-![png](output_55_0.png)
+![png](output_49_0.png)
 ----
 
 
-+*Out[33]:*+
++*Out[26]:*+
+----
+![png](output_50_0.png)
+----
+
+
++*Out[27]:*+
 ----Array dimension = 2
 - Dimension #1 : 10
 - Dimension #2 : 12
@@ -255,7 +245,7 @@ Smoothing the input image
 2 0011011111----
 
 
-+*Out[34]:*+
++*Out[28]:*+
 ----
 Array dimension = 2
 - Dimension #1 : 10

@@ -17,7 +17,7 @@ Display a white skin around the meshing
 ----
 
 
-[[f37e879f-bc8a-429b-b313-f487d6f00c49]]
+[[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
 ----
 
 We overlay the meshing
@@ -25,7 +25,7 @@ We overlay the meshing
 
 +*Out[7]:*+
 ----
-[[2356be9a-1278-4bba-a037-c9aaf37c22c7]]
+[[cd01cf0a-bcd5-4b39-bb9a-777e44f2a559]]
 ----
 
 Drawing a polygon (we use the one containing the land boundaries)
@@ -33,7 +33,7 @@ Drawing a polygon (we use the one containing the land boundaries)
 
 +*Out[10]:*+
 ----
-[[e8568a51-5e38-4ef0-9ff0-1aa9e5d38b69]]
+[[bc2f1528-7dc8-4133-9fc4-d13dbbf33221]]
 ----
 
 Representing a function on the skin of the earth together with other
@@ -43,7 +43,7 @@ performed with SPDE on the Sphere.
 
 +*Out[13]:*+
 ----
-[[f8e855a0-bc08-4486-95e4-5ed9a6de0d04]]
+[[150d67a9-80b8-4037-b11b-1acee67db0c0]]
 ----
 
 [[d-in-general]]
@@ -60,5 +60,5 @@ Defining a Data Set with Gradient and Tangent components
 
 +*Out[18]:*+
 ----
-[[18182574-6214-4edc-9887-16707726cdf5]]
+[[6bec768f-c855-4b36-bfe5-a192729e929a]]
 ----

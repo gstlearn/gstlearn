@@ -1,0 +1,153 @@
+[[demonstration-of-gstlearn-for-the-use-of-a-db]]
+= Demonstration of gstlearn for the use of a Db
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+[[import-packages]]
+== Import packages
+
+Global variables
+
+[[defining-a-data-set]]
+== Defining a Data set
+
+The data is defined by simulating samples at random within a given box.
+This study is performed in 2-D but this is not considered as a
+limitation.
+
+
++*Out[4]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2----
+
+Displaying the Data set
+
+
++*Out[5]:*+
+----
+![png](output_10_0.png)
+----
+
+We now define a vector of 0-1 integer values at random again, according
+to a Bernoulli distribution with a probability of 0.2. This vector is
+added to the Data Base.
+
+
++*Out[6]:*+
+----
+Statistics on the Selection vector
+ - Number of samples = 500 / 500
+ - Minimum  =      0.000
+ - Maximum  =      1.000
+ - Mean     =      0.186
+ - St. Dev. =      0.389
+ ----
+
+
++*Out[7]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 500
+
+Data Base Statistics
+--------------------
+4 - Name sel - Locator NA
+ Nb of data          =        500
+ Nb of active values =        500
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.186
+ Standard Deviation  =      0.389
+ Variance            =      0.151
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = sel - Locator = NA
+ ----
+
+
++*Out[8]:*+
+----
+![png](output_14_0.png)
+----
+
+[[extracting-a-new-data-base-upon-ranks]]
+== Extracting a new Data Base upon ranks
+
+We demonstrate the possibility to extract a Data Base by specifying the
+selected ranks of an Input Data Base.
+
+
++*Out[9]:*+
+----
+Number of selected samples = 100
+----
+
+
++*Out[11]:*+
+----
+![png](output_19_0.png)
+----
+
+[[extracting-a-new-data-base-upon-selection]]
+== Extracting a new Data Base upon selection
+
+We now create turn the variable 'sel' into a selection and createa new
+data set which is restricted to the only active samples
+
+
++*Out[12]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 93
+Number of active samples     = 93
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel----
+
+
++*Out[13]:*+
+----
+![png](output_23_0.png)
+----

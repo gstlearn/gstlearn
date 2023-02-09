@@ -1,0 +1,387 @@
+[[pluri-gaussian-2d]]
+= Pluri-Gaussian 2D
+
+[[preamble]]
+== 0. Preamble
+
+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+This tutorial requires to install
+
+* gstlearn
+* numpy
+* pandas
+* matplotlib
+
+[[prepare-the-basic-gstlearn-objects]]
+== 1. Prepare the basic gstlearn objects
+
+Initial objects are located in a specific Directory which is defined in
+the next Container operation. Note that his operation will modify
+automatically all the names of the Files retreived using Serialize /
+Deserialize operation (not when reading using CSV). Also note that the
+Container name must be ended using a "/" (as its serves as a Directory).
+
+[[load-the-data-file]]
+=== Load the data file
+
+This Load is performed starting from a CSV file.
+
+
++*Out[4]:*+
+----
+[cols=",,,,,,",options="header",]
+|================================================
+| |X |Y |LANU |HyGeo |NO3 |BG
+|0 |428575.6629 |5.541444e+06 |2 |1 |0.5 |-99.0
+|1 |431573.6549 |5.542124e+06 |2 |1 |150.0 |-99.0
+|2 |431565.6549 |5.542160e+06 |2 |1 |150.0 |-99.0
+|3 |435820.6447 |5.543920e+06 |3 |1 |78.0 |-99.0
+|4 |435955.6443 |5.543910e+06 |3 |1 |64.0 |-99.0
+|================================================
+----
+
+[[loading-polygon-from-a-file]]
+=== Loading polygon from a file
+
+The polygon is created by deserializing the Neutral Polygon File
+(located in data Directory)
+
+
++*Out[5]:*+
+----
+Polygons
+--------
+Number of Polygon Sets = 1----
+
+[[creation-of-the-gstlearn-data-base]]
+=== Creation of the gstlearn data base
+
+[[specification-of-the-role-of-each-variable-named-locators-in-gstlearn]]
+=== Specification of the role of each variable (named "locators" in
+gstlearn)
+
+
++*Out[7]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 1691
+
+Variables
+---------
+Column = 0 - Name = X - Locator = x1
+Column = 1 - Name = Y - Locator = x2
+Column = 2 - Name = LANU - Locator = z1----
+
+[[creation-of-the-output-grid]]
+=== Creation of the output grid
+
+The output grid will contain 47 x 101 nodes. It is built to cover the
+data file plus an extension of 10000 x 10000.
+
+[[add-a-selection-mask-the-cells-outside-the-polygon]]
+=== Add a selection (mask the cells outside the polygon)
+
+
++*Out[9]:*+
+----
+![png](output_18_0.png)
+----
+
+[[computation-of-the-proportions]]
+== 2. Computation of the proportions
+
+[[compute-global-proportions-for-information]]
+=== 2.1 Compute global proportions (for information)
+
+
++*Out[10]:*+
+----
+Proportion of facies 1 = 0.2726197516262567
+Proportion of facies 2 = 0.46954464813719693
+Proportion of facies 3 = 0.046126552335895916
+Proportion of facies 4 = 0.205204021289178
+Proportion of facies 5 = 0.006505026611472502
+----
+
+[[compute-local-proportions]]
+=== 2.2 Compute local proportions
+
+The next parts will be simplified in a future dedicated API
+
+*2.2.1 Creation of the spatial regularization model for proportions*
+
+
++*Out[13]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 4747
+Number of active samples     = 569
+
+Grid characteristics:
+---------------------
+Origin : 306764.2835218227.694
+Mesh   :   4787.785  3803.924
+Number :         47       101
+
+Data Base Statistics
+--------------------
+4 - Name Prop.1 - Locator p1
+ Nb of data          =       4747
+ Nb of active values =        569
+ Minimum value       =      0.000
+ Maximum value       =      0.834
+ Mean value          =      0.198
+ Standard Deviation  =      0.154
+ Variance            =      0.024
+5 - Name Prop.2 - Locator p2
+ Nb of data          =       4747
+ Nb of active values =        569
+ Minimum value       =      0.000
+ Maximum value       =      0.994
+ Mean value          =      0.391
+ Standard Deviation  =      0.254
+ Variance            =      0.065
+6 - Name Prop.3 - Locator p3
+ Nb of data          =       4747
+ Nb of active values =        569
+ Minimum value       =      0.000
+ Maximum value       =      0.261
+ Mean value          =      0.034
+ Standard Deviation  =      0.037
+ Variance            =      0.001
+7 - Name Prop.4 - Locator p4
+ Nb of data          =       4747
+ Nb of active values =        569
+ Minimum value       =      0.000
+ Maximum value       =      0.992
+ Mean value          =      0.170
+ Standard Deviation  =      0.169
+ Variance            =      0.028
+8 - Name Prop.5 - Locator p5
+ Nb of data          =       4747
+ Nb of active values =        569
+ Minimum value       =      0.000
+ Maximum value       =      0.117
+ Mean value          =      0.006
+ Standard Deviation  =      0.010
+ Variance            =      0.000
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Polygon - Locator = sel
+Column = 3 - Name = Prop.1 - Locator = p1
+Column = 4 - Name = Prop.2 - Locator = p2
+Column = 5 - Name = Prop.3 - Locator = p3
+Column = 6 - Name = Prop.4 - Locator = p4
+Column = 7 - Name = Prop.5 - Locator = p5
+ ----
+
+[[display-the-results]]
+=== Display the results
+
+
++*Out[14]:*+
+----
+![png](output_28_0.png)
+
+![png](output_28_1.png)
+
+![png](output_28_2.png)
+
+![png](output_28_3.png)
+
+![png](output_28_4.png)
+----
+
+Creating the environment to infer the Rule. It uses a variogram
+calculated over very few lags close to the origin.
+
+
++*Out[15]:*+
+----
+Number of GRF = 1
+----
+
+
++*Out[16]:*+
+----
+![png](output_31_0.png)
+----
+
+
++*Out[18]:*+
+----
+
+Non-centered Covariance characteristics
+=======================================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     1.000
+
+Direction #1
+------------
+Number of lags              = 19
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =   1000.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+       -19  9732.000 17998.608     0.017
+       -18  9506.000 17006.901    -0.017
+       -17  8885.000 16006.927    -0.017
+       -16  8815.000 15002.837    -0.017
+       -15  8068.000 14003.176     0.000
+       -14  8019.000 12999.786     0.000
+       -13  7684.000 12002.331    -0.052
+       -12  7363.000 11000.802    -0.017
+       -11  6935.000 10007.370    -0.039
+       -10  6310.000  9006.739    -0.039
+        -9  5975.000  8003.635    -0.017
+        -8  5615.000  7013.830    -0.039
+        -7  5035.000  6014.805    -0.039
+        -6  4397.000  5019.156     0.000
+        -5  3682.000  4012.782    -0.052
+        -4  3011.000  3019.326     0.017
+        -3  2345.000  2038.996     0.094
+        -2  1290.000  1055.802     0.275
+        -1   238.000   307.621     0.747
+         0  1691.000     0.000     1.000
+         1   238.000  -307.621     0.747
+         2  1290.000 -1055.802     0.275
+         3  2345.000 -2038.996     0.094
+         4  3011.000 -3019.326     0.017
+         5  3682.000 -4012.782    -0.052
+         6  4397.000 -5019.156     0.000
+         7  5035.000 -6014.805    -0.039
+         8  5615.000 -7013.830    -0.039
+         9  5975.000 -8003.635    -0.017
+        10  6310.000 -9006.739    -0.039
+        11  6935.000-10007.370    -0.039
+        12  7363.000-11000.802    -0.017
+        13  7684.000-12002.331    -0.052
+        14  8019.000-12999.786     0.000
+        15  8068.000-14003.176     0.000
+        16  8815.000-15002.837    -0.017
+        17  8885.000-16006.927    -0.017
+        18  9506.000-17006.901    -0.017
+        19  9732.000-17998.608     0.017
+ ----
+
+We extract the experimental variograms of each GRF.
+
+
++*Out[20]:*+
+----
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     1.000
+
+Direction #1
+------------
+Number of lags              = 19
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =   1000.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   238.000   307.621     0.253
+         1  1290.000  1055.802     0.725
+         2  2345.000  2038.996     0.906
+         3  3011.000  3019.326     0.983
+         4  3682.000  4012.782     1.052
+         5  4397.000  5019.156     1.000
+         6  5035.000  6014.805     1.039
+         7  5615.000  7013.830     1.039
+         8  5975.000  8003.635     1.017
+         9  6310.000  9006.739     1.039
+        10  6935.000 10007.370     1.039
+        11  7363.000 11000.802     1.017
+        12  7684.000 12002.331     1.052
+        13  8019.000 12999.786     1.000
+        14  8068.000 14003.176     1.000
+        15  8815.000 15002.837     1.017
+        16  8885.000 16006.927     1.017
+        17  9506.000 17006.901     1.017
+        18  9732.000 17998.608     0.983
+ ----
+
+We now fit the model of each GRF considered as independent. The fit is
+performed under the constraint that the sill should be 1.
+
+
++*Out[21]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 0.687235)
+- Sill         =      1.000
+- Range        =   1935.376
+- Theo. Range  =    673.941
+Total Sill     =      1.000
+ ----
+
+For each GRF, we can plot the experimental variogram as well as the
+fitted model.
+
+
++*Out[22]:*+
+----
+![png](output_40_0.png)
+----
+
+In this paragraph, we compare the experimental indicator variogram to
+the one derived from the Model of the underlying GRFs.
+
+
++*Out[25]:*+
+----
+![png](output_44_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_46_0.png)
+----

@@ -31,7 +31,7 @@ Total Sill     =      2.000----
 
 
 +*Out[8]:*+
-----1.0----
+----0.5835519885186014----
 
 
 +*Out[9]:*+
@@ -41,8 +41,8 @@ Total Sill     =      2.000----
 +*Out[11]:*+
 ----
 ![png](output_11_0.png)
-<matplotlib.image.AxesImage at 0x7f8ebd8e0cd0>
-![png](output_11_2.png)
+
+![png](output_11_1.png)
 ----
 
 
@@ -53,8 +53,8 @@ Total Sill     =      2.000----
 
 
 +*Out[13]:*+
-----<matplotlib.image.AxesImage at 0x7f8ebca44bb0>
-![png](output_13_1.png)
+----
+![png](output_13_0.png)
 ----
 
 
@@ -65,4 +65,4 @@ Total Sill     =      2.000----
 
 
 +*Out[15]:*+
-----28.68470083981035----
+----0.9959051659366313----

@@ -44,7 +44,7 @@ In this tutorial, we show how to use the API SPDE.
 
 
 +*Out[13]:*+
-----0.12196304811130831
+----1.0167073832913018
 ![png](output_22_1.png)
 ----
 
@@ -53,8 +53,8 @@ In this tutorial, we show how to use the API SPDE.
 
 
 +*Out[16]:*+
-----[<matplotlib.lines.Line2D at 0x7fe23b1bfeb0>]
-![png](output_26_1.png)
+----
+![png](output_26_0.png)
 ----
 
 [[likelihood]]
@@ -65,37 +65,37 @@ Manually with Cholesky vs. matrix-free approach with SPDE api.
 
 +*Out[17]:*+
 ----
-logdet_chol -1947.9773936408528
-quad_chol 971.0832844541759
-like_chol 488.44705459333846
+logdet_chol -1261.3612577044114
+quad_chol 1195.6325599960746
+like_chol 32.864348854168384
 ----
 
 
 +*Out[18]:*+
 ----
-relative difference quadratic 0.0001418431623815852
+relative difference quadratic 0.0004028641889286561
 ----
 
 
 +*Out[19]:*+
 ----
-log_det_op_chol 23151.409539565422
-log_det_op_api 22743.917410926308
-relative difference -0.017601180089822022
+log_det_op_chol 12296.938910552568
+log_det_op_api 12170.146579374628
+relative difference -0.010310885668394533
 ----
 
 
 +*Out[20]:*+
 ----
-log_det_Q_chol 22796.80184021223
-log_det_Q_api 22549.05073740957
-relative difference -0.010867800866946243
+log_det_Q_chol 11255.715075262933
+log_det_Q_api 11013.591545943123
+relative difference -0.021511163680034223
 ----
 
 
 +*Out[21]:*+
 ----
-likelihood api 488.44705459333846
-likelihood_chol 526.869899897112
-0.07866327566610638
+likelihood api 32.864348854168384
+likelihood_chol 15.363447022337027
+-0.5325193543158124
 ----

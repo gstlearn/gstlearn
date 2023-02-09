@@ -41,8 +41,8 @@ Graphic representation
 
 
 +*Out[10]:*+
-----<matplotlib.collections.LineCollection at 0x7efc7eaa70a0>
-![png](output_23_1.png)
+----
+![png](output_23_0.png)
 ----
 
 [[case-in-2-d]]
@@ -73,7 +73,34 @@ Visualization
 
 +*Out[19]:*+
 ----
-![png](output_43_0.png)
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 10201
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.100     0.100
+Number :        101       101
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Potential - Locator = z1----
+
+
++*Out[20]:*+
+----
+![png](output_44_0.png)
 ----
 
 [[case-in-3-d]]
@@ -102,9 +129,9 @@ Defining the Neighborhood
 3-D Visualization
 
 
-+*Out[28]:*+
++*Out[29]:*+
 ----
 
 
-[[1608f324-640f-4483-bcb5-324f85578d81]]
+[[a5835a80-c198-4d2d-a53d-443eb48c96fe]]
 ----

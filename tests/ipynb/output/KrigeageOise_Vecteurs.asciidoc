@@ -137,14 +137,6 @@ Column = 6 - Name = Duplicate - Locator = sel----
 ----
 
 
-+*Out[11]:*+
-----
-Data table read (Alluvial.csv) successfully
- - Number of columns = 2
- - Number of rows    = 1437
- ----
-
-
 +*Out[12]:*+
 ----
 ![png](output_13_0.png)
@@ -153,27 +145,8 @@ Data table read (Alluvial.csv) successfully
 
 +*Out[14]:*+
 ----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 7
-Maximum Number of UIDs       = 7
-Total number of samples      = 1022
-Number of active samples     = 1007
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = X - Locator = x1
-Column = 2 - Name = Y - Locator = x2
-Column = 3 - Name = Epaisseur - Locator = lower1
-Column = 4 - Name = Epaisseur_1 - Locator = upper1
-Column = 5 - Name = Thickness - Locator = z1
-Column = 6 - Name = Duplicate - Locator = sel----
+![png](output_15_0.png)
+----
 
 
 +*Out[15]:*+
@@ -220,8 +193,8 @@ Column = 3 - Name = Polygon - Locator = sel----
 
 
 +*Out[19]:*+
-----[<matplotlib.lines.Line2D at 0x7f9423e5d820>]
-![png](output_20_1.png)
+----
+![png](output_20_0.png)
 ----
 
 
@@ -320,8 +293,8 @@ Column = 3 - Name = Polygon - Locator = NA
 
 
 +*Out[25]:*+
-----[<matplotlib.lines.Line2D at 0x7f9423e13df0>]
-![png](output_26_1.png)
+----
+![png](output_26_0.png)
 ----
 
 
@@ -426,8 +399,6 @@ For variable 1
         19    40.000  7634.709     4.950
  
 ![png](output_28_1.png)
-
-![png](output_28_2.png)
 ----
 
 
@@ -458,12 +429,10 @@ K-Bessel (Third Parameter = 1)
 Total Sill     =      6.907
  
 ![png](output_29_1.png)
-
-![png](output_29_2.png)
 ----
 
 
-+*Out[32]:*+
++*Out[31]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -503,19 +472,13 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
 Column = 6 - Name = vec_define - Locator = NA----
 
 
-+*Out[39]:*+
++*Out[36]:*+
 ----
-![png](output_40_0.png)
-----
-
-
-+*Out[40]:*+
-----
-![png](output_41_0.png)
+![png](output_37_0.png)
 ----
 
 
-+*Out[41]:*+
++*Out[37]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -555,5 +518,5 @@ Column = 5 - Name = Migrate.v_interp - Locator = NA
 Column = 6 - Name = vec_define - Locator = NA
 Column = 7 - Name = angles1 - Locator = nostat1
 Column = 8 - Name = spde.Thickness.kriging - Locator = z1
-![png](output_42_1.png)
+![png](output_38_1.png)
 ----

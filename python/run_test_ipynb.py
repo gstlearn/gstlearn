@@ -31,4 +31,3 @@ ascii_data, resources = ascii_exporter.from_notebook_node(nb)
 with open(test_output, "w") as f:
     f.write(ascii_data)
 
-#jupyter nbconvert --output-dir test_output --no-input --log-level WARN --to asciidoc --execute ../../gstlearn/doc/demo/python/Inheritance.ipynb
