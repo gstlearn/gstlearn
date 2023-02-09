@@ -24,8 +24,12 @@ Creation of the varying anisotropy ("directed" by the two layers)
 +*Out[7]:*+
 ----
 ![png](output_12_0.png)
+----
 
-![png](output_12_1.png)
+
++*Out[8]:*+
+----
+![png](output_13_0.png)
 ----
 
 Display the anisotropy maps (on a coarser grid)
@@ -35,9 +39,9 @@ Creating the Meshing
 Assigning non-stationarity to the Model
 
 
-+*Out[10]:*+
++*Out[11]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----
 
 [[non-conditional-simulation]]
@@ -47,9 +51,9 @@ Process the simulation on the output grid and visualize the result (the
 resulting variable is stored in rank 'iuid' and name 'spde.simu'.
 
 
-+*Out[13]:*+
++*Out[14]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----
 
 [[kriging]]
@@ -59,22 +63,22 @@ Creating a set of fictitious wells (extracted from the non-conditional
 simulation)
 
 
-+*Out[15]:*+
++*Out[16]:*+
 ----
-![png](output_27_0.png)
+![png](output_28_0.png)
 ----
 
 
-+*Out[17]:*+
++*Out[18]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----
 
 [[conditional-simulation]]
 == Conditional Simulation
 
 
-+*Out[19]:*+
++*Out[20]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----

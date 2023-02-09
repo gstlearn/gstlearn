@@ -200,7 +200,10 @@ Bivariate Modelling
 
 +*Out[29]:*+
 ----
-![png](output_53_0.png)
+decoration() cannot be used when 'ax' is an array. Ignored
+decoration() cannot be used when 'ax' is an array. Ignored
+
+![png](output_53_1.png)
 ----
 
 Cokriging with elevation - Cross-Validation

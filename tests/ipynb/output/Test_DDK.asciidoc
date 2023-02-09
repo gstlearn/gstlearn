@@ -224,8 +224,8 @@ Correlation between factors MAF
  [-0. -0.  1.  0. -0.]
  [ 0.  0.  0.  1.  0.]
  [-0. -0. -0.  0.  1.]]
-<matplotlib.legend.Legend at 0x7f614d6fa460>
-![png](output_18_2.png)
+
+![png](output_18_1.png)
 ----
 
 [[visualize-maf-and-their-variograms]]
@@ -235,12 +235,6 @@ Correlation between factors MAF
 +*Out[11]:*+
 ----
 ![png](output_20_0.png)
-----
-
-
-+*Out[12]:*+
-----
-![png](output_21_0.png)
 ----
 
 [[kriging-mafs]]
@@ -253,9 +247,9 @@ Since the MAFs are orthogonal, we will only consider the simple
 variograms, in order to do kriging and not cokriging
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
-![png](output_23_0.png)
+![png](output_22_0.png)
 ----
 
 For example, we can obtain an estimation of the variable Z with DDK.
@@ -271,16 +265,16 @@ linear combination of the indicators, and that are thus also a linear
 combination of the MAFs.
 
 
++*Out[14]:*+
+----
+The number of factors is less than the number of variables. The other factors will be neglected.
+The number of factors is less than the number of variables. The other factors will be neglected.
+----
+
+
 +*Out[15]:*+
 ----
-The number of factors is less than the number of variables. The other factors will be neglected.
-The number of factors is less than the number of variables. The other factors will be neglected.
-----
+![png](output_27_0.png)
 
-
-+*Out[16]:*+
-----
-![png](output_28_0.png)
-
-![png](output_28_1.png)
+![png](output_27_1.png)
 ----
