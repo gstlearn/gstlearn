@@ -162,6 +162,10 @@ git pull
 
 2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
 
+Note :
+
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+
 #### GCC, Clang, ...
 
 ...or any other single configuration compilers:

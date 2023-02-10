@@ -169,8 +169,10 @@ sudo make install
 install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
 
-Notes:
 
+Note :
+
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
@@ -205,8 +207,9 @@ sudo make install
 install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
 
-Notes:
+Note :
 
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * These instructions for MacOS are currently not tested - above packages may not exist
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
@@ -251,6 +254,10 @@ make install
 install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
 
+Note :
+
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+
 ### Installation from Source
 
 1. For getting the *gstlearn* R package sources files, just clone the github repository:
@@ -284,7 +291,7 @@ Note :
 
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command above (at least one time). This will create a *personal R library folder* having writing permissions.
-* If you don't know how to execute github commands, you may (read this)[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token].
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
   * `-DBoost_ROOT="path/to/boost"`

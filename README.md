@@ -72,8 +72,10 @@ git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ```
 
-Notes:
 
+Note :
+
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn` above)
 
 ## C++ Library Compilation & Installation
