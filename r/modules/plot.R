@@ -261,6 +261,10 @@ plot.model <- function(model, ivar=0, jvar=0, codir=NA, vario=NA, idir=0,
                   nh = nh, hmax = hmax, asCov=asCov,  flag.envelop=flag.envelop,
                   env_color = env_color, env_linetype= env_linetype, env_size=env_size,
                   ...)
+                  
+    # Adding some decoration
+	p = plot.decoration(p, xlab = "Distance", ylab = "Variogram")
+	
    p  
 }
 
@@ -756,7 +760,11 @@ plot.polygon <- function(poly, padd = NULL, ...)
   {
     df = data.frame(x = poly$getX(ipol-1), y = poly$getY(ipol-1))
     p <- p + geom_polygon(data = df, mapping=aes(x=x,y=y),  ...)
-  }  
+  }
+  
+  # Decoration
+  p <- plot.decoration(p, title = paste("Number of Polygons = ",npol))
+    
   p
 }
         
