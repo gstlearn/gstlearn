@@ -20,9 +20,13 @@ library(ggpubr)
 plot.printDefault()
 ```
 
+We define the Space dimension
+
 ```{r}
 defineDefaultSpace(ESpaceType_RN(), 2)
 ```
+
+Creating a dummy Model used for simulating a random field
 
 ```{r}
 mymodel = Model_createFromParam(ECov_CUBIC(), range=10, sill=1)
@@ -95,14 +99,20 @@ plot.decoration(p, title="Display of Rotated Grid Nodes")
 
 # Points and Polygon
 
+A set of points is sampled from the previous Grid and stored in a new Point Db. The number of samples if fixed to 1% of the number of grid nodes.
+
 ```{r}
 mypoint = Db_createSamplingDb(mygrid,0.01)
 mypoint$display()
 ```
 
+We create a polygon as the convex hull of the samples
+
 ```{r}
 mypoly = Polygons_createFromDb(mypoint)
 ```
+
+We now display the points and the polygon on top of the grid: the overlay is ensured by using the argument 'p'.
 
 ```{r}
 p = plot(mygrid)
@@ -114,6 +124,8 @@ p
 
 # Several plots on the same figure
 
+We create two layers containing the Point and the Grid representation. We then use *ggarrange* to display them side-by-side.
+
 ```{r}
 p1 = plot(mygrid)
 p2 = plot(mypoint)
@@ -122,18 +134,22 @@ ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
 
 # Variograms and Models
 
+We calculate the variogram along the two main directions of the 2-D grid. We compute it for the 2 variables currently defined in the Grid file.
+
 ```{r}
 varioparam = VarioParam_createMultipleFromGrid(npas=10)
 vario = Vario(varioparam, mygrid)
 err = vario$compute(ECalcVario_VARIOGRAM())
 ```
 
+We fit a Model (automatic procedure)
+
 ```{r}
 model = Model()
 err = model$fit(vario,type=ECov_fromKeys(c("SPHERICAL", "CUBIC")))
 ```
 
-Displaying experimental variogram
+We display the experimental variogram for the first variable in the first direction.
 
 ```{r}
 p = plot(vario, draw_psize=F, linewidth=1, color="red")
@@ -141,11 +157,15 @@ p = plot.decoration(p, title="First Variable - First Direction")
 p
 ```
 
+We display the experimental variogram for the first variable in the second direction.
+
 ```{r}
 p = plot(vario, idir=1)
 p = plot.decoration(p, title="First Variable - Second Direction")
 p
 ```
+
+We simply overlay the contents of the two previous plots.
 
 ```{r}
 p = plot(vario, color="black")
@@ -154,11 +174,15 @@ p = plot.decoration(p, title="First Variable - Two directions")
 p
 ```
 
+We display the cross-variogram between both variables along both directions.
+
 ```{r}
 p = plot(vario, ivar=1, jvar=0, idir=-1, linewidth = 1)
 p = plot.decoration(p, title="Cross-variogram - Two directions")
 p
 ```
+
+We display the simple and cross variograms in both calculation directions.
 
 ```{r}
 p = plot(vario, ivar=-1, jvar=-1, idir=-1, linewidth=1)
@@ -166,7 +190,7 @@ p = plot.decoration(p,title="Simple and Cross Variograms in all directions")
 p
 ```
 
-Displaying the Model
+We display the Model as calculated in the first direction of the variogram
 
 ```{r}
 p = plot(model, ivar=1, jvar=1, vario=vario, idir=0)
@@ -174,6 +198,7 @@ p = plot.decoration(p, title="Model for the Second Variable in First Direction")
 p
 ```
 
+We now represent all the simple and cross variograms together with the fitted models.
 
 ```{r}
 p = plot.varmod(vario, model, linewidth=1)
