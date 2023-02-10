@@ -190,7 +190,6 @@
 %shared_ptr(Vario)
 %shared_ptr(VarioParam)
 
-
 %{
   #include "gstlearn_export.hpp"
   #include "geoslib_define.h"

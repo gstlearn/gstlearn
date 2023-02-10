@@ -521,22 +521,44 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
   return options;
 }
 
+/**
+ * \copydoc Stats1
+ * The target variables are specified by their names
+ * @param names List of target variables
+ */
 void dbStatisticsVariables(Db *db,
-                           const VectorInt &iatts,
-                           const std::vector<EStatOption>& opers,
+                           const VectorString &names,
+                           const std::vector<EStatOption> &opers,
                            int iptr0,
                            double proba,
                            double vmin,
                            double vmax)
 {
+  VectorInt iuids = db->getUIDs(names);
+  dbStatisticsVariablesByUID(db, iuids, opers, iptr0, proba, vmin, vmax);
+}
+
+/**
+ * \copydoc Stats1
+ * The target variables are specified by their UIDS
+ * @param iuids List of variable attributes
+ */
+void dbStatisticsVariablesByUID(Db *db,
+                                const VectorInt &iuids,
+                                const std::vector<EStatOption> &opers,
+                                int iptr0,
+                                double proba,
+                                double vmin,
+                                double vmax)
+{
   int noper = static_cast<int>(opers.size());
   if (noper <= 0) return;
-  int natt = static_cast<int>(iatts.size());
-  if (natt <= 0) return;
+  int niuid = static_cast<int>(iuids.size());
+  if (niuid <= 0) return;
 
   /* Loop on the samples */
 
-  VectorDouble local(natt);
+  VectorDouble local(niuid);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
@@ -552,10 +574,10 @@ void dbStatisticsVariables(Db *db,
     double metal = 0.;
     double mini = 1.e30;
     double maxi = -1.e30;
-    for (int iatt = 0; iatt < natt; iatt++)
+    for (int iuid = 0; iuid < niuid; iuid++)
     {
-      int jatt = iatts[iatt];
-      double value = db->getArray(iech, jatt);
+      int juid = iuids[iuid];
+      double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;
 
       local[neff] = value;
@@ -621,6 +643,11 @@ void dbStatisticsVariables(Db *db,
   }
 }
 
+/**
+ * \copydoc Stats2
+ * @param names Vector of n describing the target variables
+ * @return A Vector of values containing the statistics
+ */
 VectorDouble dbStatisticsMono(Db *db,
                               const VectorString& names,
                               const std::vector<EStatOption> &opers,
@@ -633,6 +660,11 @@ VectorDouble dbStatisticsMono(Db *db,
   return dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
 }
 
+/**
+ * \copydoc Stats2
+ * @param names Vector of n describing the target variables
+ * @return A Table containing the statistics
+ */
 GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
                                         const VectorString &names,
                                         const std::vector<EStatOption> &opers,
@@ -646,6 +678,7 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   int nrows = (int) iuids.size();
   int ncols = (int) opers.size();
   Table table = Table();
+  table.setTitle("Monovariate Statistics on Variables");
   table.reset(nrows, ncols, stats, false, false);
   for (int irow=0; irow<nrows; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
@@ -656,23 +689,13 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   return table;
 }
 
-/****************************************************************************/
-/*!
- **  A Matrix containing the monovariate statistics for the set of variables
- **
- ** \return  The vector of statistics organized by variable
- **
- ** \param[in]  db         Db structure
- ** \param[in]  iatts      Vector of attribute ranks
- ** \param[in]  opers      List of the operator ranks
- ** \param[in]  flagIso    Restrain statistics to isotopic samples
- ** \param[in]  proba      Probability value (between 0 and 1)
- ** \param[in]  vmin       Minimum threshold
- ** \param[in]  vmax       Maximum threshold
- **
- *****************************************************************************/
+/**
+ * \copydoc Stats2
+ * @param iuids Vector of UIDs describing the target variables
+ * @return A Vector of values containing the statistics
+ */
 VectorDouble dbStatisticsMonoByUID(Db *db,
-                                   const VectorInt &iatts,
+                                   const VectorInt &iuids,
                                    const std::vector<EStatOption> &opers,
                                    bool flagIso,
                                    double proba,
@@ -680,31 +703,31 @@ VectorDouble dbStatisticsMonoByUID(Db *db,
                                    double vmax)
 {
   int noper = static_cast<int>(opers.size());
-  int natt = static_cast<int>(iatts.size());
+  int niuid = static_cast<int>(iuids.size());
   int nech = db->getSampleNumber();
 
   // Find the Isotopic samples (optional)
 
   VectorDouble tab;
   VectorDouble local(nech, 0.);
-  VectorInt accept(nech, 0);
+  VectorBool accept(nech, true);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    accept[iech] = 0;
+    accept[iech] = false;
     if (! db->isActive(iech)) continue;
-    accept[iech] = 1;
+    accept[iech] = true;
     int nundef = 0;
-    for (int iatt = 0; iatt < natt; iatt++)
+    for (int iuid = 0; iuid < niuid; iuid++)
     {
-      double value = db->getArray(iech, iatts[iatt]);
+      double value = db->getArray(iech, iuids[iuid]);
       if (FFFF(value)) nundef++;
     }
-    if (flagIso && nundef > 0) accept[iech] = 0;
+    if (flagIso && nundef > 0) accept[iech] = false;
   }
 
   /* Loop on the attributes */
 
-  for (int iatt = 0; iatt < natt; iatt++)
+  for (int iuid = 0; iuid < niuid; iuid++)
   {
     int neff = 0;
     int nperc = 0;
@@ -720,8 +743,8 @@ VectorDouble dbStatisticsMonoByUID(Db *db,
 
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
-      if (accept[iech] == 0) continue;
-      double value = db->getArray(iech, iatts[iatt]);
+      if (! accept[iech]) continue;
+      double value = db->getArray(iech, iuids[iuid]);
 
       local[neff] = value;
       neff++;
@@ -874,39 +897,64 @@ double dbStatisticsIndicator(Db *db)
   return prop;
 }
 
-VectorDouble dbStatisticsMulti(Db *db, const VectorString &names, bool flagIso)
+/**
+ * \copydoc Stats3
+ * @param names Vector of names for the target variables
+ *
+ * @return A vector of values containing the correlation matrix
+ */
+VectorDouble dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso)
 {
   VectorInt iuids = db->getUIDs(names);
-  return dbStatisticsMultiByUID(db, iuids, flagIso);
+  return dbStatisticsCorrelByUID(db, iuids, flagIso);
 }
 
-/****************************************************************************/
-/*!
- ** Calculates the correlation matrix for a set of variables of a Db
- **
- ** \return  Error Return code
- **
- ** \param[in]  db          Db structure
- ** \param[in]  iatts       Vector of attribute ranks
- ** \param[in]  flagIso    Restrain statistics to isotopic samples
- **
- *****************************************************************************/
-VectorDouble dbStatisticsMultiByUID(Db *db, const VectorInt &iatts, bool flagIso)
+/**
+ * \copydoc Stats3
+ * @param names Vector of names for the target variables
+ *
+ * @return A square symmetric matrix
+ */
+MatrixSquareSymmetric dbStatisticsCorrelT(Db *db,
+                                         const VectorString &names,
+                                         bool flagIso)
 {
-  int natt = static_cast<int>(iatts.size());
+  VectorInt iuids = db->getUIDs(names);
+  VectorDouble tab = dbStatisticsCorrelByUID(db, iuids, flagIso);
+
+  // Store the results in the symmetric square matrix
+  int nvar = iuids.size();
+  int lec = 0;
+  MatrixSquareSymmetric mat(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      mat.setValue(ivar,  jvar, tab[lec++]);
+
+  return mat;
+}
+
+/**
+ * \copydoc Stats3
+ * @param iuids Vector of UIDs for the target variables
+ *
+ * @return A vector of values containing the correlation matrix
+ */
+VectorDouble dbStatisticsCorrelByUID(Db *db, const VectorInt &iuids, bool flagIso)
+{
+  int niuid = static_cast<int>(iuids.size());
 
   /* Preliminary checks */
 
-  if (natt <= 1)
+  if (niuid <= 1)
     messerr("Correlation matrix will not be printed for a single variable");
 
   /* Core allocation */
 
-  VectorDouble data(natt, 0.);
-  VectorDouble mean(natt, 0.);
-  VectorDouble var(natt, 0.);
-  VectorDouble num(natt, 0.);
-  VectorDouble cov(natt * natt, 0.);
+  VectorDouble data(niuid, 0.);
+  VectorDouble mean(niuid, 0.);
+  VectorDouble var(niuid, 0.);
+  VectorDouble num(niuid, 0.);
+  VectorDouble cov(niuid * niuid, 0.);
 
   /* Loop on the samples */
 
@@ -918,56 +966,56 @@ VectorDouble dbStatisticsMultiByUID(Db *db, const VectorInt &iatts, bool flagIso
     /* Look for isotopic sample */
 
     int nundef = 0;
-    for (int iatt = 0; iatt < natt; iatt++)
+    for (int iuid = 0; iuid < niuid; iuid++)
     {
-      data[iatt] = db->getArray(iech, iatts[iatt]);
-      if (FFFF(data[iatt])) nundef++;
+      data[iuid] = db->getArray(iech, iuids[iuid]);
+      if (FFFF(data[iuid])) nundef++;
     }
     if (flagIso && nundef > 0) continue;
 
     /* Calculate the 1-point statistics */
 
-    for (int iatt = 0; iatt < natt; iatt++)
+    for (int iuid = 0; iuid < niuid; iuid++)
     {
-      if (FFFF(data[iatt])) continue;
-      num[iatt] += 1.;
-      mean[iatt] += data[iatt];
-      var[iatt] += data[iatt] * data[iatt];
+      if (FFFF(data[iuid])) continue;
+      num[iuid] += 1.;
+      mean[iuid] += data[iuid];
+      var[iuid] += data[iuid] * data[iuid];
     }
 
     if (nundef > 0) continue;
     numiso++;
-    int ijatt = 0;
-    for (int iatt = 0; iatt < natt; iatt++)
-      for (int jatt = 0; jatt < natt; jatt++)
+    int ijuid = 0;
+    for (int iuid = 0; iuid < niuid; iuid++)
+      for (int juid = 0; juid < niuid; juid++)
       {
-        cov[ijatt] += data[iatt] * data[jatt];
-        ijatt++;
+        cov[ijuid] += data[iuid] * data[juid];
+        ijuid++;
       }
   }
 
   /* Normalization */
 
-  for (int iatt = 0; iatt < natt; iatt++)
+  for (int iuid = 0; iuid < niuid; iuid++)
   {
-    if (num[iatt] > 0)
+    if (num[iuid] > 0)
     {
-      mean[iatt] /= num[iatt];
-      var[iatt] /= num[iatt];
-      var[iatt] -= mean[iatt] * mean[iatt];
-      if (var[iatt] <= 0) var[iatt] = 0.;
+      mean[iuid] /= num[iuid];
+      var[iuid] /= num[iuid];
+      var[iuid] -= mean[iuid] * mean[iuid];
+      if (var[iuid] <= 0) var[iuid] = 0.;
     }
   }
   if (numiso > 0)
   {
-    int ijatt = 0;
-    for (int iatt = 0; iatt < natt; iatt++)
-      for (int jatt = 0; jatt < natt; jatt++)
+    int ijuid = 0;
+    for (int iuid = 0; iuid < niuid; iuid++)
+      for (int juid = 0; juid < niuid; juid++)
       {
-        cov[ijatt] /= numiso;
-        cov[ijatt] -= mean[iatt] * mean[jatt];
-        cov[ijatt] /= sqrt(var[iatt] * var[jatt]);
-        ijatt++;
+        cov[ijuid] /= numiso;
+        cov[ijuid] -= mean[iuid] * mean[juid];
+        cov[ijuid] /= sqrt(var[iuid] * var[juid]);
+        ijuid++;
       }
   }
   return cov;
@@ -991,10 +1039,10 @@ String statisticsMonoPrint(const VectorDouble &stats,
                            const String &title)
 {
   int noper = static_cast<int>(opers.size());
-  int natt = static_cast<int>(names.size());
+  int nuid = static_cast<int>(names.size());
   std::stringstream sstr;
 
-  sstr << toMatrix(title, statOptionToName(opers), names, false, noper, natt, stats, true);
+  sstr << toMatrix(title, statOptionToName(opers), names, false, noper, nuid, stats, true);
 
   return sstr.str();
 }
@@ -1014,10 +1062,10 @@ String statisticsMultiPrint(const VectorDouble &stats,
                             const VectorString &names,
                             const String &title)
 {
-  int natt = static_cast<int>(names.size());
+  int nuid = static_cast<int>(names.size());
   std::stringstream sstr;
 
-  sstr << toMatrix(title, VectorString(), VectorString(), true, natt, natt,
+  sstr << toMatrix(title, VectorString(), VectorString(), true, nuid, nuid,
                    stats, true);
 
   return sstr.str();
@@ -1480,6 +1528,10 @@ void _getRowname(const String &radix,
     (void) gslSPrintf(string, "Variable");
 }
 
+/**
+ * \copydoc Stats4
+ * @param names Vector of names designating the target variables
+ */
 void dbStatisticsPrint(const Db *db,
                        const VectorString &names,
                        const std::vector<EStatOption> &opers,
@@ -1493,22 +1545,12 @@ void dbStatisticsPrint(const Db *db,
   dbStatisticsPrintByUID(db, iuids, opers, flagIso, flagCorrel, title, radix);
 }
 
-/****************************************************************************/
-/*!
- **  Print the multivariate statistics between different variables of a Db
- **
- ** \param[in]  db          Db structure
- ** \param[in]  iatts_arg   Ranks of the attributes (empty = all)
- ** \param[in]  opers       Array of operators
- ** \param[in]  flagIso     Restrain statistics to isotopic samples
- ** \param[in]  flagCorrel  True if the correlations must be calculated
- ** \param[in]  title       Title for the printout (optional)
- ** \param[in]  radix       Radix for the different variables (optional)
-
- **
- *****************************************************************************/
+/**
+ * \copydoc Stats4
+ * @param iuids_arg Vector of UIDS designating the target variables
+ */
 void dbStatisticsPrintByUID(const Db *db,
-                            const VectorInt &iatts_arg,
+                            const VectorInt &iuids_arg,
                             const std::vector<EStatOption> &opers,
                             bool flagIso,
                             bool flagCorrel,
@@ -1519,9 +1561,9 @@ void dbStatisticsPrintByUID(const Db *db,
 
   /* Initializations */
 
-  VectorInt iatts = iatts_arg;
-  if (iatts.empty()) iatts = db->getAllUIDs();
-  int ncol = static_cast<int>(iatts.size());
+  VectorInt iuids = iuids_arg;
+  if (iuids.empty()) iuids = db->getAllUIDs();
+  int ncol = static_cast<int>(iuids.size());
 
   /* Preliminary checks */
 
@@ -1564,7 +1606,7 @@ void dbStatisticsPrintByUID(const Db *db,
     int nundef = 0;
     for (int icol = 0; icol < ncol; icol++)
     {
-      data[icol] = db->getArray(iech, iatts[icol]);
+      data[icol] = db->getArray(iech, iuids[icol]);
       if (FFFF(data[icol])) nundef++;
     }
     if (flagIso && nundef > 0) continue;
@@ -1624,7 +1666,7 @@ void dbStatisticsPrintByUID(const Db *db,
   int taille = 0;
   for (int icol = 0; icol < ncol; icol++)
   {
-    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iatts[icol]), string);
+    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iuids[icol]), string);
     taille = MAX(taille, (int ) strlen(string));
   }
 
@@ -1649,7 +1691,7 @@ void dbStatisticsPrintByUID(const Db *db,
 
   for (int icol = 0; icol < ncol; icol++)
   {
-    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iatts[icol]), string);
+    _getRowname(radix, ncol, icol, db_name_get_by_att(db, iuids[icol]), string);
     tab_print_rowname(string, taille);
 
     if (_operExists(opers, EStatOption::NUM))
@@ -1737,26 +1779,35 @@ MatrixRectangular* sphering(const AMatrix* X)
   return S;
 }
 
-/****************************************************************************/
-/*!
- **  Calculates the statistics of points within cells of a grid
- **
- ** \return  Error return code
- **
- ** \param[in]  db         Db for the points
- ** \param[in]  dbgrid     Db for the grid
- ** \param[in]  oper       A EStatOption item
- ** \param[in]  iatt       Rank of the first attribute
- ** \param[in]  jatt       Rank of the second attribute
- ** \param[in]  cuts       Array of cutoffs (optional)
- **
- *****************************************************************************/
+/**
+ * \copydoc Stats6
+ * @param name1 Name of the primary variable
+ * @param name2 Name of the secondary variable
+ */
 VectorDouble dbStatisticsPerCell(Db *db,
                                  DbGrid *dbgrid,
                                  const EStatOption &oper,
-                                 int iatt,
-                                 int jatt,
+                                 const String& name1,
+                                 const String& name2,
                                  const VectorDouble &cuts)
+{
+  int iuid = db->getUID(name1);
+  int juid = -1;
+  if (! name2.empty()) juid = db->getUID(name2);
+  return dbStatisticsPerCellByUID(db, dbgrid, oper, iuid, juid, cuts);
+}
+
+/**
+ * \copydoc Stats6
+ * @param iuid UID of the primary variable
+ * @param juid UID of the secondary variable
+ */
+VectorDouble dbStatisticsPerCellByUID(Db *db,
+                                      DbGrid *dbgrid,
+                                      const EStatOption &oper,
+                                      int iuid,
+                                      int juid,
+                                      const VectorDouble &cuts)
 {
   VectorDouble result;
   double z1 = 0.;
@@ -1764,6 +1815,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
   int nxyz = dbgrid->getSampleNumber();
   int ncut = (int) cuts.size();
   int ndim = dbgrid->getNDim();
+  if (juid < 0) juid = iuid;
 
   bool flag1 = false;
   bool flag2 = false;
@@ -1776,11 +1828,11 @@ VectorDouble dbStatisticsPerCell(Db *db,
   bool flag_v2 = false;
   bool flag_v12 = false;
   bool flag_mini = false;
-  bool flag_maxi =false;
+  bool flag_maxi = false;
 
   /* Check the operator validity */
 
-  if (! _operStatisticsCheck(oper, 1, 0, 1, 0, 1)) return result;
+  if (! _operStatisticsCheck(oper, 1, 0, 1, 0, 1)) return VectorDouble();
 
   /* Set the relevant flags */
 
@@ -1845,7 +1897,14 @@ VectorDouble dbStatisticsPerCell(Db *db,
   if (flag_maxi)
     maxi.resize(nxyz, TEST);
   if (flag_t || flag_q)
+  {
+    if (ncut <= 0)
+    {
+      messerr("For this calculation, 'cuts' must be provided");
+      return VectorDouble();
+    }
     cutval.resize(nxyz * ncut, 0.);
+  }
 
   /* Loop on the samples */
 
@@ -1857,12 +1916,12 @@ VectorDouble dbStatisticsPerCell(Db *db,
 
     if (flag1)
     {
-      z1 = db->getArray(iech, iatt);
+      z1 = db->getArray(iech, iuid);
       if (FFFF(z1)) continue;
     }
     if (flag2)
     {
-      z2 = db->getArray(iech, jatt);
+      z2 = db->getArray(iech, juid);
       if (FFFF(z2)) continue;
     }
 
@@ -1947,6 +2006,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
 
   /* Dispatch according to the type of result expected */
 
+  result.resize(nxyz * MAX(1, ncut), 0.);
   for (int i = 0; i < nxyz; i++)
   {
     if (oper == EStatOption::NUM)
@@ -1984,30 +2044,35 @@ VectorDouble dbStatisticsPerCell(Db *db,
       for (int icut = 0; icut < ncut; icut++)
         result[i + icut * nxyz] = cutval[icut + i * ncut];
     else
-      return result;
+      return VectorDouble();
   }
 
-  return 0;
+  return result;
 }
 
-/****************************************************************************/
-/*!
- **  Calculate the multivariate statistics between different variables of a Db
- **
- ** \return  Resulting array (dimension; ncol if flag_mono or ncol*ncol)
- **
- ** \param[in]  db   Db structure
- ** \param[in]  oper A StatOption item
- ** \param[in]  cols Ranks of the variables
- ** \param[in]  flagMono 1 for a monovariate output
- ** \param[in]  verbose  1 for a verbose output
- **
- *****************************************************************************/
+/**
+ * \copydoc Stats5
+ * @param names Vector of target variable names
+ */
 VectorDouble dbStatisticsMulti(Db *db,
+                               const VectorString &names,
                                const EStatOption &oper,
-                               const VectorInt &cols,
                                bool flagMono,
                                bool verbose)
+{
+  VectorInt cols = db->getColIdxs(names);
+  return dbStatisticsMultiByColIdx(db, cols, oper, flagMono, verbose);
+}
+
+/**
+ * \copydoc Stats5
+ * @param cols Vector of columns of the Target variables
+ */
+VectorDouble dbStatisticsMultiByColIdx(Db *db,
+                                       const VectorInt &cols,
+                                       const EStatOption &oper,
+                                       bool flagMono,
+                                       bool verbose)
 {
   VectorDouble result;
 
@@ -2235,37 +2300,26 @@ VectorDouble dbStatisticsMulti(Db *db,
  **
  ** \param[in]  db     Db for the points
  ** \param[in]  dbgrid Db for the grid
+ ** \param[in]  names  Vector of target variable names
  ** \param[in]  oper   A EStatOption item
- ** \param[in]  cols   Ranks of the variables
  ** \param[in]  radius Neighborhood radius
  ** \param[in]  iptr0  Storage address (first variable)
  **
  *****************************************************************************/
-int dbStatisticsInGrid(Db *db,
-                       DbGrid *dbgrid,
-                       const EStatOption &oper,
-                       const VectorInt &cols,
-                       int radius,
-                       int iptr0)
+int dbStatisticsInGridTool(Db *db,
+                           DbGrid *dbgrid,
+                           const VectorString& names,
+                           const EStatOption &oper,
+                           int radius,
+                           int iptr0)
 {
   int iptm = -1;
   int iptn = -1;
   int nxyz = dbgrid->getSampleNumber();
   int ndim = dbgrid->getNDim();
-  int ncol = (int) cols.size();
+  VectorInt iuids = db->getUIDs(names);
+  int nuid = (int) iuids.size();
   int count = (int) pow(2. * radius + 1., (double) ndim);
-
-  /* Check that all variables are defined */
-
-  for (int icol = 0; icol < ncol; icol++)
-  {
-    int jcol = cols[icol];
-    if (!db->isColIdxValid(jcol))
-    {
-      messerr("Error: Variable %d is not defined", cols[icol]);
-      return 1;
-    }
-  }
 
   /* Check the validity of the requested function */
 
@@ -2294,16 +2348,13 @@ int dbStatisticsInGrid(Db *db,
 
   /* Loop on the variables */
 
-  for (int icol = 0; icol < ncol; icol++)
+  for (int iuid = 0; iuid < nuid; iuid++)
   {
 
     /* Create the output attribute */
 
-    int jcol = cols[icol];
-    int iptr = iptr0 + icol;
-    if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
-    if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
-    db_attribute_init(dbgrid, 1, iptr, valdef);
+    int juid = iuids[iuid];
+    int iptr = iptr0 + iuid;
 
     /* Loop on the samples */
 
@@ -2316,7 +2367,7 @@ int dbStatisticsInGrid(Db *db,
       if (!db->isActive(iech)) continue;
       db->getCoordinatesInPlace(iech, coor);
       if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0)) continue;
-      double value = db->getArray(iech, jcol);
+      double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;
 
       /* Loop on the neighboring cells */

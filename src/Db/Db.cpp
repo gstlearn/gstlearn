@@ -4139,7 +4139,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
     int iuidn = addColumnsByConstant(noper);
     if (iuidn < 0) return VectorDouble();
 
-    dbStatisticsVariables(this, iuids, opers, iuidn, proba, vmin, vmax);
+    dbStatisticsVariablesByUID(this, iuids, opers, iuidn, proba, vmin, vmax);
 
     namconv.setNamesAndLocators(this, iuidn);
     for (int i = 0; i < noper; i++)
@@ -4224,7 +4224,7 @@ VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
 
   if (iuids.empty()) return stats;
 
-  stats = dbStatisticsMultiByUID(this, iuids, flagIso);
+  stats = dbStatisticsCorrelByUID(this, iuids, flagIso);
 
   if (verbose)
   {

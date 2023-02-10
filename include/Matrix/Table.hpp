@@ -55,6 +55,9 @@ public:
   String getColumnName(int icol) const;
   String getRowName(int irow) const;
 
+  const String& getTitle() const { return _title; }
+  void setTitle(const String &title) { _title = title; }
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -63,6 +66,7 @@ protected:
   void    _clearContents() override;
 
 private:
+  String _title;
   VectorString _rowNames;
   VectorString _colNames;
 };

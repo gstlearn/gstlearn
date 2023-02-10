@@ -483,15 +483,16 @@ int krigprof(Db *dbin,
  **
  ** \return  A Krigtest_Res structure
  **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  iech0      Rank of the target sample
- ** \param[in]  calcul     Kriging calculation option (EKrigOpt)
- ** \param[in]  ndisc      Array giving the discretization counts
- ** \param[in]  forceDebug When TRUE, the full debugging flag is switched ON
- **                        (the current status is reset after the run)
+ ** \param[in]  dbin        input Db structure
+ ** \param[in]  dbout       output Db structure
+ ** \param[in]  model       Model structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  iech0       Rank of the target sample
+ ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
+ ** \param[in]  ndisc       Array giving the discretization counts
+ ** \param[in]  flagPerCell Use local block extensions (when defined)
+ ** \param[in]  forceDebug  When TRUE, the full debugging flag is switched ON
+ **                         (the current status is reset after the run)
  **
  *****************************************************************************/
 Krigtest_Res krigtest(Db *dbin,

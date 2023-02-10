@@ -20,6 +20,7 @@
 Table::Table(int nrows, int ncols)
   : MatrixRectangular(nrows, ncols),
     ASerializable(),
+    _title(),
     _rowNames(),
     _colNames()
 {
@@ -29,6 +30,7 @@ Table::Table(int nrows, int ncols)
 Table::Table(const Table &m)
     : MatrixRectangular(m),
       ASerializable(m),
+      _title(m._title),
       _rowNames(m._rowNames),
       _colNames(m._colNames)
 {
@@ -41,6 +43,7 @@ Table& Table::operator=(const Table &m)
   {
     MatrixRectangular::operator=(m);
     ASerializable::operator=(m);
+    _title = m._title;
     _rowNames = m._rowNames;
     _colNames = m._colNames;
   }
@@ -159,7 +162,11 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   if (isEmpty()) return sstr.str();
 
-  sstr << toTitle(1, "Table contents");
+  if (_title.empty())
+    sstr << toTitle(1, "Table contents");
+  else
+    sstr << toTitle(1, _title.c_str());
+
   int ncols = getNCols();
   int nrows = getNRows();
   sstr << "- Number of Rows    = " << nrows << std::endl;

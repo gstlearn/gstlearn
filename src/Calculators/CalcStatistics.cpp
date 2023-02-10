@@ -93,7 +93,7 @@ bool CalcStatistics::_postprocess()
   _cleanVariableDb(2);
 
   if (_flagStats)
-    _renameVariable(2, 1, _iattOut, String(), 1);
+    _renameVariable(2, _getNVar(), _iattOut, String(), 1);
 
   if (_flagRegr)
     _renameVariable(1, 1, _iattOut, String(), 1);
@@ -117,19 +117,33 @@ bool CalcStatistics::_run()
   if (_flagStats)
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    VectorInt cols = getDbin()->getColIdxsByLocator(ELoc::Z);
-    dbStatisticsInGrid(getDbin(), dbgrid, _oper, cols, _radius, _iattOut);
+    VectorString names = getDbin()->getNamesByLocator(ELoc::Z);
+    if (dbStatisticsInGridTool(getDbin(), dbgrid, names, _oper, _radius, _iattOut))
+      return false;
   }
 
   if (_flagRegr)
   {
-    regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCste,
-                    getDbout(), _model);
+    if (regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCste,
+                        getDbout(), _model)) return false;
   }
 
   return true;
 }
 
+/****************************************************************************/
+/*!
+ **  Calculates the statistics on variables of an input Db per cell of an output Grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db      Input Db
+ ** \param[in]  dbgrid  Output DbGrid
+ ** \param[in]  oper    The statistical calculation
+ ** \param[in]  radius  Neighborhood radius
+ ** \param[in]  namconv Naming convention
+ **
+ *****************************************************************************/
 int dbStatisticsOnGrid(Db *db,
                        DbGrid *dbgrid,
                        const EStatOption &oper,
