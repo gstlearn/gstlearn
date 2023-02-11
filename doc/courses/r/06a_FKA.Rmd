@@ -1,0 +1,270 @@
+---
+title: "Filtering by Kriging"
+author: "RGeostats Team"
+date: "September 2019"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fig_height: 6
+    theme: Boadilla
+fontsize: 8pt
+theme: Boadilla
+colortheme: beaver
+---
+
+```{r setup,include=FALSE, fig.show='hide'}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+                      out.width="50%",
+                      fig.align = "center") 
+```
+
+\frametitle{Loading Data}
+
+```{r Loading_Library, include=FALSE}
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+The Grid containing the information is downloaded from the distribution
+
+```{r Loading_Data}
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'FKA',
+               'Image.ascii',sep="/")
+grid = DbGrid_createFromNF(fileNF)
+ndim = 2
+defineDefaultSpace(ESpaceType_RN(), ndim)
+```
+
+The loaded file (called **grid **) contains 3 variables:
+
+- **P** (phosphorus) which is the *variable of interest*
+- **Cr** (chromium) is an auxiliary variable
+- **Ni** (nickel) another auxiliary variable
+
+---
+
+\frametitle{Statistics on main variable}
+
+```{r Statistics_P}
+dbfmt = DbStringFormat()
+dbfmt$setFlags(flag_resume=False,flag_vars=False,flag_stats=True, names="P")
+grid$display(dbfmt)
+```
+
+Note that some pixels are not informed for variable **P**.
+
+---
+
+\frametitle{Statistics on auxiliary variables}
+
+
+```{r Statistics_Cr}
+dbfmt$setFlags(flag_resume=False,flag_vars=False,flag_stats=True, names="Ni")
+grid$display(dbfmt)
+```
+
+---
+
+\frametitle{Statistics on auxiliary variables}
+
+```{r Statistics_Ni}
+dbfmt$setFlags(flag_resume=False,flag_vars=False,flag_stats=True, names="Cr")
+grid$display(dbfmt)
+```
+
+---
+
+\frametitle{Correlation between Cr and P}
+
+```{r Correlation_Cr_P,results="hide"}
+plot.correlation(grid,"Cr","P")
+```
+
+---
+
+\frametitle{Correlation between Ni and P}
+
+```{r Correlation_Ni_P,results="hide"}
+plot.correlation(grid,"Ni","P")
+```
+
+---
+
+\frametitle{Correlation between Ni and CR}
+
+```{r Correlation_Ni_Cr,results="hide"}
+plot.correlation(grid,"Ni","Cr")
+```
+
+---
+
+\frametitle{Completing the variable **P**}
+
+Using inverse square distance
+
+```{r Completing_P}
+grid$setLocator("P",ELoc_Z())
+err = db_grid_fill(grid)
+```
+
+We concentrate on the variable of interest **P** (completed) in the next operations
+
+---
+
+\frametitle{Display P}
+
+```{r Visualize_P}
+p = plot(grid)
+plot.decoration(p, title="P after completion")
+```
+
+---
+
+\frametitle{Variogram Calculation}
+
+```{r Variogram_calculation}
+varioparam = VarioParam_createMultipleFromGrid(npas=100)
+varioP = Vario(varioparam, grid)
+err = varioP$compute()
+modelP = Model()
+err = modelP$fit(varioP, 
+                 types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
+                 optvar=Option_VarioFit(TRUE, FALSE))
+```
+
+---
+
+\frametitle{Variogram Model}
+
+```{r Variogram_Model}
+modelP
+```
+
+---
+
+\frametitle{Variogram Model}
+
+```{r Variogram_Model_Plot}
+plot.varmod(varioP,modelP)
+```
+
+---
+
+\frametitle{Monovariate Factorial Kriging Analysis}
+
+We must define the **Neighborhood**
+
+```{r Neighborhood_Definition}
+neigh = NeighImage(c(10,10))
+```
+
+The **image** neighborhood is based on $(2*10+1)^2=441$ pixels (centered on the target pixel).
+
+During the estimation, only the contribution of second and third basic structures are kept (Nugget Effect is filtered out): ** Factorial Kriging Analysis**.
+
+```{r Performing_monovariate_FKA}
+modelP$setCovaFiltered(0, TRUE)
+means = dbStatisticsMono(grid,"Fill.P",EStatOption.fromKeys("MEAN"))
+modelP$setMeans(means)
+modelP
+
+err = krimage(grid,modelP,neigh,namconv=NamingConvention("Mono"))
+```
+
+---
+
+\frametitle{Monovariate Factorial Kriging Analysis}
+
+```{r Visualize_P_after_FKA_monovariate}
+p = plot(grid, "Mono*.P")
+plot.decoration(p, title="P denoised (monovariate)")
+```
+
+---
+
+\frametitle{Correlation between Initial and Filtered images}
+
+Correlation for **P** variable between Initial image and its Filtered version (monovariate FKA)
+
+```{r Correlation_P_denoised_monovariate}
+p = plot.correlation(grid,"Fill.P","Kimage.Fill.P.estim")
+plot.decoration(p, xlab="P Filled",ylab="P Filtered")
+```
+
+---
+
+\frametitle{Multivariate Approach}
+
+
+```{r Locate_Multivariate, fig.align='center', fig.height=5}
+grid$setLocators(c("Fill.P", "Cr", "Ni"), ELoc_Z())
+
+varioM = Vario(varioparam, grid)
+err = varioM$compute()
+modelM = Model()
+err = modelM$fit(varioM, 
+                 types= ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
+                 optvar=Option_VarioFit(TRUE, FALSE))
+```
+
+---
+
+\frametitle{Multivariate Model}
+
+```{r Multivariate_Model}
+modelM
+```
+
+---
+
+\frametitle{Multivariate Model}
+
+```{r Multivariate_Model_Plot}
+plot.varmod(varioM,modelM)
+```
+
+--- 
+
+\frametitle{Multivariable Factorial Kriging Analysis}
+
+```{r Performing_Multivariate_FKA}
+modelM$setCovaFiltered(0, TRUE)
+means = dbStatisticsMono(grid,flagIso=TRUE, 
+                         names=c("Fill.P","Cr","Ni"),
+                         EStatOption_fromKeys("MEAN"))
+modelM$setMeans(means)
+
+err  = krimage(grid,modelM,neigh,namconv=NamingConvention("Multi"))
+```
+
+Note that, using the same **neigh** as in monovariate, the dimension of the Kriging System is now $3 * 441 = 1323$
+
+---
+
+\frametitle{Multivariable Factorial Kriging Analysis}
+
+```{r Visualize_P_after_FKA_multivariate}
+p = plot(grid,"Multi*.P", zlim=c(0,150))
+plot.decoration(p, title="P denoised (multivariate)")
+```
+
+---
+
+\frametitle{Correlation between Initial and Filtered images}
+
+Correlation for **P** variable between Initial image and its Filtered version (multivariate FKA)
+
+```{r Correlation_P_denoised_multivariate}
+p = plot.correlation(grid,"Fill.P","Multi.Fill.P")
+plot.decoration(p, xlab="P Filled",ylab="P Filtered (Multi)")
+```
+
+Correlation for **P** filtered variable between the Monovariate and the Multivariate case
+
+```{r}
+p = plot.correlation(grid, "Mono.Fill.P", "Multi.Fill.P")
+plot.decoration(p, xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
+```
+
