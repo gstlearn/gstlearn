@@ -812,10 +812,7 @@ plot.curve <- function(data, color="black", padd=NULL)
 }
 
 # Function for representing a line between points provided as arguments
-plot.XY <-function(x, y, join=TRUE,
-                   color="black", linetype="solid", shape=20,
-                   flagDiag = FALSE, 
-                   diag_color = "red", diag_line = "solid", padd=NULL)
+plot.XY <-function(x, y, join=TRUE, color="black", linetype="solid", shape=20, padd=NULL)
 {
   if (length(y) != length(x))
   {
@@ -827,14 +824,6 @@ plot.XY <-function(x, y, join=TRUE,
     
   df = data.frame(x, y)
      
-  if (flagDiag)
-  {
-    u = min(x, y, na.rm=TRUE)
-    v = max(x, y, na.rm=TRUE)
-    p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
-                          linetype = diag_line, color = diag_color, na.rm=TRUE)
-  }
-  
   if (join)
     p <- p + geom_line(data = df, mapping=aes(x=x,y=y), 
    		               linetype = linetype, color=color, na.rm=TRUE)
@@ -845,14 +834,30 @@ plot.XY <-function(x, y, join=TRUE,
   p
 }
 
+plot.hist2d <- function(x, y, bins=50, padd = NULL)
+{
+ if (length(y) != length(x))
+  {
+    cat("Arrays 'x' and 'y' should have same dimensions")
+    stop()
+  }
+  
+  p <- getNewFigure(padd, 1)
+    
+  df = data.frame(x, y)
+     
+  p = p + geom_bin2d(data = df, mapping = aes(x=x, y=y), bins=bins, na.rm=TRUE) + theme_bw()
+  
+  p
+}
+
 # Function for representing an anamorphosis
 plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, 
                       color="black", linetype="solid", padd=NULL)
 {
   res = anam$sample(ndisc, aymin, aymax)
   
-  p = plot.XY(res$getY(), res$getZ(), join=TRUE, flagDiag = FALSE,
-              color=color, linetype=linetype, padd=padd)
+  p = plot.XY(res$getY(), res$getZ(), join=TRUE, color=color, linetype=linetype, padd=padd)
               
   p <- plot.geometry(p, xlim=res$getAylim(), ylim=res$getAzlim())
   
@@ -863,17 +868,27 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
 
 # Function for representing a scatter plot
 plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
-							 flagDiag = FALSE,
+							 asPoint=FALSE, bins=50,
                              color="black", linetype = "solid",
-                             diag_color = "red", diag_line = "solid", padd=NULL)
+                             flagDiag=FALSE, diag_color = "red", diag_line = "solid", padd=NULL)
 {
   if (is.null(db2)) db2 = db1
-  val1 = db1$getColumn(name1, usesel)
-  val2 = db2$getColumn(name2, usesel)
-  p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
-              color = color, linetype = linetype, 
-              diag_color = diag_color, diag_line = diag_line, padd=padd)
+  x = db1$getColumn(name1, usesel)
+  y = db2$getColumn(name2, usesel)
   
+  if (asPoint)
+	p = plot.XY(x, y, join=FALSE, color = color, linetype = linetype, padd=padd)
+  else
+  	p = plot.hist2d(x, y, bins=bins, padd=padd)
+  
+  if (flagDiag)
+  {
+    u = min(x, y, na.rm=TRUE)
+    v = max(x, y, na.rm=TRUE)
+    p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
+                          linetype = diag_line, color = diag_color, na.rm=TRUE)
+  }
+                     
   p = plot.decoration(p, xlab=name1, ylab=name2)
   
   p 
