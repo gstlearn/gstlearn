@@ -103,7 +103,6 @@ mygrid$dumpToNF("mygrid.backup")
 mygrid = DbGrid_createFromNF("mygrid.backup")
 ```
 
-
 ### Known caveats
 
 When executing a method using the `$` slot, if you experience the following error...
@@ -121,10 +120,10 @@ Erreur dans validObject(.Object) :
 ASerializable_dumpToNF(mygrid)
 ```
  
-
 ## Changelog
 
 Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CHANGES).
+
 
 ## Developments
 
@@ -133,9 +132,15 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* R package, the requirements for building *gstlearn C++ library* must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4.2.0 **customized by Fabien Ors** (not the official version!)
-* R 4 or higher
-* RTools 4 or higher (for Windows users only)
+* R 4.2 or higher
+* RTools 4.2 or higher (for Windows users only)
 * *ggplot2* and *ggpubr* R packages [Optional] (only for plotting)
+
+If you modified your system (or if you installed a new version or RTools), you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' and 'swig' existing source folders (if so).
+
+Note :
+
+* In case of issues, see [Important Notes below](#important-notes).
 
 #### Linux (Ubuntu)
 
@@ -152,29 +157,34 @@ sudo apt install pcre2-devel # Ubuntu 18
 sudo apt install libpcre2-dev # Ubuntu 20
 ````
 
-4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a directory of your choice, get the source of SWIG 4.2.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
+````
+
+Next time (if a new version of SWIG 4.2.0 [customized] is delivered), you will only need to pull the repository
+
+````
+cd swig
+git pull
+````
+
+5. Then compile and install SWIG 4.2.0 [customized] :
+
+````
 cmake -Bbuild
 cd build
 make
 sudo make install
 ````
 
-5. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
+6. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
 
 ````
 install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
-
-
-Note :
-
-* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-* If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
-* If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 #### MacOS
 
@@ -190,18 +200,30 @@ brew install bison
 brew install pcre2-devel
 ````
 
-4. In a folder of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands:
+4. In a directory of your choice, get the source of SWIG 4.2.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
+````
+
+Next time (if a new version of SWIG 4.2.0 [customized] is delivered), you will only need to pull the repository
+
+````
+cd swig
+git pull
+````
+
+5. Then compile and install SWIG 4.2.0 [customized] :
+
+````
 cmake -Bbuild
 cd build
 make
 sudo make install
 ````
 
-5. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
+6. Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
 
 ````
 install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
@@ -209,10 +231,7 @@ install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Note :
 
-* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-* If you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * These instructions for MacOS are currently not tested - above packages may not exist
-* If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 
 #### Windows
 
@@ -226,37 +245,35 @@ Note :
 pacman -Sy bison
 pacman -Sy mingw-w64-x86_64-pcre2
 ````
-    
-4. In a directory of your choice, compile and install SWIG 4.2.0 [customized] by executing following commands (in the same shell):
+
+4. In a directory of your choice, get the source of SWIG 4.2.0 [customized] by executing following commands (in the same shell):
 
 ````
 git clone https://github.com/fabien-ors/swig.git
 cd swig
+````
+
+Next time (if a new version of SWIG 4.2.0 [customized] is delivered), you will only need to pull the repository
+
+````
+cd swig
+git pull
+````
+
+5. Then compile and install SWIG 4.2.0 [customized] :
+
+````
 cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=/mingw64/
 cd build
 make
 make install
 ````
 
-Next time (if a future release of customized swig is available), you will only need to pull the repository:
-
-````
-cd swig
-git pull
-cd build
-make
-make install
-````
-
-5. Finally, install the R required packages from an R command prompt (if you need to plot *gstlearn* output):
+6. Finally, install the R required packages from an R command prompt (if you need to plot *gstlearn* output):
 
 ````
 install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 ````
-
-Note :
-
-* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 
 ### Installation from Source
 
@@ -287,21 +304,9 @@ or even faster:
 make r_install
 ```
 
-Note :
-
-* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
-* If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command above (at least one time). This will create a *personal R library folder* having writing permissions.
-* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-* If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
-  * `-DBoost_ROOT="path/to/boost"`
-  * `-DSWIG_ROOT="path/to/swig"`
-  * `-DDoxygen_ROOT="path/to/doxygen"`
-  * `-DHDF5_ROOT="path/to/hdf5"`
-
 ### Execute Non-regression Tests
 
-The `check.*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
+The `check*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
  
 To build and launch non-regression R tests, execute the following command:
 
@@ -317,13 +322,19 @@ make check_r
 
 ### Important Notes
 
+* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
+* If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command (at least one time). This will create a *personal R library folder* having writing permissions.
+* If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.
+* If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Under Windows, using RTools is mandatory for compiling R packages
 * Under Windows, you may need to add `-G "MSYS Makefiles"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost, SWIG or HDF5 installation directory. In that case, add the following variables in the first command above (do not use Makefile shortcuts):
+* You may need to precise the location of Boost, SWIG, Doxygen or HDF5 installation directory. In that case, add the following variables in the first cmake command above:
   * `-DBoost_ROOT="path/to/boost"`
   * `-DSWIG_ROOT="path/to/swig"`
-  * `-DHDF5_ROOT="path/to/hdf5"`
+  * `-DDoxygen_ROOT="path/to/doxygen"`
+  * `-DHDF5_ROOT="path/to/hdf5"``
 
 ### Remove Installed Package
 

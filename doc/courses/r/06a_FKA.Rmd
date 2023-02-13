@@ -49,7 +49,7 @@ The loaded file (called **grid **) contains 3 variables:
 
 ```{r Statistics_P}
 dbfmt = DbStringFormat()
-dbfmt$setFlags(flag_resume=False,flag_vars=False,flag_stats=True, names="P")
+dbfmt$setFlags(flag_resume=FALSE,flag_vars=FALSE,flag_stats=TRUE, names="P")
 grid$display(dbfmt)
 ```
 
@@ -61,7 +61,7 @@ Note that some pixels are not informed for variable **P**.
 
 
 ```{r Statistics_Cr}
-dbfmt$setFlags(flag_resume=False,flag_vars=False,flag_stats=True, names="Ni")
+dbfmt$setFlags(flag_resume=FALSE,flag_vars=FALSE,flag_stats=TRUE, names="Ni")
 grid$display(dbfmt)
 ```
 
@@ -70,7 +70,7 @@ grid$display(dbfmt)
 \frametitle{Statistics on auxiliary variables}
 
 ```{r Statistics_Ni}
-dbfmt$setFlags(flag_resume=False,flag_vars=False,flag_stats=True, names="Cr")
+dbfmt$setFlags(flag_resume=FALSE,flag_vars=FALSE,flag_stats=TRUE, names="Cr")
 grid$display(dbfmt)
 ```
 
@@ -166,7 +166,7 @@ During the estimation, only the contribution of second and third basic structure
 
 ```{r Performing_monovariate_FKA}
 modelP$setCovaFiltered(0, TRUE)
-means = dbStatisticsMono(grid,"Fill.P",EStatOption.fromKeys("MEAN"))
+means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))
 modelP$setMeans(means)
 modelP
 

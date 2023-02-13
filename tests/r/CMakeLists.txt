@@ -2,13 +2,21 @@ if(NOT BUILD_R)
   return()
 endif()
 
-# TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similar (factorization ?)
+# TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb, rmd) are similar (factorization ?)
 
-# Using GLOB could be a bad idea (but use it for the tests)
-# https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
+
 
 # With GLOB:
+# Using GLOB could be a bad idea (but use it for the tests)
+# https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 file(GLOB TEST_SOURCES test*.R)
+
+
+
+
+
+
+
 # Without GLOB:
 #set(TEST_SOURCES 
 #    test_Arguments.R)
@@ -33,6 +41,12 @@ add_custom_target(check_r
 # Add dependency for check_r
 add_dependencies(check_r r_install)
 
+
+
+
+
+
+
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
@@ -51,5 +65,9 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_r_cmp
              COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
+
+
+
+
 
 

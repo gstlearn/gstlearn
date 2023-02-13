@@ -191,7 +191,7 @@ Column = 5 - Name = sel - Locator = sel
 We create a polygon as the convex hull of the samples
 
 We now display the points and the polygon on top of the grid: the
-overlay is ensured by sugint eh argument 'ax'.
+overlay is ensured by using the argument 'ax'.
 
 
 +*Out[18]:*+

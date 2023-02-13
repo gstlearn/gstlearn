@@ -61,7 +61,7 @@ $$
 
 Processing parameters
 
-```{r Initial setup, echo=TRUE, eval=TRUE}
+```{r Initial-setup, echo=TRUE, eval=TRUE}
 nbpoly = 100
 nbsimu = 1000
 params = list(nbpoly=nbpoly, nbsimu=nbsimu, yc=1.5)
@@ -77,7 +77,7 @@ hn     = hermiteLognormal(m, sigma, params$nbpoly)
 
 We calculate the various functions (expectation, ore and metal quantity, for expectation and standard deviation) for different values of $y$ varying from -3 to 3 and different values of $r$ varying from 0 to 1. The results are stored in a Db (organized as a matrix) whose parameters are given next.
 
-```{r Grid Definition}
+```{r Grid-Definition}
 y0  = -3
 dy  = 0.1
 dr  = 0.1
@@ -91,7 +91,7 @@ nr  = length(r)
 
 We evaluate the variable, the ore and metal quantity above a cutoff, in conditional expectation or in conditional standard deviation.
 
-```{r Internal Functions, echo = FALSE}
+```{r Internal-Functions, echo = FALSE}
 # Function to generate the title
 get.title <- function(type,calcul,flag.est,params)
 {
@@ -220,7 +220,7 @@ draw.correlation <- function(calcul,flag.est,params,flag.iso=TRUE)
 
 Calculating all elements using either Hermite expansion or Monte Carlo Simulations
 
-```{r Grids for Estimation and Variances, eval=FALSE}
+```{r Grids-for-Estimation-and-Variances, eval=FALSE}
 draw.matrix(type=1,calcul=1,flag.est=TRUE,params,flag.cut=FALSE)
 draw.matrix(type=2,calcul=1,flag.est=TRUE,params,flag.cut=FALSE)
 draw.correlation(calcul=1,flag.est=TRUE,params)
@@ -334,7 +334,7 @@ p
 
 
 ```{r}
-p = plot.XY(zz_theo, zz_hm, join=TRUE, flagDiag=TRUE, color = "blue")
+p = plot.XY(zz_theo, zz_hm, join=TRUE, color = "blue")
 p = plot.decoration(p , xlab = "theoretical", ylab = "Hermite pol.", 
                     title = "Lognormal transform")
 p
@@ -376,8 +376,8 @@ p
 
 ```{r,eval=FALSE}
 zz_rg = ana$gaussianToRawVector(yy)
-p = plot.XY(zz_theo, zz_rg, join=TRUE, flagDiag=TRUE, color="blue")
-p = plot5decoration(p, xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
+p = plot.XY(zz_theo, zz_rg, join=TRUE, color="blue")
+p = plot.decoration(p, xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
 p
 #legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
 ```

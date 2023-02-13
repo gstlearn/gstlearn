@@ -17,7 +17,7 @@ Display a white skin around the meshing
 ----
 
 
-[[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
+[[XXX]]
 ----
 
 We overlay the meshing
@@ -25,15 +25,24 @@ We overlay the meshing
 
 +*Out[7]:*+
 ----
-[[cd01cf0a-bcd5-4b39-bb9a-777e44f2a559]]
+[[XXX]]
 ----
 
 Drawing a polygon (we use the one containing the land boundaries)
 
 
++*Out[8]:*+
+----
+
+Polygons
+--------
+Number of Polygon Sets = 541
+ ----
+
+
 +*Out[10]:*+
 ----
-[[bc2f1528-7dc8-4133-9fc4-d13dbbf33221]]
+[[XXX]]
 ----
 
 Representing a function on the skin of the earth together with other
@@ -43,7 +52,7 @@ performed with SPDE on the Sphere.
 
 +*Out[13]:*+
 ----
-[[150d67a9-80b8-4037-b11b-1acee67db0c0]]
+[[XXX]]
 ----
 
 [[d-in-general]]
@@ -58,7 +67,37 @@ Defining a Data Set with Gradient and Tangent components
 3-D Visualization
 
 
++*Out[17]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 3
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 301401
+
+Grid characteristics:
+---------------------
+Origin :     -3.000    -4.000    -6.000
+Mesh   :      0.100     0.100     0.100
+Number :         61        81        61
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+Column = 4 - Name = Data - Locator = z1
+ ----
+
+
 +*Out[18]:*+
 ----
-[[6bec768f-c855-4b36-bfe5-a192729e929a]]
+[[XXX]]
 ----

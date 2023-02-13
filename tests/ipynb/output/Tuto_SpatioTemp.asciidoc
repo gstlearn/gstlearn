@@ -21,14 +21,14 @@ python3 setup.py install
 
 +*Out[4]:*+
 ----
-/tmp/ipykernel_368/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
+/tmp/ipykernel_31769/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
   cholP = cholesky(P)
 ----
 
 
 +*Out[6]:*+
 ----<IPython.core.display.Javascript object>
-[[748fb02b-35b9-4989-bc55-52e5354efb45]]
+[[XXX]]
 ----
 
 
