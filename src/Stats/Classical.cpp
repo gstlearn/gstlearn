@@ -2053,6 +2053,44 @@ VectorDouble dbStatisticsPerCellByUID(Db *db,
 /**
  * \copydoc Stats5
  * @param names Vector of target variable names
+ *
+ * @return the Table containing the results
+ */
+Table dbStatisticsMultiT(Db *db,
+                         const VectorString &names,
+                         const EStatOption &oper,
+                         bool flagMono,
+                         bool verbose)
+{
+  VectorInt cols = db->getColIdxs(names);
+  VectorDouble stats = dbStatisticsMultiByColIdx(db, cols, oper, flagMono, verbose);
+
+  int number = (int) cols.size();
+  Table table = Table();
+  table.setTitle(concatenateStrings(":","Multivariate Statistics on Variables",oper.getDescr()));
+
+  if (flagMono)
+  {
+    table.reset(number, 1, stats, false, false);
+  }
+  else
+  {
+    table.reset(number, number, stats, false, false);
+    for (int icol=0; icol<number; icol++)
+      table.setColumnName(icol, names[icol]);
+  }
+  for (int irow=0; irow<number; irow++)
+      table.setRowName(irow, names[irow]);
+
+  return table;
+}
+
+
+/**
+ * \copydoc Stats5
+ * @param names Vector of target variable names
+ *
+ * @return the vector of results
  */
 VectorDouble dbStatisticsMulti(Db *db,
                                const VectorString &names,
@@ -2067,6 +2105,8 @@ VectorDouble dbStatisticsMulti(Db *db,
 /**
  * \copydoc Stats5
  * @param cols Vector of columns of the Target variables
+ *
+ * @return the vector of results
  */
 VectorDouble dbStatisticsMultiByColIdx(Db *db,
                                        const VectorInt &cols,
@@ -2324,12 +2364,6 @@ int dbStatisticsInGridTool(Db *db,
   /* Check the validity of the requested function */
 
   if (! _operStatisticsCheck(oper, 0, 1, 0, 1, 0)) return 1;
-
-  /* Create and initialize the new attributes */
-
-  double valdef = 0.;
-  if (oper == EStatOption::MINI) valdef = 1.e30;
-  if (oper == EStatOption::MAXI) valdef = -1.e30;
 
   /* Create the attributes */
 

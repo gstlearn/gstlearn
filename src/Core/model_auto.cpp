@@ -602,6 +602,7 @@ static int st_get_vario_dimension(Vario *vario,
 
   // Possibly update the distance for first lag
   // if equal to 0 but corresponds to lots of pairs attached
+  // This patch is not performed for asymetrical case as the h=0 is only conventional.
   for (idir = 0; idir < vario->getDirectionNumber(); idir++)
   {
     for (ivar = 0; ivar < nvar; ivar++)
@@ -619,8 +620,11 @@ static int st_get_vario_dimension(Vario *vario,
           double sw1 = vario->getSwByIndex(idir, iad);
           double hh1 = vario->getHhByIndex(idir, iad);
 
-          hh0 = hh1 * sw0 / sw1;
-          vario->setHhByIndex(idir, iad0, hh0);
+          if (! vario->getFlagAsym())
+          {
+            hh0 = hh1 * sw0 / sw1;
+            vario->setHhByIndex(idir, iad0, hh0);
+          }
         }
       }
   }

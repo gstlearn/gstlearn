@@ -1305,11 +1305,11 @@ def sample(sample, color='black', marker='o', markersize=10,
         
     return ax
     
-def rule(rule, proportions=[],cmap=None, ax=None):
+def rule(rule, proportions=[],cmap=None, maxG=3., ax=None):
 
     ax = getNewAxes(ax, 0)
     
-    ax.geometry(xlim=[-5,+5], ylim=[-5,+5])    
+    ax.geometry(xlim=[-maxG,+maxG], ylim=[-maxG,+maxG])    
     nfac = rule.getFaciesNumber()
     rule.setProportions(proportions)
     

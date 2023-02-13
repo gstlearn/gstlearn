@@ -146,14 +146,19 @@ GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
  */
 GSTLEARN_EXPORT VectorDouble dbStatisticsMultiByColIdx(Db *db,
                                                        const VectorInt &cols,
-                                                       const EStatOption &oper,
+                                                       const EStatOption &oper = EStatOption::MEAN,
                                                        bool flagMono = true,
                                                        bool verbose = false);
 GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
                                                const VectorString &names,
-                                               const EStatOption &oper,
+                                               const EStatOption &oper = EStatOption::MEAN,
                                                bool flagMono = true,
                                                bool verbose = false);
+GSTLEARN_EXPORT Table dbStatisticsMultiT(Db *db,
+                                         const VectorString &names,
+                                         const EStatOption &oper = EStatOption::MEAN,
+                                         bool flagMono = true,
+                                         bool verbose = false);
 /**@}*/
 
 /**

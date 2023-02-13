@@ -53,9 +53,9 @@ GSTLEARN_EXPORT void correctNewNameForDuplicates(VectorString &list, int rank);
 GSTLEARN_EXPORT String incrementStringVersion(const String &string,
                                               int rank = 1,
                                               const String &delim = ".");
-GSTLEARN_EXPORT String concatenateString(const String& string,
-                                    double value,
-                                    const String& delim = "-");
+GSTLEARN_EXPORT String concatenateString(const String &string,
+                                         double value,
+                                         const String &delim = "-");
 GSTLEARN_EXPORT String concatenateStrings(const String &delimt = ".",
                                           const String &string1 = String(),
                                           const String &string2 = String(),

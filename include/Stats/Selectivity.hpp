@@ -44,15 +44,15 @@ public:
   static Selectivity* create(int ncut);
   static Selectivity* createByCuts(const VectorDouble& zcut);
   static Selectivity* createByCodes(const std::vector<ESelectivity>& codes,
-                                    const VectorDouble& zcuts,
-                                    bool flag_est,
-                                    bool flag_std,
+                                    const VectorDouble& zcuts = VectorDouble(),
+                                    bool flag_est = true,
+                                    bool flag_std = true,
                                     double proba = TEST,
                                     bool verbose = false);
   static Selectivity* createByKeys(const VectorString& keys,
-                                   const VectorDouble& zcuts,
-                                   bool flag_est,
-                                   bool flag_std,
+                                   const VectorDouble& zcuts = VectorDouble(),
+                                   bool flag_est = true,
+                                   bool flag_std = true,
                                    double zmax = TEST,
                                    bool flag_correct = false,
                                    double proba = TEST,

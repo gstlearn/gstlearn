@@ -2451,8 +2451,8 @@ bool CalcSimuTurningBands::isTurningBandsWorkable(const Model *model)
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
-                                               Db *dbout,
-                                               Model *model) const
+                                                   Db *dbout,
+                                                   Model *model) const
 {
   if (dbin == nullptr) return;
   if (get_LOCATOR_NITEM(dbout,ELoc::SIMU) <= 0) return;

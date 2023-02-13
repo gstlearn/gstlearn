@@ -538,7 +538,7 @@ readGridCoor <- function(dbgrid, name, usesel= FALSE)
 
 # Function for plotting a point data base, with optional color and size variables
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-                      	sizmin=10, sizmax=100, flagAbsSize = FALSE, flagCst=FALSE,
+                      	sizmin=10, sizmax=100, reduction=100, flagAbsSize = FALSE, flagCst=FALSE,
                       	...) 
 {  
   # Creating the necessary data frame
@@ -556,7 +556,6 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   if (! is.null(name_size)) {
   	if (! flagCst)
    	{
-	  	reduction = 100
   	  	sizval  = db$getColumn(name_size, TRUE)
   		if (flagAbsSize) sizval = abs(sizval)
     	m = min(sizval,na.rm=TRUE)
@@ -769,7 +768,8 @@ plot.polygon <- function(poly, padd = NULL, ...)
 }
         
 # Function for plotting the histogram of a variable
-plot.hist <- function(db, name, usesel=TRUE, nbins=30, col='grey', fill='yellow', padd = NULL)
+plot.hist <- function(db, name, usesel=TRUE, nbins=30, col='grey', fill='yellow', 
+padd = NULL)
 {
   p <- getNewFigure(padd, 1)
   
@@ -870,7 +870,10 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
 plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
 							 asPoint=FALSE, bins=50,
                              color="black", linetype = "solid",
-                             flagDiag=FALSE, diag_color = "red", diag_line = "solid", padd=NULL)
+                             flagDiag=FALSE, diag_color = "red", diag_line = "solid", 
+                             flagRegr=FALSE, regr_color = "blue", regr_line = "solid", 
+                             flagBiss=FALSE, biss_color = "green", biss_line = "solid", 
+                             padd=NULL)
 {
   if (is.null(db2)) db2 = db1
   x = db1$getColumn(name1, usesel)
@@ -881,21 +884,46 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
   else
   	p = plot.hist2d(x, y, bins=bins, padd=padd)
   
+  xmin = min(x, na.rm=TRUE)
+  ymin = min(y, na.rm=TRUE)
+  xmax = max(x, na.rm=TRUE)
+  ymax = max(y, na.rm=TRUE)
+  
   if (flagDiag)
   {
-    u = min(x, y, na.rm=TRUE)
-    v = max(x, y, na.rm=TRUE)
-    p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
+    p <- p + geom_segment(aes(x=xmin,y=ymin,xend=xmax,yend=ymax),
                           linetype = diag_line, color = diag_color, na.rm=TRUE)
   }
-                     
+  
+  if (flagBiss)
+  {
+  	bmin = min(xmin, ymin)
+    bmax = max(xmax, ymax)
+    p <- p + geom_segment(aes(x=bmin,y=bmin,xend=bmax,yend=bmax),
+                          linetype = biss_line, color = biss_color, na.rm=TRUE)
+  }
+
+  if (flagRegr)
+  {
+  	regr = regression(db2, name2, name1, flagCste=TRUE)
+    if (regr$nvar > 0)
+    {
+        a = regr$coeffs[1]
+        b = regr$coeffs[2]
+        ymin = a + b * xmin
+        ymax = a + b * xmax
+        p <- p + geom_segment(aes(x=xmin,y=ymin,xend=xmax,yend=ymax),
+                              linetype = regr_line, color = regr_color, na.rm=TRUE)
+    }
+  }
+               
   p = plot.decoration(p, xlab=name1, ylab=name2)
   
   p 
 }
 
 # Representing a Lithotype rule
-plot.rule <- function(rule, proportions=NULL, padd=NULL)
+plot.rule <- function(rule, proportions=NULL, maxG = 3., padd=NULL)
 {
   p <- getNewFigure(padd, 1)
   
@@ -907,19 +935,21 @@ plot.rule <- function(rule, proportions=NULL, padd=NULL)
   cols = get.colors()
 
   df = data.frame(xmin=rep(0,nrect),xmax=rep(0,nrect),
-            ymin=rep(0,nrect),ymax=rep(0,nrect),
-            colors=cols[1:nrect])
+                  ymin=rep(0,nrect),ymax=rep(0,nrect),
+                  colors=cols[1:nrect])
   for (ifac in 1:nrect)
   {
-    rect = rule$getThresh(ifac-1)
-    df$xmin[ifac] = rect[1]
-    df$xmax[ifac] = rect[2]
-    df$ymin[ifac] = rect[3]
-    df$ymax[ifac] = rect[4]
+    rect = rule$getThresh(ifac) # This function is 1-based
+    df$xmin[ifac] = max(rect[1], -maxG)
+    df$xmax[ifac] = min(rect[2], +maxG)
+    df$ymin[ifac] = max(rect[3], -maxG)
+    df$ymax[ifac] = min(rect[4], +maxG)
   }
-     
+  
   p <- p + geom_rect(data = df, mapping=aes(xmin = xmin, xmax = xmax, 
-                     ymin = ymin, ymax = ymax, fill = colors))
+                     ymin = ymin, ymax = ymax, fill = colors), na.rm=TRUE)
+  
+  p = plot.geometry(p, xlim=c(-maxG,+maxG), ylim=c(-maxG,+maxG)) 
   
   p
 }
@@ -959,3 +989,5 @@ setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.pol
 
 setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
 setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
+
+setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))

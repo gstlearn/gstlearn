@@ -1,0 +1,617 @@
+---
+title: "Multivariate Geostatistics"
+author: "D. Renard, N. Desassis, X. Freulon"
+date: "3 novembre 2021"
+output: beamer_presentation
+---
+
+```{r setup,include=FALSE, fig.show='hide'}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+                      out.width="50%",
+                      fig.align = "center") 
+```
+
+\frametitle{Loading Data}
+
+```{r Loading_Library, include=FALSE}
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+## Preamble
+
+\footnotesize
+
+```{r Preamble, message=FALSE, warning=FALSE, include=FALSE}
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
+               'Scotland_Temperatures.NF',sep="/")
+dat = Db_createFromNF(fileNF)
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
+               'Scotland_Elevations.NF',sep="/")
+target = DbGrid_createFromNF(fileNF)
+ndim = 2
+defineDefaultSpace(ESpaceType_RN(), ndim);
+
+unique_neigh = NeighUnique_create()
+dat$setName("*temp", "Temperature")
+```
+
+## Statistics
+
+\footnotesize
+
+```{r EDA1, echo=FALSE, message=FALSE, warning=FALSE}
+tab = dbStatisticsMonoT(dat,c("Elevation", "Temperature"))
+knitr::kable(tab$toTL(), caption = "Statistics on observations")
+tab = dbStatisticsMonoT(target,c("Elevation"))
+knitr::kable(tab$toTL(), caption = "Statistics on the grid")
+```
+
+## Observations
+
+```{r maps-elevation, echo=FALSE}
+plot.setDefault(1, dims=c(8,8))
+plot(dat, name_color="Elevation")
+```
+
+## Map of the elevations on Grid
+
+```{r maps-elevation, echo=FALSE}
+plot(target, name_raster="Elevation")
+```
+
+## Temperature vs. Elevation
+
+\footnotesize
+
+```{r temp_vs_ele, echo=FALSE}
+
+p = plot.correlation(dat, name1="Elevation", name2="Temperature", 
+                     asPoint=TRUE, flagRegr=TRUE)
+plot.decoration(p, title="Correlation between Temperature and Elevation")
+```
+
+## Temperature vs. Elevation (statistiques)
+
+\footnotesize
+
+```{r temp_vs_ele2, echo=TRUE}
+tab <- dbStatisticsMultiT(dat, c("Temperature", "Elevation"),
+                          oper=EStatOption_MEAN(), flagMono=FALSE)
+knitr::kable(tab$toTL(), caption = "Statistics on the grid", digits=3)
+```
+
+## Variograms and Non-stationarity
+
+\footnotesize
+
+Directional variograms (N-S and E-W): no drift or with first order global trend
+
+\center
+
+```{r Experimental_Directional_Variograms, echo=FALSE}
+varioparam = VarioParam_createMultiple(ndir=2, npas=30, dpas=10)
+vario_raw2dir = Vario(varioparam, dat)
+err = vario_raw2dir$compute()
+
+model = Model_create()
+err = model$setDriftIRF(1)
+vario_res2dir = Vario(varioparam, dat)
+err = vario_res2dir$compute(model=model)
+
+p = plot(vario_raw2dir, linetype="solid")
+p = plot(vario_res2dir, linetype="dashed", padd=p)
+plot.decoration(p, title="Temperature (°C)") 
+```
+
+## Global Trend
+
+\footnotesize
+
+Find the coefficients of the global regression (first order polynomial)
+
+```{r Regression}
+err = regression(dat, name0="Temperature", mode=2, model=model, verbose=TRUE)
+```
+
+## Modelling Variogram of Raw Data with Anisotropy
+
+\footnotesize
+
+```{r Model_for_Raw_Variogram, echo=FALSE}
+fitmod = Model()
+err = fitmod$fit(vario_raw2dir,
+                 types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC")))
+
+p = plot.varmod(vario_raw2dir, fitmod)
+plot.decoration(p,title="Temperature (°C)")
+```
+
+
+## Ordinary Kriging - Cross-Validation
+
+\footnotesize
+
+Perform Cross-validation (using Ordinary Kriging) and calculate the Mean Squared Error.
+
+```{r Cross-validation_Ordinary_Kriging}
+err = xvalid(dat, fitmod, unique_neigh,
+             namconv=NamingConvention("OK",TRUE,TRUE,FALSE))
+```
+
+
+```{r Cross-validation_Ordinary_Kriging_stat, echo=FALSE}
+tab = dbStatisticsMonoT(dat, c("OK.Temperature.*"))
+knitr::kable(tab$toTL(), caption= "Cross-validation with Ordinary Kriging")
+```
+
+## Ordinary Kriging - Estimation
+
+\footnotesize
+
+```{r Estimation_Ordinary_Kriging}
+err = kriging(dat, target, fitmod, unique_neigh,
+              namconv=NamingConvention("OK"))
+```
+
+```{r Estimation_Ordinary_Kriging_plot, echo=FALSE}
+p = plot(target, "OK*estim")
+p = plot(dat, name_size="Temperature", reduction = 200, ,padd=p)
+plot.decoration(p, title="Temperature - Ordinary Kriging")
+```
+
+## Ordinary Kriging - Statistics
+
+\scriptsize
+
+```{r Estimation_Ordinary_Kriging_stat, echo = FALSE}
+opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
+
+tab <- dbStatisticsMonoT(target, names = (c("OK.T*")), opers=opers)
+knitr::kable(tab$toTL(), digits=3, 
+             caption = "Statistics on the Ordinary Kriging")
+```
+
+
+## Fitting Variogram of Residuals
+
+\footnotesize
+
+```{r Fitting_Residuals}
+
+fitmodUK = Model()
+err = fitmodUK$fit(vario_res2dir,
+                   types=ECov_fromKeys(c("SPHERICAL")),
+                   optvar=Option_VarioFit(FALSE,FALSE))
+```
+
+
+```{r}
+p = plot.varmod(vario_res2dir, fitmodUK)
+plot.decoration(p, title="Temperature (°C)")
+```
+
+Note that the residuals seem isotropic, hence use isotropic option for Fitting.
+
+## Universal Kriging - Cross-Validation
+
+\footnotesize
+
+Perform Cross-validation (using Universal Kriging) and calculate the Mean Squared Error.
+
+```{r Cross-validation_Universal_ Kriging}
+err = xvalid(dat, fitmodUK, unique_neigh,
+             namconv=NamingConvention("UK",TRUE,TRUE,FALSE))
+```
+
+```{r Cross-validation_Universal_ Kriging_stat, echo=FALSE}
+tab = dbStatisticsMonoT(dat, c("UK.Temperature.*"), opers=opers)
+knitr::kable(tab$toTL(), caption= "Cross-validation with Ordinary Kriging",
+             digits=3)
+```
+
+
+## Universal Kriging - Estimation
+
+\scriptsize
+
+```{r Universal_Kriging}
+err = kriging(dat, target, fitmodUK, unique_neigh,
+              namconv=NamingConvention("UK"))
+```
+ 
+```{r Universal_Kriging_stat, echo = FALSE}
+p = plot(target, "UK*estim")
+p = plot(dat, name_size="Temperature", padd=p)
+plot.decoration(p, title="Temperature - Universal Kriging")
+```
+
+## Universal Kriging - Statistics
+
+\scriptsize
+
+```{r Estimation_Universal_Kriging_stat, echo = FALSE}
+tab = dbStatisticsMonoT(target, c("UK.T*"), opers=opers)
+knitr::kable(tab$toTL(), caption= "Statistics on the Universal Kriging",
+             digits=3)
+```
+
+
+## Comparing Ordinary and Universal Krigings
+
+\scriptsize
+
+```{r Comparing_Ordinary_and_Universal_Krigings, results="hide"}
+p = plot.correlation(target, "OK*estim", "UK*estim", flagDiag=TRUE, bins=100)
+plot.decoration(p, xlab="Ordinary Kriging",ylab="Universal Kriging")
+```
+
+
+## Comparing Temperature and Elevation
+
+\scriptsize
+
+```{r Correlation_of_Temperature_and_Elevation}
+plot.correlation(dat,"Elevation","Temperature",flagRegr=TRUE,asPoint=TRUE)
+```
+
+## Comparing Temperature and Elevation
+
+\scriptsize
+
+
+```{r selection_Temp_Ele, echo=TRUE}
+dat$setLocators(c("Temperature", "Elevation"), ELoc_Z())
+```
+
+## Bivariate Modelling
+
+\scriptsize
+
+```{r Bivariate_Modelling, fig.align='center'}
+varioexp2var = Vario_create(varioparam, dat)
+err = varioexp2var$compute()
+fitmod2var = Model()
+err = fitmod2var$fit(varioexp2var,
+                     types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC")))
+```
+
+```{r}
+p = plot.varmod(varioexp2var, fitmod2var)
+plot.decoration(p, title="Temperature (°C) and Elevation")
+```
+
+## Cokriging with elevation - Cross-Validation
+
+\scriptsize
+
+Most of the processes are more time-consuming in Unique Neighborhood.
+We create a small neighborhood for demonstration.
+
+```{r CK_neigh}
+moving_neigh = NeighMoving_create(radius = 1000, nmaxi = 10)
+```
+
+Perform Cross-validation (Bivariate Model) and calculate the Mean Squared Error.
+
+```{r CK_Cross-validation, echo=TRUE}
+err = xvalid(dat, fitmod2var, moving_neigh,
+             namconv=NamingConvention("COK",TRUE,TRUE,FALSE))
+```
+
+
+```{r CK_Cross-validation_stat, echo=FALSE}
+tab = dbStatisticsMonoT(dat, c("COK.T*"), opers=opers)
+knitr::kable(tab$toTL(), caption= "Cross-validation with Cokriging",
+             digits=3)
+```
+
+## Cokriging with elevation - Estimate
+
+\scriptsize
+
+```{r Cokriging}
+err = kriging(dat, target, fitmod2var, unique_neigh,
+              namconv=NamingConvention("COK"))
+```
+
+```{r Cokriging_plot, echo=FALSE}
+p = plot(target, "COK.T*estim")
+p = plot(dat, name_size="Temperature", padd=p)
+plot.decoration(p, title="Temperature - CoKriging (with Elevation)")
+```
+
+## Cokriging with elevation - Statistics
+
+\scriptsize
+
+```{r Estimation_cokriging_stat, echo = FALSE}
+tab = dbStatisticsMonoT(target, c("COK.T*"), opers=opers)
+knitr::kable(tab$toTL(), caption= "Statistics on Cokriging", digits=3)
+```
+
+## Comparing Kriging and CoKriging
+
+\scriptsize
+
+```{r Comparing_Kriging_and_CoKriging, results="hide", echo=FALSE}
+p = plot.correlation(target, "OK.T*estim", "COK.T*estim", 
+                     flagBiss=TRUE, bins=100)
+plot.decoration(p, xlab="Ordinary Kriging",ylab="Ordinary CoKriging")
+
+tab = dbStatisticsMonoT(target, c("COK.T*estim", "OK.T*estim"), opers=opers)
+knitr::kable(tab$toTL(), 
+             caption="Statistics on Kriging and CoKriging estimates",
+             digits=3)
+```
+
+Note that CoKriging produces estimates which are mostly larger than Kriging estimates.
+
+## Kriging the residuals
+
+\scriptsize
+
+$$
+Z_2(s)=b + a Z_1(s) + R(s)
+$$
+```{r residual_init, echo=TRUE}
+regr = regression(dat, "Temperature", "Elevation", flagCste=TRUE, verbose=TRUE)
+b = regr$coeffs[1]
+a = regr$coeffs[2]
+
+err = dbRegression(dat, "Temperature", "Elevation",
+                     namconv = NamingConvention("Regr",TRUE,TRUE,FALSE))
+```
+
+
+```{r residual_init_stat, echo=FALSE}
+tab = dbStatisticsMonoT(dat, c("Regr*"), opers=opers)
+knitr::kable(tab$toTL(), caption= "Statistics on the residual", digits=3)
+```
+
+
+## Kriging the residuals - Correlation
+
+\scriptsize
+
+```{r residual_correlation, echo=TRUE}
+plot.correlation(dat,"Elevation","Regr*",flagRegr=TRUE,asPoint=TRUE)
+```
+
+## Kriging the residuals - Variogram of the residual
+
+\scriptsize
+
+```{r residual_variogram, echo=TRUE}
+dat$setLocator("Regr*",ELoc_Z(), cleanSameLocator=TRUE)
+varioexpR = Vario(varioparam, dat)
+err = varioexpR$compute()
+fitmodR = Model()
+err = fitmodR$fit(varioexpR,
+                  types=ECov_fromKeys(c("NUGGET","SPHERICAL","ORDER1_GC")))
+```
+
+```{r}
+p = plot.varmod(varioexpR, fitmodR)
+plot.decoration(p, title="Temperature Residual")
+```
+
+## Kriging the residuals - Variogram of the residual
+
+\scriptsize
+
+```{r residual_kriging, echo=TRUE}
+err = kriging(dat, target, fitmodR, unique_neigh,
+              namconv=NamingConvention("ROK"))
+```
+
+```{r residual_kriging_plot, echo=FALSE}
+p = plot(target, "ROK.Regr*estim")
+p = plot(dat, name_size="Temperature", padd=p)
+plot.decoration(p, title="Temperature Residuals")
+```
+
+## Kriging the residuals - Computing the estimate
+
+\scriptsize
+
+$$
+Z_2^{\star} = b + a Z_1(s) + R(s)^{OK}
+$$
+
+```{r residual_estimate, echo=TRUE}
+ROK_estim = target["ROK.Regr*estim"] + b + a * target["Elevation"]
+uid = target$addColumns(ROK_estim,"KR.Temperature.estim")
+```
+
+```{r residual_estimate_plot, echo=FALSE}
+p = plot(target,"KR.T*estim")
+p = plot(dat, name_size="Temperature", padd=p)
+plot.decoration(p, title="Temperature with Residuals")
+```
+
+## Kriging the residuals - Correlation
+
+Correlation between Ordinary Kriging and CoKriging
+ 
+\scriptsize
+
+```{r residual_estimate_corr, echo=FALSE}
+p = plot.correlation(target, "OK.T*estim", "COK.T*estim", flagBiss=TRUE,
+                     bins=100)
+plot.decoration(p, xlab="Ordinary Kriging", ylab="Ordinary CoKriging")
+```
+
+## Kriging the residuals - Correlation
+
+Correlation between Ordinary Kriging and Kriging with Residuals
+ 
+\scriptsize
+
+```{r residual_estimate_corr2, echo=FALSE}
+p = plot.correlation(target, "OK.T*estim", "KR.T*estim", flagBiss=TRUE,
+                     bins=100)
+plot.decoration(p, xlab="Ordinary Kriging",ylab="Kriging with Residuals")
+```
+
+## Kriging the residuals - Correlation
+
+\scriptsize
+
+```{r residual_estimate_stat, echo=FALSE}
+tab <- dbStatisticsMonoT(target, opers=opers,
+                          names = (c("OK.T*estim", "COK.T*estim",
+                                     "KR.T*estim")))
+knitr::kable(tab$toTL(), digits=3,
+             caption="Statistics on OK and Kriging of the resisual")
+```
+
+## Using Elevation Map as External Drift
+
+\scriptsize
+
+Preparing the data bases
+
+```{r Preparation_for_KDE}
+err = dat$setLocator("Temperature",ELoc_Z(),cleanSameLocator=TRUE)
+err = dat$setLocator("Elevation",ELoc_F(),cleanSameLocator=TRUE)
+```
+
+## Linear Regression of Temperature knowing Elevation on Data
+
+\scriptsize
+
+We perform the Linear Regression of Temperature knowing Elevation (specified as External Drift)
+
+```{r Regression_Temperature_Elevation}
+regr = regression(dat, "Temperature", mode=1, flagCste=TRUE, verbose=TRUE)
+```
+
+## Experimental Variogram of Residuals (External Drift)
+
+\scriptsize
+
+```{r Fitting_Variogram_of_Residuals_with_ED}
+varioKED = Vario(varioparam, dat)
+
+model = Model_create()
+err = model$setDriftIRF(order=0, nfex=1)
+err = varioKED$compute(model=model)
+```
+
+```{r Fitting_Variogram_of_Residuals_with_ED_fig, echo=FALSE}
+p = plot(vario_raw2dir)
+p = plot(varioKED, padd=p)
+p
+```
+
+## Model of Residuals (External Drift)
+
+\scriptsize
+
+```{r Model_of_Residuals_with_External_Drift}
+modelKED = Model()
+err = modelKED$fit(varioKED,
+                   types=ECov_fromKeys(c("NUGGET","CUBIC","GAUSSIAN")))
+modelKED$setDriftIRF(order = 0, nfex = 1)
+
+plot.varmod(varioKED, modelKED)
+```
+
+## Kriging with External Drift - Cross-Validation
+
+\scriptsize
+
+Perform Cross-validation (External Drift) and calculate the Mean Squared Error.
+
+```{r Cross-Validation_External_Drift}
+err = xvalid(dat, modelKED, unique_neigh,
+             namconv=NamingConvention("KED",TRUE,TRUE,FALSE))
+```
+
+```{r Cross-Validation_External_Drift_stat, echo=FALSE}
+tab <- dbStatisticsMonoT(dat, opers=opers, names = (c("KED.T*")))
+knitr::kable(tab$toTL(), digits=3,
+             caption="Cross-validation with Kriging with External Drift")
+```
+
+## Kriging with External Drift - Estimate
+
+\scriptsize
+
+```{r Kriging_with_External_Drift}
+err = kriging(dat, target, modelKED, unique_neigh,
+              namconv=NamingConvention("KED"))
+```
+
+```{r Kriging_with_External_Drift_plot, echo=FALSE}
+p = plot(target, "KED.T*estim")
+p = plot(dat, name_size="Temperature", padd=p)
+plot.decoration(p, title="Temperature with External Drift")
+```
+
+## Kriging with External Drift - Statistics
+
+\scriptsize
+
+```{r Estimation_ked_stat, echo = FALSE}
+tab <- dbStatisticsMonoT(target, opers=opers, names = (c("KED.T*")))
+knitr::kable(tab$toTL(), 
+             caption = "Statistics on the Kriging with External Drift")
+```
+
+## Comparing OK with KED
+
+\scriptsize
+
+```{r Comparing_Ordinary_Kriging_with_Kriging_with_External_Drift, results="hide", echo=FALSE}
+p = plot.correlation(target, "OK.T*estim", "KED.T*estim", flagBiss=TRUE,
+                     bins=100)
+plot.decoration(p, xlab="Ordinary Kriging", ylab="Kriging with External Drift")
+```
+
+Note that negative Estimates are present when using External Drift.
+
+## Summary of Cross-validation scores
+
+\scriptsize
+
+Comparing the cross-validation Mean Squared Errors
+
+```{r Comparing_Cross-validations}
+tab <- dbStatisticsMonoT(dat, opers=opers, names = (c("*.Temperature.esterr")))
+knitr::kable(tab$toTL(),
+  caption = "Statistics of the cross-validation error for the temperature"
+  )
+```
+
+## Statistics on the estimates
+
+\scriptsize
+
+Computing the statistics on the various estimates.
+
+```{r Comparing_estimates_estim, echo = TRUE}
+tab <- dbStatisticsMonoT(target, opers=opers, 
+                         names = (c("*.Temperature.estim")))
+knitr::kable(tab$toTL(), digits=3,
+  caption = "Statistics of the estimates for the temperature"
+  )
+```
+
+## Statistics on the estimates
+
+\scriptsize
+
+Computing the statistics on the various estimates.
+
+```{r Comparing_estimates_stdev, echo = TRUE}
+
+tab <- dbStatisticsMonoT(target, opers=opers, 
+                         names = (c("*.Temperature.stdev")))
+knitr::kable(tab$toTL(), digits=3,
+  caption = "Statistics of the kriging Std. for the temperature"
+  )
+```

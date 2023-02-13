@@ -1,0 +1,217 @@
+---
+title: "Conditional expectation"
+author: "RGeostats Team"
+date: "September 2019"
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fig_height: 6
+    theme: Boadilla
+theme: Boadilla
+colortheme: beaver
+fontsize: 8pt
+---
+
+```{r setup,include=FALSE, fig.show='hide'}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+                      out.width="50%",
+                      fig.align = "center") 
+```
+
+\frametitle{Preamble}
+
+```{r loading_library, message=FALSE}
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+```{r Preamble, message=FALSE}
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
+  'Scotland_Temperatures.NF',sep="/")
+dat = Db_createFromNF(fileNF)
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
+  'Scotland_Elevations.NF',sep="/")
+grid = DbGrid_createFromNF(fileNF)
+```
+
+---
+
+\frametitle{Histogram of the raw variable (temperature)}
+
+```{r Histogram}
+p = plot.hist(dat,"January*")
+plot.decoration(p, title="Temperatures")
+```
+
+---
+
+\frametitle{Gaussian scores}
+
+```{r Gaussian_Score}
+anam = AnamHermite(30)
+err = anam$fitFromLocator(dat)
+err = anam$rawToGaussian(dat, "January_temp")
+anam
+```
+
+---
+
+\frametitle{Gaussian scores}
+
+```{r Gaussian_Score_Plot}
+p = plot.XY(dat["Y.January_temp"], dat["January_temp"])
+plot.decoration(p, xlab="Gaussian", ylab="Raw")
+```
+
+---
+
+\frametitle{Gaussian scores}
+
+```{r Gaussian_Score_Histogram}
+p = plot.hist(dat,"Y.January*")
+plot.decoration(p, title="Temperatures (Gaussian scale)")
+```
+
+---
+
+\frametitle{Kriging of the Gaussian scores}
+We calculate the experimental directional variogram of the gaussian scores and fit the Model (with the constraints that sill should be 1)
+
+```{r Fitting_Model}
+varioparam = VarioParam_createMultiple(ndir=2, npas=40, dpas=10)
+vario_gauss2dir = Vario_create(varioparam, dat)
+err = vario_gauss2dir$compute()
+
+fitmodgauss = Model()
+err = fitmodgauss$fit(vario_gauss2dir, 
+                      types=ECov_fromKeys(c("NUGGET", "SPHERICAL","CUBIC")),
+                      constraints = Constraints(1))
+```
+
+```{r}
+plot.varmod(vario_gauss2dir, fitmodgauss)
+```
+
+---
+
+\frametitle{Kriging of the Gaussian scores}
+
+```{r Kriging_gaussian_scores } 
+neighU = NeighUnique_create()
+
+err = kriging(dat, grid, fitmodgauss, neighU)
+```
+
+\frametitle{Kriging of the Gaussian scores}
+\framesubtitle{Estimation}
+
+```{r}
+plot.setDefault(1, dims=c(8,8))
+p = plot(grid,"*estim")
+p = plot(dat, padd=p)
+plot.decoration(p, title="Kriging of Gaussian scores")
+```
+
+---
+
+\frametitle{Kriging of the Gaussian scores}
+\framesubtitle{Standard Deviation}
+
+```{r Kriging_Gaussian_scores_stdev}
+p = plot(grid,"*stdev")
+p = plot(dat, padd=p, flagCst=TRUE)
+plot.decoration(p, title="St. Dev. of Gaussian scores")
+```
+
+---
+
+\frametitle{Conditional expectation}
+
+Use the Turning Bands method with 1000 simulations
+
+```{r}
+selectivity = Selectivity_createByKeys(c("Z"), flag_est=TRUE, flag_std=TRUE)
+err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
+                             nbsimu=100,
+                             namconv=NamingConvention("CE",FALSE,TRUE,FALSE))
+```
+
+---
+
+\frametitle{Conditional expectation}
+
+```{r Display_Conditional_Expectation}
+p = plot(grid,"CE*estim")
+p = plot(dat, padd=p)
+plot.decoration(p, title = "Conditional Expectation")
+```
+
+---
+
+\frametitle{Conditional Standard Deviation}
+
+```{r Conditional_Standard_Deviation}
+p = plot(grid, "CE*stdev")
+p = plot(dat, padd=p, flagCst=TRUE)
+plot.decoration(p, title="Conditional Standard Deviation")
+```
+
+---
+
+\frametitle{Conditional probability}
+\framesubtitle{Below cut-off 0}
+
+```{r Conditional_Probability_above_0}
+selectivity = Selectivity_createByKeys(c("PROP"), zcuts=c(0),
+                                       flag_est=TRUE, flag_std=TRUE)
+err = ConditionalExpectation(grid, anam, selectivity, 
+                             "K*.estim", "K*.stdev",
+                             namconv=NamingConvention("CE",FALSE,TRUE,FALSE))
+```
+
+
+```{r}
+p = plot(grid,"CE.Proba*estim")
+p = plot(dat, padd=p)
+plot.decoration(p, title = "Conditional Probability below 0")
+
+```
+
+---
+
+\frametitle{Conditional probability}
+\framesubtitle{Above cut-off 1}
+
+```{r Conditional_Probability_above_1}
+selectivity = Selectivity_createByKeys(c("T"), zcuts=c(1),
+                                       flag_est=TRUE, flag_std=TRUE)
+err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
+                             namconv=NamingConvention("CE",FALSE,TRUE,FALSE))
+
+```
+
+---
+
+\frametitle{Conditional probability above 1}
+\framesubtitle{Estimation}
+
+```{r}
+p = plot(grid,"CE.T*estim-1")
+p = plot(dat, padd=p)
+plot.decoration(p, title = "Conditional Probability above 1")
+```
+
+---
+
+\frametitle{Conditional probability above 1}
+\framesubtitle{Standard Deviation}
+
+```{r Final_Histogram}
+p = plot(grid, "CE.T*stdev-1")
+p = plot(dat, padd=p, flagCst=TRUE)
+plot.decoration(p,title = "Conditional probability (Standard Deviation)")
+```
+
+

@@ -211,9 +211,9 @@ private:
   std::vector<TurningDirection> _codirs;
 };
 
-GSTLEARN_EXPORT int simtub(Db *dbin,
-                           Db *dbout,
-                           Model *model,
+GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,
+                           Db *dbout = nullptr,
+                           Model *model = nullptr,
                            ANeighParam *neighparam = nullptr,
                            int nbsimu = 1,
                            int seed = 43431,
