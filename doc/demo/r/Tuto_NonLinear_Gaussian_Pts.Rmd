@@ -78,7 +78,6 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-OptCst_defineByKey("ASP",0)
 ```
 
 ```{r, echo=TRUE, eval=TRUE}
@@ -166,19 +165,16 @@ m_Z = 1.5
 s_Z = 0.5
 grid["Z"] = m_Z * exp(s_Z * grid["Y"] - 0.5*s_Z^2)
 
-plot.grid(grid, name = "Z", asp = 1)
-plot.hist(grid, name = "Y", xlab = "Y", title = "Simulated samples (Y variable)", nbins = 100, 
-          col = "gray", fill = "skyblue")
-plot.hist(grid, name = "Z", xlab = "Z", title = "Simulated samples (Z variable)", nbins = 100, 
-          col = "gray", fill = "orange")
+plot.grid(grid, "Z")
+p = plot.hist(grid, name = "Y", nbins=100, col='gray', fill='skyblue')
+plot.decoration(p, xlab = "Y", title = "Simulated samples (Y variable)")
+p = plot.hist(grid, name = "Z", nbins = 100, col = "gray", fill = "orange")
+plot.decoration(p, xlab = "Z", title = "Simulated samples (Z variable)")
 
-stats = dbStatisticsMonoT(grid, c("Y","Z"),
-                       opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV")))$toTL()
-knitr::kable(x = round(
-  dbStatisticsMonoT(grid, c("Y","Z"),
-    opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV")))$toTL(), 2),
+opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
+stats = dbStatisticsMonoT(grid, c("Y","Z"), opers=opers)
+knitr::kable(stats$toTL(), digits=2,
     caption = "Statistics of the simulated variables on the point support")
-
 ```
 
 ## Data extraction
@@ -191,18 +187,17 @@ data = Db_createSamplingDb(grid, number=np, names=c("x1","x2","Y","Z"))
 data$setLocator("Z", ELoc_Z())
 data$display()
 
-plot.point(data, color_name = "Z", size_name = "Z", show.legend.color = TRUE)
-plot.hist(data, name = "Y", xlab = "Y", title = "Sampled data (Y variable)", nbins = 100, 
-          col = "gray", fill = "skyblue")
-plot.hist(data, name = "Z", xlab = "Z", title = "Sampled data (Z variable)", nbins = 100, 
-          col = "gray", fill = "orange")
+plot.point(data, name_color = "Z", name_size = "Z", show.legend.symbol = TRUE)
+p = plot.hist(data, name = "Y", nbins = 100, col = "gray", fill = "skyblue")
+plot.decoration(p, xlab = "Y", title = "Sampled data (Y variable)")
+p = plot.hist(data, name = "Z", nbins = 100, col = "gray", fill = "orange")
+plot.decoration(p, xlab = "Z", title = "Sampled data (Z variable)")
 
-stats = dbStatisticsMonoT(data, c("Y","Z"),
-                       opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV")))$toTL()
-knitr::kable(x = round(stats, 2),
+stats = dbStatisticsMonoT(data, c("Y","Z"), opers=opers)
+knitr::kable(stats$toTL(), digits=2, 
              caption = "Statistics of the sampled data on the point support")
 
-varZ <- stats[2, 5]^2
+varZ <- stats$getValue(1,4)^2
 ```
 
 ## Gaussian Anamorphosis with 20 coefficients
@@ -224,11 +219,11 @@ selectivity = Selectivity_createByKeys(
   flag_est=TRUE, flag_std=TRUE)
 
 # Global experimental selectivity, calculated form the experimental Data Set
-knitr::kable(x = round(selectivity$eval(data)$toTL(), 3),
+knitr::kable(selectivity$eval(data)$toTL(), digits=3,
              caption = "Selectivity curves computed on data set")
 
 # Selectivity in the model, derived from the parameters contained in the Anamorphosis
-knitr::kable(x = round(selectivity$evalFromAnamorphosis(anam)$toTL(), 3),
+knitr::kable(selectivity$evalFromAnamorphosis(anam)$toTL(), digits=3,
              caption = "Selectivity curves computed on anamorphosis")
 ```
 
@@ -236,8 +231,9 @@ knitr::kable(x = round(selectivity$evalFromAnamorphosis(anam)$toTL(), 3),
 
 ```{r, echo=TRUE, eval=TRUE}
 data["Gaussian.Z"] <- VectorHelper_normalScore(data["Z"])
-plot.hist(data, name = "Gaussian.Z", nbins = 25, col = "gray", fill = "yellow", 
-          xlab = "Normal score")
+p = plot.hist(data, name = "Gaussian.Z", nbins = 25, 
+              col = "gray", fill = "yellow") 
+plot.decoration(p, xlab = "Normal score")
 data$display()
 ```
 
@@ -269,7 +265,8 @@ err = model_raw$fit(vario_raw,
                     constraints=Constraints(varZ))
 model_raw$display()
 
-plot.varmod(vario_raw, model_raw, title = "Raw variable")
+p = plot.varmod(vario_raw, model_raw)
+plot.decoration(p, title = "Raw variable")
 ```
 
 # Variography of the Gaussian variable
@@ -285,7 +282,8 @@ err = model$fit(vario,
                 types = ECov_fromKeys(c("EXPONENTIAL", "EXPONENTIAL")), 
                 constraints=Constraints(1.))
 model$display()
-plot.varmod(vario, model, title = "Gaussian variable")
+p = plot.varmod(vario, model)
+plot.decoration(p, title = "Gaussian variable")
 
 model_Y = model$clone()
 
@@ -297,7 +295,8 @@ derived from the Model of the Gaussian transform.
 
 ```{r}
 model$setActiveFactor(-1)
-plot.varmod(vario_raw, model, title = "Raw variable (model of the Gaussian)")
+p = plot.varmod(vario_raw, model)
+plot.decoration(p, title = "Raw variable (model of the Gaussian)")
 model$setActiveFactor(0)
 ```
 
@@ -375,10 +374,13 @@ err = kriging(data, blocs, model, neigh,
               calcul = EKrigOpt_PONCTUAL(),
               namconv= NamingConvention("G_Pts"))
 
-plot.grid(blocs, name = "G_Pts.Gaussian.Z.estim", title = "Punctual Simple Kriging of Y",
-          legend.name = "Estimation")
-plot.grid(blocs, name = "G_Pts.Gaussian.Z.stdev", title = "Punctual Simple Kriging of Y",
-          legend.name = "Std. Dev.")
+p = plot(blocs, "G_Pts.Gaussian.Z.estim", 
+         show.legend.raster=TRUE, legend.name.raster = "Estimation")
+plot.decoration(p, title = "Punctual Simple Kriging of Y")
+
+p = plot(blocs, "G_Pts.Gaussian.Z.stdev", 
+         show.legend.raster=TRUE, legend.name.raster = "Std. Dev.")
+plot.decoration(p, title = "Punctual Simple Kriging of Y")
 ```
 
 ### Calculating the conditional expectation on blocs
@@ -404,21 +406,20 @@ err = ConditionalExpectation(db = blocs,
                              name_std="G_Pts*stdev",
                              namconv = NamingConvention("Pts_Recovery", FALSE))
 
-
 blocs$display()
 
 # Graphics
 # Metal (the anamorphosis is used)
-plot.grid(blocs, asp = 1, show.legend = TRUE, name = "Pts_Recovery.Q-estim-0",
-          title = "Point conditional expectation",
-          legend.name = "Q(0.0)")
+p = plot(blocs, "Pts_Recovery.Q-estim-0",
+         show.legend.raster=TRUE, legend.name.raster= "Q(0.0)")
+plot.decoration(p, title = "Point conditional expectation")
 # Tonnage (the anamorphosis is not used)
-plot.grid(blocs, asp = 1, show.legend = TRUE, name = "Pts_Recovery.T-estim-0",
-          title = "Point conditional expectation",
-          legend.name = "T(0.0)")
-plot.grid(blocs, asp = 1, show.legend = TRUE, name = "Pts_Recovery.T-estim-1",
-          title = "Point conditional expectation",
-          legend.name = "T(1.0)")
+p = plot(blocs, "Pts_Recovery.T-estim-0",
+         show.legend.raster = TRUE, legend.name.raster = "T(0.0)")
+plot.decoration(p, title = "Point conditional expectation")
+plot(blocs, "Pts_Recovery.T-estim-1",
+     show.legend.raster=TRUE, legend.name.raster = "T(1.0)")
+plot.decoration(p, title = "Point conditional expectation")
 ```
 
 **Values computed by the anamorphosis are invalid.... 
@@ -433,10 +434,9 @@ indsel = blocs["G_Pts.Gaussian.Z.stdev"] <= 0.
 blocs["T_1"] <- 1 - VectorHelper_pnormVec((Ycuts[4] - blocs["G_Pts.Gaussian.Z.estim"]) /
                                            blocs["G_Pts.Gaussian.Z.stdev"])
 blocs["T_1"][indsel] = NA
-plot.correlation(blocs, name1="Pts_Recovery.T-estim-1", name2="T_1", 
-                 xlab = "Computed value", ylab = "Theoretical value",
-                 title = "Conditional Expectation: T(1.0)",
-                 flagDiag = TRUE)
+p = plot.correlation(blocs, name1="Pts_Recovery.T-estim-1", name2="T_1", flagDiag=TRUE)
+plot.decoration(p, xlab = "Computed value", ylab = "Theoretical value",
+                title = "Conditional Expectation: T(1.0)")
 print(paste0(">>> Sum of differences for T(1.00): ",
              sum(blocs["T_1"] != blocs["Pts_Recovery.T-estim-1"], 
                  na.rm=TRUE)))
@@ -446,10 +446,10 @@ print(paste0(">>> Sum of differences for T(1.00): ",
 blocs["T_0.75"] <- 1 - VectorHelper_pnormVec((Ycuts[3] -
                    blocs["G_Pts.Gaussian.Z.estim"]) / blocs["G_Pts.Gaussian.Z.stdev"])
 blocs["T_0.75"][indsel] = NA
-plot.correlation(blocs, name1="Pts_Recovery.T-estim-0.75", name2="T_0.75", 
-                 xlab = "Computed value", ylab = "Theoretical value",
-                 title = "Conditional Expectation: T(0.75)",
-                 flagDiag = TRUE)
+p = plot.correlation(blocs, name1="Pts_Recovery.T-estim-0.75", name2="T_0.75", 
+                     flagDiag=TRUE)
+plot.decoration(p, xlab = "Computed value", ylab = "Theoretical value",
+                title = "Conditional Expectation: T(0.75)")
 print(paste0(">>> Sum of differences for T(0.75): ",
              sum(blocs["T_0.75"] != blocs["Pts_Recovery.T-estim-0.75"],
                  na.rm=TRUE)))
@@ -462,14 +462,16 @@ print(paste0(">>> Sum of differences for T(0.75): ",
 ```{r dk_model, echo=TRUE, eval=TRUE}
 #mm <- model$clone()
 # model of the Gaussian variable
-plot.varmod(vario, model, title = "Variogram of the Gaussian variable")
+p = plot.varmod(vario, model)
+plot.decoration(p, title = "Variogram of the Gaussian variable")
 
 # attach the anamorphosis to the model
 err = model$setAnam(anam)
 
 # model of the raw variable as the anamorphosis is attached to the model
 model$setActiveFactor(-1)
-plot.varmod(vario_raw, model, title = "Variogram of the raw variable")
+p = plot.varmod(vario_raw, model)
+plot.decoration(p, title = "Variogram of the raw variable")
 model$setActiveFactor(0)
 ```
 
@@ -490,23 +492,20 @@ nf = anam$getNFactor()
 asCov = FALSE # Pb. if asCov = FALSE (should be 1 - rho^n and not (1-rho)^n)
 
 # model of the factors
-ax = NULL
+p = NULL
 for (i in 1:nf) 
 {
   model$setActiveFactor(i)
-  ax <- plot.model(model, hmax=hmax, asCov = asCov, end.plot = FALSE, padd=ax,
-                 title = "Covariance of the different factors")
+  p <- plot.model(model, hmax=hmax, asCov = asCov, padd=p)
 }
-ax = ax + geom_hline(yintercept = 1.0, colour = "red")
-plot(ax)
+p = p + geom_hline(yintercept = 1.0, colour = "red")
+plot.decoration(p, title = "Covariance of the different factors")
 
 # model of the raw variable
 model$setActiveFactor(-1)
-ax = plot.model(model, hmax=hmax, asCov = asCov, end.plot = FALSE,
-                 title = "Covariance of the raw variable")
-ax = ax + geom_hline(yintercept = varZ, colour = "red")
-plot(ax)
-
+p = plot.model(model, hmax=hmax, asCov = asCov)
+p = p + geom_hline(yintercept = varZ, colour = "red")
+plot.decoration(p, title = "Covariance of the raw variable")
 ```
 
 Computation of the factors: H1, H2 et H3... They correspond to the Hermite polynomials. Their presence will dictate the number of terms used in the Hermite expansion in subsequent calculations.
@@ -534,20 +533,22 @@ As F.1 = -Y, its kriging should follow (F.1)^{SK} = (-Y)^{SK}
 
 ```{r}
 # H_1 = -Y
-plot.correlation(blocs, 
+p = plot.correlation(blocs, 
                  name1 = "G_Pts.Gaussian.Z.estim",
                  name2 = "DK_Pts.F.1.estim", 
-                 xlab = "Gaussian variable",
-                 ylab = "H_1 = -Y",
-                 title = "Values of the Simple Kriging",
-                 flagDiag = FALSE, end.plot = FALSE) + geom_abline(intercept = 0, slope = -1, colour = "red")
-plot.correlation(blocs, 
+                 flagDiag = FALSE)
+p = p + geom_abline(intercept = 0, slope = -1, colour = "red")
+plot.decoration(p, xlab = "Gaussian variable",
+                ylab = "H_1 = -Y",
+                title = "Values of the Simple Kriging")
+
+p = plot.correlation(blocs, 
                  name1 = "G_Pts.Gaussian.Z.stdev",
                  name2 = "DK_Pts.F.1.stdev", 
-                 xlab = "Gaussian variable",
-                 ylab = "H_1 = -Y",
-                 title = "Standard Deviation of the Simple Kriging error",
                  flagDiag = TRUE)
+plot.decoration(p, xlab = "Gaussian variable",
+                ylab = "H_1 = -Y",
+                title = "Standard Deviation of the Simple Kriging error")
 ```
 
 ### Computation of the disjunctive kriging
@@ -616,17 +617,17 @@ blocs$display()
 Comparing Point and Block estimations and standard deviation of Estimation errors (this comparison is performed on the results of the first factors only).
 
 ```{r, echo=TRUE, eval=TRUE}
-plot.correlation(blocs, name1 = "DK_Pts*1.estim", name2 = "DK_Blk*1.estim",
-                 xlab = "Point estimation", ylab = "Block estimation", 
-                 flagDiag = TRUE,
-                 title = "First factor (Gaussian model)")
-plot.correlation(blocs, name1 = "DK_Pts*2.estim", name2 = "DK_Blk*2.estim",
-                 xlab = "Point estimation", ylab = "Block estimation", 
-                 flagDiag = TRUE,
+p = plot.correlation(blocs, name1 = "DK_Pts*1.estim", name2 = "DK_Blk*1.estim",
+                     flagDiag=TRUE)
+plot.decoration(p, xlab = "Point estimation", ylab = "Block estimation", 
+                title = "First factor (Gaussian model)")
+p = plot.correlation(blocs, name1 = "DK_Pts*2.estim", name2 = "DK_Blk*2.estim",
+                     flagDiag=TRUE)
+plot.decoration(p, xlab = "Point estimation", ylab = "Block estimation", 
                  title = "Second factor (Gaussian model)")
-plot.correlation(blocs, name1 = "DK_Pts*3.estim", name2 = "DK_Blk*3.estim",
-                 xlab = "Point estimation", ylab = "Block estimation", 
-                 flagDiag = TRUE,
+p = plot.correlation(blocs, name1 = "DK_Pts*3.estim", name2 = "DK_Blk*3.estim",
+                 flagDiag = TRUE)
+plot.decoration(p, xlab = "Point estimation", ylab = "Block estimation", 
                  title = "Third factor (Gaussian model)")
 ```
 
@@ -649,15 +650,13 @@ panels$display()
 ```
 
 ```{r dk_panels_map, echo=TRUE, eval=TRUE}
-plot.grid(panels,
-          xlab = "Easting", ylab = "Northing", asp = 1,
-          title = "Estimate of the first factor (panels)",
-          name = "DK_Blk.*.estim", show.legend = TRUE )
+p = plot(panels, "DK_Blk.*.estim", show.legend.raster = TRUE) 
+plot.decoration(p, xlab = "Easting", ylab = "Northing", 
+            title = "Estimate of the first factor (panels)")
 
-plot.grid(panels,
-          xlab = "Easting", ylab = "Northing", asp = 1,
-          title = "Std. of the first factor estimate (panels)",
-          name = "DK_Blk.*.stdev", show.legend = TRUE )
+p = plot(panels, "DK_Blk.*.stdev", show.legend.raster = TRUE)
+plot.decoration(p, xlab = "Easting", ylab = "Northing", 
+              title = "Std. of the first factor estimate (panels)")
 ```
 
 ## Cross validation
@@ -680,10 +679,10 @@ TODO:
 
 ```{r xval_fine_grid, echo=TRUE, eval=TRUE}
 # cleaning the target data base
-grid$deleteColumns("SK.*")
-grid$deleteColumns("CE.*")
-grid$deleteColumns("DK.*")
-grid$deleteColumns("sel-.*")
+err = grid$deleteColumns("SK.*")
+err = grid$deleteColumns("CE.*")
+err = grid$deleteColumns("DK.*")
+err = grid$deleteColumns("sel-.*")
 # Selectivity curve : Z
 zcuts <- round(quantile(data$getColumn("Z"), probs = c(0.5, 0.75)),3)
 ycuts <- round(anam$rawToGaussianVector(zcuts),3)
@@ -693,7 +692,7 @@ Z_est = Selectivity_createByKeys(keys = c("Z"), zcuts=c(0.0),
 
 # Global experimental selectivity, calculated form the experimental Data Set
 grid$setLocator("Z", ELoc_Z(), cleanSameLocator=TRUE)
-knitr::kable(x = round(Z_est$eval(grid)$toTL(), 3),
+knitr::kable(Z_est$eval(grid)$toTL(), digits=3,
              caption = "Selectivity curves computed on fine grid")
 
 # Simple kriging of Z
@@ -734,8 +733,8 @@ err = DisjunctiveKriging(db = grid,
                          name_est="SK.F.*.estim", 
                          name_std="SK.F.*.stdev",
                          namconv = NamingConvention("DK", FALSE))
-grid$setName("DK.Z-estim", "DK.Z.estim")
-grid$setName("DK.Z-stdev", "DK.Z.stdev")
+err = grid$setName("DK.Z-estim", "DK.Z.estim")
+err = grid$setName("DK.Z-stdev", "DK.Z.stdev")
 
 # Disjunctive kriging for T and Q
 Z_est = Selectivity_createByKeys(keys = c("T", "Q"), zcuts=zcuts,
@@ -746,8 +745,6 @@ err = DisjunctiveKriging(db = grid,
                          name_est="SK.F.*.estim", 
                          name_std="SK.F.*.stdev",
                          namconv = NamingConvention("DK", FALSE))
-
-
 ```
 
 ### QC of the Disjunctive Kriging functions
@@ -765,9 +762,12 @@ for (i in seq_along(Y)) {
 # Lognormal
 m = 1.0 ; sigma = 1.5
 psi.LN = hermiteLognormal(mean = m, sigma = sigma, nbpoly = N)
-plot(Y, H %*% psi.LN, type = "l", col = "red", xlab = "Gaussian value", ylab = "Raw value", main = paste0("Lognormal m=", m, " and sigma = ", sigma))
+plot(Y, H %*% psi.LN, type = "l", col = "red", 
+     xlab = "Gaussian value", ylab = "Raw value", 
+     main = paste0("Lognormal m=", m, " and sigma = ", sigma))
 lines(Y, m * exp(sigma*Y - 1/2 * sigma^2), col = "blue", lwd = 2, lty = 2)
-legend("topleft", legend = c("Hermite", "Theoretical"), col = c("red", "blue"), lty = c(1,2))
+legend("topleft", legend = c("Hermite", "Theoretical"), 
+       col = c("red", "blue"), lty = c(1,2))
 # QC of the indicator decomposition (OK)
 # psi.LN.qc = rep(NaN, N)
 # psi.LN.qc = m * (-sigma)^(0:(N-1)) / sqrt(factorial(0:(N-1)))
@@ -777,10 +777,13 @@ legend("topleft", legend = c("Hermite", "Theoretical"), col = c("red", "blue"), 
 # Indicator
 yc = ycuts[1]
 psi.ind = hermiteCoefIndicator(yc = yc, nbpoly = N)
-plot(Y, H %*% psi.ind, type = "l", col = "red", xlab = "Gaussian value", ylab = "Raw value", main = paste0("Indicator of ", yc))
+plot(Y, H %*% psi.ind, type = "l", col = "red", 
+     xlab = "Gaussian value", ylab = "Raw value", 
+     main = paste0("Indicator of ", yc))
 lines (Y, as.numeric(Y >= yc), col = "blue", lty = 2)
 abline(h = c(0,1), col = "gray", lty = 2)
-legend("topleft", legend = c("Hermite", "Theoretical"), col = c("red", "blue"), lty = c(1,2))
+legend("topleft", legend = c("Hermite", "Theoretical"), 
+       col = c("red", "blue"), lty = c(1,2))
 # QC of the indicator decomposition (OK)
 # psi.ind.qc = rep(NaN, N)
 # psi.ind.qc[1] = 1 - pnorm(yc)
@@ -791,9 +794,13 @@ legend("topleft", legend = c("Hermite", "Theoretical"), col = c("red", "blue"), 
 # Metal
 yc = 2.0
 psi.metal = hermiteCoefMetal(yc = yc, phi = psi.LN)
-plot(Y, H %*% psi.metal, type = "l", col = "red", xlab = "Gaussian value", ylab = "Raw value", main = paste0("Metal for cutoff = ", yc))
-lines (Y, m * exp(sigma * Y - 1/2 * sigma^2) * as.numeric(Y >= yc), col = "blue", lty = 2)
-legend("topleft", legend = c("Hermite", "Theoretical"), col = c("red", "blue"), lty = c(1,2))
+plot(Y, H %*% psi.metal, type = "l", col = "red", 
+     xlab = "Gaussian value", ylab = "Raw value", 
+     main = paste0("Metal for cutoff = ", yc))
+lines (Y, m * exp(sigma * Y - 1/2 * sigma^2) * as.numeric(Y >= yc), 
+       col = "blue", lty = 2)
+legend("topleft", legend = c("Hermite", "Theoretical"), 
+       col = c("red", "blue"), lty = c(1,2))
 # QC of the metal decomposition (OK)
 # psi.metal.qc = matrix(hermiteIncompleteIntegral(yc, N)$getValues(), N, N) %*% psi.LN
 # plot(psi.metal, psi.metal.qc)
@@ -815,14 +822,12 @@ grid[nm_qc_estim] <- psi[1] + Hn.est %*% psi[-1][1:nfactor]
 grid[nm_qc_stdev] <- sqrt(Hn.std^2 %*% (psi[-1][1:nfactor]^2)  + sum(psi[-1][(nfactor+1):(N-1)]^2))
 
 # Raw variable
-plot.correlation(grid, name1 = nm_estim, name2 = nm_qc_estim, 
-                 xlab = nm_estim, ylab = nm_qc_estim,
-                 title = "Disjunctive Kriging - Estimation value",
-                 flagDiag = TRUE)
-plot.correlation(grid, name1 = nm_stdev, name2 = nm_qc_stdev, 
-                 xlab = nm_stdev, ylab = nm_qc_stdev,
-                 title = "Disjunctive Kriging - Standard deviation",
-                 flagDiag = TRUE)
+p = plot.correlation(grid, name1 = nm_estim, name2 = nm_qc_estim, flagDiag=TRUE)
+plot.decoration(p, xlab = nm_estim, ylab = nm_qc_estim,
+                title = "Disjunctive Kriging - Estimation value")
+p = plot.correlation(grid, name1 = nm_stdev, name2 = nm_qc_stdev, flagDiag=TRUE)
+plot.decoration(p, xlab = nm_stdev, ylab = nm_qc_stdev,
+                title = "Disjunctive Kriging - Standard deviation")
 NULL
 }
 
@@ -869,44 +874,41 @@ nm <-c("Z",
 
 # Correlation actual values vs. estimated values
 for (est in c("SK", "DK", "CE")) {
-  plot.correlation(grid, name1=paste0(est, ".Z.estim"), name2="Z", flagDiag = TRUE,
-                   xlab = "Estimated value",
-                   ylab = "Actual value",
-                   title = paste(est, " of raw variable"))
+  p = plot.correlation(grid, name1=paste0(est, ".Z.estim"), name2="Z", flagDiag = TRUE)
+  plot.decoration(p, xlab = "Estimated value", ylab = "Actual value",
+                  title = paste(est, " of raw variable"))
   }
 
 # Comparison of the estimators
-plot.correlation(grid, name1="CE.Z.estim", name2="SK.Z.estim", flagDiag = TRUE,
-                 xlab = "Conditional expectation",
-                 ylab = "Simple kriging",
-                 title = "Point raw variable")
+p = plot.correlation(grid, name1="CE.Z.estim", name2="SK.Z.estim", flagDiag = TRUE)
+plot.decoration(p, xlab = "Conditional expectation", ylab = "Simple kriging",
+                title = "Point raw variable")
 
-plot.correlation(grid, name1="DK.Z.estim", name2="SK.Z.estim", flagDiag = TRUE,
-                 xlab = "Disjunctive Kriging",
-                 ylab = "Simple kriging",
-                 title = "Point raw variable")
+p = plot.correlation(grid, name1="DK.Z.estim", name2="SK.Z.estim", flagDiag = TRUE)
+plot.decoration(p, xlab = "Disjunctive Kriging", ylab = "Simple kriging",
+                title = "Point raw variable")
 
 # Maps of the estimators
 for (est in c("SK", "DK", "CE")){
   for (type in c("estim", "stdev")){
 
-  plot.grid(grid, name = paste0(est, ".Z.", type), 
-            xlab = "Easting", ylab = "Northing",
-            title = paste("Estimator = ", est), legend.name = type) 
+  p = plot(grid, paste0(est, ".Z.", type),
+           show.legend.raster=TRUE, legend.name.raster=type) 
+  plot.decoration(p, xlab = "Easting", ylab = "Northing", 
+                  title = paste("Estimator = ", est)) 
   
   if (type == "estim") col_fill = "orange"
   if (type == "stdev") col_fill = "skyblue"
   
-  plot.hist(grid, name = paste0(est, ".Z.", type), nbins = 50, col = "gray", fill = col_fill,
-            xlab = paste0(est, ".Z.", type),
+  p = plot.hist(grid, name = paste0(est, ".Z.", type), nbins = 50, 
+            col = "gray", fill = col_fill)
+  plot.decoration(p, xlab = paste0(est, ".Z.", type),
             title = paste("Estimator = ", est))
 }
 }
 
 # Mono variate statistics of the estimators
-knitr::kable(x = round(
-  dbStatisticsMonoT(grid, nm,
-    opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV")))$toTL(), 3),
+knitr::kable(dbStatisticsMonoT(grid, nm, opers=opers)$toTL(), digits=3,
     caption = "Statistics of the estimated values")
 
 # Scoring rules
@@ -930,7 +932,7 @@ res <- matrix(c(
   nrow = 3, ncol = 6, byrow = TRUE)
 colnames(res) <- c("ME", "MAE", "RMSE", "MSE", "MASE", "RMSSE")
 rownames(res) <- c("SK", "DK", "CE")
-knitr::kable(x = round(res, 4),
+knitr::kable(res, digits=4,
              caption = "Scores of point estimators of Z using 500 data points")
 
 ```
