@@ -1236,7 +1236,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   if (_isGlobalHH(igrf, icov))
     _loadHHByApex(amesh, hhGrad, 0);
 
-
   /* Loop on the meshes */
 
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
@@ -1265,7 +1264,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
     dethh = 1./hh.determinant();
     hh.invert();
-
 
     // Loop on the derivative terms
 
