@@ -1633,18 +1633,20 @@ cs* cs_multiply(const cs *A, const cs *B)
 
 /* Transform VectorDouble to cs diagonal */
 
-cs* cs_diag(VectorDouble diag)
+cs* cs_diag(VectorDouble diag, double tol)
 {
   cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
-
-  for (int i = 0; i < (int)diag.size(); i++)
+  int number = (int) diag.size();
+  for (int i = 0; i < number; i++)
   {
+    if (ABS(diag[i]) < tol) continue;
     if (!cs_entry(Striplet, i, i, diag[i]))
     {
       return nullptr;
     }
   }
 
+  cs_force_dimension(Striplet, number, number);
   cs* Q = cs_triplet(Striplet);
   Striplet = cs_spfree(Striplet);
   return Q;

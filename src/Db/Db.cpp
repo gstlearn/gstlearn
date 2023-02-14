@@ -600,7 +600,7 @@ double Db::getArray(int iech, int iuid) const
   return (_array[_getAddress(iech, icol)]);
 }
 
-VectorDouble Db::getArray(int iuid, bool useSel) const
+VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
 {
   int nech = getSampleNumber();
   VectorDouble sel, tab;

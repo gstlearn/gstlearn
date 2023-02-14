@@ -1,8 +1,7 @@
-[[grid-refinement]]
-= Grid Refinement
+== Grid Refinement
 
 This case study is meant to demonstrate how to use _gstlearn_ for
-coarseining or refining Grids (stored as DbGrid).
+coarsening or refining Grids (stored as DbGrid).
 
 Global parameters
 

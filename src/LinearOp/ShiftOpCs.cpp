@@ -1236,7 +1236,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   if (_isGlobalHH(igrf, icov))
     _loadHHByApex(amesh, hhGrad, 0);
 
-
   /* Loop on the meshes */
 
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
@@ -1265,7 +1264,6 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
     dethh = 1./hh.determinant();
     hh.invert();
-
 
     // Loop on the derivative terms
 
@@ -1336,6 +1334,9 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   VH::multiplyConstant(tempVec, -0.5);
 
   int ind = 0;
+  cs* tildeCGradMat = nullptr;
+  cs* A = nullptr;
+  cs* At = nullptr;
   for (int ipar = 0; ipar < _nModelGradParam; ipar++)
   {
     for (int iap = 0; iap < getSize(); iap++)
@@ -1345,19 +1346,15 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
       VH::multiplyInPlace(tildeCGrad, tempVec);
       cs_matvecnorm_inplace(_SGrad[ind], invSqrtTildeC.data(), 0);
 
-      cs* tildeCGradMat = cs_diag(tildeCGrad);
-      cs* A = cs_multiply(_S, tildeCGradMat);
-      cs* At = cs_transpose(A, 1);
-      cs* Asym = cs_add(A, At, 1., 1.);
-      cs* ABmat = cs_add(Asym, _SGrad[ind], 1., 1.);
-      cs_free(_SGrad[ind]);
+      tildeCGradMat = cs_diag(tildeCGrad);
+      A = cs_multiply(_S, tildeCGradMat);
+      cs_spfree(tildeCGradMat);
+      At = cs_transpose(A, 1);
+      A = cs_add_and_release(A, At, 1., 1., 1);
+      cs_spfree(At);
+      _SGrad[ind] = cs_add_and_release(_SGrad[ind], A, 1., 1., 1);
+      cs_spfree(A);
 
-      _SGrad[ind] = ABmat;
-
-      cs_free(tildeCGradMat);
-      cs_free(A);
-      cs_free(At);
-      cs_free(Asym);
       ind++;
     }
   }

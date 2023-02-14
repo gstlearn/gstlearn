@@ -60,6 +60,13 @@ if ($name1 == "ipynb") then
 		set nameref = $nametest.asciidoc
 		set namecmp = $nametest.asciidoc
 endif
+if ($name1 == "rmd") then
+		set direcref = "output"
+		set directest = ""
+		set nametest = `basename $nametest .Rmd`
+		set nameref = $nametest.md
+		set namecmp = $nametest.md
+endif
 
 set FILEREF = $DIR/tests/$name1/$direcref/$nameref
 set FILECMP = $DIR/build/tests/$name1/$option/$directest/$namecmp

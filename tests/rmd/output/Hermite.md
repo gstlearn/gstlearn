@@ -2,12 +2,12 @@ General Introduction
 ====================
 
 The objective of this document is to provide some guides for
-manipulation of Hermite polynomials. In praticular, it will give some
-hints for calculating of complex expressions (e.g. metal bove cutoff)
+manipulation of Hermite polynomials. In particular, it will give some
+hints for calculating of complex expressions (e.g. metal above cutoff)
 and be double checked using a Monte Carlo approach.
 
 It will also demonstrate the quality of the polynomial expansion for a
-given known distribution of the data (i.e. lognormal). Finally it will
+given known distribution of the data (i.e. lognormal). Finally it will
 serve in demonstrating the ability of representing any function through
 a Hermite polynomial expansion.
 
@@ -16,11 +16,11 @@ Part I
 
 The objective of the first part is to compute
 
-*ψ*<sub>1</sub>(*α*, *β*)=∫*ϕ*(*α* + *β* *u*) *g*(*u*) *d**u*
+*ψ*<sub>1</sub>(*α*, *β*) = ∫*ϕ*(*α* + *β* *u*) *g*(*u*) *d**u*
 
 and
 
-*ψ*<sub>2</sub>(*α*, *β*)=∫*ϕ*<sup>2</sup>(*α* + *β* *u*) *g*(*u*) *d**u*
+*ψ*<sub>2</sub>(*α*, *β*) = ∫*ϕ*<sup>2</sup>(*α* + *β* *u*) *g*(*u*) *d**u*
 
 for a function *ϕ* in order to compute the conditional expectation and
 the conditional variance, usually defined by its expansion in terms of
@@ -31,7 +31,7 @@ $$
 $$
 
 In particular, we may be interested in the case where *α* = *r**y* and
-$\\beta = \\sqrt { { 1-r^2 } }$. Note that |*β*|&lt;1.
+$\\beta = \\sqrt { { 1-r^2 } }$. Note that |*β*| &lt; 1.
 
 Many methods can be used to compute these draw.matrix:
 
@@ -117,13 +117,13 @@ We consider the second order stationary model
 $Z\_{\\lambda}(x) = e^{\\lambda Y(x) - \\frac{1}{2} \\lambda^2}$ where
 *Y*(*x*) is a centered Gaussian model with autocorrelation *ρ*:
 
--   *E*{*Y*}=0
+-   *E*{*Y*} = 0
 
--   *C**o**v*(*Y*(*x*),*Y*(*x* + *h*)) = *E*{*Y*(*x*)*Y*(*x* + *h*)} = *ρ*(*h*)
+-   *C**o**v*(*Y*(*x*), *Y*(*x* + *h*)) = *E*{*Y*(*x*)*Y*(*x* + *h*)} = *ρ*(*h*)
 
--   *E*{*Z*<sub>*λ*</sub>}=1
+-   *E*{*Z*<sub>*λ*</sub>} = 1
 
--   *C**o**v*(*Z*<sub>*λ*</sub>(*x*),*Z*<sub>*λ*</sub>(*x* + *h*)) = *E*{*Z*<sub>*λ*</sub>(*x*)*Z*<sub>*λ*</sub>(*x* + *h*)} − 1 = *e*<sup>*λ*<sup>2</sup>*ρ*(*h*)</sup> − 1
+-   *C**o**v*(*Z*<sub>*λ*</sub>(*x*), *Z*<sub>*λ*</sub>(*x* + *h*)) = *E*{*Z*<sub>*λ*</sub>(*x*)*Z*<sub>*λ*</sub>(*x* + *h*)} − 1 = *e*<sup>*λ*<sup>2</sup>*ρ*(*h*)</sup> − 1
 
 The anamorphosis *ϕ*<sub>*λ*</sub> maps the Gaussian field into the
 lognormal SOS model
@@ -136,7 +136,7 @@ C\_{\\lambda}(h) = e^{\\lambda^2 \\rho } - 1 = \\sum\_{n = 1}^{+\\infty} \\phi\_
 $$
 
 The recursion formula to compute the values of the Hermite polynomials
-are: *H*<sub>0</sub>(*y*)=1, *H*<sub>1</sub>(*y*)= − *y*, and
+are: *H*<sub>0</sub>(*y*) = 1, *H*<sub>1</sub>(*y*) =  − *y*, and
 $$
 H\_{n+1}(y) = -\\frac{1}{\\sqrt{n+1}} y H\_n(y) - \\sqrt{\\frac{n}{n+1}} H\_{n-1}(y)
 $$
@@ -286,7 +286,7 @@ Part III
 
 The observed variable is
 
-*Y*<sub>*y*<sub>*c*</sub></sub> = *ϕ*<sub>*y*<sub>*c*</sub></sub>(*Y*)=*Y* × 1<sub>*Y* ≥ *y*<sub>*c*</sub></sub> + *y*<sub>*c*</sub> × 1<sub>*Y* &lt; *y*<sub>*c*</sub></sub> = ∑<sub>*n* ≥ 0</sub>*ϕ*<sub>*n*</sub>(*y*<sub>*c*</sub>)×*H*<sub>*n*</sub>(*Y*)
+*Y*<sub>*y*<sub>*c*</sub></sub> = *ϕ*<sub>*y*<sub>*c*</sub></sub>(*Y*) = *Y* × 1<sub>*Y* ≥ *y*<sub>*c*</sub></sub> + *y*<sub>*c*</sub> × 1<sub>*Y* &lt; *y*<sub>*c*</sub></sub> = ∑<sub>*n* ≥ 0</sub>*ϕ*<sub>*n*</sub>(*y*<sub>*c*</sub>) × *H*<sub>*n*</sub>(*Y*)
 
 where normalized Hermite polynomials are
 $H\_n(n) = \\frac{1}{\\sqrt{n!}} \\frac{g^{(n)}(y)}{g(y)}$.
@@ -294,9 +294,9 @@ $H\_n(n) = \\frac{1}{\\sqrt{n!}} \\frac{g^{(n)}(y)}{g(y)}$.
 The computation of the coefficients *ϕ*<sub>*n*</sub>(*y*<sub>*c*</sub>)
 gives
 
--   *ϕ*<sub>0</sub>(*y*<sub>*c*</sub>)=*g*(*y*<sub>*c*</sub>)+*y*<sub>*c*</sub> × *G*(*y*<sub>*c*</sub>),
+-   *ϕ*<sub>0</sub>(*y*<sub>*c*</sub>) = *g*(*y*<sub>*c*</sub>) + *y*<sub>*c*</sub> × *G*(*y*<sub>*c*</sub>),
 
--   *ϕ*<sub>1</sub>(*y*<sub>*c*</sub>)=*G*(*y*<sub>*c*</sub>)−1,
+-   *ϕ*<sub>1</sub>(*y*<sub>*c*</sub>) = *G*(*y*<sub>*c*</sub>) − 1,
 
 -   $\\phi\_n(y\_c) = g(y\_c) \\frac{H\_{n-2}(y\_c)}{\\sqrt{n\\times(n-1)}}$
     for *n* &gt; 1.

@@ -9,17 +9,17 @@ endif()
 # With GLOB:
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
-cmake_path(APPEND PROJECT_SOURCE_DIR doc demo r
-           OUTPUT_VARIABLE DEMO_DIR)
-file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.Rmd)
-cmake_path(APPEND PROJECT_SOURCE_DIR doc courses r
-           OUTPUT_VARIABLE COURSES_DIR)
-file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.Rmd)
-set(TEST_SOURCES ${DEMO_SOURCES})
-list(APPEND TEST_SOURCES ${COURSES_SOURCES})
+#cmake_path(APPEND PROJECT_SOURCE_DIR doc demo r
+#           OUTPUT_VARIABLE DEMO_DIR)
+#file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.Rmd)
+#cmake_path(APPEND PROJECT_SOURCE_DIR doc courses r
+#           OUTPUT_VARIABLE COURSES_DIR)
+#file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.Rmd)
+#set(TEST_SOURCES ${DEMO_SOURCES})
+#list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
-#set(TEST_SOURCES 
-#    ../../doc/demo/r/Hermite.Rmd)
+set(TEST_SOURCES 
+    ../../doc/demo/r/Hermite.Rmd)
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)
