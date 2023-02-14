@@ -221,6 +221,29 @@ void VectorHelper::displayRange(const String &title, const VectorInt &vect)
   }
 }
 
+void VectorHelper::displayNNZ(const String &title, const VectorDouble &vect, int nclass)
+{
+  int ntotal = (int) vect.size();
+  VectorInt total(nclass);
+  for (int ic = 0; ic < nclass; ic++) total[ic] = 0.;
+
+  for (int i = 0; i < ntotal; i++)
+  {
+    double value = ABS(vect[i]);
+    double tol = 1.;
+    for (int ic = 0; ic < nclass; ic++)
+    {
+      tol /= 10.;
+      if (value > tol) break;
+      total[ic] += 1;
+    }
+  }
+
+  if (!title.empty()) message("%s\n", title.c_str());
+  for (int ic = 0; ic < nclass; ic++)
+    message("Count below 10.e-%d = %d\n", ic+1, total[ic]);
+}
+
 double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;

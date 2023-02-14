@@ -28,7 +28,7 @@ GSTLEARN_EXPORT cs     *cs_matvecL(const cs *A, double *x, int oper);
 GSTLEARN_EXPORT cs     *cs_matvecnorm(const cs *A, const double *x, int oper);
 GSTLEARN_EXPORT void    cs_matvecnorm_inplace(cs *A, const double *x, int oper);
 GSTLEARN_EXPORT cs     *cs_triplet (const cs *T) ;
-GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag);
+GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag, double tol = EPSILON10);
 GSTLEARN_EXPORT double  cs_norm (const cs *A) ;
 GSTLEARN_EXPORT int     cs_print (const cs *A, int brief) ;
 GSTLEARN_EXPORT void    cs_print_only(const char *title, const cs *A,int nlimit);
