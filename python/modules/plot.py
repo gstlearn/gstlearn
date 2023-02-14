@@ -606,7 +606,7 @@ def readCoorPoint(db, coorX_name=None, coorY_name=None,
 def pointSymbol(ax=None, db=None, name_color=None, name_size=None, 
                 coorX_name=None, coorY_name=None, usesel=True, 
                 c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
-                flagLegend=True, posX=0, posY=1, **kwargs):
+                flagLegend=True, legendName=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
     
@@ -623,7 +623,8 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
     sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
     flagCst: When True, the size is kept constant (equal to 's')
-    flagLegend: Flag for representing the Legend 
+    flagLegend: Flag for representing the Legend
+    legendName: Title for the Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -678,12 +679,14 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
     
         if name_size is not None:
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
-            ax.legend(*res.legend_elements("sizes", num=5, func=labels))
+            ax.legend(*res.legend_elements("sizes", num=6, func=labels), 
+                      title=legendName)
          
     return res
 
 def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None, 
-               usesel=True, flagLegend=True, posX=0, posY=1, **kwargs):
+               usesel=True, flagLegend=True, legendName=None, 
+               posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a point data base, with optional color and size variables
     
@@ -693,7 +696,8 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
-    flagLegend: Flag for representing the Color Bar 
+    flagLegend: Flag for representing the Color Bar
+    legendName: title of the Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -801,7 +805,8 @@ def point(db,
           flagAbsSize=False, flagCst=False,
           flagGradient=False, colorGradient='black', scaleGradient=20,
           flagTangent=False, colorTangent='black', scaleTangent=20,
-          flagLegendSymbol=False, flagLegendLabel=False,
+          flagLegendSymbol=False, legendSymbolName=None,
+          flagLegendLabel=False, legendLabelName=None,
           posX=0, posY=1, ax=None, **kwargs):
     '''
     Construct a figure for plotting a point data base
@@ -827,7 +832,9 @@ def point(db,
     colorTangent: Color attached to the Gradient representation
     scaleTangent: Scale of the Gradient representation
     flagLegendSymbol: Flag for representing the Color Bar (only if name_color is defined)
+    legendSymbolName: Title for the Symbol Legend
     flagLegendLabel: Flag for representing the Legend for marker size (only if name_size is defined)
+    legendLabelName: Title for the Label Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
 
@@ -849,13 +856,16 @@ def point(db,
                          coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
                          flagAbsSize=flagAbsSize, flagCst=flagCst,
-                         cmap=cmap, flagLegend=flagLegendSymbol, posX=posX, posY=posY, 
+                         cmap=cmap, 
+                         flagLegend=flagLegendSymbol, legendName=legendSymbolName,
+                         posX=posX, posY=posY, 
                          **kwargs)
     
     if name_label is not None:
         tx = pointLabel(ax, db, name=name_label, 
                         coorX_name=coorX_name, coorY_name=coorY_name, 
-                        usesel=usesel, flagLegend=flagLegendLabel,
+                        usesel=usesel, 
+                        flagLegend=flagLegendLabel, legendName=legendLabelName,
                         posX=posX, posY=posY, **kwargs)
         
     if flagGradient:

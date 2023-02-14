@@ -42,7 +42,7 @@ d
 
 ## Working directory
 
-```{r Working-directory}
+```{r Working-directory, eval=FALSE}
 getwd()
 ls()
 rm(d)
