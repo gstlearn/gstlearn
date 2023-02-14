@@ -17,7 +17,7 @@ It contains several well established geostatistical functions and methods and so
 
 In each R session, you must load the **gstlearn** library
 
-```{r Load library, include=FALSE}
+```{r Load-library, include=FALSE}
 library(gstlearn)
 ```
 
@@ -42,7 +42,7 @@ d
 
 ## Working directory
 
-```{r Working directory}
+```{r Working-directory}
 getwd()
 ls()
 rm(d)
@@ -136,7 +136,7 @@ dim(M)
 
 ## Data frame
 
-```{r Data Frames-1}
+```{r Data-Frames-1}
 data = data.frame(M)
 class(data)
 data[,3]
@@ -146,7 +146,7 @@ data
 ```
 
 
-```{r Data Frames-2}
+```{r Data-Frames-2}
 data
 data$C
 data[data$A>1,]
@@ -158,7 +158,7 @@ Download the ASCII file called *Scotland_Temperatures.csv* and store it on your 
 
 
 
-```{r Data Frame from File, eval=FALSE}
+```{r Data-Frame-from-File, eval=FALSE}
 getwd()
 filename = paste(Sys.getenv('GSTLEARN_DATA'),"Scotland",
                  "Scotland_Temperatures.csv",sep="/")
@@ -170,6 +170,7 @@ names(temperatures)
 ## Some functions
 
 ```{r Functions-1}
+set.seed(123)
 rnorm(3)
 x=c(3,4,7,4,2)
 x
@@ -196,7 +197,7 @@ Search for help on the function **image**.
 
 To get some help on a class :
 
-```{r Help on Class,eval=FALSE}
+```{r Help-on-Class,eval=FALSE}
 class?matrix
 ```
 

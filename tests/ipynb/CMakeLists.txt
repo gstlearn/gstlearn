@@ -2,14 +2,10 @@ if(NOT BUILD_PYTHON)
   return()
 endif()
 
-# TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similar (factorization ?)
+# TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb, rmd) are similar (factorization ?)
 # Jupyter notebooks are located in doc/ folder
 # They are not executed automatically for non-regression (see parent CMakeLists)
 
-# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
-find_package(Python3 REQUIRED)
-
-# Where are located jupyter notebooks?
 # With GLOB:
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
@@ -45,10 +41,12 @@ add_custom_target(check_ipynb
 # Add dependency for check_ipynb
 add_dependencies(check_ipynb python_install)
 
-# Python script test runner path
-cmake_path(APPEND PROJECT_SOURCE_DIR python run_test_ipynb.py
+# Jupyter notebook script test runner path
+cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR run_test_ipynb.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)
 
+# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
+find_package(Python3 REQUIRED)
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 

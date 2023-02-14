@@ -51,14 +51,14 @@ knitr::kable(tab$toTL(), caption = "Statistics on the grid")
 
 ## Observations
 
-```{r maps-elevation, echo=FALSE}
+```{r maps-elevation-1, echo=FALSE}
 plot.setDefault(1, dims=c(8,8))
 plot(dat, name_color="Elevation")
 ```
 
 ## Map of the elevations on Grid
 
-```{r maps-elevation, echo=FALSE}
+```{r maps-elevation-2, echo=FALSE}
 plot(target, name_raster="Elevation")
 ```
 
@@ -201,12 +201,12 @@ Note that the residuals seem isotropic, hence use isotropic option for Fitting.
 
 Perform Cross-validation (using Universal Kriging) and calculate the Mean Squared Error.
 
-```{r Cross-validation_Universal_ Kriging}
+```{r Cross-validation_Universal_Kriging}
 err = xvalid(dat, fitmodUK, unique_neigh,
              namconv=NamingConvention("UK",TRUE,TRUE,FALSE))
 ```
 
-```{r Cross-validation_Universal_ Kriging_stat, echo=FALSE}
+```{r Cross-validation_Universal_Kriging_stat, echo=FALSE}
 tab = dbStatisticsMonoT(dat, c("UK.Temperature.*"), opers=opers)
 knitr::kable(tab$toTL(), caption= "Cross-validation with Ordinary Kriging",
              digits=3)

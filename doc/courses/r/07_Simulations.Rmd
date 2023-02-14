@@ -208,7 +208,7 @@ ggarrange(p1,p2,p3,p4,ncol=2,nrow=2)
 
 \frametitle{Comparing Mean of Simulations and Kriging with External Drift}
 
-```{r Comparing_Mean_of_Simulations_with_the_Kriging, results="hide"}
+```{r Comparing_Mean_of_Simulations_with_the_Kriging-2, results="hide"}
 err = target$statistics(c("Simu.January_temp*"), 
                         EStatOption_fromKeys(c("MEAN")),
                         flagStoreInDb=TRUE)

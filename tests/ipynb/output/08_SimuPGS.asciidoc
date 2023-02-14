@@ -113,6 +113,11 @@ Simulation  SimuPGS.6 is valid
 Simulation  SimuPGS.7 is valid
 Simulation  SimuPGS.9 is valid
 Simulation  SimuPGS.10 is valid
+Simulation  SimuPGS.13 is valid
+Simulation  SimuPGS.14 is valid
+Simulation  SimuPGS.15 is valid
+Simulation  SimuPGS.17 is valid
+Simulation  SimuPGS.19 is valid
 ----
 
 Derive the Probability Map

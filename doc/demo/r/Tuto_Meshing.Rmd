@@ -15,7 +15,6 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-plot.initialize()
 ```
 
 # Standard Meshing based on Irregular data set

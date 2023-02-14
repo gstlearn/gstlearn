@@ -27,6 +27,11 @@ ascii_exporter = ASCIIDocExporter()
 ascii_exporter.exclude_input = True
 ascii_data, resources = ascii_exporter.from_notebook_node(nb)
 
+# Remove all graphical object Ids form the output ascii file, i.e. :
+# [[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
+import re
+ascii_data = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "XXX", ascii_data)
+
 # write to output file
 with open(test_output, "w") as f:
     f.write(ascii_data)
