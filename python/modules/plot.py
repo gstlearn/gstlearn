@@ -661,7 +661,7 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
             if M > m:
                 sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
                 
-            name = name + ' ' + name_size
+            name = name + '-' + name_size
         else:
             sizval = s
     else:
