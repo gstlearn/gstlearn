@@ -53,7 +53,7 @@ We construct a Selection
 ```{r}
 mygrid["sel"] = 1. - 
   (mygrid["x1"] > 0) * (mygrid["x1"] < 15) * (mygrid["x2"] > 40) * (mygrid["x2"] < 50)
-mygrid$setLocator("sel",ELoc_SEL())
+err = mygrid$setLocator("sel",ELoc_SEL())
 mygrid
 ```
 

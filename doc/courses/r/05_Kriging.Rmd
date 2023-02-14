@@ -235,7 +235,7 @@ err = xvalid(db=dat, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Cross-validation - Histogram of Errors}
 
 ```{r Cross_Validation_Errors}
-p = plot.hist(dat,name="*esterr*",nbins=30,fill="blue")
+p = plot.hist(dat,name="*esterr*",bins=30,fill="blue")
 p = plot.decoration(p, xlab="Estimation Errors", title="Cross-Validation")
 p
 ```
@@ -245,7 +245,7 @@ p
 \frametitle{Cross-validation - Histogram of Standardized Errors}
 
 ```{r}
-p = plot.hist(dat,name="*stderr*",nbins=30,fill="blue")
+p = plot.hist(dat,name="*stderr*",bins=30,fill="blue")
 p = plot.decoration(p, xlab="Standardized Errors", title="Cross-Validation")
 p
 ```
