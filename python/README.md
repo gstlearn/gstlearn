@@ -80,7 +80,7 @@ For building the *gstlearn* Python package, the requirements for compiling *gstl
 
 * SWIG 4 or higher
 * Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11-global* and *matplotlib* modules installed
-* *pypandoc*, *geopandas* and *jupyter* Python modules [Optional]
+* *pypandoc*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
 
@@ -101,7 +101,7 @@ sudo apt install swig
 sudo apt install jupyter
 python3 -m ensurepip --upgrade # [may be not needed]
 python3 -m pip install pybind11-global numpy pandas scipy matplotlib
-python3 -m pip install pypandoc geopandas jupyter
+python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
 #### MacOS
@@ -115,7 +115,7 @@ brew install python3
 brew install swig
 python3 -m ensurepip --upgrade
 python3 -m pip install pybind11-global numpy pandas scipy matplotlib
-python3 -m pip install pypandoc geopandas jupyter
+python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
 Notes:
@@ -135,7 +135,7 @@ Notes:
 
 ````
 python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
-python -m pip install pypandoc geopandas jupyter
+python -m pip install pypandoc geopandas plotly jupyter
 ````
 
 4. Update the *Path* environment variable (**System variables**) to make *swig.exe* available. To do so, follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *SWIG* installation folders in the *Path* variable and restart Windows
