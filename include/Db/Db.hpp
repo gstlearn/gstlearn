@@ -346,7 +346,7 @@ public:
   double getArray(int iech, int iuid) const;
   void   setArray(int iech, int iuid, double value);
   void   updArray(int iech, int iuid, int oper, double value);
-  VectorDouble getArray(int iuid, bool useSel = false) const;
+  VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
   VectorDouble getArrayBySample(int iech) const;
   void setArrayBySample(int iech, const VectorDouble& vec);
 
