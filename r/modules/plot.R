@@ -288,12 +288,12 @@ plot.model <- function(model, ivar=0, jvar=0, codir=NA, vario=NA, idir=0,
 plot.vario <- function(vario, ivar=0, jvar=0, idir=0, hmax=NA,
     var_color='black', var_linetype='dashed', var_size=0.5,
     draw_psize = FALSE, draw_plabel = FALSE, 
-    show.legend=FALSE, padd=NULL, ...)
+    padd=NULL, ...)
 {
   p = plot.varmod(vario, ivar=ivar, jvar=jvar, idir=idir, hmax=hmax,
       var_color=var_color, var_linetype=var_linetype, var_size=var_size,
       draw_psize=draw_psize, draw_plabel=draw_plabel, 
-      show.legend=show.legend, padd=padd, ...)
+      padd=padd, ...)
   
   p
 }
@@ -307,7 +307,7 @@ selectItems <- function(nvalues, sitem=-1)
   outs
 }
 
-varioLayer <- function(vario, ivar=0, jvar=0, idir=0, mode=0, ...)
+varioLayer <- function(vario, ivar=0, jvar=0, idir=0, vario.mode=0, ...)
 {
   # Plotting the experimental variogram
   
@@ -318,20 +318,23 @@ varioLayer <- function(vario, ivar=0, jvar=0, idir=0, mode=0, ...)
   
   # Dispatch on the type of representation
   
-  if (mode == 0)
+  if (vario.mode == 0)
   {
     # Representing the Experimental variogram
-    layer = geom_line(data = df, mapping=aes(x=hh, y=gg),  ...)
+    layer = geom_line(data = df, mapping=aes(x=hh, y=gg),  
+        na.rm=TRUE, ...)
   }
-  else if (mode == 1) 
+  else if (vario.mode == 1) 
   {   
     # Representing the number of pairs (by size)
-    layer <- geom_point(data = df, mapping=aes(x=hh, y=gg, size=sw), ...)
+    layer <- geom_point(data = df, mapping=aes(x=hh, y=gg, size=sw), 
+        na.rm=TRUE, ...)
   }
   else
   {
     # Representing the number of pairs (by label)
-    layer <- geom_text(data = df, mapping=aes(x=hh, y=gg, label=as.character(sw)), ...)
+    layer <- geom_text(data = df, mapping=aes(x=hh, y=gg, label=as.character(sw)), 
+        na.rm=TRUE, ...)
   }             
   layer
 }
@@ -341,14 +344,16 @@ varioElem <- function(p, vario, ivar=0, jvar=0, idir=0,
     draw_variance = TRUE, draw_psize = FALSE, draw_plabel = FALSE, 
     label=NULL, ...)
 {
-  dots = list(...)
-  p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, mode=0, ...)
+  p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=0, ...)
   
   if (draw_psize)
-    p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, mode=1, ...)
+  {
+    p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=1, ...)
+    p <- p + labs(size = "Nb. pairs")
+  }
   
   if (draw_plabel)
-    p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, mode=2, ...)
+    p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=2, ...)
   
   # Constructing the label for Legend
   if (length(label) <= 0)
@@ -445,7 +450,7 @@ plot.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
     asCov=FALSE, draw_variance = TRUE, flag.envelop=TRUE, 
     var_color='black', var_linetype="dashed", var_size=0.5, 
     env_color='black', env_linetype="dashed", env_size=0.5,
-    show.legend=FALSE, label=NULL, draw.vario=TRUE, padd=NULL, ...)
+    label=NULL, draw.vario=TRUE, padd=NULL, ...)
 {
   dots = list(...)
   has_color = "color" %in% names(dots)
@@ -580,6 +585,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   
   layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
       na.rm=TRUE, ...)
+  
   layer
 }
 
@@ -704,7 +710,6 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     option="B", na.color = "white", zlim = NULL, 
     bins = 10, line.color="black", 
     show.legend.raster=FALSE, legend.name.raster="G-Raster", 
-    show.title = TRUE, 
     padd=NULL, ...)
 {
   if (! dbgrid$isGrid())
@@ -755,8 +760,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   }  
   
   # Decoration
-  if (show.title)
-    p <- plot.decoration(p, title = title)
+  p <- plot.decoration(p, title = title)
   
   p
 }
@@ -973,8 +977,7 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., padd=NULL, ...)
 
 # Function to display a polygon (not tested)
 plot.mesh <- function(mesh, 
-    flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, 
-    show.legend = FALSE, padd = NULL, ...)
+    flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, padd = NULL, ...)
 {
   p <- getNewFigure(padd, 2)
   
@@ -987,7 +990,7 @@ plot.mesh <- function(mesh,
     x = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
     y = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
     df = data.frame(x, y)
-    p <- p + geom_polygon(data = df, mapping=aes(x=x,y=y), show.legend=show.legend, ...)
+    p <- p + geom_polygon(data = df, mapping=aes(x=x,y=y), ...)
     if (flagApex)
       p <- p + geom_point(data = df, mapping=aes(x=x, y=y))
   }  

@@ -159,6 +159,10 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
   double getColumnSize(bool useSel = false) const;
+
+  int getColIdxFromName(const String& name) const;
+  VectorInt getColIdxFromNames(const VectorString& names) const;
+
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;

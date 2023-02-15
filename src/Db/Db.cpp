@@ -1741,6 +1741,45 @@ double Db::getColumnSize(bool useSel) const
   return sqrt(diag);
 }
 
+/**
+ * Identify the column corresponding to a name. This name is searched in the following order:
+ * - within the list of variable names
+ * - within the names of the locators
+ * @param name Name to be be identified
+ * @return Rank of the corresponding ColIDX (or -1)
+ */
+int Db::getColIdxFromName(const String& name) const
+{
+  int icol = -1;
+
+  // Look within the list of names
+  icol = getColIdx(name);
+  if (icol > 0) return icol;
+
+  // Look with the list of locators
+  ELoc locatorType;
+  int locatorIndex;
+  for (int i = 0; i < getColumnNumber(); i++)
+  {
+    if (! getLocatorByColIdx(i, &locatorType, &locatorIndex)) continue;
+    String local = getLocatorName(locatorType, locatorIndex);
+    if (local == name) return i;
+  }
+
+  return -1;
+}
+
+VectorInt Db::getColIdxFromNames(const VectorString& names) const
+{
+  VectorInt cols;
+  for (int i = 0; i < (int) names.size(); i++)
+  {
+    int icol = getColIdxFromName(names[i]);
+    if (icol >= 0) cols.push_back(icol);
+  }
+  return cols;
+}
+
 double Db::getMinimum(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);
