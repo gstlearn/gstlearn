@@ -1,7 +1,7 @@
 ---
 title: "Gaussian simulations"
-author: "RGeostats Team"
-date: "September 2019"
+author: "gstlearn Team"
+date: "February 2023"
 output:
   beamer_presentation:
     colortheme: beaver
@@ -29,12 +29,9 @@ library(ggpubr)
 
 
 ```{r Preamble, message=FALSE}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
-
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Elevations.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 
 neighU = NeighUnique_create()
@@ -115,7 +112,7 @@ Simulations with Simple Kriging (Mean is extracted from the Data)
 ```{r Perform_Conditional_Simulations}
 mean_Temperature = dbStatisticsMono(dat, c("J*temp"), 
                                     EStatOption_fromKeys(c("MEAN")))
-mean_Temperature$display()
+print(mean_Temperature)
 err = fitmod$setMeans(mean_Temperature)
 
 err = simtub(dat, target, model=fitmod, neighparam=neighU, nbsimu=nbsimu,
@@ -169,13 +166,11 @@ We perform the following steps:
 
 ```{r Preparing_External_Drift}
 
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 dat$setLocator("Elevation", ELoc_F())
 
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Elevations.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 target$setLocator("Elevation", ELoc_F())
 

@@ -25,11 +25,9 @@ library(ggpubr)
 \footnotesize
 
 ```{r Preamble, message=FALSE, warning=FALSE, include=FALSE}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-               'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-               'Scotland_Elevations.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim);

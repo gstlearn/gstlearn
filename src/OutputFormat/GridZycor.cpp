@@ -63,7 +63,7 @@ int GridZycor::writeInFile()
   /* Write a comment */
 
   fprintf(_file, "!\n");
-  fprintf(_file, "!  File created by RGeostats package\n");
+  fprintf(_file, "!  File created by gstlearn package\n");
   fprintf(_file, "!\n");
 
   /* Title line */

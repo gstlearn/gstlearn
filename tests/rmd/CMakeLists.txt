@@ -65,7 +65,3 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_rmd_cmp
              COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
-
-# Example:
-# https://stackoverflow.com/questions/14167178/passing-command-line-arguments-to-r-cmd-batch
-# R CMD BATCH --no-echo --no-timing --no-save --no-restore "--args /home/fors/Starting.Rmd /home/fors/Temp/" run_test_rmd.R

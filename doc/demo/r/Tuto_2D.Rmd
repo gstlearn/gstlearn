@@ -36,8 +36,7 @@ At this stage:
 **
 
 ```{r}
-filepath = paste(Sys.getenv('GSTLEARN_DATA'),"Pollution",
-		"Pollution.csv",dat="/")
+filepath = file.path(Sys.getenv('GSTLEARN_DATA'),"Pollution","Pollution.dat")
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)

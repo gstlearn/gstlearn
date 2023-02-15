@@ -374,7 +374,7 @@ p = plot.anam(ana, aymin=aymin, aymax=aymax)
 p = plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
 p = plot.decoration(p, title="Lognormal Transform")
 p
-#legend("topleft", legend = c("theoretical", "RGeostats"), col = c("red", "black"), lty = c(1,1))
+#legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "black"), lty = c(1,1))
 ```
 
 
@@ -414,7 +414,7 @@ p = plot.decoration(p, xlab = "Covariance of Y", ylab = "Covariance of Z",
 p = plot.XY(r, cov_rg, color = "blue", linetype = "dashed", padd=p)
 p
 
-#legend("topleft", legend = c("theoretical", "RGeostats."), col = c("red", "blue"), lty = c(1,2))
+#legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "blue"), lty = c(1,2))
 ```
 
 The empirical anamorphosis does not reproduce the lognormal transform and the Hermite coefficient need to be altered.
