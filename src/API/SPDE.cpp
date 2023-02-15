@@ -167,7 +167,15 @@ void SPDE::init(Model* model,
           _deleteMesh = true;
         }
 
-        precision = new PrecisionOp(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
+        if (model->getDimensionNumber()==2)
+        {
+          precision = new PrecisionOpCs(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
+        }
+        else
+        {
+          precision = new PrecisionOp(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
+        }
+
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, verbose);
@@ -192,7 +200,16 @@ void SPDE::init(Model* model,
           _deleteMesh = true;
         }
         _krigingMeshing.push_back(mesh);
-        precision = new PrecisionOp(mesh, model, icov, EPowerPT::ONE);
+
+        if (model->getDimensionNumber() == 2)
+        {
+          precision = new PrecisionOpCs(mesh, model, icov, EPowerPT::ONE);
+        }
+        else
+        {
+          precision = new PrecisionOp(mesh, model, icov, EPowerPT::ONE);
+        }
+
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data,mesh);
