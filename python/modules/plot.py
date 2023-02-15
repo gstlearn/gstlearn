@@ -297,7 +297,8 @@ def varioElem(ax=None, vario=None, ivar=0, jvar=0, idir=0, hmax=None, show_pairs
     var_color : color of the horizontal line representing the sill (the default is 'black').
     var_linestyle : linestyle of the horizontal line representing the sill (the default is 'dashed').
     label : Label to be drawn (constructed if not provided)
-    flagDrawVariance : Flag to add the variance (default is True)    flagLabelDir : ENcode the direction in the label (when constructed)
+    flagDrawVariance : Flag to add the variance (default is True)    
+    flagLabelDir : Encode the direction in the label (when constructed)
     flagLegend : Flag to display the axes legend.
     **kwargs : arguments passed to matplotlib.pyplot.plot
 
@@ -404,7 +405,6 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
         
     axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
         
-    # if several directions, label with the direction vectors
     if ndir > 1:
         flagLabelDir = True
     else:
@@ -438,7 +438,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
                     modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
                               hmax=hmax, nh=nh, asCov=asCov,
                               env_color=env_color, env_linestyle=env_linestyle, 
-                              flagLabelDir=flagLabelDir, flagLegend=flagLegend)
+                              flagLabelDir=flagLabelDir, flagLegend=flagLegend, **kwargs)
 
             ax.autoscale(True)
             
@@ -537,10 +537,11 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
     ax = getNewAxes(ax, 0)
     
     if label is None:
-        label = "model"
         if flagLabelDir:
-            label = "model dir={}".format(codir)
-    
+            label = "model dir={}".format(np.round(codir,3))
+        else:
+            label = "model"
+
     istart = 0
     for i in range(model.getCovaNumber()):
         if model.getCovName(i) == 'Nugget Effect':
