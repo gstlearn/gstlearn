@@ -43,7 +43,6 @@ d
 ## Working directory
 
 ```{r Working-directory, eval=FALSE}
-getwd()
 ls()
 rm(d)
 ls()
@@ -159,7 +158,6 @@ Download the ASCII file called *Scotland_Temperatures.csv* and store it on your 
 
 
 ```{r Data-Frame-from-File, eval=FALSE}
-getwd()
 filename = paste(Sys.getenv('GSTLEARN_DATA'),"Scotland",
                  "Scotland_Temperatures.csv",sep="/")
 temperatures = read.csv(filename,header=TRUE,na="MISS")

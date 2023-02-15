@@ -22,12 +22,15 @@ with open(test_script) as f:
 ep = ExecutePreprocessor(timeout=-1, kernel_name='python3')
 ep.preprocess(nb)
 
-# export to Asciidoc
+# export to Asciidoc (dump only output cells)
 ascii_exporter = ASCIIDocExporter()
 ascii_exporter.exclude_input = True
+ascii_exporter.exclude_markdown = True
+ascii_exporter.exclude_raw = True
+ascii_exporter.exclude_unknown = True
 ascii_data, resources = ascii_exporter.from_notebook_node(nb)
 
-# Remove all graphical object Ids form the output ascii file, i.e. :
+# Remove all graphical object Identifiers form the output ascii file, i.e. :
 # [[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
 import re
 ascii_data = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "XXX", ascii_data)
