@@ -9,17 +9,17 @@ endif()
 # With GLOB:
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
-#cmake_path(APPEND PROJECT_SOURCE_DIR doc demo r
-#           OUTPUT_VARIABLE DEMO_DIR)
-#file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.Rmd)
-#cmake_path(APPEND PROJECT_SOURCE_DIR doc courses r
-#           OUTPUT_VARIABLE COURSES_DIR)
-#file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.Rmd)
-#set(TEST_SOURCES ${DEMO_SOURCES})
-#list(APPEND TEST_SOURCES ${COURSES_SOURCES})
+cmake_path(APPEND PROJECT_SOURCE_DIR doc demo r
+           OUTPUT_VARIABLE DEMO_DIR)
+file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.Rmd)
+cmake_path(APPEND PROJECT_SOURCE_DIR doc courses r
+           OUTPUT_VARIABLE COURSES_DIR)
+file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.Rmd)
+set(TEST_SOURCES ${DEMO_SOURCES})
+list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
-set(TEST_SOURCES 
-    ../../doc/demo/r/Hermite.Rmd)
+#set(TEST_SOURCES 
+#    ../../doc/demo/r/Hermite.Rmd)
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)
@@ -63,9 +63,5 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
     add_test(NAME ${TEST_NAME}_rmd_cmp
-             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.md ${TEST_DST_DIR}/${TEST_NAME}.md)
+             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
-
-# Example:
-# https://stackoverflow.com/questions/14167178/passing-command-line-arguments-to-r-cmd-batch
-# R CMD BATCH --no-echo --no-timing --no-save --no-restore "--args /home/fors/Starting.Rmd /home/fors/Temp/" run_test_rmd.R

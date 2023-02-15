@@ -3,12 +3,12 @@ title: "PluriGaussian Simulations"
 author: "gstlearn Team"
 date: "January 2023"
 output:
-  ioslides_presentation: default
-  slidy_presentation: default
   beamer_presentation:
     colortheme: beaver
     fig_height: 5
     theme: Boadilla
+  slidy_presentation: default
+  ioslides_presentation: default
 fontsize: 8pt
 theme: Boadilla
 colortheme: beaver
@@ -43,8 +43,7 @@ cmap   = c('red', 'blue', 'yellow')
 Downloading the data base (from the distribution **Exdemo_PGS.db**) and creating the output Grid, the Model (Cubic) and the Neighborhood (Unique):
 
 ```{r Creating_Information}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'PluriGaussian',
-  'Data.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"PluriGaussian","Data.NF")
 data = Db_createFromNF(fileNF)
 
 grid = DbGrid_create(nx=c(110,110))

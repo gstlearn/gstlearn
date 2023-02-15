@@ -1,25 +1,5 @@
-[[plurigaussian-simulations]]
-= PluriGaussian simulations
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-Defining some essential parameters:
-
-Downloading the data base (from the distribution *Data.NF*)
-
-Creating the output Grid, the Model (Cubic) and the Neighborhood
-(Unique):
-
-[[displaying-data]]
-===== Displaying Data:
-
-Samples are represented with a different color per *facies*: - first
-facies in _red_ - second facies in _blue_ - third facies in _yellow_
-
-Samples which must belong to the same connected component (see variable
-*connect*) are displayed with large symbols.
 
 
 +*Out[6]:*+
@@ -52,16 +32,11 @@ Column = 6 - Name = connect - Locator = NA----
 ![png](output_11_0.png)
 ----
 
-Creating Proportions and Lithotype Rule
-
 
 +*Out[9]:*+
 ----
 ![png](output_14_0.png)
 ----
-
-Calculate the Experimental Variogram of the Underlying Gaussian Random
-Function and fit the Model (used in PGS).
 
 
 +*Out[11]:*+
@@ -69,26 +44,11 @@ Function and fit the Model (used in PGS).
 ![png](output_17_0.png)
 ----
 
-PluriGaussian Simulation
-
-Show several simulation outcomes
-
 
 +*Out[13]:*+
 ----
 ![png](output_21_0.png)
 ----
-
-Define an Acceptation-Rejection function
-
-Acceptation internal function: For a given simulation outcome
-
-* Select the *Target Facies* and build its Connected Components,
-* Read the indices of the connected component(s) at constraining wells,
-* Return the score: *True* if these indices are similar and *False*
-otherwise.
-
-Check the acceptation / rejection function on the Simulation outcome #1.
 
 
 +*Out[15]:*+
@@ -99,8 +59,6 @@ Their ranks in the output Data Base = [6000 1270 6648 9712]
 List of their connected components indices = [1. 1. 1. 1.]
 Acceptation score = True
 ----
-
-Check the acceptation function on all simulation outcomes
 
 
 +*Out[16]:*+
@@ -119,8 +77,6 @@ Simulation  SimuPGS.15 is valid
 Simulation  SimuPGS.17 is valid
 Simulation  SimuPGS.19 is valid
 ----
-
-Derive the Probability Map
 
 
 +*Out[18]:*+

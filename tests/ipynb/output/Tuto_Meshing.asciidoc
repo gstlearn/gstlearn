@@ -1,14 +1,5 @@
-[[tutorial-on-meshing]]
-= Tutorial on Meshing
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[standard-meshing-based-on-an-irregular-data-set]]
-== Standard Meshing based on an Irregular Data Set
-
-We construct a Meshing Standard based on a set of Data Points
 
 
 +*Out[3]:*+
@@ -36,8 +27,6 @@ Column = 2 - Name = x-2 - Locator = x2----
 ![png](output_6_0.png)
 ----
 
-Creating the Meshing
-
 
 +*Out[5]:*+
 ----
@@ -62,8 +51,6 @@ Dim #2 - Min:3.38503 - Max:97.8622
 ![png](output_9_0.png)
 ----
 
-Improving the meshing in order to avoid hugly triangles
-
 
 +*Out[7]:*+
 ----
@@ -87,12 +74,6 @@ Dim #2 - Min:3.38503 - Max:97.8622
 ----
 ![png](output_12_0.png)
 ----
-
-[[turbo-meshing]]
-== Turbo Meshing
-
-Instead we can use Turbo Meshing to cover an area, without specifically
-honoring each datum
 
 
 +*Out[9]:*+
@@ -123,16 +104,6 @@ Dim #2 - Min:0 - Max:100
 ----
 ![png](output_16_0.png)
 ----
-
-We can create a regular grid covering the same area (based on the data
-set)
-
-Define a Polygon as the Convex hull of the data
-
-Use the Polygon to mask off some nodes of the regular grid, located too
-far from the data
-
-We create a Turbo Meshing from the grid (which contains a selection)
 
 
 +*Out[14]:*+
@@ -176,11 +147,6 @@ Grid Masking Indexing
 ----
 ![png](output_25_0.png)
 ----
-
-[[read-and-write-in-neutral-file]]
-== Read and Write in Neutral File
-
-Testing the read and write into a Neutral File (with masked meshes)
 
 
 +*Out[16]:*+
@@ -255,9 +221,6 @@ Grid Masking Indexing
 - Number of active positions   = 1830
 
  ----
-
-[[turbo-meshing-on-rotated-grid]]
-== Turbo Meshing on Rotated Grid
 
 
 +*Out[18]:*+

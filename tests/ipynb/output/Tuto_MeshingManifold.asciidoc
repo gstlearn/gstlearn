@@ -1,7 +1,3 @@
-[[spde-on-a-manifold]]
-= SPDE on a Manifold
-
-
 +*Out[5]:*+
 ----{'type': 'scatter3d',
  'x': array([ 0.348799 ,  0.313132 ,  0.266758 , ..., -0.0132272, -0.01374  ,

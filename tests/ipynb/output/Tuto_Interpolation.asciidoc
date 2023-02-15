@@ -1,20 +1,3 @@
-[[learning-about-interpolations]]
-= Learning about Interpolations
-
-This Tutorial is meant to give some hints about using Interpolation
-methods in gstlearn
-
-Setting some global variables
-
-Generating an initial square grid covering a 1 by 1 surface (100 meshes
-along each direction).
-
-Creating a Data Set. The set is generated using a non-conditional
-geostatistical simulation (performed using the Turning Bands method).
-This simulation is first performed on the grid which is then sampled to
-constitute the Point Data Set.
-
-
 +*Out[4]:*+
 ----
 
@@ -66,12 +49,6 @@ Column = 2 - Name = Simu - Locator = z1
 ![png](output_9_0.png)
 ----
 
-[[interpolation-using-moving-average-technique]]
-== Interpolation using Moving Average technique
-
-In this paragraph, we experiment an interpolation based on Moving
-average technique. We need to define a Moving Neighborhood first
-
 
 +*Out[6]:*+
 ----
@@ -120,13 +97,6 @@ Column = 4 - Name = MovAve.Simu - Locator = z1
 ![png](output_14_0.png)
 ----
 
-[[interpolation-using-inverse-distance-technique]]
-== Interpolation using Inverse Distance technique
-
-In this paragraph, we experiment an interpolation based on Inverse
-Distance technique. We use the squared distance weighting function
-(default option).
-
 
 +*Out[9]:*+
 ----
@@ -163,15 +133,6 @@ Column = 5 - Name = InvDist.Simu - Locator = z1
 ----
 ![png](output_18_0.png)
 ----
-
-[[least-square-polynomial-fit]]
-== Least Square Polynomial Fit
-
-In this paragraph, we experiment an interpolation based on Least Square
-Polynomial Fit technique. We use a polynomial of degree 1, fitted
-locally (on the samples neighboring the target grid node). Note that a
-bigger neighborhood had to be defined (more than 5 samples per
-neighborhood)
 
 
 +*Out[11]:*+

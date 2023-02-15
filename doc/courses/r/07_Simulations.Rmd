@@ -1,7 +1,7 @@
 ---
 title: "Gaussian simulations"
-author: "RGeostats Team"
-date: "September 2019"
+author: "gstlearn Team"
+date: "February 2023"
 output:
   beamer_presentation:
     colortheme: beaver
@@ -29,12 +29,9 @@ library(ggpubr)
 
 
 ```{r Preamble, message=FALSE}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
-
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Elevations.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 
 neighU = NeighUnique_create()
@@ -53,6 +50,7 @@ err = vario_raw2dir$compute()
 fitmod = Model()
 err = fitmod$fit(vario_raw2dir, 
                  types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "CUBIC")))
+fitmod$display()
 ```
 
 ---
@@ -66,6 +64,7 @@ err = simtub(dbout=target, model=fitmod, nbtuba=1, seed=12454,
              namconv=NamingConvention("Simu1"))
 p = plot(target, "Simu1")
 plot.decoration(p, title="Simulation with 1 band")
+target$display()
 ```
 
 ---
@@ -79,6 +78,7 @@ err = simtub(dbout=target, model=fitmod, nbtuba=10, seed=12454,
              namconv=NamingConvention("Simu10"))
 p = plot(target, "Simu10")
 plot.decoration(p, title="Simulation with 10 Turning Bands")
+target$display()
 ```
 
 ---
@@ -92,6 +92,7 @@ err = simtub(dbout=target, model=fitmod, nbtuba=1000, seed=12454,
              namconv=NamingConvention("Simu1000"))
 p = plot(target,"Simu1000")
 plot.decoration(p, title="Simulation with 1000 Turning Bands")
+target$display()
 ```
 
 ---
@@ -111,10 +112,12 @@ Simulations with Simple Kriging (Mean is extracted from the Data)
 ```{r Perform_Conditional_Simulations}
 mean_Temperature = dbStatisticsMono(dat, c("J*temp"), 
                                     EStatOption_fromKeys(c("MEAN")))
+print(mean_Temperature)
 err = fitmod$setMeans(mean_Temperature)
 
 err = simtub(dat, target, model=fitmod, neighparam=neighU, nbsimu=nbsimu,
              nbtuba=nbtuba, seed=seed)
+target$display()
 ```
 
 ---
@@ -148,6 +151,7 @@ err = kriging(dat, target, model=fitmod, neighparam = neighU,
 
 p = plot.correlation(target, "Stats.MEAN", "KS*estim", flagDiag=TRUE, bins=100)
 plot.decoration(p, xlab="Mean of Simulations", ylab="Simple Kriging Estimate")
+target$display()
 ```
 
 ---
@@ -162,13 +166,11 @@ We perform the following steps:
 
 ```{r Preparing_External_Drift}
 
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 dat$setLocator("Elevation", ELoc_F())
 
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Elevations.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 target$setLocator("Elevation", ELoc_F())
 
@@ -176,11 +178,13 @@ vario_resED = Vario_create(varioparam, dat)
 model = Model()
 err = model$setDriftIRF(nfex = 1)
 err = vario_resED$compute(model=model)
+vario_resED$display()
 
 model_ED = Model()
 err = model_ED$fit(vario_resED, 
                    types=ECov_fromKeys(c("SPHERICAL","CUBIC")))
 err = model_ED$setDriftIRF(nfex=1)
+model_ED$display()
 ```
 
 ```{r}
@@ -220,6 +224,7 @@ p = plot.correlation(target, "Stats.MEAN", "KED*estim", flagDiag=TRUE,
                      bins=100)
 plot.decoration(p, xlab="Mean of Simulations", 
                 ylab="Kriging with External Drift")
+target$display()
 ```
 
 \frametitle{Deriving probability to exceed a Cutoff}
@@ -234,6 +239,6 @@ err = target$statistics(c("Simu.January_temp*"),
 
 p = plot(target, "Proba.MEAN", show.legend.raster=TRUE)
 plot.decoration(p, title="Probability for positive Temperatures")
-
+target$display()
 ```
 

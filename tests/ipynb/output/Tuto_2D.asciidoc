@@ -1,19 +1,5 @@
-[[demonstration-of-gstlearn-for-a-2-d-case-study]]
-= Demonstration of gstlearn for a 2-D case study
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[import-packages]]
-== Import packages
-
-Global variables
-
-[[reading-data]]
-== Reading data
-
-The data are stored in a CSV format in the file called Pollution.dat
 
 
 +*Out[4]:*+
@@ -44,16 +30,11 @@ Column = 3 - Name = Zn - Locator = z1
 Column = 4 - Name = Pb - Locator = p1
  ----
 
-Accessing to the variable names
-
 
 +*Out[5]:*+
 ----
 List of all variable names = ('rank', 'X', 'Y', 'Zn', 'Pb')
 ----
-
-Extracting the vector containing the Zn variable in order to perform a
-selection
 
 
 +*Out[6]:*+
@@ -81,34 +62,17 @@ Column = 4 - Name = Pb - Locator = z1
 Column = 5 - Name = sel - Locator = sel
  ----
 
-Display my Data (with samples represented by color and size)
-
 
 +*Out[7]:*+
 ----
 ![png](output_14_0.png)
 ----
 
-[[variograms]]
-== Variograms
-
-We first define the geometry of the variogram calculations
-
-We use the variogram definition in order to calculate the variogram
-cloud.
-
-We recall that the Variogram cloud is calculated by filling an
-underlying grid where each cell is painted according to the number of
-pairs at the given distance and given variability. Representing the
-variogram cloud
-
 
 +*Out[10]:*+
 ----
 ![png](output_20_0.png)
 ----
-
-Calculating the experimental omni-directional variogram
 
 
 +*Out[11]:*+
@@ -144,15 +108,11 @@ For variable 1
          9   184.000     8.990     2.868
  ----
 
-The variogram is represented graphically for a quick check
-
 
 +*Out[12]:*+
 ----
 ![png](output_24_0.png)
 ----
-
-Calculate a variogram in several directions
 
 
 +*Out[13]:*+
@@ -259,8 +219,6 @@ For variable 1
 ![png](output_27_0.png)
 ----
 
-Calculating the Variogram Map
-
 
 +*Out[15]:*+
 ----
@@ -297,26 +255,11 @@ Column = 4 - Name = VMAP.Pb.Nb - Locator = NA
 ![png](output_30_0.png)
 ----
 
-[[model]]
-== Model
-
-Fitting a Model. We call the Automatic Fitting procedure providing the
-list of covariance functions to be tested.
-
-Visualizing the resulting model, overlaid on the experimental variogram
-
 
 +*Out[18]:*+
 ----
 ![png](output_34_0.png)
 ----
-
-[[model-with-equality-constraints]]
-=== Model with equality constraints
-
-We can impose some constraints on the parameters during the fit. For
-instance here, we impose an equality constraint on the range (range =
-1).
 
 
 +*Out[19]:*+
@@ -335,12 +278,6 @@ Spherical
 - Sill         =      2.101
 - Range        =      1.000
 Total Sill     =      2.101----
-
-We can impose inequality constraints by using *EConsType.LOWER* or
-*EConsType.UPPER*.
-
-[[adding-a-drift]]
-== Adding a drift
 
 
 +*Out[20]:*+
@@ -380,12 +317,6 @@ Drift Part
 Universality Condition
  ----
 
-[[defining-the-neighborhood]]
-== Defining the Neighborhood
-
-We initiate a Neigborhood (Moving with a small number of samples for
-Demonstration)
-
 
 +*Out[21]:*+
 ----
@@ -397,11 +328,6 @@ Minimum number of samples           = 1
 Maximum number of samples           = 6
 Maximum horizontal distance         = 10
  ----
-
-[[checking-the-moving-neighborhood]]
-== Checking the Moving Neighborhood
-
-We must first create a Grid which covers the area of interest
 
 
 +*Out[22]:*+
@@ -429,9 +355,6 @@ Variables
 Column = 0 - Name = x1 - Locator = x1
 Column = 1 - Name = x2 - Locator = x2
  ----
-
-We can now test the neighborhood characteristics for each node of the
-previously defined grid.
 
 
 +*Out[23]:*+
@@ -465,28 +388,17 @@ Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
 Column = 6 - Name = Neigh.Pb.NbCESect - Locator = z1
  ----
 
-We can visualize some of the newly created variables, such as:
-
-* the number of points per neighborhood
-
 
 +*Out[24]:*+
 ----
 ![png](output_47_0.png)
 ----
 
-* the one giving the maximum distance per neighborhood
-
 
 +*Out[25]:*+
 ----
 ![png](output_49_0.png)
 ----
-
-[[cross-validation]]
-== Cross-validation
-
-We can now process the cross-validation step
 
 
 +*Out[26]:*+
@@ -522,12 +434,6 @@ Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 ![png](output_52_0.png)
 ----
 
-[[estimation-by-kriging]]
-== Estimation by Kriging
-
-We now perform the Estimation by Ordinary Kriging. The Neighborhood is
-changed into a Unique Neighborhood.
-
 
 +*Out[28]:*+
 ----
@@ -562,8 +468,6 @@ Column = 7 - Name = Kriging.Pb.estim - Locator = z1
 Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
  ----
 
-Visualizing the results
-
 
 +*Out[29]:*+
 ----
@@ -575,11 +479,6 @@ Visualizing the results
 ----
 ![png](output_57_0.png)
 ----
-
-[[simulations]]
-== Simulations
-
-We must first transform the Data into Gaussian
 
 
 +*Out[31]:*+
@@ -607,17 +506,11 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [ 28,]     0.022    -0.013
  ----
 
-We can produce the Gaussian Anamorphosis graphically within its
-definition domain.
-
 
 +*Out[32]:*+
 ----
 ![png](output_61_0.png)
 ----
-
-The next step consists in translating the target variable ('Pb') into
-its Gaussian transform
 
 
 +*Out[33]:*+
@@ -648,20 +541,11 @@ Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 Column = 8 - Name = Y.Pb - Locator = z1
  ----
 
-We quickly calculate experimental (omni-directional) variograms using
-the already defined directions
-
-We fit the model by automatic fit (with the constraints that the total
-sill be equal to 1).
-
 
 +*Out[35]:*+
 ----
 ![png](output_67_0.png)
 ----
-
-We perform a set of 10 conditional simulations using the Turning Bands
-Method.
 
 
 +*Out[36]:*+
@@ -706,8 +590,6 @@ Column = 16 - Name = Simu.Y.Pb.8 - Locator = z8
 Column = 17 - Name = Simu.Y.Pb.9 - Locator = z9
 Column = 18 - Name = Simu.Y.Pb.10 - Locator = z10
  ----
-
-Some statistics on the Conditional simulations in Gaussian scale
 
 
 +*Out[37]:*+
@@ -944,17 +826,11 @@ Column = 21 - Name = Stats.MEAN - Locator = NA
 Column = 22 - Name = Stats.STDV - Locator = z1
  ----
 
-We visualize a conditional simulation in Gaussian scale
-
 
 +*Out[38]:*+
 ----
 ![png](output_73_0.png)
 ----
-
-We turn the Gaussian conditional simulations into Raw scale (using the
-Anamorphosis back transform) and get rid of the Gaussian conditional
-simulations.
 
 
 +*Out[39]:*+
@@ -999,9 +875,6 @@ Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = z8
 Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = z9
 Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = z10
  ----
-
-We calculate some statistics on the Conditional Simulations in Raw
-scale.
 
 
 +*Out[40]:*+
@@ -1238,16 +1111,11 @@ Column = 21 - Name = Stats.MEAN - Locator = NA
 Column = 22 - Name = Stats.STDV - Locator = z1
  ----
 
-We visualize a Conditional Simulation in Raw Scale
-
 
 +*Out[41]:*+
 ----
 ![png](output_79_0.png)
 ----
-
-Let us now average the conditional simulations in order to have a
-comparison with the estimation by kriging.
 
 
 +*Out[42]:*+
@@ -1457,19 +1325,11 @@ Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = NA
 Column = 19 - Name = Stats.MEAN - Locator = z1
  ----
 
-Displaying the average of the Conditional Simulations
-
 
 +*Out[43]:*+
 ----
 ![png](output_83_0.png)
 ----
-
-[[multivariate-case]]
-== Multivariate case
-
-The Gaussian transform of the Pb variable has already been calculated.
-It suffices to perform the Gaussian transform of the Zn variable
 
 
 +*Out[44]:*+
@@ -1503,8 +1363,6 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 ![png](output_86_0.png)
 ----
 
-We convert the raw data into its Gaussian equivalent
-
 
 +*Out[46]:*+
 ----
@@ -1535,16 +1393,11 @@ Column = 8 - Name = Y.Pb - Locator = NA
 Column = 9 - Name = Y.Zn - Locator = z1
  ----
 
-We now perform the multivariate variogram caculation
-
 
 +*Out[47]:*+
 ----
 ![png](output_90_0.png)
 ----
-
-We perform 10 bivariate conditional simulations (deleting the previous
-monovariate simulation outcomes first for better legibility)
 
 
 +*Out[48]:*+
@@ -1600,10 +1453,6 @@ Column = 27 - Name = Simu.Y.Zn.8 - Locator = z18
 Column = 28 - Name = Simu.Y.Zn.9 - Locator = z19
 Column = 29 - Name = Simu.Y.Zn.10 - Locator = z20
  ----
-
-We back-transform each set of simulation outcomes using its own Gaussian
-Anamorphosis function. Finally we delete the Gaussian variables and ask
-for the statistics on the simulated variables in the Raw Scale.
 
 
 +*Out[49]:*+
@@ -1930,15 +1779,6 @@ Column = 31 - Name = Stats.MEAN - Locator = NA
 Column = 32 - Name = Stats.STDV - Locator = z1
  ----
 
-[[categorical-variable]]
-== Categorical Variable
-
-We compare the initial variable 'Pb' with a set of disjoint intervals.
-The 'Pb' values varying from 3 to 12.7, we consider three classes: -
-values below 4 - values between 4 and 6 - values above 6
-
-We first build the indicators for each class
-
 
 +*Out[50]:*+
 ----
@@ -1946,9 +1786,6 @@ Bound( 1 ) : ] -Inf ; 4 [
 Bound( 2 ) : [ 4 ; 6 [
 Bound( 3 ) : [ 6 ;  +Inf [
  ----
-
-We apply the set of limits previously defined in order to transform the
-input variable into Indicators of the different classes.
 
 
 +*Out[51]:*+
@@ -1982,8 +1819,6 @@ Column = 10 - Name = Indicator.Pb.Class.1 - Locator = z1
 Column = 11 - Name = Indicator.Pb.Class.2 - Locator = z2
 Column = 12 - Name = Indicator.Pb.Class.3 - Locator = z3
  ----
-
-We calculate the variogram of the Indicators for future use
 
 
 +*Out[52]:*+
@@ -2093,9 +1928,6 @@ For variable 3
 ----
 ![png](output_101_0.png)
 ----
-
-Then we build a categorical variable which gives the index of the class
-to which each sample belongs
 
 
 +*Out[54]:*+

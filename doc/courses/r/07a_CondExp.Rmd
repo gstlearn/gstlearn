@@ -1,7 +1,7 @@
 ---
 title: "Conditional expectation"
-author: "RGeostats Team"
-date: "September 2019"
+author: "gstlearn Team"
+date: "February 2023"
 output:
   beamer_presentation:
     colortheme: beaver
@@ -28,11 +28,9 @@ library(ggpubr)
 ```
 
 ```{r Preamble, message=FALSE}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Elevations.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
 grid = DbGrid_createFromNF(fileNF)
 ```
 

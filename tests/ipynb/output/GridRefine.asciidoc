@@ -1,13 +1,3 @@
-== Grid Refinement
-
-This case study is meant to demonstrate how to use _gstlearn_ for
-coarsening or refining Grids (stored as DbGrid).
-
-Global parameters
-
-Generate initial grid
-Creating the Data: they consist of one constant field, a simulated one, followed by two other constant fields. Only the simulated field as a Locator assigned.
-
 +*Out[5]:*+
 ----
 
@@ -45,8 +35,6 @@ Column = 6 - Name = Bidon2-2 - Locator = NA
 ![png](output_10_0.png)
 ----
 
-A new grid is created, coarser than the initial one
-
 
 +*Out[8]:*+
 ----
@@ -82,8 +70,6 @@ Column = 6 - Name = Bidon2-2 - Locator = NA----
 ----
 ![png](output_14_0.png)
 ----
-
-Another finer grid is created, starting from the Coarse grid.
 
 
 +*Out[11]:*+

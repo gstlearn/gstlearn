@@ -1,21 +1,5 @@
-[[demonstration-of-gstlearn-for-the-use-of-a-db]]
-= Demonstration of gstlearn for the use of a Db
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[import-packages]]
-== Import packages
-
-Global variables
-
-[[defining-a-data-set]]
-== Defining a Data set
-
-The data is defined by simulating samples at random within a given box.
-This study is performed in 2-D but this is not considered as a
-limitation.
 
 
 +*Out[4]:*+
@@ -37,17 +21,11 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2----
 
-Displaying the Data set
-
 
 +*Out[5]:*+
 ----
 ![png](output_10_0.png)
 ----
-
-We now define a vector of 0-1 integer values at random again, according
-to a Bernoulli distribution with a probability of 0.2. This vector is
-added to the Data Base.
 
 
 +*Out[6]:*+
@@ -100,12 +78,6 @@ Column = 3 - Name = sel - Locator = NA
 ![png](output_14_0.png)
 ----
 
-[[extracting-a-new-data-base-upon-ranks]]
-== Extracting a new Data Base upon ranks
-
-We demonstrate the possibility to extract a Data Base by specifying the
-selected ranks of an Input Data Base.
-
 
 +*Out[9]:*+
 ----
@@ -117,12 +89,6 @@ Number of selected samples = 100
 ----
 ![png](output_19_0.png)
 ----
-
-[[extracting-a-new-data-base-upon-selection]]
-== Extracting a new Data Base upon selection
-
-We now create turn the variable 'sel' into a selection and createa new
-data set which is restricted to the only active samples
 
 
 +*Out[12]:*+

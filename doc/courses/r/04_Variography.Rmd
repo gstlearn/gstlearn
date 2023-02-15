@@ -28,8 +28,7 @@ knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center")
 Then the necessary data set is downloaded and named **dat**: the target variable is **January_temp**
 
 ```{r Loading_Data}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
-  'Scotland_Temperatures.NF',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 ```
 

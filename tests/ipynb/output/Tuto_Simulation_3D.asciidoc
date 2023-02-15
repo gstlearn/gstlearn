@@ -1,5 +1,31 @@
-[[simulation-avec-gstlearn]]
-= Simulation avec gstlearn
++*Out[2]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 3
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 24000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000     0.000
+Mesh   :      1.000     1.000     1.000
+Number :         40        30        20
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+Column = 4 - Name = Simu - Locator = z1
+ ----
 
 
 +*Out[5]:*+

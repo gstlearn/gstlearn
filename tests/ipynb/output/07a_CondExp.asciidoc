@@ -1,19 +1,11 @@
-[[conditional-expectation]]
-= Conditional Expectation
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-Histogram of the raw variable (Temperature)
 
 
 +*Out[6]:*+
 ----
 ![png](output_7_0.png)
 ----
-
-Gaussian scores
 
 
 +*Out[8]:*+
@@ -41,15 +33,11 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [ 28,]     0.011    -0.005
  ----
 
-Plot the Gaussian scores
-
 
 +*Out[9]:*+
 ----
 ![png](output_12_0.png)
 ----
-
-Draw the histogram of the Gaussian transformed values
 
 
 +*Out[10]:*+
@@ -57,16 +45,11 @@ Draw the histogram of the Gaussian transformed values
 ![png](output_14_0.png)
 ----
 
-We calculate the experimental directional variogram of the gaussian
-scores and fit the Model (with the constraints that sill should be 1)
-
 
 +*Out[12]:*+
 ----
 ![png](output_17_0.png)
 ----
-
-Kriging of Gaussian scores
 
 
 +*Out[15]:*+
@@ -80,20 +63,11 @@ Kriging of Gaussian scores
 ![png](output_22_0.png)
 ----
 
-[[conditional-expectation]]
-== Conditional Expectation
-
-We use the Monte Carlo method with 1000 outcomes.
-
-Display of the Conditional Expectation
-
 
 +*Out[18]:*+
 ----
 ![png](output_27_0.png)
 ----
-
-Display of the Conditional Standard Deviation
 
 
 +*Out[19]:*+
@@ -101,15 +75,11 @@ Display of the Conditional Standard Deviation
 ![png](output_29_0.png)
 ----
 
-Conditional Probability below 0
-
 
 +*Out[21]:*+
 ----
 ![png](output_32_0.png)
 ----
-
-Conditional Probability above 1
 
 
 +*Out[23]:*+

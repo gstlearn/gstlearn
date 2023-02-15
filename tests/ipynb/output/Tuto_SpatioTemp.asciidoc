@@ -1,27 +1,6 @@
-[[spatio-temporal-with-gstlearn]]
-= Spatio Temporal with gstlearn
-
-In this tutorial, we study the family of SPDEs :
-
-latexmath:[\[\left(\frac{\partial}{\partial t} + c\left[(1-\nabla H. \nabla)^{\alpha} + v.\nabla\right]\right)Z(s,t)=\sqrt{c}W_T(t)\otimes X_S(s)\]]
-
-where
-
-* latexmath:[$c>0$] is a time scale parameter
-* latexmath:[$H$] is an anisotropic matrix
-* latexmath:[$v$] is a velocity vector
-* latexmath:[$W_T$] is a temporal white-noise
-* latexmath:[$X_S$] is a spatially structured noise, solution of
-+
-latexmath:[\[(1-\nabla H_S \nabla)X_S = \mathcal{W}_S\]]
-sudo apt-get install python-scipy libsuitesparse-dev
-git clone https://github.com/scikit-sparse/scikit-sparse.git
-cd scikit-sparse
-python3 setup.py install
-
 +*Out[4]:*+
 ----
-/tmp/ipykernel_31769/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
+/tmp/ipykernel_24563/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
   cholP = cholesky(P)
 ----
 

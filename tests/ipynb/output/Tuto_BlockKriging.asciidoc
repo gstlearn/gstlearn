@@ -1,24 +1,5 @@
-[[demonstration-of-block-kriging-calculation]]
-= Demonstration of Block Kriging calculation
-
-[[introduction]]
-= Introduction
-
-This chapter describes the difference between Point Kriging, Regular
-Block Kriging and Irregular Block Kriging. It is delonstrated on a
-simulated 2-D data set.
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[import-packages]]
-== Import packages
-
-[[creating-the-environmenet]]
-= Creating the environmenet
-
-We create a regular grid
 
 
 +*Out[3]:*+
@@ -46,13 +27,6 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
-We create a Data Base of randomly located samples within a field
-covering the grid extension.
-
-We create a Model composed of a Nugget Effect and a Spherical
-components. This Model is used to simulate a variable at the sample
-locations.
-
 
 +*Out[5]:*+
 ----
@@ -74,9 +48,6 @@ Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1----
 
-We define a Neighborhood. On purpose, this neighborhood is small (10
-data maximum) to produce legible printouts.
-
 
 +*Out[6]:*+
 ----
@@ -88,18 +59,6 @@ Maximum number of samples           = 10
 Number of angular sectors           = 8
 Maximum number of points per sector = 3
 Maximum horizontal distance         = 30----
-
-[[point-kriging]]
-= Point Kriging
-
-Two newly created variables have been added to the output Data Base
-(_grid_): - one for the estimation (called _Point_Kriging.Simu.estim_) -
-one for the standard deviation of the estimation error (called
-_Point_Kriging.simu.stdev_)
-
-These two variables are stored as a consequance of the argument
-_flag_est_ and _flag_std_ which are not explicitely specified, but which
-are both defaulted to _True_.
 
 
 +*Out[8]:*+
@@ -129,11 +88,6 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Point_Kriging.Simu.estim - Locator = z1
 Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA----
 
-Displaying the maps of the Point Estimation and the corresponding
-Standard Deviation of Estimation errors. Note that the estimation is
-performed at the nodes of the grid (center of each grid cell)... evan if
-the block _raster_ is performed.
-
 
 +*Out[9]:*+
 ----
@@ -145,10 +99,6 @@ the block _raster_ is performed.
 ----
 ![png](output_21_0.png)
 ----
-
-To better visualize the differences alongst the different kriging, we
-focus on a target grid cell (or node) and print out all the information
-used during the Kriging procedure. We focus on the *node*
 
 
 +*Out[11]:*+
@@ -251,15 +201,6 @@ used during the Kriging procedure. We focus on the *node*
   - Cov(h=0)  =        1.000 
  ----
 
-[[standard-block-kriging]]
-== Standard Block Kriging
-
-We perform an estimation of the average value of the variable over the
-cells (of the previous grid).
-
-The output Db now contains the two additional variables
-_Block_Kriging.Simu.estim_ and _Block_Kriging.Simu.stdev_.
-
 
 +*Out[13]:*+
 ----
@@ -290,9 +231,6 @@ Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA
 Column = 5 - Name = Block_Kriging.Simu.estim - Locator = z1
 Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
 
-Displaying the maps of the Point Estimation and the corresponding
-Standard Deviation of Estimation errors
-
 
 +*Out[14]:*+
 ----
@@ -305,10 +243,6 @@ Standard Deviation of Estimation errors
 ![png](output_31_0.png)
 ----
 
-We do not see too much difference between estimations, due to the small
-dimension of the grid cells, as it is demonstrated in the following
-scatter plot.
-
 
 +*Out[16]:*+
 ----
@@ -320,11 +254,6 @@ scatter plot.
 ----
 ![png](output_34_0.png)
 ----
-
-We check our reference target cell again. Remember that here the target
-is the average over the cell. In the final part of the printout, we
-clearly see the value of the cell extension i.e. 10 (important for
-future comparison).
 
 
 +*Out[18]:*+
@@ -427,18 +356,6 @@ future comparison).
   - Cov(h=0)  =        0.565 
  ----
 
-[[irregular-block-kriging]]
-== Irregular Block Kriging
-
-Now we add two vectors in the Target Grid data base, which will contain
-the cell extension (variable per cell). Nevertheless, here, the cell
-extension is set to a constant value (for simplicity sake): this value
-(35) is different from the grid mesh (10). The variable block extension
-is assigned the locator _BLEX_.
-
-The two newly created results are added to the output data base _grid_
-with the radix *Irregular_Kriging".
-
 
 +*Out[21]:*+
 ----
@@ -473,8 +390,6 @@ Column = 8 - Name = Y-ext - Locator = dblk2
 Column = 9 - Name = Irregular_Kriging.Simu.estim - Locator = z1
 Column = 10 - Name = Irregular_Kriging.Simu.stdev - Locator = NA----
 
-Graphic display of the new resulting maps.
-
 
 +*Out[22]:*+
 ----
@@ -487,9 +402,6 @@ Graphic display of the new resulting maps.
 ![png](output_45_0.png)
 ----
 
-Comparison between standard Block Kriging and the Block Kriging with
-Irregular block size
-
 
 +*Out[24]:*+
 ----
@@ -501,9 +413,6 @@ Irregular block size
 ----
 ![png](output_48_0.png)
 ----
-
-We can now focus on our target block. Note that, unlike inn the case of
-regular block Kriging, the extension of the cell is now _35_.
 
 
 +*Out[26]:*+

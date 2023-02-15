@@ -1,16 +1,30 @@
-[[spde]]
-= SPDE
++*Out[4]:*+
+----
 
-In this tutorial, we show how the use of SPDE for Varying Anisotropy in
-the Simulation process
+Data Base Grid Characteristics
+==============================
 
-Defining some global parameters
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 1
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 500
 
-Internal function
+Grid characteristics:
+---------------------
+Origin :      0.000
+Mesh   :      1.000
+Number :        500
 
-Simulating the layer boundaries
-
-Plotting the limits of the layer
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = W1 - Locator = NA
+Column = 3 - Name = W2 - Locator = z1
+ ----
 
 
 +*Out[5]:*+
@@ -18,7 +32,37 @@ Plotting the limits of the layer
 ![png](output_9_0.png)
 ----
 
-Creation of the varying anisotropy ("directed" by the two layers)
+
++*Out[6]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 100000
+Number of active samples     = 43700
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        500       200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel
+Column = 4 - Name = aniso - Locator = nostat1
+Column = 5 - Name = ratio - Locator = nostat2
+ ----
 
 
 +*Out[7]:*+
@@ -32,11 +76,31 @@ Creation of the varying anisotropy ("directed" by the two layers)
 ![png](output_13_0.png)
 ----
 
-Display the anisotropy maps (on a coarser grid)
 
-Creating the Meshing
++*Out[10]:*+
+----
 
-Assigning non-stationarity to the Model
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =    150.000
+- Theo. Range  =     43.301
+Total Sill     =      1.000
+
+Non-Stationary Parameters
+-------------------------
+Angle      : GRF=1 Str=1 V#1=1
+Range      : GRF=1 Str=1 V#1=2
+ ----
 
 
 +*Out[11]:*+
@@ -44,23 +108,11 @@ Assigning non-stationarity to the Model
 ![png](output_19_0.png)
 ----
 
-[[non-conditional-simulation]]
-== Non conditional simulation
-
-Process the simulation on the output grid and visualize the result (the
-resulting variable is stored in rank 'iuid' and name 'spde.simu'.
-
 
 +*Out[14]:*+
 ----
 ![png](output_24_0.png)
 ----
-
-[[kriging]]
-== Kriging
-
-Creating a set of fictitious wells (extracted from the non-conditional
-simulation)
 
 
 +*Out[16]:*+
@@ -71,14 +123,72 @@ simulation)
 
 +*Out[18]:*+
 ----
-![png](output_30_0.png)
-----
 
-[[conditional-simulation]]
-== Conditional Simulation
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 100000
+Number of active samples     = 43700
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        500       200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel
+Column = 4 - Name = aniso - Locator = nostat1
+Column = 5 - Name = ratio - Locator = nostat2
+Column = 6 - Name = spde.simu - Locator = NA
+Column = 7 - Name = spde.kriging - Locator = z1
+ 
+![png](output_30_1.png)
+----
 
 
 +*Out[20]:*+
 ----
-![png](output_33_0.png)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
+Total number of samples      = 100000
+Number of active samples     = 43700
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        500       200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = sel - Locator = sel
+Column = 4 - Name = aniso - Locator = nostat1
+Column = 5 - Name = ratio - Locator = nostat2
+Column = 6 - Name = spde.simu - Locator = NA
+Column = 7 - Name = spde.kriging - Locator = NA
+Column = 8 - Name = spde.condSimu - Locator = z1
+ 
+![png](output_33_1.png)
 ----

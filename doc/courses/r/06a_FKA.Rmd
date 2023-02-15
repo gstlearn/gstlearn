@@ -1,7 +1,7 @@
 ---
 title: "Filtering by Kriging"
-author: "RGeostats Team"
-date: "September 2019"
+author: "gstlearn Team"
+date: "February 2023"
 output:
   beamer_presentation:
     colortheme: beaver
@@ -30,8 +30,7 @@ library(ggpubr)
 The Grid containing the information is downloaded from the distribution
 
 ```{r Loading_Data}
-fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'FKA',
-               'Image.ascii',sep="/")
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"FKA","Image.ascii")
 grid = DbGrid_createFromNF(fileNF)
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim)

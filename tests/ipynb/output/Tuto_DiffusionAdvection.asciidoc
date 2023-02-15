@@ -1,12 +1,18 @@
++*Out[2]:*+
+----
+Markov (Third Parameter = 1)
+- Sill         =      3.000
+- Range        =     12.000
+- Theo. Range  =      2.000
+ ----
+
+
 +*Out[3]:*+
 ----array([1., 2., 1.])----
 
 
 +*Out[4]:*+
 ----0.24989756768264187----
-
-[[spatial-trace]]
-=== Spatial Trace
 
 
 +*Out[6]:*+
@@ -27,9 +33,6 @@
 ----
 ![png](output_9_0.png)
 ----
-
-[[temporal-covariance]]
-=== Temporal covariance
 
 
 +*Out[10]:*+

@@ -1,14 +1,5 @@
-[[ppmt-method]]
-= PPMT Method
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[initialization]]
-== Initialization
-
-Simulation of a Reference data set on a Grid
 
 
 +*Out[6]:*+
@@ -39,8 +30,6 @@ Simulation of a Reference data set on a Grid
 ----
 ![png](output_12_0.png)
 ----
-
-Lognormal transformation
 
 
 +*Out[12]:*+
@@ -82,16 +71,11 @@ Y2            -3.719     3.719     0.000     0.999
 ![png](output_20_0.png)
 ----
 
-[[extraction-of-a-data-set]]
-== Extraction of a data set
-
 
 +*Out[19]:*+
 ----
 ![png](output_23_0.png)
 ----
-
-Normal score
 
 
 +*Out[21]:*+
@@ -147,20 +131,11 @@ Y1            -2.879     2.879     0.000     0.989
 Y2            -2.879     2.879     0.000     0.989
  ----
 
-[[implementing-ppmt]]
-== Implementing PPMT
-
-Launching PPMT and fitting it on the vector of Input data
-
-Evolution of the Index
-
 
 +*Out[30]:*+
 ----
 ![png](output_38_0.png)
 ----
-
-Final results (non correlated variables)
 
 
 +*Out[31]:*+
@@ -169,8 +144,6 @@ Final results (non correlated variables)
 U.Y1          -3.013     3.155     0.000     1.000
 U.Y2          -2.823     3.009     0.000     0.997
  ----
-
-Transformed Gaussian variables
 
 
 +*Out[32]:*+

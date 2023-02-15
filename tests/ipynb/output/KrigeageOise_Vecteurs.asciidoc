@@ -1,11 +1,5 @@
-[[case-study-on-oise-data-set]]
-= Case Study on Oise Data Set
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-This case study reads information from the gstlearn repository.
 
 
 +*Out[5]:*+

@@ -1,15 +1,5 @@
-[[gaussian-simulations]]
-= Gaussian simulations
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-We calculate the experimental directional variogram and fit the Model
-
-Use the Turning Bands method with 1 band
-
-Graphic Representation
 
 
 +*Out[8]:*+
@@ -17,19 +7,11 @@ Graphic Representation
 ![png](output_11_0.png)
 ----
 
-Use the Turning Bands method with 10 bands
-
-Graphic Representation
-
 
 +*Out[10]:*+
 ----
 ![png](output_15_0.png)
 ----
-
-Use the Turning Bands method with 1000 bands
-
-Graphic Representation
 
 
 +*Out[12]:*+
@@ -37,24 +19,11 @@ Graphic Representation
 ![png](output_19_0.png)
 ----
 
-[[conditional-simulations]]
-== Conditional Simulations
-
-Perform 10 conditional simulations with 1000 bands
-
-Simulations with Simple Kriging (Mean is extracted from the Data)
-
-Displaying several simulation outcomes
-
 
 +*Out[15]:*+
 ----
 ![png](output_26_0.png)
 ----
-
-Computing the Mean of the simulations and store it as a new variable
-
-Comparing Mean of Simulations with the Kriging
 
 
 +*Out[18]:*+
@@ -62,26 +31,11 @@ Comparing Mean of Simulations with the Kriging
 ![png](output_31_0.png)
 ----
 
-[[simulations-with-external-drift]]
-== Simulations with External Drift
-
-We perform the following steps:
-
-* Load the grid containing the Elevation Map
-* Prepare the Data Base: designation of External Drift
-* Fit the Model of the Residuals
-
-Graphic representation of the experimental Variogram and fitted Model
-
 
 +*Out[20]:*+
 ----
 ![png](output_36_0.png)
 ----
-
-Performing Simulations with External Drift
-
-Display several simulations with Elevation as External Drift
 
 
 +*Out[22]:*+
@@ -89,20 +43,11 @@ Display several simulations with Elevation as External Drift
 ![png](output_40_0.png)
 ----
 
-Calculating the Mean of the Conditional Simulations
-
-Comparing Mean of Simulations with Kriging with External Drift
-
 
 +*Out[25]:*+
 ----
 ![png](output_45_0.png)
 ----
-
-Deriving Indicator to exceed a Cutoff per simulation outcome
-
-Computing the average of the Indicators which leads to the Probability
-to exceed the threshold
 
 
 +*Out[28]:*+

@@ -1,23 +1,11 @@
-[[checking-installation-of-gstlearn-for-python]]
-= Checking installation of gstlearn for Python
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-We create a regular 2-D grid and simulate a variable using a
-geostatistical Model
-
-The simulated result is plotted
 
 
 +*Out[4]:*+
 ----
 ![png](output_6_0.png)
 ----
-
-If you obtained a nice looking image corresponding to the simulation
-result on the grid ... the installation of gstlearn is satisfactory.
 
 
 +*Out[5]:*+

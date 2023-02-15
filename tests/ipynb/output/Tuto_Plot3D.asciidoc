@@ -1,16 +1,5 @@
-[[plot-3d-meshing]]
-= Plot 3D Meshing
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[on-the-sphere]]
-== On the Sphere
-
-Definition of the Meshing
-
-Display a white skin around the meshing
 
 
 +*Out[5]:*+
@@ -20,15 +9,11 @@ Display a white skin around the meshing
 [[XXX]]
 ----
 
-We overlay the meshing
-
 
 +*Out[7]:*+
 ----
 [[XXX]]
 ----
-
-Drawing a polygon (we use the one containing the land boundaries)
 
 
 +*Out[8]:*+
@@ -45,26 +30,11 @@ Number of Polygon Sets = 541
 [[XXX]]
 ----
 
-Representing a function on the skin of the earth together with other
-decoration. The function is the result of a non-conditional simulation
-performed with SPDE on the Sphere.
-
 
 +*Out[13]:*+
 ----
 [[XXX]]
 ----
-
-[[d-in-general]]
-== 3D in General
-
-We define the space dimension
-
-Defining the output grid
-
-Defining a Data Set with Gradient and Tangent components
-
-3-D Visualization
 
 
 +*Out[17]:*+

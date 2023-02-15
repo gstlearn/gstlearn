@@ -4,19 +4,10 @@ endif()
 
 # TODO : CMakeLists.txt for non-regression test scripts (py, R, ipynb, rmd) are similar (factorization ?)
 
-
-
 # With GLOB:
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 file(GLOB TEST_SOURCES test*.R)
-
-
-
-
-
-
-
 # Without GLOB:
 #set(TEST_SOURCES 
 #    test_Arguments.R)
@@ -40,12 +31,6 @@ add_custom_target(check_r
 
 # Add dependency for check_r
 add_dependencies(check_r r_install)
-
-
-
-
-
-
 
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)

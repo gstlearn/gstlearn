@@ -313,6 +313,7 @@ The next paragraph initiates a data set and runs the previous functions. The out
 np <- 10000
 nh <- 100
 lambda <- 1.0
+set.seed(123)
 # anamorphosis in the lognormal case (theoretical)
 yy <- qnorm(p = (1:np)/(np+1), mean = 0, sd = 1.0)
 aymin = range(yy)[1]
@@ -326,6 +327,7 @@ Anamorphosis in the lognormal case (Hermite pol.)
 
 ```{r ana_test, echo=TRUE, eval=TRUE}
 zz_hm   <- GM_hermite(y = yy, nh = nh) %*% GM_LN_psi(lambda = lambda, nh = nh)
+print(zz_hm)
 
 p = plot.XY(yy, zz_theo, join=TRUE, color = "red")
 p = plot.XY(yy, zz_hm, color = "blue", linetype="dashed", padd=p)
@@ -366,12 +368,13 @@ err = ana$fit(db, name="zz_theo")
 # Patch the Hermite coefficients to have exact numerical values
 localPsi <- GM_LN_psi(lambda = lambda, nh = nh-2)
 err = ana$setPsiHns(localPsi)
+ana$display()
 
 p = plot.anam(ana, aymin=aymin, aymax=aymax)
 p = plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
 p = plot.decoration(p, title="Lognormal Transform")
 p
-#legend("topleft", legend = c("theoretical", "RGeostats"), col = c("red", "black"), lty = c(1,1))
+#legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "black"), lty = c(1,1))
 ```
 
 
@@ -411,7 +414,7 @@ p = plot.decoration(p, xlab = "Covariance of Y", ylab = "Covariance of Z",
 p = plot.XY(r, cov_rg, color = "blue", linetype = "dashed", padd=p)
 p
 
-#legend("topleft", legend = c("theoretical", "RGeostats."), col = c("red", "blue"), lty = c(1,2))
+#legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "blue"), lty = c(1,2))
 ```
 
 The empirical anamorphosis does not reproduce the lognormal transform and the Hermite coefficient need to be altered.
@@ -463,6 +466,8 @@ QC Indicator
 ```{r}
 psi = hermiteIndicatorLower(yc, nh)
 zz <- hm %*% psi
+print(psi)
+
 p = plot.XY(yy, zz, join=TRUE, color = "red")
 p = plot.decoration(p, xlab = "Y", ylab = "Indicator", 
                     title = paste0("cut = ",round(yc,2), " nh = ", nh)) 

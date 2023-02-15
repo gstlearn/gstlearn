@@ -1,16 +1,5 @@
-[[demonstration-of-gstlearn-for-a-2-d-case-study]]
-= Demonstration of gstlearn for a 2-D case study
-
-This file demonstrates the use of Selectivity curves
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[import-packages]]
-== Import packages
-
-Reading the Grid file
 
 
 +*Out[3]:*+
@@ -41,8 +30,6 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = z1 - Locator = z1
  ----
 
-Plotting the grid of samples
-
 
 +*Out[4]:*+
 ----
@@ -66,8 +53,6 @@ Plotting the grid of samples
 ----
      1.531     1.615
  ----
-
-Creating the grid of blocks by averaging samples 2 by 2
 
 
 +*Out[9]:*+
@@ -93,9 +78,6 @@ Creating the grid of blocks by averaging samples 2 by 2
      1.340     1.000
  ----
 
-Creating a samping grid keeping only the upper right corner sample for
-each block
-
 
 +*Out[14]:*+
 ----
@@ -114,16 +96,9 @@ each block
      1.364     1.165
  ----
 
-[[using-the-selectivity-curves]]
-== Using the Selectivity Curves
-
-We compare the selectivity curves between Data and Blocks:
-
 
 +*Out[18]:*+
 ----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim', 'T-stdev', 'Q-stdev')----
-
-* Ore tonnage as a function of the cutoff
 
 
 +*Out[19]:*+
@@ -131,15 +106,11 @@ We compare the selectivity curves between Data and Blocks:
 ![png](output_28_0.png)
 ----
 
-* Metal as a function of the cutoff
-
 
 +*Out[20]:*+
 ----
 ![png](output_30_0.png)
 ----
-
-* Recovered grade as a function of the cutoff
 
 
 +*Out[21]:*+
@@ -147,28 +118,17 @@ We compare the selectivity curves between Data and Blocks:
 ![png](output_32_0.png)
 ----
 
-* Conventional Benefit as a function of the cutoff
-
 
 +*Out[22]:*+
 ----
 ![png](output_34_0.png)
 ----
 
-* Metal as a function of Ore Tonnage
-
 
 +*Out[23]:*+
 ----
 ![png](output_36_0.png)
 ----
-
-[[regressions]]
-= Regressions
-
-Display regressions
-
-* of block knowing sample
 
 
 +*Out[24]:*+
@@ -181,9 +141,6 @@ Display regressions
 ----
 ![png](output_41_0.png)
 ----
-
-[[comparing-selectivity-curves]]
-== Comparing selectivity curves
 
 
 +*Out[26]:*+

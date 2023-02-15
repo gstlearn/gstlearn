@@ -1,17 +1,3 @@
-[[tutorial-for-grid-to-grid-manipulation]]
-= Tutorial for Grid To Grid Manipulation
-This file is meant to demonstrate the use of gstlearn for performing operations on Grids
-Setting some global variables
-
-We first define a 2-D grid with 150 x 100 nodes (unit mes size)
-
-On this grid we simulation (using Turning Bands method) two variables
-which will serve as the Top and Bottom for the next steps. For
-generality, we have truncated the two surfaces arbitrarily. Note taht we
-did not check that the Top surface is located _above_ the Bottom
-surface, nor that the masked areas coincide.
-
-
 +*Out[5]:*+
 ----
 Range for Bottom =  90.83105938182158 104.99958543205686
@@ -29,12 +15,6 @@ Range for Top =  105.00084191866524 119.10100367815025
 ----
 ![png](output_11_0.png)
 ----
-
-We now generate the maps of the Variable to be interpolated, with one
-version corresponding to the Top position and another version for the
-Bottom position. In order to enhance the interpolation feature, the two
-versions of this variable are simulated with different textures: short
-range at the Top and much longer range at the Top
 
 
 +*Out[9]:*+
@@ -54,11 +34,6 @@ range at the Top and much longer range at the Top
 Range for Bottom =  90.83105938182158 104.99958543205686
 Range for Top =  105.00084191866524 119.10100367815025
 ----
-
-We create a 3D grid which covers the variation of the variables Top and
-Bot (as simulated above), i.e. from 91 to 119.
-
-We obtain the following statistics on the newly created variable
 
 
 +*Out[14]:*+
@@ -100,8 +75,6 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = x3 - Locator = x3
 Column = 4 - Name = Interpolation - Locator = z1
  ----
-
-Let us now visualize some horizontal slices of the 3-D grid.
 
 
 +*Out[15]:*+

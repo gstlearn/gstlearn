@@ -1,7 +1,3 @@
-[[markovian-simulation]]
-= Markovian simulation
-
-
 +*Out[5]:*+
 ----
 Model characteristics
