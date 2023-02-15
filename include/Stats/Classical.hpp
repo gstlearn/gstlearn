@@ -170,6 +170,7 @@ GSTLEARN_EXPORT Table dbStatisticsMultiT(Db *db,
  * @param  oper       Statistical operator
  * @param  cuts       Array of cutoffs (when needed)
  * @return Vector of results
+ *  @{
  */
 GSTLEARN_EXPORT VectorDouble dbStatisticsPerCellByUID(Db *db,
                                                       DbGrid *dbgrid,

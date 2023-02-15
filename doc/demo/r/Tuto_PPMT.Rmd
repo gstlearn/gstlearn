@@ -59,8 +59,8 @@ err = grd$setName("Y1.NS","Y1")
 err = grd$setName("Z.NS","Y2")
 
 # histograms and correlation
-plot.hist(grd, name = "Y1", col = "gray", fill = "orange")
-plot.hist(grd, name = "Y2", col = "gray", fill = "skyblue")
+plot.hist(grd, name = "Y1", color = "gray", fill = "orange")
+plot.hist(grd, name = "Y2", color = "gray", fill = "skyblue")
 
 p = plot.correlation(grd, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
 plot.decoration(p, title = "Initial Gaussian variables (grid)")
@@ -81,8 +81,8 @@ grd["Z2"] = m_2 * exp(sigma_2 * grd["Y2"] - 1/2 * sigma_2 * sigma_2 )
 dum = grd$statistics(c("Z*","Y*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
-plot.hist(grd, name = "Z1", col = "gray", fill = "orange")
-plot.hist(grd, name = "Z2", col = "gray", fill = "skyblue")
+plot.hist(grd, name = "Z1", color = "gray", fill = "orange")
+plot.hist(grd, name = "Z2", color = "gray", fill = "skyblue")
 p = plot.correlation(grd, name1 = "Z1", name2 = "Z2", flagDiag = TRUE)
 plot.decoration(p, title = "Initial lognormal variables (grid)")
 
@@ -101,8 +101,8 @@ data = Db_createSamplingDb(grd, number=nump, names = c("x1", "x2", "Z1", "Z2"))
 dum = data$statistics(c("Z*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
-plot.hist(data, name = "Z1", col = "gray", fill = "orange")
-plot.hist(data, name = "Z2", col = "gray", fill = "skyblue")
+plot.hist(data, name = "Z1", color = "gray", fill = "orange")
+plot.hist(data, name = "Z2", color = "gray", fill = "skyblue")
 p = plot.correlation(data, name1 = "Z1", name2 = "Z2", flagDiag = TRUE)
 plot.decoration(p, title = "Initial lognormal variables (data)")
 

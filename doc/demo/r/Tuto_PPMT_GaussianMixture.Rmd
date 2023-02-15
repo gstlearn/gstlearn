@@ -66,9 +66,9 @@ dum = data$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN"
 
 ```{r}
 # histograms and correlation
-plot.hist(data, name = "x1", col = "gray", fill = "orange")
-plot.hist(data, name = "x2", col = "gray", fill = "skyblue")
-plot.hist(data, name = "x3", col = "gray", fill = "green")
+plot.hist(data, name = "x1", color = "gray", fill = "orange")
+plot.hist(data, name = "x2", color = "gray", fill = "skyblue")
+plot.hist(data, name = "x3", color = "gray", fill = "green")
 p = plot.correlation(data, name1 = "x1", name2 = "x2", flagDiag = TRUE)
 plot.decoration(p, title = "Gaussian mixture (data)")
 p = plot.correlation(data, name1 = "x1", name2 = "x3", flagDiag = TRUE)
@@ -252,9 +252,9 @@ dum = simu$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN"
 
 ```{r}
 # histograms and correlation
-plot.hist(simu, name = "x1", col = "gray", fill = "orange")
-plot.hist(simu, name = "x2", col = "gray", fill = "skyblue")
-plot.hist(simu, name = "x3", col = "gray", fill = "green")
+plot.hist(simu, name = "x1", color = "gray", fill = "orange")
+plot.hist(simu, name = "x2", color = "gray", fill = "skyblue")
+plot.hist(simu, name = "x3", color = "gray", fill = "green")
 p = plot.correlation(simu, name1 = "x1", name2 = "x2", flagDiag = TRUE) 
 plot.decoration(p, title = "Gaussian mixture (simulation)")
 p = plot.correlation(simu, name1 = "x1", name2 = "x3", flagDiag = TRUE)
