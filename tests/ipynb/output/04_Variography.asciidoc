@@ -1,31 +1,5 @@
-[[variography]]
-= Variography
-
-In this preamble, we load the *gstlearn* library.
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-Then the necessary data set is downloaded and named *dat*: the target
-variable is *January_temp*
-
-[[experimental-variogram]]
-== Experimental variogram
-
-Data is a variable
-
-latexmath:[\[z_i = z(x_i)\]]
-
-The experimental variogram is a (dicrete) function:
-
-latexmath:[\[\gamma(h)=\frac{1}{2N(h)}\sum_{i=1}^{N(h)}[z(x_i+h)-z(x_i)]^2\]]
-
-where latexmath:[$N(h)$] is the number of pairs of points distant by
-latexmath:[$h$]
-
-[[variogram-cloud]]
-=== Variogram Cloud
 
 
 +*Out[4]:*+
@@ -53,13 +27,6 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Cloud.January_temp - Locator = NA----
-
-[[experimental-variogram]]
-=== Experimental Variogram
-
-We calculate the omni-directional variogram of the temperatures.
-
-Print the variogram contents
 
 
 +*Out[6]:*+
@@ -123,15 +90,11 @@ For variable 1
         38    33.000   380.087     0.847
         39    31.000   389.553     1.014----
 
-Plot the omni-directional variogram
-
 
 +*Out[7]:*+
 ----
 ![png](output_15_0.png)
 ----
-
-Represent the variogram with the number of pairs
 
 
 +*Out[8]:*+
@@ -139,15 +102,11 @@ Represent the variogram with the number of pairs
 ![png](output_17_0.png)
 ----
 
-Automatic Fitting procedure
-
 
 +*Out[9]:*+
 ----
 ![png](output_19_0.png)
 ----
-
-Print the Model
 
 
 +*Out[10]:*+
@@ -166,8 +125,6 @@ Spherical
 - Sill         =      1.156
 - Range        =    135.130
 Total Sill     =      1.156----
-
-List of Basic structures
 
 
 +*Out[11]:*+
@@ -204,15 +161,11 @@ List of Basic structures
    27 -      MARKOV : Markovian covariances
  ----
 
-Automatic Fitting (with given basic structures)
-
 
 +*Out[12]:*+
 ----
 ![png](output_25_0.png)
 ----
-
-The resulting Model
 
 
 +*Out[13]:*+
@@ -235,15 +188,11 @@ Spherical
 - Range        =    241.113
 Total Sill     =      1.306----
 
-Model Fitting with Inequality constraints
-
 
 +*Out[14]:*+
 ----
 ![png](output_29_0.png)
 ----
-
-The resulting Model
 
 
 +*Out[15]:*+
@@ -268,15 +217,11 @@ Spherical
 - Range        =    155.566
 Total Sill     =      1.166----
 
-Model Fitting with Equality constraints
-
 
 +*Out[16]:*+
 ----
 ![png](output_33_0.png)
 ----
-
-The resulting Model
 
 
 +*Out[17]:*+
@@ -301,15 +246,11 @@ Spherical
 - Range        =    130.042
 Total Sill     =      1.457----
 
-Directional Variograms
-
 
 +*Out[18]:*+
 ----
 ![png](output_37_0.png)
 ----
-
-Fitting a Multi-directional variogram
 
 
 +*Out[19]:*+
@@ -317,15 +258,11 @@ Fitting a Multi-directional variogram
 ![png](output_39_0.png)
 ----
 
-Calculating Variogram Map
-
 
 +*Out[20]:*+
 ----
 ![png](output_41_0.png)
 ----
-
-Automatic Model Fitting from Variogram Map
 
 
 +*Out[21]:*+
@@ -352,15 +289,11 @@ Cubic
      [  1,]    -0.421     0.907
 Total Sill     =      1.200----
 
-Drawing the Fitted Model as a Variogram Map
-
 
 +*Out[22]:*+
 ----
 ![png](output_45_0.png)
 ----
-
-Compare Directional Variograms and Variogram Map
 
 
 +*Out[23]:*+

@@ -1,33 +1,5 @@
-[[pluri-gaussian-2d]]
-= Pluri-Gaussian 2D
-
-[[preamble]]
-== 0. Preamble
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-This tutorial requires to install
-
-* gstlearn
-* numpy
-* pandas
-* matplotlib
-
-[[prepare-the-basic-gstlearn-objects]]
-== 1. Prepare the basic gstlearn objects
-
-Initial objects are located in a specific Directory which is defined in
-the next Container operation. Note that his operation will modify
-automatically all the names of the Files retreived using Serialize /
-Deserialize operation (not when reading using CSV). Also note that the
-Container name must be ended using a "/" (as its serves as a Directory).
-
-[[load-the-data-file]]
-=== Load the data file
-
-This Load is performed starting from a CSV file.
 
 
 +*Out[4]:*+
@@ -43,25 +15,12 @@ This Load is performed starting from a CSV file.
 |================================================
 ----
 
-[[loading-polygon-from-a-file]]
-=== Loading polygon from a file
-
-The polygon is created by deserializing the Neutral Polygon File
-(located in data Directory)
-
 
 +*Out[5]:*+
 ----
 Polygons
 --------
 Number of Polygon Sets = 1----
-
-[[creation-of-the-gstlearn-data-base]]
-=== Creation of the gstlearn data base
-
-[[specification-of-the-role-of-each-variable-named-locators-in-gstlearn]]
-=== Specification of the role of each variable (named "locators" in
-gstlearn)
 
 
 +*Out[7]:*+
@@ -83,26 +42,11 @@ Column = 0 - Name = X - Locator = x1
 Column = 1 - Name = Y - Locator = x2
 Column = 2 - Name = LANU - Locator = z1----
 
-[[creation-of-the-output-grid]]
-=== Creation of the output grid
-
-The output grid will contain 47 x 101 nodes. It is built to cover the
-data file plus an extension of 10000 x 10000.
-
-[[add-a-selection-mask-the-cells-outside-the-polygon]]
-=== Add a selection (mask the cells outside the polygon)
-
 
 +*Out[9]:*+
 ----
 ![png](output_18_0.png)
 ----
-
-[[computation-of-the-proportions]]
-== 2. Computation of the proportions
-
-[[compute-global-proportions-for-information]]
-=== 2.1 Compute global proportions (for information)
 
 
 +*Out[10]:*+
@@ -113,13 +57,6 @@ Proportion of facies 3 = 0.046126552335895916
 Proportion of facies 4 = 0.205204021289178
 Proportion of facies 5 = 0.006505026611472502
 ----
-
-[[compute-local-proportions]]
-=== 2.2 Compute local proportions
-
-The next parts will be simplified in a future dedicated API
-
-*2.2.1 Creation of the spatial regularization model for proportions*
 
 
 +*Out[13]:*+
@@ -198,9 +135,6 @@ Column = 6 - Name = Prop.4 - Locator = p4
 Column = 7 - Name = Prop.5 - Locator = p5
  ----
 
-[[display-the-results]]
-=== Display the results
-
 
 +*Out[14]:*+
 ----
@@ -214,9 +148,6 @@ Column = 7 - Name = Prop.5 - Locator = p5
 
 ![png](output_28_4.png)
 ----
-
-Creating the environment to infer the Rule. It uses a variogram
-calculated over very few lags close to the origin.
 
 
 +*Out[15]:*+
@@ -293,8 +224,6 @@ For variable 1
         19  9732.000-17998.608     0.017
  ----
 
-We extract the experimental variograms of each GRF.
-
 
 +*Out[20]:*+
 ----
@@ -338,9 +267,6 @@ For variable 1
         18  9732.000 17998.608     0.983
  ----
 
-We now fit the model of each GRF considered as independent. The fit is
-performed under the constraint that the sill should be 1.
-
 
 +*Out[21]:*+
 ----
@@ -362,17 +288,11 @@ K-Bessel (Third Parameter = 0.687235)
 Total Sill     =      1.000
  ----
 
-For each GRF, we can plot the experimental variogram as well as the
-fitted model.
-
 
 +*Out[22]:*+
 ----
 ![png](output_40_0.png)
 ----
-
-In this paragraph, we compare the experimental indicator variogram to
-the one derived from the Model of the underlying GRFs.
 
 
 +*Out[25]:*+

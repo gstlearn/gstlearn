@@ -1,62 +1,3 @@
-[[spde-simulation-on-sphere]]
-= SPDE simulation on sphere
-
-_by N. Desassis and D. Renard_
-
-The aim of this tutorial is to show how to use gstlearn to simulate the
-solution of
-
-latexmath:[\[(\kappa^2-\Delta_{\mathcal{S}_R})^{\alpha/2}Z = \sigma\mathcal{W}\]]
-
-on the sphere latexmath:[$\mathcal{S}_R$] of radius latexmath:[$R$].
-
-* latexmath:[$\Delta_{{\mathcal{S}_R}}$] is the Laplace-Beltrami
-operator, i.e, it acts on each point of the sphere as the usual
-Laplacian on the tangent plane at this point.
-* latexmath:[$\kappa$] is the inverse of the scale parameter
-* latexmath:[$\alpha \geq 2$] is an integer describing the smoothness of
-the solution.
-* latexmath:[$\mathcal{W}$] is a Gaussian white-noise suitably
-normalized such as latexmath:[$\sigma^2$] is the variance of the
-solution.
-
-In this notebook, we will define the covariance of Matérn on the sphere,
-as the covariance of the solution of this SPDE (other extensions of the
-Matérn function are possible). By analogy with the Euclidian case, its
-smoothness parameter will be defined by latexmath:[$\nu = \alpha -1$].
-To compute the covariance function with respect on the geodetic
-distance, one have to use a decomposition on the Legendre polynomial
-(see below).
-
-We also treat the more general case
-latexmath:[\[P^{1/2}(-\Delta_{\mathcal{S}_R})Z = \sigma\mathcal{W}\]]
-
-where latexmath:[$P$] is a polynom positive on
-latexmath:[$\mathbb{R}^+$]
-
-[[parametrization]]
-=== Parametrization
-
-[[meshing]]
-=== Meshing
-
-Sampling Db creation
-
-[[covariance-model]]
-=== Covariance model
-
-The covariance model is Markov or Matérn.
-
-[[precision-matrix]]
-=== Precision matrix
-
-[[simulation]]
-=== Simulation
-
-[[display-the-realization]]
-=== Display the realization
-
-
 +*Out[9]:*+
 ----
 
@@ -64,30 +5,85 @@ The covariance model is Markov or Matérn.
 [[XXX]]
 ----
 
-[[compute-covariance-of-discretized-solution]]
-=== Compute covariance (of discretized solution)
-
-We use the fact that latexmath:[$\Sigma = Q^{-1}$] and solve
-latexmath:[$Qx = e_j$] for an arbitrary index latexmath:[$j$].
-
-*Get the distances*
-
-*Compute the covariances*
-
-*Sort for the plot*
-
-*Display the result*
-
 
 +*Out[13]:*+
 ----
 ![png](output_25_0.png)
 ----
 
-[[variogram-of-the-realization]]
-=== Variogram of the realization
 
-The empirical variogram is computed by using the great-circle distance.
++*Out[14]:*+
+----
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     2.205
+
+Direction #1
+------------
+Number of lags              = 50
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.100 (degrees)
+Calculation lag             =    254.840
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   880.000   117.278     0.033
+         1  6202.000   280.812     0.110
+         2 12439.000   517.733     0.252
+         3 19821.000   770.763     0.421
+         4 25322.000  1024.622     0.586
+         5 32312.000  1278.763     0.737
+         6 38127.000  1533.154     0.875
+         7 44197.000  1786.175     0.992
+         8 50196.000  2041.365     1.117
+         9 55289.000  2295.919     1.210
+        10 62498.000  2550.244     1.306
+        11 68154.000  2805.168     1.374
+        12 73603.000  3059.519     1.444
+        13 79692.000  3314.600     1.509
+        14 84071.000  3569.658     1.579
+        15 90648.000  3823.591     1.638
+        16 94968.000  4079.082     1.695
+        17100838.000  4332.945     1.740
+        18105757.000  4588.271     1.792
+        19109571.000  4843.064     1.835
+        20115110.000  5097.696     1.891
+        21119204.000  5352.477     1.901
+        22122864.000  5607.655     1.929
+        23127145.000  5861.986     1.958
+        24130605.000  6116.609     1.991
+        25135179.000  6371.398     1.996
+        26137742.000  6625.862     2.024
+        27142063.000  6881.189     2.047
+        28143245.000  7136.301     2.066
+        29147012.000  7390.824     2.097
+        30148676.000  7645.525     2.106
+        31151061.000  7900.169     2.118
+        32154040.000  8154.925     2.132
+        33153875.000  8409.719     2.148
+        34157183.000  8664.374     2.151
+        35156558.000  8919.976     2.165
+        36157944.000  9174.583     2.159
+        37159511.000  9428.840     2.175
+        38159343.000  9683.935     2.185
+        39158729.000  9938.630     2.194
+        40159608.000 10193.565     2.192
+        41159426.000 10447.971     2.202
+        42159232.000 10703.060     2.230
+        43158092.000 10958.122     2.234
+        44156523.000 11212.502     2.241
+        45155783.000 11467.329     2.260
+        46153805.000 11722.561     2.283
+        47153808.000 11977.025     2.302
+        48150317.000 12232.077     2.353
+        49148023.000 12486.845     2.376
+ ----
 
 
 +*Out[15]:*+
@@ -95,49 +91,14 @@ The empirical variogram is computed by using the great-circle distance.
 ![png](output_28_0.png)
 ----
 
-[[theoretical-covariance-function]]
-=== Theoretical covariance function
-
-The covariance between two points with great-circle distance
-latexmath:[$d$] on the sphere of radius latexmath:[$R$] is given by
-latexmath:[\[C(d) = \frac{\sigma^2}{\sum_{i=0}^\infty f(i)}\sum_{i=0}^\infty f(i) P_i\left(\cos \frac{d}{R}\right)\]]
-
-where the latexmath:[$P_i$]'s are the Legendre polynomials computed with
-the following reccurence formula
-
-latexmath:[\[P_0(x) = 1.\]]
-
-latexmath:[\[P_1(x) = x\]]
-
-latexmath:[\[P_{n+1}(x)=\frac{(2n+1)xP_n(x) - n P_{n-1}(x)}{n+1}\]]
-
-For latexmath:[$n\geq 0$],
-latexmath:[\[f(n) = \frac{2 (n + 1)}{ (R^2\kappa^2 + n ( n + 1))^\alpha}\]]
-
-For numerical computations, the sums are truncated at *N*.
-
-For more details on the covariances on sphere, see
-https://link.springer.com/content/pdf/10.1007/s11004-019-09799-4.pdf[Lantuejoul,
-Freulon and Renard (2019)]
-
-[[evaluation]]
-=== Evaluation
-
 
 +*Out[16]:*+
 ----
 ![png](output_32_0.png)
 ----
 
-There is a slight difference between the theoretical variogram and the
-one obtained from the SPDE discretization due to a numerical error on
-the variance introduced by the discretization. The comparison of the
-covariance shows that this numerical error is rather small :
-
 
 +*Out[17]:*+
 ----
 ![png](output_34_0.png)
 ----
-
-Kriging

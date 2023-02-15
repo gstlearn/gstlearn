@@ -1,30 +1,9 @@
-[[discrete-disjunctive-kriging]]
-= Discrete Disjunctive Kriging
-
-This notebook presents an example for Discrete-Disjunctive Kriging
-(DDK). The theory is not detailed here, see for example: +
-Rivoirard, J. (1994). Introduction to disjunctive kriging and non-linear
-geostatistics. Number 551.021 R626i. Clarendon Press
-
-[[simulation-of-a-reference-data-set]]
-== Simulation of a reference data set
-
-We create a reference data set (lognormal distribution) based on a model
-that we define, using _simtub_ (based on Turning Bands).
-
-
 +*Out[2]:*+
 ----
 ![png](output_3_0.png)
 
 ![png](output_3_1.png)
 ----
-
-[[elementary-statistics]]
-==== Elementary statistics
-
-We define cutoffs values corresponding to quantiles 0%, 30%, 50%, 70%
-and 90%.
 
 
 +*Out[3]:*+
@@ -39,16 +18,6 @@ Bound( 2 ) : [ 0.73138 ; 0.935746 [
 Bound( 3 ) : [ 0.935746 ; 1.23252 [
 Bound( 4 ) : [ 1.23252 ; 1.77013 [
  ----
-
-[[discretization-of-the-variable-on-cutoff-values]]
-== Discretization of the variable on cutoff values
-
-From the cutoff values defined above, the variable _Z_ is discretized on
-the four intervals delimited by the cutoff values. The indicators of the
-intervals are latexmath:[$\mathbb{1}(z_i \le Z < z_{i+1})$]. The fifth
-indicator (latexmath:[$\mathbb{1}(Z \ge z_{5})$]) is not computed
-because it can be deducted from the four other ones as their sum equals
-to one.
 
 
 +*Out[4]:*+
@@ -88,12 +57,6 @@ Column = 9 - Name = Indicator.Z.Mean - Locator = z1
 ![png](output_8_1.png)
 ----
 
-[[variography-omnidirectional]]
-== Variography (omnidirectional)
-
-[[variogram-of-the-raw-variable-z]]
-==== Variogram of the raw variable _Z_
-
 
 +*Out[6]:*+
 ----
@@ -120,9 +83,6 @@ Total Sill     =      0.332
  
 ![png](output_10_1.png)
 ----
-
-[[variogram-of-the-discretized-variable]]
-==== Variogram of the discretized variable
 
 
 +*Out[7]:*+
@@ -151,29 +111,11 @@ Total Sill     =      0.140
 ![png](output_12_1.png)
 ----
 
-[[variograms-of-the-indicator-variables]]
-==== Variograms of the Indicator variables
-
 
 +*Out[8]:*+
 ----
 ![png](output_14_0.png)
 ----
-
-The indicators are spatially correlated. A method for disjunctive
-kriging would consist in cokriging all indicators. Instead, we will
-decompose them into factors that are not correlated spatially, so that
-they can all be estimated seperately by kriging.
-
-[[maf-minmax-autocorrelation-factors]]
-== MAF : Min/Max Autocorrelation Factors
-
-Indicators are decomposed on factors called MAF (Min/Max Autocorrelation
-Factors). MAFs are not correlated spatially, and the first MAFs
-represent the spatial structures with the most continuity.
-
-[[computing-mafs]]
-==== Computing MAFs
 
 
 +*Out[9]:*+
@@ -228,41 +170,17 @@ Correlation between factors MAF
 ![png](output_18_1.png)
 ----
 
-[[visualize-maf-and-their-variograms]]
-==== Visualize MAF and their variograms
-
 
 +*Out[11]:*+
 ----
 ![png](output_20_0.png)
 ----
 
-[[kriging-mafs]]
-= Kriging MAFs
-
-[[define-individual-models-for-the-mafs]]
-==== Define individual models for the MAFs
-
-Since the MAFs are orthogonal, we will only consider the simple
-variograms, in order to do kriging and not cokriging
-
 
 +*Out[12]:*+
 ----
 ![png](output_22_0.png)
 ----
-
-For example, we can obtain an estimation of the variable Z with DDK.
-Here we only consider the first two MAFs as an example, and because MAF3
-and MAF4 are not very structured and have a very small range. MAF1 and
-MAF2 reprensent the pattern of the most continuity, and large scale
-structures. +
-First, we can do the kriging of MAF1 and MAF2 separately, as they are
-built to be orthogonal.
-
-Then, we obtain the estimate of any variable that can be expressed as a
-linear combination of the indicators, and that are thus also a linear
-combination of the MAFs.
 
 
 +*Out[14]:*+

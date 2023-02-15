@@ -1,17 +1,5 @@
-[[factorial-kriging-analysis]]
-= Factorial Kriging Analysis
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-The Grid containing the information is downloaded from the distribution.
-
-The loaded file (called *grid *) contains 3 variables:
-
-* *P* (phosphorus) which is the _variable of interest_
-* *Cr* (chromium) is an auxiliary variable
-* *Ni* (nickel) another auxiliary variable
 
 
 +*Out[4]:*+
@@ -31,10 +19,6 @@ Data Base Statistics
  Standard Deviation  =     21.759
  Variance            =    473.457
  ----
-
-Note that some pixels are not informed for variable *P*.
-
-Statistics on auxiliary variables
 
 
 +*Out[5]:*+
@@ -77,8 +61,6 @@ Data Base Statistics
  Variance            = 783217.898
  ----
 
-Correlation between variables
-
 
 +*Out[6]:*+
 ----
@@ -97,33 +79,17 @@ Correlation between variables
 ![png](output_12_0.png)
 ----
 
-Using inverse square distance for completing the variable *P*
-
-We concentrate on the variable of interest *P* completed (*Fill.P*) in
-the next operations
-
 
 +*Out[10]:*+
 ----
 ![png](output_16_0.png)
 ----
 
-Variogram Calculation along Grid main axes
-
 
 +*Out[12]:*+
 ----
 ![png](output_19_0.png)
 ----
-
-We must define the *Neighborhood*
-
-The *image* neighborhood is based on latexmath:[$(2*10+1)^2=441$] pixels
-(centered on the target pixel).
-
-During the estimation, only the contribution of second and third basic
-structures are kept (Nugget Effect is filtered out): ** Factorial
-Kriging Analysis**.
 
 
 +*Out[14]:*+
@@ -152,9 +118,6 @@ Power (Third Parameter = 0.0879341)
 ----
 ![png](output_25_0.png)
 ----
-
-Correlation for *P* variable between Initial image (completed) and its
-Filtered version (monovariate FKA)
 
 
 +*Out[17]:*+
@@ -193,16 +156,11 @@ Column = 7 - Name = Mono.Fill.P - Locator = z1----
 ![png](output_28_0.png)
 ----
 
-[[multivariate-approach]]
-== Multivariate approach
-
 
 +*Out[20]:*+
 ----
 ![png](output_31_0.png)
 ----
-
-Printing the contents of the fitted Multivariate Mpdel
 
 
 +*Out[21]:*+
@@ -239,28 +197,17 @@ Power (Third Parameter = 1.99)
      [  2,]     6.133    44.478   163.446
 ----
 
-Multivariable Factorial Kriging Analysis
-
-Note that, using the same *neigh* as in monovariate, the dimension of
-the Kriging System is now latexmath:[$3 * 441 = 1323$]
-
 
 +*Out[23]:*+
 ----
 ![png](output_37_0.png)
 ----
 
-Correlation for *P* variable between Initial image and its Filtered
-version (multivariate FKA)
-
 
 +*Out[24]:*+
 ----
 ![png](output_39_0.png)
 ----
-
-Correlation for *P* filtered variable between he Monovariate and the
-Multivariate case
 
 
 +*Out[25]:*+

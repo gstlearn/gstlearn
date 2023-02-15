@@ -1,15 +1,3 @@
-[[this-file-demonstrates-the-conversion-of-a-db-into-a-panda]]
-== This file demonstrates the conversion of a Db into a Panda
-
-Loading the required libraries
-
-We first create the Data Base 'db' with few samples and 4 variables.
-
-Each of these variables is assigned a Locator.
-
-The next printout shows the contents of the Db using gstlearn format
-
-
 +*Out[4]:*+
 ----
 Data Base Characteristics
@@ -31,10 +19,6 @@ Column = 1 - Name = lat - Locator = x2
 Column = 2 - Name = z - Locator = z1
 Column = 3 - Name = sel - Locator = sel----
 
-We now convert it into a Panda file
-
-We check its contents using Panda own format
-
 
 +*Out[6]:*+
 ----
@@ -54,11 +38,6 @@ We check its contents using Panda own format
 |============================================
 ----
 
-The conversion is performed once more, but keeping track of the locator
-information assigned to each variable.
-
-The printout is not modified.
-
 
 +*Out[8]:*+
 ----
@@ -77,9 +56,6 @@ The printout is not modified.
 |9 |0.000000 |1.000000 |1.000000 |1.000000
 |============================================
 ----
-
-But each variable can show the locator which is attached to it. The
-syntax is as follows:
 
 
 +*Out[9]:*+

@@ -1,22 +1,5 @@
-[[demonstration-of-graphic-facilities-in-gstlearn-package]]
-= Demonstration of Graphic facilities in gstlearn package
-
-The module gstlearn.plot contains various plot functions for gstlearn
-objetcs: DbGrid, Db, Vario, Model, Polygons... These functions are also
-accesible as methods of each class. For example for a grid, we could use
-equivalently gp.grid(mygrid,...) or mygrid.plot(...), or for more
-specific functions: gp.point(mygrid,...) or mygrid.plot_point(...)
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[import-packages]]
-== Import packages
-
-We define the Space dimension
-
-Creating a dummy Model used for simulating a random field and display it
 
 
 +*Out[4]:*+
@@ -24,20 +7,9 @@ Creating a dummy Model used for simulating a random field and display it
 ![png](output_7_0.png)
 ----
 
-You can also directly display the formula in an output cell of a
-notebook
-
 
 +*Out[5]:*+
 ----<IPython.core.display.Latex object>----
-
-[[grid-representations]]
-== Grid representations
-
-We create a rectangular non-rotated 2-D grid, and simulate random
-Gaussian field (using the Model previously defined). Two simulations are
-generated in order to emphasize the graphic posibilities in further
-parts of this note.
 
 
 +*Out[6]:*+
@@ -69,26 +41,11 @@ Column = 3 - Name = Simu.1 - Locator = z1
 Column = 4 - Name = Simu.2 - Locator = z2
  ----
 
-Add a dummy selection to test visualization with Selection
-
-[[non-rotated-grid]]
-=== Non Rotated Grid
-
-We simply represent the grid (using the defaulted color scale). As no
-variable nor representation is explicitely specified, the default
-variable is represented using the default representation (i.e. raster).
-The default variable is the first Z-locator variable (if any) or the
-variable created last in the file otherwise.
-
-We also plot the legend on the right edge.
-
 
 +*Out[8]:*+
 ----
 ![png](output_17_0.png)
 ----
-
-This can be specified using the object-based syntax instead, as follows:
 
 
 +*Out[9]:*+
@@ -96,18 +53,11 @@ This can be specified using the object-based syntax instead, as follows:
 ![png](output_19_0.png)
 ----
 
-We can overlay a set of isolines (based on the second simulation)
-
 
 +*Out[10]:*+
 ----
 ![png](output_21_0.png)
 ----
-
-As a proof, we can also visualize the (last) variable using a Color
-Point representation. Note that here we *cannot* use the object-based
-convention as we wish to use the _point_ representation facility, even
-if the file is organized as a grid.
 
 
 +*Out[11]:*+
@@ -115,21 +65,11 @@ if the file is organized as a grid.
 ![png](output_23_0.png)
 ----
 
-We can create a specific ColorScale, containing a limited number of
-colors, and sampling a given reference Color Scale.
-
-For the next figure, we use the one defaulted by the system ('viridis')
-for sake of understanding. We simply reduce the number of colors
-
 
 +*Out[12]:*+
 ----
 ![png](output_25_0.png)
 ----
-
-We can also change the reference color scale (using the one defaulted by
-the method get_cmap for example: 'gist rainbow') and increase the number
-of colors
 
 
 +*Out[13]:*+
@@ -137,30 +77,17 @@ of colors
 ![png](output_27_0.png)
 ----
 
-Represent the histogram of the vaalues collected in the outcome over the
-grid. Here we can use either gp.hist(mygrid,...) or
-mygrid.plot_hist(...)
-
 
 +*Out[14]:*+
 ----
 ![png](output_29_0.png)
 ----
 
-Representing a scatter plot between two variables stored on the same Db
-
 
 +*Out[15]:*+
 ----
 ![png](output_31_0.png)
 ----
-
-[[set-of-points-and-polygon]]
-=== Set of Points and Polygon
-
-A set of points is sampled from the previous Grid and stored in a new
-Point Db. The number of samples if fixed to 1% of the number of grid
-nodes.
 
 
 +*Out[16]:*+
@@ -188,21 +115,11 @@ Column = 4 - Name = Simu.2 - Locator = z2
 Column = 5 - Name = sel - Locator = sel
  ----
 
-We create a polygon as the convex hull of the samples
-
-We now display the points and the polygon on top of the grid: the
-overlay is ensured by using the argument 'ax'.
-
 
 +*Out[18]:*+
 ----
 ![png](output_38_0.png)
 ----
-
-[[rotated-grid-angle-20-degrees]]
-=== Rotated grid (angle = 20 degrees)
-
-We create the same grid as before but with a rotation of 20 degrees.
 
 
 +*Out[19]:*+
@@ -210,22 +127,11 @@ We create the same grid as before but with a rotation of 20 degrees.
 ![png](output_41_0.png)
 ----
 
-A new set of Points is sampled from the rotated Grid. As the same seed
-is used, the ranks of the selected samples within the grid are the same.
-Furthermore, we generate the Polygon as the convex hull of the newly
-created Point db.
-
-We represent again the three components (grid, points and polygon) on
-the same view
-
 
 +*Out[21]:*+
 ----
 ![png](output_45_0.png)
 ----
-
-Let us now add a selection in order to restrict the previous
-representation to the only non-masked samples
 
 
 +*Out[22]:*+
@@ -233,23 +139,11 @@ representation to the only non-masked samples
 ![png](output_47_0.png)
 ----
 
-[[share-legend-between-two-plots]]
-== Share legend between two plots
-
-This paragraph is meant to present the possibility of splitting a figure
-in two scenes, to represent a grid in each scene (for example) and share
-the (same) color scale for the two scenes.
-
 
 +*Out[23]:*+
 ----
 ![png](output_49_0.png)
 ----
-
-[[display-points-with-fixed-colors]]
-== Display points with fixed colors
-
-In this paragraph, we wish to display sample points with given colors.
 
 
 +*Out[24]:*+
@@ -281,22 +175,11 @@ Column = 2 - Name = y - Locator = x2
 Column = 3 - Name = z - Locator = z1
  ----
 
-We represent the samples without using any pre-specified color map. The
-system uses the default color scale and assigns the lowest value to be
-represented to the first color and the largest value to the last color.
-For all subsequent graphics, the dimensions of the non-geographical
-plots is fixed.
-
 
 +*Out[25]:*+
 ----
 ![png](output_53_0.png)
 ----
-
-Representing using a given color map (based on few colors [5]). The
-color scale is now discrete but the system still assigns the lowest
-value (i.e. 1) to the first color and the largest value (i.e. 5) to the
-last color
 
 
 +*Out[27]:*+
@@ -304,35 +187,11 @@ last color
 ![png](output_56_0.png)
 ----
 
-We use a new Db where the values at first sample has been modified (from
-1 to 4) while the other have been left unchanged. We use the same color
-scale as before. Again the lowest value (i.e. 3) is assigned to the
-first color and the largest value (i.e. 5) to the last color.
-
 
 +*Out[28]:*+
 ----
 ![png](output_58_0.png)
 ----
-
-Default dimensions for Geographical plots are set back to larger
-dimensions for subseauqnt graphics
-
-[[superimposing-figures]]
-= Superimposing figures
-
-In this section, we demonstrate the possibilities offered by the
-graphics for working with multiple figures and overlaying graphics. This
-is described through the use of variograms and models. For this reason
-we consider the two non-conditional simulations created earllier on the
-existing grid. We calculate the simple and cross variograms along the
-two main axes of the grid and fit a model automatically.
-
-[[several-ways-for-displaying-experimental-variograms]]
-=== Several ways for displaying experimental variograms
-
-In the next graphic, we produce the simple variogram of the first
-variable calculated in the first direction
 
 
 +*Out[32]:*+
@@ -340,20 +199,11 @@ variable calculated in the first direction
 ![png](output_67_0.png)
 ----
 
-In the next graphic, we produce a single figure where the variograms of
-the first variable calculated in the first direction (black) and the
-second direction (red) are overlaid. The overlay is performed manually.
-
 
 +*Out[33]:*+
 ----
 ![png](output_69_0.png)
 ----
-
-In the next graphic, we produce a single graphic where the
-cross-variograms between first and second variables are displayed for
-all directions. The colors are extracted from the Color Map provided as
-argument.
 
 
 +*Out[34]:*+
@@ -361,21 +211,11 @@ argument.
 ![png](output_71_0.png)
 ----
 
-Representing all simple and cross variograms for all directions
-
 
 +*Out[35]:*+
 ----
 ![png](output_73_0.png)
 ----
-
-[[several-ways-for-representing-the-model]]
-=== Several ways for representing the Model
-
-Represent the Model calculated for the second variable. If the Model is
-not isotropic, the plot should differ per direction: as direction has
-not been mentionned, the first direction (of the geographic sysrtem) is
-used by default.
 
 
 +*Out[36]:*+
@@ -383,33 +223,17 @@ used by default.
 ![png](output_76_0.png)
 ----
 
-Representing all simple and cross variograms together with the fitted
-model for the first direction. This is directly provided by the function
-varmod.
-
 
 +*Out[37]:*+
 ----
 ![png](output_78_0.png)
 ----
 
-[[testing-figure-overlay]]
-=== Testing figure Overlay
-
-The next figure is meant to demonstrate the overlay possibilities. We
-first represent the experimental variograms for all variable (in the
-first direction only to be legible). Then we overlay the model ... only
-over the experimental simple variogram of the second variable (in dashed
-blue).
-
 
 +*Out[38]:*+
 ----
 ![png](output_81_0.png)
 ----
-
-In the next figure, we draw the first direction and overlay the second
-direction (on purpose using two orders)
 
 
 +*Out[39]:*+

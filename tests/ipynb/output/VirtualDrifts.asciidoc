@@ -1,23 +1,5 @@
-[[creation-of-the-class]]
-= Creation of the class
-
-[[db-creation]]
-== Db creation
-
-[[drift-functions]]
-== Drift functions
-
-[[model]]
-== Model
-
-[[class-instanciation]]
-== Class instanciation
-
-
 +*Out[6]:*+
 ----0.4335461187854164----
-
-Test
 
 
 +*Out[7]:*+

@@ -1,7 +1,3 @@
-[[python-version-of-test_spdedrift.cpp]]
-= Python version of test_SPDEDRIFT.cpp
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
 
@@ -64,8 +60,6 @@ Column = 3 - Name = inshore - Locator = sel
 ![png](output_4_1.png)
 ----
 
-Calculate the variogram
-
 
 +*Out[5]:*+
 ----
@@ -109,8 +103,6 @@ For variable 1
  
 ![png](output_6_1.png)
 ----
-
-Load the (same) variogram from a neutral file
 
 
 +*Out[6]:*+
@@ -156,8 +148,6 @@ For variable 1
 ![png](output_8_1.png)
 ----
 
-Fit the variogram of residuals in a model having drifts
-
 
 +*Out[7]:*+
 ----
@@ -187,8 +177,6 @@ External Drift - Rank=0
  
 ![png](output_10_1.png)
 ----
-
-Reload the (same) model from a neutral file
 
 
 +*Out[8]:*+

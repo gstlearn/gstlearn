@@ -1,43 +1,5 @@
-[[tutorial-for-potential-model]]
-= Tutorial for Potential Model
-
-This file is meant to demonstrate the use of gstlearn for Potential
-Model.
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[case-in-1-d]]
-= Case in 1-D
-
-[[defining-the-information]]
-== Defining the Information
-
-Setting some global variables
-
-Defining the data points used as controls
-
-The set of iso-potential data points. Each datum is characterized by its
-coordinate and an indicator of the set to which it belongs.
-
-The Gradient information
-
-The 1-D grid covering the field of estimation
-
-The Model is composed of a Gaussian Covariance with a scale 20. The
-model must be turned into a Gradient model.
-
-The Neighborhood (although parametrized) should be Unique
-
-[[launching-the-estimation]]
-== Launching the Estimation
-
-We launch the calculation of the Potential on the nodes of the grid. The
-use of OptDbg statement is maintained for spying the process when
-estimating a target node in particular (-1 stands for no control).
-
-Graphic representation
 
 
 +*Out[10]:*+
@@ -45,30 +7,26 @@ Graphic representation
 ![png](output_23_0.png)
 ----
 
-[[case-in-2-d]]
-= Case in 2-D
 
-[[defining-the-information]]
-= Defining the Information
++*Out[16]:*+
+----
 
-We define the space dimension
+Model characteristics
+=====================
+(Specific for Handling Gradient)
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
 
-Defining the Iso-Potential information
-
-Defining the Gradient information
-
-Defining the Tangent information
-
-Defining the output grid
-
-Defining the Model and turn it into a Gradient Model
-
-Defining the Neighborhood
-
-[[launching-the-estimation]]
-== Launching the estimation
-
-Visualization
+Covariance Part
+---------------
+Cubic
+- Sill         =      1.000
+- Range        =      8.000
+Total Sill     =      1.000
+ ----
 
 
 +*Out[19]:*+
@@ -103,30 +61,58 @@ Column = 3 - Name = Potential - Locator = z1----
 ![png](output_44_0.png)
 ----
 
-[[case-in-3-d]]
-= Case in 3-D
 
-[[defining-the-information]]
-== Defining the Information
++*Out[26]:*+
+----
 
-We define the space dimension
+Model characteristics
+=====================
+(Specific for Handling Gradient)
+Space dimension              = 3
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 4
+Number of drift equation(s)  = 4
 
-Defining the Iso-Potential information
+Covariance Part
+---------------
+Cubic
+- Sill         =      1.000
+- Range        =     10.000
+Total Sill     =      1.000
 
-Defining the Gradient information
+Drift Part
+----------
+Universality Condition
+Drift X
+Drift Y
+Drift Z
+ ----
 
-Defining the Tangent information
 
-Defining the output grid
++*Out[28]:*+
+----
 
-Defining the Model (as IRF-1) and turn it into a Gradient Model
+Data Base Characteristics
+=========================
 
-Defining the Neighborhood
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 3
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 9
 
-[[launching-the-estimation]]
-== Launching the estimation
-
-3-D Visualization
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x - Locator = x1
+Column = 2 - Name = y - Locator = x2
+Column = 3 - Name = z - Locator = x3
+Column = 4 - Name = iso - Locator = layer
+Column = 5 - Name = Potential - Locator = z1
+ ----
 
 
 +*Out[29]:*+

@@ -1,18 +1,5 @@
-[[demonstration-of-the-statistics-procedure-in-gstlearn]]
-= Demonstration of the Statistics procedure in gstlearn
-
-This file demonstrates the use of Statistics functions performed on a
-Point and a Grids (in 2-D.
-
-
 +*Out[1]:*+
 ----<IPython.core.display.Javascript object>----
-
-[[import-packages]]
-== Import packages
-
-Defining the Grid file called _grid_. The grid contains three variables
-with values generated randomly (called "SG_i")
 
 
 +*Out[3]:*+
@@ -43,10 +30,6 @@ Column = 3 - Name = SG1 - Locator = NA
 Column = 4 - Name = SG2 - Locator = NA
 Column = 5 - Name = SG3 - Locator = z1----
 
-Defining a Point data base called _data_, covering the grid(s)
-extension. The data base contains three variables generated randomly
-(called "SD_i")
-
 
 +*Out[4]:*+
 ----
@@ -70,24 +53,11 @@ Column = 3 - Name = SD1 - Locator = NA
 Column = 4 - Name = SD2 - Locator = NA
 Column = 5 - Name = SD3 - Locator = z1----
 
-The following plot displays the variable _SG1_ from the Grid Data Base
-(in color scale) and the variable _SD1_ from the Point Data Base (in
-proportional symbols).
-
 
 +*Out[5]:*+
 ----
 ![png](output_10_0.png)
 ----
-
-Note that in all subsequent tests, we will have to specify a set of
-statistical operations. This list is defined once for all and specified
-using _fromKeys_ utility to make the script more legible.
-
-In the next paragraph, we calculate some monovariate statistics on the
-variables contained in the Point Data Base. For all methods, several
-calls are available, depending on: - how the target variables are
-specified - how the results are produced
 
 
 +*Out[7]:*+
@@ -102,9 +72,6 @@ Monovariate Statistics on Variables
        SD2    100.000     -0.293      1.020
        SD3    100.000      0.118      0.910----
 
-The next command produces the correlation matrix of the selected
-variables.
-
 
 +*Out[8]:*+
 ----- Number of rows    = 3
@@ -113,9 +80,6 @@ variables.
      [  0,]     1.000                    
      [  1,]    -0.006     1.000          
      [  2,]    -0.186     0.002     1.000----
-
-The following command prints the statistics on the selected variables
-(including the correlation matrix).
 
 
 +*Out[9]:*+
@@ -134,18 +98,6 @@ The following command prints the statistics on the selected variables
  
  ----
 
-The following command provides an array containaing the evaluation of a
-given Statistical calculation for a set of variables contained in a Db.
-
-If 'flagMono' is set to False, this satistics is calculated for each
-variable in turn. Otherwise this statistics is calculated on each
-variable, based on the only samples where one of the other variables is
-defined. In that case, the dimension of the output is equal to the
-squzre of the number of target variables.
-
-In our case, there will be no difference in the contents of these two
-outputs as the data set if Isotopic.
-
 
 +*Out[10]:*+
 ----array([ 0.16061037, -0.29315144,  0.11773491])----
@@ -154,17 +106,6 @@ outputs as the data set if Isotopic.
 +*Out[11]:*+
 ----array([ 0.16061037,  0.16061037,  0.16061037, -0.29315144, -0.29315144,
        -0.29315144,  0.11773491,  0.11773491,  0.11773491])----
-
-[[using-the-grid]]
-== Using the Grid
-
-We now calculate the statistics of the data contained in the Point Db,
-per cell of the output DbGrid. This function returns the results as an
-array of values (which has the dimension of the number of cells of the
-output Grid).
-
-For those calculations, we will consider a coarse grid overlaying the
-initial grid, but with meshes obtained as multiples of the initial one.
 
 
 +*Out[12]:*+
@@ -201,34 +142,17 @@ Column = 5 - Name = SG3 - Locator = z1----
 ![png](output_26_0.png)
 ----
 
-If may be more handy to store the statistic (say the _Mean_) directly as
-new variables in the output Grid File. These calculations will be
-performed for each input variable (Z_Locator) in the input file.
-
-Obviously the results for the first variable, is similar to the previous
-calculation (as demonstrated using the scatter plot). But the statistics
-for the other variables have been calculated simultaneously.
-
 
 +*Out[16]:*+
 ----
 ![png](output_30_0.png)
 ----
 
-More interesting is the ability to dilate the size of the cell while
-performing the calculations. Here, each grid node is dilated with a
-_ring_ extension of 2: the initial node extension is multiplied by 5. So
-very few cells have no data included in their dilated dimension.
-
 
 +*Out[18]:*+
 ----
 ![png](output_33_0.png)
 ----
-
-This same feature cab be used to calculate the dispersion variance of
-blocks (say the cells of the fine grid) whitin panels (say the cells of
-the coarse grid).
 
 
 +*Out[20]:*+
