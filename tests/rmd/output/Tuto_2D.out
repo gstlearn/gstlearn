@@ -1,0 +1,830 @@
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 102
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = z1
+Column = 4 - Name = Pb - Locator = p1
+NULL
+List of all variable names = rank X Y Zn Pb[1] 5
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 102
+Number of active samples     = 99
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = z1
+Column = 5 - Name = sel - Locator = sel
+NULL
+NULL
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     2.881
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.462
+         1   123.000     1.081     1.495
+         2   183.000     2.038     1.620
+         3   205.000     3.006     2.526
+         4   231.000     4.013     2.240
+         5   229.000     5.036     2.524
+         6   198.000     5.962     2.396
+         7   187.000     7.000     2.708
+         8   204.000     7.996     2.772
+         9   184.000     8.990     2.868
+NULL
+NULL
+[1] 0
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 4
+Space dimension             = 2
+Variance-Covariance Matrix     2.881
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     1.000     0.410     0.180
+         1    29.000     1.094     1.634
+         2    47.000     2.079     1.415
+         3    53.000     3.003     2.824
+         4    63.000     3.999     2.348
+         5    66.000     5.035     2.319
+         6    60.000     5.978     3.115
+         7    52.000     7.045     2.746
+         8    52.000     8.020     3.927
+         9    37.000     8.980     2.554
+
+Direction #2
+------------
+Number of lags              = 10
+Direction coefficients      =      0.707     0.707
+Direction angles (degrees)  =     45.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     1.000     0.344     0.080
+         1    31.000     1.051     1.113
+         2    50.000     1.960     1.890
+         3    62.000     2.999     2.443
+         4    58.000     4.014     2.701
+         5    51.000     5.016     2.702
+         6    36.000     5.999     1.833
+         7    37.000     7.015     2.130
+         8    50.000     7.997     2.060
+         9    53.000     8.995     2.381
+
+Direction #3
+------------
+Number of lags              = 10
+Direction coefficients      =      0.000     1.000
+Direction angles (degrees)  =     90.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1    32.000     1.149     1.631
+         2    39.000     2.080     1.670
+         3    39.000     2.979     2.511
+         4    48.000     4.012     2.120
+         5    51.000     5.029     3.055
+         6    47.000     5.939     2.856
+         7    49.000     6.965     2.386
+         8    42.000     7.952     2.708
+         9    41.000     9.018     2.320
+
+Direction #4
+------------
+Number of lags              = 10
+Direction coefficients      =     -0.707     0.707
+Direction angles (degrees)  =    135.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     1.000     0.411     1.125
+         1    31.000     1.028     1.606
+         2    47.000     2.044     1.496
+         3    51.000     3.040     2.330
+         4    62.000     4.028     1.791
+         5    61.000     5.058     2.155
+         6    55.000     5.939     1.587
+         7    49.000     6.975     3.425
+         8    60.000     8.004     2.408
+         9    53.000     8.972     3.996
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1681
+
+Grid characteristics:
+---------------------
+Origin :    -33.160   -29.380
+Mesh   :      1.658     1.469
+Number :         41        41
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = VMAP.Pb.Var - Locator = z1
+Column = 4 - Name = VMAP.Pb.Nb - Locator = NA
+NULL
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.032
+- Range        =      1.000
+- Theo. Range  =      0.334
+Spherical
+- Sill         =      1.605
+- Range        =      5.880
+Total Sill     =      2.638
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.035
+- Ranges       =      1.786     0.366
+- Theo. Ranges =      0.596     0.122
+- Angles       =    405.023     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.707    -0.707
+     [  1,]     0.707     0.707
+Spherical
+- Sill         =      1.621
+- Ranges       =      7.051     5.132
+- Angles       =   1576.897     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]    -0.730    -0.683
+     [  1,]     0.683    -0.730
+Total Sill     =      2.656
+
+Drift Part
+----------
+Universality Condition
+NULL
+
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 1
+Maximum number of samples           = 6
+Maximum horizontal distance         = 10
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Neigh.Pb.Number - Locator = NA
+Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
+Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
+Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
+Column = 6 - Name = Neigh.Pb.NbCESect - Locator = z1
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 102
+Number of active samples     = 99
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = NA
+Column = 5 - Name = sel - Locator = sel
+Column = 6 - Name = Xvalid.Pb.esterr - Locator = z1
+Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Neigh.Pb.Number - Locator = NA
+Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
+Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
+Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
+Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
+Column = 7 - Name = Kriging.Pb.estim - Locator = z1
+Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
+NULL
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.7
+Maximum absolute value for Y  = 2.6
+Minimum absolute value for Z  = 3.0029
+Maximum absolute value for Z  = 12.9777
+Minimum practical value for Y = -2.7
+Maximum practical value for Y = 2.6
+Minimum practical value for Z = 3.0029
+Maximum practical value for Z = 12.9777
+Mean                          = 5.65758
+Variance                      = 2.86296
+Number of Hermite polynomials = 30
+Normalized coefficients for Hermite polynomials (punctual variable)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     5.658    -1.625     0.440    -0.069    -0.017     0.082    -0.061
+     [  7,]     0.001     0.036    -0.044     0.004     0.047    -0.030    -0.029
+     [ 14,]     0.037     0.007    -0.031     0.010     0.018    -0.019    -0.003
+     [ 21,]     0.019    -0.010    -0.014     0.019     0.006    -0.023     0.004
+     [ 28,]     0.022    -0.013
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
+Total number of samples      = 102
+Number of active samples     = 99
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = NA
+Column = 5 - Name = sel - Locator = sel
+Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
+Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
+Column = 8 - Name = Y.Pb - Locator = z1
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 19
+Maximum Number of UIDs       = 19
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Neigh.Pb.Number - Locator = NA
+Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
+Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
+Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
+Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
+Column = 7 - Name = Kriging.Pb.estim - Locator = NA
+Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
+Column = 9 - Name = Simu.Y.Pb.1 - Locator = z1
+Column = 10 - Name = Simu.Y.Pb.2 - Locator = z2
+Column = 11 - Name = Simu.Y.Pb.3 - Locator = z3
+Column = 12 - Name = Simu.Y.Pb.4 - Locator = z4
+Column = 13 - Name = Simu.Y.Pb.5 - Locator = z5
+Column = 14 - Name = Simu.Y.Pb.6 - Locator = z6
+Column = 15 - Name = Simu.Y.Pb.7 - Locator = z7
+Column = 16 - Name = Simu.Y.Pb.8 - Locator = z8
+Column = 17 - Name = Simu.Y.Pb.9 - Locator = z9
+Column = 18 - Name = Simu.Y.Pb.10 - Locator = z10
+NULL
+                 MEAN      STDV      MINI      MAXI
+Simu.Y.Pb.1      -0.052     1.582    -6.234     6.963
+Simu.Y.Pb.2       0.081     1.451    -5.167     6.113
+Simu.Y.Pb.3       0.133     1.529    -5.363     5.639
+Simu.Y.Pb.4       0.453     1.478    -6.322     5.836
+Simu.Y.Pb.5      -0.084     1.577    -6.403     5.578
+Simu.Y.Pb.6       0.316     1.551    -4.816     6.297
+Simu.Y.Pb.7       0.185     1.598    -6.441     6.127
+Simu.Y.Pb.8       0.705     1.599    -4.713     7.175
+Simu.Y.Pb.9       0.159     1.639    -6.660     7.135
+Simu.Y.Pb.10      0.310     1.553    -5.955     4.807
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 19
+Maximum Number of UIDs       = 29
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Neigh.Pb.Number - Locator = NA
+Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
+Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
+Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
+Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
+Column = 7 - Name = Kriging.Pb.estim - Locator = NA
+Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
+Column = 9 - Name = Z.Simu.Y.Pb.1 - Locator = z1
+Column = 10 - Name = Z.Simu.Y.Pb.2 - Locator = z2
+Column = 11 - Name = Z.Simu.Y.Pb.3 - Locator = z3
+Column = 12 - Name = Z.Simu.Y.Pb.4 - Locator = z4
+Column = 13 - Name = Z.Simu.Y.Pb.5 - Locator = z5
+Column = 14 - Name = Z.Simu.Y.Pb.6 - Locator = z6
+Column = 15 - Name = Z.Simu.Y.Pb.7 - Locator = z7
+Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = z8
+Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = z9
+Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = z10
+NULL
+                 MEAN      STDV      MINI      MAXI
+Z.Simu.Y.Pb.1      -2.666     0.224    -2.700     0.883
+Z.Simu.Y.Pb.2      -2.680     0.158    -2.700     0.453
+Z.Simu.Y.Pb.3      -2.664     0.225    -2.700     0.175
+Z.Simu.Y.Pb.4      -2.655     0.246    -2.700     0.294
+Z.Simu.Y.Pb.5      -2.677     0.172    -2.700     0.137
+Z.Simu.Y.Pb.6      -2.649     0.267    -2.700     0.552
+Z.Simu.Y.Pb.7      -2.657     0.246    -2.700     0.460
+Z.Simu.Y.Pb.8      -2.600     0.390    -2.700     0.985
+Z.Simu.Y.Pb.9      -2.652     0.261    -2.700     0.966
+Z.Simu.Y.Pb.10     -2.655     0.242    -2.700    -0.381
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 20
+Maximum Number of UIDs       = 30
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Neigh.Pb.Number - Locator = NA
+Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
+Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
+Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
+Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
+Column = 7 - Name = Kriging.Pb.estim - Locator = NA
+Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
+Column = 9 - Name = Z.Simu.Y.Pb.1 - Locator = NA
+Column = 10 - Name = Z.Simu.Y.Pb.2 - Locator = NA
+Column = 11 - Name = Z.Simu.Y.Pb.3 - Locator = NA
+Column = 12 - Name = Z.Simu.Y.Pb.4 - Locator = NA
+Column = 13 - Name = Z.Simu.Y.Pb.5 - Locator = NA
+Column = 14 - Name = Z.Simu.Y.Pb.6 - Locator = NA
+Column = 15 - Name = Z.Simu.Y.Pb.7 - Locator = NA
+Column = 16 - Name = Z.Simu.Y.Pb.8 - Locator = NA
+Column = 17 - Name = Z.Simu.Y.Pb.9 - Locator = NA
+Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = NA
+Column = 19 - Name = Stats.MEAN - Locator = z1
+NULL
+NULL
+[1] 0
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.5
+Maximum absolute value for Y  = 2.6
+Minimum absolute value for Z  = 1.1469
+Maximum absolute value for Z  = 12.1276
+Minimum practical value for Y = -2.5
+Maximum practical value for Y = 2.6
+Minimum practical value for Z = 1.1469
+Maximum practical value for Z = 12.1276
+Mean                          = 2.88061
+Variance                      = 2.76263
+Number of Hermite polynomials = 30
+Normalized coefficients for Hermite polynomials (punctual variable)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     2.881    -1.277     0.877    -0.447    -0.095     0.294    -0.121
+     [  7,]    -0.087     0.134    -0.029    -0.087     0.069     0.034    -0.065
+     [ 14,]     0.005     0.044    -0.026    -0.020     0.034     0.001    -0.033
+     [ 21,]     0.010     0.027    -0.016    -0.019     0.016     0.012    -0.014
+     [ 28,]    -0.005     0.011
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 10
+Maximum Number of UIDs       = 20
+Total number of samples      = 102
+Number of active samples     = 99
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = NA
+Column = 5 - Name = sel - Locator = sel
+Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
+Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
+Column = 8 - Name = Y.Pb - Locator = NA
+Column = 9 - Name = Y.Zn - Locator = z1
+NULL
+NULL
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 30
+Maximum Number of UIDs       = 50
+Total number of samples      = 5913
+
+Grid characteristics:
+---------------------
+Origin :    105.000   479.000
+Mesh   :      0.500     0.500
+Number :         81        73
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Neigh.Pb.Number - Locator = NA
+Column = 3 - Name = Neigh.Pb.MaxDist - Locator = NA
+Column = 4 - Name = Neigh.Pb.MinDist - Locator = NA
+Column = 5 - Name = Neigh.Pb.NbNESect - Locator = NA
+Column = 6 - Name = Neigh.Pb.NbCESect - Locator = NA
+Column = 7 - Name = Kriging.Pb.estim - Locator = NA
+Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
+Column = 9 - Name = Stats.MEAN - Locator = NA
+Column = 10 - Name = Simu.Y.Pb.1 - Locator = z1
+Column = 11 - Name = Simu.Y.Pb.2 - Locator = z2
+Column = 12 - Name = Simu.Y.Pb.3 - Locator = z3
+Column = 13 - Name = Simu.Y.Pb.4 - Locator = z4
+Column = 14 - Name = Simu.Y.Pb.5 - Locator = z5
+Column = 15 - Name = Simu.Y.Pb.6 - Locator = z6
+Column = 16 - Name = Simu.Y.Pb.7 - Locator = z7
+Column = 17 - Name = Simu.Y.Pb.8 - Locator = z8
+Column = 18 - Name = Simu.Y.Pb.9 - Locator = z9
+Column = 19 - Name = Simu.Y.Pb.10 - Locator = z10
+Column = 20 - Name = Simu.Y.Zn.1 - Locator = z11
+Column = 21 - Name = Simu.Y.Zn.2 - Locator = z12
+Column = 22 - Name = Simu.Y.Zn.3 - Locator = z13
+Column = 23 - Name = Simu.Y.Zn.4 - Locator = z14
+Column = 24 - Name = Simu.Y.Zn.5 - Locator = z15
+Column = 25 - Name = Simu.Y.Zn.6 - Locator = z16
+Column = 26 - Name = Simu.Y.Zn.7 - Locator = z17
+Column = 27 - Name = Simu.Y.Zn.8 - Locator = z18
+Column = 28 - Name = Simu.Y.Zn.9 - Locator = z19
+Column = 29 - Name = Simu.Y.Zn.10 - Locator = z20
+NULL
+NULL
+                 MEAN      STDV      MINI      MAXI
+Z.Simu.Y.Pb.1      -2.697     0.060    -2.700    -1.221
+Z.Simu.Y.Pb.2      -2.699     0.029    -2.700    -1.525
+Z.Simu.Y.Pb.3      -2.699     0.031    -2.700    -1.476
+Z.Simu.Y.Pb.4      -2.698     0.035    -2.700    -1.626
+Z.Simu.Y.Pb.5      -2.699     0.029    -2.700    -1.443
+Z.Simu.Y.Pb.6      -2.699     0.036    -2.700    -1.164
+Z.Simu.Y.Pb.7      -2.699     0.037    -2.700    -1.488
+Z.Simu.Y.Pb.8      -2.698     0.043    -2.700    -1.191
+Z.Simu.Y.Pb.9      -2.696     0.065    -2.700    -0.621
+Z.Simu.Y.Pb.10     -2.698     0.047    -2.700    -1.384
+Bound( 1 ) : ] -Inf ; 4 [
+Bound( 2 ) : [ 4 ; 6 [
+Bound( 3 ) : [ 6 ;  +Inf [
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 13
+Maximum Number of UIDs       = 43
+Total number of samples      = 102
+Number of active samples     = 99
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = NA
+Column = 5 - Name = sel - Locator = sel
+Column = 6 - Name = Xvalid.Pb.esterr - Locator = NA
+Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
+Column = 8 - Name = Y.Pb - Locator = NA
+Column = 9 - Name = Y.Zn - Locator = NA
+Column = 10 - Name = Indicator.Pb.Class.1 - Locator = z1
+Column = 11 - Name = Indicator.Pb.Class.2 - Locator = z2
+Column = 12 - Name = Indicator.Pb.Class.3 - Locator = z3
+NULL
+NULL
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 3
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.107    -0.062    -0.044
+     [  1,]    -0.062     0.250    -0.187
+     [  2,]    -0.044    -0.187     0.231
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.000
+         1   123.000     1.081     0.081
+         2   183.000     2.038     0.126
+         3   205.000     3.006     0.156
+         4   231.000     4.013     0.132
+         5   229.000     5.036     0.159
+         6   198.000     5.962     0.152
+         7   187.000     7.000     0.107
+         8   204.000     7.996     0.096
+         9   184.000     8.990     0.068
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.000
+         1   123.000     1.081    -0.065
+         2   183.000     2.038    -0.077
+         3   205.000     3.006    -0.085
+         4   231.000     4.013    -0.093
+         5   229.000     5.036    -0.085
+         6   198.000     5.962    -0.061
+         7   187.000     7.000    -0.045
+         8   204.000     7.996    -0.042
+         9   184.000     8.990    -0.038
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.167
+         1   123.000     1.081     0.199
+         2   183.000     2.038     0.221
+         3   205.000     3.006     0.251
+         4   231.000     4.013     0.292
+         5   229.000     5.036     0.258
+         6   198.000     5.962     0.237
+         7   187.000     7.000     0.254
+         8   204.000     7.996     0.228
+         9   184.000     8.990     0.234
+
+For variables 3 and 1
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.000
+         1   123.000     1.081    -0.016
+         2   183.000     2.038    -0.049
+         3   205.000     3.006    -0.071
+         4   231.000     4.013    -0.039
+         5   229.000     5.036    -0.074
+         6   198.000     5.962    -0.091
+         7   187.000     7.000    -0.061
+         8   204.000     7.996    -0.054
+         9   184.000     8.990    -0.030
+
+For variables 3 and 2
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389    -0.167
+         1   123.000     1.081    -0.134
+         2   183.000     2.038    -0.145
+         3   205.000     3.006    -0.166
+         4   231.000     4.013    -0.199
+         5   229.000     5.036    -0.172
+         6   198.000     5.962    -0.177
+         7   187.000     7.000    -0.209
+         8   204.000     7.996    -0.186
+         9   184.000     8.990    -0.196
+
+For variable 3
+      Rank    Npairs  Distance     Value
+         0     3.000     0.389     0.167
+         1   123.000     1.081     0.150
+         2   183.000     2.038     0.194
+         3   205.000     3.006     0.237
+         4   231.000     4.013     0.238
+         5   229.000     5.036     0.247
+         6   198.000     5.962     0.268
+         7   187.000     7.000     0.270
+         8   204.000     7.996     0.240
+         9   184.000     8.990     0.226
+NULL
+NULL
+NULL
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+14 - Name Category.Pb - Locator z1
+ Nb of data          =        102
+ Nb of active values =         99
+ Class         1 =         12 (    12.121%)
+ Class         2 =         51 (    51.515%)
+ Class         3 =         36 (    36.364%)
+NULL

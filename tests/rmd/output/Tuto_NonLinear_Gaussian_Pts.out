@@ -1,0 +1,440 @@
+NULL
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.250     0.250
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 441
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.050     0.050
+Number :         21        21
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+NULL
+
+
+Table: Statistics of the simulated variables on the point support
+
+|   | Count| Minimum| Maximum| Mean| St. Dev.|
+|:--|-----:|-------:|-------:|----:|--------:|
+|Y  | 10000|   -4.30|    3.65| 0.07|     1.01|
+|Z  | 10000|    0.15|    8.20| 1.56|     0.85|
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Y - Locator = NA
+Column = 3 - Name = Z - Locator = z1
+NULL
+
+
+Table: Statistics of the sampled data on the point support
+
+|   | Count| Minimum| Maximum| Mean| St. Dev.|
+|:--|-----:|-------:|-------:|----:|--------:|
+|Y  |   500|   -3.42|    2.99| 0.03|     1.04|
+|Z  |   500|    0.24|    5.92| 1.54|     0.84|
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.8
+Maximum absolute value for Y  = 3.9
+Minimum absolute value for Z  = 0.274228
+Maximum absolute value for Z  = 5.99041
+Minimum practical value for Y = -2.8
+Maximum practical value for Y = 3.1
+Minimum practical value for Z = 0.274228
+Maximum practical value for Z = 5.86055
+Mean                          = 1.53861
+Variance                      = 0.709613
+Number of Hermite polynomials = 20
+Normalized coefficients for Hermite polynomials (punctual variable)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.539    -0.792     0.273    -0.061    -0.009     0.032    -0.031
+     [  7,]     0.010     0.018    -0.021    -0.001     0.016    -0.009    -0.007
+     [ 14,]     0.012     0.000    -0.012     0.004     0.010    -0.006
+
+
+Table: Selectivity curves computed on data set
+
+| Z-Cut| T-estim| Q-estim| B-estim| M-estim| T-stdev| Q-stdev|
+|-----:|-------:|-------:|-------:|-------:|-------:|-------:|
+|  0.00|   1.000|   1.539|   1.539|   1.539|      NA|      NA|
+|  0.50|   0.972|   1.527|   1.041|   1.571|      NA|      NA|
+|  0.75|   0.858|   1.453|   0.810|   1.694|      NA|      NA|
+|  1.00|   0.718|   1.330|   0.612|   1.853|      NA|      NA|
+
+
+Table: Selectivity curves computed on anamorphosis
+
+| Z-Cut| T-estim| Q-estim| B-estim| M-estim| T-stdev| Q-stdev|
+|-----:|-------:|-------:|-------:|-------:|-------:|-------:|
+|  0.00|   1.000|   1.539|   1.539|   1.539|      NA|      NA|
+|  0.50|   0.972|   1.527|   1.041|   1.570|      NA|      NA|
+|  0.75|   0.867|   1.461|   0.810|   1.684|      NA|      NA|
+|  1.00|   0.716|   1.327|   0.611|   1.853|      NA|      NA|
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Y - Locator = NA
+Column = 3 - Name = Z - Locator = z1
+Column = 4 - Name = Gaussian.Z - Locator = NA
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.066
+Exponential
+- Sill         =      0.645
+- Range        =      0.117
+- Theo. Range  =      0.039
+Total Sill     =      0.711
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      0.220
+- Range        =      0.013
+- Theo. Range  =      0.004
+Exponential
+- Sill         =      0.780
+- Range        =      0.137
+- Theo. Range  =      0.046
+Total Sill     =      1.000
+NULL
+NULL
+NULL
+
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 5
+Maximum number of samples           = 5
+Maximum horizontal distance         = 1
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 20
+Maximum Number of UIDs       = 20
+Total number of samples      = 441
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.050     0.050
+Number :         21        21
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = G_Pts.Gaussian.Z.estim - Locator = NA
+Column = 3 - Name = G_Pts.Gaussian.Z.stdev - Locator = NA
+Column = 4 - Name = Pts_Recovery.T-estim-0 - Locator = NA
+Column = 5 - Name = Pts_Recovery.T-estim-0.5 - Locator = NA
+Column = 6 - Name = Pts_Recovery.T-estim-0.75 - Locator = NA
+Column = 7 - Name = Pts_Recovery.T-estim-1 - Locator = NA
+Column = 8 - Name = Pts_Recovery.T-stdev-0 - Locator = NA
+Column = 9 - Name = Pts_Recovery.T-stdev-0.5 - Locator = NA
+Column = 10 - Name = Pts_Recovery.T-stdev-0.75 - Locator = NA
+Column = 11 - Name = Pts_Recovery.T-stdev-1 - Locator = NA
+Column = 12 - Name = Pts_Recovery.Q-estim-0 - Locator = NA
+Column = 13 - Name = Pts_Recovery.Q-estim-0.5 - Locator = NA
+Column = 14 - Name = Pts_Recovery.Q-estim-0.75 - Locator = NA
+Column = 15 - Name = Pts_Recovery.Q-estim-1 - Locator = NA
+Column = 16 - Name = Pts_Recovery.Q-stdev-0 - Locator = NA
+Column = 17 - Name = Pts_Recovery.Q-stdev-0.5 - Locator = NA
+Column = 18 - Name = Pts_Recovery.Q-stdev-0.75 - Locator = NA
+Column = 19 - Name = Pts_Recovery.Q-stdev-1 - Locator = z1
+NULL
+[1] ">>> Sum of differences for T(1.00): 0"
+[1] ">>> Sum of differences for T(0.75): 0"
+NULL
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 28
+Maximum Number of UIDs       = 28
+Total number of samples      = 441
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.050     0.050
+Number :         21        21
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = G_Pts.Gaussian.Z.estim - Locator = NA
+Column = 3 - Name = G_Pts.Gaussian.Z.stdev - Locator = NA
+Column = 4 - Name = Pts_Recovery.T-estim-0 - Locator = NA
+Column = 5 - Name = Pts_Recovery.T-estim-0.5 - Locator = NA
+Column = 6 - Name = Pts_Recovery.T-estim-0.75 - Locator = NA
+Column = 7 - Name = Pts_Recovery.T-estim-1 - Locator = NA
+Column = 8 - Name = Pts_Recovery.T-stdev-0 - Locator = NA
+Column = 9 - Name = Pts_Recovery.T-stdev-0.5 - Locator = NA
+Column = 10 - Name = Pts_Recovery.T-stdev-0.75 - Locator = NA
+Column = 11 - Name = Pts_Recovery.T-stdev-1 - Locator = NA
+Column = 12 - Name = Pts_Recovery.Q-estim-0 - Locator = NA
+Column = 13 - Name = Pts_Recovery.Q-estim-0.5 - Locator = NA
+Column = 14 - Name = Pts_Recovery.Q-estim-0.75 - Locator = NA
+Column = 15 - Name = Pts_Recovery.Q-estim-1 - Locator = NA
+Column = 16 - Name = Pts_Recovery.Q-stdev-0 - Locator = NA
+Column = 17 - Name = Pts_Recovery.Q-stdev-0.5 - Locator = NA
+Column = 18 - Name = Pts_Recovery.Q-stdev-0.75 - Locator = NA
+Column = 19 - Name = Pts_Recovery.Q-stdev-1 - Locator = NA
+Column = 20 - Name = T_1 - Locator = NA
+Column = 21 - Name = T_0.75 - Locator = NA
+Column = 22 - Name = DK_Pts.F.1.estim - Locator = z1
+Column = 23 - Name = DK_Pts.F.2.estim - Locator = z2
+Column = 24 - Name = DK_Pts.F.3.estim - Locator = z3
+Column = 25 - Name = DK_Pts.F.1.stdev - Locator = NA
+Column = 26 - Name = DK_Pts.F.2.stdev - Locator = NA
+Column = 27 - Name = DK_Pts.F.3.stdev - Locator = NA
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 34
+Maximum Number of UIDs       = 34
+Total number of samples      = 441
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.050     0.050
+Number :         21        21
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = G_Pts.Gaussian.Z.estim - Locator = NA
+Column = 3 - Name = G_Pts.Gaussian.Z.stdev - Locator = NA
+Column = 4 - Name = Pts_Recovery.T-estim-0 - Locator = NA
+Column = 5 - Name = Pts_Recovery.T-estim-0.5 - Locator = NA
+Column = 6 - Name = Pts_Recovery.T-estim-0.75 - Locator = NA
+Column = 7 - Name = Pts_Recovery.T-estim-1 - Locator = NA
+Column = 8 - Name = Pts_Recovery.T-stdev-0 - Locator = NA
+Column = 9 - Name = Pts_Recovery.T-stdev-0.5 - Locator = NA
+Column = 10 - Name = Pts_Recovery.T-stdev-0.75 - Locator = NA
+Column = 11 - Name = Pts_Recovery.T-stdev-1 - Locator = NA
+Column = 12 - Name = Pts_Recovery.Q-estim-0 - Locator = NA
+Column = 13 - Name = Pts_Recovery.Q-estim-0.5 - Locator = NA
+Column = 14 - Name = Pts_Recovery.Q-estim-0.75 - Locator = NA
+Column = 15 - Name = Pts_Recovery.Q-estim-1 - Locator = NA
+Column = 16 - Name = Pts_Recovery.Q-stdev-0 - Locator = NA
+Column = 17 - Name = Pts_Recovery.Q-stdev-0.5 - Locator = NA
+Column = 18 - Name = Pts_Recovery.Q-stdev-0.75 - Locator = NA
+Column = 19 - Name = Pts_Recovery.Q-stdev-1 - Locator = NA
+Column = 20 - Name = T_1 - Locator = NA
+Column = 21 - Name = T_0.75 - Locator = NA
+Column = 22 - Name = DK_Pts.F.1.estim - Locator = NA
+Column = 23 - Name = DK_Pts.F.2.estim - Locator = NA
+Column = 24 - Name = DK_Pts.F.3.estim - Locator = NA
+Column = 25 - Name = DK_Pts.F.1.stdev - Locator = NA
+Column = 26 - Name = DK_Pts.F.2.stdev - Locator = NA
+Column = 27 - Name = DK_Pts.F.3.stdev - Locator = NA
+Column = 28 - Name = DK_Blk.F.1.estim - Locator = z1
+Column = 29 - Name = DK_Blk.F.2.estim - Locator = z2
+Column = 30 - Name = DK_Blk.F.3.estim - Locator = z3
+Column = 31 - Name = DK_Blk.F.1.stdev - Locator = NA
+Column = 32 - Name = DK_Blk.F.2.stdev - Locator = NA
+Column = 33 - Name = DK_Blk.F.3.stdev - Locator = NA
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.250     0.250
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = DK_Blk.Gaussian.Z.estim - Locator = z1
+Column = 3 - Name = DK_Blk.Gaussian.Z.stdev - Locator = NA
+NULL
+NULL
+
+
+Table: Selectivity curves computed on fine grid
+
+| Z-Cut| T-estim| Q-estim| B-estim| M-estim| T-stdev| Q-stdev|
+|-----:|-------:|-------:|-------:|-------:|-------:|-------:|
+|     0|       1|   1.561|   1.561|   1.561|      NA|      NA|
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+[1] "Std(I) = 0.5"
+[1] "Std(I)*= 0.47"
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+NULL
+
+
+Table: Statistics of the estimated values
+
+|           | Count| Minimum| Maximum|  Mean| St. Dev.|
+|:----------|-----:|-------:|-------:|-----:|--------:|
+|Z          |  9500|   0.154|   8.198| 1.562|    0.846|
+|SK.Z.estim |  9500|   0.523|   4.924| 1.553|    0.496|
+|DK.Z.estim |  9500|   0.430|   4.087| 1.555|    0.448|
+|CE.Z.estim |  9500|   0.518|   4.305| 1.554|    0.455|
+|SK.Z.stdev |  9500|   0.473|   0.834| 0.668|    0.071|
+|DK.Z.stdev |  9500|   0.552|   0.832| 0.701|    0.052|
+|CE.Z.stdev |  9500|   0.210|   1.375| 0.681|    0.194|
+
+
+Table: Scores of point estimators of Z using 500 data points
+
+|   |     ME|    MAE|   RMSE|     MSE|   MASE|  RMSSE|
+|:--|------:|------:|------:|-------:|------:|------:|
+|SK | 0.0093| 0.4839| 0.6721|  0.0168| 0.7225| 0.9996|
+|DK | 0.0069| 0.4831| 0.6732|  0.0121| 0.6865| 0.9540|
+|CE | 0.0085| 0.4807| 0.6694| -0.0076| 0.6969| 0.9108|

@@ -1,0 +1,60 @@
+NULL
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 1000
+
+Variables
+---------
+Column = 0 - Name = x - Locator = x1
+Column = 1 - Name = y - Locator = x2
+
+Grid characteristics:
+---------------------
+Origin :     -0.250    -0.250
+Mesh   :      0.020     0.020
+Number :         75        75
+
+Turbo Meshing
+=============
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 10952
+Number of Apices          = 5625
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:-0.25 - Max:1.23
+Dim #2 - Min:-0.25 - Max:1.23
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Nugget Effect
+- Sill         =      0.100
+Total Sill     =      1.100
+NULL
+NULL
+NULL
+NULL

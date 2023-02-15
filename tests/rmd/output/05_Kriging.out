@@ -1,0 +1,40 @@
+[[1]]
+[1]  78.2 460.7
+
+[[2]]
+[1]  530.4 1208.9
+
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    460.200 - Ext = 395.2
+Coor #2 - Min =    535.000 - Max =   1209.560 - Ext = 674.56
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    455.123 - Ext = 390.123
+Coor #2 - Min =    535.000 - Max =   1200.109 - Ext = 665.109
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = x1
+Column = 1 - Name = Latitude - Locator = x2
+Column = 2 - Name = Elevation - Locator = f1
+Column = 3 - Name = inshore - Locator = sel
+NULL
+[1] -0.004167872
+[1] 0.2393726
+[1] 75.16447
