@@ -78,7 +78,7 @@ grid$display(dbfmt)
 \frametitle{Correlation between Cr and P}
 
 ```{r Correlation_Cr_P,results="hide"}
-plot.correlation(grid,"Cr","P")
+plot.correlation(grid,"Cr","P", bins=100)
 ```
 
 ---
@@ -86,7 +86,7 @@ plot.correlation(grid,"Cr","P")
 \frametitle{Correlation between Ni and P}
 
 ```{r Correlation_Ni_P,results="hide"}
-plot.correlation(grid,"Ni","P")
+plot.correlation(grid,"Ni","P", bins=100)
 ```
 
 ---
@@ -94,7 +94,7 @@ plot.correlation(grid,"Ni","P")
 \frametitle{Correlation between Ni and CR}
 
 ```{r Correlation_Ni_Cr,results="hide"}
-plot.correlation(grid,"Ni","Cr")
+plot.correlation(grid,"Ni","Cr", bins=100)
 ```
 
 ---
@@ -188,7 +188,7 @@ plot.decoration(p, title="P denoised (monovariate)")
 Correlation for **P** variable between Initial image and its Filtered version (monovariate FKA)
 
 ```{r Correlation_P_denoised_monovariate}
-p = plot.correlation(grid,"Fill.P","Kimage.Fill.P.estim")
+p = plot.correlation(grid,"Fill.P","Mono.Fill.P", bins=100)
 plot.decoration(p, xlab="P Filled",ylab="P Filtered")
 ```
 
@@ -256,14 +256,14 @@ plot.decoration(p, title="P denoised (multivariate)")
 Correlation for **P** variable between Initial image and its Filtered version (multivariate FKA)
 
 ```{r Correlation_P_denoised_multivariate}
-p = plot.correlation(grid,"Fill.P","Multi.Fill.P")
+p = plot.correlation(grid,"Fill.P","Multi.Fill.P", bins=100)
 plot.decoration(p, xlab="P Filled",ylab="P Filtered (Multi)")
 ```
 
 Correlation for **P** filtered variable between the Monovariate and the Multivariate case
 
 ```{r}
-p = plot.correlation(grid, "Mono.Fill.P", "Multi.Fill.P")
+p = plot.correlation(grid, "Mono.Fill.P", "Multi.Fill.P", bins=100)
 plot.decoration(p, xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
 ```
 

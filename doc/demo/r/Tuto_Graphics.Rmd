@@ -20,6 +20,13 @@ library(ggpubr)
 plot.printDefault()
 ```
 
+```{r}
+a = list(geom_point(),
+         scale_x_continuous(limits=c(2,3)))
+b = ggplot() + a
+```
+
+
 We define the Space dimension
 
 ```{r}

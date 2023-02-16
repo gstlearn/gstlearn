@@ -4,10 +4,10 @@ NULL
 
 Table: Statistics on observations
 
-|            |     Mean|
-|:-----------|--------:|
-|Elevation   | 87.97351|
-|Temperature |  2.81457|
+|            |   Mean|
+|:-----------|------:|
+|Elevation   | 87.974|
+|Temperature |  2.815|
 
 
 Table: Statistics on the grid
@@ -36,10 +36,10 @@ Linear Regression
 
 Table: Cross-validation with Ordinary Kriging
 
-|                      |       Mean|
-|:---------------------|----------:|
-|OK.Temperature.esterr | -0.0406019|
-|OK.Temperature.stderr | -7.9338923|
+|                      |   Mean|
+|:---------------------|------:|
+|OK.Temperature.esterr | -0.041|
+|OK.Temperature.stderr | -7.934|
 
 
 Table: Statistics on the Ordinary Kriging
@@ -135,20 +135,20 @@ Table: Cross-validation with Kriging with External Drift
 
 Table: Statistics on the Kriging with External Drift
 
-|                      | Count|    Minimum|   Maximum|      Mean|  St. Dev.|
-|:---------------------|-----:|----------:|---------:|---------:|---------:|
-|KED.Temperature.estim |  3092| -6.0035163| 4.7725035| 1.7779984| 1.5399727|
-|KED.Temperature.stdev |  3092|  0.3117728| 0.6147864| 0.3958358| 0.0508596|
+|                      | Count| Minimum| Maximum|  Mean| St. Dev.|
+|:---------------------|-----:|-------:|-------:|-----:|--------:|
+|KED.Temperature.estim |  3092|  -6.004|   4.773| 1.778|    1.540|
+|KED.Temperature.stdev |  3092|   0.312|   0.615| 0.396|    0.051|
 
 
 Table: Statistics of the cross-validation error for the temperature
 
-|                       | Count|   Minimum|  Maximum|       Mean|  St. Dev.|
-|:----------------------|-----:|---------:|--------:|----------:|---------:|
-|OK.Temperature.esterr  |   151| -2.126215| 1.851849| -0.0406019| 0.5605902|
-|UK.Temperature.esterr  |   151| -4.336191| 1.397189| -0.3520194| 0.9386221|
-|COK.Temperature.esterr |   151| -4.582072| 1.434923| -0.4074638| 0.9255625|
-|KED.Temperature.esterr |   151| -1.576803| 1.001177| -0.0092625| 0.4144602|
+|                       | Count| Minimum| Maximum|   Mean| St. Dev.|
+|:----------------------|-----:|-------:|-------:|------:|--------:|
+|OK.Temperature.esterr  |   151|  -2.126|   1.852| -0.041|    0.561|
+|UK.Temperature.esterr  |   151|  -4.336|   1.397| -0.352|    0.939|
+|COK.Temperature.esterr |   151|  -4.582|   1.435| -0.407|    0.926|
+|KED.Temperature.esterr |   151|  -1.577|   1.001| -0.009|    0.414|
 
 
 Table: Statistics of the estimates for the temperature

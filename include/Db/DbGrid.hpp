@@ -75,7 +75,7 @@ public:
   int resetFromPolygon(Polygons* polygon,
                        const VectorInt& nodes,
                        const VectorDouble& dcell,
-                       int flag_add_rank);
+                       int flag_add_rank = 1);
 
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
@@ -98,10 +98,12 @@ public:
                                    int flag_add_rank = 1);
   static DbGrid* createCoarse(DbGrid *dbin,
                               const VectorInt &nmult,
-                              int flag_add_rank);
+                              int flag_cell = 1,
+                              int flag_add_rank = 1);
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
-                              int flag_add_rank);
+                              int flag_cell = 1,
+                              int flag_add_rank = 1);
   static DbGrid* createFromGridExtend(const DbGrid& gridIn,
                                       const VectorString &tops,
                                       const VectorString &bots,
@@ -123,7 +125,7 @@ public:
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
-  static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank);
+  static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank = 1);
 
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");
