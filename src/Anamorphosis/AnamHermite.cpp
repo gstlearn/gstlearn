@@ -908,6 +908,7 @@ double AnamHermite::evalSupportCoefficient(int option,
   {
     // DGM1 Method
     model->setActiveFactor(-1); // Z variable
+    // TODO adapter la valeur du coefficient nugget_ratio
     double cvv = model->evalCvv(dxs, ndisc, angles);
     double r1  = sqrt(invertVariance(cvv));
     if (verbose)
@@ -922,7 +923,7 @@ double AnamHermite::evalSupportCoefficient(int option,
     double cvv = model->evalCvv(dxs, ndisc, angles);
     double r2 = sqrt(cvv);
     if (verbose)
-      message("Change of Support coefficient (DGM2) = %6.3lf\n",r2);
+      message("Change of Support coefficient (DGM-2) = %6.3lf\n",r2);
     return r2;
   }
 

@@ -714,7 +714,6 @@ gridContour <- function(dbgrid, name, usesel = TRUE, ...)
 plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     usesel = TRUE, 
     option="B", na.color = "white", zlim = NULL, 
-    bins = 10, line.color="black", 
     show.legend.raster=FALSE, legend.name.raster="G-Raster", 
     padd=NULL, ...)
 {
@@ -836,7 +835,7 @@ plot.XY <-function(x, y, join=TRUE, padd=NULL, ...)
 {
   if (length(y) != length(x))
   {
-    cat("Arrays 'x' and 'y' should have same dimensions")
+    cat("Arrays 'x' and 'y' should have same dimensions\n")
     stop()
   }
   
@@ -852,11 +851,11 @@ plot.XY <-function(x, y, join=TRUE, padd=NULL, ...)
   p
 }
 
-plot.hist2d <- function(x, y, bins=50, padd = NULL, ...)
+plot.hist2d <- function(x, y, padd = NULL, ...)
 {
   if (length(y) != length(x))
   {
-    cat("Arrays 'x' and 'y' should have same dimensions")
+    cat("Arrays 'x' and 'y' should have same dimensions\n")
     stop()
   }
   
@@ -864,7 +863,7 @@ plot.hist2d <- function(x, y, bins=50, padd = NULL, ...)
   
   df = data.frame(x, y)
   
-  p = p + geom_bin2d(data = df, mapping = aes(x=x, y=y), bins=bins, na.rm=TRUE, ...)
+  p = p + geom_bin2d(data = df, mapping = aes(x=x, y=y), na.rm=TRUE, ...)
   p = p + theme_bw()
   
   p
@@ -886,22 +885,21 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, padd=NULL, ...)
 
 # Function for representing a scatter plot
 plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
-    asPoint=FALSE, bins=50,
-    color="black", linetype = "solid",
+    asPoint=FALSE, 
     flagDiag=FALSE, diag_color = "red", diag_line = "solid", 
     flagRegr=FALSE, regr_color = "blue", regr_line = "solid", 
     flagBiss=FALSE, biss_color = "green", biss_line = "solid", 
     show.legend.raster = FALSE, legend.name.raster="Count",
-    padd=NULL)
+    padd=NULL, ...)
 {
   if (is.null(db2)) db2 = db1
   x = db1$getColumn(name1, usesel)
   y = db2$getColumn(name2, usesel)
   
   if (asPoint)
-    p = plot.XY(x, y, join=FALSE, color = color, linetype = linetype, padd=padd)
+    p = plot.XY(x, y, join=FALSE, padd=padd, ...)
   else
-    p = plot.hist2d(x, y, bins=bins, padd=padd)
+    p = plot.hist2d(x, y, padd=padd, ...)
   
   xmin = min(x, na.rm=TRUE)
   ymin = min(y, na.rm=TRUE)
