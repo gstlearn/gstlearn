@@ -1,4 +1,4 @@
-# This script is meant to compare a Resulting test file (out) to its reference (ref)
+# This script is meant to compare a resulting test file to its reference (Release mode only)
 #
 #!/bin/csh -f
 
@@ -10,9 +10,9 @@ set nargs = $#argv
 if ($nargs < 2) then
 		echo "Syntax:"
 		echo "compare_test name1 nametest [ajout]"
-		echo "   name1    : Name of the subContainer (e.g.: data)"
-		echo "   nametest : Name of the test (e.g.: Jeu1)"
-		echo "   ajout    : additional parameters for diff (example: -w=160 --side | more"
+		echo "   name1    : Name of the subContainer (e.g.: data, ipynb, py, r, rmd, cpp)"
+		echo "   nametest : Name of the test (e.g.: Jeu1, Tuto_Plot2D, Hermite, etc...)"
+		echo "   ajout    : additional parameters for diff (example: -w=160 --side | more)"
 		exit
 endif
 
