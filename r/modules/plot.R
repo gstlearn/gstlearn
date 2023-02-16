@@ -322,7 +322,7 @@ varioLayer <- function(vario, ivar=0, jvar=0, idir=0, vario.mode=0, ...)
   {
     # Representing the Experimental variogram
     layer = geom_line(data = df, mapping=aes(x=hh, y=gg),  
-        na.rm=TRUE, ...)
+        na.rm=TRUE, ...) + geom_point()
   }
   else if (vario.mode == 1) 
   {   
@@ -341,10 +341,11 @@ varioLayer <- function(vario, ivar=0, jvar=0, idir=0, vario.mode=0, ...)
 
 varioElem <- function(p, vario, ivar=0, jvar=0, idir=0, 
     var_color='black', var_linetype="dashed", var_size=0.5, 
-    draw_variance = TRUE, draw_psize = FALSE, draw_plabel = FALSE, 
-    label=NULL, ...)
+    draw_variance = TRUE, draw_psize = FALSE, 
+    draw_plabel = FALSE, label=NULL, ...)
 {
-  p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=0, ...)
+  p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=0, 
+      ...)
   
   if (draw_psize)
   {
@@ -454,6 +455,7 @@ plot.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 {
   dots = list(...)
   has_color = "color" %in% names(dots)
+  has_linetype = "linetype" %in% names(dots)
   
   ndir = vario$getDirectionNumber()
   nvar = vario$getVariableNumber()
@@ -503,6 +505,7 @@ plot.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
       for (idir in idirUtil)
       {
         if (! has_color) dots$color=cols[idir+1]
+        if (! has_linetype) dots$linetype = ""
         
         g = do.call(varioElem, c(list(p=g, vario=vario, ivar=ivar, jvar=jvar, idir=idir, 
                     var_color=var_color, var_linetype=var_linetype, var_size=var_size,
@@ -619,6 +622,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   
 # If no variable is defined, use the default variable for Symbol(size) representation
 # The default variable is the first Z-locator one, or the last variable in the file
+  flagTitleDefault = FALSE
   if (is.null(name_color) && is.null(name_size) && is.null(name_label))
   {
     if (db$getVariableNumber() > 0)
@@ -628,6 +632,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
       # if no Z locator, choose the last field
       name_size = db$getLastName()
       flagCst = TRUE
+      flagTitleDefault = TRUE
     }
   }
   
@@ -658,13 +663,14 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
         show.legend=show.legend.label, ...)
     
     # Set the title              
-    title = paste(title, name_label, spe=" ")
+    title = paste(title, name_label, sep=" ")
     
     # Set the legend
     p <- p + labs(label = legend.name.label)
   }
   
   # Decoration
+  if (flagTitleDefault) title = "Sample Location"
   p <- plot.decoration(p, title = title)
   
   p
@@ -873,7 +879,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, padd=NULL, ...)
   
   p <- plot.geometry(p, xlim=res$getAylim(), ylim=res$getAzlim())
   
-  p <- plot.decoration(p, xlab = "X", ylab = "Z")
+  p <- plot.decoration(p, xlab = "Gaussian", ylab = "Raw")
   
   p
 }
