@@ -1,31 +1,7 @@
-[[spde]]
-= SPDE
-
-In this tutorial, we show how to use the API SPDE.
-
-[[grids-definition]]
-=== Grids definition
-
-[[model-definition]]
-=== Model definition
-
-[[spde-simulation]]
-=== SPDE simulation
-
-[[grid-query]]
-=== Grid query
-
-
 +*Out[7]:*+
 ----
 ![png](output_11_0.png)
 ----
-
-[[data-query]]
-=== Data query
-
-[[kriging]]
-=== Kriging
 
 
 +*Out[10]:*+
@@ -33,34 +9,17 @@ In this tutorial, we show how to use the API SPDE.
 ![png](output_16_0.png)
 ----
 
-[[manually]]
-== Manually
-
-[[aproj-mesh-to-grid]]
-=== Aproj mesh to grid
-
-[[simulation]]
-=== Simulation
-
 
 +*Out[13]:*+
 ----1.0167073832913018
 ![png](output_22_1.png)
 ----
 
-[[kriging]]
-=== Kriging
-
 
 +*Out[16]:*+
 ----
 ![png](output_26_0.png)
 ----
-
-[[likelihood]]
-== Likelihood
-
-Manually with Cholesky vs. matrix-free approach with SPDE api.
 
 
 +*Out[17]:*+

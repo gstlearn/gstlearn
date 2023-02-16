@@ -1,6 +1,6 @@
 +*Out[4]:*+
 ----
-/tmp/ipykernel_24563/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
+XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
   cholP = cholesky(P)
 ----
 

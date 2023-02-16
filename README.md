@@ -1,6 +1,6 @@
 ## Overview
 
-**gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
+**gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES PARIS - PSL University. It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
 Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
@@ -15,13 +15,13 @@ The name 'gstlearn' stands for several purposes:
 * A Python package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
 * A R package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
-If you simply want to install the Python or R package for gstlearn you should look at the corresponding sub folders.
+If you simply want to install the Python or R package for *gstlearn* you should look at the corresponding sub folders.
 
 ## References
 
 The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
+The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES PARIS](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
 When using the *gstlearn* C++ library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
 
@@ -41,7 +41,7 @@ The *gstlearn* C++ library uses the following third party products (see licenses
 
 ## Requirements
 
-This library has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested).
+This library has been successfully tested with Ubuntu 18/20/22 LTS and Windows 10 (MacOS: not tested).
 For compiling and installing *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
 * Git client
