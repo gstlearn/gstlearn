@@ -42,9 +42,9 @@ dat$setName("*temp", "Temperature")
 
 ```{r EDA1, echo=FALSE, message=FALSE, warning=FALSE}
 tab = dbStatisticsMonoT(dat,c("Elevation", "Temperature"))
-knitr::kable(tab$toTL(), caption = "Statistics on observations")
+knitr::kable(tab$toTL(), caption = "Statistics on observations", digits=3)
 tab = dbStatisticsMonoT(target,c("Elevation"))
-knitr::kable(tab$toTL(), caption = "Statistics on the grid")
+knitr::kable(tab$toTL(), caption = "Statistics on the grid", digits=3)
 ```
 
 ## Observations
@@ -142,7 +142,7 @@ err = xvalid(dat, fitmod, unique_neigh,
 
 ```{r Cross-validation_Ordinary_Kriging_stat, echo=FALSE}
 tab = dbStatisticsMonoT(dat, c("OK.Temperature.*"))
-knitr::kable(tab$toTL(), caption= "Cross-validation with Ordinary Kriging")
+knitr::kable(tab$toTL(), caption= "Cross-validation with Ordinary Kriging", digits=3)
 ```
 
 ## Ordinary Kriging - Estimation
@@ -556,7 +556,7 @@ plot.decoration(p, title="Temperature with External Drift")
 
 ```{r Estimation_ked_stat, echo = FALSE}
 tab <- dbStatisticsMonoT(target, opers=opers, names = (c("KED.T*")))
-knitr::kable(tab$toTL(), 
+knitr::kable(tab$toTL(), digits=3,
              caption = "Statistics on the Kriging with External Drift")
 ```
 
@@ -580,7 +580,7 @@ Comparing the cross-validation Mean Squared Errors
 
 ```{r Comparing_Cross-validations}
 tab <- dbStatisticsMonoT(dat, opers=opers, names = (c("*.Temperature.esterr")))
-knitr::kable(tab$toTL(),
+knitr::kable(tab$toTL(), digits=3,
   caption = "Statistics of the cross-validation error for the temperature"
   )
 ```

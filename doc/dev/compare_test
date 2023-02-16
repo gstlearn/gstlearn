@@ -64,8 +64,8 @@ if ($name1 == "rmd") then
 		set direcref = "output"
 		set directest = ""
 		set nametest = `basename $nametest .Rmd`
-		set nameref = $nametest.md
-		set namecmp = $nametest.md
+		set nameref = $nametest.out
+		set namecmp = $nametest.out
 endif
 
 set FILEREF = $DIR/tests/$name1/$direcref/$nameref

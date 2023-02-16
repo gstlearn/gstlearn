@@ -362,6 +362,7 @@ DbGrid* DbGrid::coarsify(const VectorInt &nmult)
 
 DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                              const VectorInt &nmult,
+                             int flag_cell,
                              int flag_add_rank)
 {
   DbGrid *dbgrid = new DbGrid;
@@ -371,7 +372,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().multiple(nmult, 0, nx, dx, x0);
+  dbin->getGrid().multiple(nmult, flag_cell, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
@@ -557,6 +558,7 @@ DbGrid* DbGrid::refine(const VectorInt &nmult)
 
 DbGrid* DbGrid::createRefine(DbGrid *dbin,
                              const VectorInt &nmult,
+                             int flag_cell,
                              int flag_add_rank)
 {
   DbGrid *dbgrid = new DbGrid;
@@ -566,7 +568,7 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().divider(nmult, 1, nx, dx, x0);
+  dbin->getGrid().divider(nmult, flag_cell, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
