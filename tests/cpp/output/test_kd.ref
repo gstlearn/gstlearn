@@ -1486,7 +1486,7 @@ Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
 Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
 Column = 9 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
 Column = 10 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
-Change of Support coefficient (DGM2) =  0.678
+Change of Support coefficient (DGM-2) =  0.678
 
 Model characteristics
 =====================
