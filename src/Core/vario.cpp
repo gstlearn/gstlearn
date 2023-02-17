@@ -3754,8 +3754,7 @@ int correlation_f(Db *db1,
     v1 = v1 / nb - m1 * m1;
     v2 = v2 / nb - m2 * m2;
     v12 = v12 / nb - m1 * m2;
-    rho = (v1 * v2 > 0) ? v12 / sqrt(v1 * v2) :
-                          1.;
+    rho = (v1 * v2 > 0) ? v12 / sqrt(v1 * v2) : 1.;
     if (flag_verbose) message("Correlation coefficient = %lf\n", rho);
     *correl = rho;
   }

@@ -4169,7 +4169,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 
   if (iuids.empty()) return stats;
 
-  int noper = static_cast<int> (opers.size());
+  int noper = (int) opers.size();
   if (noper <= 0) return stats;
 
   // Add the variables for PointWise statistics

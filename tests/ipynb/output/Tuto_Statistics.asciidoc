@@ -123,7 +123,7 @@ Total number of samples      = 600
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
+Origin :      2.000     2.000
 Mesh   :      5.000     5.000
 Number :         30        20
 
