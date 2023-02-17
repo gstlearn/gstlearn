@@ -184,14 +184,12 @@ plot.geometry <- function(p, dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
           for (iy in 1:dim(p)[2])
           {
             p[ix,iy]$scales$scales[[1]] <- NULL
-            p[ix,iy]$scales$scales[[2]] <- NULL
             p[ix,iy] <- p[ix,iy] + scale_x_continuous(limits=xlim, expand=expand)
           }
       }
       else
       {
         p$scales$scales[[1]] <- NULL
-        p$scales$scales[[2]] <- NULL
         p <- p + scale_x_continuous(limits=xlim, expand=expand)
       }
     }
@@ -208,7 +206,6 @@ plot.geometry <- function(p, dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
         for (ix in 1:dim(p)[1])
           for (iy in 1:dim(p)[2])
           {
-            p[ix,iy]$scales$scales[[1]] <- NULL
             p[ix,iy]$scales$scales[[2]] <- NULL
             p[ix,iy] <- p[ix,iy] + scale_y_continuous(limits=ylim, expand=expand)
             
@@ -216,7 +213,6 @@ plot.geometry <- function(p, dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
       }
       else
       {
-        p$scales$scales[[1]] <- NULL
         p$scales$scales[[2]] <- NULL
         p <- p + scale_y_continuous(limits=ylim, expand=expand)
       }
@@ -322,7 +318,13 @@ varioLayer <- function(vario, ivar=0, jvar=0, idir=0, vario.mode=0, ...)
   {
     # Representing the Experimental variogram
     layer = geom_line(data = df, mapping=aes(x=hh, y=gg),  
-        na.rm=TRUE, ...) + geom_point()
+        na.rm=TRUE, ...)
+  }
+  else if (vario.mode == -1)
+  {
+    # Representing the Experimental variogram (constant symbol)
+    layer = geom_point(data = df, mapping=aes(x=hh, y=gg),  
+        na.rm=TRUE, ...)
   }
   else if (vario.mode == 1) 
   {   
@@ -339,13 +341,19 @@ varioLayer <- function(vario, ivar=0, jvar=0, idir=0, vario.mode=0, ...)
   layer
 }
 
+# Note: 'linetype' is not passed via '...' as it is not shared 
+# along all the visualization modes.
 varioElem <- function(p, vario, ivar=0, jvar=0, idir=0, 
+    linetype = "solid",
     var_color='black', var_linetype="dashed", var_size=0.5, 
-    draw_variance = TRUE, draw_psize = FALSE, 
+    draw_variance = TRUE, draw_post=TRUE, draw_psize = FALSE, 
     draw_plabel = FALSE, label=NULL, ...)
 {
   p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=0, 
-      ...)
+      linetype=linetype, ...)
+  
+  if (draw_post)
+    p = p + varioLayer(vario, ivar=ivar, jvar=jvar, idir=idir, vario.mode=-1, ...)
   
   if (draw_psize)
   {
@@ -505,7 +513,7 @@ plot.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
       for (idir in idirUtil)
       {
         if (! has_color) dots$color=cols[idir+1]
-        if (! has_linetype) dots$linetype = ""
+        if (! has_linetype) dots$linetype = "dashed"
         
         g = do.call(varioElem, c(list(p=g, vario=vario, ivar=ivar, jvar=jvar, idir=idir, 
                     var_color=var_color, var_linetype=var_linetype, var_size=var_size,
@@ -516,6 +524,8 @@ plot.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
         if (! isNotDef(model))
         {
           codir = vario$getCodirs(idir)
+          if (! has_linetype) dots$linetype = "solid"
+          
           g = do.call(modelElem, c(list(g, model, ivar, jvar, codir=codir, 
                       nh = nh, hmax = hmax, asCov=asCov, flag.envelop=flag.envelop,
                       env_color = env_color, env_linetype = env_linetype, 
@@ -875,7 +885,6 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, padd=NULL, ...)
   res = anam$sample(ndisc, aymin, aymax)
   
   p = plot.XY(res$getY(), res$getZ(), join=TRUE, padd=padd, ...)
-  
   p <- plot.geometry(p, xlim=res$getAylim(), ylim=res$getAzlim())
   
   p <- plot.decoration(p, xlab = "Gaussian", ylab = "Raw")
@@ -1011,3 +1020,4 @@ setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(
 setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
 
 setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
+setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))

@@ -18,6 +18,7 @@
 
 #include "Covariances/CovLMC.hpp"
 #include "Anamorphosis/AAnam.hpp"
+#include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
@@ -58,7 +59,7 @@ public:
   /// Interface for ACovAnisoList
   void addCov(const CovAniso* cov) override;
   bool hasAnam() const override { return true; }
-  const AAnam* getAnam() override { return _anam; }
+  const AAnam* getAnam() const override { return _anam; }
   void setActiveFactor(int iclass) override;
   int getActiveFactor() const override { return _activeFactor; }
   int getAnamNClass() const override { return _anam->getNClass(); }

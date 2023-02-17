@@ -45,6 +45,7 @@ class CovCalcMode;
 class Vario;
 class ANoStat;
 class ADriftElem;
+class AnamContinuous;
 
 typedef std::vector<ECov> VectorECov;
 
@@ -127,7 +128,7 @@ public:
   double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
   int    getMinOrder() const { return _covaList->getMinOrder(); }
   bool   hasAnam() const { return _covaList->hasAnam(); }
-  const AAnam* getAnam() { return _covaList->getAnam(); }
+  const AAnam* getAnam() const { return _covaList->getAnam(); }
   void normalize(double sill) { _covaList->normalize(sill); }
   bool hasNugget() const { return _covaList->hasNugget(); }
 

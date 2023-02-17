@@ -559,13 +559,6 @@ int Vario::transformYToZ(const AAnam *anam)
     messerr("This function needs a Hermite Anamorphosis");
     return 1;
   }
-  /* XF: 2023-02-06 - to be used also with a bloc anamorphosis
-  if (anam_hermite->getRCoef() != 1.)
-  {
-    messerr("This function is restricted to Punctual Anamorphosis");
-    return 1;
-  }
-  */
   if (getVariableNumber() != 1)
   {
     messerr("This function is restricted to Monovariate Variogram");
@@ -584,10 +577,10 @@ int Vario::transformYToZ(const AAnam *anam)
       double chh = 1. - getGg(idir, 0, 0, ipas, false);
       double var = anam_hermite->computeVariance(chh);
       setGg(idir, 0, 0, ipas, c0 - var);
-      setHh(idir, 0, 0, ipas, (ipas + 1) * getDPas(idir));
-      setSw(idir, 0, 0, ipas, 1.);
     }
   }
+
+  setVar(0, 0, c0);
   return 0;
 }
 

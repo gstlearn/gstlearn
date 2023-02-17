@@ -57,7 +57,7 @@ public:
   /// ACovAnisoList Interface
   virtual void addCov(const CovAniso* cov);
   virtual bool hasAnam() const { return false; }
-  virtual const AAnam* getAnam() { return nullptr; }
+  virtual const AAnam* getAnam() const { return nullptr; }
   virtual void setActiveFactor(int /*iclass*/) { return; }
   virtual int getActiveFactor() const { return 0; }
   virtual int getAnamNClass() const { return 0; }

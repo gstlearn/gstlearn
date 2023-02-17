@@ -221,7 +221,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
       rhon *= rho;
-      rn *= r;
+      rn   *= r;
       double psin = anamH->getPsiHn(jclass);
       val = rhon;
       if (mode.getAsVario()) val = 1. - val;
@@ -563,3 +563,4 @@ void CovLMCAnamorphosis::addCov(const CovAniso* cov)
   }
   CovLMC::addCov(cov);
 }
+
