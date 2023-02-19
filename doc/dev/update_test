@@ -1,6 +1,7 @@
-# This script is meant to update the reference (ref) starting from the Resulting test file (out)
-#
 #!/bin/csh -f
+
+# This script is meant to update the reference output file starting from the resulting test file output file Release mode only)
+# 
 
 # Reference directory
 set command_location = `dirname $0`
@@ -8,11 +9,11 @@ set DIR = $command_location/../..
 
 set nargs = $#argv
 if ($nargs < 2) then
-		echo "Update the Reference from the Build"
+		echo "Update the reference output file from the build test output file (Release mode only)"
 		echo "Syntax:"
 		echo "update_test name1 nametest"
-		echo "   name1    : Name of the subContainer (e.g.: data)"
-		echo "   nametest : Name of the test (e.g.: Jeu1)"
+		echo "   name1    : Name of the subContainer (e.g.: data, ipynb, py, r, rmd, cpp)"
+		echo "   nametest : Name of the test (e.g.: Jeu1, Tuto_Plot2D, Hermite, etc...)"
 		exit
 endif
 

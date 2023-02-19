@@ -160,8 +160,7 @@ public:
   inline int getColumnNumber() const { return _ncol; }
   double getColumnSize(bool useSel = false) const;
 
-  int getColIdxFromName(const String& name) const;
-  VectorInt getColIdxFromNames(const VectorString& names) const;
+  VectorString identifyNames(const VectorString& names) const;
 
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
@@ -362,10 +361,17 @@ public:
                         double value);
 
   double getValueByColIdx(int iech, int icol) const;
+  void   setValueByColIdx(int iech, int icol, double value);
+  VectorDouble getValuesByNames(const VectorInt& iechs,
+                                const VectorString& names,
+                                bool bySample = false) const;
   VectorDouble getValuesByColIdx(const VectorInt &iechs,
                                  const VectorInt &icols,
                                  bool bySample = false) const;
-  void   setValueByColIdx(int iech, int icol, double value);
+  void   setValuesByNames(const VectorInt &iechs,
+                          const VectorString &names,
+                          const VectorDouble &values,
+                          bool bySample = false);
   void   setValuesByColIdx(const VectorInt &iechs,
                            const VectorInt &icols,
                            const VectorDouble &values,

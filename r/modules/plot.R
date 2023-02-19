@@ -898,6 +898,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
     flagDiag=FALSE, diag_color = "red", diag_line = "solid", 
     flagRegr=FALSE, regr_color = "blue", regr_line = "solid", 
     flagBiss=FALSE, biss_color = "green", biss_line = "solid", 
+    flagSameAxes=FALSE, 
     show.legend.raster = FALSE, legend.name.raster="Count",
     padd=NULL, ...)
 {
@@ -914,6 +915,12 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
   ymin = min(y, na.rm=TRUE)
   xmax = max(x, na.rm=TRUE)
   ymax = max(y, na.rm=TRUE)
+  
+  if (flagSameAxes)
+  {
+    xmin = ymin = min(xmin, ymin) 
+    xmax = ymax = max(xmax, ymax)
+  }
   
   if (flagDiag)
   {

@@ -7,6 +7,8 @@ set.seed(32421)
 # This part is to demonstrate the use of assessors when manipulating Db
 #
 
+print("Testing Db")
+
 a = DbGrid_create(nx=c(2,2),dx=c(1.,1.))
 nech = a$getSampleNumber()
 a$display()
@@ -34,9 +36,20 @@ v[1,1] = NA
 a["newvar*"] = v
 print(a["newvar*"])
 
+# Testing the new convention where the column reference can be a number
+# or a name coming from the list of variable names or locator names
+
+a$setLocators(c("newvar*"), ELoc_Z())
+print(a[c("var2","z*")])
+
+# A slice of the set of previous data (samples 1 to 3 include, 1-based)
+print(a[1:3,c("var2","z*")])
+
 #
 # This part is to demonstrate the use of assessors when manipulating Table
 #
+
+print("Testing Table")
 
 table = Table(2,3)
 table$setRowNames(c("Row1","Row2"))
@@ -50,6 +63,8 @@ newtab
 #
 # This part is to demonstrate the use of assessors when manipulating Matrix
 #
+
+print("Testing Matrices")
 
 # Creating a vector of Uniform values to fill the Rectangular Matrix
 nrow = 4

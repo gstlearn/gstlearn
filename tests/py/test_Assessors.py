@@ -7,6 +7,7 @@ import sys
 # This first part concerns the assessors used for Db manipulation
 #
 
+print("Testing Db")
 np.random.seed(124)
 
 a = gl.DbGrid.create([2,2],[1.,1.])
@@ -42,9 +43,18 @@ a["newvar*"] = v
 
 print(a["newvar*"])
 
+# Get access to variables by names and short names of locators
+
+a.setLocators(["newvar*"], gl.ELoc.Z)
+print(a[["var2","x2","z*"]])
+
+# A slice within the previous selection (rows 1 to 3 excluded)
+print(a[1:3,["var2","x2","z*"]])
+
 #
 # This first part concerns the assessors used for Table manipulation
 #
+print("Testing Table")
 
 # Creating a Table
 table = gl.Table(2,3)
@@ -59,6 +69,8 @@ newtab
 #
 # This first part concerns the assessors used for Table manipulation
 #
+
+print("Testing Matrix")
 
 # Creating a vector of Uniform values to fill the Rectangular Matrix
 nrow = 4

@@ -138,7 +138,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 
 ```{r Ordinary_Kriging_Estimation}
 p = plot.grid(grid, "OK*estim", legend.name.raster="°C", zlim=c(0.,8.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
 p = plot.decoration(p, title="Estimation by Ordinary Kriging")
 p
 ```
@@ -149,7 +149,7 @@ p
 
 ```{r Ordinary_Kriging_St_Dev}
 p = plot.grid(grid,"OK*stdev", legend.name.raster="°C", zlim=c(0.,1.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
 p = plot.decoration(p, title="St. dev. by Ordinary Kriging")
 p
 ```
@@ -180,7 +180,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
 
 ```{r Simple_Kriging_Estimation}
 p = plot.grid(grid,"SK*estim",legend.name.raster="°C", zlim=c(0.,8.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
 p = plot.decoration(p, title="Estimation by Simple Kriging")
 p
 ```
@@ -191,7 +191,7 @@ p
 
 ```{r Simple_Kriging_St_Dev}
 p = plot.grid(grid,"SK*stdev",legend.name.raster="°C", zlim=c(0.,1.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=300,color='black')
+p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
 p = plot.decoration(p, title="St. dev. by Simple Kriging")
 p
 ```
@@ -201,7 +201,8 @@ p
 \frametitle{Comparing Ordinary and Simple Kriging - Estimations}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
-p = plot.correlation(grid,name1="OK*estim",name2="SK*estim", flagDiag=TRUE)
+p = plot.correlation(grid,name1="OK*estim",name2="SK*estim", 
+                     flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
 p = plot.decoration(p, title="Estimation Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 p
@@ -212,7 +213,8 @@ p
 \frametitle{Comparing Ordinary and Simple Kriging - St. dev.}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
-p = plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", flagDiag=TRUE)
+p = plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", 
+                     flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
 p = plot.decoration(p, title="St. dev. Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 p

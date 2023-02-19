@@ -19,7 +19,7 @@ set(TEST_SOURCES ${DEMO_SOURCES})
 list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(TEST_SOURCES 
-#    ../../doc/demo/python/GridRefine.ipynb)
+#    ../../doc/demo/python/Tuto_Xvalid.ipynb)
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)

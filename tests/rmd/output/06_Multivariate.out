@@ -39,7 +39,7 @@ Table: Cross-validation with Ordinary Kriging
 |                      |   Mean|
 |:---------------------|------:|
 |OK.Temperature.esterr | -0.041|
-|OK.Temperature.stderr | -7.934|
+|OK.Temperature.stderr | -0.044|
 
 
 Table: Statistics on the Ordinary Kriging
@@ -55,7 +55,7 @@ Table: Cross-validation with Ordinary Kriging
 |                      | Count| Minimum| Maximum|   Mean| St. Dev.|
 |:---------------------|-----:|-------:|-------:|------:|--------:|
 |UK.Temperature.esterr |   151|  -4.336|   1.397| -0.352|    0.939|
-|UK.Temperature.stderr |   151| -47.724|   1.075| -8.056|    6.170|
+|UK.Temperature.stderr |   151|  -4.820|   3.781| -0.499|    1.432|
 
 
 Table: Statistics on the Universal Kriging
@@ -72,7 +72,7 @@ Table: Cross-validation with Cokriging
 |                       | Count| Minimum| Maximum|   Mean| St. Dev.|
 |:----------------------|-----:|-------:|-------:|------:|--------:|
 |COK.Temperature.esterr |   151|  -4.582|   1.435| -0.407|    0.926|
-|COK.Temperature.stderr |   151| -55.040|   1.337| -8.735|    7.099|
+|COK.Temperature.stderr |   151|  -4.415|   4.412| -0.515|    1.346|
 
 
 Table: Statistics on Cokriging
@@ -130,7 +130,7 @@ Table: Cross-validation with Kriging with External Drift
 |                       | Count| Minimum| Maximum|   Mean| St. Dev.|
 |:----------------------|-----:|-------:|-------:|------:|--------:|
 |KED.Temperature.esterr |   151|  -1.577|   1.001| -0.009|    0.414|
-|KED.Temperature.stderr |   151| -15.061|   0.441| -7.569|    3.143|
+|KED.Temperature.stderr |   151|  -3.410|   2.679| -0.011|    1.069|
 
 
 Table: Statistics on the Kriging with External Drift
