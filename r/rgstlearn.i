@@ -514,12 +514,39 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
   return(FALSE) 
 }
 
+"DbIdentifyRows" <- function(db, i)
+{
+	if (is.numeric(i)) {
+      # Translate info 0-based number if numeric
+      rows <- i - 1
+    } else {
+      messerr("The Row index should be numeric")
+      stop()
+    }
+    rows = db$shrinkToValidRows(rows)
+	rows
+}
+
+"DbIdentifyCols" <- function(db, j)
+{
+  namcol <- NA
+  
+  # Decode the Column number
+  if (is.numeric(j)) {
+    # Translate into 0-based number if numeric
+    namcol <- j - 1
+  } else {
+  	namcol <- db$identifyNames(j)
+  }
+  namcol
+}
+
 "getDbitem" <-
 function (x,i,j,...,drop=TRUE)
 {
   db   <- x
-  irow <- NA
-  icol <- NA
+  rows <- NA
+  namcols <- NA
   flag_i_defined = (deparse(substitute(i)) != "")
   flag_j_defined = (deparse(substitute(j)) != "")
   nargs = 0
@@ -532,49 +559,27 @@ function (x,i,j,...,drop=TRUE)
   if (nargs == 2) {
   
     # Case of both arguments are defined
+    rows = DbIdentifyRows(db, i)
+    namcols = DbIdentifyCols(db, j)
     
-    # Decode the Row number
-    if (is.numeric(i)) {
-      # Translate info 0-based number if numeric
-      irow <- i - 1
-    } else {
-      messerr("The Row index should be numeric")
-      stop()
-    }
-  
-    # Decode the Column number
-    if (is.numeric(j)) {
-      # Translate into 0-based number if numeric
-      icol <- j - 1
-    } else {
-      icol <- db$getColIdxs(j)
-    }
   } else if (nargs == 1) {
   
     # Case where only one argument in defined: it is the column identification
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
-    if (is.numeric(k)) {
-      # translate into 0-based number if numeric
-      icol <- k - 1
-    } else {
-      icol <- db$getColIdxs(k)
-    }
+    namcols = DbIdentifyCols(db, k)
   }
   
-  isRowUndefined = is.undef(irow)
-  isColUndefined = is.undef(icol)
-  if (isRowUndefined) irow = seq(0, nech_abs - 1)
-  if (isColUndefined) icol = seq(0, ncol_abs - 1)
+  isRowUndefined = is.undef(rows)
+  if (isRowUndefined) rows = seq(0, nech_abs - 1)
   
-  irow = db$shrinkToValidRows(irow)
-  icol = db$shrinkToValidCols(icol)
+  isColUndefined = length(namcols) <= 0
+  if (isColUndefined) namcols = db$getAllNames()
   
-  col_names = db$getNamesByColIdx(icol)
-  row_names = irow
-  ncol = length(icol)
-  nrow = length(irow)
+  row_names = rows
+  ncol = length(namcols)
+  nrow = length(rows)
     
   if (ncol <= 0)
   {
@@ -582,18 +587,11 @@ function (x,i,j,...,drop=TRUE)
     messerr("This is not authorized in this function")
     stop()
   } else {
-    if (! isRowUndefined && ! isColUndefined)
-      res <- db$getValuesByColIdx(irow,icol)
-   if (! isRowUndefined &&   isColUndefined)
-      res <- db$getArrayBySample(irow)
-    if (  isRowUndefined && ! isColUndefined)
-      res <- db$getColumnsByColIdx(icol)
-    if (  isRowUndefined &&   isColUndefined)
-      res <- db$getAllColumns()
-   if (nrow > 1 && ncol > 1)
-   {
+    res <- db$getValuesByNames(rows,namcols)
+   	if (nrow > 1 && ncol > 1)
+    {
       res <- as.data.frame(matrix(res, nrow=nrow, ncol=ncol))
-       names(res) = col_names
+      names(res) = namcols
       row.names(res) = row_names
     }
   }
@@ -604,8 +602,8 @@ function (x,i,j,...,drop=TRUE)
   function (x,i,j,...,value)
 {
   db   <- x
-  irow <- NA
-  icol <- NA
+  rows <- NA
+  namcols <- NA
   flag_i_defined = (deparse(substitute(i)) != "")
   flag_j_defined = (deparse(substitute(j)) != "")
   nargs = 0
@@ -620,54 +618,29 @@ function (x,i,j,...,drop=TRUE)
   if (nargs == 2) {
   
     # Both arguments are defined
-    
-    # Decode the Row number
-    if (is.numeric(i)) {
-      # Translate into 0-based number if numeric
-      irow <- i - 1
-    } else {
-      messerr("The Row index should be numeric")
-      stop()
-    }
-  
-    # Decode the Column number
-    if (is.numeric(j)) {
-      # Translate into 0-based number if numeric
-      icol <- j - 1
-    } else {
-      icol <- db$getColIdxs(j)
-      new_names = j
-    }
+    rows = DbIdentifyRows(db, i)
+    namcols = DbIdentifyCols(db, j)
+    new_names = j
+
   } else if (nargs == 1) {
   
     # Only one argument is defined: it corresponds to the column
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
-    if (is.numeric(k)) {
-    # Translate into 0-based number if numeric
-      icol <- k - 1
-    } else {
-      icol <- db$getColIdxs(k)
-      new_names = k
-    }
+    namcols = DbIdentifyCols(db, k)
+    new_names = k
   }
 
-  isRowUndefined = is.undef(irow)
-  isColUndefined = is.undef(icol)
-  if (isRowUndefined) irow = seq(0, nech_abs - 1)
+  isRowUndefined = is.undef(rows)
+  if (isRowUndefined) rows = seq(0, nech_abs - 1)
   
   # Next line is commented in order to allow having no existing column
   # This corresponds to the creation of the NEW variable
-  #  if (isColUndefined) icol = seq(0, ncol_abs - 1)
   
-  irow = db$shrinkToValidRows(irow)
-  icol = db$shrinkToValidCols(icol)
-  
-  col_names = db$getNamesByColIdx(icol)
-  row_names = irow
-  ncol = length(icol)
-  nrow = length(irow)
+  row_names = rows
+  ncol = length(namcols)
+  nrow = length(rows)
 
   if (ncol <= 0)
   {
@@ -681,14 +654,7 @@ function (x,i,j,...,drop=TRUE)
   
     # Case of already an existing variable: replacement
     
-    if (! isRowUndefined && ! isColUndefined)
-      db$setValuesByColIdx(irow,icol,value)
-    if (! isRowUndefined &&   isColUndefined)
-      db$setArrayBySample(irow,value)
-    if (  isRowUndefined && ! isColUndefined)
-      db$setColumnsByColIdx(value,icol)
-    if (  isRowUndefined &&   isColUndefined)
-      db$setAllColumns(value)
+    db$setValuesByNames(rows,namcols, value)
   }
   db
 }

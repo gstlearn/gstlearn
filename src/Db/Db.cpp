@@ -1742,42 +1742,53 @@ double Db::getColumnSize(bool useSel) const
 }
 
 /**
- * Identify the column corresponding to a name. This name is searched in the following order:
- * - within the list of variable names
+ * Identify the list of names. These names are searched in the following order:
+ * - within the list of input variable names (possibly expanded)
  * - within the names of the locators
- * @param name Name to be be identified
- * @return Rank of the corresponding ColIDX (or -1)
+ * @param name Names to be be identified
+ * @return List of variable names
  */
-int Db::getColIdxFromName(const String& name) const
+VectorString Db::identifyNames(const VectorString& names) const
 {
-  int icol = -1;
-
-  // Look within the list of names
-  icol = getColIdx(name);
-  if (icol > 0) return icol;
-
-  // Look with the list of locators
+  VectorString ret_names;
+  VectorString namloc;
   ELoc locatorType;
-  int locatorIndex;
-  for (int i = 0; i < getColumnNumber(); i++)
+  int locatorIndex, mult;
+
+  // Constitute the list of the locator names
+  VectorString locnames;
+  for (int j = 0; j < getColumnNumber(); j++)
   {
-    if (! getLocatorByColIdx(i, &locatorType, &locatorIndex)) continue;
+    if (! getLocatorByColIdx(j, &locatorType, &locatorIndex)) continue;
     String local = getLocatorName(locatorType, locatorIndex);
-    if (local == name) return i;
+    locnames.push_back(local);
   }
 
-  return -1;
-}
-
-VectorInt Db::getColIdxFromNames(const VectorString& names) const
-{
-  VectorInt cols;
   for (int i = 0; i < (int) names.size(); i++)
   {
-    int icol = getColIdxFromName(names[i]);
-    if (icol >= 0) cols.push_back(icol);
+    // Look within the list of names
+    namloc = getName(names[i]);
+    if (! namloc.empty())
+    {
+      for (int j = 0; j < (int) namloc.size(); j++)
+        ret_names.push_back(namloc[j]);
+      continue;
+    }
+
+    // Look within the list of locators
+    namloc = expandList(locnames, names[i]);
+    if (! namloc.empty())
+    {
+      for (int j = 0; j < (int) namloc.size(); j++)
+      {
+        if (locatorIdentify(namloc[j], &locatorType, &locatorIndex, &mult)) continue;
+        String local = getNameByLocator(locatorType, locatorIndex);
+        ret_names.push_back(local);
+      }
+      continue;
+    }
   }
-  return cols;
+  return ret_names;
 }
 
 double Db::getMinimum(const String& name, bool useSel) const
@@ -1917,6 +1928,14 @@ double Db::getValueByColIdx(int iech, int icol) const
   return (_array[_getAddress(iech, icol)]);
 }
 
+VectorDouble Db::getValuesByNames(const VectorInt &iechs,
+                                  const VectorString &names,
+                                  bool bySample) const
+{
+  VectorInt icols = getColIdxs(names);
+  return getValuesByColIdx(iechs, icols, bySample);
+}
+
 VectorDouble Db::getValuesByColIdx(const VectorInt &iechs,
                                    const VectorInt &icols,
                                    bool bySample) const
@@ -1955,6 +1974,15 @@ void Db::setValueByColIdx(int iech, int icol, double value)
   if (!isColIdxValid(icol)) return;
   if (!isSampleIndexValid(iech)) return;
   _array[_getAddress(iech, icol)] = value;
+}
+
+void Db::setValuesByNames(const VectorInt &iechs,
+                          const VectorString &names,
+                          const VectorDouble &values,
+                          bool bySample)
+{
+  VectorInt icols = getColIdxs(names);
+  setValuesByColIdx(iechs, icols, values, bySample);
 }
 
 void Db::setValuesByColIdx(const VectorInt &iechs,

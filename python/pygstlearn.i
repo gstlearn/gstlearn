@@ -807,16 +807,8 @@ def findColumnNames(self, columns):
     """Extract names of columns from Db, given different possible types of arguments: 
         names, indices, or locator"""
     if isinstance(columns, str) or is_list_type(columns, (str, np.str_)): #get variable(s) by name
-        names = self.getNames(np.atleast_1d(columns))
+        names = self.identifyNames(np.atleast_1d(columns))
     
-    elif isinstance(columns, gl.ELoc): #get variable(s) by locator
-        names = self.getNamesByLocator(columns)
-    
-    elif is_list_type(columns, gl.ELoc):
-        if not(len(columns)) == 1:
-            raise ValueError("The input for columns should not be a list of several Locators")
-        names = self.getNamesByLocator(columns[0])
-     
     elif isinstance(columns, (int, np.int_)):
         names = self.getNameByColIdx(columns)
     
