@@ -1745,7 +1745,7 @@ double Db::getColumnSize(bool useSel) const
  * Identify the list of names. These names are searched in the following order:
  * - within the list of input variable names (possibly expanded)
  * - within the names of the locators
- * @param name Names to be be identified
+ * @param names Names to be be identified
  * @return List of variable names
  */
 VectorString Db::identifyNames(const VectorString& names) const
