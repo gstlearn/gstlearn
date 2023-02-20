@@ -20,13 +20,6 @@ library(ggpubr)
 plot.printDefault()
 ```
 
-```{r}
-a = list(geom_point(),
-         scale_x_continuous(limits=c(2,3)))
-b = ggplot() + a
-```
-
-
 We define the Space dimension
 
 ```{r}
@@ -67,24 +60,27 @@ mygrid
 Displaying the grid cells
 
 ```{r}
-p = plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
+p = ggDefault(2)
+p = p + plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
               show.legend.raster=TRUE, legend.name.raster="ma Legende")
-p = plot.decoration(p,title="Display of Grid Cells")
+p = p + plot.decoration(title="Display of Grid Cells")
 p
 ```
 
 Displaying the grid nodes only
 
 ```{r}
-p = plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", show.legend.symbol = TRUE,
-               legend.name.color="myColor")
-plot.decoration(p,title="Display of Grid Nodes")
+p = ggDefault(2)
+p = p + plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", 
+                   show.legend.symbol = TRUE,
+                 legend.name.color="myColor")
+p = p + plot.decoration(title="Display of Grid Nodes")
+p
 ```
 
 ## Rotated grid
 
 ```{r}
-
 mygrid = DbGrid_create(nx,dx,x0,angles=c(10,0))
 err = simtub(NULL,mygrid,mymodel,nbsimu=2)
 mygrid
@@ -93,15 +89,19 @@ mygrid
 Displaying the cell contents in the rotated grid
 
 ```{r}
-p = plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
-plot.decoration(p,title="Display of Rotated Grid")
+p = ggDefault(2)
+p = p + plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
+p = p + plot.decoration(title="Display of Rotated Grid")
+p
 ```
 
 As a set of grid nodes
 
 ```{r}
-p = plot.point(mygrid,name_color="Simu.1", show.legend.symbol = TRUE)
-plot.decoration(p, title="Display of Rotated Grid Nodes")
+p = ggDefault(2)
+p = p + plot.point(mygrid,name_color="Simu.1", show.legend.symbol = TRUE)
+p = p + plot.decoration(p, title="Display of Rotated Grid Nodes")
+p
 ```
 
 # Points and Polygon
@@ -122,10 +122,11 @@ mypoly = Polygons_createFromDb(mypoint)
 We now display the points and the polygon on top of the grid: the overlay is ensured by using the argument 'p'.
 
 ```{r}
-p = plot(mygrid)
-p = plot(mypoly, fill=NA, colour='yellow', linewidth=1, padd=p)
-p = plot(mypoint,color="black", padd=p)
-p = plot.decoration(p, title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
+p = ggDefault(2)
+p = p + plot(mygrid)
+p = p + plot(mypoly, fill=NA, colour='yellow', linewidth=1)
+p = p + plot(mypoint,color="black")
+p = p + plot.decoration(title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
 p
 ```
 
@@ -134,8 +135,8 @@ p
 We create two layers containing the Point and the Grid representation. We then use *ggarrange* to display them side-by-side.
 
 ```{r}
-p1 = plot(mygrid)
-p2 = plot(mypoint)
+p1 = ggDefault(2) + plot(mygrid)
+p2 = ggDefault(2) + plot(mypoint)
 ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
 ```
 
@@ -159,57 +160,72 @@ err = model$fit(vario,type=ECov_fromKeys(c("SPHERICAL", "CUBIC")))
 We display the experimental variogram for the first variable in the first direction.
 
 ```{r}
-p = plot(vario, draw_psize=F, linewidth=1, color="red")
-p = plot.decoration(p, title="First Variable - First Direction")
+ggplot() + plot(model)
+```
+
+```{r}
+p = ggDefault(1)
+p = p + plot(vario, draw_psize=-1, color="red")
+p = p + plot.decoration(title="First Variable - First Direction")
 p
 ```
 
 We display the experimental variogram for the first variable in the second direction.
 
 ```{r}
-p = plot(vario, idir=1)
-p = plot.decoration(p, title="First Variable - Second Direction")
+p = ggDefault(1)
+p = p + plot(vario, idir=1)
+p = p + plot.decoration(title="First Variable - Second Direction")
 p
 ```
 
 We simply overlay the contents of the two previous plots.
 
 ```{r}
-p = plot(vario, color="black")
-p = plot(vario, idir=1, color='red', padd=p)
-p = plot.decoration(p, title="First Variable - Two directions")
+p = ggDefault(1)
+p = p + plot(vario, color="black")
+p = p + plot(vario, idir=1, color='red')
+p = p + plot.decoration(title="First Variable - Two directions")
 p
 ```
 
 We display the cross-variogram between both variables along both directions.
 
 ```{r}
-p = plot(vario, ivar=1, jvar=0, idir=-1, linewidth = 1)
-p = plot.decoration(p, title="Cross-variogram - Two directions")
+p = ggDefault(1)
+p = p + plot(vario, ivar=1, jvar=0, idir=-1)
+p = p + plot.decoration(title="Cross-variogram - Two directions")
 p
 ```
 
 We display the simple and cross variograms in both calculation directions.
 
 ```{r}
-p = plot(vario, ivar=-1, jvar=-1, idir=-1, linewidth=1)
-p = plot.decoration(p,title="Simple and Cross Variograms in all directions")
+p = ggDefault(1)
+p = p + plot(vario, ivar=-1, jvar=-1, idir=-1)
+p = p + labs(title="Simple and Cross Variograms in all directions")
 p
 ```
 
 We display the Model as calculated in the first direction of the variogram
 
 ```{r}
-p = plot(model, ivar=1, jvar=1, vario=vario, idir=0)
-p = plot.decoration(p, title="Model for the Second Variable in First Direction")
+p = ggDefault(1)
+p = p + plot(model, ivar=1, jvar=1, vario=vario, idir=0)
+p = p + plot.decoration(title="Model for the Second Variable in First Direction")
 p
 ```
 
 We now represent all the simple and cross variograms together with the fitted models.
 
 ```{r}
-p = plot.varmod(vario, model, linewidth=1)
-p = plot.decoration(p, title="All variograms in First Direction")
+p = ggDefault(1)
+p = p + plot.varmod(vario, model)
+p = p + plot.decoration(title="All variograms in First Direction")
 p
+```
+
+```{r}
+multi.varmod(vario=vario, model=model)
 ```
 
