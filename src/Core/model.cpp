@@ -540,7 +540,7 @@ int model_evaluate(Model *model,
                    const ECalcMember &member,
                    int nh,
                    VectorDouble &codir,
-                   double *h,
+                   const double *h,
                    double *g)
 {
   CovCalcMode mode;

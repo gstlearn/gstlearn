@@ -688,7 +688,7 @@ GSTLEARN_EXPORT int model_evaluate(Model *model,
                                    const ECalcMember &member,
                                    int nh,
                                    VectorDouble &codir,
-                                   double *h,
+                                   const double *h,
                                    double *g);
 GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
                                           int ivar,

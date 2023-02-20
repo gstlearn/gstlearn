@@ -14,7 +14,7 @@
 
 #define ENUM_STATOPTION EStatOption, UNKNOWN, \
                  UNKNOWN, -1, "Unknown Option", \
-                 NUM,      0, "Count", \
+                 NUM,      0, "Number", \
                  MEAN,     1, "Mean", \
                  VAR,      2, "Variance", \
                  STDV,     3, "St. Dev.", \

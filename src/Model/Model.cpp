@@ -832,8 +832,7 @@ VectorDouble Model::evalDrifts(const Db* db,
 
 /**
  * Sample a Model for given variable(s) and given direction
- * @param hmax   Maximum distance to be sampled
- * @param nh     Number of discretization steps
+ * @param hh     Vector of distances
  * @param ivar   Rank of the first variable
  * @param jvar   Rank of the second variable
  * @param codir  Vector of direction coefficients
@@ -844,16 +843,14 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @return The array of variogram evaluated at discretized positions
  * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
  */
-VectorDouble Model::sample(double hmax,
-                           int nh,
+VectorDouble Model::sample(const VectorDouble& hh,
                            int ivar,
                            int jvar,
                            VectorDouble codir,
                            int nostd,
-                           bool asCov,
-                           bool addZero)
+                           bool asCov)
 {
-  VectorDouble hh, gg;
+  VectorDouble gg;
 
   if (ivar < 0 || ivar >= getVariableNumber()) return gg;
   if (jvar < 0 || jvar >= getVariableNumber()) return gg;
@@ -863,21 +860,10 @@ VectorDouble Model::sample(double hmax,
     codir.resize(ndim);
     (void) GH::rotationGetDirection(ndim, 1, VectorDouble(), codir);
   }
-  int nhloc = (addZero) ? nh + 1: nh;
-  hh.resize(nhloc);
-  gg.resize(nhloc);
+  int nh = (int) hh.size();
+  gg.resize(nh);
 
-  int ecr = 0;
-  if (addZero)
-  {
-    hh[ecr] = 0.;
-    gg[ecr] = 0.;
-    ecr = 1;
-  }
-  for (int i = 0; i < nh; i++)
-    hh[ecr++] = hmax * (i+1) / nh;
-
-  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, ECalcMember::LHS, nhloc,
+  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, ECalcMember::LHS, nh,
                  codir, hh.data(), gg.data());
   return gg;
 }

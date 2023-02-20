@@ -549,14 +549,14 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
      
     # Represent the Model 
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, 0, asCov=asCov, addZero=True)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, 0, asCov=asCov, addZero=False)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, asCov=asCov, addZero=True)
+        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, asCov=asCov, addZero=False)
         ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
+        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=False)
         ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
     # Draw the Legend (optional)

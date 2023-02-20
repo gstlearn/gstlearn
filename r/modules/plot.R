@@ -297,25 +297,26 @@ modelElem <- function(model, ivar=0, jvar=0, codir=NA,
   }
   
   # Calculating distances 
-  hh = seq(0., hmax, length.out=nh+1)
+  eps = hmax / 1000.
+  hh = seq(eps, hmax, length.out=nh)
   
   # Represent the Model
-  gg = model$sample(hmax=hmax, nh=nh, ivar=ivar, jvar=jvar, codir=codir,
-      nostd=0, asCov=asCov, addZero=TRUE)
+  gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir,
+      nostd=0, asCov=asCov)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
   p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, ...))
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flag_envelop)
   {
-    gg = model$sample(hmax=hmax, nh=nh, ivar=ivar, jvar=jvar, codir=codir, 
-        nostd=-1, asCov=asCov, addZero=TRUE)
+    gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, 
+        nostd=-1, asCov=asCov)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
     
-    gg = model$sample(hmax=hmax, nh=nh, ivar=ivar, jvar=jvar, codir=codir, 
-        nostd=1, asCov=asCov, addZero=TRUE)
+    gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, 
+        nostd=1, asCov=asCov)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))

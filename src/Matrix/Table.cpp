@@ -17,14 +17,14 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 
-Table::Table(int nrows, int ncols)
-  : MatrixRectangular(nrows, ncols),
+Table::Table(int nrow, int ncol)
+  : MatrixRectangular(nrow, ncol),
     ASerializable(),
     _title(),
     _rowNames(),
     _colNames()
 {
-  init(nrows, ncols);
+  init(nrow, ncol);
 }
 
 Table::Table(const Table &m)
@@ -61,9 +61,9 @@ void Table::_clearContents()
   return;
 }
 
-Table* Table::create(int nrows, int ncols)
+Table* Table::create(int nrow, int ncol)
 {
-  return new Table(nrows, ncols);
+  return new Table(nrow, ncol);
 }
 
 Table* Table::createFromNF(const String& neutralFilename, bool verbose)
@@ -214,7 +214,7 @@ void Table::setColumnNames(const VectorString &colNames)
             (int) colNames.size(), getNCols());
     return;
   }
-    _colNames = colNames;
+  _colNames = colNames;
 }
 
 void Table::setColumnName(int icol, const String& name)

@@ -441,14 +441,12 @@ public:
                  int jvar0 = 0,
                  int flag_norm = 0,
                  int flag_cov = 1);
-  VectorDouble sample(double hmax,
-                      int nh = 100,
+  VectorDouble sample(const VectorDouble& hh,
                       int ivar = 0,
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       int nostd = 0,
-                      bool asCov = false,
-                      bool addZero = false);
+                      bool asCov = false);
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),

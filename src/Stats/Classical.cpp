@@ -863,7 +863,7 @@ VectorDouble dbStatisticsFacies(Db *db)
 /*!
  **  Considering that the Unique variable is an Indicator (0 or 1)
  **  returns the proportion of 1
-
+ **
  ** \return  The vector of proportions per Facies
  **
  ** \param[in]  db         Db structure

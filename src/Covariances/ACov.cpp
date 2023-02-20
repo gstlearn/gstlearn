@@ -600,12 +600,10 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
 {
   int ndim = getNDim();
   VectorDouble x0loc = x0;
-  if (x0loc.empty() || ndim != (int) x0loc.size() )
-  {
-    x0loc.resize(ndim);
-    for (int idim = 0; idim < ndim; idim++)
-      x0loc[idim] = -ext[idim] / 2.;
-  }
+  if (x0loc.empty() || ndim != (int) x0loc.size())
+    x0loc.resize(ndim, 0.);
+  for (int idim = 0; idim < ndim; idim++)
+    x0loc[idim] -= ext[idim] / 2.;
   VectorDouble dx(ndim, 0.);
   for (int idim = 0; idim < ndim; idim++)
     dx[idim] = ext[idim] / ndisc[idim];
