@@ -37,10 +37,6 @@ install(
   DIRECTORY   ${INCLUDES}             # Install library headers (From binary directory)
   DESTINATION include/${PROJECT_NAME} # in DESTINATION/include/${PROJECT_NAME}
 )
-install(
-  DIRECTORY   ${PROJECT_SOURCE_DIR}/include/ # Install library headers (Keep the trailing slash)
-  DESTINATION include/${PROJECT_NAME}        # in DESTINATION/include/${PROJECT_NAME}
-)
 
 # Install the export file
 install(FILES ${PROJECT_BINARY_DIR}/${PROJECT_NAME}_export.hpp

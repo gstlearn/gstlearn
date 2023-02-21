@@ -12,7 +12,6 @@
 # C++ Library:
 #  - shared         Build gstlearn shared library
 #  - static         Build gstlearn static library
-#  - build_tests    Build non-regression tests executables
 #  - doxygen        Build doxygen documentation [optional]
 #  - install        Install gstlearn shared library [and html doxymentation]
 #  - uninstall      Uninstall gstlearn shared library [and html doxymentation]
@@ -30,6 +29,7 @@
 #  - r_upload       Build R package distribution and upload to CRAN-like [and its documentation] [TODO]
 #
 # Non-regression tests:
+#  - build_tests    Build non-regression tests executables
 #  - check_data     Execute non-regression tests (data)
 #  - check_cpp      Execute non-regression tests (cpp)
 #  - check_py       Execute non-regression tests (python)
