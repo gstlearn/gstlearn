@@ -663,7 +663,7 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
             if M > m:
                 sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
                 
-            name = name + '-' + name_size
+            name = name + ' ' + name_size
         else:
             sizval = s
     else:
@@ -1425,14 +1425,14 @@ def correlation(db, namex, namey, db2=None, usesel=True,
     
     range = None
     if flagSameAxes:
-        mini = min(xmin, ymin)
-        maxi = max(xmax, ymax)
-        range = [[mini,maxi],[mini,maxi]]
-        ax.geometry(xlim=[mini, maxi], ylim=[mini, maxi])
+        xmin = ymin = min(xmin, ymin)
+        xmax = ymax = max(xmax, ymax)
+        ax.geometry(xlim=[xmin, xmax], ylim=[ymin, ymax])
 
     if asPoint:
         ax.scatter(tabx, taby, **kwargs)
     else:
+        range = [[xmin,xmax],[ymin,ymax]]
         ax.hist2d(tabx, taby, range=range, **kwargs)
 
     if diagLine:

@@ -47,13 +47,13 @@ File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 7
 Maximum Number of UIDs       = 7
-Total number of samples      = 1156
+Total number of samples      = 1089
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
+Origin :      0.010     0.010
 Mesh   :      0.030     0.030
-Number :         34        34
+Number :         33        33
 
 Variables
 ---------
@@ -83,19 +83,19 @@ File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 7
 Maximum Number of UIDs       = 7
-Total number of samples      = 10404
+Total number of samples      = 9409
 
 Grid characteristics:
 ---------------------
-Origin :     -0.010    -0.010
+Origin :      0.010     0.010
 Mesh   :      0.010     0.010
-Number :        102       102
+Number :         97        97
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = rank - Locator = NA
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Bidon1 - Locator = NA
 Column = 4 - Name = Simu - Locator = z1
 Column = 5 - Name = Bidon2-1 - Locator = NA

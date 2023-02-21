@@ -59,7 +59,7 @@ Temperature      2.815
 ----
                  MEAN
 OK.Temperature.esterr     -0.041
-OK.Temperature.stderr     -7.934
+OK.Temperature.stderr     -0.044
  ----
 
 
@@ -87,7 +87,7 @@ OK.Temperature.stdev      0.460
 ----
                  MEAN
 UK.Temperature.esterr     -0.352
-UK.Temperature.stderr     -8.056
+UK.Temperature.stderr     -0.499
  ----
 
 
@@ -146,7 +146,7 @@ decoration() cannot be used when 'ax' is an array. Ignored
 ----
                  MEAN
 COK.Temperature.esterr     -0.407
-COK.Temperature.stderr     -8.735
+COK.Temperature.stderr     -0.515
  ----
 
 
@@ -245,7 +245,7 @@ KR.Temperature.estim       1.445
 ----
                  MEAN
 KED.Temperature.esterr     -0.009
-KED.Temperature.stderr     -7.569
+KED.Temperature.stderr     -0.011
  ----
 
 

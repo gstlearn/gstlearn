@@ -189,7 +189,7 @@ cat("Connectivity for Simulation #1 :",isValid,"\n")
 
 This operation provides the probability that each pixel belongs to the Target Facies, calculated over all simulations that fulfill the Connectivity Constraint. 
 
-```{r Probability}
+```{r Select_valid_simulation_outcomes}
 nb.valid = 0
 for (i in 1:nbsimu)
 {
@@ -216,9 +216,9 @@ cat("Number of valid simulations =", nb.valid, "out of", nbsimu, "\n")
 
 Derive the Probability Map
 
-```{r}
+```{r Probability}
 err = grid$statistics(c("SimuPGS*"),
-                      EStatOption_fromKey(c("MEAN")), flagStoreInDb=TRUE)
+                      EStatOption_fromKeys(c("MEAN")), flagStoreInDb=TRUE)
 ```
 
 Display

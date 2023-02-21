@@ -1442,8 +1442,8 @@ void KrigingSystem::_estimateCalcul(int status)
       {
         if (_xvalidEstim)
         {
-          estim = (FFFF(valdat)) ? TEST : estim - valdat;
-          _dbout->setArray(_iechOut, _iptrEst + ivarCL, estim);
+          double estloc = (FFFF(valdat)) ? TEST : estim - valdat;
+          _dbout->setArray(_iechOut, _iptrEst + ivarCL, estloc);
         }
       }
 
@@ -1601,8 +1601,9 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 
     if (_flagEst)
     {
-      if (_xvalidEstim) valest -= valdat;
-      _dbin->setArray(iech, _iptrEst, valest);
+      double valloc = valest;
+      if (_xvalidEstim) valloc -= valdat;
+      _dbin->setArray(iech, _iptrEst, valloc);
     }
     if (_flagStd)
     {
