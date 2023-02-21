@@ -64,7 +64,7 @@ p = ggDefault(2)
 p = p + plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
               show.legend.raster=TRUE, legend.name.raster="ma Legende")
 p = p + plot.decoration(title="Display of Grid Cells")
-p
+ggPrint(p)
 ```
 
 Displaying the grid nodes only
@@ -73,9 +73,9 @@ Displaying the grid nodes only
 p = ggDefault(2)
 p = p + plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", 
                    show.legend.symbol = TRUE,
-                 legend.name.color="myColor")
+                   legend.name.color="myColor")
 p = p + plot.decoration(title="Display of Grid Nodes")
-p
+ggPrint(p)
 ```
 
 ## Rotated grid
@@ -92,7 +92,7 @@ Displaying the cell contents in the rotated grid
 p = ggDefault(2)
 p = p + plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
 p = p + plot.decoration(title="Display of Rotated Grid")
-p
+ggPrint(p)
 ```
 
 As a set of grid nodes
@@ -101,7 +101,7 @@ As a set of grid nodes
 p = ggDefault(2)
 p = p + plot.point(mygrid,name_color="Simu.1", show.legend.symbol = TRUE)
 p = p + plot.decoration(p, title="Display of Rotated Grid Nodes")
-p
+ggPrint(p)
 ```
 
 # Points and Polygon
@@ -127,7 +127,7 @@ p = p + plot(mygrid)
 p = p + plot(mypoly, fill=NA, colour='yellow', linewidth=1)
 p = p + plot(mypoint,color="black")
 p = p + plot.decoration(title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
-p
+ggPrint(p)
 ```
 
 # Several plots on the same figure
@@ -167,7 +167,7 @@ ggplot() + plot(model)
 p = ggDefault(1)
 p = p + plot(vario, draw_psize=-1, color="red")
 p = p + plot.decoration(title="First Variable - First Direction")
-p
+ggPrint(p)
 ```
 
 We display the experimental variogram for the first variable in the second direction.
@@ -176,7 +176,7 @@ We display the experimental variogram for the first variable in the second direc
 p = ggDefault(1)
 p = p + plot(vario, idir=1)
 p = p + plot.decoration(title="First Variable - Second Direction")
-p
+ggPrint(p)
 ```
 
 We simply overlay the contents of the two previous plots.
@@ -186,7 +186,7 @@ p = ggDefault(1)
 p = p + plot(vario, color="black")
 p = p + plot(vario, idir=1, color='red')
 p = p + plot.decoration(title="First Variable - Two directions")
-p
+ggPrint(p)
 ```
 
 We display the cross-variogram between both variables along both directions.
@@ -195,7 +195,7 @@ We display the cross-variogram between both variables along both directions.
 p = ggDefault(1)
 p = p + plot(vario, ivar=1, jvar=0, idir=-1)
 p = p + plot.decoration(title="Cross-variogram - Two directions")
-p
+ggPrint(p)
 ```
 
 We display the simple and cross variograms in both calculation directions.
@@ -204,7 +204,7 @@ We display the simple and cross variograms in both calculation directions.
 p = ggDefault(1)
 p = p + plot(vario, ivar=-1, jvar=-1, idir=-1)
 p = p + labs(title="Simple and Cross Variograms in all directions")
-p
+ggPrint(p)
 ```
 
 We display the Model as calculated in the first direction of the variogram
@@ -213,7 +213,7 @@ We display the Model as calculated in the first direction of the variogram
 p = ggDefault(1)
 p = p + plot(model, ivar=1, jvar=1, vario=vario, idir=0)
 p = p + plot.decoration(title="Model for the Second Variable in First Direction")
-p
+ggPrint(p)
 ```
 
 We now represent all the simple and cross variograms together with the fitted models.
@@ -222,7 +222,7 @@ We now represent all the simple and cross variograms together with the fitted mo
 p = ggDefault(1)
 p = p + plot.varmod(vario, model)
 p = p + plot.decoration(title="All variograms in First Direction")
-p
+ggPrint(p)
 ```
 
 ```{r}

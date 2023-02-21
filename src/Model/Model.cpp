@@ -837,7 +837,6 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @param jvar   Rank of the second variable
  * @param codir  Vector of direction coefficients
  * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
- * @param addZero Add the zero distance location
  * @param asCov  Produce the result as a Covariance (rather than a Variogram)
  *
  * @return The array of variogram evaluated at discretized positions

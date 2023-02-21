@@ -90,10 +90,27 @@ get.colors <- function()
   c("blue", "red", "green", "brown", "orange", "purple", "yellow")
 }
 
+#'@title ggPrint
+#'@description Print the contents of a ggplot, possibly without warnings
+#'@param p Current contents of the ggplot()
+#'@param flag_suppress_warnings TRUE to suppress informational warnings
+ggPrint <- function(p, flag_suppress_warnings = TRUE)
+{
+  if (flag_suppress_warnings)
+    suppressWarnings(plot(p))
+  else
+    plot(p)
+  
+  invisible()
+}
+
 ggDefault <- function(mode = 1)
 {
   p <- ggplot()
   
+  if (mode == 1)
+    p <- p + plot.geometry(asp= plot.default_asp[mode])
+  else
   p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
       xlim=plot.default_xlim[[mode]], 
       ylim=plot.default_ylim[[mode]], 
@@ -173,7 +190,7 @@ plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
 }
 
 # Function for representing a Model
-plot.model <- function(model, ivar=0, jvar=0, codir=NA, vario=NA, idir=0, ...)
+plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
 {
   p = list()
   p = c(p, plot.varmod(vario=vario, model=model, ivar=ivar, jvar=jvar, idir=idir,
@@ -375,24 +392,26 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
         # Plotting the experimental variogram
         if (! isNotDef(vario) && draw_vario)
         {
-          if (! has_color) dots$color=cols[idir+1]
-          if (! has_linetype) dots$linetype = "dashed"
+          dotloc = dots
+          if (! has_color) dotloc$color=cols[idir+1]
+          if (! has_linetype) dotloc$linetype = "dashed"
           p = c(p, do.call(varioElem, c(list(vario=vario, ivar=ivar, jvar=jvar, idir=idir, 
                           var_color=var_color, var_linetype=var_linetype, var_size=var_size,
                           draw_variance=draw_variance, draw_psize=draw_psize, 
-                          draw_plabel=draw_plabel, label=label), dots)))
+                          draw_plabel=draw_plabel, label=label), dotloc)))
         }
         
         # Plotting the Model
         if (! isNotDef(model))
         {
-          if (! has_color) dots$color=cols[idir+1]
-          if (! has_linetype) dots$linetype = "solid"
-          if (! isNotDef(vario) && ! has_codir) dots$codir = vario$getCodirs(idir) 
+          dotloc = dots
+          if (! has_color) dotloc$color=cols[idir+1]
+          if (! has_linetype) dotloc$linetype = "solid"
+          if (! isNotDef(vario) && ! has_codir) dotloc$codir = vario$getCodirs(idir) 
           p = c(p, do.call(modelElem, c(list(model, ivar, jvar,  
                           nh = nh, hmax = hmax, asCov=asCov, flag_envelop=flag_envelop,
                           env_color = env_color, env_linetype = env_linetype, 
-                          env_size=env_size), dots)))
+                          env_size=env_size), dotloc)))
         }
         
         # Adding some decoration
@@ -552,7 +571,6 @@ pointLabel <- function(db, name, digit=2, ...)
 # Function for plotting a point data base, with optional color and size variables
 plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
     sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE,
-    color_label="black", nudge_y=0.1, digit_label=2,
     show.legend.symbol=FALSE, legend.name.color="P-Color",
     legend.name.size="P-Size",
     show.legend.label=FALSE, legend.name.label="P-Label", ...)
@@ -933,7 +951,7 @@ plot.mesh <- function(mesh,
 }
 
 setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
-setMethod("plot", signature(x="_p_DbGrid"), function(x,y=missing,...)  plot.grid(x,...))
+setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
 
 setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
 setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))

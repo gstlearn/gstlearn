@@ -3176,7 +3176,7 @@ String Db::_summaryVariables(void) const
 /**
  * Print statistics on the variable
  * @param cols List of Columns of target variable (all if empty)
- * @param mode 1 for basic statistics; 2 for clas statistics
+ * @param mode 1 for basic statistics; 2 for class statistics
  * @param maxNClass Maximum number of printed classes
  * @return
  */
