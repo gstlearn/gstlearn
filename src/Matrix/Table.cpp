@@ -66,6 +66,17 @@ Table* Table::create(int nrow, int ncol)
   return new Table(nrow, ncol);
 }
 
+Table* Table::createFromNames(const VectorString &rownames,
+                              const VectorString &colnames)
+{
+  int nrow = (int) rownames.size();
+  int ncol = (int) colnames.size();
+  Table* table = new Table(nrow, ncol);
+  table->setRowNames(rownames);
+  table->setColumnNames(colnames);
+  return table;
+}
+
 Table* Table::createFromNF(const String& neutralFilename, bool verbose)
 {
   Table* table = nullptr;

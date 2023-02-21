@@ -161,3 +161,9 @@ private:
   MatrixInt _rankQT;
   bool _flagOnlyZDefined;
 };
+
+GSTLEARN_EXPORT int dbSelectivity(Db *db,
+                                  const String &name,
+                                  const VectorDouble& zcuts,
+                                  const NamingConvention &namconv = NamingConvention(
+                                      "Selectivity"));

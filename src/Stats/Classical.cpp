@@ -2400,7 +2400,7 @@ int dbStatisticsInGridTool(Db *db,
 
       if (!db->isActive(iech)) continue;
       db->getCoordinatesInPlace(iech, coor);
-      if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0)) continue;
+      if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0, true)) continue;
       double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;
 

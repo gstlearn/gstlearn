@@ -39,6 +39,8 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Table* create(int nrow = 0, int ncol = 0);
+  static Table* createFromNames(const VectorString &rownames,
+                                const VectorString &colnames);
   static Table* createFromNF(const String& neutralFilename, bool verbose = true);
 
   VectorDouble getRange(int icol) const;

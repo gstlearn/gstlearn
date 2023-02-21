@@ -191,12 +191,6 @@ bool CalcAnamTransform::_check()
   {
     if (! _hasAnam(EAnam::HERMITIAN)) return false;
     if (! _hasInputVarDefined()) return false;
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    if (anam_hermite->getRCoef() != 1.)
-    {
-      messerr("The anamorphosis must be a Point anamorphosis");
-      return false;
-    }
     if (! _hasSelectivity()) return false;
     return true;
   }

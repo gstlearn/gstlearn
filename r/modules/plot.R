@@ -737,7 +737,7 @@ plot.hist <- function(db, name, usesel=TRUE, ...)
   df = data.frame(val)
   
   p <- c(p, geom_histogram(data=df, mapping=aes(x=val), na.rm=TRUE, ...))
-  p <- c(p, plot.decoration(title=name))
+  p <- c(p, plot.decoration(title=name, xlab="Value", ylab="Count"))
   p
 }
 
