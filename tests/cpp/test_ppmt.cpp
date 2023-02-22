@@ -63,7 +63,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display(&dbfmt);
 
   // Back-transform
-  (void) ppmt.gaussianToRaw(data, {"U*"}, NamingConvention("V"));
+  (void) ppmt.gaussianToRaw(data, {"U*"}, -1, NamingConvention("V"));
   dbfmt.setFlags(false, false, false, true, false, false, {"V*"});
   data->display(&dbfmt);
 
