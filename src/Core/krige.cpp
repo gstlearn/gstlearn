@@ -1094,6 +1094,7 @@ int krige_koption_manage(int mode,
     {
       case EKrigOpt::E_PONCTUAL:
       case EKrigOpt::E_DRIFT:
+      case EKrigOpt::E_DGM:
         break;
 
       case EKrigOpt::E_BLOCK:
@@ -1269,6 +1270,10 @@ void krige_rhs_print(int nvar,
 
       case EKrigOpt::E_DRIFT:
         message("Drift Estimation\n");
+        break;
+
+      case EKrigOpt::E_DGM:
+        message("DGM Estimation\n");
         break;
     }
   }

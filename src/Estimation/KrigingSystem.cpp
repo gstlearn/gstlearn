@@ -1014,6 +1014,12 @@ int KrigingSystem::_rhsCalcul()
         nscale = 1;
         _covtabInit();
         break;
+
+      case EKrigOpt::E_DGM:
+        nscale = 1;
+        _getDistance(-1, _nbgh[iech], d1);
+        _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
+        break;
     }
 
     /* Normalization */
@@ -1137,6 +1143,10 @@ void KrigingSystem::_rhsDump()
 
     case EKrigOpt::E_DRIFT:
       message("Drift Estimation\n");
+      break;
+
+    case EKrigOpt::E_DGM:
+      message("Discrete Gaussian Model\n");
       break;
   }
   message("\n");
@@ -1677,6 +1687,11 @@ void KrigingSystem::_variance0()
 
     case EKrigOpt::E_DRIFT:
       nscale = 1;
+      break;
+
+    case EKrigOpt::E_DGM:
+      nscale = 1;
+      _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
       break;
   }
 
@@ -2844,7 +2859,7 @@ bool KrigingSystem::_isCorrect()
   /* Checking cross-options */
   /**************************/
 
-  if (_flagDGM && _calcul != EKrigOpt::PONCTUAL)
+  if (_flagDGM && (_calcul == EKrigOpt::BLOCK || _calcul == EKrigOpt::DRIFT))
   {
     messerr("The DGM option is incompatible with 'Block' calculation option");
     return false;

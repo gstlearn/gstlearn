@@ -275,12 +275,17 @@ GSTLEARN_EXPORT void dbStatisticsVariablesByUID(Db *db,
                                                 double vmax = TEST);
 /**@}*/
 
+GSTLEARN_EXPORT int dbStatisticsInGridToolByUID(Db *db,
+                                                DbGrid *dbgrid,
+                                                const VectorInt &iuids,
+                                                const EStatOption &oper,
+                                                int radius,
+                                                int iptr0);
 GSTLEARN_EXPORT int dbStatisticsInGridTool(Db *db,
                                            DbGrid *dbgrid,
-                                           const VectorString& names,
+                                           const VectorString &names,
                                            const EStatOption &oper,
                                            int radius,
                                            int iptr0);
-
 
 #endif // SWIG

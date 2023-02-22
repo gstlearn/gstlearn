@@ -760,4 +760,24 @@ setMethod('[<-',  '_p_Table',               setTableitem)
     names(df) = names
     df
 }
+
+"Krigtest_Res_toTL" <- function(x)
+{
+	res = list(
+		ndim = x$ndim,
+		nvar = x$nvar,
+		nech = x$nech,
+	    neq  = x$neq,
+	    nrhs = x$nech,
+		nbgh = x$nbgh,
+	    xyz = matrix(x$xyz, ncol=x$ndim, nrow=x$nech, byrow=FALSE),
+	    data = x$data,
+	    lhs = matrix(x$lhs, nrow=x$neq, ncol=x$neq, byrow=FALSE),
+	    rhs = matrix(x$rhs, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
+	    wgt = matrix(x$wgt, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
+	    var = matrix(x$var, nrow=x$nvar, ncol=x$nvar, byrow=FALSE),
+	    zam = x$zam
+	    )
+	res
+}
 %}

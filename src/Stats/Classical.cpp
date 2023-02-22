@@ -2353,11 +2353,35 @@ int dbStatisticsInGridTool(Db *db,
                            int radius,
                            int iptr0)
 {
+  VectorInt iuids = db->getUIDs(names);
+  return dbStatisticsInGridToolByUID(db, dbgrid, iuids, oper, radius, iptr0);
+}
+
+/****************************************************************************/
+/*!
+ **  Calculates the monovariate statistics within cells of a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db for the points
+ ** \param[in]  dbgrid Db for the grid
+ ** \param[in]  iuids  Vector of UID for target variable
+ ** \param[in]  oper   A EStatOption item
+ ** \param[in]  radius Neighborhood radius
+ ** \param[in]  iptr0  Storage address (first variable)
+ **
+ *****************************************************************************/
+int dbStatisticsInGridToolByUID(Db *db,
+                                DbGrid *dbgrid,
+                                const VectorInt &iuids,
+                                const EStatOption &oper,
+                                int radius,
+                                int iptr0)
+{
   int iptm = -1;
   int iptn = -1;
   int nxyz = dbgrid->getSampleNumber();
   int ndim = dbgrid->getNDim();
-  VectorInt iuids = db->getUIDs(names);
   int nuid = (int) iuids.size();
   int count = (int) pow(2. * radius + 1., (double) ndim);
 
