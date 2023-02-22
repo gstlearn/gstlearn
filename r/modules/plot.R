@@ -111,10 +111,10 @@ ggDefault <- function(mode = 1)
   if (mode == 1)
     p <- p + plot.geometry(asp= plot.default_asp[mode])
   else
-  p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
-      xlim=plot.default_xlim[[mode]], 
-      ylim=plot.default_ylim[[mode]], 
-      asp=plot.default_asp[mode])
+    p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
+        xlim=plot.default_xlim[[mode]], 
+        ylim=plot.default_ylim[[mode]], 
+        asp=plot.default_asp[mode])
   p
 }
 
@@ -221,7 +221,7 @@ varioElem <- function(vario, ivar=0, jvar=0, idir=0,
     linetype="solid",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     draw_variance = TRUE, draw_post=TRUE, draw_psize = 0, 
-    draw_plabel = FALSE, label=NULL, ...)
+    draw_plabel = FALSE, label=NULL, flagLimits=TRUE, ...)
 {
   dots = list(...)
   p = list()
@@ -269,12 +269,14 @@ varioElem <- function(vario, ivar=0, jvar=0, idir=0,
     p = c(p, geom_hline(yintercept=vario$getVar(ivar,jvar), 
             color=var_color, linetype=var_linetype, size=var_size))
   
-  # Tuning the bounds of graphics
-  if (vario$drawOnlyPositiveX(ivar, jvar))
-    p = c(p, plot.geometry(xlim = c(0, NA)))
-  if (vario$drawOnlyPositiveY(ivar, jvar))
-    p = c(p, plot.geometry(ylim = c(0, NA)))
-  
+  # Tuning the bounds of graphics. This is optional in order to avoid multiple limit definitions
+  if (flagLimits)
+  {
+    if (vario$drawOnlyPositiveX(ivar, jvar))
+      p = c(p, plot.geometry(xlim = c(0, NA)))
+    if (vario$drawOnlyPositiveY(ivar, jvar))
+      p = c(p, plot.geometry(ylim = c(0, NA)))
+  }
   p
 }
 
@@ -398,7 +400,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
           p = c(p, do.call(varioElem, c(list(vario=vario, ivar=ivar, jvar=jvar, idir=idir, 
                           var_color=var_color, var_linetype=var_linetype, var_size=var_size,
                           draw_variance=draw_variance, draw_psize=draw_psize, 
-                          draw_plabel=draw_plabel, label=label), dotloc)))
+                          draw_plabel=draw_plabel, label=label, flagLimits=FALSE), dotloc)))
         }
         
         # Plotting the Model
