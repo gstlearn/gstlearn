@@ -163,7 +163,7 @@ err = kriging(dat, target, fitmod, unique_neigh,
 ```{r Estimation_Ordinary_Kriging_plot, echo=FALSE}
 p = ggDefault(2)
 p = p + plot(target, "OK*estim")
-p = p + plot(dat, name_size="Temperature", reduction = 200)
+p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature - Ordinary Kriging")
 ggPrint(p)
 ```
@@ -290,10 +290,7 @@ err = fitmod2var$fit(varioexp2var,
 ```
 
 ```{r}
-p = ggplot()
-p = p + plot.varmod(varioexp2var, fitmod2var)
-p = p + plot.decoration(title="Temperature (°C) and Elevation")
-ggPrint(p)
+multi.varmod(varioexp2var, fitmod2var)
 ```
 
 ## Cokriging with elevation - Cross-Validation
