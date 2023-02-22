@@ -1404,3 +1404,10 @@ VectorInt DbGrid::locateDataInGrid(const DbGrid *grid,
   }
   return rankOut;
 }
+
+bool DbGrid::hasSingleBlock() const
+{
+  for (int idim = 0; idim < getNDim(); idim++)
+    if (getNX(idim) == 1) return true;
+  return false;
+}

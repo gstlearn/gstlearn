@@ -203,7 +203,7 @@ We display the simple and cross variograms in both calculation directions.
 ```{r}
 p = ggDefault(1)
 p = p + plot(vario, ivar=-1, jvar=-1, idir=-1)
-p = p + labs(title="Simple and Cross Variograms in all directions")
+p = p + plot.decoration(title="Simple and Cross Variograms in all directions")
 ggPrint(p)
 ```
 

@@ -642,7 +642,7 @@ gridRaster <- function(dbgrid, name, usesel = TRUE, ...)
   df = readGridCoor(dbgrid, name, usesel)
   
   # Define the contents
-  if (dbgrid$getAngles()[1] == 0)
+  if (dbgrid$getAngles()[1] == 0 && ! dbgrid$hasSingleBlock())
   {
     layer <- geom_tile(data = df, mapping=aes(x = x, y = y, fill = data), ...)
   }
