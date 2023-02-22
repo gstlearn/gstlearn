@@ -17,6 +17,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
 # Look for SWIG 4 [No need for customized swig]
 find_package(SWIG 4.0 REQUIRED)
+message(STATUS "Found SWIG: " ${SWIG_EXECUTABLE} " (found version \"" ${SWIG_VERSION} "\")")
 include(${SWIG_USE_FILE})
 
 # Look for pybind11

@@ -19,7 +19,7 @@ set(TEST_SOURCES ${DEMO_SOURCES})
 list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(TEST_SOURCES 
-#    ../../doc/demo/r/Hermite.Rmd)
+#    ../../doc/demo/r/Tuto_2D.Rmd)
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)

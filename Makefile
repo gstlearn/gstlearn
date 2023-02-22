@@ -29,12 +29,12 @@
 #  - r_upload       Build R package distribution and upload to CRAN-like [and its documentation] [TODO]
 #
 # Non-regression tests:
-#  - build_tests    Build non-regression tests executables
+#  - build_tests    Build non-regression tests C++ executables
 #  - check_data     Execute non-regression tests (data)
-#  - check_cpp      Execute non-regression tests (cpp)
+#  - check_cpp      Execute non-regression tests (C++)
 #  - check_py       Execute non-regression tests (python)
 #  - check_r        Execute non-regression tests (R)
-#  - check          Execute non-regression tests (data + cpp + python + R)
+#  - check          Execute non-regression tests (data + C++ + python + R)
 
 # Demonstration scripts:
 #  - check_ipynb    Execute demonstration scripts (jupyter notebooks)

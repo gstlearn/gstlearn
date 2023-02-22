@@ -35,6 +35,7 @@ static char DEL_COM = '#';
 static char DEL_SEP = ' ';
 static char DEL_BLK = ' ';
 
+// TODO : No more char* and printf ! Use std::string and iostream
 static void st_print(const char *string);
 static void st_read(const char*, char*);
 static void st_exit(void);

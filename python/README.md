@@ -79,7 +79,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11-global* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *scikits-sparse*, *pybind11-global* and *matplotlib* modules installed
 * *pypandoc*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
@@ -100,7 +100,7 @@ sudo apt install python3-pip
 sudo apt install swig
 sudo apt install jupyter
 python3 -m ensurepip --upgrade # [may be not needed]
-python3 -m pip install pybind11-global numpy pandas scipy matplotlib
+python3 -m pip install pybind11-global numpy pandas scipy scikits-sparse matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -114,7 +114,7 @@ python3 -m pip install pypandoc geopandas plotly jupyter
 brew install python3
 brew install swig
 python3 -m ensurepip --upgrade
-python3 -m pip install pybind11-global numpy pandas scipy matplotlib
+python3 -m pip install pybind11-global numpy pandas scipy scikits-sparse matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -134,7 +134,7 @@ Notes:
 3. Finally, install additional Python modules by running following instructions in a command prompt:
 
 ````
-python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
+python -m pip install "pybind11[global]" numpy pandas scipy scikits-sparse matplotlib
 python -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -251,5 +251,5 @@ Note : You may need to directly modify your *site-packages* folder by:
 
 ## License
 
-BSD
-2022 Team gstlearn
+New BSD
+2023 Team gstlearn

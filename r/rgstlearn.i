@@ -382,23 +382,63 @@
 
 %{
   #include <stdio.h>
+  #include <string>
   
   #include <R_ext/Print.h>
   #include <R_ext/Error.h>
+  
+  // https://stackoverflow.com/a/70586898
+  void replace_all(std::string& s,
+                   const std::string& toReplace,
+                   const std::string& replaceWith)
+  {
+    std::string buf;
+    std::size_t pos = 0;
+    std::size_t prevPos;
+
+    // Reserves rough estimate of final size of string.
+    buf.reserve(s.size());
+
+    while (true)
+    {
+      prevPos = pos;
+      pos = s.find(toReplace, pos);
+      if (pos == std::string::npos)
+        break;
+      buf.append(s, prevPos, pos - prevPos);
+      buf += replaceWith;
+      pos += toReplace.size();
+    }
+
+    buf.append(s, prevPos, s.size() - prevPos);
+    s.swap(buf);
+  }
+
+  // Use std::string for find/replace (because char* is annoying)
+  // TODO : See io.cpp (do not use const char* anymore in message function)
+  // https://stackoverflow.com/questions/779875/what-function-is-to-replace-a-substring-from-a-string-in-c
+  const char* escape(std::string& str)
+  {
+    replace_all(str, "%", "%%");
+    return str.c_str();
+  }
   
   void R_Write(const char *string)
   {
     if (string == NULL) return;
     int length = strlen(string);
-    if (length > 0) Rprintf(string);
+    if (length > 0)
+    {
+      std::string str(string);
+      Rprintf(escape(str));
+    }
   }
   
   void R_Warning(const char *string)
   {
-    if (string == NULL) return;
-    int length = strlen(string);
-    if (length > 0) Rprintf(string);
+    R_Write(string);
   }
+  
   #ifndef _WIN32
   #define R_INTERFACE_PTRS 1
   #include <Rinterface.h>

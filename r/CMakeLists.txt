@@ -20,8 +20,7 @@ endif()
 #find_package(SWIG 4.2.0 REQUIRED)
 # Look for SWIG 4.0.2
 find_package(SWIG 4.0 REQUIRED)
-
-
+message(STATUS "Found SWIG: " ${SWIG_EXECUTABLE} " (found version \"" ${SWIG_VERSION} "\")")
 include(${SWIG_USE_FILE})
 
 ######################################  
