@@ -51,13 +51,13 @@ knitr::kable(tab$toTL(), caption = "Statistics on the grid", digits=3)
 
 ```{r maps-elevation-1, echo=FALSE}
 plot.setDefault(1, dims=c(8,8))
-plot(dat, name_color="Elevation")
+ggDefault(2) + plot(dat, name_color="Elevation")
 ```
 
 ## Map of the elevations on Grid
 
 ```{r maps-elevation-2, echo=FALSE}
-plot(target, name_raster="Elevation")
+ggDefault(2) + plot(target, name_raster="Elevation")
 ```
 
 ## Temperature vs. Elevation
@@ -66,9 +66,11 @@ plot(target, name_raster="Elevation")
 
 ```{r temp_vs_ele, echo=FALSE}
 
-p = plot.correlation(dat, name1="Elevation", name2="Temperature", 
+p = ggplot()
+p = p + plot.correlation(dat, name1="Elevation", name2="Temperature", 
                      asPoint=TRUE, flagRegr=TRUE)
-plot.decoration(p, title="Correlation between Temperature and Elevation")
+p = p + plot.decoration(title="Correlation between Temperature and Elevation")
+ggPrint(p)
 ```
 
 ## Temperature vs. Elevation (statistiques)
@@ -99,9 +101,11 @@ err = model$setDriftIRF(1)
 vario_res2dir = Vario(varioparam, dat)
 err = vario_res2dir$compute(model=model)
 
-p = plot(vario_raw2dir, linetype="solid")
-p = plot(vario_res2dir, linetype="dashed", padd=p)
-plot.decoration(p, title="Temperature (°C)") 
+p = ggplot()
+p = p + plot(vario_raw2dir, linetype="solid")
+p = p + plot(vario_res2dir, linetype="dashed")
+p = p + plot.decoration(title="Temperature (°C)") 
+ggPrint(p)
 ```
 
 ## Global Trend
@@ -123,8 +127,10 @@ fitmod = Model()
 err = fitmod$fit(vario_raw2dir,
                  types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC")))
 
-p = plot.varmod(vario_raw2dir, fitmod)
-plot.decoration(p,title="Temperature (°C)")
+p = ggplot()
+p = p + plot.varmod(vario_raw2dir, fitmod)
+p = p + plot.decoration(title="Temperature (°C)")
+ggPrint(p)
 ```
 
 
@@ -155,9 +161,11 @@ err = kriging(dat, target, fitmod, unique_neigh,
 ```
 
 ```{r Estimation_Ordinary_Kriging_plot, echo=FALSE}
-p = plot(target, "OK*estim")
-p = plot(dat, name_size="Temperature", reduction = 200, ,padd=p)
-plot.decoration(p, title="Temperature - Ordinary Kriging")
+p = ggDefault(2)
+p = p + plot(target, "OK*estim")
+p = p + plot(dat, name_size="Temperature", reduction = 200)
+p = p + plot.decoration(title="Temperature - Ordinary Kriging")
+ggPrint(p)
 ```
 
 ## Ordinary Kriging - Statistics
@@ -178,7 +186,6 @@ knitr::kable(tab$toTL(), digits=3,
 \footnotesize
 
 ```{r Fitting_Residuals}
-
 fitmodUK = Model()
 err = fitmodUK$fit(vario_res2dir,
                    types=ECov_fromKeys(c("SPHERICAL")),
@@ -187,8 +194,10 @@ err = fitmodUK$fit(vario_res2dir,
 
 
 ```{r}
-p = plot.varmod(vario_res2dir, fitmodUK)
-plot.decoration(p, title="Temperature (°C)")
+p = ggplot()
+p = p + plot.varmod(vario_res2dir, fitmodUK)
+p = p + plot.decoration(title="Temperature (°C)")
+ggPrint(p)
 ```
 
 Note that the residuals seem isotropic, hence use isotropic option for Fitting.
@@ -221,9 +230,11 @@ err = kriging(dat, target, fitmodUK, unique_neigh,
 ```
  
 ```{r Universal_Kriging_stat, echo = FALSE}
-p = plot(target, "UK*estim")
-p = plot(dat, name_size="Temperature", padd=p)
-plot.decoration(p, title="Temperature - Universal Kriging")
+p = ggDefault(2)
+p = p + plot(target, "UK*estim")
+p = p + plot(dat, name_size="Temperature")
+p = p + plot.decoration(title="Temperature - Universal Kriging")
+ggPrint(p)
 ```
 
 ## Universal Kriging - Statistics
@@ -242,8 +253,10 @@ knitr::kable(tab$toTL(), caption= "Statistics on the Universal Kriging",
 \scriptsize
 
 ```{r Comparing_Ordinary_and_Universal_Krigings, results="hide"}
-p = plot.correlation(target, "OK*estim", "UK*estim", flagDiag=TRUE, bins=100)
-plot.decoration(p, xlab="Ordinary Kriging",ylab="Universal Kriging")
+p = ggplot()
+p = p + plot.correlation(target, "OK*estim", "UK*estim", flagDiag=TRUE, bins=100)
+p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Universal Kriging")
+ggPrint(p)
 ```
 
 
@@ -252,7 +265,7 @@ plot.decoration(p, xlab="Ordinary Kriging",ylab="Universal Kriging")
 \scriptsize
 
 ```{r Correlation_of_Temperature_and_Elevation}
-plot.correlation(dat,"Elevation","Temperature",flagRegr=TRUE,asPoint=TRUE)
+ggplot() + plot.correlation(dat,"Elevation","Temperature",flagRegr=TRUE,asPoint=TRUE)
 ```
 
 ## Comparing Temperature and Elevation
@@ -277,8 +290,10 @@ err = fitmod2var$fit(varioexp2var,
 ```
 
 ```{r}
-p = plot.varmod(varioexp2var, fitmod2var)
-plot.decoration(p, title="Temperature (°C) and Elevation")
+p = ggplot()
+p = p + plot.varmod(varioexp2var, fitmod2var)
+p = p + plot.decoration(title="Temperature (°C) and Elevation")
+ggPrint(p)
 ```
 
 ## Cokriging with elevation - Cross-Validation
@@ -316,9 +331,11 @@ err = kriging(dat, target, fitmod2var, unique_neigh,
 ```
 
 ```{r Cokriging_plot, echo=FALSE}
-p = plot(target, "COK.T*estim")
-p = plot(dat, name_size="Temperature", padd=p)
-plot.decoration(p, title="Temperature - CoKriging (with Elevation)")
+p = ggDefault(2)
+p = p + plot(target, "COK.T*estim")
+p = p + plot(dat, name_size="Temperature")
+p = p + plot.decoration(title="Temperature - CoKriging (with Elevation)")
+ggPrint(p)
 ```
 
 ## Cokriging with elevation - Statistics
@@ -335,9 +352,11 @@ knitr::kable(tab$toTL(), caption= "Statistics on Cokriging", digits=3)
 \scriptsize
 
 ```{r Comparing_Kriging_and_CoKriging, results="hide", echo=FALSE}
-p = plot.correlation(target, "OK.T*estim", "COK.T*estim", 
+p = ggplot()
+p = p + plot.correlation(target, "OK.T*estim", "COK.T*estim", 
                      flagBiss=TRUE, bins=100)
-plot.decoration(p, xlab="Ordinary Kriging",ylab="Ordinary CoKriging")
+p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Ordinary CoKriging")
+ggPrint(p)
 
 tab = dbStatisticsMonoT(target, c("COK.T*estim", "OK.T*estim"), opers=opers)
 knitr::kable(tab$toTL(), 
@@ -375,7 +394,7 @@ knitr::kable(tab$toTL(), caption= "Statistics on the residual", digits=3)
 \scriptsize
 
 ```{r residual_correlation, echo=TRUE}
-plot.correlation(dat,"Elevation","Regr*",flagRegr=TRUE,asPoint=TRUE)
+ggplot() + plot.correlation(dat,"Elevation","Regr*",flagRegr=TRUE,asPoint=TRUE)
 ```
 
 ## Kriging the residuals - Variogram of the residual
@@ -392,8 +411,10 @@ err = fitmodR$fit(varioexpR,
 ```
 
 ```{r}
-p = plot.varmod(varioexpR, fitmodR)
-plot.decoration(p, title="Temperature Residual")
+p = ggplot()
+p = p + plot.varmod(varioexpR, fitmodR)
+p = p + plot.decoration(title="Temperature Residual")
+ggPrint(p)
 ```
 
 ## Kriging the residuals - Variogram of the residual
@@ -406,9 +427,11 @@ err = kriging(dat, target, fitmodR, unique_neigh,
 ```
 
 ```{r residual_kriging_plot, echo=FALSE}
-p = plot(target, "ROK.Regr*estim")
-p = plot(dat, name_size="Temperature", padd=p)
-plot.decoration(p, title="Temperature Residuals")
+p = ggDefault(2)
+p = p + plot(target, "ROK.Regr*estim")
+p = p + plot(dat, name_size="Temperature")
+p = p + plot.decoration(title="Temperature Residuals")
+ggPrint(p)
 ```
 
 ## Kriging the residuals - Computing the estimate
@@ -425,9 +448,11 @@ uid = target$addColumns(ROK_estim,"KR.Temperature.estim")
 ```
 
 ```{r residual_estimate_plot, echo=FALSE}
-p = plot(target,"KR.T*estim")
-p = plot(dat, name_size="Temperature", padd=p)
-plot.decoration(p, title="Temperature with Residuals")
+p = ggDefault(2)
+p = p + plot(target,"KR.T*estim")
+p = p + plot(dat, name_size="Temperature")
+p = p + plot.decoration(title="Temperature with Residuals")
+ggPrint(p)
 ```
 
 ## Kriging the residuals - Correlation
@@ -437,9 +462,11 @@ Correlation between Ordinary Kriging and CoKriging
 \scriptsize
 
 ```{r residual_estimate_corr, echo=FALSE}
-p = plot.correlation(target, "OK.T*estim", "COK.T*estim", flagBiss=TRUE,
+p = ggplot()
+p = p + plot.correlation(target, "OK.T*estim", "COK.T*estim", flagBiss=TRUE,
                      bins=100)
-plot.decoration(p, xlab="Ordinary Kriging", ylab="Ordinary CoKriging")
+p = p + plot.decoration(xlab="Ordinary Kriging", ylab="Ordinary CoKriging")
+ggPrint(p)
 ```
 
 ## Kriging the residuals - Correlation
@@ -449,9 +476,11 @@ Correlation between Ordinary Kriging and Kriging with Residuals
 \scriptsize
 
 ```{r residual_estimate_corr2, echo=FALSE}
-p = plot.correlation(target, "OK.T*estim", "KR.T*estim", flagBiss=TRUE,
+p = ggplot()
+p = p + plot.correlation(target, "OK.T*estim", "KR.T*estim", flagBiss=TRUE,
                      bins=100)
-plot.decoration(p, xlab="Ordinary Kriging",ylab="Kriging with Residuals")
+p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Kriging with Residuals")
+ggPrint(p)
 ```
 
 ## Kriging the residuals - Correlation
@@ -500,9 +529,10 @@ err = varioKED$compute(model=model)
 ```
 
 ```{r Fitting_Variogram_of_Residuals_with_ED_fig, echo=FALSE}
-p = plot(vario_raw2dir)
-p = plot(varioKED, padd=p)
-p
+p = ggplot()
+p = p + plot(vario_raw2dir)
+p = p + plot(varioKED)
+ggPrint(p)
 ```
 
 ## Model of Residuals (External Drift)
@@ -515,7 +545,7 @@ err = modelKED$fit(varioKED,
                    types=ECov_fromKeys(c("NUGGET","CUBIC","GAUSSIAN")))
 modelKED$setDriftIRF(order = 0, nfex = 1)
 
-plot.varmod(varioKED, modelKED)
+ggplot() + plot.varmod(varioKED, modelKED)
 ```
 
 ## Kriging with External Drift - Cross-Validation
@@ -545,9 +575,11 @@ err = kriging(dat, target, modelKED, unique_neigh,
 ```
 
 ```{r Kriging_with_External_Drift_plot, echo=FALSE}
-p = plot(target, "KED.T*estim")
-p = plot(dat, name_size="Temperature", padd=p)
-plot.decoration(p, title="Temperature with External Drift")
+p = ggDefault(2)
+p = p + plot(target, "KED.T*estim")
+p = p + plot(dat, name_size="Temperature")
+p = p + plot.decoration(title="Temperature with External Drift")
+ggPrint(p)
 ```
 
 ## Kriging with External Drift - Statistics
@@ -565,9 +597,11 @@ knitr::kable(tab$toTL(), digits=3,
 \scriptsize
 
 ```{r Comparing_Ordinary_Kriging_with_Kriging_with_External_Drift, results="hide", echo=FALSE}
-p = plot.correlation(target, "OK.T*estim", "KED.T*estim", flagBiss=TRUE,
+p = ggplot()
+p = p + plot.correlation(target, "OK.T*estim", "KED.T*estim", flagBiss=TRUE,
                      bins=100)
-plot.decoration(p, xlab="Ordinary Kriging", ylab="Kriging with External Drift")
+p = p + plot.decoration(xlab="Ordinary Kriging", ylab="Kriging with External Drift")
+ggPrint(p)
 ```
 
 Note that negative Estimates are present when using External Drift.

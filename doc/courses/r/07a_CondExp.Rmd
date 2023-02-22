@@ -39,8 +39,10 @@ grid = DbGrid_createFromNF(fileNF)
 \frametitle{Histogram of the raw variable (temperature)}
 
 ```{r Histogram}
-p = plot.hist(dat,"January*")
-plot.decoration(p, title="Temperatures")
+p = ggplot()
+p = p + plot.hist(dat,"January*")
+p = p + plot.decoration(title="Temperatures")
+ggPrint(p)
 ```
 
 ---
@@ -59,8 +61,10 @@ anam
 \frametitle{Gaussian scores}
 
 ```{r Gaussian_Score_Plot}
-p = plot.XY(dat["Y.January_temp"], dat["January_temp"])
-plot.decoration(p, xlab="Gaussian", ylab="Raw")
+p = ggplot()
+p = p + plot.XY(dat["Y.January_temp"], dat["January_temp"])
+p = p + plot.decoration(xlab="Gaussian", ylab="Raw")
+ggPrint(p)
 ```
 
 ---
@@ -68,8 +72,10 @@ plot.decoration(p, xlab="Gaussian", ylab="Raw")
 \frametitle{Gaussian scores}
 
 ```{r Gaussian_Score_Histogram}
-p = plot.hist(dat,"Y.January*")
-plot.decoration(p, title="Temperatures (Gaussian scale)")
+p = ggplot()
+p = p + plot.hist(dat,"Y.January*")
+p = p + plot.decoration(title="Temperatures (Gaussian scale)")
+ggPrint(p)
 ```
 
 ---
@@ -89,7 +95,7 @@ err = fitmodgauss$fit(vario_gauss2dir,
 ```
 
 ```{r}
-plot.varmod(vario_gauss2dir, fitmodgauss)
+ggplot() + plot.varmod(vario_gauss2dir, fitmodgauss)
 ```
 
 ---
@@ -106,10 +112,11 @@ err = kriging(dat, grid, fitmodgauss, neighU)
 \framesubtitle{Estimation}
 
 ```{r}
-plot.setDefault(1, dims=c(8,8))
-p = plot(grid,"*estim")
-p = plot(dat, padd=p)
-plot.decoration(p, title="Kriging of Gaussian scores")
+p = ggDefault(2)
+p = p + plot(grid,"*estim")
+p = p + plot(dat)
+p = p + plot.decoration(title="Kriging of Gaussian scores")
+ggPrint(p)
 ```
 
 ---
@@ -118,9 +125,11 @@ plot.decoration(p, title="Kriging of Gaussian scores")
 \framesubtitle{Standard Deviation}
 
 ```{r Kriging_Gaussian_scores_stdev}
-p = plot(grid,"*stdev")
-p = plot(dat, padd=p, flagCst=TRUE)
-plot.decoration(p, title="St. Dev. of Gaussian scores")
+p = ggDefault(2)
+p = p + plot(grid,"*stdev")
+p = p + plot(dat, flagCst=TRUE)
+p = p + plot.decoration(title="St. Dev. of Gaussian scores")
+ggPrint(p)
 ```
 
 ---
@@ -141,9 +150,11 @@ err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
 \frametitle{Conditional expectation}
 
 ```{r Display_Conditional_Expectation}
-p = plot(grid,"CE*estim")
-p = plot(dat, padd=p)
-plot.decoration(p, title = "Conditional Expectation")
+p = ggDefault(2)
+p = p + plot(grid,"CE*estim")
+p = p + plot(dat)
+p = p + plot.decoration(title = "Conditional Expectation")
+ggPrint(p)
 ```
 
 ---
@@ -151,9 +162,11 @@ plot.decoration(p, title = "Conditional Expectation")
 \frametitle{Conditional Standard Deviation}
 
 ```{r Conditional_Standard_Deviation}
-p = plot(grid, "CE*stdev")
-p = plot(dat, padd=p, flagCst=TRUE)
-plot.decoration(p, title="Conditional Standard Deviation")
+p = ggDefault(2)
+p = p + plot(grid, "CE*stdev")
+p = p + plot(dat, flagCst=TRUE)
+p = p + plot.decoration(title="Conditional Standard Deviation")
+ggPrint(p)
 ```
 
 ---
@@ -171,10 +184,11 @@ err = ConditionalExpectation(grid, anam, selectivity,
 
 
 ```{r}
-p = plot(grid,"CE.Proba*estim")
-p = plot(dat, padd=p)
-plot.decoration(p, title = "Conditional Probability below 0")
-
+p = ggDefault(2)
+p = p + plot(grid,"CE.Proba*estim")
+p = p + plot(dat)
+p = p + plot.decoration(title = "Conditional Probability below 0")
+ggPrint(p)
 ```
 
 ---
@@ -196,9 +210,11 @@ err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
 \framesubtitle{Estimation}
 
 ```{r}
-p = plot(grid,"CE.T*estim-1")
-p = plot(dat, padd=p)
-plot.decoration(p, title = "Conditional Probability above 1")
+p = ggDefault(2)
+p = p + plot(grid,"CE.T*estim-1")
+p = p + plot(dat)
+p = p + plot.decoration(title = "Conditional Probability above 1")
+ggPrint(p)
 ```
 
 ---
@@ -207,9 +223,11 @@ plot.decoration(p, title = "Conditional Probability above 1")
 \framesubtitle{Standard Deviation}
 
 ```{r Final_Histogram}
-p = plot(grid, "CE.T*stdev-1")
-p = plot(dat, padd=p, flagCst=TRUE)
-plot.decoration(p,title = "Conditional probability (Standard Deviation)")
+p = ggDefault(2)
+p = p + plot(grid, "CE.T*stdev-1")
+p = p + plot(dat, flagCst=TRUE)
+p = p + plot.decoration(title = "Conditional probability (Standard Deviation)")
+ggPrint(p)
 ```
 
 

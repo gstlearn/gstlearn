@@ -78,7 +78,7 @@ grid$display(dbfmt)
 \frametitle{Correlation between Cr and P}
 
 ```{r Correlation_Cr_P,results="hide"}
-plot.correlation(grid,"Cr","P", bins=100)
+ggplot() + plot.correlation(grid,"Cr","P", bins=100)
 ```
 
 ---
@@ -86,7 +86,7 @@ plot.correlation(grid,"Cr","P", bins=100)
 \frametitle{Correlation between Ni and P}
 
 ```{r Correlation_Ni_P,results="hide"}
-plot.correlation(grid,"Ni","P", bins=100)
+ggplot() + plot.correlation(grid,"Ni","P", bins=100)
 ```
 
 ---
@@ -94,7 +94,7 @@ plot.correlation(grid,"Ni","P", bins=100)
 \frametitle{Correlation between Ni and CR}
 
 ```{r Correlation_Ni_Cr,results="hide"}
-plot.correlation(grid,"Ni","Cr", bins=100)
+ggplot() + plot.correlation(grid,"Ni","Cr", bins=100)
 ```
 
 ---
@@ -115,8 +115,10 @@ We concentrate on the variable of interest **P** (completed) in the next operati
 \frametitle{Display P}
 
 ```{r Visualize_P}
-p = plot(grid)
-plot.decoration(p, title="P after completion")
+p = ggDefault(2)
+p = p + plot(grid)
+p = p + plot.decoration(title="P after completion")
+ggPrint(p)
 ```
 
 ---
@@ -146,7 +148,7 @@ modelP
 \frametitle{Variogram Model}
 
 ```{r Variogram_Model_Plot}
-plot.varmod(varioP,modelP)
+ggplot() + plot.varmod(varioP,modelP)
 ```
 
 ---
@@ -177,8 +179,10 @@ err = krimage(grid,modelP,neigh,namconv=NamingConvention("Mono"))
 \frametitle{Monovariate Factorial Kriging Analysis}
 
 ```{r Visualize_P_after_FKA_monovariate}
-p = plot(grid, "Mono*.P")
-plot.decoration(p, title="P denoised (monovariate)")
+p = ggDefault(2)
+p = p + plot(grid, "Mono*.P")
+p = p + plot.decoration(title="P denoised (monovariate)")
+ggPrint(p)
 ```
 
 ---
@@ -188,8 +192,10 @@ plot.decoration(p, title="P denoised (monovariate)")
 Correlation for **P** variable between Initial image and its Filtered version (monovariate FKA)
 
 ```{r Correlation_P_denoised_monovariate}
-p = plot.correlation(grid,"Fill.P","Mono.Fill.P", bins=100)
-plot.decoration(p, xlab="P Filled",ylab="P Filtered")
+p = ggplot()
+p = p + plot.correlation(grid,"Fill.P","Mono.Fill.P", bins=100)
+p = p + plot.decoration(xlab="P Filled",ylab="P Filtered")
+ggPrint(p)
 ```
 
 ---
@@ -221,7 +227,7 @@ modelM
 \frametitle{Multivariate Model}
 
 ```{r Multivariate_Model_Plot}
-plot.varmod(varioM,modelM)
+multi.varmod(varioM,modelM)
 ```
 
 --- 
@@ -245,8 +251,10 @@ Note that, using the same **neigh** as in monovariate, the dimension of the Krig
 \frametitle{Multivariable Factorial Kriging Analysis}
 
 ```{r Visualize_P_after_FKA_multivariate}
-p = plot(grid,"Multi*.P", zlim=c(0,150))
-plot.decoration(p, title="P denoised (multivariate)")
+p = ggDefault(2)
+p = p + plot(grid,"Multi*.P", zlim=c(0,150))
+p = p + plot.decoration(title="P denoised (multivariate)")
+ggPrint(p)
 ```
 
 ---
@@ -256,14 +264,18 @@ plot.decoration(p, title="P denoised (multivariate)")
 Correlation for **P** variable between Initial image and its Filtered version (multivariate FKA)
 
 ```{r Correlation_P_denoised_multivariate}
-p = plot.correlation(grid,"Fill.P","Multi.Fill.P", bins=100)
-plot.decoration(p, xlab="P Filled",ylab="P Filtered (Multi)")
+p = ggplot()
+p = p + plot.correlation(grid,"Fill.P","Multi.Fill.P", bins=100)
+p = p + plot.decoration(xlab="P Filled",ylab="P Filtered (Multi)")
+ggPrint(p)
 ```
 
 Correlation for **P** filtered variable between the Monovariate and the Multivariate case
 
 ```{r}
-p = plot.correlation(grid, "Mono.Fill.P", "Multi.Fill.P", bins=100)
-plot.decoration(p, xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
+p = ggplot()
+p = p + plot.correlation(grid, "Mono.Fill.P", "Multi.Fill.P", bins=100)
+p = p + plot.decoration(xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
+ggPrint(p)
 ```
 

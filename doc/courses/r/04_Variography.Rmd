@@ -59,9 +59,10 @@ where $N(h)$ is the number of pairs of points distant by $h$
 varioParamOmni = VarioParam_createOmniDirection(npas = 100)
 grid.cloud = db_variogram_cloud(dat, varioParamOmni)
 grid.cloud$display()
-p = plot.grid(grid.cloud, "Cloud.January*")
-p = plot.geometry(p, asp=0)
-p
+p = ggplot()
+p = p + plot.grid(grid.cloud, "Cloud.January*")
+p = p + plot.geometry(asp=0)
+ggPrint(p)
 ```
 
 ---
@@ -89,7 +90,7 @@ varioexp
 Plot the omni-directional variogram
 
 ```{r Plot_Experimental_Variogram}
-plot.varmod(varioexp)
+ggplot() + plot.varmod(varioexp)
 ```
 
 ---
@@ -97,7 +98,7 @@ plot.varmod(varioexp)
 \frametitle {Experimental Variogram}
 
 ```{r Plot_Experimental_Variogram_continued}
-plot.varmod(varioexp,draw_psize=TRUE)
+ggplot() + plot.varmod(varioexp,draw_psize=TRUE)
 ```
 
 ---
@@ -107,7 +108,7 @@ plot.varmod(varioexp,draw_psize=TRUE)
 ```{r Variogram_Model}
 fitmod = Model()
 err = fitmod$fit(varioexp)
-plot.varmod(varioexp, fitmod)
+ggplot() + plot.varmod(varioexp, fitmod)
 ```
 
 ---
@@ -133,7 +134,7 @@ ECov_printAll()
 ```{r Model_Fitting_List1}
 types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL"))
 err = fitmod$fit(varioexp, types=types)
-plot.varmod(varioexp, fitmod)
+ggplot() + plot.varmod(varioexp, fitmod)
 ```
 
 ---
@@ -153,7 +154,7 @@ constraints = Constraints()
 err = constraints$addItemFromParamId(EConsElem_RANGE(),icov=1,type=EConsType_UPPER(),value=20.)
 err = constraints$addItemFromParamId(EConsElem_SILL(),icov=1,type=EConsType_LOWER(),value=0.03)
 err = fitmod$fit(varioexp, types=types, constraints, Option_VarioFit(TRUE))
-plot.varmod(varioexp, fitmod)
+ggplot() + plot.varmod(varioexp, fitmod)
 ```
 
 ---
@@ -173,7 +174,7 @@ constraints = Constraints()
 err = constraints$addItemFromParamId(EConsElem_RANGE(),icov=1,type=EConsType_EQUAL(),value=1000.)
 err = constraints$addItemFromParamId(EConsElem_SILL(),icov=1,type=EConsType_EQUAL(),value=0.4)
 err = fitmod$fit(varioexp, types=types, constraints, Option_VarioFit(flag_noreduce=TRUE))
-plot.varmod(varioexp, fitmod)
+ggplot() + plot.varmod(varioexp, fitmod)
 ```
 
 ---
@@ -192,7 +193,7 @@ fitmod
 varioParamMulti = VarioParam_createMultiple(ndir=4, npas=15, dpas=15.)
 vario.4dir = Vario(varioParamMulti, dat)
 err = vario.4dir$compute()
-plot.varmod(vario.4dir)
+ggplot() + plot.varmod(vario.4dir)
 ```
 
 ---
@@ -202,7 +203,7 @@ plot.varmod(vario.4dir)
 ```{r Directional_Variograms_Fitting}
 model.4dir = Model()
 err = model.4dir$fit(vario.4dir,types=types)
-plot.varmod(vario.4dir, model.4dir)
+ggplot() + plot.varmod(vario.4dir, model.4dir)
 ```
 
 ---
@@ -211,7 +212,7 @@ plot.varmod(vario.4dir, model.4dir)
 
 ```{r Variogram_Map}
 grid.vmap = db_vmap_compute(dat, ECalcVario_VARIOGRAM())
-plot.grid(grid.vmap)
+ggplot() + plot.grid(grid.vmap)
 ```
 
 ---
@@ -230,7 +231,7 @@ modelVM
 
 ```{r Fitting_Variogram_Map_Draw}
 err = dbgrid_model(grid.vmap, modelVM)
-plot.grid(grid.vmap)
+ggplot() + plot.grid(grid.vmap)
 ```
 
 ---
@@ -239,6 +240,6 @@ plot.grid(grid.vmap)
 
 
 ```{r Compare_Directional_Variograms_and_Variogram_Map}
-plot.varmod(vario.4dir, modelVM)
+ggplot() + plot.varmod(vario.4dir, modelVM)
 ```
 

@@ -34,7 +34,6 @@ Defining some essential parameters:
 ```{r Parameters}
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim);
-
 nbsimu = 20
 nbcc   = 4
 cmap   = c('red', 'blue', 'yellow')
@@ -71,9 +70,11 @@ Defining the internal function **plot.dat** used to visualize the data set with 
 ```{r Internal_Function}
 # TODO: Utiliser CMAP
 plot.setDefault(1, dims=c(6,6))
-p = plot(data, name_color="facies", name_size="connect")
+p = ggDefault(2)
+p = p + plot(data, name_color="facies", name_size="connect")
 #         edgecolors='black', sizmin=40, cmap=cmap)
-plot.decoration(p, title="Conditioning Information")
+p = p + plot.decoration(title="Conditioning Information")
+ggPrint(p)
 ```
 
 ---
@@ -85,8 +86,10 @@ props = dbStatisticsFacies(data)
 rule = Rule_createFromNames(c("S","S","F1","F2","F3"))
 
 # TODO: utiliser cmap
-p = plot(rule, proportions = props, maxG=3)
-plot.decoration(p, title="Lithotype Rule")
+p = ggplot()
+p = p + plot(rule, proportions = props, maxG=3)
+p = p + plot.decoration(title="Lithotype Rule")
+ggPrint(p)
 ```
 
 ---
@@ -104,7 +107,7 @@ model_gaus = Model()
 err = model_gaus$fit(vario, types=ECov_fromKeys(c("CUBIC")), 
                      constraints=Constraints(1.))
 
-plot.varmod(vario, model_gaus, asCov=TRUE)
+ggplot() + plot.varmod(vario, model_gaus, asCov=TRUE)
 ```
 
 ---
@@ -119,14 +122,18 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 
 ```{r Show_several_simulation_outcome}
-p1 = plot(grid, "SimuPGS.1")
-p1 = plot(data, name_color="facies", name_size="connect", padd=p1)
-p2 = plot(grid, "SimuPGS.2")
-p2 = plot(data, name_color="facies", name_size="connect", padd=p2)
-p3 = plot(grid, "SimuPGS.3")
-p3 = plot(data, name_color="facies", name_size="connect", padd=p3)
-p4 = plot(grid, "SimuPGS.4")
-p4 = plot(data, name_color="facies", name_size="connect", padd=p4)
+p1 = ggDefault(2)
+p1 = p1 + plot(grid, "SimuPGS.1")
+p1 = p1 + plot(data, name_color="facies", name_size="connect")
+p2 = ggDefault(2)
+p2 = p2 + plot(grid, "SimuPGS.2")
+p2 = p2 + plot(data, name_color="facies", name_size="connect")
+p3 = ggDefault(2)
+p3 = p3 + plot(grid, "SimuPGS.3")
+p3 = p3 + plot(data, name_color="facies", name_size="connect")
+p4 = ggDefault(2)
+p4 = p4 + plot(grid, "SimuPGS.4")
+p4 = p4 + plot(data, name_color="facies", name_size="connect")
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
 ```
 
@@ -224,9 +231,10 @@ err = grid$statistics(c("SimuPGS*"),
 Display
 
 ```{r}
-p = plot(grid,"Stats.MEAN")
-p = plot(data,name_color="facies", name_size="connect", padd=p)
-plot.decoration(p, title="Probability of Connecting Wells")
-
+p = ggDefault(2)
+p = p + plot(grid,"Stats.MEAN")
+p = p + plot(data,name_color="facies", name_size="connect")
+p = p + plot.decoration(title="Probability of Connecting Wells")
+ggPrint(p)
 ```
 
