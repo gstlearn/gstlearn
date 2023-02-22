@@ -1,4 +1,200 @@
 NULL
+[[1]]
+$x
+$x[[1]]
+mapping: x = ~x, y = ~y, colour = ~colval, size = ~sizval 
+geom_point: na.rm = TRUE
+stat_identity: na.rm = TRUE
+position_identity 
+
+$x[[2]]
+<ScaleContinuous>
+ Range:  
+ Limits:    0 --    1
+
+$x[[3]]
+$colour
+[1] "P-Color"
+
+attr(,"class")
+[1] "labels"
+
+$x[[4]]
+$size
+[1] "P-Size"
+
+attr(,"class")
+[1] "labels"
+
+$x[[5]]
+$title
+[1] " facies connect"
+
+attr(,"class")
+[1] "labels"
+
+$x[[6]]
+List of 1
+ $ plot.title:List of 11
+  ..$ family       : NULL
+  ..$ face         : NULL
+  ..$ colour       : NULL
+  ..$ size         : NULL
+  ..$ hjust        : num 0.5
+  ..$ vjust        : NULL
+  ..$ angle        : NULL
+  ..$ lineheight   : NULL
+  ..$ margin       : NULL
+  ..$ debug        : NULL
+  ..$ inherit.blank: logi FALSE
+  ..- attr(*, "class")= chr [1:2] "element_text" "element"
+ - attr(*, "class")= chr [1:2] "theme" "gg"
+ - attr(*, "complete")= logi FALSE
+ - attr(*, "validate")= logi TRUE
+
+
+attr(,"class")
+[1] "labels"
+
+[[2]]
+$title
+[1] "Conditioning Information"
+
+attr(,"class")
+[1] "labels"
+
+[[3]]
+List of 1
+ $ plot.title:List of 11
+  ..$ family       : NULL
+  ..$ face         : NULL
+  ..$ colour       : NULL
+  ..$ size         : NULL
+  ..$ hjust        : num 0.5
+  ..$ vjust        : NULL
+  ..$ angle        : NULL
+  ..$ lineheight   : NULL
+  ..$ margin       : NULL
+  ..$ debug        : NULL
+  ..$ inherit.blank: logi FALSE
+  ..- attr(*, "class")= chr [1:2] "element_text" "element"
+ - attr(*, "class")= chr [1:2] "theme" "gg"
+ - attr(*, "complete")= logi FALSE
+ - attr(*, "validate")= logi TRUE
+
+[[1]]
+$x
+$x[[1]]
+mapping: xmin = ~xmin, xmax = ~xmax, ymin = ~ymin, ymax = ~ymax, fill = ~colors 
+geom_rect: linejoin = mitre, na.rm = TRUE
+stat_identity: na.rm = TRUE
+position_identity 
+
+$x[[2]]
+<ScaleContinuousPosition>
+ Range:  
+ Limits:   -3 --    3
+
+$x[[3]]
+<ScaleContinuousPosition>
+ Range:  
+ Limits:   -3 --    3
+
+
+attr(,"class")
+[1] "labels"
+
+[[2]]
+$title
+[1] "Lithotype Rule"
+
+attr(,"class")
+[1] "labels"
+
+[[3]]
+List of 1
+ $ plot.title:List of 11
+  ..$ family       : NULL
+  ..$ face         : NULL
+  ..$ colour       : NULL
+  ..$ size         : NULL
+  ..$ hjust        : num 0.5
+  ..$ vjust        : NULL
+  ..$ angle        : NULL
+  ..$ lineheight   : NULL
+  ..$ margin       : NULL
+  ..$ debug        : NULL
+  ..$ inherit.blank: logi FALSE
+  ..- attr(*, "class")= chr [1:2] "element_text" "element"
+ - attr(*, "class")= chr [1:2] "theme" "gg"
+ - attr(*, "complete")= logi FALSE
+ - attr(*, "validate")= logi TRUE
+
+[[1]]
+mapping: x = ~hh, y = ~gg 
+geom_line: na.rm = TRUE, orientation = NA
+stat_identity: na.rm = TRUE
+position_identity 
+
+[[2]]
+mapping: x = ~hh, y = ~gg 
+geom_point: na.rm = TRUE
+stat_identity: na.rm = TRUE
+position_identity 
+
+[[3]]
+mapping: xintercept = ~xintercept 
+geom_vline: na.rm = FALSE
+stat_identity: na.rm = FALSE
+position_identity 
+
+[[4]]
+mapping: yintercept = ~yintercept 
+geom_hline: na.rm = FALSE
+stat_identity: na.rm = FALSE
+position_identity 
+
+[[5]]
+mapping: yintercept = ~yintercept 
+geom_hline: na.rm = FALSE
+stat_identity: na.rm = FALSE
+position_identity 
+
+[[6]]
+<ScaleContinuousPosition>
+ Range:  
+ Limits:    0 --    1
+
+[[7]]
+mapping: x = ~hh, y = ~gg 
+geom_line: na.rm = TRUE, orientation = NA
+stat_identity: na.rm = TRUE
+position_identity 
+
+[[8]]
+$x
+[1] "Distance"
+
+attr(,"class")
+[1] "labels"
+
+[[9]]
+$y
+[1] "Variogram"
+
+attr(,"class")
+[1] "labels"
+
+[[10]]
+<ScaleContinuousPosition>
+ Range:  
+ Limits:    0 --    1
+
+[[11]]
+<ScaleContinuousPosition>
+ Range:  
+ Limits:    0 --    1
+
 Number of conditioning data (connected) = 4 
 Their ranks in the input Data Base = 4 12 15 16 
 Their ranks in the output Data Base = 6000 1270 6648 9712 
@@ -26,3 +222,86 @@ Simulation SimuPGS.18 is invalid
 Simulation SimuPGS.19 is valid
 Simulation SimuPGS.20 is invalid
 Number of valid simulations = 6 out of 20 
+[[1]]
+$x
+$x[[1]]
+mapping: x = ~x, y = ~y, colour = ~colval, size = ~sizval 
+geom_point: na.rm = TRUE
+stat_identity: na.rm = TRUE
+position_identity 
+
+$x[[2]]
+<ScaleContinuous>
+ Range:  
+ Limits:    0 --    1
+
+$x[[3]]
+$colour
+[1] "P-Color"
+
+attr(,"class")
+[1] "labels"
+
+$x[[4]]
+$size
+[1] "P-Size"
+
+attr(,"class")
+[1] "labels"
+
+$x[[5]]
+$title
+[1] " facies connect"
+
+attr(,"class")
+[1] "labels"
+
+$x[[6]]
+List of 1
+ $ plot.title:List of 11
+  ..$ family       : NULL
+  ..$ face         : NULL
+  ..$ colour       : NULL
+  ..$ size         : NULL
+  ..$ hjust        : num 0.5
+  ..$ vjust        : NULL
+  ..$ angle        : NULL
+  ..$ lineheight   : NULL
+  ..$ margin       : NULL
+  ..$ debug        : NULL
+  ..$ inherit.blank: logi FALSE
+  ..- attr(*, "class")= chr [1:2] "element_text" "element"
+ - attr(*, "class")= chr [1:2] "theme" "gg"
+ - attr(*, "complete")= logi FALSE
+ - attr(*, "validate")= logi TRUE
+
+
+attr(,"class")
+[1] "labels"
+
+[[2]]
+$title
+[1] "Probability of Connecting Wells"
+
+attr(,"class")
+[1] "labels"
+
+[[3]]
+List of 1
+ $ plot.title:List of 11
+  ..$ family       : NULL
+  ..$ face         : NULL
+  ..$ colour       : NULL
+  ..$ size         : NULL
+  ..$ hjust        : num 0.5
+  ..$ vjust        : NULL
+  ..$ angle        : NULL
+  ..$ lineheight   : NULL
+  ..$ margin       : NULL
+  ..$ debug        : NULL
+  ..$ inherit.blank: logi FALSE
+  ..- attr(*, "class")= chr [1:2] "element_text" "element"
+ - attr(*, "class")= chr [1:2] "theme" "gg"
+ - attr(*, "complete")= logi FALSE
+ - attr(*, "validate")= logi TRUE
+
