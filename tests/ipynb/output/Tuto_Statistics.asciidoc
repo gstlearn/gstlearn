@@ -67,7 +67,7 @@ Monovariate Statistics on Variables
 - Number of Rows    = 3
 - Number of Columns = 3
 
-                Count       Mean   St. Dev.
+               Number       Mean   St. Dev.
        SD1    100.000      0.161      1.028
        SD2    100.000     -0.293      1.020
        SD3    100.000      0.118      0.910----

@@ -55,7 +55,7 @@ fitmodOK = Model()
 types = ECov_fromKeys(c("NUGGET","EXPONENTIAL","GAUSSIAN"))
 err = fitmodOK$fit(vario2dir,types=types)
 err = fitmodOK$addDrift(Drift1())
-plot.varmod(vario2dir, fitmodOK)
+ggplot() + plot.varmod(vario2dir, fitmodOK)
 ```
 
 ---
@@ -104,9 +104,10 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging Estimation}
 
 ```{r Plot_Ordinary_Kriging}
-p = plot.grid(grid, legend.name.raster="°C", zlim=c(0,8))
-p = plot.decoration(p, title="Ordinary Kriging over whole Grid")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid, legend.name.raster="°C", zlim=c(0,8))
+p = p + plot.decoration(title="Ordinary Kriging over whole Grid")
+ggPrint(p)
 ```
 
 ---
@@ -137,10 +138,11 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging - Estimation}
 
 ```{r Ordinary_Kriging_Estimation}
-p = plot.grid(grid, "OK*estim", legend.name.raster="°C", zlim=c(0.,8.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
-p = plot.decoration(p, title="Estimation by Ordinary Kriging")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid, "OK*estim", legend.name.raster="°C", zlim=c(0.,8.))
+p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
+p = p + plot.decoration(title="Estimation by Ordinary Kriging")
+ggPrint(p)
 ```
 
 ---
@@ -148,10 +150,11 @@ p
 \frametitle{Ordinary Kriging - Standard Deviation}
 
 ```{r Ordinary_Kriging_St_Dev}
-p = plot.grid(grid,"OK*stdev", legend.name.raster="°C", zlim=c(0.,1.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
-p = plot.decoration(p, title="St. dev. by Ordinary Kriging")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"OK*stdev", legend.name.raster="°C", zlim=c(0.,1.))
+p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
+p = p + plot.decoration(title="St. dev. by Ordinary Kriging")
+ggPrint(p)
 ```
 
 --- 
@@ -179,10 +182,11 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
 \frametitle{Simple kriging - Estimation}
 
 ```{r Simple_Kriging_Estimation}
-p = plot.grid(grid,"SK*estim",legend.name.raster="°C", zlim=c(0.,8.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
-p = plot.decoration(p, title="Estimation by Simple Kriging")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"SK*estim",legend.name.raster="°C", zlim=c(0.,8.))
+p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
+p = p + plot.decoration(title="Estimation by Simple Kriging")
+ggPrint(p)
 ```
 
 ---
@@ -190,10 +194,11 @@ p
 \frametitle{Simple kriging - Standard Deviation}
 
 ```{r Simple_Kriging_St_Dev}
-p = plot.grid(grid,"SK*stdev",legend.name.raster="°C", zlim=c(0.,1.))
-p = plot.point(dat,name_size="January_temp",padd=p,sizmax=3,color='black')
-p = plot.decoration(p, title="St. dev. by Simple Kriging")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"SK*stdev",legend.name.raster="°C", zlim=c(0.,1.))
+p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
+p = p + plot.decoration(title="St. dev. by Simple Kriging")
+ggPrint(p)
 ```
 
 ---
@@ -201,11 +206,12 @@ p
 \frametitle{Comparing Ordinary and Simple Kriging - Estimations}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
-p = plot.correlation(grid,name1="OK*estim",name2="SK*estim", 
+p = ggplot()
+p = p + plot.correlation(grid,name1="OK*estim",name2="SK*estim", 
                      flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
-p = plot.decoration(p, title="Estimation Simple vs. Ordinary", 
+p = p + plot.decoration(title="Estimation Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
-p
+ggPrint(p)
 ```
 
 ---
@@ -213,11 +219,12 @@ p
 \frametitle{Comparing Ordinary and Simple Kriging - St. dev.}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
-p = plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", 
+p = ggplot()
+p = p + plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", 
                      flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
-p = plot.decoration(p, title="St. dev. Simple vs. Ordinary", 
+p = p + plot.decoration(title="St. dev. Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
-p
+ggPrint(p)
 ```
 
 ---
@@ -236,9 +243,10 @@ err = xvalid(db=dat, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Cross-validation - Histogram of Errors}
 
 ```{r Cross_Validation_Errors}
-p = plot.hist(dat,name="*esterr*",bins=30,fill="blue")
-p = plot.decoration(p, xlab="Estimation Errors", title="Cross-Validation")
-p
+p = ggplot()
+p = p + plot.hist(dat,name="*esterr*",bins=30,fill="blue")
+p = p + plot.decoration(xlab="Estimation Errors", title="Cross-Validation")
+ggPrint(p)
 ```
  
 ---
@@ -246,9 +254,10 @@ p
 \frametitle{Cross-validation - Histogram of Standardized Errors}
 
 ```{r}
-p = plot.hist(dat,name="*stderr*",bins=30,fill="blue")
-p = plot.decoration(p, xlab="Standardized Errors", title="Cross-Validation")
-p
+p = ggplot()
+p = p + plot.hist(dat,name="*stderr*",bins=30,fill="blue")
+p = p + plot.decoration(xlab="Standardized Errors", title="Cross-Validation")
+ggPrint(p)
 ```
 
 ---
@@ -266,10 +275,11 @@ mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Errors_Display}
-p = plot.grid(grid,"inshore")
-p = plot.point(dat,name_size="*esterr",padd=p,sizmax=300)
-p = plot.decoration(p, title="Cross-Validation scores")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"inshore")
+p = p + plot.point(dat,name_size="*esterr",sizmax=3)
+p = p + plot.decoration(title="Cross-Validation scores")
+ggPrint(p)
 ```
 
 ---
@@ -277,10 +287,11 @@ p
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Absolute_Error}
-p = plot.grid(grid,"inshore")
-p = plot.point(dat,name_size="*esterr",padd=p,sizmax=300,flagAbsSize=TRUE)
-p = plot.decoration(p, title="Cross-Validation scores (abs. value)")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"inshore")
+p = p + plot.point(dat,name_size="*esterr",sizmax=3,flagAbsSize=TRUE)
+p = p + plot.decoration(title="Cross-Validation scores (abs. value)")
+ggPrint(p)
 ```
 
 ---
@@ -307,10 +318,11 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=small.neigh,
 
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood_Estimation}
-p = plot.grid(grid,"Small*estim",zlim=c(0.,8.), legend.name.raster="°C")
-p = plot.point(dat,name_size="January_temp",padd=p)
-p = plot.decoration(p, title="Estimation by Ordinary Kriging (Small Neigh.)")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"Small*estim",zlim=c(0.,8.), legend.name.raster="°C")
+p = p + plot.point(dat,name_size="January_temp")
+p = p + plot.decoration(title="Estimation by Ordinary Kriging (Small Neigh.)")
+ggPrint(p)
 ```
 
 ---
@@ -336,10 +348,11 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 \frametitle{Ordinary Kriging (Moving Neighborhood 1)}
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood_Estimation}
-p = plot.grid(grid,"Reduced*estim", zlim=c(0.,8.), legend.name.raster="°C")
-p = plot.point(dat,name_size="January_temp",padd=p)
-p = plot.decoration(p, title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"Reduced*estim", zlim=c(0.,8.), legend.name.raster="°C")
+p = p + plot.point(dat,name_size="January_temp")
+p = p + plot.decoration(title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
+ggPrint(p)
 ```
 
 Lots of target sites are not estimated as no sample is found within the neighborhood.
@@ -367,10 +380,11 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 \frametitle{Ordinary Kriging (Moving Neighborhood 2)}
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_Estimation}
-p = plot.grid(grid,"Moving*estim",zlim=c(0.,8.), legend.name.raster="°C")
-p = plot.point(dat,name_size="January_temp",padd=p)
-p = plot.decoration(p, title="Estimation by Ordinary Kriging (Moving Neigh.)")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"Moving*estim",zlim=c(0.,8.), legend.name.raster="°C")
+p = p + plot.point(dat,name_size="January_temp")
+p = p + plot.decoration(title="Estimation by Ordinary Kriging (Moving Neigh.)")
+ggPrint(p)
 ```
 
 ---
@@ -378,10 +392,11 @@ p
 \frametitle{Ordinary Kriging (Moving Neighborhood 2)}
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_stdev}
-p = plot.grid(grid,"Moving*stdev", zlim=c(0.,1.), legend.name.raster="°C")
-p = plot.point(dat,name_size="January_temp",padd=p)
-p = plot.decoration(p, title="St. dev. by Ordinary Kriging (Moving Neigh.)")
-p
+p = ggDefault(2)
+p = p + plot.grid(grid,"Moving*stdev", zlim=c(0.,1.), legend.name.raster="°C")
+p = p + plot.point(dat,name_size="January_temp")
+p = p + plot.decoration(title="St. dev. by Ordinary Kriging (Moving Neigh.)")
+ggPrint(p)
 ```
 
 ---
@@ -389,10 +404,12 @@ p
 \frametitle{Comparing Unique and Moving Neighborhoods}
 
 ```{r Comparing_unique_moving_estimation}
-p = plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE)
-p = plot.decoration(p, title="Ordinary Kriging Estimation", 
+p = ggplot()
+p = p + plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", 
+                         bins=100, flagDiag=TRUE)
+p = p + plot.decoration(title="Ordinary Kriging Estimation", 
                     xlab="Unique", ylab="Moving")
-p
+ggPrint(p)
 ```
 
 ---
@@ -400,8 +417,10 @@ p
 \frametitle{Comparing Unique and Moving Neighborhoods}
 
 ```{r Comparing_unique_moving_stdev}
-p = plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", flagDiag=TRUE)
-p = plot.decoration(p, title="Ordinary Kriging St. Dev.", 
+p = ggplot()
+p = p + plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", 
+                         bins=100, flagDiag=TRUE)
+p = p + plot.decoration(title="Ordinary Kriging St. Dev.", 
                     xlab="Unique", ylab="Moving")
-p
+ggPrint(p)
 ```

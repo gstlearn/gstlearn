@@ -66,15 +66,21 @@ dum = data$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN"
 
 ```{r}
 # histograms and correlation
-plot.hist(data, name = "x1", color = "gray", fill = "orange")
-plot.hist(data, name = "x2", color = "gray", fill = "skyblue")
-plot.hist(data, name = "x3", color = "gray", fill = "green")
-p = plot.correlation(data, name1 = "x1", name2 = "x2", flagDiag = TRUE)
-plot.decoration(p, title = "Gaussian mixture (data)")
-p = plot.correlation(data, name1 = "x1", name2 = "x3", flagDiag = TRUE)
-plot.decoration(p, title = "Gaussian mixture (data)")
-p = plot.correlation(data, name1 = "x2", name2 = "x3", flagDiag = TRUE)
-plot.decoration(p, title = "Gaussian mixture (data)")
+ggplot() + plot.hist(data, name = "x1", color = "gray", fill = "orange")
+ggplot() + plot.hist(data, name = "x2", color = "gray", fill = "skyblue")
+ggplot() + plot.hist(data, name = "x3", color = "gray", fill = "green")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "x1", name2 = "x2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Gaussian mixture (data)")
+ggPrint(p)
+p = ggplot()
+p = p + plot.correlation(data, name1 = "x1", name2 = "x3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Gaussian mixture (data)")
+ggPrint(p)
+p = ggplot()
+p = p + plot.correlation(data, name1 = "x2", name2 = "x3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Gaussian mixture (data)")
+ggPrint(p)
 ```
 
 # Application of PPMT
@@ -115,7 +121,7 @@ data["Y3"] = VectorHelper_normalScore(data["Z3"])
 # Launching PPMT and fitting it on the vector of Input data
 ppmt = PPMT_create(ndir=nd, FALSE, EDirGen_fromKey("vdc"))
 Xmat <- data$getColumnsAsMatrix(names = c("Y1", "Y2", "Y3"))
-ppmt$fitFromMatrix(Xmat, niter = nit, FALSE)
+err = ppmt$fitFromMatrix(Xmat, niter = nit, FALSE)
 
 # scores vs. iterations
 plot(x = 1:nit, y = log(ppmt$getSerieScore(), base = 10), type = "l", col = "red", lty = 3,
@@ -155,14 +161,20 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Initial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-p = plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
-plot.decoration(p, title = "Initial Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "Y1", name2 = "Y2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial Gaussian variables (data)")
+ggPrint(p)
 
-p = plot.correlation(data, name1 = "Y1", name2 = "Y3", flagDiag = TRUE)
-plot.decoration(p, title = "Initial Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "Y1", name2 = "Y3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial Gaussian variables (data)")
+ggPrint(p)
 
-p = plot.correlation(data, name1 = "Y2", name2 = "Y3", flagDiag = TRUE)
-plot.decoration(p , title = "Initial Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "Y2", name2 = "Y3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial Gaussian variables (data)")
+ggPrint(p)
 ```
 
 
@@ -187,14 +199,20 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-p = plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE)
-plot.decoration(p, title = "Final Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "U-1", name2 = "U-2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Final Gaussian variables (data)")
+ggPrint(p)
 
-p = plot.correlation(data, name1 = "U-1", name2 = "U-3", flagDiag = TRUE)
-plot.decoration(p , title = "Final Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "U-1", name2 = "U-3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Final Gaussian variables (data)")
+ggPrint(p)
 
-p = plot.correlation(data, name1 = "U-2", name2 = "U-3", flagDiag = TRUE)
-plot.decoration(p, title = "Final Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "U-2", name2 = "U-3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Final Gaussian variables (data)")
+ggPrint(p)
 ```
 
 # Back transform
@@ -252,15 +270,21 @@ dum = simu$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN"
 
 ```{r}
 # histograms and correlation
-plot.hist(simu, name = "x1", color = "gray", fill = "orange")
-plot.hist(simu, name = "x2", color = "gray", fill = "skyblue")
-plot.hist(simu, name = "x3", color = "gray", fill = "green")
-p = plot.correlation(simu, name1 = "x1", name2 = "x2", flagDiag = TRUE) 
-plot.decoration(p, title = "Gaussian mixture (simulation)")
-p = plot.correlation(simu, name1 = "x1", name2 = "x3", flagDiag = TRUE)
-plot.decoration(p, title = "Gaussian mixture (simulation)")
-p = plot.correlation(simu, name1 = "x2", name2 = "x3", flagDiag = TRUE)
-plot.decoration(p, title = "Gaussian mixture (simulation)")
+ggplot() + plot.hist(simu, name = "x1", color = "gray", fill = "orange")
+ggplot() + plot.hist(simu, name = "x2", color = "gray", fill = "skyblue")
+ggplot() + plot.hist(simu, name = "x3", color = "gray", fill = "green")
+p = ggplot()
+p = p + plot.correlation(simu, name1 = "x1", name2 = "x2", bins=100, flagDiag = TRUE) 
+p = p + plot.decoration(title = "Gaussian mixture (simulation)")
+ggPrint(p)
+p = ggplot()
+p = p + plot.correlation(simu, name1 = "x1", name2 = "x3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Gaussian mixture (simulation)")
+ggPrint(p)
+p = ggplot()
+p = p + plot.correlation(simu, name1 = "x2", name2 = "x3", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Gaussian mixture (simulation)")
+ggPrint(p)
 
 # Functions
 fun_corr <- function(i1, i2){

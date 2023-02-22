@@ -59,15 +59,17 @@ err = grd$setName("Y1.NS","Y1")
 err = grd$setName("Z.NS","Y2")
 
 # histograms and correlation
-plot.hist(grd, name = "Y1", color = "gray", fill = "orange")
-plot.hist(grd, name = "Y2", color = "gray", fill = "skyblue")
+ggplot() + plot.hist(grd, name = "Y1", color = "gray", fill = "orange")
+ggplot() + plot.hist(grd, name = "Y2", color = "gray", fill = "skyblue")
 
-p = plot.correlation(grd, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
-plot.decoration(p, title = "Initial Gaussian variables (grid)")
+p = ggplot()
+p = p + plot.correlation(grd, name1 = "Y1", name2 = "Y2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial Gaussian variables (grid)")
+ggPrint(p)
 
 # maps
-plot.grid(grd, "Y1")
-plot.grid(grd, "Y2")
+ggplot() + plot.grid(grd, "Y1")
+ggplot() + plot.grid(grd, "Y2")
 
 ```
 
@@ -81,14 +83,16 @@ grd["Z2"] = m_2 * exp(sigma_2 * grd["Y2"] - 1/2 * sigma_2 * sigma_2 )
 dum = grd$statistics(c("Z*","Y*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
-plot.hist(grd, name = "Z1", color = "gray", fill = "orange")
-plot.hist(grd, name = "Z2", color = "gray", fill = "skyblue")
-p = plot.correlation(grd, name1 = "Z1", name2 = "Z2", flagDiag = TRUE)
-plot.decoration(p, title = "Initial lognormal variables (grid)")
+ggplot() + plot.hist(grd, name = "Z1", color = "gray", fill = "orange")
+ggplot() + plot.hist(grd, name = "Z2", color = "gray", fill = "skyblue")
+p = ggplot()
+p = p + plot.correlation(grd, name1 = "Z1", name2 = "Z2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial lognormal variables (grid)")
+ggPrint(p)
 
 # maps
-plot.grid(grd, "Z1")
-plot.grid(grd, "Z2")
+ggplot() + plot.grid(grd, "Z1")
+ggplot() + plot.grid(grd, "Z2")
 
 ```
 
@@ -101,19 +105,25 @@ data = Db_createSamplingDb(grd, number=nump, names = c("x1", "x2", "Z1", "Z2"))
 dum = data$statistics(c("Z*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
-plot.hist(data, name = "Z1", color = "gray", fill = "orange")
-plot.hist(data, name = "Z2", color = "gray", fill = "skyblue")
-p = plot.correlation(data, name1 = "Z1", name2 = "Z2", flagDiag = TRUE)
-plot.decoration(p, title = "Initial lognormal variables (data)")
+ggplot() + plot.hist(data, name = "Z1", color = "gray", fill = "orange")
+ggplot() + plot.hist(data, name = "Z2", color = "gray", fill = "skyblue")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "Z1", name2 = "Z2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial lognormal variables (data)")
+ggPrint(p)
 
 # maps
-p = plot.grid(grd,"Z1")
-p = plot.point(data, name_color = "Z1",padd = p)
-plot.decoration(p, title = "Initial lognormal variable - Z1")
+p = ggplot()
+p = p + plot.grid(grd,"Z1")
+p = p + plot.point(data, name_color = "Z1")
+p = p + plot.decoration(title = "Initial lognormal variable - Z1")
+ggPrint(p)
 
-p = plot.grid(grd,"Z2")
-p = plot.point(data, name_color = "Z2",padd = p)
-plot.decoration(p, title = "Initial lognormal variable - Z2")
+p = ggplot()
+p = p + plot.grid(grd,"Z2")
+p = p + plot.point(data, name_color = "Z2")
+p = p + plot.decoration(title = "Initial lognormal variable - Z2")
+ggPrint(p)
 ```
 
 # Implementing PPMT
@@ -173,8 +183,10 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Intial Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-p = plot.correlation(data, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
-plot.decoration(p, title = "Initial Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "Y1", name2 = "Y2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial Gaussian variables (data)")
+ggPrint(p)
 
 # Final Gaussian variables
 
@@ -190,8 +202,10 @@ plot(q1, q2, xlab = "Experimental quantiles", ylab = "Theoretical quantiles",
      main = "Second Final Variable")
 abline(a = 0, b = 1, col = "red", lty = 3)
 
-p = plot.correlation(data, name1 = "U-1", name2 = "U-2", flagDiag = TRUE)
-plot.decoration(p, title = "Final Gaussian variables (data)")
+p = ggplot()
+p = p + plot.correlation(data, name1 = "U-1", name2 = "U-2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Final Gaussian variables (data)")
+ggPrint(p)
 ```
 
 
@@ -254,12 +268,16 @@ ppmt$gaussianToRaw(simu, names = c("Y1", "Y2"))
 }
 
 # Simulation of independent Gaussian variables
-p = plot.correlation(simu, name1 = "Y1", name2 = "Y2", flagDiag = TRUE)
-plot.decoration(p, title = "Initial Gaussian variables (simulation)")
+p = ggplot()
+p = p + plot.correlation(simu, name1 = "Y1", name2 = "Y2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Initial Gaussian variables (simulation)")
+ggPrint(p)
 
 # Back-tranform of the simulated Gaussian variables
-p = plot.correlation(simu, name1 = "Z.Y1", name2 = "Z.Y2", flagDiag = TRUE)
-plot.decoration(p, title = "Simulations of the raw variables")
+p = ggplot()
+p = p + plot.correlation(simu, name1 = "Z.Y1", name2 = "Z.Y2", bins=100, flagDiag = TRUE)
+p = p + plot.decoration(title = "Simulations of the raw variables")
+ggPrint(p)
 ```
 
 

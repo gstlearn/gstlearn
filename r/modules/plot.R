@@ -930,12 +930,9 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., ...)
 
 
 # Function to display a polygon (not tested)
-plot.mesh <- function(mesh, 
-    flagEdge=TRUE, flagFace=FALSE, flagApex=FALSE, ...)
+plot.mesh <- function(mesh, flagFace=FALSE, flagApex=FALSE, ...)
 {
   p = list()
-  if (! flagFace) facecolor = "white"
-  if (! flagEdge) edgecolor = facecolor
   
   nmesh = mesh$getNMeshes()
   for (imesh in 1:nmesh)
@@ -943,7 +940,10 @@ plot.mesh <- function(mesh,
     x = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
     y = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)
     df = data.frame(x, y)
-    p <- c(p, geom_polygon(data = df, mapping=aes(x=x,y=y), ...))
+    if (flagFace)
+      p <- c(p, geom_polygon(data = df, mapping=aes(x=x,y=y), ...))
+    else
+      p <- c(p, geom_path(data = df, mapping=aes(x=x,y=y), ...))
     if (flagApex)
       p <- c(p, geom_point(data = df, mapping=aes(x=x, y=y)))
   }  
