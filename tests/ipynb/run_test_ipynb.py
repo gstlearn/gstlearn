@@ -16,7 +16,8 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import ASCIIDocExporter
 
 # read source notebook
-with open(test_script) as f:
+# https://github.com/mwouts/jupytext/issues/770#issuecomment-1257559895
+with open(test_script, encoding='utf8') as f:
     nb = nbformat.read(f, as_version=4)
 
 # execute notebook
@@ -39,7 +40,11 @@ ascii_data = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12
 # /tmp/ipykernel_24563/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
 ascii_data = re.sub(".*CholmodTypeConversionWarning", "XXX: CholmodTypeConversionWarning", ascii_data)
 
+# Remove panda frame decoration that can vary according the version/OS i.e. :
+ascii_data = re.sub("\\|====+", "|===", ascii_data)
+
+
 # write to output file
-with open(test_output, "w") as f:
+with open(test_output, "w", encoding='utf8') as f:
     f.write(ascii_data)
 

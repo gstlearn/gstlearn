@@ -98,8 +98,7 @@ Note :
 sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
-sudo apt install jupyter
-python3 -m ensurepip --upgrade # [may be not needed]
+sudo apt install pandoc jupyter
 python3 -m pip install pybind11-global numpy pandas scipy scikits-sparse matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
@@ -113,7 +112,7 @@ python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 brew install python3
 brew install swig
-python3 -m ensurepip --upgrade
+brew install pandoc jupyter
 python3 -m pip install pybind11-global numpy pandas scipy scikits-sparse matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
@@ -129,7 +128,8 @@ Notes:
 2. Then, download and install the following tools using default options during installation:
 
   * Python 3+ [from here](https://www.python.org/downloads) (*Windows installer* [exe] - check 'Add python.exe to PATH' in the first panel)
-  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], Archive file [zip] to be extracted in a folder of your choice, but not in the *gstlearn* folder - and remind that folder)
+  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], archive file to be extracted in a folder of your choice, but not in the *gstlearn* folder - and remind that folder)
+  * Pandoc [from here](https://github.com/jgm/pandoc/releases) (*msi installer* [msi] - simply execute the program)
 
 3. Finally, install additional Python modules by running following instructions in a command prompt:
 

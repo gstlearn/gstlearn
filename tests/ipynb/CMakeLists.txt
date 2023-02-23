@@ -18,8 +18,14 @@ file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.ipynb)
 set(TEST_SOURCES ${DEMO_SOURCES})
 list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
-#set(TEST_SOURCES 
-#    ../../doc/demo/python/Tuto_Xvalid.ipynb)
+#set(TEST_SOURCES
+#    ../../doc/demo/python/Tuto_SSDV.ipynb)
+
+# Remove Tuto_SPDE and Tuto_SpatioTemp under MSVC (because scikits-sparse)
+if (MSVC)
+  list(FILTER TEST_SOURCES EXCLUDE REGEX ".*/Tuto_SPDE.ipynb")
+  list(FILTER TEST_SOURCES EXCLUDE REGEX ".*/Tuto_SpatioTemp.ipynb")
+endif()
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)

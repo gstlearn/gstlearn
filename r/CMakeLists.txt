@@ -79,7 +79,6 @@ set_source_files_properties(${SRC} PROPERTIES
 )
 
 # Tell to CMake that ${SRC} depends on some other files
-# TODO: This only works on GCC because MSVC always recompile swig (don't know why)
 set_property(SOURCE ${SRC} PROPERTY
   DEPENDS
     ${PROJECT_SOURCE_DIR}/swig/swig_exp.i

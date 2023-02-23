@@ -276,7 +276,6 @@ void ACalcDbToDb::_cleanVariableDb(int status)
     {
       for (int i = 0; i < (int) _listVariablePermDbOut.size(); i++)
       {
-        message("on detruit %d\n", _listVariablePermDbOut[i]);
         _dbout->deleteColumnByUID(_listVariablePermDbOut[i]);
       }
     }

@@ -1,3 +1,4 @@
+// Keep sync with PYTHON_PACKAGE_NAME in CMakeLists.txt
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
 %feature(director) AFunction; // TODO : director for AFunction

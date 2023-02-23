@@ -30,7 +30,7 @@ Extension Variance = 2.697
 
 +*Out[6]:*+
 ----
-Spatial Sampling Density Variance = 26972.85 m⁴
+Spatial Sampling Density Variance = 26972.85 m².m²
 ----
 
 

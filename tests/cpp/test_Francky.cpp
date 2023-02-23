@@ -14,11 +14,9 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
-#include <algorithm>
 #include <math.h>
 #include <iostream>
 #include <numeric>
-#include <random>
 #include <string>
 #include <vector>
 
