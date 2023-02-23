@@ -4,7 +4,7 @@ set(TEST_SOURCES
   testInter_GibbsMMulti.cpp)
 
 # Generation folder
-if (CMAKE_CONFIGURATION_TYPES)
+if (IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>
              OUTPUT_VARIABLE TEST_DST_DIR)
 else()

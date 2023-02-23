@@ -14,7 +14,7 @@ file(GLOB TEST_SOURCES test*.py)
 #    test_Arguments.py)
 
 # Generation folder
-if (CMAKE_CONFIGURATION_TYPES)
+if (IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>
              OUTPUT_VARIABLE TEST_DST_DIR)
 else()
@@ -53,8 +53,16 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_py
              COMMAND ${Python3_EXECUTABLE} ${RUN_TEST_SCRIPT} ${TEST_SOURCE_FILE} ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+    # Use maybe a specific output log for MSVC
+    set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref)
+    if (MSVC)
+      set(REF_FILE_MSVC ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}_msvc.ref)
+      if(EXISTS ${REF_FILE_MSVC})
+        set(REF_FILE ${REF_FILE_MSVC})
+      endif()
+    endif()
     # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
     add_test(NAME ${TEST_NAME}_py_cmp
-             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND git diff --no-index -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 

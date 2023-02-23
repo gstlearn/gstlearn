@@ -1,9 +1,3 @@
-if(CMAKE_CONFIGURATION_TYPES)
-  # Currently these tests cannot run under Visual
-  # TODO : make data non-reg tests available under Visual ($<CONFIG> for output directory)
-  return()
-endif()
-
 # List special non-regression test sources
 set(TEST_SOURCES 
   testim.cpp
@@ -11,7 +5,7 @@ set(TEST_SOURCES
   testvar.cpp)
 
 # Generation folder (all tests in one folder)
-if (CMAKE_CONFIGURATION_TYPES)
+if (IS_MULTI_CONFIG)
   cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>
              OUTPUT_VARIABLE GLOBAL_DST_DIR)
 else()
@@ -52,6 +46,7 @@ endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
 # Iterate over each target executables
+set(TARGETS_PREPARE "")
 foreach(TARGET_EXE ${TARGETS_EXE})
     set(BDIR "")
     if(${TARGET_EXE} MATCHES "testim*")
@@ -74,20 +69,33 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         # Calculate output directory
         cmake_path(APPEND GLOBAL_DST_DIR ${DIR_NAME}
                    OUTPUT_VARIABLE TEST_DST_DIR)
-        file(MAKE_DIRECTORY ${TEST_DST_DIR}) # This contains a generator expression in multiconfig => Not possible
+        # Define the prepare target to create the output directory for logs
+        add_custom_target(${DIR_NAME}_prepare
+          COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
+        )
+        # Add to prepare targets list
+        list(APPEND TARGETS_PREPARE ${DIR_NAME}_prepare)
         # Run the test (and generate Result.out in ${TEST_DST_DIR})
         add_test(NAME ${DIR_NAME}
                  COMMAND ${TARGET_EXE} ${TEST_SRC_DIR}
                  WORKING_DIRECTORY ${TEST_DST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+        # Use maybe a specific output log for MSVC
+        set(REF_FILE ${TEST_SRC_DIR}/Result.ref)
+        if (MSVC)
+          set(REF_FILE_MSVC ${TEST_SRC_DIR}/Result_msvc.ref)
+          if(EXISTS ${REF_FILE_MSVC})
+            set(REF_FILE ${REF_FILE_MSVC})
+          endif()
+        endif()
         # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND git diff --no-index -w ${TEST_SRC_DIR}/Result.ref ${TEST_DST_DIR}/Result.out
+                 COMMAND git diff --no-index -w ${REF_FILE} ${TEST_DST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DST_DIR})
     endforeach(TEST_SRC_DIR ${TEST_SRC_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
  # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_data
-  COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
+  COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_PREPARE} ${TARGETS_EXE}
 )

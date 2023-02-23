@@ -64,7 +64,7 @@ endif()
 set(SRC pygstlearn.i)
 
 # Generation folders
-if (CMAKE_CONFIGURATION_TYPES)
+if (IS_MULTI_CONFIG)
   set(PYTHON_PACKAGE_ROOT_FOLDER      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
   set(PYTHON_PACKAGE_ROOT_FOLDER      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -121,9 +121,6 @@ target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static Python3::NumPy
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 if (MSVC)
   set(COMP_FLAGS "${COMP_FLAGS} /wd4706 /wd4456 /wd4127 /wd4100") # SWIG generated code warnings
-endif()
-if ("${FLAVOR}" STREQUAL "Debug")
-  set(COMP_FLAGS "${COMP_FLAGS} -g")
 endif()
 if (MSVC)
   # Wrapper source is too big for MSVC !

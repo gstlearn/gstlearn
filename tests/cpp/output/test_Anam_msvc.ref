@@ -1,0 +1,104 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.250     0.250
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 441
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.050     0.050
+Number :         21        21
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Y - Locator = NA
+Column = 3 - Name = Z - Locator = z1
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.6
+Maximum absolute value for Y  = 3.2
+Minimum absolute value for Z  = 0.286837
+Maximum absolute value for Z  = 6.45654
+Minimum practical value for Y = -2.6
+Maximum practical value for Y = 3.2
+Minimum practical value for Z = 0.286837
+Maximum practical value for Z = 6.45654
+Mean                          = 1.5425
+Variance                      = 0.776581
+Number of Hermite polynomials = 20
+Normalized coefficients for Hermite polynomials (punctual variable)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.543    -0.816     0.319    -0.078    -0.028     0.042    -0.015
+     [  7,]     0.001     0.007    -0.012     0.003     0.007    -0.005     0.000
+     [ 14,]     0.002    -0.005     0.002     0.006    -0.005    -0.005

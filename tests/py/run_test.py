@@ -12,6 +12,6 @@ test_output = os.path.join(out_dir, test_name + ".out")
 # Retrieve all standard outputs (C, python, etc..) and print to log file
 # Use unbuffered (-u) output for "printing" on the fly
 str_output = subprocess.check_output([python_exe, "-u", test_script], encoding='utf-8')
-with open(test_output, "w+") as output:
+with open(test_output, "w+", encoding='utf8') as output:
   output.write(str_output)
 

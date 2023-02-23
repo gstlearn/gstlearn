@@ -1,5 +1,5 @@
 # Make Release version the default (only for single configuration generators)
-if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+if(NOT CMAKE_BUILD_TYPE AND NOT IS_MULTI_CONFIG)
   message(STATUS "Setting build type to 'Release' as none was specified")
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   # Set the possible values of build type for cmake-gui
@@ -114,7 +114,7 @@ foreach(FLAVOR ${FLAVORS})
     target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
   endif()
 
-  # Link to specific libraries (only for Windows)
+  # Link to specific libraries (only for Microsoft Visual Studio)
   if (MSVC)
     target_link_libraries(${FLAVOR} PUBLIC iphlpapi rpcrt4)
   endif()

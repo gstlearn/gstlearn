@@ -52,7 +52,7 @@ include(${SWIG_USE_FILE})
 set(SRC rgstlearn.i)
 
 # Generation folders
-if (CMAKE_CONFIGURATION_TYPES)
+if (IS_MULTI_CONFIG)
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -111,9 +111,6 @@ target_link_libraries(r_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-unused-parameter -Wno-free-nonheap-object -Wno-cast-function-type") # Prevent some SWIG C++/R warnings
-if ("${FLAVOR}" STREQUAL "Debug")
-  set(COMP_FLAGS "${COMP_FLAGS} -g")
-endif()
 
 # Set some properties on SWIG target
 set_target_properties(r_build PROPERTIES
