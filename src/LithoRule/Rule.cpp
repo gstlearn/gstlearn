@@ -994,22 +994,22 @@ int Rule::evaluateBounds(PropDef* propdef,
   for (iech = 0; iech < nech; iech++)
   {
     if (!dbin->isActive(iech)) continue;
-    facies = (int) dbin->getVariable(iech, 0);
+    facies = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
     if (igrf == 0)
     {
-      dbin->setLowerBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                          t1min);
-      dbin->setUpperBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                          t1max);
+      dbin->setLocVariable(ELoc::L, iech,
+                           get_rank_from_propdef(propdef, ipgs, igrf), t1min);
+      dbin->setLocVariable(ELoc::U, iech,
+                           get_rank_from_propdef(propdef, ipgs, igrf), t1max);
     }
     else
     {
-      dbin->setLowerBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                          t2min);
-      dbin->setUpperBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
-                          t2max);
+      dbin->setLocVariable(ELoc::L, iech,
+                           get_rank_from_propdef(propdef, ipgs, igrf), t2min);
+      dbin->setLocVariable(ELoc::U, iech,
+                           get_rank_from_propdef(propdef, ipgs, igrf), t2max);
     }
   }
 

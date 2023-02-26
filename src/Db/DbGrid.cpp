@@ -1307,7 +1307,7 @@ VectorDouble DbGrid::getBlockExtensions(int node) const
   int ndim = getNDim();
 
   VectorDouble dxsPerCell = getDXs();
-  if (hasBlockExtension())
+  if (hasLocVariable(ELoc::BLEX))
   {
     for (int idim = 0; idim < ndim; idim++)
     {

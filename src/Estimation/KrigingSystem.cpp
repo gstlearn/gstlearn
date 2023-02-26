@@ -400,7 +400,7 @@ double KrigingSystem::_getIvar(int rank, int ivar) const
 
       // Particular case of simulations
 
-      return _dbin->getVariable(rank, ivar);
+      return _dbin->getLocVariable(ELoc::Z,rank, ivar);
 
     else
 
@@ -1201,7 +1201,7 @@ void KrigingSystem::_wgtDump(int status)
     String strloc = getLocatorName(ELoc::X, idim);
     tab_prints(NULL, strloc.c_str());
   }
-  if (_dbin->hasCode()) tab_prints(NULL, "Code");
+  if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
   if (_dbin->getLocNumber(ELoc::V) > 0)
     tab_prints(NULL, "Err.");
   if (ndisc > 0)
@@ -1236,7 +1236,7 @@ void KrigingSystem::_wgtDump(int status)
       tab_printi(NULL, iech + 1);
       for (int idim = 0; idim < ndim; idim++)
         tab_printg(NULL, _getIdim(_nbgh[iech], idim));
-      if (_dbin->hasCode())
+      if (_dbin->hasLocVariable(ELoc::C))
         tab_printg(NULL, _dbin->getCode(_nbgh[iech]));
       if (_dbin->getLocNumber(ELoc::V) > 0)
         tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
@@ -1442,7 +1442,7 @@ void KrigingSystem::_estimateCalcul(int status)
   {
     for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
     {
-      double valdat = _dbin->getVariable(_iechOut, ivarCL);
+      double valdat = _dbin->getLocVariable(ELoc::Z,_iechOut, ivarCL);
       double estim  = (_flagEst) ? _dbout->getArray(_iechOut, _iptrEst + ivarCL) : TEST;
       double stdv   = (_flagStd) ? _dbout->getArray(_iechOut, _iptrStd + ivarCL) : TEST;
 
@@ -1550,7 +1550,7 @@ void KrigingSystem::_estimateCalculImage(int status)
       {
         for (int iech = 0; iech < nech; iech++)
         {
-          if (FFFF(dbgrid->getVariable(iech, 0))) continue;
+          if (FFFF(dbgrid->getLocVariable(ELoc::Z,iech, 0))) continue;
           _dbaux->rankToIndice(_nbgh[iech], indnl);
           for (int idim = 0; idim < ndim; idim++)
           {
@@ -1558,7 +1558,7 @@ void KrigingSystem::_estimateCalculImage(int status)
             indgl[idim] = dbgrid->getMirrorIndex(idim, indgl[idim]);
           }
           int jech = dbgrid->indiceToRank(indgl);
-          double data = dbgrid->getVariable(jech, jvar);
+          double data = dbgrid->getLocVariable(ELoc::Z,jech, jvar);
           if (FFFF(data) || FFFF(estim))
           {
             estim = TEST;
@@ -1591,7 +1591,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
   // Do not process as this sample is either masked or its variable undefined
   if (iiech < 0) return;
 
-  double valdat = _dbin->getVariable(iech, 0);
+  double valdat = _dbin->getLocVariable(ELoc::Z,iech, 0);
   if (! FFFF(valdat))
   {
     double variance = 1. / _getLHSINV(iiech, 0, iiech, 0);
@@ -1605,7 +1605,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
       if (iiech != jjech)
-        valest -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getVariable(jech, 0);
+        valest -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getLocVariable(ELoc::Z,jech, 0);
       jjech++;
     }
 
@@ -2051,7 +2051,7 @@ void KrigingSystem::_krigingDump(int status)
 
       if (_iptrEst >= 0)
       {
-        double trueval = (status == 0) ? _dbin->getVariable(_iechOut, ivar) : TEST;
+        double trueval = (status == 0) ? _dbin->getLocVariable(ELoc::Z,_iechOut, ivar) : TEST;
         double estim   = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
 
         if (status == 0)
@@ -2317,7 +2317,7 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
         messerr("K-FOLD is not available in Unique Neighborhood");
         return 1;
       }
-      if (! _dbin->hasCode())
+      if (! _dbin->hasLocVariable(ELoc::C))
         messerr("The K-FOLD option is ignored as no Code is defined");
     }
     _neighParam->setFlagKFold(flag_kfold);
@@ -2478,7 +2478,7 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
   _isReady = false;
   if (flag_code)
   {
-    if (! _dbin->hasCode() || _dbin->getLocNumber(ELoc::V) != 1)
+    if (! _dbin->hasLocVariable(ELoc::C) || _dbin->getLocNumber(ELoc::V) != 1)
     {
       messerr("This method requires variables CODE and V to be defined");
       return 1;
@@ -2761,27 +2761,27 @@ bool KrigingSystem::_isCorrect()
 
     if (_dbout != nullptr)
     {
-      if (nfex != _dbout->getExternalDriftNumber())
+      if (nfex != _dbout->getLocNumber(ELoc::F))
       {
         messerr("Incompatible Number of External Drifts:");
         messerr("- In 'Model' = %d", nfex);
-        messerr("- In '_dbout' = %d", _dbout->getExternalDriftNumber());
+        messerr("- In '_dbout' = %d", _dbout->getLocNumber(ELoc::F));
         return false;
       }
     }
     if (_dbin != nullptr)
     {
-      if (_dbin->getExternalDriftNumber() == 0)
+      if (_dbin->getLocNumber(ELoc::F) == 0)
       {
         if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
         // Store the UID of the newly created variables to be deleted at the end of the process
         _dbinUidToBeDeleted = _dbin->getUIDsByLocator(ELoc::F);
       }
-      if (nfex != _dbin->getExternalDriftNumber())
+      if (nfex != _dbin->getLocNumber(ELoc::F))
       {
         messerr("Incompatible Number of External Drifts:");
         messerr("- In 'Model' = %d", nfex);
-        messerr("- In 'dbin' = %d", _dbin->getExternalDriftNumber());
+        messerr("- In 'dbin' = %d", _dbin->getLocNumber(ELoc::F));
         return false;
       }
     }
@@ -3449,7 +3449,7 @@ int KrigingSystem::_bayesPreCalculations()
     if (! _dbin->isActive(iech)) continue;
     for (int ivar = 0; ivar < nvar; ivar++)
     {
-      double value = _dbin->getVariable(_nbgh[iech], ivar);
+      double value = _dbin->getLocVariable(ELoc::Z,_nbgh[iech], ivar);
       if (FFFF(value)) continue;
       vars[ind++] = value;
     }

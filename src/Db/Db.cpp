@@ -2148,7 +2148,7 @@ bool Db::isIsotopic(int iech, int nvar_max) const
   if (!isSampleIndexValid(iech)) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (FFFF(getVariable(iech, ivar))) return false;
+    if (FFFF(getLocVariable(ELoc::Z,iech, ivar))) return false;
   return true;
 }
 
@@ -2159,19 +2159,8 @@ bool Db::isAllUndefined(int iech) const
   if (!isSampleIndexValid(iech)) return false;
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    if (! FFFF(getVariable(iech, ivar))) return true;
+    if (! FFFF(getLocVariable(ELoc::Z,iech, ivar))) return true;
   return false;
-}
-
-bool Db::hasVariable() const
-{
-  return (getLocNumber(ELoc::Z) > 0);
-}
-
-double Db::getVariable(int iech, int item) const
-{
-  if (!hasVariable()) return (TEST);
-  return getFromLocator(ELoc::Z, iech, item);
 }
 
 void Db::setVariable(int iech, int item, double value)
@@ -2179,67 +2168,9 @@ void Db::setVariable(int iech, int item, double value)
   setFromLocator(ELoc::Z, iech, item, value);
 }
 
-/****************************************************************************/
-/*!
- **  Update the value for a variable
- **
- ** \param[in]  iech    Rank of the sample
- ** \param[in]  item    Rank of the variable
- ** \param[in]  oper    Type of operation
- ** \li                 0 : New = New + Old
- ** \li                 1 : New = New * Old
- ** \li                 2 : New = New - Old
- ** \li                 3 : New = Old / New
- ** \li                 4 : New = New (only if old is defined)
- ** \li                 5 : New = MAX(New, Old)
- ** \li                 6 : New = MIN(New, Old)
- ** \param[in]  value   Update value
- **
- ** \remark  For efficiency reason, argument validity is not tested
- **
- *****************************************************************************/
-void Db::updVariable(int iech, int item, int oper, double value)
-{
-  double oldval = getFromLocator(ELoc::Z, iech, item);
-  double newval = _updateValue(oper, oldval, value);
-  setFromLocator(ELoc::Z, iech, item, newval);
-}
-
 int Db::getIntervalNumber() const
 {
   return MAX(getLocNumber(ELoc::RKLOW), getLocNumber(ELoc::RKUP));
-}
-
-bool Db::hasLowerInterval() const
-{
-  return (getLocNumber(ELoc::RKLOW) > 0);
-}
-
-bool Db::hasUpperInterval() const
-{
-  return (getLocNumber(ELoc::RKUP) > 0);
-}
-
-double Db::getLowerInterval(int iech, int item) const
-{
-  if (!hasLowerInterval()) return TEST;
-  return getFromLocator(ELoc::RKLOW, iech, item);
-}
-
-double Db::getUpperInterval(int iech, int item) const
-{
-  if (!hasUpperInterval()) return TEST;
-  return getFromLocator(ELoc::RKUP, iech, item);
-}
-
-void Db::setLowerInterval(int iech, int item, double rklow)
-{
-  setFromLocator(ELoc::RKLOW, iech, item, rklow);
-}
-
-void Db::setUpperInterval(int iech, int item, double rkup)
-{
-  setFromLocator(ELoc::RKUP, iech, item, rkup);
 }
 
 void Db::setIntervals(int iech, int item, double rklow, double rkup)
@@ -2254,37 +2185,6 @@ void Db::setIntervals(int iech, int item, double rklow, double rkup)
   setFromLocator(ELoc::RKUP,  iech, item, rkup);
 }
 
-bool Db::hasLowerBound() const
-{
-  return (getLocNumber(ELoc::L) > 0);
-}
-
-bool Db::hasUpperBound() const
-{
-  return (getLocNumber(ELoc::U) > 0);
-}
-
-double Db::getLowerBound(int iech, int item) const
-{
-  if (!hasLowerBound()) return TEST;
-  return getFromLocator(ELoc::L, iech, item);
-}
-
-double Db::getUpperBound(int iech, int item) const
-{
-  if (!hasUpperBound()) return TEST;
-  return getFromLocator(ELoc::U, iech, item);
-}
-
-void Db::setLowerBound(int iech, int item, double lower)
-{
-  setFromLocator(ELoc::L, iech, item, lower);
-}
-
-void Db::setUpperBound(int iech, int item, double upper)
-{
-  setFromLocator(ELoc::U, iech, item, upper);
-}
 void Db::setBounds(int iech, int item, double lower, double upper)
 {
   if (lower > upper)
@@ -2293,8 +2193,8 @@ void Db::setBounds(int iech, int item, double lower, double upper)
             lower,upper);
     return;
   }
-  setLowerBound(iech,item,lower);
-  setUpperBound(iech,item,upper);
+  setLocVariable(ELoc::L,iech,item,lower);
+  setLocVariable(ELoc::U,iech,item,upper);
 }
 
 VectorDouble Db::getWithinBounds(int item, bool useSel) const
@@ -2326,78 +2226,30 @@ VectorDouble Db::getWithinBounds(int item, bool useSel) const
   return vec;
 }
 
-bool Db::hasGradient() const
-{
-  return (getLocNumber(ELoc::G) > 0);
-}
-
-double Db::getGradient(int iech, int item) const
-{
-  if (!hasGradient()) return TEST;
-  return getFromLocator(ELoc::G, iech, item);
-}
-
 VectorDouble Db::getGradients(int item, bool useSel) const
 {
-  if (!hasGradient()) return VectorDouble();
+  if (!hasLocVariable(ELoc::G)) return VectorDouble();
   VectorDouble tab;
 
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     if (useSel && ! isActive(iech)) continue;
-    tab.push_back(getGradient(iech,item));
+    tab.push_back(getLocVariable(ELoc::G,iech,item));
   }
   return tab;
-}
-
-void Db::setGradient(int iech, int item, double value)
-{
-  setFromLocator(ELoc::G, iech, item, value);
-}
-
-bool Db::hasTangent() const
-{
-  return (getLocNumber(ELoc::TGTE) > 0);
-}
-
-double Db::getTangent(int iech, int item) const
-{
-  if (!hasTangent()) return TEST;
-  return getFromLocator(ELoc::TGTE, iech, item);
 }
 
 VectorDouble Db::getTangents(int item, bool useSel) const
 {
-  if (!hasTangent()) return VectorDouble();
+  if (!hasLocVariable(ELoc::TGTE)) return VectorDouble();
   VectorDouble tab;
 
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {
     if (useSel && ! isActive(iech)) continue;
-    tab.push_back(getTangent(iech,item));
+    tab.push_back(getLocVariable(ELoc::TGTE,iech,item));
   }
   return tab;
-}
-
-void Db::setTangent(int iech, int item, double value)
-{
-  setFromLocator(ELoc::TGTE, iech, item, value);
-}
-
-bool Db::hasProportion() const
-{
-  return (getLocNumber(ELoc::P) > 0);
-}
-
-double Db::getProportion(int iech, int item) const
-{
-  if (!hasProportion()) return TEST;
-  return getFromLocator(ELoc::P, iech, item);
-}
-
-void Db::setProportion(int iech, int item, double value)
-{
-  setFromLocator(ELoc::P, iech, item, value);
 }
 
 /**
@@ -2408,7 +2260,7 @@ void Db::setProportion(int iech, int item, double value)
  */
 int Db::getSelection(int iech) const
 {
-  if (!hasSelection()) return 1;
+  if (!hasLocVariable(ELoc::SEL)) return 1;
   double value = getFromLocator(ELoc::SEL, iech, 0);
   if (FFFF(value)) return 0;
   int sel = (value != 0) ? 1 :  0;
@@ -2418,11 +2270,6 @@ int Db::getSelection(int iech) const
 void Db::setSelection(int iech, int value)
 {
   setFromLocator(ELoc::SEL, iech, 0, (value == 0) ? 0. : 1.);
-}
-
-bool Db::hasSelection() const
-{
-  return (getFromLocatorNumber(ELoc::SEL) > 0);
 }
 
 /**
@@ -2436,7 +2283,7 @@ bool Db::hasSelection() const
  */
 GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
 {
-  if (!hasSelection()) return (getSampleNumber());
+  if (!hasLocVariable(ELoc::SEL)) return (getSampleNumber());
 
   /* Case when a selection is present */
 
@@ -2455,7 +2302,7 @@ GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
  */
 int Db::getRankRelativeToAbsolute(int irel) const
 {
-  if (! hasSelection()) return irel;
+  if (! hasLocVariable(ELoc::SEL)) return irel;
   int nech = getSampleNumber(false);
   int jech = 0;
   for (int iabs = 0; iabs < nech; iabs++)
@@ -2469,7 +2316,7 @@ int Db::getRankRelativeToAbsolute(int irel) const
 
 int Db::getRankAbsoluteToRelative(int iabs) const
 {
-  if (! hasSelection()) return iabs;
+  if (! hasLocVariable(ELoc::SEL)) return iabs;
   int nech = getSampleNumber(false);
   int irel = 0;
   for (int jabs = 0; jabs < nech; jabs++)
@@ -2489,7 +2336,7 @@ int Db::getRankAbsoluteToRelative(int iabs) const
  */
 int Db::getSampleNumber(bool useSel) const
 {
-  if (! hasSelection()) return _nech;
+  if (! hasLocVariable(ELoc::SEL)) return _nech;
 
   if (! useSel)
     return _nech;
@@ -2506,7 +2353,7 @@ int Db::getSampleNumber(bool useSel) const
 
 double Db::getWeight(int iech) const
 {
-  if (!hasWeight()) return 1.;
+  if (!hasLocVariable(ELoc::W)) return 1.;
   double w = getFromLocator(ELoc::W, iech, 0);
   if (FFFF(w)) w = 1.;
   if (w < 0) w = 0.;
@@ -2521,7 +2368,7 @@ VectorDouble Db::getWeight(bool useSel) const
   VectorDouble tab(nech);
 
   if (useSel) sel = getSelection();
-  if (hasWeight()) icol = getColIdxByLocator(ELoc::W, 0);
+  if (hasLocVariable(ELoc::W)) icol = getColIdxByLocator(ELoc::W, 0);
 
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
@@ -2543,24 +2390,9 @@ void Db::setWeight(int iech, double value)
   setFromLocator(ELoc::W, iech, 0, value);
 }
 
-bool Db::hasWeight() const
-{
-  return (getFromLocatorNumber(ELoc::W) > 0);
-}
-
-int Db::getExternalDriftNumber() const
-{
-  return getFromLocatorNumber(ELoc::F);
-}
-
-bool Db::hasExternalDrift() const
-{
-  return (getExternalDriftNumber() > 0);
-}
-
 double Db::getExternalDrift(int iech, int item) const
 {
-  if (!hasExternalDrift()) return TEST;
+  if (!hasLocVariable(ELoc::F)) return TEST;
   return getFromLocator(ELoc::F, iech, item);
 }
 
@@ -2569,14 +2401,9 @@ void Db::setExternalDrift(int iech, int item, double value)
   setFromLocator(ELoc::F, iech, item, value);
 }
 
-bool Db::hasBlockExtension() const
-{
-  return (getLocNumber(ELoc::BLEX) > 0);
-}
-
 double Db::getBlockExtension(int iech, int item) const
 {
-  if (!hasBlockExtension()) return TEST;
+  if (!hasLocVariable(ELoc::BLEX)) return TEST;
   return getFromLocator(ELoc::BLEX, iech, item);
 }
 
@@ -2585,14 +2412,9 @@ void Db::setBlockExtension(int iech, int item, double value)
   setFromLocator(ELoc::BLEX, iech, item, value);
 }
 
-bool Db::hasCode() const
-{
-  return (getLocNumber(ELoc::C) > 0);
-}
-
 double Db::getCode(int iech) const
 {
-  if (!hasCode()) return 0;
+  if (!hasLocVariable(ELoc::C)) return 0;
   double code = getFromLocator(ELoc::C, iech, 0);
   if (FFFF(code)) code = 0.;
   return code;
@@ -2630,25 +2452,15 @@ VectorDouble Db::getCodeList(void)
   return (tab);
 }
 
-bool Db::hasVarianceError() const
-{
-  return (getLocNumber(ELoc::V) > 0);
-}
-
 double Db::getVarianceError(int iech, int item) const
 {
-  if (!hasVarianceError()) return 0.;
+  if (!hasLocVariable(ELoc::V)) return 0.;
   return getFromLocator(ELoc::V, iech, item);
 }
 
 void Db::setVarianceError(int iech, int item, double value)
 {
   setFromLocator(ELoc::V, iech, item, value);
-}
-
-bool Db::hasDomain() const
-{
-  return (getFromLocatorNumber(ELoc::DOM) > 0);
 }
 
 /****************************************************************************/
@@ -2665,7 +2477,7 @@ bool Db::hasDomain() const
 int Db::getDomain(int iech) const
 {
   if (! GlobalEnvironment::getEnv()->isDomainReference()) return 1;
-  if (! hasDomain()) return 1;
+  if (! hasLocVariable(ELoc::DOM)) return 1;
   double value = getFromLocator(ELoc::DOM, iech, 0);
   if (FFFF(value)) return (0);
   if (! GlobalEnvironment::getEnv()->matchDomainReference(value)) return 1;
@@ -2677,123 +2489,9 @@ void Db::setDomain(int iech, int value)
   setFromLocator(ELoc::DOM, iech, 0, (value == 0) ? 0. : 1.);
 }
 
-int Db::getDipDirectionNumber() const
-{
-  return getFromLocatorNumber(ELoc::ADIR);
-}
-
-bool Db::hasDipDirection() const
-{
-  return (getDipDirectionNumber() > 0);
-}
-
-double Db::getDipDirection(int iech) const
-{
-  if (!hasDipDirection()) return TEST;
-  return getFromLocator(ELoc::ADIR, iech, 0);
-}
-
-void Db::setDipDirection(int iech, double value)
-{
-  setFromLocator(ELoc::ADIR, iech, 0, value);
-}
-
-int Db::getDipAngleNumber() const
-{
-  return getFromLocatorNumber(ELoc::ADIP);
-}
-
-bool Db::hasDipAngle() const
-{
-  return (getDipDirectionNumber() > 0);
-}
-
-double Db::getDipAngle(int iech) const
-{
-  return getFromLocator(ELoc::ADIP, iech, 0);
-}
-
-void Db::setDipAngle(int iech, double value)
-{
-  setFromLocator(ELoc::ADIP, iech, 0, value);
-}
-
-int Db::getObjectSizeNumber() const
-{
-  return getFromLocatorNumber(ELoc::SIZE);
-}
-
-bool Db::hasObjectSize() const
-{
-  return (getObjectSizeNumber() > 0);
-}
-
-double Db::getObjectSize(int iech) const
-{
-  if (!hasObjectSize()) return TEST;
-  return getFromLocator(ELoc::SIZE, iech, 0);
-}
-
-void Db::setObjectSize(int iech, double value)
-{
-  setFromLocator(ELoc::SIZE, iech, 0, value);
-}
-
-int Db::getBorderUpNumber() const
-{
-  return getFromLocatorNumber(ELoc::BU);
-}
-
-bool Db::hasBorderUp() const
-{
-  return (getBorderUpNumber() > 0);
-}
-
-double Db::getBorderUp(int iech) const
-{
-  if (!hasBorderUp()) return TEST;
-  return getFromLocator(ELoc::BU, iech, 0);
-}
-
-void Db::setBorderUp(int iech, double value)
-{
-  setFromLocator(ELoc::BU, iech, 0, value);
-}
-
-int Db::getBorderDownNumber() const
-{
-  return getFromLocatorNumber(ELoc::BD);
-}
-
-bool Db::hasBorderDown() const
-{
-  return (getBorderDownNumber() > 0);
-}
-
-double Db::getBorderDown(int iech) const
-{
-  if (!hasBorderDown()) return TEST;
-  return getFromLocator(ELoc::BD, iech, 0);
-}
-
-void Db::setBorderDown(int iech, double value)
-{
-  setFromLocator(ELoc::BD, iech, 0, value);
-}
-
-int Db::getDateNumber() const
-{
-  return getFromLocatorNumber(ELoc::DATE);
-}
-
-bool Db::hasDate() const
-{
-  return (getDateNumber() > 0);
-}
-
 double Db::getDate(int iech) const
 {
-  if (!hasDate()) return 0.;
+  if (!hasLocVariable(ELoc::DATE)) return 0.;
   return getFromLocator(ELoc::DATE, iech, 0);
 }
 
@@ -2857,7 +2555,7 @@ bool Db::isActive(int iech) const
 bool Db::isActiveAndDefined(int iech, int item) const
 {
   if (!isActive(iech)) return false;;
-  if (FFFF(getVariable(iech, item))) return false;
+  if (FFFF(getLocVariable(ELoc::Z,iech, item))) return false;
   return true;
 }
 
@@ -2873,7 +2571,7 @@ int Db::getActiveAndDefinedNumber(int item) const
   for (int iech = 0; iech < _nech; iech++)
   {
     if (!isActive(iech)) continue;
-    if (FFFF(getVariable(iech, item))) continue;
+    if (FFFF(getLocVariable(ELoc::Z,iech, item))) continue;
     nech++;
   }
   return (nech);
@@ -3136,7 +2834,7 @@ String Db::_summaryString(void) const
   sstr << "Maximum Number of UIDs       = " << getUIDMaxNumber()
        << std::endl;
   sstr << "Total number of samples      = " << getSampleNumber() << std::endl;
-  if (hasSelection())
+  if (hasLocVariable(ELoc::SEL))
     sstr << "Number of active samples     = " << getSampleNumber(true)
          << std::endl;
   return sstr.str();
@@ -3362,7 +3060,7 @@ VectorDouble Db::getSelection(void) const
   int nech = getSampleNumber();
   VectorDouble tab;
 
-  if (!hasSelection()) return tab;
+  if (!hasLocVariable(ELoc::SEL)) return tab;
   int icol = getColIdxByLocator(ELoc::SEL,0);
   if (!isColIdxValid(icol)) return tab;
 
@@ -4521,7 +4219,7 @@ int Db::getFaciesNumber(void) const
   for (int iech=0; iech<nech; iech++)
   {
     if (! isActiveAndDefined(iech,0)) continue;
-    int ifac = (int) getVariable(iech,0);
+    int ifac = (int) getLocVariable(ELoc::Z,iech,0);
     if (ifac <= 0) continue;
     if (ifac > nfac) nfac = ifac;
   }
@@ -4711,7 +4409,7 @@ int Db::resetReduce(const Db *dbin,
   VectorInt ranksel = ranks;
   if (ranksel.empty())
   {
-    if (!dbin->hasSelection())
+    if (!dbin->hasLocVariable(ELoc::SEL))
     {
       messerr("You did not provide a vector of sample ranks and the 'db' has no selection");
       return 1;

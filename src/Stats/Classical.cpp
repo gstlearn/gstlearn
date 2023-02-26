@@ -122,7 +122,7 @@ void _updateProportions(DbGrid *dbin,
                         VectorDouble &prop)
 {
   int rank = dbin->getGrid().indiceToRank(indg);
-  int ifac = (int) dbin->getVariable(rank, 0);
+  int ifac = (int) dbin->getLocVariable(ELoc::Z,rank, 0);
   if (ifac < 1 || ifac > nfacies) return;
   prop[ifac - 1] += 1.;
 }
@@ -149,9 +149,9 @@ void _updateTransition(DbGrid *dbin,
 {
   int jpos = indg[pos] + orient;
   if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
-  int ifac1 = (int) dbin->getVariable(dbin->getGrid().indiceToRank(indg), 0);
+  int ifac1 = (int) dbin->getLocVariable(ELoc::Z,dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] += orient;
-  int ifac2 = (int) dbin->getVariable(dbin->getGrid().indiceToRank(indg), 0);
+  int ifac2 = (int) dbin->getLocVariable(ELoc::Z,dbin->getGrid().indiceToRank(indg), 0);
   indg[pos] -= orient;
 
   if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
@@ -303,7 +303,7 @@ bool _regressionCheck(Db *db1,
                       const Model *model)
 {
   int ncol = (int) icols.size();
-  int nfex = db2->getExternalDriftNumber();
+  int nfex = db2->getLocNumber(ELoc::F);
 
   switch (mode)
   {
@@ -374,8 +374,8 @@ bool _regressionLoad(Db *db1,
       break;
 
     case 1:
-      nfex = db2->getExternalDriftNumber();
-      *value = db1->getVariable(iech, 0);
+      nfex = db2->getLocNumber(ELoc::F);
+      *value = db1->getLocVariable(ELoc::Z,iech, 0);
       if (flagCste) x[ecr++] = 1.;
       for (int i = 0; i < nfex; i++)
         x[ecr++] = db2->getExternalDrift(iech, i);
@@ -383,7 +383,7 @@ bool _regressionLoad(Db *db1,
 
     case 2:
       nbfl = model->getDriftNumber();
-      *value = db1->getVariable(iech, 0);
+      *value = db1->getLocVariable(ELoc::Z,iech, 0);
       for (int i = 0; i < nbfl; i++)
          x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
       break;
@@ -843,7 +843,7 @@ VectorDouble dbStatisticsFacies(Db *db)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getVariable(iech, 0);
+    int ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
     if (ifac <= 0) continue;
     props[ifac - 1] += 1.;
     neff++;
@@ -886,7 +886,7 @@ double dbStatisticsIndicator(Db *db)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    int ifac = (int) db->getVariable(iech, 0);
+    int ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
     if (ifac == 1) prop += 1.;
     neff++;
   }
@@ -1127,7 +1127,7 @@ ResRegr regressionByUID(Db *db1,
   if (db1 == nullptr) return regr;
   if (db2 == nullptr) db2 = db1;
 
-  int nfex = db2->getExternalDriftNumber();
+  int nfex = db2->getLocNumber(ELoc::F);
   int nech = db1->getSampleNumber();
   int ncol = (int) icols.size();
   int size = 0;

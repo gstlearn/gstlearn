@@ -923,11 +923,11 @@ void db_sample_print(Db *db,
   {
     for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
-      double value = db->getVariable(iech, ivar);
+      double value = db->getLocVariable(ELoc::Z,iech, ivar);
       if (FFFF(value))
         message("Variable   #%d = NA\n", ivar + 1);
       else
-        message("Variable   #%d = %lf\n", ivar + 1, db->getVariable(iech, ivar));
+        message("Variable   #%d = %lf\n", ivar + 1, db->getLocVariable(ELoc::Z,iech, ivar));
     }
   }
   if (flag_nerr)
@@ -942,7 +942,7 @@ void db_sample_print(Db *db,
                 db->getVarianceError(iech, ierr));
     }
   }
-  if (db->hasCode())
+  if (db->hasLocVariable(ELoc::C))
   {
     double value = db->getCode(iech);
     if (FFFF(value))
@@ -1024,13 +1024,13 @@ int db_center(Db *db, double *center)
   tab = sel = wgt = nullptr;
   tab = db_vector_alloc(db);
   if (tab == nullptr) return (1);
-  if (db->hasSelection())
+  if (db->hasLocVariable(ELoc::SEL))
   {
     sel = db_vector_alloc(db);
     if (sel == nullptr) return (1);
     db_selection_get(db, 0, sel);
   }
-  if (db->hasWeight())
+  if (db->hasLocVariable(ELoc::W))
   {
     wgt = db_vector_alloc(db);
     if (wgt == nullptr) return (1);
@@ -1078,7 +1078,7 @@ int db_extension_diag(const Db *db, double *diag)
   tab = sel = nullptr;
   tab = db_vector_alloc(db);
   if (tab == nullptr) return (1);
-  if (db->hasSelection())
+  if (db->hasLocVariable(ELoc::SEL))
   {
     sel = db_vector_alloc(db);
     if (sel == nullptr) return (1);
@@ -1192,7 +1192,7 @@ int db_attribute_range(const Db *db,
   if (tab == nullptr) goto label_end;
   if (db_vector_get_att(db, iatt, tab)) goto label_end;
 
-  if (db->hasSelection())
+  if (db->hasLocVariable(ELoc::SEL))
   {
     sel = db_vector_alloc(db);
     if (sel == nullptr) goto label_end;
@@ -1410,7 +1410,7 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
     jatt = iatt + jcol;
     icol = db->getColIdxByUID(jatt);
 
-    if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
+    if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasLocVariable(ELoc::DOM))
       for (iech = 0; iech < db->getSampleNumber(); iech++)
         db->setArray(iech, icol, valinit);
     else
@@ -2345,7 +2345,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
       tab = db_vector_alloc(db);
       if (tab == nullptr) goto label_end;
       if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
-      if (db->hasSelection())
+      if (db->hasLocVariable(ELoc::SEL))
       {
         sel = db_vector_alloc(db);
         if (sel == nullptr) goto label_end;
@@ -2380,7 +2380,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     for (ivar = invalid = 0; ivar < nvar && invalid == 0; ivar++)
     {
-      ifac[ivar] = (int) db->getVariable(iech, ivar);
+      ifac[ivar] = (int) db->getLocVariable(ELoc::Z,iech, ivar);
       if (ifac[ivar] > nmax[ivar]) invalid = 1;
     }
     if (invalid) continue;
@@ -2399,8 +2399,8 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     /* Update the number of samples in the cell */
 
-    dbgrid->setProportion(jech, iclass,
-                          dbgrid->getProportion(jech, iclass) + 1);
+    dbgrid->setLocVariable(ELoc::P,jech, iclass,
+                          dbgrid->getLocVariable(ELoc::P,jech, iclass) + 1);
   }
 
   /* Normalization phase */
@@ -2411,20 +2411,20 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     total = 0.;
     for (iclass = 0; iclass < nclass; iclass++)
-      total += dbgrid->getProportion(jech, iclass);
+      total += dbgrid->getLocVariable(ELoc::P,jech, iclass);
     if (total == 1.) continue;
     if (total <= 0.)
     {
       /* No sample in the current cell */
 
       for (iclass = 0; iclass < nclass; iclass++)
-        dbgrid->setProportion(jech, iclass, TEST);
+        dbgrid->setLocVariable(ELoc::P,jech, iclass, TEST);
     }
     else
     {
       for (iclass = 0; iclass < nclass; iclass++)
-        dbgrid->setProportion(jech, iclass,
-                              dbgrid->getProportion(jech, iclass) / total);
+        dbgrid->setLocVariable(ELoc::P,jech, iclass,
+                              dbgrid->getLocVariable(ELoc::P,jech, iclass) / total);
     }
   }
   error = 0;
@@ -2700,7 +2700,7 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
     total = 0.;
     for (iprop = flag_no = 0; iprop < nprop && flag_no == 0; iprop++)
     {
-      value = db->getProportion(iech, iprop);
+      value = db->getLocVariable(ELoc::P,iech, iprop);
       if (FFFF(value))
         flag_no = 1;
       else
@@ -2709,7 +2709,7 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
 
     for (iprop = 0; iprop < nprop; iprop++, ecr++)
       props[ecr] =
-          (flag_no && total > 0) ? TEST : db->getProportion(iech, iprop)
+          (flag_no && total > 0) ? TEST : db->getLocVariable(ELoc::P,iech, iprop)
               / total;
   }
   return (0);
@@ -2756,7 +2756,7 @@ int db_prop_write(DbGrid *db, int ix, int iy, double *props)
     indices[2] = iz;
     iech = db_index_grid_to_sample(db, indices);
     for (iprop = 0; iprop < nprop; iprop++, ecr++)
-      db->setProportion(iech, iprop, props[ecr]);
+      db->setLocVariable(ELoc::P,iech, iprop, props[ecr]);
   }
   return (0);
 }
@@ -2917,7 +2917,7 @@ int db_is_isotropic(const Db *db, int iech, double *data)
   if (!db->isActive(iech)) return (0);
   for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
-    value = db->getVariable(iech, ivar);
+    value = db->getLocVariable(ELoc::Z,iech, ivar);
     if (FFFF(value)) return (0);
     if (data != NULL) data[ivar] = value;
   }
@@ -3290,7 +3290,7 @@ int db_get_rank_absolute_to_relative(Db *db, int iech0)
 {
   int iech, jech;
 
-  if (!db->hasSelection()) return (iech0);
+  if (!db->hasLocVariable(ELoc::SEL)) return (iech0);
 
   for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -3317,7 +3317,7 @@ int db_get_rank_relative_to_absolute(Db *db, int iech0)
 {
   int iech, jech;
 
-  if (!db->hasSelection()) return (iech0);
+  if (!db->hasLocVariable(ELoc::SEL)) return (iech0);
 
   for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
   {

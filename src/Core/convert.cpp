@@ -488,7 +488,7 @@ int db_write_csv(Db *db,
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         int iatt = db_attribute_identify(db, ELoc::Z, ivar);
-        csv_print_double(db->getVariable(iech, iatt));
+        csv_print_double(db->getLocVariable(ELoc::Z,iech, iatt));
         rank++;
       }
     }

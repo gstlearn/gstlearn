@@ -396,110 +396,44 @@ public:
   void   updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value);
   /**@}*/
 
-  bool   hasVariable() const;
-  double getVariable(int iech, int item) const;
   void   setVariable(int iech, int item, double value);
-  void   updVariable(int iech, int item, int oper, double value);
 
   bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
 
-  bool   hasLowerInterval() const;
-  double getLowerInterval(int iech, int item) const;
-  void   setLowerInterval(int iech, int item, double rklow);
-
-  bool   hasUpperInterval() const;
-  double getUpperInterval(int iech, int item) const;
-  void   setUpperInterval(int iech, int item, double rkup);
   void   setIntervals(int iech, int item, double rklow, double rkup);
-
   int    getIntervalNumber() const;
-
-  bool   hasLowerBound() const;
-  double getLowerBound(int iech, int item) const;
-  void   setLowerBound(int iech, int item, double lower);
-
-  bool   hasUpperBound() const;
-  double getUpperBound(int iech, int item) const;
-  void   setUpperBound(int iech, int item, double upper);
   void   setBounds(int iech, int item, double lower, double upper);
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
-
-  bool   hasGradient() const;
-  double getGradient(int iech, int item) const;
   VectorDouble getGradients(int item, bool useSel = false) const;
-  void   setGradient(int iech, int item, double value);
-
-  bool   hasTangent() const;
-  double getTangent(int iech, int item) const;
   VectorDouble getTangents(int item, bool useSel = false) const;
-  void   setTangent(int iech, int item, double value);
 
-  bool   hasProportion() const;
-  double getProportion(int iech, int item) const;
-  void   setProportion(int iech, int item, double value);
-
-  bool   hasSelection() const;
   int    getSelection(int iech) const;
   void   setSelection(int iech, int value);
   VectorDouble getSelection(void) const;
   VectorInt getSelectionRanks() const;
 
-  bool   hasWeight() const;
   double getWeight(int iech) const;
   void   setWeight(int iech, double value);
   VectorDouble getWeight(bool useSel = false) const;
 
-  int    getExternalDriftNumber() const;
-  bool   hasExternalDrift() const;
   double getExternalDrift(int iech, int item) const;
   void   setExternalDrift(int iech, int item, double value);
 
-  bool   hasBlockExtension() const;
   double getBlockExtension(int iech, int item) const;
   void   setBlockExtension(int iech, int item, double value);
 
-  bool   hasCode() const;
   double getCode(int iech) const;
   void   setCode(int iech, double value);
   VectorDouble getCodeList(void);
 
-  bool   hasVarianceError() const;
   double getVarianceError(int iech, int item) const;
   void   setVarianceError(int iech, int item, double value);
 
-  bool   hasDomain() const;
   int    getDomain(int iech) const;
   void   setDomain(int iech, int value);
 
-  int    getDipDirectionNumber() const;
-  bool   hasDipDirection() const;
-  double getDipDirection(int iech) const;
-  void   setDipDirection(int iech, double value);
-
-  int    getDipAngleNumber() const;
-  bool   hasDipAngle() const;
-  double getDipAngle(int iech) const;
-  void   setDipAngle(int iech, double value);
-
-  int    getObjectSizeNumber() const;
-  bool   hasObjectSize() const;
-  double getObjectSize(int iech) const;
-  void   setObjectSize(int iech, double value);
-
-  int    getBorderUpNumber() const;
-  bool   hasBorderUp() const;
-  double getBorderUp(int iech) const;
-  void   setBorderUp(int iech, double value);
-
-  int    getBorderDownNumber() const;
-  bool   hasBorderDown() const;
-  double getBorderDown(int iech) const;
-  void   setBorderDown(int iech, double value);
-
-  int    getDateNumber() const;
-  bool   hasDate() const;
   double getDate(int iech) const;
   void   setDate(int iech, double value);
 

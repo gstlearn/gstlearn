@@ -647,7 +647,7 @@ int db_trisurf(Db *db,
 
   ncode_eff = 1;
   ncodes = 1;
-  if (db->hasCode())
+  if (db->hasLocVariable(ELoc::C))
   {
     codetab = db->getCodeList();
     ncode_eff = static_cast<int>(codetab.size());
@@ -709,7 +709,7 @@ int db_trisurf(Db *db,
   for (int jcode = 0; jcode < ncodes; jcode++)
   {
     ntriloc = npoiloc = 0;
-    if (db->hasCode())
+    if (db->hasLocVariable(ELoc::C))
     {
       icode = (!IFFFF(icode0)) ? (int) codetab[icode0] : (int) codetab[jcode];
       message("\nProcessing Fault for code %d\n", icode);
@@ -770,7 +770,7 @@ int db_trisurf(Db *db,
   (*ncode_arg) = ncodes;
   *ntri_arg = ntricum;
   *npoint_arg = npoicum;
-  *codesel = (db->hasCode() && !IFFFF(icode0)) ? codetab[icode0] : TEST;
+  *codesel = (db->hasLocVariable(ELoc::C) && !IFFFF(icode0)) ? codetab[icode0] : TEST;
   error = 0;
 
   label_end:

@@ -547,7 +547,7 @@ static void st_set_rho(double rho, Local_Pgs *local_pgs)
     for (iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      ifac = (int) db->getVariable(iech, 0);
+      ifac = (int) db->getLocVariable(ELoc::Z,iech, 0);
       if (rule_thresh_define(propdef, db, rule, ifac, iech, 0, 0, 0, &t1min,
                              &t1max, &t2min, &t2max)) return;
       st_set_bounds(db, 1, ngrf, local_pgs->nfacies, ifac, iech, t1min, t1max,
@@ -778,14 +778,14 @@ static int st_vario_pgs_variable(int mode,
 
         for (int i = 0; i < nloop; i++)
         {
-          ifac = (flag_one) ? (int) db->getVariable(iech, 0) : i;
+          ifac = (flag_one) ? (int) db->getLocVariable(ELoc::Z,iech, 0) : i;
           jfac = (flag_one) ? ifac : ifac + 1;
           if (rule_thresh_define(propdef, db, rule, jfac, iech, 0, 0, 0, &t1min,
                                  &t1max, &t2min, &t2max)) return (1);
 
           /* Define the proportions */
 
-          if (flag_prop) db->setProportion(iech, ifac, propdef->propmem[ifac]);
+          if (flag_prop) db->setLocVariable(ELoc::P,iech, ifac, propdef->propmem[ifac]);
 
           /* Define the bounds */
 
@@ -1026,9 +1026,9 @@ static double st_func_search_nostat(double correl, void *user_data)
 
       /* In the stationary case, search in the lookup table first */
 
-      ifac1 = (int) local_pgs->db->getVariable(i1, 0) - 1;
+      ifac1 = (int) local_pgs->db->getLocVariable(ELoc::Z,i1, 0) - 1;
       if (ifac1 < 0 || ifac1 >= local_pgs->nfacies) continue;
-      ifac2 = (int) local_pgs->db->getVariable(i2, 0) - 1;
+      ifac2 = (int) local_pgs->db->getLocVariable(ELoc::Z,i2, 0) - 1;
       if (ifac2 < 0 || ifac2 >= local_pgs->nfacies) continue;
       proba = STAT_PROBA(ifac1, ifac2);
     }
@@ -1037,17 +1037,17 @@ static double st_func_search_nostat(double correl, void *user_data)
     {
       if (!TEST_DISCRET)
       {
-        low[0] = local_pgs->db->getLowerBound(i1, local_pgs->igrfcur);
-        up[0] = local_pgs->db->getUpperBound(i1, local_pgs->igrfcur);
-        low[1] = local_pgs->db->getLowerBound(i2, local_pgs->igrfcur);
-        up[1] = local_pgs->db->getUpperBound(i2, local_pgs->igrfcur);
+        low[0] = local_pgs->db->getLocVariable(ELoc::L,i1, local_pgs->igrfcur);
+        up[0] = local_pgs->db->getLocVariable(ELoc::U,i1, local_pgs->igrfcur);
+        low[1] = local_pgs->db->getLocVariable(ELoc::L,i2, local_pgs->igrfcur);
+        up[1] = local_pgs->db->getLocVariable(ELoc::U,i2, local_pgs->igrfcur);
       }
       else
       {
-        low[0] = local_pgs->db->getLowerInterval(i1, local_pgs->igrfcur);
-        up[0] = local_pgs->db->getUpperInterval(i1, local_pgs->igrfcur);
-        low[1] = local_pgs->db->getLowerInterval(i2, local_pgs->igrfcur);
-        up[1] = local_pgs->db->getUpperInterval(i2, local_pgs->igrfcur);
+        low[0] = local_pgs->db->getLocVariable(ELoc::RKLOW,i1, local_pgs->igrfcur);
+        up[0] = local_pgs->db->getLocVariable(ELoc::RKUP,i1, local_pgs->igrfcur);
+        low[1] = local_pgs->db->getLocVariable(ELoc::RKLOW,i2, local_pgs->igrfcur);
+        up[1] = local_pgs->db->getLocVariable(ELoc::RKUP,i2, local_pgs->igrfcur);
       }
       proba = st_get_proba_ind(correl, low, up, iconf0);
       if (local_pgs->flag_stat)
@@ -2592,8 +2592,8 @@ static int st_get_count(Local_Pgs *local_pgs, int ifac1, int ifac2)
   for (ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
   {
     vario_order_get_indices(local_pgs->vorder, ipair, &i1, &i2, &dist);
-    if (ifac1 != local_pgs->db->getVariable(i1, 0)) continue;
-    if (ifac2 != local_pgs->db->getVariable(i2, 0)) continue;
+    if (ifac1 != local_pgs->db->getLocVariable(ELoc::Z,i1, 0)) continue;
+    if (ifac2 != local_pgs->db->getLocVariable(ELoc::Z,i2, 0)) continue;
     w1 = local_pgs->db->getWeight(i1);
     w2 = local_pgs->db->getWeight(i2);
     number += (int) (w1 * w2);
@@ -3022,8 +3022,8 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
   for (ipair = local_pgs->ifirst; ipair < local_pgs->ilast; ipair++)
   {
     vario_order_get_indices(local_pgs->vorder, ipair, &i1, &i2, &dist);
-    ifac1 = (int) local_pgs->db->getVariable(i1, 0);
-    ifac2 = (int) local_pgs->db->getVariable(i2, 0);
+    ifac1 = (int) local_pgs->db->getLocVariable(ELoc::Z,i1, 0);
+    ifac2 = (int) local_pgs->db->getLocVariable(ELoc::Z,i2, 0);
     w1 = local_pgs->db->getWeight(i1);
     w2 = local_pgs->db->getWeight(i2);
     /* Get the bounds */
@@ -3370,7 +3370,7 @@ static int st_discard_point(Local_Pgs *local_pgs, int iech)
 
   /* Check on the facies */
 
-  ifac = (int) local_pgs->db->getVariable(iech, 0);
+  ifac = (int) local_pgs->db->getLocVariable(ELoc::Z,iech, 0);
   if (ifac < 1 || ifac > local_pgs->nfacies) return (1);
 
   /* Check on the thresholds */
@@ -3378,16 +3378,16 @@ static int st_discard_point(Local_Pgs *local_pgs, int iech)
   if (!TEST_DISCRET)
   {
     if (local_pgs->db->getIntervalNumber() <= 0) return (0);
-    low = local_pgs->db->getLowerBound(iech, local_pgs->igrfcur);
-    up = local_pgs->db->getUpperBound(iech, local_pgs->igrfcur);
+    low = local_pgs->db->getLocVariable(ELoc::L,iech, local_pgs->igrfcur);
+    up = local_pgs->db->getLocVariable(ELoc::U,iech, local_pgs->igrfcur);
   }
   else
   {
     if (get_LOCATOR_NITEM(local_pgs->db, ELoc::RKLOW) <= 0 && get_LOCATOR_NITEM(
         local_pgs->db, ELoc::RKUP)
                                                               <= 0) return (0);
-    low = local_pgs->db->getLowerInterval(iech, local_pgs->igrfcur);
-    up = local_pgs->db->getUpperInterval(iech, local_pgs->igrfcur);
+    low = local_pgs->db->getLocVariable(ELoc::RKLOW,iech, local_pgs->igrfcur);
+    up = local_pgs->db->getLocVariable(ELoc::RKUP,iech, local_pgs->igrfcur);
   }
   if (up <= low) return (1);
 
@@ -4422,35 +4422,35 @@ static void st_define_bounds(Local_Pgs *local_pgs,
   }
   else
   {
-    ploc[0] = local_pgs->db->getProportion(iech1, ifac1);
-    ploc[1] = local_pgs->db->getProportion(iech2, ifac2);
+    ploc[0] = local_pgs->db->getLocVariable(ELoc::P,iech1, ifac1);
+    ploc[1] = local_pgs->db->getLocVariable(ELoc::P,iech2, ifac2);
 
     if (!TEST_DISCRET)
     {
-      low[0] = local_pgs->db->getLowerBound(iech1, ifac1);
-      up[0] = local_pgs->db->getUpperBound(iech1, ifac1);
-      low[1] = local_pgs->db->getLowerBound(iech2, ifac2);
-      up[1] = local_pgs->db->getUpperBound(iech2, ifac2);
+      low[0] = local_pgs->db->getLocVariable(ELoc::L,iech1, ifac1);
+      up[0] = local_pgs->db->getLocVariable(ELoc::U,iech1, ifac1);
+      low[1] = local_pgs->db->getLocVariable(ELoc::L,iech2, ifac2);
+      up[1] = local_pgs->db->getLocVariable(ELoc::U,iech2, ifac2);
       if (local_pgs->ngrf > 1)
       {
-        low[2] = local_pgs->db->getLowerBound(iech1, nfacies + ifac1);
-        up[2] = local_pgs->db->getUpperBound(iech1, nfacies + ifac1);
-        low[3] = local_pgs->db->getLowerBound(iech2, nfacies + ifac2);
-        up[3] = local_pgs->db->getUpperBound(iech2, nfacies + ifac2);
+        low[2] = local_pgs->db->getLocVariable(ELoc::L,iech1, nfacies + ifac1);
+        up[2] = local_pgs->db->getLocVariable(ELoc::U,iech1, nfacies + ifac1);
+        low[3] = local_pgs->db->getLocVariable(ELoc::L,iech2, nfacies + ifac2);
+        up[3] = local_pgs->db->getLocVariable(ELoc::U,iech2, nfacies + ifac2);
       }
     }
     else
     {
-      low[0] = local_pgs->db->getLowerInterval(iech1, ifac1);
-      up[0] = local_pgs->db->getUpperInterval(iech1, ifac1);
-      low[1] = local_pgs->db->getLowerInterval(iech2, ifac2);
-      up[1] = local_pgs->db->getUpperInterval(iech2, ifac2);
+      low[0] = local_pgs->db->getLocVariable(ELoc::RKLOW,iech1, ifac1);
+      up[0] = local_pgs->db->getLocVariable(ELoc::RKUP,iech1, ifac1);
+      low[1] = local_pgs->db->getLocVariable(ELoc::RKLOW,iech2, ifac2);
+      up[1] = local_pgs->db->getLocVariable(ELoc::RKUP,iech2, ifac2);
       if (local_pgs->ngrf > 1)
       {
-        low[2] = local_pgs->db->getLowerInterval(iech1, nfacies + ifac1);
-        up[2] = local_pgs->db->getUpperInterval(iech1, nfacies + ifac1);
-        low[3] = local_pgs->db->getLowerInterval(iech2, nfacies + ifac2);
-        up[3] = local_pgs->db->getUpperInterval(iech2, nfacies + ifac2);
+        low[2] = local_pgs->db->getLocVariable(ELoc::RKLOW,iech1, nfacies + ifac1);
+        up[2] = local_pgs->db->getLocVariable(ELoc::RKUP,iech1, nfacies + ifac1);
+        low[3] = local_pgs->db->getLocVariable(ELoc::RKLOW,iech2, nfacies + ifac2);
+        up[3] = local_pgs->db->getLocVariable(ELoc::RKUP,iech2, nfacies + ifac2);
       }
     }
   }
@@ -4833,12 +4833,12 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
 
     for (int ivar = 0; ivar < nfacies; ivar++)
     {
-      double p1 = dbin->getProportion(iech, ivar);
+      double p1 = dbin->getLocVariable(ELoc::P,iech, ivar);
       mean[ivar] += p1;
 
       for (int jvar = 0; jvar < nfacies; jvar++)
       {
-        double p2 = dbin->getProportion(iech, jvar);
+        double p2 = dbin->getLocVariable(ELoc::P,iech, jvar);
         COVS(ivar,jvar) += p1 * p2;
       }
     }

@@ -178,7 +178,7 @@ int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
   // Extract the array of data and weights
   VectorDouble tab = db->getColumnByLocator(ELoc::Z, 0, true);
   VectorDouble wtab;
-  if (db->hasWeight())
+  if (db->hasLocVariable(ELoc::W))
     wtab = db->getColumnByLocator(ELoc::W, 0, true);
 
   return calculateFromArray(tab, wtab, autoCuts);

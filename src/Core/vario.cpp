@@ -254,7 +254,7 @@ static double st_get_IVAR(const Db *db, int iech, int ivar)
 {
   double zz, drfval;
 
-  zz = db->getVariable(iech, ivar);
+  zz = db->getLocVariable(ELoc::Z,iech, ivar);
   if (FFFF(zz)) return (TEST);
   if (MODEL == nullptr) return (zz);
   if (ivar != 0) return (TEST);
@@ -1123,8 +1123,8 @@ static int st_date_is_used(const VarioParam *varioparam,
                            const Db *db2)
 {
   if (varioparam->getDates().empty()) return (0);
-  if (!db1->hasDate()) return (0);
-  if (!db2->hasDate()) return (0);
+  if (!db1->hasLocVariable(ELoc::DATE)) return (0);
+  if (!db2->hasLocVariable(ELoc::DATE)) return (0);
   return (1);
 }
 
@@ -2540,7 +2540,7 @@ static int st_variogen_line_calcul(Db *db, Vario *vario)
     messerr("This calculation facility is dedicated to line architecture");
     return (1);
   }
-  if (!db->hasCode())
+  if (!db->hasLocVariable(ELoc::C))
   {
     messerr("This calculation facility requires the definition of a CODE");
     return (1);
@@ -2627,7 +2627,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
         goto label_end;
       }
       X_DRFTAB(il,iiech) = DRFLOC[il];
-      b[il] += DRFLOC[il] * db->getVariable(iech, 0);
+      b[il] += DRFLOC[il] * db->getLocVariable(ELoc::Z,iech, 0);
       for (jl = 0; jl < nbfl; jl++)
         X_MATDRF(il,jl) += DRFLOC[il] * DRFLOC[jl];
     }

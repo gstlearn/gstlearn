@@ -279,7 +279,7 @@ static int st_proportion_define(PropDef *propdef,
       double total = 0.;
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
       {
-        propdef->propfix[ifac] = propdef->dbprop->getProportion(*jech, ifac);
+        propdef->propfix[ifac] = propdef->dbprop->getLocVariable(ELoc::P,*jech, ifac);
         total += propdef->propfix[ifac];
       }
       // Discard case where the proportions are not available
@@ -291,7 +291,7 @@ static int st_proportion_define(PropDef *propdef,
       /* The proportions are already available from the dbin */
 
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
-        propdef->propfix[ifac] = db->getProportion(iech, ifac);
+        propdef->propfix[ifac] = db->getLocVariable(ELoc::P,iech, ifac);
     }
 
     /* Transform proportions (from CST to WRK) */

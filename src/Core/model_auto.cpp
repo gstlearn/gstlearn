@@ -689,7 +689,7 @@ static int st_get_vmap_dimension(const Db *dbmap,
   {
     ndef = 0;
     for (ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(dbmap->getVariable(iech, ijvar))) ndef++;
+      if (!FFFF(dbmap->getLocVariable(ELoc::Z,iech, ijvar))) ndef++;
     nbexp += ndef;
     if (ndef > 0) npadir++;
   }
@@ -2420,7 +2420,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
-        if (FFFF(DBMAP->getVariable(iech, ijvar))) continue;
+        if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
         tabge[ecr++] = model_calcul_cov_ij(model, mode, ivar, jvar, d0);
       }
   }
@@ -5062,7 +5062,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
 
     ntest = 0;
     for (ijvar = 0; ijvar < nvs2; ijvar++)
-      if (!FFFF(DBMAP->getVariable(iech, ijvar))) ntest++;
+      if (!FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) ntest++;
     if (ntest <= 0) continue;
 
     for (ijvar = 0; ijvar < nvs2; ijvar++)
@@ -5070,7 +5070,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
       WT(ijvar,ipadir)= 0.;
       GG(ijvar,ipadir) = 0.;
 
-      value = DBMAP->getVariable(iech,ijvar);
+      value = DBMAP->getLocVariable(ELoc::Z,iech,ijvar);
       if (FFFF(value)) continue;
 
       WT(ijvar,ipadir) = wgt;

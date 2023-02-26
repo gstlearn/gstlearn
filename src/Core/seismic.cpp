@@ -2104,7 +2104,7 @@ static void st_estimate_check_presence(DbGrid *db,
     for (iz = 0; iz < NZ; iz++)
     {
       iech = st_absolute_index(db, ix, iz);
-      if (!FFFF(db->getVariable(iech, ivar))) presence[ix]++;
+      if (!FFFF(db->getLocVariable(ELoc::Z,iech, ivar))) presence[ix]++;
     }
     if (presence[ix] > 0) (*npres)++;
   }
@@ -3298,7 +3298,7 @@ static void st_copy_attribute(Db *db, int nbsimu, int *iatt)
 
     for (iech = 0; iech < nech; iech++)
     {
-      value = db->getVariable(iech, ivar);
+      value = db->getLocVariable(ELoc::Z,iech, ivar);
 
       /* Loop on the simulations */
 

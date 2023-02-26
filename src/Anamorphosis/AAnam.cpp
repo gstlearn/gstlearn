@@ -252,7 +252,7 @@ int AAnam::fitFromLocator(Db *db, const ELoc& locatorType)
   }
   VectorDouble tab = db->getColumnByLocator(locatorType,0,true);
   VectorDouble wt;
-  if (db->hasWeight())
+  if (db->hasLocVariable(ELoc::W))
     wt = db->getColumnByLocator(ELoc::W,0,true);
 
   if (fitFromArray(tab, wt)) return 1;
@@ -264,7 +264,7 @@ int AAnam::fit(Db *db, const String& name)
 {
   VectorDouble tab = db->getColumn(name,true);
   VectorDouble wt;
-  if (db->hasWeight())
+  if (db->hasLocVariable(ELoc::W))
     wt = db->getColumnByLocator(ELoc::W,0,true);
 
   if (fitFromArray(tab, wt)) return 1;
