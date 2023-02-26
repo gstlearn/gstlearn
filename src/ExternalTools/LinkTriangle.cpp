@@ -585,7 +585,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
   error = 1;
   nech = db->getSampleNumber();
   ndim = db->getNDim();
-  ncode = db->getCodeNumber();
+  ncode = db->getLocNumber(ELoc::C);
   if (ndim > 2) ndim = 2;
 
   /* Count the number of active samples */

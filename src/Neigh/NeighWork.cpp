@@ -442,7 +442,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
  *****************************************************************************/
 bool NeighWork::_discardUndefined(int iech)
 {
-  if (_dbin->getVariableNumber() <= 0) return 0;
+  if (_dbin->getLocNumber(ELoc::Z) <= 0) return 0;
 
   if (! _flagSimu)
   {
@@ -720,7 +720,7 @@ void NeighWork::_display(const VectorInt& ranks)
   String string;
   int ndim = _dbin->getNDim();
   int nech = _dbin->getSampleNumber();
-  bool flag_ext = _dbin->getBlockExtensionNumber() > 0;
+  bool flag_ext = _dbin->getLocNumber(ELoc::BLEX) > 0;
 
   /* Neighborhood data */
 

@@ -637,10 +637,10 @@ static int st_check_environment(int flag_in,
     }
     // The following test is avoided in the case of simulations
     // as there may be no Z-variable defined as this stage (Gibbs)
-    if (flag_in && !FLAG_SIMU && DBIN->getVariableNumber() != nvar)
+    if (flag_in && !FLAG_SIMU && DBIN->getLocNumber(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              DBIN->getVariableNumber());
+              DBIN->getLocNumber(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       goto label_end;
     }
@@ -950,7 +950,7 @@ static void st_data_discretize_alloc(int ndim)
   int nrow, ncol;
 
   KOPTION->flag_data_disc = 0;
-  if (DBIN->getBlockExtensionNumber() > 0)
+  if (DBIN->getLocNumber(ELoc::BLEX) > 0)
   {
     if (!get_keypair("Data_Discretization", &nrow, &ncol, &KOPTION->dsize))
     {
@@ -968,7 +968,7 @@ static void st_data_discretize_alloc(int ndim)
     }
     else
     {
-      if (DBIN->getBlockExtensionNumber() > 0)
+      if (DBIN->getLocNumber(ELoc::BLEX) > 0)
       {
         message("\n");
         message("Your Input Data File contains 'dblk' locator(s)\n");
@@ -1401,7 +1401,7 @@ static void krige_wgt_print(int status,
     tab_prints(NULL, strloc.c_str());
   }
   if (DBIN->hasCode()) tab_prints(NULL, "Code");
-  if (DBIN->getVarianceErrorNumber() > 0)
+  if (DBIN->getLocNumber(ELoc::V) > 0)
     tab_prints(NULL, "Err.");
   if (KOPTION->flag_data_disc) for (idim = 0; idim < ndim; idim++)
   {
@@ -1434,7 +1434,7 @@ static void krige_wgt_print(int status,
         tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasCode())
         tab_printg(NULL, DBIN->getCode(nbgh_ranks[iech]));
-      if (DBIN->getVarianceErrorNumber() > 0)
+      if (DBIN->getLocNumber(ELoc::V) > 0)
         tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
@@ -1458,7 +1458,7 @@ static void krige_wgt_print(int status,
     }
 
     number = 1 + ndim + 1;
-    if (DBIN->getVarianceErrorNumber() > 0) number++;
+    if (DBIN->getLocNumber(ELoc::V) > 0) number++;
     if (KOPTION->flag_data_disc) number += ndim + 1;
     tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
@@ -1661,10 +1661,10 @@ Global_Res global_arithmetic(Db *dbin,
 
   /* Preliminary checks */
 
-  if (ivar0 < 0 || ivar0 >= dbin->getVariableNumber())
+  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            ivar0 + 1, dbin->getVariableNumber());
+            ivar0 + 1, dbin->getLocNumber(ELoc::Z));
     return gres;
   }
 
@@ -1774,10 +1774,10 @@ Global_Res global_kriging(Db *dbin,
 
   /* Preliminary tests */
 
-  if (ivar0 < 0 || ivar0 >= dbin->getVariableNumber())
+  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-        ivar0 + 1, dbin->getVariableNumber());
+        ivar0 + 1, dbin->getLocNumber(ELoc::Z));
     return gres;
   }
 
@@ -1944,7 +1944,7 @@ int global_transitive(DbGrid *dbgrid,
   /* Abundance estimation */
 
   flag_value = 0;
-  if (dbgrid->getVariableNumber() == 1)
+  if (dbgrid->getLocNumber(ELoc::Z) == 1)
   {
     for (i = 0; i < dbgrid->getSampleNumber(); i++)
     {
@@ -2589,7 +2589,7 @@ int anakexp_f(DbGrid *db,
   FLAG_EST = true;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
-  nvarin = db->getVariableNumber();
+  nvarin = db->getLocNumber(ELoc::Z);
   nbefore_mem = nafter_mem = -1;
   size = nech = 0;
 
@@ -3273,7 +3273,7 @@ int anakexp_3D(DbGrid *db,
   num_tot = nei_cur = nei_ref = nullptr;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
-  nvarin = db->getVariableNumber();
+  nvarin = db->getLocNumber(ELoc::Z);
   size_nei = 0;
 
   /* Prepare the Koption structure */
@@ -3594,7 +3594,7 @@ int krigsum(Db *dbin,
             bool flag_positive,
             const NamingConvention& namconv)
 {
-  int nvar = dbin->getVariableNumber();
+  int nvar = dbin->getLocNumber(ELoc::Z);
   if (model->getVariableNumber() != 1)
   {
     messerr("This procedure requires a monovariate model");
@@ -3726,7 +3726,7 @@ VectorInt neigh_calc(Db* dbin,
 
   // Initializations
   int ndim = dbin->getNDim();
-  int nvar = dbin->getVariableNumber();
+  int nvar = dbin->getLocNumber(ELoc::Z);
   if (nvar <= 0) nvar = 1;
 
   // Create a temporary model

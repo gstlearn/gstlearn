@@ -104,7 +104,7 @@ Model::~Model()
 int Model::resetFromDb(const Db *db)
 {
   int ndim = db->getNDim();
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (nvar <= 0) nvar = 1;
   SpaceRN space = SpaceRN(ndim);
   _ctxt = CovContext(nvar, &space);

@@ -208,12 +208,12 @@ int KrigingSystem::_getNVar() const
   }
   if (_dbin != nullptr)
   {
-    if (nvar > 0 && nvar != _dbin->getVariableNumber())
+    if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
     {
       messerr("Inconsistent number of Variables - Value is returned as 0");
       return 0;
     }
-    nvar = _dbin->getVariableNumber();
+    nvar = _dbin->getLocNumber(ELoc::Z);
   }
   return nvar;
 }
@@ -1202,7 +1202,7 @@ void KrigingSystem::_wgtDump(int status)
     tab_prints(NULL, strloc.c_str());
   }
   if (_dbin->hasCode()) tab_prints(NULL, "Code");
-  if (_dbin->getVarianceErrorNumber() > 0)
+  if (_dbin->getLocNumber(ELoc::V) > 0)
     tab_prints(NULL, "Err.");
   if (ndisc > 0)
     for (int idim = 0; idim < ndim; idim++)
@@ -1238,7 +1238,7 @@ void KrigingSystem::_wgtDump(int status)
         tab_printg(NULL, _getIdim(_nbgh[iech], idim));
       if (_dbin->hasCode())
         tab_printg(NULL, _dbin->getCode(_nbgh[iech]));
-      if (_dbin->getVarianceErrorNumber() > 0)
+      if (_dbin->getLocNumber(ELoc::V) > 0)
         tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
       if (ndisc > 0)
       {
@@ -1264,7 +1264,7 @@ void KrigingSystem::_wgtDump(int status)
     }
 
     int number = 1 + ndim + 1;
-    if (_dbin->getVarianceErrorNumber() > 0) number++;
+    if (_dbin->getLocNumber(ELoc::V) > 0) number++;
     if (ndisc > 0) number += ndim;
     tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
@@ -2478,7 +2478,7 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
   _isReady = false;
   if (flag_code)
   {
-    if (! _dbin->hasCode() || _dbin->getVarianceErrorNumber() != 1)
+    if (! _dbin->hasCode() || _dbin->getLocNumber(ELoc::V) != 1)
     {
       messerr("This method requires variables CODE and V to be defined");
       return 1;
@@ -2705,12 +2705,12 @@ bool KrigingSystem::_isCorrect()
   int nvar = 0;
   if (_dbin != nullptr && ! _flagSimu)
   {
-    if (nvar > 0 && nvar != _dbin->getVariableNumber())
+    if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
     {
       messerr("Incompatible Variable Number of '_dbin'");
       return false;
     }
-    nvar = _dbin->getVariableNumber();
+    nvar = _dbin->getLocNumber(ELoc::Z);
   }
   if (_model != nullptr)
   {

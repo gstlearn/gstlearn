@@ -4467,7 +4467,7 @@ static void st_vmap_varchol_manage(const Db *dbmap, VectorDouble &varchol)
 
   /* Initializations */
 
-  nvar = dbmap->getVariableNumber();
+  nvar = dbmap->getLocNumber(ELoc::Z);
   size = nvar * (nvar + 1) / 2;
   nvar2 = nvar * nvar;
 
@@ -4928,10 +4928,10 @@ static int st_vmap_auto_count(const Db *dbmap,
 
   /* Check the number of Variogram Maps */
 
-  if (nvar * (nvar + 1) / 2 != dbmap->getVariableNumber())
+  if (nvar * (nvar + 1) / 2 != dbmap->getLocNumber(ELoc::Z))
   {
     messerr("The number of items in the Db Grid for Variogram maps (%d)",
-            dbmap->getVariableNumber());
+            dbmap->getLocNumber(ELoc::Z));
     messerr("is not compatible with the number of variables in the Model (%d)",
             nvar);
     return (-1);
@@ -5045,7 +5045,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
   /* Initializations */
 
   nech = DBMAP->getSampleNumber();
-  nvar = DBMAP->getVariableNumber();
+  nvar = DBMAP->getLocNumber(ELoc::Z);
   nvs2 = nvar * (nvar + 1) / 2;
   db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
 
@@ -5056,8 +5056,7 @@ static void st_load_vmap(int npadir, VectorDouble &gg, VectorDouble &wt)
   {
     db_index_sample_to_grid(DBMAP, iech, INDG2);
     dist = distance_intra(DBMAP, nech / 2, iech, NULL);
-    wgt = (dist > 0) ? 1. / dist :
-                       0.;
+    wgt = (dist > 0) ? 1. / dist : 0.;
 
     /* Check samples containing only undefined values */
 
@@ -5131,10 +5130,10 @@ int vmap_auto_fit(const DbGrid *dbmap,
 
   error = 1;
   nvar = model->getVariableNumber();
-  if (nvar != dbmap->getVariableNumber())
+  if (nvar != dbmap->getLocNumber(ELoc::Z))
   {
     messerr("Number of variables in Db (%d) must match the one in Model (%d)",
-            model->getVariableNumber(), dbmap->getVariableNumber());
+            model->getVariableNumber(), dbmap->getLocNumber(ELoc::Z));
     goto label_end;
   }
   if (constraints.isConstraintSillDefined())

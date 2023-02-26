@@ -77,7 +77,7 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
 
     if (flag_propagation)
     {
-      if (db->getLowerBoundNumber() >= 0 || db->getUpperBoundNumber() >= 0)
+      if (db->getLocNumber(ELoc::L) >= 0 || db->getLocNumber(ELoc::U) >= 0)
       {
         messerr(
             "The option 'flag_propagation' is incompatible with presence of Bounds");

@@ -921,7 +921,7 @@ void db_sample_print(Db *db,
   }
   if (flag_nvar)
   {
-    for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
       double value = db->getVariable(iech, ivar);
       if (FFFF(value))
@@ -932,7 +932,7 @@ void db_sample_print(Db *db,
   }
   if (flag_nerr)
   {
-    for (int ierr = 0; ierr < db->getVarianceErrorNumber(); ierr++)
+    for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
     {
       double value = db->getVarianceError(iech, ierr);
       if (FFFF(value))
@@ -1496,8 +1496,8 @@ int db_gradient_update(Db *db)
 
 {
   int ndim = db->getNDim();
-  int ngrad = db->getGradientNumber();
-  int nvar = db->getVariableNumber();
+  int ngrad = db->getLocNumber(ELoc::G);
+  int nvar = db->getLocNumber(ELoc::Z);
 
   /* Preliminary checks */
 
@@ -2319,7 +2319,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
   /* Initializations */
 
   error = 1;
-  nvar = db->getVariableNumber();
+  nvar = db->getLocNumber(ELoc::Z);
   nech = db->getSampleNumber();
   nclass = 0;
   coor = tab = sel = nullptr;
@@ -2672,7 +2672,7 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
 
   /* Initializations */
 
-  nprop = db->getProportionNumber();
+  nprop = db->getLocNumber(ELoc::P);
   nz = db->getNX(2);
   for (i = 0; i < nz * nprop; i++)
     props[i] = 0.;
@@ -2735,7 +2735,7 @@ int db_prop_write(DbGrid *db, int ix, int iy, double *props)
 
   /* Initializations */
 
-  nprop = db->getProportionNumber();
+  nprop = db->getLocNumber(ELoc::P);
   nz = db->getNX(2);
 
   /* Preliminary checks */
@@ -2811,12 +2811,12 @@ double* db_distances_general(Db *db1,
 
   /* Preliminary checks */
 
-  if (niso > db1->getVariableNumber() || niso > db2->getVariableNumber())
+  if (niso > db1->getLocNumber(ELoc::Z) || niso > db2->getLocNumber(ELoc::Z))
   {
     messerr("You ask for distances between samples with %d variables defined",
             niso);
     messerr("But the input 'Db' have %d and %d variables defined",
-            db1->getVariableNumber(), db2->getVariableNumber());
+            db1->getLocNumber(ELoc::Z), db2->getLocNumber(ELoc::Z));
     return (dist);
   }
 
@@ -2915,7 +2915,7 @@ int db_is_isotropic(const Db *db, int iech, double *data)
   double value;
 
   if (!db->isActive(iech)) return (0);
-  for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
     value = db->getVariable(iech, ivar);
     if (FFFF(value)) return (0);

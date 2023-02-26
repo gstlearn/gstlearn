@@ -1512,13 +1512,13 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     }
     else
     {
-      if (dbin->getVariableNumber() != nvar && S_DECIDE.flag_case
+      if (dbin->getLocNumber(ELoc::Z) != nvar && S_DECIDE.flag_case
           != CASE_MATRICES
           && !S_DECIDE.flag_gibbs)
       {
         messerr(
             "Model (%d) and Input Db (%d) must refer to the same number of variables",
-            nvar, dbin->getVariableNumber());
+            nvar, dbin->getLocNumber(ELoc::Z));
         return (1);
       }
     }

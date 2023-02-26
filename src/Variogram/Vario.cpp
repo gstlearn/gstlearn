@@ -214,7 +214,7 @@ int Vario::compute(const ECalcVario &calcul,
     messerr("The 'Db' must have been attached beforehand");
     return 1;
   }
-  _nVar = _db->getVariableNumber();
+  _nVar = _db->getLocNumber(ELoc::Z);
   if (_nVar <= 0)
   {
     messerr("The 'db' must contain at least one variable defined");
@@ -413,7 +413,7 @@ int Vario::computeIndic(const ECalcVario& calcul,
     messerr("The 'Db' must have been attached beforehand");
     return 1;
   }
-  int nvar = _db->getVariableNumber();
+  int nvar = _db->getLocNumber(ELoc::Z);
   if (nvar != 1)
   {
     messerr("The 'db' must contain ONE variable defined");
@@ -670,7 +670,7 @@ int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
   _db = db;
   if (db != nullptr)
   {
-    int nvar = _db->getVariableNumber();
+    int nvar = _db->getLocNumber(ELoc::Z);
     if (nvar <= 0)
     {
       messerr("Some variables must be defined in the 'Db'");
@@ -1975,7 +1975,7 @@ int Vario::_getNVar(const Db* db)
 {
   if (db != nullptr)
   {
-    _nVar = db->getVariableNumber();
+    _nVar = db->getLocNumber(ELoc::Z);
     return 0;
   }
   else if (!_means.empty())

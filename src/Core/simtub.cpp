@@ -393,10 +393,10 @@ static int st_check_simtub_environment(Db *dbin,
               model->getVariableNumber());
       return 1;
     }
-    if (flag_cond && dbin->getVariableNumber() != nvar)
+    if (flag_cond && dbin->getLocNumber(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              dbin->getVariableNumber());
+              dbin->getLocNumber(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       return 1;
     }
@@ -506,7 +506,7 @@ int simbool(Db* dbin,
   int iptr_cover = -1;
   if (dbin != nullptr)
   {
-    if (dbin->getVariableNumber() != 1)
+    if (dbin->getLocNumber(ELoc::Z) != 1)
     {
       messerr("Conditional Boolean simulation needs 1 variable");
       return 1;

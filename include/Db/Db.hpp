@@ -377,7 +377,25 @@ public:
                            const VectorDouble &values,
                            bool bySample = false);
 
-  int    getVariableNumber() const;
+  /**
+   * \defgroup DbLoc Db: Get and Set functions by Locator
+   * \brief Various functions for accessing fields of the Db using the locator designation, such as:
+   * \li getLocNumber: check the number of fields corresponding to the target locator
+   * \li hasLocVariable: check if there is at least one field corresponding to the target locator
+   * \li getLocVariable: Get the value of the field corresponding to the target locator and the target sample
+   * \li setLocVariable: Set the value of the field corresponding to the target locator and the target sample
+   * \li updLocVariable: Update the value of the field corresponding to the target locator and the target sample
+   *
+   * @param loctype Target locator
+   *  @{
+   */
+  int    getLocNumber(const ELoc& loctype) const;
+  bool   hasLocVariable(const ELoc& loctype) const;
+  double getLocVariable(const ELoc& loctype, int iech, int item) const;
+  void   setLocVariable(const ELoc& loctype, int iech, int item, double value);
+  void   updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value);
+  /**@}*/
+
   bool   hasVariable() const;
   double getVariable(int iech, int item) const;
   void   setVariable(int iech, int item, double value);
@@ -387,12 +405,10 @@ public:
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
 
-  int    getLowerIntervalNumber() const;
   bool   hasLowerInterval() const;
   double getLowerInterval(int iech, int item) const;
   void   setLowerInterval(int iech, int item, double rklow);
 
-  int    getUpperIntervalNumber() const;
   bool   hasUpperInterval() const;
   double getUpperInterval(int iech, int item) const;
   void   setUpperInterval(int iech, int item, double rkup);
@@ -400,31 +416,26 @@ public:
 
   int    getIntervalNumber() const;
 
-  int    getLowerBoundNumber() const;
   bool   hasLowerBound() const;
   double getLowerBound(int iech, int item) const;
   void   setLowerBound(int iech, int item, double lower);
 
-  int    getUpperBoundNumber() const;
   bool   hasUpperBound() const;
   double getUpperBound(int iech, int item) const;
   void   setUpperBound(int iech, int item, double upper);
   void   setBounds(int iech, int item, double lower, double upper);
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
 
-  int    getGradientNumber() const;
   bool   hasGradient() const;
   double getGradient(int iech, int item) const;
   VectorDouble getGradients(int item, bool useSel = false) const;
   void   setGradient(int iech, int item, double value);
 
-  int    getTangentNumber() const;
   bool   hasTangent() const;
   double getTangent(int iech, int item) const;
   VectorDouble getTangents(int item, bool useSel = false) const;
   void   setTangent(int iech, int item, double value);
 
-  int    getProportionNumber() const;
   bool   hasProportion() const;
   double getProportion(int iech, int item) const;
   void   setProportion(int iech, int item, double value);
@@ -445,18 +456,15 @@ public:
   double getExternalDrift(int iech, int item) const;
   void   setExternalDrift(int iech, int item, double value);
 
-  int    getBlockExtensionNumber() const;
   bool   hasBlockExtension() const;
   double getBlockExtension(int iech, int item) const;
   void   setBlockExtension(int iech, int item, double value);
 
-  int    getCodeNumber() const;
   bool   hasCode() const;
   double getCode(int iech) const;
   void   setCode(int iech, double value);
   VectorDouble getCodeList(void);
 
-  int    getVarianceErrorNumber() const;
   bool   hasVarianceError() const;
   double getVarianceError(int iech, int item) const;
   void   setVarianceError(int iech, int item, double value);

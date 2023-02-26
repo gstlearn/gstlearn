@@ -169,7 +169,7 @@ int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
     messerr("You must provide a valid 'Db'");
     return 1;
   }
-  if (db->getVariableNumber() != 1)
+  if (db->getLocNumber(ELoc::Z) != 1)
   {
     messerr("The 'Db' must contain a SINGLE variable");
     return 1;

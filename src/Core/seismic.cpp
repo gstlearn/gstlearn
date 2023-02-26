@@ -1573,7 +1573,7 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
   error = 1;
   db_v = db_z;
   ndim = db_z->getNDim();
-  natt = db_z->getVariableNumber();
+  natt = db_z->getLocNumber(ELoc::Z);
   nz = db_z->getNX(ndim - 1);
   nt = db_t->getNX(ndim - 1);
   z0 = db_z->getX0(ndim - 1);
@@ -1644,7 +1644,7 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
   error = 1;
   db_v = db_t;
   ndim = db_t->getNDim();
-  natt = db_t->getVariableNumber();
+  natt = db_t->getLocNumber(ELoc::Z);
   nz = db_z->getNX(ndim - 1);
   nt = db_t->getNX(ndim - 1);
   z0 = db_z->getX0(ndim - 1);
@@ -1710,7 +1710,7 @@ int seismic_operate(DbGrid *db, int oper)
 
   if (st_match(db, nullptr)) return (1);
   ndim = db->getNDim();
-  natt = db->getVariableNumber();
+  natt = db->getLocNumber(ELoc::Z);
   nt = db->getNX(ndim - 1);
   dt = db->getDX(ndim - 1);
 
@@ -1871,7 +1871,7 @@ int seismic_convolve(DbGrid *db,
   if (st_match(db, nullptr)) return (1);
   tab0 = tab1 = tab2 = nullptr;
   ndim = db->getNDim();
-  natt = db->getVariableNumber();
+  natt = db->getLocNumber(ELoc::Z);
   nz = db->getNX(ndim - 1);
   dz = db->getDX(ndim - 1);
   error = size = 0;
@@ -3108,7 +3108,7 @@ int seismic_estimate_XZ(DbGrid *db,
   NZ = db->getNX(2);
   DX = db->getDX(0);
   DZ = db->getDX(2);
-  NVAR = db->getVariableNumber();
+  NVAR = db->getLocNumber(ELoc::Z);
   iatt_z1 = db_attribute_identify(db, ELoc::Z, 0);
   iatt_z2 = db_attribute_identify(db, ELoc::Z, 1);
 
@@ -3373,7 +3373,7 @@ int seismic_simulate_XZ(DbGrid *db,
   NZ = db->getNX(2);
   DX = db->getDX(0);
   DZ = db->getDX(2);
-  NVAR = db->getVariableNumber();
+  NVAR = db->getLocNumber(ELoc::Z);
 
   if (!(NX > 1 && NY == 1 && NZ > 1))
   {

@@ -34,7 +34,7 @@ CalcGridToGrid::~CalcGridToGrid()
 int CalcGridToGrid::_getNVar() const
 {
   int nvar = 0;
-  if (getDbin() != nullptr) nvar = getDbin()->getVariableNumber();
+  if (getDbin() != nullptr) nvar = getDbin()->getLocNumber(ELoc::Z);
   return nvar;
 }
 

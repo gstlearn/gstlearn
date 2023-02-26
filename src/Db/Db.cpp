@@ -2024,9 +2024,70 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
   }
 }
 
-int Db::getVariableNumber() const
+/**
+ * \copydoc DbLoc
+ * @return Number of fields
+ */
+int Db::getLocNumber(const ELoc& loctype) const
 {
-  return getFromLocatorNumber(ELoc::Z);
+  if (loctype == ELoc::UNKNOWN) return 0;
+  return getFromLocatorNumber(loctype);
+}
+
+/**
+ * \copydoc DbLoc
+ * @return TRUE if at least one field corresponds to 'loctype' locator; FALSE otherwise
+ */
+bool Db::hasLocVariable(const ELoc& loctype) const
+{
+  if (loctype == ELoc::UNKNOWN) return 0;
+  return getFromLocatorNumber(loctype);
+}
+
+/**
+ * \copydoc DbLoc
+ * @param iech    Target sample (0 based)
+ * @param item    Rank of the 'loctype' locator (0 based)
+ * @return Returned value
+ */
+double Db::getLocVariable(const ELoc& loctype, int iech, int item) const
+{
+  if (!hasLocVariable(loctype)) return (TEST);
+  return getFromLocator(loctype, iech, item);
+}
+
+/**
+ * \copydoc DbLoc
+ * @param iech    Target sample rank (0 based)
+ * @param item    Rank of the 'loctype' locator (0 based)
+ * @param value   Value to be assigned
+ */
+void Db::setLocVariable(const ELoc& loctype, int iech, int item, double value)
+{
+  if (loctype == ELoc::UNKNOWN) return;
+  setFromLocator(loctype, iech, item, value);
+}
+
+/**
+ * \copydoc DbLoc
+ * @param iech    Target sample rank (0 based)
+ * @param item    Rank of the 'loctype' locator (0 based)
+ * @param oper    Type of operation
+ * \li                 0 : New = New + Old
+ * \li                 1 : New = New * Old
+ * \li                 2 : New = New - Old
+ * \li                 3 : New = Old / New
+ * \li                 4 : New = New (only if old is defined)
+ * \li                 5 : New = MAX(New, Old)
+ * \li                 6 : New = MIN(New, Old)
+ * @param value   Assigned value
+ */
+void Db::updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value)
+{
+  if (loctype == ELoc::UNKNOWN) return;
+  double oldval = getFromLocator(loctype, iech, item);
+  double newval = _updateValue(oper, oldval, value);
+  setFromLocator(loctype, iech, item, newval);
 }
 
 /**
@@ -2039,28 +2100,28 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
 {
   if (compare == 0)
   {
-    if (getVariableNumber() != nvar)
+    if (getLocNumber(ELoc::Z) != nvar)
     {
       messerr("This function requires %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getVariableNumber());
+              nvar,getLocNumber(ELoc::Z));
       return false;
     }
   }
   else if (compare < 0)
   {
-    if (! (getVariableNumber() <= nvar))
+    if (! (getLocNumber(ELoc::Z) <= nvar))
     {
       messerr("This function requires nvar <= %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getVariableNumber());
+              nvar,getLocNumber(ELoc::Z));
       return false;
     }
   }
   else
   {
-    if (! (getVariableNumber() > nvar))
+    if (! (getLocNumber(ELoc::Z) > nvar))
     {
       messerr("This function requires nvar >= %d variables (locator 'Z'). The 'Db' contains %d variables",
-              nvar,getVariableNumber());
+              nvar,getLocNumber(ELoc::Z));
       return false;
     }
   }
@@ -2081,7 +2142,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
  */
 bool Db::isIsotopic(int iech, int nvar_max) const
 {
-  int nvar = getVariableNumber();
+  int nvar = getLocNumber(ELoc::Z);
   if (nvar_max > 0) nvar = MIN(nvar, nvar_max);
   if (nvar <= 0) return false;
   if (!isSampleIndexValid(iech)) return false;
@@ -2093,7 +2154,7 @@ bool Db::isIsotopic(int iech, int nvar_max) const
 
 bool Db::isAllUndefined(int iech) const
 {
-  int nvar = getVariableNumber();
+  int nvar = getLocNumber(ELoc::Z);
   if (nvar <= 0) return false;
   if (!isSampleIndexValid(iech)) return false;
 
@@ -2104,7 +2165,7 @@ bool Db::isAllUndefined(int iech) const
 
 bool Db::hasVariable() const
 {
-  return (getVariableNumber() > 0);
+  return (getLocNumber(ELoc::Z) > 0);
 }
 
 double Db::getVariable(int iech, int item) const
@@ -2146,27 +2207,17 @@ void Db::updVariable(int iech, int item, int oper, double value)
 
 int Db::getIntervalNumber() const
 {
-  return MAX(getLowerIntervalNumber(), getUpperIntervalNumber());
-}
-
-int Db::getLowerIntervalNumber() const
-{
-  return getFromLocatorNumber(ELoc::RKLOW);
+  return MAX(getLocNumber(ELoc::RKLOW), getLocNumber(ELoc::RKUP));
 }
 
 bool Db::hasLowerInterval() const
 {
-  return (getLowerIntervalNumber() > 0);
-}
-
-int Db::getUpperIntervalNumber() const
-{
-  return getFromLocatorNumber(ELoc::RKUP);
+  return (getLocNumber(ELoc::RKLOW) > 0);
 }
 
 bool Db::hasUpperInterval() const
 {
-  return (getUpperIntervalNumber() > 0);
+  return (getLocNumber(ELoc::RKUP) > 0);
 }
 
 double Db::getLowerInterval(int iech, int item) const
@@ -2203,24 +2254,14 @@ void Db::setIntervals(int iech, int item, double rklow, double rkup)
   setFromLocator(ELoc::RKUP,  iech, item, rkup);
 }
 
-int Db::getLowerBoundNumber() const
-{
-  return getFromLocatorNumber(ELoc::L);
-}
-
-int Db::getUpperBoundNumber() const
-{
-  return getFromLocatorNumber(ELoc::U);
-}
-
 bool Db::hasLowerBound() const
 {
-  return (getLowerBoundNumber() > 0);
+  return (getLocNumber(ELoc::L) > 0);
 }
 
 bool Db::hasUpperBound() const
 {
-  return (getUpperBoundNumber() > 0);
+  return (getLocNumber(ELoc::U) > 0);
 }
 
 double Db::getLowerBound(int iech, int item) const
@@ -2285,14 +2326,9 @@ VectorDouble Db::getWithinBounds(int item, bool useSel) const
   return vec;
 }
 
-int Db::getGradientNumber() const
-{
-  return getFromLocatorNumber(ELoc::G);
-}
-
 bool Db::hasGradient() const
 {
-  return (getGradientNumber() > 0);
+  return (getLocNumber(ELoc::G) > 0);
 }
 
 double Db::getGradient(int iech, int item) const
@@ -2319,14 +2355,9 @@ void Db::setGradient(int iech, int item, double value)
   setFromLocator(ELoc::G, iech, item, value);
 }
 
-int Db::getTangentNumber() const
-{
-  return getFromLocatorNumber(ELoc::TGTE);
-}
-
 bool Db::hasTangent() const
 {
-  return (getTangentNumber() > 0);
+  return (getLocNumber(ELoc::TGTE) > 0);
 }
 
 double Db::getTangent(int iech, int item) const
@@ -2353,14 +2384,9 @@ void Db::setTangent(int iech, int item, double value)
   setFromLocator(ELoc::TGTE, iech, item, value);
 }
 
-int Db::getProportionNumber() const
-{
-  return getFromLocatorNumber(ELoc::P);
-}
-
 bool Db::hasProportion() const
 {
-  return (getProportionNumber() > 0);
+  return (getLocNumber(ELoc::P) > 0);
 }
 
 double Db::getProportion(int iech, int item) const
@@ -2543,14 +2569,9 @@ void Db::setExternalDrift(int iech, int item, double value)
   setFromLocator(ELoc::F, iech, item, value);
 }
 
-int Db::getBlockExtensionNumber() const
-{
-  return getFromLocatorNumber(ELoc::BLEX);
-}
-
 bool Db::hasBlockExtension() const
 {
-  return (getBlockExtensionNumber() > 0);
+  return (getLocNumber(ELoc::BLEX) > 0);
 }
 
 double Db::getBlockExtension(int iech, int item) const
@@ -2564,14 +2585,9 @@ void Db::setBlockExtension(int iech, int item, double value)
   setFromLocator(ELoc::BLEX, iech, item, value);
 }
 
-int Db::getCodeNumber() const
-{
-  return getFromLocatorNumber(ELoc::C);
-}
-
 bool Db::hasCode() const
 {
-  return (getCodeNumber() > 0);
+  return (getLocNumber(ELoc::C) > 0);
 }
 
 double Db::getCode(int iech) const
@@ -2614,14 +2630,9 @@ VectorDouble Db::getCodeList(void)
   return (tab);
 }
 
-int Db::getVarianceErrorNumber() const
-{
-  return getFromLocatorNumber(ELoc::V);
-}
-
 bool Db::hasVarianceError() const
 {
-  return (getVarianceErrorNumber() > 0);
+  return (getLocNumber(ELoc::V) > 0);
 }
 
 double Db::getVarianceError(int iech, int item) const

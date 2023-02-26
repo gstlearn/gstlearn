@@ -855,7 +855,7 @@ int _db_bounds(Db *db,
 
   /* Input Db */
 
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (!db->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Model (for SHIFT case) */
@@ -1018,11 +1018,11 @@ PropDef* proportion_manage(int mode,
           messerr("The 'Db' used for Proportions must be a Grid");
           goto label_end;
         }
-        if (db_loc->getProportionNumber() != nfacprod)
+        if (db_loc->getLocNumber(ELoc::P) != nfacprod)
         {
           messerr(
               "In the non-stationary case, the number of proportion variables (%d)",
-              db_loc->getProportionNumber());
+              db_loc->getLocNumber(ELoc::P));
           messerr(
               "must be equal to the number of facies (%d) in the Lithotype Rule",
               nfacprod);
