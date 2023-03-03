@@ -67,10 +67,10 @@ p = p + plot.decoration(title="Display of Grid Cells")
 ggPrint(p)
 ```
 
-Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors.
+Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'na.values' serves for encoding pixels whose values have been left undefined.
 
 ```{r}
-ggDefault(2) + plot.grid(mygrid, palette=c("yellow","red","blue"), na.value="yellow")
+ggDefault(2) + plot.grid(mygrid, palette=c("yellow","red","blue"), na.value="white")
 ```
 
 Displaying the grid nodes only
