@@ -2229,68 +2229,6 @@ void db_monostat(Db *db,
   return;
 }
 
-/****************************************************************************/
-/*!
- **  Create a selection if the samples of a Db are inside Polygons
- **
- ** \param[in]  db          Db structure
- ** \param[in]  polygon     Polygons structure
- ** \param[in]  flag_sel    1 if previous selection must be taken into account
- ** \param[in]  flag_period 1 if first coordinate is longitude (in degree) and
- **                         must be cycled for the check
- ** \param[in]  flag_nested Option for nested polysets (see details)
- ** \param[in]  namconv     Naming Convention
- **
- ** \remarks If flag_nested=1, a sample is masked off if the number of
- ** \remarks polysets to which it belongs is odd
- ** \remarks If flag_nested=0, a sample is masked off as soon as it
- ** \remarks belongs to one polyset
- **
- ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
- **
- *****************************************************************************/
-void db_polygon(Db *db,
-                Polygons *polygon,
-                int flag_sel,
-                int flag_period,
-                int flag_nested,
-                const NamingConvention& namconv)
-{
-  // Adding a new variable
-
-  int iatt = db->addColumnsByConstant(1);
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    mes_process("Checking if sample belongs to a polygon",
-                db->getSampleNumber(), iech);
-    int selval = 0;
-    if (!(flag_sel && !db->isActive(iech)))
-    {
-      double xx = db->getCoordinate(iech, 0);
-      double yy = db->getCoordinate(iech, 1);
-      double zz = db->getCoordinate(iech, 2);
-      selval = polygon->inside(xx, yy, zz, flag_nested);
-
-      if (flag_period)
-      {
-        double xp;
-        xp = xx - 360;
-        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
-        xp = xx + 360;
-        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
-      }
-    }
-    db->setArray(iech, iatt, (double) selval);
-  }
-
-  // Setting the output variable
-  namconv.setNamesAndLocators(db, iatt);
-
-  return;
-}
 
 /*****************************************************************************/
 /*!

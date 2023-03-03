@@ -766,19 +766,26 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
 
 # Function to display a polygon (not tested)
 
-plot.polygon <- function(poly, ...)
+plot.polygon <- function(poly, show.title=FALSE, ...)
 {
+  dots = list(...)
+  has_color = "color" %in% names(dots)
+  
   p = list()
   npol = poly$getPolySetNumber()
+  cols = get.colors()
   
+  dotloc = dots
   for (ipol in 1:npol)
   {
+    if (! has_color) dotloc$color=cols[ipol+1]
     df = data.frame(x = poly$getX(ipol-1), y = poly$getY(ipol-1))
-    p <- c(p, geom_polygon(data = df, mapping=aes(x=x,y=y),  ...))
+    p <- c(p, do.call(geom_polygon, c(list(data = df, mapping=aes(x=x,y=y)),  dotloc)))
   }
   
   # Decoration
-  p <- c(p, plot.decoration(title = paste("Number of Polygons = ",npol)))
+  if (show.title)
+    p <- c(p, plot.decoration(title = paste("Number of Polygons = ",npol)))
   
   p
 }

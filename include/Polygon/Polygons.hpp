@@ -88,6 +88,13 @@ private:
   std::vector<PolySet> _polysets;
 };
 
+GSTLEARN_EXPORT void db_polygon(Db *db,
+                                Polygons *polygon,
+                                bool flag_sel = false,
+                                bool flag_period = false,
+                                bool flag_nested = false,
+                                const NamingConvention& namconv = NamingConvention("Polygon", true, true, true,
+                                                                                   ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT int dbPolygonDistance(Db *db,
                                       Polygons *polygon,
                                       double dmax,
@@ -95,3 +102,9 @@ GSTLEARN_EXPORT int dbPolygonDistance(Db *db,
                                       int polin,
                                       const NamingConvention &namconv = NamingConvention(
                                           "Distance"));
+GSTLEARN_EXPORT int db_selhull(Db *db1,
+                               Db *db2,
+                               double dilate = 0.,
+                               bool verbose = false,
+                               const NamingConvention& namconv = NamingConvention("Hull", true, true, true,
+                                                                                  ELoc::fromKey("SEL")));
