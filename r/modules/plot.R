@@ -85,6 +85,37 @@ plot.printDefault <- function()
   }    
 }
 
+scale_col_fill <- function(palette, ...)
+{
+  rcb <- c("Blues", "BuGn", "BuPu", "GnBu", "Greens", "Greys", "Oranges", "OrRd", "PuBu",
+      "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
+      "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
+      "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
+  rcb_num <- 1:18
+  v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
+      "A", "B", "C", "D", "E", "F", "G", "H")
+  
+  if(length(palette) == 1) {
+    if (any(palette == rcb) | any(palette == rcb_num)) {
+      layer = scale_color_distiller(palette= palette, aesthetics= c("colour", "fill"), ...)
+    } else if(any(palette == v)) {
+     layer = scale_color_viridis_c(option= palette, aesthetics= c("colour", "fill"), ...)
+    } 
+  } else if(length(palette) == 2) {
+    low = palette[1]
+    high = palette[2]
+    layer = scale_color_gradient(low= low, high= high, aesthetics= c("colour", "fill"), ...)
+  } else if(length(palette) == 3) {
+    low = palette[1]
+    mid = palette[2]
+    high = palette[3]
+    layer = scale_color_gradient2(low= low, mid= mid, high= high, aesthetics= c("colour", "fill"), ...)
+  } else {
+    layer = scale_color_continuous(type= palette, aesthetics= c("colour", "fill"), ...)
+  }
+  layer
+}
+
 get.colors <- function()
 {
   c("blue", "red", "green", "brown", "orange", "purple", "yellow")
@@ -672,8 +703,7 @@ gridContour <- function(dbgrid, name, usesel = TRUE, ...)
 # Function for plotting a variable informed in a grid Db
 #
 plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
-    usesel = TRUE, 
-    option="B", na.color = "white", zlim = NULL, 
+    usesel = TRUE, palette=NULL, na.value = "white", limits = NULL, 
     show.legend.raster=FALSE, legend.name.raster="G-Raster", 
     ...)
 {
@@ -702,7 +732,6 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   if (! is.null(name_raster))
   {
     p <- c(p, gridRaster(dbgrid, name=name_raster, usesel=usesel, ...))
-    p <- c(p, scale_color_viridis_c(option = option, na.value = na.color, limits=zlim))
     
     # Set the title
     title = paste(title,name_raster)
@@ -723,6 +752,11 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     # Set the title                    
     title = paste(title, name_contour, sep=" ")
   }  
+  
+  # Palette definition
+
+  if (! is.null(palette))
+    p <- c(p, scale_col_fill(palette, na.value=na.value, limits=limits, ...))
   
   # Decoration
   p <- c(p, plot.decoration(title = title))

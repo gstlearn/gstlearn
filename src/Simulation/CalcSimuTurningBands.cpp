@@ -1935,11 +1935,11 @@ double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_difference(Db *dbin,
-                                   int icase,
-                                   bool flag_pgs,
-                                   bool flag_gibbs,
-                                   bool flag_dgm,
-                                   double r_coeff)
+                                       int icase,
+                                       bool flag_pgs,
+                                       bool flag_gibbs,
+                                       bool flag_dgm,
+                                       double r_coeff)
 {
   int nbsimu = getNbSimu();
   int nvar = _getNVar();
@@ -2066,10 +2066,10 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
-                                            Db *dbout,
-                                            int icase,
-                                            bool flag_pgs,
-                                            bool flag_dgm)
+                                                Db *dbout,
+                                                int icase,
+                                                bool flag_pgs,
+                                                bool flag_dgm)
 {
   if (dbin->getSampleNumber() <= 0) return;
   if (flag_dgm) return;
@@ -2204,17 +2204,17 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
  **
  *****************************************************************************/
 int CalcSimuTurningBands::simulate(Db *dbin,
-                               Db *dbout,
-                               Model* model,
-                               ANeighParam *neighparam,
-                               int icase,
-                               int flag_bayes,
-                               const VectorDouble& dmean,
-                               const VectorDouble& dcov,
-                               bool flag_pgs,
-                               bool flag_gibbs,
-                               bool flag_dgm,
-                               double r_coeff)
+                                   Db *dbout,
+                                   Model *model,
+                                   ANeighParam *neighparam,
+                                   int icase,
+                                   int flag_bayes,
+                                   const VectorDouble &dmean,
+                                   const VectorDouble &dcov,
+                                   bool flag_pgs,
+                                   bool flag_gibbs,
+                                   bool flag_dgm,
+                                   double r_coeff)
 {
   setDbin(dbin);
   setDbout(dbout);
@@ -2726,4 +2726,3 @@ int simdgm(Db *dbin,
    int error = (situba.run()) ? 0 : 1;
    return error;
 }
-

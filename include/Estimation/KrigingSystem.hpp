@@ -246,7 +246,7 @@ private:
 
   /// Option for Discrete Gaussian Model
   bool   _flagDGM;
-  double _rDGM;
+  double _rCoeff;
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;

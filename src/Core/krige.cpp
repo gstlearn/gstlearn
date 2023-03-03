@@ -91,9 +91,7 @@ static int *flag_global;
 static int KRIGE_INIT = 0;
 static int MODEL_INIT = 0;
 static int IECH_OUT   = -1;
-static int FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
-static bool FLAG_EST, FLAG_STD, FLAG_VARZ;
-static int FLAG_BAYES, FLAG_PROF, FLAG_DGM;
+static int FLAG_COLK, FLAG_SIMU, FLAG_EST, FLAG_STD, FLAG_VARZ, FLAG_PROF;
 static int IPTR_EST, IPTR_STD, IPTR_VARZ, IPTR_NBGH;
 static int *RANK_COLCOK;
 static Db *DBIN, *DBOUT;
@@ -236,8 +234,7 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
  *****************************************************************************/
 static void st_global_init(Db *dbin, Db *dbout)
 {
-  FLAG_WGT = FLAG_LTERM = 0;
-  FLAG_COLK = FLAG_BAYES = FLAG_PROF = FLAG_SIMU = FLAG_DGM = 0;
+  FLAG_COLK = FLAG_PROF = FLAG_SIMU = 0;
   IPTR_EST = IPTR_STD = IPTR_VARZ = IPTR_NBGH = 0;
   IECH_OUT = 0;
   FLAG_EST = FLAG_STD = FLAG_VARZ = false;

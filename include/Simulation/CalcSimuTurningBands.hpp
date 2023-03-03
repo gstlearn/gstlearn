@@ -193,9 +193,9 @@ private:
                     double* s0z);
 
 private:
-  int _nbtuba;
-  int _iattOut;
-  int _icase;
+  int  _nbtuba;
+  int  _iattOut;
+  int  _icase;
   bool _flagCheck;
   bool _flagBayes;
   bool _flagPGS;

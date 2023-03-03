@@ -67,6 +67,12 @@ p = p + plot.decoration(title="Display of Grid Cells")
 ggPrint(p)
 ```
 
+Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors.
+
+```{r}
+ggDefault(2) + plot.grid(mygrid, palette=c("yellow","red","blue"), na.value="yellow")
+```
+
 Displaying the grid nodes only
 
 ```{r}

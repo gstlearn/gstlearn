@@ -90,7 +90,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _varCorrec(),
       _modelSimple(nullptr),
       _flagDGM(false),
-      _rDGM(1.),
+      _rCoeff(1.),
       _flagFactorKriging(false),
       _nclasses(0),
       _matCL(),
@@ -687,13 +687,13 @@ void KrigingSystem::_covtabModifyDGM(const ECalcMember &member,
     if (iech1 >= 0 && iech1 == iech2)
       covn = 1.;
     else if (dist <= 0.)
-      covn = _rDGM * _rDGM; // Samples at zero distance (due to centering) but different
+      covn = _rCoeff * _rCoeff; // Samples at zero distance (due to centering) but different
     else
-      covn = _rDGM * _rDGM * mat.getValue(0);
+      covn = _rCoeff * _rCoeff * mat.getValue(0);
   }
   else if (member == ECalcMember::RHS)
   {
-    covn = _rDGM * mat.getValue(0);
+    covn = _rCoeff * mat.getValue(0);
   }
   else
   {
@@ -2515,7 +2515,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
   if (! flag_dgm)
   {
     _flagDGM = flag_dgm;
-    _rDGM = 1.;
+    _rCoeff = 1.;
     return 0;
   }
 
@@ -2540,7 +2540,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
     return 1;
   }
   _flagDGM = flag_dgm;
-  _rDGM = rcoeff;
+  _rCoeff = rcoeff;
   return 0;
 }
 
