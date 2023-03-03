@@ -70,7 +70,7 @@ Display my Data (with samples represented by color and size)
 
 ```{r}
 if (graphics)
-    plot.point(mydb,color_name="Pb",title="Data Set")
+    ggplot() + plot(mydb,name_color="Pb") + plot.decoration(title="Data Set")
 ```
 
 # Variograms
@@ -93,7 +93,7 @@ We recall that the Variogram cloud is calculated by filling an underlying grid w
 
 ```{r}
 if (graphics)
-    plot.grid(dbcloud,"Cloud*",title="Variogram Cloud")
+    ggplot() + plot(dbcloud,name_raster="Cloud*") + plot.decoration(title="Variogram Cloud")
 ```
 
 Calculating the experimental omni-directional variogram
@@ -109,8 +109,8 @@ The variogram is represented graphically for a quick check
 
 ```{r}
 if (graphics)
-    plot.varmod(myVarioOmni,
-                title="Omni-directional Variogram for Pb")
+    ggplot() + plot.varmod(myVarioOmni) + 
+    plot.decoration(title="Omni-directional Variogram for Pb")
 ```
 
 Calculate a variogram in several directions
@@ -123,12 +123,12 @@ myvario = Vario(myvarioParam,mydb)
 myvario$compute(ECalcVario_VARIOGRAM())
 if (verbose)
     myvario$display()
-
 ```
 
 ```{r}
 if (graphics)
-    plot.varmod(myvario,title="Multi-Directional Variogram of Pb")
+    ggplot() + plot.varmod(myvario) + 
+    plot.decoration(title="Multi-Directional Variogram of Pb")
 ```
 
 Calculating the Variogram Map
@@ -141,7 +141,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    plot.grid(myvmap,"*Var",title="Variogram Map")
+    ggplot() + plot(myvmap, name_raster="*Var") + plot.decoration(title="Variogram Map")
 ```
 
 # Model
@@ -157,7 +157,7 @@ Visualizing the resulting model, overlaid on the experimental variogram
 
 ```{r}
 if (graphics)
-    plot.varmod(myvario,mymodel,title="Model for Pb")
+    ggplot() + plot.varmod(myvario,mymodel) + plot.decoration(title="Model for Pb")
 ```
 
 ## Model with equality constraints
@@ -169,7 +169,9 @@ myModelConstrained = Model_createFromDb(mydb)
 constr = Constraints()
 paramid = CovParamId(0,0,EConsElem_RANGE(),0,0)
 constr$addItem(ConsItem(paramid,EConsType_EQUAL(),1.))
-err = myModelConstrained$fit(vario=myVarioOmni,types=ECov_fromKeys(c("EXPONENTIAL","SPHERICAL")),constraints=constr)
+err = myModelConstrained$fit(vario=myVarioOmni,
+                             types=ECov_fromKeys(c("EXPONENTIAL","SPHERICAL")),
+                             constraints=constr)
 myModelConstrained
 ```
 
@@ -218,16 +220,24 @@ We can visualize some of the newly created variables, such as:
 
 ```{r}
 if (graphics)
-    plot.grid(mygrid,"Neigh*Number",
-              title="Number of Samples per Neighborhood")
+{
+  p = ggplot()
+  p = p + plot(mygrid,name_raster="Neigh*Number")
+  p = p + plot.decoration(title="Number of Samples per Neighborhood")
+  ggPrint(p)
+}
 ```
 
 - the one giving the maximum distance per neighborhood
 
 ```{r}
 if (graphics)
-    plot.grid(mygrid,"Neigh*MaxDist",
-              title="Maximum Distance per Neighborhood")
+{
+  p = ggplot()
+  p = p + plot(mygrid,name_raster="Neigh*MaxDist")
+  p = p + plot.decoration(title="Maximum Distance per Neighborhood")
+  ggPrint(p)
+}
 ```
 
 # Cross-validation
@@ -242,7 +252,12 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    plot.hist(mydb,"Xvalid.Pb.stderr")
+{
+  p = ggplot()
+  p = p + plot.hist(mydb,"Xvalid.Pb.stderr")
+  p = p + plot.decoration(title="Histogram of Stdandrdized Errors")
+  ggPrint(p)
+}
 ```
 
 # Estimating by Kriging
@@ -262,14 +277,24 @@ Visualizing the results
 
 ```{r}
 if (graphics)
-    ax = plot.grid(mygrid,"Kriging.Pb.estim",end.plot = FALSE)
-    plot.point(mydb,"Pb",title="Estimate of Pb",padd=ax)
+{
+  p = ggplot()
+  p = p + plot(mygrid,name_raster="Kriging.Pb.estim")
+  p = p + plot(mydb,name_size="Pb", color="yellow")
+  p = p + plot.decoration(title="Estimate of Pb")
+  ggPrint(p)
+}
 ```
 
 ```{r}
 if (graphics)
-    ax = plot.grid(mygrid,"Kriging.Pb.stdev", end.plot=FALSE)
-    plot.point(mydb,"Pb",title="St. Deviation of Pb",padd=ax)
+{
+  p = ggplot()
+  p = p + plot(mygrid,name_raster="Kriging.Pb.stdev", show.legend.raster=TRUE)
+  p = p + plot(mydb,"Pb", color="yellow", flagCst=TRUE)
+  p = p + plot.decoration(title="St. Deviation of Pb")
+  ggPrint(p)
+}
 ```
 
 # Simulations
@@ -285,9 +310,9 @@ if (verbose)
 
 We can produce the Gaussian Anamorphosis graphically within its definition domain.
 
-```{r, eval=FALSE}
+```{r}
 if (graphics)
-    plot.anam(myanamPb)
+    ggplot() + plot(myanamPb)
 ```
 
 The next step consists in translating the target variable ('Pb') into its Gaussian transform
@@ -315,7 +340,7 @@ We fit the model by automatic fit (with the constraints that the total sill be e
 mymodelG = Model_createFromDb(mydb)
 err = mymodelG$fit(myvario,types=ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-    plot.varmod(myvario,mymodelG,title="Model for Gaussian Pb")
+    ggplot() + plot.varmod(myvario,mymodelG) + plot.decoration(title="Model for Gaussian Pb")
 ```
 
 We perform a set of 10 conditional simulations using the Turning Bands Method.
@@ -332,10 +357,8 @@ Some statistics on the Conditional simulations in Gaussian scale
 
 ```{r}
 if (verbose)
-{
   err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-                                   opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
-}
+        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
 ```
 
 We visualize a conditional simulation in Gaussian scale
@@ -343,8 +366,11 @@ We visualize a conditional simulation in Gaussian scale
 ```{r}
 if (graphics)
 {
-    ax = plot.grid(mygrid,"Simu.Y.Pb.1",end.plot=FALSE)
-    plot.point(mydb,"Pb",title="One Simulation of Pb in Gaussian Scale",padd=ax)
+    p = ggplot()
+    p = p + plot(mygrid,name_raster="Simu.Y.Pb.1")
+    p = p + plot(mydb,"Pb")
+    p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
+    ggPrint(p)
 }
 ```
 
@@ -362,7 +388,7 @@ We calculate some statistics on the Conditional Simulations in Raw scale.
 ```{r}
 if (verbose)
   err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-                                   opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
 ```
 
 We visualize a Conditional Simulation in Raw Scale
@@ -370,8 +396,11 @@ We visualize a Conditional Simulation in Raw Scale
 ```{r}
 if (graphics)
 {
-  ax = plot.grid(mygrid,"Z.Simu.Y.Pb.1",end.plot=FALSE)
-  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", padd=ax)
+  p = ggplot()
+  p = p + plot(mygrid,name_raster="Z.Simu.Y.Pb.1")
+  p = p + plot(mydb,"Pb")
+  p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
+  ggPrint(p)
 }
 ```
 
@@ -391,8 +420,11 @@ Displaying the average of the Conditional Simulations
 ```{r}
 if (graphics)
 {
-  ax = plot.grid(mygrid,"Stats*MEAN", end.plot=FALSE)
-  plot.point(mydb,"Pb",title="Mean of Pb simulations",padd=ax)
+  p = ggplot()
+  p = p + plot(mygrid,name_raster="Stats*MEAN")
+  p = p + plot(mydb,"Pb")
+  p = p + plot.decoration(title="Mean of Pb simulations")
+  ggPrint(p)
 }
 ```
 
@@ -411,8 +443,10 @@ if (verbose)
 ```{r}
 if (graphics)
 {
-  p = plot.anam(myanamZn)
-  plot.decoration(p, title="Gaussian Anamorphosis for Zn")
+  p = ggplot()
+  p = p + plot(myanamZn)
+  p = p + plot.decoration(title="Gaussian Anamorphosis for Zn")
+  ggPrint(p)
 }
 ```
 
@@ -436,8 +470,10 @@ mymodelM = Model_createFromDb(mydb)
 err = mymodelM$fit(myvario,ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
 {
-  p = plot.varmod(myvario,mymodelM)
-  plot.decoration(p, title="Multivariate Model")
+  p = ggplot()
+  p = p + plot.varmod(myvario,mymodelM)
+  p = p + plot.decoration(title="Multivariate Model")
+  ggPrint(p)
 }
 ```
 
@@ -458,7 +494,7 @@ err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
 mygrid$deleteColumn("Simu.Y*")
 if (verbose)
     err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-                      opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+          opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
 ```
 
 # Categorical Variable¶
@@ -498,7 +534,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    plot.varmod(myvarioInd)
+    multi.varmod(myvarioInd)
 ```
 
 Then we build a categorical variable which gives the index of the class to which each sample belongs
@@ -506,12 +542,14 @@ Then we build a categorical variable which gives the index of the class to which
 ```{r}
 err = limits$toCategory(mydb,"Pb")
 if (verbose)
-    dbfmt = DbStringFormat()
-    dbfmt$setFlags(flag_resume = FALSE,
-                   flag_vars = FALSE,
-                   flag_stats = TRUE)
-    dbfmt$setNames("Category*")
-    dbfmt$setMode(mode=2) # Consider the variable categorical
-    mydb$display(dbfmt)
+{
+  dbfmt = DbStringFormat()
+  dbfmt$setFlags(flag_resume = FALSE,
+                 flag_vars = FALSE,
+                 flag_stats = TRUE)
+  dbfmt$setNames("Category*")
+  dbfmt$setMode(mode=2) # Consider the variable categorical
+  mydb$display(dbfmt)
+}
 ```
 

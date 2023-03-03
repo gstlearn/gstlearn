@@ -124,7 +124,7 @@ static double st_extract_subgrid(int verbose,
         if (ndim >= 3) iwork2[2] = jz;
         ind = db_index_grid_to_sample(dbgrid, iwork2.data());
         numtab1[ecr] = 1.;
-        value = dbgrid->isActive(ind) ? dbgrid->getVariable(ind, 0) :
+        value = dbgrid->isActive(ind) ? dbgrid->getLocVariable(ELoc::Z,ind, 0) :
                                         TEST;
         if (FFFF(value))
           valtab1[ecr] = (flag_ffff) ? 0 :
@@ -761,9 +761,9 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 
     /* Store the result */
 
-    dbgrid2->setVariable(iech, 0, result1);
-    dbgrid2->setVariable(iech, 1, result2);
-    dbgrid2->setVariable(iech, 2, result);
+    dbgrid2->setLocVariable(ELoc::Z,iech, 0, result1);
+    dbgrid2->setLocVariable(ELoc::Z,iech, 1, result2);
+    dbgrid2->setLocVariable(ELoc::Z,iech, 2, result);
   }
 
   /* Set the error return code */

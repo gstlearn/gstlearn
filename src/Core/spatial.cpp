@@ -126,7 +126,7 @@ int cgi(Db *db,
   ndim = db->getNDim();
   coor = mm = nullptr;
   flag_z = db->isUIDDefined(iatt);
-  flag_w = db->hasWeight();
+  flag_w = db->hasLocVariable(ELoc::W);
 
   /* Core allocation */
 
@@ -241,7 +241,7 @@ int spatial(Db *db,
   for (iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    z = db->getVariable(iech, 0);
+    z = db->getLocVariable(ELoc::Z,iech, 0);
     if (FFFF(z)) continue;
     w = db->getWeight(iech);
     if (FFFF(w)) continue;

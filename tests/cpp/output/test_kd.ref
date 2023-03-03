@@ -1237,16 +1237,19 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 1
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
+Cubic
+- Sill         =      0.309
+- Range        =      0.134
 Exponential
-- Sill         =      1.000
-- Range        =      0.483
-- Theo. Range  =      0.161
+- Sill         =      0.691
+- Range        =      4.341
+- Theo. Range  =      1.449
 Total Sill     =      1.000
 
 Hermitian Anamorphosis
@@ -1431,30 +1434,30 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank       Flag          1
-          1          1      0.390
-          2          2      0.390
-          3          3      0.390
-          4          4      0.390
-          5          5      0.390
+          1          1      0.472
+          2          2      0.472
+          3          3      0.472
+          4          4      0.472
+          5          5      0.472
 
 (Co-) Kriging weights
 =====================
        Rank         x1         x2      Size1      Size2       Data        Z1*
-          1      0.375      0.375      0.250      0.250      0.687      0.137
-          2      0.375      0.375      0.250      0.250     -0.848      0.137
-          3      0.375      0.375      0.250      0.250     -0.255      0.137
-          4      0.375      0.375      0.250      0.250     -0.440      0.137
-          5      0.375      0.375      0.250      0.250     -1.048      0.137
-Sum of weights                                                          0.683
+          1      0.375      0.375      0.250      0.250      0.687      0.166
+          2      0.375      0.375      0.250      0.250     -0.848      0.166
+          3      0.375      0.375      0.250      0.250     -0.255      0.166
+          4      0.375      0.375      0.250      0.250     -0.440      0.166
+          5      0.375      0.375      0.250      0.250     -1.048      0.166
+Sum of weights                                                          0.828
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.260
- - Std. Dev. =       0.463
- - Variance  =       0.214
- - Cov(h=0)  =       0.480
+ - Estimate  =      -0.315
+ - Std. Dev. =       0.527
+ - Variance  =       0.278
+ - Cov(h=0)  =       0.669
 
 Data Base Grid Characteristics
 ==============================
@@ -1492,38 +1495,32 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 2
+Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Cubic
-- Sill         =      0.207
-- Range        =      0.014
 Exponential
-- Sill         =      0.793
-- Range        =      0.130
-- Theo. Range  =      0.043
+- Sill         =      1.000
+- Range        =      0.256
+- Theo. Range  =      0.086
 Total Sill     =      1.000
 
 Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 2
+Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Cubic
-- Sill         =      0.207
-- Range        =      0.014
 Exponential
-- Sill         =      0.793
-- Range        =      0.130
-- Theo. Range  =      0.043
+- Sill         =      1.000
+- Range        =      0.256
+- Theo. Range  =      0.086
 Total Sill     =      1.000
 
 Hermitian Anamorphosis
@@ -1586,29 +1583,29 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
        Rank       Flag          1
-          1          1      0.170
-          2          2      0.170
-          3          3      0.170
-          4          4      0.170
-          5          5      0.170
+          1          1      0.378
+          2          2      0.378
+          3          3      0.378
+          4          4      0.378
+          5          5      0.378
 
 (Co-) Kriging weights
 =====================
        Rank         x1         x2       Data        Z1*
-          1      0.350      0.400      1.135      0.060
-          2      0.350      0.400     -1.456      0.060
-          3      0.350      0.400     -0.094      0.060
-          4      0.350      0.400     -0.980      0.060
-          5      0.350      0.400      0.464      0.060
-Sum of weights                                    0.300
+          1      0.350      0.400      1.135      0.133
+          2      0.350      0.400     -1.456      0.133
+          3      0.350      0.400     -0.094      0.133
+          4      0.350      0.400     -0.980      0.133
+          5      0.350      0.400      0.464      0.133
+Sum of weights                                    0.666
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.056
- - Std. Dev. =       0.974
- - Variance  =       0.949
+ - Estimate  =      -0.124
+ - Std. Dev. =       0.865
+ - Variance  =       0.748
  - Cov(h=0)  =       1.000
 
 Data Base Grid Characteristics
@@ -1710,30 +1707,30 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
        Rank       Flag          1
-          1          1      0.092
-          2          2      0.092
-          3          3      0.092
-          4          4      0.092
-          5          5      0.092
+          1          1      0.235
+          2          2      0.235
+          3          3      0.235
+          4          4      0.235
+          5          5      0.235
 
 (Co-) Kriging weights
 =====================
        Rank         x1         x2      Size1      Size2       Data        Z1*
-          1      0.325      0.375      0.250      0.250     -1.287      0.032
-          2      0.325      0.375      0.250      0.250      0.478      0.032
-          3      0.325      0.375      0.250      0.250      0.636      0.032
-          4      0.325      0.375      0.250      0.250     -0.460      0.032
-          5      0.325      0.375      0.250      0.250     -0.449      0.032
-Sum of weights                                                          0.162
+          1      0.325      0.375      0.250      0.250     -1.287      0.083
+          2      0.325      0.375      0.250      0.250      0.478      0.083
+          3      0.325      0.375      0.250      0.250      0.636      0.083
+          4      0.325      0.375      0.250      0.250     -0.460      0.083
+          5      0.325      0.375      0.250      0.250     -0.449      0.083
+Sum of weights                                                          0.413
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      -0.035
- - Std. Dev. =       0.283
- - Variance  =       0.080
- - Cov(h=0)  =       0.095
+ - Estimate  =      -0.089
+ - Std. Dev. =       0.429
+ - Variance  =       0.184
+ - Cov(h=0)  =       0.281
 
 Data Base Grid Characteristics
 ==============================

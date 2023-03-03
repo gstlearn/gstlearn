@@ -20,6 +20,26 @@ class Db;
 class DbGrid;
 class KrigingSystem;
 
+struct GSTLEARN_EXPORT Krigtest_Res
+{
+  int ndim; // Space dimension
+  int nvar; // Number of variables
+  int nech; // Number of Neighboring samples
+  int neq;  // Number of Equations in the Kriging/CoKriging system
+  int nrhs; // Number of R.H.S. vectors (= nvar)
+  VectorInt nbgh;    // Ranks of the neighboring samples
+  VectorDouble xyz;  // Coordinates of the neighboring samples (ndim * nech)
+  VectorDouble data; // Usable values at neighboring samples (neq)
+  VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
+  VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
+  VectorDouble wgt;  // Vector of weights (neq * nvar)
+  VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
+  VectorDouble zam;  // Vector of pre-calculations
+
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+};
+
 // TODO : Create KrigingParam which inherits from InterpolatorParam
 class GSTLEARN_EXPORT CalcKriging: public ACalcInterpolator
 {
@@ -29,7 +49,7 @@ public:
   CalcKriging& operator=(const CalcKriging &r) = delete;
   virtual ~CalcKriging();
 
-  void setCalcul(const EKrigOpt &calcul) { _calcul = calcul; }
+  void setCalcul(const EKrigOpt &calcul);
   void setMatCl(const VectorVectorDouble &matCl) { _matCL = matCl; }
   void setNdisc(const VectorInt &ndisc) { _ndisc = ndisc; }
   void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
@@ -116,6 +136,7 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             VectorInt ndisc = VectorInt(),
                             VectorInt rank_colcok = VectorInt(),
                             VectorVectorDouble matCL = VectorVectorDouble(),
+                            double rcoef = TEST,
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int krigcell(Db *dbin,
                              Db *dbout,
@@ -165,7 +186,8 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       const EKrigOpt &calcul = EKrigOpt::fromKey("PONCTUAL"),
                                       VectorInt ndisc = VectorInt(),
                                       bool flagPerCell = false,
-                                      bool forceDebug = true);
+                                      bool forceDebug = true,
+                                      double rcoef = TEST);
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,

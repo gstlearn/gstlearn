@@ -142,7 +142,7 @@ bool CalcSimuSubstitution::_simulate()
   {
     if (!dbgrid->isActive(iech)) continue;
     double value = (_subparam.isFlagDirect()) ?
-        dbgrid->getArray(iech, _iattOut) : dbgrid->getVariable(iech, 0);
+        dbgrid->getArray(iech, _iattOut) : dbgrid->getLocVariable(ELoc::Z,iech, 0);
     if (value < vmin) vmin = value;
     if (value > vmax) vmax = value;
   }
@@ -204,7 +204,7 @@ bool CalcSimuSubstitution::_simulate()
     {
       if (!dbgrid->isActive(iech)) continue;
       double value = (_subparam.isFlagDirect()) ? dbgrid->getArray(iech, _iattOut) :
-          dbgrid->getVariable(iech, 0);
+          dbgrid->getLocVariable(ELoc::Z,iech, 0);
       int ival = (int) ((value - vmin) / (vmax - vmin) * nstates);
       if (ival < 0) ival = 0;
       if (ival >= nstates) ival = nstates - 1;

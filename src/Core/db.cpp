@@ -921,30 +921,30 @@ void db_sample_print(Db *db,
   }
   if (flag_nvar)
   {
-    for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     {
-      double value = db->getVariable(iech, ivar);
+      double value = db->getLocVariable(ELoc::Z,iech, ivar);
       if (FFFF(value))
         message("Variable   #%d = NA\n", ivar + 1);
       else
-        message("Variable   #%d = %lf\n", ivar + 1, db->getVariable(iech, ivar));
+        message("Variable   #%d = %lf\n", ivar + 1, db->getLocVariable(ELoc::Z,iech, ivar));
     }
   }
   if (flag_nerr)
   {
-    for (int ierr = 0; ierr < db->getVarianceErrorNumber(); ierr++)
+    for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
     {
-      double value = db->getVarianceError(iech, ierr);
+      double value = db->getLocVariable(ELoc::V,iech, ierr);
       if (FFFF(value))
         message("Variance   #%d = NA\n", ierr + 1);
       else
         message("Variance   #%d = %lf\n", ierr + 1,
-                db->getVarianceError(iech, ierr));
+                db->getLocVariable(ELoc::V,iech, ierr));
     }
   }
-  if (db->hasCode())
+  if (db->hasLocVariable(ELoc::C))
   {
-    double value = db->getCode(iech);
+    double value = db->getLocVariable(ELoc::C,iech,0);
     if (FFFF(value))
       message("Code          = NA\n");
     else
@@ -1024,13 +1024,13 @@ int db_center(Db *db, double *center)
   tab = sel = wgt = nullptr;
   tab = db_vector_alloc(db);
   if (tab == nullptr) return (1);
-  if (db->hasSelection())
+  if (db->hasLocVariable(ELoc::SEL))
   {
     sel = db_vector_alloc(db);
     if (sel == nullptr) return (1);
     db_selection_get(db, 0, sel);
   }
-  if (db->hasWeight())
+  if (db->hasLocVariable(ELoc::W))
   {
     wgt = db_vector_alloc(db);
     if (wgt == nullptr) return (1);
@@ -1078,7 +1078,7 @@ int db_extension_diag(const Db *db, double *diag)
   tab = sel = nullptr;
   tab = db_vector_alloc(db);
   if (tab == nullptr) return (1);
-  if (db->hasSelection())
+  if (db->hasLocVariable(ELoc::SEL))
   {
     sel = db_vector_alloc(db);
     if (sel == nullptr) return (1);
@@ -1192,7 +1192,7 @@ int db_attribute_range(const Db *db,
   if (tab == nullptr) goto label_end;
   if (db_vector_get_att(db, iatt, tab)) goto label_end;
 
-  if (db->hasSelection())
+  if (db->hasLocVariable(ELoc::SEL))
   {
     sel = db_vector_alloc(db);
     if (sel == nullptr) goto label_end;
@@ -1410,12 +1410,12 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
     jatt = iatt + jcol;
     icol = db->getColIdxByUID(jatt);
 
-    if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
+    if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasLocVariable(ELoc::DOM))
       for (iech = 0; iech < db->getSampleNumber(); iech++)
         db->setArray(iech, icol, valinit);
     else
       for (iech = 0; iech < db->getSampleNumber(); iech++)
-        if (db->getDomain(iech))
+        if (db->getLocVariable(ELoc::DATE,iech,0))
           db->setArray(iech, icol, valinit);
         else
           db->setArray(iech, icol, TEST);
@@ -1496,8 +1496,8 @@ int db_gradient_update(Db *db)
 
 {
   int ndim = db->getNDim();
-  int ngrad = db->getGradientNumber();
-  int nvar = db->getVariableNumber();
+  int ngrad = db->getLocNumber(ELoc::G);
+  int nvar = db->getLocNumber(ELoc::Z);
 
   /* Preliminary checks */
 
@@ -2229,68 +2229,6 @@ void db_monostat(Db *db,
   return;
 }
 
-/****************************************************************************/
-/*!
- **  Create a selection if the samples of a Db are inside Polygons
- **
- ** \param[in]  db          Db structure
- ** \param[in]  polygon     Polygons structure
- ** \param[in]  flag_sel    1 if previous selection must be taken into account
- ** \param[in]  flag_period 1 if first coordinate is longitude (in degree) and
- **                         must be cycled for the check
- ** \param[in]  flag_nested Option for nested polysets (see details)
- ** \param[in]  namconv     Naming Convention
- **
- ** \remarks If flag_nested=1, a sample is masked off if the number of
- ** \remarks polysets to which it belongs is odd
- ** \remarks If flag_nested=0, a sample is masked off as soon as it
- ** \remarks belongs to one polyset
- **
- ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
- **
- *****************************************************************************/
-void db_polygon(Db *db,
-                Polygons *polygon,
-                int flag_sel,
-                int flag_period,
-                int flag_nested,
-                const NamingConvention& namconv)
-{
-  // Adding a new variable
-
-  int iatt = db->addColumnsByConstant(1);
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    mes_process("Checking if sample belongs to a polygon",
-                db->getSampleNumber(), iech);
-    int selval = 0;
-    if (!(flag_sel && !db->isActive(iech)))
-    {
-      double xx = db->getCoordinate(iech, 0);
-      double yy = db->getCoordinate(iech, 1);
-      double zz = db->getCoordinate(iech, 2);
-      selval = polygon->inside(xx, yy, zz, flag_nested);
-
-      if (flag_period)
-      {
-        double xp;
-        xp = xx - 360;
-        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
-        xp = xx + 360;
-        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
-      }
-    }
-    db->setArray(iech, iatt, (double) selval);
-  }
-
-  // Setting the output variable
-  namconv.setNamesAndLocators(db, iatt);
-
-  return;
-}
 
 /*****************************************************************************/
 /*!
@@ -2319,7 +2257,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
   /* Initializations */
 
   error = 1;
-  nvar = db->getVariableNumber();
+  nvar = db->getLocNumber(ELoc::Z);
   nech = db->getSampleNumber();
   nclass = 0;
   coor = tab = sel = nullptr;
@@ -2345,7 +2283,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
       tab = db_vector_alloc(db);
       if (tab == nullptr) goto label_end;
       if (db_vector_get(db, ELoc::Z, ivar, tab)) continue;
-      if (db->hasSelection())
+      if (db->hasLocVariable(ELoc::SEL))
       {
         sel = db_vector_alloc(db);
         if (sel == nullptr) goto label_end;
@@ -2380,7 +2318,7 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     for (ivar = invalid = 0; ivar < nvar && invalid == 0; ivar++)
     {
-      ifac[ivar] = (int) db->getVariable(iech, ivar);
+      ifac[ivar] = (int) db->getLocVariable(ELoc::Z,iech, ivar);
       if (ifac[ivar] > nmax[ivar]) invalid = 1;
     }
     if (invalid) continue;
@@ -2399,8 +2337,8 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     /* Update the number of samples in the cell */
 
-    dbgrid->setProportion(jech, iclass,
-                          dbgrid->getProportion(jech, iclass) + 1);
+    dbgrid->setLocVariable(ELoc::P,jech, iclass,
+                          dbgrid->getLocVariable(ELoc::P,jech, iclass) + 1);
   }
 
   /* Normalization phase */
@@ -2411,20 +2349,20 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
 
     total = 0.;
     for (iclass = 0; iclass < nclass; iclass++)
-      total += dbgrid->getProportion(jech, iclass);
+      total += dbgrid->getLocVariable(ELoc::P,jech, iclass);
     if (total == 1.) continue;
     if (total <= 0.)
     {
       /* No sample in the current cell */
 
       for (iclass = 0; iclass < nclass; iclass++)
-        dbgrid->setProportion(jech, iclass, TEST);
+        dbgrid->setLocVariable(ELoc::P,jech, iclass, TEST);
     }
     else
     {
       for (iclass = 0; iclass < nclass; iclass++)
-        dbgrid->setProportion(jech, iclass,
-                              dbgrid->getProportion(jech, iclass) / total);
+        dbgrid->setLocVariable(ELoc::P,jech, iclass,
+                              dbgrid->getLocVariable(ELoc::P,jech, iclass) / total);
     }
   }
   error = 0;
@@ -2672,7 +2610,7 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
 
   /* Initializations */
 
-  nprop = db->getProportionNumber();
+  nprop = db->getLocNumber(ELoc::P);
   nz = db->getNX(2);
   for (i = 0; i < nz * nprop; i++)
     props[i] = 0.;
@@ -2700,7 +2638,7 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
     total = 0.;
     for (iprop = flag_no = 0; iprop < nprop && flag_no == 0; iprop++)
     {
-      value = db->getProportion(iech, iprop);
+      value = db->getLocVariable(ELoc::P,iech, iprop);
       if (FFFF(value))
         flag_no = 1;
       else
@@ -2709,7 +2647,7 @@ int db_prop_read(DbGrid *db, int ix, int iy, double *props)
 
     for (iprop = 0; iprop < nprop; iprop++, ecr++)
       props[ecr] =
-          (flag_no && total > 0) ? TEST : db->getProportion(iech, iprop)
+          (flag_no && total > 0) ? TEST : db->getLocVariable(ELoc::P,iech, iprop)
               / total;
   }
   return (0);
@@ -2735,7 +2673,7 @@ int db_prop_write(DbGrid *db, int ix, int iy, double *props)
 
   /* Initializations */
 
-  nprop = db->getProportionNumber();
+  nprop = db->getLocNumber(ELoc::P);
   nz = db->getNX(2);
 
   /* Preliminary checks */
@@ -2756,7 +2694,7 @@ int db_prop_write(DbGrid *db, int ix, int iy, double *props)
     indices[2] = iz;
     iech = db_index_grid_to_sample(db, indices);
     for (iprop = 0; iprop < nprop; iprop++, ecr++)
-      db->setProportion(iech, iprop, props[ecr]);
+      db->setLocVariable(ELoc::P,iech, iprop, props[ecr]);
   }
   return (0);
 }
@@ -2811,12 +2749,12 @@ double* db_distances_general(Db *db1,
 
   /* Preliminary checks */
 
-  if (niso > db1->getVariableNumber() || niso > db2->getVariableNumber())
+  if (niso > db1->getLocNumber(ELoc::Z) || niso > db2->getLocNumber(ELoc::Z))
   {
     messerr("You ask for distances between samples with %d variables defined",
             niso);
     messerr("But the input 'Db' have %d and %d variables defined",
-            db1->getVariableNumber(), db2->getVariableNumber());
+            db1->getLocNumber(ELoc::Z), db2->getLocNumber(ELoc::Z));
     return (dist);
   }
 
@@ -2915,9 +2853,9 @@ int db_is_isotropic(const Db *db, int iech, double *data)
   double value;
 
   if (!db->isActive(iech)) return (0);
-  for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
-    value = db->getVariable(iech, ivar);
+    value = db->getLocVariable(ELoc::Z,iech, ivar);
     if (FFFF(value)) return (0);
     if (data != NULL) data[ivar] = value;
   }
@@ -3290,7 +3228,7 @@ int db_get_rank_absolute_to_relative(Db *db, int iech0)
 {
   int iech, jech;
 
-  if (!db->hasSelection()) return (iech0);
+  if (!db->hasLocVariable(ELoc::SEL)) return (iech0);
 
   for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -3317,7 +3255,7 @@ int db_get_rank_relative_to_absolute(Db *db, int iech0)
 {
   int iech, jech;
 
-  if (!db->hasSelection()) return (iech0);
+  if (!db->hasLocVariable(ELoc::SEL)) return (iech0);
 
   for (iech = jech = 0; iech < db->getSampleNumber(); iech++)
   {

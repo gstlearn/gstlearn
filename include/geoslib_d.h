@@ -197,22 +197,6 @@ struct Local_Relem
   std::vector<Local_Split *> splits;
 };
 
-struct Krigtest_Res
-{
-  int ndim; // Space dimension
-  int nech; // Number of Neighboring samples
-  int neq;  // Number of Equations in the Kriging/CoKriging system
-  int nrhs; // Number of R.H.S. vectors (= nvar)
-  VectorInt nbgh;    // Ranks of the neighboring samples
-  VectorDouble xyz;  // Coordinates of the neighboring samples (ndim * nech)
-  VectorDouble data; // Usable values at neighboring samples (neq)
-  VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
-  VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
-  VectorDouble wgt;  // Vector of weights (neq * nvar)
-  VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
-  VectorDouble zam;  // Vector of pre-calculations
-};
-
 struct Global_Res
 {
   int ntot; // Total Number of Data

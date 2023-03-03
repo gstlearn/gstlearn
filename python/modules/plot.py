@@ -549,14 +549,14 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
      
     # Represent the Model 
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, 0, asCov=asCov, addZero=True)
+    gg = model.sample(hh, ivar, jvar, codir, 0, asCov=asCov)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, asCov=asCov, addZero=True)
+        ggp = model.sample(hh, ivar, jvar, codir, 1, asCov=asCov)
         ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
+        ggm = model.sample(hh, ivar, jvar, codir,-1, asCov=asCov)
         ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
     # Draw the Legend (optional)
@@ -743,7 +743,7 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
     
     ax = getNewAxes(ax, 1)
 
-    if db.getGradientNumber() <= 0:
+    if db.getLocNumber(gl.ELoc.G) <= 0:
         return None
     
     # Extracting coordinates
@@ -751,10 +751,10 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
     
     # Reading the Gradient components
     if db.getNDim() > 1:
-        tabgx = db.getGradients(0,usesel)
-        tabgy = db.getGradients(1,usesel)
+        tabgx = db.getGradient(0,usesel)
+        tabgy = db.getGradient(1,usesel)
     else:
-        tabgy = -db.getGradients(0,usesel)
+        tabgy = -db.getGradient(0,usesel)
         tabgx = -np.ones(len(tabgy))
 
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabgx) <= 0 or len(tabgy) <= 0:
@@ -781,15 +781,15 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
     
     ax = getNewAxes(ax, 1)
 
-    if db.getTangentNumber() <= 0:
+    if db.getLocNumber(gl.ELoc.TGTE) <= 0:
         return None
 
     # Extracting coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
 
     # Extract Tangent information
-    tabtx = db.getTangents(0,usesel)
-    tabty = db.getTangents(1,usesel)
+    tabtx = db.getTangent(0,usesel)
+    tabty = db.getTangent(1,usesel)
 
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabtx) <= 0 or len(tabty) <= 0:
         return None
@@ -846,7 +846,7 @@ def point(db,
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_color is None) and (name_size is None) and (name_label is None):
-        if db.getVariableNumber() > 0:
+        if db.getLocNumber(gl.ELoc.Z) > 0:
             name_size = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name_size = db.getLastName()
@@ -1065,7 +1065,7 @@ def grid(dbgrid, name_raster = None, name_contour = None, usesel = True,
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_raster is None) and (name_contour is None):
-        if dbgrid.getVariableNumber() > 0:
+        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
             name_raster = dbgrid.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name_raster = dbgrid.getLastName()
@@ -1107,7 +1107,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
         return None
     
     if name is None:
-        if dbgrid.getVariableNumber() > 0:
+        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
             name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()

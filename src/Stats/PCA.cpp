@@ -158,7 +158,7 @@ int PCA::pca_compute(const Db *db, bool verbose)
     messerr("You must define the 'Db'");
     return 1;
   }
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (nvar <= 0)
   {
     messerr("You must define 'Db' with some Z-variables");
@@ -186,7 +186,7 @@ int PCA::dbZ2F(Db* db,
     messerr("You must define 'Db'");
     return 1;
   }
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (nvar != _nVar)
   {
     messerr("The number of Z variables (%d) does not match the number of variables in PCA (%d)",
@@ -245,7 +245,7 @@ int PCA::dbF2Z(Db* db,
     messerr("You must define 'Db'");
     return 1;
   }
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (nvar != _nVar)
   {
     messerr("The number of Z variables (%d) does not match the number of variables in PCA (%d)",
@@ -332,7 +332,7 @@ int PCA::_normalization(const Db *db,
   // Initializations
 
   niso = 0;
-  nvar = db->getVariableNumber();
+  nvar = db->getLocNumber(ELoc::Z);
   nech = db->getSampleNumber();
   VectorDouble data(nvar);
 
@@ -403,7 +403,7 @@ void PCA::_covariance0(const Db *db,
                        VectorDouble& c0,
                        bool verbose)
 {
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
   int niso = 0;
   VectorDouble data1(nvar);
@@ -505,7 +505,7 @@ void PCA::_pcaZ2F(bool flag_norm,
                   const VectorDouble& mean,
                   const VectorDouble& sigma)
 {
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
@@ -546,7 +546,7 @@ void PCA::_pcaZ2F(bool flag_norm,
  *****************************************************************************/
 void PCA::_pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag)
 {
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
@@ -606,7 +606,7 @@ int PCA::maf_compute(Db *db,
     messerr("You must define 'Db' beforehand");
     return 1;
   }
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (nvar <= 0)
   {
     messerr("You must define 'Db' with some Z-variables");
@@ -701,7 +701,7 @@ int PCA::_covarianceh(Db *db,
   double ps;
 
   int nech = db->getSampleNumber();
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   int npairs = 0;
   double psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   VectorDouble data1(nvar);
@@ -779,7 +779,7 @@ int PCA::_covarianceh(Db *db,
 
 VectorBool PCA::_getVectorIsotopic(const Db* db)
 {
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
   VectorDouble data(nvar);
   VectorBool isoFlag = VectorBool(nech);
@@ -796,9 +796,9 @@ VectorBool PCA::_getVectorIsotopic(const Db* db)
 
 void PCA::_loadData(const Db* db, int iech, VectorDouble& data)
 {
-  int nvar = (int) db->getVariableNumber();
+  int nvar = (int) db->getLocNumber(ELoc::Z);
   for (int ivar = 0; ivar < nvar; ivar++)
-    data[ivar] = db->getVariable(iech, ivar);
+    data[ivar] = db->getLocVariable(ELoc::Z,iech, ivar);
 }
 
 VectorDouble PCA::mafOfIndex() const

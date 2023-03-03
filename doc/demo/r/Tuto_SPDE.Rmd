@@ -88,9 +88,10 @@ iuid = spdeS$query(grid)
 Representing the resulting non-conditional simulation on the Grid
 
 ```{r}
-p = plot.grid(grid, "spde.simu")
-p = plot.decoration(p, title="Non Conditional Simulation")
-p
+p = ggplot()
+p = p + plot.grid(grid, "spde.simu")
+p = p + plot.decoration(title="Non Conditional Simulation")
+ggPrint(p)
 ```
 
 ## Estimation by Kriging
@@ -112,9 +113,10 @@ iuid = spdeK$query(grid, namconv=NamingConvention("spde",FALSE))
 Representing the resulting estimation on the Grid
 
 ```{r}
-p = plot.grid(grid, "spde.kriging")
-p = plot.decoration(p, title="Estimation")
-p
+p = ggplot()
+p = p + plot.grid(grid, "spde.kriging")
+p = p + plot.decoration(title="Estimation")
+ggPrint(p)
 ```
 
 ## Producing the internal elements of the SPDE environment

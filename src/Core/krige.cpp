@@ -91,9 +91,7 @@ static int *flag_global;
 static int KRIGE_INIT = 0;
 static int MODEL_INIT = 0;
 static int IECH_OUT   = -1;
-static int FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
-static bool FLAG_EST, FLAG_STD, FLAG_VARZ;
-static int FLAG_BAYES, FLAG_PROF, FLAG_DGM;
+static int FLAG_COLK, FLAG_SIMU, FLAG_EST, FLAG_STD, FLAG_VARZ, FLAG_PROF;
 static int IPTR_EST, IPTR_STD, IPTR_VARZ, IPTR_NBGH;
 static int *RANK_COLCOK;
 static Db *DBIN, *DBOUT;
@@ -236,8 +234,7 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
  *****************************************************************************/
 static void st_global_init(Db *dbin, Db *dbout)
 {
-  FLAG_WGT = FLAG_LTERM = 0;
-  FLAG_COLK = FLAG_BAYES = FLAG_PROF = FLAG_SIMU = FLAG_DGM = 0;
+  FLAG_COLK = FLAG_PROF = FLAG_SIMU = 0;
   IPTR_EST = IPTR_STD = IPTR_VARZ = IPTR_NBGH = 0;
   IECH_OUT = 0;
   FLAG_EST = FLAG_STD = FLAG_VARZ = false;
@@ -367,7 +364,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
     // Loop in the current dimension
 
-    exts2 = DBIN->getBlockExtension(it->rank1, idim) / 2.;
+    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
     dsize = KOPTION->dsize[idim];
 
     if (exts2 <= 0. || dsize <= 0.)
@@ -399,7 +396,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
     // Loop in the current dimension
 
-    exts2 = DBIN->getBlockExtension(it->rank2, jdim) / 2.;
+    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
     dsize = KOPTION->dsize[jdim];
 
     if (exts2 <= 0 || dsize <= 0.)
@@ -473,7 +470,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
 
     // Loop in the current dimension
 
-    exts2 = DBIN->getBlockExtension(it->rank1, idim) / 2.;
+    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
     dsize = KOPTION->dsize[idim];
 
     if (exts2 <= 0. || dsize <= 0.)
@@ -540,7 +537,7 @@ static double st_get_ivar(int rank, int ivar)
 
       // Particular case of simulations
 
-      value = DBIN->getVariable(rank, ivar);
+      value = DBIN->getLocVariable(ELoc::Z,rank, ivar);
     else
 
       // Case of the traditional kriging based on Z-variables
@@ -577,11 +574,11 @@ static double st_get_verr(int rank, int ivar)
 
   if (rank >= 0)
   {
-    value = DBIN->getVarianceError(rank, ivar);
+    value = DBIN->getLocVariable(ELoc::V,rank, ivar);
   }
   else
   {
-    value = DBOUT->getVarianceError(IECH_OUT, ivar);
+    value = DBOUT->getLocVariable(ELoc::V,IECH_OUT, ivar);
   }
   return (value);
 }
@@ -637,10 +634,10 @@ static int st_check_environment(int flag_in,
     }
     // The following test is avoided in the case of simulations
     // as there may be no Z-variable defined as this stage (Gibbs)
-    if (flag_in && !FLAG_SIMU && DBIN->getVariableNumber() != nvar)
+    if (flag_in && !FLAG_SIMU && DBIN->getLocNumber(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              DBIN->getVariableNumber());
+              DBIN->getLocNumber(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       goto label_end;
     }
@@ -667,21 +664,21 @@ static int st_check_environment(int flag_in,
     nfex = model_nfex(model);
     if (nfex > 0)
     {
-      if (flag_out && DBOUT->getExternalDriftNumber() != nfex)
+      if (flag_out && DBOUT->getLocNumber(ELoc::F) != nfex)
       {
         messerr("The Model requires %d external drift(s)", model_nfex(model));
         messerr("but the output Db refers to %d external drift variables",
-                DBOUT->getExternalDriftNumber());
+                DBOUT->getLocNumber(ELoc::F));
         goto label_end;
       }
 
-      if (flag_in && DBIN->getExternalDriftNumber() != nfex)
+      if (flag_in && DBIN->getLocNumber(ELoc::F) != nfex)
       {
         if (!(flag_out && DBOUT->isGrid()))
         {
           messerr("The Model requires %d external drift(s)", model_nfex(model));
           messerr("but the input Db refers to %d external drift variables",
-                  DBIN->getExternalDriftNumber());
+                  DBIN->getLocNumber(ELoc::F));
           goto label_end;
         }
       }
@@ -950,7 +947,7 @@ static void st_data_discretize_alloc(int ndim)
   int nrow, ncol;
 
   KOPTION->flag_data_disc = 0;
-  if (DBIN->getBlockExtensionNumber() > 0)
+  if (DBIN->getLocNumber(ELoc::BLEX) > 0)
   {
     if (!get_keypair("Data_Discretization", &nrow, &ncol, &KOPTION->dsize))
     {
@@ -968,7 +965,7 @@ static void st_data_discretize_alloc(int ndim)
     }
     else
     {
-      if (DBIN->getBlockExtensionNumber() > 0)
+      if (DBIN->getLocNumber(ELoc::BLEX) > 0)
       {
         message("\n");
         message("Your Input Data File contains 'dblk' locator(s)\n");
@@ -1020,7 +1017,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
     nval = ntot;
     for (idim = ndim - 1; idim >= 0; idim--)
     {
-      taille = (mode == 0) ? dbgrid->getDX(idim) : DBOUT->getBlockExtension(iech, idim);
+      taille = (mode == 0) ? dbgrid->getDX(idim) : DBOUT->getLocVariable(ELoc::BLEX,iech, idim);
       nd = KOPTION->ndisc[idim];
       nval /= nd;
       j = jech / nval;
@@ -1094,6 +1091,7 @@ int krige_koption_manage(int mode,
     {
       case EKrigOpt::E_PONCTUAL:
       case EKrigOpt::E_DRIFT:
+      case EKrigOpt::E_DGM:
         break;
 
       case EKrigOpt::E_BLOCK:
@@ -1270,6 +1268,10 @@ void krige_rhs_print(int nvar,
       case EKrigOpt::E_DRIFT:
         message("Drift Estimation\n");
         break;
+
+      case EKrigOpt::E_DGM:
+        message("DGM Estimation\n");
+        break;
     }
   }
   message("\n");
@@ -1395,8 +1397,8 @@ static void krige_wgt_print(int status,
     String strloc = getLocatorName(ELoc::X, idim);
     tab_prints(NULL, strloc.c_str());
   }
-  if (DBIN->hasCode()) tab_prints(NULL, "Code");
-  if (DBIN->getVarianceErrorNumber() > 0)
+  if (DBIN->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
+  if (DBIN->getLocNumber(ELoc::V) > 0)
     tab_prints(NULL, "Err.");
   if (KOPTION->flag_data_disc) for (idim = 0; idim < ndim; idim++)
   {
@@ -1427,14 +1429,14 @@ static void krige_wgt_print(int status,
       tab_printi(NULL, iech + 1);
       for (idim = 0; idim < ndim; idim++)
         tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
-      if (DBIN->hasCode())
-        tab_printg(NULL, DBIN->getCode(nbgh_ranks[iech]));
-      if (DBIN->getVarianceErrorNumber() > 0)
+      if (DBIN->hasLocVariable(ELoc::C))
+        tab_printg(NULL, DBIN->getLocVariable(ELoc::C,nbgh_ranks[iech],0));
+      if (DBIN->getLocNumber(ELoc::V) > 0)
         tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
         for (idim = 0; idim < ndim; idim++)
-          tab_printg(NULL, DBIN->getBlockExtension(nbgh_ranks[iech], idim));
+          tab_printg(NULL, DBIN->getLocVariable(ELoc::BLEX,nbgh_ranks[iech], idim));
       }
       if (icase < 0)
         tab_printg(NULL, st_get_ivar(nbgh_ranks[iech], jvar_m));
@@ -1453,7 +1455,7 @@ static void krige_wgt_print(int status,
     }
 
     number = 1 + ndim + 1;
-    if (DBIN->getVarianceErrorNumber() > 0) number++;
+    if (DBIN->getLocNumber(ELoc::V) > 0) number++;
     if (KOPTION->flag_data_disc) number += ndim + 1;
     tab_prints(NULL, "Sum of weights", number, EJustify::LEFT);
     for (ivar = 0; ivar < nvar; ivar++)
@@ -1656,10 +1658,10 @@ Global_Res global_arithmetic(Db *dbin,
 
   /* Preliminary checks */
 
-  if (ivar0 < 0 || ivar0 >= dbin->getVariableNumber())
+  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            ivar0 + 1, dbin->getVariableNumber());
+            ivar0 + 1, dbin->getLocNumber(ELoc::Z));
     return gres;
   }
 
@@ -1769,10 +1771,10 @@ Global_Res global_kriging(Db *dbin,
 
   /* Preliminary tests */
 
-  if (ivar0 < 0 || ivar0 >= dbin->getVariableNumber())
+  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
   {
     messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-        ivar0 + 1, dbin->getVariableNumber());
+        ivar0 + 1, dbin->getLocNumber(ELoc::Z));
     return gres;
   }
 
@@ -1939,11 +1941,11 @@ int global_transitive(DbGrid *dbgrid,
   /* Abundance estimation */
 
   flag_value = 0;
-  if (dbgrid->getVariableNumber() == 1)
+  if (dbgrid->getLocNumber(ELoc::Z) == 1)
   {
     for (i = 0; i < dbgrid->getSampleNumber(); i++)
     {
-      value = dbgrid->getVariable(i, 0);
+      value = dbgrid->getLocVariable(ELoc::Z,i, 0);
       if (!FFFF(value)) dsum += value;
     }
     flag_value = 1;
@@ -2186,7 +2188,7 @@ static void st_grid_invdist(DbGrid* dbin,
         /* Check the value */
 
         int iech_neigh = dbin->indiceToRank(indg);
-        double val_neigh = dbin->getVariable(iech_neigh, 0);
+        double val_neigh = dbin->getLocVariable(ELoc::Z,iech_neigh, 0);
         if (FFFF(val_neigh))
         {
           result = TEST;
@@ -2263,7 +2265,7 @@ static void st_point_invdist(Db* dbin,
     {
       if (!dbin->isActive(iech_in)) continue;
       dbin->getCoordinatesInPlace(iech_in, coor);
-      double val_neigh = dbin->getVariable(iech_in, 0);
+      double val_neigh = dbin->getLocVariable(ELoc::Z,iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
       /* Check that the data point is a valid neighbor */
@@ -2539,7 +2541,7 @@ static double st_estim_exp(Db *db, double *wgt, int nbefore, int nafter)
 
   result = 0.;
   for (i = -nbefore; i <= nafter; i++)
-    result += wgt[i + nbefore] * db->getVariable(IECH_OUT + i, 0);
+    result += wgt[i + nbefore] * db->getLocVariable(ELoc::Z,IECH_OUT + i, 0);
 
   return (result);
 }
@@ -2584,7 +2586,7 @@ int anakexp_f(DbGrid *db,
   FLAG_EST = true;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
-  nvarin = db->getVariableNumber();
+  nvarin = db->getLocNumber(ELoc::Z);
   nbefore_mem = nafter_mem = -1;
   size = nech = 0;
 
@@ -2832,7 +2834,7 @@ static void st_calculate_covtot(DbGrid *db,
         indg[2] = jz1;
         iad = db_index_grid_to_sample(db, indg);
         if (!db->isActive(iad)) continue;
-        val1 = db->getVariable(iad, 0);
+        val1 = db->getLocVariable(ELoc::Z,iad, 0);
         if (FFFF(val1)) continue;
 
         /* Loop on the second point within the covariance array */
@@ -2858,7 +2860,7 @@ static void st_calculate_covtot(DbGrid *db,
               indg[2] = jz2;
               jad = db_index_grid_to_sample(db, indg);
               if (!db->isActive(jad)) continue;
-              val2 = db->getVariable(jad, 0);
+              val2 = db->getLocVariable(ELoc::Z,jad, 0);
               if (FFFF(val2)) continue;
 
               /* Update the Covariance */
@@ -2963,7 +2965,7 @@ static VectorInt st_neigh_find(DbGrid *db,
         indg[1] = jy;
         indg[2] = jz;
         locrank = db_index_grid_to_sample(db,indg);
-        if (FFFF(db->getVariable(locrank,0))) continue;
+        if (FFFF(db->getLocVariable(ELoc::Z,locrank,0))) continue;
         NEI_CUR(ix,iy,iz) = locrank;
         nbgh_ranks.push_back(locrank);
         flag_global[number] = 1;
@@ -3167,7 +3169,7 @@ static double st_estim_exp_3D(Db *db,
       for (iz = -nei_nn[2]; iz <= nei_nn[2]; iz++)
       {
         if (NEI_CUR(ix,iy,iz)< 0) continue;
-        result += weight[i] * db->getVariable(NEI_CUR(ix,iy,iz),0);
+        result += weight[i] * db->getLocVariable(ELoc::Z,NEI_CUR(ix,iy,iz),0);
         i++;
       }
 
@@ -3268,7 +3270,7 @@ int anakexp_3D(DbGrid *db,
   num_tot = nei_cur = nei_ref = nullptr;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
-  nvarin = db->getVariableNumber();
+  nvarin = db->getLocNumber(ELoc::Z);
   size_nei = 0;
 
   /* Prepare the Koption structure */
@@ -3386,7 +3388,7 @@ int anakexp_3D(DbGrid *db,
 
         DBOUT->setArray(IECH_OUT, IPTR_EST, TEST);
 
-        if (FFFF(db->getVariable(IECH_OUT, 0)) || !db->isActive(IECH_OUT))
+        if (FFFF(db->getLocVariable(ELoc::Z,IECH_OUT, 0)) || !db->isActive(IECH_OUT))
           continue;
         if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
             || OptDbg::query(EDbg::RESULTS))
@@ -3589,7 +3591,7 @@ int krigsum(Db *dbin,
             bool flag_positive,
             const NamingConvention& namconv)
 {
-  int nvar = dbin->getVariableNumber();
+  int nvar = dbin->getLocNumber(ELoc::Z);
   if (model->getVariableNumber() != 1)
   {
     messerr("This procedure requires a monovariate model");
@@ -3721,7 +3723,7 @@ VectorInt neigh_calc(Db* dbin,
 
   // Initializations
   int ndim = dbin->getNDim();
-  int nvar = dbin->getVariableNumber();
+  int nvar = dbin->getLocNumber(ELoc::Z);
   if (nvar <= 0) nvar = 1;
 
   // Create a temporary model
@@ -4113,7 +4115,7 @@ int st_krige_data(Db *db,
 
     if (flag_abs)
     {
-      true_value = db->getVariable(iech, 0);
+      true_value = db->getLocVariable(ELoc::Z,iech, 0);
       if (FFFF(true_value))
         data_est[iech] = TEST;
       else
@@ -4230,7 +4232,7 @@ int st_crit_global(Db *db,
 
     matrix_product(nsize1, nsize1, 1, invc, cs, temp_loc);
     matrix_product(1, nsize1, 1, datm, temp_loc, &estim);
-    olderr[ecr] = estim + model->getMean(0) - db->getVariable(iech, 0);
+    olderr[ecr] = estim + model->getMean(0) - db->getLocVariable(ELoc::Z,iech, 0);
 
     matrix_product(1, nsize1, 1, cs, temp_loc, &sigma);
     olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
@@ -4644,7 +4646,7 @@ static void st_declustering_stats(int mode, int method, Db *db, int iptr)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    zval = db->getVariable(iech, 0);
+    zval = db->getLocVariable(ELoc::Z,iech, 0);
     if (FFFF(zval)) continue;
     coeff = (mode == 0) ? 1. : db->getArray(iech, iptr);
     coeff = ABS(coeff);
@@ -4701,7 +4703,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getVariable(iech, 0))) continue;
+    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
     coeff = db->getArray(iech, iptr);
     if (coeff < 0)
       db->setArray(iech, iptr, 0.);
@@ -4714,7 +4716,7 @@ static void st_declustering_truncate_and_rescale(Db *db, int iptr)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getVariable(iech, 0))) continue;
+    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
     db->updArray(iech, iptr, 3, total);
   }
 }
@@ -4740,14 +4742,14 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getVariable(iech, 0))) continue;
+    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
 
     /* Loop on the second sample */
 
     for (int jech = 0; jech < db->getSampleNumber(); jech++)
     {
       if (!db->isActive(jech)) continue;
-      double value = db->getVariable(iech, 0);
+      double value = db->getLocVariable(ELoc::Z,iech, 0);
       if (FFFF(value)) continue;
       (void) distance_intra(db, iech, jech, vect.data());
 
@@ -4770,13 +4772,13 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getVariable(iech, 0))) continue;
+    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
     total += 1. / db->getArray(iech, iptr);
   }
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (FFFF(db->getVariable(iech, 0))) continue;
+    if (FFFF(db->getLocVariable(ELoc::Z,iech, 0))) continue;
     db->setArray(iech, iptr, 1. / db->getArray(iech, iptr) / total);
   }
   return 0;
@@ -5658,7 +5660,7 @@ int inhomogeneous_kriging(Db *dbdat,
   for (int iip = ip = 0; iip < dbdat->getSampleNumber(); iip++)
   {
     if (!dbdat->isActiveAndDefined(iip, 0)) continue;
-    data[ip] = dbdat->getVariable(iip, 0);
+    data[ip] = dbdat->getLocVariable(ELoc::Z,iip, 0);
     ip++;
   }
 
@@ -5886,7 +5888,7 @@ int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
      double result = 0.;
      for (int i = 0; i < (int) nbgh.size(); i++)
      {
-       double value = dbin->getVariable(nbgh[i],0);
+       double value = dbin->getLocVariable(ELoc::Z,nbgh[i],0);
        if (FFFF(value))
        {
          result = TEST;
@@ -5958,7 +5960,7 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
      for (int jech = 0; jech < nSize; jech++)
      {
        int jech1 = nbgh[jech];
-       double zval = dbin->getVariable(jech1, 0);
+       double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
        if (FFFF(zval)) continue;
        VectorDouble Vdata = drft.getDriftVec(dbin, jech1);
 
@@ -6053,7 +6055,7 @@ void _image_smoother(DbGrid *dbgrid,
     double total = 0.;
     for (int iech=0; iech<nb_neigh; iech++)
     {
-      if (FFFF(dbaux->getVariable(iech, 0))) continue;
+      if (FFFF(dbaux->getLocVariable(ELoc::Z,iech, 0))) continue;
       dbaux->rankToIndice(iech, indnl);
       double d2 = 0.;
       for (int i=0; i<ndim; i++)
@@ -6066,7 +6068,7 @@ void _image_smoother(DbGrid *dbgrid,
       }
 
       int jech = dbgrid->indiceToRank(indgl);
-      double data = dbgrid->getVariable(jech, 0);
+      double data = dbgrid->getLocVariable(ELoc::Z,jech, 0);
       if (! FFFF(data))
       {
         double weight = (type == 1) ? 1. : exp(-d2 / r2);

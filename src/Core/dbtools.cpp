@@ -97,7 +97,7 @@ class LocalSkin: public ISkinFunctions
   int isAlreadyFilled(int ipos) const override
   {
     if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-    int value = FFFF(DB_GRID_FILL->getVariable(ipos, 0)) ? 0 : 1;
+    int value = FFFF(DB_GRID_FILL->getLocVariable(ELoc::Z,ipos, 0)) ? 0 : 1;
     return (value);
   }
   /****************************************************************************/
@@ -113,7 +113,7 @@ class LocalSkin: public ISkinFunctions
 
   {
     if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-    int value = FFFF(DB_GRID_FILL->getVariable(ipos, 0)) ? 1 : 0;
+    int value = FFFF(DB_GRID_FILL->getLocVariable(ELoc::Z,ipos, 0)) ? 1 : 0;
     return (value);
   }
 };
@@ -762,7 +762,7 @@ int db_tool_duplicate(Db *db1,
                       double *dist,
                       double *sel)
 {
-  bool flag_code = db1->hasCode() && db2->hasCode();
+  bool flag_code = db1->hasLocVariable(ELoc::C) && db2->hasLocVariable(ELoc::C);
   int nmerge = 0;
 
   // Title (optional)
@@ -1607,7 +1607,7 @@ static void st_grid_fill_neigh(int ipos,
         iwork2[2] = iwork1[2] + iz;
         if (iwork2[2] < 0 || iwork2[2] >= nmz) continue;
         jpos = db_index_grid_to_sample(DB_GRID_FILL, iwork2);
-        value = DB_GRID_FILL->getVariable(jpos, 0);
+        value = DB_GRID_FILL->getLocVariable(ELoc::Z,jpos, 0);
         if (FFFF(value)) continue;
         tabind[nech] = jpos;
         tabval[nech] = value;
@@ -1708,7 +1708,7 @@ static int st_grid_fill_calculate(int ipos,
 
   /* Assign the result */
 
-  DB_GRID_FILL->setVariable(ipos, 0, result);
+  DB_GRID_FILL->setLocVariable(ELoc::Z,ipos, 0, result);
   return (0);
 }
 
@@ -2378,75 +2378,6 @@ VectorDouble _db_limits_statistics(Db *db,
   return stats;
 }
 
-/*****************************************************************************/
-/*!
- **  Select samples from a file according to the 2-D convex hull
- **  computed over the active samples of a second file
- **
- ** \return  Error returned code
- **
- ** \param[in]  db1     descriptor of the Db serving for convex hull calculation
- ** \param[in]  db2     descriptor of the Db where the mask must be performed
- ** \param[in]  dilate  Radius of the dilation
- ** \param[in]  verbose Verbose flag
- ** \param[in]  namconv Naming convention
- **
- ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
- **
- *****************************************************************************/
-int db_selhull(Db *db1,
-               Db *db2,
-               double dilate,
-               bool verbose,
-               const NamingConvention &namconv)
-{
-  /* Create the polygon as the convex hull of first Db */
-
-  Polygons* polygons = Polygons::createFromDb(db1, dilate, verbose);
-  if (polygons == nullptr) return 1;
-
-  // Create the variable in the output Db
-
-  int isel = db2->addColumnsByConstant(1, 1.);
-
-  /* Loop on the samples of the second Db */
-  // Note that all samples must be checked as a sample, initially masked, can be
-  // masked OFF as it belongs to the convex hull.
-
-  int ntotal = db2->getSampleNumber();
-  int nactive = 0;
-  int nout = 0;
-  int nin = 0;
-  for (int iech = 0; iech < ntotal; iech++)
-  {
-    if (!polygons->inside(db2->getCoordinate(iech, 0),
-                          db2->getCoordinate(iech, 1),
-                          db2->getCoordinate(iech, 2), false))
-    {
-      db2->setArray(iech, isel, 0.);
-      nout++;
-    }
-    else
-    {
-      nin++;
-    }
-  }
-
-  // Verbose optional output
-  if (verbose)
-  {
-    mestitle(1, "Convex Hull calculation");
-    message("- Number of target samples = %d\n", ntotal);
-    message("- Number of active samples = %d\n", nactive);
-    message("- Number of masked samples = %d\n", nout);
-    message("- Number of valid samples  = %d\n", nin);
-  }
-
-  // Set the Naming Convention
-  namconv.setNamesAndLocators(db2, isel);
-  return 0;
-}
-
 /*****************************************************************************
  *!
  ** Evaluate the value and the weight for multilinear interpolation
@@ -2930,8 +2861,8 @@ void ut_trace_sample(Db *db,
 
     for (int ivar = 0; ivar < nvar; ivar++)
     {
-      bound[0] = db->getLowerBound(iech, ivar);
-      bound[1] = db->getUpperBound(iech, ivar);
+      bound[0] = db->getLocVariable(ELoc::L,iech, ivar);
+      bound[1] = db->getLocVariable(ELoc::U,iech, ivar);
       for (int ib = 0; ib < 2; ib++)
       {
         if (FFFF(bound[ib])) continue;
@@ -4233,7 +4164,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     messerr("This function requires the Db organized as a grid");
     return tab;
   }
-  bool flag_dens = (dbgrid->getVariableNumber() == 1);
+  bool flag_dens = (dbgrid->getLocNumber(ELoc::Z) == 1);
   bool flag_region = (ndim == 2 && dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
 
   VectorDouble coor(ndim);
@@ -4254,7 +4185,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     for (int ig = 0; ig < ngrid; ig++)
     {
       if (!dbgrid->isActive(ig)) continue;
-      double densloc = dbgrid->getVariable(ig, 0);
+      double densloc = dbgrid->getLocVariable(ELoc::Z,ig, 0);
       if (FFFF(densloc) || densloc < 0) continue;
       denstot += densloc;
       dens[ig] = denstot;
@@ -4287,7 +4218,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
       for (int ig = 0; ig < ngrid && indip < 0; ig++)
       {
         if (!dbgrid->isActive(ig)) continue;
-        double densloc = dbgrid->getVariable(ig, 0);
+        double densloc = dbgrid->getLocVariable(ELoc::Z,ig, 0);
         if (FFFF(densloc) || densloc < 0) continue;
         denscum += densloc;
         if (denscum > proba) indip = ig;
@@ -4475,7 +4406,7 @@ static void st_gradient_normalize(Db *dbgrid)
     norme = 0.;
     for (int idim = 0; idim < ndim; idim++)
     {
-      grad = dbgrid->getGradient(iech, idim);
+      grad = dbgrid->getLocVariable(ELoc::G,iech, idim);
       norme += grad * grad;
     }
 
@@ -4484,8 +4415,8 @@ static void st_gradient_normalize(Db *dbgrid)
 
     for (int idim = 0; idim < ndim; idim++)
     {
-      grad = dbgrid->getGradient(iech, idim);
-      dbgrid->setGradient(iech, idim, grad / norme);
+      grad = dbgrid->getLocVariable(ELoc::G,iech, idim);
+      dbgrid->setLocVariable(ELoc::G,iech, idim, grad / norme);
     }
   }
 }
@@ -4681,7 +4612,7 @@ static int st_get_next(DbGrid *dbgrid,
   knd_loc = dbgrid->coordinateToRank(coor);
   if (knd_loc < 0) return 1;
   if (!dbgrid->isActive(knd_loc)) return 1;
-  surf_loc = dbgrid->getVariable(knd_loc, 0);
+  surf_loc = dbgrid->getLocVariable(ELoc::Z,knd_loc, 0);
   if (FFFF(surf_loc) || st_is_undefined(dbgrid, iptr_grad, knd_loc)) return (1);
   if (st_is_zero(dbgrid, iptr_grad, knd_loc)) return (1);
   *knd = knd_loc;
@@ -4766,11 +4697,11 @@ int db_streamline(DbGrid *dbgrid,
 
   if (use_grad)
   {
-    if (dbgrid->getGradientNumber() != ndim)
+    if (dbgrid->getLocNumber(ELoc::G) != ndim)
     {
       messerr("When using the option 'use.grad'");
       messerr("the number of gradients should be %d (%d)", ndim,
-              dbgrid->getGradientNumber());
+              dbgrid->getLocNumber(ELoc::G));
       goto label_end;
     }
     iptr_grad = dbgrid->getColIdxByLocator(ELoc::G, 0);
@@ -4977,7 +4908,7 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
   /* Initializations */
 
   error = 1;
-  nprop = db->getProportionNumber();
+  nprop = db->getLocNumber(ELoc::P);
   nz = db->getNX(2);
   dz = db->getDX(2);
   prop1 = prop2 = kernel = nullptr;
@@ -5202,7 +5133,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     return (dbnew);
   }
 
-  if (!db->hasCode())
+  if (!db->hasLocVariable(ELoc::C))
   {
     messerr("This function requires the definition of a CODE variable in 'db'");
     return (dbnew);
@@ -5217,7 +5148,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   // Core allocation 
 
   nz = dbgrid->getNX(2);
-  nvar = db->getVariableNumber();
+  nvar = db->getLocNumber(ELoc::Z);
   ndim = db->getNDim();
   size = ndim + nvar + 1;
 
@@ -5254,7 +5185,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   {
     if (!db->isActive(iech)) continue;
     mes_process("Regularize Wells", ntot, iech);
-    code = db->getCode(iech);
+    code = db->getLocVariable(ELoc::C,iech,0);
 
     // Identify the rank of the code
 
@@ -5276,7 +5207,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
     not_defined = 0;
     for (int ivar = 0; ivar < nvar && not_defined == 0; ivar++)
-      if (FFFF(db->getVariable(iech, ivar))) not_defined = 1;
+      if (FFFF(db->getLocVariable(ELoc::Z,iech, ivar))) not_defined = 1;
     if (not_defined) continue;
 
     // Cumulate this sample
@@ -5285,7 +5216,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     for (int idim = 0; idim < ndim; idim++)
       WCOR(iz,icode,idim) += db->getCoordinate(iech, idim);
     for (int ivar = 0; ivar < nvar; ivar++)
-      WTAB(iz,icode,ivar) += db->getVariable(iech, ivar);
+      WTAB(iz,icode,ivar) += db->getLocVariable(ELoc::Z,iech, ivar);
   }
 
   // Normalization
@@ -5784,7 +5715,7 @@ static void st_grid1D_interpolate_linear(Db *dbgrid,
     int k = st_find_interval(x, ndef, X);
     if (k < 0) continue;
     double y = Y[k] + (Y[k + 1] - Y[k]) * (x - X[k]) / (X[k + 1] - X[k]);
-    dbgrid->setVariable(iech, ivar, y);
+    dbgrid->setLocVariable(ELoc::Z,iech, ivar, y);
   }
 }
 
@@ -5866,7 +5797,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
             + Cp[k];
       }
     }
-    dbgrid->setVariable(iech, ivar, y);
+    dbgrid->setLocVariable(ELoc::Z,iech, ivar, y);
   }
   return 0;
 }
@@ -5908,7 +5839,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
     messerr("The argument 'mode' should lie between 0 and 1");
     return (1);
   }
-  int nvar = dbgrid->getVariableNumber();
+  int nvar = dbgrid->getLocNumber(ELoc::Z);
   if (nvar <= 0)
   {
     messerr("You must have at least one Z-locator defined");
@@ -5944,7 +5875,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
-      double value = dbgrid->getVariable(iech, ivar);
+      double value = dbgrid->getLocVariable(ELoc::Z,iech, ivar);
       if (FFFF(value)) continue;
       X[ndef] = dbgrid->getCoordinate(iech, 0);
       Y[ndef] = value;
@@ -6109,7 +6040,7 @@ int db_proportion_estimate(Db *dbin,
     messerr("This method requires a 'model' argument");
     return 1;
   }
-  if (dbin->getVariableNumber() != 1)
+  if (dbin->getLocNumber(ELoc::Z) != 1)
   {
     messerr("The argument 'dbin' should have a single variable");
     return 1;

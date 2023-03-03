@@ -14,7 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
-OptCst_defineByKey("ASP",0)
 ```
 
 # General Introduction
@@ -203,9 +202,11 @@ draw.matrix <- function(type,calcul,flag.est,params,flag.cut=TRUE)
 {
   title = get.title(type,calcul,flag.est,params)
   db = calculate.matrix(type,calcul,flag.est,params)
-  p = plot.grid(db,name="psi",title=title)
+  p = ggplot()
+  p = p + plot.grid(db,name_raster="psi")
+  p = p + plot.decoration(title=title)
   if (flag.cut) p <- p + geom_vline(xintercept = params$yc)
-  p
+  ggPrint(p)
 }
 
 # Representation of a scatter plot
@@ -214,8 +215,10 @@ draw.correlation <- function(calcul,flag.est,params,flag.iso=TRUE)
   title = get.title(0,calcul,flag.est,params)
   db1 = calculate.matrix(type=1,calcul,flag.est,params)
   db2 = calculate.matrix(type=2,calcul,flag.est,params)
-  plot.correlation(db1,"psi","psi",db2,title=title, flagDiag=TRUE,
-                    xlab="Hermite",ylab="Monte Carlo")
+  p = ggplot()
+  p = p + plot.correlation(db1,"psi","psi",db2, flagDiag=TRUE, bins=100)
+  p = p + plot.decoration(title=title,xlab="Hermite",ylab="Monte Carlo")
+  ggPrint(p)
 }
 ```
 
@@ -275,10 +278,6 @@ $$
 H_{n+1}(y) = -\frac{1}{\sqrt{n+1}} y H_n(y) - \sqrt{\frac{n}{n+1}} H_{n-1}(y)
 $$
 
-```{r}
-OptCst_defineByKey("ASP",1)
-```
-
 The next lines define some functions which can be explitely written in the lognormal case
 
 ```{r hermite_test, echo=TRUE, eval=TRUE}
@@ -327,20 +326,21 @@ Anamorphosis in the lognormal case (Hermite pol.)
 
 ```{r ana_test, echo=TRUE, eval=TRUE}
 zz_hm   <- GM_hermite(y = yy, nh = nh) %*% GM_LN_psi(lambda = lambda, nh = nh)
-print(zz_hm)
 
-p = plot.XY(yy, zz_theo, join=TRUE, color = "red")
-p = plot.XY(yy, zz_hm, color = "blue", linetype="dashed", padd=p)
-p = plot.decoration(p, xlab = "Y", ylab = "Z", title = "Lognormal transform")
-p
+p = ggplot()
+p = p + plot.XY(yy, zz_theo, join=TRUE, color = "red")
+p = p + plot.XY(yy, zz_hm, color = "blue", linetype="dashed")
+p = p + plot.decoration(xlab = "Y", ylab = "Z", title = "Lognormal transform")
+ggPrint(p)
 ```
 
 
 ```{r}
-p = plot.XY(zz_theo, zz_hm, join=TRUE, color = "blue")
-p = plot.decoration(p , xlab = "theoretical", ylab = "Hermite pol.", 
-                    title = "Lognormal transform")
-p
+p = ggplot()
+p = p + plot.XY(zz_theo, zz_hm, join=TRUE, color = "blue")
+p = p + plot.decoration(xlab = "theoretical", ylab = "Hermite pol.", 
+                        title = "Lognormal transform")
+ggPrint(p)
 ```
 
 Covariance
@@ -349,11 +349,12 @@ Covariance
 r <- seq(from = 0, to =1, by = 0.01)
 C_theo <- GM_LN_Cov_theo(lambda = lambda)
 C_nh   <- GM_LN_Cov_nh(lambda = lambda, nh = nh)
-p = plot.XY(r, C_theo(r), color = "red", join=TRUE)
-p = plot.XY(r,C_nh(r), join=TRUE, color = "blue", linetype="dashed",  padd=p)
-p = plot.decoration(p, xlab = "Covariance of Y", ylab = "Covarariance of Z", 
-                    title = "Lognormal transform")
-p
+p = ggplot()
+p = p + plot.XY(r, C_theo(r), color = "red", join=TRUE)
+p = p + plot.XY(r,C_nh(r), join=TRUE, color = "blue", linetype="dashed")
+p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covarariance of Z", 
+                        title = "Lognormal transform")
+ggPrint(p)
 ```
 
 ## Performing similar tests with gstlearn
@@ -370,10 +371,12 @@ localPsi <- GM_LN_psi(lambda = lambda, nh = nh-2)
 err = ana$setPsiHns(localPsi)
 ana$display()
 
-p = plot.anam(ana, aymin=aymin, aymax=aymax)
-p = plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
-p = plot.decoration(p, title="Lognormal Transform")
-p
+p = ggplot()
+p = p + plot.anam(ana, aymin=aymin, aymax=aymax)
+p = p + plot.XY(yy, zz_theo, color="red", linetype="dashed")
+p = p + plot.decoration(title="Lognormal Transform")
+ggPrint(p)
+
 #legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "black"), lty = c(1,1))
 ```
 
@@ -381,8 +384,8 @@ p
 ```{r,eval=FALSE}
 zz_rg = ana$gaussianToRawVector(yy)
 p = plot.XY(zz_theo, zz_rg, join=TRUE, color="blue")
-p = plot.decoration(p, xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
-p
+p = plot.decoration(xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
+ggPrint(p)
 #legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
 ```
 
@@ -408,11 +411,12 @@ model.eval.GM <- function(model, anam, h){
 }
 cov_rg <- model.eval.GM(model = mod_y, anam = ana, h = h)
 
-p = plot.XY(r, cov_theo, color = "red", join=TRUE) 
-p = plot.decoration(p, xlab = "Covariance of Y", ylab = "Covariance of Z", 
-                    title = "Lognormal transform")
-p = plot.XY(r, cov_rg, color = "blue", linetype = "dashed", padd=p)
-p
+p = ggplot()
+p = p + plot.XY(r, cov_theo, color = "red", join=TRUE) 
+p = p + plot.XY(r, cov_rg, color = "blue", linetype = "dashed")
+p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covariance of Z", 
+                        title = "Lognormal transform")
+ggPrint(p)
 
 #legend("topleft", legend = c("theoretical", "gstlearn"), col = c("red", "blue"), lty = c(1,2))
 ```
@@ -452,12 +456,14 @@ Floor variable Z = max(yc, Y)
 psi = hermiteCoefLower(yc, nh)
 zz <- hm %*% psi
 ylim = c(-3.5, 3.5)
-p = plot.XY(yy, zz, join=TRUE, color = "red")
-p = plot.XY(yy, pmax(yc, yy), color = "blue", join=TRUE, linetype = "dashed", padd=p)
-p = plot.decoration(p, xlab = "Y", ylab = "Z", 
-                    title = paste0("cut = ",round(yc,2), " nh = ", nh))
-p = plot.geometry(p, ylim=ylim)
-p
+p = ggplot()
+p = p + plot.XY(yy, zz, join=TRUE, color = "red")
+p = p + plot.XY(yy, pmax(yc, yy), color = "blue", join=TRUE, linetype = "dashed")
+p = p + plot.decoration(xlab = "Y", ylab = "Z", 
+                        title = paste0("cut = ",round(yc,2), " nh = ", nh))
+p = p + plot.geometry(ylim=ylim)
+ggPrint(p)
+
 #legend("topleft", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
 ```
 
@@ -466,13 +472,14 @@ QC Indicator
 ```{r}
 psi = hermiteIndicatorLower(yc, nh)
 zz <- hm %*% psi
-print(psi)
 
-p = plot.XY(yy, zz, join=TRUE, color = "red")
-p = plot.decoration(p, xlab = "Y", ylab = "Indicator", 
-                    title = paste0("cut = ",round(yc,2), " nh = ", nh)) 
-p = plot.geometry(p, ylim = range(-0.5, 1.5))
-p = plot.XY(yy, as.numeric(yy >= yc), color = "blue", join=TRUE, linetype="dashed", padd=p)
-p
+p = ggplot()
+p = p + plot.XY(yy, zz, join=TRUE, color = "red")
+p = p + plot.decoration(xlab = "Y", ylab = "Indicator", 
+                        title = paste0("cut = ",round(yc,2), " nh = ", nh)) 
+p = p + plot.geometry(ylim = range(-0.5, 1.5))
+p = p + plot.XY(yy, as.numeric(yy >= yc), color = "blue", join=TRUE, linetype="dashed")
+ggPrint(p)
+
 #legend("bottomright", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
 ```

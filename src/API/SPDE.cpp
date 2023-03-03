@@ -232,7 +232,7 @@ void SPDE::init(Model* model,
   // (nugget + measurement error or minimum proportion of total sill)
   if (_calculKriging())
   {
-    if (_data->getVarianceErrorNumber() > 0)
+    if (_data->getLocNumber(ELoc::V) > 0)
     {
       varianceData = _data->getColumnByLocator(ELoc::V,0,useSel);
       for (int iech = 0; iech < _data->getSampleNumber(true); iech++)

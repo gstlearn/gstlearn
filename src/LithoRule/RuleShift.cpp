@@ -370,12 +370,12 @@ int RuleShift::evaluateBounds(PropDef *propdef,
   {
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
-    facies = (int) dbin->getVariable(iech, 0);
+    facies = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
     if (rule_thresh_define(propdef, dbin, this, facies, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return (1);
-    dbin->setLowerBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+    dbin->setLocVariable(ELoc::L,iech, get_rank_from_propdef(propdef, ipgs, igrf),
                         t1min);
-    dbin->setUpperBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+    dbin->setLocVariable(ELoc::U,iech, get_rank_from_propdef(propdef, ipgs, igrf),
                         t1max);
     if (facies == SHADOW_ISLAND) continue;
 
@@ -404,11 +404,11 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     }
 
     /* Set the attributes of the replicate */
-    if (facies == SHADOW_WATER) dbin->setVariable(jech, 0, SHADOW_WATER);
-    if (facies == SHADOW_SHADOW) dbin->setVariable(jech, 0, SHADOW_ISLAND);
-    dbin->setLowerBound(jech, get_rank_from_propdef(propdef, ipgs, igrf),
+    if (facies == SHADOW_WATER) dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_WATER);
+    if (facies == SHADOW_SHADOW) dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_ISLAND);
+    dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                         s2min);
-    dbin->setUpperBound(jech, get_rank_from_propdef(propdef, ipgs, igrf),
+    dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                         s2max);
     nadd++;
   }

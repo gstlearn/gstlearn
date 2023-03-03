@@ -39,6 +39,6 @@ DriftF::~DriftF()
 
 double DriftF::eval(const Db* db, int iech) const
 {
-  return db->getExternalDrift(iech,getRankFex());
+  return db->getLocVariable(ELoc::F,iech,getRankFex());
 }
 

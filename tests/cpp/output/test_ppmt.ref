@@ -1,31 +1,44 @@
 
-PPMT Method
------------
-- Using Van der Corput method
-- Number of iterations = 100
-- Number of Directions = 10
-- Number of Hermite Polynomials = 30
-- Exponent value = 2
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+8 - Name U.Y1 - Locator z1
+ Nb of data          =        500
+ Nb of active values =        500
+ Minimum value       =     -3.065
+ Maximum value       =      3.058
+ Mean value          =      0.000
+ Standard Deviation  =      1.001
+ Variance            =      1.003
+9 - Name U.Y2 - Locator z2
+ Nb of data          =        500
+ Nb of active values =        500
+ Minimum value       =     -2.995
+ Maximum value       =      2.746
+ Mean value          =      0.000
+ Standard Deviation  =      0.990
+ Variance            =      0.981
 
 Data Base Characteristics
 =========================
 
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 9
-Maximum Number of UIDs       = 9
-Total number of samples      = 500
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Z1 - Locator = NA
-Column = 4 - Name = Z2 - Locator = NA
-Column = 5 - Name = Y1 - Locator = NA
-Column = 6 - Name = Y2 - Locator = NA
-Column = 7 - Name = U.Y1 - Locator = z1
-Column = 8 - Name = U.Y2 - Locator = z2
+Data Base Statistics
+--------------------
+10 - Name V.U.Y1 - Locator z1
+ Nb of data          =        500
+ Nb of active values =        500
+ Minimum value       =     -3.065
+ Maximum value       =      3.058
+ Mean value          =      0.000
+ Standard Deviation  =      1.001
+ Variance            =      1.003
+11 - Name V.U.Y2 - Locator z2
+ Nb of data          =        500
+ Nb of active values =        500
+ Minimum value       =     -2.995
+ Maximum value       =      2.746
+ Mean value          =      0.000
+ Standard Deviation  =      0.990
+ Variance            =      0.981

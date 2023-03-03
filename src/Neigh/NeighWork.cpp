@@ -442,7 +442,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
  *****************************************************************************/
 bool NeighWork::_discardUndefined(int iech)
 {
-  if (_dbin->getVariableNumber() <= 0) return 0;
+  if (_dbin->getLocNumber(ELoc::Z) <= 0) return 0;
 
   if (! _flagSimu)
   {
@@ -479,8 +479,8 @@ int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
   }
   else
   {
-    if (! _dbin->hasCode()) return 0;
-    if (_dbin->getCode(iech_in) == dbout->getCode(iech_out)) return 1;
+    if (! _dbin->hasLocVariable(ELoc::C)) return 0;
+    if (_dbin->getLocVariable(ELoc::C,iech_in,0) == dbout->getLocVariable(ELoc::C,iech_out,0)) return 1;
   }
   return 0;
 }
@@ -720,14 +720,14 @@ void NeighWork::_display(const VectorInt& ranks)
   String string;
   int ndim = _dbin->getNDim();
   int nech = _dbin->getSampleNumber();
-  bool flag_ext = _dbin->getBlockExtensionNumber() > 0;
+  bool flag_ext = _dbin->getLocNumber(ELoc::BLEX) > 0;
 
   /* Neighborhood data */
 
   mestitle(1, "Data selected in neighborhood");
   tab_prints(NULL, "Rank");
   tab_prints(NULL, "Sample");
-  if (_dbin->hasCode()) tab_prints(NULL, "Code");
+  if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
   for (int idim = 0; idim < ndim; idim++)
   {
     string = getLocatorName(ELoc::X, idim);
@@ -754,14 +754,14 @@ void NeighWork::_display(const VectorInt& ranks)
 
     tab_printi(NULL, nsel + 1);
     tab_printi(NULL, iech + 1);
-    if (_dbin->hasCode())
-      tab_printi(NULL, static_cast<int>(_dbin->getCode(iech)));
+    if (_dbin->hasLocVariable(ELoc::C))
+      tab_printi(NULL, static_cast<int>(_dbin->getLocVariable(ELoc::C,iech,0)));
     for (int idim = 0; idim < ndim; idim++)
       tab_printg(NULL, _dbin->getCoordinate(iech, idim));
     if (flag_ext)
     {
       for (int idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, _dbin->getBlockExtension(iech, idim));
+        tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX,iech, idim));
     }
     if (_neighParam->getType() == ENeigh::MOVING)
       tab_printi(NULL, ranks[iech] + 1);

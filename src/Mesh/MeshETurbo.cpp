@@ -64,7 +64,7 @@ MeshETurbo::MeshETurbo(const DbGrid *dbgrid,
       _gridIndirect(mode)
 {
   if (!dbgrid->isGrid()) return;
-  VectorDouble sel = dbgrid->getSelection();
+  VectorDouble sel = dbgrid->getSelections();
   (void) initFromGrid(dbgrid->getNXs(), dbgrid->getDXs(), dbgrid->getX0s(),
                       dbgrid->getRotMat(), sel, flag_polarized, verbose);
 }

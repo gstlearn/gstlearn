@@ -169,7 +169,7 @@ static double TGT_COO(int it,int i)
 static double TGT_VAL(int it,int idim)
 {
   if (idim >= POTENV->ndim) return TEST;
-  return DBTGT->getTangent(IAD_TGT(it),idim);
+  return DBTGT->getLocVariable(ELoc::TGTE,IAD_TGT(it),idim);
 }
 static double GRD_COO(int ig,int idim)
 {
@@ -179,7 +179,7 @@ static double GRD_COO(int ig,int idim)
 static double GRD_VAL(int ig,int idim)
 {
   if (idim >= POTENV->ndim) return TEST;
-  return DBGRD->getGradient(IAD_GRD(ig),idim);
+  return DBGRD->getLocVariable(ELoc::G,IAD_GRD(ig),idim);
 }
 static double ISO_COO(int ic,int j,int idim)
 {
@@ -587,7 +587,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
   }
 
   int next = model_nfex(model);
-  if (dbout != NULL && next != dbout->getExternalDriftNumber())
+  if (dbout != NULL && next != dbout->getLocNumber(ELoc::F))
   {
     messerr("Inconsistency for External Drift between Model and Dbout");
     return false;
@@ -823,7 +823,7 @@ static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
     if (!dbgrd->isActive(iech)) continue;
     found = 0;
     for (int idim = 0; idim < pot_env->ndim && found == 0; idim++)
-      if (FFFF(dbgrd->getGradient(iech, idim))) found = 1;
+      if (FFFF(dbgrd->getLocVariable(ELoc::G,iech, idim))) found = 1;
     if (found) continue;
     set_IAD_GRD(ngrd++,iech);
   }
@@ -873,7 +873,7 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
     if (!dbtgt->isActive(iech)) continue;
     found = 0;
     for (int idim = 0; idim < pot_env->ndim && found == 0; idim++)
-      if (FFFF(dbtgt->getTangent(iech, idim))) found = 1;
+      if (FFFF(dbtgt->getLocVariable(ELoc::TGTE,iech, idim))) found = 1;
     if (found) continue;
     set_IAD_TGT(ntgt++, iech);
   }
@@ -1144,7 +1144,7 @@ static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
 
         /* Check that the external drift value is defined */
 
-        drift = dbgrid->getExternalDrift(iech, 0);
+        drift = dbgrid->getLocVariable(ELoc::F,iech, 0);
         if (FFFF(drift)) return (1);
         pot_ext->data[ecr] = drift;
         ecr++;
@@ -2175,10 +2175,10 @@ static void st_estimate_result(Pot_Env *pot_env,
 
     // Store the results
 
-    dbout->setVariable(iech, 0, result[0]);
+    dbout->setLocVariable(ELoc::Z,iech, 0, result[0]);
     if (flag_grad)
       for (int idim = 0; idim < pot_env->ndim; idim++)
-        dbout->setGradient(iech, idim, result[idim + 1]);
+        dbout->setLocVariable(ELoc::G,iech, idim, result[idim + 1]);
   }
   OptDbg::setIndex(-1);
   return;
@@ -2470,12 +2470,12 @@ static void st_xvalid_potential(Pot_Env *pot_env,
 
       // Storing the results 
 
-      dbiso->setVariable(iech0, 0, result[0]);
-      dbiso->setVariable(iech0, 1, variance);
+      dbiso->setLocVariable(ELoc::Z,iech0, 0, result[0]);
+      dbiso->setLocVariable(ELoc::Z,iech0, 1, variance);
       if (flag_dist_conv)
       {
-        dbiso->setVariable(iech0, 2, dist_euc);
-        dbiso->setVariable(iech0, 3, dist_geo);
+        dbiso->setLocVariable(ELoc::Z,iech0, 2, dist_euc);
+        dbiso->setLocVariable(ELoc::Z,iech0, 3, dist_geo);
       }
 
       // Update statistics */
@@ -2552,7 +2552,7 @@ static void st_tempere(DbGrid *dbout,
   static int test = 0;
 
   simerr = result[0] - reskrige;
-  kdist = dbout->getVariable(iech, 0);
+  kdist = dbout->getLocVariable(ELoc::Z,iech, 0);
 
   switch (test)
   {
@@ -2847,7 +2847,7 @@ static void st_check_data(Pot_Env *pot_env,
       {
         double tgte = 0.;
         for (int idim = 0; idim < pot_env->ndim; idim++)
-          tgte += result[1 + idim] * dbtgt->getTangent(iech, idim);
+          tgte += result[1 + idim] * dbtgt->getLocVariable(ELoc::TGTE,iech, idim);
 
         // Print the results
 
@@ -3205,8 +3205,8 @@ static int st_distance_to_isoline(DbGrid *dbout)
   // Highlight the isoline of interest
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    value = dbout->getVariable(iech, 0);
-    if (!FFFF(value) && ABS(value) > eps) dbout->setVariable(iech, 0, TEST);
+    value = dbout->getLocVariable(ELoc::Z,iech, 0);
+    if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
   }
 
   // Calculate the distance

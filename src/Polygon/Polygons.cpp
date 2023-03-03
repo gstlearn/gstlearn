@@ -520,19 +520,20 @@ bool Polygons::inside(double xx, double yy, double zz, bool flag_nested)
     for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
     {
       PolySet polyset = getClosedPolySet(ipol);
+      if (! polyset.inside3D(zz)) return false;
       if (polyset.inside(xx, yy)) number++;
-      if (number % 2 != 0 && polyset.inside3D(zz)) return (1);
     }
+    if (number % 2 != 0) return true;
   }
   else
   {
     for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
     {
       PolySet polyset = getClosedPolySet(ipol);
-      if (polyset.inside(xx, yy) && polyset.inside3D(zz)) return (1);
+      if (polyset.inside(xx, yy) && polyset.inside3D(zz)) return true;
     }
   }
-  return (0);
+  return false;
 }
 
 /*****************************************************************************/
@@ -734,5 +735,137 @@ int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
   PolySet polyset = PolySet(xret, yret);
   addPolySet(polyset);
 
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Create a selection if the samples of a Db are inside Polygons
+ **
+ ** \param[in]  db          Db structure
+ ** \param[in]  polygon     Polygons structure
+ ** \param[in]  flag_sel    true if previous selection must be taken into account
+ ** \param[in]  flag_period true if first coordinate is longitude (in degree) and
+ **                         must be cycled for the check
+ ** \param[in]  flag_nested Option for nested polysets (see details)
+ ** \param[in]  namconv     Naming Convention
+ **
+ ** \remarks If flag_nested=true, a sample is masked off if the number of
+ ** \remarks polysets to which it belongs is odd
+ ** \remarks If flag_nested=false, a sample is masked off as soon as it
+ ** \remarks belongs to one polyset
+ **
+ ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
+ **
+ *****************************************************************************/
+void db_polygon(Db *db,
+                Polygons *polygon,
+                bool flag_sel,
+                bool flag_period,
+                bool flag_nested,
+                const NamingConvention& namconv)
+{
+  // Adding a new variable
+
+  int iatt = db->addColumnsByConstant(1);
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    mes_process("Checking if sample belongs to a polygon",
+                db->getSampleNumber(), iech);
+    int selval = 0;
+    if (!(flag_sel && !db->isActive(iech)))
+    {
+      double xx = db->getCoordinate(iech, 0);
+      double yy = db->getCoordinate(iech, 1);
+      double zz = db->getCoordinate(iech, 2);
+      selval = polygon->inside(xx, yy, zz, flag_nested);
+
+      if (flag_period)
+      {
+        double xp;
+        xp = xx - 360;
+        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
+        xp = xx + 360;
+        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
+      }
+    }
+    db->setArray(iech, iatt, (double) selval);
+  }
+
+  // Setting the output variable
+  namconv.setNamesAndLocators(db, iatt);
+
+  return;
+}
+
+/*****************************************************************************/
+/*!
+ **  Select samples from a file according to the 2-D convex hull
+ **  computed over the active samples of a second file
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db1     descriptor of the Db serving for convex hull calculation
+ ** \param[in]  db2     descriptor of the Db where the mask must be performed
+ ** \param[in]  dilate  Radius of the dilation
+ ** \param[in]  verbose Verbose flag
+ ** \param[in]  namconv Naming convention
+ **
+ ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
+ **
+ *****************************************************************************/
+int db_selhull(Db *db1,
+               Db *db2,
+               double dilate,
+               bool verbose,
+               const NamingConvention &namconv)
+{
+  /* Create the polygon as the convex hull of first Db */
+
+  Polygons* polygons = Polygons::createFromDb(db1, dilate, verbose);
+  if (polygons == nullptr) return 1;
+
+  // Create the variable in the output Db
+
+  int isel = db2->addColumnsByConstant(1, 1.);
+
+  /* Loop on the samples of the second Db */
+  // Note that all samples must be checked as a sample, initially masked, can be
+  // masked OFF as it belongs to the convex hull.
+
+  int ntotal = db2->getSampleNumber();
+  int nactive = 0;
+  int nout = 0;
+  int nin = 0;
+  for (int iech = 0; iech < ntotal; iech++)
+  {
+    if (!polygons->inside(db2->getCoordinate(iech, 0),
+                          db2->getCoordinate(iech, 1),
+                          db2->getCoordinate(iech, 2), false))
+    {
+      db2->setArray(iech, isel, 0.);
+      nout++;
+    }
+    else
+    {
+      nin++;
+    }
+  }
+
+  // Verbose optional output
+  if (verbose)
+  {
+    mestitle(1, "Convex Hull calculation");
+    message("- Number of target samples = %d\n", ntotal);
+    message("- Number of active samples = %d\n", nactive);
+    message("- Number of masked samples = %d\n", nout);
+    message("- Number of valid samples  = %d\n", nin);
+  }
+
+  // Set the Naming Convention
+  namconv.setNamesAndLocators(db2, isel);
   return 0;
 }

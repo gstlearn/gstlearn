@@ -150,8 +150,8 @@ void simu_func_continuous_update(Db *db, int verbose, int isimu, int nbsimu)
   {
     if (!db->isActive(iech)) continue;
     simval = get_LOCATOR_ITEM(db, ELoc::SIMU, iptr_simu, iech);
-    db->updVariable(iech, 0, 0, simval);
-    db->updVariable(iech, 1, 0, simval * simval);
+    db->updLocVariable(ELoc::Z,iech, 0, 0, simval);
+    db->updLocVariable(ELoc::Z,iech, 1, 0, simval * simval);
   }
 
   /* Optional printout */
@@ -189,8 +189,8 @@ void simu_func_categorical_update(Db *db, int verbose, int isimu, int nbsimu)
     if (!db->isActive(iech)) continue;
     facies = (int) get_LOCATOR_ITEM(db, ELoc::FACIES, iptr_simu, iech) - 1;
     rank = st_facies(ModCat.propdef, ipgs, facies);
-    prop = db->getProportion(iech, rank) + 1.;
-    db->setProportion(iech, rank, prop);
+    prop = db->getLocVariable(ELoc::P,iech, rank) + 1.;
+    db->setLocVariable(ELoc::P,iech, rank, prop);
   }
 
   /* Optional printout */
@@ -221,12 +221,12 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    mean = db->getVariable(iech, 0) / nbsimu;
-    db->setVariable(iech, 0, mean);
-    stdv = db->getVariable(iech, 1) / nbsimu - mean * mean;
+    mean = db->getLocVariable(ELoc::Z,iech, 0) / nbsimu;
+    db->setLocVariable(ELoc::Z,iech, 0, mean);
+    stdv = db->getLocVariable(ELoc::Z,iech, 1) / nbsimu - mean * mean;
     stdv = (stdv > 0) ? sqrt(stdv) :
                         0.;
-    db->setVariable(iech, 1, stdv);
+    db->setLocVariable(ELoc::Z,iech, 1, stdv);
   }
 
   /* Optional printout */
@@ -264,8 +264,8 @@ void simu_func_categorical_scale(Db *db, int verbose, int nbsimu)
     for (int ifac = 0; ifac < nfacies; ifac++)
     {
       rank = st_facies(propdef, ipgs, ifac);
-      prop = db->getProportion(iech, rank) / (double) nbsimu;
-      db->setProportion(iech, rank, prop);
+      prop = db->getLocVariable(ELoc::P,iech, rank) / (double) nbsimu;
+      db->setLocVariable(ELoc::P,iech, rank, prop);
     }
   }
 
@@ -393,10 +393,10 @@ static int st_check_simtub_environment(Db *dbin,
               model->getVariableNumber());
       return 1;
     }
-    if (flag_cond && dbin->getVariableNumber() != nvar)
+    if (flag_cond && dbin->getLocNumber(ELoc::Z) != nvar)
     {
       messerr("The number of variables of the Data (%d)",
-              dbin->getVariableNumber());
+              dbin->getLocNumber(ELoc::Z));
       messerr("does not match the number of variables of the Model (%d)", nvar);
       return 1;
     }
@@ -422,18 +422,18 @@ static int st_check_simtub_environment(Db *dbin,
 
     nfex = model_nfex(model);
     if (flag_cond && nfex != 0 && ! dbout->isGrid()
-        && dbin->getExternalDriftNumber() != nfex)
+        && dbin->getLocNumber(ELoc::F) != nfex)
     {
       messerr("The Model requires %d external drift(s)", model_nfex(model));
       messerr("but the input Db refers to %d external drift variables",
-              dbin->getExternalDriftNumber());
+              dbin->getLocNumber(ELoc::F));
       return 1;
     }
-    if (nfex != 0 && dbout->getExternalDriftNumber() != nfex)
+    if (nfex != 0 && dbout->getLocNumber(ELoc::F) != nfex)
     {
       messerr("The Model requires %d external drift(s)", model_nfex(model));
       messerr("but the output Db refers to %d external drift variables",
-              dbout->getExternalDriftNumber());
+              dbout->getLocNumber(ELoc::F));
       return 1;
     }
   }
@@ -506,7 +506,7 @@ int simbool(Db* dbin,
   int iptr_cover = -1;
   if (dbin != nullptr)
   {
-    if (dbin->getVariableNumber() != 1)
+    if (dbin->getLocNumber(ELoc::Z) != 1)
     {
       messerr("Conditional Boolean simulation needs 1 variable");
       return 1;
@@ -628,7 +628,7 @@ static void st_check_facies_data2grid(Db *dbin,
   for (iech = 0; iech < nechin; iech++)
   {
     if (!dbin->isActive(iech)) continue;
-    facdat = (int) dbin->getVariable(iech, 0);
+    facdat = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
     if (facdat < 1 || facdat > nfacies) continue;
     jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor);
     if (jech < 0) continue;
@@ -2246,7 +2246,7 @@ int simRI(Db *dbout,
   /* Set the mask to the whole set of grid nodes */
 
   for (iech = 0; iech < nech; iech++)
-    dbout->setSelection(iech, 1);
+    dbout->setLocVariable(ELoc::SEL,iech, 0, 1.);
 
   /* Loop on the cutoff classes */
 
@@ -2274,7 +2274,7 @@ int simRI(Db *dbout,
       simval = dbout->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1);
       if (!FFFF(seuil) && simval >= seuil) continue;
       dbout->setSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1, (double) (icut + 1));
-      dbout->setSelection(iech, 0);
+      dbout->setLocVariable(ELoc::SEL,iech, 0, 0.);
       count++;
     }
     total += count;

@@ -75,7 +75,7 @@ int main(int /*argc*/, char */*argv*/[])
   grid->addSelection(sel2, "Sel2","and");
 
   // Retrieve resulting selection for check
-  VectorDouble sel3 = grid->getSelection();
+  VectorDouble sel3 = grid->getSelections();
   VH::display("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")

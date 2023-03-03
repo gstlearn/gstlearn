@@ -254,7 +254,7 @@ static double st_get_IVAR(const Db *db, int iech, int ivar)
 {
   double zz, drfval;
 
-  zz = db->getVariable(iech, ivar);
+  zz = db->getLocVariable(ELoc::Z, iech, ivar);
   if (FFFF(zz)) return (TEST);
   if (MODEL == nullptr) return (zz);
   if (ivar != 0) return (TEST);
@@ -277,16 +277,16 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
   /* Initializations */
 
-  for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
     vario->setMean(ivar, 0.);
-    for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
+    for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
       vario->setVar(ivar, jvar, 0.);
   }
 
   /* Loop on the variables */
 
-  for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
     double s1w = 0.;
     double s1z = 0.;
@@ -304,7 +304,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
     vario->setMean(ivar, s1z / s1w);
   }
 
-  for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     for (int jvar = 0; jvar <= ivar; jvar++)
     {
 
@@ -350,7 +350,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
   if (vario->getCalcul() == ECalcVario::TRANS1)
   {
-    for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
         double value = -vario->getVar(ivar, jvar) / vario->getVar(jvar, jvar);
@@ -360,7 +360,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
   }
   else if (vario->getCalcul() == ECalcVario::TRANS2)
   {
-    for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
         double value = -vario->getVar(ivar, jvar) / vario->getVar(ivar, ivar);
@@ -370,8 +370,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
   }
   else if (vario->getCalcul() == ECalcVario::BINORMAL)
   {
-    for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
-      for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+      for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
         if (ivar != jvar)
           vario->setVar(
               ivar,
@@ -999,7 +999,7 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
 
   /* Calculate the C00 term */
 
-  for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  for (ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
     for (jvar = 0; jvar <= ivar; jvar++)
     {
       i = vario->getDirAddress(idir, ivar, jvar, 0, false, 0);
@@ -1093,14 +1093,14 @@ int code_comparable(const Db *db1,
       break;
 
     case 1: /* Code must be close */
-      code1 = db1->getCode(iech);
-      code2 = db2->getCode(jech);
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
       if (ABS(code1 - code2) > tolcode) return (1);
       break;
 
     case 2: /* Code must be different */
-      code1 = db1->getCode(iech);
-      code2 = db2->getCode(jech);
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
       if (code1 == code2) return (1);
       break;
   }
@@ -1123,8 +1123,8 @@ static int st_date_is_used(const VarioParam *varioparam,
                            const Db *db2)
 {
   if (varioparam->getDates().empty()) return (0);
-  if (!db1->hasDate()) return (0);
-  if (!db2->hasDate()) return (0);
+  if (!db1->hasLocVariable(ELoc::DATE)) return (0);
+  if (!db2->hasLocVariable(ELoc::DATE)) return (0);
   return (1);
 }
 
@@ -1156,8 +1156,8 @@ static int st_date_comparable(const VarioParam *varioparam,
   /* Dispatch */
 
   if (!varioparam->hasDate()) return (0);
-  date1 = db1->getDate(iech);
-  date2 = db2->getDate(jech);
+  date1 = db1->getLocVariable(ELoc::DATE,iech,0);
+  date2 = db2->getLocVariable(ELoc::DATE,jech,0);
   if (FFFF(date1) || FFFF(date2)) return (0);
 
   delta = date2 - date1;
@@ -1182,7 +1182,7 @@ static double st_s(Db *db, int iech, int jech)
 {
   double value;
 
-  value = 0.5 * (db->getVarianceError(iech, 0) + db->getVarianceError(jech, 0));
+  value = 0.5 * (db->getLocVariable(ELoc::V,iech, 0) + db->getLocVariable(ELoc::V,jech, 0));
   return (value);
 }
 
@@ -2450,12 +2450,12 @@ static int st_variogen_grid_calcul(DbGrid *db, Vario *vario)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber()
+  if (db->getNDim() != vario->getDimensionNumber() || db->getLocNumber(ELoc::Z)
       != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getVariableNumber());
+            db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", vario->getDimensionNumber(),
             vario->getVariableNumber());
     return (1);
@@ -2515,12 +2515,12 @@ static int st_variogen_line_calcul(Db *db, Vario *vario)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber()
+  if (db->getNDim() != vario->getDimensionNumber() || db->getLocNumber(ELoc::Z)
       != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getVariableNumber());
+            db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", vario->getDimensionNumber(),
             vario->getVariableNumber());
     return (1);
@@ -2540,7 +2540,7 @@ static int st_variogen_line_calcul(Db *db, Vario *vario)
     messerr("This calculation facility is dedicated to line architecture");
     return (1);
   }
-  if (!db->hasCode())
+  if (!db->hasLocVariable(ELoc::C))
   {
     messerr("This calculation facility requires the definition of a CODE");
     return (1);
@@ -2627,7 +2627,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
         goto label_end;
       }
       X_DRFTAB(il,iiech) = DRFLOC[il];
-      b[il] += DRFLOC[il] * db->getVariable(iech, 0);
+      b[il] += DRFLOC[il] * db->getLocVariable(ELoc::Z, iech, 0);
       for (jl = 0; jl < nbfl; jl++)
         X_MATDRF(il,jl) += DRFLOC[il] * DRFLOC[jl];
     }
@@ -2701,12 +2701,12 @@ static int st_variogram_general(Db *db,
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber()
+  if (db->getNDim() != vario->getDimensionNumber() || db->getLocNumber(ELoc::Z)
       != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getVariableNumber());
+            db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", vario->getDimensionNumber(),
             vario->getVariableNumber());
     goto label_end;
@@ -2724,7 +2724,7 @@ static int st_variogram_general(Db *db,
 
   /* Auxiliary check for Variance Measurement Error */
 
-  if (db->getVarianceErrorNumber() > 0 && verr_mode > 0)
+  if (db->getLocNumber(ELoc::V) > 0 && verr_mode > 0)
   {
     vorder = vario_order_manage(1, 1, 0, vorder);
     flag_verr = 1;
@@ -2842,12 +2842,12 @@ int variovect_compute(Db *db, Vario *vario, int ncomp)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber()
+  if (db->getNDim() != vario->getDimensionNumber() || db->getLocNumber(ELoc::Z)
       != vario->getVariableNumber() * ncomp)
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getVariableNumber());
+            db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", vario->getDimensionNumber(),
             vario->getVariableNumber());
     messerr("Number of components = %d", ncomp);
@@ -2983,7 +2983,7 @@ static int st_vmap_general(Db *db,
   /* Initializations */
 
   ndim = dbmap->getNDim();
-  nvar = db->getVariableNumber();
+  nvar = db->getLocNumber(ELoc::Z);
   nech = db->getSampleNumber();
   nv2 = nvar * (nvar + 1) / 2;
 
@@ -3167,7 +3167,7 @@ static int st_vmap_grid(DbGrid *dbgrid,
   /* Initializations */
 
   ndim = dbmap->getNDim();
-  nvar = dbgrid->getVariableNumber();
+  nvar = dbgrid->getLocNumber(ELoc::Z);
   nv2 = nvar * (nvar + 1) / 2;
 
   /* Core allocation */
@@ -3394,12 +3394,12 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber()
+  if (db->getNDim() != vario->getDimensionNumber() || db->getLocNumber(ELoc::Z)
       != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getVariableNumber());
+            db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", vario->getDimensionNumber(),
             vario->getVariableNumber());
     goto label_end;
@@ -3425,7 +3425,7 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
     db->setLocatorByUID(iadd_new, ELoc::W);
     maille = db_grid_maille(db);
     for (iech = 0; iech < db->getSampleNumber(); iech++)
-      db->setWeight(iech, maille);
+      db->setLocVariable(ELoc::W, iech, 0, maille);
   }
 
   /* Update the global statistics */
@@ -4816,7 +4816,7 @@ static int st_vmap_grid_fft(DbGrid *dbgrid,
 
   /* Preliminary calculations */
 
-  nvar = dbgrid->getVariableNumber();
+  nvar = dbgrid->getLocNumber(ELoc::Z);
   nvs2 = nvar * (nvar + 1) / 2;
   ndim = 0;
   sizetot = sizemap = sizegrid = 1;
@@ -5052,12 +5052,12 @@ int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
 
   /* Preliminary checks */
 
-  if (db->getNDim() != vario->getDimensionNumber() || db->getVariableNumber()
+  if (db->getNDim() != vario->getDimensionNumber() || db->getLocNumber(ELoc::Z)
       != vario->getVariableNumber())
   {
     messerr("Inconsistent parameters:");
     messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
-            db->getVariableNumber());
+            db->getLocNumber(ELoc::Z));
     messerr("Variogram: NDIM=%d NVAR=%d", vario->getDimensionNumber(),
             vario->getVariableNumber());
     goto label_end;
@@ -5646,7 +5646,7 @@ DbGrid* db_variogram_cloud(Db *db,
                            int varnb,
                            const NamingConvention& namconv)
 {
-  if (FFFF(lagmax)) lagmax = db->getColumnSize();
+  if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
   if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);
 
   // Create a grid as a support for the variogram cloud calculations
@@ -5826,7 +5826,7 @@ int dbgrid_model(DbGrid *dbgrid, Model *model, const NamingConvention &namconv)
   /* Initializations */
 
   int ndim = dbgrid->getNDim();
-  int nvar = dbgrid->getVariableNumber();
+  int nvar = dbgrid->getLocNumber(ELoc::Z);
   int nv2  = nvar * (nvar + 1) / 2;
 
   /* Create the variables in the Variogram Map file */

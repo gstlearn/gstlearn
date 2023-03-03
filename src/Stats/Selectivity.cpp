@@ -169,7 +169,7 @@ int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
     messerr("You must provide a valid 'Db'");
     return 1;
   }
-  if (db->getVariableNumber() != 1)
+  if (db->getLocNumber(ELoc::Z) != 1)
   {
     messerr("The 'Db' must contain a SINGLE variable");
     return 1;
@@ -178,7 +178,7 @@ int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
   // Extract the array of data and weights
   VectorDouble tab = db->getColumnByLocator(ELoc::Z, 0, true);
   VectorDouble wtab;
-  if (db->hasWeight())
+  if (db->hasLocVariable(ELoc::W))
     wtab = db->getColumnByLocator(ELoc::W, 0, true);
 
   return calculateFromArray(tab, wtab, autoCuts);
@@ -1156,3 +1156,57 @@ void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
   for (int icut = 0; icut < ncuts; icut++)
     _Zcut[icut] = zmin + (zmax - zmin) * (double) icut / ((double) (ncuts - 1));
 }
+
+int dbSelectivity(Db *db,
+                  const String &name,
+                  const VectorDouble &zcuts,
+                  const NamingConvention &namconv)
+{
+  if (db == nullptr)
+  {
+    messerr("You need a 'Db' already defined");
+    return 1;
+  }
+  int ncuts = (int) zcuts.size();
+  if (ncuts <= 0)
+  {
+    messerr("argument 'zcuts' must have some cutoffs defined");
+    return 1;
+  }
+  int iuid = db->getUID(name);
+  if (iuid < 0)
+  {
+    messerr("The variable does not seem to exist");
+    return 1;
+  }
+
+  // Variable allocations
+
+  int iuidT = db->addColumnsByConstant(ncuts, TEST);
+  if (iuidT < 0) return -1;
+  int iuidQ = db->addColumnsByConstant(ncuts, TEST);
+  if (iuidQ < 0) return -1;
+
+  // Loop on the samples
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    double value = db->getArray(iech, iuid);
+
+    for (int icut = 0; icut < ncuts; icut++)
+    {
+      double tonnage = (value >= zcuts[icut]);
+      db->setArray(iech, iuidT + icut, tonnage);
+      double metal = tonnage * value;
+      db->setArray(iech, iuidQ + icut, metal);
+    }
+  }
+
+  // Set the names
+
+  namconv.setNamesAndLocators(db, iuidT, "T", ncuts);
+  namconv.setNamesAndLocators(db, iuidQ, "Q", ncuts);
+  return 0;
+}
+

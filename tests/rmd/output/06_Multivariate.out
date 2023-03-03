@@ -44,51 +44,51 @@ Table: Cross-validation with Ordinary Kriging
 
 Table: Statistics on the Ordinary Kriging
 
-|                     | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:--------------------|-----:|-------:|-------:|-----:|--------:|
-|OK.Temperature.estim |  3092|   0.599|   5.084| 2.806|    0.910|
-|OK.Temperature.stdev |  3092|   0.064|   0.883| 0.460|    0.127|
+|                     | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:--------------------|------:|-------:|-------:|-----:|--------:|
+|OK.Temperature.estim |   3092|   0.599|   5.084| 2.806|    0.910|
+|OK.Temperature.stdev |   3092|   0.064|   0.883| 0.460|    0.127|
 
 
 Table: Cross-validation with Ordinary Kriging
 
-|                      | Count| Minimum| Maximum|   Mean| St. Dev.|
-|:---------------------|-----:|-------:|-------:|------:|--------:|
-|UK.Temperature.esterr |   151|  -4.336|   1.397| -0.352|    0.939|
-|UK.Temperature.stderr |   151|  -4.820|   3.781| -0.499|    1.432|
+|                      | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:---------------------|------:|-------:|-------:|------:|--------:|
+|UK.Temperature.esterr |    151|  -4.336|   1.397| -0.352|    0.939|
+|UK.Temperature.stderr |    151|  -4.820|   3.781| -0.499|    1.432|
 
 
 Table: Statistics on the Universal Kriging
 
-|                     | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:--------------------|-----:|-------:|-------:|-----:|--------:|
-|UK.Temperature.estim |  3092|   0.471|   4.902| 2.514|    0.821|
-|UK.Temperature.stdev |  3092|   0.069|   0.891| 0.482|    0.140|
+|                     | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:--------------------|------:|-------:|-------:|-----:|--------:|
+|UK.Temperature.estim |   3092|   0.471|   4.902| 2.514|    0.821|
+|UK.Temperature.stdev |   3092|   0.069|   0.891| 0.482|    0.140|
 NULL
 
 
 Table: Cross-validation with Cokriging
 
-|                       | Count| Minimum| Maximum|   Mean| St. Dev.|
-|:----------------------|-----:|-------:|-------:|------:|--------:|
-|COK.Temperature.esterr |   151|  -4.582|   1.435| -0.407|    0.926|
-|COK.Temperature.stderr |   151|  -4.415|   4.412| -0.515|    1.346|
+|                       | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:----------------------|------:|-------:|-------:|------:|--------:|
+|COK.Temperature.esterr |    151|  -4.582|   1.435| -0.407|    0.926|
+|COK.Temperature.stderr |    151|  -4.415|   4.412| -0.515|    1.346|
 
 
 Table: Statistics on Cokriging
 
-|                      | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:---------------------|-----:|-------:|-------:|-----:|--------:|
-|COK.Temperature.estim |  3092|  -0.042|   4.920| 2.553|    0.911|
-|COK.Temperature.stdev |  3092|   0.063|   1.422| 0.388|    0.136|
+|                      | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:---------------------|------:|-------:|-------:|-----:|--------:|
+|COK.Temperature.estim |   3092|  -0.042|   4.920| 2.553|    0.911|
+|COK.Temperature.stdev |   3092|   0.063|   1.422| 0.388|    0.136|
 
 
 Table: Statistics on Kriging and CoKriging estimates
 
-|                      | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:---------------------|-----:|-------:|-------:|-----:|--------:|
-|COK.Temperature.estim |  3092|  -0.042|   4.920| 2.553|    0.911|
-|OK.Temperature.estim  |  3092|   0.599|   5.084| 2.806|    0.910|
+|                      | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:---------------------|------:|-------:|-------:|-----:|--------:|
+|COK.Temperature.estim |   3092|  -0.042|   4.920| 2.553|    0.911|
+|OK.Temperature.estim  |   3092|   0.599|   5.084| 2.806|    0.910|
 
 Linear Regression
 -----------------
@@ -101,19 +101,19 @@ Linear Regression
 
 Table: Statistics on the residual
 
-|                 | Count| Minimum| Maximum| Mean| St. Dev.|
-|:----------------|-----:|-------:|-------:|----:|--------:|
-|Regr.Temperature |   151|  -1.359|   1.795|    0|    0.603|
+|                 | Number| Minimum| Maximum| Mean| St. Dev.|
+|:----------------|------:|-------:|-------:|----:|--------:|
+|Regr.Temperature |    151|  -1.359|   1.795|    0|    0.603|
 NULL
 
 
 Table: Statistics on OK and Kriging of the resisual
 
-|                      | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:---------------------|-----:|-------:|-------:|-----:|--------:|
-|OK.Temperature.estim  |  3092|   0.599|   5.084| 2.806|    0.910|
-|COK.Temperature.estim |  3092|  -0.042|   4.920| 2.553|    0.911|
-|KR.Temperature.estim  |  3092|  -8.097|   5.108| 1.445|    1.906|
+|                      | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:---------------------|------:|-------:|-------:|-----:|--------:|
+|OK.Temperature.estim  |   3092|   0.599|   5.084| 2.806|    0.910|
+|COK.Temperature.estim |   3092|  -0.042|   4.920| 2.553|    0.911|
+|KR.Temperature.estim  |   3092|  -8.097|   5.108| 1.445|    1.906|
 
 Linear Regression
 -----------------
@@ -127,48 +127,48 @@ NULL
 
 Table: Cross-validation with Kriging with External Drift
 
-|                       | Count| Minimum| Maximum|   Mean| St. Dev.|
-|:----------------------|-----:|-------:|-------:|------:|--------:|
-|KED.Temperature.esterr |   151|  -1.577|   1.001| -0.009|    0.414|
-|KED.Temperature.stderr |   151|  -3.410|   2.679| -0.011|    1.069|
+|                       | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:----------------------|------:|-------:|-------:|------:|--------:|
+|KED.Temperature.esterr |    151|  -1.577|   1.001| -0.009|    0.414|
+|KED.Temperature.stderr |    151|  -3.410|   2.679| -0.011|    1.069|
 
 
 Table: Statistics on the Kriging with External Drift
 
-|                      | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:---------------------|-----:|-------:|-------:|-----:|--------:|
-|KED.Temperature.estim |  3092|  -6.004|   4.773| 1.778|    1.540|
-|KED.Temperature.stdev |  3092|   0.312|   0.615| 0.396|    0.051|
+|                      | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:---------------------|------:|-------:|-------:|-----:|--------:|
+|KED.Temperature.estim |   3092|  -6.004|   4.773| 1.778|    1.540|
+|KED.Temperature.stdev |   3092|   0.312|   0.615| 0.396|    0.051|
 
 
 Table: Statistics of the cross-validation error for the temperature
 
-|                       | Count| Minimum| Maximum|   Mean| St. Dev.|
-|:----------------------|-----:|-------:|-------:|------:|--------:|
-|OK.Temperature.esterr  |   151|  -2.126|   1.852| -0.041|    0.561|
-|UK.Temperature.esterr  |   151|  -4.336|   1.397| -0.352|    0.939|
-|COK.Temperature.esterr |   151|  -4.582|   1.435| -0.407|    0.926|
-|KED.Temperature.esterr |   151|  -1.577|   1.001| -0.009|    0.414|
+|                       | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:----------------------|------:|-------:|-------:|------:|--------:|
+|OK.Temperature.esterr  |    151|  -2.126|   1.852| -0.041|    0.561|
+|UK.Temperature.esterr  |    151|  -4.336|   1.397| -0.352|    0.939|
+|COK.Temperature.esterr |    151|  -4.582|   1.435| -0.407|    0.926|
+|KED.Temperature.esterr |    151|  -1.577|   1.001| -0.009|    0.414|
 
 
 Table: Statistics of the estimates for the temperature
 
-|                           | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:--------------------------|-----:|-------:|-------:|-----:|--------:|
-|OK.Temperature.estim       |  3092|   0.599|   5.084| 2.806|    0.910|
-|UK.Temperature.estim       |  3092|   0.471|   4.902| 2.514|    0.821|
-|COK.Temperature.estim      |  3092|  -0.042|   4.920| 2.553|    0.911|
-|ROK.Regr.Temperature.estim |  3092|  -0.771|   1.586| 0.019|    0.455|
-|KR.Temperature.estim       |  3092|  -8.097|   5.108| 1.445|    1.906|
-|KED.Temperature.estim      |  3092|  -6.004|   4.773| 1.778|    1.540|
+|                           | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:--------------------------|------:|-------:|-------:|-----:|--------:|
+|OK.Temperature.estim       |   3092|   0.599|   5.084| 2.806|    0.910|
+|UK.Temperature.estim       |   3092|   0.471|   4.902| 2.514|    0.821|
+|COK.Temperature.estim      |   3092|  -0.042|   4.920| 2.553|    0.911|
+|ROK.Regr.Temperature.estim |   3092|  -0.771|   1.586| 0.019|    0.455|
+|KR.Temperature.estim       |   3092|  -8.097|   5.108| 1.445|    1.906|
+|KED.Temperature.estim      |   3092|  -6.004|   4.773| 1.778|    1.540|
 
 
 Table: Statistics of the kriging Std. for the temperature
 
-|                           | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:--------------------------|-----:|-------:|-------:|-----:|--------:|
-|OK.Temperature.stdev       |  3092|   0.064|   0.883| 0.460|    0.127|
-|UK.Temperature.stdev       |  3092|   0.069|   0.891| 0.482|    0.140|
-|COK.Temperature.stdev      |  3092|   0.063|   1.422| 0.388|    0.136|
-|ROK.Regr.Temperature.stdev |  3092|   0.304|   0.504| 0.362|    0.031|
-|KED.Temperature.stdev      |  3092|   0.312|   0.615| 0.396|    0.051|
+|                           | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:--------------------------|------:|-------:|-------:|-----:|--------:|
+|OK.Temperature.stdev       |   3092|   0.064|   0.883| 0.460|    0.127|
+|UK.Temperature.stdev       |   3092|   0.069|   0.891| 0.482|    0.140|
+|COK.Temperature.stdev      |   3092|   0.063|   1.422| 0.388|    0.136|
+|ROK.Regr.Temperature.stdev |   3092|   0.304|   0.504| 0.362|    0.031|
+|KED.Temperature.stdev      |   3092|   0.312|   0.615| 0.396|    0.051|

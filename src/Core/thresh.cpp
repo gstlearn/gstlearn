@@ -279,7 +279,7 @@ static int st_proportion_define(PropDef *propdef,
       double total = 0.;
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
       {
-        propdef->propfix[ifac] = propdef->dbprop->getProportion(*jech, ifac);
+        propdef->propfix[ifac] = propdef->dbprop->getLocVariable(ELoc::P,*jech, ifac);
         total += propdef->propfix[ifac];
       }
       // Discard case where the proportions are not available
@@ -291,7 +291,7 @@ static int st_proportion_define(PropDef *propdef,
       /* The proportions are already available from the dbin */
 
       for (ifac = 0; ifac < propdef->nfacprod; ifac++)
-        propdef->propfix[ifac] = db->getProportion(iech, ifac);
+        propdef->propfix[ifac] = db->getLocVariable(ELoc::P,iech, ifac);
     }
 
     /* Transform proportions (from CST to WRK) */
@@ -855,7 +855,7 @@ int _db_bounds(Db *db,
 
   /* Input Db */
 
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   if (!db->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Model (for SHIFT case) */
@@ -1018,11 +1018,11 @@ PropDef* proportion_manage(int mode,
           messerr("The 'Db' used for Proportions must be a Grid");
           goto label_end;
         }
-        if (db_loc->getProportionNumber() != nfacprod)
+        if (db_loc->getLocNumber(ELoc::P) != nfacprod)
         {
           messerr(
               "In the non-stationary case, the number of proportion variables (%d)",
-              db_loc->getProportionNumber());
+              db_loc->getLocNumber(ELoc::P));
           messerr(
               "must be equal to the number of facies (%d) in the Lithotype Rule",
               nfacprod);

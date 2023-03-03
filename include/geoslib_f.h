@@ -182,19 +182,6 @@ GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
 /* High-level Interface Functions */
 /**********************************/
 
-GSTLEARN_EXPORT int db_selhull(Db *db1,
-                               Db *db2,
-                               double dilate = 0.,
-                               bool verbose = false,
-                               const NamingConvention& namconv = NamingConvention("Hull", true, true, true,
-                                                                                  ELoc::fromKey("SEL")));
-GSTLEARN_EXPORT void db_polygon(Db *db,
-                                Polygons *polygon,
-                                int flag_sel = 0,
-                                int flag_period = 0,
-                                int flag_nested = 0,
-                                const NamingConvention& namconv = NamingConvention("Polygon", true, true, true,
-                                                                                   ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT int db_grid_fill(DbGrid *dbgrid,
                                  int mode = 0,
                                  int seed = 34243,

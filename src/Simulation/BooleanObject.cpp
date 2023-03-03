@@ -270,7 +270,7 @@ bool BooleanObject::_checkIntensity(const DbGrid* dbout,
    else
    {
      int iech = dbout->coordinateToRank(coor, false, eps);
-     theta = dbout->getProportion(iech, 0);
+     theta = dbout->getLocVariable(ELoc::P,iech, 0);
    }
    return (law_uniform(0., 1.) > theta);
  }
@@ -348,22 +348,22 @@ bool BooleanObject::_checkBoundingBox(const VectorDouble& coor, int ndim)
 
 bool BooleanObject::_isPore(const Db* db, int iech)
 {
-  return (db->getVariable(iech, 0) == 0);
+  return (db->getLocVariable(ELoc::Z,iech, 0) == 0);
 }
 
 bool BooleanObject::_isGrain(const Db* db, int iech)
 {
-  return (db->getVariable(iech, 0) != 0);
+  return (db->getLocVariable(ELoc::Z,iech, 0) != 0);
 }
 
 int BooleanObject::_getCoverageAtSample(const Db* db, int iech)
 {
-  return (int) db->getVariable(iech,1);
+  return (int) db->getLocVariable(ELoc::Z,iech,1);
 }
 
 void BooleanObject::_updateCoverageAtSample(Db* db, int iech, int ival)
 {
-  db->setVariable(iech, 1, db->getVariable(iech, 1) + ival);
+  db->setLocVariable(ELoc::Z,iech, 1, db->getLocVariable(ELoc::Z,iech, 1) + ival);
 }
 
 /*****************************************************************************/

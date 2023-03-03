@@ -30,8 +30,10 @@ data
 ```
 
 ```{r}
-p = plot.point(data)
-plot.decoration(p, title="Display of Data Set")
+p = ggplot()
+p = p + plot.point(data)
+p = p + plot.decoration(title="Display of Data Set")
+ggPrint(p)
 ```
 
 Creating the Meshing
@@ -43,7 +45,9 @@ mesh1$display()
 ```
 
 ```{r}
-p = plot.mesh(mesh1,flagApex=TRUE)
-plot.decoration(p , title="Standard Meshing")
+p = ggplot()
+p = p + plot.mesh(mesh1, flagApex=TRUE)
+p = p + plot.decoration(title="Standard Meshing")
+ggPrint(p)
 ```
 

@@ -581,21 +581,37 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
   namcol
 }
 
+"analyzeArguments" <- function(i, j, nargs_req=0, ...)
+{
+	flag_i = (i != "")
+	flag_j = (j != "")
+ 	nargs = 0
+  	if (flag_i) nargs = nargs + 1
+  	if (flag_j) nargs = nargs + 1
+
+	if (nargs_req > 0 && nargs != nargs_req)
+	{
+		cat("Number of arguments required = ",nargs_req,"\n")
+		cat("Number of arguments provided = ",nargs,"\n")
+		stop("Argument error")
+	}
+ 
+	res = list(nargs=nargs, flag_i=flag_i, flag_j=flag_j)
+	res
+}
+
 "getDbitem" <-
 function (x,i,j,...,drop=TRUE)
 {
   db   <- x
-  rows <- NA
-  namcols <- NA
-  flag_i_defined = (deparse(substitute(i)) != "")
-  flag_j_defined = (deparse(substitute(j)) != "")
-  nargs = 0
-  if (flag_i_defined) nargs = nargs + 1
-  if (flag_j_defined) nargs = nargs + 1
+  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)))
+  nargs = res$nargs
   
   nech_abs = db$getSampleNumber()
   ncol_abs = db$getColumnNumber()
 
+  rows <- NA
+  namcols <- NA
   if (nargs == 2) {
   
     # Case of both arguments are defined
@@ -606,15 +622,15 @@ function (x,i,j,...,drop=TRUE)
   
     # Case where only one argument in defined: it is the column identification
 
-    if (flag_i_defined) k = i
-    if (flag_j_defined) k = j
+  	if (res$flag_i) k = i
+    if (res$flag_j) k = j
     namcols = DbIdentifyCols(db, k)
   }
   
   isRowUndefined = is.undef(rows)
   if (isRowUndefined) rows = seq(0, nech_abs - 1)
   
-  isColUndefined = length(namcols) <= 0
+  isColUndefined = is.undef(namcols)
   if (isColUndefined) namcols = db$getAllNames()
   
   row_names = rows
@@ -642,18 +658,15 @@ function (x,i,j,...,drop=TRUE)
   function (x,i,j,...,value)
 {
   db   <- x
-  rows <- NA
-  namcols <- NA
-  flag_i_defined = (deparse(substitute(i)) != "")
-  flag_j_defined = (deparse(substitute(j)) != "")
-  nargs = 0
-  if (flag_i_defined) nargs = nargs + 1
-  if (flag_j_defined) nargs = nargs + 1
-
+  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)))
+  nargs = res$nargs
+  
   nech_abs = db$getSampleNumber()
   ncol_abs = db$getColumnNumber()
   value = as.numeric(unlist(value))
 
+  rows <- NA
+  namcols <- NA
   new_names = "New"
   if (nargs == 2) {
   
@@ -666,8 +679,8 @@ function (x,i,j,...,drop=TRUE)
   
     # Only one argument is defined: it corresponds to the column
 
-    if (flag_i_defined) k = i
-    if (flag_j_defined) k = j
+  	if (res$flag_i) k = i
+    if (res$flag_j) k = j
     namcols = DbIdentifyCols(db, k)
     new_names = k
   }
@@ -739,6 +752,28 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
   mat
 }
 
+"getTableitem" <-
+function (x,i,j,...,drop=TRUE)
+{
+  table  <- x
+  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)),2)
+  res = table$getValue(i,j)
+  res
+}
+
+"setTableitem" <-
+  function (x,i,j,...,value)
+{
+  table   <- x
+  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)),2)
+  value = as.numeric(unlist(value))
+  table$setValue(i,j,value)
+  table
+}
+
+setMethod('[',    '_p_Table',               getTableitem)
+setMethod('[<-',  '_p_Table',               setTableitem)
+
 "cs_toTL" <- function(x)
 {
   Q = NULL
@@ -764,5 +799,25 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
     df = data.frame(vals)
     names(df) = names
     df
+}
+
+"Krigtest_Res_toTL" <- function(x)
+{
+	res = list(
+		ndim = x$ndim,
+		nvar = x$nvar,
+		nech = x$nech,
+	    neq  = x$neq,
+	    nrhs = x$nech,
+		nbgh = x$nbgh,
+	    xyz = matrix(x$xyz, ncol=x$ndim, nrow=x$nech, byrow=FALSE),
+	    data = x$data,
+	    lhs = matrix(x$lhs, nrow=x$neq, ncol=x$neq, byrow=FALSE),
+	    rhs = matrix(x$rhs, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
+	    wgt = matrix(x$wgt, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
+	    var = matrix(x$var, nrow=x$nvar, ncol=x$nvar, byrow=FALSE),
+	    zam = x$zam
+	    )
+	res
 }
 %}

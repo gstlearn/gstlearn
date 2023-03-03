@@ -55,6 +55,18 @@ CalcKriging::~CalcKriging()
 {
 }
 
+void CalcKriging::setCalcul(const EKrigOpt &calcul)
+{
+  _calcul = calcul;
+
+  // Temporary code for incorporating DGM as a EKrigOpt option
+
+  if (_calcul == EKrigOpt::DGM)
+    setFlagDgm(true);
+  else
+    setFlagDgm(false);
+}
+
 bool CalcKriging::_check()
 {
   if (! ACalcInterpolator::_check()) return false;
@@ -170,6 +182,7 @@ void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
   /* Extract relevant information */
 
   _ktest.ndim = ksys.getNDim();
+  _ktest.nvar = 1;
   _ktest.nech = ksys.getNRed();
   _ktest.nrhs = 1;
   _ktest.neq  = ksys.getNeq();
@@ -277,6 +290,7 @@ bool CalcKriging::_run()
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  matCL       Matrix of linear combination (or NULL)
  **                         (Dimension: nvarCL * model->getNVar())
+ ** \param[in]  rcoef       Change of support coefficient (only used for DGM)
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
@@ -291,6 +305,7 @@ int kriging(Db *dbin,
             VectorInt ndisc,
             VectorInt rank_colcok,
             VectorVectorDouble matCL,
+            double rcoef,
             const NamingConvention& namconv)
 {
   CalcKriging krige(flag_est, flag_std, flag_varz);
@@ -304,6 +319,8 @@ int kriging(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setRankColCok(rank_colcok);
   krige.setMatCl(matCL);
+
+  krige.setRCoeff(rcoef);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
@@ -493,6 +510,7 @@ int krigprof(Db *dbin,
  ** \param[in]  flagPerCell Use local block extensions (when defined)
  ** \param[in]  forceDebug  When TRUE, the full debugging flag is switched ON
  **                         (the current status is reset after the run)
+ ** \param[in]  rcoef       Change of support coefficient (only used for DGM)
  **
  *****************************************************************************/
 Krigtest_Res krigtest(Db *dbin,
@@ -503,7 +521,8 @@ Krigtest_Res krigtest(Db *dbin,
                       const EKrigOpt &calcul,
                       VectorInt ndisc,
                       bool flagPerCell,
-                      bool forceDebug)
+                      bool forceDebug,
+                      double rcoef)
 {
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
@@ -515,6 +534,8 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setIechSingleTarget(iech0);
   krige.setFlagPerCell(flagPerCell);
+
+  krige.setRCoeff(rcoef);
 
   int memo = OptDbg::getReference();
   if (forceDebug) OptDbg::setReference(iech0);

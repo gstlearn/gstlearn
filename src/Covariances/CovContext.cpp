@@ -63,7 +63,7 @@ CovContext::CovContext(const Db *db, const ASpace* space)
       _covar0()
 {
   /// TODO : check Db dimension vs provided space
-  _nVar = db->getVariableNumber();
+  _nVar = db->getLocNumber(ELoc::Z);
   // As it does not make sense not to have any variable, this number is set to 1 at least
   if (_nVar <= 1) _nVar = 1;
   _update();

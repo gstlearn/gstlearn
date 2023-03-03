@@ -1512,13 +1512,13 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     }
     else
     {
-      if (dbin->getVariableNumber() != nvar && S_DECIDE.flag_case
+      if (dbin->getLocNumber(ELoc::Z) != nvar && S_DECIDE.flag_case
           != CASE_MATRICES
           && !S_DECIDE.flag_gibbs)
       {
         messerr(
             "Model (%d) and Input Db (%d) must refer to the same number of variables",
-            nvar, dbin->getVariableNumber());
+            nvar, dbin->getLocNumber(ELoc::Z));
         return (1);
       }
     }
@@ -1656,8 +1656,8 @@ static double st_get_data_constraints(Db *db, int igrf, int iech)
 {
   double vmin, vmax, pmin, pmax, simu, sk;
 
-  vmin = db->getLowerBound(iech, igrf);
-  vmax = db->getUpperBound(iech, igrf);
+  vmin = db->getLocVariable(ELoc::L,iech, igrf);
+  vmax = db->getLocVariable(ELoc::U,iech, igrf);
   sk = sqrt(st_get_sill_total(0, 0));
   pmin = law_cdf_gaussian(vmin);
   pmax = law_cdf_gaussian(vmax);
@@ -1696,8 +1696,8 @@ static double st_simu_constraints(Db *db,
 
   /* Perform the simulation: read the (final) bound values */
 
-  vmin = db->getLowerBound(iech, igrf);
-  vmax = db->getUpperBound(iech, igrf);
+  vmin = db->getLocVariable(ELoc::L,iech, igrf);
+  vmax = db->getLocVariable(ELoc::U,iech, igrf);
   ratio =
       (iter0 < ngibbs_burn) ? (double) (ngibbs_burn - iter0 - 1) / (double) (iter0
                                   + 1) :
@@ -2561,7 +2561,7 @@ static int st_fill_Bnugget(Db *dbin)
     nvr = 0;
     for (ivar = 0; ivar < nvar; ivar++)
     {
-      if (FFFF(dbin->getVariable(iech, ivar))) continue;
+      if (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) continue;
       ind[nvr] = ivar;
       nvr++;
     }
@@ -2779,7 +2779,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       if (ranks[i] <= 0) continue; // Target or Steiner
       ndata1[ivar]++;
       iech = ranks[i] - 1;
-      value = (FFFF(dbin->getVariable(iech, ivar))) ? 0. :
+      value = (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) ? 0. :
                                                       1.;
       if (!cs_entry(Btriplet, iech, i, value)) goto label_end;
     }
@@ -2823,7 +2823,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
         iech = ranks[i] - 1;
 
         // Could the data be considered as a target (heterotopic case)
-        if (FFFF(dbin->getVariable(iech, ivar)))
+        if (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar)))
         {
           // The sample is not defined for the current variable: it is a target
           flag_add = 1;
@@ -3752,12 +3752,12 @@ static void st_load_data(AMesh *amesh,
       for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
       {
         if (!dbin->isActive(iech)) continue;
-        if (S_DECIDE.flag_several) data[ecrd++] = dbin->getVariable(iech, ivar);
+        if (S_DECIDE.flag_several) data[ecrd++] = dbin->getLocVariable(ELoc::Z,iech, ivar);
 
         if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
           zloc = st_get_data_constraints(dbin, igrf, iech);
         else
-          zloc = dbin->getVariable(iech, ivar);
+          zloc = dbin->getLocVariable(ELoc::Z,iech, ivar);
 
         if (!S_DECIDE.flag_several) data[ecrd++] = zloc;
 
@@ -4604,7 +4604,7 @@ static int st_kriging_several_results(double *xcur, double *z)
         }
         else
         {
-          valdat = MEM_DBIN->getVariable(ranks[icur] - 1, ivar);
+          valdat = MEM_DBIN->getLocVariable(ELoc::Z,ranks[icur] - 1, ivar);
           flag_data = !FFFF(valdat);
         }
 
@@ -4644,7 +4644,7 @@ static int st_kriging_several_results(double *xcur, double *z)
         }
         else
         {
-          valdat = MEM_DBIN->getVariable(ranks[icur] - 1, ivar);
+          valdat = MEM_DBIN->getLocVariable(ELoc::Z,ranks[icur] - 1, ivar);
           flag_data = !FFFF(valdat);
         }
 
@@ -6808,10 +6808,10 @@ static double st_m2d_external_drift_increment(M2D_Environ *m2denv,
 {
   double value, previous;
 
-  value = db->getExternalDrift(iech0, ilayer0);
+  value = db->getLocVariable(ELoc::F,iech0, ilayer0);
   if (FFFF(value)) return (TEST);
   if (ilayer0 > 1)
-    previous = db->getExternalDrift(iech0, ilayer0 - 1);
+    previous = db->getLocVariable(ELoc::F,iech0, ilayer0 - 1);
   else
     previous = m2denv->dmini;
   if (FFFF(previous)) return (TEST);
@@ -7058,8 +7058,8 @@ static void st_m2d_stats_init(M2D_Environ *m2denv,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!dbin->isActive(iech)) continue;
-      lower = dbin->getLowerBound(iech, ilayer);
-      upper = dbin->getUpperBound(iech, ilayer);
+      lower = dbin->getLocVariable(ELoc::L,iech, ilayer);
+      upper = dbin->getLocVariable(ELoc::U,iech, ilayer);
 
       // Process the minimum bound 
 
@@ -7160,7 +7160,7 @@ static void st_m2d_stats_updt(M2D_Environ *m2denv,
 
     for (int iech = 0; iech < nech; iech++)
     {
-      zval = dbc->getVariable(iech, ilayer);
+      zval = dbc->getLocVariable(ELoc::Z,iech, ilayer);
 
       nb += 1.;
       mm += zval;
@@ -7249,8 +7249,8 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
 
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      zmin = dbc->getLowerBound(iech, ilayer);
-      zmax = dbc->getUpperBound(iech, ilayer);
+      zmin = dbc->getLocVariable(ELoc::L,iech, ilayer);
+      zmax = dbc->getLocVariable(ELoc::U,iech, ilayer);
       work[ilayer] = st_m2d_draw_elevation(m2denv, nlayer, ilayer, zmin, zmax);
     }
 
@@ -7267,8 +7267,8 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
 
         /* Determine the bounds at data locations */
 
-        zmin = dbc->getLowerBound(iech, ilayer);
-        zmax = dbc->getUpperBound(iech, ilayer);
+        zmin = dbc->getLocVariable(ELoc::L,iech, ilayer);
+        zmax = dbc->getLocVariable(ELoc::U,iech, ilayer);
 
         /* Loop on the other layers */
 
@@ -7330,8 +7330,8 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
               njter_max);
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        zmin = dbc->getLowerBound(iech, ilayer);
-        zmax = dbc->getUpperBound(iech, ilayer);
+        zmin = dbc->getLocVariable(ELoc::L,iech, ilayer);
+        zmax = dbc->getLocVariable(ELoc::U,iech, ilayer);
         st_print_constraints_per_point(ilayer, iech, work[ilayer],
         TEST,
                                        TEST, zmin, zmax);
@@ -7346,7 +7346,7 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
     /* Store the resulting values */
 
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
-      dbc->setVariable(iech, ilayer, work[ilayer]);
+      dbc->setLocVariable(ELoc::Z,iech, ilayer, work[ilayer]);
   }
 
   return (0);
@@ -7428,7 +7428,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
       for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
-        value = dbout->getExternalDrift(iech, ilayer);
+        value = dbout->getLocVariable(ELoc::F,iech, ilayer);
         if (FFFF(value)) continue;
         nb++;
         if (FFFF(m2denv->dmini) || value < m2denv->dmini) m2denv->dmini = value;
@@ -7444,7 +7444,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
       if (m2denv->flag_ed)
       {
         if (FFFF(dval[iech])) continue;
-        dbin->setExternalDrift(iech, ilayer, dval[iech]);
+        dbin->setLocVariable(ELoc::F,iech, ilayer, dval[iech]);
       }
     }
   }
@@ -7498,10 +7498,10 @@ static void st_print_details(Db *dbc, int nech, int ilayer)
   nvar = nbdmin = nbdmax = 0;
   for (int iech = 0; iech < nech; iech++)
   {
-    value = dbc->getVariable(iech, ilayer);
+    value = dbc->getLocVariable(ELoc::Z,iech, ilayer);
     if (!FFFF(value)) nvar++;
-    lower = dbc->getLowerBound(iech, ilayer);
-    upper = dbc->getUpperBound(iech, ilayer);
+    lower = dbc->getLocVariable(ELoc::L,iech, ilayer);
+    upper = dbc->getLocVariable(ELoc::U,iech, ilayer);
     if (!FFFF(lower)) nbdmin++;
     if (!FFFF(upper)) nbdmax++;
   }
@@ -7581,9 +7581,9 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
       /* Get the values at the data point */
 
-      epais = dbc->getVariable(iech, ilayer);
+      epais = dbc->getLocVariable(ELoc::Z,iech, ilayer);
       if (ilayer > 0)
-        epais -= dbc->getVariable(iech, ilayer - 1);
+        epais -= dbc->getLocVariable(ELoc::Z,iech, ilayer - 1);
       else
         epais -= m2denv->zmini;
 
@@ -7733,8 +7733,8 @@ static int st_active_sample(Db *db, int ndim, int nlayer, int iech, int bypass)
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    vmin = db->getLowerBound(iech, ilayer);
-    vmax = db->getUpperBound(iech, ilayer);
+    vmin = db->getLocVariable(ELoc::L,iech, ilayer);
+    vmax = db->getLocVariable(ELoc::U,iech, ilayer);
     if (!bypass)
     {
       if (FFFF(vmin) && FFFF(vmax)) continue;
@@ -7799,8 +7799,8 @@ static int st_record_sample(M2D_Environ *m2denv,
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    lower = db->getLowerBound(iech, ilayer);
-    upper = db->getUpperBound(iech, ilayer);
+    lower = db->getLocVariable(ELoc::L,iech, ilayer);
+    upper = db->getLocVariable(ELoc::U,iech, ilayer);
 
     tab[ecr++] = lower;
     tab[ecr++] = upper;
@@ -7810,7 +7810,7 @@ static int st_record_sample(M2D_Environ *m2denv,
   // For each layer, set the External Drift value (optional) 
 
   if (m2denv->flag_ed) for (int ilayer = 0; ilayer < nlayer; ilayer++)
-    tab[ecr++] = db->getExternalDrift(iech, ilayer);
+    tab[ecr++] = db->getLocVariable(ELoc::F,iech, ilayer);
 
   /* Increment the number of records by 1 */
 
@@ -8493,8 +8493,8 @@ static void st_print_sample(const char *title,
 
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    zmin = dbc->getLowerBound(iech, ilayer);
-    zmax = dbc->getUpperBound(iech, ilayer);
+    zmin = dbc->getLocVariable(ELoc::L,iech, ilayer);
+    zmax = dbc->getLocVariable(ELoc::U,iech, ilayer);
     message("Z(%d)=%lf in", ilayer, work[ilayer]);
     st_print_concatenate_interval(NULL, zmin, zmax, 1);
   }
@@ -8563,8 +8563,8 @@ static int st_global_gibbs(M2D_Environ *m2denv,
 
       // Getting the elevation and the bounds for the current layer
 
-      zmin = dbc->getLowerBound(iech, ilayer);
-      zmax = dbc->getUpperBound(iech, ilayer);
+      zmin = dbc->getLocVariable(ELoc::L,iech, ilayer);
+      zmax = dbc->getLocVariable(ELoc::U,iech, ilayer);
       if (verbose)
       {
         message("ilayer=%d", ilayer);
@@ -8673,8 +8673,8 @@ static int st_check_gibbs_data(const char *title,
 
       // Getting the elevation and the bounds for the current layer
 
-      zmin = dbc->getLowerBound(iech, ilayer);
-      zmax = dbc->getUpperBound(iech, ilayer);
+      zmin = dbc->getLocVariable(ELoc::L,iech, ilayer);
+      zmax = dbc->getLocVariable(ELoc::U,iech, ilayer);
 
       // Check consistency
 
@@ -8797,7 +8797,7 @@ static void st_m2d_vector_extract(M2D_Environ *m2denv,
     /* Loop on the layers */
 
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
-      work[ilayer] = dbc->getVariable(iech, ilayer);
+      work[ilayer] = dbc->getLocVariable(ELoc::Z,iech, ilayer);
 
     /* Convert from the depth to thickness */
 
@@ -8852,10 +8852,10 @@ static void st_print_db_constraints(const char *title,
     if (!db->isActive(iech)) continue;
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      lower = db->getLowerBound(iech, ilayer);
-      upper = db->getUpperBound(iech, ilayer);
-      value = db->getVariable(iech, ilayer);
-      drift = db->getExternalDrift(iech, ilayer);
+      lower = db->getLocVariable(ELoc::L,iech, ilayer);
+      upper = db->getLocVariable(ELoc::U,iech, ilayer);
+      value = db->getLocVariable(ELoc::Z,iech, ilayer);
+      drift = db->getLocVariable(ELoc::F,iech, ilayer);
       vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) :
                                   TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower,
@@ -9001,11 +9001,11 @@ int m2d_gibbs_spde(Db *dbin,
     messerr("This application is restricted to the 2-D case (ndim=%d)", ndim);
     goto label_end;
   }
-  if (flag_ed && nlayer > dbout->getExternalDriftNumber())
+  if (flag_ed && nlayer > dbout->getLocNumber(ELoc::F))
   {
     messerr("External Drifts are used for Drift definition");
     messerr("- Count of F-variables (%d) must match Count of layers (%d)",
-            dbout->getExternalDriftNumber(), nlayer);
+            dbout->getLocNumber(ELoc::F), nlayer);
     goto label_end;
   }
   if (nbsimu <= 0)

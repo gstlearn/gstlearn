@@ -221,18 +221,18 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
       rhon *= rho;
-      rn *= r;
+      rn   *= r;
       double psin = anamH->getPsiHn(jclass);
       val = rhon;
       if (mode.getAsVario()) val = 1. - val;
       switch (mode.getMember().getValue())
       {
         case ECalcMember::E_LHS:
-          cov += psin * psin * rn * rn * val;
+          cov += psin * psin * val;
           break;
 
         case ECalcMember::E_RHS:
-          cov += psin * psin * rn * val;
+          cov += psin * psin * val / rn;
           break;
 
         case ECalcMember::E_VAR:
@@ -278,6 +278,9 @@ double CovLMCAnamorphosis::_evalHermite0(int ivar,
   if (mode.getMember().getValue() != ECalcMember::E_LHS)
     messageAbort("CovLMCAnamorphosis eval0");
 
+  double r = 1.;
+  if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
+
   double cov = 0.;
   if (iclass == 0)
   {
@@ -291,10 +294,25 @@ double CovLMCAnamorphosis::_evalHermite0(int ivar,
     // For the Raw variable
 
     cov = 0.;
+    double rn = 1.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
+      rn   *= r;
       double psin = anamH->getPsiHn(jclass);
-      cov += psin * psin;
+      switch (mode.getMember().getValue())
+      {
+        case ECalcMember::E_LHS:
+          cov += psin * psin / (rn * rn);
+          break;
+
+        case ECalcMember::E_RHS:
+          cov += psin * psin  / rn;
+          break;
+
+        case ECalcMember::E_VAR:
+          cov += psin * psin;
+          break;
+      }
     }
   }
   else
@@ -563,3 +581,4 @@ void CovLMCAnamorphosis::addCov(const CovAniso* cov)
   }
   CovLMC::addCov(cov);
 }
+

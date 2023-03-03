@@ -416,7 +416,7 @@ int db_write_csv(Db *db,
   int ncol = db->getColumnNumber();
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
-  int nvar = db->getVariableNumber();
+  int nvar = db->getLocNumber(ELoc::Z);
   bool flag_header = csvfmt.getFlagHeader();
 
   // Count the number of items per line
@@ -488,7 +488,7 @@ int db_write_csv(Db *db,
       for (int ivar = 0; ivar < nvar; ivar++)
       {
         int iatt = db_attribute_identify(db, ELoc::Z, ivar);
-        csv_print_double(db->getVariable(iech, iatt));
+        csv_print_double(db->getLocVariable(ELoc::Z,iech, iatt));
         rank++;
       }
     }

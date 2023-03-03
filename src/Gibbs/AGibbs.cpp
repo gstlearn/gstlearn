@@ -155,8 +155,8 @@ int AGibbs::_boundsCheck(int ipgs,
   const Db* db = getDb();
   int icase = getRank(ipgs, ivar);
   int iech  = getSampleRank(iact);
-  double vmin = db->getLowerBound(iech,icase);
-  double vmax = db->getUpperBound(iech,icase);
+  double vmin = db->getLocVariable(ELoc::L,iech,icase);
+  double vmax = db->getLocVariable(ELoc::U,iech,icase);
 
   if (! FFFF(vmin) && ! FFFF(vmax) && (vmin) > (vmax))
   {
@@ -267,8 +267,8 @@ void AGibbs::_displayCurrentVector(bool flag_init,
     for (int iact = 0; iact < nact; iact++)
     {
       int iech = getSampleRank(iact);
-      double vmin = _db->getLowerBound(iech, icase);
-      double vmax = _db->getUpperBound(iech, icase);
+      double vmin = _db->getLocVariable(ELoc::L,iech, icase);
+      double vmax = _db->getLocVariable(ELoc::U,iech, icase);
       _printInequalities(iact,ivar,y[icase][iact], vmin, vmax);
     }
   }
@@ -342,7 +342,7 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
 VectorInt AGibbs::calculateSampleRanks() const
 {
   VectorInt ranks;
-  if (! _db->hasSelection()) return ranks;
+  if (! _db->hasLocVariable(ELoc::SEL)) return ranks;
   for (int iech = 0; iech < _db->getSampleNumber(); iech++)
   {
     if (_db->isActive(iech)) ranks.push_back(iech);
@@ -470,8 +470,8 @@ bool AGibbs::isConstraintTight(int ipgs,
   int icase = getRank(ipgs, ivar);
   int iech = getSampleRank(iact);
 
-  double vmin = _db->getLowerBound(iech, icase);
-  double vmax = _db->getUpperBound(iech, icase);
+  double vmin = _db->getLocVariable(ELoc::L,iech, icase);
+  double vmax = _db->getLocVariable(ELoc::U,iech, icase);
 
   bool isActive = !FFFF(vmin) && !FFFF(vmax) && vmin == vmax;
   if (isActive)

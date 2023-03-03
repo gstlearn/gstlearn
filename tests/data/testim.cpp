@@ -51,7 +51,7 @@ static Model *st_modify(Model *model,
 
   /* Modify the model */
 
-  if (db->getGradientNumber() > 0)
+  if (db->getLocNumber(ELoc::G) > 0)
   {
     /* Modify the gradients into standard variables */
 

@@ -218,9 +218,9 @@ void RuleShadow::_st_shadow_max(const Db *dbprop,
     *sh_dsup_max = *sh_down_max = 0.;
     for (iech = 0; iech < dbprop->getSampleNumber(); iech++)
     {
-      val2 = dbprop->getProportion(iech, 1);
+      val2 = dbprop->getLocVariable(ELoc::P,iech, 1);
       if (val2 > (*sh_dsup_max)) (*sh_dsup_max) = val2;
-      val3 = dbprop->getProportion(iech, 2);
+      val3 = dbprop->getLocVariable(ELoc::P,iech, 2);
       if (val3 > (*sh_down_max)) (*sh_down_max) = val3;
     }
   }
@@ -559,14 +559,14 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
     /* Convert the proportions into thresholds for data point */
     if (!dbin->isActive(iech)) continue;
     if (!point_inside_grid(dbin, iech, dbgrid)) continue;
-    facies = (int) dbin->getVariable(iech, 0);
+    facies = (int) dbin->getLocVariable(ELoc::Z,iech, 0);
     if (rule_thresh_define_shadow(propdef, dbin, this, facies, iech, isimu,
                                   nbsimu, &t1min, &t1max, &t2min, &t2max,
                                   &sh_dsup, &sh_down)) return (1);
     yc_down = sh_down;
-    dbin->setLowerBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+    dbin->setLocVariable(ELoc::L,iech, get_rank_from_propdef(propdef, ipgs, igrf),
                         t1min);
-    dbin->setUpperBound(iech, get_rank_from_propdef(propdef, ipgs, igrf),
+    dbin->setLocVariable(ELoc::U,iech, get_rank_from_propdef(propdef, ipgs, igrf),
                         t1max);
 
     /* The data belongs to the island, no replicate */
@@ -623,10 +623,10 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
       }
 
       /* Set the attributes of the replicate */
-      dbin->setVariable(jech, 0, SHADOW_ISLAND);
-      dbin->setLowerBound(jech, get_rank_from_propdef(propdef, ipgs, igrf),
+      dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_ISLAND);
+      dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                           MAX(seuil, s1max));
-      dbin->setUpperBound(jech, get_rank_from_propdef(propdef, ipgs, igrf),
+      dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),
       THRESH_SUP);
       nadd++;
     }
@@ -679,10 +679,10 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
           continue;
         }
 
-        dbin->setVariable(jech, 0, SHADOW_IDLE);
-        dbin->setLowerBound(jech, get_rank_from_propdef(propdef, ipgs, igrf),
-        THRESH_INF);
-        dbin->setUpperBound(jech, get_rank_from_propdef(propdef, ipgs, igrf),
+        dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_IDLE);
+        dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
+                             THRESH_INF);
+        dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                             MAX(seuil, s1max));
         nadd++;
       }

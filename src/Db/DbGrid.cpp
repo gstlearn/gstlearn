@@ -842,7 +842,7 @@ VectorDouble DbGrid::getColumnSubGrid(const String& name,
   // Define optional selection
 
   VectorDouble sel;
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
 
   // Loop on the samples
 
@@ -1307,11 +1307,11 @@ VectorDouble DbGrid::getBlockExtensions(int node) const
   int ndim = getNDim();
 
   VectorDouble dxsPerCell = getDXs();
-  if (hasBlockExtension())
+  if (hasLocVariable(ELoc::BLEX))
   {
     for (int idim = 0; idim < ndim; idim++)
     {
-      double value = getBlockExtension(node, idim);
+      double value = getLocVariable(ELoc::BLEX,node, idim);
       if (! FFFF(value)) dxsPerCell[idim] = value;
     }
   }
@@ -1403,4 +1403,11 @@ VectorInt DbGrid::locateDataInGrid(const DbGrid *grid,
     rankOut.push_back(grid->coordinateToRank(coor));
   }
   return rankOut;
+}
+
+bool DbGrid::hasSingleBlock() const
+{
+  for (int idim = 0; idim < getNDim(); idim++)
+    if (getNX(idim) == 1) return true;
+  return false;
 }

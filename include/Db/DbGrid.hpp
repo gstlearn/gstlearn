@@ -154,6 +154,7 @@ public:
   int  getNX(int idim) const { return _grid.getNX(idim); }
   VectorInt getNXs() const { return _grid.getNXs(); }
   VectorInt getNXsExt(int ndimMax) const;
+  bool hasSingleBlock() const;
   double getDX(int idim) const { return _grid.getDX(idim); }
   VectorDouble getDXs() const { return _grid.getDXs(); }
   double getX0(int idim) const { return _grid.getX0(idim); }

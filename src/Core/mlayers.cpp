@@ -401,7 +401,7 @@ static double st_get_drift_result(LMlayers *lmlayers,
   if (!lmlayers->flag_ext) return (TEST);
   st_check_layer("st_get_drift_result", lmlayers, ilayer0);
 
-  drift = dbout->getExternalDrift(iech, ilayer0 - 1);
+  drift = dbout->getLocVariable(ELoc::F,iech, ilayer0 - 1);
   return (drift);
 }
 
@@ -974,7 +974,7 @@ static void st_data_vector(LMlayers *lmlayers,
 
         /* Depth of the actual sample */
 
-        value = dbin->getVariable(iech, 0);
+        value = dbin->getLocVariable(ELoc::Z,iech, 0);
       }
       else
       {
@@ -1576,8 +1576,8 @@ static void st_estimate(LMlayers *lmlayers,
 
       /* Store the result */
 
-      dbout->setVariable(iechout, ilayer, estim);
-      if (flag_std) dbout->setVariable(iechout, nlayers + ilayer, stdv);
+      dbout->setLocVariable(ELoc::Z,iechout, ilayer, estim);
+      if (flag_std) dbout->setLocVariable(ELoc::Z,iechout, nlayers + ilayer, stdv);
       if (OptDbg::query(EDbg::RESULTS))
       {
         message("Estimate = %lf", ilayer + 1, estim);
@@ -1721,8 +1721,8 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
       /* Read the estimated value */
 
-      value = dbout->getVariable(iechout, ilayer);
-      if (flag_std) stdv = dbout->getVariable(iechout, nlayers + ilayer);
+      value = dbout->getLocVariable(ELoc::Z,iechout, ilayer);
+      if (flag_std) stdv = dbout->getLocVariable(ELoc::Z,iechout, nlayers + ilayer);
 
       if (lmlayers->flag_cumul)
       {
@@ -1763,8 +1763,8 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
       /* Store the transformed results */
 
-      dbout->setVariable(iechout, ilayer, depth);
-      if (flag_std) dbout->setVariable(iechout, nlayers + ilayer, stdv);
+      dbout->setLocVariable(ELoc::Z,iechout, ilayer, depth);
+      if (flag_std) dbout->setLocVariable(ELoc::Z,iechout, nlayers + ilayer, stdv);
     }
   }
 }
@@ -2092,12 +2092,12 @@ int multilayers_kriging(Db *dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getExternalDriftNumber())
+  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getExternalDriftNumber());
+            dbout->getLocNumber(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))
@@ -2575,12 +2575,12 @@ int multilayers_vario(Db *dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getExternalDriftNumber())
+  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getExternalDriftNumber());
+            dbout->getLocNumber(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))
@@ -2861,12 +2861,12 @@ int multilayers_get_prior(Db *dbin,
     messerr("The input Db must contain a LAYER locator");
     goto label_end;
   }
-  if (flag_ext && nlayers != dbout->getExternalDriftNumber())
+  if (flag_ext && nlayers != dbout->getLocNumber(ELoc::F))
   {
     messerr("Inconsistency between:");
     messerr("- the number of variables in the Model (%d)", nlayers);
     messerr("- the number of external drifts in the Output Db File (%d)",
-            dbout->getExternalDriftNumber());
+            dbout->getLocNumber(ELoc::F));
     goto label_end;
   }
   if (flag_vel && nlayers != get_LOCATOR_NITEM(dbout, ptime))

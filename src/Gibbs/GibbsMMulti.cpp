@@ -121,7 +121,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   Model* model = getModel();
   int nvar   = _getVariableNumber();
   int nact   = getSampleRankNumber();
-  int nvardb = db->getVariableNumber();
+  int nvardb = db->getLocNumber(ELoc::Z);
   bool flag_var_defined = nvardb > 0;
 
   // Consistency check

@@ -134,8 +134,8 @@ double GibbsMultiMono::getSimulate(VectorVectorDouble& y,
   // Read the Bounds
 
   const Db* db = getDb();
-  double vmin = db->getLowerBound(iech, icase);
-  double vmax = db->getUpperBound(iech, icase);
+  double vmin = db->getLocVariable(ELoc::L,iech, icase);
+  double vmax = db->getLocVariable(ELoc::U,iech, icase);
 
   // Apply optional decay
 
@@ -206,8 +206,8 @@ int GibbsMultiMono::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
     for (int iact=0; iact<nact; iact++)
     {
       int iech = getSampleRank(iact);
-      double vmin = db->getLowerBound(iech,icase);
-      double vmax = db->getUpperBound(iech,icase);
+      double vmin = db->getLocVariable(ELoc::L,iech,icase);
+      double vmax = db->getLocVariable(ELoc::U,iech,icase);
       if (FFFF(vmin)) vmin = -1.e30;
       if (FFFF(vmax)) vmax =  1.e30;
 

@@ -45,5 +45,8 @@ The grid is plotted (this uses a function provided in plot.r)
 
 ```{r}
 # Display the field
-plot.grid(mygrid, "var1")
+p = ggplot()
+p = p + plot(mygrid, name_raster="var1")
+p = p + plot.decoration(title="Test successfull")
+ggPrint(p)
 ```

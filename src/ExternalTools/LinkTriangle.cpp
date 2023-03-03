@@ -585,7 +585,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
   error = 1;
   nech = db->getSampleNumber();
   ndim = db->getNDim();
-  ncode = db->getCodeNumber();
+  ncode = db->getLocNumber(ELoc::C);
   if (ndim > 2) ndim = 2;
 
   /* Count the number of active samples */
@@ -594,7 +594,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
   for (iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (use_code && ncode > 0 && db->getCode(iech) < 0)
+    if (use_code && ncode > 0 && db->getLocVariable(ELoc::C,iech,0) < 0)
       nhole++;
     else
       neff++;
@@ -611,7 +611,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
   for (iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (use_code && ncode > 0 && db->getCode(iech) < 0) continue;
+    if (use_code && ncode > 0 && db->getLocVariable(ELoc::C,iech,0) < 0) continue;
     for (int idim = 0; idim < ndim; idim++)
       t->pointlist[ecr++] = db->getCoordinate(iech, idim);
   }
@@ -629,7 +629,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
     for (iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (!(use_code && ncode > 0 && db->getCode(iech) < 0)) continue;
+      if (!(use_code && ncode > 0 && db->getLocVariable(ELoc::C,iech,0) < 0)) continue;
       for (int idim = 0; idim < ndim; idim++)
         t->holelist[ecr++] = db->getCoordinate(iech, idim);
     }

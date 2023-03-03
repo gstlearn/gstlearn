@@ -191,12 +191,6 @@ bool CalcAnamTransform::_check()
   {
     if (! _hasAnam(EAnam::HERMITIAN)) return false;
     if (! _hasInputVarDefined()) return false;
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    if (anam_hermite->getRCoef() != 1.)
-    {
-      messerr("The anamorphosis must be a Point anamorphosis");
-      return false;
-    }
     if (! _hasSelectivity()) return false;
     return true;
   }
@@ -382,7 +376,7 @@ bool CalcAnamTransform::_ZToYByNormalScore()
   // Reading the optional weight
 
   VectorDouble wt;
-  if (getDb()->hasWeight())
+  if (getDb()->hasLocVariable(ELoc::W))
     wt = getDb()->getColumnByLocator(ELoc::W);
   else
     wt.resize(nech, 1.);
@@ -436,7 +430,7 @@ bool CalcAnamTransform::_ZToFactors()
   for (int iech = 0; iech < getDb()->getSampleNumber(); iech++)
   {
     if (! getDb()->isActive(iech)) continue;
-    double zval = getDb()->getVariable(iech, 0);
+    double zval = getDb()->getLocVariable(ELoc::Z,iech, 0);
     if (FFFF(zval)) continue;
     VectorDouble factors = _anam->z2factor(zval, _ifacs);
     if (factors.empty()) continue;

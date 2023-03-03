@@ -34,7 +34,7 @@ CalcSimpleInterpolation::~CalcSimpleInterpolation()
 
 int CalcSimpleInterpolation::_getNVar() const
 {
-  return getDbin()->getVariableNumber();
+  return getDbin()->getLocNumber(ELoc::Z);
 }
 
 bool CalcSimpleInterpolation::_check()

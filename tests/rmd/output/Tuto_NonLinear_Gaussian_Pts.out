@@ -75,10 +75,10 @@ NULL
 
 Table: Statistics of the simulated variables on the point support
 
-|   | Count| Minimum| Maximum| Mean| St. Dev.|
-|:--|-----:|-------:|-------:|----:|--------:|
-|Y  | 10000|   -4.30|    3.65| 0.07|     1.01|
-|Z  | 10000|    0.15|    8.20| 1.56|     0.85|
+|   | Number| Minimum| Maximum| Mean| St. Dev.|
+|:--|------:|-------:|-------:|----:|--------:|
+|Y  |  10000|   -4.30|    3.65| 0.07|     1.01|
+|Z  |  10000|    0.15|    8.20| 1.56|     0.85|
 NULL
 
 Data Base Characteristics
@@ -103,10 +103,10 @@ NULL
 
 Table: Statistics of the sampled data on the point support
 
-|   | Count| Minimum| Maximum| Mean| St. Dev.|
-|:--|-----:|-------:|-------:|----:|--------:|
-|Y  |   500|   -3.42|    2.99| 0.03|     1.04|
-|Z  |   500|    0.24|    5.92| 1.54|     0.84|
+|   | Number| Minimum| Maximum| Mean| St. Dev.|
+|:--|------:|-------:|-------:|----:|--------:|
+|Y  |    500|   -3.42|    2.99| 0.03|     1.04|
+|Z  |    500|    0.24|    5.92| 1.54|     0.84|
 
 Hermitian Anamorphosis
 ----------------------
@@ -406,11 +406,8 @@ NULL
 NULL
 NULL
 NULL
-NULL
 [1] "Std(I) = 0.5"
 [1] "Std(I)*= 0.47"
-NULL
-NULL
 NULL
 NULL
 NULL
@@ -420,15 +417,15 @@ NULL
 
 Table: Statistics of the estimated values
 
-|           | Count| Minimum| Maximum|  Mean| St. Dev.|
-|:----------|-----:|-------:|-------:|-----:|--------:|
-|Z          |  9500|   0.154|   8.198| 1.562|    0.846|
-|SK.Z.estim |  9500|   0.523|   4.924| 1.553|    0.496|
-|DK.Z.estim |  9500|   0.430|   4.087| 1.555|    0.448|
-|CE.Z.estim |  9500|   0.518|   4.305| 1.554|    0.455|
-|SK.Z.stdev |  9500|   0.473|   0.834| 0.668|    0.071|
-|DK.Z.stdev |  9500|   0.552|   0.832| 0.701|    0.052|
-|CE.Z.stdev |  9500|   0.210|   1.375| 0.681|    0.194|
+|           | Number| Minimum| Maximum|  Mean| St. Dev.|
+|:----------|------:|-------:|-------:|-----:|--------:|
+|Z          |   9500|   0.154|   8.198| 1.562|    0.846|
+|SK.Z.estim |   9500|   0.523|   4.924| 1.553|    0.496|
+|DK.Z.estim |   9500|   0.430|   4.087| 1.555|    0.448|
+|CE.Z.estim |   9500|   0.518|   4.305| 1.554|    0.455|
+|SK.Z.stdev |   9500|   0.473|   0.834| 0.668|    0.071|
+|DK.Z.stdev |   9500|   0.552|   0.832| 0.701|    0.052|
+|CE.Z.stdev |   9500|   0.210|   1.375| 0.681|    0.194|
 
 
 Table: Scores of point estimators of Z using 500 data points

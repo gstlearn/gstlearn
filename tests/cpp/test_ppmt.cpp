@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PPMT-");
@@ -63,7 +63,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display(&dbfmt);
 
   // Back-transform
-  (void) ppmt.gaussianToRaw(data, {"U*"}, -1, NamingConvention("V"));
+  (void) ppmt.gaussianToRaw(data, {"U*"}, niter, NamingConvention("V"));
   dbfmt.setFlags(false, false, false, true, false, false, {"V*"});
   data->display(&dbfmt);
 
