@@ -404,8 +404,8 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     }
 
     /* Set the attributes of the replicate */
-    if (facies == SHADOW_WATER) dbin->setVariable(jech, 0, SHADOW_WATER);
-    if (facies == SHADOW_SHADOW) dbin->setVariable(jech, 0, SHADOW_ISLAND);
+    if (facies == SHADOW_WATER) dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_WATER);
+    if (facies == SHADOW_SHADOW) dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_ISLAND);
     dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                         s2min);
     dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),

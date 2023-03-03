@@ -254,7 +254,7 @@ static double st_get_IVAR(const Db *db, int iech, int ivar)
 {
   double zz, drfval;
 
-  zz = db->getLocVariable(ELoc::Z,iech, ivar);
+  zz = db->getLocVariable(ELoc::Z, iech, ivar);
   if (FFFF(zz)) return (TEST);
   if (MODEL == nullptr) return (zz);
   if (ivar != 0) return (TEST);
@@ -1093,14 +1093,14 @@ int code_comparable(const Db *db1,
       break;
 
     case 1: /* Code must be close */
-      code1 = db1->getCode(iech);
-      code2 = db2->getCode(jech);
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
       if (ABS(code1 - code2) > tolcode) return (1);
       break;
 
     case 2: /* Code must be different */
-      code1 = db1->getCode(iech);
-      code2 = db2->getCode(jech);
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
       if (code1 == code2) return (1);
       break;
   }
@@ -1156,8 +1156,8 @@ static int st_date_comparable(const VarioParam *varioparam,
   /* Dispatch */
 
   if (!varioparam->hasDate()) return (0);
-  date1 = db1->getDate(iech);
-  date2 = db2->getDate(jech);
+  date1 = db1->getLocVariable(ELoc::DATE,iech,0);
+  date2 = db2->getLocVariable(ELoc::DATE,jech,0);
   if (FFFF(date1) || FFFF(date2)) return (0);
 
   delta = date2 - date1;
@@ -1182,7 +1182,7 @@ static double st_s(Db *db, int iech, int jech)
 {
   double value;
 
-  value = 0.5 * (db->getVarianceError(iech, 0) + db->getVarianceError(jech, 0));
+  value = 0.5 * (db->getLocVariable(ELoc::V,iech, 0) + db->getLocVariable(ELoc::V,jech, 0));
   return (value);
 }
 
@@ -2627,7 +2627,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
         goto label_end;
       }
       X_DRFTAB(il,iiech) = DRFLOC[il];
-      b[il] += DRFLOC[il] * db->getLocVariable(ELoc::Z,iech, 0);
+      b[il] += DRFLOC[il] * db->getLocVariable(ELoc::Z, iech, 0);
       for (jl = 0; jl < nbfl; jl++)
         X_MATDRF(il,jl) += DRFLOC[il] * DRFLOC[jl];
     }
@@ -3425,7 +3425,7 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
     db->setLocatorByUID(iadd_new, ELoc::W);
     maille = db_grid_maille(db);
     for (iech = 0; iech < db->getSampleNumber(); iech++)
-      db->setWeight(iech, maille);
+      db->setLocVariable(ELoc::W, iech, 0, maille);
   }
 
   /* Update the global statistics */
@@ -5646,7 +5646,7 @@ DbGrid* db_variogram_cloud(Db *db,
                            int varnb,
                            const NamingConvention& namconv)
 {
-  if (FFFF(lagmax)) lagmax = db->getColumnSize();
+  if (FFFF(lagmax)) lagmax = db->getExtensionDiagonal();
   if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);
 
   // Create a grid as a support for the variogram cloud calculations

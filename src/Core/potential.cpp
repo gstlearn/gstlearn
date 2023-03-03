@@ -1144,7 +1144,7 @@ static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
 
         /* Check that the external drift value is defined */
 
-        drift = dbgrid->getExternalDrift(iech, 0);
+        drift = dbgrid->getLocVariable(ELoc::F,iech, 0);
         if (FFFF(drift)) return (1);
         pot_ext->data[ecr] = drift;
         ecr++;
@@ -2175,7 +2175,7 @@ static void st_estimate_result(Pot_Env *pot_env,
 
     // Store the results
 
-    dbout->setVariable(iech, 0, result[0]);
+    dbout->setLocVariable(ELoc::Z,iech, 0, result[0]);
     if (flag_grad)
       for (int idim = 0; idim < pot_env->ndim; idim++)
         dbout->setLocVariable(ELoc::G,iech, idim, result[idim + 1]);
@@ -2470,12 +2470,12 @@ static void st_xvalid_potential(Pot_Env *pot_env,
 
       // Storing the results 
 
-      dbiso->setVariable(iech0, 0, result[0]);
-      dbiso->setVariable(iech0, 1, variance);
+      dbiso->setLocVariable(ELoc::Z,iech0, 0, result[0]);
+      dbiso->setLocVariable(ELoc::Z,iech0, 1, variance);
       if (flag_dist_conv)
       {
-        dbiso->setVariable(iech0, 2, dist_euc);
-        dbiso->setVariable(iech0, 3, dist_geo);
+        dbiso->setLocVariable(ELoc::Z,iech0, 2, dist_euc);
+        dbiso->setLocVariable(ELoc::Z,iech0, 3, dist_geo);
       }
 
       // Update statistics */
@@ -3206,7 +3206,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     value = dbout->getLocVariable(ELoc::Z,iech, 0);
-    if (!FFFF(value) && ABS(value) > eps) dbout->setVariable(iech, 0, TEST);
+    if (!FFFF(value) && ABS(value) > eps) dbout->setLocVariable(ELoc::Z,iech, 0, TEST);
   }
 
   // Calculate the distance

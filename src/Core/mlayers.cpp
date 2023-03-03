@@ -401,7 +401,7 @@ static double st_get_drift_result(LMlayers *lmlayers,
   if (!lmlayers->flag_ext) return (TEST);
   st_check_layer("st_get_drift_result", lmlayers, ilayer0);
 
-  drift = dbout->getExternalDrift(iech, ilayer0 - 1);
+  drift = dbout->getLocVariable(ELoc::F,iech, ilayer0 - 1);
   return (drift);
 }
 
@@ -1576,8 +1576,8 @@ static void st_estimate(LMlayers *lmlayers,
 
       /* Store the result */
 
-      dbout->setVariable(iechout, ilayer, estim);
-      if (flag_std) dbout->setVariable(iechout, nlayers + ilayer, stdv);
+      dbout->setLocVariable(ELoc::Z,iechout, ilayer, estim);
+      if (flag_std) dbout->setLocVariable(ELoc::Z,iechout, nlayers + ilayer, stdv);
       if (OptDbg::query(EDbg::RESULTS))
       {
         message("Estimate = %lf", ilayer + 1, estim);
@@ -1763,8 +1763,8 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
 
       /* Store the transformed results */
 
-      dbout->setVariable(iechout, ilayer, depth);
-      if (flag_std) dbout->setVariable(iechout, nlayers + ilayer, stdv);
+      dbout->setLocVariable(ELoc::Z,iechout, ilayer, depth);
+      if (flag_std) dbout->setLocVariable(ELoc::Z,iechout, nlayers + ilayer, stdv);
     }
   }
 }

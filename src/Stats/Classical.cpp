@@ -378,7 +378,7 @@ bool _regressionLoad(Db *db1,
       *value = db1->getLocVariable(ELoc::Z,iech, 0);
       if (flagCste) x[ecr++] = 1.;
       for (int i = 0; i < nfex; i++)
-        x[ecr++] = db2->getExternalDrift(iech, i);
+        x[ecr++] = db2->getLocVariable(ELoc::F,iech, i);
       break;
 
     case 2:

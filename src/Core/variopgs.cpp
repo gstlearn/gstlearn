@@ -488,23 +488,23 @@ static void st_set_bounds(Db *db,
   if (!TEST_DISCRET)
   {
     jfac = (flag_one) ? 0 : ifac;
-    db->setBounds(iech, jfac, t1min, t1max);
+    db->setBound(iech, jfac, t1min, t1max);
     if (ngrf > 1)
     {
       jfac = (flag_one) ? 1 : nfacies + ifac;
-      db->setBounds(iech, jfac, t2min, t2max);
+      db->setBound(iech, jfac, t2min, t2max);
     }
   }
   else
   {
     jfac = (flag_one) ? 0 :  ifac;
-    db->setIntervals(iech, jfac,
+    db->setInterval(iech, jfac,
                      (double) ct_tableone_getrank_from_proba(CTABLES, t1min),
                      (double) ct_tableone_getrank_from_proba(CTABLES, t1max));
     if (ngrf > 1)
     {
       jfac = (flag_one) ? 1 : nfacies + ifac;
-      db->setIntervals(iech, jfac,
+      db->setInterval(iech, jfac,
                        (double) ct_tableone_getrank_from_proba(CTABLES, t2min),
                        (double) ct_tableone_getrank_from_proba(CTABLES, t2max));
     }

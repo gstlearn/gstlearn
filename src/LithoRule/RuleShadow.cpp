@@ -623,7 +623,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
       }
 
       /* Set the attributes of the replicate */
-      dbin->setVariable(jech, 0, SHADOW_ISLAND);
+      dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_ISLAND);
       dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                           MAX(seuil, s1max));
       dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),
@@ -679,7 +679,7 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
           continue;
         }
 
-        dbin->setVariable(jech, 0, SHADOW_IDLE);
+        dbin->setLocVariable(ELoc::Z,jech, 0, SHADOW_IDLE);
         dbin->setLocVariable(ELoc::L,jech, get_rank_from_propdef(propdef, ipgs, igrf),
                              THRESH_INF);
         dbin->setLocVariable(ELoc::U,jech, get_rank_from_propdef(propdef, ipgs, igrf),

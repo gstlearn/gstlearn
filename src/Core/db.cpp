@@ -934,17 +934,17 @@ void db_sample_print(Db *db,
   {
     for (int ierr = 0; ierr < db->getLocNumber(ELoc::V); ierr++)
     {
-      double value = db->getVarianceError(iech, ierr);
+      double value = db->getLocVariable(ELoc::V,iech, ierr);
       if (FFFF(value))
         message("Variance   #%d = NA\n", ierr + 1);
       else
         message("Variance   #%d = %lf\n", ierr + 1,
-                db->getVarianceError(iech, ierr));
+                db->getLocVariable(ELoc::V,iech, ierr));
     }
   }
   if (db->hasLocVariable(ELoc::C))
   {
-    double value = db->getCode(iech);
+    double value = db->getLocVariable(ELoc::C,iech,0);
     if (FFFF(value))
       message("Code          = NA\n");
     else
@@ -1415,7 +1415,7 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
         db->setArray(iech, icol, valinit);
     else
       for (iech = 0; iech < db->getSampleNumber(); iech++)
-        if (db->getDomain(iech))
+        if (db->getLocVariable(ELoc::DATE,iech,0))
           db->setArray(iech, icol, valinit);
         else
           db->setArray(iech, icol, TEST);

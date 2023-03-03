@@ -308,9 +308,9 @@ def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
     y = db.getCoordinates(1, usesel)
     z = db.getCoordinates(2, usesel)
     
-    gx = db.getGradients(0, usesel)
-    gy = db.getGradients(1, usesel)
-    gz = db.getGradients(2, usesel)
+    gx = db.getGradient(0, usesel)
+    gy = db.getGradient(1, usesel)
+    gz = db.getGradient(2, usesel)
     
     if len(gx) <= 0 or len(gy) <= 0 or len(gz) <= 0:
         print("Gradient components must be present")
@@ -342,9 +342,9 @@ def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
     y = db.getCoordinates(1, usesel)
     z = db.getCoordinates(2, usesel)
     
-    tx = db.getTangents(0, usesel)
-    ty = db.getTangents(1, usesel)
-    tz = db.getTangents(2, usesel)
+    tx = db.getTangent(0, usesel)
+    ty = db.getTangent(1, usesel)
+    tz = db.getTangent(2, usesel)
     
     x = np.concatenate((x, x)) 
     y = np.concatenate((y, y)) 

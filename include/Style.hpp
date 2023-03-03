@@ -112,7 +112,7 @@ public:
   static void myFunction(int myArgInt, double myArgDoubleDef = 2.);
 
   /**
-   * \defgroup Getters Accessors to private members value
+   * \defgroup Getters Style: Accessors to private members value
    *
    * \brief Inline trivial functions grouped with a unique comment
    *
@@ -130,7 +130,7 @@ public:
   /**@}*/
 
   /**
-   * \defgroup Setters Function that update private members value
+   * \defgroup Setters Style: Function that update private members value
    *
    * \brief Inline trivial functions grouped with a unique comment
    *

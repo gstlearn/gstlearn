@@ -233,6 +233,12 @@ int Db::resetFromOnePoint(const VectorDouble& tab, int flag_add_rank)
   return 0;
 }
 
+/**
+ * Check if the argument 'idim' is a valid Space rank (0-based)
+ * \copydoc DbTest
+ * @param idim Space rank to be checked
+ * @return True is the Space rank is valid; False otherwise
+ */
 bool Db::isDimensionIndexValid(int idim) const
 {
   if (idim < 0 || idim >= getNDim())
@@ -243,6 +249,12 @@ bool Db::isDimensionIndexValid(int idim) const
   return true;
 }
 
+/**
+ * Check if the argument 'iuid' is a valid user-designated rank
+ * \copydoc DbTest
+ * @param iuid User-designated rank
+ * @return True if the user-designated rank is valid; False otherwise
+ */
 bool Db::isUIDValid(int iuid) const
 {
   if (iuid < 0 || iuid >= getUIDMaxNumber())
@@ -253,6 +265,12 @@ bool Db::isUIDValid(int iuid) const
   return true;
 }
 
+/**
+ * Check if the argument 'icol' is a valid Column rank (0-based)
+ * \copydoc DbTest
+ * @param icol Column rank to be checked
+ * @return True if the Column rank is valid; False otherwise
+ */
 bool Db::isColIdxValid(int icol) const
 {
   if (icol < 0 || icol >= _ncol)
@@ -263,6 +281,12 @@ bool Db::isColIdxValid(int icol) const
   return true;
 }
 
+/**
+ * Check if the argument 'iech' is a valid Sample rank (0-based)
+ * \copydoc DbTest
+ * @param iech Sample rank to be checked
+ * @return True if the Sample rank is valid; False otherwise
+ */
 bool Db::isSampleIndexValid(int iech) const
 {
   if (iech < 0 || iech >= _nech)
@@ -273,6 +297,13 @@ bool Db::isSampleIndexValid(int iech) const
   return true;
 }
 
+/**
+ * Check if the argument 'iechs' are valid Sample ranks (0-based)
+ * \copydoc DbTest
+ * @param iechs Vector of sample ranks to be checked
+ * @param useSel When TRUE, the rank corresponds to the *active* sample
+ * @return True if all sample ranks are valid; False otherwise
+ */
 bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
 {
   for (int i = 0; i < (int) iechs.size(); i++)
@@ -287,6 +318,13 @@ bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
   return true;
 }
 
+/**
+ * Check if the arguments 'locatorType' and 'locatorIndex' are valid
+ * \copydoc DbTest
+ * @param locatorType Type of the Locator
+ * @param locatorIndex Rank of the locator (0-based)
+ * @return True is the argument are valid; False otherwise
+ */
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return false;
@@ -607,7 +645,7 @@ VectorDouble Db::getArrayByUID(int iuid, bool useSel) const
   if (!isUIDValid(iuid)) return tab;
 
   tab.resize(nech);
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
 
   int ecr = 0;
   for (int iech = 0; iech < nech; iech++)
@@ -1185,7 +1223,7 @@ void Db::setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel)
   if (!isColIdxValid(icol)) return;
   VectorDouble sel;
 
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
 
   int lec = 0;
   for (int iech = 0; iech < getSampleNumber(); iech++)
@@ -1244,7 +1282,7 @@ void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
   if (!isUIDValid(iuid)) return;
   VectorDouble sel;
 
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
 
   int lec = 0;
   for (int iech = 0; iech < getSampleNumber(); iech++)
@@ -1299,6 +1337,12 @@ void Db::duplicateColumnByUID(int iuid_in, int iuid_out)
   }
 }
 
+/**
+ * Delete one Column specified by its name
+ *
+ * \copydoc DbDelete
+ * @param name Name of the variable to be deleted
+ */
 void Db::deleteColumn(const String& name)
 {
   VectorInt iuids = _ids(name, false);
@@ -1308,6 +1352,13 @@ void Db::deleteColumn(const String& name)
     deleteColumnByUID(iuids[i]);
 }
 
+/**
+ * Delete a set of variables specified by their names
+ *
+ * \copydoc DbDelete
+ *
+ * @param names Vector of variable names to be deleted
+ */
 void Db::deleteColumns(const VectorString& names)
 {
   VectorInt iuids = _ids(names, false);
@@ -1317,6 +1368,13 @@ void Db::deleteColumns(const VectorString& names)
     deleteColumnByUID(iuids[i]);
 }
 
+/**
+ * Delete a set of variables specified by their column ranks (0 based)
+ *
+ * \copydoc DbDelete
+ *
+ * @param icols Vector of Column ranks for the variables to be deleted
+ */
 void Db::deleteColumnsByColIdx(const VectorInt& icols)
 {
   if (icols.empty()) return;
@@ -1328,14 +1386,13 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
     deleteColumnByColIdx(v[i]);
 }
 
-DbGrid* Db::coveringDb(const VectorInt& nodes,
-                             const VectorDouble& dcell,
-                             const VectorDouble& origin,
-                             const VectorDouble& margin) const
-{
-   return DbGrid::createCoveringDb(this,nodes,dcell,origin,margin);
-}
-
+/**
+ * Delete a set of variables specified by their user-identification ranks (0 based)
+ *
+ * \copydoc DbDelete
+ *
+ * @param iuids Vector of user-identification ranks for variables to be deleted
+ */
 void Db::deleteColumnsByUID(const VectorInt& iuids)
 {
   if (iuids.empty()) return;
@@ -1540,6 +1597,13 @@ int Db::deleteSample(int e_del)
   return 0;
 }
 
+/**
+ * Delete a variablesspecified by its column number (0 based)
+ *
+ * \copydoc DbDelete
+ *
+ * @param icol_del Column number of the variable to be deleted
+ */
 void Db::deleteColumnByColIdx(int icol_del)
 {
   if (! isColIdxValid(icol_del)) return;
@@ -1549,9 +1613,13 @@ void Db::deleteColumnByColIdx(int icol_del)
 }
 
 /**
- * Delete an UID
- * @param iuid_del Rank of the UID to be deleted
+ * Delete a variable specified by its user-identification rank
+ *
+ * \copydoc DbDelete
+ *
+ * @param iuid_del User-identification rank for the variable to be deleted
  */
+
 void Db::deleteColumnByUID(int iuid_del)
 {
   int ncol = _ncol;
@@ -1601,6 +1669,13 @@ void Db::deleteColumnByUID(int iuid_del)
   _ncol = nnew;
 }
 
+/**
+ * Delete a set of variables specified by their locator type
+ *
+ * \copydoc DbDelete
+ *
+ * @param locatorType Locator of the variables to be deleted
+ */
 void Db::deleteColumnsByLocator(const ELoc& locatorType)
 {
   if (!isLocatorTypeValid(locatorType)) return;
@@ -1614,10 +1689,12 @@ void Db::deleteColumnsByLocator(const ELoc& locatorType)
 }
 
 /**
- * Returns a Vector containing the minimum and maximum along a Space dimension
- * @param idim   Rank of the Space dimension
- * @param useSel True if the possible selection must be taken intao account
- * @return
+ * Returns the extreme coordinates for the target space dimension
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @param idim Rank of the target space dimension (0 based)
+ * @return The vector of extreme coordinates (minimum; maximum)
  */
 VectorDouble Db::getExtrema(int idim, bool useSel) const
 {
@@ -1629,6 +1706,13 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
   return ext;
 }
 
+/**
+ * Returns the extreme coordinates for all space dimensions
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @return The vector of vectors of extreme coordinates (minimum; maximum)
+ */
 VectorVectorDouble Db::getExtremas(bool useSel) const
 {
   VectorVectorDouble exts;
@@ -1637,6 +1721,13 @@ VectorVectorDouble Db::getExtremas(bool useSel) const
   return exts;
 }
 
+/**
+ * Returns the minimum coordinates for all space dimensions
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @return The vector of minimum coordinates
+ */
 VectorDouble Db::getCoorMinimum(bool useSel) const
 {
   VectorDouble ext;
@@ -1648,6 +1739,13 @@ VectorDouble Db::getCoorMinimum(bool useSel) const
   return ext;
 }
 
+/**
+ * Returns the maximum coordinates for all space dimensions
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @return The vector of maximum coordinates
+ */
 VectorDouble Db::getCoorMaximum(bool useSel) const
 {
   VectorDouble ext;
@@ -1659,6 +1757,13 @@ VectorDouble Db::getCoorMaximum(bool useSel) const
   return ext;
 }
 
+/**
+ * Returns the coordinates of the center of the (active) samples
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @return The center coordinates
+ */
 VectorDouble Db::getCenters(bool useSel) const
 {
   int ndim = getNDim();
@@ -1668,6 +1773,15 @@ VectorDouble Db::getCenters(bool useSel) const
   return center;
 }
 
+/**
+ * Returns the center of the (active) samples for the target space dimension
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @param idim Target space dimension
+ *
+ * @return The center coordinate
+ */
 double Db::getCenter(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return TEST;
@@ -1677,6 +1791,15 @@ double Db::getCenter(int idim, bool useSel) const
   return ((mini + maxi) / 2.);
 }
 
+/**
+ * Returns the extension (distance between minimum and maximum) for the target space dimension
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @param idim Target space dimension
+ *
+ * @return The extension value
+ */
 double Db::getExtension(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return 0.;
@@ -1686,6 +1809,13 @@ double Db::getExtension(int idim, bool useSel) const
   return maxi - mini;
 }
 
+/**
+ * Returns the diagonal of the rectangle containing all (active) samples and parallel to main axes
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @return The diagonal value
+ */
 double Db::getExtensionDiagonal(bool useSel) const
 {
   int ndim = getNDim();
@@ -1698,7 +1828,15 @@ double Db::getExtensionDiagonal(bool useSel) const
   return sqrt(total);
 }
 
-void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi)
+/**
+ * Returns the extensions (distance between minimum and maximum) for all space dimensions
+ *
+ * \copydoc DbStatsCoor
+ *
+ * @param mini Vector of minimum values (modified by this function)
+ * @param maxi Vector of maximum values (modified by this function)
+ */
+void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel)
 {
   int ndim = getNDim();
   if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
@@ -1708,7 +1846,7 @@ void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi)
 
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    VectorDouble coor = getCoordinates(idim, true);
+    VectorDouble coor = getCoordinates(idim, useSel);
     double vmin = VH::minimum(coor);
     double vmax = VH::maximum(coor);
     if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
@@ -1727,18 +1865,6 @@ double Db::getUnit(int idim) const
 {
   double delta = getExtension(idim);
   return delta / 1000.;
-}
-
-double Db::getColumnSize(bool useSel) const
-{
-  double diag = 0.;
-  for (int idim = 0; idim < getNDim(); idim++)
-  {
-    VectorDouble ext = getExtrema(idim, useSel);
-    double delta = ext[1] - ext[0];
-    diag += delta * delta;
-  }
-  return sqrt(diag);
 }
 
 /**
@@ -1791,6 +1917,11 @@ VectorString Db::identifyNames(const VectorString& names) const
   return ret_names;
 }
 
+/**
+ * \copydoc DbStats
+ * @param name Target variable name
+ * @return The minimum value
+ */
 double Db::getMinimum(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);
@@ -1799,6 +1930,11 @@ double Db::getMinimum(const String& name, bool useSel) const
   return VH::minimum(tab);
 }
 
+/**
+ * \copydoc DbStats
+ * @param name Target variable name
+ * @return The maximum value
+ */
 double Db::getMaximum(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);
@@ -1807,6 +1943,11 @@ double Db::getMaximum(const String& name, bool useSel) const
   return VH::maximum(tab);
 }
 
+/**
+ * \copydoc DbStats
+ * @param name Target variable name
+ * @return The range of values as a Vector (minimum; maximum)
+ */
 VectorDouble Db::getRange(const String& name, bool useSel) const
 {
   VectorDouble range(2);
@@ -1815,6 +1956,11 @@ VectorDouble Db::getRange(const String& name, bool useSel) const
   return range;
 }
 
+/**
+ * \copydoc DbStats
+ * @param name Target variable name
+ * @return The mean value
+ */
 double Db::getMean(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);
@@ -1823,6 +1969,11 @@ double Db::getMean(const String& name, bool useSel) const
   return VH::mean(tab);
 }
 
+/**
+ * \copydoc DbStats
+ * @param name Target variable name
+ * @return The variance value
+ */
 double Db::getVariance(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);
@@ -1831,6 +1982,11 @@ double Db::getVariance(const String& name, bool useSel) const
   return VH::variance(tab);
 }
 
+/**
+ * \copydoc DbStats
+ * @param name Target variable name
+ * @return The standard deviation value (square root of the variance)
+ */
 double Db::getStdv(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);
@@ -1839,6 +1995,12 @@ double Db::getStdv(const String& name, bool useSel) const
   return VH::stdv(tab);
 }
 
+/**
+ * \copydoc DbStats
+ * @param name1 First  target variable name
+ * @param name2 Second  target variable name
+ * @return The Correlation coefficient value
+ */
 double Db::getCorrelation(const String& name1, const String& name2, bool useSel) const
 {
   VectorInt iuids;
@@ -2026,6 +2188,9 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
 
 /**
  * \copydoc DbLoc
+ *
+ * Returns the number of fields corresponding to the target locator present in the Db
+ *
  * @return Number of fields
  */
 int Db::getLocNumber(const ELoc& loctype) const
@@ -2036,6 +2201,9 @@ int Db::getLocNumber(const ELoc& loctype) const
 
 /**
  * \copydoc DbLoc
+ *
+ * Check if there is at least one field corresponding to the target locator
+ *
  * @return TRUE if at least one field corresponds to 'loctype' locator; FALSE otherwise
  */
 bool Db::hasLocVariable(const ELoc& loctype) const
@@ -2046,6 +2214,9 @@ bool Db::hasLocVariable(const ELoc& loctype) const
 
 /**
  * \copydoc DbLoc
+ *
+ * Get the value of the field corresponding to the target locator (and its target item) at the target sample
+ *
  * @param iech    Target sample (0 based)
  * @param item    Rank of the 'loctype' locator (0 based)
  * @return Returned value
@@ -2058,6 +2229,9 @@ double Db::getLocVariable(const ELoc& loctype, int iech, int item) const
 
 /**
  * \copydoc DbLoc
+ *
+ *  Set the value of the field corresponding to the target locator (and its target item) at the target sample
+ *
  * @param iech    Target sample rank (0 based)
  * @param item    Rank of the 'loctype' locator (0 based)
  * @param value   Value to be assigned
@@ -2163,17 +2337,12 @@ bool Db::isAllUndefined(int iech) const
   return false;
 }
 
-void Db::setVariable(int iech, int item, double value)
-{
-  setFromLocator(ELoc::Z, iech, item, value);
-}
-
 int Db::getIntervalNumber() const
 {
   return MAX(getLocNumber(ELoc::RKLOW), getLocNumber(ELoc::RKUP));
 }
 
-void Db::setIntervals(int iech, int item, double rklow, double rkup)
+void Db::setInterval(int iech, int item, double rklow, double rkup)
 {
   if (rklow > rkup)
   {
@@ -2185,7 +2354,7 @@ void Db::setIntervals(int iech, int item, double rklow, double rkup)
   setFromLocator(ELoc::RKUP,  iech, item, rkup);
 }
 
-void Db::setBounds(int iech, int item, double lower, double upper)
+void Db::setBound(int iech, int item, double lower, double upper)
 {
   if (lower > upper)
   {
@@ -2226,7 +2395,7 @@ VectorDouble Db::getWithinBounds(int item, bool useSel) const
   return vec;
 }
 
-VectorDouble Db::getGradients(int item, bool useSel) const
+VectorDouble Db::getGradient(int item, bool useSel) const
 {
   if (!hasLocVariable(ELoc::G)) return VectorDouble();
   VectorDouble tab;
@@ -2239,7 +2408,7 @@ VectorDouble Db::getGradients(int item, bool useSel) const
   return tab;
 }
 
-VectorDouble Db::getTangents(int item, bool useSel) const
+VectorDouble Db::getTangent(int item, bool useSel) const
 {
   if (!hasLocVariable(ELoc::TGTE)) return VectorDouble();
   VectorDouble tab;
@@ -2265,11 +2434,6 @@ int Db::getSelection(int iech) const
   if (FFFF(value)) return 0;
   int sel = (value != 0) ? 1 :  0;
   return (sel);
-}
-
-void Db::setSelection(int iech, int value)
-{
-  setFromLocator(ELoc::SEL, iech, 0, (value == 0) ? 0. : 1.);
 }
 
 /**
@@ -2360,14 +2524,14 @@ double Db::getWeight(int iech) const
   return (w);
 }
 
-VectorDouble Db::getWeight(bool useSel) const
+VectorDouble Db::getWeights(bool useSel) const
 {
   int icol = -1;
   int nech = getSampleNumber();
   VectorDouble sel;
   VectorDouble tab(nech);
 
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
   if (hasLocVariable(ELoc::W)) icol = getColIdxByLocator(ELoc::W, 0);
 
   int ecr = 0;
@@ -2382,47 +2546,6 @@ VectorDouble Db::getWeight(bool useSel) const
   }
   tab.resize(ecr);
   return tab;
-}
-
-void Db::setWeight(int iech, double value)
-{
-  if (value < 0) value = 0.;
-  setFromLocator(ELoc::W, iech, 0, value);
-}
-
-double Db::getExternalDrift(int iech, int item) const
-{
-  if (!hasLocVariable(ELoc::F)) return TEST;
-  return getFromLocator(ELoc::F, iech, item);
-}
-
-void Db::setExternalDrift(int iech, int item, double value)
-{
-  setFromLocator(ELoc::F, iech, item, value);
-}
-
-double Db::getBlockExtension(int iech, int item) const
-{
-  if (!hasLocVariable(ELoc::BLEX)) return TEST;
-  return getFromLocator(ELoc::BLEX, iech, item);
-}
-
-void Db::setBlockExtension(int iech, int item, double value)
-{
-  setFromLocator(ELoc::BLEX, iech, item, value);
-}
-
-double Db::getCode(int iech) const
-{
-  if (!hasLocVariable(ELoc::C)) return 0;
-  double code = getFromLocator(ELoc::C, iech, 0);
-  if (FFFF(code)) code = 0.;
-  return code;
-}
-
-void Db::setCode(int iech, double value)
-{
-  setFromLocator(ELoc::C, iech, 0, value);
 }
 
 /****************************************************************************/
@@ -2442,7 +2565,7 @@ VectorDouble Db::getCodeList(void)
   int number = 0;
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (isActive(iech)) tab[number++] = getCode(iech);
+    if (isActive(iech)) tab[number++] = getLocVariable(ELoc::C,iech,0);
   }
 
   /* Get the Unique occurrence */
@@ -2452,59 +2575,33 @@ VectorDouble Db::getCodeList(void)
   return (tab);
 }
 
-double Db::getVarianceError(int iech, int item) const
+bool Db::isActiveDomain(int iech) const
 {
-  if (!hasLocVariable(ELoc::V)) return 0.;
-  return getFromLocator(ELoc::V, iech, item);
-}
-
-void Db::setVarianceError(int iech, int item, double value)
-{
-  setFromLocator(ELoc::V, iech, item, value);
-}
-
-/****************************************************************************/
-/*!
- **  Reads the domain flag of a sample
- **
- ** \return  1 if the Domain variable is not defined
- ** \return    or if the Domain variable is defined and equal to the
- ** \return    the Reference Domain value
- **
- ** \param[in]  iech Rank of the sample
- **
- *****************************************************************************/
-int Db::getDomain(int iech) const
-{
-  if (! GlobalEnvironment::getEnv()->isDomainReference()) return 1;
-  if (! hasLocVariable(ELoc::DOM)) return 1;
+  if (! hasLocVariable(ELoc::DOM)) return true;
+  if (! GlobalEnvironment::getEnv()->isDomainReference()) return true;
   double value = getFromLocator(ELoc::DOM, iech, 0);
-  if (FFFF(value)) return (0);
-  if (! GlobalEnvironment::getEnv()->matchDomainReference(value)) return 1;
-  return 0;
+  if (FFFF(value)) return false;
+  if (! GlobalEnvironment::getEnv()->matchDomainReference(value)) return true;
+  return false;
 }
 
-void Db::setDomain(int iech, int value)
-{
-  setFromLocator(ELoc::DOM, iech, 0, (value == 0) ? 0. : 1.);
-}
-
-double Db::getDate(int iech) const
-{
-  if (!hasLocVariable(ELoc::DATE)) return 0.;
-  return getFromLocator(ELoc::DATE, iech, 0);
-}
-
-void Db::setDate(int iech, double value)
-{
-  setFromLocator(ELoc::DATE, iech, 0, value);
-}
-
+/**
+ * Returns the rank of the Column corresponding to the simulation / variable choice
+ * \copydoc DbSimuRank
+ * @return Column rank
+ */
 int Db::getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar)
 {
   return (_getSimrank(isimu, ivar, icase, nbsimu, nvar));
 }
 
+/**
+ * Returns the value of a simulation / variable for a given sample
+ * \copydoc DbSimuRank
+ * @param locatorType Target locator type
+ * @param iech Rank of the target sample
+ * @return
+ */
 double Db::getSimvar(const ELoc& locatorType,
                      int iech,
                      int isimu,
@@ -2518,6 +2615,13 @@ double Db::getSimvar(const ELoc& locatorType,
   return getFromLocator(locatorType, iech, item);
 }
 
+/**
+ * Set the value of a simulation / variable for a given sample
+ * \copydoc DbSimuRank
+ * @param locatorType Target locator type
+ * @param iech Target sample
+ * @param value Value to be assigned
+ */
 void Db::setSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
@@ -2531,6 +2635,21 @@ void Db::setSimvar(const ELoc& locatorType,
   setFromLocator(locatorType, iech, item, value);
 }
 
+/**
+ * Update the value of a simulation / variable for a given sample
+ * \copydoc DbSimuRank
+ * @param locatorType Target locator type
+ * @param iech Target sample
+ * @param oper Operation
+ *               0 : New = New + old
+ *               1 : New = New * Old
+ *               2 : New = New - Old
+ *               3 : New = Old / New
+ *               4 : New = New (only if 'Old' is defined)
+ *               5 : New = MAX(New, Old)
+ *               6 : New = MIN(New, Old)
+ * @param value Value to be assigned
+ */
 void Db::updSimvar(const ELoc& locatorType,
                    int iech,
                    int isimu,
@@ -2549,7 +2668,7 @@ void Db::updSimvar(const ELoc& locatorType,
 
 bool Db::isActive(int iech) const
 {
-  return (getSelection(iech) && getDomain(iech));
+  return (getSelection(iech) && isActiveDomain(iech));
 }
 
 bool Db::isActiveAndDefined(int iech, int item) const
@@ -2911,7 +3030,7 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
     if (!isColIdxValid(icol)) continue;
 
     tab = getColumnByColIdx(icol, true);
-    wgt = getWeight(true);
+    wgt = getWeights(true);
     ut_statistics(static_cast<int> (tab.size()), tab.data(), NULL,
                   wgt.data(), &nval, &vmin, &vmax,
                   &delta, &mean, &stdv);
@@ -3055,7 +3174,7 @@ String Db::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-VectorDouble Db::getSelection(void) const
+VectorDouble Db::getSelections(void) const
 {
   int nech = getSampleNumber();
   VectorDouble tab;
@@ -3088,12 +3207,12 @@ VectorInt Db::getSelectionRanks() const
 }
 
 /**
- * Returns the contents of a Column of the Db referred by its column index
- * @param icol Column index (from [0,n[)
- * @param useSel Is the selection taken into account
- * @param flagCompress When FALSE, the returned array is inflated
- * to the total dimension (masked values are set to TEST)
- * @return The vector of values
+ * \copydoc DbColumn
+ *
+ *  Returns the column referred by its rank (0-based)
+ *
+ * @param icol Rank of the target column
+ * @return Vector of returned values
  */
 VectorDouble Db::getColumnByColIdx(int icol,
                                    bool useSel,
@@ -3104,7 +3223,7 @@ VectorDouble Db::getColumnByColIdx(int icol,
 
   VectorDouble tab(nech, TEST);
   VectorDouble sel;
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
 
   int ecr = 0;
   double value = TEST;
@@ -3128,6 +3247,14 @@ VectorDouble Db::getColumnByColIdx(int icol,
   return tab;
 }
 
+/**
+ * Returns a Column referred by its user-identification rank
+ *
+ * \copydoc DbColumn
+ *
+ * @param iuid Rank of the target User-identified rank
+ * @return Vector of returned values
+ */
 VectorDouble Db::getColumnByUID(int iuid, bool useSel, bool flagCompress) const
 {
   int icol = getColIdxByUID(iuid);
@@ -3135,6 +3262,16 @@ VectorDouble Db::getColumnByUID(int iuid, bool useSel, bool flagCompress) const
   return getColumnByColIdx(icol, useSel, flagCompress);
 }
 
+/**
+ * Returns the contents of one Column identified by its locator type and item rank
+ *
+ * \copydoc DbColumn
+ *
+ * @param locatorType Type of the target locator
+ * @param locatorIndex Rank of the item (0-based) for the target locator
+ *
+ * @return Vector of returned values
+ */
 VectorDouble Db::getColumnByLocator(const ELoc& locatorType,
                                    int locatorIndex,
                                    bool useSel,
@@ -3145,6 +3282,15 @@ VectorDouble Db::getColumnByLocator(const ELoc& locatorType,
   return getColumnByColIdx(icol, useSel, flagCompress);
 }
 
+/**
+ * Returns the contents of one Column identified by its name
+ *
+ *  \copydoc DbColumn
+ *
+ * @param name Name of the target column
+ *
+ * @return The vector of returned values
+ */
 VectorDouble Db::getColumn(const String &name,
                            bool useSel,
                            bool flagCompress) const
@@ -3156,6 +3302,15 @@ VectorDouble Db::getColumn(const String &name,
   return getColumnByColIdx(icol, useSel, flagCompress);
 }
 
+/**
+ * Returns the contents of a set of Columns identified by the locator type
+ *
+ * \copydoc DbColumn
+ *
+ * @param locatorType Type of target locator
+ *
+ * @return Returned values as a vector
+ */
 VectorDouble Db::getColumnsByLocator(const ELoc &locatorType,
                                      bool useSel,
                                      bool flagCompress) const
@@ -3164,6 +3319,15 @@ VectorDouble Db::getColumnsByLocator(const ELoc &locatorType,
   return getColumns(names, useSel, flagCompress);
 }
 
+/**
+ * Returns the contents of a set of Columns identified by their user-identified ranks
+ *
+ * \copydoc DbColumn
+ *
+ * @param iuids Vector of target user-identified ranks
+ *
+ * @return Returned values as a vector
+ */
 VectorDouble Db::getColumnsByUID(const VectorInt &iuids,
                                  bool useSel,
                                  bool flagCompress) const
@@ -3185,6 +3349,15 @@ VectorDouble Db::getColumnsByUID(const VectorInt &iuids,
   return retval;
 }
 
+/**
+ * Returns the contents of a set of Columns specified by their ranks (0 based)
+ *
+ * \copydoc DbColumn
+ *
+ * @param icols Vector of Column ranks
+ *
+ * @return Returned values as a vector
+ */
 VectorDouble Db::getColumnsByColIdx(const VectorInt &icols,
                                     bool useSel,
                                     bool flagCompress) const
@@ -3206,6 +3379,16 @@ VectorDouble Db::getColumnsByColIdx(const VectorInt &icols,
   return retval;
 }
 
+/**
+ * Returns the contents of a set of columns referred to by their rank interval (0 based)
+ *
+ * \copydoc DbColumn
+ *
+ * @param icol_beg Lower bound of the rank interval (included)
+ * @param icol_end Upper bound of the rank interval (excluded)
+ *
+ * @return Returned values as a vector
+ */
 VectorDouble Db::getColumnsByColIdxInterval(int icol_beg,
                                             int icol_end,
                                             bool useSel,
@@ -3217,6 +3400,16 @@ VectorDouble Db::getColumnsByColIdxInterval(int icol_beg,
   return getColumnsByColIdx(icols, useSel, flagCompress);
 }
 
+/**
+ * Returns the contents of a set of columns specified by the interval of their user-identification ranks
+ *
+ * \copydoc DbColumn
+ *
+ * @param iuid_beg Lower bound of the user-identification interval (included)
+ * @param iuid_end Upper bound of the user-identification interval (excluded)
+ *
+ * @return Return values as a vector
+ */
 VectorDouble Db::getColumnsByUIDRange(int iuid_beg,
                                       int iuid_end,
                                       bool useSel,
@@ -3558,19 +3751,39 @@ int Db::setItem(const String& colname,
   return 0;
 }
 
+/**
+ * Returns all the Columns contained in a Db
+ *
+ * \copydoc DbColumn
+ *
+ * @return Returned values as a vector
+ */
 VectorDouble Db::getAllColumns(bool useSel, bool flagCompress) const
 {
   VectorInt iuids = getAllUIDs();
   return getColumnsByUID(iuids, useSel, flagCompress);
 }
 
-void Db::setAllColumns(const VectorVectorDouble& tabs,bool useSel)
+/**
+ * Setting the contents of all the Columns of a Db
+ *
+ * @param tabs Vector of vectors containing the values to be assigned
+ */
+void Db::setAllColumns(const VectorVectorDouble& tabs)
 {
   VectorInt iuids = getAllUIDs();
   for (int iuid = 0; iuid < (int) iuids.size(); iuid++)
-    setColumnByUID(tabs[iuid], iuids[iuid], useSel);
+    setColumnByUID(tabs[iuid], iuids[iuid], false);
 }
 
+/**
+ * Returns the contents of the Colmuns specified by their names
+ *
+ * \copydoc DbColumn
+ *
+ * @param names Vector of target names
+ * @return Returned values as a vector
+ */
 VectorDouble Db::getColumns(const VectorString &names,
                             bool useSel,
                             bool flagCompress) const
@@ -3580,6 +3793,15 @@ VectorDouble Db::getColumns(const VectorString &names,
   return getColumnsByUID(iuids, useSel, flagCompress);
 }
 
+/**
+ * Returns the contents of the Columns specified by their name
+ *
+ * \copydoc DbColumn
+ *
+ * @param names Vector of target variables
+ *
+ * @return Returned values returnes as a vector of vector (1 vector per column)
+ */
 VectorVectorDouble Db::getColumnsAsVVD(const VectorString &names,
                                        bool useSel,
                                        bool flagCompress) const
@@ -3593,6 +3815,15 @@ VectorVectorDouble Db::getColumnsAsVVD(const VectorString &names,
   return vec;
 }
 
+/**
+ * Returns the contents of the columns specified by their names
+ *
+ * \copydoc DbColumn
+ *
+ * @param names Vector of target variable names
+ *
+ * @return Returns values as a Matrix: (active) samples as rows, selected columns as columns
+ */
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
                                          bool useSel,
                                          bool flagCompress) const
@@ -3611,13 +3842,6 @@ MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
   return mat;
 }
 
-VectorDouble Db::getFFFFs(const VectorString& names, bool useSel) const
-{
-  if (names.empty()) return VectorDouble();
-  VectorInt iuids =  _ids(names, false);
-  return getColumnsByUID(iuids, useSel);
-}
-
 /**
  * Returns the vector of coordinates along a given Space Dimension
  * @param idim    Rank of the Space dimension
@@ -3631,7 +3855,7 @@ VectorDouble Db::getCoordinates(int idim, bool useSel, bool flag_rotate) const
   VectorDouble tab, sel;
 
   tab.resize(nech, TEST);
-  if (useSel) sel = getSelection();
+  if (useSel) sel = getSelections();
 
   int ecr = 0;
   for (int iech = 0; iech < getSampleNumber(); iech++)
@@ -3874,22 +4098,9 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 }
 
 /**
- * Return the monovariate statistics on variables given their UID, performed per point
- * @param iuids              List of UID of the variables
- * @param opers              List of operations to be performed on the variables per point.
- * @param flagIso  
- * @param flagStoreInDb      If True, the new variable is added to Db
- * @param verbose            If True (default), the statistics are printed
- * @param proba              For 'quant': the quantile for this probability is calculated 
- * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
- * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
- * @param title              If verbose, the title of the printed statistics.
- * @param namconv            Naming Convention
- *
- * @return Returns a vector containing the statistics. If there is more than one operator and more than one variable,
- * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
- * 
- * @see statisticsMulti (multivariate statistics)
+ * The target variables are referred to by their user-designation ranks
+ * \copydoc DbStatistics
+ * @param iuids Vector of user-designation ranks
  */
 VectorDouble Db::statisticsByUID(const VectorInt& iuids,
                                  const std::vector<EStatOption>& opers,
@@ -3940,22 +4151,9 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 }
 
 /**
- * Return the monovariate statistics on variables given their names, performed per point.
- * @param names              List of names of the variables
- * @param opers              List of operations to be performed on the variables per point.
- * @param flagIso            If True, perform statistics on isotopic samples only
- * @param flagStoreInDb      If True, results are added to Db
- * @param verbose            If True (default), the statistics are printed.
- * @param proba              For 'quant': the quantile for this probability is calculated
- * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
- * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
- * @param title              If verbose, the title of the printed statistics.
- * @param namconv            Naming Convention
- * @return Returns a vector containing the statistics.
- * @return If there is more than one operator and more than one variable,
- * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
- * 
- * @see statisticsMulti (multivariate statistics)
+ * The target variables are referred to by their names
+ * \copydoc DbStatistics
+ * @param names Vector of target variable names
  */
 VectorDouble Db::statistics(const VectorString& names,
                             const std::vector<EStatOption>& opers,
@@ -3974,6 +4172,11 @@ VectorDouble Db::statistics(const VectorString& names,
                          proba, vmin, vmax, title, namconv);
 }
 
+/**
+ * The target variables are referred to by their locator
+ * \copydoc DbStatistics
+ * @param locatorType Target Locator
+ */
 VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
                                      const std::vector<EStatOption>& opers,
                                      bool flagIso,
@@ -3991,6 +4194,11 @@ VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
                          proba, vmin, vmax, title, namconv);
 }
 
+/**
+ * The target variables are referred to by their user-designation ranks
+ * \copydoc DbMultiStatistics
+ * @param iuids Vector of user-designation ranks
+ */
 VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
                                       bool flagIso,
                                       bool verbose,
@@ -4010,6 +4218,11 @@ VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
   return stats;
 }
 
+/**
+ * The target variables are referred to by their names
+ * \copydoc DbMultiStatistics
+ * @param names Vector of target variable names
+ */
 VectorDouble Db::statisticsMulti(const VectorString& names,
                                  bool flagIso,
                                  bool verbose,

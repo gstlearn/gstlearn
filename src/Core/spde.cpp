@@ -6808,10 +6808,10 @@ static double st_m2d_external_drift_increment(M2D_Environ *m2denv,
 {
   double value, previous;
 
-  value = db->getExternalDrift(iech0, ilayer0);
+  value = db->getLocVariable(ELoc::F,iech0, ilayer0);
   if (FFFF(value)) return (TEST);
   if (ilayer0 > 1)
-    previous = db->getExternalDrift(iech0, ilayer0 - 1);
+    previous = db->getLocVariable(ELoc::F,iech0, ilayer0 - 1);
   else
     previous = m2denv->dmini;
   if (FFFF(previous)) return (TEST);
@@ -7346,7 +7346,7 @@ static int st_m2d_initial_elevations(M2D_Environ *m2denv,
     /* Store the resulting values */
 
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
-      dbc->setVariable(iech, ilayer, work[ilayer]);
+      dbc->setLocVariable(ELoc::Z,iech, ilayer, work[ilayer]);
   }
 
   return (0);
@@ -7428,7 +7428,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
       for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
-        value = dbout->getExternalDrift(iech, ilayer);
+        value = dbout->getLocVariable(ELoc::F,iech, ilayer);
         if (FFFF(value)) continue;
         nb++;
         if (FFFF(m2denv->dmini) || value < m2denv->dmini) m2denv->dmini = value;
@@ -7444,7 +7444,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
       if (m2denv->flag_ed)
       {
         if (FFFF(dval[iech])) continue;
-        dbin->setExternalDrift(iech, ilayer, dval[iech]);
+        dbin->setLocVariable(ELoc::F,iech, ilayer, dval[iech]);
       }
     }
   }
@@ -7810,7 +7810,7 @@ static int st_record_sample(M2D_Environ *m2denv,
   // For each layer, set the External Drift value (optional) 
 
   if (m2denv->flag_ed) for (int ilayer = 0; ilayer < nlayer; ilayer++)
-    tab[ecr++] = db->getExternalDrift(iech, ilayer);
+    tab[ecr++] = db->getLocVariable(ELoc::F,iech, ilayer);
 
   /* Increment the number of records by 1 */
 
@@ -8855,7 +8855,7 @@ static void st_print_db_constraints(const char *title,
       lower = db->getLocVariable(ELoc::L,iech, ilayer);
       upper = db->getLocVariable(ELoc::U,iech, ilayer);
       value = db->getLocVariable(ELoc::Z,iech, ilayer);
-      drift = db->getExternalDrift(iech, ilayer);
+      drift = db->getLocVariable(ELoc::F,iech, ilayer);
       vgaus = (ydat != nullptr) ? YDAT(ilayer, iech) :
                                   TEST;
       st_print_constraints_per_point(ilayer, iech, value, drift, vgaus, lower,

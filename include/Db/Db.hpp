@@ -132,11 +132,6 @@ public:
                           const VectorInt &ranks = VectorInt(),
                           bool verbose = false);
 
-  DbGrid* coveringDb(const VectorInt& nodes = VectorInt(),
-                     const VectorDouble& dcell = VectorDouble(),
-                     const VectorDouble& origin = VectorDouble(),
-                     const VectorDouble& margin = VectorDouble()) const;
-
   const VectorDouble& getArrays() const { return _array; }
 
   String getNameByLocator(const ELoc& locatorType, int locatorIndex=0) const;
@@ -158,9 +153,6 @@ public:
 
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
-  double getColumnSize(bool useSel = false) const;
-
-  VectorString identifyNames(const VectorString& names) const;
 
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
@@ -169,6 +161,7 @@ public:
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
+  VectorString identifyNames(const VectorString& names) const;
 
   // Locator and UID methods
 
@@ -203,6 +196,7 @@ public:
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                            int locatorIndex = 0,
                            bool cleanSameLocator = false);
+
   void addColumnsByVVD(const VectorVectorDouble tab,
                        const String &radix,
                        const ELoc& locatorType,
@@ -223,6 +217,7 @@ public:
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                            int locatorIndex = 0,
                            int nechInit = 0);
+
   int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
                    const String& combine = "set");
@@ -233,6 +228,7 @@ public:
                           const Limits& limits = Limits(),
                           const String& name = "NewSel",
                           const String& combine = "set");
+
   int addSamples(int nadd, double valinit);
   int deleteSample(int e_del);
   int deleteSamples(const VectorInt& e_dels);
@@ -259,7 +255,6 @@ public:
   void setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bool useSel = false);
   void setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByUID(int iuid_in, int iuid_out);
-
 
   VectorVectorDouble getItem(const VectorInt& rows,
                              const VectorString& colnames,
@@ -379,12 +374,10 @@ public:
 
   /**
    * \defgroup DbLoc Db: Get and Set functions by Locator
-   * \brief Various functions for accessing fields of the Db using the locator designation, such as:
-   * \li getLocNumber: check the number of fields corresponding to the target locator
-   * \li hasLocVariable: check if there is at least one field corresponding to the target locator
-   * \li getLocVariable: Get the value of the field corresponding to the target locator and the target sample
-   * \li setLocVariable: Set the value of the field corresponding to the target locator and the target sample
-   * \li updLocVariable: Update the value of the field corresponding to the target locator and the target sample
+   *
+   * Various functions for accessing fields of the Db using the **locator** designation.
+   * They use the argument 'loctype' which refers to the Locator type (see ELoc enumeration).
+   * In most cases, they also refer to 'item' i.e. the rank (0 based) for the target locator.
    *
    * @param loctype Target locator
    *  @{
@@ -396,47 +389,39 @@ public:
   void   updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value);
   /**@}*/
 
-  void   setVariable(int iech, int item, double value);
-
   bool   isVariableNumberComparedTo(int nvar, int compare = 0) const;
   bool   isIsotopic(int iech, int nvar_max = -1) const;
   bool   isAllUndefined(int iech) const;
 
-  void   setIntervals(int iech, int item, double rklow, double rkup);
+  void   setInterval(int iech, int item, double rklow = TEST, double rkup = TEST);
   int    getIntervalNumber() const;
-  void   setBounds(int iech, int item, double lower, double upper);
+  void   setBound(int iech, int item, double lower = TEST, double upper = TEST);
   VectorDouble getWithinBounds(int item, bool useSel = false) const;
-  VectorDouble getGradients(int item, bool useSel = false) const;
-  VectorDouble getTangents(int item, bool useSel = false) const;
+  VectorDouble getGradient(int item, bool useSel = false) const;
+  VectorDouble getTangent(int item, bool useSel = false) const;
+  VectorDouble getCodeList(void);
 
   int    getSelection(int iech) const;
-  void   setSelection(int iech, int value);
-  VectorDouble getSelection(void) const;
+  VectorDouble getSelections(void) const;
   VectorInt getSelectionRanks() const;
 
   double getWeight(int iech) const;
-  void   setWeight(int iech, double value);
-  VectorDouble getWeight(bool useSel = false) const;
+  VectorDouble getWeights(bool useSel = false) const;
 
-  double getExternalDrift(int iech, int item) const;
-  void   setExternalDrift(int iech, int item, double value);
-
-  double getBlockExtension(int iech, int item) const;
-  void   setBlockExtension(int iech, int item, double value);
-
-  double getCode(int iech) const;
-  void   setCode(int iech, double value);
-  VectorDouble getCodeList(void);
-
-  double getVarianceError(int iech, int item) const;
-  void   setVarianceError(int iech, int item, double value);
-
-  int    getDomain(int iech) const;
-  void   setDomain(int iech, int value);
-
-  double getDate(int iech) const;
-  void   setDate(int iech, double value);
-
+  /**
+   * \defgroup DbSimuRank Db: Variable designation (used for simulations in particular)
+   *
+   * These functions allow designation of columns which contain the results of one simulation
+   * for one variable in particular.
+   *
+   * @param isimu Rank of the simulation (0-based)
+   * @param ivar Rank of the variable (0-based)
+   * @param icase Rank of the GRF / PGS
+   * @param nbsimu Number of simulations
+   * @param nvar Number of variables
+   *
+   *  @{
+   */
   int getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
   double getSimvar(const ELoc& locatorType,
                    int iech,
@@ -462,8 +447,10 @@ public:
                  int nvar,
                  int oper,
                  double value);
+  /**@}*/
 
   bool isActive(int iech) const;
+  bool isActiveDomain(int iech) const;
   bool isActiveAndDefined(int iech, int item) const;
   int  getActiveAndDefinedNumber(int item) const;
   int  getActiveAndDefinedNumber(const String& name) const;
@@ -472,6 +459,24 @@ public:
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 
+  /**
+   * \defgroup DbColumn Db: Reading one or several Columns
+   *
+   * The **column** refers to one element of the Db (which can be viewed as an Excel spread sheet).
+   * Each variable stands as a column of this table: it is also attached a 'name' (which will serve
+   * as the name of the variable) and a possible 'locator' (which characterizes the role of the
+   * variable, e.g; coordinate, variable, code, ...).
+   * These functions can refer to a single column or to several of them.
+   * The columns can be referred to by the variable name, the column index, the internal Id (UID) or the locator.
+   * @param useSel Option when reading a masked sample:
+   * \li TRUE: the contents of the masked samples is set to TEST
+   * \li FALSE: the masked samples are returned with no impact of the selection
+   * @param flagCompress Option when reading a masked sample:
+   * \li TRUE: the returned array is compressed to the only non-masked samples
+   * \li FALSE: the returned array is not compressed
+   *
+   *  @{
+   */
   VectorDouble getColumn(const String &name,
                          bool useSel = false,
                          bool flagCompress = true) const;
@@ -504,7 +509,6 @@ public:
                                           int icol_end,
                                           bool useSel = false,
                                           bool flagCompress = true) const;
-
   VectorDouble getColumnsByLocator(const ELoc &locatorType,
                                    bool useSel = false,
                                    bool flagCompress = true) const;
@@ -515,11 +519,16 @@ public:
                                     int iuid_end,
                                     bool useSel = false,
                                     bool flagCompress = true) const;
-  void setAllColumns(const VectorVectorDouble& tabs, bool useSel = false);
+  /**@}*/
 
-  VectorDouble getFFFFs(const VectorString &names = VectorString(),
-                        bool useSel = false) const;
+  void setAllColumns(const VectorVectorDouble& tabs);
 
+  /**
+   * \defgroup DbDelete Db: Deleting one or several Columns.
+   * These Columns are defined by their names, column number of user-identification rank
+   *
+   *  @{
+   */
   void deleteColumn(const String& name);
   void deleteColumnByUID(int iuid_del);
   void deleteColumnByColIdx(int icol_del);
@@ -528,7 +537,16 @@ public:
   void deleteColumnsByLocator(const ELoc& locatorType);
   void deleteColumnsByUID(const VectorInt& iuids);
   void deleteColumnsByColIdx(const VectorInt& icols);
+  /**@}*/
 
+  /**
+    * \defgroup DbStatsCoor Db: Spatial characteristics on the Db
+    * Calculate spatial characteristics on the Db.
+    *
+    * @param useSel When TRUE, the characteristics are derived from the only active samples
+    *
+    *  @{
+    */
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   VectorVectorDouble getExtremas(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
@@ -537,8 +555,17 @@ public:
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenters(bool useSel = false) const;
-  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi);
+  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false);
+  /**@}*/
 
+  /**
+     * \defgroup DbStats Db: Statistics based on active variable(s)
+     * Calculate some basic statistics on variables stored in a Db.
+     *
+     * @param useSel When TRUE, the statistics are derived from the only active samples
+     *
+     *  @{
+     */
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;
   VectorDouble getRange(const String& name, bool useSel = false) const;
@@ -546,18 +573,25 @@ public:
   double getVariance(const String& name, bool useSel = false) const;
   double getStdv(const String& name, bool useSel = false) const;
   double getCorrelation(const String& name1, const String& name2,bool useSel = false) const;
+  /**@}*/
 
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
 
-  // Functions for checking validity of parameters
-
+  /**
+     * \defgroup DbTest Db: Validity checks for various parameters
+     * These functions are used in order to check that the arguments are valid
+     * (such as the sample rank, the locator type, the user-designation rank)
+     *
+     *  @{
+     */
   bool isColIdxValid(int icol) const;
   bool isUIDValid(int iuid) const;
   bool isSampleIndexValid(int iech) const;
   bool isSampleIndicesValid(const VectorInt& iechs, bool useSel = false) const;
   bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
+  /**@}*/
 
   void combineSelection(VectorDouble& sel, const String& combine = "set") const;
 
@@ -566,7 +600,29 @@ public:
   VectorInt shrinkToValidRows(const VectorInt& rows);
   VectorInt shrinkToValidCols(const VectorInt& cols);
 
-  // Statistics
+  /**
+     * \defgroup DbStatistics Db: Calculate several statistics in Db
+     *
+     * These functions are meant to calculate several statistics on a set of target variables per sample.
+     * The resulting values are stored in variables newly created in the same Db.
+     *
+     * @param opers Vector of operations to be performed
+     * @param flagIso The statistics are calculated only for samples where all target variables have defined values
+     * @param flagStoreInDb When TRUE, the results are stored in the Db; otherwise the statistics are returned
+     * @param verbose Verbose flag
+     * @param proba              For 'quant': the quantile for this probability is calculated
+     * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
+     * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
+     * @param title              If verbose, the title of the printed statistics.
+     * @param namconv            Naming Convention used as a radix for the variables newly created in the Db
+     * (only used when 'flagStoreInDb' is TRUE)
+     *
+     * @return If 'flagStoreInDb' is FALSE, the function returns a vector containing the statistics.
+     * @return If there is more than one operator and more than one variable, the statistics are ordered first by variables
+     * (all the statistics of the first variable, then all the statistics of the second variable...).
+     *
+     *  @{
+     */
   VectorDouble statistics(const VectorString& names,
                           const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                           bool flagIso = true,
@@ -597,6 +653,22 @@ public:
                                double vmax = TEST,
                                const String& title = "",
                                const NamingConvention& namconv = NamingConvention("Stats"));
+  /**@}*/
+
+  /**
+      * \defgroup DbMultiStatistics Db: Calculate correlations on variables of a Db
+      *
+      * These functions calculate the correlation matrix based on a set of variables contained in a Db.
+      * Although the result stands as a matrix, they are returned as a Vector.
+      *
+      * @param flagIso The statistics are calculated only for samples where all target variables have defined values
+      * @param verbose Verbose flag
+      * @param title If verbose, the title of the printed statistics.
+      *
+      * @return These functions return a vector containing the correlation matrix.
+      *  @{
+      */
+
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
                                bool verbose = false,
@@ -605,6 +677,8 @@ public:
                                     bool flagIso = true,
                                     bool verbose = false,
                                     const String& title = "");
+  /**@}*/
+
   bool areSame(const String& name1,
                const String& name2,
                double eps = EPSILON3,

@@ -368,11 +368,11 @@ double KrigingSystem::_getFext(int rank, int ibfl) const
 {
   if (rank >= 0)
   {
-    return _dbin->getExternalDrift(rank, ibfl);
+    return _dbin->getLocVariable(ELoc::F,rank, ibfl);
   }
   else
   {
-    return _dbout->getExternalDrift(_iechOut, ibfl);
+    return _dbout->getLocVariable(ELoc::F,_iechOut, ibfl);
   }
 }
 
@@ -434,11 +434,11 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
 {
   if (rank >= 0)
   {
-    return _dbin->getVarianceError(rank, ivar);
+    return _dbin->getLocVariable(ELoc::V,rank, ivar);
   }
   else
   {
-    return _dbout->getVarianceError(_iechOut, ivar);
+    return _dbout->getLocVariable(ELoc::V,_iechOut, ivar);
   }
 }
 double KrigingSystem::_getMean(int ivarCL) const
@@ -815,16 +815,16 @@ void KrigingSystem::_lhsCalcul()
           double verr = 0.;
           if (_flagCode)
           {
-            int code1 = (int) _dbin->getCode(_nbgh[iech]);
-            int code2 = (int) _dbin->getCode(_nbgh[jech]);
+            int code1 = (int) _dbin->getLocVariable(ELoc::C,_nbgh[iech],0);
+            int code2 = (int) _dbin->getLocVariable(ELoc::C,_nbgh[jech],0);
             if (code1 != 0 && code2 != 0 && code1 == code2)
-              verr = _dbin->getVarianceError(_nbgh[iech], 0);
+              verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], 0);
           }
           else
           {
             if (iech == jech)
             {
-              verr = _dbin->getVarianceError(_nbgh[iech], ivar);
+              verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], ivar);
 
               if (_neighParam->getFlagContinuous())
               {
@@ -1237,7 +1237,7 @@ void KrigingSystem::_wgtDump(int status)
       for (int idim = 0; idim < ndim; idim++)
         tab_printg(NULL, _getIdim(_nbgh[iech], idim));
       if (_dbin->hasLocVariable(ELoc::C))
-        tab_printg(NULL, _dbin->getCode(_nbgh[iech]));
+        tab_printg(NULL, _dbin->getLocVariable(ELoc::C,_nbgh[iech],0));
       if (_dbin->getLocNumber(ELoc::V) > 0)
         tab_printg(NULL, _getVerr(_nbgh[iech], (_flagCode) ? 0 : jvarCL));
       if (ndisc > 0)
@@ -1246,7 +1246,7 @@ void KrigingSystem::_wgtDump(int status)
           if (! _flagPerCell)
             tab_printg(NULL, dbgrid->getDX(idim));
           else
-            tab_printg(NULL, dbgrid->getBlockExtension(_nbgh[iech], idim));
+            tab_printg(NULL, dbgrid->getLocVariable(ELoc::BLEX,_nbgh[iech], idim));
       }
       if (_rankPGS < 0)
         tab_printg(NULL, _getIvar(_nbgh[iech], jvarCL));
@@ -2221,7 +2221,7 @@ void KrigingSystem::_blockDiscretize()
     for (int idim = ndim - 1; idim >= 0; idim--)
     {
       double taille =
-          (! _flagPerCell) ? dbgrid->getDX(idim) : _dbout->getBlockExtension(_iechOut, idim);
+          (! _flagPerCell) ? dbgrid->getDX(idim) : _dbout->getLocVariable(ELoc::BLEX,_iechOut, idim);
       int nd = _ndiscs[idim];
       nval /= nd;
       int j = jech / nval;

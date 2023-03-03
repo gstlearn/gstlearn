@@ -424,7 +424,7 @@ static int st_selection_per_code(Db *db, int icode, int iptr_sel)
   number = 0;
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    if (IFFFF(icode) || (int) db->getCode(iech) == icode)
+    if (IFFFF(icode) || (int) db->getLocVariable(ELoc::C,iech,0) == icode)
     {
 
       db->setArray(iech, iptr_sel, 1.);

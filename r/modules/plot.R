@@ -361,8 +361,8 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
   ndir = 1
   if (! isNotDef(vario)) ndir = vario$getDirectionNumber()
   nvar = 1
-  if (! isNotDef(vario)) nvar = vario$getLocNumber(ELoc::Z)()
-  if (! isNotDef(model)) nvar = model$getLocNumber(ELoc::Z)()
+  if (! isNotDef(vario)) nvar = vario$getVariableNumber()
+  if (! isNotDef(model)) nvar = model$getVariableNumber()
   cols = get.colors()
   
   idirUtil = selectItems(ndir, idir)
@@ -449,7 +449,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
     env_color='black', env_linetype="dashed", env_size=0.5,
     label=NULL, ...)
 {
-  nvar = vario$getLocNumber(ELoc::Z)()
+  nvar = vario$getVariableNumber()
   
   ivarUtil = selectItems(nvar, ivar)
   jvarUtil = selectItems(nvar, jvar)
@@ -585,7 +585,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   flagTitleDefault = FALSE
   if (is.null(name_color) && is.null(name_size) && is.null(name_label))
   {
-    if (db$getLocNumber(ELoc::Z)() > 0)
+    if (db$getLocNumber(ELoc_Z()) > 0)
       name_size = db$getNameByLocator(ELoc_Z(),0)
     else 
     {
@@ -690,7 +690,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   # The default variable is the first Z-locator one, or the last variable in the file
   if (is.null(name_raster) && is.null(name_contour))
   {
-    if (dbgrid$getLocNumber(ELoc::Z)() > 0)
+    if (dbgrid$getLocNumber(ELoc_Z()) > 0)
       name_raster = dbgrid$getNameByLocator(ELoc_Z(),0)
     else
       # if no Z locator, choose the last field

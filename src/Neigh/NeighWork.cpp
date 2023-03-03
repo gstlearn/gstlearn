@@ -480,7 +480,7 @@ int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
   else
   {
     if (! _dbin->hasLocVariable(ELoc::C)) return 0;
-    if (_dbin->getCode(iech_in) == dbout->getCode(iech_out)) return 1;
+    if (_dbin->getLocVariable(ELoc::C,iech_in,0) == dbout->getLocVariable(ELoc::C,iech_out,0)) return 1;
   }
   return 0;
 }
@@ -755,13 +755,13 @@ void NeighWork::_display(const VectorInt& ranks)
     tab_printi(NULL, nsel + 1);
     tab_printi(NULL, iech + 1);
     if (_dbin->hasLocVariable(ELoc::C))
-      tab_printi(NULL, static_cast<int>(_dbin->getCode(iech)));
+      tab_printi(NULL, static_cast<int>(_dbin->getLocVariable(ELoc::C,iech,0)));
     for (int idim = 0; idim < ndim; idim++)
       tab_printg(NULL, _dbin->getCoordinate(iech, idim));
     if (flag_ext)
     {
       for (int idim = 0; idim < ndim; idim++)
-        tab_printg(NULL, _dbin->getBlockExtension(iech, idim));
+        tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX,iech, idim));
     }
     if (_neighParam->getType() == ENeigh::MOVING)
       tab_printi(NULL, ranks[iech] + 1);

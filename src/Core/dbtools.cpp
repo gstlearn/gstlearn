@@ -1708,7 +1708,7 @@ static int st_grid_fill_calculate(int ipos,
 
   /* Assign the result */
 
-  DB_GRID_FILL->setVariable(ipos, 0, result);
+  DB_GRID_FILL->setLocVariable(ELoc::Z,ipos, 0, result);
   return (0);
 }
 
@@ -5254,7 +5254,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   {
     if (!db->isActive(iech)) continue;
     mes_process("Regularize Wells", ntot, iech);
-    code = db->getCode(iech);
+    code = db->getLocVariable(ELoc::C,iech,0);
 
     // Identify the rank of the code
 
@@ -5784,7 +5784,7 @@ static void st_grid1D_interpolate_linear(Db *dbgrid,
     int k = st_find_interval(x, ndef, X);
     if (k < 0) continue;
     double y = Y[k] + (Y[k + 1] - Y[k]) * (x - X[k]) / (X[k + 1] - X[k]);
-    dbgrid->setVariable(iech, ivar, y);
+    dbgrid->setLocVariable(ELoc::Z,iech, ivar, y);
   }
 }
 
@@ -5866,7 +5866,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
             + Cp[k];
       }
     }
-    dbgrid->setVariable(iech, ivar, y);
+    dbgrid->setLocVariable(ELoc::Z,iech, ivar, y);
   }
   return 0;
 }

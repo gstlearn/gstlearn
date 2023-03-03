@@ -363,7 +363,7 @@ int BooleanObject::_getCoverageAtSample(const Db* db, int iech)
 
 void BooleanObject::_updateCoverageAtSample(Db* db, int iech, int ival)
 {
-  db->setVariable(iech, 1, db->getLocVariable(ELoc::Z,iech, 1) + ival);
+  db->setLocVariable(ELoc::Z,iech, 1, db->getLocVariable(ELoc::Z,iech, 1) + ival);
 }
 
 /*****************************************************************************/

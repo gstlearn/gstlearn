@@ -367,7 +367,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
     // Loop in the current dimension
 
-    exts2 = DBIN->getBlockExtension(it->rank1, idim) / 2.;
+    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
     dsize = KOPTION->dsize[idim];
 
     if (exts2 <= 0. || dsize <= 0.)
@@ -399,7 +399,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
     // Loop in the current dimension
 
-    exts2 = DBIN->getBlockExtension(it->rank2, jdim) / 2.;
+    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank2, jdim) / 2.;
     dsize = KOPTION->dsize[jdim];
 
     if (exts2 <= 0 || dsize <= 0.)
@@ -473,7 +473,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
 
     // Loop in the current dimension
 
-    exts2 = DBIN->getBlockExtension(it->rank1, idim) / 2.;
+    exts2 = DBIN->getLocVariable(ELoc::BLEX,it->rank1, idim) / 2.;
     dsize = KOPTION->dsize[idim];
 
     if (exts2 <= 0. || dsize <= 0.)
@@ -577,11 +577,11 @@ static double st_get_verr(int rank, int ivar)
 
   if (rank >= 0)
   {
-    value = DBIN->getVarianceError(rank, ivar);
+    value = DBIN->getLocVariable(ELoc::V,rank, ivar);
   }
   else
   {
-    value = DBOUT->getVarianceError(IECH_OUT, ivar);
+    value = DBOUT->getLocVariable(ELoc::V,IECH_OUT, ivar);
   }
   return (value);
 }
@@ -1020,7 +1020,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
     nval = ntot;
     for (idim = ndim - 1; idim >= 0; idim--)
     {
-      taille = (mode == 0) ? dbgrid->getDX(idim) : DBOUT->getBlockExtension(iech, idim);
+      taille = (mode == 0) ? dbgrid->getDX(idim) : DBOUT->getLocVariable(ELoc::BLEX,iech, idim);
       nd = KOPTION->ndisc[idim];
       nval /= nd;
       j = jech / nval;
@@ -1433,13 +1433,13 @@ static void krige_wgt_print(int status,
       for (idim = 0; idim < ndim; idim++)
         tab_printg(NULL, st_get_idim(nbgh_ranks[iech], idim));
       if (DBIN->hasLocVariable(ELoc::C))
-        tab_printg(NULL, DBIN->getCode(nbgh_ranks[iech]));
+        tab_printg(NULL, DBIN->getLocVariable(ELoc::C,nbgh_ranks[iech],0));
       if (DBIN->getLocNumber(ELoc::V) > 0)
         tab_printg(NULL, st_get_verr(nbgh_ranks[iech], (FLAG_PROF) ? 0 : jvar_m));
       if (KOPTION->flag_data_disc)
       {
         for (idim = 0; idim < ndim; idim++)
-          tab_printg(NULL, DBIN->getBlockExtension(nbgh_ranks[iech], idim));
+          tab_printg(NULL, DBIN->getLocVariable(ELoc::BLEX,nbgh_ranks[iech], idim));
       }
       if (icase < 0)
         tab_printg(NULL, st_get_ivar(nbgh_ranks[iech], jvar_m));

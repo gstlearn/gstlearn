@@ -396,7 +396,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
         hmax = vario.getHmax(ivar, jvar, idir)
         
     ndir = vario.getDirectionNumber()
-    nvar = vario.getLocNumber(ELoc::Z)()
+    nvar = vario.getVariableNumber()
     cols = get_cmap(ndir,cmap)
     
     ndirUtil, ivarD = selectItems(ndir, idir)
@@ -751,10 +751,10 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
     
     # Reading the Gradient components
     if db.getNDim() > 1:
-        tabgx = db.getGradients(0,usesel)
-        tabgy = db.getGradients(1,usesel)
+        tabgx = db.getGradient(0,usesel)
+        tabgy = db.getGradient(1,usesel)
     else:
-        tabgy = -db.getGradients(0,usesel)
+        tabgy = -db.getGradient(0,usesel)
         tabgx = -np.ones(len(tabgy))
 
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabgx) <= 0 or len(tabgy) <= 0:
@@ -788,8 +788,8 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
 
     # Extract Tangent information
-    tabtx = db.getTangents(0,usesel)
-    tabty = db.getTangents(1,usesel)
+    tabtx = db.getTangent(0,usesel)
+    tabty = db.getTangent(1,usesel)
 
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabtx) <= 0 or len(tabty) <= 0:
         return None
@@ -846,7 +846,7 @@ def point(db,
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_color is None) and (name_size is None) and (name_label is None):
-        if db.getLocNumber(ELoc::Z)() > 0:
+        if db.getLocNumber(gl.ELoc.Z) > 0:
             name_size = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name_size = db.getLastName()
@@ -1065,7 +1065,7 @@ def grid(dbgrid, name_raster = None, name_contour = None, usesel = True,
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_raster is None) and (name_contour is None):
-        if dbgrid.getLocNumber(ELoc::Z)() > 0:
+        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
             name_raster = dbgrid.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name_raster = dbgrid.getLastName()
@@ -1107,7 +1107,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
         return None
     
     if name is None:
-        if dbgrid.getLocNumber(ELoc::Z)() > 0:
+        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
             name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()

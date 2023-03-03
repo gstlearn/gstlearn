@@ -222,11 +222,11 @@ void simu_func_continuous_scale(Db *db, int verbose, int nbsimu)
   {
     if (!db->isActive(iech)) continue;
     mean = db->getLocVariable(ELoc::Z,iech, 0) / nbsimu;
-    db->setVariable(iech, 0, mean);
+    db->setLocVariable(ELoc::Z,iech, 0, mean);
     stdv = db->getLocVariable(ELoc::Z,iech, 1) / nbsimu - mean * mean;
     stdv = (stdv > 0) ? sqrt(stdv) :
                         0.;
-    db->setVariable(iech, 1, stdv);
+    db->setLocVariable(ELoc::Z,iech, 1, stdv);
   }
 
   /* Optional printout */
@@ -2246,7 +2246,7 @@ int simRI(Db *dbout,
   /* Set the mask to the whole set of grid nodes */
 
   for (iech = 0; iech < nech; iech++)
-    dbout->setSelection(iech, 1);
+    dbout->setLocVariable(ELoc::SEL,iech, 0, 1.);
 
   /* Loop on the cutoff classes */
 
@@ -2274,7 +2274,7 @@ int simRI(Db *dbout,
       simval = dbout->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1);
       if (!FFFF(seuil) && simval >= seuil) continue;
       dbout->setSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 1, (double) (icut + 1));
-      dbout->setSelection(iech, 0);
+      dbout->setLocVariable(ELoc::SEL,iech, 0, 0.);
       count++;
     }
     total += count;

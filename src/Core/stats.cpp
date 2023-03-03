@@ -761,9 +761,9 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 
     /* Store the result */
 
-    dbgrid2->setVariable(iech, 0, result1);
-    dbgrid2->setVariable(iech, 1, result2);
-    dbgrid2->setVariable(iech, 2, result);
+    dbgrid2->setLocVariable(ELoc::Z,iech, 0, result1);
+    dbgrid2->setLocVariable(ELoc::Z,iech, 1, result2);
+    dbgrid2->setLocVariable(ELoc::Z,iech, 2, result);
   }
 
   /* Set the error return code */
