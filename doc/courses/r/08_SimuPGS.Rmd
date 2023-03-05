@@ -69,8 +69,8 @@ Defining the internal function **plot.dat** used to visualize the data set with 
 
 ```{r Internal_Function}
 # TODO: Utiliser CMAP
-plot.setDefault(1, dims=c(6,6))
-p = ggDefault(2)
+plot.setDefaultGeographic(dims=c(6,6))
+p = ggDefaultGeographic()
 p = p + plot(data, name_color="facies", name_size="connect")
 #         edgecolors='black', sizmin=40, cmap=cmap)
 p = p + plot.decoration(title="Conditioning Information")
@@ -122,16 +122,16 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 
 ```{r Show_several_simulation_outcome}
-p1 = ggDefault(2)
+p1 = ggDefaultGeographic()
 p1 = p1 + plot(grid, "SimuPGS.1")
 p1 = p1 + plot(data, name_color="facies", name_size="connect")
-p2 = ggDefault(2)
+p2 = ggDefaultGeographic()
 p2 = p2 + plot(grid, "SimuPGS.2")
 p2 = p2 + plot(data, name_color="facies", name_size="connect")
-p3 = ggDefault(2)
+p3 = ggDefaultGeographic()
 p3 = p3 + plot(grid, "SimuPGS.3")
 p3 = p3 + plot(data, name_color="facies", name_size="connect")
-p4 = ggDefault(2)
+p4 = ggDefaultGeographic()
 p4 = p4 + plot(grid, "SimuPGS.4")
 p4 = p4 + plot(data, name_color="facies", name_size="connect")
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
@@ -231,7 +231,7 @@ err = grid$statistics(c("SimuPGS*"),
 Display
 
 ```{r}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"Stats.MEAN")
 p = p + plot(data,name_color="facies", name_size="connect")
 p = p + plot.decoration(title="Probability of Connecting Wells")

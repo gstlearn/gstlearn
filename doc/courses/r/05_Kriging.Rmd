@@ -104,7 +104,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging Estimation}
 
 ```{r Plot_Ordinary_Kriging}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid, legend.name.raster="°C", zlim=c(0,8))
 p = p + plot.decoration(title="Ordinary Kriging over whole Grid")
 ggPrint(p)
@@ -138,7 +138,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
 \frametitle{Ordinary Kriging - Estimation}
 
 ```{r Ordinary_Kriging_Estimation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid, "OK*estim", legend.name.raster="°C", zlim=c(0.,8.))
 p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
 p = p + plot.decoration(title="Estimation by Ordinary Kriging")
@@ -150,7 +150,7 @@ ggPrint(p)
 \frametitle{Ordinary Kriging - Standard Deviation}
 
 ```{r Ordinary_Kriging_St_Dev}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"OK*stdev", legend.name.raster="°C", zlim=c(0.,1.))
 p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
 p = p + plot.decoration(title="St. dev. by Ordinary Kriging")
@@ -182,7 +182,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
 \frametitle{Simple kriging - Estimation}
 
 ```{r Simple_Kriging_Estimation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"SK*estim",legend.name.raster="°C", zlim=c(0.,8.))
 p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
 p = p + plot.decoration(title="Estimation by Simple Kriging")
@@ -194,7 +194,7 @@ ggPrint(p)
 \frametitle{Simple kriging - Standard Deviation}
 
 ```{r Simple_Kriging_St_Dev}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"SK*stdev",legend.name.raster="°C", zlim=c(0.,1.))
 p = p + plot.point(dat,name_size="January_temp",sizmax=3,color='black')
 p = p + plot.decoration(title="St. dev. by Simple Kriging")
@@ -275,7 +275,7 @@ mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Errors_Display}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"inshore")
 p = p + plot.point(dat,name_size="*esterr",sizmax=3)
 p = p + plot.decoration(title="Cross-Validation scores")
@@ -287,7 +287,7 @@ ggPrint(p)
 \frametitle{Cross-validation}
 
 ```{r Cross_Validation_Absolute_Error}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"inshore")
 p = p + plot.point(dat,name_size="*esterr",sizmax=3,flagAbsSize=TRUE)
 p = p + plot.decoration(title="Cross-Validation scores (abs. value)")
@@ -318,7 +318,7 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=small.neigh,
 
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood_Estimation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"Small*estim",zlim=c(0.,8.), legend.name.raster="°C")
 p = p + plot.point(dat,name_size="January_temp")
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (Small Neigh.)")
@@ -348,7 +348,7 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 \frametitle{Ordinary Kriging (Moving Neighborhood 1)}
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood_Estimation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"Reduced*estim", zlim=c(0.,8.), legend.name.raster="°C")
 p = p + plot.point(dat,name_size="January_temp")
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
@@ -380,7 +380,7 @@ err = kriging(dat,grid,fitmodOK,moving.neigh,
 \frametitle{Ordinary Kriging (Moving Neighborhood 2)}
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_Estimation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"Moving*estim",zlim=c(0.,8.), legend.name.raster="°C")
 p = p + plot.point(dat,name_size="January_temp")
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (Moving Neigh.)")
@@ -392,7 +392,7 @@ ggPrint(p)
 \frametitle{Ordinary Kriging (Moving Neighborhood 2)}
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_stdev}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot.grid(grid,"Moving*stdev", zlim=c(0.,1.), legend.name.raster="°C")
 p = p + plot.point(dat,name_size="January_temp")
 p = p + plot.decoration(title="St. dev. by Ordinary Kriging (Moving Neigh.)")

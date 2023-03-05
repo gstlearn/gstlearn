@@ -115,7 +115,7 @@ We concentrate on the variable of interest **P** (completed) in the next operati
 \frametitle{Display P}
 
 ```{r Visualize_P}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid)
 p = p + plot.decoration(title="P after completion")
 ggPrint(p)
@@ -179,7 +179,7 @@ err = krimage(grid,modelP,neigh,namconv=NamingConvention("Mono"))
 \frametitle{Monovariate Factorial Kriging Analysis}
 
 ```{r Visualize_P_after_FKA_monovariate}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid, "Mono*.P")
 p = p + plot.decoration(title="P denoised (monovariate)")
 ggPrint(p)
@@ -251,7 +251,7 @@ Note that, using the same **neigh** as in monovariate, the dimension of the Krig
 \frametitle{Multivariable Factorial Kriging Analysis}
 
 ```{r Visualize_P_after_FKA_multivariate}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"Multi*.P", zlim=c(0,150))
 p = p + plot.decoration(title="P denoised (multivariate)")
 ggPrint(p)

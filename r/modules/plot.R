@@ -42,7 +42,17 @@ isNotDef <- function(arg)
   return (FALSE)
 }
 
-plot.setDefault <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
+plot.setDefaultGeographic <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
+{
+  plot.setDefaultInternal(2, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
+}
+
+plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
+{
+  plot.setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
+}
+
+plot.setDefaultInternal <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
   if (!isNotDef(dims))
     plot.default_dims[[mode]] = dims
@@ -135,17 +145,20 @@ ggPrint <- function(p, flag_suppress_warnings = TRUE)
   invisible()
 }
 
-ggDefault <- function(mode = 1)
+ggDefaultGeographic <- function()
 {
   p <- ggplot()
-  
-  if (mode == 1)
-    p <- p + plot.geometry(asp= plot.default_asp[mode])
-  else
-    p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
+  p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
         xlim=plot.default_xlim[[mode]], 
         ylim=plot.default_ylim[[mode]], 
         asp=plot.default_asp[mode])
+  p
+}
+
+ggDefault <- function()
+{
+  p <- ggplot()
+  p <- p + plot.geometry(asp= plot.default_asp[mode])
   p
 }
 

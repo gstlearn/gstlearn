@@ -112,7 +112,7 @@ err = kriging(dat, grid, fitmodgauss, neighU)
 \framesubtitle{Estimation}
 
 ```{r}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"*estim")
 p = p + plot(dat)
 p = p + plot.decoration(title="Kriging of Gaussian scores")
@@ -125,7 +125,7 @@ ggPrint(p)
 \framesubtitle{Standard Deviation}
 
 ```{r Kriging_Gaussian_scores_stdev}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"*stdev")
 p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title="St. Dev. of Gaussian scores")
@@ -150,7 +150,7 @@ err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
 \frametitle{Conditional expectation}
 
 ```{r Display_Conditional_Expectation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"CE*estim")
 p = p + plot(dat)
 p = p + plot.decoration(title = "Conditional Expectation")
@@ -162,7 +162,7 @@ ggPrint(p)
 \frametitle{Conditional Standard Deviation}
 
 ```{r Conditional_Standard_Deviation}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid, "CE*stdev")
 p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title="Conditional Standard Deviation")
@@ -184,7 +184,7 @@ err = ConditionalExpectation(grid, anam, selectivity,
 
 
 ```{r}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"CE.Proba*estim")
 p = p + plot(dat)
 p = p + plot.decoration(title = "Conditional Probability below 0")
@@ -210,7 +210,7 @@ err = ConditionalExpectation(grid, anam, selectivity, "K*.estim", "K*.stdev",
 \framesubtitle{Estimation}
 
 ```{r}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid,"CE.T*estim-1")
 p = p + plot(dat)
 p = p + plot.decoration(title = "Conditional Probability above 1")
@@ -223,7 +223,7 @@ ggPrint(p)
 \framesubtitle{Standard Deviation}
 
 ```{r Final_Histogram}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(grid, "CE.T*stdev-1")
 p = p + plot(dat, flagCst=TRUE)
 p = p + plot.decoration(title = "Conditional probability (Standard Deviation)")

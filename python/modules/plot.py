@@ -12,6 +12,7 @@ from numpy                   import shape
 from pandas.io               import orc
 from plotly.matplotlylib     import mpltools
 import math
+from plotly.validators.layout.scene import aspectratio
 
 #Set of global values
 default_dims = [[5,5], [8,8]]
@@ -19,7 +20,13 @@ default_xlim = [ None, None ]
 default_ylim = [ None, None ]
 default_aspect = [ 'auto', 1 ]
 
-def setDefault(mode, dims=None, xlim=None, ylim=None, aspect=None):
+def setDefaultGeographic(dims=None, xlim=None, ylim=None, aspect=None):
+    setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
+    
+def setDefault(dims=None, xlim=None, ylim=None, aspect=None):
+    setDefaultInternal(0, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
+
+def setDefaultInternal(mode, dims=None, xlim=None, ylim=None, aspect=None):
     global default_dims
     global default_xlim
     global default_ylim

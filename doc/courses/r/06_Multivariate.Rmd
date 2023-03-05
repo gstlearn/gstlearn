@@ -50,14 +50,14 @@ knitr::kable(tab$toTL(), caption = "Statistics on the grid", digits=3)
 ## Observations
 
 ```{r maps-elevation-1, echo=FALSE}
-plot.setDefault(1, dims=c(8,8))
-ggDefault(2) + plot(dat, name_color="Elevation")
+plot.setDefaultGeographic(dims=c(8,8))
+ggDefaultGeographic() + plot(dat, name_color="Elevation")
 ```
 
 ## Map of the elevations on Grid
 
 ```{r maps-elevation-2, echo=FALSE}
-ggDefault(2) + plot(target, name_raster="Elevation")
+ggDefaultGeographic() + plot(target, name_raster="Elevation")
 ```
 
 ## Temperature vs. Elevation
@@ -161,7 +161,7 @@ err = kriging(dat, target, fitmod, unique_neigh,
 ```
 
 ```{r Estimation_Ordinary_Kriging_plot, echo=FALSE}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "OK*estim")
 p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature - Ordinary Kriging")
@@ -230,7 +230,7 @@ err = kriging(dat, target, fitmodUK, unique_neigh,
 ```
  
 ```{r Universal_Kriging_stat, echo = FALSE}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "UK*estim")
 p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature - Universal Kriging")
@@ -328,7 +328,7 @@ err = kriging(dat, target, fitmod2var, unique_neigh,
 ```
 
 ```{r Cokriging_plot, echo=FALSE}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "COK.T*estim")
 p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature - CoKriging (with Elevation)")
@@ -424,7 +424,7 @@ err = kriging(dat, target, fitmodR, unique_neigh,
 ```
 
 ```{r residual_kriging_plot, echo=FALSE}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "ROK.Regr*estim")
 p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature Residuals")
@@ -445,7 +445,7 @@ uid = target$addColumns(ROK_estim,"KR.Temperature.estim")
 ```
 
 ```{r residual_estimate_plot, echo=FALSE}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target,"KR.T*estim")
 p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature with Residuals")
@@ -572,7 +572,7 @@ err = kriging(dat, target, modelKED, unique_neigh,
 ```
 
 ```{r Kriging_with_External_Drift_plot, echo=FALSE}
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "KED.T*estim")
 p = p + plot(dat, name_size="Temperature")
 p = p + plot.decoration(title="Temperature with External Drift")

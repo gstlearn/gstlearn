@@ -62,7 +62,7 @@ Use the Turning Bands method with 1 band
 ```{r Unconditional_Simulation_with_1_band}
 err = simtub(dbout=target, model=fitmod, nbtuba=1, seed=12454,
              namconv=NamingConvention("Simu1"))
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "Simu1")
 p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
@@ -78,7 +78,7 @@ Use the Turning Bands method with 10 bands
 ```{r Unconditional_Simulation_with_10_bands} 
 err = simtub(dbout=target, model=fitmod, nbtuba=10, seed=12454,
              namconv=NamingConvention("Simu10"))
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "Simu10")
 p = p + plot.decoration(title="Simulation with 10 Turning Bands")
 ggPrint(p)
@@ -94,7 +94,7 @@ Use the Turning Bands method with 1000 bands
 ```{r Unconditional_Simulation_with_1000_bands}
 err = simtub(dbout=target, model=fitmod, nbtuba=1000, seed=12454,
              namconv=NamingConvention("Simu1000"))
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target,"Simu1000")
 p = p + plot.decoration(title="Simulation with 1000 Turning Bands")
 ggPrint(p)
@@ -132,16 +132,16 @@ target$display()
 
 
 ```{r One_Simulation_Outcome}
-p1 = ggDefault(2)
+p1 = ggDefaultGeographic()
 p1 = p1 + plot(target, "Simu*temp.1")
 p1 = p1 + plot(dat, flagCst=TRUE)
-p2 = ggDefault(2)
+p2 = ggDefaultGeographic()
 p2 = p2 + plot(target, "Simu*temp.2")
 p2 = p2 + plot(dat, flagCst=TRUE)
-p3 = ggDefault(2)
+p3 = ggDefaultGeographic()
 p3 = p3 + plot(target, "Simu*temp.3")
 p3 = p3 + plot(dat, flagCst=TRUE)
-p4 = ggDefault(2)
+p4 = ggDefaultGeographic()
 p4 = p4 + plot(target, "Simu*temp.4")
 p4 = p4 + plot(dat, flagCst=TRUE)
 ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
@@ -213,10 +213,10 @@ err = simtub(dat, target, model=model_ED, neighparam=neighU, nbsimu=nbsimu,
 ```
 
 ```{r}
-p1 = ggDefault(2) + plot(target, "Simu*temp.1")
-p2 = ggDefault(2) + plot(target, "Simu*temp.2")
-p3 = ggDefault(2) + plot(target, "Simu*temp.3")
-p4 = ggDefault(2) + plot(target, "Simu*temp.4")
+p1 = ggDefaultGeographic() + plot(target, "Simu*temp.1")
+p2 = ggDefaultGeographic() + plot(target, "Simu*temp.2")
+p3 = ggDefaultGeographic() + plot(target, "Simu*temp.3")
+p4 = ggDefaultGeographic() + plot(target, "Simu*temp.4")
 ggarrange(p1,p2,p3,p4,ncol=2,nrow=2)
 ```
 
@@ -251,7 +251,7 @@ err = target$statistics(c("Simu.January_temp*"),
                         flagStoreInDb=TRUE,
                         namconv=NamingConvention("Proba"))
 
-p = ggDefault(2)
+p = ggDefaultGeographic()
 p = p + plot(target, "Proba.MEAN", show.legend.raster=TRUE, legend.name.raster="Probability")
 p = p + plot.decoration(title="Probability for positive Temperatures")
 ggPrint(p)
