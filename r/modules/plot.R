@@ -141,13 +141,13 @@ ggPrint <- function(p, flag_suppress_warnings = TRUE)
     suppressWarnings(plot(p))
   else
     plot(p)
-  
   invisible()
 }
 
 ggDefaultGeographic <- function()
 {
   p <- ggplot()
+  mode = 2
   p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
         xlim=plot.default_xlim[[mode]], 
         ylim=plot.default_ylim[[mode]], 
@@ -158,6 +158,7 @@ ggDefaultGeographic <- function()
 ggDefault <- function()
 {
   p <- ggplot()
+  mode = 1
   p <- p + plot.geometry(asp= plot.default_asp[mode])
   p
 }
@@ -515,7 +516,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
       # Define the current plot
       index = index + 1
       
-      g = ggDefault(1)
+      g = ggDefault()
       
       if (ivar < jvar)
       {

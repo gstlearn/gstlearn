@@ -1,5 +1,5 @@
 ---
-title: "Tutorial on Polygons"
+title: "Tutorial Graphics"
 author: "D. Renard"
 date: "5 february 2023"
 output:
@@ -15,222 +15,122 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-
-plot.printDefault()
 ```
 
-We define the Space dimension
+This chapter gives some demonstration on the various possibilities offered by the Polygon class.
+Remember that the Polygon is an item which is specifically defined in 2-D space. However an extension to 3-D space has been programmed: the polyhedron is regarded as a 3-D object with a polygonal trace in the 2-D plane and a limite extension along the third direction. 
+
+In this tutorial, we concentrate on the 2-D case.
 
 ```{r}
 defineDefaultSpace(ESpaceType_RN(), 2)
 ```
 
-Creating a dummy Model used for simulating a random field
+To visualize the impact of the polygons, it is usual to check its impact on a Db (a Grid one makes the demonstration more efficient).
+Moreover it makes sense to generate a variable which presents some spatial continuity on this grid, such as a variable created by simulation.
 
 ```{r}
-mymodel = Model_createFromParam(ECov_CUBIC(), range=10, sill=1)
+mygrid = DbGrid_create(nx=c(150,100),dx=c(1,1))
+mymodel = Model_createFromParam(ECov_CUBIC(), range=30, sill=1)
+err = simtub(NULL,mygrid,mymodel)
 ```
 
-# Grid representations
-
-## Standard Grid
-
-We construct a standard non rotated 2-D grid with two simulated variables
+The variable (called *Simu*) defined on the grid is visualized first.
 
 ```{r}
-nx = c(70,25)
-dx = c(1,2)
-x0 = c(-40, 20)
-mygrid = DbGrid_create(nx,dx,x0)
-
-err = simtub(NULL,mygrid,mymodel,nbsimu=2)
-mygrid$display()
+ggplot() + plot.grid(mygrid, palette="inferno")
 ```
 
-We construct a Selection
+We now define the items of the PolyGon class.
+Let us recall that a polygon is a set of Polysets. Each polyset is defined by a series of 2-D points which serve as vertices. The polyset can be closed or not (it will be closed automatically if necessary, depending on its usage).
+The Polygon (in broad sense) can be used essentially;
+- for visualization purpose
+- to apply a selection on the elements of a Db: we will apply it on the nodes of our grid for demonstration sake.
+
+Let us start by a simple polygon constituted of a single polyset.
 
 ```{r}
-mygrid["sel"] = 1. - 
-  (mygrid["x1"] > 0) * (mygrid["x1"] < 15) * (mygrid["x2"] > 40) * (mygrid["x2"] < 50)
-err = mygrid$setLocator("sel",ELoc_SEL())
+polygon = Polygons()
+polyset1 = PolySet(x=c(40, 75, 100, 15), y = c(25, 10, 75, 60))
+polygon$addPolySet(polyset1)
+```
+
+Displaying the contents of the polygon:
+
+- sort output
+
+```{r}
+polygon$display()
+```
+
+- more lengthy printout
+
+```{r}
+polygon$display(AStringFormat(level=2))
+```
+
+Some nice features are available such as:
+
+```{r}
+polygon$getSurface()
+```
+
+We can now overlay the polygon (filled in "yellow") on top of the grid
+
+```{r}
+p = ggplot()
+p = p + plot.grid(mygrid, palette="inferno")
+p = p + plot.polygon(polygon, fill="yellow")
+ggPrint(p)
+```
+
+More interesting is to use this polygon in order to create a selection on the grid nodes. Then the only nodes lying within the polygon will be considered as active.
+
+```{r}
+db_polygon(mygrid, polygon)
 mygrid
 ```
 
-Displaying the grid cells
+Displaying the grid (taking the selection into account) is performed now. Note that the polygon is overlaid again but in a transparent mode
 
 ```{r}
-p = ggDefault(2)
-p = p + plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
-              show.legend.raster=TRUE, legend.name.raster="ma Legende")
-p = p + plot.decoration(title="Display of Grid Cells")
+p = ggplot()
+p = p + plot.grid(mygrid, palette="inferno")
+p = p + plot.polygon(polygon, fill=NA, color="yellow", linewidth=2)
 ggPrint(p)
 ```
 
-Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'na.values' serves for encoding pixels whose values have been left undefined.
+Let us make the polygon more complex by adding other polysets which partly overlay each one another.
 
 ```{r}
-ggDefault(2) + plot.grid(mygrid, palette=c("yellow","red","blue"), na.value="white")
+polyset2 = PolySet(x=c(50, 100, 100, 50), y=c(30, 30, 55, 55))
+polygon$addPolySet(polyset2)
+polyset3 = PolySet(x=c(25, 100, 55), y=c(25,25, 80))
+polygon$addPolySet(polyset3)
+polygon$display(AStringFormat(level=2))
 ```
 
-Displaying the grid nodes only
+In the following figure, we display the edges of the different polysets
 
 ```{r}
-p = ggDefault(2)
-p = p + plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", 
-                   show.legend.symbol = TRUE,
-                   legend.name.color="myColor")
-p = p + plot.decoration(title="Display of Grid Nodes")
-ggPrint(p)
+ggplot() + plot.polygon(polygon, fill=NA)
 ```
 
-## Rotated grid
+Obviously, the three polysets of the polygon overlay. So the impact of using this polygon for selection will be interesting.
+
+In this first example, the selection algorithm is quite simple:
+*a grid node is considered as active as soon as it belongs to one of the polysets*
 
 ```{r}
-mygrid = DbGrid_create(nx,dx,x0,angles=c(10,0))
-err = simtub(NULL,mygrid,mymodel,nbsimu=2)
-mygrid
+db_polygon(mygrid, polygon)
+ggplot() + plot.grid(mygrid, palette="inferno")
 ```
 
-Displaying the cell contents in the rotated grid
+In the second example:
+* a grid node is considered as active if the number of polysets to which it belongs is odd*.
+This feature enables a polygon to contain **holes** as demonstrated in the next example
 
 ```{r}
-p = ggDefault(2)
-p = p + plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
-p = p + plot.decoration(title="Display of Rotated Grid")
-ggPrint(p)
+db_polygon(mygrid, polygon, flag_nested=TRUE)
+ggplot() + plot.grid(mygrid, palette="inferno")
 ```
-
-As a set of grid nodes
-
-```{r}
-p = ggDefault(2)
-p = p + plot.point(mygrid,name_color="Simu.1", show.legend.symbol = TRUE)
-p = p + plot.decoration(title="Display of Rotated Grid Nodes")
-ggPrint(p)
-```
-
-# Points and Polygon
-
-A set of points is sampled from the previous Grid and stored in a new Point Db. The number of samples if fixed to 1% of the number of grid nodes.
-
-```{r}
-mypoint = Db_createSamplingDb(mygrid,0.01)
-mypoint$display()
-```
-
-We create a polygon as the convex hull of the samples
-
-```{r}
-mypoly = Polygons_createFromDb(mypoint)
-```
-
-We now display the points and the polygon on top of the grid: the overlay is ensured by using the argument 'p'.
-
-```{r}
-p = ggDefault(2)
-p = p + plot(mygrid)
-p = p + plot(mypoly, fill=NA, colour='yellow', linewidth=1)
-p = p + plot(mypoint,color="black")
-p = p + plot.decoration(title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
-ggPrint(p)
-```
-
-# Several plots on the same figure
-
-We create two layers containing the Point and the Grid representation. We then use *ggarrange* to display them side-by-side.
-
-```{r}
-p1 = ggDefault(2) + plot(mygrid)
-p2 = ggDefault(2) + plot(mypoint)
-ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
-```
-
-# Variograms and Models
-
-We calculate the variogram along the two main directions of the 2-D grid. We compute it for the 2 variables currently defined in the Grid file.
-
-```{r}
-varioparam = VarioParam_createMultipleFromGrid(npas=10)
-vario = Vario(varioparam, mygrid)
-err = vario$compute(ECalcVario_VARIOGRAM())
-```
-
-We fit a Model (automatic procedure)
-
-```{r}
-model = Model()
-err = model$fit(vario,type=ECov_fromKeys(c("SPHERICAL", "CUBIC")))
-```
-
-We display the experimental variogram for the first variable in the first direction.
-
-```{r}
-ggplot() + plot(model)
-```
-
-```{r}
-p = ggDefault(1)
-p = p + plot(vario, draw_psize=-1, color="red")
-p = p + plot.decoration(title="First Variable - First Direction")
-ggPrint(p)
-```
-
-We display the experimental variogram for the first variable in the second direction.
-
-```{r}
-p = ggDefault(1)
-p = p + plot(vario, idir=1)
-p = p + plot.decoration(title="First Variable - Second Direction")
-ggPrint(p)
-```
-
-We simply overlay the contents of the two previous plots.
-
-```{r}
-p = ggDefault(1)
-p = p + plot(vario, color="black")
-p = p + plot(vario, idir=1, color='red')
-p = p + plot.decoration(title="First Variable - Two directions")
-ggPrint(p)
-```
-
-We display the cross-variogram between both variables along both directions.
-
-```{r}
-p = ggDefault(1)
-p = p + plot(vario, ivar=1, jvar=0, idir=-1)
-p = p + plot.decoration(title="Cross-variogram - Two directions")
-ggPrint(p)
-```
-
-We display the simple and cross variograms in both calculation directions.
-
-```{r}
-p = ggDefault(1)
-p = p + plot(vario, ivar=-1, jvar=-1, idir=-1)
-p = p + plot.decoration(title="Simple and Cross Variograms in all directions")
-ggPrint(p)
-```
-
-We display the Model as calculated in the first direction of the variogram
-
-```{r}
-p = ggDefault(1)
-p = p + plot(model, ivar=1, jvar=1, vario=vario, idir=0)
-p = p + plot.decoration(title="Model for the Second Variable in First Direction")
-ggPrint(p)
-```
-
-We now represent all the simple and cross variograms together with the fitted models.
-
-```{r}
-p = ggDefault(1)
-p = p + plot.varmod(vario, model)
-p = p + plot.decoration(title="All variograms in First Direction")
-ggPrint(p)
-```
-
-```{r}
-multi.varmod(vario=vario, model=model)
-```
-
