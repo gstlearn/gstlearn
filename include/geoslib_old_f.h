@@ -1058,9 +1058,7 @@ GSTLEARN_EXPORT int expand_point_to_grid(Db *db_point,
                                          int ldmax,
                                          const VectorDouble &dmax,
                                          VectorDouble &tab);
-GSTLEARN_EXPORT int db_center_point_to_grid(Db *db_point,
-                                            DbGrid *db_grid,
-                                            double eps_random = EPSILON6);
+
 GSTLEARN_EXPORT int interpolate_variable_to_point(DbGrid *db_grid,
                                                   int iatt,
                                                   int np,

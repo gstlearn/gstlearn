@@ -83,6 +83,9 @@ GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db,
                                               bool verbose = false);
 GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
                                                         const String &pattern);
+GSTLEARN_EXPORT int db_center_point_to_grid(Db *db_point,
+                                            DbGrid *db_grid,
+                                            double eps_random = EPSILON6);
 
 /***************************/
 /* Functions for Variogram */
