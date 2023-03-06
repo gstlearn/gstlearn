@@ -42,7 +42,7 @@ print(a["newvar*"])
 a$setLocators(c("newvar*"), ELoc_Z())
 print(a[c("var2","z*")])
 
-# A slice of the set of previous data (samples 1 to 3 include, 1-based)
+# A slice of the set of previous data (samples 1 to 3 included, 1-based)
 print(a[1:3,c("var2","z*")])
 
 #
@@ -92,3 +92,28 @@ matS2 = mat$toTL()
 print(class(matS2))
 print(dim(matS2))
 
+#
+# This part is to demonstrate the use of assessors when manipulating Variogram
+#
+
+print("Testing Vario")
+
+db = DbGrid_create(nx=c(100,100))
+vec1 = VectorHelper_simulateUniform(db$getSampleNumber())
+vec2 = VectorHelper_simulateUniform(db$getSampleNumber())
+err = db$addColumns(vec1,"Simu1",ELoc_Z(),0)
+err = db$addColumns(vec2,"Simu1",ELoc_Z(),1)
+varioparam = VarioParam_createMultipleFromGrid(npas=10)
+vario = Vario_create(varioparam, db)
+err = vario$compute()
+vario$display()
+
+# Reading a value (first direction, first pair of variables, first lag)
+print(vario[1,1,1,1])
+vario[1,1,1,1] = 0.1234
+print(vario[1,1,1,1])
+
+# Printing the first three values (first direction and pair of variables)
+print(vario[0,0,0,1:3])
+# same result as:
+print(vario[1:3])

@@ -129,7 +129,7 @@ We now display the points and the polygon on top of the grid: the overlay is ens
 ```{r}
 p = ggDefaultGeographic()
 p = p + plot(mygrid)
-p = p + plot(mypoly, fill=NA, colour='yellow', linewidth=1)
+p = p + plot(mypoly, fill=NA, color='yellow', linewidth=1)
 p = p + plot(mypoint,color="black")
 p = p + plot.decoration(title="mon titre", xlab="mon axe des X", ylab="Mon axe des Y")
 ggPrint(p)

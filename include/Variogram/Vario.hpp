@@ -124,6 +124,12 @@ public:
   VectorDouble getSwVec(int idir = 0, int ivar = 0, int jvar = 0) const;
   VectorDouble getUtilizeVec(int idir = 0, int ivar = 0, int jvar = 0) const;
 
+  VectorDouble getGgs(int idir = 0,
+                      int ivar = 0,
+                      int jvar = 0,
+                      const VectorInt &ipas = VectorInt()) const;
+  VectorDouble setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, const VectorDouble& values);
+
   const VectorDouble& getAllGg(int idir = 0) const;
   const VectorDouble& getAllHh(int idir = 0) const;
   const VectorDouble& getAllSw(int idir = 0) const;

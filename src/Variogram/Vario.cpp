@@ -2051,3 +2051,36 @@ bool Vario::drawOnlyPositiveY(int ivar, int jvar) const
   if (ivar == jvar && ! getFlagAsym()) return true;
   return false;
 }
+
+VectorDouble Vario::getGgs(int idir, int ivar, int jvar, const VectorInt& ipas) const
+{
+  VectorDouble values;
+  message("idir=%d ivar=%d jvar=%d\n",idir,ivar,jvar);
+  if (ipas.empty()) return values;
+  if (! _isDirectionValid(idir)) return values;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+  message("dimension = %d\n",(int) ipas.size());
+
+  for (int i = 0; i < (int) ipas.size(); i++)
+  {
+    message("ipas = %d\n",ipas[i]);
+    if (ipas[i] >= 0 && ipas[i] < getDirSize(idir)) values.push_back(getGg(idir,ivar,jvar,ipas[i]));
+  }
+  return values;
+}
+
+VectorDouble Vario::setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, const VectorDouble& values)
+{
+  if (ipas.empty()) return values;
+  if (values.empty()) return values;
+
+  if (! _isDirectionValid(idir)) return values;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  for (int i = 0; i < (int) ipas.size(); i++)
+  {
+    if (ipas[i] >= 0 && ipas[i] < getDirSize(idir) && i < (int) values.size())
+      setGg(idir,ivar,jvar,ipas[i], values[i]);
+  }
+  return values;
+}

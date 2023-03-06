@@ -1068,3 +1068,4 @@ VectorDouble VectorHelper::crossProduct(const VectorDouble &veca,
   res.push_back(veca[0] * vecb[1] - veca[1] * vecb[0]);
   return res;
 }
+
