@@ -581,45 +581,16 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
   namcol
 }
 
-"analyzeArguments" <- function(i="", j="", k="", k2="", ..., nargs_req=0)
-{
-    args = list()
-    if (i != "")
-    {
-    	args = append(args, list(i))
-    }
-    if (j != "")
-    {
-    	args = append(args, list(j))
-    }
-    if (k != "")
-    {
-    	args = append(args, list(k))
-    }
-    if (k2 != "")
-    {
-    	args = append(args, list(k2))
-    }
-    
-    nargs = length(args)
-	if (nargs_req > 0 && nargs != nargs_req)
-	{
-		cat("Number of arguments required = ",nargs_req,"\n")
-		cat("Number of arguments provided = ",nargs,"\n")
-		stop("Argument error")
-	}
- 
-	res = list(nargs=nargs, args=args)
-	res
-}
-
 "getDbitem" <-
 function (x,i,j,...,drop=TRUE)
 {
   db   <- x
-  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)))
-  
-  nargs = res$nargs
+  args = list()
+  if (deparse(substitute(i)) != "") args = append(args, list(i))
+  if (deparse(substitute(j)) != "") args = append(args, list(j))
+  dots = list(...)
+  if (length(dots) > 0) args = append(args, dots)
+  nargs = length(args)
   
   nech_abs = db$getSampleNumber()
   ncol_abs = db$getColumnNumber()
@@ -628,13 +599,13 @@ function (x,i,j,...,drop=TRUE)
   if (nargs == 2) {
   
     # Case of both arguments are defined
-    rows = DbIdentifyRows(db, i)
-    namcols = DbIdentifyCols(db, j)
+    rows = DbIdentifyRows(db, unlist(args[1]))
+    namcols = DbIdentifyCols(db, unlist(args[2]))
     
   } else if (nargs == 1) {
   
     # Case where only one argument in defined: it is the column identification
-    namcols = DbIdentifyCols(db, i)
+    namcols = DbIdentifyCols(db, unlist(args[1]))
   }
   
   isRowUndefined = is.undef(rows)
@@ -668,8 +639,12 @@ function (x,i,j,...,drop=TRUE)
   function (x,i,j,...,value)
 {
   db   <- x
-  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)))
-  nargs = res$nargs
+  args = list()
+  if (deparse(substitute(i)) != "") args = append(args, list(i))
+  if (deparse(substitute(j)) != "") args = append(args, list(j))
+  dots = list(...)
+  if (length(dots) > 0) args = append(args, dots)
+  nargs = length(args)
   
   nech_abs = db$getSampleNumber()
   ncol_abs = db$getColumnNumber()
@@ -681,15 +656,15 @@ function (x,i,j,...,drop=TRUE)
   if (nargs == 2) {
   
     # Both arguments are defined
-    rows = DbIdentifyRows(db, i)
-    namcols = DbIdentifyCols(db, j)
+    rows = DbIdentifyRows(db, unlist(args[1]))
+    namcols = DbIdentifyCols(db, unlist(args[2]))
     new_names = j
 
   } else if (nargs == 1) {
   
     # Only one argument is defined: it corresponds to the column
-    namcols = DbIdentifyCols(db, i)
-    new_names = i
+    namcols = DbIdentifyCols(db, unlist(args[1]))
+    new_names = unlist(args[1])
   }
 
   isRowUndefined = is.undef(rows)
@@ -763,8 +738,15 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 function (x,i,j,...,drop=TRUE)
 {
   table  <- x
-  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)),nargs_req=2)
-  res = table$getValue(i,j)
+  args = list()
+  if (deparse(substitute(i)) != "") args = append(args, list(i))
+  if (deparse(substitute(j)) != "") args = append(args, list(j))
+  dots = list(...)
+  if (length(dots) > 0) args = append(args, dots)
+  nargs = length(args)
+  if (nargs != 2) stop("2 arguments are mandatory")
+  
+  res = table$getValue(unlist(args[1]),unlist(args[2]))
   res
 }
 
@@ -772,8 +754,15 @@ function (x,i,j,...,drop=TRUE)
   function (x,i,j,...,value)
 {
   table   <- x
-  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)),nargs_req=2)
-  table$setValue(i,j,as.numeric(unlist(value)))
+  args = list()
+  if (deparse(substitute(i)) != "") args = append(args, list(i))
+  if (deparse(substitute(j)) != "") args = append(args, list(j))
+  dots = list(...)
+  if (length(dots) > 0) args = append(args, dots)
+  nargs = length(args)
+  if (nargs != 2) stop("2 arguments are mandatory")
+  
+  table$setValue(unlist(args[1]),unlist(args[2]),as.numeric(unlist(value)))
   table
 }
 
@@ -829,7 +818,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "varioArguments" <- function(res)
 {
-  nargs = res$nargs
+  nargs = length(res)
   
   idir = 0
   ivar = 0
@@ -837,25 +826,25 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   ipas = 0
   if (nargs == 1)
   {
-  	ipas = res$args[[1]]
+  	ipas = unlist(res[[1]])
   }
   else if (nargs == 2)
   {
-  	idir = res$args[[1]]
-  	ipas = res$args[[2]]
+  	idir = unlist(res[[1]])
+  	ipas = unlist(res[[2]])
   }
   else if (nargs == 3)
   {
-  	ivar = res$args[[1]]
-  	jvar = res$args[[2]]
-  	ipas = res$args[[3]]
+  	ivar = unlist(res[[1]])
+  	jvar = unlist(res[[2]])
+  	ipas = unlist(res[[3]])
   }
   else if (nargs == 4)
   {
-  	idir = res$args[[1]]
-    ivar = res$args[[2]]
-  	jvar = res$args[[3]]
-  	ipas = res$args[[4]]
+  	idir = unlist(res[[1]])
+    ivar = unlist(res[[2]])
+  	jvar = unlist(res[[3]])
+  	ipas = unlist(res[[4]])
   }
 
   res = list(idir=idir, ivar=ivar, jvar=jvar, ipas=ipas)
@@ -866,18 +855,28 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 function (x,i,j,...,drop=TRUE)
 {
   vario  <- x
-  browser()
-  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)),...)
-  res = varioArguments(res)
-  vario$getGgs(res$idir, res$ivar, res$jvar, res$ipas)
+  args = list()
+  if (deparse(substitute(i)) != "") args = append(args, list(i))
+  if (deparse(substitute(j)) != "") args = append(args, list(j))
+  dots = list(...)
+  if (length(dots) > 0) args = append(args, dots)
+  
+  res = varioArguments(args)
+  values = vario$getGgs(res$idir, res$ivar, res$jvar, res$ipas)
+  values
 }
 
 "setVarioitem" <-
   function (x,i,j,...,value)
 {
   vario <- x
-  res = analyzeArguments(deparse(substitute(i)),deparse(substitute(j)),...)
-  res = varioArguments(res)  
+  args = list()
+  if (deparse(substitute(i)) != "") args = append(args, list(i))
+  if (deparse(substitute(j)) != "") args = append(args, list(j))
+  dots = list(...)
+  if (length(dots) > 0) args = append(args, dots)
+  
+  res = varioArguments(args)  
   vario$setGgs(res$idir, res$ivar, res$jvar, res$ipas, as.numeric(unlist(value)))
   vario
 }
