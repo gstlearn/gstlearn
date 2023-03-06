@@ -2187,9 +2187,9 @@ void Db::setValuesByColIdx(const VectorInt &iechs,
 }
 
 /**
- * \copydoc DbLoc
- *
  * Returns the number of fields corresponding to the target locator present in the Db
+ *
+ * \copydoc DbLoc
  *
  * @return Number of fields
  */
@@ -2200,9 +2200,9 @@ int Db::getLocNumber(const ELoc& loctype) const
 }
 
 /**
- * \copydoc DbLoc
- *
  * Check if there is at least one field corresponding to the target locator
+ *
+ * \copydoc DbLoc
  *
  * @return TRUE if at least one field corresponds to 'loctype' locator; FALSE otherwise
  */
@@ -2213,9 +2213,9 @@ bool Db::hasLocVariable(const ELoc& loctype) const
 }
 
 /**
- * \copydoc DbLoc
- *
  * Get the value of the field corresponding to the target locator (and its target item) at the target sample
+ *
+ * \copydoc DbLoc
  *
  * @param iech    Target sample (0 based)
  * @param item    Rank of the 'loctype' locator (0 based)

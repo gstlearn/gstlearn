@@ -1,25 +1,13 @@
-NULL
-NULL
-
-Polygons
---------
-Number of Polygon Sets = 1
-NULL
-
-Polygons
---------
-Number of Polygon Sets = 1
-
-Polyset #1
-..........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    40.000    25.000
-     [  1,]    75.000    10.000
-     [  2,]   100.000    75.000
-     [  3,]    15.000    60.000
-NULL
-[1] 1325
+Non geographical defaults (mode=1):
+- Figure dimensions = 8 8 
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect (automatic)
+Geographical defaults (mode=2):
+- Figure dimensions = 8 8 
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect = 1 
 NULL
 
 Data Base Grid Characteristics
@@ -31,54 +19,100 @@ File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 5
 Maximum Number of UIDs       = 5
-Total number of samples      = 15000
-Number of active samples     = 3006
+Total number of samples      = 1750
 
 Grid characteristics:
 ---------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        150       100
+Origin :    -40.000    20.000
+Mesh   :      1.000     2.000
+Number :         70        25
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu - Locator = z1
-Column = 4 - Name = Polygon - Locator = sel
-NULL
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
 NULL
 
-Polygons
---------
-Number of Polygon Sets = 3
+Data Base Grid Characteristics
+==============================
 
-Polyset #1
-..........
-Line Vertex Coordinates
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 1750
+Number of active samples     = 1694
+
+Grid characteristics:
+---------------------
+Origin :    -40.000    20.000
+Mesh   :      1.000     2.000
+Number :         70        25
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
+Column = 5 - Name = sel - Locator = sel
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1750
+
+Grid characteristics:
+---------------------
+Origin :    -40.000    20.000
+Mesh   :      1.000     2.000
+Number :         70        25
+Rotation Angles        =     10.000     0.000
+Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]    40.000    25.000
-     [  1,]    75.000    10.000
-     [  2,]   100.000    75.000
-     [  3,]    15.000    60.000
-
-Polyset #2
-..........
-Line Vertex Coordinates
+     [  0,]     0.985     0.174
+     [  1,]    -0.174     0.985
+Inverse Rotation Matrix
                [,  0]    [,  1]
-     [  0,]    50.000    30.000
-     [  1,]   100.000    30.000
-     [  2,]   100.000    55.000
-     [  3,]    50.000    55.000
+     [  0,]     0.985    -0.174
+     [  1,]     0.174     0.985
 
-Polyset #3
-..........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    25.000    25.000
-     [  1,]   100.000    25.000
-     [  2,]    55.000    80.000
-NULL
-NULL
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 17
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
 NULL
