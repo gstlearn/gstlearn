@@ -612,31 +612,32 @@ int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
 
   // Check if all coordinates are defined 
 
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     if (FFFF(coor[idim])) return -1;
 
   // Shift by the origin
 
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
     work1[idim] = coor[idim] - _x0[idim];
 
   // Perform the Inverse rotation
 
- _rotation.rotateDirect(work1,work2);
+  _rotation.rotateDirect(work1, work2);
 
   // Calculate the indices
 
-  for (int idim=0; idim<ndim; idim++)
+  bool outside = false;
+  for (int idim = 0; idim < ndim; idim++)
   {
     int ix;
     if (centered)
       ix = (int) floor(work2[idim] / _dx[idim] + 0.5 + eps);
     else
       ix = (int) floor(work2[idim] / _dx[idim] + eps);
-    if (ix < 0 || ix >= _nx[idim]) return 1;
     indice[idim] = ix;
+    if (ix < 0 || ix >= _nx[idim]) outside = true;
   }
-  return 0;
+  return (int) outside;
 }
 
 int Grid::coordinateToRank(const VectorDouble& coor, bool centered, double eps) const

@@ -196,6 +196,7 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 void PrecisionOpCs::_buildQ()
 {
   if (_Q != nullptr) _Q = cs_spfree(_Q);
+  if (! isCovaDefined()) return;
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                      static_cast<int>(blin.size()), blin.data());

@@ -3083,8 +3083,7 @@ int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random)
 
     /* Get the indices of the grid node */
 
-    int rank = db_grid->coordinateToRank(coor);
-    db_grid->rankToCoordinateInPlace(rank, coor);
+    db_grid->centerCoordinateInPlace(coor, true);
 
     /* Randomize the processed center */
 

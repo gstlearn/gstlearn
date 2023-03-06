@@ -134,3 +134,24 @@ This feature enables a polygon to contain **holes** as demonstrated in the next 
 db_polygon(mygrid, polygon, flag_nested=TRUE)
 ggplot() + plot.grid(mygrid, palette="inferno")
 ```
+
+An interesting function allows checking if a point (characterized by its 2-D coordinates) belongs to the polygon or not.
+
+```{r}
+xx = 75
+yy = 50
+flag_nested = FALSE
+inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
+
+xx = 40
+yy = 40
+flag_nested = FALSE
+inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
+
+flag_nested = TRUE
+inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
+```
+

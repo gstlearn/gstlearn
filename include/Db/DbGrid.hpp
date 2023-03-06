@@ -200,10 +200,15 @@ public:
   }
   void indicesToCoordinateInPlace(const VectorInt& indice,
                                   VectorDouble& coor,
-                                  const VectorDouble& percent) const
+                                  const VectorDouble& percent = VectorDouble()) const
   {
     _grid.indicesToCoordinateInPlace(indice, coor, percent);
   }
+  int centerCoordinateInPlace(VectorDouble &coor,
+                              bool centered = false,
+                              bool stopIfOut = false,
+                              double eps = EPSILON6) const;
+
   VectorInt locateDataInGrid(const DbGrid *grid,
                              const Db *data,
                              const VectorInt &rankIn) const;

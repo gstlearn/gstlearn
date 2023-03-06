@@ -1016,6 +1016,16 @@ int DbGrid::coordinateToIndicesInPlace(const VectorDouble &coor,
   return _grid.coordinateToIndicesInPlace(coor, indices, centered, eps);
 }
 
+int DbGrid::centerCoordinateInPlace(VectorDouble& coor, bool centered, bool stopIfOut, double eps) const
+{
+  int ndim = (int) coor.size();
+  VectorInt indice(ndim);
+  int err = coordinateToIndicesInPlace(coor,indice,centered,eps);
+  if (stopIfOut && err > 0) return -1;
+  indicesToCoordinateInPlace(indice, coor);
+  return 0;
+}
+
 /**
  * Extracts a slice from a 3-D Grid
  * @param name   Name of the target variable

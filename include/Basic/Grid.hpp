@@ -86,7 +86,7 @@ public:
                                    const VectorDouble& percent = VectorDouble()) const;
   void indicesToCoordinateInPlace(const VectorInt& indice,
                                   VectorDouble& coor,
-                                  const VectorDouble& percent) const;
+                                  const VectorDouble& percent = VectorDouble()) const;
   double rankToCoordinate(int idim0,
                           int rank,
                           const VectorDouble& percent = VectorDouble()) const;

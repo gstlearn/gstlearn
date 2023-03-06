@@ -28,7 +28,6 @@ void OptDbg::reset()
 
 bool OptDbg::query(const EDbg& option)
 {
-  if (force()) return true;
   for (auto e: _dbg)
   {
     if (e == option) return true;
@@ -38,7 +37,6 @@ bool OptDbg::query(const EDbg& option)
 
 bool OptDbg::queryByKey(const String& name)
 {
-  if (force()) return true;
   auto it = EDbg::getIterator();
   while (it.hasNext())
   {

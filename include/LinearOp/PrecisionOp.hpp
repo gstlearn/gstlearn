@@ -101,6 +101,7 @@ public:
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
   VectorDouble getPolyCoeffs(EPowerPT power);
   void setPolynomialFromPoly(APolynomial* polynomial);
+  bool isCovaDefined() const { return _cova != nullptr; }
 
   // Talking to ShiftOp
   void setNIterMax(int nitermax);

@@ -395,7 +395,6 @@ VectorVectorDouble PrecisionOp::simulate(int nbsimus)
 
 int PrecisionOp::_preparePrecisionPoly()
 {
-
   if (_cova == nullptr) return 1;
   if (!_cova->hasMarkovCoeffs()) return 1;
 
