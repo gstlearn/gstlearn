@@ -732,7 +732,7 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
   for (iech = 0; iech < dbgrid2->getSampleNumber(); iech++)
   {
     result1 = result2 = result = TEST;
-    OptDbg::setIndex(iech + 1);
+    OptDbg::setCurrentIndex(iech + 1);
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
@@ -770,7 +770,7 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 
   error = 0;
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   numtab0 = (double*) mem_free((char* ) numtab0);
   numtab1 = (double*) mem_free((char* ) numtab1);
   numtab2 = (double*) mem_free((char* ) numtab2);
@@ -1353,7 +1353,7 @@ int db_diffusion(DbGrid *dbgrid1,
   for (iech = 0; iech < nech; iech++)
   {
     diff_coeff = TEST;
-    OptDbg::setIndex(iech + 1);
+    OptDbg::setCurrentIndex(iech + 1);
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
@@ -1404,7 +1404,7 @@ int db_diffusion(DbGrid *dbgrid1,
 
   error = 0;
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   tabini = (int*) mem_free((char* ) tabini);
   tabcur = (int*) mem_free((char* ) tabcur);
   tabwrk = (int*) mem_free((char* ) tabwrk);

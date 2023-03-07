@@ -3196,7 +3196,7 @@ int seismic_estimate_XZ(DbGrid *db,
     {
       nb_total++;
       IECH_OUT = st_absolute_index(db, ix0, iz0);
-      OptDbg::setIndex(IECH_OUT + 1);
+      OptDbg::setCurrentIndex(IECH_OUT + 1);
       if (!db->isActive(IECH_OUT)) continue;
 
       /* Look for the neighborhood */
@@ -3244,7 +3244,7 @@ int seismic_estimate_XZ(DbGrid *db,
 
   error = 0;
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   if (flag_stat)
   {
     message("Statistics on the number of nodes:\n");
@@ -3456,7 +3456,7 @@ int seismic_simulate_XZ(DbGrid *db,
     {
       nb_total++;
       IECH_OUT = st_absolute_index(db, ix0, iz0);
-      OptDbg::setIndex(IECH_OUT + 1);
+      OptDbg::setCurrentIndex(IECH_OUT + 1);
       if (!db->isActive(IECH_OUT)) continue;
 
       /* Look for the neighborhood */
@@ -3506,7 +3506,7 @@ int seismic_simulate_XZ(DbGrid *db,
 
   error = 0;
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   if (flag_stat)
   {
     message("Statistics on the number of nodes:\n");

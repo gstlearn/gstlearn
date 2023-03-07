@@ -352,7 +352,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Set the debugging information */
 
-  OptDbg::setIndex(iech + 1);
+  OptDbg::setCurrentIndex(iech + 1);
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
 
   /* Processing an "unknown" facies */
@@ -447,7 +447,7 @@ int rule_thresh_define(PropDef *propdef,
 
   /* Set the debugging information */
 
-  OptDbg::setIndex(iech + 1);
+  OptDbg::setCurrentIndex(iech + 1);
 
   /* Processing an "unknown" facies */
 

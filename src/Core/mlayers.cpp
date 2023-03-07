@@ -1504,7 +1504,7 @@ static void st_estimate(LMlayers *lmlayers,
 
   for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
   {
-    OptDbg::setIndex(iechout + 1);
+    OptDbg::setCurrentIndex(iechout + 1);
     if (!dbout->isActive(iechout)) continue;
     coor[0] = dbout->getCoordinate(iechout, 0);
     coor[1] = dbout->getCoordinate(iechout, 1);
@@ -1586,7 +1586,7 @@ static void st_estimate(LMlayers *lmlayers,
       }
     }
   }
-  OptDbg::setIndex(0);
+  OptDbg::setCurrentIndex(0);
 }
 
 /****************************************************************************/

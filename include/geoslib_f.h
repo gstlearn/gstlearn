@@ -358,15 +358,6 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   bool verbose = false,
                                   const NamingConvention& namconv = NamingConvention("Gibbs"));
 
-/****************************************/
-/* Prototyping the functions in neigh.c */
-/****************************************/
-
-GSTLEARN_EXPORT VectorInt neigh_calc(Db *dbin,
-                                     Db *dbout,
-                                     ANeighParam *neighparam,
-                                     int iech0);
-
 /*****************/
 /* Various Tools */
 /*****************/

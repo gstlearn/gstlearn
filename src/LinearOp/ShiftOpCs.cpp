@@ -1113,7 +1113,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    OptDbg::setIndex(imesh + 1);
+    OptDbg::setCurrentIndex(imesh + 1);
 
     // Non stationary case
 
@@ -1241,7 +1241,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    OptDbg::setIndex(imesh + 1);
+    OptDbg::setCurrentIndex(imesh + 1);
 
     // Prepare M matrix
     _loadHHPerMesh(amesh, hh, imesh);
@@ -1459,7 +1459,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    OptDbg::setIndex(imesh + 1);
+    OptDbg::setCurrentIndex(imesh + 1);
 
     // Non stationary case
 
@@ -1566,7 +1566,7 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
-    OptDbg::setIndex(imesh + 1);
+    OptDbg::setCurrentIndex(imesh + 1);
     double meshSize = amesh->getMeshSize(imesh);
 
     // Non stationary case

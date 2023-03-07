@@ -26,8 +26,20 @@ void OptDbg::reset()
   _dbg.clear();
 }
 
-bool OptDbg::query(const EDbg& option)
+/**
+ * Check if a DEBUG option has been switched ON or NOT
+ * @param option Type of the option to be searched for
+ * @param discardForce When TRUE, does not consider the "forcing" option (see remarks)
+ *
+ * @remarks The use of gstlearn enables the user to FORCE the switch ON of one or several
+ * debugging options. This is the case for example when you want to trace the processing
+ * of a specific target (defined using setReference).
+ * When this option is switched OFF, this specific case is not taken into account
+ * @return TRUE if the option is switch ON, FALSE otherwise
+ */
+bool OptDbg::query(const EDbg& option, bool discardForce)
 {
+  if (force()) return true;
   for (auto e: _dbg)
   {
     if (e == option) return true;
@@ -37,6 +49,7 @@ bool OptDbg::query(const EDbg& option)
 
 bool OptDbg::queryByKey(const String& name)
 {
+  if (force()) return true;
   auto it = EDbg::getIterator();
   while (it.hasNext())
   {
@@ -134,7 +147,7 @@ void OptDbg::display()
     EDbg e = *it;
     sstr << std::setw(30) << e.getDescr() <<
         "[ " << std::setw(9) << e.getKey() << "]" <<
-        " : " << query(e) << std::endl;
+        " : " << query(e, true) << std::endl;
     it.toNext();
   }
 

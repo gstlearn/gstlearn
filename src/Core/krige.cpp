@@ -2649,7 +2649,7 @@ int anakexp_f(DbGrid *db,
   for (IECH_OUT = 0; IECH_OUT < nech; IECH_OUT++)
   {
     mes_process("Factorial Kriging Analysis", nech, IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
+    OptDbg::setCurrentIndex(IECH_OUT + 1);
     if (!db->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
@@ -2711,7 +2711,7 @@ int anakexp_f(DbGrid *db,
 
   error = 0;
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   st_krige_manage_basic(-1, size, size, 1, nfeq);
   return (error);
@@ -3382,7 +3382,7 @@ int anakexp_3D(DbGrid *db,
         indg[1] = iy;
         indg[2] = iz;
         IECH_OUT = db_index_grid_to_sample(db, indg);
-        OptDbg::setIndex(IECH_OUT + 1);
+        OptDbg::setCurrentIndex(IECH_OUT + 1);
 
         /* Initialize the result to TEST */
 
@@ -3453,7 +3453,7 @@ int anakexp_3D(DbGrid *db,
   error = 0;
   if (fildmp != nullptr) fclose(fildmp);
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   st_krige_manage_basic(-1, size_nei, size_nei, 1, nfeq);
   num_tot = (int*) mem_free((char* ) num_tot);
@@ -3699,52 +3699,6 @@ int krigsum(Db *dbin,
   namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
 
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Perform the Neighborhood search
- **
- ** \return  Vector of sample indices of the target neighbors
- **
- ** \param[in]  dbin       Input Db structure
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  iech0      Rank of the target (in Dbout)
- **
- *****************************************************************************/
-VectorInt neigh_calc(Db* dbin,
-                     Db* dbout,
-                     ANeighParam *neighparam,
-                     int iech0)
-{
-  NeighWork nbghw;
-  VectorInt neigh_tab;
-
-  // Initializations
-  int ndim = dbin->getNDim();
-  int nvar = dbin->getLocNumber(ELoc::Z);
-  if (nvar <= 0) nvar = 1;
-
-  // Create a temporary model
-  Model model = Model(nvar, ndim);
-  model.addCovFromParam(ECov::NUGGET);
-  st_global_init(dbin, dbout);
-
-  /* Pre-calculations */
-
-  nbghw.initialize(dbin, neighparam);
-  if (st_model_manage(1, &model)) goto label_end;
-  if (st_krige_manage(1, nvar, &model, neighparam)) goto label_end;
-
-  /* Select the Neighborhood */
-
-  neigh_tab = nbghw.select(dbout,  iech0);
-
-label_end:
-  (void) st_model_manage(-1, &model);
-  (void) st_krige_manage(-1, nvar, &model, neighparam);
-  return neigh_tab;
 }
 
 /****************************************************************************/
@@ -4554,7 +4508,7 @@ int krigsampling_f(Db *dbin,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
+    OptDbg::setCurrentIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
@@ -5748,7 +5702,7 @@ int inhomogeneous_kriging(Db *dbdat,
   for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
   {
     mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
+    OptDbg::setCurrentIndex(IECH_OUT + 1);
     if (!dbout->isActive(IECH_OUT)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
@@ -5824,7 +5778,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   error = 0;
 
-  label_end: OptDbg::setIndex(0);
+  label_end: OptDbg::setCurrentIndex(0);
   covss = (double*) mem_free((char* ) covss);
   distps = (double*) mem_free((char* ) distps);
   distgs = (double*) mem_free((char* ) distgs);

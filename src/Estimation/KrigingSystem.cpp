@@ -131,7 +131,7 @@ KrigingSystem::~KrigingSystem()
 {
   // Turn OFF this option for future task
 
-  OptDbg::setIndex(0);
+  OptDbg::setCurrentIndex(-1);
 
   // Clean elements from _dbin
 
@@ -1896,7 +1896,7 @@ int KrigingSystem::estimate(int iech_out)
   if (skipCalculAll) goto label_store;
 
   if (! _dbout->isActive(_iechOut)) return 0;
-  OptDbg::setIndex(_iechOut + 1);
+  OptDbg::setCurrentIndex(_iechOut + 1);
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     if (_flagFactorKriging)

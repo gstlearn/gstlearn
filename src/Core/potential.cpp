@@ -2151,7 +2151,7 @@ static void st_estimate_result(Pot_Env *pot_env,
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     mes_process("Potential Estimation on Grid", dbout->getSampleNumber(),iech);
-    OptDbg::setIndex(iech);
+    OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
     // Perform the estimation
@@ -2180,7 +2180,7 @@ static void st_estimate_result(Pot_Env *pot_env,
       for (int idim = 0; idim < pot_env->ndim; idim++)
         dbout->setLocVariable(ELoc::G,iech, idim, result[idim + 1]);
   }
-  OptDbg::setIndex(-1);
+  OptDbg::setCurrentIndex(-1);
   return;
 }
 
@@ -2430,7 +2430,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
     {
       iech0 = IAD_ISO(ic, j);
       mes_process("Potential Estimation on Iso-Potential %d of %d", j+1,ic+1);
-      OptDbg::setIndex(iech0);
+      OptDbg::setCurrentIndex(iech0);
 
       // Get the variance and the weights from the inverted L.H.S.
 
@@ -2524,7 +2524,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
       }
     }
   }
-  OptDbg::setIndex(-1);
+  OptDbg::setCurrentIndex(-1);
   return;
 }
 
@@ -2624,7 +2624,7 @@ static void st_simcond(Pot_Env *pot_env,
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     mes_process("Potential Simulation on Grid", dbout->getSampleNumber(),iech);
-    OptDbg::setIndex(iech);
+    OptDbg::setCurrentIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
     if (!FFFF(dist_tempere))
@@ -2677,7 +2677,7 @@ static void st_simcond(Pot_Env *pot_env,
       dbout->setSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu, 1, result[0]);
     }
   }
-  OptDbg::setIndex(-1);
+  OptDbg::setCurrentIndex(-1);
   return;
 }
 
@@ -2757,7 +2757,7 @@ static void st_check_data(Pot_Env *pot_env,
     {
       for (int j = 0; j < pot_env->nb_per_layer[ic]; j++, rank++)
       {
-        OptDbg::setIndex(rank);
+        OptDbg::setCurrentIndex(rank);
         int iech = dbiso->getRankRelativeToAbsolute(rank);
         st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                       zdual, rhs, dbiso, iech, result);
@@ -2781,7 +2781,7 @@ static void st_check_data(Pot_Env *pot_env,
           st_print_result(pot_env, isimu, result.data(), TEST);
         }
       }
-      OptDbg::setIndex(-1);
+      OptDbg::setCurrentIndex(-1);
     }
   }
 
@@ -2793,7 +2793,7 @@ static void st_check_data(Pot_Env *pot_env,
 
     for (int ig = 0; ig < pot_env->ngrd; ig++)
     {
-      OptDbg::setIndex(ig);
+      OptDbg::setCurrentIndex(ig);
       int iech = dbgrd->getRankRelativeToAbsolute(ig);
       st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbgrd, iech, result);
@@ -2823,7 +2823,7 @@ static void st_check_data(Pot_Env *pot_env,
         st_print_result(pot_env, isimu, result.data(), TEST);
       }
     }
-    OptDbg::setIndex(-1);
+    OptDbg::setCurrentIndex(-1);
   }
 
   /* For the Tangent file */
@@ -2834,7 +2834,7 @@ static void st_check_data(Pot_Env *pot_env,
 
     for (int it = 0; it < pot_env->ntgt; it++)
     {
-      OptDbg::setIndex(it);
+      OptDbg::setCurrentIndex(it);
       int iech = dbtgt->getRankRelativeToAbsolute(it);
       if (!dbtgt->isActive(iech)) continue;
       st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
@@ -2857,7 +2857,7 @@ static void st_check_data(Pot_Env *pot_env,
         st_print_result(pot_env, isimu, result.data(), tgte);
       }
     }
-    OptDbg::setIndex(-1);
+    OptDbg::setCurrentIndex(-1);
   }
 
   return;
