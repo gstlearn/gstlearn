@@ -1,11 +1,6 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
-Release 0.2.0
-=============
-- Transfer ExternalTools to new package
-
-
 Release 0.1.37
 ==============
 - Plot refactoring (R and Python)
