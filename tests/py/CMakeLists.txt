@@ -53,12 +53,19 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_py
              COMMAND ${Python3_EXECUTABLE} ${RUN_TEST_SCRIPT} ${TEST_SOURCE_FILE} ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
-    # Use maybe a specific output log for MSVC
     set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref)
+    # Use maybe a specific output log for MSVC
     if (MSVC)
       set(REF_FILE_MSVC ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}_msvc.ref)
       if(EXISTS ${REF_FILE_MSVC})
         set(REF_FILE ${REF_FILE_MSVC})
+      endif()
+    endif()
+    # Use maybe a specific output log for MinGW
+    if (MINGW)
+      set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}_msys.ref)
+      if(EXISTS ${REF_FILE_MSYS})
+        set(REF_FILE ${REF_FILE_MSYS})
       endif()
     endif()
     # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)

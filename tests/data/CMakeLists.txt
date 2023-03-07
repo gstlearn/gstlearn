@@ -80,12 +80,19 @@ foreach(TARGET_EXE ${TARGETS_EXE})
                  COMMAND ${TARGET_EXE} ${TEST_SRC_DIR}
                  WORKING_DIRECTORY ${TEST_DST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
-        # Use maybe a specific output log for MSVC
         set(REF_FILE ${TEST_SRC_DIR}/Result.ref)
+        # Use maybe a specific output log for MSVC
         if (MSVC)
           set(REF_FILE_MSVC ${TEST_SRC_DIR}/Result_msvc.ref)
           if(EXISTS ${REF_FILE_MSVC})
             set(REF_FILE ${REF_FILE_MSVC})
+          endif()
+        endif()
+        # Use maybe a specific output log for MinGW
+        if (MINGW)
+          set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/Result_msys.ref)
+          if(EXISTS ${REF_FILE_MSYS})
+            set(REF_FILE ${REF_FILE_MSYS})
           endif()
         endif()
         # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
