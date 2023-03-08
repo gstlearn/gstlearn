@@ -257,5 +257,5 @@ Note : You may need to directly modify your *site-packages* folder by:
 
 ## License
 
-New BSD
+BSD
 2023 Team gstlearn

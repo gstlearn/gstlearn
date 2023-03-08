@@ -339,4 +339,4 @@ firefox build/doxygen/html/index.html
 
 ## License
 BSD
-2022 Team gstlearn
+2023 Team gstlearn
