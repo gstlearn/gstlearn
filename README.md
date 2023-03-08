@@ -72,6 +72,14 @@ git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ```
 
+Next time, you will only need to pull the repository (If you have some local undesirable modifications, you have to revert them and execute the pull, otherwise do not execute `git reset`):
+
+````
+cd gstlearn
+git reset --hard
+git pull
+````
+
 ## C++ Library Compilation & Installation
 
 For compiling and installing the *gstlearn* C++ shared library, execute the following instructions from the *root* directory of *gstlearn*. Please note that you can choose another destination folder (currently named *build*).

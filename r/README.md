@@ -285,10 +285,11 @@ git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ````
 
-Next time, you will only need to pull the repository:
+Next time, you will only need to pull the repository (If you have some local undesirable modifications, you have to revert them and execute the pull, otherwise do not execute `git reset`):
 
 ````
 cd gstlearn
+git reset --hard
 git pull
 ````
 
@@ -308,8 +309,12 @@ make r_install
 ### Execute Non-regression Tests
 
 The `check*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
- 
-To build and launch non-regression R tests, execute the following command:
+
+To build and launch non-regression R tests, you need to:
+
+1. Add `GSTLEARN_DATA` environment variable which must point to the data folder: `gstlearn/doc/data`
+
+2. Execute the following command:
 
 ```
 cmake --build build --target check_r
