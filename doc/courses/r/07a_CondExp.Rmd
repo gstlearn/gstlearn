@@ -62,7 +62,7 @@ anam
 
 ```{r Gaussian_Score_Plot}
 p = ggplot()
-p = p + plot.XY(dat["Y.January_temp"], dat["January_temp"])
+p = p + plot.XY(dat["Y.January_temp"], dat["January_temp"], flagLine=FALSE, flagPoint=TRUE)
 p = p + plot.decoration(xlab="Gaussian", ylab="Raw")
 ggPrint(p)
 ```

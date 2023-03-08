@@ -1,0 +1,262 @@
+---
+  title: "Test of the centering"
+  author: "D. Renard, N. Desassis, X. Freulon"
+  date: "March 8, 2023"
+  output:
+    pdf_document: default
+    html_document: default
+    editor_options: 
+    chunk_output_type: console
+---
+
+# Initialisation
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(align="center")
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+library(parallel)
+set.seed(1235)
+```
+
+## Function implementing the centering of the data set
+
+```{r dgm_center_fn, echo=FALSE, eval=TRUE}
+# Centering the data on the target grid
+dgm_center <- function(data, target) {
+  err = 0.0
+  if (target$isGrid()) {
+    dx = target$getDXs()
+    x0 = target$getX0s()
+    nx = target$getNXs()
+    theta = target$getAngles()
+    
+    xy_nm = data$getNamesByLocator(ELoc_X())
+    # initial coordinates
+    xy = matrix(NaN, nrow = data$getSampleNumber(), ncol = length(xy_nm))
+    for (i in seq_along(xy_nm)) {
+      xy[, i] = data$getColumns(xy_nm[i])
+    }
+    # local coordinates
+    uv = XY_to_UV(target, xy)
+    
+    # centering
+    for (i in seq_along(xy_nm)) {
+      uv[,i] = dx[i] * floor((uv[,i] + dx[i]/2)/dx[i])
+    }
+    
+    # global coordinates
+    xy_disc = UV_to_XY(target, uv)
+  
+    # storing
+    for (i in seq_along(xy_nm)) {
+      data$setColumn(tab = xy_disc[,i], name = paste0(xy_nm[i], "_disc"))
+    }
+    data$setLocators(paste0(xy_nm, "_disc"), ELoc_X())
+  
+    } else {err = 1}
+  err  
+}
+
+# Some auxiliary functions for the rotation
+translate <- function (X, dx) {
+  stopifnot(dim(X)[2] == length(dx))
+  X_0 = outer(X = rep(1, dim(X)[1]), Y = dx, FUN = '*')  
+  X + X_0
+}
+
+UV_to_XY <- function(target, UV) {
+  stopifnot(target$getNDim() == dim(UV)[2])
+  rot = Rotation(); rot$setAngles(target$getAngles())
+  r   = t(matrix(rot$getMatrixDirectByVector(), nrow = target$getNDim(), ncol = target$getNDim()))
+  translate(UV %*% r, dx = target$getX0s())
+}
+
+XY_to_UV <- function(target, XY) {
+  stopifnot(target$getNDim() == dim(XY)[2])
+  rot = Rotation(); rot$setAngles(target$getAngles())
+  r   = (matrix(rot$getMatrixDirectByVector(), 
+                nrow = target$getNDim(), ncol = target$getNDim()))
+  translate(XY, dx = -target$getX0s()) %*% r 
+}
+
+bounding_uv <- function(target, delta = 0) {
+  dx = target$getDXs()
+  nx = target$getNXs()
+  duv = dx * (nx - 1)
+  matrix(c(
+    0 - delta, 0 - delta, 
+    duv[1] + delta, 0 - delta, 
+    duv[1] + delta, duv[2] + delta, 
+    0 - delta, duv[2] + delta,
+    0 - delta, 0 - delta
+    ), nrow = 5, ncol = 2, byrow = TRUE)
+}
+
+bounding_xy <- function(target, delta = 0) {
+  bb_uv = bounding_uv(target, delta)
+  rot = Rotation()
+  rot$setAngles(target$getAngles())
+  bb_uv = bb_uv %*% t(matrix(rot$getMatrixDirectByVector(), nrow = 2, ncol = 2))
+  translate(bb_uv, target$getX0s())
+}
+```
+
+# Simulation of the data sets
+
+Two data sets are simulated:
+- the first data set is constituted os samples randomly located within a dilated bounding box around a rotated grid
+- the second data set is a sampling of the nodes of the rotated grid nodes.
+
+The first one is used to check the validity of the centering while the second one prooves that centering does not do anything when the data are alreay centered.
+
+```{r dataset, echo=TRUE, eval=TRUE}
+nech = 25
+dx = c(0.05, 0.025)
+nx = c(11, 23)
+x0 = c(0.5, 2)
+angles = c(20, 0)
+delta = 0.1 # margin around the grid bounding box
+
+# Creating the rotated grid
+target = DbGrid_create(nx = nx, dx = dx, x0 = x0, angles = angles)
+
+# In real coordinates
+bb = bounding_xy(target = target, delta = delta) 
+XY = as.matrix(cbind(target["x1"], target["x2"]))
+
+# Test of the identity
+UV = XY_to_UV(target, XY)
+xy = UV_to_XY(target, UV)
+
+# Simulation of uniform scattered points in the local coordinates 
+# inside the bounding box
+bb_uv   = bounding_uv(target, delta)
+bb_xy   = bounding_xy(target, delta)
+lim_uv  = bb_uv[c(1,3),]
+sim_uv  = lim_uv[1,] + 
+  matrix(runif(nech * 2), nrow=nech, ncol=2) %*% diag(lim_uv[2,] - lim_uv[1,])
+sim_xy  = UV_to_XY(target, sim_uv)
+
+data_ini1 = Db_createFromSamples(nech)
+data_ini1["x1"] = sim_xy[,1]
+data_ini1["x2"] = sim_xy[,2]
+data_ini1$setLocators(c("x1", "x2"), ELoc_X())
+data_ini1["Y"] = rnorm(nech)
+data_ini1$setLocators("Y", ELoc_Z())
+
+# Second input data set (extracted from the target grid)
+data_ini2 = Db_createSamplingDb(target, number=nech, names=c("x1","x2"))
+data_ini2["Y"] = rnorm(data_ini2$getSampleNumber())
+data_ini2$setLocators("Y", ELoc_Z())
+```
+
+Display of the first data set
+
+```{r}
+ggDefaultGeographic() + 
+  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
+  plot.point(target) +
+  plot.point(data_ini1, col = "grey", size=4) +
+  plot.decoration(title="First Data Set")
+```
+
+Display of the second data set
+
+```{r}
+ggDefaultGeographic() + 
+  plot.point(target) +
+  plot.point(data_ini2, col = "grey", size=4) + 
+  plot.decoration(title = "Second Data Set")
+```
+
+# Test of the centering
+
+Two centering are systematically tested:
+
+- the first one uses the manual procedure
+- the second one uses the procedure which is available in gstlearn.
+
+The graphic convention is the following one:
+- the nodes of the target grid are always represented (black dots)
+- the initial data set are displayed with large size grey symbols
+- the centered data are displayed with small red circles.
+- the bounding box is represented as a solid blue line (when relevant)
+
+## Scattered data
+
+Performing the manual centering
+
+```{r test_centering_scattered, echo=TRUE, eval=TRUE}
+data_man1 = data_ini1$clone()
+err = dgm_center(data_man1, target)
+```
+
+Displaying the centered results
+
+```{r}
+ggDefaultGeographic() + 
+  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
+  plot.point(target) +
+  plot.point(data_ini1, col = "grey", size=4) +
+  plot.point(data_man1, col='red', size=2) + 
+  plot.decoration(title="First Data Set (centered manually)")
+```
+
+Performing the centering using gstlearn: this is done in place (coordinates have been modified).
+
+```{r}
+data_auto1 = data_ini1$clone()
+err = db_center_point_to_grid(data_auto1, target)
+```
+
+Displaying the centered results
+
+```{r}
+ggDefaultGeographic() + 
+  plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
+  plot.point(target) +
+  plot.point(data_ini1, col = "grey", size=4) +
+  plot.point(data_auto1, col='red', size=2) + 
+  plot.decoration(title="First Data Set (centered by gstlearn)")
+```
+
+## Data extracted from the target grid
+
+Performing the manual centering 
+
+```{r}
+data_man2 = data_ini2$clone()
+err = dgm_center(data_man2, target)
+```
+
+Displaying the centered results
+
+```{r}
+ggDefaultGeographic() + 
+  plot.point(target) +
+  plot.point(data_ini2, col = "grey", size=4) +
+  plot.point(data_man2, col='red', size=2) + 
+  plot.decoration(title="Second Data Set (centered manually)")
+```
+
+Performing the centering using gstlearn: this is done in place (coordinates have been modified).
+
+```{r}
+data_auto2 = data_ini2$clone()
+err = db_center_point_to_grid(data_auto2, target)
+```
+
+Displaying the centered results
+
+```{r}
+ggDefaultGeographic() + 
+  plot.point(target) +
+  plot.point(data_ini2, col = "grey", size=4) +
+  plot.point(data_auto2, col='red', size=2) + 
+  plot.decoration(title="Second Data Set (centered by gstlearn)")
+```
+

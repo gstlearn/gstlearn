@@ -1171,6 +1171,7 @@ GSTLEARN_EXPORT Db* db_point_init(int nech,
                                   bool flag_repulsion = false,
                                   double range = 0.,
                                   double beta = 0.,
+                                  double extend = 0.,
                                   int seed = 43241,
                                   int flag_add_rank = 1);
 GSTLEARN_EXPORT int db_smooth_vpc(DbGrid *db, int width, double range);
