@@ -123,12 +123,14 @@ Notes:
 
 #### Windows
 
+##### Install all tools
+
 1. Install *gstlearn* C++ library requirements for Windows (Microsoft Visual Studio) [here](https://github.com/gstlearn/gstlearn#Windows - Microsoft Visual Studio)
 
 2. Then, download and install the following tools using default options during installation:
 
   * Python 3+ [from here](https://www.python.org/downloads) (*Windows installer* [exe] - check 'Add python.exe to PATH' in the first panel)
-  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], archive file to be extracted in a folder of your choice, but not in the *gstlearn* folder - and remind that folder)
+  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], archive file to be extracted in a folder of your choice, but not in the *gstlearn* source folder - remind the installation folder, assume it is `C:\swigwin-4.1.0`))
   * Pandoc [from here](https://github.com/jgm/pandoc/releases) (*msi installer* [msi] - simply execute the program)
 
 3. Finally, install additional Python modules by running following instructions in a command prompt:
@@ -138,7 +140,12 @@ python -m pip install "pybind11[global]" numpy pandas scipy scikits-sparse matpl
 python -m pip install pypandoc geopandas plotly jupyter
 ````
 
-4. Update the *Path* environment variable (**System variables**) to make *swig.exe* available. To do so, follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *SWIG* installation folders in the *Path* variable and restart Windows
+##### Update the Path environment variable
+
+The *Path* environment variable (*System variables*) must be updated to make *swig.exe* available in the batch command line:
+
+1. Follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *SWIG* installation folders in the *Path* System variable (i.e: `C:\swigwin-4.1.0`)
+2. Restart Windows
 
 ### Installation from Source
 
@@ -156,7 +163,7 @@ cd gstlearn
 git pull
 ````
 
-2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
+2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory
 
 
 #### GCC, Clang, ...
@@ -201,12 +208,14 @@ To build and launch non-regression Python tests, execute the following command:
 
 ```
 cmake --build build --target check_py
+cmake --build build --target check_ipynb
 ```
     
 or even faster:
 
 ```
 make check_py
+make check_ipynb
 ```
 
 #### Microsoft Visual Studio, ...
@@ -215,11 +224,11 @@ make check_py
 
 ```
 cmake --build build --target check_py --config Release
+cmake --build build --target check_ipynb --config Release
 ```
 
 ### Important Notes
 
-* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may (read this)[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token].

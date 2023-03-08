@@ -20,7 +20,7 @@ The *gstlearn* R package is a derivative work based on the *swigex* project: [ht
 
 ## Installation
 
-For using this R Package you only need R 4 (or higher) and execute the following R command:
+For using this R Package you only need R 4.2 (or higher) and execute the following R command:
 
 ```
 # TODO : Doesn't work yet
@@ -240,7 +240,7 @@ Note :
 
 2. Remove any previous installation of SWIG (if any)
 
-3. Launch *mingw64.exe* in RTools installation directory (ie: `C:\rtools42`) and pin the icon to the task bar
+3. Launch *mingw64.exe* in RTools installation directory (i.e.: `C:\rtools42`) and pin the icon to the task bar
 
 ````
 pacman -Sy bison
