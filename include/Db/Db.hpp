@@ -75,6 +75,7 @@ public:
                    const VectorDouble& coormin,
                    const VectorDouble& coormax,
                    int ndim = 2,
+                   double extend = 0.,
                    int seed = 321415,
                    int flag_add_rank = 1);
   int resetFromOnePoint(const VectorDouble &tab = VectorDouble(),
@@ -110,6 +111,7 @@ public:
                            bool flag_repulsion = false,
                            double range = 0.,
                            double beta = 0.,
+                           double extend = 0.,
                            int flag_add_rank = 1);
   static Db* createFromOnePoint(const VectorDouble &tab = VectorDouble(),
                                 int flag_add_rank = 1);

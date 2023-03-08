@@ -4009,8 +4009,7 @@ int points_to_block(Db *dbpoint,
 
         /* Set the edge */
 
-        tab2[iech] = (iatt_size >= 0) ? dbpoint->getArray(val_iech, iatt_size) :
-                                        1.;
+        tab2[iech] = (iatt_size >= 0) ? dbpoint->getArray(val_iech, iatt_size) : 1.;
       }
     }
   }
@@ -4065,11 +4064,11 @@ int points_to_block(Db *dbpoint,
  **
  *****************************************************************************/
 static VectorDouble st_point_init_homogeneous(int number,
-                                                   const VectorDouble& coormin,
-                                                   const VectorDouble& coormax,
-                                                   bool flag_repulsion,
-                                                   double range,
-                                                   double beta)
+                                              const VectorDouble &coormin,
+                                              const VectorDouble &coormax,
+                                              bool flag_repulsion,
+                                              double range,
+                                              double beta)
 {
   VectorDouble tab;
 
@@ -5590,12 +5589,15 @@ int db_grid2point_sampling(DbGrid *dbgrid,
  ** \param[in]  coormin     Vector of lower coordinates
  ** \param[in]  coormax     Vector of upper coordinates
  ** \param[in]  dbgrid      Descriptor of the Db grid parameters
- ** \param[in]  flag_exact  True if the number of samples must not be drawn
+ ** \param[in]  flag_exact  True if the number of samples is dran from Poisson
  ** \param[in]  flag_repulsion Use repulsion (need: 'range' and 'beta')
  ** \param[in]  range       Repulsion range
  ** \param[in]  beta        Bending coefficient
+ ** \param[in]  extend      Extension of the bounding box (when positive)
  ** \param[in]  seed        Seed for the random number generator
  ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
+ **
+ ** \remarks Arguments 'extend' is only valid when 'dbgrid' is not defined
  **
  *****************************************************************************/
 Db* db_point_init(int nech,
@@ -5606,16 +5608,34 @@ Db* db_point_init(int nech,
                   bool flag_repulsion,
                   double range,
                   double beta,
+                  double extend,
                   int seed,
                   int flag_add_rank)
 {
   VectorDouble tab;
   Db* db = nullptr;
   int ndim = 0;
+  if (dbgrid == nullptr)
+    ndim = (int) coormin.size();
+  else
+    ndim = dbgrid->getNDim();
 
   // Initiate the pseudo-random number generator
 
   law_set_random_seed(seed);
+
+  // Process the bounding box extension (optional)
+
+  VectorDouble locmin = coormin;
+  VectorDouble locmax = coormax;
+  if (extend > 0)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      locmin[idim] -= extend;
+      locmax[idim] += extend;
+    }
+  }
 
   // Draw the number of data to be generated in the Poisson process
 
@@ -5628,13 +5648,11 @@ Db* db_point_init(int nech,
   {
     if (dbgrid == nullptr)
     {
-      ndim = (int) coormin.size();
-      tab = st_point_init_homogeneous(number, coormin, coormax,
+      tab = st_point_init_homogeneous(number, locmin, locmax,
                                       flag_repulsion, range, beta);
     }
     else
     {
-      ndim = dbgrid->getNDim();
       tab = st_point_init_inhomogeneous(number, dbgrid,
                                         flag_repulsion, range, beta);
     }

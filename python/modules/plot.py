@@ -1351,9 +1351,12 @@ def table(table, icols, fmt='ok', flagLegend=False, ax=None, **kwargs):
     '''
     ax = getNewAxes(ax, 0)
     
-    if len(icols) == 1:
+    if len(icols) == 0:
+        datay = table.getColumn(0)
+        datax = [i for i in range(table.getNRows())]
+    elif len(icols) == 1:
         datay = table.getColumn(int(icols[0]))
-        datax = [i for i in range(table.getRowNumber())]
+        datax = [i for i in range(table.getNRows())]
     else:
         datay = table.getColumn(int(icols[0]))
         datax = table.getColumn(int(icols[1]))

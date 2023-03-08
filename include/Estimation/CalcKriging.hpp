@@ -94,6 +94,7 @@ private:
 
   bool _flagDGM;
   double _rCoeff;
+  VectorString _nameCoord;
 
   bool _flagBayes;
   VectorDouble _priorMean;
