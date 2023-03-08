@@ -44,7 +44,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
-        "numpy", "matplotlib", "mpl_toolkits", "scipy", "plotly",
+        "numpy", "matplotlib", "scipy", "plotly",
         "pandas", "geopandas", "shapely",
     ],
 )
