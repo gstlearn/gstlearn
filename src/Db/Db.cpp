@@ -4687,8 +4687,8 @@ Db* Db::createFromDbGrid(int nech,
                          int flag_add_rank)
 {
   Db* db = db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid,
-                         flag_exact, flag_repulsion, range, beta, seed,
-                         flag_add_rank);
+                         flag_exact, flag_repulsion, range, beta,
+                         0., seed, flag_add_rank);
   return db;
 }
 
