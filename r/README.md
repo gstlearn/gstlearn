@@ -34,6 +34,7 @@ For using this R Package you only need R 4 (or higher) and execute the following
 ```
 # Load gstlearn package
 library(gstlearn)
+library(ggplot2)
 # Grid size
 nx = 60
 ny = 30
@@ -42,7 +43,7 @@ mygrid = DbGrid_create(c(nx,ny), c(1,1))
 var = rnorm(nx * ny)
 mygrid$addColumns(var, "var1", ELoc_Z())
 # Display the field
-plot.grid(mygrid, title="Gaussian random field")
+ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 ```
 
 Some tutorials (RMarkdown) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) directory of the *gstlearn* github repository.
