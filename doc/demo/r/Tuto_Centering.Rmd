@@ -24,9 +24,9 @@ set.seed(1235)
 
 ## Function implementing the centering of the data set
 
-```{r dgm_center_fn, echo=FALSE, eval=TRUE}
+```{r Internal_functions, echo=FALSE, eval=TRUE}
 # Centering the data on the target grid
-dgm_center <- function(data, target) {
+manual_centering <- function(data, target) {
   err = 0.0
   if (target$isGrid()) {
     dx = target$getDXs()
@@ -113,7 +113,7 @@ Two data sets are simulated:
 
 The first one is used to check the validity of the centering while the second one prooves that centering does not do anything when the data are alreay centered.
 
-```{r dataset, echo=TRUE, eval=TRUE}
+```{r Dataset_construction, echo=TRUE, eval=TRUE}
 nech = 25
 dx = c(0.05, 0.025)
 nx = c(11, 23)
@@ -156,7 +156,7 @@ data_ini2$setLocators("Y", ELoc_Z())
 
 Display of the first data set
 
-```{r}
+```{r Plotting_data1_initial}
 ggDefaultGeographic() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
   plot.point(target) +
@@ -166,7 +166,7 @@ ggDefaultGeographic() +
 
 Display of the second data set
 
-```{r}
+```{r Plotting_data2_initial}
 ggDefaultGeographic() + 
   plot.point(target) +
   plot.point(data_ini2, col = "grey", size=4) + 
@@ -190,14 +190,14 @@ The graphic convention is the following one:
 
 Performing the manual centering
 
-```{r test_centering_scattered, echo=TRUE, eval=TRUE}
+```{r Manual_centering_data1, echo=TRUE, eval=TRUE}
 data_man1 = data_ini1$clone()
-err = dgm_center(data_man1, target)
+err = manual_centering(data_man1, target)
 ```
 
 Displaying the centered results
 
-```{r}
+```{r Plotting_manual_centering_data1}
 ggDefaultGeographic() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
   plot.point(target) +
@@ -208,14 +208,14 @@ ggDefaultGeographic() +
 
 Performing the centering using gstlearn: this is done in place (coordinates have been modified).
 
-```{r}
+```{r Gstlearn_centering_data1}
 data_auto1 = data_ini1$clone()
 err = db_center_point_to_grid(data_auto1, target)
 ```
 
 Displaying the centered results
 
-```{r}
+```{r Plotting_gstlearn_centering_data1}
 ggDefaultGeographic() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
   plot.point(target) +
@@ -228,14 +228,14 @@ ggDefaultGeographic() +
 
 Performing the manual centering 
 
-```{r}
+```{r Manual_centering_data2}
 data_man2 = data_ini2$clone()
-err = dgm_center(data_man2, target)
+err = manual_centering(data_man2, target)
 ```
 
 Displaying the centered results
 
-```{r}
+```{r Plotting_manual_centering_data2}
 ggDefaultGeographic() + 
   plot.point(target) +
   plot.point(data_ini2, col = "grey", size=4) +
@@ -245,14 +245,14 @@ ggDefaultGeographic() +
 
 Performing the centering using gstlearn: this is done in place (coordinates have been modified).
 
-```{r}
+```{r Gstlearn_centering_data2}
 data_auto2 = data_ini2$clone()
 err = db_center_point_to_grid(data_auto2, target)
 ```
 
 Displaying the centered results
 
-```{r}
+```{r Plotting_gstlearn_centering_data2}
 ggDefaultGeographic() + 
   plot.point(target) +
   plot.point(data_ini2, col = "grey", size=4) +
