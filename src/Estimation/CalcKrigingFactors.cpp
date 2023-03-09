@@ -23,6 +23,7 @@ CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
       _flagStd(flag_std),
       _calcul(EKrigOpt::PONCTUAL),
       _ndisc(),
+      _nameCoord(),
       _iptrEst(-1),
       _iptrStd(-1),
       _iuidFactors()
@@ -79,15 +80,19 @@ bool CalcKrigingFactors::_check()
   return true;
 }
 
-bool CalcKrigingFactors::_preprocess()
+bool CalcKrigingFactors::_hasChangeSupport() const
 {
   const AAnam* anam = getModel()->getAnam();
+  if (anam == nullptr) return false;
 
   // Check if the change of support is defined in the Anamorphosis
-  bool flag_change_support = anam->isChangeSupportDefined();
+  return anam->isChangeSupportDefined();
+}
 
-  // Centering the information (onyl when a change of support is defined)
-  if (flag_change_support)
+bool CalcKrigingFactors::_preprocess()
+{
+  // Centering the information (only when a change of support is defined)
+  if (_hasChangeSupport())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid == nullptr)
@@ -98,12 +103,29 @@ bool CalcKrigingFactors::_preprocess()
     if (_ndisc.empty())
     {
       // Center the information in the blocks of the output grid
+      // Duplicating the coordinate variable names before centering
+      _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
+      for (int idim = 0; idim < _getNDim(); idim++)
+      {
+        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
+        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+      }
       if (db_center_point_to_grid(getDbin(), dbgrid, 0.)) return false;
     }
     if (! _ndisc.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
       DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndisc, 1);
+      _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
+      for (int idim = 0; idim < _getNDim(); idim++)
+      {
+        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
+        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+      }
       int error = db_center_point_to_grid(getDbin(), dbsmu, 0.);
       delete dbsmu;
       if (error) return false;
@@ -133,6 +155,10 @@ bool CalcKrigingFactors::_postprocess()
   int nfactor = _getNFactors();
   _renameVariable(2, nfactor, _iptrStd, "stdev", 1);
   _renameVariable(2, nfactor, _iptrEst, "estim", 1);
+
+  // Centering the information (only when a change of support is defined)
+  if (_hasChangeSupport() && ! _nameCoord.empty())
+    getDbin()->setLocators(_nameCoord, ELoc::X);
 
   return true;
 }

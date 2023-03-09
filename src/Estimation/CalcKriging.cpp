@@ -126,18 +126,15 @@ bool CalcKriging::_preprocess()
     if (dbgrid != nullptr)
     {
       // Duplicating the coordinate variable names before centering
-      Db *dbin = getDbin();
-      int ndim = _getNDim();
-      _nameCoord = dbin->getNamesByLocator(ELoc::X);
-      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, ndim, TEST);
-
-      for (int idim = 0; idim < ndim; idim++)
+      _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
+      for (int idim = 0; idim < _getNDim(); idim++)
       {
-        int iuid_in = dbin->getUIDByLocator(ELoc::X, idim);
-        dbin->duplicateColumnByUID(iuid_in, iuid_out + idim);
-        dbin->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
+        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
       }
-      if (db_center_point_to_grid(dbin, dbgrid, 0.)) return false;
+      if (db_center_point_to_grid(getDbin(), dbgrid, 0.)) return false;
     }
   }
 
@@ -176,9 +173,8 @@ bool CalcKriging::_postprocess()
   else if (_flagDGM)
   {
     if (!_nameCoord.empty())
-    {
       getDbin()->setLocators(_nameCoord, ELoc::X);
-    }
+
     _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
     _renameVariable(2, nvar, _iptrStd, "stdev", 1);
     _renameVariable(2, nvar, _iptrEst, "estim", 1);
@@ -392,48 +388,6 @@ int krigcell(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setRankColCok(rank_colcok);
   krige.setFlagPerCell(true);
-
-  // Run the calculator
-  int error = (krige.run()) ? 0 : 1;
-  return error;
-}
-
-/****************************************************************************/
-/*!
- **  Kriging in the Gaussian Discrete Model
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output DbGrid structure
- ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
- ** \param[in]  flag_est    Option for storing the estimation
- ** \param[in]  flag_std    Option for storing the standard deviation
- ** \param[in]  flag_varz   Option for storing the variance of the estimator
- ** \param[in]  rval        Change of support coefficient
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int krigdgm(Db *dbin,
-            DbGrid *dbout,
-            Model *model,
-            ANeighParam *neighparam,
-            bool flag_est,
-            bool flag_std,
-            bool flag_varz,
-            double rval,
-            const NamingConvention& namconv)
- {
-  CalcKriging krige(flag_est, flag_std, flag_varz);
-  krige.setDbin(dbin);
-  krige.setDbout(dbout);
-  krige.setModel(model);
-  krige.setNeighparam(neighparam);
-  krige.setNamingConvention(namconv);
-
-  krige.setFlagDgm(true);
-  krige.setRCoeff(rval);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;

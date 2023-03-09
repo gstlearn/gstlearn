@@ -41,6 +41,7 @@ private:
 
   int _getNFactors() const;
   void _storeResultsForExport(const KrigingSystem& ksys);
+  bool _hasChangeSupport() const;
 
 private:
   bool _flagEst;
@@ -48,6 +49,7 @@ private:
 
   EKrigOpt  _calcul;
   VectorInt _ndisc;
+  VectorString _nameCoord;
 
   int _iptrEst;
   int _iptrStd;
