@@ -837,8 +837,8 @@ plot.curve <- function(data, ...)
   p
 }
 
-# Function for representing a line between points provided as arguments
-plot.XY <-function(x, y, join=TRUE, ...)
+# Function for representing a set of points with optional symbols and joining lines
+plot.XY <-function(x, y, flagLine=TRUE, flagPoint=FALSE, ...)
 {
   if (length(y) != length(x))
   {
@@ -850,9 +850,10 @@ plot.XY <-function(x, y, join=TRUE, ...)
   
   df = data.frame(x, y)
   
-  if (join)
-    p <- c(p, geom_line(data = df, mapping=aes(x=x,y=y), na.rm=TRUE, ...))
-  else 
+  if (flagLine)
+    p <- c(p, geom_path(data = df, mapping=aes(x=x,y=y), na.rm=TRUE, ...))
+  
+  if (flagPoint)
     p <- c(p, geom_point(data = df, mapping=aes(x=x,y=y), na.rm=TRUE, ...))
   p
 }
@@ -880,7 +881,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
   p = list()
   res = anam$sample(ndisc, aymin, aymax)
   
-  p = c(p, plot.XY(res$getY(), res$getZ(), join=TRUE, ...))
+  p = c(p, plot.XY(res$getY(), res$getZ(), ...))
   p = c(p, plot.geometry(xlim=res$getAylim(), ylim=res$getAzlim()))
   p = c(p, plot.decoration(xlab = "Gaussian", ylab = "Raw"))
   p
@@ -902,7 +903,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
   
   p = list()
   if (asPoint)
-    p = c(p, plot.XY(x, y, join=FALSE, ...))
+    p = c(p, plot.XY(x, y, flagLine=FALSE, flagPoint=TRUE, ...))
   else
     p = c(p, plot.hist2d(x, y, ...))
   

@@ -8,6 +8,7 @@ import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 from attr._make import NOTHING
 from pandas.core.sorting import nargsort
+from pandas.core.indexing import check_deprecated_indexers
 
 def invalid(ranks, number):
     last = number - 1
@@ -17,6 +18,13 @@ def invalid(ranks, number):
             return True
     return False
 
+def checkValidPointer(pointer):
+    if not pointer:
+        print(" ")
+        print("The object has not been read correctly")
+        print("Procedure is stopped")
+        exit()
+        
 args = sys.argv
 nargs = len(args)
 if nargs < 2:
@@ -39,6 +47,7 @@ filetaux = gl.ASerializable.getFileIdentity(fileaux)
 
 if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)
+    checkValidPointer(db)
     if invalid(ranks, db.getColumnNumber()): 
         exit()
     if len(ranks) == 0:
@@ -55,12 +64,16 @@ if filetype == "Db":
         print("Number of Variable ranks should be 0, 1 or 2")
         exit()
     if flagDb:
-        gp.point(db, name, title=name, end_plot=True)
+        ax = gp.point(db, name)
+        ax.decoration(title=name)
+        plt.show()
     else:
-        gp.correlation(db, nameX, nameY, end_plot=True)
+        gp.correlation(db, nameX, nameY)
+        plt.show()
             
 elif filetype == "DbGrid":
     dbgrid = gl.DbGrid.createFromNF(filename,False)
+    checkValidPointer(dbgrid)
     if invalid(ranks, dbgrid.getColumnNumber()): exit()
     if len(ranks) == 0:
         name = dbgrid.getLastName()
@@ -71,44 +84,65 @@ elif filetype == "DbGrid":
         exit()
         
     if dbgrid.getNDim() > 1:
-        gp.grid(dbgrid, name, title=name, end_plot=True)
+        ax = gp.grid(dbgrid, name)
+        ax.decoration(title=name)
+        plt.show()
     else:
-        gp.grid1D(dbgrid, name, title=name, end_plot=True)
+        ax = gp.grid1D(dbgrid, name)
+        ax.decoration(title=name)
+        plt.show()
     
 elif filetype == "Vario":
     vario = gl.Vario.createFromNF(filename,False)
+    checkValidPointer(vario)
     
     if filetaux == "Model":
         model = gl.Model.createFromNF(fileaux,False)
-        gp.varmod(vario, model, end_plot=True)
+        checkValidPointer(model)
+        gp.varmod(vario, model)
+        plt.show()
     else:
-        gp.vario(vario,end_plot=True)
+        gp.vario(vario)
+        plt.show()
     
 elif filetype == "Model":
     model = gl.Model.createFromNF(filename,False)
+    checkValidPointer(model)
     
     if filetaux == "Vario":
-            vario = gl.Vario.createFromNF(fileaux,False)
-            gp.varmod(vario, model, end_plot=True)
+        vario = gl.Vario.createFromNF(fileaux,False)
+        checkValidPointer(vario)
+        gp.varmod(vario, model)
+        plt.show()
     else:
-        gp.model(model,end_plot=True)
+        gp.model(model)
+        plt.show()
     
 elif filetype == "Rule":
     rule = gl.Rule.createFromNF(filename,False)
-    gp.rule(rule,end_plot=True)
+    checkValidPointer(rule)
+    gp.rule(rule)
+    plt.show()
     
 elif filetype == "Table":
     table = gl.Table.createFromNF(filename,False)
-    if invalid(ranks, table.getColNumber()): exit()
-    gp.table(table,ranks,end_plot=True,title=filename)
+    checkValidPointer(table)
+    if invalid(ranks, table.getNCols()): exit()
+    ax = gp.table(table,ranks)
+    ax.decoration(title=filename)
+    plt.show()
 
 elif filetype == "Polygon":
     poly = gl.Polygons.createFromNF(filename,False)
-    gp.polygon(poly,colorPerSet=True,flagFace=True,end_plot=True)
+    checkValidPointer(poly)
+    gp.polygon(poly,colorPerSet=True,flagFace=False)
+    plt.show()
       
 elif filetype == "MeshETurbo":
     mesh = gl.MeshETurbo.createFromNF(filename, False)
-    gp.mesh(mesh, end_plot=True)
+    checkValidPointer(mesh)
+    gp.mesh(mesh)
+    plt.show()
  
 else:
-    print("Unknown type")
+    print("This type of file is UNKNOWN in draw_file:", filetype)
