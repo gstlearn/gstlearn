@@ -204,7 +204,7 @@ bool CalcKrigingFactors::_run()
  ** \remark have to be defined
  **
  *****************************************************************************/
-int KrigingFactors(Db *dbin,
+int krigingFactors(Db *dbin,
                    Db *dbout,
                    Model *model,
                    ANeighParam *neighparam,

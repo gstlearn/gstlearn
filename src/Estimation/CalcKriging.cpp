@@ -121,21 +121,24 @@ bool CalcKriging::_preprocess()
 
   if (_flagDGM)
   {
-    // Duplicating the coordinate variable names before centering
-    Db* dbin = getDbin();
-    int ndim = _getNDim();
-    _nameCoord = dbin->getNamesByLocator(ELoc::X);
-    int iuids_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, ndim, TEST);
-
-    for (int idim = 0; idim < ndim; idim++)
+    // Centering (only if the output file is a Grid)
+    DbGrid *dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    if (dbgrid != nullptr)
     {
-      int iuid_in = dbin->getUIDByLocator(ELoc::X, idim);
-      dbin->duplicateColumnByUID(iuid_in, iuids_out + idim);
-    }
-    dbin->setLocatorsByUID(iuids_out, ELoc::X);
+      // Duplicating the coordinate variable names before centering
+      Db *dbin = getDbin();
+      int ndim = _getNDim();
+      _nameCoord = dbin->getNamesByLocator(ELoc::X);
+      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, ndim, TEST);
 
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    if (db_center_point_to_grid(dbin, dbgrid)) return false;
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        int iuid_in = dbin->getUIDByLocator(ELoc::X, idim);
+        dbin->duplicateColumnByUID(iuid_in, iuid_out + idim);
+        dbin->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+      }
+      if (db_center_point_to_grid(dbin, dbgrid)) return false;
+    }
   }
 
   return true;
@@ -172,7 +175,12 @@ bool CalcKriging::_postprocess()
   }
   else if (_flagDGM)
   {
-    getDbin()->setLocators(_nameCoord, ELoc::X);
+    if (!_nameCoord.empty())
+    {
+      getDbin()->display();
+      getDbin()->setLocators(_nameCoord, ELoc::X);
+      getDbin()->display();
+    }
   }
   else
   {

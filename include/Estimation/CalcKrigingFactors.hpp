@@ -55,7 +55,7 @@ private:
   VectorInt _iuidFactors;
 };
 
-GSTLEARN_EXPORT int KrigingFactors(Db *dbin,
+GSTLEARN_EXPORT int krigingFactors(Db *dbin,
                                    Db *dbout,
                                    Model *model,
                                    ANeighParam *neighparam,
