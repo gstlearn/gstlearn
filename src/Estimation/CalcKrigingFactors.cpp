@@ -98,13 +98,13 @@ bool CalcKrigingFactors::_preprocess()
     if (_ndisc.empty())
     {
       // Center the information in the blocks of the output grid
-      if (db_center_point_to_grid(getDbin(), dbgrid)) return false;
+      if (db_center_point_to_grid(getDbin(), dbgrid, 0.)) return false;
     }
     if (! _ndisc.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
       DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndisc, 1);
-      int error = db_center_point_to_grid(getDbin(), dbsmu);
+      int error = db_center_point_to_grid(getDbin(), dbsmu, 0.);
       delete dbsmu;
       if (error) return false;
     }

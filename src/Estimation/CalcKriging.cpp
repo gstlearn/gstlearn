@@ -137,7 +137,7 @@ bool CalcKriging::_preprocess()
         dbin->duplicateColumnByUID(iuid_in, iuid_out + idim);
         dbin->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
       }
-      if (db_center_point_to_grid(dbin, dbgrid)) return false;
+      if (db_center_point_to_grid(dbin, dbgrid, 0.)) return false;
     }
   }
 
@@ -177,9 +177,7 @@ bool CalcKriging::_postprocess()
   {
     if (!_nameCoord.empty())
     {
-      getDbin()->display();
       getDbin()->setLocators(_nameCoord, ELoc::X);
-      getDbin()->display();
     }
   }
   else

@@ -876,7 +876,7 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
 
   ret = ret && _recordRead<int>(is, "Mesh Active Count", nmesh_active);
   ret = ret && _recordRead<int>(is, "Mesh Masking Count", nmesh_mask);
-  if (ret && nmesh_mask > 0)
+  if (ret)
   {
     ret = ret && _recordReadVec<int>(is, "Mesh Masking", relranks, nmesh_active);
     if (ret) _meshIndirect.buildFromRankRInA(relranks, _nmeshInCompleteGrid());
@@ -884,7 +884,7 @@ bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
 
   ret = ret && _recordRead<int>(is, "Grid Active Count", ngrid_active);
   ret = ret && _recordRead<int>(is, "Mesh Masking Count", ngrid_mask);
-  if (ret && ngrid_mask > 0)
+  if (ret)
   {
     ret = ret && _recordReadVec<int>(is, "Grid Masking", relranks, ngrid_active);
     if (ret) _gridIndirect.buildFromRankRInA(relranks, _grid.getNTotal());
@@ -907,15 +907,13 @@ bool MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
   int nmesh_mask = (int) _meshIndirect.getRelRanks().size();
   ret = ret && _recordWrite<int>(os, "Mesh Active Count", getNMeshes());
   ret = ret && _recordWrite<int>(os, "Mesh Masking Count", nmesh_mask);
-  if (nmesh_mask > 0)
-    ret = ret && _recordWriteVec<int>(os, "Mesh Masking", _meshIndirect.getRelRanks());
+  ret = ret && _recordWriteVec<int>(os, "Mesh Masking", _meshIndirect.getRelRanks());
 
   // Dumping the Grid Masking map
   int ngrid_mask = (int) _gridIndirect.getRelRanks().size();
   ret = ret && _recordWrite<int>(os, "Grid Active Count", getNApices());
   ret = ret && _recordWrite<int>(os, "Grid Masking Count", ngrid_mask);
-  if (ngrid_mask > 0)
-    ret = ret && _recordWriteVec<int>(os, "Grid Masking", _gridIndirect.getRelRanks());
+  ret = ret && _recordWriteVec<int>(os, "Grid Masking", _gridIndirect.getRelRanks());
 
   // Dumping the Grid Masking map
   return ret;
