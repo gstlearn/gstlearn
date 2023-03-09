@@ -179,6 +179,9 @@ bool CalcKriging::_postprocess()
     {
       getDbin()->setLocators(_nameCoord, ELoc::X);
     }
+    _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
+    _renameVariable(2, nvar, _iptrStd, "stdev", 1);
+    _renameVariable(2, nvar, _iptrEst, "estim", 1);
   }
   else
   {
