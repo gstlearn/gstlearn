@@ -1161,7 +1161,7 @@ def hist(db, name, ax=None, usesel=True, **kwargs):
     
     ax = hist_tab(val, ax=ax, **kwargs)
     
-    ax.decoration(title = db.getName(name)[0])
+    ax.decoration(title = db.getName(name)[0], xlabel="Values", ylabel="Count")
         
     return ax
 
@@ -1477,6 +1477,7 @@ def anam(anam, color='blue', linestyle='-', flagLegend=False, ax=None):
             flagLegend=flagLegend, color=color, linestyle=linestyle,
             label='Anamorphosis', ax=ax)
     ax.geometry(xlim = res.getAylim(), ylim=res.getAzlim())
+    ax.decoration(xlabel="Gaussian values", ylabel="Raw values")
     
     return ax
 

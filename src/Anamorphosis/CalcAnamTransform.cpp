@@ -415,7 +415,7 @@ bool CalcAnamTransform::_YToZByHermite()
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    VectorDouble y = getDb()->getColumnByLocator(ELoc::Z, ivar);
+    VectorDouble y = getDb()->getColumnByLocator(ELoc::Z, ivar, true);
     if (y.size() <= 0) continue;
     VectorDouble z = anamC->gaussianToRawVector(y);
     getDb()->setColumnByUID(z, _iattVar + ivar, true);

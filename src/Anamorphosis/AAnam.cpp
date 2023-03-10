@@ -333,7 +333,7 @@ int AAnam::gaussianToRaw(Db *db,
 
   CalcAnamTransform transfo(this);
   transfo.setFlagVars(true);
-  transfo.setFlagZToY(true);
+  transfo.setFlagZToY(false);
   transfo.setFlagNormalScore(false);
   transfo.setDb(db);
   transfo.setNamingConvention(namconv);
