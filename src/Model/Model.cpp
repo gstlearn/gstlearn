@@ -585,6 +585,35 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
   return 0;
 }
 
+int Model::unsetAnam()
+{
+  if (! hasAnam())
+  {
+    // ACovAnisoList does not have any Anam: do nothing
+    return 0;
+  }
+  else
+  {
+    CovLMC* cov = dynamic_cast<CovLMC*>(_covaList);
+    if (cov == nullptr)
+    {
+      messerr("Impossible to unset 'anam' from the covariance part of the Model");
+      messerr("The original covariance is probably not valid");
+      return 1;
+    }
+
+    // Initiate a new CovLMC class
+    CovLMC* newcov = new CovLMC(*cov);
+
+    // Delete the current ACovAnisoList structure
+    delete _covaList;
+
+    // Replace it by the newly create one (CovLMC)
+    _covaList = newcov;
+  }
+  return 0;
+}
+
 void Model::_copyCovContext()
 {
   if (_covaList != nullptr) _covaList->copyCovContext(_ctxt);
