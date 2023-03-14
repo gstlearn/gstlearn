@@ -23,13 +23,13 @@
 class GSTLEARN_EXPORT MeshSpherical : public AMesh
 {
 public:
-	MeshSpherical(const MatrixRectangular& apices = MatrixRectangular(),
-	              const MatrixInt& meshes = MatrixInt());
+  MeshSpherical(const MatrixRectangular& apices = MatrixRectangular(),
+                const MatrixInt& meshes = MatrixInt());
   MeshSpherical(const MeshSpherical &m);
   MeshSpherical& operator= (const MeshSpherical &m);
-	virtual ~MeshSpherical();
+  virtual ~MeshSpherical();
 
-	/// Interface to AStringable
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface to AMesh

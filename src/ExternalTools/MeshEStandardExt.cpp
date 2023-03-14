@@ -14,7 +14,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "ExternalTools/LinkTriangle.hpp"
 #include "ExternalTools/LinkTetrahedron.hpp"
-#include "ExternalTools/LinkSphTriangle.hpp"
 #include "ExternalTools/MeshEStandardExt.hpp"
 #include "Basic/AException.hpp"
 #include "Db/Db.hpp"

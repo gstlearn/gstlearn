@@ -11,10 +11,10 @@
 /******************************************************************************/
 #pragma once
 
+#include <Mesh/sphtriangle.hpp>
 #include "gstlearn_export.hpp"
 
 #include "Mesh/MeshSpherical.hpp"
-#include "ExternalTools/sphtriangle.hpp"
 
 /**
  * Meshing defined in the Euclidean space
