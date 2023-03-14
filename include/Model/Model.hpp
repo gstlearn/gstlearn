@@ -46,6 +46,7 @@ class Vario;
 class ANoStat;
 class ADriftElem;
 class AnamContinuous;
+class AnamHermite;
 
 typedef std::vector<ECov> VectorECov;
 
@@ -129,6 +130,7 @@ public:
   int    getMinOrder() const { return _covaList->getMinOrder(); }
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() const { return _covaList->getAnam(); }
+  const AnamHermite* getAnamHermite() const;
   void normalize(double sill) { _covaList->normalize(sill); }
   bool hasNugget() const { return _covaList->hasNugget(); }
 
