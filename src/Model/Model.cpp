@@ -838,6 +838,8 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @param codir  Vector of direction coefficients
  * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
  * @param asCov  Produce the result as a Covariance (rather than a Variogram)
+ * @param member ECalcMember element allowing sampling Model using the covariance
+ *               expression as in the LHS, RHS or VAR term of Kriging Matrix
  *
  * @return The array of variogram evaluated at discretized positions
  * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
@@ -847,7 +849,8 @@ VectorDouble Model::sample(const VectorDouble& hh,
                            int jvar,
                            VectorDouble codir,
                            int nostd,
-                           bool asCov)
+                           bool asCov,
+                           const ECalcMember &member)
 {
   VectorDouble gg;
 
@@ -862,7 +865,7 @@ VectorDouble Model::sample(const VectorDouble& hh,
   int nh = (int) hh.size();
   gg.resize(nh);
 
-  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, ECalcMember::LHS, nh,
+  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, member, nh,
                  codir, hh.data(), gg.data());
   return gg;
 }

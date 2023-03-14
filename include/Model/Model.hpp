@@ -446,7 +446,8 @@ public:
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       int nostd = 0,
-                      bool asCov = false);
+                      bool asCov = false,
+                      const ECalcMember &member = ECalcMember::LHS);
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),
