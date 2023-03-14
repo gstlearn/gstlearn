@@ -14,35 +14,36 @@
 
 #include "gstlearn_export.hpp"
 
+#include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
 
-class GSTLEARN_EXPORT ALinearOp {
-
+class GSTLEARN_EXPORT Cholesky: public ALinearOp
+{
 public:
-  ALinearOp(int nitermax = 1000, double eps = EPSILON8);
-  ALinearOp(const ALinearOp &m);
-  ALinearOp& operator=(const ALinearOp &m);
-  virtual ~ALinearOp();
+  Cholesky(const cs* mat = nullptr);
+  Cholesky(const Cholesky &m);
+  Cholesky& operator=(const Cholesky &m);
+  virtual ~Cholesky();
 
-  virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
-  virtual int getSize() const = 0;
-
-  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
-  void setNIterMax(int nitermax) { _nIterMax = nitermax; }
-  void setEps(double eps) { _eps = eps; }
-  void setX0(VectorDouble& x0) { _x0 = x0; }
-  void setPrecond(const ALinearOp* precond, int status);
+  int reset(const cs* mat = nullptr);
+  int getSize() const override;
+  void evalInverse(const VectorDouble& inv, VectorDouble& outv) const override;
+  void simulate(VectorDouble& inv, VectorDouble& outv);
+  void stdev(VectorDouble& vcur, bool flagStDev = false);
+  void printout(const char *title, bool verbose = false) const;
 
 protected:
-  virtual void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const = 0;
+  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
 private:
-  double _prod(const VectorDouble& x, const VectorDouble& y) const;
+  bool _isDefined() const { return _mat != nullptr; }
+  bool _isDecomposed() const { return _matS != nullptr && _matN != nullptr; }
+  void _clean();
+  void _decompose(bool verbose = false);
 
 private:
-  int              _nIterMax;
-  double           _eps;
-  VectorDouble     _x0;
-  int              _precondStatus;
-  const ALinearOp* _precond; // Pointer copied
+  cs* _mat;
+  css *_matS;
+  csn *_matN;
+  mutable VectorDouble _work;
 };

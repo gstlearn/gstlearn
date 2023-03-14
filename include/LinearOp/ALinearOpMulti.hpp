@@ -26,8 +26,8 @@ public:
   ALinearOpMulti& operator=(const ALinearOpMulti &m);
   virtual ~ALinearOpMulti();
 
-  virtual void evalInverse(const VectorVectorDouble& inv,
-                           VectorVectorDouble& outv) const;
+  virtual void evalInverse(const VectorVectorDouble &inv,
+                           VectorVectorDouble &outv) const;
 
   void evalDirect(const VectorVectorDouble& inv,
                   VectorVectorDouble& outv) const;

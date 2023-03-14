@@ -38,8 +38,7 @@ void Identity::_evalDirect(const VectorDouble& inv, VectorDouble& outv) const
     outv[i] = inv[i];
 }
 
-void Identity::evalInverse(const VectorDouble& inv,
-                           VectorDouble& outv) const
+void Identity::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
 {
   evalDirect(inv,outv);
 }

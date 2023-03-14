@@ -155,6 +155,7 @@
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
+%include LinearOp/Cholesky.hpp
 
 %include Model/ANoStat.hpp
 %include Model/NoStatArray.hpp

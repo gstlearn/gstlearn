@@ -321,6 +321,7 @@
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
   #include "LinearOp/ProjConvolution.hpp"
+  #include "LinearOp/Cholesky.hpp"
   
   #include "Neigh/ANeighParam.hpp"
   #include "Neigh/NeighUnique.hpp"

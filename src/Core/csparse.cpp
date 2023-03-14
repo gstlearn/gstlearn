@@ -2575,7 +2575,7 @@ License: see doc/sparseinv_license.txt
 int sparseinv /* returns -1 on error, or flop count if OK */
 (
 /* inputs, not modified on output: */
-int n, /* L, U, D, and Z are n-by-n */
+ int n, /* L, U, D, and Z are n-by-n */
  int *Lp, /* L is sparse, lower triangular, stored by column */
  int *Li, /* the row indices of L must be sorted */
  double *Lx, /* diagonal of L, if present, is ignored */
@@ -2586,7 +2586,7 @@ int n, /* L, U, D, and Z are n-by-n */
  int *Zp, /* Z is sparse, stored by column */
  int *Zi, /* the row indices of Z must be sorted */
 
- /* output, not defined on input: */
+ /* output, not defined on input */
  double *Zx,
 
  /* workspace: */

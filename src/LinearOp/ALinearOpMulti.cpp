@@ -140,8 +140,8 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble& inv,
  **                    _userInitialValue is true.
  **
  *****************************************************************************/
-void ALinearOpMulti::evalInverse(const VectorVectorDouble& inv,
-                                 VectorVectorDouble& outv) const
+void ALinearOpMulti::evalInverse(const VectorVectorDouble &inv,
+                                 VectorVectorDouble &outv) const
 {
   _init();
   int n = sizes();
