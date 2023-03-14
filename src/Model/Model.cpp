@@ -1236,6 +1236,7 @@ double Model::getBallRadius() const
 const AnamHermite* Model::getAnamHermite() const
 {
   const AAnam* anam = _covaList->getAnam();
+  if (anam == nullptr) return nullptr;
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(anam);
   return anamH;
 }
