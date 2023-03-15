@@ -94,8 +94,6 @@ def printDeprecated():
     print(" ")
     print("This will have the new prototype:")
     print("    ax.plotObj(Obj, args)")
-    print("or even, in a more generic form:")
-    print("    ax.plotGst(Obj, args)")
     print(" ")
     print(">>> This function will be deprecated in the next release of 'plot.py' <<<")
     
@@ -185,6 +183,8 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
                     ax[ix,iy].set_aspect(aspect)
         else:
             ax.set_aspect(aspect)
+            
+    return ax
 
 def decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
     '''
@@ -219,6 +219,8 @@ def decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
             print("decoration() cannot be used when 'ax' is an array. Ignored")
         else:
             ax.set_ylabel(ylabel)
+            
+    return ax
 
 def initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new Geographic figure (possibly containing several subplots)
@@ -386,7 +388,10 @@ def varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
 
     if label is None:
         if flagLabelDir:
-            label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
+            if vario.isDefinedForGrid():
+                label = "vario grid={}".format(vario.getGrincrs(idir))
+            else:
+                label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
         else:
             label = "vario"
     
@@ -430,12 +435,12 @@ def varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
         
     return res
 
-def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
-           nh = 100, hmax = None, show_pairs=False, asCov=False, 
-           var_color='black', var_linestyle="dotted",
-           env_color='black', env_linestyle="dotted",
-           cmap=None, flagLegend=False, axs=None,
-           **kwargs):
+def varmold(vario, model=None, ivar=-1, jvar=-1, idir=-1,
+            nh = 100, hmax = None, show_pairs=False, asCov=False, 
+            var_color='black', var_linestyle="dotted",
+            env_color='black', env_linestyle="dotted",
+            cmap=None, flagLegend=False, axs=None,
+            **kwargs):
     
     printDeprecated()
     
@@ -445,21 +450,21 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
         
     axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
 
-    varmodGeneral(axs, vario, model=model,ivar=ivar, jvar=jvar, idir=idir,
-                  nh=nh, hmax=hmax, show_pairs=show_pairs, asCov=asCov,
-                  var_color=var_color, var_linestyle=var_linestyle,
-                  env_color=env_color, env_linestyle=env_linestyle,
-                  cmap=cmap, flagLegend=flagLegend,
-                  **kwargs)
+    varmod(axs, vario, model=model,ivar=ivar, jvar=jvar, idir=idir,
+           nh=nh, hmax=hmax, show_pairs=show_pairs, asCov=asCov,
+           var_color=var_color, var_linestyle=var_linestyle,
+           env_color=env_color, env_linestyle=env_linestyle,
+           cmap=cmap, flagLegend=flagLegend,
+           **kwargs)
     
     return axs
 
-def varmodGeneral(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
-                  nh = 100, hmax = None, show_pairs=False, asCov=False, 
-                  var_color='black', var_linestyle="dotted",
-                  env_color='black', env_linestyle="dotted",
-                  cmap=None, flagLegend=False,
-                  **kwargs):
+def varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
+           nh = 100, hmax = None, show_pairs=False, asCov=False, 
+           var_color='black', var_linestyle="dotted",
+           env_color='black', env_linestyle="dotted",
+           cmap=None, flagLegend=False,
+           **kwargs):
     """
     Construct a figure for plotting experimental variogram(s) and model.
     
@@ -570,15 +575,15 @@ def vario(vario, ivar=0, jvar=0, idir=0,
     jvarUtil, jvarN = selectItems(nvar, jvar)
     axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
     
-    return varioGeneral(axs, vario, ivar=ivar, jvar=jvar, idir=idir,
-                        var_color=var_color, var_linestyle=var_linestyle, hmax=hmax,  
-                        cmap = cmap, flagLegend=flagLegend, 
-                        **kwargs)
+    return variogram(axs, vario, ivar=ivar, jvar=jvar, idir=idir,
+                     var_color=var_color, var_linestyle=var_linestyle, hmax=hmax,  
+                     cmap = cmap, flagLegend=flagLegend, 
+                     **kwargs)
     
-def varioGeneral(axs, vario, ivar=0, jvar=0, idir=0,
-                 var_color='black', var_linestyle='dashed', hmax=None,  
-                 cmap = None, flagLegend=False, 
-                 **kwargs):
+def variogram(axs, vario, ivar=0, jvar=0, idir=0,
+              var_color='black', var_linestyle='dashed', hmax=None,  
+              cmap = None, flagLegend=False, 
+              **kwargs):
     """
     Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
@@ -602,12 +607,10 @@ def varioGeneral(axs, vario, ivar=0, jvar=0, idir=0,
     -------
     axs : axes where the variograms are represented
     """
-    axs = varmodGeneral(axs, vario, ivar=ivar, jvar=jvar, idir=idir, 
-                        var_color=var_color, var_linestyle=var_linestyle, 
-                        hmax=hmax, cmap=cmap, flagLegend=flagLegend, 
-                        **kwargs)
-    
-    return axs
+    return varmod(axs, vario, ivar=ivar, jvar=jvar, idir=idir, 
+                  var_color=var_color, var_linestyle=var_linestyle, 
+                  hmax=hmax, cmap=cmap, flagLegend=flagLegend, 
+                  **kwargs)
 
 def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
               nh = 100, hmax = None, asCov=False,
@@ -742,10 +745,10 @@ def readCoorPoint(db, coorX_name=None, coorY_name=None,
     
     return tabx, taby
     
-def pointSymbol(ax=None, db=None, name_color=None, name_size=None, 
-                coorX_name=None, coorY_name=None, usesel=True, 
-                c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
-                flagLegend=True, legendName=None, posX=0, posY=1, **kwargs):
+def symbol(ax=None, db=None, name_color=None, name_size=None, 
+           coorX_name=None, coorY_name=None, usesel=True, 
+           c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
+           flagLegend=False, legendName=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
     
@@ -821,9 +824,9 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
          
     return res
 
-def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None, 
-               usesel=True, flagLegend=True, legendName=None, 
-               posX=0, posY=1, **kwargs):
+def literal(ax=None, db=None, name=None, coorX_name=None, coorY_name=None, 
+            usesel=True, flagLegend=True, legendName=None, 
+            posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a point data base, with optional color and size variables
     
@@ -860,8 +863,8 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
   
     return res
 
-def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
-                  posX=0, posY=1, **kwargs):
+def gradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
+             posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a gradient data base
     
@@ -896,8 +899,8 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
             
     return res
 
-def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
-                 posX=0, posY=1, **kwargs):
+def tangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
+            posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a tangent data base
     
@@ -998,7 +1001,6 @@ def pointGeneral(ax, db,
 
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     '''
-    
     if isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
@@ -1013,37 +1015,37 @@ def pointGeneral(ax, db,
 
     title = ""
     if (name_color is not None) or (name_size is not None):
-        pt = pointSymbol(ax, db, name_color=name_color, name_size=name_size, 
-                         coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
-                         c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
-                         flagAbsSize=flagAbsSize, flagCst=flagCst,
-                         cmap=cmap, 
-                         flagLegend=flagLegendSymbol, legendName=legendSymbolName,
-                         posX=posX, posY=posY, 
-                         **kwargs)
+        pt = symbol(ax, db, name_color=name_color, name_size=name_size, 
+                    coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
+                    c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
+                    flagAbsSize=flagAbsSize, flagCst=flagCst,
+                    cmap=cmap, 
+                    flagLegend=flagLegendSymbol, legendName=legendSymbolName,
+                    posX=posX, posY=posY, 
+                    **kwargs)
         if name_color is not None:
             title = title + name_color +  " (Color) "
         if name_size is not None:
             title = title + name_size + " (Size) "
     
     if name_label is not None:
-        tx = pointLabel(ax, db, name=name_label, 
-                        coorX_name=coorX_name, coorY_name=coorY_name, 
-                        usesel=usesel, 
-                        flagLegend=flagLegendLabel, legendName=legendLabelName,
-                        posX=posX, posY=posY, **kwargs)
+        tx = literal(ax, db, name=name_label, 
+                     coorX_name=coorX_name, coorY_name=coorY_name, 
+                     usesel=usesel, 
+                     flagLegend=flagLegendLabel, legendName=legendLabelName,
+                     posX=posX, posY=posY, **kwargs)
         title = title + name_label + " (Label) "
         
     if flagGradient:
-        gr = pointGradient(ax, db, coorX_name=coorX_name, coorY_name=coorY_name, 
-                           usesel=usesel, color=colorGradient, scale=scaleGradient,
-                           posX=posX, posY=posY)
+        gr = gradient(ax, db, coorX_name=coorX_name, coorY_name=coorY_name, 
+                      usesel=usesel, color=colorGradient, scale=scaleGradient,
+                      posX=posX, posY=posY)
         title = title + " (Gradient) "
 
     if flagTangent:
-        tg = pointTangent(ax, db, coorX_name=coorX_name, coorY_name=coorY_name,
-                          usesel=usesel, color=colorTangent, scale=scaleTangent,
-                          posX=posX, posY=posY)
+        tg = tangent(ax, db, coorX_name=coorX_name, coorY_name=coorY_name,
+                     usesel=usesel, color=colorTangent, scale=scaleTangent,
+                     posX=posX, posY=posY)
         title = title + " (Tangent) "
     
     ax.decoration(title = title)
@@ -1075,7 +1077,7 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
             
     return ax
     
-def polygon(poly, facecolor='yellow', edgecolor = 'blue', 
+def polyold(poly, facecolor='yellow', edgecolor = 'blue', 
             colorPerSet = False, flagEdge=True, flagFace=False, 
             ax=None, **kwargs):
     
@@ -1083,13 +1085,13 @@ def polygon(poly, facecolor='yellow', edgecolor = 'blue',
     
     ax = getNewAxes(ax, 1)
     
-    return polygonGeneral(ax, poly, facecolor=facecolor, edgecolor = edgecolor, 
-                          colorPerSet = colorPerSet, flagEdge=flagEdge, flagFace=flagFace, 
-                          **kwargs)
+    return polygon(ax, poly, facecolor=facecolor, edgecolor = edgecolor, 
+                   colorPerSet = colorPerSet, flagEdge=flagEdge, flagFace=flagFace, 
+                   **kwargs)
     
-def polygonGeneral(ax, poly, facecolor='yellow', edgecolor = 'blue', 
-                   colorPerSet = False, flagEdge=True, flagFace=False, 
-                   **kwargs):
+def polygon(ax, poly, facecolor='yellow', edgecolor = 'blue', 
+            colorPerSet = False, flagEdge=True, flagFace=False, 
+            **kwargs):
     '''
     Construct a Figure for plotting a polygon
     ax: matplotlib.Axes
@@ -1151,8 +1153,8 @@ def readGrid(dbgrid, name, usesel=True,
         
     return x0, y0, X, Y, data, tr
 
-def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, corner=None, 
-               flagLegend=True, **kwargs):
+def raster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, corner=None, 
+           flagLegend=True, **kwargs):
     '''
     Plotting a variable from a DbGrid in Raster
 
@@ -1186,9 +1188,9 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
     
     return res
         
-def gridContour(ax=None, dbgrid=None, name=None, usesel = True, 
-                posx=0, posy=1, corner=None, levels=None,
-                flagLegend=True, **kwargs):
+def isoline(ax=None, dbgrid=None, name=None, usesel = True, 
+            posx=0, posy=1, corner=None, levels=None,
+            flagLegend=True, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
@@ -1217,7 +1219,7 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
     
     if flagLegend:
         h1,l1 = res.legend_elements()
-        ax.legend([h1[0]], ["Contour"])
+        ax.legend([h1[0]], ["Isoline"])
         
     return res
 
@@ -1249,18 +1251,18 @@ def gridGeneral(ax, dbgrid, name_raster = None, name_contour = None, usesel = Tr
 
     title = ""
     if name_raster is not None:
-        rs = gridRaster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
-                        posx=posx, posy=posy, corner=corner, 
-                        flagLegend=flagLegendRaster,
-                        **kwargs)
+        rs = raster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
+                    posx=posx, posy=posy, corner=corner, 
+                    flagLegend=flagLegendRaster,
+                    **kwargs)
         title = title + name_raster + " (Raster) "
     
     if name_contour is not None:
-        ct = gridContour(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
-                         posx=posx, posy=posy, corner=corner, levels=levels, 
-                         flagLegend=flagLegendContour, 
-                         **kwargs)
-        title = title + name_contour + " (Contour) "
+        ct = isoline(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
+                     posx=posx, posy=posy, corner=corner, levels=levels, 
+                     flagLegend=flagLegendContour, 
+                     **kwargs)
+        title = title + name_contour + " (Isoline) "
     
     ax.decoration(title = title)
     
@@ -1340,9 +1342,9 @@ def hist(db, name, ax=None, usesel=True, **kwargs):
     
     ax = getNewAxes(ax, 0)
     
-    return histGeneral(ax, db, name=name, usesel=usesel, **kwargs)
+    return histogram(ax, db, name=name, usesel=usesel, **kwargs)
     
-def histGeneral(ax, db, name, usesel=True, **kwargs):
+def histogram(ax, db, name, usesel=True, **kwargs):
     '''
     Plotting the histogram of a variable contained in a Db
     ax: matplotlib.Axes
@@ -1650,30 +1652,30 @@ def meshGeneral(ax, mesh,
 
     return ax
 
-def correlation(db, namex, namey, db2=None, usesel=True, 
-                asPoint = False,  flagSameAxes=False,
-                diagLine=False, diagColor="black", diagLineStyle='-',
-                bissLine=False, bissColor="red", bissLineStyle='-',
-                regrLine=False, regrColor="blue", regrLineStyle='-',
-                ax=None, **kwargs):
+def correlold(db, namex, namey, db2=None, usesel=True, 
+              asPoint = False,  flagSameAxes=False,
+              diagLine=False, diagColor="black", diagLineStyle='-',
+              bissLine=False, bissColor="red", bissLineStyle='-',
+              regrLine=False, regrColor="blue", regrLineStyle='-',
+              ax=None, **kwargs):
     
     printDeprecated()
     
     ax = getNewAxes(ax, 0)
     
-    return correlGeneral(ax, db=db, namex=namex, namey=namey, db2=db2, usesel=usesel, 
-                              asPoint = asPoint,  flagSameAxes=flagSameAxes,
-                              diagLine=diagLine, diagColor=diagColor, diagLineStyle=diagLineStyle,
-                              bissLine=bissLine, bissColor=bissColor, bissLineStyle=bissLineStyle,
-                              regrLine=regrLine, regrColor=regrColor, regrLineStyle=regrLineStyle,
-                              **kwargs)
+    return correlation(ax, db=db, namex=namex, namey=namey, db2=db2, usesel=usesel, 
+                       asPoint = asPoint,  flagSameAxes=flagSameAxes,
+                       diagLine=diagLine, diagColor=diagColor, diagLineStyle=diagLineStyle,
+                       bissLine=bissLine, bissColor=bissColor, bissLineStyle=bissLineStyle,
+                       regrLine=regrLine, regrColor=regrColor, regrLineStyle=regrLineStyle,
+                       **kwargs)
     
-def correlGeneral(ax, db, namex, namey, db2=None, usesel=True, 
-                       asPoint = False,  flagSameAxes=False,
-                       diagLine=False, diagColor="black", diagLineStyle='-',
-                       bissLine=False, bissColor="red", bissLineStyle='-',
-                       regrLine=False, regrColor="blue", regrLineStyle='-',
-                       **kwargs):
+def correlation(ax, db, namex, namey, db2=None, usesel=True, 
+                asPoint = False,  flagSameAxes=False,
+                diagLine=False, diagColor="black", diagLineStyle='-',
+                bissLine=False, bissColor="red", bissLineStyle='-',
+                regrLine=False, regrColor="blue", regrLineStyle='-',
+                **kwargs):
     '''
     Plotting the scatter plot between two variables contained in a Db
     
@@ -1774,7 +1776,7 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         if flagDb:
             point(object, name1, **kwargs)
         else:
-            correlation(object, name1, name2, **kwargs)
+            correlold(object, name1, name2, **kwargs)
             
     elif filetype == "DbGrid":
         if name1 is None:
@@ -1794,7 +1796,7 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         table(object,ranks, **kwargs)
 
     elif filetype == "Polygons":
-        polygon(object,colorPerSet=True,flagFace=True, **kwargs)
+        polyold(object,colorPerSet=True,flagFace=True, **kwargs)
         
     else:
         print("Unknown type:",filetype)
@@ -2042,51 +2044,6 @@ class PolygonSelection:
         self.canvas.draw_idle()
         self.mydb.deleteColumn("interactive_selection")
 
-def plotGst(ax, object, asPoint=False, asCorrel=False, asHisto=False, **kwargs):
-    filetype = type(object).__name__
-
-    if filetype == "Db":
-        if asCorrel:
-            correlGeneral(ax, object, **kwargs)
-        elif asHisto:
-            histGeneral(ax, object, **kwargs)
-        else:
-            pointGeneral(ax, object, **kwargs)
-            
-    elif filetype == "DbGrid":
-        if asCorrel:
-            correlGeneral(ax, object, **kwargs)
-        elif asHisto:
-            histGeneral(ax, object, **kwargs)
-        elif asPoint:
-            pointGeneral(ax, object, **kwargs)
-        else:
-            gridGeneral(ax, object, **kwargs)
-    
-    elif filetype == "Vario":
-        varioGeneral(ax, object, **kwargs)
-    
-    elif filetype == "Model":
-        modelGeneral(ax, object, **kwargs)
-    
-    elif filetype == "AnamHermite":
-        anamGeneral(ax, object, **kwargs)
-
-    elif filetype == "Rule":
-        ruleGeneral(ax, object, **kwargs)
-    
-    elif filetype == "Table":
-        tableGeneral(ax, object, **kwargs)
-
-    elif filetype == "Polygons":
-        polygonGeneral(ax, object, **kwargs)
-        
-    elif filetype == "Mesh":
-        meshGeneral(ax, object, **kwargs)
-
-    else:
-        print("Unknown type:",filetype)
-
 ## Add plot functions as methods of the class ##
 ## ------------------------------------------ ##
 import gstlearn.plot         as gp
@@ -2100,42 +2057,41 @@ setattr(gl.Model,            "plot",             gp.model)
 setattr(gl.Rule,             "plot",             gp.rule)
 setattr(gl.Table,            "plot",             gp.table)
 setattr(gl.Faults,           "plot",             gp.fault)
-setattr(gl.Polygons,         "plot",             gp.polygon)
+setattr(gl.Polygons,         "plot",             gp.polyold)
 setattr(gl.AnamHermite,      "plot",             gp.anam)
 setattr(gl.MeshEStandardExt, "plot",             gp.mesh)
 setattr(gl.MeshETurbo,       "plot",             gp.mesh)
 setattr(gl.Db,               "plot_hist",        gp.hist)
-setattr(gl.Db,               "plot_correlation", gp.correlation)
+setattr(gl.Db,               "plot_correlation", gp.correlold)
 
 # New style attribute setting functions
 setattr(plt.Axes, "decoration",    gp.decoration)
 setattr(plt.Axes, "geometry",      gp.geometry)
 
-setattr(plt.Axes, "plotGst",       gp.plotGst)
-setattr(plt.Axes, "modelGst",      gp.modelGeneral)
+setattr(plt.Axes, "model",         gp.modelGeneral)
 setattr(plt.Axes, "gridGst",       gp.gridGeneral)
 setattr(plt.Axes, "pointGst",      gp.pointGeneral)
-setattr(plt.Axes, "polygonGst",    gp.polygonGeneral)
+setattr(plt.Axes, "polygon",       gp.polygon)
 setattr(plt.Axes, "anamGst",       gp.anamGeneral)
 setattr(plt.Axes, "ruleGst",       gp.ruleGeneral)
 setattr(plt.Axes, "tableGst",      gp.tableGeneral)
 setattr(plt.Axes, "meshGst",       gp.meshGeneral)
-setattr(plt.Axes, "varioGst" ,     gp.varioGeneral)
+setattr(plt.Axes, "variogram",     gp.variogram)
 
-setattr(plt.Axes, "histogram",     gp.histGeneral)
-setattr(plt.Axes, "correlation",   gp.correlGeneral)
+setattr(plt.Axes, "histogram",     gp.histogram)
+setattr(plt.Axes, "correlation",   gp.correlation)
 
 # Elementary functions considered as Axes attributes
-setattr(plt.Axes, "pointSymbol",   gp.pointSymbol)
-setattr(plt.Axes, "pointLabel",    gp.pointLabel)
-setattr(plt.Axes, "pointGradient", gp.pointGradient)
-setattr(plt.Axes, "pointTangent",  gp.pointTangent)
+setattr(plt.Axes, "symbol",        gp.symbol)
+setattr(plt.Axes, "literal",       gp.literal)
+setattr(plt.Axes, "gradient",      gp.gradient)
+setattr(plt.Axes, "tangent",       gp.tangent)
 
-setattr(plt.Axes, "gridRaster",    gp.gridRaster)
-setattr(plt.Axes, "gridContour",   gp.gridContour)
+setattr(plt.Axes, "raster",        gp.raster)
+setattr(plt.Axes, "isoline",       gp.isoline)
 
-setattr(plt.Figure, "varmod",      gp.varmodGeneral)
-setattr(plt.Figure, "vario",       gp.varioGeneral)
+setattr(plt.Figure, "varmod",      gp.varmod)
+setattr(plt.Figure, "variogram",   gp.variogram)
 setattr(plt.Figure, "model",       gp.modelGeneral)
 setattr(plt.Figure, "decoration",  gp.decoration)
 setattr(plt.Figure, "geometry",    gp.geometry)

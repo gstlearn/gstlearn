@@ -28,13 +28,13 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
-//
+  StdoutRedirect sr(sfn.str());
+
   int n = 10;
+  double proba = 0.05;
 
   // We create a square matrix (not necessarily sparse)
 
-  double proba = 0.05;
   cs *Atriplet = cs_spalloc(0, 0, 1, 1, 1);
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
@@ -98,10 +98,11 @@ int main(int /*argc*/, char */*argv*/[])
     VH::display("Product Mat^{-1} %*% V (by Cholesky)", vecout2);
   }
 
-  // Checking the Estimation of the Stedv vector
+  // Checking the Estimation of the Stdev vector
 
-  (void) M.invert();
-  VectorDouble vecout1b = M.getDiagonal();
+  MatrixSquareSymmetric MP(M);
+  (void) MP.invert();
+  VectorDouble vecout1b = MP.getDiagonal();
   Qchol.stdev(vecout2);
   if (VH::isSame(vecout1b,  vecout2))
     message("Standard Deviation is validated\n");
@@ -109,6 +110,18 @@ int main(int /*argc*/, char */*argv*/[])
   {
     VH::display("Standard Deviation (by Matrix)", vecout1b);
     VH::display("Standard Deviation (by Cholesky)", vecout2);
+  }
+
+  // Checking the calculation of Log(Det)
+
+  double res1 = log(M.determinant());
+  double res2 = Qchol.computeLogDet();
+  if (ABS(res1 - res2) < EPSILON10)
+    message("Log(Det) is validated\n");
+  else
+  {
+    message("Log(Det) (by Matrix) = %lf\n", res1);
+    message("Log(Det) (by Cholesky) = %lf\n", res2);
   }
 
   // Free the pointers

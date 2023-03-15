@@ -229,6 +229,7 @@
   #include "Enum/EStatOption.hpp"
   #include "Enum/EDirGen.hpp"
   #include "Enum/EGaussInv.hpp"
+  #include "Enum/ECalcMember.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"

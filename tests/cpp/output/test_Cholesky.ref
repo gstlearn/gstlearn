@@ -1,0 +1,8 @@
+Square Initial Matrix: Nrow=10 Ncol=10 NNZ=17
+Matrix used to demonstrate Cholesky Algebra
+- Nrows(10) x Ncols(10) - Non-zeros(26) [ 26.00 (percent)] (Cholesky)
+
+Product Mat % V is validated
+Product Mat^{-1} % V is validated
+Standard Deviation is validated
+Log(Det) is validated

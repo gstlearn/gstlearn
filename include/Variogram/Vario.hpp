@@ -241,6 +241,7 @@ public:
   double getCodir(int idir, int idim) const { return getDirParam(idir).getCodir(idim); }
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
+  VectorInt getGrincrs(int idir) { return getDirParam(idir).getGrincrs(); }
   double getGrincr(int idir, int idim) { return getDirParam(idir).getGrincr(idim); }
   bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
 

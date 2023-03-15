@@ -180,7 +180,7 @@ private:
   int _prepareMatricesSphere(const AMesh *amesh,
                              int imesh,
                              VectorVectorDouble &coords,
-                             AMatrix &matres,
+                             AMatrixSquare &matres,
                              double *deter);
   cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab);
   cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab);

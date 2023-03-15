@@ -121,7 +121,7 @@ void MatrixSquareDiagonal::_setValues(const double* values, bool /*byCol*/)
     }
 }
 
-double MatrixSquareDiagonal::_determinant() const
+double MatrixSquareDiagonal::determinant() const
 {
   double deter = 1.;
   for (int irow = 0; irow < getNRows(); irow++)

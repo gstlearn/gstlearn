@@ -75,7 +75,7 @@ void MatrixSquareDiagonalCst::_setValue(int /*irank*/, double value)
   _cstDiagMatrix = value;
 }
 
-double MatrixSquareDiagonalCst::_determinant() const
+double MatrixSquareDiagonalCst::determinant() const
 {
   int nrow = getNRows();
   double deter = pow(_cstDiagMatrix, (double) nrow);

@@ -73,7 +73,7 @@ int main(int /*argc*/, char */*argv*/[])
   model->addNoStat(&NoStat);
 
   ShiftOpCs S(&mesh, model, workingDbc);
-  PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF);
+  PrecisionOp Qsimu(&S, &cova);
 
   ///////////////////////////
   // Simulation (Chebyshev)
@@ -81,7 +81,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble tab = VH::simulateGaussian(mesh.getNApices());
 
   resultSimu.resize(tab.size());
-  Qsimu.eval(tab,resultSimu);
+  Qsimu.simulateOne(tab,resultSimu);
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
 
   ///////////////////////////
@@ -106,7 +106,7 @@ int main(int /*argc*/, char */*argv*/[])
     e /= nug;
   }
 
-  PrecisionOp Qkriging(&S, &cova, EPowerPT::ONE);
+  PrecisionOp Qkriging(&S, &cova);
   PrecisionOpMultiConditional A;
   A.push_back(&Qkriging, &B);
   A.setVarianceData(0.01);

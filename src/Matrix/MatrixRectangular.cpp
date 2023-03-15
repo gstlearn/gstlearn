@@ -206,12 +206,6 @@ int MatrixRectangular::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) co
   return 0;
 }
 
-double MatrixRectangular::_determinant() const
-{
-  my_throw("Determinant method is limited to Square Matrices");
-  return TEST;
-}
-
 void MatrixRectangular::addRow(int nrow_added)
 {
   if (isSparse())

@@ -14,18 +14,19 @@
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "csparse_f.h"
 
 #include <iostream>
 
-Cholesky::Cholesky(const cs *mat)
+Cholesky::Cholesky(const cs *mat, bool flagDecompose)
     : ALinearOp(),
       _mat(nullptr),
       _matS(nullptr),
       _matN(nullptr),
       _work()
 {
-  reset(mat);
+  reset(mat, flagDecompose);
 }
 
 Cholesky::Cholesky(const Cholesky &m)
@@ -35,7 +36,7 @@ Cholesky::Cholesky(const Cholesky &m)
       _matN(nullptr),
       _work()
 {
-  reset(m._mat);
+  reset(m._mat, m._isDecomposed());
 }
 
 Cholesky& Cholesky::operator=(const Cholesky &m)
@@ -43,7 +44,7 @@ Cholesky& Cholesky::operator=(const Cholesky &m)
   if (this != &m)
   {
     ALinearOp::operator =(m);
-    reset(m._mat);
+    reset(m._mat, m._isDecomposed());
   }
   return *this;
 }
@@ -55,12 +56,11 @@ Cholesky::~Cholesky()
 
 void Cholesky::_clean()
 {
-  _mat = cs_spfree(_mat);
   _matS = cs_sfree(_matS);
   _matN = cs_nfree(_matN);
 }
 
-int Cholesky::reset(const cs* mat)
+int Cholesky::reset(const cs* mat, bool flagDecompose)
 {
   if (mat == nullptr) return 0;
 
@@ -71,10 +71,10 @@ int Cholesky::reset(const cs* mat)
   if (! cs_isSymmetric(mat)) return 1;
 
   // Duplicate the sparse matrix
-  _mat = cs_duplicate(mat);
+  _mat = mat;
 
   // Perform the Cholesky decomposition
-  _decompose();
+  if (flagDecompose) _decompose();
 
   return 0;
 }
@@ -103,11 +103,9 @@ void Cholesky::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
-  if (! _isDecomposed())
-  {
-    messerr("The Cholesky decomposition must be performed beforehand");
-    return;
-  }
+
+  // Perform Cholesky factorization (if needed)
+  _decompose();
 
   int n = getSize();
   for (int i = 0; i < n; i++) _work[i] = 0.;
@@ -170,7 +168,7 @@ void Cholesky::printout(const char *title, bool verbose) const
  ** \remarks If the decomposition is already performed, nothing is done
  **
  *****************************************************************************/
-void Cholesky::_decompose(bool verbose)
+void Cholesky::_decompose(bool verbose) const
 {
   if (!_isDefined()) return;
   if (_isDecomposed()) return;
@@ -218,11 +216,9 @@ void Cholesky::simulate(VectorDouble& inv, VectorDouble& outv)
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
-  if (! _isDecomposed())
-  {
-    messerr("The Cholesky decomposition must be performed beforehand");
-    return;
-  }
+
+  // Perform Cholesky factorization (if needed)
+  _decompose();
 
   int n = getSize();
   cs_ltsolve(_matN->L, inv.data());
@@ -245,11 +241,9 @@ void Cholesky::stdev(VectorDouble& vcur, bool flagStDev)
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
-  if (! _isDecomposed())
-  {
-    messerr("The Cholesky decomposition must be performed beforehand");
-    return;
-  }
+
+  // Perform Cholesky factorization (if needed)
+   _decompose();
 
   VectorDouble z;
   VectorDouble wz;
@@ -313,3 +307,21 @@ void Cholesky::stdev(VectorDouble& vcur, bool flagStDev)
   Pattern = cs_spfree(Pattern);
 }
 
+double Cholesky::computeLogDet() const
+{
+  if (!_isDefined())
+  {
+    messerr("The sparse matrix should be defined beforehand");
+    return TEST;
+  }
+
+  // Perform Cholesky factorization (if needed)
+   _decompose();
+
+  VectorDouble diag = csd_extract_diag_VD(_matN->L, 1);
+  double det = 0.;
+  for (int i = 0; i < (int) diag.size(); i++)
+    det += log(diag[i]);
+
+  return 2. * det;
+}

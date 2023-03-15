@@ -58,20 +58,20 @@ Geographical defaults:
 
 
 +*Out[10]:*+
-----<matplotlib.collections.QuadMesh at 0x7fd9186ca5c0>
-![png](output_24_1.png)
+----
+![png](output_24_0.png)
 ----
 
 
 +*Out[11]:*+
-----<matplotlib.contour.QuadContourSet at 0x7fd91863f3a0>
-![png](output_26_1.png)
+----
+![png](output_26_0.png)
 ----
 
 
 +*Out[12]:*+
-----<AxesSubplot:title={'center':'Simu.1 (Raster) Simu.2 (Contour) '}>
-![png](output_28_1.png)
+----
+![png](output_28_0.png)
 ----
 
 
@@ -100,8 +100,8 @@ Geographical defaults:
 
 
 +*Out[17]:*+
-----<AxesSubplot:title={'center':'Simu.1'}, xlabel='Values', ylabel='Count'>
-![png](output_39_1.png)
+----
+![png](output_39_0.png)
 ----
 
 
