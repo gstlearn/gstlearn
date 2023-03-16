@@ -13,6 +13,7 @@ from pandas.io               import orc
 from plotly.matplotlylib     import mpltools
 import math
 from plotly.validators.layout.scene import aspectratio
+from matplotlib.pyplot import axes
 
 #Set of global values
 print_deprecated_message = False
@@ -437,7 +438,7 @@ def varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
         
     return res
 
-def varmold(vario, ivar=-1, jvar=-1, axs=None, **kwargs):
+def varmold(vario, model=None, ivar=-1, jvar=-1, axs=None, **kwargs):
     '''
     Deprecated function: see varmod() for details
     '''
@@ -448,7 +449,7 @@ def varmold(vario, ivar=-1, jvar=-1, axs=None, **kwargs):
     jvarUtil, jvarN = selectItems(nvar, jvar)
     axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
 
-    return varmod(axs, vario=vario, ivar=ivar, jvar=jvar, **kwargs)
+    return varmod(axs, vario=vario, model=model, ivar=ivar, jvar=jvar, **kwargs)
 
 def varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
            nh = 100, hmax = None, show_pairs=False, asCov=False, 
@@ -883,7 +884,7 @@ def tangent(ax, db, coorX_name=None, coorY_name=None, usesel=True,
             
     return res
 
-def pointold(db, ax=None, **kwargs):
+def pointold(db, name_size=None, ax=None, **kwargs):
     '''
     Deprecated function: see pointGeneral() for details
     '''
@@ -891,7 +892,7 @@ def pointold(db, ax=None, **kwargs):
     
     ax = getNewAxes(ax, 1)
     
-    return pointGeneral(ax, db=db, **kwargs)
+    return pointGeneral(ax, db=db, name_size=name_size, **kwargs)
 
 def pointGeneral(ax, db, 
                  name_color=None, name_size=None, name_label=None,
@@ -1155,7 +1156,7 @@ def isoline(ax, dbgrid, name, usesel = True,
         
     return res
 
-def gridold(dbgrid, name=None, ax=None, **kwargs):
+def gridold(dbgrid, name_raster=None, ax=None, **kwargs):
     '''
     Deprecated function: see gridGeneral() for details
     '''
@@ -1163,7 +1164,7 @@ def gridold(dbgrid, name=None, ax=None, **kwargs):
     
     ax = getNewAxes(ax, 1)
     
-    return gridGeneral(ax, dbgrid=dbgrid, name_raster=name, **kwargs)
+    return gridGeneral(ax, dbgrid=dbgrid, name_raster=name_raster, **kwargs)
 
 def gridGeneral(ax, dbgrid, name_raster = None, name_contour = None, usesel = True, 
                 posx=0, posy=1, corner=None, 
@@ -1291,14 +1292,14 @@ def histogram(ax, db, name, usesel=True, **kwargs):
         
     return ax
 
-def sortedcurvedold(tabx, taby, ax=None, **kwargs):
+def sortedcurveold(tabx, taby, ax=None, **kwargs):
     '''
     Deprecated function: see sortedcurve() for details
     '''
     printDeprecated()
     
     ax = getNewAxes(ax, 0)
-
+    
     return sortedcurve(ax, tabx=tabx, taby=taby, **kwargs)
 
 def sortedcurve(ax, tabx, taby, color='black', flagLegend=False,
@@ -1313,10 +1314,8 @@ def sortedcurve(ax, tabx, taby, color='black', flagLegend=False,
     
     # Indices of the sorted elements of stabx
     indices = np.argsort(stabx)
-    ax = curve(ax, stabx[indices], staby[indices], color=color, 
-               flagLegend=flagLegend, ax=ax, **kwargs)
-    
-    return ax
+    return curve(ax, data1=stabx[indices], data2=staby[indices], color=color, 
+                 flagLegend=flagLegend, **kwargs)
     
 def curveold(data1, data2=None, ax=None, **kwargs):
     '''
@@ -1476,7 +1475,7 @@ def XY(ax, xtab, ytab, flagAsPoint=False, flagLegend=False,
         
     return ax
 
-def sampleold(sample, ax=None, **kwargs):
+def sampleold(sampleobj, ax=None, **kwargs):
     '''
     Deprecated function: see sample() for details
     '''
@@ -1484,13 +1483,13 @@ def sampleold(sample, ax=None, **kwargs):
     
     ax = getNewAxes(ax, 1)
 
-    return sample(ax, sample=sample, **kwargs)
+    return sample(ax, sampleobj=sampleobj, **kwargs)
 
-def sample(ax, sample, color='black', marker='o', markersize=10,
+def sample(ax, sampleobj, color='black', marker='o', markersize=10,
            flagLegend=False, label='data', 
            **kwargs):
     
-    ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
+    ax.plot(sampleobj[0], sampleobj[1], marker=marker, markersize=markersize, color=color,
             label=label, **kwargs)
             
     if flagLegend:
@@ -1498,28 +1497,28 @@ def sample(ax, sample, color='black', marker='o', markersize=10,
         
     return ax
     
-def ruleold(rule, ax=None, **kwargs):
+def ruleold(ruleobj, ax=None, **kwargs):
     '''
-    Deprecated function: see ruleGeneral() for details
+    Deprecated function: see rule() for details
     '''
     printDeprecated()
     
     ax = getNewAxes(ax, 0)
     
-    return rule(ax, rule=rule, **kwargs)
+    return rule(ax, ruleobj=ruleobj, **kwargs)
 
-def rule(ax, rule, proportions=[],cmap=None, maxG=3.):
+def rule(ax, ruleobj, proportions=[],cmap=None, maxG=3.):
 
-    if isNotCorrect(object=rule, types=["Rule"]):
+    if isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
     
-    nfac = rule.getFaciesNumber()
-    rule.setProportions(proportions)
+    nfac = ruleobj.getFaciesNumber()
+    ruleobj.setProportions(proportions)
     
     cols = get_cmap(nfac, cmap)
 
     for ifac in range(nfac):
-        bds = rule.getThresh(ifac+1)
+        bds = ruleobj.getThresh(ifac+1)
         rect = ptc.Rectangle((bds[0],bds[2]),bds[1]-bds[0], bds[3]-bds[2], 
                               color=cols(ifac))
         ax.add_patch(rect)
@@ -1528,7 +1527,7 @@ def rule(ax, rule, proportions=[],cmap=None, maxG=3.):
        
     return ax
 
-def tableold(table, ranks=None, ax=None, **kwargs):
+def tableold(tableold, ranks=None, ax=None, **kwargs):
     '''
     Deprecated function: see table() for details
     '''
@@ -1536,9 +1535,9 @@ def tableold(table, ranks=None, ax=None, **kwargs):
     
     ax = getNewAxes(ax, 0)
     
-    return table(ax, table=table, icols=ranks, **kwargs)
+    return table(ax, tableold=tableold, icols=ranks, **kwargs)
     
-def table(ax, table, icols, fmt='ok', flagLegend=False, **kwargs):
+def table(ax, tableold, icols, fmt='ok', flagLegend=False, **kwargs):
     '''
     Plotting the contents of a Table (argument 'table')
     ax: matplotlib.Axes
@@ -1546,18 +1545,18 @@ def table(ax, table, icols, fmt='ok', flagLegend=False, **kwargs):
     fmt: designates [marker][line][color] information
     **kwargs
     '''
-    if isNotCorrect(object=table, types=["Table"]):
+    if isNotCorrect(object=tableold, types=["Table"]):
         return None
     
     if len(icols) == 0:
-        datay = table.getColumn(0)
-        datax = [i for i in range(table.getNRows())]
+        datay = tableold.getColumn(0)
+        datax = [i for i in range(tableold.getNRows())]
     elif len(icols) == 1:
-        datay = table.getColumn(int(icols[0]))
-        datax = [i for i in range(table.getNRows())]
+        datay = tableold.getColumn(int(icols[0]))
+        datax = [i for i in range(tableold.getNRows())]
     else:
-        datay = table.getColumn(int(icols[0]))
-        datax = table.getColumn(int(icols[1]))
+        datay = tableold.getColumn(int(icols[0]))
+        datax = tableold.getColumn(int(icols[1]))
     
     data = np.stack((np.array(datax), np.array(datay)))
     data = data[:, ~np.isnan(data).any(axis=0)]
@@ -1569,7 +1568,7 @@ def table(ax, table, icols, fmt='ok', flagLegend=False, **kwargs):
         
     return ax
 
-def meshold(mesh, ax=None, **kwargs):
+def meshold(meshobj, ax=None, **kwargs):
     '''
     Deprecated function: see mesh() for details
     '''
@@ -1577,9 +1576,9 @@ def meshold(mesh, ax=None, **kwargs):
     
     ax = getNewAxes(ax, 1) 
     
-    return mesh(ax, mesh=mesh, **kwargs)
+    return mesh(ax, meshobj=meshobj, **kwargs)
 
-def mesh(ax, mesh, 
+def mesh(ax, meshobj, 
          flagEdge=True, flagFace=False, flagApex=False, 
          facecolor="yellow", edgecolor="blue", linewidth=1,
          **kwargs):
@@ -1587,7 +1586,7 @@ def mesh(ax, mesh,
     Plotting the contents of a Mesh
     **kwargs : arguments passed to matplotlib.pyplot.fill
     """
-    if isNotCorrect(object=mesh, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
+    if isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
         return None
     
     if flagFace:
@@ -1599,11 +1598,11 @@ def mesh(ax, mesh,
         kwargs.setdefault('edgecolor', edgecolor) 
         kwargs.setdefault('linewidth', linewidth)
 
-    nmesh = mesh.getNMeshes()
+    nmesh = meshobj.getNMeshes()
     
     for imesh in range(nmesh):
-        tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
-        taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
+        tabx = meshobj.getCoordinatesPerMesh(imesh, 0, True)
+        taby = meshobj.getCoordinatesPerMesh(imesh, 1, True)
         ax.fill(tabx, taby, **kwargs)
         
         if flagApex:
@@ -1691,7 +1690,7 @@ def correlation(ax, db, namex, namey, db2=None, usesel=True,
 
     return ax
 
-def anamold(anam, ax=None, **kwargs):
+def anamold(anamobj, ax=None, **kwargs):
     '''
     Deprecated function: see anam() for details
     '''
@@ -1699,18 +1698,18 @@ def anamold(anam, ax=None, **kwargs):
     
     ax = getNewAxes(ax, 0)
     
-    return anam(ax, anam=anam, **kwargs)
+    return anam(ax, anamobj=anamobj, **kwargs)
     
-def anam(ax, anam, color='blue', linestyle='-', flagLegend=False):
+def anam(ax, anamobj, color='blue', linestyle='-', flagLegend=False):
     
-    if isNotCorrect(object=anam, types=["Anam","AnamHermite"]):
+    if isNotCorrect(object=anamobj, types=["Anam","AnamHermite"]):
         return None
 
-    res = anam.sample()
+    res = anamobj.sample()
     
-    ax = XYGeneral(ax, res.getY(), res.getZ(),
-                   flagLegend=flagLegend, color=color, linestyle=linestyle,
-                   label='Anamorphosis')
+    ax = XY(ax, res.getY(), res.getZ(),
+            flagLegend=flagLegend, color=color, linestyle=linestyle,
+            label='Anamorphosis')
     ax.geometry(xlim = res.getAylim(), ylim=res.getAzlim())
     ax.decoration(xlabel="Gaussian values", ylabel="Raw values")
     

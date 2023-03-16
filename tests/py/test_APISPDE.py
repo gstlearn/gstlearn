@@ -59,9 +59,7 @@ S = gl.ShiftOpCs(mesh, model, resultDb)
 
 Qsimu = gl.PrecisionOp(S, cova, False)
 
-vect = np.random.normal(size=Qsimu.getSize())
-result = gl.VectorDouble(np.zeros(Qsimu.getSize()))
-Qsimu.evalPower(vect,result,gl.EPowerPT.MINUSHALF)
+result = Qsimu.evalPower()
 workingDb.addColumns(result.getVector(),"Simu",gl.ELoc.X)
 
 ind = np.random.choice(workingDb.getActiveSampleNumber(), size=100, replace=False)

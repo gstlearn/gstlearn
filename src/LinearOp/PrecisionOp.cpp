@@ -382,7 +382,7 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   return result;
 }
 
-void PrecisionOp::simulateOne(VectorDouble& whitenoise, VectorDouble& result)
+void PrecisionOp::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result)
 {
   _evalPoly(EPowerPT::MINUSHALF,whitenoise,result);
   _shiftOp->prodLambda(result, result, EPowerPT::MINUSONE);
@@ -401,6 +401,16 @@ VectorVectorDouble PrecisionOp::simulate(int nbsimus)
     _evalPoly(EPowerPT::MINUSHALF,whitenoise,e);
     _shiftOp->prodLambda(e, e, EPowerPT::MINUSONE);
   }
+  return vect;
+}
+
+VectorDouble PrecisionOp::simulateOne()
+{
+  int n = getSize();
+  VectorDouble vect(n);
+  VectorDouble whitenoise = VH::simulateGaussian(n);
+  _evalPoly(EPowerPT::MINUSHALF,whitenoise,vect);
+  _shiftOp->prodLambda(vect, vect, EPowerPT::MINUSONE);
   return vect;
 }
 

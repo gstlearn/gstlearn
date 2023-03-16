@@ -101,11 +101,7 @@ int main(int /*argc*/, char */*argv*/[])
   ShiftOpCs S(&mesh, &model, workingDbc);
   PrecisionOp Qsimu(&S, &cova, false);
 
-  int nvertex = Qsimu.getSize();
-  VectorDouble vectnew = VH::simulateGaussian(nvertex);
-
-  VectorDouble result(Qsimu.getSize());
-  Qsimu.simulateOne(vectnew,result);
+  VectorDouble result = Qsimu.simulateOne();
   workingDbc->addColumns(result,"Simu",ELoc::Z);
 
   DbStringFormat dbfmt(FLAG_STATS,{"Simu"});

@@ -56,7 +56,7 @@ public:
 
   // Interface functions for using PrecisionOp
   virtual void eval(const VectorDouble &inv, VectorDouble &outv);
-  virtual void simulateOne(VectorDouble& whitenoise, VectorDouble& result);
+  virtual void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result);
   virtual void evalInvVect(VectorDouble& in, VectorDouble& result);
   virtual double computeLogDet(int nsimus = 1, int seed = 0);
   virtual void gradYQX(const VectorDouble& /*X*/,
@@ -92,6 +92,7 @@ public:
   void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
   VectorDouble evalCov(int imesh);
   VectorVectorDouble simulate(int nbsimus = 1);
+  VectorDouble simulateOne();
 
   int    getSize() const { return _shiftOp->getSize(); }
   bool getTraining()const {return _training;}

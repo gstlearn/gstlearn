@@ -39,7 +39,7 @@ public:
 
   // Interface for PrecisionOp class
   void eval(const VectorDouble &inv, VectorDouble &outv) override;
-  void simulateOne(VectorDouble& whitenoise, VectorDouble& result) override;
+  void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result) override;
   void evalInvVect(VectorDouble& in, VectorDouble& result) override;
   double computeLogDet(int nsimus = 1, int seed = 0) override;
 

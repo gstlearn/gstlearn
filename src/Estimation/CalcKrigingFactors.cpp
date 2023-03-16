@@ -46,13 +46,6 @@ bool CalcKrigingFactors::_check()
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
   if (! hasNeighParam()) return false;
-/* check not necessary. Only used if a change of support already checked below
-  if (! getDbout()->isGrid())
-  {
-    messerr("This application is limited to output Grid file");
-    return false;
-  }
-  */
 
   if (getNeighparam()->getType() == ENeigh::IMAGE)
   {
@@ -188,12 +181,15 @@ bool CalcKrigingFactors::_run()
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
-  /* Loop on the targets to be processed */
+  // Loop on the targets to be processed
 
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
     mes_process("Disjunctive Kriging for cell",
                 getDbout()->getSampleNumber(),iech_out);
+
+    // Loop on the factors
+    // Note the loops are performed in this way to factorize the Neighborhood search
 
     for (int iclass = 1; iclass <= _getNFactors(); iclass++)
     {

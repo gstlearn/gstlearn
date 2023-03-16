@@ -1,4 +1,8 @@
-+*Out[4]:*+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[5]:*+
 ----
 
 Data Base Grid Characteristics
@@ -27,13 +31,13 @@ Column = 3 - Name = W2 - Locator = z1
  ----
 
 
-+*Out[5]:*+
-----
-![png](output_9_0.png)
-----
-
-
 +*Out[6]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[7]:*+
 ----
 
 Data Base Grid Characteristics
@@ -65,19 +69,19 @@ Column = 5 - Name = ratio - Locator = nostat2
  ----
 
 
-+*Out[7]:*+
-----
-![png](output_12_0.png)
-----
-
-
 +*Out[8]:*+
 ----
 ![png](output_13_0.png)
 ----
 
 
-+*Out[10]:*+
++*Out[9]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[11]:*+
 ----
 
 Model characteristics
@@ -103,25 +107,25 @@ Range      : GRF=1 Str=1 V#1=2
  ----
 
 
-+*Out[11]:*+
++*Out[12]:*+
 ----
-![png](output_19_0.png)
-----
-
-
-+*Out[14]:*+
-----
-![png](output_24_0.png)
+![png](output_20_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
-![png](output_28_0.png)
+![png](output_25_0.png)
 ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
+----
+![png](output_29_0.png)
+----
+
+
++*Out[19]:*+
 ----
 
 Data Base Grid Characteristics
@@ -153,11 +157,11 @@ Column = 5 - Name = ratio - Locator = nostat2
 Column = 6 - Name = spde.simu - Locator = NA
 Column = 7 - Name = spde.kriging - Locator = z1
  
-![png](output_30_1.png)
+![png](output_31_1.png)
 ----
 
 
-+*Out[20]:*+
++*Out[21]:*+
 ----
 
 Data Base Grid Characteristics
@@ -190,5 +194,5 @@ Column = 6 - Name = spde.simu - Locator = NA
 Column = 7 - Name = spde.kriging - Locator = NA
 Column = 8 - Name = spde.condSimu - Locator = z1
  
-![png](output_33_1.png)
+![png](output_34_1.png)
 ----

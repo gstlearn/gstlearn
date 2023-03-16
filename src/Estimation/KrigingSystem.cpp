@@ -206,14 +206,20 @@ int KrigingSystem::_getNVar() const
     }
     nvar = _model->getVariableNumber();
   }
-  if (_dbin != nullptr)
+
+  // In the case of factor kriging, the number of Z-variables in the Data file
+  // does not give the number of variables. Check should be avoided
+  if (!_flagFactorKriging)
   {
-    if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+    if (_dbin != nullptr)
     {
-      messerr("Inconsistent number of Variables - Value is returned as 0");
-      return 0;
+      if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+      {
+        messerr("Inconsistent number of Variables - Value is returned as 0");
+        return 0;
+      }
+      nvar = _dbin->getLocNumber(ELoc::Z);
     }
-    nvar = _dbin->getLocNumber(ELoc::Z);
   }
   return nvar;
 }

@@ -126,7 +126,7 @@ void PrecisionOpCs::eval(const VectorDouble &inv, VectorDouble &outv)
   _qChol.evalDirect(inv, outv);
 }
 
-void PrecisionOpCs::simulateOne(VectorDouble& whitenoise, VectorDouble& result)
+void PrecisionOpCs::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result)
 {
   _qChol.simulate(whitenoise, result);
 }

@@ -77,11 +77,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////////
   // Simulation (Chebyshev)
-  VectorDouble resultSimu;
-  VectorDouble tab = VH::simulateGaussian(mesh.getNApices());
-
-  resultSimu.resize(tab.size());
-  Qsimu.simulateOne(tab,resultSimu);
+  VectorDouble resultSimu = Qsimu.simulateOne();
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
 
   ///////////////////////////
