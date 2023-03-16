@@ -353,8 +353,6 @@ if (verbose)
 
 Some statistics on the Conditional simulations in Gaussian scale
 
-** Still impossible due to use of VectorString **
-
 ```{r}
 if (verbose)
   err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),

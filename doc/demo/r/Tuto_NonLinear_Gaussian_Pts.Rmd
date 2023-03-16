@@ -575,7 +575,7 @@ err = anam$rawToFactor(db = data, nfactor = nfactor,
 What is performed? Compute the (simple) kriging of the factors. Simple Kriging is used and point or block estimate can be used as kriging is a linear operator.
 
 ```{r dk_pts_estim, echo=TRUE, eval=TRUE}
-err = KrigingFactors(dbin   = data,   # Input data set (a Db structure)
+err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = blocs,  # Output data set (a DbGrid structure)
                      model  = model, neigh, calcul= EKrigOpt_PONCTUAL(),
                      namconv = NamingConvention("DK_Pts"))
@@ -665,7 +665,7 @@ The post-processing is identical using **DisjunctiveKriging**.
 # The number of estimated factors is defined by the number of selected variables 
 # in the input data base
 ndisc_B = c(5, 5)
-err = KrigingFactors(dbin   = data,   # Input data set (a Db structure)
+err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = blocs,  # Output data set (a DbGrid structure)
                      model  = model, neigh, calcul= EKrigOpt_BLOCK(), ndisc = ndisc_B,
                      namconv = NamingConvention("DK_Blk"))
@@ -791,7 +791,7 @@ grid$setName("CE.Z-stdev", "CE.Z.stdev")
 
 # Disjunctive kriging
 data$setLocator("F.*", ELoc_Z(), cleanSameLocator=TRUE)
-err = KrigingFactors(dbin   = data,   # Input data set (a Db structure)
+err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = grid,  # Ouput data set (a DbGrid structure)
                      model  = model, neigh, calcul= EKrigOpt_PONCTUAL(),
                      namconv = NamingConvention("SK"))

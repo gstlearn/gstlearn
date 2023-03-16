@@ -101,36 +101,6 @@ Geographical defaults:
 
 +*Out[17]:*+
 ----
-![png](output_39_0.png)
-----
-
-
-+*Out[18]:*+
-----
-![png](output_41_0.png)
-----
-
-
-+*Out[19]:*+
-----
-![png](output_43_0.png)
-----
-
-
-+*Out[20]:*+
-----
-![png](output_45_0.png)
-----
-
-
-+*Out[21]:*+
-----
-![png](output_46_0.png)
-----
-
-
-+*Out[22]:*+
-----
 
 Data Base Characteristics
 =========================
@@ -155,6 +125,24 @@ Column = 5 - Name = sel - Locator = sel
  ----
 
 
++*Out[19]:*+
+----
+![png](output_43_0.png)
+----
+
+
++*Out[21]:*+
+----
+![png](output_47_0.png)
+----
+
+
++*Out[23]:*+
+----
+![png](output_51_0.png)
+----
+
+
 +*Out[24]:*+
 ----
 ![png](output_53_0.png)
@@ -163,29 +151,11 @@ Column = 5 - Name = sel - Locator = sel
 
 +*Out[25]:*+
 ----
-![png](output_56_0.png)
+![png](output_55_0.png)
 ----
 
 
-+*Out[27]:*+
-----
-![png](output_60_0.png)
-----
-
-
-+*Out[28]:*+
-----
-![png](output_62_0.png)
-----
-
-
-+*Out[29]:*+
-----
-![png](output_64_0.png)
-----
-
-
-+*Out[30]:*+
++*Out[26]:*+
 ----
 
 Data Base Characteristics
@@ -215,67 +185,67 @@ Column = 3 - Name = z - Locator = z1
  ----
 
 
-+*Out[31]:*+
++*Out[27]:*+
 ----
-![png](output_68_0.png)
+![png](output_60_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_62_0.png)
+----
+
+
++*Out[29]:*+
+----
+![png](output_64_0.png)
 ----
 
 
 +*Out[32]:*+
 ----
-![png](output_70_0.png)
+![png](output_72_0.png)
 ----
 
 
 +*Out[33]:*+
 ----
-![png](output_72_0.png)
+![png](output_74_0.png)
+----
+
+
++*Out[34]:*+
+----
+![png](output_76_0.png)
+----
+
+
++*Out[35]:*+
+----
+![png](output_78_0.png)
 ----
 
 
 +*Out[36]:*+
 ----
-![png](output_80_0.png)
+![png](output_81_0.png)
 ----
 
 
 +*Out[37]:*+
 ----
-![png](output_82_0.png)
+![png](output_84_0.png)
 ----
 
 
 +*Out[38]:*+
 ----
-![png](output_84_0.png)
+![png](output_86_0.png)
 ----
 
 
 +*Out[39]:*+
 ----
-![png](output_86_0.png)
-----
-
-
-+*Out[40]:*+
-----
 ![png](output_89_0.png)
-----
-
-
-+*Out[41]:*+
-----
-![png](output_92_0.png)
-----
-
-
-+*Out[42]:*+
-----
-![png](output_94_0.png)
-----
-
-
-+*Out[43]:*+
-----
-![png](output_97_0.png)
 ----
