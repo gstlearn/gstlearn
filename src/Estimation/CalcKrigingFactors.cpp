@@ -183,22 +183,20 @@ bool CalcKrigingFactors::_run()
 
   // Loop on the targets to be processed
 
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+  int ntotal = getDbout()->getSampleNumber() * _getNFactors();
+  int iproc = 0;
+  for (int iclass = 1; iclass <= _getNFactors(); iclass++)
   {
-    mes_process("Disjunctive Kriging for cell",
-                getDbout()->getSampleNumber(),iech_out);
+    int jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
+    int jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
+    getDbin()->clearLocators(ELoc::Z);
+    getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z);
+    if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
+    if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 
-    // Loop on the factors
-    // Note the loops are performed in this way to factorize the Neighborhood search
-
-    for (int iclass = 1; iclass <= _getNFactors(); iclass++)
+    for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
     {
-      int jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
-      int jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
-      getDbin()->clearLocators(ELoc::Z);
-      getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z);
-      if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-      if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
+      mes_process("Disjunctive Kriging for cell", ntotal, iproc);
       if (ksys.estimate(iech_out)) return 1;
     }
   }

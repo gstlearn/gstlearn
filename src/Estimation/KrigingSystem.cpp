@@ -2645,6 +2645,9 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
   // Update C00 if the variance calculation is required
   if (_flagStd) _variance0();
 
+  // Cancel any already existing Neighborhood
+  _nbghWork.setIsChanged();
+
   return 0;
 }
 
