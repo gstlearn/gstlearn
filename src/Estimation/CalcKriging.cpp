@@ -29,6 +29,7 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _matCL(),
     _flagDGM(false),
     _rCoeff(1.),
+    _nameCoord(),
     _flagBayes(false),
     _priorMean(),
     _priorCov(),
@@ -120,8 +121,21 @@ bool CalcKriging::_preprocess()
 
   if (_flagDGM)
   {
+    // Duplicating the coordinate variable names before centering
+    Db* dbin = getDbin();
+    int ndim = _getNDim();
+    _nameCoord = dbin->getNamesByLocator(ELoc::X);
+    int iuids_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, ndim, TEST);
+
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      int iuid_in = dbin->getUIDByLocator(ELoc::X, idim);
+      dbin->duplicateColumnByUID(iuid_in, iuids_out + idim);
+    }
+    dbin->setLocatorsByUID(iuids_out, ELoc::X);
+
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    if (db_center_point_to_grid(getDbin(), dbgrid)) return false;
+    if (db_center_point_to_grid(dbin, dbgrid)) return false;
   }
 
   return true;
@@ -155,6 +169,10 @@ bool CalcKriging::_postprocess()
     _renameVariable(2, 1, _iptrNeigh+2, "MinDist", 1);
     _renameVariable(2, 1, _iptrNeigh+3, "NbNESect", 1);
     _renameVariable(2, 1, _iptrNeigh+4, "NbCESect", 1);
+  }
+  else if (_flagDGM)
+  {
+    getDbin()->setLocators(_nameCoord, ELoc::X);
   }
   else
   {

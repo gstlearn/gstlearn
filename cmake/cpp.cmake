@@ -95,13 +95,9 @@ foreach(FLAVOR ${FLAVORS})
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
   
-  # Used by delaunay (On Windows, prevent the include sys/time.h (-DNO_TIMER))
-  target_compile_definitions(${FLAVOR} PRIVATE NO_TIMER) 
-  
-  # Link to Boost
+  # 'Link' to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
-  # It should be PRIVATE if no headers of the gstlearn include boost files
-  target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
+  target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
   
   # Link to HDF5
   if (USE_HDF5)

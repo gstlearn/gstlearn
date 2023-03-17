@@ -135,6 +135,8 @@
 %include Mesh/MeshEStandard.hpp
 %include Mesh/MeshETurbo.hpp
 %include Mesh/MeshSpherical.hpp
+%include Mesh/MeshSphericalExt.hpp
+
 
 %include Polynomials/APolynomial.hpp
 %include Polynomials/ClassicalPolynomial.hpp
@@ -338,10 +340,6 @@
 %include Style.hpp
 
 %include segy.h
-
-%include ExternalTools/MeshFactory.hpp
-%include ExternalTools/MeshEStandardExt.hpp
-%include ExternalTools/MeshSphericalExt.hpp
 
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511

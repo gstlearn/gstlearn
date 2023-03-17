@@ -30,15 +30,15 @@ void inquire_gstlearn(char **release,
 {
   char *buffer;
 
-  int size  = static_cast<int> (strlen(GSTLEARN_RELEASE));
+  int size  = static_cast<int> (strlen(GSTLEARN_VERSION));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
-  (void) gslStrcpy(buffer,GSTLEARN_RELEASE);
+  (void) gslStrcpy(buffer,GSTLEARN_VERSION);
   buffer[size] = '\0';
   *release = buffer;
 
-  size  = static_cast<int> (strlen(GSTLEARN_RELEASE));
+  size  = static_cast<int> (strlen(GSTLEARN_VERSION));
   buffer = (char *) mem_alloc(sizeof(char) * (size+1),1);
-  (void) gslStrcpy(buffer,GSTLEARN_RELEASE);
+  (void) gslStrcpy(buffer,GSTLEARN_VERSION);
   buffer[size] = '\0';
   *date = buffer;
 }
@@ -54,7 +54,7 @@ void acknowledge_gstlearn(void)
   // Print the header 
 
   message("gstlearn Library (Version:%s - Date:%s)",
-          GSTLEARN_RELEASE,GSTLEARN_DATE);
+          GSTLEARN_VERSION,GSTLEARN_DATE);
 
   // Print the list of authors
 

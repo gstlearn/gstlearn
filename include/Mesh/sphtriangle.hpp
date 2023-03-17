@@ -1,13 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 //                                                                           //
-// SphTriangle                                                                    //
+// SphTriangle                                                               //
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef sphtriangleH
 #define sphtriangleH
 
-typedef struct
+class SphTriangle
 {
+public:
   int n_nodes; /* Number of nodes */
   int sph_size; /* Size of arrays sph_list and sph_lptr */
   double *sph_x; /* Array of X-coordinates for nodes */
@@ -16,7 +17,7 @@ typedef struct
   int *sph_list; /* Set of nodal indexes */
   int *sph_lptr; /* Set of pointers (sph_list indexes) */
   int *sph_lend; /* Set of pointers to adjacency lists */
-} SphTriangle;
+};
 
 int trmesh_(int *n,
             double *x,

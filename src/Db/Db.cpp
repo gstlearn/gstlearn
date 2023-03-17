@@ -160,6 +160,7 @@ int Db::resetFromCSV(const String& filename,
  * @param coormin Vector giving the smallest values of the coordinates
  * @param coormax Vector giving the largest values for the coordinates
  * @param ndim    Space dimension (used if 'coormin' and 'coormax' are empty)
+ * @param extend  Extension of the bounding box (if positive)
  * @param seed    Seed for the random number generator
  * @param flag_add_rank 1 if the Sample ranks must be generated
  */
@@ -167,6 +168,7 @@ int Db::resetFromBox(int nech,
                      const VectorDouble& coormin,
                      const VectorDouble& coormax,
                      int ndim,
+                     double extend,
                      int seed,
                      int flag_add_rank)
 {
@@ -187,14 +189,18 @@ int Db::resetFromBox(int nech,
   for (int idim = 0; idim < ndim; idim++)
   {
     double mini = (coormin.empty()) ? 0. : coormin[idim];
+    if (extend > 0.) mini -= extend;
     double maxi = (coormax.empty()) ? 1. : coormax[idim];
+    if (extend > 0.) maxi += extend;
+    message("idim=%d coormin=%lf mini=%lf coormax=%lf maxi=%lf\n",
+            idim, coormin[idim], mini, coormax[idim], maxi);
     for (int iech = 0; iech < nech; iech++)
       tab[ecr++] = law_uniform(mini,maxi);
   }
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
+  _loadData(tab, names, VectorString(), ELoadBy::COLUMN, flag_add_rank);
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
@@ -4681,8 +4687,8 @@ Db* Db::createFromDbGrid(int nech,
                          int flag_add_rank)
 {
   Db* db = db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid,
-                         flag_exact, flag_repulsion, range, beta, seed,
-                         flag_add_rank);
+                         flag_exact, flag_repulsion, range, beta,
+                         0., seed, flag_add_rank);
   return db;
 }
 
@@ -4792,10 +4798,11 @@ Db* Db::createFromBox(int nech,
                       bool flag_repulsion,
                       double range,
                       double beta,
+                      double extend,
                       int flag_add_rank)
 {
   Db* db = db_point_init(nech, coormin, coormax, nullptr,
-                         flag_exact, flag_repulsion, range, beta, seed,
+                         flag_exact, flag_repulsion, range, beta, extend, seed,
                          flag_add_rank);
   return db;
 }

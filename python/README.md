@@ -33,6 +33,7 @@ Simply import the *gstlearn* Python package and its plot module, then enjoy:
 ```
 # Import packages
 import numpy as np
+import matplotlib.pyplot as plt
 import gstlearn as gl
 import gstlearn.plot as gp
 # Grid size
@@ -43,7 +44,9 @@ mygrid = gl.DbGrid.create([nx,ny],[1,1])
 var = np.random.randn(nx * ny)
 mygrid.addColumns(var, "var1", gl.ELoc.Z)
 # Display the field
-gp.grid(mygrid, title="Gaussian random field", end_plot = True)
+ax = gp.grid(mygrid)
+ax.decoration(title="Gaussian random field")
+plt.show()
 ```
 
 Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) directory of the *gstlearn* github repository.
@@ -79,7 +82,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *scikits-sparse*, *pybind11-global* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11-global* and *matplotlib* modules installed
 * *pypandoc*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
@@ -99,7 +102,7 @@ sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
 sudo apt install pandoc jupyter
-python3 -m pip install pybind11-global numpy pandas scipy scikits-sparse matplotlib
+python3 -m pip install pybind11-global numpy pandas scipy matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -113,7 +116,7 @@ python3 -m pip install pypandoc geopandas plotly jupyter
 brew install python3
 brew install swig
 brew install pandoc jupyter
-python3 -m pip install pybind11-global numpy pandas scipy scikits-sparse matplotlib
+python3 -m pip install pybind11-global numpy pandas scipy matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -136,7 +139,7 @@ Notes:
 3. Finally, install additional Python modules by running following instructions in a command prompt:
 
 ````
-python -m pip install "pybind11[global]" numpy pandas scipy scikits-sparse matplotlib
+python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 python -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -156,14 +159,15 @@ git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ````
 
-Next time, you will only need to pull the repository:
+Next time, you will only need to pull the repository (If you have some local undesirable modifications, you have to revert them and execute the pull, otherwise do not execute `git reset`):
 
 ````
 cd gstlearn
+git reset --hard
 git pull
 ````
 
-2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory
+2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
 
 
 #### GCC, Clang, ...
@@ -200,7 +204,11 @@ cmake --build build --target python_install --config Release
 
 The `check*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
 
-To build and launch non-regression Python tests, execute the following command:
+To build and launch non-regression Python tests, you need to:
+
+1. Add `GSTLEARN_DATA` environment variable which must point to the data folder: `gstlearn/doc/data`
+
+2. Execute the following command:
 
 #### GCC, Clang, MinGW, ...
 
@@ -231,7 +239,7 @@ cmake --build build --target check_ipynb --config Release
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
-* If you don't know how to execute github commands, you may (read this)[https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token].
+* If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * The Windows C++ Compiler used must be the same that the one used for compiling Python (Visual C++). Using another compiler than Visual C++ is not supported.
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
@@ -260,5 +268,5 @@ Note : You may need to directly modify your *site-packages* folder by:
 
 ## License
 
-New BSD
+BSD
 2023 Team gstlearn

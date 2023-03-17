@@ -34,6 +34,7 @@ For using this R Package you only need R 4.2 (or higher) and execute the followi
 ```
 # Load gstlearn package
 library(gstlearn)
+library(ggplot2)
 # Grid size
 nx = 60
 ny = 30
@@ -42,7 +43,7 @@ mygrid = DbGrid_create(c(nx,ny), c(1,1))
 var = rnorm(nx * ny)
 mygrid$addColumns(var, "var1", ELoc_Z())
 # Display the field
-plot.grid(mygrid, title="Gaussian random field")
+ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 ```
 
 Some tutorials (RMarkdown) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) directory of the *gstlearn* github repository.
@@ -285,10 +286,11 @@ git clone https://github.com/gstlearn/gstlearn.git
 cd gstlearn
 ````
 
-Next time, you will only need to pull the repository:
+Next time, you will only need to pull the repository (If you have some local undesirable modifications, you have to revert them and execute the pull, otherwise do not execute `git reset`):
 
 ````
 cd gstlearn
+git reset --hard
 git pull
 ````
 
@@ -308,8 +310,12 @@ make r_install
 ### Execute Non-regression Tests
 
 The `check*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
- 
-To build and launch non-regression R tests, execute the following command:
+
+To build and launch non-regression R tests, you need to:
+
+1. Add `GSTLEARN_DATA` environment variable which must point to the data folder: `gstlearn/doc/data`
+
+2. Execute the following command:
 
 ```
 cmake --build build --target check_r

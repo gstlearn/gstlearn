@@ -328,8 +328,8 @@ Anamorphosis in the lognormal case (Hermite pol.)
 zz_hm   <- GM_hermite(y = yy, nh = nh) %*% GM_LN_psi(lambda = lambda, nh = nh)
 
 p = ggplot()
-p = p + plot.XY(yy, zz_theo, join=TRUE, color = "red")
-p = p + plot.XY(yy, zz_hm, color = "blue", linetype="dashed")
+p = p + plot.XY(yy, zz_theo, color = "red", flagLine=TRUE)
+p = p + plot.XY(yy, zz_hm, color = "blue", flagLine=TRUE, linetype="dashed")
 p = p + plot.decoration(xlab = "Y", ylab = "Z", title = "Lognormal transform")
 ggPrint(p)
 ```
@@ -337,7 +337,7 @@ ggPrint(p)
 
 ```{r}
 p = ggplot()
-p = p + plot.XY(zz_theo, zz_hm, join=TRUE, color = "blue")
+p = p + plot.XY(zz_theo, zz_hm, color = "blue", flagLine=TRUE)
 p = p + plot.decoration(xlab = "theoretical", ylab = "Hermite pol.", 
                         title = "Lognormal transform")
 ggPrint(p)
@@ -350,8 +350,8 @@ r <- seq(from = 0, to =1, by = 0.01)
 C_theo <- GM_LN_Cov_theo(lambda = lambda)
 C_nh   <- GM_LN_Cov_nh(lambda = lambda, nh = nh)
 p = ggplot()
-p = p + plot.XY(r, C_theo(r), color = "red", join=TRUE)
-p = p + plot.XY(r,C_nh(r), join=TRUE, color = "blue", linetype="dashed")
+p = p + plot.XY(r, C_theo(r), color = "red", flagLine=TRUE)
+p = p + plot.XY(r,C_nh(r), color = "blue", linetype="dashed", flagLine=TRUE)
 p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covarariance of Z", 
                         title = "Lognormal transform")
 ggPrint(p)
@@ -373,7 +373,7 @@ ana$display()
 
 p = ggplot()
 p = p + plot.anam(ana, aymin=aymin, aymax=aymax)
-p = p + plot.XY(yy, zz_theo, color="red", linetype="dashed")
+p = p + plot.XY(yy, zz_theo, color="red", linetype="dashed", flagLine=TRUE)
 p = p + plot.decoration(title="Lognormal Transform")
 ggPrint(p)
 
@@ -383,7 +383,7 @@ ggPrint(p)
 
 ```{r,eval=FALSE}
 zz_rg = ana$gaussianToRawVector(yy)
-p = plot.XY(zz_theo, zz_rg, join=TRUE, color="blue")
+p = plot.XY(zz_theo, zz_rg, flagLine=TRUE, color="blue")
 p = plot.decoration(xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
 ggPrint(p)
 #legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
@@ -412,8 +412,8 @@ model.eval.GM <- function(model, anam, h){
 cov_rg <- model.eval.GM(model = mod_y, anam = ana, h = h)
 
 p = ggplot()
-p = p + plot.XY(r, cov_theo, color = "red", join=TRUE) 
-p = p + plot.XY(r, cov_rg, color = "blue", linetype = "dashed")
+p = p + plot.XY(r, cov_theo, color = "red", flagLine=TRUE) 
+p = p + plot.XY(r, cov_rg, color = "blue", linetype = "dashed", flagLine=TRUE)
 p = p + plot.decoration(xlab = "Covariance of Y", ylab = "Covariance of Z", 
                         title = "Lognormal transform")
 ggPrint(p)
@@ -457,8 +457,8 @@ psi = hermiteCoefLower(yc, nh)
 zz <- hm %*% psi
 ylim = c(-3.5, 3.5)
 p = ggplot()
-p = p + plot.XY(yy, zz, join=TRUE, color = "red")
-p = p + plot.XY(yy, pmax(yc, yy), color = "blue", join=TRUE, linetype = "dashed")
+p = p + plot.XY(yy, zz, color = "red", flagLine=TRUE)
+p = p + plot.XY(yy, pmax(yc, yy), color = "blue", linetype = "dashed", flagLine=TRUE)
 p = p + plot.decoration(xlab = "Y", ylab = "Z", 
                         title = paste0("cut = ",round(yc,2), " nh = ", nh))
 p = p + plot.geometry(ylim=ylim)
@@ -474,11 +474,11 @@ psi = hermiteIndicatorLower(yc, nh)
 zz <- hm %*% psi
 
 p = ggplot()
-p = p + plot.XY(yy, zz, join=TRUE, color = "red")
+p = p + plot.XY(yy, zz, color = "red", flagLine=TRUE)
 p = p + plot.decoration(xlab = "Y", ylab = "Indicator", 
                         title = paste0("cut = ",round(yc,2), " nh = ", nh)) 
 p = p + plot.geometry(ylim = range(-0.5, 1.5))
-p = p + plot.XY(yy, as.numeric(yy >= yc), color = "blue", join=TRUE, linetype="dashed")
+p = p + plot.XY(yy, as.numeric(yy >= yc), color = "blue", linetype="dashed", flagLine=TRUE)
 ggPrint(p)
 
 #legend("bottomright", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))

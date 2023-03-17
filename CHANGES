@@ -6,6 +6,11 @@ Release 0.2.0
 - Transfer External Tools to gstlearnext
 
 
+Release 0.1.38
+==============
+- Fix Db.toTL
+
+
 Release 0.1.37
 ==============
 - Plot refactoring (R and Python)

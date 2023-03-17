@@ -871,7 +871,6 @@ def getdbitem(self,arg):
     -------
     numpy.ndarray
         2D array of shape (nrows, nvars) of the extracted data.
-        
     Examples
     --------
     db["var"] or db[:,"var"] extracts the variable named "var"
@@ -986,8 +985,12 @@ setattr(gl.Db,"__getitem__",getdbitem)
 setattr(gl.Db,"__setitem__",setdbitem)
 
 def Db_toTL(self, flagLocate=False):
-  dat = pd.DataFrame(self.getAllColumns().reshape(self.getSampleNumber(),-1), 
+  dat = pd.DataFrame(self.getAllColumns().reshape(-1,self.getSampleNumber()).T, 
     columns = self.getAllNames())
+    
+#  dat = pd.DataFrame(self.getAllColumns().reshape(-1, self.getSampleNumber()), 
+#    columns = self.getAllNames())
+
   if flagLocate:
     for j,i in enumerate(self.getAllNames()):
       dat[i].locator = self.getLocators()[j] 

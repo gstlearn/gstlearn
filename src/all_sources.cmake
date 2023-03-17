@@ -225,11 +225,14 @@ set(SRC
   Polynomials/Hermite.cpp
   Polynomials/ClassicalPolynomial.cpp
   Polynomials/MonteCarlo.cpp
+  Mesh/AMesh.cpp
+  Mesh/LinkSphTriangle.cpp
   Mesh/MeshETurbo.cpp
   Mesh/m_delaunay.cpp
   Mesh/MeshSpherical.cpp
+  Mesh/MeshSphericalExt.cpp
   Mesh/MeshEStandard.cpp
-  Mesh/AMesh.cpp
+  Mesh/sphtriangle.cpp
   Morpho/Morpho.cpp
   Stats/Classical.cpp
   Stats/PCA.cpp
@@ -298,15 +301,4 @@ set(SRC
   Skin/Skin.cpp
   API/TestInheritance.cpp
   Style.cpp
-  
-  ExternalTools/MeshFactory.cpp
-  ExternalTools/MeshEStandardExt.cpp
-  ExternalTools/MeshSphericalExt.cpp
-  ExternalTools/LinkTriangle.cpp
-  ExternalTools/LinkTetrahedron.cpp
-  ExternalTools/LinkSphTriangle.cpp
-  ExternalTools/predicates.cpp
-  ExternalTools/tetgen.cpp
-  ExternalTools/triangle.cpp
-  ExternalTools/sphtriangle.cpp
 )
