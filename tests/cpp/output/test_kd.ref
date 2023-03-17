@@ -474,6 +474,15 @@ Sample #1 (from 25)
 Coordinate #1 = 0.400000
 Coordinate #2 = 0.400000
 
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         18      0.410      0.380          1
+          2        123      0.410      0.420          1
+          3        236      0.420      0.400          1
+          4        273      0.400      0.430          1
+          5        448      0.400      0.400          1
+
 LHS of Kriging matrix (compressed)
 ==================================
 Number of active samples    = 5
@@ -529,6 +538,15 @@ Target location
 Sample #1 (from 25)
 Coordinate #1 = 0.400000
 Coordinate #2 = 0.400000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         18      0.410      0.380          1
+          2        123      0.410      0.420          1
+          3        236      0.420      0.400          1
+          4        273      0.400      0.430          1
+          5        448      0.400      0.400          1
 
 LHS of Kriging matrix (compressed)
 ==================================
@@ -690,6 +708,15 @@ Sample #1 (from 25)
 Coordinate #1 = 0.400000
 Coordinate #2 = 0.400000
 
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         18      0.410      0.380          1
+          2        123      0.410      0.420          1
+          3        236      0.420      0.400          1
+          4        273      0.400      0.430          1
+          5        448      0.400      0.400          1
+
 LHS of Kriging matrix (compressed)
 ==================================
 Number of active samples    = 5
@@ -745,6 +772,15 @@ Target location
 Sample #1 (from 25)
 Coordinate #1 = 0.400000
 Coordinate #2 = 0.400000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1         18      0.410      0.380          1
+          2        123      0.410      0.420          1
+          3        236      0.420      0.400          1
+          4        273      0.400      0.430          1
+          5        448      0.400      0.400          1
 
 LHS of Kriging matrix (compressed)
 ==================================
@@ -912,6 +948,15 @@ Sample #1 (from 1)
 Coordinate #1 = 0.375000
 Coordinate #2 = 0.375000
 
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1          4      0.360      0.390          1
+          2         12      0.370      0.380          1
+          3         18      0.410      0.380          1
+          4        202      0.370      0.350          1
+          5        339      0.360      0.360          1
+
 LHS of Kriging matrix (compressed)
 ==================================
 Number of active samples    = 5
@@ -967,6 +1012,15 @@ Target location
 Sample #1 (from 1)
 Coordinate #1 = 0.375000
 Coordinate #2 = 0.375000
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1          4      0.360      0.390          1
+          2         12      0.370      0.380          1
+          3         18      0.410      0.380          1
+          4        202      0.370      0.350          1
+          5        339      0.360      0.360          1
 
 LHS of Kriging matrix (compressed)
 ==================================
