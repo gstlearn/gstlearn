@@ -1781,7 +1781,6 @@ setattr(gl.Table,            "plot", gp.table)
 setattr(gl.Faults,           "plot", gp.fault)
 setattr(gl.Polygons,         "plot", gp.polygon)
 setattr(gl.AnamHermite,      "plot", gp.anam)
-setattr(gl.MeshEStandardExt, "plot", gp.mesh)
 setattr(gl.MeshETurbo,       "plot", gp.mesh)
 
 setattr(plt.Axes, "decoration",    gp.decoration)

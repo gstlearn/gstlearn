@@ -138,7 +138,6 @@
 %shared_ptr(MatrixSquareGeneral)
 %shared_ptr(MatrixSquareSymmetric)
 %shared_ptr(MeshEStandard)
-%shared_ptr(MeshEStandardExt)
 %shared_ptr(MeshETurbo)
 %shared_ptr(MeshSpherical)
 %shared_ptr(MeshSphericalExt)
