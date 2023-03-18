@@ -1095,7 +1095,7 @@ def readGrid(dbgrid, name, usesel=True,
     return x0, y0, X, Y, data, tr
 
 def raster(ax, dbgrid, name, usesel = True, posx=0, posy=1, corner=None, 
-           flagLegend=True, **kwargs):
+           flagLegend=False, **kwargs):
     '''
     Plotting a variable from a DbGrid in Raster
 
@@ -2039,6 +2039,7 @@ setattr(plt.Axes, "grid1D"   ,     gp.grid1D)
 
 setattr(plt.Axes, "histogram",     gp.histogram)
 setattr(plt.Axes, "correlation",   gp.correlation)
+setattr(plt.Axes, "curve",         gp.curve)
 
 setattr(plt.Axes, "symbol",        gp.symbol)
 setattr(plt.Axes, "literal",       gp.literal)

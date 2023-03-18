@@ -654,10 +654,6 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
   else
     mat = _model->evalNvarIpas(1., d1, VectorDouble(), mode);
 
-  // Modify the Model (DGM case). Only provided for the monovariate case
-
-  if (_flagDGM) _covtabModifyDGM(member, iech1, iech2, d1, mat);
-
   // Expand the Model to all terms of the LHS of the Kriging System
 
   int nvar = _getNVar();
@@ -669,44 +665,6 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     }
   return;
 }
-
-/**
- * This function modifies the Covariance returned array between 'iech1' and 'iech2'
- * due to the presence of 'flagDGM' flag.
- * This is programmed in the monovariate case only
- * @param member Type of usage (LHS, RHS or VAR)
- * @param iech1  Rank of the first sample (or <0 for target)
- * @param iech2  Rank of the second sample (or <0 for target)
- * @param d1     Vector of increment vector between samples
- * @param mat    Covariance matrix table
- */
-void KrigingSystem::_covtabModifyDGM(const ECalcMember &member,
-                                     int iech1,
-                                     int iech2,
-                                     const VectorDouble& d1,
-                                     MatrixSquareGeneral& mat)
-{
-  double covn = 0.;
-  double dist = VH::norm(d1);
-  if (member == ECalcMember::LHS)
-  {
-    if (iech1 >= 0 && iech1 == iech2)
-      covn = 1.;
-    else if (dist <= 0.)
-      covn = _rCoeff * _rCoeff; // Samples at zero distance (due to centering) but different
-    else
-      covn = _rCoeff * _rCoeff * mat.getValue(0);
-  }
-  else if (member == ECalcMember::RHS)
-  {
-    covn = _rCoeff * mat.getValue(0);
-  }
-  else
-  {
-    covn = 1.;
-  }
-  mat.setValue(0, covn);
- }
 
 /****************************************************************************/
 /*!
