@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "Space/SpacePoint.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"

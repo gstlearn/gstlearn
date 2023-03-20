@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"

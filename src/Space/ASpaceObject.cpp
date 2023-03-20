@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "geoslib_define.h"
 
 #include "Space/ASpaceObject.hpp"

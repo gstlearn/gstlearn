@@ -1,7 +1,10 @@
-/**
- * This test is meant to check the Environment
- */
-
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "Basic/OptCst.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"

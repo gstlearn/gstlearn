@@ -1,10 +1,17 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #pragma once
 
 #include "gstlearn_export.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
 #include "geoslib_define.h"
-#include "csparse_d.h"
+#include "Matrix/csparse_d.h"
 
 #include <functional>
 

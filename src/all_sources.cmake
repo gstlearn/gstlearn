@@ -18,9 +18,11 @@ set(SRC
   Matrix/MatrixSquareGeneral.cpp
   Matrix/MatrixInt.cpp
   Matrix/Table.cpp
+  Matrix/csparse.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
-  INIParser.cpp
+  API/Style.cpp
+  API/TestInheritance.cpp
   Gibbs/GibbsUPropMono.cpp
   Gibbs/GibbsFactory.cpp
   Gibbs/GibbsMultiMono.cpp
@@ -104,7 +106,6 @@ set(SRC
   Core/math.cpp
   Core/stats.cpp
   Core/spatial.cpp
-  Core/csparse.cpp
   Core/vario.cpp
   Core/io.cpp
   Core/db.cpp
@@ -115,7 +116,6 @@ set(SRC
   Core/matrix.cpp
   Core/spill.cpp
   Core/acknowledge.cpp
-  Core/vtk.cpp
   Core/geophy.cpp
   Core/potential.cpp
   Core/foxleg.cpp
@@ -123,13 +123,11 @@ set(SRC
   Core/anam.cpp
   Core/ascii.cpp
   Core/pile.cpp
-  Core/segy.cpp
   Core/mlayers.cpp
   Core/thresh.cpp
   Core/fft.cpp
   Core/convert.cpp
   Core/memory.cpp
-  Core/poly.cpp
   Core/model.cpp
   Core/krige.cpp
   Core/seismic.cpp
@@ -228,11 +226,11 @@ set(SRC
   Mesh/AMesh.cpp
   Mesh/LinkSphTriangle.cpp
   Mesh/MeshETurbo.cpp
-  Mesh/m_delaunay.cpp
+  Mesh/Delaunay.cpp
   Mesh/MeshSpherical.cpp
   Mesh/MeshSphericalExt.cpp
   Mesh/MeshEStandard.cpp
-  Mesh/sphtriangle.cpp
+  Mesh/SphTriangle.cpp
   Morpho/Morpho.cpp
   Stats/Classical.cpp
   Stats/PCA.cpp
@@ -280,6 +278,8 @@ set(SRC
   OutputFormat/FileVTK.cpp
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
+  OutputFormat/vtk.cpp
+  OutputFormat/segy.cpp
   Simulation/ACalcSimulation.cpp
   Simulation/CalcSimuTurningBands.cpp
   Simulation/TurningDirection.cpp
@@ -299,6 +299,4 @@ set(SRC
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
-  API/TestInheritance.cpp
-  Style.cpp
 )

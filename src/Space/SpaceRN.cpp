@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/Tensor.hpp"

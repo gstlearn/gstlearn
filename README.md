@@ -38,7 +38,7 @@ The *gstlearn* C++ library uses the following third party products (see licenses
 | vtk            | see notice     | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
 | clustering     | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
 | fft            | see notice     | NA                                                 | Copyright(c)1995,97 Mark Olesen
-| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org/             | Copyright ??, the GMT Team
+| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org/             | Copyright(c) 2020, the GMT Team
 
 ## Requirements
 

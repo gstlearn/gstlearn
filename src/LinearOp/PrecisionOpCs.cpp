@@ -1,14 +1,9 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/* gstlearn C++ Library                                                       */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/* Authors: <authors>                                                         */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
-/*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
@@ -16,7 +11,7 @@
 #include "Polynomials/APolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "csparse_f.h"
+#include "Matrix/csparse_f.h"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"

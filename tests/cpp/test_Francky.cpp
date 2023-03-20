@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"

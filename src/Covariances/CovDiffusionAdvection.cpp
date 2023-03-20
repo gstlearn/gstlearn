@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include "Covariances/CovDiffusionAdvection.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/FFT.hpp"

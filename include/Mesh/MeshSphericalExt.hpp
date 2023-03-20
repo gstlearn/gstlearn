@@ -1,19 +1,16 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/* gstlearn C++ Library                                                       */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/* Authors: <authors>                                                         */
 /*                                                                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #pragma once
 
-#include <Mesh/sphtriangle.hpp>
 #include "gstlearn_export.hpp"
 
+#include "Mesh/SphTriangle.hpp"
 #include "Mesh/MeshSpherical.hpp"
 
 /**

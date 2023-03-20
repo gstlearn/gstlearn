@@ -1,24 +1,21 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/* gstlearn C++ Library                                                       */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/* Authors: <authors>                                                         */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/AException.hpp"
 
-#include "csparse_d.h"
-#include "math.h"
+#include "Matrix/csparse_d.h"
 
 #include <string>
 #include <algorithm>
 #include <sstream>
 #include <iterator>
 #include <iostream>
+#include <math.h>
 
 APolynomial::APolynomial()
     : AStringable()

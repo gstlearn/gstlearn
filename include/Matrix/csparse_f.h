@@ -4,7 +4,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "csparse_d.h"
+#include "Matrix/csparse_d.h"
 
 GSTLEARN_EXPORT cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;
 GSTLEARN_EXPORT void    cs_add_cste(cs *A, double value);

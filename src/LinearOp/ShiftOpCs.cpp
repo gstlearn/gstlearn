@@ -1,19 +1,15 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/* gstlearn C++ Library                                                       */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/* Authors: <authors>                                                         */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
-/*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
+#include "LinearOp/ShiftOpCs.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
-#include "csparse_f.h"
+#include "Matrix/csparse_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -24,7 +20,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"

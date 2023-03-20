@@ -27,8 +27,6 @@
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 
-%include csparse_d.h
-%include csparse_f.h
 %include geoslib_define.h
 %include geoslib_enum.h
 %include geoslib_d.h
@@ -254,10 +252,13 @@
 %include Matrix/MatrixSquareSymmetric.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
+%include Matrix/csparse_d.h
+%include Matrix/csparse_f.h
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp
 %include API/TestInheritance.hpp
+%include API/Style.hpp
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
@@ -310,6 +311,7 @@
 %include OutputFormat/GridIrap.hpp
 %include OutputFormat/GridXYZ.hpp
 %include OutputFormat/GridZycor.hpp
+%include OutputFormat/segy.h
 
 %include Simulation/ACalcSimulation.hpp
 %include Simulation/CalcSimuTurningBands.hpp
@@ -336,10 +338,6 @@
 %include Fractures/FracList.hpp
 
 %include Skin/Skin.hpp
-
-%include Style.hpp
-
-%include segy.h
 
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511

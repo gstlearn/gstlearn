@@ -39,8 +39,8 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "csparse_d.h"
-#include "csparse_f.h"
+#include "Matrix/csparse_d.h"
+#include "Matrix/csparse_f.h"
 
 #include <math.h>
 #include <limits.h>
@@ -2714,14 +2714,11 @@ int n, /* L, U, D, and Z are n-by-n */
 
 
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/* gstlearn C++ Library                                                       */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/* Authors: <authors>                                                         */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 
 /* compressed-column form into arrays */

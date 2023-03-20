@@ -1,3 +1,10 @@
+/******************************************************************************/
+/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/*                                                                            */
+/* License: BSD 3 Clause                                                      */
+/******************************************************************************/
 #include <Geometry/GeometryHelper.hpp>
 #include "Space/SpaceSN.hpp"
 #include "Space/SpacePoint.hpp"
