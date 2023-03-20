@@ -8,8 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Mesh/LinkSphTriangle.hpp>
-#include <Mesh/MeshSphericalExt.hpp>
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -19,6 +17,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Mesh/MeshEStandard.hpp"
+#include <Mesh/LinkSphTriangle.hpp>
+#include <Mesh/MeshSphericalExt.hpp>
 #include "Db/Db.hpp"
 
 #include "csparse_f.h"

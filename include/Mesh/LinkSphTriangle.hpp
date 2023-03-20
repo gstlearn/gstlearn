@@ -11,10 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
 #include "geoslib_define.h"
+#include <Mesh/sphtriangle.hpp>
 
-class SphTriangle;
 class Db;
 
 GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t);

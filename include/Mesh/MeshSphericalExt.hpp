@@ -11,9 +11,9 @@
 /******************************************************************************/
 #pragma once
 
-#include <Mesh/sphtriangle.hpp>
 #include "gstlearn_export.hpp"
 
+#include <Mesh/sphtriangle.hpp>
 #include "Mesh/MeshSpherical.hpp"
 
 /**
