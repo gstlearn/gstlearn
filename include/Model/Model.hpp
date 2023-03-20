@@ -43,6 +43,7 @@ class Vario;
 class ANoStat;
 class ADriftElem;
 class AnamContinuous;
+class AnamHermite;
 
 typedef std::vector<ECov> VectorECov;
 
@@ -99,6 +100,7 @@ public:
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
   int    setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
+  int    unsetAnam();
   bool   isFlagGradient() const;
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
@@ -126,6 +128,7 @@ public:
   int    getMinOrder() const { return _covaList->getMinOrder(); }
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() const { return _covaList->getAnam(); }
+  const AnamHermite* getAnamHermite() const;
   void normalize(double sill) { _covaList->normalize(sill); }
   bool hasNugget() const { return _covaList->hasNugget(); }
 
@@ -443,7 +446,8 @@ public:
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       int nostd = 0,
-                      bool asCov = false);
+                      bool asCov = false,
+                      const ECalcMember &member = ECalcMember::fromKey("LHS"));
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),

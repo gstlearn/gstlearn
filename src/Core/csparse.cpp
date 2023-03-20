@@ -29,7 +29,7 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 /*
- Modified by ARMINES-MINESPARIS-PSL (2022)
+ Modified by ARMINES-MINES Paris (2022)
 */
 
 #include "geoslib_old_f.h"
@@ -39,8 +39,8 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Matrix/csparse_d.h"
-#include "Matrix/csparse_f.h"
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 #include <math.h>
 #include <limits.h>

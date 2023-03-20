@@ -826,6 +826,7 @@ bool NeighWork::_isSameTarget(const Db* dbout,
   if (_dbout == nullptr || _iechOut < 0) flagSame = false;
   if (dbout != _dbout) flagSame = false;
   if (iech_out != _iechOut) flagSame = false;
+  if (_nbghMemo.empty()) flagSame = false;
 
   _resetFromMemory(flagSame, ranks, verbose);
   return flagSame;
@@ -856,6 +857,7 @@ bool NeighWork::_isSameTargetBench(const Db* dbout,
     if (dbout->getCoordinate(iech_out, ndim - 1) != _dbout->getCoordinate(
         _iechOut, ndim - 1)) flagSame = false;
   }
+  if (_nbghMemo.empty()) flagSame = false;
 
   _resetFromMemory(flagSame, ranks, verbose);
   return flagSame;
@@ -869,6 +871,8 @@ bool NeighWork::_isSameTargetUnique(const Db* /*dbout*/,
   // If no memorization is available, the match is false
   if (_dbout == nullptr || _iechOut < 0) return false;
   bool flagSame = true;
+  if (_nbghMemo.empty()) flagSame = false;
+
   _resetFromMemory(flagSame, ranks, verbose);
   return flagSame;
 }

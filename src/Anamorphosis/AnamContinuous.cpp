@@ -103,7 +103,7 @@ VectorDouble AnamContinuous::rawToGaussianVector(const VectorDouble &z) const
   VectorDouble y;
   y.resize(number);
   for (int i = 0; i < number; i++)
-    y[i] = rawToTransformValue(z[i]);
+    y[i] = (FFFF(z[i])) ? TEST : rawToTransformValue(z[i]);
   return y;
 }
 
@@ -113,7 +113,7 @@ VectorDouble AnamContinuous::gaussianToRawVector(const VectorDouble &y) const
   VectorDouble z;
   z.resize(number);
   for (int i = 0; i < number; i++)
-    z[i] = transformToRawValue(y[i]);
+    z[i] = (FFFF(y[i])) ? TEST : transformToRawValue(y[i]);
   return z;
 }
 

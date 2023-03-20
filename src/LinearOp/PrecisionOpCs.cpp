@@ -18,10 +18,10 @@
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
-                             const EPowerPT& power,
                              bool verbose)
-    : PrecisionOp(shiftop, cova, power, verbose),
-      _Q(nullptr)
+    : PrecisionOp(shiftop, cova, verbose),
+      _Q(nullptr),
+      _qChol()
 {
   _buildQ();
 }
@@ -29,10 +29,10 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
 PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
                              Model* model,
                              int icov,
-                             const EPowerPT& power,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, power, verbose),
-      _Q(nullptr)
+    : PrecisionOp(mesh, model, icov, verbose),
+      _Q(nullptr),
+      _qChol()
 {
   _buildQ();
 }
@@ -42,20 +42,14 @@ PrecisionOpCs::~PrecisionOpCs()
   _Q = cs_spfree(_Q);
 }
 
-VectorDouble PrecisionOpCs::getCoeffs()
-{
-  VectorDouble coeffs = getPoly(EPowerPT::ONE)->getCoeffs();
-  return coeffs;
-}
-
-void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result)
+void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)
 {
   if (_work2.empty()) _work2.resize(getSize());
   if (_work3.empty()) _work3.resize(getSize());
   if (_work4.empty()) _work4.resize(getSize());
 
-  eval(X,_work3);
-  eval(Y,_work4);
+  evalPower(X,_work3, power);
+  evalPower(Y,_work4, power);
   double temp,val;
   int iadress;
 
@@ -75,7 +69,7 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, Vecto
       {
         result[iadress] = 0.;
       }
-      evalDeriv(X,_work2,iapex,igparam);
+      evalDeriv(X,_work2,iapex,igparam, power);
       for(int i = 0;i<getSize();i++)
       {
         result[iadress] += _work2[i]*Y[i];
@@ -85,16 +79,16 @@ void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, Vecto
 }
 
 
-void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result)
+void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power)
 {
   if (_work2.empty()) _work2.resize(getSize());
   if (_work3.empty()) _work3.resize(getSize());
   if (_work4.empty()) _work4.resize(getSize());
 
   setTraining(false);
-  eval(Y,_work3);
+  evalPower(Y,_work3, power);
   setTraining(true);
-  eval(X,_work4);
+  evalPower(X,_work4, power);
 
   double temp,val;
   int iadress;
@@ -113,7 +107,7 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
 
       }
 
-      evalDerivOptim(_work2,iapex,igparam);
+      evalDerivOptim(_work2,iapex,igparam,power);
       for(int i = 0;i<getSize();i++)
       {
         result[iadress] += _work2[i]*Y[i];
@@ -122,15 +116,38 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
   }
 }
 
-void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam)
+void PrecisionOpCs::eval(const VectorDouble &inv, VectorDouble &outv)
+{
+  _qChol.evalDirect(inv, outv);
+}
+
+void PrecisionOpCs::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result)
+{
+  _qChol.simulate(whitenoise, result);
+}
+
+void PrecisionOpCs::evalInvVect(VectorDouble& in, VectorDouble& result)
+{
+  _qChol.evalInverse(in, result);
+}
+
+double PrecisionOpCs::computeLogDet(int nsimus, int seed)
+{
+  DECLARE_UNUSED(nsimus);
+  DECLARE_UNUSED(seed);
+
+  return _qChol.computeLogDet();
+}
+
+void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam, const EPowerPT& power)
 {
   if (_work.empty()) _work.resize(getSize());
 
-  if(getPower() == EPowerPT::MINUSONE)
+  if(power == EPowerPT::MINUSONE)
      my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
-  if(getPower() == EPowerPT::MINUSHALF)
+  if(power == EPowerPT::MINUSHALF)
      my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSHALF'");
-  if(getPower() == EPowerPT::LOG)
+  if(power == EPowerPT::LOG)
      my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::LOG'");
 
   // Pre-processing
@@ -140,7 +157,7 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int ia
   // Polynomial evaluation
 
 
-    ((ClassicalPolynomial*)getPoly(getPower()))->evalDerivOp(getShiftOp(),
+    ((ClassicalPolynomial*)getPoly(power))->evalDerivOp(getShiftOp(),
                                                              _work,
                                                              outv,
                                                              iapex,
@@ -153,20 +170,21 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int ia
 
 void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
                                    int iapex,
-                                   int igparam)
+                                   int igparam,
+                                   const EPowerPT& power)
 {
   if (_work.empty()) _work3.resize(getSize());
   if (_work5.empty()) _work4.resize(getSize());
 
-  if(getPower() == EPowerPT::MINUSONE)
+  if(power == EPowerPT::MINUSONE)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
-  if(getPower() == EPowerPT::MINUSHALF)
+  if(power == EPowerPT::MINUSHALF)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
-  if(getPower() == EPowerPT::LOG)
+  if(power == EPowerPT::LOG)
      my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
 
 
-  ((ClassicalPolynomial*) getPoly(getPower()))->evalDerivOpOptim(
+  ((ClassicalPolynomial*) getPoly(power))->evalDerivOpOptim(
       getShiftOp(), _work,_work5,outv,_workPoly, iapex, igparam);
 
     // Post-processing
@@ -192,7 +210,14 @@ void PrecisionOpCs::_buildQ()
 {
   if (_Q != nullptr) _Q = cs_spfree(_Q);
   if (! isCovaDefined()) return;
+
+  // Calculate the Vector of coefficients (blin)
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
+
+  // Calculate the Precision matrix Q
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                      static_cast<int>(blin.size()), blin.data());
+
+  // Store the Precision matrix for Cholesky decomposition
+  _qChol.reset(_Q, false);
 }

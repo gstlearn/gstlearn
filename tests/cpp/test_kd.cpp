@@ -173,20 +173,20 @@ int main(int /*argc*/, char */*argv*/[])
   data->display();
 
   // Simple Point Kriging over the blocks
-  (void) KrigingFactors(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+  (void) krigingFactors(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
                             VectorInt(), true, true,
                             NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
   VectorInt ndisc_B = {5,5};
-  (void) KrigingFactors(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
+  (void) krigingFactors(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
                             true, true, NamingConvention("DK_Blk"));
   blocs->display();
 
   // Simple Block Kriging over the panel(s)
   VectorInt ndisc_P = { 10,10};
-  (void) KrigingFactors(data, panel, model, neigh, EKrigOpt::BLOCK, ndisc_P,
+  (void) krigingFactors(data, panel, model, neigh, EKrigOpt::BLOCK, ndisc_P,
                             true, true, NamingConvention("DK_Blk"));
   panel->display();
 
@@ -232,13 +232,13 @@ int main(int /*argc*/, char */*argv*/[])
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) KrigingFactors(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL,
+  (void) krigingFactors(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL,
                             VectorInt(), true, true,
                             NamingConvention("DK_DGM1"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) KrigingFactors(data, panel, model_b1_Y, neigh, EKrigOpt::BLOCK,
+  (void) krigingFactors(data, panel, model_b1_Y, neigh, EKrigOpt::BLOCK,
                             { nx_B, nx_B }, true, true,
                             NamingConvention("DK_DGM1"));
   panel->display();
@@ -270,13 +270,13 @@ int main(int /*argc*/, char */*argv*/[])
   model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) KrigingFactors(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL,
+  (void) krigingFactors(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL,
                             VectorInt(), true, true,
                             NamingConvention("DK_DGM2"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) KrigingFactors(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK,
+  (void) krigingFactors(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK,
                             { nx_B, nx_B }, true, true,
                             NamingConvention("DK_DGM2"));
   panel->display();

@@ -38,12 +38,12 @@ public:
 
   static MeshManifold* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-  cs* getMeshToDb(const Db *db,
-                  bool fatal = false,
-                  bool verbose = false) const override;
+  cs* getMeshToDb(const Db *db, bool verbose = false) const override;
   int getVariety() const { return 2; }
 
-  VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
+  VectorVectorInt getMeshes() const { return _meshes.getMatrix(); }
+  /// TODO : getMeshSize
+  double getMeshSize(int imesh) const { DECLARE_UNUSED(imesh); return 0.; }
 
 protected:
   /// Interface for ASerializable

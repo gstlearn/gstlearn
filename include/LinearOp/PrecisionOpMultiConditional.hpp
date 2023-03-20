@@ -28,8 +28,10 @@ public:
 
   virtual ~PrecisionOpMultiConditional();
 
-  void push_back(PrecisionOp*  pmatElem,
-                 IProjMatrix* projDataElem = nullptr);
+  virtual double computeLogDetOp(int nsimus = 1, int seed = 123) const;
+  virtual void push_back(PrecisionOp *pmatElem,
+                         IProjMatrix *projDataElem = nullptr);
+
   VectorDouble getAllVarianceData() const {return _varianceData;}
   double getVarianceData(int iech)const {return  _varianceData[iech];}
   void setVarianceData(double nugg){ _varianceData = VectorDouble(_ndat,nugg);}
@@ -39,14 +41,14 @@ public:
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
   VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
   void computeRhsInPlace(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
-  void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result,int icov = 0) const;
+  void simulateOnMeshing(VectorDouble& gauss,VectorVectorDouble& result,int icov = 0) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
   void evalInvCov(const VectorDouble& inv, VectorDouble& result) const;
   std::pair<double,double> computeRangeEigenVal() const;
   std::pair<double,double> rangeEigenValQ() const;
   double getMaxEigenValProj() const;
   double sumLogVar() const;
-  double computeLogDetOp(int nsimus = 1, int seed = 123) const;
+
   double computeLogDetQ(int nsimus = 1, int seed = 123) const;
   double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
   double computeQuadratic(const VectorDouble& x) const;

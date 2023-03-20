@@ -75,7 +75,7 @@ private:
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-  double _determinant() const override;
+  double determinant() const override;
 
   void   _recopy(const MatrixSquareDiagonal &r);
   bool   _isIndexValid(int irow,int icol) const;

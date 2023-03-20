@@ -129,11 +129,6 @@ private:
                      int iech1,
                      int iech2,
                      const VectorDouble& d1);
-  void _covtabModifyDGM(const ECalcMember &member,
-                        int iech1,
-                        int iech2,
-                        const VectorDouble& d1,
-                        MatrixSquareGeneral& mat);
   void _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);

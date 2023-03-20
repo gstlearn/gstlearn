@@ -1032,7 +1032,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
 int ShiftOpCs::_prepareMatricesSphere(const AMesh *amesh,
                                       int imesh,
                                       VectorVectorDouble &coords,
-                                      AMatrix &matres,
+                                      AMatrixSquare &matres,
                                       double *deter)
 {
   int ndim = getNDim();

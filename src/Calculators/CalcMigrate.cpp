@@ -154,6 +154,7 @@ int migrate(Db *db1,
 
   // Run the calculator
   int error = (migrate.run()) ? 0 : 1;
+
   return error;
 }
 
@@ -292,3 +293,4 @@ int migrateByLocator(Db *db1,
   int error = (migrate.run()) ? 0 : 1;
   return error;
 }
+

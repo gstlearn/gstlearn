@@ -203,14 +203,20 @@ int KrigingSystem::_getNVar() const
     }
     nvar = _model->getVariableNumber();
   }
-  if (_dbin != nullptr)
+
+  // In the case of factor kriging, the number of Z-variables in the Data file
+  // does not give the number of variables. Check should be avoided
+  if (!_flagFactorKriging)
   {
-    if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+    if (_dbin != nullptr)
     {
-      messerr("Inconsistent number of Variables - Value is returned as 0");
-      return 0;
+      if (nvar > 0 && nvar != _dbin->getLocNumber(ELoc::Z))
+      {
+        messerr("Inconsistent number of Variables - Value is returned as 0");
+        return 0;
+      }
+      nvar = _dbin->getLocNumber(ELoc::Z);
     }
-    nvar = _dbin->getLocNumber(ELoc::Z);
   }
   return nvar;
 }
@@ -645,10 +651,6 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
   else
     mat = _model->evalNvarIpas(1., d1, VectorDouble(), mode);
 
-  // Modify the Model (DGM case). Only provided for the monovariate case
-
-  if (_flagDGM) _covtabModifyDGM(member, iech1, iech2, d1, mat);
-
   // Expand the Model to all terms of the LHS of the Kriging System
 
   int nvar = _getNVar();
@@ -660,44 +662,6 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     }
   return;
 }
-
-/**
- * This function modifies the Covariance returned array between 'iech1' and 'iech2'
- * due to the presence of 'flagDGM' flag.
- * This is programmed in the monovariate case only
- * @param member Type of usage (LHS, RHS or VAR)
- * @param iech1  Rank of the first sample (or <0 for target)
- * @param iech2  Rank of the second sample (or <0 for target)
- * @param d1     Vector of increment vector between samples
- * @param mat    Covariance matrix table
- */
-void KrigingSystem::_covtabModifyDGM(const ECalcMember &member,
-                                     int iech1,
-                                     int iech2,
-                                     const VectorDouble& d1,
-                                     MatrixSquareGeneral& mat)
-{
-  double covn = 0.;
-  double dist = VH::norm(d1);
-  if (member == ECalcMember::LHS)
-  {
-    if (iech1 >= 0 && iech1 == iech2)
-      covn = 1.;
-    else if (dist <= 0.)
-      covn = _rCoeff * _rCoeff; // Samples at zero distance (due to centering) but different
-    else
-      covn = _rCoeff * _rCoeff * mat.getValue(0);
-  }
-  else if (member == ECalcMember::RHS)
-  {
-    covn = _rCoeff * mat.getValue(0);
-  }
-  else
-  {
-    covn = 1.;
-  }
-  mat.setValue(0, covn);
- }
 
 /****************************************************************************/
 /*!
@@ -2635,6 +2599,9 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
 
   // Update C00 if the variance calculation is required
   if (_flagStd) _variance0();
+
+  // Cancel any already existing Neighborhood
+  _nbghWork.setIsChanged();
 
   return 0;
 }

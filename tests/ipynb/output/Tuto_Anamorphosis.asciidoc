@@ -1,0 +1,303 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[3]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 102
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Data Base Statistics
+--------------------
+5 - Name Pb - Locator z1
+ Nb of data          =        102
+ Nb of active values =        101
+ Minimum value       =      3.000
+ Maximum value       =     31.600
+ Mean value          =      6.104
+ Standard Deviation  =      3.594
+ Variance            =     12.916
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = z1
+ ----
+
+
++*Out[4]:*+
+----
+![png](output_8_0.png)
+----
+
+
++*Out[6]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*Out[7]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 102
+Number of active samples     = 99
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Data Base Statistics
+--------------------
+5 - Name Pb - Locator z1
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      3.000
+ Maximum value       =     12.700
+ Mean value          =      5.658
+ Standard Deviation  =      1.697
+ Variance            =      2.881
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = z1
+Column = 5 - Name = NewSel - Locator = sel
+ ----
+
+
++*Out[8]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[11]:*+
+----
+![png](output_20_0.png)
+----
+
+
++*Out[13]:*+
+----
+![png](output_24_0.png)
+----
+
+
++*Out[14]:*+
+----
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      0.966
+- Range        =      0.637
+- Theo. Range  =      0.212
+Spherical
+- Sill         =      1.670
+- Range        =      5.757
+Total Sill     =      2.637
+
+Drift Part
+----------
+Universality Condition
+ ----
+
+
++*Out[15]:*+
+----
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.7
+Maximum absolute value for Y  = 2.6
+Minimum absolute value for Z  = 3.0029
+Maximum absolute value for Z  = 12.9777
+Minimum practical value for Y = -2.7
+Maximum practical value for Y = 2.6
+Minimum practical value for Z = 3.0029
+Maximum practical value for Z = 12.9777
+Mean                          = 5.65758
+Variance                      = 2.86296
+Number of Hermite polynomials = 30
+Normalized coefficients for Hermite polynomials (punctual variable)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     5.658    -1.625     0.440    -0.069    -0.017     0.082    -0.061
+     [  7,]     0.001     0.036    -0.044     0.004     0.047    -0.030    -0.029
+     [ 14,]     0.037     0.007    -0.031     0.010     0.018    -0.019    -0.003
+     [ 21,]     0.019    -0.010    -0.014     0.019     0.006    -0.023     0.004
+     [ 28,]     0.022    -0.013
+ ----
+
+
++*Out[16]:*+
+----
+![png](output_29_0.png)
+----
+
+
++*Out[17]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 102
+Number of active samples     = 99
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Data Base Statistics
+--------------------
+5 - Name Pb - Locator NA
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      3.000
+ Maximum value       =     12.700
+ Mean value          =      5.658
+ Standard Deviation  =      1.697
+ Variance            =      2.881
+7 - Name Y.Pb - Locator z1
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =     -2.700
+ Maximum value       =      2.513
+ Mean value          =     -0.005
+ Standard Deviation  =      1.007
+ Variance            =      1.014
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = NA
+Column = 5 - Name = NewSel - Locator = sel
+Column = 6 - Name = Y.Pb - Locator = z1
+ ----
+
+
++*Out[18]:*+
+----
+![png](output_33_0.png)
+----
+
+
++*Out[20]:*+
+----
+![png](output_38_0.png)
+----
+
+
++*Out[21]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 102
+Number of active samples     = 99
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Data Base Statistics
+--------------------
+5 - Name Pb - Locator NA
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      3.000
+ Maximum value       =     12.700
+ Mean value          =      5.658
+ Standard Deviation  =      1.697
+ Variance            =      2.881
+7 - Name Y.Pb - Locator NA
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =     -2.700
+ Maximum value       =      2.513
+ Mean value          =     -0.005
+ Standard Deviation  =      1.007
+ Variance            =      1.014
+8 - Name Z.Y.Pb - Locator z1
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      3.003
+ Maximum value       =     12.700
+ Mean value          =      5.658
+ Standard Deviation  =      1.697
+ Variance            =      2.881
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = NA
+Column = 4 - Name = Pb - Locator = NA
+Column = 5 - Name = NewSel - Locator = sel
+Column = 6 - Name = Y.Pb - Locator = NA
+Column = 7 - Name = Z.Y.Pb - Locator = z1
+ ----
+
+
++*Out[22]:*+
+----
+![png](output_43_0.png)
+----

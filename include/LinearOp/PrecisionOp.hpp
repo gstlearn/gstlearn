@@ -26,12 +26,10 @@ public:
   PrecisionOp();
   PrecisionOp(ShiftOpCs* shiftop,
               const CovAniso* cova,
-              const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
-              const EPowerPT& power = EPowerPT::fromKey("ONE"),
               bool verbose = false);
   PrecisionOp(const PrecisionOp &m);
   PrecisionOp& operator=(const PrecisionOp &m);
@@ -41,62 +39,64 @@ public:
 
   static PrecisionOp* createFromShiftOp(ShiftOpCs *shiftop = nullptr,
                                         const CovAniso *cova = nullptr,
-                                        const EPowerPT &power = EPowerPT::fromKey(
-                                            "UNDEFINED"),
                                         bool verbose = false);
   static PrecisionOp* create(const AMesh *mesh,
                              Model *model,
                              int icov = 0,
-                             const EPowerPT &power = EPowerPT::fromKey("ONE"),
                              bool verbose = false);
 
   int reset(const ShiftOpCs* shiftop,
             const CovAniso* cova = nullptr,
-            const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
             bool verbose = false);
 
-  void eval(const VectorDouble &inv, VectorDouble &outv);
-  VectorDouble evalCov(int imesh);
-  VectorVectorDouble simulate(int nbsimus = 1);
-
+  // Interface functions for using PrecisionOp
+  virtual void eval(const VectorDouble &inv, VectorDouble &outv);
+  virtual void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result);
+  virtual void evalInvVect(VectorDouble& in, VectorDouble& result);
+  virtual double computeLogDet(int nsimus = 1, int seed = 0);
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,
-                       VectorDouble& /*result*/)
+                       VectorDouble& /*result*/,
+                       const EPowerPT& /*power*/)
   {
   };
-
   virtual void gradYQXOptim(const VectorDouble& /*X*/,
                             const VectorDouble& /*Y*/,
-                            VectorDouble& /*result*/)
+                            VectorDouble& /*result*/,
+                            const EPowerPT& /*power*/)
   {
   };
-
   virtual void evalDeriv(const VectorDouble& /*inv*/,
                          VectorDouble& /*outv*/,
                          int /*iapex*/,
-                         int /*igparam*/)
+                         int /*igparam*/,
+                         const EPowerPT& /*power*/)
   {
   };
-
   virtual void evalDerivOptim(VectorDouble& /*outv*/,
                               int /*iapex*/,
-                              int /*igparam*/)
+                              int /*igparam*/,
+                              const EPowerPT& /*power*/)
   {
   };
-
 //  virtual void evalDerivPoly(const VectorDouble& /*inv*/,
 //                             VectorDouble& /*outv*/,
 //                             int /*iapex*/,
 //                             int /*igparam*/){};
 
+  void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
+  VectorDouble evalCov(int imesh);
+  VectorVectorDouble simulate(int nbsimus = 1);
+  VectorDouble simulateOne();
+
   int    getSize() const { return _shiftOp->getSize(); }
-  double computeLogDet(int nsimus = 1, int seed = 0);
   bool getTraining()const {return _training;}
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
   VectorDouble getPolyCoeffs(EPowerPT power);
   void setPolynomialFromPoly(APolynomial* polynomial);
   bool isCovaDefined() const { return _cova != nullptr; }
+  VectorDouble getCoeffs();
 
   // Talking to ShiftOp
   void setNIterMax(int nitermax);
@@ -104,7 +104,6 @@ public:
 
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
-  const EPowerPT&  getPower()const{return _power;}
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
 
 private:
@@ -117,7 +116,6 @@ private:
 private:
   mutable ShiftOpCs*               _shiftOp;
   const CovAniso*                  _cova;
-  EPowerPT                         _power;
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
   bool                             _training;

@@ -174,13 +174,13 @@ void SPDE::init(Model* model,
           _deleteMesh = true;
         }
 
-        if (model->getDimensionNumber()==2)
+        if (model->getDimensionNumber() == 2)
         {
-          precision = new PrecisionOpCs(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
+          precision = new PrecisionOpCs(mesh, model, icov, verbose);
         }
         else
         {
-          precision = new PrecisionOp(mesh, model, icov, EPowerPT::MINUSHALF, verbose);
+          precision = new PrecisionOp(mesh, model, icov, verbose);
         }
 
         _pilePrecisions.push_back(precision);
@@ -210,11 +210,11 @@ void SPDE::init(Model* model,
 
         if (model->getDimensionNumber() == 2)
         {
-          precision = new PrecisionOpCs(mesh, model, icov, EPowerPT::ONE);
+          precision = new PrecisionOpCs(mesh, model, icov);
         }
         else
         {
-          precision = new PrecisionOp(mesh, model, icov, EPowerPT::ONE);
+          precision = new PrecisionOp(mesh, model, icov);
         }
 
         _pilePrecisions.push_back(precision);

@@ -19,6 +19,7 @@ protected:
   AMatrixSquare(int nrow = 0, bool sparse = false);
   AMatrixSquare(const AMatrixSquare &m);
   AMatrixSquare& operator= (const AMatrixSquare &r);
+
 public:
 	virtual ~AMatrixSquare();
 
@@ -39,7 +40,7 @@ public:
   /*! Divide the diagonal by a vector */
   void divideDiagByVector(const VectorDouble& diag);
   /*! Returns the Determinant value */
-  virtual double _determinant(void) const override;
+  virtual double determinant(void) const;
 
 protected:
   void   _setNSize(int nval);

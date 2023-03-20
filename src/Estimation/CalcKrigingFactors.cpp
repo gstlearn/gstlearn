@@ -20,6 +20,7 @@ CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
       _flagStd(flag_std),
       _calcul(EKrigOpt::PONCTUAL),
       _ndisc(),
+      _nameCoord(),
       _iptrEst(-1),
       _iptrStd(-1),
       _iuidFactors()
@@ -42,13 +43,6 @@ bool CalcKrigingFactors::_check()
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
   if (! hasNeighParam()) return false;
-/* check not necessary. Only used if a change of support already checked below
-  if (! getDbout()->isGrid())
-  {
-    messerr("This application is limited to output Grid file");
-    return false;
-  }
-  */
 
   if (getNeighparam()->getType() == ENeigh::IMAGE)
   {
@@ -76,15 +70,19 @@ bool CalcKrigingFactors::_check()
   return true;
 }
 
-bool CalcKrigingFactors::_preprocess()
+bool CalcKrigingFactors::_hasChangeSupport() const
 {
   const AAnam* anam = getModel()->getAnam();
+  if (anam == nullptr) return false;
 
   // Check if the change of support is defined in the Anamorphosis
-  bool flag_change_support = anam->isChangeSupportDefined();
+  return anam->isChangeSupportDefined();
+}
 
-  // Centering the information (onyl when a change of support is defined)
-  if (flag_change_support)
+bool CalcKrigingFactors::_preprocess()
+{
+  // Centering the information (only when a change of support is defined)
+  if (_hasChangeSupport())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
     if (dbgrid == nullptr)
@@ -95,13 +93,30 @@ bool CalcKrigingFactors::_preprocess()
     if (_ndisc.empty())
     {
       // Center the information in the blocks of the output grid
-      if (db_center_point_to_grid(getDbin(), dbgrid)) return false;
+      // Duplicating the coordinate variable names before centering
+      _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
+      for (int idim = 0; idim < _getNDim(); idim++)
+      {
+        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
+        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+      }
+      if (db_center_point_to_grid(getDbin(), dbgrid, 0.)) return false;
     }
     if (! _ndisc.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
       DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndisc, 1);
-      int error = db_center_point_to_grid(getDbin(), dbsmu);
+      _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
+      for (int idim = 0; idim < _getNDim(); idim++)
+      {
+        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
+        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+      }
+      int error = db_center_point_to_grid(getDbin(), dbsmu, 0.);
       delete dbsmu;
       if (error) return false;
     }
@@ -131,6 +146,10 @@ bool CalcKrigingFactors::_postprocess()
   _renameVariable(2, nfactor, _iptrStd, "stdev", 1);
   _renameVariable(2, nfactor, _iptrEst, "estim", 1);
 
+  // Centering the information (only when a change of support is defined)
+  if (_hasChangeSupport() && ! _nameCoord.empty())
+    getDbin()->setLocators(_nameCoord, ELoc::X);
+
   return true;
 }
 
@@ -159,21 +178,22 @@ bool CalcKrigingFactors::_run()
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
-  /* Loop on the targets to be processed */
+  // Loop on the targets to be processed
 
-  for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
+  int ntotal = getDbout()->getSampleNumber() * _getNFactors();
+  int iproc = 0;
+  for (int iclass = 1; iclass <= _getNFactors(); iclass++)
   {
-    mes_process("Disjunctive Kriging for cell",
-                getDbout()->getSampleNumber(),iech_out);
+    int jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
+    int jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
+    getDbin()->clearLocators(ELoc::Z);
+    getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z);
+    if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
+    if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
 
-    for (int iclass = 1; iclass <= _getNFactors(); iclass++)
+    for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
     {
-      int jptr_est = (_flagEst) ? _iptrEst + iclass - 1 : -1;
-      int jptr_std = (_flagStd) ? _iptrStd + iclass - 1 : -1;
-      getDbin()->clearLocators(ELoc::Z);
-      getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z);
-      if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-      if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
+      mes_process("Disjunctive Kriging for cell", ntotal, iproc);
       if (ksys.estimate(iech_out)) return 1;
     }
   }
@@ -201,7 +221,7 @@ bool CalcKrigingFactors::_run()
  ** \remark have to be defined
  **
  *****************************************************************************/
-int KrigingFactors(Db *dbin,
+int krigingFactors(Db *dbin,
                    Db *dbout,
                    Model *model,
                    ANeighParam *neighparam,

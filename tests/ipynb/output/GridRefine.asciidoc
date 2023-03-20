@@ -1,4 +1,8 @@
-+*Out[5]:*+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[6]:*+
 ----
 
 Data Base Grid Characteristics
@@ -30,13 +34,13 @@ Column = 6 - Name = Bidon2-2 - Locator = NA
  ----
 
 
-+*Out[6]:*+
++*Out[7]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
-+*Out[8]:*+
++*Out[9]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -66,13 +70,13 @@ Column = 5 - Name = Bidon2-1 - Locator = NA
 Column = 6 - Name = Bidon2-2 - Locator = NA----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
-+*Out[11]:*+
++*Out[12]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -102,7 +106,7 @@ Column = 5 - Name = Bidon2-1 - Locator = NA
 Column = 6 - Name = Bidon2-2 - Locator = NA----
 
 
-+*Out[12]:*+
++*Out[13]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----

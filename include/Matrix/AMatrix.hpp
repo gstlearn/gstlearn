@@ -161,8 +161,6 @@ public:
   int invert();
   /*! Solving the Matrix Linear system */
   int solve(const VectorDouble& b, VectorDouble& x) const;
-  /*! Calculate the Determinant */
-  double determinant() const;
 
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
@@ -213,7 +211,6 @@ protected:
   virtual void    _prodVector(const double *inv,double *outv) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
-  virtual double  _determinant() const = 0;
   virtual void    _clearContents() {};
 
   void _setNCols(int ncols) { _nCols = ncols; }

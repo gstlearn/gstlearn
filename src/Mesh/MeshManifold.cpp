@@ -135,6 +135,14 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
   return mesh;
 }
 
+cs* MeshManifold::getMeshToDb(const Db *db, bool verbose) const
+{
+  /// TODO getMeshToDb
+  DECLARE_UNUSED(db);
+  DECLARE_UNUSED(verbose);
+  return nullptr;
+}
+
 void MeshManifold::_defineBoundingBox(void)
 {
   VectorDouble extendmin;

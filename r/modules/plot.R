@@ -817,7 +817,7 @@ plot.hist <- function(db, name, usesel=TRUE, ...)
 }
 
 # Function for plotting histogram for a table of values
-plot.hist_tab <- function(val, ...)
+plot.histArray <- function(val, ...)
 {
   p = list()  
   df = data.frame(val)

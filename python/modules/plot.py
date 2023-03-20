@@ -13,8 +13,11 @@ from pandas.io               import orc
 from plotly.matplotlylib     import mpltools
 import math
 from plotly.validators.layout.scene import aspectratio
+from matplotlib.pyplot import axes
 
 #Set of global values
+print_deprecated_message = False
+
 default_dims = [[5,5], [8,8]]
 default_xlim = [ None, None ]
 default_ylim = [ None, None ]
@@ -72,6 +75,29 @@ def get_cmap(n, name='gist_rainbow'):
     '''
     return plt.cm.get_cmap(name, n)
     
+def printDeprecated():
+    '''
+    Print the standard message for methods that will be deprecated in the next version
+    This print is conditional to the value of the Global Variable "print_deprecated_message"
+    '''
+    if not print_deprecated_message:
+        return
+    
+    print(">>> This function will be deprecated in the next release of 'plot.py' <<<")
+    print(" ")
+    print("Current equivalent prototypes:")
+    print("    gstObj.plotObj(args, ax=xxx)")
+    print("    gstObj.plot(args, ax=xxx)")
+    print("where:")
+    print("- 'Obj' stands for a gstlearn object such as Db, DbGrid, Polygon, Mesh, ...")
+    print("- 'ax' (passed as argument) allows over-plotting by setting 'ax=ax'")
+    print("- 'args' are the arguments used to set the plotting parameters specific to plotObj")
+    print(" ")
+    print("This will have the new prototype:")
+    print("    ax.plotObj(Obj, args)")
+    print(" ")
+    print(">>> This function will be deprecated in the next release of 'plot.py' <<<")
+    
 def selectItems(nvalues, sitem=-1):
     outs = range(0, nvalues)
     nout = nvalues
@@ -80,11 +106,23 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def geometry(ax=None, dims=None, xlim=None, ylim=None, aspect=None):
+def isNotCorrect(object, types):
+    
+    if object is None:
+        print("Argument 'object' must be provided")
+        return True
+    filetype = type(object).__name__
+    if filetype in types:
+        return False
+    
+    print("Argument 'object' (",filetype,") must be a valid among",types)
+    return True
+
+def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     '''
     Set the default values for the geometrical parameters for one or a set of Axes
     
-    ax: matplotlib.Axes (necessary when used as a method of the class)
+    ax: matplotlib.Axes or numpy.array of matplotlib.Axes or matplotlib.Figure
     dims: Extension of graphic Axes
     xlim: Range of values along the X-axis
     ylim: Range of values along the Y-axis
@@ -92,13 +130,13 @@ def geometry(ax=None, dims=None, xlim=None, ylim=None, aspect=None):
     
     Remark: When 'ax' designates a set of Axes, parameters are applied to all of them.
     '''
-    
-    if ax is None:
-        print("This method is only available in 'overlay' mode: 'ax' must be provided")
-        return None
-    
     if dims is not None:
-        if is_array(dims, 2):
+        if type(ax) == plt.Figure:
+            ax_list = ax.get_axes()
+            gspec = ax_list[0].get_gridspec()
+            ax_list[0].figure.set_size_inches(dims[0]*gspec.nrows, 
+                                              dims[1]*gspec.ncols)
+        elif is_array(dims, 2):
             if type(ax) == np.ndarray:
                 ax[0,0].figure.set_size_inches(dims[0]*ax.shape[0], 
                                                dims[1]*ax.shape[1])
@@ -108,7 +146,11 @@ def geometry(ax=None, dims=None, xlim=None, ylim=None, aspect=None):
             print("'dims' should be [a,b]. Ignored")
         
     if xlim is not None:
-        if is_array(xlim, 2):
+        if type(ax) == plt.Figure:
+            ax_list = ax.get_axes()
+            for ax in ax_list:
+                ax.set_xlim(left = xlim[0], right = xlim[1])
+        elif is_array(xlim, 2):
             if type(ax) == np.ndarray:
                 ax[ix,iy].set_xlim(left = xlim[0], right = xlim[1])
             else:
@@ -117,6 +159,10 @@ def geometry(ax=None, dims=None, xlim=None, ylim=None, aspect=None):
             print("'xlim' should be [a,b] or [None,b] or [a,None]. Ignored")
     
     if ylim is not None:
+        if type(ax) == plt.Figure:
+            ax_list = ax.get_axes()
+            for ax in ax_list:
+                ax.set_ylim(left = ylim[0], right = ylim[1])
         if is_array(ylim, 2):
             if type(ax) == np.ndarray:
                 for ix in range(ax.shape[0]):
@@ -128,45 +174,100 @@ def geometry(ax=None, dims=None, xlim=None, ylim=None, aspect=None):
            print("'ylim' should be [a,b] or [None,b] or [a,None]. Ignored")
         
     if aspect is not None:
-        if type(ax) == np.ndarray:
+        if type(ax) == plt.Figure:
+            ax_list = ax.get_axes()
+            for ax in ax_list:
+                ax.set_aspect(aspect)
+        elif type(ax) == np.ndarray:
             for ix in range(ax.shape[0]):
                 for iy in range(ax.shape[1]):
                     ax[ix,iy].set_aspect(aspect)
         else:
             ax.set_aspect(aspect)
+            
+# This function should return 'ax'. Has been skipped for compatibility with previous version           
+#    return ax
 
-def decoration(ax=None, xlabel=None, ylabel=None, title=None, **kwargs):
+def decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
     '''
     Add the decoration to a figure.
     
     Parameters
     ----------
-    The procedure depends whether 'ax' is already defined or not.
-    ax: matplotlib.Axes (necessary when used as a method of the class)
+    ax: matplotlib.Axes or numpy array of matplotlib.Axes or Matplotlib.Figure
     xlabel: label along the horizontal axis
     ylabel: label along the vertical axis
     title: title contents (for the main for a collection of Axes)
     '''
-    if ax is None:
-        print("This method is only available in 'overlay' mode: 'ax' must be provided")
-        return None
-
     if title is not None:
-        if type(ax) == np.ndarray:
+        if type(ax) == plt.Figure:
+            ax.suptitle(title, **kwargs)
+        elif type(ax) == np.ndarray:
             ax[0,0].figure.suptitle(title, **kwargs)
         else:
             ax.set_title(title, **kwargs)
 
     if xlabel is not None:
-        if type(ax) == np.ndarray:
+        if type(ax) == plt.Figure:
+            print("decoration() cannot be used when 'ax' is an array. Ignored")
+        elif type(ax) == np.ndarray:
             print("decoration() cannot be used when 'ax' is an array. Ignored")
         else:
             ax.set_xlabel(xlabel)
     if ylabel is not None:
-        if type(ax) == np.ndarray:
+        if type(ax) == plt.Figure:
+            print("decoration() cannot be used when 'ax' is an array. Ignored")
+        elif type(ax) == np.ndarray:
             print("decoration() cannot be used when 'ax' is an array. Ignored")
         else:
             ax.set_ylabel(ylabel)
+ 
+# This function should return 'ax'. Has been skipped for compatibility with previous version           
+#    return ax
+
+def initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
+    ''' Creates a new Geographic figure (possibly containing several subplots)
+    
+        Parameters
+        ----------
+        nx, ny:     Number of subplots along X and Y
+        sharex, sharey: If the subplots should all share respectively X and Y axis
+        
+        Returns
+        -------
+        ax description
+        '''
+    if len(plt.get_fignums()) == 0:
+        
+        # Axes is None and no Figure already exists. Create it
+        fig, ax = plt.subplots(nx, ny, squeeze=False, sharex=sharex, sharey=sharey)
+        
+        if is_array(ax, 1):
+            ax = ax[0,0]
+
+        # Apply the Global Geometry parameters (when defined)
+        geometry(ax,
+                 dims = default_dims[mode], 
+                 xlim = default_xlim[mode], 
+                 ylim = default_ylim[mode], 
+                 aspect = default_aspect[mode])
+        
+    else:
+        
+        # Axes is None but a figure already exists, return the (last) Axes of Figure
+        fig = plt.gcf()
+        ax = plt.gca()
+    
+    if is_array(ax, 1):
+        ax = ax[0,0]
+        
+    return fig, ax
+    
+def initGeographic(nx=1, ny=1, sharex=False, sharey=False):
+    return initGeneric(1, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
+
+def init(nx=1, ny=1, sharex=False, sharey=False):
+    return initGeneric(0, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
 
 def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
@@ -189,39 +290,12 @@ def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
         Otherwise, the input argument is simply returned.
     '''
     if ax is None:
-        if len(plt.get_fignums()) == 0:
-            
-            # Axes is None and no Figure already exists. Create it
-            fig, ax = plt.subplots(nx, ny, squeeze=False, sharex=sharex, sharey=sharey)
-            
-            if is_array(ax, 1):
-                ax = ax[0,0]
-                
-            # Apply the Global Geometry parameters (when defined)
-            geometry(ax,
-                     dims = default_dims[mode], 
-                     xlim = default_xlim[mode], 
-                     ylim = default_ylim[mode], 
-                     aspect = default_aspect[mode])
-            
-        else:
-            # Axes is None but a figure already exists, return the (last) Axes of Figure
-            ax = plt.gca()
+        _, ax = initGeneric(mode=mode, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
     
     if is_array(ax, 1):
         ax = ax[0,0]
         
     return ax
-
-def shape_Nsubplots(N):
-    '''
-    Calculates numbers of lines and columns for N subplots. 
-    If N is a perfect square, then nlines = ncols = sqrt(N). 
-    Else, the number of columns increase first.
-    '''
-    nlines = np.floor(np.sqrt(N))
-    ncols = np.ceil(N/nlines)
-    return int(nlines), int(ncols)
 
 def is_array(tab, ndim=None):
     '''
@@ -270,6 +344,7 @@ def getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True,
     return tab
 
 def getBiDefinedValues(db1, name1, name2, db2, usesel=True):
+    
     tabx = db1.getColumn(name1, usesel)
     tabx = np.array(tabx).transpose()
     
@@ -286,7 +361,7 @@ def getFileIdentity(filename):
     print(type)
     return type
 
-def varioElem(ax=None, vario=None, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
+def varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
               var_color='black', var_linestyle='dashed', 
               flagDrawVariance = True, flagLabelDir=False, flagLegend=False, 
               label=None, **kwargs):
@@ -313,15 +388,13 @@ def varioElem(ax=None, vario=None, ivar=0, jvar=0, idir=0, hmax=None, show_pairs
     -------
     ax : axes where the variogram is represented
     """
-    if vario is None:
-        print("'vario' is compulsory")
-        return None
-
-    ax = getNewAxes(ax,0)
 
     if label is None:
         if flagLabelDir:
-            label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
+            if vario.isDefinedForGrid():
+                label = "vario grid={}".format(vario.getGrincrs(idir))
+            else:
+                label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
         else:
             label = "vario"
     
@@ -365,17 +438,31 @@ def varioElem(ax=None, vario=None, ivar=0, jvar=0, idir=0, hmax=None, show_pairs
         
     return res
 
-def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
+def varmold(vario, model=None, ivar=-1, jvar=-1, axs=None, **kwargs):
+    '''
+    Deprecated function: see varmod() for details
+    '''
+    printDeprecated()
+    
+    nvar = vario.getVariableNumber()
+    ivarUtil, ivarN = selectItems(nvar, ivar)
+    jvarUtil, jvarN = selectItems(nvar, jvar)
+    axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
+
+    return varmod(axs, vario=vario, model=model, ivar=ivar, jvar=jvar, **kwargs)
+
+def varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
            nh = 100, hmax = None, show_pairs=False, asCov=False, 
            var_color='black', var_linestyle="dotted",
            env_color='black', env_linestyle="dotted",
-           cmap=None, flagLegend=False, axs=None, 
+           cmap=None, flagLegend=False,
            **kwargs):
     """
     Construct a figure for plotting experimental variogram(s) and model.
     
     Parameters
     ----------
+    axs : Matplotlib.Axes or Matplotlib.Figure
     vario : experimental variogram to be represented
     model : optional, variogram model
     ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
@@ -395,8 +482,11 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
     
     Returns
     -------
-    ax : axes where the variograms are represented
+    axs : axes where the variograms are represented
     """
+    if isNotCorrect(object=vario, types=["Vario"]):
+        return None
+
     color_in_kwargs = 'color' in kwargs
     
     if hmax is None:
@@ -409,19 +499,28 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
     ndirUtil, ivarD = selectItems(ndir, idir)
     ivarUtil, ivarN = selectItems(nvar, ivar)
     jvarUtil, jvarN = selectItems(nvar, jvar)
-        
-    axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
-        
+    
+    # Check that the number of subplots in the Figure is correct
+    if type(axs) == plt.Figure:
+        ax_list = axs.get_axes()
+        if len(ax_list) != ivarN * jvarN:
+            print("Argument 'axs' does not contain the correct number of subplots")
+            exit()
+            
     if ndir > 1:
         flagLabelDir = True
     else:
         flagLabelDir = False
         
-    # Loop on the variables  
+    # Loop on the variables 
+    iaxes = 0 
     for iv in ivarUtil:
         for jv in jvarUtil:
             
-            if type(axs) == np.ndarray:
+            if type(axs) == plt.Figure:
+                ax = ax_list[iaxes]
+                iaxes = iaxes + 1
+            elif type(axs) == np.ndarray:
                 ax = axs[iv,jv]
             else:
                 ax = axs
@@ -454,20 +553,31 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, idir=-1,
             if vario.drawOnlyPositiveY(iv, jv):
                 ax.set_ylim(bottom=0)
     
-    if is_array(axs, 1):
-        return axs[0,0]
-    else:
-        return axs
+    return axs
 
-def vario(vario, ivar=0, jvar=0, idir=0,
-          var_color='black', var_linestyle='dashed', hmax=None,  
-          cmap = None, flagLegend=False, 
-          axs = None, **kwargs):
+def varioold(vario, ivar=0, jvar=0, axs = None, **kwargs):
+    '''
+    Deprecated function: see variogram() for details
+    '''
+    printDeprecated()
+    
+    nvar = vario.getVariableNumber()
+    ivarUtil, ivarN = selectItems(nvar, ivar)
+    jvarUtil, jvarN = selectItems(nvar, jvar)
+    axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
+    
+    return variogram(axs, vario, ivar=ivar, jvar=jvar, **kwargs)
+    
+def variogram(axs, vario, ivar=0, jvar=0, idir=0,
+              var_color='black', var_linestyle='dashed', hmax=None,  
+              cmap = None, flagLegend=False, 
+              **kwargs):
     """
     Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
     Parameters
     ----------
+    axs : matplotlib.Axes or matplotlib.Figure
     vario : experimental variogram to be represented (gstlearn.Vario).
     ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
                  variables are selected and all the simple and crossed variograms are represented.
@@ -483,17 +593,14 @@ def vario(vario, ivar=0, jvar=0, idir=0,
 
     Returns
     -------
-    ax : axes where the variograms are represented
+    axs : axes where the variograms are represented
     """
-    axs = varmod(vario, ivar=ivar, jvar=jvar, idir=idir, 
-                 var_color=var_color, var_linestyle=var_linestyle, 
-                 hmax=hmax, cmap=cmap, 
-                 flagLegend=flagLegend, axs=axs, 
-                 **kwargs)
-    
-    return axs
+    return varmod(axs, vario, ivar=ivar, jvar=jvar, idir=idir, 
+                  var_color=var_color, var_linestyle=var_linestyle, 
+                  hmax=hmax, cmap=cmap, flagLegend=flagLegend, 
+                  **kwargs)
 
-def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, idir=0,
+def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
               nh = 100, hmax = None, asCov=False,
               env_color='black', env_linestyle='dashed',
               label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
@@ -503,7 +610,7 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
     
     Parameters
     ----------
-    ax: matplotlib.Axes (necessary when used as a method of the class)
+    ax: matplotlib.Axes
     model : variogram model to be represented (gstlearn.Model).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     codir : Vector of the direction of the variogram to be represented. The default is the unit 
@@ -520,8 +627,7 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
     flagEnvelop: Represent the coregionalization envelop (in multivariate case only)
     flagLegend : Flag to display the axes legend.
     """
-    if model is None:
-        print("'model' is compulsory")
+    if isNotCorrect(object=model, types=["Model"]):
         return None
 
     if codir is None:
@@ -541,8 +647,6 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
     if hmax == 0: # if the model has no range defined
         hmax = 1
             
-    ax = getNewAxes(ax, 0)
-    
     if label is None:
         if flagLabelDir:
             label = "model dir={}".format(np.round(codir,3))
@@ -572,21 +676,19 @@ def modelElem(ax = None, model = None, ivar=0, jvar=0, codir=None, vario=None, i
         
     return res
 
-def model(model = None, ivar=0, jvar=0, codir=None, vario=None, idir=0,
-          nh = 100, hmax = None, asCov=False,
-          env_color='black', env_linestyle='dashed',
-          label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
-          ax = None, **kwargs):
+def modelold(model, ax = None, **kwargs):
+    '''
+    Deprecated function: see model() for details
+    '''
+    printDeprecated()
     
     ax = getNewAxes(ax, 0)
     
-    modelElem(ax, model = model, ivar=ivar, jvar=jvar, codir=codir, 
-              vario=vario, idir=idir,
-              nh = nh, hmax = hmax, asCov=asCov,
-              env_color=env_color, env_linestyle=env_linestyle,
-              label=label, flagLabelDir=flagLabelDir, flagEnvelop = flagEnvelop, 
-              flagLegend=flagLegend, 
-              **kwargs)
+    return model(ax, model = model, **kwargs)
+    
+def model(ax, model = None, **kwargs):
+
+    modelElem(ax, model = model, **kwargs)
     
     return ax
 
@@ -611,10 +713,10 @@ def readCoorPoint(db, coorX_name=None, coorY_name=None,
     
     return tabx, taby
     
-def pointSymbol(ax=None, db=None, name_color=None, name_size=None, 
-                coorX_name=None, coorY_name=None, usesel=True, 
-                c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
-                flagLegend=True, legendName=None, posX=0, posY=1, **kwargs):
+def symbol(ax, db, name_color=None, name_size=None, 
+           coorX_name=None, coorY_name=None, usesel=True, 
+           c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
+           flagLegend=False, legendName=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
     
@@ -637,12 +739,6 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     '''
-    if db is None:
-        print("'db' is compulsory")
-        return None
-    
-    ax = getNewAxes(ax, 1)
-
     name = ''
     
     # Read the coordinates
@@ -692,9 +788,9 @@ def pointSymbol(ax=None, db=None, name_color=None, name_size=None,
          
     return res
 
-def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None, 
-               usesel=True, flagLegend=True, legendName=None, 
-               posX=0, posY=1, **kwargs):
+def literal(ax, db, name, coorX_name=None, coorY_name=None, 
+            usesel=True, flagLegend=True, legendName=None, 
+            posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a point data base, with optional color and size variables
     
@@ -710,12 +806,6 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     '''
-    if (db is None) or (name is None):
-        print("'db' and 'name' are compulsory")
-        return None
-    
-    ax = getNewAxes(ax, 1)
-
     if len(ax.get_title()) <= 0:
         ax.decoration(title = db.getName(name)[0])
     
@@ -733,8 +823,8 @@ def pointLabel(ax=None, db=None, name=None, coorX_name=None, coorY_name=None,
   
     return res
 
-def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
-                  posX=0, posY=1, **kwargs):
+def gradient(ax, db, coorX_name=None, coorY_name=None, usesel=True, 
+             posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a gradient data base
     
@@ -744,12 +834,6 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
     '''
-    if db is None:
-        print("'db' is compulsory")
-        return None
-    
-    ax = getNewAxes(ax, 1)
-
     if db.getLocNumber(gl.ELoc.G) <= 0:
         return None
     
@@ -771,8 +855,8 @@ def pointGradient(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=Tru
             
     return res
 
-def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True, 
-                 posX=0, posY=1, **kwargs):
+def tangent(ax, db, coorX_name=None, coorY_name=None, usesel=True, 
+            posX=0, posY=1, **kwargs):
     '''
     Construct a layer for plotting a tangent data base
     
@@ -782,12 +866,6 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
     coorY_name: Name of the variable standing for Y coordinate 
     usesel : Boolean to indicate if the selection has to be considered
     '''
-    if db is None:
-        print("'db' is compulsory")
-        return None
-    
-    ax = getNewAxes(ax, 1)
-
     if db.getLocNumber(gl.ELoc.TGTE) <= 0:
         return None
 
@@ -806,19 +884,30 @@ def pointTangent(ax=None, db=None, coorX_name=None, coorY_name=None, usesel=True
             
     return res
 
-def point(db, 
-          name_color=None, name_size=None, name_label=None,
-          coorX_name=None, coorY_name=None, usesel=True, 
-          color='r', size=20, sizmin=10, sizmax=200, cmap=None,
-          flagAbsSize=False, flagCst=False,
-          flagGradient=False, colorGradient='black', scaleGradient=20,
-          flagTangent=False, colorTangent='black', scaleTangent=20,
-          flagLegendSymbol=False, legendSymbolName=None,
-          flagLegendLabel=False, legendLabelName=None,
-          posX=0, posY=1, ax=None, **kwargs):
+def pointold(db, name_size=None, ax=None, **kwargs):
+    '''
+    Deprecated function: see pointGeneral() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+    
+    return pointGeneral(ax, db=db, name_size=name_size, **kwargs)
+
+def pointGeneral(ax, db, 
+                 name_color=None, name_size=None, name_label=None,
+                 coorX_name=None, coorY_name=None, usesel=True, 
+                 color='r', size=20, sizmin=10, sizmax=200, cmap=None,
+                 flagAbsSize=False, flagCst=False,
+                 flagGradient=False, colorGradient='black', scaleGradient=20,
+                 flagTangent=False, colorTangent='black', scaleTangent=20,
+                 flagLegendSymbol=False, legendSymbolName=None,
+                 flagLegendLabel=False, legendLabelName=None,
+                 posX=0, posY=1, **kwargs):
     '''
     Construct a figure for plotting a point data base
     
+    ax: matplotlib.Axes
     db: Db containing the variable to be plotted
     name_color: Name of the variable containing the color per sample
     name_size: Name of the variable containing the size per sample
@@ -848,8 +937,9 @@ def point(db,
 
     **kwargs : arguments passed to matplotllib.pyplot.scatter
     '''
-    ax = getNewAxes(ax, 1)
-    
+    if isNotCorrect(object=db, types=["Db", "DbGrid"]):
+        return None
+
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_color is None) and (name_size is None) and (name_label is None):
@@ -859,43 +949,60 @@ def point(db,
             name_size = db.getLastName()
             flagCst = True
 
+    title = ""
     if (name_color is not None) or (name_size is not None):
-        pt = pointSymbol(ax, db, name_color=name_color, name_size=name_size, 
-                         coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
-                         c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
-                         flagAbsSize=flagAbsSize, flagCst=flagCst,
-                         cmap=cmap, 
-                         flagLegend=flagLegendSymbol, legendName=legendSymbolName,
-                         posX=posX, posY=posY, 
-                         **kwargs)
+        pt = symbol(ax, db, name_color=name_color, name_size=name_size, 
+                    coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
+                    c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
+                    flagAbsSize=flagAbsSize, flagCst=flagCst,
+                    cmap=cmap, 
+                    flagLegend=flagLegendSymbol, legendName=legendSymbolName,
+                    posX=posX, posY=posY, 
+                    **kwargs)
+        if name_color is not None:
+            title = title + name_color +  " (Color) "
+        if name_size is not None:
+            title = title + name_size + " (Size) "
     
     if name_label is not None:
-        tx = pointLabel(ax, db, name=name_label, 
-                        coorX_name=coorX_name, coorY_name=coorY_name, 
-                        usesel=usesel, 
-                        flagLegend=flagLegendLabel, legendName=legendLabelName,
-                        posX=posX, posY=posY, **kwargs)
+        tx = literal(ax, db, name=name_label, 
+                     coorX_name=coorX_name, coorY_name=coorY_name, 
+                     usesel=usesel, 
+                     flagLegend=flagLegendLabel, legendName=legendLabelName,
+                     posX=posX, posY=posY, **kwargs)
+        title = title + name_label + " (Label) "
         
     if flagGradient:
-        gr = pointGradient(ax, db, coorX_name=coorX_name, coorY_name=coorY_name, 
-                           usesel=usesel, color=colorGradient, scale=scaleGradient,
-                           posX=posX, posY=posY)
+        gr = gradient(ax, db, coorX_name=coorX_name, coorY_name=coorY_name, 
+                      usesel=usesel, color=colorGradient, scale=scaleGradient,
+                      posX=posX, posY=posY)
+        title = title + " (Gradient) "
 
     if flagTangent:
-        tg = pointTangent(ax, db, coorX_name=coorX_name, coorY_name=coorY_name,
-                          usesel=usesel, color=colorTangent, scale=scaleTangent,
-                          posX=posX, posY=posY)
-        
+        tg = tangent(ax, db, coorX_name=coorX_name, coorY_name=coorY_name,
+                     usesel=usesel, color=colorTangent, scale=scaleTangent,
+                     posX=posX, posY=posY)
+        title = title + " (Tangent) "
+    
+    ax.decoration(title = title)
+    
     return ax
 
-def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
-                ax=None):
+def modelOnGridold(model, db, ax=None, **kwargs):
+    '''
+    Deprecated function: see modelOnGrid() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+    
+    return modelOnGrid(ax, model=model, db=db, **kwargs)
+    
+def modelOnGrid(ax, model, db, usesel=True, icov=0, color='black', scale=1, **kwargs):
     '''
     Display the Model characteristics on a Grid
     This makes sense when the model contains some non-stationarity
     '''
-    ax = getNewAxes(ax, 1)
-
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
     taby = db.getCoordinates(1,usesel)
@@ -913,14 +1020,26 @@ def modelOnGrid(model, db, usesel=True, icov=0, color='black', scale=1,
             
     return ax
     
-def polygon(poly, facecolor='yellow', edgecolor = 'blue', 
+def polyold(poly, ax=None, **kwargs):
+    '''
+    Deprecated function: see polygon() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+    
+    return polygon(ax, poly=poly, **kwargs)
+    
+def polygon(ax, poly, facecolor='yellow', edgecolor = 'blue', 
             colorPerSet = False, flagEdge=True, flagFace=False, 
-            ax=None, **kwargs):
+            **kwargs):
     '''
     Construct a Figure for plotting a polygon
+    ax: matplotlib.Axes
     **kwargs: arguments passed to matplotlib.fill
     '''
-    ax = getNewAxes(ax, 1)
+    if isNotCorrect(object=poly, types=["Polygons"]):
+        return None
     
     npol = poly.getPolySetNumber()
     cols = get_cmap(npol)
@@ -975,8 +1094,8 @@ def readGrid(dbgrid, name, usesel=True,
         
     return x0, y0, X, Y, data, tr
 
-def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, corner=None, 
-               flagLegend=True, **kwargs):
+def raster(ax, dbgrid, name, usesel = True, posx=0, posy=1, corner=None, 
+           flagLegend=False, **kwargs):
     '''
     Plotting a variable from a DbGrid in Raster
 
@@ -987,12 +1106,6 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
     flagLegend: Flag for representing the Color Bar
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    if (dbgrid is None) or (name is None):
-        print("'dbgrid' and 'name' are compulsory")
-        return None
-    
-    ax = getNewAxes(ax, 1)
-        
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
@@ -1012,9 +1125,9 @@ def gridRaster(ax=None, dbgrid=None, name=None, usesel = True, posx=0, posy=1, c
     
     return res
         
-def gridContour(ax=None, dbgrid=None, name=None, usesel = True, 
-                posx=0, posy=1, corner=None, levels=None,
-                flagLegend=True, **kwargs):
+def isoline(ax, dbgrid, name, usesel = True, 
+            posx=0, posy=1, corner=None, levels=None,
+            flagLegend=True, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
@@ -1028,12 +1141,6 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
     
     **kwargs : arguments passed to matplotlib.pyplot.contour
     '''
-    if (dbgrid is None) or (name is None):
-        print("'dbgrid' and 'name' are compulsory")
-        return None
-    
-    ax = getNewAxes(ax, 1)
-
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
@@ -1045,17 +1152,28 @@ def gridContour(ax=None, dbgrid=None, name=None, usesel = True,
     
     if flagLegend:
         h1,l1 = res.legend_elements()
-        ax.legend([h1[0]], ["Contour"])
+        ax.legend([h1[0]], ["Isoline"])
         
     return res
 
-def grid(dbgrid, name_raster = None, name_contour = None, usesel = True, 
-         posx=0, posy=1, corner=None, 
-         flagLegendRaster=False, flagLegendContour=False,
-         levels=None, ax=None, **kwargs):
+def gridold(dbgrid, name_raster=None, ax=None, **kwargs):
+    '''
+    Deprecated function: see gridGeneral() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+    
+    return gridGeneral(ax, dbgrid=dbgrid, name_raster=name_raster, **kwargs)
+
+def gridGeneral(ax, dbgrid, name_raster = None, name_contour = None, usesel = True, 
+                posx=0, posy=1, corner=None, 
+                flagLegendRaster=False, flagLegendContour=False,
+                levels=None, **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
+    ax: matplotlib.Axes 
     dbgrid: DbGrid containing the variable to be plotted
     name_raster: Name of the variable to be represented as raster
     name_contour: Name of the variable tp be represented as contours
@@ -1063,12 +1181,9 @@ def grid(dbgrid, name_raster = None, name_contour = None, usesel = True,
     flagLegendColor: Flag for representing the Color Bar (not represented if alpha=0)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    if not(dbgrid.isGrid()):
-        print("This function is dedicated to Grid Db and cannot be used here")
-        return None;
-    
-    ax = getNewAxes(ax, 1)
-    
+    if isNotCorrect(object=dbgrid, types=["DbGrid"]):
+        return None
+
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_raster is None) and (name_contour is None):
@@ -1077,23 +1192,38 @@ def grid(dbgrid, name_raster = None, name_contour = None, usesel = True,
         else : # if no Z locator, choose the last field
             name_raster = dbgrid.getLastName()
 
+    title = ""
     if name_raster is not None:
-        rs = gridRaster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
-                        posx=posx, posy=posy, corner=corner, 
-                        flagLegend=flagLegendRaster,
-                        **kwargs)
+        rs = raster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
+                    posx=posx, posy=posy, corner=corner, 
+                    flagLegend=flagLegendRaster,
+                    **kwargs)
+        title = title + name_raster + " (Raster) "
     
     if name_contour is not None:
-        ct = gridContour(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
-                         posx=posx, posy=posy, corner=corner, levels=levels, 
-                         flagLegend=flagLegendContour, 
-                         **kwargs)
+        ct = isoline(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
+                     posx=posx, posy=posy, corner=corner, levels=levels, 
+                     flagLegend=flagLegendContour, 
+                     **kwargs)
+        title = title + name_contour + " (Isoline) "
+    
+    ax.decoration(title = title)
     
     return ax
 
-def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
+def grid1Dold(dbgrid, ax=None, **kwargs):
+    '''
+    Deprecated function: see grid1D() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+
+    return grid1D(ax, dbgrid=dbgrid, **kwargs)
+
+def grid1D(ax, dbgrid, name = None, usesel = True, flagLegendColor=True,
            color='black',flagLegend=False, label='curve',
-           ax=None, **kwargs):
+           **kwargs):
     '''
     Plotting a variable (referred by its name) informed in a DbGrid
 
@@ -1101,8 +1231,6 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagLegendColor: Flag for representing the Color Bar
-    ax: Reference for the plot within the figure
-    
     **kwargs : arguments passed to matplotlib.pyplot.curve
     '''
     if dbgrid.getNDim() != 1:
@@ -1119,8 +1247,6 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
     
-    ax = getNewAxes(ax, 1)
-        
     x0 = dbgrid.getX0(0)
     nx = dbgrid.getNX(0)
     dx = dbgrid.getDX(0)
@@ -1129,44 +1255,55 @@ def grid1D(dbgrid, name = None, usesel = True, flagLegendColor=True,
     data = getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
                             compress=False, asGrid=True)
 
-    curve(data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
-          ax=ax, **kwargs)
+    curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
+          **kwargs)
 
     ax.decoration(title = dbgrid.getName(name)[0])
         
     return ax
 
-def hist_tab(val, ax = None, **kwargs):
+def histold(db, ax=None, **kwargs):
     '''
-    Plotting the histogram of an array (argument 'val')
+    Deprecated function: see histogram() for details
+    '''
+    printDeprecated()
     
-    kwargs : arguments passed to matplotlib.pyplot.hist
-    '''
     ax = getNewAxes(ax, 0)
-        
-    ax.hist(val, **kwargs)
     
-    return ax
+    return histogram(ax, db=db, **kwargs)
     
-def hist(db, name, ax=None, usesel=True, **kwargs):
+def histogram(ax, db, name, usesel=True, **kwargs):
     '''
     Plotting the histogram of a variable contained in a Db
-    
+    ax: matplotlib.Axes
     kwargs : arguments passed to matplotlib.pyplot.hist
     '''
+    if isNotCorrect(object=db, types=["Db", "DbGrid"]):
+        return None
+
     db.useSel = usesel
     val = db[name]
     if len(val) == 0:
         return None
     
-    ax = hist_tab(val, ax=ax, **kwargs)
+    ax.hist(val, **kwargs)
     
-    ax.decoration(title = db.getName(name)[0])
+    ax.decoration(title = db.getName(name)[0], xlabel="Values", ylabel="Count")
         
     return ax
 
-def sortedcurve(tabx, taby, color='black', flagLegend=False,
-                ax=None, **kwargs):
+def sortedcurveold(tabx, taby, ax=None, **kwargs):
+    '''
+    Deprecated function: see sortedcurve() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 0)
+    
+    return sortedcurve(ax, tabx=tabx, taby=taby, **kwargs)
+
+def sortedcurve(ax, tabx, taby, color='black', flagLegend=False,
+                **kwargs):
     '''
     Plotting a set of points after they have been sorted in increasing X
     '''
@@ -1177,13 +1314,21 @@ def sortedcurve(tabx, taby, color='black', flagLegend=False,
     
     # Indices of the sorted elements of stabx
     indices = np.argsort(stabx)
-    ax = curve(stabx[indices], staby[indices], color=color, 
-               flagLegend=flagLegend, ax=ax, **kwargs)
+    return curve(ax, data1=stabx[indices], data2=staby[indices], color=color, 
+                 flagLegend=flagLegend, **kwargs)
     
-    return ax
+def curveold(data1, data2=None, ax=None, **kwargs):
+    '''
+    Deprecated function: see curve() for details
+    '''
+    printDeprecated()
     
-def curve(data1, data2=None, icas=1, color0='black',flagLegend=False, 
-          ax=None, **kwargs):
+    ax = getNewAxes(ax, 0)
+
+    return curve(ax, data1=data1, data2=data2, **kwargs)
+
+def curve(ax, data1, data2=None, icas=1, color0='black',flagLegend=False, 
+          **kwargs):
     '''
     Plotting the curve of an array (argument 'data1')
         if data1 is a tuple, it should contain x=data1[0] and y=data1[1]
@@ -1200,8 +1345,6 @@ def curve(data1, data2=None, icas=1, color0='black',flagLegend=False,
     if len(data1) == 0:
         return None
 
-    ax = getNewAxes(ax, 0)
-    
     filetype = type(data1).__name__
     if filetype == "tuple":
         tabx = data1[0]
@@ -1233,8 +1376,18 @@ def curve(data1, data2=None, icas=1, color0='black',flagLegend=False,
         
     return ax
 
-def multisegments(center, data, color='black',flagLegend=False, label="segments",
-                  ax=None, **kwargs):
+def multisegmentsold(center, data, ax=None, **kwargs):
+    '''
+    Deprecated function: see multisegments() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 0)
+
+    return multisegments(ax, center=center, data=data, **kwargs)
+
+def multisegments(ax, center, data, color='black',flagLegend=False, label="segments",
+                  **kwargs):
     '''
     Plotting a set of segments joining 'center' to any of vertices
     stored in 'data'.
@@ -1246,8 +1399,6 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
     if len(data) == 0:
         return None
     
-    ax = getNewAxes(ax, 0)
-    
     nseg = len(data[0])
     
     for iseg in range(nseg):
@@ -1258,8 +1409,18 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
         
     return ax
 
-def fault(faults, color='black', flagLegend=False, label="segments",
-          ax=None, **kwargs):
+def faultold(faults, ax=None, **kwargs):
+    '''
+    Deprecated function: see varmod() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+
+    return fault(ax, faults=faults, **kwargs)
+
+def fault(ax, faults, color='black', flagLegend=False, label="segments",
+          **kwargs):
     '''
     Plotting a Fault system.
     **kwargs : arguments passed to matplotlib.pyplot.plot
@@ -1267,8 +1428,6 @@ def fault(faults, color='black', flagLegend=False, label="segments",
     color = kwargs.setdefault('color', color)
     label = kwargs.setdefault('label', label)
         
-    ax = getNewAxes(ax, 1)
-    
     nfaults = faults.getNFaults()
     for ifault in range(nfaults):
 
@@ -1283,9 +1442,19 @@ def fault(faults, color='black', flagLegend=False, label="segments",
         
     return ax
 
-def XY(xtab, ytab, flagAsPoint=False, flagLegend=False, 
-       color='blue', marker='o', markersize=10, linestyle='-',
-       ax=None, label='data', **kwargs):
+def XYold(xtab, ytab, ax=None, **kwargs):
+    '''
+    Deprecated function: see XY() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 0)
+        
+    return XY(ax, xtab=xtab, ytab=ytab, **kwargs)
+
+def XY(ax, xtab, ytab, flagAsPoint=False, flagLegend=False, 
+       color='blue', marker='o', markersize=10, linestyle='-', label='data', 
+       **kwargs):
 
     kwargs.setdefault('label', label)
     kwargs.setdefault('color', color)
@@ -1299,8 +1468,6 @@ def XY(xtab, ytab, flagAsPoint=False, flagLegend=False,
         print("Arrays 'xtab' and 'ytab' should have same dimensions")
         return None;
     
-    ax = getNewAxes(ax, 0)
-        
     ax.plot(xtab, ytab, **kwargs)
             
     if flagLegend:
@@ -1308,14 +1475,21 @@ def XY(xtab, ytab, flagAsPoint=False, flagLegend=False,
         
     return ax
 
-def sample(sample, color='black', marker='o', markersize=10,
-           flagLegend=False,
-           ax=None, label='data', 
+def sampleold(sampleobj, ax=None, **kwargs):
+    '''
+    Deprecated function: see sample() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1)
+
+    return sample(ax, sampleobj=sampleobj, **kwargs)
+
+def sample(ax, sampleobj, color='black', marker='o', markersize=10,
+           flagLegend=False, label='data', 
            **kwargs):
     
-    ax = getNewAxes(ax, 0)
-    
-    ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
+    ax.plot(sampleobj[0], sampleobj[1], marker=marker, markersize=markersize, color=color,
             label=label, **kwargs)
             
     if flagLegend:
@@ -1323,43 +1497,66 @@ def sample(sample, color='black', marker='o', markersize=10,
         
     return ax
     
-def rule(rule, proportions=[],cmap=None, maxG=3., ax=None):
-
+def ruleold(ruleobj, ax=None, **kwargs):
+    '''
+    Deprecated function: see rule() for details
+    '''
+    printDeprecated()
+    
     ax = getNewAxes(ax, 0)
     
-    ax.geometry(xlim=[-maxG,+maxG], ylim=[-maxG,+maxG])    
-    nfac = rule.getFaciesNumber()
-    rule.setProportions(proportions)
+    return rule(ax, ruleobj=ruleobj, **kwargs)
+
+def rule(ax, ruleobj, proportions=[],cmap=None, maxG=3.):
+
+    if isNotCorrect(object=ruleobj, types=["Rule"]):
+        return None
+    
+    nfac = ruleobj.getFaciesNumber()
+    ruleobj.setProportions(proportions)
     
     cols = get_cmap(nfac, cmap)
 
     for ifac in range(nfac):
-        bds = rule.getThresh(ifac+1)
+        bds = ruleobj.getThresh(ifac+1)
         rect = ptc.Rectangle((bds[0],bds[2]),bds[1]-bds[0], bds[3]-bds[2], 
                               color=cols(ifac))
         ax.add_patch(rect)
 
+    ax.geometry(xlim=[-maxG,+maxG], ylim=[-maxG,+maxG]) 
+       
     return ax
 
-
-def table(table, icols, fmt='ok', flagLegend=False, ax=None, **kwargs):
+def tableold(tableold, ranks=None, ax=None, **kwargs):
     '''
-    Plotting the contents of a Table (argument 'table')
-        icols designates the ranks of the variable (0: ordinate; 1: abscissae [or regular]) 
-        fmt designates [marker][line][color] information
-    **kwargs
+    Deprecated function: see table() for details
     '''
+    printDeprecated()
+    
     ax = getNewAxes(ax, 0)
     
+    return table(ax, tableold=tableold, icols=ranks, **kwargs)
+    
+def table(ax, tableold, icols, fmt='ok', flagLegend=False, **kwargs):
+    '''
+    Plotting the contents of a Table (argument 'table')
+    ax: matplotlib.Axes
+    icols: designates the ranks of the variable (0: ordinate; 1: abscissae [or regular]) 
+    fmt: designates [marker][line][color] information
+    **kwargs
+    '''
+    if isNotCorrect(object=tableold, types=["Table"]):
+        return None
+    
     if len(icols) == 0:
-        datay = table.getColumn(0)
-        datax = [i for i in range(table.getNRows())]
+        datay = tableold.getColumn(0)
+        datax = [i for i in range(tableold.getNRows())]
     elif len(icols) == 1:
-        datay = table.getColumn(int(icols[0]))
-        datax = [i for i in range(table.getNRows())]
+        datay = tableold.getColumn(int(icols[0]))
+        datax = [i for i in range(tableold.getNRows())]
     else:
-        datay = table.getColumn(int(icols[0]))
-        datax = table.getColumn(int(icols[1]))
+        datay = tableold.getColumn(int(icols[0]))
+        datax = tableold.getColumn(int(icols[1]))
     
     data = np.stack((np.array(datax), np.array(datay)))
     data = data[:, ~np.isnan(data).any(axis=0)]
@@ -1371,14 +1568,27 @@ def table(table, icols, fmt='ok', flagLegend=False, ax=None, **kwargs):
         
     return ax
 
-def mesh(mesh, 
+def meshold(meshobj, ax=None, **kwargs):
+    '''
+    Deprecated function: see mesh() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 1) 
+    
+    return mesh(ax, meshobj=meshobj, **kwargs)
+
+def mesh(ax, meshobj, 
          flagEdge=True, flagFace=False, flagApex=False, 
          facecolor="yellow", edgecolor="blue", linewidth=1,
-         ax=None, **kwargs):
+         **kwargs):
     """
     Plotting the contents of a Mesh
     **kwargs : arguments passed to matplotlib.pyplot.fill
     """
+    if isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
+        return None
+    
     if flagFace:
         kwargs.setdefault('facecolor', facecolor)
     else:
@@ -1388,13 +1598,11 @@ def mesh(mesh,
         kwargs.setdefault('edgecolor', edgecolor) 
         kwargs.setdefault('linewidth', linewidth)
 
-    ax = getNewAxes(ax, 1)   
-
-    nmesh = mesh.getNMeshes()
+    nmesh = meshobj.getNMeshes()
     
     for imesh in range(nmesh):
-        tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
-        taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
+        tabx = meshobj.getCoordinatesPerMesh(imesh, 0, True)
+        taby = meshobj.getCoordinatesPerMesh(imesh, 1, True)
         ax.fill(tabx, taby, **kwargs)
         
         if flagApex:
@@ -1402,18 +1610,30 @@ def mesh(mesh,
 
     return ax
 
-def correlation(db, namex, namey, db2=None, usesel=True, 
+def correlold(db, ax=None, **kwargs):
+    '''
+    Deprecated function: see correlation() for details
+    '''
+    printDeprecated()
+    
+    ax = getNewAxes(ax, 0)
+    
+    return correlation(ax, db=db, **kwargs)
+    
+def correlation(ax, db, namex, namey, db2=None, usesel=True, 
                 asPoint = False,  flagSameAxes=False,
                 diagLine=False, diagColor="black", diagLineStyle='-',
                 bissLine=False, bissColor="red", bissLineStyle='-',
                 regrLine=False, regrColor="blue", regrLineStyle='-',
-                ax=None, **kwargs):
+                **kwargs):
     '''
     Plotting the scatter plot between two variables contained in a Db
     
     kwargs: additional arguments used in hist2d or scatter
     '''
-    ax = getNewAxes(ax, 0)
+
+    if isNotCorrect(object=db, types=["Db", "DbGrid"]):
+        return None
         
     if db2 is None:
         db2 = db
@@ -1470,17 +1690,33 @@ def correlation(db, namex, namey, db2=None, usesel=True,
 
     return ax
 
-def anam(anam, color='blue', linestyle='-', flagLegend=False, ax=None):
+def anamold(anamobj, ax=None, **kwargs):
+    '''
+    Deprecated function: see anam() for details
+    '''
+    printDeprecated()
     
-    res = anam.sample()
-    ax = XY(res.getY(), res.getZ(),
+    ax = getNewAxes(ax, 0)
+    
+    return anam(ax, anamobj=anamobj, **kwargs)
+    
+def anam(ax, anamobj, color='blue', linestyle='-', flagLegend=False):
+    
+    if isNotCorrect(object=anamobj, types=["Anam","AnamHermite"]):
+        return None
+
+    res = anamobj.sample()
+    
+    ax = XY(ax, res.getY(), res.getZ(),
             flagLegend=flagLegend, color=color, linestyle=linestyle,
-            label='Anamorphosis', ax=ax)
+            label='Anamorphosis')
     ax.geometry(xlim = res.getAylim(), ylim=res.getAzlim())
+    ax.decoration(xlabel="Gaussian values", ylabel="Raw values")
     
     return ax
 
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
+    
     filetype = type(object).__name__
 
     if filetype == "Db":
@@ -1490,32 +1726,35 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         if name2 is not None:
             flagDb = False
         if flagDb:
-            point(object, name1, **kwargs)
+            pointold(object, name1, **kwargs)
         else:
-            correlation(object, name1, name2, **kwargs)
+            correlold(object, name1, name2, **kwargs)
             
     elif filetype == "DbGrid":
         if name1 is None:
             name1 = object.getLastName()
-        grid(object, name1, **kwargs)
+        gridold(object, name1, **kwargs)
     
     elif filetype == "Vario":
-        vario(object, **kwargs)
+        varioold(object, **kwargs)
     
     elif filetype == "Model":
-        model(object, **kwargs)
+        modelold(object, **kwargs)
+    
+    elif filetype == "Mesh":
+        meshold(object, **kwargs)
     
     elif filetype == "Rule":
-        rule(object, **kwargs)
+        ruleold(object, **kwargs)
     
     elif filetype == "Table":
-        table(object,ranks, **kwargs)
+        tableold(object, ranks, **kwargs)
 
-    elif filetype == "Polygon":
-        polygon(object,colorPerSet=True,flagFace=True, **kwargs)
+    elif filetype == "Polygons":
+        polyold(object, **kwargs)
         
     else:
-        print("Unknown type")
+        print("Unknown type:",filetype)
 
 def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
     filetype = gl.ASerializable.getFileIdentity(filename)
@@ -1546,13 +1785,12 @@ def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
         table_item = gl.Table.createFromNF(filename,False)
         plot(table_item,ranks, **kwargs)
 
-    elif filetype == "Polygon":
+    elif filetype == "Polygons":
         polygon_item = gl.Polygons.createFromNF(filename,False)
         plot(polygon_item, **kwargs)
         
     else:
-        print("Unknown type")
-
+        print("Unknown type:",filetype)
 
 # Select data on interactive figures with matplotlib
 
@@ -1765,34 +2003,52 @@ class PolygonSelection:
 ## ------------------------------------------ ##
 import gstlearn.plot         as gp
 
-setattr(gl.Db,"plot", gp.point)
-setattr(gl.Db,"plot_correlation", gp.correlation)
-setattr(gl.Db,"plot_hist", gp.hist)
+# Old style attribute setting functions (see printDeprecated for details)
+setattr(gl.Db,               "plot",             gp.pointold)
+setattr(gl.DbGrid,           "plot",             gp.gridold)
+setattr(gl.DbGrid,           "plot_point",       gp.pointold)
+setattr(gl.Vario,            "plot",             gp.varioold)
+setattr(gl.Model,            "plot",             gp.modelold)
+setattr(gl.Rule,             "plot",             gp.ruleold)
+setattr(gl.Table,            "plot",             gp.tableold)
+setattr(gl.Faults,           "plot",             gp.faultold)
+setattr(gl.Polygons,         "plot",             gp.polyold)
+setattr(gl.AnamHermite,      "plot",             gp.anamold)
+setattr(gl.MeshETurbo,       "plot",             gp.meshold)
+setattr(gl.Db,               "plot_hist",        gp.histold)
+setattr(gl.Db,               "plot_correlation", gp.correlold)
 
-setattr(gl.DbGrid,"plot", gp.grid)
-setattr(gl.DbGrid,"plot_point", gp.point)
-
-# plot_correlation and plot_hist are already inherited from the parent class Db
-
-setattr(gl.Vario,            "plot", gp.vario)
-setattr(gl.Model,            "plot", gp.model)
-setattr(gl.Rule,             "plot", gp.rule)
-setattr(gl.Table,            "plot", gp.table)
-setattr(gl.Faults,           "plot", gp.fault)
-setattr(gl.Polygons,         "plot", gp.polygon)
-setattr(gl.AnamHermite,      "plot", gp.anam)
-setattr(gl.MeshETurbo,       "plot", gp.mesh)
-
+# New style attribute setting functions
 setattr(plt.Axes, "decoration",    gp.decoration)
 setattr(plt.Axes, "geometry",      gp.geometry)
 
-setattr(plt.Axes, "pointSymbol",   gp.pointSymbol)
-setattr(plt.Axes, "pointLabel",    gp.pointLabel)
-setattr(plt.Axes, "pointGradient", gp.pointGradient)
-setattr(plt.Axes, "pointTangent",  gp.pointTangent)
+# Next functions should not be offered in the newest release
+#setattr(plt.Axes, "grid",          gp.gridGeneral)
+#setattr(plt.Axes, "point",         gp.pointGeneral)
 
-setattr(plt.Axes, "gridRaster",    gp.gridRaster)
-setattr(plt.Axes, "gridContour",   gp.gridContour)
+setattr(plt.Axes, "model",         gp.model)
+setattr(plt.Axes, "polygon",       gp.polygon)
+setattr(plt.Axes, "fault",         gp.fault)
+setattr(plt.Axes, "anam",          gp.anam)
+setattr(plt.Axes, "rule",          gp.rule)
+setattr(plt.Axes, "table",         gp.table)
+setattr(plt.Axes, "mesh",          gp.mesh)
+setattr(plt.Axes, "variogram",     gp.variogram)
+setattr(plt.Axes, "grid1D"   ,     gp.grid1D)
 
-setattr(plt.Axes, "varioElem",     gp.varioElem)
-setattr(plt.Axes, "modelElem",     gp.modelElem)
+setattr(plt.Axes, "histogram",     gp.histogram)
+setattr(plt.Axes, "correlation",   gp.correlation)
+setattr(plt.Axes, "curve",         gp.curve)
+
+setattr(plt.Axes, "symbol",        gp.symbol)
+setattr(plt.Axes, "literal",       gp.literal)
+setattr(plt.Axes, "gradient",      gp.gradient)
+setattr(plt.Axes, "tangent",       gp.tangent)
+setattr(plt.Axes, "raster",        gp.raster)
+setattr(plt.Axes, "isoline",       gp.isoline)
+
+setattr(plt.Figure, "varmod",      gp.varmod)
+setattr(plt.Figure, "variogram",   gp.variogram)
+setattr(plt.Figure, "model",       gp.model)
+setattr(plt.Figure, "decoration",  gp.decoration)
+setattr(plt.Figure, "geometry",    gp.geometry)

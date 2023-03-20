@@ -943,18 +943,6 @@ int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
   return error;
 }
 
-double AMatrix::determinant() const
-{
-  double deter = TEST;
-  if (! isSquare())
-    my_throw("Determinant is only calculated for square matrices");
-  if (_sparse)
-    my_throw("Determinant is not programmed for sparse matrix");
-  else
-   deter = _determinant();
-  return deter;
-}
-
 String AMatrix::toString(const AStringFormat* /* strfmt*/) const
 {
   std::stringstream sstr;

@@ -133,17 +133,17 @@ Column = 3 - Name = z1 - Locator = z1
 
 +*Out[24]:*+
 ----
-![png](output_40_0.png)
+![png](output_39_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_41_0.png)
+![png](output_40_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_43_0.png)
+![png](output_42_0.png)
 ----

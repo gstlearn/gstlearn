@@ -19,9 +19,10 @@ public:
   ALinearOp& operator=(const ALinearOp &m);
   virtual ~ALinearOp();
 
-  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
   virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
   virtual int getSize() const = 0;
+
+  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
   void setEps(double eps) { _eps = eps; }
   void setX0(VectorDouble& x0) { _x0 = x0; }

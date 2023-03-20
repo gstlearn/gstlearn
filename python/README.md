@@ -167,6 +167,7 @@ git reset --hard
 git pull
 ````
 
+
 2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
 
 

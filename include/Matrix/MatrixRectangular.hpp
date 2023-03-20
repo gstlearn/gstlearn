@@ -63,7 +63,6 @@ private:
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-  double _determinant() const override;
 
   int    _getIndexToRank(int irow,int icol) const;
 

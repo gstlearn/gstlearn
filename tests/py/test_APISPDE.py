@@ -57,12 +57,9 @@ err = model.addNoStat(NoStat)
 
 S = gl.ShiftOpCs(mesh, model, resultDb)
 
-Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, False)
-
-vect = np.random.normal(size=Qsimu.getSize())
-result = gl.VectorDouble(np.zeros(Qsimu.getSize()))
-Qsimu.eval(vect,result)
-workingDb.addColumns(result.getVector(),"Simu",gl.ELoc.X)
+Qsimu = gl.PrecisionOp(S, cova, False)
+result = Qsimu.simulateOne()
+workingDb.addColumns(result,"Simu",gl.ELoc.X)
 
 ind = np.random.choice(workingDb.getActiveSampleNumber(), size=100, replace=False)
 data = gl.Db()

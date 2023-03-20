@@ -80,8 +80,7 @@ void ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
 ** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ALinearOp::evalInverse(const VectorDouble& inv,
-                            VectorDouble& outv) const
+void ALinearOp::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
 {
   int n = getSize();
   if (n <= 0) my_throw("ALinearOp size not defined. Call setSize before");
@@ -171,8 +170,7 @@ void ALinearOp::setPrecond(const ALinearOp* precond, int status)
 ** \param[in]  y      Second array
 **
 *****************************************************************************/
-double ALinearOp::_prod(const VectorDouble& x,
-                        const VectorDouble& y) const
+double ALinearOp::_prod(const VectorDouble &x, const VectorDouble &y) const
 {
   double prod = 0.;
   int n = getSize();
