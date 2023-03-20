@@ -8,7 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Enum/ELaw.hpp>
+#include "Enum/ELaw.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/EShape.hpp"
 #include "Enum/EJustify.hpp"

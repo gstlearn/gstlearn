@@ -29,15 +29,16 @@ The *gstlearn* C++ library is a derivative work based on the *swigex* project: [
 
 The *gstlearn* C++ library uses the following third party products (see licenses notices in doc/licenses):
 
-| Name       | License        | URL                                                | Copyright
-|------------|----------------|----------------------------------------------------|-----------
-| ANN        | LGPL v3        | http://www.cs.umd.edu/~mount/ANN                   | Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount
-| Boost      | see notice     | https://www.boost.org                              | see boost headers
-| HDF5       | see notice     | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
-| csparse    | LGPL v2.1      | https://github.com/DrTimothyAldenDavis/SuiteSparse | Copyright 2011, Timothy A. Davis
-| vtk        | see notice     | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
-| clustering | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
-| fft        | see notice     | NA                                                 | Copyright(c)1995,97 Mark Olesen
+| Name           | License        | URL                                                | Copyright
+|----------------|----------------|----------------------------------------------------|-----------
+| ANN            | LGPL v3        | http://www.cs.umd.edu/~mount/ANN                   | Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount
+| Boost          | see notice     | https://www.boost.org                              | see boost headers
+| HDF5           | see notice     | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
+| csparse        | LGPL v2.1      | https://github.com/DrTimothyAldenDavis/SuiteSparse | Copyright 2011, Timothy A. Davis
+| vtk            | see notice     | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+| clustering     | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
+| fft            | see notice     | NA                                                 | Copyright(c)1995,97 Mark Olesen
+| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org/             | Copyright ??, the GMT Team
 
 ## Requirements
 

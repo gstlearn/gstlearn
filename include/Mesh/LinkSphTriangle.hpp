@@ -14,7 +14,8 @@
 
 #include "geoslib_define.h"
 
-#include "sphtriangle.hpp"
+class SphTriangle;
+class Db;
 
 GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t);
 GSTLEARN_EXPORT void meshes_2D_sph_free(SphTriangle *t, int mode);

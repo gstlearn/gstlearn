@@ -33,6 +33,7 @@ Simply import the *gstlearn* Python package and its plot module, then enjoy:
 ```
 # Import packages
 import numpy as np
+import matplotlib.pyplot as plt
 import gstlearn as gl
 import gstlearn.plot as gp
 # Grid size
@@ -43,7 +44,9 @@ mygrid = gl.DbGrid.create([nx,ny],[1,1])
 var = np.random.randn(nx * ny)
 mygrid.addColumns(var, "var1", gl.ELoc.Z)
 # Display the field
-gp.grid(mygrid, title="Gaussian random field", end_plot = True)
+ax = gp.grid(mygrid)
+ax.decoration(title="Gaussian random field")
+plt.show()
 ```
 
 Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) directory of the *gstlearn* github repository.

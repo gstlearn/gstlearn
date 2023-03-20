@@ -8,14 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Mesh/LinkSphTriangle.hpp>
+#include <Mesh/MeshSphericalExt.hpp>
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "ExternalTools/LinkTriangle.hpp"
 #include "ExternalTools/LinkTetrahedron.hpp"
-#include "ExternalTools/LinkSphTriangle.hpp"
-#include "ExternalTools/MeshSphericalExt.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Mesh/MeshEStandard.hpp"

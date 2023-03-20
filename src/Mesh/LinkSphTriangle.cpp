@@ -10,14 +10,14 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "ExternalTools/LinkSphTriangle.hpp"
-
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshSpherical.hpp"
+#include "Mesh/LinkSphTriangle.hpp"
+#include "Mesh/sphtriangle.hpp"
 
 #include <math.h>
 
