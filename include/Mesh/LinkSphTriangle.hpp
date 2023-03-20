@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include <Mesh/sphtriangle.hpp>
+#include "Mesh/sphtriangle.hpp"
 
 class Db;
 
