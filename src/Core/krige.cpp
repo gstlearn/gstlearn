@@ -1621,7 +1621,7 @@ int _krigsim(Db* dbin,
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
-  if (ksys.setKrigOptDGM(flag_dgm, r_coeff)) return 1;
+  if (ksys.setKrigOptDGM(flag_dgm)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */

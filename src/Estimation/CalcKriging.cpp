@@ -28,7 +28,6 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _rankColCok(),
     _matCL(),
     _flagDGM(false),
-    _rCoeff(1.),
     _nameCoord(),
     _flagBayes(false),
     _priorMean(),
@@ -237,7 +236,7 @@ bool CalcKriging::_run()
   if (ksys.setKrigOptMatCL(_matCL)) return false;
   if (_flagDGM)
   {
-    if (ksys.setKrigOptDGM(true, _rCoeff)) return false;
+    if (ksys.setKrigOptDGM(true)) return false;
   }
   if (_flagBayes)
   {
@@ -313,7 +312,6 @@ bool CalcKriging::_run()
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  matCL       Matrix of linear combination (or NULL)
  **                         (Dimension: nvarCL * model->getNVar())
- ** \param[in]  rcoef       Change of support coefficient (only used for DGM)
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
@@ -328,7 +326,6 @@ int kriging(Db *dbin,
             VectorInt ndisc,
             VectorInt rank_colcok,
             VectorVectorDouble matCL,
-            double rcoef,
             const NamingConvention& namconv)
 {
   CalcKriging krige(flag_est, flag_std, flag_varz);
@@ -342,8 +339,6 @@ int kriging(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setRankColCok(rank_colcok);
   krige.setMatCl(matCL);
-
-  krige.setRCoeff(rcoef);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
@@ -491,7 +486,6 @@ int krigprof(Db *dbin,
  ** \param[in]  flagPerCell Use local block extensions (when defined)
  ** \param[in]  forceDebug  When TRUE, the full debugging flag is switched ON
  **                         (the current status is reset after the run)
- ** \param[in]  rcoef       Change of support coefficient (only used for DGM)
  **
  *****************************************************************************/
 Krigtest_Res krigtest(Db *dbin,
@@ -502,8 +496,7 @@ Krigtest_Res krigtest(Db *dbin,
                       const EKrigOpt &calcul,
                       VectorInt ndisc,
                       bool flagPerCell,
-                      bool forceDebug,
-                      double rcoef)
+                      bool forceDebug)
 {
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
@@ -515,8 +508,6 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setIechSingleTarget(iech0);
   krige.setFlagPerCell(flagPerCell);
-
-  krige.setRCoeff(rcoef);
 
   int memo = OptDbg::getReference();
   if (forceDebug) OptDbg::setReference(iech0);
