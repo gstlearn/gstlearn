@@ -1,9 +1,11 @@
 /******************************************************************************/
-/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Authors: <authors>                                                         */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* License: BSD 3 Clause                                                      */
 /*                                                                            */
 /* This file is meant to demonstrate the process of performing                */
 /* non-conditional simulations using in turn simpgs and simbipgs              */

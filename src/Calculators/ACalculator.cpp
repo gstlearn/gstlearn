@@ -1,9 +1,11 @@
 /******************************************************************************/
-/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Authors: <authors>                                                         */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #include "Calculators/ACalculator.hpp"
 #include "Db/Db.hpp"

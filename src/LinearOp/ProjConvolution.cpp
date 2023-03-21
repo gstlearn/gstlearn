@@ -1,8 +1,11 @@
 /******************************************************************************/
-/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Authors: <authors>                                                         */
-/* License: BSD 3 Clause                                                      */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"

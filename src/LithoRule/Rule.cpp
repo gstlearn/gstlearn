@@ -1,10 +1,11 @@
 /******************************************************************************/
-/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Authors: <authors>                                                         */
-/*                                                                         prop   */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"

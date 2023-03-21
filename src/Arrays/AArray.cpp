@@ -1,9 +1,11 @@
 /******************************************************************************/
-/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Authors: <authors>                                                         */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #include "Arrays/AArray.hpp"
 #include "Basic/VectorNumT.hpp"

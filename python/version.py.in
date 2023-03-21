@@ -1,2 +1,10 @@
+#
+#                         gstlearn Python package
+#
+# Authors: <authors>
+# Website: <website>
+# License: BSD 3 clause
+#
+
 __version__ = "@PROJECT_VERSION@"
 __author__ = "Team gstlearn"

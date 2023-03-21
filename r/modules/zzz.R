@@ -1,4 +1,11 @@
 #
+#                         gstlearn R package
+#
+# Authors: <authors>
+# Website: <website>
+# License: GPL v3
+#
+#
 # Initialization of plot.R
 #
 ".onAttach" <- 

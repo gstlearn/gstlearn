@@ -1,3 +1,10 @@
+#
+#                         gstlearn Python package
+#
+# Authors: <authors>
+# Website: <website>
+# License: BSD 3 clause
+#
 import geopandas as gpd
 from shapely.geometry import Polygon, Point
 

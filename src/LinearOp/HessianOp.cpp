@@ -1,10 +1,11 @@
-
 /******************************************************************************/
-/* gstlearn C++ Library                                                       */
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
 /* Authors: <authors>                                                         */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* License: BSD 3 Clause                                                      */
 /******************************************************************************/
 #include "LinearOp/HessianOp.hpp"
 #include "Basic/Utilities.hpp"

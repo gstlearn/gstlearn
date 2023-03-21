@@ -1,3 +1,12 @@
+/******************************************************************************/
+/*                                                                            */
+/*                             gstlearn R package                             */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/* Website: <website>                                                         */
+/* License: GPL v3                                                            */
+/*                                                                            */
+/******************************************************************************/
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
 // Note : Keep order in this file!

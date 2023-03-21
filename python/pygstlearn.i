@@ -1,3 +1,12 @@
+/******************************************************************************/
+/*                                                                            */
+/*                          gstlearn Python package                           */
+/*                                                                            */
+/* Authors: <authors>                                                         */
+/* Website: <website>                                                         */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
+/******************************************************************************/
 // Keep sync with PYTHON_PACKAGE_NAME in CMakeLists.txt
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 

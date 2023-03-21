@@ -1,3 +1,11 @@
+#
+#                         gstlearn Python package
+#
+# Authors: <authors>
+# Website: <website>
+# License: BSD 3 clause
+#
+
 from setuptools import setup
 
 # Set pure is mandatory in order to ensure that wheel names are python dependent

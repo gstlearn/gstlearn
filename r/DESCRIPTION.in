@@ -10,7 +10,7 @@ Suggests:
     ggpubr,
     FNN
 Description: @PROJECT_DESCRIPTION@
-License: GPL
+License: GPL v3
 LazyLoad: yes
 Maintainer: Team gstlearn <gstlearn@groupes.mines-paristech.fr>
 URL: @PROJECT_HOMEPAGE_URL@
