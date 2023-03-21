@@ -4291,7 +4291,7 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
   for (int iech = 0; ret && iech < getSampleNumber(); iech++)
   {
     VectorDouble vals = getArrayBySample(iech);
-    ret = ret && _recordWriteVec(os, "", vals);
+    ret = ret && _recordWriteVec<double>(os, "", vals);
   }
   return ret;
 }

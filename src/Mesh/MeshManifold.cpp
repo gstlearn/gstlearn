@@ -122,7 +122,7 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
 {
   MeshManifold* mesh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, _getNFName(), is, verbose))
+  if (_fileOpenRead(neutralFilename, is, verbose))
   {
     mesh = new MeshManifold;
     if (! mesh->deserialize(is, verbose))
@@ -196,7 +196,7 @@ int MeshManifold::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordReadVec<double>(is, "Apices", local, ndim * napices);
   _apices = MatrixRectangular(napices, ndim);
   _apices.setValues(local);
-  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes, nmeshes * napexpermesh);
+  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes.getValues(), nmeshes * napexpermesh);
   return 0;
 }
 
@@ -209,6 +209,6 @@ int MeshManifold::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
-  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
+  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
   return 0;
 }
