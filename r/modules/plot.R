@@ -1,10 +1,12 @@
-#
-#                         gstlearn R package
-#
-# Authors: <authors>
-# Website: <website>
-# License: GPL v3
-#
+################################################################################
+#                                                                              #
+#                            gstlearn R package                                #
+#                                                                              #
+# Authors: <authors>                                                           #
+# Website: <website>                                                           #
+# License: GPL v3                                                              #
+#                                                                              #
+################################################################################
 #
 # This is a set of functions working with ggplot2() which enable performing
 # plots easily 

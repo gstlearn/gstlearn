@@ -1,10 +1,13 @@
-#
-#                         gstlearn Python package
-#
-# Authors: <authors>
-# Website: <website>
-# License: BSD 3 clause
-#
+################################################################################
+#                                                                              #
+#                         gstlearn Python package                              #
+#                                                                              #
+# Authors: <authors>                                                           #
+# Website: <website>                                                           #
+# License: BSD 3 clause                                                        #
+#                                                                              #
+################################################################################
+
 import plotly.graph_objects as go
 import numpy                as np
 import gstlearn             as gl

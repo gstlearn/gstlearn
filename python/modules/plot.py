@@ -1,10 +1,13 @@
-#
-#                         gstlearn Python package
-#
-# Authors: <authors>
-# Website: <website>
-# License: BSD 3 clause
-#
+################################################################################
+#                                                                              #
+#                         gstlearn Python package                              #
+#                                                                              #
+# Authors: <authors>                                                           #
+# Website: <website>                                                           #
+# License: BSD 3 clause                                                        #
+#                                                                              #
+################################################################################
+
 import matplotlib.pyplot     as plt
 import matplotlib.patches    as ptc
 import matplotlib.transforms as transform
