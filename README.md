@@ -1,7 +1,6 @@
 ## Overview
 
 **gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES PARIS - PSL University. It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
-Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
 
@@ -31,13 +30,12 @@ The *gstlearn* C++ library uses the following third party products (see licenses
 
 | Name           | License        | URL                                                | Copyright
 |----------------|----------------|----------------------------------------------------|-----------
-| ANN            | LGPL v3        | http://www.cs.umd.edu/~mount/ANN                   | Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount
-| Boost          | see notice     | https://www.boost.org                              | see boost headers
-| HDF5           | see notice     | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
+| Boost          | see licenses   | https://www.boost.org                              | see boost headers
+| HDF5           | see licenses   | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
 | csparse        | LGPL v2.1      | https://github.com/DrTimothyAldenDavis/SuiteSparse | Copyright 2011, Timothy A. Davis
-| vtk            | see notice     | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+| vtk            | see licenses   | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
 | clustering     | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
-| fft            | see notice     | NA                                                 | Copyright(c)1995,97 Mark Olesen
+| fft            | see licenses   | NA                                                 | Copyright(c)1995,97 Mark Olesen
 | stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org/             | Copyright(c) 2020, the GMT Team
 
 ## Requirements
@@ -338,5 +336,6 @@ firefox build/doxygen/html/index.html
 ---
 
 ## License
-BSD
+
+BSD 3 clause
 2023 Team gstlearn

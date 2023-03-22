@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
-License: see doc/csparse_license.txt
+License: LGPL v2.1 (see doc/csparse_license.txt)
 */
 
 /*
@@ -28,10 +28,14 @@ this Module; if not, write to the Free Software Foundation,
 Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
-/*
- Modified by MINES PARIS / PSL (2022)
-*/
 
+/*
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
+
+License: LGPL v2.1
+*/
 #include "geoslib_old_f.h"
 
 #include "Basic/Utilities.hpp"
@@ -2711,19 +2715,6 @@ int sparseinv /* returns -1 on error, or flop count if OK */
   return (flops);
 }
 
-
-
-/******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
-/*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
-/*                                                                            */
-/* TAG_SOURCE_CG                                                              */
-/******************************************************************************/
-
 /* compressed-column form into arrays */
 /* number: Number of non-zero terms in the sparse matrix A */
 void cs_sparse_to_triplet(const cs *A,
@@ -3949,7 +3940,7 @@ static void st_get_FiCo(cs *L,
     vec->erase(newCo);
     if (vec->empty()) tab.erase(lambda[newCo]);
 
-    // Add the samples to the fine set 
+    // Add the samples to the fine set
 
     nFi = 0;
     for (int p = Ltp[newCo]; p < Ltp[newCo + 1]; p++)
@@ -4479,7 +4470,7 @@ cs* cs_prod_norm(int mode, cs *A, cs *B)
   Bt = cs_transpose(B, 1);
   if (Bt == nullptr) goto label_end;
 
-  // Dispatch 
+  // Dispatch
 
   if (mode == 1)
   {
@@ -5506,12 +5497,12 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
     if (score < mgs->tolnmg) break;
   }
 
-  // Save the result 
+  // Save the result
 
   for (int icur = 0; icur < ncur; icur++)
     x[icur] = XCR(0, icur);
 
-  // Store the scores 
+  // Store the scores
 
   set_keypair("Multigrid_Scores", 1, 1, niter, scores);
 
@@ -5549,7 +5540,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   double *resid, *p, *z, *scores, *temp, sn, s, alpha, beta, norm, score;
   int ncur, error, niter;
 
-  // Initializations 
+  // Initializations
 
   error = 1;
   ncur = mgs->ncur;
@@ -5585,7 +5576,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   for (int icur = 0; icur < ncur; icur++)
     p[icur] = z[icur];
 
-  // Loop 
+  // Loop
 
   niter = 0;
   for (int iter = 0; iter < mgs->ngc; iter++)
@@ -5618,7 +5609,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
       p[icur] = z[icur] + beta * p[icur];
   }
 
-  // Store the scores 
+  // Store the scores
 
   set_keypair("Multigrid_Gradient_Scores", 1, 1, niter, scores);
 
@@ -5759,7 +5750,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
   mgs->ncur = qctt->Q->n;
 
-  // Initialize the Selection vector 
+  // Initialize the Selection vector
 
   if (flag_sel)
   {
@@ -5779,7 +5770,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
   }
   if (flag_print) cs_print_file("QTT_apres", ITEST, qctt->Q);
 
-  // Loop on the levels 
+  // Loop on the levels
 
   for (int ilevel = 0; ilevel <= mgs->nlevels; ilevel++)
   {
@@ -5809,14 +5800,14 @@ int cs_multigrid_setup(cs_MGS *mgs,
       if (flag_print) for (int ik = 0; ik < mg->A->Q->n; ik++)
         message("indco[%d] = %d\n", ik, indCo[ik]);
 
-      // Interpolation 
+      // Interpolation
 
       mg->IhH = cs_interpolate(mg->A->Q, L, indCo);
       if (mg->IhH == nullptr) goto label_end;
       if (flag_print) cs_print_file("IhH", ilevel, mg->IhH);
       L = cs_spfree(L);
 
-      // Calculate the sum of rows per column 
+      // Calculate the sum of rows per column
 
       mg->sumrow = cs_col_sumrow(mg->IhH, &mg->nh, &mg->nH);
       if (mg->sumrow == nullptr) goto label_end;
@@ -5827,7 +5818,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
       indCo = (int*) mem_free((char* ) indCo);
     }
 
-    // Cholesky of the last level 
+    // Cholesky of the last level
 
     if (ilevel == mgs->nlevels)
     {
