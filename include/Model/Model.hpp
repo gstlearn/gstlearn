@@ -31,6 +31,8 @@
 #include "Model/CovParamId.hpp"
 #include "Covariances/CovAniso.hpp"
 
+#include "Anamorphosis/AAnam.hpp"
+
 #include "Matrix/MatrixRectangular.hpp"
 
 #include "Basic/AStringable.hpp"
@@ -132,6 +134,7 @@ public:
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() const { return _covaList->getAnam(); }
   const AnamHermite* getAnamHermite() const;
+  bool isChangeSupportDefined() const { return _covaList->getAnam()->isChangeSupportDefined(); }
   void normalize(double sill) { _covaList->normalize(sill); }
   bool hasNugget() const { return _covaList->hasNugget(); }
 

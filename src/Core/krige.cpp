@@ -1579,7 +1579,9 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
  ** \param[in]  icase      Case for PGS and GRF (or -1)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  flag_dgm   1 if the DGM version of kriging should be used
- ** \param[in]  r_coeff    Change of support coefficient
+ **
+ ** \remark: The model contains an anamorphosis with a change of support
+ ** \remark: coefficient as soon as flag_dgm is TRUE
  **
  *****************************************************************************/
 int _krigsim(Db* dbin,
@@ -1591,8 +1593,7 @@ int _krigsim(Db* dbin,
              const VectorDouble& dcov,
              int icase,
              int nbsimu,
-             bool flag_dgm,
-             double r_coeff)
+             bool flag_dgm)
 {
   // Preliminary checks
 
@@ -1602,18 +1603,10 @@ int _krigsim(Db* dbin,
     return 1;
   }
 
-  // Initializations
-
-  int iptr_est  = -1;
-
   /* Add the attributes for storing the results */
 
-  iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
+  int iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
   if (iptr_est < 0) return 1;
-
-  // Building a local Hermite anamorphosis (only 1 Polynomial and Change of Support coefficient)
-
-  AnamHermite anam = AnamHermite(1, true, r_coeff);
 
   /* Setting options */
 

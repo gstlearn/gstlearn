@@ -98,28 +98,15 @@ bool CalcKrigingFactors::_preprocess()
       // Center the information in the blocks of the output grid
       // Duplicating the coordinate variable names before centering
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
-      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
-      for (int idim = 0; idim < _getNDim(); idim++)
-      {
-        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
-        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
-        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
-      }
-      if (db_center_point_to_grid(getDbin(), dbgrid, 0.)) return false;
+      int error = _centerDataToGrid(dbgrid);
+      if (error) return false;
     }
     if (! _ndisc.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
       DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndisc, 1);
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
-      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
-      for (int idim = 0; idim < _getNDim(); idim++)
-      {
-        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
-        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
-        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
-      }
-      int error = db_center_point_to_grid(getDbin(), dbsmu, 0.);
+      int error = _centerDataToGrid(dbsmu);
       delete dbsmu;
       if (error) return false;
     }

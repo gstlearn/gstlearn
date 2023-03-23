@@ -84,8 +84,7 @@ int _krigsim(Db* dbin,
              const VectorDouble& dcov,
              int icase,
              int nbsimu,
-             bool flag_dgm,
-             double r_coeff);
+             bool flag_dgm);
 void _image_smoother(DbGrid *dbgrid,
                      NeighImage *neigh,
                      int type,

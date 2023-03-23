@@ -80,10 +80,23 @@ bool CalcKriging::_check()
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
-  if (_flagDGM && ! getDbout()->isGrid())
+  if (_flagDGM)
   {
-    messerr("For DGM option, the argument 'dbout'  should be a Grid");
-    return false;
+    if (! getDbout()->isGrid())
+    {
+      messerr("For DGM option, the argument 'dbout'  should be a Grid");
+      return false;
+    }
+    if (! getModel()->hasAnam())
+    {
+      messerr("For DGM option, the Model must have an Anamorphosis attached");
+      return false;
+    }
+    if (! getModel()->isChangeSupportDefined())
+    {
+      messerr("DGM option requires a Change of Support to be defined");
+      return false;
+    }
   }
   return true;
 }
@@ -126,14 +139,7 @@ bool CalcKriging::_preprocess()
     {
       // Duplicating the coordinate variable names before centering
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
-      int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
-      for (int idim = 0; idim < _getNDim(); idim++)
-      {
-        int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
-        getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
-        getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
-      }
-      if (db_center_point_to_grid(getDbin(), dbgrid, 0.)) return false;
+      if (_centerDataToGrid(dbgrid)) return false;
     }
   }
 

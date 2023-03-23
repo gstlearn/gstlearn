@@ -47,15 +47,13 @@ public:
                const VectorDouble& dcov = VectorDouble(),
                bool flag_pgs = false,
                bool flag_gibbs = false,
-               bool flag_dgm = false,
-               double r_coeff = 0.);
+               bool flag_dgm = false);
   int simulatePotential(Db *dbiso,
                         Db *dbgrd,
                         Db *dbtgt,
                         Db *dbout,
                         Model* model,
                         double delta);
-
 
   static bool isTurningBandsWorkable(const Model *model);
 
@@ -67,7 +65,6 @@ public:
   void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
   bool isFlagBayes() const { return _flagBayes; }
   void setFlagBayes(bool flag_bayes) { _flagBayes = flag_bayes; }
-  bool isFlagDgm() const { return _flagDGM; }
   void setFlagDgm(bool flag_dgm) { _flagDGM = flag_dgm; }
   bool isFlagGibbs() const { return _flagGibbs; }
   void setFlagGibbs(bool flag_gibbs) { _flagGibbs = flag_gibbs; }
@@ -77,8 +74,6 @@ public:
   void setIcase(int icase) { _icase = icase; }
   int getNbtuba() const { return _nbtuba; }
   void setNbtuba(int nbtuba) { _nbtuba = nbtuba; }
-  double getRCoeff() const { return _rCoeff; }
-  void setRCoeff(double r_coeff) { _rCoeff = r_coeff; }
 
 private:
   virtual bool _check() override;
@@ -95,11 +90,11 @@ private:
   void _simulateTangent(Db *dbtgt, const VectorDouble& aic, double delta);
   void _meanCorrect(Db *dbout, int icase);
   void _difference(Db *dbin,
+                   Model* model,
                    int icase,
                    bool flag_pgs = false,
                    bool flag_gibbs = false,
-                   bool flag_dgm = false,
-                   double r_coeff = 0.);
+                   bool flag_dgm = false);
   void _updateData2ToTarget(Db *dbin,
                             Db *dbout,
                             int icase,
@@ -201,9 +196,9 @@ private:
   bool _flagPGS;
   bool _flagGibbs;
   bool _flagDGM;
+  VectorString _nameCoord;
   VectorDouble _bayesMean;
   VectorDouble _bayesCov;
-  double _rCoeff;
   int _npointSimulated;
   double _field;
   double _theta;
@@ -218,7 +213,8 @@ GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,
                            int nbsimu = 1,
                            int seed = 43431,
                            int nbtuba = 100,
-                           int flag_check = 0,
+                           bool flag_dgm = false,
+                           bool flag_check = false,
                            const NamingConvention &namconv = NamingConvention("Simu"));
 GSTLEARN_EXPORT int simbayes(Db *dbin,
                              Db *dbout,
@@ -229,15 +225,5 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
                              const VectorDouble& dmean = VectorDouble(),
                              const VectorDouble& dcov = VectorDouble(),
                              int nbtuba = 100,
-                             int flag_check = false,
+                             bool flag_check = false,
                              const NamingConvention& namconv = NamingConvention("SimBayes"));
-GSTLEARN_EXPORT int simdgm(Db *dbin,
-                           DbGrid *dbout,
-                           Model *model,
-                           ANeighParam *neighparam,
-                           double rval,
-                           int seed = 313,
-                           int nbsimu = 1,
-                           int nbtuba = 100,
-                           int flag_check = false,
-                           const NamingConvention& namconv = NamingConvention("SimDGM"));
