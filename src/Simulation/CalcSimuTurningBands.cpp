@@ -1929,6 +1929,7 @@ double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
  **  into simulation error
  **
  ** \param[in]  dbin       Input Db structure
+ ** \param[in]  model      Model structure
  ** \param[in]  icase      Case for PGS or GRF
  ** \param[in]  flag_pgs   1 if called from PGS
  ** \param[in]  flag_gibbs 1 if called from Gibbs

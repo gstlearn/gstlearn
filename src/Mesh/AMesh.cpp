@@ -432,7 +432,6 @@ VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices)
  */
 std::vector<VectorInt> AMesh::getNeighborhoodPerMesh() const
 {
-
   int napices  = getNApices();
   int nmeshes  = getNMeshes();
   int npermesh = getNApexPerMesh();
@@ -450,6 +449,54 @@ std::vector<VectorInt> AMesh::getNeighborhoodPerMesh() const
     {
       int ip = getApex(imesh, rank);
       Vmesh[ip].push_back(imesh);
+    }
+  }
+  return Vmesh;
+}
+
+MatrixInt AMesh::getNeighborhoodPerMeshAsMatrix() const
+{
+  int nmeshes  = getNMeshes();
+  int npermesh = getNApexPerMesh();
+
+  MatrixInt Vmesh(nmeshes, npermesh);
+
+  // Loop on the meshes
+
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+  {
+    // Loop on the apices for each mesh
+
+    for (int rank = 0; rank < npermesh; rank++)
+    {
+      int ip = getApex(imesh, rank);
+      Vmesh.setValue(imesh, rank, ip);
+    }
+  }
+  return Vmesh;
+}
+
+MatrixRectangular AMesh::getCoordinatesPerMeshAsMatrix() const
+{
+  int nmeshes  = getNMeshes();
+  int npermesh = getNApexPerMesh();
+  int ndim     = getNDim();
+
+  MatrixRectangular Vmesh(nmeshes, npermesh * ndim);
+
+  // Loop on the meshes
+
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+  {
+    // Loop on the apices for each mesh
+
+    for (int rank = 0; rank < npermesh; rank++)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        double value = getCoor(imesh, rank, idim);
+        Vmesh.setValue(imesh, ndim * rank + idim, value);
+      }
     }
   }
   return Vmesh;

@@ -98,8 +98,10 @@ public:
 
   /// TODO : replace by VectorVectorInt ?
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
+  MatrixInt getNeighborhoodPerMeshAsMatrix() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;
   void dumpNeighborhood(std::vector<VectorInt>& Vmesh);
+  MatrixRectangular getCoordinatesPerMeshAsMatrix() const;
 
 protected:
   void _setNDim(int ndim) { _nDim = ndim; }

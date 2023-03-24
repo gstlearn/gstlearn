@@ -354,7 +354,7 @@ VectorInt morpho_labelsize(int option, const BImage& imagin)
 /*!
  **  Performs a morphological erosion
  **
- ** \param[in]  option  Option of the structuring element (CROSS r BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  verbose Verbose flag
@@ -679,7 +679,7 @@ int morpho_count(const BImage& imagin)
 /*!
  **  Performs a morphological opening
  **
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  **
@@ -704,7 +704,7 @@ void morpho_opening(int option,
 /*!
  **  Performs a morphological closing
  **
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  **

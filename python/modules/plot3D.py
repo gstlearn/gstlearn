@@ -85,7 +85,8 @@ def ScatterOnMesh(points, meshes, intensity=None, cscale=None, color='white',
 
     return surface
     
-def Meshing(mesh, color='black', width=1, 
+def Meshing(mesh, mode='lines', color='black', width=1,
+            m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
             **plot_args):
     '''
     Represent the contents of a Mesh object
@@ -106,7 +107,10 @@ def Meshing(mesh, color='black', width=1,
     ys = np.array(ys)
     zs = np.array(zs)
 
-    meshing = dict(type='scatter3d',x=xs, y=ys, z=zs, mode='lines',
+    meshing = dict(type='scatter3d',x=xs, y=ys, z=zs, mode=mode,
+                   marker_symbol=m_symbol,
+                   marker_line_color=m_line, marker_color=m_color, 
+                   marker_line_width=m_width, marker_size=m_size,
                    line=dict(color=color, width=width),
                    **plot_args
                    )
