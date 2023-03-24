@@ -11,7 +11,6 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "Matrix/csparse_f.h"
 
 #include "Enum/ECst.hpp"
 #include "Enum/ELoadBy.hpp"
@@ -29,6 +28,11 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+//#include "csparse_d.h"
+//#include "csparse_f.h"
 
 /*****************************************************************************/
 /*!
@@ -415,7 +419,7 @@ int main(int /*argc*/, char */*argv*/[])
   }
   
 label_end:
-  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree(Qcols[icol]);
+  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree2(Qcols[icol]);
   delete dbgrid;
   delete model1;
   delete model2;

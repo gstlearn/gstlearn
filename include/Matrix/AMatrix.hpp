@@ -15,13 +15,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Matrix/csparse_d.h"
-
-typedef struct {
-  VectorInt rows;
-  VectorInt cols;
-  VectorDouble values;
-} cs_Output;
+#include "Matrix/LinkMatrixSparse.hpp"
 
 /// TODO : Transform into template for storing something else from double
 
@@ -32,7 +26,9 @@ class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 protected:
   AMatrix(int nrow = 0, int ncol = 0, bool sparse = false);
+#ifndef SWIG
   AMatrix(const cs* A);
+#endif
   AMatrix(const AMatrix &m);
   AMatrix& operator= (const AMatrix &m);
 
@@ -61,7 +57,6 @@ public:
                            VectorInt& icols,
                            VectorDouble& values) const;
 #endif
-  cs_Output getValuesAsTriplets(bool flag_from_1 = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
   VectorDouble getDiagonal(int shift=0) const;
   /*! Extract a Row */
@@ -82,10 +77,11 @@ public:
   virtual void setDiagonal(const VectorDouble& tab);
   virtual void setDiagonal(double value = 1.);
 
-//#ifndef SWIG
+#ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
   const cs* getCs() const { return _csMatrix; }
-//#endif
+#endif
+  Triplet getCsToTriplet(bool flag_from_1 = false) const;
 
   /*! Check that both matrix have the same number of rows and columns */
   bool isSameSize(const AMatrix& m) const;

@@ -58,6 +58,11 @@ message(STATUS "USE_HDF5="      ${USE_HDF5})
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
 
 ####################################################
+## EXTERNAL LIBS
+add_subdirectory(extlibs/gmtsph)
+add_subdirectory(extlibs/csparse)
+
+####################################################
 ## BUILD & INSTALL
 
 include(cmake/cpp.cmake)

@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include "Enum/ESPDECalcMode.hpp"
 

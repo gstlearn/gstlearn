@@ -20,9 +20,13 @@
 #include "Morpho/Morpho.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 #define WEIGHTS(ivar, jvar, iact)  (_weights[iact + nact * (jvar + ivar * nvar)])
 

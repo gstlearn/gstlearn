@@ -18,7 +18,11 @@
 #include "Db/Db.hpp"
 #include "Basic/VectorHelper.hpp"
 
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 MeshEStandard::MeshEStandard()
   : AMesh()
@@ -313,6 +317,7 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -411,7 +416,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool verbose) const
   Atriplet  = cs_spfree(Atriplet);
   return(A);
 }
-
+#endif
 /**
  * Create a MeshEStandard by loading the contents of a Neutral File
  *

@@ -14,10 +14,14 @@
 #include "Basic/AFunction.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 #include <functional>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 Chebychev::Chebychev()
   : _ncMax(10001)
@@ -260,7 +264,7 @@ void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, V
       t0 = swap;
     }
 }
-
+#ifndef SWIG
 void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 {
   VectorDouble tm1, tm2, px, tx;
@@ -319,3 +323,4 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
   for (int i=0; i<nvertex; i++)
     y[i] = px[i];
 }
+#endif

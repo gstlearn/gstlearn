@@ -32,12 +32,14 @@ public:
   double eval(double x) const override;
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& inv,
                    VectorDouble& outv,int iapex,int igparam)const;
-  void evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const override;
   void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
                        VectorDouble& outv,const VectorVectorDouble workpoly,int iapex,int igparam)const;
-  void evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const ;
   void evalOp(const ALinearOpMulti* /*Op*/,
               const VectorVectorDouble& /*inv*/,
               VectorVectorDouble& /*outv*/) const override { }
+#ifndef SWIG
+  void evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const override;
+  void evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const ;
   void evalOp(cs* Op, const VectorDouble& inv, VectorDouble& outv) const override;
+#endif
 };

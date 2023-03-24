@@ -14,7 +14,11 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
@@ -340,4 +344,9 @@ int ProjConvolution::getPointNumber() const
 {
   VectorInt nxs = _gridSeismic->getNXs();
   return VH::product(nxs);
+}
+
+Triplet ProjConvolution::getAProjHorizToTriplet(bool flag_from_1) const
+{
+  return csToTriplet(getAProjHoriz(), flag_from_1);
 }

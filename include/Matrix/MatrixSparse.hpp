@@ -12,31 +12,31 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Mesh/LinkSphTriangle.hpp"
-#include "Mesh/MeshSpherical.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/ICloneable.hpp"
+
+class cs;
 
 /**
- * Meshing defined in the Euclidean space
+ * MatrixSparse wrapper
  */
-class GSTLEARN_EXPORT MeshSphericalExt: public MeshSpherical
+class GSTLEARN_EXPORT MatrixSparse : public AStringable, public ICloneable
 {
 public:
-  MeshSphericalExt();
-  MeshSphericalExt(const MeshSphericalExt &m);
-  MeshSphericalExt& operator=(const MeshSphericalExt &m);
-  virtual ~MeshSphericalExt();
+  MatrixSparse(int nrow = 0, int ncol = 0);
+  MatrixSparse(const MatrixSparse &m);
+  MatrixSparse& operator= (const MatrixSparse &m);
+  virtual ~MatrixSparse();
+  //MatrixSparse(const cs* A);
 
-  int resetFromDb(Db *dbin,
-                  Db *dbout,
-                  const String &triswitch = "nqQ",
-                  bool verbose = false);
-  AMesh* spde_mesh_load(Db *dbin,
-                        Db *dbout = nullptr,
-                        const VectorDouble &gext = VectorDouble(),
-                        const String &triswitch = "-r2",
-                        bool verbose = false);
+  /// ICloneable interface
+  IMPLEMENT_CLONING(MatrixSparse);
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
 private:
-  AMesh* _load2DSph(bool verbose, Db *dbin, Db *dbout, const String &triswitch);
-  void _meshesSphLoadVertices(SphTriangle *t);
+  cs*  _cs;
+
 };
+

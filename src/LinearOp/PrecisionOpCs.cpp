@@ -14,10 +14,14 @@
 #include "Polynomials/APolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/csparse_f.h"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
@@ -43,6 +47,11 @@ PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
 PrecisionOpCs::~PrecisionOpCs()
 {
   _Q = cs_spfree(_Q);
+}
+
+Triplet PrecisionOpCs::getQToTriplet(bool flag_from_1) const
+{
+  return csToTriplet(getQ(), flag_from_1);
 }
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)

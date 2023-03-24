@@ -8,17 +8,17 @@ set(SRC
   Fractures/FracFault.cpp
   Fractures/FracDesc.cpp
   Fractures/FracList.cpp
-  Matrix/MatrixRectangular.cpp
+  Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
+  Matrix/AMatrixSquare.cpp
+  Matrix/MatrixInt.cpp
+  Matrix/MatrixRectangular.cpp
   Matrix/MatrixSquareSymmetric.cpp
   Matrix/MatrixFactory.cpp
   Matrix/MatrixSquareDiagonalCst.cpp
   Matrix/MatrixSquareDiagonal.cpp
-  Matrix/AMatrixSquare.cpp
   Matrix/MatrixSquareGeneral.cpp
-  Matrix/MatrixInt.cpp
   Matrix/Table.cpp
-  Matrix/csparse.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -231,7 +231,6 @@ set(SRC
   Mesh/MeshSpherical.cpp
   Mesh/MeshSphericalExt.cpp
   Mesh/MeshEStandard.cpp
-  Mesh/SphTriangle.cpp
   Morpho/Morpho.cpp
   Stats/Classical.cpp
   Stats/PCA.cpp

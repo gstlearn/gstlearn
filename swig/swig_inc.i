@@ -197,9 +197,6 @@
   #include "geoslib_f.h"
   #include "geoslib_old_f.h"
   
-  #include "Matrix/csparse_d.h"
-  #include "Matrix/csparse_f.h"
-
   #include "Enum/AEnum.hpp"
   #include "Enum/EKrigOpt.hpp"
   #include "Enum/ESPDECalcMode.hpp"
@@ -411,6 +408,7 @@
   
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/AMatrixSquare.hpp"
+  #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/MatrixRectangular.hpp"
   #include "Matrix/MatrixSquareDiagonal.hpp"
   #include "Matrix/MatrixSquareDiagonalCst.hpp"

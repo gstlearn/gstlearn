@@ -1,15 +1,3 @@
-/******************************************************************************/
-/*                                                                            */
-/*                            gstlearn C++ Library                            */
-/*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
-/* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
-/* License: BSD 3 clause                                                      */
-/*                                                                            */
-/******************************************************************************/
-#pragma once
-
 /*--------------------------------------------------------------------
  * Code adapted from stripack.c (GMT)
  * https://github.com/GenericMappingTools/gmt
@@ -20,6 +8,7 @@
  *  Contact info: www.generic-mapping-tools.org
  *
  *--------------------------------------------------------------------*/
+#pragma once
 
 class SphTriangle
 {

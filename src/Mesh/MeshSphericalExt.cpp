@@ -19,6 +19,9 @@
 #include "Mesh/MeshEStandard.hpp"
 #include "Db/Db.hpp"
 
+// External library /// TODO : Dependency to gmtsph to be removed
+#include "gmtsph.hpp"
+
 MeshSphericalExt::MeshSphericalExt()
   : MeshSpherical()
 {

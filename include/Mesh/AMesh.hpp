@@ -15,11 +15,11 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Matrix/csparse_d.h"
 
 class MatrixRectangular;
 class MatrixInt;
 class Db;
+class cs; /// TODO : Dependency to csparse to be removed
 
 class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
 {
@@ -52,9 +52,11 @@ public:
   virtual void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
+#ifndef SWIG
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
   virtual cs* getMeshToDb(const Db *db,
                           bool verbose = false) const = 0;
+#endif
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }
   virtual int  getEmbeddedNDim() const { return _nDim; }

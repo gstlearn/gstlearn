@@ -17,9 +17,11 @@
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshSpherical.hpp"
 #include "Mesh/LinkSphTriangle.hpp"
-#include "Mesh/SphTriangle.hpp"
 
 #include <math.h>
+
+// External library
+#include "gmtsph.hpp"
 
 #define COORD(i,j)  (coord[3 * (j) + (i)])
 

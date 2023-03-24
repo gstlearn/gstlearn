@@ -9,7 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "Matrix/csparse_d.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include "Enum/EJustify.hpp"
 
@@ -29,6 +29,11 @@
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
+
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 #define CASE_DOUBLE 0
 #define CASE_REAL   1
@@ -971,7 +976,7 @@ String toMatrix(const String& title,
   sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
   return sstr.str();
 }
-
+#ifndef SWIG
 String toMatrix(const String& title, const cs* A, bool flagOverride)
 {
   std::stringstream sstr;
@@ -1043,7 +1048,7 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
   sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
   return sstr.str();
 }
-
+#endif
 /**
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)

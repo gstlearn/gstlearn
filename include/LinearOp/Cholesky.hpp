@@ -15,6 +15,9 @@
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
 
+class cs; /// TODO : Dependency to csparse to be removed
+class css;
+class csn;
 class GSTLEARN_EXPORT Cholesky: public ALinearOp
 {
 public:

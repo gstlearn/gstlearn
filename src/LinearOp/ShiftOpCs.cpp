@@ -12,7 +12,6 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
-#include "Matrix/csparse_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
@@ -28,8 +27,13 @@
 #include "Model/Model.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 ShiftOpCs::ShiftOpCs()
     : ALinearOp(),
@@ -75,6 +79,7 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
   (void) initFromMesh(amesh, model, dbout, igrf, icov, verbose);
 }
 
+#ifndef SWIG
 ShiftOpCs::ShiftOpCs(const cs* S,
                      const VectorDouble& TildeC,
                      const VectorDouble& Lambda,
@@ -98,6 +103,7 @@ ShiftOpCs::ShiftOpCs(const cs* S,
   _variety = 0;
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
 }
+#endif
 
 ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
     : ALinearOp(shift),
@@ -139,6 +145,7 @@ ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
   return new ShiftOpCs(amesh, model, dbout, igrf, icov, verbose);
 }
 
+#ifndef SWIG
 ShiftOpCs* ShiftOpCs::createFromSparse(const cs *S,
                                        const VectorDouble &TildeC,
                                        const VectorDouble &Lambda,
@@ -147,6 +154,7 @@ ShiftOpCs* ShiftOpCs::createFromSparse(const cs *S,
 {
   return new ShiftOpCs(S, TildeC, Lambda, model, verbose);
 }
+#endif
 
 /**
  *
@@ -501,6 +509,19 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
   if (iad < 0) return nullptr;
 
   return _SGrad[iad];
+}
+
+Triplet ShiftOpCs::getSToTriplet(bool flag_from_1) const
+{
+  return csToTriplet(getS(), flag_from_1);
+}
+Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1) const
+{
+  return csToTriplet(getTildeCGrad(iapex, igparam), flag_from_1);
+}
+Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam, bool flag_from_1) const
+{
+  return csToTriplet(getSGrad(iapex, igparam), flag_from_1);
 }
 
 /**

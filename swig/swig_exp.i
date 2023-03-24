@@ -247,6 +247,7 @@
 
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixSquare.hpp
+%include Matrix/LinkMatrixSparse.hpp
 %include Matrix/MatrixRectangular.hpp
 %include Matrix/MatrixSquareDiagonal.hpp
 %include Matrix/MatrixSquareDiagonalCst.hpp
@@ -254,8 +255,6 @@
 %include Matrix/MatrixSquareSymmetric.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
-%include Matrix/csparse_d.h
-%include Matrix/csparse_f.h
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp

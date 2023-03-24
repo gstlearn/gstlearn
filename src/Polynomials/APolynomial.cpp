@@ -10,8 +10,7 @@
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/AException.hpp"
-
-#include "Matrix/csparse_d.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <string>
 #include <algorithm>
@@ -51,14 +50,14 @@ APolynomial & APolynomial::operator=(const APolynomial& p)
   }
   return *this;
 }
-
+#ifndef SWIG
 VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
 {
   VectorDouble result(in.size());
   evalOp(Op,in,result);
   return result;
 }
-
+#endif
 String APolynomial::toString(const AStringFormat* /*strfmt*/) const
 {
   String str;

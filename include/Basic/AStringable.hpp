@@ -18,9 +18,9 @@
 #include "Basic/AStringFormat.hpp"
 
 #include <sstream>
-
+#ifndef SWIG
 class cs;
-
+#endif
 class GSTLEARN_EXPORT AStringable
 {
 public:
@@ -82,9 +82,11 @@ GSTLEARN_EXPORT String toMatrixDiagCst(const String& title,
                                        int ncols,
                                        const VectorDouble &tab,
                                        bool flagOverride = false);
+#ifndef SWIG
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const cs* A,
                                 bool  flagOverride = true);
+#endif
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorDouble& tab,
                                 bool flagOverride = true);

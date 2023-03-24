@@ -52,8 +52,9 @@ public:
             const VectorInt &meshes,
             bool byCol,
             bool verbose = false);
-
+#ifndef SWIG
   cs*     getMeshToDb(const Db *db, bool verbose = false) const override;
+#endif
   int     getVariety() const { return 1; }
 
   const MatrixRectangular& getApices() const { return _apices; }

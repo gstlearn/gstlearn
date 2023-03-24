@@ -15,9 +15,13 @@
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <iostream>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 Cholesky::Cholesky(const cs *mat, bool flagDecompose)
     : ALinearOp(),

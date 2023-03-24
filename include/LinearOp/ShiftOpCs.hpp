@@ -23,6 +23,8 @@
 #include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
 
+#include "Matrix/LinkMatrixSparse.hpp"
+
 #include <map>
 
 class Model;
@@ -44,11 +46,13 @@ public:
             int igrf = 0,
             int icov = 0,
             bool verbose = false);
+#ifndef SWIG
   ShiftOpCs(const cs* S,
             const VectorDouble& TildeC,
             const VectorDouble& Lambda,
             Model* model,
             bool verbose = false);
+#endif
   ShiftOpCs(const ShiftOpCs &shift);
   ShiftOpCs& operator=(const ShiftOpCs &shift);
   virtual ~ShiftOpCs();
@@ -61,12 +65,13 @@ public:
                            int igrf = 0,
                            int icov = 0,
                            bool verbose = false);
+#ifndef SWIG
   static ShiftOpCs* createFromSparse(const cs *S,
                                      const VectorDouble &TildeC,
                                      const VectorDouble &Lambda,
                                      Model *model,
                                      bool verbose = false);
-
+#endif
   int initFromMesh(const AMesh* amesh,
                    Model* model,
                    const Db* dbout = nullptr,
@@ -99,9 +104,15 @@ public:
                               double puis = 2) const;
   double getMaxEigenValue() const;
   int getVariety()const {return _variety;}
+#ifndef SWIG
   cs* getS() const { return _S; }
   cs* getTildeCGrad(int iapex, int igparam) const;
   cs* getSGrad(int iapex, int igparam) const;
+#endif
+  Triplet getSToTriplet(bool flag_from_1 = false) const;
+  Triplet getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
+  Triplet getSGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
+
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambdas() const { return _Lambda; }
   double getLambda(int iapex) const { return _Lambda[iapex]; }

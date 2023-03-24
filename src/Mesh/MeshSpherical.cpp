@@ -21,7 +21,11 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 MeshSpherical::MeshSpherical(const MatrixRectangular& apices, const MatrixInt& meshes)
   : AMesh()
@@ -178,6 +182,7 @@ int MeshSpherical::reset(int ndim,
   return(0);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -270,7 +275,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   Atriplet = cs_spfree(Atriplet);
   return(A);
 }
-
+#endif
 /****************************************************************************/
 /*!
 ** Returns the rank of the Apex 'rank' of the Mesh 'imesh'

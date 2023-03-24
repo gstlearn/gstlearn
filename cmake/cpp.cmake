@@ -95,6 +95,9 @@ foreach(FLAVOR ${FLAVORS})
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
   
+  # 'Link' to csparse and gmtsph
+  target_link_libraries(${FLAVOR} PRIVATE csparse gmtsph)
+    
   # 'Link' to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
   target_link_libraries(${FLAVOR} PRIVATE Boost::boost)

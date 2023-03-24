@@ -137,7 +137,7 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
   }
   return mesh;
 }
-
+#ifndef SWIG
 cs* MeshManifold::getMeshToDb(const Db *db, bool verbose) const
 {
   /// TODO getMeshToDb
@@ -145,7 +145,7 @@ cs* MeshManifold::getMeshToDb(const Db *db, bool verbose) const
   DECLARE_UNUSED(verbose);
   return nullptr;
 }
-
+#endif
 void MeshManifold::_defineBoundingBox(void)
 {
   VectorDouble extendmin;

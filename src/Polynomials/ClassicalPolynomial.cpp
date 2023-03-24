@@ -12,8 +12,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 
-#include "Matrix/csparse_d.h"
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 ClassicalPolynomial::ClassicalPolynomial()
 {
@@ -44,6 +44,7 @@ double ClassicalPolynomial::eval(double x) const
 
 // Horner scheme starting from the lowest degree
 // (since it adds the result to the input vector, the classical scheme can t be used)
+#ifndef SWIG
 void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const
 {
   int n = static_cast<int> (inv.size());
@@ -127,7 +128,7 @@ void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& inv,VectorV
     }
   }
 }
-
+#endif
 void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
                                       const VectorDouble& inv,
                                       VectorDouble& outv,

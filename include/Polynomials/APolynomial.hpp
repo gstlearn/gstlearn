@@ -16,11 +16,12 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
-#include "Matrix/csparse_d.h"
 
 #include <functional>
 
 class ALinearOpMulti;
+class cs;
+
 class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
 {
 public:
@@ -35,7 +36,7 @@ public:
 
   void init(VectorDouble coeffs);
   virtual double eval(double x) const = 0;
-
+#ifndef SWIG
   virtual void evalOp(cs* Op,
                       const VectorDouble& inv,
                       VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv); };
@@ -44,6 +45,7 @@ public:
                       VectorVectorDouble& outv,
                       VectorDouble& work) const { DECLARE_UNUSED(Op,inv,outv,work); };
   VectorDouble evalOp(cs* Op, const VectorDouble& inv) const;
+#endif
   VectorDouble getCoeffs() const { return _coeffs; }
   void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}
 

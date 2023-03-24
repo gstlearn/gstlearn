@@ -21,9 +21,13 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Grid.hpp"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 MeshETurbo::MeshETurbo(int mode)
     : AMesh(),
@@ -475,6 +479,7 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
   return false;
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -579,7 +584,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
   Atriplet  = cs_spfree(Atriplet);
   return(A);
 }
-
+#endif
 /****************************************************************************/
 /*!
 ** Print the contents of the meshing

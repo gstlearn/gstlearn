@@ -13,7 +13,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
-#include "Matrix/csparse_d.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
     : AMatrix(nrows, ncols, sparse),

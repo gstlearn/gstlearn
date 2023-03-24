@@ -168,6 +168,7 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /**********************/
 /* Functions for SPDE */
 /**********************/
+#ifndef SWIG
 GSTLEARN_EXPORT Cheb_Elem* spde_cheb_manage(int mode,
                                             int verbose,
                                             double power,
@@ -180,7 +181,7 @@ GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
                                            const VectorDouble &lambda,
                                            const double *x,
                                            double *y);
-
+#endif
 /**********************************/
 /* High-level Interface Functions */
 /**********************************/

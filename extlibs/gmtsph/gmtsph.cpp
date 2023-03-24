@@ -1,15 +1,3 @@
-/******************************************************************************/
-/*                                                                            */
-/*                            gstlearn C++ Library                            */
-/*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
-/* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
-/* License: BSD 3 clause                                                      */
-/*                                                                            */
-/******************************************************************************/
-#include "geoslib_old_f.h"
-
 /*--------------------------------------------------------------------
  * Code adapted from stripack.c (GMT)
  * https://github.com/GenericMappingTools/gmt
@@ -20,8 +8,11 @@
  *  Contact info: www.generic-mapping-tools.org
  *
  *--------------------------------------------------------------------*/
+#include "gmtsph.hpp"
 
 #include <math.h>
+
+#define ABS(a) (((a) <  0.) ? -(a) : (a))
 
 /******************************************************************************/
 /*                                                              From STRIPACK */

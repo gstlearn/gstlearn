@@ -125,6 +125,7 @@ public:
   double *coeffs; /* Array of coefficients */
 };
 
+#ifndef SWIG
 class cs_MGS;
 typedef struct
 {
@@ -140,6 +141,7 @@ typedef struct
   Cheb_Elem *s_cheb;
   AMesh *amesh;
 } SPDE_Matelem;
+#endif
 
 typedef struct
 {

@@ -9,11 +9,15 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ProjMatrix.hpp"
-#include "Matrix/csparse_f.h"
 #include "Mesh/AMesh.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "geoslib_old_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 ProjMatrix::ProjMatrix() 
   : AStringable()
@@ -36,6 +40,7 @@ ProjMatrix::ProjMatrix(const Db* db,const  AMesh *a_mesh, int verbose)
   }
 }
 
+#ifndef SWIG
 ProjMatrix::ProjMatrix(int npoint, int napices, const cs *aproj)
   : AStringable()
   , _nPoint(0)
@@ -48,6 +53,7 @@ ProjMatrix::ProjMatrix(int npoint, int napices, const cs *aproj)
     return;
   }
 }
+#endif
 
 ProjMatrix::ProjMatrix(const ProjMatrix &m)
     : AStringable(m),
@@ -99,6 +105,7 @@ int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int verbose)
   return 0;
 }
 
+#ifndef SWIG
 int ProjMatrix::resetFromPoints(int npoint, int napices, const cs *aproj)
 {
   _Aproj = cs_duplicate(aproj);
@@ -107,6 +114,7 @@ int ProjMatrix::resetFromPoints(int npoint, int napices, const cs *aproj)
   _nApices = napices;
   return 0;
 }
+#endif
 
 /**
  * Returns the projection matrix of a set of points (contained in a Db) onto a meshing
@@ -196,4 +204,9 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
     sstr << toMatrix(String(), _Aproj);
   }
   return sstr.str();
+}
+
+Triplet ProjMatrix::getAprojToTriplet(bool flag_from_1) const
+{
+  return csToTriplet(getAproj(), flag_from_1);
 }

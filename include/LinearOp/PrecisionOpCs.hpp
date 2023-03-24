@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/Cholesky.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 class AMesh;
 class ShiftOpCs;
@@ -47,7 +48,10 @@ public:
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
 
+#ifndef SWIG
   const cs* getQ() const { return _Q; }
+#endif
+  Triplet getQToTriplet(bool flag_from_1 = false) const;
 
 private:
   void _buildQ();
