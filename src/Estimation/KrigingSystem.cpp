@@ -90,7 +90,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _varCorrec(),
       _modelSimple(nullptr),
       _flagDGM(false),
-      _rCoeff(1.),
       _flagFactorKriging(false),
       _nclasses(0),
       _matCL(),
@@ -2473,13 +2472,12 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
   return 0;
 }
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm, double eps)
 {
   _isReady = false;
   if (! flag_dgm)
   {
     _flagDGM = flag_dgm;
-    _rCoeff = 1.;
     return 0;
   }
 
@@ -2498,13 +2496,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
     messerr("The DGM option requires a Model with Total Sill equal to 1.");
     return 1;
   }
-  if (rcoeff <= 0. || rcoeff >= 1.)
-  {
-    messerr("For DGM option, the change of support coefficient must be in ]0.,1[ (%lf)",rcoeff);
-    return 1;
-  }
   _flagDGM = flag_dgm;
-  _rCoeff = rcoeff;
   return 0;
 }
 
