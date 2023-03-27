@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
-License: see doc/csparse_license.txt
+License: LGPL v2.1 (see doc/licenses/csparse_license.txt)
 */
 
 /*
@@ -34,11 +34,10 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #ifndef _CS_F_H
 #define _CS_F_H
 
-#include "csparse_d.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include "csparse_d.h"
 
 MY_EXPORT cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;
 MY_EXPORT int     cs_cholsol (const cs *A, double *b, int order) ;
@@ -113,11 +112,6 @@ MY_EXPORT cs     *cs_done (cs *C, void *w, void *x, int ok) ;
 MY_EXPORT int    *cs_idone (int *p, cs *C, void *w, int ok) ;
 MY_EXPORT csn    *cs_ndone (csn *N, cs *C, void *w, void *x, int ok) ;
 MY_EXPORT csd    *cs_ddone (csd *D, cs *C, void *w, int ok) ;
-
-/* inversion */
-MY_EXPORT int     sparseinv(int n, int *Lp, int *Li, double *Lx, double *d, int *Up,
-                            int *Uj, double *Ux, int *Zp, int *Zi, double *Zx, double *z,
-                            int *Zdiagp, int *Lmunch);
 
 #define CS_MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define CS_MIN(a,b) (((a) < (b)) ? (a) : (b))

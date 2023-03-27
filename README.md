@@ -26,17 +26,31 @@ When using the *gstlearn* C++ library, please use the citation from [doc/gstlear
 
 The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
-The *gstlearn* C++ library uses the following third party products (see licenses notices in doc/licenses):
+The *gstlearn* C++ library depends on the following third-party source code compiled in separate libraries (see **3rd-party** folder):
 
-| Name           | License        | URL                                                | Copyright
-|----------------|----------------|----------------------------------------------------|-----------
-| Boost          | see licenses   | https://www.boost.org                              | see boost headers
-| HDF5           | see licenses   | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
-| csparse        | LGPL v2.1      | https://github.com/DrTimothyAldenDavis/SuiteSparse | Copyright 2011, Timothy A. Davis
-| vtk            | see licenses   | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
-| clustering     | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
-| fft            | see licenses   | NA                                                 | Copyright(c)1995,97 Mark Olesen
-| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org/             | Copyright(c) 2020, the GMT Team
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| csparse        | LGPL v2.1      | https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html | Copyright 2006, Timothy A. Davis
+| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org                          | Copyright(c) 2020, the GMT Team
+
+
+The *gstlearn* C++ library also includes external source codes (see licenses notices in **doc/licenses**):
+
+| Name                    | License        | URL                                            | Copyright
+|-------------------------|----------------|------------------------------------------------|-----------
+| clustering              | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster | Copyright (C) 2002 Michiel Jan Laurens de Hoon
+| fft                     | see licenses   | https://netlib.org/go/fft-olesen.tar.gz        | Copyright(c)1995,97 Mark Olesen
+| sparseinv (SuiteSparse) | BSD 3 clause   | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
+| vtk (VisIt)             | BSD 3 clause   | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+
+
+Finally, the *gstlearn* C++ library depends on the following third-party libraries (see licenses notices in **doc/licenses**):
+
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| Boost          | see licenses   | https://www.boost.org                                          | see Boost headers
+| HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
+
 
 ## Requirements
 

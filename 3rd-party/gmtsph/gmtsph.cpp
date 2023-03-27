@@ -7,8 +7,10 @@
  *
  *  Contact info: www.generic-mapping-tools.org
  *
+ * License: LGPL v3 (see doc/licenses/gmt_license.txt)
+ *
  *--------------------------------------------------------------------*/
-#include "gmtsph.hpp"
+#include "../../3rd-party/gmtsph/gmtsph.hpp"
 
 #include <math.h>
 

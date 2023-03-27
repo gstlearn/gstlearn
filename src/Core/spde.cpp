@@ -46,6 +46,7 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 
+
 /* Global symbols for SPDE */
 
 #define NBLIN_TERMS 10

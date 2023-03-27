@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/Identity.hpp"

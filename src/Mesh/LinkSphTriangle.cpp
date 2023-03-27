@@ -8,6 +8,7 @@
 /* License: BSD 3 clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include <3rd-party/gmtsph/gmtsph.hpp>
 #include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
@@ -21,7 +22,6 @@
 #include <math.h>
 
 // External library
-#include "gmtsph.hpp"
 
 #define COORD(i,j)  (coord[3 * (j) + (i)])
 

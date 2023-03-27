@@ -1,12 +1,11 @@
-/******************************************************************************/
-/*                                                                            */
-/*                            gstlearn C++ Library                            */
-/*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
-/* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
-/* License: BSD 3 clause                                                      */
-/*                                                                            */
+/*
+                                      clustering
+
+Original Author: Michiel Jan Laurens de Hoon
+Website: http://bonsai.hgc.jp/~mdehoon/software/cluster
+License: Python license (see doc/licenses/clustering_license.txt)
+*/
+
 /******************************************************************************/
 /* The C clustering library.                                                  */
 /* Copyright (C) 2002 Michiel Jan Laurens de Hoon.                            */
@@ -15,6 +14,14 @@
 /* Human Genome Center, Institute of Medical Science, University of Tokyo,    */
 /* 4-6-1 Shirokanedai, Minato-ku, Tokyo 108-8639, Japan.                      */
 /******************************************************************************/
+
+/*
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
+License: BSD 3 clause
+*/
+
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 

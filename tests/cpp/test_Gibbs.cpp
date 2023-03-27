@@ -30,10 +30,6 @@
 #include "Model/Model.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-// External library /// TODO : Dependency to csparse to be removed
-//#include "csparse_d.h"
-//#include "csparse_f.h"
-
 /*****************************************************************************/
 /*!
 **  Save the resulting vectors in 'dbgrid' and save it in a neutral file

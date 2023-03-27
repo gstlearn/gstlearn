@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
-License: see doc/csparse_license.txt
+License: LGPL v2.1 (see doc/licenses/csparse_license.txt)
 */
 
 /*

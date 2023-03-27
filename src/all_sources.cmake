@@ -131,6 +131,7 @@ set(SRC
   Core/model.cpp
   Core/krige.cpp
   Core/seismic.cpp
+  Core/sparseinv.cpp
   Core/spde.cpp
   Core/dbtools.cpp
   Anamorphosis/CalcAnamTransform.cpp

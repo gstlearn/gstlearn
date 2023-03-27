@@ -165,6 +165,15 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
                                  const Model *model1,
                                  const Model *model2 = nullptr);
 
+
+/***************************/
+/* Sparse matrix inversion */
+/***************************/
+GSTLEARN_EXPORT int sparseinv(int n, int *Lp, int *Li, double *Lx, double *d, int *Up,
+                              int *Uj, double *Ux, int *Zp, int *Zi, double *Zx, double *z,
+                              int *Zdiagp, int *Lmunch);
+
+
 /**********************/
 /* Functions for SPDE */
 /**********************/
@@ -182,6 +191,7 @@ GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
                                            const double *x,
                                            double *y);
 #endif
+
 /**********************************/
 /* High-level Interface Functions */
 /**********************************/

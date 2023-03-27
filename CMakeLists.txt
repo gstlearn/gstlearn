@@ -59,8 +59,8 @@ message(STATUS "USE_HDF5="      ${USE_HDF5})
 
 ####################################################
 ## EXTERNAL LIBS
-add_subdirectory(extlibs/gmtsph)
-add_subdirectory(extlibs/csparse)
+add_subdirectory(3rd-party/gmtsph)
+add_subdirectory(3rd-party/csparse)
 
 ####################################################
 ## BUILD & INSTALL

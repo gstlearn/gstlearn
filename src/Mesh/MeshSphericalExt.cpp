@@ -8,6 +8,7 @@
 /* License: BSD 3 clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include <3rd-party/gmtsph/gmtsph.hpp>
 #include "Mesh/MeshSphericalExt.hpp"
 #include "Mesh/LinkSphTriangle.hpp"
 #include "geoslib_old_f.h"
@@ -20,7 +21,6 @@
 #include "Db/Db.hpp"
 
 // External library /// TODO : Dependency to gmtsph to be removed
-#include "gmtsph.hpp"
 
 MeshSphericalExt::MeshSphericalExt()
   : MeshSpherical()
