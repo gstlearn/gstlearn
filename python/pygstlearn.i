@@ -1025,6 +1025,7 @@ setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 
 # TODO : Replace Triplet_toTL by MatrixSparse_toTL
 def Triplet_toTL(self):
+  print("youpi !!")
   Acs = sc.csc_matrix((np.array(self.values), 
                       (np.array(self.rows), np.array(self.cols))),
                          shape=(self.nrows, self.ncols))

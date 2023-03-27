@@ -16,9 +16,6 @@
 
 class GSTLEARN_EXPORT Triplet
 {
-  /// Has a specific implementation in the Target language
-  DECLARE_TOTL;
-
 public:
     bool flagFromOne;
     int nrows;
@@ -31,6 +28,9 @@ public:
     VectorDouble getValues() const { return values; }
     VectorInt getRows() const { return rows; }
     VectorInt getCols() const { return cols; }
+
+    /// Has a specific implementation in the Target language
+    DECLARE_TOTL;
 };
 
 #ifndef SWIG
