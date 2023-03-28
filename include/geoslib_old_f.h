@@ -1988,3 +1988,10 @@ GSTLEARN_EXPORT int* kmedoids(double *data,
                               int npass,
                               int verbose);
 
+
+/***************************/
+/* Sparse matrix inversion */
+/***************************/
+GSTLEARN_EXPORT int sparseinv(int n, int *Lp, int *Li, double *Lx, double *d, int *Up,
+                              int *Uj, double *Ux, int *Zp, int *Zi, double *Zx, double *z,
+                              int *Zdiagp, int *Lmunch);

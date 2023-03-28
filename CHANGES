@@ -4,7 +4,7 @@ This file contains the logs between consecutive releases
 Release 0.2.0
 =============
 - Transfer External Tools to gstlearnext
-
+- Fix Anamorphosis back transformation (Hermite gaussianToRaw)
 
 Release 0.1.38
 ==============

@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # C++ header location (keep the trailing '/')
-set(INCLUDES ${CURRENT_SOURCE_DIR}/)
+set(INCLUDES ${CMAKE_CURRENT_SOURCE_DIR}/)
 # C++ source path
 set(SOURCES csparse.cpp)
 

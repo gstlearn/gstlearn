@@ -1,4 +1,3 @@
-
 /*
                                       sparseinv
 
@@ -36,6 +35,8 @@ Authors: gstlearn Team
 Website: https://github.com/gstlearn
 License: BSD 3 clause
 */
+
+#include "geoslib_old_f.h"
 
 int sparseinv /* returns -1 on error, or flop count if OK */
 (

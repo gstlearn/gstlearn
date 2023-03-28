@@ -334,12 +334,12 @@ static void st_getclustermedoids(int nech,
  **
  ****************************************************************************/
 double* kclusters(double *data,
-                                  int nvar,
-                                  int nech,
-                                  int nclusters,
-                                  int npass,
-                                  int mode,
-                                  int verbose)
+                  int nvar,
+                  int nech,
+                  int nclusters,
+                  int npass,
+                  int mode,
+                  int verbose)
 {
   int i, j, k, ifound, error, niter, period, flag_same;
   int *clusterid, *tclusterid, *counts, *cmask, *mapping, *saved;
