@@ -53,7 +53,7 @@ public:
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
-  int  setKrigOptDGM(bool flag_dgm, double rcoeff, double eps = EPSILON6);
+  int  setKrigOptDGM(bool flag_dgm, double eps = EPSILON6);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
   int  setKrigOptAnamophosis(AAnam* anam);
@@ -241,7 +241,6 @@ private:
 
   /// Option for Discrete Gaussian Model
   bool   _flagDGM;
-  double _rCoeff;
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;

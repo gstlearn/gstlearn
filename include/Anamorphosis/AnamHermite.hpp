@@ -38,7 +38,7 @@ public:
   /// Interface AAnam
   const EAnam&  getType() const override { return EAnam::fromKey("HERMITIAN"); }
   bool hasFactor() const override { return true; }
-  int getNFactor() const override { return getNbPoly(); }
+  int  getNFactor() const override { return getNbPoly(); }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double computeVariance(double sval) const override;
   int updatePointToBlock(double r_coef) override;

@@ -8,6 +8,8 @@
 /* License: BSD 3 clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_f.h"
+
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
@@ -222,3 +224,14 @@ bool ACalcInterpolator::hasNeighParam(bool verbose) const
   return true;
 }
 
+int ACalcInterpolator::_centerDataToGrid(DbGrid* dbgrid)
+{
+  int iuid_out = _addVariableDb(1, 2, ELoc::UNKNOWN, 0, _getNDim(), TEST);
+  for (int idim = 0; idim < _getNDim(); idim++)
+  {
+    int iuid_in = getDbin()->getUIDByLocator(ELoc::X, idim);
+    getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
+    getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
+  }
+  return db_center_point_to_grid(getDbin(), dbgrid, 0.);
+}

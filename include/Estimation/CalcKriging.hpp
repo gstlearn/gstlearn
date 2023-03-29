@@ -54,7 +54,6 @@ public:
   void setNdisc(const VectorInt &ndisc) { _ndisc = ndisc; }
   void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
   void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
-  void setRCoeff(double rCoeff) { _rCoeff = rCoeff; }
   void setPriorCov(const VectorDouble &priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
@@ -93,7 +92,6 @@ private:
   VectorVectorDouble _matCL;
 
   bool _flagDGM;
-  double _rCoeff;
   VectorString _nameCoord;
 
   bool _flagBayes;
@@ -137,7 +135,6 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             VectorInt ndisc = VectorInt(),
                             VectorInt rank_colcok = VectorInt(),
                             VectorVectorDouble matCL = VectorVectorDouble(),
-                            double rcoef = TEST,
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int krigcell(Db *dbin,
                              Db *dbout,
@@ -178,8 +175,7 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       const EKrigOpt &calcul = EKrigOpt::fromKey("PONCTUAL"),
                                       VectorInt ndisc = VectorInt(),
                                       bool flagPerCell = false,
-                                      bool forceDebug = true,
-                                      double rcoef = TEST);
+                                      bool forceDebug = true);
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,

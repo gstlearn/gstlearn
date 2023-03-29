@@ -154,7 +154,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display();
   (void) kriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
                  true, true, false, VectorInt(), VectorInt(),
-                 VectorVectorDouble(), TEST, NamingConvention("G_PTS"));
+                 VectorVectorDouble(), NamingConvention("G_PTS"));
 
   // Calculating the Conditional Expectation
   (void) ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
@@ -201,7 +201,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display();
   (void) kriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
                  true, true, false, VectorInt(), VectorInt(),
-                 VectorVectorDouble(), TEST, NamingConvention("Z_PTS"));
+                 VectorVectorDouble(), NamingConvention("Z_PTS"));
   blocs->display();
 
   // Perform the Uniform Conditioning over Blocks

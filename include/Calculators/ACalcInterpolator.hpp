@@ -45,6 +45,8 @@ protected:
   virtual int _getNVar() const override;
   virtual int _getNCova() const;
 
+  int _centerDataToGrid(DbGrid* dbgrid);
+
 private:
   Model* _model;
   ANeighParam* _neighparam;

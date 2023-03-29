@@ -15,6 +15,8 @@
 #include "Simulation/TurningDirection.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Model/Model.hpp"
+#include "Anamorphosis/AAnam.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -36,9 +38,9 @@ CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_che
       _flagPGS(false),
       _flagGibbs(false),
       _flagDGM(false),
+      _nameCoord(),
       _bayesMean(),
       _bayesCov(),
-      _rCoeff(1.),
       _npointSimulated(0),
       _field(0.),
       _theta(0.),
@@ -1927,26 +1929,32 @@ double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
  **  into simulation error
  **
  ** \param[in]  dbin       Input Db structure
+ ** \param[in]  model      Model structure
  ** \param[in]  icase      Case for PGS or GRF
  ** \param[in]  flag_pgs   1 if called from PGS
  ** \param[in]  flag_gibbs 1 if called from Gibbs
  ** \param[in]  flag_dgm   1 if in the Discrete Gaussian Model
- ** \param[in]  r_coeff    Change of support coefficient
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_difference(Db *dbin,
+                                       Model* model,
                                        int icase,
                                        bool flag_pgs,
                                        bool flag_gibbs,
-                                       bool flag_dgm,
-                                       double r_coeff)
+                                       bool flag_dgm)
 {
   int nbsimu = getNbSimu();
   int nvar = _getNVar();
+  double r = 1.;
+  if (flag_dgm)
+  {
+    const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(model->getAnam());
+    r = anamH->getRCoef();
+  }
 
   /* Transform the non conditional simulation into simulation error */
 
-  if (!flag_pgs)
+  if (! flag_pgs)
   {
     /********************************/
     /* Standard case (multivariate) */
@@ -1977,8 +1985,7 @@ void CalcSimuTurningBands::_difference(Db *dbin,
                                           nbsimu, nvar);
           if (flag_dgm)
           {
-            simval = r_coeff * simval
-                + sqrt(1. - r_coeff * r_coeff) * law_gaussian();
+            simval = r * simval + sqrt(1. - r * r) * law_gaussian();
           }
           double simunc = (!FFFF(zvar) && !FFFF(simval)) ? simval - zvar : TEST;
           dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
@@ -2200,7 +2207,6 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
  ** \param[in]  flag_pgs   1 if called from PGS
  ** \param[in]  flag_gibbs 1 if called from Gibbs
  ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
- ** \param[in]  r_coeff    Change of Support ceofficient
  **
  *****************************************************************************/
 int CalcSimuTurningBands::simulate(Db *dbin,
@@ -2213,8 +2219,7 @@ int CalcSimuTurningBands::simulate(Db *dbin,
                                    const VectorDouble &dcov,
                                    bool flag_pgs,
                                    bool flag_gibbs,
-                                   bool flag_dgm,
-                                   double r_coeff)
+                                   bool flag_dgm)
 {
   setDbin(dbin);
   setDbout(dbout);
@@ -2227,7 +2232,6 @@ int CalcSimuTurningBands::simulate(Db *dbin,
   setFlagPgs(flag_pgs);
   setFlagGibbs(flag_gibbs);
   setFlagDgm(flag_dgm);
-  setRCoeff(r_coeff);
 
   if (! _run()) return 1;
   return 0;
@@ -2260,7 +2264,7 @@ bool CalcSimuTurningBands::_run()
 
     // Calculate the simulated error
 
-    _difference(getDbin(), _icase, _flagPGS, _flagGibbs, _flagDGM, _rCoeff);
+    _difference(getDbin(), getModel(), _icase, _flagPGS, _flagGibbs, _flagDGM);
   }
 
   // Non conditional simulations on the grid
@@ -2285,7 +2289,7 @@ bool CalcSimuTurningBands::_run()
   {
     if (_krigsim(getDbin(), getDbout(), getModel(), getNeighparam(),
                  _flagBayes, _bayesMean, _bayesCov, _icase,
-                 nbsimu, _flagDGM, _rCoeff)) return 1;
+                 nbsimu, _flagDGM)) return 1;
   }
   else
   {
@@ -2323,11 +2327,11 @@ bool CalcSimuTurningBands::_run()
  **
  *****************************************************************************/
 int CalcSimuTurningBands::simulatePotential(Db *dbiso,
-                                        Db *dbgrd,
-                                        Db *dbtgt,
-                                        Db *dbout,
-                                        Model* model,
-                                        double delta)
+                                            Db *dbgrd,
+                                            Db *dbtgt,
+                                            Db *dbout,
+                                            Model *model,
+                                            double delta)
 {
   setDbout(dbout);
   setModel(model);
@@ -2530,6 +2534,25 @@ bool CalcSimuTurningBands::_check()
     messerr("You must define 'nbsimu' and 'nbtuba'");
     return 1;
   }
+
+  if (_flagDGM)
+  {
+    if (! getDbout()->isGrid())
+    {
+      messerr("For DGM option, the argument 'dbout'  should be a Grid");
+      return false;
+    }
+    if (! getModel()->hasAnam())
+    {
+      messerr("For DGM option, the Model must have an Anamorphosis attached");
+      return false;
+    }
+    if (! getModel()->isChangeSupportDefined())
+    {
+      messerr("DGM option requires a Change of Support to be defined");
+      return false;
+    }
+  }
   return true;
 }
 
@@ -2551,6 +2574,20 @@ bool CalcSimuTurningBands::_preprocess()
   _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
   if (_iattOut < 0) return false;
 
+  // Centering the Data (for DGM)
+
+  if (_flagDGM)
+  {
+    // Centering (only if the output file is a Grid)
+    DbGrid *dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    if (dbgrid != nullptr)
+    {
+      // Duplicating the coordinate variable names before centering
+      _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
+      if (_centerDataToGrid(dbgrid)) return false;
+    }
+  }
+
   return true;
 }
 
@@ -2567,6 +2604,12 @@ bool CalcSimuTurningBands::_postprocess()
   /* Set the error return flag */
 
   _renameVariable(2, _getNVar(), _iattOut, String(), getNbSimu());
+
+  if (_flagDGM)
+  {
+    if (!_nameCoord.empty())
+      getDbin()->setLocators(_nameCoord, ELoc::X);
+  }
 
   return true;
 }
@@ -2589,6 +2632,7 @@ void CalcSimuTurningBands::_rollback()
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  nbtuba     Number of turning bands
+ ** \param[in]  flag_dgm   1 for Direct Block Simulation
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  namconv    Naming convention
  **
@@ -2603,7 +2647,8 @@ int simtub(Db *dbin,
            int nbsimu,
            int seed,
            int nbtuba,
-           int flag_check,
+           bool flag_dgm,
+           bool flag_check,
            const NamingConvention &namconv)
 {
   // Instantiate the Calculator
@@ -2615,6 +2660,7 @@ int simtub(Db *dbin,
   situba.setModel(model);
   situba.setNeighparam(neighparam);
   situba.setNamingConvention(namconv);
+  situba.setFlagDgm(flag_dgm);
 
   // Run the calculator
   int error = (situba.run()) ? 0 : 1;
@@ -2654,7 +2700,7 @@ int simbayes(Db *dbin,
              const VectorDouble& dmean,
              const VectorDouble& dcov,
              int nbtuba,
-             int flag_check,
+             bool flag_check,
              const NamingConvention& namconv)
 {
   // Instantiate the Calculator
@@ -2676,53 +2722,3 @@ int simbayes(Db *dbin,
   return error;
 }
 
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional block simulation
- **  in the scope of the Discrete Gaussian Model
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db Grid structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  rval       Change of support coefficient
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simdgm(Db *dbin,
-           DbGrid *dbout,
-           Model *model,
-           ANeighParam *neighparam,
-           double rval,
-           int seed,
-           int nbsimu,
-           int nbtuba,
-           int flag_check,
-           const NamingConvention& namconv)
-{
-  // Instantiate the Calculator
-   CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
-
-   // Set the members of the Calculator
-   situba.setDbin(dbin);
-   situba.setDbout(dbout);
-   situba.setModel(model);
-   situba.setNeighparam(neighparam);
-   situba.setNamingConvention(namconv);
-
-   situba.setFlagDgm(true);
-   situba.setRCoeff(rval);
-
-   // Run the calculator
-   int error = (situba.run()) ? 0 : 1;
-   return error;
-}
