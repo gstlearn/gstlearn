@@ -8,7 +8,6 @@
 /* License: BSD 3 clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -32,6 +31,8 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
+#include "Geometry/GeometryHelper.hpp"
+
 #include <math.h>
 
 /*! \cond */
