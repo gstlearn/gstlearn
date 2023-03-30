@@ -104,38 +104,22 @@ void _st_morpho_label_order(VectorDouble &compnum,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Copy the input image into the output image
- **
- ** \param[in]  imagin  input image
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Duplicates the contenst of the input BImage into the output BImage
+ * @param imagin
+ * @param imagout
+ */
 void morpho_duplicate(const BImage &imagin, BImage &imagout)
 {
   imagout = imagin;
 }
 
-/*****************************************************************************/
-/*!
- **  Labels the connected components for a 3D image
- **
- ** \return  Vector of connected component indices
- **
- ** \param[in]  option    connectivity option (CROSS or BLOCK)
- ** \param[in]  flag_size 1 if cell contains volume of connected component
- **                       0 if cell contains rank of connected component
- ** \param[in]  imagin    input image
- ** \param[in]  ccvoid    Value assigned to pixels which do not belong to any
- **                       connected component
- ** \param[in]  verbose   Verbose flag
- **
- ** \remark  The labels are sorted by decreasing sizes and an optional message
- ** \remark  is issued for displaying the component sizes
- **
- *****************************************************************************/
+/**
+ * Labels the connected components for a BImage
+ *
+ * @remarks The labels are sorted by decreasing sizes and an optional message
+ * is issued for displaying the component sizes
+ */
 VectorDouble morpho_labelling(int option,
                               int flag_size,
                               const BImage &imagin,
@@ -324,19 +308,11 @@ VectorDouble morpho_labelling(int option,
   return compnum;
 }
 
-/*****************************************************************************/
-/*!
- **  Returns the array of dimensions of the connex components
- **
- ** \return  Vector of sizes
- **
- ** \param[in]  option    connectivity option (CROSS or BLOCK)
- ** \param[in]  imagin    input image
- **
- ** \remark  The labels are sorted by decreasing sizes and an optional message
- ** \remark  is issued for displaying the component sizes
- **
- *****************************************************************************/
+/**
+ * Returns the array of dimensions of the connex components
+ * @remarks The labels are sorted by decreasing sizes and an optional message
+ * is issued for displaying the component sizes
+ */
 VectorInt morpho_labelsize(int option, const BImage& imagin)
 {
   VectorInt sizes;
@@ -350,18 +326,9 @@ VectorInt morpho_labelsize(int option, const BImage& imagin)
   return sizes;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs a morphological erosion
- **
- ** \param[in]  option  Option of the structuring element (CROSS r BLOCK)
- ** \param[in]  radius  Radius of the structuring element (dimension = 3)
- ** \param[in]  imagin  input image
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] imagout Output image
- **
- *****************************************************************************/
+/**
+ * Perform the "erosion" of the input image
+ */
 void morpho_erosion(int option,
                     const VectorInt &radius,
                     const BImage& imagin,
@@ -455,18 +422,9 @@ void morpho_erosion(int option,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs a morphological dilation
- **
- ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
- ** \param[in]  radius  Radius of the structuring element (dimension = 3)
- ** \param[in]  imagin  input image
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Perform the "dilation" of the input image
+ */
 void morpho_dilation(int option,
                      const VectorInt &radius,
                      const BImage& imagin,
@@ -560,17 +518,9 @@ void morpho_dilation(int option,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs the intersection of two binary images
- **
- ** \param[in]  image1  first input image
- ** \param[in]  image2  second input image
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Perform the "intersection" of two input images
+ */
 void morpho_intersection(const BImage& image1,
                          const BImage& image2,
                          BImage& imagout,
@@ -595,17 +545,9 @@ void morpho_intersection(const BImage& image1,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs the union of two binary images
- **
- ** \param[in]  image1  first input image
- ** \param[in]  image2  second input image
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Perform the "union" of two input images
+ */
 void morpho_union(const BImage& image1,
                   const BImage& image2,
                   BImage& imagout,
@@ -630,16 +572,9 @@ void morpho_union(const BImage& image1,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs the negation of a binary image
- **
- ** \param[in]  imagin  input image
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Perform the "negation" of the input image
+ */
 void morpho_negation(const BImage& imagin,
                      BImage& imagout,
                      bool verbose)
@@ -656,15 +591,9 @@ void morpho_negation(const BImage& imagin,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Returns the volume of the grain
- **
- ** \return  Number of pixels
- **
- ** \param[in]  imagin  input image
- **
- *****************************************************************************/
+/**
+ * Returns the volume (number of pixels) assigned to the grain (Binary Image == 1)
+ */
 int morpho_count(const BImage& imagin)
 {
   int ncount = 0;
@@ -675,59 +604,45 @@ int morpho_count(const BImage& imagin)
   return (ncount);
 }
 
-/*****************************************************************************/
-/*!
- **  Performs a morphological opening
- **
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
- ** \param[in]  radius  Radius of the structuring element (dimension = 3)
- ** \param[in]  imagin  input image
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Perform the "opening" of the input image (i.e. an erosion followed by a dilation)
+ */
 void morpho_opening(int option,
                     const VectorInt &radius,
                     const BImage& imagin,
-                    BImage& imagout)
+                    BImage& imagout,
+                    bool verbose)
 {
   BImage imagtmp = imagin;
 
-  morpho_erosion(option, radius, imagin, imagtmp);
+  morpho_erosion(option, radius, imagin, imagtmp, verbose);
 
-  morpho_dilation(option, radius, imagtmp, imagout);
+  morpho_dilation(option, radius, imagtmp, imagout, verbose);
 
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs a morphological closing
- **
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
- ** \param[in]  radius  Radius of the structuring element (dimension = 3)
- ** \param[in]  imagin  input image
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Perform the "closing" of the input image (i.e. a dilation followed by an erosion)
+ */
 void morpho_closing(int option,
                     const VectorInt &radius,
                     const BImage& imagin,
-                    BImage& imagout)
+                    BImage& imagout,
+                    bool verbose)
 {
   BImage imagtmp = imagin;
 
-  morpho_dilation(option, radius, imagin, imagtmp);
+  morpho_dilation(option, radius, imagin, imagtmp, verbose);
 
-  morpho_erosion(option, radius, imagtmp, imagout);
+  morpho_erosion(option, radius, imagtmp, imagout, verbose);
 
   return;
 }
 
 /*****************************************************************************/
 /*!
- **  Converts an input image (double) into an image
+ **  Converts an input image (double) into an image (in place)
  **
  ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  tab     input array (double)
@@ -738,12 +653,12 @@ void morpho_closing(int option,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_double2image(const VectorInt &nx,
-                         const VectorDouble &tab,
-                         double vmin,
-                         double vmax,
-                         BImage& imagout,
-                         bool verbose)
+void morpho_double2imageInPlace(const VectorInt &nx,
+                                const VectorDouble &tab,
+                                double vmin,
+                                double vmax,
+                                BImage &imagout,
+                                bool verbose)
 {
   imagout.init(nx);
   VectorInt NX = imagout.getNDimsExt(3);
@@ -798,7 +713,7 @@ BImage morpho_double2image(const VectorInt &nx,
                            bool verbose)
 {
   BImage imagout(nx);
-  morpho_double2image(nx, tab, vmin, vmax, imagout, verbose);
+  morpho_double2imageInPlace(nx, tab, vmin, vmax, imagout, verbose);
   return imagout;
 }
 
@@ -853,19 +768,9 @@ void morpho_image2double(const BImage& imagin,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Compute the distance for the grain to the edge
- **
- ** \param[in]  option     connectivity option (CROSS or BLOCK)
- ** \param[in]  radius     Radius of the structuring element (dimension = 3)
- ** \param[in]  dist_erode 1 Inflate the grain; 0 Reduce the grain
- ** \param[in]  imagin     input image
- ** \param[in]  verbose    Verbose flag
- **
- ** \param[out] dist       output array containing the distances
- **
- *****************************************************************************/
+/**
+ * Returns the vector of distances from the grain to the edge
+ */
 void morpho_distance(int option,
                      const VectorInt &radius,
                      bool dist_erode,
@@ -925,26 +830,14 @@ void morpho_distance(int option,
   return;
 }
 
-/****************************************************************************/
-/*!
- **  Create the array of index shifts for a dilation by 'radius' of a
- **  regular grid
- **
- ** \return Pointer to the newly allocated vector
- **
- ** \param[in]  ndim        Space dimension for the grid
- ** \param[in]  option      Connectivity option (CROSS or BLOCK)
- ** \param[in]  radius      Dilation radius (0: no dilation)
- ** \param[in]  flag_center 1 to omit the center
- ** \param[in]  verbose     Verbose flag
- **
- ** \remarks  The resulting array has dimension: nvois * ndim
- **
- *****************************************************************************/
+/**
+ * Create the array of index shifts (relatively to the center cell) for a dilation by 'radius' of a
+ * regular grid
+ */
 VectorInt gridcell_neigh(int ndim,
                          int option,
                          int radius,
-                         int flag_center,
+                         bool flag_center,
                          bool verbose)
 {
   int *indg0, *indg1, ecr, flag_count, nech;
@@ -1030,15 +923,9 @@ VectorInt gridcell_neigh(int ndim,
   return (indret);
 }
 
-/*****************************************************************************/
-/*!
- **  Calculate the gradient orientations of a colored image
- **
- ** \param[in]  dbgrid  Input Grid Db
- ** \param[in]  radius  Radius of the structuring element
- ** \param[in]  iptr0   iStorage address
- **
- *****************************************************************************/
+/**
+ * Calculate the gradient orientations of a colored image
+ */
 void morpho_angle2D(DbGrid* dbgrid,
                     const VectorInt &radius,
                     int iptr0)
@@ -1108,6 +995,9 @@ void morpho_angle2D(DbGrid* dbgrid,
   return;
 }
 
+/**
+ * Calculate the gradient components of a colord image
+ */
 void morpho_gradients(DbGrid *dbgrid, int iptr)
 {
   int j1, j2, number;
@@ -1185,6 +1075,9 @@ void morpho_gradients(DbGrid *dbgrid, int iptr)
       }
 }
 
+/**
+ * Perform a morphological operation with a DbGrid
+ */
 GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
                                    int iptr0,
                                    const EMorpho& oper,

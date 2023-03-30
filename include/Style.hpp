@@ -91,7 +91,7 @@
  * - Add one-line comment before each public prototype in the C++ header
  * - Add a doxygen section above each method definition in the C++ body
  * - All this except for trivial methods\tooltip{getters, setters and inline functions}, constructors and destructors
- *
+ * - Define pointer for ENUM. Example to point to EMorpho Enum:  \link EMorpho.hpp EMorpho \endlink
  */
 class GSTLEARN_EXPORT Style
 {

@@ -575,6 +575,7 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
   if (is.numeric(j)) {
     # Translate into 0-based number if numeric
     namcol <- j - 1
+    namcol = db$getNamesByColIdx(j-1)
   } else {
   	namcol <- db$identifyNames(j)
   }
@@ -591,11 +592,11 @@ function (x,i,j,...,drop=TRUE)
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
-  
   nech_abs = db$getSampleNumber()
   ncol_abs = db$getColumnNumber()
   rows <- NA
   namcols <- NA
+
   if (nargs == 2) {
   
     # Case of both arguments are defined

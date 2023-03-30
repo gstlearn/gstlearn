@@ -59,8 +59,8 @@ public:
    * @param mode Reference to the CovCalcMode embedded class
    * @return The covariance value at the origin
    */
-  virtual double eval0(int ivar,
-                       int jvar,
+  virtual double eval0(int ivar = 0,
+                       int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const override;
 
   /**

@@ -1,0 +1,253 @@
+---
+title: "Using Data Base in gstlearn"
+author: "gstlearn Team"
+fontsize: 8pt
+output:
+  beamer_presentation: 
+    colortheme: beaver
+    fig_height: 5
+    fig_width: 8
+    theme: Boadilla
+  ioslides_presentation: default
+theme: Boadilla
+colortheme: beaver
+---
+
+\frametitle{Preamble}
+
+In this preamble, we load the **gstlearn** library. 
+
+```{r Preamble, include=FALSE}
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+knitr::opts_chunk$set(fig.width=3.5,fig.height=2.5,fig.align="center") 
+```
+
+---
+
+\frametitle{Main Classes}
+
+This is the (non-exhaustive) list of classes (of objects) in gstlearn:
+
+* Db, DbGrid: numerical data base
+* DirParam, VarioParam and Vario: experimental variograms
+* Model: variogram model
+* Neigh: neighborhood
+* Anam: gaussian anamorphosis
+* PolySet, Polygon: 2-D polygonal shapes
+* Rule: lithotype rule for thresholds used for truncated plurigaussian models
+
+---
+
+\frametitle{Loading CSV File}
+
+You should download the ASCII file called *Scotland_Temperatures.csv* (organized as a CSV file) and store it on your disk in the current working directory. In this example, the file (called *filecsv*) is provided as a *CSV* format file. We load it into a data frame (names *datcsv*) using the relevant R-command.
+
+```{r}
+filecsv = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.csv")
+datcsv = read.csv(filecsv)
+```
+
+We can check the contents of the data frame (by simply typing its name) and see that it contains four columns (respectively called *Longitude*, *Latitude*, *Elevation*, *January_temp*) and 236 rows (header line excluded).
+
+Note that the last column contains several values called *MISS*: this corresponds to the absence of information.
+
+---
+
+\frametitle{Creating Db File}
+
+We now want to load this information in order to obtain a data base of the gstlearn package (or *Db*) that will be called *dat*. This operation can be performed directly by reading the CSV file again and load it directly into a Db.
+
+Note that we introduce a *CSVformat* description where we can specifiy the specificities of the file to be read, in particular we can tell how to spell the conventional value used for coding missing information.
+
+```{r}
+csv = CSVformat_create(flagHeader=TRUE, naString = "MISS")
+dat = Db_createFromCSV(filecsv, csv=csv)
+dat
+```
+
+---
+
+\frametitle{Importing Db File}
+
+A last solution is to import it directly from the set of demonstration files (provided together with the package and called *fileNF*) and stored in a specific format (Neutral file). 
+
+These *NF* (or neutral file) are currently used for serialization of the gstlearn objects. They will probably be replaced in the future by a facility backuping the whole workspace in one step.
+
+Note that the contents of the Db is slightly different from the result obtained when reading from CSV. Essentially, some variables have a *Locator* field defined, some do not. This concept will be described later in this chapter and the difference can be ignored.
+
+```{r}
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
+dat = Db_createFromNF(fileNF)
+dat
+```
+
+---
+
+\frametitle{Db class}
+
+Typing the name of the object automatically launches the **display** action. It is equivalent to simply typing the name of the object (at the end of a chunk in a RMarkdown file).
+
+```{r}
+dat$display()
+```
+
+There, we can check that the 4 initial fields have been considered, in addition to a firs one, automatically called *rank*, for a total of 5 columns (the information regarding *UID* will not be addressed in this chapter).
+
+We can check that each field is assigned to a numbered *Column*. Finally the total number of samples is 236 as expected.
+
+In addition, some interesting information tells you that this data base corresponds to a 2-D dimension one: this will be described later together with the use of the *Locator* information.
+
+---
+
+\frametitle{Db class}
+
+To get more information on the contents of the Db, it is possible to use the *DbStringFormat* option and to use use through the *display* method. There are several ways to specify the type of information that is searched for (see the documentation of this class for details): typically here we ask for statistics but restrict them to a list of variables 
+
+```{r}
+dbfmt = DbStringFormat_createFromFlags(flag_stats=TRUE, names=c("Elevation", "January_temp"))
+dat$display(dbfmt)
+```
+
+---
+
+\frametitle{Assessors for Db class}
+
+We can also consider the data base as a data frame and use the *[  ]* assessors. The following usage show the whole contents of the data base.
+
+```{r}
+dat[]
+```
+
+---
+
+\frametitle{Assessors for Db class}
+
+We can access to one or several variables. Note that the contents of the Column corresponding to the target variable (i.e. *January_temp*) is produced as a series of values (printed along a line). 
+
+Also note the presence of samples with *NA* corresponding to those where the target variable is not informed.
+
+```{r}
+dat["January_temp"]
+```
+
+---
+
+\frametitle{Assessors for Db class}
+
+But it can be more restrictive as in the following paragraph, where we only consider the samples 10 to 15, and only consider the variables *Latitude* and *Elevation*.
+
+```{r}
+dat[10:15, c("Latitude", "Elevation")]
+```
+
+---
+
+\frametitle{Assessors for Db class}
+
+We can also replace the variable *Name* by their *Column* rank. Although this is not recommanded as the Column number may vary over time.
+
+```{r}
+dat[10:15, 3:4]
+```
+
+---
+
+\frametitle{Assessors for Db class}
+
+Please also note the feature that a variable whose name does not exist (*newvar*) in the data base, is created on the fly. Also note that variables may be specified with names referred to using traditional regexp expressions (i.e. the symbol '*' replaces any list of characters):
+
+```{r}
+dat["newvar"] = 12.3 * dat["Elevation"] - 2.1 * dat["*temp"]
+dat
+```
+
+---
+
+\frametitle{Locators}
+
+The locators are used to specify the **role** assigned to a Column for the rest of the study (unless changed further). The locator is characterized by its name (*Z* for a variable and *X* for a coordinate) within the Enumeration *ELoc* and its rank.
+
+```{r}
+dat$setLocators(c("Longitude","Latitude"), ELoc_X())
+dat$setLocator("*temp", ELoc_Z(), cleanSameLocator=TRUE)
+dat
+```
+
+As can be seen in the printout, variables *Latitude* and *Longitude* have been designated as coordinates (pay attention to the order) and *January_temp* is the (unique) variable. Therefore any subsequent step will be performed as a monovariate 2-D process.
+
+The locator is translated into a *letter*,*number* pair for better legibility: e.g. *x1* for the first coordinate.
+
+---
+
+\frametitle {Plotting a Db}
+
+Plot the contents of a Db using functions of the **plot.R** package. The proportional option is used to represent to **january_temp** variable
+
+```{r}
+p = ggDefaultGeographic()
+p = p + plot.point(dat, name_size="January_temp", show.legend.symbol = TRUE,
+                   legend.name.size="Temperature")
+p = p + plot.decoration(title="My Data Base", xlab="Easting", ylab="Northing")
+ggPrint(p)
+```
+
+---
+
+\frametitle {Plotting a Db}
+
+A more elaborated graphic representation displays the samples with a symbol proportional to the Elevation and a color representing the Temperature.
+
+```{r}
+p = ggDefaultGeographic()
+p = p + plot.point(dat, name_size="Elevation", name_color="January_temp")
+p = p + plot.decoration(title="My Data Base", xlab="Easting", ylab="Northing")
+ggPrint(p)
+```
+
+---
+
+\frametitle {Grid Data Base}
+
+On the same area, a terrain model is available (as a demonstration file available in the package distribution). We first download it as an element of a data base defined on a grid support (*DbGrid*).
+
+```{r}
+fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
+grid = DbGrid_createFromNF(fileNF)
+grid
+```
+
+We can check that the grid is constituted of 81 columns and 137 rows, or 11097 grid cells.
+
+---
+
+\frametitle{Selection}
+
+We can check the presence of a variable (called *inshore*) which is assigned to the *sel* locator: this corresponds to a *Selection* which acts as a binary filter: some grid cells are active and others are masked off. The count of active samples is given in the previous printout (3092). This selection remains active until it is replaced or deleted (there may not be more than one selection defined at a time per data base). This is what can be seen in the following display where we represent the *Elevation* only within the *inshore* selection.
+
+Note that any variable can be considered as a Selection: it must simply be assigned to the *sel* locator using the *setLocator* variable described earlier.
+
+```{r}
+p = ggDefaultGeographic()
+p = p + plot.grid(grid, name_raster="Elevation")
+p = p + plot.decoration(title="My Grid", xlab="Easting", ylab="Northing")
+ggPrint(p)
+```
+
+---
+
+\frametitle{Final plot}
+
+On this final plot, we combine grid and point representations.
+
+```{r}
+p = ggDefaultGeographic()
+p = p + plot.grid(grid, name_raster="Elevation")
+p = p + plot.point(dat, name_size="Elevation", sizmin=1, sizmax=3, color="yellow")
+p = p + plot.decoration(title="My Grid", xlab="Easting", ylab="Northing")
+ggPrint(p)
+```
+
+

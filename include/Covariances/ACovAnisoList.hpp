@@ -42,8 +42,8 @@ public:
 
   /// Interface for ACov
   virtual int    getNVariables() const override;
-  virtual double eval0(int ivar,
-                       int jvar,
+  virtual double eval0(int ivar = 0,
+                       int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const override;
   virtual double eval(int ivar,
                       int jvar,

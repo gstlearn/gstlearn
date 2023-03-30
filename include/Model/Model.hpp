@@ -138,8 +138,8 @@ public:
   void normalize(double sill) { _covaList->normalize(sill); }
   bool hasNugget() const { return _covaList->hasNugget(); }
 
-  double eval0(int ivar,
-               int jvar,
+  double eval0(int ivar = 0,
+               int jvar = 0,
                const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->eval0(ivar, jvar, mode);
