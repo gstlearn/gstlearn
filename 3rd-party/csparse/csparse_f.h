@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
-License: LGPL v2.1 (see doc/licenses/csparse_license.txt)
+License: LGPL v2.1
 */
 
 /*
@@ -29,7 +29,9 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 /*
- Modified by MINES PARIS / PSL (2022)
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
 */
 #ifndef _CS_F_H
 #define _CS_F_H
@@ -39,79 +41,79 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 #include <stddef.h>
 #include "csparse_d.h"
 
-MY_EXPORT cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;
-MY_EXPORT int     cs_cholsol (const cs *A, double *b, int order) ;
-MY_EXPORT int     cs_dupl (cs *A) ;
-MY_EXPORT int     cs_entry (cs *T, int i, int j, double x) ;
-MY_EXPORT int     cs_lusol (const cs *A, double *b, int order, double tol) ;
-MY_EXPORT int     cs_gaxpy (const cs *A, const double *x, double *y) ;
-MY_EXPORT cs     *cs_multiply (const cs *A, const cs *B) ;
-MY_EXPORT int     cs_qrsol (const cs *A, double *b, int order) ;
-MY_EXPORT cs     *cs_transpose (const cs *A, int values) ;
-MY_EXPORT cs     *cs_triplet (const cs *T) ;
-MY_EXPORT double  cs_norm (const cs *A) ;
-MY_EXPORT int     cs_print (const cs *A, int brief) ;
-MY_EXPORT cs     *cs_load (FILE *f) ;
+cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;
+int     cs_cholsol (const cs *A, double *b, int order) ;
+int     cs_dupl (cs *A) ;
+int     cs_entry (cs *T, int i, int j, double x) ;
+int     cs_lusol (const cs *A, double *b, int order, double tol) ;
+int     cs_gaxpy (const cs *A, const double *x, double *y) ;
+cs     *cs_multiply (const cs *A, const cs *B) ;
+int     cs_qrsol (const cs *A, double *b, int order) ;
+cs     *cs_transpose (const cs *A, int values) ;
+cs     *cs_triplet (const cs *T) ;
+double  cs_norm (const cs *A) ;
+int     cs_print (const cs *A, int brief) ;
+cs     *cs_load (FILE *f) ;
 
 /* utilities */
-MY_EXPORT void   *cs_calloc  (int n, size_t size) ;
-MY_EXPORT void   *cs_free    (void *p) ;
-MY_EXPORT void   *cs_realloc (void *p, int n, size_t size, int *ok) ;
-MY_EXPORT cs     *cs_spalloc (int m, int n, int nzmax, int values, int triplet) ;
-MY_EXPORT cs     *cs_spfree  (cs *A) ;
-MY_EXPORT int     cs_sprealloc (cs *A, int nzmax) ;
-MY_EXPORT void   *cs_malloc  (int n, size_t size) ;
+void   *cs_calloc  (int n, size_t size) ;
+void   *cs_free    (void *p) ;
+void   *cs_realloc (void *p, int n, size_t size, int *ok) ;
+cs     *cs_spalloc (int m, int n, int nzmax, int values, int triplet) ;
+cs     *cs_spfree  (cs *A) ;
+int     cs_sprealloc (cs *A, int nzmax) ;
+void   *cs_malloc  (int n, size_t size) ;
 
 /* --- secondary CSparse routines and data structures ----------------------- */
 
-MY_EXPORT int    *cs_amd (const cs *A, int order) ;
-MY_EXPORT csn    *cs_chol (const cs *A, const css *S) ;
-MY_EXPORT csd    *cs_dmperm (const cs *A) ;
-MY_EXPORT int     cs_droptol (cs *A, double tol) ;
-MY_EXPORT int     cs_dropzeros (cs *A) ;
-MY_EXPORT int     cs_happly (const cs *V, int i, double beta, double *x) ;
-MY_EXPORT int     cs_ipvec (int n, const int *P, const double *b, double *x) ;
-MY_EXPORT int     cs_lsolve (const cs *L, double *x) ;
-MY_EXPORT int     cs_ltsolve (const cs *L, double *x) ;
-MY_EXPORT csn    *cs_lu (const cs *A, const css *S, double tol) ;
-MY_EXPORT cs     *cs_permute (const cs *A, const int *P, const int *Q, int values) ;
-MY_EXPORT int    *cs_pinv (const int *P, int n) ;
-MY_EXPORT int     cs_pvec (int n, const int *P, const double *b, double *x) ;
-MY_EXPORT csn    *cs_qr (const cs *A, const css *S) ;
-MY_EXPORT css    *cs_schol (const cs *A, int order) ;
-MY_EXPORT css    *cs_sqr (const cs *A, int order, int qr) ;
-MY_EXPORT cs     *cs_symperm (const cs *A, const int *Pinv, int values) ;
-MY_EXPORT int     cs_usolve (const cs *U, double *x) ;
-MY_EXPORT int     cs_utsolve (const cs *U, double *x) ;
-MY_EXPORT int     cs_updown (cs *L, int sigma, const cs *C, const int *parent) ;
-MY_EXPORT css    *cs_sfree (css *S) ;
-MY_EXPORT csn    *cs_nfree (csn *N) ;
-MY_EXPORT csd    *cs_dfree (csd *D) ;
+int    *cs_amd (const cs *A, int order) ;
+csn    *cs_chol (const cs *A, const css *S) ;
+csd    *cs_dmperm (const cs *A) ;
+int     cs_droptol (cs *A, double tol) ;
+int     cs_dropzeros (cs *A) ;
+int     cs_happly (const cs *V, int i, double beta, double *x) ;
+int     cs_ipvec (int n, const int *P, const double *b, double *x) ;
+int     cs_lsolve (const cs *L, double *x) ;
+int     cs_ltsolve (const cs *L, double *x) ;
+csn    *cs_lu (const cs *A, const css *S, double tol) ;
+cs     *cs_permute (const cs *A, const int *P, const int *Q, int values) ;
+int    *cs_pinv (const int *P, int n) ;
+int     cs_pvec (int n, const int *P, const double *b, double *x) ;
+csn    *cs_qr (const cs *A, const css *S) ;
+css    *cs_schol (const cs *A, int order) ;
+css    *cs_sqr (const cs *A, int order, int qr) ;
+cs     *cs_symperm (const cs *A, const int *Pinv, int values) ;
+int     cs_usolve (const cs *U, double *x) ;
+int     cs_utsolve (const cs *U, double *x) ;
+int     cs_updown (cs *L, int sigma, const cs *C, const int *parent) ;
+css    *cs_sfree (css *S) ;
+csn    *cs_nfree (csn *N) ;
+csd    *cs_dfree (csd *D) ;
 
 /* --- tertiary CSparse routines -------------------------------------------- */
-MY_EXPORT int    *cs_counts (const cs *A, const int *parent, const int *post, int ata) ;
-MY_EXPORT int     cs_cumsum (int *p, int *c, int n) ;
-MY_EXPORT int     cs_dfs (int j, cs *L, int top, int *xi, int *pstack, const int *Pinv) ;
-MY_EXPORT int    *cs_etree (const cs *A, int ata) ;
-MY_EXPORT int     cs_fkeep (cs *A, int (*fkeep) (int, int, double, void *), void *other) ;
-MY_EXPORT double  cs_house (double *x, double *beta, int n) ;
-MY_EXPORT int    *cs_maxtrans (const cs *A) ;
-MY_EXPORT int    *cs_post (int n, const int *parent) ;
-MY_EXPORT int     cs_reach (cs *L, const cs *B, int k, int *xi, const int *Pinv) ;
-MY_EXPORT csd    *cs_scc (cs *A) ;
-MY_EXPORT int     cs_scatter (const cs *A, int j, double beta, int *w, double *x,
+int    *cs_counts (const cs *A, const int *parent, const int *post, int ata) ;
+int     cs_cumsum (int *p, int *c, int n) ;
+int     cs_dfs (int j, cs *L, int top, int *xi, int *pstack, const int *Pinv) ;
+int    *cs_etree (const cs *A, int ata) ;
+int     cs_fkeep (cs *A, int (*fkeep) (int, int, double, void *), void *other) ;
+double  cs_house (double *x, double *beta, int n) ;
+int    *cs_maxtrans (const cs *A) ;
+int    *cs_post (int n, const int *parent) ;
+int     cs_reach (cs *L, const cs *B, int k, int *xi, const int *Pinv) ;
+csd    *cs_scc (cs *A) ;
+int     cs_scatter (const cs *A, int j, double beta, int *w, double *x,
                                     int mark, cs *C, int nz) ;
-MY_EXPORT int     cs_splsolve (cs *L, const cs *B, int k, int *xi, double *x,
+int     cs_splsolve (cs *L, const cs *B, int k, int *xi, double *x,
                                      const int *Pinv) ;
-MY_EXPORT int     cs_tdfs (int j, int k, int *head, const int *next, int *post,
+int     cs_tdfs (int j, int k, int *head, const int *next, int *post,
                                  int *stack) ;
 
 /* utilities */
-MY_EXPORT csd    *cs_dalloc (int m, int n) ;
-MY_EXPORT cs     *cs_done (cs *C, void *w, void *x, int ok) ;
-MY_EXPORT int    *cs_idone (int *p, cs *C, void *w, int ok) ;
-MY_EXPORT csn    *cs_ndone (csn *N, cs *C, void *w, void *x, int ok) ;
-MY_EXPORT csd    *cs_ddone (csd *D, cs *C, void *w, int ok) ;
+csd    *cs_dalloc (int m, int n) ;
+cs     *cs_done (cs *C, void *w, void *x, int ok) ;
+int    *cs_idone (int *p, cs *C, void *w, int ok) ;
+csn    *cs_ndone (csn *N, cs *C, void *w, void *x, int ok) ;
+csd    *cs_ddone (csd *D, cs *C, void *w, int ok) ;
 
 #define CS_MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define CS_MIN(a,b) (((a) < (b)) ? (a) : (b))

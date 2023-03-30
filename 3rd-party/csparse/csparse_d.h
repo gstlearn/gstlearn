@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
-License: LGPL v2.1 (see doc/licenses/csparse_license.txt)
+License: LGPL v2.1
 */
 
 /*
@@ -29,15 +29,15 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 */
 
 /*
- Modified by MINES PARIS / PSL (2022)
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
 */
 #ifndef _CS_D_H
 #define _CS_D_H
 
-#define MY_EXPORT
-
 /* --- primary CSparse routines and data structures ------------------------- */
-class MY_EXPORT cs // cs_sparse    /* matrix in compressed-column or triplet form */
+class cs // cs_sparse    /* matrix in compressed-column or triplet form */
 {
 public:
     int nzmax ;             /* maximum number of entries */
@@ -50,7 +50,7 @@ public:
 };
 
 /* --- secondary CSparse routines and data structures ----------------------- */
-class MY_EXPORT css // cs_symbolic  /* symbolic Cholesky, LU, or QR analysis */
+class css // cs_symbolic  /* symbolic Cholesky, LU, or QR analysis */
 {
 public:
     int *Pinv ;            /* inverse row perm. for QR, fill red. perm for Chol */
@@ -62,7 +62,7 @@ public:
     int unz ;              /* # entries in U for LU; in R for QR */
 };
 
-class MY_EXPORT csn // cs_numeric   /* numeric Cholesky, LU, or QR factorization */
+class csn // cs_numeric   /* numeric Cholesky, LU, or QR factorization */
 {
 public:
     cs *L ;                /* L for LU and Cholesky, V for QR */
@@ -71,7 +71,7 @@ public:
     double *B ;            /* beta [0..n-1] for QR */
 };
 
-class MY_EXPORT csd // cs_dmperm_results    /* cs_dmperm or cs_scc output */
+class csd // cs_dmperm_results    /* cs_dmperm or cs_scc output */
 {
 public:
     int *P ;            /* size m, row permutation */

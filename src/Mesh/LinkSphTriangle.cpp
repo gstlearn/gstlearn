@@ -8,7 +8,7 @@
 /* License: BSD 3 clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <3rd-party/gmtsph/gmtsph.hpp>
+#include "gmtsph.hpp"
 #include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"

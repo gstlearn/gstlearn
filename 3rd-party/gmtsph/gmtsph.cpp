@@ -1,16 +1,53 @@
+/*
+                                      gmt_sph
+
+Original Author: Paul Wessel
+Website: https://github.com/GenericMappingTools/gmt
+License: LGPL v3
+*/
+
 /*--------------------------------------------------------------------
- * Code adapted from stripack.c (GMT)
- * https://github.com/GenericMappingTools/gmt
  *
- *  Copyright (c) 2008-2023 by the GMT Team
- *  (https://www.generic-mapping-tools.org/team.html)
+ *  Copyright (c) 2008-2023 by the GMT Team (https://www.generic-mapping-tools.org/team.html)
+ *  See LICENSE.TXT file for copying and redistribution conditions.
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU Lesser General Public License as published by
+ *  the Free Software Foundation; version 3 or any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU Lesser General Public License for more details.
  *
  *  Contact info: www.generic-mapping-tools.org
- *
- * License: LGPL v3 (see doc/licenses/gmt_license.txt)
- *
  *--------------------------------------------------------------------*/
-#include "../../3rd-party/gmtsph/gmtsph.hpp"
+/*
+ * Spherical triangulation - Delaunay or Voronoi options.
+ * Relies on STRIPACK Fortran F77 library (Renka, 1997). Reference:
+ * Renka, R, J,, 1997, Algorithm 772: STRIPACK: Delaunay Triangulation
+ *    and Voronoi Diagram on the Surface of a Sphere, AMC Trans. Math.
+ *    Software, 23 (3), 416-434.
+ * Spherical interpolation - tension or smoothing.
+ * Relies on SSRFPACK Fortran F77 library (Renka, 1997). Reference:
+ * Renka, R, J,, 1997, Algorithm 773: SSRFPACK: Interpolation of
+ *    Scattered Data on the Surface of a Sphere with a Surface under Tension,
+ *    AMC Trans. Math. Software, 23 (3), 435-442.
+ * We translated both to C using f2c and removed/rewrite statements that needed -lf2c
+ *
+ * Author:      Paul Wessel
+ * Date:        1-AUG-2011
+ * Version: API 5 64-bit
+ *
+ */
+
+/*
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
+*/
+
+#include "gmtsph.hpp"
 
 #include <math.h>
 

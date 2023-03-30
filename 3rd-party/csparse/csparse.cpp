@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
-License: LGPL v2.1 (see doc/licenses/csparse_license.txt)
+License: LGPL v2.1
 */
 
 /*
@@ -33,7 +33,6 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 Modified by MINES PARIS / ARMINES (2023)
 Authors: gstlearn Team
 Website: https://github.com/gstlearn
-License: LGPL v2.1
 */
 #include <math.h>
 #include <limits.h>
