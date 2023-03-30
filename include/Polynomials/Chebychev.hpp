@@ -1,15 +1,25 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
+/******************************************************************************/
 #pragma once
 
 #include "gstlearn_export.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
 #include "geoslib_define.h"
-#include "csparse_d.h"
 
 #include <functional>
 
 class AFunction;
 class ALinearOpMulti;
+class cs; /// TODO : Dependency to csparse to be removed
 
 class GSTLEARN_EXPORT Chebychev: public APolynomial
 {
@@ -33,8 +43,9 @@ public:
   void setNcMax(int ncMax){_ncMax=ncMax;}
   void setNDisc(int nDisc){_nDisc=nDisc;}
   void setVerbose(bool verbose){_verbose = verbose;}
-
+#ifndef SWIG
   void evalOp(cs* Op,const VectorDouble& inv, VectorDouble& outv) const override;
+#endif
   void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const override;
   double eval(double x) const override;
   int fit(std::function<double(double)> f,

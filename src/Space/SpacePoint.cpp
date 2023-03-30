@@ -1,3 +1,13 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
+/******************************************************************************/
 #include "Space/SpacePoint.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"

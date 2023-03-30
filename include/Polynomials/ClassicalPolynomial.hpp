@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -32,12 +32,14 @@ public:
   double eval(double x) const override;
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& inv,
                    VectorDouble& outv,int iapex,int igparam)const;
-  void evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const override;
   void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
                        VectorDouble& outv,const VectorVectorDouble workpoly,int iapex,int igparam)const;
-  void evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const ;
   void evalOp(const ALinearOpMulti* /*Op*/,
               const VectorVectorDouble& /*inv*/,
               VectorVectorDouble& /*outv*/) const override { }
+#ifndef SWIG
+  void evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const override;
+  void evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const ;
   void evalOp(cs* Op, const VectorDouble& inv, VectorDouble& outv) const override;
+#endif
 };

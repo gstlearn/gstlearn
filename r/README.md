@@ -2,8 +2,6 @@
 
 The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to R users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
-Copyright (c) MINES PARIS / PSL University
-
 All *gstlearn* outputs can be ploted using *plot* generic function which relies on *ggplot* package.
 
 
@@ -20,7 +18,7 @@ The *gstlearn* R package is a derivative work based on the *swigex* project: [ht
 
 ## Installation
 
-For using this R Package you only need R 4 (or higher) and execute the following R command:
+For using this R Package you only need R 4.2 (or higher) and execute the following R command:
 
 ```
 # TODO : Doesn't work yet
@@ -241,7 +239,7 @@ Note :
 
 2. Remove any previous installation of SWIG (if any)
 
-3. Launch *mingw64.exe* in RTools installation directory (ie: `C:\rtools42`) and pin the icon to the task bar
+3. Launch *mingw64.exe* in RTools installation directory (i.e.: `C:\rtools42`) and pin the icon to the task bar
 
 ````
 pacman -Sy bison

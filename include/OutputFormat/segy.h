@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -21,6 +21,25 @@
 #include <iostream>
 
 class Grid;
+
+#ifndef SWIG
+typedef enum
+{
+  SEGY_NUM    = 0,
+  SEGY_ILINE  = 1,
+  SEGY_XLINE  = 2,
+  SEGY_XTRACE = 3,
+  SEGY_YTRACE = 4,
+  SEGY_ZMIN   = 5,
+  SEGY_ZMAX   = 6,
+  SEGY_VMIN   = 7,
+  SEGY_VMAX   = 8,
+  SEGY_THICK  = 9,
+  SEGY_NB     = 10,
+  SEGY_AUXTOP = 11,
+  SEGY_AUXBOT = 12,
+  SEGY_COUNT  = 13,
+} ENUM_SEGY;
 
 struct binaryFileHeader
 {
@@ -148,6 +167,7 @@ struct traceHead
   short int SRC_UNIT;
   char UNNASSIGNED1[6];
 };
+#endif
 
 struct SegYArg
 {

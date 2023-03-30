@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -4294,7 +4294,7 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
   for (int iech = 0; ret && iech < getSampleNumber(); iech++)
   {
     VectorDouble vals = getArrayBySample(iech);
-    ret = ret && _recordWriteVec(os, "", vals);
+    ret = ret && _recordWriteVec<double>(os, "", vals);
   }
   return ret;
 }

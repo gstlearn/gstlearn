@@ -1,20 +1,19 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
 
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/Cholesky.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 class AMesh;
 class ShiftOpCs;
@@ -49,7 +48,10 @@ public:
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
 
+#ifndef SWIG
   const cs* getQ() const { return _Q; }
+#endif
+  Triplet getQToTriplet(bool flag_from_1 = false) const;
 
 private:
   void _buildQ();

@@ -124,12 +124,8 @@ ggPrint(p)
 Extracting the internal elements from 'spdeK' in order to perform calculations by hand (if necessary).
 
 ```{r}
-Qtr = csToTriplet(PrecisionOpCs(mesh, model)$getQ(), flag_from_1=TRUE)
-Atr = csToTriplet(ProjMatrix(dat,mesh)$getAproj(), flag_from_1=TRUE)
-
-Q = sparseMatrix(i=Qtr$rows,j=Qtr$cols,x=Qtr$values)
-Aproj = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-                     dims=c(Atr$nrows,Atr$ncols))
+Q = PrecisionOpCs(mesh, model)$getQToTriplet(flag_from_1=TRUE)$toTL()
+Aproj = ProjMatrix(dat,mesh)$getAprojToTriplet(flag_from_1=TRUE)$toTL()
 ```
 
 Posterior calculations

@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_enum.h"
 #include "geoslib_f.h"
@@ -43,9 +43,13 @@
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
@@ -2349,6 +2353,7 @@ double model_calcul_stdev(Model* model,
   return (stdev);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs
@@ -2495,7 +2500,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
   T = cs_spfree(T);
   return (covmat);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs

@@ -1,14 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
 
@@ -54,8 +52,9 @@ public:
             const VectorInt &meshes,
             bool byCol,
             bool verbose = false);
-
+#ifndef SWIG
   cs*     getMeshToDb(const Db *db, bool verbose = false) const override;
+#endif
   int     getVariety() const { return 1; }
 
   const MatrixRectangular& getApices() const { return _apices; }

@@ -8,19 +8,21 @@ set(SRC
   Fractures/FracFault.cpp
   Fractures/FracDesc.cpp
   Fractures/FracList.cpp
-  Matrix/MatrixRectangular.cpp
+  Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
+  Matrix/AMatrixSquare.cpp
+  Matrix/MatrixInt.cpp
+  Matrix/MatrixRectangular.cpp
   Matrix/MatrixSquareSymmetric.cpp
   Matrix/MatrixFactory.cpp
   Matrix/MatrixSquareDiagonalCst.cpp
   Matrix/MatrixSquareDiagonal.cpp
-  Matrix/AMatrixSquare.cpp
   Matrix/MatrixSquareGeneral.cpp
-  Matrix/MatrixInt.cpp
   Matrix/Table.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
-  INIParser.cpp
+  API/Style.cpp
+  API/TestInheritance.cpp
   Gibbs/GibbsUPropMono.cpp
   Gibbs/GibbsFactory.cpp
   Gibbs/GibbsMultiMono.cpp
@@ -104,7 +106,6 @@ set(SRC
   Core/math.cpp
   Core/stats.cpp
   Core/spatial.cpp
-  Core/csparse.cpp
   Core/vario.cpp
   Core/io.cpp
   Core/db.cpp
@@ -115,7 +116,6 @@ set(SRC
   Core/matrix.cpp
   Core/spill.cpp
   Core/acknowledge.cpp
-  Core/vtk.cpp
   Core/geophy.cpp
   Core/potential.cpp
   Core/foxleg.cpp
@@ -123,16 +123,15 @@ set(SRC
   Core/anam.cpp
   Core/ascii.cpp
   Core/pile.cpp
-  Core/segy.cpp
   Core/mlayers.cpp
   Core/thresh.cpp
   Core/fft.cpp
   Core/convert.cpp
   Core/memory.cpp
-  Core/poly.cpp
   Core/model.cpp
   Core/krige.cpp
   Core/seismic.cpp
+  Core/sparseinv.cpp
   Core/spde.cpp
   Core/dbtools.cpp
   Anamorphosis/CalcAnamTransform.cpp
@@ -229,11 +228,10 @@ set(SRC
   Mesh/AMesh.cpp
   Mesh/LinkSphTriangle.cpp
   Mesh/MeshETurbo.cpp
-  Mesh/m_delaunay.cpp
+  Mesh/Delaunay.cpp
   Mesh/MeshSpherical.cpp
   Mesh/MeshSphericalExt.cpp
   Mesh/MeshEStandard.cpp
-  Mesh/sphtriangle.cpp
   Morpho/Morpho.cpp
   Stats/Classical.cpp
   Stats/PCA.cpp
@@ -281,6 +279,8 @@ set(SRC
   OutputFormat/FileVTK.cpp
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
+  OutputFormat/vtk.cpp
+  OutputFormat/segy.cpp
   Simulation/ACalcSimulation.cpp
   Simulation/CalcSimuTurningBands.cpp
   Simulation/TurningDirection.cpp
@@ -300,14 +300,4 @@ set(SRC
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
-  API/TestInheritance.cpp
-  Style.cpp
-  
-  ExternalTools/MeshFactory.cpp
-  ExternalTools/MeshEStandardExt.cpp
-  ExternalTools/LinkTriangle.cpp
-  ExternalTools/LinkTetrahedron.cpp
-  ExternalTools/predicates.cpp
-  ExternalTools/tetgen.cpp
-  ExternalTools/triangle.cpp
 )

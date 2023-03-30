@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -17,6 +17,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 /**
  * Projection matrix for vertical convolution
@@ -41,7 +42,11 @@ public:
 
   DbGrid* getResolutionGrid() const;
 
+#ifndef SWIG
   const cs* getAProjHoriz() const { return _AProjHoriz; }
+#endif
+  Triplet getAProjHorizToTriplet(bool flag_from_1 = false) const;
+
   const VectorDouble& getConvolution() const { return _convolution; }
   const VectorInt& getShiftVector() const { return _shiftVector; }
 

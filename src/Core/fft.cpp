@@ -1,29 +1,10 @@
-/******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
-/*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
-/*                                                                            */
-/* TAG_SOURCE_CG                                                              */
-/******************************************************************************/
-#include "geoslib_old_f.h"
-#include "Basic/AStringable.hpp"
+/*
+                                      fft
 
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
-/*! \cond */
-# define MD_PI    3.14159265358979323846264338327950288 /* Pi with many decimals */
-# define SIN60    0.86602540378443865    /* sin(60 deg) */
-# define COS72    0.30901699437494742    /* cos(72 deg) */
-# define SIN72    0.95105651629515357    /* sin(72 deg) */
-# define Re_Data(i)    Re[i]
-# define Im_Data(i)    Im[i]
-# define NFACTOR    11
-/*! \endcond */
+Original Author: Mark Olesen (Queens University - CA)
+Website: https://netlib.org/go/fft-olesen.tar.gz
+License: see doc/licenses/fft_license.txt
+*/
 
 /******************************************************************************/
 /*!
@@ -64,6 +45,29 @@
  * that everyone benefits.
  *
  ******************************************************************************/
+
+/*
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
+License: BSD 3 clause
+*/
+#include "geoslib_old_f.h"
+#include "Basic/AStringable.hpp"
+
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+
+/*! \cond */
+# define MD_PI    3.14159265358979323846264338327950288 /* Pi with many decimals */
+# define SIN60    0.86602540378443865    /* sin(60 deg) */
+# define COS72    0.30901699437494742    /* cos(72 deg) */
+# define SIN72    0.95105651629515357    /* sin(72 deg) */
+# define Re_Data(i)    Re[i]
+# define Im_Data(i)    Im[i]
+# define NFACTOR    11
+/*! \endcond */
 
 /* Static parameters - for memory management */
 static size_t SpaceAlloced = 0;

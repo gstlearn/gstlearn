@@ -1,3 +1,13 @@
+/******************************************************************************/
+/*                                                                            */
+/*                          gstlearn Python package                           */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
+/******************************************************************************/
 // Keep sync with PYTHON_PACKAGE_NAME in CMakeLists.txt
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
@@ -1000,10 +1010,7 @@ setattr(gl.Db, "toTL", Db_toTL)
 
 def matrix_toTL(self):
   if self.isSparse():
-    A = gl.csToTriplet(self.getCs())
-    Acs = sc.csc_matrix((np.array(A.values), 
-                (np.array(A.rows), np.array(A.cols))),
-                           shape=(A.nrows,A.ncols))
+    Acs = self.getCsToTriplet().toTL()
     return Acs
   else:
     Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
@@ -1016,19 +1023,19 @@ setattr(gl.MatrixSquareDiagonalCst, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 
-def cs_toTL(self):
-  A = gl.csToTriplet(self)
-  Acs = sc.csc_matrix((np.array(A.values), 
-            (np.array(A.rows), np.array(A.cols))),
-                         shape=(A.nrows,A.ncols))
+# TODO : Replace Triplet_toTL by MatrixSparse_toTL
+def Triplet_toTL(self):
+  Acs = sc.csc_matrix((np.array(self.values), 
+                      (np.array(self.rows), np.array(self.cols))),
+                         shape=(self.nrows, self.ncols))
   return Acs
 
-setattr(gl.cs, "toTL", cs_toTL)
+setattr(gl.Triplet, "toTL", Triplet_toTL)
 
 def table_toTL(self):
   Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
-    #colnames(mat) <- tab$getColumnNames()
-    #rownames(mat) <- tab$getRowNames()
+  #colnames(mat) <- tab$getColumnNames()
+  #rownames(mat) <- tab$getRowNames()
   return Anp
 
 setattr(gl.Table, "toTL", table_toTL)

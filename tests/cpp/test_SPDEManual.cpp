@@ -1,3 +1,13 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
+/******************************************************************************/
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
@@ -16,7 +26,6 @@
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "ExternalTools/MeshFactory.hpp"
 
 #include <math.h>
 #include <iostream>

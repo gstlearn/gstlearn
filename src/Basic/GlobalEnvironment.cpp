@@ -1,10 +1,13 @@
-/*
- * GlobalEnvironment.cpp
- *
- *  Created on: 22 juil. 2021
- *      Author: drenard
- */
-
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
+/******************************************************************************/
 #include "Basic/GlobalEnvironment.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"

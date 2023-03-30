@@ -1,17 +1,16 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "csparse_f.h"
 
 #include "Enum/ECst.hpp"
 #include "Enum/ELoadBy.hpp"
@@ -29,6 +28,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 /*****************************************************************************/
 /*!
@@ -415,7 +415,7 @@ int main(int /*argc*/, char */*argv*/[])
   }
   
 label_end:
-  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree(Qcols[icol]);
+  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree2(Qcols[icol]);
   delete dbgrid;
   delete model1;
   delete model2;

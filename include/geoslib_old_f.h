@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -741,6 +741,7 @@ GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
                                               int jvar0 = -1,
                                               int flag_norm = 0,
                                               int flag_cov = 1);
+#ifndef SWIG
 GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
                                              Db *db1,
                                              int nsize1,
@@ -752,6 +753,7 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
                                              int jvar0,
                                              int flag_norm,
                                              int flag_cov);
+#endif
 GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         Db *db,
                                         Model *model,
@@ -1847,7 +1849,9 @@ GSTLEARN_EXPORT int spde_process(Db *dbin,
                                  int gibbs_nburn,
                                  int gibbs_niter,
                                  int ngibbs_int);
+#ifndef SWIG
 GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov);
+#endif
 GSTLEARN_EXPORT AMesh* spde_mesh_load(Db *dbin,
                                       Db *dbout,
                                       const VectorDouble &gext,
@@ -1880,6 +1884,7 @@ GSTLEARN_EXPORT int spde_f(Db *dbin,
                            int flag_gibbs,
                            int flag_modif,
                            int verbose);
+#ifndef SWIG
 GSTLEARN_EXPORT int spde_eval(int nblin,
                               double *blin,
                               cs *S,
@@ -1888,13 +1893,16 @@ GSTLEARN_EXPORT int spde_eval(int nblin,
                               double power,
                               double *x,
                               double *y);
+#endif
 GSTLEARN_EXPORT void spde_external_mesh_define(int icov0, AMesh *mesh);
 GSTLEARN_EXPORT void spde_external_mesh_undefine(int icov0);
+#ifndef SWIG
 GSTLEARN_EXPORT int spde_external_copy(SPDE_Matelem &matelem, int icov0);
 GSTLEARN_EXPORT cs* spde_external_A_define(int icov0, cs *A);
 GSTLEARN_EXPORT cs* spde_external_Q_define(int icov0, cs *Q);
 GSTLEARN_EXPORT cs* spde_external_A_undefine(int icov0);
 GSTLEARN_EXPORT cs* spde_external_Q_undefine(int icov0);
+#endif
 GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    Model *model,
                                    SPDE_Option &s_option,
@@ -1903,6 +1911,7 @@ GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    int *nvertex,
                                    VectorInt& meshes,
                                    VectorDouble& points);
+#ifndef SWIG
 GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
                                   AMesh *amesh,
                                   double radius,
@@ -1910,6 +1919,7 @@ GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
                                   int verbose,
                                   int *nactive,
                                   int **ranks);
+#endif
 GSTLEARN_EXPORT void spde_free_all(void);
 
 /***************************************/
@@ -1978,3 +1988,10 @@ GSTLEARN_EXPORT int* kmedoids(double *data,
                               int npass,
                               int verbose);
 
+
+/***************************/
+/* Sparse matrix inversion */
+/***************************/
+GSTLEARN_EXPORT int sparseinv(int n, int *Lp, int *Li, double *Lx, double *d, int *Up,
+                              int *Uj, double *Ux, int *Zp, int *Zi, double *Zx, double *z,
+                              int *Zdiagp, int *Lmunch);

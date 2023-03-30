@@ -1,22 +1,26 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <iostream>
 #include <iomanip>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 AMatrix::AMatrix(int nrow, int ncol, bool sparse)
     : AStringable(),
@@ -28,7 +32,7 @@ AMatrix::AMatrix(int nrow, int ncol, bool sparse)
   (void) _isNumbersValid(nrow, ncol);
   if (sparse) _initiateSparse();
 }
-
+#ifndef SWIG
 AMatrix::AMatrix(const cs* A)
     : AStringable(),
       _nRows(0),
@@ -38,7 +42,7 @@ AMatrix::AMatrix(const cs* A)
 {
   _recopySparse(A);
 }
-
+#endif
 AMatrix::AMatrix(const AMatrix &m)
     : AStringable(m),
       _nRows(m._nRows),
@@ -1046,7 +1050,7 @@ bool AMatrix::_isRankValid(int rank) const
 }
 
 /**
- * This strange function creates instantiate a sparse matrix with given dimensions
+ * This strange function instantiate a sparse matrix with given dimensions
  * filled with zeroes. It should be an empty matrix... But this does not make sense.
  * Therefore it is created by setting a single element at the lower bottom size of
  * the matrix ... filled with a zero.
@@ -1130,8 +1134,8 @@ void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
  * @param values Output array of non-zero values
  */
 void AMatrix::getValuesAsTriplets(VectorInt&    irows,
-                                   VectorInt&    icols,
-                                   VectorDouble& values) const
+                                  VectorInt&    icols,
+                                  VectorDouble& values) const
 {
   /// TODO : use cs_sparce corresponding function
   for (int icol = 0; icol < _nCols; icol++)
@@ -1144,51 +1148,6 @@ void AMatrix::getValuesAsTriplets(VectorInt&    irows,
       icols.push_back(icol);
       values.push_back(value);
     }
-}
-
-/**
- * Returns a structure 'cs_Output' which contains the 3 vectors
- * 'rows' contains the row indices
- * 'cols' contains the column indices
- * 'values' contains the values
- * @param flag_from_1 1 if the indices are numbered starting from 1
- * @return
- */
-cs_Output AMatrix::getValuesAsTriplets(bool flag_from_1) const
-{
-  cs_Output out;
-
-  // Initializations
-  int number = 0;
-
-  // Clear the contents of the returned structure
-  out.rows.clear();
-  out.cols.clear();
-  out.values.clear();
-
-  if (!isSparse())
-    getValuesAsTriplets(out.rows, out.cols, out.values);
-  else
-  {
-    int* rows = nullptr;
-    int* cols = nullptr;
-    double* vals = nullptr;
-    cs_sparse_to_triplet(_csMatrix, (int) flag_from_1, &number, &cols, &rows, &vals);
-
-    // Load the contents
-
-    for (int i = 0; i < number; i++)
-    {
-      out.rows.push_back(rows[i]);
-      out.cols.push_back(cols[i]);
-      out.values.push_back(vals[i]);
-    }
-    cols = (int *) cs_free((char *) cols);
-    rows = (int *) cs_free((char *) rows);
-    vals = (double *) cs_free((char *) vals);
-
-  }
-  return out;
 }
 
 VectorDouble AMatrix::getValues() const
@@ -1407,3 +1366,7 @@ double AMatrix::getMaximum() const
   return maximum;
 }
 
+Triplet AMatrix::getCsToTriplet(bool flag_from_1) const
+{
+  return csToTriplet(getCs(), flag_from_1);
+}

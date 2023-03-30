@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
@@ -16,7 +16,6 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/ASerializable.hpp"
-#include "csparse_f.h"
 
 MeshManifold::MeshManifold()
   : AMesh()
@@ -126,7 +125,7 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
 {
   MeshManifold* mesh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, _getNFName(), is, verbose))
+  if (_fileOpenRead(neutralFilename, is, verbose))
   {
     mesh = new MeshManifold;
     if (! mesh->deserialize(is, verbose))
@@ -138,7 +137,15 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
   }
   return mesh;
 }
-
+#ifndef SWIG
+cs* MeshManifold::getMeshToDb(const Db *db, bool verbose) const
+{
+  /// TODO getMeshToDb
+  DECLARE_UNUSED(db);
+  DECLARE_UNUSED(verbose);
+  return nullptr;
+}
+#endif
 void MeshManifold::_defineBoundingBox(void)
 {
   VectorDouble extendmin;
@@ -192,7 +199,7 @@ int MeshManifold::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordReadVec<double>(is, "Apices", local, ndim * napices);
   _apices = MatrixRectangular(napices, ndim);
   _apices.setValues(local);
-  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes, nmeshes * napexpermesh);
+  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes.getValues(), nmeshes * napexpermesh);
   return 0;
 }
 
@@ -205,6 +212,6 @@ int MeshManifold::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
-  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
+  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
   return 0;
 }

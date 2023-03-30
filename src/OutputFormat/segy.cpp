@@ -1,20 +1,21 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
-#include "geoslib_old_f.h"
-#include "geoslib_enum.h"
+#include "OutputFormat/segy.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "segy.h"
+#include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 
 #include <stdio.h>
 #include <string.h>

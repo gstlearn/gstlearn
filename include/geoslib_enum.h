@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -282,41 +282,6 @@ typedef enum
   POPT_HALF = 3,           //!< Power is 0.5
   POPT_LOG = 4,            //!< Logarithm
 } ENUM_POPTS; // Now see EPowerPT.hpp
-*/
-#ifndef SWIG
-// Internal enums (currently not exported via SWIG)
-typedef enum
-{
-  SEGY_NUM    = 0,
-  SEGY_ILINE  = 1,
-  SEGY_XLINE  = 2,
-  SEGY_XTRACE = 3,
-  SEGY_YTRACE = 4,
-  SEGY_ZMIN   = 5,
-  SEGY_ZMAX   = 6,
-  SEGY_VMIN   = 7,
-  SEGY_VMAX   = 8,
-  SEGY_THICK  = 9,
-  SEGY_NB     = 10,
-  SEGY_AUXTOP = 11,
-  SEGY_AUXBOT = 12,
-  SEGY_COUNT  = 13,
-} ENUM_SEGY;
-typedef enum
-{
-  ES_NOERROR               = 0,
-  ES_ERROR                 = 1,
-  ES_MALLOC                = 2,
-  ES_NAME                  = 3,
-  ES_INDEX_OOR             = 4,
-  ES_SIZE_VAR              = 5,
-  ES_NAME_UNKNOWN          = 6,
-  ES_PERMISSION_GRID_COORD = 7,
-  ES_TYPE_ERROR            = 8
-} ENUM_ERRORS;
-typedef ENUM_ERRORS ES;
-#endif
-/*
 typedef enum
 {
   CALCUL_KRIGING     = 0,    //!< Kriging

@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -18,9 +18,9 @@
 #include "Basic/AStringFormat.hpp"
 
 #include <sstream>
-
+#ifndef SWIG
 class cs;
-
+#endif
 class GSTLEARN_EXPORT AStringable
 {
 public:
@@ -82,9 +82,11 @@ GSTLEARN_EXPORT String toMatrixDiagCst(const String& title,
                                        int ncols,
                                        const VectorDouble &tab,
                                        bool flagOverride = false);
+#ifndef SWIG
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const cs* A,
                                 bool  flagOverride = true);
+#endif
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorDouble& tab,
                                 bool flagOverride = true);

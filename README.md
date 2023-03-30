@@ -1,7 +1,6 @@
 ## Overview
 
 **gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES PARIS - PSL University. It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
-Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
 
@@ -27,18 +26,31 @@ When using the *gstlearn* C++ library, please use the citation from [doc/gstlear
 
 The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
-The *gstlearn* C++ library uses the following third party products (see licenses notices in doc/licenses):
+The *gstlearn* C++ library depends on the following third-party source code compiled in separate libraries (see **3rd-party** folder):
 
-| Name           | License        | URL                                                | Copyright
-|----------------|----------------|----------------------------------------------------|-----------
-| ANN            | LGPL v3        | http://www.cs.umd.edu/~mount/ANN                   | Copyright (c) 1997-2010 University of Maryland and Sunil Arya and David Mount
-| Boost          | see notice     | https://www.boost.org                              | see boost headers
-| HDF5           | see notice     | https://www.hdfgroup.org                           | Copyright 2006 by The HDF Group
-| csparse        | LGPL v2.1      | https://github.com/DrTimothyAldenDavis/SuiteSparse | Copyright 2011, Timothy A. Davis
-| vtk            | see notice     | https://visit.llnl.gov                             | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
-| clustering     | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster     | Copyright (C) 2002 Michiel Jan Laurens de Hoon
-| fft            | see notice     | NA                                                 | Copyright(c)1995,97 Mark Olesen
-| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org/             | Copyright ??, the GMT Team
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| csparse        | LGPL v2.1      | https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html | Copyright 2006, Timothy A. Davis
+| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org                          | Copyright(c) 2020, the GMT Team
+
+
+The *gstlearn* C++ library also includes external source codes (see licenses notices in **doc/licenses**):
+
+| Name                    | License        | URL                                            | Copyright
+|-------------------------|----------------|------------------------------------------------|-----------
+| clustering              | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster | Copyright (C) 2002 Michiel Jan Laurens de Hoon
+| fft                     | see licenses   | https://netlib.org/go/fft-olesen.tar.gz        | Copyright(c)1995,97 Mark Olesen
+| sparseinv (SuiteSparse) | BSD 3 clause   | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
+| vtk (VisIt)             | BSD 3 clause   | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+
+
+Finally, the *gstlearn* C++ library depends on the following third-party libraries (see licenses notices in **doc/licenses**):
+
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| Boost          | see licenses   | https://www.boost.org                                          | see Boost headers
+| HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
+
 
 ## Requirements
 
@@ -164,8 +176,8 @@ Download and install the following tools using default options during installati
 1. Git client [from here](https://gitforwindows.org) (*Setup program* [exe])
 2. CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
 3. Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component)
-4. Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your choice, but not in the *gstlearn* source code - and remind that folder)
-5. HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder, we assume it is `C:\Program Files\HDF_Group\HDF5\1.12.2`)
+4. Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your choice, but not in the *gstlearn* source folder - and remind that folder)
+5. HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder)
 6. Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder, we assume it is `C:\Program Files\doxygen`)
 7. LaTeX and Ghostscripts following instructions [here](https://www.doxygen.nl/manual/install.html#install_bin_windows)
 
@@ -283,7 +295,6 @@ make clean_all
 
 ### Important Notes
 
-* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
@@ -295,7 +306,7 @@ make clean_all
 * Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
 * Using MinGW on a Windows where another compiler is also installed may need to add `-G "MSYS Makefiles"` in the first cmake command above.
 * Using Visual Studio on a Windows where another compiler is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
-* If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
+* If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above. If you use the shortcut Makefile, you can use `DEBUG=1` after the `make` command
 * You may need to precise the location of Boost, HDF5 or Doxygen installation directory. In that case, add the following variables in the first cmake command above:
    * `-DBoost_ROOT="path/to/boost"`
    * `-DHDF5_ROOT="path/to/hdf5"`
@@ -339,5 +350,6 @@ firefox build/doxygen/html/index.html
 ---
 
 ## License
-BSD
+
+BSD 3 clause
 2023 Team gstlearn
