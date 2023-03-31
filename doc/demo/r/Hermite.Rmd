@@ -395,7 +395,7 @@ Covariance
 mod_y <- Model(nvar=1, ndim=2)
 mod_y$addCovFromParam(ECov_SPHERICAL(),range=1,sill=1)
 h     <- seq(from = 0, to =1, by = 0.01)
-r = mod_y$evalIvarNpas(0,0,h)
+r = mod_y$evalIvarNpas(h)
 C_theo<- GM_LN_Cov_theo(lambda = lambda)
 cov_theo<- C_theo(rho = r) 
 
@@ -404,7 +404,7 @@ cov_theo<- C_theo(rho = r)
 # cov_rg<- model.eval(model = mod_Z, h = h)
 
 model.eval.GM <- function(model, anam, h){
-  r = model$evalIvarNpas(0,0,h)
+  r = model$evalIvarNpas(h)
   psi <- anam$getPsiHns()
   nh <- length(psi) - 1
   outer(X = r, Y = 1:nh, FUN = function(rho,n){rho^n}) %*% (psi[-1])^2

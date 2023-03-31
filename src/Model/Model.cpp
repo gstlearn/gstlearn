@@ -1293,15 +1293,14 @@ Model* Model::duplicate() const
 
 /**
  * Calculate the covariance matrix between active samples of Db1
- * and active samples of Db2
+ * and active samples of Db2.
  * @param covmat Returned matrix (returned as a vector).
  * @param db1 First Data Base
  * @param db2 Second Data Base (if not provided, the first Db is provided instead)
- * @param ivar0 Rank of the first variable (all variables if not defined)
- * @param jvar0 Rank of the second variable (all variables if not defined)
+ * @param ivar Rank of the first variable (all variables if not defined)
+ * @param jvar Rank of the second variable (all variables if not defined)
  * @param flag_norm 1 if the Model must be normalized beforehand
  * @param flag_cov 1 if the Model must be expressed in covariance
-
  *
  * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
  * @remark -nvar stands for the number of (active) variables
@@ -1310,12 +1309,32 @@ Model* Model::duplicate() const
 void Model::covMatrix(VectorDouble& covmat,
                       Db *db1,
                       Db *db2,
-                      int ivar0,
-                      int jvar0,
+                      int ivar,
+                      int jvar,
                       int flag_norm,
                       int flag_cov)
 {
-  model_covmat(this, db1, db2, ivar0, jvar0, flag_norm, flag_cov, covmat.data());
+  model_covmat(this, db1, db2, ivar, jvar, flag_norm, flag_cov, covmat.data());
+}
+
+VectorDouble Model::covMatrixV(Db *db1,
+                               Db *db2,
+                               int ivar,
+                               int jvar,
+                               int flag_norm,
+                               int flag_cov)
+{
+  return model_covmatV(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
+}
+
+MatrixRectangular Model::covMatrixM(Db *db1,
+                                    Db *db2,
+                                    int ivar,
+                                    int jvar,
+                                    int flag_norm,
+                                    int flag_cov)
+{
+  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
 }
 
 /**

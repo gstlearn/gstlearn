@@ -5850,7 +5850,7 @@ int dbgrid_model(DbGrid *dbgrid, Model *model, const NamingConvention &namconv)
       dincr[idim] = (indices[idim] - center[idim]) * dbgrid->getDX(idim);
 
     // Evaluate the variogram map
-    mat = model->evalNvarIpas(dincr, mode);
+    mat = model->evalNvarIpasIncr(dincr, mode);
 
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)

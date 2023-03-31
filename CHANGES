@@ -5,6 +5,7 @@ Release 0.2.0
 =============
 - Transfer External Tools to gstlearnext
 - Fix Anamorphosis back transformation (Hermite gaussianToRaw)
+- Modify eval() and eval0() for Cov* functions: invert argument order
 
 Release 0.1.38
 ==============

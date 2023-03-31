@@ -36,10 +36,10 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const = 0;
-  virtual double eval(int ivar,
-                      int jvar,
-                      const SpacePoint& p1,
+  virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
+                      int ivar = 0,
+                      int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
@@ -49,43 +49,43 @@ public:
   /////////////////////////////////////////////////////////////////////////////////
 
   MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;
-  VectorDouble eval(int ivar,
-                    int jvar,
-                    const std::vector<SpacePoint>& vec_p1,
+  VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
+                    int ivar = 0,
+                    int jvar = 0,
                     const CovCalcMode& mode = CovCalcMode()) const;
-  MatrixSquareGeneral eval(const SpacePoint& p1,
-                           const SpacePoint& p2,
-                           const CovCalcMode& mode = CovCalcMode()) const;
-  double evalIvarIpas(int ivar,
-                      int jvar,
-                      double step,
+  MatrixSquareGeneral evalMat(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              const CovCalcMode& mode = CovCalcMode()) const;
+  double evalIvarIpas(double step,
                       const VectorDouble& dir,
+                      int ivar = 0,
+                      int jvar = 0,
                       const VectorDouble& center = VectorDouble(),
                       const CovCalcMode& mode = CovCalcMode()) const;
-  double evalIvarIpas(int ivar,
-                      int jvar,
-                      const VectorDouble &dincr,
-                      const CovCalcMode &mode) const;
-  VectorDouble evalIvarNpas(int ivar,
-                            int jvar,
-                            const VectorDouble& vec_step,
+  double evalIvarIpasIncr(const VectorDouble &dincr,
+                          int ivar = 0,
+                          int jvar = 0,
+                          const CovCalcMode &mode = CovCalcMode()) const;
+  VectorDouble evalIvarNpas(const VectorDouble& vec_step,
                             const VectorDouble& dir = VectorDouble(),
+                            int ivar = 0,
+                            int jvar = 0,
                             const VectorDouble& center = VectorDouble(),
                             const CovCalcMode& mode = CovCalcMode()) const;
   MatrixSquareGeneral evalNvarIpas(double step,
                                    const VectorDouble& dir,
                                    const VectorDouble& center = VectorDouble(),
                                    const CovCalcMode& mode = CovCalcMode()) const;
-  MatrixSquareGeneral evalNvarIpas(const VectorDouble &dincr,
-                                   const CovCalcMode &mode) const;
-  double evalIsoIvarIpas(int ivar,
-                         int jvar,
-                         double step,
+  MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble &dincr,
+                                       const CovCalcMode &mode) const;
+  double evalIsoIvarIpas(double step,
+                         int ivar = 0,
+                         int jvar = 0,
                          const CovCalcMode& mode = CovCalcMode()) const;
-  VectorDouble evalIsoIvarNpas(int ivar,
-                               int jvar,
-                               const VectorDouble& vec_step,
+  VectorDouble evalIsoIvarNpas(const VectorDouble& vec_step,
+                               int ivar = 0,
+                               int jvar = 0,
                                const CovCalcMode& mode = CovCalcMode()) const;
   MatrixSquareGeneral evalIsoNvarIpas(double step,
                                       const CovCalcMode& mode = CovCalcMode()) const;

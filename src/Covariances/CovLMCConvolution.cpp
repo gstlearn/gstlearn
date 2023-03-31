@@ -259,16 +259,16 @@ double CovLMCConvolution::eval0(int ivar,
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
-      cov0 += CovLMC::eval(ivar, jvar, p11, p22, mode) * w1 * w2;
+      cov0 += CovLMC::eval(p11, p22, ivar, jvar, mode) * w1 * w2;
     }
   }
   return cov0;
 }
 
-double CovLMCConvolution::eval(int ivar,
-                               int jvar,
-                               const SpacePoint& p1,
+double CovLMCConvolution::eval(const SpacePoint& p1,
                                const SpacePoint& p2,
+                               int ivar,
+                               int jvar,
                                const CovCalcMode& mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
@@ -288,7 +288,7 @@ double CovLMCConvolution::eval(int ivar,
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
-      cov += CovLMC::eval(ivar, jvar, p11, p22, modeloc) * w1 * w2;
+      cov += CovLMC::eval(p11, p22, ivar, jvar, modeloc) * w1 * w2;
     }
   }
 

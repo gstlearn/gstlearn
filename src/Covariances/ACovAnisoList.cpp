@@ -149,15 +149,15 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
   return cov;
 }
 
-double ACovAnisoList::eval(int ivar,
-                           int jvar,
-                           const SpacePoint& p1,
+double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
+                           int ivar,
+                           int jvar,
                            const CovCalcMode& mode) const
 {
   double cov = 0.;
   if (mode.getKeepOnlyCovIdx() >= 0)
-    cov = _covs[mode.getKeepOnlyCovIdx()]->eval(ivar, jvar, p1, p2, mode);
+    cov = _covs[mode.getKeepOnlyCovIdx()]->eval(p1, p2, ivar, jvar, mode);
   else
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
@@ -168,7 +168,7 @@ double ACovAnisoList::eval(int ivar,
         continue;
       if (mode.getCovFiltered(i))
         continue;
-      cov += _covs[i]->eval(ivar, jvar, p1, p2, mode);
+      cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
     }
   }
 

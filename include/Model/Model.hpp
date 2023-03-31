@@ -148,13 +148,13 @@ public:
   {
     return _covaList->eval0Nvar(mode);
   }
-  double eval(int ivar,
-              int jvar,
-              const SpacePoint& p1,
+  double eval(const SpacePoint& p1,
               const SpacePoint& p2,
+              int ivar = 0,
+              int jvar = 0,
               const CovCalcMode& mode = CovCalcMode()) const
   {
-    return _covaList->eval(ivar, jvar, p1, p2, mode);
+    return _covaList->eval(p1, p2, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalNvarIpas(double step,
                                    const VectorDouble& dir = VectorDouble(),
@@ -163,28 +163,28 @@ public:
   {
     return _covaList->evalNvarIpas(step, dir, center, mode);
   }
-  MatrixSquareGeneral evalNvarIpas(const VectorDouble& dincr,
-                                   const CovCalcMode& mode = CovCalcMode()) const
+  MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
+                                       const CovCalcMode& mode = CovCalcMode()) const
   {
-    return _covaList->evalNvarIpas(dincr, mode);
+    return _covaList->evalNvarIpasIncr(dincr, mode);
   }
-  VectorDouble evalIvarNpas(int ivar,
-                            int jvar,
-                            const VectorDouble& vec_step,
+  VectorDouble evalIvarNpas(const VectorDouble& vec_step,
                             const VectorDouble& dir = VectorDouble(),
+                            int ivar = 0,
+                            int jvar = 0,
                             const VectorDouble& center = VectorDouble(),
                             const CovCalcMode& mode = CovCalcMode()) const
   {
-    return _covaList->evalIvarNpas(ivar, jvar, vec_step, dir, center, mode);
+    return _covaList->evalIvarNpas(vec_step, dir, ivar, jvar, center, mode);
   }
-  double evalIvarIpas(int ivar,
-                      int jvar,
-                      double step,
+  double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
                       const VectorDouble& center = VectorDouble(),
                       const CovCalcMode& mode = CovCalcMode()) const
   {
-    return _covaList->evalIvarIpas(ivar, jvar, step, dir, center, mode);
+    return _covaList->evalIvarIpas(step, dir, ivar, jvar, center, mode);
   }
   double evalCvv(const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -440,11 +440,23 @@ public:
 
   int hasExternalCov() const;
 
+  MatrixRectangular covMatrixM(Db *db1,
+                               Db *db2 = nullptr,
+                               int ivar = -1,
+                               int jvar = -1,
+                               int flag_norm = 0,
+                               int flag_cov = 1);
+  VectorDouble covMatrixV(Db *db1,
+                          Db *db2 = nullptr,
+                          int ivar = 0,
+                          int jvar = 0,
+                          int flag_norm = 0,
+                          int flag_cov = 1);
   void covMatrix(VectorDouble& covmat,
                  Db *db1,
                  Db *db2 = nullptr,
-                 int ivar0 = 0,
-                 int jvar0 = 0,
+                 int ivar = 0,
+                 int jvar = 0,
                  int flag_norm = 0,
                  int flag_cov = 1);
   VectorDouble sample(const VectorDouble& hh,

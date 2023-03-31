@@ -54,29 +54,29 @@ MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode& mode) const
   return mat;
 }
 
-VectorDouble ACov::eval(int ivar,
-                        int jvar,
-                        const std::vector<SpacePoint>& vec_p1,
+VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
                         const std::vector<SpacePoint>& vec_p2,
+                        int ivar,
+                        int jvar,
                         const CovCalcMode& mode) const
 {
   VectorDouble vec;
   if (vec_p1.size() != vec_p2.size())
     my_throw ("Error: 'p1' and 'p2' should have same dimension");
   for (int i=0, n=static_cast<int> (vec_p1.size()); i < n; i++)
-    vec.push_back(eval(ivar, jvar, vec_p1[i], vec_p2[i], mode)); // pure virtual method
+    vec.push_back(eval(vec_p1[i], vec_p2[i], ivar, jvar, mode)); // pure virtual method
   return vec;
 }
 
-MatrixSquareGeneral ACov::eval(const SpacePoint& p1,
-                               const SpacePoint& p2,
-                               const CovCalcMode& mode) const
+MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
+                                  const SpacePoint& p2,
+                                  const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
-      mat.setValue(ivar, jvar, eval(ivar, jvar, p1, p2, mode)); // pure virtual method
+      mat.setValue(ivar, jvar, eval(p1, p2, ivar, jvar, mode)); // pure virtual method
   return mat;
 }
 
@@ -90,10 +90,10 @@ MatrixSquareGeneral ACov::eval(const SpacePoint& p1,
  * @param mode   CovCalcMode structure
  * @return
  */
-double ACov::evalIvarIpas(int ivar,
-                          int jvar,
-                          double step,
+double ACov::evalIvarIpas(double step,
                           const VectorDouble& dir,
+                          int ivar,
+                          int jvar,
                           const VectorDouble& center,
                           const CovCalcMode& mode) const
 {
@@ -109,19 +109,19 @@ double ACov::evalIvarIpas(int ivar,
   VectorDouble vec(dirloc);
   VH::multiplyConstant(vec, step);
   p2.move(vec);
-  return eval(ivar, jvar, p1, p2, mode); // pure virtual method
+  return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
 
-double ACov::evalIvarIpas(int ivar,
-                          int jvar,
-                          const VectorDouble& dincr,
-                          const CovCalcMode& mode) const
+double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
+                              int ivar,
+                              int jvar,
+                              const CovCalcMode& mode) const
 {
   // Define the point in the ACov space (center will be checked)
   SpacePoint p1(VectorDouble(),getSpace());
   SpacePoint p2(VectorDouble(),getSpace());
   p2.move(dincr);
-  return eval(ivar, jvar, p1, p2, mode); // pure virtual method
+  return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }
 
 
@@ -136,16 +136,16 @@ double ACov::evalIvarIpas(int ivar,
  * @param mode      CovCalcMode structure
  * @return
  */
-VectorDouble ACov::evalIvarNpas(int ivar,
-                                int jvar,
-                                const VectorDouble& vec_step,
+VectorDouble ACov::evalIvarNpas(const VectorDouble& vec_step,
                                 const VectorDouble& dir,
+                                int ivar,
+                                int jvar,
                                 const VectorDouble& center,
                                 const CovCalcMode& mode) const
 {
   VectorDouble vec;
   for (int i=0, n=static_cast<int> (vec_step.size()); i < n; i++)
-    vec.push_back(evalIvarIpas(ivar, jvar, vec_step[i], dir, center, mode));
+    vec.push_back(evalIvarIpas(vec_step[i], dir, ivar, jvar, center, mode));
   return vec;
 }
 
@@ -167,18 +167,18 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
-      mat.setValue(ivar, jvar, evalIvarIpas(ivar, jvar, step, dir, center, mode));
+      mat.setValue(ivar, jvar, evalIvarIpas(step, dir, ivar, jvar, center, mode));
   return mat;
 }
 
-MatrixSquareGeneral ACov::evalNvarIpas(const VectorDouble& dincr,
-                                       const CovCalcMode& mode) const
+MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
+                                           const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
-      mat.setValue(ivar, jvar, evalIvarIpas(ivar, jvar, dincr, mode));
+      mat.setValue(ivar, jvar, evalIvarIpasIncr(dincr, ivar, jvar, mode));
   return mat;
 }
 
@@ -191,15 +191,15 @@ MatrixSquareGeneral ACov::evalNvarIpas(const VectorDouble& dincr,
  * @param mode CovCalcMode structure
  * @return
  */
-double ACov::evalIsoIvarIpas(int ivar,
+double ACov::evalIsoIvarIpas(double step,
+                             int ivar,
                              int jvar,
-                             double step,
                              const CovCalcMode& mode) const
 {
   /// TODO : Not true whatever the space
   VectorDouble center = getOrigin();
   VectorDouble dir = getUnitaryVector();
-  return evalIvarIpas(ivar, jvar, step, dir, center, mode);
+  return evalIvarIpas(step, dir, ivar, jvar, center, mode);
 }
 
 /**
@@ -211,9 +211,9 @@ double ACov::evalIsoIvarIpas(int ivar,
  * @param mode
  * @return
  */
-VectorDouble ACov::evalIsoIvarNpas(int ivar,
+VectorDouble ACov::evalIsoIvarNpas(const VectorDouble& vec_step,
+                                   int ivar,
                                    int jvar,
-                                   const VectorDouble& vec_step,
                                    const CovCalcMode& mode) const
 {
   VectorDouble vec;
@@ -221,7 +221,7 @@ VectorDouble ACov::evalIsoIvarNpas(int ivar,
   VectorDouble center = getOrigin();
   VectorDouble dir = getUnitaryVector();
   for (const auto& h : vec_step)
-    vec.push_back(evalIvarIpas(ivar, jvar, h, dir, center, mode));
+    vec.push_back(evalIvarIpas(h, dir, ivar, jvar, center, mode));
   return vec;
 }
 
@@ -242,7 +242,7 @@ MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
-      mat.setValue(ivar, jvar, evalIvarIpas(ivar, jvar, step, dir, center, mode));
+      mat.setValue(ivar, jvar, evalIvarIpas(step, dir, ivar, jvar, center, mode));
   return mat;
 }
 
@@ -284,7 +284,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
 
       /* Loop on the dimension of the space */
 
-      total += w1 * w2 * eval(ivar, jvar, p1, p2, mode);
+      total += w1 * w2 * eval(p1, p2, ivar, jvar, mode);
       norme += w1 * w2;
     }
   }
@@ -327,7 +327,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
 
     /* Loop on the dimension of the space */
 
-    total += w2 * eval(ivar, jvar, p1, p2, mode);
+    total += w2 * eval(p1, p2, ivar, jvar, mode);
     norme += w2;
   }
 
@@ -365,7 +365,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
     if (db2->isActive(iech2))
     {
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
-      values.push_back(eval(ivar, jvar, p1, p2, mode));
+      values.push_back(eval(p1, p2, ivar, jvar, mode));
     }
     else
     {
@@ -676,7 +676,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
 
       /* Loop on the dimension of the space */
 
-      double value = eval(ivar, jvar, p1, p2, mode);
+      double value = eval(p1, p2, ivar, jvar, mode);
       mat.setValue(jech1, jech2, value);
       jech2++;
     }

@@ -3772,9 +3772,8 @@ static int st_sampling_krige_data(Db *db,
 {
   int *isort, *ralls, *rutil;
   int ndat, error, i, j, ntot, ntri, nother, npart, n1, ecr, nutil, nmax;
-  double *utab, *s, *tl, *xl, *c, *sq, *v, *tn1, *tn2, *eigval, *eigvec, *spart,
-      *vsort;
-  double *tutil, *invsig, sumval;
+  double *utab, *s, *tl, *xl, *c, *sq, *v, *tn1, *tn2, *eigval, *eigvec, *spart;
+  double *tutil, *invsig, *vsort, sumval;
 
   /* Initializations */
 
