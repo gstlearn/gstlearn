@@ -2553,6 +2553,7 @@ int model_covmat(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) return 1;
   }
+  bool flag_verr = (db1 == db2 && db1->getLocNumber(ELoc::V) == nvar);
 
   /* Core allocation */
 
@@ -2608,105 +2609,18 @@ int model_covmat(Model *model,
             }
             value = COVTAB(ivar, jvar);
           }
-          covmat[ecr++] = value;
+
+          // Process the variance of Measurement error (optional)
+          double verr = 0.;
+          if (flag_verr && iech1 == iech2 && ivar == jvar)
+            verr = db1->getLocVariable(ELoc::V,iech1, ivar);
+
+          covmat[ecr++] = value + verr;
         }
       }
     }
   }
   return 0;
-}
-
-VectorDouble model_covmatV(Model *model,
-                           Db *db1,
-                           Db *db2,
-                           int ivar0,
-                           int jvar0,
-                           int flag_norm,
-                           int flag_cov)
-{
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
-  if (db2 == nullptr) db2 = db1;
-  if (st_check_model(model)) return 1;
-  if (st_check_environ(model, db1)) return 1;
-  if (st_check_environ(model, db2)) return 1;
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
-  int nech1 = db1->getSampleNumber();
-  int nech2 = db2->getSampleNumber();
-  int nvar1 = nvar;
-  if (ivar0 >= 0)
-  {
-    nvar1 = 1;
-    if (st_check_variable(nvar, ivar0)) return 1;
-  }
-  int nvar2 = nvar;
-  if (jvar0 >= 0)
-  {
-    nvar2 = 1;
-    if (st_check_variable(nvar, jvar0)) return 1;
-  }
-
-  /* Core allocation */
-
-  VectorDouble d1(ndim, 0);
-  VectorDouble covtab(nvar * nvar,0.);
-  VectorDouble covmat;
-
-  /* Loop on the first variable */
-
-  for (int ivar = 0; ivar < nvar1; ivar++)
-  {
-    if (ivar0 >= 0) ivar = ivar0;
-
-    /* Loop on the first sample */
-
-    for (int iech1 = 0; iech1 < nech1; iech1++)
-    {
-      if (!db1->isActive(iech1)) continue;
-
-      /* Loop on the second variable */
-
-      for (int jvar = 0; jvar < nvar2; jvar++)
-      {
-        if (jvar0 >= 0) jvar = jvar0;
-
-        /* Loop on the second sample */
-
-        for (int iech2 = 0; iech2 < nech2; iech2++)
-        {
-          if (!db2->isActive(iech2)) continue;
-
-          /* Loop on the dimension of the space */
-
-          double value = TEST;
-          int skip = 0;
-          for (int i = 0; i < ndim && skip == 0; i++)
-          {
-            double v1 = db1->getCoordinate(iech1, i);
-            double v2 = db2->getCoordinate(iech2, i);
-            if (FFFF(v1) || FFFF(v2)) skip = 1;
-            d1[i] = v1 - v2;
-          }
-          if (!skip)
-          {
-            if (model->isNoStat())
-            {
-              CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
-              model_calcul_cov(&covint, model, mode, 1, 1., d1, covtab.data());
-            }
-            else
-            {
-              model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
-            }
-            value = COVTAB(ivar, jvar);
-          }
-          covmat.push_back(value);
-        }
-      }
-    }
-  }
-  return covmat;
 }
 
 MatrixSquareSymmetric model_covmatM(Model *model,
@@ -2739,6 +2653,7 @@ MatrixSquareSymmetric model_covmatM(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) return 1;
   }
+  bool flag_verr = (db1 == db2 && db1->getLocNumber(ELoc::V) == nvar);
 
   /* Core allocation */
 
@@ -2803,9 +2718,15 @@ MatrixSquareSymmetric model_covmatM(Model *model,
             }
             value = COVTAB(ivarp, jvarp);
           }
+
+          // Process the variance of Measurement error (optional)
+          double verr = 0.;
+          if (flag_verr && iech1 == iech2 && ivar == jvar)
+            verr = db1->getLocVariable(ELoc::V,iech1, ivar);
+
           int irow = ivar * nactive1 + jech1;
           int icol = jvar * nactive2 + jech2;
-          covmat.setValue(irow, icol, value);
+          covmat.setValue(irow, icol, value + verr);
         }
       }
     }

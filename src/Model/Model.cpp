@@ -1324,7 +1324,7 @@ VectorDouble Model::covMatrixV(Db *db1,
                                int flag_norm,
                                int flag_cov)
 {
-  return model_covmatV(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
+  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov).getValues();
 }
 
 MatrixSquareSymmetric Model::covMatrixM(Db *db1,

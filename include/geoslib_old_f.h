@@ -731,13 +731,6 @@ GSTLEARN_EXPORT int model_covmat(Model *model,
                                   int flag_norm,
                                   int flag_cov,
                                   double *covmat);
-GSTLEARN_EXPORT VectorDouble model_covmatV(Model *model,
-                                           Db *db1,
-                                           Db *db2,
-                                           int ivar0,
-                                           int jvar0,
-                                           int flag_norm,
-                                           int flag_cov);
 GSTLEARN_EXPORT MatrixSquareSymmetric model_covmatM(Model *model,
                                                     Db *db1,
                                                     Db *db2,
