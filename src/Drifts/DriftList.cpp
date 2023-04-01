@@ -313,7 +313,7 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
   int ndrift = getDriftNumber();
   for (int ib=0; ib<ndrift; ib++)
   {
-    vec.push_back(getDrift(db, ib, useSel));
+    vec.push_back(getDriftByColumn(db, ib, useSel));
   }
   return vec;
 }

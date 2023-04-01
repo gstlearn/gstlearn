@@ -79,11 +79,11 @@ Matrix t(M) to back-transform Factors Y into standardized Variables Z
      [  3,]     0.266    -0.586     0.068     0.419     0.637
      [  4,]     0.557    -0.512    -0.336    -0.260    -0.497
 Z = Y * t(M) (rows  = eigen vectors)
-Differences between Simu.1 and F2Z.Z2F.Simu.1 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.2 and F2Z.Z2F.Simu.2 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.3 and F2Z.Z2F.Simu.3 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.4 and F2Z.Z2F.Simu.4 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.5 and F2Z.Z2F.Simu.5 (eps = 0.000001) = 1000 / 1000
+Variables Simu.1 and F2Z.Z2F.Simu.1 are similar (eps=0.000001)
+Variables Simu.2 and F2Z.Z2F.Simu.2 are similar (eps=0.000001)
+Variables Simu.3 and F2Z.Z2F.Simu.3 are similar (eps=0.000001)
+Variables Simu.4 and F2Z.Z2F.Simu.4 are similar (eps=0.000001)
+Variables Simu.5 and F2Z.Z2F.Simu.5 are similar (eps=0.000001)
 
 Testing MAF
 ===========
@@ -106,29 +106,29 @@ Standard deviations
      [  4,]     0.990
 Eigen Values
                [,  0]
-     [  0,]     0.926
-     [  1,]     1.360
-     [  2,]     1.478
-     [  3,]     1.658
-     [  4,]     1.766
+     [  0,]     1.027
+     [  1,]     1.300
+     [  2,]     1.458
+     [  3,]     1.498
+     [  4,]     1.585
 Matrix M to transform standardized Variables Z into Factors Y
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
-     [  0,]     0.128    -0.392     0.065     0.662    -0.745
-     [  1,]    -0.094    -0.361    -0.561     0.482     0.693
-     [  2,]     0.094     0.692    -0.664     0.257    -0.194
-     [  3,]    -0.853    -0.009    -0.207    -0.082    -0.254
-     [  4,]     0.047    -0.393    -0.651    -0.645    -0.309
+     [  0,]     0.314    -0.290     0.978    -0.163     0.020
+     [  1,]    -0.332     0.668     0.318     0.713     0.004
+     [  2,]    -0.267     0.655     0.177    -0.674     0.214
+     [  3,]    -0.750    -0.390     0.125    -0.063     0.330
+     [  4,]    -0.584    -0.114     0.055    -0.216    -0.829
 Y = Z * M (columns  = eigen vectors)
 Matrix t(M) to back-transform Factors Y into standardized Variables Z
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
-     [  0,]     0.134    -0.093     0.168    -1.107     0.275
-     [  1,]    -0.412    -0.420     0.740     0.041    -0.447
-     [  2,]    -0.015    -0.444    -0.563    -0.047    -0.566
-     [  3,]     0.565     0.433     0.228     0.031    -0.560
-     [  4,]    -0.602     0.551    -0.206    -0.189    -0.264
+     [  0,]     0.235    -0.267    -0.154    -0.789    -0.349
+     [  1,]    -0.208     0.492     0.629    -0.498    -0.039
+     [  2,]     0.872     0.343     0.113     0.102     0.092
+     [  3,]    -0.084     0.665    -0.713     0.051    -0.162
+     [  4,]    -0.058    -0.030     0.215     0.618    -0.906
 Z = Y * t(M) (rows  = eigen vectors)
-Differences between Simu.1 and MAF2Z.Z2MAF.Simu.1 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.2 and MAF2Z.Z2MAF.Simu.2 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.3 and MAF2Z.Z2MAF.Simu.3 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.4 and MAF2Z.Z2MAF.Simu.4 (eps = 0.000001) = 1000 / 1000
-Differences between Simu.5 and MAF2Z.Z2MAF.Simu.5 (eps = 0.000001) = 1000 / 1000
+Variables Simu.1 and MAF2Z.Z2MAF.Simu.1 are similar (eps=0.000001)
+Variables Simu.2 and MAF2Z.Z2MAF.Simu.2 are similar (eps=0.000001)
+Variables Simu.3 and MAF2Z.Z2MAF.Simu.3 are similar (eps=0.000001)
+Variables Simu.4 and MAF2Z.Z2MAF.Simu.4 are similar (eps=0.000001)
+Variables Simu.5 and MAF2Z.Z2MAF.Simu.5 are similar (eps=0.000001)
