@@ -6,8 +6,9 @@ Release 0.2.0
 - Transfer External Tools to gstlearnext
 - Fix Anamorphosis back transformation (Hermite gaussianToRaw)
 - Modify eval() and eval0() for Cov* functions: invert argument order
-- Correct when changing the number of variables in an existing CovConctext
+- Correct when changing the number of variables in an existing CovContext
 - Modification of the names of the getDriftXXX functions
+- Correction for Variance of Measurement error in Kriging and covMatrix functions
 
 Release 0.1.38
 ==============
