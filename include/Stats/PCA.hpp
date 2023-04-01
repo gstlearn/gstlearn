@@ -104,13 +104,16 @@ private:
                  const VectorDouble &sigma,
                  bool flag_center = true,
                  bool flag_scale = false);
-  void _pcaZ2F(bool flag_norm,
-               int iptr,
+  void _pcaZ2F(int iptr,
                Db *db,
                const VectorBool isoFlag,
-               const VectorDouble& mean,
-               const VectorDouble& sigma);
-  void _pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag);
+               const VectorDouble &mean,
+               const VectorDouble &sigma);
+  void _pcaF2Z(int iptr,
+               Db *db,
+               const VectorBool &isoFlag,
+               const VectorDouble &mean,
+               const VectorDouble &sigma);
 
 private:
   int          _nVar;
