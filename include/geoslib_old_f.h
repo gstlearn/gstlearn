@@ -31,6 +31,7 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Neigh/NeighWork.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -737,13 +738,13 @@ GSTLEARN_EXPORT VectorDouble model_covmatV(Model *model,
                                            int jvar0,
                                            int flag_norm,
                                            int flag_cov);
-GSTLEARN_EXPORT MatrixRectangular model_covmatM(Model *model,
-                                                Db *db1,
-                                                Db *db2,
-                                                int ivar0,
-                                                int jvar0,
-                                                int flag_norm,
-                                                int flag_cov);
+GSTLEARN_EXPORT MatrixSquareSymmetric model_covmatM(Model *model,
+                                                    Db *db1,
+                                                    Db *db2,
+                                                    int ivar0,
+                                                    int jvar0,
+                                                    int flag_norm,
+                                                    int flag_cov);
 GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
                                               Db *db1,
                                               int nsize1,

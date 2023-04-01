@@ -2709,13 +2709,13 @@ VectorDouble model_covmatV(Model *model,
   return covmat;
 }
 
-MatrixRectangular model_covmatM(Model *model,
-                                Db *db1,
-                                Db *db2,
-                                int ivar0,
-                                int jvar0,
-                                int flag_norm,
-                                int flag_cov)
+MatrixSquareSymmetric model_covmatM(Model *model,
+                                    Db *db1,
+                                    Db *db2,
+                                    int ivar0,
+                                    int jvar0,
+                                    int flag_norm,
+                                    int flag_cov)
 {
   CovCalcMode mode;
   mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);

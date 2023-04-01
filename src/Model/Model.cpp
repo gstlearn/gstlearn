@@ -775,10 +775,10 @@ void Model::setDriftFiltered(int il, bool filtered)
   if (_driftList == nullptr) return;
   _driftList->setFiltered(il, filtered);
 }
-VectorDouble Model::getDrift(const Db *db, int ib, bool useSel)
+VectorDouble Model::getDriftByColumn(const Db *db, int ib, bool useSel)
 {
   if (_driftList == nullptr) return VectorDouble();
-  return _driftList->getDrift(db, ib, useSel);
+  return _driftList->getDriftByColumn(db, ib, useSel);
 }
 VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
 {
@@ -1327,12 +1327,12 @@ VectorDouble Model::covMatrixV(Db *db1,
   return model_covmatV(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
 }
 
-MatrixRectangular Model::covMatrixM(Db *db1,
-                                    Db *db2,
-                                    int ivar,
-                                    int jvar,
-                                    int flag_norm,
-                                    int flag_cov)
+MatrixSquareSymmetric Model::covMatrixM(Db *db1,
+                                        Db *db2,
+                                        int ivar,
+                                        int jvar,
+                                        int flag_norm,
+                                        int flag_cov)
 {
   return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
 }

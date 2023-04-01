@@ -86,9 +86,9 @@ public:
   void setCoefDrift(int ivar, int il, int ib, double value) { _coefDrift[_getAddress(ivar,il,ib)] = value; }
   void setCoefDriftByRank(int rank, double coeff) { _coefDrift[rank] = coeff; }
 
-  VectorDouble getDrift(const Db* db, int ib, bool useSel = true) const;
   double getDrift(const Db* db, int ib, int iech) const;
-  VectorDouble getDriftVec(const Db* db, int iech) const;
+  VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;
+  VectorDouble getDriftBySample(const Db* db, int iech) const;
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
   VectorDouble evalDrifts(const Db* db,

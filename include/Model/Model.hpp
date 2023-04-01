@@ -371,7 +371,7 @@ public:
   void setCoefDrift(int ivar, int il, int ib, double coeff)    ;
   void setCoefDriftByRank(int rank, double coeff)              ;
   void setDriftFiltered(int il, bool filtered)                 ;
-  VectorDouble getDrift(const Db* db, int ib, bool useSel=true);
+  VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;
 
   double evalDrift(const Db* db,
@@ -440,12 +440,12 @@ public:
 
   int hasExternalCov() const;
 
-  MatrixRectangular covMatrixM(Db *db1,
-                               Db *db2 = nullptr,
-                               int ivar = -1,
-                               int jvar = -1,
-                               int flag_norm = 0,
-                               int flag_cov = 1);
+  MatrixSquareSymmetric covMatrixM(Db *db1,
+                                   Db *db2 = nullptr,
+                                   int ivar = -1,
+                                   int jvar = -1,
+                                   int flag_norm = 0,
+                                   int flag_cov = 1);
   VectorDouble covMatrixV(Db *db1,
                           Db *db2 = nullptr,
                           int ivar = 0,
