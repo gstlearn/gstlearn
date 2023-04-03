@@ -186,6 +186,9 @@ public:
   double getMeanByColumn(int icol) const;
   double getMinimum() const;
   double getMaximum() const;
+  void copyReduce(const AMatrix *x,
+                  const VectorInt &validRows,
+                  const VectorInt &validCols);
 
 #ifndef SWIG
   /*! Get value operator override */

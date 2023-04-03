@@ -35,8 +35,6 @@
 /** @addtogroup MORPHO_0 Initial manipulations
  * \ingroup MORPHO
  *
- * \brief Initial manipulations
- *
  * @param  imagin     Pointer to the BImage containing the input image
  * @param  imagout    Pointer to the BImage which will receive the output image
  *                    (It must have been allocated beforehand: same dimension as 'imagin')
@@ -48,8 +46,6 @@ GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);
 
 /** @addtogroup MORPHO_1 Basic operations
  * \ingroup MORPHO
- *
- * \brief Perform the basic transformations
  *
  * @param  imagin     Pointer to the BImage containing the input image
  * @param  imagout    Pointer to the BImage which will receive the output image
@@ -87,10 +83,8 @@ GSTLEARN_EXPORT void morpho_closing(int option,
                                     bool verbose = false);
 /**@}*/
 
-/** @addtogroup MORPHO_2 Logical operations
+/** @addtogroup MORPHO_2 Logical operations on images
  * \ingroup MORPHO
- *
- * \brief Perform the logical transformations on images.
  *
  * @param  image1     Pointer to the BImage containing the first input image (for diadic operation)
  * @param  image2     Pointer to the BImage containing the second input image (for diadic opertion)
@@ -113,10 +107,8 @@ GSTLEARN_EXPORT void morpho_negation(const BImage& imagin,
                                      bool verbose = false);
 /**@}*/
 
-/** @addtogroup MORPHO_3 Conversion between Double and BImage
+/** @addtogroup MORPHO_3 Convert arrays (provided as a Vector of double values) into Bimage (binary image) and vice-versa
  * \ingroup MORPHO
- *
- * \brief Convert arrays (provided as a Vector of double values) into Bimage (binary image) and vice-versa
  *
  * @param  nx         Vector giving the number of nodes for each space dimension
  * @param  tabin      Array of double values containing the input information
@@ -153,10 +145,8 @@ GSTLEARN_EXPORT void morpho_image2double(const BImage& imagin,
                                          bool verbose = false);
 /**@}*/
 
-/** @addtogroup MORPHO_4 Labeling Binary Images
+/** @addtogroup MORPHO_4 Label the connected component of a BImage
  * \ingroup MORPHO
- *
- * \brief Label the connected component of a BImage
  *
  * @param  imagin     Pointer to the BImage containing the one input image
  * @param  option     Description of the structuring element:
@@ -182,10 +172,8 @@ GSTLEARN_EXPORT VectorInt morpho_labelsize(int option,
                                            const BImage& imagin);
 /**@}*/
 
-/** @addtogroup MORPHO_5 Miscellaneous functions
+/** @addtogroup MORPHO_5 Performs some miscellaneous operations on BImages
  * \ingroup MORPHO
- *
- * \brief Performs some miscellaneous operations on BImages
  *
  * @param  imagin     Pointer to the BImage containing the one input image
  * @param  option     Description of the structuring element:
@@ -221,8 +209,7 @@ GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
 /** @addtogroup MORPHO_6 Morphology on DbGrid
  * \ingroup MORPHO
  *
- * \brief List of all the methods used to apply the Morphological Operations on a DbGrid. The results are
- * also stored in the same DbGrid.
+ * The results are also stored in the same DbGrid.
  *
  * @param  dbgrid  Input and Output DbGrid
  * @param  radius  Vector giving the extensions of the structuring element along each direction

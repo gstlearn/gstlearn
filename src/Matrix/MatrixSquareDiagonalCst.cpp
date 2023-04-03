@@ -9,20 +9,19 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
-#include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
 
 MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)
-  : AMatrixSquare(nrow, sparse)
+  : MatrixSquareDiagonal(nrow, sparse)
   , _cstDiagMatrix(0.)
 {
 }
 
 MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(const MatrixSquareDiagonalCst &r) 
-  : AMatrixSquare(r)
+  : MatrixSquareDiagonal(r)
   , _cstDiagMatrix(r._cstDiagMatrix)
 {
 }
@@ -31,7 +30,7 @@ MatrixSquareDiagonalCst& MatrixSquareDiagonalCst::operator= (const MatrixSquareD
 {
   if (this != &r)
   {
-    AMatrixSquare::operator=(r);
+    MatrixSquareDiagonal::operator=(r);
     _cstDiagMatrix = r._cstDiagMatrix;
   }
   return *this;

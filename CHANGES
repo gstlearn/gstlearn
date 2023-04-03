@@ -9,6 +9,8 @@ Release 0.2.0
 - Correct when changing the number of variables in an existing CovContext
 - Modification of the names of the getDriftXXX functions
 - Correction for Variance of Measurement error in Kriging and covMatrix functions
+- Reorganization of the Class diagram for AMatrix
+- Adding method "reduce" to AMatrix (and related classes) and to Model, ACovAnisoList and CovAniso
 
 Release 0.1.38
 ==============

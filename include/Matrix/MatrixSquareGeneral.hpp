@@ -43,6 +43,8 @@ public:
   /*! Check if the matrix is (non empty) square */
   bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
+  MatrixSquareGeneral* reduce(const VectorInt &validRows) const;
+
 protected:
 #ifndef SWIG
   virtual double& _getValueRef(int irow, int icol) override;

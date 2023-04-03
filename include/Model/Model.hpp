@@ -426,6 +426,7 @@ public:
 
   const EModelProperty& getCovMode() const;
   Model* duplicate() const;
+  Model* reduce(const VectorInt& validVars) const;
 
   int getVariableNumber() const
   {

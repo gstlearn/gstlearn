@@ -139,6 +139,12 @@ public:
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true);
   static VectorInt    orderRanks(const VectorDouble& vecin);
   static VectorInt    sortRanks(const VectorDouble& vecin);
+  static VectorDouble unique(const VectorDouble& vecin);
+  static VectorInt    unique(const VectorInt& vecin);
+  static VectorInt filter(const VectorInt &vecin,
+                          int vmin = ITEST,
+                          int vmax = ITEST,
+                          bool ascending = true);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
 };

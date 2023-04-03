@@ -48,6 +48,8 @@ public:
   void addRow(int nrow_added=1);
   void addColumn(int ncolumn_added = 1);
 
+  MatrixRectangular* reduce(const VectorInt& validRows, const VectorInt& validCols) const;
+
 protected:
 #ifndef SWIG
   virtual double& _getValueRef(int irow, int icol) override;

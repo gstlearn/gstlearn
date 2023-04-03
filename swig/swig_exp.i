@@ -249,10 +249,10 @@
 %include Matrix/AMatrixSquare.hpp
 %include Matrix/LinkMatrixSparse.hpp
 %include Matrix/MatrixRectangular.hpp
-%include Matrix/MatrixSquareDiagonal.hpp
-%include Matrix/MatrixSquareDiagonalCst.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
+%include Matrix/MatrixSquareDiagonal.hpp
+%include Matrix/MatrixSquareDiagonalCst.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
 

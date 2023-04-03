@@ -8,7 +8,6 @@
 /* License: BSD 3 clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -16,14 +15,18 @@
 #include "Enum/ECov.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Model/ANoStat.hpp"
+#include "Model/NoStatArray.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"
@@ -34,9 +37,9 @@
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
-#include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
+
 #include "Db/Db.hpp"
+
 #include <math.h>
 
 Model::Model(const CovContext &ctxt)
@@ -1272,13 +1275,39 @@ const AnamHermite* Model::getAnamHermite() const
 
 Model* Model::duplicate() const
 {
-  Model *model = nullptr;
-
-  model = new Model(getContext());
+  Model* model = new Model(getContext());
 
   /* Add the list of Covariances */
 
   model->setCovList(getCovAnisoList());
+
+  /* Add the list of Drifts */
+
+  model->setDriftList(getDriftList());
+
+  /* Add non-stationarity information */
+
+  model->addNoStat(getNoStat());
+
+  return model;
+}
+
+
+Model* Model::reduce(const VectorInt& validVars) const
+{
+  VectorInt localValidVars = VH::filter(validVars, 0, getVariableNumber());
+  int nvar = localValidVars.size();
+  if (nvar <= 0)
+  {
+    messerr("Your new Model has no variable left");
+    return nullptr;
+  }
+  CovContext ctxt(nvar);
+  Model* model = new Model(ctxt);
+
+  /* Add the list of Covariances */
+
+  model->setCovList(getCovAnisoList()->reduce(validVars));
 
   /* Add the list of Drifts */
 

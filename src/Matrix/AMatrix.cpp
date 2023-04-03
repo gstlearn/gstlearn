@@ -10,10 +10,11 @@
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <iostream>
 #include <iomanip>
@@ -1364,6 +1365,16 @@ double AMatrix::getMaximum() const
   }
   if (maximum == -1.e30) maximum = TEST;
   return maximum;
+}
+
+void AMatrix::copyReduce(const AMatrix *x,
+                         const VectorInt &validRows,
+                         const VectorInt &validCols)
+{
+  VH::display("copyreduce validRows",validRows);
+  for (int irow = 0; irow < (int) validRows.size(); irow++)
+    for (int icol = 0; icol < (int) validCols.size(); icol++)
+      setValue(irow, icol, x->getValue(validRows[irow], validCols[icol]));
 }
 
 Triplet AMatrix::getCsToTriplet(bool flag_from_1) const

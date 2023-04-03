@@ -13,6 +13,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
@@ -238,4 +239,29 @@ void MatrixRectangular::addColumn(int ncolumn_added)
   for (int irow=0; irow< nrows; irow++)
     for (int icol=0; icol<ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
+}
+
+MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
+                                             const VectorInt &validCols) const
+{
+  // Order and shrink the input vectors
+  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
+  VectorInt localValidCols = VH::filter(validCols, 0, getNCols());
+  int newNRows = localValidRows.size();
+  int newNCols = localValidCols.size();
+  if (newNRows <= 0)
+  {
+    messerr("The new Matrix has no Row left");
+    return nullptr;
+  }
+  if (newNCols <= 0)
+  {
+    messerr("The new Matrix has no Column left");
+    return nullptr;
+  }
+
+  MatrixRectangular* res = new MatrixRectangular(newNRows, newNCols);
+  res->copyReduce(this, localValidRows, localValidCols);
+
+  return res;
 }

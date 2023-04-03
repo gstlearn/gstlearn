@@ -37,6 +37,9 @@ public:
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
 
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ACovAnisoList)
+
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
 
@@ -85,6 +88,7 @@ public:
   ////////////////////////////////////////////////
   const CovAniso*    getCova(int icov) const;
   CovAniso*          getCova(int icov); // TODO : beurk :(
+  void               setCova(int icov, CovAniso* covs);
   const ECov&        getType(int icov) const;
   String             getCovName(int icov) const;
   double             getParam(unsigned int icov) const;
@@ -99,6 +103,8 @@ public:
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
+
+  const ACovAnisoList* reduce(const VectorInt &validVars) const;
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;
