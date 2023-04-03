@@ -1,8 +1,13 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.2.1
+=============
+- 
+
 Release 0.2.0
 =============
+- APP source code deposit
 - Transfer External Tools to gstlearnext
 - Fix Anamorphosis back transformation (Hermite gaussianToRaw)
 - Modify eval() and eval0() for Cov* functions: invert argument order
