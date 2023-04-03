@@ -785,7 +785,7 @@ void KrigingSystem::_lhsCalcul()
           }
           else
           {
-            if (iech == jech)
+            if (iech == jech && ivar == jvar)
             {
               verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], ivar);
 

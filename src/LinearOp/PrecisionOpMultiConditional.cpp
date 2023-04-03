@@ -323,7 +323,7 @@ void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& inv, VectorDoub
 
   for(int idat = 0; idat < _ndat; idat++)
   {
-    result[idat] = inv[idat]/_varianceData[idat];
+    result[idat] = inv[idat] / _varianceData[idat];
   }
 
   for(int icov = 0; icov < sizes(); icov++)

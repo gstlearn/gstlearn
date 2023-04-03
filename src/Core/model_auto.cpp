@@ -1077,7 +1077,7 @@ static void st_load_ge(const Vario *vario,
             for (int idim = 0; idim < ndim; idim++)
               d1[idim] = dist * vario->getCodir(idir, idim);
             if (!ge.empty())
-            GE(icov,ijvar,ipadir)= cova->evalIvarIpas(ivar,jvar,1.,d1,VectorDouble(),mode);
+            GE(icov,ijvar,ipadir)= cova->evalIvarIpas(1.,d1,ivar, jvar, VectorDouble(),mode);
 
             if (!dd.empty()) for (int idim = 0; idim < ndim; idim++)
               DD(idim,ijvar,ipadir)= dist * vario->getCodir(idir,idim);

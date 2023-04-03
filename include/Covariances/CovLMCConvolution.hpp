@@ -56,13 +56,13 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual double eval0(int ivar,
-                       int jvar,
+  virtual double eval0(int ivar = 0,
+                       int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const override;
-  virtual double eval(int ivar,
-                      int jvar,
-                      const SpacePoint& p1,
+  virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
+                      int ivar = 0,
+                      int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   int init(const EConvType& conv_type, const EConvDir& conv_idir, double conv_range, int conv_ndisc);

@@ -154,10 +154,10 @@ double CovLMCAnamorphosis::eval0(int ivar,
   return TEST;
 }
 
-double CovLMCAnamorphosis::eval(int ivar,
-                                int jvar,
-                                const SpacePoint& p1,
+double CovLMCAnamorphosis::eval(const SpacePoint& p1,
                                 const SpacePoint& p2,
+                                int ivar,
+                                int jvar,
                                 const CovCalcMode& mode) const
 {
   if (_anam == nullptr) return TEST;
@@ -193,7 +193,7 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
   {
     CovCalcMode mode_loc = mode;
     mode_loc.setAsVario(false);
-    rho = CovLMC::eval(ivar, jvar, p1, p2, mode_loc);
+    rho = CovLMC::eval(p1, p2, ivar, jvar, mode_loc);
   }
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
@@ -341,7 +341,7 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
   double gamma = 0.;
   double dist2 = getDistance(p1, p2);
   if (dist2 > 0.)
-    gamma = CovLMC::eval(ivar, jvar, p1, p2, modeloc);
+    gamma = CovLMC::eval(p1, p2, ivar, jvar, modeloc);
 
   if (iclass == 0)
   {
@@ -492,7 +492,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
       double bi = anamIR->getIRStatB(jclass);
       cov1 = cov2;
       _transformCovCalcModeIR(mode_loc, iclass);
-      cov2 = pow(1. + eval(ivar, jvar, p1, p2, mode_loc) * anamIR->getIRStatR(jclass),r);
+      cov2 = pow(1. + eval(p1, p2, ivar, jvar, mode_loc) * anamIR->getIRStatR(jclass),r);
       cov += bi * bi * (cov2 - cov1);
     }
     return cov;
@@ -503,10 +503,10 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
     // Structure for the factor 'iclass´
 
     _transformCovCalcModeIR(mode_loc, iclass - 1);
-    double cov1 = pow(1. + eval(ivar, jvar, p1, p2, mode_loc) *
+    double cov1 = pow(1. + eval(p1, p2, ivar, jvar, mode_loc) *
                       anamIR->getIRStatR(iclass - 1), r);
     _transformCovCalcModeIR(mode_loc, iclass);
-    double cov2 = pow(1. + eval(ivar, jvar, p1, p2, mode_loc) *
+    double cov2 = pow(1. + eval(p1, p2, ivar, jvar, mode_loc) *
                       anamIR->getIRStatR(iclass), r);
     return (cov2 - cov1);
   }

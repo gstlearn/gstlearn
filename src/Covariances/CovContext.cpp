@@ -204,9 +204,9 @@ int CovContext::_getIndex(int ivar, int jvar) const
 
 void CovContext::_update()
 {
-  if (_mean.empty())
+  if (_nVar != (int) _mean.size())
     _mean.resize(_nVar, 0.);
-  if (_covar0.empty())
+  if (_nVar * _nVar != (int) _covar0.size())
   {
     MatrixSquareSymmetric Id(_nVar);
     Id.setIdentity();

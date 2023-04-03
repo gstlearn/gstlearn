@@ -339,10 +339,10 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode &mode) const
 }
 
 // TODO Replace p1 and p2 by SpaceTarget
-double CovAniso::eval(int ivar,
-                      int jvar,
-                      const SpacePoint &p1,
+double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
+                      int ivar,
+                      int jvar,
                       const CovCalcMode &mode) const
 {
   if (!_isVariableValid(ivar)) return TEST;
@@ -726,7 +726,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
       {
         dd[0] = delta * j1;
-        total += delta * eval(0, 0, dd, SpacePoint());
+        total += delta * eval(dd, SpacePoint());
       }
       break;
 
@@ -736,7 +736,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
         {
           dd[0] = delta * j1;
           dd[1] = delta * j2;
-          total += delta * delta * eval(0, 0, dd, SpacePoint());
+          total += delta * delta * eval(dd, SpacePoint());
         }
       break;
 
@@ -748,7 +748,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
             dd[0] = delta * j1;
             dd[1] = delta * j2;
             dd[2] = delta * j3;
-            total += delta * delta * delta * eval(0, 0, dd, SpacePoint());
+            total += delta * delta * delta * eval(dd, SpacePoint());
           }
       break;
 

@@ -59,8 +59,8 @@ public:
    * @param mode Reference to the CovCalcMode embedded class
    * @return The covariance value at the origin
    */
-  virtual double eval0(int ivar,
-                       int jvar,
+  virtual double eval0(int ivar = 0,
+                       int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const override;
 
   /**
@@ -72,10 +72,10 @@ public:
    * @param mode Reference to the CovCalcMode embedded class
    * @return The covariance value
    */
-  virtual double eval(int ivar,
-                      int jvar,
-                      const SpacePoint& p1,
+  virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
+                      int ivar = 0,
+                      int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;

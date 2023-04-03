@@ -55,7 +55,7 @@ double CovGradientNumerical::_evalZZ(int ivar,
                                      const SpacePoint& p2,
                                      const CovCalcMode& mode) const
 {
-  return ACovGradient::eval(ivar,jvar,p1,p2,mode);
+  return ACovGradient::eval(p1, p2, ivar, jvar, mode);
 }
 
 double CovGradientNumerical::_evalZGrad(int ivar,
@@ -72,11 +72,11 @@ double CovGradientNumerical::_evalZGrad(int ivar,
   vec[idim] = _ballRadius / 2.;
   paux = p2;
   paux.move(vec);
-  double covp0 = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+  double covp0 = ACovGradient::eval(p1, paux, ivar, jvar, mode);
   vec[idim] = -_ballRadius / 2.;
   paux = p2;
   paux.move(vec);
-  double covm0 = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+  double covm0 = ACovGradient::eval(p1, paux, ivar, jvar, mode);
 
   double cov = (covm0 - covp0) / _ballRadius;
   return (cov);
@@ -101,22 +101,22 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
     vec[jdim] =  _ballRadius / 2.;
     paux = p2;
     paux.move(vec);
-    double covmp = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double covmp = ACovGradient::eval(p1, paux, ivar, jvar, mode);
     vec[idim] = -_ballRadius / 2.;
     vec[jdim] = -_ballRadius / 2.;
     paux = p2;
     paux.move(vec);
-    double covmm = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double covmm = ACovGradient::eval(p1, paux, ivar, jvar, mode);
     vec[idim] =  _ballRadius / 2.;
     vec[jdim] = -_ballRadius / 2.;
     paux = p2;
     paux.move(vec);
-    double covpm = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double covpm = ACovGradient::eval(p1, paux, ivar, jvar, mode);
     vec[idim] = _ballRadius / 2.;
     vec[jdim] = _ballRadius / 2.;
     paux = p2;
     paux.move(vec);
-    double covpp = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double covpp = ACovGradient::eval(p1, paux, ivar, jvar, mode);
 
     cov = (covmm + covpp - covmp - covpm) / (_ballRadius * _ballRadius);
   }
@@ -125,15 +125,15 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
     vec[idim] = _ballRadius;
     paux = p2;
     paux.move(vec);
-    double cov2m = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double cov2m = ACovGradient::eval(p1, paux, ivar, jvar, mode);
     vec[idim] = -_ballRadius;
     paux = p2;
     paux.move(vec);
-    double cov2p = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double cov2p = ACovGradient::eval(p1, paux, ivar, jvar, mode);
     vec[idim] = 0;
     paux = p2;
     paux.move(vec);
-    double cov00 = ACovGradient::eval(ivar, jvar, p1, paux, mode);
+    double cov00 = ACovGradient::eval(p1, paux, ivar, jvar, mode);
 
     cov = -2. * (cov2p - 2.*cov00 + cov2m) / (_ballRadius * _ballRadius);
   }
@@ -195,7 +195,7 @@ double CovGradientNumerical::eval0(int ivar, int jvar, const CovCalcMode& mode) 
 {
   SpacePoint p1;
   SpacePoint p2;
-  return eval(ivar, jvar, p1, p2, mode);
+  return eval(p1, p2, ivar, jvar, mode);
 }
 
 /**
@@ -207,10 +207,10 @@ double CovGradientNumerical::eval0(int ivar, int jvar, const CovCalcMode& mode) 
  * @param mode CovCalcMode structure
  * @return
  */
-double CovGradientNumerical::eval(int ivar,
-                                  int jvar,
-                                  const SpacePoint& p1,
+double CovGradientNumerical::eval(const SpacePoint& p1,
                                   const SpacePoint& p2,
+                                  int ivar,
+                                  int jvar,
                                   const CovCalcMode& mode) const
 {
   double cov = 0.;

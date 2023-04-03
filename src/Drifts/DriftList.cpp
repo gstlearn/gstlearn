@@ -273,11 +273,11 @@ void DriftList::_updateCoefDrift()
   }
 }
 
-VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
+VectorDouble DriftList::getDriftByColumn(const Db* db, int ib, bool useSel) const
 {
   if (! _isDriftIndexValid(ib)) return VectorDouble();
 
-  int nech = db->getSampleNumber(true);
+  int nech = db->getSampleNumber(useSel);
   VectorDouble vec(nech);
 
   int ecr = 0;
@@ -289,7 +289,7 @@ VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
   return vec;
 }
 
-VectorDouble DriftList::getDriftVec(const Db* db, int iech) const
+VectorDouble DriftList::getDriftBySample(const Db* db, int iech) const
 {
   int ndrift = getDriftNumber();
   VectorDouble vec(ndrift);
@@ -313,7 +313,7 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
   int ndrift = getDriftNumber();
   for (int ib=0; ib<ndrift; ib++)
   {
-    vec.push_back(getDrift(db, ib, useSel));
+    vec.push_back(getDriftByColumn(db, ib, useSel));
   }
   return vec;
 }

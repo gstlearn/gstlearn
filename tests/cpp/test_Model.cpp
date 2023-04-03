@@ -49,7 +49,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Db
   auto nx={ 3,3 };
   DbGrid* workingDbc = DbGrid::create(nx);
-  int nech = workingDbc->getSampleNumber(true);
 
   ///////////////////////
   // Creating the Model
@@ -73,9 +72,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Building the Covariance Matrix
-  int nval = nech * nech * nvar * nvar;
-  VectorDouble result(nval);
-  modellmc.covMatrix(result, workingDbc, nullptr, 0, 0, 0, 1);
+  VectorDouble result = modellmc.covMatrixV(workingDbc, nullptr, 0, 0, 0, 1);
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
   VH::displayStats("\nStatistics on Covariance Matrix",result);

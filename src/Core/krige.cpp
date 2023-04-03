@@ -3772,9 +3772,8 @@ static int st_sampling_krige_data(Db *db,
 {
   int *isort, *ralls, *rutil;
   int ndat, error, i, j, ntot, ntri, nother, npart, n1, ecr, nutil, nmax;
-  double *utab, *s, *tl, *xl, *c, *sq, *v, *tn1, *tn2, *eigval, *eigvec, *spart,
-      *vsort;
-  double *tutil, *invsig, sumval;
+  double *utab, *s, *tl, *xl, *c, *sq, *v, *tn1, *tn2, *eigval, *eigvec, *spart;
+  double *tutil, *invsig, *vsort, sumval;
 
   /* Initializations */
 
@@ -5909,7 +5908,7 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
        int jech1 = nbgh[jech];
        double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
        if (FFFF(zval)) continue;
-       VectorDouble Vdata = drft.getDriftVec(dbin, jech1);
+       VectorDouble Vdata = drft.getDriftBySample(dbin, jech1);
 
        // Double loop on the drift terms
        for (int id1 = 0; id1 < ndrift; id1++)
@@ -5926,7 +5925,7 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
      if (A.solve(B, X) > 0) continue;
 
      // Evaluate the vector of drift terms at target
-     VectorDouble Vtarget = drft.getDriftVec(dbout,  iech);
+     VectorDouble Vtarget = drft.getDriftBySample(dbout,  iech);
 
      // Perform the estimation
      double result = VH::innerProduct(X, Vtarget);
