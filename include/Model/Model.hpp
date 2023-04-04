@@ -125,6 +125,7 @@ public:
   double getSill(int icov, int ivar, int jvar) const;
   double getParam(int icov) const;
   bool isCovaFiltered(int icov) const;
+  bool isStationary() const { return _covaList->isStationary(); }
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
