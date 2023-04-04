@@ -383,7 +383,7 @@ public:
    *
    **/
 
-  /** @addtogroup DB_0 Get and Set functions by Locator
+  /** @addtogroup DB_0 Getting and Setting functions by Locator
    * \ingroup DB
    *
    * Various functions for accessing fields of the Db using the **locator** designation.
@@ -583,7 +583,7 @@ public:
   void deleteColumnsByColIdx(const VectorInt& icols);
   /**@}*/
 
-  /** @addtogroup DB_4 Spatial characteristics on the Db
+  /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
    * \ingroup DB
    *
    * @param idim Rank of the target space dimension (0 based)
@@ -604,10 +604,10 @@ public:
   void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false);
   /**@}*/
 
-  /** @addtogroup DB_5 Statistics based on active variable(s)
+  /** @addtogroup DB_5 Calculating basic Statistics
    * \ingroup DB
    *
-   * Calculate some basic statistics on variables stored in a Db.
+   * Calculate some basic statistics on the active samples of variables stored in a Db.
    *
    * @param name Target variable name
    * @param name1 First  target variable name
@@ -629,7 +629,7 @@ public:
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
 
-  /** @addtogroup DB_6 Validity checks for various parameters
+  /** @addtogroup DB_6 Checking validity for various parameters
    * \ingroup DB
    *
    * These functions are used in order to check that the arguments are valid
@@ -661,7 +661,7 @@ public:
   VectorInt shrinkToValidRows(const VectorInt& rows);
   VectorInt shrinkToValidCols(const VectorInt& cols);
 
-  /** @addtogroup DB_7 Calculate several statistics in Db
+  /** @addtogroup DB_7 Calculating several statistics in Db
    * \ingroup DB
    *
    * These functions are meant to calculate several statistics on a set of target variables per sample.
@@ -719,20 +719,21 @@ public:
                                const NamingConvention& namconv = NamingConvention("Stats"));
   /**@}*/
 
-  /**
-      * \defgroup DbMultiStatistics Db: Calculate correlations on variables of a Db
-      *
-      * These functions calculate the correlation matrix based on a set of variables contained in a Db.
-      * Although the result stands as a matrix, they are returned as a Vector.
-      *
-      * @param flagIso The statistics are calculated only for samples where all target variables have defined values
-      * @param verbose Verbose flag
-      * @param title If verbose, the title of the printed statistics.
-      *
-      * @return These functions return a vector containing the correlation matrix.
-      *  @{
-      */
-
+  /** @addtogroup DB_8 Calculating correlations on variables of a Db
+   * \ingroup DB
+   *
+   * These functions calculate the correlation matrix based on a set of variables contained in a Db.
+   * Although the result stands as a matrix, they are returned as a Vector.
+   *
+   * @param names Vector of target variable names
+   * @param iuids Vector of user-designation ranks
+   * @param flagIso The statistics are calculated only for samples where all target variables have defined values
+   * @param verbose Verbose flag
+   * @param title If verbose, the title of the printed statistics.
+   *
+   * @return These functions return a vector containing the correlation matrix.
+   *  @{
+   */
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
                                bool verbose = false,

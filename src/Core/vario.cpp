@@ -5714,12 +5714,111 @@ int vmap_compute(Db *db,
   }
   else
   {
+
     // Case where Data are on a set of points
 
     error = st_vmap_general(db, dbmap, calcul_type, radius, namconv);
   }
 
   return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish a new Db containing the pairs of the Variogram
+ **
+ ** \return  Pointer to the newly created Db
+ **
+ ** \param[in]  db           Db structure
+ ** \param[in]  vario        Vario structure
+ ** \param[in]  namconv      Naming convention
+ **
+ *****************************************************************************/
+Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
+{
+  if (db == nullptr) return nullptr;
+  if (vario == nullptr) return nullptr;
+  if (db->getNDim() != 2 && db->getNDim() != 3)
+  {
+    messerr("This function can only be calculated in dimension equal to 2 or 3");
+    return nullptr;
+  }
+  if (db->getLocNumber(ELoc::Z) != 1)
+  {
+    messerr("This function is restricted to the Monovariate case");
+    return nullptr;
+  }
+
+  const VarioParam& varioparam = vario->getVarioParam();
+  VectorInt rindex = db->getSortArray();
+  for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
+  {
+    DirParam dirparam = varioparam.getDirParam(idir);
+    double ps = 0.;
+    double psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
+    int nech = db->getSampleNumber();
+    double maxdist = dirparam.getMaximumDistance();
+
+    /* Loop on the first point */
+
+    for (int iiech = 0; iiech < nech - 1; iiech++)
+    {
+      int iech = rindex[iiech];
+      if (!db->isActive(iech)) continue;
+      if (FFFF(db->getWeight(iech))) continue;
+
+      int ideb = (st_date_is_used(&varioparam, db, db)) ? 0 :
+                                                          iiech + 1;
+      for (int jjech = ideb; jjech < nech; jjech++)
+      {
+        int jech = rindex[jjech];
+        if (variogram_maximum_dist1D_reached(db, iech, jech, maxdist)) break;
+        if (!db->isActive(jech)) continue;
+        if (FFFF(db->getWeight(jech))) continue;
+
+        /* Check if the pair must be kept (Code criterion) */
+
+        if (code_comparable(db, db, iech, jech, dirparam.getOptionCode(),
+                            (int) dirparam.getTolCode())) continue;
+
+        /* Check if the pair must be kept (Date criterion) */
+
+        if (st_date_comparable(&varioparam, db, db, iech, jech,
+                               dirparam.getIdate())) continue;
+
+        /* Check if the pair must be kept */
+
+        double dist = distance_intra(db, iech, jech, NULL);
+        if (variogram_reject_pair(db, iech, jech, dist, psmin,
+                                  dirparam.getBench(), dirparam.getCylRad(),
+                                  dirparam.getCodirs(), &ps)) continue;
+
+        /* Check if the pair must be rejected due to faulting */
+
+        if (variogram_reject_fault(db, iech, jech, varioparam.getFaults()))
+          continue;
+
+        /* Get the rank of the lag */
+
+        int ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+        if (IFFFF(ipas)) continue;
+
+        /* Evaluate the variogram */
+
+        VARIO = vario;
+        IDIRLOC = idir;
+        IECH1 = iech;
+        IECH2 = jech;
+      }
+    }
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, IPTW, "Nb", 1, false);
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, IPTV, "Var");
+
+  return nullptr;
 }
 
 /****************************************************************************/
