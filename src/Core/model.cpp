@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_enum.h"
 #include "geoslib_f.h"
@@ -43,9 +43,13 @@
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
@@ -202,7 +206,7 @@ double model_calcul_basic(Model *model,
   if (member != ECalcMember::LHS && model->isCovaFiltered(icov))
     return (0.);
   else
-    return cova->evalIvarIpas(0, 0, 1., d1);
+    return cova->evalIvarIpas(1., d1);
 }
 
 /*****************************************************************************/
@@ -279,7 +283,7 @@ double model_calcul_cov_ij(Model *model,
 
   // TODO Correct this which has something to do with pure virtual eval although implemented in Acov
   // compared to eval0 which is not implemented with such arguments.
-  double value = model->evalIvarIpas(ivar, jvar, 1., d1,VectorDouble(), mode);
+  double value = model->evalIvarIpas(1., d1, ivar, jvar, VectorDouble(), mode);
 
   return value;
 }
@@ -2349,6 +2353,7 @@ double model_calcul_stdev(Model* model,
   return (stdev);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs
@@ -2495,6 +2500,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
   T = cs_spfree(T);
   return (covmat);
 }
+#endif
 
 /****************************************************************************/
 /*!
@@ -2547,6 +2553,7 @@ int model_covmat(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) return 1;
   }
+  bool flag_verr = (db1 == db2 && db1->getLocNumber(ELoc::V) == nvar);
 
   /* Core allocation */
 
@@ -2602,10 +2609,127 @@ int model_covmat(Model *model,
             }
             value = COVTAB(ivar, jvar);
           }
-          covmat[ecr++] = value;
+
+          // Process the variance of Measurement error (optional)
+          double verr = 0.;
+          if (flag_verr && iech1 == iech2 && ivar == jvar)
+            verr = db1->getLocVariable(ELoc::V,iech1, ivar);
+
+          covmat[ecr++] = value + verr;
         }
       }
     }
   }
   return 0;
+}
+
+MatrixSquareSymmetric model_covmatM(Model *model,
+                                    Db *db1,
+                                    Db *db2,
+                                    int ivar0,
+                                    int jvar0,
+                                    int flag_norm,
+                                    int flag_cov)
+{
+  CovCalcMode mode;
+  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
+  if (db2 == nullptr) db2 = db1;
+  if (st_check_model(model)) return 1;
+  if (st_check_environ(model, db1)) return 1;
+  if (st_check_environ(model, db2)) return 1;
+  int ndim = model->getDimensionNumber();
+  int nvar = model->getVariableNumber();
+  int nech1 = db1->getSampleNumber();
+  int nech2 = db2->getSampleNumber();
+  int nvar1 = nvar;
+  if (ivar0 >= 0)
+  {
+    nvar1 = 1;
+    if (st_check_variable(nvar, ivar0)) return 1;
+  }
+  int nvar2 = nvar;
+  if (jvar0 >= 0)
+  {
+    nvar2 = 1;
+    if (st_check_variable(nvar, jvar0)) return 1;
+  }
+  bool flag_verr = (db1 == db2 && db1->getLocNumber(ELoc::V) == nvar);
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim, 0);
+  VectorDouble covtab(nvar * nvar,0.);
+
+  int nactive1 = db1->getSampleNumber(true);
+  int nactive2 = db2->getSampleNumber(true);
+  MatrixRectangular covmat(nvar1 * nactive1, nvar2 * nactive2);
+
+  /* Loop on the first variable */
+
+  for (int ivar = 0; ivar < nvar1; ivar++)
+  {
+    int ivarp = ivar;
+    if (ivar0 >= 0) ivarp = ivar0;
+
+    /* Loop on the first sample */
+
+    int jech1 = -1;
+    for (int iech1 = 0; iech1 < nech1; iech1++)
+    {
+      if (!db1->isActive(iech1)) continue;
+      jech1++;
+
+      /* Loop on the second variable */
+
+      for (int jvar = 0; jvar < nvar2; jvar++)
+      {
+        int jvarp = jvar;
+        if (jvar0 >= 0) jvarp = jvar0;
+
+        /* Loop on the second sample */
+
+        int jech2 = -1;
+        for (int iech2 = 0; iech2 < nech2; iech2++)
+        {
+          if (!db2->isActive(iech2)) continue;
+          jech2++;
+
+          /* Loop on the dimension of the space */
+
+          double value = TEST;
+          int skip = 0;
+          for (int i = 0; i < ndim && skip == 0; i++)
+          {
+            double v1 = db1->getCoordinate(iech1, i);
+            double v2 = db2->getCoordinate(iech2, i);
+            if (FFFF(v1) || FFFF(v2)) skip = 1;
+            d1[i] = v1 - v2;
+          }
+          if (!skip)
+          {
+            if (model->isNoStat())
+            {
+              CovInternal covint(1, iech1, 2, iech2, ndim, db1, db2);
+              model_calcul_cov(&covint, model, mode, 1, 1., d1, covtab.data());
+            }
+            else
+            {
+              model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
+            }
+            value = COVTAB(ivarp, jvarp);
+          }
+
+          // Process the variance of Measurement error (optional)
+          double verr = 0.;
+          if (flag_verr && iech1 == iech2 && ivar == jvar)
+            verr = db1->getLocVariable(ELoc::V,iech1, ivar);
+
+          int irow = ivar * nactive1 + jech1;
+          int icol = jvar * nactive2 + jech2;
+          covmat.setValue(irow, icol, value + verr);
+        }
+      }
+    }
+  }
+  return covmat;
 }

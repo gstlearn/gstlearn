@@ -1,12 +1,11 @@
-/******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
-/*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
-/*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/*
+                                      clustering
+
+Original Author: Michiel Jan Laurens de Hoon
+Website: http://bonsai.hgc.jp/~mdehoon/software/cluster
+License: Python license (see doc/licenses/clustering_license.txt)
+*/
+
 /******************************************************************************/
 /* The C clustering library.                                                  */
 /* Copyright (C) 2002 Michiel Jan Laurens de Hoon.                            */
@@ -15,6 +14,14 @@
 /* Human Genome Center, Institute of Medical Science, University of Tokyo,    */
 /* 4-6-1 Shirokanedai, Minato-ku, Tokyo 108-8639, Japan.                      */
 /******************************************************************************/
+
+/*
+Modified by MINES PARIS / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://github.com/gstlearn
+License: BSD 3 clause
+*/
+
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 
@@ -327,12 +334,12 @@ static void st_getclustermedoids(int nech,
  **
  ****************************************************************************/
 double* kclusters(double *data,
-                                  int nvar,
-                                  int nech,
-                                  int nclusters,
-                                  int npass,
-                                  int mode,
-                                  int verbose)
+                  int nvar,
+                  int nech,
+                  int nclusters,
+                  int npass,
+                  int mode,
+                  int verbose)
 {
   int i, j, k, ifound, error, niter, period, flag_same;
   int *clusterid, *tclusterid, *counts, *cmask, *mapping, *saved;

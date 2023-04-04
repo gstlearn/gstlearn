@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
 
@@ -79,6 +79,14 @@ bool CalcKriging::_check()
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
+  }
+  if (_flagVarZ)
+  {
+    if (! getModel()->isStationary())
+    {
+      messerr("Variance of Estimator is limited to Stationary Covariance");
+      return false;
+    }
   }
   if (_flagDGM)
   {
@@ -315,6 +323,7 @@ bool CalcKriging::_run()
  ** \param[in]  flag_est    Option for storing the estimation
  ** \param[in]  flag_std    Option for storing the standard deviation
  ** \param[in]  flag_varz   Option for storing the variance of the estimator
+ **                         (only available for stationary model)
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  matCL       Matrix of linear combination (or NULL)
  **                         (Dimension: nvarCL * model->getNVar())

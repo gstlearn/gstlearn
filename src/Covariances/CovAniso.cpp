@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
@@ -86,12 +86,11 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    :
-    ACov(r),
-    _ctxt(r._ctxt),
-    _cova(CovFactory::duplicateCovFunc(*r._cova)),
-    _sill(r._sill),
-    _aniso(r._aniso)
+    : ACov(r),
+      _ctxt(r._ctxt),
+      _cova(CovFactory::duplicateCovFunc(*r._cova)),
+      _sill(r._sill),
+      _aniso(r._aniso)
 {
 }
 
@@ -146,7 +145,7 @@ void CovAniso::setSill(double sill)
   _sill.reset(1, 1, sill);
 }
 
-void CovAniso::setSill(const MatrixSquareGeneral &sill)
+void CovAniso::setSill(const MatrixSquareSymmetric &sill)
 {
   if (getNVariables() != sill.getNSize())
   {
@@ -339,10 +338,10 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode &mode) const
 }
 
 // TODO Replace p1 and p2 by SpaceTarget
-double CovAniso::eval(int ivar,
-                      int jvar,
-                      const SpacePoint &p1,
+double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
+                      int ivar,
+                      int jvar,
                       const CovCalcMode &mode) const
 {
   if (!_isVariableValid(ivar)) return TEST;
@@ -726,7 +725,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       for (int j1 = -ndisc; j1 <= ndisc; j1++)
       {
         dd[0] = delta * j1;
-        total += delta * eval(0, 0, dd, SpacePoint());
+        total += delta * eval(dd, SpacePoint());
       }
       break;
 
@@ -736,7 +735,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
         {
           dd[0] = delta * j1;
           dd[1] = delta * j2;
-          total += delta * delta * eval(0, 0, dd, SpacePoint());
+          total += delta * delta * eval(dd, SpacePoint());
         }
       break;
 
@@ -748,7 +747,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
             dd[0] = delta * j1;
             dd[1] = delta * j2;
             dd[2] = delta * j3;
-            total += delta * delta * delta * eval(0, 0, dd, SpacePoint());
+            total += delta * delta * delta * eval(dd, SpacePoint());
           }
       break;
 
@@ -933,3 +932,19 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
 
   return evalCovFFTSpatial(hmax, N, funcSpectrum) ;
 }
+
+CovAniso* CovAniso::reduce(const VectorInt &validVars) const
+{
+  CovAniso* newCovAniso = this->clone();
+
+  // Modify the CovContext
+  int nvar = validVars.size();
+  CovContext ctxt = CovContext(nvar);
+
+  // Modify the Matrix of sills
+  newCovAniso->setContext(ctxt);
+  MatrixSquareSymmetric* newsill = _sill.reduce(validVars);
+  newCovAniso->setSill(*newsill);
+  return newCovAniso;
+}
+

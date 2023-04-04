@@ -1,14 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_f_private.h"
 #include "Basic/AException.hpp"
@@ -16,10 +14,14 @@
 #include "Polynomials/APolynomial.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
-#include "csparse_f.h"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
@@ -45,6 +47,11 @@ PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
 PrecisionOpCs::~PrecisionOpCs()
 {
   _Q = cs_spfree(_Q);
+}
+
+Triplet PrecisionOpCs::getQToTriplet(bool flag_from_1) const
+{
+  return csToTriplet(getQ(), flag_from_1);
 }
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)

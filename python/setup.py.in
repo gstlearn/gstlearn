@@ -1,3 +1,14 @@
+################################################################################
+#                                                                              #
+#                         gstlearn Python package                              #
+#                                                                              #
+# Copyright (c) (2023) MINES PARIS / ARMINES                                   #
+# Authors: gstlearn Team                                                       #
+# Website: https://github.com/gstlearn                                         #
+# License: BSD 3 clause                                                        #
+#                                                                              #
+################################################################################
+
 from setuptools import setup
 
 # Set pure is mandatory in order to ensure that wheel names are python dependent

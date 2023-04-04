@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITT%EN PERMISSION OF ARMINES        */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
@@ -36,11 +36,16 @@
 #include "Space/SpaceSN.hpp"
 #include "Geometry/GeometryHelper.hpp"
 
-#include "csparse_f.h"
-#include "csparse_d.h"
+#include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 #include <string.h>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
+
 
 /* Global symbols for SPDE */
 
@@ -265,6 +270,7 @@ SPDE_Option spde_option_alloc(void)
   return s_option;
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Get the pointer to the current SPDE_Matelem structure
@@ -279,7 +285,7 @@ SPDE_Matelem& spde_get_current_matelem(int icov)
   else
     return (MATGRF(SPDE_CURRENT_IGRF)->Matelems[icov]);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Update a string to include the rank of the current GRF and Covariance
@@ -704,7 +710,7 @@ static cs* st_extract_Q_from_Q(cs *Q_in, int row_auth, int col_auth)
 
   error = 1;
   rank_rows = rank_cols = nullptr;
-  int n_in = Q_in->n;
+  int n_in = cs_getncol(Q_in);
 
   /* Core allocation */
 
@@ -2090,7 +2096,7 @@ static int st_kriging_cholesky(QChol *QC, double *rhs, double *work, double *z)
 
   /* Initializations */
 
-  ntarget = QC->Q->n;
+  ntarget = cs_getncol(QC->Q);
   for (int icur = 0; icur < ntarget; icur++)
     work[icur] = 0.;
 
@@ -2133,7 +2139,7 @@ static int st_filter(double *work, double *y)
   /* Initializations */
 
   QC = spde_get_current_matelem(-1).QC;
-  ntarget = QC->Q->n;
+  ntarget = cs_getncol(QC->Q);
   for (int icur = 0; icur < ntarget; icur++)
     work[icur] = 0.;
 
@@ -2182,7 +2188,7 @@ int spde_build_stdev(double *vcur)
   wZdiagp = wLmunch = nullptr;
   d2 = wz = diag = z = nullptr;
   Dinv = LDinv = TLDinv = Pattern = nullptr;
-  ntarget = QCtt->Q->n;
+  ntarget = cs_getncol(QCtt->Q);
 
   // Perform the Cholesky (if not already done) */
 
@@ -3256,7 +3262,7 @@ static cs* st_extract_Q1_nugget(int row_var,
 
   SS = MATGRF(SPDE_CURRENT_IGRF);
   B0 = cs_duplicate(SS->Bnugget[st_get_rank(row_var, col_var)]);
-  if (B0 != nullptr) *nrows = *ncols = B0->n;
+  if (B0 != nullptr) *nrows = *ncols = cs_getncol(B0);
 
   /* Keypair storage (optional) */
 
@@ -3481,7 +3487,7 @@ cs* _spde_build_Q(cs *S, const VectorDouble &Lambda, int nblin, double *blin)
 
   error = 1;
   iterm = 0;
-  nvertex = S->n;
+  nvertex = cs_getncol(S);
   work = tblin = nullptr;
   Q = Be = Bi = nullptr;
 
@@ -3934,7 +3940,7 @@ static int st_simulate_cholesky(QChol *QC, double *work, double *zsnc)
 
   /* Initializations */
 
-  nvertex = QC->Q->n;
+  nvertex = cs_getncol(QC->Q);
   for (int ip = 0; ip < nvertex; ip++)
     work[ip] = law_gaussian();
 
@@ -3957,6 +3963,7 @@ static int st_simulate_cholesky(QChol *QC, double *work, double *zsnc)
   return (0);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Perform the Chebychev polynomial procedure on an input vector
@@ -3986,7 +3993,7 @@ int spde_chebychev_operate(cs *S,
   error = 1;
   T1 = nullptr;
   tm1 = tm2 = px = tx = nullptr;
-  nvertex = S->n;
+  nvertex = cs_getncol(S);
   v1 = cheb_elem->v1;
   v2 = cheb_elem->v2;
   power = cheb_elem->power;
@@ -4057,7 +4064,7 @@ int spde_chebychev_operate(cs *S,
 
   label_end: return (error);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Perform the basic non-conditional Simulation
@@ -4120,7 +4127,7 @@ static int st_simulate_chebychev(double *zsnc)
  *****************************************************************************/
 static int st_kriging_multigrid(QChol *QC, double *rhs, double *work, double *z)
 {
-  int ntarget = QC->Q->n;
+  int ntarget = cs_getncol(QC->Q);
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
 
   if (cs_multigrid_process(Matelem.mgs, QC, VERBOSE, z, rhs, work)) return (1);
@@ -4180,7 +4187,7 @@ static int st_kriging_one(double *data, double *rhs, double *work, double *z)
   /* Initializations */
 
   qsimu = spde_get_current_matelem(-1).qsimu;
-  ntarget = qsimu->QCtt->Q->n;
+  ntarget = cs_getncol(qsimu->QCtt->Q);
 
   /* Initialize the resulting array */
 
@@ -4839,6 +4846,7 @@ static int st_kriging(AMesh *amesh, double *data, double *zkrig)
   return (error);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Manage Cheb_Elem structure
@@ -4933,7 +4941,7 @@ Cheb_Elem* spde_cheb_manage(int mode,
     cheb_elem = spde_cheb_manage(-1, 0, 0, 0, NULL, NULL, cheb_elem);
   return (cheb_elem);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Duplicate a Cheb_Elem structure
@@ -5480,6 +5488,7 @@ static int st_is_external_AQ_defined(int icov0)
           S_EXTERNAL_A[icov0] != nullptr);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Copy the contents of the internal S_EXTERNAL_AQ into an output Matelem
@@ -5509,7 +5518,7 @@ int spde_external_copy(SPDE_Matelem &matelem, int icov0)
 
   return (0);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Load the AMesh structure
@@ -5557,7 +5566,7 @@ void spde_external_mesh_undefine(int icov0)
   if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
   S_EXTERNAL_MESH[icov0] = nullptr;
 }
-
+#ifndef SWIG
 cs* spde_external_A_define(int icov0, cs *A)
 {
   S_EXTERNAL_A[icov0] = cs_duplicate(A);
@@ -5583,7 +5592,7 @@ cs* spde_external_Q_undefine(int icov0)
   S_EXTERNAL_Q[icov0] = cs_spfree(S_EXTERNAL_Q[icov0]);
   return nullptr;
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Assign fields of the AMesh structure which would have been calculated
@@ -6414,7 +6423,7 @@ static void st_product_Q(int nblin,
 
   // Initializations
 
-  n = S->n;
+  n = cs_getncol(S);
 
   // Core allocation 
 
@@ -6442,6 +6451,7 @@ static void st_product_Q(int nblin,
   x2 = (double*) mem_free((char* ) x2);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Perform the product of a vector by the inverse of the power
@@ -6476,7 +6486,7 @@ int spde_eval(int nblin,
 
   error = 1;
   cheb_elem = nullptr;
-  n = S->n;
+  n = cs_getncol(S);
   if (power != 1.0 && power != -1.0 && power != -0.5)
   {
     messerr("Invalid value for the 'power' argument (%lf)", power);
@@ -6519,7 +6529,7 @@ int spde_eval(int nblin,
   label_end: cheb_elem = spde_cheb_manage(-1, 0, 0, 0, NULL, NULL, cheb_elem);
   return (error);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Check the pinchout variable
@@ -8038,7 +8048,7 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
 
   // Calculate: Q + t(B) %*% B
 
-  message("Building Q (Size:%d) with additional nugget effect (%lf) ... ", Q->n,
+  message("Building Q (Size:%d) with additional nugget effect (%lf) ... ", cs_getncol(Q),
           s2);
   Bt = cs_transpose(B, 1);
   if (Bt == nullptr) goto label_end;
@@ -8063,6 +8073,7 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
   return (Qc);
 }
 
+#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Returns the projection matrix of a set of points (contained in a Db)
@@ -8241,7 +8252,7 @@ cs *db_mesh_neigh(const Db *db,
   if (error) A = cs_spfree(A);
   return (A);
 }
-
+#endif
 /****************************************************************************/
 /*!
  **  Draw a Z-value within bounds

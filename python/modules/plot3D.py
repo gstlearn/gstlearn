@@ -1,3 +1,14 @@
+################################################################################
+#                                                                              #
+#                         gstlearn Python package                              #
+#                                                                              #
+# Copyright (c) (2023) MINES PARIS / ARMINES                                   #
+# Authors: gstlearn Team                                                       #
+# Website: https://github.com/gstlearn                                         #
+# License: BSD 3 clause                                                        #
+#                                                                              #
+################################################################################
+
 import plotly.graph_objects as go
 import numpy                as np
 import gstlearn             as gl

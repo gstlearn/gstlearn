@@ -52,6 +52,57 @@ Maximum Number of UIDs       = 6
 Total number of samples      = 102
 Number of active samples     = 99
 
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      1.000
+ Maximum value       =    102.000
+ Mean value          =     51.808
+ Standard Deviation  =     29.114
+ Variance            =    847.650
+2 - Name X - Locator x1
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =    109.850
+ Maximum value       =    143.010
+ Mean value          =    119.924
+ Standard Deviation  =      6.549
+ Variance            =     42.890
+3 - Name Y - Locator x2
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =    483.660
+ Maximum value       =    513.040
+ Mean value          =    498.622
+ Standard Deviation  =      8.000
+ Variance            =     64.001
+4 - Name Zn - Locator NA
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      1.090
+ Maximum value       =     12.100
+ Mean value          =      2.881
+ Standard Deviation  =      1.667
+ Variance            =      2.779
+5 - Name Pb - Locator z1
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      3.000
+ Maximum value       =     12.700
+ Mean value          =      5.658
+ Standard Deviation  =      1.697
+ Variance            =      2.881
+6 - Name sel - Locator sel
+ Nb of data          =        102
+ Nb of active values =         99
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
@@ -454,6 +505,81 @@ Grid characteristics:
 Origin :    107.850   481.660
 Mesh   :      0.500     0.500
 Number :         75        68
+
+Data Base Statistics
+--------------------
+1 - Name x1 - Locator x1
+ Nb of data          =       5100
+ Nb of active values =       5100
+ Minimum value       =    107.850
+ Maximum value       =    144.850
+ Mean value          =    126.350
+ Standard Deviation  =     10.824
+ Variance            =    117.167
+2 - Name x2 - Locator x2
+ Nb of data          =       5100
+ Nb of active values =       5100
+ Minimum value       =    481.660
+ Maximum value       =    515.160
+ Mean value          =    498.410
+ Standard Deviation  =      9.814
+ Variance            =     96.313
+3 - Name Neigh.Pb.Number - Locator NA
+ Nb of data          =       5100
+ Nb of active values =       4596
+ Minimum value       =      1.000
+ Maximum value       =      6.000
+ Mean value          =      5.381
+ Standard Deviation  =      1.538
+ Variance            =      2.366
+4 - Name Neigh.Pb.MaxDist - Locator NA
+ Nb of data          =       5100
+ Nb of active values =       4596
+ Minimum value       =      0.935
+ Maximum value       =      9.999
+ Mean value          =      5.598
+ Standard Deviation  =      2.497
+ Variance            =      6.233
+5 - Name Neigh.Pb.MinDist - Locator NA
+ Nb of data          =       5100
+ Nb of active values =       4596
+ Minimum value       =      0.014
+ Maximum value       =      9.978
+ Mean value          =      3.484
+ Standard Deviation  =      2.514
+ Variance            =      6.320
+6 - Name Neigh.Pb.NbNESect - Locator NA
+ Nb of data          =       5100
+ Nb of active values =       4596
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+7 - Name Neigh.Pb.NbCESect - Locator NA
+ Nb of data          =       5100
+ Nb of active values =       4596
+ Minimum value       =      0.000
+ Maximum value       =      0.000
+ Mean value          =      0.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+8 - Name Kriging.Pb.estim - Locator z1
+ Nb of data          =       5100
+ Nb of active values =       5100
+ Minimum value       =      3.412
+ Maximum value       =     11.456
+ Mean value          =      6.123
+ Standard Deviation  =      0.648
+ Variance            =      0.419
+9 - Name Kriging.Pb.stdev - Locator NA
+ Nb of data          =       5100
+ Nb of active values =       5100
+ Minimum value       =      0.248
+ Maximum value       =      1.659
+ Mean value          =      1.541
+ Standard Deviation  =      0.159
+ Variance            =      0.025
 
 Variables
 ---------

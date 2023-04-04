@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/AMatrixSquare.hpp"
@@ -18,6 +18,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 MatrixFactory::MatrixFactory()
@@ -182,6 +183,72 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
   {
     res = new MatrixSquareSymmetric(nrow);
   }
+  return res;
+}
+
+AMatrix* MatrixFactory::createReduce(const AMatrix *x,
+                                     const VectorInt &validRows,
+                                     const VectorInt &validCols)
+{
+  // Order and shrink the input vectors
+  VectorInt localValidRows = VH::filter(validRows, 0, x->getNRows());
+  VectorInt localValidCols = VH::filter(validCols, 0, x->getNCols());
+  int newNRows = localValidRows.size();
+  int newNCols = localValidCols.size();
+  if (newNRows <= 0)
+  {
+    messerr("The new Matrix has no Row left");
+    return nullptr;
+  }
+  if (newNCols <= 0)
+  {
+    messerr("The new Matrix has no Column left");
+    return nullptr;
+  }
+  bool flagSame = (localValidRows == localValidCols);
+
+  /// TODO : use typeinfo
+  AMatrix* res = nullptr;
+  const MatrixRectangular*        mxrg  = dynamic_cast<const MatrixRectangular*>(x);
+  const MatrixSquareGeneral*      mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
+  const MatrixSquareDiagonal*     mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
+  const MatrixSquareDiagonalCst*  mxsdc = dynamic_cast<const MatrixSquareDiagonalCst*>(x);
+  const MatrixSquareSymmetric*    mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+
+  if (mxrg != nullptr)
+  {
+    res = new MatrixRectangular(newNRows, newNCols);
+  }
+  else if (mxsg != nullptr)
+  {
+    if (flagSame)
+      res = new MatrixSquareGeneral(newNRows);
+    else
+      res = new MatrixRectangular(newNRows, newNCols);
+  }
+  else if (mxsd != nullptr)
+  {
+    if (flagSame)
+      res = new MatrixSquareDiagonal(newNRows);
+    else
+      res = new MatrixRectangular(newNRows, newNCols);
+  }
+  else if (mxsdc != nullptr)
+  {
+    if (flagSame)
+      res = new MatrixSquareDiagonalCst(newNRows);
+    else
+      res = new MatrixRectangular(newNRows, newNCols);
+  }
+  else if (mxsym != nullptr)
+  {
+    if (flagSame)
+      res = new MatrixSquareSymmetric(newNRows);
+    else
+      res = new MatrixRectangular(newNRows, newNCols);
+  }
+  res->copyReduce(x, localValidRows, localValidCols);
+
   return res;
 }
 

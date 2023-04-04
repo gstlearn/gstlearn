@@ -1,14 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
 
@@ -59,9 +57,9 @@ public:
   double  getApexCoor(int i, int idim) const override;
   void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
-
+#ifndef SWIG
   cs* getMeshToDb(const Db *db, bool verbose = false) const override;
-
+#endif
   void   setPolarized(bool flag) { _isPolarized = flag; }
 
   static MeshETurbo* create(const VectorInt &nx,

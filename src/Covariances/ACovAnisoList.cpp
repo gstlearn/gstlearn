@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "Covariances/ACovAnisoList.hpp"
 
@@ -149,15 +149,15 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
   return cov;
 }
 
-double ACovAnisoList::eval(int ivar,
-                           int jvar,
-                           const SpacePoint& p1,
+double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
+                           int ivar,
+                           int jvar,
                            const CovCalcMode& mode) const
 {
   double cov = 0.;
   if (mode.getKeepOnlyCovIdx() >= 0)
-    cov = _covs[mode.getKeepOnlyCovIdx()]->eval(ivar, jvar, p1, p2, mode);
+    cov = _covs[mode.getKeepOnlyCovIdx()]->eval(p1, p2, ivar, jvar, mode);
   else
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
@@ -168,7 +168,7 @@ double ACovAnisoList::eval(int ivar,
         continue;
       if (mode.getCovFiltered(i))
         continue;
-      cov += _covs[i]->eval(ivar, jvar, p1, p2, mode);
+      cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
     }
   }
 
@@ -262,6 +262,11 @@ CovAniso* ACovAnisoList::getCova(int icov)
 {
   if (! _isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
+}
+void ACovAnisoList::setCova(int icov, CovAniso* covs)
+{
+  if (! _isCovarianceIndexValid(icov)) return;
+  _covs[icov] = covs;
 }
 const ECov& ACovAnisoList::getType(int icov) const
 {
@@ -415,4 +420,16 @@ bool ACovAnisoList::hasNugget() const
     if (getType(is) == ECov::NUGGET) return true;
   }
   return false;
+}
+
+const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const
+{
+  ACovAnisoList* newcovlist = this->clone();
+
+  for (int is = 0; is < getCovNumber(); is++)
+  {
+    CovAniso* covs = newcovlist->getCova(is);
+    newcovlist->setCova(is,covs->reduce(validVars));
+  }
+  return newcovlist;
 }

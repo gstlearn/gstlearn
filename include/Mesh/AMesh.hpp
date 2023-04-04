@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -15,11 +15,11 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "csparse_d.h"
 
 class MatrixRectangular;
 class MatrixInt;
 class Db;
+class cs; /// TODO : Dependency to csparse to be removed
 
 class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
 {
@@ -52,9 +52,11 @@ public:
   virtual void getApexCoordinatesInPlace(int i, VectorDouble& coords) const;
   /*! Returns the mesh size */
   virtual double getMeshSize(int imesh) const = 0;
+#ifndef SWIG
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
   virtual cs* getMeshToDb(const Db *db,
                           bool verbose = false) const = 0;
+#endif
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }
   virtual int  getEmbeddedNDim() const { return _nDim; }

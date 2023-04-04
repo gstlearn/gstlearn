@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Define project here
 project(gstlearn
-        VERSION      0.1.38 # Make it consistent with CHANGES
+        VERSION      0.2.1 # Make it consistent with CHANGES
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL "https://github.com/gstlearn/gstlearn"
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -56,6 +56,11 @@ message(STATUS "USE_HDF5="      ${USE_HDF5})
 
 # Universal binary for Mac (TODO : doesn't work for customized R)
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+
+####################################################
+## EXTERNAL LIBS
+add_subdirectory(3rd-party/gmtsph)
+add_subdirectory(3rd-party/csparse)
 
 ####################################################
 ## BUILD & INSTALL

@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
@@ -14,10 +14,14 @@
 #include "Basic/AFunction.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
-#include "csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 #include <functional>
+
+// External library /// TODO : Dependency to csparse to be removed
+#include "csparse_d.h"
+#include "csparse_f.h"
 
 Chebychev::Chebychev()
   : _ncMax(10001)
@@ -260,7 +264,7 @@ void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, V
       t0 = swap;
     }
 }
-
+#ifndef SWIG
 void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 {
   VectorDouble tm1, tm2, px, tx;
@@ -271,7 +275,7 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 
   if (!_isReady())
     my_throw("You must use 'initCoeffs' before 'operate'");
-  nvertex = S->n;
+  nvertex = cs_getncol(S);
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
   tm1.resize(nvertex);
@@ -319,3 +323,4 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
   for (int i=0; i<nvertex; i++)
     y[i] = px[i];
 }
+#endif

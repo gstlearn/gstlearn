@@ -1,3 +1,13 @@
+/******************************************************************************/
+/*                                                                            */
+/*                             gstlearn R package                             */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: GPL v3                                                            */
+/*                                                                            */
+/******************************************************************************/
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
 // Note : Keep order in this file!
@@ -556,7 +566,7 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
 
 "DbIdentifyRows" <- function(db, i)
 {
-	if (is.numeric(i)) {
+  if (is.numeric(i)) {
       # Translate info 0-based number if numeric
       rows <- i - 1
     } else {
@@ -564,7 +574,7 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
       stop()
     }
     rows = db$shrinkToValidRows(rows)
-	rows
+  rows
 }
 
 "DbIdentifyCols" <- function(db, j)
@@ -575,8 +585,9 @@ setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
   if (is.numeric(j)) {
     # Translate into 0-based number if numeric
     namcol <- j - 1
+    namcol = db$getNamesByColIdx(j-1)
   } else {
-  	namcol <- db$identifyNames(j)
+    namcol <- db$identifyNames(j)
   }
   namcol
 }
@@ -591,11 +602,11 @@ function (x,i,j,...,drop=TRUE)
   dots = list(...)
   if (length(dots) > 0) args = append(args, dots)
   nargs = length(args)
-  
   nech_abs = db$getSampleNumber()
   ncol_abs = db$getColumnNumber()
   rows <- NA
   namcols <- NA
+
   if (nargs == 2) {
   
     # Case of both arguments are defined
@@ -625,7 +636,7 @@ function (x,i,j,...,drop=TRUE)
     stop()
   } else {
     res <- db$getValuesByNames(rows,namcols)
-   	if (nrow > 1 && ncol > 1)
+     if (nrow > 1 && ncol > 1)
     {
       res <- as.data.frame(matrix(res, nrow=nrow, ncol=ncol))
       names(res) = namcols
@@ -679,14 +690,12 @@ function (x,i,j,...,drop=TRUE)
 
   if (ncol <= 0)
   {
-  
     # Case of a new variable
     
     icol_new = db$addColumns(value, new_names)
   }
   else
   {
-  
     # Case of already an existing variable: replacement
     
     db$setValuesByNames(rows,namcols, value)
@@ -769,14 +778,14 @@ function (x,i,j,...,drop=TRUE)
 setMethod('[',    '_p_Table',               getTableitem)
 setMethod('[<-',  '_p_Table',               setTableitem)
 
-"cs_toTL" <- function(x)
+# TODO : Replace Triplet_toTL by MatrixSparse_toTL
+"Triplet_toTL" <- function(x)
 {
   Q = NULL
   if (isNamespaceLoaded("Matrix"))
   {
-    Atr = csToTriplet(x, flag_from_1=TRUE)
-    Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-                     dims=c(Atr$nrows,Atr$ncols))
+    Q = sparseMatrix(i=x$rows, j=x$cols, x=x$values,
+                     dims=c(x$nrows,x$ncols))
   }
   else
     cat("This requires the library 'Matrix' to be installed\n")
@@ -785,35 +794,35 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "Db_toTL" <- function(x)
 {
-    vals = list()
-    names = x$getAllNames()
-    nc = x$getColumnNumber()
-    for (i in seq(0,nc-1)) {
-         vals = cbind(vals,x$getColumnsByColIdx(i))
-    }
-    df = data.frame(vals)
-    names(df) = names
-    df
+  vals = list()
+  names = x$getAllNames()
+  nc = x$getColumnNumber()
+  for (i in seq(0,nc-1)) {
+    vals = cbind(vals,x$getColumnsByColIdx(i))
+  }
+  df = data.frame(vals)
+  names(df) = names
+  df
 }
 
 "Krigtest_Res_toTL" <- function(x)
 {
-	res = list(
-		ndim = x$ndim,
-		nvar = x$nvar,
-		nech = x$nech,
-	    neq  = x$neq,
-	    nrhs = x$nech,
-		nbgh = x$nbgh,
-	    xyz = matrix(x$xyz, ncol=x$ndim, nrow=x$nech, byrow=FALSE),
-	    data = x$data,
-	    lhs = matrix(x$lhs, nrow=x$neq, ncol=x$neq, byrow=FALSE),
-	    rhs = matrix(x$rhs, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
-	    wgt = matrix(x$wgt, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
-	    var = matrix(x$var, nrow=x$nvar, ncol=x$nvar, byrow=FALSE),
-	    zam = x$zam
-	    )
-	res
+  res = list(
+      ndim = x$ndim,
+      nvar = x$nvar,
+      nech = x$nech,
+      neq  = x$neq,
+      nrhs = x$nech,
+      nbgh = x$nbgh,
+      xyz = matrix(x$xyz, ncol=x$ndim, nrow=x$nech, byrow=FALSE),
+      data = x$data,
+      lhs = matrix(x$lhs, nrow=x$neq, ncol=x$neq, byrow=FALSE),
+      rhs = matrix(x$rhs, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
+      wgt = matrix(x$wgt, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
+      var = matrix(x$var, nrow=x$nvar, ncol=x$nvar, byrow=FALSE),
+      zam = x$zam
+      )
+  res
 }
 
 "varioArguments" <- function(res)
@@ -826,25 +835,25 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   ipas = 0
   if (nargs == 1)
   {
-  	ipas = unlist(res[[1]])
+    ipas = unlist(res[[1]])
   }
   else if (nargs == 2)
   {
-  	idir = unlist(res[[1]])
-  	ipas = unlist(res[[2]])
+    idir = unlist(res[[1]])
+    ipas = unlist(res[[2]])
   }
   else if (nargs == 3)
   {
-  	ivar = unlist(res[[1]])
-  	jvar = unlist(res[[2]])
-  	ipas = unlist(res[[3]])
+    ivar = unlist(res[[1]])
+    jvar = unlist(res[[2]])
+    ipas = unlist(res[[3]])
   }
   else if (nargs == 4)
   {
-  	idir = unlist(res[[1]])
+    idir = unlist(res[[1]])
     ivar = unlist(res[[2]])
-  	jvar = unlist(res[[3]])
-  	ipas = unlist(res[[4]])
+    jvar = unlist(res[[3]])
+    ipas = unlist(res[[4]])
   }
 
   res = list(idir=idir, ivar=ivar, jvar=jvar, ipas=ipas)

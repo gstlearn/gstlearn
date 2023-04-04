@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
@@ -15,7 +15,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "csparse_f.h"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 /****************************************************************************/
 /*!
@@ -35,23 +35,23 @@ int main(int /*argc*/, char */*argv*/[])
 
   // We create a square matrix (not necessarily sparse)
 
-  cs *Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  cs *Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
       double value = law_gaussian();
       double tirage = law_uniform(0., 1.);
       if (icol != irow && tirage > proba) continue;
-      (void) cs_entry(Atriplet, irow, icol, value);
+      (void) cs_entry2(Atriplet, irow, icol, value);
     }
-  cs *A = cs_triplet(Atriplet);
+  cs *A = cs_triplet2(Atriplet);
   cs_print_dim("Square Initial Matrix", A);
-  Atriplet = cs_spfree(Atriplet);
+  Atriplet = cs_spfree2(Atriplet);
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
 
-  cs* At = cs_transpose(A, 1);
-  cs* Q = cs_multiply(A, At);
+  cs* At = cs_transpose2(A, 1);
+  cs* Q = cs_multiply2(A, At);
 
   // Create a vector random gaussian values
 
@@ -126,8 +126,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Free the pointers
 
-  A  = cs_spfree(A);
-  At = cs_spfree(At);
-  Q  = cs_spfree(Q);
+  A  = cs_spfree2(A);
+  At = cs_spfree2(At);
+  Q  = cs_spfree2(Q);
   return(0);
 }

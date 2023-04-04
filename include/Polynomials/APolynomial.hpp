@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -16,11 +16,12 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
-#include "csparse_d.h"
 
 #include <functional>
 
 class ALinearOpMulti;
+class cs;
+
 class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
 {
 public:
@@ -35,7 +36,7 @@ public:
 
   void init(VectorDouble coeffs);
   virtual double eval(double x) const = 0;
-
+#ifndef SWIG
   virtual void evalOp(cs* Op,
                       const VectorDouble& inv,
                       VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv); };
@@ -44,6 +45,7 @@ public:
                       VectorVectorDouble& outv,
                       VectorDouble& work) const { DECLARE_UNUSED(Op,inv,outv,work); };
   VectorDouble evalOp(cs* Op, const VectorDouble& inv) const;
+#endif
   VectorDouble getCoeffs() const { return _coeffs; }
   void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}
 

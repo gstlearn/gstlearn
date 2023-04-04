@@ -1,14 +1,13 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
-#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -16,14 +15,18 @@
 #include "Enum/ECov.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Geometry/GeometryHelper.hpp"
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Model/ANoStat.hpp"
+#include "Model/NoStatArray.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"
@@ -34,9 +37,9 @@
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
-#include "Model/ANoStat.hpp"
-#include "Model/NoStatArray.hpp"
+
 #include "Db/Db.hpp"
+
 #include <math.h>
 
 Model::Model(const CovContext &ctxt)
@@ -775,10 +778,10 @@ void Model::setDriftFiltered(int il, bool filtered)
   if (_driftList == nullptr) return;
   _driftList->setFiltered(il, filtered);
 }
-VectorDouble Model::getDrift(const Db *db, int ib, bool useSel)
+VectorDouble Model::getDriftByColumn(const Db *db, int ib, bool useSel)
 {
   if (_driftList == nullptr) return VectorDouble();
-  return _driftList->getDrift(db, ib, useSel);
+  return _driftList->getDriftByColumn(db, ib, useSel);
 }
 VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
 {
@@ -1272,9 +1275,7 @@ const AnamHermite* Model::getAnamHermite() const
 
 Model* Model::duplicate() const
 {
-  Model *model = nullptr;
-
-  model = new Model(getContext());
+  Model* model = new Model(getContext());
 
   /* Add the list of Covariances */
 
@@ -1291,17 +1292,44 @@ Model* Model::duplicate() const
   return model;
 }
 
+
+Model* Model::reduce(const VectorInt& validVars) const
+{
+  VectorInt localValidVars = VH::filter(validVars, 0, getVariableNumber());
+  int nvar = localValidVars.size();
+  if (nvar <= 0)
+  {
+    messerr("Your new Model has no variable left");
+    return nullptr;
+  }
+  CovContext ctxt(nvar);
+  Model* model = new Model(ctxt);
+
+  /* Add the list of Covariances */
+
+  model->setCovList(getCovAnisoList()->reduce(validVars));
+
+  /* Add the list of Drifts */
+
+  model->setDriftList(getDriftList());
+
+  /* Add non-stationarity information */
+
+  model->addNoStat(getNoStat());
+
+  return model;
+}
+
 /**
  * Calculate the covariance matrix between active samples of Db1
- * and active samples of Db2
+ * and active samples of Db2.
  * @param covmat Returned matrix (returned as a vector).
  * @param db1 First Data Base
  * @param db2 Second Data Base (if not provided, the first Db is provided instead)
- * @param ivar0 Rank of the first variable (all variables if not defined)
- * @param jvar0 Rank of the second variable (all variables if not defined)
+ * @param ivar Rank of the first variable (all variables if not defined)
+ * @param jvar Rank of the second variable (all variables if not defined)
  * @param flag_norm 1 if the Model must be normalized beforehand
  * @param flag_cov 1 if the Model must be expressed in covariance
-
  *
  * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
  * @remark -nvar stands for the number of (active) variables
@@ -1310,12 +1338,32 @@ Model* Model::duplicate() const
 void Model::covMatrix(VectorDouble& covmat,
                       Db *db1,
                       Db *db2,
-                      int ivar0,
-                      int jvar0,
+                      int ivar,
+                      int jvar,
                       int flag_norm,
                       int flag_cov)
 {
-  model_covmat(this, db1, db2, ivar0, jvar0, flag_norm, flag_cov, covmat.data());
+  model_covmat(this, db1, db2, ivar, jvar, flag_norm, flag_cov, covmat.data());
+}
+
+VectorDouble Model::covMatrixV(Db *db1,
+                               Db *db2,
+                               int ivar,
+                               int jvar,
+                               int flag_norm,
+                               int flag_cov)
+{
+  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov).getValues();
+}
+
+MatrixSquareSymmetric Model::covMatrixM(Db *db1,
+                                        Db *db2,
+                                        int ivar,
+                                        int jvar,
+                                        int flag_norm,
+                                        int flag_cov)
+{
+  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
 }
 
 /**

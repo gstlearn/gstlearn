@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "Enum/ETape.hpp"
 
@@ -186,10 +186,10 @@ double CovLMCTapering::eval0(int ivar,
   return cov0;
 }
 
-double CovLMCTapering::eval(int ivar,
-                            int jvar,
-                            const SpacePoint& p1,
+double CovLMCTapering::eval(const SpacePoint& p1,
                             const SpacePoint& p2,
+                            int ivar,
+                            int jvar,
                             const CovCalcMode& mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
@@ -198,7 +198,7 @@ double CovLMCTapering::eval(int ivar,
   bool asVario = mode.getAsVario();
   modeloc.setAsVario(false);
 
-  double cov = CovLMC::eval(ivar, jvar, p1, p2, modeloc);
+  double cov = CovLMC::eval(p1, p2, ivar, jvar, modeloc);
   double h = getSpace()->getDistance(p1, p2) / _tapeRange;
   cov *= D_TAPE(_tapeType.getValue()).tapeFunc(h);
 

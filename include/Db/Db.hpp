@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -375,13 +375,33 @@ public:
                            bool bySample = false);
 
   /**
-   * \defgroup DbLoc Db: Get and Set functions by Locator
+   * \defgroup DB Db: Numerical Data Base
+   *
+   * Here are the implementation of several functions regarding the manipulation of the Numerical Data Base
+   *
+   * These operations are generic: they are available for any class derived from the Db one (such as DbGrid).
+   *
+   **/
+
+  /** @addtogroup DB_0 Getting and Setting functions by Locator
+   * \ingroup DB
    *
    * Various functions for accessing fields of the Db using the **locator** designation.
    * They use the argument 'loctype' which refers to the Locator type (see ELoc enumeration).
    * In most cases, they also refer to 'item' i.e. the rank (0 based) for the target locator.
    *
    * @param loctype Target locator
+   * @param iech    Target sample (0 based)
+   * @param item    Rank of the 'loctype' locator (0 based)
+   * @param oper    Type of operation
+   * \li                 0 : New = New + Old
+   * \li                 1 : New = New * Old
+   * \li                 2 : New = New - Old
+   * \li                 3 : New = Old / New
+   * \li                 4 : New = New (only if old is defined)
+   * \li                 5 : New = MAX(New, Old)
+   * \li                 6 : New = MIN(New, Old)
+   * @param value   Assigned value
    *  @{
    */
   int    getLocNumber(const ELoc& loctype) const;
@@ -410,18 +430,20 @@ public:
   double getWeight(int iech) const;
   VectorDouble getWeights(bool useSel = false) const;
 
-  /**
-   * \defgroup DbSimuRank Db: Variable designation (used for simulations in particular)
+  /** @addtogroup DB_1 Variable designation (used for simulations in particular)
+   * \ingroup DB
    *
    * These functions allow designation of columns which contain the results of one simulation
    * for one variable in particular.
    *
+   * @param locatorType Target locator type
+   * @param iech Rank of the target sample
    * @param isimu Rank of the simulation (0-based)
    * @param ivar Rank of the variable (0-based)
    * @param icase Rank of the GRF / PGS
    * @param nbsimu Number of simulations
    * @param nvar Number of variables
-   *
+   * @param value Value to be assigned
    *  @{
    */
   int getSimvarRank(int isimu, int ivar, int icase, int nbsimu, int nvar);
@@ -461,8 +483,8 @@ public:
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 
-  /**
-   * \defgroup DbColumn Db: Reading one or several Columns
+  /** @addtogroup DB_2 Reading one or several Columns
+   * \ingroup DB
    *
    * The **column** refers to one element of the Db (which can be viewed as an Excel spread sheet).
    * Each variable stands as a column of this table: it is also attached a 'name' (which will serve
@@ -477,6 +499,18 @@ public:
    * \li TRUE: the returned array is compressed to the only non-masked samples
    * \li FALSE: the returned array is not compressed
    *
+   * @param name Name of the target column
+   * @param names Vector of target variable names
+   * @param locatorType Type of target locator
+   * @param iuids Vector of target user-identified ranks
+   * @param icols Vector of Column ranks
+   * @param icol_beg Lower bound of the rank interval (included)
+   * @param icol_end Upper bound of the rank interval (excluded)
+   * @param iuid_beg Lower bound of the user-identification interval (included)
+   * @param iuid_end Upper bound of the user-identification interval (excluded)
+   * @param locatorType Type of the target locator
+   * @param locatorIndex Rank of the item (0-based) for the target locator
+   * @param flagCompress When True, the masked values are skipped
    *  @{
    */
   VectorDouble getColumn(const String &name,
@@ -525,11 +559,19 @@ public:
 
   void setAllColumns(const VectorVectorDouble& tabs);
 
-  /**
-   * \defgroup DbDelete Db: Deleting one or several Columns.
+  /** @addtogroup DB_3 Deleting one or several Columns
+   * \ingroup DB
+   *
    * These Columns are defined by their names, column number of user-identification rank
    *
-   *  @{
+   * @param name Name of the variable to be deleted
+   * @param names Vector of variable names to be deleted
+   * @param icol_del Column number of the variable to be deleted
+   * @param icols Vector of Column ranks for the variables to be deleted
+   * @param iuid_del User-identification rank for the variable to be deleted
+   * @param iuids Vector of user-identification ranks for variables to be deleted
+   * @param locatorType Locator of the variables to be deleted
+   * @{
    */
   void deleteColumn(const String& name);
   void deleteColumnByUID(int iuid_del);
@@ -541,14 +583,16 @@ public:
   void deleteColumnsByColIdx(const VectorInt& icols);
   /**@}*/
 
-  /**
-    * \defgroup DbStatsCoor Db: Spatial characteristics on the Db
-    * Calculate spatial characteristics on the Db.
-    *
-    * @param useSel When TRUE, the characteristics are derived from the only active samples
-    *
-    *  @{
-    */
+  /** @addtogroup DB_4 Calculating Spatial characteristics on the Db
+   * \ingroup DB
+   *
+   * @param idim Rank of the target space dimension (0 based)
+   * @param useSel When TRUE, the characteristics are derived from the only active samples
+   * @param mini Vector of minimum values (modified by this function)
+   * @param maxi Vector of maximum values (modified by this function)
+   *
+   *  @{
+   */
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   VectorVectorDouble getExtremas(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
@@ -560,14 +604,19 @@ public:
   void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi, bool useSel = false);
   /**@}*/
 
-  /**
-     * \defgroup DbStats Db: Statistics based on active variable(s)
-     * Calculate some basic statistics on variables stored in a Db.
-     *
-     * @param useSel When TRUE, the statistics are derived from the only active samples
-     *
-     *  @{
-     */
+  /** @addtogroup DB_5 Calculating basic Statistics
+   * \ingroup DB
+   *
+   * Calculate some basic statistics on the active samples of variables stored in a Db.
+   *
+   * @param name Target variable name
+   * @param name1 First  target variable name
+   * @param name2 Second  target variable name
+   *
+   * @param useSel When TRUE, the statistics are derived from the only active samples
+   *
+   *  @{
+   */
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;
   VectorDouble getRange(const String& name, bool useSel = false) const;
@@ -580,13 +629,23 @@ public:
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
 
-  /**
-     * \defgroup DbTest Db: Validity checks for various parameters
-     * These functions are used in order to check that the arguments are valid
-     * (such as the sample rank, the locator type, the user-designation rank)
-     *
-     *  @{
-     */
+  /** @addtogroup DB_6 Checking validity for various parameters
+   * \ingroup DB
+   *
+   * These functions are used in order to check that the arguments are valid
+   * (such as the sample rank, the locator type, the user-designation rank)
+   *
+   * @param icol Column rank to be checked
+   * @param iuid User-designated rank
+   * @param iech Sample rank to be checked
+   * @param idim Space rank to be checked
+   * @param iechs Vector of sample ranks to be checked
+   * @param useSel When TRUE, the rank corresponds to the *active* sample
+   * @param locatorType Type of the Locator
+   * @param locatorIndex Rank of the locator (0-based)
+   *
+   *  @{
+   */
   bool isColIdxValid(int icol) const;
   bool isUIDValid(int iuid) const;
   bool isSampleIndexValid(int iech) const;
@@ -602,29 +661,32 @@ public:
   VectorInt shrinkToValidRows(const VectorInt& rows);
   VectorInt shrinkToValidCols(const VectorInt& cols);
 
-  /**
-     * \defgroup DbStatistics Db: Calculate several statistics in Db
-     *
-     * These functions are meant to calculate several statistics on a set of target variables per sample.
-     * The resulting values are stored in variables newly created in the same Db.
-     *
-     * @param opers Vector of operations to be performed
-     * @param flagIso The statistics are calculated only for samples where all target variables have defined values
-     * @param flagStoreInDb When TRUE, the results are stored in the Db; otherwise the statistics are returned
-     * @param verbose Verbose flag
-     * @param proba              For 'quant': the quantile for this probability is calculated
-     * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
-     * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
-     * @param title              If verbose, the title of the printed statistics.
-     * @param namconv            Naming Convention used as a radix for the variables newly created in the Db
-     * (only used when 'flagStoreInDb' is TRUE)
-     *
-     * @return If 'flagStoreInDb' is FALSE, the function returns a vector containing the statistics.
-     * @return If there is more than one operator and more than one variable, the statistics are ordered first by variables
-     * (all the statistics of the first variable, then all the statistics of the second variable...).
-     *
-     *  @{
-     */
+  /** @addtogroup DB_7 Calculating several statistics in Db
+   * \ingroup DB
+   *
+   * These functions are meant to calculate several statistics on a set of target variables per sample.
+   * The resulting values are stored in variables newly created in the same Db.
+   *
+   * @param names Vector of target variable names
+   * @param iuids Vector of user-designation ranks
+   * @param locatorType Target Locator
+   * @param opers Vector of operations to be performed
+   * @param flagIso The statistics are calculated only for samples where all target variables have defined values
+   * @param flagStoreInDb When TRUE, the results are stored in the Db; otherwise the statistics are returned
+   * @param verbose Verbose flag
+   * @param proba              For 'quant': the quantile for this probability is calculated
+   * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
+   * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
+   * @param title              If verbose, the title of the printed statistics.
+   * @param namconv            Naming Convention used as a radix for the variables newly created in the Db
+   * (only used when 'flagStoreInDb' is TRUE)
+   *
+   * @return If 'flagStoreInDb' is FALSE, the function returns a vector containing the statistics.
+   * @return If there is more than one operator and more than one variable, the statistics are ordered first by variables
+   * (all the statistics of the first variable, then all the statistics of the second variable...).
+   *
+   *  @{
+   */
   VectorDouble statistics(const VectorString& names,
                           const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                           bool flagIso = true,
@@ -657,20 +719,21 @@ public:
                                const NamingConvention& namconv = NamingConvention("Stats"));
   /**@}*/
 
-  /**
-      * \defgroup DbMultiStatistics Db: Calculate correlations on variables of a Db
-      *
-      * These functions calculate the correlation matrix based on a set of variables contained in a Db.
-      * Although the result stands as a matrix, they are returned as a Vector.
-      *
-      * @param flagIso The statistics are calculated only for samples where all target variables have defined values
-      * @param verbose Verbose flag
-      * @param title If verbose, the title of the printed statistics.
-      *
-      * @return These functions return a vector containing the correlation matrix.
-      *  @{
-      */
-
+  /** @addtogroup DB_8 Calculating correlations on variables of a Db
+   * \ingroup DB
+   *
+   * These functions calculate the correlation matrix based on a set of variables contained in a Db.
+   * Although the result stands as a matrix, they are returned as a Vector.
+   *
+   * @param names Vector of target variable names
+   * @param iuids Vector of user-designation ranks
+   * @param flagIso The statistics are calculated only for samples where all target variables have defined values
+   * @param verbose Verbose flag
+   * @param title If verbose, the title of the printed statistics.
+   *
+   * @return These functions return a vector containing the correlation matrix.
+   *  @{
+   */
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
                                bool verbose = false,

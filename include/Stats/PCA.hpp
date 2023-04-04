@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -35,6 +35,7 @@ public:
 
   const VectorDouble& getEigens() const { return _eigen; }
   double getEigen(int ivar) const { return _eigen[ivar]; }
+  VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
   int getNVar() const { return _nVar; }
@@ -77,33 +78,42 @@ private:
                      const VectorBool& isoFlag,
                      VectorDouble& mean,
                      VectorDouble& sigma,
-                     bool verbose);
+                     bool verbose = false,
+                     bool flag_nm1 = false);
   void _covariance0(const Db *db,
                     const VectorBool& isoFlag,
                     const VectorDouble& mean,
                     const VectorDouble& sigma,
                     VectorDouble& c0,
-                    bool verbose);
+                    bool verbose = false,
+                    bool flag_nm1 = false);
   int _covarianceh(Db *db,
                    double h0,
                    double dh,
                    const DirParam& dirparam,
                    const VectorBool& isoFlag,
                    VectorDouble& ch,
-                   bool verbose);
+                   bool verbose = false);
   void _center(VectorDouble& data,
                const VectorDouble &mean,
-               const VectorDouble &sigma);
+               const VectorDouble &sigma,
+               bool flag_center = true,
+               bool flag_scale = false);
   void _uncenter(VectorDouble& data,
                  const VectorDouble &mean,
-                 const VectorDouble &sigma);
-  void _pcaZ2F(bool flag_norm,
-               int iptr,
+                 const VectorDouble &sigma,
+                 bool flag_center = true,
+                 bool flag_scale = false);
+  void _pcaZ2F(int iptr,
                Db *db,
                const VectorBool isoFlag,
-               const VectorDouble& mean,
-               const VectorDouble& sigma);
-  void _pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag);
+               const VectorDouble &mean,
+               const VectorDouble &sigma);
+  void _pcaF2Z(int iptr,
+               Db *db,
+               const VectorBool &isoFlag,
+               const VectorDouble &mean,
+               const VectorDouble &sigma);
 
 private:
   int          _nVar;

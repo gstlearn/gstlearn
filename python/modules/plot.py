@@ -1,3 +1,14 @@
+################################################################################
+#                                                                              #
+#                         gstlearn Python package                              #
+#                                                                              #
+# Copyright (c) (2023) MINES PARIS / ARMINES                                   #
+# Authors: gstlearn Team                                                       #
+# Website: https://github.com/gstlearn                                         #
+# License: BSD 3 clause                                                        #
+#                                                                              #
+################################################################################
+
 import matplotlib.pyplot     as plt
 import matplotlib.patches    as ptc
 import matplotlib.transforms as transform
@@ -2014,7 +2025,6 @@ setattr(gl.Table,            "plot",             gp.tableold)
 setattr(gl.Faults,           "plot",             gp.faultold)
 setattr(gl.Polygons,         "plot",             gp.polyold)
 setattr(gl.AnamHermite,      "plot",             gp.anamold)
-setattr(gl.MeshEStandardExt, "plot",             gp.meshold)
 setattr(gl.MeshETurbo,       "plot",             gp.meshold)
 setattr(gl.Db,               "plot_hist",        gp.histold)
 setattr(gl.Db,               "plot_correlation", gp.correlold)

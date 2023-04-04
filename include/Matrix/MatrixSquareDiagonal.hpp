@@ -1,26 +1,24 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
 
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 /**
  * Square Diagonal matrices
  */
-class GSTLEARN_EXPORT MatrixSquareDiagonal : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSquareDiagonal : public MatrixSquareSymmetric {
 
 public:
   MatrixSquareDiagonal(int nrow = 0, bool sparse = false);
@@ -42,10 +40,8 @@ public:
 
   /*! Indicate if the given indices are valid for the current matrix size */
   bool isValid(int irow, int icol, bool printWhyNot = false) const override;
-  /*! does the matrix is symmetrical ? */
-  bool isSymmetric(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
   /*! Check if the (non empty) matrix is diagonal */
-  bool isDiagonal(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
+  bool isDiagonal(bool printWhyNot = false) const final { DECLARE_UNUSED(printWhyNot); return true; }
 
   /*! Add a value to each matrix component */
   void addScalar(double v) override;
@@ -59,12 +55,12 @@ protected:
 #ifndef SWIG
   virtual double& _getValueRef(int irow, int icol) override;
 
-  /*! Say if the matrix must be symmetric */
-  bool mustBeSymmetric() const override { return true; }
   /*! Say if the matrix must be diagonal */
   bool mustBeDiagonal() const override { return true; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
+
+  double determinant() const override;
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isDiagonal()); }
@@ -72,7 +68,7 @@ private:
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;
   void   _setValue(int irank, double value) override;
-  void   _transposeInPlace() override { return ; } // Nothing to do
+  void   _transposeInPlace() final { return ; } // Nothing to do
   void   _setValues(const double* values, bool byCol = true) override;
   int    _getMatrixSize() const override;
   void   _allocate() override;
@@ -80,8 +76,6 @@ private:
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-  double determinant() const override;
-
   void   _recopy(const MatrixSquareDiagonal &r);
   bool   _isIndexValid(int irow,int icol) const;
   bool   _isPhysicallyPresent(int irow, int icol) const override;

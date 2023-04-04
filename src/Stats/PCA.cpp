@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -194,15 +194,6 @@ int PCA::dbZ2F(Db* db,
     return 1;
   }
 
-  // Core allocation
-
-  toVector("fdsfds", _mean);
-  toVector("z2f", _Z2F);
-  VectorDouble data(nvar);
-  VectorDouble mean(nvar);
-  VectorDouble sigma(nvar);
-  VectorBool isoFlag = _getVectorIsotopic(db);
-
   /* Allocate new variables */
 
   int iptr = db->addColumnsByConstant(nvar, TEST);
@@ -212,13 +203,10 @@ int PCA::dbZ2F(Db* db,
 
   if (verbose) mestitle(0,"Transform from Z to Factors");
 
-  /* Normalization (optional) */
+  /* Rotate the factors into data in the PCA system */
 
-  if (_normalization(db, isoFlag, mean, sigma, verbose)) return 1;
-
-  /* Perform the normalization */
-
-  _pcaZ2F(false, iptr, db, isoFlag, mean, sigma);
+  VectorBool isoFlag = _getVectorIsotopic(db);
+  _pcaZ2F(iptr, db, isoFlag, _mean, _sigma);
 
   /* Optional printout */
 
@@ -265,7 +253,7 @@ int PCA::dbF2Z(Db* db,
   /* Rotate the factors into data in the PCA system */
 
   VectorBool isoFlag = _getVectorIsotopic(db);
-  _pcaF2Z(iptr, db, isoFlag);
+  _pcaF2Z(iptr, db, isoFlag, _mean, _sigma);
 
   /* Optional printout */
 
@@ -280,6 +268,14 @@ int PCA::dbF2Z(Db* db,
 
   namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
   return 0;
+}
+
+VectorDouble PCA::getVarianceRatio() const
+{
+  double total = VectorHelper::cumul(_eigen);
+  VectorDouble eignorm = _eigen;
+  VectorHelper::divideConstant(eignorm, total);
+  return eignorm;
 }
 
 /****************************************************************************/
@@ -301,8 +297,8 @@ int PCA::_pcaCalculate(const Db *db,
   VectorDouble mean(nvar);
   VectorDouble sigma(nvar);
   VectorDouble c0(nvar * nvar);
-  if (_normalization(db, isoFlag, mean, sigma, verbose)) return 1;
-  _covariance0(db, isoFlag, mean, sigma, c0, verbose);
+  if (_normalization(db, isoFlag, mean, sigma, verbose, true)) return 1;
+  _covariance0(db, isoFlag, mean, sigma, c0, verbose, true);
   setMean(mean);
   setSigma(sigma);
   if (_calculateEigen(c0)) return 1;
@@ -316,6 +312,7 @@ int PCA::_pcaCalculate(const Db *db,
  ** \param[in] db          Db descriptor
  ** \param[in] isoFlag     Vector of active samples
  ** \param[in] verbose     Verbose flag
+ ** \param[in] flag_nm1    When TRUE, variance is scaled by N-1; otherwise by N
  **
  ** \param[out] mean       Array of means
  ** \param[out] sigma      Array of standard deviations
@@ -325,7 +322,8 @@ int PCA::_normalization(const Db *db,
                         const VectorBool& isoFlag,
                         VectorDouble& mean,
                         VectorDouble& sigma,
-                        bool verbose)
+                        bool verbose,
+                        bool flag_nm1)
 {
   int niso, nvar, nech;
 
@@ -362,6 +360,7 @@ int PCA::_normalization(const Db *db,
     {
       mean[ivar] /= niso;
       sigma[ivar] = (sigma[ivar] / niso - mean[ivar] * mean[ivar]);
+      if (flag_nm1) sigma[ivar] *= (double) (niso / (niso-1.));
       sigma[ivar] = (sigma[ivar] > 0) ? sqrt(sigma[ivar]) : 0.;
       if (sigma[ivar] <= 0.)
       {
@@ -392,6 +391,7 @@ int PCA::_normalization(const Db *db,
  ** \param[in]  mean        Array containing the mean
  ** \param[in]  sigma       Array containing the standard deviation
  ** \param[in]  verbose     Verbose flag
+ ** \param[in]  flag_nm1    When TRUE, variance is scaled by N-1; otherwise by N
  **
  ** \param[out] c0          Vector of covariances at distance 0
  **
@@ -401,7 +401,8 @@ void PCA::_covariance0(const Db *db,
                        const VectorDouble& mean,
                        const VectorDouble& sigma,
                        VectorDouble& c0,
-                       bool verbose)
+                       bool verbose,
+                       bool flag_nm1)
 {
   int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
@@ -428,7 +429,10 @@ void PCA::_covariance0(const Db *db,
 
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      c0[ivar * nvar + jvar] /= niso;
+      if (flag_nm1)
+        c0[ivar * nvar + jvar] /= (niso-1.);
+      else
+        c0[ivar * nvar + jvar] /= niso;
 
   /* Printout of the covariance matrix (optional) */
 
@@ -444,19 +448,23 @@ void PCA::_covariance0(const Db *db,
  ** \param[in,out] data      Array of information
  ** \param[in]  mean         Array containing the mean
  ** \param[in]  sigma        Array containing the standard deviation
+ ** \param[in]  flag_center  True if result must be centered by 'mean'
+ ** \param[in]  flag_scale   True if result must be scaled by 'sigma'
  **
  *****************************************************************************/
 void PCA::_center(VectorDouble& data,
                   const VectorDouble &mean,
-                  const VectorDouble &sigma)
+                  const VectorDouble &sigma,
+                  bool flag_center,
+                  bool flag_scale)
 {
-  int ivar;
   int nvar = (int) mean.size();
-
-  for (ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
-    if (sigma[ivar] <= 0.) continue;
-    data[ivar] = (data[ivar] - mean[ivar]) / sigma[ivar];
+    if (flag_center)
+      data[ivar] -= mean[ivar];
+    if (flag_scale && sigma[ivar] > 0.)
+      data[ivar] /= sigma[ivar];
   }
 }
 
@@ -467,11 +475,15 @@ void PCA::_center(VectorDouble& data,
  ** \param[in,out] data      Array of information
  ** \param[in]  mean         Array containing the mean
  ** \param[in]  sigma        Array containing the standard deviation
+ ** \param[in]  flag_center  True if result must be uncentered by 'mean'
+ ** \param[in]  flag_scale   True if result must be suncaled by 'sigma'
  **
  *****************************************************************************/
 void PCA::_uncenter(VectorDouble& data,
                     const VectorDouble &mean,
-                    const VectorDouble &sigma)
+                    const VectorDouble &sigma,
+                    bool flag_center,
+                    bool flag_scale)
 {
   int ivar;
   int nvar = (int) mean.size();
@@ -479,7 +491,10 @@ void PCA::_uncenter(VectorDouble& data,
   for (ivar = 0; ivar < nvar; ivar++)
   {
     if (sigma[ivar] <= 0.) continue;
-    data[ivar] = data[ivar] * sigma[ivar] + mean[ivar];
+    if (flag_scale)
+      data[ivar] *= sigma[ivar];
+    if (flag_center)
+      data[ivar] += mean[ivar];
   }
 }
 
@@ -487,19 +502,14 @@ void PCA::_uncenter(VectorDouble& data,
 /*!
  **  Procedure for transforming the variables into factors using PCA
  **
- ** \param[in]  flag_norm    True if the variables must be rescaled beforehand
  ** \param[in]  iptr         Pointer for storing the result in db
  ** \param[in]  db           Db descriptor
  ** \param[in]  isoFlag      Vector of active samples
  ** \param[in]  mean         Array containing the mean
  ** \param[in]  sigma        Array containing the standard deviation
  **
- ** \remarks The standardization statistics are passed as arguments
- ** \remarks The ones stored in PCA structure are not used.
- **
  *****************************************************************************/
-void PCA::_pcaZ2F(bool flag_norm,
-                  int iptr,
+void PCA::_pcaZ2F(int iptr,
                   Db *db,
                   const VectorBool isoFlag,
                   const VectorDouble& mean,
@@ -507,8 +517,8 @@ void PCA::_pcaZ2F(bool flag_norm,
 {
   int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
-  VectorDouble data1(nvar);
-  VectorDouble data2(nvar);
+  VectorDouble data1(nvar, 0.);
+  VectorDouble data2(nvar, 0.);
 
   /* Loop on the samples */
 
@@ -525,7 +535,6 @@ void PCA::_pcaZ2F(bool flag_norm,
       double value = 0.;
       for (int ivar = 0; ivar < nvar; ivar++)
         value += getZ2F(ifac, ivar) * data1[ivar];
-      if (flag_norm) value /= sqrt(_eigen[ifac]);
       data2[ifac] = value;
     }
 
@@ -542,9 +551,15 @@ void PCA::_pcaZ2F(bool flag_norm,
  ** \param[in]  iptr         Pointer to the storage
  ** \param[in]  db           Db descriptor
  ** \param[in]  isoFlag      Vector of active samples
+ ** \param[in]  mean         Array containing the mean
+ ** \param[in]  sigma        Array containing the standard deviation
  **
  *****************************************************************************/
-void PCA::_pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag)
+void PCA::_pcaF2Z(int iptr,
+                  Db *db,
+                  const VectorBool &isoFlag,
+                  const VectorDouble &mean,
+                  const VectorDouble &sigma)
 {
   int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
@@ -570,7 +585,7 @@ void PCA::_pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag)
     }
 
     // De-normalize
-    _uncenter(data2, getMeans(), getSigmas());
+    _uncenter(data2, mean, sigma);
 
     // Storage
 
@@ -640,7 +655,7 @@ int PCA::maf_compute(Db *db,
 
   /* Rotate the initial data in the PCA system */
 
-  _pcaZ2F(true, iptr, db, isoFlag, getMeans(), getSigmas());
+  _pcaZ2F(iptr, db, isoFlag, _mean, _sigma);
   db->setLocatorsByUID(nvar, iptr, ELoc::Z);
 
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */

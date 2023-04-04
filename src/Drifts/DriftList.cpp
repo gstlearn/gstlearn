@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "Drifts/DriftList.hpp"
 #include "Space/ASpace.hpp"
@@ -273,11 +273,11 @@ void DriftList::_updateCoefDrift()
   }
 }
 
-VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
+VectorDouble DriftList::getDriftByColumn(const Db* db, int ib, bool useSel) const
 {
   if (! _isDriftIndexValid(ib)) return VectorDouble();
 
-  int nech = db->getSampleNumber(true);
+  int nech = db->getSampleNumber(useSel);
   VectorDouble vec(nech);
 
   int ecr = 0;
@@ -289,7 +289,7 @@ VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
   return vec;
 }
 
-VectorDouble DriftList::getDriftVec(const Db* db, int iech) const
+VectorDouble DriftList::getDriftBySample(const Db* db, int iech) const
 {
   int ndrift = getDriftNumber();
   VectorDouble vec(ndrift);
@@ -313,7 +313,7 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
   int ndrift = getDriftNumber();
   for (int ib=0; ib<ndrift; ib++)
   {
-    vec.push_back(getDrift(db, ib, useSel));
+    vec.push_back(getDriftByColumn(db, ib, useSel));
   }
   return vec;
 }

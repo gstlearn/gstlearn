@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -59,8 +59,8 @@ public:
    * @param mode Reference to the CovCalcMode embedded class
    * @return The covariance value at the origin
    */
-  virtual double eval0(int ivar,
-                       int jvar,
+  virtual double eval0(int ivar = 0,
+                       int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const override;
 
   /**
@@ -72,10 +72,10 @@ public:
    * @param mode Reference to the CovCalcMode embedded class
    * @return The covariance value
    */
-  virtual double eval(int ivar,
-                      int jvar,
-                      const SpacePoint& p1,
+  virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
+                      int ivar = 0,
+                      int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
@@ -117,7 +117,7 @@ public:
   void copyCovContext(const CovContext& ctxt);
 
   void setSill(double sill); /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixSquareGeneral& sill);
+  void setSill(const MatrixSquareSymmetric& sill);
   void setSill(const VectorDouble& sill);
   void setSill(int ivar, int jvar, double sill);
   void initSill(double value = 0.);
@@ -196,6 +196,8 @@ public:
   double getCorrec() const;
   double getFullCorrec() const;
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
+
+  CovAniso* reduce(const VectorInt &validVars) const;
 
 protected:
   /// Update internal parameters consistency with the context

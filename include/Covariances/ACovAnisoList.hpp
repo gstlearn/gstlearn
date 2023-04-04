@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -37,18 +37,21 @@ public:
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
 
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ACovAnisoList)
+
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
 
   /// Interface for ACov
   virtual int    getNVariables() const override;
-  virtual double eval0(int ivar,
-                       int jvar,
+  virtual double eval0(int ivar = 0,
+                       int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const override;
-  virtual double eval(int ivar,
-                      int jvar,
-                      const SpacePoint& p1,
+  virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
+                      int ivar = 0,
+                      int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   /// Interface for AStringable Interface
@@ -85,6 +88,7 @@ public:
   ////////////////////////////////////////////////
   const CovAniso*    getCova(int icov) const;
   CovAniso*          getCova(int icov); // TODO : beurk :(
+  void               setCova(int icov, CovAniso* covs);
   const ECov&        getType(int icov) const;
   String             getCovName(int icov) const;
   double             getParam(unsigned int icov) const;
@@ -99,6 +103,8 @@ public:
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
+
+  const ACovAnisoList* reduce(const VectorInt &validVars) const;
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;

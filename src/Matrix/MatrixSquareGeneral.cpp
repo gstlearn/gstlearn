@@ -1,16 +1,17 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareGeneral::MatrixSquareGeneral(int nrow, bool sparse)
@@ -187,3 +188,19 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
   return 0;
 }
 
+MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) const
+{
+  // Order and shrink the input vectors
+  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
+  int newNRows = localValidRows.size();
+  if (newNRows <= 0)
+  {
+    messerr("The new Matrix has no Row left");
+    return nullptr;
+  }
+
+  MatrixSquareGeneral* res = new MatrixSquareGeneral(newNRows);
+  res->copyReduce(this, localValidRows, localValidRows);
+
+  return res;
+}

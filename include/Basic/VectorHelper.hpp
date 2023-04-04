@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -139,6 +139,12 @@ public:
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true);
   static VectorInt    orderRanks(const VectorDouble& vecin);
   static VectorInt    sortRanks(const VectorDouble& vecin);
+  static VectorDouble unique(const VectorDouble& vecin);
+  static VectorInt    unique(const VectorInt& vecin);
+  static VectorInt filter(const VectorInt &vecin,
+                          int vmin = ITEST,
+                          int vmax = ITEST,
+                          bool ascending = true);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
 };

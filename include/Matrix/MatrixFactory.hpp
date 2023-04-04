@@ -1,13 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #pragma once
 
@@ -27,4 +26,7 @@ public:
   static AMatrixSquare* matNorm(const AMatrixSquare* x, const AMatrix* y);
   static AMatrix* createIdentity(int nrow, bool sparse);
   static AMatrixSquare* createMatrixSquare(const AMatrixSquare* x,int nrow);
+  static AMatrix* createReduce(const AMatrix *x,
+                               const VectorInt &validRows = VectorInt(),
+                               const VectorInt &validCols = VectorInt());
 };

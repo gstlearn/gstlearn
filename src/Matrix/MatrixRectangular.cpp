@@ -1,19 +1,20 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
-#include "csparse_d.h"
+#include "Basic/VectorHelper.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
     : AMatrix(nrows, ncols, sparse),
@@ -238,4 +239,29 @@ void MatrixRectangular::addColumn(int ncolumn_added)
   for (int irow=0; irow< nrows; irow++)
     for (int icol=0; icol<ncols; icol++)
       setValue(irow, icol, statsSave->getValue(irow, icol));
+}
+
+MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
+                                             const VectorInt &validCols) const
+{
+  // Order and shrink the input vectors
+  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
+  VectorInt localValidCols = VH::filter(validCols, 0, getNCols());
+  int newNRows = localValidRows.size();
+  int newNCols = localValidCols.size();
+  if (newNRows <= 0)
+  {
+    messerr("The new Matrix has no Row left");
+    return nullptr;
+  }
+  if (newNCols <= 0)
+  {
+    messerr("The new Matrix has no Column left");
+    return nullptr;
+  }
+
+  MatrixRectangular* res = new MatrixRectangular(newNRows, newNCols);
+  res->copyReduce(this, localValidRows, localValidCols);
+
+  return res;
 }

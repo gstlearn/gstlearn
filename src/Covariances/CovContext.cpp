@@ -1,12 +1,12 @@
 /******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* TAG_SOURCE_CG                                                              */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clause                                                      */
+/*                                                                            */
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -204,9 +204,9 @@ int CovContext::_getIndex(int ivar, int jvar) const
 
 void CovContext::_update()
 {
-  if (_mean.empty())
+  if (_nVar != (int) _mean.size())
     _mean.resize(_nVar, 0.);
-  if (_covar0.empty())
+  if (_nVar * _nVar != (int) _covar0.size())
   {
     MatrixSquareSymmetric Id(_nVar);
     Id.setIdentity();
