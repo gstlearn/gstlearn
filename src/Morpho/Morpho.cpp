@@ -690,13 +690,14 @@ int morpho_count(const BImage& imagin)
 void morpho_opening(int option,
                     const VectorInt &radius,
                     const BImage& imagin,
-                    BImage& imagout)
+                    BImage& imagout,
+                    bool verbose)
 {
   BImage imagtmp = imagin;
 
-  morpho_erosion(option, radius, imagin, imagtmp);
+  morpho_erosion(option, radius, imagin, imagtmp, verbose);
 
-  morpho_dilation(option, radius, imagtmp, imagout);
+  morpho_dilation(option, radius, imagtmp, imagout, verbose);
 
   return;
 }
@@ -715,13 +716,14 @@ void morpho_opening(int option,
 void morpho_closing(int option,
                     const VectorInt &radius,
                     const BImage& imagin,
-                    BImage& imagout)
+                    BImage& imagout,
+                    bool verbose)
 {
   BImage imagtmp = imagin;
 
-  morpho_dilation(option, radius, imagin, imagtmp);
+  morpho_dilation(option, radius, imagin, imagtmp, verbose);
 
-  morpho_erosion(option, radius, imagtmp, imagout);
+  morpho_erosion(option, radius, imagtmp, imagout, verbose);
 
   return;
 }
