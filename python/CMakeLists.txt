@@ -9,9 +9,6 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 ###################################
 # DEPENDENCIES
 
-# Debug find package instruction
-#set(CMAKE_FIND_DEBUG_MODE TRUE)
-
 # Look for Python3
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
