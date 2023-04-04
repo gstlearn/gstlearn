@@ -5731,10 +5731,9 @@ int vmap_compute(Db *db,
  **
  ** \param[in]  db           Db structure
  ** \param[in]  vario        Vario structure
- ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
+Db* db_variogram(Db *db, Vario *vario)
 {
   if (db == nullptr) return nullptr;
   if (vario == nullptr) return nullptr;
@@ -5749,6 +5748,14 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
     return nullptr;
   }
 
+  // Creating the output Db
+  Db* newdb = Db::create();
+  int ndim = db->getNDim();
+  VectorVectorDouble coor(ndim);
+  VectorVectorDouble ranks(2);
+  VectorDouble vect(ndim);
+
+  // Calculating the admissible pairs
   const VarioParam& varioparam = vario->getVarioParam();
   VectorInt rindex = db->getSortArray();
   for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
@@ -5767,8 +5774,7 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
       if (!db->isActive(iech)) continue;
       if (FFFF(db->getWeight(iech))) continue;
 
-      int ideb = (st_date_is_used(&varioparam, db, db)) ? 0 :
-                                                          iiech + 1;
+      int ideb = (st_date_is_used(&varioparam, db, db)) ? 0 : iiech + 1;
       for (int jjech = ideb; jjech < nech; jjech++)
       {
         int jech = rindex[jjech];
@@ -5788,7 +5794,7 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
 
         /* Check if the pair must be kept */
 
-        double dist = distance_intra(db, iech, jech, NULL);
+        double dist = distance_intra(db, iech, jech, vect.data());
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
                                   dirparam.getCodirs(), &ps)) continue;
@@ -5803,22 +5809,22 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
         int ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
         if (IFFFF(ipas)) continue;
 
-        /* Evaluate the variogram */
+        // The pair is kept
 
-        VARIO = vario;
-        IDIRLOC = idir;
-        IECH1 = iech;
-        IECH2 = jech;
+        for (int idim = 0; idim < ndim; idim++)
+          coor[idim].push_back(vect[idim]);
+        ranks[0].push_back((double) iech);
+        ranks[1].push_back((double) jech);
       }
     }
   }
 
-  /* Set the error return code */
+  // Loading the coordinate vectors in the newly created Db
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, IPTW, "Nb", 1, false);
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, IPTV, "Var");
+  newdb->addColumnsByVVD(coor, "coor", ELoc::X);
+  newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNKNOWN);
 
-  return nullptr;
+  return newdb;
 }
 
 /****************************************************************************/

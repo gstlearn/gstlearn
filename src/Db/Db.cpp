@@ -1132,14 +1132,13 @@ int Db::addColumnsByConstant(int nadd,
   return (nmax);
 }
 
-
 void Db::addColumnsByVVD(const VectorVectorDouble tab,
-                    const String& radix,
-                    const ELoc& locatorType,
-                    int locatorIndex,
-                    bool useSel,
-                    double valinit,
-                    int nvar)
+                         const String &radix,
+                         const ELoc &locatorType,
+                         int locatorIndex,
+                         bool useSel,
+                         double valinit,
+                         int nvar)
 {
   VectorDouble tabv;
   for(auto &e : tab)
@@ -4737,3 +4736,35 @@ VectorInt Db::shrinkToValidCols(const VectorInt& cols)
   return new_cols;
 }
 
+/** Returns the ranks, within the exhaustive loop on variables then samples
+ * to be used in the kriging system, knowing that we must discard the masked samples
+ * and the smaples whose value is not defined
+ * @return
+ */
+VectorInt Db::getSampleRanks() const
+{
+  VectorInt vec;
+  int nvar = getLocNumber(ELoc::Z);
+  int nech = getSampleNumber();
+
+  int lec = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iech = 0; iech < nech; iech++, lec++)
+    {
+      if (! isActive(iech)) continue;
+      if (FFFF(getLocVariable(ELoc::Z, iech, ivar))) continue;
+      vec.push_back(lec);
+    }
+  return vec;
+}
+
+Db* Db::createFillRandom(int ndat,
+                            int ndim,
+                            double sel_percent,
+                            const VectorDouble heteroRatio,
+                            int nFeX,
+                            bool measurementError,
+                            int seed)
+{
+  return nullptr;
+}

@@ -133,6 +133,13 @@ public:
                           const VectorString &names = VectorString(),
                           const VectorInt &ranks = VectorInt(),
                           bool verbose = false);
+  static Db* createFillRandom(int ndat,
+                              int ndim,
+                              double sel_percent = TEST,
+                              const VectorDouble heteroRatio = VectorDouble(),
+                              int nFeX = 0,
+                              bool measurementError = false,
+                              int seed = 124234);
 
   const VectorDouble& getArrays() const { return _array; }
 
@@ -202,7 +209,7 @@ public:
   void addColumnsByVVD(const VectorVectorDouble tab,
                        const String &radix,
                        const ELoc& locatorType,
-                       int locatorIndex,
+                       int locatorIndex = 0,
                        bool useSel = false,
                        double valinit = 0.,
                        int nvar = 1);
@@ -754,6 +761,8 @@ public:
                    const Interval& interval,
                    int belowRow = ITEST,
                    int aboveRow = ITEST) const;
+
+  VectorInt getSampleRanks() const;
 
 protected:
   /// Interface for ASerializable
