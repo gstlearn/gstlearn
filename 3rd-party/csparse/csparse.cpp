@@ -2519,6 +2519,16 @@ csd* cs_ddone(csd *D, cs *C, void *w, int ok)
   return (ok ? D : cs_dfree(D)); /* return result if OK, else free it */
 }
 
+int cs_getncol(const cs* mat)
+{
+  return mat->n;
+}
+int cs_getnrow(const cs* mat)
+{
+  return mat->m;
+}
+
+
 /* solve U'x=b where x and b are dense.  x=b on input, solution on output. */
 int cs_utsolve(const cs *U, double *x)
 {
