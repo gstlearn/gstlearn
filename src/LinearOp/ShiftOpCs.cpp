@@ -98,7 +98,7 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _igrf(0),
       _icov(0),
       _ndim(0),
-      _napices(S->n)
+      _napices(cs_getncol(S))
 {
   _variety = 0;
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
@@ -334,7 +334,7 @@ int ShiftOpCs::initFromCS(const cs* S,
 
     _S = cs_duplicate(S);
     if (_S == nullptr) my_throw("Problem when duplicating S sparse matrix");
-    _napices = S->n;
+    _napices = cs_getncol(S);
   }
 
   catch(const AException& e)

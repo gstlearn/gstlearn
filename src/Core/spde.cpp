@@ -710,7 +710,7 @@ static cs* st_extract_Q_from_Q(cs *Q_in, int row_auth, int col_auth)
 
   error = 1;
   rank_rows = rank_cols = nullptr;
-  int n_in = Q_in->n;
+  int n_in = cs_getncol(Q_in);
 
   /* Core allocation */
 
@@ -2096,7 +2096,7 @@ static int st_kriging_cholesky(QChol *QC, double *rhs, double *work, double *z)
 
   /* Initializations */
 
-  ntarget = QC->Q->n;
+  ntarget = cs_getncol(QC->Q);
   for (int icur = 0; icur < ntarget; icur++)
     work[icur] = 0.;
 
@@ -2139,7 +2139,7 @@ static int st_filter(double *work, double *y)
   /* Initializations */
 
   QC = spde_get_current_matelem(-1).QC;
-  ntarget = QC->Q->n;
+  ntarget = cs_getncol(QC->Q);
   for (int icur = 0; icur < ntarget; icur++)
     work[icur] = 0.;
 
@@ -2188,7 +2188,7 @@ int spde_build_stdev(double *vcur)
   wZdiagp = wLmunch = nullptr;
   d2 = wz = diag = z = nullptr;
   Dinv = LDinv = TLDinv = Pattern = nullptr;
-  ntarget = QCtt->Q->n;
+  ntarget = cs_getncol(QCtt->Q);
 
   // Perform the Cholesky (if not already done) */
 
@@ -3262,7 +3262,7 @@ static cs* st_extract_Q1_nugget(int row_var,
 
   SS = MATGRF(SPDE_CURRENT_IGRF);
   B0 = cs_duplicate(SS->Bnugget[st_get_rank(row_var, col_var)]);
-  if (B0 != nullptr) *nrows = *ncols = B0->n;
+  if (B0 != nullptr) *nrows = *ncols = cs_getncol(B0);
 
   /* Keypair storage (optional) */
 
@@ -3487,7 +3487,7 @@ cs* _spde_build_Q(cs *S, const VectorDouble &Lambda, int nblin, double *blin)
 
   error = 1;
   iterm = 0;
-  nvertex = S->n;
+  nvertex = cs_getncol(S);
   work = tblin = nullptr;
   Q = Be = Bi = nullptr;
 
@@ -3940,7 +3940,7 @@ static int st_simulate_cholesky(QChol *QC, double *work, double *zsnc)
 
   /* Initializations */
 
-  nvertex = QC->Q->n;
+  nvertex = cs_getncol(QC->Q);
   for (int ip = 0; ip < nvertex; ip++)
     work[ip] = law_gaussian();
 
@@ -3993,7 +3993,7 @@ int spde_chebychev_operate(cs *S,
   error = 1;
   T1 = nullptr;
   tm1 = tm2 = px = tx = nullptr;
-  nvertex = S->n;
+  nvertex = cs_getncol(S);
   v1 = cheb_elem->v1;
   v2 = cheb_elem->v2;
   power = cheb_elem->power;
@@ -4127,7 +4127,7 @@ static int st_simulate_chebychev(double *zsnc)
  *****************************************************************************/
 static int st_kriging_multigrid(QChol *QC, double *rhs, double *work, double *z)
 {
-  int ntarget = QC->Q->n;
+  int ntarget = cs_getncol(QC->Q);
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
 
   if (cs_multigrid_process(Matelem.mgs, QC, VERBOSE, z, rhs, work)) return (1);
@@ -4187,7 +4187,7 @@ static int st_kriging_one(double *data, double *rhs, double *work, double *z)
   /* Initializations */
 
   qsimu = spde_get_current_matelem(-1).qsimu;
-  ntarget = qsimu->QCtt->Q->n;
+  ntarget = cs_getncol(qsimu->QCtt->Q);
 
   /* Initialize the resulting array */
 
@@ -6423,7 +6423,7 @@ static void st_product_Q(int nblin,
 
   // Initializations
 
-  n = S->n;
+  n = cs_getncol(S);
 
   // Core allocation 
 
@@ -6486,7 +6486,7 @@ int spde_eval(int nblin,
 
   error = 1;
   cheb_elem = nullptr;
-  n = S->n;
+  n = cs_getncol(S);
   if (power != 1.0 && power != -1.0 && power != -0.5)
   {
     messerr("Invalid value for the 'power' argument (%lf)", power);
@@ -8048,7 +8048,7 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
 
   // Calculate: Q + t(B) %*% B
 
-  message("Building Q (Size:%d) with additional nugget effect (%lf) ... ", Q->n,
+  message("Building Q (Size:%d) with additional nugget effect (%lf) ... ", cs_getncol(Q),
           s2);
   Bt = cs_transpose(B, 1);
   if (Bt == nullptr) goto label_end;

@@ -89,7 +89,7 @@ int Cholesky::getSize() const
   if (! _isDefined())
     return 0;
   else
-    return _mat->n;
+    return cs_getncol(_mat);
 }
 
 /*****************************************************************************/

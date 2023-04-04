@@ -985,8 +985,8 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
   if (!A) return sstr.str();
   if (A->nz >= 0) return sstr.str();
 
-  int nrutil = nrows = A->m;
-  int ncutil = ncols = A->n;
+  int nrutil = nrows = cs_getnrow(A);
+  int ncutil = ncols = cs_getncol(A);
   if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
   int npass = (int) ceil((double) ncutil / (double) _getNBatch());

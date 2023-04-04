@@ -115,6 +115,10 @@ int    *cs_idone (int *p, cs *C, void *w, int ok) ;
 csn    *cs_ndone (csn *N, cs *C, void *w, void *x, int ok) ;
 csd    *cs_ddone (csd *D, cs *C, void *w, int ok) ;
 
+/* accessors */
+int     cs_getncol(const cs* mat);
+int     cs_getnrow(const cs* mat);
+
 #define CS_MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define CS_MIN(a,b) (((a) < (b)) ? (a) : (b))
 #define CS_FLIP(i) (-(i)-2)

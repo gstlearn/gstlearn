@@ -275,7 +275,7 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 
   if (!_isReady())
     my_throw("You must use 'initCoeffs' before 'operate'");
-  nvertex = S->n;
+  nvertex = cs_getncol(S);
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
   tm1.resize(nvertex);

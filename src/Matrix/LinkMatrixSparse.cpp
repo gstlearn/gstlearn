@@ -60,12 +60,12 @@ int cs_print2(const cs *A, int brief)
 }
 void cs_force_dimension(cs *T, int nrow, int ncol)
 {
-  if (T->m > nrow)
-    messageAbort("Forcing CS dimension: NRows current(%d) is larger then forecast(%d)",
-                 T->m, nrow);
-  if (T->m > nrow)
-    messageAbort("Forcing CS dimension: NCols current(%d) is larger then forecast(%d)",
-                 T->n, ncol);
+  if (cs_getnrow(T) > nrow)
+    messageAbort("Forcing CS dimension: NRows current(%d) is larger than forecast(%d)",
+                 cs_getnrow(T), nrow);
+  if (cs_getncol(T) > ncol)
+    messageAbort("Forcing CS dimension: NCols current(%d) is larger than forecast(%d)",
+                 cs_getncol(T), ncol);
   T->m = nrow;
   T->n = ncol;
 }
@@ -176,7 +176,7 @@ cs* cs_invert(const cs *A, int order, double epsilon)
   cs *B = NULL;
   int n, ok;
   if (!A) return (0); /* check inputs */
-  n = A->n;
+  n = cs_getncol(A);
   Bt = cs_spalloc(0, 0, 1, 1, 1);
   S = cs_schol(A, order); /* ordering and symbolic analysis */
   N = cs_chol(A, S); /* numeric Cholesky factorization */
@@ -295,7 +295,7 @@ VectorInt cs_color_coding(cs *Q, int start, int *ncols)
   int* Qp = Q->p;
   int* Qi = Q->i;
   double* Qx = Q->x;
-  int nmesh = Q->n;
+  int nmesh = cs_getncol(Q);
 
   /* Core allocation */
 
@@ -366,7 +366,7 @@ cs* cs_extract_submatrix_by_color(cs *C,
 
   /* Core allocation */
 
-  n = C->n;
+  n = cs_getncol(C);
   u_row = (int*) mem_alloc(sizeof(int) * n, 1);
   u_col = (int*) mem_alloc(sizeof(int) * n, 1);
 
@@ -434,10 +434,10 @@ int qchol_cholesky(int verbose, QChol *QC)
 
   /* Cholesky decomposition is only valid for square matric */
 
-  if (QC->Q->m != QC->Q->n)
+  if (cs_getnrow(QC->Q) != cs_getncol(QC->Q))
   {
     messerr("You wish to perform a Cholesky Decomposition of a Matrix");
-    messerr("which is not square: %d x %d", QC->Q->m, QC->Q->n);
+    messerr("which is not square: %d x %d", cs_getnrow(QC->Q), cs_getncol(QC->Q));
     messerr("This must be an error");
     return (1);
   }
@@ -929,7 +929,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
   // Define the size of the system
 
-  mgs->ncur = qctt->Q->n;
+  mgs->ncur = cs_getncol(qctt->Q);
 
   // Initialize the Selection vector
 
@@ -962,7 +962,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
     if (ilevel == 0)
     {
       mg->A->Q = cs_duplicate(qctt->Q);
-      mg->nh = mg->A->Q->n;
+      mg->nh = cs_getncol(mg->A->Q);
     }
     else
     {
@@ -978,7 +978,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
       if (cs_coarsening(mg->A->Q, mgs->type_coarse, &indCo, &L)) goto label_end;
       if (flag_print) cs_print_file("L", ilevel, L);
-      if (flag_print) for (int ik = 0; ik < mg->A->Q->n; ik++)
+      if (flag_print) for (int ik = 0; ik < cs_getncol(mg->A->Q); ik++)
         message("indco[%d] = %d\n", ik, indCo[ik]);
 
       // Interpolation
@@ -1027,7 +1027,7 @@ int cs_scale(cs *A)
   int *Ap, *Ai, n, j, p, error;
   double *Ax, *diag;
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -1062,7 +1062,7 @@ void cs_chol_invert(QChol *qctt, double *xcr, double *rhs, double *work)
   int n;
 
   if (DEBUG) message("Cholesky Inversion\n");
-  n = qctt->Q->n;
+  n = cs_getncol(qctt->Q);
   cs_ipvec(n, qctt->S->Pinv, rhs, work);
   cs_lsolve(qctt->N->L, work);
   cs_ltsolve(qctt->N->L, work);
@@ -1084,7 +1084,7 @@ void cs_chol_simulate(QChol *qctt, double *simu, double *work)
   int n;
 
   if (DEBUG) message("Cholesky Simulation\n");
-  n = qctt->Q->n;
+  n = cs_getncol(qctt->Q);
 
   cs_ltsolve(qctt->N->L, work);
   cs_pvec(n, qctt->S->Pinv, work, simu);
@@ -1260,7 +1260,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
     // Calculate the score
 
     score = 0.;
-    cs_mulvec(mgs->mg[0]->A->Q, mgs->mg[0]->A->Q->n, &XCR(0, 0), work);
+    cs_mulvec(mgs->mg[0]->A->Q, cs_getncol(mgs->mg[0]->A->Q), &XCR(0, 0), work);
     for (int icur = 0; icur < ncur; icur++)
     {
       delta = (b[icur] - work[icur]);
@@ -1431,7 +1431,7 @@ int cs_multigrid_process(cs_MGS *mgs,
   }
   else
   {
-    if (mgs->ncur != qctt->Q->n)
+    if (mgs->ncur != cs_getncol(qctt->Q))
       messageAbort("Check that multigrid has been setup up correctly");
   }
 
@@ -1468,13 +1468,13 @@ Triplet csToTriplet(const cs *A, bool flagFrom1)
   Triplet triplet;
 
   if (!A) return triplet;
-  int ncols = A->n;
+  int ncols = cs_getncol(A);
 
   cs *AT = cs_transpose(A, 1);
   int nrows = 0;
   if (AT != nullptr)
   {
-    nrows = AT->n;
+    nrows = cs_getncol(AT);
     AT = cs_spfree(AT);
   }
 
@@ -1520,9 +1520,9 @@ String toStringDim(const String &title, const cs *A)
 
   n1 = n2 = 0;
   if (A == nullptr) return sstr.str();
-  n1 = A->n;
+  n1 = cs_getncol(A);
   AT = cs_transpose(A, 1);
-  if (AT != nullptr) n2 = AT->n;
+  if (AT != nullptr) n2 = cs_getncol(AT);
   if (!title.empty()) sstr << title << " : ";
   sstr << "Nrows=" << n2 << " - Ncols=" << n1 << std::endl;
   if (AT != nullptr) AT = cs_spfree(AT);
@@ -1555,7 +1555,7 @@ String toStringRange(const String &title, const cs *C)
 
   if (!title.empty()) sstr << title << std::endl;
 
-  sstr << " Descr: m=" << C->m << " - n=" << C->n << " - nzmax=" << C->nzmax
+  sstr << " Descr: m=" << cs_getnrow(C) << " - n=" << cs_getncol(C) << " - nzmax=" << C->nzmax
   << std::endl;
   sstr << " Range: [" << mini << " ; " << maxi << "] (" << nvalid << " / "
        << number << ")" << std::endl;
@@ -1698,7 +1698,7 @@ void cs_sparse_to_triplet(const cs *A,
   *cols = *rows = nullptr;
   *vals = nullptr;
   if (!A) return;
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -1827,7 +1827,7 @@ int cs_get_nrow(const cs *A)
   if (A == nullptr) return 0;
   cs *AT = cs_transpose(A, 1);
   if (AT == nullptr) return 0;
-  int nrow = AT->n;
+  int nrow = cs_getncol(AT);
   AT = cs_spfree(AT);
   return (nrow);
 }
@@ -1835,16 +1835,16 @@ int cs_get_nrow(const cs *A)
 int cs_get_ncol(const cs *A)
 {
   if (A == nullptr) return 0;
-  int ncol = A->n;
+  int ncol = cs_getncol(A);
   return (ncol);
 }
 
 int cs_get_ncell(const cs *A)
 {
   if (A == nullptr) return 0;
-  int ncol = A->n;
+  int ncol = cs_getncol(A);
   cs *AT = cs_transpose(A, 1);
-  int nrow = AT->n;
+  int nrow = cs_getncol(AT);
   AT = cs_spfree(AT);
   return (nrow * ncol);
 }
@@ -1852,7 +1852,7 @@ int cs_get_ncell(const cs *A)
 void cs_print_dim(const char *title, const cs *A)
 {
   if (A == nullptr) return;
-  message("%s: Nrow=%d Ncol=%d NNZ=%d\n", title, A->m, A->n, A->nzmax);
+  message("%s: Nrow=%d Ncol=%d NNZ=%d\n", title, cs_getnrow(A), cs_getncol(A), A->nzmax);
 }
 
 void cs_print_range(const char *title, const cs *C)
@@ -1882,7 +1882,7 @@ void cs_print_range(const char *title, const cs *C)
     message("%s\n", title);
   else
     message("Sparse matrix\n");
-  message(" Descr: m=%d n=%d nnz=%d\n", C->m, C->n, C->nzmax);
+  message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
   message(" Range: [%lf ; %lf] (%d/%d)\n", mini, maxi, nvalid, number);
 
   /* Core deallocation */
@@ -1941,7 +1941,7 @@ cs* cs_extract_diag(cs *C, int mode)
 
   /* Loop on the rows */
 
-  for (int j = 0; j < C->n; j++)
+  for (int j = 0; j < cs_getncol(C); j++)
   {
     for (int p = Cp[j]; p < Cp[j + 1]; p++)
     {
@@ -1989,7 +1989,7 @@ double* csd_extract_diag(cs *C, int mode)
   /* Initializations */
 
   diag = nullptr;
-  size = C->n;
+  size = cs_getncol(C);
   Cp = C->p;
   Ci = C->i;
   Cx = C->x;
@@ -2003,7 +2003,7 @@ double* csd_extract_diag(cs *C, int mode)
 
   /* Loop on the rows */
 
-  for (int j = 0; j < C->n; j++)
+  for (int j = 0; j < cs_getncol(C); j++)
   {
     for (int p = Cp[j]; p < Cp[j + 1]; p++)
     {
@@ -2040,7 +2040,7 @@ VectorDouble csd_extract_diag_VD(cs *C, int mode)
   double* diag = csd_extract_diag(C, mode);
   if (diag == nullptr) return result;
 
-  int number = C->n;
+  int number = cs_getncol(C);
   result.resize(number, 0.);
   for (int i = 0; i < number; i++)
     result[i] = diag[i];
@@ -2062,7 +2062,7 @@ void cs_diag_suppress(cs *C)
 
   /* Loop on the rows */
 
-  for (int j = 0; j < C->n; j++)
+  for (int j = 0; j < cs_getncol(C); j++)
   {
     for (int p = Cp[j]; p < Cp[j + 1]; p++)
     {
@@ -2078,8 +2078,8 @@ int cs_sort_i(cs *C)
 
   /* Core allocation */
 
-  n = C->n;
-  size = MAX(C->m, n);
+  n = cs_getncol(C);
+  size = MAX(cs_getnrow(C), n);
   rank = (int*) mem_alloc(sizeof(int) * size, 0);
   if (rank == nullptr) return (1);
 
@@ -2112,15 +2112,15 @@ void cs_rowcol(const cs *A, int *nrows, int *ncols, int *count, double *percent)
   Ax = A->x;
   if (A->nz >= 0) return;
 
-  for (int j = 0; j < A->n; j++)
+  for (int j = 0; j < cs_getncol(A); j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
       if (ABS(Ax[p]) > 0) (*count)++;
     }
 
-  *ncols = A->n;
+  *ncols = cs_getncol(A);
   AT = cs_transpose(A, 1);
-  *nrows = AT->n;
+  *nrows = cs_getncol(AT);
   AT = cs_spfree(AT);
 
   if ((*nrows) > 0 && (*ncols) > 0)
@@ -2141,8 +2141,8 @@ void cs_print_nice(const char *title, const cs *A, int maxrow, int maxcol)
     message("(null)\n");
     return;
   }
-  m = A->m;
-  n = A->n;
+  m = cs_getnrow(A);
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2219,7 +2219,7 @@ void cs_print_only(const char *title, const cs *A, int nlimit)
     message("(null)\n");
     return;
   }
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2250,7 +2250,7 @@ void cs_print_short(const char *title, const cs *L, int nmax)
   int p, j, i, n, *Lp, *Li;
   double *Lx, value;
 
-  n = L->n;
+  n = cs_getncol(L);
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
@@ -2359,7 +2359,7 @@ double cs_maxsumabscol(const cs *A)
   /* Loop on the rows */
 
   maxval = 0.;
-  for (int j = 0; j < A->n; j++)
+  for (int j = 0; j < cs_getncol(A); j++)
   {
     sumval = 0.;
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
@@ -2398,12 +2398,12 @@ double* cs_col_sumrow(const cs *A, int *ncol, int *nrow)
 
   /* Core allocation */
 
-  vect = (double*) mem_alloc(sizeof(double) * A->n, 0);
+  vect = (double*) mem_alloc(sizeof(double) * cs_getncol(A), 0);
   if (vect == nullptr) goto label_end;
 
   /* Loop on the rows */
 
-  for (int j = 0; j < A->n; j++)
+  for (int j = 0; j < cs_getncol(A); j++)
   {
     sumval = 0.;
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
@@ -2411,8 +2411,8 @@ double* cs_col_sumrow(const cs *A, int *ncol, int *nrow)
     vect[j] = sumval;
   }
 
-  *ncol = A->n;
-  *nrow = AT->n;
+  *ncol = cs_getncol(A);
+  *nrow = cs_getncol(AT);
   error = 0;
 
   label_end: AT = cs_spfree(AT);
@@ -2427,7 +2427,7 @@ void cs_vecmult(const cs *A, int nout, const double *x, double *y)
   int *Ap, *Ai, n;
   double *Ax, value;
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2451,7 +2451,7 @@ void cs_tmulvec(const cs *A, int nout, const double *x, double *y)
   int *Ap, *Ai, n;
   double *Ax, value;
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2475,7 +2475,7 @@ void cs_mulvec(const cs *A, int nout, const double *x, double *y)
   int *Ap, *Ai, n;
   double *Ax;
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2548,7 +2548,7 @@ cs* cs_matvecR(const cs *A, double *x, int oper)
     messageAbort("Function not found");
 
   B = cs_duplicate(A);
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2584,7 +2584,7 @@ cs* cs_matvecL(const cs *A, double *x, int oper)
     messageAbort("Function not found");
 
   B = cs_duplicate(A);
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ax = A->x;
   Bx = B->x;
@@ -2620,7 +2620,7 @@ cs* cs_matvecnorm(const cs *A, const double *x, int oper)
 
   B = cs_duplicate(A);
   if (B == nullptr) return (B);
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2653,7 +2653,7 @@ void cs_matvecnorm_inplace(cs *A, const double *x, int oper)
   else
     messageAbort("Function not found");
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -2686,7 +2686,7 @@ static void st_get_FiCo(cs *L,
   LLp = Lt->p;
   LLi = Lt->i;
 
-  n = L->n;
+  n = cs_getncol(L);
   nU = 0;
   for (int i = 0; i < n; i++)
     nU += indUd[i];
@@ -2827,7 +2827,7 @@ static int st_coarse_type0(cs *Q,
   Qp = Qi = lambda = nullptr;
   L = Lt = Ltriplet = nullptr;
   Qx = nullptr;
-  n = Q->n;
+  n = cs_getncol(Q);
   Qp = Q->p;
   Qx = Q->x;
   Qi = Q->i;
@@ -2912,7 +2912,7 @@ static int st_coarse_typen(cs* /*L*/,
   Lp = Li = lambda = nullptr;
   Lout = Loutt = Ltriplet = nullptr;
   Lx = nullptr;
-  n = Lt->n;
+  n = cs_getncol(Lt);
   Lp = Lt->p;
   Lx = Lt->x;
   Li = Lt->i;
@@ -3013,7 +3013,7 @@ int cs_coarsening(cs *Q, int type, int **indCo_ret, cs **L_ret)
   error = 1;
   L = Lt = nullptr;
   indUd = indCo = indFi = nullptr;
-  n = Q->n;
+  n = cs_getncol(Q);
 
   // Core allocation
 
@@ -3078,7 +3078,7 @@ cs* cs_interpolate(cs *AA, cs *Lt, int *Co)
   AAp = AA->p;
   AAx = AA->x;
   AAi = AA->i;
-  n = AA->n;
+  n = cs_getncol(AA);
   indCo = nullptr;
 
   // Core allocation */
@@ -3316,7 +3316,7 @@ cs* cs_triangle(cs *A, int flag_upper, int flag_diag)
   Ati = At->i;
 
   // Loop on the columns 'j'
-  for (int j = 0; j < At->n; j++)
+  for (int j = 0; j < cs_getncol(At); j++)
   {
     // Loop on the non-zero part of the column
     for (int p = Atp[j]; p < Atp[j + 1]; p++)
@@ -3349,7 +3349,7 @@ int cs_lsolve_lowtri(const cs *L, const double *x, double *y)
   int j, n, p, *Lp, *Li;
   double *Lx, pivot, value;
   if (!L || !x) return (0); /* check inputs */
-  n = L->n;
+  n = cs_getncol(L);
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
@@ -3382,7 +3382,7 @@ int cs_lsolve_uptri(const cs *L, const double *x, double *y)
   int j, n, p, *Lp, *Li;
   double *Lx, pivot, value;
   if (!L || !x) return (0); /* check inputs */
-  n = L->n;
+  n = cs_getncol(L);
   Lp = L->p;
   Li = L->i;
   Lx = L->x;
@@ -3415,7 +3415,7 @@ void cs_mulvec_uptri(const cs *A,
   int *Ap, *Ai, i, n;
   double *Ax, value;
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -3447,7 +3447,7 @@ void cs_mulvec_lowtri(const cs *A,
   int *Ap, *Ai, i, n;
   double *Ax, value;
 
-  n = A->n;
+  n = cs_getncol(A);
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -3613,7 +3613,7 @@ void cs_add_cste(cs *A, double value)
   }
   Ap = A->p;
   Ax = A->x;
-  n = A->n;
+  n = cs_getncol(A);
 
   for (int j = 0; j < n; j++)
   {
@@ -3633,7 +3633,7 @@ double* cs_toArray(const cs *A)
     message("(null)\n");
     return nullptr;
   }
-  int n = A->n;
+  int n = cs_getncol(A);
   int *Ap = A->p;
   int *Ai = A->i;
   double *Ax = A->x;
@@ -3656,7 +3656,7 @@ double* cs_toArray(const cs *A)
 int cs_nnz(const cs *A)
 {
   if (!A) return 0;
-  int n = A->n;
+  int n = cs_getncol(A);
   int *Ap = A->p;
   return (Ap[n]);
 }
@@ -3686,7 +3686,7 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
     if (verbose)
     {
       message("No Stripping Sparse Matrix:\n");
-      message("- Dimension of the sparse matrix   = %d\n", Q->n);
+      message("- Dimension of the sparse matrix   = %d\n", cs_getncol(Q));
       message("- Number of non-zero terms         = %d\n", ntotal);
     }
 
@@ -3697,7 +3697,7 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   bool rescale = false;
 
   int error = 1;
-  int n = A->n;
+  int n = cs_getncol(A);
   int *Ap = A->p;
   int *Ai = A->i;
   double *Ax = A->x;

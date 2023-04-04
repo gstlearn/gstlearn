@@ -300,7 +300,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
 
   // Retrieve the elements from the sparse matrix
 
-  int   n = A->n ;
+  int   n = cs_getncol(A) ;
   int* Ap = A->p ;
   int* Ai = A->i ;
   double* Ax = A->x ;
