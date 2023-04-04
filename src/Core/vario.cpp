@@ -488,21 +488,22 @@ double _variogram_convert_angular_tolerance(double tolang)
  **
  ** \return  Rank of the lag or ITEST
  **
- ** \param[in]  vario        Vario structure
+ ** \param[in]  dirparam     Dirparam structure
  ** \param[in]  idir         Dir rank
  ** \param[in]  ps           Cosinus of the angle
  ** \param[in]  psmin        Angular tolerance
  ** \param[in]  dist         Distance
+ ** \param[in]  flag_asym    True for asymetric calculation
  **
  *****************************************************************************/
-int variogram_get_lag(Vario *vario,
+int variogram_get_lag(const DirParam& dirparam,
                       int idir,
                       double ps,
                       double psmin,
-                      double *dist)
+                      double *dist,
+                      bool flag_asym)
 {
   int k, ilag;
-  const DirParam &dirparam = vario->getDirParam(idir);
 
   /* Determine the rank of the lag */
 
@@ -525,7 +526,7 @@ int variogram_get_lag(Vario *vario,
   /* for pairs of samples opposite to the calculation direction */
   /* Be sure to consider its absolute value */
 
-  if (vario->getFlagAsym())
+  if (flag_asym)
   {
     if (ps < psmin) (*dist) = -(*dist);
   }
@@ -1756,8 +1757,8 @@ static int st_variogram_calcul1(Db *db,
   double psmin, ps, dist, maxdist;
 
   ps = 0.;
-  psmin = _variogram_convert_angular_tolerance(
-      vario->getDirParam(idir).getTolAngle());
+  DirParam dirparam = vario->getDirParam(idir);
+  psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech = db->getSampleNumber();
   maxdist = vario->getMaximumDistance(idir);
   const VarioParam& varioparam = vario->getVarioParam();
@@ -1781,7 +1782,7 @@ static int st_variogram_calcul1(Db *db,
       /* Check if the pair must be kept (Code criterion) */
 
       if (code_comparable(db, db, iech, jech,
-                          vario->getDirParam(idir).getOptionCode(),
+                          dirparam.getOptionCode(),
                           (int) vario->getDirParam(idir).getTolCode()))
         continue;
 
@@ -1794,9 +1795,9 @@ static int st_variogram_calcul1(Db *db,
 
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
-                                vario->getDirParam(idir).getBench(),
-                                vario->getDirParam(idir).getCylRad(),
-                                vario->getDirParam(idir).getCodirs(), &ps))
+                                dirparam.getBench(),
+                                dirparam.getCylRad(),
+                                dirparam.getCodirs(), &ps))
         continue;
 
       /* Check if the pair must be rejected due to faulting */
@@ -1805,7 +1806,7 @@ static int st_variogram_calcul1(Db *db,
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+      ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
       if (IFFFF(ipas)) continue;
 
       /* Case of internal storage */
@@ -1939,7 +1940,7 @@ static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+      ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
       if (IFFFF(ipas)) continue;
 
       /* Evaluate the variogram */
@@ -2048,7 +2049,7 @@ static int st_variovect_calcul(Db *db,
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+      ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
       if (IFFFF(ipas)) continue;
 
       w1 = db->getWeight(iech);
@@ -5118,7 +5119,7 @@ int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
 
         /* Get the rank of the lag */
 
-        ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+        ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
         if (IFFFF(ipas)) continue;
 
         /* Case of internal storage */
@@ -5293,7 +5294,7 @@ int variogram_mlayers(Db *db, int *seltab, Vario *vario, Vario_Order *vorder)
 
             /* Get the rank of the lag */
 
-            ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+            ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
             if (IFFFF(ipas)) continue;
 
             /* Internal storage */
@@ -5730,14 +5731,13 @@ int vmap_compute(Db *db,
  ** \return  Pointer to the newly created Db
  **
  ** \param[in]  db           Db structure
- ** \param[in]  vario        Vario structure
- ** \param[in]  namconv      Naming convention
+ ** \param[in]  varioparam   VarioParam structure
  **
  *****************************************************************************/
-Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
+Db* db_variogram(Db *db, const VarioParam* varioparam)
 {
   if (db == nullptr) return nullptr;
-  if (vario == nullptr) return nullptr;
+  if (varioparam == nullptr) return nullptr;
   if (db->getNDim() != 2 && db->getNDim() != 3)
   {
     messerr("This function can only be calculated in dimension equal to 2 or 3");
@@ -5749,11 +5749,18 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
     return nullptr;
   }
 
-  const VarioParam& varioparam = vario->getVarioParam();
+  // Creating the output Db
+  Db* newdb = Db::create();
+  int ndim = db->getNDim();
+  VectorVectorDouble coor(ndim);
+  VectorVectorDouble ranks(2);
+  VectorDouble vect(ndim);
+
+  // Calculating the admissible pairs
   VectorInt rindex = db->getSortArray();
-  for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
+  for (int idir = 0; idir < varioparam->getDirectionNumber(); idir++)
   {
-    DirParam dirparam = varioparam.getDirParam(idir);
+    DirParam dirparam = varioparam->getDirParam(idir);
     double ps = 0.;
     double psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
     int nech = db->getSampleNumber();
@@ -5767,8 +5774,7 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
       if (!db->isActive(iech)) continue;
       if (FFFF(db->getWeight(iech))) continue;
 
-      int ideb = (st_date_is_used(&varioparam, db, db)) ? 0 :
-                                                          iiech + 1;
+      int ideb = (st_date_is_used(varioparam, db, db)) ? 0 : iiech + 1;
       for (int jjech = ideb; jjech < nech; jjech++)
       {
         int jech = rindex[jjech];
@@ -5783,42 +5789,42 @@ Db* varioToDb(Db *db, Vario *vario, const NamingConvention &namconv)
 
         /* Check if the pair must be kept (Date criterion) */
 
-        if (st_date_comparable(&varioparam, db, db, iech, jech,
+        if (st_date_comparable(varioparam, db, db, iech, jech,
                                dirparam.getIdate())) continue;
 
         /* Check if the pair must be kept */
 
-        double dist = distance_intra(db, iech, jech, NULL);
+        double dist = distance_intra(db, iech, jech, vect.data());
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
                                   dirparam.getCodirs(), &ps)) continue;
 
         /* Check if the pair must be rejected due to faulting */
 
-        if (variogram_reject_fault(db, iech, jech, varioparam.getFaults()))
+        if (variogram_reject_fault(db, iech, jech, varioparam->getFaults()))
           continue;
 
         /* Get the rank of the lag */
 
-        int ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+        int ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, false);
         if (IFFFF(ipas)) continue;
 
-        /* Evaluate the variogram */
+        // The pair is kept
 
-        VARIO = vario;
-        IDIRLOC = idir;
-        IECH1 = iech;
-        IECH2 = jech;
+        for (int idim = 0; idim < ndim; idim++)
+          coor[idim].push_back(vect[idim]);
+        ranks[0].push_back((double) iech);
+        ranks[1].push_back((double) jech);
       }
     }
   }
 
-  /* Set the error return code */
+  // Loading the coordinate vectors in the newly created Db
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, IPTW, "Nb", 1, false);
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, IPTV, "Var");
+  newdb->addColumnsByVVD(coor, "coor", ELoc::X);
+  newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNKNOWN);
 
-  return nullptr;
+  return newdb;
 }
 
 /****************************************************************************/

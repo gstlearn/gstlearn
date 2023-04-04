@@ -22,6 +22,7 @@
 static int RADIUS[3];
 static int LARGE = 9999999;
 
+
 /*! \cond */
 #define CROSS 0
 #define BLOCK 1
