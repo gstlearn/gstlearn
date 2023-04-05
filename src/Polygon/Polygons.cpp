@@ -867,5 +867,7 @@ int db_selhull(Db *db1,
 
   // Set the Naming Convention
   namconv.setNamesAndLocators(db2, isel);
+
+  delete polygons;
   return 0;
 }
