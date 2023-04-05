@@ -641,19 +641,9 @@ void morpho_closing(int option,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Converts an input image (double) into an image (in place)
- **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  tab     input array (double)
- ** \param[in]  vmin    Minimum value (Inclusive bound or TEST)
- ** \param[in]  vmax    Maximum value (Exclusive bound or TEST)
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] imagout output image
- **
- *****************************************************************************/
+/**
+ * Converts an input image (double) into an image (in place)
+ */
 void morpho_double2imageInPlace(const VectorInt &nx,
                                 const VectorDouble &tab,
                                 double vmin,
@@ -694,19 +684,9 @@ void morpho_double2imageInPlace(const VectorInt &nx,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Converts an input image (double) into a returned image
- **
- ** \returns The newly created image
- **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  tab     input array (double)
- ** \param[in]  vmin    Minimum value (Inclusive bound or TEST)
- ** \param[in]  vmax    Maximum value (Exclusive bound or TEST)
- ** \param[in]  verbose Verbose flag
- **
- *****************************************************************************/
+/**
+ * Converts an input image (double) into a returned image
+ */
 BImage morpho_double2image(const VectorInt &nx,
                            const VectorDouble &tab,
                            double vmin,
@@ -718,22 +698,9 @@ BImage morpho_double2image(const VectorInt &nx,
   return imagout;
 }
 
-/*****************************************************************************/
-/*!
- **  Converts an image into an array (double)
- **
- ** \param[in]  imagin  input image
- ** \param[in]  mode    grain/pore assignment
- ** \li                  0 : if the value is assigned to tab()
- ** \li                  1 : if the value is added to tab()
- ** \li                 -1 : if the value is subtracted from tab()
- ** \param[in]  grain   value for the grain (double)
- ** \param[in]  pore    value for the pore (double)
- ** \param[in]  verbose Verbose flag
- **
- ** \param[out] tab    output array (double)
- **
- *****************************************************************************/
+/**
+ * Converts an image into an array (double)
+ */
 void morpho_image2double(const BImage& imagin,
                          int mode,
                          double grain,

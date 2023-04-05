@@ -26,7 +26,6 @@
 #include "Basic/ICloneable.hpp"
 
 class DbGrid;
-class Polygons;
 
 /**
  * Class containing a Data Set organized as a set of Isolated Points.
@@ -134,11 +133,12 @@ public:
                           const VectorInt &ranks = VectorInt(),
                           bool verbose = false);
   static Db* createFillRandom(int ndat,
-                              int ndim,
-                              double sel_percent = TEST,
+                              int ndim = 2,
+                              int nvar = 1,
+                              int nfex = 0,
+                              double varmax = 0.,
+                              double selRatio = 0.,
                               const VectorDouble heteroRatio = VectorDouble(),
-                              int nFeX = 0,
-                              bool measurementError = false,
                               int seed = 124234);
 
   const VectorDouble& getArrays() const { return _array; }
@@ -210,9 +210,7 @@ public:
                        const String &radix,
                        const ELoc& locatorType,
                        int locatorIndex = 0,
-                       bool useSel = false,
-                       double valinit = 0.,
-                       int nvar = 1);
+                       bool useSel = false);
   int addColumns(const VectorDouble& tab,
                  const String& radix = "New",
                  const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),

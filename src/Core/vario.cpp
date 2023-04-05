@@ -5743,9 +5743,19 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
     messerr("This function can only be calculated in dimension equal to 2 or 3");
     return nullptr;
   }
+  if (db->getActiveSampleNumber() <= 0)
+  {
+    messerr("This function requires your 'Db' to have some active samples");
+    return nullptr;
+  }
   if (db->getLocNumber(ELoc::Z) != 1)
   {
     messerr("This function is restricted to the Monovariate case");
+    return nullptr;
+  }
+  if (varioparam->getDirectionNumber() <= 0)
+  {
+    messerr("This function requires some direction to be defined in 'VarioParam'");
     return nullptr;
   }
 
@@ -5812,8 +5822,13 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
         // The pair is kept
 
         for (int idim = 0; idim < ndim; idim++)
+        {
           coor[idim].push_back(vect[idim]);
+          coor[idim].push_back(-vect[idim]);
+        }
         ranks[0].push_back((double) iech);
+        ranks[1].push_back((double) iech);
+        ranks[0].push_back((double) jech);
         ranks[1].push_back((double) jech);
       }
     }

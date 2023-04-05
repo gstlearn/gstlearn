@@ -1136,15 +1136,14 @@ void Db::addColumnsByVVD(const VectorVectorDouble tab,
                          const String &radix,
                          const ELoc &locatorType,
                          int locatorIndex,
-                         bool useSel,
-                         double valinit,
-                         int nvar)
+                         bool useSel)
 {
   VectorDouble tabv;
+  int nvar = tab.size();
   for(auto &e : tab)
     for(auto &f : e)
       tabv.push_back(f);
-  addColumns(tabv,radix,locatorType,locatorIndex,useSel,valinit,nvar);
+  addColumns(tabv,radix,locatorType,locatorIndex,useSel,TEST,nvar);
 }
 
 
@@ -4758,13 +4757,88 @@ VectorInt Db::getSampleRanks() const
   return vec;
 }
 
+/**
+ * Creating a new Db loaded with random values
+ * @param ndat Number of samples
+ * @param ndim Dimension of the space
+ * @param nvar Number of variables
+ * @param nfex Number of external drift functions
+ * @param varmax Maximum value for the measurement error
+ * @param selRatio Percentage of samples that must be masked off
+ * @param heteroRatio Vector of proportions of NA to be generated per variable
+ * @param seed Value for the Random Generator seed
+ * @return A pointer to the newly created Db
+ *
+ * @remarks
+ * The coordinates are generated uniformly within [0,1]
+ * The variance of measurement error is created only if 'varmax' is positive. Then a field is created
+ * for each variable. this field is filled with random values uniformly generated in [0, varmax]
+ * The external drift values are generated according to Normal distribution.
+ */
 Db* Db::createFillRandom(int ndat,
-                            int ndim,
-                            double sel_percent,
-                            const VectorDouble heteroRatio,
-                            int nFeX,
-                            bool measurementError,
-                            int seed)
+                         int ndim,
+                         int nvar,
+                         int nfex,
+                         double varmax,
+                         double selRatio,
+                         const VectorDouble heteroRatio,
+                         int seed)
 {
-  return nullptr;
+  // Set the seed
+  law_set_random_seed(seed);
+
+  // Create the Db
+  Db* db = Db::create();
+
+  // Generate the vector of coordinates
+  VectorVectorDouble coor(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    coor[idim] = VH::simulateUniform(ndat);
+  db->addColumnsByVVD(coor, "x", ELoc::X);
+
+  // Generate the Vectors of Variance of measurement error (optional)
+  if (varmax > 0.)
+  {
+    VectorVectorDouble varm(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      varm[ivar] = VH::simulateUniform(ndat, 0., varmax);
+    db->addColumnsByVVD(varm, "v", ELoc::V);
+  }
+
+  // Generate the External Drift functions (optional)
+  if (nfex > 0)
+  {
+    VectorVectorDouble fex(nfex);
+    for (int ifex = 0; ifex < nfex; ifex++)
+      fex[ifex] = VH::simulateGaussian(ndat);
+    db->addColumnsByVVD(fex, "f", ELoc::F);
+  }
+
+  // Generate the selection (optional)
+  if (selRatio > 0)
+  {
+    VectorDouble sel(ndat);
+    VectorDouble rnd = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++)
+      sel[idat] = (rnd[idat] > selRatio) ? 1. : 0.;
+    db->addColumns(sel, "sel", ELoc::SEL);
+  }
+
+  // Generate the variables
+  bool flag_hetero = ((int) heteroRatio.size() == nvar);
+  VectorVectorDouble vars(nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    vars[ivar] = VH::simulateGaussian(ndat);
+    if (flag_hetero)
+    {
+      VectorDouble rnd = VH::simulateUniform(ndat);
+      for (int idat = 0; idat < ndat; idat++)
+        if (rnd[idat] <= heteroRatio[ivar])
+          vars[ivar][idat] = TEST;
+    }
+  }
+  db->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  return db;
 }
