@@ -158,7 +158,7 @@ bool CalcImage::_run()
 
   if (_flagMorpho)
   {
-    if (db_morpho_calc(dbgrid, _iattOut, _oper, _vmin, _vmax, _option, _radius,
+    if (_db_morpho_calc(dbgrid, _iattOut, _oper, _vmin, _vmax, _option, _radius,
                        _distErode, _verbose)) return false;
   }
 

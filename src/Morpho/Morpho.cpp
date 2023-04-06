@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
 
 #include "Enum/EMorpho.hpp"
 
@@ -1046,15 +1047,15 @@ void morpho_gradients(DbGrid *dbgrid, int iptr)
 /**
  * Perform a morphological operation with a DbGrid
  */
-GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
-                                   int iptr0,
-                                   const EMorpho& oper,
-                                   double vmin,
-                                   double vmax,
-                                   int option,
-                                   const VectorInt& radius,
-                                   bool flagDistErode,
-                                   bool verbose)
+int _db_morpho_calc(DbGrid *dbgrid,
+                    int iptr0,
+                    const EMorpho &oper,
+                    double vmin,
+                    double vmax,
+                    int option,
+                    const VectorInt &radius,
+                    bool flagDistErode,
+                    bool verbose)
 {
   int ntotal = dbgrid->getSampleNumber();
   VectorInt nxy = dbgrid->getNXs();

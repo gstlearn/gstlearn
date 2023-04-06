@@ -27,6 +27,7 @@ class AnamHermite;
 class Selectivity;
 class DbGrid;
 class NeighImage;
+class EMorpho;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -88,6 +89,16 @@ void _image_smoother(DbGrid *dbgrid,
                      int type,
                      double range,
                      int iptr0);
+
+int _db_morpho_calc(DbGrid *dbgrid,
+                    int iptr0,
+                    const EMorpho &oper,
+                    double vmin = 0.,
+                    double vmax = 1.5,
+                    int option = 0,
+                    const VectorInt &radius = VectorInt(),
+                    bool flagDistErode = false,
+                    bool verbose = false);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

@@ -241,13 +241,4 @@ GSTLEARN_EXPORT void morpho_angle2D(DbGrid *dbgrid,
                                     const VectorInt &radius,
                                     int iptr0);
 GSTLEARN_EXPORT void morpho_gradients(DbGrid *dbgrid, int iptr0);
-GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
-                                   int iptr0,
-                                   const EMorpho& oper,
-                                   double vmin = 0.,
-                                   double vmax = 1.5,
-                                   int option = 0,
-                                   const VectorInt& radius = VectorInt(),
-                                   bool flagDistErode = false,
-                                   bool verbose = false);
 /**@}*/
