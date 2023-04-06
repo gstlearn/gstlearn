@@ -242,7 +242,7 @@ public:
              double vmax = 1.5,
              int option = 0,
              const VectorInt &radius = VectorInt(),
-             bool dist_erode = false,
+             bool flagDistErode = false,
              bool verbose = false,
              const NamingConvention &namconv = NamingConvention("Morpho"));
   int smooth(NeighImage *neigh,

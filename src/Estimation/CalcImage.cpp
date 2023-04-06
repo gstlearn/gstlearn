@@ -247,7 +247,7 @@ int dbSmoother(DbGrid *dbgrid,
  * @param option  Option
  * @param radius  Radius
  * @param verbose Verbose option
- * @param dist_erode  True: Inflate the grain; False: Reduce the grain
+ * @param flagDistErode True: Inflate the grain; False: Reduce the grain
  * @param namconv Naming convention
  * @return
  */
@@ -257,7 +257,7 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              double vmax,
                              int option,
                              const VectorInt &radius,
-                             bool dist_erode,
+                             bool flagDistErode,
                              bool verbose,
                              const NamingConvention &namconv)
 {
@@ -273,7 +273,7 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
   image.setVmax(vmax);
   image.setOption(option);
   image.setRadius(radius);
-  image.setDistErode(dist_erode);
+  image.setDistErode(flagDistErode);
   image.setVerbose(verbose);
 
   // Particular case of the number of output variables

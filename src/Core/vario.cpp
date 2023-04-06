@@ -5764,9 +5764,9 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
   int ndim = db->getNDim();
   VectorVectorDouble coor(ndim);
   VectorVectorDouble ranks(2);
+  VectorVectorDouble lags(2);
+  VectorVectorDouble dirs(2);
   VectorDouble vect(ndim);
-  VectorDouble lags;
-  VectorDouble dirs;
 
   // Calculating the admissible pairs
   VectorInt rindex = db->getSortArray();
@@ -5832,18 +5832,20 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
         ranks[1].push_back((double) iech);
         ranks[0].push_back((double) jech);
         ranks[1].push_back((double) jech);
-        dirs.push_back((double) idir);
-        lags.push_back((double) ipas);
+        dirs[0].push_back((double) idir);
+        dirs[1].push_back((double) idir);
+        lags[0].push_back((double) ipas);
+        lags[1].push_back((double) ipas);
       }
     }
   }
 
   // Loading the coordinate vectors in the newly created Db
 
-  newdb->addColumnsByVVD(coor, "Coor", ELoc::X);
+  newdb->addColumnsByVVD(coor,  "Coor", ELoc::X);
   newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNKNOWN);
-  newdb->addColumns(lags,"Lag",ELoc::UNKNOWN);
-  newdb->addColumns(dirs,"Direction",ELoc::UNKNOWN);
+  newdb->addColumnsByVVD(lags,  "Lag",ELoc::UNKNOWN);
+  newdb->addColumnsByVVD(dirs,  "Direction",ELoc::UNKNOWN);
 
   return newdb;
 }

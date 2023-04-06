@@ -741,7 +741,7 @@ void morpho_image2double(const BImage& imagin,
  */
 void morpho_distance(int option,
                      const VectorInt &radius,
-                     bool dist_erode,
+                     bool flagDistErode,
                      BImage& imagin,
                      VectorDouble &dist,
                      bool verbose)
@@ -756,7 +756,7 @@ void morpho_distance(int option,
   /* Processing loop */
 
   int iter = 0;
-  if (dist_erode)
+  if (flagDistErode)
   {
     while (morpho_count(imagin) != 0)
     {
@@ -1053,7 +1053,7 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
                                    double vmax,
                                    int option,
                                    const VectorInt& radius,
-                                   bool dist_erode,
+                                   bool flagDistErode,
                                    bool verbose)
 {
   int ntotal = dbgrid->getSampleNumber();
@@ -1108,7 +1108,7 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
   }
   else if (oper == EMorpho::DISTANCE)
   {
-    morpho_distance(option,radius,dist_erode,image,tabout,verbose);
+    morpho_distance(option,radius,flagDistErode,image,tabout,verbose);
     alreadyLoaded = true;
   }
   else if (oper == EMorpho::ANGLE)

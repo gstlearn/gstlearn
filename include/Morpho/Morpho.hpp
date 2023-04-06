@@ -180,7 +180,7 @@ GSTLEARN_EXPORT VectorInt morpho_labelsize(int option,
  *                    1 for BLOCK and 0 for CROSS (see remarks for more information)
  * @param  radius     Vector giving the extensions of the structuring element along each direction
  *                    of the Space.
- * @param dist_erode 1 Inflate the grain; 0 Reduce the grain
+ * @param flagDistErode Inflate the grain; 0 Reduce the grain
  * @param dist Contains the vector of returned distances
  * @param iptr0 UID where the angle calculation will be calculated
  * @param flag_center True to omit the center
@@ -195,7 +195,7 @@ GSTLEARN_EXPORT VectorInt morpho_labelsize(int option,
  */
 GSTLEARN_EXPORT void morpho_distance(int option,
                                      const VectorInt &radius,
-                                     bool flag_dist_erode,
+                                     bool flagDistErode,
                                      BImage& imagin,
                                      VectorDouble &dist,
                                      bool verbose = false);
@@ -222,12 +222,11 @@ GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
  *                    1 for BLOCK and 0 for CROSS (see remarks for more information)
  * @param  radius     Vector giving the extensions of the structuring element along each direction
  *                    of the Space.
- * @param dist_erode 1 Inflate the grain; 0 Reduce the grain
+ * @param flagDistErode 1 Inflate the grain; 0 Reduce the grain (used for distance calculation)
  * @param dist Contains the vector of returned distances
  * @param iptr0 UID where the angle calculation will be calculated
  * @param flag_center True to omit the center
  * @param oper Type of Morphological operation defined by a keyword from \link EMorpho.hpp EMorpho \endlink
- * @param dist_erode 1 Inflate the grain; 0 Reduce the grain
  * @param  vmin, vmax If the value of 'tab' lies within [vmin, vmax], BImage is set to 1; 0 otherwise
  *                    (used when converting from double to BImage)
  * @param  verbose    Verbose flag
@@ -249,6 +248,6 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
                                    double vmax = 1.5,
                                    int option = 0,
                                    const VectorInt& radius = VectorInt(),
-                                   bool dist_erode = false,
+                                   bool flagDistErode = false,
                                    bool verbose = false);
 /**@}*/
