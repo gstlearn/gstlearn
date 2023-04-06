@@ -1426,7 +1426,6 @@ bool DbGrid::hasSingleBlock() const
 int DbGrid::addSelectionFromDb(Db *db,
                                bool flagHull,
                                double dilate,
-                               const String& name,
                                double vmin,
                                double vmax,
                                int option,
@@ -1444,20 +1443,18 @@ int DbGrid::addSelectionFromDb(Db *db,
   {
     // Selection is obtained as the Convex Hull of the samples located in Db
 
-    return db_selhull(db, this, dilate, verbose, namconv);
+    if (db_selhull(db, this, dilate, verbose, namconv)) return 0;
   }
   else
   {
     // Selection is performed by operating morphological operations on a primary variable
 
-    if (name.empty())
+    if (getLocNumber(ELoc::Z) != 1)
     {
-      messerr("When using the Morphology option, you must define an initial variable defined on the grid");
+      messerr("When using the Morphology option, you must define ONE variable defined on the grid");
       return 1;
     }
-    VectorDouble tabin = getColumn(name, true, false);
-    BImage image = morpho_double2image(getNXs(), tabin, vmin, vmax, verbose);
-
+    if (morpho(EMorpho::DILATION, vmin, vmax, option, radius, false, verbose, namconv)) return 0;
   }
-  return 1;
+  return 0;
 }

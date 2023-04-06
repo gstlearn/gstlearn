@@ -129,6 +129,14 @@ def isNotCorrect(object, types):
     print("Argument 'object' (",filetype,") must be a valid among",types)
     return True
 
+def defaultVariable(db, name):
+    if name is None:
+        if db.getLocNumber(gl.ELoc.Z) > 0:
+            name = db.getNameByLocator(gl.ELoc.Z,0)
+        else : # if no Z locator, choose the last field
+            name = db.getLastName()
+    return name
+
 def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     '''
     Set the default values for the geometrical parameters for one or a set of Axes
@@ -1117,6 +1125,9 @@ def raster(ax, dbgrid, name, usesel = True, posx=0, posy=1, corner=None,
     flagLegend: Flag for representing the Color Bar
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
+    
+    name = defaultVariable(dbgrid, name)
+            
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
@@ -1152,6 +1163,8 @@ def isoline(ax, dbgrid, name, usesel = True,
     
     **kwargs : arguments passed to matplotlib.pyplot.contour
     '''
+    name = defaultVariable(dbgrid, name)
+        
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
@@ -1197,11 +1210,9 @@ def gridGeneral(ax, dbgrid, name_raster = None, name_contour = None, usesel = Tr
 
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
+    
     if (name_raster is None) and (name_contour is None):
-        if dbgrid.getLocNumber(gl.ELoc.Z) > 0:
-            name_raster = dbgrid.getNameByLocator(gl.ELoc.Z,0)
-        else : # if no Z locator, choose the last field
-            name_raster = dbgrid.getLastName()
+        name_raster = defaultVariable(dbgrid, name)
 
     title = ""
     if name_raster is not None:

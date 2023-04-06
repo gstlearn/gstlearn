@@ -253,7 +253,6 @@ public:
   int addSelectionFromDb(Db* db,
                          bool flagHull = true,
                          double dilate = 0.,
-                         const String& name = String(),
                          double vmin = 0.5,
                          double vmax = 1.5,
                          int option = 0,
