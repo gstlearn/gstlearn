@@ -250,6 +250,18 @@ public:
              double range = 1.,
              const NamingConvention &namconv = NamingConvention("Smooth"));
 
+  int addSelectionFromDb(Db* db,
+                         bool flagHull = true,
+                         double dilate = 0.,
+                         const String& name = String(),
+                         double vmin = 0.5,
+                         double vmax = 1.5,
+                         int option = 0,
+                         const VectorInt& radius = VectorInt(),
+                         bool verbose = false,
+                         const NamingConvention &namconv = NamingConvention("FromDb", true, true, true,
+                                                                            ELoc::fromKey("SEL")));
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

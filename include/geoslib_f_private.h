@@ -99,6 +99,8 @@ int _db_morpho_calc(DbGrid *dbgrid,
                     const VectorInt &radius = VectorInt(),
                     bool flagDistErode = false,
                     bool verbose = false);
+void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0);
+void _morpho_gradients(DbGrid *dbgrid, int iptr0);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

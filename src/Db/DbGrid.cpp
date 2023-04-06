@@ -30,6 +30,7 @@
 #include "Stats/Classical.hpp"
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
+#include "Morpho/Morpho.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -1420,4 +1421,43 @@ bool DbGrid::hasSingleBlock() const
   for (int idim = 0; idim < getNDim(); idim++)
     if (getNX(idim) == 1) return true;
   return false;
+}
+
+int DbGrid::addSelectionFromDb(Db *db,
+                               bool flagHull,
+                               double dilate,
+                               const String& name,
+                               double vmin,
+                               double vmax,
+                               int option,
+                               const VectorInt &radius,
+                               bool verbose,
+                               const NamingConvention &namconv)
+{
+  if (db == nullptr)
+  {
+    messerr("You must define a valid Db");
+    return 1;
+  }
+
+  if (flagHull)
+  {
+    // Selection is obtained as the Convex Hull of the samples located in Db
+
+    return db_selhull(db, this, dilate, verbose, namconv);
+  }
+  else
+  {
+    // Selection is performed by operating morphological operations on a primary variable
+
+    if (name.empty())
+    {
+      messerr("When using the Morphology option, you must define an initial variable defined on the grid");
+      return 1;
+    }
+    VectorDouble tabin = getColumn(name, true, false);
+    BImage image = morpho_double2image(getNXs(), tabin, vmin, vmax, verbose);
+
+  }
+  return 1;
 }

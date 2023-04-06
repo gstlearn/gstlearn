@@ -895,9 +895,7 @@ VectorInt gridcell_neigh(int ndim,
 /**
  * Calculate the gradient orientations of a colored image
  */
-void morpho_angle2D(DbGrid* dbgrid,
-                    const VectorInt &radius,
-                    int iptr0)
+void _morpho_angle2D(DbGrid *dbgrid, const VectorInt &radius, int iptr0)
 {
   int iad;
   int pivot = 0;
@@ -967,7 +965,7 @@ void morpho_angle2D(DbGrid* dbgrid,
 /**
  * Calculate the gradient components of a colord image
  */
-void morpho_gradients(DbGrid *dbgrid, int iptr)
+void _morpho_gradients(DbGrid *dbgrid, int iptr)
 {
   int j1, j2, number;
 
@@ -1114,13 +1112,13 @@ int _db_morpho_calc(DbGrid *dbgrid,
   }
   else if (oper == EMorpho::ANGLE)
   {
-    morpho_angle2D(dbgrid,radius,iptr0);
+    _morpho_angle2D(dbgrid,radius,iptr0);
     alreadyLoaded = true;
     alreadySaved = true;
   }
   else if (oper == EMorpho::GRADIENT)
   {
-    morpho_gradients(dbgrid, iptr0);
+    _morpho_gradients(dbgrid, iptr0);
     alreadyLoaded = true;
     alreadySaved = true;
   }

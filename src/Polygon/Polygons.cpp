@@ -809,7 +809,7 @@ void db_polygon(Db *db,
  ** \return  Error returned code
  **
  ** \param[in]  db1     descriptor of the Db serving for convex hull calculation
- ** \param[in]  db2     descriptor of the Db where the mask must be performed
+ ** \param[in]  db2     descriptor of the Db where the mask must be stored
  ** \param[in]  dilate  Radius of the dilation
  ** \param[in]  verbose Verbose flag
  ** \param[in]  namconv Naming convention
