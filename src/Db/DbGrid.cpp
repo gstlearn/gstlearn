@@ -1333,11 +1333,11 @@ int DbGrid::morpho(const EMorpho &oper,
                    double vmax,
                    int option,
                    const VectorInt &radius,
-                   bool dist_erode,
+                   bool flagDistErode,
                    bool verbose,
                    const NamingConvention &namconv)
 {
-  return dbMorpho(this, oper, vmin, vmax, option, radius, dist_erode, verbose, namconv);
+  return dbMorpho(this, oper, vmin, vmax, option, radius, flagDistErode, verbose, namconv);
 }
 
 int DbGrid::smooth(NeighImage *neigh,
