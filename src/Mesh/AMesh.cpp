@@ -209,6 +209,21 @@ VectorVectorDouble AMesh::getAllCoordinates() const
   return coords;
 }
 
+VectorVectorInt AMesh::getAllApices() const
+{
+  int nmeshes = getNMeshes();
+  int nper = getNApexPerMesh();
+  VectorVectorInt ranks(nmeshes);
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+    ranks[imesh].resize(nper);
+
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+    for (int iper = 0; iper < nper; iper++)
+      ranks[imesh][iper] = getApex(imesh, iper);
+
+  return ranks;
+}
+
 VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
 {
   VectorInt list;

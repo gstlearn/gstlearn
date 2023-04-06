@@ -12,14 +12,13 @@ Release 0.2.0
 - Transfer External Tools to gstlearnext
 - Fix Anamorphosis back transformation (Hermite gaussianToRaw)
 - Modify eval() and eval0() for Cov* functions: invert argument order
-- Correct when changing the number of variabl 
-
-es in an existing CovContext
+- Correct when changing the number of variables in an existing CovContext
 - Modification of the names of the getDriftXXX functions
 - Correction for Variance of Measurement error in Kriging and covMatrix functions
 - Reorganization of the Class diagram for AMatrix
 - Adding method "reduce" to AMatrix (and related classes) and to Model, ACovAnisoList and CovAniso
 - option flag_varZ in Kriging() is restricted to stationary covariances
+- new function db_variogram which returns the information on variogram pairs (in a vmap setup)
 
 Release 0.1.38
 ==============

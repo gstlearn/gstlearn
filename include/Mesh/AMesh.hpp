@@ -97,6 +97,7 @@ public:
   VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt());
 
   VectorVectorDouble getAllCoordinates() const;
+  VectorVectorInt getAllApices() const;
 
   /// TODO : replace by VectorVectorInt ?
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
