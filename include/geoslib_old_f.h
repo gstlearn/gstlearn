@@ -5,7 +5,7 @@
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://github.com/gstlearn                                       */
-/* License: BSD 3 clause                                                      */
+/* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
 #pragma once
@@ -1791,26 +1791,6 @@ GSTLEARN_EXPORT void mesh_stats(int ndim,
                                 int nmesh,
                                 int *meshes,
                                 double *points);
-GSTLEARN_EXPORT int trmesh_(int *n,
-                            double *x,
-                            double *y,
-                            double *z__,
-                            int *list,
-                            int *lptr,
-                            int *lend,
-                            int *lnew,
-                            int *near__,
-                            int *next,
-                            double *dist,
-                            int *ier);
-GSTLEARN_EXPORT int trlist_(int *n,
-                            int *list,
-                            int *lptr,
-                            int *lend,
-                            int *nrow,
-                            int *nt,
-                            int *ltri,
-                            int *ier);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

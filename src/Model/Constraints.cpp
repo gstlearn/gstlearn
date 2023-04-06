@@ -5,7 +5,7 @@
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://github.com/gstlearn                                       */
-/* License: BSD 3 clause                                                      */
+/* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
 #include "Model/Constraints.hpp"

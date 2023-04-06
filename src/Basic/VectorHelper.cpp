@@ -5,7 +5,7 @@
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://github.com/gstlearn                                       */
-/* License: BSD 3 clause                                                      */
+/* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
@@ -25,7 +25,6 @@
 #include <cstdlib>
 #include <math.h>
 #include <random>
-#include <bits/stdc++.h>
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {

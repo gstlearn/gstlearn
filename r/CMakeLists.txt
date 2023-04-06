@@ -10,7 +10,6 @@ set(R_PACKAGE_NAME ${PROJECT_NAME})
 # DEPENDENCIES
 
 # Look for R
-#set(CMAKE_FIND_DEBUG_MODE TRUE)
 include(root/FindR.cmake)
 if(NOT R_FOUND)
   message(FATAL_ERROR "R not found")

@@ -34,6 +34,8 @@ get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 # Activate verbose mode
 #set(CMAKE_VERBOSE_MAKEFILE ON)
+# Debug find package instruction
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Options
 option(BUILD_PYTHON  "Build Python package"        OFF)
@@ -56,6 +58,9 @@ message(STATUS "USE_HDF5="      ${USE_HDF5})
 
 # Universal binary for Mac (TODO : doesn't work for customized R)
 #set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "Build architectures for Mac OS X" FORCE)
+
+# Create gstlearn cmake file path in the build tree
+cmake_path(APPEND GSTLEARN_CMAKE_FILE ${PROJECT_BINARY_DIR} "gstlearn.cmake")
 
 ####################################################
 ## EXTERNAL LIBS

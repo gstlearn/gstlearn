@@ -73,6 +73,7 @@ foreach(FLAVOR ${FLAVORS})
   add_library(${PROJECT_NAME}::${FLAVOR} ALIAS ${FLAVOR})
 
   # Include directories
+  # PUBLIC is mandatory for tests and packages (no need to install)
   target_include_directories(${FLAVOR} PUBLIC
     # Add includes path for compiling the library
     $<BUILD_INTERFACE: ${INCLUDES}>
@@ -95,10 +96,10 @@ foreach(FLAVOR ${FLAVORS})
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})
   
-  # 'Link' to csparse and gmtsph
+  # Link to csparse and gmtsph
   target_link_libraries(${FLAVOR} PRIVATE csparse gmtsph)
     
-  # 'Link' to Boost (use headers)
+  # Link to Boost (use headers)
   # Target for header-only dependencies. (Boost include directory)
   target_link_libraries(${FLAVOR} PRIVATE Boost::boost)
   
@@ -107,7 +108,6 @@ foreach(FLAVOR ${FLAVORS})
     # Define _USE_HDF5 macro
     target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
     
-    # Link to HDF5
     # CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
     target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})
     target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
@@ -121,6 +121,12 @@ foreach(FLAVOR ${FLAVORS})
     target_link_libraries(${FLAVOR} PUBLIC -liphlpapi -lrpcrt4)
   endif()
 
+  # Build a cmake file to be imported by library users
+  export(TARGETS ${FLAVOR}
+         NAMESPACE ${PROJECT_NAME}::
+         FILE ${GSTLEARN_CMAKE_FILE}
+         APPEND)
+         
 endforeach(FLAVOR ${FLAVORS})
 ############################## End loop on flavors
 
