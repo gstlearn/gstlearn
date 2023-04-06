@@ -44,7 +44,7 @@ public:
                                  const CSVformat& csv = CSVformat(),
                                  int verbose = false,
                                  int ncol_max = -1,
-                                 int nrow_max = -1);solid
+                                 int nrow_max = -1);
   static Polygons* createFromDb(const Db* db, double dilate=0., bool verbose=false);
 
   int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
