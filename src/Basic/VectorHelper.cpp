@@ -25,7 +25,6 @@
 #include <cstdlib>
 #include <math.h>
 #include <random>
-#include <bits/stdc++.h>
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {
