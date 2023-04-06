@@ -26,3 +26,9 @@ set_target_properties(csparse PROPERTIES
   # Any client who links the library needs -fPIC
   POSITION_INDEPENDENT_CODE 1
 )
+
+# Export target
+export(TARGETS csparse
+       NAMESPACE ${PROJECT_NAME}::
+       FILE ${GSTLEARN_CMAKE_FILE}
+       APPEND)

@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: http://www.suitesparse.com
-License: BSD 3 clause (see doc/licenses/sparseinv_license.txt)
+License: BSD 3 clauses (see doc/licenses/sparseinv_license.txt)
 */
 
 /* sparsinv: computes the sparse inverse subset, using Takahashi's equations.
