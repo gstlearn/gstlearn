@@ -181,12 +181,21 @@ void DirParam::_completeDefinition()
     _grincr[0] = 1;
   }
 
+  // Capping the tolerance on angles
+  if (_tolAngle > 90.) _tolAngle = 90.;
+
   if (flagPoint)
     _definedForGrid = false;
   if (flagGrid)
     _definedForGrid = true;
   // Correction for the particular case of Omni-Direction definition
   if (! flagPoint && ! flagGrid) _definedForGrid = false;
+}
+
+void DirParam::setTolAngle(double tolang)
+{
+  _tolAngle = tolang;
+  if (_tolAngle > 90.) _tolAngle = 90.;
 }
 
 bool DirParam::isDimensionValid(int idim) const

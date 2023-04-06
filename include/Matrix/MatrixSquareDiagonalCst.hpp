@@ -13,12 +13,12 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquareDiagonal.hpp"
 
 /**
  * Square Diagonal Matrices with diagonal filled with a constant value
  */
-class GSTLEARN_EXPORT MatrixSquareDiagonalCst : public AMatrixSquare {
+class GSTLEARN_EXPORT MatrixSquareDiagonalCst : public MatrixSquareDiagonal {
 
 public:
   MatrixSquareDiagonalCst(int nrow = 0, bool sparse = false);
@@ -35,10 +35,6 @@ public:
 	/// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /*! Say if the matrix must be symmetric */
-  bool mustBeSymmetric() const override { return true; }
-  /*! Say if the matrix must be diagonal */
-  bool mustBeDiagonal() const override { return true; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return true; }
 
@@ -51,10 +47,6 @@ public:
   void addScalarDiag(double v) override;
   /*! Indicate if the given indices are valid for the current matrix size */
   bool isValid(int irow, int icol, bool printWhyNot = false) const override;
-  /*! does the matrix is symmetrical ? */
-  bool isSymmetric(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
-  /*! Check if the (non empty) matrix is diagonal */
-  bool isDiagonal(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return true; }
 
   /*! Set the contents of a Column */
   void setColumn(int icol, const VectorDouble& tab) override;
@@ -62,6 +54,8 @@ public:
   void setRow(int irow, const VectorDouble& tab) override;
   /*! Set the contents of the (main) Diagonal */
   void setDiagonal(const VectorDouble& tab) override;
+
+  double determinant() const override;
 
 protected:
 #ifndef SWIG
@@ -74,15 +68,12 @@ private:
   void   _setValue(int irow, int icol, double value) override;
   void   _setValue(int irank, double value) override;
   void   _setValues(const double* values, bool byCol = true) override;
-  void   _transposeInPlace() override { return ; } // Nothing to do
   int    _getMatrixSize() const override { return 1; }
   void   _allocate() override { return; } // nothing to be done
   void   _deallocate() override { return; } // nothing to be done
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-  double determinant() const override;
-
   bool   _isValidIndex(int irow, int icol) const;
   bool   _isPhysicallyPresent(int irow, int icol) const override;
 

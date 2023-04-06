@@ -117,7 +117,7 @@ public:
   void copyCovContext(const CovContext& ctxt);
 
   void setSill(double sill); /// Only valid when there is only one variable (in the context)
-  void setSill(const MatrixSquareGeneral& sill);
+  void setSill(const MatrixSquareSymmetric& sill);
   void setSill(const VectorDouble& sill);
   void setSill(int ivar, int jvar, double sill);
   void initSill(double value = 0.);
@@ -196,6 +196,8 @@ public:
   double getCorrec() const;
   double getFullCorrec() const;
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
+
+  CovAniso* reduce(const VectorInt &validVars) const;
 
 protected:
   /// Update internal parameters consistency with the context

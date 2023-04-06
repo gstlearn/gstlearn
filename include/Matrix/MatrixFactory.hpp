@@ -26,4 +26,7 @@ public:
   static AMatrixSquare* matNorm(const AMatrixSquare* x, const AMatrix* y);
   static AMatrix* createIdentity(int nrow, bool sparse);
   static AMatrixSquare* createMatrixSquare(const AMatrixSquare* x,int nrow);
+  static AMatrix* createReduce(const AMatrix *x,
+                               const VectorInt &validRows = VectorInt(),
+                               const VectorInt &validCols = VectorInt());
 };

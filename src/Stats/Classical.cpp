@@ -745,6 +745,8 @@ VectorDouble dbStatisticsMonoByUID(Db *db,
     {
       if (! accept[iech]) continue;
       double value = db->getArray(iech, iuids[iuid]);
+      // Skip TEST values (this is necessary when flagIso is set to FALSE)
+      if (FFFF(value)) continue;
 
       local[neff] = value;
       neff++;

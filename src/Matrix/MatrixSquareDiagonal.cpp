@@ -9,18 +9,17 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonal.hpp"
-#include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
-  : AMatrixSquare(nrows, sparse)
+  : MatrixSquareSymmetric(nrows, sparse)
   , _diagMatrix()
 {
   _allocate();
 }
 
 MatrixSquareDiagonal::MatrixSquareDiagonal(const MatrixSquareDiagonal &r) 
-  : AMatrixSquare(r)
+  : MatrixSquareSymmetric(r)
 {
   _recopy(r);
 }
@@ -30,7 +29,7 @@ MatrixSquareDiagonal& MatrixSquareDiagonal::operator= (const MatrixSquareDiagona
   if (this != &r)
   {
     _deallocate();
-    AMatrixSquare::operator=(r);
+    MatrixSquareSymmetric::operator=(r);
     _recopy(r);
   }
   return *this;

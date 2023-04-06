@@ -263,6 +263,11 @@ CovAniso* ACovAnisoList::getCova(int icov)
   if (! _isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
+void ACovAnisoList::setCova(int icov, CovAniso* covs)
+{
+  if (! _isCovarianceIndexValid(icov)) return;
+  _covs[icov] = covs;
+}
 const ECov& ACovAnisoList::getType(int icov) const
 {
   if (! _isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
@@ -415,4 +420,16 @@ bool ACovAnisoList::hasNugget() const
     if (getType(is) == ECov::NUGGET) return true;
   }
   return false;
+}
+
+const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const
+{
+  ACovAnisoList* newcovlist = this->clone();
+
+  for (int is = 0; is < getCovNumber(); is++)
+  {
+    CovAniso* covs = newcovlist->getCova(is);
+    newcovlist->setCova(is,covs->reduce(validVars));
+  }
+  return newcovlist;
 }

@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareGeneral::MatrixSquareGeneral(int nrow, bool sparse)
@@ -187,3 +188,19 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
   return 0;
 }
 
+MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) const
+{
+  // Order and shrink the input vectors
+  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
+  int newNRows = localValidRows.size();
+  if (newNRows <= 0)
+  {
+    messerr("The new Matrix has no Row left");
+    return nullptr;
+  }
+
+  MatrixSquareGeneral* res = new MatrixSquareGeneral(newNRows);
+  res->copyReduce(this, localValidRows, localValidRows);
+
+  return res;
+}

@@ -32,6 +32,7 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Neigh/NeighWork.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Variogram/DirParam.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -553,11 +554,12 @@ GSTLEARN_EXPORT bool variogram_reject_fault(const Db *db,
                                             int jech,
                                             const Faults *faults = nullptr);
 GSTLEARN_EXPORT void variogram_scale(Vario *vario, int idir);
-GSTLEARN_EXPORT int variogram_get_lag(Vario *vario,
+GSTLEARN_EXPORT int variogram_get_lag(const DirParam& dirparam,
                                       int idir,
                                       double ps,
                                       double psmin,
-                                      double *dist);
+                                      double *dist,
+                                      bool flag_asym);
 GSTLEARN_EXPORT ECalcVario vario_identify_calcul_type(const String &cov_name);
 GSTLEARN_EXPORT void vardir_print(Vario *vario, int idir, int verbose);
 GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,

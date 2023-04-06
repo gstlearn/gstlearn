@@ -86,12 +86,11 @@ CovAniso::CovAniso(const ECov &type,
 }
 
 CovAniso::CovAniso(const CovAniso &r)
-    :
-    ACov(r),
-    _ctxt(r._ctxt),
-    _cova(CovFactory::duplicateCovFunc(*r._cova)),
-    _sill(r._sill),
-    _aniso(r._aniso)
+    : ACov(r),
+      _ctxt(r._ctxt),
+      _cova(CovFactory::duplicateCovFunc(*r._cova)),
+      _sill(r._sill),
+      _aniso(r._aniso)
 {
 }
 
@@ -146,7 +145,7 @@ void CovAniso::setSill(double sill)
   _sill.reset(1, 1, sill);
 }
 
-void CovAniso::setSill(const MatrixSquareGeneral &sill)
+void CovAniso::setSill(const MatrixSquareSymmetric &sill)
 {
   if (getNVariables() != sill.getNSize())
   {
@@ -933,3 +932,19 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
 
   return evalCovFFTSpatial(hmax, N, funcSpectrum) ;
 }
+
+CovAniso* CovAniso::reduce(const VectorInt &validVars) const
+{
+  CovAniso* newCovAniso = this->clone();
+
+  // Modify the CovContext
+  int nvar = validVars.size();
+  CovContext ctxt = CovContext(nvar);
+
+  // Modify the Matrix of sills
+  newCovAniso->setContext(ctxt);
+  MatrixSquareSymmetric* newsill = _sill.reduce(validVars);
+  newCovAniso->setSill(*newsill);
+  return newCovAniso;
+}
+

@@ -83,6 +83,7 @@ int Style::DocumentedStandard(int myArg) const
  * Documentation with Latex formula
  *
  * The distance between \f$ p1=(x_1,y_1) \f$ and \f$ p2=(x_2,y_2) \f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$
+ * (this formula may need to do this: https://github.com/doxygen/doxygen/issues/7484#issuecomment-572503569)
  *
  * \see SpaceRN::getDistance
  *

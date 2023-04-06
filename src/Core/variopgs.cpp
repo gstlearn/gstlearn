@@ -3521,7 +3521,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(vario, idir, ps, psmin, &dist);
+      ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
       if (IFFFF(ipas)) continue;
 
       /* Add the sample (only positive lags are of interest) */

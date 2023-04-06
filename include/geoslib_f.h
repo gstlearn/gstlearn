@@ -133,6 +133,7 @@ GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db,
                                         int radius = 0.,
                                         bool flag_FFT = true,
                                         const NamingConvention& namconv = NamingConvention("VMAP"));
+GSTLEARN_EXPORT Db* db_variogram(Db *db, const VarioParam *varioparam);
 GSTLEARN_EXPORT int dbgrid_model(DbGrid *dbgrid,
                                  Model *model,
                                  const NamingConvention &namconv = NamingConvention("VMAP"));

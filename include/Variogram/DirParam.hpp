@@ -115,7 +115,7 @@ public:
   void setBench(double bench) {_bench = bench; }
   void setCylRad(double cylrad) {_cylRad = cylrad; }
   void setTolDist(double toldist) {_tolDist = toldist; }
-  void setTolAngle(double tolang) {_tolAngle = tolang; }
+  void setTolAngle(double tolang);
 
   void setTolCode(double tolcode) {_tolCode = tolcode; }
   void setBreaks(VectorDouble breaks) {_breaks = breaks; }

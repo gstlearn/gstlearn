@@ -80,6 +80,14 @@ bool CalcKriging::_check()
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
+  if (_flagVarZ)
+  {
+    if (! getModel()->isStationary())
+    {
+      messerr("Variance of Estimator is limited to Stationary Covariance");
+      return false;
+    }
+  }
   if (_flagDGM)
   {
     if (! getDbout()->isGrid())
@@ -315,6 +323,7 @@ bool CalcKriging::_run()
  ** \param[in]  flag_est    Option for storing the estimation
  ** \param[in]  flag_std    Option for storing the standard deviation
  ** \param[in]  flag_varz   Option for storing the variance of the estimator
+ **                         (only available for stationary model)
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  matCL       Matrix of linear combination (or NULL)
  **                         (Dimension: nvarCL * model->getNVar())

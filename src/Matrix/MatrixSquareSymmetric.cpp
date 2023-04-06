@@ -12,6 +12,7 @@
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/AMatrixSquare.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, bool sparse)
@@ -279,3 +280,19 @@ void MatrixSquareSymmetric::normTSingleMatrix(const AMatrix& x)
   }
 }
 
+MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows) const
+{
+  // Order and shrink the input vectors
+  VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
+  int newNRows = localValidRows.size();
+  if (newNRows <= 0)
+  {
+    messerr("The new Matrix has no Row left");
+    return nullptr;
+  }
+
+  MatrixSquareSymmetric* res = new MatrixSquareSymmetric(newNRows);
+  res->copyReduce(this, localValidRows, localValidRows);
+
+  return res;
+}

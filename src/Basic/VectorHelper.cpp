@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <math.h>
 #include <random>
+#include <bits/stdc++.h>
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {
@@ -780,7 +781,7 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
     ranks = sort(ranks, false);
 
   std::vector<int>::iterator it;
-  it = unique(ranks.begin(), ranks.end());
+  it = std::unique(ranks.begin(), ranks.end());
   ranks.resize(distance(ranks.begin(),it));
 
   return ranks;
@@ -976,6 +977,24 @@ double VectorHelper::extensionDiagonal(const VectorDouble &mini,
   return diag;
 }
 
+VectorInt VectorHelper::unique(const VectorInt& vecin)
+{
+  VectorInt vecout = vecin;
+  std::vector<int>::iterator it;
+  it = std::unique(vecout.begin(), vecout.end());
+  vecout.resize(distance(vecout.begin(),it));
+  return vecout;
+}
+
+VectorDouble VectorHelper::unique(const VectorDouble& vecin)
+{
+  VectorDouble vecout = vecin;
+  std::vector<double>::iterator it;
+  it = std::unique(vecout.begin(), vecout.end());
+  vecout.resize(distance(vecout.begin(),it));
+  return vecout;
+}
+
 VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending)
 {
   if (vecin.empty()) return VectorInt();
@@ -995,6 +1014,57 @@ VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending)
   std::sort(vecout.begin(), vecout.end());
   if (! ascending)
     std::reverse(vecout.begin(), vecout.end());
+  return vecout;
+}
+
+/**
+ * From an input list, filter out all the elements which do no lie within [vmin, vmax],
+ * suppress double occurrences and sort them out (ascending or descending)
+ * @param vecin Input array (integer)
+ * @param vmin  lower bound included (or ITEST)
+ * @param vmax  upper bound excluded (or ITEST)
+ * @param ascending True for asceding order; False for descending order
+ * @return Output array (integers)
+ */
+VectorInt VectorHelper::filter(const VectorInt &vecin,
+                               int vmin,
+                               int vmax,
+                               bool ascending)
+{
+  VectorInt vecout = vecin;
+
+  // Sort the vector
+  std::sort(vecout.begin(), vecout.end());
+  if (! ascending)
+    std::reverse(vecout.begin(), vecout.end());
+
+  // Unique occurrence
+  std::vector<int>::iterator it;
+  it = std::unique(vecout.begin(), vecout.end());
+  vecout.resize(distance(vecout.begin(),it));
+
+  // Filter out the irrelevant values
+  int nech = (int) vecout.size();
+  for (int j = 0; j < nech; j++)
+  {
+    int i = nech - j - 1;
+    if (!IFFFF(vmin))
+    {
+      if (vecout[i] < vmin)
+      {
+        vecout.erase(vecout.begin()+i);
+        continue;
+      }
+    }
+    if (!IFFFF(vmax))
+    {
+      if (vecout[i] >= vmax)
+      {
+        vecout.erase(vecout.begin()+i);
+        continue;
+      }
+    }
+  }
   return vecout;
 }
 
