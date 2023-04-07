@@ -1481,6 +1481,28 @@ int Db::addSelectionByLimit(const String& testvar,
 }
 
 /**
+ * Create a Selection based on the Convex Hull of the active samples of 'Db'
+ * @param db       Data Base providing the (active) samples
+ * @param dilate   The convex hull can be dilated: this gives the radius
+ * @param verbose  Verbose option
+ * @param namconv  Naming Convention
+ * @return
+ */
+int Db::addSelectionFromDbByConvexHull(Db *db,
+                                       double dilate,
+                                       bool verbose,
+                                       const NamingConvention &namconv)
+{
+  if (db == nullptr)
+  {
+    messerr("You must define a valid Db");
+    return 1;
+  }
+
+  return db_selhull(db, this, dilate, verbose, namconv);
+}
+
+/**
  * Add samples to the Data Base
  * @param nadd    Number of samples to be added
  * @param valinit Default value given to the added samples

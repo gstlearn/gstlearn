@@ -1212,7 +1212,7 @@ def gridGeneral(ax, dbgrid, name_raster = None, name_contour = None, usesel = Tr
     # The default variable is the first Z-locator one, or the last variable in the file
     
     if (name_raster is None) and (name_contour is None):
-        name_raster = defaultVariable(dbgrid, name)
+        name_raster = defaultVariable(dbgrid, None)
 
     title = ""
     if name_raster is not None:

@@ -1423,15 +1423,24 @@ bool DbGrid::hasSingleBlock() const
   return false;
 }
 
-int DbGrid::addSelectionFromDb(Db *db,
-                               bool flagHull,
-                               double dilate,
-                               double vmin,
-                               double vmax,
-                               int option,
-                               const VectorInt &radius,
-                               bool verbose,
-                               const NamingConvention &namconv)
+/**
+ * Create a selection based on the count of active samples of 'db'
+ * @param db  Db used for statistics
+ * @param nmin Minimum number of samples
+ * @param radius Radius of the cell neighborhood used when counting the samples
+ * @param option Type of structuring element: 0 for Cross and 1 for Block
+ * @param dilation Vector giving the radius extension for Dilation operation
+ * @param verbose Verbose flag
+ * @param namconv Naming convention
+ * @return
+ */
+int DbGrid::addSelectionFromDbByMorpho(Db *db,
+                                       int nmin,
+                                       int radius,
+                                       int option,
+                                       const VectorInt &dilation,
+                                       bool verbose,
+                                       const NamingConvention &namconv)
 {
   if (db == nullptr)
   {
@@ -1439,22 +1448,19 @@ int DbGrid::addSelectionFromDb(Db *db,
     return 1;
   }
 
-  if (flagHull)
-  {
-    // Selection is obtained as the Convex Hull of the samples located in Db
+  int nech = getSampleNumber();
 
-    if (db_selhull(db, this, dilate, verbose, namconv)) return 0;
-  }
-  else
-  {
-    // Selection is performed by operating morphological operations on a primary variable
+  VectorString names = db->getNamesByColIdx({0});
+  int iuid = addColumnsByConstant(1);
+  if (dbStatisticsInGridTool(db, this, names, EStatOption::NUM, radius, iuid)) return 1;
+  VectorDouble stats = getColumnByUID(iuid, false, false);
+  for (int iech = 0; iech < nech; iech++)
+    stats[iech] = (stats[iech] <= nmin) ? 0. : 1.;
+  setColumnByUID(stats, iuid, false);
+  setLocatorByUID(iuid, ELoc::Z, 0, true);
 
-    if (getLocNumber(ELoc::Z) != 1)
-    {
-      messerr("When using the Morphology option, you must define ONE variable defined on the grid");
-      return 1;
-    }
-    if (morpho(EMorpho::DILATION, vmin, vmax, option, radius, false, verbose, namconv)) return 0;
-  }
-  return 0;
+  int err = morpho(EMorpho::DILATION, 0.5, 1.5, option, dilation, false, verbose, namconv);
+
+  deleteColumnByUID(iuid);
+  return err;
 }

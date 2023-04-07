@@ -250,16 +250,14 @@ public:
              double range = 1.,
              const NamingConvention &namconv = NamingConvention("Smooth"));
 
-  int addSelectionFromDb(Db* db,
-                         bool flagHull = true,
-                         double dilate = 0.,
-                         double vmin = 0.5,
-                         double vmax = 1.5,
-                         int option = 0,
-                         const VectorInt& radius = VectorInt(),
-                         bool verbose = false,
-                         const NamingConvention &namconv = NamingConvention("FromDb", true, true, true,
-                                                                            ELoc::fromKey("SEL")));
+  int addSelectionFromDbByMorpho(Db *db,
+                                 int nmin = 0,
+                                 int radius = 0,
+                                 int option = 0,
+                                 const VectorInt &dilation = VectorInt(),
+                                 bool verbose = false,
+                                 const NamingConvention &namconv = NamingConvention("Morpho", false, false, true,
+                                     ELoc::fromKey("SEL")));
 
 protected:
   /// Interface for ASerializable

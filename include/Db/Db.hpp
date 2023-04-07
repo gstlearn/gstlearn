@@ -235,6 +235,11 @@ public:
                           const Limits& limits = Limits(),
                           const String& name = "NewSel",
                           const String& combine = "set");
+  int addSelectionFromDbByConvexHull(Db* db,
+                                     double dilate = 0.,
+                                     bool verbose = false,
+                                     const NamingConvention &namconv = NamingConvention("Hull", true, true, true,
+                                                                                        ELoc::fromKey("SEL")));
 
   int addSamples(int nadd, double valinit);
   int deleteSample(int e_del);
