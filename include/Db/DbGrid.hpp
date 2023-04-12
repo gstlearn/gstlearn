@@ -236,6 +236,7 @@ public:
   VectorVectorDouble getCellEdges(int node = 0, bool forceGridMesh = false) const;
   VectorVectorDouble getAllCellsEdges(bool forceGridMesh = false) const;
   VectorVectorDouble getGridEdges() const;
+  VectorDouble getCodir(const VectorInt& grincr) const;
 
   int morpho(const EMorpho &oper,
              double vmin = 0.5,

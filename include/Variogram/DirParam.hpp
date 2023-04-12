@@ -99,7 +99,7 @@ public:
   double getTolCode() const { return _tolCode; }
   double getTolDist() const { return _tolDist; }
 
-  const  VectorInt& getGrincrs() const { return _grincr; }
+  VectorInt getGrincrs() const { return _grincr; }
   int getGrincr(int i) const;
   double getMaximumDistance() const;
 

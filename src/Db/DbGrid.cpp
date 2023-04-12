@@ -1313,6 +1313,14 @@ VectorVectorDouble DbGrid::getGridEdges() const
   return coords;
 }
 
+VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
+{
+  VectorDouble codir = _grid.indicesToCoordinate(grincr);
+  VH::subtractInPlace(codir, _grid.getX0s());
+  VH::normalize(codir);
+  return codir;
+}
+
 VectorDouble DbGrid::getBlockExtensions(int node) const
 {
   int ndim = getNDim();

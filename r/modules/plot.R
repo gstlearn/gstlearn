@@ -285,7 +285,7 @@ varioElem <- function(vario, ivar=0, jvar=0, idir=0,
   sw = vario$getSwVec(idir,ivar,jvar)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
-  # Representing the Experimental variogram
+# Representing the Experimental variogram
 #    args <- formals(geom_line)
 #    args[which(names(args) %in% names(dots))] <- dots[na.omit(match(names(args), names(dots)))]
 #    print(args)
@@ -355,6 +355,7 @@ modelElem <- function(model, ivar=0, jvar=0, codir=NA,
         hmax = 3*range_max
     }
   }
+  # if hmax is still not calculated, take it empirically equal to 1.
   if (isNotDef(hmax) || hmax == 0) hmax = 1.
   
   if (isNotDef(codir))

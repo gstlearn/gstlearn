@@ -2080,3 +2080,40 @@ VectorDouble Vario::setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, 
   }
   return values;
 }
+
+VectorDouble Vario::getCodirs(int idir) const
+{
+  if (! _isDirectionValid(idir)) return VectorDouble();
+
+  VectorDouble codir;
+  if (isDefinedForGrid())
+  {
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid *>(_db);
+    VectorInt grincr = getDirParam(idir).getGrincrs();
+    codir = dbgrid->getCodir(grincr);
+  }
+  else
+  {
+    codir = getDirParam(idir).getCodirs();
+  }
+  return codir;
+}
+
+double Vario::getCodir(int idir, int idim) const
+{
+  if (! _isDirectionValid(idir)) return TEST;
+  VectorDouble codir;
+  if (isDefinedForGrid())
+  {
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid *>(_db);
+    VectorInt grincr = getDirParam(idir).getGrincrs();
+    codir = dbgrid->getCodir(grincr);
+  }
+  else
+  {
+    codir = getDirParam(idir).getCodirs();
+  }
+  return codir[idim];
+}
+
+

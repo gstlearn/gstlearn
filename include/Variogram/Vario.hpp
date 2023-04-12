@@ -237,8 +237,8 @@ public:
   int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
   int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
-  const VectorDouble& getCodirs(int idir) const { return getDirParam(idir).getCodirs(); }
-  double getCodir(int idir, int idim) const { return getDirParam(idir).getCodir(idim); }
+  VectorDouble getCodirs(int idir) const;
+  double getCodir(int idir, int idim) const;
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
   VectorInt getGrincrs(int idir) { return getDirParam(idir).getGrincrs(); }
