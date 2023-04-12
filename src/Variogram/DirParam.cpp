@@ -132,8 +132,17 @@ DirParam* DirParam::createFromGrid(int npas,
                                    const VectorInt &grincr,
                                    const ASpace *space)
 {
+  int ndim = getDefaultSpaceDimension();
+  if (space != nullptr) ndim = space->getNDim();
+
+  VectorInt grloc = grincr;
+  if (grloc.empty())
+  {
+    grloc.resize(ndim,0);
+    grloc[0] = 1;
+  }
   return new DirParam(npas, 0., 0.5, 90., 0, 0, TEST, TEST, 0.,
-                      VectorDouble(), VectorDouble(), grincr, space);
+                      VectorDouble(), VectorDouble(), grloc, space);
 }
 
 double DirParam::getBreak(int i) const

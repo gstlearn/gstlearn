@@ -178,11 +178,11 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.066
+- Sill         =      0.114
 Exponential
-- Sill         =      0.645
-- Range        =      0.117
-- Theo. Range  =      0.039
+- Sill         =      0.597
+- Range        =      0.124
+- Theo. Range  =      0.041
 Total Sill     =      0.711
 NULL
 
@@ -197,13 +197,13 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.220
-- Range        =      0.013
-- Theo. Range  =      0.004
+- Sill         =      0.234
+- Range        =      0.017
+- Theo. Range  =      0.006
 Exponential
-- Sill         =      0.780
-- Range        =      0.137
-- Theo. Range  =      0.046
+- Sill         =      0.766
+- Range        =      0.140
+- Theo. Range  =      0.047
 Total Sill     =      1.000
 NULL
 NULL
@@ -420,18 +420,18 @@ Table: Statistics of the estimated values
 |           | Number| Minimum| Maximum|  Mean| St. Dev.|
 |:----------|------:|-------:|-------:|-----:|--------:|
 |Z          |   9500|   0.154|   8.198| 1.562|    0.846|
-|SK.Z.estim |   9500|   0.523|   4.924| 1.553|    0.496|
-|DK.Z.estim |   9500|   0.508|   4.138| 1.555|    0.450|
-|CE.Z.estim |   9500|   0.518|   4.305| 1.554|    0.455|
-|SK.Z.stdev |   9500|   0.473|   0.834| 0.668|    0.071|
-|DK.Z.stdev |   9500|   0.546|   0.832| 0.700|    0.052|
-|CE.Z.stdev |   9500|   0.210|   1.375| 0.681|    0.194|
+|SK.Z.estim |   9500|   0.591|   4.733| 1.553|    0.480|
+|DK.Z.estim |   9500|   0.499|   4.178| 1.555|    0.452|
+|CE.Z.estim |   9500|   0.510|   4.349| 1.554|    0.457|
+|SK.Z.stdev |   9500|   0.515|   0.833| 0.683|    0.061|
+|DK.Z.stdev |   9500|   0.538|   0.831| 0.699|    0.054|
+|CE.Z.stdev |   9500|   0.206|   1.374| 0.679|    0.194|
 
 
 Table: Scores of point estimators of Z using 500 data points
 
 |   |     ME|    MAE|   RMSE|     MSE|   MASE|  RMSSE|
 |:--|------:|------:|------:|-------:|------:|------:|
-|SK | 0.0093| 0.4839| 0.6721|  0.0168| 0.7225| 0.9996|
-|DK | 0.0076| 0.4821| 0.6716|  0.0131| 0.6860| 0.9528|
-|CE | 0.0085| 0.4807| 0.6694| -0.0076| 0.6969| 0.9108|
+|SK | 0.0091| 0.4849| 0.6726|  0.0157| 0.7079| 0.9784|
+|DK | 0.0075| 0.4818| 0.6712|  0.0131| 0.6868| 0.9539|
+|CE | 0.0085| 0.4804| 0.6691| -0.0072| 0.6980| 0.9122|

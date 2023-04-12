@@ -531,7 +531,7 @@ int variogram_get_lag(const DirParam& dirparam,
     if (ps < psmin) (*dist) = -(*dist);
   }
 
-  return (ilag);
+  return ilag;
 }
 
 /****************************************************************************/
@@ -1812,7 +1812,9 @@ static int st_variogram_calcul1(Db *db,
       /* Case of internal storage */
 
       if (vorder != (Vario_Order*) NULL)
+      {
         vario_order_add(vorder, iech, jech, NULL, NULL, ipas, idir, dist);
+      }
       else
       {
 
@@ -3012,7 +3014,7 @@ static int st_vmap_general(Db *db,
 
   /* Calculate a neighborhood (if radius > 0) */
 
-  neigh = gridcell_neigh(ndim, 1, radius, 0, 0);
+  neigh = gridcell_neigh(ndim, 1, radius, false, false);
   nbmax = (int) neigh.size() / ndim;
 
   /* Calculate the VMAP half-extension */
