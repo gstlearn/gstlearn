@@ -51,6 +51,12 @@ class MeshSpherical;
 class SimuSubstitutionParam;
 class SimuRefineParam;
 
+/**********************************************/
+/* Prototyping the functions in acknowledge.c */
+/**********************************************/
+
+GSTLEARN_EXPORT void acknowledge_gstlearn(void);
+
 /***********************/
 /* Functions for Basic */
 /***********************/

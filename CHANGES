@@ -2,6 +2,11 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 0.2.2
+=============
+- SWIG typemaps robustification
+- Publish acknowledge_gstlearn 
+
 Release 0.2.1
 =============
 - 
