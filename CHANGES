@@ -4,7 +4,9 @@ This file contains the logs between consecutive releases
 
 Release 0.3.0
 =============
-- 
+- Modify the angles in the legend of vario and model (from 'codir' to 'angles') + 1 angle if in 2D.
+- Change the display of angles: it now lies between 0 and 360.
+- New method to create several variogram directions specified by the list of their angles (limited to 2D)
 
 Release 0.2.1
 =============

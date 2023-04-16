@@ -405,11 +405,19 @@ void GeometryHelper::rotationGetAngles(const VectorDouble &codir,
   return;
 }
 
-VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble& codir)
+/**
+ * From the vector of direction coefficients (codir) returns the vector of angles
+ *
+ * @param codir Input vector giving the direction coefficients
+ * @param flagResize When TRUE (and if in 2-D) the returned vector is resized to 1
+ * @return
+ */
+VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble& codir, bool flagResize)
 {
   int ndim = (int) codir.size();
   VectorDouble angles(ndim);
   GH::rotationGetAngles(codir, angles);
+  if (ndim == 2 && flagResize) angles.resize(1);
   return angles;
 }
 
@@ -1530,4 +1538,28 @@ MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
     }
   }
   return Y;
+}
+
+double GeometryHelper::formatAngle(double anglein)
+{
+  double angle = anglein;
+  if (angle < 0)
+  {
+    while (angle < 0.)
+      angle += 360.;
+  }
+  else
+  {
+    while (angle > 360.)
+      angle -= 360.;
+  }
+  return angle;
+}
+
+VectorDouble GeometryHelper::formatAngles(const VectorDouble& anglesin)
+{
+  VectorDouble angles = anglesin;
+  for (int idim = 0; idim < (int) angles.size(); idim++)
+    angles[idim] = formatAngle(angles[idim]);
+  return angles;
 }

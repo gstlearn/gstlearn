@@ -413,7 +413,8 @@ def varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
             if vario.isDefinedForGrid():
                 label = "vario grid={}".format(vario.getGrincrs(idir))
             else:
-                label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
+                angles = gl.GeometryHelper.rotationGetAngles(vario.getCodirs(idir),True)
+                label = "vario dir={}".format(np.round(angles,3))
         else:
             label = "vario"
     
@@ -668,7 +669,8 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
             
     if label is None:
         if flagLabelDir:
-            label = "model dir={}".format(np.round(codir,3))
+            angles = gl.GeometryHelper.rotationGetAngles(codir,True)
+            label = "model dir={}".format(np.round(angles,3))
         else:
             label = "model"
 

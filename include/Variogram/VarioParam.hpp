@@ -63,6 +63,7 @@ public:
                                     int npas = 10,
                                     double dpas = 1.,
                                     double toldis = 0.5,
+                                    double angref = 0.,
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
                                     const ASpace* space = nullptr);

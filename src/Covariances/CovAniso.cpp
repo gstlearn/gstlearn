@@ -545,7 +545,8 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       if (isAsymptotic()) sstr << toVector("- Theo. Ranges = ", getScales());
       if (!_aniso.getRotation().isIdentity())
       {
-        sstr << toVector("- Angles       = ", getAnisoAngles());
+        VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles());
+        sstr << toVector("- Angles       = ", angles);
         sstr
             << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
                         true, getNDim(), getNDim(), getAnisoRotMatVec());
@@ -577,7 +578,8 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       sstr << toVector("- Aniso, Coeff = ", _aniso.getRadius());
       if (!_aniso.getRotation().isIdentity())
       {
-        sstr << toVector("- Angles       = ", getAnisoAngles());
+        VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles());
+        sstr << toVector("- Angles       = ", angles);
         sstr
             << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
                         true, getNDim(), getNDim(), getAnisoRotMatVec());

@@ -42,7 +42,7 @@ public:
   static int rotationGetAngles(int  ndim, const double* rot, double* angles);
   static void rotationGetAngles(const VectorDouble &codir,
                                 VectorDouble &angles);
-  static VectorDouble rotationGetAngles(const VectorDouble& codir);
+  static VectorDouble rotationGetAngles(const VectorDouble& codir, bool flagResize=false);
   static VectorDouble rotationToEuler(const MatrixSquareGeneral &mat,
                                       const ERotation &convrot = ERotation::fromKey("SXYZ"),
                                       double eps = EPSILON10);
@@ -143,6 +143,9 @@ public:
   static MatrixSquareGeneral gradXYToRotmat(double dzoverdx, double dzoverdy);
   static MatrixRectangular* getDirectionsInR3(const MatrixRectangular* U);
   static MatrixRectangular* getDirectionsInRn(const MatrixRectangular* U);
+
+  static double formatAngle(double anglein);
+  static VectorDouble formatAngles(const VectorDouble& anglesin);
 
 private:
   static void _decodeConvRot(const ERotation &convrot,

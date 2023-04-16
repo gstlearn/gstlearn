@@ -341,6 +341,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
                                                int npas,
                                                double dpas,
                                                double toldis,
+                                               double angref,
                                                const ASpace* space)
 {
   int ndim = getDefaultSpaceDimension();
@@ -351,7 +352,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
   std::vector<DirParam> dirs;
   for (int idir = 0; idir < ndir; idir++)
   {
-    angles[0] = 180. * (double) idir / (double) ndir;
+    angles[0] = 180. * (double) idir / (double) ndir + angref;
     (void) GH::rotationGetDirection(ndim, 1, angles,codir);
     double tolang = 90. / (double) ndir;
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
@@ -359,6 +360,38 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
     dirs.push_back(dirparam);
   }
   return dirs;
+}
+
+std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
+                                                int npas,
+                                                double dpas,
+                                                double toldis,
+                                                double tolang,
+                                                const ASpace *space)
+{
+  std::vector<DirParam> dirs;
+  int ndim = getDefaultSpaceDimension();
+  if (space != nullptr) ndim = space->getNDim();
+  if (ndim != 2)
+  {
+    messerr("This method is limited to 2D sapce");
+    return dirs;
+  }
+
+  VectorDouble anglesloc = VectorDouble(1);
+  VectorDouble codir  = VectorDouble(ndim);
+  int ndir = (int) angles.size();
+  if (FFFF(tolang)) tolang = 90. / ndir;
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    anglesloc[0] = angles[idir];
+    (void) GH::rotationGetDirection(ndim, 1, anglesloc,codir);
+    DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
+                                 VectorDouble(), codir, VectorInt(), space);
+    dirs.push_back(dirparam);
+  }
+  return dirs;
+
 }
 
 std::vector<DirParam> DirParam::createMultipleFromGrid(int npas, const ASpace* space)

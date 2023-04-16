@@ -73,7 +73,14 @@ public:
                                               int npas = 10,
                                               double dpas = 1.,
                                               double toldis = 0.5,
+                                              double angref = 0.,
                                               const ASpace* space = nullptr);
+  static std::vector<DirParam> createSeveral2D(const VectorDouble& angles,
+                                               int npas = 10,
+                                               double dpas = 1.,
+                                               double toldis = 0.5,
+                                               double tolang = TEST,
+                                               const ASpace *space = nullptr);
   static std::vector<DirParam> createMultipleFromGrid(int npas,
                                                       const ASpace* space = nullptr);
 

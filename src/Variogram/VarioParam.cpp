@@ -137,12 +137,13 @@ VarioParam* VarioParam::createMultiple(int ndir,
                                        int npas,
                                        double dpas,
                                        double toldis,
+                                       double angref,
                                        double scale,
                                        const VectorDouble &dates,
                                        const ASpace* space)
 {
   std::vector<DirParam> dirs = DirParam::createMultiple(ndir, npas, dpas,
-                                                        toldis, space);
+                                                        toldis, angref, space);
   if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addMultiDirs(dirs);
