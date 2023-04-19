@@ -1548,6 +1548,7 @@ void KrigingSystem::_estimateCalculImage(int status)
 
 void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 {
+  int nfeq  = _getNFeq();
   int iech  = _iechOut;
   int iiech = _getFlagAddress(iech, 0);
 
@@ -1563,12 +1564,13 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
     /* Perform the estimation */
 
     double valest = 0.;
+    if (nfeq <= 0) valest = _getMean(0);
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
       if (iiech != jjech)
-        valest -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getLocVariable(ELoc::Z,jech, 0);
+        valest -= _getLHSINV(iiech,0,jjech,0) * variance * (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0));
       jjech++;
     }
 
@@ -2214,6 +2216,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
       return 1;
     }
 
+    // Block support is defined per sample
     if (flag_per_cell)
     {
       _flagPerCell = true;
@@ -2222,6 +2225,14 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     if (neighM != nullptr)
     {
       if (neighM->getForceWithinBlock()) _flagPerCell = true;
+    }
+
+    // Check that discretisation is defined
+    if (ndiscs.empty())
+    {
+      messerr("In case of BLOCK kriging, you must define the discretization coefficients");
+      messerr("i.e. a vector (dimension equal Space Dimension) filled with positive numbers");
+      return 1;
     }
 
     // Discretization is stored

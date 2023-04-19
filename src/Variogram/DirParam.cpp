@@ -33,6 +33,7 @@ DirParam::DirParam(int npas,
                    const VectorDouble& breaks,
                    const VectorDouble& codir,
                    const VectorInt& grincr,
+                   double angle2D,
                    const ASpace* space)
     : ASpaceObject(space),
       _nPas(npas),
@@ -49,7 +50,7 @@ DirParam::DirParam(int npas,
       _codir(codir),
       _grincr(grincr)
 {
-  _completeDefinition();
+  _completeDefinition(angle2D);
 }
 
 DirParam::DirParam(const DirParam& r)
@@ -107,10 +108,11 @@ DirParam* DirParam::create(int npas,
                            double tolcode,
                            const VectorDouble& breaks,
                            const VectorDouble& codir,
+                           double angle2D,
                            const ASpace* space)
 {
   return new DirParam(npas, dpas, toldis, tolang, opt_code, idate,
-                      bench, cylrad, tolcode, breaks, codir, VectorInt(), space);
+                      bench, cylrad, tolcode, breaks, codir, VectorInt(), angle2D, space);
 }
 
 DirParam* DirParam::createOmniDirection(int npas,
@@ -125,7 +127,7 @@ DirParam* DirParam::createOmniDirection(int npas,
                                         const ASpace* space)
 {
   return new DirParam(npas, dpas, toldis, 90.1, opt_code, idate,
-                      bench, cylrad, tolcode, breaks, VectorDouble(), VectorInt(), space);
+                      bench, cylrad, tolcode, breaks, VectorDouble(), VectorInt(), TEST, space);
 }
 
 DirParam* DirParam::createFromGrid(int npas,
@@ -142,7 +144,7 @@ DirParam* DirParam::createFromGrid(int npas,
     grloc[0] = 1;
   }
   return new DirParam(npas, 0., 0.5, 90., 0, 0, TEST, TEST, 0.,
-                      VectorDouble(), VectorDouble(), grloc, space);
+                      VectorDouble(), VectorDouble(), grloc, TEST, space);
 }
 
 double DirParam::getBreak(int i) const
@@ -165,7 +167,7 @@ double DirParam::getCodir(int i) const
   return _codir[i];
 }
 
-void DirParam::_completeDefinition()
+void DirParam::_completeDefinition(double angle2D)
 {
   if (! _breaks.empty())
   {
@@ -175,10 +177,17 @@ void DirParam::_completeDefinition()
   int ndim = getNDim();
 
   bool flagPoint = true;
+  if (! FFFF(angle2D))
+  {
+    _codir.resize(ndim,0.);
+    _codir[0] = cos(angle2D * GV_PI / 180.);
+    _codir[1] = sin(angle2D * GV_PI / 180.);
+  }
+
   if (_codir.empty())
   {
     flagPoint = false;
-    _codir.resize(ndim,0.);
+    _codir.resize(ndim, 0.);
     _codir[0] = 1.;
   }
 
@@ -356,7 +365,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
     (void) GH::rotationGetDirection(ndim, 1, angles,codir);
     double tolang = 90. / (double) ndir;
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
-                                 VectorDouble(), codir, VectorInt(), space);
+                                 VectorDouble(), codir, VectorInt(), TEST, space);
     dirs.push_back(dirparam);
   }
   return dirs;
@@ -387,13 +396,25 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
     anglesloc[0] = angles[idir];
     (void) GH::rotationGetDirection(ndim, 1, anglesloc,codir);
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
-                                 VectorDouble(), codir, VectorInt(), space);
+                                 VectorDouble(), codir, VectorInt(), TEST, space);
     dirs.push_back(dirparam);
   }
   return dirs;
 
 }
 
+/**
+ * Create a set of calculation directions based on the Grid information (see remarks):
+ * - one direction per grid axis
+ * - the other parameters are applied to each direction, such as:
+ * @param npas Number of lags
+ * @param space Pointer to the Space definition
+ * @return
+ *
+ * @remarks: As the calculation directions are defined accounting for Grid organization:
+ * - each direction is defined using the increment definition ('grincr')
+ * - the angular tolerance is set equal to 0
+ */
 std::vector<DirParam> DirParam::createMultipleFromGrid(int npas, const ASpace* space)
 {
   int ndim = getDefaultSpaceDimension();

@@ -92,8 +92,8 @@ public:
   double getVarIndex(int ijvar) const;
   const  VectorDouble& getVars()  const { return _vars; }
   void setMeans(const VectorDouble& means);
-  void setMean(int ivar, double mean);
-  void setVar(int ivar, int jvar, double value);
+  void setMean(double mean, int ivar=0);
+  void setVar(double value, int ivar=0, int jvar=0);
   void setVars(const VectorDouble& vars);
   void setVarIndex(int ijvar, double value);
 

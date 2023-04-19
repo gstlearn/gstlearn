@@ -462,9 +462,9 @@ static void st_variogram_define_vars(Vario *vario, const Rule *rule, int ngrf)
     for (jgrf = 0; jgrf < ngrf; jgrf++)
     {
       if (igrf == jgrf)
-        vario->setVar(igrf, jgrf, 1.);
+        vario->setVar(1., igrf, jgrf);
       else
-        vario->setVar(igrf, jgrf, rule->getRho());
+        vario->setVar(rule->getRho(), igrf, jgrf);
     }
 }
 
@@ -4757,9 +4757,9 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
       pivar = local_pgs->propdef->propfix[ivar];
       pjvar = local_pgs->propdef->propfix[jvar];
       if (ivar == jvar)
-        vario->setVar(ivar, jvar, pivar * (1. - pivar));
+        vario->setVar(pivar * (1. - pivar), ivar, jvar);
       else
-        vario->setVar(ivar, jvar, -pivar * pjvar);
+        vario->setVar(-pivar * pjvar, ivar, jvar);
       if (!vario->getFlagAsym()) continue;
 
       for (idir = 0; idir < vario->getDirectionNumber(); idir++)
@@ -4859,7 +4859,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
   for (int ivar = 0; ivar < nfacies; ivar++)
     for (int jvar = 0; jvar < nfacies; jvar++)
     {
-      vario->setVar(ivar, jvar, COVS(ivar, jvar));
+      vario->setVar(COVS(ivar, jvar), ivar, jvar);
 
       if (!vario->getFlagAsym()) continue;
 

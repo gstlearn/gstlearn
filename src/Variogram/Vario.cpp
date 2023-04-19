@@ -342,7 +342,7 @@ void Vario::reduce(const VectorInt& varcols,
       _vars.resize(_nVar * _nVar);
       for (int ivar = 0; ivar < _nVar; ivar++)
         for (int jvar = 0; jvar < _nVar; jvar++)
-          setVar(ivar, jvar, vario_in.getVar(selvars[ivar], selvars[jvar]));
+          setVar(vario_in.getVar(selvars[ivar], selvars[jvar]), ivar, jvar);
     }
   }
   else
@@ -526,7 +526,7 @@ int Vario::transformZToY(const AAnam *anam)
   }
 
   // Modify the variance array
-  setVar(0,  0, 1.);
+  setVar(1., 0,  0);
 
   return 0;
 }
@@ -580,7 +580,7 @@ int Vario::transformYToZ(const AAnam *anam)
     }
   }
 
-  setVar(0, 0, c0);
+  setVar(c0, 0, 0);
   return 0;
 }
 
@@ -629,7 +629,7 @@ int Vario::modelRegularize(const Model* model,
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = model->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
-      setVar(ivar, jvar, value);
+      setVar(value, ivar, jvar);
     }
 
   /* Loop on the directions */
@@ -1079,7 +1079,7 @@ void Vario::setMeans(const VectorDouble& means)
     _means = means;
 }
 
-void Vario::setMean(int ivar, double mean)
+void Vario::setMean(double mean, int ivar)
 {
   if (_means.empty()) _initMeans();
   if (! _isVariableValid(ivar)) return;
@@ -1109,7 +1109,7 @@ void Vario::setVarIndex(int ijvar, double value)
   _vars[ijvar] = value;
 }
 
-void Vario::setVar(int ivar, int jvar, double value)
+void Vario::setVar(double value, int ivar, int jvar)
 {
   if (_vars.empty()) _initVars();
   int iad = getVarAddress(ivar, jvar);
@@ -1752,7 +1752,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
 
     SpaceRN space(ndim);
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
-                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr,
+                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr, TEST,
                                  &space);
     _varioparam.addDir(dirparam);
 

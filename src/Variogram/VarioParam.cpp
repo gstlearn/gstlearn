@@ -112,6 +112,23 @@ bool VarioParam::_validDefinedFromGrid(const DirParam& dirparam) const
   return true;
 }
 
+/**
+ * Create one Calculation Direction corresponding to the Omni-direction calculation
+ * For details, see DirParam::createOmniDirection documentation
+ * @param npas Number of lags
+ * @param dpas Lag value
+ * @param toldis Tolerance on distance
+ * @param opt_code Option for usage of the code
+ * @param idate Reference date
+ * @param bench Bench value
+ * @param cylrad Value of radius of the Cylinder search
+ * @param tolcode Tolerance on the code
+ * @param breaks Definition of the irregular intervals
+ * @param scale Scaling factor
+ * @param dates Range of dates
+ * @param space Pointer to the space definition
+ * @return
+ */
 VarioParam* VarioParam::createOmniDirection(int npas,
                                             double dpas,
                                             double toldis,
@@ -150,6 +167,15 @@ VarioParam* VarioParam::createMultiple(int ndir,
   return varioparam;
 }
 
+/**
+ * Automatically create several calculation directions from Grid information:
+ * For details, see DirParam::createMultipleFromGrid documentation
+ * @param npas Number of lags
+ * @param scale Scaling factor
+ * @param dates Range of dates
+ * @param space Pointer to the Space definition
+ * @return
+ */
 VarioParam* VarioParam::createMultipleFromGrid(int npas,
                                                double scale,
                                                const VectorDouble &dates,
@@ -162,6 +188,19 @@ VarioParam* VarioParam::createMultipleFromGrid(int npas,
   return varioparam;
 }
 
+/**
+ * Automatically create a set of calulcation directions for a given Space Direction:
+ * - one calculation direction per space direction
+ * - the same parameters are used for each direction, such as:
+ * @param npas Number of lags
+ * @param dpas Value of the lag
+ * @param toldis Tolerance on distance
+ * @param tolang Tolerance on angle
+ * @param scale Scaling factor
+ * @param dates Range of dates
+ * @param space Pointer to the Space definition
+ * @return
+ */
 VarioParam* VarioParam::createFromSpaceDimension(int npas,
                                                  double dpas,
                                                  double toldis,
@@ -181,7 +220,6 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
     VectorDouble codir(ndim,0.);
     codir[idim] = 1.;
     dirparam.setCodir(codir);
-
     varioparam->addDir(dirparam);
   }
   return varioparam;

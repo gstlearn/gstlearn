@@ -7,6 +7,9 @@ Release 0.3.0
 - Modify the angles in the legend of vario and model (from 'codir' to 'angles') + 1 angle if in 2D.
 - Change the display of angles: it now lies between 0 and 360.
 - New method to create several variogram directions specified by the list of their angles (limited to 2D)
+- adding the possibility to define a DirParam using a 2D angle (prevails definition by 'codir')
+- changing prototypes of setMean() and setVars()
+- Fix Cross-validation in Simple Kriging with non zero Mean in Unique Neighborhood
 
 Release 0.2.1
 =============

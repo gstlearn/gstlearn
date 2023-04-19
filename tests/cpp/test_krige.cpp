@@ -115,7 +115,7 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 
   if (typemean == 1)
   {
-    model->setMean(0, 123.);
+    model->setMean(123.);
   }
   return model;
 }

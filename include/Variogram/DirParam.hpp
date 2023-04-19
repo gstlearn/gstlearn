@@ -39,6 +39,7 @@ public:
            const VectorDouble& breaks = VectorDouble(),
            const VectorDouble& codir  = VectorDouble(),
            const VectorInt& grincr    = VectorInt(),
+           double angle2D = TEST,
            const ASpace* space = nullptr);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
@@ -55,6 +56,7 @@ public:
                           double tolcode = 0.,
                           const VectorDouble& breaks = VectorDouble(),
                           const VectorDouble& codir = VectorDouble(),
+                          double angle2D = TEST,
                           const ASpace* space = nullptr);
   static DirParam* createOmniDirection(int npas = 10,
                                        double dpas = 1., // TODO : translate
@@ -134,7 +136,7 @@ public:
   bool isDefinedForGrid() const { return _definedForGrid; }
 
 private:
-  void _completeDefinition();
+  void _completeDefinition(double angle2D = TEST);
 
 private:
   int    _nPas;

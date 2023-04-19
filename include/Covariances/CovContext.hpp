@@ -54,7 +54,7 @@ public:
   void setNVar(int nvar)                 { _nVar = nvar; _update(); }
   void setField(double field)            { _field = field; }
   void setMean(const VectorDouble& mean);
-  void setMean(int ivar, const double mean);
+  void setMean(const double mean,int ivar=0);
   void setCovar0(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
 
