@@ -126,7 +126,7 @@ def isNotCorrect(object, types):
     if filetype in types:
         return False
     
-    print("Argument 'object' (",filetype,") must be a valid among",types)
+    print("Argument 'object' (",filetype,") must be a valid type among",types)
     return True
 
 def defaultVariable(db, name):
@@ -620,7 +620,7 @@ def variogram(axs, vario, ivar=0, jvar=0, idir=0,
                   hmax=hmax, cmap=cmap, flagLegend=flagLegend, 
                   **kwargs)
 
-def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
+def modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
               nh = 100, hmax = None, asCov=False,
               env_color='black', env_linestyle='dashed',
               label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
@@ -631,7 +631,7 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     Parameters
     ----------
     ax: matplotlib.Axes
-    model : variogram model to be represented (gstlearn.Model).
+    modelobj : variogram model to be represented (gstlearn.Model).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     codir : Vector of the direction of the variogram to be represented. The default is the unit 
             vector in the first space dimension.
@@ -647,12 +647,12 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     flagEnvelop: Represent the coregionalization envelop (in multivariate case only)
     flagLegend : Flag to display the axes legend.
     """
-    if isNotCorrect(object=model, types=["Model"]):
+    if isNotCorrect(object=modelobj, types=["Model"]):
         return None
 
     if codir is None:
         if vario is None:
-            codir = [0] * model.getDimensionNumber()
+            codir = [0] * modelobj.getDimensionNumber()
             codir[0] = 1
         else:
             codir = vario.getCodirs(idir)
@@ -660,8 +660,8 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     # if hmax not specified = 3*maximum range of the model's basic structures
     if hmax is None:
         hmax = 0
-        for icova in range(model.getCovaNumber()):
-            range_max = np.max(model.getCova(icova).getRanges())
+        for icova in range(modelobj.getCovaNumber()):
+            range_max = np.max(modelobj.getCova(icova).getRanges())
             if 3*range_max > hmax:
                 hmax = 3*range_max
     if hmax == 0: # if the model has no range defined
@@ -675,20 +675,20 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
             label = "model"
 
     istart = 0
-    for i in range(model.getCovaNumber()):
-        if model.getCovName(i) == 'Nugget Effect':
+    for i in range(modelobj.getCovaNumber()):
+        if modelobj.getCovName(i) == 'Nugget Effect':
             istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
      
     # Represent the Model 
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hh, ivar, jvar, codir, 0, asCov=asCov)
+    gg = modelobj.sample(hh, ivar, jvar, codir, 0, asCov=asCov)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
-        ggp = model.sample(hh, ivar, jvar, codir, 1, asCov=asCov)
+        ggp = modelobj.sample(hh, ivar, jvar, codir, 1, asCov=asCov)
         ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
-        ggm = model.sample(hh, ivar, jvar, codir,-1, asCov=asCov)
+        ggm = modelobj.sample(hh, ivar, jvar, codir,-1, asCov=asCov)
         ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
     # Draw the Legend (optional)
@@ -697,19 +697,17 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
         
     return res
 
-def modelold(model, ax = None, **kwargs):
+def modelold(modelobj, ax = None, **kwargs):
     '''
     Deprecated function: see model() for details
     '''
     printDeprecated()
-    
     ax = getNewAxes(ax, 0)
+    return model(ax, modelobj = modelobj, **kwargs)
     
-    return model(ax, model = model, **kwargs)
-    
-def model(ax, model = None, **kwargs):
+def model(ax, modelobj = None, **kwargs):
 
-    modelElem(ax, model = model, **kwargs)
+    modelElem(ax, modelobj = modelobj, **kwargs)
     
     return ax
 
@@ -1435,7 +1433,7 @@ def multisegments(ax, center, data, color='black',flagLegend=False, label="segme
 
 def faultold(faults, ax=None, **kwargs):
     '''
-    Deprecated function: see varmod() for details
+    Deprecated function: see fault() for details
     '''
     printDeprecated()
     

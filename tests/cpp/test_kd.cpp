@@ -152,7 +152,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Estimating the Gaussian Variable on the nodes of the Blocks
   data->display();
-  (void) kriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+  (void) kriging(data, blocs, model, neigh, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
                  VectorVectorDouble(), NamingConvention("G_PTS"));
 
@@ -176,7 +176,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display();
 
   // Simple Point Kriging over the blocks
-  (void) krigingFactors(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+  (void) krigingFactors(data, blocs, model, neigh, EKrigOpt::POINT,
                             VectorInt(), true, true,
                             NamingConvention("DK_Pts"));
   blocs->display();
@@ -199,7 +199,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->clearLocators(ELoc::Z);
   data->setLocator("Z",ELoc::Z);
   data->display();
-  (void) kriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+  (void) kriging(data, blocs, model, neigh, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
                  VectorVectorDouble(), NamingConvention("Z_PTS"));
   blocs->display();
@@ -235,7 +235,7 @@ int main(int /*argc*/, char */*argv*/[])
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) krigingFactors(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL,
+  (void) krigingFactors(data, blocs, model_b1_Y, neigh, EKrigOpt::POINT,
                             VectorInt(), true, true,
                             NamingConvention("DK_DGM1"));
   blocs->display();
@@ -273,7 +273,7 @@ int main(int /*argc*/, char */*argv*/[])
   model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) krigingFactors(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL,
+  (void) krigingFactors(data, blocs, model_b2_Y, neigh, EKrigOpt::POINT,
                             VectorInt(), true, true,
                             NamingConvention("DK_DGM2"));
   blocs->display();

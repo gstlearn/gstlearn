@@ -21,7 +21,7 @@ CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
     : ACalcInterpolator(),
       _flagEst(flag_est),
       _flagStd(flag_std),
-      _calcul(EKrigOpt::PONCTUAL),
+      _calcul(EKrigOpt::POINT),
       _ndisc(),
       _nameCoord(),
       _iptrEst(-1),
@@ -63,7 +63,7 @@ bool CalcKrigingFactors::_check()
     return false;
   }
   // If change of support is defined through the anamorphosis,
-  // the calculation option (EKrigOpt) should be set to PONCTUAL
+  // the calculation option (EKrigOpt) should be set to POINT
   // in order to avoid additional block randomization
   if (_calcul == EKrigOpt::BLOCK && _ndisc.empty())
   {
@@ -207,7 +207,7 @@ bool CalcKrigingFactors::_run()
  ** \param[in]  namconv    Naming convention
  **
  ** \remark When the change of support is defined through the Anamorphosis
- ** \remark the 'calcul' option must be set to PONCTUAL and 'ndisc' does not
+ ** \remark the 'calcul' option must be set to POINT and 'ndisc' does not
  ** \remark have to be defined
  **
  *****************************************************************************/

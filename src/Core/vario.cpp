@@ -3473,8 +3473,6 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
  ** \param[in]  tolcode      Tolerance on the code
  ** \param[in]  breaks       array for irregular lags
  ** \param[in]  codir        calculation direction (Dimension = ndim)
- ** \param[in]  grincr       direction increment only used for grid
- **                          (Dimension = ndim)
  **
  *****************************************************************************/
 int variogram_direction_add(VarioParam *varioparam,
@@ -3488,13 +3486,12 @@ int variogram_direction_add(VarioParam *varioparam,
                             double cylrad,
                             double tolcode,
                             const VectorDouble &breaks,
-                            const VectorDouble &codir,
-                            const VectorInt &grincr)
+                            const VectorDouble &codir)
 {
   if (varioparam == (VarioParam*) NULL) return (1);
   DirParam dirparam = DirParam(npas, dpas,
                                toldis, tolang, opt_code, idate, bench, cylrad,
-                               tolcode, breaks, codir, grincr);
+                               tolcode, breaks, codir);
   varioparam->addDir(dirparam);
   return (0);
 }

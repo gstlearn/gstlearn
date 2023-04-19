@@ -33,7 +33,16 @@ Column = 3 - Name = z1 - Locator = z1
 
 +*Out[4]:*+
 ----
-![png](output_8_0.png)
+Non geographical defaults:
+- Figure dimensions = [5, 5]
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect = auto
+Geographical defaults:
+- Figure dimensions = [8, 8]
+- Limits along X = [-1, 10]
+- Limits along Y = [-1, 10]
+- Aspect = 1
 ----
 
 
@@ -51,14 +60,14 @@ Column = 3 - Name = z1 - Locator = z1
 
 +*Out[7]:*+
 ----
+![png](output_11_0.png)
+----
+
+
++*Out[8]:*+
+----
      1.531     1.615
  ----
-
-
-+*Out[9]:*+
-----
-![png](output_14_0.png)
-----
 
 
 +*Out[10]:*+
@@ -75,14 +84,14 @@ Column = 3 - Name = z1 - Locator = z1
 
 +*Out[12]:*+
 ----
+![png](output_17_0.png)
+----
+
+
++*Out[13]:*+
+----
      1.531     0.974
  ----
-
-
-+*Out[14]:*+
-----
-![png](output_20_0.png)
-----
 
 
 +*Out[15]:*+
@@ -93,47 +102,47 @@ Column = 3 - Name = z1 - Locator = z1
 
 +*Out[16]:*+
 ----
+![png](output_22_0.png)
+----
+
+
++*Out[17]:*+
+----
      1.364     1.165
  ----
 
 
-+*Out[18]:*+
-----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim', 'T-stdev', 'Q-stdev')----
-
-
 +*Out[19]:*+
-----
-![png](output_28_0.png)
-----
+----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim', 'T-stdev', 'Q-stdev')----
 
 
 +*Out[20]:*+
 ----
-![png](output_30_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_32_0.png)
+![png](output_31_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_34_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_36_0.png)
+![png](output_35_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_39_0.png)
+![png](output_37_0.png)
 ----
 
 
@@ -145,5 +154,11 @@ Column = 3 - Name = z1 - Locator = z1
 
 +*Out[26]:*+
 ----
-![png](output_42_0.png)
+![png](output_41_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_43_0.png)
 ----

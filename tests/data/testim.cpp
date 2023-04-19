@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
         /* Estimation case */
 
         if (dbout == nullptr) goto label_end;
-        if (kriging(dbin,dbout,new_model,neighparam,EKrigOpt::PONCTUAL,
+        if (kriging(dbin,dbout,new_model,neighparam,EKrigOpt::POINT,
                     1,1,0)) messageAbort("kriging");
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);

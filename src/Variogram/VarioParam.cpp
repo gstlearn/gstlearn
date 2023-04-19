@@ -13,6 +13,7 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
@@ -176,15 +177,22 @@ VarioParam* VarioParam::createMultiple(int ndir,
  * @param space Pointer to the Space definition
  * @return
  */
-VarioParam* VarioParam::createMultipleFromGrid(int npas,
+VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
+                                               int npas,
                                                double scale,
                                                const VectorDouble &dates,
                                                const ASpace* space)
 {
-  std::vector<DirParam> dirs = DirParam::createMultipleFromGrid(npas, space);
-  if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
-  varioparam->addMultiDirs(dirs);
+  int ndim = dbgrid->getNDim();
+  VectorInt grincr(ndim,0);
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    VH::fill(grincr,  0.);
+    grincr[idim] = 1;
+    DirParam* dirparam = DirParam::createFromGrid(dbgrid, npas, grincr, space);
+    varioparam->addDir(*dirparam);
+  }
   return varioparam;
 }
 

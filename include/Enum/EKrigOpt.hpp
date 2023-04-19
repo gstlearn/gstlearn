@@ -12,8 +12,8 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_KRIG_OPT EKrigOpt, PONCTUAL, \
-                      PONCTUAL, 0,  "Punctual estimation", \
+#define ENUM_KRIG_OPT EKrigOpt, POINT, \
+                      POINT,    0,  "Punctual estimation", \
                       BLOCK,    1,  "Block average estimation", \
                       DRIFT,    2,  "Large scale Drift estimation", \
                       DGM,      3,  "Discrete Gaussian Model"

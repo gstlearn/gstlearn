@@ -10,6 +10,9 @@ Release 0.3.0
 - adding the possibility to define a DirParam using a 2D angle (prevails definition by 'codir')
 - changing prototypes of setMean() and setVars()
 - Fix Cross-validation in Simple Kriging with non zero Mean in Unique Neighborhood
+- Changing ENUM EKrigOpt: option PONCTUAL becomes POINT
+- Changing the internal definition (and storage) of DirParam
+- Generalize the methode createFromVVD() for all concrete matrices
 
 Release 0.2.1
 =============

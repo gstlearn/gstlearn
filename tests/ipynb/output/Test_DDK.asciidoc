@@ -72,14 +72,14 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.188
-- Range        =      0.121
-- Theo. Range  =      0.040
+- Sill         =      0.196
+- Range        =      0.128
+- Theo. Range  =      0.043
 Exponential
-- Sill         =      0.144
-- Range        =      1.071
-- Theo. Range  =      0.357
-Total Sill     =      0.332
+- Sill         =      0.147
+- Range        =      1.282
+- Theo. Range  =      0.428
+Total Sill     =      0.343
  
 ![png](output_10_1.png)
 ----
@@ -100,12 +100,12 @@ Covariance Part
 ---------------
 Exponential
 - Sill         =      0.082
-- Range        =      0.083
+- Range        =      0.085
 - Theo. Range  =      0.028
 Exponential
-- Sill         =      0.058
+- Sill         =      0.057
 - Range        =      0.837
-- Theo. Range  =      0.280
+- Theo. Range  =      0.279
 Total Sill     =      0.140
  
 ![png](output_12_1.png)

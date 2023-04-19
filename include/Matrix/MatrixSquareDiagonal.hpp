@@ -35,6 +35,8 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static MatrixSquareDiagonal* createFromVVD(const VectorVectorDouble& X, bool sparse=false);
+
   /*! Transpose the matrix */
   void transposeInPlace() override;
 

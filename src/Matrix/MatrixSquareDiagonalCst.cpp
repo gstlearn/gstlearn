@@ -225,3 +225,27 @@ bool MatrixSquareDiagonalCst::_isPhysicallyPresent(int irow, int icol) const
   if (irow != 0 || icol != 0) return false;
   return true;
 }
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @param sparse True for a Sparse matrix
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareDiagonalCst* MatrixSquareDiagonalCst::createFromVVD(const VectorVectorDouble& X, bool sparse)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+
+  MatrixSquareDiagonalCst* mat = new MatrixSquareDiagonalCst(nrow, sparse);
+  mat->_fillFromVVD(X);
+  return mat;
+}

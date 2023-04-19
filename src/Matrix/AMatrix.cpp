@@ -1381,3 +1381,19 @@ Triplet AMatrix::getCsToTriplet(bool flag_from_1) const
 {
   return csToTriplet(getCs(), flag_from_1);
 }
+
+/**
+ * Converts a VectorVectorDouble into a Matrix (generic)
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ */
+void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      setValue(irow, icol, X[irow][icol]);
+}
+

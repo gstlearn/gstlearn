@@ -38,9 +38,12 @@ public:
            double tolcode = 0.,
            const VectorDouble& breaks = VectorDouble(),
            const VectorDouble& codir  = VectorDouble(),
-           const VectorInt& grincr    = VectorInt(),
            double angle2D = TEST,
            const ASpace* space = nullptr);
+  DirParam(const DbGrid *dbgrid,
+           int npas,
+           const VectorInt &grincr,
+           const ASpace *space);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();
@@ -68,7 +71,8 @@ public:
                                        double tolcode = 0.,
                                        const VectorDouble& breaks = VectorDouble(),
                                        const ASpace* space = nullptr);
-  static DirParam* createFromGrid(int npas = 10,
+  static DirParam* createFromGrid(const DbGrid* dbgrid,
+                                  int npas = 10,
                                   const VectorInt& grincr = VectorInt(),
                                   const ASpace* space = nullptr);
   static std::vector<DirParam> createMultiple(int ndir,
@@ -83,8 +87,9 @@ public:
                                                double toldis = 0.5,
                                                double tolang = TEST,
                                                const ASpace *space = nullptr);
-  static std::vector<DirParam> createMultipleFromGrid(int npas,
-                                                      const ASpace* space = nullptr);
+  static std::vector<DirParam> createMultipleInSpace(int npas,
+                                                     double dpas = 1.,
+                                                     const ASpace *space = nullptr);
 
 public:
   /// AStringable Interface
@@ -129,11 +134,11 @@ public:
   void setTolCode(double tolcode) {_tolCode = tolcode; }
   void setBreaks(VectorDouble breaks) {_breaks = breaks; }
   void setCodir(VectorDouble codir) {_codir = codir; }
-  void setGrincr(VectorInt grincr) {_grincr = grincr; }
+  void setGrincr(const VectorInt &grincr) { _grincr = grincr; }
 
   bool isLagValid(int ilag, bool flagAsym = false) const;
   bool isDimensionValid(int idim) const;
-  bool isDefinedForGrid() const { return _definedForGrid; }
+  bool isDefinedForGrid() const { return ! _grincr.empty(); }
 
 private:
   void _completeDefinition(double angle2D = TEST);
@@ -142,7 +147,6 @@ private:
   int    _nPas;
   int    _optionCode;
   int    _idate;
-  bool   _definedForGrid;
   double _dPas;
   double _bench;
   double _cylRad;

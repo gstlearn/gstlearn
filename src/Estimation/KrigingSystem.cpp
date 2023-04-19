@@ -64,7 +64,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagVarZ(false),
       _flagGlobal(false),
       _flagDataChanged(false),
-      _calcul(EKrigOpt::PONCTUAL),
+      _calcul(EKrigOpt::POINT),
       _iptrWeights(-1),
       _flagWeights(false),
       _flagSet(true),
@@ -956,7 +956,7 @@ int KrigingSystem::_rhsCalcul()
     _covtabInit();
     switch (_calcul.toEnum())
     {
-      case EKrigOpt::E_PONCTUAL:
+      case EKrigOpt::E_POINT:
         nscale = 1;
         _getDistance(-1, _nbgh[iech], d1);
         _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
@@ -1090,7 +1090,7 @@ void KrigingSystem::_rhsDump()
 
   switch (_calcul.toEnum())
   {
-    case EKrigOpt::E_PONCTUAL:
+    case EKrigOpt::E_POINT:
       message("Punctual Estimation\n");
       break;
 
@@ -1633,7 +1633,7 @@ void KrigingSystem::_variance0()
   _covtabInit();
   switch (_calcul.toEnum())
   {
-    case EKrigOpt::E_PONCTUAL:
+    case EKrigOpt::E_POINT:
       nscale = 1;
       _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
       break;

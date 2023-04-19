@@ -1747,13 +1747,16 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
       // Grid definition
 
       ret = ret && _recordReadVec<int>(is, "Grid Increment", grincr, ndim);
+      ret = ret && _recordReadVec<double>(is, "Direction vector", codir, ndim);
     }
     if (! ret) return ret;
 
     SpaceRN space(ndim);
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
-                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr, TEST,
+                                 TEST, TEST, tolcode, VectorDouble(), codir, TEST,
                                  &space);
+    if (isDefinedForGrid)
+      dirparam.setGrincr(grincr);
     _varioparam.addDir(dirparam);
 
     /* Read the arrays of results (optional) */
@@ -1832,6 +1835,9 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
       for (int idim = 0; ret && idim < (int) dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
       ret = ret && _commentWrite(os, "Direction increments on grid");
+      for (int idim = 0; idim < (int) dirparam.getNDim() && ret; idim++)
+        ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
+      ret = ret && _commentWrite(os, "Direction coefficients");
     }
 
     if (!flag_calcul) continue;
@@ -2084,36 +2090,13 @@ VectorDouble Vario::setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, 
 VectorDouble Vario::getCodirs(int idir) const
 {
   if (! _isDirectionValid(idir)) return VectorDouble();
-
-  VectorDouble codir;
-  if (isDefinedForGrid())
-  {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid *>(_db);
-    VectorInt grincr = getDirParam(idir).getGrincrs();
-    codir = dbgrid->getCodir(grincr);
-  }
-  else
-  {
-    codir = getDirParam(idir).getCodirs();
-  }
-  return codir;
+  return getDirParam(idir).getCodirs();
 }
 
 double Vario::getCodir(int idir, int idim) const
 {
   if (! _isDirectionValid(idir)) return TEST;
-  VectorDouble codir;
-  if (isDefinedForGrid())
-  {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid *>(_db);
-    VectorInt grincr = getDirParam(idir).getGrincrs();
-    codir = dbgrid->getCodir(grincr);
-  }
-  else
-  {
-    codir = getDirParam(idir).getCodirs();
-  }
-  return codir[idim];
+  return getDirParam(idir).getCodir(idim);
 }
 
 

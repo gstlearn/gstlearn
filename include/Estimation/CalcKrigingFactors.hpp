@@ -62,7 +62,7 @@ GSTLEARN_EXPORT int krigingFactors(Db *dbin,
                                    Model *model,
                                    ANeighParam *neighparam,
                                    const EKrigOpt &calcul = EKrigOpt::fromKey(
-                                       "PONCTUAL"),
+                                       "POINT"),
                                    const VectorInt &ndisc = VectorInt(),
                                    bool flag_est = true,
                                    bool flag_std = true,

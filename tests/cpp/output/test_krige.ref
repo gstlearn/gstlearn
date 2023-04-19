@@ -274,9 +274,9 @@ Data Base Statistics
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -1.159
- Maximum value       =      0.801
- Mean value          =     -0.150
+ Minimum value       =   -124.159
+ Maximum value       =   -122.199
+ Mean value          =   -123.150
  Standard Deviation  =      0.489
  Variance            =      0.239
 6 - Name Xvalid.Var.stdev - Locator NA

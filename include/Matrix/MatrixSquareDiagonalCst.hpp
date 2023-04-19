@@ -35,6 +35,8 @@ public:
 	/// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static MatrixSquareDiagonalCst* createFromVVD(const VectorVectorDouble& X, bool sparse=false);
+
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return true; }
 
