@@ -100,6 +100,7 @@ set(SRC
   Covariances/CovStable.cpp
   Covariances/CovMarkov.cpp
   Covariances/CovDiffusionAdvection.cpp
+  Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
   Polygon/PolySet.cpp
   Core/surface.cpp
