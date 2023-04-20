@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
@@ -239,11 +240,14 @@ MatrixSquareDiagonalCst* MatrixSquareDiagonalCst::createFromVVD(const VectorVect
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
-  if (nrow != ncol)
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  if (mattemp->isDiagCst())
   {
-    messerr("The matrix does not seem to be square");
+    messerr("The matrix does not seem to be Square and Constant Diagonal");
+    delete mattemp;
     return nullptr;
   }
+  delete mattemp;
 
   MatrixSquareDiagonalCst* mat = new MatrixSquareDiagonalCst(nrow, sparse);
   mat->_fillFromVVD(X);

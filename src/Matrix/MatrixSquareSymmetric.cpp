@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
@@ -310,11 +311,14 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
-  if (nrow != ncol)
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  if (mattemp->isSymmetric())
   {
-    messerr("The matrix does not seem to be square");
+    messerr("The matrix does not seem to be Square and symmetric");
+    delete mattemp;
     return nullptr;
   }
+  delete mattemp;
 
   MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow, sparse);
   mat->_fillFromVVD(X);

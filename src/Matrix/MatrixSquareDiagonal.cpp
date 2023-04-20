@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
@@ -252,11 +253,14 @@ MatrixSquareDiagonal* MatrixSquareDiagonal::createFromVVD(const VectorVectorDoub
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
-  if (nrow != ncol)
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  if (mattemp->isDiagonal())
   {
-    messerr("The matrix does not seem to be square");
+    messerr("The matrix does not seem to be Square and Diagonal");
+    delete mattemp;
     return nullptr;
   }
+  delete mattemp;
 
   MatrixSquareDiagonal* mat = new MatrixSquareDiagonal(nrow, sparse);
   mat->_fillFromVVD(X);

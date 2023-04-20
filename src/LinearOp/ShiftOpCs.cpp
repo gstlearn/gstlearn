@@ -1122,7 +1122,6 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   {
     _loadHHByApex(amesh, hh, 0);
     dethh = 1. / hh.determinant();
-
   }
   if (! _isNoStat())
     _loadAux(srot, EConsElem::SPHEROT, 0);
