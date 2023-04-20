@@ -150,7 +150,7 @@ ggarrange(p1, p2, labels = c("Plot #1", "Plot #2"), ncol = 2, nrow = 1)
 We calculate the variogram along the two main directions of the 2-D grid. We compute it for the 2 variables currently defined in the Grid file.
 
 ```{r}
-varioparam = VarioParam_createMultipleFromGrid(npas=10)
+varioparam = VarioParam_createMultipleFromGrid(mygrid,npas=10)
 vario = Vario(varioparam, mygrid)
 err = vario$compute(ECalcVario_VARIOGRAM())
 ```
