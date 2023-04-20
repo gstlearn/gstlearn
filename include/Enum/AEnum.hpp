@@ -138,9 +138,7 @@ public:\
   static NAME ## Iterator getIterator();\
   static void printAll();\
   static VectorString getAllKeys();\
-  static VectorString getAllValidKeys();\
   static VectorString getAllDescr();\
-  static VectorString getAllValidDescr();\
 \
   static bool existsKey(const String& key);\
   static bool existsValue(int value);\
@@ -238,38 +236,12 @@ VectorString NAME::getAllKeys()\
   return keys;\
 }\
 \
-VectorString NAME::getAllValidKeys()\
-{\
-  VectorString keys;\
-  auto it(getIterator());\
-  while (it.hasNext())\
-  {\
-    if ((*it).getValue() >= 0)\
-      keys.push_back((*it).getKey());\
-    it.toNext();\
-  }\
-  return keys;\
-}\
-\
 VectorString NAME::getAllDescr()\
 {\
   VectorString descr;\
   auto it(getIterator());\
   while (it.hasNext())\
   {\
-    descr.push_back((*it).getDescr());\
-    it.toNext();\
-  }\
-  return descr;\
-}\
-\
-VectorString NAME::getAllValidDescr()\
-{\
-  VectorString descr;\
-  auto it(getIterator());\
-  while (it.hasNext())\
-  {\
-    if ((*it).getValue() >= 0)\
     descr.push_back((*it).getDescr());\
     it.toNext();\
   }\
