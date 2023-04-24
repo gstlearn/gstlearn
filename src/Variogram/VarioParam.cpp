@@ -171,6 +171,7 @@ VarioParam* VarioParam::createMultiple(int ndir,
 /**
  * Automatically create several calculation directions from Grid information:
  * For details, see DirParam::createMultipleFromGrid documentation
+ * @param dbgrid a DbGrid structure
  * @param npas Number of lags
  * @param scale Scaling factor
  * @param dates Range of dates

@@ -227,3 +227,6 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
                              int nbtuba = 100,
                              bool flag_check = false,
                              const NamingConvention& namconv = NamingConvention("SimBayes"));
+
+GSTLEARN_EXPORT bool isCovValidForTurningBands(const ECov& type);
+

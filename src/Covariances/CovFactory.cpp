@@ -88,7 +88,6 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_MARKOV:      return new CovMarkov(ctxt);
     default: break;
   }
-  my_throw ("Covariance function not yet implemented!");
   return nullptr;
 }
 

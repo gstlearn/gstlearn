@@ -727,12 +727,12 @@ double CalcSimuTurningBands::_computeScaleKB(double param, double scale)
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_power1D(int ib,
-                                double scale,
-                                double alpha,
-                                double *omega,
-                                double *phi,
-                                double *theta_3,
-                                double *correc0)
+                                    double scale,
+                                    double alpha,
+                                    double *omega,
+                                    double *phi,
+                                    double *theta_3,
+                                    double *correc0)
 {
   double R, theta_1;
   static double twoPI, log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff,
@@ -1288,9 +1288,9 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
-                                     const VectorDouble &aic,
-                                     int icase,
-                                     int shift)
+                                         const VectorDouble &aic,
+                                         int icase,
+                                         int shift)
 {
   double vexp, phi, tdeb, omega, dt0, dt, t0, t0y, t0z;
   double cxp, sxp, cyp, syp, czp, szp, c0x, s0x, c0y, s0y, c0z, s0z, c1, s1;
@@ -2396,6 +2396,33 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
   return 0;
 }
 
+bool isCovValidForTurningBands(const ECov& type)
+{
+  switch (type.toEnum())
+  {
+    case ECov::E_NUGGET:
+    case ECov::E_EXPONENTIAL:
+    case ECov::E_SPHERICAL:
+    case ECov::E_CUBIC:
+    case ECov::E_GAUSSIAN:
+    case ECov::E_SINCARD:
+    case ECov::E_BESSEL_J:
+    case ECov::E_BESSEL_K:
+    case ECov::E_STABLE:
+    case ECov::E_POWER:
+    case ECov::E_SPLINE_GC:
+    case ECov::E_LINEAR:
+    case ECov::E_ORDER1_GC:
+    case ECov::E_ORDER3_GC:
+    case ECov::E_ORDER5_GC:
+      break;
+
+    default:
+      return false;
+  }
+  return true;
+}
+
 /****************************************************************************/
 /*!
  **  Check if the Model can be simulated using Turning Bands
@@ -2408,38 +2435,14 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
 bool CalcSimuTurningBands::isTurningBandsWorkable(const Model *model)
 
 {
-  bool workable = true;
-
   /* Loop on the structures */
 
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
     ECov type = model->getCovaType(is);
-
-    switch (type.toEnum())
-    {
-      case ECov::E_NUGGET:
-      case ECov::E_EXPONENTIAL:
-      case ECov::E_SPHERICAL:
-      case ECov::E_CUBIC:
-      case ECov::E_GAUSSIAN:
-      case ECov::E_SINCARD:
-      case ECov::E_BESSEL_J:
-      case ECov::E_BESSEL_K:
-      case ECov::E_STABLE:
-      case ECov::E_POWER:
-      case ECov::E_SPLINE_GC:
-      case ECov::E_LINEAR:
-      case ECov::E_ORDER1_GC:
-      case ECov::E_ORDER3_GC:
-      case ECov::E_ORDER5_GC:
-        break;
-
-      default:
-        workable = false;
-    }
+    if (! isCovValidForTurningBands(type)) return false;
   }
-  return workable;
+  return true;
 }
 
 /****************************************************************************/

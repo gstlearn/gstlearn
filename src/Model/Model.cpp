@@ -320,6 +320,8 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
 
+  double parmax = cov.getParMax();
+  if (param > parmax) param = parmax;
   cov.setParam(param);
   if (! ranges.empty())
   {
