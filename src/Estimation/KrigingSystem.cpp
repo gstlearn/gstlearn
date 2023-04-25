@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Estimation/KrigingSystem.hpp"
+
 #include "Enum/EKrigOpt.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ELoc.hpp"
@@ -34,7 +36,6 @@
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Estimation/KrigingSystem.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceRN.hpp"
 
@@ -1138,7 +1139,7 @@ void KrigingSystem::_rhsDump()
 void KrigingSystem::_wgtCalcul()
 {
   int nvarCL = _getNVarCL();
-  matrix_product(_nred, _nred, nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
+  matrix_product_safe(_nred, _nred, nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1778,20 +1779,19 @@ void KrigingSystem::_dual()
       if (nfeq <= 0)
         mean = _getMean(ivar);
       if (_flagBayes)
-        mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar,
-                                      _postMean.data());
+        mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
       zext[ecr++] = _getIvar(_nbgh[iech], ivar) - mean;
     }
   }
 
   /* Operate the product : Z * A-1 */
 
-  matrix_product(_nred, _nred, 1, _lhsinv.data(), zext.data(), _zam.data());
+  matrix_product_safe(_nred, _nred, 1, _lhsinv.data(), zext.data(), _zam.data());
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
-    matrix_product(1, _nred, 1, _zam.data(), zext.data(), &_lterm);
+    matrix_product_safe(1, _nred, 1, _zam.data(), zext.data(), &_lterm);
 
   // Turn back the flag to OFF in order to avoid provoking
   // the _dual() calculations again
@@ -3442,7 +3442,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   /* Calculate: SMU = S-1 * MEAN */
 
-  matrix_product(nfeq, nfeq, 1, _postCov.data(), _priorMean.data(), smu.data());
+  matrix_product_safe(nfeq, nfeq, 1, _postCov.data(), _priorMean.data(), smu.data());
 
   /* Covariance matrix SIGMA */
 
@@ -3481,7 +3481,7 @@ int KrigingSystem::_bayesPreCalculations()
   /* Posterior mean: _postMean = SC * SMU */
 
   if (matrix_invert(_postCov.data(), nfeq, -1)) return 1;
-  matrix_product(nfeq, nfeq, 1, _postCov.data(), smu.data(), _postMean.data());
+  matrix_product_safe(nfeq, nfeq, 1, _postCov.data(), smu.data(), _postMean.data());
 
   if (OptDbg::query(EDbg::BAYES))
   {

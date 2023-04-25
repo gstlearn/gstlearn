@@ -419,7 +419,7 @@ static int st_extdrift_solve(Pot_Ext *pot_ext,
   /* Perform the inversion and store the weights */
 
   if (matrix_invert(a, number, 0)) return (1);
-  matrix_product(number, number, 4, a, b, wgt);
+  matrix_product_safe(number, number, 4, a, b, wgt);
 
   return (0);
 }
@@ -1199,8 +1199,8 @@ static int st_extdrift_eval(const char *target,
 
   /* Perform the estimation */
 
-  matrix_product(1, pot_ext->nfull, 4, pot_ext->data, pot_ext->weight,
-                 result.data());
+  matrix_product_safe(1, pot_ext->nfull, 4, pot_ext->data, pot_ext->weight,
+                      result.data());
 
   /* Retrieve the results */
 
@@ -2068,7 +2068,7 @@ static void st_calc_point(Pot_Env *pot_env,
   /* Perform the estimation */
 
   for (int i = 0; i < nsol; i++) result[i] = TEST;
-  matrix_product(1, pot_env->nequa, nsol, zdual, rhs, result.data());
+  matrix_product_safe(1, pot_env->nequa, nsol, zdual, rhs, result.data());
 
   // Printout (optional) 
 
@@ -2301,7 +2301,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   /* Calculate the dual system */
 
-  matrix_product(neqm1, neqm1, 1, lhs_aux, zval, zdual);
+  matrix_product_safe(neqm1, neqm1, 1, lhs_aux, zval, zdual);
 
   /* Evaluate the reference point */
 
@@ -2309,7 +2309,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     coor0[idim] = ISO_COO(ic0, 0, idim);
   st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs);
   matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, 1, zdual, rhs, &potval);
+  matrix_product_safe(1, neqm1, 1, zdual, rhs, &potval);
 
   /* Evaluate the target point */
 
@@ -2317,7 +2317,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
   st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, nsol, zdual, rhs, result.data());
+  matrix_product_safe(1, neqm1, nsol, zdual, rhs, result.data());
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, 0,
@@ -2341,7 +2341,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     }
     st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-    matrix_product(1, neqm1, nsol, zdual, rhs, result.data());
+    matrix_product_safe(1, neqm1, nsol, zdual, rhs, result.data());
     if (OptDbg::query(EDbg::CONVERGE))
     {
       message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, iter,
@@ -3129,7 +3129,7 @@ int potential_kriging(Db *dbiso,
   st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-  matrix_product(nequa, nequa, 1, lhs, zval, zdual);
+  matrix_product_safe(nequa, nequa, 1, lhs, zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z] *%* [LHS]-1", 0, 1, 1, nequa, NULL, zdual);
 
@@ -3356,7 +3356,7 @@ int potential_simulate(Db *dbiso,
     st_fill_dual(&pot_env, zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-    matrix_product(nequa, nequa, 1, lhs, zval, zdual);
+    matrix_product_safe(nequa, nequa, 1, lhs, zval, zdual);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdual);
 
@@ -3384,7 +3384,7 @@ int potential_simulate(Db *dbiso,
   st_fill_dual_simulation(&pot_env, dbiso, dbgrd, dbtgt, nbsimu, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Simu-Err]", 0, 1, nbsimu, nequa, NULL, zval);
-  matrix_product(nequa, nequa, nbsimu, lhs, zval, zduals);
+  matrix_product_safe(nequa, nequa, nbsimu, lhs, zval, zduals);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Simu-Err] *%* [A]-1", 0, 1, nbsimu, nequa, NULL, zduals);
 
@@ -3533,7 +3533,7 @@ int potential_xvalid(Db *dbiso,
   st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-  matrix_product(nequa, nequa, 1, lhs, zval, zdual);
+  matrix_product_safe(nequa, nequa, 1, lhs, zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdual);
 

@@ -100,7 +100,7 @@ void MatrixSquareGeneral::_prodVector(const double *inv, double *outv) const
 {
   int nrow = getNRows();
   int ncol = getNCols();
-  matrix_product(nrow,ncol,1,_squareMatrix.data(),inv,outv);
+  matrix_product_safe(nrow,ncol,1,_squareMatrix.data(),inv,outv);
 }
 
 void MatrixSquareGeneral::_transposeInPlace()

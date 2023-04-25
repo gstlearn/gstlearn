@@ -2624,7 +2624,7 @@ static double st_rkl(int maxpts,
   cste[1] = 0.;
   vect[0] = x;
   vect[1] = y;
-  matrix_product(2, 2, 1, temp, vect, mean);
+  matrix_product_safe(2, 2, 1, temp, vect, mean);
   v1 = law_df_bigaussian(vect, cste, corr1);
   mvndst2n(lower, upper, mean, covar, maxpts, abseps, releps, &error, &v2,
            &inform);
@@ -2672,7 +2672,7 @@ static double st_ikl(int maxpts,
   matrix_manage(4, 4, -2, 2, index, index, correl, corrc);
   matrix_manage(4, 4, -2, -2, index, index, correl, corr2);
   if (matrix_invert_copy(corr1, 2, inv_corr1)) messageAbort("st_ikl #1");
-  matrix_product(2, 2, 2, corrc, inv_corr1, temp);
+  matrix_product_safe(2, 2, 2, corrc, inv_corr1, temp);
 
   // Derive covar
   for (i = 0; i < 2; i++)
@@ -2730,7 +2730,7 @@ static double st_nkl(double *u,
   cdflow = law_cdf_gaussian((lower - meanj) / stdj);
   invval = invvari[index2];
   matrix_manage(4, 1, -1, 0, &index2, NULL, invvari, invpart);
-  matrix_product(1, 3, 1, invpart, u, &total);
+  matrix_product_safe(1, 3, 1, invpart, u, &total);
 
   S = (dfupp - dflow) * varj * invval - (cdfupp - cdflow)
       * (invval * meanj + total);
@@ -2845,8 +2845,8 @@ static double st_d2_dkldkj(int index1,
   matrix_manage(4, 4, 1, -1, &index2, &index2, correl, crosscor);
   matrix_manage(4, 4, 1, 1, &index2, &index2, correl, &corr2);
   if (matrix_invert_copy(corr1, 3, invcorr1)) messageAbort("st_d2_dkldkj #2");
-  matrix_product(1, 3, 3, crosscor, invcorr1, temp);
-  matrix_product(1, 3, 1, crosscor, temp, &covar);
+  matrix_product_safe(1, 3, 3, crosscor, invcorr1, temp);
+  matrix_product_safe(1, 3, 1, crosscor, temp, &covar);
   covar = corr2 - covar;
   sdcovar = sqrt(covar);
   matrix_manage(4, 1, -1, 0, &index2, NULL, lower, lowi);
@@ -2871,7 +2871,7 @@ static double st_d2_dkldkj(int index1,
         }
         if (flag_out) continue;
 
-        matrix_product(1, 3, 1, temp, u, &mu);
+        matrix_product_safe(1, 3, 1, temp, u, &mu);
         random = law_df_multigaussian(3, u, varcori);
 
         S += pow(-1., 3 - i1 + i2 + i3) * random
@@ -3239,7 +3239,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
         matrix_combine(npar2, 1., JJ, 0., NULL, Gn);
       matrix_combine(npar, -1., gr, 0., NULL, hsd);
       if (invgen(Gn, npar, invGn)) messageAbort("st_optim_lag");
-      matrix_product(npar, npar, 1, invGn, hsd, hgn);
+      matrix_product_safe(npar, npar, 1, invGn, hsd, hgn);
     }
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combinaison of both */
@@ -3261,7 +3261,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       {
         matrix_combine(npar, alpha, hsd, 0., NULL, a);
         matrix_combine(npar, 1., hgn, -1., a, hgna);
-        matrix_product(1, npar, 1, a, hgn, &c);
+        matrix_product_safe(1, npar, 1, a, hgn, &c);
         a2 = matrix_norm(a, npar);
         hgna2 = matrix_norm(hgna, npar);
         if (c <= 0.)
@@ -3289,7 +3289,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
 
       mdiminution = Snew - Sr;
       if (barrier) mdiminution = Spen - Srpen;
-      matrix_product(1, npar, 1, step, gr, &stepgr);
+      matrix_product_safe(1, npar, 1, step, gr, &stepgr);
       mdiminution_pred = stepgr + 0.5 * matrix_normA(step, Gn, npar, npar);
       rval = mdiminution / mdiminution_pred;
       flag_moved = (mdiminution < 0);

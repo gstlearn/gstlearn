@@ -5786,7 +5786,7 @@ static int st_grid1D_interpolate_spline(Db *dbgrid,
 
   M.resize(n, 0);
   if (matrix_invert(R.data(), n, -1)) return 1;
-  matrix_product(n, n, 1, R.data(), F.data(), M.data());
+  matrix_product_safe(n, n, 1, R.data(), F.data(), M.data());
 
   C.resize(nm1, 0);
   Cp.resize(nm1, 0);

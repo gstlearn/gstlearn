@@ -1113,6 +1113,18 @@ def readGrid(dbgrid, name, usesel=True,
         
     return x0, y0, X, Y, data, tr
 
+def cell(ax, dbgrid, posx=0, posy=1, corner=None, **kwargs):
+    xext = dbgrid.getExtrema(posx)
+    yext = dbgrid.getExtrema(posy)
+
+    for i in range(dbgrid.getNX(posx)+1):
+        x = dbgrid.getX0(posx)+(i-0.5) * dbgrid.getDX(posx)
+        ax.plot([x,x],yext, **kwargs)
+    for i in range(dbgrid.getNX(posy)+1):
+        y = dbgrid.getX0(posy)+(i-0.5) * dbgrid.getDX(posy)
+        ax.plot(xext,[y,y], **kwargs)
+    return
+
 def raster(ax, dbgrid, name, usesel = True, posx=0, posy=1, corner=None, 
            flagLegend=False, **kwargs):
     '''
@@ -1125,7 +1137,6 @@ def raster(ax, dbgrid, name, usesel = True, posx=0, posy=1, corner=None,
     flagLegend: Flag for representing the Color Bar
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    
     name = defaultVariable(dbgrid, name)
             
     if len(ax.get_title()) <= 0:
@@ -2129,6 +2140,7 @@ setattr(plt.Axes, "gradient",      gp.gradient)
 setattr(plt.Axes, "tangent",       gp.tangent)
 setattr(plt.Axes, "raster",        gp.raster)
 setattr(plt.Axes, "isoline",       gp.isoline)
+setattr(plt.Axes, "cell",          gp.cell)
 
 setattr(plt.Figure, "varmod",      gp.varmod)
 setattr(plt.Figure, "variogram",   gp.variogram)

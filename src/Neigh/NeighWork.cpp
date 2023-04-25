@@ -534,8 +534,8 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
 
     if (neighM->getFlagRotation())
     {
-      matrix_product(1, ndim, ndim, _movingX1.data(),
-                     neighM->getAnisoRotMats().data(), _movingX2.data());
+      matrix_product_safe(1, ndim, ndim, _movingX1.data(),
+                          neighM->getAnisoRotMats().data(), _movingX2.data());
       _movingX1 = _movingX2;
     }
     for (int idim = 0; idim < ndim; idim++)

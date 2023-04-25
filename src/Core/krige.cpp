@@ -1822,7 +1822,7 @@ Global_Res global_kriging(Db *dbin,
   VectorDouble lhsinv = ksys.getLHSInv();
   VectorDouble zam = ksys.getZam();
   VectorDouble wgt(nred);
-  matrix_product(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
+  matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
 
   /* Perform the estimation */
 
@@ -2690,7 +2690,7 @@ int anakexp_f(DbGrid *db,
 
       /* Derive the kriging weights */
 
-      matrix_product(neq, neq, 1, lhs_global, rhs_global, wgt_global);
+      matrix_product_safe(neq, neq, 1, lhs_global, rhs_global, wgt_global);
     }
 
     /* Calculate the estimation */
@@ -3430,7 +3430,7 @@ int anakexp_3D(DbGrid *db,
 
           /* Derive the kriging weights */
 
-          matrix_product(neq, neq, 1, lhs_global, rhs_global, wgt_global);
+          matrix_product_safe(neq, neq, 1, lhs_global, rhs_global, wgt_global);
         }
 
         /* Calculate the estimation */
@@ -4038,8 +4038,8 @@ int st_krige_data(Db *db,
   if (db_vector_get(db, ELoc::Z, 0, data)) goto label_end;
   for (i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  matrix_product(1, nutil, ntot, datm, tutil, aux1);
-  matrix_product(1, ntot, ntot, aux1, invsig, aux2);
+  matrix_product_safe(1, nutil, ntot, datm, tutil, aux1);
+  matrix_product_safe(1, ntot, ntot, aux1, invsig, aux2);
 
   /* Perform the estimation at all non pivot samples */
 
@@ -4055,8 +4055,8 @@ int st_krige_data(Db *db,
                               1);
     if (s == nullptr) goto label_end;
 
-    matrix_product(1, nutil, ntot, s, tutil, aux3);
-    matrix_product(1, ntot, 1, aux2, aux3, &estim);
+    matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
+    matrix_product_safe(1, ntot, 1, aux2, aux3, &estim);
     data_est[iech] = estim + model->getMean(0);
 
     if (flag_abs)
@@ -4068,8 +4068,8 @@ int st_krige_data(Db *db,
         data_est[iech] = ABS(data_est[iech] - true_value);
     }
 
-    matrix_product(1, ntot, ntot, aux3, invsig, aux4);
-    matrix_product(1, ntot, 1, aux3, aux4, &variance);
+    matrix_product_safe(1, ntot, ntot, aux3, invsig, aux4);
+    matrix_product_safe(1, ntot, 1, aux3, aux4, &variance);
     data_var[iech] = c00[0] - variance;
 
     s = (double*) mem_free((char* ) s);
@@ -4176,11 +4176,11 @@ int st_crit_global(Db *db,
                                0, 1);
     if (cs == nullptr) goto label_end;
 
-    matrix_product(nsize1, nsize1, 1, invc, cs, temp_loc);
-    matrix_product(1, nsize1, 1, datm, temp_loc, &estim);
+    matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
+    matrix_product_safe(1, nsize1, 1, datm, temp_loc, &estim);
     olderr[ecr] = estim + model->getMean(0) - db->getLocVariable(ELoc::Z,iech, 0);
 
-    matrix_product(1, nsize1, 1, cs, temp_loc, &sigma);
+    matrix_product_safe(1, nsize1, 1, cs, temp_loc, &sigma);
     olddiv[ecr] = olderr[ecr] / (c00[0] - sigma);
 
     c00 = (double*) mem_free((char* ) c00);
@@ -4204,7 +4204,7 @@ int st_crit_global(Db *db,
                                 0, 1);
     if (cs1 == nullptr) goto label_end;
 
-    matrix_product(1, nsize1, nutil, cs, temp, aux1);
+    matrix_product_safe(1, nsize1, nutil, cs, temp, aux1);
     matrix_combine(nutil, 1, cs1, -1, aux1, cs1);
     matrix_combine(nutil, 1, olderr, -olddiv[ecr], cs1, cs1);
 
@@ -4492,8 +4492,8 @@ int krigsampling_f(Db *dbin,
   if (db_vector_get(dbin, ELoc::Z, 0, data)) goto label_end;
   for (i = 0; i < nutil; i++)
     datm[i] = data[rutil[i]] - model->getMean(0);
-  matrix_product(1, nutil, ntot, datm, tutil, aux1);
-  matrix_product(1, ntot, ntot, aux1, invsig, aux2);
+  matrix_product_safe(1, nutil, ntot, datm, tutil, aux1);
+  matrix_product_safe(1, ntot, ntot, aux1, invsig, aux2);
 
   /* Loop on the target samples */
 
@@ -4518,15 +4518,15 @@ int krigsampling_f(Db *dbin,
       if (c00 == nullptr) goto label_end;
     }
 
-    matrix_product(1, nutil, ntot, s, tutil, aux3);
-    matrix_product(1, ntot, 1, aux2, aux3, &estim);
+    matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
+    matrix_product_safe(1, ntot, 1, aux2, aux3, &estim);
     estim += model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
     if (FLAG_STD)
     {
-      matrix_product(1, ntot, ntot, aux3, invsig, aux4);
-      matrix_product(1, ntot, 1, aux3, aux4, &sigma);
+      matrix_product_safe(1, ntot, ntot, aux3, invsig, aux4);
+      matrix_product_safe(1, ntot, 1, aux3, aux4, &sigma);
       sigma = c00[0] - sigma;
       sigma = (sigma > 0) ? sqrt(sigma) :
                             0.;
@@ -5500,7 +5500,7 @@ static void st_drift_update(int np,
       value = YMAT(ip,il) * covgp[ip] - driftg[il];
     maux[il] = value;
   }
-  matrix_product(nbfl, nbfl, 1, zmat, maux, mu);
+  matrix_product_safe(nbfl, nbfl, 1, zmat, maux, mu);
 
   /* Update the vector of kriging weights */
 
@@ -5718,7 +5718,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     /* Calculate the Kriging weights */
 
-    matrix_product(np, np, 1, covpp, rhs, lambda);
+    matrix_product_safe(np, np, 1, covpp, rhs, lambda);
     if (OptDbg::force())
       krige_wgt_print(0, nvar, nvar, nfeq, nbgh_ranks, nred, -1, NULL, lambda);
 
@@ -5738,14 +5738,14 @@ int inhomogeneous_kriging(Db *dbdat,
 
     /* Perform the estimation */
 
-    matrix_product(1, np, 1, data, lambda, &estim);
-    matrix_product(1, np, 1, rhs, lambda, &stdev);
+    matrix_product_safe(1, np, 1, data, lambda, &estim);
+    matrix_product_safe(1, np, 1, rhs, lambda, &stdev);
 
     /* Update the variance in presence of drift */
 
     if (nbfl > 0)
     {
-      matrix_product(1, nbfl, 1, mu, maux, &auxval);
+      matrix_product_safe(1, nbfl, 1, mu, maux, &auxval);
       stdev += auxval;
     }
 

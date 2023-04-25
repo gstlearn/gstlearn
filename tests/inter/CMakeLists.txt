@@ -1,7 +1,8 @@
 # List the source files
 set(TEST_SOURCES 
   testInter_Ask.cpp
-  testInter_GibbsMMulti.cpp)
+  testInter_GibbsMMulti.cpp
+  testInter_Benchmark.cpp)
 
 # Generation folder
 if (IS_MULTI_CONFIG)

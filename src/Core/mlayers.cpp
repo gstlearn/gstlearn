@@ -1104,7 +1104,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
   /* Find the optimal drift coefficients */
 
   if (matrix_invert(atab, neq, -1)) goto label_end;
-  matrix_product(neq, neq, 1, atab, btab, coeff);
+  matrix_product_safe(neq, neq, 1, atab, btab, coeff);
 
   /* Optional printout of the result */
 
@@ -1276,9 +1276,9 @@ static int st_collocated_prepare(LMlayers *lmlayers,
 
   if (st_lhs_one(lmlayers, dbin, dbout, model, seltab, iechout, nlayers, coor,
                  prop1, prop2, covtab, baux)) return (1);
-  matrix_product(neq, neq, 1, a, baux, b2);
-  matrix_product(1, neq, 1, b2, zval, &coefz);
-  matrix_product(1, neq, 1, b2, baux, &coefa);
+  matrix_product_safe(neq, neq, 1, a, baux, b2);
+  matrix_product_safe(1, neq, 1, b2, zval, &coefz);
+  matrix_product_safe(1, neq, 1, b2, baux, &coefa);
   (*ratio) = (ABS(c0 - coefa) > 1.e-6) ? (botval - coefz) / (c0 - coefa) :
                                          0.;
 
@@ -1321,7 +1321,7 @@ static void st_estimate_regular(LMlayers *lmlayers,
 
   /* Perform the estimation (in Dual form) */
 
-  matrix_product(1, neq, 1, dual, b, estim);
+  matrix_product_safe(1, neq, 1, dual, b, estim);
 
   /* Perform the variance of estimation error */
 
@@ -1332,8 +1332,8 @@ static void st_estimate_regular(LMlayers *lmlayers,
       stdv = TEST;
     else
     {
-      matrix_product(neq, neq, 1, a, b, wgt);
-      matrix_product(1, neq, 1, b, wgt, &stdv);
+      matrix_product_safe(neq, neq, 1, a, b, wgt);
+      matrix_product_safe(1, neq, 1, b, wgt, &stdv);
       stdv = c00val - stdv;
       stdv = (stdv > 0) ? sqrt(stdv) :
                           0.;
@@ -1397,20 +1397,20 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 
   /* Perform the estimation */
 
-  matrix_product(nech, npar, 1, a0, ff0, fsf0);
+  matrix_product_safe(nech, npar, 1, a0, ff0, fsf0);
   for (int iech = 0; iech < nech; iech++)
     c2[iech] = rhs[iech] + fsf0[iech];
-  matrix_product(nech, nech, 1, cc, c2, wgt);
+  matrix_product_safe(nech, nech, 1, cc, c2, wgt);
 
-  matrix_product(1, nech, 1, wgt, zval, &estim1);
-  matrix_product(1, npar, 1, ff0, post_mean, &estim2);
+  matrix_product_safe(1, nech, 1, wgt, zval, &estim1);
+  matrix_product_safe(1, npar, 1, ff0, post_mean, &estim2);
   *estim = estim1 + estim2;
 
   /* Calculate the standard deviation */
 
   if (flag_std)
   {
-    matrix_product(1, nech, npar, rhs, ss, temp);
+    matrix_product_safe(1, nech, npar, rhs, ss, temp);
     for (int ipar = 0; ipar < npar; ipar++)
       temp[ipar] -= ff0[ipar];
 
@@ -1570,7 +1570,7 @@ static void st_estimate(LMlayers *lmlayers,
       {
         cx = st_ci0(lmlayers, model, nlayers, prop1, ilayer + 1, NULL, covtab);
         if (FFFF(cx)) continue;
-        matrix_product(1, neq, 1, b2, b, &coefb);
+        matrix_product_safe(1, neq, 1, b2, b, &coefb);
         estim += (cx - coefb) * ratio;
       }
 
@@ -1918,10 +1918,10 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   /* Auxiliary calculations */
 
-  matrix_product(npar, nech, nech, fftab, acov, ffc);
+  matrix_product_safe(npar, nech, nech, fftab, acov, ffc);
   matrix_transpose(npar, nech, fftab, fft);
-  matrix_product(npar, nech, npar, ffc, fft, invH);
-  matrix_product(npar, nech, 1, ffc, zval, fm1z);
+  matrix_product_safe(npar, nech, npar, ffc, fft, invH);
+  matrix_product_safe(npar, nech, 1, ffc, zval, fm1z);
   if (get_keypone("Bayes_Debug_Flag", 0))
     set_keypair("Bayes_InvH_Matrix", 1, npar, npar, invH);
   if (get_keypone("Bayes_Debug_Flag", 0))
@@ -1937,10 +1937,10 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   /* Calculate the Posterior Mean vector */
 
-  matrix_product(npar, npar, 1, invS, prior_mean, post_mean);
+  matrix_product_safe(npar, npar, 1, invS, prior_mean, post_mean);
   for (int i = 0; i < npar; i++)
     fm1z[i] += post_mean[i];
-  matrix_product(npar, npar, 1, post_S, fm1z, post_mean);
+  matrix_product_safe(npar, npar, 1, post_S, fm1z, post_mean);
   if (get_keypone("Bayes_Debug_Flag", 0))
     set_keypair("Bayes_Post_Mean_Matrix", 1, npar, 1, post_mean);
 
@@ -1966,8 +1966,8 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   /* Auxiliary arrays prepared for estimation */
 
-  matrix_product(nech, npar, npar, fft, post_S, a0);
-  matrix_product(nech, nech, npar, acov, fft, ss);
+  matrix_product_safe(nech, npar, npar, fft, post_S, a0);
+  matrix_product_safe(nech, nech, npar, acov, fft, ss);
   for (int i = 0; i < npar2; i++)
     invS[i] = post_S[i];
   if (matrix_invert(invS, npar, -1)) goto label_end;
@@ -2239,7 +2239,7 @@ int multilayers_kriging(Db *dbin,
   else
   {
     if (matrix_invert(a, neq, -1)) goto label_end;
-    matrix_product(neq, neq, 1, a, zval, dual);
+    matrix_product_safe(neq, neq, 1, a, zval, dual);
   }
 
   /* Perform the estimation over the grid nodes */
@@ -2476,7 +2476,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
       }
       continue;
     }
-    matrix_product(1, nhalf, nhalf, btab, atab, sill);
+    matrix_product_safe(1, nhalf, nhalf, btab, atab, sill);
 
     /* Optional printout */
 

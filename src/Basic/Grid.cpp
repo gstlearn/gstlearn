@@ -325,9 +325,8 @@ String Grid::toString(const AStringFormat* strfmt) const
 double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
 {
   int ndim = getNDim();
-  VectorInt   iwork(ndim);
+  VectorInt    iwork(ndim);
   VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
 
   /* Convert a sample number into grid indices */
 
@@ -341,11 +340,15 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
+  {
+    VectorDouble work2(ndim);
     _rotation.rotateInverse(work1,work2);
+    return (work2[idim0] + _x0[idim0]);
+  }
   else
-    work2 = work1;
-
-  return (work2[idim0] + _x0[idim0]);
+  {
+    return (work1[idim0] + _x0[idim0]);
+  }
 }
 
 /**

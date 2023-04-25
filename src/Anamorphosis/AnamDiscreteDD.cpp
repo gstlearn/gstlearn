@@ -340,7 +340,7 @@ VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
       double prop = getDDStatProp(icut);
       tab[ecr] = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
     }
-  matrix_product(nclass,ncut,ncut,tab.data(),getPcaZ2F().data(),maf.data());
+  matrix_product_safe(nclass,ncut,ncut,tab.data(),getPcaZ2F().data(),maf.data());
 
   /* Verbose option */
 

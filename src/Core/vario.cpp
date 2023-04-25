@@ -2637,7 +2637,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
 
   /* Calculate: A %*% t(X) %*% Y */
 
-  matrix_product(nbfl, nbfl, 1, MATDRF, b, BETA);
+  matrix_product_safe(nbfl, nbfl, 1, MATDRF, b, BETA);
 
   /* Optional printout */
 
@@ -2649,7 +2649,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
 
   /* Pre-process the vector X %*% A */
 
-  matrix_product(nech, nbfl, nbfl, DRFTAB, MATDRF, DRFXA);
+  matrix_product_safe(nech, nbfl, nbfl, DRFTAB, MATDRF, DRFXA);
 
   /* Set the error return code */
 
