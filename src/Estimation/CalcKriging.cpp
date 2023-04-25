@@ -23,7 +23,7 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _flagEst(flag_est),
     _flagStd(flag_std),
     _flagVarZ(flag_varZ),
-    _calcul(EKrigOpt::PONCTUAL),
+    _calcul(EKrigOpt::POINT),
     _ndisc(),
     _rankColCok(),
     _matCL(),

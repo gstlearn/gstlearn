@@ -59,10 +59,7 @@ MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X,
   int ncol = (int) X[0].size();
 
   MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, sparse);
-  for (int irow = 0; irow < nrow; irow++)
-    for (int icol = 0; icol < ncol; icol++)
-      mat->setValue(irow, icol, X[irow][icol]);
-
+  mat->_fillFromVVD(X);
   return mat;
 }
 

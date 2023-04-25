@@ -239,3 +239,4 @@ VectorDouble Rotation::setDirection(int ndim,
     for (int idim = 0; idim < ndim; idim++) codir[idim] *= radius;
   return codir;
 }
+

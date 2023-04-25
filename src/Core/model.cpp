@@ -1996,7 +1996,7 @@ int model_regularize(Model  *model,
 
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      vario->setVar(ivar, jvar, C00TAB(ivar, jvar));
+      vario->setVar(C00TAB(ivar, jvar), ivar, jvar);
 
   /* Loop on the directions */
 

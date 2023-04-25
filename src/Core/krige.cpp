@@ -1089,7 +1089,7 @@ int krige_koption_manage(int mode,
 
     switch (KOPTION->calcul.toEnum())
     {
-      case EKrigOpt::E_PONCTUAL:
+      case EKrigOpt::E_POINT:
       case EKrigOpt::E_DRIFT:
       case EKrigOpt::E_DGM:
         break;
@@ -1251,7 +1251,7 @@ void krige_rhs_print(int nvar,
   {
     switch (KOPTION->calcul.toEnum())
     {
-      case EKrigOpt::E_PONCTUAL:
+      case EKrigOpt::E_POINT:
         message("Punctual Estimation\n");
         break;
 
@@ -2585,7 +2585,7 @@ int anakexp_f(DbGrid *db,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     return (1);
 
   /* Preliminary checks */
@@ -2705,7 +2705,7 @@ int anakexp_f(DbGrid *db,
   error = 0;
 
   label_end: OptDbg::setCurrentIndex(0);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   st_krige_manage_basic(-1, size, size, 1, nfeq);
   return (error);
 }
@@ -3268,7 +3268,7 @@ int anakexp_3D(DbGrid *db,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     return (1);
 
   /* Preliminary checks */
@@ -3447,7 +3447,7 @@ int anakexp_3D(DbGrid *db,
   if (fildmp != nullptr) fclose(fildmp);
 
   label_end: OptDbg::setCurrentIndex(0);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   st_krige_manage_basic(-1, size_nei, size_nei, 1, nfeq);
   num_tot = (int*) mem_free((char* ) num_tot);
   nei_cur = (int*) mem_free((char* ) nei_cur);
@@ -5597,7 +5597,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   if (st_model_manage(1, model_dat)) goto label_end;
   if (st_krige_manage(1, nvar, model_dat, neighU)) goto label_end;
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   nbghw.initialize(dbdat, neighU);
 
@@ -5791,7 +5791,7 @@ int inhomogeneous_kriging(Db *dbdat,
   lambda = (double*) mem_free((char* ) lambda);
   (void) st_model_manage(-1, model_dat);
   (void) st_krige_manage(-1, 1, model_dat, neighU);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   delete neighU;
   return (error);
 }

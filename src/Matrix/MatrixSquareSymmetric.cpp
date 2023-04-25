@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
@@ -295,4 +296,31 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows)
   res->copyReduce(this, localValidRows, localValidRows);
 
   return res;
+}
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @param sparse True for a Sparse matrix
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X, bool sparse)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  if (mattemp->isSymmetric())
+  {
+    messerr("The matrix does not seem to be Square and symmetric");
+    delete mattemp;
+    return nullptr;
+  }
+  delete mattemp;
+
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow, sparse);
+  mat->_fillFromVVD(X);
+  return mat;
 }

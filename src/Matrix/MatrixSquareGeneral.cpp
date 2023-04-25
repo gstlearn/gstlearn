@@ -188,6 +188,30 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
   return 0;
 }
 
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @param sparse True for a Sparse matrix
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X, bool sparse)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow, sparse);
+  mat->_fillFromVVD(X);
+  return mat;
+}
+
 MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) const
 {
   // Order and shrink the input vectors

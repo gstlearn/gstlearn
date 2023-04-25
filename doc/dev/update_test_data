@@ -1,0 +1,38 @@
+#!/bin/csh -f
+
+# This script is meant to update the reference output file starting from the resulting test file output file Release mode only)
+# It specifically concerns the auxiliary files (Vario and Model) taht are produced by the tests
+# and not compared by the procedure compare_test.
+# 
+
+# Reference directory
+set command_location = `dirname $0`
+set DIR = $command_location/../..
+set name1 = "data"
+
+set nargs = $#argv
+if ($nargs < 1) then
+		echo "Update the reference output file from the build test output file (Release mode only)"
+		echo "Syntax:"
+		echo "update_test_data nametest"
+		echo "   nametest : Name of the test (e.g.: Jeu1, Var2, etc...)"
+		exit
+endif
+
+set nametest = $argv[1]
+set option = "Release"
+
+set nameradix = "Vario"
+set FILECMP = $DIR/build/tests/$name1/$option/$nametest/$nameradix."out"
+if (-f $FILECMP) then
+	set FILEREF = $DIR/tests/$name1/$nametest/$nameradix."ref"
+	cp $FILECMP $FILEREF
+endif
+
+set nameradix = "Model"
+set FILECMP = $DIR/build/tests/$name1/$option/$nametest/$nameradix."out"
+if (-f $FILECMP) then
+	set FILEREF = $DIR/tests/$name1/$nametest/$nameradix."ref"
+	cp $FILECMP $FILEREF
+endif
+

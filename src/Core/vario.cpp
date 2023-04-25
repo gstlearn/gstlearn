@@ -279,9 +279,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
   for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
-    vario->setMean(ivar, 0.);
+    vario->setMean(0., ivar);
     for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
-      vario->setVar(ivar, jvar, 0.);
+      vario->setVar(0., ivar, jvar);
   }
 
   /* Loop on the variables */
@@ -301,7 +301,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
     }
 
     if (s1w <= 0.) continue;
-    vario->setMean(ivar, s1z / s1w);
+    vario->setMean(s1z / s1w, ivar);
   }
 
   for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
@@ -334,15 +334,13 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
       if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
       {
-        vario->setVar(ivar, jvar, s12wzz);
-        vario->setVar(jvar, ivar, s12wzz);
+        vario->setVar(s12wzz, ivar, jvar);
+        vario->setVar(s12wzz, jvar, ivar);
       }
       else
       {
-        vario->setVar(ivar, jvar,
-                       s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
-        vario->setVar(jvar, ivar,
-                       s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
+        vario->setVar(s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w), ivar, jvar);
+        vario->setVar(s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w), jvar, ivar);
       }
     }
 
@@ -354,8 +352,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
         double value = -vario->getVar(ivar, jvar) / vario->getVar(jvar, jvar);
-        vario->setVar(ivar, jvar, value);
-        vario->setVar(jvar, ivar, value);
+        vario->setVar(value, ivar, jvar);
+        vario->setVar(value, jvar, ivar);
       }
   }
   else if (vario->getCalcul() == ECalcVario::TRANS2)
@@ -364,8 +362,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
         double value = -vario->getVar(ivar, jvar) / vario->getVar(ivar, ivar);
-        vario->setVar(ivar, jvar, value);
-        vario->setVar(jvar, ivar, value);
+        vario->setVar(value, ivar, jvar);
+        vario->setVar(value, jvar, ivar);
       }
   }
   else if (vario->getCalcul() == ECalcVario::BINORMAL)
@@ -374,10 +372,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
       for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
         if (ivar != jvar)
           vario->setVar(
-              ivar,
-              jvar,
               vario->getVar(ivar, jvar) / sqrt(
-                  vario->getVar(ivar, ivar) * vario->getVar(jvar, jvar)));
+                  vario->getVar(ivar, ivar) * vario->getVar(jvar, jvar)), ivar, jvar);
   }
   return;
 }
@@ -445,10 +441,8 @@ static void st_variovect_stats(Db *db, Vario *vario, int ncomp)
         s12wzz += ww * ww * vij;
       }
 
-      vario->setVar(ivar, jvar, (s12ww > 0) ? s12wzz / s12ww :
-                                               0.);
-      vario->setVar(jvar, ivar, (s12ww > 0) ? s12wzz / s12ww :
-                                               0.);
+      vario->setVar((s12ww > 0) ? s12wzz / s12ww : 0., ivar, jvar);
+      vario->setVar((s12ww > 0) ? s12wzz / s12ww : 0., jvar, ivar);
     }
 
   if (nb_neg > 0)
@@ -3479,8 +3473,6 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
  ** \param[in]  tolcode      Tolerance on the code
  ** \param[in]  breaks       array for irregular lags
  ** \param[in]  codir        calculation direction (Dimension = ndim)
- ** \param[in]  grincr       direction increment only used for grid
- **                          (Dimension = ndim)
  **
  *****************************************************************************/
 int variogram_direction_add(VarioParam *varioparam,
@@ -3494,13 +3486,12 @@ int variogram_direction_add(VarioParam *varioparam,
                             double cylrad,
                             double tolcode,
                             const VectorDouble &breaks,
-                            const VectorDouble &codir,
-                            const VectorInt &grincr)
+                            const VectorDouble &codir)
 {
   if (varioparam == (VarioParam*) NULL) return (1);
   DirParam dirparam = DirParam(npas, dpas,
                                toldis, tolang, opt_code, idate, bench, cylrad,
-                               tolcode, breaks, codir, grincr);
+                               tolcode, breaks, codir);
   varioparam->addDir(dirparam);
   return (0);
 }
@@ -5231,7 +5222,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Set the variance */
 
-  vario->setVar(0, 0, 1.);
+  vario->setVar(1., 0, 0);
 }
 
 /****************************************************************************/

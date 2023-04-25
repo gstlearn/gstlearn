@@ -97,6 +97,9 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1
 
+Experimental variogram on Data Samples
+--------------------------------------
+
 Variogram characteristics
 =========================
 Number of variable(s)       = 1
@@ -191,6 +194,9 @@ Exponential
 - Theo. Range  =      0.079
 Total Sill     =      0.000
 
+Experimental variogram on Grid
+------------------------------
+
 Variogram characteristics
 =========================
 Number of variable(s)       = 1
@@ -201,6 +207,9 @@ Variance-Covariance Matrix     0.874
 Direction #1
 ------------
 Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =     50.000 (Percent of the lag value)
 Grid Direction coefficients =          1         0
@@ -230,6 +239,9 @@ For variable 1
 Direction #2
 ------------
 Number of lags              = 20
+Direction coefficients      =      0.000     1.000
+Direction angles (degrees)  =     90.000     0.000
+Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =     50.000 (Percent of the lag value)
 Grid Direction coefficients =          0         1
@@ -256,6 +268,9 @@ For variable 1
         18  8200.000     0.180     1.000
         19  8100.000     0.190     1.007
 
+Variogram Map on Isolated Data
+------------------------------
+
 Data Base Grid Characteristics
 ==============================
 
@@ -280,6 +295,9 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = VMAP.Simu.Var - Locator = z1
 Column = 4 - Name = VMAP.Simu.Nb - Locator = NA
+
+Variogram Map on Grid
+---------------------
 
 Data Base Grid Characteristics
 ==============================

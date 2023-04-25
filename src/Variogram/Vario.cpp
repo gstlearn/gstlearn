@@ -342,7 +342,7 @@ void Vario::reduce(const VectorInt& varcols,
       _vars.resize(_nVar * _nVar);
       for (int ivar = 0; ivar < _nVar; ivar++)
         for (int jvar = 0; jvar < _nVar; jvar++)
-          setVar(ivar, jvar, vario_in.getVar(selvars[ivar], selvars[jvar]));
+          setVar(vario_in.getVar(selvars[ivar], selvars[jvar]), ivar, jvar);
     }
   }
   else
@@ -526,7 +526,7 @@ int Vario::transformZToY(const AAnam *anam)
   }
 
   // Modify the variance array
-  setVar(0,  0, 1.);
+  setVar(1., 0,  0);
 
   return 0;
 }
@@ -580,7 +580,7 @@ int Vario::transformYToZ(const AAnam *anam)
     }
   }
 
-  setVar(0, 0, c0);
+  setVar(c0, 0, 0);
   return 0;
 }
 
@@ -629,7 +629,7 @@ int Vario::modelRegularize(const Model* model,
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = model->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
-      setVar(ivar, jvar, value);
+      setVar(value, ivar, jvar);
     }
 
   /* Loop on the directions */
@@ -1079,7 +1079,7 @@ void Vario::setMeans(const VectorDouble& means)
     _means = means;
 }
 
-void Vario::setMean(int ivar, double mean)
+void Vario::setMean(double mean, int ivar)
 {
   if (_means.empty()) _initMeans();
   if (! _isVariableValid(ivar)) return;
@@ -1109,7 +1109,7 @@ void Vario::setVarIndex(int ijvar, double value)
   _vars[ijvar] = value;
 }
 
-void Vario::setVar(int ivar, int jvar, double value)
+void Vario::setVar(double value, int ivar, int jvar)
 {
   if (_vars.empty()) _initVars();
   int iad = getVarAddress(ivar, jvar);
@@ -1747,13 +1747,16 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
       // Grid definition
 
       ret = ret && _recordReadVec<int>(is, "Grid Increment", grincr, ndim);
+      ret = ret && _recordReadVec<double>(is, "Direction vector", codir, ndim);
     }
     if (! ret) return ret;
 
     SpaceRN space(ndim);
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
-                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr,
+                                 TEST, TEST, tolcode, VectorDouble(), codir, TEST,
                                  &space);
+    if (isDefinedForGrid)
+      dirparam.setGrincr(grincr);
     _varioparam.addDir(dirparam);
 
     /* Read the arrays of results (optional) */
@@ -1832,6 +1835,9 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
       for (int idim = 0; ret && idim < (int) dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
       ret = ret && _commentWrite(os, "Direction increments on grid");
+      for (int idim = 0; idim < (int) dirparam.getNDim() && ret; idim++)
+        ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
+      ret = ret && _commentWrite(os, "Direction coefficients");
     }
 
     if (!flag_calcul) continue;
@@ -2084,36 +2090,13 @@ VectorDouble Vario::setGgs(int idir, int ivar, int jvar, const VectorInt& ipas, 
 VectorDouble Vario::getCodirs(int idir) const
 {
   if (! _isDirectionValid(idir)) return VectorDouble();
-
-  VectorDouble codir;
-  if (isDefinedForGrid())
-  {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid *>(_db);
-    VectorInt grincr = getDirParam(idir).getGrincrs();
-    codir = dbgrid->getCodir(grincr);
-  }
-  else
-  {
-    codir = getDirParam(idir).getCodirs();
-  }
-  return codir;
+  return getDirParam(idir).getCodirs();
 }
 
 double Vario::getCodir(int idir, int idim) const
 {
   if (! _isDirectionValid(idir)) return TEST;
-  VectorDouble codir;
-  if (isDefinedForGrid())
-  {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid *>(_db);
-    VectorInt grincr = getDirParam(idir).getGrincrs();
-    codir = dbgrid->getCodir(grincr);
-  }
-  else
-  {
-    codir = getDirParam(idir).getCodirs();
-  }
-  return codir[idim];
+  return getDirParam(idir).getCodir(idim);
 }
 
 

@@ -384,6 +384,7 @@
   #include "Covariances/CovWendland1.hpp"
   #include "Covariances/CovWendland2.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
+  #include "Covariances/CovHelper.hpp"
   
   #include "Drifts/ADrift.hpp"
   #include "Drifts/ADriftElem.hpp"

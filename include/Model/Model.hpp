@@ -407,7 +407,7 @@ public:
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
   void setMeans(const VectorDouble& mean);
-  void setMean(int ivar, double mean);
+  void setMean(double mean, int ivar=0);
   void setCovar0s(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
   void setField(double field);

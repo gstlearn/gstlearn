@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
@@ -238,3 +239,31 @@ bool MatrixSquareDiagonal::_isPhysicallyPresent(int irow, int icol) const
   if (irow != icol) return false;
   return true;
 }
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @param sparse True for a Sparse matrix
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareDiagonal* MatrixSquareDiagonal::createFromVVD(const VectorVectorDouble& X, bool sparse)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  if (mattemp->isDiagonal())
+  {
+    messerr("The matrix does not seem to be Square and Diagonal");
+    delete mattemp;
+    return nullptr;
+  }
+  delete mattemp;
+
+  MatrixSquareDiagonal* mat = new MatrixSquareDiagonal(nrow, sparse);
+  mat->_fillFromVVD(X);
+  return mat;
+}
+

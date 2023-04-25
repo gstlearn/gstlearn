@@ -63,10 +63,12 @@ public:
                                     int npas = 10,
                                     double dpas = 1.,
                                     double toldis = 0.5,
+                                    double angref = 0.,
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble(),
                                     const ASpace* space = nullptr);
-  static VarioParam* createMultipleFromGrid(int npas,
+  static VarioParam* createMultipleFromGrid(const DbGrid* dbgrid,
+                                            int npas,
                                             double scale = 0.,
                                             const VectorDouble& dates = VectorDouble(),
                                             const ASpace* space = nullptr);

@@ -2069,7 +2069,7 @@ int multilayers_kriging(Db *dbin,
   nlayers = model->getVariableNumber();
   nechmax = dbin->getSampleNumber();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (dbin->getNDim() != 2)
   {
@@ -2256,7 +2256,7 @@ int multilayers_kriging(Db *dbin,
 
   error = 0;
 
-  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1,
+  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1,
                                          VectorInt());
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
@@ -2838,7 +2838,7 @@ int multilayers_get_prior(Db *dbin,
   nechmax = dbin->getSampleNumber();
   ptime = (match_time) ? ELoc::F :
                          ELoc::TIME;
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (dbin->getNDim() != 2)
   {
@@ -2935,7 +2935,7 @@ int multilayers_get_prior(Db *dbin,
   *npar_arg = npar;
   error = 0;
 
-  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1,
+  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1,
                                          VectorInt());
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);

@@ -3093,7 +3093,7 @@ int seismic_estimate_XZ(DbGrid *db,
     presence[i] = nullptr;
     npres[i] = 0;
   }
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
 
   /* Check that the grid is XZ */
@@ -3258,7 +3258,7 @@ int seismic_estimate_XZ(DbGrid *db,
     if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
     if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
   }
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   flag = (int*) mem_free((char* ) flag);
   lhs = (double*) mem_free((char* ) lhs);
   rhs = (double*) mem_free((char* ) rhs);

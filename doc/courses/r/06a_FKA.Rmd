@@ -126,7 +126,7 @@ ggPrint(p)
 \frametitle{Variogram Calculation}
 
 ```{r Variogram_calculation}
-varioparam = VarioParam_createMultipleFromGrid(npas=100)
+varioparam = VarioParam_createMultipleFromGrid(grid,npas=100)
 varioP = Vario(varioparam, grid)
 err = varioP$compute()
 modelP = Model()

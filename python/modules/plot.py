@@ -126,7 +126,7 @@ def isNotCorrect(object, types):
     if filetype in types:
         return False
     
-    print("Argument 'object' (",filetype,") must be a valid among",types)
+    print("Argument 'object' (",filetype,") must be a valid type among",types)
     return True
 
 def defaultVariable(db, name):
@@ -413,7 +413,8 @@ def varioElem(ax, vario, ivar=0, jvar=0, idir=0, hmax=None, show_pairs = False,
             if vario.isDefinedForGrid():
                 label = "vario grid={}".format(vario.getGrincrs(idir))
             else:
-                label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
+                angles = gl.GeometryHelper.rotationGetAngles(vario.getCodirs(idir),True)
+                label = "vario dir={}".format(np.round(angles,3))
         else:
             label = "vario"
     
@@ -619,7 +620,7 @@ def variogram(axs, vario, ivar=0, jvar=0, idir=0,
                   hmax=hmax, cmap=cmap, flagLegend=flagLegend, 
                   **kwargs)
 
-def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
+def modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
               nh = 100, hmax = None, asCov=False,
               env_color='black', env_linestyle='dashed',
               label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
@@ -630,7 +631,7 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     Parameters
     ----------
     ax: matplotlib.Axes
-    model : variogram model to be represented (gstlearn.Model).
+    modelobj : variogram model to be represented (gstlearn.Model).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     codir : Vector of the direction of the variogram to be represented. The default is the unit 
             vector in the first space dimension.
@@ -646,12 +647,12 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     flagEnvelop: Represent the coregionalization envelop (in multivariate case only)
     flagLegend : Flag to display the axes legend.
     """
-    if isNotCorrect(object=model, types=["Model"]):
+    if isNotCorrect(object=modelobj, types=["Model"]):
         return None
 
     if codir is None:
         if vario is None:
-            codir = [0] * model.getDimensionNumber()
+            codir = [0] * modelobj.getDimensionNumber()
             codir[0] = 1
         else:
             codir = vario.getCodirs(idir)
@@ -659,8 +660,8 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     # if hmax not specified = 3*maximum range of the model's basic structures
     if hmax is None:
         hmax = 0
-        for icova in range(model.getCovaNumber()):
-            range_max = np.max(model.getCova(icova).getRanges())
+        for icova in range(modelobj.getCovaNumber()):
+            range_max = np.max(modelobj.getCova(icova).getRanges())
             if 3*range_max > hmax:
                 hmax = 3*range_max
     if hmax == 0: # if the model has no range defined
@@ -668,25 +669,26 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
             
     if label is None:
         if flagLabelDir:
-            label = "model dir={}".format(np.round(codir,3))
+            angles = gl.GeometryHelper.rotationGetAngles(codir,True)
+            label = "model dir={}".format(np.round(angles,3))
         else:
             label = "model"
 
     istart = 0
-    for i in range(model.getCovaNumber()):
-        if model.getCovName(i) == 'Nugget Effect':
+    for i in range(modelobj.getCovaNumber()):
+        if modelobj.getCovName(i) == 'Nugget Effect':
             istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
      
     # Represent the Model 
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hh, ivar, jvar, codir, 0, asCov=asCov)
+    gg = modelobj.sample(hh, ivar, jvar, codir, 0, asCov=asCov)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
-        ggp = model.sample(hh, ivar, jvar, codir, 1, asCov=asCov)
+        ggp = modelobj.sample(hh, ivar, jvar, codir, 1, asCov=asCov)
         ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
-        ggm = model.sample(hh, ivar, jvar, codir,-1, asCov=asCov)
+        ggm = modelobj.sample(hh, ivar, jvar, codir,-1, asCov=asCov)
         ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
     # Draw the Legend (optional)
@@ -695,19 +697,17 @@ def modelElem(ax, model, ivar=0, jvar=0, codir=None, vario=None, idir=0,
         
     return res
 
-def modelold(model, ax = None, **kwargs):
+def modelold(modelobj, ax = None, **kwargs):
     '''
     Deprecated function: see model() for details
     '''
     printDeprecated()
-    
     ax = getNewAxes(ax, 0)
+    return model(ax, modelobj = modelobj, **kwargs)
     
-    return model(ax, model = model, **kwargs)
-    
-def model(ax, model = None, **kwargs):
+def model(ax, modelobj = None, **kwargs):
 
-    modelElem(ax, model = model, **kwargs)
+    modelElem(ax, modelobj = modelobj, **kwargs)
     
     return ax
 
@@ -1433,7 +1433,7 @@ def multisegments(ax, center, data, color='black',flagLegend=False, label="segme
 
 def faultold(faults, ax=None, **kwargs):
     '''
-    Deprecated function: see varmod() for details
+    Deprecated function: see fault() for details
     '''
     printDeprecated()
     
@@ -1737,6 +1737,67 @@ def anam(ax, anamobj, color='blue', linestyle='-', flagLegend=False):
     
     return ax
 
+def drawCircles(m,M,middle = False):
+    x = np.linspace(-m,m,100)
+    plt.plot(x, np.sqrt(m**2-x**2),c="g")
+    plt.plot(x,-np.sqrt(m**2-x**2),c="g")
+    
+    x = np.linspace(-M,M,100)
+    plt.plot(x, np.sqrt(M**2-x**2),c="g")
+    plt.plot(x,-np.sqrt(M**2-x**2),c="g")
+    if middle:
+        mid = .5 * (m+M)
+        x = np.linspace(-mid,mid,100)
+        plt.plot(x, np.sqrt(mid**2-x**2),c="r")
+        plt.plot(x,-np.sqrt(mid**2-x**2),c="r")
+        
+def drawDir(angle,col,R=10000):
+    a = np.deg2rad(angle)
+    u = R*np.array([0,np.cos(a)])
+    v = R*np.array([0,np.sin(a)])
+    plt.plot(u,v,c=col)
+    plt.plot(-u,-v,c=col)
+    
+def drawCylrad(angle,cylrad,R=10000,col="purple"):
+    a = np.deg2rad(angle)
+    x = cylrad/np.sin(a-np.pi/2)
+    
+    u=R*np.array([0,np.cos(a)])
+    v=R*np.array([0,np.sin(a)])
+    
+    plt.plot( u, (v+x),c=col)
+    plt.plot(-u,-(v+x),c=col)
+    plt.plot( u, (v-x),c=col)
+    plt.plot(-u,-(v-x),c=col)
+    
+#Function to get the limit for a lag
+def lagf(i,lag,tol=0,plot=True):
+    m = M = i*lag
+    
+    if plot:
+        plt.axvline(x = m, ymin = 0.,c="r")
+    if tol>0:
+        if i>0:
+            m = m-tol*lag
+            if plot:
+                plt.axvline(x = m, ymin = 0.,c="g")
+        M = M + tol*lag
+        if plot:
+            plt.axvline(x = M, ymin = 0.,c="g")
+    return m,M
+
+def drawTotalDir(lag,nlag,tol,angle,tolangle,cylrad):
+
+    for i in range(nlag):
+        m,M = lagf(i,lag,tol,plot=False)
+        drawCircles(m,M) 
+   
+    drawDir(angle,"black")
+    drawDir(angle+tolangle,"red")
+    drawDir(angle-tolangle,"red")
+    drawCylrad(angle,cylrad)
+    ax=plt.axis("equal")
+    
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     
     filetype = type(object).__name__

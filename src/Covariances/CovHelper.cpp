@@ -8,14 +8,20 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
+#include "geoslib_f.h"
 
-#include "Enum/AEnum.hpp"
+#include "Covariances/CovHelper.hpp"
+#include "Basic/VectorT.hpp"
+#include "Enum/ECov.hpp"
 
-#define ENUM_KRIG_OPT EKrigOpt, POINT, \
-                      POINT,    0,  "Punctual estimation", \
-                      BLOCK,    1,  "Block average estimation", \
-                      DRIFT,    2,  "Large scale Drift estimation", \
-                      DGM,      3,  "Discrete Gaussian Model"
-
-ENUM_DECLARE(ENUM_KRIG_OPT)
+VectorString CovHelper::getAllCovariances()
+{
+  VectorString vs;
+  auto it = ECov::getIterator();
+  while (it.hasNext())
+  {
+    vs.push_back(it.getKey());
+    it.toNext();
+  }
+  return vs;
+}

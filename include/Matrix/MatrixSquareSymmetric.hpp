@@ -54,6 +54,7 @@ public:
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
+  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble& X, bool sparse=false);
   MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
 
 protected:

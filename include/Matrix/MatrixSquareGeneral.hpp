@@ -43,6 +43,7 @@ public:
   /*! Check if the matrix is (non empty) square */
   bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
+  static MatrixSquareGeneral* createFromVVD(const VectorVectorDouble& X, bool sparse=false);
   MatrixSquareGeneral* reduce(const VectorInt &validRows) const;
 
 protected:

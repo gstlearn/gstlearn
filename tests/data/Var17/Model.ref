@@ -1,16 +1,13 @@
-Model 
-3 2 6.708200 # General parameters
-3 # Number of basic covariance terms
+Model
+3 2 6.7082 # General parameters
+2 # Number of basic covariance terms
 0 # Number of drift terms
-0 0.000000 0.000000 # Covariance characteristics
+1 2.34414 0 # Covariance characteristics
 0 # Anisotropy Flag
-1 3.325605 0.000000 # Covariance characteristics
+2 5.44946 0 # Covariance characteristics
 0 # Anisotropy Flag
-2 5.430444 0.000000 # Covariance characteristics
-0 # Anisotropy Flag
-0.000000 # Mean of Variables
-0.000000 # Mean of Variables
-0.000358 0.009014 0.009014 0.226794 # Matrix of sills
-0.003704 0.045661 0.045661 0.562841 # Matrix of sills
-0.955694 0.503303 0.503303 0.265057 # Matrix of sills
-1.000000 0.000000 0.000000 1.000000 # Var-Covar at origin
+0 # Mean of Variables
+0 # Mean of Variables
+0.00136334 0.0320757 0.0320757 0.754655 # Matrix of sills
+0.959425 0.528465 0.528465 0.291086 # Matrix of sills
+0 0 0 0 # Var-Covar at origin

@@ -166,7 +166,7 @@ The Model **fitmodOK** is first duplicated into **fitmodSK**. Then the Universal
 ```{r Model_for_simple_kriging}
 fitmodSK = fitmodOK$clone()
 err = fitmodSK$delDrift(rank=0)
-err = fitmodSK$setMean(ivar=0, mean=20.)
+err = fitmodSK$setMean(mean=20.)
 ```
 
 Simple Kriging is performed

@@ -628,9 +628,9 @@ void Model::setMeans(const VectorDouble& mean)
   _ctxt.setMean(mean);
   _copyCovContext();
 }
-void Model::setMean(int ivar, double mean)
+void Model::setMean(double mean, int ivar)
 {
-  _ctxt.setMean(ivar, mean);
+  _ctxt.setMean(mean, ivar);
   _copyCovContext();
 }
 void Model::setCovar0s(const VectorDouble& covar0)
@@ -1118,7 +1118,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     {
       double mean = 0.;
       ret = ret && _recordRead<double>(is, "Mean of Variable", mean);
-      setMean(ivar, mean);
+      setMean(mean, ivar);
   }
 
   /* Reading the matrices of sills (optional) */

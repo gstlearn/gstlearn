@@ -260,7 +260,7 @@ int VectorHelper::maximum(const VectorInt &vec)
 {
   if (vec.size() <= 0) return 0;
   int max = -10000000;
-  for (auto v : vec)
+  for (auto &v : vec)
   {
     if (v > max) max = v;
   }
@@ -281,7 +281,7 @@ int VectorHelper::minimum(const VectorInt &vec)
 {
   if (vec.size() <= 0) return 0;
   int min = 10000000;
-  for (auto v : vec)
+  for (auto &v : vec)
   {
     if (v < min) min = v;
   }
@@ -315,7 +315,7 @@ double VectorHelper::mean(const VectorDouble &vec)
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
   int number = 0;
-  for (auto v : vec)
+  for (auto &v : vec)
   {
     if (FFFF(v)) continue;
     mean += v;
@@ -331,7 +331,7 @@ double VectorHelper::mean(const VectorDouble &vec)
 double VectorHelper::cumul(const VectorDouble& vec)
 {
   double total = 0.;
-  for (auto v : vec)
+  for (auto &v : vec)
   {
     if (FFFF(v)) continue;
     total += v;
@@ -345,7 +345,7 @@ double VectorHelper::variance(const VectorDouble &vec)
   double mean = 0.;
   double var = 0.;
   int number = 0;
-  for (auto v : vec)
+  for (auto &v : vec)
   {
     if (FFFF(v)) continue;
     var += v * v;
@@ -474,7 +474,7 @@ void VectorHelper::normalize(VectorDouble &vec)
 {
   double ratio = VH::norm(vec);
   if (ratio <= 0.) return;
-  for (auto v : vec)
+  for (auto &v : vec)
      v /= ratio;
 }
 

@@ -169,10 +169,10 @@ void CovContext::setMean(const VectorDouble& mean)
 
 /**
  * Define the Mean for one variable
- * @param ivar Rank of the variable (starting from 0)
  * @param mean Value for the mean
+ * @param ivar Rank of the variable (starting from 0)
  */
-void CovContext::setMean(int ivar, const double mean)
+void CovContext::setMean(const double mean, int ivar)
 {
   if (ivar < 0 || ivar >= (int) _mean.size())
     throw("Invalid argument in _setMean");

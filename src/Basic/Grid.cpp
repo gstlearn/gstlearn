@@ -484,7 +484,8 @@ double Grid::indiceToCoordinate(int idim0,
 VectorDouble Grid::indicesToCoordinate(const VectorInt& indice,
                                        const VectorDouble& percent) const
 {
-  VectorDouble vect(_nDim);
+  int ndim = (int) indice.size();
+  VectorDouble vect(ndim);
   indicesToCoordinateInPlace(indice, vect, percent);
   return vect;
 }

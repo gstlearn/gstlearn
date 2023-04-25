@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
   if (! model->dumpToNF(filename,verbose))
     messageAbort("ascii_model_write");
   
-  // produce the Goodness-of-fit score
+  // Produce the Goodness-of-fit score
 
   gof = model->gofToVario(vario, false);
   model->gofDisplay(gof, false);

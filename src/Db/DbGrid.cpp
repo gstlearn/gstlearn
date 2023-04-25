@@ -1315,8 +1315,8 @@ VectorVectorDouble DbGrid::getGridEdges() const
 
 VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
 {
-  VectorDouble codir = _grid.indicesToCoordinate(grincr);
-  VH::subtractInPlace(codir, _grid.getX0s());
+  VectorDouble codir = getGrid().indicesToCoordinate(grincr);
+  VH::subtractInPlace(codir, getGrid().getX0s());
   VH::normalize(codir);
   return codir;
 }

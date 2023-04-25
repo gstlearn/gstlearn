@@ -226,6 +226,7 @@ protected:
   bool _isVectorSizeConsistent(int nrows, int ncols, const VectorDouble& tab);
   bool _isRankValid(int rank) const;
   void _clear();
+  void _fillFromVVD(const VectorVectorDouble& X);
 
 private:
   void _setSparse(bool sparse) { _sparse = sparse; }

@@ -348,7 +348,7 @@ Exponential
 - Sill         =      1.035
 - Ranges       =      1.786     0.366
 - Theo. Ranges =      0.596     0.122
-- Angles       =    405.023     0.000
+- Angles       =     45.023     0.000
 - Rotation Matrix
                [,  0]    [,  1]
      [  0,]     0.707    -0.707
@@ -356,7 +356,7 @@ Exponential
 Spherical
 - Sill         =      1.621
 - Ranges       =      7.051     5.132
-- Angles       =   1576.897     0.000
+- Angles       =    136.897     0.000
 - Rotation Matrix
                [,  0]    [,  1]
      [  0,]    -0.730    -0.683

@@ -3070,7 +3070,7 @@ int potential_kriging(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
                        neighparam)) goto label_end;
@@ -3172,7 +3172,7 @@ int potential_kriging(Db *dbiso,
 
   label_end:
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
   zdual = (double*) mem_free((char* ) zdual);
@@ -3278,7 +3278,7 @@ int potential_simulate(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (db_extension_diag(dbiso, &delta)) goto label_end;
   delta /= 1000.;
@@ -3421,7 +3421,7 @@ int potential_simulate(Db *dbiso,
 
   label_end: if (flag_tempere) dbout->deleteColumnsByLocator(ELoc::Z);
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
   zdual = (double*) mem_free((char* ) zdual);
@@ -3474,7 +3474,7 @@ int potential_xvalid(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, NULL, model,
                        neighparam)) goto label_end;
@@ -3548,7 +3548,7 @@ int potential_xvalid(Db *dbiso,
 
   label_end:
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
   zdual = (double*) mem_free((char* ) zdual);

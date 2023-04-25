@@ -44,16 +44,9 @@ print(grid)
 # We now calculate the variogram on the grid specifying the parameters : 2 orthogonal directions with 5 lags of grid mesh size.
 
 nvar = grid.getLocNumber(gl.ELoc.Z)
-variop = gl.VarioParam()
 npas = 5
-dir1 = gl.DirParam(npas,dx[0])
-dir1.setGrincr([1,0])
-dir2 = gl.DirParam(20,dx[1])
-dir2.setGrincr([0,1])
-variop.addDir(dir1)
-variop.addDir(dir2)
-vario = gl.Vario(variop,grid)
-err = vario.compute()
+variop = gl.VarioParam.createMultipleFromGrid(grid, npas)
+vario = gl.Vario.computeFromDb(variop,grid)
 
 print(vario)
 
