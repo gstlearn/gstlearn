@@ -710,7 +710,7 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   /* Calculate the distance */
 
   double dist;
-  matrix_product(1, ndim, 1, dd.data(), dd.data(), &dist);
+  matrix_product_safe(1, ndim, 1, dd.data(), dd.data(), &dist);
   dist = sqrt(dist) / neighM->getRadius();
   double var = 0.;
   if (dist > neighM->getDistCont())
@@ -3338,16 +3338,18 @@ void KrigingSystem::_saveWeights(int status)
  * Returns the coordinates of the neighboring samples
  * @return Array organized by Coordinate (minor) then by Sample (major)
  */
-VectorDouble KrigingSystem::getSampleCoordinates() const
+VectorVectorDouble KrigingSystem::getSampleCoordinates() const
 {
   int ndim = getNDim();
   int nech = getNech();
 
-  VectorDouble xyz(ndim * nech);
-  int ecr = 0;
+  VectorVectorDouble xyz(ndim);
   for (int idim = 0; idim < ndim; idim++)
+  {
+    xyz[idim].resize(nech);
     for (int iech = 0; iech < nech; iech++)
-      xyz[ecr++] = _getIdim(_nbgh[iech], idim);
+      xyz[idim][iech] = _getIdim(_nbgh[iech], idim);
+  }
   return xyz;
 }
 

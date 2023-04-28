@@ -1138,3 +1138,18 @@ VectorDouble VectorHelper::crossProduct(const VectorDouble &veca,
   return res;
 }
 
+/**
+ * Method which flattens a VectorVectorDouble into a VectorDouble
+ * @param vvd Input VectorVectorDouble
+ * @return Returned VectorDouble
+ */
+VectorDouble VectorHelper::flatten(const VectorVectorDouble& vvd)
+{
+  VectorDouble vd;
+
+  for (int i = 0; i < (int) vvd.size(); i++)
+    for (int j = 0; j < (int) vvd[i].size(); j++)
+      vd.push_back(vvd[i][j]);
+
+  return vd;
+}

@@ -712,7 +712,7 @@ double Db::getCoordinate(int iech, int idim, bool /*flag_rotate*/) const
   return getFromLocator(ELoc::X, iech, idim);
 }
 
-void Db::getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+void Db::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
 {
   for (int idim = 0; idim < getNDim(); idim++)
     coor[idim] = getCoordinate(iech, idim, flag_rotate);
@@ -732,14 +732,12 @@ double Db::getDistance1D(int iech, int jech, int idim, bool flagAbs) const
 double Db::getDistance(int iech, int jech) const
 {
   int ndim = getNDim();
+  VectorDouble dd(ndim);
+  if (getDistanceVec(iech, jech, dd)) return TEST;
   double dist = 0.;
   for (int idim = 0; idim < ndim; idim++)
   {
-    double v1 = getCoordinate(iech, idim);
-    if (FFFF(v1)) return TEST;
-    double v2 = getCoordinate(jech, idim);
-    if (FFFF(v2)) return TEST;
-    double delta = v1 - v2;
+    double delta = dd[idim];
     dist += delta * delta;
   }
   return sqrt(dist);
@@ -756,19 +754,16 @@ double Db::getDistance(int iech, int jech) const
 int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) const
 {
   int ndim = getNDim();
-  double v1;
-  double v2;
+  VectorDouble v1(ndim);
+  VectorDouble v2(ndim);
+
+  getCoordinatesPerSampleInPlace(iech, v1);
+  if (db2 == nullptr)
+    getCoordinatesPerSampleInPlace(jech, v2);
+  else
+    db2->getCoordinatesPerSampleInPlace(jech, v2);
   for (int idim = 0; idim < ndim; idim++)
-  {
-    v1 = getCoordinate(iech, idim);
-    if (FFFF(v1)) return 1;
-    if (db2 == nullptr)
-      v2 = getCoordinate(jech, idim);
-    else
-      v2 = db2->getCoordinate(jech, idim);
-    if (FFFF(v2)) return 1;
-    dd[idim] = v1 - v2;
-  }
+    dd[idim] = v1[idim] - v2[idim];
   return 0;
 }
 

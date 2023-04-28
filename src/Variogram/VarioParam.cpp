@@ -234,6 +234,23 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
   return varioparam;
 }
 
+VarioParam* VarioParam::createSeveral2D(const VectorDouble &angles,
+                                        int npas,
+                                        double dpas,
+                                        double toldis,
+                                        double tolang,
+                                        double scale,
+                                        const VectorDouble& dates,
+                                        const ASpace *space)
+{
+  std::vector<DirParam> dirs = DirParam::createSeveral2D(angles, npas, dpas,
+                                                         toldis, tolang, space);
+  if (dirs.empty()) return nullptr;
+  VarioParam* varioparam = new VarioParam(scale, dates);
+  varioparam->addMultiDirs(dirs);
+  return varioparam;
+}
+
 void VarioParam::addDir(const DirParam& dirparam)
 {
   if (! _validDefinedFromGrid(dirparam)) return;

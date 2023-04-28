@@ -12,6 +12,7 @@
 
 #include "Basic/NamingConvention.hpp"
 #include "Estimation/CalcSimpleInterpolation.hpp"
+#include "Neigh/NeighMoving.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 
@@ -19,8 +20,10 @@ CalcSimpleInterpolation::CalcSimpleInterpolation()
     : ACalcInterpolator(),
       _iattOut(-1),
       _flagMovAve(false),
+      _flagMovMed(false),
       _flagInvDist(false),
       _flagLstSqr(false),
+      _flagNearest(false),
       _exponent(2.),
       _flagExpand(true),
       _dmax(TEST),
@@ -50,11 +53,7 @@ bool CalcSimpleInterpolation::_check()
     return false;
   }
 
-  if (_flagMovAve)
-  {
-    if (! hasNeighParam()) return false;
-  }
-  if (_flagLstSqr)
+  if (_flagMovAve || _flagMovMed || _flagLstSqr)
   {
     if (! hasNeighParam()) return false;
   }
@@ -98,6 +97,12 @@ bool CalcSimpleInterpolation::_run()
       return false;
   }
 
+  if (_flagMovMed)
+  {
+    if (movmed(getDbin(), getDbout(), getNeighparam(), _iattOut))
+      return false;
+  }
+
   if (_flagLstSqr)
    {
      if (lstsqr(getDbin(), getDbout(), getNeighparam(), _iattOut, _order))
@@ -107,6 +112,12 @@ bool CalcSimpleInterpolation::_run()
   if (_flagInvDist)
   {
     if (invdist(getDbin(), getDbout(), _iattOut, _exponent, _flagExpand, _dmax))
+      return false;
+  }
+
+  if (_flagNearest)
+  {
+    if (nearest(getDbin(), getDbout(), getNeighparam(), _iattOut))
       return false;
   }
 
@@ -151,7 +162,7 @@ int inverseDistance(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Inverse distance estimation
+ **  Moving Average estimation
  **
  ** \return  Error return code
  **
@@ -173,6 +184,66 @@ GSTLEARN_EXPORT int movingAverage(Db *dbin,
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovAve(true);
+
+  // Run the calculator
+  int error = (interpol.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Moving Median estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT int movingMedian(Db *dbin,
+                                 Db *dbout,
+                                 ANeighParam *neighparam,
+                                 const NamingConvention &namconv)
+{
+  CalcSimpleInterpolation interpol;
+  interpol.setDbin(dbin);
+  interpol.setDbout(dbout);
+  interpol.setNeighparam(neighparam);
+  interpol.setNamingConvention(namconv);
+
+  interpol.setFlagMovMed(true);
+
+  // Run the calculator
+  int error = (interpol.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Nearest Neighbor estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
+                                    Db *dbout,
+                                    const NamingConvention &namconv)
+{
+  CalcSimpleInterpolation interpol;
+  interpol.setDbin(dbin);
+  interpol.setDbout(dbout);
+
+  NeighMoving neigh(false, 1, 1.e6);
+  interpol.setNeighparam(&neigh);
+  interpol.setNamingConvention(namconv);
+
+  interpol.setFlagNearest(true);
 
   // Run the calculator
   int error = (interpol.run()) ? 0 : 1;

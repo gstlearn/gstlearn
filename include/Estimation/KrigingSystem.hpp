@@ -73,7 +73,7 @@ public:
   int  getNeq()  const;
   int  getNRed() const { return _nred; }
   VectorInt    getSampleIndices() const { return _nbgh; }
-  VectorDouble getSampleCoordinates() const;
+  VectorVectorDouble getSampleCoordinates() const;
   VectorDouble getSampleData() const;
   VectorDouble getZam() const { return _zam; }
   VectorDouble getLHS() const { return _lhs; }

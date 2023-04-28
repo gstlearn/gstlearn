@@ -703,6 +703,12 @@ double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
   return _grid.getCoordinate(iech, idim, flag_rotate);
 }
 
+void DbGrid::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+{
+  VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
+  coor = vec;
+}
+
 int DbGrid::getNDim() const
 {
   return (_grid.getNDim());
@@ -1088,7 +1094,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[1] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesInPlace(iech, coor);
+        getCoordinatesPerSampleInPlace(iech, coor);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1121,7 +1127,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesInPlace(iech, coor);
+        getCoordinatesPerSampleInPlace(iech, coor);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1154,7 +1160,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[1] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesInPlace(iech, coor);
+        getCoordinatesPerSampleInPlace(iech, coor);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];

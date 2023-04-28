@@ -1379,6 +1379,8 @@ GSTLEARN_EXPORT int invdist(Db *dbin,
                             bool flag_expand = true,
                             double dmax = TEST);
 GSTLEARN_EXPORT int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
+GSTLEARN_EXPORT int movmed(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
+GSTLEARN_EXPORT int nearest(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
 GSTLEARN_EXPORT int lstsqr(Db *dbin,
                            Db *dbout,
                            ANeighParam *neighparam,

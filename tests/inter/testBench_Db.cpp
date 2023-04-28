@@ -31,7 +31,7 @@
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  bool verbose = false;
+  bool verbose = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -40,42 +40,18 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
 
-  // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
+  // Generate the output grid
+  int nsample = 10000;
+  Db* data = Db::createFillRandom(nsample);
   if (verbose) data->display();
 
-  // Generate the output grid
-//  VectorInt nx = {360,240};
-  VectorInt nx = {100,100};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
-
-  // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
-  if (verbose) model->display();
-
-  // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
-  if (verbose) neighU->display();
-
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
+  VectorDouble dist(nsample);
+  for (int i = 0; i < nsample; i++)
+    dist[i] = data->getDistance(i, 0);
   timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
 
-  if (neighU    != nullptr) delete neighU;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
-  if (model     != nullptr) delete model;
+  if (data != nullptr) delete data;
 
   return (0);
 }

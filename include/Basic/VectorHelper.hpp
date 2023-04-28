@@ -147,6 +147,8 @@ public:
                           bool ascending = true);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
+
+  static VectorDouble flatten(const VectorVectorDouble& vvd);
 };
 
 //typedef VectorHelper VH;

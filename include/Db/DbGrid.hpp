@@ -50,6 +50,7 @@ public:
   /// Db Interface
   inline bool isGrid() const override { return true; }
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
+  void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const override;
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }

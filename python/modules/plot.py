@@ -155,7 +155,7 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
             gspec = ax_list[0].get_gridspec()
             ax_list[0].figure.set_size_inches(dims[0]*gspec.nrows, 
                                               dims[1]*gspec.ncols)
-        elif is_array(dims, 2):
+        elif __isArray(dims, 2):
             if type(ax) == np.ndarray:
                 ax[0,0].figure.set_size_inches(dims[0]*ax.shape[0], 
                                                dims[1]*ax.shape[1])
@@ -169,7 +169,7 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
             ax_list = ax.get_axes()
             for ax in ax_list:
                 ax.set_xlim(left = xlim[0], right = xlim[1])
-        elif is_array(xlim, 2):
+        elif __isArray(xlim, 2):
             if type(ax) == np.ndarray:
                 ax[ix,iy].set_xlim(left = xlim[0], right = xlim[1])
             else:
@@ -182,7 +182,7 @@ def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
             ax_list = ax.get_axes()
             for ax in ax_list:
                 ax.set_ylim(left = ylim[0], right = ylim[1])
-        if is_array(ylim, 2):
+        if __isArray(ylim, 2):
             if type(ax) == np.ndarray:
                 for ix in range(ax.shape[0]):
                     for iy in range(ax.shape[1]):
@@ -244,7 +244,7 @@ def decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
 # This function should return 'ax'. Has been skipped for compatibility with previous version           
 #    return ax
 
-def initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
+def __initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new Geographic figure (possibly containing several subplots)
     
         Parameters
@@ -261,7 +261,7 @@ def initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
         # Axes is None and no Figure already exists. Create it
         fig, ax = plt.subplots(nx, ny, squeeze=False, sharex=sharex, sharey=sharey)
         
-        if is_array(ax, 1):
+        if __isArray(ax, 1):
             ax = ax[0,0]
 
         # Apply the Global Geometry parameters (when defined)
@@ -277,18 +277,18 @@ def initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
         fig = plt.gcf()
         ax = plt.gca()
     
-    if is_array(ax, 1):
+    if __isArray(ax, 1):
         ax = ax[0,0]
         
     return fig, ax
     
 def initGeographic(nx=1, ny=1, sharex=False, sharey=False):
-    return initGeneric(1, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
+    return __initGeneric(1, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
 
 def init(nx=1, ny=1, sharex=False, sharey=False):
-    return initGeneric(0, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
+    return __initGeneric(0, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
 
-def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
+def __getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
     
         Parameters
@@ -309,14 +309,14 @@ def getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
         Otherwise, the input argument is simply returned.
     '''
     if ax is None:
-        _, ax = initGeneric(mode=mode, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
+        _, ax = __initGeneric(mode=mode, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
     
-    if is_array(ax, 1):
+    if __isArray(ax, 1):
         ax = ax[0,0]
         
     return ax
 
-def is_array(tab, ndim=None):
+def __isArray(tab, ndim=None):
     '''
     Check if the input argument is an array (of dimension 'ndim' when defined) or a scalar
     tab:  Argument to be checked
@@ -336,7 +336,7 @@ def addColorbar(im, ax):
     cbar = plt.colorbar(im, ax=ax, cax=cax)
     return cbar
 
-def getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True, 
+def __getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True, 
                      compress=False, asGrid=True, 
                      flagConvertNanToZero=False):
 
@@ -467,7 +467,7 @@ def varmold(vario, model=None, ivar=-1, jvar=-1, axs=None, **kwargs):
     nvar = vario.getVariableNumber()
     ivarUtil, ivarN = selectItems(nvar, ivar)
     jvarUtil, jvarN = selectItems(nvar, jvar)
-    axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
+    axs = __getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
 
     return varmod(axs, vario=vario, model=model, ivar=ivar, jvar=jvar, **kwargs)
 
@@ -488,7 +488,7 @@ def varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
     ivar, jvar : Indices of the variables for the variogram to be represented. If -1 (default), all 
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
-           directions are selected and multidirectional variograms are represented.
+           directions are selected and multi-directional variograms are represented.
     var_color, var_linestyle: parameters for representing variance-covariance line
     env_color, env_linestyle: parameters for representing coregionalization envelop
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
@@ -584,7 +584,7 @@ def varioold(vario, ivar=0, jvar=0, axs = None, **kwargs):
     nvar = vario.getVariableNumber()
     ivarUtil, ivarN = selectItems(nvar, ivar)
     jvarUtil, jvarN = selectItems(nvar, jvar)
-    axs = getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
+    axs = __getNewAxes(axs, 0, nx=ivarN, ny=jvarN)
     
     return variogram(axs, vario, ivar=ivar, jvar=jvar, **kwargs)
     
@@ -702,7 +702,7 @@ def modelold(modelobj, ax = None, **kwargs):
     Deprecated function: see model() for details
     '''
     printDeprecated()
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     return model(ax, modelobj = modelobj, **kwargs)
     
 def model(ax, modelobj = None, **kwargs):
@@ -765,7 +765,7 @@ def symbol(ax, db, name_color=None, name_size=None,
     
     # Color of symbol
     if name_color is not None:
-        colval = getDefinedValues(db, name_color, 0, 1, None, usesel, 
+        colval = __getDefinedValues(db, name_color, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
         name = name + ' ' + name_color
@@ -774,7 +774,7 @@ def symbol(ax, db, name_color=None, name_size=None,
 
     # Size of symbol
     if name_size is not None:
-        sizval = getDefinedValues(db, name_size, 0, 1, None, usesel, 
+        sizval = __getDefinedValues(db, name_size, 0, 1, None, usesel, 
                                   compress=True, asGrid=False, 
                                   flagConvertNanToZero=True)
         if not flagCst:
@@ -831,7 +831,7 @@ def literal(ax, db, name, coorX_name=None, coorY_name=None,
     # Read the coordinates
     tabx, taby = readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
     
-    labval = getDefinedValues(db, name, 0, 1, None, usesel, 
+    labval = __getDefinedValues(db, name, 0, 1, None, usesel, 
                               compress=True, asGrid=False, 
                               flagConvertNanToZero=True)
 
@@ -909,7 +909,7 @@ def pointold(db, name_size=None, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
     
     return pointGeneral(ax, db=db, name_size=name_size, **kwargs)
 
@@ -1013,7 +1013,7 @@ def modelOnGridold(model, db, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
     
     return modelOnGrid(ax, model=model, db=db, **kwargs)
     
@@ -1045,7 +1045,7 @@ def polyold(poly, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
     
     return polygon(ax, poly=poly, **kwargs)
     
@@ -1095,7 +1095,7 @@ def readGrid(dbgrid, name, usesel=True,
     dy = dbgrid.getDX(posy)
     angles = dbgrid.getAngles()
     
-    data = getDefinedValues(dbgrid, name, posx, posy, corner, usesel, 
+    data = __getDefinedValues(dbgrid, name, posx, posy, corner, usesel, 
                             compress=False, asGrid=True)
     data = np.reshape(data, (ny,nx))
 
@@ -1113,14 +1113,14 @@ def readGrid(dbgrid, name, usesel=True,
         
     return x0, y0, X, Y, data, tr
 
-def cell(ax, dbgrid, posx=0, posy=1, corner=None, **kwargs):
+def cell(ax, dbgrid, posx=0, posy=1, corner=None, step=1, **kwargs):
     xext = dbgrid.getExtrema(posx)
     yext = dbgrid.getExtrema(posy)
 
-    for i in range(dbgrid.getNX(posx)+1):
+    for i in range(0,dbgrid.getNX(posx)+1,step):
         x = dbgrid.getX0(posx)+(i-0.5) * dbgrid.getDX(posx)
         ax.plot([x,x],yext, **kwargs)
-    for i in range(dbgrid.getNX(posy)+1):
+    for i in range(0,dbgrid.getNX(posy)+1,step):
         y = dbgrid.getX0(posy)+(i-0.5) * dbgrid.getDX(posy)
         ax.plot(xext,[y,y], **kwargs)
     return
@@ -1197,7 +1197,7 @@ def gridold(dbgrid, name_raster=None, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
     
     return gridGeneral(ax, dbgrid=dbgrid, name_raster=name_raster, **kwargs)
 
@@ -1250,7 +1250,7 @@ def grid1Dold(dbgrid, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
 
     return grid1D(ax, dbgrid=dbgrid, **kwargs)
 
@@ -1285,7 +1285,7 @@ def grid1D(ax, dbgrid, name = None, usesel = True, flagLegendColor=True,
     dx = dbgrid.getDX(0)
     
     tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, usesel)
-    data = getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
+    data = __getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
                             compress=False, asGrid=True)
 
     curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
@@ -1301,7 +1301,7 @@ def histold(db, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     
     return histogram(ax, db=db, **kwargs)
     
@@ -1331,7 +1331,7 @@ def sortedcurveold(tabx, taby, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     
     return sortedcurve(ax, tabx=tabx, taby=taby, **kwargs)
 
@@ -1356,7 +1356,7 @@ def curveold(data1, data2=None, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
 
     return curve(ax, data1=data1, data2=data2, **kwargs)
 
@@ -1415,7 +1415,7 @@ def multisegmentsold(center, data, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
 
     return multisegments(ax, center=center, data=data, **kwargs)
 
@@ -1448,7 +1448,7 @@ def faultold(faults, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
 
     return fault(ax, faults=faults, **kwargs)
 
@@ -1481,12 +1481,12 @@ def XYold(xtab, ytab, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
         
     return XY(ax, xtab=xtab, ytab=ytab, **kwargs)
 
 def XY(ax, xtab, ytab, flagAsPoint=False, flagLegend=False, 
-       color='blue', marker='o', markersize=10, linestyle='-', label='data', 
+       color='blue', marker='o', markersize=5, linestyle='-', label='data', 
        **kwargs):
 
     kwargs.setdefault('label', label)
@@ -1494,6 +1494,7 @@ def XY(ax, xtab, ytab, flagAsPoint=False, flagLegend=False,
     if flagAsPoint:
         kwargs.setdefault('markersize', markersize)
         kwargs.setdefault('marker', marker)
+        kwargs.setdefault('linestyle',linestyle)
     else:
         kwargs.setdefault('linestyle',linestyle)
 
@@ -1514,7 +1515,7 @@ def sampleold(sampleobj, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1)
+    ax = __getNewAxes(ax, 1)
 
     return sample(ax, sampleobj=sampleobj, **kwargs)
 
@@ -1536,7 +1537,7 @@ def ruleold(ruleobj, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     
     return rule(ax, ruleobj=ruleobj, **kwargs)
 
@@ -1566,7 +1567,7 @@ def tableold(tableold, ranks=None, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     
     return table(ax, tableold=tableold, icols=ranks, **kwargs)
     
@@ -1607,7 +1608,7 @@ def meshold(meshobj, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 1) 
+    ax = __getNewAxes(ax, 1) 
     
     return mesh(ax, meshobj=meshobj, **kwargs)
 
@@ -1649,7 +1650,7 @@ def correlold(db, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     
     return correlation(ax, db=db, **kwargs)
     
@@ -1729,7 +1730,7 @@ def anamold(anamobj, ax=None, **kwargs):
     '''
     printDeprecated()
     
-    ax = getNewAxes(ax, 0)
+    ax = __getNewAxes(ax, 0)
     
     return anam(ax, anamobj=anamobj, **kwargs)
     
@@ -1748,6 +1749,50 @@ def anam(ax, anamobj, color='blue', linestyle='-', flagLegend=False):
     
     return ax
 
+def neigh(ax, neigh, grid, node=0, flagCell=False, flagZoom=False, **kwargs):
+    
+    # Identify target location
+    target = grid.getSampleCoordinates(node)
+    
+    # Represent the target location
+    sample(ax, target, **kwargs)
+    
+    # Represent the edge of the target (if block)
+    curve(ax, grid.getCellEdges(node), **kwargs)
+    
+    # Represent the Neighborhood Ellipsoid
+    curve(ax, neigh.getEllipsoid(target), **kwargs)
+    
+    # Represent the Angular sectors
+    if neigh.getFlagSector():
+        multisegments(ax, target, neigh.getSectors(target), **kwargs)
+        
+    # Zoom to the Maximum radius circle (optional)
+    if flagZoom:
+        limits = neigh.getZoomLimits(target)
+        ax.set_xlim(limits[0])
+        ax.set_ylim(limits[1])
+    
+def neighWeights(ax, res, flagWeights=True, 
+                 horizontalalignment='center',
+                 verticalalignment='bottom',
+                 **kwargs):
+    # Number of neighboring samples
+    nech = res.nech
+    
+    # Get the coordinates of the neighborhoods
+    X = res.xyz[0]
+    Y = res.xyz[1]
+    ax.XY(X, Y, flagAsPoint=True, linestyle='')
+    
+    # Annotate the weights
+    if flagWeights:
+        for i in range(nech):
+            ax.annotate(round(100.*res.wgt[i],2), (X[i], Y[i]), 
+                        horizontalalignment=horizontalalignment,
+                        verticalalignment=verticalalignment,
+                        **kwargs)
+    
 def drawCircles(m,M,middle = False):
     x = np.linspace(-m,m,100)
     plt.plot(x, np.sqrt(m**2-x**2),c="g")
@@ -2133,6 +2178,8 @@ setattr(plt.Axes, "grid1D"   ,     gp.grid1D)
 setattr(plt.Axes, "histogram",     gp.histogram)
 setattr(plt.Axes, "correlation",   gp.correlation)
 setattr(plt.Axes, "curve",         gp.curve)
+setattr(plt.Axes, "neigh",         gp.neigh)
+setattr(plt.Axes, "neighWeights",  gp.neighWeights)
 
 setattr(plt.Axes, "symbol",        gp.symbol)
 setattr(plt.Axes, "literal",       gp.literal)
@@ -2141,6 +2188,7 @@ setattr(plt.Axes, "tangent",       gp.tangent)
 setattr(plt.Axes, "raster",        gp.raster)
 setattr(plt.Axes, "isoline",       gp.isoline)
 setattr(plt.Axes, "cell",          gp.cell)
+setattr(plt.Axes, "XY",            gp.XY)
 
 setattr(plt.Figure, "varmod",      gp.varmod)
 setattr(plt.Figure, "variogram",   gp.variogram)

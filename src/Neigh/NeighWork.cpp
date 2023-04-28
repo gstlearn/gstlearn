@@ -545,7 +545,7 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
   /* Calculate the distance */
 
   double dist;
-  matrix_product(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
+  matrix_product_safe(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
   dist = sqrt(dist);
   return dist;
 }

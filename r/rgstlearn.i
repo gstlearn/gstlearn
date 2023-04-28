@@ -814,13 +814,15 @@ setMethod('[<-',  '_p_Table',               setTableitem)
       neq  = x$neq,
       nrhs = x$nech,
       nbgh = x$nbgh,
-      xyz = matrix(x$xyz, ncol=x$ndim, nrow=x$nech, byrow=FALSE),
+      xyz = matrix(VectorHelper_flatten(x$xyz), ncol=x$ndim, nrow=x$nech, byrow=FALSE),
       data = x$data,
       lhs = matrix(x$lhs, nrow=x$neq, ncol=x$neq, byrow=FALSE),
       rhs = matrix(x$rhs, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
       wgt = matrix(x$wgt, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
       var = matrix(x$var, nrow=x$nvar, ncol=x$nvar, byrow=FALSE),
       zam = x$zam
+      estim = x$estim
+      stdev = x$stdev
       )
   res
 }
