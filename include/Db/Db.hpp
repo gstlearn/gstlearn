@@ -833,6 +833,8 @@ private:
   // Higher level methods
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
 
+  inline const PtrGeos& _getPtrGeos(const ELoc& locatorType) const { return _p.at(locatorType.getValue()); }
+
 protected:
   void _defineVariableAndLocators(const Db* dbin, const VectorString& names);
   void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks);
@@ -843,5 +845,5 @@ private:
   VectorDouble _array;       //!< Array of values
   VectorInt _uidcol;         //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
-  std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
+  std::map<int,PtrGeos> _p; //!< Locator characteristics
 };

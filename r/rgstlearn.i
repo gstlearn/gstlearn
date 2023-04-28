@@ -821,8 +821,6 @@ setMethod('[<-',  '_p_Table',               setTableitem)
       wgt = matrix(x$wgt, nrow=x$neq, ncol=x$nvar, byrow=FALSE),
       var = matrix(x$var, nrow=x$nvar, ncol=x$nvar, byrow=FALSE),
       zam = x$zam
-      estim = x$estim
-      stdev = x$stdev
       )
   res
 }

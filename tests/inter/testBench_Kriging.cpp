@@ -31,7 +31,7 @@
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  bool verbose = true;
+  bool verbose = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
