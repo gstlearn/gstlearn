@@ -37,36 +37,6 @@ Number of Polygon Sets = 541
 ----
 
 
-+*Out[17]:*+
-----
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 3
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
-Total number of samples      = 301401
-
-Grid characteristics:
----------------------
-Origin :     -3.000    -4.000    -6.000
-Mesh   :      0.100     0.100     0.100
-Number :         61        81        61
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = x3 - Locator = x3
-Column = 4 - Name = Data - Locator = z1
- ----
-
-
 +*Out[18]:*+
 ----
 [[XXX]]
