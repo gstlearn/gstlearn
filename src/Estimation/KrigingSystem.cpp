@@ -622,15 +622,39 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     switch (member.getValue())
     {
       case ECalcMember::E_LHS:
-        icas1 = (iech1 >= 0) ? 1 : 2;
-        jech1 = (iech1 >= 0) ? iech1 : _iechOut;
-        icas2 = (iech2 >= 0) ? 1 : 2;
-        jech2 = (iech2 >= 0) ? iech2 : _iechOut;
+        if (iech1 >= 0)
+        {
+          icas1 = 1;
+          jech1 = iech1;
+        }
+        else
+        {
+          icas1 = 2;
+          jech1 = _iechOut;
+        }
+        if (iech2 >= 0)
+        {
+          icas2 = 1;
+          jech2 = iech2;
+        }
+        else
+        {
+          icas2 = 2;
+          jech2 = _iechOut;
+        }
         break;
 
       case ECalcMember::E_RHS:
-        icas1 = (iech1 >= 0) ? 1 : 2;
-        jech1 = (iech1 >= 0) ? iech1 : _iechOut;
+        if (iech1 >= 0)
+        {
+          icas1 = 1;
+          jech1 = iech1;
+        }
+        else
+        {
+          icas1 = 2;
+          jech1 = _iechOut;
+        }
         icas2 = 2;
         jech2 = _iechOut;
         break;
@@ -661,7 +685,7 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
-      _addCOVTAB(ivar,jvar,value);
+      _addCOVTAB(ivar,jvar,nvar,value);
     }
   return;
 }
@@ -772,7 +796,7 @@ void KrigingSystem::_lhsCalcul()
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar));
+          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar, nvar));
 
           /* Correction due to measurement errors */
 
@@ -1002,7 +1026,7 @@ int KrigingSystem::_rhsCalcul()
     {
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
-          _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar));
+          _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar,nvar));
     }
     else
     {
@@ -1011,7 +1035,7 @@ int KrigingSystem::_rhsCalcul()
         {
           double value = 0.;
           for (int jvar = 0; jvar < nvar; jvar++)
-            value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar);
+            value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar, nvar);
           _setRHS(iech,ivar,jvarCL,value);
         }
     }
@@ -1674,7 +1698,7 @@ void KrigingSystem::_variance0()
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar));
+        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar,nvar));
   }
   else
   {
@@ -1684,7 +1708,7 @@ void KrigingSystem::_variance0()
         double value = 0.;
         for (int ivar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar < nvar; jvar++)
-            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar) * _matCL[jvarCL][jvar];
+            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar, nvar) * _matCL[jvarCL][jvar];
         _setVAR0(ivarCL,jvarCL,value);
       }
   }
@@ -2855,9 +2879,8 @@ int KrigingSystem::_getFLAG(int iech, int ivar) const
   }
   return _flag[ind];
 }
-double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
+double KrigingSystem::_getCOVTAB(int ivar,int jvar,int nvar) const
 {
-  int nvar = _getNVar();
   int iad = (jvar) * nvar + (ivar);
   if (_flagCheckAddress)
   {
@@ -2867,9 +2890,8 @@ double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
   }
   return _covtab[iad];
 }
-void KrigingSystem::_setCOVTAB(int ivar,int jvar,double value)
+void KrigingSystem::_setCOVTAB(int ivar,int jvar,int nvar,double value)
 {
-  int nvar = _getNVar();
   int iad = (jvar) * nvar + (ivar);
   if (_flagCheckAddress)
   {
@@ -2879,9 +2901,8 @@ void KrigingSystem::_setCOVTAB(int ivar,int jvar,double value)
   }
   _covtab[iad] = value;
 }
-void KrigingSystem::_addCOVTAB(int ivar,int jvar,double value)
+void KrigingSystem::_addCOVTAB(int ivar,int jvar,int nvar,double value)
 {
-  int nvar = _getNVar();
   int iad = (jvar) * nvar + (ivar);
   if (_flagCheckAddress)
    {

@@ -165,6 +165,7 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
+  int getNEloc() const;
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;
@@ -833,8 +834,6 @@ private:
   // Higher level methods
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
 
-  inline const PtrGeos& _getPtrGeos(const ELoc& locatorType) const { return _p.at(locatorType.getValue()); }
-
 protected:
   void _defineVariableAndLocators(const Db* dbin, const VectorString& names);
   void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks);
@@ -845,5 +844,5 @@ private:
   VectorDouble _array;       //!< Array of values
   VectorInt _uidcol;         //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
-  std::map<int,PtrGeos> _p; //!< Locator characteristics
+  std::vector<PtrGeos> _p;   //!< Locator characteristics
 };

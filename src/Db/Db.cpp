@@ -314,7 +314,8 @@ bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return false;
-  bool ok = _getPtrGeos(locatorType).isLocatorIndexValid(locatorIndex);
+  const PtrGeos& p = _p[locatorType.getValue()];
+  bool ok = p.isLocatorIndexValid(locatorIndex);
   if (! ok)
     messerr("Problem in the identification of Locator %d", locatorType.getValue());
   return ok;
@@ -346,7 +347,7 @@ int Db::getUIDByColIdx(int icol) const
 int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorIndexValid(locatorType, locatorIndex)) return -1;
-  const PtrGeos& p = _getPtrGeos(locatorType);
+  const PtrGeos& p = _p[locatorType.getValue()];
   return p.getLocatorByIndex(locatorIndex);
 }
 
@@ -360,7 +361,7 @@ int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
   if (!isLocatorIndexValid(locatorType,locatorIndex)) return -1;
-  const PtrGeos& p = _getPtrGeos(locatorType);
+  const PtrGeos& p = _p[locatorType.getValue()];
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
 }
@@ -368,14 +369,14 @@ int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 int Db::getLocatorNumber(const ELoc& locatorType) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
-  const PtrGeos& p = _getPtrGeos(locatorType);
+  const PtrGeos& p = _p[locatorType.getValue()];
   return p.getLocatorNumber();
 }
 
 int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
-  const PtrGeos& p = _getPtrGeos(locatorType);
+  const PtrGeos& p = _p[locatorType.getValue()];
   if (!isUIDValid(iuid)) return -1;
   for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
     if (p.getLocatorByIndex(locatorIndex) == iuid) return (locatorIndex);
@@ -400,24 +401,20 @@ bool Db::getLocatorByColIdx(int icol,
                             ELoc* ret_locatorType,
                             int* ret_locatorIndex) const
 {
-  auto it = ELoc::getIterator();
-  while (it.hasNext())
+  int number = getNEloc();
+  for (int iloc = 0; iloc < number; iloc++)
   {
-    if (*it != ELoc::UNKNOWN)
+    const PtrGeos& p = _p[iloc];
+    for (int i = 0; i < p.getLocatorNumber(); i++)
     {
-      const PtrGeos& p = _getPtrGeos(*it);
-      for (int i = 0; i < p.getLocatorNumber(); i++)
+      int jcol = getColIdxByUID(p.getLocatorByIndex(i));
+      if (icol == jcol)
       {
-        int jcol = getColIdxByUID(p.getLocatorByIndex(i));
-        if (icol == jcol)
-        {
-          *ret_locatorType = *it;
-          *ret_locatorIndex = i;
-          return true;
-        }
+        *ret_locatorType = ELoc::fromValue(iloc);
+        *ret_locatorIndex = i;
+        return true;
       }
     }
-    it.toNext();
   }
   *ret_locatorType = ELoc::UNKNOWN;
   *ret_locatorIndex = -1;
@@ -816,20 +813,29 @@ double Db::getFromLocator(const ELoc& locatorType,
 
 int Db::getFromLocatorNumber(const ELoc& locatorType) const
 {
-  const PtrGeos& p = _getPtrGeos(locatorType);
+  const PtrGeos& p = _p[locatorType.getValue()];
   return p.getLocatorNumber();
+}
+
+int Db::getNEloc() const
+{
+  int number = 0;
+  auto it = ELoc::getIterator();
+  while (it.hasNext())
+  {
+    if (*it != ELoc::UNKNOWN) number++;
+    it.toNext();
+  }
+  return number;
 }
 
 void Db::_clear(void)
 {
   _p.clear();
-  auto it = ELoc::getIterator();
-  while (it.hasNext())
-  {
-    if (*it != ELoc::UNKNOWN)
-      _p[(*it).getValue()].resize(0);
-    it.toNext();
-  }
+  int number = getNEloc();
+  _p.resize(number);
+  for (int iloc = 0; iloc < number; iloc++)
+    _p[iloc] = PtrGeos();
 }
 
 int Db::_getUIDcol(int iuid) const
@@ -851,23 +857,19 @@ String Db::_summaryLocators(void) const
 
   sstr << toTitle(1, "List of locators");
   int rank = 0;
-  auto it = ELoc::getIterator();
-  while (it.hasNext())
+  int number = getNEloc();
+  for (int iloc = 0; iloc < number; iloc++)
   {
-    if (*it != ELoc::UNKNOWN)
+    const PtrGeos& p = _p[iloc];
+    if (p.getLocatorNumber() > 0)
     {
-      const PtrGeos& p = _getPtrGeos(*it);
-      if (p.getLocatorNumber() > 0)
-      {
-        sstr << p.dumpLocator(rank, *it);
-        sstr << "- Columns    = ";
-        for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
-          sstr << getColIdxByUID(p.getLocatorByIndex(locatorIndex)) << " ";
-        sstr << std::endl;
-        rank++;
-      }
+      sstr << p.dumpLocator(rank, ELoc::fromValue(iloc));
+      sstr << "- Columns    = ";
+      for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
+        sstr << getColIdxByUID(p.getLocatorByIndex(locatorIndex)) << " ";
+      sstr << std::endl;
+      rank++;
     }
-    it.toNext();
   }
   return sstr.str();
 }
@@ -967,17 +969,13 @@ void Db::setLocatorByUID(int iuid,
 
   /* Cancel any locator referring to this column */
 
-  auto it = ELoc::getIterator();
-  while (it.hasNext())
+  int number = getNEloc();
+  for (int iloc = 0; iloc < number; iloc++)
   {
-    if (*it != ELoc::UNKNOWN)
-    {
-      PtrGeos& p = _p[(*it).getValue()];
-      int found = _findUIDInLocator(*it, iuid);
-      if (found >= 0)
+    PtrGeos& p = _p[iloc];
+    int found = p.findUIDInLocator(iuid);
+    if (found >= 0)
         p.erase(found);
-    }
-    it.toNext();
   }
 
   // Check if this locator already exists for the current pointer type
@@ -1632,16 +1630,12 @@ void Db::deleteColumnByUID(int iuid_del)
 
   /* Resize the variable pointers */
 
-  auto it = ELoc::getIterator();
-  while (it.hasNext())
+  int number = getNEloc();
+  for (int iloc = 0; iloc < number; iloc++)
   {
-    if (*it != ELoc::UNKNOWN)
-    {
-      PtrGeos& p = _p[(*it).getValue()];
-      int found = _findUIDInLocator(*it, iuid_del);
-      if (found >= 0) p.erase(found);
-    }
-    it.toNext();
+    PtrGeos& p = _p[iloc];
+    int found = p.findUIDInLocator(iuid_del);
+    if (found >= 0) p.erase(found);
   }
 
   /* Resize the variables names */
@@ -1660,7 +1654,7 @@ void Db::deleteColumnByUID(int iuid_del)
 void Db::deleteColumnsByLocator(const ELoc& locatorType)
 {
   if (!isLocatorTypeValid(locatorType)) return;
-  const PtrGeos& p = _getPtrGeos(locatorType);
+  const PtrGeos& p = _p[locatorType.getValue()];
   int nitem = p.getLocatorNumber();
   // Loop is performed downwards as PtrGeos is modified by called routine
   for (int locatorIndex = nitem - 1; locatorIndex >= 0; locatorIndex--)
@@ -1948,7 +1942,7 @@ double Db::getCorrelation(const String& name1, const String& name2, bool useSel)
 
 int Db::getNDim() const
 {
-  return (_getPtrGeos(ELoc::X).getLocatorNumber());
+  return _p[ELoc::X.getValue()].getLocatorNumber();
 }
 
 bool Db::hasSameDimension(const Db* dbaux) const
@@ -4754,7 +4748,7 @@ VectorInt Db::shrinkToValidCols(const VectorInt& cols)
 
 /** Returns the ranks, within the exhaustive loop on variables then samples
  * to be used in the kriging system, knowing that we must discard the masked samples
- * and the smaples whose value is not defined
+ * and the samples whose value is not defined
  * @return
  */
 VectorInt Db::getSampleRanks() const
@@ -4859,4 +4853,3 @@ Db* Db::createFillRandom(int ndat,
 
   return db;
 }
-

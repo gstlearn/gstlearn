@@ -766,8 +766,8 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
     count = number;
   count = MIN(ntotal, MAX(1, count));
 
-  VectorInt ranks;
-  for (int i = 0; i < ntotal; i++) ranks.push_back(i);
+  VectorInt ranks(ntotal);
+  for (int i = 0; i < ntotal; i++) ranks[i] = i;
 
   shuffle (ranks.begin(), ranks.end(), std::default_random_engine(seed));
 
@@ -788,11 +788,13 @@ VectorInt VectorHelper::sampleRanks(int ntotal,
 
 VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vecb)
 {
-  VectorDouble res;
   if (veca.size() != vecb.size())
-  my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
-    res.push_back(veca.at(i) + vecb.at(i));
+    my_throw("Wrong size");
+  int n = static_cast<int>(veca.size());
+  VectorDouble res(n);
+
+  for (int i = 0; i < n; i++)
+    res[i] = veca[i] + vecb[i];
   return res;
 }
 
@@ -834,11 +836,14 @@ void VectorHelper::addInPlace(const VectorDouble &veca,
 VectorDouble VectorHelper::subtract(const VectorDouble &veca,
                                     const VectorDouble &vecb)
 {
-  VectorDouble res;
   if (veca.size() != vecb.size())
-  my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
-    res.push_back(vecb.at(i) - veca.at(i));
+    my_throw("Wrong size");
+
+  int n = static_cast<int>(veca.size());
+  VectorDouble res(n);
+
+  for (int i = 0; i < n; i++)
+    res[i] = vecb[i] - veca[i];
   return res;
 }
 

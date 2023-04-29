@@ -102,9 +102,9 @@ private:
   void   _getDistance(int loc_rank1, int loc_rank2, VectorDouble& dd) const;
   int    _IND(int iech, int ivar,int nech) const;
   int    _getFLAG(int iech,int ivar) const;
-  double _getCOVTAB(int ivar,int jvar) const;
-  void   _setCOVTAB(int ivar,int jvar,double value);
-  void   _addCOVTAB(int ivar,int jvar,double value);
+  double _getCOVTAB(int ivar,int jvar, int nvar) const;
+  void   _setCOVTAB(int ivar,int jvar,int nvar,double value);
+  void   _addCOVTAB(int ivar,int jvar,int nvar,double value);
   void   _prodCOVTAB(int ivar,int jvar,double value);
   double _getRHS(int iech, int ivar, int jvCL) const;
   void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
