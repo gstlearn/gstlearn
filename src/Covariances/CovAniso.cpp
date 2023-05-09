@@ -398,6 +398,25 @@ double CovAniso::eval(const SpacePoint &p1,
   return (cov);
 }
 
+
+void CovAniso::evalOptim(const SpacePoint &p1,
+                      const std::vector<SpacePoint> &p2v,
+					  VectorDouble& res,
+					  VectorDouble& temp,
+					  VectorDouble& w1,
+					  VectorDouble& w2,
+                      int ivar,
+                      int jvar,
+                      const CovCalcMode &mode) const
+{
+  _space->getDistanceOptim(p1, p2v, _aniso,temp,w1,w2);
+ // _space->norm(p1,p2v,_aniso,temp,w1,w2);
+  for (int i = 0; i< (int)temp.size();i++)
+  {
+	  res[i]+= _sill.getValue(ivar, jvar) *  _cova->evalCov(temp[i]);
+  }
+}
+
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;

@@ -78,6 +78,16 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
+  virtual void evalOptim(const SpacePoint& p1,
+                      const std::vector<SpacePoint>& p2,
+					  VectorDouble& res,
+					  VectorDouble& temp,
+					  VectorDouble& w1,
+					  VectorDouble& w2,
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode& mode = CovCalcMode()) const override;
+
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
 

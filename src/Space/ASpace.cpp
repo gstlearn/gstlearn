@@ -12,6 +12,7 @@
 #include "Space/SpacePoint.hpp"
 
 #include <iostream>
+#include <vector>
 
 ASpace::ASpace(unsigned int ndim)
     : AStringable(),
@@ -69,3 +70,17 @@ bool ASpace::isEqual(const ASpace* space) const
     return true;
   return false;
 }
+
+void ASpace::getDistanceOptim(const SpacePoint& p1,
+                             const std::vector<SpacePoint>& p2,
+                             const Tensor& tensor,
+							   VectorDouble& res,
+							   VectorDouble& temp,
+							   VectorDouble& ptemp) const
+{
+	for (int i = 0; i<(int)p2.size();i++)
+		res[i] = _getDistance(p1,p2[i],ptemp,tensor,temp);
+}
+
+
+

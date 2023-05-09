@@ -19,6 +19,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
+#include <vector>
 #include <math.h>
 
 ACov::ACov(const ASpace* space)
@@ -683,6 +684,70 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     jech1++;
   }
   return mat;
+}
+
+
+VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
+                                      const Db* db2,
+                                      int ivar,
+                                      int jvar,
+                                      const CovCalcMode& mode) const
+{
+  if (db2 == nullptr) db2 = db1;
+  int nechtot1 = db1->getSampleNumber(false);
+  int nechtot2 = db2->getSampleNumber(false);
+  int nech1 = db1->getSampleNumber(true);
+  int nech2 = db2->getSampleNumber(true);
+  VectorVectorDouble mat(nech2);
+  for (auto &e : mat)
+  {
+	  e = VectorDouble(nech1);
+  }
+
+  /* Loop on the first sample */
+
+
+  int jech1 = 0;
+  std::vector<SpacePoint> pvect(nech1);
+
+  for (int iech1 = 0; iech1 <nechtot1;iech1++)
+  {
+	  if (!db1->isActive(iech1)) continue;
+	  pvect[jech1] = SpacePoint(db1->getSampleCoordinates(iech1),getSpace());
+	  jech1++;
+  }
+
+  int jech2 = 0;
+
+  VectorDouble temp(nech1);
+
+  SpacePoint p2(db2->getSampleCoordinates(0),getSpace());
+
+  VectorDouble w1(getNDim());
+  VectorDouble w2(getNDim());
+
+  for (int iech2 = 0; iech2 < nechtot2; iech2++)
+  {
+    if (!db2->isActive(iech2)) continue;
+
+    for(int idim = 0;idim<(int)getNDim();idim++)
+    	p2.setCoord(idim,db2->getCoordinate(iech2, idim));
+    evalOptim(p2, pvect,mat[jech2],temp,w1,w2, ivar, jvar, mode);
+    jech2++;
+  }
+  return mat;
+}
+
+
+void ACov::evalVect(VectorDouble& res,
+			  const SpacePoint& p1,
+              const std::vector<SpacePoint>& vec_p2,
+              int ivar,
+              int jvar,
+              const CovCalcMode& mode) const
+{
+	for(int i = 0; i<(int)res.size();i++)
+		res[i] = eval(p1,vec_p2[i],ivar,jvar,mode);
 }
 
 /**

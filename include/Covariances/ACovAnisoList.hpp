@@ -19,6 +19,8 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 
+#include <vector>
+
 class ASpace;
 class SpacePoint;
 class MatrixSquareSymmetric;
@@ -53,6 +55,16 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
+
+  virtual void evalOptim(const SpacePoint& p1,
+                        const std::vector<SpacePoint>& p2,
+						VectorDouble& res,
+						VectorDouble& temp,
+						VectorDouble& w1,
+						VectorDouble& w2,
+                        int ivar = 0,
+                        int jvar = 0,
+                        const CovCalcMode& mode = CovCalcMode()) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

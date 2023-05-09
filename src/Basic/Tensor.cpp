@@ -154,6 +154,13 @@ VectorDouble Tensor::applyDirect(const VectorDouble& vec, int mode) const
   return out;
 }
 
+
+void Tensor::applyInverseInPlace(const VectorDouble& vec,VectorDouble& out) const
+{
+    _tensorInverse.prodVector(vec, out);
+}
+
+
 VectorDouble Tensor::applyInverse(const VectorDouble& vec, int mode) const
 {
   VectorDouble out = vec;

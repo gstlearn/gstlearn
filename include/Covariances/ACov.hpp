@@ -19,6 +19,8 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
+#include <vector>
+
 class Db;
 class DbGrid;
 class MatrixRectangular;
@@ -41,6 +43,16 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
+  virtual void evalOptim(const SpacePoint& p1,
+                          const std::vector<SpacePoint>& p2,
+						  VectorDouble& res,
+						  VectorDouble& temp,
+						  VectorDouble& w1,
+						  VectorDouble& w2,
+                          int ivar = 0,
+                          int jvar = 0,
+                          const CovCalcMode& mode = CovCalcMode()) const{};
+
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
                                  bool /*normalize*/) const { return TEST; }
@@ -54,6 +66,12 @@ public:
                     int ivar = 0,
                     int jvar = 0,
                     const CovCalcMode& mode = CovCalcMode()) const;
+  void evalVect(VectorDouble &res,
+		  	    const SpacePoint & p1,
+                const std::vector<SpacePoint>& vec_p2,
+                int ivar = 0,
+                int jvar = 0,
+                const CovCalcMode& mode = CovCalcMode()) const;
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode& mode = CovCalcMode()) const;
@@ -150,6 +168,12 @@ public:
                                   int ivar = 0,
                                   int jvar = 0,
                                   const CovCalcMode& mode = CovCalcMode()) const;
+
+ VectorVectorDouble evalCovMatrixOptim(const Db* db1,
+                                    const Db* db2 = nullptr,
+                                    int ivar = 0,
+                                    int jvar = 0,
+                                    const CovCalcMode& mode = CovCalcMode()) const;
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
