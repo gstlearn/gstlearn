@@ -29,8 +29,10 @@ public:
   virtual ~CalcSimpleInterpolation();
 
   void setFlagMovAve(bool flagMovAve) { _flagMovAve = flagMovAve; }
+  void setFlagMovMed(bool flagMovMed) { _flagMovMed = flagMovMed; }
   void setFlagInvDist(bool flagInvDist) { _flagInvDist = flagInvDist; }
   void setFlagLstSqr(bool flagLstSqr) { _flagLstSqr = flagLstSqr; }
+  void setFlagNearest(bool flagNearest) { _flagNearest = flagNearest; }
 
   void setDmax(double dmax) { _dmax = dmax; }
   void setExponent(double exponent) { _exponent = exponent; }
@@ -48,8 +50,10 @@ private:
 private:
   int    _iattOut;
   bool   _flagMovAve;
+  bool   _flagMovMed;
   bool   _flagInvDist;
   bool   _flagLstSqr;
+  bool   _flagNearest;
   double _exponent;
   bool   _flagExpand;
   double _dmax;
@@ -63,11 +67,20 @@ GSTLEARN_EXPORT int inverseDistance(Db *dbin,
                                     double dmax = TEST,
                                     const NamingConvention &namconv = NamingConvention(
                                         "InvDist"));
+GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
+                                    Db *dbout,
+                                    const NamingConvention &namconv = NamingConvention(
+                                        "Nearest"));
 GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                   Db *dbout,
                                   ANeighParam *neighparam,
                                   const NamingConvention &namconv = NamingConvention(
                                       "MovAve"));
+GSTLEARN_EXPORT int movingMedian(Db *dbin,
+                                 Db *dbout,
+                                 ANeighParam *neighparam,
+                                 const NamingConvention &namconv = NamingConvention(
+                                     "MovMed"));
 GSTLEARN_EXPORT int leastSquares(Db *dbin,
                                  Db *dbout,
                                  ANeighParam *neighparam,

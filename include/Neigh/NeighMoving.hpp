@@ -96,6 +96,7 @@ public:
   void setForceWithinBlock(bool forceWithinBlock);
   VectorVectorDouble getEllipsoid(const VectorDouble& target, int count = 360) const;
   VectorVectorDouble getSectors(const VectorDouble& target) const;
+  VectorVectorDouble getZoomLimits(const VectorDouble& target, double percent=20) const;
 
   bool hasFaults() const { return _faults != nullptr; }
   const Faults* getFaults() const { return _faults; }

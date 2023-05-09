@@ -99,8 +99,9 @@ double ACov::evalIvarIpas(double step,
                           const CovCalcMode& mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(center,getSpace());
-  SpacePoint p2(center,getSpace());
+  const ASpace* space = getSpace();
+  SpacePoint p1(center,space);
+  SpacePoint p2(center,space);
   VectorDouble dirloc(dir);
   if (dirloc.empty())
   {

@@ -2127,7 +2127,7 @@ static void st_grid_invdist(DbGrid* dbin,
 
     /* Find the grid index corresponding to the target */
 
-    dbout->getCoordinatesInPlace(iech, cooref);
+    dbout->getCoordinatesPerSampleInPlace(iech, cooref);
     if (dbin->coordinateToIndicesInPlace(cooref, indref))
     {
       dbout->setArray(iech, iptr, TEST);
@@ -2248,7 +2248,7 @@ static void st_point_invdist(Db* dbin,
       mestitle(1, "Target location");
       db_sample_print(dbout, iech, 1, 0, 0);
     }
-    dbout->getCoordinatesInPlace(iech, cooref);
+    dbout->getCoordinatesPerSampleInPlace(iech, cooref);
 
     /* Loop on the data points */
 
@@ -2257,7 +2257,7 @@ static void st_point_invdist(Db* dbin,
     for (int iech_in = 0; iech_in < dbin->getSampleNumber(); iech_in++)
     {
       if (!dbin->isActive(iech_in)) continue;
-      dbin->getCoordinatesInPlace(iech_in, coor);
+      dbin->getCoordinatesPerSampleInPlace(iech_in, coor);
       double val_neigh = dbin->getLocVariable(ELoc::Z,iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
@@ -5798,7 +5798,51 @@ int inhomogeneous_kriging(Db *dbdat,
 
 /****************************************************************************/
 /*!
- **  Inverse distance estimation
+ **  Nearest Neighbour estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  iptr        Storage address
+ **
+ *****************************************************************************/
+int nearest(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
+{
+  NeighWork nbghw(dbin, neighparam);
+  VectorInt nbgh;
+
+  /* Loop on the targets to be processed */
+
+   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   {
+     mes_process("Estimation by Nearest Neighbor", dbout->getSampleNumber(),
+                 iech);
+     if (!dbout->isActive(iech)) continue;
+     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+     {
+       mestitle(1, "Target location");
+       db_sample_print(dbout, iech, 1, 0, 0);
+     }
+
+     // Find the neighborhood
+     nbgh = nbghw.select(dbout, iech);
+
+     // Perform the estimation
+     double result = TEST;
+     if (nbgh.size() > 0)
+       result = dbin->getLocVariable(ELoc::Z,nbgh[0],0);
+
+     // Assign the result
+     dbout->setArray(iech, iptr, result);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Moving Average estimation
  **
  ** \return  Error return code
  **
@@ -5817,7 +5861,7 @@ int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
 
    for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
    {
-     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
+     mes_process("Estimation by Moving Average", dbout->getSampleNumber(),
                  iech);
      if (!dbout->isActive(iech)) continue;
      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
@@ -5847,6 +5891,53 @@ int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
 
      // Assign the result
      if (!FFFF(result)) result /= total;
+     dbout->setArray(iech, iptr, result);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Moving Median estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  iptr        Storage address
+ **
+ *****************************************************************************/
+int movmed(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
+{
+  NeighWork nbghw(dbin, neighparam);
+  VectorInt nbgh;
+
+  /* Loop on the targets to be processed */
+
+   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   {
+     mes_process("Estimation by Moving Median", dbout->getSampleNumber(),
+                 iech);
+     if (!dbout->isActive(iech)) continue;
+     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+     {
+       mestitle(1, "Target location");
+       db_sample_print(dbout, iech, 1, 0, 0);
+     }
+
+     // Find the neighborhood
+     nbgh = nbghw.select(dbout, iech);
+
+     // Perform the estimation
+     double result = TEST;
+     if (nbgh.size() > 0)
+     {
+       int rank = (int) nbgh.size() / 2;
+       result = dbin->getLocVariable(ELoc::Z,nbgh[rank],0);
+     }
+
+     // Assign the result
      dbout->setArray(iech, iptr, result);
   }
   return 0;

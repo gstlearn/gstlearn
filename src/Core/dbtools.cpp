@@ -290,7 +290,7 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
 
   /* Define the default values for 'coor'*/
 
-  db_point->getCoordinatesInPlace(0, coor);
+  db_point->getCoordinatesPerSampleInPlace(0, coor);
 
   /* Locate the samples on the grid */
 
@@ -398,7 +398,7 @@ static int st_migrate_point_to_grid(Db *db_point,
   local.resize(db_point->getSampleNumber());
   dvect.resize(ndim_max);
   coor.resize(ndim_max);
-  db_grid->getCoordinatesInPlace(0, coor);
+  db_grid->getCoordinatesPerSampleInPlace(0, coor);
 
   /* Locate the samples on the grid */
 

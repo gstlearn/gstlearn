@@ -34,6 +34,7 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _priorCov(),
     _flagProf(false),
     _iechSingleTarget(-1),
+    _verboseSingleTarget(false),
     _flagPerCell(false),
     _flagGam(false),
     _anam(nullptr),
@@ -215,9 +216,11 @@ int CalcKriging::_getNVar() const
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
 {
+  int ndim = ksys.getNDim();
+
   /* Extract relevant information */
 
-  _ktest.ndim = ksys.getNDim();
+  _ktest.ndim = ndim;
   _ktest.nvar = 1;
   _ktest.nech = ksys.getNRed();
   _ktest.nrhs = 1;
@@ -284,7 +287,7 @@ bool CalcKriging::_run()
     if (_iechSingleTarget > 0)
     {
       if (iech_out != _iechSingleTarget) continue;
-      OptDbg::defineAll();
+      if (_verboseSingleTarget) OptDbg::defineAll();
     }
     else
     {
@@ -295,7 +298,7 @@ bool CalcKriging::_run()
 
     if (_iechSingleTarget > 0)
     {
-      OptDbg::undefineAll();
+      if (_verboseSingleTarget) OptDbg::undefineAll();
     }
     if (error) return false;
   }
@@ -499,7 +502,7 @@ int krigprof(Db *dbin,
  ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
  ** \param[in]  ndisc       Array giving the discretization counts
  ** \param[in]  flagPerCell Use local block extensions (when defined)
- ** \param[in]  forceDebug  When TRUE, the full debugging flag is switched ON
+ ** \param[in]  verbose     When TRUE, the full debugging flag is switched ON
  **                         (the current status is reset after the run)
  **
  *****************************************************************************/
@@ -511,7 +514,7 @@ Krigtest_Res krigtest(Db *dbin,
                       const EKrigOpt &calcul,
                       VectorInt ndisc,
                       bool flagPerCell,
-                      bool forceDebug)
+                      bool verbose)
 {
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
@@ -522,12 +525,10 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setCalcul(calcul);
   krige.setNdisc(ndisc);
   krige.setIechSingleTarget(iech0);
+  krige.setVerboseSingleTarget(verbose);
   krige.setFlagPerCell(flagPerCell);
 
-  int memo = OptDbg::getReference();
-  if (forceDebug) OptDbg::setReference(iech0);
   (void) krige.run();
-  OptDbg::setReference(memo);
 
   return krige.getKtest();
 }

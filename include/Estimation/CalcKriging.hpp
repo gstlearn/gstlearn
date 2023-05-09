@@ -28,11 +28,11 @@ struct GSTLEARN_EXPORT Krigtest_Res
   int neq;  // Number of Equations in the Kriging/CoKriging system
   int nrhs; // Number of R.H.S. vectors (= nvar)
   VectorInt nbgh;    // Ranks of the neighboring samples
-  VectorDouble xyz;  // Coordinates of the neighboring samples (ndim * nech)
-  VectorDouble data; // Usable values at neighboring samples (neq)
+  VectorVectorDouble xyz;  // Coordinates of the neighboring samples [ndim][nech]
+  VectorDouble data; // Usable values at neighboring samples [neq]
   VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
   VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
-  VectorDouble wgt;  // Vector of weights (neq * nvar)
+  VectorDouble wgt;  // Vector of weights [nvar][nech]
   VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
   VectorDouble zam;  // Vector of pre-calculations
 
@@ -59,6 +59,7 @@ public:
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setFlagProf(bool flagProf) { _flagProf = flagProf; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
+  void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
   void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
   void setAnam(AAnam *anam) { _anam = anam; }
   void setFlagGam(bool flagGam) { _flagGam = flagGam; }
@@ -100,7 +101,8 @@ private:
 
   bool _flagProf;
 
-  int _iechSingleTarget;
+  int  _iechSingleTarget;
+  bool _verboseSingleTarget;
 
   bool _flagPerCell;
 
@@ -175,7 +177,7 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
                                       VectorInt ndisc = VectorInt(),
                                       bool flagPerCell = false,
-                                      bool forceDebug = true);
+                                      bool verbose = true);
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,

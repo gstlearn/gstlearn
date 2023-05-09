@@ -514,13 +514,15 @@ void matrix_product_safe(int n1,
 {
   int i1, i2, i3, i4;
 
+  if (v1 == v3 || v2 == v3) messageAbort("Violated protection in matrix_product_safe");
+
   for (i4 = 0; i4 < n1 * n3; i4++)
     v3[i4] = 0.;
 
   for (i3 = 0; i3 < n3; i3++)
     for (i1 = 0; i1 < n1; i1++)
       for (i2 = 0; i2 < n2; i2++)
-        V3(i1,i3)+= V1(i1,i2) * V2(i2,i3);
+        V3(i1,i3) += V1(i1,i2) * V2(i2,i3);
   return;
 }
 
@@ -2206,17 +2208,14 @@ VectorDouble matrix_produit_lu_VD(int neq, double *tl)
  ** \param[out] errmax  Maximum error encountered
  **
  *****************************************************************************/
-int is_matrix_product_identity(int neq,
-                                               double *a,
-                                               double *b,
-                                               double *errmax)
+int is_matrix_product_identity(int neq, double *a, double *b, double *errmax)
 {
   double *x, compare, valmax;
   int i, j, error;
 
   x = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
 
-  matrix_product(neq, neq, neq, a, b, x);
+  matrix_product_safe(neq, neq, neq, a, b, x);
 
   valmax = 0.;
   for (i = 0; i < neq; i++)
@@ -2894,7 +2893,7 @@ int matrix_qo(int neq, double *hmat, double *gmat, double *xmat)
   double cond;
   error = matrix_invgen(hmat, neq, hmat, &cond);
   if (error || cond > 1e13) return (1);
-  matrix_product(neq, neq, 1, hmat, gmat, xmat);
+  matrix_product_safe(neq, neq, 1, hmat, gmat, xmat);
   return (0);
 }
 

@@ -18,14 +18,15 @@
 
 #include "Db/PtrGeos.hpp"
 #include "Basic/Grid.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/Limits.hpp"
 
 class DbGrid;
+class Interval;
 
 /**
  * Class containing a Data Set organized as a set of Isolated Points.
@@ -51,6 +52,7 @@ public:
   /// Interface for Db
   virtual bool isGrid() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
+  virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
@@ -163,6 +165,7 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
+  int getNEloc() const;
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;
@@ -341,7 +344,6 @@ public:
   void getSampleCoordinates(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
 
-  void   getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   void   setCoordinate(int iech, int idim, double value);
@@ -842,5 +844,5 @@ private:
   VectorDouble _array;       //!< Array of values
   VectorInt _uidcol;         //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
-  std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
+  std::vector<PtrGeos> _p;   //!< Locator characteristics
 };

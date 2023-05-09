@@ -2955,7 +2955,7 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
       grad[1] = -st_ikl(maxpts2, 0, 3, lower, upper, correl) / s;
       grad[2] = -st_ikl(maxpts2, 1, 2, lower, upper, correl) / s;
       grad[3] = -st_ikl(maxpts2, 2, 3, lower, upper, correl) / s;
-      matrix_product(4, 1, 4, grad, grad, gradgrad);
+      matrix_product_safe(4, 1, 4, grad, grad, gradgrad);
 
       M_R(hess,4,3,0) = M_R(hess,4,2,1) = -st_d2_dkldij(lower, upper, correl);
       M_R(hess,4,1,0) = st_d2_dkldkj(0, 2, lower, upper, correl);
@@ -3053,7 +3053,7 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
     grad[1] = -st_ikl(maxpts2, 0, 3, lower, upper, correl) / s;
     grad[2] = -st_ikl(maxpts2, 1, 2, lower, upper, correl) / s;
     grad[3] = -st_ikl(maxpts2, 2, 3, lower, upper, correl) / s;
-    matrix_product(4, 1, 4, grad, grad, gradgrad);
+    matrix_product_safe(4, 1, 4, grad, grad, gradgrad);
 
     M_R(hess,4,3,0) = M_R(hess,4,2,1) = -st_d2_dkldij(lower, upper, correl);
     M_R(hess,4,1,0) = st_d2_dkldkj(0, 2, lower, upper, correl);

@@ -67,6 +67,13 @@ void PtrGeos::erase(int locatorIndex)
   _r.erase(_r.begin() + locatorIndex);
 }
 
+int PtrGeos::findUIDInLocator(int iuid) const
+{
+  for (int locatorIndex = 0; locatorIndex < getLocatorNumber(); locatorIndex++)
+    if (getLocatorByIndex(locatorIndex) == iuid) return (locatorIndex);
+  return -1;
+}
+
 String PtrGeos::dumpLocator(int rank, const ELoc& locatorType) const
 {
   std::stringstream sstr;
