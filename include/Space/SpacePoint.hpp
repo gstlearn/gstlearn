@@ -35,6 +35,8 @@ public:
   void setCoord(double coord);
   void setCoord(const VectorDouble& coord);
   void setCoord(int i, double val){_coord[i] = val;}
+  const double* getCoordsP() const {return _coord.data();}
+  double* getCoordsPM()  {return _coord.data();}
 
   /// Return true if the point is consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;

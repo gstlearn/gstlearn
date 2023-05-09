@@ -74,56 +74,69 @@ double SpaceRN::getDistance(const SpacePoint& p1,
   return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
 }
 
+void SpaceRN::getDistanceOptim(const SpacePoint& p1,
+                             const std::vector<SpacePoint>& p2,
+							 VectorDouble& res,
+							 VectorVectorDouble& work) const
+{
+
+	int nbp = (int)work.size();
+	double ti;
+	//double* wpt;
+	for(int i = 0; i<nbp;i++)
+	{
+		for(unsigned int idim = 0;idim<_nDim;idim++)
+		{
+			work[i][idim] = p1.getCoord(idim) - p2[i].getCoord(idim);
+		}
+	}
+
+	for (int i = 0; i< nbp; i++)
+	{
+		double s = 0.;
+		for(unsigned int idim = 0;idim<_nDim;idim++)
+		{
+				ti = work[i][idim];
+				s+= ti * ti;
+		}
+		res[i] =  sqrt(s);
+	}
+}
+
+
 
 double SpaceRN::_getDistance(const SpacePoint& p1,
 							 const SpacePoint & p2,
 							 VectorDouble& ptemp,
-       const Tensor& tensor,
-	   VectorDouble& temp) const
+							 const Tensor& tensor,
+							 VectorDouble& temp) const
 {
 	_getIncrementInPlace(p1, p2,ptemp);
 	tensor.applyInverseInPlace(ptemp,temp);
 	double s=0;
 	double ti;
-	for(int i = 0;i<(int)temp.size();i++)
+	for(unsigned int idim = 0;idim<_nDim;idim++)
 	{
-		ti = temp[i];
+		ti = temp[idim];
 		s+= ti * ti;
 	}
 	return sqrt(s);
 
 }
 
+
 void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
-							 const SpacePoint & p2,
-							 VectorDouble& ptemp)const
+							 	   const SpacePoint & p2,
+								   VectorDouble& ptemp)const
 {
 
-	for(int i = 0; i<(int)ptemp.size();i++)
+	for(unsigned int i = 0; i<_nDim;i++)
 	{
-
 		ptemp[i] = p2.getCoord(i)-p1.getCoord(i);
 	}
 
 }
 
-void SpaceRN::norm(const SpacePoint& p1, const std::vector<SpacePoint>& p2v,const Tensor& tens, VectorDouble& res,VectorDouble & temp,VectorDouble& out) const
-{
-	double t;
-	for(int i = 0; i < (int)res.size(); i++)
-	{
-		for (int idim = 0; idim < (int)temp.size();idim++)
-			temp[i] = p1.getCoord(idim) - p2v[i].getCoord(idim);
-		tens.applyInverseInPlace(temp, out);
-		res[i] = 0.;
-		for (int idim = 0;idim <(int)temp.size();idim++)
-		{
-			t = out[idim];
-			res[i]+= t * t;
-		}
-			res[i] = sqrt(res[i]);
-	}
-}
 double SpaceRN::getFrequentialDistance(const SpacePoint& p1,
                                        const SpacePoint& p2,
                                        const Tensor& tensor) const

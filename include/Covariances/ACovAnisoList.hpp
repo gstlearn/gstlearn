@@ -57,11 +57,10 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual void evalOptim(const SpacePoint& p1,
-                        const std::vector<SpacePoint>& p2,
 						VectorDouble& res,
 						VectorDouble& temp,
-						VectorDouble& w1,
-						VectorDouble& w2,
+						VectorVectorDouble& work,
+						SpacePoint& pttr,
                         int ivar = 0,
                         int jvar = 0,
                         const CovCalcMode& mode = CovCalcMode()) const override;
@@ -111,6 +110,8 @@ public:
   void               setType(unsigned int icov, const ECov& type);
   CovAniso           extractCova(int icov) const;
   int                getMinOrder() const;
+  void 				 preProcess(const std::vector<SpacePoint>& vec) const override;
+  void               cleanPreProcessInfo() const override;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

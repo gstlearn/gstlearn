@@ -151,11 +151,10 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
 }
 
 void ACovAnisoList::evalOptim(const SpacePoint& p1,
-                           const std::vector<SpacePoint>& p2,
 						   VectorDouble& res,
 						   VectorDouble& temp,
-						   VectorDouble& w1,
-						   VectorDouble& w2,
+						   VectorVectorDouble& work,
+						   SpacePoint& pttr,
                            int ivar,
                            int jvar,
                            const CovCalcMode& mode) const
@@ -164,7 +163,7 @@ void ACovAnisoList::evalOptim(const SpacePoint& p1,
 	  e=0;
   for (int i=0, n=getCovNumber(); i<n; i++)
     {
-      _covs[i]->evalOptim(p1, p2,res,temp,w1,w2,ivar, jvar, mode);
+      _covs[i]->evalOptim(p1, res,temp,work,pttr,ivar, jvar, mode);
     }
 }
 
@@ -440,6 +439,19 @@ bool ACovAnisoList::hasNugget() const
     if (getType(is) == ECov::NUGGET) return true;
   }
   return false;
+}
+
+
+void ACovAnisoList::preProcess(const std::vector<SpacePoint>& vec) const
+{
+	for (int is = 0; is < getCovNumber(); is++)
+		_covs[is]->preProcess(vec);
+}
+
+void ACovAnisoList::cleanPreProcessInfo() const
+{
+	for (int is = 0; is < getCovNumber(); is++)
+		_covs[is]->cleanPreProcessInfo();
 }
 
 const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const

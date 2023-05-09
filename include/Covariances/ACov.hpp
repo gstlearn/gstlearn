@@ -44,11 +44,10 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
   virtual void evalOptim(const SpacePoint& p1,
-                          const std::vector<SpacePoint>& p2,
 						  VectorDouble& res,
 						  VectorDouble& temp,
-						  VectorDouble& w1,
-						  VectorDouble& w2,
+						  VectorVectorDouble& work,
+						  SpacePoint& pttr,
                           int ivar = 0,
                           int jvar = 0,
                           const CovCalcMode& mode = CovCalcMode()) const{};
@@ -58,6 +57,11 @@ public:
                                  bool /*normalize*/) const { return TEST; }
   virtual double evalSpectrum(const VectorDouble& /*freq*/,
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
+
+  virtual void 	preProcess(const std::vector<SpacePoint>& vec) const {};
+  virtual void  cleanPreProcessInfo() const {}
+
+
   /////////////////////////////////////////////////////////////////////////////////
 
   MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;

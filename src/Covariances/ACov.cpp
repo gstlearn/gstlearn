@@ -689,53 +689,61 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
 
 
 VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
-                                      const Db* db2,
-                                      int ivar,
-                                      int jvar,
-                                      const CovCalcMode& mode) const
+                                      	    const Db* db2,
+										    int ivar,
+										    int jvar,
+										    const CovCalcMode& mode) const
 {
   if (db2 == nullptr) db2 = db1;
   int nechtot1 = db1->getSampleNumber(false);
   int nechtot2 = db2->getSampleNumber(false);
   int nech1 = db1->getSampleNumber(true);
   int nech2 = db2->getSampleNumber(true);
-  VectorVectorDouble mat(nech2);
+  VectorVectorDouble mat(nech1);
+  VectorVectorDouble work(nech2);
+  VectorDouble temp(nech2);
+
+  int ndim = getNDim();
+  for (auto &e :work)
+  {
+	  e = VectorDouble(ndim);
+  }
+
   for (auto &e : mat)
   {
-	  e = VectorDouble(nech1);
+	  e = VectorDouble(nech2);
   }
 
   /* Loop on the first sample */
 
 
-  int jech1 = 0;
-  std::vector<SpacePoint> pvect(nech1);
-
-  for (int iech1 = 0; iech1 <nechtot1;iech1++)
-  {
-	  if (!db1->isActive(iech1)) continue;
-	  pvect[jech1] = SpacePoint(db1->getSampleCoordinates(iech1),getSpace());
-	  jech1++;
-  }
-
   int jech2 = 0;
+  std::vector<SpacePoint> pvect(nech2);
 
-  VectorDouble temp(nech1);
-
-  SpacePoint p2(db2->getSampleCoordinates(0),getSpace());
-
-  VectorDouble w1(getNDim());
-  VectorDouble w2(getNDim());
-
-  for (int iech2 = 0; iech2 < nechtot2; iech2++)
+  for (int iech2 = 0; iech2 <nechtot2;iech2++)
   {
-    if (!db2->isActive(iech2)) continue;
-
-    for(int idim = 0;idim<(int)getNDim();idim++)
-    	p2.setCoord(idim,db2->getCoordinate(iech2, idim));
-    evalOptim(p2, pvect,mat[jech2],temp,w1,w2, ivar, jvar, mode);
-    jech2++;
+	  if (!db2->isActive(iech2)) continue;
+	  pvect[jech2] = SpacePoint(db2->getSampleCoordinates(iech2),getSpace());
+	  jech2++;
   }
+
+  preProcess(pvect);
+
+  SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
+  SpacePoint pttr(db1->getSampleCoordinates(0),getSpace());
+
+
+  int jech1 = 0;
+  for (int iech1 = 0; iech1 < nechtot1; iech1++)
+  {
+    if (!db1->isActive(iech1)) continue;
+    for(int idim = 0;idim<ndim;idim++)
+    	p1.setCoord(idim,db1->getCoordinate(iech1, idim));
+    evalOptim(p1,mat[jech1],temp, work,pttr,ivar, jvar, mode);
+    jech1++;
+  }
+
+  cleanPreProcessInfo();
   return mat;
 }
 

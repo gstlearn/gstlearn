@@ -71,16 +71,15 @@ bool ASpace::isEqual(const ASpace* space) const
   return false;
 }
 
-void ASpace::getDistanceOptim(const SpacePoint& p1,
-                             const std::vector<SpacePoint>& p2,
-                             const Tensor& tensor,
-							   VectorDouble& res,
-							   VectorDouble& temp,
-							   VectorDouble& ptemp) const
+
+void ASpace::_getIncrementInPlaceVect(const SpacePoint& p1,
+								   const std::vector<SpacePoint>& pv,
+								   VectorVectorDouble& res) const
 {
-	for (int i = 0; i<(int)p2.size();i++)
-		res[i] = _getDistance(p1,p2[i],ptemp,tensor,temp);
+	int np = (int)res.size();
+	for(int i = 0; i<np;i++)
+	{
+		_getIncrementInPlace(p1,pv[i],res[i]);
+	}
 }
-
-
 

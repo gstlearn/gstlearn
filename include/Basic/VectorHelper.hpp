@@ -59,6 +59,8 @@ public:
   static double variance(const VectorDouble &vec);
   static double stdv(const VectorDouble &vec);
   static double norm(const VectorDouble &vec);
+  static double normOptim(const VectorDouble&vec);
+
   static double correlation(const VectorDouble &veca, const VectorDouble &vecb);
   static VectorDouble quantiles(const VectorDouble& vec,
                                 const VectorDouble& probas);
@@ -87,6 +89,7 @@ public:
                          VectorDouble &res);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
+
   static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
 

@@ -51,11 +51,17 @@ public:
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2) const override;
-  void norm(const SpacePoint& p1, const std::vector<SpacePoint>& p2v, const Tensor& tens,VectorDouble& res,VectorDouble&w1,VectorDouble& w2) const override;
+
+  void getDistanceOptim(const SpacePoint& p1,
+                               const std::vector<SpacePoint>& p2,
+  							   VectorDouble& res,
+  							   VectorVectorDouble& work) const override;
+
+
 
 private:
   void _getIncrementInPlace(const SpacePoint& p1,
-                              const SpacePoint& p2,VectorDouble& ptemp) const;
+                              const SpacePoint& p2,VectorDouble& ptemp) const override;
   double _getDistance(const SpacePoint& p1,
          const SpacePoint & p2,
 		 VectorDouble& ptemp,
