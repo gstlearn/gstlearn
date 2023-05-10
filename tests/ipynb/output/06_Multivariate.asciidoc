@@ -135,10 +135,7 @@ Temperature      2.815
 
 +*Out[29]:*+
 ----
-decoration() cannot be used when 'ax' is an array. Ignored
-decoration() cannot be used when 'ax' is an array. Ignored
-
-![png](output_53_1.png)
+![png](output_53_0.png)
 ----
 
 
