@@ -21,6 +21,10 @@
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
+#include "Space/SpacePoint.hpp"
+
+
+#include <vector>
 
 class Rotation;
 
@@ -78,12 +82,25 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
+  virtual void evalOptim(const SpacePoint& p1,
+					  VectorDouble& res,
+					  VectorDouble& temp,
+					  VectorVectorDouble& work,
+					  SpacePoint& pt,
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode& mode = CovCalcMode()) const override;
+
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
+
+  void 	preProcess(const std::vector<SpacePoint>& vec) const override;
+  void 	cleanPreProcessInfo() const override;
+
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
@@ -208,10 +225,13 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
+  void _preProcess(const SpacePoint& pt, SpacePoint& res) const;
 
 private:
   CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
   MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
+
+  mutable std::vector<SpacePoint> _transformedCoordinates;
 };

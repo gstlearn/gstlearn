@@ -398,6 +398,26 @@ double CovAniso::eval(const SpacePoint &p1,
   return (cov);
 }
 
+
+void CovAniso::evalOptim(const SpacePoint &p1,
+					  VectorDouble& res,
+					  VectorDouble& temp,
+					  VectorVectorDouble& work,
+					  SpacePoint& pttr,
+                      int ivar,
+                      int jvar,
+                      const CovCalcMode &mode) const
+{
+ _preProcess(p1, pttr);
+ _space->getDistanceOptim(pttr, _transformedCoordinates,temp,work);
+  double sill = _sill.getValue(ivar, jvar);
+
+  for (int i = 0; i< (int)temp.size();i++)
+    {
+	    res[i]+= sill *  _cova->evalCov(temp[i]);
+    }
+}
+
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
@@ -950,3 +970,27 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
   return newCovAniso;
 }
 
+
+void CovAniso::_preProcess(const SpacePoint& pt, SpacePoint& res) const
+{
+	_aniso.applyInverseInPlace(pt.getCoordsP(), res.getCoordsPM());
+}
+
+void CovAniso::preProcess(const std::vector<SpacePoint>& vec) const
+{
+	int n = (int)vec.size();
+	_transformedCoordinates.resize(n);
+
+	for(int i = 0;i < n ; i++)
+	{
+		_transformedCoordinates[i] = SpacePoint(_space);
+		_preProcess(vec[i], _transformedCoordinates[i]);
+	}
+
+}
+
+
+void CovAniso::cleanPreProcessInfo() const
+{
+	_transformedCoordinates.clear();
+}

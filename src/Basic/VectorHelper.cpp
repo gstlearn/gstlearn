@@ -452,6 +452,14 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
+double VectorHelper::normOptim(const VectorDouble&vec)
+{
+	double s = 0.;
+	const double* dat = vec.data();
+	for(int i = 0; i < (int)vec.size();i++)
+		s+= *(dat++);
+	return sqrt(s);
+}
 int VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;

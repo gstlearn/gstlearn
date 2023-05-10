@@ -19,6 +19,7 @@
 #include "Covariances/CovLMGradient.hpp"
 
 #include <math.h>
+#include <vector>
 
 ACovAnisoList::ACovAnisoList(const ASpace* space)
 : ACov(space),
@@ -148,6 +149,24 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
 
   return cov;
 }
+
+void ACovAnisoList::evalOptim(const SpacePoint& p1,
+						   VectorDouble& res,
+						   VectorDouble& temp,
+						   VectorVectorDouble& work,
+						   SpacePoint& pttr,
+                           int ivar,
+                           int jvar,
+                           const CovCalcMode& mode) const
+{
+  for (auto &e: res)
+	  e=0;
+  for (int i=0, n=getCovNumber(); i<n; i++)
+    {
+      _covs[i]->evalOptim(p1, res,temp,work,pttr,ivar, jvar, mode);
+    }
+}
+
 
 double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
@@ -420,6 +439,19 @@ bool ACovAnisoList::hasNugget() const
     if (getType(is) == ECov::NUGGET) return true;
   }
   return false;
+}
+
+
+void ACovAnisoList::preProcess(const std::vector<SpacePoint>& vec) const
+{
+	for (int is = 0; is < getCovNumber(); is++)
+		_covs[is]->preProcess(vec);
+}
+
+void ACovAnisoList::cleanPreProcessInfo() const
+{
+	for (int is = 0; is < getCovNumber(); is++)
+		_covs[is]->cleanPreProcessInfo();
 }
 
 const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const

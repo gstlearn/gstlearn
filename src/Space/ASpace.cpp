@@ -12,6 +12,7 @@
 #include "Space/SpacePoint.hpp"
 
 #include <iostream>
+#include <vector>
 
 ASpace::ASpace(unsigned int ndim)
     : AStringable(),
@@ -69,3 +70,16 @@ bool ASpace::isEqual(const ASpace* space) const
     return true;
   return false;
 }
+
+
+void ASpace::_getIncrementInPlaceVect(const SpacePoint& p1,
+								   const std::vector<SpacePoint>& pv,
+								   VectorVectorDouble& res) const
+{
+	int np = (int)res.size();
+	for(int i = 0; i<np;i++)
+	{
+		_getIncrementInPlace(p1,pv[i],res[i]);
+	}
+}
+

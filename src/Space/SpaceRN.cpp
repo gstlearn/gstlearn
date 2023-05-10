@@ -13,6 +13,8 @@
 #include "Basic/Tensor.hpp"
 #include "Basic/VectorHelper.hpp"
 
+#include <math.h>
+
 SpaceRN::SpaceRN(unsigned int ndim)
  : ASpace(ndim)
 {
@@ -70,6 +72,69 @@ double SpaceRN::getDistance(const SpacePoint& p1,
                             const Tensor& tensor) const
 {
   return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
+}
+
+void SpaceRN::getDistanceOptim(const SpacePoint& p1,
+                             const std::vector<SpacePoint>& p2,
+							 VectorDouble& res,
+							 VectorVectorDouble& work) const
+{
+
+	int nbp = (int)work.size();
+	double ti;
+	//double* wpt;
+	for(int i = 0; i<nbp;i++)
+	{
+		for(unsigned int idim = 0;idim<_nDim;idim++)
+		{
+			work[i][idim] = p1.getCoord(idim) - p2[i].getCoord(idim);
+		}
+	}
+
+	for (int i = 0; i< nbp; i++)
+	{
+		double s = 0.;
+		for(unsigned int idim = 0;idim<_nDim;idim++)
+		{
+				ti = work[i][idim];
+				s+= ti * ti;
+		}
+		res[i] =  sqrt(s);
+	}
+}
+
+
+
+double SpaceRN::_getDistance(const SpacePoint& p1,
+							 const SpacePoint & p2,
+							 VectorDouble& ptemp,
+							 const Tensor& tensor,
+							 VectorDouble& temp) const
+{
+	_getIncrementInPlace(p1, p2,ptemp);
+	tensor.applyInverseInPlace(ptemp,temp);
+	double s=0;
+	double ti;
+	for(unsigned int idim = 0;idim<_nDim;idim++)
+	{
+		ti = temp[idim];
+		s+= ti * ti;
+	}
+	return sqrt(s);
+
+}
+
+
+void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
+							 	   const SpacePoint & p2,
+								   VectorDouble& ptemp)const
+{
+
+	for(unsigned int i = 0; i<_nDim;i++)
+	{
+		ptemp[i] = p2.getCoord(i)-p1.getCoord(i);
+	}
+
 }
 
 double SpaceRN::getFrequentialDistance(const SpacePoint& p1,
