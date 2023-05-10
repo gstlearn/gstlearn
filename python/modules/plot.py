@@ -1219,7 +1219,7 @@ def grid1D(dbgrid, *args, **kwargs):
     **kwargs : arguments passed to matplotlib.pyplot.curve
     '''
     ax = __getNewAxes(None, 1)
-    return __ax_grid1D(ax, dbgrid=dbgrid, *args, **kwargs)
+    return __ax_grid1D(ax, dbgrid, *args, **kwargs)
 
 def __ax_grid1D(ax, dbgrid, name = None, usesel = True, flagLegendColor=True,
                 color='black',flagLegend=False, label='curve',
