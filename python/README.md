@@ -100,7 +100,7 @@ sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
 sudo apt install pandoc jupyter
-python3 -m pip install pybind11-global numpy pandas scipy matplotlib
+python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -114,7 +114,7 @@ python3 -m pip install pypandoc geopandas plotly jupyter
 brew install python3
 brew install swig
 brew install pandoc jupyter
-python3 -m pip install pybind11-global numpy pandas scipy matplotlib
+python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
