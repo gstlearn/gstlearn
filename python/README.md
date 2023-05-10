@@ -237,6 +237,7 @@ cmake --build build --target check_ipynb --config Release
 ### Important Notes
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* You may have to add the directory containing `pybind11-config` executable to the PATH environment variable
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
