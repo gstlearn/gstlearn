@@ -3750,7 +3750,7 @@ static void st_rotate(int ndim,
 {
   double d2[3];
 
-  matrix_product(1, ndim, ndim, coor.data(), rotmat, d2);
+  matrix_product_safe(1, ndim, ndim, coor.data(), rotmat, d2);
   for (int idim = 0; idim < ndim; idim++)
   {
     mini[idim] = getMin(mini[idim], d2[idim]);

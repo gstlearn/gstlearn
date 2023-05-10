@@ -448,7 +448,7 @@ int SimuRefine::_kriging_solve(int type,
     messerr("Check the consistency between the model and the SK/OK option");
     return (1);
   }
-  matrix_product(neq, neq, 1, lhs.data(), rhs.data(), _WGT[type][rank]);
+  matrix_product_safe(neq, neq, 1, lhs.data(), rhs.data(), _WGT[type][rank]);
 
   /* Calculate the variance */
 
@@ -456,7 +456,7 @@ int SimuRefine::_kriging_solve(int type,
   for (int i = 0; i < ndim; i++) d1[i] = 0.;
   double var[2];
   model_calcul_cov(NULL,_model, mode, 1, 1., d1, &var[0]);
-  matrix_product(1, neq, 1, rhs.data(),_WGT[type][rank], &var[1]);
+  matrix_product_safe(1, neq, 1, rhs.data(),_WGT[type][rank], &var[1]);
   double variance = var[0] - var[1];
   _STDV[type][rank] = (variance > 0) ? sqrt(variance) : 0.;
 

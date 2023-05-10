@@ -171,6 +171,7 @@ VarioParam* VarioParam::createMultiple(int ndir,
 /**
  * Automatically create several calculation directions from Grid information:
  * For details, see DirParam::createMultipleFromGrid documentation
+ * @param dbgrid a DbGrid structure
  * @param npas Number of lags
  * @param scale Scaling factor
  * @param dates Range of dates
@@ -230,6 +231,23 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
     dirparam.setCodir(codir);
     varioparam->addDir(dirparam);
   }
+  return varioparam;
+}
+
+VarioParam* VarioParam::createSeveral2D(const VectorDouble &angles,
+                                        int npas,
+                                        double dpas,
+                                        double toldis,
+                                        double tolang,
+                                        double scale,
+                                        const VectorDouble& dates,
+                                        const ASpace *space)
+{
+  std::vector<DirParam> dirs = DirParam::createSeveral2D(angles, npas, dpas,
+                                                         toldis, tolang, space);
+  if (dirs.empty()) return nullptr;
+  VarioParam* varioparam = new VarioParam(scale, dates);
+  varioparam->addMultiDirs(dirs);
   return varioparam;
 }
 

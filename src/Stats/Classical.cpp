@@ -1929,7 +1929,7 @@ VectorDouble dbStatisticsPerCellByUID(Db *db,
 
     /* Check the location of the data in the grid */
 
-    db->getCoordinatesInPlace(iech, coor);
+    db->getCoordinatesPerSampleInPlace(iech, coor);
     int iad = dbgrid->getGrid().coordinateToRank(coor);
     if (iad < 0 || iad >= nxyz) continue;
     nn[iad]++;
@@ -2425,7 +2425,7 @@ int dbStatisticsInGridToolByUID(Db *db,
       /* Read a sample */
 
       if (!db->isActive(iech)) continue;
-      db->getCoordinatesInPlace(iech, coor);
+      db->getCoordinatesPerSampleInPlace(iech, coor);
       if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0, true)) continue;
       double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;

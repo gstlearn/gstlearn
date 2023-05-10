@@ -1348,7 +1348,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   for (int icur = 0; icur < ncur; icur++)
     z[icur] = 0.;
   st_multigrid_kriging_prec(mgs, 0, z, resid, work);
-  matrix_product(1, ncur, 1, resid, z, &sn);
+  matrix_product_safe(1, ncur, 1, resid, z, &sn);
   for (int icur = 0; icur < ncur; icur++)
     p[icur] = z[icur];
 
@@ -1359,7 +1359,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   {
     s = sn;
     cs_mulvec(mg->A->Q, mg->nh, p, temp);
-    matrix_product(1, ncur, 1, p, temp, &alpha);
+    matrix_product_safe(1, ncur, 1, p, temp, &alpha);
     alpha = s / alpha;
 
     for (int icur = 0; icur < ncur; icur++)
@@ -1378,8 +1378,8 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
       z[icur] = 0.;
     st_multigrid_kriging_prec(mgs, 0, z, resid, work);
 
-    matrix_product(1, ncur, 1, resid, z, &sn);
-    matrix_product(1, ncur, 1, temp, z, &beta);
+    matrix_product_safe(1, ncur, 1, resid, z, &sn);
+    matrix_product_safe(1, ncur, 1, temp, z, &beta);
     beta *= -alpha / s;
     for (int icur = 0; icur < ncur; icur++)
       p[icur] = z[icur] + beta * p[icur];

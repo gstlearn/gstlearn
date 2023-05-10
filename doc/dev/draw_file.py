@@ -99,10 +99,10 @@ elif filetype == "Vario":
     if filetaux == "Model":
         model = gl.Model.createFromNF(fileaux,False)
         checkValidPointer(model)
-        gp.varmold(vario, model)
+        gp.varmod(vario, model)
         plt.show()
     else:
-        gp.varioold(vario)
+        gp.variogram(vario)
         plt.show()
     
 elif filetype == "Model":
@@ -112,10 +112,10 @@ elif filetype == "Model":
     if filetaux == "Vario":
         vario = gl.Vario.createFromNF(fileaux,False)
         checkValidPointer(vario)
-        gp.varmold(vario, model)
+        gp.varmod(vario, model)
         plt.show()
     else:
-        gp.modelold(model)
+        gp.model(model)
         plt.show()
     
 elif filetype == "Rule":

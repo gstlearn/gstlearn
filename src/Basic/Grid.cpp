@@ -325,9 +325,8 @@ String Grid::toString(const AStringFormat* strfmt) const
 double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
 {
   int ndim = getNDim();
-  VectorInt   iwork(ndim);
+  VectorInt    iwork(ndim);
   VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
 
   /* Convert a sample number into grid indices */
 
@@ -341,11 +340,15 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
+  {
+    VectorDouble work2(ndim);
     _rotation.rotateInverse(work1,work2);
+    return (work2[idim0] + _x0[idim0]);
+  }
   else
-    work2 = work1;
-
-  return (work2[idim0] + _x0[idim0]);
+  {
+    return (work1[idim0] + _x0[idim0]);
+  }
 }
 
 /**
@@ -432,7 +435,6 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
   int ndim = getNDim();
   VectorInt    iwork(ndim);
   VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
 
   /* Convert a sample number into grid indices */
 
@@ -446,14 +448,19 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
+  {
+    VectorDouble work2(ndim);
     _rotation.rotateInverse(work1,work2);
+    for (int idim = 0; idim < ndim; idim++)
+      work2[idim] += _x0[idim];
+    return work2;
+  }
   else
-    work2 = work1;
-
-  for (int idim = 0; idim < ndim; idim++)
-    work2[idim] += _x0[idim];
-
-  return work2;
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      work1[idim] += _x0[idim];
+    return work1;
+  }
 }
 
 double Grid::indiceToCoordinate(int idim0,
@@ -569,12 +576,11 @@ void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
   if ((int)indices.size() < _nDim)
     my_throw("Argument indices should have the correct size");
-  int ndim = _nDim;
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
-  for (int idim=0; idim<ndim; idim++) nval *= (_nx[idim] - minus);
+  for (int idim=0; idim<_nDim; idim++) nval *= (_nx[idim] - minus);
 
-  for (int idim=ndim-1; idim>=0; idim--)
+  for (int idim=_nDim-1; idim>=0; idim--)
   {
     nval /= (_nx[idim] - minus);
     indices[idim] = rank / nval;

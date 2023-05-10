@@ -1267,7 +1267,7 @@ static void st_compute_blin(void)
     }
     (void) matrix_invert(m, ndimp, -1);
     matrix_product(ndimp, ndimp, 1, m, v, v);
-    matrix_product(ndimp, ndimp, 1, tp, v, Calcul.blin.data());
+    matrix_product_safe(ndimp, ndimp, 1, tp, v, Calcul.blin.data());
   }
   else
   {
@@ -3101,10 +3101,10 @@ cs* _spde_fill_S(AMesh *amesh, Model *model, double *units)
           matw[ecr++] = MATU(icorn, idim);
       matrix_transpose(ndim, ncorner, matw, matinvw);
 
-      matrix_product(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
+      matrix_product_safe(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
       if (flag_nostat)
-        matrix_product(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
-      matrix_product(ncorner, ndim, ncorner, mat1, matw, mat);
+        matrix_product_safe(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
+      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw, mat);
 
       for (int j0 = 0; j0 < ncorner; j0++)
         for (int j1 = 0; j1 < ncorner; j1++)

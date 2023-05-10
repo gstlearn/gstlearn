@@ -98,5 +98,4 @@ void Timer::displayMilliseconds(const String& title, double msec)
     message("%s: %6.2lf ms.\n",title.c_str(),msec);
   else
     message("Timer: %6.2lf ms.\n",msec);
-
 }

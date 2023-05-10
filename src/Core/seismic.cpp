@@ -2801,7 +2801,7 @@ static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
   /* Calculate the kriging weights */
 
   if (matrix_invert(lhs, nred, IECH_OUT)) return (1);
-  matrix_product(nred, nred, 2, lhs, rhs, wgt);
+  matrix_product_safe(nred, nred, 2, lhs, rhs, wgt);
 
   if (OptDbg::query(EDbg::KRIGING)) st_wgt_print(ngh, NVAR, nech, nred, flag, wgt);
 

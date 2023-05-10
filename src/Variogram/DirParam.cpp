@@ -404,6 +404,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
  * - one direction per space axis
  * - the other parameters are applied to each direction, such as:
  * @param npas Number of lags
+ * @param dpas Dimension for the lag
  * @param space Pointer to the Space definition
  * @return
  *

@@ -837,7 +837,7 @@ VectorDouble PCA::mafOfIndex() const
   }
 
   VectorDouble local(nclass * ncut);
-  matrix_product(nclass, ncut, ncut, i_norm_val.getValues().data(), _Z2F.data(), local.data());
+  matrix_product_safe(nclass, ncut, ncut, i_norm_val.getValues().data(), _Z2F.data(), local.data());
 
   VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local);
 

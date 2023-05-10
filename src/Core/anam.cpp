@@ -719,7 +719,7 @@ int _uniformConditioning(Db *db,
       for (int ih = 0; ih < nbpoly; ih++)
         hn[ih] *= pow(sv / r_coef, (double) ih);
       double metal;
-      matrix_product(1, nbpoly, 1, hn.data(), phi_b_zc[icut].data(), &metal);
+      matrix_product_safe(1, nbpoly, 1, hn.data(), phi_b_zc[icut].data(), &metal);
 
       if (sv < sv_min) sv_min = sv;
       if (sv > sv_max) sv_max = sv;

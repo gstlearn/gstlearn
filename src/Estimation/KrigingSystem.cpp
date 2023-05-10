@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Estimation/KrigingSystem.hpp"
+
 #include "Enum/EKrigOpt.hpp"
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ELoc.hpp"
@@ -34,7 +36,6 @@
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Estimation/KrigingSystem.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceRN.hpp"
 
@@ -621,15 +622,39 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     switch (member.getValue())
     {
       case ECalcMember::E_LHS:
-        icas1 = (iech1 >= 0) ? 1 : 2;
-        jech1 = (iech1 >= 0) ? iech1 : _iechOut;
-        icas2 = (iech2 >= 0) ? 1 : 2;
-        jech2 = (iech2 >= 0) ? iech2 : _iechOut;
+        if (iech1 >= 0)
+        {
+          icas1 = 1;
+          jech1 = iech1;
+        }
+        else
+        {
+          icas1 = 2;
+          jech1 = _iechOut;
+        }
+        if (iech2 >= 0)
+        {
+          icas2 = 1;
+          jech2 = iech2;
+        }
+        else
+        {
+          icas2 = 2;
+          jech2 = _iechOut;
+        }
         break;
 
       case ECalcMember::E_RHS:
-        icas1 = (iech1 >= 0) ? 1 : 2;
-        jech1 = (iech1 >= 0) ? iech1 : _iechOut;
+        if (iech1 >= 0)
+        {
+          icas1 = 1;
+          jech1 = iech1;
+        }
+        else
+        {
+          icas1 = 2;
+          jech1 = _iechOut;
+        }
         icas2 = 2;
         jech2 = _iechOut;
         break;
@@ -660,7 +685,7 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
-      _addCOVTAB(ivar,jvar,value);
+      _addCOVTAB(ivar,jvar,nvar,value);
     }
   return;
 }
@@ -709,7 +734,7 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   /* Calculate the distance */
 
   double dist;
-  matrix_product(1, ndim, 1, dd.data(), dd.data(), &dist);
+  matrix_product_safe(1, ndim, 1, dd.data(), dd.data(), &dist);
   dist = sqrt(dist) / neighM->getRadius();
   double var = 0.;
   if (dist > neighM->getDistCont())
@@ -771,7 +796,7 @@ void KrigingSystem::_lhsCalcul()
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar));
+          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar, nvar));
 
           /* Correction due to measurement errors */
 
@@ -1001,7 +1026,7 @@ int KrigingSystem::_rhsCalcul()
     {
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
-          _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar));
+          _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar,nvar));
     }
     else
     {
@@ -1010,7 +1035,7 @@ int KrigingSystem::_rhsCalcul()
         {
           double value = 0.;
           for (int jvar = 0; jvar < nvar; jvar++)
-            value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar);
+            value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar, nvar);
           _setRHS(iech,ivar,jvarCL,value);
         }
     }
@@ -1138,7 +1163,7 @@ void KrigingSystem::_rhsDump()
 void KrigingSystem::_wgtCalcul()
 {
   int nvarCL = _getNVarCL();
-  matrix_product(_nred, _nred, nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
+  matrix_product_safe(_nred, _nred, nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1673,7 +1698,7 @@ void KrigingSystem::_variance0()
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar));
+        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar,nvar));
   }
   else
   {
@@ -1683,7 +1708,7 @@ void KrigingSystem::_variance0()
         double value = 0.;
         for (int ivar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar < nvar; jvar++)
-            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar) * _matCL[jvarCL][jvar];
+            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar, nvar) * _matCL[jvarCL][jvar];
         _setVAR0(ivarCL,jvarCL,value);
       }
   }
@@ -1778,20 +1803,19 @@ void KrigingSystem::_dual()
       if (nfeq <= 0)
         mean = _getMean(ivar);
       if (_flagBayes)
-        mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar,
-                                      _postMean.data());
+        mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
       zext[ecr++] = _getIvar(_nbgh[iech], ivar) - mean;
     }
   }
 
   /* Operate the product : Z * A-1 */
 
-  matrix_product(_nred, _nred, 1, _lhsinv.data(), zext.data(), _zam.data());
+  matrix_product_safe(_nred, _nred, 1, _lhsinv.data(), zext.data(), _zam.data());
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
-    matrix_product(1, _nred, 1, _zam.data(), zext.data(), &_lterm);
+    matrix_product_safe(1, _nred, 1, _zam.data(), zext.data(), &_lterm);
 
   // Turn back the flag to OFF in order to avoid provoking
   // the _dual() calculations again
@@ -2855,9 +2879,8 @@ int KrigingSystem::_getFLAG(int iech, int ivar) const
   }
   return _flag[ind];
 }
-double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
+double KrigingSystem::_getCOVTAB(int ivar,int jvar,int nvar) const
 {
-  int nvar = _getNVar();
   int iad = (jvar) * nvar + (ivar);
   if (_flagCheckAddress)
   {
@@ -2867,9 +2890,8 @@ double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
   }
   return _covtab[iad];
 }
-void KrigingSystem::_setCOVTAB(int ivar,int jvar,double value)
+void KrigingSystem::_setCOVTAB(int ivar,int jvar,int nvar,double value)
 {
-  int nvar = _getNVar();
   int iad = (jvar) * nvar + (ivar);
   if (_flagCheckAddress)
   {
@@ -2879,9 +2901,8 @@ void KrigingSystem::_setCOVTAB(int ivar,int jvar,double value)
   }
   _covtab[iad] = value;
 }
-void KrigingSystem::_addCOVTAB(int ivar,int jvar,double value)
+void KrigingSystem::_addCOVTAB(int ivar,int jvar,int nvar,double value)
 {
-  int nvar = _getNVar();
   int iad = (jvar) * nvar + (ivar);
   if (_flagCheckAddress)
    {
@@ -3338,16 +3359,18 @@ void KrigingSystem::_saveWeights(int status)
  * Returns the coordinates of the neighboring samples
  * @return Array organized by Coordinate (minor) then by Sample (major)
  */
-VectorDouble KrigingSystem::getSampleCoordinates() const
+VectorVectorDouble KrigingSystem::getSampleCoordinates() const
 {
   int ndim = getNDim();
   int nech = getNech();
 
-  VectorDouble xyz(ndim * nech);
-  int ecr = 0;
+  VectorVectorDouble xyz(ndim);
   for (int idim = 0; idim < ndim; idim++)
+  {
+    xyz[idim].resize(nech);
     for (int iech = 0; iech < nech; iech++)
-      xyz[ecr++] = _getIdim(_nbgh[iech], idim);
+      xyz[idim][iech] = _getIdim(_nbgh[iech], idim);
+  }
   return xyz;
 }
 
@@ -3442,7 +3465,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   /* Calculate: SMU = S-1 * MEAN */
 
-  matrix_product(nfeq, nfeq, 1, _postCov.data(), _priorMean.data(), smu.data());
+  matrix_product_safe(nfeq, nfeq, 1, _postCov.data(), _priorMean.data(), smu.data());
 
   /* Covariance matrix SIGMA */
 
@@ -3481,7 +3504,7 @@ int KrigingSystem::_bayesPreCalculations()
   /* Posterior mean: _postMean = SC * SMU */
 
   if (matrix_invert(_postCov.data(), nfeq, -1)) return 1;
-  matrix_product(nfeq, nfeq, 1, _postCov.data(), smu.data(), _postMean.data());
+  matrix_product_safe(nfeq, nfeq, 1, _postCov.data(), smu.data(), _postMean.data());
 
   if (OptDbg::query(EDbg::BAYES))
   {

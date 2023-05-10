@@ -19,6 +19,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
+#include <vector>
 #include <math.h>
 
 ACov::ACov(const ASpace* space)
@@ -98,8 +99,9 @@ double ACov::evalIvarIpas(double step,
                           const CovCalcMode& mode) const
 {
   // Define the point in the ACov space (center will be checked)
-  SpacePoint p1(center,getSpace());
-  SpacePoint p2(center,getSpace());
+  const ASpace* space = getSpace();
+  SpacePoint p1(center,space);
+  SpacePoint p2(center,space);
   VectorDouble dirloc(dir);
   if (dirloc.empty())
   {
@@ -683,6 +685,78 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     jech1++;
   }
   return mat;
+}
+
+
+VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
+                                      	    const Db* db2,
+										    int ivar,
+										    int jvar,
+										    const CovCalcMode& mode) const
+{
+  if (db2 == nullptr) db2 = db1;
+  int nechtot1 = db1->getSampleNumber(false);
+  int nechtot2 = db2->getSampleNumber(false);
+  int nech1 = db1->getSampleNumber(true);
+  int nech2 = db2->getSampleNumber(true);
+  VectorVectorDouble mat(nech1);
+  VectorVectorDouble work(nech2);
+  VectorDouble temp(nech2);
+
+  int ndim = getNDim();
+  for (auto &e :work)
+  {
+	  e = VectorDouble(ndim);
+  }
+
+  for (auto &e : mat)
+  {
+	  e = VectorDouble(nech2);
+  }
+
+  /* Loop on the first sample */
+
+
+  int jech2 = 0;
+  std::vector<SpacePoint> pvect(nech2);
+
+  for (int iech2 = 0; iech2 <nechtot2;iech2++)
+  {
+	  if (!db2->isActive(iech2)) continue;
+	  pvect[jech2] = SpacePoint(db2->getSampleCoordinates(iech2),getSpace());
+	  jech2++;
+  }
+
+  preProcess(pvect);
+
+  SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
+  SpacePoint pttr(db1->getSampleCoordinates(0),getSpace());
+
+
+  int jech1 = 0;
+  for (int iech1 = 0; iech1 < nechtot1; iech1++)
+  {
+    if (!db1->isActive(iech1)) continue;
+    for(int idim = 0;idim<ndim;idim++)
+    	p1.setCoord(idim,db1->getCoordinate(iech1, idim));
+    evalOptim(p1,mat[jech1],temp, work,pttr,ivar, jvar, mode);
+    jech1++;
+  }
+
+  cleanPreProcessInfo();
+  return mat;
+}
+
+
+void ACov::evalVect(VectorDouble& res,
+			  const SpacePoint& p1,
+              const std::vector<SpacePoint>& vec_p2,
+              int ivar,
+              int jvar,
+              const CovCalcMode& mode) const
+{
+	for(int i = 0; i<(int)res.size();i++)
+		res[i] = eval(p1,vec_p2[i],ivar,jvar,mode);
 }
 
 /**

@@ -169,7 +169,7 @@ bool CalcSimuPartition::_poisson()
   for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    dbgrid->getCoordinatesInPlace(iech, cen);
+    dbgrid->getCoordinatesPerSampleInPlace(iech, cen);
 
     /* Loop on the planes */
 

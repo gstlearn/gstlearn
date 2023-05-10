@@ -39,7 +39,6 @@ public:
 
   /// Return the space origin coordinates
   const VectorDouble& getOrigin() const { return _origin; }
-
   /// Return true if the given space is equal to me
   virtual bool isEqual(const ASpace* space) const;
 
@@ -58,6 +57,11 @@ public:
                              const SpacePoint& p2,
                              const Tensor& tensor) const = 0;
 
+  virtual void getDistanceOptim(const SpacePoint& p1,
+                               const std::vector<SpacePoint>& p2,
+							   VectorDouble& res,
+							   VectorVectorDouble& work) const{};
+
   /// Return the distance in frequential domain between two space points with the given tensor
   virtual double getFrequentialDistance(const SpacePoint& p1,
                                         const SpacePoint& p2,
@@ -67,10 +71,24 @@ public:
   virtual VectorDouble getIncrement(const SpacePoint& p1,
                                     const SpacePoint& p2) const = 0;
 
+  virtual void _getIncrementInPlace(const SpacePoint& p1,
+                                const SpacePoint& p2,VectorDouble& ptemp) const{}
+  void _getIncrementInPlaceVect(const SpacePoint& p1,
+		  	  	  	  	  	  	const std::vector<SpacePoint>& pv,
+							    VectorVectorDouble& res) const;
+
+
 protected:
   /// Number of space dimensions
   unsigned int _nDim;
   /// Coordinates of the origin (not a space point... ex: sphere center in a long/lat space)
   VectorDouble _origin;
+
+private:
+  virtual double _getDistance(const SpacePoint& p1,
+                            const SpacePoint& p2,
+							VectorDouble& ptemp,
+                            const Tensor& tensor,
+  							VectorDouble& temp) const{return TEST;};
 };
 

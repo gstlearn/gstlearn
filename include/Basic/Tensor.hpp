@@ -50,6 +50,8 @@ public:
 
   VectorDouble applyDirect (const VectorDouble& vec, int mode = 1) const;
   VectorDouble applyInverse(const VectorDouble& vec, int mode = 1) const;
+  void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;
+  void applyInverseInPlace(const double* vec,double* out) const;
 
 private:
   void _updateIsotropic();

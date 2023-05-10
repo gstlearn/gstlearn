@@ -362,6 +362,19 @@ VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int cou
   return coords;
 }
 
+VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const
+{
+  VectorVectorDouble coords(2);
+  coords[0].resize(2, 0.);
+  coords[1].resize(2, 0.);
+
+  coords[0][0] = target[0] - _radius * (1. + percent / 100.);
+  coords[0][1] = target[0] + _radius * (1. + percent / 100.);
+  coords[1][0] = target[1] - _radius * (1. + percent / 100.);
+  coords[1][1] = target[1] + _radius * (1. + percent / 100.);
+  return coords;
+}
+
 /**
  * Generate the end-points of the sectors. By default, the extension is set to radius
  * @param target Coordinates of the Target
