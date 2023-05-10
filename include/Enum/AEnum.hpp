@@ -51,8 +51,8 @@ public:
   bool operator==(const AEnum& e) const { return getValue() == e.getValue(); }
   bool operator!=(const AEnum& e) const { return !operator==(e); }
 
-  bool isSmaller       (const AEnum& e) const { return e <  *this; }  
-  bool isSmallerOrEqual(const AEnum& e) const { return e <= *this; }  
+  bool isSmaller       (const AEnum& e) const { return e <  *this; }
+  bool isSmallerOrEqual(const AEnum& e) const { return e <= *this; }
   bool isGreater       (const AEnum& e) const { return e >  *this; }
   bool isGreaterOrEqual(const AEnum& e) const { return e >= *this; }
   bool isEqual         (const AEnum& e) const { return e == *this; }
