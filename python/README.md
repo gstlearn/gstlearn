@@ -80,7 +80,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11-global* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11[global]* and *matplotlib* modules installed
 * *pypandoc*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
