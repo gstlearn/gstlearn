@@ -46,7 +46,6 @@ public:
   virtual void evalOptim(const SpacePoint& p1,
 						  VectorDouble& res,
 						  VectorDouble& temp,
-						  VectorVectorDouble& work,
 						  SpacePoint& pttr,
                           int ivar = 0,
                           int jvar = 0,

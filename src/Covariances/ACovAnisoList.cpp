@@ -153,7 +153,6 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
 void ACovAnisoList::evalOptim(const SpacePoint& p1,
 						   VectorDouble& res,
 						   VectorDouble& temp,
-						   VectorVectorDouble& work,
 						   SpacePoint& pttr,
                            int ivar,
                            int jvar,
@@ -163,7 +162,7 @@ void ACovAnisoList::evalOptim(const SpacePoint& p1,
 	  e=0;
   for (int i=0, n=getCovNumber(); i<n; i++)
     {
-      _covs[i]->evalOptim(p1, res,temp,work,pttr,ivar, jvar, mode);
+      _covs[i]->evalOptim(p1, res,temp,pttr,ivar, jvar, mode);
     }
 }
 
