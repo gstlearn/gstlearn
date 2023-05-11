@@ -61,7 +61,6 @@ public:
   virtual void 	preProcess(const std::vector<SpacePoint>& vec) const {};
   virtual void  cleanPreProcessInfo() const {}
 
-
   /////////////////////////////////////////////////////////////////////////////////
 
   MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;
@@ -173,11 +172,11 @@ public:
                                   int jvar = 0,
                                   const CovCalcMode& mode = CovCalcMode()) const;
 
- VectorVectorDouble evalCovMatrixOptim(const Db* db1,
-                                    const Db* db2 = nullptr,
-                                    int ivar = 0,
-                                    int jvar = 0,
-                                    const CovCalcMode& mode = CovCalcMode()) const;
+  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
+                                        const Db *db2 = nullptr,
+                                        int ivar = 0,
+                                        int jvar = 0,
+                                        const CovCalcMode &mode = CovCalcMode()) const;
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,

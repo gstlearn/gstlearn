@@ -100,11 +100,10 @@ private:
   double _getMean(int ivarCL) const;
   double _getCoefDrift(int ivar, int il, int ib) const;
   void   _getDistance(int loc_rank1, int loc_rank2, VectorDouble& dd) const;
-  int    _IND(int iech, int ivar,int nech) const;
   int    _getFLAG(int iech,int ivar) const;
-  double _getCOVTAB(int ivar,int jvar, int nvar) const;
-  void   _setCOVTAB(int ivar,int jvar,int nvar,double value);
-  void   _addCOVTAB(int ivar,int jvar,int nvar,double value);
+  double _getCOVTAB(int ivar,int jvar) const;
+  void   _setCOVTAB(int ivar,int jvar,double value);
+  void   _addCOVTAB(int ivar,int jvar,double value);
   void   _prodCOVTAB(int ivar,int jvar,double value);
   double _getRHS(int iech, int ivar, int jvCL) const;
   void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
@@ -123,8 +122,8 @@ private:
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
-  void _resetMemoryPerNeigh();
   void _resetMemoryGeneral();
+  void _resetMemoryPerNeigh();
   void _flagDefine();
   void _covtabInit();
   void _covtabCalcul(const ECalcMember &member,
@@ -132,13 +131,18 @@ private:
                      int iech1,
                      int iech2,
                      const VectorDouble& d1);
-  void _drftabCalcul(const ECalcMember &member, int iech);
+  int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
   void _lhsCalcul();
   void _lhsIsoToHetero();
   void _lhsDump(int nbypas = 5);
   int  _rhsCalcul();
+  void _rhsCalculPoint();
+  void _rhsCalculBlock();
+  void _rhsCalculDrift();
+  void _rhsCalculDGM();
+  void _rhsStore(int iech);
   void _rhsIsoToHetero();
   void _rhsDump();
   void _wgtCalcul();
@@ -268,6 +272,14 @@ private:
 
   /// Local variables
   int _iechOut;
+  int _ndim;
+  int _nvar;
+  int _nvarCL;
+  int _nech;
+  int _nbfl;
+  int _nfeq;
+  int _nfex;
+  int _neq;
   int _nred;
 
   /// Working arrays

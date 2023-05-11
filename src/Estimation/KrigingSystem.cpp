@@ -45,6 +45,8 @@
 #define FF0(ib,iv)        (ff0 [(ib) + nfeq * (iv)])
 #define SIGMA(ib,jb)      (sigma[(jb)    * shift + (ib)])
 #define SMEAN(i,isimu)    (_postSimu[isimu][i])
+#define IND(iech, ivar)   ((iech) + (ivar) * _nech)
+#define IJVAR(ivar,jvar)  ((ivar) + (jvar) * _nvar)
 
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
@@ -102,6 +104,14 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagNeighOnly(false),
       _iptrNeigh(-1),
       _iechOut(-1),
+      _ndim(0),
+      _nvar(0),
+      _nvarCL(0),
+      _nech(0),
+      _nbfl(0),
+      _nfeq(0),
+      _nfex(0),
+      _neq(0),
       _nred(0),
       _flagCheckAddress(false),
       _nbghWork(_dbin, _neighParam),
@@ -269,10 +279,7 @@ int KrigingSystem::_getNFex() const
 
 int KrigingSystem::getNeq() const
 {
-  int nech = getNech();
-  int nvar = _getNVar();
-  int nfeq = _getNFeq();
-  int neq = nvar * nech + nfeq;
+  int neq = _nvar * _nech + _nfeq;
   return neq;
 }
 
@@ -283,23 +290,27 @@ int KrigingSystem::_getNDisc() const
 
 void KrigingSystem::_resetMemoryPerNeigh()
 {
-  int nvarCL = _getNVarCL();
-  int neq    = getNeq();
-  _flag.resize(neq);
-  _lhs.resize (neq * neq);
-  _rhs.resize (neq * nvarCL);
-  _wgt.resize (neq * nvarCL);
-  _zam.resize (neq);
+  _nech = getNech();
+  _neq  = getNeq();
+  _flag.resize(_neq);
+  _lhs.resize (_neq * _neq);
+  _rhs.resize (_neq * _nvarCL);
+  _wgt.resize (_neq * _nvarCL);
+  _zam.resize (_neq);
 }
 
 void KrigingSystem::_resetMemoryGeneral()
 {
-  int nvar   = _getNVar();
-  int nvarCL = _getNVarCL();
-  int nbfl   = _getNbfl();
-  _covtab.resize(nvar * nvar);
-  _drftab.resize(nbfl);
-  _var0.resize(nvarCL * nvarCL);
+  _ndim   =  getNDim();
+  _nvar   = _getNVar();
+  _nvarCL = _getNVarCL();
+  _nbfl   = _getNbfl();
+  _nfeq   = _getNFeq();
+  _nfex   = _getNFex();
+
+  _covtab.resize(_nvar * _nvar);
+  _drftab.resize(_nbfl);
+  _var0.resize(_nvarCL * _nvarCL);
 }
 
 /****************************************************************************/
@@ -456,7 +467,7 @@ double KrigingSystem::_getMean(int ivarCL) const
   }
   else
   {
-    int nvar = _getNVar();
+    int nvar = _nvar;
     for (int ivar = 0; ivar < nvar; ivar++)
     {
       value += _matCL[ivarCL][ivar] * _model->getMean(ivar);
@@ -472,13 +483,13 @@ double KrigingSystem::_getCoefDrift(int ivar, int il, int ib) const
 
 void KrigingSystem::_setFlag(int iech, int ivar, int value)
 {
-  int nech = getNech();
+  int nech = _nech;
   _flag[iech + ivar * nech]= value;
 }
 
 int KrigingSystem::_getFlag(int iech, int ivar)
 {
-  int nech = getNech();
+  int nech = _nech;
   return _flag[iech + ivar * nech];
 }
 
@@ -490,13 +501,13 @@ int KrigingSystem::_getFlag(int iech, int ivar)
  *****************************************************************************/
 void KrigingSystem::_flagDefine()
 {
-  int nech = getNech();
-  int nvar = _getNVar();
-  int nfeq = _getNFeq();
-  int nbfl = _getNbfl();
-  int next = _getNFex();
-  int neq  = getNeq();
-  int ndim = getNDim();
+  int nech = _nech;
+  int nvar = _nvar;
+  int nfeq = _nfeq;
+  int nbfl = _nbfl;
+  int next = _nfex;
+  int neq  = _neq;
+  int ndim = _ndim;
   for (int i = 0; i < neq; i++) _flag[i] = 1;
 
   /* Check on the coordinates */
@@ -565,9 +576,9 @@ void KrigingSystem::_flagDefine()
  *****************************************************************************/
 bool KrigingSystem::_isAuthorized()
 {
-  int nech = getNech();
-  int nvar = _getNVar();
-  int nfeq = _getNFeq();
+  int nech = _nech;
+  int nvar = _nvar;
+  int nfeq = _nfeq;
 
   /* Preliminary check */
 
@@ -590,7 +601,7 @@ bool KrigingSystem::_isAuthorized()
 
 void KrigingSystem::_covtabInit()
 {
-  int nvar = _getNVar();
+  int nvar = _nvar;
   for (int i = 0; i < nvar * nvar; i++) _covtab[i] = 0.;
 }
 
@@ -680,12 +691,12 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
-  int nvar = _getNVar();
+  int nvar = _nvar;
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
-      _addCOVTAB(ivar,jvar,nvar,value);
+      _addCOVTAB(ivar,jvar,value);
     }
   return;
 }
@@ -709,7 +720,7 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   if (_neighParam == nullptr) return (0.);
   if (_neighParam->getType() != ENeigh::MOVING) return (0.);
   const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
-  int ndim = getNDim();
+  int ndim = _ndim;
   VectorDouble dd(ndim);
 
   /* Calculate the distance increment */
@@ -746,7 +757,7 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   return (var);
 }
 
-void KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
+int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
 {
   const Db* db;
   int jech;
@@ -762,8 +773,11 @@ void KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
   }
   VectorDouble drft = _model->evalDriftVec(db, jech, member);
   for (int il = 0; il < (int) drft.size(); il++)
+  {
+    if (FFFF(drft[il])) return 1;
     _drftab[il] = drft[il];
-  return;
+  }
+  return 0;
 }
 
 /****************************************************************************/
@@ -773,12 +787,12 @@ void KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
  *****************************************************************************/
 void KrigingSystem::_lhsCalcul()
 {
-  int nech   = getNech();
-  int nvar   = _getNVar();
-  int nfeq   = _getNFeq();
-  int nbfl   = _getNbfl();
-  int neq    = getNeq();
-  int ndim   = getNDim();
+  int nech   = _nech;
+  int nvar   = _nvar;
+  int nfeq   = _nfeq;
+  int nbfl   = _nbfl;
+  int neq    = _neq;
+  int ndim   = _ndim;
   for (int i = 0; i < neq * neq; i++) _lhs[i] = 0.;
   VectorDouble d1(ndim);
 
@@ -796,7 +810,7 @@ void KrigingSystem::_lhsCalcul()
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar, nvar));
+          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar));
 
           /* Correction due to measurement errors */
 
@@ -833,7 +847,7 @@ void KrigingSystem::_lhsCalcul()
   if (nfeq <= 0 || nbfl <= 0) return;
   for (int iech = 0; iech < nech; iech++)
   {
-    _drftabCalcul(ECalcMember::LHS, _nbgh[iech]);
+    (void) _drftabCalcul(ECalcMember::LHS, _nbgh[iech]);
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int ib = 0; ib < nfeq; ib++)
       {
@@ -848,9 +862,8 @@ void KrigingSystem::_lhsCalcul()
 }
 
 void KrigingSystem::_lhsIsoToHetero()
-
 {
-  int neq = getNeq();
+  int neq = _neq;
   int lec_lhs = 0;
   int ecr_lhs = 0;
   for (int i = 0; i < neq; i++)
@@ -864,7 +877,7 @@ void KrigingSystem::_lhsIsoToHetero()
 
 VectorInt KrigingSystem::_getRelativePosition()
 {
-  int neq = getNeq();
+  int neq = _neq;
   VectorInt rel(neq);
   int j = 0;
   for (int i = 0; i < neq; i++)
@@ -879,8 +892,8 @@ VectorInt KrigingSystem::_getRelativePosition()
 
 void KrigingSystem::_lhsDump(int nbypas)
 {
-  int nech = getNech();
-  int neq = getNeq();
+  int nech = _nech;
+  int neq = _neq;
   VectorInt rel = _getRelativePosition();
   int npass = (_nred - 1) / nbypas + 1;
 
@@ -951,6 +964,123 @@ int KrigingSystem::_lhsInvert()
   return 0;
 }
 
+void KrigingSystem::_rhsStore(int iech)
+{
+  if (_isMatCLempty())
+  {
+    for (int ivar = 0; ivar < _nvar; ivar++)
+      for (int jvar = 0; jvar < _nvar; jvar++)
+        _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar));
+  }
+  else
+  {
+    for (int jvarCL = 0; jvarCL < _nvarCL; jvarCL++)
+      for (int ivar = 0; ivar < _nvar; ivar++)
+      {
+        double value = 0.;
+        for (int jvar = 0; jvar < _nvar; jvar++)
+          value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar);
+        _setRHS(iech,ivar,jvarCL,value);
+      }
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the kriging R.H.S (for Point Estimation)
+ **
+ *****************************************************************************/
+void KrigingSystem::_rhsCalculPoint()
+{
+  VectorDouble d1(_ndim);
+  CovCalcMode mode(ECalcMember::RHS);
+
+  /* Establish the covariance part */
+
+  for (int iech = 0; iech < _nech; iech++)
+  {
+    _covtabInit();
+    _getDistance(-1, _nbgh[iech], d1);
+    _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
+    _rhsStore(iech);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the kriging R.H.S (block)
+ **
+ *****************************************************************************/
+void KrigingSystem::_rhsCalculBlock()
+{
+  VectorDouble d1(_ndim);
+  CovCalcMode mode(ECalcMember::RHS);
+
+  /* Establish the covariance part */
+
+  for (int iech = 0; iech < _nech; iech++)
+  {
+    _covtabInit();
+    if (_flagPerCell) _blockDiscretize();
+    int nscale = _getNDisc();
+    for (int i = 0; i < nscale; i++)
+    {
+      _getDistance(-1, _nbgh[iech], d1);
+      for (int idim = 0; idim < _ndim; idim++)
+        d1[idim] += _getDISC1(i, idim);
+      _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
+    }
+
+    // Normalization
+    if (nscale > 1)
+    {
+      double ratio = 1. / (double) nscale;
+      for (int ivar = 0; ivar < _nvar; ivar++)
+        for (int jvar = 0; jvar < _nvar; jvar++)
+          _prodCOVTAB(ivar, jvar, ratio);
+    }
+
+    _rhsStore(iech);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the kriging R.H.S (Drift case)
+ **
+ *****************************************************************************/
+void KrigingSystem::_rhsCalculDrift()
+{
+  /* Establish the covariance part */
+
+  for (int iech = 0; iech < _nech; iech++)
+  {
+    _covtabInit();
+    _rhsStore(iech);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the kriging R.H.S (DGM case)
+ **
+ *****************************************************************************/
+void KrigingSystem::_rhsCalculDGM()
+{
+  VectorDouble d1(_ndim);
+  CovCalcMode mode(ECalcMember::RHS);
+
+  /* Establish the covariance part */
+
+  for (int iech = 0; iech < _nech; iech++)
+  {
+    _covtabInit();
+    _getDistance(-1, _nbgh[iech], d1);
+    _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
+    _rhsStore(iech);
+  }
+}
+
 /****************************************************************************/
 /*!
  **  Establish the kriging R.H.S
@@ -962,117 +1092,65 @@ int KrigingSystem::_lhsInvert()
  *****************************************************************************/
 int KrigingSystem::_rhsCalcul()
 {
-  double nscale = 1;
-  int nech   = getNech();
-  int nvar   = _getNVar();
-  int nvarCL = _getNVarCL();
-  int nbfl   = _getNbfl();
-  int nfeq   = _getNFeq();
-  int ndim   = getNDim();
-  int ndisc  = _getNDisc();
-  VectorDouble d1(ndim);
-
-  CovCalcMode mode(ECalcMember::RHS);
 
   /* Establish the covariance part */
 
-  for (int iech = 0; iech < nech; iech++)
+  switch (_calcul.toEnum())
   {
-    _covtabInit();
-    switch (_calcul.toEnum())
+    case EKrigOpt::E_POINT:
     {
-      case EKrigOpt::E_POINT:
-        nscale = 1;
-        _getDistance(-1, _nbgh[iech], d1);
-        _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
-        break;
-
-      case EKrigOpt::E_BLOCK:
-        if (_flagPerCell) _blockDiscretize();
-        nscale = ndisc;
-        for (int i = 0; i < nscale; i++)
-        {
-          _getDistance(-1, _nbgh[iech], d1);
-          for (int idim = 0; idim < ndim; idim++) d1[idim] += _getDISC1(i, idim);
-          _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
-        }
-        break;
-
-      case EKrigOpt::E_DRIFT:
-        nscale = 1;
-        _covtabInit();
-        break;
-
-      case EKrigOpt::E_DGM:
-        nscale = 1;
-        _getDistance(-1, _nbgh[iech], d1);
-        _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
-        break;
+      _rhsCalculPoint();
+      break;
     }
 
-    /* Normalization */
-
-    if (nscale != 1)
+    case EKrigOpt::E_BLOCK:
     {
-      double ratio = 1. / (double) nscale;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar < nvar; jvar++)
-          _prodCOVTAB(ivar,jvar,ratio);
+      _rhsCalculBlock();
+      break;
     }
 
-    /* Storage */
-
-    if (_isMatCLempty())
+    case EKrigOpt::E_DRIFT:
     {
-      for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar < nvar; jvar++)
-          _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar,nvar));
+      _rhsCalculDrift();
+      break;
     }
-    else
+
+    case EKrigOpt::E_DGM:
     {
-      for (int jvarCL = 0; jvarCL < nvarCL; jvarCL++)
-        for (int ivar = 0; ivar < nvar; ivar++)
-        {
-          double value = 0.;
-          for (int jvar = 0; jvar < nvar; jvar++)
-            value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar, nvar);
-          _setRHS(iech,ivar,jvarCL,value);
-        }
+      _rhsCalculDGM();
+      break;
     }
   }
 
   /* Establish the drift part */
 
-  if (nfeq <= 0) return 0;
+  if (_nfeq <= 0) return 0;
 
-  _drftabCalcul(ECalcMember::RHS, -1);
-  for (int il = 0; il < nbfl; il++)
-    if (FFFF(_drftab[il])) return 1;
-
+  if (_drftabCalcul(ECalcMember::RHS, -1)) return 1;
   if (_isMatCLempty())
   {
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int ib = 0; ib < nfeq; ib++)
+    for (int ivar = 0; ivar < _nvar; ivar++)
+      for (int ib = 0; ib < _nfeq; ib++)
       {
         double value = 0.;
-        for (int il = 0; il < nbfl; il++)
+        for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getCoefDrift(ivar, il, ib);
-        _setRHS(ib,nvar,ivar,value,true);
+        _setRHS(ib,_nvar,ivar,value,true);
       }
   }
   else
   {
-    for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
       int ib = 0;
-      for (int jvar = 0; jvar < nvar; jvar++)
-        for (int jl = 0; jl < nbfl; jl++, ib++)
+      for (int jvar = 0; jvar < _nvar; jvar++)
+        for (int jl = 0; jl < _nbfl; jl++, ib++)
         {
           double value = 0.;
-          for (int il = 0; il < nbfl; il++)
+          for (int il = 0; il < _nbfl; il++)
             value += _drftab[il] * _getCoefDrift(jvar, il, ib);
           value *= _matCL[ivarCL][jvar];
-          _setRHS(ib,nvar,ivarCL,value,true);
+          _setRHS(ib,_nvar,ivarCL,value,true);
         }
     }
   }
@@ -1081,8 +1159,8 @@ int KrigingSystem::_rhsCalcul()
 
 void KrigingSystem::_rhsIsoToHetero()
 {
-  int nvarCL = _getNVarCL();
-  int neq    = getNeq();
+  int nvarCL = _nvarCL;
+  int neq    = _neq;
 
   int lec_rhs = 0;
   int ecr_rhs = 0;
@@ -1097,10 +1175,10 @@ void KrigingSystem::_rhsIsoToHetero()
 
 void KrigingSystem::_rhsDump()
 {
-  int nech   = getNech();
-  int neq    = getNeq();
-  int nvarCL = _getNVarCL();
-  int ndim   = getNDim();
+  int nech   = _nech;
+  int neq    = _neq;
+  int nvarCL = _nvarCL;
+  int ndim   = _ndim;
   VectorInt rel = _getRelativePosition();
 
   /* General Header */
@@ -1162,16 +1240,16 @@ void KrigingSystem::_rhsDump()
 
 void KrigingSystem::_wgtCalcul()
 {
-  int nvarCL = _getNVarCL();
+  int nvarCL = _nvarCL;
   matrix_product_safe(_nred, _nred, nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
 }
 
 void KrigingSystem::_wgtDump(int status)
 {
-  int nech   = getNech();
-  int ndim   = getNDim();
+  int nech   = _nech;
+  int ndim   = _ndim;
   int nvarCL = _getNVarCL();
-  int nfeq   = _getNFeq();
+  int nfeq   = _nfeq;
   int ndisc  = _getNDisc();
   VectorDouble sum(nvarCL);
   char string[20];
@@ -1301,9 +1379,9 @@ void KrigingSystem::_wgtDump(int status)
  *****************************************************************************/
 void KrigingSystem::_simulateCalcul(int status)
 {
-  int nech = getNech();
-  int nvar = _getNVar();
-  int nfeq = _getNFeq();
+  int nech = _nech;
+  int nvar = _nvar;
+  int nfeq = _nfeq;
 
   /* Simulation */
 
@@ -1365,9 +1443,9 @@ void KrigingSystem::_simulateCalcul(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateCalcul(int status)
 {
-  int nech   =  getNech();
-  int nfeq   = _getNFeq();
-  int nvarCL = _getNVarCL();
+  int nech   = _nech;
+  int nfeq   = _nfeq;
+  int nvarCL = _nvarCL;
 
   /* Estimation */
 
@@ -1509,11 +1587,11 @@ void KrigingSystem::_estimateCalculImage(int status)
 {
   if (! _flagEst) return;
 
-  int ndim   = getNDim();
-  int nech   = getNech();
-  int nfeq   = _getNFeq();
-  int neq    = getNeq();
-  int nvar   = _getNVar();
+  int ndim   = _ndim;
+  int nech   = _nech;
+  int nfeq   = _nfeq;
+  int neq    = _neq;
+  int nvar   = _nvar;
   const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
   VectorInt indn0(ndim);
@@ -1573,7 +1651,7 @@ void KrigingSystem::_estimateCalculImage(int status)
 
 void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 {
-  int nfeq  = _getNFeq();
+  int nfeq  = _nfeq;
   int iech  = _iechOut;
   int iiech = _getFlagAddress(iech, 0);
 
@@ -1627,7 +1705,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
  *****************************************************************************/
 double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
 {
-  int nfeq = _getNFeq();
+  int nfeq = _nfeq;
   int cumflag = _nred - nfeq;
 
   double var = 0.;
@@ -1646,11 +1724,9 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  int nscale = 1;
-  int nvar   = _getNVar();
-  int nvarCL = _getNVarCL();
-  int ndim   = getNDim();
-  int ndisc  = _getNDisc();
+  int nvar   = _nvar;
+  int nvarCL = _nvarCL;
+  int ndim   = _ndim;
   VectorDouble d1(ndim, 0.);
 
   CovCalcMode mode(ECalcMember::VAR);
@@ -1659,12 +1735,12 @@ void KrigingSystem::_variance0()
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      nscale = 1;
       _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
       break;
 
     case EKrigOpt::E_BLOCK:
-      nscale = ndisc;
+    {
+      int nscale = _getNDisc();
       for (int i = 0; i < nscale; i++)
         for (int j = 0; j < nscale; j++)
         {
@@ -1672,25 +1748,23 @@ void KrigingSystem::_variance0()
             d1[idim] = _getDISC1(i, idim) - _getDISC2(j,idim);
           _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
        }
-      nscale = nscale * nscale;
+
+      /* Normalization */
+      double ratio = 1. / (double) (nscale * nscale);
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          _prodCOVTAB(ivar,jvar,ratio);
+
       break;
+    }
 
     case EKrigOpt::E_DRIFT:
-      nscale = 1;
       break;
 
     case EKrigOpt::E_DGM:
-      nscale = 1;
       _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
       break;
   }
-
-  /* Normalization */
-
-  double ratio = 1. / (double) nscale;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      _prodCOVTAB(ivar,jvar,ratio);
 
   /* Storage */
 
@@ -1698,7 +1772,7 @@ void KrigingSystem::_variance0()
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar,nvar));
+        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar));
   }
   else
   {
@@ -1708,7 +1782,7 @@ void KrigingSystem::_variance0()
         double value = 0.;
         for (int ivar = 0; ivar < nvar; ivar++)
           for (int jvar = 0; jvar < nvar; jvar++)
-            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar, nvar) * _matCL[jvarCL][jvar];
+            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar) * _matCL[jvarCL][jvar];
         _setVAR0(ivarCL,jvarCL,value);
       }
   }
@@ -1725,7 +1799,7 @@ void KrigingSystem::_variance0()
  *****************************************************************************/
 double KrigingSystem::_variance(int ivarCL, int jvarCL)
 {
-  int nvarCL = _getNVarCL();
+  int nvarCL = _nvarCL;
 
   // The Variance at origin must be updated
   // - in Non-stationary case
@@ -1782,9 +1856,9 @@ int KrigingSystem::_prepar()
  *****************************************************************************/
 void KrigingSystem::_dual()
 {
-  int nech = getNech();
-  int nvar = _getNVar();
-  int nfeq = _getNFeq();
+  int nech = _nech;
+  int nvar = _nvar;
+  int nfeq = _nfeq;
 
   /* Set the whole array to 0 */
 
@@ -1869,7 +1943,7 @@ int KrigingSystem::estimate(int iech_out)
   }
 
   // In case of Image Neighborhood, the neighboring samples have already
-  // been selected (in isReady(). No need to compute them again.
+  // been selected in isReady(). No need to compute them again.
   bool skipCalculAll = false;
   if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE) skipCalculAll = true;
 
@@ -1899,7 +1973,7 @@ int KrigingSystem::estimate(int iech_out)
 
   if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
   _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
-  status = (getNech() <= 0);
+  status = ((int) _nbgh.size() <= 0);
   if (_flagNeighOnly) goto label_store;
   if (status) goto label_store;
 
@@ -2024,7 +2098,7 @@ void KrigingSystem::_krigingDump(int status)
 
   /* Loop on the results */
 
-  int nvar = _getNVar();
+  int nvar = _nvar;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     if (_neighParam->getFlagXvalid())
@@ -2124,7 +2198,7 @@ void KrigingSystem::_krigingDump(int status)
 
 void KrigingSystem::_simulateDump(int status)
 {
-  int nvar = _getNVar();
+  int nvar = _nvar;
 
   mestitle(0, "Simulation results");
 
@@ -2195,7 +2269,7 @@ int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
 
 void KrigingSystem::_blockDiscretize()
 {
-  int ndim = getNDim();
+  int ndim = _ndim;
   int ntot = _getNDisc();
   int memo = law_get_random_seed();
   law_set_random_seed(1234546);
@@ -2228,7 +2302,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     bool flag_per_cell)
 {
   _isReady = false;
-  int ndim = getNDim();
+  int ndim = _ndim;
   _calcul = calcul;
   _flagPerCell = false;
   if (_calcul == EKrigOpt::BLOCK)
@@ -2863,108 +2937,99 @@ bool KrigingSystem::_isCorrect()
 
 // Shortcuts for addressing functions
 
-int KrigingSystem::_IND(int iech, int ivar, int nech) const
-{
-  return   ((iech) + (ivar) * nech);
-}
 int KrigingSystem::_getFLAG(int iech, int ivar) const
 {
-  int nech = getNech();
-  int ind  = _IND(iech, ivar, nech);
+  int ind = IND(iech, ivar);
   if (_flagCheckAddress)
   {
-    _checkAddress("_getFLAG","iech",iech,getNech());
-    _checkAddress("_getFLAG","ivar",ivar,_getNVar());
+    _checkAddress("_getFLAG","iech",iech,_nech);
+    _checkAddress("_getFLAG","ivar",ivar,_nvar);
     _checkAddress("_getFLAG","address",ind,(int) _flag.size());
   }
   return _flag[ind];
 }
-double KrigingSystem::_getCOVTAB(int ivar,int jvar,int nvar) const
+double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
-  int iad = (jvar) * nvar + (ivar);
+  int iad = IJVAR(ivar, jvar);
   if (_flagCheckAddress)
   {
-    _checkAddress("_getCOVTAB","ivar",ivar,_getNVar());
-    _checkAddress("_getCOVTAB","jvar",jvar,_getNVar());
+    _checkAddress("_getCOVTAB","ivar",ivar,_nvar);
+    _checkAddress("_getCOVTAB","jvar",jvar,_nvar);
     _checkAddress("_getCOVTAB","address",iad,(int) _covtab.size());
   }
   return _covtab[iad];
 }
-void KrigingSystem::_setCOVTAB(int ivar,int jvar,int nvar,double value)
+void KrigingSystem::_setCOVTAB(int ivar,int jvar,double value)
 {
-  int iad = (jvar) * nvar + (ivar);
+  int iad = IJVAR(ivar,jvar);
   if (_flagCheckAddress)
   {
-    _checkAddress("_setCOVTAB","ivar",ivar,_getNVar());
-    _checkAddress("_setCOVTAB","jvar",jvar,_getNVar());
+    _checkAddress("_setCOVTAB","ivar",ivar,_nvar);
+    _checkAddress("_setCOVTAB","jvar",jvar,_nvar);
     _checkAddress("_setCOVTAB","address",iad,(int) _covtab.size());
   }
   _covtab[iad] = value;
 }
-void KrigingSystem::_addCOVTAB(int ivar,int jvar,int nvar,double value)
+void KrigingSystem::_addCOVTAB(int ivar,int jvar,double value)
 {
-  int iad = (jvar) * nvar + (ivar);
+  int iad = IJVAR(ivar,jvar);
   if (_flagCheckAddress)
    {
-     _checkAddress("_addCOVTAB","ivar",ivar,_getNVar());
-     _checkAddress("_addCOVTAB","jvar",jvar,_getNVar());
+     _checkAddress("_addCOVTAB","ivar",ivar,_nvar);
+     _checkAddress("_addCOVTAB","jvar",jvar,_nvar);
      _checkAddress("_addCOVTAB","address",iad,(int) _covtab.size());
    }
   _covtab[iad] += value;
 }
 void KrigingSystem::_prodCOVTAB(int ivar,int jvar,double value)
 {
-  int nvar = _getNVar();
-  int iad = (jvar) * nvar + (ivar);
+  int iad = IJVAR(ivar,jvar);
   if (_flagCheckAddress)
    {
-     _checkAddress("_prodCOVTAB","ivar",ivar,_getNVar());
-     _checkAddress("_prodCOVTAB","jvar",jvar,_getNVar());
+     _checkAddress("_prodCOVTAB","ivar",ivar,_nvar);
+     _checkAddress("_prodCOVTAB","jvar",jvar,_nvar);
      _checkAddress("_prodCOVTAB","address",iad,(int) _covtab.size());
    }
   _covtab[iad] *= value;
 }
 double KrigingSystem::_getRHS(int iech, int ivar, int jvCL) const
 {
-  int nech = getNech();
-  int neq  = getNeq();
-  int ind  = _IND(iech, ivar, nech);
+  int neq  = _neq;
+  int ind  = IND(iech, ivar);
   int iad  = ind + neq * (jvCL);
   if (_flagCheckAddress)
   {
-    _checkAddress("_getRHS","iech",iech, getNech());
-    _checkAddress("_getRHS","ivar",ivar,_getNVar());
-    _checkAddress("_getRHS","jvCL",jvCL,_getNVarCL());
+    _checkAddress("_getRHS","iech",iech, _nech);
+    _checkAddress("_getRHS","ivar",ivar,_nvar);
+    _checkAddress("_getRHS","jvCL",jvCL,_nvarCL);
     _checkAddress("_getRHS","address",iad,(int) _rhs.size());
   }
   return _rhs[iad];
 }
 void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift)
 {
-  int nech = getNech();
-  int neq = getNeq();
-  int ind = _IND(iech,ivar,nech);
-  int iad = ind + neq * (jvCL);
+  int ind  = IND(iech,ivar);
+  int iad  = ind + _neq * jvCL;
   if (_flagCheckAddress)
   {
     if (isForDrift)
     {
-      if (ivar == _getNVar())
+      if (ivar == _nvar)
       {
-        _checkAddress("_setRHS","ib",iech,_getNFeq());
+        _checkAddress("_setRHS", "ib", iech, _nfeq);
       }
       else
       {
-        _checkAddress("_setRHS", "iech", iech, getNech());
-        _checkAddress("_setRHS", "ivar", ivar, _getNVar());
+        _checkAddress("_setRHS", "iech", iech, _nech);
+        _checkAddress("_setRHS", "ivar", ivar, _nvar);
       }
     }
     else
     {
-      _checkAddress("_setRHS", "iech", iech, getNech());
-      _checkAddress("_setRHS", "ivar", ivar, _getNVar());
+      _checkAddress("_setRHS", "iech", iech, _nech);
+      _checkAddress("_setRHS", "ivar", ivar, _nvar);
     }
-    _checkAddress("_setRHS", "jvCL", jvCL, _getNVarCL());
+    _checkAddress("_setRHS", "jvCL", jvCL, _nvarCL);
     _checkAddress("_setRHS","address",iad, (int) _rhs.size());
   }
   _rhs[iad] = value;
@@ -2975,7 +3040,7 @@ double KrigingSystem::_getRHSC(int i, int jvCL) const
   if (_flagCheckAddress)
   {
     _checkAddress("_getRHSC","i",i,_nred);
-    _checkAddress("_getRHSC","jvCL",jvCL,_getNVarCL());
+    _checkAddress("_getRHSC","jvCL",jvCL,_nvarCL);
     _checkAddress("_getRHSC","address",iad, (int) _rhs.size());
   }
   return _rhs[iad];
@@ -2986,7 +3051,7 @@ double KrigingSystem::_getWGTC(int i,int jvCL) const
   if (_flagCheckAddress)
   {
     _checkAddress("_getWGTC","i",i,_nred);
-    _checkAddress("_getWGTC","jvCL",jvCL,_getNVarCL());
+    _checkAddress("_getWGTC","jvCL",jvCL,_nvarCL);
     _checkAddress("_getWGTC","address",iad, (int) _wgt.size());
   }
   return _wgt[iad];
@@ -3005,41 +3070,39 @@ double KrigingSystem::_getWGTC(int i,int jvCL) const
  */
 void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift)
 {
-  int nech = getNech();
-  int neq  = getNeq();
-  int indi = _IND(iech, ivar, nech);
-  int indj = _IND(jech, jvar, nech);
-  int iad  = indi + neq * indj;
+  int indi = IND(iech, ivar);
+  int indj = IND(jech, jvar);
+  int iad  = indi + _neq * indj;
 
   if (_flagCheckAddress)
   {
     if (isForDrift)
     {
-      if (ivar == _getNVar())
+      if (ivar == _nvar)
       {
-        _checkAddress("_setLHS","ib",iech,_getNFeq());
+        _checkAddress("_setLHS","ib",iech,_nfeq);
       }
       else
       {
-        _checkAddress("_setLHS","iech",iech,getNech());
-        _checkAddress("_setLHS","ivar",ivar,_getNVar());
+        _checkAddress("_setLHS","iech",iech,_nech);
+        _checkAddress("_setLHS","ivar",ivar,_nvar);
       }
-      if (jvar == _getNVar())
+      if (jvar == _nvar)
       {
-        _checkAddress("_setLHS","jb",jech,_getNFeq());
+        _checkAddress("_setLHS","jb",jech,_nfeq);
       }
       else
       {
-        _checkAddress("_setLHS","jech",jech,getNech());
-        _checkAddress("_setLHS","jvar",jvar,_getNVar());
+        _checkAddress("_setLHS","jech",jech,_nech);
+        _checkAddress("_setLHS","jvar",jvar,_nvar);
       }
     }
     else
     {
-      _checkAddress("_setLHS","iech",iech,getNech());
-      _checkAddress("_setLHS","ivar",ivar,_getNVar());
-      _checkAddress("_setLHS","jech",jech,getNech());
-      _checkAddress("_setLHS","jvar",jvar,_getNVar());
+      _checkAddress("_setLHS","iech",iech,_nech);
+      _checkAddress("_setLHS","ivar",ivar,_nvar);
+      _checkAddress("_setLHS","jech",jech,_nech);
+      _checkAddress("_setLHS","jvar",jvar,_nvar);
     }
     _checkAddress("_setLHS","address",iad, (int) _lhs.size());
   }
@@ -3047,53 +3110,50 @@ void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value
 }
 void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value)
 {
-  int nech = getNech();
-  int neq  = getNeq();
-  int indi = _IND(iech, ivar, nech);
-  int indj = _IND(jech, jvar, nech);
+  int neq  = _neq;
+  int indi = IND(iech, ivar);
+  int indj = IND(jech, jvar);
   int iad  = indi + neq * indj;
   if (_flagCheckAddress)
   {
-    _checkAddress("_addLHS","iech",iech,getNech());
-    _checkAddress("_addLHS","ivar",ivar,_getNVar());
-    _checkAddress("_addLHS","jech",jech,getNech());
-    _checkAddress("_addLHS","jvar",jvar,_getNVar());
+    _checkAddress("_addLHS","iech",iech,_nech);
+    _checkAddress("_addLHS","ivar",ivar,_nvar);
+    _checkAddress("_addLHS","jech",jech,_nech);
+    _checkAddress("_addLHS","jvar",jvar,_nvar);
     _checkAddress("_addLHS","address",iad, (int) _lhs.size());
   }
   _lhs[iad] += value;
 }
 void KrigingSystem::_prodLHS(int iech, int ivar, int jech, int jvar, double value)
 {
-  int nech = getNech();
-  int neq  = getNeq();
-  int indi = _IND(iech, ivar, nech);
-  int indj = _IND(jech, jvar, nech);
+  int neq  = _neq;
+  int indi = IND(iech, ivar);
+  int indj = IND(jech, jvar);
   int iad  = indi + neq * indj;
 
   if (_flagCheckAddress)
   {
-    _checkAddress("_prodLHS","iech",iech,getNech());
-    _checkAddress("_prodLHS","ivar",ivar,_getNVar());
-    _checkAddress("_prodLHS","jech",jech,getNech());
-    _checkAddress("_prodLHS","jvar",jvar,_getNVar());
+    _checkAddress("_prodLHS","iech",iech,_nech);
+    _checkAddress("_prodLHS","ivar",ivar,_nvar);
+    _checkAddress("_prodLHS","jech",jech,_nech);
+    _checkAddress("_prodLHS","jvar",jvar,_nvar);
     _checkAddress("_prodLHS","address",iad, (int) _lhs.size());
   }
   _lhs[iad] *= value;
 }
 double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
 {
-  int nech = getNech();
-  int neq  = getNeq();
-  int indi = _IND(iech, ivar, nech);
-  int indj = _IND(jech, jvar, nech);
+  int neq  = _neq;
+  int indi = IND(iech, ivar);
+  int indj = IND(jech, jvar);
   int iad  = indi + neq * indj;
 
   if (_flagCheckAddress)
   {
-    _checkAddress("_getLHS","iech",iech,getNech());
-    _checkAddress("_getLHS","ivar",ivar,_getNVar());
-    _checkAddress("_getLHS","jech",jech,getNech());
-    _checkAddress("_getLHS","jvar",jvar,_getNVar());
+    _checkAddress("_getLHS","iech",iech,_nech);
+    _checkAddress("_getLHS","ivar",ivar,_nvar);
+    _checkAddress("_getLHS","jech",jech,_nech);
+    _checkAddress("_getLHS","jvar",jvar,_nvar);
     _checkAddress("_getLHS","address",iad, (int) _lhs.size());
   }
   return _lhs[iad];
@@ -3112,18 +3172,17 @@ double KrigingSystem::_getLHSC(int i, int j) const
 }
 double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
 {
-  int nech = getNech();
-  int neq  = getNeq();
-  int indi = _IND(iech, ivar, nech);
-  int indj = _IND(jech, jvar, nech);
+  int neq  = _neq;
+  int indi = IND(iech, ivar);
+  int indj = IND(jech, jvar);
   int iad  = indi + neq * indj;
 
   if (_flagCheckAddress)
   {
-    _checkAddress("_getLHSINV","iech",iech,getNech());
-    _checkAddress("_getLHSINV","ivar",ivar,_getNVar());
-    _checkAddress("_getLHSINV","jech",jech,getNech());
-    _checkAddress("_getLHSINV","jvar",jvar,_getNVar());
+    _checkAddress("_getLHSINV","iech",iech,_nech);
+    _checkAddress("_getLHSINV","ivar",ivar,_nvar);
+    _checkAddress("_getLHSINV","jech",jech,_nech);
+    _checkAddress("_getLHSINV","jvar",jvar,_nvar);
     _checkAddress("_getLHSINV","address",iad, (int) _lhsinv.size());
   }
   return _lhsinv[iad];
@@ -3134,7 +3193,7 @@ double KrigingSystem::_getDISC1(int idisc, int idim) const
   if (_flagCheckAddress)
   {
     _checkAddress("_getDISC1","idisc",idisc,_ndiscNumber);
-    _checkAddress("_getDISC1","idim",idim,getNDim());
+    _checkAddress("_getDISC1","idim",idim,_ndim);
     _checkAddress("_getDISC1","address",iad, (int) _disc1.size());
   }
   return _disc1[iad];
@@ -3145,7 +3204,7 @@ void KrigingSystem::_setDISC1(int idisc, int idim, double value)
   if (_flagCheckAddress)
   {
     _checkAddress("_setDISC1","idisc",idisc,_ndiscNumber);
-    _checkAddress("_setDISC1","idim",idim,getNDim());
+    _checkAddress("_setDISC1","idim",idim,_ndim);
     _checkAddress("_setDISC1","address",iad, (int) _disc1.size());
   }
   _disc1[iad] = value;
@@ -3156,7 +3215,7 @@ double KrigingSystem::_getDISC2(int idisc,int idim) const
   if (_flagCheckAddress)
   {
     _checkAddress("_getDISC2","idisc",idisc,_ndiscNumber);
-    _checkAddress("_getDISC2","idim",idim,getNDim());
+    _checkAddress("_getDISC2","idim",idim,_ndim);
     _checkAddress("_getDISC2","address",iad, (int) _disc2.size());
   }
   return _disc2[iad];
@@ -3167,33 +3226,33 @@ void KrigingSystem::_setDISC2(int idisc,int idim, double value)
   if (_flagCheckAddress)
   {
     _checkAddress("_setDISC2","idisc",idisc,_ndiscNumber);
-    _checkAddress("_setDISC2","idim",idim,getNDim());
+    _checkAddress("_setDISC2","idim",idim,_ndim);
     _checkAddress("_setDISC2","address",iad, (int) _disc2.size());
   }
   _disc2[iad] = value;
 }
 double KrigingSystem::_getVAR0(int ivCL, int jvCL) const
 {
-  int nvarCL = _getNVarCL();
+  int nvarCL = _nvarCL;
   int iad    = (jvCL) + nvarCL * (ivCL);
 
   if (_flagCheckAddress)
   {
-    _checkAddress("_getVAR0","ivCL",ivCL,_getNVarCL());
-    _checkAddress("_getVAR0","jvCL",jvCL,_getNVarCL());
+    _checkAddress("_getVAR0","ivCL",ivCL,_nvarCL);
+    _checkAddress("_getVAR0","jvCL",jvCL,_nvarCL);
     _checkAddress("_getVAR0","address",iad, (int) _var0.size());
   }
   return _var0[iad];
 }
 void KrigingSystem::_setVAR0(int ivCL, int jvCL, double value)
 {
-  int nvarCL = _getNVarCL();
+  int nvarCL = _nvarCL;
   int iad    = (jvCL) + nvarCL * (ivCL);
 
   if (_flagCheckAddress)
   {
-    _checkAddress("_setVAR0","ivCL",ivCL,_getNVarCL());
-    _checkAddress("_setVAR0","jvCL",jvCL,_getNVarCL());
+    _checkAddress("_setVAR0","ivCL",ivCL,_nvarCL);
+    _checkAddress("_setVAR0","jvCL",jvCL,_nvarCL);
     _checkAddress("_setVAR0","address",iad, (int) _var0.size());
   }
   _var0[iad] = value;
@@ -3216,8 +3275,8 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 {
   if (! _dbout->isGrid()) return 1;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
-  int ndim = getNDim();
-  int nvar = _getNVar();
+  int ndim = _ndim;
+  int nvar = _nvar;
   double seuil = 1. / neighI->getSkip();
 
   /* Core allocation */
@@ -3269,7 +3328,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
   _dbin  = dbaux;
   _dbout = dbaux;
   int error = 1;
-  int ndim  = getNDim();
+  int ndim  = _ndim;
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
 
@@ -3279,7 +3338,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   _iechOut = dbaux->getSampleNumber() / 2;
   _nbgh = _nbghWork.select(_dbout,_iechOut,VectorInt());
-  int nech = getNech();
+  int nech = _nech = getNech();
   bool status = (nech <= 0);
 
   /* Establish the L.H.S. */
@@ -3313,8 +3372,8 @@ void KrigingSystem::_saveWeights(int status)
 {
   if (status != 0) return;
 
-  int nech = getNech();
-  int nvar = _getNVar();
+  int nech = _nech;
+  int nvar = _nvar;
   VectorDouble values(5);
   values[0] = _iechOut;
 
@@ -3361,8 +3420,8 @@ void KrigingSystem::_saveWeights(int status)
  */
 VectorVectorDouble KrigingSystem::getSampleCoordinates() const
 {
-  int ndim = getNDim();
-  int nech = getNech();
+  int ndim = _ndim;
+  int nech = _nech;
 
   VectorVectorDouble xyz(ndim);
   for (int idim = 0; idim < ndim; idim++)
@@ -3377,8 +3436,8 @@ VectorVectorDouble KrigingSystem::getSampleCoordinates() const
 VectorDouble KrigingSystem::getSampleData() const
 {
   VectorDouble zext(_nred);
-  int nvar = _getNVar();
-  int nech = getNech();
+  int nvar = _nvar;
+  int nech = _nech;
   for (int i = 0; i < _nred; i++) zext[i] = 0.;
 
   /* Extract the data */
@@ -3413,12 +3472,12 @@ VectorDouble KrigingSystem::getRHSC(int ivar) const
 int KrigingSystem::_bayesPreCalculations()
 {
   _iechOut = _dbin->getSampleNumber() / 2;
-  int nfeq = _getNFeq();
-  int nvar = _getNVar();
+  int nfeq = _nfeq;
+  int nvar = _nvar;
 
   // Elaborate the (Unique) Neighborhood
   _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
-  if (getNech() <= 0) return 1;
+  if (_nech <= 0) return 1;
 
   /* Prepare the Kriging matrix (without correction) */
 
@@ -3532,9 +3591,9 @@ int KrigingSystem::_bayesPreCalculations()
  *****************************************************************************/
 void KrigingSystem::_bayesCorrectVariance()
 {
-  int nvar = _getNVar();
-  int nfeq = _getNFeq();
-  int nbfl = _getNbfl();
+  int nvar = _nvar;
+  int nfeq = _nfeq;
+  int nbfl = _nbfl;
 
   /* Establish the Drift matrix */
 
@@ -3577,7 +3636,7 @@ void KrigingSystem::_bayesCorrectVariance()
  *****************************************************************************/
 void KrigingSystem::_bayesPreSimulate()
 {
-  int nfeq = _getNFeq();
+  int nfeq = _nfeq;
   if (nfeq <= 0) return;
   int nftri = nfeq * (nfeq + 1) / 2;
   int memo = law_get_random_seed();
@@ -3679,7 +3738,7 @@ void KrigingSystem::_transformGaussianToRaw()
 
 int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
 {
-  int nvar = _getNVar();
+  int nvar = _nvar;
 
   int rank = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
