@@ -626,8 +626,6 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  if (!_isVariableValid(ivar)) return TEST;
-  if (!_isVariableValid(jvar)) return TEST;
   if (!_sill.isValid(ivar, jvar)) return TEST;
   return _sill.getValue(ivar, jvar);
 }

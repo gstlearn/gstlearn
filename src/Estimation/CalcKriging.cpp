@@ -281,7 +281,6 @@ bool CalcKriging::_run()
 
   /* Loop on the targets to be processed */
 
-  (void) ksys.updKrigOptCheckAddress(true);  // Modif DR
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
     if (_iechSingleTarget > 0)

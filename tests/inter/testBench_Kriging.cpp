@@ -71,7 +71,7 @@ int main(int /*argc*/, char */*argv*/[])
   Timer timer;
   kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
-  message("Order of magnitude of the reference implementation is 7.3Kms\n");
+  message("Order of magnitude of the reference implementation is 4.7Kms\n");
 
   if (neighU    != nullptr) delete neighU;
   if (data      != nullptr) delete data;

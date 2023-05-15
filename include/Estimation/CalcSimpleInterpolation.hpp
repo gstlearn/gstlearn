@@ -47,6 +47,15 @@ private:
   virtual void _rollback() override;
   virtual int  _getNVar() const override;
 
+  int _nearest(Db* dbin, Db* dbout, ANeighParam* neighparam);
+  int _movave(Db* dbin, Db* dbout, ANeighParam* neighparam);
+  int _movmed(Db* dbin, Db* dbout, ANeighParam* neighparam);
+  int _lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam);
+  int _invdist(Db *dbin, Db *dbout);
+
+  void _pointInvdist(Db *dbin, Db *dbout);
+  void _gridInvdist(DbGrid *dbin, Db *dbout);
+
 private:
   int    _iattOut;
   bool   _flagMovAve;
