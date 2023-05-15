@@ -68,13 +68,13 @@ public:
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
                     int jvar = 0,
-                    const CovCalcMode& mode = CovCalcMode()) const;
+                    const CovCalcMode &mode = CovCalcMode()) const;
   void evalVect(VectorDouble &res,
-		  	    const SpacePoint & p1,
-                const std::vector<SpacePoint>& vec_p2,
+                const SpacePoint &p1,
+                const std::vector<SpacePoint> &vec_p2,
                 int ivar = 0,
                 int jvar = 0,
-                const CovCalcMode& mode = CovCalcMode()) const;
+                const CovCalcMode &mode = CovCalcMode()) const;
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode& mode = CovCalcMode()) const;

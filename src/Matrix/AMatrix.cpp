@@ -511,7 +511,7 @@ void AMatrix::setValue(int rank, double value)
   if (! _isRankValid(rank)) return;
   if (_sparse)
   {
-    _forbiddenForSparse("getValue");
+    _forbiddenForSparse("setValue");
   }
   else
   {
