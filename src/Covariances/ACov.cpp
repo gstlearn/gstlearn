@@ -700,14 +700,9 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
   int nech1 = db1->getSampleNumber(true);
   int nech2 = db2->getSampleNumber(true);
   VectorVectorDouble mat(nech1);
-  VectorVectorDouble work(nech2);
   VectorDouble temp(nech2);
 
   int ndim = getNDim();
-  for (auto &e :work)
-  {
-	  e = VectorDouble(ndim);
-  }
 
   for (auto &e : mat)
   {
@@ -739,7 +734,7 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
     if (!db1->isActive(iech1)) continue;
     for(int idim = 0;idim<ndim;idim++)
     	p1.setCoord(idim,db1->getCoordinate(iech1, idim));
-    evalOptim(p1,mat[jech1],temp, work,pttr,ivar, jvar, mode);
+    evalOptim(p1,mat[jech1],temp,pttr,ivar, jvar, mode);
     jech1++;
   }
 

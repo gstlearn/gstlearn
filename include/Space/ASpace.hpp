@@ -57,10 +57,9 @@ public:
                              const SpacePoint& p2,
                              const Tensor& tensor) const = 0;
 
-  virtual void getDistanceOptim(const SpacePoint& p1,
+  virtual void getDistancePointVectInPlace(const SpacePoint& p1,
                                const std::vector<SpacePoint>& p2,
-							   VectorDouble& res,
-							   VectorVectorDouble& work) const{};
+							   VectorDouble& res) const{};
 
   /// Return the distance in frequential domain between two space points with the given tensor
   virtual double getFrequentialDistance(const SpacePoint& p1,
