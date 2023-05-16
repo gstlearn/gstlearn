@@ -40,6 +40,7 @@ class Vario;
 class VarioParam;
 class Model;
 class AAnam;
+class ANeigh;
 class ANeighParam;
 class Polygons;
 class RuleProp;
@@ -217,13 +218,13 @@ GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
 GSTLEARN_EXPORT int krigsum(Db *dbin,
                             Db *dbout,
                             Model *model,
-                            NeighUnique* neighU,
+                            ANeigh* neigh,
                             bool flag_positive = false,
                             const NamingConvention& namconv = NamingConvention("KrigSum"));
 GSTLEARN_EXPORT int declustering(Db *db,
                                  Model *model,
                                  int method,
-                                 ANeighParam *neighparam = nullptr,
+                                 ANeigh *neigh = nullptr,
                                  DbGrid *dbgrid = nullptr,
                                  const VectorDouble& radius = VectorDouble(),
                                  const VectorInt& ndisc = VectorInt(),
@@ -234,7 +235,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            RuleProp *ruleprop,
                            Model *model1,
                            Model *model2 = nullptr,
-                           ANeighParam *neighparam = nullptr,
+                           ANeigh *neigh = nullptr,
                            int nbsimu = 1,
                            int seed = 1321421,
                            int flag_gaus = false,
@@ -254,7 +255,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Model *model12 = nullptr,
                              Model *model21 = nullptr,
                              Model *model22 = nullptr,
-                             ANeighParam *neighparam = nullptr,
+                             ANeigh *neigh = nullptr,
                              int nbsimu = 1,
                              int seed = 43243,
                              int flag_gaus = false,

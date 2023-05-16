@@ -31,6 +31,7 @@ ANeigh::ANeigh(const Db *dbin, const ANeighParam *neighparam, const Db* dbout)
       _neighParam(neighparam),
       _rankColCok(),
       _iechMemo(-1),
+      _flagSimu(false),
       _flagIsUnchanged(false),
       _ptOut(),
       _nbghMemo()
@@ -45,6 +46,7 @@ ANeigh::ANeigh(const ANeigh &r)
       _neighParam(r._neighParam),
       _rankColCok(r._rankColCok),
       _iechMemo(r._iechMemo),
+      _flagSimu(r._flagSimu),
       _flagIsUnchanged(r._flagIsUnchanged),
       _ptOut(r._ptOut),
       _nbghMemo(r._nbghMemo)
@@ -61,6 +63,7 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _neighParam = r._neighParam;
     _rankColCok = r._rankColCok;
     _iechMemo = r._iechMemo;
+    _flagSimu = r._flagSimu;
     _flagIsUnchanged = r._flagIsUnchanged;
     _ptOut = r._ptOut;
     _nbghMemo = r._nbghMemo;

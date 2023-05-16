@@ -27,7 +27,7 @@
 
 class Polygons;
 class EMorpho;
-class NeighImage;
+class ANeigh;
 
 /**
  * Class containing a Data Set organized as a regular Grid
@@ -247,7 +247,7 @@ public:
              bool flagDistErode = false,
              bool verbose = false,
              const NamingConvention &namconv = NamingConvention("Morpho"));
-  int smooth(NeighImage *neigh,
+  int smooth(ANeigh *neigh,
              int type = 1,
              double range = 1.,
              const NamingConvention &namconv = NamingConvention("Smooth"));

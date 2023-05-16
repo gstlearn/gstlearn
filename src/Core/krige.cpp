@@ -1571,7 +1571,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_bayes 1 if Bayes option is switched ON
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
@@ -1587,7 +1587,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
 int _krigsim(Db* dbin,
              Db* dbout,
              const Model* model,
-             ANeighParam* neighparam,
+             ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
              const VectorDouble& dcov,
@@ -1597,7 +1597,7 @@ int _krigsim(Db* dbin,
 {
   // Preliminary checks
 
-  if (neighparam->getType() == ENeigh::IMAGE)
+  if (neigh->getNeighParam()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
@@ -1610,7 +1610,7 @@ int _krigsim(Db* dbin,
 
   /* Setting options */
 
-  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  KrigingSystem ksys(dbin, dbout, model, neigh);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
@@ -1759,6 +1759,7 @@ Global_Res global_kriging(Db *dbin,
                           bool flag_verbose)
 {
   NeighUnique neighU;
+  NeighWork neighw;
   Global_Res gres;
   VectorDouble rhsCum;
 
@@ -1777,10 +1778,11 @@ Global_Res global_kriging(Db *dbin,
   int nvar = model->getVariableNumber();
   SpaceRN space(ndim);
   neighU = NeighUnique(false, &space);
+  neighw = NeighWork(dbin, &neighU, dbout);
 
   /* Setting options */
 
-  KrigingSystem ksys(dbin, dbout, model, &neighU);
+  KrigingSystem ksys(dbin, dbout, model, &neighw);
   if (ksys.setKrigOptFlagGlobal(true)) return gres;
   if (! ksys.isReady()) return gres;
 
@@ -3333,7 +3335,7 @@ int bayes_simulate(Model *model,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure (univariate)
- ** \param[in]  neighU     NeighUnique structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_positive  1 for a positive constraints
  ** \param[in]  namconv    Naming convention
  **
@@ -3346,7 +3348,7 @@ int bayes_simulate(Model *model,
 int krigsum(Db *dbin,
             Db *dbout,
             Model *model,
-            NeighUnique *neighU,
+            ANeigh *neigh,
             bool flag_positive,
             const NamingConvention& namconv)
 {
@@ -3377,7 +3379,7 @@ int krigsum(Db *dbin,
   // Locally turn the problem to a Monovariate case to have it accepted
   dbin->clearLocators(ELoc::Z);
   dbin->setLocatorByUID(iuids[0], ELoc::Z);
-  KrigingSystem ksys(dbin, dbout, model, neighU);
+  KrigingSystem ksys(dbin, dbout, model, neigh);
   if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptFlagLTerm(true)) return 1;
   if (! ksys.isReady()) return 1;
@@ -4504,23 +4506,16 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
  **
  ** \param[in]  db         input Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam NeighParam structure (should be Unique)
+ ** \param[in]  neigh      ANeigh structure (should be Unique)
  ** \param[in]  iptr       Rank of the declustering weight
  **
  *****************************************************************************/
 static int st_declustering_2(Db *db,
                              Model *model,
-                             ANeighParam* neighparam,
+                             ANeigh* neigh,
                              int iptr)
 {
-  NeighUnique* neighU = dynamic_cast<NeighUnique*>(neighparam);
-  if (neighU == nullptr)
-  {
-    messerr("Declustering with 'method=2' requires Unique Neighborhood");
-    return 1;
-  }
-
-  KrigingSystem ksys(db, db, model, neighU);
+  KrigingSystem ksys(db, db, model, neigh);
   if (ksys.setKrigOptDataWeights(iptr,  true)) return 1;
   if (ksys.setKrigOptCalcul(EKrigOpt::DRIFT)) return 1;
   if (! ksys.isReady()) return 1;
@@ -4546,7 +4541,7 @@ static int st_declustering_2(Db *db,
  ** \param[in]  db         input Db structure
  ** \param[in]  dbgrid     output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  ndisc      Array of discretization counts
  ** \param[in]  iptr       Rank of the declustering weight
  **
@@ -4554,18 +4549,18 @@ static int st_declustering_2(Db *db,
 static int st_declustering_3(Db *db,
                              Db *dbgrid,
                              Model *model,
-                             ANeighParam *neighparam,
+                             ANeigh *neigh,
                              const VectorInt& ndisc,
                              int iptr)
 {
   // Preliminary checks
 
-  if (neighparam == nullptr)
+  if (neigh == nullptr)
   {
     messerr("This function requires a Neighborhood");
     return 1;
   }
-  if (neighparam->getType() == ENeigh::IMAGE)
+  if (neigh->getNeighParam()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
@@ -4578,7 +4573,7 @@ static int st_declustering_3(Db *db,
 
   /* Setting options */
 
-  KrigingSystem ksys(db, dbgrid, model, neighparam);
+  KrigingSystem ksys(db, dbgrid, model, neigh);
   if (ksys.setKrigOptDataWeights(iptr,  false)) return 1;
   if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndisc)) return 1;
   if (! ksys.isReady()) return 1;
@@ -4607,7 +4602,7 @@ static int st_declustering_3(Db *db,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  method     Method for declustering
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  dbgrid     Grid auxiliary Db structure
  ** \param[in]  radius     Array of neighborhood radius
  ** \param[in]  ndisc      Array of discretization
@@ -4618,7 +4613,7 @@ static int st_declustering_3(Db *db,
 int declustering(Db *dbin,
                  Model *model,
                  int method,
-                 ANeighParam *neighparam,
+                 ANeigh *neigh,
                  DbGrid *dbgrid,
                  const VectorDouble& radius,
                  const VectorInt& ndisc,
@@ -4655,13 +4650,13 @@ int declustering(Db *dbin,
 
     case 2: /* Weight of the Mean */
       {
-        if (st_declustering_2(dbin, model, neighparam, iptr)) goto label_end;
+        if (st_declustering_2(dbin, model, neigh, iptr)) goto label_end;
       }
       break;
 
     case 3: /* Average weight of the Block Kriging */
       {
-      if (st_declustering_3(dbin, dbgrid, model, neighparam, ndisc, iptr))
+      if (st_declustering_3(dbin, dbgrid, model, neigh, ndisc, iptr))
           goto label_end;
       }
       break;
@@ -5576,7 +5571,7 @@ int inhomogeneous_kriging(Db *dbdat,
 **
 *****************************************************************************/
 void _image_smoother(DbGrid *dbgrid,
-                     NeighImage *neigh,
+                     const NeighImage *neigh,
                      int type,
                      double range,
                      int iptr0)

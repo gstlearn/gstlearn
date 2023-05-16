@@ -20,7 +20,7 @@
 class Db;
 class DbGrid;
 class Model;
-class ANeighParam;
+class ANeigh;
 class CovCalcMode;
 class ECalcMember;
 class NeighImage;
@@ -33,7 +33,7 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 const Model* model,
-                ANeighParam* neighParam);
+                ANeigh* neigh);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
@@ -193,9 +193,9 @@ private:
   Db*                  _dbin;
   Db*                  _dbout;
   Model*               _modelInit; // Copy of the input model
-  ANeighParam*         _neighParam;
+  ANeigh*              _neigh;
   const AAnam*         _anam;
-  bool _isReady;
+  bool                 _isReady;
 
   // Pointer to the Model currently used (must not be freed)
   Model*               _model;
@@ -296,7 +296,6 @@ private:
 
   /// Working arrays
   mutable bool _flagCheckAddress;
-  mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable VectorDouble _covtab;

@@ -34,7 +34,7 @@ public:
 
   void clear();
   VectorDouble summary(int iech_out);
-  void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
+
   void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
 
 private:
@@ -55,7 +55,7 @@ private:
   bool _hiddenByFault(int iech, int iech_out) const;
 
 private:
-  bool _flagSimu;
+
   mutable VectorInt    _movingInd;
   mutable VectorInt    _movingIsect;
   mutable VectorInt    _movingNsect;

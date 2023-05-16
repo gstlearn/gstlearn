@@ -14,6 +14,7 @@
 
 class Model;
 class Vario;
+class ANeigh;
 class ANeighParam;
 class AMesh;
 class MeshEStandard;
@@ -77,7 +78,7 @@ int _variogram_compute(Db *db,
 int _krigsim(Db* dbin,
              Db* dbout,
              const Model* model,
-             ANeighParam* neighparam,
+             ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
              const VectorDouble& dcov,
@@ -85,11 +86,10 @@ int _krigsim(Db* dbin,
              int nbsimu,
              bool flag_dgm);
 void _image_smoother(DbGrid *dbgrid,
-                     NeighImage *neigh,
+                     const NeighImage *neigh,
                      int type,
                      double range,
                      int iptr0);
-
 int _db_morpho_calc(DbGrid *dbgrid,
                     int iptr0,
                     const EMorpho &oper,

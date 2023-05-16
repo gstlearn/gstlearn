@@ -45,9 +45,9 @@ bool CalcKrigingFactors::_check()
   if (! hasDbin()) return false;
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
-  if (! hasNeighParam()) return false;
+  if (! hasNeigh()) return false;
 
-  if (getNeighparam()->getType() == ENeigh::IMAGE)
+  if (getNeigh()->getNeighParam()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return false;
@@ -162,7 +162,7 @@ int CalcKrigingFactors::_getNFactors() const
  *****************************************************************************/
 bool CalcKrigingFactors::_run()
 {
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeighparam());
+  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, -1)) return 1;
   if (ksys.setKrigOptCalcul(_calcul, _ndisc)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
@@ -199,7 +199,7 @@ bool CalcKrigingFactors::_run()
  ** \param[in]  dbin       input Db structure (containing the factors)
  ** \param[in]  dbout      output Grid Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
  ** \param[in]  ndisc      Discretization parameters (or empty)
  ** \param[in]  flag_est   Option for the storing the estimation
@@ -214,7 +214,7 @@ bool CalcKrigingFactors::_run()
 int krigingFactors(Db *dbin,
                    Db *dbout,
                    Model *model,
-                   ANeighParam *neighparam,
+                   ANeigh *neigh,
                    const EKrigOpt &calcul,
                    const VectorInt &ndisc,
                    bool flag_est,
@@ -225,7 +225,7 @@ int krigingFactors(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setCalcul(calcul);

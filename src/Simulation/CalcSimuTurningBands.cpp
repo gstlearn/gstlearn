@@ -2198,7 +2198,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  icase      Case for PGS or -1
  ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
  ** \param[in]  dmean      Array giving the prior means for the drift terms
@@ -2212,7 +2212,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
 int CalcSimuTurningBands::simulate(Db *dbin,
                                    Db *dbout,
                                    Model *model,
-                                   ANeighParam *neighparam,
+                                   ANeigh *neigh,
                                    int icase,
                                    int flag_bayes,
                                    const VectorDouble &dmean,
@@ -2224,7 +2224,7 @@ int CalcSimuTurningBands::simulate(Db *dbin,
   setDbin(dbin);
   setDbout(dbout);
   setModel(model);
-  setNeighparam(neighparam);
+  setNeigh(neigh);
   setIcase(icase);
   setFlagBayes(flag_bayes);
   setBayesMean(dmean);
@@ -2287,7 +2287,7 @@ bool CalcSimuTurningBands::_run()
 
   if (flag_cond)
   {
-    if (_krigsim(getDbin(), getDbout(), getModel(), getNeighparam(),
+    if (_krigsim(getDbin(), getDbout(), getModel(), getNeigh(),
                  _flagBayes, _bayesMean, _bayesCov, _icase,
                  nbsimu, _flagDGM)) return 1;
   }
@@ -2523,7 +2523,7 @@ bool CalcSimuTurningBands::_check()
   if (! hasModel()) return false;
   if (hasDbin(false))
   {
-    if (! hasNeighParam()) return false;
+    if (! hasNeigh()) return false;
   }
   int ndim = _getNDim();
   if (ndim > 3)
@@ -2631,7 +2631,7 @@ void CalcSimuTurningBands::_rollback()
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  neigh      ANeigh structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  nbtuba     Number of turning bands
@@ -2646,7 +2646,7 @@ void CalcSimuTurningBands::_rollback()
 int simtub(Db *dbin,
            Db *dbout,
            Model *model,
-           ANeighParam *neighparam,
+           ANeigh *neigh,
            int nbsimu,
            int seed,
            int nbtuba,
@@ -2661,7 +2661,7 @@ int simtub(Db *dbin,
   situba.setDbin(dbin);
   situba.setDbout(dbout);
   situba.setModel(model);
-  situba.setNeighparam(neighparam);
+  situba.setNeigh(neigh);
   situba.setNamingConvention(namconv);
   situba.setFlagDgm(flag_dgm);
 
@@ -2680,7 +2680,7 @@ int simtub(Db *dbin,
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  neigh      ANeigh structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  dmean      Array giving the prior means for the drift terms
@@ -2697,7 +2697,7 @@ int simtub(Db *dbin,
 int simbayes(Db *dbin,
              Db *dbout,
              Model *model,
-             ANeighParam *neighparam,
+             ANeigh *neigh,
              int nbsimu,
              int seed,
              const VectorDouble& dmean,
@@ -2713,7 +2713,7 @@ int simbayes(Db *dbin,
   situba.setDbin(dbin);
   situba.setDbout(dbout);
   situba.setModel(model);
-  situba.setNeighparam(neighparam);
+  situba.setNeigh(neigh);
   situba.setNamingConvention(namconv);
 
   situba.setFlagBayes(true);

@@ -28,7 +28,6 @@ NeighWork::NeighWork(const Db *dbin,
                      const ANeighParam *neighparam,
                      const Db *dbout)
     : ANeigh(dbin, neighparam, dbout),
-      _flagSimu(false),
       _movingInd(),
       _movingIsect(),
       _movingNsect(),
@@ -42,7 +41,6 @@ NeighWork::NeighWork(const Db *dbin,
 NeighWork::NeighWork(const NeighWork &r)
     :
     ANeigh(r),
-    _flagSimu(r._flagSimu),
     _movingInd(r._movingInd),
     _movingIsect(r._movingIsect),
     _movingNsect(r._movingNsect),
@@ -57,7 +55,6 @@ NeighWork& NeighWork::operator=(const NeighWork &r)
   if (this != &r)
   {
     ANeigh::operator=(r);
-    _flagSimu = r._flagSimu;
     _movingInd = r._movingInd;
     _movingIsect = r._movingIsect;
     _movingNsect = r._movingNsect;

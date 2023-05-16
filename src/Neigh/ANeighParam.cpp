@@ -18,9 +18,7 @@
 
 ANeighParam::ANeighParam(bool flag_xvalid, const ASpace* space)
     : ASpaceObject(space),
-      ASerializable(),
-      _flagXvalid(flag_xvalid),
-      _flagKFold(false)
+      ASerializable()
 {
 }
 
@@ -30,8 +28,6 @@ ANeighParam& ANeighParam::operator=(const ANeighParam& r)
   {
     ASpaceObject::operator=(r);
     ASerializable::operator=(r);
-    _flagXvalid = r._flagXvalid;
-    _flagKFold = r._flagKFold;
    }
   return *this;
 }
@@ -42,9 +38,7 @@ ANeighParam::~ANeighParam()
 
 ANeighParam::ANeighParam(const ANeighParam& r)
     : ASpaceObject(r),
-      ASerializable(r),
-      _flagXvalid(r._flagXvalid),
-      _flagKFold(r._flagKFold)
+      ASerializable(r)
 {
 }
 

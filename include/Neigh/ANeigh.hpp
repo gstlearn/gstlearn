@@ -38,6 +38,11 @@ public:
   bool isUnchanged() const { return _flagIsUnchanged; }
   void setIsChanged();
 
+  const ANeighParam* getNeighParam() const { return _neighParam; }
+
+  void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
+  void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
+
 protected:
   bool _isNbghMemoEmpty() const { return _nbghMemo.empty(); }
 
@@ -53,6 +58,7 @@ protected:
   const ANeighParam* _neighParam;
   VectorInt _rankColCok;
   int _iechMemo;
+  bool _flagSimu;
 
 private:
   bool _flagIsUnchanged;

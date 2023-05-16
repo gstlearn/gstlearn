@@ -22,7 +22,7 @@
 #include "Db/PtrGeos.hpp"
 #include "Model/Model.hpp"
 #include "Model/ANoStat.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -51,11 +51,11 @@
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              const Model* model,
-                             ANeighParam* neighParam)
+                             ANeigh* neigh)
     : _dbin(dbin),
       _dbout(dbout),
       _modelInit(nullptr),
-      _neighParam(neighParam),
+      _neigh(neigh),
       _anam(nullptr),
       _isReady(false),
       _model(nullptr),
@@ -116,7 +116,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _neq(0),
       _nred(0),
       _flagCheckAddress(false),
-      _nbghWork(dbin, neighParam, dbout),
       _nbgh(),
       _flag(),
       _covtab(),
@@ -205,11 +204,6 @@ KrigingSystem::~KrigingSystem()
     delete _modelInit;
     _modelInit = nullptr;
   }
-
-  // Reset elements in _neighParam
-
-  _neighParam->setFlagXvalid(false);
-  _neighParam->setFlagKFold(false);
 }
 
 int KrigingSystem::_getNVar() const
@@ -674,9 +668,9 @@ void KrigingSystem::_covtabCalcul(const SpacePoint& p1,
  *****************************************************************************/
 double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
 {
-  if (_neighParam == nullptr) return (0.);
-  if (_neighParam->getType() != ENeigh::MOVING) return (0.);
-  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
+  if (_neigh == nullptr) return (0.);
+  if (_neigh->getNeighParam()->getType() != ENeigh::MOVING) return (0.);
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neigh->getNeighParam());
   VectorDouble dd(_ndim);
 
   /* Calculate the distance increment */
@@ -802,7 +796,7 @@ void KrigingSystem::_lhsCalcul()
             {
               verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], ivar);
 
-              if (_neighParam->getFlagContinuous())
+              if (_neigh->getNeighParam()->getFlagContinuous())
               {
                 // In the case of continuous Kriging, we must update the LHS
                 // by considering the distance between data and target
@@ -1451,7 +1445,7 @@ void KrigingSystem::_estimateCalcul(int status)
 
   // Modification specific to Xvalid options
 
-  if (_neighParam->getFlagXvalid())
+  if (_neigh->getNeighParam()->getFlagXvalid())
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
@@ -1845,7 +1839,7 @@ bool KrigingSystem::isReady()
   }
 
   // Perform some preliminary work in the case of Image
-  const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neighParam);
+  const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neigh->getNeighParam());
   if (neighI != nullptr)
   {
     if (_prepareForImage(neighI)) return false;
@@ -1878,12 +1872,12 @@ int KrigingSystem::estimate(int iech_out)
   // In case of Image Neighborhood, the neighboring samples have already
   // been selected in isReady(). No need to compute them again.
   bool skipCalculAll = false;
-  if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE) skipCalculAll = true;
+  if (_neigh->getNeighParam()->getType().toEnum() == ENeigh::E_IMAGE) skipCalculAll = true;
 
   // In case of Cross-validation in Unique Neighborhood, do not establish the RHS
   bool caseXvalidUnique = false;
-  if (_neighParam->getType().toEnum() == ENeigh::E_UNIQUE &&
-      _neighParam->getFlagXvalid()) caseXvalidUnique = true;
+  if (_neigh->getNeighParam()->getType().toEnum() == ENeigh::E_UNIQUE &&
+      _neigh->getNeighParam()->getFlagXvalid()) caseXvalidUnique = true;
 
   // Store the Rank of the Target sample
   _iechOut = iech_out;
@@ -1905,14 +1899,14 @@ int KrigingSystem::estimate(int iech_out)
   // Elaborate the Neighborhood
 
   if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
-  _nbgh = _nbghWork.select(_iechOut);
+  _nbgh = _neigh->select(_iechOut);
   status = _setInternalShortCutVariablesNeigh();
   if (_flagNeighOnly) goto label_store;
   if (status) goto label_store;
 
   /* Establish the Kriging L.H.S. */
 
-  if (!_nbghWork.isUnchanged() || _neighParam->getFlagContinuous() ||
+  if (!_neigh->isUnchanged() || _neigh->getNeighParam()->getFlagContinuous() ||
       OptDbg::force())
   {
     if (_flagBayes) _setLocalModel(_modelSimple);
@@ -1923,7 +1917,7 @@ int KrigingSystem::estimate(int iech_out)
 
   // Establish the pre-calculation involving the data information
 
-  if (!_nbghWork.isUnchanged() || _neighParam->getFlagContinuous() ||
+  if (!_neigh->isUnchanged() || _neigh->getNeighParam()->getFlagContinuous() ||
       _flagDataChanged || OptDbg::force())
   {
     _dual();
@@ -1956,7 +1950,7 @@ int KrigingSystem::estimate(int iech_out)
 
   label_store:
   // If status is not zero, cancel the current Neighborhood search status
-  if (status) _nbghWork.setIsChanged();
+  if (status) _neigh->setIsChanged();
 
   // Correct the Variance in Bayesian case
 
@@ -1966,21 +1960,21 @@ int KrigingSystem::estimate(int iech_out)
 
   if (_flagNeighOnly)
   {
-    VectorDouble tab = _nbghWork.summary(_iechOut);
+    VectorDouble tab = _neigh->getNeighParam()->summary(_iechOut);
     _neighCalcul(status, tab);
 
   }
-  else if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
+  else if (_neigh->getNeighParam()->getType().toEnum() == ENeigh::E_IMAGE)
   {
     // Image Neighborhood case
 
     _estimateCalculImage(status);
   }
-  else if (_neighParam->getType().toEnum() == ENeigh::E_UNIQUE)
+  else if (_neigh->getNeighParam()->getType().toEnum() == ENeigh::E_UNIQUE)
   {
     // Unique Neighborhood case
 
-    if (_neighParam->getFlagXvalid())
+    if (_neigh->getNeighParam()->getFlagXvalid())
       _estimateCalculXvalidUnique(status);
 
     else if (_flagSimu)
@@ -2023,7 +2017,7 @@ int KrigingSystem::estimate(int iech_out)
  *****************************************************************************/
 void KrigingSystem::_krigingDump(int status)
 {
-  if (_neighParam->getFlagXvalid())
+  if (_neigh->getNeighParam()->getFlagXvalid())
     mestitle(0, "Cross-validation results");
   else
     mestitle(0, "(Co-) Kriging results");
@@ -2033,7 +2027,7 @@ void KrigingSystem::_krigingDump(int status)
 
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
-    if (_neighParam->getFlagXvalid())
+    if (_neigh->getNeighParam()->getFlagXvalid())
     {
 
       // Printout of Cross-Validation test
@@ -2160,7 +2154,7 @@ int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
   _iptrStd = iptrStd;
   _iptrVarZ = iptrVarZ;
 
-  _flagEst = _iptrEst >= 0 || (_neighParam->getFlagXvalid() && _iptrStd >= 0);
+  _flagEst = _iptrEst >= 0 || (_neigh->getNeighParam()->getFlagXvalid() && _iptrStd >= 0);
   _flagStd = (_iptrStd >= 0);
   _flagVarZ = (_iptrVarZ >= 0);
 
@@ -2247,13 +2241,13 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     {
       _flagPerCell = true;
     }
-    NeighMoving* neighM = dynamic_cast<NeighMoving*>(_neighParam);
+    const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neigh->getNeighParam());
     if (neighM != nullptr)
     {
       if (neighM->getForceWithinBlock()) _flagPerCell = true;
     }
 
-    // Check that discretisation is defined
+    // Check that discretization is defined
     if (ndiscs.empty())
     {
       messerr("In case of BLOCK kriging, you must define the discretization coefficients");
@@ -2353,7 +2347,7 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
   _isReady = false;
   _rankColCok = rank_colcok;
   int nvar = _getNVar();
-  _nbghWork.setRankColCok(rank_colcok);
+  _neigh->setRankColCok(rank_colcok);
 
   /* Loop on the ranks of the colocated variables */
 
@@ -2413,7 +2407,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
       messerr("Argument 'prior_cov' should be a symmetric matrix");
       return 1;
     }
-    const NeighUnique* neighU = dynamic_cast<const NeighUnique*>(_neighParam);
+    const NeighUnique* neighU = dynamic_cast<const NeighUnique*>(_neigh->getNeighParam());
     if (neighU == nullptr)
     {
       messerr("The Bayesian Estimation of the Drift Coefficients");
@@ -2504,7 +2498,7 @@ int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
  _flagSimu = flagSimu;
  _nbsimu = nbsimu;
  _rankPGS = rankPGS;
- _nbghWork.setFlagSimu(flagSimu);
+ _neigh->setFlagSimu(flagSimu);
  return 0;
 }
 
@@ -2557,7 +2551,7 @@ int KrigingSystem::setKrigOptFlagGlobal(bool flag_global)
       messerr("The Global Option needs '_dbout' to be a Grid");
       return 1;
     }
-    if (_neighParam->getType() != ENeigh::UNIQUE)
+    if (_neigh->getNeighParam()->getType() != ENeigh::UNIQUE)
     {
       messerr("The Global Option requires Unique Neighborhood");
       return 1;
@@ -2643,7 +2637,7 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
   if (_flagStd) _variance0();
 
   // Cancel any already existing Neighborhood
-  _nbghWork.setIsChanged();
+  _neigh->setIsChanged();
 
   return 0;
 }
@@ -2694,14 +2688,14 @@ bool KrigingSystem::_isCorrect()
     }
     ndim = _model->getDimensionNumber();
   }
-  if (_neighParam != nullptr)
+  if (_neigh->getNeighParam() != nullptr)
   {
-    if (ndim > 0 && ndim != (int)_neighParam->getNDim())
+    if (ndim > 0 && ndim != (int)_neigh->getNeighParam()->getNDim())
     {
       messerr("Incompatible Space Dimension of '_neighParam'");
       return false;
     }
-    ndim = (int)_neighParam->getNDim();
+    ndim = (int)_neigh->getNeighParam()->getNDim();
   }
 
   /****************************/
@@ -2823,16 +2817,17 @@ bool KrigingSystem::_isCorrect()
   /* Checking the Neighborhood */
   /*****************************/
 
-  if (_neighParam != nullptr)
+  if (_neigh->getNeighParam() != nullptr)
   {
-    if (_neighParam->getType() == ENeigh::IMAGE && (_dbout == nullptr || ! _dbout->isGrid()))
+    if (_neigh->getNeighParam()->getType() == ENeigh::IMAGE &&
+        (_dbout == nullptr || ! _dbout->isGrid()))
     {
       messerr("The Image neighborhood can only be used when the output Db is a grid");
       return false;
     }
 
-    if (_neighParam->getType() == ENeigh::UNIQUE &&
-        _neighParam->getFlagXvalid() && nvar > 1)
+    if (_neigh->getNeighParam()->getType() == ENeigh::UNIQUE &&
+        _neigh->getNeighParam()->getFlagXvalid() && nvar > 1)
     {
      messerr("The algorithm for Cross-Validation in Unique Neighborhood");
      messerr("is restricted to a single variable");
@@ -3266,10 +3261,10 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   SpaceRN space(_ndim);
   NeighUnique* neighU = NeighUnique::create(false, &space);
-  _nbghWork.initialize(dbaux, neighU, dbaux);
+  _neigh->initialize(dbaux, neighU, dbaux);
 
   _iechOut = dbaux->getSampleNumber() / 2;
-  _nbgh = _nbghWork.select(_iechOut);
+  _nbgh = _neigh->select(_iechOut);
   bool status = _setInternalShortCutVariablesNeigh();
 
   /* Establish the L.H.S. */
@@ -3295,7 +3290,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
   label_end:
   _dbin  = dbin_loc;
   _dbout = dbout_loc;
-  _nbghWork.initialize(_dbin, _neighParam);
+  _neigh->initialize(_dbin, _neigh->getNeighParam(), _dbout);
   return error;
 }
 
@@ -3397,7 +3392,7 @@ int KrigingSystem::_bayesPreCalculations()
   _iechOut = _dbin->getSampleNumber() / 2;
 
   // Elaborate the (Unique) Neighborhood
-  _nbgh = _nbghWork.select(_iechOut);
+  _nbgh = _neigh->select(_iechOut);
   if (_setInternalShortCutVariablesNeigh()) return 1;
 
   /* Prepare the Kriging matrix (without correction) */
