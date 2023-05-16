@@ -27,8 +27,13 @@
 ANeigh::ANeigh(const Db *dbin, const ANeighParam *neighparam, const Db* dbout)
     : _dbin(dbin),
       _dbout(dbout),
+      _dbgrid(nullptr),
       _neighParam(neighparam),
-      _flagIsUnchanged(false)
+      _rankColCok(),
+      _iechMemo(-1),
+      _flagIsUnchanged(false),
+      _ptOut(),
+      _nbghMemo()
 {
   initialize(dbin, neighparam, dbout);
 }
@@ -36,8 +41,13 @@ ANeigh::ANeigh(const Db *dbin, const ANeighParam *neighparam, const Db* dbout)
 ANeigh::ANeigh(const ANeigh &r)
     : _dbin(r._dbin),
       _dbout(r._dbout),
+      _dbgrid(r._dbgrid),
       _neighParam(r._neighParam),
-      _flagIsUnchanged(r._flagIsUnchanged)
+      _rankColCok(r._rankColCok),
+      _iechMemo(r._iechMemo),
+      _flagIsUnchanged(r._flagIsUnchanged),
+      _ptOut(r._ptOut),
+      _nbghMemo(r._nbghMemo)
 {
 }
 
@@ -47,8 +57,13 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
   {
     _dbin = r._dbin;
     _dbout = r._dbout;
+    _dbgrid = r._dbgrid;
     _neighParam = r._neighParam;
+    _rankColCok = r._rankColCok;
+    _iechMemo = r._iechMemo;
     _flagIsUnchanged = r._flagIsUnchanged;
+    _ptOut = r._ptOut;
+    _nbghMemo = r._nbghMemo;
   }
   return *this;
 }
