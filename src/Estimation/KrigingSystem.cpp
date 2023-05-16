@@ -116,7 +116,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _neq(0),
       _nred(0),
       _flagCheckAddress(false),
-      _nbghWork(_dbin, _neighParam),
+      _nbghWork(dbin, neighParam, dbout),
       _nbgh(),
       _flag(),
       _covtab(),
@@ -1905,7 +1905,7 @@ int KrigingSystem::estimate(int iech_out)
   // Elaborate the Neighborhood
 
   if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
-  _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
+  _nbgh = _nbghWork.select(_iechOut);
   status = _setInternalShortCutVariablesNeigh();
   if (_flagNeighOnly) goto label_store;
   if (status) goto label_store;
@@ -1966,7 +1966,7 @@ int KrigingSystem::estimate(int iech_out)
 
   if (_flagNeighOnly)
   {
-    VectorDouble tab = _nbghWork.summary(_dbout, _iechOut, _rankColCok);
+    VectorDouble tab = _nbghWork.summary(_iechOut);
     _neighCalcul(status, tab);
 
   }
@@ -2353,6 +2353,7 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
   _isReady = false;
   _rankColCok = rank_colcok;
   int nvar = _getNVar();
+  _nbghWork.setRankColCok(rank_colcok);
 
   /* Loop on the ranks of the colocated variables */
 
@@ -3265,10 +3266,10 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   SpaceRN space(_ndim);
   NeighUnique* neighU = NeighUnique::create(false, &space);
-  _nbghWork.initialize(dbaux, neighU);
+  _nbghWork.initialize(dbaux, neighU, dbaux);
 
   _iechOut = dbaux->getSampleNumber() / 2;
-  _nbgh = _nbghWork.select(_dbout,_iechOut,VectorInt());
+  _nbgh = _nbghWork.select(_iechOut);
   bool status = _setInternalShortCutVariablesNeigh();
 
   /* Establish the L.H.S. */
@@ -3396,7 +3397,7 @@ int KrigingSystem::_bayesPreCalculations()
   _iechOut = _dbin->getSampleNumber() / 2;
 
   // Elaborate the (Unique) Neighborhood
-  _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
+  _nbgh = _nbghWork.select(_iechOut);
   if (_setInternalShortCutVariablesNeigh()) return 1;
 
   /* Prepare the Kriging matrix (without correction) */

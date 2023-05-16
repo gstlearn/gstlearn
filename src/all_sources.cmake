@@ -258,6 +258,7 @@ set(SRC
   Drifts/ADriftElem.cpp
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
+  Neigh/ANeigh.cpp
   Neigh/ANeighParam.cpp
   Neigh/NeighUnique.cpp
   Neigh/NeighImage.cpp

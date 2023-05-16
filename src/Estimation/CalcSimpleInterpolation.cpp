@@ -293,7 +293,7 @@ GSTLEARN_EXPORT int leastSquares(Db *dbin,
  *****************************************************************************/
 int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeighParam* neighparam)
 {
-  NeighWork nbghw(dbin, neighparam);
+  NeighWork nbghw(dbin, neighparam, dbout);
   VectorInt nbgh;
 
   /* Loop on the targets to be processed */
@@ -310,7 +310,7 @@ int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeighParam* neighpar
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = nbghw.select(iech);
 
      // Perform the estimation
      double result = TEST;
@@ -336,7 +336,7 @@ int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeighParam* neighpar
  *****************************************************************************/
 int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeighParam* neighparam)
 {
-  NeighWork nbghw(dbin, neighparam);
+  NeighWork nbghw(dbin, neighparam, dbout);
   VectorInt nbgh;
 
   /* Loop on the targets to be processed */
@@ -355,7 +355,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeighParam* neighpara
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = nbghw.select(iech);
 
      // Perform the estimation
      double total = 0.;
@@ -393,7 +393,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeighParam* neighpara
  *****************************************************************************/
 int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeighParam* neighparam)
 {
-  NeighWork nbghw(dbin, neighparam);
+  NeighWork nbghw(dbin, neighparam, dbout);
   VectorInt nbgh;
 
   /* Loop on the targets to be processed */
@@ -410,7 +410,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeighParam* neighpara
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = nbghw.select(iech);
 
      // Perform the estimation
      double result = TEST;
@@ -440,7 +440,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeighParam* neighpara
 int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam)
 {
   int ndim = dbin->getNDim();
-  NeighWork nbghw(dbin, neighparam);
+  NeighWork nbghw(dbin, neighparam, dbout);
   VectorInt nbgh;
   CovContext ctxt(1, ndim);
   DriftList drft;
@@ -464,7 +464,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeighParam* neighpara
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = nbghw.select(iech);
      int nSize = (int) nbgh.size();
      if (nSize < ndrift)
      {

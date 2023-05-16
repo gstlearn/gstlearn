@@ -26,6 +26,7 @@
 %shared_ptr(AnamEmpirical)
 %shared_ptr(AnamHermite)
 %shared_ptr(AnamUser)
+%shared_ptr(ANeigh)
 %shared_ptr(ANeighParam)
 %shared_ptr(ANoStat)
 %shared_ptr(APolynomial)
@@ -321,6 +322,7 @@
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
   
+  #include "Neigh/ANeigh.hpp"
   #include "Neigh/ANeighParam.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"

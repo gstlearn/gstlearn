@@ -11,79 +11,55 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Neigh/ANeighParam.hpp"
+#include "Db/Db.hpp"
 #include "geoslib_define.h"
 
-class Db;
-
-class GSTLEARN_EXPORT NeighWork
+class GSTLEARN_EXPORT NeighWork:  public ANeigh
 {
 public:
-  NeighWork(const Db* dbin = nullptr,
-            const ANeighParam* neighparam = nullptr);
+  NeighWork(const Db *dbin = nullptr,
+            const ANeighParam *neighparam = nullptr,
+            const Db *dbout = nullptr);
   NeighWork(const NeighWork& r);
   NeighWork& operator=(const NeighWork& r);
   virtual ~NeighWork();
 
-  void initialize(const Db* dbin,
-                  const ANeighParam* neighparam);
+  int initialize(const Db *dbin,
+                 const ANeighParam *neighparam,
+                 const Db *dbout = nullptr) override;
+  bool hasChanged(int iech_out) const override;
+  VectorInt getNeigh(int iech_out) override;
+
   void clear();
-  VectorInt select(Db *dbout,
-                   int iech_out,
-                   const VectorInt& rankColCok = VectorInt(),
-                   bool verbose = false);
-  bool isUnchanged() const { return _flagIsUnchanged; }
-  void setIsChanged();
-  VectorDouble summary(Db *dbout,
-                       int iech_out,
-                       const VectorInt& rankColCok = VectorInt());
+  VectorDouble summary(int iech_out);
   void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
+  void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
 
 private:
-  void _unique(Db *dbout, int iech_out, VectorInt& ranks);
-  void _bench(Db *dbout, int iech_out, VectorInt& ranks);
-  int  _moving(Db *dbout, int iech_out, VectorInt& ranks, double eps = EPSILON9);
+  void _unique(int iech_out, VectorInt& ranks);
+  void _bench(int iech_out, VectorInt& ranks);
+  int  _moving(int iech_out, VectorInt& ranks, double eps = EPSILON9);
   bool _discardUndefined(int iech);
-  int  _xvalid(Db *dbout, int iech_in, int iech_out, double eps = EPSILON9);
+  int  _xvalid(int iech_in, int iech_out, double eps = EPSILON9);
   int  _movingSectorDefine(double dx, double dy);
   void _movingSectorNsmax(int nsel, VectorInt& ranks);
   void _movingSelect(int nsel, VectorInt& ranks);
   void _display(const VectorInt& ranks);
-  double _movingDist(Db *dbout, int iech_in, int iech_out);
-  bool _belongsToCell(Db* dbout, int iech, int iech_out);
-  void _checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks);
-  void _clearMemory();
-  void _resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose);
-  bool _isSameTarget(const Db* dbout,
-                     int iech_out,
-                     VectorInt& ranks,
-                     bool verbose = false);
-  bool _isSameTargetBench(const Db* dbout,
-                          int iech_out,
-                          VectorInt& ranks,
-                          bool verbose = false);
-  bool _isSameTargetUnique(const Db* dbout,
-                           int iech_out,
-                           VectorInt& ranks,
-                           bool verbose = false);
-  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks, int iech_out);;
-  bool _hiddenByFault(Db* dbout, int iech, int iech_out) const;
+  double _movingDist(int iech_in, int iech_out);
+  bool _belongsToCell(int iech, int iech_out);
+  void _clearMemoryNeigh();
+  void _clearMemoryMoving();
+  bool _isSameTargetBench(int iech_out) const;
+  bool _hiddenByFault(int iech, int iech_out) const;
 
 private:
-  const Db* _dbin;
-  const ANeighParam* _neighParam;
-  bool _flagInitialized;
-  bool _flagIsUnchanged;
+  bool _flagSimu;
   mutable VectorInt    _movingInd;
   mutable VectorInt    _movingIsect;
   mutable VectorInt    _movingNsect;
   mutable VectorDouble _movingX1;
   mutable VectorDouble _movingX2;
   mutable VectorDouble _movingDst;
-  bool _flagSimu;
-
-  // Following parameters are only kept for optimization
-  const Db* _dbout;
-  int _iechOut;
-  mutable VectorInt _nbghMemo;
 };

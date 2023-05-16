@@ -47,8 +47,6 @@ public:
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
 
-  VectorInt eval(Db *dbin, Db *dbout, int iech0) const;
-
 protected:
   // Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

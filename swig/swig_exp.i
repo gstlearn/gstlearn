@@ -162,6 +162,7 @@
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
 
+%include Neigh/ANeigh.hpp
 %include Neigh/ANeighParam.hpp
 %include Neigh/NeighUnique.hpp
 %include Neigh/NeighImage.hpp

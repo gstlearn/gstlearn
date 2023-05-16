@@ -104,10 +104,3 @@ bool ANeighParam::_isDimensionValid(int idim) const
   }
   return true;
 }
-
-VectorInt ANeighParam::eval(Db *dbin, Db *dbout, int iech0) const
-{
-  NeighWork nbghw(dbin, this);
-  VectorInt neigh_tab = nbghw.select(dbout,  iech0);
-  return neigh_tab;
-}

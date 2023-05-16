@@ -24,42 +24,31 @@
 #include <algorithm>
 #include <set>
 
-NeighWork::NeighWork(const Db *dbin, const ANeighParam *neighparam)
-    :
-    _dbin(),
-    _neighParam(),
-    _flagInitialized(false),
-    _flagIsUnchanged(false),
-    _movingInd(),
-    _movingIsect(),
-    _movingNsect(),
-    _movingX1(),
-    _movingX2(),
-    _movingDst(),
-    _flagSimu(false),
-    _dbout(nullptr),
-    _iechOut(-1),
-    _nbghMemo()
+NeighWork::NeighWork(const Db *dbin,
+                     const ANeighParam *neighparam,
+                     const Db *dbout)
+    : ANeigh(dbin, neighparam, dbout),
+      _flagSimu(false),
+      _movingInd(),
+      _movingIsect(),
+      _movingNsect(),
+      _movingX1(),
+      _movingX2(),
+      _movingDst()
 {
-  initialize(dbin, neighparam);
+  initialize(dbin, neighparam, dbout);
 }
 
 NeighWork::NeighWork(const NeighWork &r)
     :
-    _dbin(r._dbin),
-    _neighParam(r._neighParam),
-    _flagInitialized(r._flagInitialized),
-    _flagIsUnchanged(r._flagIsUnchanged),
+    ANeigh(r),
+    _flagSimu(r._flagSimu),
     _movingInd(r._movingInd),
     _movingIsect(r._movingIsect),
     _movingNsect(r._movingNsect),
     _movingX1(r._movingX1),
     _movingX2(r._movingX2),
-    _movingDst(r._movingDst),
-    _flagSimu(r._flagSimu),
-    _dbout(r._dbout),
-    _iechOut(r._iechOut),
-    _nbghMemo(r._nbghMemo)
+    _movingDst(r._movingDst)
 {
 }
 
@@ -67,20 +56,14 @@ NeighWork& NeighWork::operator=(const NeighWork &r)
 {
   if (this != &r)
   {
-    _dbin = r._dbin;
-    _neighParam = r._neighParam;
-    _flagInitialized = r._flagInitialized;
-    _flagIsUnchanged = r._flagIsUnchanged;
+    ANeigh::operator=(r);
+    _flagSimu = r._flagSimu;
     _movingInd = r._movingInd;
     _movingIsect = r._movingIsect;
     _movingNsect = r._movingNsect;
     _movingX1 = r._movingX1;
     _movingX2 = r._movingX2;
     _movingDst = r._movingDst;
-    _flagSimu = r._flagSimu;
-    _dbout = r._dbout;
-    _iechOut = r._iechOut;
-    _nbghMemo = r._nbghMemo;
   }
   return *this;
 }
@@ -95,18 +78,14 @@ NeighWork::~NeighWork()
  **
  ** \param[in]  dbin          input Db structure
  ** \param[in]  neighparam    Description of the ANeighParam parameters
- **
- ** \remarks When the Neighborhood is performed in the case of Simulations
- ** \remarks checking for all variables being undefined is performed
- ** \remarks on ELoc::SIMU rather than on ELoc::Z
+ ** \param[in]  dbout         output Db structure (optional)
  **
  *****************************************************************************/
-void NeighWork::initialize(const Db *dbin,
-                           const ANeighParam *neighparam)
+int NeighWork::initialize(const Db *dbin,
+                          const ANeighParam *neighparam,
+                          const Db *dbout)
 {
-  if (neighparam == nullptr || dbin == nullptr) return;
-  _neighParam = neighparam;
-  _dbin = dbin;
+  if (ANeigh::initialize(dbin, neighparam, dbout)) return 1;
 
   int nech  = _dbin->getSampleNumber();
   int ndim  = _dbin->getNDim();
@@ -122,11 +101,7 @@ void NeighWork::initialize(const Db *dbin,
     _movingX2 = VectorDouble(ndim);
   }
 
-  // Clear out the Memorization parameters
-
-  _clearMemory();
-
-  _flagInitialized = true;
+  return 0;
 }
 
 /**
@@ -134,27 +109,29 @@ void NeighWork::initialize(const Db *dbin,
  */
 void NeighWork::clear()
 {
-  /* Initialization */
+  _clearMemoryMoving();
+}
 
-  if (! _flagInitialized) return;
+bool NeighWork::hasChanged(int iech_out) const
+{
+  if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
 
-  // Clear the pointers
+  switch (_neighParam->getType().toEnum())
+  {
+    case ENeigh::E_IMAGE:
+    case ENeigh::E_UNIQUE:
+      return false;
+      break;
 
-  _neighParam = nullptr;
-  _dbin  = nullptr;
+    case ENeigh::E_BENCH:
+      return _isSameTargetBench(iech_out);
+      break;
 
-  /* Core deallocation */
-
-  _movingInd.clear();
-  _movingDst.clear();
-  _movingIsect.clear();
-  _movingNsect.clear();
-  _movingX1.clear();
-  _movingX2.clear();
-
-  _nbghMemo.clear();
-
-  _flagInitialized = false;
+    case ENeigh::E_MOVING:
+      return true;
+      break;
+  }
+  return false;
 }
 
 /****************************************************************************/
@@ -163,75 +140,40 @@ void NeighWork::clear()
  **
  ** \return  Vector of sample ranks in neighborhood (empty when error)
  **
- ** \param[in]  dbout         output Db structure
  ** \param[in]  iech_out      Valid Rank of the sample in the output Db
- ** \param[in]  rankColCok    Vector of Colcok information (optional)
- ** \param[in]  verbose       Verbose option
  **
  *****************************************************************************/
-VectorInt NeighWork::select(Db *dbout,
-                            int iech_out,
-                            const VectorInt& rankColCok,
-                            bool verbose)
+VectorInt NeighWork::getNeigh(int iech_out)
 {
-  if (! _flagInitialized) return VectorInt();
-  if (! dbout->isSampleIndexValid(iech_out)) return VectorInt();
   int nech = _dbin->getSampleNumber();
   VectorInt ranks(nech, -1);
 
-  // Optional title (only in verbose case)
-
-  if (verbose)
-    message(">>> Neighborhood search:\n");
-
-  // Check if the current target coincides with the previous one
-  // Then do not do anything (even in presence of colocation)
-  if (_isSameTarget(dbout, iech_out, ranks, verbose)) return ranks;
-
   // Select the neighborhood samples as the target sample has changed
-  bool doCompress = true;
   switch (_neighParam->getType().toEnum())
   {
     case ENeigh::E_IMAGE:
     case ENeigh::E_UNIQUE:
-      if (! _isSameTargetUnique(dbout, iech_out, ranks, verbose))
-        _unique(dbout, iech_out, ranks);
-      else
-        doCompress = false;
+      _unique(iech_out, ranks);
       break;
 
     case ENeigh::E_BENCH:
-      if (! _isSameTargetBench(dbout, iech_out, ranks, verbose))
-        _bench(dbout, iech_out, ranks);
-      else
-        doCompress = false;
+      _bench(iech_out, ranks);
       break;
 
     case ENeigh::E_MOVING:
-      if (_moving(dbout, iech_out, ranks)) return VectorInt();
+      if (_moving(iech_out, ranks)) return VectorInt();
       break;
   }
 
-  if (doCompress)
-  {
-    // In case of debug option, dump out neighborhood characteristics
-    if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+  // In case of debug option, dump out neighborhood characteristics
+  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
-    /* Compress the vector of returned sample ranks */
-    int necr = 0;
-    for (int iech = 0; iech < nech; iech++)
-      if (ranks[iech] >= 0) ranks[necr++] = iech;
-    ranks.resize(necr);
+  // Compress the vector of returned sample ranks
+  int necr = 0;
+  for (int iech = 0; iech < nech; iech++)
+    if (ranks[iech] >= 0) ranks[necr++] = iech;
+  ranks.resize(necr);
 
-    // Set the flag telling if neighborhood has changed or not
-    // and memorize the new set of ranks
-
-    _checkUnchanged(dbout, iech_out, ranks);
-  }
-
-  // Update in case of Colocated option
-
-  _updateColCok(rankColCok, ranks, iech_out);
   return ranks;
 }
 
@@ -239,13 +181,12 @@ VectorInt NeighWork::select(Db *dbout,
 /*!
  **  Select the unique neighborhood (or Image Neighborhood)
  **
- ** \param[in]  dbout     output Db structure
  ** \param[in]  iech_out  rank of the output sample
  **
  ** \param[out]  ranks   Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
-void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
+void NeighWork::_unique(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
 
@@ -265,7 +206,7 @@ void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
 
     if (_neighParam->getFlagXvalid())
     {
-      if (_xvalid(dbout, iech, iech_out)) continue;
+      if (_xvalid(iech, iech_out)) continue;
     }
     ranks[iech] = 0;
   }
@@ -276,17 +217,16 @@ void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
  **  Search for the bench neighborhood, according to the last
  **  coordinate
  **
- ** \param[in]  dbout     output Db structure
  ** \param[in]  iech_out  rank of the output sample
  **
  ** \param[out]  ranks    Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
-void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
+void NeighWork::_bench(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
   int idim_bench = _dbin->getNDim() - 1;
-  double z0 = dbout->getCoordinate(iech_out, idim_bench);
+  double z0 = _dbout->getCoordinate(iech_out, idim_bench);
   const NeighBench* neighB = dynamic_cast<const NeighBench*>(_neighParam);
 
   /* Loop on samples */
@@ -305,7 +245,7 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
 
     if (_neighParam->getFlagXvalid())
     {
-      if (_xvalid(dbout, iech, iech_out)) continue;
+      if (_xvalid(iech, iech_out)) continue;
     }
 
     /* Discard sample located outside the bench */
@@ -324,14 +264,13 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
  ** \return  1 : The number of data is smaller than the minimum number of
  ** \return      data in Moving Neighborhood
  **
- ** \param[in]  dbout     Output Db structure
  ** \param[in]  iech_out  Rank of the target in the output Db structure
  ** \param[in]  eps       Tolerance
  **
  ** \param[out]  ranks    Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
-int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
+int NeighWork::_moving(int iech_out, VectorInt& ranks, double eps)
 {
   const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int nech = _dbin->getSampleNumber();
@@ -358,29 +297,29 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
     if (_neighParam->getFlagXvalid())
     {
-      if (_xvalid(dbout, iech, iech_out)) continue;
+      if (_xvalid(iech, iech_out)) continue;
     }
 
     // In presence of Faults, check that sample 'iech' is still eligible
 
     if (neighM->hasFaults())
     {
-      if (_hiddenByFault(dbout, iech, iech_out)) continue;
+      if (_hiddenByFault(iech, iech_out)) continue;
     }
 
     // Force selection if the sample belongs to the block
 
     double dist;
-    if (neighM->getForceWithinBlock() && dbout->isGrid())
+    if (neighM->getForceWithinBlock() && _dbout->isGrid())
     {
-      if (! _belongsToCell(dbout, iech, iech_out)) continue;
-      dist = _movingDist(dbout, iech, iech_out);
+      if (! _belongsToCell(iech, iech_out)) continue;
+      dist = _movingDist(iech, iech_out);
     }
     else
     {
       /* Calculate the distance between data and target */
 
-      dist = _movingDist(dbout, iech, iech_out);
+      dist = _movingDist(iech, iech_out);
       if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
       if (dist > distmax) distmax = dist;
 
@@ -463,35 +402,35 @@ bool NeighWork::_discardUndefined(int iech)
  **
  ** \return  1 if the sample is masked; 0 otherwise
  **
- ** \param[in]  dbout    output Db structure
  ** \param[in]  iech_in  Rank in the input Db structure
  ** \param[in]  iech_out Rank in the output Db structure
  ** \param[in]  eps      Tolerance
  **
  *****************************************************************************/
-int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
+int NeighWork::_xvalid(int iech_in, int iech_out, double eps)
 {
   if (! _neighParam->getFlagXvalid())
     return 0;
   else if (! _neighParam->getFlagKFold())
   {
-    if (distance_inter(_dbin, dbout, iech_in, iech_out, NULL) < eps) return 1;
+    if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
   }
   else
   {
     if (! _dbin->hasLocVariable(ELoc::C)) return 0;
-    if (_dbin->getLocVariable(ELoc::C,iech_in,0) == dbout->getLocVariable(ELoc::C,iech_out,0)) return 1;
+    if (_dbin->getLocVariable(ELoc::C,iech_in,0) ==
+        _dbout->getLocVariable(ELoc::C,iech_out,0)) return 1;
   }
   return 0;
 }
 
-bool NeighWork::_hiddenByFault(Db* dbout, int iech, int iech_out) const
+bool NeighWork::_hiddenByFault(int iech, int iech_out) const
 {
   const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   if (neighM == nullptr) return false;
 
-  double xt1 = dbout->getCoordinate(iech_out, 0);
-  double yt1 = dbout->getCoordinate(iech_out, 1);
+  double xt1 = _dbout->getCoordinate(iech_out, 0);
+  double yt1 = _dbout->getCoordinate(iech_out, 1);
   double xt2 = _dbin->getCoordinate(iech, 0);
   double yt2 = _dbin->getCoordinate(iech, 1);
 
@@ -509,12 +448,11 @@ bool NeighWork::_hiddenByFault(Db* dbout, int iech, int iech_out) const
  **
  ** \return  Distance
  **
- ** \param[in]  dbout    output Db structure
  ** \param[in]  iech_in  Rank of the sample in the input Db structure
  ** \param[in]  iech_out Rank of the sample in the output Db structure
  **
  *****************************************************************************/
-double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
+double NeighWork::_movingDist(int iech_in, int iech_out)
 {
   const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int ndim = _dbin->getNDim();
@@ -522,7 +460,7 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
   /* Calculate the distance to the target */
 
   for (int idim = 0; idim < ndim; idim++)
-    _movingX1[idim] = dbout->getCoordinate(iech_out, idim)
+    _movingX1[idim] = _dbout->getCoordinate(iech_out, idim)
         - _dbin->getCoordinate(iech_in, idim);
 
   /* Anisotropic neighborhood */
@@ -550,19 +488,18 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
   return dist;
 }
 
-bool NeighWork::_belongsToCell(Db* dbout, int iech, int iech_out)
+bool NeighWork::_belongsToCell(int iech, int iech_out)
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-  if (dbgrid == nullptr) return false;
+  if (_dbgrid == nullptr) return false;
 
   // Get the coordinates of the sample
   VectorDouble coor = _dbin->getSampleCoordinates(iech);
 
   // Identify the dimensions of the cell
-  VectorDouble dxsPerCell = dbgrid->getBlockExtensions(iech_out);
+  VectorDouble dxsPerCell = _dbgrid->getBlockExtensions(iech_out);
 
   // Check if the sample belongs to the cell
-  return dbgrid->getGrid().sampleBelongsToCell(coor, iech_out, dxsPerCell);
+  return _dbgrid->getGrid().sampleBelongsToCell(coor, iech_out, dxsPerCell);
 }
 
 /****************************************************************************/
@@ -771,175 +708,34 @@ void NeighWork::_display(const VectorInt& ranks)
   return;
 }
 
-void NeighWork::_checkUnchanged(const Db *dbout,
-                                int iech_out,
-                                const VectorInt &ranks)
+void NeighWork::_clearMemoryMoving()
 {
-  VectorInt rsorted = ranks;
-  if (ranks.size() > 0)
-  {
-    std::sort(rsorted.begin(), rsorted.end());
-  }
-
-  // Check if Neighborhood has changed
-
-  if (_nbghMemo.size() != ranks.size())
-    // Two series do not share the same dimension
-
-    _flagIsUnchanged = false;
-  else
-  {
-    // Two (sorted) series have the same size: check if they are equal
-
-    _flagIsUnchanged = (rsorted == _nbghMemo);
-  }
-
-  // Store the vector of sample ranks for the current neighborhood search
-
-  _dbout = dbout;
-  _iechOut = iech_out;
-  _nbghMemo = rsorted;
+  _movingInd.clear();
+  _movingDst.clear();
+  _movingIsect.clear();
+  _movingNsect.clear();
+  _movingX1.clear();
+  _movingX2.clear();
 }
 
-void NeighWork::_clearMemory()
+bool NeighWork::_isSameTargetBench(int iech_out) const
 {
-  _dbout = nullptr;
-  _iechOut = -1;
-  _nbghMemo.clear();
-}
-
-/**
- * Checks if the current target matches the target previously treated
- * in the same procedure. If match is reached, then there is no need
- * to compute a new neighborhood: use the previous Vector of sample ranks.
- * Store the references of the new 'dbout' and 'iech_out' for next optimizations
- * @param dbout    Current 'Db' structure for output
- * @param iech_out Rank of the current target sample
- * @param ranks    Vector of selected samples
- * @param verbose  Verbose option
- * @return
- */
-bool NeighWork::_isSameTarget(const Db* dbout,
-                              int iech_out,
-                              VectorInt& ranks,
-                              bool verbose)
-{
-  // Check if the target remained unchanged
-  bool flagSame = true;
-  if (_dbout == nullptr || _iechOut < 0) flagSame = false;
-  if (dbout != _dbout) flagSame = false;
-  if (iech_out != _iechOut) flagSame = false;
-  if (_nbghMemo.empty()) flagSame = false;
-
-  _resetFromMemory(flagSame, ranks, verbose);
-  return flagSame;
-}
-
-bool NeighWork::_isSameTargetBench(const Db* dbout,
-                                   int iech_out,
-                                   VectorInt& ranks,
-                                   bool verbose)
-{
-  // If no memorization is available, the match is false
-  if (_dbout == nullptr || _iechOut < 0) return false;
-
   // Check if current target and previous target belong to the same bench
 
-  bool flagSame = true;
-  int ndim = dbout->getNDim();
-  if (dbout->isGrid())
+  int ndim = _dbout->getNDim();
+  if (_dbgrid != nullptr)
   {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
     int nval = 1;
     for (int idim = 0; idim < ndim - 1; idim++)
-      nval *= dbgrid->getNX(idim);
-    if ((iech_out / nval) != (_iechOut / nval)) flagSame = false;
+      nval *= _dbgrid->getNX(idim);
+    if ((iech_out / nval) != (_iechMemo / nval)) return false;
   }
   else
   {
-    if (dbout->getCoordinate(iech_out, ndim - 1) != _dbout->getCoordinate(
-        _iechOut, ndim - 1)) flagSame = false;
+    if (_dbout->getCoordinate(iech_out, ndim - 1) !=
+        _dbout->getCoordinate(_iechMemo, ndim - 1)) return false;
   }
-  if (_nbghMemo.empty()) flagSame = false;
-
-  _resetFromMemory(flagSame, ranks, verbose);
-  return flagSame;
-}
-
-bool NeighWork::_isSameTargetUnique(const Db* /*dbout*/,
-                                    int /*iech_out*/,
-                                    VectorInt& ranks,
-                                    bool verbose)
-{
-  // If no memorization is available, the match is false
-  if (_dbout == nullptr || _iechOut < 0) return false;
-  bool flagSame = true;
-  if (_nbghMemo.empty()) flagSame = false;
-
-  _resetFromMemory(flagSame, ranks, verbose);
-  return flagSame;
-}
-
-void NeighWork::_resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose)
-{
-  if (flagSame)
-  {
-    // If target is unchanged, upload the previously stored vector of Sample ranks
-
-    ranks = _nbghMemo;
-    _flagIsUnchanged = true;
-    if (verbose)
-      message(">>> Search is bypassed as already calculated\n");
-  }
-  else
-  {
-    if (verbose)
-      message(">>> Search must probably be performed\n");
-  }
-}
-
-/**
- * Update the set of selected samples in case of colocated option
- * This is done only if:
- * - the colocation option is ON (vector of colocated variable is defined)
- * - at least one of the colocated variables at the target is valid
- * - the target does not coincide with a sample already selected
- * If the colocation option is validated, an additional member is added to 'ranks':
- * it value is conventionally set to -1.
- * @param rankColCok Vector of Colocated Variables
- * @param ranks      Vector of samples already selected
- * @param iech_out   Rank of the targt site (in dbout)
- */
-void NeighWork::_updateColCok(const VectorInt &rankColCok,
-                              VectorInt &ranks,
-                              int iech_out)
-{
-  if (rankColCok.empty()) return;
-  int nvarin = (int) rankColCok.size();
-
-  /* Do not add the target if no variable is defined */
-  bool found = false;
-  for (int ivar = 0; ivar < nvarin && !found; ivar++)
-  {
-    int jvar = rankColCok[ivar];
-    if (jvar < 0) continue;
-    if (!FFFF(_dbout->getArray(iech_out, jvar))) found = true;
-  }
-  if (! found) return;
-
-  /* Do not add the target if it coincides with an already selected sample */
-  int nsel = (int) ranks.size();
-  for (int iech = 0; iech < nsel; iech++)
-  {
-    if (distance_inter(_dbin, _dbout, ranks[iech], iech_out, NULL) <= 0.)
-      return;
-  }
-
-  /* Add the target */
-
-  ranks.push_back(-1);
-  _flagIsUnchanged = false;
-  return;
+  return true;
 }
 
 /****************************************************************************/
@@ -951,14 +747,10 @@ void NeighWork::_updateColCok(const VectorInt &rankColCok,
  ** \li                    3 : Number of non-empty sectors
  ** \li                    4 : Number of consecutive empty sectors
  **
- ** \param[in]  dbout         output Db structure
  ** \param[in]  iech_out      Valid Rank of the sample in the output Db
- ** \param[in]  rankColCok    Vector of ColCok information (optional)
  **
  *****************************************************************************/
-VectorDouble NeighWork::summary(Db *dbout,
-                                int iech_out,
-                                const VectorInt& rankColCok)
+VectorDouble NeighWork::summary(int iech_out)
 {
   VectorDouble tab(5,0.);
 
@@ -967,7 +759,7 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   /* Number of selected samples */
 
-  VectorInt nbgh_ranks = select(dbout, iech_out, rankColCok);
+  VectorInt nbgh_ranks = select(iech_out);
   int nsel = (int) nbgh_ranks.size();
   tab[0] = (double) nsel;
 
@@ -1028,9 +820,3 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   return tab;
 }
-
-void NeighWork::setIsChanged()
-{
-  _flagIsUnchanged = false;
-  _nbghMemo.clear();
-};
