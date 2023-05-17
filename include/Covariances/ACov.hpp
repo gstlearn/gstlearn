@@ -18,6 +18,8 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Matrix/MatrixEigen.hpp"
+
 
 #include <vector>
 
@@ -51,6 +53,21 @@ public:
                           int jvar = 0,
                           const CovCalcMode& mode = CovCalcMode()) const{};
 
+  virtual void evalOptimEigen(MatrixEigen& res,
+							  VectorDouble& temp,
+							  int ivar = 0,
+							  int jvar = 0,
+							  const CovCalcMode& mode = CovCalcMode()) const{};
+
+  virtual void evalOptimEigen(const SpacePoint& pt,
+		  	  	  	  	  	  SpacePoint& ptemp,
+		  	  	  	  	  	  MatrixEigen& res,
+  							  int iech,
+  							  VectorDouble& temp,
+  							  int ivar = 0,
+  							  int jvar = 0,
+  							  const CovCalcMode& mode = CovCalcMode()) const{};
+
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
                                  bool /*normalize*/) const { return TEST; }
@@ -69,12 +86,7 @@ public:
                     int ivar = 0,
                     int jvar = 0,
                     const CovCalcMode& mode = CovCalcMode()) const;
-  void evalVect(VectorDouble &res,
-		  	    const SpacePoint & p1,
-                const std::vector<SpacePoint>& vec_p2,
-                int ivar = 0,
-                int jvar = 0,
-                const CovCalcMode& mode = CovCalcMode()) const;
+
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode& mode = CovCalcMode()) const;
@@ -172,11 +184,11 @@ public:
                                   int jvar = 0,
                                   const CovCalcMode& mode = CovCalcMode()) const;
 
- VectorVectorDouble evalCovMatrixOptim(const Db* db1,
-                                    const Db* db2 = nullptr,
-                                    int ivar = 0,
-                                    int jvar = 0,
-                                    const CovCalcMode& mode = CovCalcMode()) const;
+ MatrixEigen evalCovMatrixEigen(const Db* db1,
+                                     const Db* db2 = nullptr,
+                                     int ivar = 0,
+                                     int jvar = 0,
+                                     const CovCalcMode& mode = CovCalcMode()) const;
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,

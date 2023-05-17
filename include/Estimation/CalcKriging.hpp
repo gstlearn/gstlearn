@@ -192,3 +192,11 @@ GSTLEARN_EXPORT int test_neigh(Db *dbin,
                                Model *model,
                                ANeighParam *neighparam,
                                const NamingConvention& namconv = NamingConvention("Neigh"));
+
+GSTLEARN_EXPORT void krigingExperimental(const Db *dbin,
+                        Db *dbout,
+                        Model *model,
+						bool flag_est = false,
+                        bool flag_std = false,
+						bool flag_varz = false,
+						const NamingConvention& namconv = NamingConvention("KrigingExp"));

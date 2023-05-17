@@ -23,7 +23,7 @@
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-
+#include "Matrix/MatrixEigen.hpp"
 #include <math.h>
 #include <functional>
 
@@ -399,22 +399,50 @@ double CovAniso::eval(const SpacePoint &p1,
 }
 
 
-void CovAniso::evalOptim(const SpacePoint &p1,
-					  VectorDouble& res,
-					  VectorDouble& temp,
-					  SpacePoint& pttr,
-                      int ivar,
-                      int jvar,
-                      const CovCalcMode &mode) const
+void CovAniso::evalOptimEigen(MatrixEigen& res,
+  							  VectorDouble& temp,
+  							  int ivar,
+  							  int jvar,
+  							  const CovCalcMode& mode) const
 {
- _preProcess(p1, pttr);
- _space->getDistancePointVectInPlace(pttr, _transformedCoordinates,temp);
-  double sill = _sill.getValue(ivar, jvar);
 
-  for (int i = 0; i< (int)temp.size();i++)
-    {
-	    res[i]+= sill *  _cova->evalCov(temp[i]);
-    }
+	double sill = _sill.getValue(ivar, jvar);
+	for (int i = 0; i < (int)temp.size(); i++)
+	{
+		_evalOptimEigen(_transformedCoordinates[i], res,i,temp,sill,mode);
+
+	}
+}
+
+void CovAniso::_evalOptimEigen(
+		  SpacePoint& ptemp,
+		  MatrixEigen& res,
+		  int iech,
+		  VectorDouble& temp,
+		  double sill,
+		  const CovCalcMode& mode) const
+{
+		 _space->getDistancePointVectInPlace(ptemp, _transformedCoordinates,temp);
+
+
+		  for (int i = 0; i< (int)temp.size();i++)
+		    {
+			    res.sumElem(i,iech,sill *  _cova->evalCov(temp[i]));
+		    }
+}
+void CovAniso::evalOptimEigen(
+		  const SpacePoint& pt,
+		  SpacePoint& ptemp,
+		  MatrixEigen& res,
+		  int iech,
+		  VectorDouble& temp,
+		  int ivar,
+		  int jvar,
+		  const CovCalcMode& mode ) const
+{
+	 preProcess(pt,ptemp);
+	  double sill = _sill.getValue(ivar, jvar);
+	  _evalOptimEigen(ptemp, res, iech, temp, sill, mode);
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
@@ -719,7 +747,6 @@ void CovAniso::_initFromContext()
   _sill.reset(nvar, nvar, 1.);
   _aniso.init(ndim);
   _updateFromContext();
-
 }
 
 void CovAniso::_updateFromContext()
@@ -970,10 +997,11 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
 }
 
 
-void CovAniso::_preProcess(const SpacePoint& pt, SpacePoint& res) const
+void CovAniso::preProcess(const SpacePoint& pt,SpacePoint& out) const
 {
-	_aniso.applyInverseInPlace(pt.getCoordsP(), res.getCoordsPM());
+	_aniso.applyInverseInPlace(pt.getCoordsP(), out.getCoordsPM());
 }
+
 
 void CovAniso::preProcess(const std::vector<SpacePoint>& vec) const
 {
@@ -982,8 +1010,12 @@ void CovAniso::preProcess(const std::vector<SpacePoint>& vec) const
 
 	for(int i = 0;i < n ; i++)
 	{
-		_transformedCoordinates[i] = SpacePoint(_space);
-		_preProcess(vec[i], _transformedCoordinates[i]);
+			_transformedCoordinates[i] = SpacePoint(_space);
+	}
+
+	for(int i = 0;i < n ; i++)
+	{
+		preProcess(vec[i], _transformedCoordinates[i]);
 	}
 
 }

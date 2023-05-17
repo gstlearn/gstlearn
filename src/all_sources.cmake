@@ -12,6 +12,7 @@ set(SRC
   Matrix/AMatrix.cpp
   Matrix/AMatrixSquare.cpp
   Matrix/MatrixInt.cpp
+  Matrix/MatrixEigen.cpp
   Matrix/MatrixRectangular.cpp
   Matrix/MatrixSquareSymmetric.cpp
   Matrix/MatrixFactory.cpp

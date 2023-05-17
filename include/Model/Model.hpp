@@ -34,6 +34,7 @@
 #include "Anamorphosis/AAnam.hpp"
 
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixEigen.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -267,15 +268,14 @@ public:
     return _covaList->evalCovMatrix(db1, db2, ivar, jvar, mode);
   }
 
-
-  VectorVectorDouble evalCovMatrixOptim(const Db* db1,
-                                  const Db* db2 = nullptr,
-                                  int ivar = 0,
-                                  int jvar = 0,
-                                  const CovCalcMode& mode = CovCalcMode())
-  {
-    return _covaList->evalCovMatrixOptim(db1, db2, ivar, jvar, mode);
-  }
+  MatrixEigen evalCovMatrixEigen(const Db* db1,
+                                   const Db* db2 = nullptr,
+                                   int ivar = 0,
+                                   int jvar = 0,
+                                   const CovCalcMode& mode = CovCalcMode())
+   {
+     return _covaList->evalCovMatrixEigen(db1, db2, ivar, jvar, mode);
+   }
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,

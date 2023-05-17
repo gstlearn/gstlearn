@@ -417,6 +417,7 @@
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
+  #include "Matrix/MatrixEigen.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"

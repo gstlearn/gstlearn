@@ -27,6 +27,7 @@
 #include <vector>
 
 class Rotation;
+class MatrixEigen;
 
 class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable
 {
@@ -82,13 +83,20 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  virtual void evalOptim(const SpacePoint& p1,
-					  VectorDouble& res,
-					  VectorDouble& temp,
-					  SpacePoint& pt,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+  virtual void evalOptimEigen(MatrixEigen& res,
+  							  VectorDouble& temp,
+  							  int ivar = 0,
+  							  int jvar = 0,
+  							  const CovCalcMode& mode = CovCalcMode()) const override;
+
+  virtual void evalOptimEigen(const SpacePoint& pt,
+		  	  	  	  	  	  SpacePoint& ptemp,
+		  	  	  	  	  	  MatrixEigen& res,
+    							  int iech,
+    							  VectorDouble& temp,
+    							  int ivar = 0,
+    							  int jvar = 0,
+    							  const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
@@ -98,6 +106,8 @@ public:
   virtual double getBallRadius() const { return TEST; }
 
   void 	preProcess(const std::vector<SpacePoint>& vec) const override;
+  void preProcess(const SpacePoint& pt,SpacePoint& out) const;
+
   void 	cleanPreProcessInfo() const override;
 
 
@@ -209,12 +219,12 @@ public:
   void setMarkovCoeffs(VectorDouble coeffs);
   void setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
   void computeMarkovCoeffs();
+
   double getCorrec() const;
   double getFullCorrec() const;
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
   CovAniso* reduce(const VectorInt &validVars) const;
-
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
@@ -224,7 +234,15 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
-  void _preProcess(const SpacePoint& pt, SpacePoint& res) const;
+  void _evalOptimEigen(
+  		  SpacePoint& ptemp,
+  		  MatrixEigen& res,
+  		  int iech,
+  		  VectorDouble& temp,
+		  double sill,
+  		  const CovCalcMode& mode) const;
+
+
 
 private:
   CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?

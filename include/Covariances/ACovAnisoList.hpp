@@ -28,6 +28,7 @@ class CovAniso;
 class CovContext;
 class AStringFormat;
 class AAnam;
+class MatrixEigen;
 
 
 // TODO : rename CovAnisoList (this is not an abstract class)
@@ -56,13 +57,6 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  virtual void evalOptim(const SpacePoint& p1,
-						VectorDouble& res,
-						VectorDouble& temp,
-						SpacePoint& pttr,
-                        int ivar = 0,
-                        int jvar = 0,
-                        const CovCalcMode& mode = CovCalcMode()) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -111,6 +105,21 @@ public:
   int                getMinOrder() const;
   void 				 preProcess(const std::vector<SpacePoint>& vec) const override;
   void               cleanPreProcessInfo() const override;
+
+  virtual void evalOptimEigen(MatrixEigen& res,
+  							  VectorDouble& temp,
+  							  int ivar = 0,
+  							  int jvar = 0,
+  							  const CovCalcMode& mode = CovCalcMode()) const override;
+
+    virtual void evalOptimEigen(const SpacePoint&,
+    						    SpacePoint& ptemp,
+    							  MatrixEigen& res,
+    							  int iech,
+    							  VectorDouble& temp,
+    							  int ivar = 0,
+    							  int jvar = 0,
+    							  const CovCalcMode& mode = CovCalcMode()) const override;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

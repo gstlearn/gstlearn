@@ -688,71 +688,61 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
 }
 
 
-VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
-                                      	    const Db* db2,
-										    int ivar,
-										    int jvar,
-										    const CovCalcMode& mode) const
+MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
+                                     const Db* db2,
+									 int ivar,
+									 int jvar,
+									 const CovCalcMode& mode) const
 {
-  if (db2 == nullptr) db2 = db1;
-  int nechtot1 = db1->getSampleNumber(false);
-  int nechtot2 = db2->getSampleNumber(false);
-  int nech1 = db1->getSampleNumber(true);
-  int nech2 = db2->getSampleNumber(true);
-  VectorVectorDouble mat(nech1);
-  VectorDouble temp(nech2);
 
-  int ndim = getNDim();
-
-  for (auto &e : mat)
-  {
-	  e = VectorDouble(nech2);
-  }
-
-  /* Loop on the first sample */
+	int nechtot1 = db1->getSampleNumber(false);
+	int nech1 = db1->getSampleNumber(true);
 
 
-  int jech2 = 0;
-  std::vector<SpacePoint> pvect(nech2);
+	std::vector<SpacePoint> pvect(nech1);
+	VectorDouble temp(nech1);
 
-  for (int iech2 = 0; iech2 <nechtot2;iech2++)
-  {
-	  if (!db2->isActive(iech2)) continue;
-	  pvect[jech2] = SpacePoint(db2->getSampleCoordinates(iech2),getSpace());
-	  jech2++;
-  }
+	int jech1 = 0;
 
-  preProcess(pvect);
+	for (int iech1 = 0; iech1 <nechtot1;iech1++)
+	{
+		  if (!db1->isActive(iech1)) continue;
+		  pvect[jech1] = db1->getSampleCoordinates(iech1);
+		  jech1++;
+	}
 
-  SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
-  SpacePoint pttr(db1->getSampleCoordinates(0),getSpace());
+	MatrixEigen mat;
+	preProcess(pvect);
+
+	SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
+	SpacePoint ptemp(db1->getSampleCoordinates(0),getSpace());
 
 
-  int jech1 = 0;
-  for (int iech1 = 0; iech1 < nechtot1; iech1++)
-  {
-    if (!db1->isActive(iech1)) continue;
-    for(int idim = 0;idim<ndim;idim++)
-    	p1.setCoord(idim,db1->getCoordinate(iech1, idim));
-    evalOptim(p1,mat[jech1],temp,pttr,ivar, jvar, mode);
-    jech1++;
-  }
 
-  cleanPreProcessInfo();
-  return mat;
+
+	if (db2 == nullptr)
+	{
+		mat = MatrixEigen(nech1,nech1);
+		evalOptimEigen(mat,temp,ivar, jvar, mode);
+	}
+	else
+	{
+		int nechtot2 = db2->getSampleNumber(false);
+		int nech2 = db2->getSampleNumber(true);
+		mat = MatrixEigen(nech1,nech2);
+		int jech2 = 0;
+		for (int iech2 =  0; iech2 < nechtot2; iech2++)
+		{
+			if (!db2->isActive(iech2)) continue;
+			db2->getSampleCoordinates(iech2, p1.getCoordM());
+			evalOptimEigen(p1,ptemp,mat,jech2,temp,ivar, jvar, mode);
+			jech2++;
+		}
+	}
+	 cleanPreProcessInfo();
+	 return mat;
 }
 
-
-void ACov::evalVect(VectorDouble& res,
-			  const SpacePoint& p1,
-              const std::vector<SpacePoint>& vec_p2,
-              int ivar,
-              int jvar,
-              const CovCalcMode& mode) const
-{
-	for(int i = 0; i<(int)res.size();i++)
-		res[i] = eval(p1,vec_p2[i],ivar,jvar,mode);
-}
 
 /**
  * Variance of Extension of a set of points and the block

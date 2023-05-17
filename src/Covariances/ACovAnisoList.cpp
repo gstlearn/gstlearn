@@ -18,6 +18,8 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
 
+#include "Matrix/MatrixEigen.hpp"
+
 #include <math.h>
 #include <vector>
 
@@ -150,22 +152,34 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
   return cov;
 }
 
-void ACovAnisoList::evalOptim(const SpacePoint& p1,
-						   VectorDouble& res,
-						   VectorDouble& temp,
-						   SpacePoint& pttr,
-                           int ivar,
-                           int jvar,
-                           const CovCalcMode& mode) const
+void ACovAnisoList::evalOptimEigen(MatrixEigen& res,
+							  VectorDouble& temp,
+							  int ivar,
+							  int jvar,
+							  const CovCalcMode& mode) const
 {
-  for (auto &e: res)
-	  e=0;
-  for (int i=0, n=getCovNumber(); i<n; i++)
-    {
-      _covs[i]->evalOptim(p1, res,temp,pttr,ivar, jvar, mode);
-    }
+
+	for (int icov = 0, n = getCovNumber(); icov<n;icov++)
+	{
+		_covs[icov]->evalOptimEigen(res,temp,ivar,jvar,mode);
+	}
 }
 
+void ACovAnisoList::evalOptimEigen(const SpacePoint& pt,
+							  SpacePoint& ptemp,
+		  	  	  	  	  	  MatrixEigen& res,
+							  int iech,
+							  VectorDouble& temp,
+							  int ivar,
+							  int jvar,
+							  const CovCalcMode& mode) const
+{
+
+	for (int icov = 0, n = getCovNumber(); icov<n;icov++)
+	{
+		_covs[icov]->evalOptimEigen(pt,ptemp,res,iech,temp,ivar,jvar,mode);
+	}
+}
 
 double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
@@ -446,6 +460,7 @@ void ACovAnisoList::preProcess(const std::vector<SpacePoint>& vec) const
 	for (int is = 0; is < getCovNumber(); is++)
 		_covs[is]->preProcess(vec);
 }
+
 
 void ACovAnisoList::cleanPreProcessInfo() const
 {

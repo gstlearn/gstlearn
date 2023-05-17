@@ -16,6 +16,8 @@
 #include "Estimation/KrigingSystem.hpp"
 #include "Basic/OptDbg.hpp"
 
+#include "Matrix/MatrixEigen.hpp"
+
 #include <math.h>
 
 CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
@@ -653,3 +655,78 @@ int test_neigh(Db *dbin,
   int error = (krige.run()) ? 0 : 1;
   return error;
 }
+
+
+
+void krigingExperimental(const Db *dbin,
+                        Db *dbout,
+                        Model *model,
+						bool flag_est,
+                        bool flag_std,
+						bool flag_varz,
+                        const NamingConvention& namconv)
+{
+
+	int nech = dbin->getSampleNumber(true);
+	int nechout = dbout->getSampleNumber(true);
+
+	VectorDouble res = VectorDouble(nechout);
+	VectorDouble z = dbin->getColumnByLocator(ELoc::Z, 0, true, false);
+
+	double mean = model->getMean(0);
+	MatrixEigen driftsE;
+	VectorDouble coeffs;
+
+	if ( model->getDriftNumber() == 0)
+	{
+		VH::addConstant(z, -mean);
+	}
+	else
+	{
+		VectorVectorDouble drifts = model->getDrifts(dbin, true);
+		coeffs = VectorDouble(model->getDriftNumber());
+		driftsE = MatrixEigen(drifts,true);
+	}
+
+	auto C  = model->evalCovMatrixEigen(dbin);
+	auto C0 = model->evalCovMatrixEigen(dbin,dbout);
+
+
+	VectorDouble drift;
+
+	if ( model->getDriftNumber() > 0)
+	{
+		VectorDouble tempv = VectorDouble(model->getDriftNumber());
+		auto tempDriftsE = C.solve(driftsE); // C^{-1} F
+		auto temp = MatrixEigen::prodT1(driftsE, tempDriftsE); // F'C^{-1}F
+		tempDriftsE.prodTMatVecInPlace(z,tempv);  //                F'C^{-1}z
+		temp.solve(tempv,coeffs);
+		drift = model->evalDrifts(dbin, coeffs,0, true);
+		VH::subtractInPlace(z, drift);
+	}
+
+	if (!flag_std && !flag_varz)
+	{
+		VectorDouble dual = VectorDouble(nech);
+		C.solve(z,dual);
+		C0.prodTMatVecInPlace(dual,res);
+	}
+	else
+	{
+
+
+	}
+
+	if (model->getDriftNumber() == 0)
+	{
+		VH::addConstant(res, mean);
+	}
+	else
+	{
+		drift = model->evalDrifts(dbout, coeffs,0, true);
+		VH::addInPlace(res, drift);
+	}
+	dbout->addColumns(res, "result", ELoc::Z, 0, true, 0.,0);
+
+}
+
