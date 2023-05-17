@@ -42,8 +42,8 @@ public:
   static void displayRange(const String &title, const VectorInt &vect);
   static void displayNNZ(const String &title, const VectorDouble &vect, int nclass = 10);
 
-  static int maximum(const VectorInt &vec);
-  static int minimum(const VectorInt &vec);
+  static int maximum(const VectorInt &vec, bool flagAbs = false);
+  static int minimum(const VectorInt &vec, bool flagAbs = false);
   static double maximum(const VectorDouble &vec, bool flagAbs = false);
   static double minimum(const VectorDouble &vec, bool flagAbs = false);
   static double maximum(const VectorVectorDouble &vec, bool flagAbs = false);
@@ -54,6 +54,7 @@ public:
   static int countDefined(const VectorDouble& vec);
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);
 
+  static int    cumul(const VectorInt& vec);
   static double cumul(const VectorDouble &vec);
   static double mean(const VectorDouble &vec);
   static double variance(const VectorDouble &vec);
@@ -112,6 +113,9 @@ public:
   static VectorDouble inverse(const VectorDouble& vec);
 
   static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb);
+  static double innerProductSubVec(const VectorDouble &veca,
+                                   const VectorDouble &vecb,
+                                   int size);
   static VectorDouble crossProduct(const VectorDouble &veca, const VectorDouble &vecb);
 
   static void cumulate(VectorDouble &veca,

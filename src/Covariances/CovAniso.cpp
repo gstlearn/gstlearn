@@ -654,8 +654,6 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  if (!_isVariableValid(ivar)) return TEST;
-  if (!_isVariableValid(jvar)) return TEST;
   if (!_sill.isValid(ivar, jvar)) return TEST;
   return _sill.getValue(ivar, jvar);
 }
@@ -903,7 +901,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext &ctxt,
 CovAniso* CovAniso::createIsotropicMulti(const CovContext &ctxt,
                                          const ECov &type,
                                          double range,
-                                         const MatrixSquareGeneral &sills,
+                                         const MatrixSquareSymmetric &sills,
                                          double param,
                                          bool flagRange)
 {
@@ -928,7 +926,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext &ctxt,
 CovAniso* CovAniso::createAnisotropicMulti(const CovContext &ctxt,
                                            const ECov &type,
                                            const VectorDouble &ranges,
-                                           const MatrixSquareGeneral &sills,
+                                           const MatrixSquareSymmetric &sills,
                                            double param,
                                            const VectorDouble &angles,
                                            bool flagRange)

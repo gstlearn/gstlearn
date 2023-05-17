@@ -283,7 +283,6 @@ bool CalcKriging::_run()
 
   /* Loop on the targets to be processed */
 
-  (void) ksys.updKrigOptCheckAddress(true);  // Modif DR
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
     if (_iechSingleTarget > 0)
@@ -648,7 +647,6 @@ int test_neigh(Db *dbin,
   krige.setModel(model);
   krige.setNeighparam(neighparam);
   krige.setNamingConvention(namconv);
-
   krige.setFlagNeighOnly(true);
 
   // Run the calculator
@@ -669,6 +667,7 @@ void krigingExperimental(const Db *dbin,
 
 	int nech = dbin->getSampleNumber(true);
 	int nechout = dbout->getSampleNumber(true);
+	int nloc = 0;
 
 	VectorDouble res = VectorDouble(nechout);
 	VectorDouble z = dbin->getColumnByLocator(ELoc::Z, 0, true, false);
@@ -693,6 +692,8 @@ void krigingExperimental(const Db *dbin,
 
 
 	VectorDouble drift;
+	VectorDouble vars;
+	VectorDouble varest;
 
 	if ( model->getDriftNumber() > 0)
 	{
@@ -713,6 +714,11 @@ void krigingExperimental(const Db *dbin,
 	}
 	else
 	{
+		varest.resize(dbout->getSampleNumber(true));
+		auto weights = C.solve(C0);
+		weights.prodTMatVecInPlace(z,res);
+		auto varmat = MatrixEigen::productPointwise(weights, C0);
+		varmat.sumColsInPlace(varest);
 
 
 	}
@@ -726,7 +732,17 @@ void krigingExperimental(const Db *dbin,
 		drift = model->evalDrifts(dbout, coeffs,0, true);
 		VH::addInPlace(res, drift);
 	}
-	dbout->addColumns(res, "result", ELoc::Z, 0, true, 0.,0);
+	if (flag_est)
+	{
+		dbout->addColumns(res, "estim", ELoc::Z, nloc, true, 0.,0);
+		nloc++;
+	}
+
+	if (flag_varz)
+	{
+		dbout->addColumns(varest,  "var_z", ELoc::Z, nloc, true, 0.,0);
+		nloc++;
+	}
 
 }
 

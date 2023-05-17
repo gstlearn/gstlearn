@@ -77,7 +77,6 @@ public:
   virtual void 	preProcess(const std::vector<SpacePoint>& vec) const {};
   virtual void  cleanPreProcessInfo() const {}
 
-
   /////////////////////////////////////////////////////////////////////////////////
 
   MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;
@@ -90,6 +89,7 @@ public:
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode& mode = CovCalcMode()) const;
+
   double evalIvarIpas(double step,
                       const VectorDouble& dir,
                       int ivar = 0,
@@ -189,6 +189,7 @@ public:
                                      int ivar = 0,
                                      int jvar = 0,
                                      const CovCalcMode& mode = CovCalcMode()) const;
+
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,

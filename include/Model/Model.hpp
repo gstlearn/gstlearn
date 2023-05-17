@@ -165,6 +165,13 @@ public:
   {
     return _covaList->evalNvarIpas(step, dir, center, mode);
   }
+  MatrixSquareGeneral evalMat(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalMat(p1, p2, mode);
+  }
+
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode& mode = CovCalcMode()) const
   {
