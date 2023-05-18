@@ -28,8 +28,8 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighWork.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
@@ -145,14 +145,16 @@ int main(int /*argc*/, char */*argv*/[])
   int nmini = 5;
   int nmaxi = 5;
   double radius = 1.;
-  NeighMoving* neigh = NeighMoving::create(false, nmaxi, radius, nmini);
-  neigh->display();
+  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini);
+  neighM->display();
+  NeighWork* neighW = NeighWork::create(data, neighM, blocs);
 
   // ====================== Conditional Expectation =====================
 
   // Estimating the Gaussian Variable on the nodes of the Blocks
   data->display();
-  (void) kriging(data, blocs, model, neigh, EKrigOpt::POINT,
+  neighW->setDbout(blocs);
+  (void) kriging(data, blocs, model, neighW, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
                  VectorVectorDouble(), NamingConvention("G_PTS"));
 
@@ -176,21 +178,23 @@ int main(int /*argc*/, char */*argv*/[])
   data->display();
 
   // Simple Point Kriging over the blocks
-  (void) krigingFactors(data, blocs, model, neigh, EKrigOpt::POINT,
-                            VectorInt(), true, true,
-                            NamingConvention("DK_Pts"));
+  neighW->setDbout(blocs);
+  (void) krigingFactors(data, blocs, model, neighW, EKrigOpt::POINT,
+                        VectorInt(), true, true, NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
-  VectorInt ndisc_B = {5,5};
-  (void) krigingFactors(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
-                            true, true, NamingConvention("DK_Blk"));
+  VectorInt ndisc_B = { 5, 5 };
+  neighW->setDbout(blocs);
+  (void) krigingFactors(data, blocs, model, neighW, EKrigOpt::BLOCK, ndisc_B,
+                        true, true, NamingConvention("DK_Blk"));
   blocs->display();
 
   // Simple Block Kriging over the panel(s)
-  VectorInt ndisc_P = { 10,10};
-  (void) krigingFactors(data, panel, model, neigh, EKrigOpt::BLOCK, ndisc_P,
-                            true, true, NamingConvention("DK_Blk"));
+  VectorInt ndisc_P = { 10, 10 };
+  neighW->setDbout(panel);
+  (void) krigingFactors(data, panel, model, neighW, EKrigOpt::BLOCK, ndisc_P,
+                        true, true, NamingConvention("DK_Blk"));
   panel->display();
 
   // ====================== Uniform Conditioning ==================================
@@ -199,7 +203,8 @@ int main(int /*argc*/, char */*argv*/[])
   data->clearLocators(ELoc::Z);
   data->setLocator("Z",ELoc::Z);
   data->display();
-  (void) kriging(data, blocs, model, neigh, EKrigOpt::POINT,
+  neighW->setDbout(blocs);
+  (void) kriging(data, blocs, model, neighW, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
                  VectorVectorDouble(), NamingConvention("Z_PTS"));
   blocs->display();
@@ -235,13 +240,15 @@ int main(int /*argc*/, char */*argv*/[])
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) krigingFactors(data, blocs, model_b1_Y, neigh, EKrigOpt::POINT,
+  neighW->setDbout(blocs);
+  (void) krigingFactors(data, blocs, model_b1_Y, neighW, EKrigOpt::POINT,
                             VectorInt(), true, true,
                             NamingConvention("DK_DGM1"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) krigingFactors(data, panel, model_b1_Y, neigh, EKrigOpt::BLOCK,
+  neighW->setDbout(panel);
+  (void) krigingFactors(data, panel, model_b1_Y, neighW, EKrigOpt::BLOCK,
                             { nx_B, nx_B }, true, true,
                             NamingConvention("DK_DGM1"));
   panel->display();
@@ -273,15 +280,16 @@ int main(int /*argc*/, char */*argv*/[])
   model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) krigingFactors(data, blocs, model_b2_Y, neigh, EKrigOpt::POINT,
-                            VectorInt(), true, true,
-                            NamingConvention("DK_DGM2"));
+  neighW->setDbout(blocs);
+  (void) krigingFactors(data, blocs, model_b2_Y, neighW, EKrigOpt::POINT,
+                        VectorInt(), true, true, NamingConvention("DK_DGM2"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) krigingFactors(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK,
-                            { nx_B, nx_B }, true, true,
-                            NamingConvention("DK_DGM2"));
+  neighW->setDbout(panel);
+  (void) krigingFactors(data, panel, model_b2_Y, neighW, EKrigOpt::BLOCK,
+                        { nx_B, nx_B }, true, true,
+                        NamingConvention("DK_DGM2"));
   panel->display();
 
   // ====================== Selectivity Function ==================================
@@ -310,7 +318,8 @@ int main(int /*argc*/, char */*argv*/[])
   if (vario_b1_Z != nullptr) delete vario_b1_Z;
   if (vario_b1_Y != nullptr) delete vario_b1_Y;
   if (vario_b2_Y != nullptr) delete vario_b2_Y;
-  if (neigh      != nullptr) delete neigh;
+  if (neighM     != nullptr) delete neighM;
+  if (neighW     != nullptr) delete neighW;
 
   return (0);
 }

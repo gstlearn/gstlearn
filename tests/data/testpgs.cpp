@@ -35,7 +35,6 @@
 /*********************/
 
 int main(int argc, char *argv[])
-
 {
   char       filename[BUFFER_LENGTH];
   Db        *dbin;
@@ -43,6 +42,7 @@ int main(int argc, char *argv[])
   Vario     *vario;
   Model     *model[2][2];
   NeighUnique *neighU;
+  NeighWork   *neighW;
   Rule      *rule[2];
   Option_VarioFit options;
   RuleStringFormat rulefmt;
@@ -63,6 +63,7 @@ int main(int argc, char *argv[])
   dbout    = nullptr;
   vario    = nullptr;
   neighU   = nullptr;
+  neighW   = nullptr;
   ruleprop = nullptr;
   for (i=0; i<2; i++)
   {
@@ -189,6 +190,7 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   neighU = NeighUnique::create();
+  neighW = NeighWork::create(dbin, neighU, dbout);
 
   /* Perform the Pluri-Gaussian Simulations */
 
@@ -198,14 +200,14 @@ int main(int argc, char *argv[])
     {
       ruleprop = RuleProp::createFromRule(rule[0],props);
       if (simpgs(dbin,dbout,ruleprop,model[0][0],model[0][1],
-                 neighU,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
+                 neighW,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     else
     {
       ruleprop = RuleProp::createFromRules(rule[0],rule[1],props);
       if (simbipgs(dbin,dbout,ruleprop,
                    model[0][0],model[0][1],model[1][0],model[1][1],
-                   neighU,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
+                   neighW,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     dbfmt.setFlags(true, false, true, true, true);
     dbout->display(&dbfmt);
@@ -230,5 +232,7 @@ label_end:
   }
   delete ruleprop;
   delete neighU;
+  delete neighW;
+
   return(0);
 }

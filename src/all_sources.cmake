@@ -259,12 +259,12 @@ set(SRC
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
   Neigh/ANeigh.cpp
+  Neigh/NeighWork.cpp
   Neigh/ANeighParam.cpp
   Neigh/NeighUnique.cpp
   Neigh/NeighImage.cpp
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
-  Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp

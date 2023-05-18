@@ -24,8 +24,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Neigh/ANeighParam.hpp"
-#include "Neigh/NeighMoving.hpp"
 
 /****************************************************************************/
 /*!
@@ -96,18 +94,9 @@ int main(int /*argc*/, char * /*argv*/[])
   model->setCovList(&covs);
   model->display();
 
-  // Neighborhood
-
-  ANeighParam* neighparam = nullptr;
-  if (flag_moving)
-  {
-    neighparam = NeighMoving::create(false, nmaxi, nbgh_radius);
-    neighparam->display();
-  }
-
   // Gibbs
 
-  if (gibbs_sampler(db, model, neighparam, nbsimu, seed, nburn, niter, false,
+  if (gibbs_sampler(db, model, nbsimu, seed, nburn, niter, flag_moving, false,
                     flag_multi_mono, flag_propagation, flag_sym_neigh, 2, 5.,
                     false, false, verbose)) return 1;
   DbStringFormat dbfmt(FLAG_STATS,{"*Gibbs*"});
@@ -133,6 +122,5 @@ int main(int /*argc*/, char * /*argv*/[])
 
   delete db;
   delete model;
-  delete neighparam;
   return(0);
 }

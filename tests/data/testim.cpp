@@ -80,6 +80,7 @@ int main(int argc, char *argv[])
   Vario     *vario;
   Model     *model,*new_model;
   ANeighParam *neighparam;
+  NeighWork *neighW;
   Option_AutoFit mauto;
   Constraints constraints;
   DbStringFormat dbfmt;
@@ -95,6 +96,7 @@ int main(int argc, char *argv[])
   vario = nullptr;
   model = new_model = nullptr;
   neighparam = nullptr;
+  neighW = nullptr;
 
   /* Standard output redirection to file */
 
@@ -171,6 +173,7 @@ int main(int argc, char *argv[])
     neighparam = NeighBench::createFromNF(filename, verbose);
   if (neighparam == nullptr)
     neighparam = NeighMoving::createFromNF(filename, verbose);
+  neighW = NeighWork::create(dbin, neighparam, dbout);
 
   /* Look for simulations */
 
@@ -182,8 +185,8 @@ int main(int argc, char *argv[])
   if (dbin->getIntervalNumber() > 0)
   {
     dbin->clearLocators(ELoc::Z);
-    if (gibbs_sampler(dbin,new_model,nullptr,
-                      1,seed,nboot,niter,false,true,false,false,0,
+    if (gibbs_sampler(dbin,new_model,
+                      1,seed,nboot,niter,false,false,true,false,false,0,
                       5.,true,true,true))
       messageAbort("gibbs_sampler");
     /* Set the current variable to the conditional expectation */
@@ -199,19 +202,23 @@ int main(int argc, char *argv[])
     
       /* Simulation case */
 
-      if (simtub(dbin,dbout,new_model,neighparam,nbsimu,seed,nbtuba,0))
+      neighW->setDbin(dbin);
+      neighW->setDbout(dbout);
+      if (simtub(dbin,dbout,new_model,neighW,nbsimu,seed,nbtuba,0))
         messageAbort("Simulations");
       dbfmt.setFlags(true, false, true, true, true);
       dbout->display(&dbfmt);
     }
     else
     {
-      if (neighparam->getFlagXvalid())
+      if (dbout == nullptr)
       {
         
         /* Cross-validation */
 
-        if (xvalid(dbin,new_model,neighparam,0,1,0,0)) messageAbort("xvalid");
+        neighW->setDbin(dbin);
+        neighW->setDbout(dbin);
+        if (xvalid(dbin,new_model,neighW,0,1,0,0)) messageAbort("xvalid");
         dbfmt.setFlags(true, false, true, true, true);
         dbin->display(&dbfmt);
       }
@@ -220,8 +227,9 @@ int main(int argc, char *argv[])
 
         /* Estimation case */
 
-        if (dbout == nullptr) goto label_end;
-        if (kriging(dbin,dbout,new_model,neighparam,EKrigOpt::POINT,
+        neighW->setDbin(dbin);
+        neighW->setDbout(dbout);
+        if (kriging(dbin,dbout,new_model,neighW,EKrigOpt::POINT,
                     1,1,0)) messageAbort("kriging");
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);
@@ -239,6 +247,7 @@ label_end:
   delete model;
   delete new_model;
   delete neighparam;
+  delete neighW;
   delete vario;
   return(0);
 }

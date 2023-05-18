@@ -51,18 +51,7 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  /* NeighUniqueborhood options */
-
   sstr << "Space dimension = " << getNDim() << std::endl;
-  if (getFlagXvalid())
-  {
-    sstr << "The Cross-Validation Option is switched ON" << std::endl;
-
-    if (getFlagKFold())
-    {
-      sstr << "KFold Option is switched ON" << std::endl;
-    }
-  }
 
   return sstr.str();
 }
@@ -70,13 +59,10 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
 bool ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim = 0;
-  int flag_xvalid = 0;
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
   if (ret) setNDim(ndim);
-  ret = ret && _recordRead<int>(is, "Cross-validation flag", flag_xvalid);
-  if (ret) setFlagXvalid(flag_xvalid);
   return ret;
 }
 
@@ -84,7 +70,6 @@ bool ANeighParam::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
-  ret = ret && _recordWrite<int>(os, "Cross-Validation flag", getFlagXvalid());
 
   return ret;
 }

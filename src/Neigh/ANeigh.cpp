@@ -32,8 +32,9 @@ ANeigh::ANeigh(const Db *dbin, const ANeighParam *neighparam, const Db* dbout)
       _rankColCok(),
       _iechMemo(-1),
       _flagSimu(false),
+      _flagXvalid(false),
+      _flagKFold(false),
       _flagIsUnchanged(false),
-      _ptOut(),
       _nbghMemo()
 {
   initialize(dbin, neighparam, dbout);
@@ -47,8 +48,9 @@ ANeigh::ANeigh(const ANeigh &r)
       _rankColCok(r._rankColCok),
       _iechMemo(r._iechMemo),
       _flagSimu(r._flagSimu),
+      _flagXvalid(r._flagXvalid),
+      _flagKFold(r._flagKFold),
       _flagIsUnchanged(r._flagIsUnchanged),
-      _ptOut(r._ptOut),
       _nbghMemo(r._nbghMemo)
 {
 }
@@ -64,8 +66,9 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
     _rankColCok = r._rankColCok;
     _iechMemo = r._iechMemo;
     _flagSimu = r._flagSimu;
+    _flagXvalid = r._flagXvalid;
+    _flagKFold = r._flagKFold;
     _flagIsUnchanged = r._flagIsUnchanged;
-    _ptOut = r._ptOut;
     _nbghMemo = r._nbghMemo;
   }
   return *this;
@@ -81,13 +84,27 @@ int ANeigh::initialize(const Db *dbin,
 {
   if (neighparam == nullptr || dbin == nullptr) return 1;
   _neighParam = neighparam;
-  _dbin  = dbin;
+  setDbin(dbin);
+  setDbout(dbout);
+  return 0;
+}
+
+void ANeigh::setDbin(const Db* dbin)
+{
+  _dbin = dbin;
+  setIsChanged();
+}
+
+
+void ANeigh::setDbout(const Db* dbout)
+{
   _dbout = dbout;
 
   // Check if the output Db is defined and is a grid
   if (_dbout != nullptr)
     _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-  return 0;
+
+  setIsChanged();
 }
 
 void ANeigh::setIsChanged()
@@ -95,6 +112,17 @@ void ANeigh::setIsChanged()
   _flagIsUnchanged = false;
   _nbghMemo.clear();
 };
+
+void ANeigh::reset()
+{
+  _flagIsUnchanged = false;
+  _nbghMemo.clear();
+  _rankColCok.clear();
+  _iechMemo = -1;
+  _flagSimu = false;
+  _flagXvalid = false;
+  _flagKFold = false;
+}
 
 VectorInt ANeigh::select(int iech_out)
 {

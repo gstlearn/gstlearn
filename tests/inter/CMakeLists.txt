@@ -3,6 +3,7 @@ set(TEST_SOURCES
   testInter_Ask.cpp
   testInter_GibbsMMulti.cpp
   testBench_Kriging.cpp
+  testBench_Image.cpp
   testBench_Db.cpp)
 
 # Generation folder

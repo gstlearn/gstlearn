@@ -24,7 +24,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include <Simulation/CalcSimuTurningBands.hpp>
 
 #include <math.h>
@@ -540,7 +540,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
                      Db *dbtgt,
                      DbGrid* dbout,
                      Model *model,
-                     ANeighParam *neighparam)
+                     ANeigh *neigh)
 {
   static int nring = 1;
 
@@ -580,7 +580,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Model must be monovariate");
     return false;
   }
-  if (neighparam->getType() != ENeigh::UNIQUE)
+  if (neigh->getNeighParam()->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     return false;
@@ -3013,7 +3013,7 @@ static void st_save_result_on_data(Pot_Env* pot_env,
  ** \param[in]  dbtgt      Tangent Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  nugget_grd Nugget effect for Gradients
  ** \param[in]  nugget_tgt Nugget effect for Tangents
  ** \param[in]  flag_pot   True if the Potential must be estimated
@@ -3041,7 +3041,7 @@ int potential_kriging(Db *dbiso,
                       Db *dbtgt,
                       DbGrid *dbout,
                       Model *model,
-                      ANeighParam *neighparam,
+                      ANeigh *neigh,
                       double nugget_grd,
                       double nugget_tgt,
                       bool flag_pot,
@@ -3073,7 +3073,7 @@ int potential_kriging(Db *dbiso,
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                       neighparam)) goto label_end;
+                       neigh)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3227,7 +3227,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
  ** \param[in]  dbtgt        Tangent Db structure (optional)
  ** \param[in]  dbout        Output Db structure
  ** \param[in]  model        Model structure
- ** \param[in]  neighparam   ANeighParam structure
+ ** \param[in]  neigh        ANeigh structure
  ** \param[in]  nugget_grd   Nugget effect for Gradients
  ** \param[in]  nugget_tgt   Nugget effect for Tangents
  ** \param[in]  dist_tempere Distance for tempering simulations (or TEST)
@@ -3246,7 +3246,7 @@ int potential_simulate(Db *dbiso,
                        Db *dbtgt,
                        DbGrid *dbout,
                        Model *model,
-                       ANeighParam *neighparam,
+                       ANeigh *neigh,
                        double nugget_grd,
                        double nugget_tgt,
                        double dist_tempere,
@@ -3284,7 +3284,7 @@ int potential_simulate(Db *dbiso,
   delta /= 1000.;
 
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                       neighparam)) goto label_end;
+                       neigh)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3442,7 +3442,7 @@ int potential_simulate(Db *dbiso,
  ** \param[in]  dbgrd          Gradient Db structure
  ** \param[in]  dbtgt          Tangent Db structure (optional)
  ** \param[in]  model          Model structure
- ** \param[in]  neighparam     ANeighParam structure
+ ** \param[in]  neigh          ANeigh structure
  ** \param[in]  nugget_grd     Nugget effect for Gradients
  ** \param[in]  nugget_tgt     Nugget effect for Tangents
  ** \param[in]  flag_dist_conv Flag for converting into distance
@@ -3453,7 +3453,7 @@ int potential_xvalid(Db *dbiso,
                      Db *dbgrd,
                      Db *dbtgt,
                      Model *model,
-                     ANeighParam *neighparam,
+                     ANeigh *neigh,
                      double nugget_grd,
                      double nugget_tgt,
                      int flag_dist_conv,
@@ -3477,7 +3477,7 @@ int potential_xvalid(Db *dbiso,
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, NULL, model,
-                       neighparam)) goto label_end;
+                       neigh)) goto label_end;
 
   // Count the gradients and the tangents
 

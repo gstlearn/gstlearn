@@ -21,8 +21,8 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Variogram/Vario.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighWork.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "LithoRule/Rule.hpp"
@@ -100,6 +100,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Neighborhood
   NeighUnique* neighU = NeighUnique::create();
   neighU->display();
+  NeighWork* neighW = NeighWork::create(nullptr, neighU, dbgrid);
 
   // Creating the Rules
   Rule* rule1 = Rule::createFromNames({"S","S","F1","F2","F3"});
@@ -110,7 +111,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* ruleprop1 = RuleProp::createFromRule(rule1, props1);
 
   // Perform a non-conditional PGS simulation on a grid
-  error = simpgs(nullptr,dbgrid,ruleprop1,&model1,&model2,neighU,nbsimu);
+  error = simpgs(nullptr,dbgrid,ruleprop1,&model1,&model2,neighW,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Facies*"});
   dbgrid->display(&dbfmt);
@@ -125,7 +126,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Perform a non-conditional BiPGS simulation on a grid
   error = simbipgs(nullptr,dbgrid,rulepropbi,
-                   &model1,&model2,&model3,&model4,neighU,nbsimu);
+                   &model1,&model2,&model3,&model4,neighW,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
   dbfmt = DbStringFormat(FLAG_STATS,{"BiPGS-Facies*"});
   dbgrid->display(&dbfmt);
@@ -141,7 +142,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* rulepropshift = RuleProp::createFromRule(ruleshift, propshift);
 
   // Perform a non-conditional PGS Shift simulation on a grid
-  error = simpgs(nullptr,dbgrid,rulepropshift,&model1,nullptr,neighU,nbsimu);
+  error = simpgs(nullptr,dbgrid,rulepropshift,&model1,nullptr,neighW,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
   dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Shift-Facies*"});
   dbgrid->display(&dbfmt);
@@ -159,7 +160,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* rulepropshadow = RuleProp::createFromRule(ruleshadow, propshadow);
 
   // Perform a non-conditional PGS Shadow simulation on a grid
-  error = simpgs(nullptr,dbgrid,rulepropshadow,&model1,nullptr,neighU,nbsimu);
+  error = simpgs(nullptr,dbgrid,rulepropshadow,&model1,nullptr,neighW,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
   dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Shadow-Facies*"});
   dbgrid->display(&dbfmt);
@@ -175,5 +176,6 @@ int main(int /*argc*/, char */*argv*/[])
   delete rulepropshift;
   delete rulepropshadow;
   delete neighU;
+  delete neighW;
   return(error);
 }

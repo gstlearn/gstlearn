@@ -153,7 +153,7 @@ private:
   void _wgtDump(int status);
   VectorInt _getRelativePosition();
   int  _lhsInvert();
-  void _dual();
+  void _dualCalcul();
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
@@ -174,7 +174,7 @@ private:
                        int ival,
                        int nval) const;
   bool   _prepareForImage(const NeighImage* neighI);
-  bool   _prepareForImageKriging(Db* dbaux);
+  bool   _prepareForImageKriging(Db* dbaux, const NeighImage* neighI);
   int    _bayesPreCalculations();
   void   _bayesPreSimulate();
   void   _bayesCorrectVariance();
@@ -293,6 +293,7 @@ private:
   int _nfex;
   int _neq;
   int _nred;
+  bool _flagIsotopic;
 
   /// Working arrays
   mutable bool _flagCheckAddress;
@@ -305,6 +306,7 @@ private:
   mutable VectorDouble _rhs;
   mutable VectorDouble _wgt;
   mutable VectorDouble _zam;
+  mutable VectorDouble _zext;
   mutable VectorDouble _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;

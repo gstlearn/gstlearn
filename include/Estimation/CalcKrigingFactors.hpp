@@ -60,7 +60,7 @@ private:
 GSTLEARN_EXPORT int krigingFactors(Db *dbin,
                                    Db *dbout,
                                    Model *model,
-                                   ANeighParam *neighparam,
+                                   ANeigh *neigh,
                                    const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
                                    const VectorInt &ndisc = VectorInt(),
                                    bool flag_est = true,

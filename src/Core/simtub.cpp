@@ -38,8 +38,8 @@
 #include "LithoRule/RuleProp.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
@@ -459,18 +459,16 @@ static int st_check_simtub_environment(Db *dbin,
 
   if (flag_cond && neigh != nullptr)
   {
-    const ANeighParam* neighparam = neigh->getNeighParam();
-    if (ndim != (int) neighparam->getNDim())
+    if (ndim != (int) neigh->getNeighParam()->getNDim())
     {
-      messerr("The Space Dimension of the Neighborhood (%d)", (int) neighparam->getNDim());
+      messerr("The Space Dimension of the Neighborhood (%d)", (int) neigh->getNeighParam()->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
       return 1;
     }
-    if (neighparam->getFlagXvalid() && neighparam->getType() != ENeigh::MOVING)
+    if (neigh->getFlagXvalid() && neigh->getNeighParam()->getType() != ENeigh::MOVING)
     {
-      messerr(
-          "The Cross-Validation can only be processed with Moving neighborhood");
+      messerr("The Cross-Validation can only be processed with Moving neighborhood");
       return 1;
     }
   }
@@ -1554,11 +1552,11 @@ int db_simulations_to_ce(Db *db,
  **
  ** \param[in]  dbin        Db structure
  ** \param[in]  model       Model structure
- ** \param[in]  neighparam  Neigh structure (optional)
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
  ** \param[in]  gibbs_niter Maximum number of iterations
+ ** \param[in]  flag_moving      1 for Moving
  ** \param[in]  flag_norm   1 if the Model must be normalized
  ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
  ** \param[in]  flag_propagation 1 for the propagation algorithm
@@ -1576,11 +1574,11 @@ int db_simulations_to_ce(Db *db,
  *****************************************************************************/
 int gibbs_sampler(Db *dbin,
                   Model *model,
-                  ANeighParam *neighparam,
                   int nbsimu,
                   int seed,
                   int gibbs_nburn,
                   int gibbs_niter,
+                  bool flag_moving,
                   bool flag_norm,
                   bool flag_multi_mono,
                   bool flag_propagation,
@@ -1657,7 +1655,9 @@ int gibbs_sampler(Db *dbin,
   {
     AGibbs *gibbs;
     if (!flag_multi_mono)
-      gibbs = GibbsFactory::createGibbs(dbin, model, neighparam);
+    {
+      gibbs = GibbsFactory::createGibbs(dbin, model, flag_moving);
+    }
     else
     {
       std::vector<Model*> modvec;

@@ -163,12 +163,12 @@
 %include Model/NoStatFunctional.hpp
 
 %include Neigh/ANeigh.hpp
+%include Neigh/NeighWork.hpp
 %include Neigh/ANeighParam.hpp
 %include Neigh/NeighUnique.hpp
 %include Neigh/NeighImage.hpp
 %include Neigh/NeighMoving.hpp
 %include Neigh/NeighBench.hpp
-%include Neigh/NeighWork.hpp
 
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp

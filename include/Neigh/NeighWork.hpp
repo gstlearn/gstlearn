@@ -31,11 +31,11 @@ public:
                  const Db *dbout = nullptr) override;
   bool hasChanged(int iech_out) const override;
   VectorInt getNeigh(int iech_out) override;
+  VectorDouble summary(int iech_out) override;
 
-  void clear();
-  VectorDouble summary(int iech_out);
-
-  void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
+  static NeighWork* create(const Db *dbin,
+                           const ANeighParam *neighparam,
+                           const Db *dbout = nullptr);
 
 private:
   void _unique(int iech_out, VectorInt& ranks);
@@ -55,7 +55,6 @@ private:
   bool _hiddenByFault(int iech, int iech_out) const;
 
 private:
-
   mutable VectorInt    _movingInd;
   mutable VectorInt    _movingIsect;
   mutable VectorInt    _movingNsect;

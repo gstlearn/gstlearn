@@ -18,7 +18,6 @@
 
 class Db;
 class DbGrid;
-class ANeighParam;
 
 class GSTLEARN_EXPORT CalcSimpleInterpolation: public ACalcInterpolator
 {

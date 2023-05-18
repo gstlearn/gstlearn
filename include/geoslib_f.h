@@ -26,9 +26,6 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
-#include "Neigh/ANeighParam.hpp"
-#include "Neigh/NeighImage.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
@@ -41,7 +38,6 @@ class VarioParam;
 class Model;
 class AAnam;
 class ANeigh;
-class ANeighParam;
 class Polygons;
 class RuleProp;
 class PCA;
@@ -345,11 +341,11 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                                                                               ELoc::fromKey("P")));
 GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   Model *model,
-                                  ANeighParam *neighparam,
                                   int nbsimu,
                                   int seed,
                                   int gibbs_nburn,
                                   int gibbs_niter,
+                                  bool flag_moving,
                                   bool flag_norm,
                                   bool flag_multi_mono,
                                   bool flag_propagation,
@@ -383,7 +379,7 @@ GSTLEARN_EXPORT int potential_kriging(Db *db,
                                       Db *dbtgt,
                                       DbGrid *dbout,
                                       Model *model,
-                                      ANeighParam *neighparam,
+                                      ANeigh *neigh,
                                       double nugget_grd = 0.,
                                       double nugget_tgt = 0.,
                                       bool flag_pot = true,
@@ -408,7 +404,7 @@ GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
                                        Db *dbtgt,
                                        DbGrid *dbout,
                                        Model *model,
-                                       ANeighParam *neighparam,
+                                       ANeigh *neigh,
                                        double nugget_grd = 0.,
                                        double nugget_tgt = 0.,
                                        double dist_tempere = TEST,
@@ -421,7 +417,7 @@ GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
                                      Db *dbgrd,
                                      Db *dbtgt,
                                      Model *model,
-                                     ANeighParam *neighparam,
+                                     ANeigh *neigh,
                                      double nugget_grd = 0.,
                                      double nugget_tgt = 0.,
                                      int flag_dist_conv = false,

@@ -115,6 +115,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _nfex(0),
       _neq(0),
       _nred(0),
+      _flagIsotopic(true),
       _flagCheckAddress(false),
       _nbgh(),
       _flag(),
@@ -125,6 +126,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _rhs(),
       _wgt(),
       _zam(),
+      _zext(),
       _var0(),
       _dbinUidToBeDeleted(),
       _dboutUidToBeDeleted(),
@@ -140,6 +142,12 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
   // Set the current Model to _modelInit
   _model = _modelInit;
+
+  // Reset the neighborhood
+  if (neigh != nullptr)
+  {
+    neigh->reset();
+  }
 
   _resetMemoryGeneral();
 }
@@ -297,6 +305,7 @@ void KrigingSystem::_resetMemoryPerNeigh()
   _rhs.resize (_neq * _nvarCL);
   _wgt.resize (_neq * _nvarCL);
   _zam.resize (_neq);
+  _zext.resize (_neq); // in fact, it should be allocated to _nred <= _neq (unknown at this stage)
 }
 
 void KrigingSystem::_resetMemoryGeneral()
@@ -466,9 +475,10 @@ void KrigingSystem::_flagDefine()
 
   for (int iech = 0; iech < _nech; iech++)
   {
+    int nbgh_iech = _nbgh[iech];
     bool valid = true;
     for (int idim = 0; idim < _ndim; idim++)
-      if (FFFF(_getIdim(_nbgh[iech], idim))) valid = false;
+      if (FFFF(_getIdim(nbgh_iech, idim))) valid = false;
     if (! valid)
       for (int ivar = 0; ivar < _nvar; ivar++)
         _setFlag(iech,ivar,0);
@@ -477,19 +487,25 @@ void KrigingSystem::_flagDefine()
   /* Check on the data values */
 
   for (int iech = 0; iech < _nech; iech++)
+  {
+    int nbgh_iech = _nbgh[iech];
     for (int ivar = 0; ivar < _nvar; ivar++)
-      if (FFFF(_getIvar(_nbgh[iech], ivar)))
+      if (FFFF(_getIvar(nbgh_iech, ivar)))
         _setFlag(iech,ivar,0);
+  }
 
   /* Check on the external drifts */
 
   if (_nfex > 0)
   {
     for (int iech = 0; iech < _nech; iech++)
+    {
+      int nbgh_iech = _nbgh[iech];
       for (int ibfl = 0; ibfl < _nfex; ibfl++)
-        if (FFFF(_getFext(_nbgh[iech], ibfl)))
+        if (FFFF(_getFext(nbgh_iech, ibfl)))
           for (int ivar = 0; ivar < _nvar; ivar++)
             _setFlag(iech, ivar, 0);
+    }
   }
 
   /* Check on the drift */
@@ -504,7 +520,7 @@ void KrigingSystem::_flagDefine()
         for (int iech = 0; iech < _nech; iech++)
           if (!FFFF(_getIvar(_nbgh[iech], ivar))) valid++;
       }
-    _setFlag(_nech+ib, _nvar-1, (valid > 0));
+    if (valid <= 0) _setFlag(_nech+ib, _nvar-1, 0);
   }
 
   /* Calculate the new number of equations */
@@ -515,6 +531,7 @@ void KrigingSystem::_flagDefine()
     if (_flag[i] != 0) count++;
   }
   _nred = count;
+  _flagIsotopic = (_nred == _neq);
   return;
 }
 
@@ -832,6 +849,7 @@ void KrigingSystem::_lhsCalcul()
 
 void KrigingSystem::_lhsIsoToHetero()
 {
+  if (_flagIsotopic) return;
   int lec_lhs = 0;
   int ecr_lhs = 0;
   for (int i = 0; i < _neq; i++)
@@ -1124,6 +1142,7 @@ int KrigingSystem::_rhsCalcul()
 
 void KrigingSystem::_rhsIsoToHetero()
 {
+  if (_flagIsotopic) return;
   int lec_rhs = 0;
   int ecr_rhs = 0;
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
@@ -1445,7 +1464,7 @@ void KrigingSystem::_estimateCalcul(int status)
 
   // Modification specific to Xvalid options
 
-  if (_neigh->getNeighParam()->getFlagXvalid())
+  if (_neigh->getFlagXvalid())
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
@@ -1785,10 +1804,13 @@ int KrigingSystem::_prepar()
  **  Extract the valid data
  **  Operate the product by the inverse covariance matrix
  **
+ **  Warning; the array 'zext' is dimensioned to '_neq' instead of 'nred'
+ **
  *****************************************************************************/
-void KrigingSystem::_dual()
+void KrigingSystem::_dualCalcul()
 {
-  VectorDouble zext(_nred, 0.);
+
+  _zext.fill(0., _nred);
 
   /* Extract the data */
 
@@ -1802,21 +1824,21 @@ void KrigingSystem::_dual()
       if (_nfeq <= 0) mean = _getMean(ivar);
       if (_flagBayes)
         mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
-      zext[ecr++] = _getIvar(_nbgh[iech], ivar) - mean;
+      _zext[ecr++] = _getIvar(_nbgh[iech], ivar) - mean;
     }
   }
 
   /* Operate the product : Z * A-1 */
 
-  matrix_product(_nred, _nred, 1, _lhsinv.data(), zext.data(), _zam.data());
+  matrix_product(_nred, _nred, 1, _lhsinv.data(), _zext.data(), _zam.data());
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
-    matrix_product_safe(1, _nred, 1, _zam.data(), zext.data(), &_lterm);
+    matrix_product_safe(1, _nred, 1, _zam.data(), _zext.data(), &_lterm);
 
   // Turn back the flag to OFF in order to avoid provoking
-  // the _dual() calculations again
+  // the _dualCalcul() calculations again
 
   _flagDataChanged = false;
 
@@ -1877,7 +1899,7 @@ int KrigingSystem::estimate(int iech_out)
   // In case of Cross-validation in Unique Neighborhood, do not establish the RHS
   bool caseXvalidUnique = false;
   if (_neigh->getNeighParam()->getType().toEnum() == ENeigh::E_UNIQUE &&
-      _neigh->getNeighParam()->getFlagXvalid()) caseXvalidUnique = true;
+      _neigh->getFlagXvalid()) caseXvalidUnique = true;
 
   // Store the Rank of the Target sample
   _iechOut = iech_out;
@@ -1898,7 +1920,7 @@ int KrigingSystem::estimate(int iech_out)
 
   // Elaborate the Neighborhood
 
-  if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
+  if (caseXvalidUnique) _neigh->setFlagXvalid(false);
   _nbgh = _neigh->select(_iechOut);
   status = _setInternalShortCutVariablesNeigh();
   if (_flagNeighOnly) goto label_store;
@@ -1920,10 +1942,10 @@ int KrigingSystem::estimate(int iech_out)
   if (!_neigh->isUnchanged() || _neigh->getNeighParam()->getFlagContinuous() ||
       _flagDataChanged || OptDbg::force())
   {
-    _dual();
+    _dualCalcul();
   }
 
-  if (caseXvalidUnique) _neighParam->setFlagXvalid(true);
+  if (caseXvalidUnique) _neigh->setFlagXvalid(true);
 
   /* Establish the Kriging R.H.S. */
 
@@ -1960,9 +1982,8 @@ int KrigingSystem::estimate(int iech_out)
 
   if (_flagNeighOnly)
   {
-    VectorDouble tab = _neigh->getNeighParam()->summary(_iechOut);
+    VectorDouble tab = _neigh->summary(_iechOut);
     _neighCalcul(status, tab);
-
   }
   else if (_neigh->getNeighParam()->getType().toEnum() == ENeigh::E_IMAGE)
   {
@@ -1974,7 +1995,7 @@ int KrigingSystem::estimate(int iech_out)
   {
     // Unique Neighborhood case
 
-    if (_neigh->getNeighParam()->getFlagXvalid())
+    if (_neigh->getFlagXvalid())
       _estimateCalculXvalidUnique(status);
 
     else if (_flagSimu)
@@ -2017,7 +2038,7 @@ int KrigingSystem::estimate(int iech_out)
  *****************************************************************************/
 void KrigingSystem::_krigingDump(int status)
 {
-  if (_neigh->getNeighParam()->getFlagXvalid())
+  if (_neigh->getFlagXvalid())
     mestitle(0, "Cross-validation results");
   else
     mestitle(0, "(Co-) Kriging results");
@@ -2027,7 +2048,7 @@ void KrigingSystem::_krigingDump(int status)
 
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
-    if (_neigh->getNeighParam()->getFlagXvalid())
+    if (_neigh->getFlagXvalid())
     {
 
       // Printout of Cross-Validation test
@@ -2154,7 +2175,7 @@ int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
   _iptrStd = iptrStd;
   _iptrVarZ = iptrVarZ;
 
-  _flagEst = _iptrEst >= 0 || (_neigh->getNeighParam()->getFlagXvalid() && _iptrStd >= 0);
+  _flagEst = _iptrEst >= 0 || (_neigh->getFlagXvalid() && _iptrStd >= 0);
   _flagStd = (_iptrStd >= 0);
   _flagVarZ = (_iptrVarZ >= 0);
 
@@ -2298,15 +2319,15 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   _isReady = false;
   if (! flag_xvalid)
   {
-    _neighParam->setFlagXvalid(false);
-    _neighParam->setFlagKFold(false);
+    _neigh->setFlagXvalid(false);
+    _neigh->setFlagKFold(false);
   }
   else
   {
-    _neighParam->setFlagXvalid(flag_xvalid);
+    _neigh->setFlagXvalid(flag_xvalid);
     if (flag_kfold)
     {
-      if (_neighParam->getType() == ENeigh::UNIQUE)
+      if (_neigh->getNeighParam()->getType() == ENeigh::UNIQUE)
       {
         messerr("K-FOLD is not available in Unique Neighborhood");
         return 1;
@@ -2314,7 +2335,7 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
       if (! _dbin->hasLocVariable(ELoc::C))
         messerr("The K-FOLD option is ignored as no Code is defined");
     }
-    _neighParam->setFlagKFold(flag_kfold);
+    _neigh->setFlagKFold(flag_kfold);
   }
   _xvalidEstim = optionXValidEstim;
   _xvalidStdev = optionXValidStdev;
@@ -2827,7 +2848,7 @@ bool KrigingSystem::_isCorrect()
     }
 
     if (_neigh->getNeighParam()->getType() == ENeigh::UNIQUE &&
-        _neigh->getNeighParam()->getFlagXvalid() && nvar > 1)
+        _neigh->getFlagXvalid() && nvar > 1)
     {
      messerr("The algorithm for Cross-Validation in Unique Neighborhood");
      messerr("is restricted to a single variable");
@@ -3242,12 +3263,12 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 
   // Setup the Kriging pre-processings
 
-  if (_prepareForImageKriging(_dbaux)) return 1;
+  if (_prepareForImageKriging(_dbaux, neighI)) return 1;
 
   return 0;
 }
 
-bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
+bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 {
   // Save pointers to previous Data Base (must be restored at the end)
   Db* dbin_loc  = _dbin;
@@ -3271,7 +3292,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   status = _prepar();
   if (status) goto label_end;
-  _dual();
+  _dualCalcul();
 
   /* Establish the R.H.S. */
 
@@ -3290,7 +3311,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
   label_end:
   _dbin  = dbin_loc;
   _dbout = dbout_loc;
-  _neigh->initialize(_dbin, _neigh->getNeighParam(), _dbout);
+  _neigh->initialize(_dbin, neighI, _dbout);
   return error;
 }
 
@@ -3355,8 +3376,7 @@ VectorVectorDouble KrigingSystem::getSampleCoordinates() const
 
 VectorDouble KrigingSystem::getSampleData() const
 {
-  VectorDouble zext(_nred);
-  for (int i = 0; i < _nred; i++) zext[i] = 0.;
+  VectorDouble zval(_nred, 0.);
 
   /* Extract the data */
 
@@ -3366,10 +3386,10 @@ VectorDouble KrigingSystem::getSampleData() const
     for (int iech = 0; iech < _nech; iech++)
     {
       if (!_getFLAG(iech, ivar)) continue;
-      zext[ecr++] = _getIvar(_nbgh[iech], ivar);
+      zval[ecr++] = _getIvar(_nbgh[iech], ivar);
     }
   }
-  return zext;
+  return zval;
 }
 
 VectorDouble KrigingSystem::getRHSC(int ivar) const

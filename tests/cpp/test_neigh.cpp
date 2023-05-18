@@ -12,7 +12,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighWork.hpp"
@@ -28,7 +27,6 @@ int main(int /*argc*/, char */*argv*/[])
 {
   // Global parameters
   int ndim = 2;
-  bool verbose = true;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Standard output redirection to file
@@ -56,18 +54,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Unique Neighborhood");
-  NeighWork nbghw(db,neighU);
+  NeighWork* neighW = NeighWork::create(db,neighU,target);
 
   // Getting the Neighborhood for various target point
-  VH::display("For Target Point #0",
-              nbghw.select(target, 0, VectorInt(), verbose));
-  message("Is neighborhood Unchanged since last call = %d\n",
-          nbghw.isUnchanged());
-  VH::display("For Target Point #1",
-              nbghw.select(target, 1, VectorInt(), verbose));
-  message("Is neighborhood Unchanged since last call = %d\n",
-          nbghw.isUnchanged());
+  VH::display("For Target Point #0", neighW->select(0));
+  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
+  VH::display("For Target Point #1", neighW->select(1));
+  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
   delete neighU;
+  delete neighW;
 
   // Creating a Moving Neighborhood
   int nmaxi = 5;
@@ -77,27 +72,20 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Moving Neighborhood");
-  nbghw = NeighWork(db,neighM);
+  neighW = NeighWork::create(db,neighM,target);
 
   // Getting the Neighborhood for various target point
-  VH::display("For Target Point #0",
-              nbghw.select(target, 0, VectorInt(), verbose));
-  message("Is neighborhood Unchanged since last call = %d\n",
-          nbghw.isUnchanged());
-  VH::display("For Target Point #1",
-              nbghw.select(target, 1, VectorInt(), verbose));
-  message("Is neighborhood Unchanged since last call = %d\n",
-          nbghw.isUnchanged());
-  VH::display("For Target Point #2",
-              nbghw.select(target, 2, VectorInt(), verbose));
-  message("Is neighborhood Unchanged since last call = %d\n",
-          nbghw.isUnchanged());
-  VH::display("For Target Point #3",
-              nbghw.select(target, 3, VectorInt(), verbose));
-  message("Is neighborhood Unchanged since last call = %d\n",
-          nbghw.isUnchanged());
-
+  VH::display("For Target Point #0", neighW->select(0));
+  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
+  VH::display("For Target Point #1", neighW->select(1));
+  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
+  VH::display("For Target Point #2", neighW->select(2));
+  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
+  VH::display("For Target Point #3", neighW->select(3));
+  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
   delete neighM;
+  delete neighW;
+
   delete db;
   delete target;
   return (0);

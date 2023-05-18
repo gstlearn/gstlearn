@@ -144,6 +144,7 @@
 %shared_ptr(MeshSphericalExt)
 %shared_ptr(Model)
 %shared_ptr(ModelBoolean)
+%shared_ptr(NeighWork)
 %shared_ptr(NeighBench)
 %shared_ptr(NeighImage)
 %shared_ptr(NeighMoving)

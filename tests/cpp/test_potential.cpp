@@ -25,6 +25,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighWork.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
@@ -88,9 +89,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Create the Neighborhood (unique)
   NeighUnique* neighU = NeighUnique::create();
+  NeighWork* neighW = NeighWork::create(dbiso, neighU, dbgrd);
 
   // Launch the Potential estimation
-  (void) potential_kriging(dbiso, dbgrd, dbtgt, grid, model, neighU,
+  (void) potential_kriging(dbiso, dbgrd, dbtgt, grid, model, neighW,
                            0., 0., true, false, false, false, 0, true);
 
   (void) grid->dumpToNF("Grid2D.ascii");
@@ -142,7 +144,7 @@ int main(int /*argc*/, char */*argv*/[])
   // In case we would like to examine the calculation details,
   // set the rank of the target node in the next line
   OptDbg::setReference(-1);
-  (void) potential_kriging(dbiso, dbgrd, nullptr, grid, model, neighU,
+  (void) potential_kriging(dbiso, dbgrd, nullptr, grid, model, neighW,
                            0., 0., true, true, false, true, 0, true);
   OptDbg::setReference(-1);
 

@@ -32,14 +32,21 @@ public:
                          const Db *dbout = nullptr);
   virtual VectorInt getNeigh(int iech_out) = 0;
   virtual bool hasChanged(int iech_out) const { return true; }
+  virtual VectorDouble summary(int iech_out) { return VectorDouble(); }
 
   VectorInt select(int iech_out);
-  VectorInt selectBySP(const SpacePoint& pt_out);
   bool isUnchanged() const { return _flagIsUnchanged; }
   void setIsChanged();
+  void reset();
 
   const ANeighParam* getNeighParam() const { return _neighParam; }
+  bool getFlagXvalid() const { return _flagXvalid; }
+  bool getFlagKFold() const { return _flagKFold; }
 
+  void setDbin(const Db* dbin);
+  void setDbout(const Db* dbout);
+  void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
+  void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
   void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
   void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
 
@@ -54,14 +61,15 @@ private:
 protected:
   const Db* _dbin; // compulsory
   const Db* _dbout; // optional
-  const DbGrid* _dbgrid; // optional (is similar to dbout and defined only for grid
+  const DbGrid* _dbgrid; // optional (is equivalent to dbout, defined only for grid)
   const ANeighParam* _neighParam;
   VectorInt _rankColCok;
-  int _iechMemo;
+  int  _iechMemo;
   bool _flagSimu;
+  bool _flagXvalid;              /* True to suppress the target */
+  bool _flagKFold;               /* True to perform a KFold Cross-validation */
 
 private:
   bool _flagIsUnchanged;
-  mutable SpacePoint _ptOut;
   mutable VectorInt  _nbghMemo;
 };

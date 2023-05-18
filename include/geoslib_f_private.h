@@ -15,7 +15,6 @@
 class Model;
 class Vario;
 class ANeigh;
-class ANeighParam;
 class AMesh;
 class MeshEStandard;
 class RuleProp;

@@ -21,7 +21,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"

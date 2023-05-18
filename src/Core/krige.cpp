@@ -592,7 +592,6 @@ static double st_get_verr(int rank, int ivar)
  ** \param[in]  flag_in    1 if the Input Db is used
  ** \param[in]  flag_out   1 if the Output Db is used
  ** \param[in]  model      Model structure (optional)
- ** \param[in]  neighparam ANeighParam structure (optional)
  **
  ** \remarks The address of the argument 'neigh' is memorized in a local
  ** \remarks static variable
@@ -600,8 +599,7 @@ static double st_get_verr(int rank, int ivar)
  *****************************************************************************/
 static int st_check_environment(int flag_in,
                                 int flag_out,
-                                Model *model,
-                                ANeighParam *neighparam)
+                                Model *model)
 {
   int error, ndim, nvar, nfex;
 
@@ -709,32 +707,11 @@ static int st_check_environment(int flag_in,
     model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
 
-  /*****************************/
-  /* Checking the Neighborhood */
-  /*****************************/
-
-  if (neighparam != nullptr)
-  {
-    if (ndim != (int) neighparam->getNDim())
-    {
-      messerr("The Space Dimension of the Neighborhood (%d)", (int) neighparam->getNDim());
-      messerr("does not correspond to the Space Dimension of the first Db (%d)",
-              ndim);
-      goto label_end;
-    }
-    if (neighparam->getType() == ENeigh::IMAGE && (!flag_out || ! DBOUT->isGrid()))
-    {
-      messerr(
-          "The Image neighborhood can only be used when the output Db is a grid");
-      goto label_end;
-    }
-  }
-
   /* Set the error return code */
 
   error = 0;
-
-  label_end: return (error);
+  label_end:
+  return (error);
 }
 
 /****************************************************************************/
@@ -1911,7 +1888,7 @@ int global_transitive(DbGrid *dbgrid,
   cvv = wtot = dsse = gint = dsum = 0.;
   flag_value = 0;
   st_global_init(dbgrid, dbgrid);
-  if (st_check_environment(0, 1, model, NULL)) goto label_end;
+  if (st_check_environment(0, 1, model)) goto label_end;
   ndim = dbgrid->getNDim();
   d1.resize(2);
 
@@ -4186,7 +4163,7 @@ int krigsampling_f(Db *dbin,
   st_global_init(dbin, dbout);
   FLAG_EST = true;
   FLAG_STD = flag_std;
-  if (st_check_environment(1, 1, model, NULL)) goto label_end;
+  if (st_check_environment(1, 1, model)) goto label_end;
   nvar = model->getVariableNumber();
   nech = dbin->getSampleNumber();
 
@@ -5314,7 +5291,7 @@ int inhomogeneous_kriging(Db *dbdat,
   covss = covpp = covgp = covgg = nullptr;
   lambda = data = driftp = driftg = nullptr;
   ymat = zmat = mu = maux = nullptr;
-  if (st_check_environment(1, 1, model_dat, NULL)) goto label_end;
+  if (st_check_environment(1, 1, model_dat)) goto label_end;
 
   /* Preliminary checks */
 

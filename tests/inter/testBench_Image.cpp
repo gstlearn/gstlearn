@@ -20,9 +20,9 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighWork.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Estimation/CalcImage.hpp"
 
 /****************************************************************************/
 /*!
@@ -40,44 +40,31 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
 
-  // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
-  if (verbose) data->display();
-
-  // Generate the output grid
+  // Generate the grid
   VectorInt nx = {360,240};
-  //VectorInt nx = {50,60};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
+  DbGrid* image = DbGrid::create(nx);
+  image->addColumnsByConstant(1, 1.2, "Var", ELoc::Z);
+  if (verbose) image->display();
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
+  Model* model = new Model();
+  model->addCovFromParam(ECov::NUGGET, 0., 1.);
+  model->addCovFromParam(ECov::SPHERICAL, 40, 2.);
   if (verbose) model->display();
 
-  // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
-  if (verbose) neighU->display();
-  NeighWork* neighW = NeighWork::create(data, neighU, grid);
+  // Image Neighborhood
+  NeighImage* neighI = NeighImage::create({10,10}, 3);
+  if (verbose) neighI->display();
+  NeighWork* neighW = NeighWork::create(image, neighI, image);
 
   Timer timer;
-  kriging(data, grid, model, neighW, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
-  message("Order of magnitude of the reference implementation is 4.7Kms\n");
+  krimage(image, model, neighW);
+  timer.displayIntervalMilliseconds("\nKriging in Image Neighborhood");
+  message("Order of magnitude of the reference implementation is 2.2Kms\n");
 
-  if (neighU    != nullptr) delete neighU;
+  if (neighI    != nullptr) delete neighI;
   if (neighW    != nullptr) delete neighW;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
+  if (image     != nullptr) delete image;
   if (model     != nullptr) delete model;
 
   return (0);

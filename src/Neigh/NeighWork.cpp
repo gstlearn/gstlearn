@@ -69,6 +69,13 @@ NeighWork::~NeighWork()
 {
 }
 
+NeighWork* NeighWork::create(const Db *dbin,
+                             const ANeighParam *neighparam,
+                             const Db *dbout)
+{
+  return new NeighWork(dbin, neighparam, dbout);
+}
+
 /****************************************************************************/
 /*!
  **  Initialize the neighborhood search
@@ -99,14 +106,6 @@ int NeighWork::initialize(const Db *dbin,
   }
 
   return 0;
-}
-
-/**
- * Clear all the local storage in the NeighWork structure
- */
-void NeighWork::clear()
-{
-  _clearMemoryMoving();
 }
 
 bool NeighWork::hasChanged(int iech_out) const
@@ -201,7 +200,7 @@ void NeighWork::_unique(int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid())
+    if (getFlagXvalid())
     {
       if (_xvalid(iech, iech_out)) continue;
     }
@@ -240,7 +239,7 @@ void NeighWork::_bench(int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid())
+    if (getFlagXvalid())
     {
       if (_xvalid(iech, iech_out)) continue;
     }
@@ -292,7 +291,7 @@ int NeighWork::_moving(int iech_out, VectorInt& ranks, double eps)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid())
+    if (getFlagXvalid())
     {
       if (_xvalid(iech, iech_out)) continue;
     }
@@ -406,9 +405,8 @@ bool NeighWork::_discardUndefined(int iech)
  *****************************************************************************/
 int NeighWork::_xvalid(int iech_in, int iech_out, double eps)
 {
-  if (! _neighParam->getFlagXvalid())
-    return 0;
-  else if (! _neighParam->getFlagKFold())
+  if (! getFlagXvalid()) return 0;
+  else if (! getFlagKFold())
   {
     if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
   }

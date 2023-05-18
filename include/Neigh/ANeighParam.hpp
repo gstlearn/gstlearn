@@ -41,12 +41,6 @@ public:
   virtual ENeigh getType() const = 0;
   virtual bool getFlagContinuous() const { return false; }
 
-  bool getFlagXvalid() const { return _flagXvalid; }
-  bool getFlagKFold() const { return _flagKFold; }
-
-  void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
-  void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
-
 protected:
   // Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -55,8 +49,4 @@ protected:
 
 private:
   bool _isDimensionValid(int idim) const;
-
-private:
-  bool _flagXvalid;              /* True to suppress the target */
-  bool _flagKFold;               /* True to perform a KFold Cross-validation */
 };

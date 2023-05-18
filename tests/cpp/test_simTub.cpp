@@ -26,9 +26,9 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighWork.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
@@ -68,7 +68,6 @@ int main(int /*argc*/, char */*argv*/[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
-
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Simtub-");
 
@@ -107,19 +106,23 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation (Moving Neighborhood) ----->\n");
   grid_res = grid->clone();
-  simtub(data, grid_res, model, neighM, nbsimu);
+  NeighWork* neighWM = NeighWork::create(data, neighM, grid_res);
+  simtub(data, grid_res, model, neighWM, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Moving.ascii",verbose);
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
   grid_res = grid->clone();
-  simtub(data, grid_res, model, neighU, nbsimu);
+  NeighWork* neighWU = NeighWork::create(data, neighU, grid_res);
+  simtub(data, grid_res, model, neighWU, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Unique.ascii",verbose);
 
   // ====================== Free pointers ==================================
   if (neighM    != nullptr) delete neighM;
   if (neighU    != nullptr) delete neighU;
+  if (neighWM   != nullptr) delete neighWM;
+  if (neighWU   != nullptr) delete neighWU;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (grid_res  != nullptr) delete grid_res;
