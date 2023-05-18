@@ -187,7 +187,7 @@ if (verbose)
 
 # Defining the Neighborhood
 
-We initiate a Neigbourhood (Moving with a small number of samples for Demonstration)
+We initiate a Neigborhood (Moving with a small number of samples for Demonstration)
 
 ```{r}
 myneigh = NeighMoving_create(flag_xvalid=FALSE,nmaxi=6,radius=10)

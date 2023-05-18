@@ -21,7 +21,6 @@
 
 class Db;
 
-// TODO : inherits from ASpaceObject (see _init)
 class GSTLEARN_EXPORT NeighBench: public ANeighParam
 {
 public:
