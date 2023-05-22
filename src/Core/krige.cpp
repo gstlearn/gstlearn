@@ -22,11 +22,10 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighWork.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -839,12 +838,12 @@ static int st_krige_manage_basic(int mode,
  **
  ** \return  Maximum number of points per neighborhood
  **
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh ANeigh structure
  **
  *****************************************************************************/
-static int st_get_nmax(ANeighParam *neighparam)
+static int st_get_nmax(ANeigh *neigh)
 {
-  return neighparam->getMaxSampleNumber(DBIN);
+  return neigh->getMaxSampleNumber(DBIN);
 }
 
 /****************************************************************************/
@@ -856,7 +855,7 @@ static int st_get_nmax(ANeighParam *neighparam)
  ** \param[in]  mode       1 for allocation; -1 for deallocation
  ** \param[in]  nvar       Number of variables to be calculated
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  **
  ** \remarks  The number of variables corresponds to the number of variables
  ** \remarks  to be calculated. It is not necessarily equal to the number of
@@ -868,7 +867,7 @@ static int st_get_nmax(ANeighParam *neighparam)
 static int st_krige_manage(int mode,
                            int nvar,
                            Model *model,
-                           ANeighParam *neighparam)
+                           ANeigh *neigh)
 {
   int nech, nfeq, nmax;
 
@@ -877,7 +876,7 @@ static int st_krige_manage(int mode,
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
   nech = DBIN->getSampleNumber();
-  nmax = st_get_nmax(neighparam);
+  nmax = st_get_nmax(neigh);
 
   return (st_krige_manage_basic(mode, nech, nmax, nvar, nfeq));
 }
@@ -1574,7 +1573,7 @@ int _krigsim(Db* dbin,
 {
   // Preliminary checks
 
-  if (neigh->getNeighParam()->getType() == ENeigh::IMAGE)
+  if (neigh->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
@@ -1603,251 +1602,6 @@ int _krigsim(Db* dbin,
   }
 
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Global estimation over a territory using arithmetic average
- **
- ** \return A Global_Res structure
- **
- ** \param[in]  dbin          Db structure
- ** \param[in]  dbgrid        Db grid structure
- ** \param[in]  model         Model structure
- ** \param[in]  ivar0         Rank of the target variable
- ** \param[in]  flag_verbose  1 for a verbose output
- **
- *****************************************************************************/
-Global_Res global_arithmetic(Db *dbin,
-                             DbGrid *dbgrid,
-                             Model *model,
-                             int ivar0,
-                             bool flag_verbose)
-{
-  Global_Res gres;
-
-  /* Preliminary checks */
-
-  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
-  {
-    messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            ivar0 + 1, dbin->getLocNumber(ELoc::Z));
-    return gres;
-  }
-
-  /* Preliminary assignments */
-
-  int ntot = dbin->getSampleNumber(false);
-  int np = dbin->getSampleNumber(true);
-  int ng = dbgrid->getSampleNumber(true);
-  double surface = ng * db_grid_maille(dbgrid);
-
-  /* Average covariance over the data */
-
-  double cxx = model_cxx(model, dbin, dbin, ivar0, ivar0, 0, 0.);
-
-  /* Average covariance between the data and the territory */
-
-  double cxv = model_cxx(model, dbin, dbgrid, ivar0, ivar0, 0, 0.);
-
-  /* Average covariance over the territory */
-
-  double cvv = model_cxx(model, dbgrid, dbgrid, ivar0, ivar0, 0,
-                         db_epsilon_distance(dbgrid));
-
-  /* Calculating basic statistics */
-
-  int iatt = db_attribute_identify(dbin, ELoc::Z, ivar0);
-  double wtot;
-  double ave;
-  double var;
-  double mini;
-  double maxi;
-  db_monostat(dbin, iatt, &wtot, &ave, &var, &mini, &maxi);
-
-  /* Filling the resulting structure */
-
-  double sse = cvv - 2. * cxv + cxx;
-  sse = (sse > 0) ? sqrt(sse) : 0.;
-  double cvsam = (ave != 0.) ? sqrt(var) / ave : TEST;
-  double cviid = cvsam / sqrt(np);
-  double cvgeo = (ave != 0.) ? sse / ave : TEST;
-
-  /* Filling the output structure */
-
-  gres.ntot = ntot;
-  gres.np = np;
-  gres.ng = ng;
-  gres.surface = surface;
-  gres.zest = ave;
-  gres.sse  = sse;
-  gres.cvgeo = cvgeo;
-  gres.cvv = cvv;
-  gres.weights.resize(np, 1./np);
-
-  if (flag_verbose)
-  {
-    mestitle(1,"Global estimation by arithmetic average");
-    message("Total number of data             = %d\n", ntot);
-    message("Number of active data            = %d\n", np);
-    message("Sample variance                  = %lf\n", var);
-    message("CVsample                         = %lf\n", cvsam);
-    message("CViid                            = %lf\n", cviid);
-    message("Cxx                              = %lf\n", cxx);
-    message("Cxv                              = %lf\n", cxv);
-    message("Cvv                              = %lf\n", cvv);
-    if (FFFF(ave))
-      message("Estimation by arithmetic average = NA\n");
-    else
-      message("Estimation by arithmetic average = %lf\n", ave);
-    message("Estimation St. dev. of the mean  = %lf\n", sse);
-    if (FFFF(cvgeo))
-      message("CVgeo                            = NA\n");
-    else
-      message("CVgeo                            = %lf\n", cvgeo);
-    message("Surface                          = %lf\n", surface);
-    if (FFFF(ave))
-      message("Q (Estimation * Surface)         = NA\n");
-    else
-      message("Q (Estimation * Surface)         = %lf\n", ave * surface);
-    message("\n");
-  }
-
-  return gres;
-}
-
-/****************************************************************************/
-/*!
- **  Global estimation over a territory using kriging
- **
- ** \return A Global_Res structure
- **
- ** \param[in]  dbin          Db structure
- ** \param[in]  dbout         Db grid structure
- ** \param[in]  model         Model structure
- ** \param[in]  ivar0         Rank of the target variable
- ** \param[in]  flag_verbose  1 for a verbose output
- **
- *****************************************************************************/
-Global_Res global_kriging(Db *dbin,
-                          Db *dbout,
-                          Model *model,
-                          int ivar0,
-                          bool flag_verbose)
-{
-  NeighUnique neighU;
-  NeighWork neighw;
-  Global_Res gres;
-  VectorDouble rhsCum;
-
-  /* Preliminary tests */
-
-  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
-  {
-    messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-        ivar0 + 1, dbin->getLocNumber(ELoc::Z));
-    return gres;
-  }
-
-  // Initializations
-
-  int ndim = dbin->getNDim();
-  int nvar = model->getVariableNumber();
-  SpaceRN space(ndim);
-  neighU = NeighUnique(false, &space);
-  neighw = NeighWork(dbin, &neighU, dbout);
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbin, dbout, model, &neighw);
-  if (ksys.setKrigOptFlagGlobal(true)) return gres;
-  if (! ksys.isReady()) return gres;
-
-  /* Loop on the targets to be processed */
-
-  int ng = 0;
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
-  {
-    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    if (! dbout->isActive(iech_out)) continue;
-    if (ksys.estimate(iech_out)) return gres;
-
-    // Cumulate the R.H.S.
-
-    VectorDouble rhs = ksys.getRHSC(ivar0);
-    if (rhsCum.empty()) rhsCum.resize(rhs.size(),0.);
-    VH::addInPlace(rhsCum, rhs);
-    ng++;
-  }
-
-  /* Preliminary checks */
-
-  int ntot = dbin->getSampleNumber(false);
-  int np   = dbin->getSampleNumber(true);
-  double surface = ng * db_grid_maille(dbout);
-
-  /* Average covariance over the territory */
-
-  double cvv = model_cxx(model, dbout, dbout, ivar0, ivar0, 0,
-                         db_epsilon_distance(dbin));
-
-  /* Load the scaled cumulated R.H.S. in the array rhs */
-
-  VH::divideConstant(rhsCum, (double) ng);
-
-  /* Derive the kriging weights */
-
-  int nred = ksys.getNRed();
-  VectorDouble lhsinv = ksys.getLHSInv();
-  VectorDouble zam = ksys.getZam();
-  VectorDouble wgt(nred);
-  matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
-
-  /* Perform the estimation */
-
-  double estim = VH::innerProduct(rhsCum, zam);
-  double stdv = cvv - VH::innerProduct(rhsCum, wgt);
-  stdv = (stdv > 0) ? sqrt(stdv) : 0.;
-  double cvgeo = (estim == 0. || FFFF(estim)) ? TEST : stdv / estim;
-
-  /* Store the results in the output Global_Res struture */
-
-  gres.ntot = ntot;
-  gres.np = np;
-  gres.ng = ng;
-  gres.surface = surface;
-  gres.zest = estim;
-  gres.sse = stdv;
-  gres.cvgeo = cvgeo;
-  gres.cvv = cvv;
-  gres.weights = wgt;
-
-  /* Printout */
-
-  if (flag_verbose)
-  {
-    mestitle(1,"Global estimation kriging");
-    message("Total number of data             = %d\n", ntot);
-    message("Number of active data            = %d\n", np);
-    message("Number of variables              = %d\n", nvar);
-    message("Cvv                              = %lf\n", cvv);
-    if (FFFF(estim))
-      message("Estimation by kriging            = NA\n");
-    else
-      message("Estimation by kriging            = %lf\n", estim);
-    message("Estimation St. Dev. of the mean  = %lf\n", stdv);
-    if (FFFF(cvgeo))
-      message("CVgeo                            = NA\n");
-    else
-      message("CVgeo                            = %lf\n", cvgeo);
-    message("Surface                          = %lf\n", surface);
-    if (FFFF(estim))
-      message("Q (Estimation * Surface)         = NA\n");
-    else
-      message("Q (Estimation * Surface)         = %lf\n", estim * surface);
-    message("\n");
-  }
-  return gres;
 }
 
 /****************************************************************************/
@@ -4537,7 +4291,7 @@ static int st_declustering_3(Db *db,
     messerr("This function requires a Neighborhood");
     return 1;
   }
-  if (neigh->getNeighParam()->getType() == ENeigh::IMAGE)
+  if (neigh->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
@@ -5276,7 +5030,6 @@ int inhomogeneous_kriging(Db *dbdat,
   double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
   double *data, *lambda, *driftp, *driftg, *ymat, *zmat, *mu, *maux, *rhs;
   double estim, stdev, auxval;
-  NeighWork nbghw;
   VectorInt nbgh_ranks;
 
   /* Preliminary checks */
@@ -5337,7 +5090,6 @@ int inhomogeneous_kriging(Db *dbdat,
   if (st_krige_manage(1, nvar, model_dat, neighU)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
-  nbghw.initialize(dbdat, neighU, dbout);
 
   /* Constitute the Data vector */
 
@@ -5442,7 +5194,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     // Neighborhood search
 
-    nbgh_ranks = nbghw.select(IECH_OUT);
+    nbgh_ranks = neighU->select(IECH_OUT);
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */

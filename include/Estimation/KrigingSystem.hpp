@@ -14,7 +14,7 @@
 
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
-#include "Neigh/NeighWork.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;

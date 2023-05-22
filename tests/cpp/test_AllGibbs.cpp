@@ -36,7 +36,6 @@ int main(int /*argc*/, char * /*argv*/[])
   int nx        = 10;
   int niter     = 10000;
   int nburn     = 100;
-  int nmaxi     = 4;
   double range  = 10.;
   double bound  = TEST;
   bool flag_sym_neigh = true;
@@ -47,7 +46,6 @@ int main(int /*argc*/, char * /*argv*/[])
   int nbsimu   = 1;
   double sill  = 1.;
   int nlag     = 20;
-  double nbgh_radius = 10. * range;
   VectorDouble ranges = { range, range};
   bool verbose          = false;
   bool flag_moving      = true;

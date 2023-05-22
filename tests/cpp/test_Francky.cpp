@@ -21,7 +21,6 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Estimation/CalcKriging.hpp"
 
 #include <math.h>
@@ -79,10 +78,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Neighborhood (Unique)
   NeighUnique* neighU = NeighUnique::create();
-  NeighWork* neighW = NeighWork::create(dat, neighU, workingDbc);
 
   // Testing Kriging
-  kriging(dat,workingDbc,&model,neighW);
+  kriging(dat,workingDbc,&model,neighU);
   (void) workingDbc->dumpToNF("franckyFunctional.ascii");
   workingDbc->display(&dbfmt);
 
@@ -91,6 +89,5 @@ int main(int /*argc*/, char */*argv*/[])
   delete dat;
   delete workingDbc;
   delete neighU;
-  delete neighW;
   return 0;
 }

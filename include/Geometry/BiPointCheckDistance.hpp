@@ -10,13 +10,30 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/AEnum.hpp"
+#include "gstlearn_export.hpp"
 
-#define ENUM_NEIGH ENeigh, UNIQUE, \
-                   UNKNOWN, -1, "Unknown Neighborhood", \
-                   UNIQUE,   0, "Unique Neighborhood", \
-                   BENCH,    1, "Bench Neighborhood", \
-                   MOVING,   2, "Moving Neighborhood", \
-                   IMAGE,    3, "Image Neighborhood"
+#include "Geometry/ABiPointCheck.hpp"
 
-ENUM_DECLARE(ENUM_NEIGH)
+class GSTLEARN_EXPORT BiPointCheckDistance: public ABiPointCheck
+{
+public:
+  BiPointCheckDistance(double dmax);
+  BiPointCheckDistance(const BiPointCheckDistance& r);
+  BiPointCheckDistance& operator=(const BiPointCheckDistance& r);
+  virtual ~BiPointCheckDistance();
+
+  virtual bool isOK(const SpacePoint& P1, const SpacePoint& P2) const override;
+  virtual bool isDistanceCalculated() const override { return true; }
+  virtual double getDistance() const override { return _dist; }
+
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  double getDmax() const { return _dmax; }
+  double getDist() const { return _dist; }
+
+private:
+  double _dmax;
+
+  mutable double _dist;
+};

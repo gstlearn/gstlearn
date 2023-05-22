@@ -21,7 +21,6 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Estimation/CalcKriging.hpp"
 
 /****************************************************************************/
@@ -67,15 +66,13 @@ int main(int /*argc*/, char */*argv*/[])
   // Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
   if (verbose) neighU->display();
-  NeighWork* neighW = NeighWork::create(data, neighU, grid);
 
   Timer timer;
-  kriging(data, grid, model, neighW, EKrigOpt::POINT, true, false);
+  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
   message("Order of magnitude of the reference implementation is 4.7Kms\n");
 
   if (neighU    != nullptr) delete neighU;
-  if (neighW    != nullptr) delete neighW;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (model     != nullptr) delete model;

@@ -17,7 +17,6 @@
 
 #include "Variogram/Vario.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Model/Model.hpp"
 #include "Model/Constraints.hpp"
 #include "LithoRule/RuleProp.hpp"
@@ -88,7 +87,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Neighborhood
   NeighUnique* neighU = NeighUnique::create();
   neighU->display();
-  NeighWork* neighW = NeighWork::create(nullptr, neighU, db);
 
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
@@ -101,7 +99,7 @@ int main(int /*argc*/, char */*argv*/[])
     ruleprop = RuleProp::createFromRuleAndDb(rule, dbprop);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,db,ruleprop,&model1,&model2,neighW);
+  error = simpgs(nullptr,db,ruleprop,&model1,&model2,neighU);
   db->setLocator(db->getLastName(),ELoc::Z);
   (void) db->dumpToNF("simupgs.ascii");
   db->display(&dbfmt);
@@ -170,7 +168,6 @@ int main(int /*argc*/, char */*argv*/[])
   delete db;
   delete dbprop;
   delete neighU;
-  delete neighW;
   delete rule;
   delete ruleprop;
   delete ruleprop2;

@@ -47,7 +47,7 @@ bool CalcKrigingFactors::_check()
   if (! hasModel()) return false;
   if (! hasNeigh()) return false;
 
-  if (getNeigh()->getNeighParam()->getType() == ENeigh::IMAGE)
+  if (getNeigh()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return false;

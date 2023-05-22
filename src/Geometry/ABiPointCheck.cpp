@@ -8,15 +8,39 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
-#pragma once
+#include "geoslib_f.h"
 
-#include "Enum/AEnum.hpp"
+#include "Geometry/ABiPointCheck.hpp"
 
-#define ENUM_NEIGH ENeigh, UNIQUE, \
-                   UNKNOWN, -1, "Unknown Neighborhood", \
-                   UNIQUE,   0, "Unique Neighborhood", \
-                   BENCH,    1, "Bench Neighborhood", \
-                   MOVING,   2, "Moving Neighborhood", \
-                   IMAGE,    3, "Image Neighborhood"
+ABiPointCheck::ABiPointCheck()
+    : AStringable()
+{
+}
 
-ENUM_DECLARE(ENUM_NEIGH)
+ABiPointCheck::ABiPointCheck(const ABiPointCheck &r)
+    : AStringable(r)
+{
+}
+
+ABiPointCheck& ABiPointCheck::operator=(const ABiPointCheck &r)
+{
+  if (this != &r)
+  {
+    AStringable::operator =(r);
+  }
+  return *this;
+}
+
+ABiPointCheck::~ABiPointCheck()
+{
+}
+
+String ABiPointCheck::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+
+  sstr << "BiPoint Check" << std::endl;
+
+  return sstr.str();
+}
+

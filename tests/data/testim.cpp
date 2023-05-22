@@ -16,7 +16,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/NeighImage.hpp"
@@ -79,8 +79,7 @@ int main(int argc, char *argv[])
   DbGrid    *dbout;
   Vario     *vario;
   Model     *model,*new_model;
-  ANeighParam *neighparam;
-  NeighWork *neighW;
+  ANeigh    *neigh;
   Option_AutoFit mauto;
   Constraints constraints;
   DbStringFormat dbfmt;
@@ -95,8 +94,7 @@ int main(int argc, char *argv[])
   dbout = nullptr;
   vario = nullptr;
   model = new_model = nullptr;
-  neighparam = nullptr;
-  neighW = nullptr;
+  neigh = nullptr;
 
   /* Standard output redirection to file */
 
@@ -166,14 +164,13 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   ascii_filename("Neigh",0,0,filename);
-  neighparam = NeighUnique::createFromNF(filename,verbose);
-  if (neighparam == nullptr)
-    neighparam = NeighImage::createFromNF(filename, verbose);
-  if (neighparam == nullptr)
-    neighparam = NeighBench::createFromNF(filename, verbose);
-  if (neighparam == nullptr)
-    neighparam = NeighMoving::createFromNF(filename, verbose);
-  neighW = NeighWork::create(dbin, neighparam, dbout);
+  neigh = NeighUnique::createFromNF(filename,verbose);
+  if (neigh == nullptr)
+    neigh = NeighImage::createFromNF(filename, verbose);
+  if (neigh == nullptr)
+    neigh = NeighBench::createFromNF(filename, verbose);
+  if (neigh == nullptr)
+    neigh = NeighMoving::createFromNF(filename, verbose);
 
   /* Look for simulations */
 
@@ -195,16 +192,14 @@ int main(int argc, char *argv[])
 
   /* Perform the estimation */
 
-  if (neighparam != nullptr)
+  if (neigh != nullptr)
   {
     if (nbsimu > 0)
     {
     
       /* Simulation case */
 
-      neighW->setDbin(dbin);
-      neighW->setDbout(dbout);
-      if (simtub(dbin,dbout,new_model,neighW,nbsimu,seed,nbtuba,0))
+      if (simtub(dbin,dbout,new_model,neigh,nbsimu,seed,nbtuba,0))
         messageAbort("Simulations");
       dbfmt.setFlags(true, false, true, true, true);
       dbout->display(&dbfmt);
@@ -216,9 +211,7 @@ int main(int argc, char *argv[])
         
         /* Cross-validation */
 
-        neighW->setDbin(dbin);
-        neighW->setDbout(dbin);
-        if (xvalid(dbin,new_model,neighW,0,1,0,0)) messageAbort("xvalid");
+        if (xvalid(dbin,new_model,neigh,0,1,0,0)) messageAbort("xvalid");
         dbfmt.setFlags(true, false, true, true, true);
         dbin->display(&dbfmt);
       }
@@ -227,9 +220,7 @@ int main(int argc, char *argv[])
 
         /* Estimation case */
 
-        neighW->setDbin(dbin);
-        neighW->setDbout(dbout);
-        if (kriging(dbin,dbout,new_model,neighW,EKrigOpt::POINT,
+        if (kriging(dbin,dbout,new_model,neigh,EKrigOpt::POINT,
                     1,1,0)) messageAbort("kriging");
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);
@@ -246,8 +237,7 @@ label_end:
   delete dbout;
   delete model;
   delete new_model;
-  delete neighparam;
-  delete neighW;
+  delete neigh;
   delete vario;
   return(0);
 }

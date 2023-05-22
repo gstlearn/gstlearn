@@ -30,7 +30,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -50,6 +49,7 @@ class DbGrid;
 class Model;
 class Vario;
 class VarioParam;
+class ANeigh;
 class NeighImage;
 class NeighUnique;
 class Polygons;

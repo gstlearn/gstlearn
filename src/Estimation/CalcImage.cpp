@@ -164,7 +164,7 @@ bool CalcImage::_run()
 
   if (_flagSmooth)
   {
-    const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh()->getNeighParam());
+    const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
     _image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
   }
 

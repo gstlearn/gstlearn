@@ -236,8 +236,7 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
   interpol.setDbout(dbout);
 
   NeighMoving neighM(false, 1, 1.e6);
-  NeighWork neighw(dbin, &neighM, dbout);
-  interpol.setNeigh(&neighw);
+  interpol.setNeigh(&neighM);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagNearest(true);

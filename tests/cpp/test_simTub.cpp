@@ -28,7 +28,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
@@ -106,23 +105,19 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation (Moving Neighborhood) ----->\n");
   grid_res = grid->clone();
-  NeighWork* neighWM = NeighWork::create(data, neighM, grid_res);
-  simtub(data, grid_res, model, neighWM, nbsimu);
+  simtub(data, grid_res, model, neighM, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Moving.ascii",verbose);
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
   grid_res = grid->clone();
-  NeighWork* neighWU = NeighWork::create(data, neighU, grid_res);
-  simtub(data, grid_res, model, neighWU, nbsimu);
+  simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Unique.ascii",verbose);
 
   // ====================== Free pointers ==================================
   if (neighM    != nullptr) delete neighM;
   if (neighU    != nullptr) delete neighU;
-  if (neighWM   != nullptr) delete neighWM;
-  if (neighWU   != nullptr) delete neighWU;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (grid_res  != nullptr) delete grid_res;

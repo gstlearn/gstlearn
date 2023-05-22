@@ -22,7 +22,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "API/SPDE.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Estimation/CalcKriging.hpp"
 
 int main(int /*argc*/, char */*argv*/[])
@@ -68,7 +67,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   NeighUnique* neighU = NeighUnique::create();
   neighU->display();
-  NeighWork* neighW = NeighWork::create(temperatures, neighU, grid);
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Drift-");
@@ -84,7 +82,7 @@ int main(int /*argc*/, char */*argv*/[])
   }
   else
   {
-    kriging(temperatures, grid, model, neighW);
+    kriging(temperatures, grid, model, neighU);
     (void) grid->dumpToNF("Kriging-result.ascii",verbose);
   }
 
@@ -95,7 +93,6 @@ int main(int /*argc*/, char */*argv*/[])
   delete grid;
   delete model;
   delete neighU;
-  delete neighW;
 
   return 0;
 }

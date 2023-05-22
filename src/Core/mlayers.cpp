@@ -2108,7 +2108,7 @@ int multilayers_kriging(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (neigh->getNeighParam()->getType() != ENeigh::UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;

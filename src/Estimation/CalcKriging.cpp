@@ -76,11 +76,12 @@ bool CalcKriging::_check()
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
   if (! hasNeigh()) return false;
-  if (getNeigh()->getNeighParam()->getType() == ENeigh::IMAGE)
+  if (getNeigh()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
+
   if (_flagVarZ)
   {
     if (! getModel()->isStationary())

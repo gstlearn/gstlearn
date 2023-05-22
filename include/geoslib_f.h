@@ -201,16 +201,6 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", true, true, true,
                                                                                     ELoc::fromKey("SEL")));
-GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
-                                          Db *dbout,
-                                          Model *model,
-                                          int ivar0 = 0,
-                                          bool flag_verbose = false);
-GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
-                                             DbGrid *dbgrid,
-                                             Model *model,
-                                             int ivar0 = 0,
-                                             bool flag_verbose = false);
 GSTLEARN_EXPORT int krigsum(Db *dbin,
                             Db *dbout,
                             Model *model,

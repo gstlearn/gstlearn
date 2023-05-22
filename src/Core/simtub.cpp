@@ -459,14 +459,14 @@ static int st_check_simtub_environment(Db *dbin,
 
   if (flag_cond && neigh != nullptr)
   {
-    if (ndim != (int) neigh->getNeighParam()->getNDim())
+    if (ndim != (int) neigh->getNDim())
     {
-      messerr("The Space Dimension of the Neighborhood (%d)", (int) neigh->getNeighParam()->getNDim());
+      messerr("The Space Dimension of the Neighborhood (%d)", (int) neigh->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
       return 1;
     }
-    if (neigh->getFlagXvalid() && neigh->getNeighParam()->getType() != ENeigh::MOVING)
+    if (neigh->getFlagXvalid() && neigh->getType() != ENeigh::MOVING)
     {
       messerr("The Cross-Validation can only be processed with Moving neighborhood");
       return 1;
@@ -808,8 +808,7 @@ int simpgs(Db *dbin,
   /* Neighborhood */
   if (flag_cond)
   {
-    if (neigh->getNeighParam()->getType() != ENeigh::UNIQUE &&
-        neigh->getNeighParam()->getType() != ENeigh::BENCH)
+    if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
     {
       messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
       goto label_end;
@@ -1180,8 +1179,7 @@ int simbipgs(Db *dbin,
   }
 
   /* Neighborhood */
-  if (neigh->getNeighParam()->getType() != ENeigh::UNIQUE &&
-      neigh->getNeighParam()->getType() != ENeigh::BENCH)
+  if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
   {
     messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
     goto label_end;
@@ -2606,7 +2604,6 @@ int simcond(Db *dbin,
 
   SpaceRN space(ndim);
   NeighUnique* neighU = NeighUnique::create(false, &space);
-  NeighWork neigh = NeighWork(dbin, neighU, dbout);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
@@ -2673,7 +2670,7 @@ int simcond(Db *dbin,
 
   {
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
-    if (situba.simulate(dbin, dbout, model, &neigh, 0, false, VectorDouble(),
+    if (situba.simulate(dbin, dbout, model, neighU, 0, false, VectorDouble(),
                         VectorDouble(), false, true)) goto label_end;
   }
 

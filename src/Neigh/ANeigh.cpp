@@ -11,7 +11,6 @@
 #include "geoslib_old_f.h"
 
 #include "Neigh/ANeigh.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
@@ -24,11 +23,12 @@
 #include <algorithm>
 #include <set>
 
-ANeigh::ANeigh(const Db *dbin, const ANeighParam *neighparam, const Db* dbout)
-    : _dbin(dbin),
+ANeigh::ANeigh(const Db *dbin, const Db* dbout, const ASpace* space)
+    : ASpaceObject(space),
+      ASerializable(),
+      _dbin(dbin),
       _dbout(dbout),
       _dbgrid(nullptr),
-      _neighParam(neighparam),
       _rankColCok(),
       _iechMemo(-1),
       _flagSimu(false),
@@ -37,14 +37,15 @@ ANeigh::ANeigh(const Db *dbin, const ANeighParam *neighparam, const Db* dbout)
       _flagIsUnchanged(false),
       _nbghMemo()
 {
-  initialize(dbin, neighparam, dbout);
+  attach(dbin, dbout);
 }
 
 ANeigh::ANeigh(const ANeigh &r)
-    : _dbin(r._dbin),
+    : ASpaceObject(r),
+      ASerializable(r),
+      _dbin(r._dbin),
       _dbout(r._dbout),
       _dbgrid(r._dbgrid),
-      _neighParam(r._neighParam),
       _rankColCok(r._rankColCok),
       _iechMemo(r._iechMemo),
       _flagSimu(r._flagSimu),
@@ -59,10 +60,11 @@ ANeigh& ANeigh::operator=(const ANeigh &r)
 {
   if (this != &r)
   {
+    ASpaceObject::operator=(r);
+    ASerializable::operator=(r);
     _dbin = r._dbin;
     _dbout = r._dbout;
     _dbgrid = r._dbgrid;
-    _neighParam = r._neighParam;
     _rankColCok = r._rankColCok;
     _iechMemo = r._iechMemo;
     _flagSimu = r._flagSimu;
@@ -78,26 +80,10 @@ ANeigh::~ANeigh()
 {
 }
 
-int ANeigh::initialize(const Db *dbin,
-                       const ANeighParam *neighparam,
-                       const Db *dbout)
+int ANeigh::attach(const Db *dbin, const Db *dbout)
 {
-  if (neighparam == nullptr || dbin == nullptr) return 1;
-  _neighParam = neighparam;
-  setDbin(dbin);
-  setDbout(dbout);
-  return 0;
-}
-
-void ANeigh::setDbin(const Db* dbin)
-{
+  if (dbin == nullptr || dbout == nullptr) return 1;
   _dbin = dbin;
-  setIsChanged();
-}
-
-
-void ANeigh::setDbout(const Db* dbout)
-{
   _dbout = dbout;
 
   // Check if the output Db is defined and is a grid
@@ -105,6 +91,7 @@ void ANeigh::setDbout(const Db* dbout)
     _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
   setIsChanged();
+  return 0;
 }
 
 void ANeigh::setIsChanged()
@@ -126,7 +113,12 @@ void ANeigh::reset()
 
 VectorInt ANeigh::select(int iech_out)
 {
-  if (_dbout == nullptr) return VectorInt();
+  if (_dbin == nullptr || _dbout == nullptr)
+  {
+    messageAbort("'dbin' and 'dbout' must have been attached beforehand");
+    return VectorInt();
+  }
+
   if (! _dbout->isSampleIndexValid(iech_out)) return VectorInt();
   VectorInt ranks;
 
@@ -237,3 +229,170 @@ void ANeigh::_updateColCok(VectorInt &ranks, int iech_out)
   _flagIsUnchanged = false;
   return;
 }
+
+void ANeigh::_neighCompress(VectorInt& ranks)
+{
+  int necr = 0;
+  int number = (int) ranks.size();
+  for (int i = 0; i < number; i++)
+    if (ranks[i] >= 0) ranks[necr++] = i;
+  ranks.resize(necr);
+}
+
+/****************************************************************************/
+/*!
+ **  Print the information selected in the neighborhood
+ **
+ ** \param[in]  ranks     Array of the data ranks
+ ** \li                   -1 if not selected
+ ** \li                   >=0 gives the angular sector in ENeigh::MOVING
+ **
+ *****************************************************************************/
+void ANeigh::_display(const VectorInt& ranks)
+{
+  String string;
+  int ndim = _dbin->getNDim();
+  int nech = _dbin->getSampleNumber();
+  bool flag_ext = _dbin->getLocNumber(ELoc::BLEX) > 0;
+
+  /* Neighborhood data */
+
+  mestitle(1, "Data selected in neighborhood");
+  tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Sample");
+  if (_dbin->hasLocVariable(ELoc::C)) tab_prints(NULL, "Code");
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    string = getLocatorName(ELoc::X, idim);
+    tab_prints(NULL, string.c_str());
+  }
+  if (flag_ext)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      string = getLocatorName(ELoc::BLEX, idim);
+      tab_prints(NULL, string.c_str());
+    }
+  }
+  if (getType() == ENeigh::MOVING) tab_prints(NULL, "Sector");
+  message("\n");
+
+  /* Loop on the sample points */
+
+  int nsel = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (ranks[iech] < 0) continue;
+
+    tab_printi(NULL, nsel + 1);
+    tab_printi(NULL, iech + 1);
+    if (_dbin->hasLocVariable(ELoc::C))
+      tab_printi(NULL, static_cast<int>(_dbin->getLocVariable(ELoc::C,iech,0)));
+    for (int idim = 0; idim < ndim; idim++)
+      tab_printg(NULL, _dbin->getCoordinate(iech, idim));
+    if (flag_ext)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+        tab_printg(NULL, _dbin->getLocVariable(ELoc::BLEX,iech, idim));
+    }
+    if (getType() == ENeigh::MOVING) tab_printi(NULL, ranks[iech] + 1);
+    message("\n");
+    nsel++;
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Discard a sample for which all variables are undefined
+ **
+ **  Returns 1 if all variables are undefined; 0 otherwise
+ **
+ ** \param[in]  iech      Rank of the sample
+ **
+ ** \remarks When the Neighborhood is performed in the case of Simulations
+ ** \remarks checking for all variables being undefined is performed
+ ** \remarks on ELoc::SIMU rather than on ELoc::Z
+ **
+ *****************************************************************************/
+bool ANeigh::_discardUndefined(int iech)
+{
+  if (_dbin->getLocNumber(ELoc::Z) <= 0) return 0;
+
+  if (! _flagSimu)
+  {
+    if (_dbin->isAllUndefined(iech)) return 0;
+  }
+  else
+  {
+    // In the case of simulations, the test is performed on the
+    // simulation error for the first variable and first simulation
+    if (! FFFF(_dbin->getSimvar(ELoc::SIMU, iech, 0, 0, 0, 1, 0))) return 0;
+  }
+  return 1;
+}
+
+/****************************************************************************/
+/*!
+ **  Mask the data sample in the case of cross-validation
+ **
+ ** \return  1 if the sample is masked; 0 otherwise
+ **
+ ** \param[in]  iech_in  Rank in the input Db structure
+ ** \param[in]  iech_out Rank in the output Db structure
+ ** \param[in]  eps      Tolerance
+ **
+ *****************************************************************************/
+int ANeigh::_xvalid(int iech_in, int iech_out, double eps)
+{
+  if (! getFlagXvalid()) return 0;
+  else if (! getFlagKFold())
+  {
+    if (distance_inter(_dbin, _dbout, iech_in, iech_out, NULL) < eps) return 1;
+  }
+  else
+  {
+    if (! _dbin->hasLocVariable(ELoc::C)) return 0;
+    if (_dbin->getLocVariable(ELoc::C,iech_in,0) ==
+        _dbout->getLocVariable(ELoc::C,iech_out,0)) return 1;
+  }
+  return 0;
+}
+
+bool ANeigh::_isDimensionValid(int idim) const
+{
+  if (idim < 0 || idim >= (int) getNDim())
+  {
+    messerr("Error in 'idim'(%d). It should lie within [0,%d[",idim,getNDim());
+    return false;
+  }
+  return true;
+}
+
+bool ANeigh::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  int ndim = 0;
+
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  if (ret) setNDim(ndim);
+  return ret;
+}
+
+bool ANeigh::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+
+  return ret;
+}
+
+String ANeigh::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+
+  sstr << "Space dimension = " << getNDim() << std::endl;
+
+  return sstr.str();
+}
+

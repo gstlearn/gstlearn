@@ -14,13 +14,12 @@
 #include "Basic/File.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
-#include "Neigh/NeighWork.hpp"
 
 /****************************************************************************/
 /*!
  ** Main Program
  **
- ** This program demonstrates the capabilities of Neigh and NeighWork classes
+ ** This program demonstrates the capabilities of Neigh classes
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
@@ -50,41 +49,39 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create();
+  neighU->attach(db, target);
   neighU->display();
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Unique Neighborhood");
-  NeighWork* neighW = NeighWork::create(db,neighU,target);
 
   // Getting the Neighborhood for various target point
-  VH::display("For Target Point #0", neighW->select(0));
-  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
-  VH::display("For Target Point #1", neighW->select(1));
-  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
+  VH::display("For Target Point #0", neighU->select(0));
+  message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
+  VH::display("For Target Point #1", neighU->select(1));
+  message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
   delete neighU;
-  delete neighW;
 
   // Creating a Moving Neighborhood
   int nmaxi = 5;
   double radius = 30.;
   NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius);
+  neighM->attach(db, target);
   neighM->display();
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Moving Neighborhood");
-  neighW = NeighWork::create(db,neighM,target);
 
   // Getting the Neighborhood for various target point
-  VH::display("For Target Point #0", neighW->select(0));
-  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
-  VH::display("For Target Point #1", neighW->select(1));
-  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
-  VH::display("For Target Point #2", neighW->select(2));
-  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
-  VH::display("For Target Point #3", neighW->select(3));
-  message("Is neighborhood Unchanged since last call = %d\n", neighW->isUnchanged());
+  VH::display("For Target Point #0", neighM->select(0));
+  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  VH::display("For Target Point #1", neighM->select(1));
+  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  VH::display("For Target Point #2", neighM->select(2));
+  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
+  VH::display("For Target Point #3", neighM->select(3));
+  message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
   delete neighM;
-  delete neighW;
 
   delete db;
   delete target;

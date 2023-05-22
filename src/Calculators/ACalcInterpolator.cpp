@@ -98,18 +98,20 @@ bool ACalcInterpolator::_check()
   {
     if (ndim > 0)
     {
-      if (ndim != (int) _neigh->getNeighParam()->getNDim())
+      if (ndim != (int) _neigh->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);
-        messerr("- Space Dimension of '_neighparam' = %d",_neigh->getNeighParam()->getNDim());
+        messerr("- Space Dimension of '_neigh' = %d",_neigh->getNDim());
         return false;
       }
     }
     else
     {
-      ndim = (int) _neigh->getNeighParam()->getNDim();
+      ndim = (int) _neigh->getNDim();
     }
+    // Attach the input and output files
+    _neigh->attach(getDbin(), getDbout());
   }
 
   /**************************************************/

@@ -580,7 +580,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Model must be monovariate");
     return false;
   }
-  if (neigh->getNeighParam()->getType() != ENeigh::UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     return false;

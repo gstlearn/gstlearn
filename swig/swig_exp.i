@@ -163,8 +163,6 @@
 %include Model/NoStatFunctional.hpp
 
 %include Neigh/ANeigh.hpp
-%include Neigh/NeighWork.hpp
-%include Neigh/ANeighParam.hpp
 %include Neigh/NeighUnique.hpp
 %include Neigh/NeighImage.hpp
 %include Neigh/NeighMoving.hpp
@@ -302,6 +300,7 @@
 %include Estimation/CalcKrigingFactors.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
 %include Estimation/CalcImage.hpp
+%include Estimation/CalcGlobal.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp

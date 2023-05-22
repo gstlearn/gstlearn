@@ -197,19 +197,19 @@ Data Base Statistics
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -2.168
- Maximum value       =      1.687
- Mean value          =     -0.062
- Standard Deviation  =      0.560
- Variance            =      0.313
+ Minimum value       =     -1.142
+ Maximum value       =      1.404
+ Mean value          =      0.004
+ Standard Deviation  =      0.501
+ Variance            =      0.251
 6 - Name Xvalid.Var.stdev - Locator NA
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      0.000
- Maximum value       =      8.026
- Mean value          =      6.109
- Standard Deviation  =      3.174
- Variance            =     10.077
+ Minimum value       =      4.280
+ Maximum value       =      7.952
+ Mean value          =      5.963
+ Standard Deviation  =      0.912
+ Variance            =      0.831
 
 <----- Kriging in Moving Neighborhood ----->
 
@@ -240,14 +240,14 @@ Data Base Statistics
 Statistics before Declustering
 ------------------------------
 - Using the average weight for Kriging cells of a Grid
-- Mean              = 0.002885
-- Variance          = 0.972124
+- Mean              = 0.004377
+- Variance          = 0.250605
 
 Statistics after Declustering
 -----------------------------
 - Using the average weight for Kriging cells of a Grid
-- Mean              = -0.096594
-- Variance          = 0.727538
+- Mean              = -0.165025
+- Variance          = 0.177077
 - Minimum Weight    = 0.000000
 - Maximum Weight    = 0.119009
 
@@ -530,11 +530,11 @@ Data Base Statistics
 5 - Name Filtering.Simu - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    114.774
- Maximum value       =    139.903
- Mean value          =    128.010
- Standard Deviation  =      3.841
- Variance            =     14.750
+ Minimum value       =    114.396
+ Maximum value       =    140.137
+ Mean value          =    128.009
+ Standard Deviation  =      3.795
+ Variance            =     14.400
 
 Model characteristics
 =====================

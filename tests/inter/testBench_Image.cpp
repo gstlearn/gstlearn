@@ -21,7 +21,6 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Neigh/NeighImage.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Estimation/CalcImage.hpp"
 
 /****************************************************************************/
@@ -55,15 +54,13 @@ int main(int /*argc*/, char */*argv*/[])
   // Image Neighborhood
   NeighImage* neighI = NeighImage::create({10,10}, 3);
   if (verbose) neighI->display();
-  NeighWork* neighW = NeighWork::create(image, neighI, image);
 
   Timer timer;
-  krimage(image, model, neighW);
+  krimage(image, model, neighI);
   timer.displayIntervalMilliseconds("\nKriging in Image Neighborhood");
   message("Order of magnitude of the reference implementation is 2.2Kms\n");
 
   if (neighI    != nullptr) delete neighI;
-  if (neighW    != nullptr) delete neighW;
   if (image     != nullptr) delete image;
   if (model     != nullptr) delete model;
 
