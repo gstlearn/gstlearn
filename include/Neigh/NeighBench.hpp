@@ -15,14 +15,14 @@
 
 #include "Enum/ENeigh.hpp"
 
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
 class Db;
 
-// TODO : inherits from ASpaceObject (see _init)
-class GSTLEARN_EXPORT NeighBench: public ANeighParam
+class GSTLEARN_EXPORT NeighBench: public ANeigh
 {
 public:
   NeighBench(bool flag_xvalid = false, double width = 0., const ASpace* space = nullptr);
@@ -30,15 +30,19 @@ public:
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
 
+  /// Interface for ANeigh
+  virtual VectorInt getNeigh(int iech_out) override;
+  virtual bool hasChanged(int iech_out) const override;
+  virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual ENeigh getType() const override { return ENeigh::fromKey("BENCH"); }
+
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NeighBench* create(bool flag_xvalid = false,
                             double width = 0,
                             const ASpace *space = nullptr);
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
-
-  virtual int getMaxSampleNumber(const Db* db) const override;
-  virtual ENeigh getType() const override { return ENeigh::fromKey("BENCH"); }
 
   double getWidth() const { return _width; }
   void setWidth(double width) { _width = width; }
@@ -48,6 +52,10 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "NeighBench"; }
+
+private:
+  bool _isSameTargetBench(int iech_out) const;
+  void _bench(int iech_out, VectorInt& ranks);
 
 private:
   double _width;                 /* Width of the slice - bench */

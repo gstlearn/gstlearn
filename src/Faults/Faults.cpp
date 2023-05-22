@@ -14,6 +14,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Space/SpacePoint.hpp"
 
 Faults::Faults()
   : AStringable(),
@@ -107,9 +109,25 @@ void Faults::addFault(const PolyLine2D& fault)
   _faults.push_back(fault);
 }
 
+bool Faults::isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const
+{
+  // This is limited to 2D case in RN
+
+  if (getDefaultSpaceType() != ESpaceType::RN || P1.getNDim() != 2)
+  {
+    messerr("This is limited to 2-D case in RN");
+    return false;
+  }
+
+  double xt1 = P1.getCoord(0);
+  double yt1 = P1.getCoord(1);
+  double xt2 = P2.getCoord(0);
+  double yt2 = P2.getCoord(1);
+  return isSplitByFault(xt1, yt1, xt2, yt2);
+}
+
 bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
 {
-
   // Loop on the Fault polylines
 
   for (int ifault = 0; ifault < getNFaults(); ifault++)

@@ -15,7 +15,7 @@
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Calculators/ACalculator.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class ELoc;
@@ -30,13 +30,13 @@ public:
   virtual ~ACalcInterpolator();
 
   void setModel(Model *model) { _model = model; }
-  void setNeighparam(ANeighParam *neighparam) { _neighparam = neighparam; }
+  void setNeigh(ANeigh *neigh) { _neigh = neigh; }
 
   Model* getModel() const { return _model; }
-  ANeighParam* getNeighparam() const { return _neighparam; }
+  ANeigh* getNeigh() const { return _neigh; }
 
   bool hasModel(bool verbose = true) const;
-  bool hasNeighParam(bool verbose = true) const;
+  bool hasNeigh(bool verbose = true) const;
 
 protected:
   virtual bool _check() override;
@@ -49,5 +49,5 @@ protected:
 
 private:
   Model* _model;
-  ANeighParam* _neighparam;
+  ANeigh* _neigh;
 };

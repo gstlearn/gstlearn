@@ -12,7 +12,6 @@
 #include "Calculators/ACalculator.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Basic/VectorHelper.hpp"
 
 ACalcDbVarCreator::ACalcDbVarCreator()

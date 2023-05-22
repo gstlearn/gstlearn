@@ -30,7 +30,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -50,6 +49,7 @@ class DbGrid;
 class Model;
 class Vario;
 class VarioParam;
+class ANeigh;
 class NeighImage;
 class NeighUnique;
 class Polygons;
@@ -1481,7 +1481,7 @@ GSTLEARN_EXPORT int simRI(Db *dbout,
 GSTLEARN_EXPORT int simtub_constraints(Db *dbin,
                                        Db *dbout,
                                        Model *model,
-                                       ANeighParam *neighparam,
+                                       ANeigh *neigh,
                                        int seed,
                                        int nbtuba,
                                        int nbsimu,
@@ -1720,7 +1720,7 @@ GSTLEARN_EXPORT int multilayers_vario(Db *dbin,
 GSTLEARN_EXPORT int multilayers_kriging(Db *dbin,
                                         DbGrid *dbout,
                                         Model *model,
-                                        ANeighParam *neighparam,
+                                        ANeigh *neigh,
                                         int flag_same,
                                         int flag_z,
                                         int flag_vel,

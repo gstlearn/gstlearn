@@ -27,15 +27,16 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighImage.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/CalcImage.hpp"
+#include "Estimation/CalcGlobal.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar, int seed)
 {
@@ -139,7 +140,7 @@ int main(int /*argc*/, char */*argv*/[])
   Db* data_res      = nullptr;
   Model* model_res  = nullptr;
   AnamHermite* anam = nullptr;
-  Global_Res gres;
+  Global_Result gres;
   Krigtest_Res ktest;
   VectorDouble tab;
 
@@ -204,7 +205,6 @@ int main(int /*argc*/, char */*argv*/[])
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Declustering in Moving Neighborhood ----->\n");
-  data_res = data->clone();
   declustering(data_res, model, 3, neighM, grid, VectorDouble(), {3,3}, false, true);
 
   message("\n<----- Kriging Test in Moving Neighborhood ----->\n");

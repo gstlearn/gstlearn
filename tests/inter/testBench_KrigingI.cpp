@@ -20,8 +20,8 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighUnique.hpp"
-#include "Estimation/CalcKriging.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Estimation/CalcImage.hpp"
 
 /****************************************************************************/
 /*!
@@ -39,20 +39,30 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
 
-  // Generate the output grid
-  int nsample = 1000000;
-  Db* data = Db::createFillRandom(nsample);
-  if (verbose) data->display();
+  // Generate the grid
+  VectorInt nx = {360,240};
+  DbGrid* image = DbGrid::create(nx);
+  image->addColumnsByConstant(1, 1.2, "Var", ELoc::Z);
+  if (verbose) image->display();
+
+  // Create the Model
+  Model* model = new Model();
+  model->addCovFromParam(ECov::NUGGET, 0., 1.);
+  model->addCovFromParam(ECov::SPHERICAL, 40, 2.);
+  if (verbose) model->display();
+
+  // Image Neighborhood
+  NeighImage* neighI = NeighImage::create({10,10}, 3);
+  if (verbose) neighI->display();
 
   Timer timer;
-  VectorDouble dist(nsample);
-  for (int i = 0; i < nsample; i++)
-    dist[i] = data->getDistance(i, 0);
-  timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
+  krimage(image, model, neighI);
+  timer.displayIntervalMilliseconds("\nKriging in Image Neighborhood");
+  message("Order of magnitude of the reference implementation is 2.2Kms\n");
 
-  message("Order of magnitude of the reference implementation is 310ms\n");
-
-  if (data != nullptr) delete data;
+  if (neighI    != nullptr) delete neighI;
+  if (image     != nullptr) delete image;
+  if (model     != nullptr) delete model;
 
   return (0);
 }

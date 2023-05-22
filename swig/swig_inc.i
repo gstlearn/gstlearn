@@ -26,7 +26,7 @@
 %shared_ptr(AnamEmpirical)
 %shared_ptr(AnamHermite)
 %shared_ptr(AnamUser)
-%shared_ptr(ANeighParam)
+%shared_ptr(ANeigh)
 %shared_ptr(ANoStat)
 %shared_ptr(APolynomial)
 %shared_ptr(Array)
@@ -42,6 +42,7 @@
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
 %shared_ptr(CalcImage)
+%shared_ptr(CalcGlobal)
 %shared_ptr(CalcKriging)
 %shared_ptr(CalcKrigingFactors)
 %shared_ptr(CalcMigrate)
@@ -321,12 +322,11 @@
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
   
-  #include "Neigh/ANeighParam.hpp"
+  #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"
   #include "Neigh/NeighMoving.hpp"
   #include "Neigh/NeighBench.hpp"
-  #include "Neigh/NeighWork.hpp"
   
   #include "Variogram/VarioParam.hpp"
   #include "Variogram/Vario.hpp"
@@ -460,6 +460,7 @@
   #include "Estimation/CalcKrigingFactors.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
   #include "Estimation/CalcImage.hpp"
+  #include "Estimation/CalcGlobal.hpp"
   
   #include "OutputFormat/AOF.hpp"
   #include "OutputFormat/FileLAS.hpp"

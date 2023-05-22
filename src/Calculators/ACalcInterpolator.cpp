@@ -14,12 +14,12 @@
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 
 ACalcInterpolator::ACalcInterpolator()
     : ACalcDbToDb(),
       _model(nullptr),
-      _neighparam(nullptr)
+      _neigh(nullptr)
 {
 }
 
@@ -94,22 +94,24 @@ bool ACalcInterpolator::_check()
     }
   }
 
-  if (_neighparam != nullptr)
+  if (_neigh != nullptr)
   {
     if (ndim > 0)
     {
-      if (ndim != (int) _neighparam->getNDim())
+      if (ndim != (int) _neigh->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);
-        messerr("- Space Dimension of '_neighparam' = %d",_neighparam->getNDim());
+        messerr("- Space Dimension of '_neigh' = %d",_neigh->getNDim());
         return false;
       }
     }
     else
     {
-      ndim = (int) _neighparam->getNDim();
+      ndim = (int) _neigh->getNDim();
     }
+    // Attach the input and output files
+    _neigh->attach(getDbin(), getDbout());
   }
 
   /**************************************************/
@@ -213,12 +215,12 @@ bool ACalcInterpolator::hasModel(bool verbose) const
   }
   return true;
 }
-bool ACalcInterpolator::hasNeighParam(bool verbose) const
+bool ACalcInterpolator::hasNeigh(bool verbose) const
 {
-  if (_neighparam == nullptr)
+  if (_neigh == nullptr)
   {
     if (verbose)
-      messerr("The argument 'neighparam' must be defined");
+      messerr("The argument 'neigh' must be defined");
     return false;
   }
   return true;

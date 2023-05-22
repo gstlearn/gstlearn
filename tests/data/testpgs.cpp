@@ -35,7 +35,6 @@
 /*********************/
 
 int main(int argc, char *argv[])
-
 {
   char       filename[BUFFER_LENGTH];
   Db        *dbin;
@@ -230,5 +229,6 @@ label_end:
   }
   delete ruleprop;
   delete neighU;
+
   return(0);
 }

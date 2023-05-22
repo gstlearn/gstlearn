@@ -22,11 +22,10 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Neigh/NeighWork.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -592,7 +591,6 @@ static double st_get_verr(int rank, int ivar)
  ** \param[in]  flag_in    1 if the Input Db is used
  ** \param[in]  flag_out   1 if the Output Db is used
  ** \param[in]  model      Model structure (optional)
- ** \param[in]  neighparam ANeighParam structure (optional)
  **
  ** \remarks The address of the argument 'neigh' is memorized in a local
  ** \remarks static variable
@@ -600,8 +598,7 @@ static double st_get_verr(int rank, int ivar)
  *****************************************************************************/
 static int st_check_environment(int flag_in,
                                 int flag_out,
-                                Model *model,
-                                ANeighParam *neighparam)
+                                Model *model)
 {
   int error, ndim, nvar, nfex;
 
@@ -709,32 +706,11 @@ static int st_check_environment(int flag_in,
     model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
 
-  /*****************************/
-  /* Checking the Neighborhood */
-  /*****************************/
-
-  if (neighparam != nullptr)
-  {
-    if (ndim != (int) neighparam->getNDim())
-    {
-      messerr("The Space Dimension of the Neighborhood (%d)", (int) neighparam->getNDim());
-      messerr("does not correspond to the Space Dimension of the first Db (%d)",
-              ndim);
-      goto label_end;
-    }
-    if (neighparam->getType() == ENeigh::IMAGE && (!flag_out || ! DBOUT->isGrid()))
-    {
-      messerr(
-          "The Image neighborhood can only be used when the output Db is a grid");
-      goto label_end;
-    }
-  }
-
   /* Set the error return code */
 
   error = 0;
-
-  label_end: return (error);
+  label_end:
+  return (error);
 }
 
 /****************************************************************************/
@@ -862,12 +838,12 @@ static int st_krige_manage_basic(int mode,
  **
  ** \return  Maximum number of points per neighborhood
  **
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh ANeigh structure
  **
  *****************************************************************************/
-static int st_get_nmax(ANeighParam *neighparam)
+static int st_get_nmax(ANeigh *neigh)
 {
-  return neighparam->getMaxSampleNumber(DBIN);
+  return neigh->getMaxSampleNumber(DBIN);
 }
 
 /****************************************************************************/
@@ -879,7 +855,7 @@ static int st_get_nmax(ANeighParam *neighparam)
  ** \param[in]  mode       1 for allocation; -1 for deallocation
  ** \param[in]  nvar       Number of variables to be calculated
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  **
  ** \remarks  The number of variables corresponds to the number of variables
  ** \remarks  to be calculated. It is not necessarily equal to the number of
@@ -891,7 +867,7 @@ static int st_get_nmax(ANeighParam *neighparam)
 static int st_krige_manage(int mode,
                            int nvar,
                            Model *model,
-                           ANeighParam *neighparam)
+                           ANeigh *neigh)
 {
   int nech, nfeq, nmax;
 
@@ -900,7 +876,7 @@ static int st_krige_manage(int mode,
   nvar = model->getVariableNumber();
   nfeq = model->getDriftEquationNumber();
   nech = DBIN->getSampleNumber();
-  nmax = st_get_nmax(neighparam);
+  nmax = st_get_nmax(neigh);
 
   return (st_krige_manage_basic(mode, nech, nmax, nvar, nfeq));
 }
@@ -1571,7 +1547,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_bayes 1 if Bayes option is switched ON
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
@@ -1587,7 +1563,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
 int _krigsim(Db* dbin,
              Db* dbout,
              const Model* model,
-             ANeighParam* neighparam,
+             ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
              const VectorDouble& dcov,
@@ -1597,7 +1573,7 @@ int _krigsim(Db* dbin,
 {
   // Preliminary checks
 
-  if (neighparam->getType() == ENeigh::IMAGE)
+  if (neigh->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
@@ -1610,7 +1586,7 @@ int _krigsim(Db* dbin,
 
   /* Setting options */
 
-  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  KrigingSystem ksys(dbin, dbout, model, neigh);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
@@ -1626,249 +1602,6 @@ int _krigsim(Db* dbin,
   }
 
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Global estimation over a territory using arithmetic average
- **
- ** \return A Global_Res structure
- **
- ** \param[in]  dbin          Db structure
- ** \param[in]  dbgrid        Db grid structure
- ** \param[in]  model         Model structure
- ** \param[in]  ivar0         Rank of the target variable
- ** \param[in]  flag_verbose  1 for a verbose output
- **
- *****************************************************************************/
-Global_Res global_arithmetic(Db *dbin,
-                             DbGrid *dbgrid,
-                             Model *model,
-                             int ivar0,
-                             bool flag_verbose)
-{
-  Global_Res gres;
-
-  /* Preliminary checks */
-
-  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
-  {
-    messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-            ivar0 + 1, dbin->getLocNumber(ELoc::Z));
-    return gres;
-  }
-
-  /* Preliminary assignments */
-
-  int ntot = dbin->getSampleNumber(false);
-  int np = dbin->getSampleNumber(true);
-  int ng = dbgrid->getSampleNumber(true);
-  double surface = ng * db_grid_maille(dbgrid);
-
-  /* Average covariance over the data */
-
-  double cxx = model_cxx(model, dbin, dbin, ivar0, ivar0, 0, 0.);
-
-  /* Average covariance between the data and the territory */
-
-  double cxv = model_cxx(model, dbin, dbgrid, ivar0, ivar0, 0, 0.);
-
-  /* Average covariance over the territory */
-
-  double cvv = model_cxx(model, dbgrid, dbgrid, ivar0, ivar0, 0,
-                         db_epsilon_distance(dbgrid));
-
-  /* Calculating basic statistics */
-
-  int iatt = db_attribute_identify(dbin, ELoc::Z, ivar0);
-  double wtot;
-  double ave;
-  double var;
-  double mini;
-  double maxi;
-  db_monostat(dbin, iatt, &wtot, &ave, &var, &mini, &maxi);
-
-  /* Filling the resulting structure */
-
-  double sse = cvv - 2. * cxv + cxx;
-  sse = (sse > 0) ? sqrt(sse) : 0.;
-  double cvsam = (ave != 0.) ? sqrt(var) / ave : TEST;
-  double cviid = cvsam / sqrt(np);
-  double cvgeo = (ave != 0.) ? sse / ave : TEST;
-
-  /* Filling the output structure */
-
-  gres.ntot = ntot;
-  gres.np = np;
-  gres.ng = ng;
-  gres.surface = surface;
-  gres.zest = ave;
-  gres.sse  = sse;
-  gres.cvgeo = cvgeo;
-  gres.cvv = cvv;
-  gres.weights.resize(np, 1./np);
-
-  if (flag_verbose)
-  {
-    mestitle(1,"Global estimation by arithmetic average");
-    message("Total number of data             = %d\n", ntot);
-    message("Number of active data            = %d\n", np);
-    message("Sample variance                  = %lf\n", var);
-    message("CVsample                         = %lf\n", cvsam);
-    message("CViid                            = %lf\n", cviid);
-    message("Cxx                              = %lf\n", cxx);
-    message("Cxv                              = %lf\n", cxv);
-    message("Cvv                              = %lf\n", cvv);
-    if (FFFF(ave))
-      message("Estimation by arithmetic average = NA\n");
-    else
-      message("Estimation by arithmetic average = %lf\n", ave);
-    message("Estimation St. dev. of the mean  = %lf\n", sse);
-    if (FFFF(cvgeo))
-      message("CVgeo                            = NA\n");
-    else
-      message("CVgeo                            = %lf\n", cvgeo);
-    message("Surface                          = %lf\n", surface);
-    if (FFFF(ave))
-      message("Q (Estimation * Surface)         = NA\n");
-    else
-      message("Q (Estimation * Surface)         = %lf\n", ave * surface);
-    message("\n");
-  }
-
-  return gres;
-}
-
-/****************************************************************************/
-/*!
- **  Global estimation over a territory using kriging
- **
- ** \return A Global_Res structure
- **
- ** \param[in]  dbin          Db structure
- ** \param[in]  dbout         Db grid structure
- ** \param[in]  model         Model structure
- ** \param[in]  ivar0         Rank of the target variable
- ** \param[in]  flag_verbose  1 for a verbose output
- **
- *****************************************************************************/
-Global_Res global_kriging(Db *dbin,
-                          Db *dbout,
-                          Model *model,
-                          int ivar0,
-                          bool flag_verbose)
-{
-  NeighUnique neighU;
-  Global_Res gres;
-  VectorDouble rhsCum;
-
-  /* Preliminary tests */
-
-  if (ivar0 < 0 || ivar0 >= dbin->getLocNumber(ELoc::Z))
-  {
-    messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
-        ivar0 + 1, dbin->getLocNumber(ELoc::Z));
-    return gres;
-  }
-
-  // Initializations
-
-  int ndim = dbin->getNDim();
-  int nvar = model->getVariableNumber();
-  SpaceRN space(ndim);
-  neighU = NeighUnique(false, &space);
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbin, dbout, model, &neighU);
-  if (ksys.setKrigOptFlagGlobal(true)) return gres;
-  if (! ksys.isReady()) return gres;
-
-  /* Loop on the targets to be processed */
-
-  int ng = 0;
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
-  {
-    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    if (! dbout->isActive(iech_out)) continue;
-    if (ksys.estimate(iech_out)) return gres;
-
-    // Cumulate the R.H.S.
-
-    VectorDouble rhs = ksys.getRHSC(ivar0);
-    if (rhsCum.empty()) rhsCum.resize(rhs.size(),0.);
-    VH::addInPlace(rhsCum, rhs);
-    ng++;
-  }
-
-  /* Preliminary checks */
-
-  int ntot = dbin->getSampleNumber(false);
-  int np   = dbin->getSampleNumber(true);
-  double surface = ng * db_grid_maille(dbout);
-
-  /* Average covariance over the territory */
-
-  double cvv = model_cxx(model, dbout, dbout, ivar0, ivar0, 0,
-                         db_epsilon_distance(dbin));
-
-  /* Load the scaled cumulated R.H.S. in the array rhs */
-
-  VH::divideConstant(rhsCum, (double) ng);
-
-  /* Derive the kriging weights */
-
-  int nred = ksys.getNRed();
-  VectorDouble lhsinv = ksys.getLHSInv();
-  VectorDouble zam = ksys.getZam();
-  VectorDouble wgt(nred);
-  matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
-
-  /* Perform the estimation */
-
-  double estim = VH::innerProduct(rhsCum, zam);
-  double stdv = cvv - VH::innerProduct(rhsCum, wgt);
-  stdv = (stdv > 0) ? sqrt(stdv) : 0.;
-  double cvgeo = (estim == 0. || FFFF(estim)) ? TEST : stdv / estim;
-
-  /* Store the results in the output Global_Res struture */
-
-  gres.ntot = ntot;
-  gres.np = np;
-  gres.ng = ng;
-  gres.surface = surface;
-  gres.zest = estim;
-  gres.sse = stdv;
-  gres.cvgeo = cvgeo;
-  gres.cvv = cvv;
-  gres.weights = wgt;
-
-  /* Printout */
-
-  if (flag_verbose)
-  {
-    mestitle(1,"Global estimation kriging");
-    message("Total number of data             = %d\n", ntot);
-    message("Number of active data            = %d\n", np);
-    message("Number of variables              = %d\n", nvar);
-    message("Cvv                              = %lf\n", cvv);
-    if (FFFF(estim))
-      message("Estimation by kriging            = NA\n");
-    else
-      message("Estimation by kriging            = %lf\n", estim);
-    message("Estimation St. Dev. of the mean  = %lf\n", stdv);
-    if (FFFF(cvgeo))
-      message("CVgeo                            = NA\n");
-    else
-      message("CVgeo                            = %lf\n", cvgeo);
-    message("Surface                          = %lf\n", surface);
-    if (FFFF(estim))
-      message("Q (Estimation * Surface)         = NA\n");
-    else
-      message("Q (Estimation * Surface)         = %lf\n", estim * surface);
-    message("\n");
-  }
-  return gres;
 }
 
 /****************************************************************************/
@@ -1909,7 +1642,7 @@ int global_transitive(DbGrid *dbgrid,
   cvv = wtot = dsse = gint = dsum = 0.;
   flag_value = 0;
   st_global_init(dbgrid, dbgrid);
-  if (st_check_environment(0, 1, model, NULL)) goto label_end;
+  if (st_check_environment(0, 1, model)) goto label_end;
   ndim = dbgrid->getNDim();
   d1.resize(2);
 
@@ -3333,7 +3066,7 @@ int bayes_simulate(Model *model,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure (univariate)
- ** \param[in]  neighU     NeighUnique structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_positive  1 for a positive constraints
  ** \param[in]  namconv    Naming convention
  **
@@ -3346,7 +3079,7 @@ int bayes_simulate(Model *model,
 int krigsum(Db *dbin,
             Db *dbout,
             Model *model,
-            NeighUnique *neighU,
+            ANeigh *neigh,
             bool flag_positive,
             const NamingConvention& namconv)
 {
@@ -3377,7 +3110,7 @@ int krigsum(Db *dbin,
   // Locally turn the problem to a Monovariate case to have it accepted
   dbin->clearLocators(ELoc::Z);
   dbin->setLocatorByUID(iuids[0], ELoc::Z);
-  KrigingSystem ksys(dbin, dbout, model, neighU);
+  KrigingSystem ksys(dbin, dbout, model, neigh);
   if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptFlagLTerm(true)) return 1;
   if (! ksys.isReady()) return 1;
@@ -4184,7 +3917,7 @@ int krigsampling_f(Db *dbin,
   st_global_init(dbin, dbout);
   FLAG_EST = true;
   FLAG_STD = flag_std;
-  if (st_check_environment(1, 1, model, NULL)) goto label_end;
+  if (st_check_environment(1, 1, model)) goto label_end;
   nvar = model->getVariableNumber();
   nech = dbin->getSampleNumber();
 
@@ -4504,23 +4237,16 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
  **
  ** \param[in]  db         input Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam NeighParam structure (should be Unique)
+ ** \param[in]  neigh      ANeigh structure (should be Unique)
  ** \param[in]  iptr       Rank of the declustering weight
  **
  *****************************************************************************/
 static int st_declustering_2(Db *db,
                              Model *model,
-                             ANeighParam* neighparam,
+                             ANeigh* neigh,
                              int iptr)
 {
-  NeighUnique* neighU = dynamic_cast<NeighUnique*>(neighparam);
-  if (neighU == nullptr)
-  {
-    messerr("Declustering with 'method=2' requires Unique Neighborhood");
-    return 1;
-  }
-
-  KrigingSystem ksys(db, db, model, neighU);
+  KrigingSystem ksys(db, db, model, neigh);
   if (ksys.setKrigOptDataWeights(iptr,  true)) return 1;
   if (ksys.setKrigOptCalcul(EKrigOpt::DRIFT)) return 1;
   if (! ksys.isReady()) return 1;
@@ -4546,7 +4272,7 @@ static int st_declustering_2(Db *db,
  ** \param[in]  db         input Db structure
  ** \param[in]  dbgrid     output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  ndisc      Array of discretization counts
  ** \param[in]  iptr       Rank of the declustering weight
  **
@@ -4554,18 +4280,18 @@ static int st_declustering_2(Db *db,
 static int st_declustering_3(Db *db,
                              Db *dbgrid,
                              Model *model,
-                             ANeighParam *neighparam,
+                             ANeigh *neigh,
                              const VectorInt& ndisc,
                              int iptr)
 {
   // Preliminary checks
 
-  if (neighparam == nullptr)
+  if (neigh == nullptr)
   {
     messerr("This function requires a Neighborhood");
     return 1;
   }
-  if (neighparam->getType() == ENeigh::IMAGE)
+  if (neigh->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
@@ -4578,7 +4304,7 @@ static int st_declustering_3(Db *db,
 
   /* Setting options */
 
-  KrigingSystem ksys(db, dbgrid, model, neighparam);
+  KrigingSystem ksys(db, dbgrid, model, neigh);
   if (ksys.setKrigOptDataWeights(iptr,  false)) return 1;
   if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndisc)) return 1;
   if (! ksys.isReady()) return 1;
@@ -4607,7 +4333,7 @@ static int st_declustering_3(Db *db,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  method     Method for declustering
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  dbgrid     Grid auxiliary Db structure
  ** \param[in]  radius     Array of neighborhood radius
  ** \param[in]  ndisc      Array of discretization
@@ -4618,7 +4344,7 @@ static int st_declustering_3(Db *db,
 int declustering(Db *dbin,
                  Model *model,
                  int method,
-                 ANeighParam *neighparam,
+                 ANeigh *neigh,
                  DbGrid *dbgrid,
                  const VectorDouble& radius,
                  const VectorInt& ndisc,
@@ -4655,13 +4381,13 @@ int declustering(Db *dbin,
 
     case 2: /* Weight of the Mean */
       {
-        if (st_declustering_2(dbin, model, neighparam, iptr)) goto label_end;
+        if (st_declustering_2(dbin, model, neigh, iptr)) goto label_end;
       }
       break;
 
     case 3: /* Average weight of the Block Kriging */
       {
-      if (st_declustering_3(dbin, dbgrid, model, neighparam, ndisc, iptr))
+      if (st_declustering_3(dbin, dbgrid, model, neigh, ndisc, iptr))
           goto label_end;
       }
       break;
@@ -5304,7 +5030,6 @@ int inhomogeneous_kriging(Db *dbdat,
   double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
   double *data, *lambda, *driftp, *driftg, *ymat, *zmat, *mu, *maux, *rhs;
   double estim, stdev, auxval;
-  NeighWork nbghw;
   VectorInt nbgh_ranks;
 
   /* Preliminary checks */
@@ -5319,7 +5044,7 @@ int inhomogeneous_kriging(Db *dbdat,
   covss = covpp = covgp = covgg = nullptr;
   lambda = data = driftp = driftg = nullptr;
   ymat = zmat = mu = maux = nullptr;
-  if (st_check_environment(1, 1, model_dat, NULL)) goto label_end;
+  if (st_check_environment(1, 1, model_dat)) goto label_end;
 
   /* Preliminary checks */
 
@@ -5365,7 +5090,6 @@ int inhomogeneous_kriging(Db *dbdat,
   if (st_krige_manage(1, nvar, model_dat, neighU)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
-  nbghw.initialize(dbdat, neighU);
 
   /* Constitute the Data vector */
 
@@ -5470,7 +5194,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     // Neighborhood search
 
-    nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
+    nbgh_ranks = neighU->select(IECH_OUT);
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */
@@ -5564,90 +5288,6 @@ int inhomogeneous_kriging(Db *dbdat,
 
 /****************************************************************************/
 /*!
- **  Polynomial estimation using Least Squares
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
- ** \param[in]  iptr        Storage address
- ** \param[in]  order       Order of the polynomial
- **
- *****************************************************************************/
-int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
-{
-  int ndim = dbin->getNDim();
-  NeighWork nbghw(dbin, neighparam);
-  VectorInt nbgh;
-  CovContext ctxt(1, ndim);
-  DriftList drft;
-  drft.setDriftIRF(order, 0, ctxt);
-  int ndrift = drft.getDriftNumber();
-  VectorDouble X(ndrift);
-  VectorDouble B(ndrift);
-  MatrixSquareSymmetric A(ndrift);
-
-  /* Loop on the targets to be processed */
-
-   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
-   {
-     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
-                 iech);
-     if (!dbout->isActive(iech)) continue;
-     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-     {
-       mestitle(1, "Target location");
-       db_sample_print(dbout, iech, 1, 0, 0);
-     }
-
-     // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
-     int nSize = (int) nbgh.size();
-     if (nSize < ndrift)
-     {
-       dbout->setArray(iech, iptr, TEST);
-       continue;
-     }
-
-     // Evaluate the least square system
-     A.fill(0.);
-     for (int i = 0; i < ndrift; i++) B[i] = 0.;
-     for (int jech = 0; jech < nSize; jech++)
-     {
-       int jech1 = nbgh[jech];
-       double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
-       if (FFFF(zval)) continue;
-       VectorDouble Vdata = drft.getDriftBySample(dbin, jech1);
-
-       // Double loop on the drift terms
-       for (int id1 = 0; id1 < ndrift; id1++)
-       {
-         B[id1] += zval * Vdata[id1];
-         for (int id2 = 0; id2 <= id1; id2++)
-         {
-           A.add(id1,  id2, Vdata[id1] * Vdata[id2]);
-         }
-       }
-     }
-
-     // Solve the system
-     if (A.solve(B, X) > 0) continue;
-
-     // Evaluate the vector of drift terms at target
-     VectorDouble Vtarget = drft.getDriftBySample(dbout,  iech);
-
-     // Perform the estimation
-     double result = VH::innerProduct(X, Vtarget);
-
-     // Assign the result
-     dbout->setArray(iech, iptr, result);
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
 **  Smooth a regular grid
 **
 ** \param[in]  dbgrid    input and output Db grid structure
@@ -5660,7 +5300,7 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
 **
 *****************************************************************************/
 void _image_smoother(DbGrid *dbgrid,
-                     NeighImage *neigh,
+                     const NeighImage *neigh,
                      int type,
                      double range,
                      int iptr0)

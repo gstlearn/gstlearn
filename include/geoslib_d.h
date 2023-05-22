@@ -199,18 +199,5 @@ struct Local_Relem
   std::vector<Local_Split *> splits;
 };
 
-struct Global_Res
-{
-  int ntot; // Total Number of Data
-  int np;   // Number of active Data
-  int ng;   // Number of grid nodes discretizing Domain
-  double surface; // Surface of Domain
-  double zest;    // Estimate
-  double sse;     // Standard deviation of estimation
-  double cvgeo;   // Coefficient of Variation
-  double cvv;     // Variance of Domain
-  VectorDouble weights; // Weights attached to data
-};
-
 typedef struct Local_Relem Relem;
 typedef struct Local_Split Split;

@@ -10,13 +10,22 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/AEnum.hpp"
+#include "gstlearn_export.hpp"
 
-#define ENUM_NEIGH ENeigh, UNIQUE, \
-                   UNKNOWN, -1, "Unknown Neighborhood", \
-                   UNIQUE,   0, "Unique Neighborhood", \
-                   BENCH,    1, "Bench Neighborhood", \
-                   MOVING,   2, "Moving Neighborhood", \
-                   IMAGE,    3, "Image Neighborhood"
+#include "Basic/AStringable.hpp"
 
-ENUM_DECLARE(ENUM_NEIGH)
+class GSTLEARN_EXPORT ABiPointCheck: public AStringable
+{
+public:
+  ABiPointCheck();
+  ABiPointCheck(const ABiPointCheck& r);
+  ABiPointCheck& operator=(const ABiPointCheck& r);
+  virtual ~ABiPointCheck();
+
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  virtual bool isOK(const SpacePoint& P1, const SpacePoint& P2) const = 0;
+  virtual bool isDistanceCalculated() const { return false; }
+  virtual double getDistance() const { return TEST; }
+};

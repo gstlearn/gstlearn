@@ -116,7 +116,7 @@ ggplot() + plot.varmod(vario, model_gaus, asCov=TRUE)
 
 ```{r Perform_PGS}
 err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus, 
-             neighparam=neigh, nbsimu=nbsimu,
+             neigh=neigh, nbsimu=nbsimu,
              namconv = NamingConvention("SimuPGS"))
 ```
 

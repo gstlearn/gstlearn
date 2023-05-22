@@ -14,13 +14,13 @@
 
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
-#include "Neigh/NeighWork.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
 class DbGrid;
 class Model;
-class ANeighParam;
+class ANeigh;
 class CovCalcMode;
 class ECalcMember;
 class NeighImage;
@@ -33,7 +33,7 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 const Model* model,
-                ANeighParam* neighParam);
+                ANeigh* neigh);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
@@ -153,7 +153,7 @@ private:
   void _wgtDump(int status);
   VectorInt _getRelativePosition();
   int  _lhsInvert();
-  void _dual();
+  void _dualCalcul();
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
@@ -174,7 +174,7 @@ private:
                        int ival,
                        int nval) const;
   bool   _prepareForImage(const NeighImage* neighI);
-  bool   _prepareForImageKriging(Db* dbaux);
+  bool   _prepareForImageKriging(Db* dbaux, const NeighImage* neighI);
   int    _bayesPreCalculations();
   void   _bayesPreSimulate();
   void   _bayesCorrectVariance();
@@ -193,9 +193,9 @@ private:
   Db*                  _dbin;
   Db*                  _dbout;
   Model*               _modelInit; // Copy of the input model
-  ANeighParam*         _neighParam;
+  ANeigh*              _neigh;
   const AAnam*         _anam;
-  bool _isReady;
+  bool                 _isReady;
 
   // Pointer to the Model currently used (must not be freed)
   Model*               _model;
@@ -293,10 +293,10 @@ private:
   int _nfex;
   int _neq;
   int _nred;
+  bool _flagIsotopic;
 
   /// Working arrays
   mutable bool _flagCheckAddress;
-  mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable VectorDouble _covtab;
@@ -306,6 +306,7 @@ private:
   mutable VectorDouble _rhs;
   mutable VectorDouble _wgt;
   mutable VectorDouble _zam;
+  mutable VectorDouble _zext;
   mutable VectorDouble _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;

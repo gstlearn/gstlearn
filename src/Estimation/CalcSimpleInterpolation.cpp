@@ -56,7 +56,7 @@ bool CalcSimpleInterpolation::_check()
 
   if (_flagMovAve || _flagMovMed || _flagLstSqr)
   {
-    if (! hasNeighParam()) return false;
+    if (! hasNeigh()) return false;
   }
 
   return true;
@@ -94,17 +94,17 @@ bool CalcSimpleInterpolation::_run()
 {
   if (_flagMovAve)
   {
-    if (_movave(getDbin(), getDbout(), getNeighparam())) return false;
+    if (_movave(getDbin(), getDbout(), getNeigh())) return false;
   }
 
   if (_flagMovMed)
   {
-    if (_movmed(getDbin(), getDbout(), getNeighparam())) return false;
+    if (_movmed(getDbin(), getDbout(), getNeigh())) return false;
   }
 
   if (_flagLstSqr)
    {
-     if (_lstsqr(getDbin(), getDbout(), getNeighparam())) return false;
+     if (_lstsqr(getDbin(), getDbout(), getNeigh())) return false;
    }
 
   if (_flagInvDist)
@@ -114,7 +114,7 @@ bool CalcSimpleInterpolation::_run()
 
   if (_flagNearest)
   {
-    if (_nearest(getDbin(), getDbout(), getNeighparam())) return false;
+    if (_nearest(getDbin(), getDbout(), getNeigh())) return false;
   }
 
   return true;
@@ -164,19 +164,19 @@ int inverseDistance(Db *dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                   Db *dbout,
-                                  ANeighParam *neighparam,
+                                  ANeigh *neigh,
                                   const NamingConvention &namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
   interpol.setDbout(dbout);
-  interpol.setNeighparam(neighparam);
+  interpol.setNeigh(neigh);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovAve(true);
@@ -194,19 +194,19 @@ GSTLEARN_EXPORT int movingAverage(Db *dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int movingMedian(Db *dbin,
                                  Db *dbout,
-                                 ANeighParam *neighparam,
+                                 ANeigh *neigh,
                                  const NamingConvention &namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
   interpol.setDbout(dbout);
-  interpol.setNeighparam(neighparam);
+  interpol.setNeigh(neigh);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagMovMed(true);
@@ -235,8 +235,8 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
   interpol.setDbin(dbin);
   interpol.setDbout(dbout);
 
-  NeighMoving neigh(false, 1, 1.e6);
-  interpol.setNeighparam(&neigh);
+  NeighMoving neighM(false, 1, 1.e6);
+  interpol.setNeigh(&neighM);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagNearest(true);
@@ -254,21 +254,21 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  order       Order of the polynomial
  ** \param[in]  namconv     Naming Convention
  **
  *****************************************************************************/
 GSTLEARN_EXPORT int leastSquares(Db *dbin,
                                  Db *dbout,
-                                 ANeighParam *neighparam,
+                                 ANeigh *neigh,
                                  int order,
                                  const NamingConvention &namconv)
 {
   CalcSimpleInterpolation interpol;
   interpol.setDbin(dbin);
   interpol.setDbout(dbout);
-  interpol.setNeighparam(neighparam);
+  interpol.setNeigh(neigh);
   interpol.setNamingConvention(namconv);
 
   interpol.setFlagLstSqr(true);
@@ -288,12 +288,11 @@ GSTLEARN_EXPORT int leastSquares(Db *dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  **
  *****************************************************************************/
-int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeighParam* neighparam)
+int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeigh* neigh)
 {
-  NeighWork nbghw(dbin, neighparam);
   VectorInt nbgh;
 
   /* Loop on the targets to be processed */
@@ -310,7 +309,7 @@ int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeighParam* neighpar
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = neigh->select(iech);
 
      // Perform the estimation
      double result = TEST;
@@ -331,12 +330,11 @@ int CalcSimpleInterpolation::_nearest(Db* dbin, Db* dbout, ANeighParam* neighpar
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  **
  *****************************************************************************/
-int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeighParam* neighparam)
+int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
 {
-  NeighWork nbghw(dbin, neighparam);
   VectorInt nbgh;
 
   /* Loop on the targets to be processed */
@@ -355,7 +353,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeighParam* neighpara
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = neigh->select(iech);
 
      // Perform the estimation
      double total = 0.;
@@ -388,12 +386,11 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeighParam* neighpara
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  **
  *****************************************************************************/
-int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeighParam* neighparam)
+int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
 {
-  NeighWork nbghw(dbin, neighparam);
   VectorInt nbgh;
 
   /* Loop on the targets to be processed */
@@ -410,7 +407,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeighParam* neighpara
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = neigh->select(iech);
 
      // Perform the estimation
      double result = TEST;
@@ -434,13 +431,12 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeighParam* neighpara
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  **
  *****************************************************************************/
-int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam)
+int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
 {
   int ndim = dbin->getNDim();
-  NeighWork nbghw(dbin, neighparam);
   VectorInt nbgh;
   CovContext ctxt(1, ndim);
   DriftList drft;
@@ -464,7 +460,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeighParam* neighpara
      }
 
      // Find the neighborhood
-     nbgh = nbghw.select(dbout, iech);
+     nbgh = neigh->select(iech);
      int nSize = (int) nbgh.size();
      if (nSize < ndrift)
      {

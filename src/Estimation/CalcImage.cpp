@@ -143,7 +143,7 @@ bool CalcImage::_run()
 
   if (_flagFilter)
   {
-    KrigingSystem ksys(dbgrid, dbgrid, getModel(), getNeighparam());
+    KrigingSystem ksys(dbgrid, dbgrid, getModel(), getNeigh());
     if (ksys.updKrigOptEstim(_iattOut, -1, -1)) return false;
     if (! ksys.isReady()) return false;
 
@@ -164,7 +164,7 @@ bool CalcImage::_run()
 
   if (_flagSmooth)
   {
-    NeighImage* neighI = dynamic_cast<NeighImage*>(getNeighparam());
+    const NeighImage* neighI = dynamic_cast<const NeighImage*>(getNeigh());
     _image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
   }
 
@@ -179,13 +179,13 @@ bool CalcImage::_run()
  **
  ** \param[in]  dbgrid     input and output Db grid structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
 int krimage(DbGrid *dbgrid,
             Model *model,
-            NeighImage *neighparam,
+            ANeigh *neigh,
             const NamingConvention& namconv)
 {
   CalcImage image;
@@ -193,7 +193,7 @@ int krimage(DbGrid *dbgrid,
   image.setDbin(dbgrid);
   image.setDbout(dbgrid);
   image.setModel(model);
-  image.setNeighparam(neighparam);
+  image.setNeigh(neigh);
   image.setNamingConvention(namconv);
 
   image.setFlagFilter(true);
@@ -210,14 +210,14 @@ int krimage(DbGrid *dbgrid,
  ** \return  Error return code
  **
  ** \param[in]  dbgrid     input and output Db grid structure
- ** \param[in]  neighparam Neigh structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  type       1 for Uniform; 2 for Gaussian
  ** \param[in]  range      Range (used for Gaussian only)
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
 int dbSmoother(DbGrid *dbgrid,
-               NeighImage *neighparam,
+               ANeigh *neigh,
                int type,
                double range,
                const NamingConvention &namconv)
@@ -226,7 +226,7 @@ int dbSmoother(DbGrid *dbgrid,
 
   image.setDbin(dbgrid);
   image.setDbout(dbgrid);
-  image.setNeighparam(neighparam);
+  image.setNeigh(neigh);
   image.setNamingConvention(namconv);
 
   image.setFlagSmooth(true);

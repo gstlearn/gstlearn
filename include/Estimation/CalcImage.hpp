@@ -18,7 +18,7 @@
 #include "Calculators/ACalcInterpolator.hpp"
 
 class DbGrid;
-class ANeighParam;
+class ANeigh;
 
 class GSTLEARN_EXPORT CalcImage: public ACalcInterpolator
 {
@@ -74,7 +74,7 @@ private:
 
 GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
                             Model *model,
-                            NeighImage *neighparam,
+                            ANeigh *neigh,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const EMorpho &oper,
@@ -87,7 +87,7 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const NamingConvention &namconv = NamingConvention(
                                  "Morpho"));
 GSTLEARN_EXPORT int dbSmoother(DbGrid *dbgrid,
-                               NeighImage *neighI,
+                               ANeigh *neigh,
                                int type = 1,
                                double range = 1.,
                                const NamingConvention &namconv = NamingConvention(
