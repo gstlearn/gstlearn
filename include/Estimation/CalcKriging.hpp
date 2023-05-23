@@ -200,3 +200,12 @@ GSTLEARN_EXPORT void krigingExperimental(const Db *dbin,
                         bool flag_std = false,
 						bool flag_varz = false,
 						const NamingConvention& namconv = NamingConvention("KrigingExp"));
+
+
+GSTLEARN_EXPORT void krigingExperimentalEigen(const Db *dbin,
+                        Db *dbout,
+                        Model *model,
+						bool flag_est = true,
+                        bool flag_std = false,
+						bool flag_varz = true,
+                        const NamingConvention& namconv = NamingConvention("KrigingExp"));

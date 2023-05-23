@@ -132,9 +132,9 @@ MatrixEigen MatrixEigen::solve(MatrixEigen& rhs) const
 	return result;
 }
 
-void MatrixEigen::solve(VectorDouble& rhs,VectorDouble& res) const
+void MatrixEigen::solve(const VectorDouble& rhs,VectorDouble& res) const
 {
-	Eigen::Map<Eigen::VectorXd> rhsv(rhs.data(), rhs.size());
+	Eigen::Map<const Eigen::VectorXd> rhsv(rhs.data(), rhs.size());
 	Eigen::Map<Eigen::VectorXd> resv(res.data(), res.size());
 	_prepareFactor();
 	resv.noalias() += _factor.solve(rhsv);

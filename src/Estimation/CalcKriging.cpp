@@ -17,6 +17,8 @@
 #include "Basic/OptDbg.hpp"
 
 #include "Matrix/MatrixEigen.hpp"
+#include <Eigen/Dense>
+#include <Eigen/Cholesky>
 
 #include <math.h>
 
@@ -699,11 +701,12 @@ void krigingExperimental(const Db *dbin,
 	{
 		VectorDouble tempv = VectorDouble(model->getDriftNumber());
 		auto tempDriftsE = C.solve(driftsE); // C^{-1} F
-		auto temp = MatrixEigen::prodT1(driftsE, tempDriftsE); // F'C^{-1}F
-		tempDriftsE.prodTMatVecInPlace(z,tempv);  //                F'C^{-1}z
-		temp.solve(tempv,coeffs);
-		drift = model->evalDrifts(dbin, coeffs,0, true);
-		VH::subtractInPlace(z, drift);
+		auto temp = MatrixEigen::prodT1(driftsE, tempDriftsE); // F'C^{-1}F   nd x nd
+		tempDriftsE.prodTMatVecInPlace(z,tempv);  //                F'C^{-1}z nd x 1
+		temp.solve(tempv,coeffs);	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
+		drift = model->evalDrifts(dbin, coeffs,0, true);		// F beta = n x 1
+		VH::subtractInPlace(z, drift);							// (z - F beta) = (I - F (F'C^{-1}F)^{-1}F'C^{-1})z
+																// (I - F (F'C^{-1}F)^{-1}F)
 	}
 
 	if (!flag_std && !flag_varz)
@@ -734,15 +737,171 @@ void krigingExperimental(const Db *dbin,
 	}
 	if (flag_est)
 	{
-		dbout->addColumns(res, "estim", ELoc::Z, nloc, true, 0.,0);
+		dbout->addColumns(res, "r_estim", ELoc::Z, nloc, true, 0.,0);
 		nloc++;
 	}
 
 	if (flag_varz)
 	{
-		dbout->addColumns(varest,  "var_z", ELoc::Z, nloc, true, 0.,0);
+		dbout->addColumns(varest,  "r_varz", ELoc::Z, nloc, true, 0.,0);
 		nloc++;
 	}
 
 }
+
+
+
+void krigingExperimentalEigen(const Db *dbin,
+                        Db *dbout,
+                        Model *model,
+						bool flag_est,
+                        bool flag_std,
+						bool flag_varz,
+                        const NamingConvention& namconv)
+{
+
+	int nechout = dbout->getSampleNumber(true);
+	int nloc = 0;
+
+	VectorDouble res = VectorDouble(nechout);
+	Eigen::Map<Eigen::VectorXd> resE(res.data(),res.size());
+
+	VectorDouble z = dbin->getColumnByLocator(ELoc::Z, 0, true, false);
+	Eigen::Map<Eigen::VectorXd> zE(z.data(),z.size());
+
+	double mean = model->getMean(0);
+
+	Eigen::VectorXd coeffs;
+	VectorVectorDouble drifts;
+	Eigen::MatrixXd driftsE;
+
+	if ( model->getDriftNumber() == 0)
+	{
+		zE.array()-=mean;
+	}
+	else
+	{
+		//// TODO : écrire Model::getDriftsEigen
+		drifts = model->getDrifts(dbin, true);
+		driftsE = Eigen::MatrixXd((int)drifts[0].size(),(int)drifts.size());
+			for(int i = 0; i < (int)drifts.size();i++)
+			{
+				for (int j = 0; j < (int) drifts[0].size(); j++)
+				{
+					driftsE(j,i) = drifts[i][j];
+				}
+			}
+
+		coeffs = Eigen::VectorXd(model->getDriftNumber());
+	}
+
+	auto Cm = model->evalCovMatrixEigen(dbin);
+	auto C0m =  model->evalCovMatrixEigen(dbin,dbout);
+	const auto C  = Cm.getMatrix();
+	auto C0 =C0m.getMatrixM();
+
+	Eigen::MatrixXd invC;
+	Eigen::LLT<Eigen::MatrixXd> factor;
+
+	Eigen::VectorXd driftE;
+	Eigen::MatrixXd tempDriftsE;
+
+	VectorDouble vars;
+	VectorDouble varest;
+
+	bool computeVars = flag_std || flag_varz;
+	if (computeVars)
+	{
+		invC = C->inverse();
+	}
+	else
+	{
+		factor = C->llt();
+	}
+
+	Eigen::MatrixXd invFinvCF;
+	if ( model->getDriftNumber() > 0)
+	{
+
+		if (computeVars)
+			tempDriftsE = invC * driftsE; // C^{-1} F
+		else
+			tempDriftsE = factor.solve(driftsE);
+		auto temp = driftsE.transpose() * tempDriftsE; // F'C^{-1}F   nd x nd
+		auto tempv = tempDriftsE.transpose() * zE;  //                F'C^{-1}z nd x 1
+		invFinvCF = temp.inverse(); //(F'C^{-1}F)^{-1}
+		coeffs = invFinvCF * tempv;	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
+		driftE = driftsE * coeffs;		// F beta = n x 1
+		zE.array()-=driftE.array();		// (z - F beta)
+
+	}
+
+	if (flag_varz)
+	{
+		varest.resize(dbout->getSampleNumber(true));
+	}
+
+
+	Eigen::Map<Eigen::VectorXd> varestE(varest.data(),varest.size());
+
+	if (!computeVars)
+	{
+		auto dual = factor.solve(zE);
+		resE.noalias() += C0->transpose() * dual;
+	}
+	else
+	{
+
+		vars.resize(dbout->getSampleNumber(true));
+		Eigen::Map<Eigen::VectorXd> varsE(vars.data(),vars.size());
+		auto weights = invC * *C0;
+		resE = weights.transpose() * zE;
+		if(model->getDriftNumber() > 0)
+		{
+			C0->array() -= (((driftsE * invFinvCF) * driftsE.transpose()) * weights).array();
+		}
+
+		auto varmat = weights.array() * C0->array();
+		varestE.array() = varmat.colwise().sum().array();
+	}
+
+	if (model->getDriftNumber() == 0)
+	{
+		resE.array()+=mean;
+	}
+	else
+	{
+		drifts = model->getDrifts(dbout, true);
+		driftsE.resize((int)drifts[0].size(),(int)drifts.size());
+		for(int i = 0; i < (int)drifts.size();i++)
+		{
+			for (int j = 0; j < (int) drifts[0].size(); j++)
+			{
+				driftsE(j,i) = drifts[i][j];
+			}
+		}
+
+		driftE = driftsE * coeffs;
+		resE.array() += driftE.array();
+
+		if (model->getDriftNumber() > 0)
+		{
+			auto tempA = driftsE.array() * ( driftsE * invFinvCF).array();
+			varestE.array()+= tempA.rowwise().sum();
+		}
+	}
+	if (flag_est)
+	{
+		dbout->addColumns(res, "r_estim", ELoc::Z, nloc, true, 0.,0);
+		nloc++;
+	}
+
+	if (flag_varz)
+	{
+		dbout->addColumns(varest,  "r_varz", ELoc::Z, nloc, true, 0.,0);
+		nloc++;
+	}
+
+}
+
 
