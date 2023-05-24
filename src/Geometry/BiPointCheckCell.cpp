@@ -41,8 +41,8 @@ BiPointCheckCell::~BiPointCheckCell()
 
 /**
  * Print the context of the Cell rejection
- * @param Not used
- * @return
+ * @param strfmt Printing format
+ * @return String describing the Checker option
  *
  * @remark The printout is not performed here as this checker can only
  * @remark be instantiated after 'attach'. It is directly performed in NeighMoving.

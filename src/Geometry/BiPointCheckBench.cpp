@@ -49,8 +49,8 @@ BiPointCheckBench* BiPointCheckBench::create(int idim_bench, double width)
 
 /**
  * Printout
- * @param
- * @return
+ * @param strfmt Printing format
+ * @return String describing the Checker option
  *
  * @remark The printout is not performed here as the Checker is only set in 'attach'
  */
