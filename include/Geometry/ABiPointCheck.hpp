@@ -12,9 +12,10 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 
-class GSTLEARN_EXPORT ABiPointCheck: public AStringable
+class GSTLEARN_EXPORT ABiPointCheck: public AStringable, public ICloneable
 {
 public:
   ABiPointCheck();
@@ -22,10 +23,8 @@ public:
   ABiPointCheck& operator=(const ABiPointCheck& r);
   virtual ~ABiPointCheck();
 
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  virtual bool isOK(const SpacePoint& P1, const SpacePoint& P2) const = 0;
-  virtual bool isDistanceCalculated() const { return false; }
-  virtual double getDistance() const { return TEST; }
+  virtual bool isOK(const SpacePoint &P1,
+                    const SpacePoint &P2,
+                    int iech1 = -1,
+                    int iech2 = -1) const = 0;
 };

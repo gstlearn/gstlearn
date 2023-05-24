@@ -33,4 +33,3 @@ public:
 protected:
   double _evaluateCov(double h) const override;
 };
-

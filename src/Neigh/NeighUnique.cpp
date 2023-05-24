@@ -18,7 +18,7 @@
 #include "Db/Db.hpp"
 
 NeighUnique::NeighUnique(bool flag_xvalid, const ASpace* space)
-    : ANeigh(nullptr, nullptr, space)
+    : ANeigh(space)
 {
   setFlagXvalid(flag_xvalid);
 }
@@ -46,7 +46,6 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
 
   sstr << toTitle(0,"Unique Neighborhood");
-  sstr << ANeigh::toString(strfmt);
 
   return sstr.str();
 }

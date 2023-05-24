@@ -19,6 +19,8 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Geometry/BiPointCheckBench.hpp"
+#include "Space/SpacePoint.hpp"
 
 class Db;
 
@@ -31,6 +33,7 @@ public:
   virtual ~NeighBench();
 
   /// Interface for ANeigh
+  virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual VectorInt getNeigh(int iech_out) override;
   virtual bool hasChanged(int iech_out) const override;
   virtual int getMaxSampleNumber(const Db* db) const override;
@@ -45,7 +48,6 @@ public:
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
 
   double getWidth() const { return _width; }
-  void setWidth(double width) { _width = width; }
 
 protected:
   /// Interface for ASerializable
@@ -58,5 +60,9 @@ private:
   void _bench(int iech_out, VectorInt& ranks);
 
 private:
-  double _width;                 /* Width of the slice - bench */
+  double _width;
+  BiPointCheckBench* _biPtBench;
+
+  mutable SpacePoint   _P1;
+  mutable SpacePoint   _P2;
 };

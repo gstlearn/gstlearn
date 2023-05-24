@@ -18,7 +18,7 @@
 #include "Db/Db.hpp"
 
 NeighImage::NeighImage(const VectorInt& radius, int skip, const ASpace* space)
-    : ANeigh(nullptr, nullptr, space),
+    : ANeigh(space),
       _skip(skip),
       _imageRadius(radius)
 {
@@ -51,7 +51,6 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
 
   sstr << toTitle(0,"Image Neighborhood");
-  sstr << ANeigh::toString(strfmt);
 
   sstr << "Skipping factor = " << _skip << std::endl;
   sstr << toMatrix("Image radius :", VectorString(), VectorString(), true, getNDim(),

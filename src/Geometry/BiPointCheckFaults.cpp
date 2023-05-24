@@ -30,7 +30,7 @@ BiPointCheckFaults& BiPointCheckFaults::operator=(const BiPointCheckFaults &r)
   if (this != &r)
   {
     ABiPointCheck::operator=(r);
-    _dmax = r._dmax;
+    _faults = r._faults;
   }
   return *this;
 }
@@ -43,14 +43,15 @@ String BiPointCheckFaults::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << ABiPointCheck::toString();
-
   sstr << "- Separated by Faults" << std::endl;
 
   return sstr.str();
 }
 
-bool BiPointCheckFaults::isOK(const SpacePoint& P1, const SpacePoint& P2) const
+bool BiPointCheckFaults::isOK(const SpacePoint &P1,
+                              const SpacePoint &P2,
+                              int iech1,
+                              int iech2) const
 {
   return _faults->isSplitByFaultSP(P1, P2);
 }

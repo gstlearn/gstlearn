@@ -374,7 +374,6 @@ Universality Condition
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 6
 Maximum horizontal distance         = 10

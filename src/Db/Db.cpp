@@ -31,6 +31,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Space/SpacePoint.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -675,6 +676,12 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   VectorDouble coor(getNDim());
   getSampleCoordinates(iech, coor);
   return coor;
+}
+
+void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
+{
+  VectorDouble coor = getSampleCoordinates(iech);
+  P.setCoord(coor);
 }
 
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const

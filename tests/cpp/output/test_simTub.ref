@@ -77,13 +77,11 @@ Total Sill     =      1.000
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 25
 
 Unique Neighborhood
 ===================
-Space dimension = 2
 
 <----- Simulation (Moving Neighborhood) ----->
 

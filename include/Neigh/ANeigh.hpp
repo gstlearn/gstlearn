@@ -23,18 +23,13 @@ class Db;
 class GSTLEARN_EXPORT ANeigh:  public ASpaceObject, public ASerializable
 {
 public:
-  ANeigh(const Db *dbin = nullptr,
-         const Db *dbout = nullptr,
-         const ASpace* space = nullptr);
+  ANeigh(const ASpace* space = nullptr);
   ANeigh(const ANeigh& r);
   ANeigh& operator=(const ANeigh& r);
   virtual ~ANeigh();
 
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override { return true; }
-
-  // AStringable Interface overriding
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout);

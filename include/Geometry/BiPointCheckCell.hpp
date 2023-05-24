@@ -15,28 +15,25 @@
 #include "Geometry/ABiPointCheck.hpp"
 #include "Faults/Faults.hpp"
 
-class GSTLEARN_EXPORT BiPointCheckFaults: public ABiPointCheck
+class GSTLEARN_EXPORT BiPointCheckCell: public ABiPointCheck
 {
 public:
-  BiPointCheckFaults(const Faults* faults);
-  BiPointCheckFaults(const BiPointCheckFaults& r);
-  BiPointCheckFaults& operator=(const BiPointCheckFaults& r);
-  virtual ~BiPointCheckFaults();
-
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiPointCheckFaults)
+  BiPointCheckCell(const DbGrid* dbgrid);
+  BiPointCheckCell(const BiPointCheckCell& r);
+  BiPointCheckCell& operator=(const BiPointCheckCell& r);
+  virtual ~BiPointCheckCell();
 
   virtual bool isOK(const SpacePoint &P1,
                     const SpacePoint &P2,
                     int iech1 = -1,
                     int iech2 = -1) const override;
 
+  /// ICloneable Interface
+  IMPLEMENT_CLONING(BiPointCheckCell)
+
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  bool hasFaults() const { return _faults != nullptr; }
-  const Faults* getFaults() const { return _faults; }
-
 private:
-  const Faults* _faults;
+  const DbGrid* _dbgrid;
 };

@@ -53,7 +53,6 @@ Column = 3 - Name = Simu - Locator = z1----
 ----
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 10
 Number of angular sectors           = 8

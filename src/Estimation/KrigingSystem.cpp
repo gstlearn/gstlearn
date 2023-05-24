@@ -694,25 +694,8 @@ double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
   for (int idim = 0; idim < _ndim; idim++)
     dd[idim] = _dbin->getCoordinate(rank1, idim) - _dbout->getCoordinate(rank2, idim);
 
-  /* Anisotropic neighborhood */
+  double dist = neighM->getBiPtDist()->getNormalizedDistance(dd);
 
-  if (neighM->getFlagAniso())
-  {
-
-    /* Rotated anisotropy ellipsoid */
-
-    if (neighM->getFlagRotation())
-      matrix_product_safe(1, _ndim, _ndim, dd.data(), neighM->getAnisoRotMats().data(),
-                          dd.data());
-    for (int idim = 0; idim < _ndim; idim++)
-      dd[idim] /= neighM->getAnisoCoeff(idim);
-  }
-
-  /* Calculate the distance */
-
-  double dist;
-  matrix_product_safe(1, _ndim, 1, dd.data(), dd.data(), &dist);
-  dist = sqrt(dist) / neighM->getRadius();
   double var = 0.;
   if (dist > neighM->getDistCont())
   {
@@ -2265,7 +2248,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     if (_neigh->getType() == ENeigh::MOVING)
     {
       const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neigh);
-      if (neighM->getForceWithinBlock()) _flagPerCell = true;
+      if (neighM->getForceWithinCell()) _flagPerCell = true;
     }
 
     // Check that discretization is defined
@@ -2659,18 +2642,6 @@ int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
   // Cancel any already existing Neighborhood
   _neigh->setIsChanged();
 
-  return 0;
-}
-
-/**
- * This function switches ON the systematic test of addresses before running
- * @param flagCheckAddress True if addresses must be systematically checked
- * @remark When turned ON, this option slows the process.
- * @remark It should only be used for Debugging purposes.
- */
-int KrigingSystem::updKrigOptCheckAddress(bool flagCheckAddress)
-{
-  _flagCheckAddress = flagCheckAddress;
   return 0;
 }
 
