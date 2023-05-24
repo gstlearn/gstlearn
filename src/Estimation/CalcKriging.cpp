@@ -75,12 +75,13 @@ bool CalcKriging::_check()
   if (! hasDbin()) return false;
   if (! hasDbout()) return false;
   if (! hasModel()) return false;
-  if (! hasNeighParam()) return false;
-  if (getNeighparam()->getType() == ENeigh::IMAGE)
+  if (! hasNeigh()) return false;
+  if (getNeigh()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
+
   if (_flagVarZ)
   {
     if (! getModel()->isStationary())
@@ -246,7 +247,7 @@ bool CalcKriging::_run()
 {
   /* Setting options */
 
-  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeighparam());
+  KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (ksys.setKrigOptCalcul(_calcul, _ndisc, _flagPerCell)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;
@@ -281,7 +282,6 @@ bool CalcKriging::_run()
 
   /* Loop on the targets to be processed */
 
-  (void) ksys.updKrigOptCheckAddress(true);  // Modif DR
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
     if (_iechSingleTarget > 0)
@@ -320,7 +320,7 @@ bool CalcKriging::_run()
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
  ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
  ** \param[in]  ndisc       Array giving the discretization counts
  ** \param[in]  flag_est    Option for storing the estimation
@@ -336,7 +336,7 @@ bool CalcKriging::_run()
 int kriging(Db *dbin,
             Db *dbout,
             Model *model,
-            ANeighParam *neighparam,
+            ANeigh *neigh,
             const EKrigOpt &calcul,
             bool flag_est,
             bool flag_std,
@@ -350,7 +350,7 @@ int kriging(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setCalcul(calcul);
@@ -372,7 +372,7 @@ int kriging(Db *dbin,
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
  ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  ndisc       Array giving the discretization counts
  ** \param[in]  flag_est    Option for the storing the estimation
  ** \param[in]  flag_std    Option for the storing the standard deviation
@@ -383,7 +383,7 @@ int kriging(Db *dbin,
 int krigcell(Db *dbin,
              Db *dbout,
              Model *model,
-             ANeighParam *neighparam,
+             ANeigh *neigh,
              bool flag_est,
              bool flag_std,
              VectorInt ndisc,
@@ -394,7 +394,7 @@ int krigcell(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setCalcul(EKrigOpt::BLOCK);
@@ -416,7 +416,7 @@ int krigcell(Db *dbin,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  prior_mean Array giving the prior means for the drift terms
  ** \param[in]  prior_cov  Array containing the prior covariance matrix
  **                        for the drift terms
@@ -428,7 +428,7 @@ int krigcell(Db *dbin,
 int kribayes(Db *dbin,
              Db *dbout,
              Model *model,
-             ANeighParam *neighparam,
+             ANeigh *neigh,
              const VectorDouble& prior_mean,
              const VectorDouble& prior_cov,
              bool flag_est,
@@ -439,7 +439,7 @@ int kribayes(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setFlagBayes(true);
@@ -460,16 +460,16 @@ int kribayes(Db *dbin,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
- ** \param[in]  namconv     Naming convention
+ ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
 int krigprof(Db *dbin,
              Db *dbout,
              Model *model,
-             ANeighParam *neighparam,
+             ANeigh *neigh,
              bool flag_est,
              bool flag_std,
              const NamingConvention& namconv)
@@ -478,7 +478,7 @@ int krigprof(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setFlagProf(true);
@@ -497,7 +497,7 @@ int krigprof(Db *dbin,
  ** \param[in]  dbin        input Db structure
  ** \param[in]  dbout       output Db structure
  ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  iech0       Rank of the target sample
  ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
  ** \param[in]  ndisc       Array giving the discretization counts
@@ -509,7 +509,7 @@ int krigprof(Db *dbin,
 Krigtest_Res krigtest(Db *dbin,
                       Db *dbout,
                       Model *model,
-                      ANeighParam *neighparam,
+                      ANeigh *neigh,
                       int iech0,
                       const EKrigOpt &calcul,
                       VectorInt ndisc,
@@ -520,7 +520,7 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
 
   krige.setCalcul(calcul);
   krige.setNdisc(ndisc);
@@ -542,7 +542,7 @@ Krigtest_Res krigtest(Db *dbin,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  anam       AAnam structure
  ** \param[in]  namconv    Naming convention
  **
@@ -550,7 +550,7 @@ Krigtest_Res krigtest(Db *dbin,
 int kriggam(Db *dbin,
             Db *dbout,
             Model *model,
-            ANeighParam *neighparam,
+            ANeigh *neigh,
             AAnam *anam,
             const NamingConvention& namconv)
 {
@@ -558,7 +558,7 @@ int kriggam(Db *dbin,
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setFlagGam(true);
@@ -574,7 +574,7 @@ int kriggam(Db *dbin,
  *
  * @param db Db structure
  * @param model Model structure
- * @param neighparam ANeighParam structure
+ * @param neigh ANeigh structure
  * @param flag_kfold True if a code (K-FOLD) is used
  * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for Z*
  * @param flag_xvalid_std Option for storing the standard deviation: 1:for (Z*-Z)/S; -1 for S
@@ -585,7 +585,7 @@ int kriggam(Db *dbin,
  */
 int xvalid(Db *db,
            Model *model,
-           ANeighParam *neighparam,
+           ANeigh *neigh,
            bool flag_kfold,
            int flag_xvalid_est,
            int flag_xvalid_std,
@@ -599,7 +599,7 @@ int xvalid(Db *db,
   krige.setDbin(db);
   krige.setDbout(db);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setFlagXvalid(true);
@@ -623,7 +623,7 @@ int xvalid(Db *db,
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure (optional)
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  namconv    Naming Convention
  **
  ** \remark This procedure creates the following arrays:
@@ -637,14 +637,14 @@ int xvalid(Db *db,
 int test_neigh(Db *dbin,
                Db *dbout,
                Model *model,
-               ANeighParam *neighparam,
+               ANeigh *neigh,
                const NamingConvention &namconv)
 {
   CalcKriging krige(false, false, false);
   krige.setDbin(dbin);
   krige.setDbout(dbout);
   krige.setModel(model);
-  krige.setNeighparam(neighparam);
+  krige.setNeigh(neigh);
   krige.setNamingConvention(namconv);
 
   krige.setFlagNeighOnly(true);

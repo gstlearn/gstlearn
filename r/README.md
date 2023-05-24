@@ -94,7 +94,7 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 ```
 # Create a Neutral File storing mygrid content
 mygrid = DbGrid_create(c(10,10), c(1,1))
-mygrid$dumpToNF("mygrid.backup")
+mygrid$dumpToNF("mygrid.backup") # This could produce an error - see below
 #...
 # Restart the R session
 #...
@@ -116,7 +116,7 @@ Erreur dans validObject(.Object) :
 * R cannot find the method because it is defined in an inherited class (for example `dumpToNF` is a method from `ASerializable` and currently `mygrid$dumpToNF` produces this error. In that case, you still can use the generic function behind the method by calling:
 
 ```
-ASerializable_dumpToNF(mygrid)
+ASerializable_dumpToNF(mygrid, "mygrid.backup")
 ```
  
 ## Changelog

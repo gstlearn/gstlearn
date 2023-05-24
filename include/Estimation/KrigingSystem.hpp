@@ -12,13 +12,15 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Neigh/NeighWork.hpp"
+#include "Space/SpaceRN.hpp"
+#include "Space/SpacePoint.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
 class DbGrid;
 class Model;
-class ANeighParam;
+class ANeigh;
 class CovCalcMode;
 class ECalcMember;
 class NeighImage;
@@ -31,7 +33,7 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 const Model* model,
-                ANeighParam* neighParam);
+                ANeigh* neigh);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
@@ -47,7 +49,9 @@ public:
   int  setKrigOptColCok(const VectorInt& rank_colcok);
   int  setKrigOptBayes(bool flag_bayes,
                        const VectorDouble& prior_mean,
-                       const VectorDouble& prior_cov);
+                       const VectorDouble& prior_cov,
+                       int seed = 414371);
+  int  setKrigOptImage(int seed = 133271);
   int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int  setKrigOptMatCL(const VectorVectorDouble& matCL);
   int  setKrigoptCode(bool flag_code);
@@ -99,13 +103,10 @@ private:
   double _getVerr(int rank, int ivar) const;
   double _getMean(int ivarCL) const;
   double _getCoefDrift(int ivar, int il, int ib) const;
-  void   _getDistance(int loc_rank1, int loc_rank2, VectorDouble& dd) const;
-  int    _IND(int iech, int ivar,int nech) const;
   int    _getFLAG(int iech,int ivar) const;
-  double _getCOVTAB(int ivar,int jvar, int nvar) const;
-  void   _setCOVTAB(int ivar,int jvar,int nvar,double value);
-  void   _addCOVTAB(int ivar,int jvar,int nvar,double value);
-  void   _prodCOVTAB(int ivar,int jvar,double value);
+  double _getCOVTAB(int ivar,int jvar) const;
+  void   _addCOVTAB(int ivar,int jvar,double value);
+  void   _prodCOVTAB(double value);
   double _getRHS(int iech, int ivar, int jvCL) const;
   void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
   double _getRHSC(int i, int jvCL) const;
@@ -117,35 +118,42 @@ private:
   void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
+  VectorDouble _getDISC1Vec(int idisc) const;
   void   _setDISC1(int idisc, int idim, double value);
   double _getDISC2(int idisc,int idim) const;
+  VectorDouble _getDISC2Vec(int idisc) const;
   void   _setDISC2(int idisc,int idim, double value);
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
-  void _resetMemoryPerNeigh();
   void _resetMemoryGeneral();
+  void _resetMemoryPerNeigh();
   void _flagDefine();
   void _covtabInit();
-  void _covtabCalcul(const ECalcMember &member,
+  void _covtabUpdate(const ECalcMember &member, int iech1, int iech2);
+  void _covtabCalcul(const SpacePoint& p1,
+                     const SpacePoint& p2,
                      const CovCalcMode& mode,
-                     int iech1,
-                     int iech2,
-                     const VectorDouble& d1);
-  void _drftabCalcul(const ECalcMember &member, int iech);
+                     bool flagSameData = false);
+  int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
   void _lhsCalcul();
   void _lhsIsoToHetero();
   void _lhsDump(int nbypas = 5);
   int  _rhsCalcul();
+  void _rhsCalculPoint();
+  void _rhsCalculBlock();
+  void _rhsCalculDrift();
+  void _rhsCalculDGM();
+  void _rhsStore(int iech);
   void _rhsIsoToHetero();
   void _rhsDump();
   void _wgtCalcul();
   void _wgtDump(int status);
   VectorInt _getRelativePosition();
   int  _lhsInvert();
-  void _dual();
+  void _dualCalcul();
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
@@ -166,22 +174,28 @@ private:
                        int ival,
                        int nval) const;
   bool   _prepareForImage(const NeighImage* neighI);
-  bool   _prepareForImageKriging(Db* dbaux);
+  bool   _prepareForImageKriging(Db* dbaux, const NeighImage* neighI);
   int    _bayesPreCalculations();
   void   _bayesPreSimulate();
   void   _bayesCorrectVariance();
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
   bool   _isMatCLempty() const;
+  void   _identifyPoint(SpacePoint& p, int iech);
+
+  void   _setLocalModel(Model* model);
+  void   _setInternalShortCutVariablesGeneral();
+  void   _setInternalShortCutVariablesModel();
+  int    _setInternalShortCutVariablesNeigh();
 
 private:
   // Aggregated classes
   Db*                  _dbin;
   Db*                  _dbout;
   Model*               _modelInit; // Copy of the input model
-  ANeighParam*         _neighParam;
+  ANeigh*              _neigh;
   const AAnam*         _anam;
-  bool _isReady;
+  bool                 _isReady;
 
   // Pointer to the Model currently used (must not be freed)
   Model*               _model;
@@ -231,6 +245,7 @@ private:
 
   /// Option for Bayesian
   bool _flagBayes;
+  int  _seedForBayes;
   VectorDouble _priorMean; // Dimension NF
   VectorDouble _priorCov;  // Dimension NF * NF
   VectorDouble _postMean;
@@ -257,6 +272,7 @@ private:
   bool   _flagAnam;
 
   /// Option for Estimation based on Image
+  int     _seedForImage;
   DbGrid* _dbaux;
 
   /// Option for saving the Weights using Keypair mechanism
@@ -268,11 +284,19 @@ private:
 
   /// Local variables
   int _iechOut;
+  int _ndim;
+  int _nvar;
+  int _nvarCL;
+  int _nech;
+  int _nbfl;
+  int _nfeq;
+  int _nfex;
+  int _neq;
   int _nred;
+  bool _flagIsotopic;
 
   /// Working arrays
   mutable bool _flagCheckAddress;
-  mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable VectorDouble _covtab;
@@ -282,7 +306,16 @@ private:
   mutable VectorDouble _rhs;
   mutable VectorDouble _wgt;
   mutable VectorDouble _zam;
+  mutable VectorDouble _zext;
   mutable VectorDouble _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
+
+  /// Some Space Point allocated once for all
+  mutable SpaceRN    _space;
+  mutable SpacePoint _p1;
+  mutable SpacePoint _p2;
+  mutable SpacePoint _p0;
+  mutable SpacePoint _p0_disc1;
+  mutable SpacePoint _p0_disc2;
 };

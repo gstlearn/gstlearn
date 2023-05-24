@@ -20,7 +20,6 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -31,7 +30,7 @@
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  bool verbose = true;
+  bool verbose = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -41,7 +40,7 @@ int main(int /*argc*/, char */*argv*/[])
   defineDefaultSpace(ESpaceType::RN, 2);
 
   // Generate the output grid
-  int nsample = 10000;
+  int nsample = 1000000;
   Db* data = Db::createFillRandom(nsample);
   if (verbose) data->display();
 
@@ -50,6 +49,8 @@ int main(int /*argc*/, char */*argv*/[])
   for (int i = 0; i < nsample; i++)
     dist[i] = data->getDistance(i, 0);
   timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
+
+  message("Order of magnitude of the reference implementation is 310ms\n");
 
   if (data != nullptr) delete data;
 

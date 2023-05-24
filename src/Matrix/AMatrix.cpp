@@ -511,7 +511,7 @@ void AMatrix::setValue(int rank, double value)
   if (! _isRankValid(rank)) return;
   if (_sparse)
   {
-    _forbiddenForSparse("getValue");
+    _forbiddenForSparse("setValue");
   }
   else
   {
@@ -747,7 +747,7 @@ void AMatrix::prodVector(const double *inv, double *outv) const
 
 void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
 {
-  // TODO : Check dimensions to avois SEGV
+  // TODO : Check dimensions to avoid SEGV
   prodVector(inv.data(), outv.data());
 }
 

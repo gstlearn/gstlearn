@@ -38,8 +38,8 @@
 #include "LithoRule/RuleProp.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
@@ -350,13 +350,13 @@ static int st_keep(int flag_gaus, int flag_prop, int file, int type)
  ** \param[in]  dbin       input Db structure (optional if non conditional)
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional if non conditional)
+ ** \param[in]  neigh      ANeigh structure (optional if non conditional)
  **
  *****************************************************************************/
 static int st_check_simtub_environment(Db *dbin,
                                        Db *dbout,
                                        Model *model,
-                                       ANeighParam *neighparam)
+                                       ANeigh *neigh)
 {
   int nvar = 0;
   int nfex = 0;
@@ -457,19 +457,18 @@ static int st_check_simtub_environment(Db *dbin,
   /* Checking the Neighborhood */
   /*****************************/
 
-  if (flag_cond && neighparam != nullptr)
+  if (flag_cond && neigh != nullptr)
   {
-    if (ndim != (int) neighparam->getNDim())
+    if (ndim != (int) neigh->getNDim())
     {
-      messerr("The Space Dimension of the Neighborhood (%d)", (int) neighparam->getNDim());
+      messerr("The Space Dimension of the Neighborhood (%d)", (int) neigh->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
       return 1;
     }
-    if (neighparam->getFlagXvalid() && neighparam->getType() != ENeigh::MOVING)
+    if (neigh->getFlagXvalid() && neigh->getType() != ENeigh::MOVING)
     {
-      messerr(
-          "The Cross-Validation can only be processed with Moving neighborhood");
+      messerr("The Cross-Validation can only be processed with Moving neighborhood");
       return 1;
     }
   }
@@ -690,7 +689,7 @@ static void st_init_gibbs_params(double rho)
  ** \param[in]  ruleprop    RuleProp structure
  ** \param[in]  model1      First Model structure
  ** \param[in]  model2      Second Model structure (optional)
- ** \param[in]  neighparam  Neighborhood structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  flag_gaus   1 if results must be gaussian; otherwise facies
@@ -718,7 +717,7 @@ int simpgs(Db *dbin,
            RuleProp *ruleprop,
            Model *model1,
            Model *model2,
-           ANeighParam *neighparam,
+           ANeigh *neigh,
            int nbsimu,
            int seed,
            int flag_gaus,
@@ -763,7 +762,7 @@ int simpgs(Db *dbin,
   ngrf = rule->getGRFNumber();
   if (rule->particularities(dbout, dbprop, model1, 1, flag_stat))
     goto label_end;
-  if (st_check_simtub_environment(dbin, dbout, model1, neighparam)) goto label_end;
+  if (st_check_simtub_environment(dbin, dbout, model1, neigh)) goto label_end;
 
   /**********************/
   /* Preliminary checks */
@@ -809,8 +808,7 @@ int simpgs(Db *dbin,
   /* Neighborhood */
   if (flag_cond)
   {
-    if (neighparam->getType() != ENeigh::UNIQUE && neighparam->getType()
-        != ENeigh::BENCH)
+    if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
     {
       messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
       goto label_end;
@@ -927,7 +925,7 @@ int simpgs(Db *dbin,
     icase = get_rank_from_propdef(propdef, 0, igrf);
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
     local_seed = 0;
-    if (situba.simulate(dbin, dbout, models[igrf], neighparam, icase, false, VectorDouble(),
+    if (situba.simulate(dbin, dbout, models[igrf], neigh, icase, false, VectorDouble(),
                         VectorDouble(), true)) goto label_end;
   }
 
@@ -1023,7 +1021,7 @@ int simpgs(Db *dbin,
  ** \param[in]  model12     Second Model structure for First Lithotype Rule
  ** \param[in]  model21     First Model structure for Second Lithotype Rule
  ** \param[in]  model22     Second Model structure for Second Lithotype Rule
- ** \param[in]  neighparam  Neighborhood structure
+ ** \param[in]  neigh       ANeigh structure
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  flag_gaus   1 gaussian results; otherwise facies
@@ -1055,7 +1053,7 @@ int simbipgs(Db *dbin,
              Model *model12,
              Model *model21,
              Model *model22,
-             ANeighParam *neighparam,
+             ANeigh *neigh,
              int nbsimu,
              int seed,
              int flag_gaus,
@@ -1181,7 +1179,7 @@ int simbipgs(Db *dbin,
   }
 
   /* Neighborhood */
-  if (neighparam->getType() != ENeigh::UNIQUE && neighparam->getType() != ENeigh::BENCH)
+  if (neigh->getType() != ENeigh::UNIQUE && neigh->getType() != ENeigh::BENCH)
   {
     messerr("The only authorized Neighborhoods are UNIQUE or BENCH");
     goto label_end;
@@ -1207,7 +1205,7 @@ int simbipgs(Db *dbin,
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z);
     }
-    if (st_check_simtub_environment(dbin, dbout, models[ipgs][0], neighparam))
+    if (st_check_simtub_environment(dbin, dbout, models[ipgs][0], neigh))
       goto label_end;
   }
 
@@ -1352,7 +1350,7 @@ int simbipgs(Db *dbin,
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
       CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
       local_seed = 0;
-      if (situba.simulate(dbin, dbout, models[ipgs][igrf], neighparam, icase, false,
+      if (situba.simulate(dbin, dbout, models[ipgs][igrf], neigh, icase, false,
                           VectorDouble(), VectorDouble(), true)) goto label_end;
     }
 
@@ -1552,11 +1550,11 @@ int db_simulations_to_ce(Db *db,
  **
  ** \param[in]  dbin        Db structure
  ** \param[in]  model       Model structure
- ** \param[in]  neighparam  Neigh structure (optional)
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  gibbs_nburn Initial number of iterations for bootstrapping
  ** \param[in]  gibbs_niter Maximum number of iterations
+ ** \param[in]  flag_moving      1 for Moving
  ** \param[in]  flag_norm   1 if the Model must be normalized
  ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
  ** \param[in]  flag_propagation 1 for the propagation algorithm
@@ -1574,11 +1572,11 @@ int db_simulations_to_ce(Db *db,
  *****************************************************************************/
 int gibbs_sampler(Db *dbin,
                   Model *model,
-                  ANeighParam *neighparam,
                   int nbsimu,
                   int seed,
                   int gibbs_nburn,
                   int gibbs_niter,
+                  bool flag_moving,
                   bool flag_norm,
                   bool flag_multi_mono,
                   bool flag_propagation,
@@ -1655,7 +1653,9 @@ int gibbs_sampler(Db *dbin,
   {
     AGibbs *gibbs;
     if (!flag_multi_mono)
-      gibbs = GibbsFactory::createGibbs(dbin, model, neighparam);
+    {
+      gibbs = GibbsFactory::createGibbs(dbin, model, flag_moving);
+    }
     else
     {
       std::vector<Model*> modvec;
@@ -1725,7 +1725,7 @@ label_end:
  ** \param[in]  dbin         Input Db structure (optional)
  ** \param[in]  dbout        Output Db structure
  ** \param[in]  model        Model structure
- ** \param[in]  neighparam   ANeighParam structure (optional)
+ ** \param[in]  neigh        ANeigh structure (optional)
  ** \param[in]  seed         Seed for random number generator
  ** \param[in]  nbtuba       Number of turning bands
  ** \param[in]  nbsimu_min   Minimum number of simulations
@@ -1779,7 +1779,7 @@ label_end:
 int simtub_constraints(Db *dbin,
                        Db *dbout,
                        Model *model,
-                       ANeighParam *neighparam,
+                       ANeigh *neigh,
                        int seed,
                        int nbtuba,
                        int nbsimu_min,
@@ -1845,7 +1845,7 @@ int simtub_constraints(Db *dbin,
 
     iter++;
     nbtest += nbsimu;
-    if (simtub(dbin, dbout, model, neighparam, nbsimu, 0, nbtuba, 0)) goto label_end;
+    if (simtub(dbin, dbout, model, neigh, nbsimu, 0, nbtuba, 0)) goto label_end;
 
     /* Check if the simulated outcomes are valid */
 
@@ -2590,7 +2590,6 @@ int simcond(Db *dbin,
             int verbose)
 {
   PropDef *propdef;
-  ANeighParam *neighparam = nullptr;
   int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
 
   /* Initializations */
@@ -2604,7 +2603,7 @@ int simcond(Db *dbin,
   /* Preliminary checks */
 
   SpaceRN space(ndim);
-  neighparam = NeighUnique::create(false, &space);
+  NeighUnique* neighU = NeighUnique::create(false, &space);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
@@ -2671,7 +2670,7 @@ int simcond(Db *dbin,
 
   {
     CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
-    if (situba.simulate(dbin, dbout, model, neighparam, 0, false, VectorDouble(),
+    if (situba.simulate(dbin, dbout, model, neighU, 0, false, VectorDouble(),
                         VectorDouble(), false, true)) goto label_end;
   }
 
@@ -2707,7 +2706,7 @@ int simcond(Db *dbin,
   error = 0;
 
   label_end:
-  delete neighparam;
+  delete neighU;
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   return (error);

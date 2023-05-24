@@ -15,7 +15,7 @@
 
 #include "Enum/ENeigh.hpp"
 
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
@@ -24,7 +24,7 @@
 class Db;
 class Faults;
 
-class GSTLEARN_EXPORT NeighMoving: public ANeighParam
+class GSTLEARN_EXPORT NeighMoving: public ANeigh
 {
 public:
   NeighMoving(bool flag_xvalid = false,
@@ -42,15 +42,18 @@ public:
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
 
-  /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// Interface for ANeighParam
+  /// Interface for ANeigh
+  virtual int attach(const Db *dbin,
+                         const Db *dbout = nullptr) override;
+  virtual VectorInt getNeigh(int iech_out) override;
+  virtual bool hasChanged(int iech_out) const override;
+  virtual VectorDouble summary(int iech_out) override;
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("MOVING"); }
-  virtual bool getFlagContinuous() const override {
-    return (! FFFF(_distCont) && _distCont < 1.);
-  }
+  virtual bool getFlagContinuous() const override { return (! FFFF(_distCont) && _distCont < 1.); }
+
+  /// Interface for AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NeighMoving* create(bool flag_xvalid = false,
                              int nmaxi = 1000,
@@ -63,9 +66,9 @@ public:
                              double distcont = TEST,
                              const Faults* faults = nullptr,
                              const ASpace* space = nullptr);
-  void addFaults(const Faults* faults) { _faults = faults; }
-
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
+
+  void addFaults(const Faults* faults) { _faults = faults; }
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
   const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }
@@ -108,6 +111,15 @@ protected:
   String _getNFName() const override { return "NeighMoving"; }
 
 private:
+  int  _moving(int iech_out, VectorInt& ranks, double eps = EPSILON9);
+  bool _hiddenByFault(int iech, int iech_out) const;
+  bool _belongsToCell(int iech, int iech_out);
+  double _movingDist(int iech_in, int iech_out);
+  int _movingSectorDefine(double dx, double dy);
+  void _movingSectorNsmax(int nsel, VectorInt& ranks);
+  void _movingSelect(int nsel, VectorInt& ranks);
+
+private:
   int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
   int _flagRotation;             /* 1 if the anisotropy is rotated */
   int _nMini;                    /* Minimum number of points in neigh. */
@@ -116,8 +128,15 @@ private:
   int _nSMax;                    /* Maximum number of points per 2-D sector */
   bool _forceWithinBlock;        /* Select all samples within a Block */
   double _radius;                /* Maximum isotropic distance */
-  double _distCont;              /* Distance for continuous ANeighParamborhood */
+  double _distCont;              /* Distance for continuous neighborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for moving neighborhood */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
   const Faults* _faults;
+
+  mutable VectorInt    _movingInd;
+  mutable VectorInt    _movingIsect;
+  mutable VectorInt    _movingNsect;
+  mutable VectorDouble _movingX1;
+  mutable VectorDouble _movingX2;
+  mutable VectorDouble _movingDst;
 };

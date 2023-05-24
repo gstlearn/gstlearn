@@ -1,6 +1,5 @@
 NeighMoving
 2 # Space Dimension
-1 # Cross-Validation flag
 1 # Use angular sectors
 1 8 4 2 # Parameters (nmini,nmaxi,nsect,nsmax)
 NA # Maximum distance radius

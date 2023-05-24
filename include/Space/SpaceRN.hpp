@@ -52,10 +52,9 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2) const override;
 
-  void getDistanceOptim(const SpacePoint& p1,
+  void getDistancePointVectInPlace(const SpacePoint& p1,
                                const std::vector<SpacePoint>& p2,
-  							   VectorDouble& res,
-  							   VectorVectorDouble& work) const override;
+  							   VectorDouble& res) const override;
 
 
 

@@ -20,7 +20,6 @@
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 

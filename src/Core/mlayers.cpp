@@ -13,7 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -2008,7 +2008,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_same  1 if input and output files coincide
  ** \param[in]  flag_z     1 if the output must be converted back into depth
  ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
@@ -2030,7 +2030,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
 int multilayers_kriging(Db *dbin,
                         DbGrid *dbout,
                         Model *model,
-                        ANeighParam *neighparam,
+                        ANeigh *neigh,
                         int flag_same,
                         int flag_z,
                         int flag_vel,
@@ -2108,7 +2108,7 @@ int multilayers_kriging(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (neighparam->getType() != ENeigh::UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;

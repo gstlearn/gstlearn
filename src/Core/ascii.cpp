@@ -26,7 +26,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"
 #include "LithoRule/Rule.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Model/Model.hpp"
 
 #include <string.h>

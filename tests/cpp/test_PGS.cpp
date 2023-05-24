@@ -16,7 +16,6 @@
 #include "Enum/ECov.hpp"
 
 #include "Variogram/Vario.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Model/Model.hpp"
 #include "Model/Constraints.hpp"

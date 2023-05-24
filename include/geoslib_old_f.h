@@ -30,7 +30,6 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -50,6 +49,7 @@ class DbGrid;
 class Model;
 class Vario;
 class VarioParam;
+class ANeigh;
 class NeighImage;
 class NeighUnique;
 class Polygons;
@@ -1372,20 +1372,6 @@ GSTLEARN_EXPORT int global_transitive(DbGrid *dbgrid,
                                       double *zest,
                                       double *cve,
                                       double *cvtrans);
-GSTLEARN_EXPORT int invdist(Db *dbin,
-                            Db *dbout,
-                            int iptr,
-                            double exponent = 2.,
-                            bool flag_expand = true,
-                            double dmax = TEST);
-GSTLEARN_EXPORT int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
-GSTLEARN_EXPORT int movmed(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
-GSTLEARN_EXPORT int nearest(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
-GSTLEARN_EXPORT int lstsqr(Db *dbin,
-                           Db *dbout,
-                           ANeighParam *neighparam,
-                           int iptr,
-                           int order);
 GSTLEARN_EXPORT int anakexp_f(DbGrid *db,
                               double *covdd,
                               double *covd0,
@@ -1495,7 +1481,7 @@ GSTLEARN_EXPORT int simRI(Db *dbout,
 GSTLEARN_EXPORT int simtub_constraints(Db *dbin,
                                        Db *dbout,
                                        Model *model,
-                                       ANeighParam *neighparam,
+                                       ANeigh *neigh,
                                        int seed,
                                        int nbtuba,
                                        int nbsimu,
@@ -1734,7 +1720,7 @@ GSTLEARN_EXPORT int multilayers_vario(Db *dbin,
 GSTLEARN_EXPORT int multilayers_kriging(Db *dbin,
                                         DbGrid *dbout,
                                         Model *model,
-                                        ANeighParam *neighparam,
+                                        ANeigh *neigh,
                                         int flag_same,
                                         int flag_z,
                                         int flag_vel,

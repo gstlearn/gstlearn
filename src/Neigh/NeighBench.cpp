@@ -14,15 +14,17 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
-NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace* space)
-    : ANeighParam(flag_xvalid, space),
+NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace *space)
+    : ANeigh(nullptr, nullptr, space),
       _width(width)
 {
+  setFlagXvalid (flag_xvalid);
 }
 
 NeighBench::NeighBench(const NeighBench& r)
-    : ANeighParam(r),
+    : ANeigh(r),
       _width(r._width)
 {
 }
@@ -31,7 +33,7 @@ NeighBench& NeighBench::operator=(const NeighBench& r)
 {
   if (this != &r)
   {
-    ANeighParam::operator=(r);
+    ANeigh::operator=(r);
     _width = r._width;
    }
   return *this;
@@ -46,7 +48,7 @@ String NeighBench::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
 
   sstr << toTitle(0,"Bench Neighborhood");
-  sstr << ANeighParam::toString(strfmt);
+  sstr << ANeigh::toString(strfmt);
 
   sstr << "Bench width     = " << _width << std::endl;
 
@@ -56,7 +58,7 @@ String NeighBench::toString(const AStringFormat* strfmt) const
 bool NeighBench::_deserialize(std::istream& is, bool verbose)
 {
   bool ret = true;
-  ret = ret && ANeighParam::_deserialize(is, verbose);
+  ret = ret && ANeigh::_deserialize(is, verbose);
   ret = ret && _recordRead<double>(is, "Bench Width", _width);
   return ret;
 }
@@ -64,7 +66,7 @@ bool NeighBench::_deserialize(std::istream& is, bool verbose)
 bool NeighBench::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret = ret && ANeighParam::_serialize(os, verbose);
+  ret = ret && ANeigh::_serialize(os, verbose);
   ret = ret && _recordWrite<double>(os, "Bench Width", getWidth());
   return ret;
 }
@@ -135,3 +137,99 @@ int NeighBench::getMaxSampleNumber(const Db* db) const
   }
   return nmax;
 }
+
+bool NeighBench::hasChanged(int iech_out) const
+{
+  if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
+
+  return _isSameTargetBench(iech_out);
+}
+
+bool NeighBench::_isSameTargetBench(int iech_out) const
+{
+  // Check if current target and previous target belong to the same bench
+
+  int ndim = _dbout->getNDim();
+  if (_dbgrid != nullptr)
+  {
+    int nval = 1;
+    for (int idim = 0; idim < ndim - 1; idim++)
+      nval *= _dbgrid->getNX(idim);
+    if ((iech_out / nval) != (_iechMemo / nval)) return false;
+  }
+  else
+  {
+    if (_dbout->getCoordinate(iech_out, ndim - 1) !=
+        _dbout->getCoordinate(_iechMemo, ndim - 1)) return false;
+  }
+  return true;
+}
+
+/****************************************************************************/
+/*!
+ **  Select the neighborhood
+ **
+ ** \return  Vector of sample ranks in neighborhood (empty when error)
+ **
+ ** \param[in]  iech_out      Valid Rank of the sample in the output Db
+ **
+ *****************************************************************************/
+VectorInt NeighBench::getNeigh(int iech_out)
+{
+  int nech = _dbin->getSampleNumber();
+  VectorInt ranks(nech, -1);
+
+  // Select the neighborhood samples as the target sample has changed
+  _bench(iech_out, ranks);
+
+  // In case of debug option, dump out neighborhood characteristics
+  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+
+  // Compress the vector of returned sample ranks
+  _neighCompress(ranks);
+
+  return ranks;
+}
+
+/****************************************************************************/
+/*!
+ **  Search for the bench neighborhood, according to the last
+ **  coordinate
+ **
+ ** \param[in]  iech_out  rank of the output sample
+ **
+ ** \param[out]  ranks    Vector of samples elected in the Neighborhood
+ **
+ *****************************************************************************/
+void NeighBench::_bench(int iech_out, VectorInt& ranks)
+{
+  int nech = _dbin->getSampleNumber();
+  int idim_bench = _dbin->getNDim() - 1;
+  double z0 = _dbout->getCoordinate(iech_out, idim_bench);
+
+  /* Loop on samples */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    /* Discard the masked input sample */
+
+    if (! _dbin->isActive(iech)) continue;
+
+    /* Discard samples where all variables are undefined */
+
+    if (_discardUndefined(iech)) continue;
+
+    /* Discard the target sample for the cross-validation option */
+
+    if (getFlagXvalid())
+    {
+      if (_xvalid(iech, iech_out)) continue;
+    }
+
+    /* Discard sample located outside the bench */
+
+    if (ABS(_dbin->getCoordinate(iech,idim_bench) - z0) <= getWidth())
+      ranks[iech] = 0;
+  }
+}
+

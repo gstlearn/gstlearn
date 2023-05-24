@@ -58,12 +58,12 @@ private:
   void _fillTensors();
 
 private:
-  unsigned int    _nDim;     /// Number of dimensions
+  unsigned int        _nDim;     /// Number of dimensions
   MatrixSquareGeneral _tensorDirect; /// Direct Tensor matrix (definite positive)
   MatrixSquareGeneral _tensorDirect2; /// Direct Tensor matrix (definite positive)
   MatrixSquareGeneral _tensorInverse; /// Inverse Tensor matrix (definite positive)
   MatrixSquareGeneral _tensorInverse2; /// Inverse Tensor matrix (definite positive)
-  VectorDouble    _radius;   /// Ellipsoid radius
-  Rotation        _rotation; /// Ellipsoid rotation
-  bool            _isotropic;  /// True if the tensor is isotropic
+  VectorDouble        _radius;   /// Ellipsoid radius
+  Rotation            _rotation; /// Ellipsoid rotation
+  bool                _isotropic;  /// True if the tensor is isotropic
 };

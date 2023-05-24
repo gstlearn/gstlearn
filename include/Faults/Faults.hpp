@@ -16,6 +16,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
+class SpacePoint;
+
 class GSTLEARN_EXPORT Faults: public AStringable, public ASerializable
 {
 public:
@@ -36,6 +38,7 @@ public:
   const PolyLine2D getFault(int ifault) const { return _faults[ifault]; }
 
   bool isSplitByFault(double xt1,double yt1, double xt2, double yt2) const;
+  bool isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const;
 
 protected:
   /// Interface for ASerializable

@@ -256,12 +256,13 @@ double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
   return (max);
 }
 
-int VectorHelper::maximum(const VectorInt &vec)
+int VectorHelper::maximum(const VectorInt &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
   int max = -10000000;
-  for (auto &v : vec)
+  for (auto v : vec)
   {
+    if (flagAbs) v = ABS(v);
     if (v > max) max = v;
   }
   return (max);
@@ -277,12 +278,13 @@ double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
   return val;
 }
 
-int VectorHelper::minimum(const VectorInt &vec)
+int VectorHelper::minimum(const VectorInt &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
   int min = 10000000;
-  for (auto &v : vec)
+  for (auto v : vec)
   {
+    if (flagAbs) v = ABS(v);
     if (v < min) min = v;
   }
   return (min);
@@ -322,10 +324,19 @@ double VectorHelper::mean(const VectorDouble &vec)
     number++;
   }
   if (number > 0)
-    mean /= (double) number;
+    return (mean / (double) number);
   else
-    mean = TEST;
-  return (mean);
+    return TEST;
+}
+
+int VectorHelper::cumul(const VectorInt& vec)
+{
+  int total = 0.;
+  for (auto &v : vec)
+  {
+    total += v;
+  }
+  return total;
 }
 
 double VectorHelper::cumul(const VectorDouble& vec)
@@ -448,7 +459,7 @@ double VectorHelper::stdv(const VectorDouble &vec)
 
 double VectorHelper::norm(const VectorDouble &vec)
 {
-  double ip = static_cast<double>(innerProduct(vec, vec));
+  double ip = innerProduct(vec, vec);
   return sqrt(ip);
 }
 
@@ -464,8 +475,12 @@ int VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;
   int nprod = 1;
-  for (int i = 0; i < (int) vec.size(); i++)
-    nprod *= vec[i];
+  VectorInt::const_iterator itv(vec.begin());
+  while (itv < vec.end())
+  {
+    nprod *= (*itv);
+    itv++;
+  }
   return nprod;
 }
 
@@ -473,8 +488,12 @@ double VectorHelper::product(const VectorDouble& vec)
 {
   if (vec.empty()) return 0;
   double nprod = 1.;
-  for (int i = 0; i < (int) vec.size(); i++)
-    nprod *= vec[i];
+  VectorDouble::const_iterator itv(vec.begin());
+  while (itv < vec.end())
+  {
+    nprod *= (*itv);
+    itv++;
+  }
   return nprod;
 }
 
@@ -578,8 +597,12 @@ bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
 {
   if (vect.empty()) return false;
   if (FFFF(refval)) refval = vect[0];
-  for (int i = 1; i < (int) vect.size(); i++)
-    if (vect[i] != refval) return false;
+  VectorDouble::const_iterator it(vect.begin());
+  while (it < vect.end())
+  {
+    if (*it != refval) return false;
+    it++;
+  }
   return true;
 }
 
@@ -593,24 +616,40 @@ bool VectorHelper::isConstant(const VectorInt& vect, int refval)
 {
   if (vect.empty()) return false;
   if (IFFFF(refval)) refval = vect[0];
-  for (int i = 1; i < (int) vect.size(); i++)
-    if (vect[i] != refval) return false;
+  VectorInt::const_iterator it(vect.begin());
+  while (it < vect.end())
+  {
+    if (*it != refval) return false;
+    it++;
+  }
   return true;
 }
 
 bool VectorHelper::isSame(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
-  for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
-    if (ABS(v1.at(i) - v2.at(i)) > eps) return false;
+  VectorDouble::const_iterator it1(v1.begin());
+  VectorDouble::const_iterator it2(v2.begin());
+  while (it1 < v1.end())
+  {
+    if (ABS(*it1 - *it2) > eps) return false;
+    it1++;
+    it2++;
+  }
   return true;
 }
 
 bool VectorHelper::isSame(const VectorInt &v1, const VectorInt &v2)
 {
   if (v1.size() != v2.size()) return false;
-  for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
-    if (ABS(v1.at(i) - v2.at(i)) > 0) return false;
+  VectorInt::const_iterator it1(v1.begin());
+  VectorInt::const_iterator it2(v2.begin());
+  while (it1 < v1.end())
+  {
+    if (*it1 != *it2) return false;
+    it1++;
+    it2++;
+  }
   return true;
 }
 
@@ -636,9 +675,11 @@ void VectorHelper::fill(VectorVectorDouble &vec, double value)
 
 void VectorHelper::fillUndef(VectorDouble& vec, double repl)
 {
-  for (int i = 0; i < (int) vec.size(); i++)
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
   {
-    if (FFFF(vec[i])) vec[i] = repl;
+    if (FFFF(*it)) *it = repl;
+    it++;
   }
 }
 
@@ -652,8 +693,13 @@ VectorInt VectorHelper::sequence(int number, int ideb)
 {
   VectorInt vec(number);
 
-  for (int i = 0; i < number; i++)
-    vec[i] = ideb + i;
+  int jdeb = ideb;
+  VectorInt::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = jdeb++;
+    it++;
+  }
   return vec;
 }
 
@@ -662,7 +708,7 @@ VectorInt VectorHelper::sequence(int number, int ideb)
  */
 
 /**
- * Create a vector containing the a seauence of numbers
+ * Create a vector containing the a sequence of numbers
  * @param valFrom Starting value
  * @param valTo   Ending value
  * @param valStep Step
@@ -721,7 +767,6 @@ void VectorHelper::simulateGaussianInPlace(VectorDouble &vect,
   int n = (int) vect.size();
   for (int i = 0; i < n; i++)
     vect[i] = mean + sigma * law_gaussian();
-
 }
 
 VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
@@ -739,9 +784,16 @@ void VectorHelper::cumulate(VectorDouble &veca,
                             double addval)
 {
   if (veca.size() != vecb.size())
-  my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
-    veca[i] += coeff * vecb[i] + addval;
+    my_throw("Wrong size");
+
+  VectorDouble::iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+  while (ita < veca.end())
+  {
+    *ita += coeff * (*itb) + addval;
+    ita++;
+    itb++;
+  }
 }
 
 /**
@@ -798,11 +850,19 @@ VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vec
 {
   if (veca.size() != vecb.size())
     my_throw("Wrong size");
-  int n = static_cast<int>(veca.size());
-  VectorDouble res(n);
 
-  for (int i = 0; i < n; i++)
-    res[i] = veca[i] + vecb[i];
+  VectorDouble res(veca.size());
+  VectorDouble::iterator it(res.begin());
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+
+  while (it < res.end())
+  {
+    *it = *ita + *itb;
+    it++;
+    ita++;
+    itb++;
+  }
   return res;
 }
 
@@ -813,11 +873,17 @@ VectorDouble VectorHelper::add(const VectorDouble &veca, const VectorDouble &vec
  */
 void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
 {
-  VectorDouble res;
   if (dest.size() != src.size())
     my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(dest.size()); i < n; i++)
-    dest[i] += src[i];
+
+  VectorDouble::iterator itd(dest.begin());
+  VectorDouble::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd += *its;
+    itd++;
+    its++;
+  }
 }
 
 void VectorHelper::addInPlace(const VectorDouble &veca,
@@ -825,14 +891,22 @@ void VectorHelper::addInPlace(const VectorDouble &veca,
                               VectorDouble &res)
 {
   if (veca.size() != vecb.size())
-  {
     my_throw("Wrong size");
-  }
+
   int n = (int) veca.size();
-  if ((int) res.size() != n)
+  if ((int) res.size() != (int) veca.size())
     res.resize(n);
-  for (int i = 0; i < n; i++)
-    res[i] = veca[i] + vecb[i];
+
+  VectorDouble::iterator it(res.begin());
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+  while (it < res.end())
+  {
+    *it = *ita + *itb;
+    it++;
+    ita++;
+    itb++;
+  }
 }
 
 /**
@@ -847,11 +921,17 @@ VectorDouble VectorHelper::subtract(const VectorDouble &veca,
   if (veca.size() != vecb.size())
     my_throw("Wrong size");
 
-  int n = static_cast<int>(veca.size());
-  VectorDouble res(n);
-
-  for (int i = 0; i < n; i++)
-    res[i] = vecb[i] - veca[i];
+  VectorDouble res(veca.size());
+  VectorDouble::iterator it(res.begin());
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+  while (it < res.end())
+  {
+    *it = *itb - *ita;
+    it++;
+    ita++;
+    itb++;
+  }
   return res;
 }
 
@@ -865,17 +945,29 @@ void VectorHelper::subtractInPlace(VectorDouble &dest, const VectorDouble &src)
   VectorDouble res;
   if (dest.size() != src.size())
     my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(dest.size()); i < n; i++)
-    dest[i] -= src[i];
+
+  VectorDouble::iterator itd(dest.begin());
+  VectorDouble::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd -= *its;
+    itd++;
+    its++;
+  }
 }
 
 void VectorHelper::multiplyInPlace(VectorDouble &vec, const VectorDouble &v)
 {
   if (vec.size() != v.size())
     my_throw("Arguments 'vec' and 'v' should have same dimension");
-  for (unsigned int i = 0; i < vec.size(); i++)
+
+  VectorDouble::iterator it(vec.begin());
+  VectorDouble::const_iterator itv(v.begin());
+  while (it < vec.end())
   {
-    vec[i] *= v[i];
+    *it *= (*itv);
+    it++;
+    itv++;
   }
 }
 
@@ -883,11 +975,15 @@ void VectorHelper::divideInPlace(VectorDouble &vec, const VectorDouble &v)
 {
   if (vec.size() != v.size())
     my_throw("Arguments 'vec' and 'v' should have same dimension");
-  for (unsigned int i = 0; i < vec.size(); i++)
+
+  VectorDouble::iterator it(vec.begin());
+  VectorDouble::const_iterator itv(v.begin());
+  while (it < vec.end())
   {
-    if (ABS(v[i]) < EPSILON20)
-      my_throw("division by 0");
-    vec[i] /= v[i];
+    if (ABS(*itv) >= EPSILON20)
+      *it /= (*itv);
+    it++;
+    itv++;
   }
 }
 
@@ -902,17 +998,22 @@ void VectorHelper::divideConstant(VectorDouble &vec, double v)
   if (ABS(v) < EPSILON10)
   my_throw("division by 0");
   std::for_each(vec.begin(), vec.end(), [v](double &d)
-  {
-    d /= v;
-  });
+  { d /= v; });
 }
 
 void VectorHelper::copy(VectorDouble &veca, const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
-    veca[i] = vecb[i];
+
+  VectorDouble::iterator it(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+  while (it < veca.end())
+  {
+    (*it) = (*itb);
+    it++;
+    itb++;
+  }
 }
 
 void VectorHelper::addConstant(VectorDouble &vec, double v)
@@ -929,19 +1030,28 @@ void VectorHelper::addConstant(VectorInt &vec, int v)
 
 VectorDouble VectorHelper::power(const VectorDouble &vec, double power)
 {
-  int size = static_cast<int>(vec.size());
-  VectorDouble res(size);
-  for (int i = 0; i < size; i++)
-    res[i] = pow(vec[i], power);
+  VectorDouble res(vec.size());
+  VectorDouble::iterator it(res.begin());
+  VectorDouble::const_iterator itv(vec.begin());
+  while (it < res.end())
+  {
+    *it = pow(*itv, power);
+    it++;
+    itv++;
+  }
   return res;
 }
 
 VectorDouble VectorHelper::inverse(const VectorDouble& vec)
 {
   VectorDouble inv(vec.size());
-  for (int i = 0; i < (int)vec.size();i++)
+  VectorDouble::iterator it(inv.begin());
+  VectorDouble::const_iterator itv(vec.begin());
+  while (it < inv.end())
   {
-    inv[i] = 1. / vec[i];
+    *it = 1. / *itv;
+    it++;
+    itv++;
   }
   return inv;
 }
@@ -949,9 +1059,11 @@ VectorDouble VectorHelper::inverse(const VectorDouble& vec)
 int VectorHelper::countUndefined(const VectorDouble &vec)
 {
   int count = 0;
-  for (int i = 0; i < (int) vec.size(); i++)
+  VectorDouble::const_iterator it(vec.begin());
+  while (it < vec.end())
   {
-    if (FFFF(vec[i])) count++;
+    if (FFFF(*it)) count++;
+    it++;
   }
   return count;
 }
@@ -959,9 +1071,11 @@ int VectorHelper::countUndefined(const VectorDouble &vec)
 int VectorHelper::countDefined(const VectorDouble &vec)
 {
   int count = 0;
-  for (int i = 0; i < (int) vec.size(); i++)
+  VectorDouble::const_iterator it(vec.begin());
+  while (it < vec.end())
   {
-    if (! FFFF(vec[i])) count++;
+    if (! FFFF(*it)) count++;
+    it++;
   }
   return count;
 }
@@ -1126,10 +1240,37 @@ double VectorHelper::innerProduct(const VectorDouble &veca,
                                   const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
-  my_throw("Wrong size");
+    my_throw("Wrong size");
+
   double prod = 0.;
-  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
-    prod += veca.at(i) * vecb.at(i);
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+  while (ita < veca.end())
+  {
+    prod += (*ita) * (*itb);
+    ita++;
+    itb++;
+  }
+  return prod;
+}
+
+double VectorHelper::innerProductSubVec(const VectorDouble &veca,
+                                        const VectorDouble &vecb,
+                                        int size)
+{
+  if (veca.size() != vecb.size())
+    my_throw("Wrong size");
+
+  double prod = 0.;
+  VectorDouble::const_iterator ita(veca.begin());
+  VectorDouble::const_iterator itb(vecb.begin());
+  VectorDouble::const_iterator itend = veca.begin() + size;
+  while (ita < itend)
+  {
+    prod += (*ita) * (*itb);
+    ita++;
+    itb++;
+  }
   return prod;
 }
 

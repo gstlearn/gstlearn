@@ -20,7 +20,6 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -53,8 +52,12 @@ int main(int /*argc*/, char */*argv*/[])
   if (verbose) data->display();
 
   // Generate the output grid
-  //VectorInt nx = {360,240};
-  VectorInt nx = {50,60};
+  bool flagSmall = false;
+  VectorInt nx;
+  if (flagSmall)
+    nx = {50,60};
+  else
+    nx = {360,240};
   VectorDouble dx = {1000, 1000};
   VectorDouble x0 = {-180000, -120000};
   DbGrid* grid = DbGrid::create(nx, dx, x0);
@@ -71,6 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
   Timer timer;
   kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
+  message("Order of magnitude of the reference implementation is 4.7Kms\n");
 
   if (neighU    != nullptr) delete neighU;
   if (data      != nullptr) delete data;

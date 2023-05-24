@@ -40,13 +40,6 @@ Exponential
 - Theo. Range  =      3.338
 Total Sill     =      1.000
 
-Moving Neighborhood
-===================
-Space dimension = 2
-Minimum number of samples           = 1
-Maximum number of samples           = 4
-Maximum horizontal distance         = 100
-
 Data Base Grid Characteristics
 ==============================
 

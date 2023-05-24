@@ -27,18 +27,22 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighImage.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/CalcImage.hpp"
+#include "Estimation/CalcGlobal.hpp"
 
-static Db* createLocalDb(int nech, int ndim, int nvar)
+static Db* createLocalDb(int nech, int ndim, int nvar, int seed)
 {
+  // Define seed
+  law_set_random_seed(seed);
+
   // Coordinates
   VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
   // Variable
@@ -136,7 +140,7 @@ int main(int /*argc*/, char */*argv*/[])
   Db* data_res      = nullptr;
   Model* model_res  = nullptr;
   AnamHermite* anam = nullptr;
-  Global_Res gres;
+  Global_Result gres;
   Krigtest_Res ktest;
   VectorDouble tab;
 
@@ -161,7 +165,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Generate the data base
   int nech = 100;
-  Db* data = createLocalDb(nech, ndim, nvar);
+  Db* data = createLocalDb(nech, ndim, nvar, 342673);
   data->display(&dbfmt);
 
   // Generate an image file
@@ -201,7 +205,6 @@ int main(int /*argc*/, char */*argv*/[])
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Declustering in Moving Neighborhood ----->\n");
-  data_res = data->clone();
   declustering(data_res, model, 3, neighM, grid, VectorDouble(), {3,3}, false, true);
 
   message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
@@ -286,9 +289,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Testing Printout ==================================
   message("\n<----- Test Kriging Printout ----->\n");
-
   // Create the Local Data Base
-  data = createLocalDb(4, 2, 1);
+  data = createLocalDb(4, 2, 1, 4291);
 
   // Create the Local Model
   model = createModel(nvar, 2, 1, 0);
@@ -307,7 +309,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Testing Specials ==================================
   // Create the Local Data Base
-  data = createLocalDb(10, 2, 3);
+  data = createLocalDb(10, 2, 3, 4901);
 
   message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
   grid_res = grid->clone();
@@ -317,7 +319,7 @@ int main(int /*argc*/, char */*argv*/[])
   grid_res->display(&dbfmtKriging);
 
   // Create the Local Data Base
-  data = createLocalDb(100, 2, 1);
+  data = createLocalDb(100, 2, 1, 42781);
 
   // Create the Model
   model = createModel(1, 3, 0, 0);

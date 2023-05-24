@@ -748,6 +748,7 @@ double Db::getDistance(int iech, int jech) const
  * @param db2  Second Db if different from current one (or nullptr)
  * @return
  */
+// TODO to be corrected to use SpaceDistance
 int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) const
 {
   int ndim = getNDim();

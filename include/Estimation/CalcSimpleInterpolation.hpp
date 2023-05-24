@@ -18,7 +18,6 @@
 
 class Db;
 class DbGrid;
-class ANeighParam;
 
 class GSTLEARN_EXPORT CalcSimpleInterpolation: public ACalcInterpolator
 {
@@ -47,6 +46,15 @@ private:
   virtual void _rollback() override;
   virtual int  _getNVar() const override;
 
+  int _nearest(Db* dbin, Db* dbout, ANeigh* neigh);
+  int _movave(Db* dbin, Db* dbout, ANeigh* neigh);
+  int _movmed(Db* dbin, Db* dbout, ANeigh* neigh);
+  int _lstsqr(Db* dbin, Db* dbout, ANeigh* neigh);
+  int _invdist(Db *dbin, Db *dbout);
+
+  void _pointInvdist(Db *dbin, Db *dbout);
+  void _gridInvdist(DbGrid *dbin, Db *dbout);
+
 private:
   int    _iattOut;
   bool   _flagMovAve;
@@ -73,17 +81,17 @@ GSTLEARN_EXPORT int nearestNeighbor(Db *dbin,
                                         "Nearest"));
 GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                   Db *dbout,
-                                  ANeighParam *neighparam,
+                                  ANeigh *neigh,
                                   const NamingConvention &namconv = NamingConvention(
                                       "MovAve"));
 GSTLEARN_EXPORT int movingMedian(Db *dbin,
                                  Db *dbout,
-                                 ANeighParam *neighparam,
+                                 ANeigh *neigh,
                                  const NamingConvention &namconv = NamingConvention(
                                      "MovMed"));
 GSTLEARN_EXPORT int leastSquares(Db *dbin,
                                  Db *dbout,
-                                 ANeighParam *neighparam,
+                                 ANeigh *neigh,
                                  int order = 0,
                                  const NamingConvention &namconv = NamingConvention(
                                      "LstSqr"));

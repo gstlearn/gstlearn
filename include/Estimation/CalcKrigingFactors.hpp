@@ -60,11 +60,9 @@ private:
 GSTLEARN_EXPORT int krigingFactors(Db *dbin,
                                    Db *dbout,
                                    Model *model,
-                                   ANeighParam *neighparam,
-                                   const EKrigOpt &calcul = EKrigOpt::fromKey(
-                                       "POINT"),
+                                   ANeigh *neigh,
+                                   const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
                                    const VectorInt &ndisc = VectorInt(),
                                    bool flag_est = true,
                                    bool flag_std = true,
-                                   const NamingConvention &namconv = NamingConvention(
-                                       "KD"));
+                                   const NamingConvention &namconv = NamingConvention("KD"));

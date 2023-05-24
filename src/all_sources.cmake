@@ -207,6 +207,8 @@ set(SRC
   Basic/VectorNumT.cpp
   Basic/VectorT.cpp
   Geometry/GeometryHelper.cpp
+  Geometry/ABiPointCheck.cpp
+  Geometry/BiPointCheckDistance.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp
@@ -258,17 +260,17 @@ set(SRC
   Drifts/ADriftElem.cpp
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
-  Neigh/ANeighParam.cpp
+  Neigh/ANeigh.cpp
   Neigh/NeighUnique.cpp
   Neigh/NeighImage.cpp
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
-  Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
+  Estimation/CalcGlobal.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

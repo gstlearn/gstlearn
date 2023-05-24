@@ -21,7 +21,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Variogram/Vario.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"

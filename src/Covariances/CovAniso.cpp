@@ -402,14 +402,13 @@ double CovAniso::eval(const SpacePoint &p1,
 void CovAniso::evalOptim(const SpacePoint &p1,
 					  VectorDouble& res,
 					  VectorDouble& temp,
-					  VectorVectorDouble& work,
 					  SpacePoint& pttr,
                       int ivar,
                       int jvar,
                       const CovCalcMode &mode) const
 {
  _preProcess(p1, pttr);
- _space->getDistanceOptim(pttr, _transformedCoordinates,temp,work);
+ _space->getDistancePointVectInPlace(pttr, _transformedCoordinates,temp);
   double sill = _sill.getValue(ivar, jvar);
 
   for (int i = 0; i< (int)temp.size();i++)
@@ -627,8 +626,6 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  if (!_isVariableValid(ivar)) return TEST;
-  if (!_isVariableValid(jvar)) return TEST;
   if (!_sill.isValid(ivar, jvar)) return TEST;
   return _sill.getValue(ivar, jvar);
 }

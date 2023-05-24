@@ -514,7 +514,8 @@ void matrix_product_safe(int n1,
 {
   int i1, i2, i3, i4;
 
-  if (v1 == v3 || v2 == v3) messageAbort("Violated protection in matrix_product_safe");
+  if (v1 == v3 || v2 == v3)
+    messageAbort("Violated protection in matrix_product_safe");
 
   for (i4 = 0; i4 < n1 * n3; i4++)
     v3[i4] = 0.;

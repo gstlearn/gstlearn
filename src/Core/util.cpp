@@ -21,7 +21,6 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/PolyLine2D.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
