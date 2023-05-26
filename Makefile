@@ -35,6 +35,7 @@
 #  - check_py       Execute non-regression tests (python)
 #  - check_r        Execute non-regression tests (R)
 #  - check          Execute non-regression tests (data + C++ + python + R)
+#  - check_test     Execute a single test (set $TEST variable)
 
 # Demonstration scripts:
 #  - check_ipynb    Execute demonstration scripts (jupyter notebooks)
@@ -50,6 +51,7 @@
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
 #  - USE_HDF5=0         To remove HDF5 support (default =1)
+#  - TEST=<test-target> Name of the test target to be launched
 #
 # Usage example:
 #
@@ -199,7 +201,8 @@ check_ipynb: cmake-python
 check_rmd: cmake-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- --no-print-directory $(N_PROC_OPT)
 
-
+check_test: cmake-python-r
+	@cd $(BUILD_DIR); ctest -R $(TEST)
 
 .PHONY: clean clean_all
 

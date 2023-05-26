@@ -12,7 +12,7 @@ When using the *gstlearn* Python Package, please use the citation from [doc/gstl
 
 This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig) python script (see LICENSE.doxy2swig in *doc* folder).
 
-The *gstlearn* Python package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
+The *gstlearn* Python package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
 ## Installation
 
