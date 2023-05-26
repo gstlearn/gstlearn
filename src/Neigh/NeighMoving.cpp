@@ -18,6 +18,9 @@
 #include "Basic/VectorHelper.hpp"
 #include "Faults/Faults.hpp"
 #include "Db/Db.hpp"
+#include "Geometry/BiPointCheckDistance.hpp"
+#include "Geometry/BiPointCheckFaults.hpp"
+#include "Geometry/BiPointCheckCell.hpp"
 
 #include <math.h>
 
@@ -29,70 +32,56 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nsmax,
                          VectorDouble coeffs,
                          VectorDouble angles,
+                         bool forceWithinCell,
                          double distcont,
                          const Faults *faults,
                          const ASpace *space)
-    : ANeigh(nullptr, nullptr, space),
-      _flagAniso(0),
-      _flagRotation(0),
+    : ANeigh(space),
       _nMini(nmini),
       _nMaxi(nmaxi),
       _nSect(nsect),
       _nSMax(nsmax),
-      _forceWithinBlock(false),
-      _radius(radius),
+      _forceWithinCell(forceWithinCell),
       _distCont(distcont),
-      _anisoCoeffs(),
-      _anisoRotMat(),
-      _faults(faults),
+      _biPtDist(nullptr),
+      _bipts(),
       _movingInd(),
       _movingIsect(),
       _movingNsect(),
-      _movingX1(),
-      _movingX2(),
-      _movingDst()
+      _movingDst(),
+      _P1(space),
+      _P2(space)
 {
   setFlagXvalid(flag_xvalid);
-  _radius = radius;
-  _distCont = distcont;
 
-  if (! coeffs.empty())
+  _biPtDist = BiPointCheckDistance::create(radius, coeffs, angles);
+
+  if (faults != nullptr)
   {
-    //    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
-    _flagAniso = 1;
-    _anisoCoeffs = coeffs;
-
-    if (! angles.empty())
-    {
-      int ndim = getNDim();
-      _flagRotation = (VH::isConstant(angles, 0.)) ? 0 : 1;
-      _anisoRotMat.resize(ndim * ndim);
-      GH::rotationInit(ndim, angles.data(), _anisoRotMat.data());
-    }
+    BiPointCheckFaults* bipt = new BiPointCheckFaults(faults);
+    _bipts.push_back(bipt);
   }
 }
 
 NeighMoving::NeighMoving(const NeighMoving& r)
     : ANeigh(r),
-      _flagAniso(r._flagAniso),
-      _flagRotation(r._flagRotation),
       _nMini(r._nMini),
       _nMaxi(r._nMaxi),
       _nSect(r._nSect),
       _nSMax(r._nSMax),
-      _forceWithinBlock(r._forceWithinBlock),
-      _radius(r._radius),
+      _forceWithinCell(r._forceWithinCell),
       _distCont(r._distCont),
-      _anisoCoeffs(r._anisoCoeffs),
-      _anisoRotMat(r._anisoRotMat),
-      _faults(r._faults),
+      _biPtDist(r._biPtDist),
       _movingInd(r._movingInd),
       _movingIsect(r._movingIsect),
       _movingNsect(r._movingNsect),
-      _movingX1(r._movingX1),
-      _movingX2(r._movingX2),
-      _movingDst(r._movingDst)
+      _movingDst(r._movingDst),
+      _P1(r._P1),
+      _P2(r._P2)
 {
+  int number = _getBiPtsNumber();
+  for (int ipt = 0; ipt < number; ipt++)
+    _bipts.push_back(dynamic_cast<const ABiPointCheck*>(r._bipts[ipt]->clone()));
 }
 
 NeighMoving& NeighMoving::operator=(const NeighMoving& r)
@@ -100,61 +89,45 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
   if (this != &r)
   {
     ANeigh::operator=(r);
-    _flagAniso = r._flagAniso;
-    _flagRotation = r._flagRotation;
     _nMini = r._nMini;
     _nMaxi = r._nMaxi;
     _nSect = r._nSect;
     _nSMax = r._nSMax;
-    _forceWithinBlock = r._forceWithinBlock;
-    _radius = r._radius;
+    _forceWithinCell = r._forceWithinCell;
     _distCont = r._distCont;
-    _anisoCoeffs = r._anisoCoeffs;
-    _anisoRotMat = r._anisoRotMat;
-    _faults = r._faults;
+    _biPtDist = r._biPtDist;
     _movingInd = r._movingInd;
     _movingIsect = r._movingIsect;
     _movingNsect = r._movingNsect;
-    _movingX1 = r._movingX1;
-    _movingX2 = r._movingX2;
     _movingDst = r._movingDst;
+    _P1 = r._P1;
+    _P2 = r._P2;
+
+    int number = _getBiPtsNumber();
+    for (int ipt = 0; ipt < number; ipt++)
+      _bipts.push_back(dynamic_cast<const ABiPointCheck*>(r._bipts[ipt]->clone()));
    }
   return *this;
 }
 
 NeighMoving::~NeighMoving()
 {
-}
-
-void NeighMoving::setForceWithinBlock(bool forceWithinBlock)
-{
-  _forceWithinBlock = forceWithinBlock;
-
-  // In the case of forcing data selection per cell, cancel the other options
-  if (_forceWithinBlock)
-  {
-    _flagAniso = false;
-    _flagRotation = false;
-    _nSect = 1;
-    _nSMax = ITEST;
-  }
+  int number = _getBiPtsNumber();
+  for (int ipt = 0; ipt < number; ipt++)
+    delete _bipts[ipt];
 }
 
 String NeighMoving::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  int ndim = getNDim();
 
   sstr << toTitle(0,"Moving Neighborhood");
-  sstr << ANeigh::toString(strfmt);
 
   if (_nMini > 0)
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
 
-  if (_forceWithinBlock)
-  {
+  if (_forceWithinCell)
     sstr << "Force Selection of all samples within target Block" << std::endl;
-  }
   else
   {
     if (_nMaxi > 0)
@@ -166,31 +139,16 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
       if (_nSMax > 0)
         sstr << "Maximum number of points per sector = " << _nSMax << std::endl;
     }
-    if (!FFFF(_radius))
-    {
-      if (!_flagAniso)
-      {
-        sstr << "Maximum horizontal distance         = " << _radius
-             << std::endl;
-      }
-      else
-      {
-        VectorDouble ranges(ndim);
-        for (int idim = 0; idim < ndim; idim++)
-          ranges[idim] = _radius * _anisoCoeffs[idim];
-        sstr
-            << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
-                        true, ndim, 1, ranges);
 
-        if (_flagRotation)
-        {
-          sstr
-              << toMatrix("Anisotropy Rotation :", VectorString(),
-                          VectorString(), true, ndim, ndim, _anisoRotMat);
-        }
-      }
-    }
+    sstr << _biPtDist->toString(strfmt);
   }
+
+  int number = _getBiPtsNumber();
+  for (int ipt = 0; ipt < number; ipt++)
+  {
+    sstr << _bipts[ipt]->toString(strfmt);
+  }
+
   if (getFlagContinuous())
   {
     sstr << "Norm. dist. for continuous NeighMoving.   = " << getDistCont()
@@ -207,8 +165,8 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
 
   int ndim = getNDim();
   VectorDouble radius(ndim);
-  VectorDouble nbgh_coeffs(ndim);
-  VectorDouble nbgh_rotmat(ndim * ndim);
+  VectorDouble nbgh_coeffs;
+  VectorDouble nbgh_rotmat;
 
   int flag_aniso = 0;
   int flag_rotation = 0;
@@ -225,11 +183,13 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
   ret = ret && _recordRead<int>(is, "Flag for Anisotropy", flag_aniso);
   if (flag_aniso)
   {
+    nbgh_coeffs.resize(ndim);
     for (int idim = 0; ret && idim < ndim; idim++)
       ret = ret && _recordRead<double>(is, "Anisotropy Coefficient", nbgh_coeffs[idim]);
     ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
     if (flag_rotation)
     {
+      nbgh_rotmat.resize(ndim*ndim);
       int lec = 0;
       for (int idim = 0; ret && idim < ndim; idim++)
         for (int jdim = 0; ret && jdim < ndim; jdim++, lec++)
@@ -238,27 +198,16 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
   }
   if (! ret) return ret;
 
-  if (!nbgh_coeffs.empty())
+  if (!nbgh_coeffs.empty() && ! FFFF(dmax))
     for (int idim = 0; idim < ndim; idim++)
       nbgh_coeffs[idim] *= dmax;
 
   setNSect((getFlagSector()) ? MAX(_nSect, 1) : 1);
-  setRadius(dmax);
-  setFlagAniso(flag_aniso && !nbgh_coeffs.empty());
-  setFlagRotation(flag_rotation && flag_aniso && !nbgh_rotmat.empty());
 
-  if (getFlagAniso() && !nbgh_coeffs.empty())
-  {
-    setRadius(0.);
-    for (int i = 0; i < (int) getNDim(); i++)
-      setRadius(MAX(getRadius(), nbgh_coeffs[i]));
-    for (int i = 0; i < (int) getNDim(); i++)
-      setAnisoCoeff(i, nbgh_coeffs[i] / getRadius());
-  }
-  if (getFlagRotation() && !nbgh_rotmat.empty())
-  {
-    setAnisoRotMat(nbgh_rotmat);
-  }
+  _biPtDist = BiPointCheckDistance::create(dmax, nbgh_coeffs);
+  if (! nbgh_rotmat.empty())
+    _biPtDist->setAnisoRotMat(nbgh_rotmat);
+
   return ret;
 }
 
@@ -272,39 +221,30 @@ bool NeighMoving::_serialize(std::ostream& os, bool verbose) const
   ret = ret && _recordWrite<int>(os, "", getNSect());
   ret = ret && _recordWrite<int>(os, "", getNSMax());
   ret = ret && _commentWrite(os, "Parameters (nmini,nmaxi,nsect,nsmax)");
-  ret = ret && _recordWrite<double>(os, "Maximum distance radius", getRadius());
-  ret = ret && _recordWrite<int>(os, "Anisotropy Flag", getFlagAniso());
 
-  if (getFlagAniso())
+  // Store information from the Bipoint Checker based on distances
+  ret = ret && _recordWrite<double>(os, "Maximum distance radius", _biPtDist->getRadius());
+  ret = ret && _recordWrite<int>(os, "Anisotropy Flag", _biPtDist->getFlagAniso());
+
+  int ndim = _biPtDist->getNDim();
+  if (_biPtDist->getFlagAniso())
   {
-    for (int idim = 0; ret && idim < (int) getNDim(); idim++)
-      ret = ret && _recordWrite<double>(os, "", getAnisoCoeff(idim));
+    for (int idim = 0; ret && idim < ndim; idim++)
+      ret = ret && _recordWrite<double>(os, "", _biPtDist->getAnisoCoeff(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
-    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", getFlagRotation());
-    if (getFlagRotation())
+    ret = ret
+        && _recordWrite<int>(os, "Anisotropy Rotation Flag",
+                             _biPtDist->getFlagRotation());
+    if (_biPtDist->getFlagRotation())
     {
       int ecr = 0;
-      for (int idim = 0; ret && idim < (int) getNDim(); idim++)
-        for (int jdim = 0; ret && jdim < (int) getNDim(); jdim++)
-          ret = ret && _recordWrite<double>(os, "", getAnisoRotMat(ecr++));
+      for (int idim = 0; ret && idim < ndim; idim++)
+        for (int jdim = 0; ret && jdim < ndim; jdim++)
+          ret = ret && _recordWrite<double>(os, "", _biPtDist->getAnisoRotMat(ecr++));
       ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
     }
   }
   return ret;
-}
-
-void NeighMoving::setAnisoCoeff(int idim, double value)
-{
-  if (_anisoCoeffs.size() != getNDim())
-    _anisoCoeffs.resize(getNDim(),1.);
-  _anisoCoeffs[idim] = value;
-}
-
-void NeighMoving::anisoRescale()
-{
-  if (FFFF(_radius)) return;
-  for (int idim = 0; idim < (int) getNDim(); idim++)
-    _anisoCoeffs[idim] /= _radius;
 }
 
 NeighMoving* NeighMoving::create(bool flag_xvalid,
@@ -315,12 +255,13 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nsmax,
                                  VectorDouble coeffs,
                                  VectorDouble angles,
+                                 bool forceWithinCell,
                                  double distcont,
                                  const Faults* faults,
                                  const ASpace* space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                         coeffs, angles, distcont, faults, space);
+                         coeffs, angles, forceWithinCell, distcont, faults, space);
 }
 
 /**
@@ -357,6 +298,11 @@ int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
   return (getFlagSector()) ? _nSect * _nSMax : _nMaxi;
 }
 
+void NeighMoving::addBiPointCheck(const ABiPointCheck* abpc)
+{
+  _bipts.push_back(dynamic_cast<const ABiPointCheck*>(abpc->clone()));
+}
+
 bool NeighMoving::getFlagSector() const
 {
   return (getNDim() > 1 && _nSect > 1);
@@ -365,7 +311,10 @@ bool NeighMoving::getFlagSector() const
 // TODO: add the rotation and possible ellipse
 VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int count) const
 {
-  if (_forceWithinBlock) return VectorVectorDouble();
+  if (_forceWithinCell) return VectorVectorDouble();
+  double radius = _getRadius();
+  if (FFFF(radius)) return VectorVectorDouble();
+
   VectorVectorDouble coords(2);
   coords[0].resize(count+1,0.);
   coords[1].resize(count+1,0.);
@@ -373,25 +322,28 @@ VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int cou
   for (int i = 0; i < count; i++)
   {
     double angle = 2. * i * GV_PI / count;
-    coords[0][i] = target[0] + _radius * cos(angle);
-    coords[1][i] = target[1] + _radius * sin(angle);
+    coords[0][i] = target[0] + radius * cos(angle);
+    coords[1][i] = target[1] + radius * sin(angle);
   }
 
-  coords[0][count] = target[0] + _radius;
+  coords[0][count] = target[0] + radius;
   coords[1][count] = target[1];
   return coords;
 }
 
 VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double percent) const
 {
+  double radius = _getRadius();
+  if (FFFF(radius)) return VectorVectorDouble();
+
   VectorVectorDouble coords(2);
   coords[0].resize(2, 0.);
   coords[1].resize(2, 0.);
 
-  coords[0][0] = target[0] - _radius * (1. + percent / 100.);
-  coords[0][1] = target[0] + _radius * (1. + percent / 100.);
-  coords[1][0] = target[1] - _radius * (1. + percent / 100.);
-  coords[1][1] = target[1] + _radius * (1. + percent / 100.);
+  coords[0][0] = target[0] - radius * (1. + percent / 100.);
+  coords[0][1] = target[0] + radius * (1. + percent / 100.);
+  coords[1][0] = target[1] - radius * (1. + percent / 100.);
+  coords[1][1] = target[1] + radius * (1. + percent / 100.);
   return coords;
 }
 
@@ -402,7 +354,10 @@ VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double
  */
 VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
 {
-  if (_forceWithinBlock) return VectorVectorDouble();
+  if (_forceWithinCell) return VectorVectorDouble();
+  double radius = _getRadius();
+  if (FFFF(radius)) return VectorVectorDouble();
+
   VectorVectorDouble coords(2);
   coords[0].resize(_nSect,0.);
   coords[1].resize(_nSect,0.);
@@ -410,8 +365,8 @@ VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
   for (int i = 0; i < _nSect; i++)
   {
     double angle = 2. * i * GV_PI / _nSect;
-    coords[0][i] = target[0] + _radius * cos(angle);
-    coords[1][i] = target[1] + _radius * sin(angle);
+    coords[0][i] = target[0] + radius * cos(angle);
+    coords[1][i] = target[1] + radius * sin(angle);
   }
   return coords;
 }
@@ -427,15 +382,28 @@ VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
 int NeighMoving::attach(const Db *dbin, const Db *dbout)
 {
   if (ANeigh::attach(dbin, dbout)) return 1;
+
+  if (_forceWithinCell)
+  {
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+    if (dbgrid == nullptr)
+    {
+      messerr("'forceWithinBock' option is not possible as 'dbout' is not a grid. Ignored");
+      _forceWithinCell = false;
+    }
+    else
+    {
+      BiPointCheckCell* bipt = new BiPointCheckCell(dbgrid);
+      _bipts.push_back(bipt);
+    }
+  }
+
   int nech = _dbin->getSampleNumber();
-  int ndim = _dbin->getNDim();
   int nsect = getNSect();
   _movingInd = VectorInt(nech);
   _movingDst = VectorDouble(nech);
   _movingIsect = VectorInt(nsect);
   _movingNsect = VectorInt(nsect);
-  _movingX1 = VectorDouble(ndim);
-  _movingX2 = VectorDouble(ndim);
 
   return 0;
 }
@@ -579,6 +547,9 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   double distmax = 0.;
   int nsel = 0;
 
+  // Load the target sample as a Space Point
+  _dbout->getSampleCoordinatesAsSP(iech_out, _P1);
+
   for (int iech = 0; iech < nech; iech++)
   {
 
@@ -597,33 +568,33 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(iech, iech_out)) continue;
     }
 
-    // In presence of Faults, check that sample 'iech' is still eligible
+    _dbin->getSampleCoordinatesAsSP(iech, _P2);
 
-    if (hasFaults())
+    // Reject the point due to BiPointChecker
+    // (other than the one based on distance which must come last)
+
+    int number = _getBiPtsNumber();
+    bool reject = false;
+    for (int ipt = 0; ipt < number && ! reject; ipt++)
     {
-      if (_hiddenByFault(iech, iech_out)) continue;
+      if (! _bipts[ipt]->isOK(_P1, _P2, iech_out, iech)) reject = true;
     }
+    if (reject) continue;
 
-    // Force selection if the sample belongs to the block
+    // Calculate the distance between data and target
+    // The rejection with respect to maximum distance is bypassed if '_forceWithinCell'
 
-    double dist;
-    if (getForceWithinBlock() && _dbout->isGrid())
+    reject = ! _biPtDist->isOK(_P1, _P2, iech_out, iech);
+    if (! _forceWithinCell && reject) continue;
+    double dist = _biPtDist->getDistance();
+    if (dist > distmax) distmax = dist;
+
+    /* Calculate the angular sector to which the sample belongs */
+
+    if (! _forceWithinCell && getFlagSector())
     {
-      if (! _belongsToCell(iech, iech_out)) continue;
-      dist = _movingDist(iech, iech_out);
-    }
-    else
-    {
-      /* Calculate the distance between data and target */
-
-      dist = _movingDist(iech, iech_out);
-      if (! FFFF(getRadius()) && dist > getRadius()) continue;
-      if (dist > distmax) distmax = dist;
-
-      /* Calculate the angular sector to which the sample belongs */
-
-      if (getFlagSector())
-        isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
+      VectorDouble incr = _biPtDist->getIncr();
+      isect = _movingSectorDefine(incr[0], incr[1]);
     }
 
     /* The sample may be selected */
@@ -647,7 +618,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
   /* For each angular sector, select the first sample up to the maximum */
 
-  if (! getForceWithinBlock() && getFlagSector() && getNSMax() > 0)
+  if (! _forceWithinCell && getFlagSector() && getNSMax() > 0)
   {
     _movingSectorNsmax(nsel, ranks);
     if (nsel < getNMini()) return 1;
@@ -655,26 +626,12 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
     /* Select the first data samples (skipped if forcing all samples in block) */
 
-  if (! getForceWithinBlock())
+  if (! _forceWithinCell)
   {
     _movingSelect(nsel, ranks);
   }
 
   return 0;
-}
-
-bool NeighMoving::_hiddenByFault(int iech, int iech_out) const
-{
-  double xt1 = _dbout->getCoordinate(iech_out, 0);
-  double yt1 = _dbout->getCoordinate(iech_out, 1);
-  double xt2 = _dbin->getCoordinate(iech, 0);
-  double yt2 = _dbin->getCoordinate(iech, 1);
-
-  // Loop on the Fault polylines
-
-  if (_faults == nullptr) return false;
-
-  return _faults->isSplitByFault(xt1, yt1, xt2, yt2);
 }
 
 bool NeighMoving::_belongsToCell(int iech, int iech_out)
@@ -689,51 +646,6 @@ bool NeighMoving::_belongsToCell(int iech, int iech_out)
 
   // Check if the sample belongs to the cell
   return _dbgrid->getGrid().sampleBelongsToCell(coor, iech_out, dxsPerCell);
-}
-
-/****************************************************************************/
-/*!
- **  Calculates the distance between an input sample and the target
- **
- ** \return  Distance
- **
- ** \param[in]  iech_in  Rank of the sample in the input Db structure
- ** \param[in]  iech_out Rank of the sample in the output Db structure
- **
- *****************************************************************************/
-double NeighMoving::_movingDist(int iech_in, int iech_out)
-{
-  int ndim = _dbin->getNDim();
-
-  /* Calculate the distance to the target */
-
-  for (int idim = 0; idim < ndim; idim++)
-    _movingX1[idim] = _dbout->getCoordinate(iech_out, idim)
-        - _dbin->getCoordinate(iech_in, idim);
-
-  /* Anisotropic neighborhood */
-
-  if (getFlagAniso())
-  {
-
-    /* Rotated anisotropy ellipsoid */
-
-    if (getFlagRotation())
-    {
-      matrix_product_safe(1, ndim, ndim, _movingX1.data(),
-                          getAnisoRotMats().data(), _movingX2.data());
-      _movingX1 = _movingX2;
-    }
-    for (int idim = 0; idim < ndim; idim++)
-      _movingX1[idim] /= getAnisoCoeff(idim);
-  }
-
-  /* Calculate the distance */
-
-  double dist;
-  matrix_product_safe(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
-  dist = sqrt(dist);
-  return dist;
 }
 
 /****************************************************************************/

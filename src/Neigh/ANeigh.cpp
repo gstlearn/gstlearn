@@ -23,11 +23,11 @@
 #include <algorithm>
 #include <set>
 
-ANeigh::ANeigh(const Db *dbin, const Db* dbout, const ASpace* space)
+ANeigh::ANeigh(const ASpace* space)
     : ASpaceObject(space),
       ASerializable(),
-      _dbin(dbin),
-      _dbout(dbout),
+      _dbin(nullptr),
+      _dbout(nullptr),
       _dbgrid(nullptr),
       _rankColCok(),
       _iechMemo(-1),
@@ -37,7 +37,6 @@ ANeigh::ANeigh(const Db *dbin, const Db* dbout, const ASpace* space)
       _flagIsUnchanged(false),
       _nbghMemo()
 {
-  attach(dbin, dbout);
 }
 
 ANeigh::ANeigh(const ANeigh &r)
@@ -386,13 +385,3 @@ bool ANeigh::_serialize(std::ostream& os, bool /*verbose*/) const
 
   return ret;
 }
-
-String ANeigh::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  sstr << "Space dimension = " << getNDim() << std::endl;
-
-  return sstr.str();
-}
-

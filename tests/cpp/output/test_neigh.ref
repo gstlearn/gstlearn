@@ -36,7 +36,6 @@ Column = 2 - Name = x-2 - Locator = x2
 
 Unique Neighborhood
 ===================
-Space dimension = 2
 
 Testing Unique Neighborhood
 ---------------------------
@@ -55,7 +54,6 @@ Is neighborhood Unchanged since last call = 1
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 5
 Maximum horizontal distance         = 30

@@ -187,8 +187,10 @@ public:
   double getMinimum() const;
   double getMaximum() const;
   void copyReduce(const AMatrix *x,
-                  const VectorInt &validRows,
-                  const VectorInt &validCols);
+                  const VectorInt &activeRows,
+                  const VectorInt &activeCols);
+
+  void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
 #ifndef SWIG
   /*! Get value operator override */
@@ -228,6 +230,8 @@ protected:
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
 
+  bool _getFlagCheckAddress() const { return _flagCheckAddress; }
+
 private:
   void _setSparse(bool sparse) { _sparse = sparse; }
   void _initiateSparse();
@@ -240,6 +244,7 @@ private:
   int  _nCols;
   bool _sparse;
   cs*  _csMatrix;
+  bool _flagCheckAddress;
 #endif
 };
 

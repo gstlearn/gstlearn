@@ -34,13 +34,3 @@ ABiPointCheck& ABiPointCheck::operator=(const ABiPointCheck &r)
 ABiPointCheck::~ABiPointCheck()
 {
 }
-
-String ABiPointCheck::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  sstr << "BiPoint Check" << std::endl;
-
-  return sstr.str();
-}
-

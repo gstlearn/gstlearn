@@ -66,8 +66,9 @@ public:
   // The subsequent methods do not require isReady() validation
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
   int  updKrigOptIclass(int index_class, int nclasses);
-  int  updKrigOptCheckAddress(bool flagCheckAddress);
   int  updKrigOptNeighOnly(int iptrNeigh);
+
+  void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   bool isReady();
   int  estimate(int iech_out);

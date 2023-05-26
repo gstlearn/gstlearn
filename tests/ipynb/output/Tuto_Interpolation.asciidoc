@@ -55,7 +55,6 @@ Column = 2 - Name = Simu - Locator = z1
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 5
 Maximum number of samples           = 5
 Maximum horizontal distance         = 0.2
@@ -140,7 +139,6 @@ Column = 5 - Name = InvDist.Simu - Locator = z1
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 5
 Maximum number of samples           = 10
 Maximum horizontal distance         = 0.5

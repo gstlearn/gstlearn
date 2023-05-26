@@ -27,6 +27,7 @@
 
 class DbGrid;
 class Interval;
+class SpacePoint;
 
 /**
  * Class containing a Data Set organized as a set of Isolated Points.
@@ -341,6 +342,7 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
+  void getSampleCoordinatesAsSP(int iech, SpacePoint& P) const;
   void getSampleCoordinates(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
 

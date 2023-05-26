@@ -133,7 +133,7 @@ AStringable::~AStringable()
 String AStringable::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
+  sstr << "toString is not yet implemented for " << typeid(*this).name() << std::endl;
   return sstr.str();
 }
 

@@ -209,6 +209,9 @@ set(SRC
   Geometry/GeometryHelper.cpp
   Geometry/ABiPointCheck.cpp
   Geometry/BiPointCheckDistance.cpp
+  Geometry/BiPointCheckFaults.cpp
+  Geometry/BiPointCheckCell.cpp
+  Geometry/BiPointCheckBench.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp

@@ -17,15 +17,21 @@
 #include "Db/DbGrid.hpp"
 
 NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace *space)
-    : ANeigh(nullptr, nullptr, space),
-      _width(width)
+    : ANeigh(space),
+      _width(width),
+      _biPtBench(),
+      _P1(space),
+      _P2(space)
 {
   setFlagXvalid (flag_xvalid);
 }
 
 NeighBench::NeighBench(const NeighBench& r)
     : ANeigh(r),
-      _width(r._width)
+      _width(r._width),
+      _biPtBench(r._biPtBench),
+      _P1(r._P1),
+      _P2(r._P2)
 {
 }
 
@@ -35,6 +41,9 @@ NeighBench& NeighBench::operator=(const NeighBench& r)
   {
     ANeigh::operator=(r);
     _width = r._width;
+    _biPtBench = r._biPtBench;
+    _P1 = r._P1;
+    _P2 = r._P2;
    }
   return *this;
 }
@@ -43,12 +52,21 @@ NeighBench::~NeighBench()
 {
 }
 
+int NeighBench::attach(const Db *dbin, const Db *dbout)
+{
+  if (ANeigh::attach(dbin, dbout)) return 1;
+
+  int idim_bench = _dbin->getNDim();
+  _biPtBench = BiPointCheckBench::create(idim_bench, _width);
+
+  return 0;
+}
+
 String NeighBench::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
   sstr << toTitle(0,"Bench Neighborhood");
-  sstr << ANeigh::toString(strfmt);
 
   sstr << "Bench width     = " << _width << std::endl;
 
@@ -57,9 +75,13 @@ String NeighBench::toString(const AStringFormat* strfmt) const
 
 bool NeighBench::_deserialize(std::istream& is, bool verbose)
 {
+  double width;
   bool ret = true;
   ret = ret && ANeigh::_deserialize(is, verbose);
-  ret = ret && _recordRead<double>(is, "Bench Width", _width);
+  ret = ret && _recordRead<double>(is, "Bench Width", width);
+
+  _biPtBench = BiPointCheckBench::create(-1, width); // idim_bench will be updated in 'attach'
+
   return ret;
 }
 
@@ -67,7 +89,7 @@ bool NeighBench::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
   ret = ret && ANeigh::_serialize(os, verbose);
-  ret = ret && _recordWrite<double>(os, "Bench Width", getWidth());
+  ret = ret && _recordWrite<double>(os, "Bench Width", _biPtBench->getWidth());
   return ret;
 }
 
@@ -205,7 +227,9 @@ void NeighBench::_bench(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
   int idim_bench = _dbin->getNDim() - 1;
-  double z0 = _dbout->getCoordinate(iech_out, idim_bench);
+
+  // Load the target sample as a Space Point
+  _dbout->getSampleCoordinatesAsSP(iech_out, _P1);
 
   /* Loop on samples */
 
@@ -226,10 +250,13 @@ void NeighBench::_bench(int iech_out, VectorInt& ranks)
       if (_xvalid(iech, iech_out)) continue;
     }
 
+    _dbin->getSampleCoordinatesAsSP(iech, _P2);
+
     /* Discard sample located outside the bench */
 
-    if (ABS(_dbin->getCoordinate(iech,idim_bench) - z0) <= getWidth())
-      ranks[iech] = 0;
+    if (! _biPtBench->isOK(_P1, _P2, iech_out, iech)) continue;
+
+    ranks[iech] = 0;
   }
 }
 

@@ -85,19 +85,16 @@ Universality Condition
 
 Image Neighborhood
 ==================
-Space dimension = 2
 Skipping factor = 2
 Image radius :         2         2
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 25
 
 Unique Neighborhood
 ===================
-Space dimension = 2
 
 ---> Testing Neighborhood storage
 

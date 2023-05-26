@@ -20,6 +20,9 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Geometry/ABiPointCheck.hpp"
+#include "Geometry/BiPointCheckDistance.hpp"
+#include "Space/SpacePoint.hpp"
 
 class Db;
 class Faults;
@@ -35,6 +38,7 @@ public:
               int nsmax = ITEST,
               VectorDouble coeffs = VectorDouble(),
               VectorDouble angles = VectorDouble(),
+              bool forceWithinCell = false,
               double distcont = TEST,
               const Faults *faults = nullptr,
               const ASpace* space = nullptr);
@@ -43,8 +47,7 @@ public:
   virtual ~NeighMoving();
 
   /// Interface for ANeigh
-  virtual int attach(const Db *dbin,
-                         const Db *dbout = nullptr) override;
+  virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual VectorInt getNeigh(int iech_out) override;
   virtual bool hasChanged(int iech_out) const override;
   virtual VectorDouble summary(int iech_out) override;
@@ -63,46 +66,33 @@ public:
                              int nsmax = ITEST,
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble(),
+                             bool forceWithinCell = false,
                              double distcont = TEST,
                              const Faults* faults = nullptr,
                              const ASpace* space = nullptr);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
-  void addFaults(const Faults* faults) { _faults = faults; }
-  const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
-  double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
-  const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }
-  double getAnisoRotMat(int i) const { return _anisoRotMat[i]; }
-  int getFlagAniso() const { return _flagAniso; }
-  int getFlagRotation() const { return _flagRotation; }
+  void addBiPointCheck(const ABiPointCheck* abpc);
+
   bool getFlagSector() const;
   int getNMaxi() const { return _nMaxi; }
   int getNMini() const { return _nMini; }
   int getNSect() const { return _nSect; }
   int getNSMax() const { return _nSMax; }
-  double getRadius() const { return _radius; }
   double getDistCont() const { return _distCont; }
-  bool   getForceWithinBlock() const { return _forceWithinBlock; }
+  bool   getForceWithinCell() const { return _forceWithinCell; }
+  const BiPointCheckDistance* getBiPtDist() const { return _biPtDist; }
 
-  void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
-  void setAnisoCoeff(int idim, double value);
-  void anisoRescale();
-  void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }
-  void setFlagAniso(int flagAniso) { _flagAniso = flagAniso; }
-  void setFlagRotation(int flagRotation) { _flagRotation = flagRotation; }
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }
   void setNMini(int nmini) { _nMini = nmini; }
   void setNSect(int nsect) { _nSect = nsect; }
   void setNSMax(int nsmax) { _nSMax = nsmax; }
-  void setRadius(double radius) { _radius = radius; }
   void setDistCont(double distCont) { _distCont = distCont; }
-  void setForceWithinBlock(bool forceWithinBlock);
+  void setForceWithinCell(bool forceWithinCell) { _forceWithinCell = forceWithinCell; }
+
   VectorVectorDouble getEllipsoid(const VectorDouble& target, int count = 360) const;
   VectorVectorDouble getSectors(const VectorDouble& target) const;
   VectorVectorDouble getZoomLimits(const VectorDouble& target, double percent=20) const;
-
-  bool hasFaults() const { return _faults != nullptr; }
-  const Faults* getFaults() const { return _faults; }
 
 protected:
   /// Interface for ASerializable
@@ -111,32 +101,30 @@ protected:
   String _getNFName() const override { return "NeighMoving"; }
 
 private:
+  int  _getBiPtsNumber() const { return (int) _bipts.size(); }
   int  _moving(int iech_out, VectorInt& ranks, double eps = EPSILON9);
-  bool _hiddenByFault(int iech, int iech_out) const;
   bool _belongsToCell(int iech, int iech_out);
-  double _movingDist(int iech_in, int iech_out);
-  int _movingSectorDefine(double dx, double dy);
+  int  _movingSectorDefine(double dx, double dy);
   void _movingSectorNsmax(int nsel, VectorInt& ranks);
   void _movingSelect(int nsel, VectorInt& ranks);
+  double _getRadius() const { return _biPtDist->getRadius(); }
 
 private:
-  int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
-  int _flagRotation;             /* 1 if the anisotropy is rotated */
   int _nMini;                    /* Minimum number of points in neigh. */
   int _nMaxi;                    /* Maximum number of points in neigh. */
   int _nSect;                    /* Number of 2-D angular sectors */
   int _nSMax;                    /* Maximum number of points per 2-D sector */
-  bool _forceWithinBlock;        /* Select all samples within a Block */
-  double _radius;                /* Maximum isotropic distance */
+  bool _forceWithinCell;         /* Select all samples within a Block */
   double _distCont;              /* Distance for continuous neighborhood */
-  VectorDouble _anisoCoeffs;     /* Anisotropy ratio for moving neighborhood */
-  VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
-  const Faults* _faults;
+
+  BiPointCheckDistance* _biPtDist;
+  std::vector<const ABiPointCheck*> _bipts;
 
   mutable VectorInt    _movingInd;
   mutable VectorInt    _movingIsect;
   mutable VectorInt    _movingNsect;
-  mutable VectorDouble _movingX1;
-  mutable VectorDouble _movingX2;
   mutable VectorDouble _movingDst;
+
+  mutable SpacePoint   _P1;
+  mutable SpacePoint   _P2;
 };

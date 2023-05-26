@@ -28,7 +28,8 @@ AMatrix::AMatrix(int nrow, int ncol, bool sparse)
       _nRows(nrow),
       _nCols(ncol),
       _sparse(sparse),
-      _csMatrix(nullptr)
+      _csMatrix(nullptr),
+      _flagCheckAddress(false)
 {
   (void) _isNumbersValid(nrow, ncol);
   if (sparse) _initiateSparse();
@@ -39,7 +40,8 @@ AMatrix::AMatrix(const cs* A)
       _nRows(0),
       _nCols(0),
       _sparse(true),
-      _csMatrix(nullptr)
+      _csMatrix(nullptr),
+      _flagCheckAddress(false)
 {
   _recopySparse(A);
 }
@@ -49,7 +51,8 @@ AMatrix::AMatrix(const AMatrix &m)
       _nRows(m._nRows),
       _nCols(m._nCols),
       _sparse(m._sparse),
-      _csMatrix(nullptr)
+      _csMatrix(nullptr),
+      _flagCheckAddress(m._flagCheckAddress)
 {
   if (_sparse)
   {
@@ -63,6 +66,7 @@ AMatrix& AMatrix::operator=(const AMatrix &m)
   _nRows = m._nRows;
   _nCols = m._nCols;
   _sparse = m._sparse;
+  _flagCheckAddress = m._flagCheckAddress;
   if (_sparse)
   {
     if (this != &m)
@@ -117,6 +121,7 @@ bool AMatrix::isSquare(bool printWhyNot) const
  */
 bool AMatrix::isValid(int irow, int icol, bool printWhyNot) const
 {
+  if (! _flagCheckAddress) return true;
   if (irow < 0 || irow >= getNRows())
   {
     if (printWhyNot)
@@ -973,6 +978,7 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
 
 bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 {
+  if (! _flagCheckAddress) return true;
   if (nrows < 0)
   {
     messerr("Argument 'nrows' is not valid");
@@ -988,6 +994,7 @@ bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 
 bool AMatrix::_isRowValid(int irow) const
 {
+  if (! _flagCheckAddress) return true;
   if (irow < 0 || irow >= getNRows())
   {
     mesArg("Row index invalid",irow,getNRows());
@@ -998,6 +1005,7 @@ bool AMatrix::_isRowValid(int irow) const
 
 bool AMatrix::_isColumnValid(int icol) const
 {
+  if (! _flagCheckAddress) return true;
   if (icol < 0 || icol >= getNCols())
   {
     mesArg("Column index invalid",icol,getNCols());
@@ -1008,6 +1016,7 @@ bool AMatrix::_isColumnValid(int icol) const
 
 bool AMatrix::_isIndexValid(int irow, int icol) const
 {
+  if (! _flagCheckAddress) return true;
   if (! _isRowValid(irow)) return false;
   if (! _isColumnValid(icol)) return false;
   return true;
@@ -1047,6 +1056,7 @@ bool AMatrix::_isVectorSizeConsistent(int nrows,
 
 bool AMatrix::_isRankValid(int rank) const
 {
+  if (! _flagCheckAddress) return true;
   return (rank >= 0 && rank < _getMatrixSize());
 }
 
