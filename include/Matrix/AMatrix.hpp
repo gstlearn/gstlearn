@@ -191,8 +191,8 @@ public:
                   const VectorInt &activeCols);
 
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
-
 #ifndef SWIG
+
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }
   /*! Set value operator override */

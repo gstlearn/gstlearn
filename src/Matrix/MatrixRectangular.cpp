@@ -94,26 +94,26 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
 
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
 double MatrixRectangular::_getValue(int irank) const
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return TEST;
   return _rectMatrix[irank];
 }
 
 void MatrixRectangular::_setValue(int irank, double value)
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return;
   _rectMatrix[irank] = value;
 }
 
 void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
-  _isIndexValid(irow, icol);
+  if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }
@@ -166,7 +166,6 @@ void MatrixRectangular::_setValues(const double* values, bool byCol)
 /*! Gets a reference to the value at row 'irow' and column 'icol' */
 double& MatrixRectangular::_getValueRef(int irow, int icol)
 {
-  _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }

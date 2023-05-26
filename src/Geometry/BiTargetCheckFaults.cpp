@@ -8,38 +8,38 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
+#include <Geometry/BiTargetCheckFaults.hpp>
 #include "geoslib_f.h"
 
-#include "Geometry/BiPointCheckFaults.hpp"
-#include "Space/SpacePoint.hpp"
+#include "Space/SpaceTarget.hpp"
 
-BiPointCheckFaults::BiPointCheckFaults(const Faults* faults)
-    : ABiPointCheck(),
+BiTargetCheckFaults::BiTargetCheckFaults(const Faults* faults)
+    : ABiTargetCheck(),
       _faults(faults)
 {
 }
 
-BiPointCheckFaults::BiPointCheckFaults(const BiPointCheckFaults &r)
-    : ABiPointCheck(r),
+BiTargetCheckFaults::BiTargetCheckFaults(const BiTargetCheckFaults &r)
+    : ABiTargetCheck(r),
       _faults(r._faults)
 {
 }
 
-BiPointCheckFaults& BiPointCheckFaults::operator=(const BiPointCheckFaults &r)
+BiTargetCheckFaults& BiTargetCheckFaults::operator=(const BiTargetCheckFaults &r)
 {
   if (this != &r)
   {
-    ABiPointCheck::operator=(r);
+    ABiTargetCheck::operator=(r);
     _faults = r._faults;
   }
   return *this;
 }
 
-BiPointCheckFaults::~BiPointCheckFaults()
+BiTargetCheckFaults::~BiTargetCheckFaults()
 {
 }
 
-String BiPointCheckFaults::toString(const AStringFormat* /*strfmt*/) const
+String BiTargetCheckFaults::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -48,10 +48,8 @@ String BiPointCheckFaults::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-bool BiPointCheckFaults::isOK(const SpacePoint &P1,
-                              const SpacePoint &P2,
-                              int iech1,
-                              int iech2) const
+bool BiTargetCheckFaults::isOK(const SpaceTarget &T1,
+                              const SpaceTarget &T2) const
 {
-  return _faults->isSplitByFaultSP(P1, P2);
+  return _faults->isSplitByFaultSP(T1.getCoordAsSPP(), T2.getCoordAsSPP());
 }

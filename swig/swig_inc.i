@@ -4,6 +4,7 @@
 
 %shared_ptr(AAnam)
 %shared_ptr(AArray)
+%shared_ptr(ABiTargetCheck)
 %shared_ptr(ACalcDbToDb)
 %shared_ptr(ACalcDbVarCreator)
 %shared_ptr(ACalcInterpolator)
@@ -38,6 +39,10 @@
 %shared_ptr(AStringFormat)
 %shared_ptr(BImage)
 %shared_ptr(BImageStringFormat)
+%shared_ptr(BiTargetCheckBench)
+%shared_ptr(BiTargetCheckCell)
+%shared_ptr(BiTargetCheckDistance)
+%shared_ptr(BiTargetCheckFaults)
 %shared_ptr(BooleanObject)
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
@@ -148,6 +153,7 @@
 %shared_ptr(NeighImage)
 %shared_ptr(NeighMoving)
 %shared_ptr(NeighUnique)
+%shared_ptr(NeighCell)
 %shared_ptr(NoStatArray)
 %shared_ptr(NoStatFunctional)
 %shared_ptr(Option_AutoFit)
@@ -183,6 +189,7 @@
 %shared_ptr(SimuSphericalParam)
 %shared_ptr(SimuSubstitutionParam)
 %shared_ptr(SpacePoint)
+%shared_ptr(SpaceTarget)
 %shared_ptr(SpaceRN)
 %shared_ptr(Table)
 %shared_ptr(Tensor)
@@ -261,6 +268,11 @@
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"
+  #include "Geometry/ABiTargetCheck.hpp"
+  #include "Geometry/BiTargetCheckBench.hpp"
+  #include "Geometry/BiTargetCheckCell.hpp"
+  #include "Geometry/BiTargetCheckDistance.hpp"
+  #include "Geometry/BiTargetCheckFaults.hpp"
   
   #include "Arrays/AArray.hpp"
   #include "Arrays/Array.hpp"
@@ -282,6 +294,7 @@
   #include "Space/ASpace.hpp"
   #include "Space/ASpaceObject.hpp"
   #include "Space/SpacePoint.hpp"
+  #include "Space/SpaceTarget.hpp"
   #include "Space/SpaceRN.hpp"
   #include "Space/SpaceShape.hpp"
   
@@ -327,6 +340,7 @@
   #include "Neigh/NeighImage.hpp"
   #include "Neigh/NeighMoving.hpp"
   #include "Neigh/NeighBench.hpp"
+  #include "Neigh/NeighCell.hpp"
   
   #include "Variogram/VarioParam.hpp"
   #include "Variogram/Vario.hpp"

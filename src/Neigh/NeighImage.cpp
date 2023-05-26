@@ -118,7 +118,7 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
 
 /**
  * Given a Db, returns the maximum number of samples per NeighImageborhood
- * @param db Pointer to the taregt Db
+ * @param db Pointer to the target Db
  * @return
  */
 int NeighImage::getMaxSampleNumber(const Db* /*db*/) const

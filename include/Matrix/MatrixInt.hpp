@@ -35,6 +35,7 @@ public:
   void   reset(int nrows, int ncols);
   int    getValue(int irow, int icol) const;
   int    getValue(int irank) const;
+  int&   getValueRef(int irow, int icol);
   void   setValue(int rank, int value);
   void   setValue(int irow, int icol, int value);
   int    getMatrixSize() const;
@@ -55,6 +56,11 @@ public:
   void setNRows(int rows) { _nRows = rows; }
 
   static MatrixInt* createFromVVD(const VectorVectorInt& X);
+
+  /*! Get value operator override */
+  int  operator()(int irow, int icol) const { return getValue(irow, icol); }
+  /*! Set value operator override */
+  int &operator()(int irow, int icol)       { return getValueRef(irow, icol); }
 
 private:
   int    _getIndexToRank(int irow,int icol) const;

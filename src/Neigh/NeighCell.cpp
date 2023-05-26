@@ -10,92 +10,94 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Neigh/NeighBench.hpp"
+#include "Neigh/NeighCell.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
-NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace *space)
+NeighCell::NeighCell(bool flag_xvalid, int nmini, const ASpace *space)
     : ANeigh(space),
-      _width(width),
-      _biPtBench(),
+      _nMini(nmini),
+      _biPtCell(),
+      _dbgrid(),
       _T1(space),
       _T2(space)
 {
   setFlagXvalid (flag_xvalid);
-  _biPtBench = BiTargetCheckBench::create(-1, _width);
+
+  _biPtCell = BiTargetCheckCell::create();
 }
 
-NeighBench::NeighBench(const NeighBench& r)
+NeighCell::NeighCell(const NeighCell& r)
     : ANeigh(r),
-      _width(r._width),
-      _biPtBench(r._biPtBench),
+      _nMini(r._nMini),
+      _biPtCell(r._biPtCell),
+      _dbgrid(r._dbgrid),
       _T1(r._T1),
       _T2(r._T2)
 {
 }
 
-NeighBench& NeighBench::operator=(const NeighBench& r)
+NeighCell& NeighCell::operator=(const NeighCell& r)
 {
   if (this != &r)
   {
     ANeigh::operator=(r);
-    _width = r._width;
-    _biPtBench = r._biPtBench;
+    _nMini = r._nMini;
+    _biPtCell = r._biPtCell;
+    _dbgrid = r._dbgrid;
     _T1 = r._T1;
     _T2 = r._T2;
    }
   return *this;
 }
 
-NeighBench::~NeighBench()
+NeighCell::~NeighCell()
 {
 }
 
-int NeighBench::attach(const Db *dbin, const Db *dbout)
+int NeighCell::attach(const Db *dbin, const Db *dbout)
 {
   if (ANeigh::attach(dbin, dbout)) return 1;
+  if (! _biPtCell->isValid(dbin, dbout)) return 1;
 
-  if (! _biPtBench->isValid(dbin, dbout)) return 1;
-
+  _dbgrid = dynamic_cast<const DbGrid*>(dbout);
   return 0;
 }
 
-String NeighBench::toString(const AStringFormat* strfmt) const
+String NeighCell::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0,"Bench Neighborhood");
+  sstr << toTitle(0,"Cell Neighborhood");
 
-  sstr << _biPtBench->toString();
+  if (_biPtCell != nullptr)
+    sstr << _biPtCell->toString();
 
   return sstr.str();
 }
 
-bool NeighBench::_deserialize(std::istream& is, bool verbose)
+bool NeighCell::_deserialize(std::istream& is, bool verbose)
 {
-  double width;
   bool ret = true;
   ret = ret && ANeigh::_deserialize(is, verbose);
-  ret = ret && _recordRead<double>(is, "Bench Width", width);
-
-  _biPtBench = BiTargetCheckBench::create(-1, width); // idim_bench will be updated in 'attach'
+  ret = ret && _recordRead<int>(is, "Minimum Number of samples", _nMini);
 
   return ret;
 }
 
-bool NeighBench::_serialize(std::ostream& os, bool verbose) const
+bool NeighCell::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
   ret = ret && ANeigh::_serialize(os, verbose);
-  ret = ret && _recordWrite<double>(os, "Bench Width", _biPtBench->getWidth());
+  ret = ret && _recordWrite<int>(os, "", getNMini());
   return ret;
 }
 
-NeighBench* NeighBench::create(bool flag_xvalid, double width, const ASpace* space)
+NeighCell* NeighCell::create(bool flag_xvalid, int nmini, const ASpace* space)
 {
-  return new NeighBench(flag_xvalid, width, space);
+  return new NeighCell(flag_xvalid, nmini, space);
 }
 
 /**
@@ -104,11 +106,11 @@ NeighBench* NeighBench::create(bool flag_xvalid, double width, const ASpace* spa
  * @param verbose         Verbose flag
  * @return
  */
-NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose)
+NeighCell* NeighCell::createFromNF(const String& neutralFilename, bool verbose)
 {
-  NeighBench* neigh = nullptr;
+  NeighCell* neigh = nullptr;
   std::ifstream is;
-  neigh = new NeighBench();
+  neigh = new NeighCell();
   bool success = false;
   if (neigh->_fileOpenRead(neutralFilename, is, verbose))
   {
@@ -122,68 +124,10 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
   return neigh;
 }
 
-/**
- * Given a Db, returns the maximum number of samples per NeighBenchborhood
- * @param db Pointer to the target Db
- * @return
- */
-int NeighBench::getMaxSampleNumber(const Db* db) const
-{
-  bool useSel = false;
-  int nech = db->getSampleNumber();
-  int nmax = nech;
-  int ndim = db->getNDim();
-  if (db->getNDim() <= 2) return nech;
-
-  /* Read the vector of the last coordinates */
-  VectorDouble vec = db->getCoordinates(ndim-1, useSel);
-
-  /* Sort the third coordinate vector */
-  VectorDouble tab = VH::sort(vec, true);
-
-  /* Loop on the first point */
-  nmax = 0;
-  for (int iech = 0; iech < nech - 1; iech++)
-  {
-
-    /* Loop on the second point */
-    int nloc = 1;
-    for (int jech = iech + 1; jech < nech; jech++)
-    {
-      if (ABS(tab[jech] - tab[iech]) > 2. * _width) break;
-      nloc++;
-    }
-
-    /* Store the maximum number of samples */
-    if (nloc > nmax) nmax = nloc;
-  }
-  return nmax;
-}
-
-bool NeighBench::hasChanged(int iech_out) const
+bool NeighCell::hasChanged(int iech_out) const
 {
   if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
 
-  return _isSameTargetBench(iech_out);
-}
-
-bool NeighBench::_isSameTargetBench(int iech_out) const
-{
-  // Check if current target and previous target belong to the same bench
-
-  int ndim = _dbout->getNDim();
-  if (_dbgrid != nullptr)
-  {
-    int nval = 1;
-    for (int idim = 0; idim < ndim - 1; idim++)
-      nval *= _dbgrid->getNX(idim);
-    if ((iech_out / nval) != (_iechMemo / nval)) return false;
-  }
-  else
-  {
-    if (_dbout->getCoordinate(iech_out, ndim - 1) !=
-        _dbout->getCoordinate(_iechMemo, ndim - 1)) return false;
-  }
   return true;
 }
 
@@ -196,13 +140,13 @@ bool NeighBench::_isSameTargetBench(int iech_out) const
  ** \param[in]  iech_out      Valid Rank of the sample in the output Db
  **
  *****************************************************************************/
-VectorInt NeighBench::getNeigh(int iech_out)
+VectorInt NeighCell::getNeigh(int iech_out)
 {
   int nech = _dbin->getSampleNumber();
   VectorInt ranks(nech, -1);
 
   // Select the neighborhood samples as the target sample has changed
-  _bench(iech_out, ranks);
+  if (_cell(iech_out, ranks)) return VectorInt();
 
   // In case of debug option, dump out neighborhood characteristics
   if (OptDbg::query(EDbg::NBGH)) _display(ranks);
@@ -215,23 +159,26 @@ VectorInt NeighBench::getNeigh(int iech_out)
 
 /****************************************************************************/
 /*!
- **  Search for the bench neighborhood, according to the last
- **  coordinate
+ **  Search for the cell neighborhood
+ **
+ ** \return Error returned code
  **
  ** \param[in]  iech_out  rank of the output sample
  **
  ** \param[out]  ranks    Vector of samples elected in the Neighborhood
  **
  *****************************************************************************/
-void NeighBench::_bench(int iech_out, VectorInt& ranks)
+int NeighCell::_cell(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
 
   // Load the target sample as a Space Point
   _dbout->getSampleCoordinatesAsSP(iech_out, _T1.getCoordAsSP());
+  _T1.setExtend(_dbgrid->getBlockExtensions(iech_out));
 
   /* Loop on samples */
 
+  int nsel = 0;
   for (int iech = 0; iech < nech; iech++)
   {
     /* Discard the masked input sample */
@@ -253,9 +200,11 @@ void NeighBench::_bench(int iech_out, VectorInt& ranks)
 
     /* Discard sample located outside the bench */
 
-    if (! _biPtBench->isOK(_T1, _T2)) continue;
+    if (! _biPtCell->isOK(_T1, _T2)) continue;
 
     ranks[iech] = 0;
+    nsel++;
   }
+  return (nsel < getNMini());
 }
 

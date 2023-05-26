@@ -10,29 +10,27 @@
 /******************************************************************************/
 #pragma once
 
+#include <Geometry/ABiTargetCheck.hpp>
 #include "gstlearn_export.hpp"
 
-#include "Geometry/ABiPointCheck.hpp"
 
-class GSTLEARN_EXPORT BiPointCheckDistance: public ABiPointCheck
+class GSTLEARN_EXPORT BiTargetCheckDistance: public ABiTargetCheck
 {
 public:
-  BiPointCheckDistance(double radius = TEST,
+  BiTargetCheckDistance(double radius = TEST,
                        const VectorDouble coeffs = VectorDouble(),
                        const VectorDouble angles = VectorDouble());
-  BiPointCheckDistance(const BiPointCheckDistance& r);
-  BiPointCheckDistance& operator=(const BiPointCheckDistance& r);
-  virtual ~BiPointCheckDistance();
+  BiTargetCheckDistance(const BiTargetCheckDistance& r);
+  BiTargetCheckDistance& operator=(const BiTargetCheckDistance& r);
+  virtual ~BiTargetCheckDistance();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiPointCheckDistance)
+  IMPLEMENT_CLONING(BiTargetCheckDistance)
 
-  virtual bool isOK(const SpacePoint &P1,
-                    const SpacePoint &P2,
-                    int iech1 = -1,
-                    int iech2 = -1) const override;
+  virtual bool isOK(const SpaceTarget &T1,
+                    const SpaceTarget &T2) const override;
 
-  static BiPointCheckDistance* create(double radius = TEST,
+  static BiTargetCheckDistance* create(double radius = TEST,
                                       const VectorDouble coeffs = VectorDouble(),
                                       const VectorDouble angles = VectorDouble());
 
@@ -49,7 +47,6 @@ public:
   double getRadius() const { return _radius; }
 
   void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
-  void setAnisoCoeff(int idim, double value);
   void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }
   void setFlagAniso(int flagAniso) { _flagAniso = flagAniso; }
   void setFlagRotation(int flagRotation) { _flagRotation = flagRotation; }

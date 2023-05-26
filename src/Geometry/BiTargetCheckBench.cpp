@@ -8,65 +8,63 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
+#include <Geometry/BiTargetCheckBench.hpp>
 #include "geoslib_f.h"
 
-#include "Geometry/BiPointCheckBench.hpp"
 #include "Space/SpacePoint.hpp"
 
-BiPointCheckBench::BiPointCheckBench(int idim_bench, double width)
-    : ABiPointCheck(),
+BiTargetCheckBench::BiTargetCheckBench(int idim_bench, double width)
+    : ABiTargetCheck(),
       _idimBench(idim_bench),
       _width(width)
 {
 }
 
-BiPointCheckBench::BiPointCheckBench(const BiPointCheckBench &r)
-    : ABiPointCheck(r),
+BiTargetCheckBench::BiTargetCheckBench(const BiTargetCheckBench &r)
+    : ABiTargetCheck(r),
       _idimBench(r._idimBench),
       _width(r._width)
 {
 }
 
-BiPointCheckBench& BiPointCheckBench::operator=(const BiPointCheckBench &r)
+BiTargetCheckBench& BiTargetCheckBench::operator=(const BiTargetCheckBench &r)
 {
   if (this != &r)
   {
-    ABiPointCheck::operator=(r);
+    ABiTargetCheck::operator=(r);
     _idimBench = r._idimBench;
     _width = r._width;
   }
   return *this;
 }
 
-BiPointCheckBench::~BiPointCheckBench()
+BiTargetCheckBench::~BiTargetCheckBench()
 {
 }
 
-BiPointCheckBench* BiPointCheckBench::create(int idim_bench, double width)
+BiTargetCheckBench* BiTargetCheckBench::create(int idim_bench, double width)
 {
-  return new BiPointCheckBench(idim_bench, width);
+  return new BiTargetCheckBench(idim_bench, width);
 }
 
-/**
- * Printout
- * @param strfmt Printing format
- * @return String describing the Checker option
- *
- * @remark The printout is not performed here as the Checker is only set in 'attach'
- */
-String BiPointCheckBench::toString(const AStringFormat* /*strfmt*/) const
+String BiTargetCheckBench::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+
+  sstr << "Bench width     = " << _width << std::endl;
 
   return sstr.str();
 }
 
-bool BiPointCheckBench::isOK(const SpacePoint &P1,
-                             const SpacePoint &P2,
-                             int iech1,
-                             int iech2) const
+bool BiTargetCheckBench::isValid(const Db* dbin, const Db* dbout)
+{
+  return true;
+}
+
+bool BiTargetCheckBench::isOK(const SpaceTarget &T1,
+                             const SpaceTarget &T2) const
 {
   /* Discard sample located outside the bench */
 
-  return (ABS(P1.getCoord(_idimBench) - P2.getCoord(_idimBench)) <= _width);
+  return (ABS(T1.getCoord(_idimBench) - T2.getCoord(_idimBench)) <= _width);
 }

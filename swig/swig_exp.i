@@ -103,6 +103,11 @@
 
 %include Geometry/GeometryHelper.hpp
 %include Geometry/Rotation.hpp
+%include Geometry/ABiTargetCheck.hpp
+%include Geometry/BiTargetCheckBench.hpp
+%include Geometry/BiTargetCheckCell.hpp
+%include Geometry/BiTargetCheckDistance.hpp
+%include Geometry/BiTargetCheckFaults.hpp
 
 %include Arrays/AArray.hpp
 %include Arrays/Array.hpp
@@ -124,6 +129,7 @@
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
+%include Space/SpaceTarget.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
 
@@ -167,6 +173,7 @@
 %include Neigh/NeighImage.hpp
 %include Neigh/NeighMoving.hpp
 %include Neigh/NeighBench.hpp
+%include Neigh/NeighCell.hpp
 
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp

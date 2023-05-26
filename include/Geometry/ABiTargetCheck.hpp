@@ -12,31 +12,22 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Geometry/ABiPointCheck.hpp"
-#include "Faults/Faults.hpp"
+#include "Basic/ICloneable.hpp"
+#include "Basic/AStringable.hpp"
+#include "Space/SpaceTarget.hpp"
 
-class GSTLEARN_EXPORT BiPointCheckFaults: public ABiPointCheck
+class Db;
+
+class GSTLEARN_EXPORT ABiTargetCheck: public AStringable, public ICloneable
 {
 public:
-  BiPointCheckFaults(const Faults* faults);
-  BiPointCheckFaults(const BiPointCheckFaults& r);
-  BiPointCheckFaults& operator=(const BiPointCheckFaults& r);
-  virtual ~BiPointCheckFaults();
+  ABiTargetCheck();
+  ABiTargetCheck(const ABiTargetCheck& r);
+  ABiTargetCheck& operator=(const ABiTargetCheck& r);
+  virtual ~ABiTargetCheck();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiPointCheckFaults)
+  virtual bool isOK(const SpaceTarget &T1,
+                    const SpaceTarget &T2) const = 0;
 
-  virtual bool isOK(const SpacePoint &P1,
-                    const SpacePoint &P2,
-                    int iech1 = -1,
-                    int iech2 = -1) const override;
-
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  bool hasFaults() const { return _faults != nullptr; }
-  const Faults* getFaults() const { return _faults; }
-
-private:
-  const Faults* _faults;
+  virtual bool isValid(const Db* dbin, const Db* dbout) { return true; }
 };

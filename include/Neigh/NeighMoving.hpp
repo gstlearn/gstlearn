@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include <Geometry/ABiTargetCheck.hpp>
+#include <Geometry/BiTargetCheckDistance.hpp>
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
@@ -20,9 +22,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Geometry/ABiPointCheck.hpp"
-#include "Geometry/BiPointCheckDistance.hpp"
-#include "Space/SpacePoint.hpp"
+#include "Space/SpaceTarget.hpp"
 
 class Db;
 class Faults;
@@ -38,9 +38,6 @@ public:
               int nsmax = ITEST,
               VectorDouble coeffs = VectorDouble(),
               VectorDouble angles = VectorDouble(),
-              bool forceWithinCell = false,
-              double distcont = TEST,
-              const Faults *faults = nullptr,
               const ASpace* space = nullptr);
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
@@ -66,13 +63,10 @@ public:
                              int nsmax = ITEST,
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble(),
-                             bool forceWithinCell = false,
-                             double distcont = TEST,
-                             const Faults* faults = nullptr,
                              const ASpace* space = nullptr);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
-  void addBiPointCheck(const ABiPointCheck* abpc);
+  void addBiTargetCheck(const ABiTargetCheck* abpc);
 
   bool getFlagSector() const;
   int getNMaxi() const { return _nMaxi; }
@@ -80,15 +74,13 @@ public:
   int getNSect() const { return _nSect; }
   int getNSMax() const { return _nSMax; }
   double getDistCont() const { return _distCont; }
-  bool   getForceWithinCell() const { return _forceWithinCell; }
-  const BiPointCheckDistance* getBiPtDist() const { return _biPtDist; }
+  const BiTargetCheckDistance* getBiPtDist() const { return _biPtDist; }
 
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }
   void setNMini(int nmini) { _nMini = nmini; }
   void setNSect(int nsect) { _nSect = nsect; }
   void setNSMax(int nsmax) { _nSMax = nsmax; }
   void setDistCont(double distCont) { _distCont = distCont; }
-  void setForceWithinCell(bool forceWithinCell) { _forceWithinCell = forceWithinCell; }
 
   VectorVectorDouble getEllipsoid(const VectorDouble& target, int count = 360) const;
   VectorVectorDouble getSectors(const VectorDouble& target) const;
@@ -103,7 +95,6 @@ protected:
 private:
   int  _getBiPtsNumber() const { return (int) _bipts.size(); }
   int  _moving(int iech_out, VectorInt& ranks, double eps = EPSILON9);
-  bool _belongsToCell(int iech, int iech_out);
   int  _movingSectorDefine(double dx, double dy);
   void _movingSectorNsmax(int nsel, VectorInt& ranks);
   void _movingSelect(int nsel, VectorInt& ranks);
@@ -114,17 +105,17 @@ private:
   int _nMaxi;                    /* Maximum number of points in neigh. */
   int _nSect;                    /* Number of 2-D angular sectors */
   int _nSMax;                    /* Maximum number of points per 2-D sector */
-  bool _forceWithinCell;         /* Select all samples within a Block */
   double _distCont;              /* Distance for continuous neighborhood */
 
-  BiPointCheckDistance* _biPtDist;
-  std::vector<const ABiPointCheck*> _bipts;
+  BiTargetCheckDistance* _biPtDist;
+  std::vector<ABiTargetCheck*> _bipts;
 
   mutable VectorInt    _movingInd;
   mutable VectorInt    _movingIsect;
   mutable VectorInt    _movingNsect;
   mutable VectorDouble _movingDst;
 
-  mutable SpacePoint   _P1;
-  mutable SpacePoint   _P2;
+  mutable const DbGrid* _dbgrid;
+  mutable SpaceTarget  _T1;
+  mutable SpaceTarget  _T2;
 };

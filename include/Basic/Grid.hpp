@@ -111,8 +111,8 @@ public:
   VectorInt generateGridIndices(const String &string,
                                 bool startFromZero = true,
                                 bool verbose = false);
-  bool sampleBelongsToCell(const VectorDouble &coor,
-                           int node,
+  bool sampleBelongsToCell(const VectorDouble& coor,
+                           const VectorDouble& center,
                            const VectorDouble &dxsPerCell) const;
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }

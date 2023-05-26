@@ -86,6 +86,15 @@ int main(int /*argc*/, char */*argv*/[])
       MR.setValue(irow, icol, value);
     }
 
+  // Checking using the operator ()
+
+  MR.display();
+  double memo = MR(1,2);
+  message("Initial value of M(1,2) = %lf\n", memo);
+  MR(1,2) = 111.11;
+  MR.display();
+  MR(1,2) = memo;
+
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
   AMatrix* MRt = MR.transpose(); // Using cloneable feature

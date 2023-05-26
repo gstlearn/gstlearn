@@ -8,6 +8,9 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
+#include <Geometry/BiTargetCheckCell.hpp>
+#include <Geometry/BiTargetCheckDistance.hpp>
+#include <Geometry/BiTargetCheckFaults.hpp>
 #include "geoslib_old_f.h"
 
 #include "Neigh/NeighMoving.hpp"
@@ -18,10 +21,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Faults/Faults.hpp"
 #include "Db/Db.hpp"
-#include "Geometry/BiPointCheckDistance.hpp"
-#include "Geometry/BiPointCheckFaults.hpp"
-#include "Geometry/BiPointCheckCell.hpp"
-
 #include <math.h>
 
 NeighMoving::NeighMoving(bool flag_xvalid,
@@ -32,35 +31,25 @@ NeighMoving::NeighMoving(bool flag_xvalid,
                          int nsmax,
                          VectorDouble coeffs,
                          VectorDouble angles,
-                         bool forceWithinCell,
-                         double distcont,
-                         const Faults *faults,
                          const ASpace *space)
     : ANeigh(space),
       _nMini(nmini),
       _nMaxi(nmaxi),
       _nSect(nsect),
       _nSMax(nsmax),
-      _forceWithinCell(forceWithinCell),
-      _distCont(distcont),
+      _distCont(TEST),
       _biPtDist(nullptr),
       _bipts(),
       _movingInd(),
       _movingIsect(),
       _movingNsect(),
       _movingDst(),
-      _P1(space),
-      _P2(space)
+      _T1(space),
+      _T2(space)
 {
   setFlagXvalid(flag_xvalid);
 
-  _biPtDist = BiPointCheckDistance::create(radius, coeffs, angles);
-
-  if (faults != nullptr)
-  {
-    BiPointCheckFaults* bipt = new BiPointCheckFaults(faults);
-    _bipts.push_back(bipt);
-  }
+  _biPtDist = BiTargetCheckDistance::create(radius, coeffs, angles);
 }
 
 NeighMoving::NeighMoving(const NeighMoving& r)
@@ -69,19 +58,18 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _nMaxi(r._nMaxi),
       _nSect(r._nSect),
       _nSMax(r._nSMax),
-      _forceWithinCell(r._forceWithinCell),
       _distCont(r._distCont),
       _biPtDist(r._biPtDist),
       _movingInd(r._movingInd),
       _movingIsect(r._movingIsect),
       _movingNsect(r._movingNsect),
       _movingDst(r._movingDst),
-      _P1(r._P1),
-      _P2(r._P2)
+      _T1(r._T1),
+      _T2(r._T2)
 {
   int number = _getBiPtsNumber();
   for (int ipt = 0; ipt < number; ipt++)
-    _bipts.push_back(dynamic_cast<const ABiPointCheck*>(r._bipts[ipt]->clone()));
+    _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
 }
 
 NeighMoving& NeighMoving::operator=(const NeighMoving& r)
@@ -93,19 +81,18 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _nMaxi = r._nMaxi;
     _nSect = r._nSect;
     _nSMax = r._nSMax;
-    _forceWithinCell = r._forceWithinCell;
     _distCont = r._distCont;
     _biPtDist = r._biPtDist;
     _movingInd = r._movingInd;
     _movingIsect = r._movingIsect;
     _movingNsect = r._movingNsect;
     _movingDst = r._movingDst;
-    _P1 = r._P1;
-    _P2 = r._P2;
+    _T1 = r._T1;
+    _T2 = r._T2;
 
     int number = _getBiPtsNumber();
     for (int ipt = 0; ipt < number; ipt++)
-      _bipts.push_back(dynamic_cast<const ABiPointCheck*>(r._bipts[ipt]->clone()));
+      _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
    }
   return *this;
 }
@@ -126,22 +113,17 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
   if (_nMini > 0)
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
 
-  if (_forceWithinCell)
-    sstr << "Force Selection of all samples within target Block" << std::endl;
-  else
+  if (_nMaxi > 0)
+    sstr << "Maximum number of samples           = " << _nMaxi << std::endl;
+
+  if (_nSect > 1)
   {
-    if (_nMaxi > 0)
-      sstr << "Maximum number of samples           = " << _nMaxi << std::endl;
-
-    if (_nSect > 1)
-    {
-      sstr << "Number of angular sectors           = " << _nSect << std::endl;
-      if (_nSMax > 0)
-        sstr << "Maximum number of points per sector = " << _nSMax << std::endl;
-    }
-
-    sstr << _biPtDist->toString(strfmt);
+    sstr << "Number of angular sectors           = " << _nSect << std::endl;
+    if (_nSMax > 0)
+      sstr << "Maximum number of points per sector = " << _nSMax << std::endl;
   }
+
+  sstr << _biPtDist->toString(strfmt);
 
   int number = _getBiPtsNumber();
   for (int ipt = 0; ipt < number; ipt++)
@@ -204,7 +186,7 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
 
   setNSect((getFlagSector()) ? MAX(_nSect, 1) : 1);
 
-  _biPtDist = BiPointCheckDistance::create(dmax, nbgh_coeffs);
+  _biPtDist = BiTargetCheckDistance::create(dmax, nbgh_coeffs);
   if (! nbgh_rotmat.empty())
     _biPtDist->setAnisoRotMat(nbgh_rotmat);
 
@@ -255,13 +237,10 @@ NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nsmax,
                                  VectorDouble coeffs,
                                  VectorDouble angles,
-                                 bool forceWithinCell,
-                                 double distcont,
-                                 const Faults* faults,
                                  const ASpace* space)
 {
   return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                         coeffs, angles, forceWithinCell, distcont, faults, space);
+                         coeffs, angles, space);
 }
 
 /**
@@ -298,9 +277,9 @@ int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
   return (getFlagSector()) ? _nSect * _nSMax : _nMaxi;
 }
 
-void NeighMoving::addBiPointCheck(const ABiPointCheck* abpc)
+void NeighMoving::addBiTargetCheck(const ABiTargetCheck* abpc)
 {
-  _bipts.push_back(dynamic_cast<const ABiPointCheck*>(abpc->clone()));
+  _bipts.push_back(dynamic_cast<ABiTargetCheck*>(abpc->clone()));
 }
 
 bool NeighMoving::getFlagSector() const
@@ -311,7 +290,6 @@ bool NeighMoving::getFlagSector() const
 // TODO: add the rotation and possible ellipse
 VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int count) const
 {
-  if (_forceWithinCell) return VectorVectorDouble();
   double radius = _getRadius();
   if (FFFF(radius)) return VectorVectorDouble();
 
@@ -354,7 +332,6 @@ VectorVectorDouble NeighMoving::getZoomLimits(const VectorDouble& target, double
  */
 VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
 {
-  if (_forceWithinCell) return VectorVectorDouble();
   double radius = _getRadius();
   if (FFFF(radius)) return VectorVectorDouble();
 
@@ -383,19 +360,12 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
 {
   if (ANeigh::attach(dbin, dbout)) return 1;
 
-  if (_forceWithinCell)
+  _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+
+  int number = _getBiPtsNumber();
+  for (int ipt = 0; ipt < number; ipt++)
   {
-    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-    if (dbgrid == nullptr)
-    {
-      messerr("'forceWithinBock' option is not possible as 'dbout' is not a grid. Ignored");
-      _forceWithinCell = false;
-    }
-    else
-    {
-      BiPointCheckCell* bipt = new BiPointCheckCell(dbgrid);
-      _bipts.push_back(bipt);
-    }
+    if (! _bipts[ipt]->isValid(dbin, dbout)) return 1;
   }
 
   int nech = _dbin->getSampleNumber();
@@ -548,7 +518,9 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   int nsel = 0;
 
   // Load the target sample as a Space Point
-  _dbout->getSampleCoordinatesAsSP(iech_out, _P1);
+  _dbout->getSampleCoordinatesAsSP(iech_out, _T1.getCoordAsSP());
+  if (_dbgrid != nullptr)
+    _T2.setExtend(_dbgrid->getBlockExtensions(iech_out));
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -568,30 +540,29 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(iech, iech_out)) continue;
     }
 
-    _dbin->getSampleCoordinatesAsSP(iech, _P2);
+    _dbin->getSampleCoordinatesAsSP(iech, _T2.getCoordAsSP());
 
-    // Reject the point due to BiPointChecker
+    // Reject the point due to BiTargetChecker
     // (other than the one based on distance which must come last)
 
     int number = _getBiPtsNumber();
     bool reject = false;
     for (int ipt = 0; ipt < number && ! reject; ipt++)
     {
-      if (! _bipts[ipt]->isOK(_P1, _P2, iech_out, iech)) reject = true;
+      if (! _bipts[ipt]->isOK(_T1, _T2)) reject = true;
     }
     if (reject) continue;
 
     // Calculate the distance between data and target
     // The rejection with respect to maximum distance is bypassed if '_forceWithinCell'
 
-    reject = ! _biPtDist->isOK(_P1, _P2, iech_out, iech);
-    if (! _forceWithinCell && reject) continue;
+    if (! _biPtDist->isOK(_T1, _T2)) continue;
     double dist = _biPtDist->getDistance();
     if (dist > distmax) distmax = dist;
 
     /* Calculate the angular sector to which the sample belongs */
 
-    if (! _forceWithinCell && getFlagSector())
+    if (getFlagSector())
     {
       VectorDouble incr = _biPtDist->getIncr();
       isect = _movingSectorDefine(incr[0], incr[1]);
@@ -618,7 +589,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
   /* For each angular sector, select the first sample up to the maximum */
 
-  if (! _forceWithinCell && getFlagSector() && getNSMax() > 0)
+  if (getFlagSector() && getNSMax() > 0)
   {
     _movingSectorNsmax(nsel, ranks);
     if (nsel < getNMini()) return 1;
@@ -626,26 +597,9 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
     /* Select the first data samples (skipped if forcing all samples in block) */
 
-  if (! _forceWithinCell)
-  {
-    _movingSelect(nsel, ranks);
-  }
+  _movingSelect(nsel, ranks);
 
   return 0;
-}
-
-bool NeighMoving::_belongsToCell(int iech, int iech_out)
-{
-  if (_dbgrid == nullptr) return false;
-
-  // Get the coordinates of the sample
-  VectorDouble coor = _dbin->getSampleCoordinates(iech);
-
-  // Identify the dimensions of the cell
-  VectorDouble dxsPerCell = _dbgrid->getBlockExtensions(iech_out);
-
-  // Check if the sample belongs to the cell
-  return _dbgrid->getGrid().sampleBelongsToCell(coor, iech_out, dxsPerCell);
 }
 
 /****************************************************************************/

@@ -598,6 +598,9 @@ void exit_f(void)
 %extend SpacePoint {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend SpaceTarget {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend Db {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -683,6 +686,9 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend NeighBench {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighCell {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend MeshEStandard {

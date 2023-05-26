@@ -10,14 +10,31 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/AEnum.hpp"
+#include <Geometry/ABiTargetCheck.hpp>
+#include "gstlearn_export.hpp"
 
-#define ENUM_NEIGH ENeigh, UNIQUE, \
-                   UNKNOWN, -1, "Unknown Neighborhood", \
-                   UNIQUE,   0, "Unique Neighborhood", \
-                   BENCH,    1, "Bench Neighborhood", \
-                   MOVING,   2, "Moving Neighborhood", \
-                   CELL,     3, "Cell Neighborhood", \
-                   IMAGE,    4, "Image Neighborhood"
+#include "Faults/Faults.hpp"
 
-ENUM_DECLARE(ENUM_NEIGH)
+class GSTLEARN_EXPORT BiTargetCheckCell: public ABiTargetCheck
+{
+public:
+  BiTargetCheckCell(const DbGrid* dbgrid = nullptr);
+  BiTargetCheckCell(const BiTargetCheckCell& r);
+  BiTargetCheckCell& operator=(const BiTargetCheckCell& r);
+  virtual ~BiTargetCheckCell();
+
+  virtual bool isOK(const SpaceTarget &T1,
+                    const SpaceTarget &T2) const override;
+  virtual bool isValid(const Db* dbin, const Db* dbout) override;
+
+  /// ICloneable Interface
+  IMPLEMENT_CLONING(BiTargetCheckCell)
+
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  static BiTargetCheckCell* create(const DbGrid* dbgrid = nullptr);
+
+private:
+  const DbGrid* _dbgrid;
+};

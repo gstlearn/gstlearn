@@ -69,7 +69,7 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
 
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }
@@ -81,14 +81,14 @@ double MatrixSquareGeneral::_getValue(int irank) const
 
 void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return;
   int rank = _getIndexToRank(irow,icol);
   _squareMatrix[rank] = value;
 }
 
 void MatrixSquareGeneral::_setValue(int irank, double value)
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return;
   _squareMatrix[irank] = value;
 }
 /**
@@ -150,7 +150,6 @@ int MatrixSquareGeneral::_invert()
 
 double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
 {
-  _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }

@@ -130,8 +130,8 @@ private:
   void _resetMemoryGeneral();
   void _resetMemoryPerNeigh();
   void _flagDefine();
+  void _covUpdate(const ECalcMember &member, int iech1, int iech2);
   void _covtabInit();
-  void _covtabUpdate(const ECalcMember &member, int iech1, int iech2);
   void _covtabCalcul(const SpacePoint& p1,
                      const SpacePoint& p2,
                      const CovCalcMode& mode,

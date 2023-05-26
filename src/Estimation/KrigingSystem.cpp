@@ -575,7 +575,7 @@ void KrigingSystem::_covtabInit()
  * @param iech1     Rank of the first sample (or -1)
  * @param iech2     Rank of the second sample (or -1)
  */
-void KrigingSystem::_covtabUpdate(const ECalcMember &member,
+void KrigingSystem::_covUpdate(const ECalcMember &member,
                                   int iech1,
                                   int iech2)
 {
@@ -771,7 +771,7 @@ void KrigingSystem::_lhsCalcul()
       bool flagSameData = (iech == jech);
 
       _covtabInit();
-      _covtabUpdate(ECalcMember::LHS, _nbgh[iech], _nbgh[jech]);
+      _covUpdate(ECalcMember::LHS, _nbgh[iech], _nbgh[jech]);
       _covtabCalcul(_p1, _p2, mode, flagSameData);
 
       for (int ivar = 0; ivar < _nvar; ivar++)
@@ -965,7 +965,7 @@ void KrigingSystem::_rhsCalculPoint()
   for (int iech = 0; iech < _nech; iech++)
   {
     _identifyPoint(_p1, _nbgh[iech]);
-    _covtabUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
 
     _covtabInit();
     _covtabCalcul(_p1, _p0, mode);
@@ -988,7 +988,7 @@ void KrigingSystem::_rhsCalculBlock()
   for (int iech = 0; iech < _nech; iech++)
   {
     _identifyPoint(_p1, _nbgh[iech]);
-    _covtabUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
     if (_flagPerCell) _blockDiscretize();
     int nscale = _getNDisc();
 
@@ -1038,7 +1038,7 @@ void KrigingSystem::_rhsCalculDGM()
   for (int iech = 0; iech < _nech; iech++)
   {
     _identifyPoint(_p1, _nbgh[iech]);
-    _covtabUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
 
     _covtabInit();
     _covtabCalcul(_p0, _p1, mode);
@@ -1660,7 +1660,7 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
 void KrigingSystem::_variance0()
 {
   CovCalcMode mode(ECalcMember::VAR);
-  _covtabUpdate(ECalcMember::VAR, -1, -1);
+  _covUpdate(ECalcMember::VAR, -1, -1);
   _identifyPoint(_p0, -1);
 
   _covtabInit();
@@ -2245,10 +2245,9 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     {
       _flagPerCell = true;
     }
-    if (_neigh->getType() == ENeigh::MOVING)
+    if (_neigh->getType() == ENeigh::CELL)
     {
-      const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neigh);
-      if (neighM->getForceWithinCell()) _flagPerCell = true;
+      _flagPerCell = true;
     }
 
     // Check that discretization is defined

@@ -80,7 +80,7 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
@@ -92,14 +92,14 @@ double MatrixSquareSymmetric::_getValue(int irank) const
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  _isIndexValid(irow, icol);
+  if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
 void MatrixSquareSymmetric::_setValue(int irank, double value)
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return;
   _squareSymMatrix[irank] = value;
 }
 
@@ -108,8 +108,7 @@ void MatrixSquareSymmetric::_setValue(int irank, double value)
  * @param nsize
  * @param tab
  */
-void MatrixSquareSymmetric::initMatTri(int     nsize,
-                             double* tab)
+void MatrixSquareSymmetric::initMatTri(int nsize, double *tab)
 {
   _isNumberValid(nsize,nsize);
   _setNSize(nsize);
@@ -158,7 +157,6 @@ int MatrixSquareSymmetric::_invert()
 
 double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 {
-  _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }

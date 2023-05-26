@@ -5,7 +5,8 @@ Enum# -1 :  UNKNOWN | Unknown Neighborhood
 Enum# 0 :  UNIQUE | Unique Neighborhood
 Enum# 1 :  BENCH | Bench Neighborhood
 Enum# 2 :  MOVING | Moving Neighborhood
-Enum# 3 :  IMAGE | Image Neighborhood
+Enum# 3 :  CELL | Cell Neighborhood
+Enum# 4 :  IMAGE | Image Neighborhood
 SUPERMOVING doesn't exists
 d1= Unique Neighborhood is often used!
 Test successfully performed

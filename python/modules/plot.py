@@ -1645,17 +1645,18 @@ def neigh(ax, neigh, grid, node=0, flagCell=False, flagZoom=False, **kwargs):
     __ax_curve(ax, grid.getCellEdges(node), **kwargs)
     
     # Represent the Neighborhood Ellipsoid
-    __ax_curve(ax, neigh.getEllipsoid(target), **kwargs)
+    if neigh.getType() == gl.ENeigh.MOVING:
+        __ax_curve(ax, neigh.getEllipsoid(target), **kwargs)
     
-    # Represent the Angular sectors
-    if neigh.getFlagSector():
-        __ax_multisegments(ax, target, neigh.getSectors(target), **kwargs)
+        # Represent the Angular sectors
+        if neigh.getFlagSector():
+            __ax_multisegments(ax, target, neigh.getSectors(target), **kwargs)
         
-    # Zoom to the Maximum radius circle (optional)
-    if flagZoom:
-        limits = neigh.getZoomLimits(target)
-        ax.set_xlim(limits[0])
-        ax.set_ylim(limits[1])
+        # Zoom to the Maximum radius circle (optional)
+        if flagZoom:
+            limits = neigh.getZoomLimits(target)
+            ax.set_xlim(limits[0])
+            ax.set_ylim(limits[1])
     
 def neighWeights(ax, res, flagWeights=True, 
                  horizontalalignment='center',

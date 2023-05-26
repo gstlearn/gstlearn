@@ -10,35 +10,31 @@
 /******************************************************************************/
 #pragma once
 
+#include <Geometry/ABiTargetCheck.hpp>
 #include "gstlearn_export.hpp"
 
-#include "Geometry/ABiPointCheck.hpp"
 #include "Faults/Faults.hpp"
 
-class GSTLEARN_EXPORT BiPointCheckBench: public ABiPointCheck
+class GSTLEARN_EXPORT BiTargetCheckFaults: public ABiTargetCheck
 {
 public:
-  BiPointCheckBench(int idim_bench, double width);
-  BiPointCheckBench(const BiPointCheckBench& r);
-  BiPointCheckBench& operator=(const BiPointCheckBench& r);
-  virtual ~BiPointCheckBench();
-
-  virtual bool isOK(const SpacePoint &P1,
-                    const SpacePoint &P2,
-                    int iech1 = -1,
-                    int iech2 = -1) const override;
+  BiTargetCheckFaults(const Faults* faults);
+  BiTargetCheckFaults(const BiTargetCheckFaults& r);
+  BiTargetCheckFaults& operator=(const BiTargetCheckFaults& r);
+  virtual ~BiTargetCheckFaults();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiPointCheckBench)
+  IMPLEMENT_CLONING(BiTargetCheckFaults)
+
+  virtual bool isOK(const SpaceTarget &T1,
+                    const SpaceTarget &T2) const override;
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiPointCheckBench* create(int idim_bench, double width);
-
-  double getWidth() const { return _width; }
+  bool hasFaults() const { return _faults != nullptr; }
+  const Faults* getFaults() const { return _faults; }
 
 private:
-  int       _idimBench;
-  double    _width;
+  const Faults* _faults;
 };

@@ -39,12 +39,9 @@ Maximum horizontal distance         = 0.3----
 
 +*Out[14]:*+
 ----
-
-Moving Neighborhood
-===================
-Minimum number of samples           = 1
-Force Selection of all samples within target Block
- ----
+Cell Neighborhood
+=================
+Reject samples which do not belong to target Block----
 
 
 +*Out[16]:*+

@@ -8,16 +8,16 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
+#include <Geometry/BiTargetCheckDistance.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-#include "Geometry/BiPointCheckDistance.hpp"
-#include "Space/SpacePoint.hpp"
+#include "Space/SpaceTarget.hpp"
 
-BiPointCheckDistance::BiPointCheckDistance(double radius,
+BiTargetCheckDistance::BiTargetCheckDistance(double radius,
                                            const VectorDouble coeffs,
                                            const VectorDouble angles)
-    : ABiPointCheck(),
+    : ABiTargetCheck(),
       _ndim(2),
       _flagAniso(false),
       _flagRotation(false),
@@ -59,8 +59,8 @@ BiPointCheckDistance::BiPointCheckDistance(double radius,
   _movingAux.resize(_ndim);
 }
 
-BiPointCheckDistance::BiPointCheckDistance(const BiPointCheckDistance &r)
-    : ABiPointCheck(r),
+BiTargetCheckDistance::BiTargetCheckDistance(const BiTargetCheckDistance &r)
+    : ABiTargetCheck(r),
       _ndim(r._ndim),
       _flagAniso(r._flagAniso),
       _flagRotation(r._flagRotation),
@@ -73,11 +73,11 @@ BiPointCheckDistance::BiPointCheckDistance(const BiPointCheckDistance &r)
 {
 }
 
-BiPointCheckDistance& BiPointCheckDistance::operator=(const BiPointCheckDistance &r)
+BiTargetCheckDistance& BiTargetCheckDistance::operator=(const BiTargetCheckDistance &r)
 {
   if (this != &r)
   {
-    ABiPointCheck::operator=(r);
+    ABiTargetCheck::operator=(r);
     _ndim = r._ndim;
     _flagAniso = r._flagAniso;
     _flagRotation = r._flagRotation;
@@ -91,18 +91,18 @@ BiPointCheckDistance& BiPointCheckDistance::operator=(const BiPointCheckDistance
   return *this;
 }
 
-BiPointCheckDistance::~BiPointCheckDistance()
+BiTargetCheckDistance::~BiTargetCheckDistance()
 {
 }
 
-BiPointCheckDistance* BiPointCheckDistance::create(double radius,
+BiTargetCheckDistance* BiTargetCheckDistance::create(double radius,
                                                    const VectorDouble coeffs,
                                                    const VectorDouble angles)
 {
-  return new BiPointCheckDistance(radius, coeffs, angles);
+  return new BiTargetCheckDistance(radius, coeffs, angles);
 }
 
-String BiPointCheckDistance::toString(const AStringFormat* /*strfmt*/) const
+String BiTargetCheckDistance::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -131,7 +131,7 @@ String BiPointCheckDistance::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-double BiPointCheckDistance::getNormalizedDistance(const VectorDouble& dd) const
+double BiTargetCheckDistance::getNormalizedDistance(const VectorDouble& dd) const
 {
   _movingIncr = dd;
 
@@ -140,7 +140,7 @@ double BiPointCheckDistance::getNormalizedDistance(const VectorDouble& dd) const
   return _dist;
 }
 
-void BiPointCheckDistance::_calculateDistance() const
+void BiTargetCheckDistance::_calculateDistance() const
 {
   int ndim = getNDim();
 
@@ -167,14 +167,12 @@ void BiPointCheckDistance::_calculateDistance() const
   _dist = sqrt(_dist);
 }
 
-bool BiPointCheckDistance::isOK(const SpacePoint &P1,
-                                const SpacePoint &P2,
-                                int iech1,
-                                int iech2) const
+bool BiTargetCheckDistance::isOK(const SpaceTarget &T1,
+                                const SpaceTarget &T2) const
 {
   int ndim = getNDim();
   for (int idim = 0; idim < ndim; idim++)
-    _movingIncr[idim] = P1.getCoord(idim) - P2.getCoord(idim);
+    _movingIncr[idim] = T1.getCoord(idim) - T2.getCoord(idim);
 
   _calculateDistance();
 

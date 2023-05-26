@@ -167,6 +167,7 @@ set(SRC
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp
+  Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
   Variogram/Vario.cpp
@@ -207,11 +208,11 @@ set(SRC
   Basic/VectorNumT.cpp
   Basic/VectorT.cpp
   Geometry/GeometryHelper.cpp
-  Geometry/ABiPointCheck.cpp
-  Geometry/BiPointCheckDistance.cpp
-  Geometry/BiPointCheckFaults.cpp
-  Geometry/BiPointCheckCell.cpp
-  Geometry/BiPointCheckBench.cpp
+  Geometry/ABiTargetCheck.cpp
+  Geometry/BiTargetCheckDistance.cpp
+  Geometry/BiTargetCheckFaults.cpp
+  Geometry/BiTargetCheckCell.cpp
+  Geometry/BiTargetCheckBench.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp
@@ -268,6 +269,7 @@ set(SRC
   Neigh/NeighImage.cpp
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
+  Neigh/NeighCell.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp

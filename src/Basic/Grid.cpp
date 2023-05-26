@@ -1154,13 +1154,13 @@ int Grid::generateMirrorIndex(int nx, int ix)
 /**
  * Find the grid node to which the current sample is assigned
  * @param coor       Sample coordinates
- * @param node       Rank of the grid node
+ * @param center     Coordinates of the grid node center
  * @param dxsPerCell When defined, vector of cell extension; otherwise use 8dx
  * @return Error return code
  */
-bool Grid::sampleBelongsToCell(const VectorDouble &coor,
-                               int node,
-                               const VectorDouble &dxsPerCell) const
+bool Grid::sampleBelongsToCell(const VectorDouble& coor,
+                               const VectorDouble& center,
+                               const VectorDouble& dxsPerCell) const
 {
   int ndim = _nDim;
   VectorDouble work1(ndim);
@@ -1173,18 +1173,13 @@ bool Grid::sampleBelongsToCell(const VectorDouble &coor,
   // Perform the Inverse rotation
   _rotation.rotateDirect(work1, work2);
 
-  // Indices of the grid node
-  VectorInt indices(ndim);
-  rankToIndice(node, indices);
-
-  // Calculate the indices
+  // Calculate the departure between sample and grid center
 
   for (int idim=0; idim<ndim; idim++)
   {
     double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
-    double delta = work2[idim] - _dx[idim] * indices[idim];
+    double delta = work2[idim] - center[idim];
     if (delta < -dxloc/2. || delta > dxloc/2.) return false;
   }
-
   return true;
 }
