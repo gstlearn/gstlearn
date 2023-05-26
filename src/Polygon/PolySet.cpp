@@ -184,14 +184,13 @@ void PolySet::closePolySet()
 bool PolySet::inside(double xx, double yy)
 {
   double dx, dy, xinter;
-  int inter, j, sel;
 
-  inter = 0;
+  int inter = 0;
   int np = getNPoints();
 
   /* Loop on the polygon vertices */
 
-  for (j = 0; j < np - 1; j++)
+  for (int j = 0; j < np - 1; j++)
   {
 
     /* Horizontal segment */
@@ -248,8 +247,7 @@ bool PolySet::inside(double xx, double yy)
       continue;
     }
   }
-  sel = ((inter % 2) != 0);
-  return (sel);
+  return   ((inter % 2) != 0);
 }
 
 /****************************************************************************/
