@@ -60,6 +60,13 @@ int main(int /*argc*/, char */*argv*/[])
   // MatrixInt* mati2 = mati.clone();
   mati2->display();
 
+  // Checking assessor for MatrixInt
+  int imemo = mati(1,2);
+  message("Initial value of mati(1,2) = %d\n", imemo);
+  mati(1,2) = -23;
+  mati.display();
+  mati(1,2) = imemo; // set back to initial value
+
   message("Cloning Matrix of doubles\n");
   MatrixRectangular matd(2,3);
   matd.setValues({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
@@ -93,7 +100,7 @@ int main(int /*argc*/, char */*argv*/[])
   message("Initial value of M(1,2) = %lf\n", memo);
   MR(1,2) = 111.11;
   MR.display();
-  MR(1,2) = memo;
+  MR(1,2) = memo; // Set back to initial value
 
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
