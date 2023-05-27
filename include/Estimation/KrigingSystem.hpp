@@ -15,6 +15,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
@@ -25,7 +26,6 @@ class CovCalcMode;
 class ECalcMember;
 class NeighImage;
 class AAnam;
-class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -86,7 +86,7 @@ public:
   VectorDouble getRHSC() const { return _rhs; }
   VectorDouble getRHSC(int ivar) const;
   VectorDouble getWeights() const { return _wgt; }
-  VectorDouble getVariance() const { return _var0; }
+  VectorDouble getVariance() const { return _var0.getValues(); }
   double getLTerm() const { return _lterm; }
 
 private:
@@ -300,7 +300,7 @@ private:
   mutable bool _flagCheckAddress;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable VectorDouble _covtab;
+  mutable MatrixSquareGeneral _covtab;
   mutable VectorDouble _drftab;
   mutable VectorDouble _lhs;
   mutable VectorDouble _lhsinv;
@@ -308,7 +308,7 @@ private:
   mutable VectorDouble _wgt;
   mutable VectorDouble _zam;
   mutable VectorDouble _zext;
-  mutable VectorDouble _var0;
+  mutable MatrixSquareGeneral _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 

@@ -311,9 +311,9 @@ void KrigingSystem::_resetMemoryGeneral()
 {
   _setInternalShortCutVariablesGeneral();
 
-  _covtab.resize(_nvar * _nvar);
+  _covtab.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
-  _var0.resize(_nvarCL * _nvarCL);
+  _var0.reset(_nvarCL, _nvarCL);
 
   _space = SpaceRN(_ndim);
   _p1 = SpacePoint(&_space);
@@ -565,7 +565,7 @@ bool KrigingSystem::_isAuthorized()
 
 void KrigingSystem::_covtabInit()
 {
-  VH::fill(_covtab, 0.);
+  _covtab.fill(0.);
 }
 
 /**
@@ -2110,7 +2110,7 @@ void KrigingSystem::_krigingDump(int status)
         tab_printg(" - Std. Dev. = ", value);
         message("\n");
         tab_printg(" - Variance  = ", FFFF(value) ? TEST : value * value);
-        value = (status == 0) ? _var0[ivar + _nvar * ivar] : TEST;
+        value = (status == 0) ? _var0(ivar, ivar) : TEST;
         message("\n");
         tab_printg(" - Cov(h=0)  = ", value);
         message("\n");
@@ -2871,31 +2871,17 @@ int KrigingSystem::_getFLAG(int iech, int ivar) const
 }
 double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
-  int iad = IJVAR(ivar, jvar);
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getCOVTAB","ivar",ivar,_nvar);
-    _checkAddress("_getCOVTAB","jvar",jvar,_nvar);
-    _checkAddress("_getCOVTAB","address",iad,(int) _covtab.size());
-  }
-  return _covtab[iad];
+  return _covtab.getValue(ivar,  jvar);
 }
 void KrigingSystem::_addCOVTAB(int ivar,int jvar,double value)
 {
-  int iad = IJVAR(ivar,jvar);
-  if (_flagCheckAddress)
-   {
-     _checkAddress("_addCOVTAB","ivar",ivar,_nvar);
-     _checkAddress("_addCOVTAB","jvar",jvar,_nvar);
-     _checkAddress("_addCOVTAB","address",iad,(int) _covtab.size());
-   }
-  _covtab[iad] += value;
+  _covtab(ivar,jvar) += value;
 }
 void KrigingSystem::_prodCOVTAB(double value)
 {
-  int nvar2 = _nvar * _nvar;
-  for (int i = 0; i < nvar2; i++)
-    _covtab[i] *= value;
+  for (int ivar = 0; ivar < _nvar; ivar++)
+    for (int jvar = 0; jvar < _nvar; jvar++)
+      _covtab(ivar, jvar) *= value;
 }
 double KrigingSystem::_getRHS(int iech, int ivar, int jvCL) const
 {
@@ -3153,27 +3139,11 @@ void KrigingSystem::_setDISC2(int idisc,int idim, double value)
 }
 double KrigingSystem::_getVAR0(int ivCL, int jvCL) const
 {
-  int iad    = (jvCL) + _nvarCL * (ivCL);
-
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getVAR0","ivCL",ivCL,_nvarCL);
-    _checkAddress("_getVAR0","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getVAR0","address",iad, (int) _var0.size());
-  }
-  return _var0[iad];
+  return _var0(ivCL, jvCL);
 }
 void KrigingSystem::_setVAR0(int ivCL, int jvCL, double value)
 {
-  int iad    = (jvCL) + _nvarCL * (ivCL);
-
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_setVAR0","ivCL",ivCL,_nvarCL);
-    _checkAddress("_setVAR0","jvCL",jvCL,_nvarCL);
-    _checkAddress("_setVAR0","address",iad, (int) _var0.size());
-  }
-  _var0[iad] = value;
+  _var0(ivCL, jvCL) = value;
 }
 
 void KrigingSystem::_checkAddress(const String& title,

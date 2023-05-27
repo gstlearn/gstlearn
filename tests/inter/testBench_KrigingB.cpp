@@ -20,7 +20,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighBench.hpp"
 #include "Estimation/CalcKriging.hpp"
 
 /****************************************************************************/
@@ -67,22 +67,17 @@ int main(int /*argc*/, char */*argv*/[])
   Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
   if (verbose) model->display();
 
-  // Moving Neighborhood
-  int nmaxi = 20;
-  int nmini = 2;
-  int nsect = 8;
-  int nsmax = 3;
-  double radius = 10000;
-
-  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
-  if (verbose) neighM->display();
+  // Bench Neighborhood
+  double width = 30000.;
+  NeighBench* neighB = NeighBench::create(false, width);
+  if (verbose) neighB->display();
 
   Timer timer;
-  kriging(data, grid, model, neighM, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("\nKriging in Moving Neighborhood");
-  message("Order of magnitude of the reference implementation is 2.0Kms\n");
+  kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
+  timer.displayIntervalMilliseconds("\nKriging in Bench Neighborhood");
+  message("Order of magnitude of the reference implementation is 3.0Kms\n");
 
-  if (neighM    != nullptr) delete neighM;
+  if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (model     != nullptr) delete model;

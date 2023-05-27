@@ -44,7 +44,7 @@ public:
                                          bool byCol = false,
                                          bool sparse = false);
 
-  /*! Adding a Row or a Column (at the bottom of Rectangular Matrix) */
+  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);
   void addColumn(int ncolumn_added = 1);
 
