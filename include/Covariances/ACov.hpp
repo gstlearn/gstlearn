@@ -35,21 +35,23 @@ public:
 
   /// ACov Interface
   virtual int getNVariables() const = 0;
+  /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode& mode = CovCalcMode()) const = 0;
+  /// Calculate the covariance between two variables and two points (general case)
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
-  virtual void evalOptim(const SpacePoint& p1,
-						  VectorDouble& res,
-						  VectorDouble& temp,
-						  SpacePoint& pttr,
-                          int ivar = 0,
-                          int jvar = 0,
-                          const CovCalcMode& mode = CovCalcMode()) const{};
+  virtual void evalOptim(const SpacePoint &p1,
+                         VectorDouble &res,
+                         VectorDouble &temp,
+                         SpacePoint &pttr,
+                         int ivar = 0,
+                         int jvar = 0,
+                         const CovCalcMode &mode = CovCalcMode()) const { };
 
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,

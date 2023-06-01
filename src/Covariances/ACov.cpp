@@ -688,11 +688,11 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
 }
 
 
-VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
-                                      	    const Db* db2,
-										    int ivar,
-										    int jvar,
-										    const CovCalcMode& mode) const
+VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
+                                            const Db *db2,
+                                            int ivar,
+                                            int jvar,
+                                            const CovCalcMode &mode) const
 {
   if (db2 == nullptr) db2 = db1;
   int nechtot1 = db1->getSampleNumber(false);
@@ -726,7 +726,6 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db* db1,
 
   SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
   SpacePoint pttr(db1->getSampleCoordinates(0),getSpace());
-
 
   int jech1 = 0;
   for (int iech1 = 0; iech1 < nechtot1; iech1++)

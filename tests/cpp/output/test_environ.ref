@@ -34,7 +34,7 @@ List of Options of internal Constant values
            Number of elements per line for display [NTBATCH] : 7
             Maximum number of characters for Names [ NTNAME] : 12
             Maximum Number of characters for Ranks [ NTRANK] : 3
-           Percentage for Display the Progress Bar [  NPROC] : 0
+  Number of Quantiles for Display the Progress Bar [  NPROC] : 0
                        Default for setting Locator [ LOCMOD] : 1
 Use 'OptCst::define' to modify previous values
 
@@ -53,7 +53,7 @@ List of Options of internal Constant values
            Number of elements per line for display [NTBATCH] : 6
             Maximum number of characters for Names [ NTNAME] : 12
             Maximum Number of characters for Ranks [ NTRANK] : 3
-           Percentage for Display the Progress Bar [  NPROC] : 0
+  Number of Quantiles for Display the Progress Bar [  NPROC] : 0
                        Default for setting Locator [ LOCMOD] : 1
 Use 'OptCst::define' to modify previous values
 

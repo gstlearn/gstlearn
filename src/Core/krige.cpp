@@ -336,8 +336,7 @@ static void st_cov(Model *model,
     COVINT.setIech2(IECH_OUT);
   }
 
-  CovCalcMode mode(member);
-  mode.update(member, nugget_opt, nostd, icov_r);
+  CovCalcMode mode(member, false, false, nugget_opt==1, icov_r);
   model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1loc, covtab_loc);
 }
 
@@ -3336,14 +3335,12 @@ static int st_sampling_krige_data(Db *db,
       if (isort == nullptr) goto label_end;
     }
 
-    s = model_covmat_by_ranks(model, db, nsize2, ranks2, db, nsize2, ranks2, -1,
-                              -1, 0, 1);
+    s = model_covmat_by_ranks(model, db, nsize2, ranks2, db, nsize2, ranks2, -1, -1);
     if (s == nullptr) goto label_end;
     if (matrix_cholesky_decompose(s, tl, nsize2)) goto label_end;
     matrix_triangle_to_square(0, nsize2, tl, sq);
     matrix_cholesky_invert(nsize2, tl, xl);
-    c = model_covmat_by_ranks(model, db, nsize2, ranks2, db, ndat, rother, -1,
-                              -1, 0, 1);
+    c = model_covmat_by_ranks(model, db, nsize2, ranks2, db, ndat, rother, -1, -1);
     if (c == nullptr) goto label_end;
     matrix_cholesky_product(4, nsize2, nother, xl, c, v);
     matrix_cholesky_norme(1, nsize2, tl, nullptr, tn1);
@@ -3424,8 +3421,7 @@ static int st_sampling_krige_data(Db *db,
       TUTIL(ecr,j) = UTAB(i, j);
     ecr++;
   }
-  s = model_covmat_by_ranks(model, db, nutil, rutil, db, nutil, rutil, -1, -1,
-                            0, 1);
+  s = model_covmat_by_ranks(model, db, nutil, rutil, db, nutil, rutil, -1, -1);
   if (s == nullptr) goto label_end;
   if (matrix_prod_norme(-1, nutil, ntot, tutil, s, invsig)) goto label_end;
   if (matrix_invert(invsig, ntot, 0)) goto label_end;
@@ -3547,11 +3543,9 @@ int st_krige_data(Db *db,
     data_est[iech] = data_var[iech] = TEST;
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
-    c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1, 0,
-                                1);
+    c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1);
     if (c00 == nullptr) goto label_end;
-    s = model_covmat_by_ranks(model, db, nutil, rutil, db, 1, &iech, -1, -1, 0,
-                              1);
+    s = model_covmat_by_ranks(model, db, nutil, rutil, db, 1, &iech, -1, -1);
     if (s == nullptr) goto label_end;
 
     matrix_product_safe(1, nutil, ntot, s, tutil, aux3);
@@ -3648,8 +3642,7 @@ int st_crit_global(Db *db,
 
   /* Establish the Kriging matrix on the pivot samples */
 
-  invc = model_covmat_by_ranks(model, db, nsize1, ranks1, db, nsize1, ranks1,
-                               -1, -1, 0, 1);
+  invc = model_covmat_by_ranks(model, db, nsize1, ranks1, db, nsize1, ranks1, -1, -1);
   if (invc == nullptr) goto label_end;
   if (matrix_invert(invc, nsize1, 0)) goto label_end;
 
@@ -3667,12 +3660,10 @@ int st_crit_global(Db *db,
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
-    c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1, 0,
-                                1);
+    c00 = model_covmat_by_ranks(model, db, 1, &iech, db, 1, &iech, -1, -1);
     if (c00 == nullptr) goto label_end;
 
-    cs = model_covmat_by_ranks(model, db, nsize1, ranks1, db, 1, &iech, -1, -1,
-                               0, 1);
+    cs = model_covmat_by_ranks(model, db, nsize1, ranks1, db, 1, &iech, -1, -1);
     if (cs == nullptr) goto label_end;
 
     matrix_product_safe(nsize1, nsize1, 1, invc, cs, temp_loc);
@@ -3695,12 +3686,10 @@ int st_crit_global(Db *db,
     if (!db->isActive(iech)) continue;
     if (rother[iech] < 0) continue;
 
-    cs = model_covmat_by_ranks(model, db, 1, &iech, db, nsize1, ranks1, -1, -1,
-                               0, 1);
+    cs = model_covmat_by_ranks(model, db, 1, &iech, db, nsize1, ranks1, -1, -1);
     if (cs == nullptr) goto label_end;
 
-    cs1 = model_covmat_by_ranks(model, db, 1, &iech, db, ndat, rother, -1, -1,
-                                0, 1);
+    cs1 = model_covmat_by_ranks(model, db, 1, &iech, db, ndat, rother, -1, -1);
     if (cs1 == nullptr) goto label_end;
 
     matrix_product_safe(1, nsize1, nutil, cs, temp, aux1);
@@ -4007,13 +3996,11 @@ int krigsampling_f(Db *dbin,
       db_sample_print(dbout, IECH_OUT, 1, 0, 0);
     }
 
-    s = model_covmat_by_ranks(model, dbin, nutil, rutil, dbout, 1, &IECH_OUT,
-                              -1, -1, 0, 1);
+    s = model_covmat_by_ranks(model, dbin, nutil, rutil, dbout, 1, &IECH_OUT, -1, -1);
     if (s == nullptr) goto label_end;
     if (FLAG_STD)
     {
-      c00 = model_covmat_by_ranks(model, dbout, 1, &IECH_OUT, dbout, 1,
-                                  &IECH_OUT, -1, -1, 0, 1);
+      c00 = model_covmat_by_ranks(model, dbout, 1, &IECH_OUT, dbout, 1, &IECH_OUT, -1, -1);
       if (c00 == nullptr) goto label_end;
     }
 

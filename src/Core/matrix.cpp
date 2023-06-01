@@ -444,7 +444,8 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
   for (i = 0; i < 4; i++)
     work[i] = (double*) mem_free((char* ) work[i]);
 
-  if (error) print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
+  if (error)
+    print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
 
   return (error);
 }

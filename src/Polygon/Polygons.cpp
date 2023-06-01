@@ -424,7 +424,7 @@ int dbPolygonDistance(Db *db,
       if (polin != 0)
       {
         int inside = polygon->inside(db->getCoordinate(iech, 0),
-                                    db->getCoordinate(iech, 1));
+                                     db->getCoordinate(iech, 1));
         if (polin > 0)
         {
           if (!inside) continue;
@@ -498,30 +498,30 @@ int dbPolygonDistance(Db *db,
  **
  ** \return  1 if the point belongs to the Polygons; 0 otherwise
  **
- ** \param[in]  xx          coordinate of the point along X
- ** \param[in]  yy          coordinate of the point along Y
- ** \param[in]  zz          coordinate of the point along Z (or TEST)
+ ** \param[in]  coor        Vector of coordinates
  ** \param[in]  flag_nested Option for nested polysets (see details)
  **
+ ** \remarks When coor is dimensioned to 3, the third dimension test is performed
  ** \remarks If flag_nested=TRUE, a sample is masked off if the number of
  ** \remarks polysets to which it belongs is odd
  ** \remarks If flag_nested=FALSE, a sample is masked off as soon as it
  ** \remarks belongs to one PolySet
  **
  *****************************************************************************/
-bool Polygons::inside(double xx, double yy, double zz, bool flag_nested)
+bool Polygons::inside(const VectorDouble& coor, bool flag_nested)
 {
+  bool flag3d = (int) coor.size() > 2;
   if (flag_nested)
   {
-
-    /* Loop on the polysets */
-
     int number = 0;
     for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
     {
       PolySet polyset = getClosedPolySet(ipol);
-      if (! polyset.inside3D(zz)) return false;
-      if (polyset.inside(xx, yy)) number++;
+      if (flag3d)
+      {
+        if (!polyset.inside3D(coor[2])) return false;
+      }
+      if (polyset.inside(coor)) number++;
     }
     if (number % 2 != 0) return true;
   }
@@ -530,7 +530,11 @@ bool Polygons::inside(double xx, double yy, double zz, bool flag_nested)
     for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
     {
       PolySet polyset = getClosedPolySet(ipol);
-      if (polyset.inside(xx, yy) && polyset.inside3D(zz)) return true;
+      if (flag3d)
+      {
+        if (!polyset.inside3D(coor[2])) return false;
+      }
+      if (polyset.inside(coor)) return true;
     }
   }
   return false;
@@ -771,25 +775,23 @@ void db_polygon(Db *db,
 
   /* Loop on the samples */
 
+  VectorDouble coor(3, TEST);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
-    mes_process("Checking if sample belongs to a polygon",
-                db->getSampleNumber(), iech);
+    mes_process("Checking if sample belongs to a polygon",db->getSampleNumber(),iech);
     int selval = 0;
     if (!(flag_sel && !db->isActive(iech)))
     {
-      double xx = db->getCoordinate(iech, 0);
-      double yy = db->getCoordinate(iech, 1);
-      double zz = db->getCoordinate(iech, 2);
-      selval = polygon->inside(xx, yy, zz, flag_nested);
+      db->getCoordinatesPerSampleInPlace(iech, coor);
+      selval = polygon->inside(coor, flag_nested);
 
       if (flag_period)
       {
-        double xp;
-        xp = xx - 360;
-        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
-        xp = xx + 360;
-        selval = selval || polygon->inside(xp, yy, zz, flag_nested);
+        double xx = coor[0];
+        coor[0] = xx - 360;
+        selval = selval || polygon->inside(coor, flag_nested);
+        coor[0] = xx + 360;
+        selval = selval || polygon->inside(coor, flag_nested);
       }
     }
     db->setArray(iech, iatt, (double) selval);
@@ -840,11 +842,12 @@ int db_selhull(Db *db1,
   int nactive = 0;
   int nout = 0;
   int nin = 0;
+
+  VectorDouble coor(3, TEST);
   for (int iech = 0; iech < ntotal; iech++)
   {
-    if (!polygons->inside(db2->getCoordinate(iech, 0),
-                          db2->getCoordinate(iech, 1),
-                          db2->getCoordinate(iech, 2), false))
+    db2->getCoordinatesPerSampleInPlace(iech, coor);
+    if (!polygons->inside(coor, false))
     {
       db2->setArray(iech, isel, 0.);
       nout++;

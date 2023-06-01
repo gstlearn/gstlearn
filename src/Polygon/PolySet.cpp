@@ -177,56 +177,58 @@ void PolySet::closePolySet()
  **
  ** \return  True if the point belongs to the polygon; False otherwise
  **
- ** \param[in]  xx  array of point coordinates of the point along X
- ** \param[in]  yy  array of point coordinates of the point along Y
+ ** \param[in]  coor  Vector giving the coordinates of the target point
  **
  *****************************************************************************/
-bool PolySet::inside(double xx, double yy)
+bool PolySet::inside(const VectorDouble& coor)
 {
-  double dx, dy, xinter;
+  double dx, dy, xj0, xj1, yj0, yj1, xinter;
 
   int inter = 0;
   int np = getNPoints();
+  double xx = coor[0];
+  double yy = coor[1];
 
   /* Loop on the polygon vertices */
 
   for (int j = 0; j < np - 1; j++)
   {
+    xj0 = getX(j);
+    xj1 = getX(j+1);
+    yj0 = getY(j);
+    yj1 = getY(j+1);
+
+    dx = xj1 - xj0;
+    dy = yj1 - yj0;
 
     /* Horizontal segment */
 
-    dy = getY(j + 1) - getY(j);
-    if (dy == 0 && yy == getY(j))
+    if (dy == 0 && yy == yj0)
     {
-      if (getX(j + 1) > getX(j) && xx > getX(j) && xx < getX(j + 1))
+      if (xj1 > xj0 && xx > xj0 && xx < xj1)
       {
         inter = 1;
         continue;
       }
-      if (getX(j + 1) < getX(j) && xx < getX(j) && xx > getX(j + 1))
+      if (xj1 < xj0 && xx < xj0 && xx > xj1)
       {
         inter = 1;
         continue;
       }
     }
 
-    /* One vertex below and one vertex above: point distinct from segment */
+    /* One vertex below and one vertex above */
 
-    if (dy != 0 && ((getY(j) > yy && getY(j + 1) < yy)
-        || (getY(j) < yy && getY(j + 1) > yy)))
+    if (dy != 0 && ( (yj0 > yy && yj1 < yy) || (yj0 < yy && yj1 > yy) ))
     {
-      dx = getX(j + 1) - getX(j);
-      xinter = (dx * yy + dy * getX(j) - dx * getY(j)) / dy;
+      xinter = (dx * yy + dy * xj0 - dx * yj0) / dy;
+
+      /* Point distinct from segment */
+
       if (xinter > xx) inter++;
-    }
 
-    /* One vertex below and one vertex above: point belongs to segment */
+      /* Point belongs to segment */
 
-    if (dy != 0 && ((getY(j) > yy && getY(j + 1) < yy)
-        || (getY(j) < yy && getY(j + 1) > yy)))
-    {
-      dx = getX(j + 1) - getX(j);
-      xinter = (dx * yy + dy * getX(j) - dx * getY(j)) / dy;
       if (xinter == xx)
       {
         inter = 1;
@@ -236,18 +238,18 @@ bool PolySet::inside(double xx, double yy)
 
     /* Point is in contact with the highest vertex */
 
-    if (yy == getY(j) && getY(j) > getY(j + 1) && xx < getX(j)) inter++;
-    if (yy == getY(j + 1) && getY(j + 1) > getY(j) && xx < getX(j + 1)) inter++;
+    if (yy == yj0 && yj0 > yj1 && xx < xj0) inter++;
+    if (yy == yj1 && yj1 > yj0 && xx < xj1) inter++;
 
     /* Point coincides with a vertex */
 
-    if (xx == getX(j) && yy == getY(j))
+    if (xx == xj0 && yy == yj0)
     {
       inter = 1;
       continue;
     }
   }
-  return   ((inter % 2) != 0);
+  return ((inter % 2) != 0);
 }
 
 /****************************************************************************/
@@ -266,4 +268,3 @@ bool PolySet::inside3D(double zz)
   if (!FFFF(_zmax) && zz > _zmax) return false;
   return true;
 }
-

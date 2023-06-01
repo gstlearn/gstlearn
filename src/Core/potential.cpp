@@ -396,7 +396,7 @@ static int st_extdrift_solve(Pot_Ext *pot_ext,
 
   /* Establish the kriging matrix */
 
-  model_covmat(pot_ext->model, pot_ext->db, pot_ext->db, -1, -1, 0, 1, a);
+  model_covmat(pot_ext->model, pot_ext->db, pot_ext->db, -1, -1, a);
 
   /* Establish the Right-Hand side */
 

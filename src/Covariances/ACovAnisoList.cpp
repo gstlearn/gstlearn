@@ -150,20 +150,20 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
   return cov;
 }
 
-void ACovAnisoList::evalOptim(const SpacePoint& p1,
-						   VectorDouble& res,
-						   VectorDouble& temp,
-						   SpacePoint& pttr,
-                           int ivar,
-                           int jvar,
-                           const CovCalcMode& mode) const
+void ACovAnisoList::evalOptim(const SpacePoint &p1,
+                              VectorDouble &res,
+                              VectorDouble &temp,
+                              SpacePoint &pttr,
+                              int ivar,
+                              int jvar,
+                              const CovCalcMode &mode) const
 {
-  for (auto &e: res)
-	  e=0;
-  for (int i=0, n=getCovNumber(); i<n; i++)
-    {
-      _covs[i]->evalOptim(p1, res,temp,pttr,ivar, jvar, mode);
-    }
+  for (auto &e : res)
+    e = 0;
+  for (int i = 0, n = getCovNumber(); i < n; i++)
+  {
+    _covs[i]->evalOptim(p1, res, temp, pttr, ivar, jvar, mode);
+  }
 }
 
 
@@ -415,11 +415,11 @@ void ACovAnisoList::setAllFiltered(bool status)
     _filtered[i] = status;
 }
 
-void ACovAnisoList::normalize(double sill)
+void ACovAnisoList::normalize(double sill, int ivar, int jvar)
 {
   double covval = 0.;
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
-    covval += _covs[i]->eval0(0, 0);
+    covval += _covs[i]->eval0(ivar, jvar);
 
   if (covval <= 0. || covval == sill) return;
   double ratio = sill / covval;
@@ -427,7 +427,7 @@ void ACovAnisoList::normalize(double sill)
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {
     CovAniso* cov = _covs[i];
-    cov->setSill(cov->getSill(0, 0) * ratio);
+    cov->setSill(cov->getSill(ivar, jvar) * ratio);
   }
 }
 
@@ -439,7 +439,6 @@ bool ACovAnisoList::hasNugget() const
   }
   return false;
 }
-
 
 void ACovAnisoList::preProcess(const std::vector<SpacePoint>& vec) const
 {

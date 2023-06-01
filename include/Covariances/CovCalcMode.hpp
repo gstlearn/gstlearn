@@ -23,7 +23,7 @@ public:
               bool asVario = false,
               bool normalized = false,
               bool filterNugget = false,
-              unsigned int keepOnlyCovIdx = -1,
+              int keepOnlyCovIdx = -1,
               bool unitary = false,
               int envelop = 0,
               int orderVario = 0);
@@ -31,15 +31,16 @@ public:
   CovCalcMode& operator= (const CovCalcMode &r);
   virtual ~CovCalcMode();
 
-  bool isEqual(const CovCalcMode &r) const;
+  static CovCalcMode* create(const ECalcMember &member = ECalcMember::fromKey("LHS"),
+                             bool asVario = false,
+                             bool normalized = false,
+                             bool filterNugget = false,
+                             int keepOnlyCovIdx = -1,
+                             bool unitary = false,
+                             int envelop = 0,
+                             int orderVario = 0);
 
-  void update(const ECalcMember& member     = ECalcMember::fromKey("LHS"),
-              int                nugget_opt = 0,
-              int                nostd      = 0,
-              int                icov_r     = -1,
-              int                flag_norm  = 0,
-              int                flag_cov   = 1);
-
+  bool                  isFactorySettings()   const { return _factorySettings; }
   const ECalcMember&    getMember()           const { return _member; }
   bool                  getAsVario()          const { return _asVario; }
   bool                  getNormalized()       const { return _normalized; }
@@ -52,22 +53,33 @@ public:
   bool                  getCovFiltered(int i) const;
   int                   getIndexClass()       const { return _indexClass; }
 
-  void setAsVario(bool asVario) { _asVario = asVario; }
-  void setMember(const ECalcMember& member) { _member = member; }
-  void setFilterNugget(bool filterNugget) { _filterNugget = filterNugget; }
-  void setKeepOnlyCovIdx(int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; }
-  void setUnitary(bool unitary) { _unitary = unitary; }
-  void setNormalized(bool normalized) { _normalized = normalized; }
-  void setEnvelop(int envelop) { _envelop = envelop; }
-  void setOrderVario(int orderVario) { _orderVario = orderVario; }
-  void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; }
+  void setAsVario(bool asVario) { _asVario = asVario; _checkFactorySettings(); }
+  void setMember(const ECalcMember& member) { _member = member; _checkFactorySettings(); }
+  void setFilterNugget(bool filterNugget) { _filterNugget = filterNugget; _checkFactorySettings(); }
+  void setKeepOnlyCovIdx(int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; _checkFactorySettings(); }
+  void setUnitary(bool unitary) { _unitary = unitary; _checkFactorySettings(); }
+  void setNormalized(bool normalized) { _normalized = normalized; _checkFactorySettings(); }
+  void setEnvelop(int envelop) { _envelop = envelop; _checkFactorySettings(); }
+  void setOrderVario(int orderVario) { _orderVario = orderVario; _checkFactorySettings(); }
+  void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; _checkFactorySettings(); }
   void setCovFiltered(int i, bool status);
   void setAllCovFiltered(int ncov, bool status);
-  void setIndexClass(int indexClass) { _indexClass = indexClass; }
+  void setIndexClass(int indexClass) { _indexClass = indexClass; _checkFactorySettings();}
 
 private:
+  void _checkFactorySettings(const ECalcMember& member = ECalcMember::fromKey("LHS"),
+                             bool asVario = false,
+                             bool normalized = false,
+                             bool filterNugget = false,
+                             int keepOnlyCovIdx = -1,
+                             bool unitary = false,
+                             int envelop = 0,
+                             int orderVario = 0);
+
+private:
+  bool          _factorySettings;
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */
-  bool          _asVario;        /*! True to calculate variogram and not covariance (default = false)*/
+  bool          _asVario;        /*! True to calculate variogram and not covariance (default = false) */
   bool          _normalized;     /*! Normalized variogram */
   bool          _filterNugget;   /*! True to filter nugget structure (default = false) */
   int           _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */

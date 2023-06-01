@@ -23,9 +23,9 @@ public:
   static VectorVectorDouble initVVDouble(int nval1, int nval2, double value = 0.);
   static VectorVectorInt    initVVInt(int nval1, int nval2, int value = 0);
 
-  static VectorInt          initVInt(int* values, int number);
-  static VectorDouble       initVDouble(double* values, int number);
-  static VectorVectorDouble initVVDouble(double* value, int n1, int n2);
+  static VectorInt          initVInt(const int* values, int number);
+  static VectorDouble       initVDouble(const double* values, int number);
+  static VectorVectorDouble initVVDouble(const double* value, int n1, int n2);
 
   static void display(const String &title, const VectorDouble &vect); // TODO rename
   static void display(const String &title, const VectorVectorDouble &vect);

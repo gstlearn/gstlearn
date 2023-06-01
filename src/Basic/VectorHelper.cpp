@@ -50,7 +50,7 @@ VectorVectorInt VectorHelper::initVVInt(int nval1, int nval2, int value)
   return tab;
 }
 
-VectorInt VectorHelper::initVInt(int* values, int number)
+VectorInt VectorHelper::initVInt(const int* values, int number)
 {
   if (values == nullptr) return VectorInt();
   VectorInt vec(number);
@@ -58,7 +58,7 @@ VectorInt VectorHelper::initVInt(int* values, int number)
   return vec;
 }
 
-VectorDouble VectorHelper::initVDouble(double* values, int number)
+VectorDouble VectorHelper::initVDouble(const double* values, int number)
 {
   if (values == nullptr) return VectorDouble();
   VectorDouble vec;
@@ -66,7 +66,7 @@ VectorDouble VectorHelper::initVDouble(double* values, int number)
   return vec;
 }
 
-VectorVectorDouble VectorHelper::initVVDouble(double* value, int n1, int n2)
+VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n2)
 {
   if (value == nullptr) return VectorVectorDouble();
   VectorVectorDouble vec;

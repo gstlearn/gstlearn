@@ -74,6 +74,7 @@ public:
    * @param p1   Rank of the first point
    * @param p2   Rank of the second point
    * @param mode Reference to the CovCalcMode embedded class
+   *
    * @return The covariance value
    */
   virtual double eval(const SpacePoint& p1,
@@ -82,13 +83,13 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  virtual void evalOptim(const SpacePoint& p1,
-					  VectorDouble& res,
-					  VectorDouble& temp,
-					  SpacePoint& pt,
-                      int ivar = 0,
-                      int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+  virtual void evalOptim(const SpacePoint &p1,
+                         VectorDouble &res,
+                         VectorDouble &temp,
+                         SpacePoint &pt,
+                         int ivar = 0,
+                         int jvar = 0,
+                         const CovCalcMode &mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;

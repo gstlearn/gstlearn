@@ -75,6 +75,12 @@ public:
   int getNSMax() const { return _nSMax; }
   double getDistCont() const { return _distCont; }
   const BiTargetCheckDistance* getBiPtDist() const { return _biPtDist; }
+  bool getFlagAniso() const { return _biPtDist->getFlagAniso(); }
+  bool getFlagRotation() const { return _biPtDist->getFlagRotation(); }
+  double getRadius() const { return _biPtDist->getRadius(); }
+  const VectorDouble& getAnisoRotMats() const { return _biPtDist->getAnisoRotMats(); }
+  const VectorDouble& getAnisoCoeffs() const { return _biPtDist->getAnisoCoeffs(); }
+  double getAnisoCoeff(int i) const { return _biPtDist->getAnisoCoeff(i); }
 
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }
   void setNMini(int nmini) { _nMini = nmini; }

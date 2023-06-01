@@ -56,13 +56,13 @@ public:
                       int jvar = 0,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  virtual void evalOptim(const SpacePoint& p1,
-						VectorDouble& res,
-						VectorDouble& temp,
-						SpacePoint& pttr,
-                        int ivar = 0,
-                        int jvar = 0,
-                        const CovCalcMode& mode = CovCalcMode()) const override;
+  virtual void evalOptim(const SpacePoint &p1,
+                         VectorDouble &res,
+                         VectorDouble &temp,
+                         SpacePoint &pttr,
+                         int ivar = 0,
+                         int jvar = 0,
+                         const CovCalcMode &mode = CovCalcMode()) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -92,7 +92,7 @@ public:
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar, int jvar) const;
   MatrixSquareGeneral getTotalSill() const;
-  void normalize(double sill);
+  void            normalize(double sill = 1., int ivar=0, int jvar=0);
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -109,7 +109,9 @@ public:
   void               setType(unsigned int icov, const ECov& type);
   CovAniso           extractCova(int icov) const;
   int                getMinOrder() const;
-  void 				 preProcess(const std::vector<SpacePoint>& vec) const override;
+
+  // Methods necessary for Optimization
+  void 				       preProcess(const std::vector<SpacePoint>& vec) const override;
   void               cleanPreProcessInfo() const override;
   ////////////////////////////////////////////////
 

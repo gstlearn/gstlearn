@@ -464,28 +464,23 @@ public:
                                    Db *db2 = nullptr,
                                    int ivar = -1,
                                    int jvar = -1,
-                                   int flag_norm = 0,
-                                   int flag_cov = 1);
+                                   const CovCalcMode& mode = CovCalcMode());
   VectorDouble covMatrixV(Db *db1,
                           Db *db2 = nullptr,
                           int ivar = 0,
                           int jvar = 0,
-                          int flag_norm = 0,
-                          int flag_cov = 1);
+                          const CovCalcMode& mode = CovCalcMode());
   void covMatrix(VectorDouble& covmat,
                  Db *db1,
                  Db *db2 = nullptr,
                  int ivar = 0,
                  int jvar = 0,
-                 int flag_norm = 0,
-                 int flag_cov = 1);
+                 const CovCalcMode& mode = CovCalcMode());
   VectorDouble sample(const VectorDouble& hh,
                       int ivar = 0,
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
-                      int nostd = 0,
-                      bool asCov = false,
-                      const ECalcMember &member = ECalcMember::fromKey("LHS"));
+                      const CovCalcMode& mode = CovCalcMode());
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),

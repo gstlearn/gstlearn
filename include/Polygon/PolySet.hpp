@@ -49,7 +49,7 @@ public:
                     double *ymax) const;
   double getSurface() const;
   void closePolySet();
-  bool inside(double xx, double yy);
+  bool inside(const VectorDouble& coor);
   bool inside3D(double zz);
 
 protected:

@@ -418,26 +418,26 @@ void mestitle(int level, const char *format, ...)
  * @param string String to be printed
  * @param ntot   Total number of samples
  * @param iech   Rank of the current sample
+ *
+ * @remarks The value 'nproc' designates the quantile such that,
+ * @remarks when changed, the printout is provoked.
  */
 void mes_process(const char *string, int ntot, int iech)
 {
-  static int memo = 0;
-  double ratio;
-  int nproc, jech, percent;
-
-  nproc = (int) OptCst::query(ECst::NPROC);
+  static int quant_memo = 0;
+  int nproc = (int) OptCst::query(ECst::NPROC);
   if (nproc <= 0) return;
-  jech = iech + 1;
+  int jech = iech + 1;
 
-  /* Calculate the current percentage */
+  /* Calculate the current quantile */
 
-  ratio = 100. * (double) jech / (double) ntot;
-  percent = (int) (ratio / (double) nproc) * nproc;
+  double ratio = nproc * (double) jech / (double) ntot;
+  int quant = (int) (ratio);
 
   /* Conditional printout */
 
-  if (percent != memo) message("%s : %d (percent)\n", string, percent);
-  memo = percent;
+  if (quant != quant_memo) message("%s - Rank : %d (Quantile : %d / %d)\n", string, iech, quant, nproc);
+  quant_memo = quant;
 
   return;
 }

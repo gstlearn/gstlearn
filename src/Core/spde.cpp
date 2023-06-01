@@ -468,8 +468,7 @@ void simu_define_func_scale(void (*st_simu_scale)(Db*, int, int))
  *****************************************************************************/
 static bool st_is_model_nugget(void)
 {
-  Model* model = st_get_model();
-  return  model->hasNugget();
+  return  st_get_model()->hasNugget();
 }
 
 /****************************************************************************/
@@ -483,7 +482,6 @@ static CovAniso* st_get_nugget(void)
   CovAniso *cova;
 
   model = st_get_model();
-
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
     cova = model->getCova(is);

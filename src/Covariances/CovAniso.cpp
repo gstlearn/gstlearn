@@ -308,32 +308,33 @@ bool CovAniso::isConsistent(const ASpace* /*space*/) const
 
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode &mode) const
 {
-  if (!_isVariableValid(ivar)) return TEST;
-  if (!_isVariableValid(jvar)) return TEST;
-
-  // Calculate unit distance by applying anisotropy
   double cov = _cova->evalCov(0);
-
   // Converting into a variogram is ignored as the result is obvious
   // and this could be not significant most of the time
 
-  // Scale by the sill
-  if (!mode.getUnitary())
+  if (mode.isFactorySettings())
   {
-    double sill;
-    if (mode.getEnvelop() != 0)
-    {
-      double sign = (mode.getEnvelop() > 0) ? 1 : -1;
-      double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
-      sill = sign * coef;
-    }
-    else
-    {
-      sill = getSill(ivar, jvar);
-    }
-    cov *= sill;
+    cov *= getSill(ivar, jvar);
   }
-
+  else
+  {
+    // Scale by the sill
+    if (!mode.getUnitary())
+    {
+      double sill;
+      if (mode.getEnvelop() != 0)
+      {
+        double sign = (mode.getEnvelop() > 0) ? 1 : -1;
+        double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
+        sill = sign * coef;
+      }
+      else
+      {
+        sill = getSill(ivar, jvar);
+      }
+      cov *= sill;
+    }
+  }
   return (cov);
 }
 
@@ -344,77 +345,82 @@ double CovAniso::eval(const SpacePoint &p1,
                       int jvar,
                       const CovCalcMode &mode) const
 {
-  if (!_isVariableValid(ivar)) return TEST;
-  if (!_isVariableValid(jvar)) return TEST;
-  double cov = 0;
+  double cov = 0.;
+
 
   // Calculate unit distance by applying anisotropy
   /// TODO: if composite space : return h1, h2, ... (number of sub-space)
   double h = getSpace()->getDistance(p1, p2, _aniso);
 
-  // Calculation of Standardized Covariance
+  // Shortcut
 
-  int norder = mode.getOrderVario();
-  if (norder > 0)
+  if (mode.isFactorySettings())
   {
-
-    // Calculate High-order Variogram (only valuable when h != 0)
-    for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
-    {
-      double hp = h * (1. + iwgt);
-      cov += COVWGT[norder][iwgt] * _cova->evalCov(hp);
-    }
-    cov /= NORWGT[norder];
+    cov = _cova->evalCov(h) * getSill(ivar, jvar);
   }
   else
   {
-
-    // Traditional Covariance or Variogram
-    cov = _cova->evalCov(h);
-
-    // Convert into a variogram
-    if (mode.getAsVario())
+    int norder = mode.getOrderVario();
+    if (norder > 0)
     {
-      cov = _cova->evalCov(0) - cov;
-    }
-  }
 
-  // Scale by the sill
-  if (!mode.getUnitary())
-  {
-    double sill;
-    if (mode.getEnvelop() != 0)
-    {
-      double sign = (mode.getEnvelop() > 0) ? 1 : -1;
-      double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
-      sill = sign * coef;
+      // Calculate High-order Variogram (only valuable when h != 0)
+      for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
+      {
+        double hp = h * (1. + iwgt);
+        cov += COVWGT[norder][iwgt] * _cova->evalCov(hp);
+      }
+      cov /= NORWGT[norder];
     }
     else
     {
-      sill = getSill(ivar, jvar);
+
+      // Traditional Covariance or Variogram
+      cov = _cova->evalCov(h);
+
+      // Convert into a variogram
+      if (mode.getAsVario())
+      {
+        cov = _cova->evalCov(0) - cov;
+      }
     }
-    cov *= sill;
+
+    // Scale by the sill
+    if (!mode.getUnitary())
+    {
+      double sill = 0.;
+      if (mode.getEnvelop() != 0)
+      {
+        double sign = (mode.getEnvelop() > 0) ? 1 : -1;
+        double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
+        sill = sign * coef;
+      }
+      else
+      {
+        sill = getSill(ivar, jvar);
+      }
+      cov *= sill;
+    }
   }
   return (cov);
 }
 
-
 void CovAniso::evalOptim(const SpacePoint &p1,
-					  VectorDouble& res,
-					  VectorDouble& temp,
-					  SpacePoint& pttr,
-                      int ivar,
-                      int jvar,
-                      const CovCalcMode &mode) const
+                         VectorDouble &res,
+                         VectorDouble &temp,
+                         SpacePoint &pttr,
+                         int ivar,
+                         int jvar,
+                         const CovCalcMode &mode) const
 {
  _preProcess(p1, pttr);
- _space->getDistancePointVectInPlace(pttr, _transformedCoordinates,temp);
+ _space->getDistancePointVectInPlace(pttr,  _transformedCoordinates, temp);
   double sill = _sill.getValue(ivar, jvar);
 
-  for (int i = 0; i< (int)temp.size();i++)
-    {
-	    res[i]+= sill *  _cova->evalCov(temp[i]);
-    }
+  for (int i = 0; i < (int) temp.size(); i++)
+  {
+    res[i] += sill * _cova->evalCov(temp[i]);
+  }
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
@@ -626,7 +632,6 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  if (!_sill.isValid(ivar, jvar)) return TEST;
   return _sill.getValue(ivar, jvar);
 }
 
@@ -638,9 +643,6 @@ double CovAniso::getSill(int ivar, int jvar) const
  */
 double CovAniso::getSlope(int ivar, int jvar) const
 {
-  if (!_isVariableValid(ivar)) return TEST;
-  if (!_isVariableValid(jvar)) return TEST;
-  if (!_sill.isValid(ivar, jvar)) return TEST;
   if (hasRange() == 0) return TEST;
   double range = getRange(0);
   return _sill.getValue(ivar, jvar) / range;
@@ -983,7 +985,6 @@ void CovAniso::preProcess(const std::vector<SpacePoint>& vec) const
 		_transformedCoordinates[i] = SpacePoint(_space);
 		_preProcess(vec[i], _transformedCoordinates[i]);
 	}
-
 }
 
 

@@ -584,7 +584,6 @@ def modelElem(modelobj, ivar=0, jvar=0, *args, **kwargs):
     vario, idir: Vario information used to set the direction (when codir is not provided)
     env_color, env_linestyle : color and linestyle for correlation envelop 
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
-    flagEnv : flag for representing the correlation envelop (the default is True)
     hmax : Maximum distance to be represented. By default: 3 times the maximum range of the
            basic structures, or 1 if no range is defined.
     asCov : Present the Model as a Covariance (rather than as a Variogram)
@@ -635,14 +634,18 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
      
     # Represent the Model 
     hh = np.linspace(0, hmax, nh+1)
-    gg = modelobj.sample(hh, ivar, jvar, codir, 0, asCov=asCov)
+    mode = gl.CovCalcMode()
+    mode.setAsVario(not asCov)
+    gg = modelobj.sample(hh, ivar, jvar, codir, mode)
     res = ax.plot(hh[istart:], gg[istart:], label=label, **kwargs)
     
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
-        ggp = modelobj.sample(hh, ivar, jvar, codir, 1, asCov=asCov)
+        mode.setEnvelop(1)
+        ggp = modelobj.sample(hh, ivar, jvar, codir, mode)
         ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
-        ggm = modelobj.sample(hh, ivar, jvar, codir,-1, asCov=asCov)
+        mode.setEnvelop(-1)
+        ggm = modelobj.sample(hh, ivar, jvar, codir,mode)
         ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
     # Draw the Legend (optional)

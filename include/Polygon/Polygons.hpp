@@ -63,7 +63,7 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
-  bool inside(double xx, double yy, double zz = TEST, bool flag_nested = false);
+  bool inside(const VectorDouble& coor, bool flag_nested = false);
 
 protected:
   /// Interface for ASerializable
@@ -75,7 +75,7 @@ private:
   PolySet _extractFromTab(int ideb,
                           int ifin,
                           int ncol,
-                          const VectorDouble& tab);
+                          const VectorDouble &tab);
   bool _isValidPolySetIndex(int ipol) const;
   VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y) const;
   void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);
@@ -100,8 +100,7 @@ GSTLEARN_EXPORT int dbPolygonDistance(Db *db,
                                       double dmax,
                                       int scale,
                                       int polin,
-                                      const NamingConvention &namconv = NamingConvention(
-                                          "Distance"));
+                                      const NamingConvention &namconv = NamingConvention("Distance"));
 GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
                                double dilate = 0.,

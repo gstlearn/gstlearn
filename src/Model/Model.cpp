@@ -870,10 +870,7 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @param ivar   Rank of the first variable
  * @param jvar   Rank of the second variable
  * @param codir  Vector of direction coefficients
- * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
- * @param asCov  Produce the result as a Covariance (rather than a Variogram)
- * @param member ECalcMember element allowing sampling Model using the covariance
- *               expression as in the LHS, RHS or VAR term of Kriging Matrix
+ * @param mode   CovCalMode structure
  *
  * @return The array of variogram evaluated at discretized positions
  * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
@@ -882,9 +879,7 @@ VectorDouble Model::sample(const VectorDouble& hh,
                            int ivar,
                            int jvar,
                            VectorDouble codir,
-                           int nostd,
-                           bool asCov,
-                           const ECalcMember &member)
+                           const CovCalcMode& mode)
 {
   VectorDouble gg;
 
@@ -899,8 +894,7 @@ VectorDouble Model::sample(const VectorDouble& hh,
   int nh = (int) hh.size();
   gg.resize(nh);
 
-  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, member, nh,
-                 codir, hh.data(), gg.data());
+  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), gg.data());
   return gg;
 }
 
@@ -1330,8 +1324,7 @@ Model* Model::reduce(const VectorInt& validVars) const
  * @param db2 Second Data Base (if not provided, the first Db is provided instead)
  * @param ivar Rank of the first variable (all variables if not defined)
  * @param jvar Rank of the second variable (all variables if not defined)
- * @param flag_norm 1 if the Model must be normalized beforehand
- * @param flag_cov 1 if the Model must be expressed in covariance
+ * @param mode CovCalcMode structure
  *
  * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
  * @remark -nvar stands for the number of (active) variables
@@ -1342,30 +1335,27 @@ void Model::covMatrix(VectorDouble& covmat,
                       Db *db2,
                       int ivar,
                       int jvar,
-                      int flag_norm,
-                      int flag_cov)
+                      const CovCalcMode& mode)
 {
-  model_covmat(this, db1, db2, ivar, jvar, flag_norm, flag_cov, covmat.data());
+  model_covmat(this, db1, db2, ivar, jvar, covmat.data(), mode);
 }
 
 VectorDouble Model::covMatrixV(Db *db1,
                                Db *db2,
                                int ivar,
                                int jvar,
-                               int flag_norm,
-                               int flag_cov)
+                               const CovCalcMode& mode)
 {
-  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov).getValues();
+  return model_covmatM(this, db1, db2, ivar, jvar, mode).getValues();
 }
 
 MatrixSquareSymmetric Model::covMatrixM(Db *db1,
                                         Db *db2,
                                         int ivar,
                                         int jvar,
-                                        int flag_norm,
-                                        int flag_cov)
+                                        const CovCalcMode& mode)
 {
-  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
+  return model_covmatM(this, db1, db2, ivar, jvar, mode);
 }
 
 /**
@@ -1388,6 +1378,7 @@ double Model::gofToVario(const Vario *vario, bool verbose)
 
   // Loop on the pair of variables
 
+  CovCalcMode mode(ECalcMember::LHS, true);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
@@ -1418,8 +1409,7 @@ double Model::gofToVario(const Vario *vario, bool verbose)
 
         int npas = (int) gexp.size();
         VectorDouble gmod(npas);
-        model_evaluate(this, ivar, jvar, -1, 0, 0, 0, 0, 0, ECalcMember::LHS,
-                       npas, codir, hh.data(), gmod.data());
+        model_evaluate(this, ivar, jvar, mode, npas, codir, hh.data(), gmod.data());
 
         // Evaluate the score
 

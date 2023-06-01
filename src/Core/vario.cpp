@@ -3812,31 +3812,27 @@ int correlation_f(Db *db1,
  *****************************************************************************/
 int correlation_ident(Db *db1, Db *db2, int icol1, int icol2, Polygons *polygon)
 {
-  int iech, nech, number;
-  double coor[2], val1, val2;
-
-  /* Initializations */
-
   if (db1 == nullptr) return (1);
   if (db2 == nullptr) return (1);
-  nech = db1->getSampleNumber();
-  number = 0;
+  int nech = db1->getSampleNumber();
+  int number = 0;
 
   /* Correlation */
 
-  for (iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     if (!db1->isActive(iech)) continue;
-    val1 = db1->getArray(iech, icol1);
+    double val1 = db1->getArray(iech, icol1);
     if (FFFF(val1)) continue;
-    val2 = db2->getArray(iech, icol2);
+    double val2 = db2->getArray(iech, icol2);
     if (FFFF(val2)) continue;
 
     /* Check of the sample belongs to the polygon */
 
+    VectorDouble coor(3, TEST);
     coor[0] = val1;
     coor[1] = val2;
-    if (!polygon->inside(coor[0], coor[1], TEST, false)) continue;
+    if (!polygon->inside(coor, false)) continue;
 
     /* Print the reference of the sample */
 
@@ -3939,13 +3935,14 @@ static void st_variogram_cloud(const Db *db,
  *****************************************************************************/
 void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polygon)
 {
-  double *ids, *coor, ps, psmin, dist, w1, w2, z1, z2, value, zcoor;
+  double *ids, ps, psmin, dist, w1, w2, z1, z2, value;
   int *indg, *rank, nech, iech, jech, igrid, idir, ideb;
+  VectorDouble coor;
 
   /* Initializations */
 
   indg = rank = nullptr;
-  ids = coor = nullptr;
+  ids = nullptr;
   const VarioParam &varioparam = vario->getVarioParam();
 
   /* Core allocation */
@@ -3953,14 +3950,13 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
   nech = db->getSampleNumber();
   indg = db_indg_alloc(dbgrid);
   if (indg == nullptr) goto label_end;
-  coor = db_sample_alloc(dbgrid, ELoc::X);
-  if (coor == nullptr) goto label_end;
   rank = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (rank == nullptr) goto label_end;
   ids = db_vector_alloc(db);
   if (ids == nullptr) goto label_end;
   for (iech = 0; iech < nech; iech++)
     ids[iech] = 0.;
+  coor.resize(dbgrid->getNDim());
 
   /* Loop on the first point */
 
@@ -4004,6 +4000,7 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
                                   dirparam.getCodirs(), &ps)) continue;
+
         value = w1 * w2 * (z2 - z1) * (z2 - z1) / 2.;
         igrid = st_update_discretization_grid(dbgrid, dist, value);
         if (igrid < 0) continue;
@@ -4011,10 +4008,8 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
         /* Check if the grid cell belongs to the polygon */
 
         db_index_sample_to_grid(dbgrid, igrid, indg);
-        grid_to_point(dbgrid, indg, NULL, coor);
-        zcoor = (dbgrid->getNDim() > 2) ? coor[2] :
-                                          TEST;
-        if (!polygon->inside(coor[0], coor[1], zcoor, false)) continue;
+        grid_to_point(dbgrid, indg, NULL, coor.data());
+        if (!polygon->inside(coor, false)) continue;
 
         /* Add the references */
 
@@ -4039,7 +4034,6 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
   }
 
   label_end: indg = db_indg_free(indg);
-  coor = db_sample_free(coor);
   ids = db_vector_free(ids);
   rank = (int*) mem_free((char* ) rank);
   return;

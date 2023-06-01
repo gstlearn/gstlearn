@@ -965,8 +965,7 @@ static void st_prepar_goulard_vario(int imod)
   VectorDouble &ge = RECINT.ge;
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, ITEST, -1, 0, 0);
+  CovCalcMode mode(ECalcMember::LHS, true, false, false, -1, true);
   mode.setOrderVario(STRMOD->norder);
 
   /* Loop on the basic structures */
@@ -1032,9 +1031,7 @@ static void st_load_ge(const Vario *vario,
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
   VectorDouble d1(ndim);
-  CovCalcMode mode;
-  mode.setUnitary(true);
-  mode.setAsVario(true);
+  CovCalcMode mode = CovCalcMode(ECalcMember::LHS, true, false, false, -1, true);
   if (norder > 0) mode.setOrderVario(norder);
 
   /* Loop on the basic structures */
@@ -2326,9 +2323,7 @@ static int st_structure_reduce(StrMod *strmod,
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, hmax);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode;
-
-  mode.update(ECalcMember::LHS, 0, 0, icov, 0, 0);
+  CovCalcMode mode(ECalcMember::LHS, true, false, false, icov);
   mode.setOrderVario(STRMOD->norder);
   model_calcul_cov(NULL,model, mode, 1, 1., d1, tab.data());
 
@@ -2364,9 +2359,7 @@ static void st_evaluate_vario(int imod,
   int ndim = strmod->models[0]->getDimensionNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode;
-
-  mode.update(ECalcMember::LHS, 0, 0, -1, 0, 0);
+  CovCalcMode mode(ECalcMember::LHS, true);
   mode.setOrderVario(strmod->norder);
 
   /* Loop on the experimental conditions */
@@ -2404,8 +2397,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   VectorDouble tab(nvar * nvar);
   db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
 
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, 0, 0);
+  CovCalcMode mode(ECalcMember::LHS, true);
   mode.setOrderVario(strmod->norder);
 
   /* Loop on the experimental conditions */
@@ -4314,14 +4306,14 @@ static void st_prepar_goulard_vmap(int imod)
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
-  CovCalcMode mode;
+  CovCalcMode mode = CovCalcMode(ECalcMember::LHS, true, false, false, -1, true);
+  mode.setOrderVario(STRMOD->norder);
 
   /* Loop on the basic structures */
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    mode.update(ECalcMember::LHS, 0, ITEST, icov, 0, 0);
-    mode.setOrderVario(STRMOD->norder);
+    mode.setKeepOnlyCovIdx(icov);
 
     /* Loop on the experiments */
 
