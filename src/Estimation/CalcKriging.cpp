@@ -760,6 +760,7 @@ void krigingExperimentalEigen(const Db *dbin,
                         const NamingConvention& namconv)
 {
 
+	 omp_set_num_threads(6);
 	int nechout = dbout->getSampleNumber(true);
 	int nloc = 0;
 
@@ -775,11 +776,7 @@ void krigingExperimentalEigen(const Db *dbin,
 	VectorVectorDouble drifts;
 	Eigen::MatrixXd driftsE;
 
-	if ( model->getDriftNumber() == 0)
-	{
-		zE.array()-=mean;
-	}
-	else
+	if ( model->getDriftNumber() > 0)
 	{
 		//// TODO : écrire Model::getDriftsEigen
 		drifts = model->getDrifts(dbin, true);
@@ -806,10 +803,11 @@ void krigingExperimentalEigen(const Db *dbin,
 	Eigen::VectorXd driftE;
 	Eigen::MatrixXd tempDriftsE;
 
-	VectorDouble vars;
+	VectorDouble var;
 	VectorDouble varest;
 
 	bool computeVars = flag_std || flag_varz;
+
 	if (computeVars)
 	{
 		invC = C->inverse();
@@ -820,6 +818,7 @@ void krigingExperimentalEigen(const Db *dbin,
 	}
 
 	Eigen::MatrixXd invFinvCF;
+
 	if ( model->getDriftNumber() > 0)
 	{
 
@@ -835,14 +834,23 @@ void krigingExperimentalEigen(const Db *dbin,
 		zE.array()-=driftE.array();		// (z - F beta)
 
 	}
+	else
+	{
+		zE.array()-=mean;
+	}
 
 	if (flag_varz)
 	{
 		varest.resize(dbout->getSampleNumber(true));
 	}
 
+	if (flag_varz)
+	{
+		var.resize(dbout->getSampleNumber(true));
+	}
 
 	Eigen::Map<Eigen::VectorXd> varestE(varest.data(),varest.size());
+	Eigen::Map<Eigen::VectorXd> varE(var.data(),var.size());
 
 	if (!computeVars)
 	{
@@ -851,11 +859,9 @@ void krigingExperimentalEigen(const Db *dbin,
 	}
 	else
 	{
-
-		vars.resize(dbout->getSampleNumber(true));
-		Eigen::Map<Eigen::VectorXd> varsE(vars.data(),vars.size());
 		auto weights = invC * *C0;
 		resE = weights.transpose() * zE;
+
 		if(model->getDriftNumber() > 0)
 		{
 			C0->array() -= (((driftsE * invFinvCF) * driftsE.transpose()) * weights).array();
@@ -884,12 +890,16 @@ void krigingExperimentalEigen(const Db *dbin,
 		driftE = driftsE * coeffs;
 		resE.array() += driftE.array();
 
-		if (model->getDriftNumber() > 0)
+		if (computeVars)
 		{
-			auto tempA = driftsE.array() * ( driftsE * invFinvCF).array();
-			varestE.array()+= tempA.rowwise().sum();
+			if (model->getDriftNumber() > 0)
+			{
+				auto tempA = driftsE.array() * ( driftsE * invFinvCF).array();
+				varestE.array()+= tempA.rowwise().sum();
+			}
 		}
 	}
+
 	if (flag_est)
 	{
 		dbout->addColumns(res, "r_estim", ELoc::Z, nloc, true, 0.,0);

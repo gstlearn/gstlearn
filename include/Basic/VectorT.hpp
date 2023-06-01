@@ -189,7 +189,7 @@ T& VectorT<T>::at(size_type pos)
 {
  // if (pos >= size())
  //   my_throw("VectorT<T>::at: index out of range");
- // _detach();
+  _detach();
   return operator[](pos);
 }
 
@@ -198,7 +198,7 @@ template <typename T>
 const T& VectorT<T>::operator[](size_type pos) const
 {
   //if (pos >= size())
-  //  my_throw("VectorT<T>::operator[]: index out of range");
+	//  my_throw("VectorT<T>::operator[]: index out of range");
   return _v->operator[](pos);
 }
 
@@ -206,8 +206,8 @@ template <typename T>
 T& VectorT<T>::operator[](size_type pos)
 {
   //if (pos >= size())
-  //  my_throw("VectorT<T>::operator[]: index out of range");
-  //_detach();
+	//  my_throw("VectorT<T>::operator[]: index out of range");
+  _detach();
   return _v->operator[](pos);
 }
 #endif

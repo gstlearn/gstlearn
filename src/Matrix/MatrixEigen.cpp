@@ -17,7 +17,6 @@ MatrixEigen::MatrixEigen(int n,int p,double val)
 {
 
 	_reset();
-	 omp_set_num_threads(16);
 	  _matrix= Eigen::MatrixXd::Constant(n,p,val);
 
 }
