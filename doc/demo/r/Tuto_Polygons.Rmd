@@ -141,17 +141,17 @@ An interesting function allows checking if a point (characterized by its 2-D coo
 xx = 75
 yy = 50
 flag_nested = FALSE
-inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 
 xx = 40
 yy = 40
 flag_nested = FALSE
-inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 
 flag_nested = TRUE
-inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 ```
 
