@@ -144,8 +144,8 @@ public:
 
   static VectorInt    sort(const VectorInt& vecin, bool ascending = true);
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true);
-  static VectorInt    orderRanks(const VectorDouble& vecin);
-  static VectorInt    sortRanks(const VectorDouble& vecin);
+  static VectorInt    orderRanks(const VectorDouble& vecin, bool ascending = true);
+  static VectorInt    sortRanks(const VectorDouble& vecin, bool ascending = true);
   static VectorDouble unique(const VectorDouble& vecin);
   static VectorInt    unique(const VectorInt& vecin);
   static VectorInt filter(const VectorInt &vecin,

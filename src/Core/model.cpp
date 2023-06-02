@@ -254,38 +254,6 @@ void model_calcul_cov(CovInternal *covint,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Returns the covariances for an increment
- **
- ** \param[in]  model       Structure containing the model
- ** \param[in]  mode        CovCalcMode structure
- ** \param[in]  ivar        Rank of the first variable
- ** \param[in]  jvar        Rank of the second variable
- ** \param[in]  d1          vector of increment (or NULL)
- **
- *****************************************************************************/
-double model_calcul_cov_ij(Model *model,
-                           const CovCalcMode &mode,
-                           int ivar,
-                           int jvar,
-                           const VectorDouble &d1)
-{
-
-  /* Modify the member in case of properties */
-
-  if (model->getCovMode() != EModelProperty::NONE)
-    my_throw("Model transformation is not programmed for this entry");
-
-  /* Call the generic model calculation module */
-
-  // TODO Correct this which has something to do with pure virtual eval although implemented in Acov
-  // compared to eval0 which is not implemented with such arguments.
-  double value = model->evalIvarIpas(1., d1, ivar, jvar, VectorDouble(), mode);
-
-  return value;
-}
-
 /****************************************************************************/
 /*!
  **  Identify the coordinates of the two end-points

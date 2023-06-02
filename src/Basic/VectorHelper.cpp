@@ -1197,9 +1197,10 @@ VectorInt VectorHelper::filter(const VectorInt &vecin,
 /**
  * Returns the permutation which rearranges the input vector into ascending order
  * @param vecin Input vector
+ * @param ascending True for ascending order; False otherwise
  * @return Vector of orders
  */
-VectorInt VectorHelper::orderRanks(const VectorDouble& vecin)
+VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending)
 {
   if (vecin.empty()) return VectorInt();
 
@@ -1208,17 +1209,25 @@ VectorInt VectorHelper::orderRanks(const VectorDouble& vecin)
 
   // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
   // to avoid unnecessary index re-orderings when v contains elements of equal values
-  stable_sort(idx.begin(), idx.end(),
-       [&vecin](size_t i1, size_t i2) {return vecin[i1] < vecin[i2];});
+  if (ascending)
+  {
+    stable_sort(idx.begin(), idx.end(),
+                [&vecin](size_t i1, size_t i2) {return vecin[i1] < vecin[i2];});
+  }
+  else
+  {
+    stable_sort(idx.begin(), idx.end(),
+                [&vecin](size_t i1, size_t i2) {return vecin[i1] > vecin[i2];});
+  }
 
   return idx;
 }
 
-VectorInt VectorHelper::sortRanks(const VectorDouble& vecin)
+VectorInt VectorHelper::sortRanks(const VectorDouble& vecin, bool ascending)
 {
   if (vecin.empty()) return VectorInt();
 
-  VectorInt order = orderRanks(vecin);
+  VectorInt order = orderRanks(vecin, ascending);
   VectorInt idx(vecin.size());
   for (int i = 0; i < (int) vecin.size(); i++) idx[order[i]] = i;
 

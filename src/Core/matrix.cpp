@@ -14,6 +14,7 @@
 #include "Enum/ECst.hpp"
 
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
 
 #include <math.h>
@@ -152,7 +153,76 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
 
 /*****************************************************************************/
 /*!
+ **  Calculates the generalized eigen value problem
+ **           A X = B X l
+ **
+ ** \return  Return code:
+ ** \return   0 no error
+ ** \return   1 convergence problem
+ **
+ ** \param[in]  a     square symmetric matrix (dimension = neq * neq)
+ ** \param[in]  b     square symmetric matrix (dimension = neq * neq)
+ ** \param[in]  neq   matrix dimension
+ **
+ ** \param[out] value  matrix of the eigen values (dimension: neq)
+ ** \param[out] vector matrix of the eigen vectors (dimension: neq*neq)
+ **
+ *****************************************************************************/
+int matrix_geigen(const double *a,
+                  const double *b,
+                  int neq,
+                  double *value,
+                  double *vector)
+{
+  // Compute eigen decomposition of B
+  VectorDouble LB(neq);
+  VectorDouble PhiB(neq * neq);
+  if (matrix_eigen(b, neq, LB.data(), PhiB.data())) return 1;
+
+  // Compute auxiliary terms
+  VectorDouble PhiBm = PhiB;
+  int ecr = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++, ecr++)
+      PhiBm[ecr] /= sqrt(LB[i]);
+
+  VectorDouble Am(neq * neq, 0.);
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      for (int k = 0; k < neq; k++)
+        for (int l = 0; l < neq; l++)
+          Am[i * neq + j] += PhiBm[i * neq + k] * a[l * neq + k] * PhiBm[j * neq + l];
+
+  // Compute eigen decomposition of Am
+  VectorDouble LA(neq);
+  VectorDouble PhiA(neq * neq);
+  if (matrix_eigen(Am.data(), neq, LA.data(), PhiA.data())) return 1;
+
+  VectorDouble Phi(neq * neq,0.);
+  ecr = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      for (int k = 0; k < neq; k++)
+        Phi[j * neq + i] += PhiBm[k * neq + i] * PhiA[j * neq + k];
+
+  // Sort the eigen values by increasing values
+  VectorInt ranks = VH::sortRanks(LA, true);
+
+  // Ultimate assignments
+  for (int i = 0; i < neq; i++)
+    value[i] = LA[ranks[i]];
+
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      vector[i * neq + j] = -Phi[ranks[i] * neq + j];
+
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
  **  Calculates the eigen values and eigen vectors of a symmetric square matrix
+ **             A X = X l
  **
  ** \return  Return code:
  ** \return   0 no error
@@ -2781,44 +2851,44 @@ void matrix_product_by_diag_VD(int mode,
  **
  *****************************************************************************/
 void matrix_linear(int neq,
-                                   double a1,
-                                   double *a,
-                                   double b1,
-                                   double *b,
-                                   double *x)
+                   double a1,
+                   double *a,
+                   double b1,
+                   double *b,
+                   double *x)
 {
   int i1, i2;
 
   for (i1 = 0; i1 < neq; i1++)
     for (i2 = 0; i2 < neq; i2++)
-      X(i1,i2)= a1 * A(i1,i2) + b1 * B(i1,i2);
-    }
+      X(i1,i2) = a1 * A(i1,i2) + b1 * B(i1,i2);
+}
 
-    /*****************************************************************************/
-    /*!
-     **  Transform a tridiagonal non-symmetric matrix into a symmetric one
-     **
-     ** \return  Error return code (see remarks)
-     **
-     ** \param[in]  vecdiag Vector for the main diagonal
-     ** \param[in]  vecinf  Vector for the subdiagonal (in the last neq-1 positions)
-     ** \param[in]  vecsup  Vector for the superdiagonal (in the first neq positions)
-     ** \param[in]  neq    matrix dimension
-     **
-     ** \param[out] eigvec square symmetric matrix (dimension: neq * neq)
-     ** \param[out] eigval vector (dimensionL neq)
-     **
-     ** \remark Given the nonsymmetric tridiagonal matrix, we must have the products
-     ** \remark of corresponding pairs of off-diagonal elements are all non-negative,
-     ** \remark and zero only when both factors are zero
-     **
-     *****************************************************************************/
+/*****************************************************************************/
+/*!
+ **  Transform a tridiagonal non-symmetric matrix into a symmetric one
+ **
+ ** \return  Error return code (see remarks)
+ **
+ ** \param[in]  vecdiag Vector for the main diagonal
+ ** \param[in]  vecinf  Vector for the subdiagonal (in the last neq-1 positions)
+ ** \param[in]  vecsup  Vector for the superdiagonal (in the first neq positions)
+ ** \param[in]  neq    matrix dimension
+ **
+ ** \param[out] eigvec square symmetric matrix (dimension: neq * neq)
+ ** \param[out] eigval vector (dimensionL neq)
+ **
+ ** \remark Given the nonsymmetric tridiagonal matrix, we must have the products
+ ** \remark of corresponding pairs of off-diagonal elements are all non-negative,
+ ** \remark and zero only when both factors are zero
+ **
+ *****************************************************************************/
 int matrix_eigen_tridiagonal(const double *vecdiag,
-                                             const double *vecinf,
-                                             const double *vecsup,
-                                             int neq,
-                                             double *eigvec,
-                                             double *eigval)
+                             const double *vecinf,
+                             const double *vecsup,
+                             int neq,
+                             double *eigvec,
+                             double *eigval)
 {
   double *b, *e, h;
   int i, j;

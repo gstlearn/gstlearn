@@ -994,7 +994,8 @@ static void st_prepar_goulard_vario(int imod)
           }
           else
           {
-            GE(icov,ijvar,ipadir) = model_calcul_cov_ij(model, mode, ivar, jvar, d0);
+            GE(icov,ijvar,ipadir) = model->evalIvarIpas(1., d0, ivar, jvar,
+                VectorDouble(), mode);
           }
         }
       }
@@ -2371,7 +2372,7 @@ static void st_evaluate_vario(int imod,
 
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = strexps[i].dd[idim];
-    tabge[i] = model_calcul_cov_ij(model, mode, ivar, jvar, d0);
+    tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), mode);
   }
   return;
 }
@@ -2414,7 +2415,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
-        tabge[ecr++] = model_calcul_cov_ij(model, mode, ivar, jvar, d0);
+        tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), mode);
       }
   }
   return;

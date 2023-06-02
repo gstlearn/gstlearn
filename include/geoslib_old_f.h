@@ -292,6 +292,11 @@ GSTLEARN_EXPORT int matrix_eigen(const double *a,
                                  int neq,
                                  double *value,
                                  double *vector);
+GSTLEARN_EXPORT int matrix_geigen(const double *a,
+                                  const double *b,
+                                  int neq,
+                                  double *value,
+                                  double *vector);
 GSTLEARN_EXPORT void matrix_product(int n1,
                                     int n2,
                                     int n3,
@@ -631,11 +636,6 @@ GSTLEARN_EXPORT double model_calcul_basic(Model *model,
                                           int icov,
                                           const ECalcMember &member,
                                           const VectorDouble &d1);
-GSTLEARN_EXPORT double model_calcul_cov_ij(Model *model,
-                                           const CovCalcMode &mode,
-                                           int ivar,
-                                           int jvar,
-                                           const VectorDouble &d1);
 GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           Db *db1,
                                           int iech1,

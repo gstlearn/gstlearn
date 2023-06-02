@@ -66,17 +66,18 @@ int main(int /*argc*/, char */*argv*/[])
   // ============
 
   mestitle(0,"Testing PCA");
-  PCA pca = PCA(db);
+  PCA pca;
+  pca.pca_compute(db);
   pca.display();
 
   // Store the transformed variables
 
-  pca.dbZ2F(db);
-  pca.dbF2Z(db);
+  pca.dbZ2F(db, false, NamingConvention("PCA.F", false));
+  pca.dbF2Z(db, false, NamingConvention("PCA.Z", false));
 
   // Comparing initial and back-transformed variables
   VectorString names1 = generateMultipleNames("Simu" , nbsimu, ".");
-  VectorString names2 = generateMultipleNames("F2Z.Z2F.Simu", nbsimu, ".");
+  VectorString names2 = generateMultipleNames("PCA.Z", nbsimu, ".");
   for (int i = 0; i < nbsimu; i++)
     (void) db->areSame(names1[i], names2[i], eps);
 
@@ -86,19 +87,19 @@ int main(int /*argc*/, char */*argv*/[])
 
   mestitle(0,"Testing MAF");
   db->setLocator("Simu*", ELoc::Z);
-  DirParam dirparam = DirParam();
-  PCA maf = PCA(db, 0.1, 0.05, dirparam);
+  PCA maf;
+  maf.maf_compute_interval(db, 0.95, 1.05);
   maf.display();
 
   // Store the transformed variable
 
-  maf.dbZ2F(db, false, NamingConvention("Z2MAF"));
-  maf.dbF2Z(db, false, NamingConvention("MAF2Z"));
+  maf.dbZ2F(db, false, NamingConvention("MAF.F", false));
+  maf.dbF2Z(db, false, NamingConvention("MAF.Z", false));
 
   // Comparing initial and back-transformed variables
 
   names1 = generateMultipleNames("Simu" , nbsimu, ".");
-  names2 = generateMultipleNames("MAF2Z.Z2MAF.Simu", nbsimu, ".");
+  names2 = generateMultipleNames("MAF.Z", nbsimu, ".");
   for (int i = 0; i < nbsimu; i++)
     (void) db->areSame(names1[i], names2[i], eps);
 

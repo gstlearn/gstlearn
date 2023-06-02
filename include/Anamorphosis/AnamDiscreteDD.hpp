@@ -71,13 +71,13 @@ public:
   double getMu() const { return _mu; }
   double getSCoef() const { return _sCoef; }
   const VectorDouble& getI2Chi() const { return _i2Chi; }
-  VectorDouble getPcaZ2F() const { return _maf.getZ2F(); }
-  VectorDouble getPcaF2Z() const { return _maf.getF2Z(); }
+  VectorDouble getPcaZ2Fs() const { return _maf.getZ2Fs(); }
+  VectorDouble getPcaF2Zs() const { return _maf.getF2Zs(); }
 
   void setMu(double mu) { _mu = mu; }
   void setRCoef(double rcoef) { _sCoef = rcoef; }
-  void setPcaZ2F(VectorDouble pcaz2f) { _maf.setPcaZ2F(pcaz2f); }
-  void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
+  void setPcaZ2F(VectorDouble pcaz2f) { _maf.setZ2Fs(pcaz2f); }
+  void setPcaF2Z(VectorDouble pcaf2z) { _maf.setF2Zs(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
 
   int factor2Selectivity(Db *db,

@@ -33,6 +33,7 @@ CovCalcMode::CovCalcMode(const ECalcMember& member,
   _indexClass(0),
   _covFiltered()
 {
+  _checkFactorySettings();
 }
 
 CovCalcMode::CovCalcMode(const CovCalcMode &r)
@@ -49,7 +50,7 @@ CovCalcMode::CovCalcMode(const CovCalcMode &r)
       _indexClass(r._indexClass),
       _covFiltered(r._covFiltered)
 {
-
+  _checkFactorySettings();
 }
 
 CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
@@ -68,6 +69,7 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
     _orderVario = r._orderVario;
     _indexClass = r._indexClass;
     _covFiltered = r._covFiltered;
+    _checkFactorySettings();
   }
   return *this;
 }

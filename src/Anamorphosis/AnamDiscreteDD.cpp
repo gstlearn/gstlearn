@@ -340,7 +340,7 @@ VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
       double prop = getDDStatProp(icut);
       tab[ecr] = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
     }
-  matrix_product_safe(nclass,ncut,ncut,tab.data(),getPcaZ2F().data(),maf.data());
+  matrix_product_safe(nclass,ncut,ncut,tab.data(),getPcaZ2Fs().data(),maf.data());
 
   /* Verbose option */
 
@@ -624,8 +624,8 @@ bool AnamDiscreteDD::_serialize(std::ostream& os, bool verbose) const
   ret = ret && AnamDiscrete::_serialize(os, verbose);
   ret = ret && _recordWrite<double>(os, "Change of support coefficient", getSCoef());
   ret = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
-  ret = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2F());
-  ret = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Z());
+  ret = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs());
+  ret = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Zs());
   return ret;
 }
 
