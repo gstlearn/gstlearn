@@ -385,14 +385,12 @@ modelElem <- function(model, ivar=0, jvar=0, codir=NA,
   # Represent the coregionalization envelop
   if (ivar != jvar && flag_envelop)
   {
-    mode$setEnvelop(1)
-    gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
+    gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=-1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
     
-    mode$setEnvelop(-1)
-    gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
+    gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=+1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
@@ -798,7 +796,7 @@ plot.polygon <- function(poly, show.title=FALSE, ...)
   has_color = "color" %in% names(dots)
   
   p = list()
-  npol = poly$getPolySetNumber()
+  npol = poly$getPolyElemNumber()
   cols = get.colors()
   
   dotloc = dots

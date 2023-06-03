@@ -898,6 +898,37 @@ VectorDouble Model::sample(const VectorDouble& hh,
   return gg;
 }
 
+VectorDouble Model::envelop(const VectorDouble &hh,
+                            int ivar,
+                            int jvar,
+                            int isign,
+                            VectorDouble codir,
+                            const CovCalcMode &mode)
+{
+  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
+  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar == jvar) return VectorDouble();
+  if (isign != -1 && isign != 1) return VectorDouble();
+  int ndim = getDimensionNumber();
+  if (codir.empty())
+  {
+    codir.resize(ndim);
+    (void) GH::rotationGetDirection(ndim, 1, VectorDouble(), codir);
+  }
+  int nh = (int) hh.size();
+  VectorDouble gg(nh);
+  VectorDouble g1(nh);
+  VectorDouble g2(nh);
+
+  model_evaluate(this, ivar, ivar, mode, nh, codir, hh.data(), g1.data());
+  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), g2.data());
+
+  for (int i = 0; i < nh; i++)
+    gg[i] = isign * sqrt(g1[i] * g2[i]);
+
+  return gg;
+}
+
 /**
  * Automatic Fitting procedure
  *

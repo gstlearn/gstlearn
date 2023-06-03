@@ -320,20 +320,7 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode &mode) const
   {
     // Scale by the sill
     if (!mode.getUnitary())
-    {
-      double sill;
-      if (mode.getEnvelop() != 0)
-      {
-        double sign = (mode.getEnvelop() > 0) ? 1 : -1;
-        double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
-        sill = sign * coef;
-      }
-      else
-      {
-        sill = getSill(ivar, jvar);
-      }
-      cov *= sill;
-    }
+      cov *= getSill(ivar, jvar);;
   }
   return (cov);
 }
@@ -387,20 +374,7 @@ double CovAniso::eval(const SpacePoint &p1,
 
     // Scale by the sill
     if (!mode.getUnitary())
-    {
-      double sill = 0.;
-      if (mode.getEnvelop() != 0)
-      {
-        double sign = (mode.getEnvelop() > 0) ? 1 : -1;
-        double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
-        sill = sign * coef;
-      }
-      else
-      {
-        sill = getSill(ivar, jvar);
-      }
-      cov *= sill;
-    }
+      cov *= getSill(ivar, jvar);
   }
   return (cov);
 }

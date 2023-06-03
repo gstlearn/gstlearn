@@ -8,13 +8,13 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
-#include "Polygon/PolySet.hpp"
+#include "Polygon/PolyElem.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/PolyLine2D.hpp"
 
-PolySet::PolySet(const VectorDouble& x,
+PolyElem::PolyElem(const VectorDouble& x,
                  const VectorDouble& y,
                  double zmin,
                  double zmax)
@@ -25,14 +25,14 @@ PolySet::PolySet(const VectorDouble& x,
   init(x,y,zmin,zmax);
 }
 
-PolySet::PolySet(const PolySet& r)
+PolyElem::PolyElem(const PolyElem& r)
     : PolyLine2D(r),
       _zmin(r._zmin),
       _zmax(r._zmax)
 {
 }
 
-PolySet& PolySet::operator=(const PolySet& r)
+PolyElem& PolyElem::operator=(const PolyElem& r)
 {
   if (this != &r)
   {
@@ -43,11 +43,11 @@ PolySet& PolySet::operator=(const PolySet& r)
   return *this;
 }
 
-PolySet::~PolySet()
+PolyElem::~PolyElem()
 {
 }
 
-void PolySet::init(const VectorDouble& x,
+void PolyElem::init(const VectorDouble& x,
                    const VectorDouble& y,
                    double zmin,
                    double zmax)
@@ -58,7 +58,7 @@ void PolySet::init(const VectorDouble& x,
   _zmax  = zmax;
 }
 
-String PolySet::toString(const AStringFormat* strfmt) const
+String PolyElem::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -69,7 +69,7 @@ String PolySet::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void PolySet::getExtension(double *xmin,
+void PolyElem::getExtension(double *xmin,
                            double *xmax,
                            double *ymin,
                            double *ymax) const
@@ -80,7 +80,7 @@ void PolySet::getExtension(double *xmin,
   *ymax = getYmax();
 }
 
-double PolySet::getSurface() const
+double PolyElem::getSurface() const
 {
   int np = getNPoints();
   double x0 = getX(0);
@@ -95,7 +95,7 @@ double PolySet::getSurface() const
     surface += 0.5 * ((x1 * y2) - (x2 * y1));
   }
 
-  // Check if the PolySet is closed
+  // Check if the PolyElem is closed
 
   if (! _isClosed())
   {
@@ -110,7 +110,7 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-bool PolySet::_serialize(std::ostream& os, bool verbose) const
+bool PolyElem::_serialize(std::ostream& os, bool verbose) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
@@ -120,7 +120,7 @@ bool PolySet::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-bool PolySet::_deserialize(std::istream& is, bool verbose)
+bool PolyElem::_deserialize(std::istream& is, bool verbose)
 {
   _zmin = TEST;
   _zmax = TEST;
@@ -131,31 +131,31 @@ bool PolySet::_deserialize(std::istream& is, bool verbose)
   return ret;
 }
 
-PolySet* PolySet::create()
+PolyElem* PolyElem::create()
 {
-  return new PolySet();
+  return new PolyElem();
 }
 
-PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
+PolyElem* PolyElem::createFromNF(const String& neutralFilename, bool verbose)
 {
-  PolySet* polyset = nullptr;
+  PolyElem* polyelem = nullptr;
   std::ifstream is;
-  polyset = new PolySet();
+  polyelem = new PolyElem();
   bool success = false;
-  if (polyset->_fileOpenRead(neutralFilename, is, verbose))
+  if (polyelem->_fileOpenRead(neutralFilename, is, verbose))
   {
-    success = polyset->deserialize(is, verbose);
+    success = polyelem->deserialize(is, verbose);
   }
 
   if (! success)
   {
-    delete polyset;
-    polyset = nullptr;
+    delete polyelem;
+    polyelem = nullptr;
   }
-  return polyset;
+  return polyelem;
 }
 
-bool PolySet::_isClosed() const
+bool PolyElem::_isClosed() const
 {
   int nvert = getNPoints();
   if (ABS(getX(0) - getX(nvert-1)) > EPSILON5 ||
@@ -164,23 +164,23 @@ bool PolySet::_isClosed() const
 }
 
 /**
- * Close the PolySet if necessary
+ * Close the PolyElem if necessary
  */
-void PolySet::closePolySet()
+void PolyElem::closePolyElem()
 {
   if (!_isClosed()) addPoint(getX(0), getY(0));
 }
 
 /****************************************************************************/
 /*!
- **  Check if one point belongs to a 2-D polyset
+ **  Check if one point belongs to a 2-D polyelem
  **
  ** \return  True if the point belongs to the polygon; False otherwise
  **
  ** \param[in]  coor  Vector giving the coordinates of the target point
  **
  *****************************************************************************/
-bool PolySet::inside(const VectorDouble& coor)
+bool PolyElem::inside(const VectorDouble& coor)
 {
   double dx, dy, xj0, xj1, yj0, yj1, xinter;
 
@@ -254,14 +254,14 @@ bool PolySet::inside(const VectorDouble& coor)
 
 /****************************************************************************/
 /*!
- **  Check if one point belongs to a vertical interval of a (limited) polyset
+ **  Check if one point belongs to a vertical interval of a (limited) polyelem
  **
  ** \return  True if the point belongs to the polygon; False otherwise
  **
  ** \param[in]  zz   array of point coordinates of the point along Z or TEST
  **
  *****************************************************************************/
-bool PolySet::inside3D(double zz)
+bool PolyElem::inside3D(double zz)
 {
   if (FFFF(zz)) return true;
   if (!FFFF(_zmin) && zz < _zmin) return false;

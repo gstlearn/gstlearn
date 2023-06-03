@@ -163,7 +163,7 @@
 %shared_ptr(Plane)
 %shared_ptr(Polygons)
 %shared_ptr(PolyLine2D)
-%shared_ptr(PolySet)
+%shared_ptr(PolyElem)
 %shared_ptr(PPMT)
 %shared_ptr(ProjConvolution)
 %shared_ptr(ProjMatrix)
@@ -458,7 +458,7 @@
   #include "Morpho/Morpho.hpp"
   
   #include "Polygon/Polygons.hpp"
-  #include "Polygon/PolySet.hpp"
+  #include "Polygon/PolyElem.hpp"
   
   #include "Stats/Classical.hpp"
   #include "Stats/PCA.hpp"
@@ -541,7 +541,7 @@
 %template(VectorEStatOption)  std::vector< EStatOption >;
 %template(VectorESelectivity) std::vector< ESelectivity >;
 %template(VectorDirParam)     std::vector< DirParam >;
-%template(VectorPolySet)      std::vector< PolySet >;
+%template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
 
 ////////////////////////////////////////////////

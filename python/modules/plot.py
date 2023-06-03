@@ -582,7 +582,7 @@ def modelElem(modelobj, ivar=0, jvar=0, *args, **kwargs):
     codir : Vector of the direction of the variogram to be represented. The default is the unit 
             vector in the first space dimension.
     vario, idir: Vario information used to set the direction (when codir is not provided)
-    env_color, env_linestyle : color and linestyle for correlation envelop 
+    env_color, env_linestyle : color and linestyle for coregionalization envelop 
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
     hmax : Maximum distance to be represented. By default: 3 times the maximum range of the
            basic structures, or 1 if no range is defined.
@@ -641,11 +641,9 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
     
     # Represent the coregionalization envelop (optional)
     if ivar != jvar and flagEnvelop:
-        mode.setEnvelop(1)
-        ggp = modelobj.sample(hh, ivar, jvar, codir, mode)
+        ggp = modelobj.envelop(hh, ivar, jvar, +1, codir, mode)
         ax.plot(hh[istart:], ggp[istart:], c = env_color, linestyle = env_linestyle)
-        mode.setEnvelop(-1)
-        ggm = modelobj.sample(hh, ivar, jvar, codir,mode)
+        ggm = modelobj.envelop(hh, ivar, jvar, -1, codir,mode)
         ax.plot(hh[istart:], ggm[istart:], c = env_color, linestyle = env_linestyle)
     
     # Draw the Legend (optional)
@@ -1011,7 +1009,7 @@ def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
     if isNotCorrect(object=poly, types=["Polygons"]):
         return None
     
-    npol = poly.getPolySetNumber()
+    npol = poly.getPolyElemNumber()
     cols = get_cmap(npol)
     
     for ipol in range(npol):

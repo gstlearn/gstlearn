@@ -481,6 +481,12 @@ public:
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       const CovCalcMode& mode = CovCalcMode());
+  VectorDouble envelop(const VectorDouble &hh,
+                       int ivar = 0,
+                       int jvar = 0,
+                       int isign = 1,
+                       VectorDouble codir = VectorDouble(),
+                       const CovCalcMode &mode = CovCalcMode());
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),

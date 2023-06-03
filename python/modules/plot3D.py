@@ -196,7 +196,7 @@ def PolygonOnSphere(poly, flagClose=False,
     ys = list()
     zs = list()
 
-    for i in range(poly.getPolySetNumber()):
+    for i in range(poly.getPolyElemNumber()):
         a = poly.getX(i)
         b = poly.getY(i)
         tab = np.array(gl.GH.convertLongLat(a, b, dilate, np.nan))

@@ -98,7 +98,7 @@ int main(int /*argc*/, char */*argv*/[])
   poly1.resetFromDb(db1);
   Polygons polyb;
   polyb.resetFromDb(dbg1);
-  poly1.addPolySet(polyb.getPolySet(0));
+  poly1.addPolyElem(polyb.getPolyElem(0));
   poly1.display();
 
   // Serialize poly1

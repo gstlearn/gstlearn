@@ -25,7 +25,6 @@ public:
               bool filterNugget = false,
               int keepOnlyCovIdx = -1,
               bool unitary = false,
-              int envelop = 0,
               int orderVario = 0);
   CovCalcMode(const CovCalcMode &r);
   CovCalcMode& operator= (const CovCalcMode &r);
@@ -37,7 +36,6 @@ public:
                              bool filterNugget = false,
                              int keepOnlyCovIdx = -1,
                              bool unitary = false,
-                             int envelop = 0,
                              int orderVario = 0);
 
   bool                  isFactorySettings()   const { return _factorySettings; }
@@ -48,7 +46,6 @@ public:
   int                   getKeepOnlyCovIdx()   const { return _keepOnlyCovIdx; }
   bool                  getUnitary()          const { return _unitary; }
   int                   getOrderVario()       const { return _orderVario; }
-  int                   getEnvelop()          const { return _envelop; }
   const VectorBool&     getCovFiltered()      const { return _covFiltered; }
   bool                  getCovFiltered(int i) const;
   int                   getIndexClass()       const { return _indexClass; }
@@ -59,7 +56,6 @@ public:
   void setKeepOnlyCovIdx(int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; _checkFactorySettings(); }
   void setUnitary(bool unitary) { _unitary = unitary; _checkFactorySettings(); }
   void setNormalized(bool normalized) { _normalized = normalized; _checkFactorySettings(); }
-  void setEnvelop(int envelop) { _envelop = envelop; _checkFactorySettings(); }
   void setOrderVario(int orderVario) { _orderVario = orderVario; _checkFactorySettings(); }
   void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; _checkFactorySettings(); }
   void setCovFiltered(int i, bool status);
@@ -73,7 +69,6 @@ private:
                              bool filterNugget = false,
                              int keepOnlyCovIdx = -1,
                              bool unitary = false,
-                             int envelop = 0,
                              int orderVario = 0);
 
 private:
@@ -84,7 +79,6 @@ private:
   bool          _filterNugget;   /*! True to filter nugget structure (default = false) */
   int           _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
-  int           _envelop;        /*! Envelop of Multivariate model: 1(upper) or -1(lower) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
   int           _indexClass;     /*! Index of the working class (used when calculating Covariance) */
   VectorBool    _covFiltered;    /*! Array of Covariance filtering flags (optional) */

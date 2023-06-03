@@ -76,24 +76,24 @@ private:
   int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }
   VectorBool _getVectorIsotopic(const Db* db);
   void _loadData(const Db* db, int iech, VectorDouble& data);
-  int  _calculateEigen(VectorDouble& c0, bool verbose = false);
-  int  _calculateGEigen(VectorDouble& c0, const VectorDouble& gh, bool verbose);
+  int  _calculateEigen(bool verbose = false);
+  int  _calculateGEigen(bool verbose);
   void _calculateNormalization(const Db *db,
                                const VectorBool &isoFlag,
                                bool verbose = false,
                                bool flag_nm1 = false);
-  VectorDouble _covariance0(const Db *db,
-                            const VectorBool &isoFlag,
-                            bool verbose = false,
-                            bool flag_nm1 = false);
-  VectorDouble _variogramh(Db *db,
-                           const VarioParam &varioparam,
-                           int ilag0,
-                           int idir0,
-                           double hmin,
-                           double hmax,
-                           const VectorBool &isoFlag,
-                           bool verbose);
+  void _covariance0(const Db *db,
+                    const VectorBool &isoFlag,
+                    bool verbose = false,
+                    bool flag_nm1 = false);
+  void _variogramh(Db *db,
+                   const VarioParam &varioparam,
+                   int ilag0,
+                   int idir0,
+                   double hmin,
+                   double hmax,
+                   const VectorBool &isoFlag,
+                   bool verbose);
   void _center(VectorDouble& data,
                const VectorDouble &mean,
                const VectorDouble &sigma,
@@ -131,7 +131,7 @@ private:
   VectorDouble _eigval;
   VectorDouble _eigvec;
   VectorDouble _c0;
-  VectorDouble _ch;
+  VectorDouble _gh;
   VectorDouble _Z2F;
   VectorDouble _F2Z;
 };

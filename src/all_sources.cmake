@@ -102,7 +102,7 @@ set(SRC
   Covariances/CovDiffusionAdvection.cpp
   Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
-  Polygon/PolySet.cpp
+  Polygon/PolyElem.cpp
   Core/surface.cpp
   Core/math.cpp
   Core/stats.cpp

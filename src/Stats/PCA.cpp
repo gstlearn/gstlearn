@@ -28,6 +28,8 @@ PCA::PCA(int nvar)
     _sigma(),
     _eigval(),
     _eigvec(),
+    _c0(),
+    _gh(),
     _Z2F(),
     _F2Z()
 {
@@ -41,6 +43,8 @@ PCA::PCA(const PCA &m)
       _sigma(m._sigma),
       _eigval(m._eigval),
       _eigvec(m._eigvec),
+      _c0(m._c0),
+      _gh(m._gh),
       _Z2F(m._Z2F),
       _F2Z(m._F2Z)
 {
@@ -57,6 +61,8 @@ PCA& PCA::operator=(const PCA &m)
     _sigma = m._sigma;
     _eigval = m._eigval;
     _eigvec = m._eigvec;
+    _c0 = m._c0;
+    _gh = m._gh;
     _Z2F = m._Z2F;
     _F2Z = m._F2Z;
   }
@@ -75,6 +81,8 @@ void PCA::init(int nvar)
   _sigma.resize(nvar,0);
   _eigval.resize(nvar,0);
   _eigvec.resize(nvar * nvar,0);
+  _c0.resize(nvar * nvar,0);
+  _gh.resize(nvar * nvar,0);
   _Z2F.resize(nvar * nvar,0);
   _F2Z.resize(nvar * nvar,0);
 }
@@ -82,8 +90,6 @@ void PCA::init(int nvar)
 void PCA::_pcaFunctions(bool verbose)
 {
   int nvar = _nVar;
-  _Z2F.resize(nvar * nvar,0);
-  _F2Z.resize(nvar * nvar,0);
 
   // Transpose for getting the F2Z function from Z2F
 
@@ -113,8 +119,6 @@ void PCA::_pcaFunctions(bool verbose)
 void PCA::_mafFunctions(bool verbose)
 {
   int nvar = _nVar;
-  _Z2F.resize(nvar * nvar,0);
-  _F2Z.resize(nvar * nvar,0);
 
   // Construct Z2F
 
@@ -140,15 +144,13 @@ void PCA::_mafFunctions(bool verbose)
   }
 }
 
-int PCA::_calculateEigen(VectorDouble& c0, bool verbose)
+int PCA::_calculateEigen(bool verbose)
 {
   int nvar = _nVar;
-  _eigval.resize(nvar,0);
-  _eigvec.resize(nvar * nvar,0.);
 
   // Eigen decomposition
 
-  if (matrix_eigen(c0.data(), nvar, _eigval.data(), _eigvec.data())) return 1;
+  if (matrix_eigen(_c0.data(), nvar, _eigval.data(), _eigvec.data())) return 1;
 
   // Printout of the eigen results (optional)
 
@@ -160,15 +162,13 @@ int PCA::_calculateEigen(VectorDouble& c0, bool verbose)
   return 0;
 }
 
-int PCA::_calculateGEigen(VectorDouble& c0, const VectorDouble& gh, bool verbose)
+int PCA::_calculateGEigen(bool verbose)
 {
   int nvar = _nVar;
-  _eigval.resize(nvar,0);
-  _eigvec.resize(nvar * nvar,0.);
 
   // Eigen decomposition
 
-  if (matrix_geigen(gh.data(), c0.data(), nvar, _eigval.data(), _eigvec.data())) return 1;
+  if (matrix_geigen(_gh.data(), _c0.data(), nvar, _eigval.data(), _eigvec.data())) return 1;
 
   // Printout of the eigen results (optional)
 
@@ -387,16 +387,15 @@ void PCA::_calculateNormalization(const Db *db,
  ** \param[in]  flag_nm1    When TRUE, variance is scaled by N-1; otherwise by N
  **
  *****************************************************************************/
-VectorDouble PCA::_covariance0(const Db *db,
-                               const VectorBool &isoFlag,
-                               bool verbose,
-                               bool flag_nm1)
+void PCA::_covariance0(const Db *db,
+                       const VectorBool &isoFlag,
+                       bool verbose,
+                       bool flag_nm1)
 {
   int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
   int niso = 0;
   VectorDouble data1(nvar);
-  VectorDouble c0(nvar * nvar,0.);
 
   /* Calculate the variance-covariance matrix at distance 0 */
 
@@ -410,7 +409,7 @@ VectorDouble PCA::_covariance0(const Db *db,
     niso++;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        c0[ivar * nvar + jvar] += data1[ivar] * data1[jvar];
+        _c0[ivar * nvar + jvar] += data1[ivar] * data1[jvar];
   }
 
   /* Normalization */
@@ -418,17 +417,15 @@ VectorDouble PCA::_covariance0(const Db *db,
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       if (flag_nm1)
-        c0[ivar * nvar + jvar] /= (niso-1.);
+        _c0[ivar * nvar + jvar] /= (niso-1.);
       else
-        c0[ivar * nvar + jvar] /= niso;
+        _c0[ivar * nvar + jvar] /= niso;
 
   /* Printout of the covariance matrix (optional) */
 
   if (verbose)
     print_matrix("Variance-Covariance matrix for distance 0", 0, 1, nvar, nvar,
-                 NULL,c0.data());
-
-  return c0;
+                 NULL,_c0.data());
 }
 
 /****************************************************************************/
@@ -611,8 +608,13 @@ int PCA::pca_compute(const Db *db, bool verbose)
   VectorBool isoFlag = _getVectorIsotopic(db);
   _calculateNormalization(db, isoFlag, verbose, true);
 
-  VectorDouble c0 = _covariance0(db, isoFlag, verbose, true);
-  if (_calculateEigen(c0, verbose)) return 1;
+  // Derive the PCA decomposition
+
+  _covariance0(db, isoFlag, verbose, true);
+
+  // Establish the transfer functions
+
+  if (_calculateEigen(verbose)) return 1;
 
   _pcaFunctions(verbose);
 
@@ -711,29 +713,31 @@ int PCA::_mafCompute(Db *db,
 
   /* Calculate the first PCA (centered and normalized) */
 
-  VectorDouble c0 = _covariance0(db, isoFlag, verbose, true);
+  _covariance0(db, isoFlag, verbose, true);
 
   /* Calculate the variogram matrix at distance [h0-dh,h0+dh] */
 
-  VectorDouble gh = _variogramh(db, varioparam, ilag0, idir0, hmin, hmax, isoFlag, verbose);
+  _variogramh(db, varioparam, ilag0, idir0, hmin, hmax, isoFlag, verbose);
 
-  // Temporary check
+  // Derive the MAF decomposition
 
-  if (_calculateGEigen(c0, gh, verbose)) return 1;
+  if (_calculateGEigen(verbose)) return 1;
+
+  // Establish the transfer functions
 
   _mafFunctions(verbose);
 
   return 0;
 }
 
-VectorDouble PCA::_variogramh(Db *db,
-                              const VarioParam& varioparam,
-                              int ilag0,
-                              int idir0,
-                              double hmin,
-                              double hmax,
-                              const VectorBool &isoFlag,
-                              bool verbose)
+void PCA::_variogramh(Db *db,
+                      const VarioParam &varioparam,
+                      int ilag0,
+                      int idir0,
+                      double hmin,
+                      double hmax,
+                      const VectorBool &isoFlag,
+                      bool verbose)
 {
   double ps;
 
@@ -747,7 +751,6 @@ VectorDouble PCA::_variogramh(Db *db,
 
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
-  VectorDouble gh(nvar * nvar, 0.);
 
   /* Loop on samples */
 
@@ -792,7 +795,7 @@ VectorDouble PCA::_variogramh(Db *db,
         {
           double di = data1[ivar] - data2[ivar];
           double dj = data1[jvar] - data2[jvar];
-          gh[ivar * nvar + jvar] += di * dj / 2.;
+          _gh[ivar * nvar + jvar] += di * dj / 2.;
         }
       npairs++;
     }
@@ -803,7 +806,7 @@ VectorDouble PCA::_variogramh(Db *db,
   if (npairs > 0)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        gh[ivar * nvar + jvar] /= npairs;
+        _gh[ivar * nvar + jvar] /= npairs;
 
   /* Verbose printout */
 
@@ -825,9 +828,8 @@ VectorDouble PCA::_variogramh(Db *db,
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotopic pairs    = %d\n", npairs);
     message("\n");
-    print_matrix("Variogram matrix for distance h", 0, 1, nvar, nvar, NULL, gh.data());
+    print_matrix("Variogram matrix for distance h", 0, 1, nvar, nvar, NULL, _gh.data());
   }
-  return gh;
 }
 
 VectorBool PCA::_getVectorIsotopic(const Db* db)

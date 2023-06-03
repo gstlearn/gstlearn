@@ -19,14 +19,14 @@
 #include "Polygon/Polygons.hpp"
 
 Polygons::Polygons()
-  : _polysets()
+  : _polyelems()
 {
 }
 
 Polygons::Polygons(const Polygons& r)
     : AStringable(r),
       ASerializable(r),
-      _polysets(r._polysets)
+      _polyelems(r._polyelems)
 {
 }
 
@@ -36,7 +36,7 @@ Polygons& Polygons::operator=(const Polygons& r)
   {
     AStringable::operator=(r);
     ASerializable::operator=(r);
-    _polysets = r._polysets;
+    _polyelems = r._polyelems;
   }
   return *this;
 }
@@ -79,7 +79,7 @@ int Polygons::resetFromCSV(const String& filename,
 
   // Free the previous contents
 
-  _polysets.clear();
+  _polyelems.clear();
 
   /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
 
@@ -94,36 +94,36 @@ int Polygons::resetFromCSV(const String& filename,
     return 1;
   }
 
-  // Loop on the contents of the first column to look for Polysets
+  // Loop on the contents of the first column to look for polyelems
   int ideb = 0;
   int ifin = nrow;
   for (int i = 0; i < nrow; i++)
   {
     if (FFFF(tab[ncol * i]))
     {
-      PolySet polyset = _extractFromTab(ideb, i, ncol, tab);
-      addPolySet(polyset);
+      PolyElem polyelem = _extractFromTab(ideb, i, ncol, tab);
+      addPolyElem(polyelem);
       ideb = i + 1;
     }
   }
   if (ideb < ifin)
   {
-    PolySet polyset = _extractFromTab(ideb, nrow, ncol, tab);
-    addPolySet(polyset);
+    PolyElem polyelem = _extractFromTab(ideb, nrow, ncol, tab);
+    addPolyElem(polyelem);
   }
   return 0;
  }
 
-void Polygons::addPolySet(const PolySet& polyset)
+void Polygons::addPolyElem(const PolyElem& polyelem)
 {
-  _polysets.push_back(polyset);
+  _polyelems.push_back(polyelem);
 }
 
 String Polygons::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  int npol = static_cast<int> (_polysets.size());
+  int npol = static_cast<int> (_polyelems.size());
 
   sstr << toTitle(1, "Polygons");
   sstr << "Number of Polygon Sets = " << npol << std::endl;
@@ -134,8 +134,8 @@ String Polygons::toString(const AStringFormat* strfmt) const
   {
     for (int i=0; i<npol; i++)
     {
-      sstr << toTitle(2, "Polyset #%d", i+1);
-      sstr << _polysets[i].toString(strfmt);
+      sstr << toTitle(2, "PolyElem #%d", i+1);
+      sstr << _polyelems[i].toString(strfmt);
     }
   }
   return sstr.str();
@@ -148,9 +148,9 @@ void Polygons::getExtension(double *xmin,
 {
   double xmin_loc, xmax_loc, ymin_loc, ymax_loc;
 
-  for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+  for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
   {
-    _polysets[ipol].getExtension(&xmin_loc, &xmax_loc, &ymin_loc, &ymax_loc);
+    _polyelems[ipol].getExtension(&xmin_loc, &xmax_loc, &ymin_loc, &ymax_loc);
     if (xmin_loc < *xmin) (*xmin) = xmin_loc;
     if (ymin_loc < *ymin) (*ymin) = ymin_loc;
     if (xmax_loc > *xmax) (*xmax) = xmax_loc;
@@ -161,14 +161,14 @@ void Polygons::getExtension(double *xmin,
 double Polygons::getSurface() const
 {
   double surface = 0.;
-  for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+  for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
   {
-    surface += _polysets[ipol].getSurface();
+    surface += _polyelems[ipol].getSurface();
   }
   return (surface);
 }
 
-PolySet Polygons::_extractFromTab(int ideb,
+PolyElem Polygons::_extractFromTab(int ideb,
                                   int ifin,
                                   int ncol,
                                   const VectorDouble& tab)
@@ -182,8 +182,8 @@ PolySet Polygons::_extractFromTab(int ideb,
     x[i] = tab[ncol * j + 0];
     y[i] = tab[ncol * j + 1];
   }
-  PolySet polyset = PolySet(x,y);
-  return polyset;
+  PolyElem polyelem = PolyElem(x,y);
+  return polyelem;
 }
 
 bool Polygons::_deserialize(std::istream& is, bool verbose)
@@ -192,26 +192,26 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
 
   // Clear previous contents
 
-  _polysets.clear();
+  _polyelems.clear();
 
   /* Create the Model structure */
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of Polygons", npol);
 
-  /* Loop on the PolySets */
+  /* Loop on the PolyElems */
 
   for (int ipol = 0; ret && ipol < npol; ipol++)
   {
-    PolySet polyset;
-    ret = ret && polyset._deserialize(is, verbose);
+    PolyElem polyelem;
+    ret = ret && polyelem._deserialize(is, verbose);
     if (ret)
     {
-      addPolySet(polyset);
-      if (verbose) message("Polyset #%d - Number of vertices = %d\n",ipol+1, polyset.getNPoints());
+      addPolyElem(polyelem);
+      if (verbose) message("PolyElem #%d - Number of vertices = %d\n",ipol+1, polyelem.getNPoints());
     }
     else
-      messerr("Error when reading Polyset #%d",ipol+1);
+      messerr("Error when reading PolyElem #%d",ipol+1);
   }
   return ret;
 }
@@ -219,14 +219,14 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
 bool Polygons::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<int>(os, "Number of Polygons", getPolySetNumber());
+  ret = ret && _recordWrite<int>(os, "Number of Polygons", getPolyElemNumber());
 
   /* Writing the covariance part */
 
-  for (int ipol = 0; ret && ipol < getPolySetNumber(); ipol++)
+  for (int ipol = 0; ret && ipol < getPolyElemNumber(); ipol++)
   {
-    const PolySet& polyset = getPolySet(ipol);
-    ret = ret && polyset._serialize(os, verbose);
+    const PolyElem& polyelem = getPolyElem(ipol);
+    ret = ret && polyelem._serialize(os, verbose);
   }
   return ret;
 }
@@ -287,50 +287,50 @@ Polygons* Polygons::createFromDb(const Db* db, double dilate, bool verbose)
   return polygons;
 }
 
-const PolySet Polygons::getPolySet(int ipol) const
+const PolyElem Polygons::getPolyElem(int ipol) const
 {
-  if (! _isValidPolySetIndex(ipol)) return PolySet();
-  return _polysets[ipol];
+  if (! _isValidPolyElemIndex(ipol)) return PolyElem();
+  return _polyelems[ipol];
 }
 
-PolySet Polygons::getClosedPolySet(int ipol) const
+PolyElem Polygons::getClosedPolyElem(int ipol) const
 {
-  if (! _isValidPolySetIndex(ipol)) return PolySet();
-  PolySet polyset = getPolySet(ipol);
-  polyset.closePolySet();
-  return polyset;
+  if (! _isValidPolyElemIndex(ipol)) return PolyElem();
+  PolyElem polyelem = getPolyElem(ipol);
+  polyelem.closePolyElem();
+  return polyelem;
 }
 
 const VectorDouble Polygons::getX(int ipol) const
 {
-  if (! _isValidPolySetIndex(ipol)) return VectorDouble();
-  return _polysets[ipol].getX();
+  if (! _isValidPolyElemIndex(ipol)) return VectorDouble();
+  return _polyelems[ipol].getX();
 }
 
 const VectorDouble Polygons::getY(int ipol) const
 {
-  if (! _isValidPolySetIndex(ipol)) return VectorDouble();
-  return _polysets[ipol].getY();
+  if (! _isValidPolyElemIndex(ipol)) return VectorDouble();
+  return _polyelems[ipol].getY();
 }
 
 void Polygons::setX(int ipol, const VectorDouble& x)
 {
-  if (! _isValidPolySetIndex(ipol)) return;
-  return _polysets[ipol].setX(x);
+  if (! _isValidPolyElemIndex(ipol)) return;
+  return _polyelems[ipol].setX(x);
 }
 
 void Polygons::setY(int ipol, const VectorDouble& y)
 {
-  if (! _isValidPolySetIndex(ipol)) return;
-  return _polysets[ipol].setY(y);
+  if (! _isValidPolyElemIndex(ipol)) return;
+  return _polyelems[ipol].setY(y);
 }
 
-bool Polygons::_isValidPolySetIndex(int ipol) const
+bool Polygons::_isValidPolyElemIndex(int ipol) const
 {
-  int npol = getPolySetNumber();
+  int npol = getPolyElemNumber();
   if (ipol < 0 || ipol >= npol)
   {
-    messerr("PolySet Index %d is not valid. It should lie in [0,%d[",
+    messerr("PolyElem Index %d is not valid. It should lie in [0,%d[",
             ipol,npol);
     return false;
   }
@@ -381,13 +381,13 @@ int dbPolygonDistance(Db *db,
   int iptr = db->addColumnsByConstant(1, TEST);
   if (iptr < 0) return (1);
 
-  // Loop on the polysets
+  // Loop on the polyelems
 
   double distmax = 0.;
   double distmin = TEST;
-  for (int iset = 0; iset < polygon->getPolySetNumber(); iset++)
+  for (int iset = 0; iset < polygon->getPolyElemNumber(); iset++)
   {
-    const PolySet &polyset = polygon->getPolySet(iset);
+    const PolyElem &polyelem = polygon->getPolyElem(iset);
 
     // Loop on the samples
 
@@ -396,7 +396,7 @@ int dbPolygonDistance(Db *db,
       if (!db->isActive(iech)) continue;
       target[0] = db->getCoordinate(iech, 0);
       target[1] = db->getCoordinate(iech, 1);
-      PolyLine2D polyline(polyset.getX(), polyset.getY());
+      PolyLine2D polyline(polyelem.getX(), polyelem.getY());
       PolyPoint2D pldist = polyline.getPLIndex(target);
       double distloc = pldist.dist;
       if (FFFF(distloc)) continue;
@@ -499,13 +499,13 @@ int dbPolygonDistance(Db *db,
  ** \return  1 if the point belongs to the Polygons; 0 otherwise
  **
  ** \param[in]  coor        Vector of coordinates
- ** \param[in]  flag_nested Option for nested polysets (see details)
+ ** \param[in]  flag_nested Option for nested polyelems (see details)
  **
  ** \remarks When coor is dimensioned to 3, the third dimension test is performed
  ** \remarks If flag_nested=TRUE, a sample is masked off if the number of
- ** \remarks polysets to which it belongs is odd
+ ** \remarks polyelems to which it belongs is odd
  ** \remarks If flag_nested=FALSE, a sample is masked off as soon as it
- ** \remarks belongs to one PolySet
+ ** \remarks belongs to one PolyElem
  **
  *****************************************************************************/
 bool Polygons::inside(const VectorDouble& coor, bool flag_nested)
@@ -514,27 +514,27 @@ bool Polygons::inside(const VectorDouble& coor, bool flag_nested)
   if (flag_nested)
   {
     int number = 0;
-    for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+    for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
     {
-      PolySet polyset = getClosedPolySet(ipol);
+      PolyElem polyelem = getClosedPolyElem(ipol);
       if (flag3d)
       {
-        if (!polyset.inside3D(coor[2])) return false;
+        if (!polyelem.inside3D(coor[2])) return false;
       }
-      if (polyset.inside(coor)) number++;
+      if (polyelem.inside(coor)) number++;
     }
     if (number % 2 != 0) return true;
   }
   else
   {
-    for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
+    for (int ipol = 0; ipol < getPolyElemNumber(); ipol++)
     {
-      PolySet polyset = getClosedPolySet(ipol);
+      PolyElem polyelem = getClosedPolyElem(ipol);
       if (flag3d)
       {
-        if (!polyset.inside3D(coor[2])) return false;
+        if (!polyelem.inside3D(coor[2])) return false;
       }
-      if (polyset.inside(coor)) return true;
+      if (polyelem.inside(coor)) return true;
     }
   }
   return false;
@@ -736,8 +736,8 @@ int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
 
   // Load the information within the polygon structure
 
-  PolySet polyset = PolySet(xret, yret);
-  addPolySet(polyset);
+  PolyElem polyelem = PolyElem(xret, yret);
+  addPolyElem(polyelem);
 
   return 0;
 }
@@ -751,13 +751,13 @@ int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
  ** \param[in]  flag_sel    true if previous selection must be taken into account
  ** \param[in]  flag_period true if first coordinate is longitude (in degree) and
  **                         must be cycled for the check
- ** \param[in]  flag_nested Option for nested polysets (see details)
+ ** \param[in]  flag_nested Option for nested polyelems (see details)
  ** \param[in]  namconv     Naming Convention
  **
  ** \remarks If flag_nested=true, a sample is masked off if the number of
- ** \remarks polysets to which it belongs is odd
+ ** \remarks polyelems to which it belongs is odd
  ** \remarks If flag_nested=false, a sample is masked off as soon as it
- ** \remarks belongs to one polyset
+ ** \remarks belongs to one polyelem
  **
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **

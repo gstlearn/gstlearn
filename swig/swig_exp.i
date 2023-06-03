@@ -291,7 +291,7 @@
 %include Morpho/Morpho.hpp
 
 %include Polygon/Polygons.hpp
-%include Polygon/PolySet.hpp
+%include Polygon/PolyElem.hpp
 
 %include Stats/Classical.hpp
 %include Stats/PCA.hpp
