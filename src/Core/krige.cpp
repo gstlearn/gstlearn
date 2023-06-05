@@ -336,7 +336,7 @@ static void st_cov(Model *model,
     COVINT.setIech2(IECH_OUT);
   }
 
-  CovCalcMode mode(member, false, false, nugget_opt==1, icov_r);
+  CovCalcMode mode(member, false, nugget_opt==1, icov_r);
   model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1loc, covtab_loc);
 }
 

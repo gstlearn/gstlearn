@@ -62,6 +62,11 @@ public:
                          int ivar = 0,
                          int jvar = 0,
                          const CovCalcMode &mode = CovCalcMode()) const override;
+  virtual double evalBasic(const SpacePoint &p1,
+                           const SpacePoint &p2,
+                           int ivar = 0,
+                           int jvar = 0,
+                           const CovCalcMode &mode = CovCalcMode()) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -121,9 +126,6 @@ public:
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;
-  double _getNormalizationFactor(int ivar,
-                                 int jvar,
-                                 const CovCalcMode& mode) const;
 
 #ifndef SWIG
 protected:

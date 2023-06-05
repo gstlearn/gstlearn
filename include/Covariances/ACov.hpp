@@ -52,6 +52,11 @@ public:
                          int ivar = 0,
                          int jvar = 0,
                          const CovCalcMode &mode = CovCalcMode()) const { };
+  virtual double evalBasic(const SpacePoint &p1,
+                           const SpacePoint &p2,
+                           int ivar = 0,
+                           int jvar = 0,
+                           const CovCalcMode &mode = CovCalcMode()) const = 0;
 
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,

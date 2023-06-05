@@ -21,7 +21,6 @@ class GSTLEARN_EXPORT CovCalcMode : public AStringable
 public:
   CovCalcMode(const ECalcMember& member = ECalcMember::fromKey("LHS"),
               bool asVario = false,
-              bool normalized = false,
               bool filterNugget = false,
               int keepOnlyCovIdx = -1,
               bool unitary = false,
@@ -32,7 +31,6 @@ public:
 
   static CovCalcMode* create(const ECalcMember &member = ECalcMember::fromKey("LHS"),
                              bool asVario = false,
-                             bool normalized = false,
                              bool filterNugget = false,
                              int keepOnlyCovIdx = -1,
                              bool unitary = false,
@@ -41,7 +39,6 @@ public:
   bool                  isFactorySettings()   const { return _factorySettings; }
   const ECalcMember&    getMember()           const { return _member; }
   bool                  getAsVario()          const { return _asVario; }
-  bool                  getNormalized()       const { return _normalized; }
   bool                  isFilterNugget()      const { return _filterNugget; }
   int                   getKeepOnlyCovIdx()   const { return _keepOnlyCovIdx; }
   bool                  getUnitary()          const { return _unitary; }
@@ -54,7 +51,6 @@ public:
   void setFilterNugget(bool filterNugget) { _filterNugget = filterNugget; _checkFactorySettings(); }
   void setKeepOnlyCovIdx(int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; _checkFactorySettings(); }
   void setUnitary(bool unitary) { _unitary = unitary; _checkFactorySettings(); }
-  void setNormalized(bool normalized) { _normalized = normalized; _checkFactorySettings(); }
   void setOrderVario(int orderVario) { _orderVario = orderVario; _checkFactorySettings(); }
   void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; _checkFactorySettings(); }
   void setCovFiltered(int i, bool status);
@@ -63,7 +59,6 @@ public:
 private:
   void _checkFactorySettings(const ECalcMember& member = ECalcMember::fromKey("LHS"),
                              bool asVario = false,
-                             bool normalized = false,
                              bool filterNugget = false,
                              int keepOnlyCovIdx = -1,
                              bool unitary = false,
@@ -73,7 +68,6 @@ private:
   bool          _factorySettings;
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */
   bool          _asVario;        /*! True to calculate variogram and not covariance (default = false) */
-  bool          _normalized;     /*! Normalized variogram */
   bool          _filterNugget;   /*! True to filter nugget structure (default = false) */
   int           _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */

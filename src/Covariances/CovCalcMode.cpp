@@ -14,7 +14,6 @@
 
 CovCalcMode::CovCalcMode(const ECalcMember& member,
                          bool asVario,
-                         bool normalized,
                          bool filterNugget,
                          int keepOnlyCovIdx,
                          bool unitary,
@@ -23,7 +22,6 @@ CovCalcMode::CovCalcMode(const ECalcMember& member,
   _factorySettings(true),
   _member(member),
   _asVario(asVario),
-  _normalized(normalized),
   _filterNugget(filterNugget),
   _keepOnlyCovIdx(keepOnlyCovIdx),
   _unitary(unitary),
@@ -38,7 +36,6 @@ CovCalcMode::CovCalcMode(const CovCalcMode &r)
       _factorySettings(r._factorySettings),
       _member(r._member),
       _asVario(r._asVario),
-      _normalized(r._normalized),
       _filterNugget(r._filterNugget),
       _keepOnlyCovIdx(r._keepOnlyCovIdx),
       _unitary(r._unitary),
@@ -56,7 +53,6 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
     _factorySettings = r._factorySettings;
     _member = r._member;
     _asVario = r._asVario;
-    _normalized = r._normalized;
     _filterNugget = r._filterNugget;
     _keepOnlyCovIdx = r._keepOnlyCovIdx;
     _unitary = r._unitary;
@@ -72,19 +68,17 @@ CovCalcMode::~CovCalcMode()
 
 CovCalcMode* CovCalcMode::create(const ECalcMember &member,
                                  bool asVario,
-                                 bool normalized,
                                  bool filterNugget,
                                  int keepOnlyCovIdx,
                                  bool unitary,
                                  int orderVario)
 {
-  return new CovCalcMode(member, asVario, normalized, filterNugget, keepOnlyCovIdx, unitary, orderVario);
+  return new CovCalcMode(member, asVario, filterNugget, keepOnlyCovIdx, unitary, orderVario);
 }
 
 
 void CovCalcMode::_checkFactorySettings(const ECalcMember& member,
                                         bool asVario,
-                                        bool normalized,
                                         bool filterNugget,
                                         int keepOnlyCovIdx,
                                         bool unitary,
@@ -93,7 +87,6 @@ void CovCalcMode::_checkFactorySettings(const ECalcMember& member,
   _factorySettings = false;
   if (_member != member) return;
   if (_asVario != asVario) return;
-  if (_normalized != normalized) return;
   if (_filterNugget != filterNugget) return;
   if (_keepOnlyCovIdx != (int) keepOnlyCovIdx) return;
   if (_unitary != unitary) return;
