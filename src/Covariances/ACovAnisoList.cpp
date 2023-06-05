@@ -34,9 +34,7 @@ ACovAnisoList::ACovAnisoList(const ACovAnisoList &r)
   _filtered(r._filtered)
 {
   for (auto e: r._covs)
-  {
     _covs.push_back(e->clone());
-  }
 }
 
 ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
@@ -45,9 +43,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
   {
     ACov::operator=(r);
     for (auto e: r._covs)
-    {
       _covs.push_back(e->clone());
-    }
     _filtered = r._filtered;
   }
   return *this;

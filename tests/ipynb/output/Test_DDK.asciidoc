@@ -129,32 +129,32 @@ Means
      [  1,]     0.200
      [  2,]     0.200
      [  3,]     0.200
-Standard deviations
-               [,  0]
-     [  0,]     0.458
-     [  1,]     0.400
-     [  2,]     0.400
-     [  3,]     0.400
-Eigen Values
-               [,  0]
-     [  0,]     0.561
-     [  1,]     0.866
-     [  2,]     0.953
-     [  3,]     1.027
-Matrix M to transform standardized Variables Z into Factors Y
+Covariance Matrix
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     0.210    -0.060    -0.060    -0.060
+     [  1,]    -0.060     0.160    -0.040    -0.040
+     [  2,]    -0.060    -0.040     0.160    -0.040
+     [  3,]    -0.060    -0.040    -0.040     0.160
+Variogram Matrix at lag h
+               [,  0]    [,  1]    [,  2]    [,  3]
+     [  0,]     0.150    -0.067    -0.048    -0.029
+     [  1,]    -0.067     0.150    -0.041    -0.032
+     [  2,]    -0.048    -0.041     0.160    -0.050
+     [  3,]    -0.029    -0.032    -0.050     0.140
+Matrix MZ2F to transform standardized Variables Z into Factors F
                [,  0]    [,  1]    [,  2]    [,  3]
      [  0,]    -3.162     1.396     1.172    -0.012
      [  1,]    -2.451     2.651    -1.252    -0.619
      [  2,]    -1.755     2.815     0.456     1.943
      [  3,]    -1.158     3.217     1.559    -0.931
-Y = Z * M (columns  = eigen vectors)
-Matrix t(M) to back-transform Factors Y into standardized Variables Z
+Y = (Z - m) * MZ2F)
+Matrix MF2Z to back-transform Factors F into standardized Variables Z
                [,  0]    [,  1]    [,  2]    [,  3]
      [  0,]    -0.343    -0.086     0.053     0.173
      [  1,]    -0.228     0.099     0.132     0.213
      [  2,]     0.201    -0.352    -0.010     0.211
      [  3,]    -0.026    -0.139     0.374    -0.201
-Z = Y * t(M) (rows  = eigen vectors)
+Z = m + Y * MF2Z
  ----
 
 

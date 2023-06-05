@@ -195,22 +195,26 @@ String PCA::toString(const AStringFormat* strfmt) const
   {
     sstr << toMatrix("Means", VectorString(), VectorString(), true, 1, _nVar,
                     _mean);
-    sstr << toMatrix("Standard deviations", VectorString(), VectorString(), true,
-                    1, _nVar, _sigma);
   }
   if (dsf.getflagStats())
-    sstr << toMatrix("Eigen Values", VectorString(), VectorString(), true, 1,
-                    _nVar, _eigval);
+  {
+    sstr << toMatrix("Covariance Matrix", VectorString(), VectorString(), true, _nVar,
+                     _nVar, _c0);
+    if (_gh.size() > 0)
+    {
+      sstr << toMatrix("Variogram Matrix at lag h", VectorString(), VectorString(), true, _nVar,
+                       _nVar, _gh);
+    }
 
-  sstr << toMatrix("Matrix M to transform standardized Variables Z into Factors Y",
-                   VectorString(), VectorString(), true,
-                   _nVar, _nVar, _Z2F);
-  sstr << "Y = Z * M (columns  = eigen vectors)" << std::endl;
-  sstr << toMatrix("Matrix t(M) to back-transform Factors Y into standardized Variables Z",
-                   VectorString(), VectorString(), true,
-                   _nVar, _nVar, _F2Z);
-  sstr << "Z = Y * t(M) (rows  = eigen vectors)" << std::endl;
-
+    sstr << toMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F",
+                     VectorString(), VectorString(), true,
+                     _nVar, _nVar, _Z2F);
+    sstr << "Y = (Z - m) * MZ2F)" << std::endl;
+    sstr << toMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z",
+                     VectorString(), VectorString(), true,
+                     _nVar, _nVar, _F2Z);
+    sstr << "Z = m + Y * MF2Z" << std::endl;
+  }
   return sstr.str();
 }
 
