@@ -149,6 +149,10 @@ public:
   {
     return _covaList->eval0Nvar(mode);
   }
+  void eval0NvarInPlace(MatrixSquareGeneral& mat, const CovCalcMode& mode = CovCalcMode()) const
+  {
+    _covaList->eval0NvarInPlace(mat, mode);
+  }
   double eval(const SpacePoint& p1,
               const SpacePoint& p2,
               int ivar = 0,
@@ -169,6 +173,14 @@ public:
                               const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->evalMat(p1, p2, mode);
+  }
+
+  void evalMatInPlace(const SpacePoint &p1,
+                      const SpacePoint &p2,
+                      MatrixSquareGeneral &mat,
+                      const CovCalcMode &mode = CovCalcMode()) const
+  {
+    _covaList->evalMatInPlace(p1, p2, mat, mode);
   }
 
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,

@@ -119,6 +119,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _nbgh(),
       _flag(),
       _covtab(),
+      _covref(),
       _drftab(),
       _lhs(),
       _lhsinv(),
@@ -312,6 +313,7 @@ void KrigingSystem::_resetMemoryGeneral()
   _setInternalShortCutVariablesGeneral();
 
   _covtab.reset(_nvar, _nvar);
+  _covref.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
 
@@ -654,17 +656,16 @@ void KrigingSystem::_covtabCalcul(const SpacePoint& p1,
 {
   // Evaluate the Model
 
-  MatrixSquareGeneral mat;
   if (flagSameData)
-    mat = _model->eval0Nvar(mode);
+    _model->eval0NvarInPlace(_covref, mode);
   else
-    mat = _model->evalMat(p1, p2, mode);
+    _model->evalMatInPlace(p1, p2, _covref, mode);
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
-      _addCOVTAB(ivar,jvar,mat.getValue(ivar, jvar));
+      _addCOVTAB(ivar,jvar,_covref.getValue(ivar, jvar));
   return;
 }
 

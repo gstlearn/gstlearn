@@ -301,6 +301,7 @@ private:
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable MatrixSquareGeneral _covtab;
+  mutable MatrixSquareGeneral _covref;
   mutable VectorDouble _drftab;
   mutable VectorDouble _lhs;
   mutable VectorDouble _lhsinv;

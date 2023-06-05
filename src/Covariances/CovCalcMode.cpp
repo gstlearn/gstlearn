@@ -28,7 +28,6 @@ CovCalcMode::CovCalcMode(const ECalcMember& member,
   _keepOnlyCovIdx(keepOnlyCovIdx),
   _unitary(unitary),
   _orderVario(orderVario),
-  _indexClass(0),
   _covFiltered()
 {
   _checkFactorySettings();
@@ -44,7 +43,6 @@ CovCalcMode::CovCalcMode(const CovCalcMode &r)
       _keepOnlyCovIdx(r._keepOnlyCovIdx),
       _unitary(r._unitary),
       _orderVario(r._orderVario),
-      _indexClass(r._indexClass),
       _covFiltered(r._covFiltered)
 {
   _checkFactorySettings();
@@ -63,7 +61,6 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
     _keepOnlyCovIdx = r._keepOnlyCovIdx;
     _unitary = r._unitary;
     _orderVario = r._orderVario;
-    _indexClass = r._indexClass;
     _covFiltered = r._covFiltered;
     _checkFactorySettings();
   }

@@ -921,10 +921,10 @@ VectorDouble Model::envelop(const VectorDouble &hh,
   VectorDouble g2(nh);
 
   model_evaluate(this, ivar, ivar, mode, nh, codir, hh.data(), g1.data());
-  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), g2.data());
+  model_evaluate(this, jvar, jvar, mode, nh, codir, hh.data(), g2.data());
 
   for (int i = 0; i < nh; i++)
-    gg[i] = isign * sqrt(g1[i] * g2[i]);
+    gg[i] = isign * sqrt(abs(g1[i] * g2[i]));
 
   return gg;
 }

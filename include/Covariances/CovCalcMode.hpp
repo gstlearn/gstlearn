@@ -48,7 +48,6 @@ public:
   int                   getOrderVario()       const { return _orderVario; }
   const VectorBool&     getCovFiltered()      const { return _covFiltered; }
   bool                  getCovFiltered(int i) const;
-  int                   getIndexClass()       const { return _indexClass; }
 
   void setAsVario(bool asVario) { _asVario = asVario; _checkFactorySettings(); }
   void setMember(const ECalcMember& member) { _member = member; _checkFactorySettings(); }
@@ -60,7 +59,6 @@ public:
   void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; _checkFactorySettings(); }
   void setCovFiltered(int i, bool status);
   void setAllCovFiltered(int ncov, bool status);
-  void setIndexClass(int indexClass) { _indexClass = indexClass; _checkFactorySettings();}
 
 private:
   void _checkFactorySettings(const ECalcMember& member = ECalcMember::fromKey("LHS"),
@@ -80,6 +78,5 @@ private:
   int           _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
-  int           _indexClass;     /*! Index of the working class (used when calculating Covariance) */
   VectorBool    _covFiltered;    /*! Array of Covariance filtering flags (optional) */
 };

@@ -65,6 +65,7 @@ public:
   /////////////////////////////////////////////////////////////////////////////////
 
   MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;
+  void eval0NvarInPlace(MatrixSquareGeneral& mat, const CovCalcMode& mode = CovCalcMode()) const;
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
@@ -79,6 +80,10 @@ public:
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode& mode = CovCalcMode()) const;
+  void evalMatInPlace(const SpacePoint &p1,
+                      const SpacePoint &p2,
+                      MatrixSquareGeneral &mat,
+                      const CovCalcMode &mode = CovCalcMode()) const;
   double evalIvarIpas(double step,
                       const VectorDouble& dir,
                       int ivar = 0,
