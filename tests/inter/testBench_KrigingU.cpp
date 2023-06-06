@@ -73,7 +73,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 4700);
+  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 3400);
 
   if (neighU    != nullptr) delete neighU;
   if (data      != nullptr) delete data;

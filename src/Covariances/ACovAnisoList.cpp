@@ -129,20 +129,11 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
     {
       if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
         continue;
-      if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
-        continue;
       if (mode.getCovFiltered(i))
         continue;
       cov += _covs[i]->eval0(ivar, jvar, mode);
     }
   }
-
-  // Normalization
-  if (mode.getNormalized())
-  {
-    cov /= _getNormalizationFactor(ivar, jvar, mode);
-  }
-
   return cov;
 }
 
@@ -162,7 +153,6 @@ void ACovAnisoList::evalOptim(const SpacePoint &p1,
   }
 }
 
-
 double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
                            int ivar,
@@ -178,21 +168,24 @@ double ACovAnisoList::eval(const SpacePoint& p1,
     {
       if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
         continue;
-      if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
-        continue;
       if (mode.getCovFiltered(i))
         continue;
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
     }
   }
-
-  // Normalization
-  if (mode.getNormalized())
-  {
-    cov /= _getNormalizationFactor(ivar, jvar, mode);
-  }
-
   return cov;
+}
+
+double ACovAnisoList::evalBasic(const SpacePoint &p1,
+                                const SpacePoint &p2,
+                                int ivar,
+                                int jvar,
+                                const CovCalcMode &mode) const
+{
+  double cov = 0.;
+  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
+   return cov;
 }
 
 String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
@@ -378,23 +371,6 @@ double ACovAnisoList::getMaximumDistance() const
     if (range > maxdist) maxdist = range;
   }
   return maxdist;
-}
-
-double ACovAnisoList::_getNormalizationFactor(int ivar,
-                                              int jvar,
-                                              const CovCalcMode& mode) const
-{
-  double c00 = eval0(ivar, ivar, mode);
-  if (c00 < 0 || FFFF(c00))
-  my_throw("Normalization required but C00 not defined");
-  if (ivar != jvar)
-  {
-    double c11 = eval0(jvar, jvar, mode);
-    if (c11 < 0 || FFFF(c11))
-    my_throw("Normalization required but C00 is not defined");
-    c00 = sqrt(c00 * c11);
-  }
-  return c00;
 }
 
 void ACovAnisoList::copyCovContext(const CovContext& ctxt)

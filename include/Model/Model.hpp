@@ -493,6 +493,11 @@ public:
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       const CovCalcMode& mode = CovCalcMode());
+  VectorDouble sampleUnitary(const VectorDouble &hh,
+                             int ivar = 0,
+                             int jvar = 0,
+                             VectorDouble codir = VectorDouble(),
+                             const CovCalcMode &mode = CovCalcMode());
   VectorDouble envelop(const VectorDouble &hh,
                        int ivar = 0,
                        int jvar = 0,

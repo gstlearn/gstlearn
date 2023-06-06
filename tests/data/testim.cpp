@@ -84,17 +84,18 @@ int main(int argc, char *argv[])
   Constraints constraints;
   DbStringFormat dbfmt;
   int        nbsimu,seed,nbtuba;
-  static int    nboot   = 10;
-  static int    niter   = 10;
-  static int    verbose = 0;
+  static int nboot   = 10;
+  static int niter   = 10;
+  static int verbose = 0;
 
   /* Initializations */
 
-  dbin  = nullptr;
-  dbout = nullptr;
-  vario = nullptr;
-  model = new_model = nullptr;
-  neigh = nullptr;
+  dbin      = nullptr;
+  dbout     = nullptr;
+  vario     = nullptr;
+  model     = nullptr;
+  neigh     = nullptr;
+  new_model = nullptr;
 
   /* Standard output redirection to file */
 

@@ -334,7 +334,6 @@ double CovAniso::eval(const SpacePoint &p1,
 {
   double cov = 0.;
 
-
   // Calculate unit distance by applying anisotropy
   /// TODO: if composite space : return h1, h2, ... (number of sub-space)
   double h = getSpace()->getDistance(p1, p2, _aniso);
@@ -395,6 +394,17 @@ void CovAniso::evalOptim(const SpacePoint &p1,
   {
     res[i] += sill * _cova->evalCov(temp[i]);
   }
+}
+
+double CovAniso::evalBasic(const SpacePoint &p1,
+                           const SpacePoint &p2,
+                           int ivar,
+                           int jvar,
+                           const CovCalcMode &mode) const
+{
+  double h = getSpace()->getDistance(p1, p2, _aniso);
+
+  return _cova->evalCov(h) * getSill(ivar, jvar);
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const

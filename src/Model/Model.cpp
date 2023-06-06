@@ -898,6 +898,45 @@ VectorDouble Model::sample(const VectorDouble& hh,
   return gg;
 }
 
+/**
+ * Returns the value of the normalized covariance (by the variance/covariance value)
+ * for a given pair of variables
+ * @param hh    Vector of distances
+ * @param ivar  Rank of the first variable
+ * @param jvar  Rank of the second variable
+ * @param codir Direction coefficients
+ * @param mode  CovCalcMode structure
+ * @return
+ */
+VectorDouble Model::sampleUnitary(const VectorDouble &hh,
+                                  int ivar,
+                                  int jvar,
+                                  VectorDouble codir,
+                                  const CovCalcMode &mode)
+{
+  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
+  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar == jvar) return VectorDouble();
+  int ndim = getDimensionNumber();
+  if (codir.empty())
+  {
+    codir.resize(ndim);
+    (void) GH::rotationGetDirection(ndim, 1, VectorDouble(), codir);
+  }
+  int nh = (int) hh.size();
+  VectorDouble gg(nh);
+
+  double c00 = eval0(ivar, ivar, mode);
+  double c11 = eval0(jvar, jvar, mode);
+  c00 = sqrt(c00 * c11);
+  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), gg.data());
+
+  for (int i = 0; i < nh; i++)
+    gg[i] /= c00;
+
+  return gg;
+}
+
 VectorDouble Model::envelop(const VectorDouble &hh,
                             int ivar,
                             int jvar,

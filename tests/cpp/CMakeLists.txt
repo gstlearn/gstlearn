@@ -2,7 +2,7 @@
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 
 # With GLOB:
-file(GLOB TEST_SOURCES test_*.cpp)
+file(GLOB TEST_SOURCES *.cpp)
 # Without GLOB:
 #set(TEST_SOURCES 
 #  test_Anam.cpp)
