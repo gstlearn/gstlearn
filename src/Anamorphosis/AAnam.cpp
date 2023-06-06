@@ -297,7 +297,7 @@ int AAnam::rawToGaussian(Db *db,
                          const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
-  db->setLocator(name, ELoc::Z);
+  db->setLocator(name, ELoc::Z, 0, true);
 
   CalcAnamTransform transfo(this);
   transfo.setFlagVars(true);
@@ -329,7 +329,7 @@ int AAnam::gaussianToRaw(Db *db,
                          const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
-  db->setLocator(name, ELoc::Z);
+  db->setLocator(name, ELoc::Z, 0, true);
 
   CalcAnamTransform transfo(this);
   transfo.setFlagVars(true);
@@ -359,7 +359,7 @@ int AAnam::normalScore(Db *db,
                        const NamingConvention &namconv)
 {
   if (db == nullptr) return 1;
-  db->setLocator(name, ELoc::Z);
+  db->setLocator(name, ELoc::Z, 0, true);
 
   CalcAnamTransform transfo(this);
   transfo.setDb(db);
