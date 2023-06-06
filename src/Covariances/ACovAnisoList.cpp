@@ -129,8 +129,6 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
     {
       if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
         continue;
-      if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
-        continue;
       if (mode.getCovFiltered(i))
         continue;
       cov += _covs[i]->eval0(ivar, jvar, mode);
@@ -155,7 +153,6 @@ void ACovAnisoList::evalOptim(const SpacePoint &p1,
   }
 }
 
-
 double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
                            int ivar,
@@ -170,8 +167,6 @@ double ACovAnisoList::eval(const SpacePoint& p1,
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
     {
       if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
-        continue;
-      if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
         continue;
       if (mode.getCovFiltered(i))
         continue;
