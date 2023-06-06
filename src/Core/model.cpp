@@ -25,7 +25,6 @@
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
-#include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"

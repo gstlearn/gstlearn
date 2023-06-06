@@ -57,8 +57,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   krimage(image, model, neighI);
-  timer.displayIntervalMilliseconds("\nKriging in Image Neighborhood");
-  message("Order of magnitude of the reference implementation is 2.2Kms\n");
+  timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 2200);
 
   if (neighI    != nullptr) delete neighI;
   if (image     != nullptr) delete image;

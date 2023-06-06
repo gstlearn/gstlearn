@@ -82,8 +82,11 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
         set(REF_FILE ${REF_FILE_MSYS})
       endif()
     endif()
-    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
+    # Use git diff (cross-platform) with:
+    # - no-index (no need to have files under git control)
+    # - ignore lines starting with #NO_DIFF#
+    # - ignore whitespaces (-w)
     add_test(NAME ${TEST_NAME}_ipynb_cmp
-             COMMAND git diff --no-index -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.asciidoc)
+             COMMAND git diff --no-index -I "#NO_DIFF#" -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.asciidoc)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 

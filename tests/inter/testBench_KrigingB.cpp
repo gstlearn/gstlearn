@@ -74,8 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("\nKriging in Bench Neighborhood");
-  message("Order of magnitude of the reference implementation is 3.0Kms\n");
+  timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 3000);
 
   if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;

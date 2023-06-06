@@ -24,14 +24,20 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 
-# Create the target and the output directory for logs
+# Create the output directory for logs
+add_custom_target(prepare_check_py
+                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")
+
+# Add dependency for check_py
+add_dependencies(prepare_check_py python_install)
+
+# Create the main target
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_py
-                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
                   COMMAND ${MY_CTEST_COMMAND})
 
 # Add dependency for check_py
-add_dependencies(check_py python_install)
+add_dependencies(check_py prepare_check_py)
 
 # Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
 find_package(Python3 REQUIRED)
@@ -68,8 +74,11 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
         set(REF_FILE ${REF_FILE_MSYS})
       endif()
     endif()
-    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
+    # Use git diff (cross-platform) with:
+    # - no-index (no need to have files under git control)
+    # - ignore lines starting with #NO_DIFF#
+    # - ignore whitespaces (-w)
     add_test(NAME ${TEST_NAME}_py_cmp
-             COMMAND git diff --no-index -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND git diff --no-index -I "#NO_DIFF#" -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 

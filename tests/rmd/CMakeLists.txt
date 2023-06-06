@@ -61,7 +61,10 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_rmd
              COMMAND ${R_EXECUTABLE} CMD BATCH --no-save --no-restore "--args ${TEST_SOURCE_FILE} ${TEST_DST_DIR}" ${RUN_TEST_SCRIPT} ${TEST_DST_DIR}/${TEST_NAME}.Rout)
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
-    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
+    # Use git diff (cross-platform) with:
+    # - no-index (no need to have files under git control)
+    # - ignore lines starting with #NO_DIFF#
+    # - ignore whitespaces (-w)
     add_test(NAME ${TEST_NAME}_rmd_cmp
-             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND git diff --no-index -I "#NO_DIFF#" -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})

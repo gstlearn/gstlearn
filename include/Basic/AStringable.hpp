@@ -42,6 +42,7 @@ GSTLEARN_EXPORT void   messageFlush(const String& string);
 GSTLEARN_EXPORT void   messerrFlush(const String& string);
 GSTLEARN_EXPORT void   messerr(const char *format,...);
 GSTLEARN_EXPORT void   message(const char *format,...);
+GSTLEARN_EXPORT void   messageNoDiff(const char *format,...);
 GSTLEARN_EXPORT void   mesArg(const char *title, int current, int nmax, bool flagStartOne = false);
 GSTLEARN_EXPORT void   messageAbort(const char *format,...);
 GSTLEARN_EXPORT void   mestitle(int level,const char *format,...);

@@ -95,9 +95,12 @@ foreach(TARGET_EXE ${TARGETS_EXE})
             set(REF_FILE ${REF_FILE_MSYS})
           endif()
         endif()
-        # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
+        # Use git diff (cross-platform) with:
+        # - no-index (no need to have files under git control)
+        # - ignore lines starting with #NO_DIFF#
+        # - ignore whitespaces (-w)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND git diff --no-index -w ${REF_FILE} ${TEST_DST_DIR}/Result.out
+                 COMMAND git diff --no-index -I "#NO_DIFF#" -w ${REF_FILE} ${TEST_DST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DST_DIR})
     endforeach(TEST_SRC_DIR ${TEST_SRC_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})
