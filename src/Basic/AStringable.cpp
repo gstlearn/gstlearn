@@ -305,6 +305,27 @@ void message(const char *format, ...)
 }
 
 /**
+ * Print a formatted message (with #NO_DIFF# prefix)
+ * @param format Output format
+ * @param ...    Additional arguments
+ */
+void messageNoDiff(const char *format, ...)
+{
+  char str[LONG_SIZE];
+  va_list ap;
+
+  va_start(ap, format);
+  // TODO : use non old_style functions
+  (void) vsprintf(str, format, ap);
+  va_end(ap);
+  std::stringstream sstr;
+  sstr << "#NO_DIFF# " << str;
+  message_extern(sstr.str().c_str());
+
+  return;
+}
+
+/**
  * When message has been collected as a String, this function produces it out
  * without passing through useless internal buffering
  * @param string String to be printed out

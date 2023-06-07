@@ -126,8 +126,6 @@ NX(2) panels of NY(4) rows and NZ(3) columns
   3005005  3005007  3005009
   3006005  3006007  3006009
 
-Reading HDF5 modified array:   0.00 ms.
-Writing HDF5 modified array:   0.00 ms.
 
 Read/Write series of same type
 ------------------------------

@@ -48,9 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble dist(nsample);
   for (int i = 0; i < nsample; i++)
     dist[i] = data->getDistance(i, 0);
-  timer.displayIntervalMilliseconds("\nKriging in Unique Neighborhood");
-
-  message("Order of magnitude of the reference implementation is 310ms\n");
+  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 310);
 
   if (data != nullptr) delete data;
 

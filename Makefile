@@ -35,8 +35,10 @@
 #  - check_py       Execute non-regression tests (python)
 #  - check_r        Execute non-regression tests (R)
 #  - check          Execute non-regression tests (data + C++ + python + R)
-#  - check_test     Execute a single test (set $TEST variable)
-
+#  - check_py_test  Execute a single python test (set $TEST variable)
+#  - check_r_test   Execute a single R test      (set $TEST variable)
+#  - check_cpp_test Execute a single C++ test    (set $TEST variable)
+#
 # Demonstration scripts:
 #  - check_ipynb    Execute demonstration scripts (jupyter notebooks)
 #  - check_rmd      Execute demonstration scripts (R Markdown)
@@ -51,13 +53,12 @@
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build[_msys])
 #  - USE_HDF5=0         To remove HDF5 support (default =1)
-#  - TEST=<test-target> Name of the test target to be launched
+#  - TEST=<test-target> Name of the test target to be launched (e.g. test_Model_py or test_simTub)
 #
 # Usage example:
 #
 #  make check N_PROC=2
 #
-
 
 ifndef USE_HDF5
   USE_HDF5 = 1
@@ -103,28 +104,29 @@ else
 endif
 
 
+CMAKE_DEFINES = -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5)
 
 .PHONY: all cmake cmake-python cmake-r cmake-python-r cmake-doxygen static shared build_tests doxygen install uninstall
 
 all: shared install
 
 cmake:
-	@cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR)
+	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES)
 	
 cmake-python:
-	@cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_PYTHON=ON
+	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON
 
 cmake-r:
-	@cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_R=ON
+	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_R=ON
 
 cmake-python-r:
-	@cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_PYTHON=ON -DBUILD_R=ON
+	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_R=ON
 
 cmake-doxygen:
-	@cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_DOXYGEN=ON
+	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_DOXYGEN=ON
 
 cmake-python-doxygen:
-	@cmake -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
+	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)
@@ -178,7 +180,7 @@ r_upload: r_build
 
 
 
-.PHONY: check_data check_cpp check_py check_r check check_ipynb check_rmd
+.PHONY: check_data check_cpp check_py check_r check check_ipynb check_rmd check_cpp_test check_py_test check_r_test
 
 check_data: cmake
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_data -- --no-print-directory $(N_PROC_OPT)
@@ -201,8 +203,14 @@ check_ipynb: cmake-python
 check_rmd: cmake-r
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- --no-print-directory $(N_PROC_OPT)
 
-check_test: cmake-python-r
-	@cd $(BUILD_DIR); ctest -R $(TEST)
+check_cpp_test: cmake
+	@cd $(BUILD_DIR); make $(TEST); CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+
+check_py_test: cmake-python
+	@cd $(BUILD_DIR); make prepare_check_py; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
+
+check_r_test: cmake-r
+	@cd $(BUILD_DIR); make prepare_check_r; CTEST_OUTPUT_ON_FAILURE=1 ctest -R $(TEST)
 
 .PHONY: clean clean_all
 

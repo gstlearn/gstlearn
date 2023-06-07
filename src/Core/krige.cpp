@@ -36,7 +36,6 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"

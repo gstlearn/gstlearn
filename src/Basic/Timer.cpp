@@ -46,13 +46,16 @@ void Timer::reset()
 
 /**
  * Displays the time elapsed (in s) since the reference Timer
- * @param title Title used for the internal display
- * @param flag_reset True if the Reference must be set to current Time
+ * @param title         Title used for the internal display
+ * @param expected_time Expected number of seconds (-1 if not used)
+ * @param flag_reset    True if the Reference must be set to current Time
  */
-void Timer::displayIntervalSeconds(const String& title, bool flag_reset)
+void Timer::displayIntervalSeconds(const String& title,
+                                   int expected_time,
+                                   bool flag_reset)
 {
   double sec = getIntervalSeconds(flag_reset);
-  displaySeconds(title, sec);
+  displaySeconds(title, sec, expected_time);
 }
 
 double Timer::getIntervalSeconds(bool flag_reset)
@@ -63,24 +66,27 @@ double Timer::getIntervalSeconds(bool flag_reset)
   return fs.count();
 }
 
-void Timer::displaySeconds(const String& title, double sec)
+void Timer::displaySeconds(const String& title, double sec, int expected_time)
 {
-  if (! title.empty())
-    message("%s: %6.2lf s.\n",title.c_str(),sec);
+  String loc_title = title.empty() ? "Timer" : title;
+  if (expected_time > 0)
+    messageNoDiff("%s: %d s. (Ref = %d s.)\n", title.c_str(), (int)sec, expected_time);
   else
-    message("Timer: %6.2lf s.\n",sec);
-
+    messageNoDiff("%s: %d s.\n", title.c_str(), (int)sec);
 }
 
 /**
  * Displays the time elapsed (in ms) since the reference Timer
- * @param title Title used for the internal display
- * @param flag_reset True if the Reference must be set to current Time
+ * @param title         Title used for the internal display
+ * @param expected_time Expected number of milliseconds (-1 if not used)
+ * @param flag_reset    True if the Reference must be set to current Time
  */
-void Timer::displayIntervalMilliseconds(const String& title, bool flag_reset)
+void Timer::displayIntervalMilliseconds(const String& title,
+                                        int expected_time,
+                                        bool flag_reset)
 {
   double msec = getIntervalMilliseconds(flag_reset);
-  displayMilliseconds(title, msec);
+  displayMilliseconds(title, msec, expected_time);
 }
 
 double Timer::getIntervalMilliseconds(bool flag_reset)
@@ -92,10 +98,11 @@ double Timer::getIntervalMilliseconds(bool flag_reset)
   return ((double) inter.count());
 }
 
-void Timer::displayMilliseconds(const String& title, double msec)
+void Timer::displayMilliseconds(const String& title, double msec, int expected_time)
 {
-  if (! title.empty())
-    message("%s: %6.2lf ms.\n",title.c_str(),msec);
+  String loc_title = title.empty() ? "Timer" : title;
+  if (expected_time > 0)
+    messageNoDiff("%s: %d ms. (Ref = %d ms.)\n", title.c_str(), (int)msec, expected_time);
   else
-    message("Timer: %6.2lf ms.\n",msec);
+    messageNoDiff("%s: %d ms.\n", title.c_str(), (int)msec);
 }
