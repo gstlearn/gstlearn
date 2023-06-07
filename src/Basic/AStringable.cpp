@@ -305,7 +305,7 @@ void message(const char *format, ...)
 }
 
 /**
- * Print a formatted message (with #NO_DIFF# prefix)
+ * Print a formatted message (with "#NO_DIFF#" prefix)
  * @param format Output format
  * @param ...    Additional arguments
  */
