@@ -45,7 +45,7 @@ ACov::~ACov()
 {
 }
 
-MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode& mode) const
+MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -55,7 +55,7 @@ MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode& mode) const
   return mat;
 }
 
-void ACov::eval0NvarInPlace(MatrixSquareGeneral& mat, const CovCalcMode& mode) const
+void ACov::eval0NvarInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   for (int ivar=0; ivar<nvar; ivar++)
@@ -67,7 +67,7 @@ VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
                         const std::vector<SpacePoint>& vec_p2,
                         int ivar,
                         int jvar,
-                        const CovCalcMode& mode) const
+                        const CovCalcMode* mode) const
 {
   VectorDouble vec;
   if (vec_p1.size() != vec_p2.size())
@@ -79,7 +79,7 @@ VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
 
 MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
                                   const SpacePoint& p2,
-                                  const CovCalcMode& mode) const
+                                  const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -92,7 +92,7 @@ MatrixSquareGeneral ACov::evalMat(const SpacePoint& p1,
 void ACov::evalMatInPlace(const SpacePoint &p1,
                           const SpacePoint &p2,
                           MatrixSquareGeneral &mat,
-                          const CovCalcMode &mode) const
+                          const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   for (int ivar=0; ivar<nvar; ivar++)
@@ -115,7 +115,7 @@ double ACov::evalIvarIpas(double step,
                           int ivar,
                           int jvar,
                           const VectorDouble& center,
-                          const CovCalcMode& mode) const
+                          const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
   const ASpace* space = getSpace();
@@ -136,7 +136,7 @@ double ACov::evalIvarIpas(double step,
 double ACov::evalIvarIpasIncr(const VectorDouble& dincr,
                               int ivar,
                               int jvar,
-                              const CovCalcMode& mode) const
+                              const CovCalcMode* mode) const
 {
   // Define the point in the ACov space (center will be checked)
   SpacePoint p1(VectorDouble(),getSpace());
@@ -162,7 +162,7 @@ VectorDouble ACov::evalIvarNpas(const VectorDouble& vec_step,
                                 int ivar,
                                 int jvar,
                                 const VectorDouble& center,
-                                const CovCalcMode& mode) const
+                                const CovCalcMode* mode) const
 {
   VectorDouble vec;
   for (int i=0, n=static_cast<int> (vec_step.size()); i < n; i++)
@@ -182,7 +182,7 @@ VectorDouble ACov::evalIvarNpas(const VectorDouble& vec_step,
 MatrixSquareGeneral ACov::evalNvarIpas(double step,
                                        const VectorDouble& dir,
                                        const VectorDouble& center,
-                                       const CovCalcMode& mode) const
+                                       const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -193,7 +193,7 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
 }
 
 MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
-                                           const CovCalcMode& mode) const
+                                           const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -215,7 +215,7 @@ MatrixSquareGeneral ACov::evalNvarIpasIncr(const VectorDouble& dincr,
 double ACov::evalIsoIvarIpas(double step,
                              int ivar,
                              int jvar,
-                             const CovCalcMode& mode) const
+                             const CovCalcMode* mode) const
 {
   /// TODO : Not true whatever the space
   VectorDouble center = getOrigin();
@@ -235,7 +235,7 @@ double ACov::evalIsoIvarIpas(double step,
 VectorDouble ACov::evalIsoIvarNpas(const VectorDouble& vec_step,
                                    int ivar,
                                    int jvar,
-                                   const CovCalcMode& mode) const
+                                   const CovCalcMode* mode) const
 {
   VectorDouble vec;
   /// TODO : Not true whatever the space
@@ -254,7 +254,7 @@ VectorDouble ACov::evalIsoIvarNpas(const VectorDouble& vec_step,
  * @return
  */
 MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
-                                          const CovCalcMode& mode) const
+                                          const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   /// TODO : Not true whatever the space
@@ -281,7 +281,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
                                const Db* db2,
                                int ivar,
                                int jvar,
-                               const CovCalcMode& mode) const
+                               const CovCalcMode* mode) const
 {
   /* Loop on the first sample */
 
@@ -330,7 +330,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
                                   const Db* db2,
                                   int ivar,
                                   int jvar,
-                                  const CovCalcMode& mode) const
+                                  const CovCalcMode* mode) const
 {
   /* Loop on the first sample */
 
@@ -375,7 +375,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
                                  int ivar,
                                  int jvar,
                                  bool useSel,
-                                 const CovCalcMode& mode) const
+                                 const CovCalcMode* mode) const
 {
   VectorDouble values;
 
@@ -412,7 +412,7 @@ double ACov::evalCvv(const VectorDouble& ext,
                      const VectorDouble& angles,
                      int ivar,
                      int jvar,
-                     const CovCalcMode& mode) const
+                     const CovCalcMode* mode) const
 {
   int ndim = getNDim();
   if (ndim != (int) ext.size())
@@ -455,7 +455,7 @@ double ACov::evalCvvShift(const VectorDouble& ext,
                           const VectorDouble& angles,
                           int ivar,
                           int jvar,
-                          const CovCalcMode& mode) const
+                          const CovCalcMode* mode) const
 {
   int ndim = getNDim();
   if (ndim != (int) ext.size())
@@ -491,7 +491,7 @@ double ACov::evalCvvShift(const VectorDouble& ext,
 MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
                                    const VectorInt& ndisc,
                                    const VectorDouble& angles,
-                                   const CovCalcMode& mode) const
+                                   const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -520,7 +520,7 @@ double ACov::evalCxv(const SpacePoint& p1,
                      const VectorDouble& x0,
                      int ivar,
                      int jvar,
-                     const CovCalcMode& mode) const
+                     const CovCalcMode* mode) const
 {
   int ndim = getNDim();
   if (ndim != (int) ext.size())
@@ -552,7 +552,7 @@ double ACov::evalCxv(const Db* db,
                      const VectorDouble& x0,
                      int ivar,
                      int jvar,
-                     const CovCalcMode& mode) const
+                     const CovCalcMode* mode) const
 {
   int ndim = getNDim();
   if (db == nullptr)
@@ -593,7 +593,7 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
                                    const VectorInt& ndisc,
                                    const VectorDouble& angles,
                                    const VectorDouble& x0,
-                                   const CovCalcMode& mode) const
+                                   const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -670,7 +670,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
                                       const Db* db2,
                                       int ivar,
                                       int jvar,
-                                      const CovCalcMode& mode) const
+                                      const CovCalcMode* mode) const
 {
   if (db2 == nullptr) db2 = db1;
   int nechtot1 = db1->getSampleNumber(false);
@@ -711,7 +711,7 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
                                             const Db *db2,
                                             int ivar,
                                             int jvar,
-                                            const CovCalcMode &mode) const
+                                            const CovCalcMode* mode) const
 {
   if (db2 == nullptr) db2 = db1;
   int nechtot1 = db1->getSampleNumber(false);
@@ -766,7 +766,7 @@ void ACov::evalVect(VectorDouble& res,
               const std::vector<SpacePoint>& vec_p2,
               int ivar,
               int jvar,
-              const CovCalcMode& mode) const
+              const CovCalcMode* mode) const
 {
 	for(int i = 0; i<(int)res.size();i++)
 		res[i] = eval(p1,vec_p2[i],ivar,jvar,mode);
@@ -784,24 +784,21 @@ void ACov::evalVect(VectorDouble& res,
  * @return
  */
 double ACov::extensionVariance(const Db* db,
-                               const VectorDouble &ext,
-                               const VectorInt &ndisc,
-                               const VectorDouble &angles,
+                               const VectorDouble& ext,
+                               const VectorInt&    ndisc,
+                               const VectorDouble& angles,
                                const VectorDouble& x0,
                                int ivar,
                                int jvar) const
 {
-  CovCalcMode mode = CovCalcMode();
-  mode.setAsVario(true);
-
   double sigmaE = TEST;
   DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
   {
-    double GxV = evalAverageDbToDb(db, dbgrid, ivar, jvar, mode);
-    double Gxx = evalAverageDbToDb(db, db, ivar, jvar, mode);
-    double GVV = evalAverageDbToDb(dbgrid, dbgrid, ivar, jvar, mode);
-    sigmaE = 2. * GxV - Gxx - GVV;
+    double GxV = evalAverageDbToDb(db, dbgrid, ivar, jvar);
+    double Gxx = evalAverageDbToDb(db, db, ivar, jvar);
+    double GVV = evalAverageDbToDb(dbgrid, dbgrid, ivar, jvar);
+    sigmaE = -2. * GxV + Gxx + GVV;
   }
   delete dbgrid;
 

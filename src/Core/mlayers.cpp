@@ -454,17 +454,16 @@ static double st_get_drift_data(LMlayers *lmlayers,
  **
  *****************************************************************************/
 static void st_covariance_c00(LMlayers *lmlayers,
-                              Model *model,
+                              Model  *model,
                               double *prop1,
                               double *covtab,
                               double *c00)
 {
   int nlayers, flag_interrupt;
   double value;
-  CovCalcMode mode;
 
   nlayers = lmlayers->nlayers;
-  model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), covtab);
+  model_calcul_cov(NULL,model, nullptr, 1, 1., VectorDouble(), covtab);
 
   if (lmlayers->flag_cumul)
   {
@@ -480,8 +479,7 @@ static void st_covariance_c00(LMlayers *lmlayers,
           else
             value += prop1[i] * prop1[j] * C(i, j);
         }
-      c00[k] = (flag_interrupt) ? TEST :
-                                  value;
+      c00[k] = (flag_interrupt) ? TEST : value;
     }
   }
   else
@@ -522,7 +520,6 @@ static double st_cij(LMlayers *lmlayers,
   double value;
   int i, j, nlayers;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -533,11 +530,9 @@ static double st_cij(LMlayers *lmlayers,
 
   /* Calculate the covariance matrix */
 
-  d1[0] = (dd != nullptr) ? dd[0] :
-                            0.;
-  d1[1] = (dd != nullptr) ? dd[1] :
-                            0.;
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+  d1[0] = (dd != nullptr) ? dd[0] : 0.;
+  d1[1] = (dd != nullptr) ? dd[1] : 0.;
+  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
 
   /* Evaluate the covariance term */
 
@@ -581,7 +576,6 @@ static double st_ci0(LMlayers *lmlayers,
   double value;
   int i, nlayers;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -592,11 +586,9 @@ static double st_ci0(LMlayers *lmlayers,
 
   /* Calculate the covariance matrix */
 
-  d1[0] = (dd != nullptr) ? dd[0] :
-                            0.;
-  d1[1] = (dd != nullptr) ? dd[1] :
-                            0.;
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+  d1[0] = (dd != nullptr) ? dd[0] : 0.;
+  d1[1] = (dd != nullptr) ? dd[1] : 0.;
+  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
 
   /* Evaluate the covariance term */
 

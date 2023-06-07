@@ -403,8 +403,7 @@ int SimuRefine::_kriging_solve(int type,
   VectorDouble lhs(36);
   VectorDouble rhs(6);
 
-  CovCalcMode mode;
-  mode.setMember(ECalcMember::RHS);
+  CovCalcMode mode(ECalcMember::RHS);
 
   /* Establish the kriging L.H.S. */
 
@@ -414,7 +413,7 @@ int SimuRefine::_kriging_solve(int type,
       if (ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
       if (ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
       if (ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
-      model_calcul_cov(NULL, _model, mode, 1, 1., d1, &LHS(i,j));
+      model_calcul_cov(NULL, _model, &mode, 1, 1., d1, &LHS(i,j));
     }
 
   /* Establish the kriging R.H.S. */
@@ -424,7 +423,7 @@ int SimuRefine::_kriging_solve(int type,
     if (ndim >= 1) d1[0] = _XYZN[0][type][i];
     if (ndim >= 2) d1[1] = _XYZN[1][type][i];
     if (ndim >= 3) d1[2] = _XYZN[2][type][i];
-    model_calcul_cov(NULL, _model, mode, 1, 1., d1, &RHS(i));
+    model_calcul_cov(NULL, _model, &mode, 1, 1., d1, &RHS(i));
   }
 
   /* Add the Universality condition (optional) */
@@ -455,7 +454,7 @@ int SimuRefine::_kriging_solve(int type,
   mode.setMember(ECalcMember::VAR);
   for (int i = 0; i < ndim; i++) d1[i] = 0.;
   double var[2];
-  model_calcul_cov(NULL,_model, mode, 1, 1., d1, &var[0]);
+  model_calcul_cov(NULL,_model, &mode, 1, 1., d1, &var[0]);
   matrix_product_safe(1, neq, 1, rhs.data(),_WGT[type][rank], &var[1]);
   double variance = var[0] - var[1];
   _STDV[type][rank] = (variance > 0) ? sqrt(variance) : 0.;

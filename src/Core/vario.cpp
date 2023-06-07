@@ -1433,7 +1433,6 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
 {
   double c00, covtab, value;
   int idim, ndim, il, jl, nech, iech, iiech, jech, jjech, nbfl;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -1445,7 +1444,7 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
 
   for (idim = 0; idim < ndim; idim++)
     d1[idim] = 0.;
-  model_calcul_cov(NULL,MODEL, mode, 1, 1., d1, &c00);
+  model_calcul_cov(NULL,MODEL, nullptr, 1, 1., d1, &c00);
 
   /* Calculate the term: G %*% X */
 
@@ -1460,7 +1459,7 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
         if (!db->isActiveAndDefined(jech, 0)) continue;
         for (idim = 0; idim < ndim; idim++)
           d1[idim] = db->getDistance1D(iech, jech, idim);
-        model_calcul_cov(NULL,MODEL, mode, 1, 1., d1, &covtab);
+        model_calcul_cov(NULL,MODEL, nullptr, 1, 1., d1, &covtab);
         value += (c00 - covtab) * X_DRFTAB(il, jjech);
         jjech++;
       }
@@ -5317,7 +5316,6 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
   int error, idir, ndim;
   double chh, varz, cov_value;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Preliminary checks */
 
@@ -5377,7 +5375,7 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
         d1[idim] = (ipas + 1) * vario->getDPas(idir)
                    * vario->getCodir(idir, idim);
 
-      model_calcul_cov(NULL,model, mode, 1, 1., d1, &chh);
+      model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &chh);
       if (chh < 0.)
       {
         messerr("Gaussian covariance is negative in direction %d for lag %d",
@@ -5955,7 +5953,8 @@ int dbgrid_model(DbGrid *dbgrid, Model *model, const NamingConvention &namconv)
 
   /* Loop on the grid nodes */
 
-  CovCalcMode mode(ECalcMember::LHS, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
   VectorInt center = dbgrid->getCenterIndices();
   VectorDouble dincr(ndim);
   VectorInt indices(ndim);
@@ -5969,7 +5968,7 @@ int dbgrid_model(DbGrid *dbgrid, Model *model, const NamingConvention &namconv)
       dincr[idim] = (indices[idim] - center[idim]) * dbgrid->getDX(idim);
 
     // Evaluate the variogram map
-    mat = model->evalNvarIpasIncr(dincr, mode);
+    mat = model->evalNvarIpasIncr(dincr, &mode);
 
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)

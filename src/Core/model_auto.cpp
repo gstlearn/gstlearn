@@ -965,14 +965,16 @@ static void st_prepar_goulard_vario(int imod)
   VectorDouble &ge = RECINT.ge;
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode(ECalcMember::LHS, true, -1, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  mode.setUnitary(true);
   mode.setOrderVario(STRMOD->norder);
 
   /* Loop on the basic structures */
 
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
-    mode.setKeepOnlyCovIdx(icov);
+    mode.setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 
@@ -995,7 +997,7 @@ static void st_prepar_goulard_vario(int imod)
           else
           {
             GE(icov,ijvar,ipadir) = model->evalIvarIpas(1., d0, ivar, jvar,
-                VectorDouble(), mode);
+                VectorDouble(), &mode);
           }
         }
       }
@@ -1032,8 +1034,10 @@ static void st_load_ge(const Vario *vario,
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
   VectorDouble d1(ndim);
-  CovCalcMode mode = CovCalcMode(ECalcMember::LHS, true, -1, true);
-  if (norder > 0) mode.setOrderVario(norder);
+  CovCalcMode mode = CovCalcMode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  mode.setUnitary(true);
+  mode.setOrderVario(norder);
 
   /* Loop on the basic structures */
 
@@ -1075,7 +1079,7 @@ static void st_load_ge(const Vario *vario,
             for (int idim = 0; idim < ndim; idim++)
               d1[idim] = dist * vario->getCodir(idir, idim);
             if (!ge.empty())
-            GE(icov,ijvar,ipadir)= cova->evalIvarIpas(1.,d1,ivar, jvar, VectorDouble(),mode);
+            GE(icov,ijvar,ipadir)= cova->evalIvarIpas(1.,d1,ivar, jvar, VectorDouble(),&mode);
 
             if (!dd.empty()) for (int idim = 0; idim < ndim; idim++)
               DD(idim,ijvar,ipadir)= dist * vario->getCodir(idir,idim);
@@ -2324,9 +2328,11 @@ static int st_structure_reduce(StrMod *strmod,
   int ndim = model->getDimensionNumber();
   VectorDouble d1(ndim, hmax);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode(ECalcMember::LHS, true, icov);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  mode.setActiveCovListFromOne(icov);
   mode.setOrderVario(STRMOD->norder);
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, tab.data());
+  model_calcul_cov(NULL,model, &mode, 1, 1., d1, tab.data());
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
@@ -2360,7 +2366,8 @@ static void st_evaluate_vario(int imod,
   int ndim = strmod->models[0]->getDimensionNumber();
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
-  CovCalcMode mode(ECalcMember::LHS, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
   mode.setOrderVario(strmod->norder);
 
   /* Loop on the experimental conditions */
@@ -2372,7 +2379,7 @@ static void st_evaluate_vario(int imod,
 
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = strexps[i].dd[idim];
-    tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), mode);
+    tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), &mode);
   }
   return;
 }
@@ -2398,7 +2405,8 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
   VectorDouble tab(nvar * nvar);
   db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
 
-  CovCalcMode mode(ECalcMember::LHS, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
   mode.setOrderVario(strmod->norder);
 
   /* Loop on the experimental conditions */
@@ -2415,7 +2423,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
-        tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), mode);
+        tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), &mode);
       }
   }
   return;
@@ -4307,14 +4315,16 @@ static void st_prepar_goulard_vmap(int imod)
   VectorDouble d0(ndim);
   VectorDouble tab(nvar * nvar);
   db_index_sample_to_grid(DBMAP, nech / 2, INDG1);
-  CovCalcMode mode = CovCalcMode(ECalcMember::LHS, true, -1, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  mode.setUnitary(true);
   mode.setOrderVario(STRMOD->norder);
 
   /* Loop on the basic structures */
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    mode.setKeepOnlyCovIdx(icov);
+    mode.setActiveCovListFromOne(icov);
 
     /* Loop on the experiments */
 
@@ -4323,7 +4333,7 @@ static void st_prepar_goulard_vmap(int imod)
       db_index_sample_to_grid(DBMAP, ipadir, INDG2);
       for (int idim = 0; idim < ndim; idim++)
         d0[idim] = (INDG2[idim] - INDG1[idim]) * DBMAP->getDX(idim);
-      model_calcul_cov(NULL,model, mode, 1, 1., d0, tab.data());
+      model_calcul_cov(NULL,model, &mode, 1, 1., d0, tab.data());
 
       /* Loop on the variables */
 
@@ -4399,7 +4409,6 @@ static void st_vario_varchol_manage(const Vario *vario,
   int nvar, size, nvar2, i, ivar, jvar;
   VectorDouble aux;
   Model *model_nugget;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -4419,7 +4428,7 @@ static void st_vario_varchol_manage(const Vario *vario,
   {
     model_nugget = model_default(model->getDimensionNumber(),
                                  model->getVariableNumber());
-    model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), aux.data());
+    model_calcul_cov(NULL,model, nullptr, 1, 1., VectorDouble(), aux.data());
     for (i = 0; i < nvar2; i++)
       aux[i] = vario->getVarIndex(i) / aux[i];
   }

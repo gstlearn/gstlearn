@@ -134,7 +134,7 @@ private:
   void _covtabInit();
   void _covtabCalcul(const SpacePoint& p1,
                      const SpacePoint& p2,
-                     const CovCalcMode& mode,
+                     const CovCalcMode* mode,
                      bool flagSameData = false);
   int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
@@ -200,6 +200,11 @@ private:
 
   // Pointer to the Model currently used (must not be freed)
   Model*               _model;
+
+  // Calculation modes
+  CovCalcMode          _calcModeLHS;
+  CovCalcMode          _calcModeRHS;
+  CovCalcMode          _calcModeVAR;
 
   // Options
 

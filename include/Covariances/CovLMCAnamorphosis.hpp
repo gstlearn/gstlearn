@@ -49,12 +49,12 @@ public:
 
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const override;
+                       const CovCalcMode* mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+                      const CovCalcMode* mode = nullptr) const override;
 
   /// Interface for ACovAnisoList
   void addCov(const CovAniso* cov) override;
@@ -73,21 +73,21 @@ private:
                       int jvar,
                       const SpacePoint& p1,
                       const SpacePoint& p2,
-                      const CovCalcMode& mode) const;
+                      const CovCalcMode* mode) const;
   double _evalDiscreteDD(int ivar,
                          int jvar,
                          const SpacePoint& p1,
                          const SpacePoint& p2,
-                         const CovCalcMode& mode) const;
+                         const CovCalcMode* mode) const;
   double _evalDiscreteIR(int ivar,
                          int jvar,
                          const SpacePoint& p1,
                          const SpacePoint& p2,
-                         const CovCalcMode& mode) const;
-  double _evalHermite0(int ivar, int jvar, const CovCalcMode& mode) const;
-  double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode& mode) const;
-  double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode& mode) const;
-  void   _transformCovCalcModeIR(CovCalcMode& mode, int iclass) const;
+                         const CovCalcMode* mode) const;
+  double _evalHermite0(int ivar, int jvar, const CovCalcMode* mode) const;
+  double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode* mode) const;
+  double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode* mode) const;
+  void   _transformCovCalcModeIR(CovCalcMode* mode, int iclass) const;
 
 private:
   int    _activeFactor;       /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */

@@ -879,7 +879,7 @@ VectorDouble Model::sample(const VectorDouble& hh,
                            int ivar,
                            int jvar,
                            VectorDouble codir,
-                           const CovCalcMode& mode)
+                           const CovCalcMode* mode)
 {
   VectorDouble gg;
 
@@ -912,7 +912,7 @@ VectorDouble Model::sampleUnitary(const VectorDouble &hh,
                                   int ivar,
                                   int jvar,
                                   VectorDouble codir,
-                                  const CovCalcMode &mode)
+                                  const CovCalcMode* mode)
 {
   if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
   if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
@@ -942,7 +942,7 @@ VectorDouble Model::envelop(const VectorDouble &hh,
                             int jvar,
                             int isign,
                             VectorDouble codir,
-                            const CovCalcMode &mode)
+                            const CovCalcMode* mode)
 {
   if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
   if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
@@ -1405,7 +1405,7 @@ void Model::covMatrix(VectorDouble& covmat,
                       Db *db2,
                       int ivar,
                       int jvar,
-                      const CovCalcMode& mode)
+                      const CovCalcMode* mode)
 {
   model_covmat(this, db1, db2, ivar, jvar, covmat.data(), mode);
 }
@@ -1414,7 +1414,7 @@ VectorDouble Model::covMatrixV(Db *db1,
                                Db *db2,
                                int ivar,
                                int jvar,
-                               const CovCalcMode& mode)
+                               const CovCalcMode* mode)
 {
   return model_covmatM(this, db1, db2, ivar, jvar, mode).getValues();
 }
@@ -1423,7 +1423,7 @@ MatrixSquareSymmetric Model::covMatrixM(Db *db1,
                                         Db *db2,
                                         int ivar,
                                         int jvar,
-                                        const CovCalcMode& mode)
+                                        const CovCalcMode* mode)
 {
   return model_covmatM(this, db1, db2, ivar, jvar, mode);
 }
@@ -1448,7 +1448,8 @@ double Model::gofToVario(const Vario *vario, bool verbose)
 
   // Loop on the pair of variables
 
-  CovCalcMode mode(ECalcMember::LHS, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
@@ -1479,7 +1480,7 @@ double Model::gofToVario(const Vario *vario, bool verbose)
 
         int npas = (int) gexp.size();
         VectorDouble gmod(npas);
-        model_evaluate(this, ivar, jvar, mode, npas, codir, hh.data(), gmod.data());
+        model_evaluate(this, ivar, jvar, &mode, npas, codir, hh.data(), gmod.data());
 
         // Evaluate the score
 

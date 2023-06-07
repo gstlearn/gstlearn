@@ -218,7 +218,7 @@ public:
                       const VectorDouble& ext,
                       const VectorInt& ndisc,
                       const VectorDouble& angles = VectorDouble(),
-                      const CovCalcMode& mode = CovCalcMode(),
+                      const CovCalcMode* mode = nullptr,
                       bool asCov = false);
 
   // Pipe to the DirParam

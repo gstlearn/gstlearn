@@ -643,7 +643,7 @@ GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           int iech2,
                                           int verbose,
                                           double factor,
-                                          const CovCalcMode& mode = CovCalcMode());
+                                          const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT void model_calcul_drift(Model *model,
                                         const ECalcMember &member,
                                         const Db *db,
@@ -662,10 +662,10 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    double ball_radius);
 GSTLEARN_EXPORT int model_sample(Vario *vario,
                                  Model *model,
-                                 const CovCalcMode& mode);
+                                 const CovCalcMode* mode);
 GSTLEARN_EXPORT void model_calcul_cov(CovInternal *covint,
                                       Model *model,
-                                      const CovCalcMode &mode,
+                                      const CovCalcMode* mode,
                                       int flag_init,
                                       double weight,
                                       VectorDouble d1,
@@ -682,7 +682,7 @@ GSTLEARN_EXPORT int model_update_coreg(Model *model,
 GSTLEARN_EXPORT int model_evaluate(Model *model,
                                    int ivar,
                                    int jvar,
-                                   const CovCalcMode& mode,
+                                   const CovCalcMode* mode,
                                    int nh,
                                    VectorDouble &codir,
                                    const double *h,
@@ -690,7 +690,7 @@ GSTLEARN_EXPORT int model_evaluate(Model *model,
 GSTLEARN_EXPORT int model_evaluate_nostat(Model *model,
                                           int ivar,
                                           int jvar,
-                                          const CovCalcMode& mode,
+                                          const CovCalcMode* mode,
                                           Db *db1,
                                           int iech1,
                                           Db *db2,
@@ -703,7 +703,7 @@ GSTLEARN_EXPORT int model_grid(Model *model,
                                Db *db,
                                int ivar,
                                int jvar,
-                               const CovCalcMode& mode,
+                               const CovCalcMode* mode,
                                double *g);
 GSTLEARN_EXPORT double model_cxx(Model *model,
                                  Db *db1,
@@ -712,20 +712,20 @@ GSTLEARN_EXPORT double model_cxx(Model *model,
                                  int jvar,
                                  int seed,
                                  double epsdist,
-                                 const CovCalcMode& mode = CovCalcMode());
+                                 const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT int model_covmat(Model *model,
                                   Db *db1,
                                   Db *db2,
                                   int ivar,
                                   int jvar,
                                   double *covmat,
-                                  const CovCalcMode& mode = CovCalcMode());
+                                  const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT MatrixSquareSymmetric model_covmatM(Model *model,
                                                     Db *db1,
                                                     Db *db2,
                                                     int ivar0,
                                                     int jvar0,
-                                                    const CovCalcMode& mode = CovCalcMode());
+                                                    const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
                                               Db *db1,
                                               int nsize1,
@@ -735,7 +735,7 @@ GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
                                               const int *ranks2,
                                               int ivar0 = -1,
                                               int jvar0 = -1,
-                                              const CovCalcMode& mode = CovCalcMode());
+                                              const CovCalcMode* mode = nullptr);
 #ifndef SWIG
 GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
                                              Db *db1,
@@ -746,7 +746,7 @@ GSTLEARN_EXPORT cs* model_covmat_by_ranks_cs(Model *model,
                                              const int *ranks2,
                                              int ivar0 = -1,
                                              int jvar0 = -1,
-                                             const CovCalcMode& mode = CovCalcMode());
+                                             const CovCalcMode* mode = nullptr);
 #endif
 GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         Db *db,
@@ -760,7 +760,7 @@ GSTLEARN_EXPORT int model_covmat_inchol(int verbose,
                                         int *npivots,
                                         int **Pret,
                                         double **Gret,
-                                        const CovCalcMode& mode = CovCalcMode());
+                                        const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT int model_drift_mat(Model *model,
                                      const ECalcMember &member,
                                      Db *db,
@@ -810,7 +810,7 @@ GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model);
 GSTLEARN_EXPORT int model_regularize(Model *model,
                                      Vario *vario,
                                      DbGrid *dbgrid,
-                                     const CovCalcMode& mode = CovCalcMode());
+                                     const CovCalcMode* mode = nullptr);
 GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,

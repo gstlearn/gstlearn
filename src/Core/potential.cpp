@@ -257,7 +257,7 @@ static void st_cov(Model* model,
   if (ndim >= 2) vec[1] = dy;
   if (ndim >= 3) vec[2] = dz;
 
-  model->evalZAndGradients(vec, covar, covGp, covGG, CovCalcMode(), flag_grad);
+  model->evalZAndGradients(vec, covar, covGp, covGG, nullptr, flag_grad);
 
   return;
 }

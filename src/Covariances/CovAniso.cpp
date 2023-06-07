@@ -306,20 +306,20 @@ bool CovAniso::isConsistent(const ASpace* /*space*/) const
   return _cova->isConsistent();
 }
 
-double CovAniso::eval0(int ivar, int jvar, const CovCalcMode &mode) const
+double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = _cova->evalCov(0);
   // Converting into a variogram is ignored as the result is obvious
   // and this could be not significant most of the time
 
-  if (mode.isFactorySettings())
+  if (mode == nullptr)
   {
     cov *= getSill(ivar, jvar);
   }
   else
   {
     // Scale by the sill
-    if (!mode.getUnitary())
+    if (!mode->getUnitary())
       cov *= getSill(ivar, jvar);;
   }
   return (cov);
@@ -330,7 +330,7 @@ double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
                       int ivar,
                       int jvar,
-                      const CovCalcMode &mode) const
+                      const CovCalcMode* mode) const
 {
   double cov = 0.;
 
@@ -340,13 +340,13 @@ double CovAniso::eval(const SpacePoint &p1,
 
   // Shortcut
 
-  if (mode.isFactorySettings())
+  if (mode == nullptr)
   {
     cov = _cova->evalCov(h) * getSill(ivar, jvar);
   }
   else
   {
-    int norder = mode.getOrderVario();
+    int norder = mode->getOrderVario();
     if (norder > 0)
     {
 
@@ -365,14 +365,12 @@ double CovAniso::eval(const SpacePoint &p1,
       cov = _cova->evalCov(h);
 
       // Convert into a variogram
-      if (mode.getAsVario())
-      {
+      if (mode->getAsVario())
         cov = _cova->evalCov(0) - cov;
-      }
     }
 
     // Scale by the sill
-    if (!mode.getUnitary())
+    if (!mode->getUnitary())
       cov *= getSill(ivar, jvar);
   }
   return (cov);
@@ -384,7 +382,7 @@ void CovAniso::evalOptim(const SpacePoint &p1,
                          SpacePoint &pttr,
                          int ivar,
                          int jvar,
-                         const CovCalcMode &mode) const
+                         const CovCalcMode* mode) const
 {
  _preProcess(p1, pttr);
  _space->getDistancePointVectInPlace(pttr,  _transformedCoordinates, temp);
@@ -394,17 +392,6 @@ void CovAniso::evalOptim(const SpacePoint &p1,
   {
     res[i] += sill * _cova->evalCov(temp[i]);
   }
-}
-
-double CovAniso::evalBasic(const SpacePoint &p1,
-                           const SpacePoint &p2,
-                           int ivar,
-                           int jvar,
-                           const CovCalcMode &mode) const
-{
-  double h = getSpace()->getDistance(p1, p2, _aniso);
-
-  return _cova->evalCov(h) * getSill(ivar, jvar);
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const

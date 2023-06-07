@@ -181,7 +181,6 @@ int RuleShift::particularities(Db* db,
 {
   int ndim = (model != nullptr) ? model->getDimensionNumber() : 0;
   VectorDouble wxyz(ndim);
-  CovCalcMode mode;
   double rhoval;
 
   /* Dispatch */
@@ -199,7 +198,7 @@ int RuleShift::particularities(Db* db,
 
   for (int idim = 0; idim < ndim; idim++)
     wxyz[idim] = _xyz[idim];
-  model_evaluate(model, 0, 0, mode, 1, wxyz, &hval, &rhoval);
+  model_evaluate(model, 0, 0, nullptr, 1, wxyz, &hval, &rhoval);
   setRho(rhoval);
 
   /* Translate the shift into grid increments */

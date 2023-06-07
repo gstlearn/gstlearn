@@ -127,7 +127,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
                                               double& covVal,
                                               VectorDouble& covGp,
                                               VectorDouble& covGG,
-                                              const CovCalcMode& /*mode*/,
+                                              const CovCalcMode* /*mode*/,
                                               bool flagGrad) const
 {
   VectorDouble d(3),trttr(9),u(3);

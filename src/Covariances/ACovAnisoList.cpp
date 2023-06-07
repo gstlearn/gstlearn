@@ -117,21 +117,21 @@ int ACovAnisoList::getNVariables() const
   return 0;
 }
 
-double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
+double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = 0.;
 
-  if (mode.getKeepOnlyCovIdx() >= 0)
-    cov = _covs[mode.getKeepOnlyCovIdx()]->eval0(ivar, jvar, mode);
-  else
+  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
   {
     for (int i=0, n=getCovNumber(); i<n; i++)
-    {
-      if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
-        continue;
-      if (mode.getCovFiltered(i))
-        continue;
       cov += _covs[i]->eval0(ivar, jvar, mode);
+  }
+  else
+  {
+    int number = mode->getActiveCovList().size();
+    for (int i=0; i<number; i++)
+    {
+      cov += _covs[mode->getActiveCovRank(i)]->eval0(ivar, jvar, mode);
     }
   }
   return cov;
@@ -143,7 +143,7 @@ void ACovAnisoList::evalOptim(const SpacePoint &p1,
                               SpacePoint &pttr,
                               int ivar,
                               int jvar,
-                              const CovCalcMode &mode) const
+                              const CovCalcMode* mode) const
 {
   for (auto &e : res)
     e = 0;
@@ -157,35 +157,24 @@ double ACovAnisoList::eval(const SpacePoint& p1,
                            const SpacePoint& p2,
                            int ivar,
                            int jvar,
-                           const CovCalcMode& mode) const
+                           const CovCalcMode* mode) const
 {
   double cov = 0.;
-  if (mode.getKeepOnlyCovIdx() >= 0)
-    cov = _covs[mode.getKeepOnlyCovIdx()]->eval(p1, p2, ivar, jvar, mode);
-  else
+
+  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
-    {
-      if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
-        continue;
-      if (mode.getCovFiltered(i))
-        continue;
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
+  }
+  else
+  {
+    int number = mode->getActiveCovList().size();
+    for (int i=0; i<number; i++)
+    {
+      cov += _covs[mode->getActiveCovRank(i)]->eval(p1, p2, ivar, jvar, mode);
     }
   }
   return cov;
-}
-
-double ACovAnisoList::evalBasic(const SpacePoint &p1,
-                                const SpacePoint &p2,
-                                int ivar,
-                                int jvar,
-                                const CovCalcMode &mode) const
-{
-  double cov = 0.;
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
-    cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
-   return cov;
 }
 
 String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
@@ -242,6 +231,17 @@ bool ACovAnisoList::isStationary() const
       return false;
   }
   return true;
+}
+
+VectorInt ACovAnisoList::getActiveCovList() const
+{
+  VectorInt actives;
+  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  {
+    if (_filtered[i]) continue;
+    actives.push_back(i);
+  }
+  return actives;
 }
 
 CovAniso ACovAnisoList::extractCova(int icov) const
@@ -378,13 +378,6 @@ void ACovAnisoList::copyCovContext(const CovContext& ctxt)
   int number = (int) _covs.size();
   for (int i = 0; i < number; i++)
     _covs[i]->copyCovContext(ctxt);
-}
-
-void ACovAnisoList::setAllFiltered(bool status)
-{
-  int number = (int) _covs.size();
-  for (int i = 0; i < number; i++)
-    _filtered[i] = status;
 }
 
 void ACovAnisoList::normalize(double sill, int ivar, int jvar)

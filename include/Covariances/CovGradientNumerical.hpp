@@ -37,12 +37,12 @@ public:
 
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const override;
+                       const CovCalcMode* mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+                      const CovCalcMode* mode = nullptr) const override;
 
   virtual double getBallRadius() const override { return _ballRadius; }
 
@@ -51,7 +51,7 @@ public:
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
-                         const CovCalcMode& mode = CovCalcMode(),
+                         const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const override;
 
 private:
@@ -59,20 +59,20 @@ private:
                  int jvar,
                  const SpacePoint& p1,
                  const SpacePoint& p2,
-                 const CovCalcMode& mode = CovCalcMode()) const;
+                 const CovCalcMode* mode = nullptr) const;
   double _evalZGrad(int ivar,
                     int jvar,
                     int idim,
                     const SpacePoint& p1,
                     const SpacePoint& p2,
-                    const CovCalcMode& mode = CovCalcMode()) const;
+                    const CovCalcMode* mode = nullptr) const;
   double _evalGradGrad(int ivar,
                        int jvar,
                        int idim,
                        int jdim,
                        const SpacePoint& p1,
                        const SpacePoint& p2,
-                       const CovCalcMode& mode = CovCalcMode()) const;
+                       const CovCalcMode* mode = nullptr) const;
 
 private:
   double _ballRadius;   /*! Radius of the Ball for Numerical Gradient calculation */
