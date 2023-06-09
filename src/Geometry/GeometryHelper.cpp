@@ -10,14 +10,15 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 
-#include "Enum/ERotation.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
+#include "Enum/ERotation.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-#include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 

@@ -32,6 +32,7 @@
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 
@@ -2025,7 +2026,7 @@ static void st_model_auto_scldef(StrMod *strmod,
  **  Update default values, lower and upper bounds
  **
  ** \param[in]  strmod          StrMod structure
- ** \param[in]  npar            Number of parameters to be inferred
+ ** \param[in]  npar            Number of parameters to be inferred_setValues
  ** \param[in]  constraints     Constraints structure
  **
  ** \param[out]  param          Current values for parameters

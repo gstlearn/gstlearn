@@ -9,10 +9,13 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
+#include "Basic/Grid.hpp"
+
 #include "Geometry/Rotation.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Grid.hpp"
 #include "Basic/Grid.hpp"
 
 #include <math.h>

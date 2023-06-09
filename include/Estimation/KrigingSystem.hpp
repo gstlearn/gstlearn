@@ -116,7 +116,6 @@ private:
   double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
   void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
-  void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
   VectorDouble _getDISC1Vec(int idisc) const;

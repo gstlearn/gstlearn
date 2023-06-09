@@ -13,7 +13,6 @@
 
 #include "Enum/ECst.hpp"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
@@ -1335,9 +1334,8 @@ int is_matrix_rotation(int neq, const double *a, int verbose)
     {
       prod = 0.;
       for (k = 0; k < neq; k++)
-        prod += A(i,k)* A(j,k);
-      comp = (i == j) ? 1 :
-                        0.;
+        prod += A(i,k) * A(j,k);
+      comp = (i == j) ? 1 : 0.;
       if (ABS(prod - comp) > Epsilon)
       {
         if (verbose)

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"

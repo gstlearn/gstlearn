@@ -17,6 +17,7 @@
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 #include <vector>

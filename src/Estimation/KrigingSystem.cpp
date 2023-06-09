@@ -31,7 +31,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -3003,22 +3002,6 @@ void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value
     _checkAddress("_addLHS","address",iad, (int) _lhs.size());
   }
   _lhs[iad] += value;
-}
-void KrigingSystem::_prodLHS(int iech, int ivar, int jech, int jvar, double value)
-{
-  int indi = IND(iech, ivar);
-  int indj = IND(jech, jvar);
-  int iad  = indi + _neq * indj;
-
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_prodLHS","iech",iech,_nech);
-    _checkAddress("_prodLHS","ivar",ivar,_nvar);
-    _checkAddress("_prodLHS","jech",jech,_nech);
-    _checkAddress("_prodLHS","jvar",jvar,_nvar);
-    _checkAddress("_prodLHS","address",iad, (int) _lhs.size());
-  }
-  _lhs[iad] *= value;
 }
 double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
 {

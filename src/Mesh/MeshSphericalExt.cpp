@@ -13,7 +13,6 @@
 #include "Mesh/LinkSphTriangle.hpp"
 #include "geoslib_old_f.h"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"

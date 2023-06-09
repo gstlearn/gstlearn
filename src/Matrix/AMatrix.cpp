@@ -1167,9 +1167,7 @@ VectorDouble AMatrix::getValues() const
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
     {
-      double value = 0.;
-      if (isValid(irow, icol)) value = getValue(irow,icol);
-      vect.push_back(value);
+      vect.push_back(getValue(irow,icol));
     }
   return vect;
 }

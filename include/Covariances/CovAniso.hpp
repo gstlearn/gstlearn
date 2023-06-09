@@ -27,6 +27,7 @@
 #include <vector>
 
 class Rotation;
+class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable
 {
