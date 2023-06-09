@@ -2199,7 +2199,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (flag_rot) cova->setAnisoAngles(angles);
       if (flag_aic)
       {
-        VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
+        VectorDouble sill = matrix_produit_cholesky_VD(nvar, tritab.data());
         MatrixSquareGeneral mat(nvar);
         mat.setValues(sill);
         cova->setSill(mat);
@@ -2264,7 +2264,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (flag_rot) cova->setAnisoAngles(angles);
     if (flag_aic)
     {
-      VectorDouble sill = matrix_produit_lu_VD(nvar, tritab.data());
+      VectorDouble sill = matrix_produit_cholesky_VD(nvar, tritab.data());
       MatrixSquareGeneral mat(nvar);
       mat.setValues(sill);
       cova->setSill(mat);

@@ -6,7 +6,6 @@
 /* Authors: gstlearn Team                                                     */
 /* Website: https://github.com/gstlearn                                       */
 /* License: BSD 3 clauses                                                     */
-/*                                                                            */
 /******************************************************************************/
 #pragma once
 
@@ -287,7 +286,7 @@ GSTLEARN_EXPORT void matrix_svd_inverse(int neq,
                                         double *tabout);
 GSTLEARN_EXPORT double matrix_determinant(int neq, const double *b);
 GSTLEARN_EXPORT int matrix_cofactor(int neq, double *a, double *b);
-GSTLEARN_EXPORT double matrix_cholesky_determinant(int neq, double *tl);
+GSTLEARN_EXPORT double matrix_cholesky_determinant(int neq, const double *tl);
 GSTLEARN_EXPORT int matrix_eigen(const double *a,
                                  int neq,
                                  double *value,
@@ -337,22 +336,32 @@ GSTLEARN_EXPORT void vector_translate(int ndim,
 GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
                                               double *tl,
                                               int neq);
+GSTLEARN_EXPORT int matrix_LU_decompose(int neq,
+                                        const double *a,
+                                        double *tl,
+                                        double *tu);
+GSTLEARN_EXPORT int matrix_LU_solve(int neq,
+                                    const double *tu,
+                                    const double *tl,
+                                    const double *b,
+                                    double *x);
+GSTLEARN_EXPORT int matrix_LU_invert(int neq, double* a);
 GSTLEARN_EXPORT void matrix_cholesky_product(int mode,
                                              int neq,
                                              int nrhs,
-                                             double *tl,
-                                             double *a,
+                                             const double *tl,
+                                             const double *a,
                                              double *x);
 GSTLEARN_EXPORT int matrix_cholesky_solve(int neq,
-                                          double *tl,
-                                          double *b,
+                                          const double *tl,
+                                          const double *b,
                                           double *x);
-GSTLEARN_EXPORT int matrix_cholesky_to_invert(int neq, double *tl, double *xl);
-GSTLEARN_EXPORT void matrix_cholesky_invert(int neq, double *tl, double *xl);
+GSTLEARN_EXPORT int matrix_cholesky_to_invert(int neq, const double *tl, double *xl);
+GSTLEARN_EXPORT void matrix_cholesky_invert(int neq, const double *tl, double *xl);
 GSTLEARN_EXPORT void matrix_cholesky_norme(int mode,
                                            int neq,
-                                           double *tl,
-                                           double *a,
+                                           const double *tl,
+                                           const double *a,
                                            double *b);
 GSTLEARN_EXPORT void matrix_triangular_product(int neq,
                                                int mode,
@@ -372,8 +381,8 @@ GSTLEARN_EXPORT int is_matrix_null(int nrow, int ncol, const double *a, int verb
 GSTLEARN_EXPORT int is_matrix_symmetric(int neq, const double *a, int verbose);
 GSTLEARN_EXPORT int is_matrix_correlation(int neq, double *a);
 GSTLEARN_EXPORT int is_matrix_rotation(int neq, const double *a, int verbose);
-GSTLEARN_EXPORT void matrix_produit_lu(int neq, double *al, double *a);
-GSTLEARN_EXPORT VectorDouble matrix_produit_lu_VD(int neq, double *tl);
+GSTLEARN_EXPORT void matrix_produit_cholesky(int neq, const double *tl, double *a);
+GSTLEARN_EXPORT VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl);
 GSTLEARN_EXPORT void matrix_set_identity(int neq, double *a);
 GSTLEARN_EXPORT int is_matrix_product_identity(int neq,
                                                double *a,
@@ -418,12 +427,12 @@ GSTLEARN_EXPORT void matrix_product_by_diag_VD(int mode,
                                                const VectorDouble &c);
 GSTLEARN_EXPORT void matrix_triangle_to_square(int mode,
                                                int neq,
-                                               double *tl,
+                                               const double *tl,
                                                double *a);
-GSTLEARN_EXPORT void matrix_tri2sq(int neq, double *tl, double *a);
+GSTLEARN_EXPORT void matrix_tri2sq(int neq, const double *tl, double *a);
 GSTLEARN_EXPORT void matrix_square_to_triangle(int mode,
                                                int neq,
-                                               double *a,
+                                               const double *a,
                                                double *tl);
 GSTLEARN_EXPORT void matrix_tl2tu(int neq, const double *tl, double *tu);
 GSTLEARN_EXPORT void matrix_linear(int neq,
