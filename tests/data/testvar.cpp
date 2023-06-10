@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
   /* Standard output redirection to file */
 
   StdoutRedirect sr("Result.out");
+//  ASerializable::setContainerName(true);
+//  ASerializable::setPrefixName("testVario-");
 
   /* Setup constants */
 

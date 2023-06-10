@@ -117,7 +117,7 @@ void GeometryHelper::rotationGetSinCos(double angle, double *cosa, double *sina)
  ** \param[out] rot       Rotation matrix
  **
  *****************************************************************************/
-void GeometryHelper::rotationIdentity(int ndim, double *rot)
+void GeometryHelper::rotationIdentity(int ndim, VectorDouble& rot)
 {
   int i, j, ecr;
 
@@ -135,7 +135,7 @@ void GeometryHelper::rotationIdentity(int ndim, double *rot)
  ** \param[out]  rot   Rotation matrix (Dimension = 4)
  **
  *****************************************************************************/
-void GeometryHelper::rotationInit(double angle, double *rot)
+void GeometryHelper::rotationInit(double angle, VectorDouble& rot)
 {
   double ca, sa;
 
@@ -143,10 +143,10 @@ void GeometryHelper::rotationInit(double angle, double *rot)
 
   /* Define the 2-D rotation matrix */
 
-  rot[0] = ca;
-  rot[1] = sa;
+  rot[0] =  ca;
+  rot[1] =  sa;
   rot[2] = -sa;
-  rot[3] = ca;
+  rot[3] =  ca;
 
   return;
 }
@@ -165,27 +165,27 @@ void GeometryHelper::rotationInit(double angle, double *rot)
 void GeometryHelper::rotationInit(double alpha,
                                   double beta,
                                   double gamma,
-                                  double *rot)
+                                  VectorDouble& rot)
 {
   double ca[3], sa[3];
 
   /* Initializations */
 
   GH::rotationGetSinCos(alpha, &ca[0], &sa[0]);
-  GH::rotationGetSinCos(beta, &ca[1], &sa[1]);
+  GH::rotationGetSinCos(beta,  &ca[1], &sa[1]);
   GH::rotationGetSinCos(gamma, &ca[2], &sa[2]);
 
   /* Define the 3-D rotation matrix */
 
-  rot[0] = ca[0] * ca[1];
+  rot[0] =  ca[0] * ca[1];
   rot[3] = -sa[0] * ca[2] + ca[0] * sa[1] * sa[2];
-  rot[6] = sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
-  rot[1] = sa[0] * ca[1];
-  rot[4] = ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
+  rot[6] =  sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
+  rot[1] =  sa[0] * ca[1];
+  rot[4] =  ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
   rot[7] = -ca[0] * sa[2] + sa[0] * sa[1] * ca[2];
   rot[2] = -sa[1];
-  rot[5] = ca[1] * sa[2];
-  rot[8] = ca[1] * ca[2];
+  rot[5] =  ca[1] * sa[2];
+  rot[8] =  ca[1] * ca[2];
 
   return;
 }
@@ -200,7 +200,9 @@ void GeometryHelper::rotationInit(double alpha,
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void GeometryHelper::rotationInit(int ndim, const double *angles, double *rot)
+void GeometryHelper::rotationInit(int ndim,
+                                  const VectorDouble &angles,
+                                  VectorDouble &rot)
 {
   if (ndim == 2)
     GH::rotationInit(angles[0], rot);
@@ -225,11 +227,11 @@ VectorDouble GeometryHelper::rotationInit(int ndim, const VectorDouble &angles)
 
   rot.resize(ndim * ndim);
   if (ndim == 2)
-    GH::rotationInit(angles[0], rot.data());
+    GH::rotationInit(angles[0], rot);
   else if (ndim == 3)
-    GH::rotationInit(angles[0], angles[1], angles[2], rot.data());
+    GH::rotationInit(angles[0], angles[1], angles[2], rot);
   else
-    GH::rotationIdentity(ndim, rot.data());
+    GH::rotationIdentity(ndim, rot);
 
   return rot;
 }

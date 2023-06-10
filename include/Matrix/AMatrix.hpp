@@ -45,12 +45,10 @@ public:
   int  getNTotal() const { return _nRows * _nCols; }
   /*! Gets the value at row 'irow' and column 'icol' */
   virtual double getValue(int irow, int icol) const;
-  /*! Gets the value at rank 'rank' */
-  virtual double getValue(int rank) const;
   /*! Gets a reference to the value at row 'irow' and column 'icol' */
   virtual double& getValueRef(int irow, int icol);
   /*! Returns the contents of the whole matrix as a VectorDouble */
-  VectorDouble getValues() const;
+  VectorDouble getValues(bool byCol = true) const;
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
@@ -113,13 +111,13 @@ public:
 
   void reset(int nrows, int ncols, bool sparse = false);
   void reset(int nrows, int ncols, double value, bool sparse = false);
-  void reset(int nrows, int ncols, const double* tab, bool sparse = false);
+  void reset(int nrows, int ncols, const double* tab, bool sparse = false, bool byCol = true);
   void reset(int nrows,
              int ncols,
              const VectorDouble &tab,
              bool sparse = false,
-             bool flagByRow = true);
-  void reset(const VectorVectorDouble& tab, bool flagByRow=true);
+             bool byCol = true);
+  void reset(const VectorVectorDouble& tab, bool byCol = true);
 
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
@@ -169,8 +167,6 @@ public:
 
   /*! Sets the value at row 'irow' and column 'icol' */
   virtual void setValue(int irow, int icol, double value);
-  /*! Sets the value at rank 'rank' */
-  virtual void setValue(int rank, double value);
 
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
@@ -205,12 +201,14 @@ protected:
   virtual bool    _isCompatible(const AMatrix& m) const = 0;
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
+  /*! Returns the number of elements actually stored as members in subsequent classes */
   virtual int     _getMatrixSize() const = 0;
   virtual void    _setValue(int rank, double value) = 0;
+  virtual double  _getValue(int rank) const = 0;
+
   virtual void    _setValue(int irow, int icol, double value) = 0;
   virtual void    _setValues(const double* values, bool byCol) = 0;
   virtual double  _getValue(int irow, int icol) const = 0;
-  virtual double  _getValue(int rank) const = 0;
   virtual double& _getValueRef(int irow, int icol) = 0;
   virtual void    _transposeInPlace() = 0;
   virtual void    _prodVector(const double *inv,double *outv) const = 0;

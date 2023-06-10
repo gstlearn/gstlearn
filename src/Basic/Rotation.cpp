@@ -68,7 +68,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
     VectorDouble local = rotmat.getValues();
     if (! is_matrix_rotation(_nDim, local.data(), 1)) return 1;
-    _rotMat.setValues(local);
+    _rotMat = rotmat;
     GH::rotationGetAngles(local, _angles);
     _directToInverse();
     _checkRot();
@@ -124,7 +124,7 @@ int Rotation::setAngles(const VectorDouble& angles)
     if (_nDim == 2) _angles[1] = 0.;
 
     VectorDouble local = VectorDouble(_nDim * _nDim);
-    GH::rotationInit(_nDim, _angles.data(), local.data());
+    GH::rotationInit(_nDim, _angles, local);
     _rotMat.setValues(local);
     _directToInverse();
     _checkRot();

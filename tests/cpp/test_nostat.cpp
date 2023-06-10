@@ -24,6 +24,7 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 #include <iostream>

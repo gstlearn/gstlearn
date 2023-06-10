@@ -16,9 +16,6 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
@@ -31,6 +28,11 @@ class Model;
 class CovAniso;
 class NoStatArray;
 class EConsElem;
+class AMatrix;
+class AMatrixSquare;
+class MatrixSquareGeneral;
+class MatrixRectangular;
+class MatrixSquareSymmetric;
 
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE

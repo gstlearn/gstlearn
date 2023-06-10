@@ -799,13 +799,14 @@ String toMatrixDiagonal(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         if (ix == iy)
-         {
-           sstr << _tabPrintDouble(tab[ix], EJustify::RIGHT, colSize);
-         }
-         else
-         {
-           sstr << _tabPrintString(" ", EJustify::RIGHT);
-         }
+        {
+          int iad = iy + nrows * ix;
+          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+        }
+        else
+        {
+          sstr << _tabPrintString(" ", EJustify::RIGHT);
+        }
       }
       sstr << std::endl;
     }
@@ -891,13 +892,14 @@ String toMatrixDiagCst(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         if (ix == iy)
-         {
-           sstr << _tabPrintDouble(tab[0], EJustify::RIGHT, colSize);
-         }
-         else
-         {
-           sstr << _tabPrintString(" ", EJustify::RIGHT);
-         }
+        {
+          int iad = iy + nrows * ix;
+          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+        }
+        else
+        {
+          sstr << _tabPrintString(" ", EJustify::RIGHT);
+        }
       }
       sstr << std::endl;
     }

@@ -13,6 +13,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 

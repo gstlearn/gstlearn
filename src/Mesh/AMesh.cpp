@@ -625,7 +625,7 @@ double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
   mat.reset(ndim,ndim);
   for (int icorn=1; icorn<ncorner; icorn++)
     for (int idim=0; idim<ndim; idim++)
-      mat.setValue(icorn-1,idim, corners[icorn][idim] - corners[0][idim]);
+      mat.setValue(icorn-1, idim, corners[icorn][idim] - corners[0][idim]);
   unit = ABS(mat.determinant()) / facdim[ndim];
 
   return unit;

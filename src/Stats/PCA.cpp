@@ -18,6 +18,7 @@
 #include "Stats/Classical.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 

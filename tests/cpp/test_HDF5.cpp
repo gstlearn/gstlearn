@@ -383,8 +383,6 @@ int main (void)
 
       // Loop on iterations
 
-      double total_read = 0.;
-      double total_write = 0.;
       for (int iter = 0; iter < niter; iter++)
       {
         // Reading

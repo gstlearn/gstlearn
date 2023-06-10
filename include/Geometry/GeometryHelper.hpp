@@ -21,13 +21,13 @@ class GSTLEARN_EXPORT GeometryHelper
 public:
   static void rotationGetSinCos(double angle, double *cosa, double *sina);
 
-  static void rotationIdentity(int ndim, double* rot);
-  static void rotationInit(double angle, double* rot);
+  static void rotationIdentity(int ndim, VectorDouble& rot);
+  static void rotationInit(double angle, VectorDouble& rot);
   static void rotationInit(double alpha,
                            double beta,
                            double gamma,
-                           double* rot);
-  static void rotationInit(int ndim, const double* angles, double* rot);
+                           VectorDouble& rot);
+  static void rotationInit(int ndim, const VectorDouble& angles, VectorDouble& rot);
   static VectorDouble rotationInit(int ndim, const VectorDouble &angles);
   static MatrixSquareGeneral EulerToRotation(const VectorDouble &angles,
                                              const ERotation &convrot = ERotation::fromKey("SXYZ"));

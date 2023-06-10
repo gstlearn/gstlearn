@@ -184,10 +184,10 @@ int MatrixSquareGeneral::_getIndexToRank(int irow, int icol) const
   // this discards the use of .data() feature.
 
   // Next line is in the HEAD version
-  int rank = irow * getNCols() + icol;
+  // int rank = irow * getNCols() + icol;
 
   // Next line is the proposal
-  // int rank = icol * getNRows() + irow;
+  int rank = icol * getNRows() + irow;
   return rank;
 }
 

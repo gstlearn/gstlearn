@@ -32,6 +32,7 @@
 #include "Model/Model.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <string.h>
 #include <math.h>

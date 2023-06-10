@@ -203,7 +203,7 @@ void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
   _clearContents();
 }
 
-void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
+void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse, bool byCol)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
   _sparse = sparse;
@@ -218,28 +218,7 @@ void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
     _nCols = ncols;
     _allocate();
     int lec = 0;
-    for (int icol=0; icol<ncols; icol++)
-      for (int irow=0; irow<nrows; irow++)
-        _setValue(irow,icol,tab[lec++]);
-  }
-  _clearContents();
-}
-
-void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, bool flagByRow)
-{
-  if (! _isNumbersValid(nrows, ncols)) return;
-  _nRows = nrows;
-  _nCols = ncols;
-  _sparse = sparse;
-  if (_sparse)
-  {
-    _forbiddenForSparse("reset");
-  }
-  else
-  {
-    _allocate();
-    int lec = 0;
-    if (flagByRow)
+    if (! byCol)
     {
       for (int icol=0; icol<ncols; icol++)
         for (int irow=0; irow<nrows; irow++)
@@ -255,9 +234,15 @@ void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, 
   _clearContents();
 }
 
-void AMatrix::reset(const VectorVectorDouble& tab, bool flagByRow)
+void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, bool byCol)
 {
-  if (flagByRow)
+  if (! _isNumbersValid(nrows, ncols)) return;
+  reset(nrows, ncols, tab.data(), sparse, byCol);
+}
+
+void AMatrix::reset(const VectorVectorDouble& tab, bool byCol)
+{
+  if (! byCol)
   {
     _nRows = (int) tab.size();
     _nCols = (int) tab[0].size();
@@ -495,35 +480,6 @@ void AMatrix::setValue(int irow, int icol, double value)
   }
 }
 
-/*! Gets the value at rank 'rank' */
-double AMatrix::getValue(int rank) const
-{
-  if (! _isRankValid(rank)) return TEST;
-  if (_sparse)
-  {
-    _forbiddenForSparse("getValue");
-  }
-  else
-  {
-    return _getValue(rank);
-  }
-  return 0.;
-}
-
-/*! Sets the value at rank 'rank' */
-void AMatrix::setValue(int rank, double value)
-{
-  if (! _isRankValid(rank)) return;
-  if (_sparse)
-  {
-    _forbiddenForSparse("setValue");
-  }
-  else
-  {
-    _setValue(rank, value);
-  }
-}
-
 /*! Gets a reference to the value at row 'irow' and column 'icol' */
 double& AMatrix::getValueRef(int irow, int icol)
 {
@@ -674,7 +630,7 @@ void AMatrix::addScalar(double v)
   {
     for (int rank = 0; rank < _getMatrixSize(); rank++)
     {
-      _setValue(rank, getValue(rank) + v);
+      _setValue(rank, _getValue(rank) + v);
     }
   }
 }
@@ -726,7 +682,7 @@ void AMatrix::prodScalar(double v)
   {
     for (int rank = 0; rank < _getMatrixSize(); rank++)
     {
-      _setValue(rank, getValue(rank) * v);
+      _setValue(rank, _getValue(rank) * v);
     }
   }
 }
@@ -865,7 +821,7 @@ void AMatrix::linearCombination(double cx, double cy, const AMatrix& y)
       my_throw("Matrix 'y' is not compatible with 'this'");
     for (int rank = 0; rank < _getMatrixSize(); rank++)
     {
-      double value = getValue(rank) * cx + cy * y.getValue(rank);
+      double value = _getValue(rank) * cx + cy * y._getValue(rank);
       _setValue(rank, value);
     }
   }
@@ -1116,8 +1072,9 @@ AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
 void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
 {
   AMatrix* res = prodMatrix(mat1, mat2);
-  for (int i = 0; i < res->getNTotal(); i++)
-    mat1->setValue(i, res->getValue(i));
+  for (int icol = 0; icol < mat1->getNCols(); icol++)
+    for (int irow = 0; irow < mat1->getNRows(); irow++)
+      mat1->setValue(irow, icol, res->getValue(irow, icol));
   delete res;
 }
 
@@ -1131,7 +1088,7 @@ void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
     for (int rank=ifrom; rank<ito; rank++)
     {
       if (_isRankValid(rank))
-        message("Element %d = %lf\n",rank,getValue(rank));
+        message("Element %d = %lf\n",rank,_getValue(rank));
     }
   }
 }
@@ -1161,14 +1118,22 @@ void AMatrix::getValuesAsTriplets(VectorInt&    irows,
     }
 }
 
-VectorDouble AMatrix::getValues() const
+VectorDouble AMatrix::getValues(bool byCol) const
 {
   VectorDouble vect;
-  for (int icol = 0; icol < _nCols; icol++)
+
+  if (byCol)
+  {
+    for (int icol = 0; icol < _nCols; icol++)
+      for (int irow = 0; irow < _nRows; irow++)
+        vect.push_back(getValue(irow, icol));
+  }
+  else
+  {
     for (int irow = 0; irow < _nRows; irow++)
-    {
-      vect.push_back(getValue(irow,icol));
-    }
+      for (int icol = 0; icol < _nCols; icol++)
+        vect.push_back(getValue(irow, icol));
+  }
   return vect;
 }
 
