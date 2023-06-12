@@ -116,6 +116,6 @@ protected:
   bool _flagLinked;
   VectorDouble             _coefDrift; /* Array of Drift Coefficients */
   std::vector<ADriftElem*> _drifts;    /* Vector of elementary drift functions */
-  VectorBool               _filtered;  /* Vector of filtered flags */
+  VectorBool               _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
 #endif
 };

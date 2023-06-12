@@ -116,7 +116,6 @@ private:
   double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
   void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
-  void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
   VectorDouble _getDISC1Vec(int idisc) const;
@@ -134,7 +133,7 @@ private:
   void _covtabInit();
   void _covtabCalcul(const SpacePoint& p1,
                      const SpacePoint& p2,
-                     const CovCalcMode& mode,
+                     const CovCalcMode* mode,
                      bool flagSameData = false);
   int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
@@ -200,6 +199,11 @@ private:
 
   // Pointer to the Model currently used (must not be freed)
   Model*               _model;
+
+  // Calculation modes
+  CovCalcMode          _calcModeLHS;
+  CovCalcMode          _calcModeRHS;
+  CovCalcMode          _calcModeVAR;
 
   // Options
 

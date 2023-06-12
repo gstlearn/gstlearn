@@ -31,7 +31,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -651,7 +650,7 @@ void KrigingSystem::_covUpdate(const ECalcMember &member,
  */
 void KrigingSystem::_covtabCalcul(const SpacePoint& p1,
                                   const SpacePoint& p2,
-                                  const CovCalcMode& mode,
+                                  const CovCalcMode* mode,
                                   bool flagSameData)
 {
   // Evaluate the Model
@@ -759,8 +758,6 @@ void KrigingSystem::_lhsCalcul()
 {
   VH::fill(_lhs, 0.);
 
-  CovCalcMode mode(ECalcMember::LHS);
-
   /* Establish the covariance part */
 
   for (int iech = 0; iech < _nech; iech++)
@@ -773,7 +770,7 @@ void KrigingSystem::_lhsCalcul()
 
       _covtabInit();
       _covUpdate(ECalcMember::LHS, _nbgh[iech], _nbgh[jech]);
-      _covtabCalcul(_p1, _p2, mode, flagSameData);
+      _covtabCalcul(_p1, _p2, &_calcModeLHS, flagSameData);
 
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -958,10 +955,6 @@ void KrigingSystem::_rhsStore(int iech)
  *****************************************************************************/
 void KrigingSystem::_rhsCalculPoint()
 {
-  CovCalcMode mode(ECalcMember::RHS);
-
-  /* Establish the covariance part */
-
   _identifyPoint(_p0, -1);
   for (int iech = 0; iech < _nech; iech++)
   {
@@ -969,7 +962,7 @@ void KrigingSystem::_rhsCalculPoint()
     _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
 
     _covtabInit();
-    _covtabCalcul(_p1, _p0, mode);
+    _covtabCalcul(_p1, _p0, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -981,10 +974,6 @@ void KrigingSystem::_rhsCalculPoint()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculBlock()
 {
-  CovCalcMode mode(ECalcMember::RHS);
-
-  /* Establish the covariance part */
-
   _identifyPoint(_p0, -1);
   for (int iech = 0; iech < _nech; iech++)
   {
@@ -998,7 +987,7 @@ void KrigingSystem::_rhsCalculBlock()
     {
       _p0_disc1 = _p0;
       _p0_disc1.move(_getDISC1Vec(i));
-      _covtabCalcul(_p0_disc1, _p1, mode);
+      _covtabCalcul(_p0_disc1, _p1, &_calcModeRHS);
     }
 
     // Normalization
@@ -1015,8 +1004,6 @@ void KrigingSystem::_rhsCalculBlock()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDrift()
 {
-  /* Establish the covariance part */
-
   for (int iech = 0; iech < _nech; iech++)
   {
     _covtabInit();
@@ -1031,10 +1018,6 @@ void KrigingSystem::_rhsCalculDrift()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDGM()
 {
-  CovCalcMode mode(ECalcMember::RHS);
-
-  /* Establish the covariance part */
-
   _identifyPoint(_p0, -1);
   for (int iech = 0; iech < _nech; iech++)
   {
@@ -1042,7 +1025,7 @@ void KrigingSystem::_rhsCalculDGM()
     _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
 
     _covtabInit();
-    _covtabCalcul(_p0, _p1, mode);
+    _covtabCalcul(_p0, _p1, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -1660,7 +1643,6 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  CovCalcMode mode(ECalcMember::VAR);
   _covUpdate(ECalcMember::VAR, -1, -1);
   _identifyPoint(_p0, -1);
 
@@ -1668,7 +1650,7 @@ void KrigingSystem::_variance0()
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      _covtabCalcul(_p0, _p0, mode);
+      _covtabCalcul(_p0, _p0, &_calcModeVAR);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -1682,7 +1664,7 @@ void KrigingSystem::_variance0()
         {
           _p0_disc2 = _p0;
           _p0_disc2.move(_getDISC2Vec(j));
-          _covtabCalcul(_p0_disc1, _p0_disc2, mode);
+          _covtabCalcul(_p0_disc1, _p0_disc2, &_calcModeVAR);
         }
       }
 
@@ -1696,7 +1678,7 @@ void KrigingSystem::_variance0()
       break;
 
     case EKrigOpt::E_DGM:
-      _covtabCalcul(_p0, _p0, mode);
+      _covtabCalcul(_p0, _p0, &_calcModeVAR);
       break;
   }
 
@@ -1858,6 +1840,13 @@ bool KrigingSystem::isReady()
   {
     _bayesPreCalculations();
   }
+
+  // Define the calculation modes
+  _calcModeLHS = CovCalcMode(ECalcMember::LHS);
+  _calcModeRHS = CovCalcMode(ECalcMember::RHS);
+  _calcModeRHS.setActiveCovList(_model->getActiveCovList());
+  _calcModeVAR = CovCalcMode(ECalcMember::VAR);
+  _calcModeVAR.setActiveCovList(_model->getActiveCovList());
 
   _isReady = true;
   return _isReady;
@@ -3013,22 +3002,6 @@ void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value
     _checkAddress("_addLHS","address",iad, (int) _lhs.size());
   }
   _lhs[iad] += value;
-}
-void KrigingSystem::_prodLHS(int iech, int ivar, int jech, int jvar, double value)
-{
-  int indi = IND(iech, ivar);
-  int indj = IND(jech, jvar);
-  int iad  = indi + _neq * indj;
-
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_prodLHS","iech",iech,_nech);
-    _checkAddress("_prodLHS","ivar",ivar,_nvar);
-    _checkAddress("_prodLHS","jech",jech,_nech);
-    _checkAddress("_prodLHS","jvar",jvar,_nvar);
-    _checkAddress("_prodLHS","address",iad, (int) _lhs.size());
-  }
-  _lhs[iad] *= value;
 }
 double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
 {

@@ -16,7 +16,6 @@
 #include "Enum/EGaussInv.hpp"
 
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"

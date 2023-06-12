@@ -20,7 +20,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
 #include "Estimation/CalcKriging.hpp"
 
 /****************************************************************************/
@@ -34,7 +34,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -67,15 +67,21 @@ int main(int /*argc*/, char */*argv*/[])
   Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
   if (verbose) model->display();
 
-  // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
-  if (verbose) neighU->display();
+  // Moving Neighborhood
+  int nmaxi = 20;
+  int nmini = 2;
+  int nsect = 8;
+  int nsmax = 3;
+  double radius = 10000;
+
+  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
+  if (verbose) neighM->display();
 
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 3400);
+  kriging(data, grid, model, neighM, EKrigOpt::POINT, true, false);
+  timer.displayIntervalMilliseconds("Kriging in Moving Neighborhood", 2000);
 
-  if (neighU    != nullptr) delete neighU;
+  if (neighM    != nullptr) delete neighM;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;
   if (model     != nullptr) delete model;

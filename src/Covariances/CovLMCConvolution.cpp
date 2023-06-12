@@ -246,7 +246,7 @@ String CovLMCConvolution::toString(const AStringFormat* strfmt) const
 
 double CovLMCConvolution::eval0(int ivar,
                                 int jvar,
-                                const CovCalcMode& mode) const
+                                const CovCalcMode* mode) const
 {
   double cov0 = 0.;
   SpacePoint p11;
@@ -269,13 +269,19 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
                                const SpacePoint& p2,
                                int ivar,
                                int jvar,
-                               const CovCalcMode& mode) const
+                               const CovCalcMode* mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
   // performed internally in 'eval' function
-  CovCalcMode modeloc(mode);
-  bool asVario = mode.getAsVario();
-  modeloc.setAsVario(false);
+
+  bool asVario = false;
+  CovCalcMode modeloc;
+  if (mode != nullptr)
+  {
+    modeloc = *mode;
+    asVario = mode->getAsVario();
+    modeloc.setAsVario(false);
+  }
 
   double cov = 0.;
   SpacePoint p11(p1);
@@ -288,14 +294,41 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
     {
       double w2 = _convWeight[i2];
       p22.move(_convIncr.getColumn(i2));
-      cov += CovLMC::eval(p11, p22, ivar, jvar, modeloc) * w1 * w2;
+      double covloc = 0.;
+      if (mode == nullptr)
+        covloc = CovLMC::eval(p11, p22, ivar, jvar);
+      else
+      {
+        covloc = CovLMC::eval(p11, p22, ivar, jvar, &modeloc);
+      }
+      cov += covloc * w1 * w2;
     }
   }
 
   if (asVario)
   {
-    double cov0 = eval0(ivar,jvar,modeloc);
-    cov = cov0 - cov;
+    double cov0 = 0.;
+    SpacePoint p11(p1);
+    SpacePoint p22(p1);
+    for (int i1 = 0; i1 < _convNumber; i1++)
+    {
+      double w1 = _convWeight[i1];
+      p11.move(_convIncr.getColumn(i1));
+      for (int i2 = 0; i2 < _convNumber; i2++)
+      {
+        double w2 = _convWeight[i2];
+        p22.move(_convIncr.getColumn(i2));
+        double covloc = 0.;
+        if (mode == nullptr)
+          covloc = CovLMC::eval(p11, p22, ivar, jvar);
+        else
+        {
+          covloc = CovLMC::eval(p11, p22, ivar, jvar, &modeloc);
+        }
+        cov0 += covloc * w1 * w2;
+      }
+    }
+    cov = cov0 -cov;
   }
   return cov;
 }

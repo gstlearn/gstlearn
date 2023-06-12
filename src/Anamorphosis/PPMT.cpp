@@ -15,7 +15,6 @@
 #include "Anamorphosis/PPMT.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"

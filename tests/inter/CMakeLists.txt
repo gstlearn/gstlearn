@@ -1,12 +1,7 @@
 # List the source files
 set(TEST_SOURCES 
   testInter_Ask.cpp
-  testInter_GibbsMMulti.cpp
-  testBench_KrigingU.cpp
-  testBench_KrigingI.cpp
-  testBench_KrigingM.cpp
-  testBench_KrigingB.cpp
-  testBench_Db.cpp)
+  testInter_GibbsMMulti.cpp)
 
 # Generation folder
 if (IS_MULTI_CONFIG)

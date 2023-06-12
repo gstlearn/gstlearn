@@ -17,7 +17,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-/// TODO : Transform into template for storing something else from double
+/// TODO : Transform into template for storing something else than double
 
 /**
  * Matrix
@@ -51,6 +51,7 @@ public:
   virtual double& getValueRef(int irow, int icol);
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues() const;
+
 #ifndef SWIG
   /*! Extract the contents of the matrix */
   void getValuesAsTriplets(VectorInt& irows,

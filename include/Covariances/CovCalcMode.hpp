@@ -19,52 +19,33 @@
 class GSTLEARN_EXPORT CovCalcMode : public AStringable
 {
 public:
-  CovCalcMode(const ECalcMember& member = ECalcMember::fromKey("LHS"),
-              bool asVario = false,
-              int keepOnlyCovIdx = -1,
-              bool unitary = false,
-              int orderVario = 0);
+  CovCalcMode(const ECalcMember& member = ECalcMember::fromKey("LHS"));
   CovCalcMode(const CovCalcMode &r);
   CovCalcMode& operator= (const CovCalcMode &r);
   virtual ~CovCalcMode();
 
-  static CovCalcMode* create(const ECalcMember &member = ECalcMember::fromKey("LHS"),
-                             bool asVario = false,
-                             int keepOnlyCovIdx = -1,
-                             bool unitary = false,
-                             int orderVario = 0);
+  static CovCalcMode* create(const ECalcMember &member = ECalcMember::fromKey("LHS"));
 
-  bool                  isFactorySettings()   const { return _factorySettings; }
-  const ECalcMember&    getMember()           const { return _member; }
-  bool                  getAsVario()          const { return _asVario; }
-  int                   getKeepOnlyCovIdx()   const { return _keepOnlyCovIdx; }
-  bool                  getUnitary()          const { return _unitary; }
-  int                   getOrderVario()       const { return _orderVario; }
-  const VectorBool&     getCovFiltered()      const { return _covFiltered; }
-  bool                  getCovFiltered(int i) const;
+  const ECalcMember&    getMember()             const { return _member; }
+  bool                  getAsVario()            const { return _asVario; }
+  bool                  getUnitary()            const { return _unitary; }
+  int                   getOrderVario()         const { return _orderVario; }
+  const VectorInt&      getActiveCovList()      const { return _activeCovList; }
+  int                   getActiveCovRank(int i) const { return _activeCovList[i]; }
 
-  void setAsVario(bool asVario) { _asVario = asVario; _checkFactorySettings(); }
-  void setMember(const ECalcMember& member) { _member = member; _checkFactorySettings(); }
-  void setKeepOnlyCovIdx(int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; _checkFactorySettings(); }
-  void setUnitary(bool unitary) { _unitary = unitary; _checkFactorySettings(); }
-  void setOrderVario(int orderVario) { _orderVario = orderVario; _checkFactorySettings(); }
-  void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; _checkFactorySettings(); }
-  void setCovFiltered(int i, bool status);
-  void setAllCovFiltered(int ncov, bool status);
+  void setAsVario(bool asVario) { _asVario = asVario; }
+  void setMember(const ECalcMember& member) { _member = member; }
+  void setUnitary(bool unitary) { _unitary = unitary; }
+  void setOrderVario(int orderVario) { _orderVario = orderVario; }
+
+  void setActiveCovListFromOne(int keepOnlyCovIdx);
+  void setActiveCovListFromInterval(int inddeb, int indto);
+  void setActiveCovList(const VectorInt &activeCovList) { _activeCovList = activeCovList; }
 
 private:
-  void _checkFactorySettings(const ECalcMember& member = ECalcMember::fromKey("LHS"),
-                             bool asVario = false,
-                             int keepOnlyCovIdx = -1,
-                             bool unitary = false,
-                             int orderVario = 0);
-
-private:
-  bool          _factorySettings;
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */
-  bool          _asVario;        /*! True to calculate variogram and not covariance (default = false) */
-  int           _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
+  bool          _asVario;        /*! True to calculate variogram instead of covariance */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
-  VectorBool    _covFiltered;    /*! Array of Covariance filtering flags (optional) */
+  VectorInt     _activeCovList;  /*! List of indices of the active covariances */
 };

@@ -53,7 +53,7 @@ double CovGradientNumerical::_evalZZ(int ivar,
                                      int jvar,
                                      const SpacePoint& p1,
                                      const SpacePoint& p2,
-                                     const CovCalcMode& mode) const
+                                     const CovCalcMode* mode) const
 {
   return ACovGradient::eval(p1, p2, ivar, jvar, mode);
 }
@@ -63,7 +63,7 @@ double CovGradientNumerical::_evalZGrad(int ivar,
                                         int idim,
                                         const SpacePoint& p1,
                                         const SpacePoint& p2,
-                                        const CovCalcMode& mode) const
+                                        const CovCalcMode* mode) const
 {
   SpacePoint paux;
   int ndim = getContext().getNDim();
@@ -88,7 +88,7 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
                                            int jdim,
                                            const SpacePoint& p1,
                                            const SpacePoint& p2,
-                                           const CovCalcMode& mode) const
+                                           const CovCalcMode* mode) const
 {
   SpacePoint paux;
   int ndim = getContext().getNDim();
@@ -166,7 +166,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
                                              double& covVal,
                                              VectorDouble& covGp,
                                              VectorDouble& covGG,
-                                             const CovCalcMode& mode,
+                                             const CovCalcMode* mode,
                                              bool flagGrad) const
 {
   //  Calculate the covariance
@@ -191,7 +191,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
   }
 }
 
-double CovGradientNumerical::eval0(int ivar, int jvar, const CovCalcMode& mode) const
+double CovGradientNumerical::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   SpacePoint p1;
   SpacePoint p2;
@@ -211,7 +211,7 @@ double CovGradientNumerical::eval(const SpacePoint& p1,
                                   const SpacePoint& p2,
                                   int ivar,
                                   int jvar,
-                                  const CovCalcMode& mode) const
+                                  const CovCalcMode* mode) const
 {
   double cov = 0.;
 

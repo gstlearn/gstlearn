@@ -12,34 +12,24 @@
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 
-CovCalcMode::CovCalcMode(const ECalcMember& member,
-                         bool asVario,
-                         int keepOnlyCovIdx,
-                         bool unitary,
-                         int orderVario)
-: AStringable(),
-  _factorySettings(true),
-  _member(member),
-  _asVario(asVario),
-  _keepOnlyCovIdx(keepOnlyCovIdx),
-  _unitary(unitary),
-  _orderVario(orderVario),
-  _covFiltered()
+CovCalcMode::CovCalcMode(const ECalcMember &member)
+    : AStringable(),
+      _member(member),
+      _asVario(false),
+      _unitary(false),
+      _orderVario(0),
+      _activeCovList()
 {
-  _checkFactorySettings();
 }
 
 CovCalcMode::CovCalcMode(const CovCalcMode &r)
     : AStringable(r),
-      _factorySettings(r._factorySettings),
       _member(r._member),
       _asVario(r._asVario),
-      _keepOnlyCovIdx(r._keepOnlyCovIdx),
       _unitary(r._unitary),
       _orderVario(r._orderVario),
-      _covFiltered(r._covFiltered)
+      _activeCovList(r._activeCovList)
 {
-  _checkFactorySettings();
 }
 
 CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
@@ -47,14 +37,12 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
   if (this != &r)
   {
     AStringable::operator=(r);
-    _factorySettings = r._factorySettings;
     _member = r._member;
     _asVario = r._asVario;
-    _keepOnlyCovIdx = r._keepOnlyCovIdx;
     _unitary = r._unitary;
     _orderVario = r._orderVario;
-    _covFiltered = r._covFiltered;
-    _checkFactorySettings();
+    _activeCovList = r._activeCovList;
+
   }
   return *this;
 }
@@ -62,54 +50,25 @@ CovCalcMode::~CovCalcMode()
 {
 }
 
-CovCalcMode* CovCalcMode::create(const ECalcMember &member,
-                                 bool asVario,
-                                 int keepOnlyCovIdx,
-                                 bool unitary,
-                                 int orderVario)
+CovCalcMode* CovCalcMode::create(const ECalcMember &member)
 {
-  return new CovCalcMode(member, asVario, keepOnlyCovIdx, unitary, orderVario);
+  return new CovCalcMode(member);
 }
 
-
-void CovCalcMode::_checkFactorySettings(const ECalcMember& member,
-                                        bool asVario,
-                                        int keepOnlyCovIdx,
-                                        bool unitary,
-                                        int orderVario)
+void CovCalcMode::setActiveCovListFromOne(int keepOnlyCovIdx)
 {
-  _factorySettings = false;
-  if (_member != member) return;
-  if (_asVario != asVario) return;
-  if (_keepOnlyCovIdx != (int) keepOnlyCovIdx) return;
-  if (_unitary != unitary) return;
-  if (_orderVario != orderVario) return;
-  _factorySettings = true;
+  _activeCovList.clear();
+  if (keepOnlyCovIdx >= 0) _activeCovList.push_back(keepOnlyCovIdx);
 }
 
-bool CovCalcMode::getCovFiltered(int i) const
+/**
+ * Set the list of active covariances from an intervam
+ * @param inddeb Lower bound of the interval (included)
+ * @param indto  Upper bound of the interval (excluded)
+ */
+void CovCalcMode::setActiveCovListFromInterval(int inddeb, int indto)
 {
-  if (_covFiltered.empty()) return false;
-  if (i < 0 || i >= (int) _covFiltered.size()) return false;
-  return _covFiltered[i];
-}
-
-void CovCalcMode::setCovFiltered(int i, bool status)
-{
-  if (_covFiltered.empty()) return;
-  if (i < 0 || i >= (int) _covFiltered.size()) return;
-  _covFiltered[i] = status;
-  _checkFactorySettings();
-}
-
-void CovCalcMode::setAllCovFiltered(int ncov, bool status)
-{
-  if (_covFiltered.empty())
-    _covFiltered.resize(ncov, status);
-  else
-  {
-    for (int i=0; i<(int) _covFiltered.size(); i++)
-      _covFiltered[i] = status;
-  }
-  _checkFactorySettings();
+  _activeCovList.clear();
+  for (int i = inddeb; i < indto; i++)
+    _activeCovList.push_back(i);
 }

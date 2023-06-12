@@ -602,7 +602,7 @@ int Vario::modelRegularize(const Model* model,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
                            const VectorDouble& angles,
-                           const CovCalcMode& mode,
+                           const CovCalcMode* mode,
                            bool asCov)
 {
   if (model == nullptr)

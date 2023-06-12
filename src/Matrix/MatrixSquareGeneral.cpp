@@ -145,7 +145,14 @@ void MatrixSquareGeneral::_setValues(const double* values, bool byCol)
 
 int MatrixSquareGeneral::_invert()
 {
-  return matrix_invreal(_squareMatrix.data(),getNRows());
+  if (getNRows() <= 3)
+    return matrix_invreal(_squareMatrix.data(), getNRows());
+  else
+  {
+    int error = matrix_LU_invert(getNRows(), _squareMatrix.data());
+    if (! error) transposeInPlace();
+    return error;
+  }
 }
 
 double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
@@ -171,8 +178,16 @@ void MatrixSquareGeneral::_allocate()
 int MatrixSquareGeneral::_getIndexToRank(int irow, int icol) const
 {
   // TODO We must check the impact of this modification
+  // When setting it to the "correct" equation (column-wise), this induces
+  // many errors in the non-regresion files.
+  // This is why is it left to this apparently wrong position:
+  // this discards the use of .data() feature.
+
+  // Next line is in the HEAD version
   int rank = irow * getNCols() + icol;
-//  int rank = icol * getNRows() + irow;
+
+  // Next line is the proposal
+  // int rank = icol * getNRows() + irow;
   return rank;
 }
 

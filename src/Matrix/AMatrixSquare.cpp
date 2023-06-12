@@ -225,7 +225,7 @@ double AMatrixSquare::determinant(void) const
 
     default:
       int neqm1 = neq - 1;
-      MatrixSquareGeneral c(neqm1);
+      MatrixSquareGeneral c(neqm1); // TODO Merge AMtrixSquare and MatrixSquareGeneral into MatrixSquare
 
       for (int j1 = 0; j1 < neq; j1++)
       {

@@ -219,6 +219,7 @@ double model_calcul_basic(Model *model,
  ** \param[in]  model        Model structure
  ** \param[in]  mode         CovCalcMode structure
  ** \param[in]  flag_init    Initialize the array beforehand
+ ** \param[in]  weight       Multiplicative weight
  **
  ** \param[out] d1          Working array (dimension = ndim) or NULL
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
@@ -226,9 +227,9 @@ double model_calcul_basic(Model *model,
  *****************************************************************************/
 void model_calcul_cov(CovInternal *covint,
                       Model *model,
-                      const CovCalcMode &mode,
+                      const CovCalcMode* mode,
                       int flag_init,
-                      double /*weight*/,
+                      double weight,
                       VectorDouble d1,
                       double *covtab)
 {
@@ -244,7 +245,7 @@ void model_calcul_cov(CovInternal *covint,
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      double value = mat.getValue(ivar, jvar);
+      double value = weight * mat.getValue(ivar, jvar);
       if (flag_init)
         COVTAB(ivar,jvar)= value;
       else
@@ -491,7 +492,7 @@ int model_update_coreg(Model *model,
 int model_evaluate(Model *model,
                    int ivar,
                    int jvar,
-                   const CovCalcMode& mode,
+                   const CovCalcMode* mode,
                    int nh,
                    VectorDouble &codir,
                    const double *h,
@@ -551,7 +552,7 @@ int model_evaluate(Model *model,
 int model_evaluate_nostat(Model *model,
                           int ivar,
                           int jvar,
-                          const CovCalcMode& mode,
+                          const CovCalcMode* mode,
                           Db *db1,
                           int iech1,
                           Db *db2,
@@ -614,7 +615,7 @@ int model_grid(Model *model,
                Db *db,
                int ivar,
                int jvar,
-               const CovCalcMode& mode,
+               const CovCalcMode* mode,
                double *g)
 {
   if (st_check_model(model)) return 1;
@@ -697,7 +698,7 @@ double model_cxx(Model *model,
                  int jvar,
                  int seed,
                  double eps,
-                 const CovCalcMode& mode)
+                 const CovCalcMode* mode)
 {
   if (st_check_model(model)) return TEST;
   if (st_check_environ(model, db1)) return TEST;
@@ -790,7 +791,7 @@ double* model_covmat_by_ranks(Model *model,
                               const int *ranks2,
                               int ivar0,
                               int jvar0,
-                              const CovCalcMode& mode)
+                              const CovCalcMode*  mode)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -1664,7 +1665,7 @@ void model_cova_characteristics(const ECov &type,
  ** \param[in]  mode      CovCalcMode structure
  **
  *****************************************************************************/
-int model_sample(Vario *vario, Model *model, const CovCalcMode& mode)
+int model_sample(Vario *vario, Model *model, const CovCalcMode*  mode)
 {
   int ndim = vario->getDimensionNumber();
   int ndir = vario->getDirectionNumber();
@@ -1867,7 +1868,7 @@ int model_get_nonugget_cova(Model *model)
 int model_regularize(Model  *model,
                      Vario  *vario,
                      DbGrid *dbgrid,
-                     const CovCalcMode& mode)
+                     const CovCalcMode*  mode)
 {
   if (st_check_model(model)) return 1;
   if (st_check_environ(model, dbgrid)) return 1;
@@ -1995,7 +1996,7 @@ int model_covmat_inchol(int verbose,
                         int *npivot_arg,
                         int **Pret,
                         double **Gret,
-                        const CovCalcMode& mode)
+                        const CovCalcMode*  mode)
 {
   int *pvec, i, j, npivot, jstar, nech, error, flag_incr;
   double *G, *Gmatrix, *diag, *crit, g, residual, maxdiag, tol, b, c00;
@@ -2235,7 +2236,7 @@ double model_calcul_stdev(Model* model,
                           int iech2,
                           int verbose,
                           double factor,
-                          const CovCalcMode& mode)
+                          const CovCalcMode*  mode)
 {
   double c00, cov;
 
@@ -2299,7 +2300,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
                              const int *ranks2,
                              int ivar0,
                              int jvar0,
-                             const CovCalcMode& mode)
+                             const CovCalcMode*  mode)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -2433,7 +2434,7 @@ int model_covmat(Model *model,
                  int ivar0,
                  int jvar0,
                  double *covmat,
-                 const CovCalcMode& mode)
+                 const CovCalcMode* mode)
 {
   if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) return 1;
@@ -2530,7 +2531,7 @@ MatrixSquareSymmetric model_covmatM(Model *model,
                                     Db *db2,
                                     int ivar0,
                                     int jvar0,
-                                    const CovCalcMode& mode)
+                                    const CovCalcMode*  mode)
 {
   if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) return 1;

@@ -27,6 +27,7 @@
 #include <vector>
 
 class Rotation;
+class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable
 {
@@ -65,7 +66,7 @@ public:
    */
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const override;
+                       const CovCalcMode* mode = nullptr) const override;
 
   /**
    * Evaluate covariance between two points (p1, p2) for two variables (ivar, jvar)
@@ -81,19 +82,14 @@ public:
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+                      const CovCalcMode* mode = nullptr) const override;
   virtual void evalOptim(const SpacePoint &p1,
                          VectorDouble &res,
                          VectorDouble &temp,
                          SpacePoint &pt,
                          int ivar = 0,
                          int jvar = 0,
-                         const CovCalcMode &mode = CovCalcMode()) const override;
-  virtual double evalBasic(const SpacePoint &p1,
-                           const SpacePoint &p2,
-                           int ivar = 0,
-                           int jvar = 0,
-                           const CovCalcMode &mode = CovCalcMode()) const override;
+                         const CovCalcMode* mode = nullptr) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;

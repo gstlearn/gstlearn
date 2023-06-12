@@ -64,7 +64,7 @@ void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
                                       double& covVal,
                                       VectorDouble& covGp,
                                       VectorDouble& covGG,
-                                      const CovCalcMode& mode,
+                                      const CovCalcMode* mode,
                                       bool flagGrad) const
 {
   _initGradients(covVal, covGp, covGG, flagGrad);
@@ -81,7 +81,7 @@ void CovLMGradient::evalZAndGradients(const VectorDouble& vec,
                                       double& covVal,
                                       VectorDouble& covGp,
                                       VectorDouble& covGG,
-                                      const CovCalcMode& mode,
+                                      const CovCalcMode* mode,
                                       bool flagGrad) const
 {
   /// TODO : Not true whatever the space

@@ -20,7 +20,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
 /****************************************************************************/
@@ -34,57 +34,23 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
 
-  // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
+  // Generate the output grid
+  int nsample = 1000000;
+  Db* data = Db::createFillRandom(nsample);
   if (verbose) data->display();
 
-  // Generate the output grid
-  bool flagSmall = false;
-  VectorInt nx;
-  if (flagSmall)
-    nx = {50,60};
-  else
-    nx = {360,240};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
-
-  // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
-  if (verbose) model->display();
-
-  // Moving Neighborhood
-  int nmaxi = 20;
-  int nmini = 2;
-  int nsect = 8;
-  int nsmax = 3;
-  double radius = 10000;
-
-  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
-  if (verbose) neighM->display();
-
   Timer timer;
-  kriging(data, grid, model, neighM, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Moving Neighborhood", 2000);
+  VectorDouble dist(nsample);
+  for (int i = 0; i < nsample; i++)
+    dist[i] = data->getDistance(i, 0);
+  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 310);
 
-  if (neighM    != nullptr) delete neighM;
-  if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
-  if (model     != nullptr) delete model;
+  if (data != nullptr) delete data;
 
   return (0);
 }

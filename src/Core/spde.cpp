@@ -16,7 +16,6 @@
 #include "Enum/ELoadBy.hpp"
 
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
