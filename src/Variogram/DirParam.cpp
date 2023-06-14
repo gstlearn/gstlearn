@@ -72,13 +72,10 @@ DirParam::DirParam(const DbGrid *dbgrid,
   int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();
 
-  _codir.resize(ndim, 0.);
+  _codir = dbgrid->getCodir(grincr);
   double dpas = 0.;
   for (int idim = 0; idim < ndim; idim++)
-  {
-    _codir[idim] = grincr[idim] * dbgrid->getDX(idim);
     dpas += _codir[idim] * _codir[idim];
-  }
   _dPas = sqrt(dpas);
   VH::normalize(_codir);
 }
@@ -291,7 +288,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   if (ndim > 1)
   {
     VectorDouble angles(ndim);
-    (void) GH::rotationGetAngles(_codir,angles);
+    (void) GH::rotationGetAnglesFromCodirInPlace(_codir,angles);
     sstr << toVector("Direction angles (degrees)  = ", angles);
   }
 
@@ -358,7 +355,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
   for (int idir = 0; idir < ndir; idir++)
   {
     angles[0] = 180. * (double) idir / (double) ndir + angref;
-    (void) GH::rotationGetDirection(ndim, 1, angles,codir);
+    (void) GH::rotationGetDirection2D(angles,codir);
     double tolang = 90. / (double) ndir;
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
                                  VectorDouble(), codir, TEST, space);
@@ -390,7 +387,7 @@ std::vector<DirParam> DirParam::createSeveral2D(const VectorDouble &angles,
   for (int idir = 0; idir < ndir; idir++)
   {
     anglesloc[0] = angles[idir];
-    (void) GH::rotationGetDirection(ndim, 1, anglesloc,codir);
+    (void) GH::rotationGetDirection2D(anglesloc,codir);
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
                                  VectorDouble(), codir, TEST, space);
     dirs.push_back(dirparam);

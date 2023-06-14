@@ -20,7 +20,6 @@ Tensor::Tensor(unsigned int ndim)
 :  AStringable(),
    _nDim(ndim),
    _tensorDirect(),
-   _tensorDirect2(),
    _tensorInverse(),
    _radius(),
    _rotation(),
@@ -33,7 +32,6 @@ Tensor::Tensor(const Tensor& r)
 :  AStringable(r),
    _nDim(r._nDim),
    _tensorDirect(r._tensorDirect),
-   _tensorDirect2(r._tensorDirect2),
    _tensorInverse(r._tensorInverse),
    _radius(r._radius),
    _rotation(r._rotation),
@@ -48,7 +46,6 @@ Tensor& Tensor::operator=(const Tensor &r)
     AStringable::operator=(r);
     _nDim = r._nDim;
     _tensorDirect = r._tensorDirect;
-    _tensorDirect2 = r._tensorDirect2;
     _tensorInverse = r._tensorInverse;
     _radius = r._radius;
     _rotation = r._rotation;
@@ -68,8 +65,7 @@ void Tensor::init(int ndim)
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setIdentity();
   _tensorDirect  = _rotation.getMatrixDirect();
-  _tensorDirect2 = _rotation.getMatrixDirect();
-  _tensorInverse = _rotation.getMatrixDirect();
+  _tensorInverse = _rotation.getMatrixInverse();
   _isotropic = true;
 }
 
@@ -144,19 +140,11 @@ void Tensor::setRotationAngle(unsigned int idim, double angle)
   _fillTensors();
 }
 
-VectorDouble Tensor::applyDirect(const VectorDouble& vec, int mode) const
+VectorDouble Tensor::applyDirect(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  if (mode == 1)
-    _tensorDirect.prodVector(vec, out);
-  else
-    _tensorDirect2.prodVector(vec, out);
+  _tensorDirect.prodVector(vec, out);
   return out;
-}
-
-void Tensor::applyInverseInPlace(const double* vec,double* out) const
-{
-    _tensorInverse.prodVector(vec, out);
 }
 
 void Tensor::applyInverseInPlace(const VectorDouble& vec,VectorDouble& out) const
@@ -164,14 +152,10 @@ void Tensor::applyInverseInPlace(const VectorDouble& vec,VectorDouble& out) cons
     _tensorInverse.prodVector(vec, out);
 }
 
-
-VectorDouble Tensor::applyInverse(const VectorDouble& vec, int mode) const
+VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  if (mode == 1)
-    _tensorInverse.prodVector(vec, out);
-  else
-    _tensorInverse.prodVector(vec, out);
+  _tensorInverse.prodVector(vec, out);
   return out;
 }
 
@@ -193,18 +177,10 @@ void Tensor::_updateIsotropic()
 void Tensor::_fillTensors()
 {
   // Tensor = Radius %*% Rotation
-  _tensorDirect = _rotation.getMatrixInverse();
+  _tensorDirect = _rotation.getMatrixDirect();
   _tensorDirect.multiplyRow(_radius);
 
-  // Tensor = Radius %*% Rotation (correct product)
-  _tensorDirect2 = _tensorDirect;
-  _tensorDirect2.transposeInPlace();
-
-  // Tensor = Rotation %*% 1/Radius
-  _tensorInverse = _rotation.getMatrixDirect();
-  _tensorInverse.divideColumn(_radius);
-
-  // Tensor = Rotation %*% 1/Radius (correct product)
-  _tensorInverse2 = _tensorInverse;
-  _tensorInverse2.transposeInPlace();
+  // Tensor = t(Rotation) %*% 1/Radius
+  _tensorInverse = _rotation.getMatrixInverse();
+  _tensorInverse.divideRow(_radius);
 }

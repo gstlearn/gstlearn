@@ -1122,7 +1122,69 @@ int Db::addColumnsByConstant(int nadd,
   (void) correctNamesForDuplicates(_colNames);
 
   // Initialize the variables with a given value
-  _columnInit(nadd, ncol, valinit);
+  _columnInit(nadd, ncol, true, valinit);
+
+  // Set the locator (if defined)
+  if (locatorType != ELoc::UNKNOWN)
+    setLocatorsByUID(nadd, nmax, locatorType, locatorIndex);
+
+  _ncol += nadd;
+
+  return (nmax);
+}
+
+/**
+ * Create a set of new variables in an already existing Db and initialize
+ * their contents as a ranom value (from Normal distribution)
+ * @param nadd     Number of variables to be added
+ * @param radix    Generic radix given to the newly created variables
+ * @param locatorType Generic locator assigned to new variables
+ * @param locatorIndex   Locator index (starting from 0)
+ * @param seed     Seed value
+ * @param nechInit Number of samples (used only if the Db is initially empty)
+ * @return Rank of the first UID
+ */
+int Db::addColumnsRandom(int nadd,
+                         const String &radix,
+                         const ELoc &locatorType,
+                         int locatorIndex,
+                         int seed,
+                         int nechInit)
+{
+  int ncol = _ncol;
+  int nmax = getUIDMaxNumber();
+  int nnew = ncol + nadd;
+  if (nadd <= 0) return (-1);
+
+  /* Case of an empty Db, define the number of samples using 'nechInit' */
+
+  if (_nech <= 0) _nech = nechInit;
+
+  /* Dimension the array */
+
+  _array.resize(_nech * nnew);
+
+  /* Dimension the UID pointer */
+
+  _uidcol.resize(nmax + nadd);
+  for (int i = 0; i < nadd; i++)
+    _uidcol[nmax + i] = ncol + i;
+
+  // Set the name
+  _colNames.resize(nnew);
+  if (nadd == 1)
+    _colNames[ncol] = radix;
+  else
+  {
+    VectorString names = generateMultipleNames(radix,nadd);
+    for (int i = 0; i < nadd; i++)
+      _colNames[ncol + i] = names[i];
+  }
+  (void) correctNamesForDuplicates(_colNames);
+
+  // Initialize the variables with a random value
+  law_set_random_seed(seed);
+  _columnInit(nadd, ncol, false);
 
   // Set the locator (if defined)
   if (locatorType != ELoc::UNKNOWN)
@@ -1981,8 +2043,13 @@ bool Db::hasLargerDimension(const Db* dbaux) const
 }
 
 
-void Db::_columnInit(int ncol, int icol0, double valinit)
+void Db::_columnInit(int ncol, int icol0, bool flagCste, double valinit)
 {
+  double value;
+  if (flagCste)
+    value = valinit;
+  else
+    value = law_gaussian();
   for (int jcol = 0; jcol < ncol; jcol++)
   {
     int icol = jcol + icol0;
@@ -1990,14 +2057,14 @@ void Db::_columnInit(int ncol, int icol0, double valinit)
     if (! GlobalEnvironment::getEnv()->isDomainReference() ||
         getFromLocatorNumber(ELoc::DOM) == 0)
       for (int iech = 0; iech < _nech; iech++)
-        _array[_getAddress(iech, icol)] = valinit;
+        _array[_getAddress(iech, icol)] = value;
     else
       for (int iech = 0; iech < _nech; iech++)
       {
         double value = getFromLocator(ELoc::DOM, iech, 0);
         int iad = _getAddress(iech, icol);
         if (GlobalEnvironment::getEnv()->matchDomainReference(value))
-          _array[iad] = valinit;
+          _array[iad] = value;
         else
           _array[iad] = TEST;
       }

@@ -38,7 +38,6 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int setMatrixDirect(const MatrixSquareGeneral& rotmat);
   int setMatrixDirectByVector(const VectorDouble& rotmat);
-  int setMatrixDirectOldStyle(const double* rotmat);
   int setAngles(const VectorDouble& angles);
   void setIdentity();
   void rotateDirect(const VectorDouble& inv, VectorDouble& outv) const;
@@ -46,12 +45,8 @@ public:
   bool isIdentity() const { return !_flagRot; }
   bool isSame(const Rotation& rot) const;
 
-  VectorDouble setDirection(int ndim,
-                            const VectorDouble& angles = VectorDouble(),
-                            double radius = 1.) const;
-
-  VectorDouble getMatrixDirectByVector() const;
-  VectorDouble getMatrixInverseByVector() const;
+  VectorDouble getMatrixDirectByVector() const { return _rotMat.getValues(); }
+  VectorDouble getMatrixInverseByVector() const { return _rotInv.getValues(); }
 
 private:
   void _recopy(const Rotation& r);

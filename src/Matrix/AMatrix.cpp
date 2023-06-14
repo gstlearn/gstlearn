@@ -524,7 +524,7 @@ void AMatrix::fill(double value)
  * @param byCol true for Column major; false for Row Major
  */
 #ifndef SWIG
-void AMatrix::setValuesOldStyle(const double* values, bool byCol)
+void AMatrix::_setValues(const double* values, bool byCol)
 {
   if (_sparse)
   {
@@ -576,7 +576,7 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
     messerr("Operation cancelled");
     return;
   }
-  setValuesOldStyle(values.data(),byCol);
+  _setValues(values.data(),byCol);
 }
 
 void AMatrix::setValuesByArrays(const VectorInt &irows,

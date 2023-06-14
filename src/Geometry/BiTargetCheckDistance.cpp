@@ -42,17 +42,17 @@ BiTargetCheckDistance::BiTargetCheckDistance(double radius,
     if (! angles.empty())
     {
       _flagRotation = (VH::isConstant(angles, 0.)) ? false : true;
-      GH::rotationInit(_ndim, angles, _anisoRotMat);
+      GH::rotationMatrixInPlace(_ndim, angles, _anisoRotMat);
     }
     else
     {
-      GH::rotationIdentity(_ndim, _anisoRotMat);
+      GH::rotationMatrixIdentityInPlace(_ndim, _anisoRotMat);
     }
   }
   else
   {
     VH::fill(_anisoCoeffs, 1., _ndim);
-    GH::rotationIdentity(_ndim, _anisoRotMat);
+    GH::rotationMatrixIdentityInPlace(_ndim, _anisoRotMat);
   }
 
   _movingIncr.resize(_ndim);

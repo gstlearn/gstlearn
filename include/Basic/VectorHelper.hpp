@@ -123,14 +123,14 @@ public:
                        double coeff = 1.,
                        double addval = 0.);
 
-  static VectorDouble simulateUniform(int n,
+  static VectorDouble simulateUniform(int n = 1,
                                       double mini = 0.,
                                       double maxi = 1.);
-  static VectorDouble simulateBernoulli(int n,
-                                        double proba,
+  static VectorDouble simulateBernoulli(int n = 1,
+                                        double proba = 0.5,
                                         double vone = 1.,
                                         double velse = 0.);
-  static VectorDouble simulateGaussian(int n,
+  static VectorDouble simulateGaussian(int n = 1,
                                        double mean = 0.,
                                        double sigma = 1.);
   static void simulateGaussianInPlace(VectorDouble &vect,

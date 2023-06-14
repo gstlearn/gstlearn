@@ -16,7 +16,7 @@
 #include <math.h>
 
 SpaceRN::SpaceRN(unsigned int ndim)
- : ASpace(ndim)
+    : ASpace(ndim)
 {
   if (ndim == 0)
   {
@@ -25,12 +25,12 @@ SpaceRN::SpaceRN(unsigned int ndim)
   }
 }
 
-SpaceRN::SpaceRN(const SpaceRN& r)
-: ASpace(r)
+SpaceRN::SpaceRN(const SpaceRN &r)
+    : ASpace(r)
 {
 }
 
-SpaceRN& SpaceRN::operator=(const SpaceRN& r)
+SpaceRN& SpaceRN::operator=(const SpaceRN &r)
 {
   if (this != &r)
   {
@@ -48,28 +48,26 @@ SpaceRN* SpaceRN::create(unsigned int ndim)
   return new SpaceRN(ndim);
 }
 
-void SpaceRN::move(SpacePoint& p1,
-                   const VectorDouble& vec) const
+void SpaceRN::move(SpacePoint &p1, const VectorDouble &vec) const
 {
   p1.setCoord(VH::add(p1.getCoord(), vec));
 }
 
 /**
  * Return the distance between two space points in RN Space
-   The distance between \f$p1=(x_1,y_1)\f$ and \f$p2=(x_2,y_2)\f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
-   \param[in] p1 First point
-   \param[in] p2 Second point
-   \return The distance between p1 and p2
+ The distance between \f$p1=(x_1,y_1)\f$ and \f$p2=(x_2,y_2)\f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
+ \param[in] p1 First point
+ \param[in] p2 Second point
+ \return The distance between p1 and p2
  */
-double SpaceRN::getDistance(const SpacePoint& p1,
-                            const SpacePoint& p2) const
+double SpaceRN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
 {
   return VH::norm(getIncrement(p1, p2));
 }
 
-double SpaceRN::getDistance(const SpacePoint& p1,
-                            const SpacePoint& p2,
-                            const Tensor& tensor) const
+double SpaceRN::getDistance(const SpacePoint &p1,
+                            const SpacePoint &p2,
+                            const Tensor &tensor) const
 {
   return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
 }
@@ -79,66 +77,59 @@ void SpaceRN::getDistancePointVectInPlace(const SpacePoint &p1,
                                           VectorDouble &res) const
 {
 
-	double ti;
-	double s;
-	int nbp = res.size();
-	for(int i = 0; i<nbp;i++)
-	{
-		s = 0.;
+  double ti;
+  double s;
+  int nbp = res.size();
+  for (int i = 0; i < nbp; i++)
+  {
+    s = 0.;
 
-		for(unsigned int idim = 0;idim<_nDim;idim++)
-		{
-			ti = p1.getCoord(idim) - p2[i].getCoord(idim);
-			s+= ti * ti;
-		}
+    for (unsigned int idim = 0; idim < _nDim; idim++)
+    {
+      ti = p1.getCoord(idim) - p2[i].getCoord(idim);
+      s += ti * ti;
+    }
 
-		res[i] = sqrt(s);
-	}
+    res[i] = sqrt(s);
+  }
 }
 
-
-
-double SpaceRN::_getDistance(const SpacePoint& p1,
-							 const SpacePoint & p2,
-							 VectorDouble& ptemp,
-							 const Tensor& tensor,
-							 VectorDouble& temp) const
+double SpaceRN::_getDistance(const SpacePoint &p1,
+                             const SpacePoint &p2,
+                             VectorDouble &ptemp,
+                             const Tensor &tensor,
+                             VectorDouble &temp) const
 {
-	_getIncrementInPlace(p1, p2,ptemp);
-	tensor.applyInverseInPlace(ptemp,temp);
-	double s=0;
-	double ti;
-	for(unsigned int idim = 0;idim<_nDim;idim++)
-	{
-		ti = temp[idim];
-		s+= ti * ti;
-	}
-	return sqrt(s);
+  _getIncrementInPlace(p1, p2, ptemp);
+  tensor.applyInverseInPlace(ptemp, temp);
+  double s = 0;
+  double ti;
+  for (unsigned int idim = 0; idim < _nDim; idim++)
+  {
+    ti = temp[idim];
+    s += ti * ti;
+  }
+  return sqrt(s);
 
 }
 
-
-void SpaceRN::_getIncrementInPlace(const SpacePoint& p1,
-							 	   const SpacePoint & p2,
-								   VectorDouble& ptemp)const
+void SpaceRN::_getIncrementInPlace(const SpacePoint &p1,
+                                   const SpacePoint &p2,
+                                   VectorDouble &ptemp) const
 {
-
-	for(unsigned int i = 0; i<_nDim;i++)
-	{
-		ptemp[i] = p2.getCoord(i)-p1.getCoord(i);
-	}
-
+  for (unsigned int i = 0; i < _nDim; i++)
+    ptemp[i] = p2.getCoord(i) - p1.getCoord(i);
 }
 
-double SpaceRN::getFrequentialDistance(const SpacePoint& p1,
-                                       const SpacePoint& p2,
-                                       const Tensor& tensor) const
+double SpaceRN::getFrequentialDistance(const SpacePoint &p1,
+                                       const SpacePoint &p2,
+                                       const Tensor &tensor) const
 {
-  return VH::norm(tensor.applyDirect(getIncrement(p1, p2),0));
+  return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
 }
 
-VectorDouble SpaceRN::getIncrement(const SpacePoint& p1,
-                                   const SpacePoint& p2) const
+VectorDouble SpaceRN::getIncrement(const SpacePoint &p1,
+                                   const SpacePoint &p2) const
 {
   return VH::subtract(p1.getCoord(), p2.getCoord());
 }

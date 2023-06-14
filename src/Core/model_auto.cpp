@@ -545,8 +545,7 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
       for (ivar = 0; ivar < nvar; ivar++)
         for (jvar = 0; jvar < nvar; jvar++)
         {
-          double sill = (ivar == jvar) ? 1. :
-                                         0.;
+          double sill = (ivar == jvar) ? 1. : 0.;
           cova->setSill(ivar, jvar, sill);
           cova->setSill(jvar, ivar, sill);
         }
@@ -745,7 +744,7 @@ static void st_mauto_rescale(int nvar,
 static void st_goulard_verbose(int mode, Option_AutoFit &mauto)
 {
   static bool local_verbose;
-  static int local_converge;
+  static bool local_converge;
 
   /* Dispatch */
 
@@ -753,7 +752,6 @@ static void st_goulard_verbose(int mode, Option_AutoFit &mauto)
   {
     local_verbose = mauto.getVerbose();
     local_converge = OptDbg::query(EDbg::CONVERGE);
-    // Locally undefine both options to avoid too many printout
     mauto.setVerbose(false);
     OptDbg::undefine(EDbg::CONVERGE);
   }
@@ -1060,7 +1058,7 @@ static void st_load_ge(const Vario *vario,
           for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
           {
             int shift = ijvar * vario->getLagTotalNumber(idir);
-            if (!ge.empty()) GE(icov,ijvar,ipadir)= 0.;
+            if (!ge.empty()) GE(icov,ijvar,ipadir) = 0.;
 
             double dist = 0.;
             if (vario->getFlagAsym())
@@ -1068,8 +1066,7 @@ static void st_load_ge(const Vario *vario,
               int iad = shift + vario->getLagNumber(idir) + ipas + 1;
               int jad = shift + vario->getLagNumber(idir) - ipas - 1;
               if (!CORRECT(idir, iad) || !CORRECT(idir, jad)) continue;
-              dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir, jad)))
-                  / 2.;
+              dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
             }
             else
             {
@@ -1080,10 +1077,10 @@ static void st_load_ge(const Vario *vario,
             for (int idim = 0; idim < ndim; idim++)
               d1[idim] = dist * vario->getCodir(idir, idim);
             if (!ge.empty())
-            GE(icov,ijvar,ipadir)= cova->evalIvarIpas(1.,d1,ivar, jvar, VectorDouble(),&mode);
+            GE(icov,ijvar,ipadir) = cova->evalIvarIpas(1.,d1,ivar,jvar,VectorDouble(),&mode);
 
             if (!dd.empty()) for (int idim = 0; idim < ndim; idim++)
-              DD(idim,ijvar,ipadir)= dist * vario->getCodir(idir,idim);
+              DD(idim,ijvar,ipadir) = dist * vario->getCodir(idir,idim);
           }
         }
       }
@@ -1864,7 +1861,7 @@ static void st_model_auto_strmod_print(int flag_title,
 
   /* Initializations */
 
-  bool skip = true;
+  bool skip = false;
   if (! mauto.getVerbose()) skip = true;
   if (! OptDbg::query(EDbg::CONVERGE)) skip = true;
   if (skip) return;
@@ -2639,7 +2636,7 @@ static double st_score(int nvar,
         dd = GG(ijvar, ipadir);
         if (FFFF(dd)) continue;
         for (icov = 0; icov < ncova; icov++)
-          dd -= MATCOR(icov,ivar,jvar)* GE(icov,ijvar,ipadir);
+          dd -= MATCOR(icov,ivar,jvar) * GE(icov,ijvar,ipadir);
         score += coeff * WT(ijvar, ipadir) * dd * dd;
       }
     }
@@ -2753,7 +2750,7 @@ static double st_minimize_P4(int icov0,
         if (icov == icov0) continue;
         value = 0.;
         for (l = 0; l < npadir; l++)
-          value += WT(irl,l)* GE(icov,0,l) * GE(icov,0,l);
+          value += WT(irl,l) * GE(icov,0,l) * GE(icov,0,l);
         BIRKV(k,ivar)+= ALPHA(icov,ivar0,ivar) *
         (GE(icov,0,k) - value * GE(icov0,0,k))/Nir_v[ivar];
       }
@@ -2942,7 +2939,7 @@ static void st_updateCurrentSillGoulard(int icov0,
       for (icov = 0; icov < ncova; icov++)
       {
         if (icov == icov0) continue;
-        mv[ilagdir] += MATCOR(icov,ivar0,ivar)* GE(icov,0,ilagdir);
+        mv[ilagdir] += MATCOR(icov,ivar0,ivar) * GE(icov,0,ilagdir);
       }
     }
 
@@ -3741,11 +3738,12 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   /* Run the last Goulard algorithm (if necessary) */
 
   st_goulard_verbose(0, mauto);
-  if (optvar.getFlagGoulardUsed()) for (imod = 0; imod < strmod->nmodel; imod++)
-  {
-    ST_PREPAR_GOULARD(imod);
-    (void) st_goulard_fitting(1, 1, STRMOD->models[imod], constraints, mauto);
-  }
+  if (optvar.getFlagGoulardUsed())
+    for (imod = 0; imod < strmod->nmodel; imod++)
+    {
+      ST_PREPAR_GOULARD(imod);
+      (void) st_goulard_fitting(1, 1, STRMOD->models[imod], constraints, mauto);
+    }
   st_goulard_verbose(1, mauto);
 
   /* Initializations */
@@ -4341,7 +4339,7 @@ static void st_prepar_goulard_vmap(int imod)
       int ijvar = 0;
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
-          GE(icov,ijvar,ipadir)= tab[ijvar];
+          GE(icov,ijvar,ipadir) = tab[ijvar];
         }
       }
   return;
@@ -4707,7 +4705,7 @@ int model_auto_fit(Vario *vario,
   variogram_extension(vario, 0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
                       &flag_gneg, &c0, &hmin, &hmax, &gmin, &gmax);
   angles.resize(ndim);
-  (void) GH::rotationGetAngles(vario->getCodirs(0), angles);
+  (void) GH::rotationGetAnglesFromCodirInPlace(vario->getCodirs(0), angles);
   st_vario_varchol_manage(vario, model, varchol);
 
   /* Scale the parameters in the mauto structure */

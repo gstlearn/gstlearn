@@ -792,10 +792,12 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   const Rotation& rot = cova.getAnisoRotation();
 
   // Project the corners of the grid
-  VectorDouble extendMinNoRot(ndim, TEST);
-  VectorDouble extendMaxNoRot(ndim, TEST);
+  VectorDouble extendMinRot(ndim, TEST);
+  VectorDouble extendMaxRot(ndim, TEST);
   VectorDouble cornerRot(ndim);
-  VectorInt ic(ndim);
+  VectorInt ic(ndim,0);
+  VectorDouble cornerRef = field->getGrid().getCoordinatesByCorner(ic);
+
   for (int icorner = 0; icorner < nval; icorner++)
   {
 
@@ -807,40 +809,42 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
       jcorner /= 2;
     }
     VectorDouble corner1 = field->getGrid().getCoordinatesByCorner(ic);
+    VH::subtractInPlace(corner1, cornerRef);
 
     // Rotate this corner in the Covariance Rotation system
-    rot.rotateDirect(corner1, cornerRot);
+    rot.rotateInverse(corner1, cornerRot);
 
     // Calculate the minimum and maximum in the Covariance rotated system
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (FFFF(extendMinNoRot[idim]) || cornerRot[idim] < extendMinNoRot[idim])
-        extendMinNoRot[idim] = cornerRot[idim];
-      if (FFFF(extendMaxNoRot[idim]) || cornerRot[idim] > extendMaxNoRot[idim])
-        extendMaxNoRot[idim] = cornerRot[idim];
+      if (FFFF(extendMinRot[idim]) || cornerRot[idim] < extendMinRot[idim])
+        extendMinRot[idim] = cornerRot[idim];
+      if (FFFF(extendMaxRot[idim]) || cornerRot[idim] > extendMaxRot[idim])
+        extendMaxRot[idim] = cornerRot[idim];
     }
   }
 
   // Calculating the Mesh of the Grid
   VectorInt    nx(ndim);
   VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
   for (int idim = 0; idim < ndim; idim++)
   {
-    double delta = extendMaxNoRot[idim] - extendMinNoRot[idim];
+    double delta = extendMaxRot[idim] - extendMinRot[idim];
     dx[idim] = cova.getRange(idim) / ratio;
-    nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt;
+    nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt + 1;
     if( nx[idim] > 400 )
     {
       nx[idim] = 400;
       dx[idim] = delta / (nx[idim] - 2 * nbExt);
     }
-    extendMinNoRot[idim] -= nbExt * dx[idim];
-    extendMaxNoRot[idim] += nbExt * dx[idim];
+    extendMinRot[idim] -= nbExt * dx[idim];
+    extendMaxRot[idim] += nbExt * dx[idim];
   }
 
   // Get the rotated Bounding Box in the initial system
-  VectorDouble x0(ndim);
-  rot.rotateInverse(extendMinNoRot, x0);
+  rot.rotateDirect(extendMinRot, x0);
+  VH::addInPlace(x0, cornerRef);
 
   initFromGrid(nx,dx,x0,rot.getMatrixDirectByVector(),VectorDouble(),true,verbose);
   return 0;

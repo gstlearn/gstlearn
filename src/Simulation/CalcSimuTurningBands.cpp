@@ -181,7 +181,7 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
         const CovAniso* cova = getModel()->getCova(is);
 
         // If the covariance has no Range (i.e. Nugget Effect), the rest is non-sense.
-        // Nevertheless this code is maintained to ensure in order not to disorganize
+        // Nevertheless this code is maintained in order not to disorganize
         // the possible drawing of random numbers.
         if (!cova->hasRange()) continue;
 
@@ -264,7 +264,7 @@ void CalcSimuTurningBands::_rotateDirections(double a[3], double theta)
   {
     for (int idir = 0; idir < 3; idir++)
       dirs[idir] = _getCodirAng(ibs, idir);
-    GH::rotationGetDirection(ct, st, a, dirs);
+    GH::rotationGetRandomDirection(ct, st, a, dirs);
     for (int idir = 0; idir < 3; idir++)
       _setCodirAng(ibs, idir, dirs[idir]);
   }
@@ -938,9 +938,9 @@ VectorDouble CalcSimuTurningBands::_createAIC()
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulatePoint(Db *db,
-                                      const VectorDouble &aic,
-                                      int icase,
-                                      int shift)
+                                          const VectorDouble &aic,
+                                          int icase,
+                                          int shift)
 {
   double vexp, tdeb, dt0, t0;
   int nt0;

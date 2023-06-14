@@ -236,7 +236,8 @@ void model_calcul_cov(CovInternal *covint,
 {
   // Load the non-stationary parameters if needed
 
-  if (model->isNoStat()) model_nostat_update(covint, model);
+  if (model->isNoStat())
+    model_nostat_update(covint, model);
 
   // Evaluate the Model
 

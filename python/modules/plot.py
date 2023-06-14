@@ -781,7 +781,7 @@ def literal(db, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_literal(ax, db, *args, **kwargs)
     
-def __ax_literal(ax, db, name, coorX_name=None, coorY_name=None, 
+def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None, 
                  usesel=True, flagLegend=True, legendName=None, 
                  posX=0, posY=1, **kwargs):
     
@@ -1099,7 +1099,7 @@ def raster(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_raster(ax, dbgrid, *args, **kwargs)
 
-def __ax_raster(ax, dbgrid, name, usesel = True, posx=0, posy=1, corner=None, 
+def __ax_raster(ax, dbgrid, name=None, usesel = True, posx=0, posy=1, corner=None, 
                 flagLegend=False, **kwargs):
     name = defaultVariable(dbgrid, name)
             
@@ -1139,7 +1139,7 @@ def isoline(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_isoline(ax, dbgrid, *args, **kwargs)
 
-def __ax_isoline(ax, dbgrid, name, usesel = True, 
+def __ax_isoline(ax, dbgrid, name=None, usesel = True, 
                  posx=0, posy=1, corner=None, levels=None,
                  flagLegend=True, **kwargs):
     name = defaultVariable(dbgrid, name)

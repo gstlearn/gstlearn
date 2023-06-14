@@ -4271,8 +4271,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
           Tensor tensor(ndim);
           tensor.setRotationAngle(0,angle);
           tensor.setRadiusVec(radius);
-          VectorDouble newdel = tensor.applyDirect(delta,2);
-          dd = VH::norm(newdel);
+          dd = VH::norm(tensor.applyInverse(delta));
         }
 
         // Check if the point 'ip' must be dropped

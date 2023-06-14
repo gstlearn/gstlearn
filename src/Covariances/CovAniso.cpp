@@ -944,7 +944,7 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
 
 void CovAniso::_preProcess(const SpacePoint& pt, SpacePoint& res) const
 {
-	_aniso.applyInverseInPlace(pt.getCoordsP(), res.getCoordsPM());
+	_aniso.applyInverseInPlace(pt.getCoord(), res.getCoord());
 }
 
 void CovAniso::preProcess(const std::vector<SpacePoint>& vec) const

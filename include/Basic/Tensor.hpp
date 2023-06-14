@@ -48,10 +48,9 @@ public:
   bool                   isIsotropic()        const { return  _isotropic; }
   bool                   hasRotation()      const { return !_rotation.isIdentity(); }
 
-  VectorDouble applyDirect (const VectorDouble& vec, int mode = 1) const;
-  VectorDouble applyInverse(const VectorDouble& vec, int mode = 1) const;
+  VectorDouble applyDirect (const VectorDouble& vec) const;
+  VectorDouble applyInverse(const VectorDouble& vec) const;
   void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;
-  void applyInverseInPlace(const double* vec,double* out) const;
 
 private:
   void _updateIsotropic();
@@ -60,9 +59,7 @@ private:
 private:
   unsigned int        _nDim;     /// Number of dimensions
   MatrixSquareGeneral _tensorDirect; /// Direct Tensor matrix (definite positive)
-  MatrixSquareGeneral _tensorDirect2; /// Direct Tensor matrix (definite positive)
   MatrixSquareGeneral _tensorInverse; /// Inverse Tensor matrix (definite positive)
-  MatrixSquareGeneral _tensorInverse2; /// Inverse Tensor matrix (definite positive)
   VectorDouble        _radius;   /// Ellipsoid radius
   Rotation            _rotation; /// Ellipsoid rotation
   bool                _isotropic;  /// True if the tensor is isotropic

@@ -345,7 +345,7 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
   if (flag_rotate)
   {
     VectorDouble work2(ndim);
-    _rotation.rotateInverse(work1,work2);
+    _rotation.rotateDirect(work1,work2);
     return (work2[idim0] + _x0[idim0]);
   }
   else
@@ -387,7 +387,7 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
-    _rotation.rotateInverse(work1,work2);
+    _rotation.rotateDirect(work1,work2);
   else
     work2 = work1;
 
@@ -453,7 +453,7 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
   if (flag_rotate)
   {
     VectorDouble work2(ndim);
-    _rotation.rotateInverse(work1,work2);
+    _rotation.rotateDirect(work1,work2);
     for (int idim = 0; idim < ndim; idim++)
       work2[idim] += _x0[idim];
     return work2;
@@ -484,7 +484,7 @@ double Grid::indiceToCoordinate(int idim0,
 
   /* Process the grid rotation (if any) */
 
-  _rotation.rotateInverse(work1,work2);
+  _rotation.rotateDirect(work1,work2);
 
   // Shift by the origin of the grid
 
@@ -521,7 +521,7 @@ void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
 
   /* Process the grid rotation (if any) */
 
-  _rotation.rotateInverse(work1,work2);
+  _rotation.rotateDirect(work1,work2);
 
   // Returning vector
 

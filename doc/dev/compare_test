@@ -13,6 +13,7 @@ if ($nargs < 2) then
 		echo "   name1    : Name of the subContainer (e.g.: data, ipynb, py, r, rmd, cpp)"
 		echo "   nametest : Name of the test (e.g.: Jeu1, Tuto_Plot2D, Hermite, etc...)"
 		echo "   ajout    : additional parameters for diff (example: -w=160 --side | more)"
+		echo "              or "full" (for automatic option --side | more)
 		exit
 endif
 
@@ -71,4 +72,8 @@ endif
 set FILEREF = $DIR/tests/$name1/$direcref/$nameref
 set FILECMP = $DIR/build/tests/$name1/$option/$directest/$namecmp
 
-diff -b $FILEREF $FILECMP $ajout
+if ($ajout == "full") then
+	diff -b $FILEREF $FILECMP --side | more
+else
+	diff -b $FILEREF $FILECMP $ajout
+endif

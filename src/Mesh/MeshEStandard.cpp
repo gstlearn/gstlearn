@@ -212,59 +212,6 @@ int MeshEStandard::reset(int ndim,
 
 /****************************************************************************/
 /*!
-** Create the meshing
-**
-** \param[in]  ndim            Space Dimension
-** \param[in]  napexpermesh    Number of apices per mesh
-** \param[in]  npoints         Number of apices
-** \param[in]  nmeshes         Number of meshes
-** \param[in]  apices          Vector of Apex information
-** \param[in]  meshes          Vector of mesh indices
-** \param[in]  byCol           true for Column major; false for Row Major
-** \param[in]  verbose         Verbose flag
-**
-** \remark The argument 'byCol' concerns 'apices' and 'meshes'
-**
-*****************************************************************************/
-int MeshEStandard::reset(int ndim,
-                         int napexpermesh,
-                         int npoints,
-                         int nmeshes,
-                         const double *apices,
-                         const int *meshes,
-                         bool byCol,
-                         bool verbose)
-{
-  _setNDim(ndim);
-
-  // Core allocation
-
-  _apices.reset(npoints,ndim);
-  _apices.setValuesOldStyle(apices, byCol);
-  _meshes.reset(nmeshes,napexpermesh);
-  _meshes.setValuesOldStyle(meshes, byCol);
-
-  // Perform possible transform for compatibility
-
-  _validate();
-
-  // Check consistency
-
-  _checkConsistency();
-
-  // Define and store the Bounding Box extension
-
-  _defineBoundingBox();
-
-  // Optional printout
-
-  if (verbose) messageFlush(toString());
-
-  return(0);
-}
-
-/****************************************************************************/
-/*!
 ** Returns the rank of the Apex 'rank' of the Mesh 'imesh'
 **
 ** \returns The rank of the target apex

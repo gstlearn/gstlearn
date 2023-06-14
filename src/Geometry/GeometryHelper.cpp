@@ -30,35 +30,35 @@ void GeometryHelper::_decodeConvRot(const ERotation &convrot,
 {
   VectorInt ret(4);
 
-  if (convrot == ERotation::SXYZ) ret = {0, 0, 0, 0};
-  if (convrot == ERotation::SXYX) ret = {0, 0, 1, 0};
-  if (convrot == ERotation::SXZY) ret = {0, 1, 0, 0};
-  if (convrot == ERotation::SXZX) ret = {0, 1, 1, 0};
-  if (convrot == ERotation::SYZX) ret = {1, 0, 0, 0};
-  if (convrot == ERotation::SYZY) ret = {1, 0, 1, 0};
-  if (convrot == ERotation::SYXZ) ret = {1, 1, 0, 0};
-  if (convrot == ERotation::SYXY) ret = {1, 1, 1, 0};
-  if (convrot == ERotation::SZXY) ret = {2, 0, 0, 0};
-  if (convrot == ERotation::SZXZ) ret = {2, 0, 1, 0};
-  if (convrot == ERotation::SZYX) ret = {2, 1, 0, 0};
-  if (convrot == ERotation::SZYZ) ret = {2, 1, 1, 0};
-  if (convrot == ERotation::RZYX) ret = {0, 0, 0, 1};
-  if (convrot == ERotation::RXYX) ret = {0, 0, 1, 1};
-  if (convrot == ERotation::RYZX) ret = {0, 1, 0, 1};
-  if (convrot == ERotation::RXZX) ret = {0, 1, 1, 1};
-  if (convrot == ERotation::RXZY) ret = {1, 0, 0, 1};
-  if (convrot == ERotation::RYZY) ret = {1, 0, 1, 1};
-  if (convrot == ERotation::RZXY) ret = {1, 1, 0, 1};
-  if (convrot == ERotation::RYXY) ret = {1, 1, 1, 1};
-  if (convrot == ERotation::RYXZ) ret = {2, 0, 0, 1};
-  if (convrot == ERotation::RZXZ) ret = {2, 0, 1, 1};
-  if (convrot == ERotation::RXYZ) ret = {2, 1, 0, 1};
-  if (convrot == ERotation::RZYZ) ret = {2, 1, 1, 1};
+  if (convrot == ERotation::SXYZ) ret = { 0, 0, 0, 0 };
+  if (convrot == ERotation::SXYX) ret = { 0, 0, 1, 0 };
+  if (convrot == ERotation::SXZY) ret = { 0, 1, 0, 0 };
+  if (convrot == ERotation::SXZX) ret = { 0, 1, 1, 0 };
+  if (convrot == ERotation::SYZX) ret = { 1, 0, 0, 0 };
+  if (convrot == ERotation::SYZY) ret = { 1, 0, 1, 0 };
+  if (convrot == ERotation::SYXZ) ret = { 1, 1, 0, 0 };
+  if (convrot == ERotation::SYXY) ret = { 1, 1, 1, 0 };
+  if (convrot == ERotation::SZXY) ret = { 2, 0, 0, 0 };
+  if (convrot == ERotation::SZXZ) ret = { 2, 0, 1, 0 };
+  if (convrot == ERotation::SZYX) ret = { 2, 1, 0, 0 };
+  if (convrot == ERotation::SZYZ) ret = { 2, 1, 1, 0 };
+  if (convrot == ERotation::RZYX) ret = { 0, 0, 0, 1 };
+  if (convrot == ERotation::RXYX) ret = { 0, 0, 1, 1 };
+  if (convrot == ERotation::RYZX) ret = { 0, 1, 0, 1 };
+  if (convrot == ERotation::RXZX) ret = { 0, 1, 1, 1 };
+  if (convrot == ERotation::RXZY) ret = { 1, 0, 0, 1 };
+  if (convrot == ERotation::RYZY) ret = { 1, 0, 1, 1 };
+  if (convrot == ERotation::RZXY) ret = { 1, 1, 0, 1 };
+  if (convrot == ERotation::RYXY) ret = { 1, 1, 1, 1 };
+  if (convrot == ERotation::RYXZ) ret = { 2, 0, 0, 1 };
+  if (convrot == ERotation::RZXZ) ret = { 2, 0, 1, 1 };
+  if (convrot == ERotation::RXYZ) ret = { 2, 1, 0, 1 };
+  if (convrot == ERotation::RZYZ) ret = { 2, 1, 1, 1 };
 
-  *firstaxis  = ret[0];
-  *parity     = ret[1];
+  *firstaxis = ret[0];
+  *parity = ret[1];
   *repetition = ret[2];
-  *frame      = ret[3];
+  *frame = ret[3];
 }
 
 /****************************************************************************/
@@ -117,7 +117,7 @@ void GeometryHelper::rotationGetSinCos(double angle, double *cosa, double *sina)
  ** \param[out] rot       Rotation matrix
  **
  *****************************************************************************/
-void GeometryHelper::rotationIdentity(int ndim, VectorDouble& rot)
+void GeometryHelper::rotationMatrixIdentityInPlace(int ndim, VectorDouble &rot)
 {
   int i, j, ecr;
 
@@ -135,7 +135,7 @@ void GeometryHelper::rotationIdentity(int ndim, VectorDouble& rot)
  ** \param[out]  rot   Rotation matrix (Dimension = 4)
  **
  *****************************************************************************/
-void GeometryHelper::rotationInit(double angle, VectorDouble& rot)
+void GeometryHelper::rotation2DMatrixInPlace(double angle, VectorDouble &rot)
 {
   double ca, sa;
 
@@ -143,10 +143,10 @@ void GeometryHelper::rotationInit(double angle, VectorDouble& rot)
 
   /* Define the 2-D rotation matrix */
 
-  rot[0] =  ca;
-  rot[1] =  sa;
+  rot[0] = ca;
+  rot[1] = sa;
   rot[2] = -sa;
-  rot[3] =  ca;
+  rot[3] = ca;
 
   return;
 }
@@ -162,10 +162,10 @@ void GeometryHelper::rotationInit(double angle, VectorDouble& rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void GeometryHelper::rotationInit(double alpha,
-                                  double beta,
-                                  double gamma,
-                                  VectorDouble& rot)
+void GeometryHelper::rotation3DMatrixInPlace(double alpha,
+                                             double beta,
+                                             double gamma,
+                                             VectorDouble &rot)
 {
   double ca[3], sa[3];
 
@@ -178,13 +178,13 @@ void GeometryHelper::rotationInit(double alpha,
   /* Define the 3-D rotation matrix */
 
   rot[0] =  ca[0] * ca[1];
-  rot[3] = -sa[0] * ca[2] + ca[0] * sa[1] * sa[2];
-  rot[6] =  sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
   rot[1] =  sa[0] * ca[1];
-  rot[4] =  ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
-  rot[7] = -ca[0] * sa[2] + sa[0] * sa[1] * ca[2];
   rot[2] = -sa[1];
+  rot[3] = -sa[0] * ca[2] + ca[0] * sa[1] * sa[2];
+  rot[4] =  ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
   rot[5] =  ca[1] * sa[2];
+  rot[6] =  sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
+  rot[7] = -ca[0] * sa[2] + sa[0] * sa[1] * ca[2];
   rot[8] =  ca[1] * ca[2];
 
   return;
@@ -197,19 +197,19 @@ void GeometryHelper::rotationInit(double alpha,
  ** \param[in]  ndim   Space dimension
  ** \param[in]  angles Array of angles
  **
- ** \param[out] rot   direct rotation matrix (Dimension = 9)
+ ** \param[out] rot   direct rotation matrix (dimensionned to ndim*ndim)
  **
  *****************************************************************************/
-void GeometryHelper::rotationInit(int ndim,
-                                  const VectorDouble &angles,
-                                  VectorDouble &rot)
+void GeometryHelper::rotationMatrixInPlace(int ndim,
+                                           const VectorDouble &angles,
+                                           VectorDouble &rot)
 {
   if (ndim == 2)
-    GH::rotationInit(angles[0], rot);
+    GH::rotation2DMatrixInPlace(angles[0], rot);
   else if (ndim == 3)
-    GH::rotationInit(angles[0], angles[1], angles[2], rot);
+    GH::rotation3DMatrixInPlace(angles[0], angles[1], angles[2], rot);
   else
-    GH::rotationIdentity(ndim, rot);
+    GH::rotationMatrixIdentityInPlace(ndim, rot);
 }
 
 /*****************************************************************************/
@@ -221,17 +221,18 @@ void GeometryHelper::rotationInit(int ndim,
  ** \param[in]  angles Array of angles
  **
  *****************************************************************************/
-VectorDouble GeometryHelper::rotationInit(int ndim, const VectorDouble &angles)
+VectorDouble GeometryHelper::rotationMatrix(int ndim,
+                                            const VectorDouble &angles)
 {
   VectorDouble rot;
 
   rot.resize(ndim * ndim);
   if (ndim == 2)
-    GH::rotationInit(angles[0], rot);
+    GH::rotation2DMatrixInPlace(angles[0], rot);
   else if (ndim == 3)
-    GH::rotationInit(angles[0], angles[1], angles[2], rot);
+    GH::rotation3DMatrixInPlace(angles[0], angles[1], angles[2], rot);
   else
-    GH::rotationIdentity(ndim, rot);
+    GH::rotationMatrixIdentityInPlace(ndim, rot);
 
   return rot;
 }
@@ -271,13 +272,20 @@ void GeometryHelper::mergeBoxes(VectorDouble &mini1,
   for (int idim = 0; idim < ndim; idim++)
   {
     double mini = 1.e30;
-    if (! mini1.empty()) mini = MIN(mini, mini1[idim]);
-    if (! mini2.empty()) mini = MIN(mini, mini2[idim]);
+    if (!mini1.empty()) mini = MIN(mini, mini1[idim]);
+    if (!mini2.empty()) mini = MIN(mini, mini2[idim]);
 
     double maxi = -1.e30;
-    if (! maxi1.empty()) maxi = MAX(maxi, maxi1[idim]);
-    if (! maxi2.empty()) maxi = MAX(maxi, maxi2[idim]);
+    if (!maxi1.empty()) maxi = MAX(maxi, maxi1[idim]);
+    if (!maxi2.empty()) maxi = MAX(maxi, maxi2[idim]);
   }
+}
+
+void GeometryHelper::rotationGetAnglesInPlace(const VectorDouble &rot,
+                                              VectorDouble &angles)
+{
+  int ndim = sqrt((int) rot.size());
+  GH::rotationGetAnglesInPlace(ndim, rot.data(), angles.data());
 }
 
 /****************************************************************************/
@@ -290,14 +298,17 @@ void GeometryHelper::mergeBoxes(VectorDouble &mini1,
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-int GeometryHelper::rotationGetAngles(int ndim, const double *rot, double *angles)
+void GeometryHelper::rotationGetAnglesInPlace(int ndim,
+                                              const double *rot,
+                                              double *angles)
 {
   int nval;
 
   /* Initializations */
 
-  for (int i = 0; i < ndim; i++) angles[i] = 0.;
-  if (rot == nullptr) return (0);
+  for (int i = 0; i < ndim; i++)
+    angles[i] = 0.;
+  if (rot == nullptr) return;
 
   /* Dispatch */
 
@@ -313,33 +324,37 @@ int GeometryHelper::rotationGetAngles(int ndim, const double *rot, double *angle
   else if (ndim == 3)
   {
     nval = 3;
-    double s1 = -rot[2];
-    double c1 = sqrt(rot[0] * rot[0] + rot[1] * rot[1]);
-    if (ABS(c1) < EPSILON10)
-    {
-      if (s1 > 0.)
-      {
-        angles[0] = 0.;
-        angles[1] = GV_PI / 2.;
-        angles[2] = atan2(rot[3], rot[6]);
-      }
-      else
-      {
-        angles[0] = 0.;
-        angles[1] = -GV_PI / 2.;
-        angles[2] = atan2(-rot[3], -rot[6]);
-      }
-    }
-    else
-    {
-      double c0 = rot[0] / c1;
-      double s0 = rot[1] / c1;
-      double s2 = rot[5] / c1;
-      double c2 = rot[8] / c1;
-      angles[0] = atan2(s0, c0);
-      angles[1] = atan2(s1, c1);
-      angles[2] = atan2(s2, c2);
-    }
+    angles[0] = atan2( rot[1], rot[0]);
+    angles[1] = atan2(-rot[2], sqrt(rot[5]*rot[5] + rot[8]*rot[8]));
+    angles[2] = atan2( rot[5], rot[8]);
+
+//    double s1 = -rot[2];
+//    double c1 = sqrt(rot[0] * rot[0] + rot[1] * rot[1]);
+//    if (ABS(c1) < EPSILON10)
+//    {
+//      if (s1 > 0.)
+//      {
+//        angles[0] = 0.;
+//        angles[1] = GV_PI / 2.;
+//        angles[2] = atan2(rot[3], rot[6]);
+//      }
+//      else
+//      {
+//        angles[0] = 0.;
+//        angles[1] = -GV_PI / 2.;
+//        angles[2] = atan2(-rot[3], -rot[6]);
+//      }
+//    }
+//    else
+//    {
+//      double c0 = rot[0] / c1;
+//      double s0 = rot[1] / c1;
+//      double s2 = rot[5] / c1;
+//      double c2 = rot[8] / c1;
+//      angles[0] = atan2(s0, c0);
+//      angles[1] = atan2(s1, c1);
+//      angles[2] = atan2(s2, c2);
+//    }
   }
   else
   {
@@ -348,9 +363,8 @@ int GeometryHelper::rotationGetAngles(int ndim, const double *rot, double *angle
 
   /* Convert into degrees */
 
-  for (int i = 0; i < nval; i++) angles[i] = ut_rad2deg(angles[i]);
-
-  return (nval);
+  for (int i = 0; i < nval; i++)
+    angles[i] = ut_rad2deg(angles[i]);
 }
 
 /****************************************************************************/
@@ -362,8 +376,8 @@ int GeometryHelper::rotationGetAngles(int ndim, const double *rot, double *angle
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-void GeometryHelper::rotationGetAngles(const VectorDouble &codir,
-                                       VectorDouble &angles)
+void GeometryHelper::rotationGetAnglesFromCodirInPlace(const VectorDouble &codir,
+                                                       VectorDouble &angles)
 {
   int nval;
   int ndim = (int) codir.size();
@@ -371,7 +385,8 @@ void GeometryHelper::rotationGetAngles(const VectorDouble &codir,
 
   /* Initializations */
 
-  for (int i = 0; i < ndim; i++) angles[i] = 0.;
+  for (int i = 0; i < ndim; i++)
+    angles[i] = 0.;
 
   /* Dispatch */
 
@@ -403,9 +418,8 @@ void GeometryHelper::rotationGetAngles(const VectorDouble &codir,
 
   /* Convert into degrees */
 
-  for (int i = 0; i < nval; i++) angles[i] = ut_rad2deg(angles[i]);
-
-  return;
+  for (int i = 0; i < nval; i++)
+    angles[i] = ut_rad2deg(angles[i]);
 }
 
 /**
@@ -415,11 +429,12 @@ void GeometryHelper::rotationGetAngles(const VectorDouble &codir,
  * @param flagResize When TRUE (and if in 2-D) the returned vector is resized to 1
  * @return
  */
-VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble& codir, bool flagResize)
+VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble &codir,
+                                               bool flagResize)
 {
   int ndim = (int) codir.size();
   VectorDouble angles(ndim);
-  GH::rotationGetAngles(codir, angles);
+  GH::rotationGetAnglesFromCodirInPlace(codir, angles);
   if (ndim == 2 && flagResize) angles.resize(1);
   return angles;
 }
@@ -428,59 +443,51 @@ VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble& codir, bool f
 /*!
  **   Convert angles to a set of Directions
  **
- ** \param[in]  ndim     Number of space dimensions
- ** \param[in]  ndir     Number of directions
  ** \param[in]  angles   Vector giving the angles characteristics (in degrees)
  **
  ** \param[out] codir    Vector of the direction (Dim: ndir * ndim)
  **
- ** \remarks If angles is not provided:
- ** \remarks - if ndir == ndim: return basic direction of space
- ** \remarks - if ndim < ndim: return 'ndir' directions regular in the 2-D
+ ** \remarks 'ndir' is given by the dimension of 'angles'
  **
  *****************************************************************************/
-void GeometryHelper::rotationGetDirection(int ndim,
-                                          int ndir,
-                                          const VectorDouble &angles,
-                                          VectorDouble &codir)
+void GeometryHelper::rotationGetDirection2D(const VectorDouble &angles,
+                                            VectorDouble &codir)
+{
+  int ndim = 2;
+  int ndir = (int) angles.size();
+  codir.resize(ndim * ndir);
+  for (int i = 0; i < ndim * ndir; i++)
+    codir[i] = 0.;
+
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    codir[idir * ndim + 0] = cos(angles[idir] * GV_PI / 180.);
+    codir[idir * ndim + 1] = sin(angles[idir] * GV_PI / 180.);
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **   Create a set of Directions
+ **
+ ** \param[in]  ndim     Number of space dimensions
+ **
+ ** \param[out] codir    Vector of the direction (Dim: ndim * ndim)
+ **
+ *****************************************************************************/
+void GeometryHelper::rotationGetDirectionDefault(int ndim, VectorDouble &codir)
 {
   if (ndim <= 1) return;
 
-  codir.resize(ndim * ndir);
-  for (int i = 0; i < ndim * ndir; i++) codir[i] = 0.;
+  codir.resize(ndim * ndim);
+  for (int i = 0; i < ndim * ndim; i++)
+    codir[i] = 0.;
 
-  if (angles.size() <= 0)
-  {
-    if (ndir == ndim)
-    {
-      int ecr = 0;
-      for (int idir = 0; idir < ndir; idir++)
-        for (int idim = 0; idim < ndim; idim++)
-          codir[ecr++] = (idir == idim) ? 1. : 0.;
-    }
-    else
-    {
-      {
-        for (int idir = 0; idir < ndir; idir++)
-        {
-          double angref = 180. * idir / ndir;
-          codir[idir * ndim + 0] = cos(angref * GV_PI / 180.);
-          codir[idir * ndim + 1] = sin(angref * GV_PI / 180.);
-        }
-      }
-    }
-  }
-  else
-  {
-    if ((int) angles.size() == ndir)
-    {
-      for (int idir = 0; idir < ndir; idir++)
-      {
-        codir[idir * ndim + 0] = cos(angles[idir] * GV_PI / 180.);
-        codir[idir * ndim + 1] = sin(angles[idir] * GV_PI / 180.);
-      }
-    }
-  }
+  int ecr = 0;
+  for (int jdim = 0; jdim < ndim; jdim++)
+    for (int idim = 0; idim < ndim; idim++)
+      codir[ecr++] = (jdim == idim) ? 1. : 0.;
   return;
 }
 
@@ -566,7 +573,8 @@ double GeometryHelper::distancePointToSegment(double x0,
   double dxp = x0 - (*xd);
   double dyp = y0 - (*yd);
   double dist = sqrt(dxp * dxp + dyp * dyp);
-  double signe = (dy * (x0 - x1) - dx * (y0 - y1) > 0.) ? 1 : -1;
+  double signe = (dy * (x0 - x1) - dx * (y0 - y1) > 0.) ? 1 :
+                                                          -1;
 
   return (dist * signe);
 }
@@ -595,7 +603,8 @@ double GeometryHelper::geodeticAngularDistance(double long1,
   double rlon2 = ut_deg2rad(long2);
   double rlat2 = ut_deg2rad(lat2);
   double dlong = rlon2 - rlon1;
-  double angdst = acos(sin(rlat1) * sin(rlat2) + cos(rlat1) * cos(rlat2) * cos(dlong));
+  double angdst = acos(
+      sin(rlat1) * sin(rlat2) + cos(rlat1) * cos(rlat2) * cos(dlong));
   return (radius * angdst);
 }
 
@@ -618,7 +627,8 @@ static double st_convert_geodetic_angle(double /*sina*/,
                                         double cosc)
 {
   double prod = sinb * sinc;
-  double cosA = (prod == 0.) ? 0. : (cosa - cosb * cosc) / prod;
+  double cosA = (prod == 0.) ? 0. :
+                               (cosa - cosb * cosc) / prod;
   if (cosA < -1) cosA = -1.;
   if (cosA > +1) cosA = +1.;
   return (acos(cosA));
@@ -724,7 +734,8 @@ double GeometryHelper::geodeticTriangleSurface(double long1,
 {
   double a, b, c, A, B, C;
 
-  GH::geodeticAngles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &A, &B, &C);
+  GH::geodeticAngles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &A, &B,
+                     &C);
   return (A + B + C - GV_PI);
 }
 
@@ -773,28 +784,40 @@ bool GeometryHelper::isInSphericalTriangleOptimized(const double *coor,
   double sin0c = sin(d0c);
   double cos0c = cos(d0c);
 
-  double A = st_convert_geodetic_angle(sinbc, cosbc, sinac, cosac, sinab, cosab);
-  double B = st_convert_geodetic_angle(sinac, cosac, sinab, cosab, sinbc, cosbc);
-  double C = st_convert_geodetic_angle(sinab, cosab, sinbc, cosbc, sinac, cosac);
+  double A = st_convert_geodetic_angle(sinbc, cosbc, sinac, cosac, sinab,
+                                       cosab);
+  double B = st_convert_geodetic_angle(sinac, cosac, sinab, cosab, sinbc,
+                                       cosbc);
+  double C = st_convert_geodetic_angle(sinab, cosab, sinbc, cosbc, sinac,
+                                       cosac);
   double stot = (A + B + C - GV_PI);
 
-  double OA = st_convert_geodetic_angle(sinbc, cosbc, sin0c, cos0c, sin0b, cos0b);
-  double BA = st_convert_geodetic_angle(sin0c, cos0c, sin0b, cos0b, sinbc, cosbc);
-  double CA = st_convert_geodetic_angle(sin0b, cos0b, sinbc, cosbc, sin0c, cos0c);
+  double OA = st_convert_geodetic_angle(sinbc, cosbc, sin0c, cos0c, sin0b,
+                                        cos0b);
+  double BA = st_convert_geodetic_angle(sin0c, cos0c, sin0b, cos0b, sinbc,
+                                        cosbc);
+  double CA = st_convert_geodetic_angle(sin0b, cos0b, sinbc, cosbc, sin0c,
+                                        cos0c);
   s[0] = (OA + BA + CA - GV_PI);
   total += s[0];
   if (total > stot + eps) return false;
 
-  double AB = st_convert_geodetic_angle(sin0c, cos0c, sinac, cosac, sin0a, cos0a);
-  double OB = st_convert_geodetic_angle(sinac, cosac, sin0a, cos0a, sin0c, cos0c);
-  double CB = st_convert_geodetic_angle(sin0a, cos0a, sin0c, cos0c, sinac, cosac);
+  double AB = st_convert_geodetic_angle(sin0c, cos0c, sinac, cosac, sin0a,
+                                        cos0a);
+  double OB = st_convert_geodetic_angle(sinac, cosac, sin0a, cos0a, sin0c,
+                                        cos0c);
+  double CB = st_convert_geodetic_angle(sin0a, cos0a, sin0c, cos0c, sinac,
+                                        cosac);
   s[1] = (AB + OB + CB - GV_PI);
   total += s[1];
   if (total > stot + eps) return false;
 
-  double AC = st_convert_geodetic_angle(sin0b, cos0b, sin0a, cos0a, sinab, cosab);
-  double BC = st_convert_geodetic_angle(sin0a, cos0a, sinab, cosab, sin0b, cos0b);
-  double OC = st_convert_geodetic_angle(sinab, cosab, sin0b, cos0b, sin0a, cos0a);
+  double AC = st_convert_geodetic_angle(sin0b, cos0b, sin0a, cos0a, sinab,
+                                        cosab);
+  double BC = st_convert_geodetic_angle(sin0a, cos0a, sinab, cosab, sin0b,
+                                        cos0b);
+  double OC = st_convert_geodetic_angle(sinab, cosab, sin0b, cos0b, sin0a,
+                                        cos0a);
   s[2] = (AC + BC + OC - GV_PI);
   total += s[2];
   if (ABS(total - stot) > eps) return false;
@@ -1048,10 +1071,10 @@ bool GeometryHelper::isInSphericalTriangle(double *coor,
  ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
-void GeometryHelper::rotationGetDirection(double ct,
-                                          double st,
-                                          double *a,
-                                          double *codir)
+void GeometryHelper::rotationGetRandomDirection(double ct,
+                                                double st,
+                                                double *a,
+                                                double *codir)
 {
   double b[3], c[3], p[3];
 
@@ -1095,8 +1118,8 @@ VectorVectorDouble GeometryHelper::convertLongLat(const VectorDouble &longitude,
   double radius = radius_arg;
   if (FFFF(radius))
   {
-    const ASpace* space = getDefaultSpace();
-    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    const ASpace *space = getDefaultSpace();
+    const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) radius = spaceSn->getRadius();
   }
   radius *= dilate;
@@ -1108,7 +1131,7 @@ VectorVectorDouble GeometryHelper::convertLongLat(const VectorDouble &longitude,
   // Dimension the returned argument
   tab.resize(3);
   for (int idim = 0; idim < 3; idim++)
-    tab[idim].resize(number,0.);
+    tab[idim].resize(number, 0.);
 
   // Load the returned argument
 
@@ -1157,8 +1180,8 @@ void GeometryHelper::convertCart2Sph(double x,
   double radius = radius_arg;
   if (FFFF(radius))
   {
-    const ASpace* space = getDefaultSpace();
-    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    const ASpace *space = getDefaultSpace();
+    const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) radius = spaceSn->getRadius();
   }
 
@@ -1205,8 +1228,8 @@ void GeometryHelper::convertSph2Cart(double rlong,
   double radius = radius_arg;
   if (FFFF(radius))
   {
-    const ASpace* space = getDefaultSpace();
-    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    const ASpace *space = getDefaultSpace();
+    const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     if (spaceSn != nullptr) radius = spaceSn->getRadius();
   }
 
@@ -1236,7 +1259,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
 
   // Vector orthogonal to the horizontal plane/ i.e. the vertical axis
   VectorDouble vert = VectorDouble(3, 0.);
-  vert[ndim-1] = -1.;
+  vert[ndim - 1] = -1.;
 
   // Vector orthogonal to the tilted plane
   VectorDouble vort = VectorDouble(ndim);
@@ -1244,11 +1267,12 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
   vort[1] = dzoverdy;
   vort[2] = -1.;
   double norme = VH::norm(vort);
-  for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
+  for (int idim = 0; idim < ndim; idim++)
+    vort[idim] /= norme;
 
   // Cross product
-  VectorDouble axis(ndim,0.);
-  axis[0] =  vort[1];
+  VectorDouble axis(ndim, 0.);
+  axis[0] = vort[1];
   axis[1] = -vort[0];
   axis[2] = 0.;
 
@@ -1267,14 +1291,15 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
  * @param dzoverdx Partial derivative along X
  * @param dzoverdy Partial derivative along Y
  */
-MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx, double dzoverdy)
+MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx,
+                                                   double dzoverdy)
 {
   int ndim = 3;
-  VectorDouble axis(ndim,0.);
+  VectorDouble axis(ndim, 0.);
 
   // Vector orthogonal to the horizontal plane/ i.e. the vertical axis
   VectorDouble vert = VectorDouble(3, 0.);
-  vert[ndim-1] = -1.;
+  vert[ndim - 1] = -1.;
 
   // Vector orthogonal to the tilted plane
   VectorDouble vort = VectorDouble(ndim);
@@ -1282,10 +1307,11 @@ MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx, double dzove
   vort[1] = dzoverdy;
   vort[2] = -1.;
   double norme = VH::norm(vort);
-  for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
+  for (int idim = 0; idim < ndim; idim++)
+    vort[idim] /= norme;
 
   // Cross product
-  axis[0] =  vort[1];
+  axis[0] = vort[1];
   axis[1] = -vort[0];
   axis[2] = 0.;
 
@@ -1294,7 +1320,8 @@ MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx, double dzove
   double dot = VH::innerProduct(vert, vort);
 
   // Rotation axis (normalized
-  for (int idim = 0; idim < ndim; idim++) axis[idim] /= normcross;
+  for (int idim = 0; idim < ndim; idim++)
+    axis[idim] /= normcross;
 
   // Rotation angle
   double angle = atan2(normcross, dot);
@@ -1331,42 +1358,46 @@ VectorDouble GeometryHelper::rotationToEuler(const MatrixSquareGeneral &M,
   int firstaxis, parity, repetition, frame;
   _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
 
-  VectorInt next_axis = {1, 2, 0, 1};
+  VectorInt next_axis = { 1, 2, 0, 1 };
   int i = firstaxis;
-  int j = next_axis[i+parity];
-  int k = next_axis[i-parity+1];
+  int j = next_axis[i + parity];
+  int k = next_axis[i - parity + 1];
 
   double ax, ay, az;
 
   if (repetition)
   {
-    double sy = sqrt(M.getValue(i, j)*M.getValue(i, j) + M.getValue(i, k)*M.getValue(i, k));
+    double sy = sqrt(
+        M.getValue(i, j) * M.getValue(i, j) + M.getValue(i, k)
+            * M.getValue(i, k));
     if (sy > eps)
     {
-      ax = atan2( M.getValue(i, j),  M.getValue(i, k));
-      ay = atan2( sy,                M.getValue(i, i));
-      az = atan2( M.getValue(j, i), -M.getValue(k, i));
+      ax = atan2(M.getValue(i, j), M.getValue(i, k));
+      ay = atan2(sy, M.getValue(i, i));
+      az = atan2(M.getValue(j, i), -M.getValue(k, i));
     }
     else
     {
-      ax = atan2(-M.getValue(j, k),  M.getValue(j, j));
-      ay = atan2( sy,                M.getValue(i, i));
+      ax = atan2(-M.getValue(j, k), M.getValue(j, j));
+      ay = atan2(sy, M.getValue(i, i));
       az = 0.0;
     }
   }
   else
   {
-    double cy = sqrt(M.getValue(i, i)*M.getValue(i, i) + M.getValue(j, i)*M.getValue(j, i));
+    double cy = sqrt(
+        M.getValue(i, i) * M.getValue(i, i) + M.getValue(j, i)
+            * M.getValue(j, i));
     if (cy > eps)
     {
-      ax = atan2( M.getValue(k, j),  M.getValue(k, k));
-      ay = atan2(-M.getValue(k, i),  cy);
-      az = atan2( M.getValue(j, i),  M.getValue(i, i));
+      ax = atan2(M.getValue(k, j), M.getValue(k, k));
+      ay = atan2(-M.getValue(k, i), cy);
+      az = atan2(M.getValue(j, i), M.getValue(i, i));
     }
     else
     {
-      ax = atan2(-M.getValue(j, k),  M.getValue(j, j));
-      ay = atan2(-M.getValue(k, i),  cy);
+      ax = atan2(-M.getValue(j, k), M.getValue(j, j));
+      ay = atan2(-M.getValue(k, i), cy);
       az = 0.0;
     }
   }
@@ -1384,7 +1415,7 @@ VectorDouble GeometryHelper::rotationToEuler(const MatrixSquareGeneral &M,
     az = ax;
   }
 
-  VectorDouble angles = {ax, ay, az};
+  VectorDouble angles = { ax, ay, az };
   return angles;
 }
 
@@ -1403,10 +1434,10 @@ MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble &angles,
   int firstaxis, parity, repetition, frame;
   _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
 
-  VectorInt next_axis = {1, 2, 0, 1};
+  VectorInt next_axis = { 1, 2, 0, 1 };
   int i = firstaxis;
-  int j = next_axis[i+parity];
-  int k = next_axis[i-parity+1];
+  int j = next_axis[i + parity];
+  int k = next_axis[i - parity + 1];
 
   int ndim = 3;
   MatrixSquareGeneral M(ndim);
@@ -1440,32 +1471,32 @@ MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble &angles,
 
   if (repetition)
   {
-    M.setValue(i, i,  cj);
-    M.setValue(i, j,  sj * si);
-    M.setValue(i, k,  sj * ci);
-    M.setValue(j, i,  sj * sk);
+    M.setValue(i, i, cj);
+    M.setValue(i, j, sj * si);
+    M.setValue(i, k, sj * ci);
+    M.setValue(j, i, sj * sk);
     M.setValue(j, j, -cj * ss + cc);
     M.setValue(j, k, -cj * cs - sc);
     M.setValue(k, i, -sj * ck);
-    M.setValue(k, j,  cj * sc + cs);
-    M.setValue(k, k,  cj * cc - ss);
+    M.setValue(k, j, cj * sc + cs);
+    M.setValue(k, k, cj * cc - ss);
   }
   else
   {
-    M.setValue(i, i,  cj * ck);
-    M.setValue(i, j,  sj * sc - cs);
-    M.setValue(i, k,  sj * cc + ss);
-    M.setValue(j, i,  cj * sk);
-    M.setValue(j, j,  sj * ss + cc);
-    M.setValue(j, k,  sj * cs - sc);
+    M.setValue(i, i, cj * ck);
+    M.setValue(i, j, sj * sc - cs);
+    M.setValue(i, k, sj * cc + ss);
+    M.setValue(j, i, cj * sk);
+    M.setValue(j, j, sj * ss + cc);
+    M.setValue(j, k, sj * cs - sc);
     M.setValue(k, i, -sj);
-    M.setValue(k, j,  cj * si);
-    M.setValue(k, k,  cj * ci);
+    M.setValue(k, j, cj * si);
+    M.setValue(k, k, cj * ci);
   }
   return M;
 }
 
-MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
+MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular *U)
 {
   int np = U->getNRows();
   int nd = U->getNCols();
@@ -1480,14 +1511,14 @@ MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
     return nullptr;
   }
 
-  MatrixRectangular* X = new MatrixRectangular(np, 3);
+  MatrixRectangular *X = new MatrixRectangular(np, 3);
   for (int ip = 0; ip < np; ip++)
   {
-    double u1 = U->getValue(ip,0);
-    double u2 = U->getValue(ip,1);
-    X->setValue(ip,0, cos(2*GV_PI*u1)*sqrt(1 - u2*u2));
-    X->setValue(ip,1, sin(2*GV_PI*u1)*sqrt(1 - u2*u2));
-    X->setValue(ip,2, u2);
+    double u1 = U->getValue(ip, 0);
+    double u2 = U->getValue(ip, 1);
+    X->setValue(ip, 0, cos(2 * GV_PI * u1) * sqrt(1 - u2 * u2));
+    X->setValue(ip, 1, sin(2 * GV_PI * u1) * sqrt(1 - u2 * u2));
+    X->setValue(ip, 2, u2);
   }
   return X;
 }
@@ -1499,7 +1530,7 @@ MatrixRectangular* GeometryHelper::getDirectionsInR3(const MatrixRectangular* U)
  * @return A vector of a matrix [n, d] of the coordinates of the 'n' directions
  * in the Euclidean space Rd.
  */
-MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
+MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular *U)
 {
   int np = U->getNRows();
   int nd = U->getNCols();
@@ -1521,7 +1552,7 @@ MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
     return nullptr;
   }
 
-  MatrixRectangular* Y = new MatrixRectangular(np, nd);
+  MatrixRectangular *Y = new MatrixRectangular(np, nd);
   for (int ip = 0; ip < np; ip++)
   {
     double total = 0.;
@@ -1536,7 +1567,7 @@ MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular* U)
     {
       double value = Y->getValue(ip, id);
       value /= total;
-      if (id == nd -1) value = ABS(value);
+      if (id == nd - 1) value = ABS(value);
       Y->setValue(ip, id, value);
     }
   }
@@ -1559,7 +1590,7 @@ double GeometryHelper::formatAngle(double anglein)
   return angle;
 }
 
-VectorDouble GeometryHelper::formatAngles(const VectorDouble& anglesin)
+VectorDouble GeometryHelper::formatAngles(const VectorDouble &anglesin)
 {
   VectorDouble angles = anglesin;
   for (int idim = 0; idim < (int) angles.size(); idim++)

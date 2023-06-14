@@ -61,14 +61,6 @@ public:
             const VectorInt &meshes,
             bool byCol = true,
             bool verbose = false);
-  int reset(int ndim,
-            int napexpermesh,
-            int npoints,
-            int nmeshes,
-            const double *apices,
-            const int *meshes,
-            bool byCol = true,
-            bool verbose = false);
   int resetFromTurbo(const MeshETurbo &turbo, bool verbose = false);
 
   const MatrixRectangular& getApices() const { return _apices; }

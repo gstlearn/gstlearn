@@ -165,7 +165,9 @@ double ACovAnisoList::eval(const SpacePoint& p1,
   if (mode == nullptr || mode->getActiveCovList().size() <= 0)
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    {
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
+    }
   }
   else
   {

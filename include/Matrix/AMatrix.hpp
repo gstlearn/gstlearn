@@ -173,9 +173,6 @@ public:
   /*! Set all the values of the Matrix at once */
   void fill(double value);
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
-#ifndef SWIG
-  void setValuesOldStyle(const double* values, bool byCol=true);
-#endif
   void setValues(const VectorDouble& values, bool byCol=true);
   void setValuesByArrays(const VectorInt &irows,
                          const VectorInt &icols,
@@ -201,13 +198,14 @@ protected:
   virtual bool    _isCompatible(const AMatrix& m) const = 0;
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
+
   /*! Returns the number of elements actually stored as members in subsequent classes */
   virtual int     _getMatrixSize() const = 0;
   virtual void    _setValue(int rank, double value) = 0;
   virtual double  _getValue(int rank) const = 0;
 
   virtual void    _setValue(int irow, int icol, double value) = 0;
-  virtual void    _setValues(const double* values, bool byCol) = 0;
+  virtual void    _setValues(const double* values, bool byCol);
   virtual double  _getValue(int irow, int icol) const = 0;
   virtual double& _getValueRef(int irow, int icol) = 0;
   virtual void    _transposeInPlace() = 0;

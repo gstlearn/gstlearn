@@ -93,27 +93,27 @@ Data Base Statistics
 4 - Name Simu.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.470
- Maximum value       =      3.739
- Mean value          =      0.080
- Standard Deviation  =      0.938
- Variance            =      0.881
+ Minimum value       =     -3.424
+ Maximum value       =      3.782
+ Mean value          =      0.177
+ Standard Deviation  =      0.932
+ Variance            =      0.869
 5 - Name Simu.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.501
- Maximum value       =      3.197
- Mean value          =     -0.023
- Standard Deviation  =      0.983
- Variance            =      0.966
+ Minimum value       =     -3.414
+ Maximum value       =      3.241
+ Mean value          =      0.074
+ Standard Deviation  =      0.976
+ Variance            =      0.953
 6 - Name Simu.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.752
- Maximum value       =      3.536
- Mean value          =     -0.122
- Standard Deviation  =      1.011
- Variance            =      1.021
+ Minimum value       =     -3.750
+ Maximum value       =      3.645
+ Mean value          =     -0.025
+ Standard Deviation  =      1.014
+ Variance            =      1.027
 
 <----- Simulation (Unique Neighborhood) ----->
 
@@ -125,24 +125,25 @@ Data Base Statistics
 4 - Name Simu.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.471
- Maximum value       =      3.736
- Mean value          =      0.081
+ Minimum value       =     -3.381
+ Maximum value       =      3.826
+ Mean value          =      0.169
  Standard Deviation  =      0.936
  Variance            =      0.876
 5 - Name Simu.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.480
- Maximum value       =      3.197
- Mean value          =     -0.024
+ Minimum value       =     -3.391
+ Maximum value       =      3.287
+ Mean value          =      0.065
  Standard Deviation  =      0.980
- Variance            =      0.960
+ Variance            =      0.961
 6 - Name Simu.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.752
- Maximum value       =      3.536
- Mean value          =     -0.122
+ Minimum value       =     -3.660
+ Maximum value       =      3.624
+ Mean value          =     -0.034
  Standard Deviation  =      1.008
  Variance            =      1.016
+#NO_DIFF# Turning Band Simulations: 804 ms. (Ref = 773 ms.)

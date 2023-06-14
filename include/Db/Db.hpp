@@ -222,12 +222,18 @@ public:
                  bool useSel = false,
                  double valinit = 0.,
                  int nvar = 1);
-  int addColumnsByConstant(int nadd,
+  int addColumnsByConstant(int nadd = 1,
                            double valinit = 0.,
                            const String& radix = "New",
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                            int locatorIndex = 0,
                            int nechInit = 0);
+  int addColumnsRandom(int nadd,
+                       const String &radix = "New",
+                       const ELoc &locatorType = ELoc::fromKey("Z"),
+                       int locatorIndex = 0,
+                       int seed = 1352,
+                       int nechInit = 0);
 
   int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
@@ -796,7 +802,7 @@ private:
   const VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
-  void _columnInit(int ncol, int icol0, double valinit);
+  void _columnInit(int ncol, int icol0, bool flagCste = true, double valinit = TEST);
   double _updateValue(int oper, double oldval, double value);
   String _summaryVariables(void) const;
   String _summaryExtensions(void) const;
