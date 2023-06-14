@@ -74,7 +74,6 @@ int main(int /*argc*/, char */*argv*/[])
   covs1.addCov(&cova1);
   model1.setCovList(&covs1);
   model1.display();
-  (void) model1.dumpToNF("truemodel1.ascii");
 
   Model model2(ctxt);
   CovLMC covs2(ctxt.getSpace());
@@ -83,7 +82,6 @@ int main(int /*argc*/, char */*argv*/[])
   covs2.addCov(&cova2);
   model2.setCovList(&covs2);
   model2.display();
-  (void) model2.dumpToNF("truemodel2.ascii");
 
   std::vector<Model*> models;
   models.push_back(&model1);
@@ -92,6 +90,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
   RuleProp* ruleprop = RuleProp::createFromRule(rule, props);
+  rule->dumpToNF("rule.ascii");
 
   auto ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 32432);

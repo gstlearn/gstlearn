@@ -72,10 +72,8 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Running SPDE
   SPDE spde(model,workingDbc,dat,ESPDECalcMode::SIMUNONCOND);
-  //  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(workingDbc);
-  (void) workingDbc->dumpToNF("spde_simunc.ascii");
 
   SPDE spde2(model,workingDbc,dat,ESPDECalcMode::SIMUCOND);
   spde2.compute();
@@ -85,6 +83,7 @@ int main(int /*argc*/, char */*argv*/[])
   spde3.compute();
   spde3.query(workingDbc);
 
+  (void) workingDbc->dumpToNF("all.ascii");
   DbStringFormat dbfmt(FLAG_STATS,{"spde*"});
   workingDbc->display(&dbfmt);
 

@@ -637,7 +637,7 @@ void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric &hh, int ip)
     _updateCova(cova, ip);
 
     // Calculate the current HH matrix (using local covariance parameters)
-    const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
+    const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
 
     VectorDouble diag = VH::power(cova->getScales(), 2.);
     MatrixSquareSymmetric temp(ndim);
@@ -716,7 +716,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     // Locally update the covariance for non-stationarity (if necessary)
 
     _updateCova(cova, ipref);
-    const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
+    const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
     VectorDouble diag = VH::power(cova->getScales(), 2.);
 
     MatrixSquareSymmetric temp(ndim);
@@ -734,7 +734,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
       CovAniso* covaderiv = covini->clone();
       _updateCova(covaderiv, ipref);
       cova->setAnisoAngle(ir, covaderiv->getAnisoAngles(ir) + 90.);
-      const MatrixSquareGeneral& drotmat = covaderiv->getAnisoInvMat();
+      const MatrixSquareGeneral& drotmat = covaderiv->getAnisoRotMat();
 
       VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees. Factor 2 is for derivative
       temp.setDiagonal(diag);
@@ -764,7 +764,7 @@ double ShiftOpCs::_computeGradLogDetHH(const AMesh* amesh, int igparam,int ipref
       const CovAniso* covaini = _getCova();
       CovAniso* cova = covaini->clone();
       _updateCova(cova,ipref);
-      const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
+      const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
       MatrixSquareSymmetric temp(ndim);
       temp.setDiagonal(cova->getScales());
       for (int idim = 0 ; idim < ndim; idim++)

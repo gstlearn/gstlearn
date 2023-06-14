@@ -706,8 +706,8 @@ int MeshETurbo::_addWeights(int icas,
 
     // Update the LHS matrix
     for (int idim=0; idim<ndim; idim++)
-      lhs.setValue(icorner,idim,_grid.indiceToCoordinate(idim,indgg));
-    lhs.setValue(icorner,ndim,1.);
+      lhs.setValue(idim,icorner,_grid.indiceToCoordinate(idim,indgg));
+    lhs.setValue(ndim,icorner,1.);
   }
 
   // Generate the right-hand side vector

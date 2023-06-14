@@ -218,7 +218,7 @@ void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse, bool b
     _nCols = ncols;
     _allocate();
     int lec = 0;
-    if (! byCol)
+    if (byCol)
     {
       for (int icol=0; icol<ncols; icol++)
         for (int irow=0; irow<nrows; irow++)
@@ -242,7 +242,7 @@ void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, 
 
 void AMatrix::reset(const VectorVectorDouble& tab, bool byCol)
 {
-  if (! byCol)
+  if (byCol)
   {
     _nRows = (int) tab.size();
     _nCols = (int) tab[0].size();

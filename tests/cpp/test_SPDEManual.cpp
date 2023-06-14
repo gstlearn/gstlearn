@@ -55,7 +55,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Creating the Db Grid
-  auto nx={ 101,101 };
+  auto nx = { 101,101 };
   DbGrid* workingDbc = DbGrid::create(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
@@ -92,7 +92,7 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
-  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 432432);
+  Db* dat = Db::createFromBox(ndata, workingDbc->getCoorMinimum(), workingDbc->getCoorMaximum(), 432432);
 
   ///////////////////////////
   // Simulating Data points
@@ -107,9 +107,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble rhs(S.getSize());
   B.point2mesh(dat->getColumn("Simu"), rhs);
   for (auto &e : rhs)
-  {
     e /= nug;
-  }
 
   PrecisionOp Qkriging(&S, &cova);
   PrecisionOpMultiConditional A;
