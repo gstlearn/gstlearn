@@ -54,6 +54,7 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ACov interface
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
@@ -62,6 +63,12 @@ public:
                       int ivar,
                       int jvar,
                       const CovCalcMode* mode = nullptr) const override;
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
 
   int init(const ETape& tapetype, double taperange);
 

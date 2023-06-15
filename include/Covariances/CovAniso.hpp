@@ -57,32 +57,20 @@ public:
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
   /// ACov Interface
-  /**
-   * Evaluate the covariance for a pair of variables and a zero distance
-   * @param ivar Rank of the first variable
-   * @param jvar Rank of the second variable
-   * @param mode Reference to the CovCalcMode embedded class
-   * @return The covariance value at the origin
-   */
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
-
-  /**
-   * Evaluate covariance between two points (p1, p2) for two variables (ivar, jvar)
-   * @param ivar Rank of the first variable
-   * @param jvar Rank of the second variable
-   * @param p1   Rank of the first point
-   * @param p2   Rank of the second point
-   * @param mode Reference to the CovCalcMode embedded class
-   *
-   * @return The covariance value
-   */
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
   virtual void evalOptim(const SpacePoint &p1,
                          VectorDouble &res,
                          VectorDouble &temp,
@@ -225,7 +213,8 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
-  void _preProcess(const SpacePoint& pt, SpacePoint& res) const;
+  void   _preProcess(const SpacePoint& pt, SpacePoint& res) const;
+  double _calculateCov(double h, const CovCalcMode *mode) const;
 
 private:
   CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?

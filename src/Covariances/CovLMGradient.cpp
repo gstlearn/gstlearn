@@ -59,6 +59,22 @@ CovLMGradient::~CovLMGradient()
   /// TODO : Delete pointers ?
 }
 
+void CovLMGradient::eval0MatInPlace(MatrixSquareGeneral &mat,
+                                    const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::eval0MatInPlace(mat,mode);
+}
+
+void CovLMGradient::evalMatInPlace(const SpacePoint &p1,
+                                   const SpacePoint &p2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::evalMatInPlace(p1, p2, mat,mode);
+}
+
 void CovLMGradient::evalZAndGradients(const SpacePoint& p1,
                                       const SpacePoint& p2,
                                       double& covVal,

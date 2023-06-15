@@ -656,7 +656,7 @@ void KrigingSystem::_covtabCalcul(const SpacePoint& p1,
   // Evaluate the Model
 
   if (flagSameData)
-    _model->eval0NvarInPlace(_covref, mode);
+    _model->eval0MatInPlace(_covref, mode);
   else
     _model->evalMatInPlace(p1, p2, _covref, mode);
 
@@ -766,7 +766,7 @@ void KrigingSystem::_lhsCalcul()
     for (int jech = 0; jech < _nech; jech++)
     {
       _identifyPoint(_p2, _nbgh[jech]);
-      bool flagSameData = (iech == jech);
+      bool flagSameData = (iech == jech && _model->isStationary());
 
       _covtabInit();
       _covUpdate(ECalcMember::LHS, _nbgh[iech], _nbgh[jech]);
@@ -1650,7 +1650,7 @@ void KrigingSystem::_variance0()
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      _covtabCalcul(_p0, _p0, &_calcModeVAR);
+      _covtabCalcul(_p0, _p0, &_calcModeVAR, true);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -1678,7 +1678,7 @@ void KrigingSystem::_variance0()
       break;
 
     case EKrigOpt::E_DGM:
-      _covtabCalcul(_p0, _p0, &_calcModeVAR);
+      _covtabCalcul(_p0, _p0, &_calcModeVAR, true);
       break;
   }
 

@@ -72,6 +72,22 @@ CovLMCConvolution::~CovLMCConvolution()
 {
 }
 
+void CovLMCConvolution::eval0MatInPlace(MatrixSquareGeneral &mat,
+                                        const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::eval0MatInPlace(mat, mode);
+}
+
+void CovLMCConvolution::evalMatInPlace(const SpacePoint &p1,
+                                       const SpacePoint &p2,
+                                       MatrixSquareGeneral &mat,
+                                       const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::evalMatInPlace(p1, p2, mat, mode);
+}
+
 int CovLMCConvolution::init(const EConvType& conv_type,
                             const EConvDir&  conv_idir,
                             double conv_range,
@@ -298,9 +314,7 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
       if (mode == nullptr)
         covloc = CovLMC::eval(p11, p22, ivar, jvar);
       else
-      {
         covloc = CovLMC::eval(p11, p22, ivar, jvar, &modeloc);
-      }
       cov += covloc * w1 * w2;
     }
   }

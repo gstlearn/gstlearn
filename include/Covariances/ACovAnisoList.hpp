@@ -51,11 +51,18 @@ public:
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
+
   virtual void evalOptim(const SpacePoint &p1,
                          VectorDouble &res,
                          VectorDouble &temp,
@@ -126,6 +133,8 @@ protected:
 protected:
   std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
   VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+
+  mutable MatrixSquareGeneral _matC;
 #endif
 };
 

@@ -75,6 +75,23 @@ CovLMCAnamorphosis::~CovLMCAnamorphosis()
 {
 }
 
+void CovLMCAnamorphosis::eval0MatInPlace(MatrixSquareGeneral &mat,
+                                         const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::eval0MatInPlace(mat, mode);
+}
+
+void CovLMCAnamorphosis::evalMatInPlace(const SpacePoint &p1,
+                                        const SpacePoint &p2,
+                                        MatrixSquareGeneral &mat,
+                                        const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::evalMatInPlace(p1, p2, mat, mode);
+}
+
+
 int CovLMCAnamorphosis::init(const VectorInt& anam_strcnt)
 {
   if (_anam == nullptr)
@@ -198,24 +215,23 @@ double CovLMCAnamorphosis::eval(const SpacePoint& p1,
   {
     return _evalDiscreteIR(ivar, jvar, p1, p2, modeloc);
   }
-
   return TEST;
 }
 
 double CovLMCAnamorphosis::_evalHermite(int ivar,
                                         int jvar,
-                                        const SpacePoint& p1,
-                                        const SpacePoint& p2,
-                                        const CovCalcMode* mode) const
+                                        const SpacePoint &p1,
+                                        const SpacePoint &p2,
+                                        const CovCalcMode *mode) const
 {
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
 
-  double rho = 1.;
   CovCalcMode modeloc(*mode);
   modeloc.setAsVario(false);
 
+  double rho = 1.;
   if (getDistance(p1, p2) > 0.)
-     rho = CovLMC::eval(p1, p2, ivar, jvar, &modeloc);
+    rho = CovLMC::eval(p1, p2, ivar, jvar, &modeloc);
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
@@ -296,9 +312,6 @@ double CovLMCAnamorphosis::_evalHermite0(int ivar,
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
   int iclass = getActiveFactor();
 
-  if (mode->getMember().getValue() != ECalcMember::E_LHS)
-    messageAbort("CovLMCAnamorphosis eval0");
-
   double r = 1.;
   if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
@@ -357,8 +370,7 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
   int iclass = getActiveFactor();
 
   double gamma = 0.;
-  double dist2 = getDistance(p1, p2);
-  if (dist2 > 0.)
+  if (getDistance(p1, p2) > 0.)
   {
     gamma = CovLMC::eval(p1, p1, ivar, jvar, mode) -
             CovLMC::eval(p1, p2, ivar, jvar, mode);
@@ -515,7 +527,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
       double bi = anamIR->getIRStatB(jclass);
       cov1 = cov2;
       _transformCovCalcModeIR(&modeloc, iclass);
-      cov2 = pow(1. + eval(p1, p2, ivar, jvar, &modeloc) * anamIR->getIRStatR(jclass),r);
+      cov2 = pow(1. + CovLMC::eval(p1, p2, ivar, jvar, &modeloc) * anamIR->getIRStatR(jclass),r);
       cov += bi * bi * (cov2 - cov1);
     }
     return cov;
@@ -526,10 +538,10 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
     // Structure for the factor 'iclass´
 
     _transformCovCalcModeIR(&modeloc, iclass - 1);
-    double cov1 = pow(1. + eval(p1, p2, ivar, jvar, &modeloc) *
+    double cov1 = pow(1. + CovLMC::eval(p1, p2, ivar, jvar, &modeloc) *
                       anamIR->getIRStatR(iclass - 1), r);
     _transformCovCalcModeIR(&modeloc, iclass);
-    double cov2 = pow(1. + eval(p1, p2, ivar, jvar, &modeloc) *
+    double cov2 = pow(1. + CovLMC::eval(p1, p2, ivar, jvar, &modeloc) *
                       anamIR->getIRStatR(iclass), r);
     return (cov2 - cov1);
   }

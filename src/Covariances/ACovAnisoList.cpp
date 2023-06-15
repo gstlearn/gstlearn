@@ -25,14 +25,16 @@
 ACovAnisoList::ACovAnisoList(const ASpace* space)
 : ACov(space),
   _covs(),
-  _filtered()
+  _filtered(),
+  _matC()
 {
 }
 
 ACovAnisoList::ACovAnisoList(const ACovAnisoList &r)
 : ACov(r),
   _covs(),
-  _filtered(r._filtered)
+  _filtered(r._filtered),
+  _matC(r._matC)
 {
   for (auto e: r._covs)
     _covs.push_back(e->clone());
@@ -46,6 +48,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
     for (auto e: r._covs)
       _covs.push_back(e->clone());
     _filtered = r._filtered;
+    _matC = r._matC;
   }
   return *this;
 }
@@ -129,13 +132,39 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   }
   else
   {
-    int number = mode->getActiveCovList().size();
-    for (int i=0; i<number; i++)
-    {
+    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
       cov += _covs[mode->getActiveCovRank(i)]->eval0(ivar, jvar, mode);
-    }
   }
   return cov;
+}
+
+void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
+                                    const CovCalcMode *mode) const
+{
+  // Dimension internal matrix correctly
+  int nvar = mat.getNRows();
+  if (_matC.getNRows() != nvar)
+    _matC.reset(nvar,  nvar);
+  else
+    _matC.fill(0.);
+
+  mat.fill(0.);
+  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  {
+    for (int i=0, n=getCovNumber(); i<n; i++)
+    {
+      _covs[i]->eval0MatInPlace(_matC, mode);
+      mat.addMatrix(_matC);
+    }
+  }
+  else
+  {
+    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
+    {
+      _covs[mode->getActiveCovRank(i)]->eval0MatInPlace(_matC, mode);
+      mat.addMatrix(_matC);
+    }
+  }
 }
 
 void ACovAnisoList::evalOptim(const SpacePoint &p1,
@@ -165,19 +194,45 @@ double ACovAnisoList::eval(const SpacePoint& p1,
   if (mode == nullptr || mode->getActiveCovList().size() <= 0)
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
-    {
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
+  }
+  else
+  {
+    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
+      cov += _covs[mode->getActiveCovRank(i)]->eval(p1, p2, ivar, jvar, mode);
+  }
+  return cov;
+}
+
+void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
+                                   const SpacePoint &p2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode) const
+{
+  // Dimension internal matrix correctly
+  int nvar = mat.getNRows();
+  if (_matC.getNRows() != nvar)
+    _matC.reset(nvar,  nvar);
+  else
+    _matC.fill(0.);
+
+  mat.fill(0.);
+  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  {
+    for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    {
+      _covs[i]->evalMatInPlace(p1, p2, _matC, mode);
+      mat.addMatrix(_matC);
     }
   }
   else
   {
-    int number = mode->getActiveCovList().size();
-    for (int i=0; i<number; i++)
+    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      cov += _covs[mode->getActiveCovRank(i)]->eval(p1, p2, ivar, jvar, mode);
+      _covs[mode->getActiveCovRank(i)]->evalMatInPlace(p1, p2, _matC, mode);
+      mat.addMatrix(_matC);
     }
   }
-  return cov;
 }
 
 String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const

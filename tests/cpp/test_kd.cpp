@@ -234,14 +234,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
   (void) krigingFactors(data, blocs, model_b1_Y, neighM, EKrigOpt::POINT,
-                            VectorInt(), true, true,
-                            NamingConvention("DK_DGM1"));
+                        VectorInt(), true, true, NamingConvention("DK_DGM1"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
   (void) krigingFactors(data, panel, model_b1_Y, neighM, EKrigOpt::BLOCK,
-                            { nx_B, nx_B }, true, true,
-                            NamingConvention("DK_DGM1"));
+                        { nx_B, nx_B }, true, true,
+                        NamingConvention("DK_DGM1"));
   panel->display();
 
   // ====================== Block Disjunctive Kriging (DGM-2) =====================

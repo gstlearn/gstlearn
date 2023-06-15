@@ -45,7 +45,7 @@ ACov::~ACov()
 {
 }
 
-MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode* mode) const
+MatrixSquareGeneral ACov::eval0Mat(const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -55,12 +55,13 @@ MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode* mode) const
   return mat;
 }
 
-void ACov::eval0NvarInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
+void ACov::eval0MatInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
+
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
-      mat.setValue(ivar, jvar, eval0(ivar, jvar, mode)); // pure virtual method
+        mat.setValue(ivar, jvar, eval0(ivar, jvar, mode)); // pure virtual method
 }
 
 VectorDouble ACov::eval(const std::vector<SpacePoint>& vec_p1,
@@ -95,6 +96,7 @@ void ACov::evalMatInPlace(const SpacePoint &p1,
                           const CovCalcMode* mode) const
 {
   int nvar = getNVariables();
+
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, eval(p1, p2, ivar, jvar, mode)); // pure virtual method

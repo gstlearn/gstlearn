@@ -149,11 +149,12 @@ public:
   }
   MatrixSquareGeneral eval0Nvar(const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->eval0Nvar(mode);
+    return _covaList->eval0Mat(mode);
   }
-  void eval0NvarInPlace(MatrixSquareGeneral& mat, const CovCalcMode* mode = nullptr) const
+  void eval0MatInPlace(MatrixSquareGeneral &mat,
+                       const CovCalcMode *mode = nullptr) const
   {
-    _covaList->eval0NvarInPlace(mat, mode);
+    _covaList->eval0MatInPlace(mat, mode);
   }
   double eval(const SpacePoint& p1,
               const SpacePoint& p2,

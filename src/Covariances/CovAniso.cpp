@@ -326,6 +326,65 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return (cov);
 }
 
+void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode) const
+{
+  int nvar = mat.getNRows();
+
+  if (mode == nullptr)
+  {
+    double cov = _cova->evalCov(0);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+  }
+  else
+  {
+    double cov = _calculateCov(0., mode);
+    if (! mode->getUnitary())
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+    }
+    else
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          mat.setValue(ivar, jvar, cov);
+    }
+  }
+}
+
+double CovAniso::_calculateCov(double h, const CovCalcMode *mode) const
+{
+  double cov = 0.;
+
+  int norder = mode->getOrderVario();
+  if (norder > 0)
+  {
+
+    // Calculate High-order Variogram (only valuable when h != 0)
+    for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
+    {
+      double hp = h * (1. + iwgt);
+      cov += COVWGT[norder][iwgt] * _cova->evalCov(hp);
+    }
+    cov /= NORWGT[norder];
+  }
+  else
+  {
+
+    // Traditional Covariance or Variogram
+    cov = _cova->evalCov(h);
+
+    // Convert into a variogram
+    if (mode->getAsVario())
+      cov = _cova->evalCov(0) - cov;
+  }
+  return cov;
+}
+
 // TODO Replace p1 and p2 by SpaceTarget
 double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
@@ -347,34 +406,48 @@ double CovAniso::eval(const SpacePoint &p1,
   }
   else
   {
-    int norder = mode->getOrderVario();
-    if (norder > 0)
-    {
-
-      // Calculate High-order Variogram (only valuable when h != 0)
-      for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
-      {
-        double hp = h * (1. + iwgt);
-        cov += COVWGT[norder][iwgt] * _cova->evalCov(hp);
-      }
-      cov /= NORWGT[norder];
-    }
-    else
-    {
-
-      // Traditional Covariance or Variogram
-      cov = _cova->evalCov(h);
-
-      // Convert into a variogram
-      if (mode->getAsVario())
-        cov = _cova->evalCov(0) - cov;
-    }
+    cov = _calculateCov(h, mode);
 
     // Scale by the sill
     if (!mode->getUnitary())
       cov *= getSill(ivar, jvar);
   }
   return (cov);
+}
+
+void CovAniso::evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode) const
+{
+  int nvar = mat.getNRows();
+
+  // Calculate unit distance by applying anisotropy
+  double h = getSpace()->getDistance(p1, p2, _aniso);
+
+  if (mode == nullptr)
+  {
+    double cov = _cova->evalCov(h);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+  }
+  else
+  {
+    double cov = _calculateCov(h, mode);
+    if (!mode->getUnitary())
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+    }
+    else
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          mat.setValue(ivar, jvar, cov);
+    }
+  }
 }
 
 void CovAniso::evalOptim(const SpacePoint &p1,
