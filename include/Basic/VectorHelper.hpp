@@ -49,7 +49,7 @@ public:
   static double maximum(const VectorVectorDouble &vec, bool flagAbs = false);
   static double minimum(const VectorVectorDouble &vec, bool flagAbs = false);
   static int product(const VectorInt& nx);
-  static double product(const VectorDouble& nx);
+  static double product(const VectorDouble& vec);
   static int countUndefined(const VectorDouble& vec);
   static int countDefined(const VectorDouble& vec);
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);

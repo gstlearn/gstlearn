@@ -463,7 +463,7 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
-double VectorHelper::normOptim(const VectorDouble&vec)
+double VectorHelper::normOptim(const VectorDouble& vec)
 {
 	double s = 0.;
 	const double* dat = vec.data();

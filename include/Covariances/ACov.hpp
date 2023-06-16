@@ -165,6 +165,7 @@ public:
                              int ivar = 0,
                              int jvar = 0,
                              bool useSel = true,
+                             const VectorInt& nbgh2 = VectorInt(),
                              const CovCalcMode* mode = nullptr) const;
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,
@@ -180,6 +181,8 @@ public:
                                   const Db* db2 = nullptr,
                                   int ivar = 0,
                                   int jvar = 0,
+                                  const VectorInt& nbgh1 = VectorInt(),
+                                  const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr) const;
   VectorVectorDouble evalCovMatrixOptim(const Db *db1,
                                         const Db *db2 = nullptr,

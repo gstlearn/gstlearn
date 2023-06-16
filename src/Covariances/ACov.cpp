@@ -369,6 +369,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
  * @param jvar Rank of the second variable
  * @param useSel When TRUE, the returned vector is reduced to active samples
  *               Otherwise, returns TEST for masked samples
+ * @param nbgh2 Vector of indices of active samples in db2 (optional)
  * @param mode CovCalcMode structure
  * @return
  */
@@ -377,14 +378,21 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
                                  int ivar,
                                  int jvar,
                                  bool useSel,
+                                 const VectorInt& nbgh2,
                                  const CovCalcMode* mode) const
 {
   VectorDouble values;
+  int nech2;
+  if (nbgh2.empty())
+    nech2 = db2->getSampleNumber(true);
+  else
+    nech2 = nbgh2.size();
 
   /* Loop on the second sample */
 
-  for (int iech2 = 0; iech2 < db2->getSampleNumber(); iech2++)
+  for (int kech2 = 0; kech2 < nech2; kech2++)
   {
+    int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
     if (db2->isActive(iech2))
     {
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
@@ -661,6 +669,8 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
  ** \param[in]  db2   Second Db (=db1 if absent)
  ** \param[in]  ivar  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar  Rank of the second variable (-1: all variables)
+ ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
+ ** \param[in]  nbgh2 Vector of indices of active samples in db2 (optional)
  ** \param[in]  mode  CovCalcMode structure
  **
  ** \remarks The returned matrix if dimension to nrows * ncols where
@@ -672,28 +682,50 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
                                       const Db* db2,
                                       int ivar,
                                       int jvar,
+                                      const VectorInt& nbgh1,
+                                      const VectorInt& nbgh2,
                                       const CovCalcMode* mode) const
 {
   if (db2 == nullptr) db2 = db1;
-  int nechtot1 = db1->getSampleNumber(false);
-  int nechtot2 = db2->getSampleNumber(false);
-  int nech1 = db1->getSampleNumber(true);
-  int nech2 = db2->getSampleNumber(true);
-  MatrixRectangular mat(nech1, nech2);
+
+  int nechtot1, nechtot2, nsize1, nsize2;
+  if (nbgh1.empty())
+  {
+    nechtot1 = db1->getSampleNumber(false);
+    nsize1 = db1->getSampleNumber(true);
+  }
+  else
+  {
+    nechtot1 = nbgh1.size();
+    nsize1 = nbgh1.size();
+  }
+  if (nbgh2.empty())
+  {
+    nechtot2 = db2->getSampleNumber(false);
+    nsize2 = db2->getSampleNumber(true);
+  }
+  else
+  {
+    nechtot2 = nbgh2.size();
+    nsize2 = nbgh2.size();
+  }
+  MatrixRectangular mat(nsize1, nsize2);
 
   /* Loop on the first sample */
 
   int jech1 = 0;
-  for (int iech1 = 0; iech1 < nechtot1; iech1++)
+  for (int kech1 = 0; kech1 < nechtot1; kech1++)
   {
+    int iech1 = (nbgh1.empty()) ? kech1 : nbgh1[kech1];
     if (!db1->isActive(iech1)) continue;
     SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
 
     /* Loop on the second sample */
 
     int jech2 = 0;
-    for (int iech2 = 0; iech2 < nechtot2; iech2++)
+    for (int kech2 = 0; kech2 < nechtot2; kech2++)
     {
+      int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
       if (!db2->isActive(iech2)) continue;
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
 
@@ -707,7 +739,6 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   }
   return mat;
 }
-
 
 VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
                                             const Db *db2,

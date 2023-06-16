@@ -708,7 +708,16 @@ void AMatrix::prodVector(const double *inv, double *outv) const
 
 void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
 {
-  // TODO : Check dimensions to avoid SEGV
+  int sizein = (int) inv.size();
+  int sizeout = (int) outv.size();
+  if (sizein != _nCols || sizeout != _nRows)
+  {
+    messerr("Inconsistency between:");
+    messerr("- the dimension of 'inv' = %d", sizein);
+    messerr("- the dimension of 'outv' = %d", sizeout);
+    messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
+    return;
+  }
   prodVector(inv.data(), outv.data());
 }
 
@@ -872,6 +881,24 @@ void AMatrix::divideColumn(const VectorDouble& vec)
       if (!_isPhysicallyPresent(irow, icol)) continue;
       _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
     }
+}
+
+double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
+{
+  int sizex = (int) x.size();
+  int sizey = (int) y.size();
+  if (sizex != _nRows || sizey != _nCols)
+  {
+    messerr("Inconsistency between:");
+    messerr("- the dimension of 'x' = %d",sizex);
+    messerr("- the dimension of 'y' = %d",sizey);
+    messerr("- the matrix: number of rows (%d) and columns (%d)",_nRows,_nCols);
+    return TEST;
+  }
+
+  VectorDouble left(_nRows);
+  prodVector(y, left);
+  return VH::innerProduct(x, left);
 }
 
 int AMatrix::invert()

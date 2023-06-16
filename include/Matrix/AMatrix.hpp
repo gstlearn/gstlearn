@@ -125,11 +125,11 @@ public:
   void toSparseInPlace();
   /*! Transform any matrix in a Sparse format */
   AMatrix* toSparse() const;
+
   /*! Transpose the matrix in place*/
   virtual void transposeInPlace();
   /*! Transpose the matrix and return it as a copy*/
   virtual AMatrix* transpose() const;
-
   /*! Add a value to each matrix component */
   virtual void addScalar(double v);
   /*! Add value to matrix diagonal */
@@ -149,6 +149,8 @@ public:
   void divideRow(const VectorDouble& vec);
   /*! Divide a Matrix column-wise */
   void divideColumn(const VectorDouble& vec);
+  /*! Perform x %*% mat %*% y */
+  double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
   /*! Add a matrix to this component by component */
   virtual void addMatrix(const AMatrix& y);
   /*! Multiply a matrix by another and store the result in the current matrix */

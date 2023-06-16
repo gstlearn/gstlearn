@@ -29,10 +29,10 @@ public:
   ACalcInterpolator& operator=(const ACalcInterpolator &r) = delete;
   virtual ~ACalcInterpolator();
 
-  void setModel(Model *model) { _model = model; }
+  void setModel(Model *model)  { _model = model; }
   void setNeigh(ANeigh *neigh) { _neigh = neigh; }
 
-  Model* getModel() const { return _model; }
+  Model*  getModel() const { return _model; }
   ANeigh* getNeigh() const { return _neigh; }
 
   bool hasModel(bool verbose = true) const;
@@ -41,9 +41,9 @@ public:
 protected:
   virtual bool _check() override;
   virtual bool _preprocess() override;
-  virtual int _getNDim() const override;
-  virtual int _getNVar() const override;
-  virtual int _getNCova() const;
+  virtual int  _getNDim() const override;
+  virtual int  _getNVar() const override;
+  virtual int  _getNCova() const;
 
   int _centerDataToGrid(DbGrid* dbgrid);
 
