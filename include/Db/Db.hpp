@@ -370,6 +370,8 @@ public:
   VectorDouble getArrayBySample(int iech) const;
   void setArrayBySample(int iech, const VectorDouble& vec);
 
+  std::vector<SpacePoint> getSamplesAsSP() const;
+
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
   void   setFromLocator(const ELoc& locatorType,

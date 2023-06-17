@@ -143,6 +143,11 @@ void MatrixRectangular::_transposeInPlace()
 
 void MatrixRectangular::_setValues(const double* values, bool byCol)
 {
+  if (isSparse())
+  {
+    AMatrix::_setValues(values, byCol);
+    return;
+  }
   if (byCol)
   {
     int ecr = 0;

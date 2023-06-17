@@ -684,6 +684,20 @@ void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
   P.setCoord(coor);
 }
 
+std::vector<SpacePoint> Db::getSamplesAsSP() const
+{
+  std::vector<SpacePoint> pvec;
+  VectorDouble coord(getNDim());
+  for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
+  {
+    if (! isActive(iech)) continue;
+    SpacePoint p;
+    getSampleCoordinatesAsSP(iech, p);
+    pvec.push_back(p);
+  }
+  return pvec;
+}
+
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
 {
   VectorDouble vec;
@@ -698,8 +712,7 @@ VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
 
 void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
 {
-  int ndim = getNDim();
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0, ndim=getNDim(); idim < ndim; idim++)
     coor[idim] = getCoordinate(iech, idim);
 }
 

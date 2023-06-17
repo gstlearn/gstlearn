@@ -731,22 +731,10 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
 
 void KrigingSystem::_identifyPoint(SpacePoint& p, int iech)
 {
-  const Db* db;
-  int jech;
-
   if (iech >= 0)
-  {
-    db = _dbin;
-    jech = iech;
-  }
+    _dbin->getSampleCoordinatesAsSP(iech, p);
   else
-  {
-    db = _dbout;
-    jech = _iechOut;
-  }
-
-  for (int idim = 0; idim < _ndim; idim++)
-    p.setCoord(idim, db->getCoordinate(jech, idim));
+    _dbout->getSampleCoordinatesAsSP(_iechOut, p);
 }
 
 /****************************************************************************/

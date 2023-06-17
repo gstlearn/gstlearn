@@ -1,1 +1,15 @@
-#NO_DIFF# Kriging in Bench Neighborhood: 2674 ms. (Ref = 3000 ms.)
+#NO_DIFF# Kriging in Bench Neighborhood: 2952 ms. (Ref = 3000 ms.)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Kriging.rainfall.estim - Locator z1
+ Nb of data          =      86400
+ Nb of active values =      86400
+ Minimum value       =    -56.815
+ Maximum value       =    576.343
+ Mean value          =    115.182
+ Standard Deviation  =    108.338
+ Variance            =  11737.068

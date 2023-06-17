@@ -38,52 +38,68 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   // Global parameters
-  defineDefaultSpace(ESpaceType::RN, 2);
+  int ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
-  // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
+  // Generate the input data base
+  int ndat_in = 100;
+  Db* data = Db::createFillRandom(ndat_in, ndim);
   if (verbose) data->display();
 
-  // Generate the output grid
-  bool flagSmall = false;
-  VectorInt nx;
-  if (flagSmall)
-    nx = {50,60};
-  else
-    nx = {360,240};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
-  if (verbose) grid->display();
+  // Generate the output data base
+  int ndat_out = 100000;
+  Db* dout = Db::createFillRandom(ndat_out, ndim);
+  if (verbose) dout->display();
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
+  double range = 0.6;
+  double sill = 1.2;
+  Model* model = Model::createFromParam(ECov::SPHERICAL, range, sill);
   if (verbose) model->display();
 
-  // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create();
-  if (verbose) neighU->display();
+  // Printout
+  message("RHS between:\n");
+  message("- each one of the %d target sites\n",ndat_out);
+  message("- all samples (%d) of the input data base\n",ndat_in);
+  message("Statistics are provided on the averaged RHS\n");
 
+  // Traditional solution
+  SpacePoint p1;
+  VectorDouble cumul(ndat_in, 0.);
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 3400);
+  for (int i = 0; i < ndat_out; i++)
+  {
+    dout->getSampleCoordinatesAsSP(i, p1);
+    VectorDouble vec = model->evalPointToDb(p1, data);
+    VH::addInPlace(cumul, vec);
+  }
+  timer.displayIntervalMilliseconds("Establishing RHS", 3800);
 
-  // Produce some stats for comparison
-  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
-  grid->display(dbfmt);
-  delete dbfmt;
+  // Some printout for comparison
+  VH::divideConstant(cumul, ndat_out);
 
-  if (neighU    != nullptr) delete neighU;
+  VH::displayRange("RHS", cumul);
+
+  // Convert the contents of the data base as a vector of Space Points
+  std::vector<SpacePoint> pvec = data->getSamplesAsSP();
+
+  // Checking using the optimized version
+  VH::fill(cumul,  0.);
+
+  timer.reset();
+  model->getCovAnisoList()->preProcess(pvec);
+  VectorVectorDouble vecvec = model->evalCovMatrixOptim(dout, data);
+  for (int i = 0; i < ndat_out; i++)
+    VH::addInPlace(cumul, vecvec[i]);
+  model->getCovAnisoList()->cleanPreProcessInfo();
+  timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 3800);
+
+  // Some printout for comparison
+  VH::divideConstant(cumul, ndat_out);
+  VH::displayRange("RHS", cumul);
+
   if (data      != nullptr) delete data;
-  if (grid      != nullptr) delete grid;
+  if (dout      != nullptr) delete dout;
   if (model     != nullptr) delete model;
 
   return (0);

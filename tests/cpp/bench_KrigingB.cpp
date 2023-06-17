@@ -17,6 +17,7 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -75,6 +76,11 @@ int main(int /*argc*/, char */*argv*/[])
   Timer timer;
   kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 3000);
+
+  // Produce some stats for comparison
+  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
+  grid->display(dbfmt);
+  delete dbfmt;
 
   if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;

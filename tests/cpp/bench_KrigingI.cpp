@@ -17,6 +17,7 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -58,6 +59,11 @@ int main(int /*argc*/, char */*argv*/[])
   Timer timer;
   krimage(image, model, neighI);
   timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 2200);
+
+  // Produce some stats for comparison
+  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});
+  image->display(dbfmt);
+  delete dbfmt;
 
   if (neighI    != nullptr) delete neighI;
   if (image     != nullptr) delete image;

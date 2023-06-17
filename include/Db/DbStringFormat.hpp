@@ -118,6 +118,12 @@ public:
                 const VectorString& names = VectorString(),
                 const VectorInt& cols = VectorInt(),
                 bool useSel = true);
+  void setResume()  { _params = _params | FLAG_RESUME; }
+  void setVars()    { _params = _params | FLAG_VARS; }
+  void setExtend()  { _params = _params | FLAG_EXTEND; }
+  void setStats()   { _params = _params | FLAG_STATS; }
+  void setArray()   { _params = _params | FLAG_ARRAY; }
+  void setLocator() { _params = _params | FLAG_LOCATOR; }
 
   bool matchResume()  const { return _matchFlag(FLAG_RESUME); }
   bool matchVars()    const { return _matchFlag(FLAG_VARS); }

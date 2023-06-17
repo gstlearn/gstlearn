@@ -79,12 +79,14 @@ public:
                                           const VectorDouble& dxsPerCell = VectorDouble()) const;
   double indiceToCoordinate(int idim0,
                             const VectorInt& indice,
-                            const VectorDouble& percent = VectorDouble()) const;
+                            const VectorDouble& percent = VectorDouble(),
+                            bool flag_rotate=true) const;
   VectorDouble indicesToCoordinate(const VectorInt& indice,
                                    const VectorDouble& percent = VectorDouble()) const;
   void indicesToCoordinateInPlace(const VectorInt& indice,
                                   VectorDouble& coor,
-                                  const VectorDouble& percent = VectorDouble()) const;
+                                  const VectorDouble& percent = VectorDouble(),
+                                  bool flag_rotate=true) const;
   double rankToCoordinate(int idim0,
                           int rank,
                           const VectorDouble& percent = VectorDouble()) const;

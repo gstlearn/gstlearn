@@ -45,11 +45,11 @@ Data Base Statistics
 4 - Name Simu - Locator x1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -2.890
- Maximum value       =      4.048
- Mean value          =      0.141
- Standard Deviation  =      0.958
- Variance            =      0.918
+ Minimum value       =     -3.471
+ Maximum value       =      5.862
+ Mean value          =      0.144
+ Standard Deviation  =      1.103
+ Variance            =      1.217
 
 Variables
 ---------

@@ -1,1 +1,15 @@
-#NO_DIFF# Kriging in Unique Neighborhood: 3153 ms. (Ref = 3400 ms.)
+#NO_DIFF# Kriging in Unique Neighborhood: 4645 ms. (Ref = 3400 ms.)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Kriging.rainfall.estim - Locator z1
+ Nb of data          =      86400
+ Nb of active values =      86400
+ Minimum value       =    -62.528
+ Maximum value       =    575.652
+ Mean value          =    115.468
+ Standard Deviation  =    105.311
+ Variance            =  11090.456

@@ -1,0 +1,14 @@
+RHS between:
+- each one of the 100000 target sites
+- all samples (100) of the input data base
+Statistics are provided on the averaged RHS
+#NO_DIFF# Establishing RHS: 3699 ms. (Ref = 3800 ms.)
+RHS
+- Number of samples = 100 / 100
+- Minimum  = 0.087682
+- Maximum  = 0.269929
+#NO_DIFF# Establishing RHS (optimized): 273 ms. (Ref = 3800 ms.)
+RHS
+- Number of samples = 100 / 100
+- Minimum  = 0.087682
+- Maximum  = 0.269929
