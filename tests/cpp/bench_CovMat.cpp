@@ -35,11 +35,12 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
+  int option = -1;
 
   // Generate the input data base
   int ndat_in = 100;
@@ -63,41 +64,74 @@ int main(int /*argc*/, char */*argv*/[])
   message("- all samples (%d) of the input data base\n",ndat_in);
   message("Statistics are provided on the averaged RHS\n");
 
-  // Traditional solution
-  SpacePoint p1;
+  // Preparing a vector of SpacePoints for the active samples in 'data'
+  std::vector<SpacePoint> p1s = data->getSamplesAsSP();
+  SpacePoint p2;
   VectorDouble cumul(ndat_in, 0.);
   Timer timer;
-  for (int i = 0; i < ndat_out; i++)
+
+  if (option < 0 || option == 1)
   {
-    dout->getSampleCoordinatesAsSP(i, p1);
-    VectorDouble vec = model->evalPointToDb(p1, data);
-    VH::addInPlace(cumul, vec);
+    // Traditional solution
+    // ====================
+
+    mestitle(1, "Traditional solution");
+    timer.reset();
+    for (int i = 0; i < ndat_out; i++)
+    {
+      dout->getSampleCoordinatesAsSP(i, p2);
+      VectorDouble rhs1 = model->evalPointToDb(p2, data);
+      VH::addInPlace(cumul, rhs1);
+    }
+    timer.displayIntervalMilliseconds("Establishing RHS", 4000);
+
+    // Some printout for comparison
+    VH::divideConstant(cumul, ndat_out);
+    VH::displayRange("RHS", cumul);
   }
-  timer.displayIntervalMilliseconds("Establishing RHS", 3800);
 
-  // Some printout for comparison
-  VH::divideConstant(cumul, ndat_out);
+  if (option < 0 || option == 2)
+  {
+    // Semi-optimized solution
+    // =======================
 
-  VH::displayRange("RHS", cumul);
+    mestitle(1, "Semi_optimized solution");
+    VH::fill(cumul, 0.);
 
-  // Convert the contents of the data base as a vector of Space Points
-  std::vector<SpacePoint> pvec = data->getSamplesAsSP();
+    timer.reset();
+    for (int i = 0; i < ndat_out; i++)
+    {
+      dout->getSampleCoordinatesAsSP(i, p2);
+      VectorDouble rhs2 = model->evalPointToDbAsSP(p2, p1s);
+      VH::addInPlace(cumul, rhs2);
+    }
+    timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 1480);
 
-  // Checking using the optimized version
-  VH::fill(cumul,  0.);
+    // Some printout for comparison
+    VH::divideConstant(cumul, ndat_out);
+    VH::displayRange("RHS", cumul);
+  }
 
-  timer.reset();
-  model->getCovAnisoList()->preProcess(pvec);
-  VectorVectorDouble vecvec = model->evalCovMatrixOptim(dout, data);
-  for (int i = 0; i < ndat_out; i++)
-    VH::addInPlace(cumul, vecvec[i]);
-  model->getCovAnisoList()->cleanPreProcessInfo();
-  timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 3800);
+  if (option < 0 || option == 3)
+  {
+    // Optimized version
+    // =================
 
-  // Some printout for comparison
-  VH::divideConstant(cumul, ndat_out);
-  VH::displayRange("RHS", cumul);
+    mestitle(1, "Optimized solution");
+    VH::fill(cumul, 0.);
 
+    timer.reset();
+    VectorVectorDouble vecvec = model->evalCovMatrixOptim(dout, data);
+    for (int i = 0; i < ndat_out; i++)
+      VH::addInPlace(cumul, vecvec[i]);
+    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
+
+    // Some printout for comparison
+    VH::divideConstant(cumul, ndat_out);
+    VH::displayRange("RHS", cumul);
+  }
+
+  // Cleaning
   if (data      != nullptr) delete data;
   if (dout      != nullptr) delete dout;
   if (model     != nullptr) delete model;

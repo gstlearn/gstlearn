@@ -167,6 +167,11 @@ public:
                              bool useSel = true,
                              const VectorInt& nbgh2 = VectorInt(),
                              const CovCalcMode* mode = nullptr) const;
+  VectorDouble evalPointToDbAsSP(const SpacePoint& p1,
+                                 const std::vector<SpacePoint>& p2s,
+                                 int ivar = 0,
+                                 int jvar = 0,
+                                 const CovCalcMode* mode = nullptr) const;
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,
                            int ivar = 0,
@@ -177,6 +182,11 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
+  double evalAveragePointToDbAsSP(const SpacePoint &p1,
+                                  const std::vector<SpacePoint> &p2s,
+                                  int ivar = 0,
+                                  int jvar = 0,
+                                  const CovCalcMode *mode = nullptr) const;
   MatrixRectangular evalCovMatrix(const Db* db1,
                                   const Db* db2 = nullptr,
                                   int ivar = 0,
@@ -189,7 +199,6 @@ public:
                                         int ivar = 0,
                                         int jvar = 0,
                                         const CovCalcMode* mode = nullptr) const;
-
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,

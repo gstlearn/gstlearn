@@ -360,6 +360,22 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   return total;
 }
 
+VectorDouble ACov::evalPointToDbAsSP(const SpacePoint &p1,
+                                     const std::vector<SpacePoint> &p2s,
+                                     int ivar,
+                                     int jvar,
+                                     const CovCalcMode *mode) const
+{
+  int nech2 = (int) p2s.size();
+  VectorDouble values(nech2);
+
+  /* Loop on the second sample */
+
+  for (int iech2 = 0; iech2 < nech2; iech2++)
+    values[iech2] = eval(p1, p2s[iech2], ivar, jvar, mode);
+  return values;
+}
+
 /**
  * Calculate the Covariance vector between a Point and all the samples
  * of a Db, for a pair of variables
