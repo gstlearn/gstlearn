@@ -1510,6 +1510,7 @@ void KrigingSystem::_estimateCalculImage(int status)
 
   _dbaux->rankToIndice(_dbaux->getSampleNumber()/2, indn0);
   dbgrid->rankToIndice(_iechOut, indg0);
+  VH::subtractInPlace(indg0, indn0);
 
   for (int ivar = 0; ivar < _nvar; ivar++)
   {
@@ -1525,12 +1526,11 @@ void KrigingSystem::_estimateCalculImage(int status)
       {
         for (int iech = 0; iech < _nech; iech++)
         {
-          if (FFFF(dbgrid->getLocVariable(ELoc::Z,iech, 0))) continue;
           _dbaux->rankToIndice(_nbgh[iech], indnl);
           for (int idim = 0; idim < _ndim; idim++)
           {
-            indgl[idim] = indg0[idim] - indn0[idim] + indnl[idim];
-            indgl[idim] = dbgrid->getMirrorIndex(idim, indgl[idim]);
+            int local = indg0[idim] + indnl[idim];
+            indgl[idim] = dbgrid->getMirrorIndex(idim, local);
           }
           int jech = dbgrid->indiceToRank(indgl);
           double data = dbgrid->getLocVariable(ELoc::Z,jech, jvar);
@@ -1541,8 +1541,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           else
           {
             if (_nfeq <= 0) data -= _getMean(jvar);
-            estim += data * _wgt[ecr];
-            ecr++;
+            estim += data * _wgt[ecr++];
           }
         }
       }

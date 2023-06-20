@@ -540,8 +540,7 @@ void Grid::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDo
 int Grid::indiceToRank(const VectorInt& indice) const
 {
   int ival = indice[_nDim-1];
-  if (ival < 0 || ival >= _nx[_nDim-1])
-    return(-1);
+  if (ival < 0 || ival >= _nx[_nDim-1]) return(-1);
   for (int idim=_nDim-2; idim>=0; idim--)
   {
     if (indice[idim] < 0 || indice[idim] >= _nx[idim])
@@ -563,17 +562,17 @@ int Grid::indiceToRank(const VectorInt& indice) const
  */
 void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
-  if ((int)indices.size() < _nDim)
-    my_throw("Argument indices should have the correct size");
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
   for (int idim=0; idim<_nDim; idim++) nval *= (_nx[idim] - minus);
 
+  int newind;
   for (int idim=_nDim-1; idim>=0; idim--)
   {
     nval /= (_nx[idim] - minus);
-    indices[idim] = rank / nval;
-    rank -= indices[idim] * nval;
+    newind = rank / nval;
+    indices[idim] = newind;
+    rank -= newind * nval;
   }
 }
 
@@ -1109,14 +1108,17 @@ VectorInt Grid::generateGridIndices(const String &string,
  *****************************************************************************/
 int Grid::generateMirrorIndex(int nx, int ix)
 {
-  int nmax;
-
-  nmax = nx - 1;
+  int nmax = nx - 1;
   while (!(ix >= 0 && ix < nx))
   {
     if (ix < 0)
+    {
       ix = -ix;
-    else if (ix > nmax) ix = 2 * nmax - ix;
+    }
+    else if (ix > nmax)
+    {
+      ix = 2 * nmax - ix;
+    }
   }
   return (ix);
 }

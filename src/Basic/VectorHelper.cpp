@@ -965,6 +965,22 @@ void VectorHelper::subtractInPlace(VectorDouble &dest, const VectorDouble &src)
   }
 }
 
+void VectorHelper::subtractInPlace(VectorInt &dest, const VectorInt &src)
+{
+  VectorInt res;
+  if (dest.size() != src.size())
+    my_throw("Wrong size");
+
+  VectorInt::iterator itd(dest.begin());
+  VectorInt::const_iterator its(src.begin());
+  while (itd < dest.end())
+  {
+    *itd -= *its;
+    itd++;
+    its++;
+  }
+}
+
 void VectorHelper::multiplyInPlace(VectorDouble &vec, const VectorDouble &v)
 {
   if (vec.size() != v.size())
