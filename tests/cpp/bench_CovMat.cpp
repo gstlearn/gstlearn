@@ -76,6 +76,7 @@ int main(int /*argc*/, char */*argv*/[])
     // ====================
 
     mestitle(1, "Traditional solution");
+    message("Double loop on the input and output points\n");
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
@@ -87,7 +88,7 @@ int main(int /*argc*/, char */*argv*/[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("RHS", cumul);
+    VH::displayRange("", cumul);
   }
 
   if (option < 0 || option == 2)
@@ -96,6 +97,8 @@ int main(int /*argc*/, char */*argv*/[])
     // =======================
 
     mestitle(1, "Semi_optimized solution");
+    message("Input samples are pre-transformed into vector of space points\n");
+    message("Simple loop between each target and the previous vector\n");
     VH::fill(cumul, 0.);
 
     timer.reset();
@@ -109,7 +112,7 @@ int main(int /*argc*/, char */*argv*/[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("RHS", cumul);
+    VH::displayRange("", cumul);
   }
 
   if (option < 0 || option == 3)
@@ -118,6 +121,8 @@ int main(int /*argc*/, char */*argv*/[])
     // =================
 
     mestitle(1, "Optimized solution");
+    message("Input samples are pre-transformed into vector of (anisotropic) space points\n");
+    message("Simple loop between each target and the previous vector\n");
     VH::fill(cumul, 0.);
 
     timer.reset();
@@ -128,7 +133,7 @@ int main(int /*argc*/, char */*argv*/[])
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
-    VH::displayRange("RHS", cumul);
+    VH::displayRange("", cumul);
   }
 
   // Cleaning

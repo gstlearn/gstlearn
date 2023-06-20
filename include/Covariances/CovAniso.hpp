@@ -84,9 +84,8 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  void 	preProcess(const std::vector<SpacePoint>& vec) const override;
-  void 	cleanPreProcessInfo() const override;
-
+  void 	optimizationPreProcess(const std::vector<SpacePoint>& vec) const override;
+  void 	optimizationPostProcess() const override;
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
@@ -211,7 +210,7 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
-  void   _preProcess(const SpacePoint& ptin, SpacePoint& ptout) const;
+  void   _optimizationTransform(const SpacePoint& ptin, SpacePoint& ptout) const;
   double _calculateCov(double h, const CovCalcMode *mode) const;
 
 private:

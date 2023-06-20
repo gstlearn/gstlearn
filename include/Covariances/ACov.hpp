@@ -67,8 +67,8 @@ public:
   virtual double evalSpectrum(const VectorDouble& /*freq*/,
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
 
-  virtual void 	preProcess(const std::vector<SpacePoint>& vec) const {};
-  virtual void  cleanPreProcessInfo() const {}
+  virtual void 	optimizationPreProcess(const std::vector<SpacePoint>& vec) const {};
+  virtual void  optimizationPostProcess() const {}
 
   /////////////////////////////////////////////////////////////////////////////////
 

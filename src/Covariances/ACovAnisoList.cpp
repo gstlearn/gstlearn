@@ -459,16 +459,16 @@ bool ACovAnisoList::hasNugget() const
   return false;
 }
 
-void ACovAnisoList::preProcess(const std::vector<SpacePoint>& vec) const
+void ACovAnisoList::optimizationPreProcess(const std::vector<SpacePoint>& vec) const
 {
 	for (int is = 0; is < getCovNumber(); is++)
-		_covs[is]->preProcess(vec);
+		_covs[is]->optimizationPreProcess(vec);
 }
 
-void ACovAnisoList::cleanPreProcessInfo() const
+void ACovAnisoList::optimizationPostProcess() const
 {
 	for (int is = 0; is < getCovNumber(); is++)
-		_covs[is]->cleanPreProcessInfo();
+		_covs[is]->optimizationPostProcess();
 }
 
 const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const

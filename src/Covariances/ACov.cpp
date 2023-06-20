@@ -784,7 +784,7 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
   }
 
   std::vector<SpacePoint> p1s = db1->getSamplesAsSP();
-  preProcess(p1s);
+  optimizationPreProcess(p1s);
 
   SpacePoint p2(db2->getSampleCoordinates(0), getSpace());
 
@@ -797,7 +797,7 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
     jech2++;
   }
 
-  cleanPreProcessInfo();
+  optimizationPostProcess();
   return mat;
 }
 

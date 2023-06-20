@@ -115,8 +115,8 @@ public:
   int                getMinOrder() const;
 
   // Methods necessary for Optimization
-  void 				       preProcess(const std::vector<SpacePoint>& vec) const override;
-  void               cleanPreProcessInfo() const override;
+  void 				       optimizationPreProcess(const std::vector<SpacePoint>& vec) const override;
+  void               optimizationPostProcess() const override;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

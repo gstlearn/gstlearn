@@ -466,7 +466,7 @@ void CovAniso::evalOptimInPlace(const SpacePoint &p2,
                                 int jvar,
                                 const CovCalcMode *mode) const
 {
- _preProcess(p2, _p2A);
+ _optimizationTransform(p2, _p2A);
   double sill = _sill.getValue(ivar, jvar);
   for (int i = 0; i < (int) _p1As.size(); i++)
   {
@@ -1026,7 +1026,7 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
  * @param ptin  Input Space Point
  * @param ptout Output Space Point
  */
-void CovAniso::_preProcess(const SpacePoint& ptin, SpacePoint& ptout) const
+void CovAniso::_optimizationTransform(const SpacePoint& ptin, SpacePoint& ptout) const
 {
 	_aniso.applyInverseInPlace(ptin.getCoord(), ptout.getCoord());
 }
@@ -1036,7 +1036,7 @@ void CovAniso::_preProcess(const SpacePoint& ptin, SpacePoint& ptout) const
  * The set of resulting Space Points are stored as private member of this.
  * @param vec Set of input Space Points
  */
-void CovAniso::preProcess(const std::vector<SpacePoint>& p1s) const
+void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 {
   int n = (int) p1s.size();
 
@@ -1044,14 +1044,12 @@ void CovAniso::preProcess(const std::vector<SpacePoint>& p1s) const
 	for(int i = 0;i < n ; i++)
 	{
 		_p1As[i] = SpacePoint(_space);
-		_preProcess(p1s[i], _p1As[i]);
+		_optimizationTransform(p1s[i], _p1As[i]);
 	}
-
   _p2A = SpacePoint(_space);
 }
 
-
-void CovAniso::cleanPreProcessInfo() const
+void CovAniso::optimizationPostProcess() const
 {
 	_p1As.clear();
 }
