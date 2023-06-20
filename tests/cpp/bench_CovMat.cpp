@@ -43,8 +43,10 @@ int main(int /*argc*/, char */*argv*/[])
   int option = -1;
 
   // Generate the input data base
-  int ndat = 100;
-  Db* dbin = Db::createFillRandom(ndat, ndim);
+  int nall = 100;
+  Db* dbin = Db::createFillRandom(nall, ndim);
+  dbin->addSelectionRandom(0.9);
+  int ndat = dbin->getSampleNumber(true);
   if (verbose) dbin->display();
 
   // Generate the output data base
@@ -61,11 +63,13 @@ int main(int /*argc*/, char */*argv*/[])
   // Printout
   message("RHS between:\n");
   message("- each one of the %d target sites\n",nout);
-  message("- all samples (%d) of the input data base\n",ndat);
+  message("- all (active) samples (%d) of the input data base\n",ndat);
+  message("(For checking purpose, a Selection has been added)\n");
   message("Statistics are provided on the averaged RHS\n");
 
   // Preparing a vector of SpacePoints for the active samples in 'data'
-  std::vector<SpacePoint> p1s = dbin->getSamplesAsSP();
+  // for this usage, the list of SP can be reduced to the active samples only
+  std::vector<SpacePoint> p1s = dbin->getSamplesAsSP(true);
   SpacePoint p2;
   VectorDouble cumul(ndat, 0.);
   Timer timer;
@@ -84,7 +88,7 @@ int main(int /*argc*/, char */*argv*/[])
       VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
-    timer.displayIntervalMilliseconds("Establishing RHS", 4000);
+    timer.displayIntervalMilliseconds("Establishing RHS", 3900);
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
@@ -108,7 +112,7 @@ int main(int /*argc*/, char */*argv*/[])
       VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }
-    timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 1480);
+    timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 600);
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);
@@ -129,7 +133,7 @@ int main(int /*argc*/, char */*argv*/[])
     VectorVectorDouble vecvec = model->evalCovMatrixOptim(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, vecvec[i]);
-    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 250);
+    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 270);
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);

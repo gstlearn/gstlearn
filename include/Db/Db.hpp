@@ -250,6 +250,10 @@ public:
                                      bool verbose = false,
                                      const NamingConvention &namconv = NamingConvention("Hull", true, true, true,
                                                                                         ELoc::fromKey("SEL")));
+  int addSelectionRandom(double prop,
+                         int seed = 138213,
+                         const String& name = "NewSel",
+                         const String& combine = "set");
 
   int addSamples(int nadd, double valinit);
   int deleteSample(int e_del);
@@ -370,7 +374,7 @@ public:
   VectorDouble getArrayBySample(int iech) const;
   void setArrayBySample(int iech, const VectorDouble& vec);
 
-  std::vector<SpacePoint> getSamplesAsSP() const;
+  std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
 
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;

@@ -400,7 +400,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
   VectorDouble values;
   int nech2;
   if (nbgh2.empty())
-    nech2 = db2->getSampleNumber(true);
+    nech2 = db2->getSampleNumber();
   else
     nech2 = nbgh2.size();
 
@@ -409,14 +409,22 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
   for (int kech2 = 0; kech2 < nech2; kech2++)
   {
     int iech2 = (nbgh2.empty()) ? kech2 : nbgh2[kech2];
-    if (db2->isActive(iech2))
+    if (! nbgh2.empty())
     {
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
       values.push_back(eval(p1, p2, ivar, jvar, mode));
     }
     else
     {
-      if (! useSel) values.push_back(TEST);
+      if (db2->isActive(iech2))
+      {
+        SpacePoint p2(db2->getSampleCoordinates(iech2), getSpace());
+        values.push_back(eval(p1, p2, ivar, jvar, mode));
+      }
+      else
+      {
+        if (!useSel) values.push_back(TEST);
+      }
     }
   }
 
@@ -783,6 +791,7 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
 	  e = VectorDouble(nech1);
   }
 
+  // Constitute the list of ALL samples contained in 'db1' (masked or active)
   std::vector<SpacePoint> p1s = db1->getSamplesAsSP();
   optimizationPreProcess(p1s);
 

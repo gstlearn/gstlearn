@@ -684,16 +684,25 @@ void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
     P.setCoord(idim, getCoordinate(iech, idim));
 }
 
-std::vector<SpacePoint> Db::getSamplesAsSP() const
+std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
 {
   std::vector<SpacePoint> pvec;
   VectorDouble coord(getNDim());
   for (int iech = 0, nech = getSampleNumber(); iech < nech; iech++)
   {
-    if (! isActive(iech)) continue;
-    SpacePoint p;
-    getSampleCoordinatesAsSP(iech, p);
-    pvec.push_back(p);
+    if (isActive(iech))
+    {
+      SpacePoint p;
+      getSampleCoordinatesAsSP(iech, p);
+      pvec.push_back(p);
+    }
+    else
+    {
+      if (useSel) continue;
+      SpacePoint p;
+      p.setFFFF();
+      pvec.push_back(p);
+    }
   }
   return pvec;
 }
@@ -1576,6 +1585,23 @@ int Db::addSelectionFromDbByConvexHull(Db *db,
   }
 
   return db_selhull(db, this, dilate, verbose, namconv);
+}
+
+/**
+ * Create a Selection based on a proportion of active samples
+ * @param prop   Proportion of active samples (between 0 and 1)
+ * @param seed   Seed for the random number generator
+ * @param name   Name of the newly created selection
+ * @param combine How to combine with an already existing selection (see combineSelection() for details)
+ * @return
+ */
+int Db::addSelectionRandom(double prop,
+                           int seed,
+                           const String &name,
+                           const String &combine)
+{
+  VectorInt ranks = VH::sampleRanks(getSampleNumber(false),prop,-1,seed,1);
+  return addSelectionByRanks(ranks, name, combine);
 }
 
 /**

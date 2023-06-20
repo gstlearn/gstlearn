@@ -48,6 +48,10 @@ public:
   double getDistance(const SpacePoint& pt) const;
   /// Return the increment vector between me and another point
   VectorDouble getIncrement(const SpacePoint& pt) const;
+  /// Fill with TEST values to simulate a missing Space Point
+  void setFFFF();
+  /// Check if the SpacePoint is actually defined
+  bool isFFFF() const;
 
   /// Initialize coordinates from angles /// TODO : to be removed
   void setCoordFromAngle(const VectorDouble& angles);

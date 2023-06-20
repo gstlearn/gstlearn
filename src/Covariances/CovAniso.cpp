@@ -468,10 +468,12 @@ void CovAniso::evalOptimInPlace(const SpacePoint &p2,
 {
  _optimizationTransform(p2, _p2A);
   double sill = _sill.getValue(ivar, jvar);
+  int ecr = 0;
   for (int i = 0; i < (int) _p1As.size(); i++)
   {
+    if (_p1As[i].isFFFF()) continue;
     double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-    res[i] += sill * _cova->evalCov(h);
+    res[ecr++] += sill * _cova->evalCov(h);
   }
 }
 

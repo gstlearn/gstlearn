@@ -2973,7 +2973,7 @@ void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value
     }
     _checkAddress("_setLHS","address",iad, (int) _lhs.size());
   }
-  _lhs [iad] = value;
+  _lhs[iad] = value;
 }
 void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value)
 {
