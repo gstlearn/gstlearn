@@ -75,7 +75,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 3000);
+  timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 2100);
 
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});

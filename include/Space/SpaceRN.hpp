@@ -36,15 +36,13 @@ public:
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::fromKey("RN"); }
   /// Move the given space point by the given vector
-  void move(SpacePoint& p1,
-            const VectorDouble& vec) const override;
+  void move(SpacePoint &p1, const VectorDouble &vec) const override;
   /// Return the distance between two space points
-  double getDistance(const SpacePoint& p1,
-                     const SpacePoint& p2) const override;
+  double getDistance(const SpacePoint &p1, const SpacePoint &p2) const override;
   /// Return the distance between two space points with the given tensor
-  double getDistance(const SpacePoint& p1,
-                     const SpacePoint& p2,
-                     const Tensor& tensor) const override;
+  double getDistance(const SpacePoint &p1,
+                     const SpacePoint &p2,
+                     const Tensor &tensor) const override;
   double getFrequentialDistance(const SpacePoint& p1,
                                 const SpacePoint& p2,
                                 const Tensor& tensor) const override;
@@ -56,9 +54,4 @@ private:
   void _getIncrementInPlace(const SpacePoint &p1,
                             const SpacePoint &p2,
                             VectorDouble &ptemp) const override;
-  double _getDistance(const SpacePoint &p1,
-                      const SpacePoint &p2,
-                      VectorDouble &ptemp,
-                      const Tensor &tensor,
-                      VectorDouble &temp) const override;
 };

@@ -168,4 +168,9 @@ private:
   VectorInt _counts;
   VectorInt _order;
   VectorInt _indices;
+
+  // Some working vectors, defined in order to avoid too many allocations
+  mutable VectorInt    _iwork0;
+  mutable VectorDouble _work1;
+  mutable VectorDouble _work2;
 };

@@ -1,0 +1,135 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[5]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 3
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 150
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Z - Locator = x3
+Column = 4 - Name = value - Locator = z1----
+
+
++*Out[6]:*+
+----array([[0.2003584 , 0.97446612],
+       [0.10611527, 0.9628635 ],
+       [0.05598033, 1.03142542]])----
+
+
++*Out[8]:*+
+----
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 3
+Variance-Covariance Matrix     0.083
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000     0.000
+Direction angles (degrees)  =      0.000     0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.100
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    73.000     0.029     0.074
+         1   383.000     0.096     0.088
+         2   309.000     0.200     0.072
+         3   956.000     0.307     0.079
+         4   844.000     0.410     0.080
+         5  1783.000     0.501     0.082
+         6  1361.000     0.599     0.084
+         7  1516.000     0.700     0.082
+         8  1401.000     0.795     0.088
+         9   871.000     0.894     0.087----
+
+
++*Out[9]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[11]:*+
+----
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 3
+Variance-Covariance Matrix     0.083
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000     0.000
+Direction angles (degrees)  =      0.000     0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Slice bench                 =      1.000
+Calculation lag             =      0.100
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    73.000     0.029     0.074
+         1   383.000     0.096     0.088
+         2   309.000     0.200     0.072
+         3   956.000     0.307     0.079
+         4   844.000     0.410     0.080
+         5  1783.000     0.501     0.082
+         6  1361.000     0.599     0.084
+         7  1516.000     0.700     0.082
+         8  1401.000     0.795     0.088
+         9   871.000     0.894     0.087
+
+Direction #2
+------------
+Number of lags              = 10
+Direction coefficients      =      0.000     0.000     1.000
+Direction angles (degrees)  =      0.000     0.000    90.000
+Tolerance on direction      =      0.001 (degrees)
+Calculation lag             =      0.100
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    20.000     0.022     0.094
+         1   210.000     0.098     0.088
+         2   140.000     0.195     0.071
+         3   180.000     0.298     0.083
+         4   150.000     0.411     0.080
+         5   100.000     0.512     0.090
+         6    80.000     0.603     0.077
+         7    60.000     0.695     0.084
+         8    70.000     0.801     0.096
+         9    30.000     0.905     0.097----
+
+
++*Out[12]:*+
+----
+![png](output_20_0.png)
+----
+
+
++*Out[14]:*+
+----
+![png](output_23_0.png)
+----

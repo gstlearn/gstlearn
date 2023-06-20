@@ -1034,7 +1034,7 @@ void CovAniso::_optimizationTransform(const SpacePoint& ptin, SpacePoint& ptout)
 /**
  * Transform a set of Space Points using the anisotropy tensor
  * The set of resulting Space Points are stored as private member of this.
- * @param vec Set of input Space Points
+ * @param p1s Set of input Space Points
  */
 void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 {

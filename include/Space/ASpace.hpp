@@ -80,15 +80,8 @@ protected:
   /// Coordinates of the origin (not a space point... ex: sphere center in a long/lat space)
   VectorDouble _origin;
 
-private:
-  virtual double _getDistance(const SpacePoint &p1,
-                              const SpacePoint &p2,
-                              VectorDouble &ptemp,
-                              const Tensor &tensor,
-                              VectorDouble &temp) const
-  {
-    return TEST;
-  }
-  ;
+  // The next vectors are specified as working members in order to avoid too many allocations
+  mutable VectorDouble _work1;
+  mutable VectorDouble _work2;
 };
 

@@ -55,6 +55,7 @@ public:
                               const CovCalcMode *mode = nullptr) const;
   /// Calculate the vector of covariances between a target SpacePoint
   /// and a set of input SpacePoints stored internally (optimized version)
+  /// Note: methods optimizationPreProcess() must be called beforehand.
   virtual void evalOptimInPlace(const SpacePoint &p2,
                                 VectorDouble &res,
                                 int ivar = 0,

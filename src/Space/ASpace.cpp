@@ -17,7 +17,9 @@
 ASpace::ASpace(unsigned int ndim)
     : AStringable(),
       _nDim(ndim),
-      _origin(VectorDouble(ndim, 0.))
+      _origin(VectorDouble(ndim, 0.)),
+      _work1(ndim),
+      _work2(ndim)
 {
   if (ndim <= 0)
   {
@@ -28,7 +30,9 @@ ASpace::ASpace(unsigned int ndim)
 ASpace::ASpace(const ASpace& r)
     : AStringable(r),
       _nDim(r._nDim),
-      _origin(r._origin)
+      _origin(r._origin),
+      _work1(r._nDim), // No need to copy the contents, just allocated
+      _work2(r._nDim)
 {
 }
 
@@ -39,6 +43,8 @@ ASpace& ASpace::operator=(const ASpace& r)
     AStringable::operator=(r);
     _nDim = r._nDim;
     _origin = r._origin;
+    _work1 = r._work1;
+    _work2 = r._work2;
   }
   return *this;
 }
@@ -72,9 +78,9 @@ bool ASpace::isEqual(const ASpace* space) const
 }
 
 
-void ASpace::_getIncrementInPlaceVect(const SpacePoint& p1,
-								   const std::vector<SpacePoint>& pv,
-								   VectorVectorDouble& res) const
+void ASpace::_getIncrementInPlaceVect(const SpacePoint &p1,
+                                      const std::vector<SpacePoint> &pv,
+                                      VectorVectorDouble &res) const
 {
 	int np = (int)res.size();
 	for(int i = 0; i<np;i++)

@@ -439,7 +439,7 @@ void AMatrix::toSparseInPlace()
 
   VectorInt irows;
   VectorInt icols;
-  VectorDouble    values;
+  VectorDouble values;
   getValuesAsTriplets(irows, icols, values);
 
   // Update the sparse qualifier of this
@@ -1151,19 +1151,26 @@ void AMatrix::getValuesAsTriplets(VectorInt&    irows,
 
 VectorDouble AMatrix::getValues(bool byCol) const
 {
-  VectorDouble vect;
+  VectorDouble vect(_nCols * _nRows);
+  VectorDouble::iterator itvect(vect.begin());
 
   if (byCol)
   {
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
-        vect.push_back(getValue(irow, icol));
+      {
+        (*itvect) = getValue(irow, icol);
+        itvect++;
+      }
   }
   else
   {
     for (int irow = 0; irow < _nRows; irow++)
       for (int icol = 0; icol < _nCols; icol++)
-        vect.push_back(getValue(irow, icol));
+      {
+        (*itvect) = getValue(irow, icol);
+        itvect++;
+      }
   }
   return vect;
 }

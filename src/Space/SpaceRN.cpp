@@ -62,33 +62,17 @@ void SpaceRN::move(SpacePoint &p1, const VectorDouble &vec) const
  */
 double SpaceRN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
 {
-  return VH::norm(getIncrement(p1, p2));
+  _getIncrementInPlace(p1, p2, _work1);
+  return VH::norm(_work1);
 }
 
 double SpaceRN::getDistance(const SpacePoint &p1,
                             const SpacePoint &p2,
                             const Tensor &tensor) const
 {
-  return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
-}
-
-double SpaceRN::_getDistance(const SpacePoint &p1,
-                             const SpacePoint &p2,
-                             VectorDouble &ptemp,
-                             const Tensor &tensor,
-                             VectorDouble &temp) const
-{
-  _getIncrementInPlace(p1, p2, ptemp);
-  tensor.applyInverseInPlace(ptemp, temp);
-  double s = 0;
-  double ti;
-  for (unsigned int idim = 0; idim < _nDim; idim++)
-  {
-    ti = temp[idim];
-    s += ti * ti;
-  }
-  return sqrt(s);
-
+  _getIncrementInPlace(p1, p2, _work1);
+  tensor.applyInverseInPlace(_work1, _work2);
+  return VH::norm(_work2);
 }
 
 void SpaceRN::_getIncrementInPlace(const SpacePoint &p1,
@@ -103,7 +87,9 @@ double SpaceRN::getFrequentialDistance(const SpacePoint &p1,
                                        const SpacePoint &p2,
                                        const Tensor &tensor) const
 {
-  return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
+  _getIncrementInPlace(p1, p2, _work1);
+  tensor.applyInverseInPlace(_work1, _work2);
+  return VH::norm(_work2);
 }
 
 VectorDouble SpaceRN::getIncrement(const SpacePoint &p1,
