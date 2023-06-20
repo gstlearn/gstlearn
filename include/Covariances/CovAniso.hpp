@@ -71,13 +71,11 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalOptim(const SpacePoint &p1,
-                         VectorDouble &res,
-                         VectorDouble &temp,
-                         SpacePoint &pt,
-                         int ivar = 0,
-                         int jvar = 0,
-                         const CovCalcMode* mode = nullptr) const override;
+  virtual void evalOptimInPlace(const SpacePoint &p2,
+                                VectorDouble &res,
+                                int ivar = 0,
+                                int jvar = 0,
+                                const CovCalcMode *mode = nullptr) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
@@ -213,7 +211,7 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
-  void   _preProcess(const SpacePoint& pt, SpacePoint& res) const;
+  void   _preProcess(const SpacePoint& ptin, SpacePoint& ptout) const;
   double _calculateCov(double h, const CovCalcMode *mode) const;
 
 private:
@@ -222,5 +220,6 @@ private:
   MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 
-  mutable std::vector<SpacePoint> _transformedCoordinates;
+  mutable std::vector<SpacePoint> _p1As;
+  mutable SpacePoint _p2A;
 };

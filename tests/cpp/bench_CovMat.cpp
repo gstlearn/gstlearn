@@ -43,14 +43,14 @@ int main(int /*argc*/, char */*argv*/[])
   int option = -1;
 
   // Generate the input data base
-  int ndat_in = 100;
-  Db* data = Db::createFillRandom(ndat_in, ndim);
-  if (verbose) data->display();
+  int ndat = 100;
+  Db* dbin = Db::createFillRandom(ndat, ndim);
+  if (verbose) dbin->display();
 
   // Generate the output data base
-  int ndat_out = 100000;
-  Db* dout = Db::createFillRandom(ndat_out, ndim);
-  if (verbose) dout->display();
+  int nout = 100000;
+  Db* dbout = Db::createFillRandom(nout, ndim);
+  if (verbose) dbout->display();
 
   // Create the Model
   double range = 0.6;
@@ -60,14 +60,14 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Printout
   message("RHS between:\n");
-  message("- each one of the %d target sites\n",ndat_out);
-  message("- all samples (%d) of the input data base\n",ndat_in);
+  message("- each one of the %d target sites\n",nout);
+  message("- all samples (%d) of the input data base\n",ndat);
   message("Statistics are provided on the averaged RHS\n");
 
   // Preparing a vector of SpacePoints for the active samples in 'data'
-  std::vector<SpacePoint> p1s = data->getSamplesAsSP();
+  std::vector<SpacePoint> p1s = dbin->getSamplesAsSP();
   SpacePoint p2;
-  VectorDouble cumul(ndat_in, 0.);
+  VectorDouble cumul(ndat, 0.);
   Timer timer;
 
   if (option < 0 || option == 1)
@@ -77,16 +77,16 @@ int main(int /*argc*/, char */*argv*/[])
 
     mestitle(1, "Traditional solution");
     timer.reset();
-    for (int i = 0; i < ndat_out; i++)
+    for (int i = 0; i < nout; i++)
     {
-      dout->getSampleCoordinatesAsSP(i, p2);
-      VectorDouble rhs1 = model->evalPointToDb(p2, data);
+      dbout->getSampleCoordinatesAsSP(i, p2);
+      VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
     timer.displayIntervalMilliseconds("Establishing RHS", 4000);
 
     // Some printout for comparison
-    VH::divideConstant(cumul, ndat_out);
+    VH::divideConstant(cumul, nout);
     VH::displayRange("RHS", cumul);
   }
 
@@ -99,16 +99,16 @@ int main(int /*argc*/, char */*argv*/[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    for (int i = 0; i < ndat_out; i++)
+    for (int i = 0; i < nout; i++)
     {
-      dout->getSampleCoordinatesAsSP(i, p2);
-      VectorDouble rhs2 = model->evalPointToDbAsSP(p2, p1s);
+      dbout->getSampleCoordinatesAsSP(i, p2);
+      VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }
     timer.displayIntervalMilliseconds("Establishing RHS (semi-optimized)", 1480);
 
     // Some printout for comparison
-    VH::divideConstant(cumul, ndat_out);
+    VH::divideConstant(cumul, nout);
     VH::displayRange("RHS", cumul);
   }
 
@@ -121,19 +121,19 @@ int main(int /*argc*/, char */*argv*/[])
     VH::fill(cumul, 0.);
 
     timer.reset();
-    VectorVectorDouble vecvec = model->evalCovMatrixOptim(dout, data);
-    for (int i = 0; i < ndat_out; i++)
+    VectorVectorDouble vecvec = model->evalCovMatrixOptim(dbin, dbout);
+    for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, vecvec[i]);
-    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
+    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 250);
 
     // Some printout for comparison
-    VH::divideConstant(cumul, ndat_out);
+    VH::divideConstant(cumul, nout);
     VH::displayRange("RHS", cumul);
   }
 
   // Cleaning
-  if (data      != nullptr) delete data;
-  if (dout      != nullptr) delete dout;
+  if (dbin      != nullptr) delete dbin;
+  if (dbout     != nullptr) delete dbout;
   if (model     != nullptr) delete model;
 
   return (0);

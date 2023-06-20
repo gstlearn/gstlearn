@@ -463,14 +463,22 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
-double VectorHelper::normOptim(const VectorDouble& vec)
+double VectorHelper::normDistance(const VectorDouble& vec1, const VectorDouble& vec2)
 {
-	double s = 0.;
-	const double* dat = vec.data();
-	for(int i = 0; i < (int)vec.size();i++)
-		s+= *(dat++);
-	return sqrt(s);
+  double prod = 0.;
+  double delta = 0;
+  VectorDouble::const_iterator ita(vec1.begin());
+  VectorDouble::const_iterator itb(vec2.begin());
+  while (ita < vec1.end())
+  {
+    delta = (*ita) - (*itb);
+    prod += delta * delta;
+    ita++;
+    itb++;
+  }
+  return sqrt(prod);
 }
+
 int VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;

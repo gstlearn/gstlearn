@@ -167,20 +167,16 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
   }
 }
 
-void ACovAnisoList::evalOptim(const SpacePoint &p1,
-                              VectorDouble &res,
-                              VectorDouble &temp,
-                              SpacePoint &pttr,
-                              int ivar,
-                              int jvar,
-                              const CovCalcMode* mode) const
+void ACovAnisoList::evalOptimInPlace(const SpacePoint &p2,
+                                     VectorDouble &res,
+                                     int ivar,
+                                     int jvar,
+                                     const CovCalcMode *mode) const
 {
   for (auto &e : res)
     e = 0;
   for (int i = 0, n = getCovNumber(); i < n; i++)
-  {
-    _covs[i]->evalOptim(p1, res, temp, pttr, ivar, jvar, mode);
-  }
+    _covs[i]->evalOptimInPlace(p2, res, ivar, jvar, mode);
 }
 
 double ACovAnisoList::eval(const SpacePoint& p1,

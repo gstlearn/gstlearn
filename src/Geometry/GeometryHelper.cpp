@@ -409,7 +409,11 @@ void GeometryHelper::rotationGetAnglesFromCodirInPlace(const VectorDouble &codir
       angles[0] = atan2(codir[1] / norme, codir[0] / norme);
       angles[1] = atan2(codir[2], norme);
     }
-    nval = 2;
+    else
+    {
+      angles[2] = GV_PI / 2.;
+    }
+    nval = 3;
   }
   else
   {

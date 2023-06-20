@@ -265,13 +265,13 @@ public:
   {
     return _covaList->evalPointToDb(p1, db2, ivar, jvar, useSel, nbgh2, mode);
   }
-  VectorDouble evalPointToDbAsSP(const SpacePoint& p1,
-                                 const std::vector<SpacePoint>& p2s,
+  VectorDouble evalPointToDbAsSP(const std::vector<SpacePoint>& p1s,
+                                 const SpacePoint& p2,
                                  int ivar = 0,
                                  int jvar = 0,
                                  const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalPointToDbAsSP(p1, p2s, ivar, jvar, mode);
+    return _covaList->evalPointToDbAsSP(p1s, p2, ivar, jvar, mode);
   }
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,

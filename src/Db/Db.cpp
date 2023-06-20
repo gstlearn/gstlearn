@@ -680,8 +680,8 @@ VectorDouble Db::getSampleCoordinates(int iech) const
 
 void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
 {
-  VectorDouble coor = getSampleCoordinates(iech);
-  P.setCoord(coor);
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+    P.setCoord(idim, getCoordinate(iech, idim));
 }
 
 std::vector<SpacePoint> Db::getSamplesAsSP() const

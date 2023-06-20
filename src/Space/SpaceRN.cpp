@@ -72,28 +72,6 @@ double SpaceRN::getDistance(const SpacePoint &p1,
   return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
 }
 
-void SpaceRN::getDistancePointVectInPlace(const SpacePoint &p1,
-                                          const std::vector<SpacePoint> &p2,
-                                          VectorDouble &res) const
-{
-
-  double ti;
-  double s;
-  int nbp = res.size();
-  for (int i = 0; i < nbp; i++)
-  {
-    s = 0.;
-
-    for (unsigned int idim = 0; idim < _nDim; idim++)
-    {
-      ti = p1.getCoord(idim) - p2[i].getCoord(idim);
-      s += ti * ti;
-    }
-
-    res[i] = sqrt(s);
-  }
-}
-
 double SpaceRN::_getDistance(const SpacePoint &p1,
                              const SpacePoint &p2,
                              VectorDouble &ptemp,

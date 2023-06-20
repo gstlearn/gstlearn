@@ -360,19 +360,19 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
   return total;
 }
 
-VectorDouble ACov::evalPointToDbAsSP(const SpacePoint &p1,
-                                     const std::vector<SpacePoint> &p2s,
+VectorDouble ACov::evalPointToDbAsSP(const std::vector<SpacePoint> &p1s,
+                                     const SpacePoint &p2,
                                      int ivar,
                                      int jvar,
                                      const CovCalcMode *mode) const
 {
-  int nech2 = (int) p2s.size();
-  VectorDouble values(nech2);
+  int nech1 = (int) p1s.size();
+  VectorDouble values(nech1);
 
   /* Loop on the second sample */
 
-  for (int iech2 = 0; iech2 < nech2; iech2++)
-    values[iech2] = eval(p1, p2s[iech2], ivar, jvar, mode);
+  for (int iech1 = 0; iech1 < nech1; iech1++)
+    values[iech1] = eval(p1s[iech1], p2, ivar, jvar, mode);
   return values;
 }
 
@@ -756,6 +756,16 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   return mat;
 }
 
+/**
+ * Evaluate the set of covariance vectors between samples of input 'db1' and
+ * samples of output 'db2'
+ * @param db1 Input Db
+ * @param db2 Output db
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param mode CovCalcMode structure
+ * @return
+ */
 VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
                                             const Db *db2,
                                             int ivar,
@@ -763,62 +773,32 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
                                             const CovCalcMode* mode) const
 {
   if (db2 == nullptr) db2 = db1;
-  int nechtot1 = db1->getSampleNumber(false);
   int nechtot2 = db2->getSampleNumber(false);
-  int nech1 = db1->getSampleNumber(true);
   int nech2 = db2->getSampleNumber(true);
-  VectorVectorDouble mat(nech1);
-  VectorDouble temp(nech2);
-
-  int ndim = getNDim();
+  int nech1 = db1->getSampleNumber(true);
+  VectorVectorDouble mat(nech2);
 
   for (auto &e : mat)
   {
-	  e = VectorDouble(nech2);
+	  e = VectorDouble(nech1);
   }
 
-  /* Loop on the first sample */
+  std::vector<SpacePoint> p1s = db1->getSamplesAsSP();
+  preProcess(p1s);
 
+  SpacePoint p2(db2->getSampleCoordinates(0), getSpace());
 
   int jech2 = 0;
-  std::vector<SpacePoint> pvect(nech2);
-
-  for (int iech2 = 0; iech2 <nechtot2;iech2++)
+  for (int iech2 = 0; iech2 < nechtot2; iech2++)
   {
-	  if (!db2->isActive(iech2)) continue;
-	  pvect[jech2] = SpacePoint(db2->getSampleCoordinates(iech2),getSpace());
-	  jech2++;
-  }
-
-  preProcess(pvect);
-
-  SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
-  SpacePoint pttr(db1->getSampleCoordinates(0),getSpace());
-
-  int jech1 = 0;
-  for (int iech1 = 0; iech1 < nechtot1; iech1++)
-  {
-    if (!db1->isActive(iech1)) continue;
-    for(int idim = 0;idim<ndim;idim++)
-    	p1.setCoord(idim,db1->getCoordinate(iech1, idim));
-    evalOptim(p1,mat[jech1],temp,pttr,ivar, jvar, mode);
-    jech1++;
+    if (!db2->isActive(iech2)) continue;
+    db2->getSampleCoordinatesAsSP(iech2, p2);
+    evalOptimInPlace(p2, mat[jech2], ivar, jvar, mode);
+    jech2++;
   }
 
   cleanPreProcessInfo();
   return mat;
-}
-
-
-void ACov::evalVect(VectorDouble& res,
-			  const SpacePoint& p1,
-              const std::vector<SpacePoint>& vec_p2,
-              int ivar,
-              int jvar,
-              const CovCalcMode* mode) const
-{
-	for(int i = 0; i<(int)res.size();i++)
-		res[i] = eval(p1,vec_p2[i],ivar,jvar,mode);
 }
 
 /**

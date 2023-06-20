@@ -52,10 +52,6 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2) const override;
 
-  void getDistancePointVectInPlace(const SpacePoint &p1,
-                                   const std::vector<SpacePoint> &p2,
-                                   VectorDouble &res) const override;
-
 private:
   void _getIncrementInPlace(const SpacePoint &p1,
                             const SpacePoint &p2,

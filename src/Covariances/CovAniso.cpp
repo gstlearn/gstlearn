@@ -40,7 +40,9 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _p1As(),
+      _p2A()
 {
   _initFromContext();
 }
@@ -50,7 +52,9 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _ctxt(ctxt),
       _cova(),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _p1As(),
+      _p2A()
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
@@ -67,7 +71,9 @@ CovAniso::CovAniso(const ECov &type,
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _p1As(),
+      _p2A()
 {
   if (ctxt.getNVar() != 1)
   {
@@ -91,13 +97,10 @@ CovAniso::CovAniso(const CovAniso &r)
       _ctxt(r._ctxt),
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
-      _aniso(r._aniso)
+      _aniso(r._aniso),
+      _p1As(r._p1As),
+      _p2A(r._p2A)
 {
-}
-
-CovAniso::~CovAniso()
-{
-  delete _cova;
 }
 
 CovAniso& CovAniso::operator=(const CovAniso &r)
@@ -109,8 +112,15 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
     _aniso = r._aniso;
+    _p1As = r._p1As;
+    _p2A = r._p2A;
   }
   return *this;
+}
+
+CovAniso::~CovAniso()
+{
+  delete _cova;
 }
 
 void CovAniso::_computeCorrec()
@@ -450,21 +460,18 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
   }
 }
 
-void CovAniso::evalOptim(const SpacePoint &p1,
-                         VectorDouble &res,
-                         VectorDouble &temp,
-                         SpacePoint &pttr,
-                         int ivar,
-                         int jvar,
-                         const CovCalcMode* mode) const
+void CovAniso::evalOptimInPlace(const SpacePoint &p2,
+                                VectorDouble &res,
+                                int ivar,
+                                int jvar,
+                                const CovCalcMode *mode) const
 {
- _preProcess(p1, pttr);
- _space->getDistancePointVectInPlace(pttr,  _transformedCoordinates, temp);
+ _preProcess(p2, _p2A);
   double sill = _sill.getValue(ivar, jvar);
-
-  for (int i = 0; i < (int) temp.size(); i++)
+  for (int i = 0; i < (int) _p1As.size(); i++)
   {
-    res[i] += sill * _cova->evalCov(temp[i]);
+    double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
+    res[i] += sill * _cova->evalCov(h);
   }
 }
 
@@ -1014,26 +1021,37 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
   return newCovAniso;
 }
 
-
-void CovAniso::_preProcess(const SpacePoint& pt, SpacePoint& res) const
+/**
+ * Transform a space point using the anisotropy tensor
+ * @param ptin  Input Space Point
+ * @param ptout Output Space Point
+ */
+void CovAniso::_preProcess(const SpacePoint& ptin, SpacePoint& ptout) const
 {
-	_aniso.applyInverseInPlace(pt.getCoord(), res.getCoord());
+	_aniso.applyInverseInPlace(ptin.getCoord(), ptout.getCoord());
 }
 
-void CovAniso::preProcess(const std::vector<SpacePoint>& vec) const
+/**
+ * Transform a set of Space Points using the anisotropy tensor
+ * The set of resulting Space Points are stored as private member of this.
+ * @param vec Set of input Space Points
+ */
+void CovAniso::preProcess(const std::vector<SpacePoint>& p1s) const
 {
-	int n = (int)vec.size();
-	_transformedCoordinates.resize(n);
+  int n = (int) p1s.size();
 
+	_p1As.resize(n);
 	for(int i = 0;i < n ; i++)
 	{
-		_transformedCoordinates[i] = SpacePoint(_space);
-		_preProcess(vec[i], _transformedCoordinates[i]);
+		_p1As[i] = SpacePoint(_space);
+		_preProcess(p1s[i], _p1As[i]);
 	}
+
+  _p2A = SpacePoint(_space);
 }
 
 
 void CovAniso::cleanPreProcessInfo() const
 {
-	_transformedCoordinates.clear();
+	_p1As.clear();
 }

@@ -60,7 +60,7 @@ public:
   static double variance(const VectorDouble &vec);
   static double stdv(const VectorDouble &vec);
   static double norm(const VectorDouble &vec);
-  static double normOptim(const VectorDouble&vec);
+  static double normDistance(const VectorDouble& vec1, const VectorDouble& vec2);
 
   static double correlation(const VectorDouble &veca, const VectorDouble &vecb);
   static VectorDouble quantiles(const VectorDouble& vec,

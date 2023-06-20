@@ -708,15 +708,19 @@ void AMatrix::prodVector(const double *inv, double *outv) const
 
 void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
 {
-  int sizein = (int) inv.size();
-  int sizeout = (int) outv.size();
-  if (sizein != _nCols || sizeout != _nRows)
+  if (_flagCheckAddress)
   {
-    messerr("Inconsistency between:");
-    messerr("- the dimension of 'inv' = %d", sizein);
-    messerr("- the dimension of 'outv' = %d", sizeout);
-    messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
-    return;
+    int sizein = (int) inv.size();
+    int sizeout = (int) outv.size();
+    if (sizein != _nCols || sizeout != _nRows)
+    {
+      messerr("Inconsistency between:");
+      messerr("- the dimension of 'inv' = %d", sizein);
+      messerr("- the dimension of 'outv' = %d", sizeout);
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows,
+              _nCols);
+      return;
+    }
   }
   prodVector(inv.data(), outv.data());
 }

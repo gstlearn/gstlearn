@@ -53,14 +53,13 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const;
-
-  virtual void evalOptim(const SpacePoint &p1,
-                         VectorDouble &res,
-                         VectorDouble &temp,
-                         SpacePoint &pttr,
-                         int ivar = 0,
-                         int jvar = 0,
-                         const CovCalcMode* mode = nullptr) const { };
+  /// Calculate the vector of covariances between a target SpacePoint
+  /// and a set of input SpacePoints stored internally (optimized version)
+  virtual void evalOptimInPlace(const SpacePoint &p2,
+                                VectorDouble &res,
+                                int ivar = 0,
+                                int jvar = 0,
+                                const CovCalcMode *mode = nullptr) const { };
 
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
@@ -78,12 +77,6 @@ public:
                     int ivar = 0,
                     int jvar = 0,
                     const CovCalcMode* mode = nullptr) const;
-  void evalVect(VectorDouble &res,
-                const SpacePoint &p1,
-                const std::vector<SpacePoint> &vec_p2,
-                int ivar = 0,
-                int jvar = 0,
-                const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
@@ -167,8 +160,8 @@ public:
                              bool useSel = true,
                              const VectorInt& nbgh2 = VectorInt(),
                              const CovCalcMode* mode = nullptr) const;
-  VectorDouble evalPointToDbAsSP(const SpacePoint& p1,
-                                 const std::vector<SpacePoint>& p2s,
+  VectorDouble evalPointToDbAsSP(const std::vector<SpacePoint>& p1s,
+                                 const SpacePoint& p2,
                                  int ivar = 0,
                                  int jvar = 0,
                                  const CovCalcMode* mode = nullptr) const;
@@ -182,11 +175,6 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  double evalAveragePointToDbAsSP(const SpacePoint &p1,
-                                  const std::vector<SpacePoint> &p2s,
-                                  int ivar = 0,
-                                  int jvar = 0,
-                                  const CovCalcMode *mode = nullptr) const;
   MatrixRectangular evalCovMatrix(const Db* db1,
                                   const Db* db2 = nullptr,
                                   int ivar = 0,

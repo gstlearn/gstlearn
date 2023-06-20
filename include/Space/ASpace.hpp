@@ -57,10 +57,6 @@ public:
                              const SpacePoint& p2,
                              const Tensor& tensor) const = 0;
 
-  virtual void getDistancePointVectInPlace(const SpacePoint &p1,
-                                           const std::vector<SpacePoint> &p2,
-                                           VectorDouble &res) const { };
-
   /// Return the distance in frequential domain between two space points with the given tensor
   virtual double getFrequentialDistance(const SpacePoint& p1,
                                         const SpacePoint& p2,
@@ -70,11 +66,12 @@ public:
   virtual VectorDouble getIncrement(const SpacePoint& p1,
                                     const SpacePoint& p2) const = 0;
 
-  virtual void _getIncrementInPlace(const SpacePoint& p1,
-                                const SpacePoint& p2,VectorDouble& ptemp) const{}
-  void _getIncrementInPlaceVect(const SpacePoint& p1,
-		  	  	  	  	  	  	const std::vector<SpacePoint>& pv,
-							    VectorVectorDouble& res) const;
+  virtual void _getIncrementInPlace(const SpacePoint &p1,
+                                    const SpacePoint &p2,
+                                    VectorDouble &ptemp) const { }
+  void _getIncrementInPlaceVect(const SpacePoint &p1,
+                                const std::vector<SpacePoint> &pv,
+                                VectorVectorDouble &res) const;
 
 
 protected:
@@ -84,10 +81,14 @@ protected:
   VectorDouble _origin;
 
 private:
-  virtual double _getDistance(const SpacePoint& p1,
-                            const SpacePoint& p2,
-							VectorDouble& ptemp,
-                            const Tensor& tensor,
-  							VectorDouble& temp) const{return TEST;};
+  virtual double _getDistance(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              VectorDouble &ptemp,
+                              const Tensor &tensor,
+                              VectorDouble &temp) const
+  {
+    return TEST;
+  }
+  ;
 };
 
