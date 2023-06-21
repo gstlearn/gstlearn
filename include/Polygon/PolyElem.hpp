@@ -19,10 +19,10 @@
 class GSTLEARN_EXPORT PolyElem: public PolyLine2D
 {
 public:
-  PolyElem(const VectorDouble& x = VectorDouble(),
-          const VectorDouble& y = VectorDouble(),
-          double zmin = TEST,
-          double zmax = TEST);
+  PolyElem(const VectorDouble &x = VectorDouble(),
+           const VectorDouble &y = VectorDouble(),
+           double zmin = TEST,
+           double zmax = TEST);
   PolyElem(const PolyElem& r);
   PolyElem& operator=(const PolyElem& r);
   virtual ~PolyElem();
@@ -51,6 +51,8 @@ public:
   void closePolyElem();
   bool inside(const VectorDouble& coor);
   bool inside3D(double zz);
+
+  PolyElem reduceComplexity(double distmin) const;
 
 protected:
   /// Interface for ASerializable

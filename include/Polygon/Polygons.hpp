@@ -65,6 +65,8 @@ public:
   double getSurface() const;
   bool inside(const VectorDouble& coor, bool flag_nested = false);
 
+  Polygons reduceComplexity(double distmin) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

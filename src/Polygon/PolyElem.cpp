@@ -268,3 +268,35 @@ bool PolyElem::inside3D(double zz)
   if (!FFFF(_zmax) && zz > _zmax) return false;
   return true;
 }
+
+PolyElem PolyElem::reduceComplexity(double distmin) const
+{
+  int np = getNPoints();
+  double dmin2 = distmin * distmin;
+  PolyElem newpolyelem;
+
+  /* Loop on the polygon vertices */
+
+  double xcur = getX(0);
+  double ycur = getY(0);
+  newpolyelem.addPoint(xcur, ycur);
+
+  int ecr = 1;
+  while (ecr < np)
+  {
+    double xnext = getX(ecr);
+    double ynext = getY(ecr);
+    double dx = xnext - xcur;
+    double dy = ynext - ycur;
+    double dist2 = (dx * dx + dy * dy);
+    if (dist2 >= dmin2)
+    {
+      // This point belongs to the new PolyElem
+      newpolyelem.addPoint(xnext, ynext);
+      xcur = xnext;
+      ycur = ynext;
+    }
+    ecr++;
+  }
+  return newpolyelem;
+}

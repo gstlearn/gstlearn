@@ -130,13 +130,10 @@ String Polygons::toString(const AStringFormat* strfmt) const
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
 
-  if (sf.getLevel() > 1)
+  for (int i=0; i<npol; i++)
   {
-    for (int i=0; i<npol; i++)
-    {
-      sstr << toTitle(2, "PolyElem #%d", i+1);
-      sstr << _polyelems[i].toString(strfmt);
-    }
+    sstr << toTitle(2, "PolyElem #%d", i+1);
+    sstr << _polyelems[i].toString(strfmt);
   }
   return sstr.str();
 }
@@ -742,6 +739,18 @@ int Polygons::_buildHull(const Db *db, double dilate, bool verbose)
   return 0;
 }
 
+Polygons Polygons::reduceComplexity(double distmin) const
+{
+  Polygons newpolygon;
+
+  for (int ipol = 0, npol = getPolyElemNumber(); ipol < npol; ipol++)
+  {
+    PolyElem newpolyelem = getPolyElem(ipol).reduceComplexity(distmin);
+    newpolygon.addPolyElem(newpolyelem);
+  }
+  return newpolygon;
+}
+
 /****************************************************************************/
 /*!
  **  Create a selection if the samples of a Db are inside Polygons
@@ -874,3 +883,4 @@ int db_selhull(Db *db1,
   delete polygons;
   return 0;
 }
+

@@ -471,7 +471,7 @@ void CovAniso::evalOptimInPlace(const SpacePoint &p2,
   int ecr = 0;
   for (int i = 0; i < (int) _p1As.size(); i++)
   {
-    if (_p1As[i].isFFFF()) continue;
+    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
     double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
     res[ecr++] += sill * _cova->evalCov(h);
   }
@@ -1046,7 +1046,8 @@ void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 	for(int i = 0;i < n ; i++)
 	{
 		_p1As[i] = SpacePoint(_space);
-		_optimizationTransform(p1s[i], _p1As[i]);
+		if (! p1s[i].isFFFF())
+		  _optimizationTransform(p1s[i], _p1As[i]);
 	}
   _p2A = SpacePoint(_space);
 }
