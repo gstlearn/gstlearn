@@ -20,7 +20,11 @@
 ----
 Polygons
 --------
-Number of Polygon Sets = 1----
+Number of Polygon Sets = 1
+
+PolyElem #1
+...........
+Number of Vertices = 2583----
 
 
 +*Out[7]:*+

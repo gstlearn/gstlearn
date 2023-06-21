@@ -1048,6 +1048,8 @@ void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 		_p1As[i] = SpacePoint(_space);
 		if (! p1s[i].isFFFF())
 		  _optimizationTransform(p1s[i], _p1As[i]);
+		else
+		  _p1As[i].setFFFF();
 	}
   _p2A = SpacePoint(_space);
 }

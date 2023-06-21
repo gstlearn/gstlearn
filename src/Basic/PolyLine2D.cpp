@@ -67,14 +67,13 @@ PolyLine2D* PolyLine2D::create(const VectorDouble& x, const VectorDouble& y)
 String PolyLine2D::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-
-  int npoints = getNPoints();
-  sstr << "Number of Vertices = " << npoints << std::endl;
-
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
+  int npoints = getNPoints();
 
-  if (sf.getLevel() > 1)
+  sstr << "Number of Vertices = " << npoints << std::endl;
+
+  if (sf.getLevel() > 2)
   {
     VectorDouble tab = VectorDouble(2 * npoints);
     for (int i = 0; i < npoints; i++)

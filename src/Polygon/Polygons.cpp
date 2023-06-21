@@ -130,11 +130,12 @@ String Polygons::toString(const AStringFormat* strfmt) const
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
 
-  for (int i=0; i<npol; i++)
-  {
-    sstr << toTitle(2, "PolyElem #%d", i+1);
-    sstr << _polyelems[i].toString(strfmt);
-  }
+  if (sf.getLevel() > 1)
+    for (int i=0; i<npol; i++)
+    {
+      sstr << toTitle(2, "PolyElem #%d", i+1);
+      sstr << _polyelems[i].toString(strfmt);
+    }
   return sstr.str();
 }
 
