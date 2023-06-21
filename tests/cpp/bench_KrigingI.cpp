@@ -58,7 +58,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   krimage(image, model, neighI);
-  timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 2000);
+  timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 1300);
 
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});
