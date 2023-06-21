@@ -255,6 +255,7 @@ Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
 Node F4 - Facies 4
+Number of Vertices = 100
 Line Vertex Coordinates
                [,  0]    [,  1]
      [  0,]     1.274     0.946
@@ -265,6 +266,7 @@ Line Vertex Coordinates
      [  5,]    -0.188     0.048
      [  6,]    -1.087     1.010
 (Nrows=7[from 100])
+Number of Vertices = 100
 Line Vertex Coordinates
                [,  0]    [,  1]
      [  0,]     1.274     0.946
