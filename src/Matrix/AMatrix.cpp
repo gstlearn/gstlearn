@@ -507,10 +507,8 @@ void AMatrix::fill(double value)
   }
   else
   {
-    for (int rank = 0; rank < _getMatrixSize(); rank++)
-    {
+    for (int rank = 0, n = _getMatrixSize(); rank < n; rank++)
       _setValue(rank, value);
-    }
   }
 }
 
@@ -751,13 +749,11 @@ void AMatrix::addMatrix(const AMatrix& y)
       return;
     }
     for (int irow = 0; irow < _nRows; irow++)
-    {
       for (int icol = 0; icol < _nCols; icol++)
       {
         if (!_isPhysicallyPresent(irow, icol)) continue;
         setValue(irow, icol, getValue(irow, icol) + y.getValue(irow, icol));
       }
-    }
   }
 }
 

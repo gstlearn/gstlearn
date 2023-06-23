@@ -1,0 +1,5 @@
+Non-conditional simulation(s) on grid using Turning Bands:
+- Grid (200 x 200)
+- Number of Bands = 1000
+- Number of simulations = 3
+#NO_DIFF# Non-conditional Simulation on Grid: 12777 ms. (Ref = 13000 ms.)

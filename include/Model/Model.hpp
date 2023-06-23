@@ -186,6 +186,14 @@ public:
     _covaList->evalMatInPlace(p1, p2, mat, mode);
   }
 
+  void evalMatOptimInPlace(int iech1,
+                           int iech2,
+                           MatrixSquareGeneral &mat,
+                           const CovCalcMode *mode = nullptr) const
+  {
+    _covaList->evalMatOptimInPlace(iech1, iech2, mat, mode);
+  }
+
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const
   {
@@ -277,10 +285,19 @@ public:
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
-                           const CovCalcMode* mode = nullptr)
+                           const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
   }
+  double evalAverageIncrToIncr(const VectorVectorDouble& d1,
+                               const VectorVectorDouble& d2,
+                               int ivar = 0,
+                               int jvar = 0,
+                               const CovCalcMode* mode = nullptr) const
+  {
+    return _covaList->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
+  }
+
   double evalAveragePointToDb(const SpacePoint& p1,
                               const Db* db2,
                               int ivar = 0,

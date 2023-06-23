@@ -460,20 +460,87 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
   }
 }
 
-void CovAniso::evalOptimInPlace(const SpacePoint &p2,
-                                VectorDouble &res,
+/**
+ * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
+ * and the target (recorded in _p2A)
+ * @param res  Vector of covariances
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param mode CovCalcMode structure
+ */
+void CovAniso::evalOptimInPlace(VectorDouble &res,
                                 int ivar,
                                 int jvar,
                                 const CovCalcMode *mode) const
 {
- _optimizationTransform(p2, _p2A);
-  double sill = _sill.getValue(ivar, jvar);
   int ecr = 0;
-  for (int i = 0; i < (int) _p1As.size(); i++)
+  if (mode == nullptr)
   {
-    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-    double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-    res[ecr++] += sill * _cova->evalCov(h);
+    double sill = _sill.getValue(ivar, jvar);
+    for (int i = 0; i < (int) _p1As.size(); i++)
+    {
+      if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
+      double h = getSpace()->getDistance(_p1As[i].getCoord(), _p2A.getCoord());
+      res[ecr++] += sill * _cova->evalCov(h);
+    }
+  }
+  else
+  {
+    double sill = (mode->getUnitary()) ? 1. : _sill.getValue(ivar, jvar);
+    for (int i = 0; i < (int) _p1As.size(); i++)
+    {
+      if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
+      double h = getSpace()->getDistance(_p1As[i].getCoord(), _p2A.getCoord());
+      double cov = _calculateCov(h, mode);
+      res[ecr++] += sill * cov;
+    }
+  }
+}
+
+void CovAniso::evalMatOptimInPlace(int iech1,
+                                   int iech2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode) const
+{
+  int nvar = mat.getNRows();
+
+  SpacePoint* p1A;
+  if (iech1 >= 0)
+    p1A = &_p1As[iech1];
+  else
+    p1A = &_p2A;
+
+  SpacePoint* p2A;
+  if (iech2 >= 0)
+    p2A = &_p1As[iech2];
+  else
+    p2A = &_p2A;
+
+  // Calculate distance (in anisotropic space)
+  double h = getSpace()->getDistance(p1A->getCoord(), p2A->getCoord());
+
+  if (mode == nullptr)
+  {
+    double cov = _cova->evalCov(h);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+  }
+  else
+  {
+    double cov = _calculateCov(h, mode);
+    if (!mode->getUnitary())
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+    }
+    else
+    {
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+          mat.setValue(ivar, jvar, cov);
+    }
   }
 }
 
@@ -1023,12 +1090,17 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
   return newCovAniso;
 }
 
+void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
+{
+  _optimizationTransformSP(pt, _p2A);
+}
+
 /**
  * Transform a space point using the anisotropy tensor
  * @param ptin  Input Space Point
  * @param ptout Output Space Point
  */
-void CovAniso::_optimizationTransform(const SpacePoint& ptin, SpacePoint& ptout) const
+void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 {
 	_aniso.applyInverseInPlace(ptin.getCoord(), ptout.getCoord());
 }
@@ -1047,7 +1119,7 @@ void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
 	{
 		_p1As[i] = SpacePoint(_space);
 		if (! p1s[i].isFFFF())
-		  _optimizationTransform(p1s[i], _p1As[i]);
+		  _optimizationTransformSP(p1s[i], _p1As[i]);
 		else
 		  _p1As[i].setFFFF();
 	}

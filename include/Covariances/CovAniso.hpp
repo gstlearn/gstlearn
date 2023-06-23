@@ -71,11 +71,14 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalOptimInPlace(const SpacePoint &p2,
-                                VectorDouble &res,
+  virtual void evalOptimInPlace(VectorDouble &res,
                                 int ivar = 0,
                                 int jvar = 0,
                                 const CovCalcMode *mode = nullptr) const override;
+  virtual void evalMatOptimInPlace(int iech1,
+                                   int iech2,
+                                   MatrixSquareGeneral& mat,
+                                   const CovCalcMode *mode = nullptr) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
@@ -84,8 +87,9 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  void 	optimizationPreProcess(const std::vector<SpacePoint>& vec) const override;
-  void 	optimizationPostProcess() const override;
+  void optimizationPreProcess(const std::vector<SpacePoint>& vec) const override;
+  void optimizationPostProcess() const override;
+  void optimizationSetTarget(const SpacePoint& pt) const override;
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
@@ -200,6 +204,7 @@ public:
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
   CovAniso* reduce(const VectorInt &validVars) const;
+  bool isOptimizationDefined() const { return _p1As.size(); }
 
 protected:
   /// Update internal parameters consistency with the context
@@ -210,13 +215,13 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
-  void   _optimizationTransform(const SpacePoint& ptin, SpacePoint& ptout) const;
+  void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
   double _calculateCov(double h, const CovCalcMode *mode) const;
 
 private:
   CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
-  MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
+  MatrixSquareSymmetric _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 
   mutable std::vector<SpacePoint> _p1As;

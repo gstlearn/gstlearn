@@ -133,7 +133,7 @@ int main(int /*argc*/, char */*argv*/[])
     VectorVectorDouble vecvec = model->evalCovMatrixOptim(dbin, dbout);
     for (int i = 0; i < nout; i++)
       VH::addInPlace(cumul, vecvec[i]);
-    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 270);
+    timer.displayIntervalMilliseconds("Establishing RHS (optimized)", 300);
 
     // Some printout for comparison
     VH::divideConstant(cumul, nout);

@@ -130,14 +130,12 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dbinUidToBeDeleted(),
       _dboutUidToBeDeleted(),
       _space(2), // empty constructor does not exist. Anyhow it will be overwritten next.
-      _p1(),
-      _p2(),
       _p0(),
-      _p0_disc1(),
-      _p0_disc2()
+      _p0_disc()
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
-  if (model != nullptr) _modelInit = model->clone();
+  if (model != nullptr)
+    _modelInit = model->clone();
 
   // Set the current Model to _modelInit
   _model = _modelInit;
@@ -317,11 +315,8 @@ void KrigingSystem::_resetMemoryGeneral()
   _var0.reset(_nvarCL, _nvarCL);
 
   _space = SpaceRN(_ndim);
-  _p1 = SpacePoint(&_space);
-  _p2 = SpacePoint(&_space);
   _p0 = SpacePoint(&_space);
-  _p0_disc1 = SpacePoint(&_space);
-  _p0_disc2 = SpacePoint(&_space);
+  _p0_disc = SpacePoint(&_space);
 }
 
 /****************************************************************************/
@@ -573,12 +568,10 @@ void KrigingSystem::_covtabInit()
  * Modify the covariance before calling the covariance evluation
  * This makes sense only when non-stationarity is defined
  * @param member    Type of usage (LHS, RHS or VAR)
- * @param iech1     Rank of the first sample (or -1)
- * @param iech2     Rank of the second sample (or -1)
+ * @param iech1     Rank of the first sample (or -1 for target)
+ * @param iech2     Rank of the second sample (or -1 for target)
  */
-void KrigingSystem::_covUpdate(const ECalcMember &member,
-                                  int iech1,
-                                  int iech2)
+void KrigingSystem::_covUpdate(const ECalcMember &member, int iech1, int iech2)
 {
   // Load the non-stationary parameters if needed
 
@@ -643,13 +636,13 @@ void KrigingSystem::_covUpdate(const ECalcMember &member,
 /**
  * Module for calculating the covariance internally
  * It is called for LHS (iech1>=0 && iech2>=0), RHS (iech1>=0 && iech2=-1) and VAR (iech1=-1 && iech2=-1)
- * @param p1        SpacePoint for the first point
- * @param p2        SpacePoint for the second point
+ * @param iech1     Rank of the first sample (or -1 for target)
+ * @param iech2     Rank of the second sample (or -1 for target)
  * @param mode      CovCalcMode structure
  * @param flagSameData True when both Data samples coincide
  */
-void KrigingSystem::_covtabCalcul(const SpacePoint& p1,
-                                  const SpacePoint& p2,
+void KrigingSystem::_covtabCalcul(int iech1,
+                                  int iech2,
                                   const CovCalcMode* mode,
                                   bool flagSameData)
 {
@@ -658,14 +651,23 @@ void KrigingSystem::_covtabCalcul(const SpacePoint& p1,
   if (flagSameData)
     _model->eval0MatInPlace(_covref, mode);
   else
-    _model->evalMatInPlace(p1, p2, _covref, mode);
+    _model->evalMatOptimInPlace(iech1, iech2, _covref, mode);
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
       _addCOVTAB(ivar,jvar,_covref.getValue(ivar, jvar));
-  return;
+}
+
+void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
+{
+  VectorVectorDouble d1 = _getDISC1s();
+  VectorVectorDouble d2 = _getDISC2s();
+
+  for (int ivar = 0; ivar < _nvar; ivar++)
+    for (int jvar = 0; jvar < _nvar; jvar++)
+      _addCOVTAB(ivar,jvar,_model->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode));
 }
 
 /****************************************************************************/
@@ -729,14 +731,6 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
   return 0;
 }
 
-void KrigingSystem::_identifyPoint(SpacePoint& p, int iech)
-{
-  if (iech >= 0)
-    _dbin->getSampleCoordinatesAsSP(iech, p);
-  else
-    _dbout->getSampleCoordinatesAsSP(_iechOut, p);
-}
-
 /****************************************************************************/
 /*!
  **  Establish the kriging L.H.S.
@@ -750,15 +744,13 @@ void KrigingSystem::_lhsCalcul()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    _identifyPoint(_p1, _nbgh[iech]);
     for (int jech = 0; jech < _nech; jech++)
     {
-      _identifyPoint(_p2, _nbgh[jech]);
       bool flagSameData = (iech == jech && _model->isStationary());
 
       _covtabInit();
       _covUpdate(ECalcMember::LHS, _nbgh[iech], _nbgh[jech]);
-      _covtabCalcul(_p1, _p2, &_calcModeLHS, flagSameData);
+      _covtabCalcul(_nbgh[iech], _nbgh[jech], &_calcModeLHS, flagSameData);
 
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -943,14 +935,13 @@ void KrigingSystem::_rhsStore(int iech)
  *****************************************************************************/
 void KrigingSystem::_rhsCalculPoint()
 {
-  _identifyPoint(_p0, -1);
+  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+
   for (int iech = 0; iech < _nech; iech++)
   {
-    _identifyPoint(_p1, _nbgh[iech]);
-    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
-
     _covtabInit();
-    _covtabCalcul(_p1, _p0, &_calcModeRHS);
+    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -962,20 +953,19 @@ void KrigingSystem::_rhsCalculPoint()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculBlock()
 {
-  _identifyPoint(_p0, -1);
   for (int iech = 0; iech < _nech; iech++)
   {
-    _identifyPoint(_p1, _nbgh[iech]);
+    _covtabInit();
     _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
     if (_flagPerCell) _blockDiscretize();
     int nscale = _getNDisc();
 
-    _covtabInit();
     for (int i = 0; i < nscale; i++)
     {
-      _p0_disc1 = _p0;
-      _p0_disc1.move(_getDISC1Vec(i));
-      _covtabCalcul(_p0_disc1, _p1, &_calcModeRHS);
+      _p0_disc = _p0;
+      _p0_disc.move(_getDISC1Vec(i));
+      _model->getCovAnisoList()->optimizationSetTarget(_p0_disc);
+      _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     }
 
     // Normalization
@@ -992,6 +982,8 @@ void KrigingSystem::_rhsCalculBlock()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDrift()
 {
+  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+
   for (int iech = 0; iech < _nech; iech++)
   {
     _covtabInit();
@@ -1006,14 +998,13 @@ void KrigingSystem::_rhsCalculDrift()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDGM()
 {
-  _identifyPoint(_p0, -1);
+  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+
   for (int iech = 0; iech < _nech; iech++)
   {
-    _identifyPoint(_p1, _nbgh[iech]);
-    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
-
     _covtabInit();
-    _covtabCalcul(_p0, _p1, &_calcModeRHS);
+    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -1029,6 +1020,7 @@ void KrigingSystem::_rhsCalculDGM()
  *****************************************************************************/
 int KrigingSystem::_rhsCalcul()
 {
+  _dbout->getSampleCoordinatesAsSP(_iechOut, _p0);
 
   /* Establish the covariance part */
 
@@ -1630,34 +1622,21 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  _covUpdate(ECalcMember::VAR, -1, -1);
-  _identifyPoint(_p0, -1);
+  _dbout->getSampleCoordinatesAsSP(_iechOut, _p0);
+  _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
   _covtabInit();
+  _covUpdate(ECalcMember::VAR, -1, -1);
+
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      _covtabCalcul(_p0, _p0, &_calcModeVAR, true);
+      _covtabCalcul(-1, -1, &_calcModeVAR, true);
       break;
 
     case EKrigOpt::E_BLOCK:
     {
-      int nscale = _getNDisc();
-      for (int i = 0; i < nscale; i++)
-      {
-        _p0_disc1 = _p0;
-        _p0_disc1.move(_getDISC1Vec(i));
-        for (int j = 0; j < nscale; j++)
-        {
-          _p0_disc2 = _p0;
-          _p0_disc2.move(_getDISC2Vec(j));
-          _covtabCalcul(_p0_disc1, _p0_disc2, &_calcModeVAR);
-        }
-      }
-
-      /* Normalization */
-      double ratio = 1. / (double) (nscale * nscale);
-      _prodCOVTAB(ratio);
+      _covCvvCalcul(&_calcModeVAR);
       break;
     }
 
@@ -1665,7 +1644,7 @@ void KrigingSystem::_variance0()
       break;
 
     case EKrigOpt::E_DGM:
-      _covtabCalcul(_p0, _p0, &_calcModeVAR, true);
+      _covtabCalcul(-1, -1, &_calcModeVAR, true);
       break;
   }
 
@@ -1812,6 +1791,13 @@ bool KrigingSystem::isReady()
     _variance0();
   }
 
+  // Prepare the projection of data on different covariances of the Model
+  if (_model != nullptr && _dbin != nullptr)
+    _model->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
+
+  if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
+    _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
+
   // Perform some preliminary work in the case of Image
   if (_neigh->getType() == ENeigh::IMAGE)
   {
@@ -1824,9 +1810,7 @@ bool KrigingSystem::isReady()
 
   // In Bayesian case, calculate the Posterior information
   if (_flagBayes)
-  {
     _bayesPreCalculations();
-  }
 
   // Define the calculation modes
   _calcModeLHS = CovCalcMode(ECalcMember::LHS);
@@ -1837,6 +1821,15 @@ bool KrigingSystem::isReady()
 
   _isReady = true;
   return _isReady;
+}
+
+/**
+ * This method closes the use of a KrigingSystem sequence
+ */
+void KrigingSystem::conclusion()
+{
+  if (_model != nullptr)
+    _model->getCovAnisoList()->optimizationPostProcess();
 }
 
 /**
@@ -3086,6 +3079,20 @@ VectorDouble KrigingSystem::_getDISC2Vec(int idisc) const
     vec[idim] = _disc2[iad];
   }
   return vec;
+}
+VectorVectorDouble KrigingSystem::_getDISC1s() const
+{
+  VectorVectorDouble vecvec(_ndiscNumber);
+  for (int idisc = 0; idisc < _ndiscNumber; idisc++)
+    vecvec[idisc] = _getDISC1Vec(idisc);
+  return vecvec;
+}
+VectorVectorDouble KrigingSystem::_getDISC2s() const
+{
+  VectorVectorDouble vecvec(_ndiscNumber);
+  for (int idisc = 0; idisc < _ndiscNumber; idisc++)
+    vecvec[idisc] = _getDISC2Vec(idisc);
+  return vecvec;
 }
 void KrigingSystem::_setDISC2(int idisc,int idim, double value)
 {

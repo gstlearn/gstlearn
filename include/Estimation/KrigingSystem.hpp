@@ -72,6 +72,7 @@ public:
 
   bool isReady();
   int  estimate(int iech_out);
+  void conclusion();
 
   int  getNDim() const;
   int  getNech() const;
@@ -119,9 +120,11 @@ private:
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
   VectorDouble _getDISC1Vec(int idisc) const;
+  VectorVectorDouble _getDISC1s() const;
   void   _setDISC1(int idisc, int idim, double value);
   double _getDISC2(int idisc,int idim) const;
   VectorDouble _getDISC2Vec(int idisc) const;
+  VectorVectorDouble _getDISC2s() const;
   void   _setDISC2(int idisc,int idim, double value);
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
@@ -131,10 +134,11 @@ private:
   void _flagDefine();
   void _covUpdate(const ECalcMember &member, int iech1, int iech2);
   void _covtabInit();
-  void _covtabCalcul(const SpacePoint& p1,
-                     const SpacePoint& p2,
+  void _covtabCalcul(int iech1,
+                     int iech2,
                      const CovCalcMode* mode,
                      bool flagSameData = false);
+  void _covCvvCalcul(const CovCalcMode* mode);
   int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
@@ -181,7 +185,6 @@ private:
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
   bool   _isMatCLempty() const;
-  void   _identifyPoint(SpacePoint& p, int iech);
 
   void   _setLocalModel(Model* model);
   void   _setInternalShortCutVariablesGeneral();
@@ -319,9 +322,6 @@ private:
 
   /// Some Space Point allocated once for all
   mutable SpaceRN    _space;
-  mutable SpacePoint _p1;
-  mutable SpacePoint _p2;
   mutable SpacePoint _p0;
-  mutable SpacePoint _p0_disc1;
-  mutable SpacePoint _p0_disc2;
+  mutable SpacePoint _p0_disc;
 };

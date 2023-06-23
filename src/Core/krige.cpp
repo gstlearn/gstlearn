@@ -1600,6 +1600,8 @@ int _krigsim(Db* dbin,
     if (ksys.estimate(iech_out)) return 1;
   }
 
+  ksys.conclusion();
+
   return 0;
 }
 
@@ -3133,6 +3135,8 @@ int krigsum(Db *dbin,
     lterm[ivar] = ksys.getLTerm();
   }
 
+  ksys.conclusion();
+
   // Posterior scaling
 
   for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
@@ -4234,10 +4238,8 @@ static int st_declustering_2(Db *db,
   if (ksys.setKrigOptDataWeights(iptr,  true)) return 1;
   if (ksys.setKrigOptCalcul(EKrigOpt::DRIFT)) return 1;
   if (! ksys.isReady()) return 1;
-
-  /* Calculate the weights on an arbitrary target */
-
   if (ksys.estimate(0)) return 1;
+  ksys.conclusion();
 
   /* Truncate the negative weights */
 
@@ -4300,6 +4302,8 @@ static int st_declustering_3(Db *db,
     mes_process("Kriging sample", dbgrid->getSampleNumber(), iech_out);
     if (ksys.estimate(iech_out)) return 1;
   }
+
+  ksys.conclusion();
 
   /* Truncate the negative weights */
 

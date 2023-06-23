@@ -135,6 +135,8 @@ int CalcGlobal::_globalKriging()
     ng++;
   }
 
+  ksys.conclusion();
+
   /* Preliminary checks */
 
   int ntot = getDbin()->getSampleNumber(false);

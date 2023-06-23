@@ -308,6 +308,8 @@ bool CalcKriging::_run()
   if (_iechSingleTarget >= 0)
     _storeResultsForExport(ksys);
 
+  ksys.conclusion();
+
   return true;
 }
 

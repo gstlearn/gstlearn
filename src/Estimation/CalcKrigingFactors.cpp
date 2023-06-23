@@ -187,6 +187,9 @@ bool CalcKrigingFactors::_run()
       if (ksys.estimate(iech_out)) return 1;
     }
   }
+
+  ksys.conclusion();
+
   return true;
 }
 

@@ -1,0 +1,16 @@
+
+Experimental variogram on Data Samples
+--------------------------------------
+#NO_DIFF# Variogram on Isolated Points: 3541 ms. (Ref = 3600 ms.)
+
+Experimental variogram on Grid
+------------------------------
+#NO_DIFF# Variogram on Regular Grid: 1432 ms. (Ref = 1500 ms.)
+
+Variogram Map on Isolated Data
+------------------------------
+#NO_DIFF# Variogram Map on Isolated Points: 2385 ms. (Ref = 2400 ms.)
+
+Variogram Map on Grid
+---------------------
+#NO_DIFF# Variogram Map on Regular Grid: 70 ms. (Ref = 100 ms.)

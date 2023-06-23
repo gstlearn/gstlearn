@@ -62,12 +62,14 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-
-  virtual void evalOptimInPlace(const SpacePoint &p2,
-                                VectorDouble &res,
+  virtual void evalOptimInPlace(VectorDouble &res,
                                 int ivar = 0,
                                 int jvar = 0,
                                 const CovCalcMode *mode = nullptr) const override;
+  virtual void evalMatOptimInPlace(int iech1,
+                                   int iech2,
+                                   MatrixSquareGeneral& mat,
+                                   const CovCalcMode *mode = nullptr) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -117,6 +119,8 @@ public:
   // Methods necessary for Optimization
   void 				       optimizationPreProcess(const std::vector<SpacePoint>& vec) const override;
   void               optimizationPostProcess() const override;
+  void               optimizationSetTarget(const SpacePoint& pt) const override;
+  bool               isOptimizationDefined() const;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);
@@ -132,6 +136,7 @@ protected:
   std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
   VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
 
+  // Local matrix used to expand the covariance calculations to multivariate
   mutable MatrixSquareGeneral _matC;
 #endif
 };

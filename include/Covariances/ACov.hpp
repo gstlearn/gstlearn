@@ -54,13 +54,16 @@ public:
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const;
   /// Calculate the vector of covariances between a target SpacePoint
-  /// and a set of input SpacePoints stored internally (optimized version)
+  /// and a set of input SpacePoints, all stored internally (optimized version)
   /// Note: methods optimizationPreProcess() must be called beforehand.
-  virtual void evalOptimInPlace(const SpacePoint &p2,
-                                VectorDouble &res,
+  virtual void evalOptimInPlace(VectorDouble &res,
                                 int ivar = 0,
                                 int jvar = 0,
                                 const CovCalcMode *mode = nullptr) const { };
+  virtual void evalMatOptimInPlace(int iech1,
+                                   int iech2,
+                                   MatrixSquareGeneral& mat,
+                                   const CovCalcMode *mode = nullptr) const { };
 
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
@@ -70,6 +73,7 @@ public:
 
   virtual void 	optimizationPreProcess(const std::vector<SpacePoint>& vec) const {};
   virtual void  optimizationPostProcess() const {}
+  virtual void  optimizationSetTarget(const SpacePoint& pt) const {};
 
   /////////////////////////////////////////////////////////////////////////////////
 
@@ -171,6 +175,11 @@ public:
                            int ivar = 0,
                            int jvar = 0,
                            const CovCalcMode* mode = nullptr) const;
+  double evalAverageIncrToIncr(const VectorVectorDouble& d1,
+                               const VectorVectorDouble& d2,
+                               int ivar = 0,
+                               int jvar = 0,
+                               const CovCalcMode* mode = nullptr) const;
   double evalAveragePointToDb(const SpacePoint& p1,
                               const Db* db2,
                               int ivar = 0,

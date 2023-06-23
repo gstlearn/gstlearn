@@ -318,6 +318,37 @@ double ACov::evalAverageDbToDb(const Db* db1,
   return total;
 }
 
+double ACov::evalAverageIncrToIncr(const VectorVectorDouble &d1,
+                                   const VectorVectorDouble &d2,
+                                   int ivar,
+                                   int jvar,
+                                   const CovCalcMode *mode) const
+{
+  int nech1 = (int) d1.size();
+  int nech2 = (int) d2.size();
+
+  /* Loop on the first sample */
+
+  double total = 0.;
+  for (int iech1 = 0; iech1 < nech1; iech1++)
+  {
+    SpacePoint p1(d1[iech1],getSpace());
+
+    /* Loop on the second sample */
+
+    for (int iech2 = 0; iech2 < nech2; iech2++)
+    {
+      SpacePoint p2(d2[iech2],getSpace());
+      total += eval(p1, p2, ivar, jvar, mode);
+    }
+  }
+
+  // Scaling
+  total /= (double) (nech1 * nech2);
+
+  return total;
+}
+
 /**
  * Calculate the (weighted) average Covariance between a point and a Db
  * for a pair of variables
@@ -795,14 +826,15 @@ VectorVectorDouble ACov::evalCovMatrixOptim(const Db *db1,
   std::vector<SpacePoint> p1s = db1->getSamplesAsSP();
   optimizationPreProcess(p1s);
 
-  SpacePoint p2(db2->getSampleCoordinates(0), getSpace());
+  SpacePoint p2;
 
   int jech2 = 0;
   for (int iech2 = 0; iech2 < nechtot2; iech2++)
   {
     if (!db2->isActive(iech2)) continue;
     db2->getSampleCoordinatesAsSP(iech2, p2);
-    evalOptimInPlace(p2, mat[jech2], ivar, jvar, mode);
+    optimizationSetTarget(p2);
+    evalOptimInPlace(mat[jech2], ivar, jvar, mode);
     jech2++;
   }
 

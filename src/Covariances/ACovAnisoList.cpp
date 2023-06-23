@@ -141,12 +141,8 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
                                     const CovCalcMode *mode) const
 {
-  // Dimension internal matrix correctly
   int nvar = mat.getNRows();
-  if (_matC.getNRows() != nvar)
-    _matC.reset(nvar,  nvar);
-  else
-    _matC.fill(0.);
+  if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
 
   mat.fill(0.);
   if (mode == nullptr || mode->getActiveCovList().size() <= 0)
@@ -167,8 +163,7 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
   }
 }
 
-void ACovAnisoList::evalOptimInPlace(const SpacePoint &p2,
-                                     VectorDouble &res,
+void ACovAnisoList::evalOptimInPlace(VectorDouble &res,
                                      int ivar,
                                      int jvar,
                                      const CovCalcMode *mode) const
@@ -176,7 +171,34 @@ void ACovAnisoList::evalOptimInPlace(const SpacePoint &p2,
   for (auto &e : res)
     e = 0;
   for (int i = 0, n = getCovNumber(); i < n; i++)
-    _covs[i]->evalOptimInPlace(p2, res, ivar, jvar, mode);
+    _covs[i]->evalOptimInPlace(res, ivar, jvar, mode);
+}
+
+void ACovAnisoList::evalMatOptimInPlace(int iech1,
+                                        int iech2,
+                                        MatrixSquareGeneral &mat,
+                                        const CovCalcMode *mode) const
+{
+  int nvar = mat.getNRows();
+  if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
+
+  mat.fill(0.);
+  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  {
+    for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    {
+      _covs[i]->evalMatOptimInPlace(iech1, iech2, _matC, mode);
+      mat.addMatrix(_matC);
+    }
+  }
+  else
+  {
+    for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
+    {
+      _covs[mode->getActiveCovRank(i)]->evalMatOptimInPlace(iech1, iech2, _matC, mode);
+      mat.addMatrix(_matC);
+    }
+  }
 }
 
 double ACovAnisoList::eval(const SpacePoint& p1,
@@ -205,12 +227,8 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode) const
 {
-  // Dimension internal matrix correctly
   int nvar = mat.getNRows();
-  if (_matC.getNRows() != nvar)
-    _matC.reset(nvar,  nvar);
-  else
-    _matC.fill(0.);
+  if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
 
   mat.fill(0.);
   if (mode == nullptr || mode->getActiveCovList().size() <= 0)
@@ -463,6 +481,19 @@ void ACovAnisoList::optimizationPreProcess(const std::vector<SpacePoint>& vec) c
 {
 	for (int is = 0; is < getCovNumber(); is++)
 		_covs[is]->optimizationPreProcess(vec);
+}
+
+void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
+{
+  for (int is = 0; is < getCovNumber(); is++)
+    _covs[is]->optimizationSetTarget(pt);
+}
+
+bool ACovAnisoList::isOptimizationDefined() const
+{
+  for (int is = 0; is < getCovNumber(); is++)
+    if (! _covs[is]->isOptimizationDefined()) return false;
+  return true;
 }
 
 void ACovAnisoList::optimizationPostProcess() const

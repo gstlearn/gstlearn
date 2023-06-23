@@ -5849,7 +5849,7 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
  ** \param[in]  db          Db containing the data
  ** \param[in]  calcul_type Type of calculation (ECalcVario)
  ** \param[in]  nx_arg      Vector of (Half-) number of nodes for Vmap (def:20)
- ** \param[in]  dxx         Vector of mesh for Vmap (seed details)
+ ** \param[in]  dxx         Vector of mesh for Vmap (see details)
  ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points
  ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
  ** \param[in]  namconv     Naming convention

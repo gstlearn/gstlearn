@@ -154,6 +154,8 @@ bool CalcImage::_run()
       mes_process("Image filtering", dbgrid->getSampleNumber(), iech_out);
       if (ksys.estimate(iech_out)) return false;
     }
+
+    ksys.conclusion();
   }
 
   if (_flagMorpho)
