@@ -52,6 +52,7 @@ protected:
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSquare()); }
+  int    _getIndexToRank(int irow,int icol) const override;
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;
@@ -66,7 +67,6 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   void   _recopy(const MatrixSquareGeneral &r);
-  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   VectorDouble _squareMatrix;

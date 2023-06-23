@@ -50,9 +50,9 @@ public:
   bool   empty() const { return _nRows <= 0 || _nCols <= 0; }
   void   fill(int value);
 
-  int getNCols() const { return _nCols; }
+  int  getNCols() const { return _nCols; }
   void setNCols(int cols) { _nCols = cols; }
-  int getNRows() const { return _nRows; }
+  int  getNRows() const { return _nRows; }
   void setNRows(int rows) { _nRows = rows; }
 
   static MatrixInt* createFromVVD(const VectorVectorInt& X);
@@ -63,12 +63,12 @@ public:
   int &operator()(int irow, int icol)       { return getValueRef(irow, icol); }
 
 private:
-  int    _getIndexToRank(int irow,int icol) const;
   void   _allocate();
   void   _deallocate();
   bool   _isIndexValid(int irow, int icol) const;
   bool   _isRankValid(int rank) const;
   bool   _isNumbersValid(int nrows, int ncols) const;
+  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   int _nRows;

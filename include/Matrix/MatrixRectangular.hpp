@@ -56,6 +56,7 @@ protected:
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return isSameSize(m); }
+  int    _getIndexToRank(int irow,int icol) const override;
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int rank, double value) override;
@@ -68,8 +69,6 @@ private:
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-
-  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   VectorDouble _rectMatrix;

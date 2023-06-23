@@ -67,6 +67,7 @@ private:
     return (isSameSize(m) && isSymmetric());
   }
   virtual bool   _isPhysicallyPresent(int irow, int icol) const override;
+  virtual int    _getIndexToRank(int irow,int icol) const override;
   virtual double _getValue(int irow, int icol) const override;
   virtual double _getValue(int irank) const override;
   virtual void   _setValue(int irow, int icol, double value) override;
@@ -81,7 +82,6 @@ private:
   virtual int    _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   void   _recopy(const MatrixSquareSymmetric &r);
-  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   VectorDouble _squareSymMatrix;

@@ -1018,6 +1018,18 @@ void VectorHelper::multiplyConstant(VectorDouble &vec, double v)
   { d *= v;});
 }
 
+void VectorHelper::multiplyConstantInPlace(const VectorDouble &vecin, double v, VectorDouble& vecout)
+{
+  VectorDouble::iterator itout(vecout.begin());
+  VectorDouble::const_iterator itin(vecin.begin());
+  while (itin < vecin.end())
+  {
+    *itout = (*itin) * v;
+    itin++;
+    itout++;
+  }
+}
+
 void VectorHelper::divideConstant(VectorDouble &vec, double v)
 {
   if (ABS(v) < EPSILON10)

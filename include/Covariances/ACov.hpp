@@ -59,11 +59,11 @@ public:
   virtual void evalOptimInPlace(VectorDouble &res,
                                 int ivar = 0,
                                 int jvar = 0,
-                                const CovCalcMode *mode = nullptr) const { };
+                                const CovCalcMode *mode = nullptr) const;
   virtual void evalMatOptimInPlace(int iech1,
                                    int iech2,
                                    MatrixSquareGeneral& mat,
-                                   const CovCalcMode *mode = nullptr) const { };
+                                   const CovCalcMode *mode = nullptr) const;
 
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
@@ -238,6 +238,8 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
+  bool isOptimizationDefined() const { return _p1As.size(); }
+
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -245,4 +247,10 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
+
+protected:
+  // These temporary informary is used to speed up processing (optimization functions)
+  // They are in a protected section as they may be modified by class hierarchy
+  mutable std::vector<SpacePoint> _p1As;
+  mutable SpacePoint _p2A;
 };

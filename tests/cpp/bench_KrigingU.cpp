@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -74,7 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
-  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 2800);
+  timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 1600);
 
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});

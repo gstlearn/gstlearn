@@ -95,6 +95,7 @@ public:
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
 
   static void multiplyConstant(VectorDouble& vec, double v);
+  static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
   static void divideConstant(VectorDouble& vec, double v);
   static void copy(VectorDouble& veca, const VectorDouble& vecb);
   static void addConstant(VectorDouble& vec, double v);

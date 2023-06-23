@@ -519,8 +519,8 @@ int model_evaluate(Model *model,
 
   for (int ih = 0; ih < nh; ih++)
   {
-    for (int idim = 0; idim < ndim; idim++)
-      d1[idim] = h[ih] * codir[idim];
+    double hh = h[ih];
+    for (int idim = 0; idim < ndim; idim++) d1[idim] = hh * codir[idim];
     model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
     g[ih] = COVTAB(ivar, jvar);
   }

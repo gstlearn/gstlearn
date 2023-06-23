@@ -204,7 +204,6 @@ public:
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
   CovAniso* reduce(const VectorInt &validVars) const;
-  bool isOptimizationDefined() const { return _p1As.size(); }
 
 protected:
   /// Update internal parameters consistency with the context
@@ -223,7 +222,4 @@ private:
   ACovFunc*       _cova;   /// Covariance basic function
   MatrixSquareSymmetric _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
-
-  mutable std::vector<SpacePoint> _p1As;
-  mutable SpacePoint _p2A;
 };

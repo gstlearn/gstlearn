@@ -76,6 +76,7 @@ public:
   virtual void setDiagonal(const VectorDouble& tab);
   virtual void setDiagonal(double value = 1.);
 
+
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
   const cs* getCs() const { return _csMatrix; }
@@ -215,6 +216,7 @@ protected:
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
   virtual void    _clearContents() {};
+  virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   void _setNCols(int ncols) { _nCols = ncols; }
   void _setNRows(int nrows) { _nRows = nrows; }

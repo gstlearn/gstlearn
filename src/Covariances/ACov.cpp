@@ -18,17 +18,22 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Space/ASpace.hpp"
 
 #include <vector>
 #include <math.h>
 
-ACov::ACov(const ASpace* space)
-: ASpaceObject(space)
+ACov::ACov(const ASpace *space)
+    : ASpaceObject(space),
+      _p1As(),
+      _p2A()
 {
 }
 
 ACov::ACov(const ACov &r)
-: ASpaceObject(r)
+    : ASpaceObject(r),
+      _p1As(r._p1As),
+      _p2A(r._p2A)
 {
 }
 
@@ -37,6 +42,8 @@ ACov& ACov::operator=(const ACov &r)
   if (this != &r)
   {
     ASpaceObject::operator=(r);
+    _p1As = r._p1As;
+    _p2A = r._p2A;
   }
   return *this;
 }
@@ -100,6 +107,55 @@ void ACov::evalMatInPlace(const SpacePoint &p1,
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, eval(p1, p2, ivar, jvar, mode)); // pure virtual method
+}
+
+/**
+ * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
+ * and the target (recorded in _p2A)
+ * @param res  Vector of covariances
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param mode CovCalcMode structure
+ */
+void ACov::evalOptimInPlace(VectorDouble &res,
+                            int ivar,
+                            int jvar,
+                            const CovCalcMode *mode) const
+{
+  int ecr = 0;
+  for (int i = 0; i < (int) _p1As.size(); i++)
+  {
+    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
+    // Next generic line should be correct by using the generic function (sister of eval)
+    // for the eval() ... but not using _aniso (as _p1As and _p2A are already taking it into account)
+    res[ecr++] = eval(_p1As[i], _p2A, ivar, jvar, mode);
+  }
+}
+
+void ACov::evalMatOptimInPlace(int iech1,
+                               int iech2,
+                               MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode) const
+{
+  int nvar = mat.getNRows();
+
+  SpacePoint* p1A;
+  if (iech1 >= 0)
+    p1A = &_p1As[iech1];
+  else
+    p1A = &_p2A;
+
+  SpacePoint* p2A;
+  if (iech2 >= 0)
+    p2A = &_p1As[iech2];
+  else
+    p2A = &_p2A;
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      // Should use the version of eval which is aniso free
+      // as _p1A and _p2A are alreay treated for anisotropy
+      mat.setValue(ivar, jvar, eval(*p1A, *p2A, ivar, jvar, mode));
 }
 
 /**
@@ -1000,3 +1056,4 @@ double ACov::_getVolume(const VectorDouble& ext) const
   for (int idim = 0; idim < ndim; idim++) maille *= ext[idim];
   return maille;
 }
+

@@ -346,8 +346,8 @@ bool AMatrix::isDiagonal(bool printWhyNot) const
         if (ABS(getValue(irow,icol)) > EPSILON10)
         {
           if (printWhyNot)
-            messerr("The element (%d;%d)=%lf should be zero",
-                    irow,icol,getValue(irow,icol));
+            messerr("The element (%d;%d)=%lf should be zero", irow, icol,
+                    getValue(irow, icol));
           return false;
         }
       }
@@ -656,7 +656,8 @@ void AMatrix::addScalarDiag(double v)
       {
         if (irow == icol)
         {
-          setValue(irow, icol, getValue(irow, icol) + v);
+          int rank = _getIndexToRank(irow, icol);
+          _setValue(rank, _getValue(rank) + v);
         }
       }
     }
@@ -752,7 +753,8 @@ void AMatrix::addMatrix(const AMatrix& y)
       for (int icol = 0; icol < _nCols; icol++)
       {
         if (!_isPhysicallyPresent(irow, icol)) continue;
-        setValue(irow, icol, getValue(irow, icol) + y.getValue(irow, icol));
+        int rank = _getIndexToRank(irow, icol);
+        _setValue(rank, _getValue(rank) + y.getValue(irow, icol));
       }
   }
 }
@@ -844,7 +846,8 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) * vec[irow]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) * vec[irow]);
     }
 }
 
@@ -856,7 +859,8 @@ void AMatrix::divideRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) / vec[irow]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) / vec[irow]);
     }
 }
 
@@ -868,7 +872,8 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) * vec[icol]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) * vec[icol]);
     }
 }
 void AMatrix::divideColumn(const VectorDouble& vec)
@@ -879,7 +884,8 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) / vec[icol]);
     }
 }
 
@@ -1026,8 +1032,8 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
 }
 
 bool AMatrix::_isVectorSizeConsistent(int nrows,
-                                       int ncols,
-                                       const VectorDouble& tab)
+                                      int ncols,
+                                      const VectorDouble &tab)
 {
   if (tab.size() != (unsigned) (nrows * ncols))
   {
@@ -1299,16 +1305,18 @@ void AMatrix::add(const AMatrix& tab, double value)
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double oldval = getValue(irow, icol);
-      setValue(irow, icol, oldval + value * tab.getValue(irow, icol));
+      int rank = _getIndexToRank(irow, icol);
+       double oldval = _getValue(rank);
+      _setValue(rank, oldval + value * tab.getValue(irow, icol));
     }
 }
 
 void AMatrix::add(int irow, int icol, double value)
 {
-  double oldval = getValue(irow, icol);
+  int rank = _getIndexToRank(irow, icol);
+  double oldval = _getValue(rank);
   if (FFFF(oldval)) return;
-  setValue(irow, icol, oldval + value);
+  _setValue(rank, oldval + value);
 }
 
 void AMatrix::subtract(const AMatrix& tab, double value)
@@ -1320,8 +1328,9 @@ void AMatrix::subtract(const AMatrix& tab, double value)
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double oldval = getValue(irow, icol);
-      setValue(irow, icol, oldval - value * tab.getValue(irow, icol));
+      int rank = _getIndexToRank(irow, icol);
+      double oldval = _getValue(rank);
+      _setValue(rank, oldval - value * tab.getValue(irow, icol));
     }
 }
 

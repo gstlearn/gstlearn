@@ -35,7 +35,6 @@
 int main(int /*argc*/, char */*argv*/[])
 {
   Timer timer;
-  bool verbose = false;
 
   // Standard output redirection to file
   std::stringstream sfn;
