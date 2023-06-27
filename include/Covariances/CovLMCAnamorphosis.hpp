@@ -62,16 +62,11 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalOptimInPlace(VectorDouble &res,
-                                int ivar = 0,
-                                int jvar = 0,
-                                const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatOptimInPlace(int iech1,
-                                   int iech2,
-                                   MatrixSquareGeneral& mat,
-                                   const CovCalcMode *mode = nullptr) const override;
+  /// Tell if the use of Optimization is enabled or not
+  virtual bool isOptimEnabled() const override { return false; }
 
   /// Interface for ACovAnisoList
+  ///
   void addCov(const CovAniso* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }

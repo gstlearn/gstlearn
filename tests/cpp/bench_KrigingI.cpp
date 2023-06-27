@@ -29,13 +29,13 @@
  ** Main Program
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   bool verbose = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc <= 1);
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -58,7 +58,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   Timer timer;
   krimage(image, model, neighI);
-  timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 1500);
+  timer.displayIntervalMilliseconds("Kriging in Image Neighborhood", 1200);
 
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"Filtering*"});

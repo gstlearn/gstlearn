@@ -24,7 +24,7 @@
 #include <fcntl.h>
 #endif
 
-StdoutRedirect::StdoutRedirect(const String& file) :
+StdoutRedirect::StdoutRedirect(const String& file, bool flagActive) :
 #if defined(_WIN32) || defined(_WIN64)
   _old_stdout(0)
 #else
@@ -32,7 +32,7 @@ StdoutRedirect::StdoutRedirect(const String& file) :
   _out()
 #endif
 {
-  if (!file.empty())
+  if (!file.empty() && flagActive)
     start(file);
 }
 

@@ -1,0 +1,64 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[4]:*+
+----
+![png](output_6_0.png)
+----
+
+
++*Out[5]:*+
+----
+
+Polygons
+--------
+Number of Polygon Sets = 1
+
+PolyElem #1
+...........
+Number of Vertices = 30301
+ ----
+
+
++*Out[7]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*Out[8]:*+
+----
+
+Polygons
+--------
+Number of Polygon Sets = 1
+
+PolyElem #1
+...........
+Number of Vertices = 1123
+ ----
+
+
++*Out[9]:*+
+----
+![png](output_14_0.png)
+----
+
+
++*Out[10]:*+
+----
+Number of active grid nodes = 315868
+----
+
+
++*Out[11]:*+
+----
+Number of active grid nodes = 1593571
+----
+
+
++*Out[12]:*+
+----
+![png](output_18_0.png)
+----

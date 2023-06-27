@@ -766,16 +766,22 @@ void AMatrix::addMatrix(const AMatrix& y)
  */
 void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
 {
-  if (x.getNCols() != y.getNRows() ||
-      x.getNRows() != getNRows() ||
-      y.getNCols() != getNCols())
+  if (_flagCheckAddress)
   {
-    messerr("Incompatible matrix dimensions for matrix product");
-    messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
-    messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-    messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
-    messerr("Operation is cancelled");
-    return;
+    if (x.getNCols() != y.getNRows() ||
+        x.getNRows() != getNRows()   ||
+        y.getNCols() != getNCols())
+    {
+      messerr("Incompatible matrix dimensions for matrix product");
+      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(),
+              x.getNCols());
+      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(),
+              y.getNCols());
+      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(),
+              getNCols());
+      messerr("Operation is cancelled");
+      return;
+    }
   }
 
   if (_sparse)

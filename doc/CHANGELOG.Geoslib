@@ -13,6 +13,8 @@ New class :
 New functions :
 ---------------
 - reduceComplexity in Polygons
+- New name for argument of migrate* functions: ldmax -> distType 
+  and change type for flag_inter and flag_fill (become boolean)
 
 Modification in functions :
 ---------------------------

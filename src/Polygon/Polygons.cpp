@@ -114,9 +114,14 @@ int Polygons::resetFromCSV(const String& filename,
   return 0;
  }
 
+/**
+ * Add the PolyElem to the list of polygons.
+ * This is performed only if the current PolyElem contains at least 3 vertices.
+ * @param polyelem
+ */
 void Polygons::addPolyElem(const PolyElem& polyelem)
 {
-  _polyelems.push_back(polyelem);
+  if (polyelem.getNPoints() >= 3) _polyelems.push_back(polyelem);
 }
 
 String Polygons::toString(const AStringFormat* strfmt) const

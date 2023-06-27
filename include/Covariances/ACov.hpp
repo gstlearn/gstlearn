@@ -53,30 +53,17 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const;
-  /// Calculate the vector of covariances between a target SpacePoint
-  /// and a set of input SpacePoints, all stored internally (optimized version)
-  /// Note: methods optimizationPreProcess() must be called beforehand.
-  virtual void evalOptimInPlace(VectorDouble &res,
-                                int ivar = 0,
-                                int jvar = 0,
-                                const CovCalcMode *mode = nullptr) const;
-  virtual void evalMatOptimInPlace(int iech1,
-                                   int iech2,
-                                   MatrixSquareGeneral& mat,
-                                   const CovCalcMode *mode = nullptr) const;
+  /// Tell if the use of Optimization is enabled or not
+  virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
                                  bool /*normalize*/) const { return TEST; }
   virtual double evalSpectrum(const VectorDouble& /*freq*/,
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
-
-  virtual void 	optimizationPreProcess(const std::vector<SpacePoint>& vec) const {};
-  virtual void  optimizationPostProcess() const {}
-  virtual void  optimizationSetTarget(const SpacePoint& pt) const {};
-
   /////////////////////////////////////////////////////////////////////////////////
-
+  ///
+  void setIsOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
@@ -192,11 +179,6 @@ public:
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr) const;
-  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
-                                        const Db *db2 = nullptr,
-                                        int ivar = 0,
-                                        int jvar = 0,
-                                        const CovCalcMode* mode = nullptr) const;
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -238,7 +220,6 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
-  bool isOptimizationDefined() const { return _p1As.size(); }
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
@@ -249,6 +230,7 @@ private:
   double _getVolume(const VectorDouble& ext) const;
 
 protected:
+  bool _isOptimEnabled;
   // These temporary informary is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
   mutable std::vector<SpacePoint> _p1As;

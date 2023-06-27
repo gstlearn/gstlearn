@@ -119,6 +119,9 @@ private:
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
+  double _getZAM(int i) const;
+  double _getZEXT(int i) const;
+  void   _setZEXT(int i, double value) const;
   VectorDouble _getDISC1Vec(int idisc) const;
   VectorVectorDouble _getDISC1s() const;
   void   _setDISC1(int idisc, int idim, double value);
@@ -129,9 +132,14 @@ private:
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
+  const double* _getRHSCAdd(int i, int jvCL) const;
+  const double* _getWGTCAdd(int i, int jvCL) const;
+
   void _resetMemoryGeneral();
   void _resetMemoryPerNeigh();
   void _flagDefine();
+  void _zextInit();
+  void _lhsInit();
   void _covUpdate(const ECalcMember &member, int iech1, int iech2);
   void _covtabInit();
   void _covtabCalcul(int iech1,
@@ -202,6 +210,7 @@ private:
 
   // Pointer to the Model currently used (must not be freed)
   Model*               _model;
+  bool                 _optimEnabled;
 
   // Calculation modes
   CovCalcMode          _calcModeLHS;
@@ -323,5 +332,7 @@ private:
   /// Some Space Point allocated once for all
   mutable SpaceRN    _space;
   mutable SpacePoint _p0;
-  mutable SpacePoint _p0_disc;
+  mutable SpacePoint _p1;
+  mutable SpacePoint _p2;
+  mutable SpacePoint _p0_memo;
 };

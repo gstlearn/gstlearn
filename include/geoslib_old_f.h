@@ -327,7 +327,6 @@ GSTLEARN_EXPORT int matrix_solve(int mode,
                                  int *pivot);
 GSTLEARN_EXPORT double matrix_norm(double *a, int neq);
 GSTLEARN_EXPORT double matrix_normA(double *b, double *a, int neq, int subneq);
-GSTLEARN_EXPORT double inner_product(const double *a, const double *b, int neq);
 GSTLEARN_EXPORT void vector_product(double *a, double *b, double *v);
 GSTLEARN_EXPORT void vector_translate(int ndim,
                                       double *a,

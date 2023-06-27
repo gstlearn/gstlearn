@@ -1909,28 +1909,6 @@ void vector_translate(int ndim, double *a, double *v, double *b)
 
 /****************************************************************************/
 /*!
- **  Calculate the inner product of two vectors
- **
- ** \return  Value of the inner product
- **
- ** \param[in]  a         First vector
- ** \param[in]  b         Second vector
- ** \param[in]  neq       Space dimension
- **
- *****************************************************************************/
-double inner_product(const double *a, const double *b, int neq)
-{
-  double value;
-  int i;
-
-  value = 0.;
-  for (i = 0; i < neq; i++)
-    value += a[i] * b[i];
-  return (value);
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the square norm of a vector issued from the
  **  inner product relative to a matrix A
  **

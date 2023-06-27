@@ -29,13 +29,13 @@
  ** Main Program
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   bool verbose = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc <= 1);
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);

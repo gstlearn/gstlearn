@@ -41,6 +41,11 @@ MatrixSquareDiagonal::~MatrixSquareDiagonal()
   _deallocate();
 }
 
+int MatrixSquareDiagonal::_getIndexToRank(int irow, int icol) const
+{
+  return icol;
+}
+
 double MatrixSquareDiagonal::_getValue(int irow, int icol) const
 {
   if (irow == icol)

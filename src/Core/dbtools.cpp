@@ -211,7 +211,7 @@ static int st_locate_coor_on_grid(int np,
  **
  ** \param[in]  ndim      Space dimension
  ** \param[in]  dvect     Vector
- ** \param[in]  ldmax     Type of distance for calculating maximum distance
+ ** \param[in]  distType  Type of distance for calculating maximum distance
  **                       1 for L1 and 2 for L2 distance
  ** \param[in]  dmax      Array of maximum distances (optional)
  **
@@ -222,7 +222,7 @@ static int st_locate_coor_on_grid(int np,
  *****************************************************************************/
 static int st_larger_than_dmax(int ndim,
                                const VectorDouble &dvect,
-                               int ldmax,
+                               int distType,
                                const VectorDouble &dmax)
 {
   double ratio, rtot;
@@ -231,7 +231,7 @@ static int st_larger_than_dmax(int ndim,
 
   /* Dispatch according to the type of distance */
 
-  if (ldmax == 1)
+  if (distType == 1)
   {
 
     // L1 distance
@@ -268,7 +268,7 @@ static int st_larger_than_dmax(int ndim,
  ** \param[in]  db_grid   descriptor of the grid parameters
  ** \param[in]  db_point  descriptor of the point parameters
  ** \param[in]  iatt      rank of the grid attribute
- ** \param[in]  ldmax     Type of distance for calculating maximum distance
+ ** \param[in]  distType  Type of distance for calculating maximum distance
  **                       1 for L1 and 2 for L2 distance
  ** \param[in]  dmax      Array of maximum distances (optional)
  **
@@ -278,7 +278,7 @@ static int st_larger_than_dmax(int ndim,
 static int st_migrate_grid_to_point(DbGrid *db_grid,
                                     Db *db_point,
                                     int iatt,
-                                    int ldmax,
+                                    int distType,
                                     const VectorDouble &dmax,
                                     VectorDouble &tab)
 {
@@ -305,7 +305,7 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
     if (!dmax.empty())
     {
       (void) distance_inter(db_grid, db_point, rank, iech, dvect.data());
-      if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
+      if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     }
     tab[iech] = db_grid->getArray(rank, iatt);
   }
@@ -365,7 +365,7 @@ int migrate_grid_to_coor(const DbGrid *db_grid,
  ** \param[in]  db_point  Descriptor of the point parameters
  ** \param[in]  db_grid   Descriptor of the grid parameters
  ** \param[in]  iatt      Rank of the point attribute
- ** \param[in]  ldmax     Type of distance for calculating maximum distance
+ ** \param[in]  distType  Type of distance for calculating maximum distance
  **                       1 for L1 and 2 for L2 distance
  ** \param[in]  dmax      Array of maximum distances (optional)
  **
@@ -375,7 +375,7 @@ int migrate_grid_to_coor(const DbGrid *db_grid,
 static int st_migrate_point_to_grid(Db *db_point,
                                     DbGrid *db_grid,
                                     int iatt,
-                                    int ldmax,
+                                    int distType,
                                     const VectorDouble &dmax,
                                     VectorDouble &tab)
 {
@@ -424,11 +424,10 @@ static int st_migrate_point_to_grid(Db *db_point,
 
       jech = (int) tab[inode];
       dist1 = distance_inter(db_grid, db_point, inode, iech, dvect.data());
-      if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
+      if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       dist2 = distance_inter(db_grid, db_point, inode, jech, dvect.data());
-      if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
-      tab[inode] = (dist1 < dist2) ? iech :
-                                     jech;
+      if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
+      tab[inode] = (dist1 < dist2) ? iech : jech;
     }
   }
   if (OptDbg::query(EDbg::DB))
@@ -462,7 +461,7 @@ static int st_migrate_point_to_grid(Db *db_point,
  ** \param[in]  db_gridin  descriptor of the grid parameters
  ** \param[in]  db_gridout descriptor of the point parameters
  ** \param[in]  iatt       rank of the grid attribute
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ ** \param[in]  distType   Type of distance for calculating maximum distance
  **                        1 for L1 and 2 for L2 distance
  ** \param[in]  dmax       Array of maximum distances (optional)
  **
@@ -472,7 +471,7 @@ static int st_migrate_point_to_grid(Db *db_point,
 static int st_migrate_grid_to_grid(DbGrid *db_gridin,
                                    DbGrid *db_gridout,
                                    int iatt,
-                                   int ldmax,
+                                   int distType,
                                    const VectorDouble &dmax,
                                    VectorDouble &tab)
 {
@@ -521,7 +520,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
     jech = db_gridout->coordinateToRank(coor);
     if (jech < 0) continue;
     dist_loc = distance_inter(db_gridin, db_gridout, iech, jech, dvect.data());
-    if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
+    if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[jech]) continue;
     tab[jech] = value;
     dist[jech] = dist_loc;
@@ -545,7 +544,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
  ** \param[in]  db1       descriptor of the input parameters
  ** \param[in]  db2       descriptor of the output parameters
  ** \param[in]  iatt      rank of the input attribute
- ** \param[in]  ldmax     Type of distance for calculating maximum distance
+ ** \param[in]  distType  Type of distance for calculating maximum distance
  **                       1 for L1 and 2 for L2 distance
  ** \param[in]  dmax      Array of maximum distances (optional)
  **
@@ -559,7 +558,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
 static int st_expand_point_to_point(Db *db1,
                                     Db *db2,
                                     int iatt,
-                                    int ldmax,
+                                    int distType,
                                     const VectorDouble &dmax,
                                     VectorDouble &tab)
 {
@@ -585,7 +584,7 @@ static int st_expand_point_to_point(Db *db1,
     {
       if (!db1->isActive(iech1)) continue;
       double dist = distance_inter(db1, db2, iech1, iech2, dvect.data());
-      if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
+      if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       if (dist < distmin)
       {
         distmin = dist;
@@ -677,7 +676,7 @@ int expand_point_to_coor(const Db *db1,
  ** \param[in]  db_gridin  descriptor of the grid parameters
  ** \param[in]  db_gridout descriptor of the point parameters
  ** \param[in]  iatt       rank of the grid attribute
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ ** \param[in]  distType   Type of distance for calculating maximum distance
  **                        1 for L1 and 2 for L2 distance
  ** \param[in]  dmax       Array of maximum distance (optional)
  **
@@ -687,7 +686,7 @@ int expand_point_to_coor(const Db *db1,
 static int st_expand_grid_to_grid(DbGrid *db_gridin,
                                   DbGrid *db_gridout,
                                   int iatt,
-                                  int ldmax,
+                                  int distType,
                                   const VectorDouble &dmax,
                                   VectorDouble &tab)
 {
@@ -725,7 +724,7 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
 
     double dist_loc = distance_inter(db_gridin, db_gridout, jech, iech,
                                      dvect.data());
-    if (st_larger_than_dmax(ndim_min, dvect, ldmax, dmax)) continue;
+    if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
     if (dist_loc > dist[iech]) continue;
     tab[iech] = db_gridin->getArray(jech, iatt);
     dist[iech] = dist_loc;
@@ -2451,7 +2450,7 @@ static void st_shift(int rank,
  **
  ** \param[in]  dbgrid    descriptor of the grid parameters
  ** \param[in]  iatt      rank of the target variable in dbgrid
- ** \param[in]  ldmax     Type of distance for calculating maximum distance
+ ** \param[in]  distType  Type of distance for calculating maximum distance
  **                       1 for L1 and 2 for L2 distance
  ** \param[in]  dmax      Array of maximum distances (optional)
  ** \param[in]  coor      Coordinates of the target point
@@ -2459,7 +2458,7 @@ static void st_shift(int rank,
  *****************************************************************************/
 static double st_multilinear_interpolation(DbGrid *dbgrid,
                                            int iatt,
-                                           int ldmax,
+                                           int distType,
                                            const VectorDouble &dmax,
                                            double *coor)
 {
@@ -2487,7 +2486,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
       indg[idim]--;
       delta += mesh;
     }
-    if (!dmax.empty() && ldmax == 1)
+    if (!dmax.empty() && distType == 1)
     {
       if (dmax[idim] <= 0) return TEST;
       double ratio = delta / dmax[idim];
@@ -2496,7 +2495,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
     if (!dmax.empty() && delta > dmax[idim]) return TEST;
     prop[idim] = delta / mesh;
   }
-  if (!dmax.empty() && ldmax == 1 && rtot > 1.) return TEST;
+  if (!dmax.empty() && distType == 1 && rtot > 1.) return TEST;
 
   /* Calculate the estimation */
 
@@ -2539,7 +2538,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
  ** \param[in]  db_grid   descriptor of the grid parameters
  ** \param[in]  db_point  descriptor of the point parameters
  ** \param[in]  iatt      rank of the grid attribute
- ** \param[in]  ldmax     Type of distance for calculating maximum distance
+ ** \param[in]  distType  Type of distance for calculating maximum distance
  **                       1 for L1 and 2 for L2 distance
  ** \param[in]  dmax      Array of maximum distances (optional)
  **
@@ -2552,7 +2551,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
 static int st_interpolate_grid_to_point(DbGrid *db_grid,
                                         Db *db_point,
                                         int iatt,
-                                        int ldmax,
+                                        int distType,
                                         const VectorDouble &dmax,
                                         VectorDouble &tab)
 {
@@ -2579,7 +2578,7 @@ static int st_interpolate_grid_to_point(DbGrid *db_grid,
   {
     if (!db_point->isActive(iech)) continue;
     db_sample_load(db_point, ELoc::X, iech, coor);
-    tab[iech] = st_multilinear_interpolation(db_grid, iatt, ldmax, dmax, coor);
+    tab[iech] = st_multilinear_interpolation(db_grid, iatt, distType, dmax, coor);
   }
 
   /* Set the error return code */
@@ -3327,7 +3326,7 @@ static int st_get_closest_sample(Db *dbgrid,
  ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
  ** \param[in]  flag_index  1 if the Index must be assigned to grid node
  **                         0 the 'iatt' attribute is assigned instead
- ** \param[in]  ldmax       Type of distance for calculating maximum distance
+ ** \param[in]  distType    Type of distance for calculating maximum distance
  **                         1 for L1 and 2 for L2 distance
  ** \param[in]  dmax        Array of maximum distances (optional)
  **
@@ -3348,7 +3347,7 @@ int expand_point_to_grid(Db *db_point,
                          int iatt_scalev,
                          int iatt_scalew,
                          int flag_index,
-                         int ldmax,
+                         int distType,
                          const VectorDouble &dmax,
                          VectorDouble &tab)
 {
@@ -3366,10 +3365,11 @@ int expand_point_to_grid(Db *db_point,
   // Core allocation
 
   int ng = db_grid->getSampleNumber();
-  int np = db_point->getSampleNumber();
-  VectorDouble xtab(np);
+  int np = db_point->getSampleNumber(true);
   VectorDouble dvect(ndim_max);
   VectorDouble dvmin(ndim_max);
+  VectorDouble xtab(np);
+  VectorInt init(np);
   VectorInt rank(np);
 
   /* Sort the point samples according to their coordinate ranked 'idim_ref' */
@@ -3378,11 +3378,13 @@ int expand_point_to_grid(Db *db_point,
   {
     if (!db_point->isActive(ip)) continue;
     if (FFFF(db_point->getArray(ip, iatt))) continue;
-    rank[np] = ip;
+    init[np] = ip;
     xtab[np] = db_point->getCoordinate(ip, idim_ref);
     np++;
   }
-  ut_sort_double(1, np, rank.data(), xtab.data());
+  VectorInt order = VH::orderRanks(xtab, true);
+  for (int i = 0; i < np; i++)
+    rank[i] = init[order[i]];
 
   /* Calculate the maximum time (if defined) */
 
@@ -3409,7 +3411,7 @@ int expand_point_to_grid(Db *db_point,
     int ip0 = 0;
     for (int ip = 0; ip < np; ip++)
     {
-      int jp = rank[ip];
+      int jp = order[ip];
       if (xtarget < xtab[jp]) break;
       ip0 = ip;
     }
@@ -3462,7 +3464,7 @@ int expand_point_to_grid(Db *db_point,
     if (!dmax.empty())
     {
       (void) distance_inter(db_grid, db_point, ig, ipmin, dvmin.data());
-      if (st_larger_than_dmax(ndim_min, dvmin, ldmax, dmax)) continue;
+      if (st_larger_than_dmax(ndim_min, dvmin, distType, dmax)) continue;
     }
 
     /* Set the value */
@@ -5926,7 +5928,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
  ** \param[in]  db2        descriptor of the output Db
  ** \param[in]  iatt1      Attribute in Db1 to be migrated
  ** \param[in]  iatt2      Attribute in Db2 where the result must be stored
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ ** \param[in]  distType   Type of distance for calculating maximum distance
  **                        1 for L1 and 2 for L2 distance
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
@@ -5937,7 +5939,7 @@ int _migrate(Db *db1,
              Db *db2,
              int iatt1,
              int iatt2,
-             int ldmax,
+             int distType,
              const VectorDouble &dmax,
              int flag_fill,
              int flag_inter)
@@ -5946,6 +5948,7 @@ int _migrate(Db *db1,
   VectorDouble tab(size, TEST);
 
   if (db2->isGrid())
+
   {
     DbGrid* db2grid = dynamic_cast<DbGrid*>(db2);
 
@@ -5958,12 +5961,13 @@ int _migrate(Db *db1,
       if (flag_fill)
       {
         // Grid to Grid (flag_fill = TRUE)
-        if (st_expand_grid_to_grid(db1grid, db2grid, iatt1, ldmax, dmax, tab)) return 1;
+        if (st_expand_grid_to_grid(db1grid, db2grid, iatt1, distType, dmax, tab))
+          return 1;
       }
       else
       {
         // Grid to Grid (flag_fill = FALSE)
-        if (st_migrate_grid_to_grid(db1grid, db2grid, iatt1, ldmax, dmax, tab))
+        if (st_migrate_grid_to_grid(db1grid, db2grid, iatt1, distType, dmax, tab))
           return 1;
       }
     }
@@ -5973,13 +5977,13 @@ int _migrate(Db *db1,
       if (flag_fill)
       {
         // Point to Grid (flag_fill = TRUE)
-        if (expand_point_to_grid(db1, db2grid, iatt1, -1, -1, -1, -1, -1, 0, ldmax,
-                                 dmax, tab)) return 1;
+        if (expand_point_to_grid(db1, db2grid, iatt1, -1, -1, -1, -1, -1, 0,
+                                 distType, dmax, tab)) return 1;
       }
       else
       {
         // Point to Grid (flag_fill = FALSE)
-        if (st_migrate_point_to_grid(db1, db2grid, iatt1, ldmax, dmax, tab))
+        if (st_migrate_point_to_grid(db1, db2grid, iatt1, distType, dmax, tab))
           return 1;
       }
     }
@@ -5992,19 +5996,20 @@ int _migrate(Db *db1,
     if (flag_inter)
     {
       // Grid to Point (flag_inter = TRUE)
-      if (st_interpolate_grid_to_point(db1grid, db2, iatt1, ldmax, dmax, tab))
-        return 1;
+      if (st_interpolate_grid_to_point(db1grid, db2, iatt1, distType, dmax,
+                                       tab)) return 1;
     }
     else
     {
       // Grid to Point (flag_inter = FALSE)
-      if (st_migrate_grid_to_point(db1grid, db2, iatt1, ldmax, dmax, tab)) return 1;
+      if (st_migrate_grid_to_point(db1grid, db2, iatt1, distType, dmax, tab))
+        return 1;
     }
   }
   else
   {
     // Point to Point
-    if (st_expand_point_to_point(db1, db2, iatt1, ldmax, dmax, tab)) return 1;
+    if (st_expand_point_to_point(db1, db2, iatt1, distType, dmax, tab)) return 1;
   }
 
   // Store the resulting array in the output Db

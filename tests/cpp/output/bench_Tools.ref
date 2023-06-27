@@ -1,0 +1,30 @@
+
+Assigning values into a storage
+-------------------------------
+Random values are assigned at random locations 5000000 times
+- Assigning value to the vector of dimension 400000000
+#NO_DIFF# Assignment to vector: 133 ms. (Ref = 250 ms.)
+- Assigning value to the square matrix of dimension 20000 x 20000
+#NO_DIFF# Assignment to matrix: 93 ms. (Ref = 150 ms.)
+
+Comparing various ways of operating Vectors of Double values
+------------------------------------------------------------
+Operations are performed 5000 times over vectors of size 30000
+- using: sum_i a[i] * b[i]
+#NO_DIFF# Product of [] terms: 492 ms. (Ref = 500 ms.)
+Result = 55.450347
+- using iterators
+#NO_DIFF# with iterators: 438 ms. (Ref = 450 ms.)
+Result = 55.450347
+- using pointers to double
+#NO_DIFF# with pointers: 318 ms. (Ref = 320 ms.)
+Result = 55.450347
+- using VectorHelper
+#NO_DIFF# with VectorHelper: 193 ms. (Ref = 200 ms.)
+Result = 55.450347
+- using VectorHelper (double)
+#NO_DIFF# with VectorHelper (double): 193 ms. (Ref = 200 ms.)
+Result = 55.450347
+- using matrix algebra
+#NO_DIFF# with algebra: 1745 ms. (Ref = 1700 ms.)
+Result = 55.450347

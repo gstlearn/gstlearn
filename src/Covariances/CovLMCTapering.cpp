@@ -233,24 +233,6 @@ void CovLMCTapering::evalMatInPlace(const SpacePoint &p1,
   ACov::evalMatInPlace(p1, p2, mat, mode);
 }
 
-void CovLMCTapering::evalOptimInPlace(VectorDouble &res,
-                                      int ivar,
-                                      int jvar,
-                                      const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::evalOptimInPlace(res, ivar, jvar, mode);
-}
-
-void CovLMCTapering::evalMatOptimInPlace(int iech1,
-                                         int iech2,
-                                         MatrixSquareGeneral &mat,
-                                         const CovCalcMode *mode) const
-{
-  // We do not want to call the optimization of ACovAnisoList
-  ACov::evalMatOptimInPlace(iech1, iech2, mat, mode);
-}
-
 const String& CovLMCTapering::getName() const
 {
   return _tapeType.getDescr();

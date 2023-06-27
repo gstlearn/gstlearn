@@ -271,10 +271,8 @@ int VectorHelper::maximum(const VectorInt &vec, bool flagAbs)
 double VectorHelper::maximum(const VectorVectorDouble& vect, bool flagAbs)
 {
   double val = VH::maximum(vect[0]);
-  for (int i = 1; i < (int)vect.size(); i++)
-  {
+  for (int i = 1, n = (int) vect.size(); i < n; i++)
     val = MAX(val,  VH::maximum(vect[i], flagAbs));
-  }
   return val;
 }
 
@@ -305,10 +303,8 @@ double VectorHelper::minimum(const VectorDouble &vec, bool flagAbs)
 double VectorHelper::minimum(const VectorVectorDouble& vect, bool flagAbs)
 {
   double val = VH::minimum(vect[0]);
-  for (int i = 1; i < (int)vect.size(); i++)
-  {
+  for (int i = 1, n = (int) vect.size(); i < n; i++)
     val = MAX(val,  VH::minimum(vect[i], flagAbs));
-  }
   return val;
 }
 
@@ -468,14 +464,14 @@ double VectorHelper::normDistance(const VectorDouble& veca,
 {
   double prod = 0.;
   double delta = 0.;
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
-  while (ita < veca.end())
+  const double* ptra = &veca[0];
+  const double* ptrb = &vecb[0];
+  for (int i = 0, n = (int) veca.size(); i < n; i++)
   {
-    delta = (*ita) - (*itb);
+    delta = (*ptra) - (*ptrb);
     prod += delta * delta;
-    ita++;
-    itb++;
+    ptra++;
+    ptrb++;
   }
   return sqrt(prod);
 }
@@ -484,11 +480,11 @@ int VectorHelper::product(const VectorInt& vec)
 {
   if (vec.empty()) return 0;
   int nprod = 1;
-  VectorInt::const_iterator itv(vec.begin());
-  while (itv < vec.end())
+  const int* iptr = &vec[0];
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
-    nprod *= (*itv);
-    itv++;
+    nprod *= (*iptr);
+    iptr++;
   }
   return nprod;
 }
@@ -497,11 +493,11 @@ double VectorHelper::product(const VectorDouble& vec)
 {
   if (vec.empty()) return 0;
   double nprod = 1.;
-  VectorDouble::const_iterator itv(vec.begin());
-  while (itv < vec.end())
+  const double* iptr = &vec[0];
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
-    nprod *= (*itv);
-    itv++;
+    nprod *= (*iptr);
+    iptr++;
   }
   return nprod;
 }
@@ -518,10 +514,12 @@ void VectorHelper::normalizeFromGaussianDistribution(VectorDouble &vec,
                                                      double mini,
                                                      double maxi)
 {
-  for (int i = 0; i < (int) vec.size(); i++)
+  double* iptr = &vec[0];
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
   {
-    if (! FFFF(vec[i]))
-      vec[i] = mini + (maxi - mini) * law_cdf_gaussian(vec[i]);
+    if (! FFFF(*iptr))
+      (*iptr) = mini + (maxi - mini) * law_cdf_gaussian(*iptr);
+    iptr++;
   }
 }
 
@@ -606,11 +604,11 @@ bool VectorHelper::isConstant(const VectorDouble& vect, double refval)
 {
   if (vect.empty()) return false;
   if (FFFF(refval)) refval = vect[0];
-  VectorDouble::const_iterator it(vect.begin());
-  while (it < vect.end())
+  const double* iptr = &vect[0];
+  for (int i = 0, n = (int) vect.size(); i < n; i++)
   {
-    if (*it != refval) return false;
-    it++;
+    if ((*iptr) != refval) return false;
+    iptr++;
   }
   return true;
 }
@@ -625,11 +623,11 @@ bool VectorHelper::isConstant(const VectorInt& vect, int refval)
 {
   if (vect.empty()) return false;
   if (IFFFF(refval)) refval = vect[0];
-  VectorInt::const_iterator it(vect.begin());
-  while (it < vect.end())
+  const int* iptr = &vect[0];
+  for (int i = 0, n = (int) vect.size(); i < n; i++)
   {
-    if (*it != refval) return false;
-    it++;
+    if ((*iptr) != refval) return false;
+    iptr++;
   }
   return true;
 }
@@ -1038,14 +1036,14 @@ void VectorHelper::divideConstant(VectorDouble &vec, double v)
   { d /= v; });
 }
 
-void VectorHelper::copy(VectorDouble &veca, const VectorDouble &vecb)
+void VectorHelper::copy(VectorDouble &vecin, const VectorDouble &vecout)
 {
-  if (veca.size() != vecb.size())
+  if (vecin.size() != vecout.size())
   my_throw("Wrong size");
 
-  VectorDouble::iterator it(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
-  while (it < veca.end())
+  VectorDouble::iterator it(vecin.begin());
+  VectorDouble::const_iterator itb(vecout.begin());
+  while (it < vecin.end())
   {
     (*it) = (*itb);
     it++;
@@ -1232,7 +1230,7 @@ VectorInt VectorHelper::filter(const VectorInt &vecin,
 }
 
 /**
- * Returns the permutation which rearranges the input vector into ascending order
+ * Returns the permutation which rearranges the input vector into any order
  * @param vecin Input vector
  * @param ascending True for ascending order; False otherwise
  * @return Vector of orders
@@ -1283,39 +1281,37 @@ std::pair<double,double> VectorHelper::rangeVals(const VectorDouble& vec)
 }
 
 double VectorHelper::innerProduct(const VectorDouble &veca,
-                                  const VectorDouble &vecb)
+                                  const VectorDouble &vecb,
+                                  int size)
 {
-  if (veca.size() != vecb.size())
-    my_throw("Wrong size");
+  if (size < 0) size = (int) veca.size();
+  if ((int) vecb.size() > size)
+    my_throw("Incompatible sizes");
 
   double prod = 0.;
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
-  while (ita < veca.end())
+  const double* ptra = &veca[0];
+  const double* ptrb = &vecb[0];
+  for (int i = 0; i < size; i++)
   {
-    prod += (*ita) * (*itb);
-    ita++;
-    itb++;
+    prod += (*ptra) * (*ptrb);
+    ptra++;
+    ptrb++;
   }
   return prod;
 }
 
-double VectorHelper::innerProductSubVec(const VectorDouble &veca,
-                                        const VectorDouble &vecb,
-                                        int size)
+double VectorHelper::innerProduct(const double* veca,
+                                  const double* vecb,
+                                  int size)
 {
-  if (veca.size() != vecb.size())
-    my_throw("Wrong size");
-
   double prod = 0.;
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
-  VectorDouble::const_iterator itend = veca.begin() + size;
-  while (ita < itend)
+  const double* ptra = &veca[0];
+  const double* ptrb = &vecb[0];
+  for (int i = 0; i < size; i++)
   {
-    prod += (*ita) * (*itb);
-    ita++;
-    itb++;
+    prod += (*ptra) * (*ptrb);
+    ptra++;
+    ptrb++;
   }
   return prod;
 }

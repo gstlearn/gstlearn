@@ -65,6 +65,7 @@ protected:
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isDiagCst()); }
+  int    _getIndexToRank(int irow,int icol) const override;
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;

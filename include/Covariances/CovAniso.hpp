@@ -71,14 +71,6 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
-  virtual void evalOptimInPlace(VectorDouble &res,
-                                int ivar = 0,
-                                int jvar = 0,
-                                const CovCalcMode *mode = nullptr) const override;
-  virtual void evalMatOptimInPlace(int iech1,
-                                   int iech2,
-                                   MatrixSquareGeneral& mat,
-                                   const CovCalcMode *mode = nullptr) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
@@ -87,9 +79,18 @@ public:
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
 
-  void optimizationPreProcess(const std::vector<SpacePoint>& vec) const override;
-  void optimizationPostProcess() const override;
-  void optimizationSetTarget(const SpacePoint& pt) const override;
+  /// Functions specific to optimization
+  void optimizationPreProcess(const std::vector<SpacePoint>& vec) const;
+  void optimizationPostProcess() const;
+  void optimizationSetTarget(const SpacePoint& pt) const;
+  void evalOptimInPlace(VectorDouble &res,
+                        int ivar = 0,
+                        int jvar = 0,
+                        const CovCalcMode *mode = nullptr) const;
+  void evalMatOptimInPlace(int iech1,
+                           int iech2,
+                           MatrixSquareGeneral &mat,
+                           const CovCalcMode *mode = nullptr) const;
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,

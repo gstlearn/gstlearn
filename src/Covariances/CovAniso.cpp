@@ -1011,7 +1011,7 @@ void CovAniso::optimizationPreProcess(const std::vector<SpacePoint>& p1s) const
   int n = (int) p1s.size();
 
 	_p1As.resize(n);
-	for(int i = 0;i < n ; i++)
+	for(int i = 0; i < n ; i++)
 	{
 		_p1As[i] = SpacePoint(_space);
 		if (! p1s[i].isFFFF())

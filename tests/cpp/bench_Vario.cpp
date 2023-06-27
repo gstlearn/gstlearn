@@ -31,7 +31,7 @@
 ** - on a regular grid
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   Timer timer;
   bool verbose = false;
@@ -39,7 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc <= 1);
 
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);

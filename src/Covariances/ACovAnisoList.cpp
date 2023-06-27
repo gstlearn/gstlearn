@@ -18,6 +18,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Db/Db.hpp"
 
 #include <math.h>
 #include <vector>
@@ -161,6 +162,53 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
       mat.addMatrix(_matC);
     }
   }
+}
+
+/**
+ * Evaluate the set of covariance vectors between samples of input 'db1' and
+ * samples of output 'db2'
+ * @param db1 Input Db
+ * @param db2 Output db
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param mode CovCalcMode structure
+ * @return
+ */
+VectorVectorDouble ACovAnisoList::evalCovMatrixOptim(const Db *db1,
+                                                     const Db *db2,
+                                                     int ivar,
+                                                     int jvar,
+                                                     const CovCalcMode *mode) const
+{
+  if (db2 == nullptr) db2 = db1;
+  int nechtot2 = db2->getSampleNumber(false);
+  int nech2 = db2->getSampleNumber(true);
+  int nech1 = db1->getSampleNumber(true);
+  VectorVectorDouble mat(nech2);
+
+  for (auto &e : mat)
+  {
+    e = VectorDouble(nech1);
+  }
+
+  // Constitute the list of ALL samples contained in 'db1' (masked or active)
+  std::vector<SpacePoint> p1s = db1->getSamplesAsSP();
+  optimizationPreProcess(p1s);
+
+  SpacePoint p2;
+
+  int jech2 = 0;
+  for (int iech2 = 0; iech2 < nechtot2; iech2++)
+  {
+    if (!db2->isActive(iech2)) continue;
+    db2->getSampleCoordinatesAsSP(iech2, p2);
+    optimizationSetTarget(p2);
+    evalOptimInPlace(mat[jech2], ivar, jvar, mode);
+    jech2++;
+  }
+
+  optimizationPostProcess();
+  return mat;
 }
 
 void ACovAnisoList::evalOptimInPlace(VectorDouble &res,
@@ -487,13 +535,6 @@ void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
 {
   for (int is = 0; is < getCovNumber(); is++)
     _covs[is]->optimizationSetTarget(pt);
-}
-
-bool ACovAnisoList::isOptimizationDefined() const
-{
-  for (int is = 0; is < getCovNumber(); is++)
-    if (! _covs[is]->isOptimizationDefined()) return false;
-  return true;
 }
 
 void ACovAnisoList::optimizationPostProcess() const

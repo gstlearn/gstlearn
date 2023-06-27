@@ -74,6 +74,11 @@ void MatrixSquareDiagonalCst::_setValue(int /*irank*/, double value)
   _cstDiagMatrix = value;
 }
 
+int MatrixSquareDiagonalCst::_getIndexToRank(int irow, int icol) const
+{
+  return 0;
+}
+
 double MatrixSquareDiagonalCst::determinant() const
 {
   int nrow = getNRows();

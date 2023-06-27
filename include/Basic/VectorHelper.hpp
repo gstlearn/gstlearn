@@ -97,7 +97,7 @@ public:
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
   static void divideConstant(VectorDouble& vec, double v);
-  static void copy(VectorDouble& veca, const VectorDouble& vecb);
+  static void copy(VectorDouble& vecin, const VectorDouble& vecout);
   static void addConstant(VectorDouble& vec, double v);
   static void addConstant(VectorInt& vec, int v);
 
@@ -113,10 +113,9 @@ public:
   static VectorDouble power(const VectorDouble& vec, double power);
   static VectorDouble inverse(const VectorDouble& vec);
 
-  static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb);
-  static double innerProductSubVec(const VectorDouble &veca,
-                                   const VectorDouble &vecb,
-                                   int size);
+  static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb, int size = -1);
+  static double innerProduct(const double *veca, const double *vecb, int size);
+
   static VectorDouble crossProduct(const VectorDouble &veca, const VectorDouble &vecb);
 
   static void cumulate(VectorDouble &veca,

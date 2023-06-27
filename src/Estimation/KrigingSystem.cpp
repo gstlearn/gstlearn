@@ -57,6 +57,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _anam(nullptr),
       _isReady(false),
       _model(nullptr),
+      _optimEnabled(false),
       _iptrEst(-1),
       _iptrStd(-1),
       _iptrVarZ(-1),
@@ -131,7 +132,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dboutUidToBeDeleted(),
       _space(2), // empty constructor does not exist. Anyhow it will be overwritten next.
       _p0(),
-      _p0_disc()
+      _p1(),
+      _p2(),
+      _p0_memo()
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
   if (model != nullptr)
@@ -316,7 +319,9 @@ void KrigingSystem::_resetMemoryGeneral()
 
   _space = SpaceRN(_ndim);
   _p0 = SpacePoint(&_space);
-  _p0_disc = SpacePoint(&_space);
+  _p1 = SpacePoint(&_space);
+  _p2 = SpacePoint(&_space);
+  _p0_memo = SpacePoint(&_space);
 }
 
 /****************************************************************************/
@@ -564,6 +569,16 @@ void KrigingSystem::_covtabInit()
   _covtab.fill(0.);
 }
 
+void KrigingSystem::_zextInit()
+{
+  _zext.fill(0);
+}
+
+void KrigingSystem::_lhsInit()
+{
+  _lhs.fill(0.);
+}
+
 /**
  * Modify the covariance before calling the covariance evluation
  * This makes sense only when non-stationarity is defined
@@ -651,7 +666,25 @@ void KrigingSystem::_covtabCalcul(int iech1,
   if (flagSameData)
     _model->eval0MatInPlace(_covref, mode);
   else
-    _model->evalMatOptimInPlace(iech1, iech2, _covref, mode);
+  {
+    if (_optimEnabled)
+    {
+      _model->evalMatOptimInPlace(iech1, iech2, _covref, mode);
+    }
+    else
+    {
+      if (iech1 >= 0)
+        _dbin->getSampleCoordinatesAsSP(iech1, _p1);
+      else
+        _p1 = _p0;
+      SpacePoint p2;
+      if (iech2 >= 0)
+        _dbin->getSampleCoordinatesAsSP(iech2, _p2);
+      else
+        _p2 = _p0;
+      _model->evalMatInPlace(_p1, _p2, _covref, mode);
+    }
+  }
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
@@ -738,7 +771,7 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
  *****************************************************************************/
 void KrigingSystem::_lhsCalcul()
 {
-  VH::fill(_lhs, 0.);
+  _lhsInit();
 
   /* Establish the covariance part */
 
@@ -913,7 +946,7 @@ void KrigingSystem::_rhsStore(int iech)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
-        _setRHS(iech,ivar,jvar,_getCOVTAB(ivar,jvar));
+        _setRHS(iech, ivar, jvar, _getCOVTAB(ivar, jvar));
   }
   else
   {
@@ -923,7 +956,7 @@ void KrigingSystem::_rhsStore(int iech)
         double value = 0.;
         for (int jvar = 0; jvar < _nvar; jvar++)
           value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar);
-        _setRHS(iech,ivar,jvarCL,value);
+        _setRHS(iech, ivar, jvarCL, value);
       }
   }
 }
@@ -935,7 +968,8 @@ void KrigingSystem::_rhsStore(int iech)
  *****************************************************************************/
 void KrigingSystem::_rhsCalculPoint()
 {
-  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+  if (_optimEnabled)
+    _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
   for (int iech = 0; iech < _nech; iech++)
   {
@@ -953,6 +987,8 @@ void KrigingSystem::_rhsCalculPoint()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculBlock()
 {
+  _p0_memo = _p0;
+
   for (int iech = 0; iech < _nech; iech++)
   {
     _covtabInit();
@@ -962,9 +998,10 @@ void KrigingSystem::_rhsCalculBlock()
 
     for (int i = 0; i < nscale; i++)
     {
-      _p0_disc = _p0;
-      _p0_disc.move(_getDISC1Vec(i));
-      _model->getCovAnisoList()->optimizationSetTarget(_p0_disc);
+      _p0 = _p0_memo;
+      _p0.move(_getDISC1Vec(i));
+      if (_optimEnabled)
+        _model->getCovAnisoList()->optimizationSetTarget(_p0);
       _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     }
 
@@ -982,7 +1019,8 @@ void KrigingSystem::_rhsCalculBlock()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDrift()
 {
-  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+  if (_optimEnabled)
+    _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
   for (int iech = 0; iech < _nech; iech++)
   {
@@ -998,7 +1036,8 @@ void KrigingSystem::_rhsCalculDrift()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculDGM()
 {
-  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+  if (_optimEnabled)
+    _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
   for (int iech = 0; iech < _nech; iech++)
   {
@@ -1155,7 +1194,7 @@ void KrigingSystem::_rhsDump()
     tab_printi(NULL, i + 1);
     if (! _flag.empty()) tab_printi(NULL, rel[i]);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      tab_printg(NULL, _getRHSC(i,ivarCL));
+      tab_printg(NULL, _getRHSCAdd(0,ivarCL)[i]);
     message("\n");
   }
   return;
@@ -1239,7 +1278,8 @@ void KrigingSystem::_wgtDump(int status)
 
       for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       {
-        double value = (! _wgt.empty() && status == 0 && flag_value) ? _getWGTC(cumflag,ivarCL) : TEST;
+        double value = (! _wgt.empty() && status == 0 && flag_value) ?
+            _getWGTCAdd(0,ivarCL)[cumflag] : TEST;
         if (!FFFF(value)) sum[ivarCL] += value;
         tab_printg(NULL, value);
       }
@@ -1282,7 +1322,7 @@ void KrigingSystem::_wgtDump(int status)
     if (_flagSimu)
       tab_printg(NULL, 0.);
     else
-      tab_printg(NULL, (status == 0) ? _zam[iwgt] : TEST);
+      tab_printg(NULL, (status == 0) ? _getZAM(iwgt) : TEST);
     message("\n");
   }
   return;
@@ -1361,13 +1401,11 @@ void KrigingSystem::_estimateCalcul(int status)
     {
       double estim = 0.;
       if (_nfeq <= 0) estim = _getMean(ivarCL);
-
       if (status == 0 && (_nred > 0 || _nfeq <= 0 || _flagBayes))
       {
         if (_flagBayes)
           estim = _model->_evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
-        for (int i = 0; i < _nred; i++)
-          estim += _getRHSC(i,ivarCL) * _zam[i];
+        estim += VH::innerProduct(_getRHSCAdd(0, ivarCL), _zam.data(), _nred);
       }
       else
       {
@@ -1520,10 +1558,7 @@ void KrigingSystem::_estimateCalculImage(int status)
         {
           _dbaux->rankToIndice(_nbgh[iech], indnl);
           for (int idim = 0; idim < _ndim; idim++)
-          {
-            int local = indg0[idim] + indnl[idim];
-            indgl[idim] = dbgrid->getMirrorIndex(idim, local);
-          }
+            indgl[idim] = dbgrid->getMirrorIndex(idim, indg0[idim] + indnl[idim]);
           int jech = dbgrid->indiceToRank(indgl);
           double data = dbgrid->getLocVariable(ELoc::Z,jech, jvar);
           if (FFFF(data) || FFFF(estim))
@@ -1607,11 +1642,8 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
   int cumflag = _nred - _nfeq;
 
   double var = 0.;
-  for (int i = 0; i < _nred; i++)
-  {
-    double signe = (i < cumflag) ? 1. : -1.;
-    var += signe * _getRHSC(i,jvarCL) * _getWGTC(i,ivarCL);
-  }
+  var += VH::innerProduct(_getRHSCAdd(0, ivarCL), _getWGTCAdd(0, ivarCL), cumflag);
+  var -= VH::innerProduct(_getRHSCAdd(cumflag, ivarCL), _getWGTCAdd(cumflag, ivarCL), _nfeq);
   return var;
 }
 
@@ -1623,7 +1655,8 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
 void KrigingSystem::_variance0()
 {
   _dbout->getSampleCoordinatesAsSP(_iechOut, _p0);
-  _model->getCovAnisoList()->optimizationSetTarget(_p0);
+  if (_optimEnabled)
+    _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
   _covtabInit();
   _covUpdate(ECalcMember::VAR, -1, -1);
@@ -1688,10 +1721,7 @@ double KrigingSystem::_variance(int ivarCL, int jvarCL)
 
   double var = _getVAR0(ivarCL, jvarCL);
   if (_flagBayes) var += _varCorrec[jvarCL * _nvarCL + ivarCL];
-
-  //  var -= VH::innerProductSubVec(_getRHSC(0,jvarCL), _getWGTC(0,ivarCL), _nred);
-  for (int i = 0; i < _nred; i++)
-    var -= _getRHSC(i,jvarCL) * _getWGTC(i,ivarCL);
+  var -= VH::innerProduct(_getRHSCAdd(0,jvarCL), _getWGTCAdd(0,ivarCL), _nred);
 
   return var;
 }
@@ -1740,8 +1770,7 @@ int KrigingSystem::_prepar()
  *****************************************************************************/
 void KrigingSystem::_dualCalcul()
 {
-
-  _zext.fill(0., _nred);
+  _zextInit();
 
   /* Extract the data */
 
@@ -1755,7 +1784,8 @@ void KrigingSystem::_dualCalcul()
       if (_nfeq <= 0) mean = _getMean(ivar);
       if (_flagBayes)
         mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
-      _zext[ecr++] = _getIvar(_nbgh[iech], ivar) - mean;
+      _setZEXT(ecr, _getIvar(_nbgh[iech], ivar) - mean);
+      ecr++;
     }
   }
 
@@ -1791,18 +1821,33 @@ bool KrigingSystem::isReady()
     _variance0();
   }
 
-  // Prepare the projection of data on different covariances of the Model
-  if (_model != nullptr && _dbin != nullptr)
-    _model->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
-
-  if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
-    _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
-
-  // Perform some preliminary work in the case of Image
   if (_neigh->getType() == ENeigh::IMAGE)
   {
+    // Perform some preliminary work in the case of Image
     const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neigh);
     if (_prepareForImage(neighI)) return false;
+
+    // Prepare the projection of data on different covariances of the Model
+    if (_optimEnabled)
+    {
+      if (_model != nullptr && _dbaux != nullptr)
+        _model->getCovAnisoList()->optimizationPreProcess(_dbaux->getSamplesAsSP());
+    }
+
+    // Setup the Kriging pre-processings
+    if (_prepareForImageKriging(_dbaux, neighI)) return false;
+  }
+  else
+  {
+    if (_optimEnabled)
+    {
+      // Prepare the projection of data on different covariances of the Model
+      if (_model != nullptr && _dbin != nullptr)
+        _model->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
+
+      if (_flagBayes && _modelSimple != nullptr && _dbin != nullptr)
+        _modelSimple->getCovAnisoList()->optimizationPreProcess(_dbin->getSamplesAsSP());
+    }
   }
 
   // Attach the Input and Out Db
@@ -2797,20 +2842,31 @@ bool KrigingSystem::_isCorrect()
   /* Preparing Non-stationarity */
   /******************************/
 
-  if (_model != nullptr && _model->isNoStat())
+  if (_model != nullptr)
   {
-    const ANoStat *nostat = _model->getNoStat();
-
-    if (_dbin != nullptr)
+    if (_model->isNoStat())
     {
-      // Attach the Input Db
-      if (nostat->attachToDb(_dbin, 1)) return false;
+      const ANoStat *nostat = _model->getNoStat();
+
+      if (_dbin != nullptr)
+      {
+        // Attach the Input Db
+        if (nostat->attachToDb(_dbin, 1)) return false;
+      }
+
+      if (_dbout != nullptr)
+      {
+        // Attach the Output Db
+        if (nostat->attachToDb(_dbout, 2)) return false;
+      }
+
+      // Discard optimization in the non-stationary case
+      _model->getCovAnisoList()->setIsOptimEnabled(false);
+      _optimEnabled = false;
     }
-
-    if (_dbout != nullptr)
+    else
     {
-      // Attach the Output Db
-      if (nostat->attachToDb(_dbout, 2)) return false;
+      _optimEnabled = _model->getCovAnisoList()->isOptimEnabled();
     }
   }
 
@@ -2841,7 +2897,7 @@ int KrigingSystem::_getFLAG(int iech, int ivar) const
 }
 double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
-  return _covtab.getValue(ivar,  jvar);
+  return _covtab.getValue(ivar, jvar);
 }
 void KrigingSystem::_addCOVTAB(int ivar,int jvar,double value)
 {
@@ -2905,6 +2961,12 @@ double KrigingSystem::_getRHSC(int i, int jvCL) const
   }
   return _rhs[iad];
 }
+const double* KrigingSystem::_getRHSCAdd(int i, int jvCL) const
+{
+  int iad = (i) + _nred * (jvCL);
+  return _rhs.subdata(iad);
+}
+
 double KrigingSystem::_getWGTC(int i,int jvCL) const
 {
   int iad = (i) + _nred * (jvCL);
@@ -2916,6 +2978,12 @@ double KrigingSystem::_getWGTC(int i,int jvCL) const
   }
   return _wgt[iad];
 }
+const double* KrigingSystem::_getWGTCAdd(int i, int jvCL) const
+{
+  int iad = (i) + _nred * (jvCL);
+  return _wgt.subdata(iad);
+}
+
 /**
  * Setting the LHS element
  * @param iech Rank of the first sample
@@ -3037,6 +3105,18 @@ double KrigingSystem::_getDISC1(int idisc, int idim) const
     _checkAddress("_getDISC1","address",iad, (int) _disc1.size());
   }
   return _disc1[iad];
+}
+double KrigingSystem::_getZAM(int i) const
+{
+  return _zam[i];
+}
+double KrigingSystem::_getZEXT(int i) const
+{
+  return _zext[i];
+}
+void KrigingSystem::_setZEXT(int i, double value) const
+{
+  _zext[i] = value;
 }
 VectorDouble KrigingSystem::_getDISC1Vec(int idisc) const
 {
@@ -3166,10 +3246,6 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
   for (int i=0; i<_ndim; i++) _dbaux->setX0(i, _dbaux->getX0(i) - coor[i]);
   if (db_grid_define_coordinates(_dbaux)) return 1;
 
-  // Setup the Kriging pre-processings
-
-  if (_prepareForImageKriging(_dbaux, neighI)) return 1;
-
   return 0;
 }
 
@@ -3298,11 +3374,11 @@ VectorDouble KrigingSystem::getSampleData() const
 
 VectorDouble KrigingSystem::getRHSC(int ivar) const
 {
-  VectorDouble rhs(_nred);
+  VectorDouble vec(_nred);
 
   for (int i = 0; i < _nred; i++)
-    rhs[i] = _getRHSC(i, ivar);
-  return rhs;
+    vec[i] = _getRHSCAdd(0, ivar)[i];
+  return vec;
 }
 
 /****************************************************************************/

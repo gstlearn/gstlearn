@@ -12,12 +12,7 @@ Number of Polygon Sets = 1
 
 PolyElem #1
 ...........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    40.000    25.000
-     [  1,]    75.000    10.000
-     [  2,]   100.000    75.000
-     [  3,]    15.000    60.000
+Number of Vertices = 4
 NULL
 [1] 1325
 NULL
@@ -56,29 +51,15 @@ Number of Polygon Sets = 3
 
 PolyElem #1
 ...........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    40.000    25.000
-     [  1,]    75.000    10.000
-     [  2,]   100.000    75.000
-     [  3,]    15.000    60.000
+Number of Vertices = 4
 
 PolyElem #2
 ...........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    50.000    30.000
-     [  1,]   100.000    30.000
-     [  2,]   100.000    55.000
-     [  3,]    50.000    55.000
+Number of Vertices = 4
 
 PolyElem #3
 ...........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    25.000    25.000
-     [  1,]   100.000    25.000
-     [  2,]    55.000    80.000
+Number of Vertices = 3
 NULL
 NULL
 NULL
