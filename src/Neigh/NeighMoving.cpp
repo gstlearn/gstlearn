@@ -585,7 +585,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
 
   /* Sort the selected samples according to the distance */
 
-  ut_sort_double(0, nsel, _movingInd.data(), _movingDst.data());
+  VH::arrangeInPlace(0, _movingInd, _movingDst, true, nsel);
 
   /* For each angular sector, select the first sample up to the maximum */
 

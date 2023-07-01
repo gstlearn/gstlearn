@@ -3155,88 +3155,30 @@ DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
   label_end: return (dbout);
 }
 
-/*****************************************************************************/
-/*!
- **  Check distance in 1D from Data point to the target
- **
- ** \returns The Distance
- **
- ** \param[in]  dbpoint     Descriptor of the point parameters
- ** \param[in]  ip          Rank of the sample in the Point file
- ** \param[in]  idim_ref    Space dimension where the quick test is performed
- ** \param[in]  xtarget     Coordinate of the target along X
- **
- *****************************************************************************/
-static double st_get_1d_distance(Db *dbpoint,
-                                 int ip,
-                                 int idim_ref,
-                                 double xtarget)
-{
-  return ABS(dbpoint->getCoordinate(ip, idim_ref) - xtarget);
-}
-
-/*****************************************************************************/
-/*!
- **  Update minimum distance and rank of the corresponding sample
- **
- ** \return - 1 If the distance has not been minimized
- ** \return - otherwise
- **
- ** \param[in]  dbgrid      Descriptor of the grid parameters
- ** \param[in]  ig          Rank of the sample in the Grid file
- ** \param[in]  dbpoint     Descriptor of the point parameters
- ** \param[in]  ip          Rank of the sample in the Point file
- ** \param[in]  flag_aniso  1 if anisotropic distance must be calculated
- ** \param[in]  iatt_time   Optional variable for Time shift
- ** \param[in]  iatt_angle  Optional variable for anisotropy angle (around Z)
- ** \param[in]  iatt_scaleu Optional variable for anisotropy scale factor (U)
- ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
- ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
- **
- ** \param[in,out]  ipmin   Rank of the Point sample
- ** \param[in,out]  ddmin   Minimum distance
- ** \param[out]     dvect   Vector for distance increments (Dimension: ndim)
- ** \param[out]     dvmin   Vector for minimum distance increment (Dim: ndim)
- **
- ** \remarks The Time Shift is an optional variable which increases the
- ** \remarks distance (the time-to-distance conversion is assumed to be 1)
- ** \remarks Only positive Time Shifts are considered
- **
- *****************************************************************************/
-static int st_get_closest_sample(Db *dbgrid,
+static double st_distance_modify(DbGrid* dbgrid,
                                  int ig,
-                                 Db *dbpoint,
+                                 Db* dbpoint,
                                  int ip,
+                                 VectorDouble& dvect,
                                  int flag_aniso,
                                  int iatt_time,
                                  int iatt_angle,
                                  int iatt_scaleu,
                                  int iatt_scalev,
-                                 int iatt_scalew,
-                                 int *ipmin,
-                                 double *ddmin,
-                                 VectorDouble &dvect,
-                                 VectorDouble &dvmin)
+                                 int iatt_scalew)
 {
-  double dd, time, angle, scaleu, scalev, scalew, x, y, dloc, cosa, sina, dmem0,
-      dmem1;
-  int ndim;
-
-  // Default values
-  ndim = dbgrid->getNDim();
-  angle = 0.;
-  scaleu = 1.;
-  scalev = 1.;
-  scalew = 1.;
-
-  // Calculate the euclidean distance
-  dd = distance_inter(dbgrid, dbpoint, ig, ip, dvect.data());
-  dmem0 = dvect[0];
-  dmem1 = dvect[1];
+  double dd = TEST;
 
   // Case of anisotropic distances
   if (flag_aniso)
   {
+    double cosa, sina, x, y, dloc;
+
+    int ndim = dbgrid->getNDim();
+    double angle = 0.;
+    double scaleu = 1.;
+    double scalev = 1.;
+    double scalew = 1.;
 
     // Rotation angle in degrees (optional)
     if (iatt_angle >= 0 && ndim >= 2)
@@ -3288,25 +3230,95 @@ static int st_get_closest_sample(Db *dbgrid,
     dd = sqrt(dd);
   }
 
-  // Set the initial values in the first two elements of 'dvect'
-
-  dvect[0] = dmem0;
-  dvect[1] = dmem1;
-
   // Add the Time Shift penalty (optional)
   if (iatt_time >= 0)
   {
-    time = dbpoint->getArray(ip, iatt_time);
-    if (time > 0) dd += time;
+    double time = dbpoint->getArray(ip, iatt_time);
+    if (time > 0)
+      dd = (FFFF(dd)) ? time : dd + time;
   }
+  return dd;
+}
+
+/*****************************************************************************/
+/*!
+ **  Update minimum distance and rank of the corresponding sample
+ **
+ ** \param[in]  dbgrid      Descriptor of the grid parameters
+ ** \param[in]  ig          Rank of the sample in the Grid file
+ ** \param[in]  dbpoint     Descriptor of the point parameters
+ ** \param[in]  ip          Rank of the sample in the Point file
+ ** \param[in]  flag_aniso  1 if anisotropic distance must be calculated
+ ** \param[in]  iatt_time   Optional variable for Time shift
+ ** \param[in]  iatt_angle  Optional variable for anisotropy angle (around Z)
+ ** \param[in]  iatt_scaleu Optional variable for anisotropy scale factor (U)
+ ** \param[in]  iatt_scalev Optional variable for anisotropy scale factor (V)
+ ** \param[in]  iatt_scalew Optional variable for anisotropy scale factor (W)
+ **
+ ** \param[in,out]  ipmin   Rank of the Point sample
+ ** \param[in,out]  ddmin   Minimum distance
+ ** \param[out]     dvect   Vector for distance increments (Dimension: ndim)
+ ** \param[out]     dvmin   Vector for minimum distance increment (Dim: ndim)
+ **
+ ** \remarks The Time Shift is an optional variable which increases the
+ ** \remarks distance (the time-to-distance conversion is assumed to be 1)
+ ** \remarks Only positive Time Shifts are considered
+ **
+ *****************************************************************************/
+static void st_get_closest_sample(DbGrid *dbgrid,
+                                  int ig,
+                                  Db *dbpoint,
+                                  int ip,
+                                  int flag_aniso,
+                                  int iatt_time,
+                                  int iatt_angle,
+                                  int iatt_scaleu,
+                                  int iatt_scalev,
+                                  int iatt_scalew,
+                                  int *ipmin,
+                                  double *ddmin,
+                                  VectorDouble &dvect,
+                                  VectorDouble &dvmin)
+{
+  // Default values
+  int ndim = dbgrid->getNDim();
+
+  // Calculate the euclidean distance
+  double dd = distance_inter(dbgrid, dbpoint, ig, ip, dvect.data());
+
+  // Distance modifier
+  double dd2 = st_distance_modify(dbgrid, ig, dbpoint, ip, dvect, flag_aniso,
+                                  iatt_time, iatt_angle,
+                                  iatt_scaleu, iatt_scalev, iatt_scalew);
+  if (! FFFF(dd2)) dd = dd2;
 
   // Evaluate the closest distance
-  if (dd >= (*ddmin)) return (1);
-  (*ddmin) = dd;
-  (*ipmin) = ip;
-  for (int idim = 0; idim < ndim; idim++)
-    dvmin[idim] = dvect[idim];
-  return (0);
+  if (dd < (*ddmin))
+  {
+    (*ddmin) = dd;
+    (*ipmin) = ip;
+    for (int idim = 0; idim < ndim; idim++)
+      dvmin[idim] = dvect[idim];
+  }
+}
+
+int st_next_sample(int ip0_init,
+                   int np,
+                   const VectorInt &order,
+                   const VectorDouble &xtab,
+                   double xtarget)
+{
+  const int* orderadd = &order[0];
+  const double* xtabadd = &xtab[0];
+  int ip0 = 0;
+  for (int kp = 0; kp < np; kp++)
+  {
+    int ip = ip0_init + kp;
+    int jp = *(orderadd + ip);
+    if (xtarget < *(xtabadd + jp)) return ip0;
+    ip0 = ip;
+  }
+  return ip0;
 }
 
 /*****************************************************************************/
@@ -3351,6 +3363,9 @@ int expand_point_to_grid(Db *db_point,
                          const VectorDouble &dmax,
                          VectorDouble &tab)
 {
+  double dd1d, ddmin;
+  int ipmin;
+
   /* Preliminary checks */
 
   if (!db_point->hasLargerDimension(db_grid)) return 1;
@@ -3361,6 +3376,8 @@ int expand_point_to_grid(Db *db_point,
   if (ndim_min >= 2 && iatt_scalev >= 0) flag_aniso = 1;
   if (ndim_min >= 3 && iatt_scalew >= 0) flag_aniso = 1;
   int idim_ref = ndim_min - 1;
+  double dmax_ref = 1.e30;
+  if (!dmax.empty()) dmax_ref = dmax[idim_ref];
 
   // Core allocation
 
@@ -3401,6 +3418,9 @@ int expand_point_to_grid(Db *db_point,
   /* Loop on the grid nodes */
 
   int npin = 0;
+  int ip0 = 0;
+  const int* rankadd = &rank[0];
+  const double* xtabadd = &xtab[0];
   for (int ig = 0; ig < ng; ig++)
   {
     if (!db_grid->isActive(ig)) continue;
@@ -3408,60 +3428,52 @@ int expand_point_to_grid(Db *db_point,
 
     /* Locate the grid node within the ordered list (1D coordinate) */
 
-    int ip0 = 0;
-    for (int ip = 0; ip < np; ip++)
-    {
-      int jp = order[ip];
-      if (xtarget < xtab[jp]) break;
-      ip0 = ip;
-    }
+    ip0 = st_next_sample(ip0, np, order, xtab, xtarget);
 
     /* Calculate minimum distance between the two closest ordered samples */
 
-    int ipmin = -1;
-    double ddmin = 1.e30;
+    ipmin = -1;
+    ddmin = dmax_ref;
+
     if (ip0 >= 0)
-      st_get_closest_sample(db_grid, ig, db_point, rank[ip0], flag_aniso,
+      st_get_closest_sample(db_grid, ig, db_point, *(rankadd + ip0), flag_aniso,
                             iatt_time, iatt_angle, iatt_scaleu, iatt_scalev,
                             iatt_scalew, &ipmin, &ddmin, dvect, dvmin);
     if (ip0 + 1 < np - 1)
-      st_get_closest_sample(db_grid, ig, db_point, rank[ip0 + 1], flag_aniso,
+      st_get_closest_sample(db_grid, ig, db_point, *(rankadd + ip0 + 1), flag_aniso,
                             iatt_time, iatt_angle, iatt_scaleu, iatt_scalev,
                             iatt_scalew, &ipmin, &ddmin, dvect, dvmin);
 
-    if (!dmax.empty() && dvmin[idim_ref] > dmax[idim_ref]) continue;
+    // Check that at least some points are located beyond 'dmax' limit
+    if (dvmin[idim_ref] > dmax_ref) continue;
 
     /* Look for closer points for samples located below rank[ip0] */
 
     for (int ip = ip0 - 1; ip >= 0; ip--)
     {
-      int jp = rank[ip];
-      double dd1d = st_get_1d_distance(db_point, jp, idim_ref, xtarget);
-      if (!flag_aniso && dd1d > ddmin + time_max) break;
-      if (!dmax.empty() && dd1d > dmax[idim_ref]) break;
-      if (st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso,
-                                iatt_time, iatt_angle, iatt_scaleu, iatt_scalev,
-                                iatt_scalew, &ipmin, &ddmin, dvect, dvmin))
-        continue;
+      int jp = *(rankadd + ip);
+      dd1d = ABS(*(xtabadd + jp) - xtarget);
+      if (dd1d > ddmin) break;
+      st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso, iatt_time,
+                            iatt_angle, iatt_scaleu, iatt_scalev, iatt_scalew,
+                            &ipmin, &ddmin, dvect, dvmin);
     }
 
     /* Look for closer points for samples located above rank[ip0+1] */
 
     for (int ip = ip0 + 1; ip < np; ip++)
     {
-      int jp = rank[ip];
-      double dd1d = st_get_1d_distance(db_point, jp, idim_ref, xtarget);
-      if (!flag_aniso && dd1d > ddmin + time_max) break;
-      if (!dmax.empty() && dd1d > dmax[idim_ref]) break;
-      if (st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso,
-                                iatt_time, iatt_angle, iatt_scaleu, iatt_scalev,
-                                iatt_scalew, &ipmin, &ddmin, dvect, dvmin))
-        continue;
+      int jp = *(rankadd + ip);
+      dd1d = ABS(*(xtabadd + jp) - xtarget);
+      if (dd1d > ddmin) break;
+      st_get_closest_sample(db_grid, ig, db_point, jp, flag_aniso, iatt_time,
+                            iatt_angle, iatt_scaleu, iatt_scalev, iatt_scalew,
+                            &ipmin, &ddmin, dvect, dvmin);
     }
 
     /* Truncation by 'dmax' if provided */
 
-    if (!dmax.empty())
+    if (!dmax.empty() && ipmin >= 0)
     {
       (void) distance_inter(db_grid, db_point, ig, ipmin, dvmin.data());
       if (st_larger_than_dmax(ndim_min, dvmin, distType, dmax)) continue;
@@ -3470,12 +3482,15 @@ int expand_point_to_grid(Db *db_point,
     /* Set the value */
 
     npin++;
-    if (flag_index)
-      tab[ig] = (ipmin < 0) ? TEST :
-                              (double) ipmin;
+    if (ipmin < 0)
+      tab[ig] = TEST;
     else
-      tab[ig] = (ipmin < 0) ? TEST :
-                              db_point->getArray(ipmin, iatt);
+    {
+      if (flag_index)
+        tab[ig] = (double) ipmin;
+      else
+        tab[ig] = db_point->getArray(ipmin, iatt);
+    }
   }
   return 0;
 }
@@ -5418,8 +5433,10 @@ int db_grid2point_sampling(DbGrid *dbgrid,
                            double **data_ret)
 {
   int ndim, ntotal, nech, indg[3], nret, nfine, iech, ecrc, ecrd, error;
-  int *ranks, *retain;
-  double *coor, *data, *rndval;
+  int *retain;
+  double *coor, *data;
+  VectorInt ranks;
+  VectorDouble rndval;
 
   // Initializations
 
@@ -5427,8 +5444,8 @@ int db_grid2point_sampling(DbGrid *dbgrid,
 
   error = 1;
   nech = 0;
-  coor = data = rndval = nullptr;
-  ranks = retain = nullptr;
+  coor = data = nullptr;
+  retain = nullptr;
   ndim = dbgrid->getNDim();
   nfine = dbgrid->getSampleNumber();
   nmini = MAX(nmini, npcell);
@@ -5443,10 +5460,8 @@ int db_grid2point_sampling(DbGrid *dbgrid,
   ntotal = 1;
   for (int idim = 0; idim < ndim; idim++)
     ntotal *= npacks[idim];
-  rndval = (double*) mem_alloc(sizeof(double) * ntotal, 0);
-  if (rndval == nullptr) goto label_end;
-  ranks = (int*) mem_alloc(sizeof(int) * ntotal, 0);
-  if (ranks == nullptr) goto label_end;
+  rndval.resize(ntotal);
+  ranks.resize(ntotal);
   retain = (int*) mem_alloc(sizeof(int) * nfine, 0);
   if (retain == nullptr) goto label_end;
 
@@ -5474,7 +5489,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
 
       for (int i = 0; i < nech; i++)
         rndval[i] = law_uniform(0., 1.);
-      ut_sort_double(0, nech, ranks, rndval);
+      VH::arrangeInPlace(0, ranks, rndval, true, nech);
       for (int i = 0; i < npcell; i++)
         retain[nret++] = ranks[i];
     }
@@ -5504,7 +5519,7 @@ int db_grid2point_sampling(DbGrid *dbgrid,
 
         for (int i = 0; i < nech; i++)
           rndval[i] = law_uniform(0., 1.);
-        ut_sort_double(0, nech, ranks, rndval);
+        VH::arrangeInPlace(0, ranks, rndval, true, nech);
         for (int i = 0; i < npcell; i++)
           retain[nret++] = ranks[i];
       }
@@ -5538,13 +5553,11 @@ int db_grid2point_sampling(DbGrid *dbgrid,
 
           for (int i = 0; i < nech; i++)
             rndval[i] = law_uniform(0., 1.);
-          ut_sort_double(0, nech, ranks, rndval);
+          VH::arrangeInPlace(0, ranks, rndval, true, nech);
           for (int i = 0; i < npcell; i++)
             retain[nret++] = ranks[i];
         }
   }
-  rndval = (double*) mem_free((char* ) rndval);
-  ranks = (int*) mem_free((char* ) ranks);
 
   // Allocate the array for coordinates and data
 
@@ -5574,9 +5587,8 @@ int db_grid2point_sampling(DbGrid *dbgrid,
 
   // Core deallocation
 
-  label_end: retain = (int*) mem_free((char* ) retain);
-  ranks = (int*) mem_free((char* ) ranks);
-  rndval = (double*) mem_free((char* ) rndval);
+  label_end:
+  retain = (int*) mem_free((char* ) retain);
   return (error);
 }
 

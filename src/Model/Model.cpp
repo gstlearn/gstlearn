@@ -888,7 +888,6 @@ VectorDouble Model::sample(const VectorDouble& hh,
   int ndim = getDimensionNumber();
   if (codir.empty())
   {
-    codir.resize(ndim);
     (void) GH::rotationGetDirectionDefault(ndim, codir);
   }
   int nh = (int) hh.size();
@@ -920,7 +919,6 @@ VectorDouble Model::sampleUnitary(const VectorDouble &hh,
   int ndim = getDimensionNumber();
   if (codir.empty())
   {
-    codir.resize(ndim);
     (void) GH::rotationGetDirectionDefault(ndim, codir);
   }
   int nh = (int) hh.size();
@@ -951,7 +949,6 @@ VectorDouble Model::envelop(const VectorDouble &hh,
   int ndim = getDimensionNumber();
   if (codir.empty())
   {
-    codir.resize(ndim);
     (void) GH::rotationGetDirectionDefault(ndim, codir);
   }
   int nh = (int) hh.size();

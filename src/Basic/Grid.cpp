@@ -185,23 +185,20 @@ void Grid::resetFromGrid(Grid* grid)
   }
 }
 
-void Grid::setX0(int idim,
-                  double value)
+void Grid::setX0(int idim, double value)
 {
   if (! _isSpaceDimensionValid(idim)) return;
   _x0[idim] = value;
 }
 
-void Grid::setDX(int idim,
-                  double value)
+void Grid::setDX(int idim, double value)
 {
   if (! _isSpaceDimensionValid(idim)) return;
   if (value < 0) messageAbort("Argument 'dx' may not be negative");
   _dx[idim] = value;
 }
 
-void Grid::setNX(int idim,
-                  int value)
+void Grid::setNX(int idim, int value)
 {
   if (! _isSpaceDimensionValid(idim)) return;
   if (value < 0) messageAbort("Argument 'nx' may not be negative");
@@ -426,7 +423,7 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
 /**
  * Return the Vector of coordinates for a given grid node
  * @param rank Rank of the target grid node
- * @param flag_rotate TRUE: perform the roataion; FALSE: skip rotation
+ * @param flag_rotate TRUE: perform the rotation; FALSE: skip rotation
  * @return Vector of coordinates
  */
 VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
@@ -543,8 +540,7 @@ int Grid::indiceToRank(const VectorInt& indice) const
   if (ival < 0 || ival >= _nx[_nDim-1]) return(-1);
   for (int idim=_nDim-2; idim>=0; idim--)
   {
-    if (indice[idim] < 0 || indice[idim] >= _nx[idim])
-      return(-1);
+    if (indice[idim] < 0 || indice[idim] >= _nx[idim]) return(-1);
     ival = ival * _nx[idim] + indice[idim];
   }
   return ival;
@@ -564,14 +560,18 @@ void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
-  for (int idim=0; idim<_nDim; idim++) nval *= (_nx[idim] - minus);
+
+  const int* nxadd = &_nx[0]; // for optimization, use address rather than []
+  int* indadd = &indices[0];
+  for (int idim=0; idim<_nDim; idim++)
+    nval *= (*(nxadd + idim) - minus);
 
   int newind;
   for (int idim=_nDim-1; idim>=0; idim--)
   {
-    nval /= (_nx[idim] - minus);
+    nval /= (*(nxadd + idim) - minus);
     newind = rank / nval;
-    indices[idim] = newind;
+    *(indadd + idim) = newind;
     rank -= newind * nval;
   }
 }
@@ -1078,7 +1078,7 @@ VectorInt Grid::generateGridIndices(const VectorInt& nx,
 
   VectorInt ind(ncell);
   for (int i = 0; i < ncell; i++) ind[i] = i;
-  ut_sort_int(0, ncell, ind.data(), dlp.tab.data());
+  VH::arrangeInPlace(0, ind, dlp.tab, true, ncell);
   VectorInt tab2(ncell);
   for (int i = 0; i < ncell; i++)
   {

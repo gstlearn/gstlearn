@@ -473,25 +473,17 @@ void GeometryHelper::rotationGetDirection2D(const VectorDouble &angles,
 
 /****************************************************************************/
 /*!
- **   Create a set of Directions
+ **   Create a Direction (used as default)
  **
  ** \param[in]  ndim     Number of space dimensions
  **
- ** \param[out] codir    Vector of the direction (Dim: ndim * ndim)
+ ** \param[out] codir    Vector of the direction (Dim: ndim)
  **
  *****************************************************************************/
 void GeometryHelper::rotationGetDirectionDefault(int ndim, VectorDouble &codir)
 {
-  if (ndim <= 1) return;
-
-  codir.resize(ndim * ndim);
-  for (int i = 0; i < ndim * ndim; i++)
-    codir[i] = 0.;
-
-  int ecr = 0;
-  for (int jdim = 0; jdim < ndim; jdim++)
-    for (int idim = 0; idim < ndim; idim++)
-      codir[ecr++] = (jdim == idim) ? 1. : 0.;
+  codir.resize(ndim, 0.);
+  codir[0] = 1.;
   return;
 }
 

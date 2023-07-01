@@ -72,7 +72,7 @@ public:
                      double eps = EPSILON10);
   static bool isSame(const VectorInt &v1, const VectorInt &v2);
 
-  static VectorInt sequence(int number, int ideb = 0);
+  static VectorInt sequence(int number, int ideb = 0, int step = 1);
   static VectorDouble sequence(double valFrom,
                                double valTo,
                                double valStep = 1.,
@@ -86,7 +86,12 @@ public:
   static void addInPlace(VectorDouble &dest, const VectorDouble &src);
   static void addInPlace(const VectorDouble &veca,
                          const VectorDouble &vecb,
-                         VectorDouble &res);
+                         VectorDouble &res,
+                         int size = 0);
+  static void addInPlace(const double *veca,
+                         const double *vecb,
+                         double *res,
+                         int size);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);
@@ -97,11 +102,13 @@ public:
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
   static void divideConstant(VectorDouble& vec, double v);
-  static void copy(VectorDouble& vecin, const VectorDouble& vecout);
+  static void copy(const VectorDouble& vecin, VectorDouble& vecout, int size = -1);
+  static void copy(const VectorInt &vecin, VectorInt &vecout, int size = -1);
   static void addConstant(VectorDouble& vec, double v);
   static void addConstant(VectorInt& vec, int v);
 
   static void normalize(VectorDouble& vec);
+  static void normalize(double *tab, int ntab);
   static void normalizeFromGaussianDistribution(VectorDouble &vec,
                                                 double mini = 0.,
                                                 double maxi = 1.);
@@ -114,9 +121,10 @@ public:
   static VectorDouble inverse(const VectorDouble& vec);
 
   static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb, int size = -1);
-  static double innerProduct(const double *veca, const double *vecb, int size);
+  static double innerProduct(const double* veca, const double* vecb, int size);
 
-  static VectorDouble crossProduct(const VectorDouble &veca, const VectorDouble &vecb);
+  static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
+  static void crossProduct3DInPlace(const double *a, const double *b, double *v);
 
   static void cumulate(VectorDouble &veca,
                        const VectorDouble &vecb,
@@ -142,12 +150,27 @@ public:
                                int seed = 242141,
                                int optSort = 0);
 
-  static VectorInt    sort(const VectorInt& vecin, bool ascending = true);
-  static VectorDouble sort(const VectorDouble& vecin, bool ascending = true);
-  static VectorInt    orderRanks(const VectorDouble& vecin, bool ascending = true);
-  static VectorInt    sortRanks(const VectorDouble& vecin, bool ascending = true);
-  static VectorDouble unique(const VectorDouble& vecin);
-  static VectorInt    unique(const VectorInt& vecin);
+  static VectorInt    sort(const VectorInt& vecin, bool ascending = true, int size = -1);
+  static VectorDouble sort(const VectorDouble& vecin, bool ascending = true, int size = -1);
+  static void         sortInPlace(VectorInt& vecin, bool ascending = true, int size = -1);
+  static void         sortInPlace(VectorDouble& vecin, bool ascending = true, int size = -1);
+  static VectorDouble unique(const VectorDouble& vecin, int size = -1);
+  static VectorInt    unique(const VectorInt& vecin, int size = -1);
+  static VectorInt    orderRanks(const VectorInt& vecin, bool ascending = true, int size = -1);
+  static VectorInt    orderRanks(const VectorDouble& vecin, bool ascending = true, int size = -1);
+  static VectorInt    sortRanks(const VectorDouble& vecin, bool ascending = true, int size = -1);
+  static VectorInt    reorder(const VectorInt& vecin, const VectorInt& order, int size = -1);
+  static VectorDouble reorder(const VectorDouble& vecin, const VectorInt& order, int size = -1);
+  static void arrangeInPlace(int safe,
+                             VectorInt &ranks,
+                             VectorDouble &values,
+                             bool ascending = true,
+                             int size = -1);
+  static void arrangeInPlace(int safe,
+                             VectorInt &ranks,
+                             VectorInt &values,
+                             bool ascending = true,
+                             int size = -1);
   static VectorInt filter(const VectorInt &vecin,
                           int vmin = ITEST,
                           int vmax = ITEST,

@@ -175,8 +175,8 @@ public:
                        bool centered = false,
                        double eps = EPSILON6) const;
   VectorInt coordinateToIndices(const VectorDouble &coor,
-                                bool centered,
-                                double eps) const;
+                                bool centered = false,
+                                double eps = EPSILON6) const;
   int coordinateToIndicesInPlace(const VectorDouble &coor,
                                  VectorInt &indices,
                                  bool centered = false,
@@ -204,6 +204,11 @@ public:
                                   const VectorDouble& percent = VectorDouble()) const
   {
     _grid.indicesToCoordinateInPlace(indice, coor, percent);
+  }
+  VectorDouble indicesToCoordinate(const VectorInt& indice,
+                                   const VectorDouble& percent = VectorDouble()) const
+  {
+    return _grid.indicesToCoordinate(indice, percent);
   }
   int centerCoordinateInPlace(VectorDouble &coor,
                               bool centered = false,

@@ -3761,9 +3761,8 @@ int sampling_f(Db *db,
                int *ranks2,
                int verbose)
 {
-  int *rother, error, best_rank, nech, nval;
-  double *data_est, *data_var;
-  double best_ecart, minimum, maximum, mean, stdv, delta;
+  int *rother, error, best_rank, nech;
+  double *data_est, *data_var, best_ecart;
 
   /* Initializations */
 
@@ -3843,14 +3842,13 @@ int sampling_f(Db *db,
   {
     if (st_krige_data(db, model, beta, nsize1, ranks1, nsize2, ranks2, rother,
                       1, data_est, data_var)) goto label_end;
-    ut_statistics(nech, data_est, NULL, NULL, &nval, &minimum, &maximum, &delta,
-                  &mean, &stdv);
+    StatResults stats = ut_statistics(nech, data_est);
     mestitle(1, "Statistics on estimation errors");
-    message("Count   = %d \n", nval);
-    message("Minimum = %lf\n", minimum);
-    message("Mean    = %lf\n", mean);
-    message("St. Dev.= %lf\n", stdv);
-    message("Maximum = %lf\n", maximum);
+    message("Count   = %d \n", stats.nvalid);
+    message("Minimum = %lf\n", stats.mini);
+    message("Mean    = %lf\n", stats.mean);
+    message("St. Dev.= %lf\n", stats.stdv);
+    message("Maximum = %lf\n", stats.maxi);
   }
 
   /* Error return code */

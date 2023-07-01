@@ -1141,7 +1141,7 @@ def isoline(dbgrid, *args, **kwargs):
 
 def __ax_isoline(ax, dbgrid, name=None, usesel = True, 
                  posx=0, posy=1, corner=None, levels=None,
-                 flagLegend=True, **kwargs):
+                 flagLegend=False, **kwargs):
     name = defaultVariable(dbgrid, name)
         
     if len(ax.get_title()) <= 0:
@@ -1437,11 +1437,11 @@ def sample(sampleobj, *args, **kwargs):
     return __ax_sample(ax, sampleobj=sampleobj, *args, **kwargs)
 
 def __ax_sample(ax, sampleobj, color='black', marker='o', markersize=10,
-                flagLegend=False, label='data', 
+                linestyle=' ', flagLegend=False, label='data', 
                 **kwargs):
     
     ax.plot(sampleobj[0], sampleobj[1], marker=marker, markersize=markersize, color=color,
-            label=label, **kwargs)
+            linestyle=linestyle, label=label, **kwargs)
             
     if flagLegend:
         ax.legend()

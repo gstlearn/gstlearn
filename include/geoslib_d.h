@@ -80,13 +80,13 @@ typedef struct
   int npair;
   int size_aux;
   int flag_dist;
-  int *tab_iech;
-  int *tab_jech;
-  int *tab_ipas;
-  int *tab_sort;
+  VectorInt tab_iech;
+  VectorInt tab_jech;
+  VectorInt tab_ipas;
+  VectorInt tab_sort;
   char *tab_aux_iech;
   char *tab_aux_jech;
-  double *tab_dist;
+  VectorDouble tab_dist;
 } Vario_Order;
 
 typedef struct

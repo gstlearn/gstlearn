@@ -1,0 +1,20 @@
+
+Migration From Point To Grid
+----------------------------
+- with 10000 data points
+- to a grid of 200 x 200 nodes
+#NO_DIFF# Migrate Point to Grid: 3903 ms. (Ref = 4000 ms.)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+3 - Name Migrate.z - Locator z1
+ Nb of data          =      40000
+ Nb of active values =      40000
+ Minimum value       =     -3.272
+ Maximum value       =      4.717
+ Mean value          =      0.006
+ Standard Deviation  =      1.006
+ Variance            =      1.013

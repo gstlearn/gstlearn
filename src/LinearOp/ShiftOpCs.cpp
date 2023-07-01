@@ -1853,11 +1853,11 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
   w.push_back(cosphi);
 
   // V1 = Center ^ w: first axis
-  VectorDouble v1 = VH::crossProduct(center, w);
+  VectorDouble v1 = VH::crossProduct3D(center, w);
   VH::normalize(v1);
 
   // V2 = Center ^ V1: second axis
-  VectorDouble v2 = VH::crossProduct(center, v1);
+  VectorDouble v2 = VH::crossProduct3D(center, v1);
   VH::normalize(v2);
 
   // Get the end points from Unit vectors

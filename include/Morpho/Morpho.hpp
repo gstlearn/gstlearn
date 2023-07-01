@@ -18,6 +18,14 @@
 #include "Arrays/BImage.hpp"
 #include "Db/DbGrid.hpp"
 
+struct GSTLEARN_EXPORT Spill_Res
+{
+  bool   success; // TRUE if algorithm has been successfully performed
+  double h;       // Elevation of the spill point
+  double th;      // Maximum reservoir thickness
+  int    ix0;     // Location of the Spill point grid node along X
+  int    iy0;     // Location of the Spill point grid node along Y
+};
 
 /**
  * \defgroup MORPHO Mathematical Morphology:
@@ -205,3 +213,11 @@ GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
                                          bool flag_center = true,
                                          bool verbose = false);
 /**@}*/
+
+GSTLEARN_EXPORT Spill_Res spillPoint(DbGrid *dbgrid,
+                                     const String& name_depth,
+                                     const String& name_data,
+                                     int option = 0,
+                                     bool flag_up = true,
+                                     int verbose_step = 0,
+                                     double hmax = TEST);

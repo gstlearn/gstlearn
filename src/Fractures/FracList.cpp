@@ -1439,7 +1439,7 @@ VectorDouble FracList::fractureExtractLength(int ifam,
 
   /* Sort the intersections */
 
-  ut_sort_double(0, ecr, NULL, tab.data());
+  VH::sortInPlace(tab, true, ecr);
 
   return tab;
 }
@@ -1490,7 +1490,7 @@ VectorDouble FracList::fractureExtractDist(int ifam, double cote, double dcote)
 
   /* Sort the intersections */
 
-  ut_sort_double(0, ndist, NULL, tab.data());
+  VH::sortInPlace(tab, true, ndist);
 
   /* Calculate the inter-fracture distances */
 
@@ -1505,7 +1505,7 @@ VectorDouble FracList::fractureExtractDist(int ifam, double cote, double dcote)
   /* Sort the fracture inter-distances */
 
   ndist--;
-  ut_sort_double(0, ndist, NULL, tab.data());
+  VH::sortInPlace(tab, true, ndist);
 
   return tab;
 }

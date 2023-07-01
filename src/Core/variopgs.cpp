@@ -1773,9 +1773,9 @@ static void st_relem_explore(Relem *relem, int verbose)
  **
  *****************************************************************************/
 Vario_Order* vario_order_manage(int mode,
-                                                int flag_dist,
-                                                int size_aux,
-                                                Vario_Order *vorder)
+                                int flag_dist,
+                                int size_aux,
+                                Vario_Order *vorder)
 {
   Vario_Order *vorder_loc;
 
@@ -1785,51 +1785,40 @@ Vario_Order* vario_order_manage(int mode,
   switch (mode)
   {
     case 1:
-      vorder_loc = (Vario_Order*) mem_alloc(sizeof(Vario_Order), 0);
-      if (vorder_loc == (Vario_Order*) NULL) return (vorder_loc);
+      vorder_loc = new Vario_Order;
       vorder_loc->npair = 0;
       vorder_loc->nalloc = 0;
+      vorder_loc->tab_iech.resize(0);
+      vorder_loc->tab_jech.resize(0);
+      vorder_loc->tab_ipas.resize(0);
+      vorder_loc->tab_sort.resize(0);
+      vorder_loc->tab_dist.resize(0);
       vorder_loc->size_aux = size_aux;
       vorder_loc->flag_dist = flag_dist;
-      vorder_loc->tab_iech = nullptr;
-      vorder_loc->tab_jech = nullptr;
-      vorder_loc->tab_ipas = nullptr;
-      vorder_loc->tab_sort = nullptr;
       vorder_loc->tab_aux_iech = nullptr;
       vorder_loc->tab_aux_jech = nullptr;
-      vorder_loc->tab_dist = nullptr;
       break;
 
     case 0:
       vorder_loc = vorder;
-      if (vorder == (Vario_Order*) NULL) return (vorder_loc);
-      vorder_loc->tab_iech = (int*) mem_free((char* ) vorder_loc->tab_iech);
-      vorder_loc->tab_jech = (int*) mem_free((char* ) vorder_loc->tab_jech);
-      vorder_loc->tab_ipas = (int*) mem_free((char* ) vorder_loc->tab_ipas);
-      vorder_loc->tab_sort = (int*) mem_free((char* ) vorder_loc->tab_sort);
+      if (vorder == nullptr) return (vorder_loc);
       vorder_loc->tab_aux_iech = (char*) mem_free(
           (char* ) vorder_loc->tab_aux_iech);
       vorder_loc->tab_aux_jech = (char*) mem_free(
           (char* ) vorder_loc->tab_aux_jech);
-      vorder_loc->tab_dist = (double*) mem_free((char* ) vorder_loc->tab_dist);
       break;
 
     case -1:
       vorder_loc = vorder;
-      if (vorder == (Vario_Order*) NULL) return (vorder_loc);
+      if (vorder == nullptr) return (vorder_loc);
       if (vorder_loc != nullptr)
       {
-        vorder_loc->tab_iech = (int*) mem_free((char* ) vorder_loc->tab_iech);
-        vorder_loc->tab_jech = (int*) mem_free((char* ) vorder_loc->tab_jech);
-        vorder_loc->tab_ipas = (int*) mem_free((char* ) vorder_loc->tab_ipas);
-        vorder_loc->tab_sort = (int*) mem_free((char* ) vorder_loc->tab_sort);
         vorder_loc->tab_aux_iech = (char*) mem_free(
             (char* ) vorder_loc->tab_aux_iech);
         vorder_loc->tab_aux_jech = (char*) mem_free(
             (char* ) vorder_loc->tab_aux_jech);
-        vorder_loc->tab_dist = (double*) mem_free(
-            (char* ) vorder_loc->tab_dist);
-        vorder_loc = (Vario_Order*) mem_free((char* ) vorder_loc);
+        delete vorder_loc;
+        vorder_loc = nullptr;
       }
       break;
   }
@@ -1853,13 +1842,13 @@ Vario_Order* vario_order_manage(int mode,
  **
  *****************************************************************************/
 int vario_order_add(Vario_Order *vorder,
-                                    int iech,
-                                    int jech,
-                                    void *aux_iech,
-                                    void *aux_jech,
-                                    int ipas,
-                                    int idir,
-                                    double dist)
+                    int iech,
+                    int jech,
+                    void *aux_iech,
+                    void *aux_jech,
+                    int ipas,
+                    int idir,
+                    double dist)
 {
   int iad;
   static int VARIO_ORDER_QUANT = 1000;
@@ -1871,18 +1860,10 @@ int vario_order_add(Vario_Order *vorder,
   if (vorder->npair >= vorder->nalloc)
   {
     vorder->nalloc += VARIO_ORDER_QUANT;
-    vorder->tab_iech = (int*) mem_realloc((char* ) vorder->tab_iech,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_iech == nullptr) return (1);
-    vorder->tab_jech = (int*) mem_realloc((char* ) vorder->tab_jech,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_jech == nullptr) return (1);
-    vorder->tab_ipas = (int*) mem_realloc((char* ) vorder->tab_ipas,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_ipas == nullptr) return (1);
-    vorder->tab_sort = (int*) mem_realloc((char* ) vorder->tab_sort,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_sort == nullptr) return (1);
+    vorder->tab_iech.resize(vorder->nalloc);
+    vorder->tab_jech.resize(vorder->nalloc);
+    vorder->tab_ipas.resize(vorder->nalloc);
+    vorder->tab_sort.resize(vorder->nalloc);
     if (vorder->size_aux > 0)
     {
       vorder->tab_aux_iech = (char*) mem_realloc(
@@ -1893,20 +1874,13 @@ int vario_order_add(Vario_Order *vorder,
       if (vorder->tab_aux_jech == nullptr) return (1);
     }
     if (vorder->flag_dist)
-    {
-      vorder->tab_dist = (double*) mem_realloc((char* ) vorder->tab_dist,
-                                               vorder->nalloc * sizeof(double),
-                                               0);
-      if (vorder->tab_dist == nullptr) return (1);
-    }
+      vorder->tab_dist.resize(vorder->nalloc);
   }
 
   /* Add the new information */
 
-  vorder->tab_iech[vorder->npair] = (dist > 0) ? iech :
-                                                 jech;
-  vorder->tab_jech[vorder->npair] = (dist > 0) ? jech :
-                                                 iech;
+  vorder->tab_iech[vorder->npair] = (dist > 0) ? iech : jech;
+  vorder->tab_jech[vorder->npair] = (dist > 0) ? jech : iech;
   vorder->tab_ipas[vorder->npair] = ipas + idir * QUANT_DIR;
   if (vorder->flag_dist) vorder->tab_dist[vorder->npair] = dist;
   if (vorder->size_aux > 0)
@@ -1948,8 +1922,7 @@ void vario_order_print(Vario_Order *vorder,
 
   for (i = 0; i < vorder->npair; i++)
   {
-    j = (vorder->tab_sort == nullptr) ? i :
-                                        vorder->tab_sort[i];
+    j = (vorder->tab_sort.empty()) ? i : vorder->tab_sort[i];
     ipas = vorder->tab_ipas[j];
     idir = ipas / QUANT_DIR;
     ipas = ipas - QUANT_DIR * idir;
@@ -1995,25 +1968,12 @@ Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
   error = 0;
   if (vorder->npair > 0)
   {
-    vorder->tab_iech = (int*) mem_realloc((char* ) vorder->tab_iech,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_iech == nullptr) error = 1;
-    vorder->tab_jech = (int*) mem_realloc((char* ) vorder->tab_jech,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_jech == nullptr) error = 1;
-    vorder->tab_ipas = (int*) mem_realloc((char* ) vorder->tab_ipas,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_ipas == nullptr) error = 1;
-    vorder->tab_sort = (int*) mem_realloc((char* ) vorder->tab_sort,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_sort == nullptr) error = 1;
-    if (vorder->flag_dist)
-    {
-      vorder->tab_dist = (double*) mem_realloc((char* ) vorder->tab_dist,
-                                               vorder->npair * sizeof(double),
-                                               0);
-      if (vorder->tab_dist == nullptr) error = 1;
-    }
+    vorder->tab_iech.resize(vorder->npair);
+    vorder->tab_jech.resize(vorder->npair);
+    vorder->tab_ipas.resize(vorder->npair);
+    vorder->tab_sort.resize(vorder->npair);
+    if (vorder->flag_dist) vorder->tab_dist.resize(vorder->npair);
+
     if (vorder->size_aux > 0)
     {
       vorder->tab_aux_iech = (char*) mem_realloc(
@@ -2036,7 +1996,7 @@ Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
   {
     for (i = 0; i < vorder->npair; i++)
       vorder->tab_sort[i] = i;
-    ut_sort_int(1, vorder->npair, vorder->tab_sort, vorder->tab_ipas);
+    VH::arrangeInPlace(1, vorder->tab_sort, vorder->tab_ipas, true, vorder->npair);
     *npair = vorder->npair;
   }
   return (vorder);
@@ -2062,12 +2022,11 @@ void vario_order_get_indices(Vario_Order *vorder,
 {
   int jpair;
 
-  if (vorder->tab_sort == nullptr) messageAbort("vario_order_get_indices");
+  if (vorder->tab_sort.empty()) messageAbort("vario_order_get_indices");
   jpair = vorder->tab_sort[ipair];
   *iech = vorder->tab_iech[jpair];
   *jech = vorder->tab_jech[jpair];
-  *dist = (vorder->flag_dist) ? vorder->tab_dist[jpair] :
-                                TEST;
+  *dist = (vorder->flag_dist) ? vorder->tab_dist[jpair] : TEST;
 }
 
 /****************************************************************************/
@@ -2088,7 +2047,7 @@ void vario_order_get_auxiliary(Vario_Order *vorder,
 {
   int jpair, iad;
 
-  if (vorder->tab_sort == nullptr) messageAbort("vario_order_get_auxiliary");
+  if (vorder->tab_sort.empty()) messageAbort("vario_order_get_auxiliary");
   jpair = vorder->tab_sort[ipair];
   iad = vorder->size_aux * jpair;
   (void) memcpy(aux_iech, &vorder->tab_aux_iech[iad], vorder->size_aux);
@@ -2108,15 +2067,15 @@ void vario_order_get_auxiliary(Vario_Order *vorder,
  **
  *****************************************************************************/
 void vario_order_get_bounds(Vario_Order *vorder,
-                                            int idir,
-                                            int ipas,
-                                            int *ifirst,
-                                            int *ilast)
+                            int idir,
+                            int ipas,
+                            int *ifirst,
+                            int *ilast)
 {
   int ipair, jpair, ival;
 
   ival = ipas + idir * QUANT_DIR;
-  if (vorder->npair > 0 && vorder->tab_sort == nullptr)
+  if (vorder->npair > 0 && vorder->tab_sort.empty())
     messageAbort("vario_order_get_bounds");
   *ifirst = vorder->npair;
   *ilast = -1;
@@ -2188,7 +2147,7 @@ static int invgen(double *a, int neq, double *tabout)
       value = 0.;
       for (k = 0; k < neq; k++)
       {
-        if (ABS(eigval[k]) > 1e-10) value += EIGVEC(k,i)* EIGVEC(k,j) / eigval[k];
+        if (ABS(eigval[k]) > 1e-10) value += EIGVEC(k,i) * EIGVEC(k,j) / eigval[k];
       }
       TABOUT(i,j)= value;
     }
@@ -3244,13 +3203,13 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combinaison of both */
 
-    if (matrix_norm(hgn, npar) <= delta2)
+    if (VH::innerProduct(hgn,  hgn, npar) <= delta2)
     {
       matrix_combine(npar, 1., hgn, 0., NULL, step);
     }
     else
     {
-      normgrad2 = matrix_norm(gr, npar);
+      normgrad2 = VH::innerProduct(gr, gr, npar);
       alpha = normgrad2 / matrix_normA(gr, Gn, npar, npar);
       normgrad = sqrt(normgrad2);
       if (normgrad > (delta / alpha))
@@ -3262,8 +3221,8 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
         matrix_combine(npar, alpha, hsd, 0., NULL, a);
         matrix_combine(npar, 1., hgn, -1., a, hgna);
         matrix_product_safe(1, npar, 1, a, hgn, &c);
-        a2 = matrix_norm(a, npar);
-        hgna2 = matrix_norm(hgna, npar);
+        a2 = VH::innerProduct(a, a, npar);
+        hgna2 = VH::innerProduct(hgna, hgna, npar);
         if (c <= 0.)
           beta = (-c + sqrt(c * c + hgna2 * (delta2 - a2))) / hgna2;
         else
@@ -3316,7 +3275,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
                        JJ);
         penalize /= 2.;
       }
-      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(matrix_norm(step, npar)));
+      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProduct(step, step, npar)));
     }
     if (rval < 0.25) delta /= 2.;
 

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Basic/VectorNumT.hpp"
 
 GSTLEARN_EXPORT void law_set_old_style(bool style);
 GSTLEARN_EXPORT int law_get_random_seed(void);
@@ -48,7 +49,7 @@ GSTLEARN_EXPORT double law_df_quadgaussian(double *vect, double *corr);
 GSTLEARN_EXPORT double law_df_multigaussian(int nvar,
                                             double *vect,
                                             double *corr);
-GSTLEARN_EXPORT void law_random_path(int nech, int *path);
+GSTLEARN_EXPORT VectorInt law_random_path(int nech);
 GSTLEARN_EXPORT double* law_exp_sample(double *tabin,
                                        int mode,
                                        int nvar,

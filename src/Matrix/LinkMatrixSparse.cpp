@@ -12,6 +12,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
@@ -1184,7 +1185,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   xcr = rhs = scores = nullptr;
   ncur = mgs->ncur;
   nlevels = mgs->nlevels;
-  norm = matrix_norm(b, ncur);
+  norm = VH::innerProduct(b, b, ncur);
   flag_sym = (int) get_keypone("MG_Flag_Symmetric", 1.);
   if (verbose)
     message("Pre-conditioning phase (Niter=%d Tol=%15.10lf)\n", mgs->nmg,
@@ -1320,7 +1321,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
 
   error = 1;
   ncur = mgs->ncur;
-  norm = matrix_norm(b, ncur);
+  norm = VH::innerProduct(b, b, ncur);
   resid = p = z = scores = temp = nullptr;
   if (verbose)
     message("Conjugate-Gradient Phase (Nmax=%d Tol=%15.10lf)\n", mgs->ngc,
@@ -1368,7 +1369,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
       resid[icur] -= alpha * temp[icur];
     }
 
-    score = sqrt(matrix_norm(resid, ncur) / norm);
+    score = sqrt(VH::innerProduct(resid, resid, ncur) / norm);
     scores[niter++] = score;
     if (verbose)
       message("Iteration Gradient %3d -> Score = %15.10lf\n", iter + 1, score);
@@ -1532,8 +1533,8 @@ String toStringDim(const String &title, const cs *A)
 String toStringRange(const String &title, const cs *C)
 {
   std::stringstream sstr;
-  int *cols, *rows, number, nvalid;
-  double *vals, mini, maxi;
+  int *cols, *rows, number;
+  double *vals;
 
   /* Initializations */
 
@@ -1547,9 +1548,7 @@ String toStringRange(const String &title, const cs *C)
 
   /* Calculate the extreme values */
 
-  nvalid = 0;
-  mini = maxi = TEST;
-  ut_stats_mima(number, vals, NULL, &nvalid, &mini, &maxi);
+  StatResults stats = ut_statistics(number, vals);
 
   /* Printout */
 
@@ -1557,7 +1556,7 @@ String toStringRange(const String &title, const cs *C)
 
   sstr << " Descr: m=" << cs_getnrow(C) << " - n=" << cs_getncol(C) << " - nzmax=" << C->nzmax
   << std::endl;
-  sstr << " Range: [" << mini << " ; " << maxi << "] (" << nvalid << " / "
+  sstr << " Range: [" << stats.mini << " ; " << stats.maxi << "] (" << stats.nvalid << " / "
        << number << ")" << std::endl;
 
   /* Core deallocation */
@@ -1857,8 +1856,8 @@ void cs_print_dim(const char *title, const cs *A)
 
 void cs_print_range(const char *title, const cs *C)
 {
-  int *cols, *rows, number, nvalid;
-  double *vals, mini, maxi;
+  int *cols, *rows, number;
+  double *vals;
 
   /* Initializations */
 
@@ -1872,9 +1871,7 @@ void cs_print_range(const char *title, const cs *C)
 
   /* Calculate the extreme values */
 
-  nvalid = 0;
-  mini = maxi = TEST;
-  ut_stats_mima(number, vals, NULL, &nvalid, &mini, &maxi);
+  StatResults stats = ut_statistics(number, vals);
 
   /* Printout */
 
@@ -1883,7 +1880,7 @@ void cs_print_range(const char *title, const cs *C)
   else
     message("Sparse matrix\n");
   message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
-  message(" Range: [%lf ; %lf] (%d/%d)\n", mini, maxi, nvalid, number);
+  message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, number);
 
   /* Core deallocation */
 
@@ -2074,25 +2071,21 @@ void cs_diag_suppress(cs *C)
 
 int cs_sort_i(cs *C)
 {
-  int *rank, size, n, j, i, ecr;
+	int ecr;
+  int n = cs_getncol(C);
+  int size = MAX(cs_getnrow(C), n);
+  VectorInt rank(size);
 
-  /* Core allocation */
-
-  n = cs_getncol(C);
-  size = MAX(cs_getnrow(C), n);
-  rank = (int*) mem_alloc(sizeof(int) * size, 0);
-  if (rank == nullptr) return (1);
-
-  for (j = 0; j < n; j++)
+  for (int j = 0; j < n; j++)
   {
-    for (i = C->p[j], ecr = 0; i < C->p[j + 1]; i++)
+    ecr = 0;
+    for (int i = C->p[j]; i < C->p[j + 1]; i++)
       rank[ecr++] = C->i[i];
-    ut_sort_int(0, ecr, NULL, rank);
-    for (i = C->p[j], ecr = 0; i < C->p[j + 1]; i++)
+    VH::sortInPlace(rank, true, ecr);
+    ecr = 0;
+    for (int i = C->p[j]; i < C->p[j + 1]; i++)
       C->i[i] = rank[ecr++];
   }
-
-  rank = (int*) mem_free((char* ) rank);
   return (0);
 }
 

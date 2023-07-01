@@ -27,6 +27,7 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
@@ -2945,7 +2946,7 @@ static void st_project_plane(double center[3],
 
   /* Returned coordinates */
 
-  vector_translate(3, center, v, xyz);
+  VH::addInPlace(center, v, xyz, 3);
 }
 
 /****************************************************************************/
@@ -2976,14 +2977,14 @@ static void st_tangent_calculate(double center[3],
   w[1] = sinphi * sintet;
   w[2] = cosphi;
   // V = Center ^ w: first axis
-  vector_product(center, w, v);
-  ut_normalize(3, v);
+  VH::crossProduct3DInPlace(center, w, v);
+  VH::normalize(v, 3);
   // W = Center ^ V: second axis
-  vector_product(center, v, w);
-  ut_normalize(3, w);
+  VH::crossProduct3DInPlace(center, v, w);
+  VH::normalize(w, 3);
   // Get the end points from Unit vectors
-  vector_translate(3, center, v, axes[0]);
-  vector_translate(3, center, w, axes[1]);
+  VH::addInPlace(center, v, axes[0], 3);
+  VH::addInPlace(center, w, axes[1], 3);
 }
 
 /****************************************************************************/

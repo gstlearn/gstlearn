@@ -510,6 +510,22 @@ void VectorHelper::normalize(VectorDouble &vec)
      v /= ratio;
 }
 
+void VectorHelper::normalize(double *tab, int ntab)
+{
+  int i;
+  double norme;
+
+  norme = 0.;
+  for (i = 0; i < ntab; i++)
+    norme += tab[i] * tab[i];
+  norme = sqrt(norme);
+
+  if (norme <= 0.) return;
+  for (i = 0; i < ntab; i++)
+    tab[i] /= norme;
+  return;
+}
+
 void VectorHelper::normalizeFromGaussianDistribution(VectorDouble &vec,
                                                      double mini,
                                                      double maxi)
@@ -695,17 +711,17 @@ void VectorHelper::fillUndef(VectorDouble& vec, double repl)
  *
  * @param number  Length of the output vector
  * @param ideb    Index of the first element of the output vector
+ * @param step    Step between two consecutive values
  */
-VectorInt VectorHelper::sequence(int number, int ideb)
+VectorInt VectorHelper::sequence(int number, int ideb, int step)
 {
   VectorInt vec(number);
 
   int jdeb = ideb;
-  VectorInt::iterator it(vec.begin());
-  while (it < vec.end())
+  for (int i = 0; i < number; i++)
   {
-    *it = jdeb++;
-    it++;
+    vec[i] = jdeb;
+    jdeb += step;
   }
   return vec;
 }
@@ -895,25 +911,33 @@ void VectorHelper::addInPlace(VectorDouble &dest, const VectorDouble &src)
 
 void VectorHelper::addInPlace(const VectorDouble &veca,
                               const VectorDouble &vecb,
-                              VectorDouble &res)
+                              VectorDouble &res,
+                              int size)
 {
-  if (veca.size() != vecb.size())
+  if (size <= 0) size = (int) veca.size();
+  if (size != (int) vecb.size())
     my_throw("Wrong size");
+  if ((int) res.size() != size) res.resize(size);
 
-  int n = (int) veca.size();
-  if ((int) res.size() != (int) veca.size())
-    res.resize(n);
-
-  VectorDouble::iterator it(res.begin());
-  VectorDouble::const_iterator ita(veca.begin());
-  VectorDouble::const_iterator itb(vecb.begin());
-  while (it < res.end())
+  const double* iptra = &veca[0];
+  const double* iptrb = &vecb[0];
+  double* iptrv = &res[0];
+  for (int i = 0; i < size; i++)
   {
-    *it = *ita + *itb;
-    it++;
-    ita++;
-    itb++;
+    (*iptrv) = (*iptra) + (*iptrb);
+    iptrv++;
+    iptra++;
+    iptrb++;
   }
+}
+
+void VectorHelper::addInPlace(const double* veca,
+                              const double* vecb,
+                              double* res,
+                              int size)
+{
+  for (int i = 0; i < size; i++)
+    res[i] = veca[i] + vecb[i];
 }
 
 /**
@@ -1036,18 +1060,35 @@ void VectorHelper::divideConstant(VectorDouble &vec, double v)
   { d /= v; });
 }
 
-void VectorHelper::copy(VectorDouble &vecin, const VectorDouble &vecout)
+void VectorHelper::copy(const VectorDouble &vecin, VectorDouble &vecout, int size)
 {
-  if (vecin.size() != vecout.size())
-  my_throw("Wrong size");
+  if (size < 0) size = (int) vecin.size();
+  if (size > (int) vecout.size())
+    my_throw("Wrong size");
 
-  VectorDouble::iterator it(vecin.begin());
-  VectorDouble::const_iterator itb(vecout.begin());
-  while (it < vecin.end())
+  VectorDouble::iterator itout(vecout.begin());
+  VectorDouble::const_iterator itin(vecin.begin());
+  for (int i = 0; i < size; i++)
   {
-    (*it) = (*itb);
-    it++;
-    itb++;
+    (*itout) = (*itin);
+    itin++;
+    itout++;
+  }
+}
+
+void VectorHelper::copy(const VectorInt &vecin, VectorInt &vecout, int size)
+{
+  if (size < 0) size = (int) vecin.size();
+  if (size > (int) vecout.size())
+    my_throw("Wrong size");
+
+  VectorInt::iterator itout(vecout.begin());
+  VectorInt::const_iterator itin(vecin.begin());
+  for (int i = 0; i < size; i++)
+  {
+    (*itout) = (*itin);
+    itin++;
+    itout++;
   }
 }
 
@@ -1138,44 +1179,66 @@ double VectorHelper::extensionDiagonal(const VectorDouble &mini,
   return diag;
 }
 
-VectorInt VectorHelper::unique(const VectorInt& vecin)
+VectorInt VectorHelper::unique(const VectorInt& vecin, int size)
 {
+  if (size < 0) size = (int) vecin.size();
+
   VectorInt vecout = vecin;
+  vecout.resize(size);
   std::vector<int>::iterator it;
-  it = std::unique(vecout.begin(), vecout.end());
+  it = std::unique(vecout.begin(), vecout.begin());
   vecout.resize(distance(vecout.begin(),it));
   return vecout;
 }
 
-VectorDouble VectorHelper::unique(const VectorDouble& vecin)
+VectorDouble VectorHelper::unique(const VectorDouble& vecin, int size)
 {
+  if (size < 0) size = (int) vecin.size();
+
   VectorDouble vecout = vecin;
+  vecout.resize(size);
   std::vector<double>::iterator it;
   it = std::unique(vecout.begin(), vecout.end());
   vecout.resize(distance(vecout.begin(),it));
   return vecout;
 }
 
-VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending)
+VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending, int size)
 {
   if (vecin.empty()) return VectorInt();
-
+  if (size < 0) size = (int) vecin.size();
   VectorInt vecout = vecin;
+  vecout.resize(size);
   std::sort(vecout.begin(), vecout.end());
   if (! ascending)
     std::reverse(vecout.begin(), vecout.end());
   return vecout;
 }
 
-VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending)
+VectorDouble VectorHelper::sort(const VectorDouble& vecin, bool ascending, int size)
 {
   if (vecin.empty()) return VectorDouble();
-
+  if (size < 0) size = (int) vecin.size();
   VectorDouble vecout = vecin;
+  vecout.resize(size);
   std::sort(vecout.begin(), vecout.end());
   if (! ascending)
     std::reverse(vecout.begin(), vecout.end());
   return vecout;
+}
+
+void VectorHelper::sortInPlace(VectorInt& vecin, bool ascending, int size)
+{
+  if (vecin.empty()) return;
+  VectorInt vecout = sort(vecin, ascending, size);
+  copy(vecout, vecin, size);
+}
+
+void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, int size)
+{
+  if (vecin.empty()) return;
+  VectorDouble vecout = sort(vecin, ascending, size);
+  copy(vecout, vecin, size);
 }
 
 /**
@@ -1233,40 +1296,165 @@ VectorInt VectorHelper::filter(const VectorInt &vecin,
  * Returns the permutation which rearranges the input vector into any order
  * @param vecin Input vector
  * @param ascending True for ascending order; False otherwise
+ * @param size Optional dimension of the input vector
  * @return Vector of orders
  */
-VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending)
+VectorInt VectorHelper::orderRanks(const VectorInt& vecin, bool ascending, int size)
 {
   if (vecin.empty()) return VectorInt();
 
-  VectorInt idx(vecin.size());
-  for (int i = 0; i < (int) vecin.size(); i++) idx[i] = i;
+  if (size < 0) size = vecin.size();
+  VectorInt idx(size);
+  for (int i = 0; i < size; i++) idx[i] = i;
 
   // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
   // to avoid unnecessary index re-orderings when v contains elements of equal values
+  VectorT<int>::iterator last = idx.begin() + size;
   if (ascending)
   {
-    stable_sort(idx.begin(), idx.end(),
+    stable_sort(idx.begin(), last,
                 [&vecin](size_t i1, size_t i2) {return vecin[i1] < vecin[i2];});
   }
   else
   {
-    stable_sort(idx.begin(), idx.end(),
+    stable_sort(idx.begin(), last,
                 [&vecin](size_t i1, size_t i2) {return vecin[i1] > vecin[i2];});
   }
 
   return idx;
 }
 
-VectorInt VectorHelper::sortRanks(const VectorDouble& vecin, bool ascending)
+/**
+ * Returns the permutation which rearranges the input vector into any order
+ * @param vecin Input vector
+ * @param ascending True for ascending order; False otherwise
+ * @param size Optional vector dimension
+ * @return Vector of orders
+ */
+VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending, int size)
 {
   if (vecin.empty()) return VectorInt();
+  if (size < 0) size = (int) vecin.size();
+  VectorInt idx(size);
+  for (int i = 0; i < size; i++) idx[i] = i;
 
-  VectorInt order = orderRanks(vecin, ascending);
-  VectorInt idx(vecin.size());
-  for (int i = 0; i < (int) vecin.size(); i++) idx[order[i]] = i;
+  // sort indexes based on comparing values in v using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings when v contains elements of equal values
+  VectorT<int>::iterator last = idx.begin() + size;
+  if (ascending)
+  {
+    stable_sort(idx.begin(), last,
+                [&vecin](size_t i1, size_t i2) {return vecin[i1] < vecin[i2];});
+  }
+  else
+  {
+    stable_sort(idx.begin(), last,
+                [&vecin](size_t i1, size_t i2) {return vecin[i1] > vecin[i2];});
+  }
 
   return idx;
+}
+
+VectorInt VectorHelper::sortRanks(const VectorDouble& vecin, bool ascending, int size)
+{
+  if (vecin.empty()) return VectorInt();
+  if (size < 0) size = vecin.size();
+  VectorInt order = orderRanks(vecin, ascending, size);
+  VectorInt idx(size);
+  for (int i = 0; i < size; i++) idx[order[i]] = i;
+
+  return idx;
+}
+
+VectorInt VectorHelper::reorder(const VectorInt& vecin, const VectorInt& order, int size)
+{
+  if (size < 0) size = (int) vecin.size();
+  VectorInt vecout(size);
+  for (int i = 0; i< size; i++)
+    vecout[i] = vecin[order[i]];
+  return vecout;
+}
+
+VectorDouble VectorHelper::reorder(const VectorDouble& vecin, const VectorInt& order, int size)
+{
+  if (size < 0) size = (int) vecin.size();
+  VectorDouble vecout(size);
+  for (int i = 0; i< size; i++)
+    vecout[i] = vecin[order[i]];
+  return vecout;
+}
+
+/*****************************************************************************/
+/*!
+ **  Sorts the (double) array value() and the array ranks() if provided
+ **
+ ** \param[in]  safe   1 if the value array if preserved
+ **                    0 if the value array is also sorted
+ ** \param[in]  ascending Sorting order
+ ** \param[in]  size   Optional vector dimension
+ **
+ ** \param[out] ranks  input and output int array
+ ** \param[out] value  input and output double array
+ **
+ ** \remark  If ranks = NULL, ranks is ignored
+ ** \remark  When using 'size', the remaining part of arrays is unchanged
+ **
+ *****************************************************************************/
+void VectorHelper::arrangeInPlace(int safe,
+                                  VectorInt &ranks,
+                                  VectorDouble &values,
+                                  bool ascending,
+                                  int size)
+{
+  VectorInt order = orderRanks(values, ascending, size);
+
+  if (! ranks.empty())
+  {
+    VectorInt newranks = reorder(ranks, order, size);
+    copy(newranks, ranks, size);
+  }
+
+  if (safe == 0)
+  {
+    VectorDouble newvals = reorder(values, order, size);
+    copy(newvals, values, size);
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Sorts the (int) array value() and the array ranks() if provided
+ **
+ ** \param[in]  safe   1 if the value array if preserved
+ **                    0 if the value array is also sorted
+ ** \param[in]  nech   number of samples
+ **
+ ** \param[out] ranks  intput and output int array
+ ** \param[out] value  input and output int array
+ **
+ ** \remark  If ranks = NULL, ranks is ignored
+ ** \remark  When using 'size', the remaining part of arrays is unchanged
+ **
+ *****************************************************************************/
+void VectorHelper::arrangeInPlace(int safe,
+                                  VectorInt &ranks,
+                                  VectorInt &values,
+                                  bool ascending,
+                                  int size)
+{
+  VectorInt order = orderRanks(values, ascending, size);
+
+  if (! ranks.empty())
+  {
+    VectorInt newranks = reorder(ranks, order, size);
+    ranks = newranks;
+  }
+
+  if (safe == 0)
+  {
+    VectorInt newval = reorder(values, order, size);
+    values = newval;
+  }
 }
 
 std::pair<double,double> VectorHelper::rangeVals(const VectorDouble& vec)
@@ -1285,7 +1473,7 @@ double VectorHelper::innerProduct(const VectorDouble &veca,
                                   int size)
 {
   if (size < 0) size = (int) veca.size();
-  if ((int) vecb.size() > size)
+  if (size > (int) veca.size() || size > (int) vecb.size())
     my_throw("Incompatible sizes");
 
   double prod = 0.;
@@ -1322,8 +1510,8 @@ double VectorHelper::innerProduct(const double* veca,
  * @param vecb Second Vector
  * @return
  */
-VectorDouble VectorHelper::crossProduct(const VectorDouble &veca,
-                                        const VectorDouble &vecb)
+VectorDouble VectorHelper::crossProduct3D(const VectorDouble &veca,
+                                          const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
   my_throw("Wrong size");
@@ -1332,6 +1520,13 @@ VectorDouble VectorHelper::crossProduct(const VectorDouble &veca,
   res.push_back(veca[2] * vecb[0] - veca[0] * vecb[2]);
   res.push_back(veca[0] * vecb[1] - veca[1] * vecb[0]);
   return res;
+}
+
+void VectorHelper::crossProduct3DInPlace(const double *a, const double *b, double *v)
+{
+  v[0] = a[1] * b[2] - a[2] * b[1];
+  v[1] = a[2] * b[0] - a[0] * b[2];
+  v[2] = a[0] * b[1] - a[1] * b[0];
 }
 
 /**

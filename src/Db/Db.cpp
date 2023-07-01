@@ -2575,21 +2575,21 @@ VectorDouble Db::getWeights(bool useSel) const
  *****************************************************************************/
 VectorDouble Db::getCodeList(void)
 {
-  int nred;
-  VectorDouble tab(_nech);
+  VectorDouble work(_nech);
 
   /* Load all the codes */
 
   int number = 0;
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (isActive(iech)) tab[number++] = getLocVariable(ELoc::C,iech,0);
+    if (isActive(iech))
+      work[number++] = getLocVariable(ELoc::C,iech,0);
   }
 
   /* Get the Unique occurrence */
 
-  ut_tab_unique(number, tab.data(), &nred);
-  if (nred < number) tab.resize(nred);
+  work.resize(number);
+  VectorDouble tab = VH::unique(work);
   return (tab);
 }
 
@@ -3013,8 +3013,7 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 
   sstr << toTitle(1, "Data Base Statistics");
 
-  int nval, nmask, ntest, nout;
-  double vmin, vmax, delta, mean, stdv;
+  int nmask, ntest, nout;
   int nech = getSampleNumber(false);
   VectorDouble tab, wgt;
 
@@ -3027,30 +3026,28 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 
     tab = getColumnByColIdx(icol, true);
     wgt = getWeights(true);
-    ut_statistics(static_cast<int> (tab.size()), tab.data(), NULL,
-                  wgt.data(), &nval, &vmin, &vmax,
-                  &delta, &mean, &stdv);
+    StatResults stats = ut_statistics((int) tab.size(), tab.data(), NULL, wgt.data());
 
     sstr << icol + 1 << " - Name " << getNameByColIdx(icol) << " - Locator "
          << _getLocatorNameByColIdx(icol) << std::endl;
     sstr << " Nb of data          = " << toInt(nech) << std::endl;
-    sstr << " Nb of active values = " << toInt(nval) << std::endl;
-    if (nval <= 0) continue;
+    sstr << " Nb of active values = " << toInt(stats.nvalid) << std::endl;
+    if (stats.nvalid <= 0) continue;
 
     /* Dispatch */
 
     if (mode == 1)
     {
-      sstr << " Minimum value       = " << toDouble(vmin) << std::endl;
-      sstr << " Maximum value       = " << toDouble(vmax) << std::endl;
-      sstr << " Mean value          = " << toDouble(mean) << std::endl;
-      sstr << " Standard Deviation  = " << toDouble(stdv) << std::endl;
-      sstr << " Variance            = " << toDouble(stdv * stdv) << std::endl;
+      sstr << " Minimum value       = " << toDouble(stats.mini) << std::endl;
+      sstr << " Maximum value       = " << toDouble(stats.maxi) << std::endl;
+      sstr << " Mean value          = " << toDouble(stats.mean) << std::endl;
+      sstr << " Standard Deviation  = " << toDouble(stats.stdv) << std::endl;
+      sstr << " Variance            = " << toDouble(stats.stdv * stats.stdv) << std::endl;
     }
     else
     {
-      vmin = floor(vmin - 0.5);
-      vmax = ceil(vmax + 0.5);
+      double vmin = floor(stats.mini - 0.5);
+      double vmax = ceil(stats.maxi + 0.5);
       int nclass = (int) (vmax - vmin) + 1;
       if (nclass > maxNClass)
         sstr << " Number of classes is truncated to " << maxNClass << std::endl;
@@ -3069,7 +3066,7 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
         if (classe[iclass] <= 0) continue;
         sstr << " Class" << toInt((int) vmin + iclass);
         sstr << " = " << toInt(classe[iclass]);
-        sstr << " (" << toDouble(100. * classe[iclass] / nval) << "%)";
+        sstr << " (" << toDouble(100. * classe[iclass] / stats.nvalid) << "%)";
         sstr << std::endl;
       }
     }
@@ -4404,7 +4401,7 @@ VectorInt Db::getSortArray() const
 
   /* Sorting */
 
-  ut_sort_double(0,nech,rindex.data(),xval.data());
+  VH::arrangeInPlace(0, rindex, xval, true, nech);
 
   return(rindex);
 }

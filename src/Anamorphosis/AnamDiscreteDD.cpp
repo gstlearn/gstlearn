@@ -278,7 +278,7 @@ VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
   lambda.resize(nclass);
   for (int iclass=0; iclass<nclass; iclass++)
     lambda[iclass] = getDDStatLambda(iclass);
-  ut_sort_double(0,nclass,NULL,lambda.data());
+  VH::sortInPlace(lambda);
   for (int iclass=0; iclass<nclass; iclass++)
     setDDStatLambda(iclass, lambda[iclass]);
   setDDStatLambda(0, 0.);

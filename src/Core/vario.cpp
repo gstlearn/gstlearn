@@ -80,7 +80,7 @@ void vario_fix_codir(int ndim, VectorDouble &codir)
   double norme;
 
   if (codir.empty()) return;
-  norme = matrix_norm(codir.data(), ndim);
+  norme = VH::innerProduct(codir, codir, ndim);
   if (norme <= 0.)
   {
     for (int idim = 0; idim < ndim; idim++)

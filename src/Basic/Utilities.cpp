@@ -14,6 +14,7 @@
 #include "Enum/EDbg.hpp"
 
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
 #include <cmath>
@@ -156,41 +157,6 @@ double ut_deg2rad(double angle)
 double ut_rad2deg(double angle)
 {
   return (angle * 180. / GV_PI);
-}
-
-
-/*****************************************************************************/
-/*!
- **  Returns the unique occurrence of values in a vector of values
- **
- ** \param[in]  ntab   Number of values
- ** \param[in]  tab    Array of values
- **
- ** \param[out] neff   Actual number of different values
- **
- ** \remark  The 'neff' values are placed at the beginning of 'tab' in output
- **
- *****************************************************************************/
-void ut_tab_unique(int ntab, double *tab, int *neff)
-{
-  int ecr;
-  double value;
-
-  /* Sorting the values */
-
-  ut_sort_double(0, ntab, NULL, tab);
-
-  /* Search for unique occurences */
-
-  ecr = 1;
-  value = tab[0];
-  for (int lec = 1; lec < ntab; lec++)
-  {
-    if (tab[lec] == value) continue;
-    value = tab[lec];
-    tab[ecr++] = value;
-  }
-  *neff = ecr;
 }
 
 /*****************************************************************************/
@@ -441,383 +407,66 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Sorts the (integer) array value() and the array ind()
- **  in the ascending order of value
- **
- ** \param[in]  safe  1 if the value array if preserved
- **                   0 if the value array is also sorted
- ** \param[in]  nech  number of samples
- **
- ** \param[out] ind    output int array
- ** \param[out] value  input and output array
- **
- ** \remark  If ind = NULL, ind is ignored
- **
- *****************************************************************************/
-void ut_sort_int(int safe, int nech, int *ind, int *value)
-{
-  static int LISTE_L[LSTACK];
-  static int LISTE_R[LSTACK];
-  int i, j, p, l, r, pstack, inddev, inddeu;
-  int *tab, tablev, tableu;
-
-  /* Initialization */
-
-  inddev = inddeu = 0;
-  if (safe)
-  {
-    tab = (int*) mem_alloc(sizeof(int) * nech, 1);
-    for (i = 0; i < nech; i++)
-      tab[i] = value[i];
-  }
-  else
-    tab = value;
-
-  /* Segmentation */
-
-  if (nech > MINI)
-  {
-    if (ind)
-    {
-      pstack = 0;
-      LISTE_L[pstack] = 0;
-      LISTE_R[pstack] = nech - 1;
-
-      while (pstack >= 0)
-      {
-        l = LISTE_L[pstack];
-        r = LISTE_R[pstack];
-        while (r - l + 1 > MINI)
-        {
-          i = l;
-          j = r + 1;
-          p = (int) ((double) (l + r) / 2.);
-
-          if (tab[p] < tab[l])
-          {
-            tablev = tab[p];
-            tab[p] = tab[l];
-            tab[l] = tablev;
-            inddev = ind[p];
-            ind[p] = ind[l];
-            ind[l] = inddev;
-          }
-          if (tab[l] < tab[r])
-          {
-            if (tab[p] > tab[r])
-            {
-              tablev = tab[r];
-              tab[r] = tab[l];
-              tab[l] = tablev;
-              inddev = ind[r];
-              ind[r] = ind[l];
-              ind[l] = inddev;
-            }
-            else
-            {
-              tablev = tab[p];
-              tab[p] = tab[l];
-              tab[l] = tablev;
-              inddev = ind[p];
-              ind[p] = ind[l];
-              ind[l] = inddev;
-            }
-          }
-          else
-          {
-            tablev = tab[l];
-            inddev = ind[l];
-          }
-
-          while (1)
-          {
-            i++;
-            while (tab[i] < tablev)
-              i++;
-            j--;
-            while (tab[j] > tablev)
-              j--;
-            if (j <= i) break;
-            tableu = tab[i];
-            tab[i] = tab[j];
-            tab[j] = tableu;
-            inddeu = ind[i];
-            ind[i] = ind[j];
-            ind[j] = inddeu;
-          }
-          tab[l] = tab[j];
-          tab[j] = tablev;
-          ind[l] = ind[j];
-          ind[j] = inddev;
-
-          if (r - j > j - l)
-          {
-            if (j - l > MINI)
-            {
-              LISTE_L[pstack] = l;
-              LISTE_R[pstack] = j - 1;
-              pstack++;
-              if (pstack >= LSTACK) messageAbort("Stack Overflow");
-            }
-            l = j + 1;
-          }
-          else
-          {
-            if (r - j > MINI)
-            {
-              LISTE_L[pstack] = j + 1;
-              LISTE_R[pstack] = r;
-              pstack++;
-              if (pstack >= LSTACK) messageAbort("Stack Overflow");
-            }
-            r = j - 1;
-          }
-        }
-        pstack--;
-      }
-    }
-    else
-    {
-      pstack = 0;
-      LISTE_L[pstack] = 0;
-      LISTE_R[pstack] = nech - 1;
-
-      while (pstack >= 0)
-      {
-        l = LISTE_L[pstack];
-        r = LISTE_R[pstack];
-        while (r - l + 1 > MINI)
-        {
-          i = l;
-          j = r + 1;
-          p = (int) ((double) (l + r) / 2.);
-
-          if (tab[p] < tab[l])
-          {
-            tablev = tab[p];
-            tab[p] = tab[l];
-            tab[l] = tablev;
-          }
-          if (tab[l] < tab[r])
-          {
-            if (tab[p] > tab[r])
-            {
-              tablev = tab[r];
-              tab[r] = tab[l];
-              tab[l] = tablev;
-            }
-            else
-            {
-              tablev = tab[p];
-              tab[p] = tab[l];
-              tab[l] = tablev;
-            }
-          }
-          else
-          {
-            tablev = tab[l];
-          }
-
-          while (1)
-          {
-            i++;
-            while (tab[i] < tablev)
-              i++;
-            j--;
-            while (tab[j] > tablev)
-              j--;
-            if (j <= i) break;
-            tableu = tab[i];
-            tab[i] = tab[j];
-            tab[j] = tableu;
-          }
-          tab[l] = tab[j];
-          tab[j] = tablev;
-
-          if (r - j > j - l)
-          {
-            if (j - l > MINI)
-            {
-              LISTE_L[pstack] = l;
-              LISTE_R[pstack] = j - 1;
-              pstack++;
-              if (pstack >= LSTACK) messageAbort("Stack Overflow");
-            }
-            l = j + 1;
-          }
-          else
-          {
-            if (r - j > MINI)
-            {
-              LISTE_L[pstack] = j + 1;
-              LISTE_R[pstack] = r;
-              pstack++;
-              if (pstack >= LSTACK) messageAbort("Stack Overflow");
-            }
-            r = j - 1;
-          }
-        }
-        pstack--;
-      }
-    }
-  }
-
-  /* Final sorting */
-
-  for (j = 1; j < nech; j++)
-  {
-    if (tab[j - 1] > tab[j])
-    {
-      tablev = tab[j];
-      if (ind) inddev = ind[j];
-      i = j;
-      while (i > 0)
-      {
-        if (tab[i - 1] <= tablev) break;
-        tab[i] = tab[i - 1];
-        if (ind) ind[i] = ind[i - 1];
-        i--;
-      }
-      tab[i] = tablev;
-      if (ind) ind[i] = inddev;
-    }
-  }
-
-  if (safe) tab = (int*) mem_free((char* ) tab);
-  return;
-}
-
 /****************************************************************************/
 /*!
- **  Returns the statistics of an array
+ **  Returns the statistics of an array in a StatResults structure
  **
  ** \param[in]  nech    Number of samples
  ** \param[in]  tab     Array of values
  ** \param[in]  sel     Array containing the Selection or NULL
  ** \param[in]  wgt     Array containing the Weights or NULL
  **
- ** \param[out]  nval   Number of active values
- ** \param[out]  mini   Minimum value
- ** \param[out]  maxi   Maximum value
- ** \param[out]  delta  Distance between the minimum and the maximum
- ** \param[out]  mean   Mean
- ** \param[out]  stdv   Standard Deviation
- **
  ****************************************************************************/
-void ut_statistics(int nech,
-                   double *tab,
-                   double *sel,
-                   double *wgt,
-                   int *nval,
-                   double *mini,
-                   double *maxi,
-                   double *delta,
-                   double *mean,
-                   double *stdv)
+StatResults ut_statistics(int nech, double *tab, double *sel, double *wgt)
 {
-  int i;
-  double num, tmin, tmax, mm, vv, weight;
+  StatResults stats;
 
   /* Initializations */
 
-  tmin = 1.e30;
-  tmax = -1.e30;
-  num = mm = vv = 0.;
-  (*nval) = 0;
+  double tmin =  1.e30;
+  double tmax = -1.e30;
+  double num = 0.;
+  double mm = 0.;
+  double vv = 0.;
+  int nval = 0;
 
-  for (i = 0; i < nech; i++)
+  for (int i = 0; i < nech; i++)
   {
     if (sel != nullptr && sel[i] == 0.) continue;
     if (FFFF(tab[i])) continue;
-    weight = (wgt != nullptr && wgt[i] >= 0) ? wgt[i] :
-                                               1.;
+    double weight = (wgt != nullptr && wgt[i] >= 0) ? wgt[i] : 1.;
     if (tab[i] < tmin) tmin = tab[i];
     if (tab[i] > tmax) tmax = tab[i];
-    (*nval)++;
+    nval++;
     num += weight;
-    mm += weight * tab[i];
-    vv += weight * tab[i] * tab[i];
+    mm  += weight * tab[i];
+    vv  += weight * tab[i] * tab[i];
   }
 
   /* Returning arguments */
 
-  if (tmax < tmin || (*nval) <= 0)
+  stats.number = nech;
+  stats.nvalid = nval;
+  if (tmax < tmin || nval <= 0)
   {
-    *mini = *maxi = *delta = *mean = *stdv = TEST;
-
+    stats.mini = TEST;
+    stats.maxi = TEST;
+    stats.delta = TEST;
+    stats.mean = TEST;
+    stats.stdv = TEST;
   }
   else
   {
-    *mini = tmin;
-    *maxi = tmax;
-    *delta = tmax - tmin;
+    stats.mini = tmin;
+    stats.maxi = tmax;
+    stats.delta = tmax - tmin;
     mm /= num;
     vv = vv / num - mm * mm;
     if (vv < 0.) vv = 0.;
-    *mean = mm;
-    *stdv = sqrt(vv);
+    stats.mean = mm;
+    stats.stdv = sqrt(vv);
   }
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the minimum and maximum of an array
- **
- ** \param[in]  nech    Number of samples
- ** \param[in]  tab     Array of values
- ** \param[in]  sel     Array containing the Selection or NULL
- **
- ** \param[in,out]  nvalid Number of valid samples
- ** \param[in,out]  mini   Minimum value
- ** \param[in,out]  maxi   Maximum value
- **
- ** \remark The calculation starts with the initial values for minimum,
- ** \remark maximum andl nvalid arguments (used in input).
- ** \remark If no default value is defined, set them minimum and maximum to TEST
- ** \remark and set nvalid to 0
- **
- ****************************************************************************/
-void ut_stats_mima(int nech,
-                   double *tab,
-                   double *sel,
-                   int *nvalid,
-                   double *mini,
-                   double *maxi)
-{
-  double tmin, tmax;
-  int i;
-
-  /* Initializations */
-
-  tmin = (FFFF(*mini)) ?  1.e30 : *mini;
-  tmax = (FFFF(*maxi)) ? -1.e30 : *maxi;
-
-  for (i = 0; i < nech; i++)
-  {
-    if (sel != nullptr && sel[i] == 0.) continue;
-    if (FFFF(tab[i])) continue;
-    if (std::isnan(tab[i])) continue;
-    if (std::isinf(tab[i])) continue;
-    if (tab[i] < tmin) tmin = tab[i];
-    if (tab[i] > tmax) tmax = tab[i];
-    (*nvalid)++;
-  }
-
-  /* Returning arguments */
-
-  if (tmax < tmin)
-  {
-    *mini = *maxi = TEST;
-  }
-  else
-  {
-    *mini = tmin;
-    *maxi = tmax;
-  }
-  return;
+  return stats;
 }
 
 /****************************************************************************/
@@ -832,22 +481,15 @@ void ut_stats_mima(int nech,
  ****************************************************************************/
 void ut_stats_mima_print(const char *title, int nech, double *tab, double *sel)
 {
-  int nvalid;
-  double mini, maxi;
-
-  // Calculate the min-max statistics
-
-  nvalid = 0;
-  mini = maxi = TEST;
-  ut_stats_mima(nech, tab, sel, &nvalid, &mini, &maxi);
+  StatResults stats = ut_statistics(nech, tab, sel);
 
   // Print the statistics out
 
-  if (nvalid <= 0)
-    message("%s: NVal=%6d/%6d - Min=NA - Max=NA\n", title, nvalid, nech);
+  if (stats.nvalid <= 0)
+    message("%s: NVal=%6d/%6d - Min=NA - Max=NA\n", title, stats.nvalid, nech);
   else
-    message("%s: NVal=%6d/%6d - Min=%lf - Max=%lf\n", title, nvalid, nech, mini,
-            maxi);
+    message("%s: NVal=%6d/%6d - Min=%lf - Max=%lf\n", title, stats.nvalid, nech,
+            stats.mini, stats.maxi);
 }
 
 /****************************************************************************/
@@ -1084,30 +726,6 @@ double ut_median(double *tab, int ntab)
 
 /****************************************************************************/
 /*!
- **  Normalize a vector
- **
- ** \param[in]  ntab   Vector dimension
- ** \param[in,out]  tab    Vector to be normalized
- **
- *****************************************************************************/
-void ut_normalize(int ntab, double *tab)
-{
-  int i;
-  double norme;
-
-  norme = 0.;
-  for (i = 0; i < ntab; i++)
-    norme += tab[i] * tab[i];
-  norme = sqrt(norme);
-
-  if (norme <= 0.) return;
-  for (i = 0; i < ntab; i++)
-    tab[i] /= norme;
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Compute combinations(n,k)
  **
  ** \return Return the number of combinations of 'k' objects amongst 'n'
@@ -1267,14 +885,13 @@ int* ut_combinations(int n, int maxk, int *ncomb)
  *****************************************************************************/
 void ut_shuffle_array(int nrow, int ncol, double *tab)
 {
-  double *newtab, *rrank;
-  int *irank, jrow;
+  int jrow;
 
   /* Core allocation */
 
-  newtab = (double*) mem_alloc(sizeof(double) * nrow * ncol, 1);
-  rrank = (double*) mem_alloc(sizeof(double) * nrow, 1);
-  irank = (int*) mem_alloc(sizeof(int) * nrow, 1);
+  VectorDouble newtab(nrow * ncol);
+  VectorDouble rrank(nrow);
+  VectorInt irank(nrow);
 
   /* Draw the permutation array */
 
@@ -1283,7 +900,7 @@ void ut_shuffle_array(int nrow, int ncol, double *tab)
     irank[i] = i;
     rrank[i] = law_uniform(0., 1.);
   }
-  ut_sort_double(0, nrow, irank, rrank);
+  VH::arrangeInPlace(0, irank, rrank, true, nrow);
 
   /* Permutation from 'tab' into 'newtab' */
 
@@ -1298,12 +915,6 @@ void ut_shuffle_array(int nrow, int ncol, double *tab)
 
   for (int i = 0; i < nrow * ncol; i++)
     tab[i] = newtab[i];
-
-  /* Core deallocation */
-
-  irank = (int*) mem_free((char* ) irank);
-  rrank = (double*) mem_free((char* ) rrank);
-  newtab = (double*) mem_free((char* ) newtab);
 }
 
 /**

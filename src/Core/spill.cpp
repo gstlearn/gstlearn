@@ -24,56 +24,198 @@ typedef struct
 } SPIMG;
 
 /*! \cond */
+
 #define BORD                        2
+
 #define SURFACE_UNKNOWN             0
 #define SURFACE_OUTSIDE             1
 #define SURFACE_INSIDE              2
 #define SURFACE_BELOW               3
 #define INQUEUE                    -1
 
-#define IAD(ix,iy)         ((iy) + (ix) * TY)
-#define BITMAP(im,ix,iy)  *(im->bitmap + (iy) + BORD + ((ix) + BORD) * TY)
-#define BITALL(im,ix,iy)  *(im->bitmap + IAD(ix,iy))
-#define MARK(ix,iy)       *(pt_mark    + IAD((ix),(iy)))
-#define NBGH(ix,iy)       *(pt_out     + IAD((ix),(iy)))
-#define IN_OUT(pt_out)    *(pt_out     + Offset_out_in)
-#define MARK_OUT(pt_mark) *(pt_mark    + Offset_mark_out)
-#define OUT_MARK(pt_out)  *(pt_out     - Offset_mark_out)
+#define IAD(ix,iy)            ((ix) + (iy) * TX)
+#define BITMAP(im,ix,iy)     *(im->bitmap + (ix) + BORD + ((iy) + BORD) * TX)
+#define BITALL(im,ix,iy)     *(im->bitmap + IAD(ix,iy))
+#define MARK(ix,iy)          *(pt_mark    + IAD(ix,iy))
+#define NBGH(ix,iy)          *(pt_out     + IAD(ix,iy))
+#define OUT_TO_IN(pt_out)    *(pt_out     + Offset_out_in)
+#define MARK_TO_OUT(pt_mark) *(pt_mark    + Offset_mark_out)
+#define OUT_TO_MARK(pt_out)  *(pt_out     - Offset_mark_out)
 /*! \endcond */
 
 static int SX; /* Window size along X */
 static int SY; /* Window size along Y */
 static int TX; /* Allocated size of BITMAP along X */
 static int TY; /* Allocated size of BITMAP along Y */
+static int TXY;
+static int SXY;
+static int STEP = 0;
+static int Hsize = 0;
 
-static double **Heap, HMAX, HTOP;
-static int Hsize, Offset_mark_out, Offset_out_in;
-static int SIGNE, FLAG_VERBOSE, FLAG_CROSS;
+static double **Heap, HMAX, HINIT, HTOP, BIGVAL;
+static int Offset_mark_out, Offset_out_in, SIGNE, OPTION;
+static int VERBOSE_STEP;
 static DbGrid *DB;
+
+static SPIMG* SPIMG_OUT  = nullptr;
+static SPIMG* SPIMG_IN   = nullptr;
+static SPIMG* SPIMG_MARK = nullptr;
+static double *PT_SPILL = nullptr;
 
 /*****************************************************************************/
 /*!
  **  Evaluates the highest elevation within the reservoir
  **
- ** \param[in]  data SPIMG structure to be initialized
- **
- ** \param[out] input SPIMG structure to be initialized
- **
  *****************************************************************************/
-static void st_htop_evaluate(SPIMG *data, SPIMG *input)
+static double st_htop_evaluate()
 {
   double value;
-  int ix, iy;
-
-  HTOP = -SIGNE * 1.e30;
-
-  for (ix = 0; ix < SX; ix++)
-    for (iy = 0; iy < SY; iy++)
+  double high = -SIGNE * 1.e30;
+  for (int iy = 0; iy < SY; iy++)
+    for (int ix = 0; ix < SX; ix++)
     {
-      if (BITMAP(data,ix,iy) != SURFACE_INSIDE) continue;
-      value = BITMAP(input, ix, iy);
-      if (SIGNE * (value - HTOP) > 0) HTOP = value;
+      if (BITMAP(SPIMG_MARK,ix,iy) != SURFACE_INSIDE) continue;
+      value = BITMAP(SPIMG_IN, ix, iy);
+      if (SIGNE * (value - high) > 0) high = value;
     }
+  return high;
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the coordinates of a point, given its pointer in 'out'
+ **
+ ** \param[in]  out         IMAGE structure
+ ** \param[in]  flag_center When TRUE, coordinates are epressed in central image
+ **
+ ** \param[out] ix          Location of the spill point grid node along X
+ ** \param[out] iy          Location of the spill point grid node along Y
+
+ **
+ *****************************************************************************/
+static void st_get_coordinates(double *pt_out,
+                               int *ix,
+                               int *iy,
+                               SPIMG* image = SPIMG_OUT,
+                               bool flag_center = false)
+{
+  int shift = static_cast<int>(pt_out - image->bitmap);
+  *iy = shift / TX;
+  *ix = shift % TX;
+
+  if (flag_center)
+  {
+    *ix -= BORD;
+    *iy -= BORD;
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Prints the current output flag array
+ **
+ ** \param[in]  flagMain TRUE if it is called from a main level
+ ** \param[in]  title    Title for the dump (main level)
+ ** \param[in]  pt_out   Designation of the target node in 'out' (if provided)
+ ** \param[in]  image    Image containing the information to be displayed
+ **
+ *****************************************************************************/
+static void st_dump(bool flagMain, const String& title, double *pt_out, SPIMG *image)
+{
+  char STRING[BUFFER_LENGTH];
+
+  if (VERBOSE_STEP < 0) return;
+  if (! flagMain && STEP <= VERBOSE_STEP) return;
+
+  /* Process the title */
+
+  (void) gslStrcpy(STRING, "\n");
+  if (flagMain)
+  {
+    (void) gslSPrintf(&STRING[strlen(STRING)],"End of Step %d === ", STEP);
+    (void) gslStrcat(STRING, title.c_str());
+    (void) gslStrcat(STRING, "\n");
+  }
+
+  /* Current address */
+
+  int ix0 = ITEST;
+  int iy0 = ITEST;
+  if (pt_out != nullptr)
+  {
+    st_get_coordinates(pt_out, &ix0, &iy0);
+    (void) gslSPrintf(&STRING[strlen(STRING)],"Step %d : Node (%d/%d, %d/%d)\n", STEP, ix0, TX, iy0, TY);
+  }
+  message(STRING);
+
+  // Current Spill position
+
+  int ix_spill = ITEST;
+  int iy_spill = ITEST;
+  if (PT_SPILL != nullptr)
+  {
+    st_get_coordinates(PT_SPILL, &ix_spill, &iy_spill);
+  }
+
+  // Loop on the rows (reversed order) followed by the loop on columns
+  // for a legible printout
+
+  int numm1 = 0;
+  int nump0 = 0;
+  int nump1 = 0;
+  int nump2 = 0;
+  int numpb = 0;
+  for (int jy = 0; jy < TY; jy++)
+  {
+    int iy = TY - jy - 1;
+    (void) gslStrcpy(STRING,"");
+    for (int ix = 0; ix < TX; ix++)
+    {
+      int value = BITALL(image, ix, iy);
+      if (ix == ix0 && iy == iy0)
+      {
+        (void) gslStrcat(STRING, "X");
+      }
+      else if (ix == ix_spill && iy == iy_spill)
+      {
+        (void) gslStrcat(STRING, "#");
+      }
+      else if (value == INQUEUE)
+      {
+        numm1++;
+        (void) gslStrcat(STRING, "?");
+      }
+      else if (value == SURFACE_UNKNOWN)
+      {
+        nump0++;
+        (void) gslStrcat(STRING, " ");
+      }
+      else if (value == SURFACE_OUTSIDE)
+      {
+        (void) gslStrcat(STRING, ".");
+        nump1++;
+      }
+      else if (value == SURFACE_INSIDE)
+      {
+        (void) gslStrcat(STRING, "*");
+        nump2++;
+      }
+      else if (value == SURFACE_BELOW)
+      {
+        (void) gslStrcat(STRING, "-");
+        numpb++;
+      }
+      else
+      {
+        (void) gslStrcat(STRING, "U");
+      }
+    }
+    (void) gslStrcat(STRING, "\n");
+    message(STRING);
+  }
+  message("Spill'#' Queue'?'(%d) Unknown' '(%d) Out'.'(%d) In'*'(%d) Below'-'(%d) Heap(%d)\n",
+          numm1, nump0, nump1, nump2, numpb, Hsize);
+
   return;
 }
 
@@ -84,15 +226,11 @@ static void st_htop_evaluate(SPIMG *data, SPIMG *input)
  ** \param[in,out]  image SPIMG structure to be initialized
  **
  *****************************************************************************/
-static void st_blank_center(SPIMG *image)
+static void st_blank_center(SPIMG* image)
 {
-  int ix, iy;
-
-  for (ix = 0; ix < SX; ix++)
-    for (iy = 0; iy < SY; iy++)
+  for (int iy = 0; iy < SY; iy++)
+    for (int ix = 0; ix < SX; ix++)
       BITMAP(image,ix,iy) = 0.;
-
-  return;
 }
 
 /*****************************************************************************/
@@ -103,42 +241,21 @@ static void st_blank_center(SPIMG *image)
  ** \li                 0 : for the height variable
  ** \li                 1 : for the data variable
  ** \param[in]  iatt   Rank of the attribute
+ ** \param[in]  defval Default value
  ** \param[in,out] image SPIMG structure to be initialized
  **
  *****************************************************************************/
-static void st_copy_center(int mode, int iatt, SPIMG *image)
+static void st_copy_center(int mode, int iatt, SPIMG* image, double defval)
 {
-  int ix, iy, lec, n_in, n_out;
-  double value;
-
-  n_in = n_out = 0;
-  for (ix = lec = 0; ix < SX; ix++)
-    for (iy = 0; iy < SY; iy++, lec++)
+  VectorInt ind(2);
+  for (int iy = 0; iy < SY; iy++)
+    for (int ix = 0; ix < SX; ix++)
     {
-      value = DB->getArray(lec, iatt);
-
-      if (mode)
-      {
-        if (value == SURFACE_INSIDE)
-          n_in++;
-        else if (value == SURFACE_OUTSIDE)
-          n_out++;
-        else
-          value = 0.;
-      }
-      BITMAP(image,ix,iy) = value;
+      ind[0] = ix;
+      ind[1] = iy;
+      double value = DB->getArray(DB->indiceToRank(ind), iatt);
+      BITMAP(image, ix, iy) = (FFFF(defval)) ? defval : value;
     }
-
-  /* Optional printout */
-
-  if (mode == 1 && FLAG_VERBOSE)
-  {
-    message("Conditioning data:\n");
-    message("- Number of nodes inside the reservoir  = %d\n", n_in);
-    message("- Number of nodes outside the reservoir = %d\n", n_out);
-  }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -150,89 +267,48 @@ static void st_copy_center(int mode, int iatt, SPIMG *image)
  ** \param[out] iatt  Rank of the output attribute
  **
  *****************************************************************************/
-static void st_extract_center(SPIMG *image, int iatt)
+static void st_extract_center(SPIMG* image, int iatt)
 {
-  int ix, iy, lec;
+  VectorInt ind(2);
+  for (int iy = 0; iy < SY; iy++)
+    for (int ix = 0; ix < SX; ix++)
+    {
+      ind[0] = ix;
+      ind[1] = iy;
+      DB->setArray(DB->indiceToRank(ind), iatt, BITMAP(image, ix, iy));
+    }
+}
 
-  for (ix = lec = 0; ix < SX; ix++)
-    for (iy = 0; iy < SY; iy++, lec++)
-      DB->setArray(lec, iatt, BITMAP(image, ix, iy));
-  return;
+static void st_change(double *pt_out, double value)
+{
+  *pt_out = value;
+  if (value != SURFACE_UNKNOWN) st_dump(false, String(), pt_out, SPIMG_OUT);
 }
 
 /*****************************************************************************/
 /*!
- **  Converts the final image into the following codes: SURFACE_BELOW,
- **  SURFACE_INSIDE, SURFACE_OUTSIDE, SURFACE_UNKNOWN
+ **  Converts the final image into the following codes:
+ **  SURFACE_INSIDE, SURFACE_OUTSIDE, SURFACE_BELOW or SURFACE_UNKNOWN
  **
- ** \param[in,out] out  SPIMG structure
- ** \param[in]  hspill  spill evelation
+ ** \param[in]  hspill  spill elevation
  **
  *****************************************************************************/
-static void st_convert(SPIMG *out, double hspill)
+static void st_convert(double hspill)
 {
   double *pt_out, th;
-  int ix, iy;
 
-  /* Convert the SPIMG */
-
-  for (ix = 0; ix < SX; ix++)
-    for (iy = 0; iy < SY; iy++)
+  for (int iy = 0; iy < SY; iy++)
+    for (int ix = 0; ix < SX; ix++)
     {
-      pt_out = &BITMAP(out, ix, iy);
-      th = (SIGNE > 0) ? IN_OUT(pt_out) - hspill :
-                         hspill - IN_OUT(pt_out);
+      pt_out = &BITMAP(SPIMG_OUT, ix, iy);
+      if (*pt_out == SURFACE_INSIDE || *pt_out == SURFACE_OUTSIDE) continue;
+
+      th = SIGNE * (OUT_TO_IN(pt_out) - hspill);
       if (th < 0.)
-      {
-        *pt_out = SURFACE_BELOW;
-      }
+        st_change(pt_out, SURFACE_BELOW);
       else
-      {
-        if (*pt_out == SURFACE_INSIDE || *pt_out == SURFACE_OUTSIDE) continue;
-        *pt_out = SURFACE_UNKNOWN;
-      }
+        st_change(pt_out, SURFACE_UNKNOWN);
     }
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Converts the UNKNOWN into INSIDE Check if the Maximum Reservoir
- **  Thickness criterion is still honored
- **
- ** \return  Error returned code: 1 if the Maximum Reservoir Thickness
- ** \return  constraint is violated; 0 otherwise
- **
- ** \param[in,out] out SPIMG structure
- ** \param[in]  hspill Spill elevation value
- **
- *****************************************************************************/
-static int st_add_unknown(SPIMG *out, double hspill)
-{
-  double *pt_out, th_max, th;
-  int ix, iy;
-
-  /* Convert Unknown into Inside */
-
-  th_max = 0.;
-  for (ix = 0; ix < SX; ix++)
-    for (iy = 0; iy < SY; iy++)
-    {
-      pt_out = &BITMAP(out, ix, iy);
-      if (*pt_out != SURFACE_UNKNOWN) continue;
-      th = (SIGNE > 0) ? IN_OUT(pt_out) - hspill :
-                         hspill - IN_OUT(pt_out);
-      if (th < 0.) continue;
-      *pt_out = SURFACE_INSIDE;
-      if (th > th_max) th_max = th;
-    }
-
-  /* If a Maximum Reservoir Thickness is used, check if the constraints */
-  /* is still honored */
-
-  if (FFFF(HMAX) && th_max > HMAX) return (1);
-
-  return (0);
 }
 
 /*****************************************************************************/
@@ -244,8 +320,7 @@ static int st_add_unknown(SPIMG *out, double hspill)
  ** \param[in]  image pointer to the image to be freed
  **
  *****************************************************************************/
-static SPIMG* st_image_free(SPIMG *image)
-
+static SPIMG* st_image_free(SPIMG* image)
 {
   if (image == (SPIMG*) NULL) return (image);
 
@@ -268,7 +343,7 @@ static SPIMG* st_image_free(SPIMG *image)
  *****************************************************************************/
 static SPIMG* st_image_alloc(double value)
 {
-  SPIMG *image;
+  SPIMG* image;
   double *pt;
   int i, error;
 
@@ -284,17 +359,18 @@ static SPIMG* st_image_alloc(double value)
 
   /* Create the pixel array */
 
-  image->bitmap = (double*) mem_alloc(sizeof(double) * TX * TY, 0);
+  image->bitmap = (double*) mem_alloc(sizeof(double) * TXY, 0);
   if (image->bitmap == nullptr) goto label_end;
 
   /* Set the array to zero */
 
   pt = image->bitmap;
-  for (i = 0; i < TX * TY; i++)
+  for (i = 0; i < TXY; i++)
     *pt++ = value;
   error = 0;
 
-  label_end: if (error) image = st_image_free(image);
+  label_end:
+  if (error) image = st_image_free(image);
   return (image);
 }
 
@@ -306,14 +382,11 @@ static SPIMG* st_image_alloc(double value)
  **
  *****************************************************************************/
 static void st_heap_add(double *p)
-
 {
-  int i, n;
-
-  i = Hsize++;
-  n = (i - 1) / 2;
+  int i = Hsize++;
+  int n = (i - 1) / 2;
   Heap[i] = p;
-  while ((i > 0) && SIGNE * (IN_OUT(p) - IN_OUT(Heap[n])) > 0.)
+  while ((i > 0) && SIGNE * (OUT_TO_IN(p) - OUT_TO_IN(Heap[n])) > 0.)
   {
     Heap[i] = Heap[n];
     i = n;
@@ -322,8 +395,7 @@ static void st_heap_add(double *p)
 
   Heap[i] = p;
   *p = INQUEUE;
-
-  return;
+  st_dump(false, String(), p, SPIMG_OUT);
 }
 
 /*****************************************************************************/
@@ -348,9 +420,9 @@ static double* st_heap_del(void)
     il = 2 * i + 1;
     ir = 2 * i + 2;
     is = i;
-    if ((il < Hsize) && SIGNE * (IN_OUT(Heap[il]) - IN_OUT(Heap[is])) > 0)
+    if ((il < Hsize) && SIGNE * (OUT_TO_IN(Heap[il]) - OUT_TO_IN(Heap[is])) > 0)
       is = il;
-    if ((ir < Hsize) && SIGNE * (IN_OUT(Heap[ir]) - IN_OUT(Heap[is])) > 0)
+    if ((ir < Hsize) && SIGNE * (OUT_TO_IN(Heap[ir]) - OUT_TO_IN(Heap[is])) > 0)
       is = ir;
 
     if (is == i) break;
@@ -359,7 +431,6 @@ static double* st_heap_del(void)
     Heap[is] = temp;
     i = is;
   }
-
   return (first);
 }
 
@@ -392,15 +463,14 @@ static int st_traite(double *pt_out, double *pt_vois)
 
       /* Copy the value of the neighboring element */
 
-      *pt_out = *pt_vois;
+      st_change(pt_out, *pt_vois);
       if (*pt_vois == SURFACE_INSIDE)
       {
-        value = IN_OUT(pt_out);
+        value = OUT_TO_IN(pt_out);
         if (SIGNE * (value - HTOP) > 0) HTOP = value;
         if (!FFFF(HMAX))
         {
-          th = (SIGNE > 0) ? HTOP - value :
-                             value - HTOP;
+          th = SIGNE * (HTOP - value);
           if (th > HMAX) return (2);
         }
       }
@@ -408,15 +478,14 @@ static int st_traite(double *pt_out, double *pt_vois)
     else if (*pt_out != SURFACE_UNKNOWN && *pt_out != *pt_vois)
     {
 
-      /* The neighbor is already valuated but differently */
+      /* The neighbor is already valued but differently */
 
-      *pt_out = SURFACE_INSIDE;
-      value = IN_OUT(pt_out);
+      st_change(pt_out, SURFACE_INSIDE);
+      value = OUT_TO_IN(pt_out);
       if (SIGNE * (value - HTOP) > 0) HTOP = value;
       if (!FFFF(HMAX))
       {
-        th = (SIGNE > 0) ? HTOP - value :
-                           value - HTOP;
+        th = SIGNE * (HTOP - value);
         if (th > HMAX) return (2);
       }
       return (1);
@@ -432,238 +501,68 @@ static int st_traite(double *pt_out, double *pt_vois)
   return (0);
 }
 
-/*****************************************************************************/
-/*!
- **  Prints the current output flag array
- **
- ** \param[in]  title   title for the conditional dump
- ** \param[in]  pt_out  Pointer to the array to be printed
- ** \param[in]  out     working image containing the marked zones
- **
- *****************************************************************************/
-static void st_dump(const char *title, double *pt_out, SPIMG *out)
-
+static void st_print()
 {
-  int ix, iy, shift;
-  char STRING[BUFFER_LENGTH];
-  static int first = 0;
-
-  if (!FLAG_VERBOSE) return;
-
-  /* Print the general comment */
-
-  if (first == 0)
-  {
-    message("For the DEBUGGING print, we use the following conventions\n"
-            "Pixels are organized by increasing IX in a line\n"
-            "                     by increasing IY in a column\n"
-            "The origin (IX=0,IY=0) is located in the upper left corner\n");
-    message("A frame (%d pixels) is added to the original grid\n\n", BORD);
-    first = 1;
-  }
-
-  /* Process the title */
-
-  (void) gslStrcpy(STRING, title);
-  (void) gslStrcat(STRING, " : ");
-
-  /* Process the address */
-
-  if (pt_out != nullptr)
-  {
-    shift = static_cast<int>(pt_out - out->bitmap);
-    ix = shift / TY;
-    iy = shift - TY * ix;
-    (void) gslSPrintf(&STRING[strlen(STRING)], "Node processed=(%d, %d)", ix,
-                      iy);
-  }
-
-  /* Print the header (if any) */
-
-  (void) gslStrcat(STRING, "\n");
-  message(STRING);
-
-  /* Dump the grid */
-
-  for (iy = 0; iy < TY; iy++)
-  {
-    for (ix = 0; ix < TX; ix++)
-      message(" %4d", BITALL(out, ix, iy));
-    message("\n");
-  }
-  message("\n");
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the coordinates of a point, given its pointer
- **
- ** \param[in]  pt_out       pointer to the point of interest
- ** \param[in]  out          IMAGE structure
- **
- ** \param[out] ix0 location of the spill point grid node along X (The numbering
- **                 must start with 1)
- ** \param[out] iy0 location of the spill point grid node along Y (The numbering
- **                 must start with 1)
- **
- *****************************************************************************/
-static void st_get_coordinates(double *pt_out, SPIMG *out, int *ix0, int *iy0)
-{
-  *ix0 = static_cast<int>((pt_out - out->bitmap) / TY - BORD + 1);
-  *iy0 = static_cast<int>((pt_out - out->bitmap) % TY - BORD + 1);
-
-  if (OptDbg::query(EDbg::MORPHO))
-    message("Processed grid node : IX=%d IY=%d - Status=%d\n", (*ix0), (*iy0),
-            (*pt_out));
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Establishes the spill point
- **
- ** \return  Error return code
- **
- ** \param[in]  in         image containing the input variable of interest
- ** \param[in]  mark       image containing the constraining markers
- **
- ** \param[out] out working image containing the marked zones
- ** \param[out] h   elevation of the spill point
- ** \param[out] ix0 location of the spill point grid node along X (The numbering
- **                 must start with 1)
- ** \param[out] iy0 location of the spill point grid node along Y (The numbering
- **                 must start with 1)
- **
- *****************************************************************************/
-static int st_spill(SPIMG *in,
-                    SPIMG *mark,
-                    SPIMG *out,
-                    double *h,
-                    int *ix0,
-                    int *iy0)
-{
-  double *pt_mark, *pt_out, hspill;
-  int *x, *y, k, n, iy, ix, found, local;
-  static int n4 = 4;
-  static int n8 = 8;
-  static int x4[] = { 1, -1, 0, 0 };
-  static int y4[] = { 0, 0, 1, -1 };
-  static int x8[] = { 1, -1, 0, 0, 1, -1, -1, 1 };
-  static int y8[] = { 0, 0, 1, -1, 1, -1, 1, -1 };
-
-  /* Initializations */
-
-  found = 0;
-  pt_out = NULL;
-  Offset_out_in = static_cast<int>(in->bitmap - out->bitmap);
-  Offset_mark_out = static_cast<int>(out->bitmap - mark->bitmap);
-  if (FLAG_CROSS)
-  {
-    n = n4;
-    x = x4;
-    y = y4;
-  }
+  mestitle(1, "Spill Point environment");
+  message("- Grid dimensions = %d x %d\n", SX, SY);
+  if (! FFFF(HMAX))
+    message("- Maximum reservoir thickness = %lf\n",HMAX);
   else
-  {
-    n = n8;
-    x = x8;
-    y = y8;
-  }
+    message("- No Maximum reservoir thickness\n");
+  if (OPTION == 0)
+    message("- 4 - connectivity\n");
+  else
+    message("- 8 - connectivity\n");
+  message("An edge of %d pixels is added to the original grid.\n", BORD);
+}
 
-  /* Creation of the Heap-search Pile */
+static void st_final_stats(double hspill, int ix0, int iy0)
+{
+  int num_inside = 0;
+  double min_inside  =  1.e30;
+  double max_inside  = -1.e30;
+  int num_outside = 0;
+  double min_outside =  1.e30;
+  double max_outside = -1.e30;
+  int num_else = 0;
+  double min_else    =  1.e30;
+  double max_else    = -1.e30;
 
-  Hsize = 0;
-  Heap = (double**) mem_alloc(sizeof(double*) * TX * TY, 0);
-  if (Heap == nullptr) return (1);
-
-  /* Initialie stage */
-
-  st_dump("Depth/Elevation Map", NULL, in);
-  st_dump("Constraints", NULL, mark);
-
-  /***************************/
-  /* Add markers to the Heap */
-  /***************************/
-
-  for (ix = -1; ix <= SX; ix++)
-    for (iy = -1; iy <= SY; iy++)
+  for (int iy = 0; iy < SY; iy++)
+    for (int ix = 0; ix < SX; ix++)
     {
-      pt_mark = &BITMAP(mark, ix, iy);
-      pt_out = &MARK_OUT(pt_mark);
-      if (MARK(0,0) == SURFACE_UNKNOWN)
+      int value = BITMAP(SPIMG_OUT, ix, iy);
+      double topo = BITMAP(SPIMG_IN, ix, iy);
+
+      if (value == SURFACE_INSIDE)
       {
-        for (k = found = 0; k < n && found == 0; k++)
-          if (MARK(x[k],y[k]) == SURFACE_INSIDE) found = 1;
-        if (found)
-          st_heap_add(pt_out);
-        else
-          pt_out = SURFACE_UNKNOWN;
+        if (topo < min_inside) min_inside = topo;
+        if (topo > max_inside) max_inside = topo;
+        num_inside++;
       }
-      else if (MARK(0,0) == SURFACE_INSIDE)
-        *pt_out = MARK(0, 0);
+      else if (value == SURFACE_OUTSIDE)
+      {
+        if (topo < min_outside) min_outside = topo;
+        if (topo > max_outside) max_outside = topo;
+        num_outside++;
+      }
       else
-        st_heap_add(pt_out);
+      {
+        if (topo < min_else) min_else = topo;
+        if (topo > max_else) max_else = topo;
+        num_else++;
+      }
     }
-  st_dump("Markers posted", NULL, out);
 
-  /***************/
-  /* Propagation */
-  /***************/
-
-  while (Hsize > 0)
-  {
-    pt_out = st_heap_del();
-    pt_mark = &OUT_MARK(pt_out);
-    if (*pt_mark == SURFACE_OUTSIDE) *pt_out = SURFACE_OUTSIDE;
-    for (k = found = 0; k < n && found == 0; k++)
-    {
-      local = st_traite(pt_out, &NBGH(x[k], y[k]));
-      found = MAX(found, local);
-    }
-    if (found) break;
-    st_dump("Propagation (4-connectivity)", pt_out, out);
-  }
-
-  /* Process the last cell */
-
-  if (found == 2)
-    hspill = (SIGNE > 0) ? HTOP - HMAX :
-                           HMAX + HTOP;
-  else
-    hspill = IN_OUT(pt_out);
-  st_get_coordinates(pt_out, out, ix0, iy0);
-
-  /******************************************************/
-  /* Fill the remaining part of the flat Spill boundary */
-  /******************************************************/
-
-  while (Hsize > 0)
-  {
-    pt_out = st_heap_del();
-    if (IN_OUT(pt_out) != hspill) break;
-    for (k = 0; k < n; k++)
-      (void) st_traite(pt_out, &NBGH(x[k], y[k]));
-    *pt_out = SURFACE_INSIDE;
-    st_dump("Filling Flat Boundary (4-connectivity)", pt_out, out);
-  }
-
-  /*****************************************/
-  /* Final conversions of the output SPIMG */
-  /*****************************************/
-
-  st_convert(out, hspill);
-
-  /* Core deallocation */
-
-  Heap = (double**) mem_free((char* ) Heap);
-
-  /* Returning argument */
-
-  *h = hspill;
-
-  return (0);
+  mestitle(1, "Final statistics");
+  message("INSIDE:  Topography within [%lf ; %lf] (%d)\n",
+          min_inside, max_inside, num_inside);
+  message("OUTSIDE: Topography within [%lf ; %lf] (%d)\n",
+          min_outside, max_outside, num_outside);
+  message("UNKNOWN: Topography within [%lf ; %lf] (%d)\n",
+          min_else, max_else, num_else);
+  message("Elevation: HINIT = %lf - Spill = %lf\n",HINIT, hspill);
+  message("Grid indices of the Spill Point = %d %d\n",ix0,iy0);
 }
 
 /*****************************************************************************/
@@ -678,11 +577,9 @@ static int st_spill(SPIMG *in,
  ** \param[in]  dbgrid        Grid Db structure
  ** \param[in]  ind_depth     Rank of the variable containing the depth
  ** \param[in]  ind_data      Rank of the variable containing the data
- ** \param[in]  flag_up       1 when working in elevation; 0 in depth
- ** \param[in]  flag_cross    1 for 4-connectivity; 0 for 8-connectivity
- ** \param[in]  flag_unknown  1 if Unknown must be converted into Reservoir;
- **                           0 otherwise
- ** \param[in]  flag_verbose  1 for a verbose output
+ ** \param[in]  option        0 for 4-connectivity; 1 for 8-connectivity
+ ** \param[in]  flag_up       TRUE when working in elevation; 0 in depth
+ ** \param[in]  verbose_step  Step for verbose flag
  ** \param[in]  hmax          maximum reservoir thickness (FFFF not used)
  **
  ** \param[out] h      elevation of the spill point
@@ -702,29 +599,33 @@ static int st_spill(SPIMG *in,
 int spill_point(DbGrid *dbgrid,
                 int ind_depth,
                 int ind_data,
-                int flag_up,
-                int flag_cross,
-                int flag_unknown,
-                int flag_verbose,
+                int option,
+                bool flag_up,
+                int verbose_step,
                 double hmax,
                 double *h,
                 double *th,
                 int *ix0,
                 int *iy0)
 {
-  SPIMG *in, *out, *mark;
-  double hspill, thick;
-  int error, iptr_spill;
+  double *pt_mark, *pt_out, hspill;
+  int *x, *y, k, n, iy, ix, found, local;
+  static int n4 = 4;
+  static int n8 = 8;
+  static int x4[] = { 1, -1, 0, 0 };
+  static int y4[] = { 0, 0, 1, -1 };
+  static int x8[] = { 1, -1, 0, 0, 1, -1, -1, 1 };
+  static int y8[] = { 0, 0, 1, -1, 1, -1, 1, -1 };
 
   /* Preliminary tests */
 
-  error = 1;
+  int error = 1;
 
   /* Preliminary checks */
 
   if (! dbgrid->isGrid())
   {
-    messerr("The Fluid Propagation is restricted to regular grid");
+    messerr("The Spill Point algorithm is restricted to regular grid");
     return (1);
   }
   if (dbgrid->getNDim() != 2)
@@ -732,8 +633,8 @@ int spill_point(DbGrid *dbgrid,
     messerr("Spill point is limited to 2-D space");
     return (1);
   }
-  if (ind_depth < 0 || ind_depth > dbgrid->getColumnNumber() || ind_data < 0
-      || ind_data > dbgrid->getColumnNumber())
+  if (ind_depth < 0 || ind_depth > dbgrid->getColumnNumber() ||
+      ind_data  < 0 || ind_data  > dbgrid->getColumnNumber())
   {
     messerr("Error in the ranks of the height (%d) and data (%d) variables",
             ind_depth, ind_data);
@@ -742,67 +643,169 @@ int spill_point(DbGrid *dbgrid,
 
   /* Define global variables */
 
-  thick = 0.;
+  found = 0;
   hspill = TEST;
   HMAX = hmax;
-  SIGNE = (flag_up) ? 1 :
-                      -1;
-  FLAG_VERBOSE = flag_verbose;
-  FLAG_CROSS = flag_cross;
+  SIGNE = (flag_up) ? 1 : -1;
+  BIGVAL = (flag_up) ? 1.e30 : -1.e30;
+  VERBOSE_STEP = verbose_step;
+  OPTION = option;
   DB = dbgrid;
   SX = DB->getNX(0);
   SY = DB->getNX(1);
   TX = SX + 2 * BORD;
   TY = SY + 2 * BORD;
-  in = out = mark = (SPIMG*) NULL;
+  TXY = TX * TY;
+  SXY = SX * SY;
+
+  /* Initializations */
+
+  if (OPTION)
+  {
+    n = n8;
+    x = x8;
+    y = y8;
+  }
+  else
+  {
+    n = n4;
+    x = x4;
+    y = y4;
+  }
+  pt_out = pt_mark = NULL;
+
+  // Print the environment
+
+  st_print();
 
   /* Add the attribute */
 
-  iptr_spill = dbgrid->addColumnsByConstant(1, 0.);
+  int iptr_spill = dbgrid->addColumnsByConstant(1, 0., "Spill", ELoc::Z);
   if (iptr_spill < 0) goto label_end;
 
   /* Core allocation */
 
-  in = st_image_alloc(SURFACE_UNKNOWN);
-  if (in == (SPIMG*) NULL) goto label_end;
-  mark = st_image_alloc(SURFACE_OUTSIDE);
-  if (mark == (SPIMG*) NULL) goto label_end;
-  out = st_image_alloc(SURFACE_OUTSIDE);
-  if (out == (SPIMG*) NULL) goto label_end;
+  SPIMG_IN = st_image_alloc(BIGVAL);
+  if (SPIMG_IN == (SPIMG*) NULL) goto label_end;
+  SPIMG_MARK = st_image_alloc(SURFACE_OUTSIDE);
+  if (SPIMG_MARK == (SPIMG*) NULL) goto label_end;
+  SPIMG_OUT = st_image_alloc(SURFACE_OUTSIDE);
+  if (SPIMG_OUT == (SPIMG*) NULL) goto label_end;
+  Offset_out_in   = static_cast<int>(SPIMG_IN->bitmap  - SPIMG_OUT->bitmap);
+  Offset_mark_out = static_cast<int>(SPIMG_OUT->bitmap - SPIMG_MARK->bitmap);
 
   /* Copying the input arrays into the corresponding images */
 
-  st_copy_center(0, ind_depth, in);
-  st_copy_center(1, ind_data, mark);
-  st_blank_center(out);
-  st_htop_evaluate(mark, in);
+  STEP = 1;
+  st_copy_center(0, ind_depth, SPIMG_IN, BIGVAL);
+  st_copy_center(1, ind_data,  SPIMG_MARK, SURFACE_OUTSIDE);
+  st_blank_center(SPIMG_OUT);
+  st_dump(true, "Constraints", NULL, SPIMG_MARK);
 
-  /* Calling the Spill calculation routine */
+  HTOP = HINIT = st_htop_evaluate();
 
-  error = st_spill(in, mark, out, &hspill, ix0, iy0);
+  /* Creation of the Heap-search Pile */
 
-  /* Convert UNKNOWN into INSIDE (upon request) */
+  Hsize = 0;
+  Heap = (double**) mem_alloc(sizeof(double*) * TXY, 0);
+  if (Heap == nullptr) return (1);
 
-  if (flag_unknown) error = st_add_unknown(out, hspill);
-  thick = (SIGNE > 0) ? HTOP - hspill :
-                        hspill - HTOP;
+  /***************************/
+  /* Add markers to the Heap */
+  /***************************/
+
+  STEP = 2;
+  for (iy = 0; iy < SY; iy++)
+    for (ix = 0; ix < SX; ix++)
+    {
+      pt_mark = &BITMAP(SPIMG_MARK, ix, iy);
+      pt_out = &MARK_TO_OUT(pt_mark);
+      if ((int) MARK(0,0) == SURFACE_UNKNOWN)
+      {
+        for (k = found = 0; k < n && found == 0; k++)
+          if ((int) MARK(x[k],y[k]) == SURFACE_INSIDE) found = 1;
+        if (found)
+          st_heap_add(pt_out);
+        else
+          st_change(pt_out, SURFACE_UNKNOWN);
+      }
+      else if ((int) MARK(0,0) == SURFACE_INSIDE)
+        st_change(pt_out,SURFACE_INSIDE);
+      else
+        st_heap_add(pt_out);
+    }
+  st_dump(true, "Markers posted", NULL, SPIMG_OUT);
+
+  /***************/
+  /* Propagation */
+  /***************/
+
+  STEP = 3;
+  found = 0;
+  while (Hsize > 0)
+  {
+    pt_out = st_heap_del();
+    pt_mark = &OUT_TO_MARK(pt_out);
+    if (*pt_mark == SURFACE_OUTSIDE) *pt_out = SURFACE_OUTSIDE;
+    for (k = 0; k < n && found == 0; k++)
+    {
+      local = st_traite(pt_out, &NBGH(x[k], y[k]));
+      found = MAX(found, local);
+    }
+    if (found == 0) PT_SPILL = pt_out;
+  }
+  st_dump(true, "After Propagation", NULL, SPIMG_OUT);
+
+  if (found == 2 || PT_SPILL == nullptr)
+  {
+    hspill = (SIGNE > 0) ? HTOP - HMAX : HMAX + HTOP;
+    PT_SPILL = pt_out;
+  }
+  else
+    hspill = OUT_TO_IN(PT_SPILL);
+  st_get_coordinates(PT_SPILL, ix0, iy0, SPIMG_OUT, true);
+
+  /******************************************************/
+  /* Fill the remaining part of the flat Spill boundary */
+  /******************************************************/
+
+  STEP = 4;
+  while (Hsize > 0)
+  {
+    pt_out = st_heap_del();
+    if (OUT_TO_IN(pt_out) != hspill) break;
+    for (k = 0; k < n; k++)
+      (void) st_traite(pt_out, &NBGH(x[k], y[k]));
+    st_change(pt_out, SURFACE_INSIDE);
+    st_dump(false, String(), pt_out, SPIMG_OUT);
+  }
+  Heap = (double**) mem_free((char* ) Heap);
+  st_dump(true, "After Filling Flat Boundaries", NULL, SPIMG_OUT);
+
+  /***********************************/
+  /* Final conversions of the output */
+  /***********************************/
+
+  STEP = 5;
+  st_convert(hspill);
+  st_dump(true, "After Final Conversion", NULL, SPIMG_OUT);
+
+  // Print final statistics
+
+  st_final_stats(hspill, *ix0, *iy0);
 
   /* Returning the output grid */
 
-  st_extract_center(out, iptr_spill);
+  st_extract_center(SPIMG_OUT, iptr_spill);
 
   label_end:
-
-  /* Core deallocation */
-
-  in = st_image_free(in);
-  out = st_image_free(out);
-  mark = st_image_free(mark);
+  SPIMG_IN   = st_image_free(SPIMG_IN);
+  SPIMG_OUT  = st_image_free(SPIMG_OUT);
+  SPIMG_MARK = st_image_free(SPIMG_MARK);
 
   /* Returning arguments */
 
   *h = hspill;
-  *th = thick;
 
   return (error);
 }

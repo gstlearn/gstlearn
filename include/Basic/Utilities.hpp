@@ -17,6 +17,17 @@
 #include <cmath>
 #include <math.h>
 
+typedef struct
+{
+  int number;
+  int nvalid;
+  double mini;
+  double maxi;
+  double delta;
+  double mean;
+  double stdv;
+} StatResults;
+
 GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int    getClosestInteger(double value);
 GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);
@@ -56,25 +67,11 @@ template <> inline bool isNA(const float& v)  { return (v == getNA<float>()  || 
 
 // Other Utility functions
 
-GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff);
 GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value);
-GSTLEARN_EXPORT void ut_sort_int(int safe, int nech, int *ind, int *value);
-GSTLEARN_EXPORT void ut_statistics(int nech,
-                                   double *tab,
-                                   double *sel,
-                                   double *wgt,
-                                   int *nval,
-                                   double *mini,
-                                   double *maxi,
-                                   double *delta,
-                                   double *mean,
-                                   double *stdv);
-GSTLEARN_EXPORT void ut_stats_mima(int nech,
-                   double *tab,
-                   double *sel,
-                   int *nvalid,
-                   double *mini,
-                   double *maxi);
+GSTLEARN_EXPORT StatResults ut_statistics(int nech,
+                                          double *tab,
+                                          double *sel = nullptr,
+                                          double *wgt = nullptr);
 GSTLEARN_EXPORT void ut_stats_mima_print(const char *title, int nech, double *tab, double *sel);
 GSTLEARN_EXPORT void ut_facies_statistics(int nech,
                                           double *tab,
@@ -93,7 +90,6 @@ GSTLEARN_EXPORT void ut_classify(int nech,
                                  int *nout,
                                  int *classe);
 GSTLEARN_EXPORT double ut_median(double *tab, int ntab);
-GSTLEARN_EXPORT void ut_normalize(int ntab, double *tab);
 GSTLEARN_EXPORT double ut_cnp(int n, int k);
 GSTLEARN_EXPORT double* ut_pascal(int ndim);
 GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);

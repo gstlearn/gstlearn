@@ -1183,13 +1183,8 @@ int _record_read(FILE *file, const char *format, ...)
  *****************************************************************************/
 void print_range(const char *title, int ntab, double *tab, double *sel)
 {
-  double mini, maxi;
-  int nvalid;
-
   if (tab == nullptr || ntab <= 0) return;
-  mini = maxi = TEST;
-  nvalid = 0;
-  ut_stats_mima(ntab, tab, sel, &nvalid, &mini, &maxi);
+  StatResults stats = ut_statistics(ntab, tab, sel);
 
   /* Encode the title (if defined) */
 
@@ -1199,16 +1194,16 @@ void print_range(const char *title, int ntab, double *tab, double *sel)
     message("Range : ");
   message("  ");
 
-  if (FFFF(mini))
+  if (FFFF(stats.mini))
     message(STRING_NA);
   else
-    message("%lf", mini);
+    message("%lf", stats.mini);
   message(" ; ");
-  if (FFFF(maxi))
+  if (FFFF(stats.maxi))
     message(STRING_NA);
   else
-    message("%lf", maxi);
-  message(" (%d/%d)\n", nvalid, ntab);
+    message("%lf", stats.maxi);
+  message(" (%d/%d)\n", stats.nvalid, ntab);
   return;
 }
 

@@ -429,13 +429,13 @@ bool AnamHermite::_isIndexValid(int i) const
 }
 
 void AnamHermite::_defineBounds(double pymin,
-                                 double pzmin,
-                                 double pymax,
-                                 double pzmax,
-                                 double aymin,
-                                 double azmin,
-                                 double aymax,
-                                 double azmax)
+                                double pzmin,
+                                double pymax,
+                                double pzmax,
+                                double aymin,
+                                double azmin,
+                                double aymax,
+                                double azmax)
 {
   int npas,ind,ind0;
   VectorDouble ym,zm;
@@ -551,14 +551,12 @@ int AnamHermite::_data_sort(int nech,
                             VectorDouble& zs,
                             VectorDouble& ys)
 {
-  double *tmp, sum, frc, eps, wgt;
-  int    *ind,i,ncl,nval;
+  double sum, frc, eps, wgt;
+  int    i,ncl,nval;
 
   /* Initializations */
 
   frc = ncl = nval = 0;
-  tmp = nullptr;
-  ind = nullptr;
 
   /* Copy the variable in arrays zs and ys eliminating undefined values */
 
@@ -584,20 +582,16 @@ int AnamHermite::_data_sort(int nech,
 
   if (!wt.empty())
   {
-    tmp = (double *) mem_alloc(sizeof(double) * nval,0);
-    if (tmp == nullptr) goto label_end;
-    ind = (int    *) mem_alloc(sizeof(int)    * nval,0);
-    if (ind == nullptr) goto label_end;
+    VectorDouble tmp(nval);
+    VectorInt ind(nval);
     for (i = 0; i < nval; i++)  ind[i] = i;
-    ut_sort_double(0,nval,ind,zs.data());
+    VH::arrangeInPlace(0, ind, zs, true, nval);
     for (i = 0; i < nval; i++) tmp[i] = ys[ind[i]];
     for (i = 0; i < nval; i++) ys[i]  = tmp[i];
-    tmp = (double *) mem_free((char *) tmp);
-    ind = (int    *) mem_free((char *) ind);
   }
   else
   {
-    ut_sort_double(0,nval,NULL,zs.data());
+    VH::sortInPlace(zs, true, nval);
   }
 
   /* Loop on the data */
@@ -634,9 +628,6 @@ int AnamHermite::_data_sort(int nech,
   zs[0] = zs[1] - eps;
   ys[0] = ys[1] - .5;
 
-label_end:
-  tmp = (double *) mem_free((char *) tmp);
-  ind = (int    *) mem_free((char *) ind);
   return(ncl);
 }
 

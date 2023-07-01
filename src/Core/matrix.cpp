@@ -209,7 +209,7 @@ int matrix_geigen(const double *a,
         Phi[j * neq + i] += PhiBm[k * neq + i] * PhiA[j * neq + k];
 
   // Sort the eigen values by increasing values
-  VectorInt ranks = VH::sortRanks(LA, true);
+  VectorInt ranks = VH::sortRanks(LA, true, neq);
 
   // Ultimate assignments
   for (int i = 0; i < neq; i++)
@@ -1804,10 +1804,7 @@ void matrix_triangular_product(int neq,
  ** \remark The input and output matrices can matchprint
  **
  *****************************************************************************/
-int matrix_invgen(double *a,
-                                  int neq,
-                                  double *tabout,
-                                  double *cond)
+int matrix_invgen(double *a, int neq, double *tabout, double *cond)
 {
   double *eigvec, *eigval, value, valcond;
   int i, j, k, error;
@@ -1850,61 +1847,6 @@ int matrix_invgen(double *a,
   label_end: eigval = (double*) mem_free((char* ) eigval);
   eigvec = (double*) mem_free((char* ) eigvec);
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the norm of a vector
- **
- ** \return  Value of the norm
- **
- ** \param[in]  a         Input vector
- ** \param[in]  neq       Number of equations
- **
- *****************************************************************************/
-double matrix_norm(double *a, int neq)
-{
-  double value;
-  int i;
-
-  value = 0.;
-  for (i = 0; i < neq; i++)
-    value += a[i] * a[i];
-  return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the vector product of two vectors (only in 3-D)
- **
- ** \param[in]  a         First vector
- ** \param[in]  b         Second vector
- **
- ** \param[out] v         Vector product
- **
- *****************************************************************************/
-void vector_product(double *a, double *b, double *v)
-{
-  v[0] = a[1] * b[2] - a[2] * b[1];
-  v[1] = a[2] * b[0] - a[0] * b[2];
-  v[2] = a[0] * b[1] - a[1] * b[0];
-}
-
-/****************************************************************************/
-/*!
- ** Translate a point by a vector
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in]  a         Coordinates of the target point (Dimension: ndim)
- ** \param[in]  v         Vector coordinates (Dimension: ndim)
- **
- ** \param[out] b         Coordinates of the resulting point (Dimension: ndim)
- **
- *****************************************************************************/
-void vector_translate(int ndim, double *a, double *v, double *b)
-{
-  for (int i = 0; i < ndim; i++)
-    b[i] = a[i] + v[i];
 }
 
 /****************************************************************************/

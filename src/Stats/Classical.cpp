@@ -480,7 +480,7 @@ double _getQuantile(VectorDouble &tab, int ntab, double proba)
 
   if (FFFF(proba)) return (TEST);
 
-  ut_sort_double(0, ntab, NULL, tab.data());
+  VH::sortInPlace(tab, true, ntab);
   rank = (int) (proba * (double) ntab);
   v1 = tab[rank];
 

@@ -384,22 +384,19 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
                                 double percent)
 {
   double hh, value, refval;
-  VectorDouble d(3);
+  int ndim = _getNDim();
 
   /* Calculate the reference C(0) value */
 
-  for (int i = 0; i < 3; i++) d[i] = 0.;
+  VectorDouble d(ndim, 0.);
   hh = VH::norm(d);
   (void) model_evaluate(getModel(), 0, 0, nullptr, 1, d, &hh, &refval);
 
-  /* Calculate the distance */
-
-  for (int i = 0; i < 3; i++)
-    d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-  hh = VH::norm(d);
-
   /* Evaluate the covariance value */
 
+  for (int i = 0; i < ndim; i++)
+    d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
+  hh = VH::norm(d);
   (void) model_evaluate(getModel(), 0, 0, nullptr, 1, d, &hh, &value);
 
   if (value / refval > percent / 100) return false;

@@ -325,13 +325,7 @@ GSTLEARN_EXPORT int matrix_solve(int mode,
                                  int neq,
                                  int nrhs,
                                  int *pivot);
-GSTLEARN_EXPORT double matrix_norm(double *a, int neq);
 GSTLEARN_EXPORT double matrix_normA(double *b, double *a, int neq, int subneq);
-GSTLEARN_EXPORT void vector_product(double *a, double *b, double *v);
-GSTLEARN_EXPORT void vector_translate(int ndim,
-                                      double *a,
-                                      double *v,
-                                      double *b);
 GSTLEARN_EXPORT int matrix_cholesky_decompose(const double *a,
                                               double *tl,
                                               int neq);
@@ -505,10 +499,9 @@ GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
 GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
                                 int ind_height,
                                 int ind_data,
-                                int flag_up,
-                                int flag_cross,
-                                int flag_unknown,
-                                int flag_verbose,
+                                int option,
+                                bool flag_up,
+                                int verbose,
                                 double hmax,
                                 double *h,
                                 double *th,
