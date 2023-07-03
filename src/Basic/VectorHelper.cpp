@@ -1247,7 +1247,7 @@ void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, int size)
  * @param vecin Input array (integer)
  * @param vmin  lower bound included (or ITEST)
  * @param vmax  upper bound excluded (or ITEST)
- * @param ascending True for asceding order; False for descending order
+ * @param ascending True for ascending order; False for descending order
  * @return Output array (integers)
  */
 VectorInt VectorHelper::filter(const VectorInt &vecin,
@@ -1394,7 +1394,7 @@ VectorDouble VectorHelper::reorder(const VectorDouble& vecin, const VectorInt& o
  ** \param[in]  size   Optional vector dimension
  **
  ** \param[out] ranks  input and output int array
- ** \param[out] value  input and output double array
+ ** \param[out] values input and output double array
  **
  ** \remark  If ranks = NULL, ranks is ignored
  ** \remark  When using 'size', the remaining part of arrays is unchanged
@@ -1427,10 +1427,11 @@ void VectorHelper::arrangeInPlace(int safe,
  **
  ** \param[in]  safe   1 if the value array if preserved
  **                    0 if the value array is also sorted
- ** \param[in]  nech   number of samples
+ ** \param[in] ascending True for ascending order; False for descending order
+ ** \param[in] size    Optional size
  **
  ** \param[out] ranks  intput and output int array
- ** \param[out] value  input and output int array
+ ** \param[out] values input and output int array
  **
  ** \remark  If ranks = NULL, ranks is ignored
  ** \remark  When using 'size', the remaining part of arrays is unchanged

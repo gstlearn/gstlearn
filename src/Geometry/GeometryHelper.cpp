@@ -1593,3 +1593,87 @@ VectorDouble GeometryHelper::formatAngles(const VectorDouble &anglesin)
     angles[idim] = formatAngle(angles[idim]);
   return angles;
 }
+
+VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
+                                                  const VectorDouble &v0,
+                                                  const VectorDouble &v1,
+                                                  const VectorDouble &v2)
+{
+  VectorDouble res(3, -1.);
+  VectorDouble v20 = VH::subtract(v0, v2);
+  VectorDouble v10 = VH::subtract(v0, v1);
+
+  VectorDouble pvec = VH::crossProduct3D(dir, v20);
+  double det = VH::innerProduct(pvec, v10);
+
+  if (det == 0.) return res;
+
+  double invDet = 1. / det;
+
+  double u = -VH::innerProduct(pvec, v0) * invDet;
+  if (u < 0 || u > 1) return res;
+
+  VectorDouble vm0 = v0;
+  VH::multiplyConstant(vm0, -1.);
+  VectorDouble qvec = VH::crossProduct3D(vm0, v10);
+  double v = VH::innerProduct(dir, qvec) * invDet;
+  if (v < 0 || u + v > 1) return res;
+
+  res[0] = VH::innerProduct(qvec, v20) * invDet;
+  res[1] = u;
+  res[2] = v;
+
+  return res;
+}
+
+/**
+ * Calculate the Barycenter coordinates of points with in the Spherical Meshing
+ * @param sphPts Coordinates of target samples (dim = np * 3)
+ * @param apices Coordinates of the apices of the Meshing
+ * @param meshes Mesh information of the Meshing
+ * @return A vector of barycenters (dimension = 4 * np) where
+ * - 1: rank of the triangle
+ * - 2, 3, 4: barycentric coordinates
+ */
+VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble& sphPts,
+                                               const MatrixRectangular& apices,
+                                               const MatrixInt& meshes)
+{
+  int np = (int) sphPts.size();
+  int nmeshes = meshes.getNRows();
+
+  // Dimension the output storage
+  VectorVectorDouble res(4);
+  for (int i = 0; i < 4; i++)
+    res[i].resize(np, 0.);
+
+  int iv0, iv1, iv2;
+  VectorDouble w;
+
+  for (int k = 0; k < np; k++)
+  {
+    bool notFound = true;
+    int i = 0;
+
+    while(i < nmeshes && notFound)
+    {
+      iv0 = meshes.getValue(i,0);
+      iv1 = meshes.getValue(i,1);
+      iv2 = meshes.getValue(i,2);
+
+      w = rayTriangleIntersect(sphPts[k], apices.getRow(iv0),
+                               apices.getRow(iv1), apices.getRow(iv2));
+
+      if (w[0] >= 0)
+      {
+        res[k][0] = i;
+        res[k][1] = w[0];
+        res[k][2] = w[1];
+        res[k][3] = w[2];
+        notFound = false;
+      }
+      i++;
+    }
+  }
+  return res;
+}

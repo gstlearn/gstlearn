@@ -15,6 +15,7 @@
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixInt.hpp"
 
 class GSTLEARN_EXPORT GeometryHelper
 {
@@ -157,6 +158,14 @@ public:
 
   static double formatAngle(double anglein);
   static VectorDouble formatAngles(const VectorDouble &anglesin);
+
+  static VectorDouble rayTriangleIntersect(const VectorDouble &dir,
+                                           const VectorDouble &v0,
+                                           const VectorDouble &v1,
+                                           const VectorDouble &v2);
+  static VectorVectorDouble sphBarCoord(const VectorVectorDouble &sphPts,
+                                        const MatrixRectangular &apices,
+                                        const MatrixInt &meshes);
 
 private:
   static void _decodeConvRot(const ERotation &convrot,

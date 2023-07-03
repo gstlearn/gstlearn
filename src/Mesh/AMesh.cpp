@@ -194,47 +194,59 @@ VectorDouble AMesh::getCoordinates(int idim) const
 
 /**
  * Returns the coordinates of all meshes:
- * - the first dimension is the number of apices
- * - the second dimension if the space dimension
+ * - the first dimension if the space dimension
+ * - the second dimension is the number of apices
  * @return
  */
 VectorVectorDouble AMesh::getAllCoordinates() const
 {
   int napices = getNApices();
-  VectorVectorDouble coords(napices);
-
-  VectorDouble local(napices);
-  for (int ip = 0; ip < napices; ip++)
-    coords[ip].resize(_nDim);
+  VectorDouble local(_nDim);
+  VectorVectorDouble coords(_nDim);
+  for (int idim = 0; idim < _nDim; idim++)
+    coords[idim].resize(napices);
 
   for (int ip = 0; ip < napices; ip++)
   {
     getApexCoordinatesInPlace(ip, local);
     for (int idim = 0; idim < _nDim; idim++)
-      coords[ip][idim] = local[idim];
+      coords[idim][ip] = local[idim];
   }
   return coords;
 }
 
 /**
- * Returns the information about all apices:
- * - the first dimension is the number of meshes
- * - the second dimension if the space dimension
+ * Returns the information of all meshes:
+ * - the first dimension is the number of apices (nrow)
+ * - the second dimension if the space dimension (ncol)
  * @return
  */
-VectorVectorInt AMesh::getAllApices() const
+MatrixInt AMesh::getAllMeshes() const
 {
-  int nmeshes = getNMeshes();
   int nper = getNApexPerMesh();
-  VectorVectorInt ranks(nmeshes);
-  for (int imesh = 0; imesh < nmeshes; imesh++)
-    ranks[imesh].resize(nper);
+  int nmeshes = getNMeshes();
+  MatrixInt meshes(nmeshes, nper);
 
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int iper = 0; iper < nper; iper++)
-      ranks[imesh][iper] = getApex(imesh, iper);
+      meshes.setValue(imesh, iper, getApex(imesh, iper));
+  return meshes;
+}
 
-  return ranks;
+/**
+ * Returns the information about all apices:
+ * - the first dimension is the number of meshes (nrow)
+ * - the second dimension if the space dimension (ncol)
+ * @return
+ */
+MatrixRectangular AMesh::getAllApices() const
+{
+  int napices = getNApices();
+  MatrixRectangular apices(napices, _nDim);
+  for (int ip = 0; ip < napices; ip++)
+    for (int idim = 0; idim < _nDim; idim++)
+      apices.setValue(ip, idim, getApexCoor(ip, idim));
+  return apices;
 }
 
 VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const

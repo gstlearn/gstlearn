@@ -85,7 +85,8 @@ static double st_htop_evaluate()
 /*!
  **  Returns the coordinates of a point, given its pointer in 'out'
  **
- ** \param[in]  out         IMAGE structure
+ ** \param[in]  pt_out      Address in the image
+ ** \param[in]  image       IMAGE structure
  ** \param[in]  flag_center When TRUE, coordinates are epressed in central image
  **
  ** \param[out] ix          Location of the spill point grid node along X

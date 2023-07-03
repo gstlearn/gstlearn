@@ -796,19 +796,17 @@ int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) cons
 
 /**
  * Constitute a Vector of Vector of coordinates at a given sample, for all (active) samples
- * - the first dimension if the number of (active) samples;
- * - the second dimension is the space dimension
+ * - the first dimension is the space dimension
+ * - the second dimension is the number of (active) samples
  * @param useSel
  * @return
  */
 VectorVectorDouble Db::getAllCoordinates(bool useSel) const
 {
   VectorVectorDouble result;
-  VectorDouble local(getNDim());
-  for (int iech = 0; iech < getSampleNumber(); iech++)
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
   {
-    if (useSel && ! isActive(iech)) continue;
-    getSampleCoordinates(iech, local);
+    VectorDouble local = getCoordinates(idim, useSel);
     result.push_back(local);
   }
   return result;
