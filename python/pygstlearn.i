@@ -697,6 +697,9 @@ void exit_f(void)
 %extend MeshETurbo {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend MeshSpherical {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend CSVformat {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -1028,6 +1031,7 @@ setattr(gl.MatrixSquareDiagonal, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareDiagonalCst, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
+setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 
 # TODO : Replace Triplet_toTL by MatrixSparse_toTL
 def Triplet_toTL(self):

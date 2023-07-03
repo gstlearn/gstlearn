@@ -71,7 +71,7 @@ print("Matrix MSS")
 MSS.display()
 
 # To a sparse matrix
-MSP = M.toSparse()
+MSP = gl.toSparse(M)
 print("Matrix MSP")
 MSP.display()
 

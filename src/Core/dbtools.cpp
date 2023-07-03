@@ -165,7 +165,7 @@ static int st_locate_point_on_grid(const Db *db_point,
  ** \return  Number of samples located on the grid
  **
  ** \param[in]  np        Number of samples
- ** \param[in]  coords    Array of coordinates
+ ** \param[in]  coords    Array of coordinates (dimension: ndim, np)
  ** \param[in]  db_grid   descriptor of the grid parameters
  **
  ** \param[out]  tab      Output array (Dimension: Number of discretized points)
@@ -321,7 +321,7 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
  **
  ** \param[in]  db_grid   descriptor of the grid parameters
  ** \param[in]  iatt      rank of the grid attribute
- ** \param[in]  coords    Array of coordinates
+ ** \param[in]  coords    Array of coordinates (dimension: ndim, np)
  **
  ** \param[out]  tab      Output array (Dimension: number of discretized points)
  **

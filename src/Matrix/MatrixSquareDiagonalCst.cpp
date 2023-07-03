@@ -14,8 +14,8 @@
 
 #include <math.h>
 
-MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)
-  : MatrixSquareDiagonal(nrow, sparse)
+MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow)
+  : MatrixSquareDiagonal(nrow)
   , _cstDiagMatrix(0.)
 {
 }
@@ -211,17 +211,10 @@ String MatrixSquareDiagonalCst::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  if (isSparse())
-  {
-    sstr << AMatrix::toString(strfmt);
-  }
-  else
-  {
-    sstr << "- Number of rows    = " << getNRows() << std::endl;
-    sstr << "- Number of columns = " << getNCols() << std::endl;
-    sstr << toMatrixDiagCst(String(), VectorString(), VectorString(), getNCols(),
-                            getValues());
-  }
+  sstr << "- Number of rows    = " << getNRows() << std::endl;
+  sstr << "- Number of columns = " << getNCols() << std::endl;
+  sstr << toMatrixDiagCst(String(), VectorString(), VectorString(), getNCols(),
+                          getValues());
   return sstr.str();
 }
 
@@ -235,12 +228,11 @@ bool MatrixSquareDiagonalCst::_isPhysicallyPresent(int irow, int icol) const
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
- * @param sparse True for a Sparse matrix
  * @return The returned matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareDiagonalCst* MatrixSquareDiagonalCst::createFromVVD(const VectorVectorDouble& X, bool sparse)
+MatrixSquareDiagonalCst* MatrixSquareDiagonalCst::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
@@ -250,7 +242,7 @@ MatrixSquareDiagonalCst* MatrixSquareDiagonalCst::createFromVVD(const VectorVect
     return nullptr;
   }
 
-  MatrixSquareDiagonalCst* mat = new MatrixSquareDiagonalCst(nrow, sparse);
+  MatrixSquareDiagonalCst* mat = new MatrixSquareDiagonalCst(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }

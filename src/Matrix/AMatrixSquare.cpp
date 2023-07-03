@@ -15,8 +15,8 @@
 #include "Basic/AException.hpp"
 #include <math.h>
 
-AMatrixSquare::AMatrixSquare(int nrow, bool sparse)
-  : AMatrix(nrow, nrow, sparse)
+AMatrixSquare::AMatrixSquare(int nrow)
+  : AMatrix(nrow, nrow)
 {
 }
 

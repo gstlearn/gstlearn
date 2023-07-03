@@ -83,7 +83,7 @@ print(dim(mat2))
 
 # Creating the Rectangular Matrix (sparse format)
 print("Case of a Sparse Matrix")
-matS = MatrixRectangular(nrow, ncol, TRUE)
+matS = MatrixSparse(nrow, ncol)
 matS$setValues(vec)
 matS$display()
 print(class(mat))

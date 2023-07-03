@@ -14,8 +14,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareGeneral::MatrixSquareGeneral(int nrow, bool sparse)
-  : AMatrixSquare(nrow, sparse)
+MatrixSquareGeneral::MatrixSquareGeneral(int nrow)
+  : AMatrixSquare(nrow)
   , _squareMatrix()
 {
   _allocate();
@@ -105,20 +105,13 @@ void MatrixSquareGeneral::_prodVector(const double *inv, double *outv) const
 
 void MatrixSquareGeneral::_transposeInPlace()
 {
-  if (isSparse())
-  {
-    AMatrix::transposeInPlace();
-  }
-  else
-  {
-    int nrow = getNRows();
-    int ncol = getNCols();
-    VectorDouble old = _squareMatrix;
-    matrix_transpose(nrow, ncol, _squareMatrix.data(), old.data());
-    _squareMatrix = old;
-    _setNCols(nrow);
-    _setNRows(ncol);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  VectorDouble old = _squareMatrix;
+  matrix_transpose(nrow, ncol, _squareMatrix.data(), old.data());
+  _squareMatrix = old;
+  _setNCols(nrow);
+  _setNRows(ncol);
 }
 
 void MatrixSquareGeneral::_setValues(const double* values, bool byCol)
@@ -206,12 +199,11 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
- * @param sparse True for a Sparse matrix
  * @return The returned matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X, bool sparse)
+MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
@@ -221,7 +213,7 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble
     return nullptr;
   }
 
-  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow, sparse);
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }

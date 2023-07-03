@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/VectorNumT.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Matrix/AMatrix.hpp"

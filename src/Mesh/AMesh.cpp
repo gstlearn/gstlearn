@@ -192,23 +192,36 @@ VectorDouble AMesh::getCoordinates(int idim) const
   return coor;
 }
 
+/**
+ * Returns the coordinates of all meshes:
+ * - the first dimension is the number of apices
+ * - the second dimension if the space dimension
+ * @return
+ */
 VectorVectorDouble AMesh::getAllCoordinates() const
 {
   int napices = getNApices();
-  VectorDouble local(_nDim);
-  VectorVectorDouble coords(_nDim);
-  for (int idim = 0; idim < _nDim; idim++)
-    coords[idim].resize(napices);
+  VectorVectorDouble coords(napices);
+
+  VectorDouble local(napices);
+  for (int ip = 0; ip < napices; ip++)
+    coords[ip].resize(_nDim);
 
   for (int ip = 0; ip < napices; ip++)
   {
     getApexCoordinatesInPlace(ip, local);
     for (int idim = 0; idim < _nDim; idim++)
-      coords[idim][ip] = local[idim];
+      coords[ip][idim] = local[idim];
   }
   return coords;
 }
 
+/**
+ * Returns the information about all apices:
+ * - the first dimension is the number of meshes
+ * - the second dimension if the space dimension
+ * @return
+ */
 VectorVectorInt AMesh::getAllApices() const
 {
   int nmeshes = getNMeshes();

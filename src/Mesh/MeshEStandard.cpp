@@ -605,7 +605,7 @@ int MeshEStandard::_recopy(const MeshEStandard &m)
 
   _apices = m._apices;
   _meshes = m._meshes;
-
+  AMesh::_recopy(m);
   return(0);
 }
 

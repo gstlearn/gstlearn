@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixSquareDiagonal : public MatrixSquareSymmetric {
 
 public:
-  MatrixSquareDiagonal(int nrow = 0, bool sparse = false);
+  MatrixSquareDiagonal(int nrow = 0);
   MatrixSquareDiagonal(const MatrixSquareDiagonal &m);
   MatrixSquareDiagonal& operator= (const MatrixSquareDiagonal &r);
 	virtual ~MatrixSquareDiagonal();
@@ -35,7 +35,7 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static MatrixSquareDiagonal* createFromVVD(const VectorVectorDouble& X, bool sparse=false);
+  static MatrixSquareDiagonal* createFromVVD(const VectorVectorDouble& X);
 
   /*! Transpose the matrix */
   void transposeInPlace() override;

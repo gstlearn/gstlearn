@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
@@ -144,7 +145,10 @@ AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare *x, const AMatrix *y)
 
 AMatrix* MatrixFactory::createIdentity(int nrow, bool sparse)
 {
-  return new MatrixSquareDiagonalCst(nrow, sparse);
+  if (!sparse)
+    return new MatrixSquareDiagonalCst(nrow);
+  else
+    return new MatrixSparse(nrow);
 }
 
 /****************************************************************************/

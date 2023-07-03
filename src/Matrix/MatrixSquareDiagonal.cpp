@@ -12,8 +12,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
-  : MatrixSquareSymmetric(nrows, sparse)
+MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows)
+  : MatrixSquareSymmetric(nrows)
   , _diagMatrix()
 {
   _allocate();
@@ -225,17 +225,10 @@ String MatrixSquareDiagonal::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-   if (isSparse())
-   {
-     sstr << AMatrix::toString(strfmt);
-   }
-   else
-   {
-     sstr << "- Number of rows    = " <<  getNRows() << std::endl;
-     sstr << "- Number of columns = " <<  getNCols() << std::endl;
-    sstr << toMatrixDiagonal(String(), VectorString(), VectorString(),
-                             getNCols(), getValues());
-   }
+  sstr << "- Number of rows    = " <<  getNRows() << std::endl;
+  sstr << "- Number of columns = " <<  getNCols() << std::endl;
+  sstr << toMatrixDiagonal(String(), VectorString(), VectorString(),
+                           getNCols(), getValues());
   return sstr.str();
 }
 
@@ -249,16 +242,15 @@ bool MatrixSquareDiagonal::_isPhysicallyPresent(int irow, int icol) const
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
- * @param sparse True for a Sparse matrix
  * @return The returned matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareDiagonal* MatrixSquareDiagonal::createFromVVD(const VectorVectorDouble& X, bool sparse)
+MatrixSquareDiagonal* MatrixSquareDiagonal::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
-  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol);
   if (mattemp->isDiagonal())
   {
     messerr("The matrix does not seem to be Square and Diagonal");
@@ -267,7 +259,7 @@ MatrixSquareDiagonal* MatrixSquareDiagonal::createFromVVD(const VectorVectorDoub
   }
   delete mattemp;
 
-  MatrixSquareDiagonal* mat = new MatrixSquareDiagonal(nrow, sparse);
+  MatrixSquareDiagonal* mat = new MatrixSquareDiagonal(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }

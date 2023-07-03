@@ -356,6 +356,14 @@ String NoStatArray::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
+/**
+ * Inform the value of non-stationary parameter 'ipar' at samples
+ * @param ipar Rank of the non-stationary parameter
+ * @param coords Coordinates of the samples (dimension: ndim, npar)
+ * @param tab Return array of non-stationary values at samples
+ * @param verbose Verbose flag
+ * @return
+ */
 int NoStatArray::_informField(int ipar,
                               const VectorVectorDouble& coords,
                               VectorDouble& tab,

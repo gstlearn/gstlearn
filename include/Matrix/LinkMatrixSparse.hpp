@@ -207,6 +207,7 @@ GSTLEARN_EXPORT int     cs_scale(cs *C);
 GSTLEARN_EXPORT int     cs_get_nrow(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncol(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncell(const cs *A);
+GSTLEARN_EXPORT bool    cs_exist(const cs* A, int row, int col);
 GSTLEARN_EXPORT double  cs_get_value(const cs *A,int row, int col);
 GSTLEARN_EXPORT void    cs_set_value(const cs *A,int row, int col, double value);
 GSTLEARN_EXPORT double* cs_toArray(const cs *A);

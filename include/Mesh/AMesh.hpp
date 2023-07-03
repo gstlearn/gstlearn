@@ -115,13 +115,14 @@ protected:
   double _getMeshUnit(const VectorVectorDouble& corners) const;
 
 protected:
+  void _recopy(const AMesh &m);
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
   String _getNFName() const override { return "AMesh"; }
 
+
 private:
-  void _recopy(const AMesh &m);
   bool _isSpaceDimensionValid(int idim) const;
   void _printMeshListByIndices(int nline_max = -1) const;
   void _printMeshListByCoordinates(int nline_max = -1) const;

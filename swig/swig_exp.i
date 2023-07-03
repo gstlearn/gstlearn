@@ -142,7 +142,6 @@
 %include Mesh/MeshSpherical.hpp
 %include Mesh/MeshSphericalExt.hpp
 
-
 %include Polynomials/APolynomial.hpp
 %include Polynomials/ClassicalPolynomial.hpp
 %include Polynomials/Hermite.hpp
@@ -255,6 +254,7 @@
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixSquare.hpp
 %include Matrix/LinkMatrixSparse.hpp
+%include Matrix/MatrixSparse.hpp
 %include Matrix/MatrixRectangular.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp

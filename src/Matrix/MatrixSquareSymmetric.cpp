@@ -16,8 +16,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, bool sparse)
-: AMatrixSquare(nrow, sparse)
+MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
+: AMatrixSquare(nrow)
 , _squareSymMatrix()
 {
   _allocate();
@@ -30,7 +30,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r)
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
-    : AMatrixSquare(m.getNRows(), m.isSparse()),
+    : AMatrixSquare(m.getNRows()),
       _squareSymMatrix()
 {
   if (m.isEmpty())
@@ -205,17 +205,10 @@ String MatrixSquareSymmetric::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-   if (isSparse())
-   {
-     sstr << AMatrix::toString(strfmt);
-   }
-   else
-   {
-     sstr << "- Number of rows    = " <<  getNRows() << std::endl;
-     sstr << "- Number of columns = " <<  getNCols() << std::endl;
-     sstr << toMatrixSymmetric(String(), VectorString(), VectorString(),
-                               true, getNCols(), getValues());
-   }
+  sstr << "- Number of rows    = " <<  getNRows() << std::endl;
+  sstr << "- Number of columns = " <<  getNCols() << std::endl;
+  sstr << toMatrixSymmetric(String(), VectorString(), VectorString(),
+                            true, getNCols(), getValues());
   return sstr.str();
 }
 
@@ -300,16 +293,15 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows)
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
- * @param sparse True for a Sparse matrix
  * @return The returned matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X, bool sparse)
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
-  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol, sparse);
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol);
   if (mattemp->isSymmetric())
   {
     messerr("The matrix does not seem to be Square and symmetric");
@@ -318,7 +310,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
   }
   delete mattemp;
 
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow, sparse);
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
   mat->_fillFromVVD(X);
   return mat;
 }

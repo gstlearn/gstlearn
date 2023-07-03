@@ -139,6 +139,7 @@
 %shared_ptr(Limits)
 %shared_ptr(MatrixInt)
 %shared_ptr(MatrixRectangular)
+%shared_ptr(MatrixSparse)
 %shared_ptr(MatrixSquareDiagonal)
 %shared_ptr(MatrixSquareDiagonalCst)
 %shared_ptr(MatrixSquareGeneral)
@@ -423,6 +424,7 @@
   
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/AMatrixSquare.hpp"
+  #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/MatrixRectangular.hpp"
   #include "Matrix/MatrixSquareDiagonal.hpp"

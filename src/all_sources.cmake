@@ -10,6 +10,7 @@ set(SRC
   Fractures/FracList.cpp
   Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
+  Matrix/MatrixSparse.cpp
   Matrix/AMatrixSquare.cpp
   Matrix/MatrixInt.cpp
   Matrix/MatrixRectangular.cpp

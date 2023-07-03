@@ -796,6 +796,8 @@ int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) cons
 
 /**
  * Constitute a Vector of Vector of coordinates at a given sample, for all (active) samples
+ * - the first dimension if the number of (active) samples;
+ * - the second dimension is the space dimension
  * @param useSel
  * @return
  */

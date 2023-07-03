@@ -88,7 +88,7 @@ print(matnew.shape)
 
 # Creating the Rectangular Matrix (sparse format)
 print("\nCase of a Sparse Matrix\n")
-matS = gl.MatrixRectangular(nrow, ncol, True)
+matS = gl.MatrixSparse(nrow, ncol)
 matS.setValues(vec)
 matS.display()
 

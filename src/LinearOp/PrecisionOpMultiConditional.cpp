@@ -350,7 +350,7 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   _allocate(4);
   int xsize = static_cast<int>(X.size());
   VectorDouble XtInvSigmaZ(static_cast<int>(xsize));
-  MatrixSquareSymmetric XtInvSigmaX(xsize,false);
+  MatrixSquareSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
 
   for(int i = 0; i< xsize; i++)

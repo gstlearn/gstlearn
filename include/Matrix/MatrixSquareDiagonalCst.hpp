@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixSquareDiagonalCst : public MatrixSquareDiagonal {
 
 public:
-  MatrixSquareDiagonalCst(int nrow = 0, bool sparse = false);
+  MatrixSquareDiagonalCst(int nrow = 0);
   MatrixSquareDiagonalCst(const MatrixSquareDiagonalCst &m);
   MatrixSquareDiagonalCst& operator= (const MatrixSquareDiagonalCst &r);
 	virtual ~MatrixSquareDiagonalCst();
@@ -35,7 +35,7 @@ public:
 	/// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static MatrixSquareDiagonalCst* createFromVVD(const VectorVectorDouble& X, bool sparse=false);
+  static MatrixSquareDiagonalCst* createFromVVD(const VectorVectorDouble& X);
 
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return true; }
@@ -72,8 +72,8 @@ private:
   void   _setValue(int irank, double value) override;
   void   _setValues(const double* values, bool byCol = true) override;
   int    _getMatrixSize() const override { return 1; }
-  void   _allocate() override { return; } // nothing to be done
-  void   _deallocate() override { return; } // nothing to be done
+  void   _allocate() override { return; } // nothing to be done there
+  void   _deallocate() override { return; } // nothing to be done there
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;

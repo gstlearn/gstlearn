@@ -123,10 +123,8 @@ int MeshETurbo::getNApices() const
  */
 int MeshETurbo::_nmeshInCompleteGrid() const
 {
-  int ndim  = getNDim();
-
   int nmesh = 1;
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim=0, ndim=getNDim(); idim<ndim; idim++)
     nmesh *= (_grid.getNX(idim) - 1);
   nmesh *= _nPerCell; _meshIndirect.getRelSize();
   return nmesh;
@@ -150,10 +148,8 @@ int MeshETurbo::getNMeshes() const
 
 double MeshETurbo::getMeshSize(int /*imesh*/) const
 {
-  int ndim = getNDim();
-
   double size = 1.;
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim=0, ndim=getNDim(); idim<ndim; idim++)
     size *= _grid.getDX(idim);
   size /= _nPerCell;
   return size;

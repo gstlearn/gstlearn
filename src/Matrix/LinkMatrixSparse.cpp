@@ -3541,6 +3541,24 @@ void cs_print_file(const char *radix, int rank, cs *A)
   vals = (double*) mem_free((char* ) vals);
 }
 
+/* Check if a value exists */
+bool cs_exist(const cs* A, int row, int col)
+{
+  int *Ap, *Ai;
+
+  if (!A) return false;
+  Ap = A->p;
+  Ai = A->i;
+
+  /* Loop on the elements */
+
+  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  {
+    if (Ai[p] == col) return true;
+  }
+  return false;
+}
+
 /* Get a value from the Sparse matrix */
 double cs_get_value(const cs *A, int row, int col)
 {

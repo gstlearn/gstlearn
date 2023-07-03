@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -26,7 +27,7 @@ void reset_to_initial_contents(AMatrix* M,
                                MatrixRectangular& MRR,
                                MatrixSquareGeneral& MSG,
                                MatrixSquareSymmetric& MSS,
-                               AMatrix* MSP,
+                               MatrixSparse* MSP,
                                MatrixSquareDiagonal& MSD,
                                MatrixSquareDiagonalCst& MSC)
 {
@@ -55,9 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixInt mati(2,3);
   mati.setValues({1, 2, 3, 4, 5, 6});
   mati.display();
-  MatrixInt* mati2(mati.clone()); // dynamic_cast no more needed
-  // equivalent to
-  // MatrixInt* mati2 = mati.clone();
+  MatrixInt* mati2(mati.clone());
   mati2->display();
 
   // Checking assessor for MatrixInt
@@ -150,7 +149,7 @@ int main(int /*argc*/, char */*argv*/[])
   MSS.display();
 
   // To a sparse matrix
-  AMatrix* MSP = M->toSparse();
+  MatrixSparse* MSP = toSparse(M);
   message("Matrix MSP\n");
   MSP->display();
 

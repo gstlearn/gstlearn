@@ -14,10 +14,9 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
-MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)
-    : AMatrix(nrows, ncols, sparse),
+MatrixRectangular::MatrixRectangular(int nrows, int ncols)
+    : AMatrix(nrows, ncols),
       _rectMatrix()
 {
   _allocate();
@@ -48,17 +47,16 @@ MatrixRectangular::~MatrixRectangular()
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param X Input VectorVectorDouble argument
- * @param sparse True for a Sparse matrix
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X, bool sparse)
+MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
 
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, sparse);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
   mat->_fillFromVVD(X);
   return mat;
 }
@@ -66,15 +64,14 @@ MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X,
 MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
                                                    int nrow,
                                                    int ncol,
-                                                   bool byCol,
-                                                   bool sparse)
+                                                   bool byCol)
 {
   if (nrow * ncol != (int) X.size())
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
     messerr("and the dimension of the input Vector (%d)", (int) X.size());
   }
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, sparse);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
 
   int lec = 0;
   if (byCol)
@@ -125,29 +122,17 @@ void MatrixRectangular::_prodVector(const double *inv, double *outv) const
 
 void MatrixRectangular::_transposeInPlace()
 {
-  if (isSparse())
-  {
-    AMatrix::transposeInPlace();
-  }
-  else
-  {
-    VectorDouble old;
-    old.resize(getNRows() * getNCols());
-    matrix_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
-    _rectMatrix = old;
-    int temp = getNCols();
-    _setNCols(getNRows());
-    _setNRows(temp);
-  }
+  VectorDouble old;
+  old.resize(getNRows() * getNCols());
+  matrix_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
+  _rectMatrix = old;
+  int temp = getNCols();
+  _setNCols(getNRows());
+  _setNRows(temp);
 }
 
-void MatrixRectangular::_setValues(const double* values, bool byCol)
+void MatrixRectangular::_setValues(const double *values, bool byCol)
 {
-  if (isSparse())
-  {
-    AMatrix::_setValues(values, byCol);
-    return;
-  }
   if (byCol)
   {
     int ecr = 0;
@@ -210,11 +195,6 @@ int MatrixRectangular::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) co
 
 void MatrixRectangular::addRow(int nrow_added)
 {
-  if (isSparse())
-  {
-    messerr("Adding a Row is not possible for Sparse Matrix");
-    return;
-  }
   int nrows = getNRows();
   int ncols = getNCols();
 
@@ -227,11 +207,6 @@ void MatrixRectangular::addRow(int nrow_added)
 
 void MatrixRectangular::addColumn(int ncolumn_added)
 {
-  if (isSparse())
-  {
-    messerr("Adding a Column is not possible for Sparse Matrix");
-    return;
-  }
   int nrows = getNRows();
   int ncols = getNCols();
 
