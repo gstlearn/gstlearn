@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   VectorDouble dmax = {0.01, 0.01};
   (void) migrateByLocator(data, grid, ELoc::Z, 1, dmax, true, false,
                           NamingConvention("P2G",false,false));
-  timer.displayIntervalMilliseconds("Migrate Point to Grid", 4000);
+  timer.displayIntervalMilliseconds("Migrate Point to Grid", 2000);
   (void) grid->dumpToNF("P2G.ascii");
 
   // Produce some statistics for comparison

@@ -132,8 +132,10 @@ private:
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
-  const double* _getRHSCAdd(int i, int jvCL) const;
-  const double* _getWGTCAdd(int i, int jvCL) const;
+  const double* _getRHSCAdd(int i = 0, int jvCL = 0) const;
+  const double* _getWGTCAdd(int i = 0, int jvCL = 0) const;
+  const double* _getZamAdd(int i = 0) const;
+  const double* _getZextAdd(int i = 0) const;
 
   void _resetMemoryGeneral();
   void _resetMemoryPerNeigh();

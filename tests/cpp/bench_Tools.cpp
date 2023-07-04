@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
 {
   Timer timer;
   double result = 0.;
+  double result_ref = 0.;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
     }
   }
   timer.displayIntervalMilliseconds("Product of [] terms", 500);
-  message("Result = %lf\n",result);
+  result_ref = result;
 
   message("- using iterators\n");
   timer.reset();
@@ -114,7 +115,8 @@ int main(int argc, char *argv[])
     }
   }
   timer.displayIntervalMilliseconds("with iterators", 450);
-  message("Result = %lf\n",result);
+  if (result != result_ref)
+    message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using pointers to double\n");
   timer.reset();
@@ -131,14 +133,16 @@ int main(int argc, char *argv[])
     }
   }
   timer.displayIntervalMilliseconds("with pointers", 320);
-  message("Result = %lf\n",result);
+  if (result != result_ref)
+    message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using VectorHelper\n");
   timer.reset();
   for (int itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(a, b);
   timer.displayIntervalMilliseconds("with VectorHelper", 200);
-  message("Result = %lf\n",result);
+  if (result != result_ref)
+    message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using VectorHelper (double)\n");
   timer.reset();
@@ -147,7 +151,8 @@ int main(int argc, char *argv[])
   for (int itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(ptra, ptrb, nsize);
   timer.displayIntervalMilliseconds("with VectorHelper (double)", 200);
-  message("Result = %lf\n",result);
+  if (result != result_ref)
+    message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using matrix algebra\n");
   MatrixRectangular mata;
@@ -162,13 +167,14 @@ int main(int argc, char *argv[])
     result = res(0,0);
   }
   timer.displayIntervalMilliseconds("with algebra", 1700);
-  message("Result = %lf\n",result);
+  if (result != result_ref)
+    message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   /// Sorting the contents of a vector
 
   mestitle(1,"Testing sorting algorithms");
   int nech = 10;
-  int size = 5;
+  int size = 7;
   message("We consider a vector of %d values and the corresponding vector of ranks\n", nech);
   message("Only the first %d positions are used\n",size);
   message("This paragraph is not bench-marked as time consumption is too short\n");
@@ -176,24 +182,27 @@ int main(int argc, char *argv[])
   VectorDouble VinVal = VH::simulateUniform(nech);
   VectorInt VinRank = VH::sequence(nech, 4, 3);
   VH::display("Unsorted values", VinVal);
-  VH::display("Initial ranks", VinRank);
+  VH::display("Unsorted ranks", VinRank);
 
   VectorInt order = VH::orderRanks(VinVal, true, size);
-  VH::display("Order for sorted values",order);
+  VH::display("Order",order);
 
   VectorDouble VoutVal = VH::sort(VinVal, true, size);
   VH::display("Sorted values", VoutVal);
 
   VectorDouble VsortVal = VH::reorder(VinVal, order, size);
-  VH::display("Re-ordered values", VsortVal);
+  if (! VH::isSame(VoutVal, VsortVal))
+    VH::display("Results are different: Re-ordered values", VsortVal);
 
   VectorInt VsortRank = VH::reorder(VinRank, order, size);
-  VH::display("Re-ordered ranks", VsortRank);
+  VH::display("Ranks of Sorted values", VsortRank);
 
   VH::arrangeInPlace(0, VinRank, VinVal, true, size);
   VinVal.resize(size);
-  VH::display("Re-arranged values", VinVal);
+  if (! VH::isSame(VoutVal, VinVal))
+    VH::display("Results are different: Re-arranged values", VinVal);
   VinRank.resize(size);
-  VH::display("Re-arranged ranks", VinRank);
+  if (! VH::isSame(VsortRank, VinRank))
+    VH::display("Re-arranged ranks", VinRank);
   return (0);
 }

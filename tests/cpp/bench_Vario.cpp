@@ -65,11 +65,15 @@ int main(int argc, char *argv[])
   // ===============
 
   mestitle(1, "Experimental variogram on Data Samples");
-  timer.reset();
+  int ndir = 4;
   int nlag = 20;
-  VarioParam* varioparamP = VarioParam::createMultiple(4, nlag, 0.5 / nlag);
+  message("- on a Db containing %d samples\n", nech);
+  message("- for a variogram calculated in %d directions with %d lags\n", ndir, nlag);
+
+  timer.reset();
+  VarioParam* varioparamP = VarioParam::createMultiple(ndir, nlag, 0.5 / nlag);
   Vario* varioP = Vario::computeFromDb(varioparamP,db,ECalcVario::VARIOGRAM);
-  timer.displayIntervalMilliseconds("Variogram on Isolated Points", 3600);
+  timer.displayIntervalMilliseconds("Variogram on Isolated Points", 3800);
   if (verbose) varioP->display();
 
   // ===============
@@ -77,6 +81,9 @@ int main(int argc, char *argv[])
   // ===============
 
   mestitle(1, "Experimental variogram on Grid");
+  message("- on a grid of %d by %d pixels\n",nx[0],nx[1]);
+  message("- for a variogram calculated along main directions with %d lags\n",nlag);
+
   timer.reset();
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
   Vario* varioG = Vario::computeFromDb(varioparamG, grid, ECalcVario::VARIOGRAM);
@@ -88,8 +95,12 @@ int main(int argc, char *argv[])
   // ==========================================
 
   mestitle(1, "Variogram Map on Isolated Data");
+  int ncell = 50;
+  message("- on a Db containing %d samples\n", nech);
+  message("- for %d by %d cells (automatic dimensions)\n", ncell, ncell);
+
   timer.reset();
-  Db* vmapP = db_vmap_compute(db, ECalcVario::VARIOGRAM, {50,50});
+  Db* vmapP = db_vmap_compute(db, ECalcVario::VARIOGRAM, {ncell,ncell});
   timer.displayIntervalMilliseconds("Variogram Map on Isolated Points", 2400);
 
   // =================================

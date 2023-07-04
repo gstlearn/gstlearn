@@ -17,6 +17,7 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
@@ -49,6 +50,12 @@ int main(int argc, char *argv[])
   for (int i = 0; i < nsample; i++)
     dist[i] = data->getDistance(i, 0);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 310);
+
+  // Produce some statistics for comparison
+  DbStringFormat *dbfmt = DbStringFormat::create(FLAG_STATS, {"z"});
+  data->display(dbfmt);
+
+  delete dbfmt;
 
   if (data != nullptr) delete data;
 

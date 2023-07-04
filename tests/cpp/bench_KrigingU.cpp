@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
   kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 1400);
 
-  // Produce some stats for comparison
+  // Produce some statistics for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
   grid->display(dbfmt);
   delete dbfmt;

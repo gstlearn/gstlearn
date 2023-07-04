@@ -1405,7 +1405,7 @@ void KrigingSystem::_estimateCalcul(int status)
       {
         if (_flagBayes)
           estim = _model->_evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
-        estim += VH::innerProduct(_getRHSCAdd(0, ivarCL), _zam.data(), _nred);
+        estim += VH::innerProduct(_getRHSCAdd(0, ivarCL), _getZamAdd(0), _nred);
       }
       else
       {
@@ -1791,12 +1791,12 @@ void KrigingSystem::_dualCalcul()
 
   /* Operate the product : Z * A-1 */
 
-  matrix_product(_nred, _nred, 1, _lhsinv.data(), _zext.data(), _zam.data());
+  matrix_product(_nred, _nred, 1, _lhsinv.data(), _getZextAdd(0), _zam.data());
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
-    matrix_product_safe(1, _nred, 1, _zam.data(), _zext.data(), &_lterm);
+    matrix_product_safe(1, _nred, 1, _getZamAdd(0), _getZextAdd(0), &_lterm);
 
   // Turn back the flag to OFF in order to avoid provoking
   // the _dualCalcul() calculations again
@@ -2966,7 +2966,14 @@ const double* KrigingSystem::_getRHSCAdd(int i, int jvCL) const
   int iad = (i) + _nred * (jvCL);
   return _rhs.subdata(iad);
 }
-
+const double* KrigingSystem::_getZamAdd(int i) const
+{
+  return _zam.subdata(i);
+}
+const double* KrigingSystem::_getZextAdd(int i) const
+{
+  return _zext.subdata(i);
+}
 double KrigingSystem::_getWGTC(int i,int jvCL) const
 {
   int iad = (i) + _nred * (jvCL);
