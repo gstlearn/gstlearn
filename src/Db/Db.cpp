@@ -314,7 +314,6 @@ bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
  */
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
-  if (!isLocatorTypeValid(locatorType)) return false;
   const PtrGeos& p = _p[locatorType.getValue()];
   bool ok = p.isLocatorIndexValid(locatorIndex);
   if (! ok)
@@ -347,7 +346,6 @@ int Db::getUIDByColIdx(int icol) const
 
 int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
 {
-  if (!isLocatorIndexValid(locatorType, locatorIndex)) return -1;
   const PtrGeos& p = _p[locatorType.getValue()];
   return p.getLocatorByIndex(locatorIndex);
 }
@@ -360,8 +358,6 @@ int Db::getUIDByLocator(const ELoc& locatorType, int locatorIndex) const
  */
 int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 {
-  if (!isLocatorTypeValid(locatorType)) return -1;
-  if (!isLocatorIndexValid(locatorType,locatorIndex)) return -1;
   const PtrGeos& p = _p[locatorType.getValue()];
   int icol = getColIdxByUID(p.getLocatorByIndex(locatorIndex));
   return (icol);
@@ -369,14 +365,12 @@ int Db::getColIdxByLocator(const ELoc& locatorType, int locatorIndex) const
 
 int Db::getLocatorNumber(const ELoc& locatorType) const
 {
-  if (!isLocatorTypeValid(locatorType)) return -1;
   const PtrGeos& p = _p[locatorType.getValue()];
   return p.getLocatorNumber();
 }
 
 int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 {
-  if (!isLocatorTypeValid(locatorType)) return -1;
   const PtrGeos& p = _p[locatorType.getValue()];
   if (!isUIDValid(iuid)) return -1;
   for (int locatorIndex = 0; locatorIndex < p.getLocatorNumber(); locatorIndex++)
@@ -386,7 +380,6 @@ int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 
 int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
 {
-  if (!isLocatorTypeValid(locatorType)) return -1;
   int iuid = getUIDByColIdx(icol);
   return _findUIDInLocator(locatorType, iuid);
 }
@@ -667,8 +660,12 @@ void Db::setArrayBySample(int iech, const VectorDouble& vec)
 void Db::updArray(int iech, int iuid, int oper, double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  double oldval = getArray(iech, iuid);
-  setArray(iech, iuid, _updateValue(oper, oldval, value));
+
+  int icol = getColIdxByUID(iuid);
+  int internalAddress = _getAddress(iech, icol);
+  double oldval = _array[internalAddress];
+  double newval = _updateValue(oper, oldval, value);
+  _array[internalAddress] = newval;
 }
 
 VectorDouble Db::getSampleCoordinates(int iech) const
@@ -710,7 +707,6 @@ std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
 VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
 {
   VectorDouble vec;
-  if (!isLocatorTypeValid(locatorType)) return vec;
   int number = getLocatorNumber(locatorType);
   if (number <= 0) return vec;
   vec.resize(number);
@@ -942,7 +938,6 @@ void Db::setLocators(const VectorString &names,
                      int locatorIndex,
                      bool cleanSameLocator)
 {
-  if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return;
 
@@ -964,7 +959,6 @@ void Db::setLocator(const String &names,
                     int locatorIndex,
                     bool cleanSameLocator)
 {
-  if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return;
 
@@ -990,7 +984,6 @@ void Db::setLocatorByUID(int iuid,
                          bool cleanSameLocator)
 {
   if (!isUIDValid(iuid)) return;
-  if (!isLocatorTypeValid(locatorType, true)) return;
   if (locatorIndex < 0) return;
 
   // Optional clean
@@ -1058,8 +1051,6 @@ void Db::setLocatorsByUID(int number,
                           int locatorIndex,
                           bool cleanSameLocator)
 {
-  if (!isLocatorTypeValid(locatorType, true)) return;
-
   if (cleanSameLocator) clearLocators(locatorType);
 
   for (int i = 0; i < number; i++)
@@ -1071,8 +1062,6 @@ void Db::setLocatorsByUID(const VectorInt& iuids,
                           int locatorIndex,
                           bool cleanSameLocator)
 {
-  if (!isLocatorTypeValid(locatorType, true)) return;
-
   if (cleanSameLocator) clearLocators(locatorType);
 
   int number = (int) iuids.size();
@@ -1762,7 +1751,6 @@ void Db::deleteColumnByUID(int iuid_del)
  */
 void Db::deleteColumnsByLocator(const ELoc& locatorType)
 {
-  if (!isLocatorTypeValid(locatorType)) return;
   const PtrGeos& p = _p[locatorType.getValue()];
   int nitem = p.getLocatorNumber();
   // Loop is performed downwards as PtrGeos is modified by called routine
@@ -2277,9 +2265,13 @@ void Db::setLocVariable(const ELoc& loctype, int iech, int item, double value)
 void Db::updLocVariable(const ELoc& loctype, int iech, int item, int oper, double value)
 {
   if (loctype == ELoc::UNKNOWN) return;
-  double oldval = getFromLocator(loctype, iech, item);
+  if (!isSampleIndexValid(iech)) return;
+  int icol = getColIdxByLocator(loctype, item);
+  int internalAddress = _getAddress(iech, icol);
+
+  double oldval = _array[internalAddress];
   double newval = _updateValue(oper, oldval, value);
-  setFromLocator(loctype, iech, item, newval);
+  _array[internalAddress] = newval;
 }
 
 /**
@@ -2623,7 +2615,6 @@ double Db::getSimvar(const ELoc& locatorType,
                      int nvar) const
 {
   int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
-
   return getFromLocator(locatorType, iech, item);
 }
 
@@ -2657,9 +2648,14 @@ void Db::updSimvar(const ELoc& locatorType,
                    double value)
 {
   int item = _getSimrank(isimu, ivar, icase, nbsimu, nvar);
-  double oldval = getFromLocator(locatorType, iech, item);
+
+  // This direct addressing is meant to save time
+  int icol = getColIdxByLocator(locatorType, item);
+  int internalAddress = _getAddress(iech, icol);
+
+  double oldval = _array[internalAddress];
   double newval = _updateValue(oper, oldval, value);
-  setFromLocator(locatorType, iech, item, newval);
+  _array[internalAddress] = newval;
 }
 
 bool Db::isActive(int iech) const
@@ -2727,49 +2723,43 @@ int Db::getActiveAndDefinedNumber(const String& name) const
  */
 double Db::_updateValue(int oper, double oldval, double value)
 {
-  double newval;
-
-  newval = 0.;
-  switch (oper)
+  if (oper == 0)
   {
-    case 0:
-      if (FFFF(value) || FFFF(oldval)) return (TEST);
-      newval = value + oldval;
-      break;
-
-    case 1:
-      if (FFFF(value) || FFFF(oldval)) return (TEST);
-      newval = value * oldval;
-      break;
-
-    case 2:
-      if (FFFF(value) || FFFF(oldval)) return (TEST);
-      newval = value - oldval;
-      break;
-
-    case 3:
-      if (FFFF(value) || FFFF(oldval)) return (TEST);
-      newval = (value == 0.) ? TEST :
-                               oldval / value;
-      break;
-
-    case 4:
-      newval = value;
-      break;
-
-    case 5:
-      if (FFFF(value)) return (oldval);
-      if (FFFF(oldval)) return (value);
-      newval = MAX(newval, value);
-      break;
-
-    case 6:
-      if (FFFF(value)) return (oldval);
-      if (FFFF(oldval)) return (value);
-      newval = MIN(newval, value);
-      break;
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value + oldval);
   }
-  return (newval);
+  else if (oper == 1)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value * oldval);
+  }
+  else if (oper == 2)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return (value - oldval);
+  }
+  else if (oper == 3)
+  {
+    if (FFFF(value) || FFFF(oldval)) return (TEST);
+    return ((value == 0.) ? TEST : oldval / value);
+  }
+  else if (oper == 4)
+  {
+    return value;
+  }
+  else if (oper == 5)
+  {
+    if (FFFF(value)) return (oldval);
+    if (FFFF(oldval)) return (value);
+    return MAX(oldval, value);
+  }
+  else if (oper == 6)
+  {
+    if (FFFF(value)) return (oldval);
+    if (FFFF(oldval)) return (value);
+    return MIN(oldval, value);
+  }
+  return TEST;
 }
 
 /**
@@ -2827,7 +2817,6 @@ String Db::getNameByUID(int iuid) const
 VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 {
   VectorString namelist;
-  if (!isLocatorTypeValid(locatorType)) return namelist;
   int count = getFromLocatorNumber(locatorType);
   for (int i = 0; i < count; i++)
   {
@@ -2921,7 +2910,6 @@ void Db::setName(const VectorString list, const String& name)
 void Db::setNameByLocator(const ELoc& locatorType, const String& name)
 {
   VectorString namelist;
-  if (!isLocatorTypeValid(locatorType)) return;
   int count = getFromLocatorNumber(locatorType);
   for (int i = 0; i < count; i++)
   {
@@ -3833,7 +3821,6 @@ VectorInt Db::getColIdxs(const VectorString& names) const
 VectorInt Db::getColIdxsByLocator(const ELoc& locatorType) const
 {
   VectorInt icols;
-  if (!isLocatorTypeValid(locatorType)) return icols;
   int number = getLocatorNumber(locatorType);
   if (number <= 0) return icols;
 
@@ -3886,7 +3873,6 @@ VectorInt Db::getUIDs(const VectorString& names) const
 VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
 {
   VectorInt iuids;
-  if (!isLocatorTypeValid(locatorType)) return iuids;
   int number = getLocatorNumber(locatorType);
   if (number <= 0) return iuids;
   iuids.resize(number);
@@ -4359,7 +4345,7 @@ int Db::getFaciesNumber(void) const
   return nfac;
 }
 
-VectorBool Db::getMaskArray() const
+VectorBool Db::getActiveArray() const
 {
   int nech = getSampleNumber();
   VectorBool status(nech);

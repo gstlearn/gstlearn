@@ -504,7 +504,7 @@ public:
   bool isActiveAndDefined(int iech, int item) const;
   int  getActiveAndDefinedNumber(int item) const;
   int  getActiveAndDefinedNumber(const String& name) const;
-  VectorBool getMaskArray() const;
+  VectorBool getActiveArray() const;
 
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
@@ -818,7 +818,7 @@ private:
   String _summaryArrays(VectorInt cols, bool useSel = true) const;
 
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
-  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
+  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu=1, int nvar=1) const;
   VectorInt _getUIDsBasic(const VectorString& names) const;
 
   int _getLastColumn(int number = 0) const;

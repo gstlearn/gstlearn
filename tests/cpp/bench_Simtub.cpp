@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
   timer.reset();
   (void) simtub(nullptr,grid,model,nullptr, nbsimu, 113423, nbtuba);
-  timer.displayIntervalMilliseconds("Non-conditional Simulation on Grid", 13000);
+  timer.displayIntervalMilliseconds("Non-conditional Simulation on Grid", 6800);
 
   // Produce some statistics for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"Simu.*"});
