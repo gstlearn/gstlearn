@@ -581,6 +581,13 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
   return dbgrid;
 }
 
+/**
+ * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'dbout' (grid)
+ * @param dbin  Input Db
+ * @param dbout Output db
+ * @param flag_add_rank 1 if the rank of the samples must be aaded
+ * @return
+ */
 bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
 {
   ELoc locatorType;

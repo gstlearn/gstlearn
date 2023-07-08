@@ -1542,14 +1542,14 @@ def __ax_mesh(ax, meshobj,
 
     return ax
 
-def correlation(db, *args, **kwargs):
+def correlation(db, namex, namey, *args, **kwargs):
     '''
     Plotting the scatter plot between two variables contained in a Db
     
     kwargs: additional arguments used in hist2d or scatter
     '''
     ax = __getNewAxes(None, 0)
-    return __ax_correlation(ax, db=db, *args, **kwargs)
+    return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
     
 def __ax_correlation(ax, db, namex, namey, db2=None, usesel=True, 
                      asPoint = False,  flagSameAxes=False,

@@ -96,24 +96,24 @@ int NoStatArray::attachToMesh(const AMesh* mesh, bool verbose) const
   // Create the array of coordinates
 
   ANoStat::attachToMesh(mesh,verbose);
-  int nvertex = mesh->getNApices();
-  VectorDouble tab(nvertex,0);
-  VectorVectorDouble coords = mesh->getAllCoordinates();
+  int nmeshes = mesh->getNMeshes();
+  VectorDouble loctab(nmeshes,0);
+  VectorVectorDouble coords = mesh->getAllCenterCoordinates();
 
   // Create the internal array
 
   int npar = getNoStatElemNumber();
-  _tab.reset(nvertex, npar);
+  _tab.reset(nmeshes, npar);
 
   /* Evaluate the non-stationary parameters */
 
   for (int ipar=0; ipar<npar; ipar++)
   {
     // Evaluate the non-stationary attribute at the target points
-    if (_informField(ipar, coords, tab, verbose)) return 1;
+    if (_informField(ipar, coords, loctab, verbose)) return 1;
 
     // Store the local vector within the Matrix
-    _tab.setColumn(ipar, tab);
+    _tab.setColumn(ipar, loctab);
   }
 
   return 0;
@@ -185,32 +185,6 @@ void NoStatArray::detachFromDb(Db* db, int icas) const
 }
 
 /**
- * Returns the value of a non-stationary parameter at a target sample
- * @param igrf  Rank of the GRF
- * @param icov  Rank of the Covariance
- * @param type  Type of non-stationary element (EConsElem)
- * @param iv1   Rank of the first variable (optional)
- * @param iv2   Rank of the second variable (optional)
- * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
- * @param rank  Rank of the target (in Meshing (0); in Dbin (1) or in Dbout (2)
- * @return
- */
-double NoStatArray::getValue(int igrf,
-                             int icov,
-                             const EConsElem& type,
-                             int iv1,
-                             int iv2,
-                             int icas,
-                             int rank) const
-{
-  int ipar = getRank(igrf, icov, type, iv1, iv2);
-  if (ipar < 0)
-    return TEST;
-  else
-    return getValueByParam(ipar, icas, rank);
-}
-
-/**
  * Check if the non-stationary values defined or not
  * @param icas Type of information (0: meshing; 1: Dbin; 2: Dbout)
  * @return
@@ -236,6 +210,30 @@ bool NoStatArray::isEmpty(int icas) const
 }
 
 /**
+ * Returns the value of a non-stationary parameter at a target sample
+ * @param type  Type of non-stationary element (EConsElem)
+ * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
+ * @param rank  Rank of the target (in Meshing (0); in Dbin (1) or in Dbout (2)
+ * @param icov  Rank of the Covariance
+ * @param iv1   Rank of the first variable (optional)
+ * @param iv2   Rank of the second variable (optional)
+ * @param igrf  Rank of the GRF
+ * @return
+ */
+double NoStatArray::getValue(const EConsElem &type,
+                             int icas,
+                             int rank,
+                             int icov,
+                             int iv1,
+                             int iv2,
+                             int igrf) const
+{
+  if (! _isValid(icas, rank)) return TEST;
+  int ipar = getRank(type, icov, iv1, iv2, igrf);
+  return getValueByParam(ipar, icas, rank);
+}
+
+/**
  * Return the value of the non-stationary parameter (ipar) at target (rank)
  * @param ipar  Rank of the non-stationary parameter
  * @param icas  Source definition:
@@ -247,19 +245,12 @@ bool NoStatArray::isEmpty(int icas) const
  */
 double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 {
-  if (ipar < 0)
-    my_throw("Invalid rank when searching for Non-stationary parameter");
-  if (isEmpty(icas))
-    my_throw("The Non-Stationary storage must be defined beforehand");
-
-  // Dispatch
-
+  if (! _isValid(icas, rank)) return TEST;
   if (icas == 0)
   {
 
     // From Meshing
 
-    if (_amesh == nullptr) return TEST;
     return _tab(rank, ipar);
   }
   else if (icas == 1)
@@ -267,8 +258,6 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     // From Dbin
 
-    if (_dbin == nullptr) return TEST;
-    if (rank < 0 || rank > _dbin->getSampleNumber()) return TEST;
     return _dbin->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
   else if (icas == 2)
@@ -276,8 +265,6 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
 
     // From Dbout
 
-    if (_dbout == nullptr) return TEST;
-    if (rank < 0 || rank > _dbout->getSampleNumber()) return TEST;
     return _dbout->getFromLocator(ELoc::NOSTAT, rank, ipar);
   }
   else
@@ -358,6 +345,7 @@ String NoStatArray::toString(const AStringFormat* strfmt) const
 
 /**
  * Inform the value of non-stationary parameter 'ipar' at samples
+ * defined by their coordinates
  * @param ipar Rank of the non-stationary parameter
  * @param coords Coordinates of the samples (dimension: ndim, npar)
  * @param tab Return array of non-stationary values at samples
@@ -374,7 +362,7 @@ int NoStatArray::_informField(int ipar,
   int iatt = db_attribute_identify(_dbnostat, ELoc::NOSTAT, ipar);
   if (iatt < 0)
   {
-    messerr("The Non-stationary attribute (%d) is not defined in Dbnostat",
+    messerr("The Non-stationary attribute (%d) is not defined in _dbnostat",
             ipar);
     return 1;
   }

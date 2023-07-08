@@ -42,8 +42,13 @@ public:
   int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
   int  attachToDb(Db* db, int icas, bool verbose = false) const override;
 
-  double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
-                  int icas, int rank) const override;
+  double getValue(const EConsElem &type,
+                  int icas,
+                  int rank,
+                  int icov = 0,
+                  int iv1 = -1,
+                  int iv2 = -1,
+                  int igrf = -1) const override;
   double getValueByParam(int ipar, int icas, int rank) const override;
 
 private:

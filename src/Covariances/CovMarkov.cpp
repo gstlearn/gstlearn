@@ -86,4 +86,3 @@ double CovMarkov::evaluateSpectrum(double freq, int /*ndim*/) const
   }
   return 1./  s;
 }
-

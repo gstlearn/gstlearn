@@ -51,24 +51,16 @@ int main(int /*argc*/, char */*argv*/[])
   DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("Francky-");
+  ASerializable::setPrefixName("test_Francky-");
   // Creating the 2-D Db
   auto nx = { 101, 101 };
   DbGrid* workingDbc = DbGrid::create(nx);
 
-  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-
   // Creating the Non-stationary Model
-  Model model = Model(workingDbc);
-  CovContext ctxt = model.getContext();
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
-  cova.setRanges({10,45});
-  covs.addCov(&cova);
-  model.setCovList(&covs);
-
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {45., 10.});
+  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   NoStatFunctional NoStat(&spirale);
-  model.addNoStat(&NoStat);
+  model->addNoStat(&NoStat);
 
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
@@ -80,8 +72,8 @@ int main(int /*argc*/, char */*argv*/[])
   NeighUnique* neighU = NeighUnique::create();
 
   // Testing Kriging
-  kriging(dat,workingDbc,&model,neighU);
-  (void) workingDbc->dumpToNF("franckyFunctional.ascii");
+  kriging(dat,workingDbc,model,neighU);
+  (void) workingDbc->dumpToNF("Functional.ascii");
   workingDbc->display(&dbfmt);
 
   message("Test performed successfully\n");
@@ -89,5 +81,7 @@ int main(int /*argc*/, char */*argv*/[])
   delete dat;
   delete workingDbc;
   delete neighU;
+  delete model;
+
   return 0;
 }

@@ -55,6 +55,6 @@ relative difference 0.0
 +*Out[21]:*+
 ----
 likelihood api 83.2439
-likelihood_chol -1.5133
+likelihood_chol -1.5132
 -1.0182
 ----

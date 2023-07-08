@@ -257,11 +257,9 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
     }
     Re[iad] = prod * evaluateSpectrum(s,ndim);
     array.setValue(indices,Re[iad]);
-
   }
 
   FFTn(ndim, nxs, Re, Im);
-
 
   // Retrieve information from the Re array and load them back in the array result.
 
