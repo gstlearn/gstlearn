@@ -601,11 +601,18 @@ VectorDouble VectorHelper::normalScore(const VectorDouble &data,
   for (int iech = 0; iech < nech; iech++)
   {
     int jech = idx[iech];
-    double wtloc = 1.;
-    if (! wt.empty()) wtloc = wt[jech];
-    wpartial += wtloc;
-    double z = wpartial / wtotal;
-    vec[jech] = law_invcdf_gaussian(z);
+    if (! FFFF(data[jech]))
+    {
+      double wtloc = 1.;
+      if (!wt.empty()) wtloc = wt[jech];
+      wpartial += wtloc;
+      double z = wpartial / wtotal;
+      vec[jech] = law_invcdf_gaussian(z);
+    }
+    else
+    {
+      vec[jech] = TEST;
+    }
   }
   return vec;
 }
