@@ -469,9 +469,9 @@ void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
 /* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
  * P(x) = P1(x)^2 + x * P2(x)^2 + eps
  */
-void CovAniso::setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1,
-                                                VectorDouble coeffs2,
-                                                double eps)
+void CovAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
+                                                   VectorDouble coeffs2,
+                                                   double eps)
 {
   int size1 = (int) coeffs1.size();
   int size2 = (int) coeffs2.size();

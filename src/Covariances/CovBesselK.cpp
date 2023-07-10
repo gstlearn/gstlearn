@@ -103,7 +103,6 @@ void CovBesselK::computeMarkovCoeffs(int ndim)
     _markovCoeffs[i] = (double)ut_cnp(p, i);
   }
   computeCorrec(ndim);
-
 }
 
 void CovBesselK::computeCorrec(int ndim)

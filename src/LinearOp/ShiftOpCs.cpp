@@ -742,9 +742,9 @@ double ShiftOpCs::_computeGradLogDetHH(const AMesh *amesh,
  * @param amesh Pointer to the meshing
  * @param imesh Rank of the mesh
  */
-void ShiftOpCs::_loadHH(const AMesh* amesh,
-                               MatrixSquareSymmetric& hh,
-                               int imesh)
+void ShiftOpCs::_loadHH(const AMesh *amesh,
+                        MatrixSquareSymmetric &hh,
+                        int imesh)
 {
   if (_flagNoStatByHH)
   {
@@ -981,10 +981,11 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
     // Prepare M matrix
 
     bool flagSphere = (amesh->getVariety() != 0);
-    flagSphere = false;  // Modif code DR
+    flagSphere = false; // Modif DR a valider
     if (! flagSphere)
     {
-      my_throw("Matrix inversion");
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
+        my_throw("Matrix inversion");
       matPinvHPt.normTMatrix(hh, matP);
     }
     else
@@ -1121,24 +1122,23 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
     // Prepare M matrix
     _loadHH(amesh, hh, imesh);
-
-    if (amesh->getVariety() == 0)
+    bool flagSphere = (amesh->getVariety() == 1);
+    flagSphere = false; // Modif DR a valider
+    if (! flagSphere)
     {
       if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
         my_throw("Matrix inversion");
+      matPHHPt.normTMatrix(hh, matP);
     }
+
     else
     {
       if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
         my_throw("Matrix inversion");
+      matPHHPt.normTMatrix(hh, matMs);
     }
 
-    if (amesh->getVariety() == 0)
-      matPHHPt.normTMatrix(hh, matP);
-    else
-      matPHHPt.normTMatrix(hh, matMs);
-
-    dethh = 1./hh.determinant();
+    dethh = 1. / hh.determinant();
     hh.invert();
 
     // Loop on the derivative terms
@@ -1295,66 +1295,75 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   /* Load global matrices */
 
   _Lambda.clear();
+  _Lambda.resize(nvertex, 0.);
+
   int icov = _getIcov();
   int igrf = _getIgrf();
   MatrixSquareSymmetric hh(ndim);
-  double correc  = cova->getCorrec();
-  if (_isGlobalHH(igrf, icov))
+  double param = cova->getParam();
+  bool flagSphere = (amesh->getVariety() == 1);
+  bool flagSill = false;
+  if (_isNoStat())
+  {
+    const ANoStat *nostat = _getModel()->getNoStat();
+    if (nostat->isDefined(EConsElem::SILL, icov)) flagSill = true;
+  }
+
+  double sill = cova->getSill(0, 0);
+  double correc = cova->getCorrec();
+  double sqdethh = 0.;
+  double factor = 1.;
+
+  if (_isGlobalHH(igrf, icov) && flagSphere && flagSill)
   {
     _loadHH(amesh, hh, 0);
-    if (amesh->getVariety() == 1)
-    {
-      const ASpace *space = getDefaultSpace();
-      const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
-      double r = 1.;
-      double param = cova->getParam();
-      if (spaceSn != nullptr) r = spaceSn->getRadius();
-      correc = cova->evalCovOnSphere(0, 50, false) * pow(r, 2. * param);
-    }
+    sqdethh = sqrt(hh.determinant());
+
+    const ASpace *space = getDefaultSpace();
+    const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
+    double r = 1.;
+
+    if (spaceSn != nullptr) r = spaceSn->getRadius();
+    correc = cova->evalCovOnSphere(0, 50, false) * pow(r, 2. * param);
+    factor = sqrt(pow(sqdethh, - (2. * param  - 1.)/3.));
   }
 
   /* Fill the array */
 
-  _Lambda.resize(nvertex, 0.);
-  double sill = cova->getSill(0, 0);
-
-  if (_isNoStat())
+  if (_isNoStat() && flagSill)
   {
+    VectorDouble cum(nvertex, 0.);
     const ANoStat *nostat = _getModel()->getNoStat();
-    if (nostat->isDefined(EConsElem::SILL, icov))
+    for (int imesh = 0; imesh < nmeshes; imesh++)
     {
-      VectorDouble cum(nvertex, 0.);
-      for (int imesh = 0; imesh < nmeshes; imesh++)
+      if (flagSphere && nostat->isDefinedforAnisotropy(icov, igrf))
       {
-        sill = nostat->getValue(EConsElem::SILL, 0, imesh, icov);
-
-        for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
-        {
-          int ip = amesh->getApex(imesh, ic);
-          cum[ip]++;
-          _Lambda[ip] += sill;
-        }
+        _loadHH(amesh, hh, imesh);
+        sqdethh = sqrt(hh.determinant());
+        factor = sqrt(pow(sqdethh, - (2. * param  - 1.)/3.));
       }
+ 
+      sill = nostat->getValue(EConsElem::SILL, 0, imesh, icov);
 
-      for (int ip = 0; ip < nvertex; ip++)
+      for (int ic = 0, ncorner = amesh->getNApexPerMesh(); ic < ncorner; ic++)
       {
-        if (cum[ip] > 0.) _Lambda[ip] /= cum[ip];
-        _Lambda[ip] = sqrt(_TildeC[ip] * correc / _Lambda[ip]);
+        int ip = amesh->getApex(imesh, ic);
+        _Lambda[ip] += sill / factor;
+        cum[ip]++;
       }
     }
-    else
+
+    for (int ip = 0; ip < nvertex; ip++)
     {
-      for (int ip = 0; ip < nvertex; ip++)
-       {
-        _Lambda[ip] = sqrt(_TildeC[ip] * correc / sill);
-       }
+      if (cum[ip] > 0.) _Lambda[ip] /= cum[ip];
+      _Lambda[ip] = sqrt(_TildeC[ip] * correc / _Lambda[ip]);
     }
   }
   else
   {
     for (int ip = 0; ip < nvertex; ip++)
      {
-      _Lambda[ip] = sqrt(_TildeC[ip] * correc / sill);
+      _Lambda[ip] = sqrt(_TildeC[ip] * correc * factor / sill);
      }
   }
 }

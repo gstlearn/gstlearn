@@ -237,13 +237,13 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   for(int idim = 0; idim < ndim; idim++)
   {
     coeff = 1. / (2. * hmax[idim]);
-    a[idim]=    GV_PI * (N-1) / ( hmax[idim]);
+    a[idim]=    GV_PI * (N-1) / (hmax[idim]);
     prod *= coeff;
   }
 
-  VectorDouble Re(ntotal);
+  VectorDouble Re(ntotal,0.);
   VectorDouble Im(ntotal,0.);
-  VectorInt indices(ndim);
+  VectorInt    indices(ndim);
 
   for (int iad = 0; iad < ntotal; iad++)
   {
@@ -252,7 +252,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
     double s = 0.;
     for (int idim = 0; idim < ndim; idim++)
     {
-      double temp = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
+      double temp = a[idim] * ((double) indices[idim] / (N - 1) - 0.5);
       s += temp * temp;
     }
     Re[iad] = prod * evaluateSpectrum(s,ndim);
@@ -297,7 +297,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
         continue;
       }
     }
-    if(cont)
+    if (cont)
     {
       result.rankToIndice(iadr++,newIndices);
       result.setValue(newIndices,array.getValue(indices));
@@ -306,17 +306,18 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
   return result;
 }
 
-void ACovFunc::computeCorrec(int dim)
+void ACovFunc::computeCorrec(int ndim)
 {
   if (! hasSpectrum()) return;
   int N = (int) pow(2,8);
-  VectorInt Nv(dim);
-  VectorDouble hmax(dim);
-  for (int idim = 0; idim<dim; idim++)
+  VectorInt Nv(ndim);
+  VectorDouble hmax(ndim);
+  for (int idim = 0; idim<ndim; idim++)
   {
     hmax[idim] = 3 * getScadef();
     Nv[idim] = N/2;
   }
   Array res = _evalCovFFT(hmax,N);
-  setCorrec(res.getValue(Nv));
+  double correc = res.getValue(Nv);
+  setCorrec(correc);
 }
