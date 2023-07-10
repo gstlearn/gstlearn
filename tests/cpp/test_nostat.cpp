@@ -51,43 +51,39 @@ int main(int /*argc*/, char */*argv*/[])
   law_set_random_seed(seed);
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("Nostat-");
+  ASerializable::setPrefixName("test_nostat-");
 
   // Creating the 2-D Db
   auto nx = { 101, 101 };
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
-  Model model(workingDbc);
-  CovContext ctxt = model.getContext();
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova(ECov::BESSEL_K,ctxt);
-  cova.setRanges({45,10});
-  covs.addCov(&cova);
-  model.setCovList(&covs);
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {45., 10.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(workingDbc);
   MatrixSquareGeneral hh(2);
+  CovAniso* cova = model->getCova(0);
 
   int nech = workingDbc->getSampleNumber();
   VectorDouble h11(nech);
   VectorDouble h12(nech);
   VectorDouble h22(nech);
+  MatrixSquareGeneral rotmat(2);
+  VectorDouble diag = VH::power(cova->getScales(), 2.);
+  MatrixSquareSymmetric temp(2);
+  temp.setDiagonal(diag);
+
   for (int i = 0; i < nech; i++)
   {
     VectorDouble coor = workingDbc->getSampleCoordinates(i);
     VectorVectorDouble dirs = spirale.getFunctionVectors(coor);
 
-    MatrixSquareGeneral rotmat(2);
     rotmat.setValue(0,0,dirs[0][0]);
     rotmat.setValue(1,0,dirs[1][0]);
     rotmat.setValue(0,1,dirs[0][1]);
     rotmat.setValue(1,1,dirs[1][1]);
 
-    VectorDouble diag = VH::power(cova.getScales(), 2.);
-    MatrixSquareSymmetric temp(2);
-    temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
 
     h11[i] = hh.getValue(0,0);
@@ -105,12 +101,12 @@ int main(int /*argc*/, char */*argv*/[])
   VH::display("Non-stationary parameters at sample", vect);
 
   NoStatArray NoStat({"H1-1","H1-2","H2-2"},workingDbc);
-  model.addNoStat(&NoStat);
-  model.display();
+  model->addNoStat(&NoStat);
+  model->display();
 
   MeshETurbo mesh(workingDbc);
-  ShiftOpCs S(&mesh, &model, workingDbc);
-  PrecisionOp Qsimu(&S, &cova, false);
+  ShiftOpCs S(&mesh, model, workingDbc);
+  PrecisionOp Qsimu(&S, cova, false);
 
   VectorDouble result = Qsimu.simulateOne();
   workingDbc->addColumns(result,"Simu",ELoc::Z);

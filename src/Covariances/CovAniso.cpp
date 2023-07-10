@@ -466,14 +466,13 @@ void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
   _computeCorrec();
 }
 
-/* This function computes a polynom P from two polynoms P1 and P2 and a small constant eps
+/* This function computes a polynomial P from two polynomials P1 and P2 and a small constant eps
  * P(x) = P1(x)^2 + x * P2(x)^2 + eps
  */
-void CovAniso::setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1,
-                                                VectorDouble coeffs2,
-                                                double eps)
+void CovAniso::setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1,
+                                                   VectorDouble coeffs2,
+                                                   double eps)
 {
-
   int size1 = (int) coeffs1.size();
   int size2 = (int) coeffs2.size();
 
@@ -494,7 +493,6 @@ void CovAniso::setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1,
 
   coeffs[0] += eps;
   setMarkovCoeffs(coeffs);
-
 }
 
 double CovAniso::getCorrec() const
@@ -741,10 +739,8 @@ void CovAniso::_initFromContext()
 
 void CovAniso::_updateFromContext()
 {
-
   computeMarkovCoeffs();
   _computeCorrec();
-
 }
 
 /**
@@ -965,10 +961,11 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
   if (! hasSpectrum()) return Array();
 
   std::function<double(const VectorDouble&)> funcSpectrum;
-  funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
-      { return evalSpectrum(freq, ivar, jvar) * _getDetTensor();};
-
-  return evalCovFFTSpatial(hmax, N, funcSpectrum) ;
+  funcSpectrum = [this, ivar, jvar](const VectorDouble &freq)
+  {
+    return evalSpectrum(freq, ivar, jvar) * _getDetTensor();
+  };
+  return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
 
 CovAniso* CovAniso::reduce(const VectorInt &validVars) const

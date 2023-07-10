@@ -152,6 +152,11 @@ void Tensor::applyInverseInPlace(const VectorDouble &vec, VectorDouble &out) con
   _tensorInverse.prodVector(vec, out);
 }
 
+void Tensor::applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const
+{
+  _tensorDirect.prodVector(vec, out);
+}
+
 VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;

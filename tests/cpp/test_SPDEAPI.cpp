@@ -34,7 +34,7 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("SPDEAPI-");
+  ASerializable::setPrefixName("test_SPDEAPI-");
   int seed = 10355;
   law_set_random_seed(seed);
 
@@ -49,14 +49,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Creating the Model
-  Model* model = Model::createFromDb(workingDbc);
-  CovContext ctxt(model->getContext());
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
-  cova.setRanges({10,45});
-  covs.addCov(&cova);
-  model->setCovList(&covs);
-
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10.,45.});
   NoStatArray NoStat({"A"},workingDbc);
   model->addNoStat(&NoStat);
   model->display();
@@ -71,9 +64,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Running SPDE
-  SPDE spde(model,workingDbc,dat,ESPDECalcMode::SIMUNONCOND);
-  spde.compute();
-  spde.query(workingDbc);
+  SPDE spde1(model,workingDbc,dat,ESPDECalcMode::SIMUNONCOND);
+  spde1.compute();
+  spde1.query(workingDbc);
 
   SPDE spde2(model,workingDbc,dat,ESPDECalcMode::SIMUCOND);
   spde2.compute();
@@ -83,7 +76,7 @@ int main(int /*argc*/, char */*argv*/[])
   spde3.compute();
   spde3.query(workingDbc);
 
-  (void) workingDbc->dumpToNF("all.ascii");
+  (void) workingDbc->dumpToNF("grid.ascii");
   DbStringFormat dbfmt(FLAG_STATS,{"spde*"});
   workingDbc->display(&dbfmt);
 

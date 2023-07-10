@@ -68,7 +68,7 @@ if filetype == "Db":
         ax.decoration(title=name)
         plt.show()
     else:
-        gp.correlation(db, nameX, nameY)
+        gp.correlation(db, nameX, nameY, asPoint=True)
         plt.show()
             
 elif filetype == "DbGrid":
@@ -77,21 +77,31 @@ elif filetype == "DbGrid":
     if invalid(ranks, dbgrid.getColumnNumber()): exit()
     if len(ranks) == 0:
         name = dbgrid.getLastName()
+        flagDb = True
     elif len(ranks) == 1:
         name = dbgrid.getNameByColIdx(int(ranks[0]))
+        flagDb = True
+    elif len(ranks) == 2:
+        nameX = dbgrid.getNameByColIdx(int(ranks[0]))
+        nameY = dbgrid.getNameByColIdx(int(ranks[1]))
+        flagDb = False
     else:
         print("Number of Variable rank should be 0 or 1")
         exit()
-        
-    if dbgrid.getNDim() > 1:
-        ax = gp.grid(dbgrid, name, flagLegendRaster=True)
-        ax.decoration(title=name)
-        plt.show()
-    else:
-        ax = gp.grid1D(dbgrid, name)
-        ax.decoration(title=name)
-        plt.show()
     
+    if flagDb:
+        if dbgrid.getNDim() > 1:
+            ax = gp.grid(dbgrid, name, flagLegendRaster=True)
+            ax.decoration(title=name)
+            plt.show()
+        else:
+            ax = gp.grid1D(dbgrid, name)
+            ax.decoration(title=name)
+            plt.show()
+    else:
+        gp.correlation(dbgrid, nameX, nameY, asPoint=False, bins=100)
+        plt.show()
+        
 elif filetype == "Vario":
     vario = gl.Vario.createFromNF(filename,False)
     checkValidPointer(vario)

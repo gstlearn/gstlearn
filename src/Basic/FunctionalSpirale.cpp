@@ -24,7 +24,12 @@ FunctionalSpirale::FunctionalSpirale()
 {
 }
 
-FunctionalSpirale::FunctionalSpirale(double a, double b, double c, double d, double sx, double sy)
+FunctionalSpirale::FunctionalSpirale(double a,
+                                     double b,
+                                     double c,
+                                     double d,
+                                     double sx,
+                                     double sy)
     : AFunctional(2),
       _a(a),
       _b(b),
@@ -72,7 +77,7 @@ double FunctionalSpirale::_linearCombination(double x, double y, double a, doubl
 
 /**
  * return the angle of the spiral at a given coordinate
- * @param coor 2-D coordinate of the target
+ * @param coor 2-D coordinates of the target
  * @return
  */
 double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
@@ -94,7 +99,7 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
 
 /**
  * return the anisotropy rotation matrix at a given coordinate
- * @param coor 2-D coordinate of the target
+ * @param coor 2-D coordinates of the target
  * @return
  */
 VectorVectorDouble FunctionalSpirale::getFunctionVectors(const VectorDouble& coor) const

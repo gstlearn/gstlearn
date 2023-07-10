@@ -1880,7 +1880,10 @@ void cs_print_range(const char *title, const cs *C)
   else
     message("Sparse matrix\n");
   message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
-  message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, number);
+  if (number > 0)
+    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, number);
+  else
+    message(" All terms all set to zero\n");
 
   /* Core deallocation */
 
@@ -3258,8 +3261,6 @@ cs* cs_prod_norm(int mode, cs *A, cs *B)
   return (Res);
 }
 
-
-
 // Calculate the norm as follows:
 // mode=1: t(B) %*% B (initial form)
 // mode=2: B %*% t(B)
@@ -3589,10 +3590,7 @@ void cs_set_value(const cs *A, int row, int col, double value)
   int *Ap, *Ai;
   double *Ax;
 
-  if (!A)
-  {
-    return;
-  }
+  if (!A) return;
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -3613,15 +3611,40 @@ void cs_set_value(const cs *A, int row, int col, double value)
   }
 }
 
+/* Add a value from the Sparse matrix */
+/* This function can only update a non-zero value; otherwise nothing is done */
+void cs_add_value(const cs *A, int row, int col, double value)
+{
+  int *Ap, *Ai;
+  double *Ax;
+
+  if (!A) return;
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  /* Loop on the elements */
+
+  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  {
+    if (Ai[p] == col)
+    {
+      Ax[p] += value;
+      return;
+    }
+  }
+  if (value != 0.)
+  {
+    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
+  }
+}
+
 void cs_add_cste(cs *A, double value)
 {
   int *Ap, n;
   double *Ax;
 
-  if (!A)
-  {
-    return;
-  }
+  if (!A) return;
   Ap = A->p;
   Ax = A->x;
   n = cs_getncol(A);
@@ -3630,7 +3653,28 @@ void cs_add_cste(cs *A, double value)
   {
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
-      if (Ax[p] != 0.) Ax[p] += value;
+      if (Ax[p] != 0.)
+        Ax[p] += value;
+    }
+  }
+}
+
+void cs_set_cste(cs *A, double value)
+{
+  int *Ap, n;
+  double *Ax;
+
+  if (!A) return;
+  Ap = A->p;
+  Ax = A->x;
+  n = cs_getncol(A);
+
+  for (int j = 0; j < n; j++)
+  {
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+    {
+      if (Ax[p] != 0.)
+        Ax[p] = value;
     }
   }
 }
@@ -3818,4 +3862,66 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   label_end: Qtriplet = cs_spfree(Qtriplet);
   if (error) Q = cs_spfree(Q);
   return (Q);
+}
+
+bool cs_are_same(const cs* A, const cs* B, double tol)
+{
+  int *Ap, *Ai, *Bp, *Bi;
+  double *Ax, *Bx;
+
+  if (!A || !B) return false;
+  bool flag_same = true;
+
+  /* Loop on the elements of A and check B */
+
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  for (int j = 0; j < cs_getncol(A); j++)
+     for (int p = Ap[j]; p < Ap[j + 1]; p++)
+     {
+       double refval = Ax[p];
+       if (ABS(refval) > tol)
+       {
+         if (! cs_exist(B, j, Ai[p]))
+         {
+           messerr("A(%d,%d)=%lf is a non-zero term ... that is not present in B",
+                   j, Ai[p], refval);
+           flag_same = false;
+         }
+         else
+         {
+           double testval = cs_get_value(B, j, Ai[p]);
+           if (ABS(testval - refval) > tol)
+           {
+             messerr("A(%d,%d) = %f is different from B=%lf",
+                     j, Ai[p], refval, testval);
+             flag_same = false;
+           }
+         }
+       }
+     }
+
+  /* Loop on the elements of B and check A */
+
+  Bp = B->p;
+  Bi = B->i;
+  Bx = B->x;
+
+  for (int j = 0; j < cs_getncol(B); j++)
+    for (int p = Bp[j]; p < Bp[j + 1]; p++)
+    {
+      double refval = Bx[p];
+      if (ABS(refval) > tol)
+      {
+        if (!cs_exist(A, j, Bi[p]))
+        {
+          messerr("B(%d,%d)=%f is a non-zero term ... that is not present in A",
+                  j, Bi[p], refval);
+          flag_same = false;
+        }
+      }
+    }
+  return flag_same;
 }

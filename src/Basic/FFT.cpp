@@ -101,7 +101,8 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
   return array;
 }
 
-Array evalCovFFTSpatial(const VectorDouble& hmax, int N,
+Array evalCovFFTSpatial(const VectorDouble &hmax,
+                        int N,
                         std::function<double(const VectorDouble&)> funcSpectrum)
 {
   int ndim = (int) hmax.size();

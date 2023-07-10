@@ -135,10 +135,10 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name spde.January_temp.kriging - Locator z1
+5 - Name spde.January_temp.kriging - Locator NA
  Nb of data          =      11097
  Nb of active values =       3092
- Minimum value       =     -5.632
+ Minimum value       =     -5.631
  Maximum value       =      4.949
  Mean value          =      1.837
  Standard Deviation  =      1.525

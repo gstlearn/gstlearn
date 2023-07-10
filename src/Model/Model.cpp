@@ -151,8 +151,7 @@ Model* Model::createFromParam(const ECov& type,
 
   CovContext ctxt = CovContext(nvar,spaceloc);
   Model* model = new Model(ctxt);
-  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
-                         flagRange);
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles, flagRange);
 
   delete spaceloc;
   return model;

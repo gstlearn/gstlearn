@@ -41,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("PGSSPDE-");
+  ASerializable::setPrefixName("test_PGSSPDE-");
   int error = 0;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);

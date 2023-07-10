@@ -14,12 +14,12 @@
 #include "Model/CovParamId.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
+#include "Db/Db.hpp"
+#include "Mesh/AMesh.hpp"
 
 #include <vector>
 
-class AMesh;
 class Model;
-class Db;
 
 class GSTLEARN_EXPORT ANoStat : public AStringable, public ICloneable
 {
@@ -32,22 +32,26 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  bool isNotEmpty() const { return ! _items.empty(); }
-  bool isDefinedByCov(int igrf, int icov) const;
-  bool isDefinedByType(int igrf, const EConsElem& type) const;
-  bool isDefinedByCovType(int igrf, int icov, const EConsElem& type) const;
-  bool isDefined(int igrf, int icov, const EConsElem& type, int iv1=0, int iv2=0) const;
-  bool isDefinedforAnisotropy(int igrf, int icov) const;
-  bool isDefinedforRotation(int igrf, int icov) const;
+  bool isNotEmpty() const { return !_items.empty(); }
+  bool isDefinedByCov(int icov = -1, int igrf = -1) const;
+  bool isDefinedByType(const EConsElem& type, int igrf = -1) const;
+  bool isDefinedByCovType(const EConsElem& type, int icov = -1, int igrf = -1) const;
+  bool isDefined(const EConsElem &type,
+                 int icov = 0,
+                 int iv1 = -1,
+                 int iv2 = -1,
+                 int igrf = -1) const;
+  bool isDefinedforAnisotropy(int icov = -1, int igrf = -1) const;
+  bool isDefinedforRotation(int icov = -1, int igrf = -1) const;
 
-  virtual double getValue(int igrf,
-                          int icov,
-                          const EConsElem& type,
-                          int iv1,
-                          int iv2,
+  virtual double getValue(const EConsElem &type,
                           int icas,
-                          int rank) const = 0;
-  virtual double getValueByParam(int ipar, int icas, int iech) const = 0;
+                          int rank,
+                          int icov = 0,
+                          int iv1 = -1,
+                          int iv2 = -1,
+                          int igrf = -1) const = 0;
+  virtual double getValueByParam(int ipar, int icas, int rank) const = 0;
 
   virtual int  attachToMesh(const AMesh* mesh, bool verbose = false) const;
   virtual void detachFromMesh() const;
@@ -60,7 +64,11 @@ public:
   void deleteNoStatElem(int ipar);
   void deleteAllNoStatElem();
 
-  int getRank(int igrf, int icov, const EConsElem& type, int iv1, int iv2) const;
+  int getRank(const EConsElem &type,
+              int icov,
+              int iv1 = -1,
+              int iv2 = -1,
+              int igrf = -1) const;
   int getIGrf(int ipar) const { return _items[ipar].getIGrf(); }
   int getICov(int ipar) const { return _items[ipar].getICov(); }
   const EConsElem& getType(int ipar) const { return _items[ipar].getType(); }
@@ -86,12 +94,13 @@ public:
                    int iech1,
                    int icas2,
                    int iech2) const;
-  void updateModelByVertex(Model* model, int vertex) const;
+  void updateModelByMesh(Model* model, int imesh) const;
 
 protected:
-  void setAmesh(const AMesh* amesh) const { _amesh = amesh; }
-  void setDbin(const Db* dbin) const { _dbin = dbin; }
-  void setDbout(const Db* dbout) const { _dbout = dbout; }
+  void _setAmesh(const AMesh* amesh) const { _amesh = amesh; }
+  void _setDbin(const Db* dbin) const { _dbin = dbin; }
+  void _setDbout(const Db* dbout) const { _dbout = dbout; }
+  bool _isValid(int icas, int rank) const;
 
 private:
   int _understandCode(const String& code,
@@ -115,7 +124,7 @@ private:
 
 protected:
   // The following arguments are stored as pointer to ease communication
-  // Their list is established as large as possible
+  // Their list is established as large as possible (even if all of them are not actually used)
   mutable const AMesh* _amesh;
   mutable const Db*    _dbin;
   mutable const Db*    _dbout;

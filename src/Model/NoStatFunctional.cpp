@@ -77,27 +77,27 @@ int NoStatFunctional::attachToDb(Db* db, int icas, bool verbose) const
   return ANoStat::attachToDb(db,icas,verbose);
 }
 
-
 /**
  * Returns the value of a non-stationary parameter at a target sample
- * @param igrf  Rank of the GRF
- * @param icov  Rank of the Covariance
  * @param type  Type of non-stationary element (EConsElem)
- * @param iv1   Rank of the first variable (optional)
- * @param iv2   Rank of the second variable (optional)
  * @param icas  Additional identifier (0 for Meshing; 1 for Dbin; 2 for Dbout)
  * @param rank  Rank of the target (in Meshing (0); in Dbin (1) or in Dbout (2)
+ * @param icov  Rank of the Covariance
+ * @param iv1   Rank of the first variable (optional)
+ * @param iv2   Rank of the second variable (optional)
+ * @param igrf  Rank of the GRF
  * @return
  */
-double NoStatFunctional::getValue(int igrf,
+double NoStatFunctional::getValue(const EConsElem &type,
+                                  int icas,
+                                  int rank,
                                   int icov,
-                                  const EConsElem& type,
                                   int iv1,
                                   int iv2,
-                                  int icas,
-                                  int rank) const
+                                  int igrf) const
 {
-  int ipar = getRank(igrf, icov, type, iv1, iv2);
+  if (! _isValid(icas, rank)) return TEST;
+  int ipar = getRank(type, icov, iv1, iv2, igrf);
   return getValueByParam(ipar, icas, rank);
 }
 
@@ -110,6 +110,7 @@ double NoStatFunctional::getValue(int igrf,
  */
 double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 {
+  if (! _isValid(icas, rank)) return TEST;
   if (ipar != 0)
     my_throw("Invalid rank when searching for Non-stationary parameter");
 
@@ -121,18 +122,14 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 
     // From Meshing
 
-    if (_amesh == nullptr) return TEST;
-    if (rank < 0 || rank > _amesh->getNApices()) return TEST;
     for (int idim = 0; idim < _amesh->getNDim(); idim++)
-      vec.push_back(_amesh->getApexCoor(rank, idim));
+      vec.push_back(_amesh->getCenterCoordinate(rank, idim));
   }
   else if (icas == 1)
   {
 
     // From Dbin
 
-    if (_dbin == nullptr) return TEST;
-    if (rank < 0 || rank > _dbin->getSampleNumber()) return TEST;
     for (int idim = 0; idim < _dbin->getNDim(); idim++)
       vec.push_back(_dbin->getCoordinate(rank, idim));
   }
@@ -141,8 +138,6 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 
     // From Dbout
 
-    if (_dbout == nullptr) return TEST;
-    if (rank < 0 || rank > _dbout->getSampleNumber()) return TEST;
     for (int idim = 0; idim < _dbin->getNDim(); idim++)
        vec.push_back(_dbout->getCoordinate(rank, idim));
   }

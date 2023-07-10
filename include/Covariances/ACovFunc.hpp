@@ -71,7 +71,7 @@ public:
   virtual void setMarkovCoeffs(VectorDouble coeffs);
   virtual double getCorrec() const {return 1.;}
   virtual void setCorrec(double /*val*/){}
-  virtual void computeCorrec(int dim);
+  virtual void computeCorrec(int ndim);
   virtual void computeMarkovCoeffs(int /*dim*/){};
 
 protected:

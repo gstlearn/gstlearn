@@ -45,7 +45,7 @@ dat["Y"]= coords[:,1]
 dat.setLocators(['X','Y'],gl.ELoc.X)
 
 model = gl.Model.createFromDb(resultDb)
-cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext()) #Alias ECov.MATERN
+cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext())
 cova.setRanges([4,45])
 model.addCov(cova)
 
@@ -78,3 +78,6 @@ dbfmt = gl.DbStringFormat()
 dbfmt.setFlags(flag_stats=True)
 workingDb.display(dbfmt)
 
+gl.ASerializable.setContainerName(True)
+gl.ASerializable.setPrefixName("test_APISPDE-")
+workingDb.dumpToNF("spirale.ascii")
