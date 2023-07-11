@@ -75,11 +75,11 @@ String ANoStat::toString(const AStringFormat* strfmt) const
 
 /**
  * Look if a Non-stationary parameter is defined
- * @param igrf Rank of Target GRF (or -1 for any)
  * @param icov Rank of Target Covariance (or -1 for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedByCov(int igrf, int icov) const
+bool ANoStat::isDefinedByCov(int icov, int igrf) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -92,11 +92,11 @@ bool ANoStat::isDefinedByCov(int igrf, int icov) const
 
 /**
  * Look if a Non-stationary parameter is defined
- * @param igrf Rank of Target GRF (or -1 for any)
  * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedByType(int igrf, const EConsElem& type) const
+bool ANoStat::isDefinedByType(const EConsElem& type, int igrf) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -109,12 +109,12 @@ bool ANoStat::isDefinedByType(int igrf, const EConsElem& type) const
 
 /**
  * Look if a Non-stationary parameter is defined
- * @param igrf Rank of Target GRF (or -1 for any)
- * @param icov Rank of the Target Covariance (or -1 for any)
  * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
+ * @param icov Rank of the Target Covariance (or -1 for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedByCovType(int igrf, int icov, const EConsElem& type) const
+bool ANoStat::isDefinedByCovType(const EConsElem& type, int icov, int igrf) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -126,11 +126,11 @@ bool ANoStat::isDefinedByCovType(int igrf, int icov, const EConsElem& type) cons
   return false;
 }
 
-bool ANoStat::isDefined(int igrf,
+bool ANoStat::isDefined(const EConsElem& type,
                         int icov,
-                        const EConsElem& type,
                         int iv1,
-                        int iv2) const
+                        int iv2,
+                        int igrf) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -147,11 +147,11 @@ bool ANoStat::isDefined(int igrf,
 /**
  * Look if a Non-stationary parameter for Anisotropy is defined
  * either by Tensor or by (angle/range/scale)
- * @param igrf Rank of Target GRF (or -1 for any)
  * @param icov Rank of the Target Covariance (or -1 for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
+bool ANoStat::isDefinedforAnisotropy(int icov, int igrf) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -169,11 +169,11 @@ bool ANoStat::isDefinedforAnisotropy(int igrf, int icov) const
 /**
  * Look if a Non-stationary parameter for Anisotropy is defined
  * only by angle / range / scale
- * @param igrf Rank of Target GRF (or -1 for any)
  * @param icov Rank of the Target Covariance (or -1 for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
  * @return
  */
-bool ANoStat::isDefinedforRotation(int igrf, int icov) const
+bool ANoStat::isDefinedforRotation(int icov, int igrf) const
 {
   if (_items.empty()) return false;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -189,14 +189,14 @@ bool ANoStat::isDefinedforRotation(int igrf, int icov) const
 
 /**
  * Return the rank for a Non-stationary parameter
- * @param igrf Rank of Target GRF (or -1 for any)
- * @param icov Rank of the Target Covariance (or -1 for any)
  * @param type Rank of Target Type (or EConsElem::UNKNOWN for any)
+ * @param icov Rank of the Target Covariance (or -1 for any)
  * @param iv1  Rank of the first additional element designation (or -1 for any)
  * @param iv2  Rank of the second additional element designation (or -1 for any)
+ * @param igrf Rank of Target GRF (or -1 for any)
  * @return -1 if no match is found
  */
-int ANoStat::getRank(int igrf, int icov, const EConsElem& type, int iv1, int iv2) const
+int ANoStat::getRank(const EConsElem& type, int icov, int iv1, int iv2, int igrf) const
 {
   if (_items.empty()) return -1;
   for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
@@ -494,7 +494,7 @@ void ANoStat::updateModel(Model* model,
 
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
-    if (! isDefinedforAnisotropy(-1, icov)) continue;
+    if (! isDefinedforAnisotropy(icov)) continue;
     CovAniso* cova = model->getCova(icov);
 
     VectorDouble angle0(cova->getAnisoAngles());
@@ -511,17 +511,16 @@ void ANoStat::updateModel(Model* model,
 
     // Define the angles (for all space dimensions)
     bool flagRot = false;
-    if (isDefined(-1, icov, EConsElem::ANGLE, -1, -1))
+    if (isDefined(EConsElem::ANGLE, icov))
     {
       flagRot = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, EConsElem::ANGLE, idim, 0))
+        if (isDefined(EConsElem::ANGLE, icov, idim, 0))
         {
-          int ipar = getRank(-1, icov, EConsElem::ANGLE, idim, -1);
+          int ipar = getRank(EConsElem::ANGLE, icov, idim);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
-                         &angle1[idim], &angle2[idim]);
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &angle1[idim], &angle2[idim]);
         }
       }
     }
@@ -529,17 +528,16 @@ void ANoStat::updateModel(Model* model,
     // Define the Theoretical ranges (for all space dimensions)
 
     bool flagScale = false;
-    if (isDefined(-1, icov, EConsElem::SCALE, -1, -1))
+    if (isDefined(EConsElem::SCALE, icov))
     {
       flagScale = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, EConsElem::SCALE, idim, -1))
+        if (isDefined(EConsElem::SCALE, icov, idim, 0))
         {
-          int ipar = getRank(-1, icov, EConsElem::SCALE, idim, -1);
+          int ipar = getRank(EConsElem::SCALE, icov, idim);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
-                         &scale1[idim], &scale2[idim]);
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &scale1[idim], &scale2[idim]);
         }
       }
     }
@@ -547,17 +545,16 @@ void ANoStat::updateModel(Model* model,
     // Define the Practical ranges (for all space dimensions)
 
     bool flagRange = false;
-    if (isDefined(-1, icov, EConsElem::RANGE, -1, -1))
+    if (isDefined(EConsElem::RANGE, icov))
     {
       flagRange = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, EConsElem::RANGE, idim, -1))
+        if (isDefined(EConsElem::RANGE, icov, idim))
         {
-          int ipar = getRank(-1, icov, EConsElem::RANGE, idim, -1);
+          int ipar = getRank(EConsElem::RANGE, icov, idim);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2,
-                         &range1[idim], &range2[idim]);
+          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &range1[idim], &range2[idim]);
         }
       }
     }
@@ -588,9 +585,9 @@ void ANoStat::updateModel(Model* model,
 /**
  * Update the Model according to the Non-stationary parameters
  * @param model Model to be patched
- * @param ivert Rank of the meshing vertex
+ * @param imesh Rank of the target mesh
  */
-void ANoStat::updateModelByVertex(Model* model, int ivert) const
+void ANoStat::updateModelByMesh(Model* model, int imesh) const
 {
   // If no non-stationary parameter is defined, simply skip
   if (! model->isNoStat()) return;
@@ -604,7 +601,7 @@ void ANoStat::updateModelByVertex(Model* model, int ivert) const
 
     if (type == EConsElem::SILL)
     {
-      double sill = getValueByParam(ipar, 0, ivert);
+      double sill = getValueByParam(ipar, 0, imesh);
       int iv1  = getIV1(ipar);
       int iv2  = getIV2(ipar);
       model->setSill(icov, iv1, iv2, sill);
@@ -615,7 +612,7 @@ void ANoStat::updateModelByVertex(Model* model, int ivert) const
 
   for (int icov = 0; icov < model->getCovaNumber(); icov++)
   {
-    if (! isDefinedforAnisotropy(-1, icov)) continue;
+    if (! isDefinedforAnisotropy(icov)) continue;
     CovAniso* cova = model->getCova(icov);
 
     VectorDouble angle(cova->getAnisoAngles());
@@ -624,16 +621,16 @@ void ANoStat::updateModelByVertex(Model* model, int ivert) const
 
     // Define the angles (for all space dimensions)
     bool flagRot = false;
-    if (isDefined(-1, icov, EConsElem::ANGLE, -1, -1))
+    if (isDefined(EConsElem::ANGLE, icov))
     {
       flagRot = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, EConsElem::ANGLE, idim, 0))
+        if (isDefined(EConsElem::ANGLE, icov, idim, 0))
         {
-          int ipar = getRank(-1, icov, EConsElem::ANGLE, idim, -1);
+          int ipar = getRank(EConsElem::ANGLE, icov, idim);
           if (ipar < 0) continue;
-          angle[idim] = getValueByParam(ipar, 0, ivert);
+          angle[idim] = getValueByParam(ipar, 0, imesh);
         }
       }
     }
@@ -641,16 +638,16 @@ void ANoStat::updateModelByVertex(Model* model, int ivert) const
     // Define the Theoretical ranges (for all space dimensions)
 
     bool flagScale = false;
-    if (isDefined(-1, icov, EConsElem::SCALE, -1, -1))
+    if (isDefined(EConsElem::SCALE, icov))
     {
       flagScale = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, EConsElem::SCALE, idim, -1))
+        if (isDefined(EConsElem::SCALE, icov, idim))
         {
-          int ipar = getRank(-1, icov, EConsElem::SCALE, idim, -1);
+          int ipar = getRank(EConsElem::SCALE, icov, idim);
           if (ipar < 0) continue;
-          scale[idim] = getValueByParam(ipar, 0, ivert);
+          scale[idim] = getValueByParam(ipar, 0, imesh);
         }
       }
     }
@@ -658,16 +655,16 @@ void ANoStat::updateModelByVertex(Model* model, int ivert) const
     // Define the Practical ranges (for all space dimensions)
 
     bool flagRange = false;
-    if (isDefined(-1, icov, EConsElem::RANGE, -1, -1))
+    if (isDefined(EConsElem::RANGE, icov))
     {
       flagRange = true;
       for (int idim = 0; idim < model->getDimensionNumber(); idim++)
       {
-        if (isDefined(-1, icov, EConsElem::RANGE, idim, -1))
+        if (isDefined(EConsElem::RANGE, icov, idim))
         {
-          int ipar = getRank(-1, icov, EConsElem::RANGE, idim, -1);
+          int ipar = getRank(EConsElem::RANGE, icov, idim);
           if (ipar < 0) continue;
-          range[idim] = getValueByParam(ipar, 0, ivert);
+          range[idim] = getValueByParam(ipar, 0, imesh);
         }
       }
     }
@@ -702,38 +699,36 @@ void ANoStat::_getInfoFromDb(int ipar,
 
   if (FFFF(*val1) && FFFF(*val2)) return;
 
-  if (! FFFF(*val1))
-    *val2 = *val1;
-  if (! FFFF(*val2))
-    *val1 = *val2;
+  if (! FFFF(*val1)) *val2 = *val1;
+  if (! FFFF(*val2)) *val1 = *val2;
 }
 
 int ANoStat::attachToMesh(const AMesh* mesh, bool /*verbose*/) const
 {
-  setAmesh(mesh);
+  _setAmesh(mesh);
   return 0;
 }
 
 int ANoStat::attachToDb(Db* db, int icas, bool /*verbose*/) const
 {
   if (icas == 1)
-    setDbin(db);
+    _setDbin(db);
   else
-    setDbout(db);
+    _setDbout(db);
   return 0;
 }
 
 void ANoStat::detachFromMesh() const
 {
-  setAmesh(nullptr);
+  _setAmesh(nullptr);
 }
 
 void ANoStat::detachFromDb(Db* /*db*/, int icas) const
 {
   if (icas == 1)
-    setDbin(nullptr);
+    _setDbin(nullptr);
   else
-    setDbout(nullptr);
+    _setDbout(nullptr);
 }
 
 /**
@@ -764,6 +759,70 @@ bool ANoStat::_checkConsistency() const
     messerr("- in Tensor using HH");
     messerr("- in rotation matrix using Angle / [Scale | Range]");
     return false;
+  }
+  return true;
+}
+
+/**
+ * This (temporary) function checks the validity between arguments 'icas' and 'rank'
+ * @param icas  Source definition:
+ *              0 : from Meshing (rank: absolute rank to be converted into relative)
+ *              1 : from Dbin
+ *              2 : from Dbout
+ * @param rank  Rank of the target
+ * @return
+ */
+bool ANoStat::_isValid(int icas, int rank) const
+{
+  switch (icas)
+  {
+    case 0:
+      if (_amesh == nullptr)
+      {
+        messerr("Checking the validity of the argument");
+        messerr("Meshing: This requires '_amesh' to be defined beforehand");
+        return false;
+      }
+      if (rank < 0 || rank >= _amesh->getNMeshes())
+      {
+        messerr("Check the validity of the argument");
+        messerr("Meshing: 'rank' (%d) should be smaller than number of meshes (%d)",
+                rank, _amesh->getNMeshes());
+        return false;
+      }
+      break;
+
+    case 1:
+      if (_dbin == nullptr)
+      {
+        messerr("Checking the validity of the argument");
+        messerr("Dbin: This requires '_dbin' to be defined beforehand");
+        return false;
+      }
+      if (rank < 0 || rank >= _dbin->getSampleNumber(0))
+      {
+        messerr("Check the validity of the argument");
+        messerr("Dbin: 'rank' (%d) should be smaller than number of samples (%d)",
+                rank, _dbin->getSampleNumber(0));
+        return false;
+      }
+      break;
+
+    case 2:
+      if (_dbout == nullptr)
+      {
+        messerr("Checking the validity of the argument");
+        messerr("Dbout: This requires '_dbout' to be defined beforehand");
+        return false;
+      }
+      if (rank < 0 || rank >= _dbout->getSampleNumber(0))
+      {
+        messerr("Check the validity of the argument");
+        messerr("Dbout: 'rank' (%d) should be smaller than number of samples (%d)",
+                rank, _dbout->getSampleNumber(0));
+        return false;
+      }
+      break;
   }
   return true;
 }

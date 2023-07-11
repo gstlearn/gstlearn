@@ -108,7 +108,6 @@ static void st_cs_message(const char *format, ...)
 #define MAT(i,j)            (mat[(i) * n + (j)])
 #define DEBUG 0
 
-
 /*
  Purpose:
 

@@ -457,7 +457,7 @@ if (verbose)
     mydb$display()
 ```
 
-We now perform the multivariate variogram caculation
+We now perform the multivariate variogram calculation
 
 ```{r}
 mydb$setLocator("Y.Pb",ELoc_Z(),0)

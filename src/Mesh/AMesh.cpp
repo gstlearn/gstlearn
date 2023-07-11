@@ -234,6 +234,42 @@ MatrixInt AMesh::getAllMeshes() const
 }
 
 /**
+ * Returns the coordinates of the Center of Gravity of a Mesh
+ * @param imesh Rank of the Mesh
+ * @param idim Index of the space dimension
+ * @return
+ */
+double AMesh::getCenterCoordinate(int imesh, int idim) const
+{
+  double coor = 0.;
+  int ncorner = getNApexPerMesh();
+  for (int icorner = 0; icorner < ncorner; icorner++)
+    coor += getCoor(imesh, icorner, idim);
+  return (coor / (double) ncorner);
+}
+
+VectorVectorDouble AMesh::getAllCenterCoordinates() const
+{
+  int ncorner = getNApexPerMesh();
+  int nmeshes = getNMeshes();
+  VectorVectorDouble coords(_nDim);
+  for (int idim = 0; idim < _nDim; idim++)
+    coords[idim].resize(nmeshes);
+
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+  {
+    for (int idim = 0; idim < _nDim; idim++)
+    {
+      double total = 0.;
+      for (int ic = 0; ic < ncorner; ic++)
+        total += getCoor(imesh, ic, idim);
+      coords[idim][imesh] = total / ncorner;
+    }
+  }
+  return coords;
+}
+
+/**
  * Returns the information about all apices:
  * - the first dimension is the number of meshes (nrow)
  * - the second dimension if the space dimension (ncol)
@@ -376,7 +412,7 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
  * @param imesh Mesh rank
  * @param vec   Returned array
  */
-void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) const
+void AMesh::getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& vec) const
 {
   int ncorner = getNApexPerMesh();
 
@@ -385,7 +421,8 @@ void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) co
 }
 
 /**
- * Returns the array of coordinates of all apices of a mesh in embedded space
+ * Returns the array of coordinates of all apices of any mesh in embedded space
+ * Its dimensions are: ncorner * ndim
  * @param imesh Mesh rank
  * @return
  */
@@ -397,7 +434,7 @@ VectorVectorDouble AMesh::getEmbeddedCoordinatesPerMesh(int imesh) const
   for (auto &e: vec)
     e = VectorDouble(ndim);
 
-  getEmbeddedCoordinatesPerMesh(imesh, vec);
+  getEmbeddedCoordinatesPerMeshInPlace(imesh, vec);
   return vec;
 }
 
@@ -420,7 +457,7 @@ VectorVectorDouble AMesh::getCoordinatesPerMesh(int imesh) const
  * The returned vector is organized by coordinate
  * @return
  */
-VectorVectorDouble AMesh::getEmbeddedApexCoordinates() const
+VectorVectorDouble AMesh::getEmbeddedCoordinatesPerApex() const
 {
   int ndim = getEmbeddedNDim();
   int napices = getNApices();

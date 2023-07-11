@@ -50,7 +50,7 @@ def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white', opacity=0.50
     plot_args Arguments passed to Mesh3d()
     '''
     
-    tab = np.array(mesh.getEmbeddedApexCoordinates())
+    tab = np.array(mesh.getEmbeddedCoordinatesPerApex())
     meshes = np.array(mesh.getMeshesAsVVI())
     
     if cscale is None:

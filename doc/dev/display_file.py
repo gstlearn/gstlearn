@@ -55,7 +55,7 @@ elif filetype == "Model":
 elif filetype == "Rule":
     rule = gl.Rule.createFromNF(filename,False)
     checkValidPointer(rule)
-    rule.display()/home/drenard/Command/show
+    rule.display()
     
 elif filetype == "Table":
     table = gl.Table.createFromNF(filename,False)

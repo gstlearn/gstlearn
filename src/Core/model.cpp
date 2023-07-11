@@ -307,7 +307,7 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
 {
   if (!model->isNoStat()) return 1;
   const ANoStat *nostat = model->getNoStat();
-  if (nostat->isDefinedByType(-1, type0)) return 1;
+  if (nostat->isDefinedByType(type0)) return 1;
 
   return (0);
 }

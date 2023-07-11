@@ -1465,7 +1465,7 @@ int spde_attach_model(Model *model)
   if (S_ENV.nvar > 1)
   {
     const ANoStat *nostat = st_get_model()->getNoStat();
-    if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
+    if (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
@@ -1603,7 +1603,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (S_ENV.nvar > 1)
   {
     const ANoStat *nostat = model->getNoStat();
-    if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
+    if (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
@@ -1622,8 +1622,8 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
  **
  ** \return The rank of the parameter of -1 (not found)
  **
- ** \param[in]  icov0     Rank of the target covariance
  ** \param[in]  type0     Type of parameter (EConsElem)
+ ** \param[in]  icov0     Rank of the target covariance
  ** \param[in]  ivar0     Rank of the target variable (only when type=EConsElem::SILL)
  ** \param[in]  jvar0     Rank of the target variable (only when type=EConsElem::SILL)
  **
@@ -1631,15 +1631,15 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
  ** \remark The nugget effect corresponds to rank (-1)
  **
  *****************************************************************************/
-static int st_identify_nostat_param(int icov0,
-                                    const EConsElem &type0,
-                                    int ivar0,
-                                    int jvar0)
+static int st_identify_nostat_param(const EConsElem &type0,
+                                    int icov0 = -1,
+                                    int ivar0 = -1,
+                                    int jvar0 = -1)
 {
   const ANoStat *nostat = st_get_model()->getNoStat();
   if (nostat == nullptr) return -1;
   int igrf0 = SPDE_CURRENT_IGRF;
-  int ipar = nostat->getRank(igrf0, icov0, type0, ivar0, jvar0);
+  int ipar = nostat->getRank(type0, icov0, ivar0, jvar0, igrf0);
   return ipar;
 }
 
@@ -2326,53 +2326,39 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
   int ndim = S_ENV.ndim;
   int igrf0 = SPDE_CURRENT_IGRF;
   int icov0 = SPDE_CURRENT_ICOV;
-  int ncorner = amesh->getNApexPerMesh();
 
   /* Update the Tensor 'hh' */
 
-  if (nostat->isDefinedforAnisotropy(igrf0, icov0))
+  if (nostat->isDefinedforAnisotropy(icov0, igrf0))
   {
-    VectorDouble hhtot(ndim * ndim, 0.);
-    for (int ic = 0; ic < ncorner; ic++)
-    {
-      nostat->updateModelByVertex(model, amesh->getApex(imesh0, ic));
-      st_compute_hh();
-      VH::cumulate(hhtot, Calcul.hh);
-    }
-    VH::divideConstant(hhtot, (double) ncorner);
-    VH::copy(Calcul.hh, hhtot);
+    nostat->updateModelByMesh(model, imesh0);
+    st_compute_hh();
     Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
   }
 
   /* Update the Spherical Rotation array */
 
-  if (nostat->isDefined(igrf0, icov0, EConsElem::SPHEROT, -1, -1))
+  if (nostat->isDefined(EConsElem::SPHEROT, icov0, -1, -1, igrf0))
   {
     VectorDouble srot(2, 0.);
     for (int i = 0; i < 2; i++)
     {
-      int ipar = nostat->getRank(igrf0, icov0, EConsElem::SPHEROT, i, -1);
+      int ipar = nostat->getRank(EConsElem::SPHEROT, icov0,  i, -1, igrf0);
       if (ipar < 0) continue;
-      double total = 0.;
-      for (int ic = 0; ic < ncorner; ic++)
-        total += nostat->getValueByParam(ipar, 0, amesh->getApex(imesh0, ic));
-      Calcul.srot[i] = total / (double) ncorner;
+      Calcul.srot[i] = nostat->getValueByParam(ipar, 0, imesh0);
     }
   }
 
   /* Update the Velocity array */
 
-  if (nostat->isDefined(igrf0, icov0, EConsElem::VELOCITY, -1, -1))
+  if (nostat->isDefined(EConsElem::VELOCITY, icov0, -1, -1, igrf0))
   {
     VectorDouble vv(ndim, 0.);
     for (int idim = 0; idim < ndim; idim++)
     {
-      int ipar = nostat->getRank(igrf0, icov0, EConsElem::VELOCITY, idim, -1);
+      int ipar = nostat->getRank(EConsElem::VELOCITY, icov0, idim, -1, igrf0);
       if (ipar < 0) continue;
-      double total = 0.;
-      for (int ic = 0; ic < ncorner; ic++)
-        total += nostat->getValueByParam(ipar, 0, amesh->getApex(imesh0, ic));
-      Calcul.vv[idim] = total / (double) ncorner;
+      Calcul.vv[idim] = nostat->getValueByParam(ipar, 0, imesh0);
     }
   }
 }
@@ -2517,8 +2503,7 @@ static int st_fill_Bnugget(Db *dbin)
   /* In the non-stationary case, identify the rank of the parameter */
   /* which corresponds to the sill of the nugget effect */
 
-  flag_nostat_sillnug = st_identify_nostat_param(-1, EConsElem::SILL, -1, -1)
-      >= 0;
+  flag_nostat_sillnug = st_identify_nostat_param(EConsElem::SILL) >= 0;
   if (flag_nostat_sillnug)
   {
     messerr("Non-stationarity on nugget sill values not programmed yet");
@@ -3203,32 +3188,15 @@ VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
                                const VectorDouble &TildeC)
 {
-  const ANoStat *nostat = model->getNoStat();
   VectorDouble Lambda;
-  int igrf0 = SPDE_CURRENT_IGRF;
-  int icov0 = SPDE_CURRENT_ICOV;
-  int ndim = S_ENV.ndim;
   int nvertex = amesh->getNApices();
   double sill = st_get_cova_sill(0, 0);
 
   /* Fill the array */
 
-  if (st_get_model()->isNoStat() && nostat->isDefinedforAnisotropy(igrf0,icov0))
-  {
-    for (int ip = 0; ip < nvertex; ip++)
-    {
-      nostat->updateModelByVertex(model, ip);
-      st_compute_hh();
-      double sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
-      Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
-    }
-  }
-  else
-  {
-    double sqdeth = Calcul.sqdeth;
-    for (int ip = 0; ip < nvertex; ip++)
-      Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
-  }
+  double sqdeth = Calcul.sqdeth;
+  for (int ip = 0; ip < nvertex; ip++)
+    Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
 
   return (Lambda);
 }

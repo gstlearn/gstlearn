@@ -16,20 +16,20 @@
 
 #define MAXTAB 100
 
-CovMarkov::CovMarkov(const CovContext& ctxt)
-: ACovFunc(ECov::MARKOV, ctxt)
-  , _correc(1.)
+CovMarkov::CovMarkov(const CovContext &ctxt)
+    : ACovFunc(ECov::MARKOV, ctxt),
+      _markovCoeffs(),
+      _correc(1.)
 {
   setParam(1);
   _markovCoeffs.push_back(1.);
-
 }
 
 CovMarkov::CovMarkov(const CovMarkov &r)
-: ACovFunc(r)
+  : ACovFunc(r),
+    _markovCoeffs(r._markovCoeffs),
+    _correc(r._correc)
 {
-  _markovCoeffs = r._markovCoeffs;
-  _correc = r._correc;
 }
 
 CovMarkov& CovMarkov::operator=(const CovMarkov &r)
@@ -37,6 +37,8 @@ CovMarkov& CovMarkov::operator=(const CovMarkov &r)
   if (this != &r)
   {
     ACovFunc::operator =(r);
+    _markovCoeffs = r._markovCoeffs;
+    _correc = r._correc;
   }
   return *this;
 }
@@ -80,10 +82,9 @@ double CovMarkov::evaluateSpectrum(double freq, int /*ndim*/) const
   {
     return TEST;
   }
-  for(int i = 0; i< n;i++)
+  for (int i = 0; i < n; i++)
   {
-      s += _markovCoeffs[i] * pow(freq,i);
+    s += _markovCoeffs[i] * pow(freq,i);
   }
-  return 1./  s;
+  return 1. /  s;
 }
-

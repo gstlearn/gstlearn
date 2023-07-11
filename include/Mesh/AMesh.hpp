@@ -91,14 +91,17 @@ public:
 
   VectorVectorDouble getCoordinatesPerMesh(int imesh) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
-  void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
-  VectorVectorDouble getEmbeddedApexCoordinates() const;
+  void getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& coors) const;
+  VectorVectorDouble getEmbeddedCoordinatesPerApex() const;
 
   VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt());
 
   VectorVectorDouble getAllCoordinates() const;
   MatrixRectangular getAllApices() const;
   MatrixInt getAllMeshes() const;
+
+  double getCenterCoordinate(int imesh, int idim) const;
+  VectorVectorDouble getAllCenterCoordinates() const;
 
   /// TODO : replace by VectorVectorInt ?
   std::vector<VectorInt> getNeighborhoodPerMesh() const;

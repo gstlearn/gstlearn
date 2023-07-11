@@ -34,7 +34,7 @@ public:
   bool serialize(std::ostream& os,bool verbose = true) const;
   bool dumpToNF(const String& neutralFilename, bool verbose = false) const;
 
-  static String buildFileName(const String& filename, bool ensureDirExist = false);
+  static String buildFileName(int status, const String& filename, bool ensureDirExist = false);
 
   static String getHomeDirectory(const String& sub = "");
   static String getWorkingDirectory();
