@@ -32,6 +32,7 @@
 #include "Stats/Classical.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/SpaceTarget.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -679,6 +680,27 @@ void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
 {
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     P.setCoord(idim, getCoordinate(iech, idim));
+}
+
+/**
+ * Load a Space Target with all possible contents gathered from Db
+ * @param iech Rank of the target sample
+ * @param P    Space Target (used to store information)
+ */
+void Db::getSampleAsST(int iech, SpaceTarget& P) const
+{
+  getSampleCoordinatesAsSP(iech, P);
+//  // Load the coordinates
+//  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+//    P.setCoord(idim, getCoordinate(iech, idim));
+
+  // Load the code (optional)
+  if (hasLocVariable(ELoc::C))
+    P.setCode(getLocVariable(ELoc::C, iech, 0));
+
+  // Load the Date (optional)
+  if (hasLocVariable(ELoc::DATE))
+    P.setCode(getLocVariable(ELoc::DATE, iech, 0));
 }
 
 std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const

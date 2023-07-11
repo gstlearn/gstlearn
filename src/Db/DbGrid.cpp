@@ -31,6 +31,7 @@
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Space/SpaceTarget.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -1484,4 +1485,12 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
 
   deleteColumnByUID(iuid);
   return err;
+}
+
+void DbGrid::getSampleAsST(int iech, SpaceTarget& P) const
+{
+  Db::getSampleAsST(iech, P);
+
+  // Load the target extension
+  P.setExtend(getBlockExtensions(iech));
 }

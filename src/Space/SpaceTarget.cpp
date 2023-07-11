@@ -12,22 +12,25 @@
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Utilities.hpp"
 
 #include <iostream>
 #include <math.h>
 
 SpaceTarget::SpaceTarget(const ASpace* space)
-: ASpaceObject(space),
-  _center(),
-  _extend()
+: SpacePoint(space),
+  _extend(),
+  _code(TEST),
+  _date(TEST)
 {
   _initialize();
 }
 
 SpaceTarget::SpaceTarget(const SpaceTarget &r)
-    : ASpaceObject(r),
-      _center(r._center),
-      _extend(r._extend)
+    : SpacePoint(r),
+      _extend(r._extend),
+      _code(r._code),
+      _date(r._date)
 {
 }
 
@@ -35,9 +38,10 @@ SpaceTarget& SpaceTarget::operator=(const SpaceTarget& r)
 {
   if (this != &r)
   {
-    ASpaceObject::operator=(r);
-    _center = r._center;
+    SpacePoint::operator=(r);
     _extend = r._extend;
+    _code = r._code;
+    _date = r._date;
   }
   return *this;
 }
@@ -48,35 +52,42 @@ SpaceTarget::~SpaceTarget()
 
 SpaceTarget* SpaceTarget::create(const VectorDouble &center,
                                  const VectorDouble &extend,
+                                 double code,
+                                 double date,
                                  const ASpace *space)
 {
   SpaceTarget* st = new SpaceTarget();
   st->setCoord(center);
   st->setExtend(extend);
+  st->setCode(code);
+  st->setDate(date);
   return st;
 }
 
 void SpaceTarget::_initialize()
 {
-  // Initialize the point to the space origin
-  if (_center.getCoord().empty()) _center = getOrigin();
-
   // Fill the extension with zeroes
   if (_extend.empty())
     VH::fill(_extend, getNDim(), 0.);
-}
-
-bool SpaceTarget::isConsistent(const ASpace* space) const
-{
-  return (space->getNDim() == _center.getNDim());
 }
 
 String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Center    = " << VH::toString(_center.getCoord()) << std::endl;
-  sstr << "- Extension = " << VH::toString(_extend) << std::endl;
+  sstr << "- Center    = " << VH::toString(getCoord());
+  if (! _extend.empty())
+    sstr << "- Extension = " << VH::toString(_extend);
+  else
+    sstr << "- Extension = (undefined)" << std::endl;
+  if (! FFFF(_code))
+    sstr << "- Code      = " << _code << std::endl;
+  else
+    sstr << "- Code      = (undefined)" << std::endl;
+  if (! FFFF(_date))
+    sstr << "- Date      = " << _date << std::endl;
+  else
+    sstr << "- Date      = (undefined)" << std::endl;
 
   return sstr.str();
 }

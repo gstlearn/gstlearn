@@ -30,7 +30,7 @@ public:
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   const VectorDouble& getCoord() const { return _coord; }
-  VectorDouble& getCoord() { return _coord; }
+  VectorDouble& getCoordRef() { return _coord; }
   double getCoord(int idim) const { return _coord[idim]; }
 
   void setCoord(double coord);

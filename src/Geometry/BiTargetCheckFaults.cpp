@@ -51,5 +51,5 @@ String BiTargetCheckFaults::toString(const AStringFormat* /*strfmt*/) const
 bool BiTargetCheckFaults::isOK(const SpaceTarget &T1,
                               const SpaceTarget &T2) const
 {
-  return _faults->isSplitByFaultSP(T1.getCoordAsSPP(), T2.getCoordAsSPP());
+  return _faults->isSplitByFaultSP(T1.getCoordAsSP(), T2.getCoordAsSP());
 }

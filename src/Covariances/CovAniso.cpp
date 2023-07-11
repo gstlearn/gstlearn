@@ -995,7 +995,7 @@ void CovAniso::optimizationSetTarget(const SpacePoint& pt) const
  */
 void CovAniso::_optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const
 {
-	_aniso.applyInverseInPlace(ptin.getCoord(), ptout.getCoord());
+	_aniso.applyInverseInPlace(ptin.getCoord(), ptout.getCoordRef());
 }
 
 /**
