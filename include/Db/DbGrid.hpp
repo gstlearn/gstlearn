@@ -28,6 +28,7 @@
 class Polygons;
 class EMorpho;
 class ANeigh;
+class SpaceTarget;
 
 /**
  * Class containing a Data Set organized as a regular Grid
@@ -265,6 +266,8 @@ public:
                                  bool verbose = false,
                                  const NamingConvention &namconv = NamingConvention("Morpho", false, false, true,
                                      ELoc::fromKey("SEL")));
+
+  void getSampleAsST(int iech, SpaceTarget& P) const;
 
 protected:
   /// Interface for ASerializable

@@ -518,9 +518,10 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
   int nsel = 0;
 
   // Load the target sample as a Space Point
-  _dbout->getSampleCoordinatesAsSP(iech_out, _T1.getCoordAsSP());
   if (_dbgrid != nullptr)
-    _T2.setExtend(_dbgrid->getBlockExtensions(iech_out));
+    _dbgrid->getSampleAsST(iech_out, _T1);
+  else
+    _dbout->getSampleAsST(iech_out, _T1);
 
   for (int iech = 0; iech < nech; iech++)
   {
@@ -540,7 +541,7 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(iech, iech_out)) continue;
     }
 
-    _dbin->getSampleCoordinatesAsSP(iech, _T2.getCoordAsSP());
+    _dbin->getSampleAsST(iech, _T2);
 
     // Reject the point due to BiTargetChecker
     // (other than the one based on distance which must come last)
