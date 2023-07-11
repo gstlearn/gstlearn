@@ -37,6 +37,7 @@ setup(
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
     url="@PROJECT_HOMEPAGE_URL@",
+    license='BSD-3-Clause',
     project_urls={
         "Bug Tracker": "@PROJECT_HOMEPAGE_URL@/issues",
     },
@@ -44,6 +45,8 @@ setup(
     package_data={"@PYTHON_PACKAGE_NAME@":["$<TARGET_FILE_NAME:python_build>"]},
     include_package_data=True,
     cmdclass={'bdist_wheel': bdist_wheel},
+    platforms=["Windows", "Linux", "Mac OS-X"],
+    python_requires='>=3.8',
     classifiers=[
         "Programming Language :: Python :: 3",
         "Programming Language :: C++",

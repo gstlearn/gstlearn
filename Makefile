@@ -112,7 +112,7 @@ all: shared install
 
 cmake:
 	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES)
-	
+
 cmake-python:
 	@cmake -B$(BUILD_DIR) -H. $(GENERATOR) $(CMAKE_DEFINES) -DBUILD_PYTHON=ON
 

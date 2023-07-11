@@ -134,7 +134,7 @@ public:
    *
    * \brief Inline trivial functions grouped with a unique comment
    *
-   * Usually, a class should not have these kind of accessors (setters).
+   * Usually, a class should not have these kind of simple accessors (setters).
    * Otherwise, defining member attributes as *private* makes no sense.
    *
    * Mutators\tooltip{non `const` methods that change the state of a class} are

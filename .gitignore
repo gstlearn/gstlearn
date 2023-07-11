@@ -1,8 +1,4 @@
 build*
-doxygen/latex
-doxygen/html
-doxygen/xml
-doxygen/*.tmp
 python/doc/documentation.i
 tests/data/*/*.out
 */__pycache__

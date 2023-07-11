@@ -3968,7 +3968,7 @@ void Db::_defineDefaultNames(int shift, const VectorString& names)
   int ncol = getColumnNumber() - shift;
   if (!names.empty())
   {
-    if ((int) names.size() != ncol) throw("Error in the dimension of 'names'");
+    if ((int) names.size() != ncol) my_throw("Error in the dimension of 'names'");
   }
 
   for (int icol = 0; icol < ncol; icol++)
@@ -3986,7 +3986,7 @@ void Db::_defineDefaultLocators(int shift, const VectorString& locatorNames)
 
   int ncol = getColumnNumber() - shift;
   if ((int) locatorNames.size() != ncol)
-    throw("Error in the dimension of 'locatorNames'");
+    my_throw("Error in the dimension of 'locatorNames'");
 
   ELoc locatorType;
   int locatorIndex, mult;
@@ -4002,7 +4002,7 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   if (names.empty()) return;
 
   int ncol = getColumnNumber() - shift;
-  if ((int) names.size() != ncol) throw("Error in the dimension of 'names'");
+  if ((int) names.size() != ncol) my_throw("Error in the dimension of 'names'");
 
   ELoc locatorType;
   int locatorIndex, mult;

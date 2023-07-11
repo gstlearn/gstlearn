@@ -149,7 +149,7 @@ bool CovContext::isEqual(const CovContext &r) const
 double CovContext::getMean(int ivar) const
 {
   if (ivar < 0 || ivar >= (int) _mean.size())
-    throw("Invalid argument in _getMean");
+    my_throw("Invalid argument in _getMean");
   return _mean[ivar];
 }
 
@@ -157,7 +157,7 @@ double CovContext::getCovar0(int ivar, int jvar) const
 {
   int rank = _getIndex(ivar, jvar);
   if (rank < 0 || rank >= (int) _covar0.size())
-    throw("Invalid argument in _setCovar0");
+    my_throw("Invalid argument in _setCovar0");
   return _covar0[rank];
 }
 
@@ -175,7 +175,7 @@ void CovContext::setMean(const VectorDouble& mean)
 void CovContext::setMean(const double mean, int ivar)
 {
   if (ivar < 0 || ivar >= (int) _mean.size())
-    throw("Invalid argument in _setMean");
+    my_throw("Invalid argument in _setMean");
   _mean[ivar] = mean;
 }
 
@@ -193,7 +193,7 @@ void CovContext::setCovar0(int ivar, int jvar, double covar0)
 {
   int rank = _getIndex(ivar, jvar);
   if (rank < 0 || rank >= (int) _covar0.size())
-    throw("Invalid argument in _setCovar0");
+    my_throw("Invalid argument in _setCovar0");
   _covar0[rank] = covar0;
 }
 

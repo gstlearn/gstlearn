@@ -147,7 +147,7 @@ int MatrixSquareDiagonal::_invert()
 double& MatrixSquareDiagonal::_getValueRef(int irow, int icol)
 {
   if (! _isIndexValid(irow,icol))
-    throw("Function aborted due to previous errors");
+    my_throw("Function aborted due to previous errors");
   return _diagMatrix[irow];
 }
 
