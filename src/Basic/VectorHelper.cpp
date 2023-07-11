@@ -573,25 +573,28 @@ VectorDouble VectorHelper::normalScore(const VectorDouble &data,
 
   // Check that weights of active samples are positive
   double wtotal = 0.;
+  double nechtot = 0.;
   for (int iech = 0; iech < nech; iech++)
   {
-    if (FFFF(data[iech])) continue;
-
-    double wtloc = 1.;
-    if (! wt.empty()) wtloc = wt[iech];
-    if (wtloc < 0.)
+    if (! FFFF(data[iech]))
     {
-      messerr("The weight of sample (%d) is negative (%lf)", iech + 1, wtloc);
-      return VectorDouble();
+      double wtloc = 1.;
+      if (!wt.empty()) wtloc = wt[iech];
+      if (wtloc < 0.)
+      {
+        messerr("The weight of sample (%d) is negative (%lf)", iech + 1, wtloc);
+        return VectorDouble();
+      }
+      wtotal += wtloc;
+      nechtot += 1;
     }
-    wtotal += wtloc;
   }
   if (wtotal <= 0.)
   {
     messerr("The sum of weights of active samples is not positive");
     return VectorDouble();
   }
-  wtotal *= (1. + nech) / (double) nech;
+  wtotal *= (1. + nechtot) / nechtot;
 
   // Get the list of indices sorted by increasing values of data
   VectorInt idx = VH::orderRanks(data);
@@ -603,11 +606,9 @@ VectorDouble VectorHelper::normalScore(const VectorDouble &data,
     int jech = idx[iech];
     if (! FFFF(data[jech]))
     {
-      double wtloc = 1.;
-      if (!wt.empty()) wtloc = wt[jech];
+      double wtloc = (wt.empty()) ? 1. : wt[jech];
       wpartial += wtloc;
-      double z = wpartial / wtotal;
-      vec[jech] = law_invcdf_gaussian(z);
+      vec[jech] = law_invcdf_gaussian(wpartial / wtotal);
     }
     else
     {
