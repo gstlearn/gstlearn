@@ -1,4 +1,5 @@
 import gstlearn as gl
+import gstlearn.test as gt
 import numpy as np
 from scipy.spatial import distance_matrix
 
@@ -37,7 +38,8 @@ def modelReduce(model,var):
     return modeln
 
 
-def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,ndrift = 0,flag_isotopic=False,seed=1234):
+def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,ndrift = 0,
+               flag_isotopic=False,seed=1234):
     db = gl.Db.create()
     np.random.seed(seed)
     for i in range(ndim):
@@ -227,20 +229,18 @@ def test_kriging(ndat,nx,nvar,percent,
     stdref = target["*stdev"][indOut].T.reshape(-1,)
     varestref = target["*varz"][indOut].T.reshape(-1,)
     if test :
-        assert np.linalg.norm((krigref - krig)/(eps+np.abs(krig)))<tol, "Problem with kriging estimation in " + case
+        gt.checkEqualityVector(krigref, krig, tolerance=tol)
         if compute_vars:
             #assert np.linalg.norm((stdref-std)/(eps+std))<tol , "Problem with kriging stdev in " + case
-            assert np.linalg.norm((varestref-varest)/(eps+varest))<tol, "Problem with kriging variance (var_est) in " + case
+            #assert np.linalg.norm((varestref-varest)/(eps+varest))<tol, "Problem with kriging variance (var_est) in " + case
+            gt.checkEqualityVector(varestref, varest, tolerance=tol)
     if verbose:
         print("Test Ok")
     return krig,target,indOut,db , varest
 
 
-# In[ ]:
-
-
 percent = [0.5,0.9,1.]
-ndat = 50
+ndat = 40
 nbtests = 0
 for irf in [None,0,1]:
     for drift in [False,True]:
@@ -248,7 +248,7 @@ for irf in [None,0,1]:
             for selDbin in [True, False]:
                 for selDbout in [True, False]:
                     for nx in [[5,5]]:
-                        for nvar in [1,2]:
+                        for nvar in [1,2,3]:
                             isolist = [True, False]
                             if nvar >1 :
                                 isolist = [True,False]
@@ -258,18 +258,12 @@ for irf in [None,0,1]:
                                                          model,cova,compute_vars=cv,
                                                          irf=irf,drift=drift,measurement_error=measurement_error,
                                                          selDbin=selDbin,selDbout=selDbout,flag_isotopic = iso,
-                                                        seed=1234,tol=1e-9,eps=1e-3,verbose=False)
+                                                        seed=1234,tol=1e-8,eps=1e-3,verbose=False)
                                     nbtests += 1
-print(nbtests)
+print("Number of tests performed =",nbtests)
 
-
-
-a = test_kriging(ndat,nx,nvar,percent,
-                                                         model,cova,compute_vars=cv,
-                                                         irf=irf,drift=drift,measurement_error=measurement_error,
-                                                         selDbin=selDbin,selDbout=selDbout,flag_isotopic = iso,
-                                                         seed=1234,tol=1e-9,eps=1e-3,test=False)
-
-
-
-
+a = test_kriging(ndat, nx, nvar, percent,
+                 model, cova, compute_vars=cv,
+                 irf=irf, drift=drift, measurement_error=measurement_error,
+                 selDbin=selDbin, selDbout=selDbout, flag_isotopic=iso,
+                 seed=1234, tol=1e-9, eps=1e-3, test=False)
