@@ -75,9 +75,9 @@ String SpaceTarget::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Center    = " << VH::toString(getCoord());
+  sstr << "- Center    = " << VH::toStringAsVD(getCoord());
   if (! _extend.empty())
-    sstr << "- Extension = " << VH::toString(_extend);
+    sstr << "- Extension = " << VH::toStringAsVD(_extend);
   else
     sstr << "- Extension = (undefined)" << std::endl;
   if (! FFFF(_code))

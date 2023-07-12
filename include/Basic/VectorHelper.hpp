@@ -32,10 +32,10 @@ public:
   static void display(const String &title, const VectorString &vect);
   static void display(const String &title, const VectorInt &vect);
 
-  static String toString(const VectorDouble& vec); // TODO rename
-  static String toString(const VectorVectorDouble& vec);
-  static String toString(const VectorString& vec);
-  static String toString(const VectorInt& vec);
+  static String toStringAsVD(const VectorDouble& vec); // TODO rename
+  static String toStringAsVVD(const VectorVectorDouble& vec);
+  static String toStringAsVS(const VectorString& vec);
+  static String toStringAsVI(const VectorInt& vec);
 
   static void displayStats(const String &title, const VectorDouble &vect);
   static void displayRange(const String &title, const VectorDouble &vect);

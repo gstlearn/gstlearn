@@ -172,9 +172,9 @@ bool MatrixSquareDiagonalCst::isValid(int irow, int icol, bool printWhyNot) cons
   return true;
 }
 
-void MatrixSquareDiagonalCst::addScalar(double /*v*/)
+void MatrixSquareDiagonalCst::addScalar(double v)
 {
-  my_throw("This function does not make sense for Diagonal Matrix");
+  _cstDiagMatrix += v;
 }
 
 void MatrixSquareDiagonalCst::addScalarDiag(double v)
@@ -193,7 +193,7 @@ int MatrixSquareDiagonalCst::_solve(const VectorDouble& b, VectorDouble& x) cons
 /*! Set the contents of a Column */
 void MatrixSquareDiagonalCst::setColumn(int /*icol*/, const VectorDouble& /*tab*/)
 {
-  my_throw("This function does not make sense for Diagonal Matrix");
+  my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
 
 /*! Set the contents of a Row */

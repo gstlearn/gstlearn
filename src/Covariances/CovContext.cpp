@@ -115,8 +115,8 @@ String CovContext::toString(const AStringFormat* strfmt) const
   sstr << "Nb Variables       = "       << _nVar << std::endl;
   if (! FFFF(_field))
     sstr << "Field Size         = "       << _field << std::endl;
-  sstr << "Mean(s)            = "       << VH::toString(_mean);
-  sstr << "Covariance (0)     = "       << VH::toString(_covar0);
+  sstr << "Mean(s)            = "       << VH::toStringAsVD(_mean);
+  sstr << "Covariance (0)     = "       << VH::toStringAsVD(_covar0);
   return sstr.str();
 }
 

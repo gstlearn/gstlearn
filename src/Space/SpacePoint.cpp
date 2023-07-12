@@ -104,7 +104,7 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  return VH::toString(_coord);
+  return VH::toStringAsVD(_coord);
 }
 
 void SpacePoint::setFFFF()

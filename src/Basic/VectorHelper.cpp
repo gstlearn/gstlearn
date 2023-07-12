@@ -83,43 +83,43 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
 void VectorHelper::display(const String &title, const VectorDouble &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
-  messageFlush(VH::toString(vect));
+  messageFlush(VH::toStringAsVD(vect));
 }
 
 void VectorHelper::display(const String &title, const VectorString &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
-  messageFlush(VH::toString(vect));
+  messageFlush(VH::toStringAsVS(vect));
 }
 
 void VectorHelper::display(const String &title, const VectorVectorDouble &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
-  messageFlush(VH::toString(vect));
+  messageFlush(VH::toStringAsVVD(vect));
 }
 
 void VectorHelper::display(const String &title, const VectorInt &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
-  messageFlush(VH::toString(vect));
+  messageFlush(VH::toStringAsVI(vect));
 }
 
-String VectorHelper::toString(const VectorDouble &vec)
+String VectorHelper::toStringAsVD(const VectorDouble &vec)
 {
   return toVector(String(), vec);
 }
 
-String VectorHelper::toString(const VectorVectorDouble &vec)
+String VectorHelper::toStringAsVVD(const VectorVectorDouble &vec)
 {
   return toVector(String(), vec);
 }
 
-String VectorHelper::toString(const VectorString& vec)
+String VectorHelper::toStringAsVS(const VectorString& vec)
 {
   return toVector(String(), vec);
 }
 
-String VectorHelper::toString(const VectorInt &vec)
+String VectorHelper::toStringAsVI(const VectorInt &vec)
 {
   return toVector(String(), vec);
 }

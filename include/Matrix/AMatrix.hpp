@@ -32,11 +32,10 @@ public:
   virtual ~AMatrix();
 
   void init(int nrows, int ncols);
-  void reset(int nrows, int ncols);
-  void reset(int nrows, int ncols, double value);
-  void reset(int nrows, int ncols, const double* tab, bool byCol = true);
-  void reset(int nrows, int ncols, const VectorDouble &tab, bool byCol = true);
-  void reset(const VectorVectorDouble& tab, bool byCol = true);
+  void reset(int nrows, int ncols, double value = 0.);
+  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true);
+  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true);
+  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true);
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab);

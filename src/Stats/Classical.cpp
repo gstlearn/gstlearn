@@ -679,7 +679,7 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   int ncols = (int) opers.size();
   Table table = Table();
   table.setTitle("Monovariate Statistics on Variables");
-  table.reset(nrows, ncols, stats, false);
+  table.resetFromVD(nrows, ncols, stats, false);
   for (int irow=0; irow<nrows; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
 
@@ -2073,11 +2073,11 @@ Table dbStatisticsMultiT(Db *db,
 
   if (flagMono)
   {
-    table.reset(number, 1, stats, false);
+    table.resetFromVD(number, 1, stats, false);
   }
   else
   {
-    table.reset(number, number, stats, false);
+    table.resetFromVD(number, number, stats, false);
     for (int icol=0; icol<number; icol++)
       table.setColumnName(icol, names[icol]);
   }
