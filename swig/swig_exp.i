@@ -109,6 +109,8 @@
 %include Geometry/BiTargetCheckCell.hpp
 %include Geometry/BiTargetCheckDistance.hpp
 %include Geometry/BiTargetCheckFaults.hpp
+%include Geometry/BiTargetCheckCode.hpp
+%include Geometry/BiTargetCheckDate.hpp
 
 %include Arrays/AArray.hpp
 %include Arrays/Array.hpp

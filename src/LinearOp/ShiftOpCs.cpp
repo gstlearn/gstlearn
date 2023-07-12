@@ -1314,18 +1314,20 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   double sqdethh = 0.;
   double factor = 1.;
 
-  if (_isGlobalHH(igrf, icov) && flagSphere && flagSill)
+  if (flagSphere)
   {
-    _loadHH(amesh, hh, 0);
-    sqdethh = sqrt(hh.determinant());
-
     const ASpace *space = getDefaultSpace();
     const SpaceSN *spaceSn = dynamic_cast<const SpaceSN*>(space);
     double r = 1.;
-
     if (spaceSn != nullptr) r = spaceSn->getRadius();
     correc = cova->evalCovOnSphere(0, 50, false) * pow(r, 2. * param);
-    factor = sqrt(pow(sqdethh, - (2. * param  - 1.)/3.));
+
+    if (_isGlobalHH(igrf, icov))
+    {
+      _loadHH(amesh, hh, 0);
+      sqdethh = sqrt(hh.determinant());
+      factor = pow(sqdethh, - (2. * param  - 1.)/3.);
+    }
   }
 
   /* Fill the array */
@@ -1340,7 +1342,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       {
         _loadHH(amesh, hh, imesh);
         sqdethh = sqrt(hh.determinant());
-        factor = sqrt(pow(sqdethh, - (2. * param  - 1.)/3.));
+        factor = pow(sqdethh, - (2. * param  - 1.)/3.);
       }
  
       sill = nostat->getValue(EConsElem::SILL, 0, imesh, icov);
