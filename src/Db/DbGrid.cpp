@@ -163,17 +163,17 @@ int DbGrid::reset(const VectorInt& nx,
  * Creating a Grid Db which covers the extension of the input 'Db'
  *
  * @param db       Input Db from which the newly created Db is constructed
- * @param nodes    Vector of the expected number of grid nodes (default = 10)
- * @param dcell    Vector of the expected sizes for the grid meshes (in distance)
- * @param origin   Vector of the expected origin of the grid (in coordinate)
+ * @param nx       Vector of the expected number of grid nodes (default = 10)
+ * @param dx       Vector of the expected sizes for the grid meshes (in distance)
+ * @param x0       Vector of the expected origin of the grid (in coordinate)
  * @param margin   Vector of the expected margins of the grid (in distance)
  *
  * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
  */
 int DbGrid::resetCoveringDb(const Db* db,
-                            const VectorInt& nodes,
-                            const VectorDouble& dcell,
-                            const VectorDouble& origin,
+                            const VectorInt& nx,
+                            const VectorDouble& dx,
+                            const VectorDouble& x0,
                             const VectorDouble& margin)
 {
   _clear();
@@ -181,9 +181,9 @@ int DbGrid::resetCoveringDb(const Db* db,
 
   // Derive the Grid parameters
 
-  VectorInt    nx(ndim);
-  VectorDouble x0(ndim);
-  VectorDouble dx(ndim);
+  VectorInt    nx_new(ndim);
+  VectorDouble x0_new(ndim);
+  VectorDouble dx_new(ndim);
   int nech = 1;
   for (int idim = 0; idim < ndim; idim++)
   {
@@ -193,33 +193,33 @@ int DbGrid::resetCoveringDb(const Db* db,
     if (ndim == (int) margin.size()) marge = margin[idim];
 
     double x0loc = coor[0];
-    if (ndim == (int) origin.size()) x0loc = origin[idim];
+    if (ndim == (int) x0.size()) x0loc = x0[idim];
     x0loc -= marge;
 
     double ext = coor[1] - x0loc + marge;
 
     // Constraints specified by the number of nodes
     int nxloc = 10;
-    if (ndim == (int) nodes.size())
-      nxloc = nodes[idim];
+    if (ndim == (int) nx.size())
+      nxloc = nx[idim];
     double dxloc = ext / ((double) nxloc - 1.);
 
     // Constraints specified by the cell sizes
-    if (ndim == (int) dcell.size())
+    if (ndim == (int) dx.size())
     {
-      dxloc = dcell[idim];
+      dxloc = dx[idim];
       nxloc = ceil((ext - dxloc / 2.) / dxloc) + 1;
     }
 
-    nx[idim] = nxloc;
-    dx[idim] = dxloc;
-    x0[idim] = x0loc;
+    nx_new[idim] = nxloc;
+    dx_new[idim] = dxloc;
+    x0_new[idim] = x0loc;
     nech *= nxloc;
   }
 
   // Create the grid
 
-  if (gridDefine(nx, dx, x0)) return 1;
+  if (gridDefine(nx_new, dx_new, x0_new)) return 1;
   resetDims(ndim,nech);
 
   /// Load the data
@@ -326,13 +326,13 @@ DbGrid* DbGrid::create(const VectorInt& nx,
 }
 
 DbGrid* DbGrid::createCoveringDb(const Db* db,
-                                 const VectorInt& nodes,
-                                 const VectorDouble& dcell,
-                                 const VectorDouble& origin,
+                                 const VectorInt& nx,
+                                 const VectorDouble& dx,
+                                 const VectorDouble& x0,
                                  const VectorDouble& margin)
 {
   DbGrid* dbgrid = new DbGrid;
-  if (dbgrid->resetCoveringDb(db, nodes, dcell, origin, margin))
+  if (dbgrid->resetCoveringDb(db, nx, dx, x0, margin))
   {
     messerr("Error when creating DbGrid covering another Db");
     delete dbgrid;
