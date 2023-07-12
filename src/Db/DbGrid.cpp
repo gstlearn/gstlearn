@@ -1494,3 +1494,54 @@ void DbGrid::getSampleAsST(int iech, SpaceTarget& P) const
   // Load the target extension
   P.setExtend(getBlockExtensions(iech));
 }
+
+/**
+ * Generate a set of discretization locations, relative to the block center
+ * Dimension: number of discretization locations, space dimension
+ * @param ndiscs Number of discretization (per space dimension)
+ * @param iech   Rank of the target sample (used if flagPerCell = true)
+ * @param flagPerCell TRUE when the cell dimension are read from the Db (BLEX)
+ * @param flagRandom TRUE if the discretization location must be randomized
+ * @param seed Seed for random number generator
+ * @return
+ *
+ * @remark: Although randomization can be performed, this process does not consume
+ * random numbers.
+ */
+VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt &ndiscs,
+                                               int iech,
+                                               bool flagPerCell,
+                                               bool flagRandom,
+                                               int seed) const
+{
+  int ndim = getNDim();
+  int ntot = VH::product(ndiscs);
+  int memo = law_get_random_seed();
+  law_set_random_seed(seed);
+  VectorVectorDouble discs(ntot);
+  for (int i = 0; i < ntot; i++) discs[i].resize(ndim);
+
+  /* Loop on the discretization points */
+
+  for (int i = 0; i < ntot; i++)
+  {
+    int jech = i;
+    int nval = ntot;
+    for (int idim = ndim - 1; idim >= 0; idim--)
+    {
+      double taille = (!flagPerCell) ? getDX(idim) : getLocVariable(ELoc::BLEX, iech, idim);
+      int nd = ndiscs[idim];
+      nval /= nd;
+      int j = jech / nval;
+      jech -= j * nval;
+      double local = taille * ((j + 0.5) / nd - 0.5);
+      if (!flagRandom)
+        discs[i][idim] = local;
+      else
+        discs[i][idim] = local + taille * law_uniform(-0.5, 0.5) / (double) nd;
+    }
+  }
+  law_set_random_seed(memo);
+
+  return discs;
+}

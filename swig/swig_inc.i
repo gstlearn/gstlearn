@@ -46,6 +46,7 @@
 %shared_ptr(BooleanObject)
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
+%shared_ptr(CalcSimuPost)
 %shared_ptr(CalcImage)
 %shared_ptr(CalcGlobal)
 %shared_ptr(CalcKriging)
@@ -309,6 +310,7 @@
   #include "Calculators/ACalcInterpolator.hpp"
   #include "Calculators/CalcStatistics.hpp"
   #include "Calculators/CalcGridToGrid.hpp"
+  #include "Calculators/CalcSimuPost.hpp"
   
   #include "Mesh/AMesh.hpp"
   #include "Mesh/MeshEStandard.hpp"

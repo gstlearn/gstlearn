@@ -124,11 +124,9 @@ private:
   void   _setZEXT(int i, double value) const;
   VectorDouble _getDISC1Vec(int idisc) const;
   VectorVectorDouble _getDISC1s() const;
-  void   _setDISC1(int idisc, int idim, double value);
   double _getDISC2(int idisc,int idim) const;
   VectorDouble _getDISC2Vec(int idisc) const;
   VectorVectorDouble _getDISC2s() const;
-  void   _setDISC2(int idisc,int idim, double value);
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
@@ -250,9 +248,9 @@ private:
   /// Option for Block estimation
   bool _flagPerCell;
   int  _ndiscNumber;
-  VectorInt    _ndiscs;
-  VectorDouble _disc1;
-  VectorDouble _disc2;
+  VectorInt _ndiscs;
+  VectorVectorDouble _disc1; // Dimension: ndiscNumber, ndim
+  VectorVectorDouble _disc2; // Dimension: ndiscNumber, ndim
 
   /// Option for Cross_validation
   bool _xvalidEstim;

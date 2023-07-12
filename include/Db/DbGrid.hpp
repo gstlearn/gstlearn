@@ -269,6 +269,12 @@ public:
 
   void getSampleAsST(int iech, SpaceTarget& P) const;
 
+  VectorVectorDouble getDiscretizedBlock(const VectorInt &ndiscs,
+                                         int iech = 0,
+                                         bool flagPerCell = false,
+                                         bool flagRandom = false,
+                                         int seed = 132433) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

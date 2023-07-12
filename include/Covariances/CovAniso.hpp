@@ -108,13 +108,13 @@ public:
   static CovAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
-                                        const MatrixSquareGeneral& sills,
+                                        const MatrixSquareSymmetric& sills,
                                         double param = 1.,
                                         bool flagRange = true);
   static CovAniso* createAnisotropicMulti(const CovContext& ctxt,
                                           const ECov& type,
                                           const VectorDouble& ranges,
-                                          const MatrixSquareGeneral& sills,
+                                          const MatrixSquareSymmetric& sills,
                                           double param = 1.,
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
