@@ -193,9 +193,10 @@ bool MatrixSquareDiagonal::isValid(int irow, int icol, bool printWhyNot) const
   return true;
 }
 
-void MatrixSquareDiagonal::addScalar(double /*v*/)
+void MatrixSquareDiagonal::addScalar(double v)
 {
-  my_throw("This function does not make sense for Diagonal Matrix");
+  for (int irow = 0; irow < getNRows(); irow++)
+    _setValue(irow, irow, _getValue(irow, irow) + v);
 }
 
 int MatrixSquareDiagonal::_solve(const VectorDouble& b, VectorDouble& x) const

@@ -1,0 +1,201 @@
+
+Attachement du package : ‘gstlearn’
+
+Les objets suivants sont masqués depuis ‘package:base’:
+
+    message, toString
+
+[1] "Testing Matrix"
+[1] "Cloning Matrix of integers"
+- Number of rows    = 2
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]         1         3         5
+     [  1,]         2         4         6
+- Number of rows    = 2
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]         1         3         5
+     [  1,]         2         4         6
+[1] "Cloning Matrix of doubles"
+- Number of rows    = 2
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     1.000     3.000     5.000
+     [  1,]     2.000     4.000     6.000
+- Number of rows    = 2
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     1.000     3.000     5.000
+     [  1,]     2.000     4.000     6.000
+[1] "Matrix M is symmetric? TRUE"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
+     [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
+     [  2,]    -4.838    -2.728    11.326    -1.122     3.153    -2.320    -0.877
+     [  3,]     1.085     0.335    -1.122     2.133     0.439     0.034     0.374
+     [  4,]     0.430    -1.577     3.153     0.439     4.772     2.636     0.268
+     [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662     0.149
+     [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
+[1] "Matrix MRR"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
+     [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
+     [  2,]    -4.838    -2.728    11.326    -1.122     3.153    -2.320    -0.877
+     [  3,]     1.085     0.335    -1.122     2.133     0.439     0.034     0.374
+     [  4,]     0.430    -1.577     3.153     0.439     4.772     2.636     0.268
+     [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662     0.149
+     [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
+[1] "Matrix MSG"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
+     [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
+     [  2,]    -4.838    -2.728    11.326    -1.122     3.153    -2.320    -0.877
+     [  3,]     1.085     0.335    -1.122     2.133     0.439     0.034     0.374
+     [  4,]     0.430    -1.577     3.153     0.439     4.772     2.636     0.268
+     [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662     0.149
+     [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
+[1] "Matrix MSS"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     4.968                                                            
+     [  1,]     0.857     2.378                                                  
+     [  2,]    -4.838    -2.728    11.326                                        
+     [  3,]     1.085     0.335    -1.122     2.133                              
+     [  4,]     0.430    -1.577     3.153     0.439     4.772                    
+     [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662          
+     [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
+[1] "Matrix MSP"
+- Number of rows    = 7
+- Number of columns = 7
+- Sparse Format
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
+     [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
+     [  2,]    -4.838    -2.728    11.326    -1.122     3.153    -2.320    -0.877
+     [  3,]     1.085     0.335    -1.122     2.133     0.439     0.034     0.374
+     [  4,]     0.430    -1.577     3.153     0.439     4.772     2.636     0.268
+     [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662     0.149
+     [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
+
+[1] "Matrix MSD"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.363                                                            
+     [  1,]              -0.363                                                  
+     [  2,]                        -0.363                                        
+     [  3,]                                  -0.363                              
+     [  4,]                                            -0.363                    
+     [  5,]                                                      -0.363          
+     [  6,]                                                                -0.363
+[1] "Matrix MSC"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.727                                                            
+     [  1,]              -0.727                                                  
+     [  2,]                        -0.727                                        
+     [  3,]                                  -0.727                              
+     [  4,]                                            -0.727                    
+     [  5,]                                                      -0.727          
+     [  6,]                                                                -0.727
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.727                                                            
+     [  1,]              -0.727                                                  
+     [  2,]                        -0.727                                        
+     [  3,]                                  -0.727                              
+     [  4,]                                            -0.727                    
+     [  5,]                                                      -0.727          
+     [  6,]                                                                -0.727
+
+Adding a constant value to the diagonal of a matrix
+===================================================
+[1] "Are results for MRR and MSG similar: TRUE"
+[1] "Are results for MRR and MSS similar: TRUE"
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Are results for MSD and MSC similar: TRUE"
+
+Multiplying a Matrix by a constant
+==================================
+[1] "Are results for MRR and MSG similar: TRUE"
+[1] "Are results for MRR and MSS similar: TRUE"
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Are results for MSD and MSC similar: TRUE"
+
+Adding a constant value to the whole matrix
+===========================================
+[1] "Are results for MRR and MSG similar: TRUE"
+[1] "Are results for MRR and MSS similar: TRUE"
+
+Linear combination of matrices
+==============================
+[1] "Are results for MRR and MSG similar: TRUE"
+[1] "Are results for MRR and MSS similar: TRUE"
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Are results for MSD and MSC similar: TRUE"
+
+Extracting Vectors from Matrix
+==============================
+[1] "MRR and MSP matrices are used as Reference"
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     4.968     0.857    -4.838     1.085     0.430     2.381     1.654
+     [  1,]     0.857     2.378    -2.728     0.335    -1.577    -1.055     1.183
+     [  2,]    -4.838    -2.728    11.326    -1.122     3.153    -2.320    -0.877
+     [  3,]     1.085     0.335    -1.122     2.133     0.439     0.034     0.374
+     [  4,]     0.430    -1.577     3.153     0.439     4.772     2.636     0.268
+     [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662     0.149
+     [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
+[1] "Main Diagonal:"
+[1]  4.967940  2.377526 11.325606  2.133453  4.772449  4.662145  1.425424
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Second Diagonal Below:"
+[1]  0.8574134 -2.7280116 -1.1219433  0.4386386  2.6356634  0.1485575
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Third Diagonal Above:"
+[1] -4.83762269  0.33517634  3.15286338  0.03399191  0.26807877
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Third Row:"
+[1] -4.8376227 -2.7280116 11.3256060 -1.1219433  3.1528634 -2.3195708 -0.8771715
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Fourth Column:"
+[1]  1.08458887  0.33517634 -1.12194327  2.13345292  0.43863864  0.03399191
+[7]  0.37428297
+[1] "Are results for MRR and MSP similar: TRUE"
+
+Product of the matrix by a vector
+=================================
+[1] "nrow = 7"
+[1] "Are results for MRR and MSG similar: TRUE"
+[1] "Are results for MRR and MSS similar: TRUE"
+[1] "Are results for MRR and MSP similar: TRUE"
+[1] "Are results for MRR and MSC similar: TRUE"
+
+Matrix Linear Solver
+====================
+[1] "Solve X from A*X=B. Compute A*X and compare with B"
+[1] "Are results correct for MSS: TRUE"
+[1] "Are results correct for MSP: TRUE"
+[1] "Are results correct for MSD: TRUE"
+[1] "Are results correct for MSC: TRUE"
+
+Matrix Inversion
+================
+[1] "Calculate B=A^{-1}. Compute A*B and compare to Identity"
+[1] "Are results correct for MSG: TRUE"
+[1] "Are results correct for MSS: TRUE"
+[1] "Are results correct for MSP: TRUE"
+[1] "Are results correct for MSD: TRUE"
+[1] "Are results correct for MSC: TRUE"
+[1] "Test successfully performed"

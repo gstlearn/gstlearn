@@ -19,6 +19,7 @@ New functions :
 Modification in functions :
 ---------------------------
 - Correction in kribayes for multivariate aspect.
+- In DbGrid::createCoveringDb, argument names have changed: nodes -> nx, dcell -> dx, origin -> x0
 
 New Test :
 ----------

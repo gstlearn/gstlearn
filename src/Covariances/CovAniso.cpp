@@ -889,7 +889,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext &ctxt,
 CovAniso* CovAniso::createIsotropicMulti(const CovContext &ctxt,
                                          const ECov &type,
                                          double range,
-                                         const MatrixSquareGeneral &sills,
+                                         const MatrixSquareSymmetric &sills,
                                          double param,
                                          bool flagRange)
 {
@@ -914,7 +914,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext &ctxt,
 CovAniso* CovAniso::createAnisotropicMulti(const CovContext &ctxt,
                                            const ECov &type,
                                            const VectorDouble &ranges,
-                                           const MatrixSquareGeneral &sills,
+                                           const MatrixSquareSymmetric& sills,
                                            double param,
                                            const VectorDouble &angles,
                                            bool flagRange)

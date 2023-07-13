@@ -158,7 +158,7 @@ String RuleProp::toString(const AStringFormat* strfmt) const
 
   // Constant proportions (Stationary case)
   if (_flagStat)
-    sstr << "Constant Proportions" << VH::toString(_propcst) << std::endl;
+    sstr << "Constant Proportions" << VH::toStringAsVD(_propcst) << std::endl;
 
   // Db file (Non-Stationary case)
   if (! _flagStat)

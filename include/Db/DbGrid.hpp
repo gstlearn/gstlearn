@@ -70,9 +70,9 @@ public:
             int flag_add_rank = 1,
             bool flag_add_coordinates = true);
   int resetCoveringDb(const Db* db,
-                      const VectorInt& nodes = VectorInt(),
-                      const VectorDouble& dcell = VectorDouble(),
-                      const VectorDouble& origin = VectorDouble(),
+                      const VectorInt& nx = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      const VectorDouble& x0 = VectorDouble(),
                       const VectorDouble& margin = VectorDouble());
   int resetFromPolygon(Polygons* polygon,
                        const VectorInt& nodes,
@@ -90,9 +90,9 @@ public:
                         int flag_add_rank = 1,
                         bool flag_add_coordinates = true);
   static DbGrid* createCoveringDb(const Db* dbin,
-                                  const VectorInt& nodes = VectorInt(),
-                                  const VectorDouble& dcell = VectorDouble(),
-                                  const VectorDouble& origin = VectorDouble(),
+                                  const VectorInt& nx = VectorInt(),
+                                  const VectorDouble& dx = VectorDouble(),
+                                  const VectorDouble& x0 = VectorDouble(),
                                   const VectorDouble& margin = VectorDouble());
   static DbGrid* createFromPolygon(Polygons* polygon,
                                    const VectorInt& nodes,
@@ -268,6 +268,12 @@ public:
                                      ELoc::fromKey("SEL")));
 
   void getSampleAsST(int iech, SpaceTarget& P) const;
+
+  VectorVectorDouble getDiscretizedBlock(const VectorInt &ndiscs,
+                                         int iech = 0,
+                                         bool flagPerCell = false,
+                                         bool flagRandom = false,
+                                         int seed = 132433) const;
 
 protected:
   /// Interface for ASerializable

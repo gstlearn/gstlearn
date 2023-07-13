@@ -72,7 +72,7 @@ void Tensor::init(int ndim)
 String Tensor::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "Radius     = " << VH::toString(_radius) << std::endl;
+  sstr << "Radius     = " << VH::toStringAsVD(_radius) << std::endl;
   if (!_rotation.isIdentity())
     sstr << _rotation.toString() << std::endl;
   return sstr.str();

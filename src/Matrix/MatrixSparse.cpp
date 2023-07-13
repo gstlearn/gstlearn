@@ -155,7 +155,7 @@ MatrixSparse* MatrixSparse::transpose() const
 /*! Gets the value for rank 'rank' */
 double MatrixSparse::_getValue(int rank) const
 {
-  _forbiddenForSparse("_setValue (by rank)");
+  _forbiddenForSparse("_getValue (by rank)");
   return TEST;
 }
 
@@ -269,7 +269,12 @@ void MatrixSparse::setValuesByArrays(const VectorInt &irows,
 void MatrixSparse::addScalar(double v)
 {
   if (v == 0.) return;
-  _forbiddenForSparse("addScalar");
+  for (int irow = 0; irow < getNRows(); irow++)
+    for (int icol = 0; icol < getNCols(); icol++)
+    {
+      if (cs_exist(_csMatrix, irow, icol))
+        _setValue(irow, icol, _getValue(irow, icol) + v);
+    }
 }
 
 /**
@@ -367,9 +372,7 @@ void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
 void MatrixSparse::linearCombination(double cx, double cy, const MatrixSparse& y)
 {
   if (! isSameSize(y))
-  {
     my_throw("Matrices should have same size");
-  }
 
   if (!y.isSparse())
     my_throw("This function can only combine sparse matrices together");
@@ -450,7 +453,8 @@ void MatrixSparse::_deallocate()
 void MatrixSparse::_forbiddenForSparse(const String& func) const
 {
   messerr("Problem with Function: %s",func.c_str());
-  my_throw("This function is not available in Sparse Matrix");
+  messerr("This function is not available in Sparse Matrix");
+  return;
 }
 
 void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const

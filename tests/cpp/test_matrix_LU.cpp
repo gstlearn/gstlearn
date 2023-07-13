@@ -59,11 +59,11 @@ int main(int /*argc*/, char */*argv*/[])
   matrix_LU_decompose(neq, a.getValues().data(), tl.data(), tu.data());
 
   MatrixSquareGeneral atl(neq);
-  atl.reset(neq, neq, tl.data());
+  atl.resetFromArray(neq, neq, tl.data());
   atl.display();
 
   MatrixSquareGeneral atu(neq);
-  atu.reset(neq, neq, tu.data());
+  atu.resetFromArray(neq, neq, tu.data());
   atu.display();
 
   MatrixSquareGeneral res(neq);
@@ -81,13 +81,13 @@ int main(int /*argc*/, char */*argv*/[])
   message("Inverse using LU\n");
   VectorDouble ais = a.getValues();
   (void) matrix_LU_invert(neq, ais.data());
-  ai.reset(neq, neq, ais.data());
+  ai.resetFromArray(neq, neq, ais.data());
   ai.display();
 
   message("Inverse using invreal\n");
   ais = a.getValues();
   (void) matrix_invreal(ais.data(), neq);
-  ai.reset(neq, neq, ais.data());
+  ai.resetFromArray(neq, neq, ais.data());
   ai.display();
 
   return(0);

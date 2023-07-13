@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
   int naffect = 5000000;
   VectorDouble vecS = VH::simulateUniform(nx * nx);
   MatrixSquareGeneral matS(nx);
-  matS.reset(nx, nx, vecS);
+  matS.resetFromVD(nx, nx, vecS);
 
   mestitle(1, "Assigning values into a storage");
   message("Random values are assigned at random locations %d times\n",naffect);
@@ -156,9 +156,9 @@ int main(int argc, char *argv[])
 
   message("- using matrix algebra\n");
   MatrixRectangular mata;
-  mata.reset(1, nsize, a);
+  mata.resetFromVD(1, nsize, a);
   MatrixRectangular matb;
-  matb.reset(nsize, 1, b);
+  matb.resetFromVD(nsize, 1, b);
   MatrixRectangular res(1,1);
   timer.reset();
   for (int itime = 0; itime < ntimes; itime++)

@@ -120,16 +120,6 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
   return true;
 }
 
-void AMatrix::reset(int nrows, int ncols)
-{
-  if (! _isNumbersValid(nrows, ncols)) return;
-  _deallocate();
-  _nRows = nrows;
-  _nCols = ncols;
-  _allocate();
-  _clearContents();
-}
-
 void AMatrix::reset(int nrows, int ncols, double value)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
@@ -142,7 +132,7 @@ void AMatrix::reset(int nrows, int ncols, double value)
   _clearContents();
 }
 
-void AMatrix::reset(int nrows, int ncols, const double* tab, bool byCol)
+void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
   _deallocate();
@@ -165,13 +155,13 @@ void AMatrix::reset(int nrows, int ncols, const double* tab, bool byCol)
   _clearContents();
 }
 
-void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool byCol)
+void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool byCol)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
-  reset(nrows, ncols, tab.data(), byCol);
+  resetFromArray(nrows, ncols, tab.data(), byCol);
 }
 
-void AMatrix::reset(const VectorVectorDouble& tab, bool byCol)
+void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 {
   if (byCol)
   {
@@ -325,7 +315,6 @@ double AMatrix::getValue(int irow, int icol) const
 /*! Sets the value at row 'irow' and column 'icol' */
 void AMatrix::setValue(int irow, int icol, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
   return _setValue(irow, icol, value);
 }
 
@@ -407,7 +396,7 @@ void AMatrix::setIdentity(double value)
 
 /**
  *
- * @param v Add a scalar value to all terms of the current matrix
+ * @param v Add a scalar value to all (valid) terms of the current matrix
  */
 void AMatrix::addScalar(double v)
 {

@@ -2212,31 +2212,9 @@ int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
 
 void KrigingSystem::_blockDiscretize()
 {
-  int ntot = _getNDisc();
-  int memo = law_get_random_seed();
-  law_set_random_seed(1234546);
   const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-
-  /* Loop on the discretization points */
-
-  for (int i = 0; i < ntot; i++)
-  {
-    int jech = i;
-    int nval = ntot;
-    for (int idim = _ndim - 1; idim >= 0; idim--)
-    {
-      double taille =
-          (! _flagPerCell) ? dbgrid->getDX(idim) : _dbout->getLocVariable(ELoc::BLEX,_iechOut, idim);
-      int nd = _ndiscs[idim];
-      nval /= nd;
-      int j = jech / nval;
-      jech -= j * nval;
-      double local = taille * ((j + 0.5) / nd - 0.5);
-      _setDISC1(i,idim, local);
-      _setDISC2(i,idim, local + taille * law_uniform(-0.5, 0.5) / (double) nd);
-    }
-  }
-  law_set_random_seed(memo);
+  _disc1 = dbgrid->getDiscretizedBlock(_ndiscs, _iechOut, _flagPerCell, false, 1234546);
+  _disc2 = dbgrid->getDiscretizedBlock(_ndiscs, _iechOut, _flagPerCell, true, 1234546);
 }
 
 int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
@@ -2277,8 +2255,13 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
 
     _ndiscs = ndiscs;
     _ndiscNumber = VH::product(_ndiscs);
-    _disc1.resize(_ndiscNumber * _ndim);
-    _disc2.resize(_ndiscNumber * _ndim);
+    _disc1.resize(_ndiscNumber);
+    _disc2.resize(_ndiscNumber);
+    for (int i = 0; i < _ndiscNumber; i++)
+    {
+      _disc1[i].resize(getNDim());
+      _disc2[i].resize(getNDim());
+    }
 
     // For constant discretization, calculate discretization coordinates
 
@@ -3104,14 +3087,12 @@ double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
 }
 double KrigingSystem::_getDISC1(int idisc, int idim) const
 {
-  int iad = (idim) * _ndiscNumber + (idisc);
   if (_flagCheckAddress)
   {
     _checkAddress("_getDISC1","idisc",idisc,_ndiscNumber);
     _checkAddress("_getDISC1","idim",idim,_ndim);
-    _checkAddress("_getDISC1","address",iad, (int) _disc1.size());
   }
-  return _disc1[iad];
+  return _disc1[idisc][idim];
 }
 double KrigingSystem::_getZAM(int i) const
 {
@@ -3129,42 +3110,23 @@ VectorDouble KrigingSystem::_getDISC1Vec(int idisc) const
 {
   VectorDouble vec(_ndim);
   for (int idim = 0; idim < _ndim; idim++)
-  {
-    int iad = (idim) * _ndiscNumber + (idisc);
-    vec[idim] = _disc1[iad];
-  }
+    vec[idim] = _disc1[idisc][idim];
   return vec;
-}
-void KrigingSystem::_setDISC1(int idisc, int idim, double value)
-{
-  int iad = (idim) * _ndiscNumber + (idisc);
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_setDISC1","idisc",idisc,_ndiscNumber);
-    _checkAddress("_setDISC1","idim",idim,_ndim);
-    _checkAddress("_setDISC1","address",iad, (int) _disc1.size());
-  }
-  _disc1[iad] = value;
 }
 double KrigingSystem::_getDISC2(int idisc,int idim) const
 {
-  int iad = (idim) * _ndiscNumber + (idisc);
   if (_flagCheckAddress)
   {
     _checkAddress("_getDISC2","idisc",idisc,_ndiscNumber);
     _checkAddress("_getDISC2","idim",idim,_ndim);
-    _checkAddress("_getDISC2","address",iad, (int) _disc2.size());
   }
-  return _disc2[iad];
+  return _disc2[idisc][idim];
 }
 VectorDouble KrigingSystem::_getDISC2Vec(int idisc) const
 {
   VectorDouble vec(_ndim);
   for (int idim = 0; idim < _ndim; idim++)
-  {
-    int iad = (idim) * _ndiscNumber + (idisc);
-    vec[idim] = _disc2[iad];
-  }
+    vec[idim] = _disc2[idisc][idim];
   return vec;
 }
 VectorVectorDouble KrigingSystem::_getDISC1s() const
@@ -3180,17 +3142,6 @@ VectorVectorDouble KrigingSystem::_getDISC2s() const
   for (int idisc = 0; idisc < _ndiscNumber; idisc++)
     vecvec[idisc] = _getDISC2Vec(idisc);
   return vecvec;
-}
-void KrigingSystem::_setDISC2(int idisc,int idim, double value)
-{
-  int iad = (idim) * _ndiscNumber + (idisc);
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_setDISC2","idisc",idisc,_ndiscNumber);
-    _checkAddress("_setDISC2","idim",idim,_ndim);
-    _checkAddress("_setDISC2","address",iad, (int) _disc2.size());
-  }
-  _disc2[iad] = value;
 }
 double KrigingSystem::_getVAR0(int ivCL, int jvCL) const
 {
