@@ -1049,8 +1049,8 @@ int DbGrid::centerCoordinateInPlace(VectorDouble& coor, bool centered, bool stop
  * @param useSel Use the active selection
  * @return A VectorVectorDouble with 4 columns, i.e: X, Y, Z, Var
  *
- * @remark In presence of a selection, values are returned but set to TEST
- * @remark (if useSel)
+ * @remark In presence of a selection and if useSel is TRUE,
+ * @remarks values are returned but set to TEST
  */
 VectorVectorDouble DbGrid::getSlice(const String& name,
                                     int pos,
@@ -1422,18 +1422,38 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
   return db;
 }
 
-VectorInt DbGrid::locateDataInGrid(const DbGrid *grid,
-                                   const Db *data,
-                                   const VectorInt &rankIn) const
+VectorInt DbGrid::locateDataInGrid(const Db *data,
+                                   const VectorInt &rankIn,
+                                   bool useSel) const
 {
   VectorInt rankOut;
 
-  if (grid == nullptr || data == nullptr) return VectorInt();
+  if (data == nullptr) return VectorInt();
 
-  for (int ip=0; ip<(int) rankIn.size(); ip++)
+  if (! rankIn.empty())
   {
-    VectorDouble coor = data->getSampleCoordinates(rankIn[ip]);
-    rankOut.push_back(grid->coordinateToRank(coor));
+
+    // Locate the samples defined by their ranks stored in 'rankIn'
+
+    for (int ip = 0; ip < (int) rankIn.size(); ip++)
+    {
+      VectorDouble coor = data->getSampleCoordinates(rankIn[ip]);
+      rankOut.push_back(coordinateToRank(coor));
+    }
+  }
+  else
+  {
+
+    // Locate all samples (using useSel criterion)
+
+    for (int ip = 0, np = data->getSampleNumber(useSel); ip < np; ip++)
+    {
+      if (isActive(ip) || ! useSel)
+      {
+        VectorDouble coor = data->getSampleCoordinates(ip);
+        rankOut.push_back(coordinateToRank(coor));
+      }
+    }
   }
   return rankOut;
 }

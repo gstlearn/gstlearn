@@ -137,10 +137,10 @@ dx_B = dx_P / nx_B
 grid = DbGrid_create(nx = nx_S, dx = dx_S)
 grid$display()
 # Create grid of panels covering the simulated area
-panels = DbGrid_createCoveringDb(grid, dcell=c(dx_P,dx_P))
+panels = DbGrid_createCoveringDb(grid, dx=c(dx_P,dx_P))
 panels$display()
 # Discretization with a grid of blocks which covers the simulated area
-blocs = DbGrid_createCoveringDb(grid, dcell=c(dx_B,dx_B))
+blocs = DbGrid_createCoveringDb(grid, dx=c(dx_B,dx_B))
 blocs$display()
 ```
 

@@ -86,6 +86,12 @@ int CalcSimuPost::_process()
   int nechout = getDbout()->getSampleNumber();
   VectorDouble tab(nvar);
 
+  // Get the indices of the samples within the Grid
+  // There is no need to check that 'dbout' is a grid (see _check)
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  VectorInt indblock = dbgrid->locateDataInGrid(getDbin());
+  VH::displayRange("Bornes sur les indices dans le bloc", indblock);
+
   // Loop on the samples of the Output File
   for (int iechout = 0; iechout < nechout; iechout++)
   {

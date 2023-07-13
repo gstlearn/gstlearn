@@ -216,9 +216,9 @@ public:
                               bool stopIfOut = false,
                               double eps = EPSILON6) const;
 
-  VectorInt locateDataInGrid(const DbGrid *grid,
-                             const Db *data,
-                             const VectorInt &rankIn) const;
+  VectorInt locateDataInGrid(const Db *data,
+                             const VectorInt &rankIn = VectorInt(),
+                             bool useSel = false) const;
 
   int getMirrorIndex(int idim, int ix) const
   {
