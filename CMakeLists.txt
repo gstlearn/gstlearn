@@ -70,6 +70,7 @@ add_subdirectory(3rd-party/csparse)
 ####################################################
 ## BUILD & INSTALL
 
+include(cmake/version.cmake)
 include(cmake/cpp.cmake)
 include(cmake/doxygen.cmake)
 include(cmake/doc.cmake)

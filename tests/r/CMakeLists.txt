@@ -28,7 +28,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 add_custom_target(prepare_check_r
                   COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")
 
-# Add dependency for check_py
+# Add dependency for prepare_check_r
 add_dependencies(prepare_check_r r_install)
 
 # Create the main target

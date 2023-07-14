@@ -1,9 +1,13 @@
 # Make Release version the default (only for single configuration generators)
-if(NOT CMAKE_BUILD_TYPE AND NOT IS_MULTI_CONFIG)
-  message(STATUS "Setting build type to 'Release' as none was specified")
-  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
-  # Set the possible values of build type for cmake-gui
-  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+if(NOT IS_MULTI_CONFIG)
+  if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "Setting build type to 'Release' as none was specified")
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+  endif()
+  # Show current configuration
+  message(STATUS "BUILD_TYPE=" ${CMAKE_BUILD_TYPE})
 endif()
 
 # Add c++11 support whatever the compiler
