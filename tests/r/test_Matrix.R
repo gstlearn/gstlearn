@@ -1,6 +1,6 @@
 # Loading the package
 
-library(gstlearn)
+suppressWarnings(suppressMessages(library(gstlearn)))
 set.seed(32421)
 
 #
