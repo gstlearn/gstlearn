@@ -1,20 +1,5 @@
-name: nightly_tests_ubuntu-check_-r-latest
-# Note: For mail notification, keep gstlearn github account last pusher of this file
+name: tests_ubuntu-check_r-latest
 on:
-  # Deactivate the workflow
-  #push:
-  #  branches-ignore:
-  #    - '**'
-  # Activate the workflow at each push on main branch
-  #push:
-  #  branches: [ main ]
-  # Activate the workflow at each pull request on main branch
-  #pull_request:
-  #  branches: [ main ]
-  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
-  #schedule:
-    # * is a special character in YAML so you have to quote this string
-  #  - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -65,7 +50,7 @@ jobs:
 #      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF  -DBUILD_R=ON
+      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF  -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --target check_r -- -j 3
