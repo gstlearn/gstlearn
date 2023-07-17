@@ -34,6 +34,7 @@
 #include "Anamorphosis/AAnam.hpp"
 
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -138,34 +139,63 @@ public:
   bool isChangeSupportDefined() const { return _covaList->getAnam()->isChangeSupportDefined(); }
   void normalize(double sill) { _covaList->normalize(sill); }
   bool hasNugget() const { return _covaList->hasNugget(); }
+  VectorInt getActiveCovList() const { return _covaList->getActiveCovList(); }
 
   double eval0(int ivar = 0,
                int jvar = 0,
-               const CovCalcMode& mode = CovCalcMode()) const
+               const CovCalcMode* mode = nullptr) const
   {
     return _covaList->eval0(ivar, jvar, mode);
   }
-  MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const
+  MatrixSquareGeneral eval0Nvar(const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->eval0Nvar(mode);
+    return _covaList->eval0Mat(mode);
+  }
+  void eval0MatInPlace(MatrixSquareGeneral &mat,
+                       const CovCalcMode *mode = nullptr) const
+  {
+    _covaList->eval0MatInPlace(mat, mode);
   }
   double eval(const SpacePoint& p1,
               const SpacePoint& p2,
               int ivar = 0,
               int jvar = 0,
-              const CovCalcMode& mode = CovCalcMode()) const
+              const CovCalcMode* mode = nullptr) const
   {
     return _covaList->eval(p1, p2, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalNvarIpas(double step,
                                    const VectorDouble& dir = VectorDouble(),
                                    const VectorDouble& center = VectorDouble(),
-                                   const CovCalcMode& mode = CovCalcMode()) const
+                                   const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalNvarIpas(step, dir, center, mode);
   }
+  MatrixSquareGeneral evalMat(const SpacePoint& p1,
+                              const SpacePoint& p2,
+                              const CovCalcMode* mode = nullptr) const
+  {
+    return _covaList->evalMat(p1, p2, mode);
+  }
+
+  void evalMatInPlace(const SpacePoint &p1,
+                      const SpacePoint &p2,
+                      MatrixSquareGeneral &mat,
+                      const CovCalcMode* mode = nullptr) const
+  {
+    _covaList->evalMatInPlace(p1, p2, mat, mode);
+  }
+
+  void evalMatOptimInPlace(int iech1,
+                           int iech2,
+                           MatrixSquareGeneral &mat,
+                           const CovCalcMode *mode = nullptr) const
+  {
+    _covaList->evalMatOptimInPlace(iech1, iech2, mat, mode);
+  }
+
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
-                                       const CovCalcMode& mode = CovCalcMode()) const
+                                       const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalNvarIpasIncr(dincr, mode);
   }
@@ -174,7 +204,7 @@ public:
                             int ivar = 0,
                             int jvar = 0,
                             const VectorDouble& center = VectorDouble(),
-                            const CovCalcMode& mode = CovCalcMode()) const
+                            const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalIvarNpas(vec_step, dir, ivar, jvar, center, mode);
   }
@@ -183,7 +213,7 @@ public:
                       int ivar = 0,
                       int jvar = 0,
                       const VectorDouble& center = VectorDouble(),
-                      const CovCalcMode& mode = CovCalcMode()) const
+                      const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalIvarIpas(step, dir, ivar, jvar, center, mode);
   }
@@ -192,7 +222,7 @@ public:
                  const VectorDouble& angles = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode()) const
+                 const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
   }
@@ -202,14 +232,14 @@ public:
                       const VectorDouble& angles = VectorDouble(),
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const
+                      const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
-                               const CovCalcMode& mode = CovCalcMode())
+                               const CovCalcMode* mode = nullptr)
   {
     return _covaList->evalCvvM(ext, ndisc, angles, mode);
   }
@@ -220,7 +250,7 @@ public:
                  const VectorDouble& x0 = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode())
+                 const CovCalcMode* mode = nullptr)
   {
     return _covaList->evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode);
   }
@@ -229,7 +259,7 @@ public:
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
                                const VectorDouble& x0 = VectorDouble(),
-                               const CovCalcMode& mode = CovCalcMode())
+                               const CovCalcMode* mode = nullptr)
   {
     return _covaList->evalCxvM(p1, ext, ndisc, angles, x0, mode);
   }
@@ -238,23 +268,41 @@ public:
                              int ivar = 0,
                              int jvar = 0,
                              bool useSel = true,
-                             const CovCalcMode& mode = CovCalcMode())
+                             const VectorInt& nbgh2 = VectorInt(),
+                             const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalPointToDb(p1, db2, ivar, jvar, useSel, mode);
+    return _covaList->evalPointToDb(p1, db2, ivar, jvar, useSel, nbgh2, mode);
+  }
+  VectorDouble evalPointToDbAsSP(const std::vector<SpacePoint>& p1s,
+                                 const SpacePoint& p2,
+                                 int ivar = 0,
+                                 int jvar = 0,
+                                 const CovCalcMode* mode = nullptr) const
+  {
+    return _covaList->evalPointToDbAsSP(p1s, p2, ivar, jvar, mode);
   }
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
-                           const CovCalcMode& mode = CovCalcMode())
+                           const CovCalcMode* mode = nullptr) const
   {
     return _covaList->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
   }
+  double evalAverageIncrToIncr(const VectorVectorDouble& d1,
+                               const VectorVectorDouble& d2,
+                               int ivar = 0,
+                               int jvar = 0,
+                               const CovCalcMode* mode = nullptr) const
+  {
+    return _covaList->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
+  }
+
   double evalAveragePointToDb(const SpacePoint& p1,
                               const Db* db2,
                               int ivar = 0,
                               int jvar = 0,
-                              const CovCalcMode& mode = CovCalcMode())
+                              const CovCalcMode* mode = nullptr)
   {
     return _covaList->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
   }
@@ -262,10 +310,22 @@ public:
                                   const Db* db2 = nullptr,
                                   int ivar = 0,
                                   int jvar = 0,
-                                  const CovCalcMode& mode = CovCalcMode())
+                                  const VectorInt& nbgh1 = VectorInt(),
+                                  const VectorInt& nbgh2 = VectorInt(),
+                                  const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalCovMatrix(db1, db2, ivar, jvar, mode);
+    return _covaList->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
   }
+
+  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
+                                        const Db *db2 = nullptr,
+                                        int ivar = 0,
+                                        int jvar = 0,
+                                        const CovCalcMode *mode = nullptr)
+  {
+    return _covaList->evalCovMatrixOptim(db1, db2, ivar, jvar, mode);
+  }
+
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -326,7 +386,7 @@ public:
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
-                         const CovCalcMode& mode = CovCalcMode(),
+                         const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const
   {
     CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
@@ -337,7 +397,7 @@ public:
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
-                         const CovCalcMode& mode = CovCalcMode(),
+                         const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const
   {
     CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
@@ -407,7 +467,7 @@ public:
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
   void setMeans(const VectorDouble& mean);
-  void setMean(int ivar, double mean);
+  void setMean(double mean, int ivar=0);
   void setCovar0s(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
   void setField(double field);
@@ -446,28 +506,34 @@ public:
                                    Db *db2 = nullptr,
                                    int ivar = -1,
                                    int jvar = -1,
-                                   int flag_norm = 0,
-                                   int flag_cov = 1);
+                                   const CovCalcMode* mode = nullptr);
   VectorDouble covMatrixV(Db *db1,
                           Db *db2 = nullptr,
                           int ivar = 0,
                           int jvar = 0,
-                          int flag_norm = 0,
-                          int flag_cov = 1);
+                          const CovCalcMode* mode = nullptr);
   void covMatrix(VectorDouble& covmat,
                  Db *db1,
                  Db *db2 = nullptr,
                  int ivar = 0,
                  int jvar = 0,
-                 int flag_norm = 0,
-                 int flag_cov = 1);
+                 const CovCalcMode* mode = nullptr);
   VectorDouble sample(const VectorDouble& hh,
                       int ivar = 0,
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
-                      int nostd = 0,
-                      bool asCov = false,
-                      const ECalcMember &member = ECalcMember::fromKey("LHS"));
+                      const CovCalcMode* mode = nullptr);
+  VectorDouble sampleUnitary(const VectorDouble &hh,
+                             int ivar = 0,
+                             int jvar = 0,
+                             VectorDouble codir = VectorDouble(),
+                             const CovCalcMode* mode = nullptr);
+  VectorDouble envelop(const VectorDouble &hh,
+                       int ivar = 0,
+                       int jvar = 0,
+                       int isign = 1,
+                       VectorDouble codir = VectorDouble(),
+                       const CovCalcMode* mode = nullptr);
   int fitFromCovIndices(Vario *vario,
                         const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),

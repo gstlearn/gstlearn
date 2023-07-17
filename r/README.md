@@ -1,6 +1,6 @@
 ## Overview
 
-The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to R users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
+The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
 All *gstlearn* outputs can be ploted using *plot* generic function which relies on *ggplot* package.
 
@@ -13,7 +13,7 @@ When using the *gstlearn* R Package, please use the citation from [doc/gstlearn.
 
 This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).
 
-The *gstlearn* R package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
+The *gstlearn* R package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
 
 ## Installation
@@ -94,7 +94,7 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 ```
 # Create a Neutral File storing mygrid content
 mygrid = DbGrid_create(c(10,10), c(1,1))
-mygrid$dumpToNF("mygrid.backup")
+mygrid$dumpToNF("mygrid.backup") # This could produce an error - see below
 #...
 # Restart the R session
 #...
@@ -116,7 +116,7 @@ Erreur dans validObject(.Object) :
 * R cannot find the method because it is defined in an inherited class (for example `dumpToNF` is a method from `ASerializable` and currently `mygrid$dumpToNF` produces this error. In that case, you still can use the generic function behind the method by calling:
 
 ```
-ASerializable_dumpToNF(mygrid)
+ASerializable_dumpToNF(mygrid, "mygrid.backup")
 ```
  
 ## Changelog
@@ -327,7 +327,7 @@ make check_r
 
 ### Important Notes
 
-* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs` (adapt installation folder) in the `cmake` command above.
+* Under Linux or MacOS, if you don't have sudo permissions, you may have to install swig in a folder of your choice. In that case, use `-DCMAKE_INSTALL_PREFIX:PATH=/home/user/Programs/swig4.2.0b` (adapt installation folder) in the `cmake` command above.
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
 * If you experience the following issue: `Error: ERROR: no permission to install to directory...`, we suggest you to run the `install.packages` command (at least one time). This will create a *personal R library folder* having writing permissions.
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above. Then users will be able to execute `make doxygen`.

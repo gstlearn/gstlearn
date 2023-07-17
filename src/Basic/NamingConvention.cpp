@@ -354,16 +354,22 @@ VectorString NamingConvention::createNames(const VectorString& names,
     // - extracted from the array 'names' (if defined)
     // - generated as the rank of the variable (if several)
     String loc_varname;
+    String loc_number;
     if (_flagVarname)
     {
       if (static_cast<int>(names.size()) == nvar) loc_varname = names[ivar];
       if (loc_varname.empty() && nvar > 1) loc_varname = std::to_string(ivar+1);
     }
+    else
+    {
+      // Build the rank from the variable number (possibly overwritten by item number)
+      if (nvar > 1) loc_number = std::to_string(ivar+1);
+    }
 
     for (int item = 0; item < nitems; item++)
     {
       String loc_qualifier;
-      String loc_number;
+
       if (_flagQualifier)
       {
         loc_qualifier = qualifier;

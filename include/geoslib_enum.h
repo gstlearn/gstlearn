@@ -132,15 +132,6 @@ typedef enum
 /*
 typedef enum
 {
-  CALCUL_NONE = 0,     //!< No Calculation
-  CALCUL_POINT = 1,    //!< Point Estimation
-  CALCUL_BLOCK = 2,    //!< Block Average Estimation
-  CALCUL_MEAN = 3,     //!< Large Mean Estimation
-} ENUM_CALCULS; // Not used (duplicate with ENUM_KOPTIONS)
-*/
-/*
-typedef enum
-{
   RULE_STD = 0,     //!< Standard Lithotype Rule
   RULE_SHIFT = 1,   //!< Shift Rule
   RULE_SHADOW = 2,  //!< Shadow Rule
@@ -203,13 +194,6 @@ typedef enum
   MEMBER_RHS = 1,        //!< Right-hand Side of the Kriging System
   MEMBER_VAR = 2,        //!< Variance of the Kriging System
 } ENUM_MEMBERS;  // Now see ECalcMember.hpp
-
-typedef enum
-{
-  KOPTION_PONCTUAL = 0,     //!< Punctual estimation
-  KOPTION_BLOCK = 1,        //!< Block average estimation
-  KOPTION_DRIFT = 2,        //!< Large scale Drift estimation
-} ENUM_KOPTIONS;  // Now see EKrigOpt.hpp
 
 typedef enum
 {

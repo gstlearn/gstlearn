@@ -25,8 +25,8 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/Timer.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -68,7 +68,6 @@ int main(int /*argc*/, char */*argv*/[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
-
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Simtub-");
 
@@ -104,6 +103,7 @@ int main(int /*argc*/, char */*argv*/[])
   NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
+  Timer timer;
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation (Moving Neighborhood) ----->\n");
   grid_res = grid->clone();
@@ -116,6 +116,8 @@ int main(int /*argc*/, char */*argv*/[])
   simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Unique.ascii",verbose);
+
+  timer.displayIntervalMilliseconds("Turning Band Simulations", 773);
 
   // ====================== Free pointers ==================================
   if (neighM    != nullptr) delete neighM;

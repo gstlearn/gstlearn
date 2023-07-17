@@ -98,7 +98,7 @@ bool ASerializable::_fileOpenWrite(const String& filename,
   // Close the stream if opened
   if (os.is_open()) os.close();
   // Build the multi-platform filename
-  String filepath = buildFileName(filename, true);
+  String filepath = buildFileName(2, filename, true);
   // Open new stream
   os.open(filepath, std::ios::out | std::ios::trunc);
   if (!os.is_open())
@@ -118,7 +118,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
   // Close the stream if opened
   if (is.is_open()) is.close();
   // Build the multi-platform filename
-  String filepath = buildFileName(filename, true);
+  String filepath = buildFileName(1, filename, true);
   // Open new stream
   is.open(filepath, std::ios::in);
   if (!is.is_open())
@@ -187,7 +187,14 @@ bool ASerializable::_onlyBlanks(char *string)
   return true;
 }
 
-String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
+/**
+ * Build a standard filename for Read or Write operation
+ * @param status 1 for Read and 2 for Write
+ * @param filename Name of the filename (see remark)
+ * @param ensureDirExist When TRUE, the Directory is created if not already existing
+ * @return
+ */
+String ASerializable::buildFileName(int status, const String& filename, bool ensureDirExist)
 {
 // TODO: to be restored when boost is usable for pygstlearn
 //  boost::filesystem::path final;
@@ -206,17 +213,25 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
 //  String fileLocal = final.string();
 
   String fileLocal;
-  if (!myContainerName.empty())
+
+  // In the case of Output File (2), 'filename' is appended after the 'containerName' and 'prefixName'
+  // In the case of Input file (1), the process depends on the contents of 'filename':
+  // - if 'filename' starts with '/', then it is considered that 'filename' contains a complete path: nothing done
+  // - otherwise, add the 'containerName' and 'prefixName' (if defined)
+  if (status == 2 || filename[0] != '/')
   {
-    fileLocal += myContainerName;
-    if (ensureDirExist)
+    if (!myContainerName.empty())
     {
-      (void) createDirectory(fileLocal);
+      fileLocal += myContainerName;
+      if (ensureDirExist)
+      {
+        (void) createDirectory(fileLocal);
+      }
     }
-  }
-  if (!myPrefixName.empty())
-  {
-    fileLocal += myPrefixName;
+    if (!myPrefixName.empty())
+    {
+      fileLocal += myPrefixName;
+    }
   }
   fileLocal += filename;
 

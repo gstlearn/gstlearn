@@ -10,14 +10,9 @@ Polygons
 --------
 Number of Polygon Sets = 1
 
-Polyset #1
-..........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    40.000    25.000
-     [  1,]    75.000    10.000
-     [  2,]   100.000    75.000
-     [  3,]    15.000    60.000
+PolyElem #1
+...........
+Number of Vertices = 4
 NULL
 [1] 1325
 NULL
@@ -54,31 +49,17 @@ Polygons
 --------
 Number of Polygon Sets = 3
 
-Polyset #1
-..........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    40.000    25.000
-     [  1,]    75.000    10.000
-     [  2,]   100.000    75.000
-     [  3,]    15.000    60.000
+PolyElem #1
+...........
+Number of Vertices = 4
 
-Polyset #2
-..........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    50.000    30.000
-     [  1,]   100.000    30.000
-     [  2,]   100.000    55.000
-     [  3,]    50.000    55.000
+PolyElem #2
+...........
+Number of Vertices = 4
 
-Polyset #3
-..........
-Line Vertex Coordinates
-               [,  0]    [,  1]
-     [  0,]    25.000    25.000
-     [  1,]   100.000    25.000
-     [  2,]    55.000    80.000
+PolyElem #3
+...........
+Number of Vertices = 3
 NULL
 NULL
 NULL

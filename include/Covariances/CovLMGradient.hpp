@@ -34,19 +34,30 @@ public:
   // Add an elementary covariance structure
   virtual void addCov(const CovAniso* cov) override;
 
+  /// ACov interface
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
+  /// Tell if the use of Optimization is enabled or not
+  virtual bool isOptimEnabled() const override { return false; }
+
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
-                         const CovCalcMode& mode = CovCalcMode(),
+                         const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const;
   void evalZAndGradients(const VectorDouble& vec,
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
-                         const CovCalcMode& mode = CovCalcMode(),
+                         const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const;
+
 
 private:
   void _initGradients(double& covVal,

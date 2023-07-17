@@ -12,6 +12,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
@@ -1184,7 +1185,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   xcr = rhs = scores = nullptr;
   ncur = mgs->ncur;
   nlevels = mgs->nlevels;
-  norm = matrix_norm(b, ncur);
+  norm = VH::innerProduct(b, b, ncur);
   flag_sym = (int) get_keypone("MG_Flag_Symmetric", 1.);
   if (verbose)
     message("Pre-conditioning phase (Niter=%d Tol=%15.10lf)\n", mgs->nmg,
@@ -1320,7 +1321,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
 
   error = 1;
   ncur = mgs->ncur;
-  norm = matrix_norm(b, ncur);
+  norm = VH::innerProduct(b, b, ncur);
   resid = p = z = scores = temp = nullptr;
   if (verbose)
     message("Conjugate-Gradient Phase (Nmax=%d Tol=%15.10lf)\n", mgs->ngc,
@@ -1348,7 +1349,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   for (int icur = 0; icur < ncur; icur++)
     z[icur] = 0.;
   st_multigrid_kriging_prec(mgs, 0, z, resid, work);
-  matrix_product(1, ncur, 1, resid, z, &sn);
+  matrix_product_safe(1, ncur, 1, resid, z, &sn);
   for (int icur = 0; icur < ncur; icur++)
     p[icur] = z[icur];
 
@@ -1359,7 +1360,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   {
     s = sn;
     cs_mulvec(mg->A->Q, mg->nh, p, temp);
-    matrix_product(1, ncur, 1, p, temp, &alpha);
+    matrix_product_safe(1, ncur, 1, p, temp, &alpha);
     alpha = s / alpha;
 
     for (int icur = 0; icur < ncur; icur++)
@@ -1368,7 +1369,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
       resid[icur] -= alpha * temp[icur];
     }
 
-    score = sqrt(matrix_norm(resid, ncur) / norm);
+    score = sqrt(VH::innerProduct(resid, resid, ncur) / norm);
     scores[niter++] = score;
     if (verbose)
       message("Iteration Gradient %3d -> Score = %15.10lf\n", iter + 1, score);
@@ -1378,8 +1379,8 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
       z[icur] = 0.;
     st_multigrid_kriging_prec(mgs, 0, z, resid, work);
 
-    matrix_product(1, ncur, 1, resid, z, &sn);
-    matrix_product(1, ncur, 1, temp, z, &beta);
+    matrix_product_safe(1, ncur, 1, resid, z, &sn);
+    matrix_product_safe(1, ncur, 1, temp, z, &beta);
     beta *= -alpha / s;
     for (int icur = 0; icur < ncur; icur++)
       p[icur] = z[icur] + beta * p[icur];
@@ -1532,8 +1533,8 @@ String toStringDim(const String &title, const cs *A)
 String toStringRange(const String &title, const cs *C)
 {
   std::stringstream sstr;
-  int *cols, *rows, number, nvalid;
-  double *vals, mini, maxi;
+  int *cols, *rows, number;
+  double *vals;
 
   /* Initializations */
 
@@ -1547,9 +1548,7 @@ String toStringRange(const String &title, const cs *C)
 
   /* Calculate the extreme values */
 
-  nvalid = 0;
-  mini = maxi = TEST;
-  ut_stats_mima(number, vals, NULL, &nvalid, &mini, &maxi);
+  StatResults stats = ut_statistics(number, vals);
 
   /* Printout */
 
@@ -1557,7 +1556,7 @@ String toStringRange(const String &title, const cs *C)
 
   sstr << " Descr: m=" << cs_getnrow(C) << " - n=" << cs_getncol(C) << " - nzmax=" << C->nzmax
   << std::endl;
-  sstr << " Range: [" << mini << " ; " << maxi << "] (" << nvalid << " / "
+  sstr << " Range: [" << stats.mini << " ; " << stats.maxi << "] (" << stats.nvalid << " / "
        << number << ")" << std::endl;
 
   /* Core deallocation */
@@ -1857,8 +1856,8 @@ void cs_print_dim(const char *title, const cs *A)
 
 void cs_print_range(const char *title, const cs *C)
 {
-  int *cols, *rows, number, nvalid;
-  double *vals, mini, maxi;
+  int *cols, *rows, number;
+  double *vals;
 
   /* Initializations */
 
@@ -1872,9 +1871,7 @@ void cs_print_range(const char *title, const cs *C)
 
   /* Calculate the extreme values */
 
-  nvalid = 0;
-  mini = maxi = TEST;
-  ut_stats_mima(number, vals, NULL, &nvalid, &mini, &maxi);
+  StatResults stats = ut_statistics(number, vals);
 
   /* Printout */
 
@@ -1883,7 +1880,10 @@ void cs_print_range(const char *title, const cs *C)
   else
     message("Sparse matrix\n");
   message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
-  message(" Range: [%lf ; %lf] (%d/%d)\n", mini, maxi, nvalid, number);
+  if (number > 0)
+    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, number);
+  else
+    message(" All terms all set to zero\n");
 
   /* Core deallocation */
 
@@ -2074,25 +2074,21 @@ void cs_diag_suppress(cs *C)
 
 int cs_sort_i(cs *C)
 {
-  int *rank, size, n, j, i, ecr;
+	int ecr;
+  int n = cs_getncol(C);
+  int size = MAX(cs_getnrow(C), n);
+  VectorInt rank(size);
 
-  /* Core allocation */
-
-  n = cs_getncol(C);
-  size = MAX(cs_getnrow(C), n);
-  rank = (int*) mem_alloc(sizeof(int) * size, 0);
-  if (rank == nullptr) return (1);
-
-  for (j = 0; j < n; j++)
+  for (int j = 0; j < n; j++)
   {
-    for (i = C->p[j], ecr = 0; i < C->p[j + 1]; i++)
+    ecr = 0;
+    for (int i = C->p[j]; i < C->p[j + 1]; i++)
       rank[ecr++] = C->i[i];
-    ut_sort_int(0, ecr, NULL, rank);
-    for (i = C->p[j], ecr = 0; i < C->p[j + 1]; i++)
+    VH::sortInPlace(rank, true, ecr);
+    ecr = 0;
+    for (int i = C->p[j]; i < C->p[j + 1]; i++)
       C->i[i] = rank[ecr++];
   }
-
-  rank = (int*) mem_free((char* ) rank);
   return (0);
 }
 
@@ -3265,8 +3261,6 @@ cs* cs_prod_norm(int mode, cs *A, cs *B)
   return (Res);
 }
 
-
-
 // Calculate the norm as follows:
 // mode=1: t(B) %*% B (initial form)
 // mode=2: B %*% t(B)
@@ -3548,6 +3542,24 @@ void cs_print_file(const char *radix, int rank, cs *A)
   vals = (double*) mem_free((char* ) vals);
 }
 
+/* Check if a value exists */
+bool cs_exist(const cs* A, int row, int col)
+{
+  int *Ap, *Ai;
+
+  if (!A) return false;
+  Ap = A->p;
+  Ai = A->i;
+
+  /* Loop on the elements */
+
+  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  {
+    if (Ai[p] == col) return true;
+  }
+  return false;
+}
+
 /* Get a value from the Sparse matrix */
 double cs_get_value(const cs *A, int row, int col)
 {
@@ -3578,10 +3590,7 @@ void cs_set_value(const cs *A, int row, int col, double value)
   int *Ap, *Ai;
   double *Ax;
 
-  if (!A)
-  {
-    return;
-  }
+  if (!A) return;
   Ap = A->p;
   Ai = A->i;
   Ax = A->x;
@@ -3602,15 +3611,40 @@ void cs_set_value(const cs *A, int row, int col, double value)
   }
 }
 
+/* Add a value from the Sparse matrix */
+/* This function can only update a non-zero value; otherwise nothing is done */
+void cs_add_value(const cs *A, int row, int col, double value)
+{
+  int *Ap, *Ai;
+  double *Ax;
+
+  if (!A) return;
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  /* Loop on the elements */
+
+  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  {
+    if (Ai[p] == col)
+    {
+      Ax[p] += value;
+      return;
+    }
+  }
+  if (value != 0.)
+  {
+    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
+  }
+}
+
 void cs_add_cste(cs *A, double value)
 {
   int *Ap, n;
   double *Ax;
 
-  if (!A)
-  {
-    return;
-  }
+  if (!A) return;
   Ap = A->p;
   Ax = A->x;
   n = cs_getncol(A);
@@ -3619,7 +3653,28 @@ void cs_add_cste(cs *A, double value)
   {
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
-      if (Ax[p] != 0.) Ax[p] += value;
+      if (Ax[p] != 0.)
+        Ax[p] += value;
+    }
+  }
+}
+
+void cs_set_cste(cs *A, double value)
+{
+  int *Ap, n;
+  double *Ax;
+
+  if (!A) return;
+  Ap = A->p;
+  Ax = A->x;
+  n = cs_getncol(A);
+
+  for (int j = 0; j < n; j++)
+  {
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+    {
+      if (Ax[p] != 0.)
+        Ax[p] = value;
     }
   }
 }
@@ -3807,4 +3862,66 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   label_end: Qtriplet = cs_spfree(Qtriplet);
   if (error) Q = cs_spfree(Q);
   return (Q);
+}
+
+bool cs_are_same(const cs* A, const cs* B, double tol)
+{
+  int *Ap, *Ai, *Bp, *Bi;
+  double *Ax, *Bx;
+
+  if (!A || !B) return false;
+  bool flag_same = true;
+
+  /* Loop on the elements of A and check B */
+
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  for (int j = 0; j < cs_getncol(A); j++)
+     for (int p = Ap[j]; p < Ap[j + 1]; p++)
+     {
+       double refval = Ax[p];
+       if (ABS(refval) > tol)
+       {
+         if (! cs_exist(B, j, Ai[p]))
+         {
+           messerr("A(%d,%d)=%lf is a non-zero term ... that is not present in B",
+                   j, Ai[p], refval);
+           flag_same = false;
+         }
+         else
+         {
+           double testval = cs_get_value(B, j, Ai[p]);
+           if (ABS(testval - refval) > tol)
+           {
+             messerr("A(%d,%d) = %f is different from B=%lf",
+                     j, Ai[p], refval, testval);
+             flag_same = false;
+           }
+         }
+       }
+     }
+
+  /* Loop on the elements of B and check A */
+
+  Bp = B->p;
+  Bi = B->i;
+  Bx = B->x;
+
+  for (int j = 0; j < cs_getncol(B); j++)
+    for (int p = Bp[j]; p < Bp[j + 1]; p++)
+    {
+      double refval = Bx[p];
+      if (ABS(refval) > tol)
+      {
+        if (!cs_exist(A, j, Bi[p]))
+        {
+          messerr("B(%d,%d)=%f is a non-zero term ... that is not present in A",
+                  j, Bi[p], refval);
+          flag_same = false;
+        }
+      }
+    }
+  return flag_same;
 }

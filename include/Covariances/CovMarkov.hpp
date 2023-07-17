@@ -27,7 +27,6 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "Markov"; }
 
-
   bool   hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
@@ -38,8 +37,8 @@ public:
   double evaluateSpectrum(double freq, int ndim) const override;
   VectorDouble getMarkovCoeffs() const override {return _markovCoeffs;}
   void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
-  double getCorrec() const override {return _correc;}
-  void setCorrec(double val) override { _correc = val;}
+  double getCorrec() const override { return _correc; }
+  void   setCorrec(double val) override { _correc = val;}
 
 protected:
 

@@ -14,8 +14,8 @@
 
 #include <math.h>
 
-MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow, bool sparse)
-  : MatrixSquareDiagonal(nrow, sparse)
+MatrixSquareDiagonalCst::MatrixSquareDiagonalCst(int nrow)
+  : MatrixSquareDiagonal(nrow)
   , _cstDiagMatrix(0.)
 {
 }
@@ -72,6 +72,11 @@ void MatrixSquareDiagonalCst::_setValue(int irow, int icol, double value)
 void MatrixSquareDiagonalCst::_setValue(int /*irank*/, double value)
 {
   _cstDiagMatrix = value;
+}
+
+int MatrixSquareDiagonalCst::_getIndexToRank(int irow, int icol) const
+{
+  return 0;
 }
 
 double MatrixSquareDiagonalCst::determinant() const
@@ -167,9 +172,9 @@ bool MatrixSquareDiagonalCst::isValid(int irow, int icol, bool printWhyNot) cons
   return true;
 }
 
-void MatrixSquareDiagonalCst::addScalar(double /*v*/)
+void MatrixSquareDiagonalCst::addScalar(double v)
 {
-  my_throw("This function does not make sense for Diagonal Matrix");
+  _cstDiagMatrix += v;
 }
 
 void MatrixSquareDiagonalCst::addScalarDiag(double v)
@@ -188,7 +193,7 @@ int MatrixSquareDiagonalCst::_solve(const VectorDouble& b, VectorDouble& x) cons
 /*! Set the contents of a Column */
 void MatrixSquareDiagonalCst::setColumn(int /*icol*/, const VectorDouble& /*tab*/)
 {
-  my_throw("This function does not make sense for Diagonal Matrix");
+  my_throw("This function does not make sense for Diagonal Constant Matrix");
 }
 
 /*! Set the contents of a Row */
@@ -206,17 +211,10 @@ String MatrixSquareDiagonalCst::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  if (isSparse())
-  {
-    sstr << AMatrix::toString(strfmt);
-  }
-  else
-  {
-    sstr << "- Number of rows    = " << getNRows() << std::endl;
-    sstr << "- Number of columns = " << getNCols() << std::endl;
-    sstr << toMatrixDiagCst(String(), VectorString(), VectorString(), getNCols(),
-                            getValues());
-  }
+  sstr << "- Number of rows    = " << getNRows() << std::endl;
+  sstr << "- Number of columns = " << getNCols() << std::endl;
+  sstr << toMatrixDiagCst(String(), VectorString(), VectorString(), getNCols(),
+                          getValues());
   return sstr.str();
 }
 
@@ -224,4 +222,27 @@ bool MatrixSquareDiagonalCst::_isPhysicallyPresent(int irow, int icol) const
 {
   if (irow != 0 || icol != 0) return false;
   return true;
+}
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareDiagonalCst* MatrixSquareDiagonalCst::createFromVVD(const VectorVectorDouble& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+
+  MatrixSquareDiagonalCst* mat = new MatrixSquareDiagonalCst(nrow);
+  mat->_fillFromVVD(X);
+  return mat;
 }

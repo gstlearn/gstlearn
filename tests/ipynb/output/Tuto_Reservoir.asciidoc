@@ -1,0 +1,470 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[3]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 189
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = top - Locator = NA
+Column = 4 - Name = bot - Locator = NA
+Column = 5 - Name = appraisal - Locator = NA----
+
+
++*Out[4]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 189
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     50.000 - Max =   9950.000 - Ext = 9900
+Coor #2 - Min =    150.000 - Max =  14950.000 - Ext = 14800
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        189
+ Nb of active values =        189
+ Minimum value       =      1.000
+ Maximum value       =    189.000
+ Mean value          =     95.000
+ Standard Deviation  =     54.559
+ Variance            =   2976.667
+2 - Name X - Locator x1
+ Nb of data          =        189
+ Nb of active values =        189
+ Minimum value       =     50.000
+ Maximum value       =   9950.000
+ Mean value          =   4893.386
+ Standard Deviation  =   2909.303
+ Variance            = 8464043.560
+3 - Name Y - Locator x2
+ Nb of data          =        189
+ Nb of active values =        189
+ Minimum value       =    150.000
+ Maximum value       =  14950.000
+ Mean value          =   8163.757
+ Standard Deviation  =   4490.427
+ Variance            = 20163937.740
+4 - Name top - Locator NA
+ Nb of data          =        189
+ Nb of active values =        189
+ Minimum value       =  -1030.760
+ Maximum value       =   -983.260
+ Mean value          =  -1007.963
+ Standard Deviation  =     10.246
+ Variance            =    104.980
+5 - Name bot - Locator NA
+ Nb of data          =        189
+ Nb of active values =        189
+ Minimum value       =  -1067.370
+ Maximum value       =  -1036.050
+ Mean value          =  -1050.542
+ Standard Deviation  =      6.903
+ Variance            =     47.646
+6 - Name appraisal - Locator NA
+ Nb of data          =        189
+ Nb of active values =        189
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.265
+ Standard Deviation  =      0.441
+ Variance            =      0.195
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = top - Locator = NA
+Column = 4 - Name = bot - Locator = NA
+Column = 5 - Name = appraisal - Locator = NA
+ ----
+
+
++*Out[5]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*Out[6]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*Out[7]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 15251
+
+Grid characteristics:
+---------------------
+Origin :     50.000    50.000
+Mesh   :    100.000   100.000
+Number :        101       151
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2----
+
+
++*Out[8]:*+
+----
+![png](output_15_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_23_0.png)
+----
+
+
++*Out[11]:*+
+----
+![png](output_26_0.png)
+----
+
+
++*Out[12]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =    157.461
+- Ranges       =  24037.055  5003.649
+- Angles       =     21.202     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.932    -0.362
+     [  1,]     0.362     0.932
+Total Sill     =    157.461----
+
+
++*Out[13]:*+
+----
+![png](output_30_0.png)
+----
+
+
++*Out[14]:*+
+----
+![png](output_33_0.png)
+----
+
+
++*Out[15]:*+
+----
+![png](output_35_0.png)
+----
+
+
++*Out[16]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =     11.914
+- Ranges       =   2811.249   986.432
+- Angles       =     25.340     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.904    -0.428
+     [  1,]     0.428     0.904
+Exponential
+- Sill         =    103.277
+- Ranges       =  95677.717 24735.006
+- Theo. Ranges =  31938.010  8256.749
+- Angles       =    353.264     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.993     0.117
+     [  1,]    -0.117     0.993
+Total Sill     =    115.190----
+
+
++*Out[17]:*+
+----
+![png](output_39_0.png)
+----
+
+
++*Out[18]:*+
+----
+![png](output_42_0.png)
+----
+
+
++*Out[19]:*+
+----
+![png](output_44_0.png)
+----
+
+
++*Out[20]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =    124.911
+- Ranges       =   9102.815  4618.492
+- Angles       =     23.011     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.920    -0.391
+     [  1,]     0.391     0.920
+Total Sill     =    124.911----
+
+
++*Out[21]:*+
+----
+![png](output_48_0.png)
+----
+
+
++*Out[24]:*+
+----
+![png](output_55_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_57_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_61_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_62_0.png)
+----
+
+
++*Out[30]:*+
+----
+![png](output_65_0.png)
+----
+
+
++*Out[31]:*+
+----
+![png](output_66_0.png)
+----
+
+
++*Out[33]:*+
+----
+![png](output_70_0.png)
+----
+
+
++*Out[34]:*+
+----
+![png](output_72_0.png)
+----
+
+
++*Out[36]:*+
+----
+![png](output_76_0.png)
+----
+
+
++*Out[37]:*+
+----
+![png](output_78_0.png)
+----
+
+
++*Out[39]:*+
+----
+![png](output_81_0.png)
+----
+
+
++*Out[40]:*+
+----
+![png](output_83_0.png)
+----
+
+
++*Out[41]:*+
+----
+
+
+[[XXX]]
+----
+
+
++*Out[43]:*+
+----
+![png](output_90_0.png)
+----
+
+
++*Out[44]:*+
+----
+![png](output_92_0.png)
+----
+
+
++*Out[45]:*+
+----
+![png](output_96_0.png)
+----
+
+
++*Out[46]:*+
+----
+![png](output_98_0.png)
+----
+
+
++*Out[47]:*+
+----
+![png](output_100_0.png)
+----
+
+
++*Out[49]:*+
+----
+![png](output_105_0.png)
+----
+
+
++*Out[51]:*+
+----
+![png](output_109_0.png)
+----
+
+
++*Out[52]:*+
+----
+![png](output_112_0.png)
+----
+
+
++*Out[54]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     4.561    17.075
+     [  1,]    17.075    63.923
+- Ranges       =   6933.278  6452.664
+- Theo. Ranges =   2314.385  2153.952
+- Angles       =     23.709     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.916    -0.402
+     [  1,]     0.402     0.916
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]   151.897   100.451
+     [  1,]   100.451    69.070
+- Ranges       =  23190.112  4994.942
+- Angles       =     22.305     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.925    -0.380
+     [  1,]     0.380     0.925
+Total Sill
+               [,  0]    [,  1]
+     [  0,]   156.458   117.526
+     [  1,]   117.526   132.992
+----
+
+
++*Out[55]:*+
+----
+![png](output_120_0.png)
+----
+
+
++*Out[57]:*+
+----
+![png](output_125_0.png)
+----
+
+
++*Out[59]:*+
+----
+[[XXX]]
+----

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -195,59 +194,6 @@ int MeshEStandard::reset(int ndim,
   _apices.setValues(apices, byCol);
   _meshes.reset(nmeshes,napexpermesh);
   _meshes.setValues(meshes, byCol);
-
-  // Check consistency
-
-  _checkConsistency();
-
-  // Define and store the Bounding Box extension
-
-  _defineBoundingBox();
-
-  // Optional printout
-
-  if (verbose) messageFlush(toString());
-
-  return(0);
-}
-
-/****************************************************************************/
-/*!
-** Create the meshing
-**
-** \param[in]  ndim            Space Dimension
-** \param[in]  napexpermesh    Number of apices per mesh
-** \param[in]  npoints         Number of apices
-** \param[in]  nmeshes         Number of meshes
-** \param[in]  apices          Vector of Apex information
-** \param[in]  meshes          Vector of mesh indices
-** \param[in]  byCol           true for Column major; false for Row Major
-** \param[in]  verbose         Verbose flag
-**
-** \remark The argument 'byCol' concerns 'apices' and 'meshes'
-**
-*****************************************************************************/
-int MeshEStandard::reset(int ndim,
-                         int napexpermesh,
-                         int npoints,
-                         int nmeshes,
-                         const double *apices,
-                         const int *meshes,
-                         bool byCol,
-                         bool verbose)
-{
-  _setNDim(ndim);
-
-  // Core allocation
-
-  _apices.reset(npoints,ndim);
-  _apices.setValuesOldStyle(apices, byCol);
-  _meshes.reset(nmeshes,napexpermesh);
-  _meshes.setValuesOldStyle(meshes, byCol);
-
-  // Perform possible transform for compatibility
-
-  _validate();
 
   // Check consistency
 
@@ -659,7 +605,7 @@ int MeshEStandard::_recopy(const MeshEStandard &m)
 
   _apices = m._apices;
   _meshes = m._meshes;
-
+  AMesh::_recopy(m);
   return(0);
 }
 

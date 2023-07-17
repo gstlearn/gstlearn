@@ -8,13 +8,13 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
-#include "Polygon/PolySet.hpp"
+#include "Polygon/PolyElem.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/PolyLine2D.hpp"
 
-PolySet::PolySet(const VectorDouble& x,
+PolyElem::PolyElem(const VectorDouble& x,
                  const VectorDouble& y,
                  double zmin,
                  double zmax)
@@ -25,14 +25,14 @@ PolySet::PolySet(const VectorDouble& x,
   init(x,y,zmin,zmax);
 }
 
-PolySet::PolySet(const PolySet& r)
+PolyElem::PolyElem(const PolyElem& r)
     : PolyLine2D(r),
       _zmin(r._zmin),
       _zmax(r._zmax)
 {
 }
 
-PolySet& PolySet::operator=(const PolySet& r)
+PolyElem& PolyElem::operator=(const PolyElem& r)
 {
   if (this != &r)
   {
@@ -43,11 +43,11 @@ PolySet& PolySet::operator=(const PolySet& r)
   return *this;
 }
 
-PolySet::~PolySet()
+PolyElem::~PolyElem()
 {
 }
 
-void PolySet::init(const VectorDouble& x,
+void PolyElem::init(const VectorDouble& x,
                    const VectorDouble& y,
                    double zmin,
                    double zmax)
@@ -58,7 +58,7 @@ void PolySet::init(const VectorDouble& x,
   _zmax  = zmax;
 }
 
-String PolySet::toString(const AStringFormat* strfmt) const
+String PolyElem::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -69,7 +69,7 @@ String PolySet::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void PolySet::getExtension(double *xmin,
+void PolyElem::getExtension(double *xmin,
                            double *xmax,
                            double *ymin,
                            double *ymax) const
@@ -80,7 +80,7 @@ void PolySet::getExtension(double *xmin,
   *ymax = getYmax();
 }
 
-double PolySet::getSurface() const
+double PolyElem::getSurface() const
 {
   int np = getNPoints();
   double x0 = getX(0);
@@ -95,7 +95,7 @@ double PolySet::getSurface() const
     surface += 0.5 * ((x1 * y2) - (x2 * y1));
   }
 
-  // Check if the PolySet is closed
+  // Check if the PolyElem is closed
 
   if (! _isClosed())
   {
@@ -110,7 +110,7 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-bool PolySet::_serialize(std::ostream& os, bool verbose) const
+bool PolyElem::_serialize(std::ostream& os, bool verbose) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
@@ -120,7 +120,7 @@ bool PolySet::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-bool PolySet::_deserialize(std::istream& is, bool verbose)
+bool PolyElem::_deserialize(std::istream& is, bool verbose)
 {
   _zmin = TEST;
   _zmax = TEST;
@@ -131,31 +131,31 @@ bool PolySet::_deserialize(std::istream& is, bool verbose)
   return ret;
 }
 
-PolySet* PolySet::create()
+PolyElem* PolyElem::create()
 {
-  return new PolySet();
+  return new PolyElem();
 }
 
-PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
+PolyElem* PolyElem::createFromNF(const String& neutralFilename, bool verbose)
 {
-  PolySet* polyset = nullptr;
+  PolyElem* polyelem = nullptr;
   std::ifstream is;
-  polyset = new PolySet();
+  polyelem = new PolyElem();
   bool success = false;
-  if (polyset->_fileOpenRead(neutralFilename, is, verbose))
+  if (polyelem->_fileOpenRead(neutralFilename, is, verbose))
   {
-    success = polyset->deserialize(is, verbose);
+    success = polyelem->deserialize(is, verbose);
   }
 
   if (! success)
   {
-    delete polyset;
-    polyset = nullptr;
+    delete polyelem;
+    polyelem = nullptr;
   }
-  return polyset;
+  return polyelem;
 }
 
-bool PolySet::_isClosed() const
+bool PolyElem::_isClosed() const
 {
   int nvert = getNPoints();
   if (ABS(getX(0) - getX(nvert-1)) > EPSILON5 ||
@@ -164,70 +164,71 @@ bool PolySet::_isClosed() const
 }
 
 /**
- * Close the PolySet if necessary
+ * Close the PolyElem if necessary
  */
-void PolySet::closePolySet()
+void PolyElem::closePolyElem()
 {
   if (!_isClosed()) addPoint(getX(0), getY(0));
 }
 
 /****************************************************************************/
 /*!
- **  Check if one point belongs to a 2-D polyset
+ **  Check if one point belongs to a 2-D polyelem
  **
  ** \return  True if the point belongs to the polygon; False otherwise
  **
- ** \param[in]  xx  array of point coordinates of the point along X
- ** \param[in]  yy  array of point coordinates of the point along Y
+ ** \param[in]  coor  Vector giving the coordinates of the target point
  **
  *****************************************************************************/
-bool PolySet::inside(double xx, double yy)
+bool PolyElem::inside(const VectorDouble& coor)
 {
-  double dx, dy, xinter;
-  int inter, j, sel;
+  double dx, dy, xj0, xj1, yj0, yj1, xinter;
 
-  inter = 0;
+  int inter = 0;
   int np = getNPoints();
+  double xx = coor[0];
+  double yy = coor[1];
 
   /* Loop on the polygon vertices */
 
-  for (j = 0; j < np - 1; j++)
+  for (int j = 0; j < np - 1; j++)
   {
+    xj0 = getX(j);
+    xj1 = getX(j+1);
+    yj0 = getY(j);
+    yj1 = getY(j+1);
+
+    dx = xj1 - xj0;
+    dy = yj1 - yj0;
 
     /* Horizontal segment */
 
-    dy = getY(j + 1) - getY(j);
-    if (dy == 0 && yy == getY(j))
+    if (dy == 0 && yy == yj0)
     {
-      if (getX(j + 1) > getX(j) && xx > getX(j) && xx < getX(j + 1))
+      if (xj1 > xj0 && xx > xj0 && xx < xj1)
       {
         inter = 1;
         continue;
       }
-      if (getX(j + 1) < getX(j) && xx < getX(j) && xx > getX(j + 1))
+      if (xj1 < xj0 && xx < xj0 && xx > xj1)
       {
         inter = 1;
         continue;
       }
     }
 
-    /* One vertex below and one vertex above: point distinct from segment */
+    /* One vertex below and one vertex above */
 
-    if (dy != 0 && ((getY(j) > yy && getY(j + 1) < yy)
-        || (getY(j) < yy && getY(j + 1) > yy)))
+    if (dy != 0 && ( (yj0 > yy && yj1 < yy) || (yj0 < yy && yj1 > yy) ))
     {
-      dx = getX(j + 1) - getX(j);
-      xinter = (dx * yy + dy * getX(j) - dx * getY(j)) / dy;
+      xinter = (dx * yy + dy * xj0 - dx * yj0) / dy;
+
+      /* Point distinct from segment */
+
       if (xinter > xx) inter++;
-    }
 
-    /* One vertex below and one vertex above: point belongs to segment */
+      /* Point belongs to segment */
 
-    if (dy != 0 && ((getY(j) > yy && getY(j + 1) < yy)
-        || (getY(j) < yy && getY(j + 1) > yy)))
-    {
-      dx = getX(j + 1) - getX(j);
-      xinter = (dx * yy + dy * getX(j) - dx * getY(j)) / dy;
       if (xinter == xx)
       {
         inter = 1;
@@ -237,31 +238,30 @@ bool PolySet::inside(double xx, double yy)
 
     /* Point is in contact with the highest vertex */
 
-    if (yy == getY(j) && getY(j) > getY(j + 1) && xx < getX(j)) inter++;
-    if (yy == getY(j + 1) && getY(j + 1) > getY(j) && xx < getX(j + 1)) inter++;
+    if (yy == yj0 && yj0 > yj1 && xx < xj0) inter++;
+    if (yy == yj1 && yj1 > yj0 && xx < xj1) inter++;
 
     /* Point coincides with a vertex */
 
-    if (xx == getX(j) && yy == getY(j))
+    if (xx == xj0 && yy == yj0)
     {
       inter = 1;
       continue;
     }
   }
-  sel = ((inter % 2) != 0);
-  return (sel);
+  return ((inter % 2) != 0);
 }
 
 /****************************************************************************/
 /*!
- **  Check if one point belongs to a vertical interval of a (limited) polyset
+ **  Check if one point belongs to a vertical interval of a (limited) polyelem
  **
  ** \return  True if the point belongs to the polygon; False otherwise
  **
  ** \param[in]  zz   array of point coordinates of the point along Z or TEST
  **
  *****************************************************************************/
-bool PolySet::inside3D(double zz)
+bool PolyElem::inside3D(double zz)
 {
   if (FFFF(zz)) return true;
   if (!FFFF(_zmin) && zz < _zmin) return false;
@@ -269,3 +269,34 @@ bool PolySet::inside3D(double zz)
   return true;
 }
 
+PolyElem PolyElem::reduceComplexity(double distmin) const
+{
+  int np = getNPoints();
+  double dmin2 = distmin * distmin;
+  PolyElem newpolyelem;
+
+  /* Loop on the polygon vertices */
+
+  double xcur = getX(0);
+  double ycur = getY(0);
+  newpolyelem.addPoint(xcur, ycur);
+
+  int ecr = 1;
+  while (ecr < np)
+  {
+    double xnext = getX(ecr);
+    double ynext = getY(ecr);
+    double dx = xnext - xcur;
+    double dy = ynext - ycur;
+    double dist2 = (dx * dx + dy * dy);
+    if (dist2 >= dmin2)
+    {
+      // This point belongs to the new PolyElem
+      newpolyelem.addPoint(xnext, ynext);
+      xcur = xnext;
+      ycur = ynext;
+    }
+    ecr++;
+  }
+  return newpolyelem;
+}

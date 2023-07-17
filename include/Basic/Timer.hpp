@@ -32,13 +32,21 @@ public:
 
   void reset();
 
-  void displayIntervalSeconds(const String& title = String(), bool flag_reset = true);
+  void displayIntervalSeconds(const String& title = String(),
+                              int expected_time = -1,
+                              bool flag_reset = true);
   double getIntervalSeconds(bool flag_reset = true);
-  void displaySeconds(const String& title, double sec);
+  void displaySeconds(const String& title,
+                      double sec,
+                      int expected_time = -1);
 
-  void displayIntervalMilliseconds(const String& title = String(), bool flag_reset = true);
+  void displayIntervalMilliseconds(const String& title = String(),
+                                   int expected_time = -1,
+                                   bool flag_reset = true);
   double getIntervalMilliseconds(bool flag_reset = true);
-  void displayMilliseconds(const String& title, double msec);
+  void displayMilliseconds(const String& title,
+                           double msec,
+                           int expected_time = -1);
 
 private:
   hrc::time_point _refTime;

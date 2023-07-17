@@ -21,8 +21,13 @@
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
+#include "Space/SpacePoint.hpp"
+
+
+#include <vector>
 
 class Rotation;
+class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable
 {
@@ -52,31 +57,20 @@ public:
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
   /// ACov Interface
-  /**
-   * Evaluate the covariance for a pair of variables and a zero distance
-   * @param ivar Rank of the first variable
-   * @param jvar Rank of the second variable
-   * @param mode Reference to the CovCalcMode embedded class
-   * @return The covariance value at the origin
-   */
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const override;
-
-  /**
-   * Evaluate covariance between two points (p1, p2) for two variables (ivar, jvar)
-   * @param ivar Rank of the first variable
-   * @param jvar Rank of the second variable
-   * @param p1   Rank of the first point
-   * @param p2   Rank of the second point
-   * @param mode Reference to the CovCalcMode embedded class
-   * @return The covariance value
-   */
+                       const CovCalcMode* mode = nullptr) const override;
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+                      const CovCalcMode* mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
@@ -84,6 +78,19 @@ public:
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }
   virtual double getBallRadius() const { return TEST; }
+
+  /// Functions specific to optimization
+  void optimizationPreProcess(const std::vector<SpacePoint>& vec) const;
+  void optimizationPostProcess() const;
+  void optimizationSetTarget(const SpacePoint& pt) const;
+  void evalOptimInPlace(VectorDouble &res,
+                        int ivar = 0,
+                        int jvar = 0,
+                        const CovCalcMode *mode = nullptr) const;
+  void evalMatOptimInPlace(int iech1,
+                           int iech2,
+                           MatrixSquareGeneral &mat,
+                           const CovCalcMode *mode = nullptr) const;
 
   static CovAniso* createIsotropic(const CovContext& ctxt,
                                    const ECov& type,
@@ -101,13 +108,13 @@ public:
   static CovAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
-                                        const MatrixSquareGeneral& sills,
+                                        const MatrixSquareSymmetric& sills,
                                         double param = 1.,
                                         bool flagRange = true);
   static CovAniso* createAnisotropicMulti(const CovContext& ctxt,
                                           const ECov& type,
                                           const VectorDouble& ranges,
-                                          const MatrixSquareGeneral& sills,
+                                          const MatrixSquareSymmetric& sills,
                                           double param = 1.,
                                           const VectorDouble& angles = VectorDouble(),
                                           bool flagRange = true);
@@ -191,7 +198,8 @@ public:
 
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
-  void setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
+
+  void setMarkovCoeffsBySquaredPolynomials(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
@@ -208,10 +216,12 @@ private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
   double _getDetTensor() const;
+  void   _optimizationTransformSP(const SpacePoint& ptin, SpacePoint& ptout) const;
+  double _calculateCov(double h, const CovCalcMode *mode) const;
 
 private:
   CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
-  MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
+  MatrixSquareSymmetric _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters
 };

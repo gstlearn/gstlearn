@@ -11,12 +11,13 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, bool sparse)
-: AMatrixSquare(nrow, sparse)
+MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
+: AMatrixSquare(nrow)
 , _squareSymMatrix()
 {
   _allocate();
@@ -29,7 +30,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r)
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
-    : AMatrixSquare(m.getNRows(), m.isSparse()),
+    : AMatrixSquare(m.getNRows()),
       _squareSymMatrix()
 {
   if (m.isEmpty())
@@ -79,7 +80,7 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
@@ -91,14 +92,14 @@ double MatrixSquareSymmetric::_getValue(int irank) const
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  _isIndexValid(irow, icol);
+  if (! _isIndexValid(irow, icol)) return;
   int irank = _getIndexToRank(irow, icol);
   _squareSymMatrix[irank] = value;
 }
 
 void MatrixSquareSymmetric::_setValue(int irank, double value)
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return;
   _squareSymMatrix[irank] = value;
 }
 
@@ -107,8 +108,7 @@ void MatrixSquareSymmetric::_setValue(int irank, double value)
  * @param nsize
  * @param tab
  */
-void MatrixSquareSymmetric::initMatTri(int     nsize,
-                             double* tab)
+void MatrixSquareSymmetric::initMatTri(int nsize, double *tab)
 {
   _isNumberValid(nsize,nsize);
   _setNSize(nsize);
@@ -157,7 +157,6 @@ int MatrixSquareSymmetric::_invert()
 
 double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 {
-  _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareSymMatrix[rank];
 }
@@ -206,17 +205,10 @@ String MatrixSquareSymmetric::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-   if (isSparse())
-   {
-     sstr << AMatrix::toString(strfmt);
-   }
-   else
-   {
-     sstr << "- Number of rows    = " <<  getNRows() << std::endl;
-     sstr << "- Number of columns = " <<  getNCols() << std::endl;
-     sstr << toMatrixSymmetric(String(), VectorString(), VectorString(),
-                               true, getNCols(), getValues());
-   }
+  sstr << "- Number of rows    = " <<  getNRows() << std::endl;
+  sstr << "- Number of columns = " <<  getNCols() << std::endl;
+  sstr << toMatrixSymmetric(String(), VectorString(), VectorString(),
+                            true, getNCols(), getValues());
   return sstr.str();
 }
 
@@ -295,4 +287,30 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows)
   res->copyReduce(this, localValidRows, localValidRows);
 
   return res;
+}
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol);
+  if (mattemp->isSymmetric())
+  {
+    messerr("The matrix does not seem to be Square and symmetric");
+    delete mattemp;
+    return nullptr;
+  }
+  delete mattemp;
+
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
+  mat->_fillFromVVD(X);
+  return mat;
 }

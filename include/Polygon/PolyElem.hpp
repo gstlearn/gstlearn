@@ -16,21 +16,21 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 
-class GSTLEARN_EXPORT PolySet: public PolyLine2D
+class GSTLEARN_EXPORT PolyElem: public PolyLine2D
 {
 public:
-  PolySet(const VectorDouble& x = VectorDouble(),
-          const VectorDouble& y = VectorDouble(),
-          double zmin = TEST,
-          double zmax = TEST);
-  PolySet(const PolySet& r);
-  PolySet& operator=(const PolySet& r);
-  virtual ~PolySet();
+  PolyElem(const VectorDouble &x = VectorDouble(),
+           const VectorDouble &y = VectorDouble(),
+           double zmin = TEST,
+           double zmax = TEST);
+  PolyElem(const PolyElem& r);
+  PolyElem& operator=(const PolyElem& r);
+  virtual ~PolyElem();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static PolySet* create();
-  static PolySet* createFromNF(const String& neutralFilename, bool verbose = true);
+  static PolyElem* create();
+  static PolyElem* createFromNF(const String& neutralFilename, bool verbose = true);
 
   const VectorDouble& getX() const { return PolyLine2D::getX(); }
   const VectorDouble& getY() const { return PolyLine2D::getY(); }
@@ -48,15 +48,17 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
-  void closePolySet();
-  bool inside(double xx, double yy);
+  void closePolyElem();
+  bool inside(const VectorDouble& coor);
   bool inside3D(double zz);
+
+  PolyElem reduceComplexity(double distmin) const;
 
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
-  String _getNFName() const override { return "PolySet"; }
+  String _getNFName() const override { return "PolyElem"; }
 
 private:
   bool _isClosed() const;

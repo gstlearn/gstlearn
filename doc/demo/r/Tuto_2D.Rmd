@@ -187,7 +187,7 @@ if (verbose)
 
 # Defining the Neighborhood
 
-We initiate a Neigbourhood (Moving with a small number of samples for Demonstration)
+We initiate a Neigborhood (Moving with a small number of samples for Demonstration)
 
 ```{r}
 myneigh = NeighMoving_create(flag_xvalid=FALSE,nmaxi=6,radius=10)
@@ -200,8 +200,8 @@ if (verbose)
 We must first create a Grid which covers the area of interest
 
 ```{r}
-mygrid = DbGrid_createCoveringDb(dbin=mydb,nodes=c(80,72),dcell=c(0.5,0.5),
-                                 origin=c(107.,481.),margin=c(2,2))
+mygrid = DbGrid_createCoveringDb(dbin=mydb,nx=c(80,72),dx=c(0.5,0.5),
+                                 x0=c(107.,481.),margin=c(2,2))
 if (verbose)
     mygrid$display()
 ```
@@ -457,7 +457,7 @@ if (verbose)
     mydb$display()
 ```
 
-We now perform the multivariate variogram caculation
+We now perform the multivariate variogram calculation
 
 ```{r}
 mydb$setLocator("Y.Pb",ELoc_Z(),0)

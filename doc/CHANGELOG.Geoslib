@@ -4,12 +4,28 @@ This file contains the Logs between consecutive releases
 Release 12.1.1
 ==============
 
+New class :
+-----------
+- The class Neigh/ANeigh is introduced (generic for any neighborhood)
+- New class Geometry/ABiPointCheck checks if 2 points are connected (for Neighborhood, for Variogram, ...)
+- Class PolySet is now called PolyElem
+
 New functions :
 ---------------
+- reduceComplexity in Polygons
+- New name for argument of migrate* functions: ldmax -> distType 
+  and change type for flag_inter and flag_fill (become boolean)
 
 Modification in functions :
 ---------------------------
 - Correction in kribayes for multivariate aspect.
+- In DbGrid::createCoveringDb, argument names have changed: nodes -> nx, dcell -> dx, origin -> x0
+
+New Test :
+----------
+_ Some Performance tests have been added (or renamed) in TestInter such as:
+. testBench_KrigingU.cpp
+. testBench_KrigingI.cpp
 
 Release 12.1.0
 ==============

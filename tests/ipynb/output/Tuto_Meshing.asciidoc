@@ -197,12 +197,12 @@ Number :          6         4
 Rotation Angles        =    -80.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.174    -0.985
-     [  1,]     0.985     0.174
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.174     0.985
      [  1,]    -0.985     0.174
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174    -0.985
+     [  1,]     0.985     0.174
 
 Variables
 ---------
@@ -246,16 +246,16 @@ Grid characteristics:
 ---------------------
 Origin :     12.201     8.767
 Mesh   :      1.000     0.500
-Number :         20        24
+Number :         21        25
 Rotation Angles        =     30.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.866     0.500
-     [  1,]    -0.500     0.866
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.866    -0.500
      [  1,]     0.500     0.866
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866     0.500
+     [  1,]    -0.500     0.866
  
 Turbo Meshing
 =============
@@ -263,13 +263,13 @@ Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
 Number of Apices per Mesh = 3
-Number of Meshes          = 874
-Number of Apices          = 480
+Number of Meshes          = 960
+Number of Apices          = 525
 
 Bounding Box Extension
 ----------------------
-Dim #1 - Min:12.2013 - Max:31.2013
-Dim #2 - Min:8.76696 - Max:20.267
+Dim #1 - Min:12.2013 - Max:32.2013
+Dim #2 - Min:8.76696 - Max:20.767
  ----
 
 

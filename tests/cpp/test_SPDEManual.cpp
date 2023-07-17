@@ -49,13 +49,13 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("SPDEManual-");
+  ASerializable::setPrefixName("test_SPDEManual-");
   int seed = 10355;
   law_set_random_seed(seed);
 
   ///////////////////////
   // Creating the Db Grid
-  auto nx={ 101,101 };
+  auto nx = { 101,101 };
   DbGrid* workingDbc = DbGrid::create(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
@@ -68,23 +68,17 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Creating the Model
-  Model* model = Model::createFromDb(workingDbc);
-  CovContext ctxt(model->getContext());
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
-  cova.setRanges({10,45});
-  covs.addCov(&cova);
-  model->setCovList(&covs);
-
-  /////////////////////////////////////////////////////
-  // Creating the Precision Operator for simulation
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
+  CovAniso* cova = model->getCova(0);
   NoStatArray NoStat({"A"},workingDbc);
   model->addNoStat(&NoStat);
 
+  /////////////////////////////////////////////////
+  // Creating the Precision Operator for simulation
   ShiftOpCs S(&mesh, model, workingDbc);
-  PrecisionOp Qsimu(&S, &cova);
+  PrecisionOp Qsimu(&S, cova);
 
-  ///////////////////////////
+  /////////////////////////
   // Simulation (Chebyshev)
   VectorDouble resultSimu = Qsimu.simulateOne();
   workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
@@ -92,26 +86,24 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
-  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 432432);
+  Db* dat = Db::createFromBox(ndata, workingDbc->getCoorMinimum(), workingDbc->getCoorMaximum(), 432432);
 
-  ///////////////////////////
+  /////////////////////////
   // Simulating Data points
   ProjMatrix B(dat, &mesh);
   VectorDouble datval(ndata);
   B.mesh2point(resultSimu, datval);
   dat->addColumns(datval, "Simu", ELoc::Z);
 
-  ///////////////////////////
+  //////////
   // Kriging
   double nug = 0.1;
   VectorDouble rhs(S.getSize());
   B.point2mesh(dat->getColumn("Simu"), rhs);
   for (auto &e : rhs)
-  {
     e /= nug;
-  }
 
-  PrecisionOp Qkriging(&S, &cova);
+  PrecisionOp Qkriging(&S, cova);
   PrecisionOpMultiConditional A;
   A.push_back(&Qkriging, &B);
   A.setVarianceData(0.01);
@@ -124,6 +116,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   A.evalInverse(Rhs, resultvc);
   workingDbc->addColumns(resultvc[0], "Kriging");
+
   DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
   workingDbc->display(&dsf);
   (void) workingDbc->dumpToNF("spde.ascii");

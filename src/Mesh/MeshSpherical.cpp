@@ -27,11 +27,14 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 
-MeshSpherical::MeshSpherical(const MatrixRectangular& apices, const MatrixInt& meshes)
-  : AMesh()
-  , _apices(apices)
-  , _meshes(meshes)
+MeshSpherical::MeshSpherical(const MatrixRectangular &apices,
+                             const MatrixInt &meshes)
+    : AMesh(),
+      _apices(apices),
+      _meshes(meshes)
 {
+  int ndim = apices.getNCols();
+  _setNDim(ndim);
 }
 
 MeshSpherical::MeshSpherical(const MeshSpherical &m) 
@@ -101,7 +104,7 @@ String MeshSpherical::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   sstr << toTitle(0,"Spherical Meshing characteristics");
-  AMesh::toString(strfmt);
+  sstr << AMesh::toString(strfmt);
   return sstr.str();
 }
 
@@ -459,6 +462,7 @@ int MeshSpherical::_recopy(const MeshSpherical &m)
 {
   _apices = m._apices;
   _meshes = m._meshes;
+  AMesh::_recopy(m);
   return(0);
 }
 

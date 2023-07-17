@@ -32,7 +32,7 @@ public:
   void setDmax(const VectorDouble &dmax) { _dmax = dmax; }
   void setFlagFill(bool flagFill) { _flagFill = flagFill; }
   void setFlagInter(bool flagInter) { _flagInter = flagInter; }
-  void setLdmax(int ldmax) { _ldmax = ldmax; }
+  void setDistType(int dist_type) { _distType = dist_type; }
   void setIuids(const VectorInt &iuids) { _iuids = iuids; }
   void setFlagLocate(bool flagLocate) { _flagLocate = flagLocate; }
   void setLocatorType(const ELoc &locatorType) { _locatorType = locatorType; }
@@ -49,7 +49,7 @@ private:
 private:
   int    _iattOut;
   VectorInt _iuids;
-  int    _ldmax;
+  int    _distType;
   VectorDouble _dmax;
   bool _flagFill;
   bool _flagInter;
@@ -57,39 +57,39 @@ private:
   ELoc _locatorType;
 };
 
-GSTLEARN_EXPORT int migrate(Db *db1,
-                            Db *db2,
+GSTLEARN_EXPORT int migrate(Db *dbin,
+                            Db *dbout,
                             const String &name,
-                            int ldmax = 1,
+                            int dist_type = 1,
                             const VectorDouble &dmax = VectorDouble(),
-                            int flag_fill = 0,
-                            int flag_inter = 0,
+                            bool flag_fill = false,
+                            bool flag_inter = false,
                             const NamingConvention &namconv = NamingConvention(
                                 "Migrate", false));
-GSTLEARN_EXPORT int migrateVariables(Db *db1,
-                                     Db *db2,
-                                     const VectorString &names,
-                                     int ldmax = 1,
-                                     const VectorDouble &dmax = VectorDouble(),
-                                     int flag_fill = 0,
-                                     int flag_inter = 0,
-                                     const NamingConvention &namconv = NamingConvention(
-                                         "Migrate", false));
-GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
-                                       Db *db2,
+GSTLEARN_EXPORT int migrateMulti(Db *dbin,
+                                 Db *dbout,
+                                 const VectorString &names,
+                                 int dist_type = 1,
+                                 const VectorDouble &dmax = VectorDouble(),
+                                 bool flag_fill = false,
+                                 bool flag_inter = false,
+                                 const NamingConvention &namconv = NamingConvention(
+                                     "Migrate", false));
+GSTLEARN_EXPORT int migrateByAttribute(Db *dbin,
+                                       Db *dbout,
                                        const VectorInt &iatts = VectorInt(),
-                                       int ldmax = 1,
+                                       int dist_type = 1,
                                        const VectorDouble &dmax = VectorDouble(),
-                                       int flag_fill = false,
-                                       int flag_inter = false,
+                                       bool flag_fill = false,
+                                       bool flag_inter = false,
                                        const NamingConvention &namconv = NamingConvention(
                                            "Migrate", false));
-GSTLEARN_EXPORT int migrateByLocator(Db *db1,
-                                     Db *db2,
+GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
+                                     Db *dbout,
                                      const ELoc &locatorType,
-                                     int ldmax = 1,
+                                     int dist_type = 1,
                                      const VectorDouble &dmax = VectorDouble(),
-                                     int flag_fill = false,
-                                     int flag_inter = false,
+                                     bool flag_fill = false,
+                                     bool flag_inter = false,
                                      const NamingConvention &namconv = NamingConvention(
                                          "Migrate", false));

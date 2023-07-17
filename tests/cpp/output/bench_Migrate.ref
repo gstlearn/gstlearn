@@ -1,0 +1,37 @@
+
+Migrations
+----------
+- with a Point data base with 10000 points
+- with a Grid data base with 40000 nodes
+Note: The 'dmax' argument has been added to limitate extrapolation
+      This option creates some empty gaps on the results on Grid
+#NO_DIFF# Migrate Grid to Point: 3 ms. (Ref = 5 ms.)
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+3 - Name G2P - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -2.300
+ Maximum value       =      2.404
+ Mean value          =     -0.037
+ Standard Deviation  =      0.924
+ Variance            =      0.853
+#NO_DIFF# Migrate Point to Grid: 1475 ms. (Ref = 4000 ms.)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name P2G - Locator z1
+ Nb of data          =      40000
+ Nb of active values =      38170
+ Minimum value       =     -2.300
+ Maximum value       =      2.404
+ Mean value          =     -0.048
+ Standard Deviation  =      0.915
+ Variance            =      0.837

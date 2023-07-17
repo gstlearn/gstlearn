@@ -19,7 +19,7 @@
 class GSTLEARN_EXPORT AMatrixSquare : public AMatrix {
 
 protected:
-  AMatrixSquare(int nrow = 0, bool sparse = false);
+  AMatrixSquare(int nrow = 0);
   AMatrixSquare(const AMatrixSquare &m);
   AMatrixSquare& operator= (const AMatrixSquare &r);
 

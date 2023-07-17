@@ -13,7 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -454,17 +454,16 @@ static double st_get_drift_data(LMlayers *lmlayers,
  **
  *****************************************************************************/
 static void st_covariance_c00(LMlayers *lmlayers,
-                              Model *model,
+                              Model  *model,
                               double *prop1,
                               double *covtab,
                               double *c00)
 {
   int nlayers, flag_interrupt;
   double value;
-  CovCalcMode mode;
 
   nlayers = lmlayers->nlayers;
-  model_calcul_cov(NULL,model, mode, 1, 1., VectorDouble(), covtab);
+  model_calcul_cov(NULL,model, nullptr, 1, 1., VectorDouble(), covtab);
 
   if (lmlayers->flag_cumul)
   {
@@ -480,8 +479,7 @@ static void st_covariance_c00(LMlayers *lmlayers,
           else
             value += prop1[i] * prop1[j] * C(i, j);
         }
-      c00[k] = (flag_interrupt) ? TEST :
-                                  value;
+      c00[k] = (flag_interrupt) ? TEST : value;
     }
   }
   else
@@ -522,7 +520,6 @@ static double st_cij(LMlayers *lmlayers,
   double value;
   int i, j, nlayers;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -533,11 +530,9 @@ static double st_cij(LMlayers *lmlayers,
 
   /* Calculate the covariance matrix */
 
-  d1[0] = (dd != nullptr) ? dd[0] :
-                            0.;
-  d1[1] = (dd != nullptr) ? dd[1] :
-                            0.;
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+  d1[0] = (dd != nullptr) ? dd[0] : 0.;
+  d1[1] = (dd != nullptr) ? dd[1] : 0.;
+  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
 
   /* Evaluate the covariance term */
 
@@ -581,7 +576,6 @@ static double st_ci0(LMlayers *lmlayers,
   double value;
   int i, nlayers;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -592,11 +586,9 @@ static double st_ci0(LMlayers *lmlayers,
 
   /* Calculate the covariance matrix */
 
-  d1[0] = (dd != nullptr) ? dd[0] :
-                            0.;
-  d1[1] = (dd != nullptr) ? dd[1] :
-                            0.;
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+  d1[0] = (dd != nullptr) ? dd[0] : 0.;
+  d1[1] = (dd != nullptr) ? dd[1] : 0.;
+  model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
 
   /* Evaluate the covariance term */
 
@@ -1104,7 +1096,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
   /* Find the optimal drift coefficients */
 
   if (matrix_invert(atab, neq, -1)) goto label_end;
-  matrix_product(neq, neq, 1, atab, btab, coeff);
+  matrix_product_safe(neq, neq, 1, atab, btab, coeff);
 
   /* Optional printout of the result */
 
@@ -1276,9 +1268,9 @@ static int st_collocated_prepare(LMlayers *lmlayers,
 
   if (st_lhs_one(lmlayers, dbin, dbout, model, seltab, iechout, nlayers, coor,
                  prop1, prop2, covtab, baux)) return (1);
-  matrix_product(neq, neq, 1, a, baux, b2);
-  matrix_product(1, neq, 1, b2, zval, &coefz);
-  matrix_product(1, neq, 1, b2, baux, &coefa);
+  matrix_product_safe(neq, neq, 1, a, baux, b2);
+  matrix_product_safe(1, neq, 1, b2, zval, &coefz);
+  matrix_product_safe(1, neq, 1, b2, baux, &coefa);
   (*ratio) = (ABS(c0 - coefa) > 1.e-6) ? (botval - coefz) / (c0 - coefa) :
                                          0.;
 
@@ -1321,7 +1313,7 @@ static void st_estimate_regular(LMlayers *lmlayers,
 
   /* Perform the estimation (in Dual form) */
 
-  matrix_product(1, neq, 1, dual, b, estim);
+  matrix_product_safe(1, neq, 1, dual, b, estim);
 
   /* Perform the variance of estimation error */
 
@@ -1332,8 +1324,8 @@ static void st_estimate_regular(LMlayers *lmlayers,
       stdv = TEST;
     else
     {
-      matrix_product(neq, neq, 1, a, b, wgt);
-      matrix_product(1, neq, 1, b, wgt, &stdv);
+      matrix_product_safe(neq, neq, 1, a, b, wgt);
+      matrix_product_safe(1, neq, 1, b, wgt, &stdv);
       stdv = c00val - stdv;
       stdv = (stdv > 0) ? sqrt(stdv) :
                           0.;
@@ -1397,20 +1389,20 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 
   /* Perform the estimation */
 
-  matrix_product(nech, npar, 1, a0, ff0, fsf0);
+  matrix_product_safe(nech, npar, 1, a0, ff0, fsf0);
   for (int iech = 0; iech < nech; iech++)
     c2[iech] = rhs[iech] + fsf0[iech];
-  matrix_product(nech, nech, 1, cc, c2, wgt);
+  matrix_product_safe(nech, nech, 1, cc, c2, wgt);
 
-  matrix_product(1, nech, 1, wgt, zval, &estim1);
-  matrix_product(1, npar, 1, ff0, post_mean, &estim2);
+  matrix_product_safe(1, nech, 1, wgt, zval, &estim1);
+  matrix_product_safe(1, npar, 1, ff0, post_mean, &estim2);
   *estim = estim1 + estim2;
 
   /* Calculate the standard deviation */
 
   if (flag_std)
   {
-    matrix_product(1, nech, npar, rhs, ss, temp);
+    matrix_product_safe(1, nech, npar, rhs, ss, temp);
     for (int ipar = 0; ipar < npar; ipar++)
       temp[ipar] -= ff0[ipar];
 
@@ -1570,7 +1562,7 @@ static void st_estimate(LMlayers *lmlayers,
       {
         cx = st_ci0(lmlayers, model, nlayers, prop1, ilayer + 1, NULL, covtab);
         if (FFFF(cx)) continue;
-        matrix_product(1, neq, 1, b2, b, &coefb);
+        matrix_product_safe(1, neq, 1, b2, b, &coefb);
         estim += (cx - coefb) * ratio;
       }
 
@@ -1918,10 +1910,10 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   /* Auxiliary calculations */
 
-  matrix_product(npar, nech, nech, fftab, acov, ffc);
+  matrix_product_safe(npar, nech, nech, fftab, acov, ffc);
   matrix_transpose(npar, nech, fftab, fft);
-  matrix_product(npar, nech, npar, ffc, fft, invH);
-  matrix_product(npar, nech, 1, ffc, zval, fm1z);
+  matrix_product_safe(npar, nech, npar, ffc, fft, invH);
+  matrix_product_safe(npar, nech, 1, ffc, zval, fm1z);
   if (get_keypone("Bayes_Debug_Flag", 0))
     set_keypair("Bayes_InvH_Matrix", 1, npar, npar, invH);
   if (get_keypone("Bayes_Debug_Flag", 0))
@@ -1937,10 +1929,10 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   /* Calculate the Posterior Mean vector */
 
-  matrix_product(npar, npar, 1, invS, prior_mean, post_mean);
+  matrix_product_safe(npar, npar, 1, invS, prior_mean, post_mean);
   for (int i = 0; i < npar; i++)
     fm1z[i] += post_mean[i];
-  matrix_product(npar, npar, 1, post_S, fm1z, post_mean);
+  matrix_product_safe(npar, npar, 1, post_S, fm1z, post_mean);
   if (get_keypone("Bayes_Debug_Flag", 0))
     set_keypair("Bayes_Post_Mean_Matrix", 1, npar, 1, post_mean);
 
@@ -1966,8 +1958,8 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   /* Auxiliary arrays prepared for estimation */
 
-  matrix_product(nech, npar, npar, fft, post_S, a0);
-  matrix_product(nech, nech, npar, acov, fft, ss);
+  matrix_product_safe(nech, npar, npar, fft, post_S, a0);
+  matrix_product_safe(nech, nech, npar, acov, fft, ss);
   for (int i = 0; i < npar2; i++)
     invS[i] = post_S[i];
   if (matrix_invert(invS, npar, -1)) goto label_end;
@@ -2008,7 +2000,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  flag_same  1 if input and output files coincide
  ** \param[in]  flag_z     1 if the output must be converted back into depth
  ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
@@ -2030,7 +2022,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
 int multilayers_kriging(Db *dbin,
                         DbGrid *dbout,
                         Model *model,
-                        ANeighParam *neighparam,
+                        ANeigh *neigh,
                         int flag_same,
                         int flag_z,
                         int flag_vel,
@@ -2069,7 +2061,7 @@ int multilayers_kriging(Db *dbin,
   nlayers = model->getVariableNumber();
   nechmax = dbin->getSampleNumber();
   ptime = (match_time) ? ELoc::F : ELoc::TIME;
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (dbin->getNDim() != 2)
   {
@@ -2108,7 +2100,7 @@ int multilayers_kriging(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (neighparam->getType() != ENeigh::UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;
@@ -2239,7 +2231,7 @@ int multilayers_kriging(Db *dbin,
   else
   {
     if (matrix_invert(a, neq, -1)) goto label_end;
-    matrix_product(neq, neq, 1, a, zval, dual);
+    matrix_product_safe(neq, neq, 1, a, zval, dual);
   }
 
   /* Perform the estimation over the grid nodes */
@@ -2256,7 +2248,7 @@ int multilayers_kriging(Db *dbin,
 
   error = 0;
 
-  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1,
+  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1,
                                          VectorInt());
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
@@ -2476,7 +2468,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
       }
       continue;
     }
-    matrix_product(1, nhalf, nhalf, btab, atab, sill);
+    matrix_product_safe(1, nhalf, nhalf, btab, atab, sill);
 
     /* Optional printout */
 
@@ -2838,7 +2830,7 @@ int multilayers_get_prior(Db *dbin,
   nechmax = dbin->getSampleNumber();
   ptime = (match_time) ? ELoc::F :
                          ELoc::TIME;
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (dbin->getNDim() != 2)
   {
@@ -2935,7 +2927,7 @@ int multilayers_get_prior(Db *dbin,
   *npar_arg = npar;
   error = 0;
 
-  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1,
+  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1,
                                          VectorInt());
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);

@@ -976,11 +976,6 @@ void db_extension(const Db *db,
                   VectorDouble& maxi,
                   bool flag_preserve)
 {
-  double vmin, vmax, diff, mean, stdv;
-  int nval;
-
-  /* Initializations */
-
   int ndim = db->getNDim();
   if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
   if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
@@ -997,10 +992,9 @@ void db_extension(const Db *db,
   for (int idim = 0; idim < db->getNDim(); idim++)
   {
     VectorDouble coor = db->getCoordinates(idim, true);
-    ut_statistics(static_cast<int>(coor.size()), coor.data(), NULL, NULL, &nval,
-                  &vmin, &vmax, &diff, &mean, &stdv);
-    if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
-    if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
+    StatResults stats = ut_statistics((int) coor.size(), coor.data());
+    if (FFFF(mini[idim]) || stats.mini < mini[idim]) mini[idim] = stats.mini;
+    if (FFFF(maxi[idim]) || stats.maxi > maxi[idim]) maxi[idim] = stats.maxi;
   }
 }
 
@@ -1016,8 +1010,7 @@ void db_extension(const Db *db,
  *****************************************************************************/
 int db_center(Db *db, double *center)
 {
-  double *tab, *sel, *wgt, vmin, vmax, diff, mean, stdv;
-  int idim, nval;
+  double *tab, *sel, *wgt;
 
   /* Initializations */
 
@@ -1039,12 +1032,11 @@ int db_center(Db *db, double *center)
 
   /* Loop on the space dimension */
 
-  for (idim = 0; idim < db->getNDim(); idim++)
+  for (int idim = 0; idim < db->getNDim(); idim++)
   {
     db_coorvec_get(db, idim, tab);
-    ut_statistics(db->getSampleNumber(), tab, sel, wgt, &nval, &vmin, &vmax,
-                  &diff, &mean, &stdv);
-    center[idim] = mean;
+    StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel, wgt);
+    center[idim] = stats.mean;
   }
 
   tab = db_vector_free(tab);
@@ -1069,8 +1061,7 @@ int db_center(Db *db, double *center)
  *****************************************************************************/
 int db_extension_diag(const Db *db, double *diag)
 {
-  double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
-  int idim, nval;
+  double *tab, *sel, coor[2][2];
 
   /* Initializations */
 
@@ -1093,12 +1084,11 @@ int db_extension_diag(const Db *db, double *diag)
 
     /* Case of Euclidean distances */
 
-    for (idim = 0; idim < db->getNDim(); idim++)
+    for (int idim = 0; idim < db->getNDim(); idim++)
     {
       db_coorvec_get(db, idim, tab);
-      ut_statistics(db->getSampleNumber(), tab, sel, NULL, &nval, &vmin, &vmax,
-                    &diff, &mean, &stdv);
-      (*diag) += diff * diff;
+      StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel);
+      (*diag) += stats.delta * stats.delta;
     }
     (*diag) = sqrt(*diag);
   }
@@ -1107,13 +1097,12 @@ int db_extension_diag(const Db *db, double *diag)
 
     /* Case of spherical coordinates */
 
-    for (idim = 0; idim < 2; idim++)
+    for (int idim = 0; idim < 2; idim++)
     {
       db_coorvec_get(db, idim, tab);
-      ut_statistics(db->getSampleNumber(), tab, sel, NULL, &nval, &vmin, &vmax,
-                    &diff, &mean, &stdv);
-      coor[idim][0] = vmin;
-      coor[idim][1] = vmax;
+      StatResults stats = ut_statistics(db->getSampleNumber(), tab, sel);
+      coor[idim][0] = stats.mini;
+      coor[idim][1] = stats.maxi;
     }
     (*diag) = ut_distance(2, coor[0], coor[1]);
   }
@@ -1175,8 +1164,9 @@ int db_attribute_range(const Db *db,
                        double *maxi,
                        double *delta)
 {
-  double *tab, *sel, vmin, vmax, diff, mean, stdv;
-  int nval, error;
+  double *tab, *sel;
+  int error;
+  StatResults stats;
 
   /* Initializations */
 
@@ -1201,11 +1191,10 @@ int db_attribute_range(const Db *db,
 
   /* Calculate the statistics */
 
-  ut_statistics(db->getSampleNumber(), tab, sel, NULL, &nval, &vmin, &vmax,
-                &diff, &mean, &stdv);
-  *mini = vmin;
-  *maxi = vmax;
-  *delta = diff;
+  stats = ut_statistics(db->getSampleNumber(), tab, sel);
+  *mini = stats.mini;
+  *maxi = stats.maxi;
+  *delta = stats.delta;
 
   /* Set the error return code */
 
@@ -2566,9 +2555,8 @@ void db_locators_correct(VectorString &strings,
       /* Sort the indices */
 
       ncount = nmatch;
-      for (int i = 0; i < ncount; i++)
-        ind[i] = i;
-      ut_sort_int(0, ncount, ind.data(), rank.data());
+      for (int i = 0; i < ncount; i++) ind[i] = i;
+      VH::arrangeInPlace(0, ind, rank, true, ncount);
 
       /* Store the ranks of the locators matching the reference locator */
 
@@ -3750,7 +3738,7 @@ static void st_rotate(int ndim,
 {
   double d2[3];
 
-  matrix_product(1, ndim, ndim, coor.data(), rotmat, d2);
+  matrix_product_safe(1, ndim, ndim, coor.data(), rotmat, d2);
   for (int idim = 0; idim < ndim; idim++)
   {
     mini[idim] = getMin(mini[idim], d2[idim]);

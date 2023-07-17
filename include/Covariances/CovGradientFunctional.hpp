@@ -43,7 +43,7 @@ public:
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
-                         const CovCalcMode& mode = CovCalcMode(),
+                         const CovCalcMode* mode = nullptr,
                          bool flagGrad = false) const override;
 
 private:

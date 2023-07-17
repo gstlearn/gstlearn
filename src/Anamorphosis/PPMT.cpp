@@ -15,7 +15,6 @@
 #include "Anamorphosis/PPMT.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Stats/Classical.hpp"
@@ -249,7 +248,7 @@ void PPMT::_iterationFit(AMatrix *Y, const VectorDouble& N0)
     _projectOnDirection(Y, id, Yi);
 
     // Preparing the Normal scoring for the target distance
-    VectorInt Ri = VH::sortRanks(Yi);
+    VectorInt Ri = VH::sortRanks(Yi, true, np);
 
     // Calculate the distance on the projected axis
     double di = _getGaussianDistance(Yi, Ri, N0);
@@ -343,7 +342,7 @@ void PPMT::_iterationForward(AMatrix *Y, const VectorDouble& N0, int iter)
   _projectOnDirection(Y, idmax, Y0);
 
   // Preparing the Normal scoring for the target distance
-  VectorInt R0 = VH::sortRanks(Y0);
+  VectorInt R0 = VH::sortRanks(Y0, true, np);
 
   // Forward Shift
   _shiftForward(Y, idmax, _anams[iter], Y0, R0, N0);

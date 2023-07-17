@@ -35,8 +35,14 @@ def getCscale():
         ]
     return cscale
 
-def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white', 
-                  opacity=0.50, 
+def __invalidFileDimension(grid, ndim):
+    
+    if grid.getNDim() != ndim:
+        print("This representation is only designed for Grid of dimension", ndim)
+        return True
+    return False
+
+def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white', opacity=0.50, 
                   **plot_args):
     '''
     Represent a Function defined on a Mesh
@@ -44,7 +50,7 @@ def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white',
     plot_args Arguments passed to Mesh3d()
     '''
     
-    tab = np.array(mesh.getEmbeddedApexCoordinates())
+    tab = np.array(mesh.getEmbeddedCoordinatesPerApex())
     meshes = np.array(mesh.getMeshesAsVVI())
     
     if cscale is None:
@@ -67,9 +73,7 @@ def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='white',
     return surface
     
 def ScatterOnMesh(points, meshes, intensity=None, cscale=None, color='white', 
-                  opacity=0.50, 
-                  **plot_args
-                  ):
+                  opacity=0.50, **plot_args):
     '''
     Represent a Function defined on a Mesh defined by its apices and meshes
     
@@ -91,13 +95,11 @@ def ScatterOnMesh(points, meshes, intensity=None, cscale=None, color='white',
                         i=meshes[:,0],j=meshes[:,1],k=meshes[:,2],
                         colorscale=cscale, intensity=intensity,
                         opacity=opacity, 
-                        **plot_args
-                        )
+                        **plot_args)
 
     return surface
     
-def Meshing(mesh, color='black', width=1, 
-            **plot_args):
+def Meshing(mesh, color='black', width=1, **plot_args):
     '''
     Represent the contents of a Mesh object
     
@@ -118,9 +120,7 @@ def Meshing(mesh, color='black', width=1,
     zs = np.array(zs)
 
     meshing = dict(type='scatter3d',x=xs, y=ys, z=zs, mode='lines',
-                   line=dict(color=color, width=width),
-                   **plot_args
-                   )
+                   line=dict(color=color, width=width), **plot_args)
     return meshing
     
 def Scatter(x, y, z, mode='lines', color='black', width=1, 
@@ -146,8 +146,7 @@ def Scatter(x, y, z, mode='lines', color='black', width=1,
                    marker_line_color=m_line, marker_color=m_color, 
                    marker_line_width=m_width, marker_size=m_size,
                    line=dict(color=color, width=width),
-                   **plot_args
-                   )
+                   **plot_args)
     return meshing
     
 def ScatterOnSphere(long, lat, mode='lines', color='black', width=1, 
@@ -165,8 +164,7 @@ def ScatterOnSphere(long, lat, mode='lines', color='black', width=1,
                       color=color, width=width,
                       m_symbol=m_symbol, m_color=m_color, m_line=m_line, 
                       m_size=m_size, m_width=m_width,
-                      **plot_args
-                      )
+                      **plot_args)
 
     return meshing
 
@@ -198,7 +196,7 @@ def PolygonOnSphere(poly, flagClose=False,
     ys = list()
     zs = list()
 
-    for i in range(poly.getPolySetNumber()):
+    for i in range(poly.getPolyElemNumber()):
         a = poly.getX(i)
         b = poly.getY(i)
         tab = np.array(gl.GH.convertLongLat(a, b, dilate, np.nan))
@@ -215,15 +213,13 @@ def PolygonOnSphere(poly, flagClose=False,
 
     boundaries=dict(type='scatter3d', x=xs, y=ys, z=zs, mode='lines', 
                     line=dict(color=color, width=width),
-                    **plot_args
-                    )
+                    **plot_args)
     return boundaries
 
 def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False, 
                   cmin = None, cmax = None):
     
-    if grid.getNDim() != 3:
-        print("This representation is designed for 3-D Grid only")
+    if __invalidFileDimension(grid, 3):
         return None
                       
     shape = list(grid.getNXs())
@@ -238,13 +234,11 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False,
                        coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    
-def SurfaceOnDbGrid(grid, name, usesel=False, levels=None, 
-                    colorscale='BlueRed',
-                    isomin=0, isomax=1, surface_count = 1, 
-                    showlegend=False):
+def IsoSurfaceOnDbGrid(grid, name, usesel=False, levels=None, 
+                       colorscale='BlueRed', isomin=0, isomax=1, surface_count = 1, 
+                       showlegend=False):
     
-    if grid.getNDim() != 3:
-        print("This representation is designed for 3-D Grid only")
+    if __invalidFileDimension(grid, 3):
         return None
                       
     shape = list(grid.getNXs())
@@ -264,9 +258,20 @@ def SurfaceOnDbGrid(grid, name, usesel=False, levels=None,
                              )
     return surfaces
    
+def SurfaceOnDbGrid(grid, name, usesel=False, showscale=False, **plot_args):
+    
+    if __invalidFileDimension(grid, 2):
+        return None
+    
+    shape = list(np.flip(grid.getNXs()))
+    values = grid.getColumn(name, usesel).reshape(shape)
+    
+    surface = go.Surface(z=values, showscale=showscale, opacity=0.9, **plot_args)
+    
+    return surface
+    
 def PointDb(db, name_color=None, name_size=None, usesel=False, 
-            color='black', size=3, opacity=1,
-            posX=0, posY=1, posZ=2,
+            color='black', size=3, opacity=1, posX=0, posY=1, posZ=2,
             **plot_args): 
     '''
     Represent a set of Points contained in a Db
@@ -274,8 +279,7 @@ def PointDb(db, name_color=None, name_size=None, usesel=False,
     plot_args Arguments passed to Scatter3d()
     '''
 
-    if db.getNDim() < 3:
-        print("This representation is designed for 3-D Data Base only")
+    if __invalidFileDimension(db, 3):
         return None
                       
     x = db.getCoordinates(posX, usesel)
@@ -298,12 +302,10 @@ def PointDb(db, name_color=None, name_size=None, usesel=False,
                                         colorscale ='Viridis',
                                         opacity = opacity
                                    ),
-                          **plot_args
-                          )
+                          **plot_args)
     return object
 
-def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
-               size=2, 
+def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2, 
                **plot_args): 
     '''
     Represent a set of Gradients contained in a Db
@@ -311,8 +313,7 @@ def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
     plot_args Arguments passed to Cone()
     '''
 
-    if db.getNDim() != 3:
-        print("This representation is designed for 3-D Data Base only")
+    if __invalidFileDimension(db, 3):
         return None
                       
     x = db.getCoordinates(0, usesel)
@@ -331,13 +332,11 @@ def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
                       u=gx.flatten(), v=gy.flatten(), w=gz.flatten(),
                       colorscale = colorscale, sizemode=sizemode,
                       sizeref = size, 
-                      **plot_args
-                      )
+                      **plot_args)
     
     return objects
 
-def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
-               size=2, 
+def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2, 
                **plot_args): 
     '''
     Represent a set of Tangents contained in a Db
@@ -345,8 +344,7 @@ def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
     plot_args Arguments passed to Cone()
     '''
 
-    if db.getNDim() != 3:
-        print("This representation is designed for 3-D Data Base only")
+    if __invalidFileDimension(db, 3):
         return None
                       
     x = db.getCoordinates(0, usesel)
@@ -429,6 +427,7 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.,
     return line
 
 def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
+    
     number = (int) (180 / angle)  
     xs = list()
     ys = list()
@@ -454,6 +453,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
     return line
 
 def Pole(sizeref = 1000, dilate=1.3):
+    
     long = np.zeros(1)
     lat = np.ones(1) * 90
     tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))

@@ -217,7 +217,7 @@ static double st_essai(VectorDouble &hgnadm,
 {
   double v1, v2, result;
 
-  matrix_product(1, NPARAC, 1, hgnadm.data(), grad_red.data(), &v1);
+  matrix_product_safe(1, NPARAC, 1, hgnadm.data(), grad_red.data(), &v1);
   v2 = matrix_normA(hgnadm.data(), gauss_red.data(), NPARAC + NCONT, NPARAC);
   result = v1 + v2 / 2.;
 
@@ -274,7 +274,7 @@ static int st_solve_hgnc(int npar,
     return (1);
   }
 
-  matrix_product(npar, npar, 1, invhess.data(), TEMPVECTOR.data(), hgnc.data());
+  matrix_product_safe(npar, npar, 1, invhess.data(), TEMPVECTOR.data(), hgnc.data());
 
   signe = (flaginvsign) ? -1 :
                           1.;
@@ -365,7 +365,7 @@ static int st_calcul0(VectorDouble &param,
 
   st_gradient(param, lower, upper, scale, tabwgt, Jr, param1, param2, tabmod1,
               tabmod2);
-  matrix_product(1, NDAT, NPAR, residuals.data(), Jr.data(), grad.data());
+  matrix_product_safe(1, NDAT, NPAR, residuals.data(), Jr.data(), grad.data());
   st_determine_gauss(Jr, gauss);
   st_fill_constraints(acont, grad, gauss);
   error = st_solve_hgnc(NPAR + NCONT, grad, gauss, invhess, hgnc, 1);
@@ -396,7 +396,7 @@ static int st_possibilities(int npar,
 {
   int ic, ipar, ipar2, flag_imposs, n_imposs;
 
-  matrix_product(2 * npar, npar, 1, ai.data(), hgnc.data(), temp.data());
+  matrix_product_safe(2 * npar, npar, 1, ai.data(), hgnc.data(), temp.data());
 
   n_imposs = 0;
   for (ic = ipar2 = 0; ic < 2; ic++)
@@ -439,7 +439,7 @@ static int st_define_constraints(int mode,
 
   /* Calculate the constraints */
 
-  matrix_product(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), temp.data());
+  matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), temp.data());
 
   for (ic = iparac2 = 0; ic < 2; ic++)
     for (iparac = 0; iparac < NPARAC; iparac++, iparac2++)
@@ -871,7 +871,7 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
 
   for (iparac = 0; iparac < NPARAC; iparac++)
     hgnadm[iparac] = 0.;
-  matrix_product(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
+  matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnc.data(), b1.data());
   st_minimum(ind_util, flag_actaux, bords_red, VectorDouble(), b1, hgnc,
              hgnadm);
   st_check(ind_util, hgnadm, acont);
@@ -904,9 +904,9 @@ static int st_minimization_under_constraints(VectorInt &ind_util,
     {
       for (iparac = 0; iparac < NPARAC; iparac++)
         b3[iparac] = hgnc[iparac] - hgnadm[iparac];
-      matrix_product(NPARAC2, NPARAC, 1, ai_red.data(), hgnadm.data(),
-                     b1.data());
-      matrix_product(NPARAC2, NPARAC, 1, ai_red.data(), b3.data(), b2.data());
+      matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), hgnadm.data(),
+                          b1.data());
+      matrix_product_safe(NPARAC2, NPARAC, 1, ai_red.data(), b3.data(), b2.data());
       st_minimum(ind_util, flag_actaux, bords_red, b1, b2, hgnc, hgnadm);
       st_check(ind_util, hgnadm, acont);
 

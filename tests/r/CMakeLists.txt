@@ -23,14 +23,21 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 
-# Create the target and the output directory for logs
+
+# Create the output directory for logs
+add_custom_target(prepare_check_r
+                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}")
+
+# Add dependency for prepare_check_r
+add_dependencies(prepare_check_r r_install)
+
+# Create the main target
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 add_custom_target(check_r
-                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
                   COMMAND ${MY_CTEST_COMMAND})
 
 # Add dependency for check_r
-add_dependencies(check_r r_install)
+add_dependencies(check_r prepare_check_r)
 
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
@@ -46,9 +53,12 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_r
              COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing ${TEST_SOURCE_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
-    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
+    # Use git diff (cross-platform) with:
+    # - no-index (no need to have files under git control)
+    # - ignore lines starting with #NO_DIFF#
+    # - ignore whitespaces (-w)
     add_test(NAME ${TEST_NAME}_r_cmp
-             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND git diff --no-index -I "#NO_DIFF#" -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
 

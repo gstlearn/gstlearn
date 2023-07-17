@@ -377,32 +377,27 @@ void CalcSimuFFT::_gridDilate()
  **                      covariance is considered as small enough for dilation
  **
  *****************************************************************************/
-bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
-                            int ix,
-                            int iy,
-                            int iz,
-                            double percent)
+bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble &xyz,
+                                int ix,
+                                int iy,
+                                int iz,
+                                double percent)
 {
   double hh, value, refval;
-  VectorDouble d(3);
+  int ndim = _getNDim();
 
   /* Calculate the reference C(0) value */
 
-  for (int i = 0; i < 3; i++) d[i] = 0.;
+  VectorDouble d(ndim, 0.);
   hh = VH::norm(d);
-  (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
-                        &hh, &refval);
-
-  /* Calculate the distance */
-
-  for (int i = 0; i < 3; i++)
-    d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-  hh = VH::norm(d);
+  (void) model_evaluate(getModel(), 0, 0, nullptr, 1, d, &hh, &refval);
 
   /* Evaluate the covariance value */
 
-  (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
-                        &hh, &value);
+  for (int i = 0; i < ndim; i++)
+    d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
+  hh = VH::norm(d);
+  (void) model_evaluate(getModel(), 0, 0, nullptr, 1, d, &hh, &value);
 
   if (value / refval > percent / 100) return false;
   return true;
@@ -494,15 +489,13 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
           hnorm = VH::norm(del);
-          (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0,
-                                ECalcMember::LHS, 1, del, &hnorm, &value);
+          (void) model_evaluate(getModel(), 0, 0, nullptr, 1, del, &hnorm, &value);
           scale += value;
         }
     for (int i = 0; i < 3; i++)
       del[i] = 0.;
     hnorm = VH::norm(del);
-    (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1,
-                          del, &hnorm, &value);
+    (void) model_evaluate(getModel(), 0, 0, nullptr, 1, del, &hnorm, &value);
     double coeff = value / scale;
 
     int ecr = 0;
@@ -528,8 +521,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
                 hnorm = VH::norm(del);
-                (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0,
-                                      ECalcMember::LHS, 1, del, &hnorm, &value);
+                (void) model_evaluate(getModel(), 0, 0, nullptr, 1, del, &hnorm, &value);
                 cplx[ecr] += coeff * value;
               }
         }

@@ -116,7 +116,7 @@ ggplot() + plot.varmod(vario, model_gaus, asCov=TRUE)
 
 ```{r Perform_PGS}
 err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus, 
-             neighparam=neigh, nbsimu=nbsimu,
+             neigh=neigh, nbsimu=nbsimu,
              namconv = NamingConvention("SimuPGS"))
 ```
 
@@ -148,7 +148,7 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
 {
   # Get the indices of samples which should be connected (starting from 0)
   rankData = which(data["connect"] == 1) - 1
-  rankGrid = grid$locateDataInGrid(grid, data, rankData)
+  rankGrid = grid$locateDataInGrid(data, rankData)
 	if (verbose)
 	{
 	  cat("Number of conditioning data (connected) =",length(rankData),"\n")

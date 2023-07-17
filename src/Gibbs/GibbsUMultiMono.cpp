@@ -84,7 +84,7 @@ int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
     // Establish Covariance Matrix (always based on the first variable in MultiMono case)
 
     if (verbose) message("Establish Covariance matrix (Var=%d)\n",ivar+1);
-    model_covmat(model, db, db, 0, 0, 0, 1, _covmat[ivar].data());
+    model_covmat(model, db, db, 0, 0, _covmat[ivar].data());
 
     // Invert Covariance Matrix
 

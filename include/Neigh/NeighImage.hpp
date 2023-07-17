@@ -15,13 +15,13 @@
 
 #include "Enum/ENeigh.hpp"
 
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
 class Db;
 
-class GSTLEARN_EXPORT NeighImage: public ANeighParam
+class GSTLEARN_EXPORT NeighImage: public ANeigh
 {
 public:
   NeighImage(const VectorInt &radius = VectorInt(),
@@ -31,13 +31,18 @@ public:
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
+  /// Interface for ANeigh
+  virtual VectorInt getNeigh(int iech_out) override;
   virtual int getMaxSampleNumber(const Db* db) const override;
+  virtual bool hasChanged(int iech_out) const override;
   virtual ENeigh getType() const override { return ENeigh::fromKey("IMAGE"); }
+
+  /// Interface for AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NeighImage* create(const VectorInt& image, int skip = 0, const ASpace* space = nullptr);
   static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);
+
   int getSkip() const { return _skip; }
   const VectorInt& getImageRadius() const { return _imageRadius; }
   int getImageRadius(int idim) const { return _imageRadius[idim]; }
@@ -50,6 +55,9 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "NeighImage"; }
+
+private:
+  void _uimage(int iech_out, VectorInt& ranks);
 
 private:
   int _skip;                  /* Skipping factor */

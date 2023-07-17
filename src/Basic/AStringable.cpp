@@ -133,7 +133,7 @@ AStringable::~AStringable()
 String AStringable::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
+  sstr << "toString is not yet implemented for " << typeid(*this).name() << std::endl;
   return sstr.str();
 }
 
@@ -305,6 +305,27 @@ void message(const char *format, ...)
 }
 
 /**
+ * Print a formatted message (with "#NO_DIFF#" prefix)
+ * @param format Output format
+ * @param ...    Additional arguments
+ */
+void messageNoDiff(const char *format, ...)
+{
+  char str[LONG_SIZE];
+  va_list ap;
+
+  va_start(ap, format);
+  // TODO : use non old_style functions
+  (void) vsprintf(str, format, ap);
+  va_end(ap);
+  std::stringstream sstr;
+  sstr << "#NO_DIFF# " << str;
+  message_extern(sstr.str().c_str());
+
+  return;
+}
+
+/**
  * When message has been collected as a String, this function produces it out
  * without passing through useless internal buffering
  * @param string String to be printed out
@@ -418,26 +439,26 @@ void mestitle(int level, const char *format, ...)
  * @param string String to be printed
  * @param ntot   Total number of samples
  * @param iech   Rank of the current sample
+ *
+ * @remarks The value 'nproc' designates the quantile such that,
+ * @remarks when changed, the printout is provoked.
  */
 void mes_process(const char *string, int ntot, int iech)
 {
-  static int memo = 0;
-  double ratio;
-  int nproc, jech, percent;
-
-  nproc = (int) OptCst::query(ECst::NPROC);
+  static int quant_memo = 0;
+  int nproc = (int) OptCst::query(ECst::NPROC);
   if (nproc <= 0) return;
-  jech = iech + 1;
+  int jech = iech + 1;
 
-  /* Calculate the current percentage */
+  /* Calculate the current quantile */
 
-  ratio = 100. * (double) jech / (double) ntot;
-  percent = (int) (ratio / (double) nproc) * nproc;
+  double ratio = nproc * (double) jech / (double) ntot;
+  int quant = (int) (ratio);
 
   /* Conditional printout */
 
-  if (percent != memo) message("%s : %d (percent)\n", string, percent);
-  memo = percent;
+  if (quant != quant_memo) message("%s - Rank : %d (Quantile : %d / %d)\n", string, iech, quant, nproc);
+  quant_memo = quant;
 
   return;
 }
@@ -778,13 +799,14 @@ String toMatrixDiagonal(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         if (ix == iy)
-         {
-           sstr << _tabPrintDouble(tab[ix], EJustify::RIGHT, colSize);
-         }
-         else
-         {
-           sstr << _tabPrintString(" ", EJustify::RIGHT);
-         }
+        {
+          int iad = iy + nrows * ix;
+          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+        }
+        else
+        {
+          sstr << _tabPrintString(" ", EJustify::RIGHT);
+        }
       }
       sstr << std::endl;
     }
@@ -870,13 +892,14 @@ String toMatrixDiagCst(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         if (ix == iy)
-         {
-           sstr << _tabPrintDouble(tab[0], EJustify::RIGHT, colSize);
-         }
-         else
-         {
-           sstr << _tabPrintString(" ", EJustify::RIGHT);
-         }
+        {
+          int iad = iy + nrows * ix;
+          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+        }
+        else
+        {
+          sstr << _tabPrintString(" ", EJustify::RIGHT);
+        }
       }
       sstr << std::endl;
     }

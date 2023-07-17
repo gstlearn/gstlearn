@@ -64,7 +64,6 @@ Total Sill     =      1.000
 
 Unique Neighborhood
 ===================
-Space dimension = 2
 
 Lithotype Rule
 ==============
@@ -195,7 +194,7 @@ Lithotype Rule
 
 Shadow Option
 .............
-Normalized Translation Vector =      0.200     0.300
+Normalized Translation Vector =      0.555     0.832
 Slope for shadow                  = 0.5(degrees)
 Upwards shift for the threshold   = 0.5
 Downwards shift for the threshold = -0.2
@@ -219,15 +218,15 @@ Data Base Statistics
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
- Maximum value       =      2.000
- Mean value          =      1.693
- Standard Deviation  =      0.461
- Variance            =      0.213
+ Maximum value       =      3.000
+ Mean value          =      2.112
+ Standard Deviation  =      0.845
+ Variance            =      0.714
 13 - Name PGS-Shadow-Facies.2 - Locator facies2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
- Maximum value       =      2.000
- Mean value          =      1.736
- Standard Deviation  =      0.441
- Variance            =      0.194
+ Maximum value       =      3.000
+ Mean value          =      2.158
+ Standard Deviation  =      0.813
+ Variance            =      0.661

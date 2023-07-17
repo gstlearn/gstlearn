@@ -80,13 +80,13 @@ typedef struct
   int npair;
   int size_aux;
   int flag_dist;
-  int *tab_iech;
-  int *tab_jech;
-  int *tab_ipas;
-  int *tab_sort;
+  VectorInt tab_iech;
+  VectorInt tab_jech;
+  VectorInt tab_ipas;
+  VectorInt tab_sort;
   char *tab_aux_iech;
   char *tab_aux_jech;
-  double *tab_dist;
+  VectorDouble tab_dist;
 } Vario_Order;
 
 typedef struct
@@ -197,19 +197,6 @@ struct Local_Relem
   int *Rfipos;                // Position of facies (Dim: [nprod][NCOLOR])
   Local_Split *old_split;     // Not allocated
   std::vector<Local_Split *> splits;
-};
-
-struct Global_Res
-{
-  int ntot; // Total Number of Data
-  int np;   // Number of active Data
-  int ng;   // Number of grid nodes discretizing Domain
-  double surface; // Surface of Domain
-  double zest;    // Estimate
-  double sse;     // Standard deviation of estimation
-  double cvgeo;   // Coefficient of Variation
-  double cvv;     // Variance of Domain
-  VectorDouble weights; // Weights attached to data
 };
 
 typedef struct Local_Relem Relem;

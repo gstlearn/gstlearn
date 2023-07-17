@@ -23,7 +23,7 @@ class AMatrix;
 class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
-  MatrixSquareSymmetric(int nrow = 0, bool sparse = false);
+  MatrixSquareSymmetric(int nrow = 0);
   MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
   MatrixSquareSymmetric(const AMatrix &m);
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
@@ -54,6 +54,7 @@ public:
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
+  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble& X);
   MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
 
 protected:
@@ -61,11 +62,9 @@ protected:
   virtual double& _getValueRef(int irow, int icol) override;
 
 private:
-  virtual bool _isCompatible(const AMatrix& m) const override
-  {
-    return (isSameSize(m) && isSymmetric());
-  }
+  virtual bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSymmetric()); }
   virtual bool   _isPhysicallyPresent(int irow, int icol) const override;
+  virtual int    _getIndexToRank(int irow,int icol) const override;
   virtual double _getValue(int irow, int icol) const override;
   virtual double _getValue(int irank) const override;
   virtual void   _setValue(int irow, int icol, double value) override;
@@ -80,7 +79,6 @@ private:
   virtual int    _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   void   _recopy(const MatrixSquareSymmetric &r);
-  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   VectorDouble _squareSymMatrix;

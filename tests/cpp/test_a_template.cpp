@@ -27,8 +27,6 @@
 #include "Covariances/CovLMC.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Calculators/CalcMigrate.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshSpherical.hpp"

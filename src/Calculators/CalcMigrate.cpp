@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f_private.h"
-
 #include "Enum/ELoc.hpp"
 
 #include "Basic/NamingConvention.hpp"
@@ -24,7 +23,7 @@ CalcMigrate::CalcMigrate()
     : ACalcDbToDb(false),
       _iattOut(-1),
       _iuids(),
-      _ldmax(1),
+      _distType(1),
       _dmax(),
       _flagFill(false),
       _flagInter(false),
@@ -49,9 +48,9 @@ bool CalcMigrate::_check()
     messerr("At least one variable should be defined");
     return false;
   }
-  if (_ldmax != 1 && _ldmax != 2)
+  if (_distType != 1 && _distType != 2)
   {
-    messerr("Argument 'ldmax'(%d)  should be 1 (for L1 distance) or 2 (for L2 distance",_ldmax);
+    messerr("Argument 'dist_type'(%d)  should be 1 (for L1 distance) or 2 (for L2 distance",_distType);
     return false;
   }
   return true;
@@ -109,7 +108,7 @@ bool CalcMigrate::_run()
   {
     int iatt1 = _iuids[i];
     int iatt2 = _iattOut + i;
-    if (_migrate(getDbin(), getDbout(), iatt1, iatt2, _ldmax, _dmax, _flagFill,
+    if (_migrate(getDbin(), getDbout(), iatt1, iatt2, _distType, _dmax, _flagFill,
                  _flagInter)) return false;
   }
 
@@ -122,10 +121,10 @@ bool CalcMigrate::_run()
  **
  ** \return  Error return code
  **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
+ ** \param[in]  dbin       Descriptor of the input Db
+ ** \param[in]  dbout      Descriptor of the output Db
  ** \param[in]  name       Name of the attribute to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ ** \param[in]  dist_type  Type of distance for calculating maximum distance
  **                        1 for L1 and 2 for L2 distance
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
@@ -133,24 +132,24 @@ bool CalcMigrate::_run()
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int migrate(Db *db1,
-            Db *db2,
+int migrate(Db *dbin,
+            Db *dbout,
             const String &name,
-            int ldmax,
+            int dist_type,
             const VectorDouble &dmax,
-            int flag_fill,
-            int flag_inter,
+            bool flag_fill,
+            bool flag_inter,
             const NamingConvention &namconv)
 {
   CalcMigrate migrate;
-  migrate.setDbin(db1);
-  migrate.setDbout(db2);
+  migrate.setDbin(dbin);
+  migrate.setDbout(dbout);
   migrate.setNamingConvention(namconv);
 
   VectorInt iuids(1);
-  iuids[0] = db1->getUID(name);
+  iuids[0] = dbin->getUID(name);
   migrate.setIuids(iuids);
-  migrate.setLdmax(ldmax);
+  migrate.setDistType(dist_type);
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
@@ -167,10 +166,10 @@ int migrate(Db *db1,
  **
  ** \return  Error return code
  **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
+ ** \param[in]  dbin       Descriptor of the input Db
+ ** \param[in]  dbout      Descriptor of the output Db
  ** \param[in]  names      Name of the attribute to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ ** \param[in]  dist_type  Type of distance for calculating maximum distance
  **                        1 for L1 and 2 for L2 distance
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
@@ -178,23 +177,23 @@ int migrate(Db *db1,
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
-int migrateVariables(Db *db1,
-                     Db *db2,
-                     const VectorString &names,
-                     int ldmax,
-                     const VectorDouble &dmax,
-                     int flag_fill,
-                     int flag_inter,
-                     const NamingConvention &namconv)
+int migrateMulti(Db *dbin,
+                 Db *dbout,
+                 const VectorString &names,
+                 int dist_type,
+                 const VectorDouble &dmax,
+                 bool flag_fill,
+                 bool flag_inter,
+                 const NamingConvention &namconv)
 {
   CalcMigrate migrate;
-  migrate.setDbin(db1);
-  migrate.setDbout(db2);
+  migrate.setDbin(dbin);
+  migrate.setDbout(dbout);
   migrate.setNamingConvention(namconv);
 
-  VectorInt iuids = db1->getUIDs(names);
+  VectorInt iuids = dbin->getUIDs(names);
   migrate.setIuids(iuids);
-  migrate.setLdmax(ldmax);
+  migrate.setDistType(dist_type);
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
@@ -210,10 +209,10 @@ int migrateVariables(Db *db1,
  **
  ** \return  Error return code
  **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
+ ** \param[in]  dbin       Descriptor of the input Db
+ ** \param[in]  dbout      Descriptor of the output Db
  ** \param[in]  atts       Array of attributes to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ ** \param[in]  dist_type  Type of distance for calculating maximum distance
  **                        1 for L1 and 2 for L2 distance
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
@@ -221,25 +220,25 @@ int migrateVariables(Db *db1,
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
-int migrateByAttribute(Db *db1,
-                       Db *db2,
+int migrateByAttribute(Db *dbin,
+                       Db *dbout,
                        const VectorInt& atts,
-                       int ldmax,
+                       int dist_type,
                        const VectorDouble &dmax,
-                       int flag_fill,
-                       int flag_inter,
+                       bool flag_fill,
+                       bool flag_inter,
                        const NamingConvention &namconv)
 {
   CalcMigrate migrate;
-  migrate.setDbin(db1);
-  migrate.setDbout(db2);
+  migrate.setDbin(dbin);
+  migrate.setDbout(dbout);
   migrate.setNamingConvention(namconv);
 
   VectorInt iuids = atts;
-  if (iuids.empty()) iuids = db1->getAllUIDs();
+  if (iuids.empty()) iuids = dbin->getAllUIDs();
 
   migrate.setIuids(iuids);
-  migrate.setLdmax(ldmax);
+  migrate.setDistType(dist_type);
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
@@ -255,10 +254,10 @@ int migrateByAttribute(Db *db1,
  **
  ** \return  Error return code
  **
- ** \param[in]  db1         Descriptor of the input Db
- ** \param[in]  db2         Descriptor of the output Db
+ ** \param[in]  dbin        Descriptor of the input Db
+ ** \param[in]  dbout       Descriptor of the output Db
  ** \param[in]  locatorType Locator Type
- ** \param[in]  ldmax       Type of distance for calculating maximum distance
+ ** \param[in]  dist_type   Type of distance for calculating maximum distance
  **                         1 for L1 and 2 for L2 distance
  ** \param[in]  dmax        Array of maximum distances (optional)
  ** \param[in]  flag_fill   Filling option
@@ -268,24 +267,24 @@ int migrateByAttribute(Db *db1,
  ** \remark The output variable receive the same locator as the input variables
  **
  *****************************************************************************/
-int migrateByLocator(Db *db1,
-                     Db *db2,
+int migrateByLocator(Db *dbin,
+                     Db *dbout,
                      const ELoc& locatorType,
-                     int ldmax,
+                     int dist_type,
                      const VectorDouble &dmax,
-                     int flag_fill,
-                     int flag_inter,
+                     bool flag_fill,
+                     bool flag_inter,
                      const NamingConvention &namconv)
 {
   CalcMigrate migrate;
-  migrate.setDbin(db1);
-  migrate.setDbout(db2);
+  migrate.setDbin(dbin);
+  migrate.setDbout(dbout);
   migrate.setNamingConvention(namconv);
 
-  VectorString names = db1->getNamesByLocator(locatorType);
-  VectorInt iuids = db1->getUIDs(names);
+  VectorString names = dbin->getNamesByLocator(locatorType);
+  VectorInt iuids = dbin->getUIDs(names);
   migrate.setIuids(iuids);
-  migrate.setLdmax(ldmax);
+  migrate.setDistType(dist_type);
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);

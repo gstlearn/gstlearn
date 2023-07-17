@@ -72,8 +72,8 @@ String BooleanObject::toString(const AStringFormat* /*strfmt*/) const
   else
     sstr << "Secondary Object" << std::endl;
   sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
-  sstr << "- Center      = " << VH::toString(_center);
-  sstr << "- Extension   = " << VH::toString(_extension);
+  sstr << "- Center      = " << VH::toStringAsVD(_center);
+  sstr << "- Extension   = " << VH::toStringAsVD(_extension);
   sstr << "- Orientation = " << _orientation << std::endl;
 
   return sstr.str();

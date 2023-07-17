@@ -77,13 +77,11 @@ Total Sill     =      1.000
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 25
 
 Unique Neighborhood
 ===================
-Space dimension = 2
 
 <----- Simulation (Moving Neighborhood) ----->
 
@@ -148,3 +146,4 @@ Data Base Statistics
  Mean value          =     -0.122
  Standard Deviation  =      1.008
  Variance            =      1.016
+#NO_DIFF# Turning Band Simulations: 784 ms. (Ref = 773 ms.)

@@ -1,27 +1,27 @@
-Model 
-3 1 1572.770000 # General parameters
+Model
+3 1 1572.77 # General parameters
 4 # Number of basic covariance terms
 0 # Number of drift terms
-0 0.000000 0.000000 # Covariance characteristics
+0 0 0 # Covariance characteristics
 0 # Anisotropy Flag
-4 1875.265445 0.000000 # Covariance characteristics
+4 1876.19 0 # Covariance characteristics
 1 # Anisotropy Flag
-1.000000 0.774590 1.000000 # Anisotropy Coefficients
+1 0.773518 1 # Anisotropy Coefficients
 1 # Anisotropy Rotation Flag
-0.000000 1.000000  0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 # Anisotropy Rotation Matrix
-1 1333.741098 0.000000 # Covariance characteristics
+0 1 -0 -1 0 0 0 0 1 # Anisotropy Rotation Matrix
+1 1334.94 0 # Covariance characteristics
 1 # Anisotropy Flag
-1.000000 0.648758 1.000000 # Anisotropy Coefficients
+1 0.647411 1 # Anisotropy Coefficients
 1 # Anisotropy Rotation Flag
-0.000000 1.000000  0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 # Anisotropy Rotation Matrix
-2 20727.141076 0.000000 # Covariance characteristics
+0 1 -0 -1 0 0 0 0 1 # Anisotropy Rotation Matrix
+2 19885.7 0 # Covariance characteristics
 1 # Anisotropy Flag
-0.078240 1.000000 0.078240 # Anisotropy Coefficients
+0.0813445 1 0.0813445 # Anisotropy Coefficients
 1 # Anisotropy Rotation Flag
-0.000000 1.000000  0.000000 -1.000000 0.000000 0.000000 0.000000 0.000000 1.000000 # Anisotropy Rotation Matrix
-0.000000 # Mean of Variables
-0.398999 # Matrix of sills
-1.047530 # Matrix of sills
-0.593929 # Matrix of sills
-0.825615 # Matrix of sills
-1.000000 # Var-Covar at origin
+0 1 -0 -1 0 0 0 0 1 # Anisotropy Rotation Matrix
+0 # Mean of Variables
+0.399002 # Matrix of sills
+1.04566 # Matrix of sills
+0.592427 # Matrix of sills
+0.828341 # Matrix of sills
+0 # Var-Covar at origin

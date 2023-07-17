@@ -20,7 +20,7 @@
 #include "geoslib_define.h"
 
 class Model;
-class ANeighParam;
+class ANeigh;
 
 class GSTLEARN_EXPORT CalcSimuTurningBands : public ACalcSimulation
 {
@@ -40,7 +40,7 @@ public:
   int simulate(Db *dbin,
                Db *dbout,
                Model* model,
-               ANeighParam *neighparam,
+               ANeigh *neigh,
                int icase,
                int flag_bayes = false,
                const VectorDouble& dmean = VectorDouble(),
@@ -209,7 +209,7 @@ private:
 GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,
                            Db *dbout = nullptr,
                            Model *model = nullptr,
-                           ANeighParam *neighparam = nullptr,
+                           ANeigh *neigh = nullptr,
                            int nbsimu = 1,
                            int seed = 43431,
                            int nbtuba = 100,
@@ -219,7 +219,7 @@ GSTLEARN_EXPORT int simtub(Db *dbin = nullptr,
 GSTLEARN_EXPORT int simbayes(Db *dbin,
                              Db *dbout,
                              Model *model,
-                             ANeighParam *neighparam,
+                             ANeigh *neigh,
                              int nbsimu = 1,
                              int seed = 132141,
                              const VectorDouble& dmean = VectorDouble(),
@@ -227,3 +227,4 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
                              int nbtuba = 100,
                              bool flag_check = false,
                              const NamingConvention& namconv = NamingConvention("SimBayes"));
+GSTLEARN_EXPORT bool isCovValidForTurningBands(const ECov& type);

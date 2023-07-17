@@ -1,5 +1,5 @@
 ---
-title: "Tutorial Graphics"
+title: "Tutorial on Polygons"
 author: "D. Renard"
 date: "5 february 2023"
 output:
@@ -42,17 +42,19 @@ ggplot() + plot.grid(mygrid, palette="inferno")
 ```
 
 We now define the items of the PolyGon class.
-Let us recall that a polygon is a set of Polysets. Each polyset is defined by a series of 2-D points which serve as vertices. The polyset can be closed or not (it will be closed automatically if necessary, depending on its usage).
-The Polygon (in broad sense) can be used essentially;
+Let us recall that a polygon is a set of PolyElems. Each PolyElem is defined by
+a series of 2-D points which serve as vertices. The PolyElem can be closed or
+not (it will be closed automatically if necessary, depending on its usage). The
+Polygon (in broad sense) can be used essentially;
 - for visualization purpose
 - to apply a selection on the elements of a Db: we will apply it on the nodes of our grid for demonstration sake.
 
-Let us start by a simple polygon constituted of a single polyset.
+Let us start by a simple polygon constituted of a single PolyElem.
 
 ```{r}
 polygon = Polygons()
-polyset1 = PolySet(x=c(40, 75, 100, 15), y = c(25, 10, 75, 60))
-polygon$addPolySet(polyset1)
+polyelem1 = PolyElem(x=c(40, 75, 100, 15), y = c(25, 10, 75, 60))
+polygon$addPolyElem(polyelem1)
 ```
 
 Displaying the contents of the polygon:
@@ -100,26 +102,29 @@ p = p + plot.polygon(polygon, fill=NA, color="yellow", linewidth=2)
 ggPrint(p)
 ```
 
-Let us make the polygon more complex by adding other polysets which partly overlay each one another.
+Let us make the polygon more complex by adding other PolyElems which partly
+overlay each one another.
 
 ```{r}
-polyset2 = PolySet(x=c(50, 100, 100, 50), y=c(30, 30, 55, 55))
-polygon$addPolySet(polyset2)
-polyset3 = PolySet(x=c(25, 100, 55), y=c(25,25, 80))
-polygon$addPolySet(polyset3)
+polyelem2 = PolyElem(x=c(50, 100, 100, 50), y=c(30, 30, 55, 55))
+polygon$addPolyElem(polyelem2)
+polyelem3 = PolyElem(x=c(25, 100, 55), y=c(25,25, 80))
+polygon$addPolyElem(polyelem3)
 polygon$display(AStringFormat(level=2))
 ```
 
-In the following figure, we display the edges of the different polysets
+In the following figure, we display the edges of the different PolyElems
 
 ```{r}
 ggplot() + plot.polygon(polygon, fill=NA)
 ```
 
-Obviously, the three polysets of the polygon overlay. So the impact of using this polygon for selection will be interesting.
+Obviously, the three olyElems of the polygon overlay. So the impact of using
+this polygon for selection will be interesting.
 
 In this first example, the selection algorithm is quite simple:
-*a grid node is considered as active as soon as it belongs to one of the polysets*
+*a grid node is considered as active as soon as it belongs to one of the
+PolyElems*
 
 ```{r}
 db_polygon(mygrid, polygon)
@@ -127,8 +132,9 @@ ggplot() + plot.grid(mygrid, palette="inferno")
 ```
 
 In the second example:
-* a grid node is considered as active if the number of polysets to which it belongs is odd*.
-This feature enables a polygon to contain **holes** as demonstrated in the next example
+* a grid node is considered as active if the number of PolyElems to which it
+  belongs is odd*. This feature enables a polygon to contain **holes** as
+  demonstrated in the next example
 
 ```{r}
 db_polygon(mygrid, polygon, flag_nested=TRUE)
@@ -141,17 +147,17 @@ An interesting function allows checking if a point (characterized by its 2-D coo
 xx = 75
 yy = 50
 flag_nested = FALSE
-inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 
 xx = 40
 yy = 40
 flag_nested = FALSE
-inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 
 flag_nested = TRUE
-inside = polygon$inside(xx, yy, flag_nested=flag_nested)
+inside = polygon$inside(c(xx, yy), flag_nested=flag_nested)
 cat("Is the Point (",xx,",",yy,") with flag_nested =",flag_nested,", inside the Polygon =",inside,"\n")
 ```
 

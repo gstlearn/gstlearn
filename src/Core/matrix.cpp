@@ -14,6 +14,7 @@
 #include "Enum/ECst.hpp"
 
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
 
 #include <math.h>
@@ -24,6 +25,9 @@
 #define SQ(i,j,neq)   ((j) * neq + (i))
 #define VECTOR(i,j)    vector[SQ(i,j,neq)]
 #define A(i,j)         a[SQ(i,j,neq)]
+#define TUS(i,j)       tus[SQ(i,j,neq)]
+#define TLS(i,j)       tls[SQ(i,j,neq)]
+#define ILS(i,j)       ils[SQ(i,j,neq)]
 #define B(i,j)         b[SQ(i,j,neq)]
 #define C(i,j)         c[SQ(i,j,neqm1)]
 #define X(i,j)         x[SQ(i,j,neq)]
@@ -152,7 +156,76 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
 
 /*****************************************************************************/
 /*!
+ **  Calculates the generalized eigen value problem
+ **           A X = B X l
+ **
+ ** \return  Return code:
+ ** \return   0 no error
+ ** \return   1 convergence problem
+ **
+ ** \param[in]  a     square symmetric matrix (dimension = neq * neq)
+ ** \param[in]  b     square symmetric matrix (dimension = neq * neq)
+ ** \param[in]  neq   matrix dimension
+ **
+ ** \param[out] value  matrix of the eigen values (dimension: neq)
+ ** \param[out] vector matrix of the eigen vectors (dimension: neq*neq)
+ **
+ *****************************************************************************/
+int matrix_geigen(const double *a,
+                  const double *b,
+                  int neq,
+                  double *value,
+                  double *vector)
+{
+  // Compute eigen decomposition of B
+  VectorDouble LB(neq);
+  VectorDouble PhiB(neq * neq);
+  if (matrix_eigen(b, neq, LB.data(), PhiB.data())) return 1;
+
+  // Compute auxiliary terms
+  VectorDouble PhiBm = PhiB;
+  int ecr = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++, ecr++)
+      PhiBm[ecr] /= sqrt(LB[i]);
+
+  VectorDouble Am(neq * neq, 0.);
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      for (int k = 0; k < neq; k++)
+        for (int l = 0; l < neq; l++)
+          Am[i * neq + j] += PhiBm[i * neq + k] * a[l * neq + k] * PhiBm[j * neq + l];
+
+  // Compute eigen decomposition of Am
+  VectorDouble LA(neq);
+  VectorDouble PhiA(neq * neq);
+  if (matrix_eigen(Am.data(), neq, LA.data(), PhiA.data())) return 1;
+
+  VectorDouble Phi(neq * neq,0.);
+  ecr = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      for (int k = 0; k < neq; k++)
+        Phi[j * neq + i] += PhiBm[k * neq + i] * PhiA[j * neq + k];
+
+  // Sort the eigen values by increasing values
+  VectorInt ranks = VH::sortRanks(LA, true, neq);
+
+  // Ultimate assignments
+  for (int i = 0; i < neq; i++)
+    value[i] = LA[ranks[i]];
+
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      vector[i * neq + j] = -Phi[ranks[i] * neq + j];
+
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
  **  Calculates the eigen values and eigen vectors of a symmetric square matrix
+ **             A X = X l
  **
  ** \return  Return code:
  ** \return   0 no error
@@ -444,7 +517,8 @@ int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
   for (i = 0; i < 4; i++)
     work[i] = (double*) mem_free((char* ) work[i]);
 
-  if (error) print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
+  if (error)
+    print_matrix("Eigen matrix", 0, 1, neq, neq, NULL, a_in);
 
   return (error);
 }
@@ -514,13 +588,16 @@ void matrix_product_safe(int n1,
 {
   int i1, i2, i3, i4;
 
+  if (v1 == v3 || v2 == v3)
+    messageAbort("Violated protection in matrix_product_safe");
+
   for (i4 = 0; i4 < n1 * n3; i4++)
     v3[i4] = 0.;
 
   for (i3 = 0; i3 < n3; i3++)
     for (i1 = 0; i1 < n1; i1++)
       for (i2 = 0; i2 < n2; i2++)
-        V3(i1,i3)+= V1(i1,i2) * V2(i2,i3);
+        V3(i1,i3) += V1(i1,i2) * V2(i2,i3);
   return;
 }
 
@@ -1099,59 +1176,50 @@ int is_matrix_correlation(int neq, double *a)
  *****************************************************************************/
 double matrix_determinant(int neq, const double *b)
 {
-  int i, j, neqm1, j1, j2;
-  double *c, deter;
-
-  /* Dispatch according to the matrix dimension */
-
-  deter = 0.;
   switch (neq)
   {
     case 1:
-      deter = B(0, 0);
+      return B(0,0);
       break;
 
     case 2:
-      deter = B(0,0)* B(1,1) - B(1,0) * B(0,1);
+      return (B(0,0)* B(1,1) - B(1,0) * B(0,1));
       break;
 
       case 3:
-      deter = ( B(0,0) * B(1,1) * B(2,2)
+      return ((B(0,0) * B(1,1) * B(2,2)
           + B(0,1) * B(1,2) * B(2,0)
           + B(1,0) * B(2,1) * B(0,2)
           - B(2,0) * B(1,1) * B(0,2)
           - B(1,0) * B(0,1) * B(2,2)
-          - B(2,1) * B(1,2) * B(0,0));
+          - B(2,1) * B(1,2) * B(0,0)));
       break;
 
-      default:
+    default:
 
       /* Core allocation */
-      neqm1 = neq - 1;
-      c = (double *) mem_alloc(sizeof(double) * neqm1 * neqm1,1);
+      double deter = 0.;
+      int neqm1 = neq - 1;
+      VectorDouble c(neqm1 * neqm1,0.);
 
-      for (j1=0; j1<neq; j1++)
+      for (int j1=0; j1<neq; j1++)
       {
-        for (i=1; i<neq; i++)
+        for (int i=1; i<neq; i++)
         {
-          j2 = 0;
-          for (j=0; j<neq; j++)
+          int j2 = 0;
+          for (int j=0; j<neq; j++)
           {
-            if (j == j1)
-            continue;
+            if (j == j1) continue;
             C(i-1,j2) = B(i,j);
             j2++;
           }
         }
-        deter += pow(-1.0,j1+2.0) * B(0,j1) * matrix_determinant(neqm1,c);
+        deter += pow(-1.0,j1+2.0) * B(0,j1) * matrix_determinant(neqm1,c.data());
       }
-
-      /* Core deallocation */
-      c = (double *) mem_free((char *) c);
+      return deter;
       break;
     }
-
-  return (deter);
+  return TEST;
 }
 
 /****************************************************************************/
@@ -1230,7 +1298,7 @@ int matrix_cofactor(int neq, double *a, double *b)
  ** \param[in]  tl  Lower triangular matrix defined by column
  **
  *****************************************************************************/
-double matrix_cholesky_determinant(int neq, double *tl)
+double matrix_cholesky_determinant(int neq, const double *tl)
 {
   int i;
   double deter;
@@ -1266,9 +1334,8 @@ int is_matrix_rotation(int neq, const double *a, int verbose)
     {
       prod = 0.;
       for (k = 0; k < neq; k++)
-        prod += A(i,k)* A(j,k);
-      comp = (i == j) ? 1 :
-                        0.;
+        prod += A(i,k) * A(j,k);
+      comp = (i == j) ? 1 : 0.;
       if (ABS(prod - comp) > Epsilon)
       {
         if (verbose)
@@ -1305,9 +1372,7 @@ int is_matrix_rotation(int neq, const double *a, int verbose)
  ** \remark  the matrix a[] is destroyed during the calculations
  **
  *****************************************************************************/
-int matrix_cholesky_decompose(const double *a,
-                                              double *tl,
-                                              int neq)
+int matrix_cholesky_decompose(const double *a, double *tl, int neq)
 {
   double prod;
   int ip, jp, kp;
@@ -1330,7 +1395,7 @@ int matrix_cholesky_decompose(const double *a,
       for (kp = 0; kp < ip; kp++)
         prod -= TL(ip,kp)* TL(jp,kp);
       if (TL(ip,ip)<= 0.) return(ip+1);
-      TL(jp,ip)= prod / TL(ip,ip);
+      TL(jp,ip) = prod / TL(ip,ip);
     }
   }
   return (0);
@@ -1359,12 +1424,13 @@ int matrix_cholesky_decompose(const double *a,
 void matrix_cholesky_product(int mode,
                              int neq,
                              int nrhs,
-                             double *tl,
-                             double *a,
+                             const double *tl,
+                             const double *a,
                              double *x)
 {
   int irhs, i, j, n1, n2;
-  double val, *v1, *v2;
+  double val, *v2;
+  const double *v1;
 
   if (mode == 0)
   {
@@ -1463,10 +1529,7 @@ void matrix_cholesky_product(int mode,
  ** \param[out] x    resulting matrix (dimension neq)
  **
  *****************************************************************************/
-int matrix_cholesky_solve(int neq,
-                                          double *tl,
-                                          double *b,
-                                          double *x)
+int matrix_cholesky_solve(int neq, const double *tl, const double *b, double *x)
 {
   int i, j, error;
   double sum, pivot, *r;
@@ -1517,7 +1580,7 @@ int matrix_cholesky_solve(int neq,
  ** \param[out] xl   lower triangular inverted matrix defined by column
  **
  *****************************************************************************/
-void matrix_cholesky_invert(int neq, double *tl, double *xl)
+void matrix_cholesky_invert(int neq, const double *tl, double *xl)
 {
   double sum;
   int i, j, l;
@@ -1549,10 +1612,10 @@ void matrix_cholesky_invert(int neq, double *tl, double *xl)
  **
  *****************************************************************************/
 void matrix_cholesky_norme(int mode,
-                                           int neq,
-                                           double *tl,
-                                           double *a,
-                                           double *b)
+                           int neq,
+                           const double *tl,
+                           const double *a,
+                           double *b)
 {
   int i, j, k, l;
   double val, vala;
@@ -1605,7 +1668,7 @@ void matrix_cholesky_norme(int mode,
  ** \param[out] xl   invert lower triangular matrix
  **
  *****************************************************************************/
-int matrix_cholesky_to_invert(int neq, double *tl, double *xl)
+int matrix_cholesky_to_invert(int neq, const double *tl, double *xl)
 {
   int i, j, k, error;
   double *r, *ek, *res, sum, pivot;
@@ -1689,10 +1752,10 @@ int matrix_cholesky_to_invert(int neq, double *tl, double *xl)
  **
  *****************************************************************************/
 void matrix_triangular_product(int neq,
-                                               int mode,
-                                               const double *al,
-                                               const double *b,
-                                               double *x)
+                               int mode,
+                               const double *al,
+                               const double *b,
+                               double *x)
 {
   int i, j;
   const double *at;
@@ -1738,13 +1801,10 @@ void matrix_triangular_product(int neq,
  ** \param[out] tabout    Inverted matrix
  ** \param[out] cond      Condition number (MAX(ABS(eigval))/MIN(ABS(eigval)))
  **
- ** \remark The input and output matrices can match
+ ** \remark The input and output matrices can matchprint
  **
  *****************************************************************************/
-int matrix_invgen(double *a,
-                                  int neq,
-                                  double *tabout,
-                                  double *cond)
+int matrix_invgen(double *a, int neq, double *tabout, double *cond)
 {
   double *eigvec, *eigval, value, valcond;
   int i, j, k, error;
@@ -1787,83 +1847,6 @@ int matrix_invgen(double *a,
   label_end: eigval = (double*) mem_free((char* ) eigval);
   eigvec = (double*) mem_free((char* ) eigvec);
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the norm of a vector
- **
- ** \return  Value of the norm
- **
- ** \param[in]  a         Input vector
- ** \param[in]  neq       Number of equations
- **
- *****************************************************************************/
-double matrix_norm(double *a, int neq)
-{
-  double value;
-  int i;
-
-  value = 0.;
-  for (i = 0; i < neq; i++)
-    value += a[i] * a[i];
-  return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the vector product of two vectors (only in 3-D)
- **
- ** \param[in]  a         First vector
- ** \param[in]  b         Second vector
- **
- ** \param[out] v         Vector product
- **
- *****************************************************************************/
-void vector_product(double *a, double *b, double *v)
-{
-  v[0] = a[1] * b[2] - a[2] * b[1];
-  v[1] = a[2] * b[0] - a[0] * b[2];
-  v[2] = a[0] * b[1] - a[1] * b[0];
-}
-
-/****************************************************************************/
-/*!
- ** Translate a point by a vector
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in]  a         Coordinates of the target point (Dimension: ndim)
- ** \param[in]  v         Vector coordinates (Dimension: ndim)
- **
- ** \param[out] b         Coordinates of the resulting point (Dimension: ndim)
- **
- *****************************************************************************/
-void vector_translate(int ndim, double *a, double *v, double *b)
-{
-  for (int i = 0; i < ndim; i++)
-    b[i] = a[i] + v[i];
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the inner product of two vectors
- **
- ** \return  Value of the inner product
- **
- ** \param[in]  a         First vector
- ** \param[in]  b         Second vector
- ** \param[in]  neq       Space dimension
- **
- *****************************************************************************/
-double inner_product(const double *a, const double *b, int neq)
-{
-  double value;
-  int i;
-
-  value = 0.;
-  for (i = 0; i < neq; i++)
-    value += a[i] * b[i];
-  return (value);
 }
 
 /****************************************************************************/
@@ -2067,10 +2050,7 @@ void matrix_invsign(int neq, double *a)
  ** \param[out] a      Resulting square matrix
  **
  *****************************************************************************/
-void matrix_triangle_to_square(int mode,
-                                               int neq,
-                                               double *tl,
-                                               double *a)
+void matrix_triangle_to_square(int mode, int neq, const double *tl, double *a)
 {
   for (int i = 0; i < neq * neq; i++)
     a[i] = 0.;
@@ -2100,7 +2080,7 @@ void matrix_triangle_to_square(int mode,
    ** \param[out] a      Resulting square matrix
    **
    *****************************************************************************/
-void matrix_tri2sq(int neq, double *tl, double *a)
+void matrix_tri2sq(int neq, const double *tl, double *a)
 {
   int i, j;
 
@@ -2113,7 +2093,7 @@ void matrix_tri2sq(int neq, double *tl, double *a)
 
   /*****************************************************************************/
   /*!
-   **  Transform a square matrix into a triangular one
+   **  Transform a square symmetric matrix into a triangular one
    **
    ** \param[in]  mode   0: TL (upper); 1: TL (lower)
    ** \param[in]  neq    number of equations in the system
@@ -2124,10 +2104,7 @@ void matrix_tri2sq(int neq, double *tl, double *a)
    ** \remark: No test is performed to check that the input matrix is symmetric
    **
    *****************************************************************************/
-void matrix_square_to_triangle(int mode,
-                                               int neq,
-                                               double *a,
-                                               double *tl)
+void matrix_square_to_triangle(int mode, int neq, const double *a, double *tl)
 {
   int i, j;
 
@@ -2145,17 +2122,17 @@ void matrix_square_to_triangle(int mode,
     }
   }
 
-  /*****************************************************************************/
-  /*!
-   **  Calculate the product of 'tl' (lower triangle) by its transpose
-   **
-   ** \param[in]  neq    number of equations in the system
-   ** \param[in]  tl     Lower triangular matrix defined by column
-   **
-   ** \param[out] a      Resulting square matrix
-   **
-   *****************************************************************************/
-void matrix_produit_lu(int neq, double *tl, double *a)
+/*****************************************************************************/
+/*!
+ **  Calculate the product of 'tl' (lower triangle) by its transpose
+ **
+ ** \param[in]  neq    number of equations in the system
+ ** \param[in]  tl     Lower triangular matrix defined by column
+ **
+ ** \param[out] a      Resulting square matrix
+ **
+ *****************************************************************************/
+void matrix_produit_cholesky(int neq, const double *tl, double *a)
 {
   int i, j, k;
 
@@ -2183,12 +2160,12 @@ void matrix_produit_lu(int neq, double *tl, double *a)
  ** \param[in]  tl     Lower triangular matrix defined by column
  **
  *****************************************************************************/
-VectorDouble matrix_produit_lu_VD(int neq, double *tl)
+VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl)
 {
   VectorDouble a;
   a.resize(neq * neq);
 
-  matrix_produit_lu(neq, tl, a.data());
+  matrix_produit_cholesky(neq, tl, a.data());
   return a;
 }
 
@@ -2206,17 +2183,14 @@ VectorDouble matrix_produit_lu_VD(int neq, double *tl)
  ** \param[out] errmax  Maximum error encountered
  **
  *****************************************************************************/
-int is_matrix_product_identity(int neq,
-                                               double *a,
-                                               double *b,
-                                               double *errmax)
+int is_matrix_product_identity(int neq, double *a, double *b, double *errmax)
 {
   double *x, compare, valmax;
   int i, j, error;
 
   x = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
 
-  matrix_product(neq, neq, neq, a, b, x);
+  matrix_product_safe(neq, neq, neq, a, b, x);
 
   valmax = 0.;
   for (i = 0; i < neq; i++)
@@ -2780,44 +2754,44 @@ void matrix_product_by_diag_VD(int mode,
  **
  *****************************************************************************/
 void matrix_linear(int neq,
-                                   double a1,
-                                   double *a,
-                                   double b1,
-                                   double *b,
-                                   double *x)
+                   double a1,
+                   double *a,
+                   double b1,
+                   double *b,
+                   double *x)
 {
   int i1, i2;
 
   for (i1 = 0; i1 < neq; i1++)
     for (i2 = 0; i2 < neq; i2++)
-      X(i1,i2)= a1 * A(i1,i2) + b1 * B(i1,i2);
-    }
+      X(i1,i2) = a1 * A(i1,i2) + b1 * B(i1,i2);
+}
 
-    /*****************************************************************************/
-    /*!
-     **  Transform a tridiagonal non-symmetric matrix into a symmetric one
-     **
-     ** \return  Error return code (see remarks)
-     **
-     ** \param[in]  vecdiag Vector for the main diagonal
-     ** \param[in]  vecinf  Vector for the subdiagonal (in the last neq-1 positions)
-     ** \param[in]  vecsup  Vector for the superdiagonal (in the first neq positions)
-     ** \param[in]  neq    matrix dimension
-     **
-     ** \param[out] eigvec square symmetric matrix (dimension: neq * neq)
-     ** \param[out] eigval vector (dimensionL neq)
-     **
-     ** \remark Given the nonsymmetric tridiagonal matrix, we must have the products
-     ** \remark of corresponding pairs of off-diagonal elements are all non-negative,
-     ** \remark and zero only when both factors are zero
-     **
-     *****************************************************************************/
+/*****************************************************************************/
+/*!
+ **  Transform a tridiagonal non-symmetric matrix into a symmetric one
+ **
+ ** \return  Error return code (see remarks)
+ **
+ ** \param[in]  vecdiag Vector for the main diagonal
+ ** \param[in]  vecinf  Vector for the subdiagonal (in the last neq-1 positions)
+ ** \param[in]  vecsup  Vector for the superdiagonal (in the first neq positions)
+ ** \param[in]  neq    matrix dimension
+ **
+ ** \param[out] eigvec square symmetric matrix (dimension: neq * neq)
+ ** \param[out] eigval vector (dimensionL neq)
+ **
+ ** \remark Given the nonsymmetric tridiagonal matrix, we must have the products
+ ** \remark of corresponding pairs of off-diagonal elements are all non-negative,
+ ** \remark and zero only when both factors are zero
+ **
+ *****************************************************************************/
 int matrix_eigen_tridiagonal(const double *vecdiag,
-                                             const double *vecinf,
-                                             const double *vecsup,
-                                             int neq,
-                                             double *eigvec,
-                                             double *eigval)
+                             const double *vecinf,
+                             const double *vecsup,
+                             int neq,
+                             double *eigvec,
+                             double *eigval)
 {
   double *b, *e, h;
   int i, j;
@@ -2894,7 +2868,7 @@ int matrix_qo(int neq, double *hmat, double *gmat, double *xmat)
   double cond;
   error = matrix_invgen(hmat, neq, hmat, &cond);
   if (error || cond > 1e13) return (1);
-  matrix_product(neq, neq, 1, hmat, gmat, xmat);
+  matrix_product_safe(neq, neq, 1, hmat, gmat, xmat);
   return (0);
 }
 
@@ -3627,25 +3601,25 @@ void matrix_set_identity(int neq, double *a)
   for (int i = 0; i < neq; i++)
     for (int j = 0; j < neq; j++)
       A(i,j)= (i == j) ? 1 : 0;
-    }
+}
 
-    /*****************************************************************************/
-    /*!
-     **  Invert a symmetric square matrix (stored as triangular)
-     **
-     ** \return  Error returned code
-     **
-     ** \param[in,out] tl input matrix, destroyed in computation and replaced by
-     **                   resultant inverse
-     ** \param[in]  neq  number of equations in the matrix 'a'
-     ** \param[in]  rank Type of message when inversion problem is encountered
-     **                  >=0: message involves 'rank+1'
-     **                  -1:  neutral message
-     **                  -2:  no message
-     **
-     ** \remark  It is unnecessary to edit a message if inversion problem occurs
-     **
-     *****************************************************************************/
+/*****************************************************************************/
+/*!
+ **  Invert a symmetric square matrix (stored as triangular)
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in,out] tl input matrix, destroyed in computation and replaced by
+ **                   resultant inverse
+ ** \param[in]  neq  number of equations in the matrix 'a'
+ ** \param[in]  rank Type of message when inversion problem is encountered
+ **                  >=0: message involves 'rank+1'
+ **                  -1:  neutral message
+ **                  -2:  no message
+ **
+ ** \remark  It is unnecessary to edit a message if inversion problem occurs
+ **
+ *****************************************************************************/
 int matrix_invert_triangle(int neq, double *tl, int rank)
 {
   double *a;
@@ -3676,3 +3650,163 @@ void matrix_tl2tu(int neq, const double *tl, double *tu)
     for (int j = 0; j <= i; j++)
       TU(i,j)= TL(i,j);
     }
+
+/**
+ * LU Decomposition of a square matrix (not necessarily symmetric)
+ * @param neq Size of the matrix (number of rows or columns)
+ * @param a    Input square matrix (stored column-wise)
+ * @param tls  Output square matrix containing lower triangle (stored columnwise)
+ * @param tus  Output square matrix containing upper triangle (stored linewise)
+ *
+ * @remarks The output matrices 'tus'  and 'tls' must be allocated beforehand
+ */
+int matrix_LU_decompose(int neq, const double *a, double *tls, double *tus)
+{
+  for (int i = 0; i < neq; i++)
+    TLS(i,i) = 1.;
+
+  for (int i = 0; i < neq; i++)
+  {
+    int ip1 = i + 1;
+    int im1 = i - 1;
+
+    for (int j = 0; j < neq; j++)
+    {
+      TUS(i,j) = A(i,j);
+      if (im1 >= 0)
+      {
+        for (int k = 0; k <= im1; k++)
+        {
+          TUS(i,j) = TUS(i,j) - TLS(i,k) * TUS(k,j);
+        }
+      }
+    }
+    if (ip1 < neq)
+    {
+      for (int j = ip1; j < neq; j++)
+      {
+        TLS(j,i) = A(j,i);
+        if (im1 >= 0)
+        {
+          for (int k = 0; k <= im1; k++)
+          {
+            TLS(j,i) = TLS(j,i) - TLS(j,k) * TUS(k,i);
+          }
+        }
+        double pivot = TUS(i,i);
+        if (abs(pivot) < _getTolInvert()) return 1;
+        TLS(j,i) = TLS(j,i) / pivot;
+      }
+    }
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Get the solution of a linear system (after LU decomposition)
+ **     L * x = b
+ **
+ ** \return  Error returned code
+ ** \return   0 : Success
+ ** \return  -1 : Core allocation problem
+ ** \return  -2 : Singular matrix (zero pivot)
+ **
+ ** \param[in]  neq  number of equations in the system
+ ** \param[in]  tls  Square matrix containing lower triangle (stored column-wise)
+ ** \param[in]  b    matrix (dimension neq)
+ **
+ ** \param[out] x    resulting matrix (dimension neq)
+ **
+ *****************************************************************************/
+static int st_matrix_LU_forward(int neq, const double *tls, const double *b, double *x)
+{
+  for (int i = 0; i < neq; i++) x[i] = 0.;
+  for (int i = 0; i < neq; i++)
+  {
+    double tmp = b[i];
+    for (int j = 0; j < i; j++)
+      tmp -= TLS(i,j) * x[j];
+
+    double pivot = TLS(i,i);
+    if (abs(pivot) < _getTolInvert()) return 1;
+    x[i] = tmp / pivot;
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Get the solution of a linear system (after LU decomposition)
+ **     U * x = b
+ **
+ ** \return  Error returned code
+ ** \return   0 : Success
+ ** \return  -1 : Core allocation problem
+ ** \return  -2 : Singular matrix (zero pivot)
+ **
+ ** \param[in]  neq  number of equations in the system
+ ** \param[in]  tus  square matrix containing upper triangle (stored line-wise)
+ ** \param[in]  b    matrix (dimension neq)
+ **
+ ** \param[out] x    resulting matrix (dimension neq)
+ **
+ ** \remark As the Upper matrix is stored line-wise, it is considered
+ ** \remark as the transposed version of a lower triangle
+ **
+ *****************************************************************************/
+static int st_matrix_LU_backward(int neq, const double *tus, const double *b, double *x)
+{
+  for (int i = neq-1; i >= 0; i--)
+  {
+    double tmp = b[i];
+    for (int j = i+1; j < neq; j++)
+      tmp -= TUS(i,j) * x[j];
+
+    double pivot = TUS(i,i);
+    if (abs(pivot) < _getTolInvert()) return 1;
+    x[i] = tmp / pivot;
+  }
+  return 0;
+}
+
+int matrix_LU_solve(int neq,
+                    const double* tus,
+                    const double* tls,
+                    const double* b,
+                    double* x)
+{
+  VectorDouble y(neq);
+  if (st_matrix_LU_forward(neq, tls, b, y.data())) return 1;
+  if (st_matrix_LU_backward(neq, tus, y.data(), x)) return 1;
+  return 0;
+}
+
+int matrix_LU_invert(int neq, double* a)
+{
+  // Perform the LU decomposition
+  int neq2 = neq * neq;
+  VectorDouble tls(neq2);
+  VectorDouble tus(neq2);
+  VectorDouble ais(neq2);
+  if (matrix_LU_decompose(neq, a, tls.data(), tus.data())) return 1;
+
+  VectorDouble b(neq);
+  VectorDouble x(neq);
+  int ecr = 0;
+  for (int i = 0; i < neq; i++)
+  {
+    // Preparing the right-hand side vector (column of the identity matrix)
+    VH::fill(b, 0.);
+    b[i] = 1.;
+
+    if (matrix_LU_solve(neq, tus.data(), tls.data(), b.data(), x.data())) return 1;
+
+    for (int j = 0; j < neq; j++)
+      ais[ecr++] = x[j];
+  }
+
+  // Copy the inverse matrix in the input matrix
+  for (int i = 0; i < neq2; i++) a[i] = ais[i];
+  return 0;
+}

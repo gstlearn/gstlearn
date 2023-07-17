@@ -34,14 +34,14 @@ Limits::Limits(const VectorDouble& mini,
                const VectorBool& incmaxi)
 {
   if (mini.size() != maxi.size())
-    throw("Arguments 'mini' and 'maxi' should have the same dimension");
+    my_throw("Arguments 'mini' and 'maxi' should have the same dimension");
   int nclass = static_cast<int> (mini.size());
   if (nclass <= 0)
-    throw("You must define at least one item in 'mini' and 'maxi'");
+    my_throw("You must define at least one item in 'mini' and 'maxi'");
   if (incmini.size() != 0 && (int) incmini.size() != nclass)
-    throw("Arguments 'incmini' and 'mini' should have the same dimension");
+    my_throw("Arguments 'incmini' and 'mini' should have the same dimension");
   if (incmaxi.size() != 0 && (int) incmaxi.size() != nclass)
-    throw("Arguments 'incmaxi' and 'maxi' should have the same dimension");
+    my_throw("Arguments 'incmaxi' and 'maxi' should have the same dimension");
 
   _bounds.clear();
   for (int i = 0; i < nclass; i++)
@@ -60,36 +60,50 @@ Limits::Limits(const VectorDouble& mini,
  */
 Limits::Limits(const VectorDouble& bounds, bool addFromZero)
 {
-  int nclass = static_cast<int> (bounds.size()) - 1;
-  if (nclass <= 0)
-    throw("The argument 'bounds' should have at least 2 items");
-
-  _bounds.clear();
-
-  // Add the first class from 0 to bounds[0] (optional)
-
-  if (addFromZero && bounds[0] > 0)
+  if (bounds.size() == 1)
   {
-    Interval bd = Interval(0., bounds[0]);
-    _bounds.push_back(bd);
+    // Same as next constructor
+    int nclass = static_cast<int> (bounds[0]);
+    _bounds.clear();
+    for (int i = 0; i < nclass; i++)
+    {
+      Interval bd = Interval(i + 0.5, i + 1.5);
+      _bounds.push_back(bd);
+    }
   }
-
-  // Store the remaining classes
-  for (int i = 0; i < nclass; i++)
+  else
   {
-    Interval bd;
-    if (bounds[i] == bounds[i + 1])
-      bd = Interval(bounds[i], bounds[i + 1], true, true);
-    else
-      bd = Interval(bounds[i], bounds[i + 1]);
-    _bounds.push_back(bd);
+    int nclass = static_cast<int> (bounds.size()) - 1;
+    if (nclass <= 0)
+      my_throw("The argument 'bounds' should have at least 2 items");
+
+    _bounds.clear();
+
+    // Add the first class from 0 to bounds[0] (optional)
+
+    if (addFromZero && bounds[0] > 0)
+    {
+      Interval bd = Interval(0., bounds[0]);
+      _bounds.push_back(bd);
+    }
+
+    // Store the remaining classes
+    for (int i = 0; i < nclass; i++)
+    {
+      Interval bd;
+      if (bounds[i] == bounds[i + 1])
+        bd = Interval(bounds[i], bounds[i + 1], true, true);
+      else
+        bd = Interval(bounds[i], bounds[i + 1]);
+      _bounds.push_back(bd);
+    }
   }
 }
 
 Limits::Limits(int nclass)
 {
   if (nclass <= 0)
-    throw("The argument 'nclass' should be strictly positive");
+    my_throw("The argument 'nclass' should be strictly positive");
 
   _bounds.clear();
   for (int i = 0; i < nclass; i++)

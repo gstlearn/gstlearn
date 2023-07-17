@@ -9,9 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+#include "Basic/Law.hpp"
+
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 #include <random>
@@ -908,23 +910,19 @@ int law_poisson(double parameter)
  **
  ** \param[in] nech       : Number of samples
  **
- ** \param[out] path      : Array giving the random path (Dimension: nech)
- **
  *****************************************************************************/
-void law_random_path(int nech, int *path)
+VectorInt law_random_path(int nech)
 {
-  double *order;
-  int i;
+  VectorDouble order(nech);
+  VectorInt path(nech);
 
-  order = (double*) mem_alloc(sizeof(double) * nech, 1);
-  for (i = 0; i < nech; i++)
+  for (int i = 0; i < nech; i++)
   {
     path[i] = i;
     order[i] = law_uniform(0., 1.);
   }
-  ut_sort_double(0, nech, path, order);
-  order = (double*) mem_free((char* ) order);
-  return;
+  VH::arrangeInPlace(0, path, order, true, nech);
+  return path;
 }
 
 /*****************************************************************************/

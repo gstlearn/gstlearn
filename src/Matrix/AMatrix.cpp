@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -19,42 +18,20 @@
 #include <iostream>
 #include <iomanip>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
-AMatrix::AMatrix(int nrow, int ncol, bool sparse)
+AMatrix::AMatrix(int nrow, int ncol)
     : AStringable(),
       _nRows(nrow),
       _nCols(ncol),
-      _sparse(sparse),
-      _csMatrix(nullptr)
+      _flagCheckAddress(false)
 {
   (void) _isNumbersValid(nrow, ncol);
-  if (sparse) _initiateSparse();
 }
-#ifndef SWIG
-AMatrix::AMatrix(const cs* A)
-    : AStringable(),
-      _nRows(0),
-      _nCols(0),
-      _sparse(true),
-      _csMatrix(nullptr)
-{
-  _recopySparse(A);
-}
-#endif
 AMatrix::AMatrix(const AMatrix &m)
     : AStringable(m),
       _nRows(m._nRows),
       _nCols(m._nCols),
-      _sparse(m._sparse),
-      _csMatrix(nullptr)
+      _flagCheckAddress(m._flagCheckAddress)
 {
-  if (_sparse)
-  {
-    _recopySparse(m._csMatrix);
-  }
 }
 
 AMatrix& AMatrix::operator=(const AMatrix &m)
@@ -62,35 +39,18 @@ AMatrix& AMatrix::operator=(const AMatrix &m)
   AStringable::operator=(m);
   _nRows = m._nRows;
   _nCols = m._nCols;
-  _sparse = m._sparse;
-  if (_sparse)
-  {
-    if (this != &m)
-    {
-      _deallocateSparse();
-      _recopySparse(m._csMatrix);
-    }
-  }
+  _flagCheckAddress = m._flagCheckAddress;
   return *this;
 }
 
 AMatrix::~AMatrix()
 {
-  if (_sparse)
-  {
-    _deallocateSparse();
-  }
 }
 
-void AMatrix::init(int nrows, int ncols, bool sparse)
+void AMatrix::init(int nrows, int ncols)
 {
-  if (_sparse)
-  {
-    _deallocateSparse();
-  }
   _nRows = nrows;
   _nCols = ncols;
-  _sparse = sparse;
   _allocate();
 }
 
@@ -117,6 +77,7 @@ bool AMatrix::isSquare(bool printWhyNot) const
  */
 bool AMatrix::isValid(int irow, int icol, bool printWhyNot) const
 {
+  if (! _flagCheckAddress) return true;
   if (irow < 0 || irow >= getNRows())
   {
     if (printWhyNot)
@@ -159,100 +120,50 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
   return true;
 }
 
-void AMatrix::reset(int nrows, int ncols, bool sparse)
+void AMatrix::reset(int nrows, int ncols, double value)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
-  _sparse = sparse;
-  if (_sparse)
-  {
-    _nRows = nrows;
-    _nCols = ncols;
-  }
-  else
-  {
-    _deallocate();
-    _nRows = nrows;
-    _nCols = ncols;
-    _allocate();
-  }
+  _deallocate();
+  _nRows = nrows;
+  _nCols = ncols;
+  _allocate();
+  for (int i=0; i<_getMatrixSize(); i++)
+    _setValue(i, value);
   _clearContents();
 }
 
-void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
+void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
-  _sparse = sparse;
-  if (_sparse)
+  _deallocate();
+  _nRows = nrows;
+  _nCols = ncols;
+  _allocate();
+  int lec = 0;
+  if (byCol)
   {
-    _forbiddenForSparse("reset");
-  }
-  else
-  {
-    _deallocate();
-    _nRows = nrows;
-    _nCols = ncols;
-    _allocate();
-    for (int i=0; i<_getMatrixSize(); i++)
-      _setValue(i, value);
-  }
-  _clearContents();
-}
-
-void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
-{
-  if (! _isNumbersValid(nrows, ncols)) return;
-  _sparse = sparse;
-  if (_sparse)
-  {
-    _forbiddenForSparse("reset");
-  }
-  else
-  {
-    _deallocate();
-    _nRows = nrows;
-    _nCols = ncols;
-    _allocate();
-    int lec = 0;
     for (int icol=0; icol<ncols; icol++)
       for (int irow=0; irow<nrows; irow++)
+        _setValue(irow,icol,tab[lec++]);
+  }
+  else
+  {
+    for (int irow=0; irow<nrows; irow++)
+      for (int icol=0; icol<ncols; icol++)
         _setValue(irow,icol,tab[lec++]);
   }
   _clearContents();
 }
 
-void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse, bool flagByRow)
+void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool byCol)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
-  _nRows = nrows;
-  _nCols = ncols;
-  _sparse = sparse;
-  if (_sparse)
-  {
-    _forbiddenForSparse("reset");
-  }
-  else
-  {
-    _allocate();
-    int lec = 0;
-    if (flagByRow)
-    {
-      for (int icol=0; icol<ncols; icol++)
-        for (int irow=0; irow<nrows; irow++)
-          _setValue(irow,icol,tab[lec++]);
-    }
-    else
-    {
-      for (int irow=0; irow<nrows; irow++)
-        for (int icol=0; icol<ncols; icol++)
-          _setValue(irow,icol,tab[lec++]);
-    }
-  }
-  _clearContents();
+  resetFromArray(nrows, ncols, tab.data(), byCol);
 }
 
-void AMatrix::reset(const VectorVectorDouble& tab, bool flagByRow)
+void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
 {
-  if (flagByRow)
+  if (byCol)
   {
     _nRows = (int) tab.size();
     _nCols = (int) tab[0].size();
@@ -278,34 +189,16 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
   law_set_random_seed(seed);
 
   double value = 0.;
-  if (_sparse)
-  {
-    cs *Atriplet;
-    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-    for (int irow = 0; irow < _nRows; irow++)
-      for (int icol = 0; icol < _nCols; icol++)
-      {
-        if (! _isPhysicallyPresent(irow, icol)) continue;
-        if (!mustBeDiagCst() && law_uniform(0., 1.) < zeroPercent) continue;
+  for (int irow = 0; irow < _nRows; irow++)
+    for (int icol = 0; icol <_nCols; icol++)
+    {
+      if (! _isPhysicallyPresent(irow, icol)) continue;
+      if (!mustBeDiagCst() && law_uniform(0.,1.) < zeroPercent)
+        value = 0.;
+      else
         value = law_gaussian();
-        cs_entry(Atriplet, irow, icol, value);
-      }
-    _csMatrix = cs_triplet(Atriplet);
-    Atriplet = cs_spfree(Atriplet);
-  }
-  else
-  {
-    for (int irow = 0; irow < _nRows; irow++)
-      for (int icol = 0; icol <_nCols; icol++)
-      {
-        if (! _isPhysicallyPresent(irow, icol)) continue;
-        if (!mustBeDiagCst() && law_uniform(0.,1.) < zeroPercent)
-          value = 0.;
-        else
-          value = law_gaussian();
-        setValue(irow,icol,value);
-      }
-  }
+      setValue(irow,icol,value);
+    }
 }
 
 bool AMatrix::isSymmetric(bool printWhyNot) const
@@ -356,8 +249,8 @@ bool AMatrix::isDiagonal(bool printWhyNot) const
         if (ABS(getValue(irow,icol)) > EPSILON10)
         {
           if (printWhyNot)
-            messerr("The element (%d;%d)=%lf should be zero",
-                    irow,icol,getValue(irow,icol));
+            messerr("The element (%d;%d)=%lf should be zero", irow, icol,
+                    getValue(irow, icol));
           return false;
         }
       }
@@ -402,16 +295,7 @@ bool AMatrix::isDiagCst(bool printWhyNot) const
 
 void AMatrix::transposeInPlace()
 {
-  if (_sparse)
-  {
-    cs* old = _csMatrix;
-    _csMatrix = cs_transpose(old, 0);
-    cs_spfree(old);
-  }
-  else
-  {
-    _transposeInPlace();
-  }
+  _transposeInPlace();
 }
 
 AMatrix* AMatrix::transpose() const
@@ -421,111 +305,22 @@ AMatrix* AMatrix::transpose() const
   return mat;
 }
 
-AMatrix* AMatrix::toSparse() const
-{
-  AMatrix* mat = dynamic_cast<AMatrix*>(clone());
-
-  // Create the triplet structure from the non-zero terms of source matrix
-
-  VectorInt irows;
-  VectorInt icols;
-  VectorDouble values;
-  getValuesAsTriplets(irows, icols, values);
-
-  // Update the contents of the cloned matrix as sparse
-
-  mat->reset(_nRows, _nCols, true);
-
-  // Load the triplet information in the cloned matrix
-
-  mat->setValuesByArrays(irows, icols, values);
-
-  return mat;
-}
-
-void AMatrix::toSparseInPlace()
-{
-  // Create the triplet structure from the non-zero terms of source matrix
-
-  VectorInt irows;
-  VectorInt icols;
-  VectorDouble    values;
-  getValuesAsTriplets(irows, icols, values);
-
-  // Update the sparse qualifier of this
-
-  _deallocateSparse();
-  _setSparse(true);
-
-  // Load the triplet information in the cloned matrix
-
-  setValuesByArrays(irows, icols, values);
-}
-
 /*! Gets the value at row 'irow' and column 'icol' */
 double AMatrix::getValue(int irow, int icol) const
 {
   if (! _isIndexValid(irow, icol)) return TEST;
-  if (_sparse)
-  {
-    return cs_get_value(_csMatrix, irow, icol);
-  }
-  else
-  {
-    return _getValue(irow, icol);
-  }
+  return _getValue(irow, icol);
 }
 
 /*! Sets the value at row 'irow' and column 'icol' */
 void AMatrix::setValue(int irow, int icol, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
-  if (_sparse)
-  {
-    cs_set_value(_csMatrix, irow, icol, value);
-  }
-  else
-  {
-    return _setValue(irow, icol, value);
-  }
-}
-
-/*! Gets the value at rank 'rank' */
-double AMatrix::getValue(int rank) const
-{
-  if (! _isRankValid(rank)) return TEST;
-  if (_sparse)
-  {
-    _forbiddenForSparse("getValue");
-  }
-  else
-  {
-    return _getValue(rank);
-  }
-  return 0.;
-}
-
-/*! Sets the value at rank 'rank' */
-void AMatrix::setValue(int rank, double value)
-{
-  if (! _isRankValid(rank)) return;
-  if (_sparse)
-  {
-    _forbiddenForSparse("getValue");
-  }
-  else
-  {
-    _setValue(rank, value);
-  }
+  return _setValue(irow, icol, value);
 }
 
 /*! Gets a reference to the value at row 'irow' and column 'icol' */
 double& AMatrix::getValueRef(int irow, int icol)
 {
-  if (_sparse)
-  {
-    _forbiddenForSparse("getValueRef");
-  }
   return _getValueRef(irow, icol);
 }
 
@@ -535,22 +330,8 @@ double& AMatrix::getValueRef(int irow, int icol)
  */
 void AMatrix::fill(double value)
 {
-  if (_sparse)
-  {
-    cs* Mtriplet = cs_spalloc(0,0,1,1,1);
-    for (int icol = 0; icol < _nCols; icol++)
-      for (int irow = 0; irow < _nRows; irow++)
-      (void) cs_entry(Mtriplet, icol, irow, value);
-    _csMatrix = cs_triplet(Mtriplet);
-    Mtriplet = cs_spfree(Mtriplet);
-  }
-  else
-  {
-    for (int rank = 0; rank < _getMatrixSize(); rank++)
-    {
-      _setValue(rank, value);
-    }
-  }
+  for (int rank = 0, n = _getMatrixSize(); rank < n; rank++)
+    _setValue(rank, value);
 }
 
 /**
@@ -563,38 +344,9 @@ void AMatrix::fill(double value)
  * @param byCol true for Column major; false for Row Major
  */
 #ifndef SWIG
-void AMatrix::setValuesOldStyle(const double* values, bool byCol)
+void AMatrix::_setValues(const double* values, bool byCol)
 {
-  if (_sparse)
-  {
-    cs* Mtriplet = cs_spalloc(0, 0, 1, 1, 1);
-    if (byCol)
-    {
-      int lec = 0;
-      for (int icol = 0; icol < _nCols; icol++)
-        for (int irow = 0; irow < _nRows; irow++, lec++)
-        {
-          if (ABS(values[lec]) < EPSILON10) continue;
-          (void) cs_entry(Mtriplet, irow, icol, values[lec]);
-        }
-    }
-    else
-    {
-      int lec = 0;
-      for (int irow = 0; irow < _nRows; irow++)
-        for (int icol = 0; icol < _nCols; icol++, lec++)
-        {
-          if (ABS(values[lec]) < EPSILON10) continue;
-          (void) cs_entry(Mtriplet, irow, icol, values[lec]);
-        }
-    }
-    _csMatrix = cs_triplet(Mtriplet);
-    Mtriplet = cs_spfree(Mtriplet);
-  }
-  else
-  {
-    _setValues(values, byCol);
-  }
+  _setValues(values, byCol);
 }
 #endif
 
@@ -615,7 +367,7 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
     messerr("Operation cancelled");
     return;
   }
-  setValuesOldStyle(values.data(),byCol);
+  _setValues(values.data(),byCol);
 }
 
 void AMatrix::setValuesByArrays(const VectorInt &irows,
@@ -631,20 +383,8 @@ void AMatrix::setValuesByArrays(const VectorInt &irows,
     return;
   }
 
-  if (_sparse)
-  {
-    cs* Mtriplet = cs_spalloc(0,0,1,1,1);
-    for (int i = 0; i < nelements; i++)
-      (void) cs_entry(Mtriplet, irows[i], icols[i], values[i]);
-    _csMatrix = cs_triplet(Mtriplet);
-    Mtriplet = cs_spfree(Mtriplet);
-  }
-  else
-  {
-
-    for (int i = 0; i < nelements; i++)
-      setValue(irows[i], icols[i], values[i]);
-  }
+  for (int i = 0; i < nelements; i++)
+    setValue(irows[i], icols[i], values[i]);
 }
 
 void AMatrix::setIdentity(double value)
@@ -656,21 +396,14 @@ void AMatrix::setIdentity(double value)
 
 /**
  *
- * @param v Add a scalar value to all terms of the current matrix
+ * @param v Add a scalar value to all (valid) terms of the current matrix
  */
 void AMatrix::addScalar(double v)
 {
   if (v == 0.) return;
-  if (_sparse)
+  for (int rank = 0; rank < _getMatrixSize(); rank++)
   {
-    _forbiddenForSparse("addScalar");
-  }
-  else
-  {
-    for (int rank = 0; rank < _getMatrixSize(); rank++)
-    {
-      _setValue(rank, getValue(rank) + v);
-    }
+    _setValue(rank, _getValue(rank) + v);
   }
 }
 
@@ -681,24 +414,14 @@ void AMatrix::addScalar(double v)
 void AMatrix::addScalarDiag(double v)
 {
   if (v == 0.) return;
-  if (_sparse)
+  for (int irow = 0; irow < _nRows; irow++)
   {
-    cs* csi = cs_eye(getNRows(), 1.);
-    cs* res = cs_add(_csMatrix, csi, 1., v);
-    cs_spfree(csi);
-    cs_spfree(_csMatrix);
-    _csMatrix = res;
-  }
-  else
-  {
-    for (int irow = 0; irow < _nRows; irow++)
+    for (int icol = 0; icol < _nCols; icol++)
     {
-      for (int icol = 0; icol < _nCols; icol++)
+      if (irow == icol)
       {
-        if (irow == icol)
-        {
-          setValue(irow, icol, getValue(irow, icol) + v);
-        }
+        int rank = _getIndexToRank(irow, icol);
+        _setValue(rank, _getValue(rank) + v);
       }
     }
   }
@@ -711,19 +434,8 @@ void AMatrix::addScalarDiag(double v)
 void AMatrix::prodScalar(double v)
 {
   if (v == 1.) return;
-  if (_sparse)
-  {
-    cs* res = cs_add(_csMatrix, _csMatrix, v, 0.);
-    cs_spfree(_csMatrix);
-    _csMatrix = res;
-  }
-  else
-  {
-    for (int rank = 0; rank < _getMatrixSize(); rank++)
-    {
-      _setValue(rank, getValue(rank) * v);
-    }
-  }
+  for (int rank = 0; rank < _getMatrixSize(); rank++)
+    _setValue(rank, _getValue(rank) * v);
 }
 
 /**
@@ -734,20 +446,26 @@ void AMatrix::prodScalar(double v)
 #ifndef SWIG
 void AMatrix::prodVector(const double *inv, double *outv) const
 {
-  if (_sparse)
-  {
-    cs_vecmult(_csMatrix, _nRows, inv, outv);
-  }
-  else
-  {
-    _prodVector(inv, outv);
-  }
+  _prodVector(inv, outv);
 }
 #endif
 
 void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
 {
-  // TODO : Check dimensions to avois SEGV
+  if (_flagCheckAddress)
+  {
+    int sizein = (int) inv.size();
+    int sizeout = (int) outv.size();
+    if (sizein != _nCols || sizeout != _nRows)
+    {
+      messerr("Inconsistency between:");
+      messerr("- the dimension of 'inv' = %d", sizein);
+      messerr("- the dimension of 'outv' = %d", sizeout);
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows,
+              _nCols);
+      return;
+    }
+  }
   prodVector(inv.data(), outv.data());
 }
 
@@ -763,28 +481,18 @@ void AMatrix::addMatrix(const AMatrix& y)
     return;
   }
 
-  if (_sparse)
+  if (!_isCompatible(y))
   {
-    cs* res = cs_add(_csMatrix, y._csMatrix, 1., 1.);
-    cs_spfree(_csMatrix);
-    _csMatrix = res;
+    messerr("Matrices 'y' and 'this' are not compatible");
+    return;
   }
-  else
-  {
-    if (! _isCompatible(y))
+  for (int irow = 0; irow < _nRows; irow++)
+    for (int icol = 0; icol < _nCols; icol++)
     {
-      messerr("Matrices 'y' and 'this' are not compatible");
-      return;
+      if (!_isPhysicallyPresent(irow, icol)) continue;
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) + y.getValue(irow, icol));
     }
-    for (int irow = 0; irow < _nRows; irow++)
-    {
-      for (int icol = 0; icol < _nCols; icol++)
-      {
-        if (!_isPhysicallyPresent(irow, icol)) continue;
-        setValue(irow, icol, getValue(irow, icol) + y.getValue(irow, icol));
-      }
-    }
-  }
 }
 
 /**
@@ -794,40 +502,37 @@ void AMatrix::addMatrix(const AMatrix& y)
  */
 void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
 {
-  if (x.getNCols() != y.getNRows() ||
-      x.getNRows() != getNRows() ||
-      y.getNCols() != getNCols())
+  if (_flagCheckAddress)
   {
-    messerr("Incompatible matrix dimensions for matrix product");
-    messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
-    messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-    messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
-    messerr("Operation is cancelled");
-    return;
-  }
-
-  if (_sparse)
-  {
-    cs* res = cs_multiply(x._csMatrix, y._csMatrix);
-    cs_spfree(_csMatrix);
-    _csMatrix = res;
-  }
-  else
-  {
-    int n = x.getNCols();
-    for (int irow = 0; irow < _nRows; irow++)
+    if (x.getNCols() != y.getNRows() ||
+        x.getNRows() != getNRows()   ||
+        y.getNCols() != getNCols())
     {
-      for (int icol = 0; icol < _nCols; icol++)
-      {
-        if (!_isPhysicallyPresent(irow, icol)) continue;
+      messerr("Incompatible matrix dimensions for matrix product");
+      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(),
+              x.getNCols());
+      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(),
+              y.getNCols());
+      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(),
+              getNCols());
+      messerr("Operation is cancelled");
+      return;
+    }
+  }
 
-        double value = 0.;
-        for (int k = 0; k < n; k++)
-        {
-          value += x.getValue(irow, k) * y.getValue(k, icol);
-        }
-        setValue(irow, icol, value);
+  int n = x.getNCols();
+  for (int irow = 0; irow < _nRows; irow++)
+  {
+    for (int icol = 0; icol < _nCols; icol++)
+    {
+      if (!_isPhysicallyPresent(irow, icol)) continue;
+
+      double value = 0.;
+      for (int k = 0; k < n; k++)
+      {
+        value += x.getValue(irow, k) * y.getValue(k, icol);
       }
+      setValue(irow, icol, value);
     }
   }
 }
@@ -846,23 +551,12 @@ void AMatrix::linearCombination(double cx, double cy, const AMatrix& y)
     my_throw("Matrices should have same size");
   }
 
-  if (_sparse)
+  if (!_isCompatible(y))
+  my_throw("Matrix 'y' is not compatible with 'this'");
+  for (int rank = 0; rank < _getMatrixSize(); rank++)
   {
-    if (!y._sparse)
-      my_throw("This function can only combine sparse matrices together");
-    cs* res = cs_add(_csMatrix, y._csMatrix, cx, cy);
-    cs_spfree(_csMatrix);
-    _csMatrix = res;
-  }
-  else
-  {
-    if (! _isCompatible(y))
-      my_throw("Matrix 'y' is not compatible with 'this'");
-    for (int rank = 0; rank < _getMatrixSize(); rank++)
-    {
-      double value = getValue(rank) * cx + cy * y.getValue(rank);
-      _setValue(rank, value);
-    }
+    double value = _getValue(rank) * cx + cy * y._getValue(rank);
+    _setValue(rank, value);
   }
 }
 
@@ -874,7 +568,8 @@ void AMatrix::multiplyRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) * vec[irow]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) * vec[irow]);
     }
 }
 
@@ -886,7 +581,8 @@ void AMatrix::divideRow(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) / vec[irow]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) / vec[irow]);
     }
 }
 
@@ -898,7 +594,8 @@ void AMatrix::multiplyColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) * vec[icol]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) * vec[icol]);
     }
 }
 void AMatrix::divideColumn(const VectorDouble& vec)
@@ -909,46 +606,43 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) / vec[icol]);
+      int rank = _getIndexToRank(irow, icol);
+      _setValue(rank, _getValue(rank) / vec[icol]);
     }
+}
+
+double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
+{
+  int sizex = (int) x.size();
+  int sizey = (int) y.size();
+  if (sizex != _nRows || sizey != _nCols)
+  {
+    messerr("Inconsistency between:");
+    messerr("- the dimension of 'x' = %d",sizex);
+    messerr("- the dimension of 'y' = %d",sizey);
+    messerr("- the matrix: number of rows (%d) and columns (%d)",_nRows,_nCols);
+    return TEST;
+  }
+
+  VectorDouble left(_nRows);
+  prodVector(y, left);
+  return VH::innerProduct(x, left);
 }
 
 int AMatrix::invert()
 {
   if (! isSquare())
     my_throw("Invert method is restricted to Square matrices");
-  if (_sparse)
-  {
-    cs *inv = cs_invert(_csMatrix,0);
-    _deallocateSparse();
-    _csMatrix = inv;
-  }
-  else
-  {
-    return _invert();
-  }
-  return 0;
+  return _invert();
 }
 
 int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
 {
-  int error = 0;
-
   if (! isSymmetric())
     my_throw("Invert method is limited to Square Symmetrical Matrices");
   if ((int) b.size() != _nRows || (int) x.size() != _nRows)
     my_throw("b' and 'x' should have the same dimension as the Matrix");
-
-  if (_sparse)
-  {
-    x = b;
-    error = cs_cholsol(_csMatrix,x.data(), 0);
-  }
-  else
-  {
-    error = _solve(b, x);
-  }
-  return error;
+  return _solve(b, x);
 }
 
 String AMatrix::toString(const AStringFormat* /* strfmt*/) const
@@ -958,21 +652,14 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
   sstr << "- Number of columns = " <<  _nCols << std::endl;
 
-   if (_sparse)
-   {
-     sstr << "- Sparse Format" << std::endl;
-     sstr << toMatrix(String(), _csMatrix);
-   }
-   else
-   {
-     sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
-                     getValues());
-   }
+  sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
+                   getValues());
   return sstr.str();
 }
 
 bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 {
+  if (! _flagCheckAddress) return true;
   if (nrows < 0)
   {
     messerr("Argument 'nrows' is not valid");
@@ -988,6 +675,7 @@ bool AMatrix::_isNumbersValid(int nrows, int ncols) const
 
 bool AMatrix::_isRowValid(int irow) const
 {
+  if (! _flagCheckAddress) return true;
   if (irow < 0 || irow >= getNRows())
   {
     mesArg("Row index invalid",irow,getNRows());
@@ -998,6 +686,7 @@ bool AMatrix::_isRowValid(int irow) const
 
 bool AMatrix::_isColumnValid(int icol) const
 {
+  if (! _flagCheckAddress) return true;
   if (icol < 0 || icol >= getNCols())
   {
     mesArg("Column index invalid",icol,getNCols());
@@ -1008,6 +697,7 @@ bool AMatrix::_isColumnValid(int icol) const
 
 bool AMatrix::_isIndexValid(int irow, int icol) const
 {
+  if (! _flagCheckAddress) return true;
   if (! _isRowValid(irow)) return false;
   if (! _isColumnValid(icol)) return false;
   return true;
@@ -1034,8 +724,8 @@ bool AMatrix::_isColVectorConsistent(const VectorDouble& tab)
 }
 
 bool AMatrix::_isVectorSizeConsistent(int nrows,
-                                       int ncols,
-                                       const VectorDouble& tab)
+                                      int ncols,
+                                      const VectorDouble &tab)
 {
   if (tab.size() != (unsigned) (nrows * ncols))
   {
@@ -1047,82 +737,17 @@ bool AMatrix::_isVectorSizeConsistent(int nrows,
 
 bool AMatrix::_isRankValid(int rank) const
 {
+  if (! _flagCheckAddress) return true;
   return (rank >= 0 && rank < _getMatrixSize());
-}
-
-/**
- * This strange function instantiate a sparse matrix with given dimensions
- * filled with zeroes. It should be an empty matrix... But this does not make sense.
- * Therefore it is created by setting a single element at the lower bottom size of
- * the matrix ... filled with a zero.
- */
-void AMatrix::_initiateSparse()
-{
-  cs *Atriplet;
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  cs_entry(Atriplet, getNRows() - 1, getNCols() - 1, 0.);
-  _csMatrix = cs_triplet(Atriplet);
-  Atriplet = cs_spfree(Atriplet);
-}
-
-void AMatrix::_recopySparse(const cs* cs)
-{
-  int nrows, ncols, count;
-  double percent;
-
-  cs_rowcol(cs, &nrows, &ncols, &count, &percent);
-  _setNRows(nrows);
-  _setNCols(ncols);
-
-  _csMatrix = cs_duplicate(cs);
-}
-
-void AMatrix::_deallocateSparse()
-{
-  _csMatrix = cs_spfree(_csMatrix);
-}
-
-void AMatrix::_forbiddenForSparse(const String& func) const
-{
-  messerr("Problem with Function: %s",func.c_str());
-  my_throw("This function is not available in Sparse Matrix");
-}
-
-AMatrix* createIdentity(int nrow, bool sparse)
-{
-  return MatrixFactory::createIdentity(nrow, sparse);
-}
-
-AMatrix* transpose(const AMatrix* mat)
-{
-  return mat->transpose();
-}
-
-AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
-{
-  return MatrixFactory::matProduct(mat1, mat2);
-}
-
-void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
-{
-  AMatrix* res = prodMatrix(mat1, mat2);
-  for (int i = 0; i < res->getNTotal(); i++)
-    mat1->setValue(i, res->getValue(i));
-  delete res;
 }
 
 void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
 {
-  if (_sparse)
-    messerr("This method is not implemented for Sparse Matrix");
-  else
+  mestitle(1, "%s", title.c_str());
+  for (int rank = ifrom; rank < ito; rank++)
   {
-    mestitle(1, "%s", title.c_str());
-    for (int rank=ifrom; rank<ito; rank++)
-    {
-      if (_isRankValid(rank))
-        message("Element %d = %lf\n",rank,getValue(rank));
-    }
+    if (_isRankValid(rank))
+      message("Element %d = %lf\n", rank, _getValue(rank));
   }
 }
 
@@ -1151,16 +776,29 @@ void AMatrix::getValuesAsTriplets(VectorInt&    irows,
     }
 }
 
-VectorDouble AMatrix::getValues() const
+VectorDouble AMatrix::getValues(bool byCol) const
 {
-  VectorDouble vect;
-  for (int icol = 0; icol < _nCols; icol++)
+  VectorDouble vect(_nCols * _nRows);
+  VectorDouble::iterator itvect(vect.begin());
+
+  if (byCol)
+  {
+    for (int icol = 0; icol < _nCols; icol++)
+      for (int irow = 0; irow < _nRows; irow++)
+      {
+        (*itvect) = getValue(irow, icol);
+        itvect++;
+      }
+  }
+  else
+  {
     for (int irow = 0; irow < _nRows; irow++)
-    {
-      double value = 0.;
-      if (isValid(irow, icol)) value = getValue(irow,icol);
-      vect.push_back(value);
-    }
+      for (int icol = 0; icol < _nCols; icol++)
+      {
+        (*itvect) = getValue(irow, icol);
+        itvect++;
+      }
+  }
   return vect;
 }
 
@@ -1292,16 +930,18 @@ void AMatrix::add(const AMatrix& tab, double value)
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double oldval = getValue(irow, icol);
-      setValue(irow, icol, oldval + value * tab.getValue(irow, icol));
+      int rank = _getIndexToRank(irow, icol);
+       double oldval = _getValue(rank);
+      _setValue(rank, oldval + value * tab.getValue(irow, icol));
     }
 }
 
 void AMatrix::add(int irow, int icol, double value)
 {
-  double oldval = getValue(irow, icol);
+  int rank = _getIndexToRank(irow, icol);
+  double oldval = _getValue(rank);
   if (FFFF(oldval)) return;
-  setValue(irow, icol, oldval + value);
+  _setValue(rank, oldval + value);
 }
 
 void AMatrix::subtract(const AMatrix& tab, double value)
@@ -1313,8 +953,9 @@ void AMatrix::subtract(const AMatrix& tab, double value)
     for (int irow = 0; irow < getNRows(); irow++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      double oldval = getValue(irow, icol);
-      setValue(irow, icol, oldval - value * tab.getValue(irow, icol));
+      int rank = _getIndexToRank(irow, icol);
+      double oldval = _getValue(rank);
+      _setValue(rank, oldval - value * tab.getValue(irow, icol));
     }
 }
 
@@ -1377,7 +1018,42 @@ void AMatrix::copyReduce(const AMatrix *x,
       setValue(irow, icol, x->getValue(validRows[irow], validCols[icol]));
 }
 
-Triplet AMatrix::getCsToTriplet(bool flag_from_1) const
+/**
+ * Converts a VectorVectorDouble into a Matrix (generic)
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ */
+void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
 {
-  return csToTriplet(getCs(), flag_from_1);
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      setValue(irow, icol, X[irow][icol]);
 }
+
+AMatrix* createIdentity(int nrow, bool sparse)
+{
+  return MatrixFactory::createIdentity(nrow, sparse);
+}
+
+AMatrix* transpose(const AMatrix* mat)
+{
+  return mat->transpose();
+}
+
+AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
+{
+  return MatrixFactory::matProduct(mat1, mat2);
+}
+
+void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
+{
+  AMatrix* res = prodMatrix(mat1, mat2);
+  for (int icol = 0; icol < mat1->getNCols(); icol++)
+    for (int irow = 0; irow < mat1->getNRows(); irow++)
+      mat1->setValue(irow, icol, res->getValue(irow, icol));
+  delete res;
+}
+

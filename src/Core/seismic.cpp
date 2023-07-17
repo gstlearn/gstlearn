@@ -2507,11 +2507,9 @@ static void st_estimate_flag(ST_Seismic_Neigh *ngh,
  *****************************************************************************/
 static void st_estimate_var0(Model *model, double *var0)
 {
-  CovCalcMode mode;
-
   VectorDouble d1(model->getDimensionNumber());
-  mode.setMember(ECalcMember::VAR);
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+  CovCalcMode mode(ECalcMember::VAR);
+  model_calcul_cov(NULL,model, &mode, 1, 1., d1, covtab);
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     var0[ivar] = COVTAB(ivar, ivar);
@@ -2530,10 +2528,9 @@ static void st_estimate_var0(Model *model, double *var0)
  *****************************************************************************/
 static void st_estimate_c00(Model *model, double *c00)
 {
-  CovCalcMode mode;
   VectorDouble d1(model->getDimensionNumber());
-  mode.setMember(ECalcMember::VAR);
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+  CovCalcMode mode(ECalcMember::VAR);
+  model_calcul_cov(NULL,model, &mode, 1, 1., d1, covtab);
 
   for (int ivar = 0; ivar < NVAR; ivar++)
     for (int jvar = 0; jvar < NVAR; jvar++)
@@ -2564,7 +2561,6 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
 {
   int iech, jech, ivar, jvar, nech, neqmax, i, j, lec, ecr;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -2584,7 +2580,7 @@ static void st_estimate_lhs(ST_Seismic_Neigh *ngh,
     {
       d1[0] = DX * (ngh->ix_ngh[iech] - ngh->ix_ngh[jech]);
       d1[2] = DZ * (ngh->iz_ngh[iech] - ngh->iz_ngh[jech]);
-      model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+      model_calcul_cov(NULL,model, nullptr, 1, 1., d1, covtab);
 
       for (ivar = 0; ivar < NVAR; ivar++)
         for (jvar = 0; jvar < NVAR; jvar++)
@@ -2658,7 +2654,7 @@ static void st_estimate_rhs(ST_Seismic_Neigh *ngh,
   {
     d1[0] = DX * ngh->ix_ngh[iech];
     d1[2] = DZ * ngh->iz_ngh[iech];
-    model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
+    model_calcul_cov(NULL,model, &mode, 1, 1., d1, covtab);
 
     for (ivar = 0; ivar < NVAR; ivar++)
       for (jvar = 0; jvar < NVAR; jvar++)
@@ -2801,7 +2797,7 @@ static int st_estimate_wgt(ST_Seismic_Neigh *ngh,
   /* Calculate the kriging weights */
 
   if (matrix_invert(lhs, nred, IECH_OUT)) return (1);
-  matrix_product(nred, nred, 2, lhs, rhs, wgt);
+  matrix_product_safe(nred, nred, 2, lhs, rhs, wgt);
 
   if (OptDbg::query(EDbg::KRIGING)) st_wgt_print(ngh, NVAR, nech, nred, flag, wgt);
 
@@ -3093,7 +3089,7 @@ int seismic_estimate_XZ(DbGrid *db,
     presence[i] = nullptr;
     npres[i] = 0;
   }
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
 
   /* Check that the grid is XZ */
@@ -3258,7 +3254,7 @@ int seismic_estimate_XZ(DbGrid *db,
     if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
     if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
   }
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   flag = (int*) mem_free((char* ) flag);
   lhs = (double*) mem_free((char* ) lhs);
   rhs = (double*) mem_free((char* ) rhs);

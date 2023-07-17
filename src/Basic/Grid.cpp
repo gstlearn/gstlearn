@@ -9,10 +9,13 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
+#include "Basic/Grid.hpp"
+
 #include "Geometry/Rotation.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Grid.hpp"
 #include "Basic/Grid.hpp"
 
 #include <math.h>
@@ -81,9 +84,9 @@ static void _dimensionRecursion(int idim, bool verbose, DimLoop& dlp)
 }
 
 Grid::Grid(int ndim,
-             const VectorInt& nx,
-             const VectorDouble& x0,
-             const VectorDouble& dx)
+           const VectorInt &nx,
+           const VectorDouble &x0,
+           const VectorDouble &dx)
   : AStringable(),
     _nDim(ndim)
   , _nx(nx)
@@ -95,6 +98,9 @@ Grid::Grid(int ndim,
   , _counts()
   , _order()
   , _indices()
+  , _iwork0(ndim)
+  , _work1(ndim)
+  , _work2(ndim)
 {
 }
 
@@ -179,23 +185,20 @@ void Grid::resetFromGrid(Grid* grid)
   }
 }
 
-void Grid::setX0(int idim,
-                  double value)
+void Grid::setX0(int idim, double value)
 {
   if (! _isSpaceDimensionValid(idim)) return;
   _x0[idim] = value;
 }
 
-void Grid::setDX(int idim,
-                  double value)
+void Grid::setDX(int idim, double value)
 {
   if (! _isSpaceDimensionValid(idim)) return;
   if (value < 0) messageAbort("Argument 'dx' may not be negative");
   _dx[idim] = value;
 }
 
-void Grid::setNX(int idim,
-                  int value)
+void Grid::setNX(int idim, int value)
 {
   if (! _isSpaceDimensionValid(idim)) return;
   if (value < 0) messageAbort("Argument 'nx' may not be negative");
@@ -298,22 +301,21 @@ double Grid::getCellSize() const
 String Grid::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  int ndim = _nDim;
-  if (ndim <= 0) return sstr.str();
+  if (_nDim <= 0) return sstr.str();
 
   sstr << toTitle(1,"Grid characteristics:");
   sstr << "Origin : ";
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim=0; idim<_nDim; idim++)
     sstr << toDouble(_x0[idim]);
   sstr << std::endl;
 
   sstr << "Mesh   : ";
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim=0; idim<_nDim; idim++)
     sstr << toDouble(_dx[idim]);
   sstr << std::endl;
 
   sstr << "Number : ";
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim=0; idim<_nDim; idim++)
     sstr << toInt(_nx[idim]);
   sstr << std::endl;
 
@@ -324,28 +326,26 @@ String Grid::toString(const AStringFormat* strfmt) const
 
 double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
 {
-  int ndim = getNDim();
-  VectorInt   iwork(ndim);
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
   /* Convert a sample number into grid indices */
 
-  rankToIndice(rank, iwork);
+  rankToIndice(rank, _iwork0);
 
   /* Calculate the coordinates in the grid system */
 
-  for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = iwork[idim] * _dx[idim];
+  for (int idim = 0; idim < _nDim; idim++)
+    _work1[idim] = _iwork0[idim] * _dx[idim];
 
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
-    _rotation.rotateInverse(work1,work2);
+  {
+    _rotation.rotateDirect(_work1,_work2);
+    return (_work2[idim0] + _x0[idim0]);
+  }
   else
-    work2 = work1;
-
-  return (work2[idim0] + _x0[idim0]);
+  {
+    return (_work1[idim0] + _x0[idim0]);
+  }
 }
 
 /**
@@ -362,33 +362,33 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
                                           const VectorInt& shift,
                                           const VectorDouble& dxsPerCell) const
 {
-  int ndim = getNDim();
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
   /* Calculate the coordinates in the grid system */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
-    work1[idim] = indice[idim] * _dx[idim];
+    _work1[idim] = indice[idim] * _dx[idim];
     if (! shift.empty())
     {
       double ext = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
-      work1[idim] += shift[idim] * ext / 2.;
+      _work1[idim] += shift[idim] * ext / 2.;
     }
   }
 
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
-    _rotation.rotateInverse(work1,work2);
+  {
+    _rotation.rotateDirect(_work1,_work2);
+    for (int idim = 0; idim < _nDim; idim++)
+      _work2[idim] += _x0[idim];
+    return _work2;
+  }
   else
-    work2 = work1;
-
-  for (int idim = 0; idim < ndim; idim++)
-    work2[idim] += _x0[idim];
-
-  return work2;
+  {
+    for (int idim = 0; idim < _nDim; idim++)
+      _work1[idim] += _x0[idim];
+    return _work1;
+  }
 }
 
 /**
@@ -398,10 +398,10 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
  */
 VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
 {
-  VectorInt indice(_nDim,0);
+  VH::fill(_iwork0, 0);
   for (int idim = 0; idim < _nDim; idim++)
-    if (icorner[idim] > 0) indice[idim] = _nx[idim]-1;
-  return getCoordinatesByIndice(indice);
+    if (icorner[idim] > 0) _iwork0[idim] = _nx[idim]-1;
+  return getCoordinatesByIndice(_iwork0);
 }
 
 /**
@@ -416,139 +416,131 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
                                               const VectorInt& shift,
                                               const VectorDouble& dxsPerCell) const
 {
-  VectorInt ranks(_nDim);
-  rankToIndice(node, ranks);
-  return getCoordinatesByIndice(ranks, true, shift, dxsPerCell);
+  rankToIndice(node, _iwork0);
+  return getCoordinatesByIndice(_iwork0, true, shift, dxsPerCell);
 }
 
 /**
  * Return the Vector of coordinates for a given grid node
  * @param rank Rank of the target grid node
- * @param flag_rotate TRUE: perform the roataion; FALSE: skip rotation
+ * @param flag_rotate TRUE: perform the rotation; FALSE: skip rotation
  * @return Vector of coordinates
  */
 VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 {
-  int ndim = getNDim();
-  VectorInt    iwork(ndim);
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
   /* Convert a sample number into grid indices */
 
-  rankToIndice(rank, iwork);
+  rankToIndice(rank, _iwork0);
 
   /* Calculate the coordinates in the grid system */
 
-  for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = iwork[idim] * _dx[idim];
+  for (int idim = 0; idim < _nDim; idim++)
+    _work1[idim] = _iwork0[idim] * _dx[idim];
 
   /* Process the grid rotation (if any) */
 
   if (flag_rotate)
-    _rotation.rotateInverse(work1,work2);
+  {
+    _rotation.rotateDirect(_work1,_work2);
+    for (int idim = 0; idim < _nDim; idim++)
+      _work2[idim] += _x0[idim];
+    return _work2;
+  }
   else
-    work2 = work1;
-
-  for (int idim = 0; idim < ndim; idim++)
-    work2[idim] += _x0[idim];
-
-  return work2;
+  {
+    for (int idim = 0; idim < _nDim; idim++)
+      _work1[idim] += _x0[idim];
+    return _work1;
+  }
 }
 
 double Grid::indiceToCoordinate(int idim0,
                                 const VectorInt& indice,
-                                const VectorDouble& percent) const
+                                const VectorDouble& percent,
+                                bool flag_rotate) const
 {
-  VectorDouble work1(_nDim);
-  VectorDouble work2(_nDim);
-
   /* Calculate the coordinates in the grid system */
 
   for (int idim=0; idim<_nDim; idim++)
   {
-    work1[idim] = (double) indice[idim];
-    if (! percent.empty()) work1[idim] += percent[idim];
-    work1[idim] *= _dx[idim];
+    _work1[idim] = (double) indice[idim];
+    if (! percent.empty()) _work1[idim] += percent[idim];
+    _work1[idim] *= _dx[idim];
   }
 
-  /* Process the grid rotation (if any) */
-
-  _rotation.rotateInverse(work1,work2);
-
-  // Shift by the origin of the grid
-
-  return (work2[idim0] + _x0[idim0]);
+  if (flag_rotate)
+  {
+    _rotation.rotateDirect(_work1,_work2);
+    return (_work2[idim0] + _x0[idim0]);
+  }
+  else
+  {
+    return (_work1[idim0] + _x0[idim0]);
+  }
 }
 
 VectorDouble Grid::indicesToCoordinate(const VectorInt& indice,
                                        const VectorDouble& percent) const
 {
-  VectorDouble vect(_nDim);
-  indicesToCoordinateInPlace(indice, vect, percent);
-  return vect;
+  indicesToCoordinateInPlace(indice, _work1, percent);
+  return _work1;
 }
 
 void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
                                       VectorDouble& coor,
-                                      const VectorDouble& percent) const
+                                      const VectorDouble& percent,
+                                      bool flag_rotate) const
 {
   if ((int)coor.size() < _nDim)
     my_throw("Argument coor should have the correct size");
-
-  VectorDouble work1(_nDim);
-  VectorDouble work2(_nDim);
 
   /* Calculate the coordinates in the grid system */
 
   for (int idim=0; idim<_nDim; idim++)
   {
-    work1[idim] = indice[idim];
-    if (! percent.empty()) work1[idim] += percent[idim];
-    work1[idim] *= _dx[idim];
+    _work1[idim] = indice[idim];
+    if (! percent.empty()) _work1[idim] += percent[idim];
+    _work1[idim] *= _dx[idim];
   }
 
-  /* Process the grid rotation (if any) */
-
-  _rotation.rotateInverse(work1,work2);
-
-  // Returning vector
-
-  for (int idim = 0; idim < _nDim; idim++)
-    coor[idim] = work2[idim] + _x0[idim];
+  if (flag_rotate)
+  {
+    _rotation.rotateDirect(_work1,_work2);
+    for (int idim = 0; idim < _nDim; idim++)
+      coor[idim] = _work2[idim] + _x0[idim];
+  }
+  else
+  {
+    for (int idim = 0; idim < _nDim; idim++)
+      coor[idim] = _work1[idim] + _x0[idim];
+  }
 }
 
 double Grid::rankToCoordinate(int idim0, int rank, const VectorDouble& percent) const
 {
-  VectorInt indice(_nDim);
-  rankToIndice(rank, indice);
-  return indiceToCoordinate(idim0, indice, percent);
+  rankToIndice(rank, _iwork0);
+  return indiceToCoordinate(idim0, _iwork0, percent);
 }
 
 VectorDouble Grid::rankToCoordinates(int rank, const VectorDouble& percent) const
 {
-  VectorInt indice(_nDim);
-  rankToIndice(rank, indice);
-  return indicesToCoordinate(indice,percent);
+  rankToIndice(rank, _iwork0);
+  return indicesToCoordinate(_iwork0,percent);
 }
 
 void Grid::rankToCoordinatesInPlace(int rank, VectorDouble& coor, const VectorDouble& percent) const
 {
-  VectorInt indice(_nDim);
-  rankToIndice(rank, indice);
-  return indicesToCoordinateInPlace(indice, coor, percent);
+  rankToIndice(rank, _iwork0);
+  return indicesToCoordinateInPlace(_iwork0, coor, percent);
 }
 
 int Grid::indiceToRank(const VectorInt& indice) const
 {
-  int ndim = _nDim;
-  int ival = indice[ndim-1];
-  if (ival < 0 || ival >= _nx[ndim-1])
-    return(-1);
-  for (int idim=ndim-2; idim>=0; idim--)
+  int ival = indice[_nDim-1];
+  if (ival < 0 || ival >= _nx[_nDim-1]) return(-1);
+  for (int idim=_nDim-2; idim>=0; idim--)
   {
-    if (indice[idim] < 0 || indice[idim] >= _nx[idim])
-      return(-1);
+    if (indice[idim] < 0 || indice[idim] >= _nx[idim]) return(-1);
     ival = ival * _nx[idim] + indice[idim];
   }
   return ival;
@@ -566,18 +558,21 @@ int Grid::indiceToRank(const VectorInt& indice) const
  */
 void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
-  if ((int)indices.size() < _nDim)
-    my_throw("Argument indices should have the correct size");
-  int ndim = _nDim;
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
-  for (int idim=0; idim<ndim; idim++) nval *= (_nx[idim] - minus);
 
-  for (int idim=ndim-1; idim>=0; idim--)
+  const int* nxadd = &_nx[0]; // for optimization, use address rather than []
+  int* indadd = &indices[0];
+  for (int idim=0; idim<_nDim; idim++)
+    nval *= (*(nxadd + idim) - minus);
+
+  int newind;
+  for (int idim=_nDim-1; idim>=0; idim--)
   {
-    nval /= (_nx[idim] - minus);
-    indices[idim] = rank / nval;
-    rank -= indices[idim] * nval;
+    nval /= (*(nxadd + idim) - minus);
+    newind = rank / nval;
+    *(indadd + idim) = newind;
+    rank -= newind * nval;
   }
 }
 
@@ -585,9 +580,8 @@ VectorInt Grid::coordinateToIndices(const VectorDouble &coor,
                                     bool centered,
                                     double eps) const
 {
-  VectorInt indices(_nDim);
-  if (coordinateToIndicesInPlace(coor, indices, centered, eps)) return VectorInt();
-  return indices;
+  if (coordinateToIndicesInPlace(coor, _iwork0, centered, eps)) return VectorInt();
+  return _iwork0;
 }
 
 /**
@@ -606,34 +600,30 @@ int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
   if ((int)indice.size() != _nDim)
     my_throw("Argument indice should have the correct size");
 
-  int ndim = _nDim;
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
   // Check if all coordinates are defined 
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
     if (FFFF(coor[idim])) return -1;
 
   // Shift by the origin
 
-  for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = coor[idim] - _x0[idim];
+  for (int idim = 0; idim < _nDim; idim++)
+    _work1[idim] = coor[idim] - _x0[idim];
 
   // Perform the Inverse rotation
 
-  _rotation.rotateDirect(work1, work2);
+  _rotation.rotateInverse(_work1, _work2);
 
   // Calculate the indices
 
   bool outside = false;
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
     int ix;
     if (centered)
-      ix = (int) floor(work2[idim] / _dx[idim] + 0.5 + eps);
+      ix = (int) floor(_work2[idim] / _dx[idim] + 0.5 + eps);
     else
-      ix = (int) floor(work2[idim] / _dx[idim] + eps);
+      ix = (int) floor(_work2[idim] / _dx[idim] + eps);
     indice[idim] = ix;
     if (ix < 0 || ix >= _nx[idim]) outside = true;
   }
@@ -642,18 +632,15 @@ int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
 
 int Grid::coordinateToRank(const VectorDouble& coor, bool centered, double eps) const
 {
-  int ndim = _nDim;
-  VectorInt indice(ndim);
-  if (coordinateToIndicesInPlace(coor,indice,centered,eps)) return -1;
-  return indiceToRank(indice);
+  if (coordinateToIndicesInPlace(coor,_iwork0,centered,eps)) return -1;
+  return indiceToRank(_iwork0);
 }
 
 VectorInt Grid::getCenterIndices() const
 {
-  VectorInt indices(_nDim);
   for (int idim = 0; idim < _nDim; idim++)
-    indices[idim] = (_nx[idim] - 1) / 2;
-  return indices;
+    _iwork0[idim] = (_nx[idim] - 1) / 2;
+  return _iwork0;
 }
 
 bool Grid::_isSpaceDimensionValid(int idim) const
@@ -676,6 +663,10 @@ void Grid::_allocate(void)
   for (int i=0; i<_nDim; i++) _dx[i] = 0.;
 
   _rotation.resetFromSpaceDimension(_nDim);
+
+  _iwork0.resize(_nDim);
+  _work1.resize(_nDim);
+  _work2.resize(_nDim);
 }
 
 void Grid::_recopy(const Grid &r)
@@ -696,6 +687,12 @@ void Grid::_recopy(const Grid &r)
   _counts = r._counts;
   _order = r._order;
   _indices = r._indices;
+
+  // For working array, simply dimension but do not loose time in copying the contents
+
+  _iwork0 = VectorInt(_nDim);
+  _work1 = VectorDouble(_nDim);
+  _work2 = VectorDouble(_nDim);
 }
 
 /**
@@ -769,7 +766,6 @@ bool Grid::isSameMesh(const Grid& grid) const
   return 1;
 }
 
-
 /**
  * Returns a vector with the coordinates along one axis. This is needed
  * for the label of Grid representation
@@ -798,8 +794,6 @@ VectorDouble Grid::getAxis(int idim) const
  */
 void Grid::iteratorInit(const VectorInt& order)
 {
-  int ndim = _nDim;
-
   // Initiate the Iterator
   _iter = 0;
 
@@ -807,19 +801,19 @@ void Grid::iteratorInit(const VectorInt& order)
   _counts = _nx;
 
   // Define the order
-  if (order.empty() || ndim != (int) order.size())
+  if (order.empty() || _nDim != (int) order.size())
   {
-    _order.resize(ndim,0);
-    for (int idim = 0; idim < ndim; idim++)
+    _order.resize(_nDim,0);
+    for (int idim = 0; idim < _nDim; idim++)
       _order[idim] = idim;
   }
   else
   {
     // Check that the order array provided is valid
-    for (int idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < _nDim; idim++)
     {
       bool found = false;
-      for (int jdim = 0; jdim < ndim; jdim++)
+      for (int jdim = 0; jdim < _nDim; jdim++)
       {
         int rank = ABS(order[jdim]) - 1;
         if (rank == idim) found = true;
@@ -832,7 +826,7 @@ void Grid::iteratorInit(const VectorInt& order)
 
   // Count the total number of iterations
   _nprod = 1;
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
     _nprod *= _counts[idim];
 }
 
@@ -844,11 +838,10 @@ VectorInt Grid::iteratorNext(void)
 {
   int idim;
   int iech = _iter;
-  int ndim = _nDim;
   int nval = _nprod;
 
-  VectorInt indices(ndim);
-  for (int jdim = ndim - 1; jdim >= 0; jdim--)
+  VectorInt indices(_nDim);
+  for (int jdim = _nDim - 1; jdim >= 0; jdim--)
   {
     int order = _order[jdim];
     idim = ABS(order);
@@ -860,7 +853,6 @@ VectorInt Grid::iteratorNext(void)
 
   // Increment the iterator
   if (_iter < _nprod - 1) _iter++;
-
   return indices;
 }
 
@@ -888,17 +880,11 @@ void Grid::dilate(int mode,
                   VectorDouble& dx,
                   VectorDouble& x0) const
 {
-  int ndim = _nDim;
-  VectorInt indg(ndim);
-  VectorDouble coor(ndim);
-
-  /* Preliminary checks */
-
   if (mode != 1 && mode != -1) return;
 
   /* Get the number of grid nodes */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
     nx[idim] = getNX(idim) + 2 * mode * nshift[idim];
     if (nx[idim] <= 0) return;
@@ -907,14 +893,14 @@ void Grid::dilate(int mode,
 
   /* Get the lower left corner of the small grid */
 
-  for (int idim = 0; idim < ndim; idim++)
-    indg[idim] = -mode * nshift[idim];
-  indicesToCoordinate(indg, coor);
+  for (int idim = 0; idim < _nDim; idim++)
+    _iwork0[idim] = -mode * nshift[idim];
+  indicesToCoordinate(_iwork0, _work1);
 
   /* Calculate the center of the lower left cell */
 
-  for (int idim = 0; idim < ndim; idim++)
-    x0[idim] = coor[idim];
+  for (int idim = 0; idim < _nDim; idim++)
+    x0[idim] = _work1[idim];
 }
 
 /****************************************************************************/
@@ -935,15 +921,13 @@ void Grid::multiple(const VectorInt &nmult,
                     VectorDouble &dx,
                     VectorDouble &x0) const
 {
-  int ndim = _nDim;
-  VectorInt indg(ndim);
-  VectorDouble perc(ndim);
-  VectorDouble coor1(ndim);
-  VectorDouble coor2(ndim);
+  VectorDouble perc(_nDim);
+  VectorDouble coor1(_nDim); // cannot use _work1 and _work2 (as already used inside)
+  VectorDouble coor2(_nDim);
 
   /* Get the number of grid nodes */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
     double value = (double) getNX(idim);
     if (flag_cell)
@@ -954,23 +938,20 @@ void Grid::multiple(const VectorInt &nmult,
 
   /* Get the new grid meshes */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
     dx[idim] = getDX(idim) * nmult[idim];
 
   /* Get the lower left corner of the small grid */
 
-  for (int idim = 0; idim < ndim; idim++)
-    indg[idim] = 0;
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = -0.5;
-  indicesToCoordinateInPlace(indg, coor1, perc);
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = 0.5;
-  indicesToCoordinateInPlace(indg, coor2, perc);
+  for (int idim = 0; idim < _nDim; idim++) _iwork0[idim] = 0;
+  for (int idim = 0; idim < _nDim; idim++) perc[idim] = -0.5;
+  indicesToCoordinateInPlace(_iwork0, coor1, perc);
+  for (int idim = 0; idim < _nDim; idim++) perc[idim] = 0.5;
+  indicesToCoordinateInPlace(_iwork0, coor2, perc);
 
   /* Calculate the center of the lower left cell */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
     double delta = (coor2[idim] - coor1[idim]) / 2.;
     if (flag_cell)
@@ -998,15 +979,13 @@ void Grid::divider(const VectorInt &nmult,
                    VectorDouble &dx,
                    VectorDouble &x0) const
 {
-  int ndim = _nDim;
-  VectorInt indg(ndim);
-  VectorDouble perc(ndim);
-  VectorDouble coor1(ndim);
-  VectorDouble coor2(ndim);
+  VectorDouble perc(_nDim);
+  VectorDouble coor1(_nDim); // cannot use _work1 and _work2 (as already used inside)
+  VectorDouble coor2(_nDim);
 
   /* Get the number of grid nodes */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
     if (flag_cell)
       nx[idim] = getNX(idim) * nmult[idim];
@@ -1016,23 +995,20 @@ void Grid::divider(const VectorInt &nmult,
 
   /* Get the new grid meshes */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
     dx[idim] = getDX(idim) / ((double) nmult[idim]);
 
   /* Get the lower left corner of the small grid */
 
-  for (int idim = 0; idim < ndim; idim++)
-    indg[idim] = 0;
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = -0.5;
-  indicesToCoordinateInPlace(indg, coor1, perc);
-  for (int idim = 0; idim < ndim; idim++)
-    perc[idim] = 0.5;
-  indicesToCoordinateInPlace(indg, coor2, perc);
+  for (int idim = 0; idim < _nDim; idim++) _iwork0[idim] = 0;
+  for (int idim = 0; idim < _nDim; idim++) perc[idim] = -0.5;
+  indicesToCoordinateInPlace(_iwork0, coor1, perc);
+  for (int idim = 0; idim < _nDim; idim++) perc[idim] = 0.5;
+  indicesToCoordinateInPlace(_iwork0, coor2, perc);
 
   /* Calculate the center of the lower left cell */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < _nDim; idim++)
   {
     double delta = (coor2[idim] - coor1[idim]) / 2.;
     if (flag_cell)
@@ -1102,7 +1078,7 @@ VectorInt Grid::generateGridIndices(const VectorInt& nx,
 
   VectorInt ind(ncell);
   for (int i = 0; i < ncell; i++) ind[i] = i;
-  ut_sort_int(0, ncell, ind.data(), dlp.tab.data());
+  VH::arrangeInPlace(0, ind, dlp.tab, true, ncell);
   VectorInt tab2(ncell);
   for (int i = 0; i < ncell; i++)
   {
@@ -1132,14 +1108,17 @@ VectorInt Grid::generateGridIndices(const String &string,
  *****************************************************************************/
 int Grid::generateMirrorIndex(int nx, int ix)
 {
-  int nmax;
-
-  nmax = nx - 1;
+  int nmax = nx - 1;
   while (!(ix >= 0 && ix < nx))
   {
     if (ix < 0)
+    {
       ix = -ix;
-    else if (ix > nmax) ix = 2 * nmax - ix;
+    }
+    else if (ix > nmax)
+    {
+      ix = 2 * nmax - ix;
+    }
   }
   return (ix);
 }
@@ -1147,37 +1126,28 @@ int Grid::generateMirrorIndex(int nx, int ix)
 /**
  * Find the grid node to which the current sample is assigned
  * @param coor       Sample coordinates
- * @param node       Rank of the grid node
+ * @param center     Coordinates of the grid node center
  * @param dxsPerCell When defined, vector of cell extension; otherwise use 8dx
  * @return Error return code
  */
-bool Grid::sampleBelongsToCell(const VectorDouble &coor,
-                               int node,
-                               const VectorDouble &dxsPerCell) const
+bool Grid::sampleBelongsToCell(const VectorDouble& coor,
+                               const VectorDouble& center,
+                               const VectorDouble& dxsPerCell) const
 {
-  int ndim = _nDim;
-  VectorDouble work1(ndim);
-  VectorDouble work2(ndim);
-
   // Shift by the origin
-  for (int idim = 0; idim < ndim; idim++)
-    work1[idim] = coor[idim] - _x0[idim];
+  for (int idim = 0; idim < _nDim; idim++)
+    _work1[idim] = coor[idim] - _x0[idim];
 
   // Perform the Inverse rotation
-  _rotation.rotateDirect(work1, work2);
+  _rotation.rotateInverse(_work1, _work2);
 
-  // Indices of the grid node
-  VectorInt indices(ndim);
-  rankToIndice(node, indices);
+  // Calculate the departure between sample and grid center
 
-  // Calculate the indices
-
-  for (int idim=0; idim<ndim; idim++)
+  for (int idim=0; idim<_nDim; idim++)
   {
     double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
-    double delta = work2[idim] - _dx[idim] * indices[idim];
+    double delta = _work2[idim] - center[idim];
     if (delta < -dxloc/2. || delta > dxloc/2.) return false;
   }
-
   return true;
 }

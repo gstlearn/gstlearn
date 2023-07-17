@@ -35,8 +35,8 @@ monomials
 spectral
 kriging
 chebychev
-polysets
-polyset
+polyelems
+polyelem
 triangulation
 euclidean
 keypair

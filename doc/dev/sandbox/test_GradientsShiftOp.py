@@ -21,12 +21,8 @@ dat.addColumns(coords[:,0],"X",gl.ELoc.X,0)
 dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 
 # Create the model
-# Beware : the first big axis must be provided first: it corresponds to the direction of 'theta' angle.
 
-model = gl.Model.createFromDb(resultDb)
-cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext()) #Alias ECov.MATERN
-cova.setRanges([4,45])
-model.addCov(cova)
+model = gl.Model.createFromParam(type = gl.ECov.BESSEL_K, ranges = [4., 45.])
 spirale = gl.FunctionalSpirale(0., -1.4, 1., 1., 50., 50.);
 nostat = gl.NoStatFunctional(spirale)
 model.addNoStat(nostat)
@@ -38,9 +34,7 @@ mesh = gl.MeshETurbo(workingDb)
 
 # Create shift operator
 S = gl.ShiftOpCs(mesh, model, resultDb)
-
 S.initGradFromMesh(mesh,model)
-
 S.getSGrad(0,0)
 
 print("Test successfully performed")

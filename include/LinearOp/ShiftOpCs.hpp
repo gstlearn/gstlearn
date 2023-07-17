@@ -16,9 +16,6 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
@@ -31,6 +28,11 @@ class Model;
 class CovAniso;
 class NoStatArray;
 class EConsElem;
+class AMatrix;
+class AMatrixSquare;
+class MatrixSquareGeneral;
+class MatrixRectangular;
+class MatrixSquareSymmetric;
 
 /**
  * \brief Shift Operator for performing the basic tasks of SPDE
@@ -103,7 +105,6 @@ public:
                               VectorDouble& outv,
                               double puis = 2) const;
   double getMaxEigenValue() const;
-  int getVariety()const {return _variety;}
 #ifndef SWIG
   cs* getS() const { return _S; }
   cs* getTildeCGrad(int iapex, int igparam) const;
@@ -120,8 +121,6 @@ public:
   double getLambdaGrad(int idim,int iapex) const { return _LambdaGrad[idim][iapex]; }
   int getSGradAddress(int iapex, int igparam) const;
 
-  bool getFlagNoStatByHH() const { return _flagNoStatByHH; }
-  void setFlagNoStatByHH(bool flagGradByHH) { _flagNoStatByHH = flagGradByHH; }
   int  getLambdaGradSize() const;
 
 private:
@@ -133,40 +132,24 @@ private:
   void _setModel(const Model* model) { _model = model; }
   bool _isNoStat();
   bool _isGlobalHH(int igrf, int icov);
-  bool _isVelocity();
   const CovAniso* _getCova();
 
-  int  _buildSVel(const AMesh *amesh, double tol = EPSILON10);
-  int  _buildSVariety(const AMesh *amesh, double tol = EPSILON10);
-  int  _buildSSphere(const AMesh *amesh, double tol = EPSILON10);
+  int  _buildS(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSGrad(const AMesh *amesh, double tol = EPSILON10);
-  int  _buildTildeC(const AMesh *amesh, const VectorDouble& units);
   void _buildLambda(const AMesh *amesh);
 
-  void _loadAux(VectorDouble& tab,
-                const EConsElem& type,
-                int ip);
-  void _loadAuxPerMesh(const AMesh* amesh,
-                       VectorDouble& tab,
-                       const EConsElem& type,
-                       int imesh = 0);
-  void _loadHHPerMesh(const AMesh* amesh,
-                      MatrixSquareSymmetric& hh,
-                      int imesh = 0);
-  void _loadHHRegularByApex(MatrixSquareSymmetric& hh, int ip);
-  void _loadHHVarietyByApex(MatrixSquareSymmetric& hh, int ip);
-  void _loadHHByApex(const AMesh* amesh, MatrixSquareSymmetric& hh, int ip);
-  void _loadHHGradByApex(MatrixSquareSymmetric& hh,
-                         int igparam,
-                         int ipref);
+  void _loadAux(VectorDouble &tab, const EConsElem &type, int imesh = 0);
+  void _loadHH(const AMesh *amesh, MatrixSquareSymmetric &hh, int imesh = 0);
+  void _loadHHRegular(MatrixSquareSymmetric &hh, int imesh);
+  void _loadHHVariety(MatrixSquareSymmetric& hh, int imesh);
+  void _loadHHGrad(const AMesh *amesh,
+                   MatrixSquareSymmetric &hh,
+                   int igparam,
+                   int ipref);
   double _computeGradLogDetHH(const AMesh* amesh, int igparam,int ipref,
                               const MatrixSquareSymmetric& HH,
                               MatrixSquareSymmetric& work,
                               MatrixSquareSymmetric& work2);
-  void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
-                          const AMesh* amesh,
-                          int ipref,
-                          int igparam);
   bool _buildLambdaGrad(const AMesh *amesh);
 
   void _reset();
@@ -191,18 +174,10 @@ private:
                              VectorVectorDouble &coords,
                              AMatrixSquare &matres,
                              double *deter);
-  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab);
-  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab);
-  void _updateCova(CovAniso* cova, int ip);
-  void _updateHH(MatrixSquareSymmetric& hh, int ip);
+  void _updateCova(CovAniso* cova, int imesh);
   VectorT<std::map<int, double>> _mapCreate() const;
   VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
   VectorT<std::map<int,double>> _mapTildeCCreate()const;
-  void _determineFlagNoStatByHH();
-  void _mapUpdate(std::map<int, double>& tab,
-                  int ip1,
-                  double value,
-                  double tol = EPSILON10) const;
   void _mapTildeCUpdate(std::map<int, double>& tab,
                         int ip1,
                         double value,
@@ -217,17 +192,20 @@ private:
   cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
 
   bool _cond(int indref, int igparam, int ipref);
+  void _determineFlagNoStatByHH();
+  void _updateHH(MatrixSquareSymmetric& hh, int imesh);
+  cs* _preparSSparse(const AMesh *amesh) const;
 
 private:
   VectorDouble       _TildeC;
   VectorDouble       _Lambda;
   cs*                _S;
+
   int                _nModelGradParam;
   VectorT<cs *>      _SGrad;
   VectorT<cs *>      _TildeCGrad;
   VectorVectorDouble _LambdaGrad;
   bool               _flagNoStatByHH;
-  int                _variety;
 
   // Following list of members are there to ease the manipulation and reduce argument list
   const Model* _model;

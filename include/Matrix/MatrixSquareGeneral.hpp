@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixSquareGeneral : public AMatrixSquare {
 
 public:
-  MatrixSquareGeneral(int nrow = 0, bool sparse = false);
+  MatrixSquareGeneral(int nrow = 0);
   MatrixSquareGeneral(const MatrixSquareGeneral &m);
   MatrixSquareGeneral(const AMatrix &m);
   MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);
@@ -43,6 +43,7 @@ public:
   /*! Check if the matrix is (non empty) square */
   bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
+  static MatrixSquareGeneral* createFromVVD(const VectorVectorDouble& X);
   MatrixSquareGeneral* reduce(const VectorInt &validRows) const;
 
 protected:
@@ -51,6 +52,7 @@ protected:
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSquare()); }
+  int    _getIndexToRank(int irow,int icol) const override;
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int irow, int icol, double value) override;
@@ -65,7 +67,6 @@ private:
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   void   _recopy(const MatrixSquareGeneral &r);
-  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   VectorDouble _squareMatrix;

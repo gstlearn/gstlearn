@@ -76,6 +76,7 @@
 %include Calculators/ACalcInterpolator.hpp
 %include Calculators/CalcStatistics.hpp
 %include Calculators/CalcGridToGrid.hpp
+%include Calculators/CalcSimuPost.hpp
 
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp
@@ -103,6 +104,13 @@
 
 %include Geometry/GeometryHelper.hpp
 %include Geometry/Rotation.hpp
+%include Geometry/ABiTargetCheck.hpp
+%include Geometry/BiTargetCheckBench.hpp
+%include Geometry/BiTargetCheckCell.hpp
+%include Geometry/BiTargetCheckDistance.hpp
+%include Geometry/BiTargetCheckFaults.hpp
+%include Geometry/BiTargetCheckCode.hpp
+%include Geometry/BiTargetCheckDate.hpp
 
 %include Arrays/AArray.hpp
 %include Arrays/Array.hpp
@@ -124,6 +132,7 @@
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
+%include Space/SpaceTarget.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
 
@@ -135,7 +144,6 @@
 %include Mesh/MeshETurbo.hpp
 %include Mesh/MeshSpherical.hpp
 %include Mesh/MeshSphericalExt.hpp
-
 
 %include Polynomials/APolynomial.hpp
 %include Polynomials/ClassicalPolynomial.hpp
@@ -162,12 +170,12 @@
 %include Model/NoStatArray.hpp
 %include Model/NoStatFunctional.hpp
 
-%include Neigh/ANeighParam.hpp
+%include Neigh/ANeigh.hpp
 %include Neigh/NeighUnique.hpp
 %include Neigh/NeighImage.hpp
 %include Neigh/NeighMoving.hpp
 %include Neigh/NeighBench.hpp
-%include Neigh/NeighWork.hpp
+%include Neigh/NeighCell.hpp
 
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
@@ -223,6 +231,7 @@
 %include Covariances/CovWendland2.hpp
 %include Covariances/CovMarkov.hpp
 %include Covariances/CovDiffusionAdvection.hpp
+%include Covariances/CovHelper.hpp
 
 %include Drifts/ADrift.hpp
 %include Drifts/ADriftElem.hpp
@@ -248,6 +257,7 @@
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixSquare.hpp
 %include Matrix/LinkMatrixSparse.hpp
+%include Matrix/MatrixSparse.hpp
 %include Matrix/MatrixRectangular.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
@@ -284,7 +294,7 @@
 %include Morpho/Morpho.hpp
 
 %include Polygon/Polygons.hpp
-%include Polygon/PolySet.hpp
+%include Polygon/PolyElem.hpp
 
 %include Stats/Classical.hpp
 %include Stats/PCA.hpp
@@ -300,6 +310,7 @@
 %include Estimation/CalcKrigingFactors.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
 %include Estimation/CalcImage.hpp
+%include Estimation/CalcGlobal.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp

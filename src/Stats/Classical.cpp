@@ -480,7 +480,7 @@ double _getQuantile(VectorDouble &tab, int ntab, double proba)
 
   if (FFFF(proba)) return (TEST);
 
-  ut_sort_double(0, ntab, NULL, tab.data());
+  VH::sortInPlace(tab, true, ntab);
   rank = (int) (proba * (double) ntab);
   v1 = tab[rank];
 
@@ -679,7 +679,7 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   int ncols = (int) opers.size();
   Table table = Table();
   table.setTitle("Monovariate Statistics on Variables");
-  table.reset(nrows, ncols, stats, false, false);
+  table.resetFromVD(nrows, ncols, stats, false);
   for (int irow=0; irow<nrows; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
 
@@ -1929,7 +1929,7 @@ VectorDouble dbStatisticsPerCellByUID(Db *db,
 
     /* Check the location of the data in the grid */
 
-    db->getCoordinatesInPlace(iech, coor);
+    db->getCoordinatesPerSampleInPlace(iech, coor);
     int iad = dbgrid->getGrid().coordinateToRank(coor);
     if (iad < 0 || iad >= nxyz) continue;
     nn[iad]++;
@@ -2073,11 +2073,11 @@ Table dbStatisticsMultiT(Db *db,
 
   if (flagMono)
   {
-    table.reset(number, 1, stats, false, false);
+    table.resetFromVD(number, 1, stats, false);
   }
   else
   {
-    table.reset(number, number, stats, false, false);
+    table.resetFromVD(number, number, stats, false);
     for (int icol=0; icol<number; icol++)
       table.setColumnName(icol, names[icol]);
   }
@@ -2425,7 +2425,7 @@ int dbStatisticsInGridToolByUID(Db *db,
       /* Read a sample */
 
       if (!db->isActive(iech)) continue;
-      db->getCoordinatesInPlace(iech, coor);
+      db->getCoordinatesPerSampleInPlace(iech, coor);
       if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0, true)) continue;
       double value = db->getArray(iech, juid);
       if (FFFF(value)) continue;

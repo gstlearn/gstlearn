@@ -16,7 +16,6 @@
 #include "Enum/ELoadBy.hpp"
 
 #include "Matrix/MatrixFactory.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -28,6 +27,7 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
@@ -468,8 +468,7 @@ void simu_define_func_scale(void (*st_simu_scale)(Db*, int, int))
  *****************************************************************************/
 static bool st_is_model_nugget(void)
 {
-  Model* model = st_get_model();
-  return  model->hasNugget();
+  return  st_get_model()->hasNugget();
 }
 
 /****************************************************************************/
@@ -483,7 +482,6 @@ static CovAniso* st_get_nugget(void)
   CovAniso *cova;
 
   model = st_get_model();
-
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
     cova = model->getCova(is);
@@ -1267,7 +1265,7 @@ static void st_compute_blin(void)
     }
     (void) matrix_invert(m, ndimp, -1);
     matrix_product(ndimp, ndimp, 1, m, v, v);
-    matrix_product(ndimp, ndimp, 1, tp, v, Calcul.blin.data());
+    matrix_product_safe(ndimp, ndimp, 1, tp, v, Calcul.blin.data());
   }
   else
   {
@@ -1467,7 +1465,7 @@ int spde_attach_model(Model *model)
   if (S_ENV.nvar > 1)
   {
     const ANoStat *nostat = st_get_model()->getNoStat();
-    if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
+    if (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
@@ -1605,7 +1603,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
   if (S_ENV.nvar > 1)
   {
     const ANoStat *nostat = model->getNoStat();
-    if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
+    if (nostat != nullptr && nostat->isDefinedByType(EConsElem::SILL))
     {
       messerr("Non-stationary Sill parameter incompatible with multivariate");
       return (1);
@@ -1624,8 +1622,8 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
  **
  ** \return The rank of the parameter of -1 (not found)
  **
- ** \param[in]  icov0     Rank of the target covariance
  ** \param[in]  type0     Type of parameter (EConsElem)
+ ** \param[in]  icov0     Rank of the target covariance
  ** \param[in]  ivar0     Rank of the target variable (only when type=EConsElem::SILL)
  ** \param[in]  jvar0     Rank of the target variable (only when type=EConsElem::SILL)
  **
@@ -1633,15 +1631,15 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
  ** \remark The nugget effect corresponds to rank (-1)
  **
  *****************************************************************************/
-static int st_identify_nostat_param(int icov0,
-                                    const EConsElem &type0,
-                                    int ivar0,
-                                    int jvar0)
+static int st_identify_nostat_param(const EConsElem &type0,
+                                    int icov0 = -1,
+                                    int ivar0 = -1,
+                                    int jvar0 = -1)
 {
   const ANoStat *nostat = st_get_model()->getNoStat();
   if (nostat == nullptr) return -1;
   int igrf0 = SPDE_CURRENT_IGRF;
-  int ipar = nostat->getRank(igrf0, icov0, type0, ivar0, jvar0);
+  int ipar = nostat->getRank(type0, icov0, ivar0, jvar0, igrf0);
   return ipar;
 }
 
@@ -2328,53 +2326,39 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
   int ndim = S_ENV.ndim;
   int igrf0 = SPDE_CURRENT_IGRF;
   int icov0 = SPDE_CURRENT_ICOV;
-  int ncorner = amesh->getNApexPerMesh();
 
   /* Update the Tensor 'hh' */
 
-  if (nostat->isDefinedforAnisotropy(igrf0, icov0))
+  if (nostat->isDefinedforAnisotropy(icov0, igrf0))
   {
-    VectorDouble hhtot(ndim * ndim, 0.);
-    for (int ic = 0; ic < ncorner; ic++)
-    {
-      nostat->updateModelByVertex(model, amesh->getApex(imesh0, ic));
-      st_compute_hh();
-      VH::cumulate(hhtot, Calcul.hh);
-    }
-    VH::divideConstant(hhtot, (double) ncorner);
-    VH::copy(Calcul.hh, hhtot);
+    nostat->updateModelByMesh(model, imesh0);
+    st_compute_hh();
     Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
   }
 
   /* Update the Spherical Rotation array */
 
-  if (nostat->isDefined(igrf0, icov0, EConsElem::SPHEROT, -1, -1))
+  if (nostat->isDefined(EConsElem::SPHEROT, icov0, -1, -1, igrf0))
   {
     VectorDouble srot(2, 0.);
     for (int i = 0; i < 2; i++)
     {
-      int ipar = nostat->getRank(igrf0, icov0, EConsElem::SPHEROT, i, -1);
+      int ipar = nostat->getRank(EConsElem::SPHEROT, icov0,  i, -1, igrf0);
       if (ipar < 0) continue;
-      double total = 0.;
-      for (int ic = 0; ic < ncorner; ic++)
-        total += nostat->getValueByParam(ipar, 0, amesh->getApex(imesh0, ic));
-      Calcul.srot[i] = total / (double) ncorner;
+      Calcul.srot[i] = nostat->getValueByParam(ipar, 0, imesh0);
     }
   }
 
   /* Update the Velocity array */
 
-  if (nostat->isDefined(igrf0, icov0, EConsElem::VELOCITY, -1, -1))
+  if (nostat->isDefined(EConsElem::VELOCITY, icov0, -1, -1, igrf0))
   {
     VectorDouble vv(ndim, 0.);
     for (int idim = 0; idim < ndim; idim++)
     {
-      int ipar = nostat->getRank(igrf0, icov0, EConsElem::VELOCITY, idim, -1);
+      int ipar = nostat->getRank(EConsElem::VELOCITY, icov0, idim, -1, igrf0);
       if (ipar < 0) continue;
-      double total = 0.;
-      for (int ic = 0; ic < ncorner; ic++)
-        total += nostat->getValueByParam(ipar, 0, amesh->getApex(imesh0, ic));
-      Calcul.vv[idim] = total / (double) ncorner;
+      Calcul.vv[idim] = nostat->getValueByParam(ipar, 0, imesh0);
     }
   }
 }
@@ -2519,8 +2503,7 @@ static int st_fill_Bnugget(Db *dbin)
   /* In the non-stationary case, identify the rank of the parameter */
   /* which corresponds to the sill of the nugget effect */
 
-  flag_nostat_sillnug = st_identify_nostat_param(-1, EConsElem::SILL, -1, -1)
-      >= 0;
+  flag_nostat_sillnug = st_identify_nostat_param(EConsElem::SILL) >= 0;
   if (flag_nostat_sillnug)
   {
     messerr("Non-stationarity on nugget sill values not programmed yet");
@@ -2948,7 +2931,7 @@ static void st_project_plane(double center[3],
 
   /* Returned coordinates */
 
-  vector_translate(3, center, v, xyz);
+  VH::addInPlace(center, v, xyz, 3);
 }
 
 /****************************************************************************/
@@ -2979,14 +2962,14 @@ static void st_tangent_calculate(double center[3],
   w[1] = sinphi * sintet;
   w[2] = cosphi;
   // V = Center ^ w: first axis
-  vector_product(center, w, v);
-  ut_normalize(3, v);
+  VH::crossProduct3DInPlace(center, w, v);
+  VH::normalize(v, 3);
   // W = Center ^ V: second axis
-  vector_product(center, v, w);
-  ut_normalize(3, w);
+  VH::crossProduct3DInPlace(center, v, w);
+  VH::normalize(w, 3);
   // Get the end points from Unit vectors
-  vector_translate(3, center, v, axes[0]);
-  vector_translate(3, center, w, axes[1]);
+  VH::addInPlace(center, v, axes[0], 3);
+  VH::addInPlace(center, w, axes[1], 3);
 }
 
 /****************************************************************************/
@@ -3101,10 +3084,10 @@ cs* _spde_fill_S(AMesh *amesh, Model *model, double *units)
           matw[ecr++] = MATU(icorn, idim);
       matrix_transpose(ndim, ncorner, matw, matinvw);
 
-      matrix_product(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
+      matrix_product_safe(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
       if (flag_nostat)
-        matrix_product(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
-      matrix_product(ncorner, ndim, ncorner, mat1, matw, mat);
+        matrix_product_safe(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
+      matrix_product_safe(ncorner, ndim, ncorner, mat1, matw, mat);
 
       for (int j0 = 0; j0 < ncorner; j0++)
         for (int j1 = 0; j1 < ncorner; j1++)
@@ -3205,32 +3188,15 @@ VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
                                const VectorDouble &TildeC)
 {
-  const ANoStat *nostat = model->getNoStat();
   VectorDouble Lambda;
-  int igrf0 = SPDE_CURRENT_IGRF;
-  int icov0 = SPDE_CURRENT_ICOV;
-  int ndim = S_ENV.ndim;
   int nvertex = amesh->getNApices();
   double sill = st_get_cova_sill(0, 0);
 
   /* Fill the array */
 
-  if (st_get_model()->isNoStat() && nostat->isDefinedforAnisotropy(igrf0,icov0))
-  {
-    for (int ip = 0; ip < nvertex; ip++)
-    {
-      nostat->updateModelByVertex(model, ip);
-      st_compute_hh();
-      double sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
-      Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
-    }
-  }
-  else
-  {
-    double sqdeth = Calcul.sqdeth;
-    for (int ip = 0; ip < nvertex; ip++)
-      Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
-  }
+  double sqdeth = Calcul.sqdeth;
+  for (int ip = 0; ip < nvertex; ip++)
+    Lambda.push_back(sqrt((TildeC[ip]) / (sqdeth * sill)));
 
   return (Lambda);
 }

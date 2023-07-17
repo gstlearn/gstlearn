@@ -28,11 +28,11 @@ struct GSTLEARN_EXPORT Krigtest_Res
   int neq;  // Number of Equations in the Kriging/CoKriging system
   int nrhs; // Number of R.H.S. vectors (= nvar)
   VectorInt nbgh;    // Ranks of the neighboring samples
-  VectorDouble xyz;  // Coordinates of the neighboring samples (ndim * nech)
-  VectorDouble data; // Usable values at neighboring samples (neq)
+  VectorVectorDouble xyz;  // Coordinates of the neighboring samples [ndim][nech]
+  VectorDouble data; // Usable values at neighboring samples [neq]
   VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
   VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
-  VectorDouble wgt;  // Vector of weights (neq * nvar)
+  VectorDouble wgt;  // Vector of weights [nvar][nech]
   VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
   VectorDouble zam;  // Vector of pre-calculations
 
@@ -59,6 +59,7 @@ public:
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setFlagProf(bool flagProf) { _flagProf = flagProf; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
+  void setVerboseSingleTarget(bool verbose) { _verboseSingleTarget = verbose; }
   void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
   void setAnam(AAnam *anam) { _anam = anam; }
   void setFlagGam(bool flagGam) { _flagGam = flagGam; }
@@ -100,7 +101,8 @@ private:
 
   bool _flagProf;
 
-  int _iechSingleTarget;
+  int  _iechSingleTarget;
+  bool _verboseSingleTarget;
 
   bool _flagPerCell;
 
@@ -127,8 +129,8 @@ private:
 GSTLEARN_EXPORT int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
-                            ANeighParam *neighparam,
-                            const EKrigOpt &calcul = EKrigOpt::fromKey("PONCTUAL"),
+                            ANeigh *neigh,
+                            const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
                             bool flag_est = true,
                             bool flag_std = true,
                             bool flag_varz = false,
@@ -139,7 +141,7 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
 GSTLEARN_EXPORT int krigcell(Db *dbin,
                              Db *dbout,
                              Model *model,
-                             ANeighParam *neighparam,
+                             ANeigh *neigh,
                              bool flag_est = true,
                              bool flag_std = true,
                              VectorInt ndisc = VectorInt(),
@@ -148,37 +150,37 @@ GSTLEARN_EXPORT int krigcell(Db *dbin,
 GSTLEARN_EXPORT int kribayes(Db *dbin,
                              Db *dbout,
                              Model *model,
-                             ANeighParam *neighparam,
-                             const VectorDouble& dmean = VectorDouble(),
-                             const VectorDouble& dcov = VectorDouble(),
+                             ANeigh *neigh,
+                             const VectorDouble& prior_mean = VectorDouble(),
+                             const VectorDouble& prior_cov = VectorDouble(),
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("Bayes"));
 GSTLEARN_EXPORT int krigprof(Db *dbin,
                              Db *dbout,
                              Model *model,
-                             ANeighParam *neighparam,
+                             ANeigh *neigh,
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("KrigProf"));
 GSTLEARN_EXPORT int kriggam(Db *dbin,
                             Db *dbout,
                             Model *model,
-                            ANeighParam *neighparam,
+                            ANeigh *neigh,
                             AAnam *anam,
                             const NamingConvention& namconv = NamingConvention("KrigGam"));
 GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       Db *dbout,
                                       Model *model,
-                                      ANeighParam *neighparam,
+                                      ANeigh *neigh,
                                       int iech0,
-                                      const EKrigOpt &calcul = EKrigOpt::fromKey("PONCTUAL"),
+                                      const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
                                       VectorInt ndisc = VectorInt(),
                                       bool flagPerCell = false,
-                                      bool forceDebug = true);
+                                      bool verbose = true);
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
-                           ANeighParam *neighparam,
+                           ANeigh *neigh,
                            bool flag_kfold = false,
                            int flag_xvalid_est = 1,
                            int flag_xvalid_std = 1,
@@ -188,5 +190,5 @@ GSTLEARN_EXPORT int xvalid(Db *db,
 GSTLEARN_EXPORT int test_neigh(Db *dbin,
                                Db *dbout,
                                Model *model,
-                               ANeighParam *neighparam,
+                               ANeigh *neigh,
                                const NamingConvention& namconv = NamingConvention("Neigh"));

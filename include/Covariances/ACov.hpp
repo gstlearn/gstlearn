@@ -19,6 +19,8 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
+#include <vector>
+
 class Db;
 class DbGrid;
 class MatrixRectangular;
@@ -33,80 +35,94 @@ public:
 
   /// ACov Interface
   virtual int getNVariables() const = 0;
+  /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const = 0;
+                       const CovCalcMode* mode = nullptr) const = 0;
+  /// Calculate the matrix of covariances for 0-distance (stationary case)
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const;
+  /// Calculate the covariance between two variables and two points (general case)
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const = 0;
+                      const CovCalcMode* mode = nullptr) const = 0;
+  /// Calculate the matrix of covariances between two points (general case)
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const;
+  /// Tell if the use of Optimization is enabled or not
+  virtual bool isOptimEnabled() const { return _isOptimEnabled; }
+
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
                                  bool /*normalize*/) const { return TEST; }
   virtual double evalSpectrum(const VectorDouble& /*freq*/,
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
   /////////////////////////////////////////////////////////////////////////////////
-
-  MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;
+  ///
+  void setIsOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,
                     int jvar = 0,
-                    const CovCalcMode& mode = CovCalcMode()) const;
+                    const CovCalcMode* mode = nullptr) const;
+  MatrixSquareGeneral eval0Mat(const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
-                              const CovCalcMode& mode = CovCalcMode()) const;
+                              const CovCalcMode* mode = nullptr) const;
   double evalIvarIpas(double step,
                       const VectorDouble& dir,
                       int ivar = 0,
                       int jvar = 0,
                       const VectorDouble& center = VectorDouble(),
-                      const CovCalcMode& mode = CovCalcMode()) const;
+                      const CovCalcMode* mode = nullptr) const;
   double evalIvarIpasIncr(const VectorDouble &dincr,
                           int ivar = 0,
                           int jvar = 0,
-                          const CovCalcMode &mode = CovCalcMode()) const;
+                          const CovCalcMode* mode = nullptr) const;
   VectorDouble evalIvarNpas(const VectorDouble& vec_step,
                             const VectorDouble& dir = VectorDouble(),
                             int ivar = 0,
                             int jvar = 0,
                             const VectorDouble& center = VectorDouble(),
-                            const CovCalcMode& mode = CovCalcMode()) const;
+                            const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalNvarIpas(double step,
                                    const VectorDouble& dir,
                                    const VectorDouble& center = VectorDouble(),
-                                   const CovCalcMode& mode = CovCalcMode()) const;
+                                   const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble &dincr,
-                                       const CovCalcMode &mode) const;
+                                       const CovCalcMode* mode = nullptr) const;
   double evalIsoIvarIpas(double step,
                          int ivar = 0,
                          int jvar = 0,
-                         const CovCalcMode& mode = CovCalcMode()) const;
+                         const CovCalcMode* mode = nullptr) const;
   VectorDouble evalIsoIvarNpas(const VectorDouble& vec_step,
                                int ivar = 0,
                                int jvar = 0,
-                               const CovCalcMode& mode = CovCalcMode()) const;
+                               const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalIsoNvarIpas(double step,
-                                      const CovCalcMode& mode = CovCalcMode()) const;
+                                      const CovCalcMode* mode = nullptr) const;
 
   double evalCvv(const VectorDouble& ext,
                  const VectorInt& ndisc,
                  const VectorDouble& angles = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode()) const;
+                 const CovCalcMode* mode = nullptr) const;
   double evalCvvShift(const VectorDouble& ext,
                       const VectorInt& ndisc,
                       const VectorDouble& shift,
                       const VectorDouble& angles = VectorDouble(),
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const;
+                      const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
-                               const CovCalcMode& mode = CovCalcMode()) const;
+                               const CovCalcMode* mode = nullptr) const;
   double evalCxv(const SpacePoint& p1,
                  const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -114,7 +130,7 @@ public:
                  const VectorDouble& x0 = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode()) const;
+                 const CovCalcMode* mode = nullptr) const;
   double evalCxv(const Db* db,
                  const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -122,35 +138,47 @@ public:
                  const VectorDouble& x0 = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode()) const;
+                 const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
                                const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
                                const VectorDouble& x0 = VectorDouble(),
-                               const CovCalcMode& mode = CovCalcMode()) const;
+                               const CovCalcMode* mode = nullptr) const;
   VectorDouble evalPointToDb(const SpacePoint& p1,
                              const Db* db2,
                              int ivar = 0,
                              int jvar = 0,
                              bool useSel = true,
-                             const CovCalcMode& mode = CovCalcMode()) const;
+                             const VectorInt& nbgh2 = VectorInt(),
+                             const CovCalcMode* mode = nullptr) const;
+  VectorDouble evalPointToDbAsSP(const std::vector<SpacePoint>& p1s,
+                                 const SpacePoint& p2,
+                                 int ivar = 0,
+                                 int jvar = 0,
+                                 const CovCalcMode* mode = nullptr) const;
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
-                           const CovCalcMode& mode = CovCalcMode()) const;
+                           const CovCalcMode* mode = nullptr) const;
+  double evalAverageIncrToIncr(const VectorVectorDouble& d1,
+                               const VectorVectorDouble& d2,
+                               int ivar = 0,
+                               int jvar = 0,
+                               const CovCalcMode* mode = nullptr) const;
   double evalAveragePointToDb(const SpacePoint& p1,
                               const Db* db2,
                               int ivar = 0,
                               int jvar = 0,
-                              const CovCalcMode& mode = CovCalcMode()) const;
+                              const CovCalcMode* mode = nullptr) const;
   MatrixRectangular evalCovMatrix(const Db* db1,
                                   const Db* db2 = nullptr,
                                   int ivar = 0,
                                   int jvar = 0,
-                                  const CovCalcMode& mode = CovCalcMode()) const;
-
+                                  const VectorInt& nbgh1 = VectorInt(),
+                                  const VectorInt& nbgh2 = VectorInt(),
+                                  const CovCalcMode* mode = nullptr) const;
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -192,6 +220,7 @@ public:
                                int ivar = 0,
                                int jvar = 0) const;
 
+
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -199,4 +228,11 @@ private:
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
+
+protected:
+  bool _isOptimEnabled;
+  // These temporary informary is used to speed up processing (optimization functions)
+  // They are in a protected section as they may be modified by class hierarchy
+  mutable std::vector<SpacePoint> _p1As;
+  mutable SpacePoint _p2A;
 };

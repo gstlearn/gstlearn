@@ -10,6 +10,7 @@ set(SRC
   Fractures/FracList.cpp
   Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
+  Matrix/MatrixSparse.cpp
   Matrix/AMatrixSquare.cpp
   Matrix/MatrixInt.cpp
   Matrix/MatrixRectangular.cpp
@@ -56,6 +57,7 @@ set(SRC
   Calculators/ACalcDbVarCreator.cpp
   Calculators/CalcStatistics.cpp
   Calculators/CalcGridToGrid.cpp
+  Calculators/CalcSimuPost.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
@@ -100,8 +102,9 @@ set(SRC
   Covariances/CovStable.cpp
   Covariances/CovMarkov.cpp
   Covariances/CovDiffusionAdvection.cpp
+  Covariances/CovHelper.cpp
   Polygon/Polygons.cpp
-  Polygon/PolySet.cpp
+  Polygon/PolyElem.cpp
   Core/surface.cpp
   Core/math.cpp
   Core/stats.cpp
@@ -166,6 +169,7 @@ set(SRC
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp
+  Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
   Variogram/Vario.cpp
@@ -206,6 +210,13 @@ set(SRC
   Basic/VectorNumT.cpp
   Basic/VectorT.cpp
   Geometry/GeometryHelper.cpp
+  Geometry/ABiTargetCheck.cpp
+  Geometry/BiTargetCheckDistance.cpp
+  Geometry/BiTargetCheckFaults.cpp
+  Geometry/BiTargetCheckCell.cpp
+  Geometry/BiTargetCheckBench.cpp
+  Geometry/BiTargetCheckCode.cpp
+  Geometry/BiTargetCheckDate.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp
@@ -257,17 +268,18 @@ set(SRC
   Drifts/ADriftElem.cpp
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
-  Neigh/ANeighParam.cpp
+  Neigh/ANeigh.cpp
   Neigh/NeighUnique.cpp
   Neigh/NeighImage.cpp
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
-  Neigh/NeighWork.cpp
+  Neigh/NeighCell.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcKrigingFactors.cpp
   Estimation/CalcSimpleInterpolation.cpp
   Estimation/CalcImage.cpp
+  Estimation/CalcGlobal.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

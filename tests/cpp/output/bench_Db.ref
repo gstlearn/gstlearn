@@ -1,0 +1,15 @@
+#NO_DIFF# Kriging in Unique Neighborhood: 313 ms. (Ref = 310 ms.)
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+3 - Name z - Locator z1
+ Nb of data          =    1000000
+ Nb of active values =    1000000
+ Minimum value       =     -3.272
+ Maximum value       =      5.299
+ Mean value          =      0.001
+ Standard Deviation  =      1.000
+ Variance            =      0.999

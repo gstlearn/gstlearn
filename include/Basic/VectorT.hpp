@@ -93,6 +93,9 @@ public:
   inline const T* data() const                                        { return _v->data(); }
   inline const T* constData() const                                   { return _v->data(); }
 
+  inline T* subdata(size_type i = 0)                                  { _detach(); return _v->data() + i; }
+  inline const T* subdata(size_type i = 0) const                      { return _v->data() + i; }
+
   inline bool empty() const                                           { return _v->empty(); }
   inline size_type size() const                                       { return _v->size(); }
   inline void reserve(size_type new_cap)                              { _v->reserve(new_cap); }
@@ -137,7 +140,7 @@ public:
 
   inline void swap(VectorT& other);
   inline bool contains(const T& value) const;
-  inline void fill(const T& value, size_type size = -1);
+  inline void fill(const T& value, size_type size = 0);
   template< class InputIt >
   inline void assign(InputIt first, InputIt last)
   {
@@ -228,7 +231,7 @@ template <typename T>
 void VectorT<T>::fill(const T& value, size_type size)
 {
   _detach();
-  resize(size);
+  if (size > 0) resize(size);
   std::fill(begin(), end(), value);
 }
 

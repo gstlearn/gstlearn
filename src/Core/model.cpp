@@ -25,7 +25,6 @@
 #include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
-#include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -44,6 +43,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>
 
@@ -220,6 +220,7 @@ double model_calcul_basic(Model *model,
  ** \param[in]  model        Model structure
  ** \param[in]  mode         CovCalcMode structure
  ** \param[in]  flag_init    Initialize the array beforehand
+ ** \param[in]  weight       Multiplicative weight
  **
  ** \param[out] d1          Working array (dimension = ndim) or NULL
  ** \param[out] covtab      output covariance (dimension = nvar * nvar)
@@ -227,65 +228,32 @@ double model_calcul_basic(Model *model,
  *****************************************************************************/
 void model_calcul_cov(CovInternal *covint,
                       Model *model,
-                      const CovCalcMode &mode,
+                      const CovCalcMode* mode,
                       int flag_init,
-                      double /*weight*/,
+                      double weight,
                       VectorDouble d1,
                       double *covtab)
 {
   // Load the non-stationary parameters if needed
 
-  if (model->isNoStat()) model_nostat_update(covint, model);
+  if (model->isNoStat())
+    model_nostat_update(covint, model);
 
   // Evaluate the Model
 
   MatrixSquareGeneral mat = model->evalNvarIpas(1., d1, VectorDouble(), mode);
 
   int nvar = model->getVariableNumber();
-  if (mat.getNTotal() != nvar * nvar)
-    my_throw("Error in loading Covariance calculation into COVTAB");
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      double value = mat.getValue(ivar, jvar);
+      double value = weight * mat.getValue(ivar, jvar);
       if (flag_init)
         COVTAB(ivar,jvar)= value;
       else
         COVTAB(ivar,jvar) += value;
       }
   return;
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the covariances for an increment
- **
- ** \param[in]  model       Structure containing the model
- ** \param[in]  mode        CovCalcMode structure
- ** \param[in]  ivar        Rank of the first variable
- ** \param[in]  jvar        Rank of the second variable
- ** \param[in]  d1          vector of increment (or NULL)
- **
- *****************************************************************************/
-double model_calcul_cov_ij(Model *model,
-                           const CovCalcMode &mode,
-                           int ivar,
-                           int jvar,
-                           const VectorDouble &d1)
-{
-
-  /* Modify the member in case of properties */
-
-  if (model->getCovMode() != EModelProperty::NONE)
-    my_throw("Model transformation is not programmed for this entry");
-
-  /* Call the generic model calculation module */
-
-  // TODO Correct this which has something to do with pure virtual eval although implemented in Acov
-  // compared to eval0 which is not implemented with such arguments.
-  double value = model->evalIvarIpas(1., d1, ivar, jvar, VectorDouble(), mode);
-
-  return value;
 }
 
 /****************************************************************************/
@@ -339,7 +307,7 @@ int is_model_nostat_param(Model *model, const EConsElem &type0)
 {
   if (!model->isNoStat()) return 1;
   const ANoStat *nostat = model->getNoStat();
-  if (nostat->isDefinedByType(-1, type0)) return 1;
+  if (nostat->isDefinedByType(type0)) return 1;
 
   return (0);
 }
@@ -512,16 +480,7 @@ int model_update_coreg(Model *model,
  ** \param[in]  model      Model structure
  ** \param[in]  ivar       Rank of the first variable
  ** \param[in]  jvar       Rank of the second variable
- ** \param[in]  rank_sel   Rank of the basic structure (optional)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
- ** \param[in]  nugget_opt option for the nugget effect basic structure
- ** \li                     0 : no particular option
- ** \li                     1 : discard the nugget effect
- ** \li                    -1 : only consider the nugget effect
- ** \param[in]  nostd      0 standard; +-1 special; ITEST normalized
- ** \param[in]  norder     Order of the Generalized Variogram
- ** \param[in]  member     Member of the Kriging System (ECalcMember)
+ ** \param[in]  mode       CovCalcMode structure
  ** \param[in]  nh         Number of increments
  ** \param[in]  codir      Array giving the direction coefficients
  ** \param[in]  h          Vector of increments
@@ -535,24 +494,12 @@ int model_update_coreg(Model *model,
 int model_evaluate(Model *model,
                    int ivar,
                    int jvar,
-                   int rank_sel,
-                   int flag_norm,
-                   int flag_cov,
-                   int nugget_opt,
-                   int nostd,
-                   int norder,
-                   const ECalcMember &member,
+                   const CovCalcMode* mode,
                    int nh,
                    VectorDouble &codir,
                    const double *h,
                    double *g)
 {
-  CovCalcMode mode;
-  mode.update(member, nugget_opt, nostd, rank_sel, flag_norm, flag_cov);
-  if (norder > 0) mode.setOrderVario(norder);
-
-  /* Preliminary checks */
-
   if (st_check_model(model)) return 1;
   int ndim = model->getDimensionNumber();
   int nvar = model->getVariableNumber();
@@ -572,8 +519,8 @@ int model_evaluate(Model *model,
 
   for (int ih = 0; ih < nh; ih++)
   {
-    for (int idim = 0; idim < ndim; idim++)
-      d1[idim] = h[ih] * codir[idim];
+    double hh = h[ih];
+    for (int idim = 0; idim < ndim; idim++) d1[idim] = hh * codir[idim];
     model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
     g[ih] = COVTAB(ivar, jvar);
   }
@@ -589,16 +536,7 @@ int model_evaluate(Model *model,
  ** \param[in]  model      Model structure
  ** \param[in]  ivar       Rank of the first variable
  ** \param[in]  jvar       Rank of the second variable
- ** \param[in]  rank_sel   Rank of the basic structure (optional)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
- ** \param[in]  nugget_opt option for the nugget effect basic structure
- ** \li                     0 : no particular option
- ** \li                     1 : discard the nugget effect
- ** \li                    -1 : only consider the nugget effect
- ** \param[in]  nostd      0 standard; +-1 special; ITEST normalized
- ** \param[in]  norder     Order of the Generalized Variogram
- ** \param[in]  member     Member of the Kriging System (ECalcMember)
+ ** \param[in]  mode       CovCalcMode structure
  ** \param[in]  db1        First Db structure
  ** \param[in]  iech1      First sample
  ** \param[in]  db2        Second Db structure
@@ -616,13 +554,7 @@ int model_evaluate(Model *model,
 int model_evaluate_nostat(Model *model,
                           int ivar,
                           int jvar,
-                          int rank_sel,
-                          int flag_norm,
-                          int flag_cov,
-                          int nugget_opt,
-                          int nostd,
-                          int norder,
-                          const ECalcMember &member,
+                          const CovCalcMode* mode,
                           Db *db1,
                           int iech1,
                           Db *db2,
@@ -632,12 +564,6 @@ int model_evaluate_nostat(Model *model,
                           double *h,
                           double *g)
 {
-  CovCalcMode mode;
-  mode.update(member, nugget_opt, nostd, rank_sel, flag_norm, flag_cov);
-  if (norder > 0) mode.setOrderVario(norder);
-
-  /* Preliminary checks */
-
   if (st_check_model(model)) return 1;
   int ndim = model->getDimensionNumber();
   int nvar = model->getVariableNumber();
@@ -682,8 +608,7 @@ int model_evaluate_nostat(Model *model,
  ** \param[in]  db         Db structure
  ** \param[in]  ivar       Rank of the first variable
  ** \param[in]  jvar       Rank of the second variable
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
+ ** \param[in]  mode       CovCalcMode structure
  **
  ** \param[out] g          Array containing the model values
  **
@@ -692,15 +617,9 @@ int model_grid(Model *model,
                Db *db,
                int ivar,
                int jvar,
-               int flag_norm,
-               int flag_cov,
+               const CovCalcMode* mode,
                double *g)
 {
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
-
-  /* Preliminary checks */
-
   if (st_check_model(model)) return 1;
   if (st_check_environ(model, db)) return 1;
   int ndim = model->getDimensionNumber();
@@ -771,6 +690,7 @@ void model_drift_filter(Model *model, int rank, int filter)
  ** \param[in]  jvar  Rank of the second variable
  ** \param[in]  seed  Seed for the random number generator
  ** \param[in]  eps   Epsilon used for randomization in calculation of CVV
+ ** \param[in]  mode  CovCalcMode structure
  **
  *****************************************************************************/
 double model_cxx(Model *model,
@@ -779,12 +699,9 @@ double model_cxx(Model *model,
                  int ivar,
                  int jvar,
                  int seed,
-                 double eps)
+                 double eps,
+                 const CovCalcMode* mode)
 {
-  CovCalcMode mode;
-
-  /* Initializations */
-
   if (st_check_model(model)) return TEST;
   if (st_check_environ(model, db1)) return TEST;
   if (st_check_environ(model, db2)) return TEST;
@@ -856,8 +773,7 @@ double model_cxx(Model *model,
  ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
  ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
+ ** \param[in]  mode   CovCalcMode structure
  **
  ** \remarks The covariance matrix (returned) must be freed by calling routine
  ** \remarks Its dimension is nsize1 * nsize2 * nvar * nvar
@@ -877,11 +793,8 @@ double* model_covmat_by_ranks(Model *model,
                               const int *ranks2,
                               int ivar0,
                               int jvar0,
-                              int flag_norm,
-                              int flag_cov)
+                              const CovCalcMode*  mode)
 {
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
   if (st_check_environ(model, db2)) return nullptr;
@@ -1751,17 +1664,14 @@ void model_cova_characteristics(const ECov &type,
  **
  ** \param[in]  vario     Vario structure
  ** \param[in]  model     Model structure
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov  1 if the result must be given in covariance
+ ** \param[in]  mode      CovCalcMode structure
  **
  *****************************************************************************/
-int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
+int model_sample(Vario *vario, Model *model, const CovCalcMode*  mode)
 {
   int ndim = vario->getDimensionNumber();
   int ndir = vario->getDirectionNumber();
   int nvar = model->getVariableNumber();
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
 
   /* Core allocation */
 
@@ -1954,13 +1864,14 @@ int model_get_nonugget_cova(Model *model)
  ** \param[in]  model     Model structure
  ** \param[in]  vario     Vario structure
  ** \param[in]  dbgrid    Db discretization grid structure
+ ** \param[in]  mode      CovCalcMode structure
  **
  *****************************************************************************/
 int model_regularize(Model  *model,
                      Vario  *vario,
-                     DbGrid *dbgrid)
+                     DbGrid *dbgrid,
+                     const CovCalcMode*  mode)
 {
-  CovCalcMode mode;
   if (st_check_model(model)) return 1;
   if (st_check_environ(model, dbgrid)) return 1;
   int ndim = model->getDimensionNumber();
@@ -1996,7 +1907,7 @@ int model_regularize(Model  *model,
 
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      vario->setVar(ivar, jvar, C00TAB(ivar, jvar));
+      vario->setVar(C00TAB(ivar, jvar), ivar, jvar);
 
   /* Loop on the directions */
 
@@ -2048,8 +1959,9 @@ int model_regularize(Model  *model,
  ** \param[in]  eta        Precision (or TEST)
  ** \param[in]  nsize1     Number of pivots already selected
  ** \param[in]  ranks1     Ranks of pivots already selected
- ** \param[in]  center     Ooptioanl Centering point (for increments)
+ ** \param[in]  center     Optional Centering point (for increments)
  ** \param[in]  flag_sort  Reordering flag (see remarks)
+ ** \param[in]  mode       CovCalcMode structure
  **
  ** \param[out] npivot_arg Number of pivots
  ** \param[out] Pret       Array of indices of the retained samples (from 1)
@@ -2085,12 +1997,12 @@ int model_covmat_inchol(int verbose,
                         int flag_sort,
                         int *npivot_arg,
                         int **Pret,
-                        double **Gret)
+                        double **Gret,
+                        const CovCalcMode*  mode)
 {
   int *pvec, i, j, npivot, jstar, nech, error, flag_incr;
   double *G, *Gmatrix, *diag, *crit, g, residual, maxdiag, tol, b, c00;
   VectorDouble d1;
-  CovCalcMode mode;
 
   error = 1;
   nech = db->getSampleNumber();
@@ -2308,14 +2220,15 @@ int model_covmat_inchol(int verbose,
 
 /*****************************************************************************/
 /*!
- **  Returns the st. dev. at a given increment for a given model
+ **  Returns the standard deviation at a given increment for a given model
  **
  ** \param[in]  model       Structure containing the model
  ** \param[in]  db1         First Db
  ** \param[in]  iech1       Rank in the first Db
  ** \param[in]  iech2       Rank in the second Db
  ** \param[in]  verbose     Verbose flag
- ** \param[in]  factor      Multiplicative factor for st. deviation
+ ** \param[in]  factor      Multiplicative factor for standard deviation
+ ** \param[in]  mode        CovCalcMode structure
  **
  *****************************************************************************/
 double model_calcul_stdev(Model* model,
@@ -2324,10 +2237,10 @@ double model_calcul_stdev(Model* model,
                           Db* /*db2*/,
                           int iech2,
                           int verbose,
-                          double factor)
+                          double factor,
+                          const CovCalcMode*  mode)
 {
   double c00, cov;
-  CovCalcMode mode;
 
   /* Covariance at origin */
 
@@ -2371,8 +2284,7 @@ double model_calcul_stdev(Model* model,
  ** \param[in]  ranks2 Array giving ranks of selected samples (optional)
  ** \param[in]  ivar0  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar0  Rank of the second variable (-1: all variables)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
+ ** \param[in]  mode       CovCalcMode structure
  **
  ** \remarks The covariance matrix (returned) must be freed by calling routine
  ** \remarks The covariance matrix is established for the first variable
@@ -2390,11 +2302,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
                              const int *ranks2,
                              int ivar0,
                              int jvar0,
-                             int flag_norm,
-                             int flag_cov)
+                             const CovCalcMode*  mode)
 {
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
   if (st_check_environ(model, db2)) return nullptr;
@@ -2511,8 +2420,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
  ** \param[in]  db2   Second Db
  ** \param[in]  ivar0 Rank of the first variable (-1: all variables)
  ** \param[in]  jvar0 Rank of the second variable (-1: all variables)
- ** \param[in]  flag_norm  1 if the model is normalized
- ** \param[in]  flag_cov   1 if the result must be given in covariance
+ ** \param[in]  mode       CovCalcMode structure
  **
  ** \param[out] covmat The covariance matrix
  **                    (Dimension = (nactive * nvar) [squared])
@@ -2527,12 +2435,9 @@ int model_covmat(Model *model,
                  Db *db2,
                  int ivar0,
                  int jvar0,
-                 int flag_norm,
-                 int flag_cov,
-                 double *covmat)
+                 double *covmat,
+                 const CovCalcMode* mode)
 {
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) return 1;
   if (st_check_environ(model, db1)) return 1;
@@ -2628,11 +2533,8 @@ MatrixSquareSymmetric model_covmatM(Model *model,
                                     Db *db2,
                                     int ivar0,
                                     int jvar0,
-                                    int flag_norm,
-                                    int flag_cov)
+                                    const CovCalcMode*  mode)
 {
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) return 1;
   if (st_check_environ(model, db1)) return 1;

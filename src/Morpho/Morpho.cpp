@@ -258,7 +258,7 @@ VectorDouble morpho_labelling(int option,
     order.resize(nbcomp);
     for (i = 0; i < nbcomp; i++)
       order[i] = i + 1;
-    ut_sort_int(1, nbcomp, order.data(), sizes.data());
+    VH::arrangeInPlace(1, order, sizes, true, nbcomp);
     _st_morpho_label_order(compnum, order, nbcomp);
 
     if (flag_size)
@@ -1139,4 +1139,64 @@ int _db_morpho_calc(DbGrid *dbgrid,
     dbgrid->setColumnByUID(tabout, iptr0);
   }
   return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Evaluates the spill point
+ **
+ ** \return  The Spill_Res structure which contains:
+ ** \return   h      elevation of the spill point
+ ** \return   th     maximum reservoir thickness
+ ** \return   ix0    location of the spill point grid node along X
+ ** \return   iy0    location of the spill point grid node along Y
+ **
+ ** \param[in]  dbgrid        Grid Db structure
+ ** \param[in]  name_depth    Name of the variable containing the depth
+ ** \param[in]  name_data     Name of the variable containing the data
+ ** \param[in]  option        0 for 4-connectivity; 1 for 8-connectivity
+ ** \param[in]  flag_up       TRUE when working in elevation; FALSE in depth
+ ** \param[in]  verbose_step  Step for the verbose flag
+ ** \param[in]  hmax          maximum reservoir thickness (FFFF not used)
+ **
+ ** \remark  The variable 'ind_data', which contains the constraints, must
+ ** \remark  be set to:
+ ** \remark  0 for an idle node
+ ** \remark  1 for a node located outside the reservoir
+ ** \remark  2 for a node belonging to the reservoir
+ ** \remark  The numbering of the grid node corresponding to the spill point
+ ** \remark  must start with 1
+ **
+ *****************************************************************************/
+Spill_Res spillPoint(DbGrid *dbgrid,
+                     const String& name_depth,
+                     const String& name_data,
+                     int option,
+                     bool flag_up,
+                     int verbose_step,
+                     double hmax)
+{
+  Spill_Res res;
+  double h, th;
+  int ix0, iy0;
+
+  int ind_depth = dbgrid->getUID(name_depth);
+  int ind_data = dbgrid->getUID(name_data);
+  if (ind_depth < 0 || ind_data < 0)
+  {
+    messerr("Variables 'name_depth' and 'name_data' are compulsory");
+    res.success = false;
+    return res;
+  }
+
+  int error = spill_point(dbgrid, ind_depth, ind_data, option, flag_up,
+                          verbose_step, hmax, &h, &th, &ix0, &iy0);
+
+  res.success = (error) ? false : true;
+  res.h = h;
+  res.th = th;
+  res.ix0 = ix0;
+  res.iy0 = iy0;
+
+  return res;
 }

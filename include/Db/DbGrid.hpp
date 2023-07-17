@@ -27,7 +27,8 @@
 
 class Polygons;
 class EMorpho;
-class NeighImage;
+class ANeigh;
+class SpaceTarget;
 
 /**
  * Class containing a Data Set organized as a regular Grid
@@ -50,6 +51,7 @@ public:
   /// Db Interface
   inline bool isGrid() const override { return true; }
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
+  void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const override;
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
@@ -68,9 +70,9 @@ public:
             int flag_add_rank = 1,
             bool flag_add_coordinates = true);
   int resetCoveringDb(const Db* db,
-                      const VectorInt& nodes = VectorInt(),
-                      const VectorDouble& dcell = VectorDouble(),
-                      const VectorDouble& origin = VectorDouble(),
+                      const VectorInt& nx = VectorInt(),
+                      const VectorDouble& dx = VectorDouble(),
+                      const VectorDouble& x0 = VectorDouble(),
                       const VectorDouble& margin = VectorDouble());
   int resetFromPolygon(Polygons* polygon,
                        const VectorInt& nodes,
@@ -88,9 +90,9 @@ public:
                         int flag_add_rank = 1,
                         bool flag_add_coordinates = true);
   static DbGrid* createCoveringDb(const Db* dbin,
-                                  const VectorInt& nodes = VectorInt(),
-                                  const VectorDouble& dcell = VectorDouble(),
-                                  const VectorDouble& origin = VectorDouble(),
+                                  const VectorInt& nx = VectorInt(),
+                                  const VectorDouble& dx = VectorDouble(),
+                                  const VectorDouble& x0 = VectorDouble(),
                                   const VectorDouble& margin = VectorDouble());
   static DbGrid* createFromPolygon(Polygons* polygon,
                                    const VectorInt& nodes,
@@ -174,8 +176,8 @@ public:
                        bool centered = false,
                        double eps = EPSILON6) const;
   VectorInt coordinateToIndices(const VectorDouble &coor,
-                                bool centered,
-                                double eps) const;
+                                bool centered = false,
+                                double eps = EPSILON6) const;
   int coordinateToIndicesInPlace(const VectorDouble &coor,
                                  VectorInt &indices,
                                  bool centered = false,
@@ -204,14 +206,19 @@ public:
   {
     _grid.indicesToCoordinateInPlace(indice, coor, percent);
   }
+  VectorDouble indicesToCoordinate(const VectorInt& indice,
+                                   const VectorDouble& percent = VectorDouble()) const
+  {
+    return _grid.indicesToCoordinate(indice, percent);
+  }
   int centerCoordinateInPlace(VectorDouble &coor,
                               bool centered = false,
                               bool stopIfOut = false,
                               double eps = EPSILON6) const;
 
-  VectorInt locateDataInGrid(const DbGrid *grid,
-                             const Db *data,
-                             const VectorInt &rankIn) const;
+  VectorInt locateDataInGrid(const Db *data,
+                             const VectorInt &rankIn = VectorInt(),
+                             bool useSel = false) const;
 
   int getMirrorIndex(int idim, int ix) const
   {
@@ -236,6 +243,7 @@ public:
   VectorVectorDouble getCellEdges(int node = 0, bool forceGridMesh = false) const;
   VectorVectorDouble getAllCellsEdges(bool forceGridMesh = false) const;
   VectorVectorDouble getGridEdges() const;
+  VectorDouble getCodir(const VectorInt& grincr) const;
 
   int morpho(const EMorpho &oper,
              double vmin = 0.5,
@@ -245,7 +253,7 @@ public:
              bool flagDistErode = false,
              bool verbose = false,
              const NamingConvention &namconv = NamingConvention("Morpho"));
-  int smooth(NeighImage *neigh,
+  int smooth(ANeigh *neigh,
              int type = 1,
              double range = 1.,
              const NamingConvention &namconv = NamingConvention("Smooth"));
@@ -258,6 +266,14 @@ public:
                                  bool verbose = false,
                                  const NamingConvention &namconv = NamingConvention("Morpho", false, false, true,
                                      ELoc::fromKey("SEL")));
+
+  void getSampleAsST(int iech, SpaceTarget& P) const;
+
+  VectorVectorDouble getDiscretizedBlock(const VectorInt &ndiscs,
+                                         int iech = 0,
+                                         bool flagPerCell = false,
+                                         bool flagRandom = false,
+                                         int seed = 132433) const;
 
 protected:
   /// Interface for ASerializable

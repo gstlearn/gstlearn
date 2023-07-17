@@ -181,7 +181,7 @@ int CalcSimuTurningBands::_generateDirections(const Db* dbout)
         const CovAniso* cova = getModel()->getCova(is);
 
         // If the covariance has no Range (i.e. Nugget Effect), the rest is non-sense.
-        // Nevertheless this code is maintained to ensure in order not to disorganize
+        // Nevertheless this code is maintained in order not to disorganize
         // the possible drawing of random numbers.
         if (!cova->hasRange()) continue;
 
@@ -264,7 +264,7 @@ void CalcSimuTurningBands::_rotateDirections(double a[3], double theta)
   {
     for (int idir = 0; idir < 3; idir++)
       dirs[idir] = _getCodirAng(ibs, idir);
-    GH::rotationGetDirection(ct, st, a, dirs);
+    GH::rotationGetRandomDirection(ct, st, a, dirs);
     for (int idir = 0; idir < 3; idir++)
       _setCodirAng(ibs, idir, dirs[idir]);
   }
@@ -316,9 +316,9 @@ void CalcSimuTurningBands::_minmax(const Db *db)
 
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
+      if (!db->isActive(iech)) continue;
       for (int ibs = 0; ibs < nbands; ibs++)
       {
-        if (!db->isActive(iech)) continue;
         tt = _codirs[ibs].projectPoint(db, iech);
         if (tt < _getCodirTmin(ibs)) _setCodirTmin(ibs, tt);
         if (tt > _getCodirTmax(ibs)) _setCodirTmax(ibs, tt);
@@ -727,12 +727,12 @@ double CalcSimuTurningBands::_computeScaleKB(double param, double scale)
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_power1D(int ib,
-                                double scale,
-                                double alpha,
-                                double *omega,
-                                double *phi,
-                                double *theta_3,
-                                double *correc0)
+                                    double scale,
+                                    double alpha,
+                                    double *omega,
+                                    double *phi,
+                                    double *theta_3,
+                                    double *correc0)
 {
   double R, theta_1;
   static double twoPI, log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff,
@@ -938,9 +938,9 @@ VectorDouble CalcSimuTurningBands::_createAIC()
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulatePoint(Db *db,
-                                      const VectorDouble &aic,
-                                      int icase,
-                                      int shift)
+                                          const VectorDouble &aic,
+                                          int icase,
+                                          int shift)
 {
   double vexp, tdeb, dt0, t0;
   int nt0;
@@ -966,6 +966,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
   /* Core allocation */
 
   tab.resize(nech,0.);
+  VectorBool activeArray = db->getActiveArray();
 
   /*****************************/
   /* Performing the simulation */
@@ -1001,7 +1002,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                 _spectral(type, scale, param, &omega, &phi);
                 for (int iech = 0; iech < nech; iech++)
                 {
-                  if (! db->isActive(iech)) continue;
+                  if (! activeArray[iech]) continue;
                   t0 = _codirs[ibs].projectPoint(db, iech);
                   tab[iech] = cos(omega * t0 + phi);
                 }
@@ -1015,7 +1016,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
                 nt0 = 0;
                 for (int iech = 0; iech < nech; iech++)
                 {
-                  if (!db->isActive(iech)) continue;
+                  if (! activeArray[iech]) continue;
                   t0 = _codirs[ibs].projectPoint(db, iech);
                   nt0 = _rankInPoisson(nt0, t0, t);
                   tab[iech] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp : vexp;
@@ -1030,7 +1031,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               nt0 = 0;
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 nt0 = _rankInPoisson(nt0, t0, t);
                 tab[iech] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp : vexp;
@@ -1042,7 +1043,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               t = _dilution(tmin, tmax, scale, &tdeb);
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 nt0 = _rankRegular(t0, tdeb, scale);
                 dt0 = (t0 - tdeb) - scale * nt0;
@@ -1056,7 +1057,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               t = _dilution(tmin, tmax, scale, &tdeb);
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 nt0 = _rankRegular(t0, tdeb, scale);
                 dt0 = (t0 - tdeb) - scale * nt0;
@@ -1069,7 +1070,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               _power1D(ib, scale, param, &omega, &phi, &correc, &correc0);
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 tab[iech] = cos(omega * t0 + phi) - correc0;
               }
@@ -1079,7 +1080,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               _spline1D(ib, scale, 1, &omega, &phi, &correc, &correc0);
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 tab[iech] = cos(omega * t0 + phi) - correc0;
               }
@@ -1107,7 +1108,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
 
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 tab[iech] = cos(omega * t0 + phi);
               }
@@ -1123,7 +1124,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
               nt0 = 0;
               for (int iech = 0; iech < nech; iech++)
               {
-                if (!db->isActive(iech)) continue;
+                if (! activeArray[iech]) continue;
                 t0 = _codirs[ibs].projectPoint(db, iech);
                 nt0 = _rankInPoisson(nt0, t0, t);
                 tab[iech] = _irfProcessSample(type, nt0, t0, t, v0, v1, v2);
@@ -1136,7 +1137,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
 
           if (type != ECov::NUGGET)
             for (int iech = 0; iech < nech; iech++)
-              if (db->isActive(iech))
+              if (activeArray[iech])
                 for (int jvar = 0; jvar < nvar; jvar++)
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, 0,
@@ -1149,7 +1150,7 @@ void CalcSimuTurningBands::_simulatePoint(Db *db,
   for (int isimu = 0; isimu < nbsimu; isimu++)
     for (int iech = 0; iech < nech; iech++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        if (db->isActive(iech))
+        if (activeArray[iech])
           db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
 
@@ -1180,6 +1181,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
   int icase = 0;
   int ndim = dbgrd->getNDim();
   int nbsimu = getNbSimu();
+  VectorBool activeArray = dbgrd->getActiveArray();
 
   for (int idim = 0; idim < ndim; idim++)
   {
@@ -1195,7 +1197,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
     /* Shift the information */
 
     for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
-      if (dbgrd->isActive(iech))
+      if (activeArray[iech])
         dbgrd->setCoordinate(iech, idim,
                              dbgrd->getCoordinate(iech, idim) + delta);
 
@@ -1210,7 +1212,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
     /* Un-Shift the information */
 
     for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
-      if (dbgrd->isActive(iech))
+      if (!activeArray[iech])
         dbgrd->setCoordinate(iech, idim,
                              dbgrd->getCoordinate(iech, idim) - delta);
 
@@ -1219,7 +1221,7 @@ void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
     for (int isimu = 0; isimu < nbsimu; isimu++)
       for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
       {
-        if (!dbgrd->isActive(iech)) continue;
+        if (!!activeArray[iech]) continue;
         jsimu = isimu + idim * nbsimu + ndim * nbsimu;
         double value2 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
                                          2 * ndim * nbsimu, 1);
@@ -1254,6 +1256,7 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
   int icase = 0;
   int nvar = _getNVar();
   int nbsimu = getNbSimu();
+  VectorBool activeArray = dbtgt->getActiveArray();
 
   /* Perform the simulation of the gradients at tangent points */
 
@@ -1264,7 +1267,7 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
   for (int isimu = 0; isimu < nbsimu; isimu++)
     for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
     {
-      if (!dbtgt->isActive(iech)) continue;
+      if (! activeArray[iech]) continue;
 
       double value = 0.;
       for (int idim = 0; idim < dbtgt->getNDim(); idim++)
@@ -1288,9 +1291,9 @@ void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
  **
  *****************************************************************************/
 void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
-                                     const VectorDouble &aic,
-                                     int icase,
-                                     int shift)
+                                         const VectorDouble &aic,
+                                         int icase,
+                                         int shift)
 {
   double vexp, phi, tdeb, omega, dt0, dt, t0, t0y, t0z;
   double cxp, sxp, cyp, syp, czp, szp, c0x, s0x, c0y, s0y, c0z, s0z, c1, s1;
@@ -1314,6 +1317,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
   int nz     = (db->getNDim() >= 3) ? db->getNX(2) : 1;
   int nech   = nx * ny * nz;
   double norme  = sqrt(1. / _nbtuba);
+  VectorBool activeArray = db->getActiveArray();
 
   /* Core allocation */
 
@@ -1378,7 +1382,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                     s0y = s1;
                     for (int ix = 0; ix < nx; ix++, ind++)
                     {
-                      if (db->isActive(ind)) tab[ind] = c0x - correc0;
+                      if (activeArray[ind]) tab[ind] = c0x - correc0;
                       c1 = c0x * cxp - s0x * sxp;
                       s1 = s0x * cxp + c0x * sxp;
                       c0x = c1;
@@ -1407,7 +1411,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                     t0y += dyp;
                     for (int ix = 0; ix < nx; ix++, ind++)
                     {
-                      if (db->isActive(ind))
+                      if (activeArray[ind])
                       {
                         nt0 = _rankInPoisson(nt0, t0, t);
                         tab[ind] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp : vexp;
@@ -1445,7 +1449,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                     s0y = s1;
                     for (int ix = 0; ix < nx; ix++, ind++)
                     {
-                      if (db->isActive(ind)) tab[ind] = c0x - correc0;
+                      if (activeArray[ind]) tab[ind] = c0x - correc0;
                       c1 = c0x * cxp - s0x * sxp;
                       s1 = s0x * cxp + c0x * sxp;
                       c0x = c1;
@@ -1473,7 +1477,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                     t0y += dyp;
                     for (int ix = 0; ix < nx; ix++, ind++)
                     {
-                      if (db->isActive(ind))
+                      if (activeArray[ind])
                       {
                         nt0 = _rankInPoisson(nt0, t0, t);
                         tab[ind] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp : vexp;
@@ -1503,7 +1507,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                   t0y += dyp;
                   for (int ix = 0; ix < nx; ix++, ind++)
                   {
-                    if (db->isActive(ind))
+                    if (activeArray[ind])
                     {
                       nt0 = _rankInPoisson(nt0, t0, t);
                       tab[ind] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp : vexp;
@@ -1530,7 +1534,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                   t0y += dyp;
                   for (int ix = 0; ix < nx; ix++, ind++)
                   {
-                    if (db->isActive(ind))
+                    if (activeArray[ind])
                     {
                       dt = (t0 - tdeb);
                       nt0 = (int) dt;
@@ -1559,7 +1563,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                   t0y += dyp;
                   for (int ix = 0; ix < nx; ix++, ind++)
                   {
-                    if (db->isActive(ind))
+                    if (activeArray[ind])
                     {
                       dt = (t0 - tdeb);
                       nt0 = (int) dt;
@@ -1622,7 +1626,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                   s0y = s1;
                   for (int ix = 0; ix < nx; ix++, ind++)
                   {
-                    if (db->isActive(ind)) tab[ind] = c0x - correc0;
+                    if (activeArray[ind]) tab[ind] = c0x - correc0;
                     c1 = c0x * cxp - s0x * sxp;
                     s1 = s0x * cxp + c0x * sxp;
                     c0x = c1;
@@ -1653,7 +1657,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
                   t0y += dyp;
                   for (int ix = 0; ix < nx; ix++, ind++)
                   {
-                    if (db->isActive(ind))
+                    if (activeArray[ind])
                     {
                       nt0 = _rankInPoisson(nt0, t0, t);
                       tab[ind] = _irfProcessSample(type, nt0, t0, t, v0, v1, v2);
@@ -1670,7 +1674,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
 
           if (type != ECov::NUGGET)
             for (int iech = 0; iech < nech; iech++)
-              if (db->isActive(iech))
+              if (activeArray[iech])
                 for (int jvar = 0; jvar < nvar; jvar++)
                   db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
                                 nbsimu, nvar, 0,
@@ -1683,7 +1687,7 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
   for (int isimu = 0; isimu < nbsimu; isimu++)
     for (int iech = 0; iech < nech; iech++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        if (db->isActive(iech))
+        if (activeArray[iech])
           db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
 
@@ -1877,6 +1881,7 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
   int ncova = _getNCova();
   int nvar = _getNVar();
   int nbsimu = getNbSimu();
+  VectorBool activeArray = db->getActiveArray();
 
   /* Do nothing if there is no nugget effect in the model */
 
@@ -1901,7 +1906,7 @@ void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int 
 
         for (int iech = 0; iech < nech; iech++)
         {
-          if (!db->isActive(iech)) continue;
+          if (! activeArray[iech]) continue;
           double nugget = law_gaussian();
           for (int jvar = 0; jvar < nvar; jvar++)
             db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar, 0,
@@ -2033,6 +2038,7 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
   int nvar = _getNVar();
   int nech = dbout->getSampleNumber();
   int ecr = 0;
+  VectorBool activeArray = dbout->getActiveArray();
 
   // Loop on the simulations
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -2046,7 +2052,7 @@ void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
 
       for (int iech = 0; iech < nech; iech++)
       {
-        if (!dbout->isActive(iech)) continue;
+        if (! activeArray[iech]) continue;
         dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
                          nvar, 0, getModel()->getMean(ivar));
       }
@@ -2091,6 +2097,8 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
   double eps2 = eps * eps;
   VectorDouble coor1(ndim);
   VectorDouble coor2(ndim);
+  VectorBool activeArrayIn = dbin->getActiveArray();
+  VectorBool activeArrayOut = dbout->getActiveArray();
 
   /* Dispatch according to the file type */
 
@@ -2104,10 +2112,10 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
 
     for (int ip = 0; ip < dbin->getSampleNumber(); ip++)
     {
-      if (!dbin->isActive(ip)) continue;
+      if (!activeArrayIn[ip]) continue;
       dbin->getSampleCoordinates(ip, coor2);
       int rank = dbgrid->coordinateToRank(coor2, false, eps);
-      if (rank < 0 || !dbgrid->isActive(rank)) continue;
+      if (rank < 0 || !activeArrayOut[rank]) continue;
       dbgrid->rankToCoordinateInPlace(rank, coor1);
 
       /* Get the distance to the target point */
@@ -2146,7 +2154,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
 
     for (int ik = 0; ik < dbout->getSampleNumber(); ik++)
     {
-      if (!dbout->isActive(ik)) continue;
+      if (!activeArrayOut[ik]) continue;
       dbin->getSampleCoordinates(ik, coor1);
 
       /* Look for the closest data point */
@@ -2154,7 +2162,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
       int ip_close = -1;
       for (int ip = 0; ip < dbin->getSampleNumber() && ip_close < 0; ip++)
       {
-        if (!dbin->isActive(ip)) continue;
+        if (!activeArrayIn[ip]) continue;
         dbin->getSampleCoordinates(ip, coor2);
 
         /* Get the distance to the target point */
@@ -2198,7 +2206,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  icase      Case for PGS or -1
  ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
  ** \param[in]  dmean      Array giving the prior means for the drift terms
@@ -2212,7 +2220,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
 int CalcSimuTurningBands::simulate(Db *dbin,
                                    Db *dbout,
                                    Model *model,
-                                   ANeighParam *neighparam,
+                                   ANeigh *neigh,
                                    int icase,
                                    int flag_bayes,
                                    const VectorDouble &dmean,
@@ -2224,7 +2232,7 @@ int CalcSimuTurningBands::simulate(Db *dbin,
   setDbin(dbin);
   setDbout(dbout);
   setModel(model);
-  setNeighparam(neighparam);
+  setNeigh(neigh);
   setIcase(icase);
   setFlagBayes(flag_bayes);
   setBayesMean(dmean);
@@ -2287,7 +2295,7 @@ bool CalcSimuTurningBands::_run()
 
   if (flag_cond)
   {
-    if (_krigsim(getDbin(), getDbout(), getModel(), getNeighparam(),
+    if (_krigsim(getDbin(), getDbout(), getModel(), getNeigh(),
                  _flagBayes, _bayesMean, _bayesCov, _icase,
                  nbsimu, _flagDGM)) return 1;
   }
@@ -2396,6 +2404,33 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
   return 0;
 }
 
+bool isCovValidForTurningBands(const ECov& type)
+{
+  switch (type.toEnum())
+  {
+    case ECov::E_NUGGET:
+    case ECov::E_EXPONENTIAL:
+    case ECov::E_SPHERICAL:
+    case ECov::E_CUBIC:
+    case ECov::E_GAUSSIAN:
+    case ECov::E_SINCARD:
+    case ECov::E_BESSEL_J:
+    case ECov::E_BESSEL_K:
+    case ECov::E_STABLE:
+    case ECov::E_POWER:
+    case ECov::E_SPLINE_GC:
+    case ECov::E_LINEAR:
+    case ECov::E_ORDER1_GC:
+    case ECov::E_ORDER3_GC:
+    case ECov::E_ORDER5_GC:
+      break;
+
+    default:
+      return false;
+  }
+  return true;
+}
+
 /****************************************************************************/
 /*!
  **  Check if the Model can be simulated using Turning Bands
@@ -2408,38 +2443,14 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
 bool CalcSimuTurningBands::isTurningBandsWorkable(const Model *model)
 
 {
-  bool workable = true;
-
   /* Loop on the structures */
 
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
     ECov type = model->getCovaType(is);
-
-    switch (type.toEnum())
-    {
-      case ECov::E_NUGGET:
-      case ECov::E_EXPONENTIAL:
-      case ECov::E_SPHERICAL:
-      case ECov::E_CUBIC:
-      case ECov::E_GAUSSIAN:
-      case ECov::E_SINCARD:
-      case ECov::E_BESSEL_J:
-      case ECov::E_BESSEL_K:
-      case ECov::E_STABLE:
-      case ECov::E_POWER:
-      case ECov::E_SPLINE_GC:
-      case ECov::E_LINEAR:
-      case ECov::E_ORDER1_GC:
-      case ECov::E_ORDER3_GC:
-      case ECov::E_ORDER5_GC:
-        break;
-
-      default:
-        workable = false;
-    }
+    if (! isCovValidForTurningBands(type)) return false;
   }
-  return workable;
+  return true;
 }
 
 /****************************************************************************/
@@ -2520,7 +2531,7 @@ bool CalcSimuTurningBands::_check()
   if (! hasModel()) return false;
   if (hasDbin(false))
   {
-    if (! hasNeighParam()) return false;
+    if (! hasNeigh()) return false;
   }
   int ndim = _getNDim();
   if (ndim > 3)
@@ -2628,7 +2639,7 @@ void CalcSimuTurningBands::_rollback()
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  neigh      ANeigh structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  nbtuba     Number of turning bands
@@ -2643,7 +2654,7 @@ void CalcSimuTurningBands::_rollback()
 int simtub(Db *dbin,
            Db *dbout,
            Model *model,
-           ANeighParam *neighparam,
+           ANeigh *neigh,
            int nbsimu,
            int seed,
            int nbtuba,
@@ -2658,7 +2669,7 @@ int simtub(Db *dbin,
   situba.setDbin(dbin);
   situba.setDbout(dbout);
   situba.setModel(model);
-  situba.setNeighparam(neighparam);
+  situba.setNeigh(neigh);
   situba.setNamingConvention(namconv);
   situba.setFlagDgm(flag_dgm);
 
@@ -2677,7 +2688,7 @@ int simtub(Db *dbin,
  ** \param[in]  dbin       Input Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  neigh      ANeigh structure (optional)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  seed       Seed for random number generator
  ** \param[in]  dmean      Array giving the prior means for the drift terms
@@ -2694,7 +2705,7 @@ int simtub(Db *dbin,
 int simbayes(Db *dbin,
              Db *dbout,
              Model *model,
-             ANeighParam *neighparam,
+             ANeigh *neigh,
              int nbsimu,
              int seed,
              const VectorDouble& dmean,
@@ -2710,7 +2721,7 @@ int simbayes(Db *dbin,
   situba.setDbin(dbin);
   situba.setDbout(dbout);
   situba.setModel(model);
-  situba.setNeighparam(neighparam);
+  situba.setNeigh(neigh);
   situba.setNamingConvention(namconv);
 
   situba.setFlagBayes(true);

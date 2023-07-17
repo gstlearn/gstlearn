@@ -192,6 +192,12 @@ VectorDouble AMesh::getCoordinates(int idim) const
   return coor;
 }
 
+/**
+ * Returns the coordinates of all meshes:
+ * - the first dimension if the space dimension
+ * - the second dimension is the number of apices
+ * @return
+ */
 VectorVectorDouble AMesh::getAllCoordinates() const
 {
   int napices = getNApices();
@@ -209,19 +215,74 @@ VectorVectorDouble AMesh::getAllCoordinates() const
   return coords;
 }
 
-VectorVectorInt AMesh::getAllApices() const
+/**
+ * Returns the information of all meshes:
+ * - the first dimension is the number of apices (nrow)
+ * - the second dimension if the space dimension (ncol)
+ * @return
+ */
+MatrixInt AMesh::getAllMeshes() const
 {
-  int nmeshes = getNMeshes();
   int nper = getNApexPerMesh();
-  VectorVectorInt ranks(nmeshes);
-  for (int imesh = 0; imesh < nmeshes; imesh++)
-    ranks[imesh].resize(nper);
+  int nmeshes = getNMeshes();
+  MatrixInt meshes(nmeshes, nper);
 
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int iper = 0; iper < nper; iper++)
-      ranks[imesh][iper] = getApex(imesh, iper);
+      meshes.setValue(imesh, iper, getApex(imesh, iper));
+  return meshes;
+}
 
-  return ranks;
+/**
+ * Returns the coordinates of the Center of Gravity of a Mesh
+ * @param imesh Rank of the Mesh
+ * @param idim Index of the space dimension
+ * @return
+ */
+double AMesh::getCenterCoordinate(int imesh, int idim) const
+{
+  double coor = 0.;
+  int ncorner = getNApexPerMesh();
+  for (int icorner = 0; icorner < ncorner; icorner++)
+    coor += getCoor(imesh, icorner, idim);
+  return (coor / (double) ncorner);
+}
+
+VectorVectorDouble AMesh::getAllCenterCoordinates() const
+{
+  int ncorner = getNApexPerMesh();
+  int nmeshes = getNMeshes();
+  VectorVectorDouble coords(_nDim);
+  for (int idim = 0; idim < _nDim; idim++)
+    coords[idim].resize(nmeshes);
+
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+  {
+    for (int idim = 0; idim < _nDim; idim++)
+    {
+      double total = 0.;
+      for (int ic = 0; ic < ncorner; ic++)
+        total += getCoor(imesh, ic, idim);
+      coords[idim][imesh] = total / ncorner;
+    }
+  }
+  return coords;
+}
+
+/**
+ * Returns the information about all apices:
+ * - the first dimension is the number of meshes (nrow)
+ * - the second dimension if the space dimension (ncol)
+ * @return
+ */
+MatrixRectangular AMesh::getAllApices() const
+{
+  int napices = getNApices();
+  MatrixRectangular apices(napices, _nDim);
+  for (int ip = 0; ip < napices; ip++)
+    for (int idim = 0; idim < _nDim; idim++)
+      apices.setValue(ip, idim, getApexCoor(ip, idim));
+  return apices;
 }
 
 VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
@@ -351,7 +412,7 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
  * @param imesh Mesh rank
  * @param vec   Returned array
  */
-void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) const
+void AMesh::getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& vec) const
 {
   int ncorner = getNApexPerMesh();
 
@@ -360,7 +421,8 @@ void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) co
 }
 
 /**
- * Returns the array of coordinates of all apices of a mesh in embedded space
+ * Returns the array of coordinates of all apices of any mesh in embedded space
+ * Its dimensions are: ncorner * ndim
  * @param imesh Mesh rank
  * @return
  */
@@ -372,7 +434,7 @@ VectorVectorDouble AMesh::getEmbeddedCoordinatesPerMesh(int imesh) const
   for (auto &e: vec)
     e = VectorDouble(ndim);
 
-  getEmbeddedCoordinatesPerMesh(imesh, vec);
+  getEmbeddedCoordinatesPerMeshInPlace(imesh, vec);
   return vec;
 }
 
@@ -395,7 +457,7 @@ VectorVectorDouble AMesh::getCoordinatesPerMesh(int imesh) const
  * The returned vector is organized by coordinate
  * @return
  */
-VectorVectorDouble AMesh::getEmbeddedApexCoordinates() const
+VectorVectorDouble AMesh::getEmbeddedCoordinatesPerApex() const
 {
   int ndim = getEmbeddedNDim();
   int napices = getNApices();
@@ -625,7 +687,7 @@ double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
   mat.reset(ndim,ndim);
   for (int icorn=1; icorn<ncorner; icorn++)
     for (int idim=0; idim<ndim; idim++)
-      mat.setValue(icorn-1,idim, corners[icorn][idim] - corners[0][idim]);
+      mat.setValue(icorn-1, idim, corners[icorn][idim] - corners[0][idim]);
   unit = ABS(mat.determinant()) / facdim[ndim];
 
   return unit;

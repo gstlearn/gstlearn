@@ -124,16 +124,16 @@ int main(int argc, char *argv[])
 
   if (flag_norm_sill) constraints.setConstantSillValue(1.);
   options.setFlagGoulardUsed(flag_goulard_used);
-  //OptDbg::define(EDbg::CONVERGE);
-  //verbose = true;
+//  OptDbg::define(EDbg::CONVERGE);
+//  verbose = true;
   (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
-  // Model is not printed any more to avoid differences among platforms
-  //  model->display();
+// Model is not printed any more to avoid differences among platforms
+//    model->display();
   ascii_filename("Model",0,1,filename);
   if (! model->dumpToNF(filename,verbose))
     messageAbort("ascii_model_write");
   
-  // produce the Goodness-of-fit score
+  // Produce the Goodness-of-fit score
 
   gof = model->gofToVario(vario, false);
   model->gofDisplay(gof, false);

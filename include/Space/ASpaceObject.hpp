@@ -42,7 +42,6 @@ public:
   /// AStringable interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-
 public:
   /// Accessor to the current object space context
   const ASpace* getSpace() const { return _space; }

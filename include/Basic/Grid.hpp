@@ -13,13 +13,11 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Geometry/Rotation.hpp"
-//#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class GridOld;
-//class VectorInt;
-//class VectorDouble;
 class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT Grid : public AStringable
@@ -81,12 +79,14 @@ public:
                                           const VectorDouble& dxsPerCell = VectorDouble()) const;
   double indiceToCoordinate(int idim0,
                             const VectorInt& indice,
-                            const VectorDouble& percent = VectorDouble()) const;
+                            const VectorDouble& percent = VectorDouble(),
+                            bool flag_rotate=true) const;
   VectorDouble indicesToCoordinate(const VectorInt& indice,
                                    const VectorDouble& percent = VectorDouble()) const;
   void indicesToCoordinateInPlace(const VectorInt& indice,
                                   VectorDouble& coor,
-                                  const VectorDouble& percent = VectorDouble()) const;
+                                  const VectorDouble& percent = VectorDouble(),
+                                  bool flag_rotate=true) const;
   double rankToCoordinate(int idim0,
                           int rank,
                           const VectorDouble& percent = VectorDouble()) const;
@@ -111,8 +111,8 @@ public:
   VectorInt generateGridIndices(const String &string,
                                 bool startFromZero = true,
                                 bool verbose = false);
-  bool sampleBelongsToCell(const VectorDouble &coor,
-                           int node,
+  bool sampleBelongsToCell(const VectorDouble& coor,
+                           const VectorDouble& center,
                            const VectorDouble &dxsPerCell) const;
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
@@ -149,8 +149,8 @@ public:
   int getMirrorIndex(int idim, int ix) const;
 
 private:
-  const MatrixSquareGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
-  const MatrixSquareGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
+  const MatrixSquareGeneral& _getRotMat() const { return _rotation.getMatrixDirect(); }
+  const MatrixSquareGeneral& _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
   void _recopy(const Grid &r);
   bool _isSpaceDimensionValid(int idim) const;
@@ -168,4 +168,9 @@ private:
   VectorInt _counts;
   VectorInt _order;
   VectorInt _indices;
+
+  // Some working vectors, defined in order to avoid too many allocations
+  mutable VectorInt    _iwork0;
+  mutable VectorDouble _work1;
+  mutable VectorDouble _work2;
 };

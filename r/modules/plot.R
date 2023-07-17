@@ -285,7 +285,7 @@ varioElem <- function(vario, ivar=0, jvar=0, idir=0,
   sw = vario$getSwVec(idir,ivar,jvar)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
-  # Representing the Experimental variogram
+# Representing the Experimental variogram
 #    args <- formals(geom_line)
 #    args[which(names(args) %in% names(dots))] <- dots[na.omit(match(names(args), names(dots)))]
 #    print(args)
@@ -355,6 +355,7 @@ modelElem <- function(model, ivar=0, jvar=0, codir=NA,
         hmax = 3*range_max
     }
   }
+  # if hmax is still not calculated, take it empirically equal to 1.
   if (isNotDef(hmax) || hmax == 0) hmax = 1.
   
   if (isNotDef(codir))
@@ -375,22 +376,21 @@ modelElem <- function(model, ivar=0, jvar=0, codir=NA,
   hh = seq(eps, hmax, length.out=nh)
   
   # Represent the Model
-  gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir,
-      nostd=0, asCov=asCov)
+  mode = CovCalcMode()
+  mode$setAsVario(! asCov)
+  gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
   p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, ...))
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flag_envelop)
   {
-    gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, 
-        nostd=-1, asCov=asCov)
+    gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=-1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
     
-    gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, 
-        nostd=1, asCov=asCov)
+    gg = model$envelop(hh, ivar=ivar, jvar=jvar, isign=+1, codir=codir, mode=mode)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
@@ -796,7 +796,7 @@ plot.polygon <- function(poly, show.title=FALSE, ...)
   has_color = "color" %in% names(dots)
   
   p = list()
-  npol = poly$getPolySetNumber()
+  npol = poly$getPolyElemNumber()
   cols = get.colors()
   
   dotloc = dots

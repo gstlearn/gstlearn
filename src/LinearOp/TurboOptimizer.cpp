@@ -214,9 +214,9 @@ int TurboOptimizer::_indiceToRank(VectorInt& indice, bool flag_complete) const
   if (flag_complete)
   {
     if (indice[0] < 0 || indice[0] >= _nx)
-      throw("Error in indice[0]");
+      my_throw("Error in indice[0]");
     if (indice[1] < 0 || indice[1] >= _ny)
-      throw("Error in indice[1]");
+      my_throw("Error in indice[1]");
     return _nx * indice[1] + indice[0];
   }
   else
@@ -321,8 +321,8 @@ void TurboOptimizer::_invert_3x3(VectorDouble& uu,
   double det02 = U(1,0) * U(2,1) - U(2,0) * U(1,1);
   double det   = U(0,0) * det00 - U(0,1) * det01 + U(0,2) * det02;
   double toto  = ABS(det);
-  if (toto < tol) throw("Matrix is not invertible");
-  if (ABS(det) < tol) throw("Matrix is not invertible");
+  if (toto < tol) my_throw("Matrix is not invertible");
+  if (ABS(det) < tol) my_throw("Matrix is not invertible");
 
   V(0,0) =  (U(1,1) * U(2,2) - U(2,1) * U(1,2)) / det;
   V(0,1) = -(U(0,1) * U(2,2) - U(2,1) * U(0,2)) / det;
@@ -462,7 +462,7 @@ void TurboOptimizer::run(bool verbose)
   int ny_memo = _ny;
 
   // Modify the Grid dimension to the Template one
-  if (_determineInternalGrid(verbose)) throw("Incompatible Grid sizes");
+  if (_determineInternalGrid(verbose)) my_throw("Incompatible Grid sizes");
   _nx = _nxred;
   _ny = _nxred;
   int nvertex_red = _getNVertices();
@@ -692,7 +692,7 @@ VectorDouble TurboOptimizer::_getVectorFromTemplate(const VectorDouble& vecin) c
   int nvertex = _getNVertices();
   VectorDouble vecout(nvertex,0.);
   if (! _isCalculated)
-    throw("You must use the method 'run' beforehand");
+    my_throw("You must use the method 'run' beforehand");
 
   VectorInt indice(TO_ndim,0);
 
@@ -725,7 +725,7 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
   triplet.cols.resize(estimated_size);
   triplet.values.resize(estimated_size);
   if (! _isCalculated)
-    throw("You must use the method 'run' beforehand");
+    my_throw("You must use the method 'run' beforehand");
 
   // Loop on the vertices (first point)
 
@@ -767,7 +767,7 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
             triplet.values[added_element] = value;
             added_element++;
             if (added_element >= estimated_size)
-              throw("Reconsider the pre-estimation of matrix dimensions");
+              my_throw("Reconsider the pre-estimation of matrix dimensions");
           }
         }
   }
@@ -789,7 +789,7 @@ TripletND TurboOptimizer::_getMatrixFromTemplate(const VectorDouble& matin,
 VectorDouble TurboOptimizer::getBlin() const
 {
   if (! _isCalculated)
-    throw("You must use the method 'run' beforehand");
+    my_throw("You must use the method 'run' beforehand");
   return _Blin;
 }
 

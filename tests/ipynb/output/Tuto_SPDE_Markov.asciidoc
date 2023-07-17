@@ -1,0 +1,52 @@
++*Out[5]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Markov (Third Parameter = 1)
+- Sill         =      5.000
+- Ranges       =     12.471     6.928
+- Theo. Ranges =      1.800     1.000
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      5.000----
+
+
++*Out[8]:*+
+----
+![png](output_8_0.png)
+
+![png](output_8_1.png)
+----
+
+
++*Out[9]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[11]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*Out[12]:*+
+----0.984----

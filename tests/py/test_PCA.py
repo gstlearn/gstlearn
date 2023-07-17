@@ -40,7 +40,8 @@ db
 
 # Construct the PCA and print its contents.
 
-pcag = gl.PCA(db, True)
+pcag = gl.PCA()
+pcag.pca_compute(db, True)
 pcag.display()
 
 # Transform the initial data into factors.

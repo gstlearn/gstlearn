@@ -4,6 +4,7 @@
 
 %shared_ptr(AAnam)
 %shared_ptr(AArray)
+%shared_ptr(ABiTargetCheck)
 %shared_ptr(ACalcDbToDb)
 %shared_ptr(ACalcDbVarCreator)
 %shared_ptr(ACalcInterpolator)
@@ -26,7 +27,7 @@
 %shared_ptr(AnamEmpirical)
 %shared_ptr(AnamHermite)
 %shared_ptr(AnamUser)
-%shared_ptr(ANeighParam)
+%shared_ptr(ANeigh)
 %shared_ptr(ANoStat)
 %shared_ptr(APolynomial)
 %shared_ptr(Array)
@@ -38,10 +39,18 @@
 %shared_ptr(AStringFormat)
 %shared_ptr(BImage)
 %shared_ptr(BImageStringFormat)
+%shared_ptr(BiTargetCheckBench)
+%shared_ptr(BiTargetCheckCell)
+%shared_ptr(BiTargetCheckDistance)
+%shared_ptr(BiTargetCheckFaults)
+%shared_ptr(BiTargetCheckCode)
+%shared_ptr(BiTargetCheckDate)
 %shared_ptr(BooleanObject)
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
+%shared_ptr(CalcSimuPost)
 %shared_ptr(CalcImage)
+%shared_ptr(CalcGlobal)
 %shared_ptr(CalcKriging)
 %shared_ptr(CalcKrigingFactors)
 %shared_ptr(CalcMigrate)
@@ -133,6 +142,7 @@
 %shared_ptr(Limits)
 %shared_ptr(MatrixInt)
 %shared_ptr(MatrixRectangular)
+%shared_ptr(MatrixSparse)
 %shared_ptr(MatrixSquareDiagonal)
 %shared_ptr(MatrixSquareDiagonalCst)
 %shared_ptr(MatrixSquareGeneral)
@@ -147,6 +157,7 @@
 %shared_ptr(NeighImage)
 %shared_ptr(NeighMoving)
 %shared_ptr(NeighUnique)
+%shared_ptr(NeighCell)
 %shared_ptr(NoStatArray)
 %shared_ptr(NoStatFunctional)
 %shared_ptr(Option_AutoFit)
@@ -156,7 +167,7 @@
 %shared_ptr(Plane)
 %shared_ptr(Polygons)
 %shared_ptr(PolyLine2D)
-%shared_ptr(PolySet)
+%shared_ptr(PolyElem)
 %shared_ptr(PPMT)
 %shared_ptr(ProjConvolution)
 %shared_ptr(ProjMatrix)
@@ -182,6 +193,7 @@
 %shared_ptr(SimuSphericalParam)
 %shared_ptr(SimuSubstitutionParam)
 %shared_ptr(SpacePoint)
+%shared_ptr(SpaceTarget)
 %shared_ptr(SpaceRN)
 %shared_ptr(Table)
 %shared_ptr(Tensor)
@@ -260,6 +272,13 @@
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"
+  #include "Geometry/ABiTargetCheck.hpp"
+  #include "Geometry/BiTargetCheckBench.hpp"
+  #include "Geometry/BiTargetCheckCell.hpp"
+  #include "Geometry/BiTargetCheckDistance.hpp"
+  #include "Geometry/BiTargetCheckFaults.hpp"
+  #include "Geometry/BiTargetCheckCode.hpp"
+  #include "Geometry/BiTargetCheckDate.hpp"
   
   #include "Arrays/AArray.hpp"
   #include "Arrays/Array.hpp"
@@ -281,6 +300,7 @@
   #include "Space/ASpace.hpp"
   #include "Space/ASpaceObject.hpp"
   #include "Space/SpacePoint.hpp"
+  #include "Space/SpaceTarget.hpp"
   #include "Space/SpaceRN.hpp"
   #include "Space/SpaceShape.hpp"
   
@@ -294,6 +314,7 @@
   #include "Calculators/ACalcInterpolator.hpp"
   #include "Calculators/CalcStatistics.hpp"
   #include "Calculators/CalcGridToGrid.hpp"
+  #include "Calculators/CalcSimuPost.hpp"
   
   #include "Mesh/AMesh.hpp"
   #include "Mesh/MeshEStandard.hpp"
@@ -321,12 +342,12 @@
   #include "LinearOp/ProjConvolution.hpp"
   #include "LinearOp/Cholesky.hpp"
   
-  #include "Neigh/ANeighParam.hpp"
+  #include "Neigh/ANeigh.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"
   #include "Neigh/NeighMoving.hpp"
   #include "Neigh/NeighBench.hpp"
-  #include "Neigh/NeighWork.hpp"
+  #include "Neigh/NeighCell.hpp"
   
   #include "Variogram/VarioParam.hpp"
   #include "Variogram/Vario.hpp"
@@ -384,6 +405,7 @@
   #include "Covariances/CovWendland1.hpp"
   #include "Covariances/CovWendland2.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
+  #include "Covariances/CovHelper.hpp"
   
   #include "Drifts/ADrift.hpp"
   #include "Drifts/ADriftElem.hpp"
@@ -408,6 +430,7 @@
   
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/AMatrixSquare.hpp"
+  #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/MatrixRectangular.hpp"
   #include "Matrix/MatrixSquareDiagonal.hpp"
@@ -443,7 +466,7 @@
   #include "Morpho/Morpho.hpp"
   
   #include "Polygon/Polygons.hpp"
-  #include "Polygon/PolySet.hpp"
+  #include "Polygon/PolyElem.hpp"
   
   #include "Stats/Classical.hpp"
   #include "Stats/PCA.hpp"
@@ -459,6 +482,7 @@
   #include "Estimation/CalcKrigingFactors.hpp"
   #include "Estimation/CalcSimpleInterpolation.hpp"
   #include "Estimation/CalcImage.hpp"
+  #include "Estimation/CalcGlobal.hpp"
   
   #include "OutputFormat/AOF.hpp"
   #include "OutputFormat/FileLAS.hpp"
@@ -525,7 +549,7 @@
 %template(VectorEStatOption)  std::vector< EStatOption >;
 %template(VectorESelectivity) std::vector< ESelectivity >;
 %template(VectorDirParam)     std::vector< DirParam >;
-%template(VectorPolySet)      std::vector< PolySet >;
+%template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
 
 ////////////////////////////////////////////////

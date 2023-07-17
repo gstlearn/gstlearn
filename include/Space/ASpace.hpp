@@ -39,7 +39,6 @@ public:
 
   /// Return the space origin coordinates
   const VectorDouble& getOrigin() const { return _origin; }
-
   /// Return true if the given space is equal to me
   virtual bool isEqual(const ASpace* space) const;
 
@@ -67,10 +66,22 @@ public:
   virtual VectorDouble getIncrement(const SpacePoint& p1,
                                     const SpacePoint& p2) const = 0;
 
+  virtual void _getIncrementInPlace(const SpacePoint &p1,
+                                    const SpacePoint &p2,
+                                    VectorDouble &ptemp) const { }
+  void _getIncrementInPlaceVect(const SpacePoint &p1,
+                                const std::vector<SpacePoint> &pv,
+                                VectorVectorDouble &res) const;
+
+
 protected:
   /// Number of space dimensions
   unsigned int _nDim;
   /// Coordinates of the origin (not a space point... ex: sphere center in a long/lat space)
   VectorDouble _origin;
+
+  // The next vectors are specified as working members in order to avoid too many allocations
+  mutable VectorDouble _work1;
+  mutable VectorDouble _work2;
 };
 

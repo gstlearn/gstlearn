@@ -91,13 +91,17 @@ public:
 
   VectorVectorDouble getCoordinatesPerMesh(int imesh) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
-  void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
-  VectorVectorDouble getEmbeddedApexCoordinates() const;
+  void getEmbeddedCoordinatesPerMeshInPlace(int imesh, VectorVectorDouble& coors) const;
+  VectorVectorDouble getEmbeddedCoordinatesPerApex() const;
 
   VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt());
 
   VectorVectorDouble getAllCoordinates() const;
-  VectorVectorInt getAllApices() const;
+  MatrixRectangular getAllApices() const;
+  MatrixInt getAllMeshes() const;
+
+  double getCenterCoordinate(int imesh, int idim) const;
+  VectorVectorDouble getAllCenterCoordinates() const;
 
   /// TODO : replace by VectorVectorInt ?
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
@@ -115,13 +119,14 @@ protected:
   double _getMeshUnit(const VectorVectorDouble& corners) const;
 
 protected:
+  void _recopy(const AMesh &m);
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
   String _getNFName() const override { return "AMesh"; }
 
+
 private:
-  void _recopy(const AMesh &m);
   bool _isSpaceDimensionValid(int idim) const;
   void _printMeshListByIndices(int nline_max = -1) const;
   void _printMeshListByCoordinates(int nline_max = -1) const;

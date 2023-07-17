@@ -598,6 +598,9 @@ void exit_f(void)
 %extend SpacePoint {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend SpaceTarget {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend Db {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -685,10 +688,16 @@ void exit_f(void)
 %extend NeighBench {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend NeighCell {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend MeshEStandard {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend MeshETurbo {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MeshSpherical {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend CSVformat {
@@ -1022,6 +1031,7 @@ setattr(gl.MatrixSquareDiagonal, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareDiagonalCst, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
+setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 
 # TODO : Replace Triplet_toTL by MatrixSparse_toTL
 def Triplet_toTL(self):

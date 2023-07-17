@@ -32,6 +32,7 @@
 #include "Model/Model.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <string.h>
 #include <math.h>
@@ -79,7 +80,7 @@ void vario_fix_codir(int ndim, VectorDouble &codir)
   double norme;
 
   if (codir.empty()) return;
-  norme = matrix_norm(codir.data(), ndim);
+  norme = VH::innerProduct(codir, codir, ndim);
   if (norme <= 0.)
   {
     for (int idim = 0; idim < ndim; idim++)
@@ -279,9 +280,9 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
   for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
   {
-    vario->setMean(ivar, 0.);
+    vario->setMean(0., ivar);
     for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
-      vario->setVar(ivar, jvar, 0.);
+      vario->setVar(0., ivar, jvar);
   }
 
   /* Loop on the variables */
@@ -301,7 +302,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
     }
 
     if (s1w <= 0.) continue;
-    vario->setMean(ivar, s1z / s1w);
+    vario->setMean(s1z / s1w, ivar);
   }
 
   for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
@@ -334,15 +335,13 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
       if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
       {
-        vario->setVar(ivar, jvar, s12wzz);
-        vario->setVar(jvar, ivar, s12wzz);
+        vario->setVar(s12wzz, ivar, jvar);
+        vario->setVar(s12wzz, jvar, ivar);
       }
       else
       {
-        vario->setVar(ivar, jvar,
-                       s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
-        vario->setVar(jvar, ivar,
-                       s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w));
+        vario->setVar(s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w), ivar, jvar);
+        vario->setVar(s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w), jvar, ivar);
       }
     }
 
@@ -354,8 +353,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
         double value = -vario->getVar(ivar, jvar) / vario->getVar(jvar, jvar);
-        vario->setVar(ivar, jvar, value);
-        vario->setVar(jvar, ivar, value);
+        vario->setVar(value, ivar, jvar);
+        vario->setVar(value, jvar, ivar);
       }
   }
   else if (vario->getCalcul() == ECalcVario::TRANS2)
@@ -364,8 +363,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
       for (int jvar = 0; jvar < ivar; jvar++)
       {
         double value = -vario->getVar(ivar, jvar) / vario->getVar(ivar, ivar);
-        vario->setVar(ivar, jvar, value);
-        vario->setVar(jvar, ivar, value);
+        vario->setVar(value, ivar, jvar);
+        vario->setVar(value, jvar, ivar);
       }
   }
   else if (vario->getCalcul() == ECalcVario::BINORMAL)
@@ -374,10 +373,8 @@ static void st_variogram_stats(Db *db, Vario *vario)
       for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
         if (ivar != jvar)
           vario->setVar(
-              ivar,
-              jvar,
               vario->getVar(ivar, jvar) / sqrt(
-                  vario->getVar(ivar, ivar) * vario->getVar(jvar, jvar)));
+                  vario->getVar(ivar, ivar) * vario->getVar(jvar, jvar)), ivar, jvar);
   }
   return;
 }
@@ -445,10 +442,8 @@ static void st_variovect_stats(Db *db, Vario *vario, int ncomp)
         s12wzz += ww * ww * vij;
       }
 
-      vario->setVar(ivar, jvar, (s12ww > 0) ? s12wzz / s12ww :
-                                               0.);
-      vario->setVar(jvar, ivar, (s12ww > 0) ? s12wzz / s12ww :
-                                               0.);
+      vario->setVar((s12ww > 0) ? s12wzz / s12ww : 0., ivar, jvar);
+      vario->setVar((s12ww > 0) ? s12wzz / s12ww : 0., jvar, ivar);
     }
 
   if (nb_neg > 0)
@@ -531,7 +526,7 @@ int variogram_get_lag(const DirParam& dirparam,
     if (ps < psmin) (*dist) = -(*dist);
   }
 
-  return (ilag);
+  return ilag;
 }
 
 /****************************************************************************/
@@ -1439,7 +1434,6 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
 {
   double c00, covtab, value;
   int idim, ndim, il, jl, nech, iech, iiech, jech, jjech, nbfl;
-  CovCalcMode mode;
 
   /* Initializations */
 
@@ -1451,7 +1445,7 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
 
   for (idim = 0; idim < ndim; idim++)
     d1[idim] = 0.;
-  model_calcul_cov(NULL,MODEL, mode, 1, 1., d1, &c00);
+  model_calcul_cov(NULL,MODEL, nullptr, 1, 1., d1, &c00);
 
   /* Calculate the term: G %*% X */
 
@@ -1466,7 +1460,7 @@ static void st_calculate_bias_global(Db *db, VectorDouble d1)
         if (!db->isActiveAndDefined(jech, 0)) continue;
         for (idim = 0; idim < ndim; idim++)
           d1[idim] = db->getDistance1D(iech, jech, idim);
-        model_calcul_cov(NULL,MODEL, mode, 1, 1., d1, &covtab);
+        model_calcul_cov(NULL,MODEL, nullptr, 1, 1., d1, &covtab);
         value += (c00 - covtab) * X_DRFTAB(il, jjech);
         jjech++;
       }
@@ -1812,7 +1806,9 @@ static int st_variogram_calcul1(Db *db,
       /* Case of internal storage */
 
       if (vorder != (Vario_Order*) NULL)
+      {
         vario_order_add(vorder, iech, jech, NULL, NULL, ipas, idir, dist);
+      }
       else
       {
 
@@ -2641,7 +2637,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
 
   /* Calculate: A %*% t(X) %*% Y */
 
-  matrix_product(nbfl, nbfl, 1, MATDRF, b, BETA);
+  matrix_product_safe(nbfl, nbfl, 1, MATDRF, b, BETA);
 
   /* Optional printout */
 
@@ -2653,7 +2649,7 @@ static int st_estimate_drift_coefficients(Db *db, int verbose)
 
   /* Pre-process the vector X %*% A */
 
-  matrix_product(nech, nbfl, nbfl, DRFTAB, MATDRF, DRFXA);
+  matrix_product_safe(nech, nbfl, nbfl, DRFTAB, MATDRF, DRFXA);
 
   /* Set the error return code */
 
@@ -3012,7 +3008,7 @@ static int st_vmap_general(Db *db,
 
   /* Calculate a neighborhood (if radius > 0) */
 
-  neigh = gridcell_neigh(ndim, 1, radius, 0, 0);
+  neigh = gridcell_neigh(ndim, 1, radius, false, false);
   nbmax = (int) neigh.size() / ndim;
 
   /* Calculate the VMAP half-extension */
@@ -3477,8 +3473,6 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
  ** \param[in]  tolcode      Tolerance on the code
  ** \param[in]  breaks       array for irregular lags
  ** \param[in]  codir        calculation direction (Dimension = ndim)
- ** \param[in]  grincr       direction increment only used for grid
- **                          (Dimension = ndim)
  **
  *****************************************************************************/
 int variogram_direction_add(VarioParam *varioparam,
@@ -3492,13 +3486,12 @@ int variogram_direction_add(VarioParam *varioparam,
                             double cylrad,
                             double tolcode,
                             const VectorDouble &breaks,
-                            const VectorDouble &codir,
-                            const VectorInt &grincr)
+                            const VectorDouble &codir)
 {
   if (varioparam == (VarioParam*) NULL) return (1);
   DirParam dirparam = DirParam(npas, dpas,
                                toldis, tolang, opt_code, idate, bench, cylrad,
-                               tolcode, breaks, codir, grincr);
+                               tolcode, breaks, codir);
   varioparam->addDir(dirparam);
   return (0);
 }
@@ -3819,31 +3812,27 @@ int correlation_f(Db *db1,
  *****************************************************************************/
 int correlation_ident(Db *db1, Db *db2, int icol1, int icol2, Polygons *polygon)
 {
-  int iech, nech, number;
-  double coor[2], val1, val2;
-
-  /* Initializations */
-
   if (db1 == nullptr) return (1);
   if (db2 == nullptr) return (1);
-  nech = db1->getSampleNumber();
-  number = 0;
+  int nech = db1->getSampleNumber();
+  int number = 0;
 
   /* Correlation */
 
-  for (iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     if (!db1->isActive(iech)) continue;
-    val1 = db1->getArray(iech, icol1);
+    double val1 = db1->getArray(iech, icol1);
     if (FFFF(val1)) continue;
-    val2 = db2->getArray(iech, icol2);
+    double val2 = db2->getArray(iech, icol2);
     if (FFFF(val2)) continue;
 
     /* Check of the sample belongs to the polygon */
 
+    VectorDouble coor(3, TEST);
     coor[0] = val1;
     coor[1] = val2;
-    if (!polygon->inside(coor[0], coor[1], TEST, false)) continue;
+    if (!polygon->inside(coor, false)) continue;
 
     /* Print the reference of the sample */
 
@@ -3946,13 +3935,14 @@ static void st_variogram_cloud(const Db *db,
  *****************************************************************************/
 void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polygon)
 {
-  double *ids, *coor, ps, psmin, dist, w1, w2, z1, z2, value, zcoor;
+  double *ids, ps, psmin, dist, w1, w2, z1, z2, value;
   int *indg, *rank, nech, iech, jech, igrid, idir, ideb;
+  VectorDouble coor;
 
   /* Initializations */
 
   indg = rank = nullptr;
-  ids = coor = nullptr;
+  ids = nullptr;
   const VarioParam &varioparam = vario->getVarioParam();
 
   /* Core allocation */
@@ -3960,14 +3950,13 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
   nech = db->getSampleNumber();
   indg = db_indg_alloc(dbgrid);
   if (indg == nullptr) goto label_end;
-  coor = db_sample_alloc(dbgrid, ELoc::X);
-  if (coor == nullptr) goto label_end;
   rank = (int*) mem_alloc(sizeof(int) * nech, 0);
   if (rank == nullptr) goto label_end;
   ids = db_vector_alloc(db);
   if (ids == nullptr) goto label_end;
   for (iech = 0; iech < nech; iech++)
     ids[iech] = 0.;
+  coor.resize(dbgrid->getNDim());
 
   /* Loop on the first point */
 
@@ -4011,6 +4000,7 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
                                   dirparam.getCodirs(), &ps)) continue;
+
         value = w1 * w2 * (z2 - z1) * (z2 - z1) / 2.;
         igrid = st_update_discretization_grid(dbgrid, dist, value);
         if (igrid < 0) continue;
@@ -4018,10 +4008,8 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
         /* Check if the grid cell belongs to the polygon */
 
         db_index_sample_to_grid(dbgrid, igrid, indg);
-        grid_to_point(dbgrid, indg, NULL, coor);
-        zcoor = (dbgrid->getNDim() > 2) ? coor[2] :
-                                          TEST;
-        if (!polygon->inside(coor[0], coor[1], zcoor, false)) continue;
+        grid_to_point(dbgrid, indg, NULL, coor.data());
+        if (!polygon->inside(coor, false)) continue;
 
         /* Add the references */
 
@@ -4046,7 +4034,6 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
   }
 
   label_end: indg = db_indg_free(indg);
-  coor = db_sample_free(coor);
   ids = db_vector_free(ids);
   rank = (int*) mem_free((char* ) rank);
   return;
@@ -5229,7 +5216,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Set the variance */
 
-  vario->setVar(0, 0, 1.);
+  vario->setVar(1., 0, 0);
 }
 
 /****************************************************************************/
@@ -5330,7 +5317,6 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
   int error, idir, ndim;
   double chh, varz, cov_value;
   VectorDouble d1;
-  CovCalcMode mode;
 
   /* Preliminary checks */
 
@@ -5390,7 +5376,7 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
         d1[idim] = (ipas + 1) * vario->getDPas(idir)
                    * vario->getCodir(idir, idim);
 
-      model_calcul_cov(NULL,model, mode, 1, 1., d1, &chh);
+      model_calcul_cov(NULL,model, nullptr, 1, 1., d1, &chh);
       if (chh < 0.)
       {
         messerr("Gaussian covariance is negative in direction %d for lag %d",
@@ -5863,7 +5849,7 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
  ** \param[in]  db          Db containing the data
  ** \param[in]  calcul_type Type of calculation (ECalcVario)
  ** \param[in]  nx_arg      Vector of (Half-) number of nodes for Vmap (def:20)
- ** \param[in]  dxx         Vector of mesh for Vmap (seed details)
+ ** \param[in]  dxx         Vector of mesh for Vmap (see details)
  ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points
  ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
  ** \param[in]  namconv     Naming convention
@@ -5968,7 +5954,8 @@ int dbgrid_model(DbGrid *dbgrid, Model *model, const NamingConvention &namconv)
 
   /* Loop on the grid nodes */
 
-  CovCalcMode mode(ECalcMember::LHS, true);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
   VectorInt center = dbgrid->getCenterIndices();
   VectorDouble dincr(ndim);
   VectorInt indices(ndim);
@@ -5982,7 +5969,7 @@ int dbgrid_model(DbGrid *dbgrid, Model *model, const NamingConvention &namconv)
       dincr[idim] = (indices[idim] - center[idim]) * dbgrid->getDX(idim);
 
     // Evaluate the variogram map
-    mat = model->evalNvarIpasIncr(dincr, mode);
+    mat = model->evalNvarIpasIncr(dincr, &mode);
 
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)

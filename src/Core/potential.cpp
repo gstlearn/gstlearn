@@ -24,7 +24,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Neigh/ANeigh.hpp"
 #include <Simulation/CalcSimuTurningBands.hpp>
 
 #include <math.h>
@@ -257,7 +257,7 @@ static void st_cov(Model* model,
   if (ndim >= 2) vec[1] = dy;
   if (ndim >= 3) vec[2] = dz;
 
-  model->evalZAndGradients(vec, covar, covGp, covGG, CovCalcMode(), flag_grad);
+  model->evalZAndGradients(vec, covar, covGp, covGG, nullptr, flag_grad);
 
   return;
 }
@@ -396,7 +396,7 @@ static int st_extdrift_solve(Pot_Ext *pot_ext,
 
   /* Establish the kriging matrix */
 
-  model_covmat(pot_ext->model, pot_ext->db, pot_ext->db, -1, -1, 0, 1, a);
+  model_covmat(pot_ext->model, pot_ext->db, pot_ext->db, -1, -1, a);
 
   /* Establish the Right-Hand side */
 
@@ -419,7 +419,7 @@ static int st_extdrift_solve(Pot_Ext *pot_ext,
   /* Perform the inversion and store the weights */
 
   if (matrix_invert(a, number, 0)) return (1);
-  matrix_product(number, number, 4, a, b, wgt);
+  matrix_product_safe(number, number, 4, a, b, wgt);
 
   return (0);
 }
@@ -540,7 +540,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
                      Db *dbtgt,
                      DbGrid* dbout,
                      Model *model,
-                     ANeighParam *neighparam)
+                     ANeigh *neigh)
 {
   static int nring = 1;
 
@@ -580,7 +580,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
     messerr("The Model must be monovariate");
     return false;
   }
-  if (neighparam->getType() != ENeigh::UNIQUE)
+  if (neigh->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     return false;
@@ -1199,8 +1199,8 @@ static int st_extdrift_eval(const char *target,
 
   /* Perform the estimation */
 
-  matrix_product(1, pot_ext->nfull, 4, pot_ext->data, pot_ext->weight,
-                 result.data());
+  matrix_product_safe(1, pot_ext->nfull, 4, pot_ext->data, pot_ext->weight,
+                      result.data());
 
   /* Retrieve the results */
 
@@ -2068,7 +2068,7 @@ static void st_calc_point(Pot_Env *pot_env,
   /* Perform the estimation */
 
   for (int i = 0; i < nsol; i++) result[i] = TEST;
-  matrix_product(1, pot_env->nequa, nsol, zdual, rhs, result.data());
+  matrix_product_safe(1, pot_env->nequa, nsol, zdual, rhs, result.data());
 
   // Printout (optional) 
 
@@ -2301,7 +2301,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   /* Calculate the dual system */
 
-  matrix_product(neqm1, neqm1, 1, lhs_aux, zval, zdual);
+  matrix_product_safe(neqm1, neqm1, 1, lhs_aux, zval, zdual);
 
   /* Evaluate the reference point */
 
@@ -2309,7 +2309,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     coor0[idim] = ISO_COO(ic0, 0, idim);
   st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs);
   matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, 1, zdual, rhs, &potval);
+  matrix_product_safe(1, neqm1, 1, zdual, rhs, &potval);
 
   /* Evaluate the target point */
 
@@ -2317,7 +2317,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
   st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, nsol, zdual, rhs, result.data());
+  matrix_product_safe(1, neqm1, nsol, zdual, rhs, result.data());
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, 0,
@@ -2341,7 +2341,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     }
     st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-    matrix_product(1, neqm1, nsol, zdual, rhs, result.data());
+    matrix_product_safe(1, neqm1, nsol, zdual, rhs, result.data());
     if (OptDbg::query(EDbg::CONVERGE))
     {
       message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, iter,
@@ -3013,7 +3013,7 @@ static void st_save_result_on_data(Pot_Env* pot_env,
  ** \param[in]  dbtgt      Tangent Db structure (optional)
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  neigh      ANeigh structure
  ** \param[in]  nugget_grd Nugget effect for Gradients
  ** \param[in]  nugget_tgt Nugget effect for Tangents
  ** \param[in]  flag_pot   True if the Potential must be estimated
@@ -3041,7 +3041,7 @@ int potential_kriging(Db *dbiso,
                       Db *dbtgt,
                       DbGrid *dbout,
                       Model *model,
-                      ANeighParam *neighparam,
+                      ANeigh *neigh,
                       double nugget_grd,
                       double nugget_tgt,
                       bool flag_pot,
@@ -3070,10 +3070,10 @@ int potential_kriging(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                       neighparam)) goto label_end;
+                       neigh)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3129,7 +3129,7 @@ int potential_kriging(Db *dbiso,
   st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-  matrix_product(nequa, nequa, 1, lhs, zval, zdual);
+  matrix_product_safe(nequa, nequa, 1, lhs, zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z] *%* [LHS]-1", 0, 1, 1, nequa, NULL, zdual);
 
@@ -3172,7 +3172,7 @@ int potential_kriging(Db *dbiso,
 
   label_end:
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
   zdual = (double*) mem_free((char* ) zdual);
@@ -3227,7 +3227,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
  ** \param[in]  dbtgt        Tangent Db structure (optional)
  ** \param[in]  dbout        Output Db structure
  ** \param[in]  model        Model structure
- ** \param[in]  neighparam   ANeighParam structure
+ ** \param[in]  neigh        ANeigh structure
  ** \param[in]  nugget_grd   Nugget effect for Gradients
  ** \param[in]  nugget_tgt   Nugget effect for Tangents
  ** \param[in]  dist_tempere Distance for tempering simulations (or TEST)
@@ -3246,7 +3246,7 @@ int potential_simulate(Db *dbiso,
                        Db *dbtgt,
                        DbGrid *dbout,
                        Model *model,
-                       ANeighParam *neighparam,
+                       ANeigh *neigh,
                        double nugget_grd,
                        double nugget_tgt,
                        double dist_tempere,
@@ -3278,13 +3278,13 @@ int potential_simulate(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (db_extension_diag(dbiso, &delta)) goto label_end;
   delta /= 1000.;
 
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                       neighparam)) goto label_end;
+                       neigh)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3356,7 +3356,7 @@ int potential_simulate(Db *dbiso,
     st_fill_dual(&pot_env, zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-    matrix_product(nequa, nequa, 1, lhs, zval, zdual);
+    matrix_product_safe(nequa, nequa, 1, lhs, zval, zdual);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdual);
 
@@ -3384,7 +3384,7 @@ int potential_simulate(Db *dbiso,
   st_fill_dual_simulation(&pot_env, dbiso, dbgrd, dbtgt, nbsimu, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Simu-Err]", 0, 1, nbsimu, nequa, NULL, zval);
-  matrix_product(nequa, nequa, nbsimu, lhs, zval, zduals);
+  matrix_product_safe(nequa, nequa, nbsimu, lhs, zval, zduals);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Simu-Err] *%* [A]-1", 0, 1, nbsimu, nequa, NULL, zduals);
 
@@ -3421,7 +3421,7 @@ int potential_simulate(Db *dbiso,
 
   label_end: if (flag_tempere) dbout->deleteColumnsByLocator(ELoc::Z);
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
   zdual = (double*) mem_free((char* ) zdual);
@@ -3442,7 +3442,7 @@ int potential_simulate(Db *dbiso,
  ** \param[in]  dbgrd          Gradient Db structure
  ** \param[in]  dbtgt          Tangent Db structure (optional)
  ** \param[in]  model          Model structure
- ** \param[in]  neighparam     ANeighParam structure
+ ** \param[in]  neigh          ANeigh structure
  ** \param[in]  nugget_grd     Nugget effect for Gradients
  ** \param[in]  nugget_tgt     Nugget effect for Tangents
  ** \param[in]  flag_dist_conv Flag for converting into distance
@@ -3453,7 +3453,7 @@ int potential_xvalid(Db *dbiso,
                      Db *dbgrd,
                      Db *dbtgt,
                      Model *model,
-                     ANeighParam *neighparam,
+                     ANeigh *neigh,
                      double nugget_grd,
                      double nugget_tgt,
                      int flag_dist_conv,
@@ -3474,10 +3474,10 @@ int potential_xvalid(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
     goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, NULL, model,
-                       neighparam)) goto label_end;
+                       neigh)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3533,7 +3533,7 @@ int potential_xvalid(Db *dbiso,
   st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-  matrix_product(nequa, nequa, 1, lhs, zval, zdual);
+  matrix_product_safe(nequa, nequa, 1, lhs, zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdual);
 
@@ -3548,7 +3548,7 @@ int potential_xvalid(Db *dbiso,
 
   label_end:
   st_potext_manage(-1, &pot_ext, 0, 0., NULL);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
   zdual = (double*) mem_free((char* ) zdual);

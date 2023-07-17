@@ -2686,7 +2686,7 @@ void ut_vandercorput(int n,
   {
     st_init_rotation(&ct, &st, a);
     for (i = 0; i < ntri; i++)
-      GH::rotationGetDirection(ct, st, a, &coord[3 * i]);
+      GH::rotationGetRandomDirection(ct, st, a, &coord[3 * i]);
   }
 
   /* Shuffle the samples in order to avoid three first colinear samples */
@@ -2871,7 +2871,7 @@ int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg)
   {
     st_init_rotation(&ct, &st, a);
     for (int i = 0; i < ntri; i++)
-      GH::rotationGetDirection(ct, st, a, &coord[3 * i]);
+      GH::rotationGetRandomDirection(ct, st, a, &coord[3 * i]);
   }
 
   /* Shuffle the samples in order to avoid three first colinear samples */

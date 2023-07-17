@@ -1147,8 +1147,10 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
   if (! layinfo.empty())
   {
     frac_list->_layinfo.init(nlayer, number);
-    for (int i = 0; i < nvall; i++)
-      frac_list->_layinfo.setValue(i, layinfo[i]);
+    int ecr = 0;
+    for (int i = 0; i < number; i++)
+      for (int ilayer = 0; ilayer < nlayer; ilayer++)
+        frac_list->_layinfo.setValue(ilayer, i, layinfo[ecr++]);
   }
   return (frac_list);
 }
@@ -1437,7 +1439,7 @@ VectorDouble FracList::fractureExtractLength(int ifam,
 
   /* Sort the intersections */
 
-  ut_sort_double(0, ecr, NULL, tab.data());
+  VH::sortInPlace(tab, true, ecr);
 
   return tab;
 }
@@ -1488,7 +1490,7 @@ VectorDouble FracList::fractureExtractDist(int ifam, double cote, double dcote)
 
   /* Sort the intersections */
 
-  ut_sort_double(0, ndist, NULL, tab.data());
+  VH::sortInPlace(tab, true, ndist);
 
   /* Calculate the inter-fracture distances */
 
@@ -1503,7 +1505,7 @@ VectorDouble FracList::fractureExtractDist(int ifam, double cote, double dcote)
   /* Sort the fracture inter-distances */
 
   ndist--;
-  ut_sort_double(0, ndist, NULL, tab.data());
+  VH::sortInPlace(tab, true, ndist);
 
   return tab;
 }

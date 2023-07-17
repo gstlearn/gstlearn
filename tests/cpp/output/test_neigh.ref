@@ -36,21 +36,15 @@ Column = 2 - Name = x-2 - Locator = x2
 
 Unique Neighborhood
 ===================
-Space dimension = 2
 
 Testing Unique Neighborhood
 ---------------------------
->>> Neighborhood search:
->>> Search must probably be performed
 For Target Point #0
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]         0         1         2         3         4         5         6
      [  7,]         7         8         9        10        11        12        13
      [ 14,]        14        15        16        17        18        19
 Is neighborhood Unchanged since last call = 0
->>> Neighborhood search:
->>> Search must probably be performed
->>> Search is bypassed as already calculated
 For Target Point #1
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]         0         1         2         3         4         5         6
@@ -60,30 +54,21 @@ Is neighborhood Unchanged since last call = 1
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 5
 Maximum horizontal distance         = 30
 
 Testing Moving Neighborhood
 ---------------------------
->>> Neighborhood search:
->>> Search must probably be performed
 For Target Point #0
          0
 Is neighborhood Unchanged since last call = 0
->>> Neighborhood search:
->>> Search must probably be performed
 For Target Point #1
          1         5         6         9        13
 Is neighborhood Unchanged since last call = 0
->>> Neighborhood search:
->>> Search must probably be performed
 For Target Point #2
          2         3        17        19
 Is neighborhood Unchanged since last call = 0
->>> Neighborhood search:
->>> Search must probably be performed
 For Target Point #3
          2         3         9        17        19
 Is neighborhood Unchanged since last call = 0

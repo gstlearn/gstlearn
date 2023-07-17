@@ -9,10 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
-  : MatrixSquareSymmetric(nrows, sparse)
+MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows)
+  : MatrixSquareSymmetric(nrows)
   , _diagMatrix()
 {
   _allocate();
@@ -38,6 +39,11 @@ MatrixSquareDiagonal& MatrixSquareDiagonal::operator= (const MatrixSquareDiagona
 MatrixSquareDiagonal::~MatrixSquareDiagonal()
 {
   _deallocate();
+}
+
+int MatrixSquareDiagonal::_getIndexToRank(int irow, int icol) const
+{
+  return icol;
 }
 
 double MatrixSquareDiagonal::_getValue(int irow, int icol) const
@@ -141,7 +147,7 @@ int MatrixSquareDiagonal::_invert()
 double& MatrixSquareDiagonal::_getValueRef(int irow, int icol)
 {
   if (! _isIndexValid(irow,icol))
-    throw("Function aborted due to previous errors");
+    my_throw("Function aborted due to previous errors");
   return _diagMatrix[irow];
 }
 
@@ -187,9 +193,10 @@ bool MatrixSquareDiagonal::isValid(int irow, int icol, bool printWhyNot) const
   return true;
 }
 
-void MatrixSquareDiagonal::addScalar(double /*v*/)
+void MatrixSquareDiagonal::addScalar(double v)
 {
-  my_throw("This function does not make sense for Diagonal Matrix");
+  for (int irow = 0; irow < getNRows(); irow++)
+    _setValue(irow, irow, _getValue(irow, irow) + v);
 }
 
 int MatrixSquareDiagonal::_solve(const VectorDouble& b, VectorDouble& x) const
@@ -219,17 +226,10 @@ String MatrixSquareDiagonal::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-   if (isSparse())
-   {
-     sstr << AMatrix::toString(strfmt);
-   }
-   else
-   {
-     sstr << "- Number of rows    = " <<  getNRows() << std::endl;
-     sstr << "- Number of columns = " <<  getNCols() << std::endl;
-    sstr << toMatrixDiagonal(String(), VectorString(), VectorString(),
-                             getNCols(), getValues());
-   }
+  sstr << "- Number of rows    = " <<  getNRows() << std::endl;
+  sstr << "- Number of columns = " <<  getNCols() << std::endl;
+  sstr << toMatrixDiagonal(String(), VectorString(), VectorString(),
+                           getNCols(), getValues());
   return sstr.str();
 }
 
@@ -238,3 +238,30 @@ bool MatrixSquareDiagonal::_isPhysicallyPresent(int irow, int icol) const
   if (irow != icol) return false;
   return true;
 }
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareDiagonal* MatrixSquareDiagonal::createFromVVD(const VectorVectorDouble& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol);
+  if (mattemp->isDiagonal())
+  {
+    messerr("The matrix does not seem to be Square and Diagonal");
+    delete mattemp;
+    return nullptr;
+  }
+  delete mattemp;
+
+  MatrixSquareDiagonal* mat = new MatrixSquareDiagonal(nrow);
+  mat->_fillFromVVD(X);
+  return mat;
+}
+

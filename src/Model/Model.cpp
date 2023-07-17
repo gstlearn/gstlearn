@@ -151,8 +151,7 @@ Model* Model::createFromParam(const ECov& type,
 
   CovContext ctxt = CovContext(nvar,spaceloc);
   Model* model = new Model(ctxt);
-  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
-                         flagRange);
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles, flagRange);
 
   delete spaceloc;
   return model;
@@ -320,6 +319,8 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
 
+  double parmax = cov.getParMax();
+  if (param > parmax) param = parmax;
   cov.setParam(param);
   if (! ranges.empty())
   {
@@ -628,9 +629,9 @@ void Model::setMeans(const VectorDouble& mean)
   _ctxt.setMean(mean);
   _copyCovContext();
 }
-void Model::setMean(int ivar, double mean)
+void Model::setMean(double mean, int ivar)
 {
-  _ctxt.setMean(ivar, mean);
+  _ctxt.setMean(mean, ivar);
   _copyCovContext();
 }
 void Model::setCovar0s(const VectorDouble& covar0)
@@ -868,10 +869,7 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @param ivar   Rank of the first variable
  * @param jvar   Rank of the second variable
  * @param codir  Vector of direction coefficients
- * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
- * @param asCov  Produce the result as a Covariance (rather than a Variogram)
- * @param member ECalcMember element allowing sampling Model using the covariance
- *               expression as in the LHS, RHS or VAR term of Kriging Matrix
+ * @param mode   CovCalMode structure
  *
  * @return The array of variogram evaluated at discretized positions
  * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
@@ -880,9 +878,7 @@ VectorDouble Model::sample(const VectorDouble& hh,
                            int ivar,
                            int jvar,
                            VectorDouble codir,
-                           int nostd,
-                           bool asCov,
-                           const ECalcMember &member)
+                           const CovCalcMode* mode)
 {
   VectorDouble gg;
 
@@ -891,14 +887,80 @@ VectorDouble Model::sample(const VectorDouble& hh,
   int ndim = getDimensionNumber();
   if (codir.empty())
   {
-    codir.resize(ndim);
-    (void) GH::rotationGetDirection(ndim, 1, VectorDouble(), codir);
+    (void) GH::rotationGetDirectionDefault(ndim, codir);
   }
   int nh = (int) hh.size();
   gg.resize(nh);
 
-  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, member, nh,
-                 codir, hh.data(), gg.data());
+  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), gg.data());
+  return gg;
+}
+
+/**
+ * Returns the value of the normalized covariance (by the variance/covariance value)
+ * for a given pair of variables
+ * @param hh    Vector of distances
+ * @param ivar  Rank of the first variable
+ * @param jvar  Rank of the second variable
+ * @param codir Direction coefficients
+ * @param mode  CovCalcMode structure
+ * @return
+ */
+VectorDouble Model::sampleUnitary(const VectorDouble &hh,
+                                  int ivar,
+                                  int jvar,
+                                  VectorDouble codir,
+                                  const CovCalcMode* mode)
+{
+  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
+  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar == jvar) return VectorDouble();
+  int ndim = getDimensionNumber();
+  if (codir.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir);
+  }
+  int nh = (int) hh.size();
+  VectorDouble gg(nh);
+
+  double c00 = eval0(ivar, ivar, mode);
+  double c11 = eval0(jvar, jvar, mode);
+  c00 = sqrt(c00 * c11);
+  model_evaluate(this, ivar, jvar, mode, nh, codir, hh.data(), gg.data());
+
+  for (int i = 0; i < nh; i++)
+    gg[i] /= c00;
+
+  return gg;
+}
+
+VectorDouble Model::envelop(const VectorDouble &hh,
+                            int ivar,
+                            int jvar,
+                            int isign,
+                            VectorDouble codir,
+                            const CovCalcMode* mode)
+{
+  if (ivar < 0 || ivar >= getVariableNumber()) return VectorDouble();
+  if (jvar < 0 || jvar >= getVariableNumber()) return VectorDouble();
+  if (ivar == jvar) return VectorDouble();
+  if (isign != -1 && isign != 1) return VectorDouble();
+  int ndim = getDimensionNumber();
+  if (codir.empty())
+  {
+    (void) GH::rotationGetDirectionDefault(ndim, codir);
+  }
+  int nh = (int) hh.size();
+  VectorDouble gg(nh);
+  VectorDouble g1(nh);
+  VectorDouble g2(nh);
+
+  model_evaluate(this, ivar, ivar, mode, nh, codir, hh.data(), g1.data());
+  model_evaluate(this, jvar, jvar, mode, nh, codir, hh.data(), g2.data());
+
+  for (int i = 0; i < nh; i++)
+    gg[i] = isign * sqrt(abs(g1[i] * g2[i]));
+
   return gg;
 }
 
@@ -1118,7 +1180,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     {
       double mean = 0.;
       ret = ret && _recordRead<double>(is, "Mean of Variable", mean);
-      setMean(ivar, mean);
+      setMean(mean, ivar);
   }
 
   /* Reading the matrices of sills (optional) */
@@ -1328,8 +1390,7 @@ Model* Model::reduce(const VectorInt& validVars) const
  * @param db2 Second Data Base (if not provided, the first Db is provided instead)
  * @param ivar Rank of the first variable (all variables if not defined)
  * @param jvar Rank of the second variable (all variables if not defined)
- * @param flag_norm 1 if the Model must be normalized beforehand
- * @param flag_cov 1 if the Model must be expressed in covariance
+ * @param mode CovCalcMode structure
  *
  * @remark The returned argument must have been dimensioned beforehand to (nvar * nechA)^2 where:
  * @remark -nvar stands for the number of (active) variables
@@ -1340,30 +1401,27 @@ void Model::covMatrix(VectorDouble& covmat,
                       Db *db2,
                       int ivar,
                       int jvar,
-                      int flag_norm,
-                      int flag_cov)
+                      const CovCalcMode* mode)
 {
-  model_covmat(this, db1, db2, ivar, jvar, flag_norm, flag_cov, covmat.data());
+  model_covmat(this, db1, db2, ivar, jvar, covmat.data(), mode);
 }
 
 VectorDouble Model::covMatrixV(Db *db1,
                                Db *db2,
                                int ivar,
                                int jvar,
-                               int flag_norm,
-                               int flag_cov)
+                               const CovCalcMode* mode)
 {
-  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov).getValues();
+  return model_covmatM(this, db1, db2, ivar, jvar, mode).getValues();
 }
 
 MatrixSquareSymmetric Model::covMatrixM(Db *db1,
                                         Db *db2,
                                         int ivar,
                                         int jvar,
-                                        int flag_norm,
-                                        int flag_cov)
+                                        const CovCalcMode* mode)
 {
-  return model_covmatM(this, db1, db2, ivar, jvar, flag_norm, flag_cov);
+  return model_covmatM(this, db1, db2, ivar, jvar, mode);
 }
 
 /**
@@ -1386,6 +1444,8 @@ double Model::gofToVario(const Vario *vario, bool verbose)
 
   // Loop on the pair of variables
 
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
@@ -1416,8 +1476,7 @@ double Model::gofToVario(const Vario *vario, bool verbose)
 
         int npas = (int) gexp.size();
         VectorDouble gmod(npas);
-        model_evaluate(this, ivar, jvar, -1, 0, 0, 0, 0, 0, ECalcMember::LHS,
-                       npas, codir, hh.data(), gmod.data());
+        model_evaluate(this, ivar, jvar, &mode, npas, codir, hh.data(), gmod.data());
 
         // Evaluate the score
 

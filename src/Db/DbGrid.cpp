@@ -31,6 +31,7 @@
 #include "Estimation/CalcImage.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Morpho/Morpho.hpp"
+#include "Space/SpaceTarget.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -162,17 +163,17 @@ int DbGrid::reset(const VectorInt& nx,
  * Creating a Grid Db which covers the extension of the input 'Db'
  *
  * @param db       Input Db from which the newly created Db is constructed
- * @param nodes    Vector of the expected number of grid nodes (default = 10)
- * @param dcell    Vector of the expected sizes for the grid meshes (in distance)
- * @param origin   Vector of the expected origin of the grid (in coordinate)
+ * @param nx       Vector of the expected number of grid nodes (default = 10)
+ * @param dx       Vector of the expected sizes for the grid meshes (in distance)
+ * @param x0       Vector of the expected origin of the grid (in coordinate)
  * @param margin   Vector of the expected margins of the grid (in distance)
  *
  * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
  */
 int DbGrid::resetCoveringDb(const Db* db,
-                            const VectorInt& nodes,
-                            const VectorDouble& dcell,
-                            const VectorDouble& origin,
+                            const VectorInt& nx,
+                            const VectorDouble& dx,
+                            const VectorDouble& x0,
                             const VectorDouble& margin)
 {
   _clear();
@@ -180,9 +181,9 @@ int DbGrid::resetCoveringDb(const Db* db,
 
   // Derive the Grid parameters
 
-  VectorInt    nx(ndim);
-  VectorDouble x0(ndim);
-  VectorDouble dx(ndim);
+  VectorInt    nx_new(ndim);
+  VectorDouble x0_new(ndim);
+  VectorDouble dx_new(ndim);
   int nech = 1;
   for (int idim = 0; idim < ndim; idim++)
   {
@@ -192,33 +193,33 @@ int DbGrid::resetCoveringDb(const Db* db,
     if (ndim == (int) margin.size()) marge = margin[idim];
 
     double x0loc = coor[0];
-    if (ndim == (int) origin.size()) x0loc = origin[idim];
+    if (ndim == (int) x0.size()) x0loc = x0[idim];
     x0loc -= marge;
 
     double ext = coor[1] - x0loc + marge;
 
     // Constraints specified by the number of nodes
     int nxloc = 10;
-    if (ndim == (int) nodes.size())
-      nxloc = nodes[idim];
+    if (ndim == (int) nx.size())
+      nxloc = nx[idim];
     double dxloc = ext / ((double) nxloc - 1.);
 
     // Constraints specified by the cell sizes
-    if (ndim == (int) dcell.size())
+    if (ndim == (int) dx.size())
     {
-      dxloc = dcell[idim];
+      dxloc = dx[idim];
       nxloc = ceil((ext - dxloc / 2.) / dxloc) + 1;
     }
 
-    nx[idim] = nxloc;
-    dx[idim] = dxloc;
-    x0[idim] = x0loc;
+    nx_new[idim] = nxloc;
+    dx_new[idim] = dxloc;
+    x0_new[idim] = x0loc;
     nech *= nxloc;
   }
 
   // Create the grid
 
-  if (gridDefine(nx, dx, x0)) return 1;
+  if (gridDefine(nx_new, dx_new, x0_new)) return 1;
   resetDims(ndim,nech);
 
   /// Load the data
@@ -325,13 +326,13 @@ DbGrid* DbGrid::create(const VectorInt& nx,
 }
 
 DbGrid* DbGrid::createCoveringDb(const Db* db,
-                                 const VectorInt& nodes,
-                                 const VectorDouble& dcell,
-                                 const VectorDouble& origin,
+                                 const VectorInt& nx,
+                                 const VectorDouble& dx,
+                                 const VectorDouble& x0,
                                  const VectorDouble& margin)
 {
   DbGrid* dbgrid = new DbGrid;
-  if (dbgrid->resetCoveringDb(db, nodes, dcell, origin, margin))
+  if (dbgrid->resetCoveringDb(db, nx, dx, x0, margin))
   {
     messerr("Error when creating DbGrid covering another Db");
     delete dbgrid;
@@ -581,6 +582,13 @@ DbGrid* DbGrid::createRefine(DbGrid *dbin,
   return dbgrid;
 }
 
+/**
+ * Migrate all the variables (Z_locator) from 'dbin' on the nodes of 'dbout' (grid)
+ * @param dbin  Input Db
+ * @param dbout Output db
+ * @param flag_add_rank 1 if the rank of the samples must be aaded
+ * @return
+ */
 bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
 {
   ELoc locatorType;
@@ -701,6 +709,12 @@ double DbGrid::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
   return _grid.getCoordinate(iech, idim, flag_rotate);
+}
+
+void DbGrid::getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
+{
+  VectorDouble vec = _grid.getCoordinatesByRank(iech, flag_rotate);
+  coor = vec;
 }
 
 int DbGrid::getNDim() const
@@ -1035,8 +1049,8 @@ int DbGrid::centerCoordinateInPlace(VectorDouble& coor, bool centered, bool stop
  * @param useSel Use the active selection
  * @return A VectorVectorDouble with 4 columns, i.e: X, Y, Z, Var
  *
- * @remark In presence of a selection, values are returned but set to TEST
- * @remark (if useSel)
+ * @remark In presence of a selection and if useSel is TRUE,
+ * @remarks values are returned but set to TEST
  */
 VectorVectorDouble DbGrid::getSlice(const String& name,
                                     int pos,
@@ -1088,7 +1102,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[1] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesInPlace(iech, coor);
+        getCoordinatesPerSampleInPlace(iech, coor);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1121,7 +1135,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[2] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesInPlace(iech, coor);
+        getCoordinatesPerSampleInPlace(iech, coor);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1154,7 +1168,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         indices[0] = i1;
         indices[1] = i2;
         int iech = indiceToRank(indices);
-        getCoordinatesInPlace(iech, coor);
+        getCoordinatesPerSampleInPlace(iech, coor);
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
@@ -1313,6 +1327,14 @@ VectorVectorDouble DbGrid::getGridEdges() const
   return coords;
 }
 
+VectorDouble DbGrid::getCodir(const VectorInt& grincr) const
+{
+  VectorDouble codir = getGrid().indicesToCoordinate(grincr);
+  VH::subtractInPlace(codir, getGrid().getX0s());
+  VH::normalize(codir);
+  return codir;
+}
+
 VectorDouble DbGrid::getBlockExtensions(int node) const
 {
   int ndim = getNDim();
@@ -1341,7 +1363,7 @@ int DbGrid::morpho(const EMorpho &oper,
   return dbMorpho(this, oper, vmin, vmax, option, radius, flagDistErode, verbose, namconv);
 }
 
-int DbGrid::smooth(NeighImage *neigh,
+int DbGrid::smooth(ANeigh *neigh,
                    int type,
                    double range,
                    const NamingConvention &namconv)
@@ -1400,18 +1422,38 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
   return db;
 }
 
-VectorInt DbGrid::locateDataInGrid(const DbGrid *grid,
-                                   const Db *data,
-                                   const VectorInt &rankIn) const
+VectorInt DbGrid::locateDataInGrid(const Db *data,
+                                   const VectorInt &rankIn,
+                                   bool useSel) const
 {
   VectorInt rankOut;
 
-  if (grid == nullptr || data == nullptr) return VectorInt();
+  if (data == nullptr) return VectorInt();
 
-  for (int ip=0; ip<(int) rankIn.size(); ip++)
+  if (! rankIn.empty())
   {
-    VectorDouble coor = data->getSampleCoordinates(rankIn[ip]);
-    rankOut.push_back(grid->coordinateToRank(coor));
+
+    // Locate the samples defined by their ranks stored in 'rankIn'
+
+    for (int ip = 0; ip < (int) rankIn.size(); ip++)
+    {
+      VectorDouble coor = data->getSampleCoordinates(rankIn[ip]);
+      rankOut.push_back(coordinateToRank(coor));
+    }
+  }
+  else
+  {
+
+    // Locate all samples (using useSel criterion)
+
+    for (int ip = 0, np = data->getSampleNumber(useSel); ip < np; ip++)
+    {
+      if (isActive(ip) || ! useSel)
+      {
+        VectorDouble coor = data->getSampleCoordinates(ip);
+        rankOut.push_back(coordinateToRank(coor));
+      }
+    }
   }
   return rankOut;
 }
@@ -1463,4 +1505,63 @@ int DbGrid::addSelectionFromDbByMorpho(Db *db,
 
   deleteColumnByUID(iuid);
   return err;
+}
+
+void DbGrid::getSampleAsST(int iech, SpaceTarget& P) const
+{
+  Db::getSampleAsST(iech, P);
+
+  // Load the target extension
+  P.setExtend(getBlockExtensions(iech));
+}
+
+/**
+ * Generate a set of discretization locations, relative to the block center
+ * Dimension: number of discretization locations, space dimension
+ * @param ndiscs Number of discretization (per space dimension)
+ * @param iech   Rank of the target sample (used if flagPerCell = true)
+ * @param flagPerCell TRUE when the cell dimension are read from the Db (BLEX)
+ * @param flagRandom TRUE if the discretization location must be randomized
+ * @param seed Seed for random number generator
+ * @return
+ *
+ * @remark: Although randomization can be performed, this process does not consume
+ * random numbers.
+ */
+VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt &ndiscs,
+                                               int iech,
+                                               bool flagPerCell,
+                                               bool flagRandom,
+                                               int seed) const
+{
+  int ndim = getNDim();
+  int ntot = VH::product(ndiscs);
+  int memo = law_get_random_seed();
+  law_set_random_seed(seed);
+  VectorVectorDouble discs(ntot);
+  for (int i = 0; i < ntot; i++) discs[i].resize(ndim);
+
+  /* Loop on the discretization points */
+
+  for (int i = 0; i < ntot; i++)
+  {
+    int jech = i;
+    int nval = ntot;
+    for (int idim = ndim - 1; idim >= 0; idim--)
+    {
+      double taille = (!flagPerCell) ? getDX(idim) : getLocVariable(ELoc::BLEX, iech, idim);
+      int nd = ndiscs[idim];
+      nval /= nd;
+      int j = jech / nval;
+      jech -= j * nval;
+      double local = taille * ((j + 0.5) / nd - 0.5);
+      if (!flagRandom)
+        discs[i][idim] = local;
+      else
+        discs[i][idim] = local + taille * law_uniform(-0.5, 0.5) / (double) nd;
+    }
+  }
+  law_set_random_seed(memo);
+
+  return discs;
 }

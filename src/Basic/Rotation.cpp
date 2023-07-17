@@ -68,8 +68,8 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
     VectorDouble local = rotmat.getValues();
     if (! is_matrix_rotation(_nDim, local.data(), 1)) return 1;
-    _rotMat.setValues(local);
-    GH::rotationGetAngles(local, _angles);
+    _rotMat = rotmat;
+    GH::rotationGetAnglesInPlace(local, _angles);
     _directToInverse();
     _checkRot();
   }
@@ -82,28 +82,9 @@ int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
   {
     if ((int) rotmat.size() != _rotMat.getNTotal())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
-    setMatrixDirectOldStyle(rotmat.data());
-  }
-  return 0;
-}
-
-VectorDouble Rotation::getMatrixDirectByVector() const
-{
-  return _rotMat.getValues();
-}
-
-VectorDouble Rotation::getMatrixInverseByVector() const
-{
-  return _rotMat.getValues();
-}
-
-int Rotation::setMatrixDirectOldStyle(const double* rotmat)
-{
-  if (rotmat != nullptr)
-  {
-    if (! is_matrix_rotation(_nDim, rotmat, 1)) return 1;
-    _rotMat.setValuesOldStyle(rotmat);
-    GH::rotationGetAngles(_nDim, rotmat, _angles.data());
+    if (! is_matrix_rotation(_nDim, rotmat.data(), 1)) return 1;
+    _rotMat.setValues(rotmat);
+    GH::rotationGetAnglesInPlace(_nDim, rotmat.data(), _angles.data());
     _directToInverse();
     _checkRot();
   }
@@ -124,7 +105,7 @@ int Rotation::setAngles(const VectorDouble& angles)
     if (_nDim == 2) _angles[1] = 0.;
 
     VectorDouble local = VectorDouble(_nDim * _nDim);
-    GH::rotationInit(_nDim, _angles.data(), local.data());
+    GH::rotationMatrixInPlace(_nDim, _angles, local);
     _rotMat.setValues(local);
     _directToInverse();
     _checkRot();
@@ -152,9 +133,9 @@ String Rotation::toString(const AStringFormat* strfmt) const
   if (sf.getLevel() > 0)
   {
     sstr << toMatrix("Direct Rotation Matrix", VectorString(), VectorString(),
-                     false, _nDim, _nDim, _rotMat.getValues());
+                     true, _nDim, _nDim, _rotMat.getValues());
     sstr << toMatrix("Inverse Rotation Matrix", VectorString(), VectorString(),
-                     false, _nDim, _nDim, _rotInv.getValues());
+                     true, _nDim, _nDim, _rotInv.getValues());
   }
   return sstr.str();
 }
@@ -227,15 +208,4 @@ bool Rotation::isSame(const Rotation& rot) const
       if (_angles[idim] != getAngle(idim)) return 0;
   }
   return 1;
-}
-
-VectorDouble Rotation::setDirection(int ndim,
-                                    const VectorDouble& angles,
-                                    double radius) const
-{
-  VectorDouble codir(ndim);
-  (void) GH::rotationGetDirection(ndim,1,angles,codir);
-  if (radius != 1.)
-    for (int idim = 0; idim < ndim; idim++) codir[idim] *= radius;
-  return codir;
 }

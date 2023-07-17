@@ -18,7 +18,7 @@
                    X,        1, "Drift along X", \
                    Y,        2, "Drift along Y", \
                    Z,        3, "Drift along Z", \
-                   X2,       4, "Drift along X", \
+                   X2,       4, "Drift along X²", \
                    Y2,       5, "Drift along Y²", \
                    XY,       6, "Drift along XY", \
                    Z2,       7, "Drift along Z²", \

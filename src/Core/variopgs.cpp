@@ -462,9 +462,9 @@ static void st_variogram_define_vars(Vario *vario, const Rule *rule, int ngrf)
     for (jgrf = 0; jgrf < ngrf; jgrf++)
     {
       if (igrf == jgrf)
-        vario->setVar(igrf, jgrf, 1.);
+        vario->setVar(1., igrf, jgrf);
       else
-        vario->setVar(igrf, jgrf, rule->getRho());
+        vario->setVar(rule->getRho(), igrf, jgrf);
     }
 }
 
@@ -1773,9 +1773,9 @@ static void st_relem_explore(Relem *relem, int verbose)
  **
  *****************************************************************************/
 Vario_Order* vario_order_manage(int mode,
-                                                int flag_dist,
-                                                int size_aux,
-                                                Vario_Order *vorder)
+                                int flag_dist,
+                                int size_aux,
+                                Vario_Order *vorder)
 {
   Vario_Order *vorder_loc;
 
@@ -1785,51 +1785,40 @@ Vario_Order* vario_order_manage(int mode,
   switch (mode)
   {
     case 1:
-      vorder_loc = (Vario_Order*) mem_alloc(sizeof(Vario_Order), 0);
-      if (vorder_loc == (Vario_Order*) NULL) return (vorder_loc);
+      vorder_loc = new Vario_Order;
       vorder_loc->npair = 0;
       vorder_loc->nalloc = 0;
+      vorder_loc->tab_iech.resize(0);
+      vorder_loc->tab_jech.resize(0);
+      vorder_loc->tab_ipas.resize(0);
+      vorder_loc->tab_sort.resize(0);
+      vorder_loc->tab_dist.resize(0);
       vorder_loc->size_aux = size_aux;
       vorder_loc->flag_dist = flag_dist;
-      vorder_loc->tab_iech = nullptr;
-      vorder_loc->tab_jech = nullptr;
-      vorder_loc->tab_ipas = nullptr;
-      vorder_loc->tab_sort = nullptr;
       vorder_loc->tab_aux_iech = nullptr;
       vorder_loc->tab_aux_jech = nullptr;
-      vorder_loc->tab_dist = nullptr;
       break;
 
     case 0:
       vorder_loc = vorder;
-      if (vorder == (Vario_Order*) NULL) return (vorder_loc);
-      vorder_loc->tab_iech = (int*) mem_free((char* ) vorder_loc->tab_iech);
-      vorder_loc->tab_jech = (int*) mem_free((char* ) vorder_loc->tab_jech);
-      vorder_loc->tab_ipas = (int*) mem_free((char* ) vorder_loc->tab_ipas);
-      vorder_loc->tab_sort = (int*) mem_free((char* ) vorder_loc->tab_sort);
+      if (vorder == nullptr) return (vorder_loc);
       vorder_loc->tab_aux_iech = (char*) mem_free(
           (char* ) vorder_loc->tab_aux_iech);
       vorder_loc->tab_aux_jech = (char*) mem_free(
           (char* ) vorder_loc->tab_aux_jech);
-      vorder_loc->tab_dist = (double*) mem_free((char* ) vorder_loc->tab_dist);
       break;
 
     case -1:
       vorder_loc = vorder;
-      if (vorder == (Vario_Order*) NULL) return (vorder_loc);
+      if (vorder == nullptr) return (vorder_loc);
       if (vorder_loc != nullptr)
       {
-        vorder_loc->tab_iech = (int*) mem_free((char* ) vorder_loc->tab_iech);
-        vorder_loc->tab_jech = (int*) mem_free((char* ) vorder_loc->tab_jech);
-        vorder_loc->tab_ipas = (int*) mem_free((char* ) vorder_loc->tab_ipas);
-        vorder_loc->tab_sort = (int*) mem_free((char* ) vorder_loc->tab_sort);
         vorder_loc->tab_aux_iech = (char*) mem_free(
             (char* ) vorder_loc->tab_aux_iech);
         vorder_loc->tab_aux_jech = (char*) mem_free(
             (char* ) vorder_loc->tab_aux_jech);
-        vorder_loc->tab_dist = (double*) mem_free(
-            (char* ) vorder_loc->tab_dist);
-        vorder_loc = (Vario_Order*) mem_free((char* ) vorder_loc);
+        delete vorder_loc;
+        vorder_loc = nullptr;
       }
       break;
   }
@@ -1853,13 +1842,13 @@ Vario_Order* vario_order_manage(int mode,
  **
  *****************************************************************************/
 int vario_order_add(Vario_Order *vorder,
-                                    int iech,
-                                    int jech,
-                                    void *aux_iech,
-                                    void *aux_jech,
-                                    int ipas,
-                                    int idir,
-                                    double dist)
+                    int iech,
+                    int jech,
+                    void *aux_iech,
+                    void *aux_jech,
+                    int ipas,
+                    int idir,
+                    double dist)
 {
   int iad;
   static int VARIO_ORDER_QUANT = 1000;
@@ -1871,18 +1860,10 @@ int vario_order_add(Vario_Order *vorder,
   if (vorder->npair >= vorder->nalloc)
   {
     vorder->nalloc += VARIO_ORDER_QUANT;
-    vorder->tab_iech = (int*) mem_realloc((char* ) vorder->tab_iech,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_iech == nullptr) return (1);
-    vorder->tab_jech = (int*) mem_realloc((char* ) vorder->tab_jech,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_jech == nullptr) return (1);
-    vorder->tab_ipas = (int*) mem_realloc((char* ) vorder->tab_ipas,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_ipas == nullptr) return (1);
-    vorder->tab_sort = (int*) mem_realloc((char* ) vorder->tab_sort,
-                                          vorder->nalloc * sizeof(int), 0);
-    if (vorder->tab_sort == nullptr) return (1);
+    vorder->tab_iech.resize(vorder->nalloc);
+    vorder->tab_jech.resize(vorder->nalloc);
+    vorder->tab_ipas.resize(vorder->nalloc);
+    vorder->tab_sort.resize(vorder->nalloc);
     if (vorder->size_aux > 0)
     {
       vorder->tab_aux_iech = (char*) mem_realloc(
@@ -1893,20 +1874,13 @@ int vario_order_add(Vario_Order *vorder,
       if (vorder->tab_aux_jech == nullptr) return (1);
     }
     if (vorder->flag_dist)
-    {
-      vorder->tab_dist = (double*) mem_realloc((char* ) vorder->tab_dist,
-                                               vorder->nalloc * sizeof(double),
-                                               0);
-      if (vorder->tab_dist == nullptr) return (1);
-    }
+      vorder->tab_dist.resize(vorder->nalloc);
   }
 
   /* Add the new information */
 
-  vorder->tab_iech[vorder->npair] = (dist > 0) ? iech :
-                                                 jech;
-  vorder->tab_jech[vorder->npair] = (dist > 0) ? jech :
-                                                 iech;
+  vorder->tab_iech[vorder->npair] = (dist > 0) ? iech : jech;
+  vorder->tab_jech[vorder->npair] = (dist > 0) ? jech : iech;
   vorder->tab_ipas[vorder->npair] = ipas + idir * QUANT_DIR;
   if (vorder->flag_dist) vorder->tab_dist[vorder->npair] = dist;
   if (vorder->size_aux > 0)
@@ -1948,8 +1922,7 @@ void vario_order_print(Vario_Order *vorder,
 
   for (i = 0; i < vorder->npair; i++)
   {
-    j = (vorder->tab_sort == nullptr) ? i :
-                                        vorder->tab_sort[i];
+    j = (vorder->tab_sort.empty()) ? i : vorder->tab_sort[i];
     ipas = vorder->tab_ipas[j];
     idir = ipas / QUANT_DIR;
     ipas = ipas - QUANT_DIR * idir;
@@ -1995,25 +1968,12 @@ Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
   error = 0;
   if (vorder->npair > 0)
   {
-    vorder->tab_iech = (int*) mem_realloc((char* ) vorder->tab_iech,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_iech == nullptr) error = 1;
-    vorder->tab_jech = (int*) mem_realloc((char* ) vorder->tab_jech,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_jech == nullptr) error = 1;
-    vorder->tab_ipas = (int*) mem_realloc((char* ) vorder->tab_ipas,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_ipas == nullptr) error = 1;
-    vorder->tab_sort = (int*) mem_realloc((char* ) vorder->tab_sort,
-                                          vorder->npair * sizeof(int), 0);
-    if (vorder->tab_sort == nullptr) error = 1;
-    if (vorder->flag_dist)
-    {
-      vorder->tab_dist = (double*) mem_realloc((char* ) vorder->tab_dist,
-                                               vorder->npair * sizeof(double),
-                                               0);
-      if (vorder->tab_dist == nullptr) error = 1;
-    }
+    vorder->tab_iech.resize(vorder->npair);
+    vorder->tab_jech.resize(vorder->npair);
+    vorder->tab_ipas.resize(vorder->npair);
+    vorder->tab_sort.resize(vorder->npair);
+    if (vorder->flag_dist) vorder->tab_dist.resize(vorder->npair);
+
     if (vorder->size_aux > 0)
     {
       vorder->tab_aux_iech = (char*) mem_realloc(
@@ -2036,7 +1996,7 @@ Vario_Order* vario_order_final(Vario_Order *vorder, int *npair)
   {
     for (i = 0; i < vorder->npair; i++)
       vorder->tab_sort[i] = i;
-    ut_sort_int(1, vorder->npair, vorder->tab_sort, vorder->tab_ipas);
+    VH::arrangeInPlace(1, vorder->tab_sort, vorder->tab_ipas, true, vorder->npair);
     *npair = vorder->npair;
   }
   return (vorder);
@@ -2062,12 +2022,11 @@ void vario_order_get_indices(Vario_Order *vorder,
 {
   int jpair;
 
-  if (vorder->tab_sort == nullptr) messageAbort("vario_order_get_indices");
+  if (vorder->tab_sort.empty()) messageAbort("vario_order_get_indices");
   jpair = vorder->tab_sort[ipair];
   *iech = vorder->tab_iech[jpair];
   *jech = vorder->tab_jech[jpair];
-  *dist = (vorder->flag_dist) ? vorder->tab_dist[jpair] :
-                                TEST;
+  *dist = (vorder->flag_dist) ? vorder->tab_dist[jpair] : TEST;
 }
 
 /****************************************************************************/
@@ -2088,7 +2047,7 @@ void vario_order_get_auxiliary(Vario_Order *vorder,
 {
   int jpair, iad;
 
-  if (vorder->tab_sort == nullptr) messageAbort("vario_order_get_auxiliary");
+  if (vorder->tab_sort.empty()) messageAbort("vario_order_get_auxiliary");
   jpair = vorder->tab_sort[ipair];
   iad = vorder->size_aux * jpair;
   (void) memcpy(aux_iech, &vorder->tab_aux_iech[iad], vorder->size_aux);
@@ -2108,15 +2067,15 @@ void vario_order_get_auxiliary(Vario_Order *vorder,
  **
  *****************************************************************************/
 void vario_order_get_bounds(Vario_Order *vorder,
-                                            int idir,
-                                            int ipas,
-                                            int *ifirst,
-                                            int *ilast)
+                            int idir,
+                            int ipas,
+                            int *ifirst,
+                            int *ilast)
 {
   int ipair, jpair, ival;
 
   ival = ipas + idir * QUANT_DIR;
-  if (vorder->npair > 0 && vorder->tab_sort == nullptr)
+  if (vorder->npair > 0 && vorder->tab_sort.empty())
     messageAbort("vario_order_get_bounds");
   *ifirst = vorder->npair;
   *ilast = -1;
@@ -2188,7 +2147,7 @@ static int invgen(double *a, int neq, double *tabout)
       value = 0.;
       for (k = 0; k < neq; k++)
       {
-        if (ABS(eigval[k]) > 1e-10) value += EIGVEC(k,i)* EIGVEC(k,j) / eigval[k];
+        if (ABS(eigval[k]) > 1e-10) value += EIGVEC(k,i) * EIGVEC(k,j) / eigval[k];
       }
       TABOUT(i,j)= value;
     }
@@ -2624,7 +2583,7 @@ static double st_rkl(int maxpts,
   cste[1] = 0.;
   vect[0] = x;
   vect[1] = y;
-  matrix_product(2, 2, 1, temp, vect, mean);
+  matrix_product_safe(2, 2, 1, temp, vect, mean);
   v1 = law_df_bigaussian(vect, cste, corr1);
   mvndst2n(lower, upper, mean, covar, maxpts, abseps, releps, &error, &v2,
            &inform);
@@ -2672,7 +2631,7 @@ static double st_ikl(int maxpts,
   matrix_manage(4, 4, -2, 2, index, index, correl, corrc);
   matrix_manage(4, 4, -2, -2, index, index, correl, corr2);
   if (matrix_invert_copy(corr1, 2, inv_corr1)) messageAbort("st_ikl #1");
-  matrix_product(2, 2, 2, corrc, inv_corr1, temp);
+  matrix_product_safe(2, 2, 2, corrc, inv_corr1, temp);
 
   // Derive covar
   for (i = 0; i < 2; i++)
@@ -2730,7 +2689,7 @@ static double st_nkl(double *u,
   cdflow = law_cdf_gaussian((lower - meanj) / stdj);
   invval = invvari[index2];
   matrix_manage(4, 1, -1, 0, &index2, NULL, invvari, invpart);
-  matrix_product(1, 3, 1, invpart, u, &total);
+  matrix_product_safe(1, 3, 1, invpart, u, &total);
 
   S = (dfupp - dflow) * varj * invval - (cdfupp - cdflow)
       * (invval * meanj + total);
@@ -2845,8 +2804,8 @@ static double st_d2_dkldkj(int index1,
   matrix_manage(4, 4, 1, -1, &index2, &index2, correl, crosscor);
   matrix_manage(4, 4, 1, 1, &index2, &index2, correl, &corr2);
   if (matrix_invert_copy(corr1, 3, invcorr1)) messageAbort("st_d2_dkldkj #2");
-  matrix_product(1, 3, 3, crosscor, invcorr1, temp);
-  matrix_product(1, 3, 1, crosscor, temp, &covar);
+  matrix_product_safe(1, 3, 3, crosscor, invcorr1, temp);
+  matrix_product_safe(1, 3, 1, crosscor, temp, &covar);
   covar = corr2 - covar;
   sdcovar = sqrt(covar);
   matrix_manage(4, 1, -1, 0, &index2, NULL, lower, lowi);
@@ -2871,7 +2830,7 @@ static double st_d2_dkldkj(int index1,
         }
         if (flag_out) continue;
 
-        matrix_product(1, 3, 1, temp, u, &mu);
+        matrix_product_safe(1, 3, 1, temp, u, &mu);
         random = law_df_multigaussian(3, u, varcori);
 
         S += pow(-1., 3 - i1 + i2 + i3) * random
@@ -2955,7 +2914,7 @@ static double st_calcul_stat(Local_Pgs *local_pgs,
       grad[1] = -st_ikl(maxpts2, 0, 3, lower, upper, correl) / s;
       grad[2] = -st_ikl(maxpts2, 1, 2, lower, upper, correl) / s;
       grad[3] = -st_ikl(maxpts2, 2, 3, lower, upper, correl) / s;
-      matrix_product(4, 1, 4, grad, grad, gradgrad);
+      matrix_product_safe(4, 1, 4, grad, grad, gradgrad);
 
       M_R(hess,4,3,0) = M_R(hess,4,2,1) = -st_d2_dkldij(lower, upper, correl);
       M_R(hess,4,1,0) = st_d2_dkldkj(0, 2, lower, upper, correl);
@@ -3053,7 +3012,7 @@ static double st_calcul_nostat(Local_Pgs *local_pgs,
     grad[1] = -st_ikl(maxpts2, 0, 3, lower, upper, correl) / s;
     grad[2] = -st_ikl(maxpts2, 1, 2, lower, upper, correl) / s;
     grad[3] = -st_ikl(maxpts2, 2, 3, lower, upper, correl) / s;
-    matrix_product(4, 1, 4, grad, grad, gradgrad);
+    matrix_product_safe(4, 1, 4, grad, grad, gradgrad);
 
     M_R(hess,4,3,0) = M_R(hess,4,2,1) = -st_d2_dkldij(lower, upper, correl);
     M_R(hess,4,1,0) = st_d2_dkldkj(0, 2, lower, upper, correl);
@@ -3239,18 +3198,18 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
         matrix_combine(npar2, 1., JJ, 0., NULL, Gn);
       matrix_combine(npar, -1., gr, 0., NULL, hsd);
       if (invgen(Gn, npar, invGn)) messageAbort("st_optim_lag");
-      matrix_product(npar, npar, 1, invGn, hsd, hgn);
+      matrix_product_safe(npar, npar, 1, invGn, hsd, hgn);
     }
 
     /* Determine the lag (hgn, alpha*hsd) or a convex combinaison of both */
 
-    if (matrix_norm(hgn, npar) <= delta2)
+    if (VH::innerProduct(hgn,  hgn, npar) <= delta2)
     {
       matrix_combine(npar, 1., hgn, 0., NULL, step);
     }
     else
     {
-      normgrad2 = matrix_norm(gr, npar);
+      normgrad2 = VH::innerProduct(gr, gr, npar);
       alpha = normgrad2 / matrix_normA(gr, Gn, npar, npar);
       normgrad = sqrt(normgrad2);
       if (normgrad > (delta / alpha))
@@ -3261,9 +3220,9 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
       {
         matrix_combine(npar, alpha, hsd, 0., NULL, a);
         matrix_combine(npar, 1., hgn, -1., a, hgna);
-        matrix_product(1, npar, 1, a, hgn, &c);
-        a2 = matrix_norm(a, npar);
-        hgna2 = matrix_norm(hgna, npar);
+        matrix_product_safe(1, npar, 1, a, hgn, &c);
+        a2 = VH::innerProduct(a, a, npar);
+        hgna2 = VH::innerProduct(hgna, hgna, npar);
         if (c <= 0.)
           beta = (-c + sqrt(c * c + hgna2 * (delta2 - a2))) / hgna2;
         else
@@ -3289,7 +3248,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
 
       mdiminution = Snew - Sr;
       if (barrier) mdiminution = Spen - Srpen;
-      matrix_product(1, npar, 1, step, gr, &stepgr);
+      matrix_product_safe(1, npar, 1, step, gr, &stepgr);
       mdiminution_pred = stepgr + 0.5 * matrix_normA(step, Gn, npar, npar);
       rval = mdiminution / mdiminution_pred;
       flag_moved = (mdiminution < 0);
@@ -3316,7 +3275,7 @@ static double st_optim_onelag_pgs(Local_Pgs *local_pgs,
                        JJ);
         penalize /= 2.;
       }
-      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(matrix_norm(step, npar)));
+      if (rval > 0.75) delta = MAX(delta, 3. * sqrt(VH::innerProduct(step, step, npar)));
     }
     if (rval < 0.25) delta /= 2.;
 
@@ -4231,7 +4190,6 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
                                 double *cov)
 {
   double cov0[4], covh[4], cround;
-  CovCalcMode mode;
 
   const Rule *rule = local_pgs->rule;
   int nvar = local_pgs->model->getVariableNumber();
@@ -4240,10 +4198,10 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   /* Calculate the covariance for the zero distance */
   for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
     local_pgs->d0[i] = 0.;
-  model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, cov0);
+  model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, cov0);
 
   /* Calculate the covariance for the given shift */
-  model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d1, covh);
+  model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d1, covh);
 
   if (rule->getModeRule() == ERule::STD)
   {
@@ -4261,29 +4219,24 @@ static void st_calcul_covmatrix(Local_Pgs *local_pgs,
   {
     RuleShift *ruleshift = (RuleShift*) rule;
     cov[0] = covh[0]; /* C11(h)  */
-    cov[5] = (nvar == 1) ? covh[0] :
-                           covh[3]; /* C22(h)  */
+    cov[5] = (nvar == 1) ? covh[0] : covh[3]; /* C22(h)  */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = ruleshift->getShift(i);
 
-    model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
-    cov[1] = (nvar == 1) ? covh[0] :
-                           covh[1]; /* C21(s)  */
-    cov[4] = (nvar == 1) ? covh[0] :
-                           covh[1]; /* C21(s)  */
+    model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, covh);
+    cov[1] = (nvar == 1) ? covh[0] : covh[1]; /* C21(s)  */
+    cov[4] = (nvar == 1) ? covh[0] : covh[1]; /* C21(s)  */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] - ruleshift->getShift(i);
-    model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
-    cov[2] = (nvar == 1) ? covh[0] :
-                           covh[1]; /* C21(h-s) */
+    model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, covh);
+    cov[2] = (nvar == 1) ? covh[0] : covh[1]; /* C21(h-s) */
 
     for (int i = 0; i < local_pgs->model->getDimensionNumber(); i++)
       local_pgs->d0[i] = local_pgs->d1[i] + ruleshift->getShift(i);
-    model_calcul_cov(NULL,local_pgs->model, mode, 1, 1., local_pgs->d0, covh);
-    cov[3] = (nvar == 1) ? covh[0] :
-                           covh[1]; /* C21(h+s)  */
+    model_calcul_cov(NULL,local_pgs->model, nullptr, 1, 1., local_pgs->d0, covh);
+    cov[3] = (nvar == 1) ? covh[0] : covh[1]; /* C21(h+s)  */
   }
   else
     messageAbort("This rule is not expected in st_calcul_covmatrix");
@@ -4757,9 +4710,9 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
       pivar = local_pgs->propdef->propfix[ivar];
       pjvar = local_pgs->propdef->propfix[jvar];
       if (ivar == jvar)
-        vario->setVar(ivar, jvar, pivar * (1. - pivar));
+        vario->setVar(pivar * (1. - pivar), ivar, jvar);
       else
-        vario->setVar(ivar, jvar, -pivar * pjvar);
+        vario->setVar(-pivar * pjvar, ivar, jvar);
       if (!vario->getFlagAsym()) continue;
 
       for (idir = 0; idir < vario->getDirectionNumber(); idir++)
@@ -4859,7 +4812,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
   for (int ivar = 0; ivar < nfacies; ivar++)
     for (int jvar = 0; jvar < nfacies; jvar++)
     {
-      vario->setVar(ivar, jvar, COVS(ivar, jvar));
+      vario->setVar(COVS(ivar, jvar), ivar, jvar);
 
       if (!vario->getFlagAsym()) continue;
 

@@ -14,13 +14,15 @@
 #include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -52,37 +54,42 @@ int main(int /*argc*/, char */*argv*/[])
   DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("Francky-");
-  // Creating the 2-D Db
+  ASerializable::setPrefixName("test_Francky-");
+
+  // Creating the 2-D Grid
   auto nx = { 101, 101 };
   DbGrid* workingDbc = DbGrid::create(nx);
-
-  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-
-  // Creating the Non-stationary Model
-  Model model = Model(workingDbc);
-  CovContext ctxt = model.getContext();
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova = CovAniso(ECov::BESSEL_K,ctxt);
-  cova.setRanges({10,45});
-  covs.addCov(&cova);
-  model.setCovList(&covs);
-
-  NoStatFunctional NoStat(&spirale);
-  model.addNoStat(&NoStat);
 
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 3243);
-  VectorDouble Z = VH::simulateGaussian(ndata);
-  dat->addColumns(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
   NeighUnique* neighU = NeighUnique::create();
 
+  // Creating the Non-stationary Model
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
+  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
+  NoStatFunctional NoStat(&spirale);
+  model->addNoStat(&NoStat);
+
+  // Creating the Precision Operator for simulating the data at conditioning points
+  MeshETurbo mesh(workingDbc);
+  ShiftOpCs S(&mesh, model, workingDbc);
+  CovAniso* cova = model->getCova(0);
+  PrecisionOp Qsimu(&S, cova);
+
+  // Simulating (Chebyshev) on Data points
+  ProjMatrix B(dat, &mesh);
+  VectorDouble resultSimu = Qsimu.simulateOne();
+  VectorDouble datval(ndata);
+  B.mesh2point(resultSimu, datval);
+  dat->addColumns(datval, "Simu", ELoc::Z);
+  (void) dat->dumpToNF("Data.ascii");
+
   // Testing Kriging
-  kriging(dat,workingDbc,&model,neighU);
-  (void) workingDbc->dumpToNF("franckyFunctional.ascii");
+  kriging(dat,workingDbc,model,neighU);
+  (void) workingDbc->dumpToNF("Grid.ascii");
   workingDbc->display(&dbfmt);
 
   message("Test performed successfully\n");
@@ -90,5 +97,7 @@ int main(int /*argc*/, char */*argv*/[])
   delete dat;
   delete workingDbc;
   delete neighU;
+  delete model;
+
   return 0;
 }

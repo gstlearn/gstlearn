@@ -1,4 +1,8 @@
-+*Out[5]:*+
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[6]:*+
 ----
 
 Data Base Grid Characteristics
@@ -25,68 +29,62 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1
  
-![png](output_9_1.png)
+![png](output_10_1.png)
 ----
 
 
-+*Out[7]:*+
++*Out[8]:*+
 ----
 Grain Volume = 6920  / 10000 (pixels)
 
 ----
 
 
-+*Out[8]:*+
-----
-![png](output_15_0.png)
-----
-
-
 +*Out[9]:*+
 ----
-![png](output_17_0.png)
+![png](output_16_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_20_0.png)
+![png](output_18_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_22_0.png)
+![png](output_21_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_24_0.png)
+![png](output_23_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_26_0.png)
+![png](output_25_0.png)
 ----
 
 
 +*Out[14]:*+
 ----
-![png](output_28_0.png)
+![png](output_27_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_31_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_33_0.png)
+![png](output_32_0.png)
 ----
 
 
@@ -98,7 +96,7 @@ Grain Volume = 6920  / 10000 (pixels)
 
 +*Out[18]:*+
 ----
-![png](output_37_0.png)
+![png](output_35_0.png)
 ----
 
 
@@ -116,31 +114,31 @@ Grain Volume = 6920  / 10000 (pixels)
 
 +*Out[21]:*+
 ----
-![png](output_41_0.png)
+![png](output_40_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_43_0.png)
+![png](output_42_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_45_0.png)
+![png](output_44_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_47_0.png)
+![png](output_46_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_49_0.png)
+![png](output_48_0.png)
 ----
 
 
@@ -151,6 +149,12 @@ Grain Volume = 6920  / 10000 (pixels)
 
 
 +*Out[27]:*+
+----
+![png](output_51_0.png)
+----
+
+
++*Out[28]:*+
 ----Array dimension = 2
 - Dimension #1 : 10
 - Dimension #2 : 12
@@ -170,7 +174,7 @@ Grain Volume = 6920  / 10000 (pixels)
 2 0011011111----
 
 
-+*Out[28]:*+
++*Out[29]:*+
 ----
 Array dimension = 2
 - Dimension #1 : 10

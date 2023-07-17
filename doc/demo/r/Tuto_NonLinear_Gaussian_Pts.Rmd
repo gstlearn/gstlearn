@@ -137,10 +137,10 @@ dx_B = dx_P / nx_B
 grid = DbGrid_create(nx = nx_S, dx = dx_S)
 grid$display()
 # Create grid of panels covering the simulated area
-panels = DbGrid_createCoveringDb(grid, dcell=c(dx_P,dx_P))
+panels = DbGrid_createCoveringDb(grid, dx=c(dx_P,dx_P))
 panels$display()
 # Discretization with a grid of blocks which covers the simulated area
-blocs = DbGrid_createCoveringDb(grid, dcell=c(dx_B,dx_B))
+blocs = DbGrid_createCoveringDb(grid, dx=c(dx_B,dx_B))
 blocs$display()
 ```
 
@@ -396,10 +396,10 @@ Simple Kriging is used to estimate the point value of the Gaussian variable at t
 
 ```{r ec_sk, echo=TRUE, eval=TRUE}
 err = model$delDrift(0)
-err = model$setMean(0, 0.)
+err = model$setMean(0.)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
 err = kriging(data, blocs, model, neigh, 
-              calcul = EKrigOpt_PONCTUAL(),
+              calcul = EKrigOpt_POINT(),
               namconv= NamingConvention("G_Pts"))
 
 p = ggplot()
@@ -577,7 +577,7 @@ What is performed? Compute the (simple) kriging of the factors. Simple Kriging i
 ```{r dk_pts_estim, echo=TRUE, eval=TRUE}
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = blocs,  # Output data set (a DbGrid structure)
-                     model  = model, neigh, calcul= EKrigOpt_PONCTUAL(),
+                     model  = model, neigh, calcul= EKrigOpt_POINT(),
                      namconv = NamingConvention("DK_Pts"))
 blocs$display()
 ```
@@ -767,18 +767,18 @@ knitr::kable(Z_est$eval(grid)$toTL(), digits=3,
 
 # Simple kriging of Z
 err = model_raw$delDrift(0)
-err = model_raw$setMean(0, mean(data["Z"]))
+err = model_raw$setMean(mean(data["Z"]))
 data$setLocator("Z", ELoc_Z(), cleanSameLocator=TRUE)
 err = kriging(data, grid, model_raw, neigh, 
-              calcul = EKrigOpt_PONCTUAL(),
+              calcul = EKrigOpt_POINT(),
               namconv= NamingConvention("SK"))
 
 # Conditional expectation
 err = model_Y$delDrift(0)
-err = model_Y$setMean(0, 0.)
+err = model_Y$setMean(0.)
 data$setLocator("Gaussian.Z", ELoc_Z(), cleanSameLocator=TRUE)
 err = kriging(data, grid, model_Y, neigh, 
-              calcul = EKrigOpt_PONCTUAL(),
+              calcul = EKrigOpt_POINT(),
               namconv= NamingConvention("SK"))
 err = ConditionalExpectation(db = grid, 
                              anam = anam, 
@@ -793,7 +793,7 @@ grid$setName("CE.Z-stdev", "CE.Z.stdev")
 data$setLocator("F.*", ELoc_Z(), cleanSameLocator=TRUE)
 err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      dbout  = grid,  # Ouput data set (a DbGrid structure)
-                     model  = model, neigh, calcul= EKrigOpt_PONCTUAL(),
+                     model  = model, neigh, calcul= EKrigOpt_POINT(),
                      namconv = NamingConvention("SK"))
 
 # Disjunctive kriging for Z

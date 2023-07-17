@@ -11,7 +11,7 @@ on:
   # Activate the workflow at each pull request on main branch
   pull_request:
     branches: [ main ]
-  # Activate the workflow every day at 21:30 UTC = for Paris 22:30 (summer) or 23:30 (winter)
+  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '30 23 * * *'
@@ -27,6 +27,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_DIR : build
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
 
 jobs:
   build:
@@ -47,13 +48,19 @@ jobs:
       # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
       run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile
       
-# Not needed for non regression tests (we gonna save minutes!!!)
-#    - name: Install R packages dependencies
-#      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
-#      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
+    - name: Compile and install [customized] SWIG 4.2.0
+      run: |
+        mkdir swig_src
+        cd swig_src
+        git clone https://github.com/fabien-ors/swig.git
+        cd swig
+        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
+        cd build
+        make
+        make install
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON  -DBUILD_R=ON
+      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --target check -- -j 3

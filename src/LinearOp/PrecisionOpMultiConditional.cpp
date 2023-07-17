@@ -238,7 +238,6 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& inv,
   for (int imod = 0; imod < sizes(); imod++)
     _multiPrecisionOp[imod]->eval(inv[imod], outv[imod]);
   sum(_work2,outv, outv);
-
 }
 
 void PrecisionOpMultiConditional::simulateOnMeshing(VectorDouble& gauss,VectorVectorDouble& result,int icov) const
@@ -350,7 +349,7 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   _allocate(4);
   int xsize = static_cast<int>(X.size());
   VectorDouble XtInvSigmaZ(static_cast<int>(xsize));
-  MatrixSquareSymmetric XtInvSigmaX(xsize,false);
+  MatrixSquareSymmetric XtInvSigmaX(xsize);
   VectorDouble result(xsize);
 
   for(int i = 0; i< xsize; i++)

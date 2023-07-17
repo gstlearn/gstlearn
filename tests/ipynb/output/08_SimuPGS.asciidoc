@@ -66,15 +66,12 @@ Acceptation score = True
 Simulation  SimuPGS.1 is valid
 Simulation  SimuPGS.2 is valid
 Simulation  SimuPGS.4 is valid
-Simulation  SimuPGS.5 is valid
 Simulation  SimuPGS.6 is valid
-Simulation  SimuPGS.7 is valid
-Simulation  SimuPGS.9 is valid
 Simulation  SimuPGS.10 is valid
-Simulation  SimuPGS.13 is valid
+Simulation  SimuPGS.11 is valid
 Simulation  SimuPGS.14 is valid
 Simulation  SimuPGS.15 is valid
-Simulation  SimuPGS.17 is valid
+Simulation  SimuPGS.18 is valid
 Simulation  SimuPGS.19 is valid
 ----
 

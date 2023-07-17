@@ -25,7 +25,7 @@
                      NTBATCH, 5, "Number of elements per line for display", \
                      NTNAME,  6, "Maximum number of characters for Names", \
                      NTRANK,  7, "Maximum Number of characters for Ranks", \
-                     NPROC,   8, "Percentage for Display the Progress Bar", \
+                     NPROC,   8, "Number of Quantiles for Display the Progress Bar", \
                      LOCMOD,  9, "Default for setting Locator"
 
 ENUM_DECLARE(ENUM_CST)

@@ -18,6 +18,9 @@
 #include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+
+#include <vector>
 
 class ASpace;
 class SpacePoint;
@@ -47,12 +50,18 @@ public:
   virtual int    getNVariables() const override;
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const override;
+                       const CovCalcMode* mode = nullptr) const override;
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+                      const CovCalcMode* mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -72,8 +81,6 @@ public:
   void delAllCov();
   // Filter a covariance
   void setFiltered(unsigned int i, bool filtered);
-  // Filter all covariances
-  void setAllFiltered(bool status);
 
   int             getCovNumber() const { return (int) _covs.size(); }
   bool            isFiltered(unsigned int i) const;
@@ -82,7 +89,8 @@ public:
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar, int jvar) const;
   MatrixSquareGeneral getTotalSill() const;
-  void normalize(double sill);
+  void            normalize(double sill = 1., int ivar=0, int jvar=0);
+  VectorInt       getActiveCovList() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -99,6 +107,25 @@ public:
   void               setType(unsigned int icov, const ECov& type);
   CovAniso           extractCova(int icov) const;
   int                getMinOrder() const;
+
+  // Methods necessary for Optimization
+  void optimizationPreProcess(const std::vector<SpacePoint> &vec) const;
+  void optimizationPostProcess() const;
+  void optimizationSetTarget(const SpacePoint &pt) const;
+  void evalOptimInPlace(VectorDouble &res,
+                        int ivar = 0,
+                        int jvar = 0,
+                        const CovCalcMode *mode = nullptr) const;
+  void evalMatOptimInPlace(int iech1,
+                           int iech2,
+                           MatrixSquareGeneral &mat,
+                           const CovCalcMode *mode = nullptr) const;
+  VectorVectorDouble evalCovMatrixOptim(const Db *db1,
+                                        const Db *db2,
+                                        int ivar,
+                                        int jvar,
+                                        const CovCalcMode *mode) const;
+
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);
@@ -108,14 +135,14 @@ public:
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;
-  double _getNormalizationFactor(int ivar,
-                                 int jvar,
-                                 const CovCalcMode& mode) const;
 
 #ifndef SWIG
 protected:
   std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
   VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+
+  // Local matrix used to expand the covariance calculations to multivariate
+  mutable MatrixSquareGeneral _matC;
 #endif
 };
 

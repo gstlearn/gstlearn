@@ -62,11 +62,11 @@ int main(int /*argc*/, char */*argv*/[])
   cols[0] = icol;
 
   mestitle(1,"Writing VTK Grid");
-  filename = ASerializable::buildFileName("VTK.grid");
+  filename = ASerializable::buildFileName(2, "VTK.grid");
   db_write_vtk(filename.c_str(), grid, cols);
 
   mestitle(1,"Writing Zycor Grid");
-  filename = ASerializable::buildFileName("Zycor.grid");
+  filename = ASerializable::buildFileName(2, "Zycor.grid");
   db_grid_write_zycor(filename.c_str(), grid, icol);
 
   mestitle(1,"Reading Zycor Grid");
@@ -74,7 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
   gridnew->display(&dbfmt);
 
   mestitle(1,"Writing BMP Grid");
-  filename = ASerializable::buildFileName("Bmp.grid");
+  filename = ASerializable::buildFileName(2, "Bmp.grid");
   db_grid_write_bmp(filename.c_str(), grid, icol, 1, 1, 10);
 
   mestitle(1,"Reading BMP Grid");
@@ -82,11 +82,11 @@ int main(int /*argc*/, char */*argv*/[])
   gridnew->display(&dbfmt);
 
   mestitle(1,"Writing Irap Grid");
-  filename = ASerializable::buildFileName("Irap.grid");
+  filename = ASerializable::buildFileName(2, "Irap.grid");
   db_grid_write_irap(filename.c_str(), grid, icol);
 
   mestitle(1,"Writing IfpEn Grid");
-  filename = ASerializable::buildFileName("IfpEn.grid");
+  filename = ASerializable::buildFileName(2, "IfpEn.grid");
   db_grid_write_ifpen(filename.c_str(), grid, 1, &icol);
 
   mestitle(1,"Reading IfpEn Grid");
@@ -94,19 +94,19 @@ int main(int /*argc*/, char */*argv*/[])
   gridnew->display(&dbfmt);
 
   mestitle(1,"Writing Eclipse Grid");
-  filename = ASerializable::buildFileName("Eclipse.grid");
+  filename = ASerializable::buildFileName(2, "Eclipse.grid");
   db_grid_write_eclipse(filename.c_str(), grid, icol);
 
   mestitle(1,"Writing XYZ Grid");
-  filename = ASerializable::buildFileName("XYZ.grid");
+  filename = ASerializable::buildFileName(2, "XYZ.grid");
   db_grid_write_XYZ(filename.c_str(), grid, icol);
 
   mestitle(1,"Writing VTK Format");
-  filename = ASerializable::buildFileName("VTK.file");
+  filename = ASerializable::buildFileName(2, "VTK.file");
   db_write_vtk(filename.c_str(), grid, cols);
 
   mestitle(1,"Writing ArcGis Format");
-  filename = ASerializable::buildFileName("ArcGis.grid");
+  filename = ASerializable::buildFileName(2, "ArcGis.grid");
   db_grid_write_arcgis(filename.c_str(), grid, icol);
 
   // Free the pointers

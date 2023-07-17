@@ -30,13 +30,13 @@ class GSTLEARN_EXPORT AEnum
 {
 public:
   //! Return the enum key as a string (max 10 characters)
-  const String& getKey() const { return _key; }
+  inline const String& getKey() const { return _key; }
 
   //! Return enum value as an integer value (max 32 enum)
-  int getValue() const { return _value; }
+  inline int getValue() const { return _value; }
 
   //! Return the enum description as a string
-  const String& getDescr() const { return _descr; }
+  inline const String& getDescr() const { return _descr; }
 
 #ifndef SWIG
   // Remove this: too much dangerous (implicit casts)
@@ -44,19 +44,19 @@ public:
   //operator int() const { return _value; }
 #endif
 
-  bool operator< (const AEnum& e) const { return getValue() <  e.getValue(); }
-  bool operator<=(const AEnum& e) const { return getValue() <= e.getValue(); }
-  bool operator> (const AEnum& e) const { return getValue() >  e.getValue(); }
-  bool operator>=(const AEnum& e) const { return getValue() >= e.getValue(); }
-  bool operator==(const AEnum& e) const { return getValue() == e.getValue(); }
-  bool operator!=(const AEnum& e) const { return !operator==(e); }
+  inline bool operator< (const AEnum& e) const { return _value <  e._value; }
+  inline bool operator<=(const AEnum& e) const { return _value <= e._value; }
+  inline bool operator> (const AEnum& e) const { return _value >  e._value; }
+  inline bool operator>=(const AEnum& e) const { return _value >= e._value; }
+  inline bool operator==(const AEnum& e) const { return _value == e._value; }
+  inline bool operator!=(const AEnum& e) const { return !operator==(e); }
 
-  bool isSmaller       (const AEnum& e) const { return e <  *this; }  
-  bool isSmallerOrEqual(const AEnum& e) const { return e <= *this; }  
-  bool isGreater       (const AEnum& e) const { return e >  *this; }
-  bool isGreaterOrEqual(const AEnum& e) const { return e >= *this; }
-  bool isEqual         (const AEnum& e) const { return e == *this; }
-  bool isDifferent     (const AEnum& e) const { return e != *this; }
+  inline bool isSmaller       (const AEnum& e) const { return e <  *this; }
+  inline bool isSmallerOrEqual(const AEnum& e) const { return e <= *this; }
+  inline bool isGreater       (const AEnum& e) const { return e >  *this; }
+  inline bool isGreaterOrEqual(const AEnum& e) const { return e >= *this; }
+  inline bool isEqual         (const AEnum& e) const { return e == *this; }
+  inline bool isDifferent     (const AEnum& e) const { return e != *this; }
 
   void printEnum() const;
 
@@ -137,6 +137,8 @@ public:\
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
   static void printAll();\
+  static VectorString getAllKeys();\
+  static VectorString getAllDescr();\
 \
   static bool existsKey(const String& key);\
   static bool existsValue(int value);\
@@ -220,6 +222,30 @@ void NAME::printAll()\
     (*it).printEnum();\
     it.toNext();\
   }\
+}\
+\
+VectorString NAME::getAllKeys()\
+{\
+  VectorString keys;\
+  auto it(getIterator());\
+  while (it.hasNext())\
+  {\
+    keys.push_back((*it).getKey());\
+    it.toNext();\
+  }\
+  return keys;\
+}\
+\
+VectorString NAME::getAllDescr()\
+{\
+  VectorString descr;\
+  auto it(getIterator());\
+  while (it.hasNext())\
+  {\
+    descr.push_back((*it).getDescr());\
+    it.toNext();\
+  }\
+  return descr;\
 }\
 \
 bool NAME::existsKey(const String& key)\

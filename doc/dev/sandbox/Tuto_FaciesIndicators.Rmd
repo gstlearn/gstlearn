@@ -1,0 +1,202 @@
+---
+title: "Test Facies Simulations Indicators"
+output: html_document
+date: "2023-07-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This file is meant to demonstrate the use of gstlearn by loading a numpy array containing a facies indicator variable simulated by flumy and perform some calculations based on the grid organization (transition probabilities or connectivity)
+
+```{r install_flumy, include=TRUE}
+install.packages("flumy",repos="https://soft.mines-paristech.fr/cran")
+```
+
+```{r init}
+# Import package
+library(gstlearn)
+library(flumy)
+library(ggplot2)
+```
+
+# Generate a Flumy simulation
+Use the default Fluvial scenario
+
+```{r init}
+nx      = 250   # Number of grid nodes along Ox
+ny      = 200   # Number of grid nodes along Oy
+mesh    = 10    # Horizontal grid mesh size: 10m
+hmax    = 3     # Maximum channel depth: 3m
+ng      = 50    # Required Net-to-Gross: 50%
+isbx    = 80    # Required sand bodies extension (medium extension = few meander cutoffs)
+verbose = TRUE  # Verbose mode
+
+res = 30                # Vertical resolution (increase 'res' to get higher resolution)
+dz  = hmax / res        # Vertical discretization step (0.1m)
+zul = 3 * hmax          # Fill a reservoir of 3 x hmax height (9m)
+nz  = as.integer(zul / dz) # Number of vertical nodes of the resulted block of sediments
+```
+
+```{r launch}
+# Launch the simulation
+seed = 123456 # Simulation seed
+# Create the simulator
+flsim = Flumy(nx, ny, mesh, verbose)
+# Launch up to zul
+success = flsim$launch(seed, hmax, isbx, ng, zul)
+if (!success) {
+    cat("Error while running Flumy\n")
+}
+```
+
+# Extract one section from the facies array
+
+```{r display_slice}
+# Retrieve facies identifiers in a 3D regular grid
+fac = flsim$getDomain()$getRegularFacies(dz,0,nz)
+fac[fac==255] = NA
+fac3 = array(fac,dim=c(nz,ny,nx))
+cat("dim(fac3)=",dim(fac3),"\n")
+ufacies = sort(unique(fac))
+cat("Unique facies are ", ufacies, "\n")
+nfacies = length(ufacies) 
+
+# Display the cross-section #20 (cross-flow) (col.flumy and fac.flumy are defined in the package)
+nsect = 20
+df = expand.grid(x=1:nx, y=1:nz)
+df$val = factor(as.vector(matrix(fac3[,nsect,], nx, nz, byrow=T)))
+values = col.flumy[as.integer(levels(df$val))] # Discard colors for missing facies
+labels = fac.flumy[as.integer(levels(df$val))] # Discard labels for missing facies
+ggplot(df, aes(x, y, fill=val)) + geom_raster() + coord_fixed() + scale_fill_manual(values=values, labels=labels)
+```
+
+# Proportions
+Calculate facies global proportions
+
+```{r proportions}
+cat("Number of Facies:", nfacies)
+cat("Facies Proportions:\n")
+round(100*table(df$val)/(nx*ny),2)
+```
+
+# Grouping the facies
+```{r group_slice}
+# Grouping facies (see Flumy user guide appendix)
+# https://stackoverflow.com/questions/3418128/how-to-convert-a-factor-to-integer-numeric-without-loss-of-information
+arr_flat = as.numeric(levels(df$val))[df$val]
+# arr_flat[arr_flat==1] = 1 # CL
+# arr_flat[arr_flat==2] = 2 # PB
+arr_flat[arr_flat==3]   = 2
+arr_flat[arr_flat==4]   = 2
+arr_flat[arr_flat==5]   = 3 # LV
+arr_flat[arr_flat==6]   = 3
+arr_flat[arr_flat==7]   = 3
+arr_flat[arr_flat==8]   = 4 # OB
+arr_flat[arr_flat==9]   = 4
+arr_flat[arr_flat==10]  = 4
+arr_flat[arr_flat==11]  = 4
+arr_flat[arr_flat==12]  = 4
+ufacies = sort(unique(arr_flat))
+cat("Unique facies are ", ufacies, "\n")
+nfacies = length(ufacies) 
+```
+
+# Proportions
+Calculate facies global proportions
+
+```{r proportions2}
+cat("Number of Facies:", nfacies)
+cat("Facies Proportions:\n")
+round(100*table(arr_flat)/(nx*ny),2)
+```
+
+# Import this array in gstlearn
+The Grid file is created first (defining the origin, mesh size and count). Then the facies variable is added giving the name and the locator. 
+
+```{r create_db}
+ndim = 2
+gnx = nx
+gny = nz
+gdx = mesh
+gdy = dz
+defineDefaultSpace(ESpaceType_RN(), ndim)
+grid = DbGrid_create(c(gnx,gny),c(gdx,gdy),c(0,0))
+grid$addColumns(arr_flat, "fac", ELoc_Z())
+att_simu = grid$getLastUID()
+if (verbose)
+{
+    dbfmt = DbStringFormat()
+    dbfmt$setFlags(flag_extend=TRUE, flag_stats=TRUE)
+    grid$display(dbfmt)
+}
+ggplot() + plot.grid(grid,name_raster="fac",show.legend.raster=TRUE)
+```
+
+# Transform categorical variable into indicators
+
+```{r transition_proba}
+limits = Limits(nfacies)
+if (verbose) {
+    limits$display()
+}
+err = limits$toIndicator(grid, "fac")
+grid$display()
+ggplot() + plot.grid(grid,name_raster="Indicator.fac.Class.4",show.legend.raster=TRUE)
+```
+
+# Variogram of indicators
+
+```{r create_db}
+variop = VarioParam()
+dir1 = DirParam(40,gdx)
+dir1$setGrincr(c(1,0))
+dir2 = DirParam(20,gdy)
+dir2$setGrincr(c(0,1))
+variop$addDir(dir1)
+variop$addDir(dir2)
+vario = Vario(variop, grid)
+err = vario$compute(ECalcVario_TRANS1())
+vario$display()
+```
+
+# Transition probabilities
+
+```{r transition_proba}
+ndir = vario$getDirectionNumber()
+for (idir in 0:(ndir-1)) {
+    for (ifac in 0:(nfacies-1)) {
+        for (jfac in 0:ifac) {
+            if (ifac != jfac) {
+                hh = vario$getHhVec(idir,ifac,jfac)
+                gg = vario$getGgVec(idir,ifac,jfac)
+                plot(hh,gg, type='l', main=paste0("Transition probabilities in dir #",idir+1," leaving F",ifac+1," / entering F",jfac+1))
+            }
+        }
+    }
+}
+```
+
+# Connected Components
+Calculate the connected components for each facies.
+
+```{r connected_components}
+eps = 0.5
+compnum = grid$getColumnByUID(att_simu)
+for (fac in ufacies) {
+    vmin = fac - eps
+    vmax = fac + eps
+    image   = morpho_double2image(c(gnx,gny),compnum,vmin,vmax);
+    compnew = morpho_labelling(0,0,image,-1)
+    sizes   = morpho_labelsize(0,image)
+    df$compnew = compnew
+    
+    print(ggplot(df, aes(x, y, fill=compnew)) +
+          geom_raster() + coord_fixed() +
+          ggtitle(paste0("Connected components for F",fac)))
+    
+    hist(sizes, breaks=50, main=paste0("Size of connected component for F",fac))
+}
+```
+

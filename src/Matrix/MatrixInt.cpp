@@ -52,15 +52,21 @@ MatrixInt::~MatrixInt()
 
 int MatrixInt::getValue(int irow, int icol) const
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return ITEST;
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
 int MatrixInt::getValue(int irank) const
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return ITEST;
   return _rectMatrix[irank];
+}
+
+int& MatrixInt::getValueRef(int irow, int icol)
+{
+  int rank = _getIndexToRank(irow,icol);
+  return _rectMatrix[rank];
 }
 
 void MatrixInt::setValue(int irank, int value)
@@ -71,7 +77,7 @@ void MatrixInt::setValue(int irank, int value)
 
 void MatrixInt::setValue(int irow, int icol, int value)
 {
-  _isIndexValid(irow, icol);
+  if (! _isIndexValid(irow, icol)) return;
   int rank = _getIndexToRank(irow, icol);
   _rectMatrix[rank] = value;
 }

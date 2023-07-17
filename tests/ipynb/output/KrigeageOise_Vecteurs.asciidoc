@@ -171,12 +171,12 @@ Number :       3300       400
 Rotation Angles        =     40.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.766     0.643
-     [  1,]    -0.643     0.766
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.766    -0.643
      [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
 
 Variables
 ---------
@@ -232,12 +232,12 @@ Number :       3300       400
 Rotation Angles        =     40.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.766     0.643
-     [  1,]    -0.643     0.766
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.766    -0.643
      [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
 
 Variables
 ---------
@@ -270,12 +270,12 @@ Number :       3300       400
 Rotation Angles        =     40.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.766     0.643
-     [  1,]    -0.643     0.766
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.766    -0.643
      [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
 
 Variables
 ---------
@@ -448,12 +448,12 @@ Number :       3300       400
 Rotation Angles        =     40.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.766     0.643
-     [  1,]    -0.643     0.766
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.766    -0.643
      [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
 
 Variables
 ---------
@@ -494,12 +494,12 @@ Number :       3300       400
 Rotation Angles        =     40.000     0.000
 Direct Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.766     0.643
-     [  1,]    -0.643     0.766
-Inverse Rotation Matrix
-               [,  0]    [,  1]
      [  0,]     0.766    -0.643
      [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
 
 Variables
 ---------

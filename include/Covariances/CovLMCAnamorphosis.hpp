@@ -47,16 +47,26 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ACov Interface
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
-                       const CovCalcMode& mode = CovCalcMode()) const override;
+                       const CovCalcMode* mode = nullptr) const override;
   virtual double eval(const SpacePoint& p1,
                       const SpacePoint& p2,
                       int ivar = 0,
                       int jvar = 0,
-                      const CovCalcMode& mode = CovCalcMode()) const override;
+                      const CovCalcMode* mode = nullptr) const override;
+  virtual void eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode = nullptr) const override;
+  virtual void evalMatInPlace(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              MatrixSquareGeneral &mat,
+                              const CovCalcMode *mode = nullptr) const override;
+  /// Tell if the use of Optimization is enabled or not
+  virtual bool isOptimEnabled() const override { return false; }
 
   /// Interface for ACovAnisoList
+  ///
   void addCov(const CovAniso* cov) override;
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() const override { return _anam; }
@@ -71,23 +81,36 @@ public:
 private:
   double _evalHermite(int ivar,
                       int jvar,
+                      double h,
+                      const CovCalcMode* mode) const;
+  double _evalDiscreteDD(int ivar,
+                         int jvar,
+                         double h,
+                         const CovCalcMode* mode) const;
+  double _evalDiscreteIR(int ivar,
+                         int jvar,
+                         double h,
+                         const CovCalcMode* mode) const;
+
+  double _evalHermite(int ivar,
+                      int jvar,
                       const SpacePoint& p1,
                       const SpacePoint& p2,
-                      const CovCalcMode& mode) const;
+                      const CovCalcMode* mode) const;
   double _evalDiscreteDD(int ivar,
                          int jvar,
                          const SpacePoint& p1,
                          const SpacePoint& p2,
-                         const CovCalcMode& mode) const;
+                         const CovCalcMode* mode) const;
   double _evalDiscreteIR(int ivar,
                          int jvar,
                          const SpacePoint& p1,
                          const SpacePoint& p2,
-                         const CovCalcMode& mode) const;
-  double _evalHermite0(int ivar, int jvar, const CovCalcMode& mode) const;
-  double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode& mode) const;
-  double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode& mode) const;
-  void   _transformCovCalcModeIR(CovCalcMode& mode, int iclass) const;
+                         const CovCalcMode* mode) const;
+  double _evalHermite0(int ivar, int jvar, const CovCalcMode* mode) const;
+  double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode* mode) const;
+  double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode* mode) const;
+  void   _transformCovCalcModeIR(CovCalcMode* mode, int iclass) const;
 
 private:
   int    _activeFactor;       /* Target factor (-1: Raw; 1: Gaussian; n: rank of factor) */

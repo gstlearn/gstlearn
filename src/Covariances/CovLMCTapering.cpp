@@ -180,7 +180,7 @@ String CovLMCTapering::toString(const AStringFormat* strfmt) const
 
 double CovLMCTapering::eval0(int ivar,
                              int jvar,
-                             const CovCalcMode& mode) const
+                             const CovCalcMode* mode) const
 {
   double cov0 = CovLMC::eval0(ivar, jvar, mode);
   return cov0;
@@ -190,24 +190,47 @@ double CovLMCTapering::eval(const SpacePoint& p1,
                             const SpacePoint& p2,
                             int ivar,
                             int jvar,
-                            const CovCalcMode& mode) const
+                            const CovCalcMode* mode) const
 {
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
   // performed in generic 'eval' method
-  CovCalcMode modeloc(mode);
-  bool asVario = mode.getAsVario();
-  modeloc.setAsVario(false);
+  double cov = 0.;
+  double cov0 = 0.;
+  bool asVario = false;
+  if (mode == nullptr)
+  {
+    cov = CovLMC::eval(p1, p2, ivar, jvar);
+  }
+  else
+  {
+    CovCalcMode modeloc(*mode);
+    asVario = mode->getAsVario();
+    modeloc.setAsVario(false);
+    cov = CovLMC::eval(p1, p2, ivar, jvar, &modeloc);
+    cov0 = CovLMC::eval(p1, p1, ivar, jvar, &modeloc); // or eval0 if stationary
+  }
 
-  double cov = CovLMC::eval(p1, p2, ivar, jvar, modeloc);
   double h = getSpace()->getDistance(p1, p2) / _tapeRange;
   cov *= D_TAPE(_tapeType.getValue()).tapeFunc(h);
 
-  if (asVario)
-  {
-    double cov0 = eval0(ivar,jvar, modeloc);
-    cov = cov0 - cov;
-  }
+  if (asVario) cov = cov0 - cov;
   return cov;
+}
+
+void CovLMCTapering::eval0MatInPlace(MatrixSquareGeneral &mat,
+                                     const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::eval0MatInPlace(mat, mode);
+}
+
+void CovLMCTapering::evalMatInPlace(const SpacePoint &p1,
+                                    const SpacePoint &p2,
+                                    MatrixSquareGeneral &mat,
+                                    const CovCalcMode *mode) const
+{
+  // We do not want to call the optimization of ACovAnisoList
+  ACov::evalMatInPlace(p1, p2, mat, mode);
 }
 
 const String& CovLMCTapering::getName() const

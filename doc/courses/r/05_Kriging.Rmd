@@ -94,7 +94,7 @@ grid$display(dbfmt)
 \frametitle{Ordinary Kriging}
 
 ```{r Ordinary_Kriging}
-err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
+err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neigh=unique.neigh,
               flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
               namconv=NamingConvention("OK"))
 ```
@@ -128,7 +128,7 @@ The output grid now contains the selection **inshore**.
 Estimation is restricted to the active cells only.
 
 ```{r Ordinary_Kriging_with_Selection}
-err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=unique.neigh,
+err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neigh=unique.neigh,
               flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
               namconv=NamingConvention("OK"))
 ```
@@ -166,13 +166,13 @@ The Model **fitmodOK** is first duplicated into **fitmodSK**. Then the Universal
 ```{r Model_for_simple_kriging}
 fitmodSK = fitmodOK$clone()
 err = fitmodSK$delDrift(rank=0)
-err = fitmodSK$setMean(ivar=0, mean=20.)
+err = fitmodSK$setMean(mean=20.)
 ```
 
 Simple Kriging is performed
 
 ```{r Simple_Kriging}
-err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neighparam=unique.neigh,
+err = kriging(dbin=dat, dbout=grid, model=fitmodSK, neigh=unique.neigh,
               flag_est=TRUE, flag_std=TRUE, 
               namconv=NamingConvention("SK"))
 ```
@@ -233,7 +233,7 @@ ggPrint(p)
 
 
 ```{r Cross_Validation}
-err = xvalid(db=dat, model=fitmodOK, neighparam=unique.neigh, 
+err = xvalid(db=dat, model=fitmodOK, neigh=unique.neigh, 
              flag_xvalid_est=1, flag_xvalid_std=1,  
              namconv=NamingConvention_create("Xvalid", flag_locator = FALSE))
 ```
@@ -307,7 +307,7 @@ small.neigh = NeighMoving_create(nmini=1, nmaxi=1, radius=1000000)
 We perform Ordinary Kriging 
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood}
-err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neighparam=small.neigh,
+err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neigh=small.neigh,
               flag_est=TRUE, flag_std=TRUE, 
               namconv=NamingConvention("Small"))
 ```

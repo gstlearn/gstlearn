@@ -72,15 +72,16 @@ int main(int /*argc*/, char */*argv*/[])
 
   ///////////////////////
   // Building the Covariance Matrix
-  VectorDouble result = modellmc.covMatrixV(workingDbc, nullptr, 0, 0, 0, 1);
+  VectorDouble result = modellmc.covMatrixV(workingDbc, nullptr, 0, 0);
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
   VH::displayStats("\nStatistics on Covariance Matrix",result);
 
   // Sample the Model at regular steps
   VectorDouble hh = VH::sequence(0., 3., 3./50.);
-  VectorDouble vec1 = modellmc.sample(hh);
-  VH::display("\nModel sampled",vec1);
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  VH::display("\nModel sampled",modellmc.sample(hh,0,0,VectorDouble(),&mode));
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -94,8 +95,7 @@ int main(int /*argc*/, char */*argv*/[])
   modeltape.display();
 
   // Sample the Tapered Model at regular steps
-  VectorDouble vec2 = modeltape.sample(hh);
-  VH::display("\nTapered Model",vec2);
+  VH::display("\nTapered Model",modeltape.sample(hh,0,0,VectorDouble(),&mode));
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -108,8 +108,7 @@ int main(int /*argc*/, char */*argv*/[])
   modelconv.setCovList(&covconv);
   modelconv.display();
   // Sample the Tapered Model at regular steps
-  VectorDouble vec3 = modelconv.sample(hh);
-  VH::display("\nConvoluted Model", vec3);
+  VH::display("\nConvoluted Model", modelconv.sample(hh,0,0,VectorDouble(),&mode));
 
   // Serialization of the Model
   Model* modelS = Model::createFromEnvironment(1, 3);

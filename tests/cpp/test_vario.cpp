@@ -75,38 +75,33 @@ int main(int /*argc*/, char */*argv*/[])
   // On Data samples
   // ===============
 
-  // Determination of the experimental variogram
-  VarioParam varioparamP;
+  mestitle(1, "Experimental variogram on Data Samples");
   int nlag = 20;
-  std::vector<DirParam> dirparamP = DirParam::createMultiple(2, nlag, 0.5 / nlag);
-  varioparamP.addMultiDirs(dirparamP);
-  Vario variop = Vario(&varioparamP,db);
-  variop.computeByKey("vg");
-  variop.display();
-  message("Maximum Variogram Value = %lf\n",variop.getGmax());
+  VarioParam* varioparamP = VarioParam::createMultiple(2, nlag, 0.5 / nlag);
+  Vario* variop = Vario::computeFromDb(varioparamP,db,ECalcVario::VARIOGRAM);
+  variop->display();
+  message("Maximum Variogram Value = %lf\n",variop->getGmax());
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
   VectorECov covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
-  model.fit(&variop,covas,false);
+  model.fit(variop,covas,false);
   model.display();
 
   // ===============
   // On Grid samples
   // ===============
 
-  // Determination of the experimental variogram
-  VarioParam varioparamG;
-  std::vector<DirParam> dirparamG = DirParam::createMultipleFromGrid(nlag);
-  varioparamG.addMultiDirs(dirparamG);
-  Vario variog = Vario(&varioparamG, grid);
-  variog.computeByKey("vg");
-  variog.display();
+  mestitle(1, "Experimental variogram on Grid");
+  VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
+  Vario* variog = Vario::computeFromDb(varioparamG, grid, ECalcVario::VARIOGRAM);
+  variog->display();
 
   // ==========================================
   // Calculating Variogram Map on Isolated Data
   // ==========================================
 
+  mestitle(1, "Variogram Map on Isolated Data");
   Db* vmapP = db_vmap_compute(db, ECalcVario::VARIOGRAM);
   vmapP->display();
 
@@ -114,11 +109,14 @@ int main(int /*argc*/, char */*argv*/[])
   // Calculating Variogram Map on Grid
   // =================================
 
+  mestitle(1, "Variogram Map on Grid");
   Db* vmapG = db_vmap_compute(grid, ECalcVario::VARIOGRAM);
   DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
   vmapG->display(&dbfmt);
 
   delete db;
   delete grid;
+  delete varioparamP;
+  delete variop;
   return (error);
 }

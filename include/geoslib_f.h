@@ -26,9 +26,6 @@
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
-#include "Neigh/ANeighParam.hpp"
-#include "Neigh/NeighImage.hpp"
-#include "Neigh/NeighUnique.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
@@ -40,7 +37,7 @@ class Vario;
 class VarioParam;
 class Model;
 class AAnam;
-class ANeighParam;
+class ANeigh;
 class Polygons;
 class RuleProp;
 class PCA;
@@ -108,8 +105,7 @@ GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
                                             double cylrad,
                                             double tolcode,
                                             const VectorDouble &breaks,
-                                            const VectorDouble &codir,
-                                            const VectorInt &grincr);
+                                            const VectorDouble &codir);
 GSTLEARN_EXPORT int variogram_cloud(const Db *db,
                                     const VarioParam *varioparam,
                                     DbGrid *dbgrid,
@@ -211,26 +207,16 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", true, true, true,
                                                                                     ELoc::fromKey("SEL")));
-GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
-                                          Db *dbout,
-                                          Model *model,
-                                          int ivar0 = 0,
-                                          bool flag_verbose = false);
-GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
-                                             DbGrid *dbgrid,
-                                             Model *model,
-                                             int ivar0 = 0,
-                                             bool flag_verbose = false);
 GSTLEARN_EXPORT int krigsum(Db *dbin,
                             Db *dbout,
                             Model *model,
-                            NeighUnique* neighU,
+                            ANeigh* neigh,
                             bool flag_positive = false,
                             const NamingConvention& namconv = NamingConvention("KrigSum"));
 GSTLEARN_EXPORT int declustering(Db *db,
                                  Model *model,
                                  int method,
-                                 ANeighParam *neighparam = nullptr,
+                                 ANeigh *neigh = nullptr,
                                  DbGrid *dbgrid = nullptr,
                                  const VectorDouble& radius = VectorDouble(),
                                  const VectorInt& ndisc = VectorInt(),
@@ -241,7 +227,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            RuleProp *ruleprop,
                            Model *model1,
                            Model *model2 = nullptr,
-                           ANeighParam *neighparam = nullptr,
+                           ANeigh *neigh = nullptr,
                            int nbsimu = 1,
                            int seed = 1321421,
                            int flag_gaus = false,
@@ -261,7 +247,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Model *model12 = nullptr,
                              Model *model21 = nullptr,
                              Model *model22 = nullptr,
-                             ANeighParam *neighparam = nullptr,
+                             ANeigh *neigh = nullptr,
                              int nbsimu = 1,
                              int seed = 43243,
                              int flag_gaus = false,
@@ -351,11 +337,11 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                                                                               ELoc::fromKey("P")));
 GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   Model *model,
-                                  ANeighParam *neighparam,
                                   int nbsimu,
                                   int seed,
                                   int gibbs_nburn,
                                   int gibbs_niter,
+                                  bool flag_moving,
                                   bool flag_norm,
                                   bool flag_multi_mono,
                                   bool flag_propagation,
@@ -389,7 +375,7 @@ GSTLEARN_EXPORT int potential_kriging(Db *db,
                                       Db *dbtgt,
                                       DbGrid *dbout,
                                       Model *model,
-                                      ANeighParam *neighparam,
+                                      ANeigh *neigh,
                                       double nugget_grd = 0.,
                                       double nugget_tgt = 0.,
                                       bool flag_pot = true,
@@ -414,7 +400,7 @@ GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
                                        Db *dbtgt,
                                        DbGrid *dbout,
                                        Model *model,
-                                       ANeighParam *neighparam,
+                                       ANeigh *neigh,
                                        double nugget_grd = 0.,
                                        double nugget_tgt = 0.,
                                        double dist_tempere = TEST,
@@ -427,7 +413,7 @@ GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
                                      Db *dbgrd,
                                      Db *dbtgt,
                                      Model *model,
-                                     ANeighParam *neighparam,
+                                     ANeigh *neigh,
                                      double nugget_grd = 0.,
                                      double nugget_tgt = 0.,
                                      int flag_dist_conv = false,

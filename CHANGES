@@ -2,14 +2,22 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
-Release 0.2.2
+Release 0.3.1
 =============
 - SWIG typemaps robustification
 - Publish acknowledge_gstlearn 
 
-Release 0.2.1
+Release 0.3.0
 =============
-- 
+- Modify the angles in the legend of vario and model (from 'codir' to 'angles') + 1 angle if in 2D.
+- Change the display of angles: it now lies between 0 and 360.
+- New method to create several variogram directions specified by the list of their angles (limited to 2D)
+- adding the possibility to define a DirParam using a 2D angle (prevails definition by 'codir')
+- changing prototypes of setMean() and setVars()
+- Fix Cross-validation in Simple Kriging with non zero Mean in Unique Neighborhood
+- Changing ENUM EKrigOpt: option PONCTUAL becomes POINT
+- Changing the internal definition (and storage) of DirParam
+- Generalize the methode createFromVVD() for all concrete matrices
 
 Release 0.2.0
 =============

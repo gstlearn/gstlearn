@@ -18,14 +18,17 @@
 
 #include "Db/PtrGeos.hpp"
 #include "Basic/Grid.hpp"
-#include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/Limits.hpp"
 
 class DbGrid;
+class Interval;
+class SpacePoint;
+class SpaceTarget;
 
 /**
  * Class containing a Data Set organized as a set of Isolated Points.
@@ -51,6 +54,7 @@ public:
   /// Interface for Db
   virtual bool isGrid() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
+  virtual void getCoordinatesPerSampleInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
@@ -163,6 +167,7 @@ public:
   inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
 
+  int getNEloc() const;
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;
@@ -218,12 +223,18 @@ public:
                  bool useSel = false,
                  double valinit = 0.,
                  int nvar = 1);
-  int addColumnsByConstant(int nadd,
+  int addColumnsByConstant(int nadd = 1,
                            double valinit = 0.,
                            const String& radix = "New",
                            const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                            int locatorIndex = 0,
                            int nechInit = 0);
+  int addColumnsRandom(int nadd,
+                       const String &radix = "New",
+                       const ELoc &locatorType = ELoc::fromKey("Z"),
+                       int locatorIndex = 0,
+                       int seed = 1352,
+                       int nechInit = 0);
 
   int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
@@ -240,6 +251,10 @@ public:
                                      bool verbose = false,
                                      const NamingConvention &namconv = NamingConvention("Hull", true, true, true,
                                                                                         ELoc::fromKey("SEL")));
+  int addSelectionRandom(double prop,
+                         int seed = 138213,
+                         const String& name = "NewSel",
+                         const String& combine = "set");
 
   int addSamples(int nadd, double valinit);
   int deleteSample(int e_del);
@@ -338,10 +353,11 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
+  void getSampleCoordinatesAsSP(int iech, SpacePoint& P) const;
+  void getSampleAsST(int iech, SpaceTarget& P) const;
   void getSampleCoordinates(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
 
-  void   getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate = true) const;
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   void   setCoordinate(int iech, int idim, double value);
@@ -359,6 +375,8 @@ public:
   VectorDouble getArrayByUID(int iuid, bool useSel = false) const;
   VectorDouble getArrayBySample(int iech) const;
   void setArrayBySample(int iech, const VectorDouble& vec);
+
+  std::vector<SpacePoint> getSamplesAsSP(bool useSel=false) const;
 
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
@@ -488,7 +506,7 @@ public:
   bool isActiveAndDefined(int iech, int item) const;
   int  getActiveAndDefinedNumber(int item) const;
   int  getActiveAndDefinedNumber(const String& name) const;
-  VectorBool getMaskArray() const;
+  VectorBool getActiveArray() const;
 
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
@@ -792,7 +810,7 @@ private:
   const VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
-  void _columnInit(int ncol, int icol0, double valinit);
+  void _columnInit(int ncol, int icol0, bool flagCste = true, double valinit = TEST);
   double _updateValue(int oper, double oldval, double value);
   String _summaryVariables(void) const;
   String _summaryExtensions(void) const;
@@ -802,7 +820,7 @@ private:
   String _summaryArrays(VectorInt cols, bool useSel = true) const;
 
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
-  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
+  int  _getSimrank(int isimu, int ivar, int icase, int nbsimu=1, int nvar=1) const;
   VectorInt _getUIDsBasic(const VectorString& names) const;
 
   int _getLastColumn(int number = 0) const;
@@ -842,5 +860,5 @@ private:
   VectorDouble _array;       //!< Array of values
   VectorInt _uidcol;         //!< UID to Column
   VectorString _colNames;    //!< Names of the variables
-  std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
+  std::vector<PtrGeos> _p;   //!< Locator characteristics
 };

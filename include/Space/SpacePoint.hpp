@@ -30,10 +30,14 @@ public:
   bool operator==(const SpacePoint& v) const { return (_coord == v._coord); }
 
   const VectorDouble& getCoord() const { return _coord; }
+  VectorDouble& getCoordRef() { return _coord; }
   double getCoord(int idim) const { return _coord[idim]; }
 
   void setCoord(double coord);
   void setCoord(const VectorDouble& coord);
+  void setCoord(int i, double val){_coord[i] = val;}
+  const double* getCoordsP() const {return _coord.data();}
+  double* getCoordsPM()  {return _coord.data();}
 
   /// Return true if the point is consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
@@ -44,6 +48,10 @@ public:
   double getDistance(const SpacePoint& pt) const;
   /// Return the increment vector between me and another point
   VectorDouble getIncrement(const SpacePoint& pt) const;
+  /// Fill with TEST values to simulate a missing Space Point
+  void setFFFF();
+  /// Check if the SpacePoint is actually defined
+  bool isFFFF() const;
 
   /// Initialize coordinates from angles /// TODO : to be removed
   void setCoordFromAngle(const VectorDouble& angles);

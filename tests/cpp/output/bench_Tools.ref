@@ -1,0 +1,44 @@
+
+Assigning values into a storage
+-------------------------------
+Random values are assigned at random locations 5000000 times
+- Assigning value to the vector of dimension 100000000
+#NO_DIFF# Assignment to vector: 132 ms. (Ref = 120 ms.)
+- Assigning value to the square matrix of dimension 10000 x 10000
+#NO_DIFF# Assignment to matrix: 82 ms. (Ref = 75 ms.)
+
+Comparing various ways of operating Vectors of Double values
+------------------------------------------------------------
+Operations are performed 5000 times over vectors of size 30000
+- using: sum_i a[i] * b[i]
+#NO_DIFF# Product of [] terms: 497 ms. (Ref = 500 ms.)
+- using iterators
+#NO_DIFF# with iterators: 440 ms. (Ref = 450 ms.)
+- using pointers to double
+#NO_DIFF# with pointers: 317 ms. (Ref = 320 ms.)
+- using VectorHelper
+#NO_DIFF# with VectorHelper: 194 ms. (Ref = 200 ms.)
+- using VectorHelper (double)
+#NO_DIFF# with VectorHelper (double): 194 ms. (Ref = 200 ms.)
+- using matrix algebra
+#NO_DIFF# with algebra: 1684 ms. (Ref = 1700 ms.)
+
+Testing sorting algorithms
+--------------------------
+We consider a vector of 10 values and the corresponding vector of ranks
+Only the first 7 positions are used
+This paragraph is not bench-marked as time consumption is too short
+Unsorted values
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.434     0.547     0.410     0.011     0.197     0.642     0.363
+     [  7,]     0.143     0.991     0.023
+Unsorted ranks
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]         4         7        10        13        16        19        22
+     [  7,]        25        28        31
+Order
+         3         4         6         2         0         1         5
+Sorted values
+     0.011     0.197     0.363     0.410     0.434     0.547     0.642
+Ranks of Sorted values
+        13        16        22        10         4         7        19

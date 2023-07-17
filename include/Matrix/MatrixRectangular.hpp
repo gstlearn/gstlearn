@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#include "gstlearn_export.hpp"
+
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 
@@ -19,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixRectangular : public AMatrix {
 
 public:
-  MatrixRectangular(int nrow = 0, int ncol = 0, bool sparse = false);
+  MatrixRectangular(int nrow = 0, int ncol = 0);
   MatrixRectangular(const MatrixRectangular &m);
   MatrixRectangular& operator= (const MatrixRectangular &r);
 	virtual ~MatrixRectangular();
@@ -37,14 +39,13 @@ public:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
-  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, bool sparse = false);
+  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
                                          int ncol,
-                                         bool byCol = false,
-                                         bool sparse = false);
+                                         bool byCol = false);
 
-  /*! Adding a Row or a Column (at the bottom of Rectangular Matrix) */
+  /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);
   void addColumn(int ncolumn_added = 1);
 
@@ -56,6 +57,7 @@ protected:
 
 private:
   bool   _isCompatible(const AMatrix& m) const override { return isSameSize(m); }
+  int    _getIndexToRank(int irow,int icol) const override;
   double _getValue(int irow, int icol) const override;
   double _getValue(int irank) const override;
   void   _setValue(int rank, double value) override;
@@ -68,8 +70,6 @@ private:
   void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
-
-  int    _getIndexToRank(int irow,int icol) const;
 
 private:
   VectorDouble _rectMatrix;

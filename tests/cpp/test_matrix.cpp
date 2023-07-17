@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -26,7 +27,7 @@ void reset_to_initial_contents(AMatrix* M,
                                MatrixRectangular& MRR,
                                MatrixSquareGeneral& MSG,
                                MatrixSquareSymmetric& MSS,
-                               AMatrix* MSP,
+                               MatrixSparse* MSP,
                                MatrixSquareDiagonal& MSD,
                                MatrixSquareDiagonalCst& MSC)
 {
@@ -55,10 +56,15 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixInt mati(2,3);
   mati.setValues({1, 2, 3, 4, 5, 6});
   mati.display();
-  MatrixInt* mati2(mati.clone()); // dynamic_cast no more needed
-  // equivalent to
-  // MatrixInt* mati2 = mati.clone();
+  MatrixInt* mati2(mati.clone());
   mati2->display();
+
+  // Checking assessor for MatrixInt
+  int imemo = mati(1,2);
+  message("Initial value of mati(1,2) = %d\n", imemo);
+  mati(1,2) = -23;
+  mati.display();
+  mati(1,2) = imemo; // set back to initial value
 
   message("Cloning Matrix of doubles\n");
   MatrixRectangular matd(2,3);
@@ -85,6 +91,15 @@ int main(int /*argc*/, char */*argv*/[])
       if (tirage < proba) value = 0.;
       MR.setValue(irow, icol, value);
     }
+
+  // Checking using the operator ()
+
+  MR.display();
+  double memo = MR(1,2);
+  message("Initial value of M(1,2) = %lf\n", memo);
+  MR(1,2) = 111.11;
+  MR.display();
+  MR(1,2) = memo; // Set back to initial value
 
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
@@ -134,7 +149,7 @@ int main(int /*argc*/, char */*argv*/[])
   MSS.display();
 
   // To a sparse matrix
-  AMatrix* MSP = M->toSparse();
+  MatrixSparse* MSP = toSparse(M);
   message("Matrix MSP\n");
   MSP->display();
 

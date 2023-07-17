@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Polygon/PolySet.hpp"
+#include "Polygon/PolyElem.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -47,12 +47,12 @@ public:
                                  int nrow_max = -1);
   static Polygons* createFromDb(const Db* db, double dilate=0., bool verbose=false);
 
-  int getPolySetNumber() const { return static_cast<int>(_polysets.size()); }
-  void addPolySet(const PolySet& polyset);
+  int getPolyElemNumber() const { return static_cast<int>(_polyelems.size()); }
+  void addPolyElem(const PolyElem& polyelem);
 
-  const std::vector<PolySet>& getPolySets() const { return _polysets; }
-  const PolySet getPolySet(int ipol) const;
-  PolySet getClosedPolySet(int ipol) const;
+  const std::vector<PolyElem>& getPolyElems() const { return _polyelems; }
+  const PolyElem getPolyElem(int ipol) const;
+  PolyElem getClosedPolyElem(int ipol) const;
   const VectorDouble getX(int ipol) const;
   const VectorDouble getY(int ipol) const;
   void setX(int ipol, const VectorDouble& x);
@@ -63,7 +63,9 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
-  bool inside(double xx, double yy, double zz = TEST, bool flag_nested = false);
+  bool inside(const VectorDouble& coor, bool flag_nested = false);
+
+  Polygons reduceComplexity(double distmin) const;
 
 protected:
   /// Interface for ASerializable
@@ -72,11 +74,11 @@ protected:
   String _getNFName() const override { return "Polygon"; }
 
 private:
-  PolySet _extractFromTab(int ideb,
+  PolyElem _extractFromTab(int ideb,
                           int ifin,
                           int ncol,
-                          const VectorDouble& tab);
-  bool _isValidPolySetIndex(int ipol) const;
+                          const VectorDouble &tab);
+  bool _isValidPolyElemIndex(int ipol) const;
   VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y) const;
   void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);
   int  _buildHull(const Db *db, double dilate, bool verbose);
@@ -85,7 +87,7 @@ private:
                          const VectorDouble &y) const;
 
 private:
-  std::vector<PolySet> _polysets;
+  std::vector<PolyElem> _polyelems;
 };
 
 GSTLEARN_EXPORT void db_polygon(Db *db,
@@ -100,8 +102,7 @@ GSTLEARN_EXPORT int dbPolygonDistance(Db *db,
                                       double dmax,
                                       int scale,
                                       int polin,
-                                      const NamingConvention &namconv = NamingConvention(
-                                          "Distance"));
+                                      const NamingConvention &namconv = NamingConvention("Distance"));
 GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
                                double dilate = 0.,

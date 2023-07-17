@@ -14,8 +14,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareGeneral::MatrixSquareGeneral(int nrow, bool sparse)
-  : AMatrixSquare(nrow, sparse)
+MatrixSquareGeneral::MatrixSquareGeneral(int nrow)
+  : AMatrixSquare(nrow)
   , _squareMatrix()
 {
   _allocate();
@@ -69,7 +69,7 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
 
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return TEST;
   int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }
@@ -81,14 +81,14 @@ double MatrixSquareGeneral::_getValue(int irank) const
 
 void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 {
-  _isIndexValid(irow,icol);
+  if (! _isIndexValid(irow,icol)) return;
   int rank = _getIndexToRank(irow,icol);
   _squareMatrix[rank] = value;
 }
 
 void MatrixSquareGeneral::_setValue(int irank, double value)
 {
-  _isRankValid(irank);
+  if (! _isRankValid(irank)) return;
   _squareMatrix[irank] = value;
 }
 /**
@@ -100,25 +100,18 @@ void MatrixSquareGeneral::_prodVector(const double *inv, double *outv) const
 {
   int nrow = getNRows();
   int ncol = getNCols();
-  matrix_product(nrow,ncol,1,_squareMatrix.data(),inv,outv);
+  matrix_product_safe(nrow,ncol,1,_squareMatrix.data(),inv,outv);
 }
 
 void MatrixSquareGeneral::_transposeInPlace()
 {
-  if (isSparse())
-  {
-    AMatrix::transposeInPlace();
-  }
-  else
-  {
-    int nrow = getNRows();
-    int ncol = getNCols();
-    VectorDouble old = _squareMatrix;
-    matrix_transpose(nrow, ncol, _squareMatrix.data(), old.data());
-    _squareMatrix = old;
-    _setNCols(nrow);
-    _setNRows(ncol);
-  }
+  int nrow = getNRows();
+  int ncol = getNCols();
+  VectorDouble old = _squareMatrix;
+  matrix_transpose(nrow, ncol, _squareMatrix.data(), old.data());
+  _squareMatrix = old;
+  _setNCols(nrow);
+  _setNRows(ncol);
 }
 
 void MatrixSquareGeneral::_setValues(const double* values, bool byCol)
@@ -145,12 +138,18 @@ void MatrixSquareGeneral::_setValues(const double* values, bool byCol)
 
 int MatrixSquareGeneral::_invert()
 {
-  return matrix_invreal(_squareMatrix.data(),getNRows());
+  if (getNRows() <= 3)
+    return matrix_invreal(_squareMatrix.data(), getNRows());
+  else
+  {
+    int error = matrix_LU_invert(getNRows(), _squareMatrix.data());
+    if (! error) transposeInPlace();
+    return error;
+  }
 }
 
 double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
 {
-  _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _squareMatrix[rank];
 }
@@ -172,8 +171,16 @@ void MatrixSquareGeneral::_allocate()
 int MatrixSquareGeneral::_getIndexToRank(int irow, int icol) const
 {
   // TODO We must check the impact of this modification
-  int rank = irow * getNCols() + icol;
-//  int rank = icol * getNRows() + irow;
+  // When setting it to the "correct" equation (column-wise), this induces
+  // many errors in the non-regresion files.
+  // This is why is it left to this apparently wrong position:
+  // this discards the use of .data() feature.
+
+  // Next line is in the HEAD version
+  // int rank = irow * getNCols() + icol;
+
+  // Next line is the proposal
+  int rank = icol * getNRows() + irow;
   return rank;
 }
 
@@ -186,6 +193,29 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;
+}
+
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @return The returned matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow);
+  mat->_fillFromVVD(X);
+  return mat;
 }
 
 MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) const

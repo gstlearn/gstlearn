@@ -299,7 +299,6 @@ void ACalcDbToDb::_cleanVariableDb(int status)
     }
     _listVariableTempDbOut.clear();
   }
-
 }
 
 bool ACalcDbToDb::hasDbin(bool verbose) const

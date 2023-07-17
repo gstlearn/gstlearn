@@ -121,7 +121,7 @@ mean_Temperature = dbStatisticsMono(dat, c("J*temp"),
 print(mean_Temperature)
 err = fitmod$setMeans(mean_Temperature)
 
-err = simtub(dat, target, model=fitmod, neighparam=neighU, nbsimu=nbsimu,
+err = simtub(dat, target, model=fitmod, neigh=neighU, nbsimu=nbsimu,
              nbtuba=nbtuba, seed=seed)
 target$display()
 ```
@@ -156,7 +156,7 @@ err = target$statistics(c("Simu.January_temp*"),
                         EStatOption_fromKeys(c("MEAN")),
                         flagStoreInDb=TRUE)
 
-err = kriging(dat, target, model=fitmod, neighparam = neighU,
+err = kriging(dat, target, model=fitmod, neigh = neighU,
               namconv=NamingConvention("KS"))
 
 p = ggplot()
@@ -208,7 +208,7 @@ ggplot() + plot.varmod(vario_resED, model_ED)
 \frametitle{Simulations with External Drift}
 
 ```{r Simulations_with_External_Drift}
-err = simtub(dat, target, model=model_ED, neighparam=neighU, nbsimu=nbsimu,
+err = simtub(dat, target, model=model_ED, neigh=neighU, nbsimu=nbsimu,
              nbtuba=nbtuba, seed=seed)
 ```
 
@@ -229,7 +229,7 @@ err = target$statistics(c("Simu.January_temp*"),
                         EStatOption_fromKeys(c("MEAN")),
                         flagStoreInDb=TRUE)
 
-err = kriging(dat, target, model=model_ED, neighparam = neighU,
+err = kriging(dat, target, model=model_ED, neigh= neighU,
               namconv=NamingConvention("KED"))
 
 p = ggplot()

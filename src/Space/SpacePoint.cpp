@@ -12,6 +12,7 @@
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/Utilities.hpp"
 
 #include <iostream>
 #include <math.h>
@@ -103,7 +104,19 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  return VH::toString(_coord);
+  return VH::toStringAsVD(_coord);
+}
+
+void SpacePoint::setFFFF()
+{
+  setCoord(TEST);
+}
+
+bool SpacePoint::isFFFF() const
+{
+  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
+    if (! FFFF(_coord[idim])) return false;
+  return true;
 }
 
 /**

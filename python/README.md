@@ -12,7 +12,7 @@ When using the *gstlearn* Python Package, please use the citation from [doc/gstl
 
 This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig) python script (see LICENSE.doxy2swig in *doc* folder).
 
-The *gstlearn* Python package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
+The *gstlearn* Python package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
 ## Installation
 
@@ -80,7 +80,7 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 For building the *gstlearn* Python package, the requirements for compiling *gstlearn* C++ library must be installed beforehand. Then, the following additional tools must be also available:
 
 * SWIG 4 or higher
-* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11-global* and *matplotlib* modules installed
+* Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11[global]* and *matplotlib* modules installed
 * *pypandoc*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
@@ -100,7 +100,7 @@ sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
 sudo apt install pandoc jupyter
-python3 -m pip install pybind11-global numpy pandas scipy matplotlib
+python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -114,7 +114,7 @@ python3 -m pip install pypandoc geopandas plotly jupyter
 brew install python3
 brew install swig
 brew install pandoc jupyter
-python3 -m pip install pybind11-global numpy pandas scipy matplotlib
+python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 
@@ -237,6 +237,7 @@ cmake --build build --target check_ipynb --config Release
 ### Important Notes
 
 * If your system distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* You may have to add the directory containing `pybind11-config` executable to the PATH environment variable
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Using Visual Studio on a Windows where MinGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
