@@ -17,7 +17,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ndesassis/test_ubuntu-16
+      # Corresponding docker file comes from:
+      # https://github.com/gstlearn/docker-generate
+      image: gstlearn/ubuntu-16-gstlearn
     strategy :
       matrix:
         python: ["py38","py39","py310","py311"]
@@ -37,7 +39,7 @@ jobs:
     - name : Upload
       run : |
         export PATH=/opt/python/${{matrix.python}}/bin:$PATH
-        python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
+        python3 -m twine upload --verbose ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{secrets.TWINE_TEST_TOKEN}}

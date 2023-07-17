@@ -44,13 +44,8 @@ jobs:
         make
         make install
 
-# Not needed for non regression tests (we gonna save minutes!!!)
-#    - name: Install R packages dependencies
-#      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
-#      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
-
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF  -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --target check_r -- -j 3
