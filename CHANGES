@@ -2,6 +2,11 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 0.3.1
+=============
+- SWIG typemaps robustification
+- Publish acknowledge_gstlearn 
+
 Release 0.3.0
 =============
 - Modify the angles in the legend of vario and model (from 'codir' to 'angles') + 1 angle if in 2D.
@@ -13,10 +18,6 @@ Release 0.3.0
 - Changing ENUM EKrigOpt: option PONCTUAL becomes POINT
 - Changing the internal definition (and storage) of DirParam
 - Generalize the methode createFromVVD() for all concrete matrices
-
-Release 0.2.1
-=============
-- 
 
 Release 0.2.0
 =============

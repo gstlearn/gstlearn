@@ -567,9 +567,16 @@
                                UChar,
                                bool
 {
-  int errcode = convertToCpp($input, $1);
-  if (!SWIG_IsOK(errcode))
-    %argument_fail(errcode, "$type", $symname, $argnum);
+  try
+  {
+    int errcode = convertToCpp($input, $1);
+    if (!SWIG_IsOK(errcode))
+      %argument_fail(errcode, "$type", $symname, $argnum);
+  }
+  catch(...)
+  {
+    messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
+  }
 }
 
 // Convert scalar argument by reference
@@ -584,10 +591,17 @@
                                bool*     (bool val), const bool*    (bool val),
                                bool&     (bool val), const bool&    (bool val)
 {
-  int errcode = convertToCpp($input, val);
-  if (!SWIG_IsOK(errcode))
-    %argument_fail(errcode, "$type", $symname, $argnum);
-  $1 = &val;
+  try
+  {
+    int errcode = convertToCpp($input, val);
+    if (!SWIG_IsOK(errcode))
+      %argument_fail(errcode, "$type", $symname, $argnum);
+    $1 = &val;
+  }
+  catch(...)
+  {
+    messerr("Error while converting argument #$argnum of type '$type' in '$symname' function");
+  }
 }
 
 %typemap(in, fragment="ToCpp") VectorInt    (void *argp),
