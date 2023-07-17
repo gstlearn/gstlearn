@@ -1,0 +1,71 @@
+name: nightly_tests_ubuntu-check_-r-latest
+# Note: For mail notification, keep gstlearn github account last pusher of this file
+on:
+  # Deactivate the workflow
+  #push:
+  #  branches-ignore:
+  #    - '**'
+  # Activate the workflow at each push on main branch
+  #push:
+  #  branches: [ main ]
+  # Activate the workflow at each pull request on main branch
+  #pull_request:
+  #  branches: [ main ]
+  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  #schedule:
+    # * is a special character in YAML so you have to quote this string
+  #  - cron:  '30 23 * * *'
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev r-base
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy twine wheel pandas scipy mlxtend
+
+    - name: Setup personal R libraries directory
+      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile
+
+    - name: Compile and install [customized] SWIG 4.2.0
+      run: |
+        mkdir swig_src
+        cd swig_src
+        git clone https://github.com/fabien-ors/swig.git
+        cd swig
+        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
+        cd build
+        make
+        make install
+
+# Not needed for non regression tests (we gonna save minutes!!!)
+#    - name: Install R packages dependencies
+#      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
+#      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF  -DBUILD_R=ON
+
+    - name: Compile, install packages and execute non-regression tests
+      run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --target check_r -- -j 3
