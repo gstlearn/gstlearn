@@ -10,15 +10,14 @@ set(R_PACKAGE_NAME ${PROJECT_NAME})
 # DEPENDENCIES
 
 # Look for R
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
 include(root/FindR.cmake)
 if(NOT R_FOUND)
   message(FATAL_ERROR "R not found")
 endif()
 
-# Look for SWIG 4.2.0 [customized] TODO : WIP
-#find_package(SWIG 4.2.0 REQUIRED)
-# Look for SWIG 4.0.2
-find_package(SWIG 4.0 REQUIRED)
+# Look for SWIG 4.2.0 [customized]
+find_package(SWIG 4.2.0 REQUIRED)
 message(STATUS "Found SWIG: " ${SWIG_EXECUTABLE} " (found version \"" ${SWIG_VERSION} "\")")
 include(${SWIG_USE_FILE})
 
@@ -109,7 +108,7 @@ endif()
 target_link_libraries(r_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
-set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-unused-parameter -Wno-free-nonheap-object -Wno-cast-function-type") # Prevent some SWIG C++/R warnings
+set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-unused-parameter -Wno-uninitialized -Wno-free-nonheap-object -Wno-cast-function-type") # Prevent some SWIG C++/R warnings
 
 # Set some properties on SWIG target
 set_target_properties(r_build PROPERTIES
@@ -126,11 +125,6 @@ target_include_directories(r_build PRIVATE ${R_INCLUDE_DIRS})
 
 # Link to R's libraries (needed for MSYS and MacOS)
 target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
-
-# TODO : Build the R package (tarball)
-#add_custom_command(OUTPUT r_build_log.txt DEPENDS r_build 
-#  COMMAND ${R_EXECUTABLE} CMD BUILD --no-multiarch ${R_PACKAGE_DESTINATION_FOLDER}
-#)
 
 ########################################
 # PACKAGING
@@ -186,11 +180,25 @@ endforeach()
 
 # Add a custom target for R package installation
 # TODO: Do also installation each time NAMESPACE.in or DESCRIPTION.in is modified
+if (MINGW)
+  set(ARCHIVE_FILE_NAME     "${PROJECT_NAME}_${PROJECT_VERSION}.zip")
+  set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.zip")
+else()
+  if(APPLE)
+    set(ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tgz")
+    set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tgz")
+  else()
+    set(ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}_R_x86_64-pc-linux-gnu.tar.gz")
+    set(DST_ARCHIVE_FILE_NAME "${PROJECT_NAME}_${PROJECT_VERSION}.tar.gz")
+  endif()
+endif()
 add_custom_target(r_install
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars.win
   COMMAND ${CMAKE_COMMAND} -E touch ${R_PACKAGE_SRC_FOLDER}/Makevars.ucrt
-  COMMAND ${R_EXECUTABLE} CMD INSTALL --no-multiarch --no-byte-compile ${R_PACKAGE_DESTINATION_FOLDER}
+  COMMAND ${R_EXECUTABLE} CMD INSTALL --build --no-multiarch ${R_PACKAGE_DESTINATION_FOLDER}
+#  COMMAND ${R_EXECUTABLE} CMD INSTALL --no-multiarch --no-byte-compile ${R_PACKAGE_DESTINATION_FOLDER}
+  COMMAND ${CMAKE_COMMAND} -E copy ${ARCHIVE_FILE_NAME} ${R_PACKAGE_ROOT_FOLDER}/${DST_ARCHIVE_FILE_NAME}
   COMMENT "Installing R package"
   VERBATIM
 )
