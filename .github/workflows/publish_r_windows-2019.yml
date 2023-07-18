@@ -16,6 +16,7 @@ env:
   PCRE2_ROOT : ${{github.workspace}}/pcre2
   BISON_ROOT : ${{github.workspace}}/bison
   BOOST_ROOT : ${{github.workspace}}/boost
+  BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
 
 jobs:
   
@@ -34,13 +35,12 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install SWIG and gstlearn dependencies
+    - name: Install SWIG dependencies
       # See nuget.yml in SWIG github repo
       shell: powershell
       run: |
           nuget install Bison -Version 3.7.4  -OutputDirectory ${{env.BISON_ROOT}}
           nuget install PCRE2 -Version 10.39  -OutputDirectory ${{env.PCRE2_ROOT}}
-          nuget install boost -Version 1.82.0 -OutputDirectory ${{env.BOOST_ROOT}}
 
     - name: Compile and install [customized] SWIG 4.2.0b
       shell: powershell
@@ -55,6 +55,17 @@ jobs:
         cmake -B${{env.BUILD_DIR}} -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_C_FLAGS="/DPCRE2_STATIC" -DCMAKE_CXX_FLAGS="/DPCRE2_STATIC" -DPCRE2_INCLUDE_DIR="$PCRE_PATH/include" -DPCRE2_LIBRARY="$PCRE_PATH/lib/pcre2-8-static.lib"
         cmake --build ${{env.BUILD_DIR}} --config Release
         cmake --install ${{env.BUILD_DIR}} --config Release
+
+########################################################################################################
+# Boost headers download and unzip
+
+    - name : Download and uncompressed Boost headers
+      run: |
+        mkdir ${{env.BOOST_ROOT}}
+        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
 
     - name : Build the package and save generated file name in the environment
       run : |
