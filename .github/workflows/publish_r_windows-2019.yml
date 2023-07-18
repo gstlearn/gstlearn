@@ -15,6 +15,7 @@ env:
   SWIG_ROOT  : ${{github.workspace}}/swig_420b
   PCRE2_ROOT : ${{github.workspace}}/pcre2
   BISON_ROOT : ${{github.workspace}}/bison
+  BOOST_ROOT : ${{github.workspace}}/boost
 
 jobs:
   
@@ -33,12 +34,13 @@ jobs:
       with:
         r-version: ${{matrix.r_version}}
 
-    - name: Install SWIG dependencies
+    - name: Install SWIG and gstlearn dependencies
       # See nuget.yml in SWIG github repo
       shell: powershell
       run: |
-          nuget install Bison -Version 3.7.4 -OutputDirectory ${{env.BISON_ROOT}}
-          nuget install PCRE2 -Version 10.39 -OutputDirectory ${{env.PCRE2_ROOT}}
+          nuget install Bison -Version 3.7.4  -OutputDirectory ${{env.BISON_ROOT}}
+          nuget install PCRE2 -Version 10.39  -OutputDirectory ${{env.PCRE2_ROOT}}
+          nuget install boost -Version 1.82.0 -OutputDirectory ${{env.BOOST_ROOT}}
 
     - name: Compile and install [customized] SWIG 4.2.0b
       shell: powershell
@@ -56,7 +58,7 @@ jobs:
 
     - name : Build the package and save generated file name in the environment
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF
+        cmake -B${{env.BUILD_DIR}} -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF
         cmake --build ${{env.BUILD_DIR}} --target r_install
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.zip" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
