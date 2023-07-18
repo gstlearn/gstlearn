@@ -16,6 +16,19 @@ This package contains a modified copy of [findR.cmake](https://github.com/root-p
 The *gstlearn* R package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
 
+## How to cite
+
+Please, use this to cite us in any publication or results for which **gstlearn** has been used:
+
+```
+--------------------------------------------------
+gstlearn
+Geostatistics and Machine Learning toolbox
+Copyright © MINES PARIS - PSL University
+Free download from https://gstlearn.org
+--------------------------------------------------
+```
+
 ## Installation
 
 For using this R Package you only need R 4.2 (or higher) and execute the following R command:

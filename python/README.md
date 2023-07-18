@@ -14,6 +14,20 @@ This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig)
 
 The *gstlearn* Python package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
+
+## How to cite
+
+Please, use this to cite us in any publication or results for which **gstlearn** has been used:
+
+```
+--------------------------------------------------
+gstlearn
+Geostatistics and Machine Learning toolbox
+Copyright © MINES PARIS - PSL University
+Free download from https://gstlearn.org
+--------------------------------------------------
+```
+
 ## Installation
 
 For using this Python package you only need Python 3 (or higher) (with numpy, pandas and matplotlib) and execute the following command:

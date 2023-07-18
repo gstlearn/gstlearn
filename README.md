@@ -52,6 +52,19 @@ Finally, the *gstlearn* C++ library depends on the following third-party librari
 | HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
 
 
+## How to cite
+
+Please, use this to cite us in any publication or results for which **gstlearn** has been used:
+
+```
+--------------------------------------------------
+gstlearn
+Geostatistics and Machine Learning toolbox
+Copyright © MINES PARIS - PSL University
+Free download from https://gstlearn.org
+--------------------------------------------------
+```
+
 ## Requirements
 
 This library has been successfully tested with Ubuntu 18/20/22 LTS and Windows 10 (MacOS: not tested).

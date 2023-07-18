@@ -1,5 +1,5 @@
 @Misc{gstlearn_software,
-  title = {{gstlearn: The Geostatistical C++ Library}},
+  title = {{gstlearn: Geostatistics and Machine Learning toolbox}},
   author = {{MINES PARIS - PSL University}},
   collaborator = {Geostatistics Group - Geosciences Center},
   organization = {{MINES PARIS - PSL University}},
@@ -7,7 +7,7 @@
   version = {@PROJECT_VERSION@},
   year = {@gstlearn_YEAR@},
   mon = {@gstlearn_MONTH@},
-  howpublished = {Free download from: \url{https://github.com/gstlearn}},
+  howpublished = {Free download from: \url{https://gstlearn.org}},
 }
 
 
