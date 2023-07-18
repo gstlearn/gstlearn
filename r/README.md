@@ -34,10 +34,7 @@ Free download from https://gstlearn.org
 For using this R Package you only need R 4.2 (or higher) and execute the following R command:
 
 ```
-# TODO : Doesn't work yet
-#        Please, compile and install from source (see below)
-#
-# install.packages("gstlearn", repos="https://cg.ensmp.fr/cran")
+install.packages("gstlearn",repos="https://soft.mines-paristech.fr/cran")
 ```
 
 ## Usage
