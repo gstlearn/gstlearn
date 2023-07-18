@@ -2,6 +2,8 @@
 
 The **gstlearn** Python package is a cross-platform Python package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
+More details for **gstlearn** are available here: https://gstlearn.org
+
 If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib*.
   
 ## References
