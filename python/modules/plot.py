@@ -1183,7 +1183,7 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True
 
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
-    if (name_raster is None) and (name_contour is None):
+    if (name_raster is None) and (name_contour is None) and (not flagCell):
         name_raster = defaultVariable(dbgrid, None)
 
     title = ""
@@ -1202,7 +1202,7 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True
         title = title + name_contour + " (Isoline) "
     
     if flagCell:
-        cl = __ax_cell(ax, grid, posx=posx, posy=posy, corner=corner, 
+        cl = __ax_cell(ax, dbgrid, posx=posx, posy=posy, corner=corner, 
                        **kwargs)
         
     ax.decoration(title = title)

@@ -35,15 +35,14 @@
  ** This program is meant to check the manipulation of the Db
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   VectorString names1;
   VectorString names2;
 
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   DbStringFormat dbfmt(FLAG_STATS);
 

@@ -23,16 +23,15 @@
  ** This program demonstrates the capabilities of Neigh classes
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
 
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Generate the data base
   int nech = 20;

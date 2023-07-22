@@ -1212,7 +1212,7 @@ VectorVectorDouble DbGrid::getCellEdges(int node, bool forceGridMesh) const
   coords[1][0] = local[1];
 
   icorner[0] = -1;
-  icorner[1] = 1;
+  icorner[1] =  1;
   local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
   coords[0][1] = local[0];
   coords[1][1] = local[1];

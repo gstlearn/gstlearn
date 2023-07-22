@@ -20,12 +20,11 @@
 /**
  * This test is meant to check the CSV loading procedure
  */
-int main()
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   String filename = ASerializable::getTestData("Pollution","Pollution.dat");
   Db* mydb = Db::createFromCSV(filename,CSVformat(),false);

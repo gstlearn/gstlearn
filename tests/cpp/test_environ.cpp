@@ -15,12 +15,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
 
-int main(int /*argc*/, char **/*argv*/)
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Management of OptDbg
   mestitle(0,"Checking 'OptDbg' functionalities");

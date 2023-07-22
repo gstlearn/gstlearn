@@ -30,8 +30,7 @@
 ** Main Program
 **
 *****************************************************************************/
-int main(int /*argc*/, char * /*argv*/[])
-
+int main(int argc, char *argv[])
 {
   int nx        = 10;
   int niter     = 10000;
@@ -52,10 +51,9 @@ int main(int /*argc*/, char * /*argv*/[])
   bool flag_propagation = false;
   bool flag_multi_mono  = false;
 
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Setup constants
 

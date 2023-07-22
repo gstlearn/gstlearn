@@ -17,12 +17,11 @@
 /**
  * This test is meant to check the string manipulations
  */
-int main()
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Testing string conversion Old to New style functions
 

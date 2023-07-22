@@ -44,6 +44,11 @@ private:
   VectorInt _getIndices(int rank) const;
   int _process();
   int _getNVar() const { return (int) _names.size(); }
+  VectorDouble _statisticsOperate(const VectorDouble& tab) const;
+  VectorDouble _loadIn(int iech, const VectorInt& indices) const;
+  void _mergePileIn(const VectorVectorDouble& tabPileIn, VectorDouble& tabin) const;
+  void _mergePileOut(const VectorVectorDouble& tabPileOut, VectorDouble& tabout) const;
+  void _printIndices(int rank, const VectorInt &indices) const;
 
 private:
   bool _verbose;

@@ -34,7 +34,7 @@
 ** Main Program
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main()
 {
   int iptr;
   bool flag_inter = false;

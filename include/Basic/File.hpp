@@ -28,7 +28,7 @@
 
 class GSTLEARN_EXPORT StdoutRedirect {
 public:
-  StdoutRedirect(const String& file = "", bool flagActive = true);
+  StdoutRedirect(const String& file = "", int argc = 0, char *argv[] = nullptr);
   ~StdoutRedirect();
   StdoutRedirect(const StdoutRedirect&) = delete;
   StdoutRedirect& operator=(const StdoutRedirect&) = delete;

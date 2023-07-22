@@ -32,7 +32,7 @@
 ** Main Program for testing the sparse matrix algebra
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   double eps = 1.e-6;
   int error = 1;
@@ -43,7 +43,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(nvar,ndim);
