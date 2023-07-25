@@ -114,28 +114,14 @@ bool CalcSimuPost::_preprocess()
 bool CalcSimuPost::_postprocess()
 {
   int ecr = 0;
-  if (getTransfoNvar() > 0)
-  {
-    for (int ivar = 0, nvar = getTransfoNvar(); ivar < nvar; ivar++)
-      for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
-      {
-        std::ostringstream name;
-        name << "Trans" << ivar+1 << "." << _stats[istat].getDescr();
-        _renameVariable(2, 0, _iattOut + ecr, name.str(), 1);
-        ecr++;
-      }
-  }
-  else
-  {
-    for (int ivar = 0, nvar = _getNVar(); ivar < nvar; ivar++)
-      for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
-      {
-        std::ostringstream name;
-        name << _names[ivar] << "." << _stats[istat].getDescr();
-        _renameVariable(2, 0, _iattOut + ecr, name.str(), 1);
-        ecr++;
-      }
-  }
+  for (int ivar = 0, nvar = _getNEff(); ivar < nvar; ivar++)
+    for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
+    {
+      std::ostringstream name;
+      name << "Var" << ivar + 1 << "." << _stats[istat].getDescr();
+      _renameVariable(2, 0, _iattOut + ecr, name.str(), 1);
+      ecr++;
+    }
   return true;
 }
 
@@ -151,11 +137,6 @@ bool CalcSimuPost::_run()
 
 int CalcSimuPost::_defineVaroutNumber()
 {
-  if (getTransfoNvar() <= 0)
-  {
-    messerr("The count of final variable is only possible after the number of Output variables is given");
-    return 1;
-  }
   if (_getNStats() <= 0)
   {
     messerr("The argument 'stats' should not be left empty");
@@ -164,7 +145,7 @@ int CalcSimuPost::_defineVaroutNumber()
 
   // Loop on the statistic options
 
-  int nvarin = getTransfoNvar();
+  int nvarin = _getNEff();
   _nvarOut = 0;
   for (int ioption = 0, noption = _getNStats(); ioption < noption; ioption++)
   {
@@ -285,7 +266,7 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble &Y_p,
                                        VectorDouble &tabout) const
 {
   int niter   = _getNiter();
-  int nvarout = getTransfoNvar();
+  int nvarout = _getNEff();
   int nstat   = _getNStats();
 
   int ecr = 0;
@@ -455,6 +436,20 @@ int CalcSimuPost::_defineNames()
   return 0;
 }
 
+/**
+ * Returns the number of output variables, which is equal to
+ * - the number of variables after the transformation step (if defined)
+ * - otherwise the number of input variables
+ * @return
+ */
+int CalcSimuPost::_getNEff() const
+{
+  if (getTransfoNvar() > 0)
+    return getTransfoNvar();
+  else
+    return _getNVar();
+}
+
 int CalcSimuPost::_process()
 {
   int nechin = getDbin()->getSampleNumber();
@@ -535,45 +530,6 @@ int CalcSimuPost::_process()
     _writeOut(_iechout, statres);
   }
   return 0;
-}
-
-/**
- * Returns the number of variables after transformation
- * In the current version, this number is set to 2
- * @return
- */
-int CalcSimuPost::getTransfoNvar() const
-{
-  return 2;
-}
-
-/**
- * Perform the Transformation to convert the multivariate input vector 'tabin'
- * into a multivariate output vector.
- * @param Z_n_k_s  Input information (Dimension: 's' x 'n')
- *
- * @return Output information (Dimension: 's' x 'p')
- *
- * @remark In the current version, the Transformation consists in calculating:
- * - the sum of all values
- * - the standard deviation of all values
- */
-VectorVectorDouble CalcSimuPost::transformFunction(const VectorVectorDouble& Z_n_k_s) const
-{
-  int nvarout = getTransfoNvar();
-  int nsample = (int) Z_n_k_s.size();
-  VectorVectorDouble Y_p_k_s(nsample);
-
-  for (int is = 0; is < nsample; is++)
-    Y_p_k_s[is].resize(nvarout);
-
-  for (int is = 0; is < nsample; is++)
-    Y_p_k_s[is][0] = VH::cumul(Z_n_k_s[is]);
-
-  for (int is = 0; is < nsample; is++)
-    Y_p_k_s[is][1] = VH::stdv(Z_n_k_s[is]);
-
-  return Y_p_k_s;
 }
 
 /**

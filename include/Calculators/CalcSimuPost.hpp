@@ -29,8 +29,11 @@ public:
   CalcSimuPost& operator=(const CalcSimuPost &r) = delete;
   virtual ~CalcSimuPost();
 
-  virtual int getTransfoNvar() const;
-  virtual VectorVectorDouble transformFunction(const VectorVectorDouble& tab) const;
+  virtual int getTransfoNvar() const { return 0; }
+  virtual VectorVectorDouble transformFunction(const VectorVectorDouble& tab) const
+  {
+    return VectorVectorDouble();
+  }
 
   void setNames(VectorString names)            { _names = names; }
   void setNfact(VectorInt nfact)               { _nfact = nfact; }
@@ -58,6 +61,7 @@ private:
   int _getNVar() const { return (int) _names.size(); }
   int _getNVarout() const { return _nvarOut; }
   int _getNStats() const { return (int) _stats.size(); }
+  int _getNEff() const;
 
   VectorDouble _readIn(int iech, const VectorInt& indices) const;
   VectorDouble _upscaleFunction(const VectorVectorDouble& Y_p_k_s) const;
