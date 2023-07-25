@@ -61,6 +61,8 @@
 %include Enum/EDirGen.hpp
 %include Enum/EGaussInv.hpp
 %include Enum/ECalcMember.hpp
+%include Enum/EPostUpscale.hpp
+%include Enum/EPostStat.hpp
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp

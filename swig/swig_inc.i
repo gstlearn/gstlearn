@@ -238,6 +238,8 @@
   #include "Enum/EDirGen.hpp"
   #include "Enum/EGaussInv.hpp"
   #include "Enum/ECalcMember.hpp"
+  #include "Enum/EPostUpscale.hpp"
+  #include "Enum/EPostStat.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
@@ -551,6 +553,7 @@
 %template(VectorDirParam)     std::vector< DirParam >;
 %template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
+%template(VectorEPostStat)    std::vector< EPostStat >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

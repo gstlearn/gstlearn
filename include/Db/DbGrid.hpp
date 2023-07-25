@@ -172,6 +172,13 @@ public:
   {
     return _grid.getCoordinatesByCorner(icorner);
   }
+  VectorDouble getCoordinatesByIndice(const VectorInt &indice,
+                                      bool flag_rotate = true,
+                                      const VectorInt& shift = VectorInt(),
+                                      const VectorDouble& dxsPerCell = VectorDouble()) const
+  {
+    return _grid.getCoordinatesByIndice(indice, flag_rotate, shift, dxsPerCell);
+  }
   int coordinateToRank(const VectorDouble &coor,
                        bool centered = false,
                        double eps = EPSILON6) const;
@@ -218,6 +225,7 @@ public:
 
   VectorInt locateDataInGrid(const Db *data,
                              const VectorInt &rankIn = VectorInt(),
+                             bool centered = false,
                              bool useSel = false) const;
 
   int getMirrorIndex(int idim, int ix) const

@@ -1,0 +1,22 @@
+/******************************************************************************/
+/*                                                                            */
+/*                            gstlearn C++ Library                            */
+/*                                                                            */
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clauses                                                     */
+/*                                                                            */
+/******************************************************************************/
+#pragma once
+
+#include "Enum/AEnum.hpp"
+
+#define ENUM_POST_STAT EPostStat, UNKNOWN, \
+                 UNKNOWN, -1, "Unknown Option", \
+                 MEAN,     1, "Mean", \
+                 VAR,      2, "Variance", \
+                 MINI,     3, "Minimum", \
+                 MAXI,     4, "Maximum"
+
+ENUM_DECLARE(ENUM_POST_STAT)

@@ -234,7 +234,7 @@ int ACalcDbToDb::_addVariableDb(int whichDb,
 /**
  * Define the characteristics of the variables created by a Db2Db Calculator
  * @param whichDb 1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
- * @param nvar    Naming should be constructed from 'nvar' variables fron 'dbin'
+ * @param nvar    Naming should be constructed from 'nvar' variables from 'dbin'
  * @param iptr    IUID of the (first) variable to be renamed
  * @param name    Name which will serve as 'qualifier' (when provided)
  * @param count   Number of variable named from the same basic name (using version number)
