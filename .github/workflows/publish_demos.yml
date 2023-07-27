@@ -1,4 +1,4 @@
-name: publish_demos2
+name: publish_demos
 
 on:
   workflow_dispatch:
