@@ -1,5 +1,5 @@
 ---
-title: "Tutorial PPM"
+title: "Tutorial SPDE"
 author: "D. Renard, N. Desassis, X. Freulon"
 date: "December 6th 2022"
 output:

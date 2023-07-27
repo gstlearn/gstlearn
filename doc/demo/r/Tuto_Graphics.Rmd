@@ -1,5 +1,5 @@
 ---
-title: "Tutorial on Polygons"
+title: "Tutorial on Graphics"
 author: "D. Renard"
 date: "5 february 2023"
 output:
