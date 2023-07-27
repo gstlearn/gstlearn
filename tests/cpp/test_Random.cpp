@@ -32,12 +32,11 @@ void st_do_it(bool style, int seed)
   message("Getting the seed = %d\n", law_get_random_seed());
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   int seed = 432432;
   int number = 10000;

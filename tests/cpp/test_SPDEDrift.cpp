@@ -24,12 +24,11 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
 
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("test_SPDEDrift-");

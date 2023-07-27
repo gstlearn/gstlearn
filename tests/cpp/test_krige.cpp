@@ -129,11 +129,11 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
  ** Main Program
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   DbGrid* grid_res  = nullptr;
   DbGrid* image_res = nullptr;

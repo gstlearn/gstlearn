@@ -252,7 +252,7 @@ static int st_gibbs(int  niter,
 ** Main Program
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 
 {
   DbGrid       *dbgrid;
@@ -281,10 +281,9 @@ int main(int /*argc*/, char */*argv*/[])
   int    *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   /***********************/
   /* 1 - Initializations */

@@ -106,6 +106,9 @@ def defaultVariable(db, name):
             name = db.getNameByLocator(gl.ELoc.Z,0)
         else : # if no Z locator, choose the last field
             name = db.getLastName()
+    else:
+        if db.getUID(name) < 0:
+            name = db.getLastName()
     return name
 
 def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
@@ -764,7 +767,7 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
 
 def literal(db, *args, **kwargs):
     '''
-    Construct a layer for plotting a point data base, with optional color and size variables
+    Construct a layer for plotting a point data base, with literal variables
     
     ax: matplotlib.Axes (necessary when used as a method of the class)
     db: Db containing the variable to be plotted
@@ -1077,12 +1080,21 @@ def __ax_cell(ax, dbgrid, posx=0, posy=1, corner=None, step=1, **kwargs):
     xext = dbgrid.getExtrema(posx)
     yext = dbgrid.getExtrema(posy)
 
+    indices = np.zeros(dbgrid.getNDim())
     for i in range(0,dbgrid.getNX(posx)+1,step):
-        x = dbgrid.getX0(posx)+(i-0.5) * dbgrid.getDX(posx)
-        ax.plot([x,x],yext, **kwargs)
+        indices[posx] = i
+        indices[posy] = 0
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        indices[posy] = dbgrid.getNX(posy)
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     for i in range(0,dbgrid.getNX(posy)+1,step):
-        y = dbgrid.getX0(posy)+(i-0.5) * dbgrid.getDX(posy)
-        ax.plot(xext,[y,y], **kwargs)
+        indices[posx] = 0
+        indices[posy] = i
+        tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        indices[posx] = dbgrid.getNX(posx)
+        tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
+        ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     return
 
 def raster(dbgrid, *args, **kwargs):
@@ -1183,7 +1195,7 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True
 
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
-    if (name_raster is None) and (name_contour is None):
+    if (name_raster is None) and (name_contour is None) and (not flagCell):
         name_raster = defaultVariable(dbgrid, None)
 
     title = ""
@@ -1202,7 +1214,7 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True
         title = title + name_contour + " (Isoline) "
     
     if flagCell:
-        cl = __ax_cell(ax, grid, posx=posx, posy=posy, corner=corner, 
+        cl = __ax_cell(ax, dbgrid, posx=posx, posy=posy, corner=corner, 
                        **kwargs)
         
     ax.decoration(title = title)

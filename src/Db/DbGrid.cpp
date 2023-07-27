@@ -1212,7 +1212,7 @@ VectorVectorDouble DbGrid::getCellEdges(int node, bool forceGridMesh) const
   coords[1][0] = local[1];
 
   icorner[0] = -1;
-  icorner[1] = 1;
+  icorner[1] =  1;
   local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
   coords[0][1] = local[0];
   coords[1][1] = local[1];
@@ -1424,6 +1424,7 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
 
 VectorInt DbGrid::locateDataInGrid(const Db *data,
                                    const VectorInt &rankIn,
+                                   bool centered,
                                    bool useSel) const
 {
   VectorInt rankOut;
@@ -1438,7 +1439,7 @@ VectorInt DbGrid::locateDataInGrid(const Db *data,
     for (int ip = 0; ip < (int) rankIn.size(); ip++)
     {
       VectorDouble coor = data->getSampleCoordinates(rankIn[ip]);
-      rankOut.push_back(coordinateToRank(coor));
+      rankOut.push_back(coordinateToRank(coor, centered));
     }
   }
   else
@@ -1451,7 +1452,7 @@ VectorInt DbGrid::locateDataInGrid(const Db *data,
       if (isActive(ip) || ! useSel)
       {
         VectorDouble coor = data->getSampleCoordinates(ip);
-        rankOut.push_back(coordinateToRank(coor));
+        rankOut.push_back(coordinateToRank(coor, centered));
       }
     }
   }

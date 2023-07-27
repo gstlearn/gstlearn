@@ -39,6 +39,8 @@
 #include "Enum/EStatOption.hpp"
 #include "Enum/EDirGen.hpp"
 #include "Enum/EGaussInv.hpp"
+#include "Enum/EPostUpscale.hpp"
+#include "Enum/EPostStat.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -71,4 +73,5 @@ ENUM_DEFINE(ENUM_MORPHO)
 ENUM_DEFINE(ENUM_ROTATION)
 ENUM_DEFINE(ENUM_DIRGEN)
 ENUM_DEFINE(ENUM_GAUSSINV)
-
+ENUM_DEFINE(ENUM_POST_UPSCALE)
+ENUM_DEFINE(ENUM_POST_STAT)

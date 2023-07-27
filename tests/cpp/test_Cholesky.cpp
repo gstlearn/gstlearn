@@ -23,12 +23,11 @@
 ** of sparse matrix
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   int n = 10;
   double proba = 0.05;

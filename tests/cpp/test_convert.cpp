@@ -22,7 +22,7 @@
 /**
  * This file is meant to test the External Format Read /Write operations
  */
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 
 {
   String filename;
@@ -32,10 +32,9 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   int nvar = 1;
 
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   defineDefaultSpace(ESpaceType::RN, ndim);
   ASerializable::setContainerName(true);

@@ -305,12 +305,11 @@ static void st_dimension(int icas,
   start0[2] = 0;
 }
 
-int main (void)
+int main (int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   hsize_t     dims[3],start[3],start0[3],stride[3],count0[3],count[3],block[3],dimout[3];
   int         ndim,flag_print;

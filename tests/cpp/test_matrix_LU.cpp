@@ -27,12 +27,11 @@
 ** Main Program for testing the new classes of matrix algebra
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   int neq = 3;
   int neq2 = neq * neq;

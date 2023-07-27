@@ -21,7 +21,7 @@
 ** Main Program for testing the sparse matrix algebra
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   int nrow, ncol, *rank_rows, *rank_cols;
   double *urow,*ucol,*work,*work2;
@@ -29,10 +29,9 @@ int main(int /*argc*/, char */*argv*/[])
   cs *A,*At,*Bl,*Bu,*B,*Diag,*Mwork,*W,*D;
   static int flag_leak = 1;
 
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Initializations
   Atriplet = Wtriplet = Dtriplet = nullptr;

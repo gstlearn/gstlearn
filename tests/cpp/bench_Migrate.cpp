@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc <= 1);
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Migrate-");

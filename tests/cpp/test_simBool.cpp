@@ -64,11 +64,11 @@ static Db* createLocalDb(int nech, int ndim, int nvar,
  ** This exercise is to demonstrate the Boolean simulation capability
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SimBool-");

@@ -354,7 +354,7 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
  * @param flag_rotate  True if the grid rotation must be taken into account
  * @param shift        Vector of shifts (dimension: ndim)
  *                     0 : no shift; -1 : minus half a cell-width; +1 plus half a cell-width
- * @param dxsPerCell   Vector of variable grid meshes (when provided)
+ * @param dxsPerCell   Vector of variable grid meshes (optional)
  * @return
  */
 VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,

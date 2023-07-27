@@ -61,6 +61,8 @@
 %include Enum/EDirGen.hpp
 %include Enum/EGaussInv.hpp
 %include Enum/ECalcMember.hpp
+%include Enum/EPostUpscale.hpp
+%include Enum/EPostStat.hpp
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
@@ -77,6 +79,7 @@
 %include Calculators/CalcStatistics.hpp
 %include Calculators/CalcGridToGrid.hpp
 %include Calculators/CalcSimuPost.hpp
+%include Calculators/CalcSimuPostDemo.hpp
 
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp

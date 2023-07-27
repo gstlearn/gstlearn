@@ -45,12 +45,11 @@ void reset_to_initial_contents(AMatrix* M,
 ** Main Program for testing the new classes of matrix algebra
 **
 *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);

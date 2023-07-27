@@ -63,11 +63,11 @@ static Db* createLocalDb(int nech, int ndim, int nvar)
  ** Main Program
  **
  *****************************************************************************/
-int main(int /*argc*/, char */*argv*/[])
+int main(int argc, char *argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Simtub-");
 

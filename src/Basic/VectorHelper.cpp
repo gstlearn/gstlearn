@@ -80,27 +80,43 @@ VectorVectorDouble VectorHelper::initVVDouble(const double* value, int n1, int n
   return vec;
 }
 
-void VectorHelper::display(const String &title, const VectorDouble &vect)
+void VectorHelper::display(const String &title, const VectorDouble &vect, bool skipLine)
 {
-  if (!title.empty()) message("%s\n", title.c_str());
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine) message("\n");
+  }
   messageFlush(VH::toStringAsVD(vect));
 }
 
-void VectorHelper::display(const String &title, const VectorString &vect)
+void VectorHelper::display(const String &title, const VectorString &vect, bool skipLine)
 {
-  if (!title.empty()) message("%s\n", title.c_str());
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine) message("\n");
+  }
   messageFlush(VH::toStringAsVS(vect));
 }
 
-void VectorHelper::display(const String &title, const VectorVectorDouble &vect)
+void VectorHelper::display(const String &title, const VectorVectorDouble &vect, bool skipLine)
 {
-  if (!title.empty()) message("%s\n", title.c_str());
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine) message("\n");
+  }
   messageFlush(VH::toStringAsVVD(vect));
 }
 
-void VectorHelper::display(const String &title, const VectorInt &vect)
+void VectorHelper::display(const String &title, const VectorInt &vect, bool skipLine)
 {
-  if (!title.empty()) message("%s\n", title.c_str());
+  if (!title.empty())
+  {
+    message("%s", title.c_str());
+    if (skipLine) message("\n");
+  }
   messageFlush(VH::toStringAsVI(vect));
 }
 

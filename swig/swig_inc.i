@@ -49,6 +49,7 @@
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
 %shared_ptr(CalcSimuPost)
+%shared_ptr(CalcSimuPostDemo)
 %shared_ptr(CalcImage)
 %shared_ptr(CalcGlobal)
 %shared_ptr(CalcKriging)
@@ -238,6 +239,8 @@
   #include "Enum/EDirGen.hpp"
   #include "Enum/EGaussInv.hpp"
   #include "Enum/ECalcMember.hpp"
+  #include "Enum/EPostUpscale.hpp"
+  #include "Enum/EPostStat.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
@@ -315,6 +318,7 @@
   #include "Calculators/CalcStatistics.hpp"
   #include "Calculators/CalcGridToGrid.hpp"
   #include "Calculators/CalcSimuPost.hpp"
+  #include "Calculators/CalcSimuPostDemo.hpp"
   
   #include "Mesh/AMesh.hpp"
   #include "Mesh/MeshEStandard.hpp"
@@ -551,6 +555,7 @@
 %template(VectorDirParam)     std::vector< DirParam >;
 %template(VectorPolyElem)     std::vector< PolyElem >;
 %template(VectorInterval)     std::vector< Interval >; 
+%template(VectorEPostStat)    std::vector< EPostStat >;
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

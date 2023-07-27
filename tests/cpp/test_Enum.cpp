@@ -52,12 +52,11 @@ ENUM_DEFINE(ENUM_DAY)
 
 
 
-int main()
+int main(int argc, char *argv[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   EDay d1 = EDay::SUNDAY;
   std::cout << "d1=" << "Enum#" << d1.getValue() << ": " << d1.getKey() << "|" << d1.getDescr() << std::endl;
