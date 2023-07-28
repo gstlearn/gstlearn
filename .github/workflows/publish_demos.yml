@@ -30,6 +30,7 @@ jobs:
     - name: Build demonstration HTMLs and save generated folder name in the environment
       run: |
         export PATH=/opt/python/py311/bin:$PATH
+        export GSTLEARN_DATA=doc/data
         cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DUSE_HDF5=OFF
         cmake --build ${{env.BUILD_DIR}} --target build_demos
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
