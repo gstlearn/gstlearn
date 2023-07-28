@@ -36,7 +36,9 @@ At this stage:
 **
 
 ```{r}
-filepath = file.path(Sys.getenv('GSTLEARN_DATA'),"Pollution","Pollution.dat")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
+filepath = "Pollution.dat"
+download.file(dlfile, filepath)
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)

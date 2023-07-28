@@ -16,8 +16,6 @@ scriptname = tools::file_path_sans_ext(scriptname)
 outscript = file.path(outdir, paste0(scriptname, ".", out_type))
 outpath   = file.path(outdir, paste0(scriptname, ".out"))
 
-cat("Sys.getenv('GSTLEARN_DATA')=",Sys.getenv('GSTLEARN_DATA'),"\n")
-
 if (out_type == 'R') {
   # 1. Convert Rmd to R script (no documentation)
   # https://stackoverflow.com/questions/71183578/how-to-extract-all-code-from-an-rmarkdown-rmd-file
