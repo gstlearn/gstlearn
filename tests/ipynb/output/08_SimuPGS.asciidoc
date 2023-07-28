@@ -2,22 +2,6 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-2023-07-28 16:28:42 (847 MB/s) - ‘Data.NF’ enregistré [2640/2640]
-
-----
-
-
 +*Out[7]:*+
 ----
 Data Base Characteristics

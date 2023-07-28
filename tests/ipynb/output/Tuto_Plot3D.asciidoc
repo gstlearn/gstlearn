@@ -16,22 +16,6 @@
 ----
 
 
-+*Out[8]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-XXX
-
-----
-
-
 +*Out[9]:*+
 ----
 

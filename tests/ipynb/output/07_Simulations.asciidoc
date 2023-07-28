@@ -2,38 +2,6 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-2023-07-28 16:28:17 (956 MB/s) - ‘Scotland_Temperatures.NF.6’ enregistré [5291/5291]
-
-----
-
-
-+*Out[5]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-XXX
-
-----
-
-
 +*Out[10]:*+
 ----
 ![png](output_13_0.png)

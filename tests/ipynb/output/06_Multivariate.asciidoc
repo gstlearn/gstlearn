@@ -2,38 +2,6 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-XXX
-
-----
-
-
-+*Out[4]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-XXX
-
-----
-
-
 +*Out[7]:*+
 ----
                  MEAN

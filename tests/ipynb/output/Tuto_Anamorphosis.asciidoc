@@ -2,22 +2,6 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-2023-07-28 16:09:39 (544 MB/s) - ‘Pollution.dat.6’ enregistré [2771/2771]
-
-----
-
-
 +*Out[4]:*+
 ----
 

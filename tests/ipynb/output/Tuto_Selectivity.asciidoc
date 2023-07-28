@@ -2,22 +2,6 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
-----
-XXX
-XXX
-XXX
-XXX
-XXX
-XXX
-
-XXX
-
-2023-07-28 16:18:32 (641 MB/s) - ‘Grid_100.ascii.1’ enregistré [1481/1481]
-
-----
-
-
 +*Out[4]:*+
 ----
 

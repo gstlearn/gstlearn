@@ -1,0 +1,230 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[8]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                  x-1       x-2      rank   SimuA-1   SimuA-2   SimuA-3   SimuB-1
+     [  0,]     0.502     0.135     0.000     1.489    -0.056     0.187   196.812
+     [  1,]     0.693     0.185     1.000     0.519    -0.594    -0.438   165.288
+     [  2,]     0.809     0.387     2.000    -2.893     0.909     0.171   155.281
+     [  3,]     0.915     0.617     3.000     1.224    -1.397     0.647   104.455
+     [  4,]     0.088     0.808     4.000    -0.171    -0.214    -0.783   167.794
+     [  5,]     0.189     0.802     5.000     1.071     2.205    -0.047   118.355
+     [  6,]     0.835     0.201     6.000    -0.722    -0.029    -0.781   127.263
+     [  7,]     0.647     0.105     7.000    -0.462    -0.816     0.772   162.597
+     [  8,]     0.907     0.070     8.000     1.315    -0.602    -1.556   172.682
+     [  9,]     0.258     0.374     9.000    -0.496    -1.302     0.050   131.565
+              SimuB-2   SimuC-1   SimuC-2
+     [  0,]   114.333    -3.668    -3.635
+     [  1,]   104.997    -3.142    -3.692
+     [  2,]   124.644    -3.934    -3.673
+     [  3,]   187.628    -3.087    -3.684
+     [  4,]   100.972    -2.142    -2.837
+     [  5,]   102.044    -2.891    -3.889
+     [  6,]   114.671    -3.572    -2.395
+     [  7,]   140.488    -3.040    -3.493
+     [  8,]   151.285    -3.228    -2.714
+     [  9,]   184.920    -2.987    -2.919
+ ----
+
+
++*Out[9]:*+
+----<matplotlib.collections.PathCollection at 0x7f67e52083d0>
+![png](output_17_1.png)
+----
+
+
++*Out[10]:*+
+----
+
+ Simulation Post-Processing
+ --------------------------
+ Multiplicity order for all variables
+ - Variable 1 (SimuA*) = 3
+ - Variable 2 (SimuB*) = 2
+ - Variable 3 (SimuC*) = 2
+ Number of Iterations: 12 (using the 'product' criterion)
+ Number of Statistics: 2
+ Number of Output Variables: 6
+ 
+== Cell #4/25
+   Iteration   0/ 12 -> Indices (1-based):  1/3  1/2  1/2 
+     Sample Rank #1      0.519   165.288    -3.142
+     Sample Rank #7     -0.462   162.597    -3.040
+     Upscale (Average)      0.029   163.943    -3.091
+   Iteration   1/ 12 -> Indices (1-based):  1/3  1/2  2/2 
+     Sample Rank #1      0.519   165.288    -3.692
+     Sample Rank #7     -0.462   162.597    -3.493
+     Upscale (Average)      0.029   163.943    -3.592
+   Iteration   2/ 12 -> Indices (1-based):  1/3  2/2  1/2 
+     Sample Rank #1      0.519   104.997    -3.142
+     Sample Rank #7     -0.462   140.488    -3.040
+     Upscale (Average)      0.029   122.743    -3.091
+   Iteration   3/ 12 -> Indices (1-based):  1/3  2/2  2/2 
+     Sample Rank #1      0.519   104.997    -3.692
+     Sample Rank #7     -0.462   140.488    -3.493
+     Upscale (Average)      0.029   122.743    -3.592
+   Iteration   4/ 12 -> Indices (1-based):  2/3  1/2  1/2 
+     Sample Rank #1     -0.594   165.288    -3.142
+     Sample Rank #7     -0.816   162.597    -3.040
+     Upscale (Average)     -0.705   163.943    -3.091
+   Iteration   5/ 12 -> Indices (1-based):  2/3  1/2  2/2 
+     Sample Rank #1     -0.594   165.288    -3.692
+     Sample Rank #7     -0.816   162.597    -3.493
+     Upscale (Average)     -0.705   163.943    -3.592
+   Iteration   6/ 12 -> Indices (1-based):  2/3  2/2  1/2 
+     Sample Rank #1     -0.594   104.997    -3.142
+     Sample Rank #7     -0.816   140.488    -3.040
+     Upscale (Average)     -0.705   122.743    -3.091
+   Iteration   7/ 12 -> Indices (1-based):  2/3  2/2  2/2 
+     Sample Rank #1     -0.594   104.997    -3.692
+     Sample Rank #7     -0.816   140.488    -3.493
+     Upscale (Average)     -0.705   122.743    -3.592
+   Iteration   8/ 12 -> Indices (1-based):  3/3  1/2  1/2 
+     Sample Rank #1     -0.438   165.288    -3.142
+     Sample Rank #7      0.772   162.597    -3.040
+     Upscale (Average)      0.167   163.943    -3.091
+   Iteration   9/ 12 -> Indices (1-based):  3/3  1/2  2/2 
+     Sample Rank #1     -0.438   165.288    -3.692
+     Sample Rank #7      0.772   162.597    -3.493
+     Upscale (Average)      0.167   163.943    -3.592
+   Iteration  10/ 12 -> Indices (1-based):  3/3  2/2  1/2 
+     Sample Rank #1     -0.438   104.997    -3.142
+     Sample Rank #7      0.772   140.488    -3.040
+     Upscale (Average)      0.167   122.743    -3.091
+   Iteration  11/ 12 -> Indices (1-based):  3/3  2/2  2/2 
+     Sample Rank #1     -0.438   104.997    -3.692
+     Sample Rank #7      0.772   140.488    -3.493
+     Upscale (Average)      0.167   122.743    -3.592
+   Statistics (Mean, Variance)     -0.170     0.146   143.343   424.363    -3.342     0.063
+ ----
+
+
++*Out[11]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.100     0.100
+Mesh   :      0.200     0.200
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Post1.Var1.Mean - Locator = NA
+Column = 4 - Name = Post1.Var1.Variance - Locator = NA
+Column = 5 - Name = Post1.Var2.Mean - Locator = NA
+Column = 6 - Name = Post1.Var2.Variance - Locator = NA
+Column = 7 - Name = Post1.Var3.Mean - Locator = NA
+Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
+
+
++*Out[12]:*+
+----<matplotlib.collections.PathCollection at 0x7f67e4f4a320>
+![png](output_21_1.png)
+----
+
+
++*Out[13]:*+
+----
+
+ Simulation Post-Processing
+ --------------------------
+ Multiplicity order for all variables
+ - Variable 1 (SimuA*) = 3
+ - Variable 2 (SimuB*) = 2
+ - Variable 3 (SimuC*) = 2
+ Number of Iterations: 12 (using the 'product' criterion)
+ Number of Statistics: 2
+ Number of Transform Variables: 2
+ Number of Output Variables: 4
+ 
+== Cell #4/25
+   Iteration   0/ 12 -> Indices (1-based):  1/3  1/2  1/2 
+     Sample Rank #1      0.519   165.288    -3.142
+     Sample Rank #7     -0.462   162.597    -3.040
+     After Transform      162.665    78.550   159.095    77.482
+     Upscale (Average)    160.880    78.016
+   Iteration   1/ 12 -> Indices (1-based):  1/3  1/2  2/2 
+     Sample Rank #1      0.519   165.288    -3.692
+     Sample Rank #7     -0.462   162.597    -3.493
+     After Transform      162.115    78.684   158.643    77.591
+     Upscale (Average)    160.379    78.138
+   Iteration   2/ 12 -> Indices (1-based):  1/3  2/2  1/2 
+     Sample Rank #1      0.519   104.997    -3.142
+     Sample Rank #7     -0.462   140.488    -3.040
+     After Transform      102.374    50.136   136.987    67.061
+     Upscale (Average)    119.680    58.598
+   Iteration   3/ 12 -> Indices (1-based):  1/3  2/2  2/2 
+     Sample Rank #1      0.519   104.997    -3.692
+     Sample Rank #7     -0.462   140.488    -3.493
+     After Transform      101.824    50.273   136.534    67.170
+     Upscale (Average)    119.179    58.722
+   Iteration   4/ 12 -> Indices (1-based):  2/3  1/2  1/2 
+     Sample Rank #1     -0.594   165.288    -3.142
+     Sample Rank #7     -0.816   162.597    -3.040
+     After Transform      161.552    78.805   158.741    77.563
+     Upscale (Average)    160.146    78.184
+   Iteration   5/ 12 -> Indices (1-based):  2/3  1/2  2/2 
+     Sample Rank #1     -0.594   165.288    -3.692
+     Sample Rank #7     -0.816   162.597    -3.493
+     After Transform      161.002    78.938   158.289    77.672
+     Upscale (Average)    159.645    78.305
+   Iteration   6/ 12 -> Indices (1-based):  2/3  2/2  1/2 
+     Sample Rank #1     -0.594   104.997    -3.142
+     Sample Rank #7     -0.816   140.488    -3.040
+     After Transform      101.260    50.387   136.632    67.142
+     Upscale (Average)    118.946    58.765
+   Iteration   7/ 12 -> Indices (1-based):  2/3  2/2  2/2 
+     Sample Rank #1     -0.594   104.997    -3.692
+     Sample Rank #7     -0.816   140.488    -3.493
+     After Transform      100.710    50.522   136.180    67.251
+     Upscale (Average)    118.445    58.887
+   Iteration   8/ 12 -> Indices (1-based):  3/3  1/2  1/2 
+     Sample Rank #1     -0.438   165.288    -3.142
+     Sample Rank #7      0.772   162.597    -3.040
+     After Transform      161.708    78.769   160.329    77.199
+     Upscale (Average)    161.019    77.984
+   Iteration   9/ 12 -> Indices (1-based):  3/3  1/2  2/2 
+     Sample Rank #1     -0.438   165.288    -3.692
+     Sample Rank #7      0.772   162.597    -3.493
+     After Transform      161.158    78.902   159.877    77.310
+     Upscale (Average)    160.517    78.106
+   Iteration  10/ 12 -> Indices (1-based):  3/3  2/2  1/2 
+     Sample Rank #1     -0.438   104.997    -3.142
+     Sample Rank #7      0.772   140.488    -3.040
+     After Transform      101.417    50.352   138.220    66.780
+     Upscale (Average)    119.818    58.566
+   Iteration  11/ 12 -> Indices (1-based):  3/3  2/2  2/2 
+     Sample Rank #1     -0.438   104.997    -3.692
+     Sample Rank #7      0.772   140.488    -3.493
+     After Transform      100.867    50.487   137.768    66.891
+     Upscale (Average)    119.317    58.689
+   Statistics (Mean, Variance)    139.831   424.572    68.413    94.275
+ ----
+
+
++*Out[14]:*+
+----<matplotlib.collections.PathCollection at 0x7f67e50eda80>
+![png](output_24_1.png)
+----
