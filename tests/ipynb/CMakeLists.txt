@@ -48,7 +48,7 @@ add_custom_target(check_ipynb
 add_dependencies(check_ipynb python_install)
 
 # Jupyter notebook script test runner path
-cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR run_test_ipynb.py
+cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_ipynb.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)
 
 # Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
