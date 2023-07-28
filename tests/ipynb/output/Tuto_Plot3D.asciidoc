@@ -18,6 +18,22 @@
 
 +*Out[8]:*+
 ----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[9]:*+
+----
 
 Polygons
 --------
@@ -25,19 +41,19 @@ Number of Polygon Sets = 451
  ----
 
 
-+*Out[10]:*+
++*Out[11]:*+
 ----
 [[XXX]]
 ----
 
 
-+*Out[13]:*+
++*Out[14]:*+
 ----
 [[XXX]]
 ----
 
 
-+*Out[18]:*+
++*Out[19]:*+
 ----
 [[XXX]]
 ----

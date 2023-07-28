@@ -15,6 +15,7 @@ if (len(sys.argv) > 3):
 test_output = os.path.join(out_dir, test_name + "." + out_type)
 
 # Inspired from https://stackoverflow.com/questions/65502005/convert-a-jupyter-notebook-to-html-output-in-native-python
+# See manual here : https://buildmedia.readthedocs.org/media/pdf/nbconvert/latest/nbconvert.pdf
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import ASCIIDocExporter
@@ -51,9 +52,29 @@ notebook_node, resources = exporter.from_notebook_node(nb)
 
 # Post treatment for asciidoc (for test comparison)
 if (out_type == "asciidoc"):
+    # TODO : I should have prefered using this feature, but don't know how to do with Exporters :
+    # https://stackoverflow.com/questions/52834910/remove-cells-from-jupyter-notebook-with-nbconvert
+    
     # Remove all graphical 3D object identifiers from the output ascii file, i.e. :
     # [[e43b6f2f-ba2b-47f7-8a13-2336077446d1]]
     notebook_node = re.sub("[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}", "XXX", notebook_node)
+    
+    # Remove all lines coming from data downloading:
+    # --2023-07-28 15:20:09--  https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF
+    # Résolution de soft.minesparis.psl.eu (soft.minesparis.psl.eu)… 51.83.45.127
+    # Connexion à soft.minesparis.psl.eu (soft.minesparis.psl.eu)|51.83.45.127|:443… connecté.
+    # requête HTTP transmise, en attente de la réponse… 200 OK
+    # Taille : 5291 (5,2K)
+    # Enregistre : ‘Scotland_Temperatures.NF.1’
+    # Scotland_Temperatur 100%[===================>]   5,17K  --.-KB/s    ds 0s      
+    # 2023-07-28 15:20:10 (1,31 GB/s) - ‘Scotland_Temperatures.NF.1’ enregistré [5291/5291]
+    notebook_node = re.sub(".*-  https://soft.minesparis.psl.eu/gstlearn/data.*", "XXX", notebook_node)
+    notebook_node = re.sub(".*51\.83\.45\.127.*", "XXX", notebook_node)
+    notebook_node = re.sub(".*HTTP transmise.*", "XXX", notebook_node)
+    notebook_node = re.sub("Taille.*", "XXX", notebook_node)
+    notebook_node = re.sub("Enregistre.*", "XXX", notebook_node)
+    notebook_node = re.sub(".*KB/s.*", "XXX", notebook_node)
+    notebook_node = re.sub(".*GB/s.*", "XXX", notebook_node)
     
     # Remove a specific warning in Tuto_SpatioTemp.ipynb, i.e. :
     # /tmp/ipykernel_24563/4216505814.py:15: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format

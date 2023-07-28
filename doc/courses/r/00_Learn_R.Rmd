@@ -153,12 +153,14 @@ data[data$A>1,]
 
 ## Data Frame from a File
 
-Download the ASCII file called *Scotland_Temperatures.csv* and store it on your disk in the current working directory. For now on, the reference files are stored on disk at an address referenced by the Environment variable *GSTLEARN_DATA*.
+Download the ASCII file called *Scotland_Temperatures.csv* and store it on your disk in the current working directory.
 
 
 
 ```{r Data-Frame-from-File, eval=FALSE}
-filename = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.csv")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.csv"
+filename = "Scotland_Temperatures.csv"
+download.file(dlfile, filename)
 temperatures = read.csv(filename,header=TRUE,na="MISS")
 class(temperatures)
 names(temperatures)

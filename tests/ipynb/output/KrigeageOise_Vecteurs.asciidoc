@@ -2,7 +2,39 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[4]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
 +*Out[5]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[7]:*+
 ----
 Column Name (1): X
  Column Name (2): Y
@@ -77,7 +109,7 @@ Column = 4 - Name = Epaisseur_1 - Locator = upper1
  ----
 
 
-+*Out[7]:*+
++*Out[9]:*+
 ----
 Data Base Characteristics
 =========================
@@ -100,7 +132,7 @@ Column = 4 - Name = Epaisseur_1 - Locator = upper1
 Column = 5 - Name = Thickness - Locator = z1----
 
 
-+*Out[8]:*+
++*Out[10]:*+
 ----
 Data Base Characteristics
 =========================
@@ -125,15 +157,9 @@ Column = 5 - Name = Thickness - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+*Out[9]:*+
++*Out[11]:*+
 ----
-![png](output_10_0.png)
-----
-
-
-+*Out[12]:*+
-----
-![png](output_13_0.png)
+![png](output_12_0.png)
 ----
 
 
@@ -143,13 +169,19 @@ Column = 6 - Name = Duplicate - Locator = sel----
 ----
 
 
-+*Out[15]:*+
-----
-![png](output_16_0.png)
-----
-
-
 +*Out[16]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[17]:*+
+----
+![png](output_18_0.png)
+----
+
+
++*Out[18]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -186,13 +218,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = sel----
 
 
-+*Out[19]:*+
-----
-![png](output_20_0.png)
-----
-
-
 +*Out[21]:*+
+----
+![png](output_22_0.png)
+----
+
+
++*Out[23]:*+
 ----
 
 Data Base Characteristics
@@ -248,7 +280,7 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+*Out[22]:*+
++*Out[24]:*+
 ----
 
 Data Base Grid Characteristics
@@ -286,19 +318,19 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+*Out[25]:*+
-----
-![png](output_26_0.png)
-----
-
-
-+*Out[26]:*+
-----
-![png](output_27_0.png)
-----
-
-
 +*Out[27]:*+
+----
+![png](output_28_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_29_0.png)
+----
+
+
++*Out[29]:*+
 ----
 
 Variogram characteristics
@@ -392,11 +424,11 @@ For variable 1
         18    29.000  7192.062     9.570
         19    40.000  7634.709     4.950
  
-![png](output_28_1.png)
+![png](output_30_1.png)
 ----
 
 
-+*Out[28]:*+
++*Out[30]:*+
 ----
 
 Model characteristics
@@ -422,11 +454,11 @@ K-Bessel (Third Parameter = 1)
      [  1,]     0.707     0.707
 Total Sill     =      6.907
  
-![png](output_29_1.png)
+![png](output_31_1.png)
 ----
 
 
-+*Out[31]:*+
++*Out[33]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -466,13 +498,13 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
 Column = 6 - Name = vec_define - Locator = NA----
 
 
-+*Out[36]:*+
++*Out[38]:*+
 ----
-![png](output_37_0.png)
+![png](output_39_0.png)
 ----
 
 
-+*Out[37]:*+
++*Out[39]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -512,5 +544,5 @@ Column = 5 - Name = Migrate.v_interp - Locator = NA
 Column = 6 - Name = vec_define - Locator = NA
 Column = 7 - Name = angles1 - Locator = nostat1
 Column = 8 - Name = spde.Thickness.kriging - Locator = z1
-![png](output_38_1.png)
+![png](output_40_1.png)
 ----

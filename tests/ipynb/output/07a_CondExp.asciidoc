@@ -2,13 +2,45 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[6]:*+
++*Out[4]:*+
 ----
-![png](output_7_0.png)
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[5]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
 ----
 
 
 +*Out[8]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*Out[10]:*+
 ----
 
 Hermitian Anamorphosis
@@ -34,13 +66,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
  ----
 
 
-+*Out[9]:*+
-----
-![png](output_12_0.png)
-----
-
-
-+*Out[10]:*+
++*Out[11]:*+
 ----
 ![png](output_14_0.png)
 ----
@@ -48,29 +74,29 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 
 +*Out[12]:*+
 ----
-![png](output_17_0.png)
+![png](output_16_0.png)
 ----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
-![png](output_21_0.png)
+![png](output_19_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[17]:*+
 ----
-![png](output_22_0.png)
+![png](output_23_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_27_0.png)
+![png](output_24_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[20]:*+
 ----
 ![png](output_29_0.png)
 ----
@@ -78,17 +104,23 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 
 +*Out[21]:*+
 ----
-![png](output_32_0.png)
+![png](output_31_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_35_0.png)
+![png](output_34_0.png)
 ----
 
 
-+*Out[24]:*+
++*Out[25]:*+
 ----
-![png](output_36_0.png)
+![png](output_37_0.png)
+----
+
+
++*Out[26]:*+
+----
+![png](output_38_0.png)
 ----

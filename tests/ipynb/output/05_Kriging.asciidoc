@@ -2,18 +2,50 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[3]:*+
 ----
-![png](output_8_0.png)
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[4]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
 ----
 
 
 +*Out[7]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[9]:*+
 ----array([[  78.2,  460.7],
        [ 530.4, 1208.9]])----
 
 
-+*Out[8]:*+
++*Out[10]:*+
 ----
 
 Data Base Grid Characteristics
@@ -32,13 +64,13 @@ Column = 2 - Name = x2 - Locator = x2
  ----
 
 
-+*Out[10]:*+
++*Out[12]:*+
 ----
-![png](output_18_0.png)
+![png](output_20_0.png)
 ----
 
 
-+*Out[11]:*+
++*Out[13]:*+
 ----
 
 Data Base Grid Characteristics
@@ -58,37 +90,31 @@ Column = 3 - Name = inshore - Locator = sel
  ----
 
 
-+*Out[13]:*+
-----
-![png](output_24_0.png)
-----
-
-
-+*Out[14]:*+
++*Out[15]:*+
 ----
 ![png](output_26_0.png)
 ----
 
 
-+*Out[17]:*+
++*Out[16]:*+
 ----
-![png](output_32_0.png)
-----
-
-
-+*Out[18]:*+
-----
-![png](output_34_0.png)
+![png](output_28_0.png)
 ----
 
 
 +*Out[19]:*+
 ----
-![png](output_36_0.png)
+![png](output_34_0.png)
 ----
 
 
 +*Out[20]:*+
+----
+![png](output_36_0.png)
+----
+
+
++*Out[21]:*+
 ----
 ![png](output_38_0.png)
 ----
@@ -96,17 +122,23 @@ Column = 3 - Name = inshore - Locator = sel
 
 +*Out[22]:*+
 ----
-![png](output_42_0.png)
+![png](output_40_0.png)
 ----
 
 
-+*Out[23]:*+
++*Out[24]:*+
 ----
 ![png](output_44_0.png)
 ----
 
 
-+*Out[24]:*+
++*Out[25]:*+
+----
+![png](output_46_0.png)
+----
+
+
++*Out[26]:*+
 ----
 -0.0042
 0.2394
@@ -114,49 +146,49 @@ Column = 3 - Name = inshore - Locator = sel
 ----
 
 
-+*Out[25]:*+
-----
-![png](output_48_0.png)
-----
-
-
-+*Out[26]:*+
++*Out[27]:*+
 ----
 ![png](output_50_0.png)
 ----
 
 
-+*Out[29]:*+
++*Out[28]:*+
 ----
-![png](output_56_0.png)
-----
-
-
-+*Out[32]:*+
-----
-![png](output_62_0.png)
+![png](output_52_0.png)
 ----
 
 
-+*Out[35]:*+
++*Out[31]:*+
 ----
-![png](output_69_0.png)
+![png](output_58_0.png)
 ----
 
 
-+*Out[36]:*+
++*Out[34]:*+
 ----
-![png](output_71_0.png)
+![png](output_64_0.png)
 ----
 
 
 +*Out[37]:*+
 ----
-![png](output_73_0.png)
+![png](output_71_0.png)
 ----
 
 
 +*Out[38]:*+
 ----
+![png](output_73_0.png)
+----
+
+
++*Out[39]:*+
+----
 ![png](output_75_0.png)
+----
+
+
++*Out[40]:*+
+----
+![png](output_77_0.png)
 ----

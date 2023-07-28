@@ -30,7 +30,9 @@ library(ggpubr)
 The Grid containing the information is downloaded from the distribution
 
 ```{r Loading_Data}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"FKA","Image.ascii")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/FKA/Image.ascii"
+fileNF = "Image.ascii"
+download.file(dlfile, fileNF)
 grid = DbGrid_createFromNF(fileNF)
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim)

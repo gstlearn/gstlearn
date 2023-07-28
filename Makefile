@@ -46,6 +46,7 @@
 #  - check_ipynb    Execute demonstration scripts (jupyter notebooks)
 #  - check_rmd      Execute demonstration scripts (R Markdown)
 #  - build_demos    Execute demonstration scripts (jupyter and R Markdown) and build HTMLs
+#  - build_courses  Execute courses scripts (jupyter and R Markdown) and build HTMLs
 #
 # Clean:
 #  - clean          Clean generated files
@@ -187,7 +188,7 @@ r_upload: r_build
 
 
 
-.PHONY: check_data check_cpp check_py check_r check check_ipynb check_rmd check_test_cpp check_test_py check_test_r build_demos
+.PHONY: check_data check_cpp check_py check_r check check_ipynb check_rmd check_test_cpp check_test_py check_test_r build_demos build_courses
 
 check_data: cmake
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_data -- --no-print-directory $(N_PROC_OPT)
@@ -221,6 +222,9 @@ check_test_r: cmake-r
 
 build_demos: cmake-python-r
 	@cmake --build $(BUILD_DIR) --target build_demos -- --no-print-directory $(N_PROC_OPT)
+
+build_courses: cmake-python-r
+	@cmake --build $(BUILD_DIR) --target build_courses -- --no-print-directory $(N_PROC_OPT)
 
 
 .PHONY: clean clean_all

@@ -2,7 +2,39 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[3]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[4]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[7]:*+
 ----
                  MEAN
 Elevation       87.974
@@ -11,31 +43,31 @@ Temperature      2.815
  ----
 
 
-+*Out[6]:*+
-----
-![png](output_9_0.png)
-----
-
-
-+*Out[7]:*+
++*Out[8]:*+
 ----
 ![png](output_11_0.png)
 ----
 
 
-+*Out[8]:*+
++*Out[9]:*+
 ----
 ![png](output_13_0.png)
 ----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----
 ![png](output_15_0.png)
 ----
 
 
-+*Out[10]:*+
++*Out[11]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[12]:*+
 ----
 
  Linear Regression
@@ -49,13 +81,13 @@ Temperature      2.815
  ----
 
 
-+*Out[12]:*+
++*Out[14]:*+
 ----
-![png](output_20_0.png)
+![png](output_22_0.png)
 ----
 
 
-+*Out[13]:*+
++*Out[15]:*+
 ----
                  MEAN
 OK.Temperature.esterr     -0.041
@@ -63,13 +95,13 @@ OK.Temperature.stderr     -0.044
  ----
 
 
-+*Out[15]:*+
++*Out[17]:*+
 ----
-![png](output_26_0.png)
+![png](output_28_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[18]:*+
 ----
                  MEAN
 OK.Temperature.estim      2.806
@@ -77,13 +109,13 @@ OK.Temperature.stdev      0.460
  ----
 
 
-+*Out[18]:*+
++*Out[20]:*+
 ----
-![png](output_31_0.png)
+![png](output_33_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[21]:*+
 ----
                  MEAN
 UK.Temperature.esterr     -0.352
@@ -91,13 +123,13 @@ UK.Temperature.stderr     -0.499
  ----
 
 
-+*Out[21]:*+
++*Out[23]:*+
 ----
-![png](output_38_0.png)
+![png](output_40_0.png)
 ----
 
 
-+*Out[22]:*+
++*Out[24]:*+
 ----
                  MEAN
 UK.Temperature.estim      2.514
@@ -105,41 +137,41 @@ UK.Temperature.stdev      0.482
  ----
 
 
-+*Out[23]:*+
-----
-![png](output_42_0.png)
-----
-
-
-+*Out[24]:*+
++*Out[25]:*+
 ----
 ![png](output_44_0.png)
 ----
 
 
-+*Out[25]:*+
-----
-                 MEAN
-Elevation       87.974
-Temperature      2.815
- ----
-
-
 +*Out[26]:*+
 ----
+![png](output_46_0.png)
+----
+
+
++*Out[27]:*+
+----
                  MEAN
 Elevation       87.974
 Temperature      2.815
  ----
 
 
-+*Out[29]:*+
++*Out[28]:*+
 ----
-![png](output_53_0.png)
-----
+                 MEAN
+Elevation       87.974
+Temperature      2.815
+ ----
 
 
 +*Out[31]:*+
+----
+![png](output_55_0.png)
+----
+
+
++*Out[33]:*+
 ----
                  MEAN
 COK.Temperature.esterr     -0.407
@@ -147,13 +179,13 @@ COK.Temperature.stderr     -0.515
  ----
 
 
-+*Out[33]:*+
++*Out[35]:*+
 ----
-![png](output_61_0.png)
+![png](output_63_0.png)
 ----
 
 
-+*Out[34]:*+
++*Out[36]:*+
 ----
                  MEAN
 COK.Temperature.estim      2.553
@@ -161,13 +193,13 @@ COK.Temperature.stdev      0.388
  ----
 
 
-+*Out[35]:*+
++*Out[37]:*+
 ----
-![png](output_65_0.png)
+![png](output_67_0.png)
 ----
 
 
-+*Out[36]:*+
++*Out[38]:*+
 ----
 
  Linear Regression
@@ -180,49 +212,49 @@ COK.Temperature.stdev      0.388
  ----
 
 
-+*Out[37]:*+
++*Out[39]:*+
 ----
      0.000
  ----
 
 
-+*Out[38]:*+
-----
-![png](output_71_0.png)
-----
-
-
 +*Out[40]:*+
 ----
-![png](output_74_0.png)
+![png](output_73_0.png)
 ----
 
 
 +*Out[42]:*+
 ----
-![png](output_77_0.png)
+![png](output_76_0.png)
 ----
 
 
 +*Out[44]:*+
 ----
-![png](output_80_0.png)
-----
-
-
-+*Out[45]:*+
-----
-![png](output_82_0.png)
+![png](output_79_0.png)
 ----
 
 
 +*Out[46]:*+
 ----
-![png](output_84_0.png)
+![png](output_82_0.png)
 ----
 
 
 +*Out[47]:*+
+----
+![png](output_84_0.png)
+----
+
+
++*Out[48]:*+
+----
+![png](output_86_0.png)
+----
+
+
++*Out[49]:*+
 ----
                  MEAN
 OK.Temperature.estim       2.806
@@ -232,13 +264,13 @@ KR.Temperature.estim       1.445
  ----
 
 
-+*Out[50]:*+
-----
-![png](output_92_0.png)
-----
-
-
 +*Out[52]:*+
+----
+![png](output_94_0.png)
+----
+
+
++*Out[54]:*+
 ----
                  MEAN
 KED.Temperature.esterr     -0.009
@@ -246,13 +278,13 @@ KED.Temperature.stderr     -0.011
  ----
 
 
-+*Out[54]:*+
++*Out[56]:*+
 ----
-![png](output_100_0.png)
+![png](output_102_0.png)
 ----
 
 
-+*Out[55]:*+
++*Out[57]:*+
 ----
                  MEAN
 KED.Temperature.estim      1.778
@@ -260,13 +292,13 @@ KED.Temperature.stdev      0.396
  ----
 
 
-+*Out[56]:*+
++*Out[58]:*+
 ----
-![png](output_104_0.png)
+![png](output_106_0.png)
 ----
 
 
-+*Out[57]:*+
++*Out[59]:*+
 ----
                  MEAN
 OK.Temperature.esterr      -0.041
@@ -277,7 +309,7 @@ KED.Temperature.esterr     -0.009
  ----
 
 
-+*Out[58]:*+
++*Out[60]:*+
 ----
                  MEAN
 OK.Temperature.estim            2.806
@@ -289,7 +321,7 @@ KED.Temperature.estim           1.778
  ----
 
 
-+*Out[59]:*+
++*Out[61]:*+
 ----
                  MEAN
 OK.Temperature.stdev            0.460

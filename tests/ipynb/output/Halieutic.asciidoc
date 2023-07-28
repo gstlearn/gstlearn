@@ -1,5 +1,37 @@
 +*Out[2]:*+
 ----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[3]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[4]:*+
+----
 [cols=",,,,,,,",options="header",]
 |===
 | |survey |year |time |x |y |NASC |sp
@@ -21,7 +53,20 @@
 ----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----
-![png](output_13_0.png)
+/home/fors/.local/lib/python3.10/site-packages/gstlearn/proj.py:41: FutureWarning:
+
+The geopandas.dataset module is deprecated and will be removed in GeoPandas 1.0. You can get the original 'naturalearth_lowres' data from https://www.naturalearthdata.com/downloads/110m-cultural-vectors/.
+
+/home/fors/.local/lib/python3.10/site-packages/shapely/set_operations.py:133: RuntimeWarning:
+
+invalid value encountered in intersection
+
+----
+
+
++*Out[11]:*+
+----
+![png](output_15_0.png)
 ----

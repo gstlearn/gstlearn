@@ -19,7 +19,7 @@ set(TEST_SOURCES ${DEMO_SOURCES})
 list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(TEST_SOURCES
-#    ../../doc/demo/python/Tuto_SSDV.ipynb)
+#    ../../doc/courses/python/05_Kriging.ipynb)
 
 # Remove Tuto_SPDE and Tuto_SpatioTemp under MSVC (because scikits-sparse)
 if (MSVC)

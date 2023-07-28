@@ -14,7 +14,7 @@ file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.Rmd)
 set(DEMO_SOURCES ${DEMO_SOURCES})
 # Without GLOB:
 #set(DEMO_SOURCES
-#    ../../doc/demo/r/testFibo.Rmd)
+#    ../../doc/demo/r/Tuto_2D.Rmd)
 
 # Generation folder
 cmake_path(APPEND CMAKE_BINARY_DIR demo r

@@ -234,11 +234,7 @@ cmake --build build --target python_install --config Release
 
 The `check*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
 
-To build and launch non-regression Python tests, you need to:
-
-1. Add `GSTLEARN_DATA` environment variable which must point to the data folder: `gstlearn/doc/data`
-
-2. Execute the following command:
+To build and launch non-regression Python tests, you need to execute the following command:
 
 #### GCC, Clang, MinGW, ...
 

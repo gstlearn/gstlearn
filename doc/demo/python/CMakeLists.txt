@@ -14,7 +14,7 @@ file(GLOB DEMO_SOURCES ${DEMO_DIR}/*.ipynb)
 set(DEMO_SOURCES ${DEMO_SOURCES})
 # Without GLOB:
 #set(DEMO_SOURCES
-#    ../../doc/demo/python/testFibo.ipynb)
+#    ../../doc/demo/python/Halieutic.ipynb)
 
 # Generation folder
 cmake_path(APPEND CMAKE_BINARY_DIR demo python

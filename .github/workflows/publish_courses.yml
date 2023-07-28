@@ -1,4 +1,4 @@
-name: publish_courses
+name: publish_demos
 
 on:
   workflow_dispatch:
@@ -31,9 +31,9 @@ jobs:
       run: |
         export PATH=/opt/python/py311/bin:$PATH
         cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DUSE_HDF5=OFF
-        cmake --build ${{env.BUILD_DIR}} --target build_demos
+        cmake --build ${{env.BUILD_DIR}} --target build_courses
         PROJECT_VERSION=$(cmake --build ${{env.BUILD_DIR}} --target print_version | grep PROJECT_VERSION | cut -d "=" -f2 | xargs)
-        echo "COURSES_FOLDER=${{env.BUILD_DIR}}/courses" >> "$GITHUB_ENV"
+        echo "DEMO_FOLDER=${{env.BUILD_DIR}}/demo" >> "$GITHUB_ENV"
         echo "PROJECT_VERSION=${PROJECT_VERSION}" >> "$GITHUB_ENV"
 
     - name: Print version
@@ -42,8 +42,8 @@ jobs:
     - uses: actions/upload-artifact@v3 
       with:
         # This will become the folder name in the server
-        name: courses-${{ env.PROJECT_VERSION }}
-        path: ${{ env.COURSES_FOLDER }}
+        name: demos-${{ env.PROJECT_VERSION }}
+        path: ${{ env.DEMO_FOLDER }}
 
   publish:
     needs: build

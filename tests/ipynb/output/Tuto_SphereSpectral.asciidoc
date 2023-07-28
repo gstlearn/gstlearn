@@ -21,7 +21,23 @@ Spectrum Tolerance        = 1e-05
  ----
 
 
-+*Out[6]:*+
++*Out[5]:*+
+----
+XXX
+XXX
+XXX
+XXX
+XXX
+XXX
+
+XXX
+
+XXX
+
+----
+
+
++*Out[7]:*+
 ----
 
 
