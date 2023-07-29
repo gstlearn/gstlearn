@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[4]:*+
 ----
 
 Data Base Grid Characteristics
@@ -31,7 +31,7 @@ Column = 3 - Name = z1 - Locator = z1
  ----
 
 
-+*Out[4]:*+
++*Out[5]:*+
 ----
 Non geographical defaults:
 - Figure dimensions = [5, 5]
@@ -43,12 +43,6 @@ Geographical defaults:
 - Limits along X = [-1, 10]
 - Limits along Y = [-1, 10]
 - Aspect = 1
-----
-
-
-+*Out[5]:*+
-----
-![png](output_9_0.png)
 ----
 
 
@@ -66,14 +60,14 @@ Geographical defaults:
 
 +*Out[8]:*+
 ----
+![png](output_12_0.png)
+----
+
+
++*Out[9]:*+
+----
      1.531     1.615
  ----
-
-
-+*Out[10]:*+
-----
-![png](output_15_0.png)
-----
 
 
 +*Out[11]:*+
@@ -90,14 +84,14 @@ Geographical defaults:
 
 +*Out[13]:*+
 ----
+![png](output_18_0.png)
+----
+
+
++*Out[14]:*+
+----
      1.531     0.974
  ----
-
-
-+*Out[15]:*+
-----
-![png](output_21_0.png)
-----
 
 
 +*Out[16]:*+
@@ -108,47 +102,47 @@ Geographical defaults:
 
 +*Out[17]:*+
 ----
+![png](output_23_0.png)
+----
+
+
++*Out[18]:*+
+----
      1.364     1.165
  ----
 
 
-+*Out[19]:*+
-----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim', 'T-stdev', 'Q-stdev')----
-
-
 +*Out[20]:*+
-----
-![png](output_29_0.png)
-----
+----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim', 'T-stdev', 'Q-stdev')----
 
 
 +*Out[21]:*+
 ----
-![png](output_31_0.png)
+![png](output_30_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_33_0.png)
+![png](output_32_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_35_0.png)
+![png](output_34_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_37_0.png)
+![png](output_36_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_40_0.png)
+![png](output_38_0.png)
 ----
 
 
@@ -160,5 +154,11 @@ Geographical defaults:
 
 +*Out[27]:*+
 ----
-![png](output_43_0.png)
+![png](output_42_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_44_0.png)
 ----

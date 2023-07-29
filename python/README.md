@@ -97,7 +97,7 @@ For building the *gstlearn* Python package, the requirements for compiling *gstl
 
 * SWIG 4 or higher
 * Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11[global]* and *matplotlib* modules installed
-* *pypandoc*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
+* *pypandoc*, *scikit-sparse*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
 
@@ -115,9 +115,14 @@ Note :
 sudo apt install python3
 sudo apt install python3-pip
 sudo apt install swig
-sudo apt install pandoc jupyter
 python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
-python3 -m pip install pypandoc geopandas plotly jupyter
+````
+
+3. Finally, execute the following commands (optional):
+
+````
+sudo apt install pandoc jupyter libsuitesparse-dev
+python3 -m pip install pypandoc geopandas plotly jupyter scikit-sparse
 ````
 
 #### MacOS
@@ -129,9 +134,14 @@ python3 -m pip install pypandoc geopandas plotly jupyter
 ````
 brew install python3
 brew install swig
-brew install pandoc jupyter
 python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
-python3 -m pip install pypandoc geopandas plotly jupyter
+````
+
+3. Finally, execute the following commands (optional):
+
+````
+brew install pandoc jupyter libsuitesparse-dev
+python3 -m pip install pypandoc geopandas plotly jupyter scikit-sparse
 ````
 
 Notes:
@@ -150,11 +160,16 @@ Notes:
   * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], archive file to be extracted in a folder of your choice, but not in the *gstlearn* source folder - remind the installation folder, assume it is `C:\swigwin-4.1.0`))
   * Pandoc [from here](https://github.com/jgm/pandoc/releases) (*msi installer* [msi] - simply execute the program)
 
-3. Finally, install additional Python modules by running following instructions in a command prompt:
+3. Then, install additional Python modules by running following instructions in a command prompt:
 
 ````
 python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
-python -m pip install pypandoc geopandas plotly jupyter
+````
+
+4. Finally, install optional Python modules by running following instructions in a command prompt:
+
+````
+python -m pip install pypandoc geopandas plotly jupyter scikit-sparse
 ````
 
 ##### Update the Path environment variable
@@ -219,11 +234,7 @@ cmake --build build --target python_install --config Release
 
 The `check*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
 
-To build and launch non-regression Python tests, you need to:
-
-1. Add `GSTLEARN_DATA` environment variable which must point to the data folder: `gstlearn/doc/data`
-
-2. Execute the following command:
+To build and launch non-regression Python tests, you need to execute the following command:
 
 #### GCC, Clang, MinGW, ...
 

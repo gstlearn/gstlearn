@@ -32,7 +32,9 @@ library(ggpubr)
 Then we download the data base **dat**.
 
 ```{r Loading_Data}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+fileNF = "Scotland_Temperatures.NF"
+download.file(dlfile, fileNF)
 dat = Db_createFromNF(fileNF)
 ```
 
@@ -115,7 +117,9 @@ ggPrint(p)
 \frametitle{Reading the Elevation Grid}
   
 ```{r}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+fileNF = "Scotland_Elevations.NF"
+download.file(dlfile, fileNF)
 grid = DbGrid_createFromNF(fileNF)
 grid$display(dbfmt)
 ```

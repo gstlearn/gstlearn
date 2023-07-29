@@ -12,6 +12,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"

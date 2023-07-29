@@ -90,3 +90,9 @@ include(CTest)
 enable_testing()
 
 add_subdirectory(tests)
+
+####################################################
+## DEMONSTRATION SCRIPTS
+
+add_subdirectory(doc/demo)
+add_subdirectory(doc/courses)

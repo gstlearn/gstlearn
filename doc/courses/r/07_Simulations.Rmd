@@ -29,9 +29,13 @@ library(ggpubr)
 
 
 ```{r Preamble, message=FALSE}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+fileNF = "Scotland_Temperatures.NF"
+download.file(dlfile, fileNF)
 dat = Db_createFromNF(fileNF)
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+fileNF = "Scotland_Elevations.NF"
+download.file(dlfile, fileNF)
 target = DbGrid_createFromNF(fileNF)
 
 neighU = NeighUnique_create()
@@ -178,11 +182,15 @@ We perform the following steps:
 
 ```{r Preparing_External_Drift}
 
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+fileNF = "Scotland_Temperatures.NF"
+download.file(dlfile, fileNF)
 dat = Db_createFromNF(fileNF)
 dat$setLocator("Elevation", ELoc_F())
 
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+fileNF = "Scotland_Elevations.NF"
+download.file(dlfile, fileNF)
 target = DbGrid_createFromNF(fileNF)
 target$setLocator("Elevation", ELoc_F())
 

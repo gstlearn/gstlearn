@@ -25,9 +25,13 @@ library(ggpubr)
 \footnotesize
 
 ```{r Preamble, message=FALSE, warning=FALSE, include=FALSE}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+fileNF = "Scotland_Temperatures.NF"
+download.file(dlfile, fileNF)
 dat = Db_createFromNF(fileNF)
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+fileNF = "Scotland_Elevations.NF"
+download.file(dlfile, fileNF)
 target = DbGrid_createFromNF(fileNF)
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim);

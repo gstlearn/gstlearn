@@ -19,7 +19,7 @@ set(TEST_SOURCES ${DEMO_SOURCES})
 list(APPEND TEST_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(TEST_SOURCES
-#    ../../doc/demo/python/Tuto_SSDV.ipynb)
+#    ../../doc/courses/python/05_Kriging.ipynb)
 
 # Remove Tuto_SPDE and Tuto_SpatioTemp under MSVC (because scikits-sparse)
 if (MSVC)
@@ -48,7 +48,7 @@ add_custom_target(check_ipynb
 add_dependencies(check_ipynb python_install)
 
 # Jupyter notebook script test runner path
-cmake_path(APPEND CMAKE_CURRENT_SOURCE_DIR run_test_ipynb.py
+cmake_path(APPEND CMAKE_SOURCE_DIR python run_test_ipynb.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)
 
 # Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)

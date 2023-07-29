@@ -46,7 +46,9 @@ This is the (non-exhaustive) list of classes (of objects) in gstlearn:
 You should download the ASCII file called *Scotland_Temperatures.csv* (organized as a CSV file) and store it on your disk in the current working directory. In this example, the file (called *filecsv*) is provided as a *CSV* format file. We load it into a data frame (names *datcsv*) using the relevant R-command.
 
 ```{r}
-filecsv = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.csv")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.csv"
+filecsv = "Scotland_Temperatures.csv"
+download.file(dlfile, filecsv)
 datcsv = read.csv(filecsv)
 ```
 
@@ -79,7 +81,9 @@ These *NF* (or neutral file) are currently used for serialization of the gstlear
 Note that the contents of the Db is slightly different from the result obtained when reading from CSV. Essentially, some variables have a *Locator* field defined, some do not. This concept will be described later in this chapter and the difference can be ignored.
 
 ```{r}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Temperatures.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+fileNF = "Scotland_Temperatures.NF"
+download.file(dlfile, fileNF)
 dat = Db_createFromNF(fileNF)
 dat
 ```
@@ -214,7 +218,9 @@ ggPrint(p)
 On the same area, a terrain model is available (as a demonstration file available in the package distribution). We first download it as an element of a data base defined on a grid support (*DbGrid*).
 
 ```{r}
-fileNF = file.path(Sys.getenv('GSTLEARN_DATA'),"Scotland","Scotland_Elevations.NF")
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+fileNF = "Scotland_Elevations.NF"
+download.file(dlfile, fileNF)
 grid = DbGrid_createFromNF(fileNF)
 grid
 ```

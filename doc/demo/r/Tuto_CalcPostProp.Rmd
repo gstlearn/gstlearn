@@ -1,0 +1,289 @@
+---
+title: "Simulation Post-Processing for calculating Layer Proportions"
+author: "Xavier Freulon"
+date: '2023-07-24'
+output:
+  html_document:
+    df_print: paged
+---
+
+# Introduction
+
+This R Markdown document tests the utilities developed to compute the layer proportions for each selected cells of a three dimensional grid. The $N$ layers are defined by the elevation of their top limit.
+
+```{r intialization, echo=TRUE, eval=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+OptCst_defineByKey("ASP",0)
+library(ggplot2)
+library(ggpubr)
+set.seed(43243)
+opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
+```
+
+# Parameters
+
+```{r parameters, echo=TRUE, eval=TRUE}
+
+# ----------------------------------------------
+# 3D grid
+# ----------------------------------------------
+nx = c(10, 13, 7)
+dx = 1/nx
+x0 = dx/2
+
+# ----------------------
+# plot the surfaces
+# ----------------------
+
+# limits of the 3D grid
+limits <- list(XP = 1.0*c(0, 1, 1, 0, 0),
+               YP = 1.0*c(0, 0, 1, 1, 0))
+p_lim   = PolyElem(limits$XP, limits$YP)
+pol_lim = Polygons()
+err     = pol_lim$addPolyElem(p_lim)
+
+grid = DbGrid_create(nx = nx, dx = dx, x0 = x0)
+sel  = (grid["x1"] >= 0.20)&(grid["x1"] <= 0.70) & 
+       (grid["x3"] >= 0.10)&(grid["x3"] <= 0.70)
+sel  = as.numeric(sel)
+err  = grid$setColumn(tab = sel, name = "sel")
+err  = grid$setLocator(name = "sel", ELoc_SEL(), cleanSameLocator = TRUE)
+
+# ----------------------
+# plot of a slice
+# ----------------------
+var_nm = "rank"
+posx = 1; xlab = "Ox"
+posy = 3; ylab = "Oz"
+k = 3
+corner = rep(k - 1, 3); corner[posx] = 0; corner[posy] = 0
+slice = DbGrid_create(nx = c(nx[posx], nx[posy]), dx = c(dx[posx], dx[posy]), x0 = c(x0[posx], x0[posy]))
+val = grid$getOneSlice(name = var_nm, posx = posx - 1, posy = posy - 1 , corner = c(0,0,k-1), 
+                       useSel = TRUE)
+err   = slice$setColumn(tab = val, name = paste0("K = ", k))
+p = ggDefaultGeographic() + 
+    plot.grid(slice, name_raster = paste0("K = ", k), usesel = TRUE, legend.name.raster = var_nm,
+            show.legend.raster = TRUE) +
+    plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
+    plot.decoration(xlab = xlab, ylab = ylab, 
+                  title = paste0("Slice K = ", k))
+ggPrint(p)
+
+# ----------------------------------------------
+# 2D grid and the limits
+# ----------------------------------------------
+nx = c(256, 256)
+dx = sqrt(2.0) / nx
+x0 = c(1/2, -1/2)
+angles = c(45, 0) # in degrees
+
+surfaces = DbGrid_create(nx = nx, dx = dx, x0 = x0, angles = angles)
+
+# simulation of the surfaces
+N = 3
+nbsim = c(10, 17, 25)
+nbsim = c(3, 4, 3)
+model = Model_createFromParam(ECov_GAUSSIAN(), range=0.5, sill=1.0)
+for (i in 1:N) {
+  err = simtub(dbin = NULL, dbout = surfaces, model = model, nbsimu = nbsim[i], namconv = NamingConvention(paste0("Y_", i)))
+}
+
+# conversion into uniform thickness
+h_mean = c(0.5, 0.25, 0.25)
+for (i in 1:N) {
+  val = matrix(surfaces$getColumns(names = paste0("Y_", i , ".", 1:nbsim[i]), useSel = FALSE),
+               nrow = surfaces$getSampleNumber(useSel = FALSE), ncol = nbsim[i])
+  val = h_mean[i] * pnorm(val)
+  for (k in 1:nbsim[i]) {
+    err = surfaces$setColumn(tab = val[, k], name = paste0("Z_", i , ".", k), useSel = FALSE)
+  }
+}
+
+# plot of a variable
+var_nm = "Z_1.3"
+p = ggDefaultGeographic() + 
+    plot.grid(surfaces, name_raster = var_nm, usesel = TRUE, legend.name.raster = var_nm,
+            show.legend.raster = TRUE) +
+    plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = paste0("Variable = ", var_nm))
+ggPrint(p)
+```
+
+# Computing the proportions
+
+The simulated variables are the thickness $Z_i^{(k)}(s)$.
+
+```{r cell_selection, echo=TRUE, eval=TRUE}
+err = surfaces$setColumn(tab = rep(1, surfaces$getSampleNumber(useSel=FALSE)), name = "inBlock")
+err = surfaces$setLocator(name = "inBlock", locatorType = ELoc_SEL(), cleanSameLocator = "TRUE")
+```
+
+## Sample selection
+
+For a block selected by $(i, j, k)$ the samples of the surfaces are selected by:
+
+* $x \in [\frac{i-1}{nx[1]}, \frac{i}{nx[1]}[$
+
+* $y \in [\frac{j-1}{nx[2]}, \frac{j}{nx[2]}[$
+
+
+```{r suite}
+# convert the ijk corresponding to the rank of grid
+rank2ijk <- function(rank, grid) {
+  stopifnot((rank > 0)&(rank <= grid$getSampleNumber(useSel=FALSE)))
+  nx = grid$getNXs()
+  i = 1 + (rank-1) %% nx[1]
+  j = 1 + ((rank - i)/nx[1]) %% nx[2]
+  k = 1 + (rank - i - nx[1] * (j-1)) / nx[2] / nx[1]
+  r = i + nx[1]*(j-1) + nx[1]*nx[2]*(k-1)
+  stopifnot(r == rank)
+  c(i,j,k)
+}
+
+ijk2rank <- function(ijk, grid) {
+  nx = grid$getNXs()
+  i = ijk[1]
+  j = ijk[2]
+  k = ijk[3]
+  stopifnot((i > 0)&(i <= nx[1]))
+  stopifnot((j > 0)&(j <= nx[2]))
+  stopifnot((k > 0)&(k <= nx[3]))
+  
+  i + nx[1] * (j-1) + nx[1]*nx[2]*(k-1)
+}
+
+# test of the utility functions
+cell = c(3, 4, 5)
+rank = ijk2rank(cell, grid)
+rank2ijk(rank, grid)
+stopifnot(rank == ijk2rank(rank2ijk(rank, grid), grid))
+
+# select the samples in dbin belonging to the grid cell and return the number of selected samples
+select_samples <- function(dbin, rank, grid, nameSel = "inBlock") {
+  cell = rank2ijk(rank, grid)
+  nx   = grid$getNXs()
+  sel = as.numeric(
+        (dbin["x1"] >= (cell[1]-1)/nx[1]) &
+        (dbin["x1"] < (cell[1])/nx[1]) &
+        (dbin["x2"] >= (cell[2]-1)/nx[2]) &
+        (dbin["x2"] < (cell[2])/nx[2]))
+  
+  err = dbin$deleteColumn(name = nameSel)
+  err = dbin$setColumn(tab = sel, name = nameSel, useSel=FALSE)
+  err = dbin$setLocator(name = nameSel, locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
+  dbin$getSampleNumber(useSel = TRUE)
+}
+
+print(paste0(">>> number of selected samples = ", select_samples(surfaces, rank = ijk2rank(cell, grid), grid)))
+
+# plot of selected samples of the surface grid
+
+sel_nm = paste("sel", cell[1], cell[2], cell[3], sep = "_")
+err = surfaces$setColumn(tab = sel, name = sel_nm)
+err = surfaces$setLocator(names = sel_nm, locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
+var_nm = "Z_1.3"
+p = ggDefaultGeographic() + 
+    plot.grid(surfaces, name_raster = var_nm, usesel = TRUE, legend.name.raster = var_nm,
+            show.legend.raster = TRUE) +
+    plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = paste0("Variable = ", var_nm))
+ggPrint(p)
+```
+
+## Computation of the multivariate simulation
+
+```{r multivariate_simulation, echo=TRUE, eval=TRUE}
+flag.match = FALSE
+ranks = grid$getColumn(name = "rank", useSel = TRUE)
+
+# --------------------------------------------------------------------------
+# combining the univariate simulations into multivariate simulations
+# --------------------------------------------------------------------------
+if (flag.match) {
+  K = min(nbsim)
+  idx = matrix(NaN, nrow = K, ncol = N)
+  for (k in 1:K) {idx[k,] = k}
+} else {
+  K = prod(nbsim)
+  idx = matrix(NaN, nrow = K, ncol = N)
+  k = 0
+  for (n1 in 1:nbsim[1]) {
+    for(n2 in 1:nbsim[2]) {
+      for (n3 in 1:nbsim[3]){
+        k = k + 1
+        idx[k, 1] = n1
+        idx[k, 2] = n2
+        idx[k, 3] = n3
+}}} # n1, n2, n3
+} # flag.match
+P  = N + 1
+print(paste0(">>> computing ", P, " proportions over ", K, " simulations"))
+
+# processing some cells
+cell_selected = sample(ranks, size = 1, replace = FALSE)
+
+for (r in cell_selected) {
+  cell = rank2ijk(r, grid)
+  ns = select_samples(surfaces, r, grid)
+  print(paste0(">>> Cell ", r, " - Number of selected samples = ", ns))
+
+  # mono-variate simulations of the N variables for the selected samples
+  H = list()
+  for (n in 1:N) {
+    H[[1+length(H)]] <- matrix(surfaces$getColumns(names = paste0("Z_", n, ".*"), useSel = TRUE),
+               nrow = surfaces$getSampleNumber(useSel = TRUE),
+               ncol = nbsim[n]
+              )
+  }
+    
+  z_base = (cell[3]-1)/grid$getNXs()[3]
+  z_top  = (cell[3])/grid$getNXs()[3]
+  h_max  = z_top - z_base
+  
+  # code = 0 -Inf           < z <= H1
+  # code = 1   H1           < z <= H1 + H2
+  # code = 2   H1 + H2      < z <= H1 + H2 + H3
+  # code = 3   H1 + H2 + H3 < z <= + Inf
+  res = array(NaN, c(ns, K, P))
+  res[,,1] = pmin(pmax(H[[1]][,idx[,1]] - z_base, 0), h_max)
+  res[,,2] = pmin(pmax(H[[1]][,idx[,1]] + H[[2]][,idx[,2]]- z_base, 0), h_max) - res[,,1]
+  res[,,3] = pmin(pmax(H[[1]][,idx[,1]] + H[[2]][,idx[,2]] + H[[3]][,idx[,3]]- z_base, 0), h_max) - res[,,2]
+  res[,,4] = h_max - res[,,3]
+  
+  # -----------------------------------------------------------------
+  # up-scaling (averaging the ns samples) to defined a P x K matrix
+  # -----------------------------------------------------------------
+  up_res = apply(X = res, MARGIN = c(2,3), FUN = mean) / h_max
+  
+  # -----------------------------------------------------------------
+  # statistics on the K simulation up-scaling (averaging the ns samples) to defined a P x K matrix
+  # -----------------------------------------------------------------
+  opers = c("min", "max", "median", "mean", "sd")
+  tab = matrix(NaN, nrow = P, ncol = length(opers))
+  for (j in seq_along(opers)) {
+    tab[, j] = apply(X = up_res, MARGIN = 2, FUN = opers[j])
+  }
+  colnames(tab) <- opers
+  rownames(tab) <- paste0("Code = ", 0:(P-1))
+
+  print(knitr::kable(tab, digits = 3, caption = paste0("Statistics of the ", P, " proportions ", 
+                " for cell ", cell[1], "/", cell[2], "/", cell[3], 
+                " over the ", K, " simulations")))
+  
+} # loop over the cells of the grid
+```
+
+## Using convenient post-simulation processing function
+
+```{r}
+surfaces$clearSelection()
+err = simuPostPropByLayer(surfaces, grid, c("Z_1*", "Z_2*", "Z_3*"), flag_match=FALSE, verbose=TRUE,
+                          check_targets = cell_selected, check_level=0,
+                          upscale = EPostUpscale_fromKey("MEAN"),
+                          stats = EPostStat_fromKeys(c("MINI","MAXI","MED","MEAN","STD")))
+```
+
