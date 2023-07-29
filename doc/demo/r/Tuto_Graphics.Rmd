@@ -234,3 +234,38 @@ ggPrint(p)
 multi.varmod(vario=vario, model=model)
 ```
 
+# Slice of a 3-D Grid
+
+```{r}
+g3D = DbGrid_create(nx=c(10,15,20))
+g3D
+```
+
+Plot a horizontal slice:by default, this corresponds to the first level IZ=1
+
+```{r}
+p = ggDefault()
+p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank")
+p = p + plot.decoration(title="Horizontal Slice (IZ=1)")
+ggPrint(p)
+```
+
+Plot another horizontal slice (IZ=10): the color scale is adapter to the values (ranks) of the new set of cells to be represented
+
+```{r}
+p = ggDefault()
+p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank", corner=c(0,0,10))
+p = p + plot.decoration(title="Horizontal Slice (IZ=10)")
+ggPrint(p)
+```
+
+Display a vertical slice (XOZ) for the index IY=3
+
+```{r}
+p = ggDefault()
+p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank", 
+                  posY=2, corner=c(0,3,0))
+p = p + plot.decoration(title="Vertical Slice XOZ (IY=3)")
+ggPrint(p)
+```
+

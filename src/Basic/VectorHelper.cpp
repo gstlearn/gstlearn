@@ -266,6 +266,7 @@ double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
   double max = -1.e30;
   for (auto v : vec)
   {
+    if (FFFF(v)) continue;
     if (flagAbs) v = ABS(v);
     if (v > max) max = v;
   }
@@ -278,6 +279,7 @@ int VectorHelper::maximum(const VectorInt &vec, bool flagAbs)
   int max = -10000000;
   for (auto v : vec)
   {
+    if (IFFFF(v)) continue;
     if (flagAbs) v = ABS(v);
     if (v > max) max = v;
   }
@@ -298,6 +300,7 @@ int VectorHelper::minimum(const VectorInt &vec, bool flagAbs)
   int min = 10000000;
   for (auto v : vec)
   {
+    if (IFFFF(v)) continue;
     if (flagAbs) v = ABS(v);
     if (v < min) min = v;
   }
@@ -310,6 +313,7 @@ double VectorHelper::minimum(const VectorDouble &vec, bool flagAbs)
   double min = 1.e30;
   for (auto v : vec)
   {
+    if (FFFF(v)) continue;
     if (flagAbs) v = ABS(v);
     if (v < min) min = v;
   }
@@ -362,7 +366,7 @@ double VectorHelper::cumul(const VectorDouble& vec)
   return total;
 }
 
-double VectorHelper::variance(const VectorDouble &vec)
+double VectorHelper::variance(const VectorDouble &vec, bool scaleByN)
 {
   if (vec.size() <= 0) return 0.;
   double mean = 0.;
@@ -375,9 +379,12 @@ double VectorHelper::variance(const VectorDouble &vec)
     mean += v;
     number++;
   }
-  if (number <= 0) return TEST;
+  if (number <= 1) return TEST;
   mean /= (double) number;
-  var = var / (double) number - mean * mean;
+  if (scaleByN)
+    var = var / (double) number - mean * mean;
+  else
+    var = var / (double) (number-1) - mean * mean;
   return var;
 }
 
@@ -460,9 +467,9 @@ VectorDouble VectorHelper::quantiles(const VectorDouble &vec,
   return retval;
 }
 
-double VectorHelper::stdv(const VectorDouble &vec)
+double VectorHelper::stdv(const VectorDouble &vec, bool scaleByN)
 {
-  double var = variance(vec);
+  double var = variance(vec, scaleByN);
   if (!FFFF(var))
     return (sqrt(var));
   else
@@ -475,8 +482,26 @@ double VectorHelper::norm(const VectorDouble &vec)
   return sqrt(ip);
 }
 
-double VectorHelper::normDistance(const VectorDouble& veca,
-                                  const VectorDouble& vecb)
+double VectorHelper::median(const VectorDouble &vec)
+{
+  VectorDouble med;
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+    if (! FFFF(vec[i])) med.push_back(vec[i]);
+
+  // Sort the values
+  med = sort(med);
+
+  // Return the median value
+  int number = (int) med.size();
+  if (number <= 0) return TEST;
+  if (isOdd(number))
+    return med[number / 2];
+  else
+    return (med[number / 2] + med[number / 2 - 1]) / 2.;
+}
+
+double VectorHelper::normDistance(const VectorDouble &veca,
+                                  const VectorDouble &vecb)
 {
   double prod = 0.;
   double delta = 0.;
@@ -1225,6 +1250,11 @@ VectorDouble VectorHelper::unique(const VectorDouble& vecin, int size)
   it = std::unique(vecout.begin(), vecout.end());
   vecout.resize(distance(vecout.begin(),it));
   return vecout;
+}
+
+bool VectorHelper::isInList(const VectorInt& vec, int item)
+{
+  return std::count(vec.begin(), vec.end(), item);
 }
 
 VectorInt VectorHelper::sort(const VectorInt& vecin, bool ascending, int size)

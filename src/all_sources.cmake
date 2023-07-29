@@ -59,6 +59,7 @@ set(SRC
   Calculators/CalcGridToGrid.cpp
   Calculators/CalcSimuPost.cpp
   Calculators/CalcSimuPostDemo.cpp
+  Calculators/CalcSimuPostPropByLayer.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp

@@ -22,7 +22,9 @@ Table::Table(int nrow, int ncol)
     ASerializable(),
     _title(),
     _rowNames(),
-    _colNames()
+    _colNames(),
+    _skipTitle(false),
+    _skipDescription(false)
 {
   init(nrow, ncol);
 }
@@ -32,7 +34,9 @@ Table::Table(const Table &m)
       ASerializable(m),
       _title(m._title),
       _rowNames(m._rowNames),
-      _colNames(m._colNames)
+      _colNames(m._colNames),
+      _skipTitle(m._skipTitle),
+      _skipDescription(m._skipDescription)
 {
 
 }
@@ -46,6 +50,8 @@ Table& Table::operator=(const Table &m)
     _title = m._title;
     _rowNames = m._rowNames;
     _colNames = m._colNames;
+    _skipTitle = m._skipTitle;
+    _skipDescription = m._skipDescription;
   }
   return *this;
 }
@@ -172,20 +178,27 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   if (isEmpty()) return sstr.str();
-
-  if (_title.empty())
-    sstr << toTitle(1, "Table contents");
-  else
-    sstr << toTitle(1, _title.c_str());
-
   int ncols = getNCols();
   int nrows = getNRows();
-  sstr << "- Number of Rows    = " << nrows << std::endl;
-  sstr << "- Number of Columns = " << ncols << std::endl;
-  sstr << std::endl;
+
+  // Title
+  if (!_skipTitle)
+  {
+    if (_title.empty())
+      sstr << toTitle(1, "Table contents");
+    else
+      sstr << toTitle(1, _title.c_str());
+  }
+
+  // Description
+  if (! _skipDescription)
+  {
+    sstr << "- Number of Rows    = " << nrows << std::endl;
+    sstr << "- Number of Columns = " << ncols << std::endl;
+    sstr << std::endl;
+  }
 
   // Print optional header (using Column names if defined)
-
   if (! _colNames.empty())
   {
     if (! _rowNames.empty()) sstr << toStr(" ");

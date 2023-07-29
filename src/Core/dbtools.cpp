@@ -502,7 +502,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
     dist[jech] = 1.e30;
 
   // Initialize 'coor' as the first target sample
-  db_gridout->rankToCoordinateInPlace(0, coor);
+  db_gridout->rankToCoordinatesInPlace(0, coor);
 
   /* Loop on the input grid nodes */
 
@@ -513,7 +513,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
 
     /* Get the coordinates of the node from the input grid node */
 
-    db_gridin->rankToCoordinateInPlace(iech, coor);
+    db_gridin->rankToCoordinatesInPlace(iech, coor);
 
     /* Locate in the output grid */
 
@@ -718,7 +718,7 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
   {
     if (!db_gridout->isActive(iech)) continue;
 
-    db_gridout->rankToCoordinateInPlace(iech, coor);
+    db_gridout->rankToCoordinatesInPlace(iech, coor);
     int jech = db_gridin->coordinateToRank(coor);
     if (jech < 0) continue;
 
@@ -4247,7 +4247,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
     // Draw the point within the elected cell
 
-    dbgrid->rankToCoordinateInPlace(indip, coor);
+    dbgrid->rankToCoordinatesInPlace(indip, coor);
     for (int idim = 0; idim < ndim; idim++)
       coor[idim] += law_uniform(0., dbgrid->getDX(idim));
     if (flag_region)

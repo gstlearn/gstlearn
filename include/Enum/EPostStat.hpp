@@ -16,7 +16,11 @@
                  UNKNOWN, -1, "Unknown Option", \
                  MEAN,     1, "Mean", \
                  VAR,      2, "Variance", \
-                 MINI,     3, "Minimum", \
-                 MAXI,     4, "Maximum"
+                 VARP,     3, "Variance-P", \
+                 STD,      4, "Std.", \
+                 STDP,     5, "Std-P", \
+                 MED,      6, "Median", \
+                 MINI,     7, "Minimum", \
+                 MAXI,     8, "Maximum"
 
 ENUM_DECLARE(ENUM_POST_STAT)

@@ -32,7 +32,6 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  bool hasFaults() const { return _faults != nullptr; }
   const Faults* getFaults() const { return _faults; }
 
 private:

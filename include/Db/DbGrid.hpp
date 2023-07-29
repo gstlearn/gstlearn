@@ -201,12 +201,18 @@ public:
   {
     _grid.rankToIndice(node,indices, minusOne);
   }
-  void rankToCoordinateInPlace(int rank,
-                               VectorDouble &coor,
-                               const VectorDouble &percent = VectorDouble()) const
+  void rankToCoordinatesInPlace(int rank,
+                                VectorDouble &coor,
+                                const VectorDouble &percent = VectorDouble()) const
   {
     _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
+  VectorDouble rankToCoordinates(int rank,
+                                 const VectorDouble& percent = VectorDouble()) const
+  {
+    return _grid.rankToCoordinates(rank,percent);
+  }
+
   void indicesToCoordinateInPlace(const VectorInt& indice,
                                   VectorDouble& coor,
                                   const VectorDouble& percent = VectorDouble()) const
@@ -218,6 +224,13 @@ public:
   {
     return _grid.indicesToCoordinate(indice, percent);
   }
+  bool sampleBelongsToCell(const VectorDouble& coor,
+                           int rank,
+                           const VectorDouble &dxsPerCell = VectorDouble()) const
+  {
+    return _grid.sampleBelongsToCell(coor, rank, dxsPerCell);
+  }
+
   int centerCoordinateInPlace(VectorDouble &coor,
                               bool centered = false,
                               bool stopIfOut = false,

@@ -249,11 +249,12 @@ void ACalcDbToDb::_renameVariable(int whichDb,
                                   bool flagSetLocator,
                                   int locatorShift)
 {
+  ELoc locatorType = (nvar <= 0) ? ELoc::UNKNOWN : ELoc::Z; // Dbin not used if nvar<=0
   if (whichDb == 1)
-    _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbin, iptr, name, count,
+    _namconv.setNamesAndLocators(_dbin, locatorType, nvar, _dbin, iptr, name, count,
                                  flagSetLocator, locatorShift);
   else
-    _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count,
+    _namconv.setNamesAndLocators(_dbin, locatorType, nvar, _dbout, iptr, name, count,
                                  flagSetLocator, locatorShift);
 }
 

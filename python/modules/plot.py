@@ -307,8 +307,7 @@ def addColorbar(im, ax):
     return cbar
 
 def __getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True, 
-                     compress=False, asGrid=True, 
-                     flagConvertNanToZero=False):
+                       compress=False, asGrid=True, flagConvertNanToZero=False):
 
     if db.isGrid() and asGrid:
         if corner is None:
@@ -664,8 +663,7 @@ def __ax_model(ax, modelobj = None, **kwargs):
     
     return ax
 
-def __readCoorPoint(db, coorX_name=None, coorY_name=None, 
-                    usesel=True, posX=0, posY=1):
+def __readCoorPoint(db, coorX_name=None, coorY_name=None, usesel=True, posX=0, posY=1):
     
     # Extracting coordinates
     if coorX_name is not None:
@@ -724,8 +722,8 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     # Color of symbol
     if name_color is not None:
         colval = __getDefinedValues(db, name_color, 0, 1, None, usesel, 
-                                  compress=True, asGrid=False, 
-                                  flagConvertNanToZero=True)
+                                    compress=True, asGrid=False, 
+                                    flagConvertNanToZero=True)
         name = name + ' ' + name_color
     else:
         colval = c
@@ -733,8 +731,8 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     # Size of symbol
     if name_size is not None:
         sizval = __getDefinedValues(db, name_size, 0, 1, None, usesel, 
-                                  compress=True, asGrid=False, 
-                                  flagConvertNanToZero=True)
+                                    compress=True, asGrid=False, 
+                                    flagConvertNanToZero=True)
         if not flagCst:
             if flagAbsSize:
                 sizval = np.absolute(sizval)
@@ -797,8 +795,8 @@ def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None,
     tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
     
     labval = __getDefinedValues(db, name, 0, 1, None, usesel, 
-                              compress=True, asGrid=False, 
-                              flagConvertNanToZero=True)
+                                compress=True, asGrid=False, 
+                                flagConvertNanToZero=True)
 
     res = ax.scatter(x = tabx, y = taby, **kwargs)
     
@@ -1036,19 +1034,18 @@ def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
         
     return ax
 
-def __readGrid(dbgrid, name, usesel=True, 
-               posx=0, posy=1, corner=None, shading = "nearest"):
+def __readGrid(dbgrid, name, usesel=True, posX=0, posY=1, corner=None, shading = "nearest"):
     
-    x0 = dbgrid.getX0(posx)
-    y0 = dbgrid.getX0(posy)
-    nx = dbgrid.getNX(posx)
-    ny = dbgrid.getNX(posy)
-    dx = dbgrid.getDX(posx)
-    dy = dbgrid.getDX(posy)
+    x0 = dbgrid.getX0(posX)
+    y0 = dbgrid.getX0(posY)
+    nx = dbgrid.getNX(posX)
+    ny = dbgrid.getNX(posY)
+    dx = dbgrid.getDX(posX)
+    dy = dbgrid.getDX(posY)
     angles = dbgrid.getAngles()
     
-    data = __getDefinedValues(dbgrid, name, posx, posy, corner, usesel, 
-                            compress=False, asGrid=True)
+    data = __getDefinedValues(dbgrid, name, posX, posY, corner, usesel, 
+                              compress=False, asGrid=True)
     data = np.reshape(data, (ny,nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angles[0])
@@ -1076,23 +1073,23 @@ def cell(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_cell(ax, dbgrid, *args, **kwargs)
 
-def __ax_cell(ax, dbgrid, posx=0, posy=1, corner=None, step=1, **kwargs):
-    xext = dbgrid.getExtrema(posx)
-    yext = dbgrid.getExtrema(posy)
+def __ax_cell(ax, dbgrid, posX=0, posY=1, corner=None, step=1, **kwargs):
+    xext = dbgrid.getExtrema(posX)
+    yext = dbgrid.getExtrema(posY)
 
     indices = np.zeros(dbgrid.getNDim())
-    for i in range(0,dbgrid.getNX(posx)+1,step):
-        indices[posx] = i
-        indices[posy] = 0
+    for i in range(0,dbgrid.getNX(posX)+1,step):
+        indices[posX] = i
+        indices[posY] = 0
         tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
-        indices[posy] = dbgrid.getNX(posy)
+        indices[posY] = dbgrid.getNX(posY)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
-    for i in range(0,dbgrid.getNX(posy)+1,step):
-        indices[posx] = 0
-        indices[posy] = i
+    for i in range(0,dbgrid.getNX(posY)+1,step):
+        indices[posX] = 0
+        indices[posY] = i
         tab1 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
-        indices[posx] = dbgrid.getNX(posx)
+        indices[posX] = dbgrid.getNX(posX)
         tab2 = dbgrid.getCoordinatesByIndice(indices, True, [-1,-1])
         ax.plot([tab1[0],tab2[0]],[tab1[1],tab2[1]], **kwargs)
     return
@@ -1111,15 +1108,14 @@ def raster(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_raster(ax, dbgrid, *args, **kwargs)
 
-def __ax_raster(ax, dbgrid, name=None, usesel = True, posx=0, posy=1, corner=None, 
+def __ax_raster(ax, dbgrid, name=None, usesel = True, posX=0, posY=1, corner=None, 
                 flagLegend=False, **kwargs):
     name = defaultVariable(dbgrid, name)
             
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, usesel, 
-                                      posx=posx, posy=posy, corner=corner)
+    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, usesel, posX=posX, posY=posY, corner=corner)
     trans_data = tr + ax.transData
     
     res = ax.pcolormesh(X, Y, data, **kwargs)
@@ -1152,15 +1148,14 @@ def isoline(dbgrid, *args, **kwargs):
     return __ax_isoline(ax, dbgrid, *args, **kwargs)
 
 def __ax_isoline(ax, dbgrid, name=None, usesel = True, 
-                 posx=0, posy=1, corner=None, levels=None,
+                 posX=0, posY=1, corner=None, levels=None,
                  flagLegend=False, **kwargs):
     name = defaultVariable(dbgrid, name)
         
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, usesel, 
-                                      posx=posx, posy=posy, corner=corner)
+    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, usesel, posX=posX, posY=posY, corner=corner)
     trans_data = tr + ax.transData
     
     res = ax.contour(X, Y, data, levels, **kwargs)
@@ -1187,7 +1182,7 @@ def grid(dbgrid, *args, **kwargs):
     return __ax_grid(ax, dbgrid, *args, **kwargs)
 
 def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True, 
-              posx=0, posy=1, corner=None, flagCell=False,
+              posX=0, posY=1, corner=None, flagCell=False,
               flagLegendRaster=False, flagLegendContour=False,
               levels=None, **kwargs):
     if isNotCorrect(object=dbgrid, types=["DbGrid"]):
@@ -1201,20 +1196,20 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True
     title = ""
     if name_raster is not None:
         rs = __ax_raster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
-                         posx=posx, posy=posy, corner=corner, 
+                         posX=posX, posY=posY, corner=corner, 
                          flagLegend=flagLegendRaster,
                          **kwargs)
         title = title + name_raster + " (Raster) "
     
     if name_contour is not None:
         ct = __ax_isoline(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
-                          posx=posx, posy=posy, corner=corner, levels=levels, 
+                          posX=posX, posY=posY, corner=corner, levels=levels, 
                           flagLegend=flagLegendContour, 
                           **kwargs)
         title = title + name_contour + " (Isoline) "
     
     if flagCell:
-        cl = __ax_cell(ax, dbgrid, posx=posx, posy=posy, corner=corner, 
+        cl = __ax_cell(ax, dbgrid, posX=posX, posY=posY, corner=corner, 
                        **kwargs)
         
     ax.decoration(title = title)
@@ -1257,7 +1252,7 @@ def __ax_grid1D(ax, dbgrid, name = None, usesel = True, flagLegendColor=True,
     
     tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, usesel)
     data = __getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
-                            compress=False, asGrid=True)
+                              compress=False, asGrid=True)
 
     __ax_curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
                **kwargs)

@@ -80,6 +80,7 @@
 %include Calculators/CalcGridToGrid.hpp
 %include Calculators/CalcSimuPost.hpp
 %include Calculators/CalcSimuPostDemo.hpp
+%include Calculators/CalcSimuPostPropByLayer.hpp
 
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp

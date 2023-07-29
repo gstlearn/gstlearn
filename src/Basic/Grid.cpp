@@ -600,7 +600,7 @@ int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
   if ((int)indice.size() != _nDim)
     my_throw("Argument indice should have the correct size");
 
-  // Check if all coordinates are defined 
+  // Check if all coordinates are defined
 
   for (int idim = 0; idim < _nDim; idim++)
     if (FFFF(coor[idim])) return -1;
@@ -1124,30 +1124,110 @@ int Grid::generateMirrorIndex(int nx, int ix)
 }
 
 /**
- * Find the grid node to which the current sample is assigned
+ * Check if a sample belongs to a Grid Cell
  * @param coor       Sample coordinates
  * @param center     Coordinates of the grid node center
- * @param dxsPerCell When defined, vector of cell extension; otherwise use 8dx
+ * @param dxsPerCell When defined, vector of cell extension; otherwise use dx
  * @return Error return code
+ *
+ * @remark Samples located exactly on the edge are considered as INSIDE
  */
 bool Grid::sampleBelongsToCell(const VectorDouble& coor,
                                const VectorDouble& center,
                                const VectorDouble& dxsPerCell) const
 {
-  // Shift by the origin
-  for (int idim = 0; idim < _nDim; idim++)
-    _work1[idim] = coor[idim] - _x0[idim];
-
-  // Perform the Inverse rotation
-  _rotation.rotateInverse(_work1, _work2);
-
-  // Calculate the departure between sample and grid center
-
-  for (int idim=0; idim<_nDim; idim++)
+  if (_rotation.isRotated())
   {
-    double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
-    double delta = _work2[idim] - center[idim];
-    if (delta < -dxloc/2. || delta > dxloc/2.) return false;
+    // Convert Grid Node center into Grid coordinates
+    VectorDouble _work3 = _work1;
+    for (int idim = 0; idim < _nDim; idim++)
+      _work1[idim] = center[idim] - _x0[idim];
+    _rotation.rotateInverse(_work1, _work3);
+
+    // Convert the coordinates of sample in Grid coordinates
+    for (int idim = 0; idim < _nDim; idim++)
+      _work1[idim] = coor[idim] - _x0[idim];
+    _rotation.rotateInverse(_work1, _work2);
+
+    // Calculate the departure between sample and grid center
+    for (int idim = 0; idim < _nDim; idim++)
+    {
+      double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
+      double delta = _work2[idim] - _work3[idim];
+      if (ABS(delta) > dxloc / 2.) return false;
+    }
+  }
+  else
+  {
+    // Calculate the departure between sample and grid center
+    for (int idim = 0; idim < _nDim; idim++)
+    {
+      double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
+      double delta = center[idim] - coor[idim];
+      if (ABS(delta) > dxloc / 2.) return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * Check if a sample belongs to a Grid Cell
+ * @param coor       Sample coordinates (can be lower space dimension than the current Grid)
+ * @param rank       Rank of the Grid cell
+ * @param dxsPerCell When defined, vector of cell extension; otherwise use dx
+ * @return Error return code
+ *
+ * @remark Samples located exactly on the edge are considered as INSIDE
+ */
+bool Grid::sampleBelongsToCell(const VectorDouble &coor,
+                               int rank,
+                               const VectorDouble &dxsPerCell) const
+{
+  // Identify the coordinates of the center of the grid cell, referred by its 'rank' and
+  // convert into Grid coordinates
+  VectorDouble center = rankToCoordinates(rank);
+
+  // Complement 'coor' to the grid space dimension
+  int ndim_coor = (int) coor.size();
+  VectorDouble coor_loc;
+  if (ndim_coor == _nDim)
+    coor_loc = coor;
+  else
+  {
+    coor_loc = center;
+    for (int idim = 0; idim < ndim_coor; idim++)
+      coor_loc[idim] = coor[idim];
+  }
+
+  if (_rotation.isRotated())
+  {
+    VectorDouble _work3 = _work1;
+    for (int idim = 0; idim < _nDim; idim++)
+      _work1[idim] = center[idim] - _x0[idim];
+    _rotation.rotateInverse(_work1, _work3);
+
+    // Convert the coordinates of sample in Grid coordinates
+    for (int idim = 0; idim < _nDim; idim++)
+      _work1[idim] = coor_loc[idim] - _x0[idim];
+    _rotation.rotateInverse(_work1, _work2);
+
+    // Calculate the departure between sample and grid center
+    for (int idim = 0; idim < MIN(ndim_coor, _nDim); idim++)
+    {
+      double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
+      double delta = _work2[idim] - _work3[idim];
+      if (ABS(delta) > dxloc / 2.) return false;
+    }
+  }
+  else
+  {
+    // Calculate the departure between sample and grid center
+     for (int idim = 0; idim < MIN(ndim_coor, _nDim); idim++)
+     {
+       double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
+       double delta = center[idim] - coor_loc[idim];
+       if (ABS(delta) > dxloc / 2.) return false;
+     }
   }
   return true;
 }

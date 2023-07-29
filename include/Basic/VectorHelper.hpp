@@ -57,9 +57,10 @@ public:
   static int    cumul(const VectorInt& vec);
   static double cumul(const VectorDouble &vec);
   static double mean(const VectorDouble &vec);
-  static double variance(const VectorDouble &vec);
-  static double stdv(const VectorDouble &vec);
+  static double variance(const VectorDouble &vec, bool scaleByN = false);
+  static double stdv(const VectorDouble &vec, bool scaleByN = false);
   static double norm(const VectorDouble &vec);
+  static double median(const VectorDouble& vec);
   static double normDistance(const VectorDouble& veca, const VectorDouble& vecb);
   static double correlation(const VectorDouble &veca, const VectorDouble &vecb);
   static VectorDouble quantiles(const VectorDouble& vec,
@@ -150,6 +151,7 @@ public:
                                int seed = 242141,
                                int optSort = 0);
 
+  static bool         isInList(const VectorInt& vec, int item);
   static VectorInt    sort(const VectorInt& vecin, bool ascending = true, int size = -1);
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true, int size = -1);
   static void         sortInPlace(VectorInt& vecin, bool ascending = true, int size = -1);

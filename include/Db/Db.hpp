@@ -142,7 +142,9 @@ public:
                               int nfex = 0,
                               double varmax = 0.,
                               double selRatio = 0.,
-                              const VectorDouble heteroRatio = VectorDouble(),
+                              const VectorDouble& heteroRatio = VectorDouble(),
+                              const VectorDouble& coormin = VectorDouble(),
+                              const VectorDouble& coormax = VectorDouble(),
                               int seed = 124234);
 
   const VectorDouble& getArrays() const { return _array; }
@@ -355,7 +357,7 @@ public:
   VectorDouble getSampleCoordinates(int iech) const;
   void getSampleCoordinatesAsSP(int iech, SpacePoint& P) const;
   void getSampleAsST(int iech, SpaceTarget& P) const;
-  void getSampleCoordinates(int iech, VectorDouble& coor) const;
+  void getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
 
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;

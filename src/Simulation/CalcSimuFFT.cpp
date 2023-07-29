@@ -237,7 +237,7 @@ void CalcSimuFFT::_gridDilate()
   /* Origin of the grid */
 
   for (int i = 0; i < 3; i++) indg[i] = 0;
-  dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz0);
+  dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
   xyz0.resize(3, 0.);
   xyz.resize(3);
 
@@ -248,7 +248,7 @@ void CalcSimuFFT::_gridDilate()
     for (int j = 0; j < 3; j++) indg[j] = 0;
     indg[i] = 1;
     xyz[i].resize(3);
-    dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz[i]);
+    dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz[i]);
   }
 
   /* Coordinates of the grid vector in the rotated space */
@@ -441,7 +441,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
     for (int j = 0; j < 3; j++)
       xyz1[i][j] = 0.;
   }
-  dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz0);
+  dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz0);
   xyz0.resize(3,0.);
 
   for (int i = 0; i < 3; i++)
@@ -451,7 +451,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
     xyz1[i].resize(3);
     if (i < _getNDim())
     {
-      dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz1[i]);
+      dbgrid->rankToCoordinatesInPlace(dbgrid->indiceToRank(indg), xyz1[i]);
       xyz1[i].resize(3,0.);
       for (int j = 0; j < 3; j++)
         xyz1[i][j] -= xyz0[j];

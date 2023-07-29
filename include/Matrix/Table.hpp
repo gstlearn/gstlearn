@@ -59,6 +59,8 @@ public:
 
   const String& getTitle() const { return _title; }
   void setTitle(const String &title) { _title = title; }
+  void setSkipDescription(bool skipDescription) { _skipDescription = skipDescription; }
+  void setSkipTitle(bool skipTitle) { _skipTitle = skipTitle; }
 
 protected:
   /// Interface for ASerializable
@@ -71,4 +73,6 @@ private:
   String _title;
   VectorString _rowNames;
   VectorString _colNames;
+  bool _skipTitle;
+  bool _skipDescription;
 };

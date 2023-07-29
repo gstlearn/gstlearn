@@ -361,7 +361,7 @@ bool CalcGridToGrid::_g2gInter()
     double value = TEST;
     if (ret)
     {
-      getGridout()->rankToCoordinateInPlace(iech_out, coorOut);
+      getGridout()->rankToCoordinatesInPlace(iech_out, coorOut);
       double valTop = getDbin()->getLocVariable(ELoc::Z,iech_in, 0);
       double valBot = getDbin()->getLocVariable(ELoc::Z,iech_in, 1);
       value = _interpolate(nvar, valTop, valBot, coorTop, coorBot, coorOut);

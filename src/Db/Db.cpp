@@ -672,7 +672,7 @@ void Db::updArray(int iech, int iuid, int oper, double value)
 VectorDouble Db::getSampleCoordinates(int iech) const
 {
   VectorDouble coor(getNDim());
-  getSampleCoordinates(iech, coor);
+  getSampleCoordinatesInPlace(iech, coor);
   return coor;
 }
 
@@ -737,7 +737,7 @@ VectorDouble Db::getSampleLocators(const ELoc& locatorType, int iech) const
   return vec;
 }
 
-void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
+void Db::getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const
 {
   for (int idim = 0, ndim=getNDim(); idim < ndim; idim++)
     coor[idim] = getCoordinate(iech, idim);
@@ -4896,6 +4896,8 @@ VectorInt Db::getSampleRanks() const
  * @param varmax Maximum value for the measurement error
  * @param selRatio Percentage of samples that must be masked off
  * @param heteroRatio Vector of proportions of NA to be generated per variable
+ * @param coormin Vector of minima of the rectangle containing data (0s if not defined)
+ * @param coormax Vector of maxima of the rectangle containing data (1s if not defined)
  * @param seed Value for the Random Generator seed
  * @return A pointer to the newly created Db
  *
@@ -4911,7 +4913,9 @@ Db* Db::createFillRandom(int ndat,
                          int nfex,
                          double varmax,
                          double selRatio,
-                         const VectorDouble heteroRatio,
+                         const VectorDouble& heteroRatio,
+                         const VectorDouble& coormin,
+                         const VectorDouble& coormax,
                          int seed)
 {
   // Set the seed
@@ -4923,7 +4927,11 @@ Db* Db::createFillRandom(int ndat,
   // Generate the vector of coordinates
   VectorVectorDouble coor(ndim);
   for (int idim = 0; idim < ndim; idim++)
-    coor[idim] = VH::simulateUniform(ndat);
+  {
+    double mini = ((int) coormin.size() == ndim) ? coormin[idim] : 0.;
+    double maxi = ((int) coormax.size() == ndim) ? coormax[idim] : 1.;
+    coor[idim] = VH::simulateUniform(ndat, mini, maxi);
+  }
   db->addColumnsByVVD(coor, "x", ELoc::X);
 
   // Generate the Vectors of Variance of measurement error (optional)

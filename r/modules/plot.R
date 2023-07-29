@@ -555,19 +555,38 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
   p
 }
 
-readPointCoor <- function(db)
+readPointCoor <- function(db, usesel=TRUE, posX=0, posY=1)
 {
-  x = db$getCoordinates(0,TRUE)
-  y = db$getCoordinates(1,TRUE)
+  if (db$getNDim() > 0) 
+	x = db$getCoordinates(posX,usesel)
+  if (db$getNDim() > 1)
+    y = db$getCoordinates(posY,usesel)
   df = data.frame(x,y)
   df
 }
 
-readGridCoor <- function(dbgrid, name, usesel= FALSE)
+readGridCoor <- function(dbgrid, name, usesel= FALSE, posX=0, posY=1, corner=NA)
 {
-  x = dbgrid$getColumnByLocator(ELoc_X(),0, FALSE, FALSE)
-  y = dbgrid$getColumnByLocator(ELoc_X(),1, FALSE, FALSE)
-  data = dbgrid$getColumn(name, usesel, FALSE)
+  if (isNotDef(corner))
+	corner = rep(0, dbgrid$getNDim())
+  x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
+  y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
+  
+  if (dbgrid$getNDim() == 1)
+  {
+  	data = dbgrid$getColumn(name, usesel, FALSE)
+  	x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
+  	y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
+  }
+  else
+  {
+  	data = dbgrid$getOneSlice(name, posX, posY, corner, usesel)
+  	nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
+  	x = dbgrid$getOneSlice(nameX, posX, posY, corner, usesel)
+  	nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
+  	y = dbgrid$getOneSlice(nameY, posX, posY, corner, usesel)
+  }
+  	
   if (length(data) != length(x))
   {
     cat("Variable",name,"does not exist or does not have correction dimension\n")
@@ -579,11 +598,11 @@ readGridCoor <- function(dbgrid, name, usesel= FALSE)
 
 # Function for plotting a point data base, with optional color and size variables
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-    flagAbsSize = FALSE, flagCst=FALSE,
+    flagAbsSize = FALSE, flagCst=FALSE, usesel=TRUE, posX=0, posY=1, 
     ...) 
 { 
   # Creating the necessary data frame
-  df = readPointCoor(db)
+  df = readPointCoor(db, usesel, posX, posY)
   
   # Color of symbol
   colval = NULL
@@ -610,10 +629,10 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
 }
 
 # Function for plotting a point data base, with label variables
-pointLabel <- function(db, name, digit=2, ...) 
+pointLabel <- function(db, name, digit=2, usesel=TRUE, posX=0, posY=1, ...) 
 {  
   # Creating the necessary data frame
-  df = readPointCoor(db)
+  df = readPointCoor(db, usesel, posX, posY)
   
   # Label of symbols
   labval  = round(db$getColumn(name,TRUE),digit)
@@ -640,6 +659,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   flagTitleDefault = FALSE
   if (is.null(name_color) && is.null(name_size) && is.null(name_label))
   {
+  	name_size = get.default.variable(db)
     if (db$getLocNumber(ELoc_Z()) > 0)
       name_size = db$getNameByLocator(ELoc_Z(),0)
     else 
@@ -674,7 +694,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   
   if (! is.null(name_label))
   {
-    p <- c(p, pointLabel(db, name=name_label, digit=digit_label, 
+    p <- c(p, pointLabel(db, name=name_label,  
         show.legend=show.legend.label, ...))
     
     # Set the title              
@@ -691,10 +711,10 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   p
 }
 
-gridRaster <- function(dbgrid, name, usesel = TRUE, ...)
+gridRaster <- function(dbgrid, name, usesel = TRUE, posX=0, posY=1, corner=NA, ...)
 {
   # Reading the Grid information
-  df = readGridCoor(dbgrid, name, usesel)
+  df = readGridCoor(dbgrid, name, usesel, posX, posY, corner)
   
   # Define the contents
   if (dbgrid$getAngles()[1] == 0 && ! dbgrid$hasSingleBlock())
@@ -713,14 +733,24 @@ gridRaster <- function(dbgrid, name, usesel = TRUE, ...)
   layer
 }
 
-gridContour <- function(dbgrid, name, usesel = TRUE, ...)
+gridContour <- function(dbgrid, name, usesel = TRUE, posX=0, posY=1, corner=NA, ...)
 {
   # Reading the Grid information
-  df = readGridCoor(dbgrid, name, usesel)
+  df = readGridCoor(dbgrid, name, usesel, posX, posY, corner)
   
   layer <- geom_contour(data = df, mapping=aes(x = x, y = y, z = data), ...)
   
   layer
+}
+
+get.default.variable <- function(db)
+{
+	if (db$getLocNumber(ELoc_Z()) > 0)
+		name = db$getNameByLocator(ELoc_Z(),0)
+ 	else
+   	   # if no Z locator, choose the last field
+  		name = db$getLastName()
+  	name
 }
 
 #
@@ -744,11 +774,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   # The default variable is the first Z-locator one, or the last variable in the file
   if (is.null(name_raster) && is.null(name_contour))
   {
-    if (dbgrid$getLocNumber(ELoc_Z()) > 0)
-      name_raster = dbgrid$getNameByLocator(ELoc_Z(),0)
-    else
-      # if no Z locator, choose the last field
-      name_raster = dbgrid$getLastName()
+  	name_raster = get.default.variable(dbgrid)
   }
   
   # Raster representation

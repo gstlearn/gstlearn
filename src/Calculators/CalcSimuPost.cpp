@@ -14,17 +14,21 @@
 
 #include "Db/Db.hpp"
 #include "Basic/Grid.hpp"
+#include "Matrix/Table.hpp"
 #include "Calculators/CalcSimuPost.hpp"
 
 CalcSimuPost::CalcSimuPost()
     : ACalcDbToDb(),
       _verbose(false),
       _flagMatch(false),
-      _rankCheck(0),
+      _flagUpscale(false),
+      _checkLevel(0),
+      _checkTargets(),
       _upscale(EPostUpscale::UNKNOWN),
       _stats(),
       _names(),
       _iechout(0),
+      _iter(-1),
       _iattOut(0),
       _niter(0),
       _nvarOut(0),
@@ -44,8 +48,17 @@ bool CalcSimuPost::_check()
   /************************************************************/
 
   if (! hasDbin())   return false;
-  if (! hasDbout())  return false;
-  if (! isGridOut()) return false;
+
+  if (_flagUpscale)
+  {
+    if (! hasDbout())  return false;
+    if (! isGridOut()) return false;
+  }
+  else
+  {
+    // Set the Dbout equal to Dbin
+    setDbout(getDbin());
+  }
 
   /**************************************************/
   /* Cross-checking the Space Dimension consistency */
@@ -56,6 +69,17 @@ bool CalcSimuPost::_check()
     messerr("The Space Dimension of Dbin(%d) must not be larger than the one of Dbout(%d)",
             getDbin()->getNDim(), getDbout()->getNDim());
     return false;
+  }
+
+  // Cross-checking options
+  if (_flagUpscale)
+  {
+    if (_upscale == EPostUpscale::UNKNOWN)
+    {
+      messerr("When 'dbout' is specified, some Upscaling is required");
+      messerr("Therefor the 'upscale' option must be defined");
+      return false;
+    }
   }
 
   // Identify the variables from the input file
@@ -86,26 +110,29 @@ void CalcSimuPost::_environPrint() const
             _nfact[ivar]);
   message("Number of Iterations: %d", _getNiter());
   if (_flagMatch)
-    message("(using the 'matching' criterion)\n");
+    message(" (using the 'matching' criterion)\n");
   else
-    message("(using the 'product' criterion)\n");
+    message(" (using the 'product' criterion)\n");
 
   message("Number of Statistics: %d\n", _getNStats());
-  if (getTransfoNvar() > 0)
-    message("Number of Transform Variables: %d\n", getTransfoNvar());
+  if (_getTransfoNvar() > 0)
+    message("Number of Transform Variables: %d\n", _getTransfoNvar());
   message("Number of Output Variables: %d\n", _getNVarout());
 }
 
-bool CalcSimuPost::_mustBeChecked() const
+bool CalcSimuPost::_mustBeChecked(int level) const
 {
-  if (_rankCheck == 0) return false;
-  if (_rankCheck < 0)  return true;
-  return (_rankCheck == (_iechout+1));
+  if (_checkTargets.empty()) return false;
+  if (level > _checkLevel) return false;
+  return (VH::isInList(_checkTargets, _iechout+1));
 }
 
 bool CalcSimuPost::_preprocess()
 {
-  _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
+  if (_flagUpscale)
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
+  else
+    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, _getNVarout(), 0.);
   if (_iattOut < 0) return false;
 
   return true;
@@ -119,7 +146,10 @@ bool CalcSimuPost::_postprocess()
     {
       std::ostringstream name;
       name << "Var" << ivar + 1 << "." << _stats[istat].getDescr();
-      _renameVariable(2, 0, _iattOut + ecr, name.str(), 1);
+      if (_flagUpscale)
+        _renameVariable(2, 0, _iattOut + ecr, name.str(), 1);
+      else
+        _renameVariable(1, 0, _iattOut + ecr, name.str(), 1);
       ecr++;
     }
   return true;
@@ -164,23 +194,24 @@ int CalcSimuPost::_defineVaroutNumber()
 /**
  * Read a multivariate vector for a set of variable indices and a target sample
  * @param iech  Rank of the target sample
- * @param indices Vector of variable indices
- * @return
+ * @param indices Vector of variable indices (Dimension: 'n')
+ * @param tabin Output Vector of variables (Dimension: 'n')
  */
-VectorDouble CalcSimuPost::_readIn(int iech, const VectorInt& indices) const
+void CalcSimuPost::_readIn(int iech, const VectorInt& indices, VectorDouble& tabin) const
 {
   int nvar = _getNVar();
-  VectorDouble tab(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
-    tab[ivar] = getDbin()->getArray(iech, _iuids[ivar][indices[ivar]]);
+    tabin[ivar] = getDbin()->getArray(iech, _iuids[ivar][indices[ivar]]);
 
-  if (_mustBeChecked())
+  if (_mustBeChecked(1))
   {
-    std::ostringstream phrase;
-    phrase << "    Sample Rank #" << iech;
-    VH::display(phrase.str(), tab, false);
+    message("    Sample Rank #%d - Coordinates:",iech);
+    for (int idim = 0, ndim = getDbin()->getNDim(); idim < ndim; idim++)
+      message(" %lf", getDbin()->getCoordinate(iech,  idim));
+    message("\n");
   }
-  return tab;
+  if (_mustBeChecked(2))
+    VH::display("    Initial    ", tabin, false);
 }
 
 void CalcSimuPost::_writeOut(int iech, const VectorDouble& tabout) const
@@ -191,13 +222,13 @@ void CalcSimuPost::_writeOut(int iech, const VectorDouble& tabout) const
 
 /**
  * Upscale the multivariate array defined for several samples into a multivariate array (in place)
- * @param Y_p_k_s VectorVectorDouble containing information for several samples
+ * @param Y_p_k_s Information for several samples (Dimension: 's' x 'd') where 'd' is 'n' or 'p'
+ * @param tabout Vector of upscaled values (Dimension: 'd')
  */
-VectorDouble CalcSimuPost::_upscaleFunction(const VectorVectorDouble& Y_p_k_s) const
+void CalcSimuPost::_upscaleFunction(const VectorVectorDouble& Y_p_k_s, VectorDouble& tabout) const
 {
   int nsample = (int) Y_p_k_s.size();
   int nvar = (int) Y_p_k_s[0].size();
-  VectorDouble Y_p_k(nvar);
 
   // Initialization values
   double valinit;
@@ -236,24 +267,22 @@ VectorDouble CalcSimuPost::_upscaleFunction(const VectorVectorDouble& Y_p_k_s) c
     }
 
     if (ndef <= 0)
-      Y_p_k[ivar] = TEST;
+      tabout[ivar] = TEST;
     else
     {
       if (_upscale == EPostUpscale::MEAN)
-        Y_p_k[ivar] = result / ndef;
+        tabout[ivar] = result / ndef;
       else
-        Y_p_k[ivar] = result;
+        tabout[ivar] = result;
     }
   }
 
-  if (_mustBeChecked())
+  if (_mustBeChecked(2))
   {
-    std::ostringstream phrase;
-    phrase << "    Upscale (" << _upscale.getDescr() << ")";
-    VH::display(phrase.str(), Y_p_k, false);
+    std::ostringstream string;
+    string << "    Upscaled (" << nsample << ")";
+    VH::display(string.str(), tabout, false);
   }
-
-  return Y_p_k;
 }
 
 /**
@@ -272,101 +301,103 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble &Y_p,
   int ecr = 0;
   for (int ivar = 0; ivar < nvarout; ivar++)
   {
-    // Loop on the iterations
-    int ndef = 0;
-    double mm = 0.;
-    double vv = 0.;
-    double mini =  1.e30;
-    double maxi = -1.e30;
+    VectorDouble local(niter, TEST);
     if (!Y_p.empty())
     {
-      for (int iter = 0; iter < niter; iter++)
+      int ndef = 0;
+      for (int jter = 0; jter < niter; jter++)
       {
-        double value = Y_p[iter][ivar];
+        double value = Y_p[jter][ivar];
         if (FFFF(value)) continue;
-
-        ndef++;
-        mm += value;
-        vv += value * value;
-        if (value < mini) mini = value;
-        if (value > maxi) maxi = value;
+        local[ndef++] = value;
       }
-    }
-
-    if (ndef > 0)
-    {
-      mm = mm / ndef;
-      vv = vv / ndef - mm * mm;
-    }
-    else
-    {
-      mm = vv = mini = maxi = TEST;
     }
 
     for (int istat = 0; istat < nstat; istat++)
     {
       if (_stats[istat] == EPostStat::MEAN)
-        tabout[ecr++] = mm;
+        tabout[ecr++] = VH::mean(local);
       else if (_stats[istat] == EPostStat::VAR)
-        tabout[ecr++] = vv;
+        tabout[ecr++] = VH::variance(local);
+      else if (_stats[istat] == EPostStat::VARP)
+        tabout[ecr++] = VH::variance(local, true);
+      else if (_stats[istat] == EPostStat::STD)
+        tabout[ecr++] = VH::stdv(local);
+      else if (_stats[istat] == EPostStat::STDP)
+        tabout[ecr++] = VH::stdv(local, true);
       else if (_stats[istat] == EPostStat::MINI)
-        tabout[ecr++] = mini;
+        tabout[ecr++] = VH::minimum(local);
       else if (_stats[istat] == EPostStat::MAXI)
-        tabout[ecr++] = maxi;
+        tabout[ecr++] = VH::maximum(local);
+      else if (_stats[istat] == EPostStat::MED)
+        tabout[ecr++] = VH::median(local);
     }
   }
 
-  if (_mustBeChecked() && ! Y_p.empty())
+  if (_mustBeChecked(0) && ! Y_p.empty())
   {
-    std::ostringstream phrase;
-    phrase << "  Statistics (";
+    Table stat_table = Table(_getNEff(),_getNStats());
+    stat_table.setTitle("Statistics");
+    stat_table.setSkipTitle(true);
+    stat_table.setSkipDescription(true);
+
     for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
+      stat_table.setColumnName(istat, _stats[istat].getDescr());
+
+    for (int ivar = 0; ivar < _getNEff(); ivar++)
     {
-      if (istat > 0) phrase << ", ";
-      phrase << _stats[istat].getDescr();
+      std::ostringstream name;
+      name << "Var " << ivar+1;
+      stat_table.setRowName(ivar, name.str());
     }
-    phrase << ")";
-    VH::display(phrase.str(), tabout, false);
+
+    int lec = 0;
+    for (int ivar = 0; ivar < _getNEff(); ivar++)
+      for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
+        stat_table.setValue(ivar, istat, tabout[lec++]);
+    stat_table.display();
   }
 }
 
-void CalcSimuPost::_printIndices(int rank, const VectorInt &indices) const
+void CalcSimuPost::_printIndices(const VectorVectorInt &indices) const
 {
   int nvar = _getNVar();
-  message("  Iteration %3d/%3d -> Indices (1-based):", rank, _niter);
+  message("  Iteration (1-based) %3d/%3d -> Indices:", _iter+1, _niter);
   for (int ivar = 0; ivar < nvar; ivar++)
-    message(" %d/%d", indices[ivar] + 1, _nfact[ivar]);
+    message(" %d/%d", indices[_iter][ivar] + 1, _nfact[ivar]);
   message("\n");
 }
 
-VectorInt CalcSimuPost::_getIndices(int rank) const
+VectorVectorInt CalcSimuPost::_getIndices() const
 {
-  if (rank < 0 || rank >= _niter)
-  {
-    messerr("Argument 'rank' cannot be negative or exceed _niter(%d)", _niter);
-    return VectorInt();
-  }
-
   int nvar = _getNVar();
-  VectorInt indices(nvar);
+  int niter = _getNiter();
+  VectorVectorInt indices(niter);
 
-  // Dispatch according to the multiplicity mode
-  if (_flagMatch)
+  // Loop on the iterations
+
+  for (int jter = 0; jter < niter; jter++)
   {
-    for (int ivar = 0; ivar < nvar; ivar++)
+    indices[jter].resize(nvar,0);
+
+    // Dispatch according to the multiplicity mode
+    if (_flagMatch)
     {
-      indices[ivar] = rank;
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        indices[jter][ivar] = jter;
+      }
     }
-  }
-  else
-  {
-    int local = rank;
-    for (int ivar = 0; ivar < nvar; ivar++)
+    else
     {
-      int jvar = nvar - ivar - 1;
-      int divid = local / _nfact[jvar];
-      indices[jvar] = local - divid * _nfact[jvar];
-      local = divid;
+      int local = jter;
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        int jvar = nvar - ivar - 1;
+        int divid = local / _nfact[jvar];
+        indices[jter][jvar] = local - divid * _nfact[jvar];
+        local = divid;
+      }
     }
   }
   return indices;
@@ -444,23 +475,81 @@ int CalcSimuPost::_defineNames()
  */
 int CalcSimuPost::_getNEff() const
 {
-  if (getTransfoNvar() > 0)
-    return getTransfoNvar();
+  if (_getTransfoNvar() > 0)
+    return _getTransfoNvar();
   else
     return _getNVar();
 }
 
+VectorInt CalcSimuPost::_samplesInCellIdenticalSpaceDimension(const VectorInt& indblock) const
+{
+  VectorInt local;
+  for (int iechin = 0, nechin = getDbin()->getSampleNumber(); iechin < nechin; iechin++)
+  {
+    if (!getDbin()->isActive(iechin)) continue;
+    if (indblock[iechin] != _iechout) continue;
+    local.push_back(iechin);
+  }
+  return local;
+}
+
+VectorInt CalcSimuPost::_samplesInCellDifferentSpaceDimension() const
+{
+  VectorInt local;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+  for (int iechin = 0, nechin = getDbin()->getSampleNumber(); iechin < nechin; iechin++)
+  {
+    if (!getDbin()->isActive(iechin)) continue;
+    VectorDouble coor = getDbin()->getSampleCoordinates(iechin);
+    if (dbgrid->sampleBelongsToCell(coor, _iechout))
+      local.push_back(iechin);
+  }
+  return local;
+}
+
+/**
+ * Indicates which type of pre-sorting of the sample information must be chosen
+ * It can be:
+ * - 0: if one Target item corresponds to One Data item (no Upscaling phase)
+ * - 1: when each Datum item belongs to one Target item at most
+ *      (case when 'dbin' and 'dbout' have same space dimension)
+ * - 2: when a Datum item may belong to several Target items
+ *      (case when 'dbin' space dimension is smaller than 'dbout' space dimension)
+ * @return
+ */
+int CalcSimuPost::_getSortingCase() const
+{
+  if (! _flagUpscale)
+    return 0;
+  else if (getDbin()->getNDim() == getDbout()->getNDim())
+    return 1;
+  else
+    return 2;
+}
+
 int CalcSimuPost::_process()
 {
-  int nechin = getDbin()->getSampleNumber();
   int nechout = getDbout()->getSampleNumber();
   int niter = _getNiter();
+  VectorDouble sampleIn(_getNVar());
+  VectorDouble sampleOut;
+  if (_getTransfoNvar() > 0)
+    sampleOut.resize(_getTransfoNvar());
+  VectorDouble tabUpscaled;
+  if (_flagUpscale)
+    tabUpscaled.resize(_getNEff());
   VectorDouble statres(_getNVarout());
 
   // Get the indices of the samples within the Grid
   // There is no need to check that 'dbout' is a grid (see _check)
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-  VectorInt indblock = dbgrid->locateDataInGrid(getDbin(), VectorInt(), true);
+  VectorInt indblock;
+  int icase = _getSortingCase();
+  if (icase == 1)
+    indblock = dbgrid->locateDataInGrid(getDbin(), VectorInt(), true);
+
+  // Getting the indices of the multivariate simulation
+  VectorVectorInt indices = _getIndices();
 
   // Loop on the samples of the Output File
   for (_iechout = 0; _iechout < nechout; _iechout++)
@@ -468,60 +557,67 @@ int CalcSimuPost::_process()
     if (! getDbout()->isActive(_iechout)) continue;
     VectorVectorDouble Y_p;
 
-    // Loop on the iterations
-    for (int iter = 0; iter < niter; iter++)
+    // Get the vector of samples contained in the target cell
+    VectorInt local;
+    if (icase == 0)
+      local.push_back(_iechout);
+    else if (icase == 1)
+      local = _samplesInCellIdenticalSpaceDimension(indblock);
+    else
+      local = _samplesInCellDifferentSpaceDimension();
+    if (local.empty()) continue;
+
+    // Modif DR
+
+    if (_mustBeChecked(0))
     {
-      // Getting the indices of the multivariate simulation
-      VectorInt indices = _getIndices(iter);
+      if (_flagUpscale)
+        message("\n== Cell #%d/%d (regrouping %d samples)\n", _iechout+1, nechout, (int) local.size());
+      else
+        message("\n== Cell #%d/%d\n", _iechout+1, nechout);
+    }
+
+    // Loop on the iterations
+    for (_iter = 0; _iter < niter; _iter++)
+    {
+      if (_mustBeChecked(2))
+         _printIndices(indices);
 
       // Loop on the samples contained in the target cell
-      int ninside = 0;
       VectorVectorDouble Z_n_k_s;
-      for (int iechin = 0; iechin < nechin; iechin++)
+      for (int is = 0, nlocal = (int) local.size(); is < nlocal; is++)
       {
-        // We skip the masked samples and those which do not correspond to the target block
-        if (!getDbin()->isActive(iechin)) continue;
-        if (indblock[iechin] != _iechout) continue;
+        int iechin = local[is];
 
-        if (_mustBeChecked())
+        // Reading the variables for the current input sample rank and current iteration
+        _readIn(iechin, indices[_iter], sampleIn);
+
+        // Transformation (optional)
+        if (_getTransfoNvar() <= 0)
+          Z_n_k_s.push_back(sampleIn);
+        else
         {
-          if (ninside == 0)
-          {
-            if (iter == 0) message("\n== Cell #%d/%d\n", _iechout+1, nechout);
-            _printIndices(iter, indices);
-          }
+          _transformFunction(sampleIn, sampleOut);
+          if (_mustBeChecked(2))
+            VH::display("    Transformed",sampleOut, false);
+          Z_n_k_s.push_back(sampleOut);
         }
-
-        // Reading the variables for the current input sample rank
-        Z_n_k_s.push_back(_readIn(iechin, indices));
-        ninside++;
       }
-      if (ninside <= 0) continue;
 
-      // Perform the transformation
-
-      VectorVectorDouble Y_p_k_s;
-      if (getTransfoNvar() <= 0)
+      if (_flagUpscale)
       {
-        Y_p_k_s = Z_n_k_s;
+        // Upscale
+        _upscaleFunction(Z_n_k_s, tabUpscaled);
+        Y_p.push_back(tabUpscaled);
       }
       else
       {
-        Y_p_k_s = transformFunction(Z_n_k_s);
-        if (_mustBeChecked())
-          VH::display("    After Transform  ",VH::flatten(Y_p_k_s), false);
+        // Simply add this iteratio to the stack (flatten VVD to VD)
+        Y_p.push_back(VH::flatten(Z_n_k_s));
       }
-
-      // Upscale among all the samples of the target cell
-
-      VectorDouble Y_p_k = _upscaleFunction(Y_p_k_s);
-
-      // Stack the results for the current iteration
-
-      Y_p.push_back(Y_p_k);
     }
 
-    // Calculate the statistics on the intermediate vector
+    // Calculate the statistics on the resulting multivariate vector
 
     _statisticsFunction(Y_p, statres);
 
@@ -533,7 +629,6 @@ int CalcSimuPost::_process()
 }
 
 /**
- *
  * @param dbin Input data base
  * @param dbout Output data base (must be a Grid)
  * @param names Vector of simulation names
@@ -541,7 +636,8 @@ int CalcSimuPost::_process()
  * @param upscale Option within EPostUpscale
  * @param stats Vector of options within EPostStat
  * @param verbose Verbose flag
- * @param rank_check Rank (1-based) of the target element to be checked (0: None; -1: All)
+ * @param check_targets Rank (1-based) of the target element to be checked (0: None; -1: All)
+ * @param check_level 0: Statistics; 1: Sample Selection; 2: Iteration definition
  * @param namconv Naming convention
  * @return Error code
  *
@@ -567,18 +663,24 @@ int simuPost(Db *dbin,
              const EPostUpscale &upscale,
              const std::vector<EPostStat>& stats,
              bool verbose,
-             int rank_check,
+             const VectorInt& check_targets,
+             int check_level,
              const NamingConvention& namconv)
 {
   CalcSimuPost calcul;
   calcul.setDbin(dbin);
-  calcul.setDbout(dbout);
+  if (dbout != nullptr)
+  {
+    calcul.setFlagUpscale(true);
+    calcul.setDbout(dbout);
+  }
   calcul.setNames(names);
   calcul.setUpscale(upscale);
   calcul.setStats(stats);
   calcul.setFlagMatch(flag_match);
   calcul.setVerbose(verbose);
-  calcul.setRankCheck(rank_check);
+  calcul.setCheckTargets(check_targets);
+  calcul.setCheckLevel(check_level);
   calcul.setNamingConvention(namconv);
 
   int error = (calcul.run()) ? 0 : 1;

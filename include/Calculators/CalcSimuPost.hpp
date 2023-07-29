@@ -29,61 +29,71 @@ public:
   CalcSimuPost& operator=(const CalcSimuPost &r) = delete;
   virtual ~CalcSimuPost();
 
-  virtual int getTransfoNvar() const { return 0; }
-  virtual VectorVectorDouble transformFunction(const VectorVectorDouble& tab) const
-  {
-    return VectorVectorDouble();
-  }
 
   void setNames(VectorString names)            { _names = names; }
   void setNfact(VectorInt nfact)               { _nfact = nfact; }
   void setUpscale(const EPostUpscale &upscale) { _upscale = upscale; }
   void setVerbose(bool verbose)                { _verbose = verbose; }
   void setFlagMatch(bool match)                { _flagMatch = match; }
+  void setFlagUpscale(bool flagUpscale)        { _flagUpscale = flagUpscale; }
   void setStats(std::vector<EPostStat> stats)  { _stats = stats; }
-  void setRankCheck(int rankCheck)             { _rankCheck = rankCheck; }
-
-  int  getIechout() const { return _iechout; }
+  void setCheckTargets(const VectorInt& ranks) { _checkTargets = ranks; }
+  void setCheckLevel(int level)                { _checkLevel = level; }
 
 protected:
+  /// Interface for ACalcDbToDb
   virtual bool _check() override;
   virtual bool _preprocess() override;
   virtual bool _run() override;
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
+protected:
+  virtual int _getTransfoNvar() const { return 0; }
+  virtual void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const { return; }
+
+  int  _getNVar() const { return (int) _names.size(); }
+  int  _getIechout() const { return _iechout; }
+  bool _getFlagUpscale() const { return _flagUpscale; }
+
 private:
   int  _defineNames();
   void _defineIterations();
-  VectorInt _getIndices(int rank) const;
-  int _process();
-  int _getNiter() const { return _niter; }
-  int _getNVar() const { return (int) _names.size(); }
-  int _getNVarout() const { return _nvarOut; }
-  int _getNStats() const { return (int) _stats.size(); }
-  int _getNEff() const;
+  int  _process();
+  int  _getNiter() const { return _niter; }
 
-  VectorDouble _readIn(int iech, const VectorInt& indices) const;
-  VectorDouble _upscaleFunction(const VectorVectorDouble& Y_p_k_s) const;
+  int  _getNVarout() const { return _nvarOut; }
+  int  _getNStats() const { return (int) _stats.size(); }
+  int  _getNEff() const;
+
+  VectorVectorInt _getIndices() const;
+  VectorInt _samplesInCellIdenticalSpaceDimension(const VectorInt& indblock) const;
+  VectorInt _samplesInCellDifferentSpaceDimension() const;
+  void _upscaleFunction(const VectorVectorDouble& Y_p_k_s, VectorDouble& tabout) const;
+  void _readIn(int iech, const VectorInt& indices, VectorDouble& tabin) const;
   void _statisticsFunction(const VectorVectorDouble& Y_p, VectorDouble& tabout) const;
-  void _printIndices(int rank, const VectorInt &indices) const;
+  void _printIndices(const VectorVectorInt &indices) const;
   int  _defineVaroutNumber();
   void _writeOut(int iech, const VectorDouble& tabout) const;
   void _environPrint() const;
-  bool _mustBeChecked() const;
+  bool _mustBeChecked(int level = 0) const;
+  int  _getSortingCase() const;
 
 private:
   bool _verbose;
   bool _flagMatch;
-  int  _rankCheck;
+  bool _flagUpscale;
+  int  _checkLevel;
+  VectorInt _checkTargets;
   EPostUpscale _upscale;
   std::vector<EPostStat> _stats;
   VectorString _names;
 
-  mutable int _iechout;
-  mutable int _iattOut;
-  mutable int _niter;
-  mutable int _nvarOut;
+  mutable int  _iechout;
+  mutable int  _iter;
+  mutable int  _iattOut;
+  mutable int  _niter;
+  mutable int  _nvarOut;
   mutable VectorInt _nfact;
   mutable VectorVectorInt _iuids;
 };
@@ -95,5 +105,6 @@ GSTLEARN_EXPORT int simuPost(Db *dbin,
                              const EPostUpscale& upscale = EPostUpscale::fromKey("MEAN"),
                              const std::vector<EPostStat>& stats = EPostStat::fromKeys({"MEAN"}),
                              bool verbose = false,
-                             int rank_check = 0,
+                             const VectorInt& check_targets = VectorInt(),
+                             int check_level = 0,
                              const NamingConvention &namconv = NamingConvention("Post"));

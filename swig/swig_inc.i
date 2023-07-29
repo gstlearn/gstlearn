@@ -50,6 +50,7 @@
 %shared_ptr(CalcGridToGrid)
 %shared_ptr(CalcSimuPost)
 %shared_ptr(CalcSimuPostDemo)
+%shared_ptr(CalcSimuPostPropByLayer)
 %shared_ptr(CalcImage)
 %shared_ptr(CalcGlobal)
 %shared_ptr(CalcKriging)
@@ -319,6 +320,7 @@
   #include "Calculators/CalcGridToGrid.hpp"
   #include "Calculators/CalcSimuPost.hpp"
   #include "Calculators/CalcSimuPostDemo.hpp"
+  #include "Calculators/CalcSimuPostPropByLayer.hpp"
   
   #include "Mesh/AMesh.hpp"
   #include "Mesh/MeshEStandard.hpp"

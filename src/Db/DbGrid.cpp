@@ -1449,7 +1449,7 @@ VectorInt DbGrid::locateDataInGrid(const Db *data,
 
     for (int ip = 0, np = data->getSampleNumber(useSel); ip < np; ip++)
     {
-      if (isActive(ip) || ! useSel)
+      if (data->isActive(ip) || ! useSel)
       {
         VectorDouble coor = data->getSampleCoordinates(ip);
         rankOut.push_back(coordinateToRank(coor, centered));

@@ -43,13 +43,15 @@ String BiTargetCheckFaults::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "- Separated by Faults" << std::endl;
+  if (_faults != nullptr)
+    sstr << "- Separated by Faults" << std::endl;
 
   return sstr.str();
 }
 
 bool BiTargetCheckFaults::isOK(const SpaceTarget &T1,
-                              const SpaceTarget &T2) const
+                               const SpaceTarget &T2) const
 {
+  if (_faults == nullptr) return true;
   return _faults->isSplitByFaultSP(T1.getCoordAsSP(), T2.getCoordAsSP());
 }

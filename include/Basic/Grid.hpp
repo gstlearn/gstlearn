@@ -113,7 +113,10 @@ public:
                                 bool verbose = false);
   bool sampleBelongsToCell(const VectorDouble& coor,
                            const VectorDouble& center,
-                           const VectorDouble &dxsPerCell) const;
+                           const VectorDouble &dxsPerCell = VectorDouble()) const;
+  bool sampleBelongsToCell(const VectorDouble& coor,
+                           int rank,
+                           const VectorDouble &dxsPerCell = VectorDouble()) const;
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
   double getRotAngle(int idim) const { return _rotation.getAngle(idim); }

@@ -29,8 +29,9 @@ public:
   CalcSimuPostDemo& operator=(const CalcSimuPostDemo &r) = delete;
   virtual ~CalcSimuPostDemo();
 
-  int getTransfoNvar() const override;
-  VectorVectorDouble transformFunction(const VectorVectorDouble& tab) const override;
+protected:
+  int _getTransfoNvar() const override;
+  void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const override;
 };
 
 GSTLEARN_EXPORT int simuPostDemo(Db *dbin,
@@ -40,5 +41,6 @@ GSTLEARN_EXPORT int simuPostDemo(Db *dbin,
                                  const EPostUpscale &upscale = EPostUpscale::fromKey("MEAN"),
                                  const std::vector<EPostStat> &stats = EPostStat::fromKeys({"MEAN"}),
                                  bool verbose = false,
-                                 int rank_check = 0,
+                                 const VectorInt& check_targets = VectorInt(),
+                                 int check_level = 0,
                                  const NamingConvention &namconv = NamingConvention("Post"));

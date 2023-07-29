@@ -1,0 +1,327 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[8]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                  x-1       x-2      rank   SimuA-1   SimuA-2   SimuA-3   SimuB-1
+     [  0,]     0.502     0.135     0.000     1.489    -0.056     0.187   196.812
+     [  1,]     0.693     0.185     1.000     0.519    -0.594    -0.438   165.288
+     [  2,]     0.809     0.387     2.000    -2.893     0.909     0.171   155.281
+     [  3,]     0.915     0.617     3.000     1.224    -1.397     0.647   104.455
+     [  4,]     0.088     0.808     4.000    -0.171    -0.214    -0.783   167.794
+     [  5,]     0.189     0.802     5.000     1.071     2.205    -0.047   118.355
+     [  6,]     0.835     0.201     6.000    -0.722    -0.029    -0.781   127.263
+     [  7,]     0.647     0.105     7.000    -0.462    -0.816     0.772   162.597
+     [  8,]     0.907     0.070     8.000     1.315    -0.602    -1.556   172.682
+     [  9,]     0.258     0.374     9.000    -0.496    -1.302     0.050   131.565
+              SimuB-2   SimuC-1   SimuC-2
+     [  0,]   114.333    -3.668    -3.635
+     [  1,]   104.997    -3.142    -3.692
+     [  2,]   124.644    -3.934    -3.673
+     [  3,]   187.628    -3.087    -3.684
+     [  4,]   100.972    -2.142    -2.837
+     [  5,]   102.044    -2.891    -3.889
+     [  6,]   114.671    -3.572    -2.395
+     [  7,]   140.488    -3.040    -3.493
+     [  8,]   151.285    -3.228    -2.714
+     [  9,]   184.920    -2.987    -2.919
+ ----
+
+
++*Out[9]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[10]:*+
+----
+
+ Simulation Post-Processing
+ --------------------------
+ Multiplicity order for all variables
+ - Variable 1 (SimuA*) = 3
+ - Variable 2 (SimuB*) = 2
+ - Variable 3 (SimuC*) = 2
+ Number of Iterations: 12  (using the 'product' criterion)
+ Number of Statistics: 2
+ Number of Output Variables: 6
+ 
+== Cell #4/25 (regrouping 2 samples)
+                  Mean   Variance
+     Var 1     -0.170      0.162
+     Var 2    143.343   2330.860
+     Var 3     -3.342      1.084
+ ----
+
+
++*Out[11]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.100     0.100
+Mesh   :      0.200     0.200
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Post1.Var1.Mean - Locator = NA
+Column = 4 - Name = Post1.Var1.Variance - Locator = NA
+Column = 5 - Name = Post1.Var2.Mean - Locator = NA
+Column = 6 - Name = Post1.Var2.Variance - Locator = NA
+Column = 7 - Name = Post1.Var3.Mean - Locator = NA
+Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
+
+
++*Out[12]:*+
+----
+![png](output_21_0.png)
+----
+
+
++*Out[13]:*+
+----
+
+ Simulation Post-Processing
+ --------------------------
+ Multiplicity order for all variables
+ - Variable 1 (SimuA*) = 3
+ - Variable 2 (SimuB*) = 2
+ - Variable 3 (SimuC*) = 2
+ Number of Iterations: 12  (using the 'product' criterion)
+ Number of Statistics: 2
+ Number of Transform Variables: 2
+ Number of Output Variables: 4
+ 
+== Cell #4/25 (regrouping 2 samples)
+                  Mean   Variance
+     Var 1     46.610    248.966
+     Var 2     90.038    916.933
+ ----
+
+
++*Out[14]:*+
+----
+![png](output_24_0.png)
+----
+
+
++*Out[15]:*+
+----
+
+ Simulation Post-Processing
+ --------------------------
+ Multiplicity order for all variables
+ - Variable 1 (SimuA*) = 3
+ - Variable 2 (SimuB*) = 2
+ - Variable 3 (SimuC*) = 2
+ Number of Iterations: 12  (using the 'product' criterion)
+ Number of Statistics: 2
+ Number of Output Variables: 6
+ 
+== Cell #4/10
+                  Mean   Variance
+     Var 1      0.158      1.382
+     Var 2    146.042   3825.591
+     Var 3     -3.386      1.139
+ ----
+
+
++*Out[16]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 16
+Maximum Number of UIDs       = 16
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = x-1 - Locator = x1
+Column = 1 - Name = x-2 - Locator = x2
+Column = 2 - Name = rank - Locator = NA
+Column = 3 - Name = SimuA-1 - Locator = NA
+Column = 4 - Name = SimuA-2 - Locator = NA
+Column = 5 - Name = SimuA-3 - Locator = NA
+Column = 6 - Name = SimuB-1 - Locator = NA
+Column = 7 - Name = SimuB-2 - Locator = NA
+Column = 8 - Name = SimuC-1 - Locator = NA
+Column = 9 - Name = SimuC-2 - Locator = NA
+Column = 10 - Name = Post1.Var1.Mean - Locator = NA
+Column = 11 - Name = Post1.Var1.Variance - Locator = NA
+Column = 12 - Name = Post1.Var2.Mean - Locator = NA
+Column = 13 - Name = Post1.Var2.Variance - Locator = NA
+Column = 14 - Name = Post1.Var3.Mean - Locator = NA
+Column = 15 - Name = Post1.Var3.Variance - Locator = NA----
+
+
++*Out[17]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                    x-1         x-2        rank     SimuA-1     SimuA-2     SimuA-3     SimuB-1
+     [  0,]       0.502       0.135       0.000       1.489      -0.056       0.187     196.812
+     [  1,]       0.693       0.185       1.000       0.519      -0.594      -0.438     165.288
+     [  2,]       0.809       0.387       2.000      -2.893       0.909       0.171     155.281
+     [  3,]       0.915       0.617       3.000       1.224      -1.397       0.647     104.455
+     [  4,]       0.088       0.808       4.000      -0.171      -0.214      -0.783     167.794
+     [  5,]       0.189       0.802       5.000       1.071       2.205      -0.047     118.355
+     [  6,]       0.835       0.201       6.000      -0.722      -0.029      -0.781     127.263
+     [  7,]       0.647       0.105       7.000      -0.462      -0.816       0.772     162.597
+     [  8,]       0.907       0.070       8.000       1.315      -0.602      -1.556     172.682
+     [  9,]       0.258       0.374       9.000      -0.496      -1.302       0.050     131.565
+                SimuB-2     SimuC-1     SimuC-2 *.Var1.Mean *1.Variance *.Var2.Mean *2.Variance
+     [  0,]     114.333      -3.668      -3.635       0.540       0.529     155.573    4055.567
+     [  1,]     104.997      -3.142      -3.692      -0.171       0.267     135.142    2651.708
+     [  2,]     124.644      -3.934      -3.673      -0.605       2.990     139.962    2036.838
+     [  3,]     187.628      -3.087      -3.684       0.158       1.382     146.042    3825.591
+     [  4,]     100.972      -2.142      -2.837      -0.389       0.098     134.383    2859.481
+     [  5,]     102.044      -2.891      -3.889       1.076       1.027     110.200    1176.551
+     [  6,]     114.671      -3.572      -2.395      -0.511       0.151     120.967    1373.516
+     [  7,]     140.488      -3.040      -3.493      -0.168       0.508     151.543    2221.050
+     [  8,]     151.285      -3.228      -2.714      -0.281       1.562     161.983    2510.184
+     [  9,]     184.920      -2.987      -2.919      -0.583       0.367     158.243    3052.813
+            *.Var3.Mean *3.Variance
+     [  0,]      -3.652       1.212
+     [  1,]      -3.417       1.144
+     [  2,]      -3.804       1.334
+     [  3,]      -3.386       1.139
+     [  4,]      -2.489       0.695
+     [  5,]      -3.390       1.317
+     [  6,]      -2.983       1.187
+     [  7,]      -3.266       1.026
+     [  8,]      -2.971       0.875
+     [  9,]      -2.953       0.794
+ ----
+
+
++*Out[18]:*+
+----
+
+ Simulation Post-Processing
+ --------------------------
+ Multiplicity order for all variables
+ - Variable 1 (SimuA*) = 3
+ - Variable 2 (SimuB*) = 2
+ - Variable 3 (SimuC*) = 2
+ Number of Iterations: 12  (using the 'product' criterion)
+ Number of Statistics: 2
+ Number of Transform Variables: 2
+ Number of Output Variables: 4
+ 
+== Cell #4/10
+                  Mean   Variance
+     Var 1     47.605    415.813
+     Var 2     91.676   1497.345
+ ----
+
+
++*Out[19]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 20
+Maximum Number of UIDs       = 20
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = x-1 - Locator = x1
+Column = 1 - Name = x-2 - Locator = x2
+Column = 2 - Name = rank - Locator = NA
+Column = 3 - Name = SimuA-1 - Locator = NA
+Column = 4 - Name = SimuA-2 - Locator = NA
+Column = 5 - Name = SimuA-3 - Locator = NA
+Column = 6 - Name = SimuB-1 - Locator = NA
+Column = 7 - Name = SimuB-2 - Locator = NA
+Column = 8 - Name = SimuC-1 - Locator = NA
+Column = 9 - Name = SimuC-2 - Locator = NA
+Column = 10 - Name = Post1.Var1.Mean - Locator = NA
+Column = 11 - Name = Post1.Var1.Variance - Locator = NA
+Column = 12 - Name = Post1.Var2.Mean - Locator = NA
+Column = 13 - Name = Post1.Var2.Variance - Locator = NA
+Column = 14 - Name = Post1.Var3.Mean - Locator = NA
+Column = 15 - Name = Post1.Var3.Variance - Locator = NA
+Column = 16 - Name = Post2.Var1.Mean - Locator = NA
+Column = 17 - Name = Post2.Var1.Variance - Locator = NA
+Column = 18 - Name = Post2.Var2.Mean - Locator = NA
+Column = 19 - Name = Post2.Var2.Variance - Locator = NA----
+
+
++*Out[20]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Contents
+------------------
+                    x-1         x-2        rank     SimuA-1     SimuA-2     SimuA-3     SimuB-1
+     [  0,]       0.502       0.135       0.000       1.489      -0.056       0.187     196.812
+     [  1,]       0.693       0.185       1.000       0.519      -0.594      -0.438     165.288
+     [  2,]       0.809       0.387       2.000      -2.893       0.909       0.171     155.281
+     [  3,]       0.915       0.617       3.000       1.224      -1.397       0.647     104.455
+     [  4,]       0.088       0.808       4.000      -0.171      -0.214      -0.783     167.794
+     [  5,]       0.189       0.802       5.000       1.071       2.205      -0.047     118.355
+     [  6,]       0.835       0.201       6.000      -0.722      -0.029      -0.781     127.263
+     [  7,]       0.647       0.105       7.000      -0.462      -0.816       0.772     162.597
+     [  8,]       0.907       0.070       8.000       1.315      -0.602      -1.556     172.682
+     [  9,]       0.258       0.374       9.000      -0.496      -1.302       0.050     131.565
+                SimuB-2     SimuC-1     SimuC-2 *.Var1.Mean *1.Variance *.Var2.Mean *2.Variance
+     [  0,]     114.333      -3.668      -3.635       0.540       0.529     155.573    4055.567
+     [  1,]     104.997      -3.142      -3.692      -0.171       0.267     135.142    2651.708
+     [  2,]     124.644      -3.934      -3.673      -0.605       2.990     139.962    2036.838
+     [  3,]     187.628      -3.087      -3.684       0.158       1.382     146.042    3825.591
+     [  4,]     100.972      -2.142      -2.837      -0.389       0.098     134.383    2859.481
+     [  5,]     102.044      -2.891      -3.889       1.076       1.027     110.200    1176.551
+     [  6,]     114.671      -3.572      -2.395      -0.511       0.151     120.967    1373.516
+     [  7,]     140.488      -3.040      -3.493      -0.168       0.508     151.543    2221.050
+     [  8,]     151.285      -3.228      -2.714      -0.281       1.562     161.983    2510.184
+     [  9,]     184.920      -2.987      -2.919      -0.583       0.367     158.243    3052.813
+            *.Var3.Mean *3.Variance *.Var1.Mean *1.Variance *.Var2.Mean *2.Variance
+     [  0,]      -3.652       1.212      50.820     440.994      97.602    1587.077
+     [  1,]      -3.417       1.144      43.851     285.007      84.941    1041.227
+     [  2,]      -3.804       1.334      45.185     214.378      88.100     805.161
+     [  3,]      -3.386       1.139      47.605     415.813      91.676    1497.345
+     [  4,]      -2.489       0.695      43.835     310.013      84.328    1119.920
+     [  5,]      -3.390       1.317      35.962     125.763      69.177     463.260
+     [  6,]      -2.983       1.187      39.158     144.253      76.079     543.002
+     [  7,]      -3.266       1.026      49.369     236.449      95.136     874.638
+     [  8,]      -2.971       0.875      52.911     268.556     101.611     987.205
+     [  9,]      -2.953       0.794      51.569     328.063      99.326    1198.731
+ ----
