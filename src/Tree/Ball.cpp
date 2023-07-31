@@ -39,7 +39,7 @@ Ball::Ball(VectorVectorDouble& data, int leaf_size, int dist_type)
   _data = copy_double_arrAsVVD(data);
 }
 
-Ball::Ball(const Db* db, bool useSel, int leaf_size, int dist_type)
+Ball::Ball(const Db* db, int leaf_size, int dist_type, bool useSel)
 : _leafSize(leaf_size),
   _sampleNumber(0),
   _featureNumber(0),

@@ -24,7 +24,7 @@ public:
        int leaf_size = 10,
        int dist_type = 0);
   Ball(VectorVectorDouble &data, int leaf_size = 10, int dist_type = 0);
-  Ball(const Db* db, bool useSel = false, int leaf_size = 10, int dist_type = 0);
+  Ball(const Db* db, int leaf_size = 10, int dist_type = 0, bool useSel = false);
   Ball(const Ball& p);
   Ball & operator=(const Ball& p);
   virtual ~Ball();
