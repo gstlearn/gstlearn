@@ -569,8 +569,6 @@ readGridCoor <- function(dbgrid, name, usesel= FALSE, posX=0, posY=1, corner=NA)
 {
   if (isNotDef(corner))
 	corner = rep(0, dbgrid$getNDim())
-  x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
-  y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
   
   if (dbgrid$getNDim() == 1)
   {
@@ -582,9 +580,9 @@ readGridCoor <- function(dbgrid, name, usesel= FALSE, posX=0, posY=1, corner=NA)
   {
   	data = dbgrid$getOneSlice(name, posX, posY, corner, usesel)
   	nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
-  	x = dbgrid$getOneSlice(nameX, posX, posY, corner, usesel)
+  	x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
   	nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
-  	y = dbgrid$getOneSlice(nameY, posX, posY, corner, usesel)
+  	y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
   }
   	
   if (length(data) != length(x))
