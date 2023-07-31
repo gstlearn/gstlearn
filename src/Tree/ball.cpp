@@ -370,8 +370,6 @@ void display(t_knn& knn, int ns_max, int nn_max)
   if (nn_max > 0) nn = MIN(nn, nn_max);
   for (int is = 0; is < ns; is++)
   {
-    message("Sample #%d/%d\n",is+1, ns);
-
     message("Indices = ");
     for (int in = 0; in < nn; in++)
       message(" %d", knn.indices[is][in]);
