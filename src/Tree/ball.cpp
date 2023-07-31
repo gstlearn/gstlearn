@@ -1,32 +1,3 @@
-/* MIT License
- *
- * Copyright (C) 2012, 2013, 2014 James McLaughlin et al.  All rights reserved.
- * https://github.com/udp/json-parser
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- * 1. Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer.
- *
- * 2. Redistributions in binary form must reproduce the above copyright
- *   notice, this list of conditions and the following disclaimer in the
- *   documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -45,12 +16,35 @@
 // Replace 'exit(-1)' by 'return nullptr' (which must be checked by calling function)
 // Return 'exit(-1)' by returning a t_knn structure where n-samples is set to -1.
 
+#include "Tree/ball.h"
 #include "Basic/AStringable.hpp"
-#include "Tree/ball.hpp"
+#include "Basic/VectorHelper.hpp"
 
-double	**copy_double_arr(double **arr, int row, int col)
+static double (*st_dist_function)(double*, double*, int) = euclidean_dist;
+
+double **copy_double_arrAsVVD(VectorVectorDouble& arr)
 {
-	double	**copy;
+  double  **copy = nullptr;
+  if (arr.empty()) return copy;
+
+  int col = (int) arr.size();
+  int row = (int) arr[0].size();
+  int   i, j;
+
+  copy = (double**)malloc(sizeof(double*) * row);
+  for (i = 0; i < row; i++)
+  {
+    copy[i] = (double*)malloc(sizeof(double) * col);
+    for (j = 0; j < col; j++)
+      copy[i][j] = arr[j][i];
+  }
+  return (copy);
+}
+
+double **copy_double_arr(double **arr, int row, int col)
+{
+	double	**copy = nullptr;
+	if (arr == nullptr || row <= 0 || col <= 0) return copy;
 	int		i, j;
 	
 	copy = (double**)malloc(sizeof(double*) * row);
@@ -63,7 +57,7 @@ double	**copy_double_arr(double **arr, int row, int col)
 	return (copy);
 }
 
-void	swap(int *arr, int i1, int i2)
+void swap(int *arr, int i1, int i2)
 {
 	int	tmp;
 	
@@ -72,7 +66,7 @@ void	swap(int *arr, int i1, int i2)
 	arr[i2] = tmp;
 }
 
-void	btree_zero(t_btree *b)
+void btree_zero(t_btree *b)
 {
 	b->data = NULL;
 	b->idx_array = NULL;
@@ -84,7 +78,7 @@ void	btree_zero(t_btree *b)
 	b->n_nodes = 0;
 }
 
-int		init_node(t_btree *b, int i_node, int idx_start, int idx_end)
+int init_node(t_btree *b, int i_node, int idx_start, int idx_end)
 {
 	int		n_features;
 	int		n_points;
@@ -108,7 +102,7 @@ int		init_node(t_btree *b, int i_node, int idx_start, int idx_end)
 
 	radius = 0.0;
 	for (i = idx_start; i < idx_end; i++)
-		radius = fmax(radius, manhattan_dist(centroid, b->data[b->idx_array[i]], n_features));
+		radius = fmax(radius, st_dist_function(centroid, b->data[b->idx_array[i]], n_features));
 
 	b->node_data[i_node].radius = radius;
 	b->node_data[i_node].idx_start = idx_start;
@@ -116,7 +110,7 @@ int		init_node(t_btree *b, int i_node, int idx_start, int idx_end)
 	return (0);
 }
 
-int		find_node_split_dim(double **data, int *node_indices, int n_features, int n_points)
+int find_node_split_dim(double **data, int *node_indices, int n_features, int n_points)
 {
 	double	min_val, max_val, val, spread, max_spread;
 	int		i, j, j_max;
@@ -143,7 +137,7 @@ int		find_node_split_dim(double **data, int *node_indices, int n_features, int n
 	return (j_max);
 }
 
-int		partition_node_indices(double **data, int *node_indices, int split_dim, int split_index,
+int partition_node_indices(double **data, int *node_indices, int split_dim, int split_index,
 								int n_features, int n_points)
 {
 	(void)n_features;
@@ -177,7 +171,7 @@ int		partition_node_indices(double **data, int *node_indices, int split_dim, int
 	return (0);
 }
 
-void	recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
+void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 {
 	int	imax;
 	int	n_features;
@@ -212,10 +206,21 @@ void	recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 	}
 }
 
-t_btree	*btree_init(double **data, int n_samples, int n_features, int leaf_size)
+void define_dist_function(int dist_type)
+{
+  if (dist_type == 0)
+    st_dist_function = manhattan_dist;
+  else if (dist_type == 1)
+    st_dist_function = euclidean_dist;
+}
+
+t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size, int dist_type)
 {
 	t_btree	*b;
 	int		i, j;
+
+	// Define the relevant distance function
+	define_dist_function(dist_type);
 
 	b = (t_btree*)malloc(sizeof(t_btree));
 	btree_zero(b);
@@ -251,7 +256,7 @@ t_btree	*btree_init(double **data, int n_samples, int n_features, int leaf_size)
 	return (b);
 }
 
-int		query_depth_first(t_btree *b, int i_node, double *pt, int i_pt, t_nheap *heap, double dist)
+int query_depth_first(t_btree *b, int i_node, double *pt, int i_pt, t_nheap *heap, double dist)
 {
 	t_nodedata	node_info = b->node_data[i_node];
 	double		dist_pt, dist1, dist2;
@@ -267,7 +272,7 @@ int		query_depth_first(t_btree *b, int i_node, double *pt, int i_pt, t_nheap *he
 	{
 		for (i = node_info.idx_start; i < node_info.idx_end; i++)
 		{
-			dist_pt = manhattan_dist(pt, b->data[b->idx_array[i]], b->n_features);
+      dist_pt = st_dist_function(pt, b->data[b->idx_array[i]], b->n_features);
 			if (dist_pt < nheap_largest(heap, i_pt))
 				nheap_push(heap, i_pt, dist_pt, b->idx_array[i]);
 		}
@@ -293,7 +298,7 @@ int		query_depth_first(t_btree *b, int i_node, double *pt, int i_pt, t_nheap *he
 	return (0);
 }
 
-t_knn	btree_query(t_btree *b, double **x, int n_samples, int n_features, int k)
+t_knn btree_query(t_btree *b, double **x, int n_samples, int n_features, int k)
 {
 	t_nheap	*heap;
 	double	dist;
@@ -322,7 +327,7 @@ t_knn	btree_query(t_btree *b, double **x, int n_samples, int n_features, int k)
 	return (output);
 }
 
-void	free_2d_double(double **arr, int row)
+void free_2d_double(double **arr, int row)
 {
 	int	i;
 
@@ -331,7 +336,7 @@ void	free_2d_double(double **arr, int row)
 	free(arr);
 }
 
-void	free_2d_int(int **arr, int row)
+void free_2d_int(int **arr, int row)
 {
 	int	i;
 
@@ -340,8 +345,9 @@ void	free_2d_int(int **arr, int row)
 	free(arr);
 }
 
-void	free_tree(t_btree *tree)
+void free_tree(t_btree *tree)
 {
+  if (tree == nullptr) return;
 	free_2d_double(tree->data, tree->n_samples);
 	free(tree->idx_array);
 	free(tree->node_data);
@@ -350,8 +356,41 @@ void	free_tree(t_btree *tree)
 	free(tree);
 }
 
-void	free_knn(t_knn knn, int row)
+void free_knn(t_knn knn, int row)
 {
 	free_2d_double(knn.distances, row);
 	free_2d_int(knn.indices, row);
+}
+
+void display(t_knn& knn, int ns_max, int nn_max)
+{
+  int ns = knn.n_samples;
+  if (ns_max >= 0) ns = MIN(ns, ns_max);
+  int nn = knn.n_neighbors;
+  if (nn_max > 0) nn = MIN(nn, nn_max);
+  for (int is = 0; is < ns; is++)
+  {
+    message("Sample #%d/%d\n",is+1, ns);
+
+    message("Indices = ");
+    for (int in = 0; in < nn; in++)
+      message(" %d", knn.indices[is][in]);
+    message("\n");
+
+    message("Distances = ");
+    for (int in = 0; in < nn; in++)
+      message(" %lf", knn.distances[is][in]);
+    message("\n");
+  }
+}
+
+VectorInt getIndices(t_knn& knn, int rank)
+{
+  if (rank < 0 || rank >= knn.n_samples) return VectorInt();
+  return VectorHelper::initVInt(knn.indices[rank], knn.n_neighbors);
+}
+VectorDouble getDistance(t_knn& knn, int rank)
+{
+  if (rank < 0 || rank >= knn.n_samples) return VectorDouble();
+  return VectorHelper::initVDouble(knn.distances[rank], knn.n_neighbors);
 }

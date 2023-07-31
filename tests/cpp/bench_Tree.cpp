@@ -9,13 +9,16 @@
 /*   Updated: 2017/06/28 21:53:50 by elee             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "geoslib_define.h"
 
-#include "Tree/ball.hpp"
-#include "Tree/json.hpp"
+#include "Basic/File.hpp"
+#include "Basic/Timer.hpp"
+#include "Basic/AStringable.hpp"
+#include "Tree/Ball.hpp"
+#include "Tree/ball.h"
+#include "Tree/json.h"
 
-void	process_object(t_data *data, json_value* value)
+static void process_object(t_data *data, json_value* value)
 {
 	int	length;
 	int	x;
@@ -54,10 +57,8 @@ void	process_object(t_data *data, json_value* value)
 	}
 }
 
-void	process_value(t_data *data, json_value* value)
+static void process_value(t_data *data, json_value* value)
 {
-	int j;
-	(void)j;
 	if (value == NULL)
 		return;
 	switch (value->type)
@@ -82,15 +83,15 @@ void	process_value(t_data *data, json_value* value)
 	}
 }
 
-t_data	*read_input(const char *filename)
+static t_data *read_input_data(const char *filename)
 {
-	FILE 		*fp;
-	struct stat filestatus;
-	int			file_size;
-	char		*file_contents;
-	json_char	*json;
+	FILE 		    *fp;
+	struct stat  filestatus;
+	int			     file_size;
+	char		    *file_contents;
+	json_char 	*json;
 	json_value	*value;
-	t_data		*data;
+	t_data		  *data;
 
 	if (stat(filename, &filestatus) != 0)
 	{
@@ -134,7 +135,7 @@ t_data	*read_input(const char *filename)
 	return (data);
 }
 
-t_data	*read_test_data(const char *filename)
+static t_data *read_test_data(const char *filename)
 {
 	FILE		*fp;
 	struct stat	filestatus;
@@ -173,7 +174,7 @@ t_data	*read_test_data(const char *filename)
 	fclose(fp);
 	file_contents[file_size - 2] = '}';
 	file_contents[file_size - 1] = '\0';
-	
+
 	json = (json_char*)file_contents;
 	value = json_parse(json, file_size);
 	if (value == NULL)
@@ -189,7 +190,7 @@ t_data	*read_test_data(const char *filename)
 	return (data);
 }
 
-void	write_output(t_knn knn, const char *filename)
+static void write_output(t_knn knn, const char *filename)
 {
 	FILE	*fp;
 	int		i, j;
@@ -200,7 +201,7 @@ void	write_output(t_knn knn, const char *filename)
 		fprintf(stderr, "Unable to create %s\n", filename);
 		exit(-1);
 	}
-	
+
 	fprintf(fp, "[");
 	for (i = 0; i < knn.n_samples; i++)
 	{
@@ -226,17 +227,7 @@ void	write_output(t_knn knn, const char *filename)
 	fclose(fp);
 }
 
-t_btree	*btree_init_wrapper(t_data *input_data)
-{
-	return (btree_init(input_data->data, input_data->n_samples, input_data->n_features, input_data->leaf_size));
-}
-
-t_knn	btree_query_wrapper(t_btree *tree, t_data *input_data, t_data *test_data)
-{
-	return (btree_query(tree, test_data->data, test_data->n_samples, test_data->n_features, input_data->n_neighbors)); 
-}
-
-void	free_data(t_data *input_data, t_data *test_data)
+static void free_data(t_data *input_data, t_data *test_data)
 {
 	free_2d_double(input_data->data, input_data->n_samples);
 	free(input_data);
@@ -244,48 +235,61 @@ void	free_data(t_data *input_data, t_data *test_data)
 	free(test_data);
 }
 
-int	main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-	t_data	*input_data;
-	t_data	*test_data;
-	t_btree	*tree;
+	t_data	*input_data = nullptr;
+	t_data	*test_data = nullptr;
 	t_knn	knn;
-	clock_t	start, end;
+	t_knn knn1;
+  Timer timer;
 
-	String file_param = "/home/drenard/Téléchargements/BallTree-master/datasets/knn_params_6_pts_2_dims.json";
-  String file_data = "/home/drenard/Téléchargements/BallTree-master/datasets/test_data_6_pts_2_dims.json";
-  String file_results = "/home/drenard/Téléchargements/BallTree-master/datasets/my2_knn_results_6_pts_2_dims.json";
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
-	start = clock();
-	input_data = read_input(file_param.c_str());
-	end = clock();
-	printf("Reading input param took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+	String file_param = "/home/drenard/Téléchargements/BallTree-master/datasets/knn_params_10k_pts_512_dims.json";
+	String file_data  = "/home/drenard/Téléchargements/BallTree-master/datasets/test_data_10k_pts_512_dims.json";
+	String file_results = "/home/drenard/Téléchargements/BallTree-master/datasets/my_knn_results_10k_pts_512_dims.json";
 
-	start = clock();
-	test_data = read_test_data(file_data.c_str());
-	end = clock();
-	printf("Reading test data took %lf seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
+  timer.reset();
+	input_data = read_input_data(file_param.c_str());
+  timer.displayIntervalMilliseconds("Reading Input Parameters and Data", 0);
 
-	start = clock();
-	tree = btree_init_wrapper(input_data);
-	end = clock();
-	printf("Building ball tree of %d points of %d dimension with leaf size %d took %lf seconds\n",
-		input_data->n_samples, input_data->n_features, input_data->leaf_size,
-	(double)(end - start) / CLOCKS_PER_SEC);
+  timer.reset();
+  Ball ball(input_data->data, input_data->n_samples, input_data->n_features, input_data->leaf_size, 0);
+  timer.displayIntervalMilliseconds("Instantiating Ball class", 0);
 
-	start = clock();
-	knn = btree_query_wrapper(tree, input_data, test_data);
-	end = clock();
-	printf("Querying the %d nearest_neighbors of %d points of %d dimension took %lf seconds\n",
-		input_data->n_neighbors, test_data->n_samples, test_data->n_features, (double)(end - start) / CLOCKS_PER_SEC);
+  timer.reset();
+  test_data = read_test_data(file_data.c_str());
+  timer.displayIntervalMilliseconds("Reading Test Data", 0);
 
-	start = clock();
+  timer.reset();
+  (void) ball.build();
+  message("Building ball tree of %d points of dimension %d with leaf size %d\n",
+          input_data->n_samples, input_data->n_features, input_data->leaf_size);
+	timer.displayIntervalMilliseconds("Building ball tree",0);
+
+  message("\nQuerying the %d nearest_neighbors for %d points of dimension %d\n",
+          input_data->n_neighbors, test_data->n_samples, test_data->n_features);
+
+  timer.reset();
+	knn = ball.query(test_data->data, test_data->n_samples, test_data->n_features, input_data->n_neighbors);
+	display(knn, 3); // Display of the information for the first three tested samples
+  timer.displayIntervalMilliseconds("Querying the Ball Tree",0);
+
+	for (int is = 0; is < 3; is++)
+	{
+	  timer.reset();
+	  knn1 = ball.queryOne(test_data->data[is], test_data->n_features, input_data->n_neighbors);
+	  display(knn1);
+    timer.displayIntervalMilliseconds("Querying the Ball Tree Per Target",0);
+	}
+
+	timer.reset();
 	write_output(knn, file_results.c_str());
-	end = clock();
-	printf("Writing result data took %lf second\n", (double)(end - start) / CLOCKS_PER_SEC);
+	timer.displayIntervalMilliseconds("Writing result data", 0);
 
 	//free stuff
-	free_tree(tree);
 	free_knn(knn, test_data->n_samples);
 	free_data(input_data, test_data);
 	return (0);

@@ -314,8 +314,9 @@ set(SRC
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
+  Tree/Ball.cpp
+  Tree/json.cpp
   Tree/ball.cpp
   Tree/metrics.cpp
   Tree/neighbors_heap.cpp
-  Tree/json.cpp
 )

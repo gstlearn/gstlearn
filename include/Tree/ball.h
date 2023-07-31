@@ -9,9 +9,10 @@
 /*   Updated: 2017/06/28 20:56:18 by elee             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+#pragma once
 
-#ifndef BALL_H
-# define BALL_H
+#include "gstlearn_export.hpp"
+#include "Basic/VectorNumT.hpp"
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -74,11 +75,32 @@ typedef struct s_btree
 } t_btree;
 
 /*
+** ball.c
+*/
+
+GSTLEARN_EXPORT double **copy_double_arrAsVVD(VectorVectorDouble& arr);
+GSTLEARN_EXPORT double **copy_double_arr(double **arr, int row, int col);
+GSTLEARN_EXPORT t_btree* btree_init(double **data,
+                                    int n_samples,
+                                    int n_features,
+                                    int leaf_size,
+                                    int dist_type = 0);
+GSTLEARN_EXPORT t_knn btree_query(t_btree *b, double **x, int n_samples, int n_features, int k);
+GSTLEARN_EXPORT void  free_2d_double(double **arr, int row);
+GSTLEARN_EXPORT void  free_2d_int(int **arr, int row);
+GSTLEARN_EXPORT void  free_tree(t_btree *tree);
+GSTLEARN_EXPORT void  free_knn(t_knn knn, int row);
+GSTLEARN_EXPORT void  display(t_knn& knn, int ns_max = -1, int nn_max = -1);
+GSTLEARN_EXPORT VectorInt getIndices(t_knn& knn, int rank = 0);
+GSTLEARN_EXPORT VectorDouble getDistance(t_knn& knn, int rank = 0);
+
+/*
 ** metrics.c
 */
 
-double	manhattan_dist(double *x1, double *x2, int size);
-double	min_dist(t_btree *tree, int i_node, double *pt);
+double manhattan_dist(double *x1, double *x2, int size);
+double euclidean_dist(double *x1, double *x2, int size);
+double min_dist(t_btree *tree, int i_node, double *pt);
 
 /*
 ** neighbors_heap.c
@@ -89,15 +111,3 @@ double	nheap_largest(t_nheap *h, int row);
 int		nheap_push(t_nheap *h, int row, double val, int i_val);
 t_knn	nheap_get_arrays(t_nheap *h);
 
-/*
-** ball.c
-*/
-
-t_btree	*btree_init(double **data, int n_samples, int n_features, int leaf_size);
-t_knn	btree_query(t_btree *b, double **x, int n_samples, int n_features, int k);
-void	free_2d_double(double **arr, int row);
-void	free_2d_int(int **arr, int row);
-void	free_tree(t_btree *tree);
-void	free_knn(t_knn knn, int row);
-
-#endif

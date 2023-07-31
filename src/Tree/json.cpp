@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-#include "Tree/json.hpp"
+#include "Tree/json.h"
 
 #ifdef _MSC_VER
    #ifndef _CRT_SECURE_NO_WARNINGS
@@ -946,7 +946,7 @@ e_failed:
    return 0;
 }
 
-json_value * json_parse (const json_char * json, size_t length)
+json_value *json_parse(const json_char * json, size_t length)
 {
    json_settings settings = { 0 };
    return json_parse_ex (&settings, json, length, 0);

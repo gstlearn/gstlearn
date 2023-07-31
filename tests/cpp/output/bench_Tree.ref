@@ -1,0 +1,7 @@
+#NO_DIFF# Reading Input Parameters: 1610 ms.
+#NO_DIFF# Reading test data took: 2 ms.
+Building ball tree of 10000 points of 512 dimension with leaf size 30
+#NO_DIFF# Building ball tree: 367 ms.
+Querying the 3 nearest_neighbors for 20 points of 512 dimension
+#NO_DIFF# Querying the Ball Tree: 167 ms.
+#NO_DIFF# Writing result data: 0 ms.
