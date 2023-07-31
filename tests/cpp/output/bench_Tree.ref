@@ -1,7 +1,32 @@
-#NO_DIFF# Reading Input Parameters: 1610 ms.
-#NO_DIFF# Reading test data took: 2 ms.
-Building ball tree of 10000 points of 512 dimension with leaf size 30
-#NO_DIFF# Building ball tree: 367 ms.
-Querying the 3 nearest_neighbors for 20 points of 512 dimension
-#NO_DIFF# Querying the Ball Tree: 167 ms.
-#NO_DIFF# Writing result data: 0 ms.
+
+Testing BallTree performance
+----------------------------
+ - Data Db contains 50000 samples
+ - Testing Db contains 10000 targets
+ - Space Dimension = 2
+ - Leaf size is 10
+ - Neighborhood size = 6
+ - Distance type = 0
+#NO_DIFF# Instantiating BallTree class: 4 ms.
+#NO_DIFF# Building BallTree: 194 ms.
+Neighborhood Indices
+     13163     17157     45471     27087     34030     46896
+Neighborhood Indices
+     18417      6113     31013     27679     41571     36268
+Neighborhood Indices
+      5773     20798     22185     15107     16894     16595
+Neighborhood Indices
+     46510     42352     42637     34127      6962     29361
+Neighborhood Indices
+      6884     39062     37294     10122      8717     48105
+Neighborhood Indices
+     11492     15905     10174     36803     45921      1476
+Neighborhood Indices
+     20208     43907     37232     34609     28421     49299
+Neighborhood Indices
+     45565     14199     31132     37561     26024     20221
+Neighborhood Indices
+     24656     14195     23957     31740     42967     45950
+Neighborhood Indices
+     41816     17819      7541     35119     37411     11789
+#NO_DIFF# Querying the Ball Tree Per Target: 1181 ms.

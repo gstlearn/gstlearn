@@ -100,7 +100,6 @@ GSTLEARN_EXPORT VectorDouble getDistance(t_knn& knn, int rank = 0);
 
 double manhattan_dist(double *x1, double *x2, int size);
 double euclidean_dist(double *x1, double *x2, int size);
-double min_dist(t_btree *tree, int i_node, double *pt);
 
 /*
 ** neighbors_heap.c

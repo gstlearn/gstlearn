@@ -22,8 +22,8 @@ public:
        int n_samples = 0,
        int n_features = 0,
        int leaf_size = 10,
-       int dist_type = 0);
-  Ball(VectorVectorDouble &data, int leaf_size = 10, int dist_type = 0);
+       int dist_type = 1);
+  Ball(VectorVectorDouble &data, int leaf_size = 10, int dist_type = 1);
   Ball(const Db* db, int leaf_size = 10, int dist_type = 0, bool useSel = false);
   Ball(const Ball& p);
   Ball & operator=(const Ball& p);
@@ -43,7 +43,7 @@ public:
   t_knn query(double **test, int n_samples, int n_features, int n_neighbors);
   t_knn queryAsVVD(VectorVectorDouble& test, int n_neighbors);
   t_knn queryOne(double *test, int n_features, int n_neighbors);
-  t_knn queryOne(VectorDouble& test, int n_neighbors);
+  t_knn queryOneAsVD(VectorDouble& test, int n_neighbors);
 
 private:
   int _leafSize;

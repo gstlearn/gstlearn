@@ -256,6 +256,14 @@ t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size,
 	return (b);
 }
 
+double min_dist(t_btree *tree, int i_node, double *pt)
+{
+  double  dist_pt;
+
+  dist_pt = st_dist_function(pt, tree->node_bounds[0][i_node], tree->n_features);
+  return (fmax(0.0, dist_pt - tree->node_data[i_node].radius));
+}
+
 int query_depth_first(t_btree *b, int i_node, double *pt, int i_pt, t_nheap *heap, double dist)
 {
 	t_nodedata	node_info = b->node_data[i_node];

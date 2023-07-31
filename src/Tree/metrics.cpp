@@ -9,33 +9,44 @@
 /*   Updated: 2017/06/28 16:52:59 by elee             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "Tree/ball.h"
 
+/**
+ * Returns the Manhattan distance between two points
+ * @param x1 Vector of coordinates for the first point
+ * @param x2 Vector of coordinates for the second point
+ * @param size Number of coordinates
+ * @return
+ */
 double manhattan_dist(double *x1, double *x2, int size)
 {
-	double	d = 0;
-
+  double delta;
+	double	d1 = 0;
 	for (int i = 0; i < size; i++)
-		d += fabs(x1[i] - x2[i]);
-	return (d);
+	{
+	  delta = fabs(x1[i] - x2[i]);
+		d1 += delta;
+	}
+	return (d1);
 }
 
+/**
+ * Returns the square of the Euclidean distance between two points
+ * (as it is only used for sorting)
+ * @param x1 Vector of coordinates for the first point
+ * @param x2 Vector of coordinates for the second point
+ * @param size Number of coordinates
+ * @return
+ */
 double euclidean_dist(double *x1, double *x2, int size)
 {
+  double delta;
   double  d2 = 0;
   for (int i = 0; i < size; i++)
   {
-    double delta = (x1[i] - x2[i]);
+    delta = (x1[i] - x2[i]);
     d2 += delta * delta;
   }
-  return (sqrt(d2));
+  return (d2);
 }
 
-double min_dist(t_btree *tree, int i_node, double *pt)
-{
-	double	dist_pt;
-
-	dist_pt = manhattan_dist(pt, tree->node_bounds[0][i_node], tree->n_features);
-	return (fmax(0.0, dist_pt - tree->node_data[i_node].radius));
-}

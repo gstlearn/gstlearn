@@ -29,13 +29,13 @@ int main(int argc, char *argv[])
 
 	// Constructing a Data Db
 	int ndim = 2;
-	int ndata = 1000;
+	int ndata = 50000;
 	Db* data = Db::createFillRandom(ndata, ndim, 0, 0, 0., 0.,
                                   VectorDouble(), VectorDouble(), VectorDouble(),
                                   2451);
 
 	// Constructing a Target Db
-	int ntarget = 1000;
+	int ntarget = 10000;
 	Db* target = Db::createFillRandom(ntarget, ndim, 0, 0, 0., 0.,
 	                                  VectorDouble(), VectorDouble(), VectorDouble(),
 	                                  131323);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	// Parameters
   int leaf_size = 10;
   int dist_type = 0;
-  int neigh_size = 10;
+  int neigh_size = 6;
   mestitle(1, "Testing BallTree performance");
   message(" - Data Db contains %d samples\n", ndata);
   message(" - Testing Db contains %d targets\n", ntarget);
@@ -66,16 +66,16 @@ int main(int argc, char *argv[])
 	for (int is = 0, ns = target->getSampleNumber(); is < ns; is++)
 	{
 	  target->getCoordinatesPerSampleInPlace(is, coor);
-	  knn = ball.queryOne(coor, neigh_size);
-	  free_knn(knn, 1);
+	  knn = ball.queryOneAsVD(coor, neigh_size);
+	  if (is < 10) VH::display("Neighborhood Indices", getIndices(knn, 0));
 	}
   timer.displayIntervalMilliseconds("Querying the Ball Tree Per Target",0);
 
-  timer.reset();
-  VectorVectorDouble coors = target->getAllCoordinates();
-  knn = ball.queryAsVVD(coors, neigh_size);
-  timer.displayIntervalMilliseconds("Querying the Ball Tree for all Targets at once",0);
-  free_knn(knn, ntarget);
+//  timer.reset();
+//  VectorVectorDouble coors = target->getAllCoordinates();
+//  knn = ball.queryAsVVD(coors, neigh_size);
+//  timer.displayIntervalMilliseconds("Querying the Ball Tree for all Targets at once",0);
+//  free_knn(knn, ntarget);
 
 	//free stuff
   delete data;

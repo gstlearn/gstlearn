@@ -184,7 +184,7 @@ t_knn Ball::queryOne(double *test, int n_features, int n_neighbors)
   return knn;
 }
 
-t_knn Ball::queryOne(VectorDouble& test, int n_neighbors)
+t_knn Ball::queryOneAsVD(VectorDouble& test, int n_neighbors)
 {
   t_knn knn;
   if (_tree == nullptr)
