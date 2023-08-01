@@ -80,6 +80,7 @@ void CalcSimuPostPropByLayer::_transformFunction(const VectorDouble& Z_n_k_s, Ve
   double h_max  = _dbgrid->getDX(ndim_out - 1);
   double z_base = z_ref - h_max / 2.;
 
+  /* previous implementation
   double previous = 0.;
   double cote = 0.;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
@@ -89,6 +90,23 @@ void CalcSimuPostPropByLayer::_transformFunction(const VectorDouble& Z_n_k_s, Ve
     previous = Y_p_k_s[ilayer];
   }
   Y_p_k_s[nlayer] = h_max - Y_p_k_s[nlayer-1];
+
+   */
+
+  // from bottom to top
+  double cote = 0.;
+  for (int ilayer = 0; ilayer < nlayer; ilayer++)
+  {
+    cote += Z_n_k_s[ilayer];
+    Y_p_k_s[ilayer] = MIN(MAX(cote - z_base, 0.), h_max);
+  }
+  Y_p_k_s[nlayer] = h_max;
+
+  // from top to bottom
+  for (int ilayer = nlayer; ilayer > 0; ilayer--)
+    {
+      Y_p_k_s[ilayer] -= Y_p_k_s[ilayer-1];
+    }
 
   // Normalize by the extension of the cell
   for (int ilayer = 0; ilayer <= nlayer; ilayer++)

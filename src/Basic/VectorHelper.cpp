@@ -384,7 +384,7 @@ double VectorHelper::variance(const VectorDouble &vec, bool scaleByN)
   if (scaleByN)
     var = var / (double) number - mean * mean;
   else
-    var = var / (double) (number-1) - mean * mean;
+    var = (var - (double) number * mean * mean) / (double) (number-1);
   return var;
 }
 
