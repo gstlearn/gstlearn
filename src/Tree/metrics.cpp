@@ -9,7 +9,7 @@
 /*   Updated: 2017/06/28 16:52:59 by elee             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "Tree/ball.h"
+#include "Tree/ball_algorithm.h"
 
 /**
  * Returns the Manhattan distance between two points

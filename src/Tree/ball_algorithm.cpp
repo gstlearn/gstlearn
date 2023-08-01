@@ -16,7 +16,7 @@
 // Replace 'exit(-1)' by 'return nullptr' (which must be checked by calling function)
 // Return 'exit(-1)' by returning a t_knn structure where n-samples is set to -1.
 
-#include "Tree/ball.h"
+#include "Tree/ball_algorithm.h"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 
@@ -75,6 +75,7 @@ void btree_zero(t_btree *b)
 
 	b->leaf_size = 40;
 	b->n_levels = 0;
+	b->dist_type = 0;
 	b->n_nodes = 0;
 }
 
@@ -206,18 +207,22 @@ void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 	}
 }
 
-void define_dist_function(int dist_type)
+bool define_dist_function(int dist_type)
 {
   if (dist_type == 0)
   {
-    message("Using the Manhattan distance\n");
     st_dist_function = manhattan_dist;
   }
   else if (dist_type == 1)
   {
-    message("Using the Euclidean distance\n");
     st_dist_function = euclidean_dist;
   }
+  else
+  {
+    messerr("This distance function (%d) code does not exist", dist_type);
+    return false;
+  }
+  return true;
 }
 
 t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size, int dist_type)
@@ -225,20 +230,21 @@ t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size,
 	t_btree	*b;
 	int		i, j;
 
-	// Define the relevant distance function
-	define_dist_function(dist_type);
-
 	b = (t_btree*)malloc(sizeof(t_btree));
 	btree_zero(b);
 
 	b->data = copy_double_arr(data, n_samples, n_features);
 	b->leaf_size = leaf_size;
+	b->dist_type = dist_type;
 	
 	if (leaf_size < 1)
 	{
 		messerr("leaf_size must be greater than or equal to 1\n");
 		return nullptr;
 	}
+
+  // Define the relevant distance function
+  if (! define_dist_function(dist_type)) return nullptr;
 
 	b->n_samples = n_samples;
 	b->n_features = n_features;

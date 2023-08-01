@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Tree/ball.h"
+#include "Tree/ball_algorithm.h"
 
 void	dual_swap(double *darr, int *iarr, int i1, int i2)
 {

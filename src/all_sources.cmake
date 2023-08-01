@@ -315,7 +315,7 @@ set(SRC
   Basic/AFunction.cpp
   Skin/Skin.cpp
   Tree/Ball.cpp
-  Tree/ball.cpp
+  Tree/ball_algorithm.cpp
   Tree/metrics.cpp
   Tree/neighbors_heap.cpp
 )

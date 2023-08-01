@@ -26,15 +26,6 @@
 # define TRUE 1
 # define FALSE 0
 
-typedef struct s_data
-{
-  int n_neighbors;
-  int leaf_size;
-  double **data;
-  int n_samples;
-  int n_features;
-} t_data;
-
 typedef struct s_nheap
 {
   double **distances;
@@ -71,6 +62,7 @@ typedef struct s_btree
 
   int leaf_size;
   int n_levels;
+  int dist_type;
   int n_nodes;
 } t_btree;
 
@@ -84,7 +76,7 @@ GSTLEARN_EXPORT t_btree* btree_init(double **data,
                                     int n_samples,
                                     int n_features,
                                     int leaf_size,
-                                    int dist_type = 0);
+                                    int dist_type);
 GSTLEARN_EXPORT t_knn btree_query(t_btree *b,
                                   double **x,
                                   int n_samples,

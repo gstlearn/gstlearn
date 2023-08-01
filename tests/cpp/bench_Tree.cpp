@@ -16,7 +16,6 @@
 #include "Basic/Timer.hpp"
 #include "Basic/AStringable.hpp"
 #include "Tree/Ball.hpp"
-#include "Tree/ball.h"
 
 int main(int argc, char *argv[])
 {
@@ -55,11 +54,7 @@ int main(int argc, char *argv[])
   // Constructing the Ball
   timer.reset();
   Ball ball(data, leaf_size, dist_type);
-  timer.displayIntervalMilliseconds("Instantiating BallTree class", 0);
-
-  timer.reset();
-  (void) ball.build();
-  timer.displayIntervalMilliseconds("Building BallTree",0);
+  timer.displayIntervalMilliseconds("Building BallTree", 0);
 
   timer.reset();
   VectorDouble coor(ndim);
