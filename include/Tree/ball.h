@@ -85,21 +85,23 @@ GSTLEARN_EXPORT t_btree* btree_init(double **data,
                                     int n_features,
                                     int leaf_size,
                                     int dist_type = 0);
-GSTLEARN_EXPORT t_knn btree_query(t_btree *b, double **x, int n_samples, int n_features, int k);
+GSTLEARN_EXPORT t_knn btree_query(t_btree *b,
+                                  double **x,
+                                  int n_samples,
+                                  int n_features,
+                                  int k);
 GSTLEARN_EXPORT void  free_2d_double(double **arr, int row);
 GSTLEARN_EXPORT void  free_2d_int(int **arr, int row);
 GSTLEARN_EXPORT void  free_tree(t_btree *tree);
 GSTLEARN_EXPORT void  free_knn(t_knn knn, int row);
-GSTLEARN_EXPORT void  display(t_knn& knn, int ns_max = -1, int nn_max = -1);
-GSTLEARN_EXPORT VectorInt getIndices(t_knn& knn, int rank = 0);
-GSTLEARN_EXPORT VectorDouble getDistance(t_knn& knn, int rank = 0);
+
 
 /*
 ** metrics.c
 */
 
-double manhattan_dist(double *x1, double *x2, int size);
-double euclidean_dist(double *x1, double *x2, int size);
+double manhattan_dist(const double *x1, const double *x2, int size);
+double euclidean_dist(const double *x1, const double *x2, int size);
 
 /*
 ** neighbors_heap.c

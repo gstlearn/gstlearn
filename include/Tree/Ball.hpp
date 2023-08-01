@@ -40,18 +40,23 @@ public:
   void setDistType(int distType) { _distType = distType; }
 
   int build() const;
-  t_knn query(double **test, int n_samples, int n_features, int n_neighbors);
-  t_knn queryAsVVD(VectorVectorDouble& test, int n_neighbors);
-  t_knn queryOne(double *test, int n_features, int n_neighbors);
-  t_knn queryOneAsVD(VectorDouble& test, int n_neighbors);
+  t_knn query(double **test, int n_samples, int n_features, int n_neighbors = 1);
+  t_knn queryAsVVD(VectorVectorDouble& test, int n_neighbors = 1);
+  t_knn queryOne(double *test, int n_features, int n_neighbors = 1);
+  t_knn queryOneAsVD(VectorDouble& test, int n_neighbors = 1);
+
 
 private:
   int _leafSize;
   int _sampleNumber;
   int _featureNumber;
   int _distType;
-  double **_data;
+  mutable double **_data;
 
   mutable t_btree* _tree;
   mutable double (* _distFunction)(double, double , int);
 };
+
+GSTLEARN_EXPORT void  display(t_knn& knn, int ns_max = -1, int nn_max = -1);
+GSTLEARN_EXPORT VectorInt getIndices(t_knn& knn, int rank = 0);
+GSTLEARN_EXPORT VectorDouble getDistance(t_knn& knn, int rank = 0);

@@ -20,7 +20,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 
-static double (*st_dist_function)(double*, double*, int) = euclidean_dist;
+static double (*st_dist_function)(const double*, const double*, int) = euclidean_dist;
 
 double **copy_double_arrAsVVD(VectorVectorDouble& arr)
 {
@@ -209,9 +209,15 @@ void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 void define_dist_function(int dist_type)
 {
   if (dist_type == 0)
+  {
+    message("Using the Manhattan distance\n");
     st_dist_function = manhattan_dist;
+  }
   else if (dist_type == 1)
+  {
+    message("Using the Euclidean distance\n");
     st_dist_function = euclidean_dist;
+  }
 }
 
 t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size, int dist_type)
@@ -256,7 +262,7 @@ t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size,
 	return (b);
 }
 
-double min_dist(t_btree *tree, int i_node, double *pt)
+double min_dist(t_btree *tree, int i_node, const double *pt)
 {
   double  dist_pt;
 
@@ -264,7 +270,7 @@ double min_dist(t_btree *tree, int i_node, double *pt)
   return (fmax(0.0, dist_pt - tree->node_data[i_node].radius));
 }
 
-int query_depth_first(t_btree *b, int i_node, double *pt, int i_pt, t_nheap *heap, double dist)
+int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
 {
 	t_nodedata	node_info = b->node_data[i_node];
 	double		dist_pt, dist1, dist2;
@@ -368,35 +374,4 @@ void free_knn(t_knn knn, int row)
 {
 	free_2d_double(knn.distances, row);
 	free_2d_int(knn.indices, row);
-}
-
-void display(t_knn& knn, int ns_max, int nn_max)
-{
-  int ns = knn.n_samples;
-  if (ns_max >= 0) ns = MIN(ns, ns_max);
-  int nn = knn.n_neighbors;
-  if (nn_max > 0) nn = MIN(nn, nn_max);
-  for (int is = 0; is < ns; is++)
-  {
-    message("Indices = ");
-    for (int in = 0; in < nn; in++)
-      message(" %d", knn.indices[is][in]);
-    message("\n");
-
-    message("Distances = ");
-    for (int in = 0; in < nn; in++)
-      message(" %lf", knn.distances[is][in]);
-    message("\n");
-  }
-}
-
-VectorInt getIndices(t_knn& knn, int rank)
-{
-  if (rank < 0 || rank >= knn.n_samples) return VectorInt();
-  return VectorHelper::initVInt(knn.indices[rank], knn.n_neighbors);
-}
-VectorDouble getDistance(t_knn& knn, int rank)
-{
-  if (rank < 0 || rank >= knn.n_samples) return VectorDouble();
-  return VectorHelper::initVDouble(knn.distances[rank], knn.n_neighbors);
 }

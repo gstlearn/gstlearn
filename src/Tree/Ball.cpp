@@ -205,3 +205,35 @@ t_knn Ball::queryOneAsVD(VectorDouble& test, int n_neighbors)
   knn = btree_query(_tree, internal, 1, n_features, n_neighbors);
   return knn;
 }
+
+
+void display(t_knn& knn, int ns_max, int nn_max)
+{
+  int ns = knn.n_samples;
+  if (ns_max >= 0) ns = MIN(ns, ns_max);
+  int nn = knn.n_neighbors;
+  if (nn_max > 0) nn = MIN(nn, nn_max);
+  for (int is = 0; is < ns; is++)
+  {
+    message("Indices = ");
+    for (int in = 0; in < nn; in++)
+      message(" %d", knn.indices[is][in]);
+    message("\n");
+
+    message("Distances = ");
+    for (int in = 0; in < nn; in++)
+      message(" %lf", knn.distances[is][in]);
+    message("\n");
+  }
+}
+
+VectorInt getIndices(t_knn& knn, int rank)
+{
+  if (rank < 0 || rank >= knn.n_samples) return VectorInt();
+  return VectorHelper::initVInt(knn.indices[rank], knn.n_neighbors);
+}
+VectorDouble getDistance(t_knn& knn, int rank)
+{
+  if (rank < 0 || rank >= knn.n_samples) return VectorDouble();
+  return VectorHelper::initVDouble(knn.distances[rank], knn.n_neighbors);
+}

@@ -18,7 +18,7 @@
  * @param size Number of coordinates
  * @return
  */
-double manhattan_dist(double *x1, double *x2, int size)
+double manhattan_dist(const double *x1, const double *x2, int size)
 {
   double delta;
 	double	d1 = 0;
@@ -38,7 +38,7 @@ double manhattan_dist(double *x1, double *x2, int size)
  * @param size Number of coordinates
  * @return
  */
-double euclidean_dist(double *x1, double *x2, int size)
+double euclidean_dist(const double *x1, const double *x2, int size)
 {
   double delta;
   double  d2 = 0;
@@ -49,4 +49,3 @@ double euclidean_dist(double *x1, double *x2, int size)
   }
   return (d2);
 }
-
