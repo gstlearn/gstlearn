@@ -79,8 +79,9 @@ void CalcSimuPostPropByLayer::_transformFunction(const VectorDouble& Z_n_k_s, Ve
   double z_ref  = _dbgrid->getCoordinate(iechout, ndim_out-1);
   double h_max  = _dbgrid->getDX(ndim_out - 1);
   double z_base = z_ref - h_max / 2.;
+  double z_top  = z_ref + h_max / 2.;
 
-  /* previous implementation
+  /* initial implementation
   double previous = 0.;
   double cote = 0.;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
@@ -93,12 +94,69 @@ void CalcSimuPostPropByLayer::_transformFunction(const VectorDouble& Z_n_k_s, Ve
 
    */
 
+  /* second implementation */
+    double cote = 0.;
+
+    // compute the top of the layers and limit to the cell extension [0, h_max]
+    cote += Z_n_k_s[0];
+    if(_flagTopToBase){
+        Y_p_k_s[0] = MIN(MAX(z_top - cote, 0.), h_max);
+    } else {
+        Y_p_k_s[0] = MIN(MAX(cote - z_base, 0.), h_max);
+    }
+    for (int ilayer = 1; ilayer < nlayer; ilayer++)
+    {
+    	if(_flagTopToBase){
+    	      cote -= Z_n_k_s[ilayer];
+    	      Y_p_k_s[ilayer] = MIN(MAX(z_top - cote, 0.), h_max);
+    	} else {
+    	      cote += Z_n_k_s[ilayer];
+    	      Y_p_k_s[ilayer] = MIN(MAX(cote - z_base, 0.), h_max);
+    	}
+    }
+     Y_p_k_s[nlayer] = h_max;
+
+    // compute the layer thickness
+     for (int ilayer = nlayer; ilayer > 0; ilayer--)
+    {
+      Y_p_k_s[ilayer] -= Y_p_k_s[ilayer-1];
+    }
+
+  // Normalize by the extension of the cell
+  for (int ilayer = 0; ilayer <= nlayer; ilayer++)
+    Y_p_k_s[ilayer] /= h_max;
+
+
+  /* taking into account the direction of calculation
+  for (i in 1:(P-1)) {
+        res[,,i] = H[[1]][,idx[,1]]
+        if(flag_top2base) { # from top to base
+          if (i > 1) {
+            for (j in 2:i) {res[,,i] = res[,,i] - H[[j]][,idx[,j]]}
+          }
+          res[,,i] = pmin(pmax(z_top - res[,,i],0), h_max)
+        } else { # from base to top
+          if (i > 1) {
+            for (j in 2:i) {res[,,i] = res[,,i] + H[[j]][,idx[,j]]}
+          }
+          res[,,i] = pmin(pmax(res[,,i] - z_base,0), h_max)
+        }
+    }
+    res[,,P] = h_max
+
+
   // from bottom to top
-  double cote = 0.;
-  for (int ilayer = 0; ilayer < nlayer; ilayer++)
+  double cote = Z_n_k_s[0];
+  for (int ilayer = 1; ilayer < nlayer; ilayer++)
   {
-    cote += Z_n_k_s[ilayer];
-    Y_p_k_s[ilayer] = MIN(MAX(cote - z_base, 0.), h_max);
+	  if(_flagTopToBase) { // from Top to Base
+		    cote -= Z_n_k_s[ilayer];
+		    Y_p_k_s[ilayer] = MIN(MAX(z_top - cote, 0.), h_max);
+
+	  } else { // from Base to Top
+		    cote += Z_n_k_s[ilayer];
+		    Y_p_k_s[ilayer] = MIN(MAX(cote - z_base, 0.), h_max);
+	  }
   }
   Y_p_k_s[nlayer] = h_max;
 
@@ -111,6 +169,7 @@ void CalcSimuPostPropByLayer::_transformFunction(const VectorDouble& Z_n_k_s, Ve
   // Normalize by the extension of the cell
   for (int ilayer = 0; ilayer <= nlayer; ilayer++)
     Y_p_k_s[ilayer] /= h_max;
+    */
 }
 
 /**
@@ -136,6 +195,7 @@ int simuPostPropByLayer(Db *dbin,
                         DbGrid *dbout,
                         const VectorString &names,
                         bool flag_match,
+						bool flag_topToBase,
                         const EPostUpscale &upscale,
                         const std::vector<EPostStat> &stats,
                         bool verbose,
@@ -154,6 +214,7 @@ int simuPostPropByLayer(Db *dbin,
   calcul.setUpscale(upscale);
   calcul.setStats(stats);
   calcul.setFlagMatch(flag_match);
+  calcul.setFlagTopToBase(flag_topToBase);
   calcul.setVerbose(verbose);
   calcul.setCheckTargets(check_targets);
   calcul.setCheckLevel(check_level);
