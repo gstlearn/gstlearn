@@ -46,6 +46,16 @@ t_nheap	*nheap_init(int n_pts, int n_nbrs)
 	return (h);
 }
 
+void nheap_load(t_nheap *heap, t_btree *b, const double **x)
+{
+  double dist;
+  for (int i = 0; i < heap->n_pts; i++)
+  {
+    dist = min_dist(b, 0, x[i]);
+    query_depth_first(b, 0, x[i], i, heap, dist);
+  }
+}
+
 double	nheap_largest(t_nheap *h, int row)
 {
 	return (h->distances[row][0]);
@@ -165,23 +175,10 @@ void	simultaneous_sort(double *dist, int *idx, int size)
 	}
 }
 
-void	nheap_sort(t_nheap *h)
+void nheap_sort(t_nheap *h)
 {
 	int	row;
 
 	for (row = 0; row < h->n_pts; row++)
 		simultaneous_sort(h->distances[row], h->indices[row], h->n_nbrs);
-}
-
-t_knn	nheap_get_arrays(t_nheap *h)
-{
-	t_knn	output;
-	
-	nheap_sort(h);
-	output.distances = h->distances;
-	output.indices = h->indices;
-	output.n_samples = h->n_pts;
-	output.n_neighbors = h->n_nbrs;
-	free(h);
-	return (output);
 }

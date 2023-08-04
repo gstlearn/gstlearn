@@ -32,6 +32,7 @@ public:
   void setDmax(const VectorDouble &dmax) { _dmax = dmax; }
   void setFlagFill(bool flagFill) { _flagFill = flagFill; }
   void setFlagInter(bool flagInter) { _flagInter = flagInter; }
+  void setFlagBall(bool flagBall) { _flagBall = flagBall; }
   void setDistType(int dist_type) { _distType = dist_type; }
   void setIuids(const VectorInt &iuids) { _iuids = iuids; }
   void setFlagLocate(bool flagLocate) { _flagLocate = flagLocate; }
@@ -54,6 +55,7 @@ private:
   bool _flagFill;
   bool _flagInter;
   bool _flagLocate;
+  bool _flagBall;
   ELoc _locatorType;
 };
 
@@ -64,6 +66,7 @@ GSTLEARN_EXPORT int migrate(Db *dbin,
                             const VectorDouble &dmax = VectorDouble(),
                             bool flag_fill = false,
                             bool flag_inter = false,
+                            bool flag_ball = false,
                             const NamingConvention &namconv = NamingConvention(
                                 "Migrate", false));
 GSTLEARN_EXPORT int migrateMulti(Db *dbin,
@@ -73,6 +76,7 @@ GSTLEARN_EXPORT int migrateMulti(Db *dbin,
                                  const VectorDouble &dmax = VectorDouble(),
                                  bool flag_fill = false,
                                  bool flag_inter = false,
+                                 bool flag_ball = false,
                                  const NamingConvention &namconv = NamingConvention(
                                      "Migrate", false));
 GSTLEARN_EXPORT int migrateByAttribute(Db *dbin,
@@ -82,6 +86,7 @@ GSTLEARN_EXPORT int migrateByAttribute(Db *dbin,
                                        const VectorDouble &dmax = VectorDouble(),
                                        bool flag_fill = false,
                                        bool flag_inter = false,
+                                       bool flag_ball = false,
                                        const NamingConvention &namconv = NamingConvention(
                                            "Migrate", false));
 GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
@@ -91,5 +96,6 @@ GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
                                      const VectorDouble &dmax = VectorDouble(),
                                      bool flag_fill = false,
                                      bool flag_inter = false,
+                                     bool flag_ball = false,
                                      const NamingConvention &namconv = NamingConvention(
                                          "Migrate", false));

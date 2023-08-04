@@ -9,59 +9,62 @@
 /*   Updated: 2017/06/28 20:56:01 by elee             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// Local modifications by D. RENARD
-// Insert 'Basic/AStringable.hpp'
-// Replace 'printf' by 'messerr'
-// Replace 'exit(-1)' by 'return nullptr' (which must be checked by calling function)
-// Return 'exit(-1)' by returning a t_knn structure where n-samples is set to -1.
-
 #include "Tree/ball_algorithm.h"
+#include "Tree/KNN.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 
 static double (*st_dist_function)(const double*, const double*, int) = euclidean_dist;
 
-double **copy_double_arrAsVVD(VectorVectorDouble& arr)
+double **copy_double_arrAsVVD(const VectorVectorDouble& arr)
 {
   double  **copy = nullptr;
-  if (arr.empty()) return copy;
-
   int col = (int) arr.size();
   int row = (int) arr[0].size();
-  int   i, j;
 
   copy = (double**)malloc(sizeof(double*) * row);
-  for (i = 0; i < row; i++)
+  for (int i = 0; i < row; i++)
   {
     copy[i] = (double*)malloc(sizeof(double) * col);
-    for (j = 0; j < col; j++)
+    for (int j = 0; j < col; j++)
       copy[i][j] = arr[j][i];
   }
   return (copy);
 }
 
-double **copy_double_arr(double **arr, int row, int col)
+double **copy_double_arr(const double **arr, int row, int col)
 {
 	double	**copy = nullptr;
-	if (arr == nullptr || row <= 0 || col <= 0) return copy;
-	int		i, j;
 	
 	copy = (double**)malloc(sizeof(double*) * row);
-	for (i = 0; i < row; i++)
+	for (int i = 0; i < row; i++)
 	{
 		copy[i] = (double*)malloc(sizeof(double) * col);
-		for (j = 0; j < col; j++)
+		for (int j = 0; j < col; j++)
 			copy[i][j] = arr[i][j];
 	}
 	return (copy);
 }
 
+int **copy_int_arr(const int **arr, int row, int col)
+{
+  int  **copy = nullptr;
+  int   i, j;
+
+  copy = (int**)malloc(sizeof(int*) * row);
+  for (i = 0; i < row; i++)
+  {
+    copy[i] = (int*)malloc(sizeof(int) * col);
+    for (j = 0; j < col; j++)
+      copy[i][j] = arr[i][j];
+  }
+  return (copy);
+}
+
 void swap(int *arr, int i1, int i2)
 {
-	int	tmp;
-	
-	tmp = arr[i1];
+	if (i1 == i2) return;
+	int tmp = arr[i1];
 	arr[i1] = arr[i2];
 	arr[i2] = tmp;
 }
@@ -81,34 +84,34 @@ void btree_zero(t_btree *b)
 
 int init_node(t_btree *b, int i_node, int idx_start, int idx_end)
 {
-	int		n_features;
-	int		n_points;
-	int		i, j;
-	double	radius;
-	double	*centroid;
+  int   n_features;
+  int   n_points;
+  int   i, j;
+  double  radius;
+  double  *centroid;
 
-	n_features = b->n_features;
-	n_points = idx_end - idx_start;
-	centroid = b->node_bounds[0][i_node];
-	
-	for (j = 0; j < n_features; j++)
-		centroid[j] = 0.0;
-	
-	for (i = idx_start; i < idx_end; i++)
-		for (j = 0; j < n_features; j++)
-			centroid[j] += b->data[b->idx_array[i]][j];
+  n_features = b->n_features;
+  n_points = idx_end - idx_start;
+  centroid = b->node_bounds[0][i_node];
 
-	for (j = 0; j < n_features; j++)
-		centroid[j] /= n_points;
+  for (j = 0; j < n_features; j++)
+    centroid[j] = 0.0;
 
-	radius = 0.0;
-	for (i = idx_start; i < idx_end; i++)
-		radius = fmax(radius, st_dist_function(centroid, b->data[b->idx_array[i]], n_features));
+  for (i = idx_start; i < idx_end; i++)
+    for (j = 0; j < n_features; j++)
+      centroid[j] += b->data[b->idx_array[i]][j];
 
-	b->node_data[i_node].radius = radius;
-	b->node_data[i_node].idx_start = idx_start;
-	b->node_data[i_node].idx_end = idx_end;
-	return (0);
+  for (j = 0; j < n_features; j++)
+    centroid[j] /= n_points;
+
+  radius = 0.0;
+  for (i = idx_start; i < idx_end; i++)
+    radius = fmax(radius, manhattan_dist(centroid, b->data[b->idx_array[i]], n_features));
+
+  b->node_data[i_node].radius = radius;
+  b->node_data[i_node].idx_start = idx_start;
+  b->node_data[i_node].idx_end = idx_end;
+  return (0);
 }
 
 int find_node_split_dim(double **data, int *node_indices, int n_features, int n_points)
@@ -138,38 +141,39 @@ int find_node_split_dim(double **data, int *node_indices, int n_features, int n_
 	return (j_max);
 }
 
-int partition_node_indices(double **data, int *node_indices, int split_dim, int split_index,
-								int n_features, int n_points)
+int partition_node_indices(double **data, int *node_indices, int split_dim, int n_features,
+                           int n_points, int split_index)
 {
-	(void)n_features;
-	int		left, right, midindex, i;
-	double	d1, d2;
+  (void)n_features;
+  int   midindex, i;
+  double  d1, d2;
 
-	left = 0;
-	right = n_points - 1;
+  int left = 0;
+  int right = n_points - 1;
 
-	while (TRUE)
-	{
-		midindex = left;
-		for (i = left; i < right; i++)
-		{
-			d1 = data[node_indices[i]][split_dim];
-			d2 = data[node_indices[right]][split_dim];
-			if (d1 < d2)
-			{
-				swap(node_indices, i, midindex);
-				midindex += 1;
-			}
-		}
-		swap(node_indices, midindex, right);
-		if (midindex == split_index)
-			break ;
-		else if (midindex < split_index)
-			left = midindex + 1;
-		else
-			right = midindex - 1;
-	}
-	return (0);
+  while (TRUE)
+  {
+    midindex = left;
+    for (i = left; i < right; i++)
+    {
+      d1 = data[node_indices[i]][split_dim];
+      d2 = data[node_indices[right]][split_dim];
+      if (d1 < d2)
+      {
+        swap(node_indices, i, midindex);
+        midindex++;
+      }
+    }
+    swap(node_indices, midindex, right);
+    if (midindex == split_index)
+      break ;
+    else if (midindex < split_index)
+      left = midindex + 1;
+    else
+      right = midindex - 1;
+  }
+
+  return (0);
 }
 
 void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
@@ -201,7 +205,7 @@ void recursive_build(t_btree *b, int i_node, int idx_start, int idx_end)
 	{
 		b->node_data[i_node].is_leaf = FALSE;
 		imax = find_node_split_dim(b->data, b->idx_array, n_features, n_points);
-		partition_node_indices(b->data, b->idx_array, imax, n_mid, n_features, n_points);
+		partition_node_indices(b->data, &b->idx_array[idx_start], imax, n_features, n_points, n_mid);
 		recursive_build(b, 2 * i_node + 1, idx_start, idx_start + n_mid);
 		recursive_build(b, 2 * i_node + 2, idx_start + n_mid, idx_end);
 	}
@@ -225,7 +229,11 @@ bool define_dist_function(int dist_type)
   return true;
 }
 
-t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size, int dist_type)
+t_btree* btree_init(const double **data,
+                    int n_samples,
+                    int n_features,
+                    int leaf_size,
+                    int dist_type)
 {
 	t_btree	*b;
 	int		i, j;
@@ -265,6 +273,7 @@ t_btree *btree_init(double **data, int n_samples, int n_features, int leaf_size,
 			b->node_bounds[0][i][j] = 0.0;
 	}
 	recursive_build(b, 0, 0, b->n_samples);
+
 	return (b);
 }
 
@@ -278,7 +287,7 @@ double min_dist(t_btree *tree, int i_node, const double *pt)
 
 int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nheap *heap, double dist)
 {
-	t_nodedata	node_info = b->node_data[i_node];
+	t_nodedata node_info = b->node_data[i_node];
 	double		dist_pt, dist1, dist2;
 	int			i, i1, i2;
 
@@ -318,35 +327,6 @@ int query_depth_first(t_btree *b, int i_node, const double *pt, int i_pt, t_nhea
 	return (0);
 }
 
-t_knn btree_query(t_btree *b, double **x, int n_samples, int n_features, int k)
-{
-	t_nheap	*heap;
-	double	dist;
-	int		i;
-	t_knn	output;
-
-	if (n_features != b->n_features)
-	{
-		messerr("query data dimension must match training data dimension.");
-		output.n_samples = -1;
-		return output;
-	}
-	if (b->n_samples < k)
-	{
-		messerr("k must be less than or equal to the number of training points.");
-    output.n_samples = -1;
-    return output;
-	}
-	heap = nheap_init(n_samples, k);
-	for (i = 0; i < n_samples; i++)
-	{
-		dist = min_dist(b, 0, x[i]);
-		query_depth_first(b, 0, x[i], i, heap, dist);
-	}
-	output = nheap_get_arrays(heap);
-	return (output);
-}
-
 void free_2d_double(double **arr, int row)
 {
 	int	i;
@@ -376,8 +356,45 @@ void free_tree(t_btree *tree)
 	free(tree);
 }
 
-void free_knn(t_knn knn, int row)
+void btree_display(const t_btree *tree, int level)
 {
-	free_2d_double(knn.distances, row);
-	free_2d_int(knn.indices, row);
+  if (tree == nullptr) return;
+
+  message("- Number of samples = %d\n", tree->n_samples);
+  message("- Number of Features = %d\n", tree->n_features);
+  message("- Number of levels = %d\n", tree->n_levels);
+  message("- Number of nodes = %d\n", tree->n_nodes);
+  message("- Size of leaf = %d\n", tree->leaf_size);
+  message("- Distance type = %d\n", tree->dist_type);
+  if (level < 0) return;
+
+  // Loop on the nodes
+
+  for (int in = 0; in < tree->n_nodes; in++)
+  {
+    t_nodedata* info = &tree->node_data[in];
+    VectorDouble centroid(tree->n_features);
+    for (int j = 0; j < tree->n_features; j++)
+      centroid[j] = tree->node_bounds[0][in][j];
+
+    message("Node #%3d/%3d - Indices [%5d; %5d[ - Radius = %lf",
+            in, tree->n_nodes, info->idx_start, info->idx_end, info->radius);
+    if (info->is_leaf)
+      message(" - Terminal Leaf\n");
+    else
+      message("\n");
+
+    if (level > 0)
+    {
+      VH::display("Centroid = ", centroid, 0);
+
+      if (level > 1 && info->is_leaf)
+      {
+        message("  Sample indices = ");
+        for (int is = info->idx_start; is < info->idx_end; is++)
+          message(" %d", tree->idx_array[is]);
+        message("\n");
+      }
+    }
+  }
 }

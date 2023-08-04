@@ -9,6 +9,7 @@ New class :
 - The class Neigh/ANeigh is introduced (generic for any neighborhood)
 - New class Geometry/ABiPointCheck checks if 2 points are connected (for Neighborhood, for Variogram, ...)
 - Class PolySet is now called PolyElem
+- The Python function display_file.py has been renamed into show_file.py
 
 New functions :
 ---------------

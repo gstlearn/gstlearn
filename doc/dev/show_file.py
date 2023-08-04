@@ -7,15 +7,32 @@ import gstlearn as gl
 import gstlearn.plot as gp
 import matplotlib.pyplot as plt
 from attr._make import NOTHING
+from pandas.core.sorting import nargsort
+from pandas.core.indexing import check_deprecated_indexers
+from numpy.core.defchararray import isnumeric
 
 args = sys.argv
 if len(args) < 2:
     print("This script should be called according to the following syntax:")
-    print("  display_file.py filename")
+    print("  show_file.py filename")
     print("- filename: Name of the Serialized file")
+    print(" ")
+    print("- varnames: (only for Db and Dbgrid) name(s) of variables for statistics (all is name unknown)")
     exit()
 filename = args[1]
+nargs = len(args)
+ranks = args[2:nargs]
 
+def getVariableNames(db, ranks):
+    names = []
+    for i in ranks:
+        if isnumeric(i):
+            name = db.getNameByColIdx(int(i))
+        else:
+            name = i
+        names.append(name)
+    return names
+    
 def checkValidPointer(pointer):
     if not pointer:
         print(" ")
@@ -32,14 +49,16 @@ if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)
     checkValidPointer(db)
     dbfmt = gl.DbStringFormat()
-    dbfmt.setFlags(flag_vars=True, flag_stats=True)
+    varnames = getVariableNames(db, ranks)
+    dbfmt.setFlags(flag_vars=True, flag_stats=nargs>2, names=varnames)
     db.display(dbfmt)
            
 elif filetype == "DbGrid":
     dbgrid = gl.DbGrid.createFromNF(filename,False)
     checkValidPointer(dbgrid)
     dbfmt = gl.DbStringFormat()
-    dbfmt.setFlags(flag_vars=True, flag_stats=True)
+    varnames = getVariableNames(dbgrid, ranks)
+    dbfmt.setFlags(flag_vars=True, flag_stats=nargs>2, names=varnames)
     dbgrid.display(dbfmt)
             
 elif filetype == "Vario":
@@ -73,4 +92,4 @@ elif filetype == "MeshETurbo":
     mesh.display()
     
 else:
-    print("This type of file is UNKNOWN in display_file:", filetype)
+    print("This type of file is UNKNOWN in show_file:", filetype)

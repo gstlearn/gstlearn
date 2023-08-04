@@ -869,6 +869,43 @@ void VectorHelper::cumulate(VectorDouble &veca,
 }
 
 /**
+ * Display the first significant values of the input vector.
+ * A "significant" value is a value larger than 'tol' in absolute value
+ * Values are listed by decreasing importance.
+ * @param vec  Input Vector
+ * @param tol  Tolerance above which a value is significant (in absolute value)
+ * @param nmax Limit on the number of values printed (-1: no limit)
+ */
+void VectorHelper::getMostSignificant(const VectorDouble& vec, double tol, int nmax)
+{
+  int nsize = (int) vec.size();
+  VectorDouble absval(nsize, 0.);
+  int ninvalid = 0;
+  for (int i = 0; i < nsize; i++)
+  {
+    double value = vec[i];
+    if (FFFF(value)) continue;
+    value = ABS(value);
+    if (value <= tol) continue;
+    absval[i] = value;
+    ninvalid++;
+  }
+
+  if (ninvalid <= 0) return;
+
+  VectorInt ranks = orderRanks(absval, false);
+  int nend = ninvalid;
+  if (nmax > 0) nend = MIN(ninvalid, nmax);
+  for (int i = 0; i < nend; i++)
+  {
+    int j = ranks[i];
+    message("Sample %d - Value = %lf\n", j, vec[j]);
+  }
+  if (nmax > 0 && ninvalid > nmax)
+    message("Found %d (out of %d) samples. Print limited to the %d most important ones.\n", ninvalid, nsize, nmax);
+}
+
+/**
  * Sample a set of 'ntotal' ranks (unique occurrence)
  * @param ntotal      Dimension to be sampled
  * @param proportion  Proportion of elected samples (in [0,1])

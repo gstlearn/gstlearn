@@ -19,34 +19,30 @@ class Db;
 class GSTLEARN_EXPORT Ball
 {
 public:
-  Ball(double **data = nullptr,
+  Ball(const double **data = nullptr,
        int n_samples = 0,
        int n_features = 0,
-       int leaf_size = 10,
+       int leaf_size = 30,
        int dist_type = 1);
-  Ball(VectorVectorDouble &data, int leaf_size = 10, int dist_type = 1);
-  Ball(const Db* db, int leaf_size = 10, int dist_type = 1, bool useSel = false);
+  Ball(const VectorVectorDouble &data, int leaf_size = 10, int dist_type = 1);
+  Ball(const Db* db, int leaf_size = 30, int dist_type = 1, bool useSel = false);
   Ball(const Ball& p) = delete;
   Ball & operator=(const Ball& p) = delete;
   virtual ~Ball();
 
-  t_knn query(double **test, int n_samples, int n_features, int n_neighbors = 1);
-  t_knn queryAsVVD(VectorVectorDouble& test, int n_neighbors = 1);
-  t_knn queryOne(double *test, int n_features, int n_neighbors = 1);
-  t_knn queryOneAsVD(VectorDouble& test, int n_neighbors = 1);
+  KNN query(const double **test, int n_samples, int n_features, int n_neighbors = 1);
+  KNN queryAsVVD(const VectorVectorDouble& test, int n_neighbors = 1);
+  KNN queryOne(const double *test, int n_features, int n_neighbors = 1);
+  KNN queryOneAsVD(const VectorDouble& test, int n_neighbors = 1);
+  int queryClosest(const VectorDouble& test);
+  void display(int level = -1) const;
 
 protected:
   int _getFeatureNumber() const { return _tree->n_features; }
   int _getLeafSize() const { return _tree->leaf_size; }
   int _getSampleNumber() const { return _tree->n_samples; }
   int _getDistType() const { return _tree->dist_type; }
-  bool _isValidFeatureNumber(int n_features) const;
 
 private:
-  mutable t_btree* _tree;
-  mutable double (* _distFunction)(double, double , int);
+  t_btree* _tree;
 };
-
-GSTLEARN_EXPORT void  display(t_knn& knn, int ns_max = -1, int nn_max = -1);
-GSTLEARN_EXPORT VectorInt getIndices(t_knn& knn, int rank = 0);
-GSTLEARN_EXPORT VectorDouble getDistance(t_knn& knn, int rank = 0);

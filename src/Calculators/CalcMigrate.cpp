@@ -109,7 +109,7 @@ bool CalcMigrate::_run()
     int iatt1 = _iuids[i];
     int iatt2 = _iattOut + i;
     if (_migrate(getDbin(), getDbout(), iatt1, iatt2, _distType, _dmax, _flagFill,
-                 _flagInter)) return false;
+                 _flagInter, _flagBall)) return false;
   }
 
   return true;
@@ -129,6 +129,7 @@ bool CalcMigrate::_run()
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
  ** \param[in]  flag_inter Interpolation
+ ** \param[in]  flag_ball  Use BallTree sorting algorithm when available
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
@@ -139,6 +140,7 @@ int migrate(Db *dbin,
             const VectorDouble &dmax,
             bool flag_fill,
             bool flag_inter,
+            bool flag_ball,
             const NamingConvention &namconv)
 {
   CalcMigrate migrate;
@@ -153,6 +155,7 @@ int migrate(Db *dbin,
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
+  migrate.setFlagBall(flag_ball);
 
   // Run the calculator
   int error = (migrate.run()) ? 0 : 1;
@@ -174,6 +177,7 @@ int migrate(Db *dbin,
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
  ** \param[in]  flag_inter Interpolation
+ ** \param[in]  flag_ball  Use BallTree sorting algorithm when available
  ** \param[in]  namconv    Naming convention
  **
  *****************************************************************************/
@@ -184,6 +188,7 @@ int migrateMulti(Db *dbin,
                  const VectorDouble &dmax,
                  bool flag_fill,
                  bool flag_inter,
+                 bool flag_ball,
                  const NamingConvention &namconv)
 {
   CalcMigrate migrate;
@@ -197,6 +202,7 @@ int migrateMulti(Db *dbin,
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
+  migrate.setFlagBall(flag_ball);
 
   // Run the calculator
   int error = (migrate.run()) ? 0 : 1;
@@ -217,6 +223,7 @@ int migrateMulti(Db *dbin,
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
  ** \param[in]  flag_inter Interpolation
+ ** \param[in]  flag_ball  Use BallTree sorting algorithm when available
  ** \param[in]  namconv    Naming Convention
  **
  *****************************************************************************/
@@ -227,6 +234,7 @@ int migrateByAttribute(Db *dbin,
                        const VectorDouble &dmax,
                        bool flag_fill,
                        bool flag_inter,
+                       bool flag_ball,
                        const NamingConvention &namconv)
 {
   CalcMigrate migrate;
@@ -242,6 +250,7 @@ int migrateByAttribute(Db *dbin,
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
+  migrate.setFlagBall(flag_ball);
 
   // Run the calculator
   int error = (migrate.run()) ? 0 : 1;
@@ -262,6 +271,7 @@ int migrateByAttribute(Db *dbin,
  ** \param[in]  dmax        Array of maximum distances (optional)
  ** \param[in]  flag_fill   Filling option
  ** \param[in]  flag_inter  Interpolation
+ ** \param[in]  flag_ball  Use BallTree sorting algorithm when available
  ** \param[in]  namconv     Naming convention
  **
  ** \remark The output variable receive the same locator as the input variables
@@ -274,6 +284,7 @@ int migrateByLocator(Db *dbin,
                      const VectorDouble &dmax,
                      bool flag_fill,
                      bool flag_inter,
+                     bool flag_ball,
                      const NamingConvention &namconv)
 {
   CalcMigrate migrate;
@@ -288,6 +299,7 @@ int migrateByLocator(Db *dbin,
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
+  migrate.setFlagBall(flag_ball);
   migrate.setFlagLocate(true);
   migrate.setLocatorType(locatorType);
 

@@ -21,7 +21,7 @@
 double manhattan_dist(const double *x1, const double *x2, int size)
 {
   double delta;
-	double	d1 = 0;
+	double d1 = 0;
 	for (int i = 0; i < size; i++)
 	{
 	  delta = fabs(x1[i] - x2[i]);
@@ -31,8 +31,7 @@ double manhattan_dist(const double *x1, const double *x2, int size)
 }
 
 /**
- * Returns the square of the Euclidean distance between two points
- * (as it is only used for sorting)
+ * Returns the Euclidean distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
  * @param size Number of coordinates
@@ -41,11 +40,11 @@ double manhattan_dist(const double *x1, const double *x2, int size)
 double euclidean_dist(const double *x1, const double *x2, int size)
 {
   double delta;
-  double  d2 = 0;
+  double d2 = 0;
   for (int i = 0; i < size; i++)
   {
     delta = (x1[i] - x2[i]);
     d2 += delta * delta;
   }
-  return (d2);
+  return sqrt(d2);
 }

@@ -1,79 +1,102 @@
-/* ************************************************************************** */
+/******************************************************************************/
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: elee <elee@student.42.us.org>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/06/28 17:45:08 by elee              #+#    #+#             */
-/*   Updated: 2017/06/28 21:53:50 by elee             ###   ########.fr       */
+/*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* ************************************************************************** */
-#include "geoslib_define.h"
+/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Authors: gstlearn Team                                                     */
+/* Website: https://github.com/gstlearn                                       */
+/* License: BSD 3 clauses                                                     */
+/*                                                                            */
+/******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_f.h"
 
+#include "Enum/ESpaceType.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/EKrigOpt.hpp"
+
+#include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
+#include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/AStringable.hpp"
+#include "Calculators/CalcMigrate.hpp"
 #include "Tree/Ball.hpp"
 
+/****************************************************************************/
+/*!
+ ** Main Program
+ **
+ *****************************************************************************/
 int main(int argc, char *argv[])
 {
-	t_knn	knn;
   Timer timer;
+  VectorDouble vec;
+  VectorDouble vecb;
+  VectorDouble diff;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-	// Constructing a Data Db
-	int ndim = 2;
-	int ndata = 50000;
-	Db* data = Db::createFillRandom(ndata, ndim, 0, 0, 0., 0.,
-                                  VectorDouble(), VectorDouble(), VectorDouble(),
-                                  2451);
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("Tree-");
 
-	// Constructing a Target Db
-	int ntarget = 10000;
-	Db* target = Db::createFillRandom(ntarget, ndim, 0, 0, 0., 0.,
-	                                  VectorDouble(), VectorDouble(), VectorDouble(),
-	                                  131323);
+  // Global parameters
+  int ndim = 2;
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
-	// Parameters
-  int leaf_size = 10;
-  int dist_type = 0;
-  int neigh_size = 6;
-  mestitle(1, "Testing BallTree performance");
-  message(" - Data Db contains %d samples\n", ndata);
-  message(" - Testing Db contains %d targets\n", ntarget);
-  message(" - Space Dimension = %d\n", ndim);
-  message(" - Leaf size is %d\n", leaf_size);
-  message(" - Neighborhood size = %d\n", neigh_size);
-  message(" - Distance type = %d\n", dist_type);
+  // Bench marking the Ball tree algorithm in particular
+  mestitle(1, "Ball Tree Efficiency");
+  int nfois = 10;
+  int nech = 10000;
+  VectorInt times(nfois);
 
-  // Constructing the Ball
-  timer.reset();
-  Ball ball(data, leaf_size, dist_type);
-  timer.displayIntervalMilliseconds("Building BallTree", 0);
+  message("- Building BallTree: P(p) where p = %d * k (in ms / k)\n", nech);
+  for (int ifois = 0; ifois < nfois; ifois++)
+  {
+    int number = nech * (ifois + 1);
+    timer.reset();
+    Db* data1 = Db::createFillRandom(number, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 131343);
+    Ball ball(data1);
+    times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 
-  timer.reset();
-  VectorDouble coor(ndim);
-	for (int is = 0, ns = target->getSampleNumber(); is < ns; is++)
-	{
-	  target->getCoordinatesPerSampleInPlace(is, coor);
-	  knn = ball.queryOneAsVD(coor, neigh_size);
-	  if (is < 10) VH::display("Neighborhood Indices", getIndices(knn, 0));
-	}
-  timer.displayIntervalMilliseconds("Querying the Ball Tree Per Target",0);
+    delete data1;
+  }
+  VH::display("", times);
 
-//  timer.reset();
-//  VectorVectorDouble coors = target->getAllCoordinates();
-//  knn = ball.queryAsVVD(coors, neigh_size);
-//  timer.displayIntervalMilliseconds("Querying the Ball Tree for all Targets at once",0);
-//  free_knn(knn, ntarget);
+  message("- P2P: P(p1) where p1 = %d * k and P(p2=%d) (in ms / k)\n", nech, nech);
 
-	//free stuff
-  delete data;
-  delete target;
-	return (0);
+  for (int ifois = 0; ifois < nfois; ifois++)
+  {
+    int number = nech * (ifois + 1);
+    timer.reset();
+    Db* data1 = Db::createFillRandom(number, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 131343);
+    Db* data2 = Db::createFillRandom(nech, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 413343);
+    (void) migrate(data1, data2, "z", 1, VectorDouble(), true, false, true);
+    times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
+
+    delete data1;
+    delete data2;
+  }
+  VH::display("", times);
+
+  message("- P2P: P(p1=%d) and P(p2) where p2 = %d * k (in ms / k)\n", nech, nech);
+
+  for (int ifois = 0; ifois < nfois; ifois++)
+  {
+    int number = nech * (ifois + 1);
+    timer.reset();
+    Db* data1 = Db::createFillRandom(nech, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 131343);
+    Db* data2 = Db::createFillRandom(number, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 413343);
+    (void) migrate(data1, data2, "z", 1, VectorDouble(), true, false, true);
+    times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
+
+    delete data1;
+    delete data2;
+  }
+  VH::display("", times);
+
+  return (0);
 }

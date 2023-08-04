@@ -40,6 +40,8 @@
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
 #include "Geometry/GeometryHelper.hpp"
+#include "Tree/Ball.hpp"
+#include "Tree/KNN.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -227,7 +229,8 @@ static int st_larger_than_dmax(int ndim,
 {
   double ratio, rtot;
 
-  if (dmax.empty()) return (0);
+  if (dmax.empty())
+    return 0;
 
   /* Dispatch according to the type of distance */
 
@@ -238,7 +241,8 @@ static int st_larger_than_dmax(int ndim,
 
     for (int idim = 0; idim < ndim; idim++)
     {
-      if (ABS(dvect[idim]) > dmax[idim]) return (1);
+      if (ABS(dvect[idim]) > dmax[idim])
+        return 1;
     }
   }
   else
@@ -253,10 +257,11 @@ static int st_larger_than_dmax(int ndim,
       ratio = dvect[idim] / dmax[idim];
       rtot += ratio * ratio;
     }
-    if (rtot > 1) return (1);
+    if (rtot > 1)
+      return 1;
   }
 
-  return (0);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -379,25 +384,15 @@ static int st_migrate_point_to_grid(Db *db_point,
                                     const VectorDouble &dmax,
                                     VectorDouble &tab)
 {
-  double dist1, dist2;
-  int iech, jech, inode, error, nb_assign, ndim_min, ndim_max;
-  VectorDouble dvect, coor, local;
-
-  /* Initializations */
-
-  error = 1;
-
-  /* Preliminary checks */
-
-  if (!db_point->hasLargerDimension(db_grid)) goto label_end;
-  ndim_min = MIN(db_point->getNDim(), db_grid->getNDim());
-  ndim_max = MAX(db_point->getNDim(), db_grid->getNDim());
+  if (!db_point->hasLargerDimension(db_grid)) return 1;
+  int ndim_min = MIN(db_point->getNDim(), db_grid->getNDim());
+  int ndim_max = MAX(db_point->getNDim(), db_grid->getNDim());
 
   /* Core allocation */
 
-  local.resize(db_point->getSampleNumber());
-  dvect.resize(ndim_max);
-  coor.resize(ndim_max);
+  VectorDouble local(db_point->getSampleNumber());
+  VectorDouble dvect(ndim_max);
+  VectorDouble coor(ndim_max);
   db_grid->getCoordinatesPerSampleInPlace(0, coor);
 
   /* Locate the samples on the grid */
@@ -406,11 +401,12 @@ static int st_migrate_point_to_grid(Db *db_point,
 
   /* Assign the index of the closest sample to each grid node */
 
-  for (iech = nb_assign = 0; iech < db_point->getSampleNumber(); iech++)
+  int nb_assign = 0;
+  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
   {
     if (FFFF(local[iech])) continue;
     if (FFFF(db_point->getArray(iech, iatt))) continue;
-    inode = (int) local[iech];
+    int inode = (int) local[iech];
     nb_assign++;
     if (FFFF(tab[inode]))
     {
@@ -422,10 +418,10 @@ static int st_migrate_point_to_grid(Db *db_point,
     {
       /* If the grid is not empty, find the closest sample */
 
-      jech = (int) tab[inode];
-      dist1 = distance_inter(db_grid, db_point, inode, iech, dvect.data());
+      int jech = (int) tab[inode];
+      double dist1 = distance_inter(db_grid, db_point, inode, iech, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
-      dist2 = distance_inter(db_grid, db_point, inode, jech, dvect.data());
+      double dist2 = distance_inter(db_grid, db_point, inode, jech, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
       tab[inode] = (dist1 < dist2) ? iech : jech;
     }
@@ -436,19 +432,67 @@ static int st_migrate_point_to_grid(Db *db_point,
 
   /* Convert into data values */
 
-  for (inode = 0; inode < db_grid->getSampleNumber(); inode++)
+  for (int jnode = 0; jnode < db_grid->getSampleNumber(); jnode++)
   {
-    if (FFFF(tab[inode])) continue;
-    tab[inode] = db_point->getArray((int) tab[inode], iatt);
+    if (FFFF(tab[jnode])) continue;
+    tab[jnode] = db_point->getArray((int) tab[jnode], iatt);
   }
+  return 0;
+}
 
-  /* Set the error return code */
+/*****************************************************************************/
+/*!
+ **  Expand a variable from the input structure
+ **  into a variable in the output structure
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db1       Descriptor of the input parameters
+ ** \param[in]  db2       Descriptor of the output parameters
+ ** \param[in]  iatt      Rank of the input attribute
+ ** \param[in]  distType  Type of distance for calculating maximum distance
+ **                       1 for L1 and 2 for L2 distance
+ ** \param[in]  dmax      Array of maximum distances (optional)
+ **
+ ** \param[out] tab       Output array
+ **
+ ** \remarks Method is designed when the two 'Db' share the same space dimension
+ **
+ *****************************************************************************/
+static int st_expand_point_to_point_ball(Db *db1,
+                                         Db *db2,
+                                         int iatt,
+                                         int distType,
+                                         const VectorDouble &dmax,
+                                         VectorDouble &tab)
+{
+  if (! db1->hasSameDimension(db2)) return 1;
+  int ndim = db1->getNDim();
+  VectorDouble coor(ndim);
+  VectorDouble dvect(ndim);
 
-  error = 0;
+  // Establish the ball tree (on the grid)
 
-  /* Core deallocation */
+  int leaf_size = 30;
+  Ball ball(db1, leaf_size, 1);
 
-  label_end: return (error);
+  // Loop on the sample points
+
+  for (int inode = 0; inode < db2->getSampleNumber(); inode++)
+  {
+    if (! db2->isActive(inode)) continue;
+    db2->getCoordinatesPerSampleInPlace(inode, coor);
+    int iech = ball.queryClosest(coor);
+
+    if (! dmax.empty())
+    {
+      (void) distance_inter(db2, db1, inode, iech, dvect.data());
+      if (st_larger_than_dmax(ndim, dvect, distType, dmax)) continue;
+    }
+
+    tab[inode] = db1->getArray(iech, iatt);
+  }
+  return 0;
 }
 
 /*****************************************************************************/
@@ -3311,9 +3355,8 @@ int st_next_sample(int ip0_init,
   const int* orderadd = &order[0];
   const double* xtabadd = &xtab[0];
   int ip0 = 0;
-  for (int kp = 0; kp < np; kp++)
+  for (int ip = ip0_init; ip < np; ip++)
   {
-    int ip = ip0_init + kp;
     int jp = *(orderadd + ip);
     if (xtarget < *(xtabadd + jp)) return ip0;
     ip0 = ip;
@@ -5945,6 +5988,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
  ** \param[in]  dmax       Array of maximum distances (optional)
  ** \param[in]  flag_fill  Filling option
  ** \param[in]  flag_inter Interpolation
+ ** \param[in]  flag_ball  Use the BallTree sort for speeding up calculations
  **
  *****************************************************************************/
 int _migrate(Db *db1,
@@ -5953,8 +5997,9 @@ int _migrate(Db *db1,
              int iatt2,
              int distType,
              const VectorDouble &dmax,
-             int flag_fill,
-             int flag_inter)
+             bool flag_fill,
+             bool flag_inter,
+             bool flag_ball)
 {
   int size = db2->getSampleNumber();
   VectorDouble tab(size, TEST);
@@ -5989,12 +6034,22 @@ int _migrate(Db *db1,
       if (flag_fill)
       {
         // Point to Grid (flag_fill = TRUE)
-        if (expand_point_to_grid(db1, db2grid, iatt1, -1, -1, -1, -1, -1, 0,
-                                 distType, dmax, tab)) return 1;
+        if (flag_ball)
+        {
+          // Note that we do not benefit from the fact that db2 is a Grid
+          if (st_expand_point_to_point_ball(db1, db2grid, iatt1, distType, dmax, tab))
+            return 1;
+        }
+        else
+        {
+          if (expand_point_to_grid(db1, db2grid, iatt1, -1, -1, -1, -1, -1, 0,
+                                   distType, dmax, tab)) return 1;
+        }
       }
       else
       {
         // Point to Grid (flag_fill = FALSE)
+        // flag_ball option is not considered as it does not save time
         if (st_migrate_point_to_grid(db1, db2grid, iatt1, distType, dmax, tab))
           return 1;
       }
@@ -6021,7 +6076,14 @@ int _migrate(Db *db1,
   else
   {
     // Point to Point
-    if (st_expand_point_to_point(db1, db2, iatt1, distType, dmax, tab)) return 1;
+    if (flag_ball)
+    {
+      if (st_expand_point_to_point_ball(db1, db2, iatt1, distType, dmax, tab)) return 1;
+    }
+    else
+    {
+      if (st_expand_point_to_point(db1, db2, iatt1, distType, dmax, tab)) return 1;
+    }
   }
 
   // Store the resulting array in the output Db
