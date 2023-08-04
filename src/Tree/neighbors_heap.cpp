@@ -12,36 +12,30 @@
 
 #include "Tree/ball_algorithm.h"
 
-void	dual_swap(double *darr, int *iarr, int i1, int i2)
+void dual_swap(double *darr, int *iarr, int i1, int i2)
 {
-	double	dtmp;
-	int		itmp;
-
-	dtmp = darr[i1];
+	double dtmp = darr[i1];
 	darr[i1] = darr[i2];
 	darr[i2] = dtmp;
-	itmp = iarr[i1];
+	int itmp = iarr[i1];
 	iarr[i1] = iarr[i2];
 	iarr[i2] = itmp;
 }
 
 t_nheap	*nheap_init(int n_pts, int n_nbrs)
 {
-	t_nheap	*h;
-	int		i, j;
-
-	h = (t_nheap*)malloc(sizeof(t_nheap));
+	t_nheap* h = (t_nheap*)malloc(sizeof(t_nheap));
 	h->n_pts = n_pts;
 	h->n_nbrs = n_nbrs;
 	h->distances = (double**)malloc(sizeof(double*) * n_pts);
-	for (i = 0; i < n_pts; i++)
+	for (int i = 0; i < n_pts; i++)
 	{
 		h->distances[i] = (double*)malloc(sizeof(double) * n_nbrs);
-		for (j = 0; j < n_nbrs; j++)
+		for (int j = 0; j < n_nbrs; j++)
 			h->distances[i][j] = INFINITY;
 	}
 	h->indices = (int**)malloc(sizeof(int*) * n_pts);
-	for (i = 0; i < n_pts; i++)
+	for (int i = 0; i < n_pts; i++)
 		h->indices[i] = (int*)calloc(sizeof(int), n_nbrs);
 	return (h);
 }
@@ -61,16 +55,13 @@ double	nheap_largest(t_nheap *h, int row)
 	return h->distances[row][0];
 }
 
-int		nheap_push(t_nheap *h, int row, double val, int i_val)
+int nheap_push(t_nheap *h, int row, double val, int i_val)
 {
-	int		i, ic1, ic2, i_swap;
-	int		size;
-	double	*dist_arr;
-	int		*ind_arr;
+	int	ic1, ic2, i_swap;
 
-	size = h->n_nbrs;
-	dist_arr = h->distances[row];
-	ind_arr = h->indices[row];
+	int size = h->n_nbrs;
+	double* dist_arr = h->distances[row];
+	int* ind_arr = h->indices[row];
 
 	// if distance is already greater than the furthest element, don't push
 	if (val > dist_arr[0])
@@ -81,7 +72,7 @@ int		nheap_push(t_nheap *h, int row, double val, int i_val)
 	ind_arr[0] = i_val;
 
 	// descend the heap, swapping values until the max heap criterion is met
-	i = 0;
+	int i = 0;
 	while (TRUE)
 	{
 		ic1 = 2 * i + 1;
@@ -123,7 +114,7 @@ int		nheap_push(t_nheap *h, int row, double val, int i_val)
 
 void	simultaneous_sort(double *dist, int *idx, int size)
 {
-	int		pivot_idx, i, store_idx;
+	int		pivot_idx, store_idx;
 	double	pivot_val;
 
 	if (size <= 1)
@@ -158,7 +149,7 @@ void	simultaneous_sort(double *dist, int *idx, int size)
 		pivot_val = dist[size - 1];
 
 		store_idx = 0;
-		for (i = 0; i < size - 1; i++)
+		for (int i = 0; i < size - 1; i++)
 		{
 			if (dist[i] < pivot_val)
 			{
@@ -177,8 +168,6 @@ void	simultaneous_sort(double *dist, int *idx, int size)
 
 void nheap_sort(t_nheap *h)
 {
-	int	row;
-
-	for (row = 0; row < h->n_pts; row++)
+	for (int row = 0; row < h->n_pts; row++)
 		simultaneous_sort(h->distances[row], h->indices[row], h->n_nbrs);
 }
