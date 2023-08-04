@@ -30,8 +30,8 @@ Ball::Ball(const VectorVectorDouble& data, int leaf_size, int dist_type)
   free_2d_double(internal, n_features);
 }
 
-Ball::Ball(const Db* db, int leaf_size, int dist_type, bool useSel)
-: _tree(nullptr)
+Ball::Ball(const Db *db, int leaf_size, int dist_type, bool useSel)
+    : _tree(nullptr)
 {
   VectorVectorDouble data = db->getAllCoordinates(useSel);
   int n_samples = (int) data[0].size();

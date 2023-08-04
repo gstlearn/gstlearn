@@ -58,7 +58,7 @@ void nheap_load(t_nheap *heap, t_btree *b, const double **x)
 
 double	nheap_largest(t_nheap *h, int row)
 {
-	return (h->distances[row][0]);
+	return h->distances[row][0];
 }
 
 int		nheap_push(t_nheap *h, int row, double val, int i_val)

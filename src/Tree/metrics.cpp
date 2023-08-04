@@ -21,7 +21,7 @@
 double manhattan_dist(const double *x1, const double *x2, int size)
 {
   double delta;
-	double d1 = 0;
+	double d1 = 0.;
 	for (int i = 0; i < size; i++)
 	{
 	  delta = fabs(x1[i] - x2[i]);
@@ -40,7 +40,7 @@ double manhattan_dist(const double *x1, const double *x2, int size)
 double euclidean_dist(const double *x1, const double *x2, int size)
 {
   double delta;
-  double d2 = 0;
+  double d2 = 0.;
   for (int i = 0; i < size; i++)
   {
     delta = (x1[i] - x2[i]);
