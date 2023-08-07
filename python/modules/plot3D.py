@@ -216,7 +216,7 @@ def PolygonOnSphere(poly, flagClose=False,
                     **plot_args)
     return boundaries
 
-def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False, 
+def SliceOnDbGrid(grid, name, section=0, rank=0, useSel=False, 
                   cmin = None, cmax = None):
     
     if __invalidFileDimension(grid, 3):
@@ -224,7 +224,7 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False,
                       
     shape = list(grid.getNXs())
     shape.pop(section)
-    vect = grid.getSlice(name, section, rank, usesel)
+    vect = grid.getSlice(name, section, rank, useSel)
     x = np.array(vect[0]).reshape(shape)
     y = np.array(vect[1]).reshape(shape)
     z = np.array(vect[2]).reshape(shape)
@@ -234,7 +234,7 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False,
                        coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    
-def IsoSurfaceOnDbGrid(grid, name, usesel=False, levels=None, 
+def IsoSurfaceOnDbGrid(grid, name, useSel=False, levels=None, 
                        colorscale='BlueRed', isomin=0, isomax=1, surface_count = 1, 
                        showlegend=False):
     
@@ -243,10 +243,10 @@ def IsoSurfaceOnDbGrid(grid, name, usesel=False, levels=None,
                       
     shape = list(grid.getNXs())
 
-    x = grid.getCoordinates(0, usesel).reshape(shape)
-    y = grid.getCoordinates(1, usesel).reshape(shape)
-    z = grid.getCoordinates(2, usesel).reshape(shape)
-    values = grid.getColumn( name, usesel).reshape(shape)
+    x = grid.getCoordinates(0, useSel).reshape(shape)
+    y = grid.getCoordinates(1, useSel).reshape(shape)
+    z = grid.getCoordinates(2, useSel).reshape(shape)
+    values = grid.getColumn( name, useSel).reshape(shape)
     
     surfaces = go.Isosurface(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
                              value = values.flatten(), 
@@ -258,19 +258,19 @@ def IsoSurfaceOnDbGrid(grid, name, usesel=False, levels=None,
                              )
     return surfaces
    
-def SurfaceOnDbGrid(grid, name, usesel=False, showscale=False, **plot_args):
+def SurfaceOnDbGrid(grid, name, useSel=False, showscale=False, **plot_args):
     
     if __invalidFileDimension(grid, 2):
         return None
     
     shape = list(np.flip(grid.getNXs()))
-    values = grid.getColumn(name, usesel).reshape(shape)
+    values = grid.getColumn(name, useSel).reshape(shape)
     
     surface = go.Surface(z=values, showscale=showscale, opacity=0.9, **plot_args)
     
     return surface
     
-def PointDb(db, name_color=None, name_size=None, usesel=False, 
+def PointDb(db, name_color=None, name_size=None, useSel=True, 
             color='black', size=3, opacity=1, posX=0, posY=1, posZ=2,
             **plot_args): 
     '''
@@ -282,17 +282,17 @@ def PointDb(db, name_color=None, name_size=None, usesel=False,
     if __invalidFileDimension(db, 3):
         return None
                       
-    x = db.getCoordinates(posX, usesel)
-    y = db.getCoordinates(posY, usesel)
-    z = db.getCoordinates(posZ, usesel)
+    x = db.getCoordinates(posX, useSel)
+    y = db.getCoordinates(posY, useSel)
+    z = db.getCoordinates(posZ, useSel)
     
     if name_color is not None:
-        colors = db.getColumn(name_color, usesel)
+        colors = db.getColumn(name_color, useSel)
     else:
         colors = color
     
     if name_size is not None:
-        sizes = db.getColumn(name_size, usesel)
+        sizes = db.getColumn(name_size, useSel)
     else:
         sizes = size
         
@@ -305,7 +305,7 @@ def PointDb(db, name_color=None, name_size=None, usesel=False,
                           **plot_args)
     return object
 
-def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2, 
+def GradientDb(db, useSel=True, colorscale='Blues', sizemode='absolute', size=2, 
                **plot_args): 
     '''
     Represent a set of Gradients contained in a Db
@@ -316,13 +316,13 @@ def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2
     if __invalidFileDimension(db, 3):
         return None
                       
-    x = db.getCoordinates(0, usesel)
-    y = db.getCoordinates(1, usesel)
-    z = db.getCoordinates(2, usesel)
+    x = db.getCoordinates(0, useSel)
+    y = db.getCoordinates(1, useSel)
+    z = db.getCoordinates(2, useSel)
     
-    gx = db.getGradient(0, usesel)
-    gy = db.getGradient(1, usesel)
-    gz = db.getGradient(2, usesel)
+    gx = db.getGradient(0, useSel)
+    gy = db.getGradient(1, useSel)
+    gz = db.getGradient(2, useSel)
     
     if len(gx) <= 0 or len(gy) <= 0 or len(gz) <= 0:
         print("Gradient components must be present")
@@ -336,7 +336,7 @@ def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2
     
     return objects
 
-def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2, 
+def TangentDb(db, useSel=True, colorscale='Blues', sizemode='absolute', size=2, 
                **plot_args): 
     '''
     Represent a set of Tangents contained in a Db
@@ -347,13 +347,13 @@ def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute', size=2,
     if __invalidFileDimension(db, 3):
         return None
                       
-    x = db.getCoordinates(0, usesel)
-    y = db.getCoordinates(1, usesel)
-    z = db.getCoordinates(2, usesel)
+    x = db.getCoordinates(0, useSel)
+    y = db.getCoordinates(1, useSel)
+    z = db.getCoordinates(2, useSel)
     
-    tx = db.getTangent(0, usesel)
-    ty = db.getTangent(1, usesel)
-    tz = db.getTangent(2, usesel)
+    tx = db.getTangent(0, useSel)
+    ty = db.getTangent(1, useSel)
+    tz = db.getTangent(2, useSel)
     
     x = np.concatenate((x, x)) 
     y = np.concatenate((y, y)) 

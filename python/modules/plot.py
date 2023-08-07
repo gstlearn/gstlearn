@@ -306,7 +306,7 @@ def addColorbar(im, ax):
     cbar = plt.colorbar(im, ax=ax, cax=cax)
     return cbar
 
-def __getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True, 
+def __getDefinedValues(db, name, posX=0, posY=1, corner=None, useSel=True, 
                        compress=False, asGrid=True, flagConvertNanToZero=False):
 
     if db.isGrid() and asGrid:
@@ -314,11 +314,11 @@ def __getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True,
             corner = np.zeros(db.getNDim())
         
         if db.getNDim() == 1:
-            tab = db.getColumn(name, usesel, False)
+            tab = db.getColumn(name, useSel, False)
         else:
-            tab = db.getOneSlice(name, posX, posY, corner, usesel)
+            tab = db.getOneSlice(name, posX, posY, corner, useSel)
     else:
-        tab = db.getColumn(name, usesel, compress)
+        tab = db.getColumn(name, useSel, compress)
     tab = np.array(tab).transpose()
 
     if flagConvertNanToZero:
@@ -331,12 +331,12 @@ def __getDefinedValues(db, name, posX=0, posY=1, corner=None, usesel=True,
         
     return tab
 
-def __getBiDefinedValues(db1, name1, name2, db2, usesel=True):
+def __getBiDefinedValues(db1, name1, name2, db2, useSel=True):
     
-    tabx = db1.getColumn(name1, usesel)
+    tabx = db1.getColumn(name1, useSel)
     tabx = np.array(tabx).transpose()
     
-    taby = db2.getColumn(name2, usesel)
+    taby = db2.getColumn(name2, useSel)
     taby = np.array(taby).transpose()
     
     sel  = np.logical_not(np.logical_or(np.isnan(tabx), np.isnan(taby)))
@@ -663,20 +663,20 @@ def __ax_model(ax, modelobj = None, **kwargs):
     
     return ax
 
-def __readCoorPoint(db, coorX_name=None, coorY_name=None, usesel=True, posX=0, posY=1):
+def __readCoorPoint(db, coorX_name=None, coorY_name=None, useSel=True, posX=0, posY=1):
     
     # Extracting coordinates
     if coorX_name is not None:
-        tabx = db.getColumn(coorX_name, usesel)
+        tabx = db.getColumn(coorX_name, useSel)
     else:
         if db.getNDim() > 0:
-            tabx = db.getCoordinates(posX,usesel)
+            tabx = db.getCoordinates(posX,useSel)
             
     if coorY_name is not None:
-        taby = db.getColumn(coorY_name, usesel)
+        taby = db.getColumn(coorY_name, useSel)
     else:
         if db.getNDim() > 1:
-            taby = db.getCoordinates(posY,usesel)
+            taby = db.getCoordinates(posY,useSel)
     
     if len(tabx) <= 0 or len(taby) <= 0:
         return None
@@ -689,7 +689,7 @@ def symbol(db, name_color=None, name_size=None, *args, **kwargs):
                        *args, **kwargs)
     
 def __ax_symbol(ax, db, name_color=None, name_size=None, 
-                coorX_name=None, coorY_name=None, usesel=True, 
+                coorX_name=None, coorY_name=None, useSel=True, 
                 c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
                 flagLegend=False, legendName=None, posX=0, posY=1, **kwargs):
     '''
@@ -701,7 +701,7 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     name_size: Name of the variable containing the size per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     c: Constant color (used if 'name_color' is not defined)
     s: Constant size (used if 'name_size' is not defined)
     sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
@@ -717,11 +717,11 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     name = ''
     
     # Read the coordinates
-    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
+    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, useSel, posX, posY)
     
     # Color of symbol
     if name_color is not None:
-        colval = __getDefinedValues(db, name_color, 0, 1, None, usesel, 
+        colval = __getDefinedValues(db, name_color, 0, 1, None, useSel, 
                                     compress=True, asGrid=False, 
                                     flagConvertNanToZero=True)
         name = name + ' ' + name_color
@@ -730,7 +730,7 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
 
     # Size of symbol
     if name_size is not None:
-        sizval = __getDefinedValues(db, name_size, 0, 1, None, usesel, 
+        sizval = __getDefinedValues(db, name_size, 0, 1, None, useSel, 
                                     compress=True, asGrid=False, 
                                     flagConvertNanToZero=True)
         if not flagCst:
@@ -772,7 +772,7 @@ def literal(db, *args, **kwargs):
     name: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
     legendName: title of the Legend
     posX: rank of the first coordinate
@@ -783,7 +783,7 @@ def literal(db, *args, **kwargs):
     return __ax_literal(ax, db, *args, **kwargs)
     
 def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None, 
-                 usesel=True, flagLegend=True, legendName=None, 
+                 useSel=True, flagLegend=True, legendName=None, 
                  posX=0, posY=1, **kwargs):
     
     name = defaultVariable(db, name)
@@ -792,9 +792,9 @@ def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None,
         ax.decoration(title = db.getName(name)[0])
     
     # Read the coordinates
-    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
+    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, useSel, posX, posY)
     
-    labval = __getDefinedValues(db, name, 0, 1, None, usesel, 
+    labval = __getDefinedValues(db, name, 0, 1, None, useSel, 
                                 compress=True, asGrid=False, 
                                 flagConvertNanToZero=True)
 
@@ -813,25 +813,25 @@ def gradient(db, *args, **kwargs):
     db: Db containing the variable to be plotted
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     '''
     ax = __getNewAxes(None, 1)
     return __ax_gradient(ax, db, *args, **kwargs)
     
-def __ax_gradient(ax, db, coorX_name=None, coorY_name=None, usesel=True, 
+def __ax_gradient(ax, db, coorX_name=None, coorY_name=None, useSel=True, 
                   posX=0, posY=1, **kwargs):
     if db.getLocNumber(gl.ELoc.G) <= 0:
         return None
     
     # Extracting coordinates
-    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
+    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, useSel, posX, posY)
     
     # Reading the Gradient components
     if db.getNDim() > 1:
-        tabgx = db.getGradient(0,usesel)
-        tabgy = db.getGradient(1,usesel)
+        tabgx = db.getGradient(0,useSel)
+        tabgy = db.getGradient(1,useSel)
     else:
-        tabgy = -db.getGradient(0,usesel)
+        tabgy = -db.getGradient(0,useSel)
         tabgx = -np.ones(len(tabgy))
 
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabgx) <= 0 or len(tabgy) <= 0:
@@ -849,22 +849,22 @@ def tangent(db, *args, **kwargs):
     db: Db containing the variable to be plotted
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     '''
     ax = __getNewAxes(None, 1)
     return __ax_tangent(ax, db, *args, **kwargs)
 
-def __ax_tangent(ax, db, coorX_name=None, coorY_name=None, usesel=True, 
+def __ax_tangent(ax, db, coorX_name=None, coorY_name=None, useSel=True, 
                  posX=0, posY=1, **kwargs):
     if db.getLocNumber(gl.ELoc.TGTE) <= 0:
         return None
 
     # Extracting coordinates
-    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, usesel, posX, posY)
+    tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, useSel, posX, posY)
 
     # Extract Tangent information
-    tabtx = db.getTangent(0,usesel)
-    tabty = db.getTangent(1,usesel)
+    tabtx = db.getTangent(0,useSel)
+    tabty = db.getTangent(1,useSel)
 
     if len(tabx) <= 0 or len(taby) <= 0 or len(tabtx) <= 0 or len(tabty) <= 0:
         return None
@@ -885,7 +885,7 @@ def point(db, *args, **kwargs):
     name_label: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'name_color' is not defined)
     size: Constant size (used if 'name_size' is not defined)
     sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
@@ -913,7 +913,7 @@ def point(db, *args, **kwargs):
     
 def __ax_point(ax, db, 
                name_color=None, name_size=None, name_label=None,
-               coorX_name=None, coorY_name=None, usesel=True, 
+               coorX_name=None, coorY_name=None, useSel=True, 
                color='r', size=20, sizmin=10, sizmax=200, cmap=None,
                flagAbsSize=False, flagCst=False,
                flagGradient=False, colorGradient='black', scaleGradient=20,
@@ -935,7 +935,7 @@ def __ax_point(ax, db,
     title = ""
     if (name_color is not None) or (name_size is not None):
         pt = __ax_symbol(ax, db, name_color=name_color, name_size=name_size, 
-                         coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
+                         coorX_name=coorX_name, coorY_name=coorY_name, useSel=useSel, 
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
                          flagAbsSize=flagAbsSize, flagCst=flagCst,cmap=cmap, 
                          flagLegend=flagLegendSymbol, legendName=legendSymbolName,
@@ -948,20 +948,20 @@ def __ax_point(ax, db,
     
     if name_label is not None:
         tx = __ax_literal(ax, db, name=name_label, 
-                          coorX_name=coorX_name, coorY_name=coorY_name, usesel=usesel, 
+                          coorX_name=coorX_name, coorY_name=coorY_name, useSel=useSel, 
                           flagLegend=flagLegendLabel, legendName=legendLabelName,
                           posX=posX, posY=posY, **kwargs)
         title = title + name_label + " (Label) "
         
     if flagGradient:
         gr = __ax_gradient(ax, db, coorX_name=coorX_name, coorY_name=coorY_name, 
-                           usesel=usesel, color=colorGradient, scale=scaleGradient,
+                           useSel=useSel, color=colorGradient, scale=scaleGradient,
                            posX=posX, posY=posY)
         title = title + " (Gradient) "
 
     if flagTangent:
         tg = __ax_tangent(ax, db, coorX_name=coorX_name, coorY_name=coorY_name,
-                          usesel=usesel, color=colorTangent, scale=scaleTangent,
+                          useSel=useSel, color=colorTangent, scale=scaleTangent,
                           posX=posX, posY=posY)
         title = title + " (Tangent) "
     
@@ -973,21 +973,21 @@ def modelOnGrid(model, db, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_modelOnGrid(ax, model, db=db, *args, **kwargs)
     
-def __ax_modelOnGrid(ax, model, db, usesel=True, icov=0, color='black', scale=1, **kwargs):
+def __ax_modelOnGrid(ax, model, db, useSel=True, icov=0, color='black', scale=1, **kwargs):
     '''
     Display the Model characteristics on a Grid
     This makes sense when the model contains some non-stationarity
     '''
     # Extracting coordinates
-    tabx = db.getCoordinates(0,usesel)
-    taby = db.getCoordinates(1,usesel)
+    tabx = db.getCoordinates(0,useSel)
+    taby = db.getCoordinates(1,useSel)
     if len(tabx) <= 0 or len(taby) <= 0:
         return None
     
     gl.db_model_nostat(db, model, icov)
-    tabR1 = db.getColumn("Nostat.Range-1", usesel)
-    tabR2 = db.getColumn("Nostat.Range-2", usesel)
-    tabA  = db.getColumn("Nostat.Angle-1", usesel)
+    tabR1 = db.getColumn("Nostat.Range-1", useSel)
+    tabR2 = db.getColumn("Nostat.Range-2", useSel)
+    tabA  = db.getColumn("Nostat.Angle-1", useSel)
     if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
         return None
     
@@ -1034,7 +1034,7 @@ def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue',
         
     return ax
 
-def __readGrid(dbgrid, name, usesel=True, posX=0, posY=1, corner=None, shading = "nearest"):
+def __readGrid(dbgrid, name, useSel=True, posX=0, posY=1, corner=None, shading = "nearest"):
     
     x0 = dbgrid.getX0(posX)
     y0 = dbgrid.getX0(posY)
@@ -1044,7 +1044,7 @@ def __readGrid(dbgrid, name, usesel=True, posX=0, posY=1, corner=None, shading =
     dy = dbgrid.getDX(posY)
     angles = dbgrid.getAngles()
     
-    data = __getDefinedValues(dbgrid, name, posX, posY, corner, usesel, 
+    data = __getDefinedValues(dbgrid, name, posX, posY, corner, useSel, 
                               compress=False, asGrid=True)
     data = np.reshape(data, (ny,nx))
 
@@ -1101,21 +1101,21 @@ def raster(dbgrid, *args, **kwargs):
     ax: matplotlib.Axes (necessary when used as a method of the class)
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
     return __ax_raster(ax, dbgrid, *args, **kwargs)
 
-def __ax_raster(ax, dbgrid, name=None, usesel = True, posX=0, posY=1, corner=None, 
+def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=None, 
                 flagLegend=False, **kwargs):
     name = defaultVariable(dbgrid, name)
             
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, usesel, posX=posX, posY=posY, corner=corner)
+    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner)
     trans_data = tr + ax.transData
     
     res = ax.pcolormesh(X, Y, data, **kwargs)
@@ -1137,7 +1137,7 @@ def isoline(dbgrid, *args, **kwargs):
     ax: matplotlib.Axes (necessary when used as a method of the class)
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     levels: Vector of isovalues to be represented
     flagLegend: Flag for representing the Color Bar (not represented if alpha=0)
     ax: Reference for the plot within the figure
@@ -1147,7 +1147,7 @@ def isoline(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_isoline(ax, dbgrid, *args, **kwargs)
 
-def __ax_isoline(ax, dbgrid, name=None, usesel = True, 
+def __ax_isoline(ax, dbgrid, name=None, useSel = True, 
                  posX=0, posY=1, corner=None, levels=None,
                  flagLegend=False, **kwargs):
     name = defaultVariable(dbgrid, name)
@@ -1155,7 +1155,7 @@ def __ax_isoline(ax, dbgrid, name=None, usesel = True,
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
     
-    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, usesel, posX=posX, posY=posY, corner=corner)
+    x0, y0, X, Y, data, tr = __readGrid(dbgrid, name, useSel, posX=posX, posY=posY, corner=corner)
     trans_data = tr + ax.transData
     
     res = ax.contour(X, Y, data, levels, **kwargs)
@@ -1173,7 +1173,7 @@ def grid(dbgrid, *args, **kwargs):
     dbgrid: DbGrid containing the variable to be plotted
     name_raster: Name of the variable to be represented as raster
     name_contour: Name of the variable tp be represented as contours
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     flagCell: When True, the edge of the grid cells are represented
     flagLegendColor: Flag for representing the Color Bar (not represented if alpha=0)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
@@ -1181,7 +1181,7 @@ def grid(dbgrid, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_grid(ax, dbgrid, *args, **kwargs)
 
-def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True, 
+def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, useSel = True, 
               posX=0, posY=1, corner=None, flagCell=False,
               flagLegendRaster=False, flagLegendContour=False,
               levels=None, **kwargs):
@@ -1195,14 +1195,14 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, usesel = True
 
     title = ""
     if name_raster is not None:
-        rs = __ax_raster(ax, dbgrid = dbgrid, name = name_raster, usesel = usesel,  
+        rs = __ax_raster(ax, dbgrid = dbgrid, name = name_raster, useSel = useSel,  
                          posX=posX, posY=posY, corner=corner, 
                          flagLegend=flagLegendRaster,
                          **kwargs)
         title = title + name_raster + " (Raster) "
     
     if name_contour is not None:
-        ct = __ax_isoline(ax, dbgrid = dbgrid, name = name_contour, usesel = usesel, 
+        ct = __ax_isoline(ax, dbgrid = dbgrid, name = name_contour, useSel = useSel, 
                           posX=posX, posY=posY, corner=corner, levels=levels, 
                           flagLegend=flagLegendContour, 
                           **kwargs)
@@ -1222,14 +1222,14 @@ def grid1D(dbgrid, *args, **kwargs):
 
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     flagLegendColor: Flag for representing the Color Bar
     **kwargs : arguments passed to matplotlib.pyplot.curve
     '''
     ax = __getNewAxes(None, 1)
     return __ax_grid1D(ax, dbgrid, *args, **kwargs)
 
-def __ax_grid1D(ax, dbgrid, name = None, usesel = True, flagLegendColor=True,
+def __ax_grid1D(ax, dbgrid, name = None, useSel = True, flagLegendColor=True,
                 color='black',flagLegend=False, label='curve',
                 **kwargs):
     if dbgrid.getNDim() != 1:
@@ -1250,8 +1250,8 @@ def __ax_grid1D(ax, dbgrid, name = None, usesel = True, flagLegendColor=True,
     nx = dbgrid.getNX(0)
     dx = dbgrid.getDX(0)
     
-    tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, usesel)
-    data = __getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
+    tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, useSel)
+    data = __getDefinedValues(dbgrid, name, 0, 1, None, useSel, 
                               compress=False, asGrid=True)
 
     __ax_curve(ax, data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
@@ -1270,11 +1270,11 @@ def histogram(db, *args, **kwargs):
     ax = __getNewAxes(None, 0)
     return __ax_histogram(ax, db=db, *args, **kwargs)
     
-def __ax_histogram(ax, db, name, usesel=True, **kwargs):
+def __ax_histogram(ax, db, name, useSel=True, **kwargs):
     if isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
-    db.useSel = usesel
+    db.useSel = useSel
     val = db[name]
     if len(val) == 0:
         return None
@@ -1558,7 +1558,7 @@ def correlation(db, namex, namey, *args, **kwargs):
     ax = __getNewAxes(None, 0)
     return __ax_correlation(ax, db=db, namex=namex, namey=namey, *args, **kwargs)
     
-def __ax_correlation(ax, db, namex, namey, db2=None, usesel=True, 
+def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True, 
                      asPoint = False,  flagSameAxes=False,
                      diagLine=False, diagColor="black", diagLineStyle='-',
                      bissLine=False, bissColor="red", bissLineStyle='-',
@@ -1574,7 +1574,7 @@ def __ax_correlation(ax, db, namex, namey, db2=None, usesel=True,
         print("Db and Db2 should have the same number of samples")
         return None
 
-    tabx, taby = __getBiDefinedValues(db, namex, namey, db2, usesel)
+    tabx, taby = __getBiDefinedValues(db, namex, namey, db2, useSel)
     if len(tabx) == 0:
         return None
     if len(taby) == 0:

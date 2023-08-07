@@ -59,7 +59,7 @@ point(db, *args, **kwargs)
     name_label: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'name_color' is not defined)
     size: Constant size (used if 'name_size' is not defined)
     sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)

@@ -168,7 +168,7 @@ err = grid$setColumn(tab = Y_g, name = "manual.simu", useSel = FALSE)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.simu", usesel = TRUE, 
+    plot.grid(grid, name_raster = "manual.simu", useSel = TRUE, 
             show.legend.raster = TRUE, palette = "Spectral") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non conditional simulation (Manual)")
@@ -211,7 +211,7 @@ err = grid$setColumn(name = "manual.kriging", tab = kriging)
 
 # plot of kriging
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.kriging", usesel = TRUE, palette = "Spectral", 
+    plot.grid(grid, name_raster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -245,7 +245,7 @@ S_g = (A_g %*% Zc)[,1:nsim]
 # storing the results +  plot
 err = grid$setColumn(tab = S_g[,1], name = "manual.cond.simu", useSel = TRUE)
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.cond.simu", usesel = TRUE, palette = "Spectral", 
+    plot.grid(grid, name_raster = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -256,7 +256,7 @@ ggPrint(p)
 ce = apply(X = S_g, MARGIN = 1, FUN = mean)
 err = grid$setColumn(tab = ce, name = "manual.cond.expectation", useSel = TRUE)
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.cond.expectation", usesel = TRUE, palette = "Spectral", 
+    plot.grid(grid, name_raster = "manual.cond.expectation", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -303,7 +303,7 @@ iuid = spde$query(grid)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde.simu", usesel = TRUE, 
+    plot.grid(grid, name_raster = "spde.simu", useSel = TRUE, 
             show.legend.raster = TRUE, palette = "Spectral") +
   plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non Conditional Simulation (SPDE)")
@@ -325,7 +325,7 @@ err = grid$setName(old_name = "spde.manual.simu.kriging", name = "spde.kriging")
 
 # plot of kriging
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde.kriging", usesel = TRUE, palette = "Spectral",
+    plot.grid(grid, name_raster = "spde.kriging", useSel = TRUE, palette = "Spectral",
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
