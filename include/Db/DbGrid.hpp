@@ -247,13 +247,13 @@ public:
   }
 
   VectorVectorDouble getSlice(const String& name,
-                              int pos,
-                              int indice,
+                              int pos = 0,
+                              int indice = 0,
                               bool useSel = false) const;
   VectorDouble getOneSlice(const String& name,
-                           int posx,
-                           int posy,
-                           const VectorInt& corner,
+                           int posx = 0,
+                           int posy = 1,
+                           const VectorInt& corner = VectorInt(),
                            bool useSel = false) const;
   int assignGridColumn(const String& name,
                        int idim,

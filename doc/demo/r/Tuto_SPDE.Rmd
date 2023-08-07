@@ -1,142 +1,662 @@
 ---
-title: "Tutorial SPDE"
-author: "D. Renard, N. Desassis, X. Freulon"
-date: "December 6th 2022"
-output:
-  pdf_document: default
-  html_document: default
-  editor_options: 
-  chunk_output_type: console
+title: "SPDE"
+author: "Didier Renard, Nicolas Desassis, Xavier Freulon"
+date: "2023-07-10"
+output: pdf_document
 ---
 
-```{r setup, include=FALSE, echo=TRUE}
+In this tutorial, we show how to use the API SPDE.
+
+This is a free transcription in R of the python note book *tuto_SPDE*.
+
+```{r intialization, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
+OptCst_defineByKey("ASP",0)
 library(ggplot2)
 library(ggpubr)
 library(Matrix)
+set.seed(43243)
+opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
+
 ```
 
-# General Introduction
+# Parameters
 
-This notebook presents sevral possibilities of the SPDE procedure
+```{r parameters}
+# Data
+set.seed (123)
+ndat = 100
 
-## Creating the Data Bases
-
-Some global constants
-
-```{r}
-ndat = 1000
+# Model
 rangev = 0.2
 sill = 1.
-nugget = 0.1
-law_set_random_seed(123)
+tau = 0.01
+
+# parameters of the final grid on [0,1]^2
+nx = c(200,200)
+dx = 1/nx
+x0 = c(0,0)
+
+# Grid meshing on [-0.25, 1.25]^2
+nxm = c(100,100)
+dxm = 1.5 / (nxm-1)
+x0m = c(-0.25,-0.25)
+
+# number of simulations for Monte-Carlo estimators (ce and logdet)
+nsim = 10
 ```
 
-Creating the Data Base for conditioning information
+## Grid definition
 
-```{r}
+```{r grid_definition, echo=TRUE, eval=TRUE}
+grid    = DbGrid_create(nx,dx,x0)
+gridExt = DbGrid_create(nxm,dxm,x0m)
+mesh    = MeshETurbo(gridExt)
+
+# limits
+limits <- list(XP = 1.0*c(0, 1, 1, 0, 0),
+               YP = 1.0*c(0, 0, 1, 1, 0))
+p_lim   = PolyElem(limits$XP, limits$YP)
+pol_lim = Polygons()
+err     = pol_lim$addPolyElem(p_lim)
+
+p = ggDefaultGeographic() + 
+    plot.grid(gridExt) +
+    plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Limits of the simulations")
+ggPrint(p)
+
+
+```
+
+## Model definition
+
+```{r model_definition, echo=TRUE, eval=TRUE}
+model = Model_createFromParam(ECov_BESSEL_K(), param=1,range=rangev,sill=sill)
+```
+
+
+```{r SPDE_simulation, echo=TRUE, eval=TRUE}
+spde = SPDE()
+err  = spde$init(model, field = gridExt, calc = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
+
+```
+
+# SPDE approach
+
+Lindgren et al. (2011) defined an explicit link between gaussian fields and gaussian markov random fields. This  approach is implemented in the SPDE module of $gstlearn$. The random field is a weak solution of some stochastic partial differential equation solved using the finite element method. It follows that the standard tools of Geostatistics, kriging and stochastic simulation, can be rewritten using sparse linear algebra.
+
+The SPDE model represents the domain by a mesh and random field by its values for each mesh cell 
+$\mathbf{Z} \sim \mathcal{N}(\mathbf{0,Q^{-1}})$ where the precision matrix $\mathbf{Q = \Sigma^{-1}}$ is sparse. 
+
+The latent vector $\mathbf{Z}$ can be linearly interpolated to the target locations 
+$\mathbf{Y_T = A_g \, Z}$ or to observation location $\mathbf{Y = A_d \, Z + \tau W}$. 
+In the latter case, $\tau$ is the standard deviation of the noise modelling the error of observation and the modelling error. The number of observation is $p$.
+
+The precision matrix of the vector $\mathbf{(Z, Y_D)}$ is:
+$$
+  \mathbf{
+    \tilde{Q} = \tilde{\Sigma}^{-1}=
+      \begin{bmatrix}\mathbf{Q+\tau^{-2}A_d^T A_d} & \mathbf{-\tau^{-2}A_d^T} \\ \mathbf{-\tau^{-2}A_d} & \mathbf{\tau^{-2}I_p} \end{bmatrix}
+  } 
+$$
+From this expression the kriging and the conditional simulation can be derived:
+    
+* the Kriging of $\mathbf{Z}$ is $E\{\mathbf{Z|Y = y}\} = \tau^{-2}\mathbf{(Q + \tau^{-2}A_d^TA_d)^{-1}A_d^T y}$
+
+* the conditional variance is $Cov\{\mathbf{Z|Y = y}\} = \mathbf{(Q + \tau^{-2}A_d^TA_d)^{-1}}$
+
+* the non conditional simulation is $\mathbf{(S, S_D)\sim \mathcal{N}(0, \tilde{Q}^{-1})}$
+        
+* the conditional simulation of the latent vector is $\mathbf{S_{|Y=y} = S + \tau^{-2} (Q+ \tau^{-2}A_d^TA_d)^{-1} A_d^T(y - S_D)}$
+        
+The estimated or simulated latent vector can be linearly interpolated to any target grid.
+
+## Non conditional simulation
+
+The latent vector (of length $n$) $\mathbf{Z \sim \mathcal{N}(0, Q^{-1})}$ is defined on the meshing by its sparse
+precision matrix $\mathbf{Q = \Sigma^{-1}}$. $\mathbf{Q}$ is factorized by the Cholesky method: $\mathbf{Q = L\, L^{T}}$.
+
+Thus, the Gaussian vector can be rewritten $\mathbf{Z = (L^T)^{-1} \, U}$ with $\mathbf{U \sim \mathcal{N}(0, I_n)}$.
+
+Finally the Gaussian vector collecting the values of the random field at the grid nodes $Y$ 
+is achieved by the interpolation of $\mathbf{Z}$ on the mesh $\mathbf{Y_g = A_{g} \, Z}$.
+
+To compute a non conditional simulation on the grid,
+
+0) Compute the projection matrix of the latent vector $\mathbf{Z}$ to the grid/
+
+```{r ncsimu_step_0, echo=TRUE, eval=TRUE}
+# projection matrix of the latent vector on the grid
+A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
+
+```
+
+1) Compute $\mathbf{L}$ the Cholesky decomposition of the sparse precision matrix $\mathbf{Q}$
+
+```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
+# Cholesky decomposition of precision matrix of the latent vector
+Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
+cholQ =  Cholesky(Q, LDL = FALSE)
+
+```
+
+2) Compute the normal Gaussian vector $\mathbf{U \sim N(0, I_n)}$,
+
+```{r ncsimu_step_2, echo=TRUE, eval=TRUE}
+U = rnorm(n = dim(Q)[1])
+
+```
+
+3) Compute the latent vector $\mathbf{Z}$ solving the sparse linear system $\mathbf{L^{T} \, Z = U}$,
+
+```{r ncsimu_step_3, echo=TRUE, eval=TRUE}
+Z = (t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))@x
+
+```
+
+4) Compute the interpolation of the latent vector to the target grid $\mathbf{Y_g = A_{g} \, Z}$,
+
+```{r ncsimu_step_4, echo=TRUE, eval=TRUE}
+Y_g =(A_g %*% Z)[,1]
+
+# adding the simulation to the grid
+err = grid$setColumn(tab = Y_g, name = "manual.simu", useSel = FALSE)
+
+# plot
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "manual.simu", usesel = TRUE, 
+            show.legend.raster = TRUE, palette = "Spectral") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Non conditional simulation (Manual)")
+ggPrint(p)
+
+```
+
+## Kriging and Conditional simulation distribution
+
+We define the observation from the initial non conditional simulation.
+
+```{r input_data, echo=TRUE, eval=TRUE}
 dat = Db_create()
-dat["x"] = VectorHelper_simulateUniform(ndat)
-dat["y"] = VectorHelper_simulateUniform(ndat)
-dat$setLocators(c("x","y"),ELoc_X())
-dat
+err = dat$setColumn(tab = runif(n=ndat), name = "x")
+err = dat$setColumn(tab = runif(n=ndat), name = "y")
+err = dat$setLocators(names = c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
+
+# extraction of the simulated value at data location
+err = migrate(dbin = grid, dbout = dat, name = "manual.simu", namconv = NamingConvention())
+
+# projection matrix of the latent vector on the data locations
+A_d = ProjMatrix(dat, mesh)$getAprojToTriplet()$toTL()
+
+
 ```
 
-Creating the Data Base for the output grid
+The $p$ observations are defined by the vector $\mathbf{Y_d = A_d \, Z + \tau \, W_d}$, where $\mathbf{A_d}$ is the projection matrix from the latent vector $\mathbf{Z}$ to the data location, $\tau$ is 
+the standard deviation of the modelling error, and $\mathbf{W_d \sim \mathcal{N}(0, I_p)}$.
 
-```{r}
-grid = DbGrid_create(nx=c(50,50),dx=c(0.02,0.02))
-```
+## Kriging
 
-Creating the Meshing (Turbo) based on extended grid
+```{r kriging_manual, echo=TRUE, eval=TRUE}
+Q_TT = Q + 1/(tau^2) * t(A_d) %*% A_d
+cholQ_TT =  Cholesky(Q_TT, LDL = FALSE)
 
-```{r}
-gridExt = DbGrid_create(nx=c(75,75),dx=c(0.02,0.02),x0=c(-0.25,-0.25))
-mesh = MeshETurbo(gridExt)
-mesh
-```
+z_dat = dat["manual.simu"]
+kriging = (A_g %*% solve(cholQ_TT, t(A_d) %*% z_dat/(tau^2)))@x
 
-Creating the Model
+err = grid$setColumn(name = "manual.kriging", tab = kriging)
 
-```{r}
-model = Model_createFromParam(type=ECov_BESSEL_K(),param=1,range=rangev,sill=sill)
-model$addCovFromParam(ECov_NUGGET(),sill=nugget)
-model
-```
-
-# SPDE processing
-
-## Non-conditional simulation
-
-Building the SPDE environment for Non-conditional environments
-
-```{r}
-spdeS = SPDE()
-spdeS$init(model=model, field=grid, calc=ESPDECalcMode_SIMUNONCOND(), mesh=mesh)
-spdeS$compute()
-```
-
-Apply the SPDE system in order to obtain a non-conditional simulation on the input and output Data Bases
-
-```{r}
-iuid = spdeS$query(dat)
-iuid = spdeS$query(grid)
-```
-
-Representing the resulting non-conditional simulation on the Grid
-
-```{r}
-p = ggplot()
-p = p + plot.grid(grid, "spde.simu")
-p = p + plot.decoration(title="Non Conditional Simulation")
+# plot of kriging
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "manual.kriging", usesel = TRUE, palette = "Spectral", 
+            show.legend.raster = TRUE) +
+    plot.point(dat, col = "red") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Kriging (Manual)")
 ggPrint(p)
+
+
 ```
 
-## Estimation by Kriging
+## Conditional simulation
 
-Preparing the SPDE environment
+The conditional simulation is performed in three steps:
 
-```{r}
-spdeK = SPDE()
-spdeK$init(model=model, field=grid, data=dat, calc=ESPDECalcMode_KRIGING(), mesh=mesh)
-spdeK$compute()
-```
+* a non conditional simulation of the latent vector $\mathbf{Z}$ is computed first,
 
-Apply the SPDE system in order to obtain an estimation on the output Data Base
+* then, the kriging of the error at observation locations is computed and added to the non conditional simulation
 
-```{r}
-iuid = spdeK$query(grid, namconv=NamingConvention("spde",FALSE))
-```
+* finally, the simulated latent vector is interpolated on the grid
 
-Representing the resulting estimation on the Grid
+```{r cond_simulation_manual, echo=TRUE, eval=TRUE}
+# computing non conditional simulations of the latent vector (on the mesh)
+U = matrix(rnorm(n = dim(Q)[1]*nsim), nrow = dim(Q)[1], ncol = nsim)
+Z = (t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))
 
-```{r}
-p = ggplot()
-p = p + plot.grid(grid, "spde.kriging")
-p = p + plot.decoration(title="Estimation")
+# computing the kriging of the simulated errors and adding them to the non conditional simulation (on the mesh)
+Zc = Z + solve(cholQ_TT, t(A_d) %*% (z_dat - A_d %*% Z)/(tau^2))
+
+# computing the simulated value on the grid
+S_g = (A_g %*% Zc)[,1:nsim]
+
+# storing the results +  plot
+err = grid$setColumn(tab = S_g[,1], name = "manual.cond.simu", useSel = TRUE)
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "manual.cond.simu", usesel = TRUE, palette = "Spectral", 
+            show.legend.raster = TRUE) +
+    plot.point(dat, col = "red") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Conditional simulation (Manual)")
 ggPrint(p)
+
+# empirical conditional expectation
+ce = apply(X = S_g, MARGIN = 1, FUN = mean)
+err = grid$setColumn(tab = ce, name = "manual.cond.expectation", useSel = TRUE)
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "manual.cond.expectation", usesel = TRUE, palette = "Spectral", 
+            show.legend.raster = TRUE) +
+    plot.point(dat, col = "red") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Conditional expectation (Manual)")
+ggPrint(p)
+
+# cross plot: initial simulation vs. kriging
+p = ggDefault() + 
+    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "manual.simu", asPoint = FALSE, 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+    plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (Initial simulation)", 
+                  title = "Simulation vs. kriging (Manual)")
+ggPrint(p)
+
+# cross plot: conditional simulation vs. kriging
+p = ggDefault() + 
+    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "manual.cond.simu", asPoint = FALSE, 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+    plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (conditional simulation)", 
+                  title = "Simulation vs. kriging (Manual)")
+ggPrint(p)
+
+# cross plot: empirical conditional expectation vs. kriging
+p = ggDefault() + 
+    plot.correlation(db1 = grid, name1 = "manual.cond.expectation", name2 = "manual.kriging", asPoint = FALSE, 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+    plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
+                  title = "Kriging vs. conditional expectation (Manual)")
+ggPrint(p)
+
 ```
 
-## Producing the internal elements of the SPDE environment
+# Using the SPDE api defined in **gstlearn**
 
-Extracting the internal elements from 'spdeK' in order to perform calculations by hand (if necessary).
+## Non conditional simulation
 
-```{r}
-Q = PrecisionOpCs(mesh, model)$getQToTriplet(flag_from_1=TRUE)$toTL()
-Aproj = ProjMatrix(dat,mesh)$getAprojToTriplet(flag_from_1=TRUE)$toTL()
+```{r simu_api, echo=TRUE, eval=TRUE}
+
+# simulation
+err  = spde$compute()
+
+err = grid$deleteColumns(names = "spde.simu*")
+iuid = spde$query(grid)
+
+# plot
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "spde.simu", usesel = TRUE, 
+            show.legend.raster = TRUE, palette = "Spectral") +
+  plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Non Conditional Simulation (SPDE)")
+ggPrint(p)
+
 ```
 
-Posterior calculations
+## Kriging
 
-```{r}
-size = dim(Q)[1]
-cholQ = Cholesky(Q)
-u = VectorHelper_simulateGaussian(size)
+```{r kriging_api, echo=TRUE, eval=TRUE}
+# the modelling error is added to the model
+err     = model$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
+
+spdeRes = SPDE()
+err     = spdeRes$init(model, field = gridExt, data = dat, calc = ESPDECalcMode_KRIGING(), mesh = mesh)
+err     = spdeRes$compute()
+iuid    = spdeRes$query(grid)
+err = grid$setName(old_name = "spde.manual.simu.kriging", name = "spde.kriging")
+
+# plot of kriging
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "spde.kriging", usesel = TRUE, palette = "Spectral",
+            show.legend.raster = TRUE) +
+    plot.point(dat, col = "red") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = "Kriging (SPDE)")
+ggPrint(p)
+
+# correlation
+p = ggDefault() + 
+    plot.correlation(grid, name1 = "spde.kriging", name2 = "manual.simu",asPoint = FALSE,
+                     flagDiag = TRUE, diag_color = "red", flagRegr = TRUE, regr_color = "black", regr_line = 2,
+                     flagSameAxes = TRUE
+            ) +
+    plot.decoration(xlab = "Estimated value (kriging)", ylab = "Actual value (simulation)", 
+                  title = "SPDE")
+ggPrint(p)
+
+# cross plot
+p = ggDefault() + 
+    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "spde.kriging", asPoint = FALSE, 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+    plot.decoration(xlab = "Manual", ylab = "SPDE", 
+                  title = "Comparison for Kriging")
+ggPrint(p)
+
 ```
 
-```{r}
-Qop = Q + 1/nugget * t(Aproj) %*% Aproj
+# Likelihood
+
+The observations of the latent target field are modelled according to Pereira et al.(2022):
+
+$$
+\mathbf{Y_d = A_d\, Z + \tau \, W}
+$$
+
+Hence the covariance matrix of the observations is $\mathbf{\Sigma_{Y_d} = A_d\, \Sigma \, A_d^{T} + \tau^2 \, I_{p} = Q_{Y_d}^{-1}}$. The log-likelihood of $\mathbf{Y}$ is thus
+$$
+\mathcal{L} = - \frac{1}{2} \{ 
+p \, \log(2\pi) 
+- \log |\mathbf{Q_{Y_d}}| 
++ \mathbf{{y_d}^T \, Q_{Y_d} \, {y_d}}
+\}.
+$$
+We can write
+$$
+\mathbf{{y_d}^T \, Q_{Y_d} \, {y_d} = \tau^{-2} \{{y_d}^T {y_d} - \tau^{-2}(A_d^T\, y_d)^T \, 
+(Q + \tau^{-2} A_d^T\,A_d)^{-1} \, (A_d^T {y_d})\}},
+$$
+and
+$$
+\log|\mathbf{Q_{Y_d}}| = 
+\log|\mathbf{Q}| -p\times\log(\tau^2) - \log|\mathbf{Q+\tau^{-2}A_d^T\, A_d}|.
+$$
+
+Testing...
+
+```{r likelihood, echo=TRUE, eval=TRUE}
+# ==============================================================================
+# Auxiliary functions from python notebook tuto_SPDE.ipynb
+# ==============================================================================
+# computes the logarithm of the determinant of the matrix Q = LL'
+detQ <- function(L) {
+  2*prod(unlist(determinant(L, logarithm = TRUE)))
+}
+
+# In R, we can use directly the solve function with system = "A"
+# solveMat <- function(L,x) {
+#   # cholQop$solve_A(x)
+#   solve(L, x, system = "LDLt") 
+# }
+
+invSigma <- function(tau, Ad, cholQop, x){
+  1./(tau^2) * (x - 1./(tau^2) * Ad %*% solve(cholQop, t(Ad) %*% x, system = "A"))
+}
+
+# observations and precision kriging
+x    = dat["manual.simu"]
+pcm  = spdeRes$getPrecisionKriging() # What is the precision kriging?
+
+# the observations are centred with mu (why?)
+ones = rep(1.0, length(x))
+invSigmaOnes = invSigma(tau, A_d, cholQ_TT, ones)
+mu    = sum(x * invSigmaOnes) / sum(ones * invSigmaOnes)
+x = x - mu
+
+# -----------------------------------------
+# computing the quadratic form
+# -----------------------------------------
+
+# from Eq. (22) in Pereira et al. (2022)
+y = (t(A_d) %*% x)[,1]
+quad_chol = as.numeric(1/(tau^2) * (sum(t(x)*x) - 1/(tau^2) * (t(y) %*% solve(cholQ_TT, y, system = "A"))))
+# API SPDE
+quad_api  = spdeRes$computeQuad()
+print(paste0("quad_chol = ", round(quad_chol,4)))
+print(paste0("quad_api  = ", round(quad_api, 4)))
+print(paste0("Quadratic form: relative difference = ", round((quad_api-quad_chol)/quad_chol,6)))
+
+# -----------------------------------------
+# computing the log determinant
+# -----------------------------------------
+# Log-determinant of Q_TT
+a = detQ(cholQ_TT)
+b = pcm$computeLogDetOp(nsimus = nsim, seed = 0)
+print(paste0("log_det_op_chol = ", round(a,4)))
+print(paste0("log_det_op_api  = ", round(b,4)))
+print(paste0("relative difference = ", round((b-a)/a, 4)))
+
+# Log-determinant of Q
+a = detQ(cholQ)
+b = pcm$computeLogDetQ(nsimus = nsim, seed = 0)
+print(paste0("log_det_Q_chol = ", round(a,4)))
+print(paste0("log_det_Q_api = ", round(b,4)))
+print(paste0("relative difference = ", round((b-a)/a,4)))
+
+# sum of log var
+a = length(x) * log(tau^2)
+b = pcm$sumLogVar()
+print(paste0("Sum of log var - model = ", round(a,4)))
+print(paste0("Sum of log var - api   = ", round(b,4)))
+print(paste0("relative difference = ", round((b-a)/a,4)))
+
+# TODO: the method sumLogVar returns the sum of the std?
+
+# -----------------------------------------
+# Computing logdet
+# -----------------------------------------
+# computing the logdet using Eq. (23)
+logdet = (detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT))
+# computing the logdet using API (TODO: SPDE$computeLogDet(nbsimus, seed) returns -logdet)
+logdet_api = spdeRes$computeLogDet(nbsimus = nsim, seed = 0)
+print(paste0("log_det_LL_chol = ", round(logdet,4)))
+print(paste0("log_det_LL_api  = ", round(logdet_api,4)))
+print(paste0("relative difference = ", round(logdet_api/logdet-1,4)))
+
+#TODO: different values for logdet values (due to sumLogVar ?)
+
+# -----------------------------------------
+# Computing log likelihood
+# -----------------------------------------
+
+# computing the logdet using Eq. (23)
+logdet = detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT)
+# computing the quadratic form using Eq. (22) (with centring to mu)
+y = t(A_d) %*% x
+quad  = as.numeric(1/(tau^2) * (t(x) %*% x - 1/(tau^2) * t(y) %*% solve(cholQ_TT, y, system = "A")))
+a = - 1/2 * (-logdet + quad)
+b = spdeRes$computeLogLike(nbsimus = nsim, seed = 0)
+print(paste0("likelihood api  = ",round(b,4)))
+print(paste0("likelihood_chol = ",round(a,4)))
+print(paste0(round((b/a-1),4)))
+
+#TODO: different values for LL !
+
 ```
+
+# Inference of the parameters using the maximum likelihood appraoch
+
+```{r MLE_fn, echo=TRUE, eval=TRUE}
+# A_d, gridExt, and mesh should be defined
+# define the model according the range defined by par[1]
+
+ll.getModel <- function(par, flag.chol = TRUE) {
+  stopifnot(par$range > 0)
+  m = Model_createFromParam(ECov_BESSEL_K(), param=1.0, range=par$range, sill=par$sill)
+  if(!flag.chol) {
+    # adding the modelling error
+    err = m$addCovFromParam(ECov_NUGGET(), sill=(par$tau^2))
+  }
+  m
+}
+
+computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
+  ll = NaN
+  m = ll.getModel(par, flag.chol)
+  if (flag.chol) {
+    dd = NULL
+    cc = ESPDECalcMode_SIMUNONCOND()
+  } else {
+    dd = dat
+    cc = ESPDECalcMode_KRIGING()
+  }
+  if (!flag.chol) {
+    }
+  spde = SPDE()
+  err  = spde$init(field = gridExt, mesh = mesh, model = m, data = dd, calc = cc)
+  err  = spde$compute()
+
+  # using Cholesky decomposition
+  if (flag.chol) {
+    Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
+    cholQ    = Cholesky(Q, LDL = FALSE)
+    cholQ_TT = Cholesky(Q + 1/(tau^2) * t(A_d) %*% A_d, LDL = FALSE)
+    logdet = detQ(cholQ) - length(x)*log((par$tau^2)) - detQ(cholQ_TT)
+    y = t(A_d) %*% x
+    quad  = as.numeric(1/(par$tau^2) * (t(x) %*% x - 1/(par$tau^2) * t(y) %*% solve(cholQ_TT, y, system = "A")))
+    ll = - 1/2 * (-logdet + quad)
+  }  else {
+    # using matrix free approach
+    ll  = spde$computeLogLike(nbsimus = nsim, seed = seed)
+  }
+  ll
+}
+
+# perform a mono-variate sensitivity
+monoSensitivity <- function(name, from, to, ncalc, actual, p0, seed = 0, nsim = 10, flag.verbose = FALSE, 
+                            flag.chol = TRUE, flag.api = TRUE) {
+  stopifnot(flag.chol|flag.api)
+  res_pp      = seq(from = from, to = to, length.out = ncalc)
+  param = list(
+    range = p0$range,
+    sill = p0$sill,
+    tau = p0$tau
+  )
+  # computing with Cholesky
+  if(flag.chol) {
+  res_LL_chol = rep(NaN, ncalc)
+  for (i in seq_along(res_pp)) {
+    if(flag.verbose) {
+    print(paste0(">>> computing LL with Cholesky for i = ", i))
+    }
+    param[[name]]  = res_pp[i]
+    res_LL_chol[i] = computeLL(param, flag.chol = TRUE)
+    }
+  vmax = max(res_LL_chol)
+  vmin = min(res_LL_chol)
+  if (vmax - vmin > 0) {res_LL_chol = (res_LL_chol - vmin)/(vmax - vmin)}
+  } # flag.chol == TRUE
+  
+  # computing with matrix free / api
+  if(flag.api) {
+  res_LL_api = rep(NaN, ncalc)
+  for (i in seq_along(res_pp)) {
+    if(flag.verbose) {
+    print(paste0(">>> computing LL with SPDE api for i = ", i))
+    }
+    param[[name]]  = res_pp[i]
+    res_LL_api[i] = computeLL(param, flag.chol = FALSE, seed = seed, nsim = nsim)
+    }
+    vmax = max(res_LL_api)
+    vmin = min(res_LL_api)
+    if (vmax - vmin > 0) {res_LL_api = (res_LL_api - vmin)/(vmax - vmin)}
+    } # flag.api == TRUE
+
+  # plot
+  xlim = range(res_pp)
+  ylim = NaN
+  if(flag.chol) ylim = range(ylim, res_LL_chol, na.rm =TRUE)
+  if(flag.api)  ylim = range(ylim, res_LL_api, na.rm = TRUE)
+  titre = paste0("(Rescaled) Log-likelihood computed using SPDE")
+  plot(NULL, NULL, xlim = xlim, ylim = ylim , 
+       xlab = paste0("Parameter - ", name), ylab = "log-likelihood",
+       main = titre)
+  if(flag.chol)  lines(res_pp, res_LL_chol, col = "orange",  lty = 1)
+  if(flag.api)   lines(res_pp, res_LL_api,  col = "skyblue", lty = 2)
+  abline(v = p0[[name]], col = "grey", lty = 3)
+  vlegend = "Actual value"; vcol = "grey"; vlty = 3
+  if(flag.chol) {
+    vlegend = c(vlegend, "Cholesky"); vcol = c(vcol, "orange"); vlty = c(vlty, 1)
+  }
+  if(flag.api) {
+    vlegend = c(vlegend, "Matrix free / api"); vcol = c(vcol, "skyblue"); vlty = c(vlty, 2)
+  }
+  legend("bottom", legend = vlegend, col = vcol, lty = vlty)
+  NULL
+}
+
+# -------------------- TEST
+flag.test = TRUE
+if(flag.test) {
+  param = list(range = rangev, sill = sill, tau = tau)
+  ll.getModel(param)$display()
+  ll.getModel(param, FALSE)$display()
+  print(paste0("Using Cholesky: LL = ", computeLL(par = param, flag.chol = TRUE)))
+  print(paste0("Using SPDE api: LL = ", computeLL(par = param, flag.chol = FALSE, nsim = 10, seed = 1212)))
+}
+```
+
+##  Mono-variate sensitivity
+
+Using the Cholesky factorization and the SPDE api (matrix free)
+
+```{r mono_sensitivity, echo = TRUE, eval = TRUE}
+ncalc = 10
+nsim  = 50
+seed  = 8538
+err = monoSensitivity(name = "sill", from = 0.5, to = 1.5,  ncalc = ncalc, p0 = param, 
+                      seed = seed, nsim = nsim, flag.verbose = FALSE, flag.chol=TRUE, flag.api=TRUE)
+err = monoSensitivity(name = "range", from = 0.1, to = 0.3, ncalc = ncalc, p0 = param, 
+                      seed = seed, nsim = nsim, flag.verbose = FALSE, flag.chol=TRUE, flag.api=TRUE)
+err = monoSensitivity(name = "tau", from = 0.05, to = 0.2, ncalc = ncalc, p0 = param, 
+                      seed = seed, nsim = nsim, flag.verbose = FALSE, flag.chol=TRUE, flag.api=TRUE)
+
+```
+
+## Maximum LL
+
+Optimization performed on the two parameters *range* and *sill*
+
+```{r MLE_optim_range_and_sill, echo=TRUE, eval=TRUE}
+# Options for the optimizer (maximization of the likelihood)
+optim_maxit = 50
+optim_method = "Nelder-Mead"
+cont = list(); cont$maxit = optim_maxit
+
+reference = list(range = rangev, sill = sill, tau = tau)
+
+# minimization
+fn_MLL <- function(x) {
+  p0 = list(range = x[1], sill = x[2], tau = reference$tau)
+  - computeLL(par = p0, flag.chol = TRUE)
+}
+# initial value
+x_ini = c(reference$range, reference$sill)
+x_ini = c(0.1, 2.0)
+LL_val = rep(NaN, 2)
+LL_val[1] = fn_MLL(x_ini)
+res   <- optim(par = x_ini, fn = fn_MLL, method=optim_method, control = cont)
+LL_val[2] = res$value
+tab = matrix(NaN, nrow = 2, ncol = 4)
+colnames(tab) <- c("range", "sill", "tau", "LL value")
+rownames(tab) <- c("initial", "final")
+
+tab[1,] <- c(unlist(reference),      LL_val[1])
+tab[2,] <- c(res$par, reference$tau, LL_val[2])
+
+knitr::kable(tab, digits = 3, caption = "Maximum of Log-Likelihood for range and sill")
+```
+
+# References
+
+* Lindgren, F., Rue, H., and Lindström, J. (2011). An explicit link between gaussian fields and gaussian markov random fields: the spde approach (with discussion). JR 671 Stat Soc, Series B, 73:423–498.
+
+* Pereira, M., Desassis, N., & Allard, D. (2022). Geostatistics for Large Datasets on Riemannian Manifolds: A Matrix-Free Approach. Journal of Data Science, 20(4), 512-532. doi:10.6339/22-JDS1075
 

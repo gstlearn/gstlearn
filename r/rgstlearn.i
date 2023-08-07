@@ -716,8 +716,9 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
     if (isNamespaceLoaded("Matrix"))
     {
       Atr = csToTriplet(x, flag_from_1=TRUE)
-      Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-                       dims=c(Atr$nrows,Atr$ncols))
+      Q = Atr$toTL()
+#     Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
+#                       dims=c(Atr$nrows,Atr$ncols))
     }
     else
       cat("This requires the library 'Matrix' to be installed\n")
@@ -784,7 +785,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   Q = NULL
   if (isNamespaceLoaded("Matrix"))
   {
-    Q = sparseMatrix(i=x$rows, j=x$cols, x=x$values,
+    Q = sparseMatrix(i=x$rows+1, j=x$cols+1, x=x$values,
                      dims=c(x$nrows,x$ncols))
   }
   else

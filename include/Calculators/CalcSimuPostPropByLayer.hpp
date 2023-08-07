@@ -34,6 +34,8 @@ public:
   CalcSimuPostPropByLayer& operator=(const CalcSimuPostPropByLayer &r) = delete;
   virtual ~CalcSimuPostPropByLayer();
 
+  void setFlagTopToBase(bool topToBase)        { _flagTopToBase = topToBase; }
+
 protected:
   bool _check() override;
 
@@ -42,12 +44,15 @@ protected:
 
 private:
   const DbGrid* _dbgrid; //!< Pointer to 'dbout'. Not to be freed
+  bool _flagTopToBase;   // define the direction to compute the proportion
+
 };
 
 GSTLEARN_EXPORT int simuPostPropByLayer(Db *dbin,
                                         DbGrid *dbout,
                                         const VectorString &names,
                                         bool flag_match = false,
+										bool flag_topToBase = false,
                                         const EPostUpscale &upscale = EPostUpscale::fromKey("MEAN"),
                                         const std::vector<EPostStat> &stats = EPostStat::fromKeys({"MEAN"}),
                                         bool verbose = false,
