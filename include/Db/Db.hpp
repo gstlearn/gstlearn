@@ -60,8 +60,6 @@ public:
   virtual bool mayChangeSampleNumber() const { return true; }
   virtual void resetDims(int ncol, int nech);
 
-  static Db* createFromNF(const String& neutralFilename,
-                           bool verbose = true);
   int resetFromSamples(int nech,
                        const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
                        const VectorDouble& tab = VectorDouble(),
@@ -88,12 +86,15 @@ public:
                       int number = 0,
                       const VectorString& names = VectorString(),
                       int seed = 23241,
-                      bool verbose = false);
+                      bool verbose = false,
+                      int flag_add_rank = 1);
   int resetReduce(const Db *dbin,
                   const VectorString &names = VectorString(),
                   const VectorInt &ranks = VectorInt(),
                   bool verbose = false);
   static Db* create();
+  static Db* createFromNF(const String& neutralFilename,
+                           bool verbose = true);
   static Db* createFromSamples(int nech,
                                const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
                                const VectorDouble& tab = VectorDouble(),
@@ -123,7 +124,8 @@ public:
                               int number = 0,
                               const VectorString& names = VectorString(),
                               int seed = 23241,
-                              bool verbose = false);
+                              bool verbose = false,
+                              int flag_add_rank = 1);
   static Db* createFromDbGrid(int nech,
                               DbGrid* dbgrid,
                               int seed = 432423,
@@ -145,7 +147,8 @@ public:
                               const VectorDouble& heteroRatio = VectorDouble(),
                               const VectorDouble& coormin = VectorDouble(),
                               const VectorDouble& coormax = VectorDouble(),
-                              int seed = 124234);
+                              int seed = 124234,
+                              int flag_add_rank = 1);
 
   const VectorDouble& getArrays() const { return _array; }
 
@@ -795,6 +798,7 @@ protected:
 
   void _clear();
   void _createRank(int icol = 0);
+  void _addRank(int nech);
   void _loadData(const VectorDouble& tab,
                  const VectorString& names,
                  const VectorString& locatorNames,
@@ -853,8 +857,8 @@ private:
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
 
 protected:
-  void _defineVariableAndLocators(const Db* dbin, const VectorString& names);
-  void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks);
+  void _defineVariableAndLocators(const Db* dbin, const VectorString& names, int shift = 0);
+  void _loadValues(const Db* db, const VectorString& names, const VectorInt& ranks, int shift = 0);
 
 private:
   int _ncol;                 //!< Number of Columns of data

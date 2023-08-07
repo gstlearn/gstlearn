@@ -3981,8 +3981,12 @@ void Db::_createRank(int icol)
   // Set the name
 
   _setNameByColIdx(icol, "rank");
+}
 
-  // Set the locators (No particular action for the Rank)
+void Db::_addRank(int nech)
+{
+  VectorDouble ranks = VH::sequence(0., (double) nech - 1.);
+  addColumns(ranks, "rank");
 }
 
 void Db::_defineDefaultNames(int shift, const VectorString& names)
@@ -4464,7 +4468,8 @@ int Db::resetSamplingDb(const Db* dbin,
                         int number,
                         const VectorString& names,
                         int seed,
-                        bool verbose)
+                        bool verbose,
+                        int flag_add_rank)
 {
   if (proportion <= 0. && number <= 0)
   {
@@ -4490,15 +4495,17 @@ int Db::resetSamplingDb(const Db* dbin,
 
   // Create the (empty) architecture
 
-  resetDims(_ncol, _nech);
+  resetDims(_ncol + flag_add_rank, _nech);
+
+  if (flag_add_rank) _createRank(0);
 
   // Define the variables and the Locators
 
-  _defineVariableAndLocators(dbin, namloc);
+  _defineVariableAndLocators(dbin, namloc, flag_add_rank);
 
   // Load samples
 
-  _loadValues(dbin, namloc, ranks);
+  _loadValues(dbin, namloc, ranks, flag_add_rank);
 
   return 0;
 }
@@ -4509,13 +4516,13 @@ int Db::resetSamplingDb(const Db* dbin,
  * @param dbin Input Db
  * @param names List of variables to be copied
  */
-void Db::_defineVariableAndLocators(const Db* dbin, const VectorString& names)
+void Db::_defineVariableAndLocators(const Db* dbin, const VectorString& names, int shift)
 {
   ELoc locatorType;
   int locatorIndex;
-  for (int icol = 0; icol < _ncol; icol++)
+  for (int icol = 0, ncol=(int) names.size(); icol < ncol; icol++)
   {
-    setNameByUID(icol, names[icol]);
+    setNameByUID(icol + shift, names[icol]);
     if (dbin->getLocator(names[icol],&locatorType,&locatorIndex))
       setLocator(names[icol],locatorType,locatorIndex);
   }
@@ -4528,15 +4535,15 @@ void Db::_defineVariableAndLocators(const Db* dbin, const VectorString& names)
  * @param names List of variables to be copied
  * @param ranks Vector of ranks of the samples to be copied
  */
-void Db::_loadValues(const Db* db, const VectorString& names, const VectorInt& ranks)
+void Db::_loadValues(const Db* db, const VectorString& names, const VectorInt& ranks, int shift)
 {
   VectorDouble values(_nech);
-  for (int icol = 0; icol < _ncol; icol++)
+  for (int icol = 0, ncol= (int) names.size(); icol < ncol; icol++)
   {
     int jcol = db->getColIdx(names[icol]);
     for (int iech = 0; iech < _nech; iech++)
       values[iech] = db->getValueByColIdx(ranks[iech],jcol);
-    setColumnByColIdx(values, icol);
+    setColumnByColIdx(values, icol + shift);
   }
 }
 
@@ -4685,8 +4692,7 @@ Db* Db::createFromSamples(int nech,
                           int flag_add_rank)
 {
   Db* db = new Db;
-  if (db->resetFromSamples(nech, order, tab, names, locatorNames,
-                           flag_add_rank))
+  if (db->resetFromSamples(nech, order, tab, names, locatorNames, flag_add_rank))
   {
     messerr("Error when creating Db from Samples");
     delete db;
@@ -4702,8 +4708,7 @@ Db* Db::createFromCSV(const String& filename,
                       int flag_add_rank)
 {
   Db* db = new Db;
-  if (db->resetFromCSV(filename, verbose, csv, ncol_max, nrow_max,
-                       flag_add_rank))
+  if (db->resetFromCSV(filename, verbose, csv, ncol_max, nrow_max, flag_add_rank))
   {
     messerr("Error when creating Db from Grid");
     delete db;
@@ -4746,10 +4751,11 @@ Db* Db::createSamplingDb(const Db* dbin,
                          int number,
                          const VectorString& names,
                          int seed,
-                         bool verbose)
+                         bool verbose,
+                         int flag_add_rank)
 {
   Db* db = new Db;
-  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose))
+  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose, flag_add_rank))
   {
     messerr("Error when clearing Db by Sampling another Db");
     delete db;
@@ -4916,13 +4922,17 @@ Db* Db::createFillRandom(int ndat,
                          const VectorDouble& heteroRatio,
                          const VectorDouble& coormin,
                          const VectorDouble& coormax,
-                         int seed)
+                         int seed,
+                         int flag_add_rank)
 {
   // Set the seed
   law_set_random_seed(seed);
 
   // Create the Db
   Db* db = Db::create();
+
+  // Add the sample rank attribute
+  if (flag_add_rank) db->_addRank(ndat);
 
   // Generate the vector of coordinates
   VectorVectorDouble coor(ndim);

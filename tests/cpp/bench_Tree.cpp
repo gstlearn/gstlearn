@@ -46,12 +46,15 @@ int main(int argc, char *argv[])
   // Global parameters
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
+  bool flag_stats = false; // This is set to FALSE in order to avoid Diff in Time
 
   // Bench marking the Ball tree algorithm in particular
   mestitle(1, "Ball Tree Efficiency");
   int nfois = 10;
   int nech = 10000;
   VectorInt times(nfois);
+  if (! flag_stats)
+    message("To get statistics on Ball Tree Efficiency, turn 'flag_stats' to TRUE\n");
 
   message("- Building BallTree: P(p) where p = %d * k (in ms / k)\n", nech);
   for (int ifois = 0; ifois < nfois; ifois++)
@@ -64,7 +67,7 @@ int main(int argc, char *argv[])
 
     delete data1;
   }
-  VH::display("", times);
+  if (flag_stats) VH::display("", times);
 
   message("- P2P: P(p1) where p1 = %d * k and P(p2=%d) (in ms / k)\n", nech, nech);
 
@@ -80,7 +83,7 @@ int main(int argc, char *argv[])
     delete data1;
     delete data2;
   }
-  VH::display("", times);
+  if (flag_stats) VH::display("", times);
 
   message("- P2P: P(p1=%d) and P(p2) where p2 = %d * k (in ms / k)\n", nech, nech);
 
@@ -96,7 +99,7 @@ int main(int argc, char *argv[])
     delete data1;
     delete data2;
   }
-  VH::display("", times);
+  if (flag_stats) VH::display("", times);
 
   return (0);
 }

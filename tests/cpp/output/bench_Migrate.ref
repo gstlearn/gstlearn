@@ -6,15 +6,16 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 3
-Maximum Number of UIDs       = 3
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
 Total number of samples      = 10000
 
 Variables
 ---------
-Column = 0 - Name = x-1 - Locator = x1
-Column = 1 - Name = x-2 - Locator = x2
-Column = 2 - Name = Simu - Locator = z1
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = Simu - Locator = z1
 
 Data Base Grid Characteristics
 ==============================
@@ -46,13 +47,13 @@ Migrations
 
 #NO_DIFF# Migrate Grid to Point (no interpolation): 2 ms. (Ref = 5 ms.)
 #NO_DIFF# Migrate Grid to Point (with interpolation): 12 ms. (Ref = 5 ms.)
-#NO_DIFF# Migrate Grid to Grid: 34 ms. (Ref = 30 ms.)
-#NO_DIFF# Expand Grid to Grid: 31 ms. (Ref = 30 ms.)
-#NO_DIFF# Migrate Point to Grid: 4 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Grid: 1616 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Grid (with balltree): 136 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Point: 18723 ms. (Ref = 19000 ms.)
-#NO_DIFF# Expand Point to Point (with balltree): 38 ms. (Ref = 19000 ms.)
+#NO_DIFF# Migrate Grid to Grid: 30 ms. (Ref = 30 ms.)
+#NO_DIFF# Expand Grid to Grid: 32 ms. (Ref = 30 ms.)
+#NO_DIFF# Migrate Point to Grid: 5 ms. (Ref = 1500 ms.)
+#NO_DIFF# Expand Point to Grid: 1397 ms. (Ref = 1500 ms.)
+#NO_DIFF# Expand Point to Grid (with balltree): 133 ms. (Ref = 1500 ms.)
+#NO_DIFF# Expand Point to Point: 18276 ms. (Ref = 19000 ms.)
+#NO_DIFF# Expand Point to Point (with balltree): 42 ms. (Ref = 19000 ms.)
 
 Data Base Characteristics
 =========================
@@ -61,20 +62,21 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 8
-Maximum Number of UIDs       = 8
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
 Total number of samples      = 10000
 
 Variables
 ---------
-Column = 0 - Name = x-1 - Locator = x1
-Column = 1 - Name = x-2 - Locator = x2
-Column = 2 - Name = Simu - Locator = NA
-Column = 3 - Name = G2Pn - Locator = NA
-Column = 4 - Name = G2Py - Locator = NA
-Column = 5 - Name = P2Pyr - Locator = NA
-Column = 6 - Name = P2Pyb - Locator = z1
-Column = 7 - Name = Diff_P2Py - Locator = NA
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = Simu - Locator = NA
+Column = 4 - Name = G2Pn - Locator = NA
+Column = 5 - Name = G2Py - Locator = NA
+Column = 6 - Name = P2Pyr - Locator = NA
+Column = 7 - Name = P2Pyb - Locator = z1
+Column = 8 - Name = Diff_P2Py - Locator = NA
 
 Data Base Grid Characteristics
 ==============================

@@ -120,7 +120,15 @@ Data Base Characteristics
 
 Data Base Statistics
 --------------------
-1 - Name x1 - Locator x1
+1 - Name rank - Locator NA
+ Nb of data          =        500
+ Nb of active values =        500
+ Minimum value       =      1.000
+ Maximum value       =    500.000
+ Mean value          =    250.500
+ Standard Deviation  =    144.337
+ Variance            =  20833.250
+2 - Name x1 - Locator x1
  Nb of data          =        500
  Nb of active values =        500
  Minimum value       =      0.000
@@ -128,7 +136,7 @@ Data Base Statistics
  Mean value          =      0.502
  Standard Deviation  =      0.289
  Variance            =      0.084
-2 - Name x2 - Locator x2
+3 - Name x2 - Locator x2
  Nb of data          =        500
  Nb of active values =        500
  Minimum value       =      0.000
@@ -136,7 +144,7 @@ Data Base Statistics
  Mean value          =      0.518
  Standard Deviation  =      0.287
  Variance            =      0.083
-3 - Name Y - Locator NA
+4 - Name Y - Locator NA
  Nb of data          =        500
  Nb of active values =        500
  Minimum value       =     -3.415
@@ -144,7 +152,7 @@ Data Base Statistics
  Mean value          =      0.032
  Standard Deviation  =      1.042
  Variance            =      1.086
-4 - Name Z - Locator z1
+5 - Name Z - Locator z1
  Nb of data          =        500
  Nb of active values =        500
  Minimum value       =      0.240
@@ -179,16 +187,17 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 4
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
 Total number of samples      = 500
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = z1
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = z1
 
 Table contents
 --------------
@@ -259,17 +268,18 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 500
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = NA
-Column = 4 - Name = Gauss.Z - Locator = z1
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = NA
+Column = 5 - Name = Gauss.Z - Locator = z1
 
 Variogram characteristics
 =========================
@@ -333,17 +343,18 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 500
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = NA
-Column = 4 - Name = Gauss.Z - Locator = z1
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = NA
+Column = 5 - Name = Gauss.Z - Locator = z1
 
 Data Base Grid Characteristics
 ==============================
@@ -385,20 +396,21 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 8
-Maximum Number of UIDs       = 8
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
 Total number of samples      = 500
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = NA
-Column = 4 - Name = Gauss.Z - Locator = NA
-Column = 5 - Name = Factor.Gauss.Z.1 - Locator = z1
-Column = 6 - Name = Factor.Gauss.Z.2 - Locator = z2
-Column = 7 - Name = Factor.Gauss.Z.3 - Locator = z3
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = NA
+Column = 5 - Name = Gauss.Z - Locator = NA
+Column = 6 - Name = Factor.Gauss.Z.1 - Locator = z1
+Column = 7 - Name = Factor.Gauss.Z.2 - Locator = z2
+Column = 8 - Name = Factor.Gauss.Z.3 - Locator = z3
 
 Processing Factor 1 / 3
 
@@ -1105,20 +1117,21 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 8
-Maximum Number of UIDs       = 8
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
 Total number of samples      = 500
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = z1
-Column = 4 - Name = Gauss.Z - Locator = NA
-Column = 5 - Name = Factor.Gauss.Z.1 - Locator = NA
-Column = 6 - Name = Factor.Gauss.Z.2 - Locator = NA
-Column = 7 - Name = Factor.Gauss.Z.3 - Locator = NA
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = z1
+Column = 5 - Name = Gauss.Z - Locator = NA
+Column = 6 - Name = Factor.Gauss.Z.1 - Locator = NA
+Column = 7 - Name = Factor.Gauss.Z.2 - Locator = NA
+Column = 8 - Name = Factor.Gauss.Z.3 - Locator = NA
 
 Target location
 ---------------
