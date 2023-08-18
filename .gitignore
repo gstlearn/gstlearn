@@ -10,6 +10,8 @@ __pycache__
 .settings
 core
 nano.save
+doc/demo/python/*.csv
+doc/demo/python/*.ascii
 doc/demo/r/*.pdf
 doc/demo/r/.Rhistory
 doc/demo/r/.RData

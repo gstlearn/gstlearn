@@ -1,13 +1,13 @@
 ## Overview
 
-The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
+The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
 All *gstlearn* outputs can be ploted using *plot* generic function which relies on *ggplot* package.
 
 
 ## References
 
-The *gstlearn* R package is a R wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It's the successor of the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
+The *gstlearn* R package is a R wrapper of the [gstlearn C++ Library](https://gstlearn.org). It's the successor of the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
 When using the *gstlearn* R Package, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
 
@@ -54,7 +54,7 @@ mygrid$addColumns(var, "var1", ELoc_Z())
 ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 ```
 
-Some tutorials (RMarkdown) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) directory of the *gstlearn* github repository.
+Some tutorials (RMarkdown) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
 
 Some tests (R Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/r) directory of the *gstlearn* github repository.
 

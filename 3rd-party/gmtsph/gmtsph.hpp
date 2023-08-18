@@ -44,7 +44,7 @@ License: LGPL v3
 /*
 Modified by MINES PARIS / ARMINES (2023)
 Authors: gstlearn Team
-Website: https://github.com/gstlearn
+Website: https://gstlearn.org
 */
 #pragma once
 

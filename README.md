@@ -10,11 +10,11 @@ The name 'gstlearn' stands for several purposes:
 
 *gstlearn* comes in various forms:
 
-* A C++ library: [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
-* A Python package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
-* A R package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
+* A C++ library
+* A Python package
+* A R package
 
-If you simply want to install the Python or R package for *gstlearn* you should look at the corresponding sub folders.
+See https://gstlearn.org for more details.
 
 ## References
 
@@ -88,8 +88,8 @@ See [required tools installation](#required-tools-installation) instructions bel
 ## Get the sources
 
 If you only want to use Python or R packages, you should switch to corresponding README:
-* Python: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
-* R: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
+* Python: [README](https://github.com/gstlearn/gstlearn/tree/main/python)
+* R: [README](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 For getting the sources files, just clone the github repository:
 
