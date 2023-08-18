@@ -1,0 +1,313 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[7]:*+
+----
+Column Name (1): X
+ Column Name (2): Y
+ Column Name (3): Epaisseur
+ Column Name (4): Epaisseur_1
+ Number of columns = 4
+ Data table read (Oise_Thickness.csv) successfully
+ - Number of columns = 4
+ - Number of rows    = 1022
+ ----
+
+
++*Out[8]:*+
+----
+![png](output_8_0.png)
+----
+
+
++*Out[9]:*+
+----
+![png](output_9_0.png)
+----
+
+
++*Out[10]:*+
+----(array([ 24.,  64., 148., 219., 219., 156.,  89.,  60.,  29.,  14.]),
+ array([ 0.4 ,  1.95,  3.5 ,  5.05,  6.6 ,  8.15,  9.7 , 11.25, 12.8 ,
+        14.35, 15.9 ]),
+ <BarContainer object of 10 artists>)
+![png](output_10_1.png)
+----
+
+
++*Out[11]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 1022
+Number of active samples     = 1007
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Epaisseur - Locator = lower1
+Column = 4 - Name = Epaisseur_1 - Locator = upper1
+Column = 5 - Name = Thickness - Locator = z1
+Column = 6 - Name = Duplicate - Locator = sel----
+
+
++*Out[12]:*+
+----True----
+
+
++*Out[14]:*+
+----
+Column Name (1): X
+ Column Name (2): Y
+ Number of columns = 2
+ Data table read (Oise_Alluvial.csv) successfully
+ - Number of columns = 2
+ - Number of rows    = 1437
+ ----
+
+
++*Out[15]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[17]:*+
+----<matplotlib.collections.PathCollection at 0x7f2c8bfae200>
+![png](output_19_1.png)
+----
+
+
++*Out[18]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1320000
+Number of active samples     = 138248
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = sel----
+
+
++*Out[19]:*+
+----[<matplotlib.lines.Line2D at 0x7f2c8c19ad10>]
+![png](output_22_1.png)
+----
+
+
++*Out[20]:*+
+----
+[cols=",,",options="header",]
+|===
+| |X |Y
+|0 |631065 |6875650
+|1 |631083 |6875930
+|2 |631145 |6876080
+|3 |631200 |6876700
+|4 |631169 |6877010
+|... |... |...
+|1432 |632202 |6878600
+|1433 |632195 |6878410
+|1434 |632206 |6878200
+|1435 |632205 |6877830
+|1436 |632413 |6876610
+|===
+
+1437 rows × 2 columns
+----
+
+
++*Out[22]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 4802560
+
+Variables
+---------
+Column = 0 - Name = xx - Locator = x1
+Column = 1 - Name = yy - Locator = x2
+Column = 2 - Name = u_interp - Locator = z1
+Column = 3 - Name = v_interp - Locator = z2
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1320000
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+ ----
+
+
++*Out[23]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1320000
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+ ----
+
+
++*Out[26]:*+
+----[<matplotlib.lines.Line2D at 0x7f2cb941de40>]
+![png](output_29_1.png)
+----
+
+
++*Out[27]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 1320000
+Number of active samples     = 927470
+
+Grid characteristics:
+---------------------
+Origin : 630000.0006865000.000
+Mesh   :     50.000    50.000
+Number :       3300       400
+Rotation Angles        =     40.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766    -0.643
+     [  1,]     0.643     0.766
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.766     0.643
+     [  1,]    -0.643     0.766
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Polygon - Locator = NA
+Column = 4 - Name = Migrate.u_interp - Locator = z1
+Column = 5 - Name = Migrate.v_interp - Locator = z2
+Column = 6 - Name = vec_define - Locator = sel----
+
+
++*Out[28]:*+
+----<matplotlib.collections.PathCollection at 0x7f2bdd45cc70>
+![png](output_31_1.png)
+----
+
+
++*Out[29]:*+
+----True----
+
+
++*Out[36]:*+
+----<matplotlib.collections.QuadMesh at 0x7f2cb941e260>
+![png](output_41_1.png)
+----
+
+
++*Out[37]:*+
+----True----
