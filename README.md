@@ -40,8 +40,8 @@ The *gstlearn* C++ library also includes external source codes (see licenses not
 |-------------------------|----------------|------------------------------------------------|-----------
 | clustering              | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster | Copyright (C) 2002 Michiel Jan Laurens de Hoon
 | fft                     | see licenses   | https://netlib.org/go/fft-olesen.tar.gz        | Copyright(c)1995,97 Mark Olesen
-| sparseinv (SuiteSparse) | BSD 3 clauses  | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
-| vtk (VisIt)             | BSD 3 clauses  | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+| sparseinv (SuiteSparse) | BSD 3-clause   | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
+| vtk (VisIt)             | BSD 3-clause   | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
 
 
 Finally, the *gstlearn* C++ library depends on the following third-party libraries (see licenses notices in **doc/licenses**):

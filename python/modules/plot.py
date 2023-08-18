@@ -3,7 +3,7 @@
 #                         gstlearn Python package                              #
 # Copyright (c) (2023) MINES PARIS / ARMINES                                   #
 # Authors: gstlearn Team                                                       #
-# License: BSD 3 clauses                                                       #
+# License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
 import matplotlib.pyplot     as plt

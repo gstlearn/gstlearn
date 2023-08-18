@@ -5,7 +5,7 @@
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 // Keep sync with PYTHON_PACKAGE_NAME in CMakeLists.txt
