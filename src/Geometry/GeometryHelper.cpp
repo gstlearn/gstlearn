@@ -448,17 +448,20 @@ VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble &codir,
  **   Convert angles to a set of Directions
  **
  ** \param[in]  angles   Vector giving the angles characteristics (in degrees)
+ **                      As this provides rotation in 2D, 'angles' is dimensioned
+ **                      to 'ndir' (one angle requires a single value)
  **
  ** \param[out] codir    Vector of the direction (Dim: ndir * ndim)
  **
- ** \remarks 'ndir' is given by the dimension of 'angles'
+ ** \remarks 'ndir' is given by the dimension of 'angles', 'ndim' is given by 'codir'
  **
  *****************************************************************************/
 void GeometryHelper::rotationGetDirection2D(const VectorDouble &angles,
                                             VectorDouble &codir)
 {
-  int ndim = 2;
   int ndir = (int) angles.size();
+  int ndim = 2;
+  if (codir.size() > 0) ndim = (int) codir.size() / ndir;
   codir.resize(ndim * ndir);
   for (int i = 0; i < ndim * ndir; i++)
     codir[i] = 0.;

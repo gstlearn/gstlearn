@@ -350,7 +350,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
   if (space != nullptr) ndim = space->getNDim();
 
   VectorDouble angles = VectorDouble(1);
-  VectorDouble codir  = VectorDouble(ndim);
+  VectorDouble codir  = VectorDouble(ndim, 0.);
   std::vector<DirParam> dirs;
   for (int idir = 0; idir < ndir; idir++)
   {
