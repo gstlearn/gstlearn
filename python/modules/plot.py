@@ -1,7 +1,7 @@
 ################################################################################
 #                                                                              #
 #                         gstlearn Python package                              #
-# Copyright (c) (2023) MINES PARIS / ARMINES                                   #
+# Copyright (c) (2023) MINES Paris / ARMINES                                   #
 # Authors: gstlearn Team                                                       #
 # License: BSD 3-clause                                                        #
 #                                                                              #

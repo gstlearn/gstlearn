@@ -1,6 +1,6 @@
 ## Overview
 
-**gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES PARIS - PSL University. It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
+**gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES Paris - PSL University. It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
 
 The name 'gstlearn' stands for several purposes:
 
@@ -20,7 +20,7 @@ See https://gstlearn.org for more details.
 
 The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES PARIS](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
+The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
 When using the *gstlearn* C++ library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
 
@@ -60,7 +60,7 @@ Please, use this to cite us in any publication or results for which **gstlearn**
 --------------------------------------------------
 gstlearn
 Geostatistics and Machine Learning toolbox
-Copyright © MINES PARIS - PSL University
+Copyright © MINES Paris - PSL University
 Free download from https://gstlearn.org
 --------------------------------------------------
 ```

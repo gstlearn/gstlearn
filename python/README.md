@@ -25,7 +25,7 @@ Please, use this to cite us in any publication or results for which **gstlearn**
 --------------------------------------------------
 gstlearn
 Geostatistics and Machine Learning toolbox
-Copyright © MINES PARIS - PSL University
+Copyright © MINES Paris - PSL University
 Free download from https://gstlearn.org
 --------------------------------------------------
 ```
