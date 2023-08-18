@@ -279,6 +279,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   return(A);
 }
 #endif
+
 /****************************************************************************/
 /*!
 ** Returns the rank of the Apex 'rank' of the Mesh 'imesh'
@@ -525,4 +526,3 @@ void MeshSpherical::_checkConsistency() const
       }
     }
 }
-

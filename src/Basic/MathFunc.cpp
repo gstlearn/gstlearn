@@ -2738,8 +2738,6 @@ void st_subdivide(double v1[3],
                   int depth,
                   Reg_Coor *R_coor)
 {
-  double v12[3], v23[3], v31[3];
-
   if (depth == 0)
   {
     st_addTriangle(v1, v2, v3, R_coor);
@@ -2747,6 +2745,8 @@ void st_subdivide(double v1[3],
   }
 
   /* calculate midpoints of each side */
+  double v12[3], v23[3], v31[3];
+
   for (int i = 0; i < 3; i++)
   {
     v12[i] = (v1[i] + v2[i]) / 2.0;
@@ -2760,18 +2760,17 @@ void st_subdivide(double v1[3],
   st_normalize(v31);
 
   /* recursively subdivide new triangles */
-  st_subdivide(v1, v12, v31, depth - 1, R_coor);
-  st_subdivide(v2, v23, v12, depth - 1, R_coor);
-  st_subdivide(v3, v31, v23, depth - 1, R_coor);
+  st_subdivide( v1, v12, v31, depth - 1, R_coor);
+  st_subdivide( v2, v23, v12, depth - 1, R_coor);
+  st_subdivide( v3, v31, v23, depth - 1, R_coor);
   st_subdivide(v12, v23, v31, depth - 1, R_coor);
 }
 
-static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord)
+static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord, double eps = EPSILON3)
 {
-  int found;
-  static double eps = 1.e-03;
-
   if (ntri <= 0) return (0);
+
+  int found;
   for (int itri = 0; itri < ntri; itri++)
   {
     for (int k = found = 0; k < 3; k++)
@@ -2801,58 +2800,54 @@ static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord)
 int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg)
 {
   Reg_Coor R_coor;
-  double *coord, ct, st, a[3];
-  int ntri, seed_memo;
 #define X 0.525731112119133696
 #define Z 0.850650808352039932
 
-  /* Get the current sed */
-
-  seed_memo = law_get_random_seed();
-  law_set_random_seed(43241);
-
   /* vertex data array */
-  static double vdata[12][3] = { { -X, 0.0, Z },
-                                 { X, 0.0, Z },
-                                 { -X, 0.0, -Z },
-                                 { X, 0.0, -Z },
-                                 { 0.0, Z, X },
-                                 { 0.0, Z, -X },
-                                 { 0.0, -Z, X },
-                                 { 0.0, -Z, -X },
-                                 { Z, X, 0.0 },
-                                 { -Z, X, 0.0 },
-                                 { Z, -X, 0.0 },
-                                 { -Z, -X, 0.0 } };
+  static double vdata[12][3] = { {  -X, 0.0,   Z },
+                                 {   X, 0.0,   Z },
+                                 {  -X, 0.0,  -Z },
+                                 {   X, 0.0,  -Z },
+                                 { 0.0,   Z,   X },
+                                 { 0.0,   Z,  -X },
+                                 { 0.0,  -Z,   X },
+                                 { 0.0,  -Z,  -X },
+                                 {   Z,   X, 0.0 },
+                                 {  -Z,   X, 0.0 },
+                                 {   Z,  -X, 0.0 },
+                                 {  -Z,  -X, 0.0 } };
 
   /* triangle indices */
-  static int tindices[20][3] = { { 1, 4, 0 }, { 4, 9, 0 }, { 4, 5, 9 }, { 8, 5, 4 },
-                                 { 1, 8, 4 }, { 1, 10, 8 }, { 10, 3, 8 }, { 8, 3, 5 },
-                                 { 3, 2, 5 }, { 3, 7, 2 }, { 3, 10, 7 }, { 10, 6, 7 },
-                                 { 6, 11, 7 }, { 6, 0, 11 }, { 6, 1, 0 }, { 10, 1, 6 },
-                                 { 11, 0, 9 }, { 2, 11, 9 }, { 5, 2, 9 }, { 11, 2, 7 } };
+  static int tindices[20][3] = { {  1,  4, 0 }, { 4,  9,  0 }, {  4,  5, 9 }, {  8, 5, 4 },
+                                 {  1,  8, 4 }, { 1, 10,  8 }, { 10,  3, 8 }, {  8, 3, 5 },
+                                 {  3,  2, 5 }, { 3,  7,  2 }, {  3, 10, 7 }, { 10, 6, 7 },
+                                 {  6, 11, 7 }, { 6,  0, 11 }, {  6,  1, 0 }, { 10, 1, 6 },
+                                 { 11,  0, 9 }, { 2, 11,  9 }, {  5,  2, 9 }, { 11, 2, 7 } };
 
   if (n > 10)
   {
     messerr("The Regular Sphere discretization is limited to degree 10");
-    law_set_random_seed(seed_memo);
     return (1);
   }
   R_coor.ntri = 0;
   R_coor.coor = nullptr;
+  int seed_memo = law_get_random_seed();
+  law_set_random_seed(43241);
 
   /* Subdivide the initial icosahedron */
 
   for (int i = 0; i < 20; i++)
   {
-    st_subdivide(&vdata[tindices[i][0]][0], &vdata[tindices[i][1]][0],
-                 &vdata[tindices[i][2]][0], n, &R_coor);
+    st_subdivide(&vdata[tindices[i][0]][0],
+                 &vdata[tindices[i][1]][0],
+                 &vdata[tindices[i][2]][0],
+                 n, &R_coor);
   }
 
-  /* Suppress repeated triangle vertices */
+  /* Recopy while suppressing repeated triangle vertices */
 
-  ntri = 0;
-  coord = (double*) mem_alloc(sizeof(double) * 3 * R_coor.ntri, 1);
+  int ntri = 0;
+  double* coord = (double*) mem_alloc(sizeof(double) * 3 * R_coor.ntri, 1);
   for (int i = 0; i < R_coor.ntri; i++)
   {
     if (st_already_present(&R_coor, i, ntri, coord)) continue;
@@ -2869,6 +2864,7 @@ int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg)
 
   if (flag_rot)
   {
+    double ct, st, a[3];
     st_init_rotation(&ct, &st, a);
     for (int i = 0; i < ntri; i++)
       GH::rotationGetRandomDirection(ct, st, a, &coord[3 * i]);
@@ -2882,11 +2878,12 @@ int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg)
 
   *ntri_arg = ntri;
   *coor_arg = coord;
+  law_set_random_seed(seed_memo);
 
   /* Free the Reg_Coor structure */
 
   R_coor.coor = (double*) mem_free((char* ) R_coor.coor);
-  law_set_random_seed(seed_memo);
+
   return (0);
 }
 
