@@ -1581,6 +1581,7 @@ bool cs_isSymmetric(const cs *A, bool verbose, bool detail)
   }
 
   if (verbose) message("Testing if Matrix is Symmetric:\n");
+  // TODO : convert into triplets then parse only defined values of the upper triangle
   int numError = 0;
   for (int irow = 0; irow < nrows; irow++)
     for (int icol = irow; icol < ncols; icol++)
