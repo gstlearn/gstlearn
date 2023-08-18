@@ -59,7 +59,9 @@ SPDE::SPDE()
 SPDE::SPDE(Model* model,
            const DbGrid* field,
            const Db* dat,
-           const ESPDECalcMode& calc)
+           const ESPDECalcMode& calc,
+           const AMesh* meshUser,
+           bool verbose)
     : _data(nullptr),
       _calcul(),
       _precisionsKriging(nullptr),
@@ -84,7 +86,7 @@ SPDE::SPDE(Model* model,
       _nIterMax(1000),
       _eps(EPSILON8)
 {
-  init(model, field, dat, calc);
+  init(model, field, dat, calc, meshUser, verbose);
 }
 
 SPDE::~SPDE()
@@ -131,7 +133,9 @@ void SPDE::_purge()
 SPDE* SPDE::create(Model *model,
                    const DbGrid *field,
                    const Db *data,
-                   const ESPDECalcMode &calc)
+                   const ESPDECalcMode &calc,
+                   const AMesh* meshUser,
+                   bool verbose)
 {
   return new SPDE(model, field, data, calc);
 }

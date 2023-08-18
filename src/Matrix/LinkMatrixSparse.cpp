@@ -1581,9 +1581,10 @@ bool cs_isSymmetric(const cs *A, bool verbose, bool detail)
   }
 
   if (verbose) message("Testing if Matrix is Symmetric:\n");
+  // Test is performed on half matrix, excluding the diagonal.
   int numError = 0;
   for (int irow = 0; irow < nrows; irow++)
-    for (int icol = irow; icol < ncols; icol++)
+    for (int icol = irow; icol < irow; icol++)
     {
       double aij = cs_get_value(A, irow, icol);
       double aji = cs_get_value(A, icol, irow);

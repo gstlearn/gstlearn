@@ -4459,6 +4459,7 @@ double Db::getCosineToDirection(int iech1,
  * @param names      Vector of Names to be copied (empty: all names)
  * @param seed       Seed used for the random number generator
  * @param verbose    Verbose flag
+ * @param flag_add_rank 1 if the sample rank must be generated
  *
  * @remark A possible selection in 'dbin' will not be taken into account
  * @remark You can use either 'proportion' or 'number'
@@ -4515,6 +4516,7 @@ int Db::resetSamplingDb(const Db* dbin,
  * contained in 'dbin' whose names are contained in 'names'.
  * @param dbin Input Db
  * @param names List of variables to be copied
+ * @param shift Shift when storing the first attribute
  */
 void Db::_defineVariableAndLocators(const Db* dbin, const VectorString& names, int shift)
 {
@@ -4530,10 +4532,11 @@ void Db::_defineVariableAndLocators(const Db* dbin, const VectorString& names, i
 
 /**
  * Load values of the variables 'names' of 'dbin' into the current Db
- * This lcopy is restricted to only active samples of 'dbin' (given by 'ranks')
+ * This copy is restricted to only active samples of 'dbin' (given by 'ranks')
  * @param db    Input Db
  * @param names List of variables to be copied
  * @param ranks Vector of ranks of the samples to be copied
+ * @param shift Shift when storing the first vector of attributes
  */
 void Db::_loadValues(const Db* db, const VectorString& names, const VectorInt& ranks, int shift)
 {
@@ -4905,6 +4908,7 @@ VectorInt Db::getSampleRanks() const
  * @param coormin Vector of minima of the rectangle containing data (0s if not defined)
  * @param coormax Vector of maxima of the rectangle containing data (1s if not defined)
  * @param seed Value for the Random Generator seed
+ * @param flag_add_rank 1 if the sample rank must be generated
  * @return A pointer to the newly created Db
  *
  * @remarks

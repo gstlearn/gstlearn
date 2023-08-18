@@ -34,7 +34,9 @@ public:
   SPDE(Model *model,
        const DbGrid* field,
        const Db* data = nullptr,
-       const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"));
+       const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"),
+       const AMesh* mesh = nullptr,
+       bool verbose = false);
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
   virtual ~SPDE();
@@ -42,8 +44,9 @@ public:
   static SPDE* create(Model *model,
                       const DbGrid *field,
                       const Db *data = nullptr,
-                      const ESPDECalcMode &calc = ESPDECalcMode::fromKey(
-                          "SIMUCOND"));
+                      const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"),
+                      const AMesh* mesh = nullptr,
+                      bool verbose = false);
 
   void init(Model* model,
             const DbGrid* field,

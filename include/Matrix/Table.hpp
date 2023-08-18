@@ -25,7 +25,7 @@
 class GSTLEARN_EXPORT Table : public MatrixRectangular, public ASerializable {
 
 public:
-  Table(int nrow = 0, int ncol = 0);
+  Table(int nrow = 0, int ncol = 0, bool skip_title = false, bool skip_description = false);
   Table(const Table &m);
   Table& operator= (const Table &m);
   virtual ~Table();
