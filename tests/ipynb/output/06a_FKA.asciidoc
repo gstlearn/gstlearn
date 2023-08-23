@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 
 Data Base Grid Characteristics
@@ -21,7 +21,7 @@ Data Base Statistics
  ----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
 
 Data Base Grid Characteristics
@@ -62,6 +62,12 @@ Data Base Statistics
  ----
 
 
++*Out[6]:*+
+----
+![png](output_10_0.png)
+----
+
+
 +*Out[7]:*+
 ----
 ![png](output_11_0.png)
@@ -74,25 +80,19 @@ Data Base Statistics
 ----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----
-![png](output_13_0.png)
-----
-
-
-+*Out[11]:*+
-----
-![png](output_17_0.png)
+![png](output_16_0.png)
 ----
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
-![png](output_20_0.png)
+![png](output_19_0.png)
 ----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
 Model characteristics
 =====================
@@ -114,13 +114,13 @@ Power (Third Parameter = 0.0879341)
 - Slope        =      1.187----
 
 
++*Out[16]:*+
+----
+![png](output_25_0.png)
+----
+
+
 +*Out[17]:*+
-----
-![png](output_26_0.png)
-----
-
-
-+*Out[18]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -151,19 +151,19 @@ Column = 6 - Name = Fill.P - Locator = NA
 Column = 7 - Name = Mono.Fill.P - Locator = z1----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
-![png](output_29_0.png)
+![png](output_28_0.png)
+----
+
+
++*Out[20]:*+
+----
+![png](output_31_0.png)
 ----
 
 
 +*Out[21]:*+
-----
-![png](output_32_0.png)
-----
-
-
-+*Out[22]:*+
 ----
 Model characteristics
 =====================
@@ -198,19 +198,19 @@ Power (Third Parameter = 1.99)
 ----
 
 
++*Out[23]:*+
+----
+![png](output_37_0.png)
+----
+
+
 +*Out[24]:*+
 ----
-![png](output_38_0.png)
+![png](output_39_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_40_0.png)
-----
-
-
-+*Out[26]:*+
-----
-![png](output_42_0.png)
+![png](output_41_0.png)
 ----

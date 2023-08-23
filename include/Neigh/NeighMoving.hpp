@@ -10,13 +10,13 @@
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/ABiTargetCheck.hpp>
-#include <Geometry/BiTargetCheckDistance.hpp>
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
 #include "Enum/ENeigh.hpp"
 
+#include "Geometry/ABiTargetCheck.hpp"
+#include "Geometry/BiTargetCheckDistance.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"

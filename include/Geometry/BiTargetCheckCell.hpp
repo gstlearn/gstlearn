@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/ABiTargetCheck.hpp>
 #include "gstlearn_export.hpp"
 
+#include "Geometry/ABiTargetCheck.hpp"
 #include "Faults/Faults.hpp"
 
 class GSTLEARN_EXPORT BiTargetCheckCell: public ABiTargetCheck

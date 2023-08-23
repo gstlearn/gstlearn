@@ -2,17 +2,37 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[6]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 1022
+Number of active samples     = 1007
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Epaisseur - Locator = lower1
+Column = 4 - Name = Epaisseur_1 - Locator = upper1
+Column = 5 - Name = Thickness - Locator = z1
+Column = 6 - Name = Duplicate - Locator = sel
+ ----
+
+
 +*Out[7]:*+
 ----
-Column Name (1): X
- Column Name (2): Y
- Column Name (3): Epaisseur
- Column Name (4): Epaisseur_1
- Number of columns = 4
- Data table read (Oise_Thickness.csv) successfully
- - Number of columns = 4
- - Number of rows    = 1022
- ----
+![png](output_7_0.png)
+----
 
 
 +*Out[8]:*+
@@ -22,21 +42,15 @@ Column Name (1): X
 
 
 +*Out[9]:*+
-----
-![png](output_9_0.png)
-----
-
-
-+*Out[10]:*+
 ----(array([ 24.,  64., 148., 219., 219., 156.,  89.,  60.,  29.,  14.]),
  array([ 0.4 ,  1.95,  3.5 ,  5.05,  6.6 ,  8.15,  9.7 , 11.25, 12.8 ,
         14.35, 15.9 ]),
  <BarContainer object of 10 artists>)
-![png](output_10_1.png)
+![png](output_9_1.png)
 ----
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
 Data Base Characteristics
 =========================
@@ -61,34 +75,32 @@ Column = 5 - Name = Thickness - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+*Out[12]:*+
++*Out[11]:*+
 ----True----
+
+
++*Out[13]:*+
+----
+
+Polygons
+--------
+Number of Polygon Sets = 1
+ ----
 
 
 +*Out[14]:*+
 ----
-Column Name (1): X
- Column Name (2): Y
- Number of columns = 2
- Data table read (Oise_Alluvial.csv) successfully
- - Number of columns = 2
- - Number of rows    = 1437
- ----
-
-
-+*Out[15]:*+
+![png](output_16_0.png)
 ----
-![png](output_17_0.png)
+
+
++*Out[16]:*+
+XXX
+![png](output_18_1.png)
 ----
 
 
 +*Out[17]:*+
-----<matplotlib.collections.PathCollection at 0x7f2c8bfae200>
-![png](output_19_1.png)
-----
-
-
-+*Out[18]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -125,13 +137,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = sel----
 
 
-+*Out[19]:*+
-----[<matplotlib.lines.Line2D at 0x7f2c8c19ad10>]
-![png](output_22_1.png)
++*Out[18]:*+
+XXX
+![png](output_21_1.png)
 ----
 
 
-+*Out[20]:*+
++*Out[19]:*+
 ----
 [cols=",,",options="header",]
 |===
@@ -153,7 +165,7 @@ Column = 3 - Name = Polygon - Locator = sel----
 ----
 
 
-+*Out[22]:*+
++*Out[21]:*+
 ----
 
 Data Base Characteristics
@@ -209,7 +221,7 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+*Out[23]:*+
++*Out[22]:*+
 ----
 
 Data Base Grid Characteristics
@@ -247,13 +259,13 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+*Out[26]:*+
-----[<matplotlib.lines.Line2D at 0x7f2cb941de40>]
-![png](output_29_1.png)
++*Out[25]:*+
+XXX
+![png](output_28_1.png)
 ----
 
 
-+*Out[27]:*+
++*Out[26]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -293,21 +305,21 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
 Column = 6 - Name = vec_define - Locator = sel----
 
 
-+*Out[28]:*+
-----<matplotlib.collections.PathCollection at 0x7f2bdd45cc70>
-![png](output_31_1.png)
++*Out[27]:*+
+XXX
+![png](output_30_1.png)
 ----
 
 
-+*Out[29]:*+
++*Out[28]:*+
 ----True----
 
 
-+*Out[36]:*+
-----<matplotlib.collections.QuadMesh at 0x7f2cb941e260>
-![png](output_41_1.png)
++*Out[35]:*+
+XXX
+![png](output_40_1.png)
 ----
 
 
-+*Out[37]:*+
++*Out[36]:*+
 ----True----

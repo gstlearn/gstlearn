@@ -8,9 +8,9 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/ABiTargetCheck.hpp>
 #include "geoslib_f.h"
 
+#include "Geometry/ABiTargetCheck.hpp"
 
 ABiTargetCheck::ABiTargetCheck()
     : AStringable()

@@ -10,9 +10,9 @@
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/ABiTargetCheck.hpp>
 #include "gstlearn_export.hpp"
 
+#include "Geometry/ABiTargetCheck.hpp"
 
 class GSTLEARN_EXPORT BiTargetCheckDistance: public ABiTargetCheck
 {

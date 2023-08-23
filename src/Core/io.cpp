@@ -1206,24 +1206,3 @@ void print_range(const char *title, int ntab, double *tab, double *sel)
   message(" (%d/%d)\n", stats.nvalid, ntab);
   return;
 }
-
-/****************************************************************************/
-/*!
- **  Dump a vector of real values in a file
- **  (used for debugging)
- **
- ** \param[in]  ntab     Number of values to be dumped
- ** \param[in]  tab      Vector of values to be dumped out
- **
- *****************************************************************************/
-void file_dump(int ntab, double *tab)
-{
-  FILE *file;
-  char Local[] = "/home/drenard/Bureau/Dump_trunk";
-
-  file = _file_open(Local, NEW);
-  if (file == nullptr) return;
-  for (int i = 0; i < ntab; i++)
-    fprintf(file, "%d %30.20lf\n", i + 1, tab[i]);
-  fclose(file);
-}

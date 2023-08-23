@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -44,7 +44,7 @@ Column = 7 - Name = angles1 - Locator = nostat1
 Column = 8 - Name = res - Locator = sel----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
 Data Base Characteristics
 =========================
@@ -69,7 +69,7 @@ Column = 5 - Name = Thickness - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+*Out[8]:*+
++*Out[7]:*+
 ----
 
 Variogram characteristics
@@ -163,11 +163,11 @@ For variable 1
         18    30.000  7199.585     9.574
         19    39.000  7641.196     4.828
  
-![png](output_10_1.png)
+![png](output_9_1.png)
 ----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
 
 Model characteristics
@@ -193,11 +193,11 @@ K-Bessel (Third Parameter = 1)
      [  1,]     0.707     0.707
 Total Sill     =      6.915
  
-![png](output_11_1.png)
+![png](output_10_1.png)
 ----
 
 
-+*Out[12]:*+
++*Out[11]:*+
 ----
 Model characteristics
 =====================
@@ -222,7 +222,7 @@ Drift Part
 Universality Condition----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 Data Base Characteristics
 =========================
@@ -247,7 +247,7 @@ Column = 5 - Name = Thickness - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -290,7 +290,7 @@ Column = 8 - Name = angles1 - Locator = nostat1
 Column = 9 - Name = spde.Thickness.kriging - Locator = z1----
 
 
-+*Out[20]:*+
-----<matplotlib.collections.QuadMesh at 0x7f0bb127ae00>
-![png](output_22_1.png)
++*Out[19]:*+
+XXX
+![png](output_21_1.png)
 ----

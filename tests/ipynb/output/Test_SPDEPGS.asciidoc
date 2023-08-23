@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[6]:*+
++*Out[4]:*+
 ----
 [cols=",,,,,,",options="header",]
 |===
@@ -16,14 +16,14 @@
 ----
 
 
-+*Out[7]:*+
++*Out[5]:*+
 ----
 Polygons
 --------
 Number of Polygon Sets = 1----
 
 
-+*Out[9]:*+
++*Out[7]:*+
 ----
 Data Base Characteristics
 =========================
@@ -43,13 +43,13 @@ Column = 1 - Name = Y - Locator = x2
 Column = 2 - Name = LANU - Locator = z1----
 
 
-+*Out[11]:*+
++*Out[9]:*+
 ----
-![png](output_20_0.png)
+![png](output_18_0.png)
 ----
 
 
-+*Out[12]:*+
++*Out[10]:*+
 ----
 Proportion of facies 1 = 0.2726197516262567
 Proportion of facies 2 = 0.46954464813719693
@@ -59,7 +59,7 @@ Proportion of facies 5 = 0.006505026611472502
 ----
 
 
-+*Out[15]:*+
++*Out[13]:*+
 ----
 
 Data Base Grid Characteristics
@@ -136,33 +136,33 @@ Column = 7 - Name = Prop.5 - Locator = p5
  ----
 
 
-+*Out[16]:*+
++*Out[14]:*+
 ----
-![png](output_30_0.png)
+![png](output_28_0.png)
 
-![png](output_30_1.png)
+![png](output_28_1.png)
 
-![png](output_30_2.png)
+![png](output_28_2.png)
 
-![png](output_30_3.png)
+![png](output_28_3.png)
 
-![png](output_30_4.png)
+![png](output_28_4.png)
 ----
 
 
-+*Out[17]:*+
++*Out[15]:*+
 ----
 Number of GRF = 1
 ----
 
 
++*Out[16]:*+
+----
+![png](output_31_0.png)
+----
+
+
 +*Out[18]:*+
-----
-![png](output_33_0.png)
-----
-
-
-+*Out[20]:*+
 ----
 
 Non-centered Covariance characteristics
@@ -225,7 +225,7 @@ For variable 1
  ----
 
 
-+*Out[22]:*+
++*Out[20]:*+
 ----
 
 Variogram characteristics
@@ -268,7 +268,7 @@ For variable 1
  ----
 
 
-+*Out[23]:*+
++*Out[21]:*+
 ----
 
 Model characteristics
@@ -289,19 +289,19 @@ Total Sill     =      1.000
  ----
 
 
-+*Out[24]:*+
++*Out[22]:*+
 ----
-![png](output_42_0.png)
+![png](output_40_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_44_0.png)
 ----
 
 
 +*Out[27]:*+
 ----
 ![png](output_46_0.png)
-----
-
-
-+*Out[29]:*+
-----
-![png](output_48_0.png)
 ----
