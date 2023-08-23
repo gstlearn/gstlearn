@@ -295,5 +295,5 @@ Note : You may need to directly modify your *site-packages* folder by:
 
 ## License
 
-BSD 3 clause
+BSD 3-clause
 2023 Team gstlearn

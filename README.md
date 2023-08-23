@@ -364,5 +364,5 @@ firefox build/doxygen/html/index.html
 
 ## License
 
-BSD 3 clause
+BSD 3-clause
 2023 Team gstlearn

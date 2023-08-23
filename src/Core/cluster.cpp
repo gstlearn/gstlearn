@@ -18,8 +18,8 @@ License: Python license (see doc/licenses/clustering_license.txt)
 /*
 Modified by MINES Paris / ARMINES (2023)
 Authors: gstlearn Team
-Website: https://gstlearn.org       
-License: BSD 3 clause
+Website: https://gstlearn.org
+License: BSD 3-clause
 */
 
 #include "geoslib_old_f.h"
