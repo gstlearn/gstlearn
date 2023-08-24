@@ -3,6 +3,8 @@ title: "SPDE"
 author: "Didier Renard, Nicolas Desassis, Xavier Freulon"
 date: "2023-07-10"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 In this tutorial, we show how to use the API SPDE.
@@ -80,8 +82,7 @@ model = Model_createFromParam(ECov_BESSEL_K(), param=1,range=rangev,sill=sill)
 
 
 ```{r SPDE_simulation, echo=TRUE, eval=TRUE}
-spde = SPDE(model, field = gridExt, calc = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
-
+spde = SPDE_create(model, domain = gridExt, calcul = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
 ```
 
 # SPDE approach
@@ -131,7 +132,6 @@ To compute a non conditional simulation on the grid,
 ```{r ncsimu_step_0, echo=TRUE, eval=TRUE}
 # projection matrix of the latent vector on the grid
 A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
-
 ```
 
 1) Compute $\mathbf{L}$ the Cholesky decomposition of the sparse precision matrix $\mathbf{Q}$
@@ -140,21 +140,18 @@ A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
 # Cholesky decomposition of precision matrix of the latent vector
 Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
 cholQ =  Cholesky(Q, LDL = FALSE)
-
 ```
 
 2) Compute the normal Gaussian vector $\mathbf{U \sim N(0, I_n)}$,
 
 ```{r ncsimu_step_2, echo=TRUE, eval=TRUE}
 U = rnorm(n = dim(Q)[1])
-
 ```
 
 3) Compute the latent vector $\mathbf{Z}$ solving the sparse linear system $\mathbf{L^{T} \, Z = U}$,
 
 ```{r ncsimu_step_3, echo=TRUE, eval=TRUE}
 Z = (t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))@x
-
 ```
 
 4) Compute the interpolation of the latent vector to the target grid $\mathbf{Y_g = A_{g} \, Z}$,
@@ -172,7 +169,6 @@ p = ggDefaultGeographic() +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non conditional simulation (Manual)")
 ggPrint(p)
-
 ```
 
 ## Kriging and Conditional simulation distribution
@@ -190,8 +186,6 @@ err = migrate(dbin = grid, dbout = dat, name = "manual.simu", namconv = NamingCo
 
 # projection matrix of the latent vector on the data locations
 A_d = ProjMatrix(dat, mesh)$getAprojToTriplet()$toTL()
-
-
 ```
 
 The $p$ observations are defined by the vector $\mathbf{Y_d = A_d \, Z + \tau \, W_d}$, where $\mathbf{A_d}$ is the projection matrix from the latent vector $\mathbf{Z}$ to the data location, $\tau$ is 
@@ -216,8 +210,6 @@ p = ggDefaultGeographic() +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Kriging (Manual)")
 ggPrint(p)
-
-
 ```
 
 ## Conditional simulation
@@ -285,7 +277,6 @@ p = ggDefault() +
     plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
                   title = "Kriging vs. conditional expectation (Manual)")
 ggPrint(p)
-
 ```
 
 # Using the SPDE api defined in **gstlearn**
@@ -293,12 +284,9 @@ ggPrint(p)
 ## Non conditional simulation
 
 ```{r simu_api, echo=TRUE, eval=TRUE}
-
 # simulation
-err  = spde$compute()
-
 err = grid$deleteColumns(names = "spde.simu*")
-iuid = spde$query(grid)
+iuid  = spde$compute(grid)
 
 # plot
 p = ggDefaultGeographic() + 
@@ -307,7 +295,6 @@ p = ggDefaultGeographic() +
   plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non Conditional Simulation (SPDE)")
 ggPrint(p)
-
 ```
 
 ## Kriging
@@ -316,9 +303,8 @@ ggPrint(p)
 # the modelling error is added to the model
 err     = model$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
 
-spdeRes = SPDE(model, field = gridExt, data = dat, calc = ESPDECalcMode_KRIGING(), mesh = mesh)
-err     = spdeRes$compute()
-iuid    = spdeRes$query(grid)
+spdeRes = SPDE(model, domain = gridExt, data = dat, calcul = ESPDECalcMode_KRIGING(), mesh = mesh)
+iuid    = spdeRes$compute(grid)
 err = grid$setName(old_name = "spde.manual.simu.kriging", name = "spde.kriging")
 
 # plot of kriging
@@ -347,7 +333,6 @@ p = ggDefault() +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)
-
 ```
 
 # Likelihood
@@ -507,8 +492,8 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
   }
   if (!flag.chol) {
     }
-  spde = SPDE(field = gridExt, mesh = mesh, model = m, data = dd, calc = cc)
-  err  = spde$compute()
+  spde = SPDE(model = m, domain = gridExt, data = dd, calcul = cc, mesh = mesh)
+  err  = spde$compute(gridExt)
 
   # using Cholesky decomposition
   if (flag.chol) {
