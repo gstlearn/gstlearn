@@ -7,7 +7,7 @@ def fa(x,y,a,b):
     return a*x + b*y
 
 def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
-    x1c = np.array(db.getColumn("x1")) #getColumn ou mieux getCoords coords = workingDb.getCoords()
+    x1c = np.array(db.getColumn("x1"))
     x2c = np.array(db.getColumn("x2")) 
     u1=fa(x1c-50,x2c-50,a,b)
     u2=fa(x1c-50,x2c-50,c,d)
@@ -15,7 +15,7 @@ def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
     norm = np.sqrt(u1**2+u2**2)
     ind = norm>0
     theta = np.zeros_like(norm)
-    theta[norm>0] = np.arccos(u2[ind]/norm[ind])/np.pi*180*np.sign(u1[ind])
+    theta[norm>0] = -np.arccos(u2[ind]/norm[ind])/np.pi*180*np.sign(u1[ind])
     x1c=x1c.reshape(shape)
     x2c=x2c.reshape(shape)
     u1=u1.reshape(shape)
@@ -26,7 +26,8 @@ def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
         plt.show()
     return theta
 
-workingDbc = gl.DbGrid.create([10,10],[10,10])
+gl.ASerializable.setContainerName(True)
+gl.ASerializable.setPrefixName("test_APISPDE-")
 
 resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
 x1 = resultDb['x1']
@@ -44,10 +45,7 @@ dat["X"]= coords[:,0]
 dat["Y"]= coords[:,1]
 dat.setLocators(['X','Y'],gl.ELoc.X)
 
-model = gl.Model.createFromDb(resultDb)
-cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext())
-cova.setRanges([4,45])
-model.addCov(cova)
+model = gl.Model.createFromParam(gl.ECov.BESSEL_K, 1., 1., 1., [4.,45.])
 
 workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
 mesh = gl.MeshETurbo(workingDb)
@@ -57,6 +55,7 @@ err = model.addNoStat(NoStat)
 
 S = gl.ShiftOpCs(mesh, model, resultDb)
 
+cova = model.getCova(0)
 Qsimu = gl.PrecisionOp(S, cova, False)
 result = Qsimu.simulateOne()
 workingDb.addColumns(result,"Simu",gl.ELoc.X)
@@ -71,13 +70,11 @@ data.setLocator('z',gl.ELoc.Z)
 data
 
 spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND)
-
-spde.compute()
+spde.compute(workingDb)
 
 dbfmt = gl.DbStringFormat()
 dbfmt.setFlags(flag_stats=True)
 workingDb.display(dbfmt)
 
-gl.ASerializable.setContainerName(True)
-gl.ASerializable.setPrefixName("test_APISPDE-")
+resultDb.dumpToNF("spirale-param.ascii")
 workingDb.dumpToNF("spirale.ascii")

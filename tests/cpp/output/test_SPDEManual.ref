@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 6
-Maximum Number of UIDs       = 6
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
 Total number of samples      = 10201
 
 Grid characteristics:
@@ -42,27 +42,19 @@ Data Base Statistics
  Mean value          =     50.000
  Standard Deviation  =     29.155
  Variance            =    850.000
-4 - Name angle - Locator nostat1
- Nb of data          =      10201
- Nb of active values =      10201
- Minimum value       =   -178.363
- Maximum value       =    180.000
- Mean value          =     24.195
- Standard Deviation  =     99.628
- Variance            =   9925.735
-5 - Name Simu - Locator z1
+4 - Name Simu - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -5.349
  Maximum value       =      3.356
  Mean value          =     -0.336
- Standard Deviation  =      1.054
- Variance            =      1.110
-6 - Name Kriging - Locator NA
+ Standard Deviation  =      1.058
+ Variance            =      1.120
+5 - Name Kriging - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -0.437
+ Minimum value       =     -0.434
  Maximum value       =      0.320
  Mean value          =     -0.034
- Standard Deviation  =      0.101
+ Standard Deviation  =      0.102
  Variance            =      0.010

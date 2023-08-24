@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "Tree/ball_algorithm.h"
+#include "Space/SpacePoint.hpp"
 
 /**
  * Returns the Manhattan distance between two points
@@ -31,7 +32,7 @@ double manhattan_dist(const double *x1, const double *x2, int size)
 }
 
 /**
- * Returns the Euclidean distance between two points
+ * Returns the Standard distance between two points
  * @param x1 Vector of coordinates for the first point
  * @param x2 Vector of coordinates for the second point
  * @param size Number of coordinates
@@ -39,12 +40,12 @@ double manhattan_dist(const double *x1, const double *x2, int size)
  */
 double euclidean_dist(const double *x1, const double *x2, int size)
 {
-  double delta;
-  double d2 = 0.;
+  SpacePoint p1;
+  SpacePoint p2;
   for (int i = 0; i < size; i++)
   {
-    delta = (x1[i] - x2[i]);
-    d2 += delta * delta;
+    p1.setCoord(i, x1[i]);
+    p2.setCoord(i, x2[i]);
   }
-  return sqrt(d2);
+  return p1.getDistance(p2);
 }

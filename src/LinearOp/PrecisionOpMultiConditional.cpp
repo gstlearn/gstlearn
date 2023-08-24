@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -60,8 +60,7 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const VectorDouble& datVal, 
   }
 }
 
-void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
-                                            IProjMatrix* projDataElem)
+void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
 {
   if (sizes() == 0 && projDataElem != nullptr)
   {
@@ -91,8 +90,7 @@ std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const
 }
 
 /* Evaluate the max along columns of the sum along lines of AtA. */
-/*Since the terms of A are positive, we can compute AtA * 1_n  and take the max */
-
+/* Since the terms of A are positive, we can compute AtA * 1_n  and take the max */
 double PrecisionOpMultiConditional::getMaxEigenValProj() const
 {
 
@@ -123,7 +121,7 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   logPoly.fit(f,a,b,2*EPSILON4/(a+b));
 }
 
-double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
+double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu, int seed) const
 {
   Chebychev logPoly;
   preparePoly(logPoly);
@@ -141,7 +139,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
 
   double val = 0.;
 
-  for (int i = 0; i < nsimus; i++)
+  for (int i = 0; i < nbsimu; i++)
   {
     for (auto &e : gauss)
     {
@@ -152,16 +150,16 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
     val += innerProduct(gauss, _work3);
   }
 
-  return val / nsimus;
+  return val / nbsimu;
 
 }
 
-double PrecisionOpMultiConditional::computeLogDetQ(int nsimus, int seed) const
+double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu, int seed) const
 {
   double result = 0.;
   for (auto &e : _multiPrecisionOp)
   {
-    result += e->computeLogDet(nsimus,seed);
+    result += e->computeLogDet(nbsimu,seed);
   }
   return result;
 }
@@ -179,11 +177,11 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 // We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
 
-double PrecisionOpMultiConditional::computeTotalLogDet(int nsimus , int seed ) const
+double PrecisionOpMultiConditional::computeTotalLogDet(int nbsimu , int seed ) const
 {
   double result = 0;
-  result += computeLogDetOp(nsimus,seed);
-  result -= computeLogDetQ(nsimus,seed);
+  result += computeLogDetOp(nbsimu,seed);
+  result -= computeLogDetQ(nbsimu,seed);
   result += sumLogVar();
   return result;
 }
@@ -240,12 +238,22 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& inv,
   sum(_work2,outv, outv);
 }
 
-void PrecisionOpMultiConditional::simulateOnMeshing(VectorDouble& gauss,VectorVectorDouble& result,int icov) const
+void PrecisionOpMultiConditional::simulateOnMeshings(VectorVectorDouble &result) const
 {
-    _multiPrecisionOp[icov]->simulateOneInPlace(gauss,result[icov]);
+  for(int icov = 0, ncov = (int) _multiPrecisionOp.size(); icov < ncov; icov++)
+  {
+    simulateOnMeshing(result[icov], icov);
+  }
 }
 
-void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,
+void PrecisionOpMultiConditional::simulateOnMeshing(VectorDouble &result,
+                                                    int icov) const
+{
+  VectorDouble gauss = VH::simulateGaussian(_multiPrecisionOp[icov]->getSize());
+  _multiPrecisionOp[icov]->simulateOneInPlace(gauss, result);
+}
+
+void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVectorDouble &simus,
                                                                   VectorDouble& result) const
 {
   VH::fill(result,0.,_ndat);
@@ -260,7 +268,6 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVe
   {
     result[idat]+= sqrt(_varianceData[idat]) * law_gaussian();
   }
-
 }
 
 void PrecisionOpMultiConditional::_allocate(int i) const

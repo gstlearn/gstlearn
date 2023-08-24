@@ -3,6 +3,11 @@ This file contains the logs between consecutive releases
 # Make last version consistent with CMakeLists.txt
 
 
+Release 0.3.3
+=============
+- Fix Issues 76 & 77
+- Update official website URL
+
 Release 0.3.2
 =============
 - Add How to cite in READMEs

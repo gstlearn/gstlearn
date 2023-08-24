@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -111,8 +111,6 @@ double NoStatFunctional::getValue(const EConsElem &type,
 double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 {
   if (! _isValid(icas, rank)) return TEST;
-  if (ipar != 0)
-    my_throw("Invalid rank when searching for Non-stationary parameter");
 
   // Dispatch
 

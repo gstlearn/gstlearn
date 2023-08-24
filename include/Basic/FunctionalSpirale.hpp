@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -34,6 +34,6 @@ private:
   double _b;
   double _c;
   double _d;
-  double _sx;
-  double _sy;
+  double _xcenter;
+  double _ycenter;
 };

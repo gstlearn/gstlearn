@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -4775,9 +4775,7 @@ Db* Db::createReduce(const Db *dbin,
   Db* db = new Db;
   if (db->resetReduce(dbin, names, ranks, verbose))
   {
-    messerr("Error when creating a new Db by reducing another one");
-    delete db;
-    return nullptr;
+    db = dbin->clone();
   }
   return db;
 }

@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -78,6 +78,13 @@ public:
                                         bool flag_polarized = false,
                                         bool verbose = false,
                                         int mode = 1);
+  static MeshETurbo* createFromCova(const CovAniso &cova,
+                                    const Db *field,
+                                    double ratio,
+                                    int nbExt = 0,
+                                    bool useSel = true,
+                                    bool flagNoStatRot = false,
+                                    bool verbose = false);
 
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
@@ -93,10 +100,11 @@ public:
                    bool flag_polarized = false,
                    bool verbose = false);
   int initFromCova(const CovAniso& cova,
-                   const DbGrid* field,
+                   const Db* field,
                    double ratio,
                    int nbExt = 0,
                    bool useSel = true,
+                   bool flagNoStatRot = false,
                    bool verbose = false);
   const Grid& getGrid() const { return _grid; }
 

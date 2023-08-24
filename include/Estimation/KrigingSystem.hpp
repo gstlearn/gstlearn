@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -140,7 +140,7 @@ private:
   void _flagDefine();
   void _zextInit();
   void _lhsInit();
-  void _covUpdate(const ECalcMember &member, int iech1, int iech2);
+  void _covUpdate(int icas1, int iech1, int icas2, int iech2);
   void _covtabInit();
   void _covtabCalcul(int iech1,
                      int iech2,

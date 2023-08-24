@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -71,11 +71,9 @@ int main(int argc, char *argv[])
 
   //////////////////////
   /// Kriging using SPDE
-  SPDE spde;
-  spde.init(model,grid,temperatures,ESPDECalcMode::KRIGING);
+  SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING);
   VectorDouble coeffs = spde.getCoeffs();
-  spde.compute();
-  spde.query(grid);
+  spde.compute(grid);
 
   ///////////////////////
   /// Traditional Kriging

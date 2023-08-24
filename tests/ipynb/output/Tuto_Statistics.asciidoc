@@ -64,9 +64,6 @@ Column = 5 - Name = SD3 - Locator = z1----
 ----
 Monovariate Statistics on Variables
 -----------------------------------
-- Number of Rows    = 3
-- Number of Columns = 3
-
                Number       Mean   St. Dev.
        SD1    100.000      0.161      1.028
        SD2    100.000     -0.293      1.020

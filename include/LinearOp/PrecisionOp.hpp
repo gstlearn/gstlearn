@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -56,7 +56,7 @@ public:
   virtual void eval(const VectorDouble &inv, VectorDouble &outv);
   virtual void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result);
   virtual void evalInvVect(VectorDouble& in, VectorDouble& result);
-  virtual double computeLogDet(int nsimus = 1, int seed = 0);
+  virtual double computeLogDet(int nbsimu = 1, int seed = 0);
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,
                        VectorDouble& /*result*/,
@@ -89,10 +89,10 @@ public:
 
   void evalPower(const VectorDouble &inv, VectorDouble &outv, const EPowerPT& power = EPowerPT::fromKey("ONE"));
   VectorDouble evalCov(int imesh);
-  VectorVectorDouble simulate(int nbsimus = 1);
+  VectorVectorDouble simulate(int nbsimu = 1);
   VectorDouble simulateOne();
 
-  int    getSize() const { return _shiftOp->getSize(); }
+  int  getSize() const { return _shiftOp->getSize(); }
   bool getTraining()const {return _training;}
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }

@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -580,72 +580,17 @@ void KrigingSystem::_lhsInit()
 }
 
 /**
- * Modify the covariance before calling the covariance evluation
+ * Modify the covariance before calling the covariance evaluation
  * This makes sense only when non-stationarity is defined
- * @param member    Type of usage (LHS, RHS or VAR)
+ * @param icas1     1 for dbin and 2 for Dbout
  * @param iech1     Rank of the first sample (or -1 for target)
+ * @param icas2     1 for dbin and 2 for Dbout
  * @param iech2     Rank of the second sample (or -1 for target)
  */
-void KrigingSystem::_covUpdate(const ECalcMember &member, int iech1, int iech2)
+void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
 {
-  // Load the non-stationary parameters if needed
-
-  if (! _model->isNoStat()) return;
-
   const ANoStat *nostat = _model->getNoStat();
-  int jech1 = 0;
-  int jech2 = 0;
-  int icas1 = 0;
-  int icas2 = 0;
-
-  switch (member.getValue())
-  {
-    case ECalcMember::E_LHS:
-      if (iech1 >= 0)
-      {
-        icas1 = 1;
-        jech1 = iech1;
-      }
-      else
-      {
-        icas1 = 2;
-        jech1 = _iechOut;
-      }
-      if (iech2 >= 0)
-      {
-        icas2 = 1;
-        jech2 = iech2;
-      }
-      else
-      {
-        icas2 = 2;
-        jech2 = _iechOut;
-      }
-      break;
-
-    case ECalcMember::E_RHS:
-      if (iech1 >= 0)
-      {
-        icas1 = 1;
-        jech1 = iech1;
-      }
-      else
-      {
-        icas1 = 2;
-        jech1 = _iechOut;
-      }
-      icas2 = 2;
-      jech2 = _iechOut;
-      break;
-
-    case ECalcMember::E_VAR:
-      icas1 = 2;
-      jech1 = _iechOut;
-      icas2 = 2;
-      jech2 = _iechOut;
-      break;
-  }
-  nostat->updateModel(_model, icas1, jech1, icas2, jech2);
+  nostat->updateModel(_model, icas1, iech1, icas2, iech2);
 }
 
 /**
@@ -782,7 +727,7 @@ void KrigingSystem::_lhsCalcul()
       bool flagSameData = (iech == jech && _model->isStationary());
 
       _covtabInit();
-      _covUpdate(ECalcMember::LHS, _nbgh[iech], _nbgh[jech]);
+      if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
       _covtabCalcul(_nbgh[iech], _nbgh[jech], &_calcModeLHS, flagSameData);
 
       for (int ivar = 0; ivar < _nvar; ivar++)
@@ -974,7 +919,7 @@ void KrigingSystem::_rhsCalculPoint()
   for (int iech = 0; iech < _nech; iech++)
   {
     _covtabInit();
-    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
     _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -992,7 +937,7 @@ void KrigingSystem::_rhsCalculBlock()
   for (int iech = 0; iech < _nech; iech++)
   {
     _covtabInit();
-    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
     if (_flagPerCell) _blockDiscretize();
     int nscale = _getNDisc();
 
@@ -1042,7 +987,7 @@ void KrigingSystem::_rhsCalculDGM()
   for (int iech = 0; iech < _nech; iech++)
   {
     _covtabInit();
-    _covUpdate(ECalcMember::RHS, _nbgh[iech], -1);
+    if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
     _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -1659,7 +1604,7 @@ void KrigingSystem::_variance0()
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
   _covtabInit();
-  _covUpdate(ECalcMember::VAR, -1, -1);
+  if (_model->isNoStat()) _covUpdate(2, _iechOut, 2, _iechOut);
 
   switch (_calcul.toEnum())
   {

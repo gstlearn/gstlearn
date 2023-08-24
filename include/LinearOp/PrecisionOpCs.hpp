@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -40,7 +40,7 @@ public:
   void eval(const VectorDouble &inv, VectorDouble &outv) override;
   void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result) override;
   void evalInvVect(VectorDouble& in, VectorDouble& result) override;
-  double computeLogDet(int nsimus = 1, int seed = 0) override;
+  double computeLogDet(int nbsimu = 1, int seed = 0) override;
 
   void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam,const EPowerPT& power) override;
   void evalDerivOptim(VectorDouble& outv,int iapex,int igparam, const EPowerPT& power) override;

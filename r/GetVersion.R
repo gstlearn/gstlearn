@@ -4,7 +4,7 @@
 #                                                                              #
 # Copyright (c) (2023) MINES PARIS / ARMINES                                   #
 # Authors: gstlearn Team                                                       #
-# Website: https://github.com/gstlearn                                         #
+# Website: https://gstlearn.org                                                #
 # License: GPL v3                                                              #
 #                                                                              #
 ################################################################################

@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -212,11 +212,11 @@ int PrecisionOp::_prepareChebychev(const EPowerPT& power)
 
 /**
  * Compute the Logarithm of the Determinant
- * @param nsimus
- * @param seed
+ * @param nbsimu Number of simulations
+ * @param seed   Seed for random number generation
  * @return The computed value or TEST if problem
  */
-double PrecisionOp::computeLogDet(int nsimus,int seed)
+double PrecisionOp::computeLogDet(int nbsimu,int seed)
 {
   law_set_random_seed(seed);
 
@@ -226,7 +226,7 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
   result.resize(getSize());
 
   double val1 = 0.;
-  for (int isimu = 0; isimu < nsimus; isimu++)
+  for (int isimu = 0; isimu < nbsimu; isimu++)
   {
     for (auto &e : gauss)
     {
@@ -240,7 +240,7 @@ double PrecisionOp::computeLogDet(int nsimus,int seed)
     }
   }
 
-  val1 /= nsimus;
+  val1 /= nbsimu;
 
   double val2 = 0.;
 
@@ -386,10 +386,10 @@ void PrecisionOp::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& res
   _shiftOp->prodLambda(result, result, EPowerPT::MINUSONE);
 }
 
-VectorVectorDouble PrecisionOp::simulate(int nbsimus)
+VectorVectorDouble PrecisionOp::simulate(int nbsimu)
 {
   int n = getSize();
-  VectorVectorDouble vect(nbsimus);
+  VectorVectorDouble vect(nbsimu);
   VectorDouble whitenoise(n);
 
   for(auto &e : vect)

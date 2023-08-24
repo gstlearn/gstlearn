@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -57,10 +57,6 @@ int main(int argc, char *argv[])
   auto nx = { 101,101 };
   DbGrid* workingDbc = DbGrid::create(nx);
 
-  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  VectorDouble angle = spirale.getFunctionValues(workingDbc);
-  workingDbc->addColumns(angle,"angle",ELoc::NOSTAT);
-
   //////////////////////
   //Creating the Mesh
   MeshETurbo mesh(workingDbc);
@@ -68,13 +64,14 @@ int main(int argc, char *argv[])
   ///////////////////////
   // Creating the Model
   Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
-  CovAniso* cova = model->getCova(0);
-  NoStatArray NoStat({"A"},workingDbc);
+  FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
+  NoStatFunctional NoStat(&spirale);
   model->addNoStat(&NoStat);
 
   /////////////////////////////////////////////////
   // Creating the Precision Operator for simulation
   ShiftOpCs S(&mesh, model, workingDbc);
+  CovAniso* cova = model->getCova(0);
   PrecisionOp Qsimu(&S, cova);
 
   /////////////////////////

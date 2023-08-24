@@ -47,7 +47,7 @@ License: see doc/licenses/vtk_license.txt
 /*
 Modified by MINES PARIS / ARMINES (2023)
 Authors: gstlearn Team
-Website: https://github.com/gstlearn
+Website: https://gstlearn.org       
 License: BSD 3 clause
 */
 

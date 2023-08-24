@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -519,7 +519,6 @@ Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam, bool flag_from_1) c
  */
 void ShiftOpCs::_updateCova(CovAniso* cova, int imesh)
 {
-  // Initializations
   if (! _isNoStat()) return;
   int igrf = _getIgrf();
   int icov = _getIcov();
@@ -555,7 +554,7 @@ void ShiftOpCs::_updateCova(CovAniso* cova, int imesh)
     {
       if (nostat->isDefined(EConsElem::ANGLE, icov, idim, -1, igrf))
       {
-        double anisoAngle = nostat->getValue(EConsElem::ANGLE, 0, imesh, icov, idim,-1, igrf);
+        double anisoAngle = nostat->getValue(EConsElem::ANGLE, 0, imesh, icov, idim, -1, igrf);
         cova->setAnisoAngle(idim, anisoAngle);
       }
     }
@@ -595,7 +594,8 @@ void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
   _updateCova(cova, imesh);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  const MatrixSquareGeneral &rotmat = cova->getAnisoRotMat();
+  //  const MatrixSquareGeneral &rotmat = cova->getAnisoRotMat();
+  const MatrixSquareGeneral &rotmat = cova->getAnisoInvMat();
 
   VectorDouble diag = VH::power(cova->getScales(), 2.);
   MatrixSquareSymmetric temp(ndim);

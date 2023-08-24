@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -50,7 +50,7 @@ public:
 
 private:
   void _recopy(const Rotation& r);
-  void _checkRot();
+  void _checkRotForIdentity();
   void _directToInverse();
   void _inverseToDirect();
 

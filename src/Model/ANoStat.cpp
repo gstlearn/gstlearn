@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -471,28 +471,30 @@ void ANoStat::updateModel(Model* model,
 
   // Loop on the elements that can be updated one-by-one
 
-  for (int ipar = 0; ipar < getNoStatElemNumber(); ipar++)
+  for (int ipar = 0, npar = getNoStatElemNumber(); ipar < npar; ipar++)
   {
     int icov = getICov(ipar);
     EConsElem type = getType(ipar);
 
     if (type == EConsElem::SILL)
     {
-      _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
-      int iv1  = getIV1(ipar);
-      int iv2  = getIV2(ipar);
-      model->setSill(icov, iv1, iv2, sqrt(val1 * val2));
+      if (_getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
+      {
+        int iv1  = getIV1(ipar);
+        int iv2  = getIV2(ipar);
+        model->setSill(icov, iv1, iv2, sqrt(val1 * val2));
+      }
     }
     else if (type == EConsElem::PARAM)
     {
-      _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2);
-      model->getCova(icov)->setParam(0.5 * (val1 + val2));
+      if (_getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
+        model->getCova(icov)->setParam(0.5 * (val1 + val2));
     }
   }
 
   // Loop on the other parameters (Anisotropy) that must be processed globally
 
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  for (int icov = 0, ncov = model->getCovaNumber(); icov < ncov; icov++)
   {
     if (! isDefinedforAnisotropy(icov)) continue;
     CovAniso* cova = model->getCova(icov);
@@ -510,74 +512,90 @@ void ANoStat::updateModel(Model* model,
     VectorDouble range2(range0);
 
     // Define the angles (for all space dimensions)
-    bool flagRot = false;
+    bool flagRotTwo = false;
+    bool flagRotOne = false;
     if (isDefined(EConsElem::ANGLE, icov))
     {
-      flagRot = true;
-      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      for (int idim = 0, ndim = model->getDimensionNumber(); idim < ndim; idim++)
       {
         if (isDefined(EConsElem::ANGLE, icov, idim, 0))
         {
           int ipar = getRank(EConsElem::ANGLE, icov, idim);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &angle1[idim], &angle2[idim]);
+          flagRotOne = true;
+          if (_getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &angle1[idim], &angle2[idim]))
+            flagRotTwo = true;
         }
       }
     }
 
     // Define the Theoretical ranges (for all space dimensions)
 
-    bool flagScale = false;
+    bool flagScaleTwo = false;
+    bool flagScaleOne = false;
     if (isDefined(EConsElem::SCALE, icov))
     {
-      flagScale = true;
-      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      for (int idim = 0, ndim = model->getDimensionNumber(); idim < ndim; idim++)
       {
         if (isDefined(EConsElem::SCALE, icov, idim, 0))
         {
           int ipar = getRank(EConsElem::SCALE, icov, idim);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &scale1[idim], &scale2[idim]);
+          flagScaleOne = true;
+          if (_getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &scale1[idim], &scale2[idim]))
+            flagScaleTwo = true;
         }
       }
     }
 
     // Define the Practical ranges (for all space dimensions)
 
-    bool flagRange = false;
+    bool flagRangeTwo = false;
+    bool flagRangeOne = false;
     if (isDefined(EConsElem::RANGE, icov))
     {
-      flagRange = true;
-      for (int idim = 0; idim < model->getDimensionNumber(); idim++)
+      for (int idim = 0, ndim = model->getDimensionNumber(); idim < ndim; idim++)
       {
         if (isDefined(EConsElem::RANGE, icov, idim))
         {
           int ipar = getRank(EConsElem::RANGE, icov, idim);
           if (ipar < 0) continue;
-          _getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &range1[idim], &range2[idim]);
+          flagRangeOne = true;
+          if (_getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &range1[idim], &range2[idim]))
+            flagRangeTwo = true;
         }
       }
     }
 
-    // Create and exploit the Tensor for First location
-    if (flagRot || flagRange || flagScale)
+    // Update the Model
+    if (flagRotTwo || flagRangeTwo || flagScaleTwo)
     {
-      if (flagRot)   cova->setAnisoAngles(angle1);
-      if (flagRange) cova->setRanges(range1);
-      if (flagScale) cova->setScales(scale1);
+
+      // Interpolate the tensors (as parameteres are different at two points)
+      if (flagRotTwo)   cova->setAnisoAngles(angle1);
+      if (flagRangeTwo) cova->setRanges(range1);
+      if (flagScaleTwo) cova->setScales(scale1);
       const MatrixSquareGeneral direct1 = cova->getAniso().getTensorDirect();
 
       // Create and exploit the Tensor for the second location
-      if (flagRot)   cova->setAnisoAngles(angle2);
-      if (flagRange) cova->setRanges(range2);
-      if (flagScale) cova->setScales(scale2);
+      if (flagRotTwo)   cova->setAnisoAngles(angle2);
+      if (flagRangeTwo) cova->setRanges(range2);
+      if (flagScaleTwo) cova->setScales(scale2);
 
       // Build the new Tensor (as average of tensors at end-points)
       Tensor tensor = cova->getAniso();
       MatrixSquareGeneral direct = tensor.getTensorDirect();
-      direct.linearCombination(0.5, 0.5, direct1);
+      direct.linearCombination (0.5, 0.5, direct1);
       tensor.setTensorDirect(direct);
       cova->setAniso(tensor);
+    }
+    else if (flagRotOne || flagRangeOne || flagScaleOne)
+    {
+
+      // Simply update the model with one set of parameters
+      if (flagRotOne)   cova->setAnisoAngles(angle1);
+      if (flagRangeOne) cova->setRanges(range1);
+      if (flagScaleOne) cova->setScales(scale1);
     }
   }
 }
@@ -685,8 +703,10 @@ void ANoStat::updateModelByMesh(Model* model, int imesh) const
  * @param iech2 Rank of the second sample (in Dbout)
  * @param val1  Returned value at first sample
  * @param val2  Returned value at the second sample
+ *
+ * @return true if the two values are different
  */
-void ANoStat::_getInfoFromDb(int ipar,
+bool ANoStat::_getInfoFromDb(int ipar,
                              int icas1,
                              int iech1,
                              int icas2,
@@ -697,10 +717,12 @@ void ANoStat::_getInfoFromDb(int ipar,
   *val1 = getValueByParam(ipar, icas1, iech1);
   *val2 = getValueByParam(ipar, icas2, iech2);
 
-  if (FFFF(*val1) && FFFF(*val2)) return;
+  if (FFFF(*val1) && FFFF(*val2)) return false;
 
-  if (! FFFF(*val1)) *val2 = *val1;
-  if (! FFFF(*val2)) *val1 = *val2;
+  if (FFFF(*val1)) *val1 = *val2;
+  if (FFFF(*val2)) *val2 = *val1;
+
+  return *val1 != *val2;
 }
 
 int ANoStat::attachToMesh(const AMesh* mesh, bool /*verbose*/) const

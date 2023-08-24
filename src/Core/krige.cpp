@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -4337,21 +4337,12 @@ int declustering(Db *dbin,
                  int flag_sel,
                  bool verbose)
 {
-  int error, iptr, iptr_sel;
-  double indic;
-
-  /* Initializations */
-
-  error = 1;
-
-  /* Preliminary checks */
-
-  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
+  if (! dbin->isVariableNumberComparedTo(1)) return 1;
 
   /* Add the kriging weight as a new variable */
 
-  iptr = dbin->addColumnsByConstant(1, 0.);
-  if (iptr < 0) goto label_end;
+  int iptr = dbin->addColumnsByConstant(1, 0.);
+  if (iptr < 0) return 1;
 
   /* Produce statistics on the target variable before declustering */
 
@@ -4362,38 +4353,50 @@ int declustering(Db *dbin,
   switch (method)
   {
     case 1: /* Weight proportional to number of samples */
-      if (st_declustering_1(dbin, iptr, radius)) goto label_end;
+    {
+      if (st_declustering_1(dbin, iptr, radius)) return 1;
       break;
+    }
 
     case 2: /* Weight of the Mean */
+    {
+      if (model == nullptr)
       {
-        if (st_declustering_2(dbin, model, neigh, iptr)) goto label_end;
+        messerr("A Model is neede for this declustering method");
+        return 1;
       }
+      if (st_declustering_2(dbin, model, neigh, iptr)) return 1;
       break;
+    }
 
     case 3: /* Average weight of the Block Kriging */
+    {
+      if (model == nullptr)
       {
-      if (st_declustering_3(dbin, dbgrid, model, neigh, ndisc, iptr))
-          goto label_end;
+        messerr("A Model is neede for this declustering method");
+        return 1;
       }
+      if (st_declustering_3(dbin, dbgrid, model, neigh, ndisc, iptr))
+        return 1;
       break;
+    }
 
     default:
       messerr("Not yet implemented");
-      break;
+      return 1;
   }
 
   /* Store the selection (optional) */
 
   if (flag_sel)
   {
-    iptr_sel = dbin->addColumnsByConstant(1, 0.);
-    if (iptr_sel < 0) goto label_end;
+    int iptr_sel = dbin->addColumnsByConstant(1, 0.);
+    if (iptr_sel < 0) return 1;
     for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
       dbin->setArray(iech, iptr_sel, 0.);
       if (!dbin->isActive(iech)) continue;
-      indic = (dbin->getArray(iech, iptr) > 0.);
+      double indic = (dbin->getArray(iech, iptr) > 0.);
       dbin->setArray(iech, iptr_sel, indic);
     }
   }
@@ -4402,11 +4405,7 @@ int declustering(Db *dbin,
 
   if (verbose) st_declustering_stats(1, method, dbin, iptr);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /****************************************************************************/

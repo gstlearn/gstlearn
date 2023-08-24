@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                               */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -71,9 +71,6 @@ int Cholesky::reset(const cs* mat, bool flagDecompose)
 
   // Clear the already existing contents
   _clean();
-
-  // Check that the input matrix is square and symmetric
-  if (! cs_isSymmetric(mat)) return 1;
 
   // Duplicate the sparse matrix
   _mat = mat;

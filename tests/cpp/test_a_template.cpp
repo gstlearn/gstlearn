@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -63,8 +63,7 @@ int main(int argc, char *argv[])
   model->display();
 
   SPDE spde(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND);
-  spde.compute();
-  spde.query(grid);
+  spde.compute(grid);
   (void) grid->dumpToNF("Result.ascii");
 
   return (0);

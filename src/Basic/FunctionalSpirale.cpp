@@ -4,13 +4,14 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_define.h"
+
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/AFunctional.hpp"
-#define _USE_MATH_DEFINES // To make M_PI available under windows
 #include <math.h>
 
 FunctionalSpirale::FunctionalSpirale()
@@ -19,8 +20,8 @@ FunctionalSpirale::FunctionalSpirale()
       _b(0.),
       _c(0.),
       _d(0.),
-      _sx(0.),
-      _sy(0.)
+      _xcenter(0.),
+      _ycenter(0.)
 {
 }
 
@@ -35,8 +36,8 @@ FunctionalSpirale::FunctionalSpirale(double a,
       _b(b),
       _c(c),
       _d(d),
-      _sx(sx),
-      _sy(sy)
+      _xcenter(sx),
+      _ycenter(sy)
 {
 }
 
@@ -46,8 +47,8 @@ FunctionalSpirale::FunctionalSpirale(const FunctionalSpirale &m)
       _b(m._b),
       _c(m._c),
       _d(m._d),
-      _sx(m._sx),
-      _sy(m._sy)
+      _xcenter(m._xcenter),
+      _ycenter(m._ycenter)
 {
 }
 
@@ -60,8 +61,8 @@ FunctionalSpirale& FunctionalSpirale::operator=(const FunctionalSpirale &m)
     _b = m._b;
     _c = m._c;
     _d = m._d;
-    _sx = m._sx;
-    _sy = m._sy;
+    _xcenter = m._xcenter;
+    _ycenter = m._ycenter;
   }
   return *this;
 }
@@ -82,14 +83,15 @@ double FunctionalSpirale::_linearCombination(double x, double y, double a, doubl
  */
 double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
 {
-  double x = coor[0] - _sx;
-  double y = coor[1] - _sy;
+  double x = coor[0] - _xcenter;
+  double y = coor[1] - _ycenter;
   double u1 = _linearCombination(x, y, _a, _b);
   double u2 = _linearCombination(x, y, _c, _d);
   double norm = sqrt(u1 * u1 + u2 * u2);
   if (norm > 0)
   {
-    return acos(u2 / norm) / M_PI * 180. * ((u1 >= 0) ? 1. : -1.);
+    double a2ndeg = acos(u2 / norm) * 180. / GV_PI;
+    return (u1 >= 0) ? -a2ndeg : a2ndeg;
   }
   else
   {
@@ -104,17 +106,17 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
  */
 VectorVectorDouble FunctionalSpirale::getFunctionVectors(const VectorDouble& coor) const
 {
-  double x = coor[0] - _sx;
-  double y = coor[1] - _sy;
+  double x = coor[0] - _xcenter;
+  double y = coor[1] - _ycenter;
   double u1 = _linearCombination(x, y, _a, _b);
   double u2 = _linearCombination(x, y, _c, _d);
   double norm = sqrt(u1 * u1 + u2 * u2);
   u1 /= norm;
   u2 /= norm;
-  VectorDouble vec1 = { u1,u2};
-  VectorDouble vec2 = {-u2,u1};
+  VectorDouble vec1 = { u1, u2 };
+  VectorDouble vec2 = { -u2, u1 };
 
-  VectorVectorDouble vec = { vec1, vec2};
+  VectorVectorDouble vec = { vec1, vec2 };
   return vec;
 }
 

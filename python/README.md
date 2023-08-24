@@ -1,6 +1,6 @@
 ## Overview
 
-The **gstlearn** Python package is a cross-platform Python package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
+The **gstlearn** Python package is a cross-platform Python package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!
 
 More details for **gstlearn** are available here: https://gstlearn.org
 
@@ -8,7 +8,7 @@ If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module wh
   
 ## References
 
-The *gstlearn* Python package is a Python wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
+The *gstlearn* Python package is a Python wrapper of the [gstlearn C++ Library](https://gstlearn.org).
 
 When using the *gstlearn* Python Package, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
 
@@ -63,7 +63,7 @@ ax.decoration(title="Gaussian random field")
 plt.show()
 ```
 
-Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) directory of the *gstlearn* github repository.
+Some tutorials (Jupyter Notebooks) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
 
 Some tests (Python scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/py) directory of the *gstlearn* github repository.
 

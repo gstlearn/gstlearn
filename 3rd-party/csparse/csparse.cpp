@@ -32,7 +32,7 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 /*
 Modified by MINES PARIS / ARMINES (2023)
 Authors: gstlearn Team
-Website: https://github.com/gstlearn
+Website: https://gstlearn.org
 */
 #include <math.h>
 #include <limits.h>

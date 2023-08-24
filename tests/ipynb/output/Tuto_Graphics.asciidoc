@@ -26,17 +26,18 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 30
 
 Variables
 ---------
-Column = 0 - Name = x-1 - Locator = x1
-Column = 1 - Name = x-2 - Locator = x2
-Column = 2 - Name = z-1 - Locator = z1
-Column = 3 - Name = z-2 - Locator = z2
-Column = 4 - Name = z-3 - Locator = z3----
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = z-3 - Locator = z3----
 
 
 +*Out[5]:*+

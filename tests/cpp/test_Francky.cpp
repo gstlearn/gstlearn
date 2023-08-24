@@ -4,7 +4,7 @@
 /*                                                                            */
 /* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
-/* Website: https://github.com/gstlearn                                       */
+/* Website: https://gstlearn.org                                              */
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
@@ -25,6 +25,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "API/SPDE.hpp"
 
 #include <math.h>
 #include <iostream>
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
 
   // Creating the 2-D Grid
   auto nx = { 101, 101 };
-  DbGrid* workingDbc = DbGrid::create(nx);
+  DbGrid* grid = DbGrid::create(nx);
 
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
@@ -67,34 +68,28 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 40.}, VectorDouble(), {30., 0.});
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   NoStatFunctional NoStat(&spirale);
   model->addNoStat(&NoStat);
 
-  // Creating the Precision Operator for simulating the data at conditioning points
-  MeshETurbo mesh(workingDbc);
-  ShiftOpCs S(&mesh, model, workingDbc);
-  CovAniso* cova = model->getCova(0);
-  PrecisionOp Qsimu(&S, cova);
-
-  // Simulating (Chebyshev) on Data points
-  ProjMatrix B(dat, &mesh);
-  VectorDouble resultSimu = Qsimu.simulateOne();
-  VectorDouble datval(ndata);
-  B.mesh2point(resultSimu, datval);
-  dat->addColumns(datval, "Simu", ELoc::Z);
+  // Simulating variable at data location (using SPDE)
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, 11, 18, 8, 13256, false,
+                      NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 
-  // Testing Kriging
-  kriging(dat,workingDbc,model,neighU);
-  (void) workingDbc->dumpToNF("Grid.ascii");
-  workingDbc->display(&dbfmt);
+  // Testing Kriging (with SPDE). This serves as a reference
+  (void) krigingSPDE(dat, grid, model);
+
+  // Testing Kriging (traditional method)
+  (void) kriging(dat, grid, model, neighU); // TODO: check resemblance with SPDE
+  (void) grid->dumpToNF("Grid.ascii");
+  grid->display(&dbfmt);
 
   message("Test performed successfully\n");
 
   delete dat;
-  delete workingDbc;
+  delete grid;
   delete neighU;
   delete model;
 

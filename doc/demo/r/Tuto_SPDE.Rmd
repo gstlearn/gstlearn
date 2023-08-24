@@ -80,8 +80,7 @@ model = Model_createFromParam(ECov_BESSEL_K(), param=1,range=rangev,sill=sill)
 
 
 ```{r SPDE_simulation, echo=TRUE, eval=TRUE}
-spde = SPDE()
-err  = spde$init(model, field = gridExt, calc = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
+spde = SPDE(model, field = gridExt, calc = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
 
 ```
 
@@ -317,8 +316,7 @@ ggPrint(p)
 # the modelling error is added to the model
 err     = model$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
 
-spdeRes = SPDE()
-err     = spdeRes$init(model, field = gridExt, data = dat, calc = ESPDECalcMode_KRIGING(), mesh = mesh)
+spdeRes = SPDE(model, field = gridExt, data = dat, calc = ESPDECalcMode_KRIGING(), mesh = mesh)
 err     = spdeRes$compute()
 iuid    = spdeRes$query(grid)
 err = grid$setName(old_name = "spde.manual.simu.kriging", name = "spde.kriging")
@@ -428,14 +426,14 @@ print(paste0("Quadratic form: relative difference = ", round((quad_api-quad_chol
 # -----------------------------------------
 # Log-determinant of Q_TT
 a = detQ(cholQ_TT)
-b = pcm$computeLogDetOp(nsimus = nsim, seed = 0)
+b = pcm$computeLogDetOp(nbsimu = nsim, seed = 0)
 print(paste0("log_det_op_chol = ", round(a,4)))
 print(paste0("log_det_op_api  = ", round(b,4)))
 print(paste0("relative difference = ", round((b-a)/a, 4)))
 
 # Log-determinant of Q
 a = detQ(cholQ)
-b = pcm$computeLogDetQ(nsimus = nsim, seed = 0)
+b = pcm$computeLogDetQ(nbsimu = nsim, seed = 0)
 print(paste0("log_det_Q_chol = ", round(a,4)))
 print(paste0("log_det_Q_api = ", round(b,4)))
 print(paste0("relative difference = ", round((b-a)/a,4)))
@@ -454,8 +452,8 @@ print(paste0("relative difference = ", round((b-a)/a,4)))
 # -----------------------------------------
 # computing the logdet using Eq. (23)
 logdet = (detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT))
-# computing the logdet using API (TODO: SPDE$computeLogDet(nbsimus, seed) returns -logdet)
-logdet_api = spdeRes$computeLogDet(nbsimus = nsim, seed = 0)
+# computing the logdet using API (TODO: SPDE$computeLogDet(nbsimu, seed) returns -logdet)
+logdet_api = spdeRes$computeLogDet(nbsimu = nsim, seed = 0)
 print(paste0("log_det_LL_chol = ", round(logdet,4)))
 print(paste0("log_det_LL_api  = ", round(logdet_api,4)))
 print(paste0("relative difference = ", round(logdet_api/logdet-1,4)))
@@ -472,7 +470,7 @@ logdet = detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT)
 y = t(A_d) %*% x
 quad  = as.numeric(1/(tau^2) * (t(x) %*% x - 1/(tau^2) * t(y) %*% solve(cholQ_TT, y, system = "A")))
 a = - 1/2 * (-logdet + quad)
-b = spdeRes$computeLogLike(nbsimus = nsim, seed = 0)
+b = spdeRes$computeLogLike(nbsimu = nsim, seed = 0)
 print(paste0("likelihood api  = ",round(b,4)))
 print(paste0("likelihood_chol = ",round(a,4)))
 print(paste0(round((b/a-1),4)))
@@ -509,8 +507,7 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
   }
   if (!flag.chol) {
     }
-  spde = SPDE()
-  err  = spde$init(field = gridExt, mesh = mesh, model = m, data = dd, calc = cc)
+  spde = SPDE(field = gridExt, mesh = mesh, model = m, data = dd, calc = cc)
   err  = spde$compute()
 
   # using Cholesky decomposition
@@ -524,7 +521,7 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
     ll = - 1/2 * (-logdet + quad)
   }  else {
     # using matrix free approach
-    ll  = spde$computeLogLike(nbsimus = nsim, seed = seed)
+    ll  = spde$computeLogLike(nbsimu = nsim, seed = seed)
   }
   ll
 }
