@@ -46,3 +46,8 @@ jobs:
         username: ${{ secrets.CG_USR }}
         password: ${{ secrets.CG_PWD }}
         repo-path: "/var/www/html/cran"
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: ubuntu-package

@@ -66,7 +66,7 @@ public:
                              const ASpace* space = nullptr);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
-  void addBiTargetCheck(const ABiTargetCheck* abpc);
+  void addBiTargetCheck(ABiTargetCheck* abpc);
 
   bool getFlagSector() const;
   int getNMaxi() const { return _nMaxi; }

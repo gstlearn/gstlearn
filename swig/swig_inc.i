@@ -1,5 +1,6 @@
 %feature(director) IProjMatrix;
-//%feature(director) ABiTargetCheck;
+//%feature(director) ICLoneable;
+%feature(director) ABiTargetCheck;
 
 %include <std_shared_ptr.i>
 

@@ -18,7 +18,7 @@
 
 class Db;
 
-class GSTLEARN_EXPORT ABiTargetCheck: public AStringable, public ICloneable
+class GSTLEARN_EXPORT ABiTargetCheck: public AStringable//, public ICloneable
 {
 public:
   ABiTargetCheck();
@@ -29,5 +29,12 @@ public:
   virtual bool isOK(const SpaceTarget &T1,
                     const SpaceTarget &T2) const = 0;
 
+  // TODO : isValid is not const (should be renamed)
   virtual bool isValid(const Db* dbin, const Db* dbout) { return true; }
+/*
+#ifndef SWIG
+  // Implement clone for permitting director feature
+  virtual ICloneable* clone() const override { return nullptr; } ;
+#endif
+*/
 };
