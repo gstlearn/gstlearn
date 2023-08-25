@@ -108,23 +108,14 @@ Moving Neighborhood
 ===================
 Minimum number of samples           = 1
 Maximum number of samples           = 3
-----
+This is my Max Radius checker: 30 ----
 
 
 +*Out[14]:*+
-----gstlearn.ABiTargetCheck----
+----array([143])----
 
 
 +*Out[15]:*+
 ----
- ----
-
-
-+*Out[16]:*+
-----array([ 23,  75, 143])----
-
-
-+*Out[17]:*+
-----
-![png](output_16_0.png)
+![png](output_14_0.png)
 ----

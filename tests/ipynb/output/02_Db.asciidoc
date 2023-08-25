@@ -54,6 +54,27 @@ Data Base Characteristics
 Data Base Summary
 -----------------
 File is organized as a set of isolated points
+Space dimension              = 0
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 236
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = NA
+Column = 1 - Name = Latitude - Locator = NA
+Column = 2 - Name = Elevation - Locator = NA
+Column = 3 - Name = January_temp - Locator = NA----
+
+
++*Out[7]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 5
 Maximum Number of UIDs       = 5
@@ -68,7 +89,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1----
 
 
-+*Out[7]:*+
++*Out[8]:*+
 ----
 
 Data Base Characteristics
@@ -92,7 +113,7 @@ Column = 4 - Name = January_temp - Locator = z1
  ----
 
 
-+*Out[8]:*+
++*Out[9]:*+
 ----
 
 Data Base Characteristics
@@ -135,7 +156,7 @@ Column = 4 - Name = January_temp - Locator = z1
  ----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----array([[  1. , 372.1, 658.9, 255. ,   1.7],
        [  2. , 303.5, 665.9, 125. ,   2. ],
        [  3. , 218.4, 597.9,   8. ,   4.6],
@@ -145,7 +166,7 @@ Column = 4 - Name = January_temp - Locator = z1
        [236. , 260.8, 668.6, 107. ,   2.6]])----
 
 
-+*Out[10]:*+
++*Out[11]:*+
 ----array([1.7, 2. , 4.6, nan, 3.1, 3.5, 3.4, 3. , 4.9, 2.9, nan, 1.3, nan,
        4. , 1.7, nan, 1.9, 3.3, 2.3, nan, 2.3, 2.6, nan, 2.7, 2.9, nan,
        1. , 1.2, nan, 3.1, nan, 3.7, 2.1, 2.5, 2.9, nan, nan, nan, 3.1,
@@ -167,14 +188,6 @@ Column = 4 - Name = January_temp - Locator = z1
        2.1, 2.6])----
 
 
-+*Out[11]:*+
-----array([[865. ,  37. ],
-       [602.6, 242. ],
-       [835. , 295. ],
-       [933.2,  15. ],
-       [648.8, 183. ]])----
-
-
 +*Out[12]:*+
 ----array([[865. ,  37. ],
        [602.6, 242. ],
@@ -184,26 +197,11 @@ Column = 4 - Name = January_temp - Locator = z1
 
 
 +*Out[13]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 6
-Maximum Number of UIDs       = 6
-Total number of samples      = 236
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = Longitude - Locator = x1
-Column = 2 - Name = Latitude - Locator = x2
-Column = 3 - Name = Elevation - Locator = NA
-Column = 4 - Name = January_temp - Locator = z1
-Column = 5 - Name = newvar - Locator = NA----
+----array([[865. ,  37. ],
+       [602.6, 242. ],
+       [835. , 295. ],
+       [933.2,  15. ],
+       [648.8, 183. ]])----
 
 
 +*Out[14]:*+
@@ -231,17 +229,136 @@ Column = 5 - Name = newvar - Locator = NA----
 
 +*Out[15]:*+
 ----
-![png](output_40_0.png)
-----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 6
+Total number of samples      = 236
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = Longitude - Locator = x1
+Column = 2 - Name = Latitude - Locator = x2
+Column = 3 - Name = Elevation - Locator = NA
+Column = 4 - Name = January_temp - Locator = z1
+ ----
 
 
 +*Out[16]:*+
 ----
-![png](output_42_0.png)
-----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 6
+Total number of samples      = 236
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = Longitude - Locator = x1
+Column = 2 - Name = Latitude - Locator = x2
+Column = 3 - Name = Elevation - Locator = NA
+Column = 4 - Name = January_temp - Locator = z1----
 
 
 +*Out[17]:*+
+----
+![png](output_45_0.png)
+----
+
+
++*Out[18]:*+
+----
+![png](output_47_0.png)
+----
+
+
++*Out[19]:*+
+----
+![png](output_49_0.png)
+----
+
+
++*Out[20]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 6
+Total number of samples      = 236
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        236
+ Nb of active values =        236
+ Minimum value       =      1.000
+ Maximum value       =    236.000
+ Mean value          =    118.500
+ Standard Deviation  =     68.127
+ Variance            =   4641.250
+2 - Name Longitude - Locator x1
+ Nb of data          =        236
+ Nb of active values =        236
+ Minimum value       =     78.200
+ Maximum value       =    460.700
+ Mean value          =    282.487
+ Standard Deviation  =     71.704
+ Variance            =   5141.440
+3 - Name Latitude - Locator x2
+ Nb of data          =        236
+ Nb of active values =        236
+ Minimum value       =    530.400
+ Maximum value       =   1208.900
+ Mean value          =    747.739
+ Standard Deviation  =    121.901
+ Variance            =  14859.915
+4 - Name Elevation - Locator NA
+ Nb of data          =        236
+ Nb of active values =        236
+ Minimum value       =      2.000
+ Maximum value       =    800.000
+ Mean value          =    146.441
+ Standard Deviation  =    165.138
+ Variance            =  27270.713
+5 - Name January_temp - Locator z1
+ Nb of data          =        236
+ Nb of active values =        151
+ Minimum value       =      0.600
+ Maximum value       =      5.200
+ Mean value          =      2.815
+ Standard Deviation  =      1.010
+ Variance            =      1.020
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = Longitude - Locator = x1
+Column = 2 - Name = Latitude - Locator = x2
+Column = 3 - Name = Elevation - Locator = NA
+Column = 4 - Name = January_temp - Locator = z1
+ ----
+
+
++*Out[21]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -269,13 +386,13 @@ Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel----
 
 
-+*Out[18]:*+
++*Out[22]:*+
 ----
-![png](output_49_0.png)
+![png](output_59_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[23]:*+
 ----
-![png](output_51_0.png)
+![png](output_61_0.png)
 ----
