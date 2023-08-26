@@ -2,21 +2,21 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/ABiTargetCheck.hpp>
-#include <Geometry/BiTargetCheckDistance.hpp>
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
 #include "Enum/ENeigh.hpp"
 
+#include "Geometry/ABiTargetCheck.hpp"
+#include "Geometry/BiTargetCheckDistance.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -66,7 +66,7 @@ public:
                              const ASpace* space = nullptr);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
 
-  void addBiTargetCheck(const ABiTargetCheck* abpc);
+  void addBiTargetCheck(ABiTargetCheck* abpc);
 
   bool getFlagSector() const;
   int getNMaxi() const { return _nMaxi; }

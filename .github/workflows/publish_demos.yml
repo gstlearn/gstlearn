@@ -57,3 +57,8 @@ jobs:
         username: ${{ secrets.CG_USR }}
         password: ${{ secrets.CG_PWD }}
         dest-path: "/var/www/html/gstlearn"
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: demos-*

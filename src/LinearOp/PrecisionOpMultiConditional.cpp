@@ -2,10 +2,10 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
@@ -371,8 +371,6 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   }
 
   XtInvSigmaX.solve(XtInvSigmaZ,result);
-
-
 
   return result;
 }

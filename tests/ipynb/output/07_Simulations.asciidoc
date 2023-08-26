@@ -2,55 +2,55 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[8]:*+
+----
+![png](output_11_0.png)
+----
+
+
 +*Out[10]:*+
 ----
-![png](output_13_0.png)
+![png](output_15_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_17_0.png)
+![png](output_19_0.png)
 ----
 
 
-+*Out[14]:*+
++*Out[15]:*+
 ----
-![png](output_21_0.png)
+![png](output_26_0.png)
 ----
 
 
-+*Out[17]:*+
++*Out[18]:*+
 ----
-![png](output_28_0.png)
+![png](output_31_0.png)
 ----
 
 
 +*Out[20]:*+
 ----
-![png](output_33_0.png)
+![png](output_36_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_38_0.png)
+![png](output_40_0.png)
 ----
 
 
-+*Out[24]:*+
++*Out[25]:*+
 ----
-![png](output_42_0.png)
-----
-
-
-+*Out[27]:*+
-----
-![png](output_47_0.png)
+![png](output_45_0.png)
 ----
 
 
-+*Out[30]:*+
++*Out[28]:*+
 ----
-![png](output_52_0.png)
+![png](output_50_0.png)
 ----

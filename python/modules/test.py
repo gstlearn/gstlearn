@@ -2,10 +2,10 @@
 #                                                                              #
 #                         gstlearn Python package                              #
 #                                                                              #
-# Copyright (c) (2023) MINES PARIS / ARMINES                                   #
+# Copyright (c) (2023) MINES Paris / ARMINES                                   #
 # Authors: gstlearn Team                                                       #
 # Website: https://gstlearn.org                                                #
-# License: BSD 3 clauses                                                       #
+# License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
 # This part is meant to distribute (as is) a set of functions written in Python

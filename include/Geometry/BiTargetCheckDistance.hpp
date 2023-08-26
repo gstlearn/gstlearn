@@ -2,17 +2,17 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 #pragma once
 
-#include <Geometry/ABiTargetCheck.hpp>
 #include "gstlearn_export.hpp"
 
+#include "Geometry/ABiTargetCheck.hpp"
 
 class GSTLEARN_EXPORT BiTargetCheckDistance: public ABiTargetCheck
 {

@@ -1,0 +1,121 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[3]:*+
+----
+[cols=",,,,",options="header",]
+|===
+| |Longitude |Latitude |Elevation |January_temp
+|0 |372.1 |658.9 |255 |1.7
+|1 |303.5 |665.9 |125 |2
+|2 |218.4 |597.9 |8 |4.6
+|3 |245.0 |955.0 |90 |MISS
+|4 |326.8 |691.2 |32 |3.1
+|... |... |... |... |...
+|231 |273.2 |564.6 |47 |2.8
+|232 |333.9 |730.1 |30 |2.6
+|233 |185.0 |655.0 |115 |MISS
+|234 |259.8 |587.9 |119 |2.1
+|235 |260.8 |668.6 |107 |2.6
+|===
+
+236 rows × 4 columns
+----
+
+
++*Out[5]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 236
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = x1
+Column = 1 - Name = Latitude - Locator = x2
+Column = 2 - Name = Elevation - Locator = NA
+Column = 3 - Name = January_temp - Locator = z1----
+
+
++*Out[6]:*+
+----
+![png](output_5_0.png)
+----
+
+
++*Out[7]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 10400
+
+Grid characteristics:
+---------------------
+Origin :     28.200   480.400
+Mesh   :      6.108     6.035
+Number :         80       130
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2----
+
+
++*Out[8]:*+
+XXX
+![png](output_7_1.png)
+----
+
+
++*Out[9]:*+
+----
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 3
+Maximum horizontal distance         = 30----
+
+
++*Out[10]:*+
+----array([143])----
+
+
++*Out[11]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[13]:*+
+----
+
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 3
+This is my Max Radius checker: 30 ----
+
+
++*Out[14]:*+
+----array([143])----
+
+
++*Out[15]:*+
+----
+![png](output_14_0.png)
+----

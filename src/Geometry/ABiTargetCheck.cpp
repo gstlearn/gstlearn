@@ -2,15 +2,15 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/ABiTargetCheck.hpp>
 #include "geoslib_f.h"
 
+#include "Geometry/ABiTargetCheck.hpp"
 
 ABiTargetCheck::ABiTargetCheck()
     : AStringable()

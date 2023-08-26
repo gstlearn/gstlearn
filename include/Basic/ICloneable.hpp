@@ -2,10 +2,10 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 #pragma once
@@ -31,7 +31,7 @@ public:
 // https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
 #define IMPLEMENT_CLONING(Class)                   \
 public:                                            \
-  inline virtual Class* clone() const override     \
+  inline virtual Class* clone() const /*override*/ \
   {                                                \
     static_assert(                                 \
       ! std::is_abstract<Class>::value,            \

@@ -2,18 +2,18 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[5]:*+
+----
+![png](output_8_0.png)
+----
+
+
 +*Out[7]:*+
-----
-![png](output_10_0.png)
-----
-
-
-+*Out[9]:*+
 ----array([[  78.2,  460.7],
        [ 530.4, 1208.9]])----
 
 
-+*Out[10]:*+
++*Out[8]:*+
 ----
 
 Data Base Grid Characteristics
@@ -32,57 +32,71 @@ Column = 2 - Name = x2 - Locator = x2
  ----
 
 
-+*Out[12]:*+
++*Out[10]:*+
 ----
-![png](output_20_0.png)
-----
-
-
-+*Out[13]:*+
+![png](output_18_0.png)
 ----
 
+
++*Out[11]:*+
+----
 Data Base Grid Characteristics
 ==============================
 
-Data Base Extension
--------------------
-Coor #1 - Min =     65.000 - Max =    455.123 - Ext = 390.123
-Coor #2 - Min =    535.000 - Max =   1200.109 - Ext = 665.109
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 11097
+Number of active samples     = 3092
+
+Grid characteristics:
+---------------------
+Origin :     65.000   535.000
+Mesh   :      4.938     4.963
+Number :         81       137
 
 Variables
 ---------
 Column = 0 - Name = Longitude - Locator = x1
 Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = f1
-Column = 3 - Name = inshore - Locator = sel
- ----
+Column = 3 - Name = inshore - Locator = sel----
 
 
-+*Out[15]:*+
++*Out[13]:*+
+----
+![png](output_24_0.png)
+----
+
+
++*Out[14]:*+
 ----
 ![png](output_26_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[17]:*+
 ----
-![png](output_28_0.png)
+![png](output_32_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
 ![png](output_34_0.png)
 ----
 
 
-+*Out[20]:*+
++*Out[19]:*+
 ----
 ![png](output_36_0.png)
 ----
 
 
-+*Out[21]:*+
++*Out[20]:*+
 ----
 ![png](output_38_0.png)
 ----
@@ -90,23 +104,17 @@ Column = 3 - Name = inshore - Locator = sel
 
 +*Out[22]:*+
 ----
-![png](output_40_0.png)
+![png](output_42_0.png)
 ----
 
 
-+*Out[24]:*+
++*Out[23]:*+
 ----
 ![png](output_44_0.png)
 ----
 
 
-+*Out[25]:*+
-----
-![png](output_46_0.png)
-----
-
-
-+*Out[26]:*+
++*Out[24]:*+
 ----
 -0.0042
 0.2394
@@ -114,49 +122,55 @@ Column = 3 - Name = inshore - Locator = sel
 ----
 
 
-+*Out[27]:*+
++*Out[25]:*+
+----
+![png](output_48_0.png)
+----
+
+
++*Out[26]:*+
 ----
 ![png](output_50_0.png)
 ----
 
 
-+*Out[28]:*+
++*Out[27]:*+
 ----
-![png](output_52_0.png)
-----
-
-
-+*Out[31]:*+
-----
-![png](output_58_0.png)
+![png](output_51_0.png)
 ----
 
 
-+*Out[34]:*+
++*Out[30]:*+
 ----
-![png](output_64_0.png)
+![png](output_57_0.png)
+----
+
+
++*Out[33]:*+
+----
+![png](output_63_0.png)
+----
+
+
++*Out[36]:*+
+----
+![png](output_70_0.png)
 ----
 
 
 +*Out[37]:*+
 ----
-![png](output_71_0.png)
+![png](output_72_0.png)
 ----
 
 
 +*Out[38]:*+
 ----
-![png](output_73_0.png)
+![png](output_74_0.png)
 ----
 
 
 +*Out[39]:*+
 ----
-![png](output_75_0.png)
-----
-
-
-+*Out[40]:*+
-----
-![png](output_77_0.png)
+![png](output_76_0.png)
 ----

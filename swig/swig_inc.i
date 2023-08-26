@@ -1,4 +1,6 @@
 %feature(director) IProjMatrix;
+//%feature(director) ICLoneable;
+%feature(director) ABiTargetCheck;
 
 %include <std_shared_ptr.i>
 
@@ -261,7 +263,6 @@
   #include "Basic/Limits.hpp"
   #include "Basic/Utilities.hpp"
   #include "Basic/CSVformat.hpp"
-  #include "Basic/AFunctional.hpp"
   #include "Basic/FunctionalSpirale.hpp"
   #include "Basic/NamingConvention.hpp"
   #include "Basic/OptDbg.hpp"

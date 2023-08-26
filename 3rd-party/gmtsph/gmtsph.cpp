@@ -42,7 +42,7 @@ License: LGPL v3
  */
 
 /*
-Modified by MINES PARIS / ARMINES (2023)
+Modified by MINES Paris / ARMINES (2023)
 Authors: gstlearn Team
 Website: https://gstlearn.org
 */

@@ -1,9 +1,9 @@
 ################################################################################
 #                                                                              #
 #                         gstlearn Python package                              #
-# Copyright (c) (2023) MINES PARIS / ARMINES                                   #
+# Copyright (c) (2023) MINES Paris / ARMINES                                   #
 # Authors: gstlearn Team                                                       #
-# License: BSD 3 clauses                                                       #
+# License: BSD 3-clause                                                        #
 #                                                                              #
 ################################################################################
 import matplotlib.pyplot     as plt
@@ -736,10 +736,10 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
         if not flagCst:
             if flagAbsSize:
                 sizval = np.absolute(sizval)
-            m = np.nanmin(np.absolute(sizval))
-            M = np.nanmax(np.absolute(sizval))
+            m = np.nanmin(sizval)
+            M = np.nanmax(sizval)
             if M > m:
-                sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
+                sizval = (sizmax - sizmin) * (sizval - m) / (M - m) + sizmin
                 
             name = name + ' ' + name_size
         else:

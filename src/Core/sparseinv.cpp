@@ -3,7 +3,7 @@
 
 Original Author: Timothy Davis
 Website: http://www.suitesparse.com
-License: BSD 3 clauses (see doc/licenses/sparseinv_license.txt)
+License: BSD 3-clause  (see doc/licenses/sparseinv_license.txt)
 */
 
 /* sparsinv: computes the sparse inverse subset, using Takahashi's equations.
@@ -30,10 +30,10 @@ License: BSD 3 clauses (see doc/licenses/sparseinv_license.txt)
  */
 
 /*
-Modified by MINES PARIS / ARMINES (2023)
+Modified by MINES Paris / ARMINES (2023)
 Authors: gstlearn Team
-Website: https://gstlearn.org       
-License: BSD 3 clause
+Website: https://gstlearn.org
+License: BSD 3-clause
 */
 
 #include "geoslib_old_f.h"

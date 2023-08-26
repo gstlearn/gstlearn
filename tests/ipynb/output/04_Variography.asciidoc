@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -27,6 +27,12 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Cloud.January_temp - Locator = NA----
+
+
++*Out[5]:*+
+----
+![png](output_10_0.png)
+----
 
 
 +*Out[7]:*+
@@ -92,8 +98,8 @@ For variable 1
 
 
 +*Out[8]:*+
-----
-![png](output_16_0.png)
+----<AxesSubplot:>
+![png](output_16_1.png)
 ----
 
 
@@ -261,7 +267,33 @@ Total Sill     =      1.457----
 
 +*Out[21]:*+
 ----
-![png](output_42_0.png)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1681
+
+Grid characteristics:
+---------------------
+Origin :   -382.500  -678.500
+Mesh   :     19.125    33.925
+Number :         41        41
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = VMAP.January_temp.Var - Locator = z1
+Column = 4 - Name = VMAP.January_temp.Nb - Locator = NA
+ 
+![png](output_42_1.png)
 ----
 
 
@@ -292,7 +324,34 @@ Total Sill     =      1.200----
 
 +*Out[23]:*+
 ----
-![png](output_46_0.png)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 1681
+
+Grid characteristics:
+---------------------
+Origin :   -382.500  -678.500
+Mesh   :     19.125    33.925
+Number :         41        41
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = VMAP.January_temp.Var - Locator = NA
+Column = 4 - Name = VMAP.January_temp.Nb - Locator = NA
+Column = 5 - Name = VMAP.Model - Locator = z1
+ 
+![png](output_46_1.png)
 ----
 
 

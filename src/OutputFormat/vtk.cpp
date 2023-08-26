@@ -45,10 +45,10 @@ License: see doc/licenses/vtk_license.txt
  *****************************************************************************/
 
 /*
-Modified by MINES PARIS / ARMINES (2023)
+Modified by MINES Paris / ARMINES (2023)
 Authors: gstlearn Team
-Website: https://gstlearn.org       
-License: BSD 3 clause
+Website: https://gstlearn.org
+License: BSD 3-clause
 */
 
  

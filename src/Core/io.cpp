@@ -2,10 +2,10 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_enum.h"
@@ -1205,25 +1205,4 @@ void print_range(const char *title, int ntab, double *tab, double *sel)
     message("%lf", stats.maxi);
   message(" (%d/%d)\n", stats.nvalid, ntab);
   return;
-}
-
-/****************************************************************************/
-/*!
- **  Dump a vector of real values in a file
- **  (used for debugging)
- **
- ** \param[in]  ntab     Number of values to be dumped
- ** \param[in]  tab      Vector of values to be dumped out
- **
- *****************************************************************************/
-void file_dump(int ntab, double *tab)
-{
-  FILE *file;
-  char Local[] = "/home/drenard/Bureau/Dump_trunk";
-
-  file = _file_open(Local, NEW);
-  if (file == nullptr) return;
-  for (int i = 0; i < ntab; i++)
-    fprintf(file, "%d %30.20lf\n", i + 1, tab[i]);
-  fclose(file);
 }

@@ -2,10 +2,10 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
 #include <Geometry/BiTargetCheckCell.hpp>
@@ -69,7 +69,8 @@ NeighMoving::NeighMoving(const NeighMoving& r)
 {
   int number = _getBiPtsNumber();
   for (int ipt = 0; ipt < number; ipt++)
-    _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+    //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+    _bipts.push_back(r._bipts[ipt]);
 }
 
 NeighMoving& NeighMoving::operator=(const NeighMoving& r)
@@ -92,16 +93,19 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
 
     int number = _getBiPtsNumber();
     for (int ipt = 0; ipt < number; ipt++)
-      _bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+      //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
+      _bipts.push_back(r._bipts[ipt]);
    }
   return *this;
 }
 
 NeighMoving::~NeighMoving()
 {
+  /*
   int number = _getBiPtsNumber();
   for (int ipt = 0; ipt < number; ipt++)
     delete _bipts[ipt];
+    */
 }
 
 String NeighMoving::toString(const AStringFormat* strfmt) const
@@ -277,9 +281,10 @@ int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
   return (getFlagSector()) ? _nSect * _nSMax : _nMaxi;
 }
 
-void NeighMoving::addBiTargetCheck(const ABiTargetCheck* abpc)
+void NeighMoving::addBiTargetCheck(ABiTargetCheck* abpc)
 {
-  _bipts.push_back(dynamic_cast<ABiTargetCheck*>(abpc->clone()));
+  //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(abpc->clone()));
+  _bipts.push_back(abpc);
 }
 
 bool NeighMoving::getFlagSector() const

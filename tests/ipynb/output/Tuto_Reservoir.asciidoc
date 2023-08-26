@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 Data Base Characteristics
 =========================
@@ -25,7 +25,7 @@ Column = 4 - Name = bot - Locator = NA
 Column = 5 - Name = appraisal - Locator = NA----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 
 Data Base Characteristics
@@ -106,19 +106,19 @@ Column = 5 - Name = appraisal - Locator = NA
  ----
 
 
++*Out[5]:*+
+----
+![png](output_9_0.png)
+----
+
+
 +*Out[6]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
 +*Out[7]:*+
-----
-![png](output_12_0.png)
-----
-
-
-+*Out[8]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -144,25 +144,25 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
-![png](output_16_0.png)
+![png](output_15_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_23_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_24_0.png)
+![png](output_26_0.png)
 ----
 
 
 +*Out[12]:*+
-----
-![png](output_27_0.png)
-----
-
-
-+*Out[13]:*+
 ----
 Model characteristics
 =====================
@@ -185,25 +185,25 @@ Spherical
 Total Sill     =    157.461----
 
 
++*Out[13]:*+
+----
+![png](output_30_0.png)
+----
+
+
 +*Out[14]:*+
 ----
-![png](output_31_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_34_0.png)
+![png](output_35_0.png)
 ----
 
 
 +*Out[16]:*+
-----
-![png](output_36_0.png)
-----
-
-
-+*Out[17]:*+
 ----
 Model characteristics
 =====================
@@ -235,25 +235,25 @@ Exponential
 Total Sill     =    115.190----
 
 
++*Out[17]:*+
+----
+![png](output_39_0.png)
+----
+
+
 +*Out[18]:*+
 ----
-![png](output_40_0.png)
+![png](output_42_0.png)
 ----
 
 
 +*Out[19]:*+
 ----
-![png](output_43_0.png)
+![png](output_44_0.png)
 ----
 
 
 +*Out[20]:*+
-----
-![png](output_45_0.png)
-----
-
-
-+*Out[21]:*+
 ----
 Model characteristics
 =====================
@@ -276,21 +276,27 @@ Spherical
 Total Sill     =    124.911----
 
 
-+*Out[22]:*+
++*Out[21]:*+
 ----
-![png](output_49_0.png)
+![png](output_48_0.png)
+----
+
+
++*Out[24]:*+
+----
+![png](output_55_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_56_0.png)
+![png](output_57_0.png)
 ----
 
 
-+*Out[26]:*+
++*Out[27]:*+
 ----
-![png](output_58_0.png)
+![png](output_61_0.png)
 ----
 
 
@@ -300,9 +306,9 @@ Total Sill     =    124.911----
 ----
 
 
-+*Out[29]:*+
++*Out[30]:*+
 ----
-![png](output_63_0.png)
+![png](output_65_0.png)
 ----
 
 
@@ -312,49 +318,43 @@ Total Sill     =    124.911----
 ----
 
 
-+*Out[32]:*+
++*Out[33]:*+
 ----
-![png](output_67_0.png)
+![png](output_70_0.png)
 ----
 
 
 +*Out[34]:*+
 ----
-![png](output_71_0.png)
+![png](output_72_0.png)
 ----
 
 
-+*Out[35]:*+
++*Out[36]:*+
 ----
-![png](output_73_0.png)
+![png](output_76_0.png)
 ----
 
 
 +*Out[37]:*+
 ----
-![png](output_77_0.png)
+![png](output_78_0.png)
 ----
 
 
-+*Out[38]:*+
++*Out[39]:*+
 ----
-![png](output_79_0.png)
+![png](output_81_0.png)
 ----
 
 
 +*Out[40]:*+
 ----
-![png](output_82_0.png)
+![png](output_83_0.png)
 ----
 
 
 +*Out[41]:*+
-----
-![png](output_84_0.png)
-----
-
-
-+*Out[42]:*+
 ----
 
 
@@ -362,55 +362,55 @@ Total Sill     =    124.911----
 ----
 
 
++*Out[43]:*+
+----
+![png](output_90_0.png)
+----
+
+
 +*Out[44]:*+
 ----
-![png](output_91_0.png)
+![png](output_92_0.png)
 ----
 
 
 +*Out[45]:*+
 ----
-![png](output_93_0.png)
+![png](output_96_0.png)
 ----
 
 
 +*Out[46]:*+
 ----
-![png](output_97_0.png)
+![png](output_98_0.png)
 ----
 
 
 +*Out[47]:*+
 ----
-![png](output_99_0.png)
+![png](output_100_0.png)
 ----
 
 
-+*Out[48]:*+
++*Out[49]:*+
 ----
-![png](output_101_0.png)
+![png](output_105_0.png)
 ----
 
 
-+*Out[50]:*+
++*Out[51]:*+
 ----
-![png](output_106_0.png)
+![png](output_109_0.png)
 ----
 
 
 +*Out[52]:*+
 ----
-![png](output_110_0.png)
+![png](output_112_0.png)
 ----
 
 
-+*Out[53]:*+
-----
-![png](output_113_0.png)
-----
-
-
-+*Out[55]:*+
++*Out[54]:*+
 ----
 Model characteristics
 =====================
@@ -452,19 +452,19 @@ Total Sill
 ----
 
 
-+*Out[56]:*+
++*Out[55]:*+
 ----
-![png](output_121_0.png)
-----
-
-
-+*Out[58]:*+
-----
-![png](output_126_0.png)
+![png](output_120_0.png)
 ----
 
 
-+*Out[60]:*+
++*Out[57]:*+
+----
+![png](output_125_0.png)
+----
+
+
++*Out[59]:*+
 ----
 [[XXX]]
 ----

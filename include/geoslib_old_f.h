@@ -2,10 +2,10 @@
 /*                                                                            */
 /*                            gstlearn C++ Library                            */
 /*                                                                            */
-/* Copyright (c) (2023) MINES PARIS / ARMINES                                 */
+/* Copyright (c) (2023) MINES Paris / ARMINES                                 */
 /* Authors: gstlearn Team                                                     */
 /* Website: https://gstlearn.org                                              */
-/* License: BSD 3 clauses                                                     */
+/* License: BSD 3-clause                                                      */
 /******************************************************************************/
 #pragma once
 
@@ -213,7 +213,6 @@ GSTLEARN_EXPORT void string_strip_quotes(char *string);
 GSTLEARN_EXPORT char * strsep(char **stringp, const char* delim);
 #endif
 GSTLEARN_EXPORT void print_current_line(void);
-GSTLEARN_EXPORT void file_dump(int ntab, double *tab);
 
 /*****************************************/
 /* Prototyping the functions in memory.c */
