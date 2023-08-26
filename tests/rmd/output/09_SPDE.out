@@ -1,0 +1,127 @@
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 236
+Number of active samples     = 151
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = Longitude - Locator = x1
+Column = 2 - Name = Latitude - Locator = x2
+Column = 3 - Name = Elevation - Locator = f1
+Column = 4 - Name = January_temp - Locator = z1
+Column = 5 - Name = NewSel - Locator = sel
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 11097
+Number of active samples     = 3092
+
+Grid characteristics:
+---------------------
+Origin :     65.000   535.000
+Mesh   :      4.938     4.963
+Number :         81       137
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = x1
+Column = 1 - Name = Latitude - Locator = x2
+Column = 2 - Name = Elevation - Locator = f1
+Column = 3 - Name = inshore - Locator = sel
+NULL
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     1.020
+
+Direction #1
+------------
+Number of lags              = 18
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =     25.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    78.000     7.681     0.137
+         1   512.000    26.905     0.376
+         2   915.000    50.556     0.614
+         3  1135.000    74.820     0.855
+         4  1285.000   100.070     0.935
+         5  1190.000   124.927     1.050
+         6  1117.000   149.550     1.099
+         7  1004.000   175.060     1.218
+         8   924.000   199.603     1.175
+         9   769.000   224.493     1.502
+        10   594.000   249.105     1.377
+        11   438.000   274.605     1.316
+        12   363.000   298.685     1.071
+        13   236.000   323.920     1.190
+        14   153.000   349.725     1.321
+        15   105.000   373.088     1.219
+        16    76.000   399.464     0.802
+        17    58.000   426.095     0.677
+NULL
+NULL
+[1] 0
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     0.363
+
+Direction #1
+------------
+Number of lags              = 18
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =     25.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0    78.000     7.681     0.102
+         1   512.000    26.905     0.163
+         2   915.000    50.556     0.211
+         3  1135.000    74.820     0.264
+         4  1285.000   100.070     0.265
+         5  1190.000   124.927     0.321
+         6  1117.000   149.550     0.363
+         7  1004.000   175.060     0.444
+         8   924.000   199.603     0.466
+         9   769.000   224.493     0.547
+        10   594.000   249.105     0.561
+        11   438.000   274.605     0.582
+        12   363.000   298.685     0.472
+        13   236.000   323.920     0.565
+        14   153.000   349.725     0.424
+        15   105.000   373.088     0.345
+        16    76.000   399.464     0.410
+        17    58.000   426.095     0.411
+NULL
