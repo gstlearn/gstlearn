@@ -1581,10 +1581,12 @@ bool cs_isSymmetric(const cs *A, bool verbose, bool detail)
   }
 
   if (verbose) message("Testing if Matrix is Symmetric:\n");
-  // TODO : convert into triplets then parse only defined values of the upper triangle
+  // Test is performed on half matrix, excluding the diagonal.
+  // Test is kept on all elements (defined or not) in order to check that a defined element in upper triangle
+  // is also defined in the lower triangle
   int numError = 0;
   for (int irow = 0; irow < nrows; irow++)
-    for (int icol = irow; icol < ncols; icol++)
+    for (int icol = irow; icol < irow; icol++)
     {
       double aij = cs_get_value(A, irow, icol);
       double aji = cs_get_value(A, icol, irow);

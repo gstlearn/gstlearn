@@ -143,9 +143,9 @@ void PrecisionOpCs::evalInvVect(VectorDouble& in, VectorDouble& result)
   _qChol.evalInverse(in, result);
 }
 
-double PrecisionOpCs::computeLogDet(int nsimus, int seed)
+double PrecisionOpCs::computeLogDet(int nbsimu, int seed)
 {
-  DECLARE_UNUSED(nsimus);
+  DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
   return _qChol.computeLogDet();

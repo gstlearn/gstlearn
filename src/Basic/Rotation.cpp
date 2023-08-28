@@ -71,7 +71,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
     _rotMat = rotmat;
     GH::rotationGetAnglesInPlace(local, _angles);
     _directToInverse();
-    _checkRot();
+    _checkRotForIdentity();
   }
   return 0;
 }
@@ -86,7 +86,7 @@ int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
     _rotMat.setValues(rotmat);
     GH::rotationGetAnglesInPlace(_nDim, rotmat.data(), _angles.data());
     _directToInverse();
-    _checkRot();
+    _checkRotForIdentity();
   }
   return 0;
 }
@@ -108,7 +108,7 @@ int Rotation::setAngles(const VectorDouble& angles)
     GH::rotationMatrixInPlace(_nDim, _angles, local);
     _rotMat.setValues(local);
     _directToInverse();
-    _checkRot();
+    _checkRotForIdentity();
   }
   return 0;
 }
@@ -119,7 +119,7 @@ void Rotation::setIdentity()
     VH::fill(_angles,0.);
   _rotMat.setIdentity();
   _rotInv.setIdentity();
-  _checkRot();
+  _checkRotForIdentity();
 }
 
 String Rotation::toString(const AStringFormat* strfmt) const
@@ -185,7 +185,7 @@ void Rotation::_inverseToDirect()
   }
 }
 
-void Rotation::_checkRot()
+void Rotation::_checkRotForIdentity()
 {
   if (_rotMat.isIdentity())
     _flagRot = false;

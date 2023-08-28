@@ -247,7 +247,7 @@ Column = 5 - Name = Thickness - Locator = z1
 Column = 6 - Name = Duplicate - Locator = sel----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -290,7 +290,7 @@ Column = 8 - Name = angles1 - Locator = nostat1
 Column = 9 - Name = spde.Thickness.kriging - Locator = z1----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 XXX
-![png](output_21_1.png)
+![png](output_20_1.png)
 ----

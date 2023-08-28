@@ -13,6 +13,6 @@ if (BUILD_R)
   list(APPEND BUILD_DEP build_demos_r)
 endif()
 
-add_dependencies(build_demos ${BUILD_DEP})
-
-
+if (BUILD_PYTHON OR BUILD_R)
+  add_dependencies(build_demos ${BUILD_DEP})
+endif()

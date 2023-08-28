@@ -31,20 +31,19 @@ public:
 
   virtual ~PrecisionOpMultiConditional();
 
-  virtual double computeLogDetOp(int nsimus = 1, int seed = 123) const;
-  virtual void push_back(PrecisionOp *pmatElem,
-                         IProjMatrix *projDataElem = nullptr);
+  virtual double computeLogDetOp(int nbsimu = 1, int seed = 123) const;
+  virtual void push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
 
   VectorDouble getAllVarianceData() const {return _varianceData;}
   double getVarianceData(int iech)const {return  _varianceData[iech];}
   void setVarianceData(double nugg){ _varianceData = VectorDouble(_ndat,nugg);}
   void setVarianceDataVector(const VectorDouble& nugg){_varianceData = nugg;}
-  /*!  Returns the dimension of the matrix */
   int  sizes() const override { return static_cast<int> (_multiPrecisionOp.size()); }
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
   VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
   void computeRhsInPlace(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
-  void simulateOnMeshing(VectorDouble& gauss,VectorVectorDouble& result,int icov = 0) const;
+  void simulateOnMeshings(VectorVectorDouble &result) const;
+  void simulateOnMeshing(VectorDouble& result,int icov = 0) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
   void evalInvCov(const VectorDouble& inv, VectorDouble& result) const;
   std::pair<double,double> computeRangeEigenVal() const;
@@ -52,8 +51,8 @@ public:
   double getMaxEigenValProj() const;
   double sumLogVar() const;
 
-  double computeLogDetQ(int nsimus = 1, int seed = 123) const;
-  double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
+  double computeLogDetQ(int nbsimu = 1, int seed = 123) const;
+  double computeTotalLogDet(int nbsimu = 1, int seed = 123) const;
   double computeQuadratic(const VectorDouble& x) const;
   void preparePoly(Chebychev& logPoly) const;
   void AtA(const VectorVectorDouble& inv,VectorVectorDouble& outv) const;
@@ -61,8 +60,7 @@ public:
   const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*)_multiProjData[i];}
 
 protected:
-  void _evalDirect(const VectorVectorDouble& inv,
-                   VectorVectorDouble& outv) const override;
+  void _evalDirect(const VectorVectorDouble& inv, VectorVectorDouble& outv) const override;
   void _allocate(int i) const;
 
 private:

@@ -178,8 +178,9 @@ int _migrate(Db *db1,
              int iatt2,
              int ldmax,
              const VectorDouble &dmax,
-             int flag_fill,
-             int flag_inter);
+             bool flag_fill,
+             bool flag_inter,
+             bool flag_ball = false);
 
 /***************************************/
 /* Prototyping the functions in anam.c */

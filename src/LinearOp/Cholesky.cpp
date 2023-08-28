@@ -72,10 +72,6 @@ int Cholesky::reset(const cs* mat, bool flagDecompose)
   // Clear the already existing contents
   _clean();
 
-  // Check that the input matrix is square and symmetric
-  // TODO : this function needs to be optimized
-  //if (! cs_isSymmetric(mat)) return 1;
-
   // Duplicate the sparse matrix
   _mat = mat;
 

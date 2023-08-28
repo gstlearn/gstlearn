@@ -9,15 +9,18 @@ import matplotlib.pyplot as plt
 from attr._make import NOTHING
 from pandas.core.sorting import nargsort
 from pandas.core.indexing import check_deprecated_indexers
+from numpy.core.defchararray import isnumeric
 
-def invalid(ranks, number):
-    last = number - 1
-    for rank in ranks:
-        if int(rank) > last:
-            print("Incorrect 'rank' argument (",int(rank),"): it should be smaller than",number)
-            return True
-    return False
-
+def getVariableNames(db, ranks):
+    names = []
+    for i in ranks:
+        if isnumeric(i):
+            name = db.getNameByColIdx(int(i))
+        else:
+            name = i
+        names.append(name)
+    return names
+    
 def checkValidPointer(pointer):
     if not pointer:
         print(" ")
@@ -48,17 +51,17 @@ filetaux = gl.ASerializable.getFileIdentity(fileaux)
 if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)
     checkValidPointer(db)
-    if invalid(ranks, db.getColumnNumber()): 
-        exit()
+    if len(ranks) > 0:
+        varnames = getVariableNames(db, ranks)
     if len(ranks) == 0:
         name = db.getLastName()
         flagDb = True
     elif len(ranks) == 1:
-        name = db.getNameByColIdx(int(ranks[0]))
+        name = varnames[0]
         flagDb = True
     elif len(ranks) == 2:
-        nameX = db.getNameByColIdx(int(ranks[0]))
-        nameY = db.getNameByColIdx(int(ranks[1]))
+        nameX = varnames[0]
+        nameY = varnames[1]
         flagDb = False
     else:
         print("Number of Variable ranks should be 0, 1 or 2")
@@ -74,16 +77,17 @@ if filetype == "Db":
 elif filetype == "DbGrid":
     dbgrid = gl.DbGrid.createFromNF(filename,False)
     checkValidPointer(dbgrid)
-    if invalid(ranks, dbgrid.getColumnNumber()): exit()
+    if len(ranks) > 0:
+        varnames = getVariableNames(dbgrid, ranks)
     if len(ranks) == 0:
         name = dbgrid.getLastName()
         flagDb = True
     elif len(ranks) == 1:
-        name = dbgrid.getNameByColIdx(int(ranks[0]))
+        name = varnames[0]
         flagDb = True
     elif len(ranks) == 2:
-        nameX = dbgrid.getNameByColIdx(int(ranks[0]))
-        nameY = dbgrid.getNameByColIdx(int(ranks[1]))
+        nameX = varnames[0]
+        nameY = varnames[1]
         flagDb = False
     else:
         print("Number of Variable rank should be 0 or 1")
@@ -137,7 +141,6 @@ elif filetype == "Rule":
 elif filetype == "Table":
     table = gl.Table.createFromNF(filename,False)
     checkValidPointer(table)
-    if invalid(ranks, table.getNCols()): exit()
     ax = gp.table(table,ranks)
     ax.decoration(title=filename)
     plt.show()

@@ -54,8 +54,7 @@ public:
   virtual double getMeshSize(int imesh) const = 0;
 #ifndef SWIG
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
-  virtual cs* getMeshToDb(const Db *db,
-                          bool verbose = false) const = 0;
+  virtual cs* getMeshToDb(const Db *db, bool verbose = false) const = 0;
 #endif
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }
@@ -103,10 +102,9 @@ public:
   double getCenterCoordinate(int imesh, int idim) const;
   VectorVectorDouble getAllCenterCoordinates() const;
 
-  /// TODO : replace by VectorVectorInt ?
-  std::vector<VectorInt> getNeighborhoodPerMesh() const;
-  std::vector<VectorInt> getNeighborhoodPerApex() const;
-  void dumpNeighborhood(std::vector<VectorInt>& Vmesh);
+  VectorVectorInt getNeighborhoodPerMesh() const;
+  VectorVectorInt getNeighborhoodPerApex() const;
+  void dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max = 1);
 
 protected:
   void _setNDim(int ndim) { _nDim = ndim; }

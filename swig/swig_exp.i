@@ -355,6 +355,9 @@
 
 %include Skin/Skin.hpp
 
+%include Tree/Ball.hpp
+%include Tree/KNN.hpp
+
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511
 #pragma SWIG nowarn=506

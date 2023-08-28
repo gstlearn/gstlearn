@@ -59,19 +59,19 @@ void SpaceSN::move(SpacePoint &p1, const VectorDouble &vec) const
 double SpaceSN::getDistance(const SpacePoint &p1, const SpacePoint &p2) const
 {
   double long1 = p1.getCoord(0);
-  double lat1 = p1.getCoord(1);
+  double lat1  = p1.getCoord(1);
   double long2 = p2.getCoord(0);
-  double lat2 = p2.getCoord(1);
-  double dist = GH::geodeticAngularDistance(long1, lat1, long2, lat2, _radius);
+  double lat2  = p2.getCoord(1);
+  double dist  = GH::geodeticAngularDistance(long1, lat1, long2, lat2, _radius);
   return dist;
 }
 
-double SpaceSN::getDistance(const SpacePoint& /*p1*/,
-                            const SpacePoint& /*p2*/,
+double SpaceSN::getDistance(const SpacePoint& p1,
+                            const SpacePoint& p2,
                             const Tensor& /*tensor*/) const
 {
-  /// TODO : SpaceSN::getDistance
-  return 0.;
+  return GH::geodeticAngularDistance(p1.getCoord(0), p1.getCoord(1),
+                                     p2.getCoord(0), p2.getCoord(1), _radius);
 }
 
 double SpaceSN::getFrequentialDistance(const SpacePoint& /*p1*/,
@@ -96,4 +96,3 @@ String SpaceSN::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Sphere Radius   = " << _radius << std::endl;
   return sstr.str();
 }
-

@@ -1,0 +1,154 @@
+---
+title: "SPDE with gstlearn"
+author: "gstlearn Team"
+output: pdf_document
+---
+
+```{r setup,include=FALSE, fig.show='hide'}
+knitr::opts_chunk$set(fig.width=4, fig.height=4, 
+                      out.width="50%",
+                      fig.align = "center") 
+```
+
+
+In this preamble, we load the **gstlearn** library, clean the workspace.
+
+```{r loading_library, message=FALSE}
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+Getting the Data Bases from the repository.
+
+The input Data Base (called **temperatures**) contains the target variable (**January_temp**). Note that this data base also contains the elevation variable (called **Elevation**) which is assigned the locator **f** (for external drift). We finally add a selection (called **sel**) which only consider the samples where the temperature is actually calculated.
+
+```{r Loading_Data}
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+fileNF = "Scotland_Temperatures.NF"
+download.file(dlfile, fileNF)
+temperatures = Db_createFromNF(fileNF)
+temperatures$setLocator("Elevation", ELoc_F())
+iuid = temperatures$addSelection(as.numeric(! is.na(temperatures["J*"])))
+temperatures$display()
+```
+
+The output file is a grid (called grid). It contains an active selection (inshore) as well as the elevation over the field (called Elevation). Note that this variable is assigned the locator f (external drift).
+
+```{r Loading_Grid}
+dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+fileNF = "Scotland_Elevations.NF"
+download.file(dlfile, fileNF)
+grid = DbGrid_createFromNF(fileNF)
+grid$display()
+```
+
+Calculate the omni-directional variogram of the temperature for 18 lags of 25.
+
+```{r Preamble,message=FALSE, fig.show='hide'}
+vparam = VarioParam_createOmniDirection(npas=18, dpas=25)
+vario = Vario(vparam,temperatures)
+err = vario$compute()
+vario$display()
+```
+
+```{r}
+p = ggDefault()
+p = p + plot.varmod(vario)
+p = p + plot.decoration(title="Variogram of Temperature (Raw)")
+ggPrint(p)
+```
+
+We calculate the variogram (using the same calculation parameters) based on the residuals after a trend has been removed. This trend is considered as a linear combinaison of the external drift information.
+
+```{r}
+vparam = VarioParam_createOmniDirection(npas=18, dpas=25)
+vario = Vario(vparam,temperatures)
+md = Model()
+md$setDriftIRF(order=0, nfex=1)
+vario$compute(model=md)
+vario$display()
+```
+
+```{r}
+p = ggDefault()
+p = p + plot.varmod(vario)
+p = p + plot.decoration(title="Variogram of Temperature (Residuals)")
+ggPrint(p)
+```
+
+Fit the variogram of residuals in a model having drifts. Some constraints have been added during the fitting step.
+
+```{r Fitting_Model_residuals}
+model = md
+structs = ECov_fromKeys(c("NUGGET", "BESSEL_K"))
+
+const = Constraints()
+err = const$addItemFromParamId(EConsElem_SILL(),icov=0,type=EConsType_UPPER(),value=0.1)
+err = const$addItemFromParamId(EConsElem_PARAM(),icov=1, type = EConsType_EQUAL(),value = 1)
+err = const$addItemFromParamId(EConsElem_RANGE(),icov=1, type = EConsType_LOWER(),value = 100)
+err = const$addItemFromParamId(EConsElem_RANGE(),icov=1, type = EConsType_UPPER(),value = 350)
+
+err = md$fit(vario,structs,constraints=const)
+```
+
+```{r}
+p = ggDefault()
+p = p + plot.varmod(vario, model)
+p = p + plot.decoration(title="Variogram of Temperature (Residuals)")
+ggPrint(p)
+```
+
+Derive the parameter of a Global Trend (composed of the Elevation as a drift function) using the SPDE formalism.
+
+```{r Trend_coefficients}
+spde = SPDE(model,grid,temperatures,ESPDECalcMode_KRIGING())
+coeffs = spde$getCoeffs()
+cat("Trend coefficients:", coeffs)
+```
+
+Represent the scatter plot of the Temperature given the Elevation and add the Global Trend (caledlated beforehand)
+
+```{r Creating_Grid}
+p = ggplot()
+p = p + plot.correlation(temperatures,name1="Elevation",name2="*temp", asPoint=TRUE)
+p = p + geom_segment(aes(x = 0, y = coeffs[1], xend = 400, yend = coeffs[1] + 400 * coeffs[2]))
+ggPrint(p)
+```
+
+We perform the Estimation in the SPDE framework (considering the Elevation as the Global Trend)
+
+```{r SPDE_Kriging}
+err = krigingSPDE(temperatures, grid, model)
+```
+
+```{r Plot_SPDE_KRIGING}
+p = ggDefaultGeographic()
+p = p + plot.grid(grid)
+p = p + plot.decoration(title="Temperature (using Elevation as global Trend)")
+ggPrint(p)
+```
+
+We also perform the Estimation by Kriging (using Elevation as External Drift). This estimation is performed in Unique Neighborhood.
+
+```{r Standard_Kriging}
+neighU = NeighUnique_create()
+err = kriging(temperatures, grid, model, neighU)
+```
+
+```{r Plot_Standard_Kriging}
+p = ggDefaultGeographic()
+p = p + plot.grid(grid)
+p = p + plot.decoration(title="Temperature (with Elevation as External Drift)")
+ggPrint(p)
+```
+
+Comparing both estimates
+
+```{r}
+p = ggplot()
+p = p + plot.correlation(grid,name1="*estim",name2="*SPDE.*", asPoint=TRUE)
+p = p + plot.decoration(xlab="Kriging with External Drift", ylab="SPDE Kriging")
+ggPrint(p)
+```

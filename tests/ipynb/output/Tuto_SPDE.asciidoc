@@ -25,22 +25,22 @@
 +*Out[17]:*+
 ----
 logdet_chol -1261.3613
-quad_chol 1070.1094
-like_chol 95.6259
+quad_chol 1061.1439
+like_chol 100.1087
 ----
 
 
 +*Out[18]:*+
 ----
--> Relative difference quadratic = 0.00245
+-> Relative difference quadratic = 0.000255
 ----
 
 
 +*Out[19]:*+
 ----
 log_det_op_chol 12296.9389
-log_det_op_api 12198.9601
--> Relative difference = -0.008
+log_det_op_api 11965.4372
+-> Relative difference = -0.027
 ----
 
 
@@ -54,7 +54,7 @@ log_det_Q_api 11255.7151
 
 +*Out[21]:*+
 ----
-likelihood api 95.6259
-likelihood_chol 10.5534
--> Relative Difference = -0.8896
+likelihood api 100.1087
+likelihood_chol 21.9765
+-> Relative Difference = -0.7805
 ----

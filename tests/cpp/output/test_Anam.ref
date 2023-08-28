@@ -73,16 +73,17 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 4
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
 Total number of samples      = 500
 
 Variables
 ---------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = z1
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Y - Locator = NA
+Column = 4 - Name = Z - Locator = z1
 
 Hermitian Anamorphosis
 ----------------------

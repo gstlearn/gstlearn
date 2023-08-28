@@ -26,17 +26,18 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 30
 
 Variables
 ---------
-Column = 0 - Name = x-1 - Locator = x1
-Column = 1 - Name = x-2 - Locator = x2
-Column = 2 - Name = z-1 - Locator = z1
-Column = 3 - Name = z-2 - Locator = z2
-Column = 4 - Name = z-3 - Locator = z3----
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = z-3 - Locator = z3----
 
 
 +*Out[5]:*+
@@ -59,7 +60,7 @@ point(db, *args, **kwargs)
     name_label: Name of the variable containing the label per sample
     coorX_name: Name of the variable standing for X coordinate 
     coorY_name: Name of the variable standing for Y coordinate 
-    usesel : Boolean to indicate if the selection has to be considered
+    useSel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'name_color' is not defined)
     size: Constant size (used if 'name_size' is not defined)
     sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
@@ -258,19 +259,20 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 6
-Maximum Number of UIDs       = 6
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
 Total number of samples      = 17
 Number of active samples     = 17
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = z1
-Column = 4 - Name = Simu.2 - Locator = z2
-Column = 5 - Name = sel - Locator = sel
+Column = 1 - Name = rank.1 - Locator = NA
+Column = 2 - Name = x1 - Locator = x1
+Column = 3 - Name = x2 - Locator = x2
+Column = 4 - Name = Simu.1 - Locator = z1
+Column = 5 - Name = Simu.2 - Locator = z2
+Column = 6 - Name = sel - Locator = sel
  ----
 
 

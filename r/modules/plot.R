@@ -555,30 +555,33 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
   p
 }
 
-readPointCoor <- function(db, usesel=TRUE, posX=0, posY=1)
+readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
 {
   if (db$getNDim() > 0) 
-	x = db$getCoordinates(posX,usesel)
+	x = db$getCoordinates(posX,useSel)
   if (db$getNDim() > 1)
-    y = db$getCoordinates(posY,usesel)
+    y = db$getCoordinates(posY,useSel)
   df = data.frame(x,y)
   df
 }
 
-readGridCoor <- function(dbgrid, name, usesel= FALSE, posX=0, posY=1, corner=NA)
+# Note that setting useSel to FALSE enables having information for the whole grid
+# (which remains a regular grid) even if a selection is defined. 
+# Hence its default value.
+readGridCoor <- function(dbgrid, name, useSel= FALSE, posX=0, posY=1, corner=NA)
 {
   if (isNotDef(corner))
 	corner = rep(0, dbgrid$getNDim())
   
   if (dbgrid$getNDim() == 1)
   {
-  	data = dbgrid$getColumn(name, usesel, FALSE)
+  	data = dbgrid$getColumn(name, useSel, FALSE)
   	x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
   	y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
   }
   else
   {
-  	data = dbgrid$getOneSlice(name, posX, posY, corner, usesel)
+  	data = dbgrid$getOneSlice(name, posX, posY, corner, useSel)
   	nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
   	x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
   	nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
@@ -596,11 +599,11 @@ readGridCoor <- function(dbgrid, name, usesel= FALSE, posX=0, posY=1, corner=NA)
 
 # Function for plotting a point data base, with optional color and size variables
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-    flagAbsSize = FALSE, flagCst=FALSE, usesel=TRUE, posX=0, posY=1, 
+    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, posX=0, posY=1, 
     ...) 
 { 
   # Creating the necessary data frame
-  df = readPointCoor(db, usesel, posX, posY)
+  df = readPointCoor(db, useSel, posX, posY)
   
   # Color of symbol
   colval = NULL
@@ -627,10 +630,10 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
 }
 
 # Function for plotting a point data base, with label variables
-pointLabel <- function(db, name, digit=2, usesel=TRUE, posX=0, posY=1, ...) 
+pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...) 
 {  
   # Creating the necessary data frame
-  df = readPointCoor(db, usesel, posX, posY)
+  df = readPointCoor(db, useSel, posX, posY)
   
   # Label of symbols
   labval  = round(db$getColumn(name,TRUE),digit)
@@ -709,10 +712,10 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   p
 }
 
-gridRaster <- function(dbgrid, name, usesel = TRUE, posX=0, posY=1, corner=NA, ...)
+gridRaster <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, ...)
 {
   # Reading the Grid information
-  df = readGridCoor(dbgrid, name, usesel, posX, posY, corner)
+  df = readGridCoor(dbgrid, name, useSel, posX, posY, corner)
   
   # Define the contents
   if (dbgrid$getAngles()[1] == 0 && ! dbgrid$hasSingleBlock())
@@ -731,10 +734,10 @@ gridRaster <- function(dbgrid, name, usesel = TRUE, posX=0, posY=1, corner=NA, .
   layer
 }
 
-gridContour <- function(dbgrid, name, usesel = TRUE, posX=0, posY=1, corner=NA, ...)
+gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, ...)
 {
   # Reading the Grid information
-  df = readGridCoor(dbgrid, name, usesel, posX, posY, corner)
+  df = readGridCoor(dbgrid, name, useSel, posX, posY, corner)
   
   layer <- geom_contour(data = df, mapping=aes(x = x, y = y, z = data), ...)
   
@@ -755,7 +758,7 @@ get.default.variable <- function(db)
 # Function for plotting a variable informed in a grid Db
 #
 plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
-    usesel = TRUE, palette=NULL, na.value = "white", limits = NULL, 
+    useSel = TRUE, palette=NULL, na.value = "white", limits = NULL, 
     show.legend.raster=FALSE, legend.name.raster="G-Raster", 
     ...)
 {
@@ -779,7 +782,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   
   if (! is.null(name_raster))
   {
-    p <- c(p, gridRaster(dbgrid, name=name_raster, usesel=usesel, ...))
+    p <- c(p, gridRaster(dbgrid, name=name_raster, useSel=useSel, ...))
     
     # Set the title
     title = paste(title,name_raster)
@@ -795,7 +798,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
   
   if (! is.null(name_contour))
   {
-    p = c(p, gridContour(dbgrid, name=name_contour, usesel=usesel, ...))
+    p = c(p, gridContour(dbgrid, name=name_contour, useSel=useSel, ...))
     
     # Set the title                    
     title = paste(title, name_contour, sep=" ")
@@ -839,10 +842,10 @@ plot.polygon <- function(poly, show.title=FALSE, ...)
 }
 
 # Function for plotting the histogram of a variable
-plot.hist <- function(db, name, usesel=TRUE, ...)
+plot.hist <- function(db, name, useSel=TRUE, ...)
 {
   p = list()
-  val  = db$getColumn(name, usesel)
+  val  = db$getColumn(name, useSel)
   df = data.frame(val)
   
   p <- c(p, geom_histogram(data=df, mapping=aes(x=val), na.rm=TRUE, ...))
@@ -922,7 +925,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 }
 
 # Function for representing a scatter plot
-plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
+plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=TRUE,
     asPoint=FALSE, 
     flagDiag=FALSE, diag_color = "red", diag_line = "solid", 
     flagRegr=FALSE, regr_color = "blue", regr_line = "solid", 
@@ -932,8 +935,8 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, usesel=FALSE,
     ...)
 {
   if (is.null(db2)) db2 = db1
-  x = db1$getColumn(name1, usesel)
-  y = db2$getColumn(name2, usesel)
+  x = db1$getColumn(name1, useSel)
+  y = db2$getColumn(name2, useSel)
   
   p = list()
   if (asPoint)

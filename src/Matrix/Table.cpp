@@ -17,14 +17,14 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 
-Table::Table(int nrow, int ncol)
+Table::Table(int nrow, int ncol, bool skip_title, bool skip_description)
   : MatrixRectangular(nrow, ncol),
     ASerializable(),
     _title(),
     _rowNames(),
     _colNames(),
-    _skipTitle(false),
-    _skipDescription(false)
+    _skipTitle(skip_title),
+    _skipDescription(skip_description)
 {
   init(nrow, ncol);
 }

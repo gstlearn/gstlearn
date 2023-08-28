@@ -654,8 +654,9 @@ int _db_rule(Db *db,
 
   /* Preliminary checks */
 
-  if (db->getLocatorNumber(ELoc::SIMU) != ngrf && db->getLocatorNumber(ELoc::Z)
-      != ngrf)
+  int nbsimu = db->getLocatorNumber(ELoc::SIMU);
+  int nvar = db->getLocatorNumber(ELoc::Z);
+  if (nbsimu != ngrf && nvar != ngrf)
   {
     messerr("The Rule specifies the use of %d underlying GRF(s)", ngrf);
     messerr(
@@ -697,7 +698,7 @@ int _db_rule(Db *db,
 
   // Naming convention
 
-  namconv.setNamesAndLocators(nullptr, VectorInt(), db, iptr);
+  namconv.setNamesAndLocators(db, iptr);
   error = 0;
 
   label_end:

@@ -50,7 +50,7 @@ public:
 
 private:
   void _recopy(const Rotation& r);
-  void _checkRot();
+  void _checkRotForIdentity();
   void _directToInverse();
   void _inverseToDirect();
 
