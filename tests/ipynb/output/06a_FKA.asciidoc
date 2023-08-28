@@ -111,7 +111,8 @@ Spherical
 - Sill         =     56.089
 - Range        =      3.600
 Power (Third Parameter = 0.0879341)
-- Slope        =      1.187----
+- Slope        =      1.187
+----
 
 
 +*Out[16]:*+
