@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 The **gstlearn** R package is a cross-platform R package wrapping the [gstlearn C++ Library](https://gstlearn.org). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)! It is the successor of the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
 To install the **gstlearn** R Package, you need R 4.2 (or higher). You can then execute the following R command:
-```{r }
+```{r eval=FALSE}
 install.packages("gstlearn",repos="https://soft.mines-paristech.fr/cran")
 ```
 

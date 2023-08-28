@@ -151,7 +151,8 @@ U = rnorm(n = dim(Q)[1])
 3) Compute the latent vector $\mathbf{Z}$ solving the sparse linear system $\mathbf{L^{T} \, Z = U}$,
 
 ```{r ncsimu_step_3, echo=TRUE, eval=TRUE}
-Z = (t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))@x
+#Z = (t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))@x
+Z = as.numeric(t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))
 ```
 
 4) Compute the interpolation of the latent vector to the target grid $\mathbf{Y_g = A_{g} \, Z}$,
@@ -198,7 +199,8 @@ Q_TT = Q + 1/(tau^2) * t(A_d) %*% A_d
 cholQ_TT =  Cholesky(Q_TT, LDL = FALSE)
 
 z_dat = dat["manual.simu"]
-kriging = (A_g %*% solve(cholQ_TT, t(A_d) %*% z_dat/(tau^2)))@x
+#kriging = (A_g %*% solve(cholQ_TT, t(A_d) %*% z_dat/(tau^2)))@x
+kriging = as.numeric(A_g %*% solve(cholQ_TT, t(A_d) %*% z_dat/(tau^2)))
 
 err = grid$setColumn(name = "manual.kriging", tab = kriging)
 

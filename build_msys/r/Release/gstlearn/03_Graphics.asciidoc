@@ -1,0 +1,402 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[3]:*+
+----
+Non geographical defaults:
+- Figure dimensions = [6, 6]
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect = auto
+Geographical defaults:
+- Figure dimensions = [8, 8]
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect = 1
+----
+
+
++*Out[4]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
+Total number of samples      = 30
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = z-1 - Locator = z1
+Column = 4 - Name = z-2 - Locator = z2
+Column = 5 - Name = z-3 - Locator = z3----
+
+
++*Out[5]:*+
+----
+![png](output_12_0.png)
+----
+
+
++*Out[6]:*+
+----
+Help on function point in module gstlearn.plot:
+
+point(db, *args, **kwargs)
+    Construct a figure for plotting a point data base
+    
+    ax: matplotlib.Axes
+    db: Db containing the variable to be plotted
+    name_color: Name of the variable containing the color per sample
+    name_size: Name of the variable containing the size per sample
+    name_label: Name of the variable containing the label per sample
+    coorX_name: Name of the variable standing for X coordinate 
+    coorY_name: Name of the variable standing for Y coordinate 
+    useSel : Boolean to indicate if the selection has to be considered
+    color: Constant color (used if 'name_color' is not defined)
+    size: Constant size (used if 'name_size' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
+    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
+    flagAbsSize: Represent the Absolute value in Size representation
+    flagCst: When True, the size is kept constant (equel to 's')
+    cmap: Optional Color scale
+    flagGradient: Draw Gradient (if Gradients are defined)
+    colorGradient: Color attached to the Gradient representation
+    scaleGradient: Scale of the Gradient representation
+    flagTangent: Draw Tangent (if Tangents are defined)
+    colorTangent: Color attached to the Tangent representation
+    scaleTangent: Scale of the Tangent representation
+    flagLegendSymbol: Flag for representing the Color Bar of Size legend (only if name_color or name_size is defined)
+    legendSymbolName: Title for the Symbol Legend
+    flagLegendLabel: Flag for representing the Legend for marker size (only if name_label is defined)
+    legendLabelName: Title for the Label Legend
+    posX: rank of the first coordinate
+    posY: rank of the second coordinate
+    
+    **kwargs : arguments passed to matplotllib.pyplot.scatter
+
+----
+
+
++*Out[7]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[8]:*+
+----
+![png](output_19_0.png)
+----
+
+
++*Out[9]:*+
+----
+![png](output_21_0.png)
+----
+
+
++*Out[11]:*+
+----
+![png](output_25_0.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_28_0.png)
+----
+
+
++*Out[13]:*+
+----
+![png](output_30_0.png)
+----
+
+
++*Out[14]:*+
+----
+![png](output_32_0.png)
+----
+
+
++*Out[16]:*+
+----<IPython.core.display.Latex object>----
+
+
++*Out[17]:*+
+----
+![png](output_38_0.png)
+----
+
+
++*Out[18]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1750
+
+Grid characteristics:
+---------------------
+Origin :    -40.000    20.000
+Mesh   :      1.000     2.000
+Number :         70        25
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu.1 - Locator = z1
+Column = 4 - Name = Simu.2 - Locator = z2
+ ----
+
+
++*Out[19]:*+
+----
+![png](output_43_0.png)
+----
+
+
++*Out[20]:*+
+----
+![png](output_44_0.png)
+----
+
+
++*Out[21]:*+
+----
+![png](output_45_0.png)
+----
+
+
++*Out[22]:*+
+----
+![png](output_46_0.png)
+----
+
+
++*Out[24]:*+
+----
+Non geographical defaults:
+- Figure dimensions = [6, 6]
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect = auto
+Geographical defaults:
+- Figure dimensions = [8, 8]
+- Limits along X (not defined)
+- Limits along Y (not defined)
+- Aspect = 1
+----
+
+
++*Out[25]:*+
+----
+![png](output_56_0.png)
+----
+
+
++*Out[26]:*+
+----
+![png](output_58_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_60_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_62_0.png)
+----
+
+
++*Out[29]:*+
+----
+![png](output_64_0.png)
+----
+
+
++*Out[30]:*+
+----
+![png](output_66_0.png)
+----
+
+
++*Out[31]:*+
+----
+![png](output_68_0.png)
+----
+
+
++*Out[32]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 17
+Number of active samples     = 17
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = rank.1 - Locator = NA
+Column = 2 - Name = x1 - Locator = x1
+Column = 3 - Name = x2 - Locator = x2
+Column = 4 - Name = Simu.1 - Locator = z1
+Column = 5 - Name = Simu.2 - Locator = z2
+Column = 6 - Name = sel - Locator = sel
+ ----
+
+
++*Out[34]:*+
+----
+![png](output_75_0.png)
+----
+
+
++*Out[36]:*+
+----
+![png](output_79_0.png)
+----
+
+
++*Out[38]:*+
+----
+![png](output_83_0.png)
+----
+
+
++*Out[39]:*+
+----
+![png](output_85_0.png)
+----
+
+
++*Out[40]:*+
+----
+![png](output_87_0.png)
+----
+
+
++*Out[41]:*+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 3
+
+Data Base Contents
+------------------
+                 rank         x         y         z
+     [  0,]     1.000     1.000     1.000     1.000
+     [  1,]     2.000     2.000     2.000     3.000
+     [  2,]     3.000     3.000     3.000     5.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x - Locator = x1
+Column = 2 - Name = y - Locator = x2
+Column = 3 - Name = z - Locator = z1
+ ----
+
+
++*Out[42]:*+
+----
+![png](output_92_0.png)
+----
+
+
++*Out[43]:*+
+----
+![png](output_94_0.png)
+----
+
+
++*Out[44]:*+
+----
+![png](output_96_0.png)
+----
+
+
++*Out[47]:*+
+----
+![png](output_104_0.png)
+----
+
+
++*Out[48]:*+
+----
+![png](output_106_0.png)
+----
+
+
++*Out[49]:*+
+----
+![png](output_108_0.png)
+----
+
+
++*Out[50]:*+
+----
+![png](output_110_0.png)
+----
+
+
++*Out[51]:*+
+----
+![png](output_113_0.png)
+----
+
+
++*Out[52]:*+
+----
+![png](output_116_0.png)
+----
+
+
++*Out[53]:*+
+----
+![png](output_118_0.png)
+----
+
+
++*Out[54]:*+
+----
+![png](output_121_0.png)
+----
