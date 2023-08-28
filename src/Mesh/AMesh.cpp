@@ -507,14 +507,13 @@ VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices)
  * - for each apex, the second vector gives the indices of the neighboring meshes
  * @return
  */
-std::vector<VectorInt> AMesh::getNeighborhoodPerMesh() const
+VectorVectorInt AMesh::getNeighborhoodPerMesh() const
 {
-
   int napices  = getNApices();
   int nmeshes  = getNMeshes();
   int npermesh = getNApexPerMesh();
 
-  std::vector<VectorInt> Vmesh;
+  VectorVectorInt Vmesh;
   Vmesh.resize(napices);
 
   // Loop on the meshes
@@ -539,16 +538,16 @@ std::vector<VectorInt> AMesh::getNeighborhoodPerMesh() const
  * - for each apex, the second vector gives the indices of the neighboring apices
  * @return
  */
-std::vector<VectorInt> AMesh::getNeighborhoodPerApex() const
+VectorVectorInt AMesh::getNeighborhoodPerApex() const
 {
   int napices  = getNApices();
   int npermesh = getNApexPerMesh();
 
-  std::vector<VectorInt> Vapex;
+  VectorVectorInt Vapex;
   Vapex.resize(napices);
 
   // Elaborate the Meshing Neighborhood by Mesh first
-  std::vector<VectorInt> Vmesh = getNeighborhoodPerMesh();
+  VectorVectorInt Vmesh = getNeighborhoodPerMesh();
 
   for (int ip = 0; ip < napices; ip++)
   {
@@ -584,11 +583,12 @@ std::vector<VectorInt> AMesh::getNeighborhoodPerApex() const
   return Vapex;
 }
 
-void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh)
+void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh, int nline_max)
 {
   mestitle(1,"List of Meshing Neighborhood");
-  int nrow = (int) Vmesh.size();
-  for (int irow = 0; irow < nrow; irow++)
+  int nmax = (int) Vmesh.size();
+  if (nline_max > 0) nmax = MIN(nmax, nline_max);
+  for (int irow = 0; irow < nmax; irow++)
   {
     VH::display(String(), Vmesh[irow]);
   }
