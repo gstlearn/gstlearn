@@ -30,10 +30,11 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("test_SPDEDrift-");
+  bool verbose = true;
+  // This crashes under MingGW/Windows due to compatibility issue with getTestData
+  //ASerializable::setContainerName(true,"",verbose);
+  //ASerializable::setPrefixName("test_SPDEDrift-");
 
-  bool verbose = false;
   String filename;
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
