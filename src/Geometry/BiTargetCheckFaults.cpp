@@ -53,5 +53,5 @@ bool BiTargetCheckFaults::isOK(const SpaceTarget &T1,
                                const SpaceTarget &T2) const
 {
   if (_faults == nullptr) return true;
-  return _faults->isSplitByFaultSP(T1.getCoordAsSP(), T2.getCoordAsSP());
+  return !_faults->isSplitByFaultSP(T1.getCoordAsSP(), T2.getCoordAsSP());
 }
