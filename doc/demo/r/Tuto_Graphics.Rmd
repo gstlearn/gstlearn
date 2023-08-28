@@ -3,8 +3,8 @@ title: "Tutorial on Graphics"
 author: "D. Renard"
 date: "5 february 2023"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 editor_options: 
   chunk_output_type: console
 ---
