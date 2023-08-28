@@ -19,70 +19,51 @@
 #include "Covariances/CovAniso.hpp"
 #include "Basic/String.hpp"
 #include "LithoRule/RuleProp.hpp"
+#include "Basic/Law.hpp"
 
 PGSSPDE::PGSSPDE(std::vector<Model*> models,
-                 const DbGrid* field,
+                 const Db* field,
                  const RuleProp* ruleprop,
-                 const Db* dat)
+                 const Db* data)
     : _data(),
       _spdeTab(),
       _ruleProp(ruleprop),
       _calcul()
 {
-  _calcul = (dat == nullptr) ? ESPDECalcMode::SIMUNONCOND :
-                               ESPDECalcMode::SIMUCOND;
-  for(auto &e : models)
+  _calcul = (data == nullptr) ? ESPDECalcMode::SIMUNONCOND :
+                                ESPDECalcMode::SIMUCOND;
+  for (auto &e : models)
   {
-    _spdeTab.push_back(new SPDE(e,field,dat,_calcul));
+    _spdeTab.push_back(new SPDE(e, field, data, _calcul));
   }
 }
 
-void PGSSPDE::simulate(int seed,int /*nitergibbs*/) const
+void PGSSPDE::compute(Db *dbout,
+                      int seed,
+                      int /*nitergibbs*/,
+                      const NamingConvention &namconv)
 {
-  if(_calcul==ESPDECalcMode::SIMUNONCOND)
+  // Set the seed for random number generator
+  law_set_random_seed(seed);
+
+  int ngrf = (int) _spdeTab.size();
+  VectorInt iuids(ngrf);
+
+  VectorString namesG = generateMultipleNames("simuGauss", ngrf);
+  int seed_loc = seed;
+  for(int igrf = 0; igrf < ngrf; igrf++)
   {
-    simulateNonCond(seed);
+    iuids[igrf] = _spdeTab[igrf]->compute(dbout, 1, seed_loc);
+    seed_loc = 0;
   }
-  if(_calcul==ESPDECalcMode::SIMUCOND)
-  {
-    gibbs(1);
-  }
-}
+  dbout->setLocatorsByUID(iuids, ELoc::SIMU);
 
-void PGSSPDE::simulateNonCond(int seed) const
-{
-  for(int i = 0; i < (int)_spdeTab.size();i++)
-  {
-    int curseed = i==0? seed:0;
-    _spdeTab[i]->compute(1,curseed);
-  }
-}
+  if (_calcul == ESPDECalcMode::SIMUCOND)
+    _ruleProp->categoryToThresh(_data);
 
-void PGSSPDE::query(Db* db,bool keepGauss) const
-{
+  _ruleProp->gaussToCategory(dbout, namconv);
 
-  int ngrf = (int)_spdeTab.size();
-  VectorString names = generateMultipleNames("simuGauss",ngrf);
-
-  for(int i = 0; i < ngrf;i++)
-  {
-   int iptr = _spdeTab[i]->query(db,NamingConvention("simGauss"));
-   db->setNameByUID(iptr,names[i]);
-  }
-
-  db->setLocators(names,ELoc::Z);
-  db->display();
-  _ruleProp->gaussToCategory(db,NamingConvention("categories"));
-
-  if(!keepGauss)
-  {
-    db->deleteColumns(names);
-  }
-}
-
-void PGSSPDE::gibbs(int /*niter*/) const
-{
-   _ruleProp->categoryToThresh(_data);
+  dbout->deleteColumnsByUID(iuids);
 }
 
 PGSSPDE::~PGSSPDE()

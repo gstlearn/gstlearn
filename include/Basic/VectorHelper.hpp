@@ -127,10 +127,8 @@ public:
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
 
-  static void cumulate(VectorDouble &veca,
-                       const VectorDouble &vecb,
-                       double coeff = 1.,
-                       double addval = 0.);
+  static void cumulate(VectorDouble &veca, const VectorDouble &vecb, double coeff = 1., double addval = 0.);
+  static void getMostSignificant(const VectorDouble& vec, double tol = EPSILON6, int nmax = -1);
 
   static VectorDouble simulateUniform(int n = 1,
                                       double mini = 0.,

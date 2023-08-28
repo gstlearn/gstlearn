@@ -47,42 +47,50 @@ K-Bessel (Third Parameter = 2)
 - Range        =     40.000
 - Theo. Range  =      8.165
 Total Sill     =      1.000
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
-Total number of samples      = 10201
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        101       101
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = simuGauss-1 - Locator = z1
-Column = 4 - Name = simuGauss-2 - Locator = z2
+The Db is not defined
 
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-4 - Name Facies - Locator facies1
+1 - Name rank - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =      1.000
+ Maximum value       =  10201.000
+ Mean value          =   5101.000
+ Standard Deviation  =   2944.775
+ Variance            = 8671700.000
+2 - Name x1 - Locator x1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =      0.000
+ Maximum value       =    100.000
+ Mean value          =     50.000
+ Standard Deviation  =     29.155
+ Variance            =    850.000
+3 - Name x2 - Locator x2
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =      0.000
+ Maximum value       =    100.000
+ Mean value          =     50.000
+ Standard Deviation  =     29.155
+ Variance            =    850.000
+4 - Name Facies-NC - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =      1.000
  Maximum value       =      3.000
- Mean value          =      1.990
- Standard Deviation  =      0.821
- Variance            =      0.674
+ Mean value          =      2.005
+ Standard Deviation  =      0.764
+ Variance            =      0.584
+5 - Name Facies-CD - Locator z1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      1.950
+ Standard Deviation  =      0.768
+ Variance            =      0.590

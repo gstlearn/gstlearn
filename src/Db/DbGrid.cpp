@@ -616,7 +616,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
   // Migrate the variables
   int icolOut = dbout->getColumnNumber();
   if (migrateByAttribute(dbin, dbout, icols,
-                         2, VectorDouble(), true, true,
+                         2, VectorDouble(), true, true, false,
                          NamingConvention(String(), false))) return false;
 
   // Duplicate the locators

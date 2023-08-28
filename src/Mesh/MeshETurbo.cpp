@@ -407,6 +407,20 @@ MeshETurbo* MeshETurbo::createFromGridInfo(const Grid *grid,
   return mesh;
 }
 
+MeshETurbo* MeshETurbo::createFromCova(const CovAniso &cova,
+                                       const Db *field,
+                                       double ratio,
+                                       int nbExt,
+                                       bool useSel,
+                                       bool flagNoStatRot,
+                                       bool verbose)
+{
+  MeshETurbo* mesh = new MeshETurbo();
+  if (mesh->initFromCova(cova, field, ratio, nbExt, useSel, flagNoStatRot, verbose))
+    return nullptr;
+  return mesh;
+}
+
 /****************************************************************************/
 /*!
 ** Create the meshing
@@ -767,19 +781,13 @@ void MeshETurbo::_getGridFromMesh(int imesh, int *node, int *icas) const
 }
 
 int MeshETurbo::initFromCova(const CovAniso& cova,
-                             const DbGrid* field,
+                             const Db* field,
                              double ratio,
                              int nbExt,
-                             bool /*useSel*/,
+                             bool useSel,
+                             bool flagNoStatRot,
                              bool verbose)
 {
-  // Preliminary checks
-  if (! field->isGrid())
-  {
-    messerr("This function is limited to 'field' defined as a Grid");
-    return 1;
-  }
-
   // Initializations
   int ndim = cova.getNDim();
   int nval = (int) pow(2., ndim);
@@ -792,7 +800,19 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   VectorDouble extendMaxRot(ndim, TEST);
   VectorDouble cornerRot(ndim);
   VectorInt ic(ndim,0);
-  VectorDouble cornerRef = field->getGrid().getCoordinatesByCorner(ic);
+  VectorVectorDouble extremesData;
+  VectorDouble cornerRef(ndim,0.);
+  const DbGrid* fieldGrid = nullptr;
+  if (field->isGrid())
+  {
+    fieldGrid = dynamic_cast<const DbGrid*>(field);
+    cornerRef = fieldGrid->getGrid().getCoordinatesByCorner(ic);
+  }
+  else
+  {
+    cornerRef = field->getCoorMinimum(useSel);
+    extremesData = field->getExtremas(useSel);
+  }
 
   for (int icorner = 0; icorner < nval; icorner++)
   {
@@ -804,7 +824,16 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
       ic[idim] = jcorner % 2;
       jcorner /= 2;
     }
-    VectorDouble corner1 = field->getGrid().getCoordinatesByCorner(ic);
+    VectorDouble corner1(ndim,0.);
+    if (field->isGrid())
+    {
+      corner1 = fieldGrid->getGrid().getCoordinatesByCorner(ic);
+    }
+    else
+    {
+      for (int idim = 0; idim < ndim; idim++)
+        corner1[idim] = (ic[idim] == 0) ? extremesData[idim][0] : extremesData[idim][1];
+    }
     VH::subtractInPlace(corner1, cornerRef);
 
     // Rotate this corner in the Covariance Rotation system
@@ -824,16 +853,38 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   VectorInt    nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
+
+  double dxmin = 1.e30;
+  int nxmax = 300;
   for (int idim = 0; idim < ndim; idim++)
   {
     double delta = extendMaxRot[idim] - extendMinRot[idim];
     dx[idim] = cova.getRange(idim) / ratio;
     nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt + 1;
-    if( nx[idim] > 400 )
+    if (nx[idim] > nxmax)
     {
-      nx[idim] = 400;
-      dx[idim] = delta / (nx[idim] - 2 * nbExt);
+      nx[idim] = nxmax;
+      dx[idim] = delta / (nxmax - 2 * nbExt);
     }
+    if (dx[idim] < dxmin) dxmin = dx[idim];
+  }
+
+  if (flagNoStatRot)
+  {
+    // In case of non-staionarity on the anisotropy rotation angle
+    // use the minimum mesh (for internal grid)
+    for (int idim = 0; idim < ndim; idim++)
+      dx[idim] = dxmin;
+
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double delta = extendMaxRot[idim] - extendMinRot[idim];
+      nx[idim] = (int) ceil(delta / dx[idim]) + 2 * nbExt + 1;
+    }
+  }
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
     extendMinRot[idim] -= nbExt * dx[idim];
     extendMaxRot[idim] += nbExt * dx[idim];
   }

@@ -207,6 +207,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   int nmeshes    = getNMeshes();
   int nvertex    = getNApices();
   int ncorner    = getNApexPerMesh();
+  int nech       = db->getSampleNumber();
 
   // Preliminary checks 
 
@@ -224,7 +225,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   int ip_max = 0;
   int iech_max = 0;
   int nout = 0;
-  for (int iech=0; iech<db->getSampleNumber(); iech++)
+  for (int iech=0; iech<nech; iech++)
   {
     if (! db->isActive(iech)) continue;
     if (iech > iech_max) iech_max = iech;
@@ -266,7 +267,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
 
   if (ip_max < nvertex - 1)
   {
-    cs_force_dimension(Atriplet,iech_max,nvertex);
+    cs_force_dimension(Atriplet,nech,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */
@@ -279,6 +280,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   return(A);
 }
 #endif
+
 /****************************************************************************/
 /*!
 ** Returns the rank of the Apex 'rank' of the Mesh 'imesh'
@@ -525,4 +527,3 @@ void MeshSpherical::_checkConsistency() const
       }
     }
 }
-

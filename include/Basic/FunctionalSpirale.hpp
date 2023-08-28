@@ -34,6 +34,6 @@ private:
   double _b;
   double _c;
   double _d;
-  double _sx;
-  double _sy;
+  double _xcenter;
+  double _ycenter;
 };

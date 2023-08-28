@@ -21,6 +21,32 @@
 
 class Model;
 
+/**
+ * \brief
+ * NoStat is defined as a series of codes. Each code follows the following syntax with three parts:
+ *
+ *     G<igrf>M<icov>R<idir>
+ *
+ * Example:
+ *
+ *     G1M0R2: Range in the third direction, for the first covariance of the second GRF
+ *     M1A: First anisotropy direction angle, for the second covariance of the first GRF
+ *
+ * Notes:
+ * - All numbering is 0-based
+ * - First two parts can be omitted: we consider G0 and M0
+ * - The keyword for the last part is chosen among:
+ *
+ *             R : Range
+ *             A : Angle
+ *             P : Third parameter
+ *             V : Sill
+ *             S : Scale
+ *             T : Tapering range
+ *             C : Velocity (advection)
+ *             I : Rotation angle for Sphere
+ *             H : Anisotropy matrix terms
+ */
 class GSTLEARN_EXPORT ANoStat : public AStringable, public ICloneable
 {
 public:
@@ -89,7 +115,7 @@ public:
   const std::vector<CovParamId>& getAllItems() const { return _items; }
   const CovParamId getItems(int ipar) const { return _items[ipar]; }
 
-  void updateModel(Model* model,
+  void updateModel(Model *model,
                    int icas1,
                    int iech1,
                    int icas2,
@@ -110,7 +136,7 @@ private:
                       int *iv1,
                       int *iv2);
   void _updateFromModel(const Model* model);
-  void _getInfoFromDb(int ipar,
+  bool _getInfoFromDb(int ipar,
                       int icas1,
                       int iech1,
                       int icas2,

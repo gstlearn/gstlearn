@@ -1,4 +1,4 @@
-Ce document fixe la discipline d'ecriture des classes
+Ce document fixe la discipline d'Ã©criture des classes
 
 REGLE GENERALE
 ==============
@@ -61,7 +61,7 @@ On retient donc le principe suivant:
 - le nom des methodes static: on propose le radical "create"
 - le nom pour les methodes retournant des objets: le radical "define"
 
-Ces regles ne concernent que les objets evolues (pour lesquels des constructeurs
+Ces rÃ¨gles ne concernent que les objets Ã©voluÃ©s (pour lesquels des constructeurs
 multiples sont imaginables). Il ne faut pas verser dans le dogmatisme:
 les objets usuels peuvent se satisfaire d'un constructeur unique (pour garder
 la possibilite de nommer les arguments).
@@ -69,9 +69,9 @@ la possibilite de nommer les arguments).
 SUGGESTIONS
 ===========
 
-Lorsque la terminologie resetFrom "ne colle pas" pour remplacer un constructeur existant, c'est que la classe concernée fait sûrement trop de choses et devrait être "splittée" en plusieurs classes.
+Lorsque la terminologie resetFrom "ne colle pas" pour remplacer un constructeur existant, c'est que la classe concernÃ©e fait surement trop de choses et devrait ï¿½tre "splittï¿½e" en plusieurs classes.
 
 Exemple avec les 3 constructeurs de la classe Neigh qui permettent de construire un voisinage unique / glissant ou image.
 Clairement, le resetFrom n'a pas de sens pour remplacer ces constructeurs...
-Par contre, créer une classe ANeigh et des classes filles NeighUnique, NeighMoving et NeighImage est la bonne manière de procéder.
+Par contre, crÃ©er une classe ANeigh et des classes filles NeighUnique, NeighMoving et NeighImage est la bonne maniï¿½re de procï¿½der.
 

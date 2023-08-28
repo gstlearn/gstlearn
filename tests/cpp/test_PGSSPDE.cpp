@@ -44,7 +44,6 @@ int main(int argc, char *argv[])
   int error = 0;
   int ndim = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
-  CovContext ctxt(1,2,1.); // use default space
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);
@@ -55,7 +54,7 @@ int main(int argc, char *argv[])
   db->display(); // TODO : please use FLAG_STATS only when available
 
   auto nx={ 101,101 };
-  DbGrid* workingDbc = DbGrid::create(nx);
+  DbGrid* grid = DbGrid::create(nx);
   DbGrid* dbprop = DbGrid::create({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
@@ -66,25 +65,17 @@ int main(int argc, char *argv[])
   dbprop->setLocators(names,ELoc::P);
 
   // Creating the Model(s) of the Underlying GRF(s)
-  Model model1(ctxt);
-  CovLMC covs1(ctxt.getSpace());
   double range1 = 20;
-  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
-  covs1.addCov(&cova1);
-  model1.setCovList(&covs1);
-  model1.display();
+  Model* model1 = Model::createFromParam(ECov::BESSEL_K, range1, 1., 1.);
+  model1->display();
 
-  Model model2(ctxt);
-  CovLMC covs2(ctxt.getSpace());
   double range2 = 40;
-  CovAniso cova2(ECov::BESSEL_K,range2,2.,1.,ctxt);
-  covs2.addCov(&cova2);
-  model2.setCovList(&covs2);
-  model2.display();
+  Model* model2 = Model::createFromParam(ECov::BESSEL_K, range2, 1., 2.);
+  model2->display();
 
   std::vector<Model*> models;
-  models.push_back(&model1);
-  models.push_back(&model2);
+  models.push_back(model1);
+  models.push_back(model2);
 
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
@@ -96,18 +87,18 @@ int main(int argc, char *argv[])
   VectorDouble z = VH::simulateGaussian(ndata);
   dat->addColumns(z,"variable",ELoc::Z);
 
-  PGSSPDE sCond(models,workingDbc,ruleprop,dat);
-  PGSSPDE sNonCond(models,workingDbc,ruleprop);
+  PGSSPDE sNonCond(models,grid,ruleprop);
+  sNonCond.compute(grid, 133672, 0, NamingConvention("Facies-NC"));
 
-  PGSSPDE* spgs = &sNonCond;
-  spgs->simulate();
-  spgs->query(workingDbc);
+  PGSSPDE sCond(models,grid,ruleprop,dat);
+  sCond.compute(grid, 133272, 0, NamingConvention("Facies-CD"));
+
   DbStringFormat dbfmt(FLAG_STATS,{"Facies"});
-  workingDbc->display(&dbfmt);
-  (void) workingDbc->dumpToNF("pgs.ascii");
+  grid->display(&dbfmt);
+  (void) grid->dumpToNF("pgs.ascii");
 
   delete db;
-  delete workingDbc;
+  delete grid;
   delete dbprop;
   delete dat;
   delete rule;

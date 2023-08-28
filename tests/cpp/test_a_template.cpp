@@ -63,8 +63,7 @@ int main(int argc, char *argv[])
   model->display();
 
   SPDE spde(model,grid,nullptr,ESPDECalcMode::SIMUNONCOND);
-  spde.compute();
-  spde.query(grid);
+  spde.compute(grid);
   (void) grid->dumpToNF("Result.ascii");
 
   return (0);

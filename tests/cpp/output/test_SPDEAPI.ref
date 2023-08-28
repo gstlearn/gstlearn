@@ -11,13 +11,14 @@ Covariance Part
 ---------------
 K-Bessel (Third Parameter = 1)
 - Sill         =      1.000
-- Ranges       =     10.000    45.000
-- Theo. Ranges =      2.887    12.990
+- Ranges       =     10.000    30.000
+- Theo. Ranges =      2.887     8.660
 Total Sill     =      1.000
 
 Non-Stationary Parameters
 -------------------------
 Angle      : GRF=1 Str=1 V#1=1
+Functional
 
 Data Base Characteristics
 =========================
@@ -42,27 +43,83 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name spde.variable.simu - Locator NA
+1 - Name rank - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -2.436
- Maximum value       =      3.153
- Mean value          =      0.106
- Standard Deviation  =      0.947
- Variance            =      0.896
-6 - Name spde.variable.condSimu - Locator NA
+ Minimum value       =      1.000
+ Maximum value       =  10201.000
+ Mean value          =   5101.000
+ Standard Deviation  =   2944.775
+ Variance            = 8671700.000
+2 - Name x1 - Locator x1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -3.835
- Maximum value       =      3.045
- Mean value          =     -0.078
- Standard Deviation  =      1.070
- Variance            =      1.145
-7 - Name spde.variable.kriging - Locator z1
+ Minimum value       =      0.000
+ Maximum value       =    100.000
+ Mean value          =     50.000
+ Standard Deviation  =     29.155
+ Variance            =    850.000
+3 - Name x2 - Locator x2
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -3.161
- Maximum value       =      2.274
- Mean value          =     -0.097
- Standard Deviation  =      0.843
- Variance            =      0.711
+ Minimum value       =      0.000
+ Maximum value       =    100.000
+ Mean value          =     50.000
+ Standard Deviation  =     29.155
+ Variance            =    850.000
+4 - Name K-spirale.variable.kriging - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -3.099
+ Maximum value       =      4.345
+ Mean value          =      0.141
+ Standard Deviation  =      0.835
+ Variance            =      0.698
+5 - Name NCS-spirale.simu.1 - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.861
+ Maximum value       =      3.283
+ Mean value          =     -0.017
+ Standard Deviation  =      0.996
+ Variance            =      0.991
+6 - Name NCS-spirale.simu.2 - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -3.874
+ Maximum value       =      3.886
+ Mean value          =      0.153
+ Standard Deviation  =      1.177
+ Variance            =      1.385
+7 - Name NCS-spirale.simu.3 - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -3.634
+ Maximum value       =      2.975
+ Mean value          =      0.021
+ Standard Deviation  =      1.024
+ Variance            =      1.048
+8 - Name CDS-spirale.variable.condSimu.1 - Locator z1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -3.298
+ Maximum value       =      5.043
+ Mean value          =      0.105
+ Standard Deviation  =      1.122
+ Variance            =      1.258
+9 - Name CDS-spirale.variable.condSimu.2 - Locator z2
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -3.330
+ Maximum value       =      5.439
+ Mean value          =      0.221
+ Standard Deviation  =      1.089
+ Variance            =      1.186
+10 - Name CDS-spirale.variable.condSimu.3 - Locator z3
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -3.856
+ Maximum value       =      4.612
+ Mean value          =      0.110
+ Standard Deviation  =      1.054
+ Variance            =      1.110

@@ -3,8 +3,8 @@ NULL
 [1] "quad_api  = 83.8169"
 [1] "Quadratic form: relative difference = -0.012631"
 [1] "log_det_op_chol = 26060.787"
-[1] "log_det_op_api  = 26148.3645"
-[1] "relative difference = 0.0034"
+[1] "log_det_op_api  = 25947.8238"
+[1] "relative difference = -0.0043"
 [1] "log_det_Q_chol = 25197.6444"
 [1] "log_det_Q_api = 25197.6444"
 [1] "relative difference = 0"
@@ -12,11 +12,11 @@ NULL
 [1] "Sum of log var - api   = -460.517"
 [1] "relative difference = -0.5"
 [1] "log_det_LL_chol = 57.8915"
-[1] "log_det_LL_api  = 392.0934"
-[1] "relative difference = 5.7729"
-[1] "likelihood api  = -194.9948"
+[1] "log_det_LL_api  = 358.985"
+[1] "relative difference = 5.201"
+[1] "likelihood api  = -241.5516"
 [1] "likelihood_chol = -13.4988"
-[1] "13.4453"
+[1] "16.8943"
 
 Model characteristics
 =====================

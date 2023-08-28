@@ -27,7 +27,7 @@ ProjMatrix::ProjMatrix()
 {
 }
 
-ProjMatrix::ProjMatrix(const Db* db,const  AMesh *a_mesh, int verbose)
+ProjMatrix::ProjMatrix(const Db *db, const AMesh *a_mesh, int verbose)
   : AStringable()
   , _nPoint(0)
   , _nApices(0)

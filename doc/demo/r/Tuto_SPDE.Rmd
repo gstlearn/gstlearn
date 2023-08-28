@@ -3,6 +3,8 @@ title: "SPDE"
 author: "Didier Renard, Nicolas Desassis, Xavier Freulon"
 date: "2023-07-10"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 In this tutorial, we show how to use the API SPDE.
@@ -80,9 +82,7 @@ model = Model_createFromParam(ECov_BESSEL_K(), param=1,range=rangev,sill=sill)
 
 
 ```{r SPDE_simulation, echo=TRUE, eval=TRUE}
-spde = SPDE()
-err  = spde$init(model, field = gridExt, calc = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
-
+spde = SPDE_create(model, domain = gridExt, calcul = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
 ```
 
 # SPDE approach
@@ -132,7 +132,6 @@ To compute a non conditional simulation on the grid,
 ```{r ncsimu_step_0, echo=TRUE, eval=TRUE}
 # projection matrix of the latent vector on the grid
 A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
-
 ```
 
 1) Compute $\mathbf{L}$ the Cholesky decomposition of the sparse precision matrix $\mathbf{Q}$
@@ -141,21 +140,18 @@ A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
 # Cholesky decomposition of precision matrix of the latent vector
 Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
 cholQ =  Cholesky(Q, LDL = FALSE)
-
 ```
 
 2) Compute the normal Gaussian vector $\mathbf{U \sim N(0, I_n)}$,
 
 ```{r ncsimu_step_2, echo=TRUE, eval=TRUE}
 U = rnorm(n = dim(Q)[1])
-
 ```
 
 3) Compute the latent vector $\mathbf{Z}$ solving the sparse linear system $\mathbf{L^{T} \, Z = U}$,
 
 ```{r ncsimu_step_3, echo=TRUE, eval=TRUE}
 Z = (t(expand(cholQ)$P) %*% solve(cholQ, U, system = "Lt"))@x
-
 ```
 
 4) Compute the interpolation of the latent vector to the target grid $\mathbf{Y_g = A_{g} \, Z}$,
@@ -168,12 +164,11 @@ err = grid$setColumn(tab = Y_g, name = "manual.simu", useSel = FALSE)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.simu", usesel = TRUE, 
+    plot.grid(grid, name_raster = "manual.simu", useSel = TRUE, 
             show.legend.raster = TRUE, palette = "Spectral") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non conditional simulation (Manual)")
 ggPrint(p)
-
 ```
 
 ## Kriging and Conditional simulation distribution
@@ -191,8 +186,6 @@ err = migrate(dbin = grid, dbout = dat, name = "manual.simu", namconv = NamingCo
 
 # projection matrix of the latent vector on the data locations
 A_d = ProjMatrix(dat, mesh)$getAprojToTriplet()$toTL()
-
-
 ```
 
 The $p$ observations are defined by the vector $\mathbf{Y_d = A_d \, Z + \tau \, W_d}$, where $\mathbf{A_d}$ is the projection matrix from the latent vector $\mathbf{Z}$ to the data location, $\tau$ is 
@@ -211,14 +204,12 @@ err = grid$setColumn(name = "manual.kriging", tab = kriging)
 
 # plot of kriging
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.kriging", usesel = TRUE, palette = "Spectral", 
+    plot.grid(grid, name_raster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Kriging (Manual)")
 ggPrint(p)
-
-
 ```
 
 ## Conditional simulation
@@ -245,7 +236,7 @@ S_g = (A_g %*% Zc)[,1:nsim]
 # storing the results +  plot
 err = grid$setColumn(tab = S_g[,1], name = "manual.cond.simu", useSel = TRUE)
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.cond.simu", usesel = TRUE, palette = "Spectral", 
+    plot.grid(grid, name_raster = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -256,7 +247,7 @@ ggPrint(p)
 ce = apply(X = S_g, MARGIN = 1, FUN = mean)
 err = grid$setColumn(tab = ce, name = "manual.cond.expectation", useSel = TRUE)
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.cond.expectation", usesel = TRUE, palette = "Spectral", 
+    plot.grid(grid, name_raster = "manual.cond.expectation", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -286,7 +277,6 @@ p = ggDefault() +
     plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
                   title = "Kriging vs. conditional expectation (Manual)")
 ggPrint(p)
-
 ```
 
 # Using the SPDE api defined in **gstlearn**
@@ -294,21 +284,17 @@ ggPrint(p)
 ## Non conditional simulation
 
 ```{r simu_api, echo=TRUE, eval=TRUE}
-
 # simulation
-err  = spde$compute()
-
 err = grid$deleteColumns(names = "spde.simu*")
-iuid = spde$query(grid)
+iuid  = spde$compute(grid)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde.simu", usesel = TRUE, 
+    plot.grid(grid, name_raster = "spde.simu", useSel = TRUE, 
             show.legend.raster = TRUE, palette = "Spectral") +
   plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non Conditional Simulation (SPDE)")
 ggPrint(p)
-
 ```
 
 ## Kriging
@@ -317,15 +303,13 @@ ggPrint(p)
 # the modelling error is added to the model
 err     = model$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
 
-spdeRes = SPDE()
-err     = spdeRes$init(model, field = gridExt, data = dat, calc = ESPDECalcMode_KRIGING(), mesh = mesh)
-err     = spdeRes$compute()
-iuid    = spdeRes$query(grid)
+spdeRes = SPDE(model, domain = gridExt, data = dat, calcul = ESPDECalcMode_KRIGING(), mesh = mesh)
+iuid    = spdeRes$compute(grid)
 err = grid$setName(old_name = "spde.manual.simu.kriging", name = "spde.kriging")
 
 # plot of kriging
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde.kriging", usesel = TRUE, palette = "Spectral",
+    plot.grid(grid, name_raster = "spde.kriging", useSel = TRUE, palette = "Spectral",
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -349,7 +333,6 @@ p = ggDefault() +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)
-
 ```
 
 # Likelihood
@@ -428,14 +411,14 @@ print(paste0("Quadratic form: relative difference = ", round((quad_api-quad_chol
 # -----------------------------------------
 # Log-determinant of Q_TT
 a = detQ(cholQ_TT)
-b = pcm$computeLogDetOp(nsimus = nsim, seed = 0)
+b = pcm$computeLogDetOp(nbsimu = nsim, seed = 0)
 print(paste0("log_det_op_chol = ", round(a,4)))
 print(paste0("log_det_op_api  = ", round(b,4)))
 print(paste0("relative difference = ", round((b-a)/a, 4)))
 
 # Log-determinant of Q
 a = detQ(cholQ)
-b = pcm$computeLogDetQ(nsimus = nsim, seed = 0)
+b = pcm$computeLogDetQ(nbsimu = nsim, seed = 0)
 print(paste0("log_det_Q_chol = ", round(a,4)))
 print(paste0("log_det_Q_api = ", round(b,4)))
 print(paste0("relative difference = ", round((b-a)/a,4)))
@@ -454,8 +437,8 @@ print(paste0("relative difference = ", round((b-a)/a,4)))
 # -----------------------------------------
 # computing the logdet using Eq. (23)
 logdet = (detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT))
-# computing the logdet using API (TODO: SPDE$computeLogDet(nbsimus, seed) returns -logdet)
-logdet_api = spdeRes$computeLogDet(nbsimus = nsim, seed = 0)
+# computing the logdet using API (TODO: SPDE$computeLogDet(nbsimu, seed) returns -logdet)
+logdet_api = spdeRes$computeLogDet(nbsimu = nsim, seed = 0)
 print(paste0("log_det_LL_chol = ", round(logdet,4)))
 print(paste0("log_det_LL_api  = ", round(logdet_api,4)))
 print(paste0("relative difference = ", round(logdet_api/logdet-1,4)))
@@ -472,7 +455,7 @@ logdet = detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT)
 y = t(A_d) %*% x
 quad  = as.numeric(1/(tau^2) * (t(x) %*% x - 1/(tau^2) * t(y) %*% solve(cholQ_TT, y, system = "A")))
 a = - 1/2 * (-logdet + quad)
-b = spdeRes$computeLogLike(nbsimus = nsim, seed = 0)
+b = spdeRes$computeLogLike(nbsimu = nsim, seed = 0)
 print(paste0("likelihood api  = ",round(b,4)))
 print(paste0("likelihood_chol = ",round(a,4)))
 print(paste0(round((b/a-1),4)))
@@ -509,9 +492,8 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
   }
   if (!flag.chol) {
     }
-  spde = SPDE()
-  err  = spde$init(field = gridExt, mesh = mesh, model = m, data = dd, calc = cc)
-  err  = spde$compute()
+  spde = SPDE(model = m, domain = gridExt, data = dd, calcul = cc, mesh = mesh)
+  err  = spde$compute(gridExt)
 
   # using Cholesky decomposition
   if (flag.chol) {
@@ -524,7 +506,7 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
     ll = - 1/2 * (-logdet + quad)
   }  else {
     # using matrix free approach
-    ll  = spde$computeLogLike(nbsimus = nsim, seed = seed)
+    ll  = spde$computeLogLike(nbsimu = nsim, seed = seed)
   }
   ll
 }

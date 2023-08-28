@@ -679,6 +679,7 @@ GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
   int ncols = (int) opers.size();
   Table table = Table();
   table.setTitle("Monovariate Statistics on Variables");
+  table.setSkipDescription(true);
   table.resetFromVD(nrows, ncols, stats, false);
   for (int irow=0; irow<nrows; irow++)
     table.setRowName(irow, db->getNameByUID(iuids[irow]));
