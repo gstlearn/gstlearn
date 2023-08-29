@@ -258,7 +258,7 @@ for irf in [None,0,1]:
                                                          model,cova,compute_vars=cv,
                                                          irf=irf,drift=drift,measurement_error=measurement_error,
                                                          selDbin=selDbin,selDbout=selDbout,flag_isotopic = iso,
-                                                        seed=1234,tol=1e-8,eps=1e-3,verbose=True)
+                                                        seed=1234,tol=1e-8,eps=1e-3,verbose=False)
                                     nbtests += 1
 print("Number of tests performed =",nbtests)
 
