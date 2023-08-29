@@ -11,7 +11,7 @@ The *gstlearn* R package is a R wrapper of the [gstlearn C++ Library](https://gs
 
 When using the *gstlearn* R Package, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
 
-This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).
+This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).q
 
 The *gstlearn* R package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 

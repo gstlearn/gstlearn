@@ -35,7 +35,7 @@ Free download from https://gstlearn.org
 For using this Python package you only need Python 3 (or higher) (with numpy, pandas and matplotlib) and execute the following command:
 
 ```
-pip install -i https://test.pypi.org/simple/ gstlearn
+pip install gstlearn
 ```
 
 Note: In a close future, *gstlearn* will be available directly on *pypi* repository (not the test version)
