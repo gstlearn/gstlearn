@@ -46,4 +46,5 @@ jobs:
     - name: Compile, install packages and execute ONE python non-regression test
       run: |
         cd ${{github.workspace}}/${{env.BUILD_DIR}}
+        make prepare_check_py
         CTEST_OUTPUT_ON_FAILURE=1 ctest -R test_Kriging_py
