@@ -23,7 +23,6 @@
 #  - python_doc     Build python package documentation [optional]
 #  - python_build   Build python wrapper [and its documentation]
 #  - python_install Install python package [and its documentation]
-#  - python_upload  Build python package distribution and upload to PyPi [and its documentation]
 #
 # R wrapper:
 #  - r_doc          Build R package documentation [optional] [TODO]
@@ -156,7 +155,7 @@ uninstall:
 
 
 
-.PHONY: python_doc python_build python_install python_upload
+.PHONY: python_doc python_build python_install
 
 python_doc: cmake-python-doxygen
 	@cmake --build $(BUILD_DIR) --target python_doc -- --no-print-directory $(N_PROC_OPT)
@@ -166,9 +165,6 @@ python_build: cmake-python
 
 python_install: python_build
 	@cmake --build $(BUILD_DIR) --target python_install -- --no-print-directory $(N_PROC_OPT)
-
-python_upload: python_build
-	@cmake --build $(BUILD_DIR) --target python_upload -- --no-print-directory
 
 
 
