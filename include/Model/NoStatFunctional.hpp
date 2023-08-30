@@ -22,13 +22,13 @@
 /**
  * This class concerns the non-stationarity defined as a function (hence its name).
  * It can be considered as an example of a 2-D implementation of a spiral with
- * a single non-stationary parameter (the angle)
+ * a single non-stationary parameter (Example: the angle)
  */
 class GSTLEARN_EXPORT NoStatFunctional : public ANoStat
 {
 public:
-	NoStatFunctional();
-	NoStatFunctional(const AFunctional* func);
+	NoStatFunctional(const VectorString& code = {"A"});
+	NoStatFunctional(const AFunctional* func, const VectorString& code = {"A"});
   NoStatFunctional(const NoStatFunctional &m);
   NoStatFunctional& operator=(const NoStatFunctional &m);
   virtual ~NoStatFunctional();

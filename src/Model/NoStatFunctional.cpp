@@ -18,19 +18,17 @@
 
 #include <math.h>
 
-NoStatFunctional::NoStatFunctional()
+NoStatFunctional::NoStatFunctional(const VectorString& code)
     : ANoStat(),
       _func(nullptr)
 {
-  VectorString code = {"A"};
   (void) addNoStatElems(code);
 }
 
-NoStatFunctional::NoStatFunctional(const AFunctional* func)
+NoStatFunctional::NoStatFunctional(const AFunctional* func, const VectorString& code)
     : ANoStat(),
       _func(nullptr)
 {
-  VectorString code = {"A"};
   (void) addNoStatElems(code);
   _func = func;
 }
