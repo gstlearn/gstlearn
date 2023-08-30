@@ -14,7 +14,6 @@
 #include "Enum/ECst.hpp"
 
 #include "Basic/OptCst.hpp"
-#include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"

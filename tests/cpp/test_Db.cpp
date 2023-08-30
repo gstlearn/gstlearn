@@ -15,7 +15,6 @@
 
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"

@@ -113,7 +113,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const VectorDouble& coo
   double norm = sqrt(u1 * u1 + u2 * u2);
   u1 /= norm;
   u2 /= norm;
-  VectorDouble vec1 = { u1, u2 };
+  VectorDouble vec1 = {  u1, u2 };
   VectorDouble vec2 = { -u2, u1 };
 
   VectorVectorDouble vec = { vec1, vec2 };
