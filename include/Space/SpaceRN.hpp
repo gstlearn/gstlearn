@@ -29,8 +29,6 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceRN)
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
   static SpaceRN* create(unsigned int ndim);
 
   /// Return the concrete space type

@@ -194,7 +194,7 @@ public:
                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                           int locatorIndex = 0,
                           bool cleanSameLocator = false);
-  void setLocator(const String& name,
+  void setLocator(const String& names,
                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                   int locatorIndex = 0,
                   bool cleanSameLocator = false);
