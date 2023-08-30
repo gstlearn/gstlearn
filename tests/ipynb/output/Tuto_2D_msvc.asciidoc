@@ -356,7 +356,7 @@ Exponential
 Spherical
 - Sill         =      1.582
 - Ranges       =      6.713     5.153
-- Angles       =    676.177     0.000
+- Angles       =    316.176     0.000
 - Rotation Matrix
                [,  0]    [,  1]
      [  0,]     0.721     0.692
@@ -374,7 +374,6 @@ Universality Condition
 
 Moving Neighborhood
 ===================
-Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 6
 Maximum horizontal distance         = 10
@@ -891,14 +890,14 @@ Data Base Statistics
  Maximum value       =      6.171
  Mean value          =      0.417
  Standard Deviation  =      1.684
- Variance            =      2.837
+ Variance            =      2.838
 20 - Name Stats.MINI - Locator NA
  Nb of data          =       5100
  Nb of active values =       5100
  Minimum value       =     -6.163
  Maximum value       =      0.963
  Mean value          =     -2.254
- Standard Deviation  =      0.959
+ Standard Deviation  =      0.960
  Variance            =      0.921
 21 - Name Stats.MAXI - Locator NA
  Nb of data          =       5100
@@ -1111,7 +1110,7 @@ Data Base Statistics
  Minimum value       =      3.003
  Maximum value       =     12.978
  Mean value          =      6.217
- Standard Deviation  =      2.783
+ Standard Deviation  =      2.784
  Variance            =      7.748
 12 - Name Z.Simu.Y.Pb.3 - Locator NA
  Nb of data          =       5100
@@ -1120,7 +1119,7 @@ Data Base Statistics
  Maximum value       =     12.978
  Mean value          =      6.202
  Standard Deviation  =      2.708
- Variance            =      7.333
+ Variance            =      7.334
 13 - Name Z.Simu.Y.Pb.4 - Locator NA
  Nb of data          =       5100
  Nb of active values =       5100
@@ -1167,8 +1166,8 @@ Data Base Statistics
  Minimum value       =      3.003
  Maximum value       =     12.978
  Mean value          =      6.409
- Standard Deviation  =      2.937
- Variance            =      8.623
+ Standard Deviation  =      2.936
+ Variance            =      8.620
 19 - Name Z.Simu.Y.Pb.10 - Locator NA
  Nb of data          =       5100
  Nb of active values =       5100
@@ -1208,7 +1207,7 @@ Data Base Statistics
  Maximum value       =      4.294
  Mean value          =      2.536
  Standard Deviation  =      0.751
- Variance            =      0.564
+ Variance            =      0.565
 
 Variables
 ---------
@@ -1352,7 +1351,7 @@ Data Base Statistics
  Minimum value       =      3.003
  Maximum value       =     12.978
  Mean value          =      6.217
- Standard Deviation  =      2.783
+ Standard Deviation  =      2.784
  Variance            =      7.748
 12 - Name Z.Simu.Y.Pb.3 - Locator NA
  Nb of data          =       5100
@@ -1361,7 +1360,7 @@ Data Base Statistics
  Maximum value       =     12.978
  Mean value          =      6.202
  Standard Deviation  =      2.708
- Variance            =      7.333
+ Variance            =      7.334
 13 - Name Z.Simu.Y.Pb.4 - Locator NA
  Nb of data          =       5100
  Nb of active values =       5100
@@ -1408,8 +1407,8 @@ Data Base Statistics
  Minimum value       =      3.003
  Maximum value       =     12.978
  Mean value          =      6.409
- Standard Deviation  =      2.937
- Variance            =      8.623
+ Standard Deviation  =      2.936
+ Variance            =      8.620
 19 - Name Z.Simu.Y.Pb.10 - Locator NA
  Nb of data          =       5100
  Nb of active values =       5100

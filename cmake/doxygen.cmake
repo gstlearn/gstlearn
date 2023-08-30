@@ -7,16 +7,18 @@ find_package(Doxygen REQUIRED)
 
 # Configure doxyfile
 set(DOXYGEN_OUTPUT_DIRECTORY doxygen)
-set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox")
+set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox | <a href=https://gstlearn.org>https://gstlearn.org</a>")
 set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
 set(DOXYGEN_EXTRACT_ALL YES)
 set(DOXYGEN_WARN_NO_PARAMDOC YES)
+set(DOXYGEN_USE_MDFILE_AS_MAINPAGE README.md)
 set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_f_private.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_d_private.h)
 set(DOXYGEN_VERBATIM_HEADERS NO)
 set(DOXYGEN_GENERATE_HTML YES)
 set(DOXYGEN_HTML_TIMESTAMP YES)
+set(DOXYGEN_HTML_HEADER ${CMAKE_SOURCE_DIR}/cmake/doxygen.header.html)
 set(DOXYGEN_GENERATE_XML YES) # For pygstlearn module
 set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_MAX_INITIALIZER_LINES 1000) # For very long macros
@@ -35,5 +37,5 @@ set(DOXYGEN_ALIASES tooltip{1}=\"\\latexonly\\footnote\\{\\1\\}\\endlatexonly\\h
 
 # Add target for generating the doxymentation
 doxygen_add_docs(doxygen
-                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
+                 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src ${CMAKE_SOURCE_DIR}/README.md
                  COMMENT "Generate doxygen documentation")
