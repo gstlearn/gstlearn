@@ -30,9 +30,23 @@ default_ylim = [ None, None ]
 default_aspect = [ 'auto', 1 ]
 
 def setDefaultGeographic(dims=None, xlim=None, ylim=None, aspect=None):
+    '''
+    Set the default values for all *Geographical* figures in the Graphic Environment.
+    dims: Dimensions of each figure
+    xlim: Bounds along the horizontal axis (otherwise: no bound is defined)
+    ylim: Bounds along the vertical axis (otherwise: no bound is defined)
+    aspect: Ratio between dimensions along bith axes (Y/X)
+    '''
     __setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
     
 def setDefault(dims=None, xlim=None, ylim=None, aspect=None):
+    '''
+    Set the default values for all *non-Geographical* figures in the Graphic Environment.
+    dims: Dimensions of each figure
+    xlim: Bounds along the horizontal axis (otherwise: no bound is defined)
+    ylim: Bounds along the vertical axis (otherwise: no bound is defined)
+    aspect: Ratio between dimensions along bith axes (Y/X)
+    '''
     __setDefaultInternal(0, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
 
 def __setDefaultInternal(mode, dims=None, xlim=None, ylim=None, aspect=None):
@@ -51,6 +65,11 @@ def __setDefaultInternal(mode, dims=None, xlim=None, ylim=None, aspect=None):
         default_aspect[mode] = aspect
 
 def printDefault():
+    ''' 
+    Print the variables defined in the Environment
+    - for the non-Geographical figures
+    - for the Geographical figures
+    '''
     for mode in range(2):
         if mode == 0:
             print("Non geographical defaults:")
@@ -76,12 +95,14 @@ def printDefault():
         
 def get_cmap(n, name='gist_rainbow'):
     '''
-    Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
-    RGB color; the keyword argument name must be a standard mpl colormap name.
+    Returns a function that maps each index in 0, 1, ..., n-1 to a distinct RGB color
+    
+    n: requested number of different colors
+    name: this argument must be a standard mpl colormap name.
     '''
     return plt.cm.get_cmap(name, n)
     
-def selectItems(nvalues, sitem=-1):
+def __selectItems(nvalues, sitem=-1):
     outs = range(0, nvalues)
     nout = nvalues
     if sitem >= 0:
@@ -89,7 +110,7 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def isNotCorrect(object, types):
+def __isNotCorrect(object, types):
     if object is None:
         print("Argument 'object' must be provided")
         return True
@@ -100,7 +121,7 @@ def isNotCorrect(object, types):
     print("Argument 'object' (",filetype,") must be a valid type among",types)
     return True
 
-def defaultVariable(db, name):
+def __defaultVariable(db, name):
     if name is None:
         if db.getLocNumber(gl.ELoc.Z) > 0:
             name = db.getNameByLocator(gl.ELoc.Z,0)
@@ -449,8 +470,8 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axs_old=None, *args, **kwargs):
     **kwargs : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
     """
     nvar = vario.getVariableNumber()
-    ivarUtil, ivarN = selectItems(nvar, ivar)
-    jvarUtil, jvarN = selectItems(nvar, jvar)
+    ivarUtil, ivarN = __selectItems(nvar, ivar)
+    jvarUtil, jvarN = __selectItems(nvar, jvar)
     axs = __getNewAxes(axs_old, 0, nx=ivarN, ny=jvarN)
 
     return __ax_varmod(axs, vario=vario, model=model, ivar=ivar, jvar=jvar, *args, **kwargs)
@@ -461,7 +482,7 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 env_color='black', env_linestyle="dotted",
                 cmap=None, flagLegend=False,
                 **kwargs):
-    if isNotCorrect(object=vario, types=["Vario"]):
+    if __isNotCorrect(object=vario, types=["Vario"]):
         return None
 
     color_in_kwargs = 'color' in kwargs
@@ -473,9 +494,9 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
     nvar = vario.getVariableNumber()
     cols = get_cmap(ndir,cmap)
     
-    ndirUtil, ivarD = selectItems(ndir, idir)
-    ivarUtil, ivarN = selectItems(nvar, ivar)
-    jvarUtil, jvarN = selectItems(nvar, jvar)
+    ndirUtil, ivarD = __selectItems(ndir, idir)
+    ivarUtil, ivarN = __selectItems(nvar, ivar)
+    jvarUtil, jvarN = __selectItems(nvar, jvar)
     
     # Check that the number of subplots in the Figure is correct
     if type(axs) == plt.Figure:
@@ -557,8 +578,8 @@ def variogram(vario, ivar=0, jvar=0, axs_old=None, *args, **kwargs):
     axs : axes where the variograms are represented
     """
     nvar = vario.getVariableNumber()
-    ivarUtil, ivarN = selectItems(nvar, ivar)
-    jvarUtil, jvarN = selectItems(nvar, jvar)
+    ivarUtil, ivarN = __selectItems(nvar, ivar)
+    jvarUtil, jvarN = __selectItems(nvar, jvar)
     axs = __getNewAxes(axs_old, 0, nx=ivarN, ny=jvarN)
     
     return __ax_variogram(axs, vario, ivar=ivar, jvar=jvar, *args, **kwargs)
@@ -602,7 +623,7 @@ def __ax_modelElem(ax, modelobj, ivar=0, jvar=0, codir=None, vario=None, idir=0,
                    env_color='black', env_linestyle='dashed',
                    label=None, flagLabelDir=False, flagEnvelop = True, flagLegend=False, 
                    **kwargs):
-    if isNotCorrect(object=modelobj, types=["Model"]):
+    if __isNotCorrect(object=modelobj, types=["Model"]):
         return None
 
     if codir is None:
@@ -786,7 +807,7 @@ def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None,
                  useSel=True, flagLegend=True, legendName=None, 
                  posX=0, posY=1, **kwargs):
     
-    name = defaultVariable(db, name)
+    name = __defaultVariable(db, name)
     
     if len(ax.get_title()) <= 0:
         ax.decoration(title = db.getName(name)[0])
@@ -922,13 +943,13 @@ def __ax_point(ax, db,
                flagLegendLabel=False, legendLabelName=None,
                posX=0, posY=1, **kwargs):
 
-    if isNotCorrect(object=db, types=["Db", "DbGrid"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_color is None) and (name_size is None) and (name_label is None):
-        name_size = defaultVariable(db, None)
+        name_size = __defaultVariable(db, None)
         if name_size == db.getLastName():
             flagCst = True
 
@@ -973,7 +994,7 @@ def modelOnGrid(model, db, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_modelOnGrid(ax, model, db=db, *args, **kwargs)
     
-def __ax_modelOnGrid(ax, model, db, useSel=True, icov=0, color='black', scale=1, **kwargs):
+def __ax_modelOnGrid(ax, model, db, useSel=True, icov=0, color='black', flagOrtho=True, **kwargs):
     '''
     Display the Model characteristics on a Grid
     This makes sense when the model contains some non-stationarity
@@ -991,7 +1012,9 @@ def __ax_modelOnGrid(ax, model, db, useSel=True, icov=0, color='black', scale=1,
     if len(tabR1) <= 0 or len(tabR2) <= 0 or len(tabA) <= 0:
         return None
     
-    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color)
+    if flagOrtho:
+        tabA = 90 + tabA
+    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
             
     return ax
     
@@ -1007,7 +1030,7 @@ def polygon(poly, *args, **kwargs):
 def __ax_polygon(ax, poly, facecolor='yellow', edgecolor = 'blue', 
                  colorPerSet = False, flagEdge=True, flagFace=False, 
                  **kwargs):
-    if isNotCorrect(object=poly, types=["Polygons"]):
+    if __isNotCorrect(object=poly, types=["Polygons"]):
         return None
     
     npol = poly.getPolyElemNumber()
@@ -1110,7 +1133,7 @@ def raster(dbgrid, *args, **kwargs):
 
 def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=None, 
                 flagLegend=False, **kwargs):
-    name = defaultVariable(dbgrid, name)
+    name = __defaultVariable(dbgrid, name)
             
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
@@ -1150,7 +1173,7 @@ def isoline(dbgrid, *args, **kwargs):
 def __ax_isoline(ax, dbgrid, name=None, useSel = True, 
                  posX=0, posY=1, corner=None, levels=None,
                  flagLegend=False, **kwargs):
-    name = defaultVariable(dbgrid, name)
+    name = __defaultVariable(dbgrid, name)
         
     if len(ax.get_title()) <= 0:
         ax.decoration(title = dbgrid.getName(name)[0])
@@ -1185,13 +1208,13 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, useSel = True
               posX=0, posY=1, corner=None, flagCell=False,
               flagLegendRaster=False, flagLegendContour=False,
               levels=None, **kwargs):
-    if isNotCorrect(object=dbgrid, types=["DbGrid"]):
+    if __isNotCorrect(object=dbgrid, types=["DbGrid"]):
         return None
 
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
     if (name_raster is None) and (name_contour is None) and (not flagCell):
-        name_raster = defaultVariable(dbgrid, None)
+        name_raster = __defaultVariable(dbgrid, None)
 
     title = ""
     if name_raster is not None:
@@ -1271,7 +1294,7 @@ def histogram(db, *args, **kwargs):
     return __ax_histogram(ax, db=db, *args, **kwargs)
     
 def __ax_histogram(ax, db, name, useSel=True, **kwargs):
-    if isNotCorrect(object=db, types=["Db", "DbGrid"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
     db.useSel = useSel
@@ -1460,7 +1483,7 @@ def rule(ruleobj, *args, **kwargs):
     return __ax_rule(ax, ruleobj=ruleobj, *args, **kwargs)
 
 def __ax_rule(ax, ruleobj, proportions=[],cmap=None, maxG=3.):
-    if isNotCorrect(object=ruleobj, types=["Rule"]):
+    if __isNotCorrect(object=ruleobj, types=["Rule"]):
         return None
     
     nfac = ruleobj.getFaciesNumber()
@@ -1490,7 +1513,7 @@ def table(tableobj, ranks=None, *args, **kwargs):
     return __ax_table(ax, tableobj=tableobj, icols=ranks, *args, **kwargs)
     
 def __ax_table(ax, tableobj, icols, fmt='ok', flagLegend=False, **kwargs):
-    if isNotCorrect(object=tableobj, types=["Table"]):
+    if __isNotCorrect(object=tableobj, types=["Table"]):
         return None
     
     if len(icols) == 0:
@@ -1525,7 +1548,7 @@ def __ax_mesh(ax, meshobj,
               flagEdge=True, flagFace=False, flagApex=False, 
               facecolor="yellow", edgecolor="blue", linewidth=1,
               **kwargs):
-    if isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
+    if __isNotCorrect(object=meshobj, types=["Mesh","MeshETurbo","MeshEStandardExt"]):
         return None
     
     if flagFace:
@@ -1564,7 +1587,7 @@ def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True,
                      bissLine=False, bissColor="red", bissLineStyle='-',
                      regrLine=False, regrColor="blue", regrLineStyle='-',
                      **kwargs):
-    if isNotCorrect(object=db, types=["Db", "DbGrid"]):
+    if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
         
     if db2 is None:
@@ -1628,7 +1651,7 @@ def anam(anamobj, *args, **kwargs):
     
 def __ax_anam(ax, anamobj, color='blue', linestyle='-', flagLegend=False):
     
-    if isNotCorrect(object=anamobj, types=["Anam","AnamHermite"]):
+    if __isNotCorrect(object=anamobj, types=["Anam","AnamHermite"]):
         return None
 
     res = anamobj.sample()
