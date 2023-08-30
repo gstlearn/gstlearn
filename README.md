@@ -26,8 +26,6 @@ The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which
 
 The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
-When using the *gstlearn* C++ library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
-
 The *gstlearn* C++ library is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
 The *gstlearn* C++ library depends on the following third-party source code compiled in separate libraries (see **3rd-party** folder):
@@ -58,7 +56,7 @@ Finally, the *gstlearn* C++ library depends on the following third-party librari
 
 ## How to cite
 
-Please, use this to cite us in any publication or results for which **gstlearn** has been used:
+When using the *gstlearn* C++ Library, please, use this to cite us in any publication or results for which **gstlearn** has been used:
 
 ```
 --------------------------------------------------
@@ -68,6 +66,8 @@ Copyright © MINES Paris - PSL University
 Free download from https://gstlearn.org
 --------------------------------------------------
 ```
+
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib
 
 ## Requirements
 
