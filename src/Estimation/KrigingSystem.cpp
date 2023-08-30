@@ -1795,7 +1795,7 @@ bool KrigingSystem::isReady()
     }
   }
 
-  // Attach the Input and Out Db
+  // Attach the Input and Output Db
   _neigh->attach(_dbin, _dbout);
 
   // In Bayesian case, calculate the Posterior information
