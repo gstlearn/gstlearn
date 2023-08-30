@@ -20,7 +20,6 @@
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
