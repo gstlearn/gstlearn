@@ -36,6 +36,8 @@ Their is currently no R documentation for the *gstlearn* R package. The user can
 
 * If you ask for the class type of a *gstlearn* object under R (e.g. `class(mygrid)`), you will obtain the C++ class name prefixed with '_p_' (e.g. `_p_DbGrid`).
 
+* In *gstlearn* functions, when indices are mentioned, they start at 0 (following the C++ convention). Eg. the first variable is the variable with index 0.
+
 * Static C++ methods (e.g. `createFromNF` method in `DbGrid` class) defined in a class (e.g. `DbGrid`) are renamed by joining the class name and the method name (e.g. `DbGrid_createFromNF'`). Note: Static methods do not apply to object instances (e.g. `mygrid$createFromNF()` has no sense)
 
 * Static C++ variables (e.g. `X` locator) defined in a class (e.g. `ELoc` 'enum' class) must be accessed in R using special functions named following the same rules as static methods (e.g. `ELoc_X()`)
