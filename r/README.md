@@ -76,7 +76,7 @@ For building the *gstlearn* R package, the requirements for building *gstlearn C
 * R 4.2 or higher
 * RTools 4.2 or higher (for Windows users only)
 * *ggplot2* and *ggpubr* R packages [Optional] (only for plotting)
-* *knitr* and *callr* R packages [Optional] (only for testing R Markdown scripts)
+* *FNN*, *Matrix*, *knitr* and *callr* R packages [Optional] (only for testing R Markdown scripts)
 
 If you modified your system (or if you installed a new version or RTools), you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' and 'swig' existing source folders (if so).
 

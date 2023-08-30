@@ -26,5 +26,6 @@ doc/courses/*/*.poly*
 doc/courses/r/*.pdf
 doc/courses/r/.Rhistory
 doc/courses/r/.RData
+*.Rout
 .*~
 .metadata
