@@ -9,8 +9,6 @@ All *gstlearn* outputs can be ploted using *plot* generic function which relies 
 
 The *gstlearn* R package is a R wrapper of the [gstlearn C++ Library](https://gstlearn.org). It's the successor of the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-When using the *gstlearn* R Package, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
-
 This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).q
 
 The *gstlearn* R package is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
@@ -18,7 +16,7 @@ The *gstlearn* R package is a derivative work based on the *swigex0* project: [h
 
 ## How to cite
 
-Please, use this to cite us in any publication or results for which **gstlearn** has been used:
+When using the *gstlearn* R Package, please, use this to cite us in any publication or results for which **gstlearn** has been used:
 
 ```
 --------------------------------------------------
@@ -28,6 +26,8 @@ Copyright © MINES Paris - PSL University
 Free download from https://gstlearn.org
 --------------------------------------------------
 ```
+
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib)
 
 ## Installation
 
@@ -59,7 +59,6 @@ ggplot() + plot.grid(mygrid) + plot.decoration(title="Gaussian random field")
 Some tutorials (RMarkdown) are provided in the *demo* directory [here](https://soft.mines-paristech.fr/gstlearn).
 
 Some tests (R Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/r) directory of the *gstlearn* github repository.
-
 
 
 ## Changelog

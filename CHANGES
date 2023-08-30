@@ -3,10 +3,15 @@ This file contains the logs between consecutive releases
 # Make last version consistent with CMakeLists.txt
 
 
+Release 0.3.4
+=============
+- Update R readme
+
 Release 0.3.3
 =============
 - Fix Issues 76 & 77
 - Update official website URL
+- Improve SPDE class API
 
 Release 0.3.2
 =============
