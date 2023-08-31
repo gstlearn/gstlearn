@@ -316,7 +316,10 @@ def __isArray(tab, ndim=None):
     if not hasattr(tab, "__len__"):
         return False
     
-    if (ndim is not None) and (len(tab) is not ndim):
+    if not isinstance(tab, np.ndarray):
+        tab = np.asarray(tab)
+        
+    if (ndim is not None) and (tab.size is not ndim):
         return False
     
     return True
