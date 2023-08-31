@@ -13,7 +13,9 @@
 # plots easily 
 #
 
-# Define the global values in the given environment position (search)
+#' Define the global values in the given environment position (search)
+#
+#' @param pos Position in the list of packages
 plot.initialize <- function(pos=1) 
 {
   assign("plot.default_dims", list(c(8,8), c(8,8)), pos=pos)
@@ -23,6 +25,9 @@ plot.initialize <- function(pos=1)
   invisible()
 }
 
+#' Check if an argument is defined
+#' @param arg Argument to be checked
+#' @noRd
 isNotDef <- function(arg)
 {
   if (is.null(arg)) return (TRUE)
