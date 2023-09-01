@@ -308,6 +308,40 @@ const Table Selectivity::evalFromAnamorphosis(AAnam *anam)
   return getStats();
 }
 
+const Table Selectivity::getStats() const
+{
+  // Count the number of valid columns
+  MatrixInt numberQt = getNumberQt();
+  VectorString names = _getAllNames();
+  int nrow = getNCuts();
+  int ncol = 1; // Always start with the cutoffs
+  for (int icol = 0, ncolmax = numberQt.getNCols(); icol < ncolmax; icol++)
+    for (int irow = 0, nrowmax = numberQt.getNRows(); irow < nrowmax; irow++)
+      if (numberQt.getValue(irow, icol) > 0) ncol++;
+
+  // Allocate the output Table
+  Table rtable(nrow, ncol, true, true);
+
+  // Load list of cutoffs
+  int lec = 0;
+  int ecr = 0;
+  rtable.setColumn(ecr, getZcut());
+  rtable.setColumnName(ecr, names[0]);
+  ecr++;
+
+  // Load the valid columns
+  for (int icol = 0, ncolmax = numberQt.getNCols(); icol < ncolmax; icol++)
+    for (int irow = 0, nrowmax = numberQt.getNRows(); irow < nrowmax; irow++, lec++)
+    {
+      if (numberQt.getValue(irow, icol) <= 0) continue;
+      rtable.setColumn(ecr, _stats.getColumn(lec));
+      rtable.setColumnName(ecr, names[lec]);
+      ecr++;
+    }
+
+  return rtable;
+}
+
 /****************************************************************************/
 /*!
  **  Interpolate the Grade-Tonnage curves
