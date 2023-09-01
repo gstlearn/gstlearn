@@ -1,6 +1,6 @@
 ---
 title: "gstlearn"
-author: "Didier RENARD,  Nicolas DESASSIS, Mike PEREIRA"
+author: "Didier RENARD,  Nicolas DESASSIS, Mike PEREIRA, Xavier FREULON, Fabien ORS"
 output:
   html_document:
     df_print: paged
