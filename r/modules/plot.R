@@ -1324,6 +1324,43 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
     p
 }
 
+#' Represent the non-stationary parameters of a Model on a Grid
+#' @param model A Model object (carrying non-stationary parameters) from gstlearn
+#' @param dbgrid A Grid data base used for representation
+#' @param useSel Use of an optional selection (masking off samples)
+#' @param icov Rank of the covariance used for display
+#' @param color Color used for graphic representation
+#' @param flagOrtho Defines the long_axis of the anisotropy with respect to angle
+#' @param scale Size given to the arraws
+#' @return The ggplot object
+plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black', 
+	flagOrtho=TRUE, scale=40, ...)
+{
+    # Extracting coordinates
+    tabx = dbgrid$getCoordinates(0,useSel)
+    taby = dbgrid$getCoordinates(1,useSel)
+    
+    # Process the non-stationarity
+    db_model_nostat(dbgrid, model, icov)
+    tabR1 = dbgrid$getColumn("Nostat.Range-1", useSel)
+    tabR2 = dbgrid$getColumn("Nostat.Range-2", useSel)
+    tabA  = dbgrid$getColumn("Nostat.Angle-1", useSel)
+    if (flagOrtho) tabA = 90 + tabA
+    tabA = tabA * pi / 180.
+    
+    tabdx = (tabR1 * cos(tabA) - tabR2 * sin(tabA)) * scale
+    tabdy = (tabR1 * sin(tabA) + tabR2 * cos(tabA)) * scale
+    data = data.frame(x = tabx, y = taby, dx=tabdx, dy=tabdy)
+#    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
+    
+  	p = ggplot(data = data, aes(x = x, y = y)) + 
+ 	   geom_point(size = 1) + 
+ 	   geom_segment(aes(xend = x + dx, yend = y + dy),
+                 arrow = arrow(length = unit(0.1, "cm")))
+    
+	p
+}
+
 setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
 setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
 
