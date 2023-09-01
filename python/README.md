@@ -32,7 +32,7 @@ You may be interested in the citation file [gstlearn.bib](https://soft.mines-par
 
 ## Installation
 
-For using this Python package you only need Python 3 (or higher) (with numpy, pandas and matplotlib) and execute the following command:
+For using this Python package you only need Python 3.8 (or higher) (with numpy, pandas and matplotlib) and execute the following command:
 
 ```
 pip install gstlearn
