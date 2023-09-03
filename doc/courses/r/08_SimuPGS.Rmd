@@ -1,17 +1,12 @@
 ---
-title: "PluriGaussian Simulations"
+title: "Tutorial on PluriGaussian Simulations"
 author: "gstlearn Team"
-date: "January 2023"
 output:
-  beamer_presentation:
-    colortheme: beaver
-    fig_height: 5
-    theme: Boadilla
-  slidy_presentation: default
-  ioslides_presentation: default
-fontsize: 8pt
-theme: Boadilla
-colortheme: beaver
+  html_document:
+    df_print: paged
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r setup,include=FALSE, fig.show='hide'}
@@ -20,7 +15,7 @@ knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       fig.align = "center") 
 ```
 
-\frametitle{Preamble}
+# Preamble
 
 ```{r loading_library, message=FALSE}
 rm(list=ls())
@@ -28,6 +23,8 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 ```
+
+# Creating the Environment
 
 Defining some essential parameters:
 
@@ -54,9 +51,7 @@ model = Model_createFromParam(type=ECov_CUBIC(), ranges=c(50,30))
 neigh = NeighUnique()
 ```
 
----
-
-\frametitle{Defining Internal Display Function}
+Defining Internal Display Function
 
 Defining the internal function **plot.dat** used to visualize the data set with convenient color representation:
 
@@ -65,9 +60,7 @@ Defining the internal function **plot.dat** used to visualize the data set with 
 - third facies in *yellow*
 - samples which must belong to the same connected component in *black*
 
----
-
-\frametitle{Display Data}
+Display Data
 
 ```{r Internal_Function}
 # TODO: Utiliser CMAP
@@ -79,9 +72,7 @@ p = p + plot.decoration(title="Conditioning Information")
 ggPrint(p)
 ```
 
----
-
-\frametitle{Proportions and Lithotype Rule}
+Proportions and Lithotype Rule
 
 ```{r Creating_Proportions_and_Rule,fig.align='center'}
 props = dbStatisticsFacies(data)
@@ -94,9 +85,9 @@ p = p + plot.decoration(title="Lithotype Rule")
 ggPrint(p)
 ```
 
----
+# Variography
 
-\frametitle{Model of Underlying GRF}
+Model of Underlying GRF
 
 Calculate the Experimental Variogram of the Underlying Gaussian Random Function and fit the Model (used in PGS).
 
@@ -112,9 +103,9 @@ err = model_gaus$fit(vario, types=ECov_fromKeys(c("CUBIC")),
 ggplot() + plot.varmod(vario, model_gaus, asCov=TRUE)
 ```
 
----
+# Simulations
 
-\frametitle{PluriGaussian Simulation}
+PluriGaussian Simulation
 
 ```{r Perform_PGS}
 err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus, 
@@ -125,23 +116,23 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 
 ```{r Show_several_simulation_outcome}
 p1 = ggDefaultGeographic()
-p1 = p1 + plot(grid, "SimuPGS.1")
+p1 = p1 + plot(grid, name_raster="SimuPGS.1")
 p1 = p1 + plot(data, name_color="facies", name_size="connect")
 p2 = ggDefaultGeographic()
-p2 = p2 + plot(grid, "SimuPGS.2")
+p2 = p2 + plot(grid, name_raster="SimuPGS.2")
 p2 = p2 + plot(data, name_color="facies", name_size="connect")
 p3 = ggDefaultGeographic()
-p3 = p3 + plot(grid, "SimuPGS.3")
+p3 = p3 + plot(grid, name_raster="SimuPGS.3")
 p3 = p3 + plot(data, name_color="facies", name_size="connect")
 p4 = ggDefaultGeographic()
-p4 = p4 + plot(grid, "SimuPGS.4")
+p4 = p4 + plot(grid, name_raster="SimuPGS.4")
 p4 = p4 + plot(data, name_color="facies", name_size="connect")
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
 ```
 
----
+# Simulations under constraints
 
-\frametitle{Acceptation Function}
+Acceptation Function
 
 Acceptation internal function: Select a **Target Facies** and build its Connected Components. For each simulation outcome, check the ranks of the connected component(s) at constraining wells and **accept** the simulation if all ranks are similar.
 
@@ -180,18 +171,14 @@ accept <- function(data, grid, name, verbose=FALSE, transBinary=TRUE, faccc=2)
 }
 ```
 
----
-
-\frametitle{Experiment the Acceptation Function on one Simulation outcome}
+Experiment the Acceptation Function on one Simulation outcome
 
 ```{r Check_acceptation_function_on_one_simulation}
 isValid = accept(data, grid, "SimuPGS.1", TRUE)
 cat("Connectivity for Simulation #1 :",isValid,"\n")
 ```
 
----
-
-\frametitle{Probability Map}
+Probability Map
 
 * For each simulation, convert a pixel into 1 if it matches the Target Facies and 0 otherwise
 * Calculate the mean per pixel over all simulation outcomes
@@ -218,10 +205,6 @@ for (i in 1:nbsimu)
 }
 cat("Number of valid simulations =", nb.valid, "out of", nbsimu, "\n")
 ```
-
----
-
-\frametitle{Probability Map}
 
 Derive the Probability Map
 
