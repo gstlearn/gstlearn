@@ -17,6 +17,36 @@
 
 class Db;
 
+/**
+ * Naming Convention facility
+ * This class describes the way variables created within the current procedure
+ * will be named afterwards and will possibly be assigned a locator.
+ *
+ * The generic name is generated as follows:
+ *      prefix.varname.qualifier.rank
+ *
+ * - prefix: string provided in the constructor of this class
+ * - varname: name of the (input) variable on which the procedure is performed
+ * - qualifier: type of element stored in the variable
+ * - rank: rank of the output variable (if several variables of the same type are generated)
+ *
+ * The choice of the 'prefix' is done by the user when launching the procedure
+ * the other parameters are usually defined within the procedure.
+ *
+ * For example, when running 'kriging' function with several variables defined
+ * in the input Db - say "Pb" abd "Zn" (they are assigned a Z-locator),
+ * using the following command:
+ *    kriging( ... namconv = NamingConvention("MyPrefix") )
+ *
+ * Then the 'kriging' procedure generates variables such as:
+ *
+ * - MyPrefix.Pb.estim (estimation of Pb by CoKriging)
+ * - MyPrefix.Zn.estim (estimation of Zn by CoKriging)
+ * - MyPrefix.Pb.stdev (St. Dev. of estimation error of Pb by CoKriging)
+ * - MyPrefix.Zn.stdev (St. Dev. of estimation error of Zn by CoKriging)
+ *
+ * Ultimately, the newly created variables are assigned a locator.
+ */
 class GSTLEARN_EXPORT NamingConvention
 {
 public:
@@ -38,10 +68,6 @@ public:
                                   const ELoc &locatorOutType = ELoc::fromKey("Z"),
                                   String delim = ".",
                                   bool cleanSameLocator = true);
-
-  VectorString createNames(const VectorString &names,
-                           const String &qualifier = String(),
-                           int nitems = 1) const;
 
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
@@ -113,13 +139,16 @@ private:
                  const VectorString& names,
                  const String& qualifier,
                  int nitems) const;
+  VectorString _createNames(const VectorString &names,
+                           const String &qualifier = String(),
+                           int nitems = 1) const;
 
 private:
-  String _prefix;
-  String _delim;
-  bool   _flagVarname;
-  bool   _flagQualifier;
-  bool   _flagLocator;
-  ELoc   _locatorOutType;
-  bool   _cleanSameLocator;
+  String _prefix; //!< String used as 'prefix'
+  String _delim; //!< Character used as the 'delimitor' between different parts of the names
+  bool   _flagVarname; //!< When TRUE, add the 'variable name'
+  bool   _flagQualifier; //! When TRUE, add the 'qualifier'
+  bool   _flagLocator; //!< When TRUE, assign a locator to the newly created variables
+  ELoc   _locatorOutType; //!< Type of locator assigned (if 'flagLocator' is TRUE)
+  bool   _cleanSameLocator; //!< Clean variables with the same locator beforehand
 };
