@@ -1,9 +1,12 @@
 ---
 title: "gstlearn"
-author: "Didier RENARD,  Nicolas DESASSIS, Mike PEREIRA"
+author: "gstlearn Team"
 output:
   html_document:
     df_print: paged
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
@@ -32,13 +35,13 @@ The classes and functions documentation is provided with the *gstlearn* C++ libr
 
 Their is currently no R documentation for the *gstlearn* R package. The user can refer to the C++ documentation and have to learn how to adapt the code into R language following these "conversion rules":
 
-* C++ classes are automatically converted into S4 classes. After creating an instance of an S4 class, methods (i.e. class function) must be called using `$` slot applied to the instance (i.e. an object) of that class (see `addColumns` in the example below which is a method of the class `Db`).
+* C++ classes are automatically converted into S4 classes. After creating an instance of an S4 class, methods (i.e. class function) must be called using `$` slot applied to the instance (i.e. an object) of that class (see `db$display()` in the example below).
 
 * If you ask for the class type of a *gstlearn* object under R (e.g. `class(mygrid)`), you will obtain the C++ class name prefixed with '_p_' (e.g. `_p_DbGrid`).
 
 * In *gstlearn* functions, when indices are mentioned, they start at 0 (following the C++ convention). Eg. the first variable is the variable with index 0.
 
-* Static C++ methods (e.g. `createFromNF` method in `DbGrid` class) defined in a class (e.g. `DbGrid`) are renamed by joining the class name and the method name (e.g. `DbGrid_createFromNF'`). Note: Static methods do not apply to object instances (e.g. `mygrid$createFromNF()` has no sense)
+* Static C++ methods (e.g. `createFromNF` method in `DbGrid` class) defined in a class (e.g. `DbGrid`) are renamed by joining the class name and the method name (e.g. `DbGrid_createFromNF`). Note: Static methods do not apply to object instances (e.g. `mygrid$createFromNF()` has no sense)
 
 * Static C++ variables (e.g. `X` locator) defined in a class (e.g. `ELoc` 'enum' class) must be accessed in R using special functions named following the same rules as static methods (e.g. `ELoc_X()`)
 
@@ -51,7 +54,6 @@ Their is currently no R documentation for the *gstlearn* R package. The user can
 * Some classes of the *gstlearn* C++ library have been extended in R:
   * Almost all classes are 'stringable' (those which inherit from `AStringable`), that means that you can type the object name in the R console prompt and hit 'Enter' key to obtain a detailed description of the object content. The same output text is obtained using the `display` method (e.g. `mygrid$display()`)
   * Some classes have an additional R method named `toTL` (i.e. 'to Target Language') that permits to convert an object into the corresponding R type. For example, the instruction `df = mygrid$toTL()` permits to create a R `data.frame` from a `Db` object. In that case, the newly created `data.frame` will contain all variables from the Db (but locators and grid parameters (for DbGrid) will be lost)
-
 		
 ### Loading the  package
 
@@ -72,7 +74,6 @@ p = p + plot.decoration(title="Check is successful!")
 ggPrint(p)
 db$display()
 ```
-
 
 ### RGeostats to gstlearn
 

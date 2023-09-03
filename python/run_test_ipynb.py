@@ -41,6 +41,9 @@ if (out_type == "asciidoc"):
 # Export to HTML 
 elif (out_type == "html"):
     exporter = HTMLExporter()
+    # Ensure that equations and 3D is well displayed!
+    exporter.mathjax_url = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    exporter.require_js_url = "https://requirejs.org/docs/release/2.3.6/minified/require.js"
 # Export to PDF
 elif (out_type == "pdf"):
     exporter = PDFExporter()
