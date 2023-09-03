@@ -35,7 +35,10 @@ library(ggpubr)
 plot.setDefaultGeographic(dims=c(8,8))
 ```
 
-We load the data bases containing the observations (`dat`) and the target points (`target`).
+We load two data bases:
+
+* a data base `dat` containing point observations of two variables across Scotland: the elevation (`Elevation`) and the temperature (`January_temp`, then renamed as `Temperature`)
+* a data base `target` containing a grid of points covering Scotland with a selection variable (`inshore`) selecting the points that are on land, and a variable (`Elevation`) giving the elevation at every point on land
 
 ```{r Loading data, message=FALSE,results=FALSE}
 #--- MP --- 
@@ -44,6 +47,8 @@ dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Tempera
 fileNF = "Scotland_Temperatures.NF"
 download.file(dlfile, fileNF)
 dat = Db_createFromNF(fileNF)
+
+## Rename the temperature variable
 dat$setName("*temp", "Temperature")
 
 ## Target grid
