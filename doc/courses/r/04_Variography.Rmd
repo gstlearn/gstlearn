@@ -1,10 +1,12 @@
 ---
-title: "Variography"
+title: "Tutorial on Variography"
 author: "gstlearn Team"
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}

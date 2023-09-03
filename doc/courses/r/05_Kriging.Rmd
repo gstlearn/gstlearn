@@ -1,11 +1,12 @@
 ---
-title: "Kriging with gstlearn"
+title: "Tutorial on Estimation"
 author: "gstlearn Team"
-fontsize: 8pt
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}

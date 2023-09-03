@@ -1,7 +1,12 @@
 ---
 title: "Introduction"
-output: html_document
-date: '2023-09-02'
+author: "gstlearn Team"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}

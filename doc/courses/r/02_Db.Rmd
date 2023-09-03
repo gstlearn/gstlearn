@@ -1,10 +1,12 @@
 ---
-title: "Using Data Base in gstlearn"
+title: "Tutorial on Data Base"
 author: "gstlearn Team"
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
