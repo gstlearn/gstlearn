@@ -62,6 +62,17 @@ NamingConvention::~NamingConvention()
 {
 }
 
+/**
+ * Construct an item of the Naming Convention Class
+ * @param prefix Name given to the prefix
+ * @param flag_varname When TRUE, the 'varname' is included in the output names
+ * @param flag_qualifier When TRUE, the 'qualifier' is included in the output names
+ * @param flag_locator When TRUE, the output variables receive a 'locator'
+ * @param locatorOutType Type of locator assigned to the output variables
+ * @param delim Symbol used as a delimitor separating the different parts of the output names
+ * @param cleanSameLocator When TRUE and if 'flag_locator' is TRUE, all variables assigned to the same locator are cancelled beforehand
+ * @return
+ */
 NamingConvention* NamingConvention::create(String prefix,
                                            bool flag_varname,
                                            bool flag_qualifier,
@@ -75,7 +86,10 @@ NamingConvention* NamingConvention::create(String prefix,
 }
 
 /**
- * Naming a set of variables of 'dbout' identified by their names
+ * Newly created variables are named as follows:
+ *
+ * 'prefix'.'qualifier'.'item_rank'
+ *
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
  * @param qualifier Optional qualifier
@@ -97,8 +111,11 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
 }
 
 /**
- * Naming from a set of variables identified by their names
- * @param names Vector of variable names in Input Db
+ * Newly created variables are named as follows:
+ *
+ * 'prefix'.'names[i]'.qualifier'.'item_rank'
+ *
+ * @param names Vector of variable names
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
  * @param qualifier Optional qualifier
@@ -125,7 +142,10 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
 }
 
 /**
- * Naming given the set of output variable names
+ * Newly created variables are named as follows:
+ *
+ * "names[i]"
+ *
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
  * @param names Vector of output variable names
@@ -149,7 +169,10 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
 }
 
 /**
- * Naming from one variable identified by its names
+ * Newly created variables are named as follow:
+ *
+ * 'prefix'.'namin'.'qualifier'.'item_rank'
+ *
  * @param namin variable name in Input Db
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
@@ -177,9 +200,13 @@ void NamingConvention::setNamesAndLocators(const String& namin,
 }
 
 /**
- * Naming from a set of variables identified by their locatorType
+ * Newly created variables are named as follow:
+ *
+ * 'prefix'.'v_Loc'.'qualifier'.'item_rank'
+ * where 'v_Loc' stands for the name of the variable(s) with locator 'Loc' in 'dbin'
+ *
  * @param dbin  Pointer to the input Db (kept for symmetry)
- * @param locatorInType Locator Tyoe of the variables in Input Db
+ * @param locatorInType Locator Type of the variables in Input Db
  * @param nvar Number of items belonging to the locatorType
  *             (if -1, all the items available for this locator are used)
  * @param dbout Pointer to the output Db
@@ -219,7 +246,11 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
 }
 
 /**
- * Naming from a set of variables identified by their attribute indices
+ * Newly created variables are named as follow:
+ *
+ * 'prefix'.'v[i]'.'qualifier'.'item_rank'
+ * where v[i] is the variable with rank 'i' within 'dbin'
+ *
  * @param dbin  Pointer to the input Db (kept for symmetry)
  * @param iatts Vector of attribute indices of the variables in Input Db
  * @param dbout Pointer to the output Db
@@ -254,7 +285,10 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
  }
 
 /**
- * Naming from a set of variables identified by their attribute indices
+ * Newly created variables are named as follow:
+ *
+ * 'prefix'.'v[iatt]'.'qualifier'.'item_rank'
+ *
  * @param dbin  Pointer to the input Db (kept for symmetry)
  * @param iatt  Attribute index of the variables in Input Db
  * @param dbout Pointer to the output Db
@@ -319,7 +353,7 @@ void NamingConvention::_setNames(Db *dbout,
                                  const String& qualifier,
                                  int nitems) const
 {
-  VectorString outnames = createNames(names, qualifier, nitems);
+  VectorString outnames = _createNames(names, qualifier, nitems);
 
   int ecr = 0;
   int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
@@ -340,9 +374,9 @@ void NamingConvention::_setNames(Db *dbout,
  * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
  */
-VectorString NamingConvention::createNames(const VectorString& names,
-                                           const String& qualifier,
-                                           int nitems) const
+VectorString NamingConvention::_createNames(const VectorString &names,
+                                            const String &qualifier,
+                                            int nitems) const
 {
   VectorString outnames;
 
