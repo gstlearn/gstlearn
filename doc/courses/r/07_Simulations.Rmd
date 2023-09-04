@@ -1,11 +1,12 @@
 ---
 title: "Gaussian simulations"
 author: "gstlearn Team"
-date: "February 2023"
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
@@ -18,15 +19,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-
-
 ## Preamble
 
 In this preamble, we load the **gstlearn** library and clean the workspace. 
 
 ```{r Loading libraries, message=FALSE,results=FALSE}
-#--- MP --- 
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
@@ -78,8 +75,6 @@ ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim)
 ```
 
-
-
 ---
 
 ## Unconditional simulation
@@ -96,27 +91,25 @@ Optionally, we can specify a seed number for the simulation (to ensure reproduci
 Let us generate a sample from the model `fitmod` we fitted on the observations. First, we simulate the model with a single turning band.
 
 ```{r Unconditional Simulation with 1 band}
-## Simulation
 err = simtub(dbout=target, model=fitmod, 
              nbsimu=1,
              nbtuba=1, seed=12454,
              namconv=NamingConvention("Simu1"))
+target$display()
 ```
 
 ```{r Unconditional Simulation with 1 band - Plot}
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target, name_raster = "Simu1",
-            show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+            show.legend.raster=TRUE,palette="Spectral",
+            legend.name.raster="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
-target$display()
 ```
 
 Let us now simulate the model using 10 turning bands.
 
 ```{r Unconditional Simulation with 10 band}
-## Simulation
 err = simtub(dbout=target, model=fitmod, 
              nbsimu=1,
              nbtuba=10, seed=12454,
@@ -124,7 +117,6 @@ err = simtub(dbout=target, model=fitmod,
 ```
 
 ```{r Unconditional Simulation with 10 band - Plot}
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target, name_raster = "Simu10",
             show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
@@ -132,11 +124,9 @@ p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
 ```
 
-
 Let us now simulate the model using 1000 turning bands.
 
 ```{r Unconditional Simulation with 1000 band}
-## Simulation
 err = simtub(dbout=target, model=fitmod, 
              nbsimu=1,
              nbtuba=1000, seed=12454,
@@ -144,15 +134,12 @@ err = simtub(dbout=target, model=fitmod,
 ```
 
 ```{r Unconditional Simulation with 1000 band - Plot}
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target, name_raster = "Simu1000",
             show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
 ```
-
-
 
 ---
 
@@ -218,25 +205,23 @@ Let us now compute the mean of the simulations we just generated. To do so, we u
 err = target$statistics(names=c("Simu.January_temp*"), 
                         opers=EStatOption_fromKeys(c("MEAN")),
                         flagStoreInDb=TRUE)
-
 ```
-
 
 Let us compare the mean of the simulations with result from a simple kriging prediction of the temperature.
 
 ```{r Compute kriging}
-## Compute kriging
 err = kriging(dat, target, model=fitmod, 
               neigh = neighU,
               namconv=NamingConvention("KS"))
-
 ```
 
 ```{r Plot correlation plot}
 ## Plot correlation plot
 p = ggplot()
 p = p + plot.correlation(target, "Stats.MEAN", "KS*estim", flagDiag=TRUE, bins=100)
-p = p + plot.decoration(xlab="Mean of Simulations", ylab="Simple Kriging Estimate",title = "Correlation plot - Mean of simulations / Kriging")
+p = p + plot.decoration(xlab="Mean of Simulations", 
+                        ylab="Simple Kriging Estimate",
+                        title = "Correlation plot")
 ggPrint(p)
 ```
 
@@ -262,7 +247,6 @@ target = DbGrid_createFromNF(fileNF)
 
 We will consider the temperature as our variable of interest, and the elevation as an external drift. Hence, we set the elevation variable to a `f` locator in both data bases.
 
-
 ```{r Set locators - ED}
 ## Set `f` locator to elevation in `dat` data base
 err=dat$setLocator("Elevation", ELoc_F())
@@ -270,7 +254,6 @@ err=dat$setLocator("Elevation", ELoc_F())
 ## Set `f` locator to elevation in `target` data base
 err=target$setLocator("Elevation", ELoc_F())
 ```
-
 
 Finally, we create a model with external drift, which we fit on our data.
 
@@ -288,6 +271,7 @@ err = model_ED$fit(vario_resED,
                    types=ECov_fromKeys(c("SPHERICAL","CUBIC")))
 model_ED$display()
 ```
+
 Let us plot the fitted model (solid line) together with the experimental variogram (dashed line).
 
 ```{r Plot fitted model - ED}
@@ -297,13 +281,11 @@ ggplot() + plot.varmod(vario_resED, model_ED)
 Now, to generate 10 conditional simulations from the model with external drift that we just create, we call the `simtub` function with the same synthax as before.
 
 ```{r Simulations - ED}
-## Simulation
 err = simtub(dbin=dat, dbout=target, model=model_ED, 
              neigh=neighU,
              nbsimu=nbsimu,
              nbtuba=nbtuba, seed=seed)
 ```
-
 
 Let us display a few simulation results.
 
@@ -338,14 +320,12 @@ err = target$statistics(names=c("Simu.January_temp*"),
 err = kriging(dat, target, model=model_ED, 
               neigh = neighU,
               namconv=NamingConvention("KED"))
-
 ```
 
 ```{r Plot correlation plot - ED}
-## Plot correlation plot
 p = ggplot()
 p = p + plot.correlation(target, "Stats.MEAN", "KED*estim", flagDiag=TRUE, bins=100)
-p = p + plot.decoration(xlab="Mean of Simulations", ylab="Kriging with External Drift",title = "Correlation plot - Mean of simulations / Kriging with external drift")
+p = p + plot.decoration(xlab="Mean of Simulations", ylab="Kriging with External Drift",title = "Correlation plot")
 ggPrint(p)
 ```
 
