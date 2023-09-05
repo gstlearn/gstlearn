@@ -62,16 +62,34 @@ library(gstlearn)
 library(ggplot2)
 ```
 
+Calling the next function (*acknowledge_gstlearn*) at startup is a good practice in order to check the version of **gstlearn** you are currently running:
+
+```{r}
+#acknowledge_gstlearn()
+```
+
 ### First code: Create and display a database
 
-```{r Create-and-display-the-grid}
+We create a regular 2-D grid and simulate a variable using a geostatistical Model
+
+```{r Create-the-grid}
 db = DbGrid_create(nx=c(100,100))
 model = Model_createFromParam(type = ECov_CUBIC(), range = 30)
 err = simtub(NULL, db, model, nbtuba=1000)
-p = ggplot()
-p = p + plot(db, "Simu")
+```
+
+The simulated result is plotted
+
+```{r Display-the-grid}
+p = ggDefaultGeographic()
+p = p + plot.grid(db)
 p = p + plot.decoration(title="Check is successful!")
 ggPrint(p)
+```
+
+If you obtain a nice looking image corresponding to the simulation result on the grid ... the installation of **gstlearn** is successfull. Here is the description of your grid database content:
+
+```{r Show-the-grid-content}
 db$display()
 ```
 
