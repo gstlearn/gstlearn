@@ -29,6 +29,8 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 
+flagInternetAvailable=TRUE
+
 ## Global plot option
 plot.setDefaultGeographic(dims=c(8,8))
 ```
@@ -39,16 +41,18 @@ We load two data bases:
 * a data base `target` containing a grid of points covering Scotland with a selection variable (`inshore`) selecting the points that are on land, and a variable (`Elevation`) giving the elevation at every point on land
 
 ```{r Preamble, message=FALSE}
-## Observations
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+## Data points
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
 
-## Targets
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+## Target grid
 fileNF = "Scotland_Elevations.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 target = DbGrid_createFromNF(fileNF)
 ```
 
@@ -242,14 +246,18 @@ In this section, we show how to simulate a model with external drifts. To do so,
 Let us build such a model, to illustrate our point. We start by reloading the two data bases of the Preambule.
 
 ```{r Reload data}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+## Data points
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
 
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+## Target grid
 fileNF = "Scotland_Elevations.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 target = DbGrid_createFromNF(fileNF)
 ```
 

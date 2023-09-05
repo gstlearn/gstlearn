@@ -29,6 +29,8 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
 ```
 
 ```{r Global plot option}
@@ -43,14 +45,18 @@ We load two data bases:
 ```{r Loading data, message=FALSE,results=FALSE}
 ## Data points
 fileNF = "Scotland_Temperatures.NF"
-download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
 ### Rename the temperature variable
 dat$setName("*temp", "Temperature")
 
 ## Target grid
 fileNF = "Scotland_Elevations.NF"
-download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 target = DbGrid_createFromNF(fileNF)
 ```
 ### Exploratory data analysis
