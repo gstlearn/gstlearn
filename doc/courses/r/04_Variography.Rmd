@@ -1,10 +1,12 @@
 ---
-title: "Variography"
+title: "Tutorial on Variography"
 author: "gstlearn Team"
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
@@ -16,8 +18,6 @@ knitr::opts_chunk$set(
   fig.width=5,fig.height=5,fig.align="center"
 )
 ```
-
-
 
 ### Preamble
 
@@ -54,6 +54,9 @@ In **gstlearn**, variogram clouds are computed as grids. We compute the variogra
 varioParamOmni = VarioParam_createOmniDirection(npas = 100)
 grid.cloud = db_variogram_cloud(dat, varioParamOmni)
 grid.cloud$display()
+```
+
+```{r Variogram_Cloud_Graphics}
 p = ggplot()
 p = p + plot.grid(grid.cloud, "Cloud.January*")
 p = p + plot.geometry(asp=0)
@@ -61,8 +64,6 @@ ggPrint(p)
 ```
 
 ---
-
-
 
 ### Experimental (isotropic) variograms
 
@@ -73,26 +74,21 @@ where $N(h)$ is set of all pairs of data points separated by a distance $h$ (cal
 $$ N(h) = \bigg\lbrace (i,j) : \Vert x_j-x_i\Vert = h\bigg\rbrace_{1\le i\le j\le n},$$
 and $\vert N(h)\vert$ is the cardinal of $N(h)$. In practice, when computing $\gamma(h)$, we look for pairs of data points separated by a distance $h \pm \tau h$ where $\tau > 0$ is a tolerance on the separation distance $h$. In other words, $N(h)$ is replaced by
 $$ \widehat N(h) = \bigg\lbrace (i,j) : (1-\tau)h \le \Vert x_j-x_i\Vert \le (1+\tau) h\bigg\rbrace_{1\le i\le j\le n}$$
-
-
-
-
 To compute an experimental variogram, we start by creating a `VarioParam` object containing the parameters of the variogram. This is done using the function `VarioParam_createOmniDirection`. We can specify the number of lags $h$ for which the experimental variogram is computed (argument `npas`), and the distance between these lags (argument `dpas`), as well as the tolerance $\tau$ on the lags (argument `toldis`).
 
 Then, the experimental variogram is computed in two steps. First, a `Vario` object is initialized from the `VarioParam` object  and the `Db` containing the data points. Then, the values of the experimental variogram at the lags specified by  the `VarioParam` object  are computed using the method `compute` of the `Vario` object (which returns an error code, `0` meaning that no error was detected).
 
-Note : The variable $z$ for which we wish to define the experimental variogram should be the only variable in the `Db` with a `z` locator (i.e. it should have locator `z1` and the other variables should not have a locator starting with `z`). this can be done bu using the method `setLocator` of the `Db` object containing the data. If several variables with `z` locators are present in the `Db`, then cross-variograms between are also computed (this subject will be covered in the course on multivariate analysis). 
+Note : The variable $z$ for which we wish to define the experimental variogram should be the only variable in the `Db` with a `z` locator (i.e. it should have locator `z1` and the other variables should not have a locator starting with `z`). This can be done bu using the method `setLocator` of the `Db` object containing the data. If several variables with `z` locators are present in the `Db`, then cross-variograms between are also computed (this subject will be covered in the course on multivariate analysis). 
 
 In the next example, we compute an experimental variogram with $40$ lags separated by a distance $10$ (meaning that we take $h =10i$ for $i=0, ..., 39$), and consider a tolerance $\tau = 10\%$ for the variogram computations. We use the `Db` `dat`, and select the variable `January_temp` as our variable of interest (by setting its locator to "z").
 
 ```{r Experimental_Variogram, results=FALSE}
-#--- MP ---
-varioParamOmni = VarioParam_createOmniDirection(npas=40, dpas=10,toldis = 0.1) ## Added toldis
-dat$setLocator("January_temp",ELoc_Z()) ## Added variable selection
+varioParamOmni = VarioParam_createOmniDirection(npas=40, dpas=10,toldis = 0.1) 
+
+dat$setLocator("January_temp",ELoc_Z())
 varioexp = Vario(varioParamOmni, dat)
 err = varioexp$compute()
 ```
-
 
 We now print the contents of the newly created experimental variogram. The $40$ experimental variogram values are displayed (Columun `Value`), together with the number $\vert \widehat N(h)\vert$ of pairs used to compute the value (Columun `Npairs`) and the average distance between the points forming these pairs (Column `Distance`).
 
@@ -100,14 +96,13 @@ We now print the contents of the newly created experimental variogram. The $40$ 
 varioexp
 ```
 
-
-We now plot the experimental variogram using **ggplot** and the dedicated function `plot.varmod`. In the resulting figure, the experimental variogram is plotted in blue, and the dashed blacked line corresponds to the value of the variance of the data.
+We now plot the experimental variogram. In the resulting figure, the experimental variogram is plotted in blue, and the dashed blacked line corresponds to the value of the variance of the data.
 
 ```{r Plot_Experimental_Variogram}
 ggplot() + plot.varmod(varioexp)
 ```
 
-The `draw_psize` argument  of function `plot.varmod` allows to adapt the size of experimental variogram points in the plot so that it is proportional to the number of pairs of points used to compute the value. 
+We can also adapt the size of experimental variogram points in the plot so that it is proportional to the number of pairs of points used to compute the value. 
 
 ```{r Plot_Experimental_Variogram_continued}
 ggplot() + plot.varmod(varioexp,draw_psize=TRUE)
@@ -127,6 +122,9 @@ In the next example, we create a `Model` object, that we fit on the experimental
 ```{r Variogram_Model}
 fitmod = Model()
 err = fitmod$fit(varioexp)
+```
+
+```{r Variogam_Model_plot}
 ggplot() + plot.varmod(varioexp, fitmod)
 ```
 
@@ -135,8 +133,8 @@ We now print the content of our newly created model. As we can see, only one bas
 ```{r Variogram_Model_Print}
 fitmod
 ```
-#### Model Fitting with pre-defined basic structures
 
+#### Model Fitting with pre-defined basic structures
 
 It is also possible to guide the model fitting by proposing a list of basic covariance structures from which the model is to be built. The list of available basic covariance structures is obtained by running the following command:
 
@@ -153,8 +151,12 @@ In the next example, we once again define a model by fitting it on our experimen
 ```{r Model_Fitting_List1}
 types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL"))
 err = fitmod$fit(varioexp, types=types)
+```
+
+```{r Model_Fitting_List1_plot}
 ggplot() + plot.varmod(varioexp, fitmod)
 ```
+
 When printing the contents of the model, we now notice that it consists of a superposition of a Cubic covariance and a Spherical covariance, as intended. Note that the Nugget effect does not appear (it has been dropped by the fitting algorithm).
 
 ```{r Model_Fitting_List2}
@@ -166,18 +168,20 @@ fitmod
 
 It is possible to impose (in)equality constraints on the covariance parameters of the basic structures used in the model fitting procedure. This is done by creating a `Constraints` object that is used to specify the constraints we wish to impose on the parameters of the different basic structures composing the model. To add a constraint to the object, we can use the method `addItemFromParamId`, which takes as arguments the type of parameter for which the constraint applies (given as an `EConsElem` object: run `EConsElem_printAll()` for the list of available options), the index of the basic structure for which the constraint applies (argument `icov`), the type of constraint we wish to apply (argument `type`, given as an `EConsType` object: run `EConsType_printAll()` for the list of available options) and finally the numerical value (argument `value`) defining the constraint.
 
-
 In the next example, we start from a list of three basic structures (a Nugget effect, a Cubic covariance and a Spherical covariance), and create a `Constraints` object conatining two constrainits. The first one applies to the basic structure of index $1$ (the cubic structure), and sets an upper-bound of $20$ for its range. The second one also applies to the basic structure of index $1$ (the cubic structure), and sets an lower-bound of $0.03$ for its sill. Finally, the `fit` method is called to fit the model on the experimental variogram. Note that we also added the option `optvar=Option_VarioFit(TRUE)` to force the fitting algorithm to keep the three basic structures that we supplied.
 
 ```{r Model_Fitting_Inequality_1}
-#--- MP ---
-types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL")) ## Added types
+types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL"))
 constraints = Constraints()
 err = constraints$addItemFromParamId(EConsElem_RANGE(),icov=1,type=EConsType_UPPER(),value=20.)
 err = constraints$addItemFromParamId(EConsElem_SILL(),icov=1,type=EConsType_LOWER(),value=0.03)
-err = fitmod$fit(varioexp, types=types, constraints=constraints, optvar=Option_VarioFit(TRUE)) ## Changed
+err = fitmod$fit(varioexp, types=types, constraints=constraints, optvar=Option_VarioFit(TRUE))
+```
+
+```{r Model_Fitting_Inequality_1_Plot}
 ggplot() + plot.varmod(varioexp, fitmod)
 ```
+
 When printing the content of the fitted model, we see that the constraints are indeed satisfied (and that the three basic structures are present).
 
 ```{r Model_Fitting_Inequality_2}
@@ -187,11 +191,13 @@ fitmod
 In the following example, we now apply equality constraints to the parameters. The first one applies to the basic structure of index $1$ (the cubic structure), and sets its range to the value $1000$. The second one also applies to the basic structure of index $1$ (the cubic structure), and sets its sill to the value $0.4$. 
 
 ```{r Model_Fitting_Equality_1}
-#--- MP ---
 constraints = Constraints()
 err = constraints$addItemFromParamId(EConsElem_RANGE(),icov=1,type=EConsType_EQUAL(),value=1000.)
 err = constraints$addItemFromParamId(EConsElem_SILL(),icov=1,type=EConsType_EQUAL(),value=0.4)
-err = fitmod$fit(varioexp, types=types, constraints=constraints, optvar=Option_VarioFit(TRUE)) ## Changed for coherence with before
+err = fitmod$fit(varioexp, types=types, constraints=constraints, optvar=Option_VarioFit(TRUE))
+```
+
+```{r Model_Fitting_Equality_1_Plot}
 ggplot() + plot.varmod(varioexp, fitmod)
 ```
 
@@ -209,9 +215,8 @@ The experimental directional variogram $\gamma$ is a  function defined as
 $$\gamma(\theta,h)=\frac{1}{2\vert N(\theta, h)\vert}\sum_{(i,j) \in N(\theta, h)}\big\vert z(x_i)-z(x_j)\big\vert^2, \quad 0^{\circ}\le \theta <360^{\circ}, \quad h\ge 0$$
 where $N(\theta, h)$ is set of all pairs of data points separated by a vector of size $h$ and along the direction $\theta$ (in degrees):
 $$ N(\theta, h) = \bigg\lbrace (i,j) : \Vert x_j-x_i\Vert = h \quad\text{and the vector } \vec{u}=(x_j-x_i) \text{ is along the direction } \theta\bigg\rbrace_{1\le i\le j\le n},$$
- In practice, when computing $\gamma(\theta, h)$, we once gain consider a tolerance $\tau$ on the separation distance $h$, and also consider a tolerance $\eta>0$ is also considered for the direction angle. In other words, $N(h)$ is replaced by
+In practice, when computing $\gamma(\theta, h)$, we once gain consider a tolerance $\tau$ on the separation distance $h$, and also consider a tolerance $\eta>0$ is also considered for the direction angle. In other words, $N(h)$ is replaced by
  $$\widehat N(\theta, h) = \bigg\lbrace (i,j) : (1-\tau)h \le \Vert x_j-x_i\Vert \le (1+\tau) h \quad\text{and the vector } \vec{u}=(x_j-x_i) \text{ is along the direction } \theta \pm \eta \bigg\rbrace_{1\le i\le j\le n},$$
-
 
 Much like their isotropic counterparts, experimental directional variograms are computed as `Vario` objects, which can be created from he `VarioParam` object (containing the parameters of the variogram) and a `Db` containing the data points. 
 
@@ -225,6 +230,9 @@ In the following example, we create an experimental variogram in the $4$ directi
 varioParamMulti = VarioParam_createMultiple(ndir=4, npas=15, dpas=15.)
 vario.4dir = Vario(varioParamMulti, dat)
 err = vario.4dir$compute()
+```
+
+```{r Directional_Variograms_Plot}
 ggplot() + plot.varmod(vario.4dir)
 ```
 
@@ -233,9 +241,11 @@ Then, fitting a model onto the resulting experimental variogram is done using th
 ```{r Directional_Variograms_Fitting}
 model.4dir = Model()
 err = model.4dir$fit(vario.4dir,types=types)
-ggplot() + plot.varmod(vario.4dir, model.4dir)
 ```
 
+```{r Directional_Variograms_Fitting_Plot}
+ggplot() + plot.varmod(vario.4dir, model.4dir)
+```
 
 ---
 
@@ -246,9 +256,14 @@ The experimental variogram map is a map centered at the origin, which represents
 To compute an experimental variogram map, we use the function `db_vmap_compute` which we supply with the `Db` containing the data. The output is a `Db` containing a grid representing the variogram map values.
 
 ```{r Variogram_Map}
-#--- MP ---
-grid.vmap = db_vmap_compute(dat) ## removed argument
-ggplot() + plot.grid(grid.vmap)
+grid.vmap = db_vmap_compute(dat)
+```
+
+```{r Variogram_Map_Plot}
+p1 = ggplot() + plot.grid(grid.vmap, show.legend.raster=TRUE, legend.name.raster="T°C Var")
+p2 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.January_temp.Nb", show.legend.raster=TRUE, legend.name.raster="# pairs")
+ggarrange(p1,p2,nrow=1,ncol=2)
+
 ```
 
 It is then possible to fit a model directly on the experimental variogram map. This if done with the method `fitFromVMap` from the `Model` class. This method is called in the same way as the `fit` method considered up until now (the experimental variograms being now replaced by the experimental variogram map).
@@ -258,11 +273,18 @@ modelVM = Model()
 err = modelVM$fitFromVMap(grid.vmap, types=types)
 modelVM
 ```
-It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `dbgrid_model` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model. Then, the function `plot.grid` allows to directly plot this new variable.
+
+It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `dbgrid_model` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model. 
 
 ```{r Fitting_Variogram_Map_Draw}
 err = dbgrid_model(grid.vmap, modelVM)
-ggplot() + plot.grid(grid.vmap)
+grid.vmap
+```
+
+```{r Fitting_Variogram_Map_Draw_Plot}
+p1 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.January_temp.Var")
+p2 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.Model")
+ggarrange(p1,p2,nrow=1,ncol=2)
 ```
 
 Finally, we plot together the experimental directional variograms and the model obtained from fitting the variogram map.

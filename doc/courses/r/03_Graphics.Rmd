@@ -1,12 +1,12 @@
 ---
 title: "Tutorial on Graphics"
-author: "D. Renard"
-date: "5 february 2023"
+author: "gstlearn Team"
 output:
-  html_document: default
-  pdf_document: default
-editor_options: 
-  chunk_output_type: console
+  html_document:
+    df_print: paged
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}

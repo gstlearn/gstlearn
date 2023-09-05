@@ -4,7 +4,9 @@ author: "gstlearn Team"
 output:
   html_document:
     df_print: paged
-  pdf_document: default
+    toc: true
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
@@ -18,7 +20,7 @@ knitr::opts_chunk$set(
 
 # Preamble
 
-In this preamble, we load the **gstlearn** library.
+In this preamble, we load the **gstlearn** package.
 
 ```{r Preamble, message=FALSE}
 rm(list=ls())
@@ -43,15 +45,17 @@ Here is a (non-exhaustive) list of classes of objects in **gstlearn**:
 
 ------------------------------------------------------------------------
 
-# Loading a CSV File
+# Importing External File
 
-We start by downloading the file called `Scotland_Temperatures.csv` and we store it in the current working directory. In this example, the file (called `filecsv`) is provided as a *CSV* format file. We load it into a data frame (named `datcsv`) using the relevant R-command.
+## Loading a CSV File
+
+We start by downloading the file called `Scotland_Temperatures.csv` and we store it in the current working directory. In this example, the file (called `filecsv`) is provided as a *CSV* format file. We load it into a data frame (named `datcsv`) using the relevant R-command. Note that "MISS" keyword is used in this file to indicate a missing value. Such values will be replaced by NA.
 
 ```{r}
 dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.csv"
 filecsv = "Scotland_Temperatures.csv"
 download.file(dlfile, filecsv)
-datcsv = read.csv(filecsv)
+datcsv = read.csv(filecsv, na.strings = "MISS")
 ```
 
 We can check the contents of the data frame (by simply typing its name) and see that it contains four columns (respectively called `Longitude`, `Latitude`, `Elevation`, `January_temp`) and 236 rows (header line excluded).
@@ -60,17 +64,29 @@ We can check the contents of the data frame (by simply typing its name) and see 
 datcsv
 ```
 
-Note that the last column contains several values called *MISS*: this corresponds to the absence of information.
-
 
 ------------------------------------------------------------------------
 
+## Creating Db object from a data.frame
 
-# Creating Db object
+The user can then create a database of the **gstlearn** package (*Db* class) directly from the previously imported data.frame.
 
-We now want to load this information in order to obtain a data base of the **gstlearn** package (or *Db*) that will be called `dat`. This operation can be performed directly by reading the CSV file again and load it directly into a Db.
+```{r}
+# Create an empty Db
+dat = Db()
+# And import all columns in one a loop using [] operator
+for (field in names(datcsv))
+    dat[field] = datcsv[field]
+dat
+```
 
-To do so, we start by creating `CSVformat` object using the `CSVformat_create` function. This object is used to specify various properties of the file we want to load, namely the presence of a header (through the argument `flagHeader`) and the way missing values are coded in the file (through the argument `naString`).
+------------------------------------------------------------------------
+
+## Creating Db object directly from CSV file
+
+These operations can be performed directly by reading the CSV file again and load it directly into a Db.
+
+To do so, we start by creating `CSVformat` object using the `CSVformat_create` function. This object is used to specify various properties of the file we want to load, namely the presence of a header line (through the argument `flagHeader`) and the way missing values are coded in the file (through the argument `naString`).
 
 Then, the function `Db_createFromCSV` allows to load directly the CSV file into a **gstlearn** data base.
 
@@ -80,9 +96,11 @@ dat = Db_createFromCSV(filecsv, csv=csv)
 dat
 ```
 
+Note that a "rank" variable has been automatically added. The *rank* is always 1-based and must be distinguish from an *index* (0-based) when calling **gstlearn** functions (except for the `[]` operator, see below). The *rank* variable could be later useful for certain functions of the **gstlearn** package.
+
 ------------------------------------------------------------------------
 
-# Importing Db File
+## Importing Db File from a "Neutral File"
 
 A last solution is to import it directly from the set of demonstration files (provided together with the package and called `fileNF`) and stored in a specific format (Neutral file).
 
@@ -100,60 +118,72 @@ dat
 
 ------------------------------------------------------------------------
 
-# Db class
+# Discovering Db
 
-*Db* objects have a method `display` allowing to print a summary of the content of the data base.
+## The Db class
+
+*Db* objects (as all objects that inherits from *AStringable*) have a method `display` allowing to print a summary of the content of the data base. The same occurs when typing the name of the variable at the end of a chunck (see above).
 
 ```{r}
 dat$display()
 ```
-Equivalently, we can simply type the name of the *Db* object in a console to get the summary of its content.
 
-```{r}
-dat
-```
-As described in the "Data Base Summary" section, this *Db* object contains 5 fields (called *Columns*), and  contains 236 data points (called *samples*). Upon inspection, we see that the 4 variables of the csv file are present (Columns 1 through 4), alongside with an additional variable called `rank` (Column 0). The `rank` variable is a variable present by default in all *Db* objects, and contains the index (starting at 1) of each sample/data point in the data base.
+As described in the "Data Base Summary" section, this *Db* object contains 5 fields (called *Columns*), and  contains 236 data points (called *samples*). Upon inspection, we see that the 4 variables of the csv file are present (Columns 1 through 4), alongside with an additional variable called `rank` (Column 0).
+
+In addition, some interesting information tells you that this data base corresponds to a 2-D dimension one: this will be described later together with the use of the Locator information.
 
 Remark: To get more information on the contents of the Db, we can provide the `display` method of a *Db* with a *DbStringFormat* object used to describe which information we would like to print. Such objects can be created using the function `DbStringFormat_createFromFlags`. We refer the reader to the documentation of the *DbStringFormat* class for more details. The example below provides a way to add summary statistics about some variables of the *Db* to the *Db* summary.
-
 
 ```{r}
 dbfmt = DbStringFormat_createFromFlags(flag_stats=TRUE, names=c("Elevation", "January_temp"))
 dat$display(dbfmt)
 ```
 
+Monovariate statistics are better displayed using a single function called *dbStatisticsMonoT*. This function waits for a vector of enumerators of type EStatOption as statistic operators. Such vector is created using a static function called *fromKeys* which is available in all enumerators classes (i.e. inherits from *AEnum*).
+
+```{r}
+dbStatisticsMonoT(dat,
+                  names=c("Elevation", "January_temp"),
+                  opers=EStatOption_fromKeys(c("MEAN","MINI","MAXI")))
+```
+
 ------------------------------------------------------------------------
 
-# Assessors for Db class
+## Assessors for Db class
 
-We can also consider the data base as a data frame and use the `[ ]` assessors. For instance, the full content of a `Db` can be displayed as a data frame as follows. 
+We can also consider the data base as a data frame and use the `[ ]` assessors. For instance, the full content of a `Db` can be displayed as a data.frame as follows. 
 
 ```{r}
 dat[]
 ```
 
-We can access one or several variables using their names. 
+We can access to one or several variables. Note that the contents of the Column corresponding to the target variable (i.e. *January_temp*) is produced as a 1D vector.
+
+Also note the presence of samples with `NA` corresponding to those where the target variable is not informed ('MISS' in the original dataset file).
 
 ```{r}
 dat["January_temp"]
 ```
-Note that the contents of the Column corresponding to the target variable (i.e. `January_temp`) is produced as a series of values (printed along a line). Also note the presence of samples with `NA` corresponding to those where the target variable is not informed.
 
-
-But we can be more restrictive as in the next example, where we consider the samples 10 to 15 of the variables `Latitude` and `Elevation`.
+But it can be more restrictive as in the following paragraph, where we only consider the samples 10 to 15, and only consider the variables *rank*, *Latitude*, *Elevation*. In R indices in array start from 1 to N (1-based). Indices slice '10:15' in R means indices {10,11,12,13,14,15} (the last index is considered which is different from Python) which means ranks {10,11,12,13,14,15}.Be carefull that for all other functions of the *gstlearn* package, indices must be provided 0-based.
 
 ```{r}
-dat[10:15, c("Latitude", "Elevation")]
+dat[10:15, c("rank", "Latitude", "Elevation")]
 ```
 
-
-We can also replace the variable name by their *Column* index in the data base. 
+We can also replace the variable name by their *Column* index (1-based in `[]`operator) in the data base. 
 
 ```{r}
 dat[10:15, 3:4]
 ```
 
 This is not recommended as the Column index of a given variable may vary over time.
+
+A particular function is available to convert all the data base in an appropriate object of the Target Langage (here R). A gstlearn Db is converted into a data.frame using toTL.
+
+```{r}
+dat$toTL()
+```
 
 Finally, an interesting feature of the `[ ]` assessors is that it allows to easily incorporate new variables into a *Db* or modify the existing ones. For instance, in the next example, a new variable `newvar` is created and added to the data base `dat`.
 
@@ -164,17 +194,19 @@ dat
 
 Remark: Note that variables names may be specified using traditional regexp expressions (for instance, the symbol '\*' replaces any list of characters meaning that `["*temp"]` selects all the variable names ending with `temp`).
 
-------------------------------------------------------------------------
-
-# Locators
-
-The locators are used to specify the **role** assigned to a Column for the rest of the study (unless they are modified). The locator is characterized by its name (`Z` for a variable and `X` for a coordinate) within the Enumeration `ELoc` and its rank.
-
+The user also can remove a variable from the data base by doing the following:
 
 ```{r}
-# --- MP ---
-ELoc_printAll()
+dat$deleteColumn("newvar")
+dat$display()
 ```
+
+
+------------------------------------------------------------------------
+
+## Locators
+
+The locators are used to specify the **role** assigned to a Column for the rest of the study (unless they are modified). The locator is characterized by its name (`Z` for a variable and `X` for a coordinate) within the Enumeration `ELoc`.
 
 ```{r}
 dat$setLocators(c("Longitude","Latitude"), ELoc_X())
@@ -182,40 +214,60 @@ dat$setLocator("*temp", ELoc_Z(), cleanSameLocator=TRUE)
 dat
 ```
 
-As can be seen in the printout, variables `Latitude` and `Longitude` have been designated as coordinates (pay attention to the order) and `January_temp` is the (unique) variable. Therefore any subsequent step will be performed as a monovariate 2-D process.
+As can be seen in the printout, variables `Latitude` and `Longitude` have been designated as coordinates (pay attention to the order) and `January_temp` is the (unique) variable of interest. Therefore any subsequent step will be performed as a monovariate 2-D process.
 
 The locator is translated into a *letter*,*number* pair for better legibility: e.g. `x1` for the first coordinate.
 
-------------------------------------------------------------------------
-
-# Plotting a Db
-
-Plot the contents of a Db using functions of the **plot.R** package. The proportional option is used to represent to `january_temp` variable
-
+Here are all the **roles** known by **gstlearn**:
 ```{r}
-p = ggDefaultGeographic()
-p = p + plot.point(dat, name_size="January_temp", show.legend.symbol = TRUE,
-                   legend.name.size="Temperature")
-p = p + plot.decoration(title="My Data Base", xlab="Easting", ylab="Northing")
-ggPrint(p)
-```
-
-
-
-A more elaborated graphic representation displays the samples with a symbol proportional to the Elevation and a color representing the Temperature.
-
-```{r}
-p = ggDefaultGeographic()
-p = p + plot.point(dat, name_size="Elevation", name_color="January_temp")
-p = p + plot.decoration(title="My Data Base", xlab="Easting", ylab="Northing")
-ggPrint(p)
+ELoc_printAll()
 ```
 
 ------------------------------------------------------------------------
 
-# Grid Data Base
+# More with Db
 
-On the same area, a terrain model is available (as a demonstration file available in the package distribution). We first download it as an element of a data base defined on a grid support (*DbGrid*).
+## Plotting a Db
+
+Plot the contents of a Db using functions of the package (which relies on **ggplot2**). The color option is used to represent to `january_temp` variable.
+
+Note: Non availalble values (NaN) are display in gray. This will be tunable in future versions.
+
+```{r}
+p = ggDefaultGeographic()
+p = p + plot.point(dat, name_color="January_temp", show.legend.symbol = TRUE,
+                   legend.name.color="Temperature")
+p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
+ggPrint(p)
+```
+
+A more elaborated graphic representation displays the samples with a symbol proportional to the Elevation (**name_size**) and a color representing the Temperature (**name_color**).
+
+```{r}
+p = ggDefaultGeographic()
+p = p + plot.point(dat, name_size="Elevation", name_color="January_temp", show.legend.symbol = TRUE,
+                   legend.name.color="Temperature", legend.name.size="Elevation")
+p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
+ggPrint(p)
+```
+
+Of course, you can use your own graphical routines (for example, a direct call to **ggplot2**) by simply accessing to the *gstlearn* data base values (using '[ ]' accessor):
+
+```{r}
+p = ggplot()
+p = p + geom_point(data=dat[], mapping=aes(x=dat["x1"], y=dat["x2"], color=dat["January_temp"]))
+p = p + labs(color = "Temperature")
+p = p + labs(x = "Easting", y = "Northing")
+p = p + labs(title = "January Temperature")
+plot(p)
+```
+
+
+------------------------------------------------------------------------
+
+## Grid Data Base
+
+On the same area, a terrain model is available (as a demonstration file available in the package distribution). We first download it and create the corresponding data base defined on a grid support (*DbGrid*).
 
 ```{r}
 dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
@@ -225,19 +277,19 @@ grid = DbGrid_createFromNF(fileNF)
 grid
 ```
 
-We can check that the grid is constituted of 81 columns and 137 rows, or 11097 grid cells.
+We can check that the grid is constituted of 81 columns and 137 rows, or 11097 grid cells.  We can also notice that some locators are already defined (these information are stored in the Neutral File).
 
 ------------------------------------------------------------------------
 
-# Selection
+## Selection
 
 We can check the presence of a variable (called `inshore`) which is assigned to the `sel` locator: this corresponds to a *Selection* which acts as a binary filter: some grid cells are active and others are masked off. The count of active samples is given in the previous printout (3092). This selection remains active until it is replaced or deleted (there may not be more than one selection defined at a time per data base). This is what can be seen in the following display where we represent the `Elevation` only within the `inshore` selection.
 
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid, name_raster="Elevation")
-p = p + plot.decoration(title="My Grid", xlab="Easting", ylab="Northing")
+p = p + plot.grid(grid, name_raster="Elevation", show.legend.raster=TRUE, legend.name.raster="Elevation")
+p = p + plot.decoration(title="Elevation", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```
 
@@ -245,14 +297,14 @@ Note that any variable can be considered as a Selection: it must simply be assig
 
 ------------------------------------------------------------------------
 
-# Final plot
+## Final plot
 
 On this final plot, we combine grid and point representations.
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid, name_raster="Elevation")
-p = p + plot.point(dat, name_size="Elevation", sizmin=1, sizmax=3, color="yellow")
-p = p + plot.decoration(title="My Grid", xlab="Easting", ylab="Northing")
+p = p + plot.grid(grid, name_raster="Elevation", show.legend.raster=TRUE, legend.name.raster="Elevation")
+p = p + plot.point(dat, name_size="January_temp", show.legend.symbol=TRUE, legend.name.size="Temperature", sizmin=1, sizmax=3, color="yellow")
+p = p + plot.decoration(title="Elevation and Temperatures", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```
