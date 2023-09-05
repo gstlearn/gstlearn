@@ -1,11 +1,11 @@
 ---
 title: "Multivariate Geostatistics"
-author: "D. Renard, N. Desassis, X. Freulon"
-date: "3 novembre 2021"
+author: "gstlearn Team"
 output:
-  html_document:
-    df_print: paged
-  pdf_document: default
+  html_document: 
+    toc: yes
+  pdf_document:
+    toc: true
 ---
 
 ```{r, include=FALSE}
@@ -18,20 +18,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-
-
 ## Preamble
 
 In this preamble, we load the **gstlearn** library and clean the workspace. 
 
 ```{r Loading libraries, message=FALSE,results=FALSE}
-#--- MP --- 
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+```
 
-## Global plot option
+```{r Global plot option}
 plot.setDefaultGeographic(dims=c(8,8))
 ```
 
@@ -41,7 +39,6 @@ We load two data bases:
 * a data base `target` containing a grid of points covering Scotland with a selection variable (`inshore`) selecting the points that are on land, and a variable (`Elevation`) giving the elevation at every point on land
 
 ```{r Loading data, message=FALSE,results=FALSE}
-#--- MP --- 
 ## Data points
 dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
 fileNF = "Scotland_Temperatures.NF"
@@ -61,78 +58,71 @@ target = DbGrid_createFromNF(fileNF)
 The `target` data base a (grid) map of the elevation across Scotland.
 
 ```{r Print target data base, message=FALSE}
-#--- MP --- 
 target
 ```
+
 Let us plot its content.
 
 ```{r Plot elevation grid}
-#--- MP --- 
 ggDefaultGeographic() + plot(target, name_raster="Elevation",
-                             show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Elevation (m)")
-
+                             show.legend.raster=TRUE,palette="Spectral",
+                             legend.name.raster="Elevation (m)")
 ```
 
 The `dat` data base contains 236 (point) samples of two variables across Scotland: elevation and temperature.
 
 ```{r Print observation data base, message=FALSE}
-#--- MP --- 
 dat
 ```
 
-We can use the `dbStatisticsMultiT` function to compute statistics on variables of a `Db`. We specify 
+We can use the `dbStatisticsPrint` function to compute statistics on variables of a `Db`. We specify 
 
 * the `Db` of interest (argument `db`),
 * a vector containing the names of the variables of interest (argument `names`),
 * the information we want to have on the variable (argument `oper`). This last argument is set through a `EStatOption` object (run `EStatOption_printAll()` for the full list)
 * a flag `flagMono` allowing to specify whether we want to compute the statistics for each variable separately (`flagMono=TRUE`), or whether we want to compute "filtered" statistics (`flagMono=FALSE`). In the latter case, the following table is returned: the entry at the i-th row and j-th column contains the statistics of the i-th variable in `names`, computed for the points where `j`-th variable is defined 
 
-For instance, let us count the number of observations of each variable using the `dbStatisticsMultiT`. 
+For instance, let us count the number of observations of each variable using the `dbStatisticsPrint`. 
 
 ```{r Counts of observations, message=FALSE}
-#--- MP --- 
-tab = dbStatisticsMultiT(db=dat, names=c("Elevation", "Temperature"),
-                         oper=EStatOption_NUM(),flagMono = TRUE)
-knitr::kable(tab$toTL(), 
-             caption= "Number of observations", digits=3)
+dbStatisticsPrint(dat, names = c("Elevation", "Temperature"), 
+                  opers=EStatOption_fromKeys(c("NUM")),
+                  flagIso = FALSE, title="Number of observations", radix="")
 ```
+
 Since the `Db` `dat` contains 236 samples, we can conclude that the `Elevation` variable is defined at every point, but not the `Temperature` variable. Similarly, we can compute the mean of each variable in the observation data base.
 
 ```{r Means of observations, message=FALSE}
-#--- MP --- 
-tab = dbStatisticsMultiT(db=dat, names=c("Elevation", "Temperature"),
-                         oper=EStatOption_MEAN(),flagMono = TRUE)
-knitr::kable(tab$toTL(),
-             caption= "Mean of observations", digits=3)
+dbStatisticsPrint(dat, names = c("Elevation", "Temperature"), 
+                  opers=EStatOption_fromKeys(c("MEAN")),
+                  flagIso = FALSE, title="Mean of observations", radix="")
 ```
+
 Finally, we can compute the mean elevation `target` data base to compare it to the one in the observation data base.
 
 ```{r Mean on elevation on map, message=FALSE}
-#--- MP --- 
-tab = dbStatisticsMultiT(db=target, names=c("Elevation"),
-                         oper=EStatOption_MEAN(),flagMono = TRUE)
-knitr::kable(tab$toTL(),
-             caption= "Mean", digits=3)
+dbStatisticsPrint(target, names = c("Elevation"), 
+                  opers=EStatOption_fromKeys(c("MEAN")),
+                  flagIso = TRUE, title="Mean", radix="")
 ```
 
 We can then compute the filtered means for the `Elevation` and `Temperature` variables as follows:
 
 ```{r Filtered means on observations, message=FALSE}
-#--- MP --- 
 tab = dbStatisticsMultiT(db=dat, names=c("Elevation", "Temperature"),
                          oper=EStatOption_MEAN(),flagMono = F)
-knitr::kable(tab$toTL(),
-             caption= "Number of observations", digits=3)
+knitr::kable(tab$toTL(), caption= "Mean of observations", digits=3)
 ```
-As explained above, the first row of the table contains contains means of the `Elevation` variable. The first one corresponds to the  mean of the `Elevation` variable over all the locations where it is defined, and the second one corresponds to the mean of the `Elevatation` variable over all the location where the `Temperature` variable is defined. Hence, we see that the points where the temperature is observed have an average elevation (87.97351)  that is significantly lower than the average elevation in Scotland (241.152), meaning that they are located at relatively low altitudes within the Scottish landscape. 
+
+As explained above, the first row of the table contains contains means of the `Elevation` variable. The first one corresponds to the  mean of the `Elevation` variable over all the locations where it is defined, and the second one corresponds to the mean of the `Elevation` variable over all the location where the `Temperature` variable is defined. Hence, we see that the points where the temperature is observed have an average elevation (87.97351)  that is significantly lower than the average elevation in Scotland (241.152), meaning that they are located at relatively low altitudes within the Scottish landscape. 
 
 To confirm that, we plot the points where the temperature is sampled on top of the elevation map of Scotland.
 
 ```{r Plot temperature observations on elevation map}
-#--- MP --- Pbm Plot legende!!
 p = ggDefaultGeographic()
 p = p + plot.grid(target, name_raster="Elevation",
-                  show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Elevation (m)")
+                  show.legend.raster=TRUE,palette="Spectral",
+                  legend.name.raster="Elevation (m)")
 p = p + plot.point(dat, name_size="Temperature",
                    sizmin = 0.5, sizmax = 3,
                    show.legend.symbol=TRUE,legend.name.size="°C")
@@ -152,10 +142,8 @@ ggPrint(p)
 To end this preamble, we create a "neighborhood" object specifying a unique neighborhood, which we will use throughout the course.
 
 ```{r Create unique neighborhood, message=FALSE}
-unique_neigh = NeighUnique_create()
+uniqueNeigh = NeighUnique_create()
 ```
-
-
 
 
 ## Working with polynomial trends (intrinsic model)
@@ -215,15 +203,15 @@ Finally, to compute the coefficients of the polynomial trend from the intrinsic 
 For instance, to fit a linear trend on the temperature observations in the `dat` data base, we specify the name of response variable (argument `name0`) and the drift model (argument `model`), and set the argument `mode=2` to specify that we would like to compute a regression defined from a drift model. Finally we set the argument `verbose=TRUE` to print the results.
 
 ```{r Regression}
-#--- MP ---
-regResults = regression(dat, name0="Temperature",  model=polDriftModel, mode=2, verbose=TRUE)
+regResults = regression(dat, name0="Temperature",  model=polDriftModel, 
+                        mode=2, verbose=TRUE)
 ```
+
 Note: The regression results are stored in an object. We can access the coefficients through the slot `coeffs`, the initial variance of the data through the slot `variance` and the variance of the residuals through the slot `varres`.
 
 Going back to our example, it is now time to fit our model with polynomial drift. We can now fit that model on the experimental variorgram using the `fit` method in the usual way.
 
 ```{r Fitting Residuals}
-#--- MP ---
 err = polDriftModel$fit(vario_res2dir,
                         types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC")))
 ```
@@ -235,8 +223,6 @@ p = p + plot.decoration(title="Experimental and fitted variogram models - Residu
 ggPrint(p)
 ```
 
-
-
 --------------------
 
 ### Universal kriging
@@ -247,14 +233,13 @@ To perform cross-validation using Universal Kriging, we simply call the `xvalid`
 
 ```{r Cross-validation Universal Kriging}
 err = xvalid(dat, model=polDriftModel, 
-             neigh=unique_neigh,
+             neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_UK",flag_locator=FALSE))
 ```
 
 The mean Mean Squared cross-validation and standardized errors of the universal kriging predictor are:
 
 ```{r Cross-validation_Universal_Kriging_stat}
-#--- MP --- 
 mse=mean(dat$getColumn("CV_UK*esterr*")^2,na.rm=TRUE)
 cat(c("Mean squared cross-validation error:",
       round(mse,3),
@@ -265,11 +250,12 @@ cat(c("Mean squared standardized error:",
       round(mse,3),
       "\n"))
 ```
+
 Finally, we perform an universal kriging prediction of the temperature on the `target` grid using the model fitted on the residuals. 
 
 ```{r Universal Kriging prediction}
 err = kriging(dbin=dat, dbout=target, model=polDriftModel, 
-              neigh=unique_neigh,
+              neigh=uniqueNeigh,
               namconv=NamingConvention_create(prefix="UK"))
 ```
  
@@ -277,23 +263,22 @@ err = kriging(dbin=dat, dbout=target, model=polDriftModel,
 ## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target,name_raster = "UK*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+                  show.legend.raster = TRUE, 
+                  palette="Spectral",legend.name.raster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Universal Kriging")
 ggPrint(p)
 ```
+
 We compute some statistics on the predicted values using the `dbStatisticsMonoT` function. 
 
 ```{r Statistics of Universal Kriging prediction}
 opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-
-tab = dbStatisticsMonoT(target, names = (c("UK.T*")), opers=opers)
-knitr::kable(tab$toTL(),
-             caption= "Statistics on the Universal Kriging:", digits=3)
+dbStatisticsPrint(target, names=c("UK.T*"), opers=opers,
+                  title="Statistics on the Universal Kriging:", radix="")
 ```
 
 ### Comparision with ordinary kriging
-
 
 Let us compare the results obtained when considering a polynomial trend in the model, with the case where where work directly on the "raw" temperature observations.
 
@@ -302,7 +287,7 @@ To do so, we start by fitting a model on the experimental variogram of raw tempe
 ```{r Fit model on raw variogram}
 fitmod_raw = Model()
 err = fitmod_raw$fit(vario_raw2dir,
-                    types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC")))
+                    types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC","LINEAR")))
 ```
 
 ```{r Plot model fitted on raw variogram}
@@ -315,18 +300,16 @@ ggPrint(p)
 We then perform a cross-validation of the fitted model using Ordinary Kriging, and calculate the Mean Squared cross-validation and standardized errors. Since we want to use ordinary kriging, we add a constant drift to the model before calling the `xvalid` function.
 
 ```{r Cross-validation - ordinary kriging, results=FALSE}
-#--- MP ---
 ## Add constant drift to model
-err =fitmod_raw$addDrift(Drift1())
+err = fitmod_raw$addDrift(Drift1())
 
 ## Compute cross-validation
 err = xvalid(dat, model=fitmod_raw, 
-             neigh=unique_neigh,
+             neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_OK",flag_locator=FALSE))
 ```
 
 ```{r Cross-validation - ordinary kriging : MSE}
-#--- MP --- 
 mse=mean(dat$getColumn("CV_OK*esterr*")^2,na.rm=TRUE)
 cat(c("Mean squared cross-validation error:",
         round(mse,3),
@@ -337,13 +320,14 @@ cat(c("Mean squared standardized error:",
         round(mse,3),
       "\n"))
 ```
+
 We observe that the mean squared errors that we obtain are larger than the one resulting from the intrinsic model. 
 
 We now perform an ordinary kriging prediction of the temperature on the `target` grid using the model fitted on the raw observations, compute statistics on the predicted values using the `dbStatisticsMonoT` function. 
 
 ```{r Ordinary Kriging prediction}
 err = kriging(dbin=dat, dbout=target, model=fitmod_raw, 
-              neigh=unique_neigh,
+              neigh=uniqueNeigh,
               namconv=NamingConvention_create(prefix="OK"))
 ```
 
@@ -358,13 +342,9 @@ ggPrint(p)
 ```
 
 ```{r Statistics of Ordinary Kriging prediction}
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-
-tab = dbStatisticsMonoT(target, names = (c("OK.T*")), opers=opers)
-knitr::kable(tab$toTL(),
-             caption= "Statistics on the Ordinary Kriging:", digits=3)
+dbStatisticsPrint(target, names=(c("OK.T*")), opers=opers,
+                  title="Statistics on the Ordinary Kriging:", radix="")
 ```
-
 
 Finally, we plot a correlation plot between the ordinary and universal kriging predictions, compare their respective statistics.
 
@@ -376,14 +356,10 @@ ggPrint(p)
 ```
 
 ```{r Comparing Ordinary and Universal kriging}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(target, c("OK.T*estim", "UK.T*estim"), opers=opers)
-knitr::kable(tab$toTL(),
-             caption= "Comparison between Ordinary and Universal kriging predictions", digits=3)
+dbStatisticsPrint(target, names=c("OK.T*estim", "UK.T*estim"), opers=opers,
+                  title="Comparison between Ordinary and Universal kriging predictions:",
+                  radix="")
 ```
-
-
 
 ## Multivariate Models and Cokriging
 
@@ -392,11 +368,11 @@ To create and work with multivariate models, we simply need to work with `Db` ob
 Let us illustrate our point with our running example. We would like now to consider a bivariate model of the temperature and the elevation. To do so, we simply allocate, in the observation data base `dat`, a `z` locator to both variables using the $setLocators$  method.
 
 ```{r Locators cokriging, echo=TRUE}
-#--- MP ---
 dat$setLocators(names=c("Temperature", "Elevation"), 
                 locatorType=ELoc_Z())
 dat
 ```
+
 ### Fitting a bivariate model
 
 To create experimental (directional) variograms and cross-variograms, we use the same commands as in the monovariate case: since the data base `dat` now contains two variables with a `z` locator, the `compute` method automatically computes both variograms and cross-variograms for these variables.
@@ -409,19 +385,18 @@ err = varioexp2var$compute()
 We can then plot the experimental variograms and cross-variograms with a simple command: the plot in the i-th row and j-th column corresponds to the cross-variogram between the variables with locators `zi` and `zj` (hence the diagonal plots correspond to the variograms of each variable).
 
 ```{r Plot experimental cross-variograms}
-## Plot
 multi.varmod(varioexp2var)
 ```
+
 To fit a model on the experimental variograms and cross-variograms, we use the same commands as in the monovariate case.
 
 ```{r Bivariate model fitting, fig.align='center'}
 fitmod2var = Model()
 err = fitmod2var$fit(varioexp2var,
-                     types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC")))
+                     types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC","LINEAR")))
 ```
 
 ```{r Plot bivariate model}
-## Plot
 multi.varmod(varioexp2var, fitmod2var)
 ```
 
@@ -430,22 +405,20 @@ multi.varmod(varioexp2var, fitmod2var)
 Since cokriging can be time-consuming in Unique Neighborhood, we create a small moving neighborhood for demonstration.
 
 ```{r Moving neighborhood}
-moving_neigh = NeighMoving_create(radius = 1000, nmaxi = 10)
+movingNeigh = NeighMoving_create(radius = 1000, nmaxi = 10)
 ```
 
 To perform a cross-validation of the bivariate model using co-kriging, we use the  same commands as in the monovariate case. Then cross-validation errors are computed for each variable of the multivariate model (hence for both the Temperature and the Elevation in our case).
 
 ```{r Cross-validation Cokriging, echo=TRUE}
-## Compute cross-validation
 err = xvalid(dat, model=fitmod2var,
-             neigh=moving_neigh,
+             neigh=movingNeigh,
              namconv=NamingConvention_create(prefix="CV_COK",flag_locator=FALSE))
 ```
 
 We obtain the following Mean Squared Errors for the temperature.
 
 ```{r Cross-validation Cokring Temperature - stat}
-#--- MP --- 
 mse=mean(dat$getColumn("CV_COK.Temperature.esterr*")^2,na.rm=TRUE)
 cat(c("Mean squared cross-validation error:",
         round(mse,3),
@@ -456,10 +429,10 @@ cat(c("Mean squared standardized error:",
         round(mse,3),
       "\n"))
 ```
+
 We obtain the following Mean Squared Errors for the elevation.
 
 ```{r Cross-validation Cokriging Elevation - stat}
-#--- MP --- 
 mse=mean(dat$getColumn("CV_COK.Elevation.esterr*")^2,na.rm=TRUE)
 cat(c("Mean squared cross-validation error:",
         round(mse,3),
@@ -470,22 +443,22 @@ cat(c("Mean squared standardized error:",
         round(mse,3),
       "\n"))
 ```
-Similarly, to compute cokriging predictions on the grid, we use the same synthax as in monovariate case: once again, a predictor for each variable in the multivariate model is produced. (Note: we revert back to a unique neighborhood to compare with the predictors previously introduced).
+
+Similarly, to compute cokriging predictions on the grid, we use the same syntax as in monovariate case: once again, a predictor for each variable in the multivariate model is produced. (Note: we revert back to a unique neighborhood to compare with the predictors previously introduced).
 
 ```{r Cokriging}
 err = kriging(dbin=dat, dbout=target, model=fitmod2var, 
-              neigh=unique_neigh,
+              neigh=uniqueNeigh,
               namconv=NamingConvention_create(prefix="COK"))
 ```
 
 We can then represent the cokriging predictor for the temperature.
 
 ```{r Cokriging plot}
-#--- MP ---
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target,name_raster = "COK.Temp*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+                  show.legend.raster = TRUE, 
+                  palette="Spectral",legend.name.raster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - CoKriging")
 ggPrint(p)
@@ -494,11 +467,9 @@ ggPrint(p)
 For this predictor, we get the following statistics:
 
 ```{r Statistics of CoKriging prediction}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(target, names = (c("COK.T*")), opers=opers)
-knitr::kable(tab$toTL(), 
-             caption= "Statistics on the CoKriging predictions", digits=3)
+dbStatisticsPrint(target, names=(c("COK.T*")), opers=opers,
+                  title="Statistics on the CoKriging predictions",
+                  radix="")
 ```
 
 Finally, we compare the cokriging predictor to the ordinary kriging predictor.
@@ -512,18 +483,12 @@ ggPrint(p)
 ```
 
 ```{r Comparing Ordinary kriging and Cokriging}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(target, c("OK.T*estim", "COK.T*estim"), opers=opers)
-knitr::kable(tab$toTL(),
-             caption= "Comparison between Ordinary and Universal kriging predictions", digits=3)
+dbStatisticsPrint(target, names=c("OK.T*estim", "COK.T*estim"), opers=opers,
+                  title="Comparison between Ordinary and Universal kriging predictions",
+                  radix="")
 ```
 
-
-
-----------------------------------------------------------------------------------------------
-
-
+--------------------------------------------------------------------------------
 
 ## Working with residuals
 
@@ -534,7 +499,6 @@ where $Y$ is an auxiliary variable known at every location, $a$ and $b$ are some
 In our running example, the variable of interest $Z$ will be the temperature, and the auxiliary variable $Y$ will be the elevation. To compute the coefficients $a$ and $b$ of the linear regression between the temperature and the elevation, we can use once again the `regression` function. We specify the name of response variable (argument `name0`) and the names of the auxiliary variables (argument `names`), and set the argument `mode=0` to specify that we would like to compute a regression defined from the variables with the specified names. We also set the argument `flagCste=TRUE` to specify that we are looking for an affine regression model between the variables (i.e. that includes the bias coefficient `b`).
 
 ```{r Regression Temperature - Elevation, echo=TRUE}
-#--- MP ---
 ## Fit regression model
 regr = regression(dat, name0="Temperature", names="Elevation", mode=0,
                   flagCste=TRUE)
@@ -543,14 +507,14 @@ regr = regression(dat, name0="Temperature", names="Elevation", mode=0,
 b = regr$coeffs[1]
 a = regr$coeffs[2]
 
-cat(c("Coefficents : b=",b,"; a=",a))
+cat(c("Coefficents : b=",round(b,3),"; a=",round(a,5)))
 ```
-From these regression coefficients obtained above, we can then compute the residuals explicitly as $ \varepsilon(x)=Z(x) - (b+a Y(x) )$. An alternative method consists in using the `dbRegression` function: this functions fits a regression model, computes the residuals and add them directly on the data base containing the data. The `dbRegression` function is called in a similar way as the `regression` function.
+
+From these regression coefficients obtained above, we can then compute the residuals explicitly as $\varepsilon(x)=Z(x) - (b+a Y(x) )$. An alternative method consists in using the `dbRegression` function: this functions fits a regression model, computes the residuals and add them directly on the data base containing the data. The `dbRegression` function is called in a similar way as the `regression` function.
 
 In the next example, we compute the residuals of the linear regression between the temperature and the elevation and add them to the observation data base (with a name starting with "RegRes"and without changing the locators in the data base).
 
 ```{r Residuals of regression Temperature - Elevation}
-#--- MP ---
 err = dbRegression(dat, name0="Temperature", namaux="Elevation", mode=0,
                    flagCste = TRUE,
                    namconv = NamingConvention_create(prefix="RegRes",flag_locator=FALSE))
@@ -559,17 +523,17 @@ err = dbRegression(dat, name0="Temperature", namaux="Elevation", mode=0,
 We then compute some statistics about these residuals.
 
 ```{r Residuals - Stats}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(dat, c("RegRes*"), opers=opers)
-knitr::kable(tab$toTL(), 
-             caption= "Statistics on the residuals", digits=3)
+dbStatisticsPrint(dat, names=c("RegRes*"), opers=opers,
+                  title="Statistics on the residuals",
+                  radix="")
 ```
+
 Finally we plot a correlation plot between the residuals and the regressor variable (i.e. the elevation).
 
 ```{r Plot correlation residuals, echo=TRUE}
 ggplot() + plot.correlation(dat,"Elevation","RegRes*",flagRegr=TRUE,asPoint=TRUE)
 ```
+
 Now that the residuals are explicitly computed and available in the observation data base, we can proceed to work with them as with any other variable.
 
 We start by setting their locator to `z` to specify that they are now our variable of interest within the data base (instead of the raw temperature observations).
@@ -588,30 +552,29 @@ err = varioexpR$compute()
 ## Fit model
 fitmodR = Model()
 err = fitmodR$fit(varioexpR,
-                  types=ECov_fromKeys(c("NUGGET","SPHERICAL","ORDER1_GC")))
+                  types=ECov_fromKeys(c("NUGGET","SPHERICAL","LINEAR")))
 ```
 
 ```{r Plot variogram of residuals}
-## Plot
 p = ggplot()
 p = p + plot.varmod(varioexpR, fitmodR)
 p = p + plot.decoration(title="Experimental and fitted variogram models - Temperature Residual")
 ggPrint(p)
 ```
+
 Finally, we can compute an kriging prediction of the residuals and plot the results.
 
 ```{r Kriging of residuals, echo=TRUE}
 ##  Add constant drift to model to perform ordinary kriging
-err =fitmodR$addDrift(Drift1())
+err = fitmodR$addDrift(Drift1())
 
 ## Compute kriging
 err = kriging(dbin=dat, dbout=target, model=fitmodR, 
-              neigh=unique_neigh,
+              neigh=uniqueNeigh,
               namconv=NamingConvention_create(prefix="ROK"))
 ```
 
 ```{r Plot Kriging of residuals}
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target,name_raster = "ROK*estim",
                   show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
@@ -621,6 +584,7 @@ ggPrint(p)
 ```
 
 Now that the residuals $\varepsilon^{OK}$ are predicted everywhere on the grid (by ordinary kriging), we can compute a predictor $Z^*$ for the temperature by simply adding the back the linear regression part of the model, i.e. by computing
+
 $$
 Z^{\star}(x) = b + a Y(x) + \varepsilon^{OK}(x)
 $$
@@ -637,7 +601,6 @@ uid = target$addColumns(ROK_estim,"KR.Temperature.estim")
 Let us plot the resulting temperature predictions.
 
 ```{r Plot Predictor from Kriging of residuals}
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target,name_raster = "KR.T*estim",
                   show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
@@ -648,26 +611,20 @@ ggPrint(p)
 
 Finally, we compare the predictor obtained by kriging of the residuals to the ordinary kriging predictor.
  
-
 ```{r Correlation plot OK - Kriging of residuals}
 p = ggplot()
-p = p + plot.correlation(target, "OK.T*estim", "KR.T*estim", flagBiss=TRUE,
-                     bins=100)
+p = p + plot.correlation(target, "OK.T*estim", "KR.T*estim", flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Kriging with Residuals")
 ggPrint(p)
 ```
 
 ```{r Comparing Ordinary kriging and Residual kriging}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(target, c("OK.T*estim", "KR.T*estim"), opers=opers)
-knitr::kable(tab$toTL(), 
-             caption= "Comparison between Ordinary and Residual kriging predictions", digits=3)
+dbStatisticsPrint(target, names=c("OK.T*estim", "KR.T*estim"), opers=opers,
+                  title="Comparison between Ordinary and Residual kriging predictions",
+                  radix="")
 ```
 
-
 ----------------------------------------------------------------------------------------------
-
 
 ## Models with External Drifts
 
@@ -721,22 +678,20 @@ p = p + plot.varmod(varioKED, linetype="dashed")
 p = p + plot.decoration(title="Temperature (°C)") 
 ggPrint(p)
 ```
+
 Finally, we fit our model with external drift using the `fit` method (which we call on the experimental variogram of residuals).
 
 ```{r Model of Residuals with External Drift}
-## Fit model
 err = EDmodel$fit(varioKED,
                    types=ECov_fromKeys(c("NUGGET","CUBIC","GAUSSIAN")))
 ```
 
 ```{r Plot model fit - ED}
-## Plot
 p = ggplot()
 p = p + plot.varmod(varioKED, EDmodel)
 p = p + plot.decoration(title="Experimental and fitted variogram models - Residuals")
 ggPrint(p)
 ```
-
 
 ### Cross-Validation and predictions
 
@@ -746,14 +701,13 @@ For instance, in our example, a cross-validation is performed by calling the `xv
 
 ```{r Cross-Validation External Drift}
 err = xvalid(dat, model=EDmodel, 
-             neigh=unique_neigh,
+             neigh=uniqueNeigh,
              namconv=NamingConvention_create(prefix="CV_KED",flag_locator=FALSE))
 ```
 
 The mean Mean Squared cross-validation and standardized errors of the resulting kriging predictor are:
 
 ```{r Cross-validation External Drift: Stats}
-#--- MP --- 
 mse=mean(dat$getColumn("CV_KED*esterr*")^2,na.rm=TRUE)
 cat(c("Mean squared cross-validation error:",
         round(mse,3),
@@ -764,16 +718,16 @@ cat(c("Mean squared standardized error:",
         round(mse,3),
       "\n"))
 ```
+
 Finally, we perform an kriging prediction of the temperature on the `target`. 
 
 ```{r External Drift prediction}
 err = kriging(dbin=dat, dbout=target, model=EDmodel, 
-              neigh=unique_neigh,
+              neigh=uniqueNeigh,
               namconv=NamingConvention_create(prefix="KED"))
 ```
  
 ```{r Plot of KED prediction}
-## Plot
 p = ggDefaultGeographic()
 p = p + plot.grid(target,name_raster = "KED*estim",
                   show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
@@ -785,13 +739,10 @@ ggPrint(p)
 For this predictor, we get the following statistics:
 
 ```{r Statistics of External Drift prediction}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(target, names = (c("KED.T*")), opers=opers)
-knitr::kable(tab$toTL(),
-             caption= "Statistics on the Kriging with External Drift predictions", digits=3)
+dbStatisticsPrint(target, names=(c("KED.T*")), opers=opers,
+                  title="Statistics on the Kriging with External Drift predictions",
+                  radix="")
 ```
-
 
 ### Comparing the various kriging predictions
 
@@ -805,35 +756,26 @@ p = p + plot.decoration(xlab="Ordinary Kriging", ylab="Kriging with External Dri
 ggPrint(p)
 ```
 
-
 We then compare the  Mean Squared cross-validation errors obtained in for the different kriging predictions (UK=Universal kriging, OK=Ordinary kriging, COK= Cokriging, KED= Kriging with external drift, KR=Kriging of residuals).
 
 ```{r Comparing all predictors: Cross-validation}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab = dbStatisticsMonoT(dat, opers=opers, names = (c("CV*.Temperature.esterr")))
-knitr::kable(tab$toTL(), 
-             caption= "Mean-squared cross-validation errors", digits=3)
+dbStatisticsPrint(dat, names=(c("CV*.Temperature.esterr")), opers=opers,
+                  title="Mean-squared cross-validation errors",
+                  radix="")
 ```
 
 We then compare various statistics computed for each predictor.
 
 ```{r Comparing all predictors: value, echo = TRUE}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab =  dbStatisticsMonoT(target, opers=opers, 
-                         names = (c("*.Temperature.estim")))
-knitr::kable(tab$toTL(), 
-             caption= "Statistics of the predictors", digits=3)
+dbStatisticsPrint(target, names = (c("*.Temperature.estim")), opers=opers,
+                  title="Statistics of the predictors",
+                  radix="")
 ```
 
 Finally, we compare various statistics computed for the standard-deviation of each predictor.
 
 ```{r Comparing all predictors: stdev, echo = TRUE}
-#--- MP ---
-opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-tab =  dbStatisticsMonoT(target, opers=opers, 
-                         names = (c("*.Temperature.stdev")))
-knitr::kable(tab$toTL(), 
-             caption= "Statistics of the standard-deviation of each predictors", digits=3)
+dbStatisticsPrint(target, names = (c("*.Temperature.stdev")), opers=opers,
+                  title="Statistics of the standard-deviation of each predictors",
+                  radix="")
 ```
