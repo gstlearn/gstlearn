@@ -139,27 +139,28 @@ plot.printDefault <- function()
       "PuBuGn", "PuRd", "Purples", "RdPu", "Reds", "YlGn", "YlGnBu", "YlOrBr", "YlOrRd",
       "Accent", "Dark2", "Paired", "Pastel1", "Pastel2", "Set1", "Set2", "Set3",
       "BrBG", "PiYG", "PRGn", "PuOr", "RdBu", "RdGy", "RdYlBu", "RdYlGn", "Spectral")
-  rcb_num <- 1:18
   v <- c("magma", "inferno", "plasma", "viridis", "cividis", "rocket", "mako", "turbo",
       "A", "B", "C", "D", "E", "F", "G", "H")
+  rcb_num <- 1:18
   
+  aes_list = c("colour", "fill")
   if(length(palette) == 1) {
     if (any(palette == rcb) | any(palette == rcb_num)) {
-      layer = scale_color_distiller(palette= palette, aesthetics= c("colour", "fill"), ...)
+      layer = scale_color_distiller(palette= palette, aesthetics=aes_list, ...)
     } else if(any(palette == v)) {
-     layer = scale_color_viridis_c(option= palette, aesthetics= c("colour", "fill"), ...)
+     layer = scale_color_viridis_c(option= palette, aesthetics=aes_list, ...)
     } 
   } else if(length(palette) == 2) {
     low = palette[1]
     high = palette[2]
-    layer = scale_color_gradient(low= low, high= high, aesthetics= c("colour", "fill"), ...)
+    layer = scale_color_gradient(low= low, high= high, aesthetics=aes_list, ...)
   } else if(length(palette) == 3) {
     low = palette[1]
     mid = palette[2]
     high = palette[3]
-    layer = scale_color_gradient2(low= low, mid= mid, high= high, aesthetics= c("colour", "fill"), ...)
+    layer = scale_color_gradient2(low= low, mid= mid, high= high, aesthetics=aes_list, ...)
   } else {
-    layer = scale_color_continuous(type= palette, aesthetics= c("colour", "fill"), ...)
+    layer = scale_colour_manual(values= palette, aesthetics=aes_list, ...)
   }
   layer
 }
@@ -185,27 +186,45 @@ ggPrint <- function(p, flag_suppress_warnings = TRUE)
 }
 
 #' Initiate a Geographical display (using the default values for parameters)
+#' @param figsize Optional parameter giving the dimensions of the figure
 #' @return The ggplot object
+#' @note When 'figsize' is defined, it overwrites the default dimensions 
+#' @note coming from the geographical and non-geographical environments
 #' @note Use printDefault() to visualize them and setDefaultGeographic() to modify them
-ggDefaultGeographic <- function()
+ggDefaultGeographic <- function(figsize=NA)
 {
   p <- ggplot()
   mode = 2
-  p <- p + plot.geometry(dims=plot.default_dims[[mode]], 
-        xlim=plot.default_xlim[[mode]], 
-        ylim=plot.default_ylim[[mode]], 
-        asp=plot.default_asp[mode])
+  
+  if (.isNotDef(figsize))
+ 	locdims = plot.default_dims[[mode]]
+  else
+  	locdims = figsize
+   
+  p <- p + plot.geometry(dims=locdims, 
+                         xlim=plot.default_xlim[[mode]], 
+                         ylim=plot.default_ylim[[mode]], 
+                         asp=plot.default_asp[mode])
   p
 }
 
 #' Initiate a non-geographical display (using the default values for parameters)
 #' @return The initiated ggplot object
 #' @note Use printDefault() to visualize them and setDefault() to modify them
-ggDefault <- function()
+ggDefault <- function(figsize=NA)
 {
   p <- ggplot()
   mode = 1
-  p <- p + plot.geometry(asp= plot.default_asp[mode])
+  
+  if (.isNotDef(figsize))
+ 	locdims = plot.default_dims[[mode]]
+  else
+  	locdims = figsize
+  
+  p <- p + plot.geometry(dims=locdims, 
+                         xlim=plot.default_xlim[[mode]], 
+                         ylim=plot.default_ylim[[mode]], 
+                         asp=plot.default_asp[mode])
   p
 }
 
@@ -709,12 +728,13 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param flagAbsSize Using the absolute value of the variable for graphic representation
 #' @param flagCst Represent the location of the active samples only
 #' @param useSel Use of the optional selection
+#' @param asFactor Transform color variable into factor to use discrete palette
 #' @param posX Rank of the coordinate used as the first coordinate
 #' @param posY Rank of the coordinate used as the second coordinate
 #' @param ... List of arguments passed to geom_point()
 #' @return The description of the contents of the graphic layer
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, posX=0, posY=1, 
+    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, posX=0, posY=1,
     ...) 
 { 
   # Creating the necessary data frame
@@ -724,6 +744,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   colval = NULL
   if (! is.null(name_color)) {
     colval  = db$getColumn(name_color, TRUE)
+    if (asFactor) colval = factor(colval)
   }
   df["colval"] = colval 
   
@@ -777,6 +798,8 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 #' @param sizmax Maximum symbol size for proportional representation
 #' @param flagAbsSize Using the absolute value of the variable for graphic representation
 #' @param flagCst Represent the location of the active samples only
+#' @param palette Name of the reference color map
+#' @param asFactor Transform the color variable into factor in order to use discrete palette
 #' @param show.legend.symbol Display the legend for symbol representation (size and color)
 #' @param show.legend.label Display the legend for literal representation
 #' @param legend.name.color Name attached to the Legend for color representation
@@ -785,8 +808,8 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 #' @param ... List of arguments passed to pointSymbol( ) and pointLabel() 
 #' @return The ggplot object
 plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
-    sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE,
-    show.legend.symbol=FALSE, show.legend.label=FALSE, 
+    sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE, palette=NULL,
+    asFactor=FALSE, show.legend.symbol=FALSE, show.legend.label=FALSE, 
     legend.name.color="P-Color", legend.name.size="P-Size", legend.name.label="P-Label", ...)
 { 
   p = list()
@@ -812,12 +835,16 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   if (! is.null(name_color) || ! is.null(name_size))
   {
     p <- c(p, pointSymbol(db, name_color=name_color, name_size=name_size,
-        flagAbsSize = flagAbsSize, flagCst=flagCst,
-        show.legend = show.legend.symbol,
+        flagAbsSize = flagAbsSize, flagCst=flagCst, asFactor=asFactor,
+        show.legend = show.legend.symbol, 
         ...))
     
     if (! is.null(name_size) && ! flagCst)
       p <- c(p, scale_size_continuous(range = c(sizmin, sizmax)))
+      
+	# Palette definition
+	if (! is.null(palette))
+    	p <- c(p, .scaleColorFill(palette, ...))
     
     # Set the default title
     if (! is.null(name_color))
@@ -1122,8 +1149,8 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 
 #' Representing the scatter plot 
 #' @param db1 A (first) data base from gstlearn library
-#' @param name1 Name of the variable (within 'db1') which will be displayed along the horizontal axis
-#' @param name2 Name of the variable (within 'db2') which will be displayed along the vertical axis
+#' @param namex Name of the variable (within 'db1') which will be displayed along the horizontal axis
+#' @param namey Name of the variable (within 'db2') which will be displayed along the vertical axis
 #' @param db2 A second data base from gstlearn. If not defined, it coincides with 'db1'
 #' @param useSel Use of an optional selection (masking off samples)
 #' @param asPoint Represent samples pointwise if True, otherwise as a grid painted with occurrences
@@ -1141,7 +1168,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 #' @param legend.name.raster Name of the legend when representing grid of occurrences (asPoint = FALSE)
 #' @param ... List of arguments passed to plot.XY() or plot.hist2d()
 #' @return The ggplot object
-plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=TRUE,
+plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
     asPoint=FALSE, 
     flagDiag=FALSE, diag_color = "red", diag_line = "solid", 
     flagRegr=FALSE, regr_color = "blue", regr_line = "solid", 
@@ -1151,8 +1178,8 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=TRUE,
     ...)
 {
   if (is.null(db2)) db2 = db1
-  x = db1$getColumn(name1, useSel)
-  y = db2$getColumn(name2, useSel)
+  x = db1$getColumn(namex, useSel)
+  y = db2$getColumn(namey, useSel)
   
   p = list()
   if (asPoint)
@@ -1187,7 +1214,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=TRUE,
   
   if (flagRegr)
   {
-    regr = regression(db2, name2, name1, flagCste=TRUE)
+    regr = regression(db2, namey, namex, flagCste=TRUE)
     if (regr$nvar > 0)
     {
       a = regr$coeffs[1]
@@ -1199,7 +1226,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, useSel=TRUE,
     }
   }
   
-  p = c(p, plot.decoration(xlab=name1, ylab=name2))
+  p = c(p, plot.decoration(xlab=namex, ylab=namey))
   
   # Set the Legend
   if (show.legend.raster)

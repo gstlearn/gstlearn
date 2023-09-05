@@ -258,7 +258,7 @@ ggPrint(p)
 
 # cross plot: initial simulation vs. kriging
 p = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "manual.simu", asPoint = FALSE, 
+    plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.simu", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (Initial simulation)", 
                   title = "Simulation vs. kriging (Manual)")
@@ -266,7 +266,7 @@ ggPrint(p)
 
 # cross plot: conditional simulation vs. kriging
 p = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "manual.cond.simu", asPoint = FALSE, 
+    plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.cond.simu", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (conditional simulation)", 
                   title = "Simulation vs. kriging (Manual)")
@@ -274,7 +274,7 @@ ggPrint(p)
 
 # cross plot: empirical conditional expectation vs. kriging
 p = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.cond.expectation", name2 = "manual.kriging", asPoint = FALSE, 
+    plot.correlation(db1 = grid, namex = "manual.cond.expectation", namey = "manual.kriging", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
                   title = "Kriging vs. conditional expectation (Manual)")
@@ -320,7 +320,7 @@ ggPrint(p)
 
 # correlation
 p = ggDefault() + 
-    plot.correlation(grid, name1 = "spde.kriging", name2 = "manual.simu",asPoint = FALSE,
+    plot.correlation(grid, namex = "spde.kriging", namey = "manual.simu",asPoint = FALSE,
                      flagDiag = TRUE, diag_color = "red", flagRegr = TRUE, regr_color = "black", regr_line = 2,
                      flagSameAxes = TRUE
             ) +
@@ -330,7 +330,7 @@ ggPrint(p)
 
 # cross plot
 p = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "spde.kriging", asPoint = FALSE, 
+    plot.correlation(db1 = grid, namex = "manual.kriging", namey = "spde.kriging", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")

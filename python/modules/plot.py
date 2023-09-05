@@ -22,6 +22,8 @@ from plotly.matplotlylib     import mpltools
 import math
 from plotly.validators.layout.scene import aspectratio
 from matplotlib.pyplot import axes
+#from mpl_toolkits.basemap.proj import nx
+from bleach._vendor.html5lib._ihatexml import name
 
 #Set of global values
 default_dims = [[5,5], [8,8]]
@@ -134,7 +136,7 @@ def __defaultVariable(db, name):
 
 def geometry(ax, dims=None, xlim=None, ylim=None, aspect=None):
     '''
-    Set the default values for the geometrical parameters for one or a set of Axes
+    Set the default values for the geometric parameters for one or a set of Axes
     
     ax: matplotlib.Axes or numpy.array of matplotlib.Axes or matplotlib.Figure
     dims: Extension of graphic Axes
@@ -236,13 +238,20 @@ def decoration(ax, xlabel=None, ylabel=None, title=None, **kwargs):
         else:
             ax.set_ylabel(ylabel)
  
-def __initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
+def __initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False, figsize=None):
     ''' Creates a new Geographic figure (possibly containing several subplots)
     
         Parameters
         ----------
         nx, ny:     Number of subplots along X and Y
         sharex, sharey: If the subplots should all share respectively X and Y axis
+        figsize: Vector giving the dimension of the picture
+        
+        Details
+        -------
+        The use of 'figsize' overwrites the default values stored in geographical
+        and non-geographical environments. In the case of multi-figures, it corresponds
+        to the overall dimension. The dimension of each figure is derived internally.
         
         Returns
         -------
@@ -257,8 +266,15 @@ def __initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
             ax = ax[0,0]
 
         # Apply the Global Geometry parameters (when defined)
+        
+        if figsize is None:
+            locdims = default_dims[mode]
+        else:
+            locdims[0] = figsize[0] / nx
+            locdims[1] = figsize[1] / ny
+            
         geometry(ax,
-                 dims = default_dims[mode], 
+                 dims = locdims, 
                  xlim = default_xlim[mode], 
                  ylim = default_ylim[mode], 
                  aspect = default_aspect[mode])
@@ -273,11 +289,11 @@ def __initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False):
 
     return fig, ax
     
-def initGeographic(nx=1, ny=1, sharex=False, sharey=False):
-    return __initGeneric(1, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
+def initGeographic(nx=1, ny=1, sharex=False, sharey=False, figsize=None):
+    return __initGeneric(1, nx=nx, ny=ny, sharex=sharex, sharey=sharey, figsize=figsize)
 
-def init(nx=1, ny=1, sharex=False, sharey=False):
-    return __initGeneric(0, nx=nx, ny=ny, sharex=sharex, sharey=sharey)
+def init(nx=1, ny=1, sharex=False, sharey=False, figsize=None):
+    return __initGeneric(0, nx=nx, ny=ny, sharex=sharex, sharey=sharey, figsize=figsize)
 
 def __getNewAxes(ax=None, mode=0, nx=1, ny=1, sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
@@ -324,10 +340,12 @@ def __isArray(tab, ndim=None):
     
     return True
 
-def addColorbar(im, ax):
+def addColorbar(im, ax, legendName = None):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     cbar = plt.colorbar(im, ax=ax, cax=cax)
+    if legendName is not None:
+        cbar.ax.set_title(legendName)
     return cbar
 
 def __getDefinedValues(db, name, posX=0, posY=1, corner=None, useSel=True, 
@@ -715,7 +733,8 @@ def symbol(db, name_color=None, name_size=None, *args, **kwargs):
 def __ax_symbol(ax, db, name_color=None, name_size=None, 
                 coorX_name=None, coorY_name=None, useSel=True, 
                 c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
-                flagLegend=False, legendName=None, posX=0, posY=1, **kwargs):
+                flagLegendColor=False, flagLegendSize=False,
+                legendColorName=None, legendSizeName=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
     
@@ -732,8 +751,10 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
     flagCst: When True, the size is kept constant (equal to 's')
-    flagLegend: Flag for representing the Legend
-    legendName: Title for the Legend
+    flagLegendColor: Flag for representing the Color Legend
+    flagLegendSize: Flag for representing the Size Legend
+    legendColorName: Title for the Color Legend
+    legendSizeName: Title for the Size Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -776,14 +797,17 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     
     res = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
 
-    if flagLegend:
+    if flagLegendColor:
         if name_color is not None:
-            addColorbar(res, ax)
+            addColorbar(res, ax, legendColorName)
     
+    if flagLegendSize:
         if name_size is not None:
+            if legendName is None:
+                legendName = name_size
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
             ax.legend(*res.legend_elements("sizes", num=6, func=labels), 
-                      title=legendName)
+                      title=legendSizeName)
          
     return res
 
@@ -827,6 +851,9 @@ def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None,
     for i, txt in enumerate(labval):
         ax.annotate(round(txt,2), (tabx[i], taby[i]))
   
+    if legendName is None:
+        legendName = name
+        
     return res
 
 def gradient(db, *args, **kwargs):
@@ -923,9 +950,11 @@ def point(db, *args, **kwargs):
     flagTangent: Draw Tangent (if Tangents are defined)
     colorTangent: Color attached to the Tangent representation
     scaleTangent: Scale of the Tangent representation
-    flagLegendSymbol: Flag for representing the Color Bar of Size legend (only if name_color or name_size is defined)
-    legendSymbolName: Title for the Symbol Legend
-    flagLegendLabel: Flag for representing the Legend for marker size (only if name_label is defined)
+    flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
+    flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
+    flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
+    legendColorName: Title for the Color Legend
+    legendSizeName: Title for the Size legend
     legendLabelName: Title for the Label Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
@@ -942,8 +971,8 @@ def __ax_point(ax, db,
                flagAbsSize=False, flagCst=False,
                flagGradient=False, colorGradient='black', scaleGradient=20,
                flagTangent=False, colorTangent='black', scaleTangent=20,
-               flagLegendSymbol=False, legendSymbolName=None,
-               flagLegendLabel=False, legendLabelName=None,
+               flagLegendColor=False, flagLegendSize=False, flagLegendLabel=False, 
+               legendColorName=None, legendSizeName=None, legendLabelName=None,
                posX=0, posY=1, **kwargs):
 
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
@@ -962,7 +991,8 @@ def __ax_point(ax, db,
                          coorX_name=coorX_name, coorY_name=coorY_name, useSel=useSel, 
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
                          flagAbsSize=flagAbsSize, flagCst=flagCst,cmap=cmap, 
-                         flagLegend=flagLegendSymbol, legendName=legendSymbolName,
+                         flagLegendColor=flagLegendColor, flagLegendSize=flagLegendSize,
+                         legendColorName=legendColorName, legendSizeName=legendSizeName,
                          posX=posX, posY=posY, 
                          **kwargs)
         if name_color is not None:
@@ -1135,7 +1165,7 @@ def raster(dbgrid, *args, **kwargs):
     return __ax_raster(ax, dbgrid, *args, **kwargs)
 
 def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=None, 
-                flagLegend=False, **kwargs):
+                flagLegend=False, legendName=None, **kwargs):
     name = __defaultVariable(dbgrid, name)
             
     if len(ax.get_title()) <= 0:
@@ -1152,7 +1182,7 @@ def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=Non
             transform=trans_data)
    
     if flagLegend:
-        addColorbar(res, ax)
+        addColorbar(res, ax, legendName)
     
     return res
         
@@ -1781,7 +1811,7 @@ def plot(object, name1=None, name2=None, ranks=None, **kwargs):
         if name2 is None:
             point(object, **kwargs)
         else:
-            correlation(object, name1, name2, **kwargs)
+            correlation(object, namex=name1, namey=name2, **kwargs)
             
     elif filetype == "DbGrid":
         grid(object, name1, **kwargs)

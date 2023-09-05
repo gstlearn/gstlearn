@@ -133,7 +133,7 @@ From observing this last plot, it seems like the bigger points (corresponding to
 
 ```{r Correlation plot Temperature - Elevation}
 p = ggplot()
-p = p + plot.correlation(dat, name1="Elevation", name2="Temperature", 
+p = p + plot.correlation(dat, namex="Elevation", namey="Temperature", 
                      asPoint=TRUE, flagRegr=TRUE)
 p = p + plot.decoration(title="Correlation between Temperature and Elevation")
 ggPrint(p)

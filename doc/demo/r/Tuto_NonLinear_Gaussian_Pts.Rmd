@@ -476,7 +476,7 @@ blocs["T_1"] <- 1 - VectorHelper_pnormVec((Ycuts[4] - blocs["G_Pts.Gaussian.Z.es
 blocs["T_1"][indsel] = NA
 
 p = ggplot()
-p = p + plot.correlation(blocs, name1="Pts_Recovery.T-estim-1", name2="T_1", 
+p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-1", namey="T_1", 
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Computed value", ylab = "Theoretical value",
                 title = "Conditional Expectation: T(1.0)")
@@ -492,7 +492,7 @@ blocs["T_0.75"] <- 1 - VectorHelper_pnormVec((Ycuts[3] -
 blocs["T_0.75"][indsel] = NA
 
 p = ggplot()
-p = p + plot.correlation(blocs, name1="Pts_Recovery.T-estim-0.75", name2="T_0.75", 
+p = p + plot.correlation(blocs, namex="Pts_Recovery.T-estim-0.75", namey="T_0.75", 
                         bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Computed value", ylab = "Theoretical value",
                 title = "Conditional Expectation: T(0.75)")
@@ -676,21 +676,21 @@ Comparing Point and Block estimations and standard deviation of Estimation error
 
 ```{r, echo=TRUE, eval=TRUE}
 p = ggplot()
-p = p + plot.correlation(blocs, name1 = "DK_Pts*1.estim", name2 = "DK_Blk*1.estim",
+p = p + plot.correlation(blocs, namex = "DK_Pts*1.estim", namey = "DK_Blk*1.estim",
                      bins = 100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
                 title = "First factor (Gaussian model)")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot.correlation(blocs, name1 = "DK_Pts*2.estim", name2 = "DK_Blk*2.estim",
+p = p + plot.correlation(blocs, namex = "DK_Pts*2.estim", namey = "DK_Blk*2.estim",
                      bins = 100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
                  title = "Second factor (Gaussian model)")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot.correlation(blocs, name1 = "DK_Pts*3.estim", name2 = "DK_Blk*3.estim",
+p = p + plot.correlation(blocs, namex = "DK_Pts*3.estim", namey = "DK_Blk*3.estim",
                  bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Point estimation", ylab = "Block estimation", 
                  title = "Third factor (Gaussian model)")
@@ -893,14 +893,14 @@ grid[nm_qc_stdev] <- sqrt(Hn.std^2 %*% (psi[-1][1:nfactor]^2)  + sum(psi[-1][(nf
 
 # Raw variable
 p = ggplot()
-p = p + plot.correlation(grid, name1 = nm_estim, name2 = nm_qc_estim, 
+p = p + plot.correlation(grid, namex = nm_estim, namey = nm_qc_estim, 
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = nm_estim, ylab = nm_qc_estim,
                 title = "Disjunctive Kriging - Estimation value")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot.correlation(grid, name1 = nm_stdev, name2 = nm_qc_stdev, 
+p = p + plot.correlation(grid, namex = nm_stdev, namey = nm_qc_stdev, 
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(xlab = nm_stdev, ylab = nm_qc_stdev,
                 title = "Disjunctive Kriging - Standard deviation")
@@ -952,7 +952,7 @@ nm <-c("Z",
 # Correlation actual values vs. estimated values
 for (est in c("SK", "DK", "CE")) {
   p = ggplot()
-  p = p + plot.correlation(grid, name1=paste0(est, ".Z.estim"), name2="Z", 
+  p = p + plot.correlation(grid, namex=paste0(est, ".Z.estim"), namey="Z", 
                            bins=100, flagDiag = TRUE)
   p = p + plot.decoration(xlab = "Estimated value", ylab = "Actual value",
                           title = paste(est, " of raw variable"))
@@ -961,14 +961,14 @@ for (est in c("SK", "DK", "CE")) {
 
 # Comparison of the estimators
 p = ggplot()
-p = p + plot.correlation(grid, name1="CE.Z.estim", name2="SK.Z.estim", 
+p = p + plot.correlation(grid, namex="CE.Z.estim", namey="SK.Z.estim", 
                          bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Conditional expectation", ylab = "Simple kriging",
                 title = "Point raw variable")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot.correlation(grid, name1="DK.Z.estim", name2="SK.Z.estim", 
+p = p + plot.correlation(grid, namex="DK.Z.estim", namey="SK.Z.estim", 
                          bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Disjunctive Kriging", ylab = "Simple kriging",
                 title = "Point raw variable")
