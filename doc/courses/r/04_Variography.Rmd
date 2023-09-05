@@ -262,7 +262,10 @@ grid.vmap = db_vmap_compute(dat)
 ```
 
 ```{r Variogram_Map_Plot}
-ggplot() + plot.grid(grid.vmap)
+p1 = ggplot() + plot.grid(grid.vmap, show.legend.raster=TRUE, legend.name.raster="T°C Var")
+p2 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.January_temp.Nb", show.legend.raster=TRUE, legend.name.raster="# pairs")
+ggarrange(p1,p2,nrow=1,ncol=2)
+
 ```
 
 It is then possible to fit a model directly on the experimental variogram map. This if done with the method `fitFromVMap` from the `Model` class. This method is called in the same way as the `fit` method considered up until now (the experimental variograms being now replaced by the experimental variogram map).
@@ -278,10 +281,13 @@ It is then possible to plot the variogram map resulting from the fitted model. T
 
 ```{r Fitting_Variogram_Map_Draw}
 err = dbgrid_model(grid.vmap, modelVM)
+grid.vmap
 ```
 
 ```{r Fitting_Variogram_Map_Draw_Plot}
-ggplot() + plot.grid(grid.vmap)
+p1 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.January_temp.Var")
+p2 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.Model")
+ggarrange(p1,p2,nrow=1,ncol=2)
 ```
 
 Finally, we plot together the experimental directional variograms and the model obtained from fitting the variogram map.

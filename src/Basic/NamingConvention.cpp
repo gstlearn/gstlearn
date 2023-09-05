@@ -173,7 +173,7 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
  *
  * 'prefix'.'namin'.'qualifier'.'item_rank'
  *
- * @param namin variable name in Input Db
+ * @param namin variable name
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
  * @param qualifier Optional qualifier

@@ -149,7 +149,15 @@ To perform conditional simulations, we use the same command as for unconditional
 
 Circling back to our example, let us consider the temperature observations in the data base `dat` as conditioning points. Our aim is to generate simulations of the model `fitmod` that honor these data. 
 
-We start by computing the mean of temperature observations and set it as the mean of the model, so that the future simulations of the model also share this mean.
+We first must control that our data follow more or less a gaussian distribution.
+
+```{r}
+p = ggplot()
+p = p + plot.hist(dat,name="January_temp", bins=10)
+ggPrint(p)
+```
+
+Then, we compute the mean of temperature observations and set it as the mean of the model, so that the future simulations of the model also share this mean.
 
 ```{r Perform_Conditional_Simulations}
 ## Compute mean temperature
