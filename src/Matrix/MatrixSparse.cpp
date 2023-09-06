@@ -427,10 +427,15 @@ String MatrixSparse::toString(const AStringFormat* /* strfmt*/) const
 void MatrixSparse::_allocate()
 {
   cs *Atriplet;
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  cs_entry(Atriplet, getNRows() - 1, getNCols() - 1, 0.);
-  _csMatrix = cs_triplet(Atriplet);
-  Atriplet = cs_spfree(Atriplet);
+  int nrow = getNRows();
+  int ncol = getNCols();
+  if (nrow > 0 && ncol > 0)
+  {
+    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+    cs_entry(Atriplet, getNRows() - 1, getNCols() - 1, 0.);
+    _csMatrix = cs_triplet(Atriplet);
+    Atriplet = cs_spfree(Atriplet);
+  }
 }
 
 void MatrixSparse::_recopySparse(const cs* cs)

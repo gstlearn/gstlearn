@@ -729,19 +729,30 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 }
 
 "MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareDiagonal_toTL" <- function(x) { matrix_toTL }
-"MatrixSquareDiagonalCst_toTL" <- function(x) { matrix_toTL }
-"MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL }
-"MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL }
+"MatrixSquareDiagonal_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSquareDiagonalCst_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL(x) }
 
 "Table_toTL" <- function(tab)
 {
-  mat <- matrix(tab$getValues(), byrow = FALSE,
-                nrow = tab$getNRows(), 
-                ncol = tab$getNCols())
-  colnames(mat) <- tab$getColumnNames()
-  rownames(mat) <- tab$getRowNames()
-  mat
+  nrow = tab$getNRows()
+  ncol = tab$getNCols()
+  mat <- matrix(tab$getValues(), byrow = FALSE, nrow=nrow, ncol=ncol)
+  df = data.frame(mat)
+  if (nrow > 0 && ncol > 0)
+  {
+ 	names(df) = tab$getColumnNames()
+  	if (length(tab$getColumnNames()) > 0) 
+  		colnames(df) <- tab$getColumnNames()
+ 	else
+  		colnames(df) = seq(1, ncol)
+  	if (length(tab$getRowNames()) > 0)    
+  		rownames(df) <- tab$getRowNames()
+  	else
+  		rownames(df) = seq(1, nrow)
+  }
+  df
 }
 
 "getTableitem" <-

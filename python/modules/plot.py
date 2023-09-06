@@ -803,8 +803,8 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     
     if flagLegendSize:
         if name_size is not None:
-            if legendName is None:
-                legendName = name_size
+            if legendSizeName is None:
+                legendSizeName = name_size
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
             ax.legend(*res.legend_elements("sizes", num=6, func=labels), 
                       title=legendSizeName)
@@ -1231,7 +1231,8 @@ def grid(dbgrid, *args, **kwargs):
     name_contour: Name of the variable tp be represented as contours
     useSel : Boolean to indicate if the selection has to be considered
     flagCell: When True, the edge of the grid cells are represented
-    flagLegendColor: Flag for representing the Color Bar (not represented if alpha=0)
+    flagLegendRaster: Flag for representing the Raster Legend
+    flagLegendContour: Flag for representing the Contour Legend
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
