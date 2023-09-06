@@ -596,7 +596,7 @@ int krigingSPDE(Db *dbin,
   spde.setRefineK(refineK);
   spde.setBorder(border);
 
- return spde.compute(dbout, 0, 0, namconv);
+  return spde.compute(dbout, 0, 0, namconv);
 }
 
 /**
@@ -639,6 +639,6 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
   spde.setRefineS(refineS);
   spde.setBorder(border);
 
- return spde.compute(dbout, nbsimu, seed, namconv);
+  return spde.compute(dbout, nbsimu, seed, namconv);
 }
 
