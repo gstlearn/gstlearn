@@ -125,7 +125,7 @@ p = p + plot.grid(target, name_raster="Elevation",
                   legend.name.raster="Elevation (m)")
 p = p + plot.point(dat, name_size="Temperature",
                    sizmin = 0.5, sizmax = 3,
-                   show.legend.symbol=TRUE,legend.name.size="°C")
+                   show.legend.size=TRUE,legend.name.size="°C")
 ggPrint(p)
 ```
 

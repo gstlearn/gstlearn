@@ -77,7 +77,7 @@ point(db, *args, **kwargs)
     flagLegendSymbol: Flag for representing the Color Bar of Size legend (only if name_color or name_size is defined)
     legendSymbolName: Title for the Symbol Legend
     flagLegendLabel: Flag for representing the Legend for marker size (only if name_label is defined)
-    legendLabelName: Title for the Label Legend
+    legendNameLabel: Title for the Label Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     

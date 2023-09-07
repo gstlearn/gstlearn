@@ -340,7 +340,7 @@ def __isArray(tab, ndim=None):
     
     return True
 
-def addColorbar(im, ax, legendName = None):
+def __addColorbar(im, ax, legendName = None):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     cbar = plt.colorbar(im, ax=ax, cax=cax)
@@ -734,7 +734,7 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
                 coorX_name=None, coorY_name=None, useSel=True, 
                 c='r', s=20, sizmin=10, sizmax=200, flagAbsSize=False, flagCst=False,
                 flagLegendColor=False, flagLegendSize=False,
-                legendColorName=None, legendSizeName=None, posX=0, posY=1, **kwargs):
+                legendNameColor=None, legendNameSize=None, posX=0, posY=1, **kwargs):
     '''
     Construct a Layer for plotting a point data base, with optional color and size variables
     
@@ -753,8 +753,8 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     flagCst: When True, the size is kept constant (equal to 's')
     flagLegendColor: Flag for representing the Color Legend
     flagLegendSize: Flag for representing the Size Legend
-    legendColorName: Title for the Color Legend
-    legendSizeName: Title for the Size Legend
+    legendNameColor: Title for the Color Legend
+    legendNameSize: Title for the Size Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -799,15 +799,17 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
 
     if flagLegendColor:
         if name_color is not None:
-            addColorbar(res, ax, legendColorName)
+            if legendNameColor is None:
+                legendNameColor = name_color
+            __addColorbar(res, ax, legendNameColor)
     
     if flagLegendSize:
         if name_size is not None:
-            if legendSizeName is None:
-                legendSizeName = name_size
+            if legendNameSize is None:
+                legendNameSize = name_size
             labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
             ax.legend(*res.legend_elements("sizes", num=6, func=labels), 
-                      title=legendSizeName)
+                      title=legendNameSize)
          
     return res
 
@@ -953,9 +955,9 @@ def point(db, *args, **kwargs):
     flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
     flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
     flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
-    legendColorName: Title for the Color Legend
-    legendSizeName: Title for the Size legend
-    legendLabelName: Title for the Label Legend
+    legendNameColor: Title for the Color Legend
+    legendNameSize: Title for the Size legend
+    legendNameLabel: Title for the Label Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
 
@@ -972,7 +974,7 @@ def __ax_point(ax, db,
                flagGradient=False, colorGradient='black', scaleGradient=20,
                flagTangent=False, colorTangent='black', scaleTangent=20,
                flagLegendColor=False, flagLegendSize=False, flagLegendLabel=False, 
-               legendColorName=None, legendSizeName=None, legendLabelName=None,
+               legendNameColor=None, legendNameSize=None, legendNameLabel=None,
                posX=0, posY=1, **kwargs):
 
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
@@ -992,7 +994,7 @@ def __ax_point(ax, db,
                          c=color, s=size, sizmin=sizmin, sizmax=sizmax, 
                          flagAbsSize=flagAbsSize, flagCst=flagCst,cmap=cmap, 
                          flagLegendColor=flagLegendColor, flagLegendSize=flagLegendSize,
-                         legendColorName=legendColorName, legendSizeName=legendSizeName,
+                         legendNameColor=legendNameColor, legendNameSize=legendNameSize,
                          posX=posX, posY=posY, 
                          **kwargs)
         if name_color is not None:
@@ -1003,7 +1005,7 @@ def __ax_point(ax, db,
     if name_label is not None:
         tx = __ax_literal(ax, db, name=name_label, 
                           coorX_name=coorX_name, coorY_name=coorY_name, useSel=useSel, 
-                          flagLegend=flagLegendLabel, legendName=legendLabelName,
+                          flagLegend=flagLegendLabel, legendName=legendNameLabel,
                           posX=posX, posY=posY, **kwargs)
         title = title + name_label + " (Label) "
         
@@ -1159,6 +1161,7 @@ def raster(dbgrid, *args, **kwargs):
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
+    legendName: Name given to the Legend
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
@@ -1182,7 +1185,9 @@ def __ax_raster(ax, dbgrid, name=None, useSel = True, posX=0, posY=1, corner=Non
             transform=trans_data)
    
     if flagLegend:
-        addColorbar(res, ax, legendName)
+        if legendName is None:
+            legendName = name
+        __addColorbar(res, ax, legendName)
     
     return res
         
@@ -1196,6 +1201,7 @@ def isoline(dbgrid, *args, **kwargs):
     useSel : Boolean to indicate if the selection has to be considered
     levels: Vector of isovalues to be represented
     flagLegend: Flag for representing the Color Bar (not represented if alpha=0)
+    legendName: Name given to the Legend
     ax: Reference for the plot within the figure
     
     **kwargs : arguments passed to matplotlib.pyplot.contour
@@ -1205,7 +1211,7 @@ def isoline(dbgrid, *args, **kwargs):
 
 def __ax_isoline(ax, dbgrid, name=None, useSel = True, 
                  posX=0, posY=1, corner=None, levels=None,
-                 flagLegend=False, **kwargs):
+                 flagLegend=False, legendName=None, **kwargs):
     name = __defaultVariable(dbgrid, name)
         
     if len(ax.get_title()) <= 0:
@@ -1218,7 +1224,9 @@ def __ax_isoline(ax, dbgrid, name=None, useSel = True,
     
     if flagLegend:
         h1,l1 = res.legend_elements()
-        ax.legend([h1[0]], ["Isoline"])
+        if legendName is None:
+            legendName = name
+        ax.legend([h1[0]], [legendName])
         
     return res
 
@@ -1233,6 +1241,8 @@ def grid(dbgrid, *args, **kwargs):
     flagCell: When True, the edge of the grid cells are represented
     flagLegendRaster: Flag for representing the Raster Legend
     flagLegendContour: Flag for representing the Contour Legend
+    legendNameColor: Title for the Raster Legend
+    legendNameSize: Title for the Contour Legend
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
@@ -1241,6 +1251,7 @@ def grid(dbgrid, *args, **kwargs):
 def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, useSel = True, 
               posX=0, posY=1, corner=None, flagCell=False,
               flagLegendRaster=False, flagLegendContour=False,
+              legendNameRaster=None, legendNameContour=None,
               levels=None, **kwargs):
     if __isNotCorrect(object=dbgrid, types=["DbGrid"]):
         return None
@@ -1254,14 +1265,14 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, useSel = True
     if name_raster is not None:
         rs = __ax_raster(ax, dbgrid = dbgrid, name = name_raster, useSel = useSel,  
                          posX=posX, posY=posY, corner=corner, 
-                         flagLegend=flagLegendRaster,
+                         flagLegend=flagLegendRaster, legendName=legendNameRaster,
                          **kwargs)
         title = title + name_raster + " (Raster) "
     
     if name_contour is not None:
         ct = __ax_isoline(ax, dbgrid = dbgrid, name = name_contour, useSel = useSel, 
                           posX=posX, posY=posY, corner=corner, levels=levels, 
-                          flagLegend=flagLegendContour, 
+                          flagLegend=flagLegendContour, legendName=legendNameContour,
                           **kwargs)
         title = title + name_contour + " (Isoline) "
     
@@ -1280,13 +1291,13 @@ def grid1D(dbgrid, *args, **kwargs):
     dbgrid: DbGrid containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     useSel : Boolean to indicate if the selection has to be considered
-    flagLegendColor: Flag for representing the Color Bar
+    flagLegend: Flag for representing the Legend
     **kwargs : arguments passed to matplotlib.pyplot.curve
     '''
     ax = __getNewAxes(None, 1)
     return __ax_grid1D(ax, dbgrid, *args, **kwargs)
 
-def __ax_grid1D(ax, dbgrid, name = None, useSel = True, flagLegendColor=True,
+def __ax_grid1D(ax, dbgrid, name = None, useSel = True,
                 color='black',flagLegend=False, label='curve',
                 **kwargs):
     if dbgrid.getNDim() != 1:

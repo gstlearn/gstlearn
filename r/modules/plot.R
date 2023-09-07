@@ -800,7 +800,8 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 #' @param flagCst Represent the location of the active samples only
 #' @param palette Name of the reference color map
 #' @param asFactor Transform the color variable into factor in order to use discrete palette
-#' @param show.legend.symbol Display the legend for symbol representation (size and color)
+#' @param show.legend.color Display the legend for Color representation
+#' @param show.legend.size Display the legend for Size representation
 #' @param show.legend.label Display the legend for literal representation
 #' @param legend.name.color Name attached to the Legend for color representation
 #' @param legend.name.size Name attached to the Legend for proportional representation
@@ -808,9 +809,9 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 #' @param ... List of arguments passed to pointSymbol( ) and pointLabel() 
 #' @return The ggplot object
 plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
-    sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE, palette=NULL,
-    asFactor=FALSE, show.legend.symbol=FALSE, show.legend.label=FALSE, 
-    legend.name.color="P-Color", legend.name.size="P-Size", legend.name.label="P-Label", ...)
+    sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE, palette=NULL, asFactor=FALSE, 
+    show.legend.color=FALSE, show.legend.size=FALSE, show.legend.label=FALSE, 
+    legend.name.color=NULL, legend.name.size=NULL, legend.name.label=NULL, ...)
 { 
   p = list()
   title = ""
@@ -836,7 +837,6 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   {
     p <- c(p, pointSymbol(db, name_color=name_color, name_size=name_size,
         flagAbsSize = flagAbsSize, flagCst=flagCst, asFactor=asFactor,
-        show.legend = show.legend.symbol, 
         ...))
     
     if (! is.null(name_size) && ! flagCst)
@@ -853,20 +853,32 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
       title = paste(title, name_size, sep=" ")
     
     # Set the Legend
-    p <- c(p, list(labs(color = legend.name.color)))
-    p <- c(p, list(labs(size = legend.name.size)))
+    if (show.legend.color)
+    {
+    	if (is.null(legend.name.color)) legend.name.color = name_color
+	    p <- c(p, list(labs(color = legend.name.color)))
+	}
+	if (show.legend.size)
+	{
+		if (is.null(legend.name.size)) legend.name.size = name_size
+	    p <- c(p, list(labs(size = legend.name.size)))
+	}
   }
   
   if (! is.null(name_label))
   {
-    p <- c(p, pointLabel(db, name=name_label,  
-        show.legend=show.legend.label, ...))
+  	if (is.null(legend.nale.label)) legend.name.label = name_label
+    p <- c(p, pointLabel(db, name=legend.name.label,  ...))
     
     # Set the title              
     title = paste(title, name_label, sep=" ")
     
     # Set the legend
-    p <- c(p, list(labs(label = legend.name.label)))
+    if (show.legend.label)
+    {
+    	if (is.null(legend.name.label)) legend.name.label = name_label
+	    p <- c(p, list(labs(label = legend.name.label)))
+	}
   }
   
   # Decoration
@@ -950,13 +962,16 @@ gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, 
 #' @param palette Name of the reference color map
 #' @param na.value Color assigned to undefined samples
 #' @param limits Bounds applied to the variable to be represented
-#' @param show.legend.rasterl Display the legend for grid representation as an image
+#' @param show.legend.raster Display the legend for grid representation as an image
+#' @param show.legend.contour Display the legend for grid representation as contour lines
 #' @param legend.name.raster Name attached to the Legend for representation as an image
+#' @param legend.name.contour Name attached to the Legend for representation as contour lines
 #' @param ... List of arguments passed to gridRaster( ), gridContour() and .scaleColorFill()
 #' @return The ggplot object
 plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     useSel = TRUE, palette=NULL, na.value = "white", limits = NULL, 
-    show.legend.raster=FALSE, legend.name.raster="G-Raster", 
+    show.legend.raster=FALSE, show.legend.contour=FALSE,
+    legend.name.raster=NULL, legend.name.contour=NULL,
     ...)
 {
   if (! dbgrid$isGrid())
@@ -985,7 +1000,10 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     
     # Set the Legend
     if (show.legend.raster)
+    {
+    if (is.null(legend.name.raster)) legend.name.raster = name_raster
       p <- c(p, list(guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))))
+    }
     else
       p <- c(p, list(theme(legend.position='none')))
   }
@@ -997,6 +1015,15 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
     
     # Set the title                    
     title = paste(title, name_contour, sep=" ")
+    
+    # Set the Legend
+    if (show.legend.contour)
+    {
+      if (is.null(legend.name.contour)) legend.name.contour = name_contour
+      p <- c(p, list(labs(contour = legend.name.contour)))
+    }
+    else
+      p <- c(p, list(theme(legend.position='none')))
   }  
   
   # Palette definition
@@ -1153,7 +1180,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 #' @param namey Name of the variable (within 'db2') which will be displayed along the vertical axis
 #' @param db2 A second data base from gstlearn. If not defined, it coincides with 'db1'
 #' @param useSel Use of an optional selection (masking off samples)
-#' @param asPoint Represent samples pointwise if True, otherwise as a grid painted with occurrences
+#' @param asPoint Represent samples pointwise if TRUE, otherwise as a grid painted with occurrences
 #' @param flagDiag Represent the diagonal of the plot
 #' @param diag_color Color of the diagonal
 #' @param diag_line Line type of the diagonal
@@ -1173,8 +1200,7 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
     flagDiag=FALSE, diag_color = "red", diag_line = "solid", 
     flagRegr=FALSE, regr_color = "blue", regr_line = "solid", 
     flagBiss=FALSE, biss_color = "green", biss_line = "solid", 
-    flagSameAxes=FALSE, 
-    show.legend.raster = FALSE, legend.name.raster="Count",
+    flagSameAxes=FALSE, show.legend.raster = FALSE, legend.name.raster = NULL,
     ...)
 {
   if (is.null(db2)) db2 = db1
@@ -1230,7 +1256,10 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
   
   # Set the Legend
   if (show.legend.raster)
+  {
+    if (is.null(legend.name.raster)) legend.name.raster = "Count"
     p <- c(p, list(guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))))
+  }
   else
     p <- c(p, list(theme(legend.position='none')))
   

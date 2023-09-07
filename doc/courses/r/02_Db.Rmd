@@ -235,7 +235,7 @@ Note: Non availalble values (NaN) are display in gray. This will be tunable in f
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(dat, name_color="January_temp", show.legend.symbol = TRUE,
+p = p + plot.point(dat, name_color="January_temp", show.legend.color = TRUE,
                    legend.name.color="Temperature")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
 ggPrint(p)
@@ -245,7 +245,7 @@ A more elaborated graphic representation displays the samples with a symbol prop
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(dat, name_size="Elevation", name_color="January_temp", show.legend.symbol = TRUE,
+p = p + plot.point(dat, name_size="Elevation", name_color="January_temp", show.legend.color = TRUE,
                    legend.name.color="Temperature", legend.name.size="Elevation")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
 ggPrint(p)
@@ -304,7 +304,7 @@ On this final plot, we combine grid and point representations.
 ```{r}
 p = ggDefaultGeographic()
 p = p + plot.grid(grid, name_raster="Elevation", show.legend.raster=TRUE, legend.name.raster="Elevation")
-p = p + plot.point(dat, name_size="January_temp", show.legend.symbol=TRUE, legend.name.size="Temperature", sizmin=1, sizmax=3, color="yellow")
+p = p + plot.point(dat, name_size="January_temp", show.legend.size=TRUE, legend.name.size="Temperature", sizmin=1, sizmax=3, color="yellow")
 p = p + plot.decoration(title="Elevation and Temperatures", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```
