@@ -15,12 +15,12 @@
 #include "geoslib_define.h"
 
 #include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Boolean/ModelBoolean.hpp"
 #include "Basic/AStringable.hpp"
 
 class AShape;
 class BooleanObject;
-class SimuBooleanParam;
 class DbGrid;
 class Db;
 
@@ -41,6 +41,7 @@ public:
                const SimuBooleanParam& boolparam,
                int iptr_simu,
                int iptr_rank,
+               int iptr_cover,
                bool verbose = false);
 
   VectorDouble extractObjects() const;
@@ -75,4 +76,15 @@ private:
 
 private:
   std::vector<BooleanObject*> _objlist;
+  mutable int _iptrCover;
 };
+
+GSTLEARN_EXPORT int simbool(Db *dbin,
+                            DbGrid *dbout,
+                            ModelBoolean *tokens,
+                            const SimuBooleanParam& boolparam = SimuBooleanParam(),
+                            int seed = 432431,
+                            bool flag_simu = true,
+                            bool flag_rank = true,
+                            bool verbose = false,
+                            const NamingConvention& namconv = NamingConvention("Boolean"));

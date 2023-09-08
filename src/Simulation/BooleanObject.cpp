@@ -219,7 +219,7 @@ BooleanObject* BooleanObject::generate(const DbGrid* dbout,
                           object->getExtension(idim) * valrand);
       }
     }
-    while (! object->_checkObject(cdgrain, ndim));
+    while (! object->_isInObject(cdgrain, ndim));
   }
   else
     object->setCenter(coor);
@@ -279,13 +279,13 @@ bool BooleanObject::_checkIntensity(const DbGrid* dbout,
 /*!
  **  Check if the pixel (coor) belongs to the grain.
  **
- ** \return  true if the pixel is in the grain, 0false otherwise
+ ** \return  True if the pixel is in the object, False otherwise
  **
  ** \param[in]  coor     location of the pixel
  ** \param[in]  ndim     Space dimension
  **
  *****************************************************************************/
-bool BooleanObject::_checkObject(const VectorDouble& coor, int ndim)
+bool BooleanObject::_isInObject(const VectorDouble& coor, int ndim)
 {
   VectorDouble incr(ndim);
   for (int idim = 0; idim < ndim; idim++)
@@ -331,11 +331,13 @@ bool BooleanObject::_checkObject(const VectorDouble& coor, int ndim)
 /*!
  **  Check if the pixel (coor) belongs to the object bounding box
  **
+ **  \return True if the pixel is in the box and False otherwise
+ **
  ** \param[in]  coor     location of the pixel
  ** \param[in]  ndim     Space dimension
  **
  *****************************************************************************/
-bool BooleanObject::_checkBoundingBox(const VectorDouble& coor, int ndim)
+bool BooleanObject::_isInBoundingBox(const VectorDouble& coor, int ndim)
 
 {
   for (int idim = 0; idim < ndim; idim++)
@@ -356,14 +358,14 @@ bool BooleanObject::_isGrain(const Db* db, int iech)
   return (db->getLocVariable(ELoc::Z,iech, 0) != 0);
 }
 
-int BooleanObject::_getCoverageAtSample(const Db* db, int iech)
+int BooleanObject::_getCoverageAtSample(const Db* db, int iptr_cover, int iech)
 {
-  return (int) db->getLocVariable(ELoc::Z,iech,1);
+  return (int) db->getArray(iech, iptr_cover);
 }
 
-void BooleanObject::_updateCoverageAtSample(Db* db, int iech, int ival)
+void BooleanObject::_updateCoverageAtSample(Db* db, int iptr_cover, int iech, int ival)
 {
-  db->setLocVariable(ELoc::Z,iech, 1, db->getLocVariable(ELoc::Z,iech, 1) + ival);
+  db->setArray(iech, iptr_cover, db->getArray(iech, iptr_cover) + ival);
 }
 
 /*****************************************************************************/
@@ -384,10 +386,10 @@ bool BooleanObject::isCompatiblePore(const Db* db)
     if (! db->isActive(iech)) continue;
     if (! _isPore(db, iech)) continue;
     VectorDouble coor = db->getSampleCoordinates(iech);
-    if (! _checkBoundingBox(coor, ndim)) continue;
-    if (_checkObject(coor, ndim)) return true;
+    if (! _isInBoundingBox(coor, ndim)) continue;
+    if (_isInObject(coor, ndim)) return false;
   }
-  return false;
+  return true;
 }
 
 /*****************************************************************************/
@@ -407,8 +409,8 @@ bool BooleanObject::isCompatibleGrainAdd(const Db* db)
     if (! db->isActive(iech)) continue;
     if (! _isGrain(db,iech)) continue;
     VectorDouble coor = db->getSampleCoordinates(iech);
-    if (! _checkBoundingBox(coor, ndim)) continue;
-    if (! _checkObject(coor, ndim)) continue;
+    if (! _isInBoundingBox(coor, ndim)) continue;
+    if (! _isInObject(coor, ndim)) continue;
   }
   return true;
 }
@@ -418,9 +420,10 @@ bool BooleanObject::isCompatibleGrainAdd(const Db* db)
  **  Check if an object can be deleted with regards to the constraining grains
  **
  ** \param[in]  db       Constraining data set
+ ** \param[in]  iptr_covr UIUD for coverage variable
  **
  *****************************************************************************/
-bool BooleanObject::isCompatibleGrainDelete(const Db* db)
+bool BooleanObject::isCompatibleGrainDelete(const Db* db, int iptr_cover)
 {
   if (db == nullptr) return true;
   int ndim = db->getNDim();
@@ -430,9 +433,9 @@ bool BooleanObject::isCompatibleGrainDelete(const Db* db)
     if (! db->isActive(iech)) continue;
     if (! _isGrain(db, iech)) continue;
     VectorDouble coor = db->getSampleCoordinates(iech);
-    if (! _checkBoundingBox(coor, ndim)) continue;
-    if (_getCoverageAtSample(db, iech) > 1) continue;
-    if (_checkObject(coor, ndim)) return false;
+    if (! _isInBoundingBox(coor, ndim)) continue;
+    if (_getCoverageAtSample(db, iptr_cover, iech) > 1) continue;
+    if (_isInObject(coor, ndim)) return false;
   }
   return true;
 }
@@ -445,11 +448,12 @@ bool BooleanObject::isCompatibleGrainDelete(const Db* db)
  ** \return  Count of grains not covered after the operation
  **
  ** \param[in]  db       Db structure
+ ** \param[in]  iptr_cover UID for the covering variable
  ** \param[in]  val      type of the operation to be tested
  **                      1 for addition; -1 for deletion
  **
  *****************************************************************************/
-int BooleanObject::coverageUpdate(Db* db, int val)
+int BooleanObject::coverageUpdate(Db* db, int iptr_cover, int val)
 {
   if (db == nullptr) return 0;
   int ndim = db->getNDim();
@@ -459,32 +463,32 @@ int BooleanObject::coverageUpdate(Db* db, int val)
     if (! db->isActive(iech)) continue;
     if (! _isGrain(db, iech)) continue;
     VectorDouble coor = db->getSampleCoordinates(iech);
-    if (_checkBoundingBox(coor, ndim))
+    if (_isInBoundingBox(coor, ndim))
     {
-      if (_checkObject(coor, ndim))
+      if (_isInObject(coor, ndim))
       {
         if (val < 0)
         {
           // Deletion
-          _updateCoverageAtSample(db, iech, -1);
+          _updateCoverageAtSample(db, iptr_cover, iech, -1);
         }
         else
         {
           // Addition
-          _updateCoverageAtSample(db, iech, +1);
+          _updateCoverageAtSample(db, iptr_cover, iech, +1);
         }
       }
     }
-    if (_getCoverageAtSample(db, iech) <= 0) not_covered++;
+    if (_getCoverageAtSample(db, iptr_cover, iech) <= 0) not_covered++;
   }
   return not_covered;
 }
 
-void BooleanObject::projectToGrid(DbGrid* dbout,
-                           int iptr_simu,
-                           int iptr_rank,
-                           int facies,
-                           int rank)
+void BooleanObject::projectToGrid(DbGrid *dbout,
+                                  int iptr_simu,
+                                  int iptr_rank,
+                                  int facies,
+                                  int rank)
 {
   int ix0, ix1, iy0, iy1, iz0, iz1;
   int ndim = dbout->getNDim();
@@ -543,7 +547,7 @@ void BooleanObject::projectToGrid(DbGrid* dbout,
         if (ndim >= 3)
           coor[2] = dbout->getX0(2) + iz * dbout->getDX(2);
 
-        if (! _checkObject(coor, ndim)) continue;
+        if (! _isInObject(coor, ndim)) continue;
 
         if (ndim >= 1) indice[0] = ix;
         if (ndim >= 2) indice[1] = iy;

@@ -54,13 +54,13 @@ public:
 
   bool isCompatiblePore(const Db* db);
   bool isCompatibleGrainAdd(const Db* db);
-  bool isCompatibleGrainDelete(const Db* db);
+  bool isCompatibleGrainDelete(const Db* db, int iptr_cover);
   void projectToGrid(DbGrid* dbout,
                      int iptr_simu,
                      int iptr_rank,
                      int facies,
                      int rank);
-  int  coverageUpdate(Db* db, int val);
+  int  coverageUpdate(Db* db, int iptr_cover, int val);
   VectorDouble getValues() const;
 
 private:
@@ -72,11 +72,11 @@ private:
   bool _isGrain(const Db* db, int iech);
   void _defineBoundingBox(double eps = EPSILON3);
   void _extensionLinkage();
-  bool _checkObject(const VectorDouble& coor, int ndim);
+  bool _isInObject(const VectorDouble& coor, int ndim);
 
-  bool _checkBoundingBox(const VectorDouble& coor, int ndim);
-  int  _getCoverageAtSample(const Db* db, int iech);
-  void _updateCoverageAtSample(Db* db, int iech, int ival);
+  bool _isInBoundingBox(const VectorDouble& coor, int ndim);
+  int  _getCoverageAtSample(const Db* db, int iptr_cover, int iech);
+  void _updateCoverageAtSample(Db* db, int iptr_cover, int iech, int ival);
   static void _drawCoordinate(const DbGrid *dbout,
                               const SimuBooleanParam& boolparam,
                               VectorDouble& coor);

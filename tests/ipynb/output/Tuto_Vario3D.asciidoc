@@ -12,7 +12,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 3
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 150
 
 Variables

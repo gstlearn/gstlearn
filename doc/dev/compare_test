@@ -12,8 +12,9 @@ if ($nargs < 2) then
 		echo "compare_test name1 nametest [ajout]"
 		echo "   name1    : Name of the subContainer (e.g.: data, ipynb, py, r, rmd, cpp)"
 		echo "   nametest : Name of the test (e.g.: Jeu1, Tuto_Plot2D, Hermite, etc...)"
-		echo "   ajout    : additional parameters for diff (example: --width=160 --side | more)"
-		echo "              or "full" (for automatic option --side | more)
+		echo "   ajout    : additional parameters for diff"
+		echo "              'full' for comparing side by side"
+		echo "              'large' for comparing side-by-side with larger output (160)"
 		exit
 endif
 
@@ -74,6 +75,8 @@ set FILECMP = $DIR/build/tests/$name1/$option/$directest/$namecmp
 
 if ($ajout == "full") then
 	diff -b $FILEREF $FILECMP --side | more
+else if ($ajout == "large") then 
+	diff -b $FILEREF $FILECMP --width=160 --side | more
 else
 	diff -b $FILEREF $FILECMP $ajout
 endif

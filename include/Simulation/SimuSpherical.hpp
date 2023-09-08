@@ -15,8 +15,8 @@
 #include "geoslib_define.h"
 
 #include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/SimuSphericalParam.hpp"
 
-class SimuSphericalParam;
 class MeshSpherical;
 
 class GSTLEARN_EXPORT SimuSpherical: public ACalcSimulation
@@ -51,3 +51,10 @@ private:
                           VectorInt& order,
                           int verbose);
 };
+
+GSTLEARN_EXPORT int simsph(DbGrid *db,
+                           Model *model,
+                           const SimuSphericalParam& sphepar,
+                           int seed,
+                           bool verbose,
+                           const NamingConvention& namconv = NamingConvention("SimSphe"));

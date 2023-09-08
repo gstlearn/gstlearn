@@ -310,35 +310,23 @@ const Table Selectivity::evalFromAnamorphosis(AAnam *anam)
 
 const Table Selectivity::getStats() const
 {
-  // Count the number of valid columns
-  MatrixInt numberQt = getNumberQt();
   VectorString names = _getAllNames();
-  int nrow = getNCuts();
-  int ncol = 1; // Always start with the cutoffs
-  for (int icol = 0, ncolmax = numberQt.getNCols(); icol < ncolmax; icol++)
-    for (int irow = 0, nrowmax = numberQt.getNRows(); irow < nrowmax; irow++)
-      if (numberQt.getValue(irow, icol) > 0) ncol++;
+  int nrow = _stats.getNRows();
+  int ncol = _stats.getNumberColumnDefined();
 
   // Allocate the output Table
-  Table rtable(nrow, ncol, true, true);
-
-  // Load list of cutoffs
-  int lec = 0;
-  int ecr = 0;
-  rtable.setColumn(ecr, getZcut());
-  rtable.setColumnName(ecr, names[0]);
-  ecr++;
+  Table rtable(nrow, ncol, false, true);
+  rtable.setTitle("Selectivity");
 
   // Load the valid columns
-  for (int icol = 0, ncolmax = numberQt.getNCols(); icol < ncolmax; icol++)
-    for (int irow = 0, nrowmax = numberQt.getNRows(); irow < nrowmax; irow++, lec++)
-    {
-      if (numberQt.getValue(irow, icol) <= 0) continue;
-      rtable.setColumn(ecr, _stats.getColumn(lec));
-      rtable.setColumnName(ecr, names[lec]);
-      ecr++;
-    }
-
+  int icol_ecr = 0;
+  for (int icol = 0, ncolmax = _stats.getNCols(); icol < ncolmax; icol++)
+  {
+    if (! _stats.isColumnDefined(icol)) continue;
+    rtable.setColumn(icol_ecr, _stats.getColumn(icol));
+    rtable.setColumnName(icol_ecr, names[icol]);
+    icol_ecr++;
+  }
   return rtable;
 }
 

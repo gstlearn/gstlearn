@@ -1,0 +1,258 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[4]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+ ----
+
+
++*Out[6]:*+
+----
+
+Object Model
+============
+- Poisson Intensity = 0.01
+
+Token 1
+-------
+Full Ellipsoid - Proportion=0.4
+- X-Extension: Constant=10
+- Y-Extension: Constant=20
+- Z-Extension: Constant=2
+- Orientation Angle: Constant=0
+Y-Extension = X_Extension * 1.5
+
+Token 2
+-------
+Parallelepiped - Proportion=0.6
+- X-Extension: Constant=5
+- Y-Extension: Constant=7
+- Z-Extension: Constant=1
+- Orientation Angle: Constant=0
+ ----
+
+
++*Out[7]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = NC.Facies - Locator = NA
+Column = 4 - Name = NC.Rank - Locator = NA----
+
+
++*Out[8]:*+
+----
+![png](output_15_0.png)
+----
+
+
++*Out[9]:*+
+----
+![png](output_16_0.png)
+----
+
+
++*Out[10]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 20
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = rank.1 - Locator = NA
+Column = 2 - Name = x1 - Locator = x1
+Column = 3 - Name = x2 - Locator = x2
+Column = 4 - Name = NC.Facies - Locator = NA
+Column = 5 - Name = NC.Rank - Locator = NA----
+
+
++*Out[11]:*+
+----
+![png](output_21_0.png)
+----
+
+
++*Out[13]:*+
+----
+
+ Boolean simulation
+ ==================
+ - Conditioning option               = YES
+ 
+ Simulating the initial tokens
+ -----------------------------
+ - Number of grains to be covered    = 12
+ - Number of conditioning pores      = 8
+ - Number of Initial Objects = 10
+ - Number of iterations      = 11
+ 
+ Simulating the secondary tokens
+ -------------------------------
+ - Ending number of primary objects  = 0
+ - Total number of objects           = 113
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = NC.Facies - Locator = NA
+Column = 4 - Name = NC.Rank - Locator = NA
+Column = 5 - Name = CD1.Facies1.Facies - Locator = NA
+Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
+
+
++*Out[14]:*+
+----
+![png](output_26_0.png)
+----
+
+
++*Out[15]:*+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = rank.1 - Locator = NA
+Column = 2 - Name = x1 - Locator = x1
+Column = 3 - Name = x2 - Locator = x2
+Column = 4 - Name = NC.Facies - Locator = NA
+Column = 5 - Name = NC.Rank - Locator = NA
+Column = 6 - Name = CD1.Facies1.Facies - Locator = NA
+Column = 7 - Name = CD1.Facies1.Rank - Locator = NA----
+
+
++*Out[17]:*+
+----
+![png](output_31_0.png)
+----
+
+
++*Out[18]:*+
+----
+
+ Boolean simulation
+ ==================
+ - Conditioning option               = YES
+ 
+ Simulating the initial tokens
+ -----------------------------
+ - Number of grains to be covered    = 110
+ - Number of conditioning pores      = 90
+ - Number of Initial Objects = 73
+ - Number of iterations      = 107
+ 
+ Simulating the secondary tokens
+ -------------------------------
+ - Ending number of primary objects  = 0
+ - Total number of objects           = 104
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = NC.Facies - Locator = NA
+Column = 4 - Name = NC.Rank - Locator = NA
+Column = 5 - Name = CD1.Facies1.Facies - Locator = NA
+Column = 6 - Name = CD1.Facies1.Rank - Locator = NA
+Column = 7 - Name = CD2.Facies2.Facies - Locator = NA
+Column = 8 - Name = CD2.Facies2.Rank - Locator = NA----
+
+
++*Out[19]:*+
+----
+![png](output_33_0.png)
+----

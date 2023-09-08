@@ -7,7 +7,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 3
-Maximum Number of UIDs       = 3
 Total number of samples      = 2500
 
 Grid characteristics:
@@ -146,4 +145,4 @@ Data Base Statistics
  Mean value          =     -0.122
  Standard Deviation  =      1.008
  Variance            =      1.016
-#NO_DIFF# Turning Band Simulations: 784 ms. (Ref = 773 ms.)
+#NO_DIFF# Turning Band Simulations: 457 ms. (Ref = 773 ms.)

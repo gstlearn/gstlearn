@@ -12,7 +12,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 3
-Maximum Number of UIDs       = 3
 Total number of samples      = 300
 
 Grid characteristics:
@@ -38,7 +37,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 100
 
 Variables
@@ -70,7 +68,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 300
 
 Grid characteristics:
@@ -211,7 +208,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 7
-Maximum Number of UIDs       = 9
 Total number of samples      = 300
 
 Grid characteristics:
@@ -366,7 +362,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 11
-Maximum Number of UIDs       = 15
 Total number of samples      = 300
 
 Grid characteristics:

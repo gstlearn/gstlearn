@@ -2956,8 +2956,6 @@ String Db::_summaryString(void) const
 
   sstr << "Space dimension              = " << getNDim() << std::endl;
   sstr << "Number of Columns            = " << getColumnNumber() << std::endl;
-  sstr << "Maximum Number of UIDs       = " << getUIDMaxNumber()
-       << std::endl;
   sstr << "Total number of samples      = " << getSampleNumber() << std::endl;
   if (hasLocVariable(ELoc::SEL))
     sstr << "Number of active samples     = " << getSampleNumber(true)
