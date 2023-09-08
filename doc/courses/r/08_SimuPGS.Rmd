@@ -22,6 +22,9 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
+
 ```
 
 # Creating the Environment
@@ -39,9 +42,10 @@ cmap   = c('red', 'blue', 'yellow')
 Downloading the data base (from the distribution **Exdemo_PGS.db**) and creating the output Grid, the Model (Cubic) and the Neighborhood (Unique):
 
 ```{r Creating_Information}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/PluriGaussian/Data.NF"
-fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+fileNF = "Data.NF"
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/PluriGaussian/",fileNF), fileNF)
+}
 data = Db_createFromNF(fileNF)
 
 grid = DbGrid_create(nx=c(110,110))

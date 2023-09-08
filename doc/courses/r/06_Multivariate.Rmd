@@ -40,18 +40,19 @@ We load two data bases:
 
 ```{r Loading data, message=FALSE,results=FALSE}
 ## Data points
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
-
-## Rename the temperature variable
+### Rename the temperature variable
 dat$setName("*temp", "Temperature")
 
 ## Target grid
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
 fileNF = "Scotland_Elevations.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 target = DbGrid_createFromNF(fileNF)
 ```
 

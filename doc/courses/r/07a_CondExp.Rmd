@@ -25,16 +25,24 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
+
 ```
 
 ```{r Preamble, message=FALSE}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
+## Data points
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
+
+## Target grid
 fileNF = "Scotland_Elevations.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 grid = DbGrid_createFromNF(fileNF)
 ```
 

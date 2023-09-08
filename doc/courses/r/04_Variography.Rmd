@@ -28,14 +28,17 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
 ```
 
 Then the necessary data set is downloaded and named **dat**: the target variable is **January_temp**
 
 ```{r Loading_Data}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
 ```
 
@@ -90,7 +93,7 @@ varioexp = Vario(varioParamOmni, dat)
 err = varioexp$compute()
 ```
 
-We now print the contents of the newly created experimental variogram. The $40$ experimental variogram values are displayed (Columun `Value`), together with the number $\vert \widehat N(h)\vert$ of pairs used to compute the value (Columun `Npairs`) and the average distance between the points forming these pairs (Column `Distance`).
+We now print the contents of the newly created experimental variogram. The $40$ experimental variogram values are displayed (Column `Value`), together with the number $\vert \widehat N(h)\vert$ of pairs used to compute the value (Column `Npairs`) and the average distance between the points forming these pairs (Column `Distance`).
 
 ```{r Print_Experimental_Variogram,eval=TRUE}
 varioexp
@@ -168,7 +171,7 @@ fitmod
 
 It is possible to impose (in)equality constraints on the covariance parameters of the basic structures used in the model fitting procedure. This is done by creating a `Constraints` object that is used to specify the constraints we wish to impose on the parameters of the different basic structures composing the model. To add a constraint to the object, we can use the method `addItemFromParamId`, which takes as arguments the type of parameter for which the constraint applies (given as an `EConsElem` object: run `EConsElem_printAll()` for the list of available options), the index of the basic structure for which the constraint applies (argument `icov`), the type of constraint we wish to apply (argument `type`, given as an `EConsType` object: run `EConsType_printAll()` for the list of available options) and finally the numerical value (argument `value`) defining the constraint.
 
-In the next example, we start from a list of three basic structures (a Nugget effect, a Cubic covariance and a Spherical covariance), and create a `Constraints` object conatining two constrainits. The first one applies to the basic structure of index $1$ (the cubic structure), and sets an upper-bound of $20$ for its range. The second one also applies to the basic structure of index $1$ (the cubic structure), and sets an lower-bound of $0.03$ for its sill. Finally, the `fit` method is called to fit the model on the experimental variogram. Note that we also added the option `optvar=Option_VarioFit(TRUE)` to force the fitting algorithm to keep the three basic structures that we supplied.
+In the next example, we start from a list of three basic structures (a Nugget effect, a Cubic covariance and a Spherical covariance), and create a `Constraints` object containing two constraints. The first one applies to the basic structure of index $1$ (the cubic structure), and sets an upper-bound of $20$ for its range. The second one also applies to the basic structure of index $1$ (the cubic structure), and sets an lower-bound of $0.03$ for its sill. Finally, the `fit` method is called to fit the model on the experimental variogram. Note that we also added the option `optvar=Option_VarioFit(TRUE)` to force the fitting algorithm to keep the three basic structures that we supplied.
 
 ```{r Model_Fitting_Inequality_1}
 types = ECov_fromKeys(c("NUGGET","CUBIC","SPHERICAL"))
@@ -251,6 +254,8 @@ ggplot() + plot.varmod(vario.4dir, model.4dir)
 
 ### Variogram Maps
 
+#### Experimental variogram map
+
 The experimental variogram map is a map centered at the origin, which represents the value of experimental directional variogram across all directions $0^{\circ} \le \theta< 360^{\circ}$.
 
 To compute an experimental variogram map, we use the function `db_vmap_compute` which we supply with the `Db` containing the data. The output is a `Db` containing a grid representing the variogram map values.
@@ -273,6 +278,7 @@ modelVM = Model()
 err = modelVM$fitFromVMap(grid.vmap, types=types)
 modelVM
 ```
+#### Fitting of variogram map
 
 It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `dbgrid_model` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model. 
 
