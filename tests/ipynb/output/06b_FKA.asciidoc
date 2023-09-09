@@ -1,0 +1,215 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[4]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+6 - Name P - Locator NA
+ Nb of data          =     262144
+ Nb of active values =     242306
+ Minimum value       =      0.000
+ Maximum value       =    314.000
+ Mean value          =     31.767
+ Standard Deviation  =     21.759
+ Variance            =    473.457
+ ----
+
+
++*Out[5]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 262144
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        512       512
+
+Data Base Statistics
+--------------------
+4 - Name Cr - Locator NA
+ Nb of data          =     262144
+ Nb of active values =     262144
+ Minimum value       =   2591.000
+ Maximum value       =  24982.000
+ Mean value          =  16800.231
+ Standard Deviation  =    936.213
+ Variance            = 876495.558
+5 - Name Ni - Locator NA
+ Nb of data          =     262144
+ Nb of active values =     262144
+ Minimum value       =   1840.000
+ Maximum value       =  12593.000
+ Mean value          =  10111.444
+ Standard Deviation  =    884.996
+ Variance            = 783217.898
+ ----
+
+
++*Out[6]:*+
+----
+![png](output_10_0.png)
+----
+
+
++*Out[7]:*+
+----
+![png](output_11_0.png)
+----
+
+
++*Out[8]:*+
+----
+![png](output_12_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_16_0.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_19_0.png)
+----
+
+
++*Out[14]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =    273.080
+  (This component is Filtered)
+Spherical
+- Sill         =     56.089
+- Range        =      3.600
+Power (Third Parameter = 0.0879341)
+- Slope        =      1.187
+----
+
+
++*Out[16]:*+
+----
+![png](output_25_0.png)
+----
+
+
++*Out[17]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 262144
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        512       512
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Cr - Locator = NA
+Column = 4 - Name = Ni - Locator = NA
+Column = 5 - Name = P - Locator = NA
+Column = 6 - Name = Fill.P - Locator = NA
+Column = 7 - Name = Mono.Fill.P - Locator = z1----
+
+
++*Out[18]:*+
+----
+![png](output_28_0.png)
+----
+
+
++*Out[20]:*+
+----
+![png](output_31_0.png)
+----
+
+
++*Out[21]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]   376.850   452.534  -476.811
+     [  1,]   452.534194188.109-11524.845
+     [  2,]  -476.811-11524.845145939.572
+  (This component is Filtered)
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]    57.513  5031.290 -4489.149
+     [  1,]  5031.290636076.559-583291.704
+     [  2,] -4489.149-583291.704616673.997
+- Range        =     12.375
+Power (Third Parameter = 1.99)
+- Slope matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.263    -0.414     6.133
+     [  1,]    -0.414   145.976    44.478
+     [  2,]     6.133    44.478   163.446
+----
+
+
++*Out[23]:*+
+----
+![png](output_37_0.png)
+----
+
+
++*Out[24]:*+
+----
+![png](output_39_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_41_0.png)
+----

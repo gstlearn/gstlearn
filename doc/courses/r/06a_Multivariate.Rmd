@@ -139,7 +139,7 @@ From observing this last plot, it seems like the bigger points (corresponding to
 
 ```{r Correlation plot Temperature - Elevation}
 p = ggplot()
-p = p + plot.correlation(dat, name1="Elevation", name2="Temperature", 
+p = p + plot.correlation(dat, namex="Elevation", namey="Temperature", 
                      asPoint=TRUE, flagRegr=TRUE)
 p = p + plot.decoration(title="Correlation between Temperature and Elevation")
 ggPrint(p)
@@ -308,7 +308,7 @@ Finally, we compare the cokriging predictor to the ordinary kriging predictor.
 
 ```{r Comparing Ordinary Kriging and CoKriging}
 p = ggplot()
-p = p + plot.correlation(target, "OK.T*estim", "COK.T*estim", 
+p = p + plot.correlation(target, namex="OK.T*estim", namey="COK.T*estim", 
                      flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="CoKriging")
 ggPrint(p)
@@ -422,7 +422,8 @@ dbStatisticsPrint(dat, names=c("RegRes*"), opers=opers,
 Finally we plot a correlation plot between the residuals and the regressor variable (i.e. the elevation).
 
 ```{r Plot correlation residuals, echo=TRUE}
-ggplot() + plot.correlation(dat,"Elevation","RegRes*",flagRegr=TRUE,asPoint=TRUE)
+ggplot() + plot.correlation(dat,namex="Elevation",namey="RegRes*",
+                            flagRegr=TRUE,asPoint=TRUE)
 ```
 
 Now that the residuals are explicitly computed and available in the observation data base, we can proceed to work with them as with any other variable.
@@ -506,7 +507,8 @@ Finally, we compare the predictor obtained by kriging of the residuals to the or
  
 ```{r Correlation plot OK - Kriging of residuals}
 p = ggplot()
-p = p + plot.correlation(target, "OK.T*estim", "KR.T*estim", flagBiss=TRUE, bins=100)
+p = p + plot.correlation(target, namex="OK.T*estim", namey="KR.T*estim", 
+                         flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Kriging with Residuals")
 ggPrint(p)
 ```
@@ -629,7 +631,8 @@ Let us compare the predictions obtained when considering a polynomial trend in t
 
 ```{r Comparing Ordinary and Universal Kriging, results="hide"}
 p = ggplot()
-p = p + plot.correlation(target, "OK*estim", "UK*estim", flagDiag=TRUE, bins=100)
+p = p + plot.correlation(target, namex="OK*estim", namey="UK*estim", 
+                         flagBiss=TRUE, bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging",ylab="Universal Kriging")
 ggPrint(p)
 ```
@@ -771,8 +774,8 @@ We can then compare these predictions to the ones obtained by ordinary kriging. 
 
 ```{r Comparing OK and KED, results="hide"}
 p = ggplot()
-p = p + plot.correlation(target, "OK.T*estim", "KED.T*estim", flagBiss=TRUE,
-                     bins=100)
+p = p + plot.correlation(target, namex="OK.T*estim", namey="KED.T*estim", 
+                         flagBiss=TRUE,  bins=100)
 p = p + plot.decoration(xlab="Ordinary Kriging", ylab="Kriging with External Drift")
 ggPrint(p)
 ```
