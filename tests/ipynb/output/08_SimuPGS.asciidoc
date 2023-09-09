@@ -12,7 +12,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 7
-Maximum Number of UIDs       = 7
 Total number of samples      = 100
 Number of active samples     = 99
 

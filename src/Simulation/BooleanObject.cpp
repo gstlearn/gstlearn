@@ -419,8 +419,8 @@ bool BooleanObject::isCompatibleGrainAdd(const Db* db)
 /*!
  **  Check if an object can be deleted with regards to the constraining grains
  **
- ** \param[in]  db       Constraining data set
- ** \param[in]  iptr_covr UIUD for coverage variable
+ ** \param[in]  db         Constraining data set
+ ** \param[in]  iptr_cover UIUD for coverage variable
  **
  *****************************************************************************/
 bool BooleanObject::isCompatibleGrainDelete(const Db* db, int iptr_cover)

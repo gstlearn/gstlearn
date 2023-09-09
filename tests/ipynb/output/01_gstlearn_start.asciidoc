@@ -34,13 +34,13 @@ Requirement already satisfied: setuptools in /home/drenard/Program/Python-3.10.5
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
-----
-![png](output_14_0.png)
-----
-
-
 +*Out[6]:*+
+----
+![png](output_16_0.png)
+----
+
+
++*Out[7]:*+
 ----
 
 Data Base Grid Characteristics
