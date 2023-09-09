@@ -30,7 +30,6 @@ library(ggplot2)
 library(ggpubr)
 library(Matrix)
 stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
-
 ```
 
 ```{r parameters}
@@ -52,7 +51,6 @@ x0 = c(0,0)
 ntb = 1000 # number of band for the Turning Bands method (simtub)
 tau = 0.01 # std. of the model observation process for SPDE (not used as default value is used instead)
 matern_param = 1.0
-
 ```
 
 ## Definition of the grid and the observation
@@ -80,9 +78,8 @@ p = ggDefaultGeographic() +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.point(dat, color = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
-                  title = "Limits of the simulations")
+                    title = "Limits of the simulations")
 ggPrint(p)
-
 ```
 
 
@@ -252,7 +249,7 @@ neigh = NeighUnique()
 
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
-    plot.correlation(grid, name1 = "kriging.Z.estim", name2 = "SPDE.Z.kriging", 
+    plot.correlation(grid, namex = "kriging.Z.estim", namey = "SPDE.Z.kriging", 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
     plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Mono structure")
   ggPrint(p)
@@ -274,14 +271,14 @@ neigh = NeighUnique()
 
   # estimate by MC
   p = ggplot() + 
-    plot.correlation(grid, name1 = "SPDE.Z.kriging", name2 = "SPDE.Z.estim", 
+    plot.correlation(grid, namex = "SPDE.Z.kriging", namey = "SPDE.Z.estim", 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
     plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
   ggPrint(p)
 
   # stdev
   p = ggplot() + 
-    plot.correlation(grid, name1 = "kriging.Z.stdev", name2 = "SPDE.Z.stdev", 
+    plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.Z.stdev", 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
     plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.", title = "Mono structure")
   ggPrint(p)
@@ -363,7 +360,7 @@ neigh = NeighUnique()
 
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
-    plot.correlation(grid, name1 = "kriging.Z.estim", name2 = "SPDE.Z.kriging", 
+    plot.correlation(grid, namex = "kriging.Z.estim", namey = "SPDE.Z.kriging", 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
     plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Multi structure")
   ggPrint(p)
@@ -385,14 +382,14 @@ neigh = NeighUnique()
   
   # estimate by MC
   p = ggplot() + 
-    plot.correlation(grid, name1 = "SPDE.Z.kriging", name2 = "SPDE.Z.estim", 
+    plot.correlation(grid, namex = "SPDE.Z.kriging", namey = "SPDE.Z.estim", 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
     plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
   ggPrint(p)
 
   # stdev
   p = ggplot() + 
-    plot.correlation(grid, name1 = "kriging.Z.stdev", name2 = "SPDE.Z.stdev", 
+    plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.Z.stdev", 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
     plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.", title = "Multi structure")
   ggPrint(p)

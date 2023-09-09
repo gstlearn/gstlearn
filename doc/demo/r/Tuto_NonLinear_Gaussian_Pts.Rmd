@@ -238,12 +238,14 @@ selectivity = Selectivity_createByKeys(
   flag_est=TRUE, flag_std=TRUE)
 
 # Global experimental selectivity, calculated form the experimental Data Set
-knitr::kable(selectivity$eval(data)$toTL(), digits=3,
-             caption = "Selectivity curves computed on data set")
+table = selectivity$eval(data)
+table$setTitle("Selectivity curves computed on data set")
+table
 
 # Selectivity in the model, derived from the parameters contained in the Anamorphosis
-knitr::kable(selectivity$evalFromAnamorphosis(anam)$toTL(), digits=3,
-             caption = "Selectivity curves computed on anamorphosis")
+table = selectivity$evalFromAnamorphosis(anam)
+table$setTitle("Selectivity curves computed on anamorphosis")
+table
 ```
 
 # Transform Data into Gaussian variable
@@ -518,12 +520,12 @@ ggPrint(p)
 err = model$setAnam(anam)
 
 # model of the raw variable as the anamorphosis is attached to the model
-model$setActiveFactor(-1)
+err = model$setActiveFactor(-1)
 p = ggplot()
 p = p + plot.varmod(vario_raw, model)
 p = p + plot.decoration(title = "Variogram of the raw variable")
 ggPrint(p)
-model$setActiveFactor(0)
+err = model$setActiveFactor(0)
 ```
 
 Computing the point factors (i.e., the values of the Hermite polynomials). The following plot gives the proportion of the variance explained by the factors. It indicates the relevant number of factors that should be considered afterwards.
@@ -554,7 +556,7 @@ p = p + plot.decoration(title = "Covariance of the different factors")
 ggPrint(p)
 
 # model of the raw variable
-model$setActiveFactor(-1)
+err = model$setActiveFactor(-1)
 p = ggplot()
 p = p + plot.model(model, hmax=hmax, asCov = asCov)
 p = p + geom_hline(yintercept = varZ, colour = "red")
@@ -589,8 +591,8 @@ As F.1 = -Y, its kriging should follow (F.1)^{SK} = (-Y)^{SK}
 # H_1 = -Y
 p = ggplot()
 p = p + plot.correlation(blocs, 
-                 name1 = "G_Pts.Gaussian.Z.estim",
-                 name2 = "DK_Pts.F.1.estim", 
+                 namex = "G_Pts.Gaussian.Z.estim",
+                 namey = "DK_Pts.F.1.estim", 
                  bins=100, flagDiag = FALSE)
 p = p + geom_abline(intercept = 0, slope = -1, colour = "red")
 p = p + plot.decoration(xlab = "Gaussian variable",
@@ -600,8 +602,8 @@ ggPrint(p)
 
 p = ggplot()
 p = p + plot.correlation(blocs, 
-                 name1 = "G_Pts.Gaussian.Z.stdev",
-                 name2 = "DK_Pts.F.1.stdev", 
+                 namex = "G_Pts.Gaussian.Z.stdev",
+                 namey = "DK_Pts.F.1.stdev", 
                  bins=100, flagDiag = TRUE)
 p = p + plot.decoration(xlab = "Gaussian variable",
                 ylab = "H_1 = -Y",
@@ -762,8 +764,9 @@ Z_est = Selectivity_createByKeys(keys = c("Z"), zcuts=c(0.0),
 
 # Global experimental selectivity, calculated form the experimental Data Set
 grid$setLocator("Z", ELoc_Z(), cleanSameLocator=TRUE)
-knitr::kable(Z_est$eval(grid)$toTL(), digits=3,
-             caption = "Selectivity curves computed on fine grid")
+table = Z_est$eval(grid)
+table$setTitle("Selectivity curves computed on fine grid")
+table
 
 # Simple kriging of Z
 err = model_raw$delDrift(0)

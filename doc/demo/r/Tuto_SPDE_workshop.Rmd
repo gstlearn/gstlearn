@@ -313,14 +313,18 @@ ggarrange(p1, p2, ncol = 2, nrow = 1)
 
 # cross plot: initial simulation vs. kriging
 p1 = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "manual.simu", asPoint = FALSE, 
+    plot.correlation(db1 = grid, 
+                     namex = "manual.kriging", 
+                     namey = "manual.simu", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (Initial simulation)", 
                   title = "Simulation vs. kriging")
 
 # cross plot: empirical conditional expectation vs. kriging
 p2 = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.cond.expectation", name2 = "manual.kriging", asPoint = FALSE, 
+    plot.correlation(db1 = grid, 
+                     namex = "manual.cond.expectation", 
+                     namey = "manual.kriging", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
                   title = "Kriging vs. conditional expectation")
@@ -391,7 +395,9 @@ ggarrange(p1, p2, ncol = 2, nrow = 2)
 
 # cross plot for kriging values
 p = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "spde.Z.kriging", asPoint = FALSE, 
+    plot.correlation(db1 = grid, 
+                     namex = "manual.kriging", 
+                     namey = "spde.Z.kriging", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
@@ -446,7 +452,9 @@ err = krigingSPDE(dbin = dat, dbout = grid, model = model,
 
 # cross plot for kriging values
 p = ggDefault() + 
-    plot.correlation(db1 = grid, name1 = "manual.kriging", name2 = "spde.fn.Z.kriging", asPoint = FALSE, 
+    plot.correlation(db1 = grid, 
+                     namex = "manual.kriging", 
+                     namey = "spde.fn.Z.kriging", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Manual", ylab = "SPDE function", 
                   title = "Comparison for Kriging")
