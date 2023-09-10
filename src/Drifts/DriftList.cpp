@@ -360,9 +360,12 @@ VectorDouble DriftList::evalDrifts(const Db* db,
   return vec;
 }
 
-int DriftList::getMaximumOrder(void) const
+/**
+ * @return Maximum IRF-order (-1 for order-2 stationarity)
+ */
+int DriftList::getDriftMaxIRFOrder(void) const
 {
-  int max_order = 0;
+  int max_order = -1;
   for (int il = 0; il < getDriftNumber(); il++)
   {
     const ADriftElem* drft = _drifts[il];

@@ -106,7 +106,7 @@ public:
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
   void               setType(unsigned int icov, const ECov& type);
   CovAniso           extractCova(int icov) const;
-  int                getMinOrder() const;
+  int                getCovaMinIRFOrder() const;
 
   // Methods necessary for Optimization
   void optimizationPreProcess(const std::vector<SpacePoint> &vec) const;

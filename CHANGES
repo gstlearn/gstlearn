@@ -6,6 +6,7 @@ This file contains the logs between consecutive releases
 Release 0.3.4
 =============
 - Update R readme
+- Add severity check for model validity (used before kriging)
 
 Release 0.3.3
 =============

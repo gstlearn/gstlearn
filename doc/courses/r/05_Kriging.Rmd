@@ -235,7 +235,7 @@ Let us compare the results from the simple and ordinary kriging predictors. To d
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
 p = ggplot()
 p = p + plot.correlation(grid,namex="OK.January_temp.estim",namey="SK.January_temp.estim", 
-                     flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
+                     flagBiss=TRUE, flagSameAxes=TRUE, bins=100)
 p = p + plot.decoration(title="Estimation Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 ggPrint(p)
@@ -246,7 +246,7 @@ We also compare the kriging standard-deviations obtained in both cases.
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
 p = ggplot()
 p = p + plot.correlation(grid,namex="OK.January_temp.stdev",namey="SK.January_temp.stdev", 
-                     flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
+                     flagBiss=TRUE, flagSameAxes=TRUE, bins=100)
 p = p + plot.decoration(title="St. dev. Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 ggPrint(p)

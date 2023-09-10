@@ -131,7 +131,7 @@ p = p + plot.grid(target, name_raster="Elevation",
                   legend.name.raster="Elevation (m)")
 p = p + plot.point(dat, name_size="Temperature",
                    sizmin = 0.5, sizmax = 3,
-                   show.legend.symbol=TRUE,legend.name.size="°C")
+                   show.legend.size=TRUE,legend.name.size="°C")
 ggPrint(p)
 ```
 
@@ -160,12 +160,13 @@ vario_raw2dir = Vario(varioparam, dat)
 err = vario_raw2dir$compute()
 ```
 
-We then fit a model on the experimental variogram of raw temperature observations.
+We then fit a model on the experimental variogram of raw temperature observations. Since we want to use ordinary kriging, we add a constant drift to the model before.
 
 ```{r Fit model on raw variogram}
 fitmod_raw = Model()
 err = fitmod_raw$fit(vario_raw2dir,
                     types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC","LINEAR")))
+fitmod_raw$setDriftIRF(0,0)
 ```
 
 ```{r Plot model fitted on raw variogram}
@@ -182,7 +183,6 @@ We create a "neighborhood" object specifying a unique neighborhood, which we wil
 ```{r Create unique neighborhood, message=FALSE}
 uniqueNeigh = NeighUnique_create()
 ```
-
 
 We now perform an ordinary kriging prediction of the temperature on the `target` grid using the model fitted on the raw observations, and compute statistics on the predicted values.
 
@@ -210,12 +210,9 @@ dbStatisticsPrint(target, names=(c("OK.T*")), opers=opers,
 
 #### Cross-validation
 
-We perform a cross-validation of the fitted model using Ordinary Kriging, and calculate the Mean Squared cross-validation and standardized errors. Since we want to use ordinary kriging, we add a constant drift to the model before calling the `xvalid` function.
+We perform a cross-validation of the fitted model using Ordinary Kriging, and calculate the Mean Squared cross-validation and standardized errors. 
 
 ```{r Cross-validation - ordinary kriging, results=FALSE}
-## Add constant drift to model
-err = fitmod_raw$addDrift(Drift1())
-
 ## Compute cross-validation
 err = xvalid(dat, model=fitmod_raw, 
              neigh=uniqueNeigh,
@@ -267,6 +264,7 @@ To fit a model on the experimental variograms and cross-variograms, we use the s
 fitmod2var = Model()
 err = fitmod2var$fit(varioexp2var,
                      types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC","LINEAR")))
+fitmod2var$setDriftIRF(0,0)
 ```
 
 ```{r Plot bivariate model}
@@ -381,8 +379,7 @@ In our running example, the variable of interest $Z$ will be the temperature, an
 
 ```{r Set Locator - 1}
 ## Set `z` locator to temperature
-err = dat$setLocator("Temperature",ELoc_Z(),
-                     cleanSameLocator=TRUE)
+err = dat$setLocator("Temperature",ELoc_Z(),cleanSameLocator=TRUE)
 ```
 
 
@@ -445,6 +442,7 @@ err = varioexpR$compute()
 fitmodR = Model()
 err = fitmodR$fit(varioexpR,
                   types=ECov_fromKeys(c("NUGGET","SPHERICAL","LINEAR")))
+fitmodR$setDriftIRF(0,0)
 ```
 
 ```{r Plot variogram of residuals}
@@ -459,10 +457,6 @@ ggPrint(p)
 Finally, we can compute an ordinary kriging prediction of the residuals and plot the results.
 
 ```{r Kriging of residuals, echo=TRUE}
-##  Add constant drift to model to perform ordinary kriging
-err = fitmodR$addDrift(Drift1())
-
-## Compute kriging
 err = kriging(dbin=dat, dbout=target, model=fitmodR, 
               neigh=uniqueNeigh,
               namconv=NamingConvention_create(prefix="ROK"))
@@ -537,9 +531,7 @@ where $P$ is a polynomial function of the coordinates $x$, and $\varepsilon$ den
 As before, in the observation data base, we start by assigning the locator `z` to the `Temperature` variable (this is our variable of interest), and ensure that it is the only variable with a `z` locator.
 
 ```{r Set Locator - 2}
-## Set `z` locator to temperature
-err = dat$setLocator("Temperature",ELoc_Z(),
-                     cleanSameLocator=TRUE)
+err = dat$setLocator("Temperature",ELoc_Z(),cleanSameLocator=TRUE)
 ```
 
 
@@ -644,7 +636,6 @@ dbStatisticsPrint(target, names=c("OK.T*estim", "UK.T*estim"), opers=opers,
                   radix="")
 ```
 
-
 #### Cross-validation
 
 To perform cross-validation using Universal Kriging, we simply call the `xvalid` function with the model we fitted on the residuals. 
@@ -668,8 +659,6 @@ cat(c("Mean squared standardized error:",
       round(mse,3),
       "\n"))
 ```
-
-
 
 --------------------------------------------------------------------------------
 
@@ -711,7 +700,6 @@ Then, to compute the experimental variogram, we use the same commands as in the 
 
 
 ```{r Variogram of Residuals with ED}
-## Create experimental variogram
 varioKED = Vario(varioparam, dat)
 err = varioKED$compute(model=EDmodel)
 ```
@@ -807,8 +795,6 @@ cat(c("Mean squared standardized error:",
 ```
 
 ## Comparing the various kriging predictions
-
-
 
 We compare the  Mean Squared cross-validation errors obtained in for the different kriging predictions (UK=Universal kriging, OK=Ordinary kriging, COK= Cokriging, KED= Kriging with external drift, KR=Kriging of residuals).
 

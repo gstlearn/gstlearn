@@ -1,0 +1,73 @@
+NULL
+[1] "-------------------------------------------"
+[1] "Using Turning Bands: statistics"
+[1] "-------------------------------------------"
+                NUM    MINI   MAXI    MEAN   STDV
+TB.nc.simu.1  10201 -3.5356 3.3088 -0.1820 1.0589
+TB.nc.simu.2  10201 -2.9016 3.5492  0.0442 1.0050
+TB.nc.simu.3  10201 -3.6132 3.1268  0.1408 0.9926
+TB.nc.simu.4  10201 -2.7442 2.5707 -0.1065 0.8886
+TB.nc.simu.5  10201 -3.3369 3.4639  0.1190 1.0272
+TB.nc.simu.6  10201 -2.5370 3.7222  0.0855 0.9505
+TB.nc.simu.7  10201 -2.7652 3.7716  0.2276 1.0260
+TB.nc.simu.8  10201 -3.2007 3.6295 -0.0287 0.9929
+TB.nc.simu.9  10201 -3.2197 2.9622 -0.1276 0.8314
+TB.nc.simu.10 10201 -4.2380 3.9513 -0.1245 1.0450
+[1] "-------------------------------------------"
+[1] "-------------------------------------------"
+[1] "Using SPDE approach: statistics"
+[1] "-------------------------------------------"
+                  NUM    MINI   MAXI    MEAN   STDV
+SPDE.nc.simu.1  10201 -3.4486 3.7034 -0.2636 1.0708
+SPDE.nc.simu.2  10201 -3.1493 2.5593 -0.1386 0.8804
+SPDE.nc.simu.3  10201 -3.3044 3.0762 -0.0179 1.0029
+SPDE.nc.simu.4  10201 -3.6788 2.6865 -0.1850 0.9757
+SPDE.nc.simu.5  10201 -3.1759 3.3361 -0.0250 1.0407
+SPDE.nc.simu.6  10201 -3.5547 3.3915 -0.2439 0.9504
+SPDE.nc.simu.7  10201 -2.5345 3.2328  0.2380 0.9302
+SPDE.nc.simu.8  10201 -3.4624 2.8049 -0.3082 1.0643
+SPDE.nc.simu.9  10201 -3.5008 3.0823 -0.0605 1.0127
+SPDE.nc.simu.10 10201 -3.5541 3.5612  0.0683 1.0425
+[1] "-------------------------------------------"
+These options have not been implemented yet. Not taken into account
+[1] "-------------------------------------------"
+[1] "Using Turning Bands: statistics"
+[1] "-------------------------------------------"
+                NUM    MINI   MAXI    MEAN   STDV
+TB.nc.simu.1  10201 -3.7355 3.4103 -0.0520 0.9998
+TB.nc.simu.2  10201 -2.9322 4.1973  0.6149 1.1239
+TB.nc.simu.3  10201 -4.4484 3.0343 -0.0740 1.0380
+TB.nc.simu.4  10201 -2.3850 2.9668  0.1251 0.8644
+TB.nc.simu.5  10201 -2.9222 3.1467  0.2055 0.9506
+TB.nc.simu.6  10201 -3.5654 3.1969 -0.1407 0.9125
+TB.nc.simu.7  10201 -3.4101 3.4518  0.2980 1.0012
+TB.nc.simu.8  10201 -3.8215 3.0942 -0.2055 1.0511
+TB.nc.simu.9  10201 -3.7004 3.3073 -0.0424 1.0060
+TB.nc.simu.10 10201 -3.2648 3.6878  0.0067 0.9029
+[1] "-------------------------------------------"
+[1] "-------------------------------------------"
+[1] "Using SPDE approach: statistics"
+[1] "-------------------------------------------"
+                  NUM    MINI   MAXI    MEAN   STDV
+SPDE.nc.simu.1  10201 -2.1365 2.1910 -0.0062 0.4227
+SPDE.nc.simu.2  10201 -2.1952 2.4993  0.0427 0.4185
+SPDE.nc.simu.3  10201 -2.5291 2.4838 -0.0474 0.4095
+SPDE.nc.simu.4  10201 -2.4806 1.7698 -0.0065 0.4062
+SPDE.nc.simu.5  10201 -2.5656 2.2205  0.0320 0.4411
+SPDE.nc.simu.6  10201 -2.5681 3.1731 -0.0200 0.4615
+SPDE.nc.simu.7  10201 -2.0311 3.6197  0.0434 0.4316
+SPDE.nc.simu.8  10201 -2.6393 3.2617  0.0038 0.4324
+SPDE.nc.simu.9  10201 -2.4981 1.9665 -0.0355 0.4004
+SPDE.nc.simu.10 10201 -2.6092 2.7644  0.0503 0.4412
+[1] "-------------------------------------------"
+These options have not been implemented yet. Not taken into account
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)
+mesh2point: Error in the dimension of argument 'inv'(26037). It should be (8120)

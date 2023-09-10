@@ -217,7 +217,7 @@ static int st_model_invalid(Model *model)
       messerr("An additional nugget effect can also be considered");
       return (1);
     }
-    if (type == ECov::SPLINE2_GC && model->getMaximumOrder() < 2)
+    if (type == ECov::SPLINE2_GC && model->getDriftMaxIRFOrder() < 2)
     {
       messerr("The Model includes Second Order Spline Generalized Covariance");
       messerr("This requires a second order drift");
@@ -903,7 +903,7 @@ static int st_update_model(Model *model, Pot_Env *pot_env)
 
   nbfl = model->getDriftNumber();
   if (model->isDriftDefined(EDrift::UC)) nbfl--;
-  pot_env->order =  model->getMaximumOrder();
+  pot_env->order =  model->getDriftMaxIRFOrder();
   pot_env->size_drf = nbfl;
   pot_env->next = pot_env->size_ext = model_nfex(model);
 

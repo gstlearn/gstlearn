@@ -138,6 +138,7 @@ modelP = Model()
 err = modelP$fit(varioP, 
                  types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
                  optvar=Option_VarioFit(TRUE, FALSE))
+modelP$setDriftIRF(0,0)
 ```
 
 ---
@@ -217,6 +218,7 @@ modelM = Model()
 err = modelM$fit(varioM, 
                  types= ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
                  optvar=Option_VarioFit(TRUE, FALSE))
+modelM$setDriftIRF(0,0)
 ```
 
 ---
