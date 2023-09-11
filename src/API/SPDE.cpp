@@ -79,7 +79,8 @@ SPDE::SPDE(Model* model,
       _isCoeffsComputed(false),
       _deleteMesh(false),
       _nIterMax(1000),
-      _eps(EPSILON8)
+      _eps(EPSILON8),
+      _epsNugget(1.e-4)
 {
   (void) _init(model, domain, data, calcul, meshUser, verbose);
 }
@@ -258,12 +259,12 @@ int SPDE::_init(Model *model,
       for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
       {
         double *temp = &varianceData[iech];
-        *temp = MAX(*temp+_nugget,0.01 * totalSill);
+        *temp = MAX(*temp + _nugget, _epsNugget * totalSill);
       }
     }
     else
     {
-      VH::fill(varianceData, MAX(_nugget, 0.01 * totalSill),
+      VH::fill(varianceData, MAX(_nugget, _epsNugget * totalSill),
                _data->getSampleNumber(true));
     }
     _precisionsKriging->setVarianceDataVector(varianceData);
@@ -358,6 +359,7 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
   String suffix;
   VectorDouble dataVect;
   bool useSel = true;
+  bool useVarName = false;
   int ivar = 0;
 
   // Preliminary checks
@@ -412,7 +414,8 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     }
     _addDrift(dbout, result);
     dbout->setColumnByUID(result, iptr, useSel);
-    suffix = "kriging";
+    useVarName = true;
+    suffix = "estim";
   }
 
   if (_calcul == ESPDECalcMode::SIMUNONCOND)
@@ -453,6 +456,7 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
       _addDrift(dbout, result);
       dbout->setColumnByUID(result, iptr + isimu, useSel);
     }
+    useVarName = true;
     suffix = "condSimu";
   }
 
@@ -471,8 +475,10 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     suffix = "likelihood";
   }
 
-//  namconv.setNamesAndLocators(_data, ELoc::Z, 1, dbout, iptr, suffix, nvar);
-  namconv.setNamesAndLocators(dbout, iptr, suffix);
+  if (useVarName)
+    namconv.setNamesAndLocators(_data, ELoc::Z, 1, dbout, iptr, suffix, nvar);
+  else
+    namconv.setNamesAndLocators(dbout, iptr, suffix, nvar);
   return iptr;
 }
 

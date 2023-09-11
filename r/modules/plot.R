@@ -1300,14 +1300,17 @@ plot.rule <- function(rule, proportions=NULL, maxG = 3., ...)
 #' @param mesh A mesh object from gstlearn library
 #' @param flagFace Assign a color to each polygon of the meshing
 #' @param flagApex Draw the rank of each apex of the meshing
+#' @param rankMeshMax Rank of the maximum mesh to be represented (if > 0)
 #' @param ... List of arguments passed to geom_polygon(), geom_path() or geom_point()
 #' @return The ggplot object
-plot.mesh <- function(mesh, flagFace=FALSE, flagApex=FALSE, ...)
+plot.mesh <- function(mesh, flagFace=FALSE, flagApex=FALSE, rankMeshMax= -1, ...)
 {
   p = list()
   
   nmesh = mesh$getNMeshes()
-  for (imesh in 1:nmesh)
+  nmax = nmesh
+  if (rankMeshMax > 0) nmax = rankMeshMax
+  for (imesh in 1:nmax)
   {
     x = mesh$getCoordinatesPerMesh(imesh-1, 0, TRUE)
     y = mesh$getCoordinatesPerMesh(imesh-1, 1, TRUE)

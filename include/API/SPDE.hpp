@@ -76,9 +76,10 @@ public:
   const AMesh* getSimuMeshing(int i = 0) const { return _simuMeshing[i]; }
   const Db* getData() const {return  _data;}
 
-  void setRefineK(int refineK) { _refineK = refineK; }
-  void setRefineS(int refineS) { _refineS = refineS; }
-  void setBorder(int border)   { _border = border; }
+  void setRefineK(int refineK)        { _refineK = refineK; }
+  void setRefineS(int refineS)        { _refineS = refineS; }
+  void setBorder(int border)          { _border = border; }
+  void setEpsNugget(double epsNugget) { _epsNugget = epsNugget; }
 
 private:
   int _init(Model *model,
@@ -125,11 +126,11 @@ private:
   bool _requireCoeffs;
   mutable bool _isCoeffsComputed;
   bool _deleteMesh;
-  // query sur aproj ou // TODO ??
 
   // Parameters specific invertion using Conjugate Gradient (used for Kriging)
   int _nIterMax;
   double _eps;
+  double _epsNugget; // Additional amount of nugget specified as the percentage of total sill (nugget excluded)
 };
 
 GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
