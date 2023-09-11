@@ -803,9 +803,9 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 #' @param show.legend.color Display the legend for Color representation
 #' @param show.legend.size Display the legend for Size representation
 #' @param show.legend.label Display the legend for literal representation
-#' @param legend.name.color Name attached to the Legend for color representation
-#' @param legend.name.size Name attached to the Legend for proportional representation
-#' @param legend.name.label Name attached to the Literal for proportional representation
+#' @param legend.name.color Name of the Legend for color representation (set to 'name_color' if not defined)
+#' @param legend.name.size Name of the Legend for proportional representation (set to 'name_size' if not defined)
+#' @param legend.name.label Name of the Legend for Literal representation (set to 'name_literam' if not defined)
 #' @param ... List of arguments passed to pointSymbol( ) and pointLabel() 
 #' @return The ggplot object
 plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
@@ -867,8 +867,7 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   
   if (! is.null(name_label))
   {
-  	if (is.null(legend.nale.label)) legend.name.label = name_label
-    p <- c(p, pointLabel(db, name=legend.name.label,  ...))
+    p <- c(p, pointLabel(db, ...))
     
     # Set the title              
     title = paste(title, name_label, sep=" ")
@@ -964,8 +963,8 @@ gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, 
 #' @param limits Bounds applied to the variable to be represented
 #' @param show.legend.raster Display the legend for grid representation as an image
 #' @param show.legend.contour Display the legend for grid representation as contour lines
-#' @param legend.name.raster Name attached to the Legend for representation as an image
-#' @param legend.name.contour Name attached to the Legend for representation as contour lines
+#' @param legend.name.raster Name of the Legend for representation as an image (set to 'name_raster' if not defined)
+#' @param legend.name.contour Name of the Legend for representation as contour lines (set to 'name_contour' if not defined)
 #' @param ... List of arguments passed to gridRaster( ), gridContour() and .scaleColorFill()
 #' @return The ggplot object
 plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,

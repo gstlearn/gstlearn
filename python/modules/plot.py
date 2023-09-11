@@ -753,8 +753,8 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     flagCst: When True, the size is kept constant (equal to 's')
     flagLegendColor: Flag for representing the Color Legend
     flagLegendSize: Flag for representing the Size Legend
-    legendNameColor: Title for the Color Legend
-    legendNameSize: Title for the Size Legend
+    legendNameColor: Title for the Color Legend (set to 'name_color' if not defined)
+    legendNameSize: Title for the Size Legend (set to 'size_name' if not defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -824,7 +824,7 @@ def literal(db, *args, **kwargs):
     coorY_name: Name of the variable standing for Y coordinate 
     useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
-    legendName: title of the Legend
+    legendName: title of the Legend (set to 'name' if not defined
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     **kwargs : arguments passed to matplotllib.pyplot.scatter
@@ -955,9 +955,9 @@ def point(db, *args, **kwargs):
     flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
     flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
     flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
-    legendNameColor: Title for the Color Legend
-    legendNameSize: Title for the Size legend
-    legendNameLabel: Title for the Label Legend
+    legendNameColor: Title for the Color Legend (set to 'name_color' if not defined)
+    legendNameSize: Title for the Size legend (set to 'name_size' if not defined)
+    legendNameLabel: Title for the Label Legend (set to 'name_label' if not defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
 
@@ -1161,7 +1161,7 @@ def raster(dbgrid, *args, **kwargs):
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     useSel : Boolean to indicate if the selection has to be considered
     flagLegend: Flag for representing the Color Bar
-    legendName: Name given to the Legend
+    legendName: Name given to the Legend (set to 'name' if not defined)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
@@ -1201,7 +1201,7 @@ def isoline(dbgrid, *args, **kwargs):
     useSel : Boolean to indicate if the selection has to be considered
     levels: Vector of isovalues to be represented
     flagLegend: Flag for representing the Color Bar (not represented if alpha=0)
-    legendName: Name given to the Legend
+    legendName: Name given to the Legend (set to 'name' if not defined)
     ax: Reference for the plot within the figure
     
     **kwargs : arguments passed to matplotlib.pyplot.contour
@@ -1241,8 +1241,8 @@ def grid(dbgrid, *args, **kwargs):
     flagCell: When True, the edge of the grid cells are represented
     flagLegendRaster: Flag for representing the Raster Legend
     flagLegendContour: Flag for representing the Contour Legend
-    legendNameColor: Title for the Raster Legend
-    legendNameSize: Title for the Contour Legend
+    legendNameColor: Title for the Raster Legend (set to 'name_raster' if not defined)
+    legendNameSize: Title for the Contour Legend (set to 'name_contour' if not defined)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
