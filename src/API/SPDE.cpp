@@ -471,7 +471,8 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     suffix = "likelihood";
   }
 
-  namconv.setNamesAndLocators(_data,ELoc::Z,1,dbout,iptr,suffix, nvar);
+//  namconv.setNamesAndLocators(_data, ELoc::Z, 1, dbout, iptr, suffix, nvar);
+  namconv.setNamesAndLocators(dbout, iptr, suffix);
   return iptr;
 }
 
