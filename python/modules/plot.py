@@ -479,6 +479,8 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axs_old=None, *args, **kwargs):
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multi-directional variograms are represented.
+    vario_linestyle: Linestyle for representing the experimental variogram
+    model_linestyle: Linestyle for representing the Model
     var_color, var_linestyle: parameters for representing variance-covariance line
     env_color, env_linestyle: parameters for representing coregionalization envelop
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
@@ -499,6 +501,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axs_old=None, *args, **kwargs):
 
 def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 nh = 100, hmax = None, show_pairs=False, asCov=False, 
+                vario_linestyle = None, model_linestyle = None,
                 var_color='black', var_linestyle="dotted",
                 env_color='black', env_linestyle="dotted",
                 cmap=None, flagLegend=False,
@@ -551,6 +554,8 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
             for idirUtil in ndirUtil:
                 if not color_in_kwargs:
                     kwargs.update({'color':cols(idirUtil)})
+                if vario_linestyle is not None:
+                    kwargs.update({'linestyle': vario_linestyle})
                 
                 __ax_varioElem(ax, vario, iv, jv, idirUtil, 
                                show_pairs=show_pairs, hmax=hmax,
@@ -560,6 +565,8 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 # Plotting the Model (optional)
                 if model is not None:
                     codir = vario.getCodirs(idirUtil)
+                    if model_linestyle is not None:
+                        kwargs.update({'linestyle': model_linestyle})
                     __ax_modelElem(ax, model, ivar=iv, jvar=jv, codir=codir, 
                                    hmax=hmax, nh=nh, asCov=asCov,
                                    env_color=env_color, env_linestyle=env_linestyle, 
@@ -606,7 +613,7 @@ def variogram(vario, ivar=0, jvar=0, axs_old=None, *args, **kwargs):
     return __ax_variogram(axs, vario, ivar=ivar, jvar=jvar, *args, **kwargs)
     
 def __ax_variogram(axs, vario, ivar=0, jvar=0, idir=0,
-                   var_color='black', var_linestyle='dashed', hmax=None,  
+                   var_color='black', var_linestyle='dotted', hmax=None,  
                    cmap = None, flagLegend=False, 
                    *args, **kwargs):
     return __ax_varmod(axs, vario, ivar=ivar, jvar=jvar, idir=idir, 

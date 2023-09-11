@@ -359,7 +359,7 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 #' Draw an elementary experimental variogram
 #' @noRd
 .varioElementary <- function(vario, ivar=0, jvar=0, idir=0, 
-    linetype="solid",
+	linetype = "dashed",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     draw_variance = TRUE, draw_post=TRUE, draw_psize = 0, 
     draw_plabel = FALSE, label=NULL, flagLimits=TRUE, ...)
@@ -371,13 +371,8 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   sw = vario$getSwVec(idir,ivar,jvar)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
-# Representing the Experimental variogram
-#    args <- formals(geom_line)
-#    args[which(names(args) %in% names(dots))] <- dots[na.omit(match(names(args), names(dots)))]
-#    print(args)
-#    layer <- do.call(geom_line, c(list(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE),args = args))
-  p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
-          linetype=linetype, ...))
+  # Representing the Experimental variogram
+  p = c(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, linetype=linetype, ...))
   
   # Representing the number of pairs (by size)
   if (draw_psize > 0)
@@ -500,6 +495,8 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 #' @param asCov Represent the variogram as a covariance
 #' @param draw_variance Represent statistical variance (or covariance)
 #' @param flag_envelop Represent the coregionalization envelop (multivariate case)
+#' @param vario_linetype Linetype for representing the experimental variogram
+#' @param model_linetype Linetype for representing the Model
 #' @param var_color Color for representing the variance (covariance)
 #' @param var_linetype Linetype used for representing variance (covariance)
 #' @param var_size Dimension used for representing variance (covariance)
@@ -512,13 +509,13 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
     nh = 100, hmax = NA, draw_psize=-1, draw_plabel=FALSE, 
     asCov=FALSE, draw_variance = TRUE, flag_envelop=TRUE, 
+    vario_linetype = NULL, model_linetype = NULL,
     var_color='black', var_linetype="dashed", var_size=0.5, 
     env_color='black', env_linetype="dashed", env_size=0.5,
     draw_vario=TRUE, label=NULL, ...)
 {
   dots = list(...)
   has_color = "color" %in% names(dots)
-  has_linetype = "linetype" %in% names(dots)
   has_codir = "codir" %in% names(dots)
   
   p = list()
@@ -559,7 +556,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
         {
           dotloc = dots
           if (! has_color) dotloc$color=cols[idir+1]
-          if (! has_linetype) dotloc$linetype = "dashed"
+          if (! .isNotDef(vario_linetype)) dotloc$linetype = vario_linetype
           p = c(p, do.call(.varioElementary, c(list(vario=vario, ivar=ivar, jvar=jvar, idir=idir, 
                           var_color=var_color, var_linetype=var_linetype, var_size=var_size,
                           draw_variance=draw_variance, draw_psize=draw_psize, 
@@ -571,7 +568,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
         {
           dotloc = dots
           if (! has_color) dotloc$color=cols[idir+1]
-          if (! has_linetype) dotloc$linetype = "solid"
+          if (! .isNotDef(model_linetype)) dotloc$linetype = model_linetype
           if (! .isNotDef(vario) && ! has_codir) dotloc$codir = vario$getCodirs(idir) 
           p = c(p, do.call(.modelElementary, c(list(model, ivar, jvar,  
                           nh = nh, hmax = hmax, asCov=asCov, flag_envelop=flag_envelop,
