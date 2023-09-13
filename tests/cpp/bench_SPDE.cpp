@@ -51,6 +51,13 @@ int main(int argc, char *argv[])
   int nxref = 101;
   double matern_param = 1.0;
 
+  // Feature to be tested:
+  // 0: all of them
+  // 1: Kriging
+  // 2: non-conditional simulations
+  // 3: conditional simulations
+  int mode = 1;
+
   // Generate the data base
   Db* dat = Db::createFillRandom(ndat);
 
@@ -62,21 +69,30 @@ int main(int argc, char *argv[])
   DbGrid* grid = DbGrid::create({nxref, nxref}, {1./(nxref-1), 1./(nxref-1)});
 
   // Evaluate Kriging
-  timer.reset();
-  (void) krigingSPDE(dat, grid, model, true, false, false);
-  timer.displayIntervalMilliseconds("Kriging", 400);
+  if (mode == 0 || mode == 1)
+  {
+    timer.reset();
+    (void) krigingSPDE(dat, grid, model, true, false, false);
+    timer.displayIntervalMilliseconds("Kriging", 400);
+  }
 
   // Evaluate non-conditional simulations
-  timer.reset();
-  (void) simulateSPDE(NULL, grid, model, nsim, NULL, 11, 18, 8, seed, 1.e-2, false,
-                      NamingConvention("Simu.NC"));
-  timer.displayIntervalMilliseconds("Non-conditional simulations", 1350);
+  if (mode == 0 || mode == 2)
+  {
+    timer.reset();
+    (void) simulateSPDE(NULL, grid, model, nsim, NULL, 11, 18, 8, seed, 1.e-2,
+                        false, NamingConvention("Simu.NC"));
+    timer.displayIntervalMilliseconds("Non-conditional simulations", 1350);
+  }
 
   // Evaluate conditional simulations
-  timer.reset();
-  (void) simulateSPDE(dat, grid, model, nsim, NULL, 11, 18, 8, seed, 1.e-2, false,
-                      NamingConvention("Simu.CD"));
-  timer.displayIntervalMilliseconds("Conditional simulations", 3130);
+  if (mode == 0 || mode == 3)
+  {
+    timer.reset();
+    (void) simulateSPDE(dat, grid, model, nsim, NULL, 11, 18, 8, seed, 1.e-2,
+                        false, NamingConvention("Simu.CD"));
+    timer.displayIntervalMilliseconds("Conditional simulations", 3130);
+  }
 
   // Produce some stats for comparison
   dbStatisticsPrint(grid, {"Simu*"}, EStatOption::fromKeys({"MEAN", "STDV"}));
