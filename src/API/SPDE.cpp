@@ -59,15 +59,15 @@ SPDE::SPDE(Model* model,
       _refineK(11),
       _refineS(18),
       _border(8),
-      _precisionsKriging(nullptr),
+      _precisionsKrig(nullptr),
       _precisionsSimu(nullptr),
       _pilePrecisions(),
       _pileProjMatrix(),
-      _simuMeshing(),
-      _krigingMeshing(),
+      _meshingSimu(),
+      _meshingKrig(),
       _driftCoeffs(),
       _model(nullptr),
-      _workKriging(),
+      _workingKrig(),
       _workingSimu(),
       _workingData(),
       _workingDataInit(),
@@ -80,7 +80,7 @@ SPDE::SPDE(Model* model,
       _deleteMesh(false),
       _nIterMax(1000),
       _eps(EPSILON8),
-      _epsNugget(1.e-4)
+      _epsNugget(1.e-2)
 {
   (void) _init(model, domain, data, calcul, meshUser, verbose);
 }
@@ -92,7 +92,7 @@ SPDE::~SPDE()
 
 void SPDE::_purge()
 {
-  delete _precisionsKriging;
+  delete _precisionsKrig;
   delete _precisionsSimu;
 
   for(auto &e : _pilePrecisions)
@@ -113,17 +113,17 @@ void SPDE::_purge()
 
   if (_deleteMesh)
   {
-    for(auto &e : _simuMeshing)
+    for(auto &e : _meshingSimu)
     {
       delete e;
     }
-    for(auto &e : _krigingMeshing)
+    for(auto &e : _meshingKrig)
     {
       delete e;
     }
   }
-  _simuMeshing.clear();
-  _krigingMeshing.clear();
+  _meshingSimu.clear();
+  _meshingKrig.clear();
 }
 
 SPDE* SPDE::create(Model *model,
@@ -174,6 +174,12 @@ int SPDE::_init(Model *model,
   if (_data != nullptr) _driftTab = _model->getDrifts(_data, useSel);
   _requireCoeffs = _driftTab.size() > 0 && _data != nullptr;
 
+  // Allocate the global structures (pointers)
+  if (_performSimulation())
+    _precisionsSimu = new PrecisionOpMultiConditional();
+  if (_performKriging() || _requireCoeffs)
+    _precisionsKrig = new PrecisionOpMultiConditional();
+
   // Loop on the basic structures
   for(int icov = 0 ; icov < model->getCovaNumber(); icov++)
   {
@@ -208,9 +214,8 @@ int SPDE::_init(Model *model,
         proj = new ProjMatrix(_data, mesh, verbose);
         _pileProjMatrix.push_back(proj);
 
-        _simuMeshing.push_back(mesh);
+        _meshingSimu.push_back(mesh);
 
-        _precisionsSimu = new PrecisionOpMultiConditional();
         _precisionsSimu->push_back(precision,proj);
         _precisionsSimu->setVarianceDataVector(varianceData);
         _workingSimu.push_back(VectorDouble(precision->getSize()));
@@ -224,7 +229,7 @@ int SPDE::_init(Model *model,
                                             useSel, flagNoStatRot, verbose);
           _deleteMesh = true;
         }
-        _krigingMeshing.push_back(mesh);
+        _meshingKrig.push_back(mesh);
 
         if (_useCholesky())
           precision = new PrecisionOpCs(mesh, model, icov);
@@ -235,11 +240,10 @@ int SPDE::_init(Model *model,
         proj = new ProjMatrix(_data,mesh);
         _pileProjMatrix.push_back(proj);
 
-        _precisionsKriging = new PrecisionOpMultiConditional();
-        _precisionsKriging->setNIterMax(_nIterMax);
-        _precisionsKriging->setEps(_eps);
-        _precisionsKriging->push_back(precision,proj);
-        _workKriging.push_back(VectorDouble(precision->getSize()));
+        _precisionsKrig->setNIterMax(_nIterMax);
+        _precisionsKrig->setEps(_eps);
+        _precisionsKrig->push_back(precision,proj);
+        _workingKrig.push_back(VectorDouble(precision->getSize()));
       }
     }
     else
@@ -258,8 +262,8 @@ int SPDE::_init(Model *model,
       varianceData = _data->getColumnByLocator(ELoc::V,0,useSel);
       for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
       {
-        double *temp = &varianceData[iech];
-        *temp = MAX(*temp + _nugget, _epsNugget * totalSill);
+        double *temp_dat = &varianceData[iech];
+        *temp_dat = MAX(*temp_dat + _nugget, _epsNugget * totalSill);
       }
     }
     else
@@ -267,7 +271,7 @@ int SPDE::_init(Model *model,
       VH::fill(varianceData, MAX(_nugget, _epsNugget * totalSill),
                _data->getSampleNumber(true));
     }
-    _precisionsKriging->setVarianceDataVector(varianceData);
+    _precisionsKrig->setVarianceDataVector(varianceData);
 
     if (_performSimulation())
     {
@@ -279,14 +283,14 @@ int SPDE::_init(Model *model,
 
 void SPDE::_computeLk() const
 {
-  VectorVectorDouble rhs = _precisionsKriging->computeRhs(_workingData);
-  _precisionsKriging->initLk(rhs,_workKriging); // Same as evalInverse but with just one iteration
+  VectorVectorDouble rhs = _precisionsKrig->computeRhs(_workingData);
+  _precisionsKrig->initLk(rhs,_workingKrig); // Same as evalInverse but with just one iteration
 }
 
 void SPDE::_computeKriging() const
 {
-  VectorVectorDouble rhs = _precisionsKriging->computeRhs(_workingData);
-  _precisionsKriging->evalInverse(rhs,_workKriging);
+  VectorVectorDouble rhs = _precisionsKrig->computeRhs(_workingData);
+  _precisionsKrig->evalInverse(rhs,_workingKrig);
 }
 
 /**
@@ -308,13 +312,13 @@ void SPDE::_computeSimuCond() const
   _computeSimuNonCond();
 
   // Perform the non conditional simulation on data
-  VectorDouble temp(_data->getSampleNumber(true));
-  _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu,temp);
+  VectorDouble temp_dat(_data->getSampleNumber(true));
+  _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu, temp_dat);
 
   // Calculate the simulation error
   _workingData = _workingDataInit;
-  VH::multiplyConstant(temp,-1.);
-  VH::addInPlace(_workingData,temp);
+  VH::multiplyConstant(temp_dat, -1.);
+  VH::addInPlace(_workingData, temp_dat);
 
   // Conditional Kriging
   _computeKriging();
@@ -350,16 +354,14 @@ void SPDE::_centerByDrift(const VectorDouble& dataVect,int ivar,bool useSel) con
 void SPDE::_addDrift(Db* db, VectorDouble &result, int ivar, bool useSel)
 {
   if (! _requireCoeffs) return;
-  VectorDouble temp = _model->evalDrifts(db, _driftCoeffs, ivar, useSel);
-  VH::addInPlace(result, temp);
+  VectorDouble temp_out = _model->evalDrifts(db, _driftCoeffs, ivar, useSel);
+  VH::addInPlace(result, temp_out);
 }
 
 int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namconv)
 {
-  String suffix;
   VectorDouble dataVect;
   bool useSel = true;
-  bool useVarName = false;
   int ivar = 0;
 
   // Preliminary checks
@@ -393,24 +395,26 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     law_set_random_seed(seed);
 
   // Add the vectors in the output Db
-  int nvar = 1;
-  if (_performSimulation()) nvar = nbsimu;
-  int iptr = dbout->addColumnsByConstant(nvar);
+  int ncols = 1;
+  if (_performSimulation()) ncols = nbsimu;
+  int iptr = dbout->addColumnsByConstant(ncols);
 
   // Dispatch
 
-  VectorDouble temp(dbout->getSampleNumber(true));
+  VectorDouble temp_out(dbout->getSampleNumber(true));
+  String suffix = "";
+  bool useVarName = false;
 
   if (_calcul == ESPDECalcMode::KRIGING)
   {
     VectorDouble result(dbout->getSampleNumber(true),0.);
     _workingData = _workingDataInit;
     _computeKriging();
-    for(int icov = 0, ncov = (int) _krigingMeshing.size() ; icov < ncov; icov++)
+    for(int icov = 0, ncov = (int) _meshingKrig.size() ; icov < ncov; icov++)
     {
-      ProjMatrix proj(dbout,_krigingMeshing[icov]);
-      proj.mesh2point(_workKriging[icov],temp);
-      VH::addInPlace(result,temp);
+      ProjMatrix projKriging(dbout,_meshingKrig[icov]);
+      projKriging.mesh2point(_workingKrig[icov],temp_out);
+      VH::addInPlace(result,temp_out);
     }
     _addDrift(dbout, result);
     dbout->setColumnByUID(result, iptr, useSel);
@@ -424,17 +428,16 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     {
       VectorDouble result(dbout->getSampleNumber(true),0.);
       _computeSimuNonCond();
-      for(int icov = 0, ncov = (int) _simuMeshing.size() ; icov < ncov; icov++)
+      for(int icov = 0, ncov = (int) _meshingSimu.size() ; icov < ncov; icov++)
       {
-        ProjMatrix proj(dbout,_simuMeshing[icov]);
-        proj.mesh2point(_workingSimu[icov],temp);
-        VH::addInPlace(result,temp);
+        ProjMatrix projSimu(dbout,_meshingSimu[icov]);
+        projSimu.mesh2point(_workingSimu[icov],temp_out);
+        VH::addInPlace(result,temp_out);
       }
       _addNuggetOnResult(result);
       _addDrift(dbout, result);
       dbout->setColumnByUID(result, iptr + isimu, useSel);
     }
-    suffix = "simu";
   }
 
   if (_calcul == ESPDECalcMode::SIMUCOND)
@@ -443,32 +446,31 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     {
       VectorDouble result(dbout->getSampleNumber(true),0.);
       _computeSimuCond();
-      for(int icov = 0, ncov = (int) _simuMeshing.size(); icov < ncov; icov++)
+      for(int icov = 0, ncov = (int) _meshingSimu.size(); icov < ncov; icov++)
       {
-        ProjMatrix projSimu(dbout,_simuMeshing[icov]);
-        projSimu.mesh2point(_workingSimu[icov],temp);
-        VH::addInPlace(result,temp);
-        ProjMatrix projKriging(dbout,_krigingMeshing[icov]);
-        projKriging.mesh2point(_workKriging[icov],temp);
-        VH::addInPlace(result,temp);
+        ProjMatrix projSimu(dbout,_meshingSimu[icov]);
+        projSimu.mesh2point(_workingSimu[icov],temp_out);
+        VH::addInPlace(result,temp_out);
+        ProjMatrix projKriging(dbout,_meshingKrig[icov]);
+        projKriging.mesh2point(_workingKrig[icov],temp_out);
+        VH::addInPlace(result,temp_out);
        }
       _addNuggetOnResult(result);
       _addDrift(dbout, result);
       dbout->setColumnByUID(result, iptr + isimu, useSel);
     }
     useVarName = true;
-    suffix = "condSimu";
   }
 
   if (_calcul == ESPDECalcMode::LIKELIHOOD)
   {
     VectorDouble result(dbout->getSampleNumber(true),0.);
     _computeLk();
-    for(int icov = 0, ncov = (int) _krigingMeshing.size() ; icov < ncov; icov++)
+    for(int icov = 0, ncov = (int) _meshingKrig.size() ; icov < ncov; icov++)
     {
-      ProjMatrix proj(dbout,_krigingMeshing[icov]);
-      proj.mesh2point(_workKriging[icov],temp);
-      VH::addInPlace(result,temp);
+      ProjMatrix proj(dbout,_meshingKrig[icov]);
+      proj.mesh2point(_workingKrig[icov],temp_out);
+      VH::addInPlace(result,temp_out);
     }
     _addDrift(dbout, result);
     dbout->setColumnByUID(result, iptr, useSel);
@@ -476,9 +478,9 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
   }
 
   if (useVarName)
-    namconv.setNamesAndLocators(_data, ELoc::Z, 1, dbout, iptr, suffix, nvar);
+    namconv.setNamesAndLocators(_data, ELoc::Z, 1, dbout, iptr, suffix, ncols);
   else
-    namconv.setNamesAndLocators(dbout, iptr, suffix, nvar);
+    namconv.setNamesAndLocators(dbout, iptr, suffix, ncols);
   return iptr;
 }
 
@@ -505,7 +507,7 @@ bool SPDE::_performKriging() const
 double SPDE::computeLogDet(int nbsimu,int seed) const
 {
   double val;
-  val = _precisionsKriging->computeTotalLogDet(nbsimu,seed);
+  val = _precisionsKrig->computeTotalLogDet(nbsimu,seed);
   return val;
 }
 
@@ -516,7 +518,7 @@ double SPDE::computeQuad() const
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
   _centerByDrift(dataVect,ivar,useSel);
-  return _precisionsKriging->computeQuadratic(_workingData);
+  return _precisionsKrig->computeQuadratic(_workingData);
 }
 
 double SPDE::computeLogLike(int nbsimu, int seed) const
@@ -543,7 +545,8 @@ void SPDE::_computeDriftCoeffs() const
     _isCoeffsComputed = true;
     if (_requireCoeffs)
     {
-      _driftCoeffs = _precisionsKriging->computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),_driftTab);
+      _driftCoeffs = _precisionsKrig->computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),
+                                                    _driftTab);
     }
   }
 }
@@ -572,6 +575,7 @@ VectorDouble SPDE::getCoeffs()
  * @param mesh Mesh description (optional)
  * @param refineK Refinement factor for building internal meshing for Kriging
  * @param border Number of nodes used for extending the internal grid
+ * @param epsNugget Value for the relaxing nugget effect
  * @param verbose Verbose flag
  * @param namconv Naming convention
  * @return Error return code
@@ -591,6 +595,7 @@ int krigingSPDE(Db *dbin,
                 const AMesh *mesh,
                 int refineK,
                 int border,
+                double epsNugget,
                 bool verbose,
                 const NamingConvention &namconv)
 {
@@ -602,6 +607,7 @@ int krigingSPDE(Db *dbin,
   SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, verbose);
   spde.setRefineK(refineK);
   spde.setBorder(border);
+  spde.setEpsNugget(epsNugget);
 
   return spde.compute(dbout, 0, 0, namconv);
 }
@@ -618,6 +624,7 @@ int krigingSPDE(Db *dbin,
  * @param refineS Refinement factor for building internal meshing for Simulations
  * @param border Number of nodes used for extending the internal grid
  * @param seed Seed used for the Random Number generator
+ * @param epsNugget Value for the relaxing nugget effect
  * @param verbose Verbose flag
  * @param namconv Naming convention
  * @return Error return code
@@ -637,6 +644,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  int refineS,
                                  int border,
                                  int seed,
+                                 double epsNugget,
                                  bool verbose,
                                  const NamingConvention &namconv)
 {
@@ -645,6 +653,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
   spde.setRefineK(refineK);
   spde.setRefineS(refineS);
   spde.setBorder(border);
+  spde.setEpsNugget(epsNugget);
 
   return spde.compute(dbout, nbsimu, seed, namconv);
 }

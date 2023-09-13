@@ -10,6 +10,7 @@ Release 0.3.4
 - Standardize graphics in R and Python
 - Rename name1 and name2 into namex and namey for correlation representations
 - Parametrize the amount of Nugget (technically) added in SPDE
+- Corrections in the API functions of SPDE method
 
 Release 0.3.3
 =============
