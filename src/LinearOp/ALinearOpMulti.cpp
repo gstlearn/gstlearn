@@ -150,84 +150,79 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &inv,
   double rsnew;
   double rsold;
   double nb;
-  double crit,alpha;
+  double crit, alpha;
 
   Timer time;
 
-  nb = innerProduct(inv,inv);
+  nb = innerProduct(inv, inv);
 
-
-  if(_userInitialValue)
+  if (_userInitialValue)
   {
-
-    evalDirect(outv,_temp); //temp = Ax0 (x0 est stocké dans outv)
-    diff(_temp,inv,_r);    //r=b-Ax0
+    evalDirect(outv, _temp); //temp = Ax0 (x0 est stocké dans outv)
+    diff(_temp, inv, _r);    //r=b-Ax0
   }
   else
   {
-    fillVal(outv,0.);
-    fillVal(_temp,0.); // temp = Ax0=0
-    _copyVals(inv,_r);   // r = b
+    fillVal(outv, 0.);
+    fillVal(_temp, 0.); // temp = Ax0=0
+    _copyVals(inv, _r);   // r = b
   }
 
   if (OptDbg::query(EDbg::CONVERGE))
-    message("initial crit %lg \n",innerProduct(_r,_r));
+    message("initial crit %lg \n", innerProduct(_r, _r));
 
-  if(_precondStatus)
+  if (_precondStatus)
   {
-    _precond->evalDirect(_r,_temp); //z=Mr
-    _copyVals(_temp,_p); //p=z
-    rsold=innerProduct(_r,_temp); //<r, z>
-    crit=innerProduct(_r,_r);  //<r,r>
-
+    _precond->evalDirect(_r, _temp); //z=Mr
+    _copyVals(_temp, _p); //p=z
+    rsold = innerProduct(_r, _temp); //<r, z>
+    crit = innerProduct(_r, _r);  //<r,r>
   }
   else
   {
-    _copyVals(_r,_p); //p=r (=z)
-    crit=rsold=innerProduct(_r,_r);
+    _copyVals(_r, _p); //p=r (=z)
+    crit = rsold = innerProduct(_r, _r);
   }
 
-  crit/=nb;
+  crit /= nb;
 
   int niter = 0;
 
-  while(niter < _nIterMax && crit > _eps)
+  while (niter < _nIterMax && crit > _eps)
   {
     niter++;
-    evalDirect(_p,_temp); //temp = Ap
-    alpha = rsold / innerProduct(_temp,_p); // r'r/p'Ap
-    _linearComb(1.,outv,alpha,_p,outv);//x=x+alpha p
-    _linearComb(1.,_r,-alpha,_temp,_r); //r=r-alpha*Ap
+    evalDirect(_p, _temp); //temp = Ap
+    alpha = rsold / innerProduct(_temp, _p); // r'r/p'Ap
+    _linearComb(1., outv, alpha, _p, outv); //x=x+alpha p
+    _linearComb(1., _r, -alpha, _temp, _r); //r=r-alpha*Ap
 
-    if(_precondStatus)
+    if (_precondStatus)
     {
-      _precond->evalDirect(_r,_temp); //z=Mr
-      rsnew=innerProduct(_r,_temp); //r'z
-      _linearComb(1.,_temp,rsnew/rsold,_p,_p); //p=z+beta p
+      _precond->evalDirect(_r, _temp); //z=Mr
+      rsnew = innerProduct(_r, _temp); //r'z
+      _linearComb(1., _temp, rsnew / rsold, _p, _p); //p=z+beta p
     }
     else
     {
-      rsnew=innerProduct(_r,_r);
-      crit=rsnew/nb;
-      _linearComb(1.,_r,rsnew/rsold,_p,_p);//p=r+beta p
-
+      rsnew = innerProduct(_r, _r);
+      crit = rsnew / nb;
+      _linearComb(1., _r, rsnew / rsold, _p, _p); //p=r+beta p
     }
 
     if (OptDbg::query(EDbg::CONVERGE))
-      message("%d iterations (max=%d)  crit %lg \n",niter,_nIterMax,crit);
+      message("%d iterations (max=%d)  crit %lg \n", niter, _nIterMax, crit);
     rsold = rsnew;
-
   }
 
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("-- Conjugate Gradient (precond=%d) : %d iterations (max=%d) (eps=%lg)\n",
-            _precondStatus,niter,_nIterMax,_eps);
+            _precondStatus, niter, _nIterMax, _eps);
   }
 
-  _timeCG   += time.getIntervalSeconds();
-  _niterCG  += niter;
-  _numberCG ++;
+  _timeCG += time.getIntervalSeconds();
+  _niterCG += niter;
+  _numberCG++;
 
 }
 

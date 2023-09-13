@@ -80,10 +80,9 @@ int main(int argc, char *argv[])
   /// Traditional Kriging
   kriging(temperatures, grid, model, neighU);
 
-
   (void) grid->dumpToNF("Grid.ascii",verbose);
 
-  DbStringFormat dbfmt(FLAG_STATS,{"*kriging"});
+  DbStringFormat dbfmt(FLAG_STATS,{"spde*estim"});
   grid->display(&dbfmt);
 
   delete temperatures;

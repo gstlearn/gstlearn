@@ -71,14 +71,15 @@ public:
 
   const PrecisionOpCs* getPrecisionOp(int i = 0) const  { return (PrecisionOpCs*)_pilePrecisions[i];}
   const ProjMatrix* getProjMatrix(int i = 0) const  { return _pileProjMatrix[i];}
-  const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKriging;}
-  const AMesh* getKrigingMeshing(int i = 0) const { return _krigingMeshing[i];}
-  const AMesh* getSimuMeshing(int i = 0) const { return _simuMeshing[i]; }
+  const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKrig;}
+  const AMesh* getKrigingMeshing(int i = 0) const { return _meshingKrig[i];}
+  const AMesh* getSimuMeshing(int i = 0) const { return _meshingSimu[i]; }
   const Db* getData() const {return  _data;}
 
-  void setRefineK(int refineK) { _refineK = refineK; }
-  void setRefineS(int refineS) { _refineS = refineS; }
-  void setBorder(int border)   { _border = border; }
+  void setRefineK(int refineK)        { _refineK = refineK; }
+  void setRefineS(int refineS)        { _refineS = refineS; }
+  void setBorder(int border)          { _border = border; }
+  void setEpsNugget(double epsNugget) { _epsNugget = epsNugget; }
 
 private:
   int _init(Model *model,
@@ -106,17 +107,17 @@ private:
   int _refineK;
   int _refineS;
   int _border;
-  PrecisionOpMultiConditional* _precisionsKriging;
+  PrecisionOpMultiConditional* _precisionsKrig;
   PrecisionOpMultiConditional* _precisionsSimu;
   std::vector<PrecisionOp*>    _pilePrecisions; // Dimension: number of valid covariances
   std::vector<ProjMatrix*>     _pileProjMatrix; // Dimension: number of valid covariances
-  std::vector<const AMesh*>    _simuMeshing;    // Dimension: number of valid covariances
-  std::vector<const AMesh*>    _krigingMeshing; // Dimension: number of valid covariances
+  std::vector<const AMesh*>    _meshingSimu;    // Dimension: number of valid covariances
+  std::vector<const AMesh*>    _meshingKrig;    // Dimension: number of valid covariances
   mutable VectorDouble         _driftCoeffs;
   Model*                       _model;
-  mutable VectorVectorDouble   _workKriging; // Number of Mesh apices * Number of valid covariances
-  mutable VectorVectorDouble   _workingSimu; // Number of Mesh apices * Number of valid covariances
-  mutable VectorDouble         _workingData; // Number of valid data
+  mutable VectorVectorDouble   _workingKrig;     // Number of Mesh apices * Number of valid covariances
+  mutable VectorVectorDouble   _workingSimu;     // Number of Mesh apices * Number of valid covariances
+  mutable VectorDouble         _workingData;     // Number of valid data
   mutable VectorDouble         _workingDataInit; // Number of valid data
   std::vector<ProjMatrix*>     _projOnDbOut;
   VectorInt                    _adressesICov;
@@ -125,11 +126,11 @@ private:
   bool _requireCoeffs;
   mutable bool _isCoeffsComputed;
   bool _deleteMesh;
-  // query sur aproj ou // TODO ??
 
   // Parameters specific invertion using Conjugate Gradient (used for Kriging)
   int _nIterMax;
   double _eps;
+  double _epsNugget; // Additional amount of nugget specified as the percentage of total sill (nugget excluded)
 };
 
 GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
@@ -141,6 +142,7 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 const AMesh* mesh = nullptr,
                                 int refineK = 11,
                                 int border = 8,
+                                double epsNugget = 1.e-2,
                                 bool verbose = false,
                                 const NamingConvention &namconv = NamingConvention("KrigingSPDE"));
 GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
@@ -152,5 +154,6 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  int refineS = 18,
                                  int border = 8,
                                  int seed = 121423,
+                                 double epsNugget = 1.e-2,
                                  bool verbose = false,
                                  const NamingConvention &namconv = NamingConvention("SimuSPDE"));
