@@ -11,6 +11,7 @@ Release 0.3.4
 - Rename name1 and name2 into namex and namey for correlation representations
 - Parametrize the amount of Nugget (technically) added in SPDE
 - Corrections in the API functions of SPDE method
+- New test (cpp) for benchmarking SPDE features
 
 Release 0.3.3
 =============
