@@ -23,7 +23,7 @@ import math
 from plotly.validators.layout.scene import aspectratio
 from matplotlib.pyplot import axes
 #from mpl_toolkits.basemap.proj import nx
-from bleach._vendor.html5lib._ihatexml import name
+#from bleach._vendor.html5lib._ihatexml import name
 
 #Set of global values
 default_dims = [[5,5], [8,8]]
