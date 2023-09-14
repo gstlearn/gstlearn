@@ -499,7 +499,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axs_old=None, *args, **kwargs):
 
 def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 nh = 100, hmax = None, show_pairs=False, asCov=False, 
-                vario_linestyle = None, model_linestyle = None,
+                vario_linestyle = 'dashed', model_linestyle = 'solid',
                 var_color='black', var_linestyle="dotted",
                 env_color='black', env_linestyle="dotted",
                 cmap=None, flagLegend=False,

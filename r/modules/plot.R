@@ -369,7 +369,7 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 	linetype = "dashed",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     draw_variance = TRUE, draw_post=TRUE, draw_psize = 0, 
-    draw_plabel = FALSE, label=NULL, flagLimits=TRUE, ...)
+    draw_plabel = FALSE, show.legend=FALSE, flagLimits=TRUE, ...)
 {
   dots = list(...)
   p = list()
@@ -399,10 +399,6 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
     p = append(p, geom_text(data = df, mapping=aes(x=hh, y=gg, 
     		label=as.character(sw)), na.rm=TRUE, ...))
   
-  # Constructing the label for Legend
-  if (length(label) <= 0)
-    label = paste("vario dir=", paste(vario$getCodirs(idir), collapse=' '))
-  
   # Adding the vertical axis at X=0
   p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
   
@@ -422,6 +418,13 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
     if (vario$drawOnlyPositiveY(ivar, jvar))
       p = append(p, plot.geometry(ylim = c(0, NA)))
   }
+  
+  # Constructing the lLegend
+  if (show.legend)
+  {
+ 	legend.name = paste("Vario dir=", paste(vario$getCodirs(idir), collapse=' '))
+	p <- append(p, list(labs(line = legend.name)))
+  }
   p
 }
 
@@ -429,7 +432,7 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 #' @noRd
 .modelElementary <- function(model, ivar=0, jvar=0, codir=NA,
     nh = 100, hmax = NA, asCov=FALSE, flag_envelop = TRUE, 
-    env_color='black', env_linetype="dashed", env_size=0.5,
+    env_color='black', env_linetype="dashed", env_size=0.5, show.legend=FALSE,
     ...)
 {
   dots = list(...)
@@ -487,6 +490,13 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
     p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
   }
+  
+  # Represent the legend
+  if (show.legend)
+  {
+ 	legend.name = paste("Model dir=", paste(codir, collapse=' '))
+	p <- append(p, list(labs(line = legend.name)))
+  }
   p
 }
 
@@ -513,7 +523,7 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 #' @param env_linetype Linetype used for representing coregionalization envelop
 #' @param env_size Size used for representing coregionalization envelop
 #' 0param draw_vario Flag for representing the experimental variogram (used when 'vario' is defined)
-#' @param label Label defined for representation of the Legend
+#' @param show.legend Flag for displaying the lagend
 #' @return The ggplot object
 plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
     nh = 100, hmax = NA, draw_psize=-1, draw_plabel=FALSE, 
@@ -521,7 +531,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
     vario_linetype = NULL, model_linetype = NULL,
     var_color='black', var_linetype="dashed", var_size=0.5, 
     env_color='black', env_linetype="dashed", env_size=0.5,
-    draw_vario=TRUE, label=NULL, ...)
+    draw_vario=TRUE, show.legend=FALSE, ...)
 {
   dots = list(...)
   has_color = "color" %in% names(dots)
@@ -570,7 +580,9 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
                           ivar=ivar, jvar=jvar, idir=idir, 
                           var_color=var_color, var_linetype=var_linetype, var_size=var_size,
                           draw_variance=draw_variance, draw_psize=draw_psize, 
-                          draw_plabel=draw_plabel, label=label, flagLimits=FALSE), dotloc)))
+                          draw_plabel=draw_plabel, 
+                          show.legend=show.legend,  
+                          flagLimits=FALSE), dotloc)))
         }
         
         # Plotting the Model
@@ -584,7 +596,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
                           nh = nh, hmax = hmax, asCov=asCov, 
                           flag_envelop=flag_envelop,
                           env_color = env_color, env_linetype = env_linetype, 
-                          env_size=env_size), dotloc)))
+                          env_size=env_size, show.legend=show.legend), dotloc)))
         }
         
         # Adding some decoration
@@ -1041,7 +1053,7 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
       p <- append(p, list(labs(contour = legend.name.contour)))
     }
     else
-      p <- append(p, list(theme(legend.position='none')))
+      p <- append(p, list(guides(contour = "none")))
   }  
   
   # Palette definition
