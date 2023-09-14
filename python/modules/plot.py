@@ -360,13 +360,11 @@ def __getDefinedValues(db, name, posX=0, posY=1, corner=None, useSel=True,
         else:
             tab = db.getOneSlice(name, posX, posY, corner, useSel)
     else:
-        tab = db.getColumn(name, useSel, compress)
+        tab = db.getColumn(name, useSel, True)
     tab = np.array(tab).transpose()
 
     if flagConvertNanToZero:
         tab[np.isnan(tab)] = 0
-    else:
-        tab = ma.array(tab,mask=np.isnan(tab))
     
     if compress:
         tab = tab[np.logical_not(np.isnan(tab))]
@@ -770,21 +768,29 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
     
     # Read the coordinates
     tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, useSel, posX, posY)
+    nb = len(tabx)
+    valid = np.full(nb, True)
     
     # Color of symbol
+    colval = c
     if name_color is not None:
         colval = __getDefinedValues(db, name_color, 0, 1, None, useSel, 
-                                    compress=True, asGrid=False, 
-                                    flagConvertNanToZero=True)
+                                    compress=False, asGrid=False, 
+                                    flagConvertNanToZero=False)
         name = name + ' ' + name_color
+        valid = np.logical_and(valid, ~np.isnan(colval))
     else:
-        colval = c
+        colval = np.full(nb, c)
 
     # Size of symbol
+    sizval = s
     if name_size is not None:
         sizval = __getDefinedValues(db, name_size, 0, 1, None, useSel, 
-                                    compress=True, asGrid=False, 
-                                    flagConvertNanToZero=True)
+                                    compress=False, asGrid=False, 
+                                    flagConvertNanToZero=False)
+        m = np.nanmin(sizval)
+        M = np.nanmax(sizval)
+
         if not flagCst:
             if flagAbsSize:
                 sizval = np.absolute(sizval)
@@ -795,14 +801,16 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
                 
             name = name + ' ' + name_size
         else:
-            sizval = s
+            sizval = s * ~np.isnan(sizval)
+        valid = np.logical_and(valid, ~np.isnan(sizval))
     else:
-        sizval = s
+        sizval = np.full(nb, s)
 
     if len(ax.get_title()) <= 0:
         ax.decoration(title = name)
     
-    res = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, **kwargs)
+    res = ax.scatter(x = tabx[valid], y = taby[valid], 
+                     s = sizval[valid], c = colval[valid], **kwargs)
 
     if flagLegendColor:
         if name_color is not None:
@@ -810,7 +818,7 @@ def __ax_symbol(ax, db, name_color=None, name_size=None,
                 legendNameColor = name_color
             __addColorbar(res, ax, legendNameColor)
     
-    if flagLegendSize:
+    if flagLegendSize and not flagCst:
         if name_size is not None:
             if legendNameSize is None:
                 legendNameSize = name_size
@@ -852,13 +860,17 @@ def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None,
     tabx, taby = __readCoorPoint(db, coorX_name, coorY_name, useSel, posX, posY)
     
     labval = __getDefinedValues(db, name, 0, 1, None, useSel, 
-                                compress=True, asGrid=False, 
-                                flagConvertNanToZero=True)
+                                compress=False, asGrid=False, 
+                                flagConvertNanToZero=False)
+    valid = ~np.isnan(labval)
 
-    res = ax.scatter(x = tabx, y = taby, **kwargs)
+    # We pass 'labval' to scatter function in order to mask undefined values
+    res = ax.scatter(x = tabx[valid], y = taby[valid], 
+                     s=labval[valid], **kwargs)
     
     for i, txt in enumerate(labval):
-        ax.annotate(round(txt,2), (tabx[i], taby[i]))
+        if not np.isnan(txt):
+            ax.annotate(round(txt,2), (tabx[i], taby[i]))
   
     if legendName is None:
         legendName = name
@@ -989,10 +1001,13 @@ def __ax_point(ax, db,
 
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
+    isVarDefined = True
     if (name_color is None) and (name_size is None) and (name_label is None):
+        isVarDefined = False
         name_size = __defaultVariable(db, None)
-        if name_size == db.getLastName():
-            flagCst = True
+        
+    if not isVarDefined:
+        flagCst = True
 
     title = ""
     if (name_color is not None) or (name_size is not None):
@@ -1007,7 +1022,10 @@ def __ax_point(ax, db,
         if name_color is not None:
             title = title + name_color +  " (Color) "
         if name_size is not None:
-            title = title + name_size + " (Size) "
+            if flagCst:
+                title = title + " Sample Locations "
+            else:
+                title = title + name_size + " (Size) "
     
     if name_label is not None:
         tx = __ax_literal(ax, db, name=name_label, 
