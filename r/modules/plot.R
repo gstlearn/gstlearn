@@ -65,7 +65,7 @@ plot.initialize <- function(pos=1)
 #' @param asp Aspect ratio Y/X
 plot.setDefaultGeographic <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
-  plot.setDefaultInternal(2, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
+  .plot.setDefaultInternal(2, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
 }
 
 #' Set the default values for all subsequent non-Geographical figures
@@ -76,7 +76,7 @@ plot.setDefaultGeographic <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
 #' @param asp Aspect ratio Y/X
 plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
-  plot.setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
+  .plot.setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, asp=asp)
 }
 
 #' Set the default values for all subsequent Geographical figures
@@ -86,7 +86,7 @@ plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
 #' @param ylim Bounds along the vertical axis
 #' @param asp Aspect ratio Y/X
 #' @noRd
-plot.setDefaultInternal <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
+.plot.setDefaultInternal <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
   if (!.isNotDef(dims))
     plot.default_dims[[mode]] = dims
@@ -217,6 +217,7 @@ ggDefaultGeographic <- function(figsize=NA)
 
 #' Initiate a non-geographical display (using the default values for parameters)
 #' @return The initiated ggplot object
+#' @param figsize Optional parameter giving the dimensions of the figure
 #' @note Use printDefault() to visualize them and setDefault() to modify them
 ggDefault <- function(figsize=NA)
 {
@@ -251,7 +252,7 @@ ggDefault <- function(figsize=NA)
 #' Draw the decoration of a figure (title, axis labels, ...)
 #'
 #' @param xlab Label along the horizontal axis
-#' @param ymab Label along the vertical axis
+#' @param ylab Label along the vertical axis
 #' @param title Title of the figure
 #' @return The ggplot object
 plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
@@ -275,6 +276,7 @@ plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
 #' @param xlim Bounds along the horizontal axis
 #' @param ylim Bounds along the vertical axis
 #' @param asp  Aspect Ratio Y/X ("0" for an automatic aspect ratio)
+#' @param expand Adding padding around data
 #' @return The ggplot object
 plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
 {
@@ -325,6 +327,7 @@ plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
 #' @param jvar Rank of the second variable to be represented in multivariate case (-1 for all variables
 #' @param vario An object of class Vario of gstlearn (optional)
 #' @param idir Rank of the direction
+#' @param ... Arguments passed to plot.varmod()
 #'
 #' @notes If 'vario' is defined, the calculation direction is given by the definition of direction 'idir' within 'vario' 
 #' @return The ggplot object
@@ -342,6 +345,7 @@ plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
 #' @param ivar Rank of the variable to be represented 
 #' @param jvar Rank of the second variable to be represented in multivariate case 
 #' @param idir Rank of the direction to be represented 
+#' @param ... Arguments passed to plot.varmod()
 #' @return The ggplot object
 plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 {
@@ -379,8 +383,16 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
   # Representing the Experimental variogram
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
-  			linetype=linetype, ...))
+  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg, linetype=linetype), 
+  			na.rm=TRUE, ...))
+  
+  # Constructing the Legend
+  if (show.legend)
+  {
+ 	legend.name = paste("Vario dir =", 
+ 		paste(round(vario$getCodirs(idir),3), collapse=' '))
+	p <- append(p, list(labs(linetype = legend.name)))
+  }
   
   # Representing the number of pairs (by size)
   if (draw_psize > 0)
@@ -397,7 +409,7 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   # Representing the number of pairs (by label)
   if (draw_plabel)
     p = append(p, geom_text(data = df, mapping=aes(x=hh, y=gg, 
-    		label=as.character(sw)), na.rm=TRUE, ...))
+    		   label=as.character(sw)), na.rm=TRUE, ...))
   
   # Adding the vertical axis at X=0
   p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
@@ -418,19 +430,13 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
     if (vario$drawOnlyPositiveY(ivar, jvar))
       p = append(p, plot.geometry(ylim = c(0, NA)))
   }
-  
-  # Constructing the lLegend
-  if (show.legend)
-  {
- 	legend.name = paste("Vario dir=", paste(vario$getCodirs(idir), collapse=' '))
-	p <- append(p, list(labs(line = legend.name)))
-  }
   p
 }
 
 #' Represent an elementary Model
 #' @noRd
 .modelElementary <- function(model, ivar=0, jvar=0, codir=NA,
+	linetype = "solid", 
     nh = 100, hmax = NA, asCov=FALSE, flag_envelop = TRUE, 
     env_color='black', env_linetype="dashed", env_size=0.5, show.legend=FALSE,
     ...)
@@ -475,7 +481,15 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   mode$setAsVario(! asCov)
   gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, ...))
+  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg, linetype=linetype), 
+             na.rm=TRUE, ...))
+  
+  # Constructing the legend
+  if (show.legend)
+  {
+ 	legend.name = paste("Model dir =", paste(round(codir,3), collapse=' '))
+	p <- append(p, list(labs(linetype = legend.name)))
+  }
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flag_envelop)
@@ -489,13 +503,6 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
     df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
     p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, 
             color = env_color, linetype = env_linetype, size=env_size))
-  }
-  
-  # Represent the legend
-  if (show.legend)
-  {
- 	legend.name = paste("Model dir=", paste(codir, collapse=' '))
-	p <- append(p, list(labs(line = legend.name)))
   }
   p
 }
@@ -522,13 +529,14 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
 #' @param env_color Color used for representing coregionalization envelop
 #' @param env_linetype Linetype used for representing coregionalization envelop
 #' @param env_size Size used for representing coregionalization envelop
-#' 0param draw_vario Flag for representing the experimental variogram (used when 'vario' is defined)
-#' @param show.legend Flag for displaying the lagend
+#' @param draw_vario Flag for representing the experimental variogram (used when 'vario' is defined)
+#' @param show.legend Flag for displaying the legend
+#' @param ... Arguments passed to varioElementary() and modelElementary()
 #' @return The ggplot object
 plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
     nh = 100, hmax = NA, draw_psize=-1, draw_plabel=FALSE, 
     asCov=FALSE, draw_variance = TRUE, flag_envelop=TRUE, 
-    vario_linetype = NULL, model_linetype = NULL,
+    vario_linetype = "dashed", model_linetype = "solid",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     env_color='black', env_linetype="dashed", env_size=0.5,
     draw_vario=TRUE, show.legend=FALSE, ...)
@@ -575,9 +583,9 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
         {
           dotloc = dots
           if (! has_color) dotloc$color=cols[idir+1]
-          if (! .isNotDef(vario_linetype)) dotloc$linetype = vario_linetype
           p = append(p, do.call(.varioElementary, c(list(vario=vario, 
                           ivar=ivar, jvar=jvar, idir=idir, 
+                          linetype = vario_linetype,
                           var_color=var_color, var_linetype=var_linetype, var_size=var_size,
                           draw_variance=draw_variance, draw_psize=draw_psize, 
                           draw_plabel=draw_plabel, 
@@ -590,9 +598,9 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
         {
           dotloc = dots
           if (! has_color) dotloc$color=cols[idir+1]
-          if (! .isNotDef(model_linetype)) dotloc$linetype = model_linetype
           if (! .isNotDef(vario) && ! has_codir) dotloc$codir = vario$getCodirs(idir) 
           p = append(p, do.call(.modelElementary, c(list(model, ivar, jvar,  
+                          linetype = model_linetype,
                           nh = nh, hmax = hmax, asCov=asCov, 
                           flag_envelop=flag_envelop,
                           env_color = env_color, env_linetype = env_linetype, 
@@ -625,11 +633,35 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
 }
 
 #' Arrange a set of figures for the multivariate representation
-#' Same arguments as in plot.varmod()
+#' 
+#' @param vario An object of the class Vario of gstlearn (optional)
+#' @param model An object of the class Model of gstlearn (optional)
+#' @param ivar Rank of the variable to be represented (-1 for all variables)
+#' @param jvar Rank of the second variable to be represented in multivariate case (-1 for all variables
+#' @param idir Rank of the direction to be represented (-1 for all directions)
+#' @param nh Number of distance lags (used if 'vario' is not defined)
+#' @param hmax Maximum distance (used if 'vario' is not defined)
+#' @param draw_psize Represent variogram lags with a symbol proportional to the number of pairs
+#' @param draw_plabel Represent variogram lags with the number of pairs displayed
+#' @param asCov Represent the variogram as a covariance
+#' @param draw_variance Represent statistical variance (or covariance)
+#' @param flag_envelop Represent the coregionalization envelop (multivariate case)
+#' @param vario_linetype Linetype for representing the experimental variogram
+#' @param model_linetype Linetype for representing the Model
+#' @param var_color Color for representing the variance (covariance)
+#' @param var_linetype Linetype used for representing variance (covariance)
+#' @param var_size Dimension used for representing variance (covariance)
+#' @param env_color Color used for representing coregionalization envelop
+#' @param env_linetype Linetype used for representing coregionalization envelop
+#' @param env_size Size used for representing coregionalization envelop
+#' @param draw_vario Flag for representing the experimental variogram (used when 'vario' is defined)
+#' @param show.legend Flag for displaying the legend
+#' @param ... Arguments passed to varioElementary() and modelElementary()
 #' @return The ggplot object
 multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 	nh = 100, hmax = NA, draw_psize=-1, draw_plabel=FALSE, 
     asCov=FALSE, draw_variance = TRUE, flag_envelop=TRUE, 
+    vario_linetype = "dashed", model_linetype = "solid",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     env_color='black', env_linetype="dashed", env_size=0.5,
     label=NULL, ...)
@@ -673,14 +705,13 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
         g = g + plot.varmod(vario=vario, model=model, ivar=ivar, jvar=jvar, idir=-1,
             nh = nh, hmax = hmax, draw_psize=draw_psize, draw_plabel=draw_plabel, 
             asCov=asCov, draw_variance = draw_variance, flag_envelop=flag_envelop, 
+            vario_linetype=vario_linetype, model_linetype=model_linetype,
             var_color=var_color, var_linetype=var_linetype, var_size=var_size, 
             env_color=env_color, env_linetype=env_linetype, env_size=env_size,
             label=label, ...)
       }
-      
       plot_lst[[index]] <- g
     } 
-  
   p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
   p
 }
@@ -788,7 +819,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
 #' Plotting a point data base where samples are displayed with a label
 #' @param db Data Base containing the information to be displayed
 #' @param name Name of the variable to be represented
-#' @param digits Number of decimal digits
+#' @param digit Number of decimal digits
 #' @param useSel Use of the optional selection
 #' @param posX Rank of the coordinate used as the first coordinate
 #' @param posY Rank of the coordinate used as the second coordinate
@@ -1364,6 +1395,7 @@ plot.mesh <- function(mesh, flagFace=FALSE, flagApex=FALSE, rankMeshMax= -1, ...
 #' @param node Rank of the target 
 #' @param flagCell Represent the target as the corresponding cell
 #' @param flagZoom Zoom to the extension of the neighborhood
+#' @param ... Arguments passed to plot.XY()
 #' @return The ggplot object
 plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 {
@@ -1420,7 +1452,8 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 #' @param color Color used for graphic representation
 #' @param flagOrtho Defines the long_axis of the anisotropy with respect to angle
 #' @param scale Size given to the arraws
-#' @return The ggplot object
+#' @param ... Arguments passed to geom_segment()
+#' @return The ggplot object to geom_segment()
 plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black', 
 	flagOrtho=TRUE, scale=40, ...)
 {
@@ -1444,7 +1477,7 @@ plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black',
   	p = ggplot(data = data, aes(x = x, y = y)) + 
  	   geom_point(size = 1) + 
  	   geom_segment(aes(xend = x + dx, yend = y + dy),
-                 arrow = arrow(length = unit(0.1, "cm")))
+                 arrow = arrow(length = unit(0.1, "cm")), ...)
     
 	p
 }
