@@ -54,7 +54,7 @@ public:
   virtual double getMeshSize(int imesh) const = 0;
 #ifndef SWIG
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
-  virtual cs* getMeshToDb(const Db *db, bool verbose = false) const = 0;
+  virtual cs* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const = 0;
 #endif
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }

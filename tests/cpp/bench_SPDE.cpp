@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   if (mode == 0 || mode == 2)
   {
     timer.reset();
-    (void) simulateSPDE(NULL, grid, model, nsim, NULL, 11, 18, 8, seed, 1.e-2,
+    (void) simulateSPDE(NULL, grid, model, nsim, NULL, 0, 11, 18, 8, seed, 1.e-2,
                         false, NamingConvention("Simu.NC"));
     timer.displayIntervalMilliseconds("Non-conditional simulations", 1350);
   }
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   if (mode == 0 || mode == 3)
   {
     timer.reset();
-    (void) simulateSPDE(dat, grid, model, nsim, NULL, 11, 18, 8, seed, 1.e-2,
+    (void) simulateSPDE(dat, grid, model, nsim, NULL, 0, 11, 18, 8, seed, 1.e-2,
                         false, NamingConvention("Simu.CD"));
     timer.displayIntervalMilliseconds("Conditional simulations", 3130);
   }

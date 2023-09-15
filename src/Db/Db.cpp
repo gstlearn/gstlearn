@@ -2547,6 +2547,21 @@ int Db::getSampleNumber(bool useSel) const
   }
 }
 
+/**
+ * Returns the number of samples active and whose Z-value(item) is defined
+ * @param item Rank of the Z-locator
+ * @return
+ */
+int Db::getNumberActiveAndDefined(int item) const
+{
+  int count = 0;
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    if (isActiveAndDefined(iech, item)) count++;
+  }
+  return count;
+}
+
 double Db::getWeight(int iech) const
 {
   if (!hasLocVariable(ELoc::W)) return 1.;

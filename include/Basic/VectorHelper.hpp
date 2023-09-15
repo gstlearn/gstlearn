@@ -179,6 +179,8 @@ public:
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
 
   static VectorDouble flatten(const VectorVectorDouble& vvd);
+
+  static VectorDouble suppressTest(const VectorDouble& vecin);
 };
 
 //typedef VectorHelper VH;
