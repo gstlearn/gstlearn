@@ -77,17 +77,6 @@ Cloning Matrix of integers
      [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
      [  6,]         .         .     2.190     0.291    -0.038         .     1.561
 
- Matrix MSD
-- Number of rows    = 7
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     2.165                                                            
-     [  1,]               2.165                                                  
-     [  2,]                         2.165                                        
-     [  3,]                                   2.165                              
-     [  4,]                                             2.165                    
-     [  5,]                                                       2.165          
-     [  6,]                                                                 2.165
  
  Adding a constant value to the diagonal of a matrix
  ===================================================

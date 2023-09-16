@@ -4,7 +4,7 @@ import os
 import gstlearn as gl
 
 
-def reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD):
+def reset_to_initial_contents(M, MRR, MSG, MSS, MSP):
   MRR.setValues(M.getValues())
   MSG.setValues(M.getValues())
   MSS.setValues(M.getValues())
@@ -75,19 +75,13 @@ MSP.display()
 # Creating a Diagonal matrix (from M)
 cst = gl.law_gaussian()
 
-MSD = gl.MatrixSquareDiagonal(nrow)
-for irow in range(nrow) :
-  MSD.setValue(irow,irow,cst)
-print("Matrix MSD")
-MSD.display()
-
 #
 # Adding a constant to the diagonal of a matrix
 #
 addendum = 1.432
 
 gl.mestitle(0,"Adding a constant value to the diagonal of a matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 MRR.addScalarDiag(addendum)
 MSG.addScalarDiag(addendum)
@@ -103,7 +97,7 @@ print("Are results for MRR and MSP similar: ",MRR.isSame(MSP))
 multiply = 3.2
 
 gl.mestitle(0,"Multiplying a Matrix by a constant")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 MRR.prodScalar(multiply)
 MSG.prodScalar(multiply)
@@ -119,7 +113,7 @@ print("Are results for MRR and MSP similar: ",MRR.isSame(MSP))
 #
 
 gl.mestitle(0,"Adding a constant value to the whole matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 MRR.addScalar(addendum)
 MSG.addScalar(addendum)
@@ -131,7 +125,7 @@ print("Are results for MRR and MSS similar: ",MRR.isSame(MSS))
  # Linear combination
  #
 gl.mestitle(0,"Linear combination of matrices")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 cx =  1.3
 cy = -0.3
@@ -149,7 +143,7 @@ print("Are results for MRR and MSP similar: ",MRR.isSame(MSP))
 # All the tests are not performed on all the matrix types
 #
 gl.mestitle(0,"Extracting Vectors from Matrix")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 print("MRR and MSP matrices are used as Reference")
 MRR.display()
@@ -179,7 +173,7 @@ print("Are results for MRR and MSP similar: ",gl.VH.isSame(Vref,V1))
 #
 
 gl.mestitle(0,"Product of the matrix by a vector")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 Vref = gl.VectorDouble(np.zeros(nrow))
 V2 = gl.VectorDouble(np.zeros(nrow))
@@ -196,7 +190,7 @@ print("Are results for MRR and MSP similar: ",gl.VH.isSame(np.array(Vref.getVect
 #
 
 gl.mestitle(0,"Matrix Linear Solver")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 V3 = gl.VectorDouble(np.zeros(nrow))
 print("Solve X from A*X=B. Compute A*X and compare with B")
 
@@ -212,7 +206,7 @@ print("Are results correct for MSP: ",gl.VH.isSame(V1,np.array(V3.getVector())))
 #
 
 gl.mestitle(0,"Matrix Inversion")
-reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 print("Calculate B=A^{-1}. Compute A*B and compare to Identity")
 
 MSGref = MSG.clone() # Used to perform A*A-1 and check Identity

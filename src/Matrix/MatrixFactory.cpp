@@ -13,7 +13,6 @@
 #include "Matrix/MatrixFactory.hpp"
 
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -47,9 +46,7 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
   }
 
   /// TODO : use typeinfo
-  const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
   const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-  const MatrixSquareDiagonal*    mysd  = dynamic_cast<const MatrixSquareDiagonal*>(y);
   const MatrixSquareSymmetric*   mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
   AMatrix* res = nullptr;
@@ -58,12 +55,7 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
   {
     // Case of a resulting Square matrix
 
-    if (mxsd != nullptr && mysd != nullptr)
-    {
-      res = new MatrixSquareDiagonal();
-    }
-    else if ((mxsd != nullptr || mxsym != nullptr)
-          && (mysd != nullptr || mysym != nullptr))
+    if (mxsym != nullptr || mysym != nullptr)
     {
       res = new MatrixSquareSymmetric();
     }
@@ -100,19 +92,12 @@ AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare *x, const AMatrix *y)
     my_throw("Incompatible dimensions when making norm product of two matrices");
   }
 
-  const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
   const MatrixSquareSymmetric*     mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-  const MatrixSquareDiagonal*    mysd  = dynamic_cast<const MatrixSquareDiagonal*>(y);
   const MatrixSquareSymmetric*     mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
   AMatrixSquare* res = nullptr;
 
-  if (mxsd != nullptr && mysd != nullptr)
-  {
-    res = new MatrixSquareDiagonal();
-  }
-  else if ((mxsd != nullptr || mxsym != nullptr)
-      && (mysd != nullptr || mysym != nullptr))
+  if (mxsym != nullptr && mysym != nullptr)
   {
     res = new MatrixSquareSymmetric();
   }
@@ -126,14 +111,6 @@ AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare *x, const AMatrix *y)
 
   return res;
 
-}
-
-AMatrix* MatrixFactory::createIdentity(int nrow, bool sparse)
-{
-  if (!sparse)
-    return new MatrixSquareDiagonal(nrow);
-  else
-    return new MatrixSparse(nrow);
 }
 
 /****************************************************************************/
@@ -151,17 +128,12 @@ AMatrixSquare* MatrixFactory::createMatrixSquare(const AMatrixSquare *x,
 {
   /// TODO : use typeinfo
   const MatrixSquareGeneral*     mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
-  const MatrixSquareDiagonal*    mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
   const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
 
   AMatrixSquare* res = nullptr;
   if (mxsg != nullptr)
   {
     res = new MatrixSquareGeneral(nrow);
-  }
-  else if (mxsd != nullptr)
-  {
-    res = new MatrixSquareDiagonal(nrow);
   }
   else if (mxsym != nullptr)
   {
@@ -195,7 +167,6 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   AMatrix* res = nullptr;
   const MatrixRectangular*        mxrg  = dynamic_cast<const MatrixRectangular*>(x);
   const MatrixSquareGeneral*      mxsg  = dynamic_cast<const MatrixSquareGeneral*>(x);
-  const MatrixSquareDiagonal*     mxsd  = dynamic_cast<const MatrixSquareDiagonal*>(x);
   const MatrixSquareSymmetric*    mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
 
   if (mxrg != nullptr)
@@ -206,13 +177,6 @@ AMatrix* MatrixFactory::createReduce(const AMatrix *x,
   {
     if (flagSame)
       res = new MatrixSquareGeneral(newNRows);
-    else
-      res = new MatrixRectangular(newNRows, newNCols);
-  }
-  else if (mxsd != nullptr)
-  {
-    if (flagSame)
-      res = new MatrixSquareDiagonal(newNRows);
     else
       res = new MatrixRectangular(newNRows, newNCols);
   }

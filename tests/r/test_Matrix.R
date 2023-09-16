@@ -9,7 +9,7 @@ set.seed(32421)
 
 print("Testing Matrix")
 
-reset_to_initial_contents <- function(M, MRR, MSG, MSS, MSP, MSD){
+reset_to_initial_contents <- function(M, MRR, MSG, MSS, MSP){
   MRR$setValues(M$getValues())
   MSG$setValues(M$getValues())
   MSS$setValues(M$getValues())
@@ -86,20 +86,13 @@ err = MSP$display()
 # Creating a Diagonal matrix (from M)
 cst = rnorm(n = 1, mean = 0, sd = 1.0)
 
-MSD = MatrixSquareDiagonal(nrow)
-for (irow in 1:nrow) {
-  err = MSD$setValue(irow-1,irow-1,cst)
-  }
-print("Matrix MSD")
-err = MSD$display()
-
 #
 # Adding a constant to the diagonal of a matrix
 #
 addendum = 1.432
 
 err = mestitle(0,"Adding a constant value to the diagonal of a matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 err = MRR$addScalarDiag(addendum)
 err = MSG$addScalarDiag(addendum)
@@ -115,7 +108,7 @@ print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
 multiply = 3.2
 
 err = mestitle(0,"Multiplying a Matrix by a constant")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 err = MRR$prodScalar(multiply)
 err = MSG$prodScalar(multiply)
@@ -130,7 +123,7 @@ print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
 # Note: This does not make sense for sparse or diagonal matrices
 #
 err = mestitle(0,"Adding a constant value to the whole matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 err = MRR$addScalar(addendum)
 err = MSG$addScalar(addendum)
@@ -142,7 +135,7 @@ print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
 # Linear combination
 #
 err = mestitle(0,"Linear combination of matrices")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 cx =  1.3
 cy = -0.3
@@ -160,7 +153,7 @@ print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
 # All the tests are not performed on all the matrix types
 #
 err = mestitle(0,"Extracting Vectors from Matrix")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 print("MRR and MSP matrices are used as Reference")
 err  = MRR$display()
@@ -199,7 +192,7 @@ print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref,
 # Product of the matrix by a vector
 #
 err = mestitle(0,"Product of the matrix by a vector")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 # initialisation
 print(paste0("nrow = ", nrow))
@@ -218,7 +211,7 @@ print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref,
 #
 
 err = mestitle(0,"Matrix Linear Solver")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 V3 = VectorDouble(rep(0.0, nrow))
 print(paste0("Solve X from A*X=B. Compute A*X and compare with B"))
 
@@ -230,16 +223,12 @@ err = MSP$solve(b = V1, x = V2)
 err = MSP$prodVector(V2, V3)
 print(paste0("Are results correct for MSP: ", VectorHelper_isSame(V1, V3)))
 
-err = MSD$solve(b = V1, x = V2)
-err = MSD$prodVector(V2, V3)
-print(paste0("Are results correct for MSD: ", VectorHelper_isSame(V1, V3)))
-
 #
 # Inversion
 #
 
 err = mestitle(0,"Matrix Inversion")
-err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD)
+err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 print(paste0("Calculate B=A^{-1}. Compute A*B and compare to Identity"))
 
 MSGref = MSG$clone() # Used to perform A*A-1 and check Identity
@@ -256,11 +245,4 @@ err = MSP$invert()
 Res = prodMatrix(MSP, MSGref)
 print(paste0("Are results correct for MSP: ", Res$isIdentity()))
 
-MSDref = MSD$clone() # Used to perform A*A-1 and check Identity
-
-err = MSD$invert()
-Res = prodMatrix(MSD, MSDref)
-print(paste0("Are results correct for MSD: ", Res$isIdentity()))
-
 print(paste0("Test successfully performed"))
-

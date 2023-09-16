@@ -78,17 +78,6 @@
      [  5,]     2.381    -1.055    -2.320     0.034     2.636     4.662     0.149
      [  6,]     1.654     1.183    -0.877     0.374     0.268     0.149     1.425
 
-[1] "Matrix MSD"
-- Number of rows    = 7
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]    -0.363                                                            
-     [  1,]              -0.363                                                  
-     [  2,]                        -0.363                                        
-     [  3,]                                  -0.363                              
-     [  4,]                                            -0.363                    
-     [  5,]                                                      -0.363          
-     [  6,]                                                                -0.363
 
 Adding a constant value to the diagonal of a matrix
 ===================================================
@@ -155,7 +144,6 @@ Matrix Linear Solver
 [1] "Solve X from A*X=B. Compute A*X and compare with B"
 [1] "Are results correct for MSS: TRUE"
 [1] "Are results correct for MSP: TRUE"
-[1] "Are results correct for MSD: TRUE"
 
 Matrix Inversion
 ================
@@ -163,5 +151,4 @@ Matrix Inversion
 [1] "Are results correct for MSG: TRUE"
 [1] "Are results correct for MSS: TRUE"
 [1] "Are results correct for MSP: TRUE"
-[1] "Are results correct for MSD: TRUE"
 [1] "Test successfully performed"

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
-#include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorNumT.hpp"

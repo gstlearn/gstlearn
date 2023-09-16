@@ -147,7 +147,6 @@
 %shared_ptr(MatrixInt)
 %shared_ptr(MatrixRectangular)
 %shared_ptr(MatrixSparse)
-%shared_ptr(MatrixSquareDiagonal)
 %shared_ptr(MatrixSquareGeneral)
 %shared_ptr(MatrixSquareSymmetric)
 %shared_ptr(MeshEStandard)
@@ -441,7 +440,6 @@
   #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/MatrixRectangular.hpp"
-  #include "Matrix/MatrixSquareDiagonal.hpp"
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixInt.hpp"

@@ -14,6 +14,7 @@ Release 0.3.4
 - New test (cpp) for benchmarking SPDE features
 - Allow processing target variable with NA in SPDE API functions
 - Suppress class MatrixSquareDiagonalCst
+- Suppress class MatrixSquareDiagonal
 
 Release 0.3.3
 =============

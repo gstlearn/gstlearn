@@ -265,7 +265,6 @@
 %include Matrix/MatrixRectangular.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
-%include Matrix/MatrixSquareDiagonal.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
 
