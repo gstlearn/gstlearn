@@ -15,7 +15,6 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareDiagonal.hpp"
-#include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorHelper.hpp"

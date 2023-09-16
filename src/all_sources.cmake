@@ -16,7 +16,6 @@ set(SRC
   Matrix/MatrixRectangular.cpp
   Matrix/MatrixSquareSymmetric.cpp
   Matrix/MatrixFactory.cpp
-  Matrix/MatrixSquareDiagonalCst.cpp
   Matrix/MatrixSquareDiagonal.cpp
   Matrix/MatrixSquareGeneral.cpp
   Matrix/Table.cpp

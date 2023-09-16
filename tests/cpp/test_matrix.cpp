@@ -14,7 +14,6 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareDiagonal.hpp"
-#include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
@@ -23,21 +22,16 @@
 #include "Basic/File.hpp"
 
 void reset_to_initial_contents(AMatrix* M,
-                               MatrixSquareDiagonalCst& D,
                                MatrixRectangular& MRR,
                                MatrixSquareGeneral& MSG,
                                MatrixSquareSymmetric& MSS,
                                MatrixSparse* MSP,
-                               MatrixSquareDiagonal& MSD,
-                               MatrixSquareDiagonalCst& MSC)
+                               MatrixSquareDiagonal& MSD)
 {
   MRR.setValues (M->getValues());
   MSG.setValues (M->getValues());
   MSS.setValues (M->getValues());
   MSP->setValues(M->getValues());
-
-  MSD.setValues(D.getValues());
-  MSC.setValues(D.getValues());
 }
 
 /****************************************************************************/
@@ -161,21 +155,13 @@ int main(int argc, char *argv[])
   message("Matrix MSD\n");
   MSD.display();
 
-  // Creating a Constant Diagonal Matrix
-
-  MatrixSquareDiagonalCst MSC, D;
-  D.reset(nrow,ncol,cst);
-  MSC.reset(nrow,ncol,cst);
-  message("Matrix MSC\n");
-  MSC.display();
-
   /**
    * Adding a constant to the diagonal of a matrix
    */
   double addendum = 1.432;
 
   mestitle(0,"Adding a constant value to the diagonal of a matrix");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
 
   MRR.addScalarDiag(addendum);
   MSG.addScalarDiag(addendum);
@@ -185,17 +171,13 @@ int main(int argc, char *argv[])
   MSP->addScalarDiag(addendum);
   message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
-  MSD.addScalarDiag(addendum);
-  MSC.addScalarDiag(addendum);
-  message("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
-
   /**
    * Multiplying the matrix by a constant
    */
   double multiply = 3.2;
 
   mestitle(0,"Multiplying a Matrix by a constant");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
 
   MRR.prodScalar(multiply);
   MSG.prodScalar(multiply);
@@ -205,17 +187,13 @@ int main(int argc, char *argv[])
   MSP->prodScalar(multiply);
   message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
-  MSD.prodScalar(multiply);
-  MSC.prodScalar(multiply);
-  message("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
-
   /**
    * Adding a constant to a matrix
    * Note: This does not make sense for sparse or diagonal matrices
    */
 
   mestitle(0,"Adding a constant value to the whole matrix");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
 
   MRR.addScalar(addendum);
   MSG.addScalar(addendum);
@@ -227,7 +205,7 @@ int main(int argc, char *argv[])
     * Linear combination
     */
   mestitle(0,"Linear combination of matrices");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
 
   double cx =  1.3;
   double cy = -0.3;
@@ -240,16 +218,12 @@ int main(int argc, char *argv[])
   MSP->linearCombination(cx,cy,*MSP);
   message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
-  MSD.linearCombination(cx,cy,MSD);
-  MSC.linearCombination(cx,cy,MSC);
-  message("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
-
   /**
    * Extraction of a Vector
    * All the tests are not performed on all the matrix types
    */
   mestitle(0,"Extracting Vectors from Matrix");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
 
   message("MRR and MSP matrices are used as Reference\n");
   MRR.display();
@@ -279,7 +253,7 @@ int main(int argc, char *argv[])
    */
 
   mestitle(0,"Product of the matrix by a vector");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
 
   Vref.resize(nrow,0.);
   MRR.prodVector(V1, Vref);
@@ -290,16 +264,12 @@ int main(int argc, char *argv[])
   MSP->prodVector(V1, V2);
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V2));
 
-  MSD.prodVector(V1, Vref);
-  MSC.prodVector(V1, V2);
-  message("Are results for MSD and MSC similar: %d\n",VH::isSame(Vref,V2));
-
   /**
    * Linear solver
    */
 
   mestitle(0,"Matrix Linear Solver");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
   V3.resize(nrow,0.);
   message("Solve X from A*X=B. Compute A*X and compare with B\n");
 
@@ -310,19 +280,12 @@ int main(int argc, char *argv[])
   MSP->prodVector(V2, V3);
   message("Are results correct for MSP: %d\n",VH::isSame(V1,V3));
 
-  MSD.solve(V1, V2);
-  MSD.prodVector(V2, V3);
-  message("Are results correct for MSD: %d\n",VH::isSame(V1,V3));
-  MSC.solve(V1, V2);
-  MSC.prodVector(V2, V3);
-  message("Are results correct for MSC: %d\n",VH::isSame(V1,V3));
-
   /**
    * Inversion
    */
 
   mestitle(0,"Matrix Inversion");
-  reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
+  reset_to_initial_contents(M, MRR, MSG, MSS, MSP, MSD);
   message("Calculate B=A^{-1}. Compute A*B and compare to Identity\n");
 
   AMatrix* Res;
@@ -348,11 +311,6 @@ int main(int argc, char *argv[])
   MSD.invert();
   Res = prodMatrix(&MSD, &MSDref);
   message("Are results correct for MSD: %d\n",Res->isIdentity());
-  delete Res;
-
-  MSC.invert();
-  Res = prodMatrix(&MSC, &MSDref);
-  message("Are results correct for MSC: %d\n",Res->isIdentity());
   delete Res;
 
   // Free the pointers

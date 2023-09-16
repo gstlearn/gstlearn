@@ -583,9 +583,6 @@ void exit_f(void)
 %extend MatrixSquareDiagonal {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend MatrixSquareDiagonalCst {
-  std::string __repr__() {  return $self->toString(); }
-}
 %extend MatrixSquareGeneral {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -1028,7 +1025,6 @@ def matrix_toTL(self):
 
 setattr(gl.MatrixRectangular, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareDiagonal, "toTL", matrix_toTL)
-setattr(gl.MatrixSquareDiagonalCst, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 setattr(gl.MatrixSparse, "toTL", matrix_toTL)
