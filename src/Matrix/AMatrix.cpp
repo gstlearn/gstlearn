@@ -1081,11 +1081,6 @@ void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
       setValue(irow, icol, X[irow][icol]);
 }
 
-AMatrix* createIdentity(int nrow, bool sparse)
-{
-  return MatrixFactory::createIdentity(nrow, sparse);
-}
-
 AMatrix* transpose(const AMatrix* mat)
 {
   return mat->transpose();

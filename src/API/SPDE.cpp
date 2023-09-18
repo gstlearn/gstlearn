@@ -78,6 +78,7 @@ SPDE::SPDE(Model* model,
       _requireCoeffs(false),
       _isCoeffsComputed(false),
       _deleteMesh(false),
+      _useCholesky(true),
       _nIterMax(1000),
       _eps(EPSILON8),
       _epsNugget(1.e-2)
@@ -136,12 +137,48 @@ SPDE* SPDE::create(Model *model,
   return new SPDE(model, domain, data, calcul, meshUser, verbose);
 }
 
-bool SPDE::_useCholesky() const
+/**
+ * Define if Cholesky must be used or not
+ * @param useCholesky: 1 for YES; -1 for No; 0: set optimal default
+ * @param verbose: Verbose flag
+ */
+void SPDE::setUseCholesky(int useCholesky, bool verbose)
 {
-  if (_model->getDimensionNumber() == 2)
-    return true;
+  if (useCholesky == 0)
+  {
+    if (_model->getDimensionNumber() == 2)
+      _useCholesky = true;
+    else
+      _useCholesky = false;
+  }
+  else if (useCholesky == 1)
+  {
+    _useCholesky = true;
+  }
   else
-    return false;
+  {
+    _useCholesky = false;
+  }
+
+  // Optional printout
+  if (verbose)
+  {
+    mestitle(1, "SPDE parameters");
+    message("Choice for the Cholesky option = %d\n", _useCholesky);
+    message("- Space dimension = %d\n", _model->getDimensionNumber());
+    if (! _meshingKrig.empty())
+    {
+      for (int imesh = 0; imesh < (int) _meshingKrig.size(); imesh++)
+        message("- Number of meshes (Kriging #%d) = %d\n",
+                imesh+1, _meshingKrig[imesh]->getNMeshes());
+    }
+    if (! _meshingSimu.empty())
+    {
+      for (int imesh = 0; imesh < (int) _meshingSimu.size(); imesh++)
+        message("- Number of meshes (Kriging #%d) = %d\n",
+                imesh+1, _meshingSimu[imesh]->getNMeshes());
+    }
+  }
 }
 
 int SPDE::_init(Model *model,
@@ -205,13 +242,13 @@ int SPDE::_init(Model *model,
           _deleteMesh = true;
         }
 
-        if (_useCholesky())
+        if (_isUseCholesky())
           precision = new PrecisionOpCs(mesh, model, icov, verbose);
         else
           precision = new PrecisionOp(mesh, model, icov, verbose);
         _pilePrecisions.push_back(precision);
 
-        proj = new ProjMatrix(_data, mesh, verbose);
+        proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
         _meshingSimu.push_back(mesh);
@@ -231,13 +268,13 @@ int SPDE::_init(Model *model,
         }
         _meshingKrig.push_back(mesh);
 
-        if (_useCholesky())
+        if (_isUseCholesky())
           precision = new PrecisionOpCs(mesh, model, icov);
         else
           precision = new PrecisionOp(mesh, model, icov);
         _pilePrecisions.push_back(precision);
 
-        proj = new ProjMatrix(_data,mesh);
+        proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
         _precisionsKrig->setNIterMax(_nIterMax);
@@ -254,22 +291,34 @@ int SPDE::_init(Model *model,
   }
 
   // Evaluation of the variance at data point
-  // (nugget + measurement error or minimum proportion of total sill)
   if (_performKriging())
   {
     if (_data->getLocNumber(ELoc::V) > 0)
     {
-      varianceData = _data->getColumnByLocator(ELoc::V,0,useSel);
+      // If a variance of measurement error is defined
+      // we must intersect it with the definition of the Z-value
+      VectorDouble valData = _data->getColumnByLocator(ELoc::Z,0,useSel);
+      VectorDouble varData = _data->getColumnByLocator(ELoc::V,0,useSel);
+      double eps_loc = _epsNugget * totalSill;
       for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
       {
-        double *temp_dat = &varianceData[iech];
-        *temp_dat = MAX(*temp_dat + _nugget, _epsNugget * totalSill);
+        if (FFFF(valData[iech])) continue;
+        {
+          double loc_value;
+          if (FFFF(varData[iech]))
+            loc_value = eps_loc;
+          else
+          {
+            loc_value = MAX(varData[iech], eps_loc);
+          }
+          varianceData.push_back(loc_value);
+        }
       }
     }
     else
     {
       VH::fill(varianceData, MAX(_nugget, _epsNugget * totalSill),
-               _data->getSampleNumber(true));
+               _data->getNumberActiveAndDefined(0));
     }
     _precisionsKrig->setVarianceDataVector(varianceData);
 
@@ -388,6 +437,8 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
   if (_data != nullptr)
   {
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
+    // Suppress any TEST value
+    dataVect = VH::suppressTest(dataVect);
     _centerByDrift(dataVect,ivar,useSel);
   }
 
@@ -527,7 +578,7 @@ double SPDE::computeLogLike(int nbsimu, int seed) const
   {
     _computeDriftCoeffs();
   }
-  return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad()) ;
+  return - 0.5 * (computeLogDet(nbsimu,seed) + computeQuad());
 }
 
 double SPDE::computeProfiledLogLike(int nbsimu, int seed) const
@@ -573,6 +624,7 @@ VectorDouble SPDE::getCoeffs()
  * @param flag_std True for the standard deviation of estimation error
  * @param flag_varz True for the variance of the estimator
  * @param mesh Mesh description (optional)
+ * @param useCholesky Define the choice regarding Cholesky
  * @param refineK Refinement factor for building internal meshing for Kriging
  * @param border Number of nodes used for extending the internal grid
  * @param epsNugget Value for the relaxing nugget effect
@@ -593,6 +645,7 @@ int krigingSPDE(Db *dbin,
                 bool flag_std,
                 bool flag_varz,
                 const AMesh *mesh,
+                int useCholesky,
                 int refineK,
                 int border,
                 double epsNugget,
@@ -608,6 +661,7 @@ int krigingSPDE(Db *dbin,
   spde.setRefineK(refineK);
   spde.setBorder(border);
   spde.setEpsNugget(epsNugget);
+  spde.setUseCholesky(useCholesky, verbose);
 
   return spde.compute(dbout, 0, 0, namconv);
 }
@@ -620,6 +674,7 @@ int krigingSPDE(Db *dbin,
  * @param model Model definition
  * @param nbsimu Number of simulations
  * @param mesh Mesh description (optional)
+ * @param useCholesky Define the choice regarding Cholesky
  * @param refineK Refinement factor for building internal meshing for Kriging
  * @param refineS Refinement factor for building internal meshing for Simulations
  * @param border Number of nodes used for extending the internal grid
@@ -635,18 +690,19 @@ int krigingSPDE(Db *dbin,
  * @remarks This internal grid is rotated according to the rotation of the structure. Its mesh size
  * @remarks is derived from the range (per direction) by dividing it by the refinement factor.
  */
-GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
-                                 Db *dbout,
-                                 Model *model,
-                                 int nbsimu,
-                                 const AMesh *mesh,
-                                 int refineK,
-                                 int refineS,
-                                 int border,
-                                 int seed,
-                                 double epsNugget,
-                                 bool verbose,
-                                 const NamingConvention &namconv)
+int simulateSPDE(Db *dbin,
+                 Db *dbout,
+                 Model *model,
+                 int nbsimu,
+                 const AMesh *mesh,
+                 int useCholesky,
+                 int refineK,
+                 int refineS,
+                 int border,
+                 int seed,
+                 double epsNugget,
+                 bool verbose,
+                 const NamingConvention &namconv)
 {
   const ESPDECalcMode mode = (dbin == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
   SPDE spde(model, dbout, dbin, mode, mesh, verbose);
@@ -654,6 +710,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
   spde.setRefineS(refineS);
   spde.setBorder(border);
   spde.setEpsNugget(epsNugget);
+  spde.setUseCholesky(useCholesky, verbose);
 
   return spde.compute(dbout, nbsimu, seed, namconv);
 }

@@ -1,0 +1,18 @@
+This note is meant to memorize the workflow that can be run manually
+to check the quality of the documentation in add-ons written in R
+with documentation written with Roxygen syntax (such as plot.R)
+
+We notice that the r_install command is creating internally an R package
+(in build/r/Release/gstlearn directory) that can be considered as a tentative R package.
+In praticular this directory contains the recommanded sub-directories
+(R, src) and the recommanded files (DESCRIPTION and NAMESPACE).
+
+1) We must clean this pseudo package from the undesirable files: these are the files 
+   rgstlearn_wrap.cxx, gstlearn.R and zzz.R contained in subdirectory R
+   
+2) In the top directory (build/r/Release/gstlearn), we can open R session
+   and simply type:
+   
+   		devtools::check_man(".")
+   		
+This lists all the problems encountered in the Roxygen documentation of the pseudo-package.

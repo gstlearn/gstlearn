@@ -77,42 +77,18 @@ Cloning Matrix of integers
      [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
      [  6,]         .         .     2.190     0.291    -0.038         .     1.561
 
- Matrix MSD
-- Number of rows    = 7
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     2.165                                                            
-     [  1,]               2.165                                                  
-     [  2,]                         2.165                                        
-     [  3,]                                   2.165                              
-     [  4,]                                             2.165                    
-     [  5,]                                                       2.165          
-     [  6,]                                                                 2.165
- Matrix MSC
-- Number of rows    = 7
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     2.165                                                            
-     [  1,]               2.165                                                  
-     [  2,]                         2.165                                        
-     [  3,]                                   2.165                              
-     [  4,]                                             2.165                    
-     [  5,]                                                       2.165          
-     [  6,]                                                                 2.165
  
  Adding a constant value to the diagonal of a matrix
  ===================================================
  Are results for MRR and MSG similar:  True
 Are results for MRR and MSS similar:  True
 Are results for MRR and MSP similar:  True
-Are results for MSD and MSC similar:  True
 
  Multiplying a Matrix by a constant
  ==================================
  Are results for MRR and MSG similar:  True
 Are results for MRR and MSS similar:  True
 Are results for MRR and MSP similar:  True
-Are results for MSD and MSC similar:  True
 
  Adding a constant value to the whole matrix
  ===========================================
@@ -124,7 +100,6 @@ Are results for MRR and MSS similar:  True
  Are results for MRR and MSG similar:  True
 Are results for MRR and MSS similar:  True
 Are results for MRR and MSP similar:  True
-Are results for MSD and MSC similar:  True
 
  Extracting Vectors from Matrix
  ==============================
@@ -163,22 +138,17 @@ Fourth Column
  Are results for MRR and MSG similar:  True
 Are results for MRR and MSS similar:  True
 Are results for MRR and MSP similar:  True
-Are results for MSD and MSC similar:  True
 
  Matrix Linear Solver
  ====================
  Solve X from A*X=B. Compute A*X and compare with B
 Are results correct for MSS:  True
 Are results correct for MSP:  True
-Are results correct for MSD:  True
-Are results correct for MSC:  True
 
  Matrix Inversion
  ================
  Calculate B=A^{-1}. Compute A*B and compare to Identity
-Are results correct for MSG:  False
-Are results correct for MSS:  False
-Are results correct for MSP:  False
-Are results correct for MSD:  False
-Are results correct for MSC:  False
+Are results correct for MSG:  True
+Are results correct for MSS:  True
+Are results correct for MSP:  True
 Test successfully performed

@@ -497,10 +497,14 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
+** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
 ** \param[in]  verbose   Verbose flag
 **
+** \remarks If rankZ>=0, a sample is only considered if the value
+** \remarks of the corresponding variable is defined
+**
 *****************************************************************************/
-cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
+cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   cs* Atriplet = nullptr;
   cs* A        = nullptr;
@@ -525,9 +529,16 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
 
   int iech = 0;
   int nout = 0;
+  int nvalid = 0;
   for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
+    if (rankZ >= 0)
+    {
+      double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
+      if (FFFF(testval)) continue;
+    }
+    nvalid++;
 
     /* Identification */
 
@@ -579,7 +590,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
 
   /* Add the extreme value to force dimension */
 
-  cs_force_dimension(Atriplet, db->getSampleNumber(true), getNApices());
+  cs_force_dimension(Atriplet, nvalid, getNApices());
 
   /* Convert the triplet into a sparse matrix */
 

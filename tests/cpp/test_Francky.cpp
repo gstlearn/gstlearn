@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
   model->addNoStat(&NoStat);
 
   // Simulating variable at data location (using SPDE)
-  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, 11, 18, 8, 13256, 1.e-2, false,
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, 0, 11, 18, 8, 13256, 1.e-2, false,
                       NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 

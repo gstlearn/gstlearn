@@ -1636,3 +1636,13 @@ VectorDouble VectorHelper::flatten(const VectorVectorDouble& vvd)
 
   return vd;
 }
+
+VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
+{
+  VectorDouble vecout;
+  for (int i = 0, n = vecin.size(); i < n; i++)
+  {
+    if (! FFFF(vecin[i])) vecout.push_back(vecin[i]);
+  }
+  return vecout;
+}

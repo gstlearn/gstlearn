@@ -25,7 +25,7 @@ class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public AStringable
 {
 public:
   ProjMatrix();
-  ProjMatrix(const Db* db, const AMesh *a_mesh, int verbose = 0);
+  ProjMatrix(const Db* db, const AMesh *a_mesh, int rankZ = -1, bool verbose = false);
 #ifndef SWIG
   ProjMatrix(int npoint, int napices, const cs *aproj);
 #endif
@@ -35,8 +35,14 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static ProjMatrix* create(const Db* db, const AMesh *a_mesh, int verbose = 0);
-  int resetFromDb(const Db* db, const AMesh *a_mesh, int verbose = 0);
+  static ProjMatrix* create(const Db *db,
+                            const AMesh *a_mesh,
+                            int rankZ = -1,
+                            bool verbose = false);
+  int resetFromDb(const Db *db,
+                  const AMesh *a_mesh,
+                  int rankZ = -1,
+                  bool verbose = false);
 #ifndef SWIG
   int resetFromPoints(int npoint, int napices, const cs *aproj);
 #endif
@@ -44,7 +50,7 @@ public:
                          AMesh *amesh,
                          double radius,
                          int flag_exact = 0,
-                         int verbose = 0);
+                         bool verbose = false);
   int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
   int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
   int getApexNumber() const override { return _nApices; }

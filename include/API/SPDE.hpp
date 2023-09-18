@@ -76,10 +76,11 @@ public:
   const AMesh* getSimuMeshing(int i = 0) const { return _meshingSimu[i]; }
   const Db* getData() const {return  _data;}
 
-  void setRefineK(int refineK)        { _refineK = refineK; }
-  void setRefineS(int refineS)        { _refineS = refineS; }
-  void setBorder(int border)          { _border = border; }
-  void setEpsNugget(double epsNugget) { _epsNugget = epsNugget; }
+  void setRefineK(int refineK)          { _refineK = refineK; }
+  void setRefineS(int refineS)          { _refineS = refineS; }
+  void setBorder(int border)            { _border = border; }
+  void setEpsNugget(double epsNugget)   { _epsNugget = epsNugget; }
+  void setUseCholesky(int useCholesky, bool verbose=false);
 
 private:
   int _init(Model *model,
@@ -99,7 +100,7 @@ private:
   void _computeSimuCond() const;
   void _addNuggetOnResult(VectorDouble &result);
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
-  bool _useCholesky() const;
+  bool _isUseCholesky() const { return _useCholesky; }
 
 private:
   const Db*_data;
@@ -126,6 +127,7 @@ private:
   bool _requireCoeffs;
   mutable bool _isCoeffsComputed;
   bool _deleteMesh;
+  bool _useCholesky;
 
   // Parameters specific invertion using Conjugate Gradient (used for Kriging)
   int _nIterMax;
@@ -140,6 +142,7 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 bool flag_std = false,
                                 bool flag_varz = false,
                                 const AMesh* mesh = nullptr,
+                                int useCholesky = 0,
                                 int refineK = 11,
                                 int border = 8,
                                 double epsNugget = 1.e-2,
@@ -150,6 +153,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  Model *model,
                                  int nbsimu = 1,
                                  const AMesh *mesh = nullptr,
+                                 int useCholesky = 0,
                                  int refineK = 11,
                                  int refineS = 18,
                                  int border = 8,

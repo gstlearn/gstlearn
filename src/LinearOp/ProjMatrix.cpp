@@ -27,13 +27,13 @@ ProjMatrix::ProjMatrix()
 {
 }
 
-ProjMatrix::ProjMatrix(const Db *db, const AMesh *a_mesh, int verbose)
+ProjMatrix::ProjMatrix(const Db *db, const AMesh *a_mesh, int rankZ, bool verbose)
   : AStringable()
   , _nPoint(0)
   , _nApices(0)
   , _Aproj(nullptr)
 {
-  if (resetFromDb(db,a_mesh,verbose))
+  if (resetFromDb(db,a_mesh,rankZ, verbose))
   {
     messerr("Problem in Constructor of ProjMatrix");
     return;
@@ -82,18 +82,18 @@ ProjMatrix::~ProjMatrix()
   _Aproj = cs_spfree(_Aproj);
 }
 
-ProjMatrix* ProjMatrix::create(const Db* db, const AMesh *a_mesh, int verbose)
+ProjMatrix* ProjMatrix::create(const Db* db, const AMesh *a_mesh, int rankZ, bool verbose)
 {
-  return new ProjMatrix(db,a_mesh,verbose);
+  return new ProjMatrix(db,a_mesh,rankZ, verbose);
 }
 
-int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int verbose)
+int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int rankZ, bool verbose)
 {
   if (db != nullptr)
   {
-    _Aproj = a_mesh->getMeshToDb(db,verbose);
+    _Aproj = a_mesh->getMeshToDb(db, rankZ, verbose);
     if (_Aproj == nullptr) return 1;
-    _nPoint = db->getSampleNumber(true);
+    _nPoint = cs_getnrow(_Aproj);
     _nApices = a_mesh->getNApices();
   }
   else
@@ -139,7 +139,7 @@ int ProjMatrix::resetFromDbByNeigh(const Db *db,
                                    AMesh *amesh,
                                    double radius,
                                    int flag_exact,
-                                   int verbose)
+                                   bool verbose)
 {
   int nactive;
   int *ranks;

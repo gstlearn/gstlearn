@@ -138,10 +138,11 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
   return mesh;
 }
 #ifndef SWIG
-cs* MeshManifold::getMeshToDb(const Db *db, bool verbose) const
+cs* MeshManifold::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   /// TODO getMeshToDb
   DECLARE_UNUSED(db);
+  DECLARE_UNUSED(rankZ);
   DECLARE_UNUSED(verbose);
   return nullptr;
 }

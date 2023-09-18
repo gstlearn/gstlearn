@@ -42,7 +42,7 @@ public:
   static MeshManifold* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
 #ifndef SWIG
-  cs* getMeshToDb(const Db *db, bool verbose = false) const override;
+  cs* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
 #endif
   int getVariety() const { return 2; }
 
