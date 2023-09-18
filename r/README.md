@@ -37,6 +37,12 @@ For using this R Package you only need R 4.2 (or higher) and execute the followi
 install.packages("gstlearn",repos="https://soft.mines-paristech.fr/cran")
 ```
 
+Note: With slow Internet connection, you may need to increase the default timeout (60s) (gstlearn package is around 17Mo!)
+
+```
+options(timeout=1000)
+```
+
 ## Usage
 
 We refer the reader to this [course page](../doc/courses/r/01_gstlearn_start.Rmd) for an introduction and important information about R gstlearn.
