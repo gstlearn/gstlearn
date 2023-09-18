@@ -104,42 +104,18 @@ Matrix MSP
      [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
      [  6,]         .         .     2.190     0.291    -0.038         .     1.561
 
-Matrix MSD
-- Number of rows    = 7
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     2.165                                                            
-     [  1,]               2.165                                                  
-     [  2,]                         2.165                                        
-     [  3,]                                   2.165                              
-     [  4,]                                             2.165                    
-     [  5,]                                                       2.165          
-     [  6,]                                                                 2.165
-Matrix MSC
-- Number of rows    = 7
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     2.165                                                            
-     [  1,]               2.165                                                  
-     [  2,]                         2.165                                        
-     [  3,]                                   2.165                              
-     [  4,]                                             2.165                    
-     [  5,]                                                       2.165          
-     [  6,]                                                                 2.165
 
 Adding a constant value to the diagonal of a matrix
 ===================================================
 Are results for MRR and MSG similar: 1
 Are results for MRR and MSS similar: 1
 Are results for MRR and MSP similar: 1
-Are results for MSD and MSC similar: 1
 
 Multiplying a Matrix by a constant
 ==================================
 Are results for MRR and MSG similar: 1
 Are results for MRR and MSS similar: 1
 Are results for MRR and MSP similar: 1
-Are results for MSD and MSC similar: 1
 
 Adding a constant value to the whole matrix
 ===========================================
@@ -151,7 +127,6 @@ Linear combination of matrices
 Are results for MRR and MSG similar: 1
 Are results for MRR and MSS similar: 1
 Are results for MRR and MSP similar: 1
-Are results for MSD and MSC similar: 1
 
 Extracting Vectors from Matrix
 ==============================
@@ -190,15 +165,12 @@ Product of the matrix by a vector
 Are results for MRR and MSG similar: 1
 Are results for MRR and MSS similar: 1
 Are results for MRR and MSP similar: 1
-Are results for MSD and MSC similar: 1
 
 Matrix Linear Solver
 ====================
 Solve X from A*X=B. Compute A*X and compare with B
 Are results correct for MSS: 1
 Are results correct for MSP: 1
-Are results correct for MSD: 1
-Are results correct for MSC: 1
 
 Matrix Inversion
 ================
@@ -206,5 +178,3 @@ Calculate B=A^{-1}. Compute A*B and compare to Identity
 Are results correct for MSG: 1
 Are results correct for MSS: 1
 Are results correct for MSP: 1
-Are results correct for MSD: 1
-Are results correct for MSC: 1

@@ -193,10 +193,14 @@ int MeshSpherical::reset(int ndim,
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
+** \param[in]  rankZ     Rank of the Z-locator to be tested (see remarks)
 ** \param[in]  verbose   Verbose flag
 **
+** \remarks If rankZ>=0, a sample is only considered if the value
+** \remarks of the corresponding variable is defined
+**
 *****************************************************************************/
-cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
+cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   bool flag_approx = true;
  
@@ -223,13 +227,20 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   /* Loop on the samples */
 
   int ip_max = 0;
-  int iech_max = 0;
+  int iech = 0;
   int nout = 0;
-  for (int iech=0; iech<nech; iech++)
+  int nvalid = 0;
+  for (int jech=0; jech<nech; jech++)
   {
-    if (! db->isActive(iech)) continue;
-    if (iech > iech_max) iech_max = iech;
-    VectorDouble coorLongLat = db->getSampleCoordinates(iech);
+    if (! db->isActive(jech)) continue;
+    if (rankZ >= 0)
+    {
+      double testval = db->getFromLocator(ELoc::Z, jech, rankZ);
+      if (FFFF(testval)) continue;
+    }
+    nvalid++;
+
+    VectorDouble coorLongLat = db->getSampleCoordinates(jech);
     
     /* Loop on the meshes */
     
@@ -259,15 +270,16 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
     {
       nout++;
       if (verbose)
-        messerr("Point %d does not belong to any mesh",iech+1);
+        messerr("Point %d does not belong to any mesh",jech+1);
     }
+    iech++;
   }
   
   /* Add the extreme value to force dimension */
 
   if (ip_max < nvertex - 1)
   {
-    cs_force_dimension(Atriplet,nech,nvertex);
+    cs_force_dimension(Atriplet,nvalid,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */

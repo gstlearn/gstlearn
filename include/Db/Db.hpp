@@ -174,6 +174,7 @@ public:
 
   int getNEloc() const;
   int getSampleNumber(bool useSel = false) const;
+  int getNumberActiveAndDefined(int item) const;
   int getActiveSampleNumber() const;
   int getRankRelativeToAbsolute(int irel) const;
   int getRankAbsoluteToRelative(int iabs) const;

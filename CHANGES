@@ -12,6 +12,9 @@ Release 0.3.4
 - Parametrize the amount of Nugget (technically) added in SPDE
 - Corrections in the API functions of SPDE method
 - New test (cpp) for benchmarking SPDE features
+- Allow processing target variable with NA in SPDE API functions
+- Suppress class MatrixSquareDiagonalCst
+- Suppress class MatrixSquareDiagonal
 
 Release 0.3.3
 =============

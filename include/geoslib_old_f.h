@@ -1879,7 +1879,7 @@ GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
                                   AMesh *amesh,
                                   double radius,
                                   int flag_exact,
-                                  int verbose,
+                                  bool verbose,
                                   int *nactive,
                                   int **ranks);
 #endif

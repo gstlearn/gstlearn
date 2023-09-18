@@ -729,8 +729,6 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 }
 
 "MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareDiagonal_toTL" <- function(x) { matrix_toTL(x) }
-"MatrixSquareDiagonalCst_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL(x) }
 

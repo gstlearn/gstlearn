@@ -1,0 +1,17 @@
+This doculent describes the use of valgrind to evaluate the time
+spent in the different parts of the software.
+
+For example, to test the module 'name.cpp':
+
+- compile and link the target program: the result is called 'name.out'. 
+  You DO NOT HAVE to use any debugging parameter
+  For example, if 'name.cpp' stands in tests/cpp, then the result is located in
+  build/tests/cpp/Release
+
+- run valgrind with the following syntax:
+  valgrind --tool=callgrind 'name.out'
+  This creates a local file named 'callgrind.out.xxx'
+  
+- check the graphs of time expenses with the following syntax:
+  kcachegrind 'callgrind.out.xxx'
+  
