@@ -16,7 +16,7 @@
 class GSTLEARN_EXPORT DriftF : public ADriftElem
 {
 public:
-  DriftF(const CovContext& ctxt = CovContext());
+  DriftF(int rank_fex = 0, const CovContext& ctxt = CovContext());
   DriftF(const DriftF &r);
   DriftF& operator= (const DriftF &r);
   virtual ~DriftF();
@@ -24,10 +24,9 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(DriftF)
 
-  String getDriftSymbol() const override { return "f"; }
   String getDriftName() const override { return "External Drift"; }
-  int getOrderIRF() const override { return 0; }
-  bool getDriftExternal() const override { return true; }
+  int    getOrderIRF() const override { return 0; }
+  bool   getDriftExternal() const override { return true; }
   double eval(const Db* db, int iech) const override;
 };
 

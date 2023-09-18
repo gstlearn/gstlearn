@@ -14,81 +14,79 @@
 #include "Basic/String.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/ADriftElem.hpp"
-#include "Drifts/Drift1.hpp"
+#include "Drifts/DriftM.hpp"
 #include "Drifts/DriftF.hpp"
-#include "Drifts/DriftX.hpp"
-#include "Drifts/DriftX2.hpp"
-#include "Drifts/DriftX2Y.hpp"
-#include "Drifts/DriftX3.hpp"
-#include "Drifts/DriftXY.hpp"
-#include "Drifts/DriftXY2.hpp"
-#include "Drifts/DriftXZ.hpp"
-#include "Drifts/DriftY.hpp"
-#include "Drifts/DriftY2.hpp"
-#include "Drifts/DriftY3.hpp"
-#include "Drifts/DriftYZ.hpp"
-#include "Drifts/DriftZ.hpp"
-#include "Drifts/DriftZ2.hpp"
-#include "Drifts/DriftZ3.hpp"
 
 #include <iostream>
 
-ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& ctxt, int rank_fex)
+ADriftElem* DriftFactory::createDriftByType(const EDrift &type,
+                                            int rank_fex,
+                                            const CovContext &ctxt)
 {
-  ADriftElem* drift;
-
   switch(type.toEnum())
   {
-    case EDrift::E_UC:  return new Drift1(ctxt);
-    case EDrift::E_X:   return new DriftX(ctxt);
-    case EDrift::E_X2:  return new DriftX2(ctxt);
-    case EDrift::E_X2Y: return new DriftX2Y(ctxt);
-    case EDrift::E_X3:  return new DriftX3(ctxt);
-    case EDrift::E_XY:  return new DriftXY(ctxt);
-    case EDrift::E_XY2: return new DriftXY2(ctxt);
-    case EDrift::E_XZ:  return new DriftXZ(ctxt);
-    case EDrift::E_Y:   return new DriftY(ctxt);
-    case EDrift::E_Y2:  return new DriftY2(ctxt);
-    case EDrift::E_Y3:  return new DriftY3(ctxt);
-    case EDrift::E_YZ:  return new DriftYZ(ctxt);
-    case EDrift::E_Z:   return new DriftZ(ctxt);
-    case EDrift::E_Z2:  return new DriftZ2(ctxt);
-    case EDrift::E_Z3:  return new DriftZ3(ctxt);
-    case EDrift::E_F:
-      drift = new DriftF(ctxt);
-      drift->setRankFex(rank_fex);
-      return drift;
-
+    case EDrift::E_UC:  return new DriftM(VectorInt(), 1., VectorDouble(), ctxt);
+    case EDrift::E_X:   return new DriftM({1},         0., VectorDouble(), ctxt);
+    case EDrift::E_X2:  return new DriftM({2},         0., VectorDouble(), ctxt);
+    case EDrift::E_X2Y: return new DriftM({2,1},       0., VectorDouble(), ctxt);
+    case EDrift::E_X3:  return new DriftM({3},         0., VectorDouble(), ctxt);
+    case EDrift::E_XY:  return new DriftM({1,1},       0., VectorDouble(), ctxt);
+    case EDrift::E_XY2: return new DriftM({1,2},       0., VectorDouble(), ctxt);
+    case EDrift::E_XZ:  return new DriftM({1,0,1},     0., VectorDouble(), ctxt);
+    case EDrift::E_Y:   return new DriftM({0,1},       0., VectorDouble(), ctxt);
+    case EDrift::E_Y2:  return new DriftM({0,2},       0., VectorDouble(), ctxt);
+    case EDrift::E_Y3:  return new DriftM({0,3},       0., VectorDouble(), ctxt);
+    case EDrift::E_YZ:  return new DriftM({0,1,1},     0., VectorDouble(), ctxt);
+    case EDrift::E_Z:   return new DriftM({0,0,1},     0., VectorDouble(), ctxt);
+    case EDrift::E_Z2:  return new DriftM({0,0,2},     0., VectorDouble(), ctxt);
+    case EDrift::E_Z3:  return new DriftM({0,0,3},     0., VectorDouble(), ctxt);
+    case EDrift::E_F:   return new DriftF(rank_fex, ctxt);
     default: break;
   }
   my_throw ("Drift function not yet implemented!");
   return nullptr;
 }
 
-ADriftElem* DriftFactory::duplicateDriftFunc(const ADriftElem& drift)
+/**
+ * Create a Drift Item defined by a symbol
+ * This function is left for compatibility with RGeostats code.
+ * @param symbol Name of the symbol
+ * @param ctxt   CovContext which specifies the space dimension and number of variables
+ * @return
+ */
+ADriftElem* DriftFactory::createDriftBySymbol(const String &symbol,
+                                              const CovContext &ctxt)
 {
-  switch(drift.getType().toEnum())
+  ADriftElem* drift;
+
+  String ds = toUpper(symbol);
+  if (ds == "1")    return new DriftM(VectorInt(), 1., VectorDouble(), ctxt);
+  if (ds == "X")    return new DriftM({1},         0., VectorDouble(), ctxt);
+  if (ds == "X2")   return new DriftM({2},         0., VectorDouble(), ctxt);
+  if (ds == "X2Y")  return new DriftM({2,1},       0., VectorDouble(), ctxt);
+  if (ds == "X3")   return new DriftM({3},         0., VectorDouble(), ctxt);
+  if (ds == "XY")   return new DriftM({1,1},       0., VectorDouble(), ctxt);
+  if (ds == "XY2")  return new DriftM({1,2},       0., VectorDouble(), ctxt);
+  if (ds == "XZ")   return new DriftM({1,0,1},     0., VectorDouble(), ctxt);
+  if (ds == "Y")    return new DriftM({0,1},       0., VectorDouble(), ctxt);
+  if (ds == "Y2")   return new DriftM({0,2},       0., VectorDouble(), ctxt);
+  if (ds == "Y3")   return new DriftM({0,3},       0., VectorDouble(), ctxt);
+  if (ds == "YZ")   return new DriftM({0,1,1},     0., VectorDouble(), ctxt);
+  if (ds == "Z")    return new DriftM({0,0,1},     0., VectorDouble(), ctxt);
+  if (ds == "Z2")   return new DriftM({0,0,2},     0., VectorDouble(), ctxt);
+  if (ds == "Z3")   return new DriftM({0,0,3},     0., VectorDouble(), ctxt);
+  if (ds == "F")
   {
-    // Warning : if a crash with "bad cast" occurs, please check the type of your Drift
-    case EDrift::E_UC:  return new Drift1(   dynamic_cast<const Drift1&>   (drift));
-    case EDrift::E_F:   return new DriftF(   dynamic_cast<const DriftF&>   (drift));
-    case EDrift::E_X:   return new DriftX(   dynamic_cast<const DriftX&>   (drift));
-    case EDrift::E_X2:  return new DriftX2(  dynamic_cast<const DriftX2&>  (drift));
-    case EDrift::E_X2Y: return new DriftX2Y( dynamic_cast<const DriftX2Y&> (drift));
-    case EDrift::E_X3:  return new DriftX3(  dynamic_cast<const DriftX3&>  (drift));
-    case EDrift::E_XY:  return new DriftXY(  dynamic_cast<const DriftXY&>  (drift));
-    case EDrift::E_XY2: return new DriftXY2( dynamic_cast<const DriftXY2&> (drift));
-    case EDrift::E_XZ:  return new DriftXZ(  dynamic_cast<const DriftXZ&>  (drift));
-    case EDrift::E_Y:   return new DriftY(   dynamic_cast<const DriftY&>   (drift));
-    case EDrift::E_Y2:  return new DriftY2(  dynamic_cast<const DriftY2&>  (drift));
-    case EDrift::E_Y3:  return new DriftY3(  dynamic_cast<const DriftY3&>  (drift));
-    case EDrift::E_YZ:  return new DriftYZ(  dynamic_cast<const DriftYZ&>  (drift));
-    case EDrift::E_Z:   return new DriftZ(   dynamic_cast<const DriftZ&>   (drift));
-    case EDrift::E_Z2:  return new DriftZ2(  dynamic_cast<const DriftZ2&>  (drift));
-    case EDrift::E_Z3:  return new DriftZ3(  dynamic_cast<const DriftZ3&>  (drift));
-    default: break;
+      drift = new DriftF(0, ctxt);
+
+      int rank_fex = 0;
+      if (decodeInString("F", symbol, &rank_fex, false) == 0)
+        rank_fex = rank_fex-1;
+      drift->setRankFex(rank_fex);
+      return drift;
   }
-  my_throw ("Drift function not yet implemented!");
+
+  message("Drift Symbol %s is unknown", symbol.c_str());
   return nullptr;
 }
 
@@ -103,61 +101,10 @@ void DriftFactory::displayList(const CovContext& ctxt)
   {
     if (*it != EDrift::UNKNOWN)
     {
-      ADriftElem* drift = createDriftFunc(*it, ctxt);
+      ADriftElem* drift = createDriftByType(*it, 0, ctxt);
       message("%2d - %s\n", it.getValue(), drift->getDriftName().c_str());
       delete drift;
     }
     it.toNext();
   }
 }
-
-/**
- * Return the EDrift object from the given drift symbol.
- * The symbol must correspond to one of the getDriftSymbol().
- * If the symbol doesn't exists, this method returns EDrift::UNKNOWN
- * and displays available drifts functions for the given context.
- *
- * @param symbol  Symbol of the required drift function
- * @param rank    Rank of the drift for the given symbol
- * @param ctxt    Context from which we want authorized drift functions
- */
-EDrift DriftFactory::identifyDrift(const String& symbol,
-                                   int* rank,
-                                   const CovContext& ctxt)
-{
-  auto it = EDrift::getIterator();
-  while (it.hasNext())
-  {
-    // Test drift symbol using ACovFunc::getDriftSymbol (not the EDrift keys!)
-    // (This permits to ensure RGeostats scripts retro compatibility)
-    if (*it != EDrift::UNKNOWN)
-    {
-      ADriftElem* drift = createDriftFunc(*it, ctxt);
-      if (*it != EDrift::F)
-      {
-        String ds = toUpper(symbol);
-        String dds = toUpper(drift->getDriftSymbol());
-        if (ds == dds)
-        {
-          *rank = drift->getRankFex();
-          return *it;
-        }
-      }
-      else
-      {
-        int rank_loc = 0;
-        if (decodeInString(drift->getDriftSymbol(), symbol, &rank_loc, false) == 0)
-        {
-          *rank = rank_loc-1;
-          return *it;
-        }
-      }
-      delete drift;
-    }
-    it.toNext();
-  }
-  messerr("Unknown drift function symbol:%s!", symbol.c_str());
-  displayList(ctxt);
-  return EDrift::UNKNOWN;
-}
-

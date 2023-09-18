@@ -395,9 +395,7 @@ void Model::setDrifts(const VectorString &driftSymbols)
 
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {
-    int rank_fex = 0;
-    EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank_fex, _ctxt);
-    ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt, rank_fex);
+    ADriftElem *drift = DriftFactory::createDriftBySymbol(driftSymbols[i], _ctxt);
     addDrift(drift);
   }
 }
@@ -1170,7 +1168,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
     int rank_fex = 0;
     if (dtype == EDrift::F)
       ret = ret && _recordRead<int>(is, "External Drift rank", rank_fex);
-    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt, rank_fex);
+    ADriftElem *drift = DriftFactory::createDriftByType(dtype, rank_fex, _ctxt);
     drifts.addDrift(drift);
     delete drift;
   }

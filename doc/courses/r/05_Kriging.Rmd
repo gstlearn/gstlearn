@@ -186,7 +186,7 @@ ggPrint(p)
 
 ### Ordinary kriging
 
-In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift1()` method. 
+In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift()` method. 
 
 Note: Removing a drift from a model can be done using the `delDrift` method (while specifying the index of the drift we wish to remove) or using the `delAllDrifts()` (to remove all the drifts at once).
 
@@ -194,7 +194,7 @@ Let us go back to our running example. Considering the model `fitmod` previously
 
 ```{r Model_for_ordinary_kriging}
 fitmodOK = fitmod$clone()
-err = fitmodOK$addDrift(Drift1())
+err = fitmodOK$addDrift(DriftM())
 ```
 
 Then, ordinary kriging is performed using the same command as before, but with the newly created model.

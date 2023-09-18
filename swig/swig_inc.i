@@ -111,23 +111,9 @@
 %shared_ptr(DbGrid)
 %shared_ptr(DbStringFormat)
 %shared_ptr(DirParam)
-%shared_ptr(Drift1)
+%shared_ptr(DriftM)
 %shared_ptr(DriftF)
 %shared_ptr(DriftList)
-%shared_ptr(DriftX)
-%shared_ptr(DriftX2)
-%shared_ptr(DriftX2Y)
-%shared_ptr(DriftX3)
-%shared_ptr(DriftXY)
-%shared_ptr(DriftXY2)
-%shared_ptr(DriftXZ)
-%shared_ptr(DriftY)
-%shared_ptr(DriftY2)
-%shared_ptr(DriftY3)
-%shared_ptr(DriftYZ)
-%shared_ptr(DriftZ)
-%shared_ptr(DriftZ2)
-%shared_ptr(DriftZ3)
 %shared_ptr(Faults)
 %shared_ptr(FracDesc)
 %shared_ptr(FracEnviron)
@@ -417,23 +403,9 @@
   #include "Drifts/ADrift.hpp"
   #include "Drifts/ADriftElem.hpp"
   #include "Drifts/DriftList.hpp"
-  #include "Drifts/Drift1.hpp"
+  #include "Drifts/DriftM.hpp"
   #include "Drifts/DriftF.hpp"
   #include "Drifts/DriftFactory.hpp"
-  #include "Drifts/DriftX.hpp"
-  #include "Drifts/DriftX2.hpp"
-  #include "Drifts/DriftX2Y.hpp"
-  #include "Drifts/DriftX3.hpp"
-  #include "Drifts/DriftXY.hpp"
-  #include "Drifts/DriftXY2.hpp"
-  #include "Drifts/DriftXZ.hpp"
-  #include "Drifts/DriftY.hpp"
-  #include "Drifts/DriftY2.hpp"
-  #include "Drifts/DriftY3.hpp"
-  #include "Drifts/DriftYZ.hpp"
-  #include "Drifts/DriftZ.hpp"
-  #include "Drifts/DriftZ2.hpp"
-  #include "Drifts/DriftZ3.hpp"
   
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/AMatrixSquare.hpp"

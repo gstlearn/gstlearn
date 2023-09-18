@@ -248,25 +248,11 @@ set(SRC
   Stats/PCA.cpp
   Stats/PCAStringFormat.cpp
   Stats/Selectivity.cpp
-  Drifts/DriftX.cpp
-  Drifts/DriftY.cpp
-  Drifts/DriftX2Y.cpp
-  Drifts/DriftZ3.cpp
-  Drifts/Drift1.cpp
-  Drifts/DriftXY.cpp
+  Drifts/DriftM.cpp
   Drifts/DriftF.cpp
   Drifts/DriftFactory.cpp
-  Drifts/DriftX3.cpp
-  Drifts/DriftZ.cpp
-  Drifts/DriftX2.cpp
-  Drifts/DriftXZ.cpp
-  Drifts/DriftY2.cpp
-  Drifts/DriftY3.cpp
-  Drifts/DriftXY2.cpp
   Drifts/ADrift.cpp
-  Drifts/DriftZ2.cpp
   Drifts/ADriftElem.cpp
-  Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
   Neigh/ANeigh.cpp
   Neigh/NeighUnique.cpp

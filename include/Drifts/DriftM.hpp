@@ -13,21 +13,30 @@
 #include "gstlearn_export.hpp"
 #include "Drifts/ADriftElem.hpp"
 
-class GSTLEARN_EXPORT DriftX3 : public ADriftElem
+/**
+ * Monomial drift term
+ */
+class GSTLEARN_EXPORT DriftM : public ADriftElem
 {
 public:
-  DriftX3(const CovContext& ctxt = CovContext());
-  DriftX3(const DriftX3 &r);
-  DriftX3& operator= (const DriftX3 &r);
-  virtual ~DriftX3();
+  DriftM(const VectorInt &powers = VectorInt(),
+         double coeff0 = 1.,
+         const VectorDouble &coeffs = VectorDouble(),
+         const CovContext &ctxt = CovContext());
+  DriftM(const DriftM &r);
+  DriftM& operator= (const DriftM &r);
+  virtual ~DriftM();
 
   /// ICloneable interface
-  IMPLEMENT_CLONING(DriftX3)
+  IMPLEMENT_CLONING(DriftM)
 
-  String getDriftSymbol() const override { return "x3"; }
-  String getDriftName() const override { return "Drift X^3"; }
-  int getOrderIRF() const override { return 3; }
-  int getNDim() const { return 1; }
+  String getDriftName() const override;
+  int    getOrderIRF()  const override;
+  int    getNDim()      const override;
   double eval(const Db* db, int iech) const override;
-};
 
+private:
+  VectorInt    _monomialPower;
+  double       _coeff0;
+  VectorDouble _monomialCoeffs;
+};

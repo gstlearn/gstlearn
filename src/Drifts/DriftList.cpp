@@ -423,7 +423,7 @@ void DriftList::setDriftIRF(int order, int nfex, const CovContext& ctxt)
   {
     if (*it != EDrift::UNKNOWN)
     {
-      ADriftElem* drift = DriftFactory::createDriftFunc(*it, ctxt);
+      ADriftElem* drift = DriftFactory::createDriftByType(*it, 0, ctxt);
 
       if (drift->getDriftExternal() ||
           drift->getOrderIRF() > order ||
@@ -444,7 +444,7 @@ void DriftList::setDriftIRF(int order, int nfex, const CovContext& ctxt)
     // Adding the external drift(s)
     for (int ifex = 0; ifex < nfex; ifex++)
     {
-      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt, ifex);
+      ADriftElem* drift = DriftFactory::createDriftByType(EDrift::F, ifex, ctxt);
       addDrift(drift);
     }
   }

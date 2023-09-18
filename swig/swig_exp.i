@@ -240,23 +240,9 @@
 %include Drifts/ADrift.hpp
 %include Drifts/ADriftElem.hpp
 %include Drifts/DriftList.hpp
-%include Drifts/Drift1.hpp
+%include Drifts/DriftM.hpp
 %include Drifts/DriftF.hpp
 %include Drifts/DriftFactory.hpp
-%include Drifts/DriftX.hpp
-%include Drifts/DriftX2.hpp
-%include Drifts/DriftX2Y.hpp
-%include Drifts/DriftX3.hpp
-%include Drifts/DriftXY.hpp
-%include Drifts/DriftXY2.hpp
-%include Drifts/DriftXZ.hpp
-%include Drifts/DriftY.hpp
-%include Drifts/DriftY2.hpp
-%include Drifts/DriftY3.hpp
-%include Drifts/DriftYZ.hpp
-%include Drifts/DriftZ.hpp
-%include Drifts/DriftZ2.hpp
-%include Drifts/DriftZ3.hpp
 
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixSquare.hpp

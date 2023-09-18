@@ -18,8 +18,8 @@
 #include "Basic/AException.hpp"
 
 ADriftElem::ADriftElem(const EDrift& type,
-                       const CovContext& ctxt,
-                       int rankFex)
+                       int rankFex,
+                       const CovContext& ctxt)
     : ADrift(ctxt.getSpace()), /// TODO : shared pointer
       ASerializable(),
       _ctxt(ctxt),

@@ -14,8 +14,8 @@
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
 
-DriftF::DriftF(const CovContext& ctxt)
-    : ADriftElem(EDrift::F, ctxt)
+DriftF::DriftF(int rank_fex, const CovContext& ctxt)
+    : ADriftElem(EDrift::F, rank_fex, ctxt)
 {
 }
 

@@ -21,10 +21,10 @@ class ADriftElem;
 class GSTLEARN_EXPORT DriftFactory
 {
 public:
-  static ADriftElem* createDriftFunc(const EDrift &type,
-                                     const CovContext &ctxt = CovContext(),
-                                     int rank_fex = 0);
-  static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
-  static void         displayList(const CovContext& ctxt);
-  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
+  static ADriftElem* createDriftByType(const EDrift &type,
+                                       int rank_fex = 0,
+                                       const CovContext &ctxt = CovContext());
+  static ADriftElem* createDriftBySymbol(const String &symbol,
+                                         const CovContext &ctxt);
+  static void        displayList(const CovContext& ctxt);
  };

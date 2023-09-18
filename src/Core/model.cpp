@@ -16,7 +16,6 @@
 
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
-#include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -1284,7 +1283,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt, drft->getRankFex());
+      ADriftElem *newdrft = DriftFactory::createDriftByType(drft->getType(), drft->getRankFex(), ctxt);
       drifts.addDrift(newdrft);
       delete newdrft;
       drifts.setFiltered(il, model->isDriftFiltered(il));

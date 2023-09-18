@@ -30,8 +30,8 @@ class GSTLEARN_EXPORT ADriftElem : public ADrift, public ASerializable, public I
 {
 public:
   ADriftElem(const EDrift &type,
-             const CovContext &ctxt = CovContext(),
-             int rankFex = 0);
+             int rankFex = 0,
+             const CovContext &ctxt = CovContext());
   ADriftElem(const ADriftElem &r);
   ADriftElem& operator= (const ADriftElem &r);
   virtual ~ADriftElem();
@@ -45,7 +45,7 @@ public:
   /// ADrift Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
-  virtual String getDriftSymbol() const = 0;
+  // ADriftelem Interface
   virtual String getDriftName() const = 0;
   virtual int    getOrderIRF() const = 0;
   virtual int    getNDim() const { return 0; }

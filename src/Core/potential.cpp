@@ -949,9 +949,9 @@ static int st_update_final(Model *model, Pot_Env *pot_env)
   for (int i = 0; i < 9; i++)
     TAB_DRF[i] = -1;
 
-  if (model->isDriftDefined(EDrift::X)) TAB_DRF[0] = pos++;
-  if (model->isDriftDefined(EDrift::Y)) TAB_DRF[1] = pos++;
-  if (model->isDriftDefined(EDrift::Z)) TAB_DRF[2] = pos++;
+  if (model->isDriftDefined(EDrift::X))  TAB_DRF[0] = pos++;
+  if (model->isDriftDefined(EDrift::Y))  TAB_DRF[1] = pos++;
+  if (model->isDriftDefined(EDrift::Z))  TAB_DRF[2] = pos++;
   if (model->isDriftDefined(EDrift::X2)) TAB_DRF[3] = pos++;
   if (model->isDriftDefined(EDrift::Y2)) TAB_DRF[4] = pos++;
   if (model->isDriftDefined(EDrift::Z2)) TAB_DRF[5] = pos++;
