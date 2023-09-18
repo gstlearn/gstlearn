@@ -10,7 +10,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 3
-Maximum Number of UIDs       = 3
 Total number of samples      = 10000
 
 Grid characteristics:
@@ -34,7 +33,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 2
-Maximum Number of UIDs       = 2
 Total number of samples      = 25
 
 Grid characteristics:
@@ -57,7 +55,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 2
-Maximum Number of UIDs       = 2
 Total number of samples      = 441
 
 Grid characteristics:
@@ -89,7 +86,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 500
 
 Variables
@@ -127,26 +123,24 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [  0,]     1.539    -0.792     0.273    -0.061    -0.009     0.032    -0.031
      [  7,]     0.010     0.018    -0.021    -0.001     0.016    -0.009    -0.007
      [ 14,]     0.012     0.000    -0.012     0.004     0.010    -0.006
+NULL
 
+Selectivity curves computed on data set
+---------------------------------------
+      Z-Cut    T-estim    Q-estim    B-estim    M-estim
+      0.000      1.000      1.539      1.539      1.539
+      0.500      0.972      1.527      1.041      1.571
+      0.750      0.858      1.453      0.810      1.694
+      1.000      0.718      1.330      0.612      1.853
+NULL
 
-Table: Selectivity curves computed on data set
-
-| Z-Cut| T-estim| Q-estim| B-estim| M-estim| T-stdev| Q-stdev|
-|-----:|-------:|-------:|-------:|-------:|-------:|-------:|
-|  0.00|   1.000|   1.539|   1.539|   1.539|      NA|      NA|
-|  0.50|   0.972|   1.527|   1.041|   1.571|      NA|      NA|
-|  0.75|   0.858|   1.453|   0.810|   1.694|      NA|      NA|
-|  1.00|   0.718|   1.330|   0.612|   1.853|      NA|      NA|
-
-
-Table: Selectivity curves computed on anamorphosis
-
-| Z-Cut| T-estim| Q-estim| B-estim| M-estim| T-stdev| Q-stdev|
-|-----:|-------:|-------:|-------:|-------:|-------:|-------:|
-|  0.00|   1.000|   1.539|   1.539|   1.539|      NA|      NA|
-|  0.50|   0.972|   1.527|   1.041|   1.570|      NA|      NA|
-|  0.75|   0.867|   1.461|   0.810|   1.684|      NA|      NA|
-|  1.00|   0.716|   1.327|   0.611|   1.853|      NA|      NA|
+Selectivity curves computed on anamorphosis
+-------------------------------------------
+      Z-Cut    T-estim    Q-estim    B-estim    M-estim
+      0.000      1.000      1.539      1.539      1.539
+      0.500      0.972      1.527      1.041      1.570
+      0.750      0.867      1.461      0.810      1.684
+      1.000      0.716      1.327      0.611      1.853
 
 Data Base Characteristics
 =========================
@@ -156,7 +150,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 6
-Maximum Number of UIDs       = 6
 Total number of samples      = 500
 
 Variables
@@ -226,7 +219,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 20
-Maximum Number of UIDs       = 20
 Total number of samples      = 441
 
 Grid characteristics:
@@ -260,9 +252,6 @@ Column = 19 - Name = Pts_Recovery.Q-stdev-1 - Locator = z1
 NULL
 [1] ">>> Sum of differences for T(1.00): 0"
 [1] ">>> Sum of differences for T(0.75): 0"
-NULL
-NULL
-NULL
 
 Data Base Grid Characteristics
 ==============================
@@ -272,7 +261,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 28
-Maximum Number of UIDs       = 28
 Total number of samples      = 441
 
 Grid characteristics:
@@ -321,7 +309,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 34
-Maximum Number of UIDs       = 34
 Total number of samples      = 441
 
 Grid characteristics:
@@ -377,7 +364,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 25
 
 Grid characteristics:
@@ -394,13 +380,12 @@ Column = 2 - Name = DK_Blk.Gaussian.Z.estim - Locator = z1
 Column = 3 - Name = DK_Blk.Gaussian.Z.stdev - Locator = NA
 NULL
 NULL
+NULL
 
-
-Table: Selectivity curves computed on fine grid
-
-| Z-Cut| T-estim| Q-estim| B-estim| M-estim| T-stdev| Q-stdev|
-|-----:|-------:|-------:|-------:|-------:|-------:|-------:|
-|     0|       1|   1.561|   1.561|   1.561|      NA|      NA|
+Selectivity curves computed on fine grid
+----------------------------------------
+      Z-Cut    T-estim    Q-estim    B-estim    M-estim
+      0.000      1.000      1.561      1.561      1.561
 NULL
 NULL
 NULL

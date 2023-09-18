@@ -308,6 +308,28 @@ const Table Selectivity::evalFromAnamorphosis(AAnam *anam)
   return getStats();
 }
 
+const Table Selectivity::getStats() const
+{
+  VectorString names = _getAllNames();
+  int nrow = _stats.getNRows();
+  int ncol = _stats.getNumberColumnDefined();
+
+  // Allocate the output Table
+  Table rtable(nrow, ncol, false, true);
+  rtable.setTitle("Selectivity");
+
+  // Load the valid columns
+  int icol_ecr = 0;
+  for (int icol = 0, ncolmax = _stats.getNCols(); icol < ncolmax; icol++)
+  {
+    if (! _stats.isColumnDefined(icol)) continue;
+    rtable.setColumn(icol_ecr, _stats.getColumn(icol));
+    rtable.setColumnName(icol_ecr, names[icol]);
+    icol_ecr++;
+  }
+  return rtable;
+}
+
 /****************************************************************************/
 /*!
  **  Interpolate the Grade-Tonnage curves

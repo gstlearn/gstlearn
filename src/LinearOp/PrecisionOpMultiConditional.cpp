@@ -43,7 +43,6 @@ VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& d
   }
   computeRhsInPlace(datVal,rhs);
   return rhs;
-
 }
 
 void PrecisionOpMultiConditional::computeRhsInPlace(const VectorDouble& datVal, VectorVectorDouble& rhs) const

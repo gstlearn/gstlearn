@@ -367,7 +367,10 @@ void Model::setDriftList(const DriftList* driftlist)
  * @param order Order of the IRF
  * @param nfex  Number of External Drifts
  *
- * @remark This method deletes any pre-existing drift functions
+ * @remark This method deletes any pre-existing drift functions and replaces them by the new definition
+ * @remark This replacement is performed accounting for information stored in 'model', such as:
+ * - the space dimension
+ * - the number of variables
  */
 void Model::setDriftIRF(int order, int nfex)
 {
@@ -1653,5 +1656,18 @@ bool Model::isValid() const
   {
     if (! _driftList->isValid()) return false;
   }
+
+  // Check the consistency between the Covariance and the Drift parts
+  int irf_drift = getDriftMaxIRFOrder();
+  int irf_cova = getCovaMinIRFOrder();
+  if (irf_cova > irf_drift)
+  {
+    messerr("Model if invalid due to IRF degree inconsistency");
+    messerr("- Covariance implies a degree >= %d", irf_cova);
+    messerr("- Drift implies a degree %d", irf_drift);
+    messerr("(order -1 stands for order-2 stationarity)");
+    return false;
+  }
+
   return true;
 }

@@ -8,7 +8,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 3
-Maximum Number of UIDs       = 3
 Total number of samples      = 4
 
 Grid characteristics:
@@ -31,7 +30,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 4
 
 Grid characteristics:
@@ -57,7 +55,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 4
 
 Grid characteristics:
@@ -90,7 +87,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 8
-Maximum Number of UIDs       = 8
 Total number of samples      = 4
 
 Grid characteristics:
@@ -124,7 +120,7 @@ Column = 7 - Name = newvar-3 - Locator = NA
 [[ 0.          0.         -0.1022454   0.80818623  0.23199239]
  [ 0.          1.         -1.40035848  0.71590778 -2.12456763]]
 Testing Table
-<class 'numpy.ndarray'>
+<class 'pandas.core.frame.DataFrame'>
 Testing Matrix
 
 Case of a Standard Matrix

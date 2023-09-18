@@ -203,6 +203,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  * Newly created variables are named as follow:
  *
  * 'prefix'.'v_Loc'.'qualifier'.'item_rank'
+ *
  * where 'v_Loc' stands for the name of the variable(s) with locator 'Loc' in 'dbin'
  *
  * @param dbin  Pointer to the input Db (kept for symmetry)
@@ -249,6 +250,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
  * Newly created variables are named as follow:
  *
  * 'prefix'.'v[i]'.'qualifier'.'item_rank'
+ *
  * where v[i] is the variable with rank 'i' within 'dbin'
  *
  * @param dbin  Pointer to the input Db (kept for symmetry)

@@ -25,14 +25,17 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
 ```
 
 The Grid containing the information is downloaded from the distribution
 
 ```{r Loading_Data}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/FKA/Image.ascii"
 fileNF = "Image.ascii"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/FKA/",fileNF), fileNF)
+}
 grid = DbGrid_createFromNF(fileNF)
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim)
@@ -80,7 +83,7 @@ grid$display(dbfmt)
 \frametitle{Correlation between Cr and P}
 
 ```{r Correlation_Cr_P,results="hide"}
-ggplot() + plot.correlation(grid,"Cr","P", bins=100)
+ggplot() + plot.correlation(grid,namex="Cr",namey="P", bins=100)
 ```
 
 ---
@@ -88,7 +91,7 @@ ggplot() + plot.correlation(grid,"Cr","P", bins=100)
 \frametitle{Correlation between Ni and P}
 
 ```{r Correlation_Ni_P,results="hide"}
-ggplot() + plot.correlation(grid,"Ni","P", bins=100)
+ggplot() + plot.correlation(grid,namex="Ni",namey="P", bins=100)
 ```
 
 ---
@@ -96,7 +99,7 @@ ggplot() + plot.correlation(grid,"Ni","P", bins=100)
 \frametitle{Correlation between Ni and CR}
 
 ```{r Correlation_Ni_Cr,results="hide"}
-ggplot() + plot.correlation(grid,"Ni","Cr", bins=100)
+ggplot() + plot.correlation(grid,namex="Ni",namey="Cr", bins=100)
 ```
 
 ---
@@ -135,6 +138,7 @@ modelP = Model()
 err = modelP$fit(varioP, 
                  types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
                  optvar=Option_VarioFit(TRUE, FALSE))
+modelP$setDriftIRF(0,0)
 ```
 
 ---
@@ -195,7 +199,7 @@ Correlation for **P** variable between Initial image and its Filtered version (m
 
 ```{r Correlation_P_denoised_monovariate}
 p = ggplot()
-p = p + plot.correlation(grid,"Fill.P","Mono.Fill.P", bins=100)
+p = p + plot.correlation(grid,namex="Fill.P",namey="Mono.Fill.P", bins=100)
 p = p + plot.decoration(xlab="P Filled",ylab="P Filtered")
 ggPrint(p)
 ```
@@ -214,6 +218,7 @@ modelM = Model()
 err = modelM$fit(varioM, 
                  types= ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
                  optvar=Option_VarioFit(TRUE, FALSE))
+modelM$setDriftIRF(0,0)
 ```
 
 ---
@@ -267,7 +272,7 @@ Correlation for **P** variable between Initial image and its Filtered version (m
 
 ```{r Correlation_P_denoised_multivariate}
 p = ggplot()
-p = p + plot.correlation(grid,"Fill.P","Multi.Fill.P", bins=100)
+p = p + plot.correlation(grid,namex="Fill.P",namey="Multi.Fill.P", bins=100)
 p = p + plot.decoration(xlab="P Filled",ylab="P Filtered (Multi)")
 ggPrint(p)
 ```
@@ -276,7 +281,7 @@ Correlation for **P** filtered variable between the Monovariate and the Multivar
 
 ```{r}
 p = ggplot()
-p = p + plot.correlation(grid, "Mono.Fill.P", "Multi.Fill.P", bins=100)
+p = p + plot.correlation(grid, namex="Mono.Fill.P", namey="Multi.Fill.P", bins=100)
 p = p + plot.decoration(xlab="P Filtered (Mono)",ylab="P Filtered (Multi)")
 ggPrint(p)
 ```

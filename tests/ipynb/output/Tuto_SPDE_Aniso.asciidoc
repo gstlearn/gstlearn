@@ -13,7 +13,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 1
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 500
 
 Grid characteristics:
@@ -48,7 +47,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 6
-Maximum Number of UIDs       = 6
 Total number of samples      = 100000
 Number of active samples     = 43700
 
@@ -136,7 +134,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 8
-Maximum Number of UIDs       = 8
 Total number of samples      = 100000
 Number of active samples     = 43700
 
@@ -172,7 +169,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 9
-Maximum Number of UIDs       = 9
 Total number of samples      = 100000
 Number of active samples     = 43700
 

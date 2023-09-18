@@ -7,7 +7,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 10201
 
 Grid characteristics:
@@ -50,7 +49,7 @@ Data Base Statistics
  Mean value          =      0.158
  Standard Deviation  =      1.119
  Variance            =      1.253
-5 - Name spde.z.simu - Locator z1
+5 - Name spde - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.861
@@ -65,5 +64,5 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = NA
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = x1
-Column = 4 - Name = spde.z.simu - Locator = z1
+Column = 4 - Name = spde - Locator = z1
  

@@ -4,7 +4,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-4 - Name KrigingSPDE.Data.kriging - Locator NA
+4 - Name KrigingSPDE.Data.estim - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -2.931

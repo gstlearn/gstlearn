@@ -369,7 +369,10 @@ CovAniso ACovAnisoList::extractCova(int icov) const
   return *(_covs[icov]);
 }
 
-int ACovAnisoList::getMinOrder() const
+/**
+ * @return The Minimum IRF-order induced by the covariances
+ */
+int ACovAnisoList::getCovaMinIRFOrder() const
 {
   int nmini = -1;
   for (unsigned i = 0, n = getCovNumber(); i<n; i++)

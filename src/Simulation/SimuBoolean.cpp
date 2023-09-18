@@ -23,7 +23,8 @@
 SimuBoolean::SimuBoolean(int nbsimu, int seed)
     : ACalcSimulation(nbsimu, seed),
       AStringable(),
-      _objlist()
+      _objlist(),
+      _iptrCover(-1)
 {
 }
 
@@ -58,11 +59,13 @@ int SimuBoolean::simulate(Db *dbin,
                           const SimuBooleanParam& boolparam,
                           int iptr_simu,
                           int iptr_rank,
+                          int iptr_cover,
                           bool verbose)
 {
   /* Define the global variables */
 
   law_set_random_seed(getSeed());
+  _iptrCover = iptr_cover;
 
   /* Count the number of conditioning pores and grains */
 
@@ -80,7 +83,7 @@ int SimuBoolean::simulate(Db *dbin,
 
   if (_generateSecondary(dbin, dbout, tokens, boolparam, verbose)) return 1;
 
-  if (verbose) display();
+//  if (verbose) display();
 
   // Project the objects on the output grid
 
@@ -152,7 +155,7 @@ int SimuBoolean::_getRankUncovered(const Db* db, int rank)
     if (! db->isActive(iech)) continue;
     int data = (int) db->getLocVariable(ELoc::Z,iech, 0);
     if (data <= 0) continue;
-    int cover = (int) db->getLocVariable(ELoc::Z,iech, 1);
+    int cover = db->getArray(iech, _iptrCover);
     if (cover > 0) continue;
     if (number == rank) return iech;
     number++;
@@ -194,7 +197,7 @@ int SimuBoolean::_generatePrimary(Db* dbin,
   {
     message("- Conditioning option               = YES\n");
     mestitle(1, "Simulating the initial tokens");
-    message("- Number of grains to be covered = %d\n", nbgrain);
+    message("- Number of grains to be covered    = %d\n", nbgrain);
     message("- Number of conditioning pores      = %d\n", nbpore);
   }
 
@@ -240,11 +243,14 @@ int SimuBoolean::_generatePrimary(Db* dbin,
 
     // Update the coverage
 
-    object->coverageUpdate(dbin, 1);
+    draw_more = object->coverageUpdate(dbin, _iptrCover, 1);
   }
 
   if (verbose)
+  {
     message("- Number of Initial Objects = %d\n",_getNObjects(1));
+    message("- Number of iterations      = %d\n", iter);
+  }
 
   return 0;
 }
@@ -302,7 +308,7 @@ int SimuBoolean::_generateSecondary(Db* dbin,
 
       // Update the coverage
 
-      object->coverageUpdate(dbin, 1);
+      object->coverageUpdate(dbin, _iptrCover, 1);
     }
     else
     {
@@ -366,7 +372,7 @@ int SimuBoolean::_deleteObject(int mode, Db* dbin)
   /* Check if the object can be deleted */
 
   BooleanObject* object = _objlist[iref];
-  if (! object->isCompatibleGrainDelete(dbin)) return 1;
+  if (! object->isCompatibleGrainDelete(dbin, _iptrCover)) return 1;
 
   /* Erase the object from the list*/
 
@@ -374,7 +380,7 @@ int SimuBoolean::_deleteObject(int mode, Db* dbin)
 
   // Update the coverage
 
-  object->coverageUpdate(dbin, -1);
+  object->coverageUpdate(dbin, _iptrCover, -1);
 
   // Delete the object
 
@@ -428,3 +434,74 @@ bool SimuBoolean::_run()
 {
   return true;
 }
+
+/*****************************************************************************/
+/*!
+ **  Performs the boolean simulation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin          Db structure containing the data (optional)
+ ** \param[in]  dbout         DbGrid structure containing the simulated grid
+ ** \param[in]  tokens        Tokens structure
+ ** \param[in]  boolparam     SimuBooleanParam structure
+ ** \param[in]  seed          Seed for the random number generator
+ ** \param[in]  flag_simu     Store the boolean simulation
+ ** \param[in]  flag_rank     Store the object rank
+ ** \param[in]  verbose       1 for a verbose output
+ ** \param[in]  namconv       Naming convention
+ **
+ *****************************************************************************/
+int simbool(Db* dbin,
+            DbGrid* dbout,
+            ModelBoolean* tokens,
+            const SimuBooleanParam& boolparam,
+            int seed,
+            bool flag_simu,
+            bool flag_rank,
+            bool verbose,
+            const NamingConvention& namconv)
+{
+  int iptr_cover = -1;
+  if (dbin != nullptr)
+  {
+    if (dbin->getLocNumber(ELoc::Z) != 1)
+    {
+      messerr("Conditional Boolean simulation needs 1 variable");
+      return 1;
+    }
+    iptr_cover = dbin->addColumnsByConstant(1, 0.,"Cover");
+    if (iptr_cover < 0) return 1;
+  }
+
+  /* Add the attributes for storing the simulation */
+
+  int iptr_simu = -1;
+  if (flag_simu)
+  {
+    iptr_simu = dbout->addColumnsByConstant(1, boolparam.getBackground());
+    if (iptr_simu < 0) return 1;
+  }
+  int iptr_rank = -1;
+  if (flag_rank)
+  {
+    iptr_rank = dbout->addColumnsByConstant(1, TEST);
+    if (iptr_rank < 0) return 1;
+  }
+
+  SimuBoolean simubool(1, seed);
+  if (simubool.simulate(dbin, dbout, tokens, boolparam,
+                        iptr_simu, iptr_rank, iptr_cover, verbose)) return 1;
+
+  // Delete the working variable corresponding to the cover index
+
+  if (iptr_cover >= 0)
+    dbin->deleteColumnByUID(iptr_cover);
+
+  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_simu, "Facies", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
+                              false);
+  return 0;
+}
+

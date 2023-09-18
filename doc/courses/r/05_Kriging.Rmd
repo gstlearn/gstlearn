@@ -27,14 +27,17 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
 ```
 
 Then we download the data base `dat`.
 
 ```{r Loading_Data}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 dat = Db_createFromNF(fileNF)
 ```
 
@@ -231,8 +234,8 @@ Let us compare the results from the simple and ordinary kriging predictors. To d
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
 p = ggplot()
-p = p + plot.correlation(grid,name1="OK.January_temp.estim",name2="SK.January_temp.estim", 
-                     flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
+p = p + plot.correlation(grid,namex="OK.January_temp.estim",namey="SK.January_temp.estim", 
+                     flagBiss=TRUE, flagSameAxes=TRUE, bins=100)
 p = p + plot.decoration(title="Estimation Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 ggPrint(p)
@@ -242,8 +245,8 @@ We also compare the kriging standard-deviations obtained in both cases.
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
 p = ggplot()
-p = p + plot.correlation(grid,name1="OK.January_temp.stdev",name2="SK.January_temp.stdev", 
-                     flagRegr=TRUE, flagSameAxes=TRUE, bins=100)
+p = p + plot.correlation(grid,namex="OK.January_temp.stdev",namey="SK.January_temp.stdev", 
+                     flagBiss=TRUE, flagSameAxes=TRUE, bins=100)
 p = p + plot.decoration(title="St. dev. Simple vs. Ordinary", 
                     xlab="Ordinary Kriging", ylab="Simple Kriging")
 ggPrint(p)
@@ -256,9 +259,10 @@ ggPrint(p)
 We now load new grid. 
 
 ```{r}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
 fileNF = "Scotland_Elevations.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 grid = DbGrid_createFromNF(fileNF)
 grid$display(dbfmt)
 ```
@@ -445,7 +449,7 @@ Finally, let us compare the results obtained with a unique and a moving neighbor
 
 ```{r Comparing_unique_moving_estimation}
 p = ggplot()
-p = p + plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", 
+p = p + plot.correlation(grid,namex = "OK*estim",namey="Moving*estim", 
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(title="Ordinary Kriging Estimation", 
                     xlab="Unique", ylab="Moving")
@@ -456,7 +460,7 @@ Then, we compare the kriging standard-deviations in both cases.
 
 ```{r Comparing_unique_moving_stdev}
 p = ggplot()
-p = p + plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", 
+p = p + plot.correlation(grid,namex = "OK*stdev",namey="Moving*stdev", 
                          bins=100, flagDiag=TRUE)
 p = p + plot.decoration(title="Ordinary Kriging St. Dev.", 
                     xlab="Unique", ylab="Moving")

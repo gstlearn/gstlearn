@@ -1043,9 +1043,17 @@ def Triplet_toTL(self):
 setattr(gl.Triplet, "toTL", Triplet_toTL)
 
 def table_toTL(self):
-  Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
-  #colnames(mat) <- tab$getColumnNames()
-  #rownames(mat) <- tab$getRowNames()
+# As a Panda Data Frame
+  colnames = self.getColumnNames()
+  rownames = self.getRowNames()
+  if len(colnames) == 0:
+  	colnames = None
+  if len(rownames) == 0:
+  	rownames = None
+  Anp = pd.DataFrame(self.getValues(False).reshape(self.getNRows(),self.getNCols()),
+  columns = colnames, index=rownames)
+# As a simple array
+#  Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
   return Anp
 
 setattr(gl.Table, "toTL", table_toTL)

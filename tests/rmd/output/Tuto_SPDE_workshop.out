@@ -1,0 +1,21 @@
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Nugget Effect
+- Sill         =      0.000
+Total Sill     =      1.000
+NULL
+These options have not been implemented yet. Not taken into account

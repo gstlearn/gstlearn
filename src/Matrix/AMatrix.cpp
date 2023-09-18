@@ -916,6 +916,54 @@ void AMatrix::setColumn(int icol, const VectorDouble& tab)
     setValue(irow,icol,tab[irow]);
 }
 
+/*! Checks if a Column is valid (contains a non TEST value) */
+bool AMatrix::isColumnDefined(int icol) const
+{
+  if (icol < 0 || icol >= getNCols())
+    my_throw("Incorrect argument 'icol'");
+
+  for (int irow = 0; irow < getNRows(); irow++)
+  {
+    if (! FFFF(getValue(irow,icol))) return true;
+  }
+  return false;
+}
+
+/*! Checks if a Row is valid (contains a non TEST value) */
+bool AMatrix::isRowDefined(int irow) const
+{
+  if (irow < 0 || irow >= getNRows())
+    my_throw("Incorrect argument 'irow'");
+
+  for (int icol = 0; icol < getNCols(); icol++)
+  {
+    if (! FFFF(getValue(irow,icol))) return true;
+  }
+  return false;
+}
+
+/*! Define the number of defined columns */
+int AMatrix::getNumberColumnDefined() const
+{
+  int ncol = 0;
+  for (int icol = 0; icol < getNCols(); icol++)
+  {
+    if (isColumnDefined(icol)) ncol++;
+  }
+  return ncol;
+}
+
+/*! Define the number of defined rows */
+int AMatrix::getNumberRowDefined() const
+{
+  int nrow = 0;
+  for (int irow = 0; irow < getNRows(); irow++)
+  {
+    if (isRowDefined(irow)) nrow++;
+  }
+  return nrow;
+}
+
 /**
  * Perform: this += 'value' * 'tab'
  * @param tab    Current matrix

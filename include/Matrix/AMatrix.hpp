@@ -116,6 +116,14 @@ public:
   VectorDouble getRow(int irow) const;
   /*! Extract a Column */
   VectorDouble getColumn(int icol) const;
+  /*! Checks if a Column is valid (contains a non TEST value) */
+  bool isColumnDefined(int icol) const;
+  /*! Checks if a Row is valid (contains a non TEST value) */
+  bool isRowDefined(int irow) const;
+  /*! Define the number of defined columns */
+  int getNumberColumnDefined() const;
+  /*! Define the number of defined rows */
+  int getNumberRowDefined() const;
   /*! Add a value to a matrix term */
   void add(int irow, int icol, double value);
   /*! Add a matrix to this */

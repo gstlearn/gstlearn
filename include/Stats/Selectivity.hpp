@@ -127,7 +127,11 @@ public:
   double getZmax() const { return _zmax; }
   bool isOnlyZDefined() const { return _flagOnlyZDefined; }
 
-  const Table getStats() const { return _stats; }
+  const Table getStats() const;
+  const Table getAllStats() const { return _stats; }
+
+  const MatrixInt& getNumberQt() const { return _numberQT; }
+  const MatrixInt& getRankQt() const { return _rankQT; }
 
 private:
   VectorString _getAllNames() const;

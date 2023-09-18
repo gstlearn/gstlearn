@@ -1,0 +1,139 @@
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+6 - Name P - Locator NA
+ Nb of data          =     262144
+ Nb of active values =     242306
+ Minimum value       =      0.000
+ Maximum value       =    314.000
+ Mean value          =     31.767
+ Standard Deviation  =     21.759
+ Variance            =    473.457
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+5 - Name Ni - Locator NA
+ Nb of data          =     262144
+ Nb of active values =     262144
+ Minimum value       =   1840.000
+ Maximum value       =  12593.000
+ Mean value          =  10111.444
+ Standard Deviation  =    884.996
+ Variance            = 783217.898
+NULL
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Cr - Locator NA
+ Nb of data          =     262144
+ Nb of active values =     262144
+ Minimum value       =   2591.000
+ Maximum value       =  24982.000
+ Mean value          =  16800.231
+ Standard Deviation  =    936.213
+ Variance            = 876495.558
+NULL
+NULL
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =    273.080
+Spherical
+- Sill         =     56.089
+- Range        =      3.600
+Power (Third Parameter = 0.0879341)
+- Slope        =      1.187
+
+
+Drift Part
+----------
+Universality Condition
+NULL
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =    273.080
+  (This component is Filtered)
+Spherical
+- Sill         =     56.089
+- Range        =      3.600
+Power (Third Parameter = 0.0879341)
+- Slope        =      1.187
+
+
+Drift Part
+----------
+Universality Condition
+NULL
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]   376.850   452.534  -476.811
+     [  1,]   452.534194188.109-11524.845
+     [  2,]  -476.811-11524.845145939.572
+Spherical
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]    57.513  5031.290 -4489.149
+     [  1,]  5031.290636076.559-583291.704
+     [  2,] -4489.149-583291.704616673.997
+- Range        =     12.375
+Power (Third Parameter = 1.99)
+- Slope matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.263    -0.414     6.133
+     [  1,]    -0.414   145.976    44.478
+     [  2,]     6.133    44.478   163.446
+
+
+Drift Part
+----------
+Universality Condition
+NULL
+NULL

@@ -57,16 +57,16 @@ int main(int argc, char *argv[])
   int ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 43246);
   VectorDouble z = VH::simulateGaussian(ndata);
-  (void) simulateSPDE(nullptr,dat,model,1, nullptr, 11, 18, 8, 132341, false,
+  (void) simulateSPDE(nullptr,dat,model,1, nullptr, 11, 18, 8, 132341, 1.e-2, false,
                       NamingConvention("variable", false, false));
   dat->display();
 
   // Estimation and simulations
-  (void) krigingSPDE(dat,grid,model, true, false, false, nullptr, 11, 8, false,
+  (void) krigingSPDE(dat,grid,model, true, false, false, nullptr, 11, 8, 1.e-2, false,
                      NamingConvention("K-spirale"));
-  (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, 11, 18, 8, 132341, false,
+  (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, 11, 18, 8, 132341, 1.e-2, false,
                       NamingConvention("NCS-spirale"));
-  (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, 11, 18, 8, 132341, false,
+  (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, 11, 18, 8, 132341, 1.e-2, false,
                       NamingConvention("CDS-spirale"));
 
   (void) grid->dumpToNF("grid.ascii");

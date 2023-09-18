@@ -1,0 +1,427 @@
+---
+title: "Evaluation of the simulation functions (Turning bands vs. SPDE)"
+author: "gstlearn Team"
+date: "2023-09-05"
+output: pdf_document
+---
+
+# Introduction
+
+In this tutorial, we show how to simulated two dimensional stationary Gaussian Random Fields.
+
+Its objectives are two folds:
+
+* illustrate how to use the simulation functions with the Turning Bands methods and the SPDE approach
+
+* evaluate the reproduction of the first and second statistics, mean and covariance function, defining these fields
+
+All the fields are simulated on the domain $[0, 1]^2$ discretized on a regular grid.
+
+To evaluate the conditioning algorithms, a realization of the random field, a non conditional simulation, is observed at points, uniformly scattered on the domain. These observations are used to condition a simulation.
+
+## Initialization and parameters
+
+```{r intialization, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+OptCst_defineByKey("ASP",0)
+library(ggplot2)
+library(ggpubr)
+library(Matrix)
+stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
+```
+
+```{r parameters}
+# simulation parameters
+seed = 123
+set.seed (seed)
+# number of simulations for Monte-Carlo estimators
+nsim = 10
+
+# number of observations
+ndat = 50
+
+# parameters of the grid on [0,1]^2
+nx = 101*c(1,1)
+dx = 1/(nx-1)
+x0 = c(0,0)
+
+# parameters for the simulation algorithms
+ntb = 1000 # number of band for the Turning Bands method (simtub)
+tau = 0.01 # std. of the model observation process for SPDE (not used as default value is used instead)
+matern_param = 1.0
+```
+
+## Definition of the grid and the observation
+
+```{r domain_definition, echo=TRUE, eval=TRUE}
+# observations
+dat = Db_create()
+err = dat$setColumn(tab = runif(n=ndat), name = "x")
+err = dat$setColumn(tab = runif(n=ndat), name = "y")
+err = dat$setLocators(names = c("x", "y"), locatorType = ELoc_X(), cleanSameLocator = TRUE)
+err = dat$setColumn(tab = rnorm(ndat), name = "Z", locatorType = ELoc_Z())
+# grid for the simulations
+grid    = DbGrid_create(nx,dx,x0)
+
+# limits
+limits <- list(XP = 1.0*c(0, 1, 1, 0, 0),
+               YP = 1.0*c(0, 0, 1, 1, 0))
+p_lim   = PolyElem(limits$XP, limits$YP)
+pol_lim = Polygons()
+err     = pol_lim$addPolyElem(p_lim)
+
+# displays
+p = ggDefaultGeographic() + 
+    plot.grid(grid) +
+    plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
+    plot.point(dat, color = "red") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                    title = "Limits of the simulations")
+ggPrint(p)
+```
+
+
+## Auxiliary functions
+
+```{r fn_ qc_variogram, echo=TRUE, eval=TRUE }
+
+# ------------------------------------------------------------
+# QC of simulations
+# ------------------------------------------------------------
+qc_simulations <- function(grid, names, var_model, title, stat_keys) {
+nsim = length(names)
+
+# statistics
+tab = matrix(dbStatisticsMono(grid, names = names, opers = EStatOption_fromKeys(stat_keys)),
+  nrow = nsim, ncol = length(stat_keys), byrow = TRUE
+)
+colnames(tab) <- stat_keys
+rownames(tab) <- names
+
+print(paste("-------------------------------------------") )
+print(paste0(title, ": statistics"))
+print(paste("-------------------------------------------") )
+print(round(tab, digits = 4))
+print(paste("-------------------------------------------") )
+# knitr::kable(tab, caption = paste0(title, ": statistics"), digits = 4)
+
+# histogram of simulation  #1
+i = 1
+hist(grid[names[i]], xlab = names[i], main = title, nc = 25, col = "orange", bg = "gray")
+# p = ggplot() + 
+#     plot.hist(grid, name = names[i], usesel = TRUE, col = "gray", fill = "orange") +
+#     plot.decoration(xlab = names[i], title = title)
+# ggPrint(p)
+
+# base map
+p = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = names[i], show.legend.raster = TRUE, legend.name.raster = "Y",
+              palette = "Spectral") +
+    # plot.point(dat, color = "red") +
+    plot.decoration(xlab = "Easting", ylab = "Northing", 
+                  title = title)
+ggPrint(p)
+
+# variogram computations
+nlags = grid$getNXs()[1]/2
+varioparam = VarioParam_createMultipleFromGrid(grid, npas = nlags)
+vario_list = list()
+for (i in 1:nsim) {
+  vario = Vario(varioparam, grid)
+  err   = grid$setLocator(name = names[i], locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+  err   = vario$compute()
+  vario_list[[1 + length(vario_list)]] <- vario
+}
+
+# plot of mean variogram per direction
+err = qc_variogram(var_list = vario_list, var_param = varioparam, var_model = var_model, titre = title)
+
+NULL
+}
+
+# ------------------------------------------------------------
+# plot of mean variogram per direction
+# ------------------------------------------------------------
+qc_variogram <- function(var_list, var_param, var_model, titre) {
+nsim = length(var_list)
+ndir = var_param$getDirectionNumber()
+# variogram matrices
+res_gg = list()
+for (idir in 1:ndir) {
+  nlags = var_param$getDirParam(idir-1)$getLagNumber()
+  gg_sim = matrix(NaN, nrow = nlags-1, ncol = nsim)
+  for (i in 1:nsim) {
+    gg_sim[,i] = var_list[[i]]$getGgVec(idir = idir-1, ivar = 0, jvar = 0)
+  }
+  res_gg[[1 + length(res_gg)]] <- gg_sim
+}
+
+# plot for each direction
+for (idir in 1:ndir) {
+  
+  nlags = var_param$getDirParam(idir-1)$getLagNumber()
+  hh = dx[idir]*(1:(nlags-1))
+  v_mean = apply(X = res_gg[[idir]], MARGIN = 1, FUN = mean)
+  v_sd   = apply(X = res_gg[[idir]], MARGIN = 1, FUN = sd)
+  
+  # initial plot
+  dir = var_param$getDirParam(idir - 1)$getCodirs()
+  sdir = sprintf("Direction = [%1d, %1d]", dir[1], dir[2])
+  plot(NULL, NULL, xlim = c(0, dx[idir]*nlags), ylim = 1.2*c(0, var_model$getTotalSill(ivar = 0, jvar = 0)),
+       xlab = "Distance", ylab = "Variogram", main = paste0(titre, "\n", sdir))
+  abline(h = 0, lty = 1, col = "black")
+  abline(v = 0, lty = 1, col = "black")
+  
+  # experimental variogram
+  lines(hh, v_mean, col = "orange", lw = 2)
+  lines(hh, v_mean + 2 * v_sd, col = "orange", lty = 2)
+  lines(hh, v_mean - 2 * v_sd, col = "orange", lty = 2)
+  for (s in 1:nsim) {
+    lines(hh, res_gg[[idir]][,s] , col = "gray", lty = 3)
+  }
+  
+  # variogram model
+  abline(h  = var_model$getTotalSill(ivar = 0, jvar = 0), lty = 2, col = "skyblue")
+  lines(hh, var_model$getTotalSill(ivar = 0, jvar = 0) - var_model$sample(hh = hh, ivar = 0, jvar = 0, 
+        codir = var_param$getDirParam(idir - 1)$getCodirs()), 
+        lty = 1, lw = 2, col = "skyblue")
+  
+  # legend TODO
+  legend("bottomright", 
+         legend = c("model", "mean variogram", "+/- 2 x Std.", "empirical variograms"),
+         lty = c(1, 1, 2, 3), lw = c(2, 2, 1, 1), col = c("skyblue", "orange", "orange", "gray")
+  )
+} # loop over the directions
+  NULL
+}
+
+
+```
+
+# A single structure
+
+```{r s1_mod, echo=TRUE, eval=TRUE}
+  err = grid$deleteColumns(names = c("*.nc.simu.*","kriging.Z*", "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
+# a simple Matern's covariance model
+  model = Model()
+  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 1, ranges = 1*c(0.1, 0.3), angles = c(30, 0), param = 1.0)
+```
+
+## Non-conditional simulations
+
+```{r s1_nc, echo=TRUE, eval=TRUE}
+  # non conditional simulations
+  err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+               neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+               namconv = NamingConvention("SPDE.nc"))
+  list_title = c("Using Turning Bands", "Using SPDE approach")
+  list_key   = c("TB", "SPDE")
+  for (i in seq_along(list_title)) {
+    err = qc_simulations(grid = grid, 
+                         names = paste(list_key[i], "nc.simu", 1:nsim, sep = "."), 
+                         var_model = model, title = list_title[i], stat_keys = stat_keys)
+  }
+
+```
+
+## Kriging
+
+```{r s1_kriging, echo=TRUE, eval=TRUE}
+# simple kriging
+err = model$delDrift(rank = 0)
+err = model$setMean(mean = 0.0)
+neigh = NeighUnique()
+# kriging in unique neighbourhood
+  err = kriging(dbin = dat, dbout = grid, model = model,
+               neigh = neigh, 
+               flag_est = TRUE, flag_std = TRUE, flag_varz = TRUE, 
+               namconv = NamingConvention("kriging"))
+
+  err = krigingSPDE(dbin = dat, dbout = grid, model = model,
+               flag_est = TRUE, flag_std = TRUE, flag_varz = TRUE, 
+               namconv = NamingConvention("SPDE"))
+
+  err = simulateSPDE(dbin = dat, dbout = grid, model = model,
+                     nbsimu = nsim, seed = seed, namconv = NamingConvention("SPDE"))
+
+  # cross plot for estimates (SPDE vs. kriging)
+  p = ggplot() + 
+    plot.correlation(grid, namex = "kriging.Z.estim", namey = "SPDE.Z.kriging", 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
+    plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Mono structure")
+  ggPrint(p)
+
+  # cross plot of kriging std. (SPDE vs. kriging)
+  nm_sims = grid$getNames(names = "SPDE.Z.condSimu.*")
+  tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getSampleNumber(), ncol = length(nm_sims))
+  estim = apply(X = tab, MARGIN = 1, FUN = mean)
+  stdev = apply(X = tab, MARGIN = 1, FUN = sd)
+  grid["SPDE.Z.estim"] = estim
+  grid["SPDE.Z.stdev"] = stdev
+
+  # conditional simulations
+  p1 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.1", palette = "Spectral")
+  p2 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.2", palette = "Spectral")
+  p3 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.3", palette = "Spectral")
+  p4 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.4", palette = "Spectral")
+  ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
+
+  # estimate by MC
+  p = ggplot() + 
+    plot.correlation(grid, namex = "SPDE.Z.kriging", namey = "SPDE.Z.estim", 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
+    plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
+  ggPrint(p)
+
+  # stdev
+  p = ggplot() + 
+    plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.Z.stdev", 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
+    plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.", title = "Mono structure")
+  ggPrint(p)
+
+  # estimator
+  p1 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "kriging.Z.estim", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  p2 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "SPDE.Z.kriging", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  ggarrange(p1, p2, nrow = 1, ncol = 2)
+
+  # standard deviation
+  p1 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "kriging.Z.stdev", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  p2 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "SPDE.Z.stdev", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  ggarrange(p1, p2, nrow = 1, ncol = 2)
+  
+```
+  
+# Linear model of covariances
+
+
+```{r LMC_mod, echo=TRUE, eval=TRUE}
+  err = grid$deleteColumns(names = c("*.nc.simu.*","kriging.Z*", "SPDE.Z.kriging", "SPDE.Z.condSimu.*", "SPDE.Z.*"))
+# a covariance model defined as a sum of two Matern's covariance functions and a nugget effect 
+  model = Model()
+  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 0.4, ranges = 1*c(0.1, 0.3), angles = c(30, 0), param = 1.0)
+  err = model$addCovFromParam(type = ECov_fromKey("BESSEL_K"), sill = 0.5, ranges = 2*c(0.1, 0.3), angles = c(30, 0), param = 2.0)
+  err = model$addCovFromParam(ECov_NUGGET(), sill=0.1)
+  
+```
+
+## Non-conditional simulations
+
+```{r LMC_nc, echo=TRUE, eval=TRUE}
+  # non conditional simulations
+  err = simtub(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+               neigh = NULL, nbtuba = ntb, namconv = NamingConvention("TB.nc.simu"))
+  err = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, seed=seed, 
+               namconv = NamingConvention("SPDE.nc"))
+  list_title = c("Using Turning Bands", "Using SPDE approach")
+  list_key   = c("TB", "SPDE")
+  for (i in seq_along(list_title)) {
+    err = qc_simulations(grid = grid, 
+                         names = paste(list_key[i], "nc.simu", 1:nsim, sep = "."), 
+                         var_model = model, title = list_title[i], stat_keys = stat_keys)
+  }
+
+```
+
+## Kriging
+
+```{r LMC_kriging, echo=TRUE, eval=TRUE}
+# simple kriging
+err = model$delDrift(rank = 0)
+err = model$setMean(mean = 0.0)
+neigh = NeighUnique()
+# kriging in unique neighbourhood
+  err = kriging(dbin = dat, dbout = grid, model = model,
+               neigh = neigh, 
+               flag_est = TRUE, flag_std = TRUE, flag_varz = TRUE, 
+               namconv = NamingConvention("kriging"))
+
+  err = krigingSPDE(dbin = dat, dbout = grid, model = model,
+               flag_est = TRUE, flag_std = TRUE, flag_varz = TRUE, 
+               namconv = NamingConvention("SPDE"))
+
+  err = simulateSPDE(dbin = dat, dbout = grid, model = model,
+                     nbsimu = nsim, seed = seed, namconv = NamingConvention("SPDE"))
+
+  # cross plot for estimates (SPDE vs. kriging)
+  p = ggplot() + 
+    plot.correlation(grid, namex = "kriging.Z.estim", namey = "SPDE.Z.kriging", 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
+    plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Multi structure")
+  ggPrint(p)
+
+  # cross plot of kriging std. (SPDE vs. kriging)
+  nm_sims = grid$getNames(names = "SPDE.Z.condSimu.*")
+  tab = matrix(grid$getColumns(names = nm_sims) , nrow = grid$getSampleNumber(), ncol = length(nm_sims))
+  estim = apply(X = tab, MARGIN = 1, FUN = mean)
+  stdev = apply(X = tab, MARGIN = 1, FUN = sd)
+  grid["SPDE.Z.estim"] = estim
+  grid["SPDE.Z.stdev"] = stdev
+
+  # conditional simulations
+  p1 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.1", palette = "Spectral")
+  p2 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.2", palette = "Spectral")
+  p3 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.3", palette = "Spectral")
+  p4 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.condSimu.4", palette = "Spectral")
+  ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
+  
+  # estimate by MC
+  p = ggplot() + 
+    plot.correlation(grid, namex = "SPDE.Z.kriging", namey = "SPDE.Z.estim", 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
+    plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
+  ggPrint(p)
+
+  # stdev
+  p = ggplot() + 
+    plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.Z.stdev", 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE) +
+    plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.", title = "Multi structure")
+  ggPrint(p)
+
+  # estimator
+  p1 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "kriging.Z.estim", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  p2 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "SPDE.Z.kriging", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  ggarrange(p1, p2, nrow = 1, ncol = 2)
+
+  # standard deviation
+  p1 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "kriging.Z.stdev", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  p2 = ggDefaultGeographic() + 
+    plot.grid(grid, name_raster = "SPDE.Z.stdev", 
+              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.decoration(xlab = "Easting", ylab = "Northing")
+  ggarrange(p1, p2, nrow = 1, ncol = 2)
+  
+```
+
+
+# References
+
+* Lindgren, F., Rue, H., and Lindström, J. (2011). An explicit link between gaussian fields and gaussian markov random fields: the spde approach (with discussion). JR 671 Stat Soc, Series B, 73:423–498.
+
+* Pereira, M., Desassis, N., & Allard, D. (2022). Geostatistics for Large Datasets on Riemannian Manifolds: A Matrix-Free Approach. Journal of Data Science, 20(4), 512-532. doi:10.6339/22-JDS1075
+

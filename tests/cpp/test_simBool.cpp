@@ -25,6 +25,7 @@
 #include "Boolean/ShapeParallelepiped.hpp"
 #include "Boolean/ModelBoolean.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
+#include "Simulation/SimuBoolean.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar,
                          bool flag_sel = false, double proba = 0.5)

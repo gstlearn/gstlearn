@@ -28,7 +28,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 100
 
 Variables
@@ -67,7 +66,7 @@ Data Base Statistics
  Mean value          =     50.000
  Standard Deviation  =     29.155
  Variance            =    850.000
-4 - Name K-spirale.variable.kriging - Locator NA
+4 - Name K-spirale.variable.estim - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.099
@@ -75,7 +74,7 @@ Data Base Statistics
  Mean value          =      0.141
  Standard Deviation  =      0.835
  Variance            =      0.698
-5 - Name NCS-spirale.simu.1 - Locator NA
+5 - Name NCS-spirale.1 - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -2.861
@@ -83,7 +82,7 @@ Data Base Statistics
  Mean value          =     -0.017
  Standard Deviation  =      0.996
  Variance            =      0.991
-6 - Name NCS-spirale.simu.2 - Locator NA
+6 - Name NCS-spirale.2 - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.874
@@ -91,7 +90,7 @@ Data Base Statistics
  Mean value          =      0.153
  Standard Deviation  =      1.177
  Variance            =      1.385
-7 - Name NCS-spirale.simu.3 - Locator NA
+7 - Name NCS-spirale.3 - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.634
@@ -99,7 +98,7 @@ Data Base Statistics
  Mean value          =      0.021
  Standard Deviation  =      1.024
  Variance            =      1.048
-8 - Name CDS-spirale.variable.condSimu.1 - Locator z1
+8 - Name CDS-spirale.variable.1 - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.298
@@ -107,7 +106,7 @@ Data Base Statistics
  Mean value          =      0.105
  Standard Deviation  =      1.122
  Variance            =      1.258
-9 - Name CDS-spirale.variable.condSimu.2 - Locator z2
+9 - Name CDS-spirale.variable.2 - Locator z2
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.330
@@ -115,7 +114,7 @@ Data Base Statistics
  Mean value          =      0.221
  Standard Deviation  =      1.089
  Variance            =      1.186
-10 - Name CDS-spirale.variable.condSimu.3 - Locator z3
+10 - Name CDS-spirale.variable.3 - Locator z3
  Nb of data          =      10201
  Nb of active values =      10201
  Minimum value       =     -3.856

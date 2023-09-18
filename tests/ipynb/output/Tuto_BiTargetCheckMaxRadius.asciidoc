@@ -2,20 +2,20 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[4]:*+
 ----
 [cols=",,,,",options="header",]
 |===
 | |Longitude |Latitude |Elevation |January_temp
 |0 |372.1 |658.9 |255 |1.7
-|1 |303.5 |665.9 |125 |2
+|1 |303.5 |665.9 |125 |2.0
 |2 |218.4 |597.9 |8 |4.6
-|3 |245.0 |955.0 |90 |MISS
+|3 |245.0 |955.0 |90 |NaN
 |4 |326.8 |691.2 |32 |3.1
 |... |... |... |... |...
 |231 |273.2 |564.6 |47 |2.8
 |232 |333.9 |730.1 |30 |2.6
-|233 |185.0 |655.0 |115 |MISS
+|233 |185.0 |655.0 |115 |NaN
 |234 |259.8 |587.9 |119 |2.1
 |235 |260.8 |668.6 |107 |2.6
 |===
@@ -33,21 +33,22 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 4
+Number of Columns            = 5
 Total number of samples      = 236
+Number of active samples     = 151
 
 Variables
 ---------
 Column = 0 - Name = Longitude - Locator = x1
 Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = NA
-Column = 3 - Name = January_temp - Locator = z1----
+Column = 3 - Name = January_temp - Locator = z1
+Column = 4 - Name = TempOK - Locator = sel----
 
 
 +*Out[6]:*+
 ----
-![png](output_5_0.png)
+![png](output_9_0.png)
 ----
 
 
@@ -61,7 +62,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 2
-Maximum Number of UIDs       = 2
 Total number of samples      = 10400
 
 Grid characteristics:
@@ -77,8 +77,8 @@ Column = 1 - Name = x2 - Locator = x2----
 
 
 +*Out[8]:*+
-XXX
-![png](output_7_1.png)
+----
+![png](output_12_0.png)
 ----
 
 
@@ -88,34 +88,54 @@ Moving Neighborhood
 ===================
 Minimum number of samples           = 1
 Maximum number of samples           = 3
-Maximum horizontal distance         = 30----
+Maximum horizontal distance         = 300----
 
 
 +*Out[10]:*+
-----array([143])----
+----array([ 23,  75, 143])----
 
 
 +*Out[11]:*+
 ----
-![png](output_10_0.png)
+![png](output_19_0.png)
 ----
 
 
++*Out[12]:*+
+----
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 3
+Maximum horizontal distance         = 30----
+
+
 +*Out[13]:*+
+----array([143])----
+
+
++*Out[14]:*+
+----
+![png](output_23_0.png)
+----
+
+
++*Out[16]:*+
 ----
 
 Moving Neighborhood
 ===================
 Minimum number of samples           = 1
 Maximum number of samples           = 3
+Maximum horizontal distance         = 300
 This is my Max Radius checker: 30 ----
 
 
-+*Out[14]:*+
++*Out[17]:*+
 ----array([143])----
 
 
-+*Out[15]:*+
++*Out[18]:*+
 ----
-![png](output_14_0.png)
+![png](output_31_0.png)
 ----

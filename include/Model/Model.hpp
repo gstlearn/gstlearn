@@ -132,7 +132,7 @@ public:
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
   double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
-  int    getMinOrder() const { return _covaList->getMinOrder(); }
+  int    getCovaMinIRFOrder() const { return _covaList->getCovaMinIRFOrder(); }
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() const { return _covaList->getAnam(); }
   const AnamHermite* getAnamHermite() const;
@@ -427,7 +427,7 @@ public:
   bool isDriftFiltered(unsigned int il)            const;
   bool isDriftDefined(const EDrift& type0)         const;
   bool isDriftDifferentDefined(const EDrift& type0) const;
-  int getMaximumOrder(void) const { return _driftList->getMaximumOrder(); }
+  int getDriftMaxIRFOrder(void) const { return _driftList->getDriftMaxIRFOrder(); }
 
   void setCoefDrift(int ivar, int il, int ib, double coeff)    ;
   void setCoefDriftByRank(int rank, double coeff)              ;

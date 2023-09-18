@@ -2,27 +2,34 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
-----
-![png](output_8_0.png)
-----
-
-
-+*Out[7]:*+
++*Out[4]:*+
 ----array([[  78.2,  460.7],
        [ 530.4, 1208.9]])----
 
 
-+*Out[8]:*+
++*Out[6]:*+
 ----
 
 Data Base Grid Characteristics
 ==============================
 
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 11316
+
+Grid characteristics:
+---------------------
+Origin :     65.000   530.000
+Mesh   :      4.940     4.960
+Number :         82       138
+
 Data Base Extension
 -------------------
-Coor #1 - Min =     65.000 - Max =    460.200 - Ext = 395.2
-Coor #2 - Min =    535.000 - Max =   1209.560 - Ext = 674.56
+Coor #1 - Min =     65.000 - Max =    465.140 - Ext = 400.14
+Coor #2 - Min =    530.000 - Max =   1209.520 - Ext = 679.52
 
 Variables
 ---------
@@ -32,13 +39,34 @@ Column = 2 - Name = x2 - Locator = x2
  ----
 
 
++*Out[9]:*+
+----
+![png](output_17_0.png)
+----
+
+
 +*Out[10]:*+
 ----
-![png](output_18_0.png)
-----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 236
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = Longitude - Locator = x1
+Column = 2 - Name = Latitude - Locator = x2
+Column = 3 - Name = Elevation - Locator = NA
+Column = 4 - Name = January_temp - Locator = z1----
 
 
-+*Out[11]:*+
++*Out[13]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -47,8 +75,106 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 11316
+
+Grid characteristics:
+---------------------
+Origin :     65.000   530.000
+Mesh   :      4.940     4.960
+Number :         82       138
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = SK.January_temp.estim - Locator = z1
+Column = 4 - Name = SK.January_temp.stdev - Locator = NA----
+
+
++*Out[14]:*+
+----
+![png](output_28_0.png)
+----
+
+
++*Out[15]:*+
+----
+![png](output_30_0.png)
+----
+
+
++*Out[18]:*+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Total number of samples      = 11316
+
+Grid characteristics:
+---------------------
+Origin :     65.000   530.000
+Mesh   :      4.940     4.960
+Number :         82       138
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = SK.January_temp.estim - Locator = NA
+Column = 4 - Name = SK.January_temp.stdev - Locator = NA
+Column = 5 - Name = Mean4_SK.January_temp.estim - Locator = z1
+Column = 6 - Name = Mean4_SK.January_temp.stdev - Locator = NA----
+
+
++*Out[19]:*+
+----
+![png](output_37_0.png)
+----
+
+
++*Out[22]:*+
+----
+![png](output_44_0.png)
+----
+
+
++*Out[23]:*+
+----
+![png](output_46_0.png)
+----
+
+
++*Out[24]:*+
+----
+![png](output_48_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_50_0.png)
+----
+
+
++*Out[26]:*+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 11097
 Number of active samples     = 3092
 
@@ -58,119 +184,89 @@ Origin :     65.000   535.000
 Mesh   :      4.938     4.963
 Number :         81       137
 
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    455.123 - Ext = 390.123
+Coor #2 - Min =    535.000 - Max =   1200.109 - Ext = 665.109
+
 Variables
 ---------
 Column = 0 - Name = Longitude - Locator = x1
 Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = f1
-Column = 3 - Name = inshore - Locator = sel----
-
-
-+*Out[13]:*+
-----
-![png](output_24_0.png)
-----
-
-
-+*Out[14]:*+
-----
-![png](output_26_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_32_0.png)
-----
-
-
-+*Out[18]:*+
-----
-![png](output_34_0.png)
-----
-
-
-+*Out[19]:*+
-----
-![png](output_36_0.png)
-----
-
-
-+*Out[20]:*+
-----
-![png](output_38_0.png)
-----
-
-
-+*Out[22]:*+
-----
-![png](output_42_0.png)
-----
-
-
-+*Out[23]:*+
-----
-![png](output_44_0.png)
-----
-
-
-+*Out[24]:*+
-----
--0.0042
-0.2394
-0.9118
-----
-
-
-+*Out[25]:*+
-----
-![png](output_48_0.png)
-----
-
-
-+*Out[26]:*+
-----
-![png](output_50_0.png)
-----
+Column = 3 - Name = inshore - Locator = sel
+ ----
 
 
 +*Out[27]:*+
 ----
-![png](output_51_0.png)
+![png](output_55_0.png)
 ----
 
 
-+*Out[30]:*+
++*Out[29]:*+
 ----
-![png](output_57_0.png)
+![png](output_58_0.png)
 ----
 
 
-+*Out[33]:*+
++*Out[31]:*+
 ----
 ![png](output_63_0.png)
 ----
 
 
-+*Out[36]:*+
++*Out[32]:*+
 ----
-![png](output_70_0.png)
+![png](output_65_0.png)
+----
+
+
++*Out[33]:*+
+----
+Mean cross-validation error: -0.0042
+Mean squared cross-validation error: 0.2394
+Mean standardized error: 0.9118
+----
+
+
++*Out[34]:*+
+----
+![png](output_69_0.png)
 ----
 
 
 +*Out[37]:*+
 ----
-![png](output_72_0.png)
+![png](output_75_0.png)
 ----
 
 
-+*Out[38]:*+
++*Out[40]:*+
 ----
-![png](output_74_0.png)
+![png](output_80_0.png)
 ----
 
 
-+*Out[39]:*+
++*Out[43]:*+
 ----
-![png](output_76_0.png)
+![png](output_85_0.png)
+----
+
+
++*Out[44]:*+
+----
+![png](output_87_0.png)
+----
+
+
++*Out[45]:*+
+----
+![png](output_89_0.png)
+----
+
+
++*Out[46]:*+
+----
+![png](output_91_0.png)
 ----

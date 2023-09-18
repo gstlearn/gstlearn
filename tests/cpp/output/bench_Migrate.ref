@@ -7,7 +7,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 10000
 
 Variables
@@ -25,7 +24,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 3
-Maximum Number of UIDs       = 3
 Total number of samples      = 40000
 
 Grid characteristics:
@@ -47,13 +45,13 @@ Migrations
 
 #NO_DIFF# Migrate Grid to Point (no interpolation): 2 ms. (Ref = 5 ms.)
 #NO_DIFF# Migrate Grid to Point (with interpolation): 12 ms. (Ref = 5 ms.)
-#NO_DIFF# Migrate Grid to Grid: 30 ms. (Ref = 30 ms.)
+#NO_DIFF# Migrate Grid to Grid: 32 ms. (Ref = 30 ms.)
 #NO_DIFF# Expand Grid to Grid: 32 ms. (Ref = 30 ms.)
 #NO_DIFF# Migrate Point to Grid: 5 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Grid: 1397 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Grid (with balltree): 133 ms. (Ref = 1500 ms.)
-#NO_DIFF# Expand Point to Point: 18276 ms. (Ref = 19000 ms.)
-#NO_DIFF# Expand Point to Point (with balltree): 42 ms. (Ref = 19000 ms.)
+#NO_DIFF# Expand Point to Grid: 1978 ms. (Ref = 1500 ms.)
+#NO_DIFF# Expand Point to Grid (with balltree): 18227 ms. (Ref = 1500 ms.)
+#NO_DIFF# Expand Point to Point: 42995 ms. (Ref = 19000 ms.)
+#NO_DIFF# Expand Point to Point (with balltree): 1944 ms. (Ref = 19000 ms.)
 
 Data Base Characteristics
 =========================
@@ -63,7 +61,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 9
-Maximum Number of UIDs       = 9
 Total number of samples      = 10000
 
 Variables
@@ -86,7 +83,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 9
-Maximum Number of UIDs       = 9
 Total number of samples      = 40000
 
 Grid characteristics:

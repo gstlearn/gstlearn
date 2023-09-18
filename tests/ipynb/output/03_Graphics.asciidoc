@@ -27,7 +27,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 6
-Maximum Number of UIDs       = 6
 Total number of samples      = 30
 
 Variables
@@ -74,10 +73,12 @@ point(db, *args, **kwargs)
     flagTangent: Draw Tangent (if Tangents are defined)
     colorTangent: Color attached to the Tangent representation
     scaleTangent: Scale of the Tangent representation
-    flagLegendSymbol: Flag for representing the Color Bar of Size legend (only if name_color or name_size is defined)
-    legendSymbolName: Title for the Symbol Legend
-    flagLegendLabel: Flag for representing the Legend for marker size (only if name_label is defined)
-    legendLabelName: Title for the Label Legend
+    flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
+    flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
+    flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
+    legendNameColor: Title for the Color Legend
+    legendNameSize: Title for the Size legend
+    legendNameLabel: Title for the Label Legend
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     
@@ -149,7 +150,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 1750
 
 Grid characteristics:
@@ -260,7 +260,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 7
-Maximum Number of UIDs       = 7
 Total number of samples      = 17
 Number of active samples     = 17
 
@@ -317,7 +316,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 3
 
 Data Base Contents

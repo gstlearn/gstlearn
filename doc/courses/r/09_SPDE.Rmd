@@ -25,6 +25,8 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+
+flagInternetAvailable=TRUE
 ```
 
 # Getting the Data Bases from the repository.
@@ -32,10 +34,12 @@ library(ggpubr)
 The input Data Base (called **temperatures**) contains the target variable (**January_temp**). Note that this data base also contains the elevation variable (called **Elevation**) which is assigned the locator **f** (for external drift). We finally add a selection (called **sel**) which only consider the samples where the temperature is actually calculated.
 
 ```{r Loading_Data}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Temperatures.NF"
 fileNF = "Scotland_Temperatures.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 temperatures = Db_createFromNF(fileNF)
+
 temperatures$setLocator("Elevation", ELoc_F())
 iuid = temperatures$addSelection(as.numeric(! is.na(temperatures["J*"])))
 temperatures$display()
@@ -44,9 +48,10 @@ temperatures$display()
 The output file is a grid (called grid). It contains an active selection (inshore) as well as the elevation over the field (called Elevation). Note that this variable is assigned the locator f (external drift).
 
 ```{r Loading_Grid}
-dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Scotland/Scotland_Elevations.NF"
 fileNF = "Scotland_Elevations.NF"
-download.file(dlfile, fileNF)
+if(flagInternetAvailable){
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+}
 grid = DbGrid_createFromNF(fileNF)
 grid$display()
 ```
@@ -123,7 +128,7 @@ Represent the scatter plot of the Temperature given the Elevation and add the Gl
 
 ```{r Creating_Grid}
 p = ggplot()
-p = p + plot.correlation(temperatures,name1="Elevation",name2="*temp", asPoint=TRUE)
+p = p + plot.correlation(temperatures,namex="Elevation",namey="*temp", asPoint=TRUE)
 p = p + geom_segment(aes(x = 0, y = coeffs[1], xend = 400, yend = coeffs[1] + 400 * coeffs[2]))
 ggPrint(p)
 ```
@@ -161,7 +166,7 @@ Comparing both estimates
 
 ```{r}
 p = ggplot()
-p = p + plot.correlation(grid,name1="*estim",name2="*SPDE.*", asPoint=TRUE)
+p = p + plot.correlation(grid,namex="*estim",namey="*SPDE.*", asPoint=TRUE)
 p = p + plot.decoration(xlab="Kriging with External Drift", ylab="SPDE Kriging")
 ggPrint(p)
 ```

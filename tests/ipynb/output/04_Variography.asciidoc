@@ -4,6 +4,7 @@
 
 +*Out[4]:*+
 ----
+
 Data Base Grid Characteristics
 ==============================
 
@@ -12,7 +13,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 4
-Maximum Number of UIDs       = 4
 Total number of samples      = 10000
 
 Grid characteristics:
@@ -26,7 +26,8 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Cloud.January_temp - Locator = NA----
+Column = 3 - Name = Cloud.January_temp - Locator = NA
+ ----
 
 
 +*Out[5]:*+
@@ -51,55 +52,55 @@ Direction coefficients      =      1.000     0.000
 Direction angles (degrees)  =      0.000     0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =     10.000
-Tolerance on distance       =     50.000 (Percent of the lag value)
+Tolerance on distance       =     10.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0    19.000     3.118     0.042
-         1    89.000    10.690     0.172
-         2   168.000    20.346     0.280
-         3   244.000    30.323     0.456
-         4   316.000    40.429     0.459
-         5   385.000    50.162     0.660
-         6   399.000    60.296     0.729
-         7   463.000    70.062     0.874
-         8   450.000    79.807     0.800
-         9   473.000    90.115     0.977
-        10   549.000   100.141     0.879
-        11   484.000   109.866     0.970
-        12   491.000   119.865     1.082
-        13   458.000   130.001     1.074
-        14   474.000   139.888     0.983
-        15   472.000   149.918     1.086
-        16   390.000   159.896     1.218
-        17   410.000   169.913     1.303
-        18   385.000   179.840     1.212
-        19   425.000   189.849     1.079
-        20   354.000   200.117     1.168
-        21   341.000   209.881     1.229
-        22   325.000   219.710     1.497
-        23   296.000   229.902     1.597
-        24   277.000   239.927     1.419
-        25   236.000   250.111     1.353
-        26   201.000   259.921     1.449
-        27   177.000   270.161     1.335
-        28   166.000   279.560     1.245
-        29   177.000   289.873     1.089
-        30   148.000   299.866     0.992
-        31   116.000   310.335     1.130
-        32    95.000   319.854     1.161
-        33    92.000   329.857     1.330
-        34    64.000   339.936     1.151
-        35    57.000   350.172     1.551
-        36    61.000   359.473     1.395
-        37    51.000   369.274     1.350
-        38    33.000   380.087     0.847
-        39    31.000   389.553     1.014----
+         0     2.000     0.141     0.002
+         1    12.000     9.973     0.129
+         2    31.000    20.131     0.270
+         3    48.000    30.003     0.470
+         4    61.000    40.019     0.599
+         5    72.000    50.011     0.582
+         6    82.000    59.995     0.586
+         7    77.000    69.926     0.907
+         8    92.000    80.027     0.899
+         9    96.000    89.985     0.980
+        10    96.000   100.013     0.856
+        11    96.000   109.991     0.905
+        12    95.000   120.064     1.013
+        13    69.000   129.945     1.247
+        14   101.000   139.943     1.001
+        15    98.000   150.020     0.942
+        16    80.000   159.974     1.022
+        17    81.000   170.051     1.330
+        18    75.000   179.943     1.058
+        19    85.000   189.976     1.185
+        20    78.000   200.100     0.957
+        21    73.000   210.005     1.117
+        22    68.000   220.027     1.685
+        23    78.000   230.014     1.405
+        24    49.000   239.927     1.406
+        25    48.000   250.034     1.248
+        26    34.000   260.056     1.364
+        27    39.000   269.806     1.728
+        28    28.000   279.716     1.308
+        29    40.000   289.998     1.223
+        30    29.000   299.826     0.981
+        31    19.000   310.007     1.461
+        32    18.000   319.904     1.154
+        33    13.000   330.008     1.329
+        34    12.000   340.078     1.396
+        35    19.000   349.855     1.428
+        36    11.000   359.903     1.128
+        37    13.000   370.069     0.959
+        38     9.000   379.623     0.629
+        39     7.000   389.619     0.731----
 
 
 +*Out[8]:*+
-----<AxesSubplot:>
-![png](output_16_1.png)
+----
+![png](output_16_0.png)
 ----
 
 
@@ -109,13 +110,13 @@ For variable 1
 ----
 
 
-+*Out[10]:*+
-----
-![png](output_20_0.png)
-----
-
-
 +*Out[11]:*+
+----
+![png](output_22_0.png)
+----
+
+
++*Out[12]:*+
 ----
 Model characteristics
 =====================
@@ -128,12 +129,12 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Spherical
-- Sill         =      1.155
-- Range        =    135.117
-Total Sill     =      1.155----
+- Sill         =      1.123
+- Range        =    129.766
+Total Sill     =      1.123----
 
 
-+*Out[12]:*+
++*Out[13]:*+
 ----
   -2 -     UNKNOWN : Unknown covariance
    -1 -    FUNCTION : External covariance function
@@ -168,33 +169,6 @@ Total Sill     =      1.155----
  ----
 
 
-+*Out[13]:*+
-----
-![png](output_26_0.png)
-----
-
-
-+*Out[14]:*+
-----
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 2
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Cubic
-- Sill         =      0.413
-- Range        =     75.995
-Spherical
-- Sill         =      0.893
-- Range        =    240.635
-Total Sill     =      1.305----
-
-
 +*Out[15]:*+
 ----
 ![png](output_30_0.png)
@@ -207,30 +181,28 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Nugget Effect
-- Sill         =      0.000
 Cubic
-- Sill         =      0.109
-- Range        =     20.000
+- Sill         =      0.371
+- Range        =     58.088
 Spherical
-- Sill         =      1.056
-- Range        =    155.372
-Total Sill     =      1.165----
-
-
-+*Out[17]:*+
-----
-![png](output_34_0.png)
-----
+- Sill         =      0.904
+- Range        =    237.071
+Total Sill     =      1.275----
 
 
 +*Out[18]:*+
+----
+![png](output_36_0.png)
+----
+
+
++*Out[19]:*+
 ----
 Model characteristics
 =====================
@@ -243,61 +215,64 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.053
+- Sill         =      0.001
 Cubic
-- Sill         =      0.400
-- Range        =   1000.000
+- Sill         =      0.115
+- Range        =     20.000
 Spherical
-- Sill         =      1.003
-- Range        =    130.078
-Total Sill     =      1.457----
-
-
-+*Out[19]:*+
-----
-![png](output_38_0.png)
-----
-
-
-+*Out[20]:*+
-----
-![png](output_40_0.png)
-----
+- Sill         =      0.989
+- Range        =    144.544
+Total Sill     =      1.104----
 
 
 +*Out[21]:*+
 ----
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
-Total number of samples      = 1681
-
-Grid characteristics:
----------------------
-Origin :   -382.500  -678.500
-Mesh   :     19.125    33.925
-Number :         41        41
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = VMAP.January_temp.Var - Locator = z1
-Column = 4 - Name = VMAP.January_temp.Nb - Locator = NA
- 
-![png](output_42_1.png)
+![png](output_41_0.png)
 ----
 
 
 +*Out[22]:*+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      0.001
+Cubic
+- Sill         =      0.400
+- Range        =   1000.000
+Spherical
+- Sill         =      0.994
+- Range        =    112.870
+Total Sill     =      1.395----
+
+
++*Out[24]:*+
+----
+![png](output_47_0.png)
+----
+
+
++*Out[26]:*+
+----
+![png](output_50_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_54_0.png)
+----
+
+
++*Out[29]:*+
 ----
 Model characteristics
 =====================
@@ -322,40 +297,13 @@ Cubic
 Total Sill     =      1.200----
 
 
-+*Out[23]:*+
++*Out[31]:*+
 ----
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 6
-Maximum Number of UIDs       = 6
-Total number of samples      = 1681
-
-Grid characteristics:
----------------------
-Origin :   -382.500  -678.500
-Mesh   :     19.125    33.925
-Number :         41        41
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = VMAP.January_temp.Var - Locator = NA
-Column = 4 - Name = VMAP.January_temp.Nb - Locator = NA
-Column = 5 - Name = VMAP.Model - Locator = z1
- 
-![png](output_46_1.png)
+![png](output_59_0.png)
 ----
 
 
-+*Out[24]:*+
++*Out[32]:*+
 ----
-![png](output_48_0.png)
+![png](output_61_0.png)
 ----
