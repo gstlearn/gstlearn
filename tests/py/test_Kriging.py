@@ -229,15 +229,18 @@ def test_kriging(ndat,nx,nvar,percent,
     stdref = target["*stdev"][indOut].T.reshape(-1,)
     varestref = target["*varz"][indOut].T.reshape(-1,)
     if test :
-        gt.checkEqualityVector(krigref, krig, tolerance=tol)
+        gt.checkEqualityVector(krigref, krig, tolerance=tol, message=case)
         if compute_vars:
             #assert np.linalg.norm((stdref-std)/(eps+std))<tol , "Problem with kriging stdev in " + case
             #assert np.linalg.norm((varestref-varest)/(eps+varest))<tol, "Problem with kriging variance (var_est) in " + case
-            gt.checkEqualityVector(varestref, varest, tolerance=tol)
+            gt.checkEqualityVector(varestref, varest, tolerance=tol, message=case)
     if verbose:
         print("Test Ok")
     return krig,target,indOut,db , varest
 
+
+#################################################################
+## MAIN SCRIPT STARTS HERE:
 
 percent = [0.5,0.9,1.]
 ndat = 40
