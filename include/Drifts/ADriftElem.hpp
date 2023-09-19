@@ -19,6 +19,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Covariances/CovContext.hpp"
 
 /* Elementary Drift function
@@ -30,7 +31,6 @@ class GSTLEARN_EXPORT ADriftElem : public ADrift, public ASerializable, public I
 {
 public:
   ADriftElem(const EDrift &type,
-             int rankFex = 0,
              const CovContext &ctxt = CovContext());
   ADriftElem(const ADriftElem &r);
   ADriftElem& operator= (const ADriftElem &r);
@@ -45,17 +45,19 @@ public:
   /// ADrift Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
+  /// Interface for daughter classes
+  virtual VectorInt getPowers() const { return VectorInt(); }
+  virtual int       getRankFex() const { return 0; }
+
   // ADriftelem Interface
   virtual String getDriftName() const = 0;
   virtual int    getOrderIRF() const = 0;
+  virtual int    getOrderIRFIdim(int idim) const = 0;
   virtual int    getNDim() const { return 0; }
-  virtual bool   getDriftExternal() const { return false; }
+  virtual bool   isDriftExternal() const { return false; }
   virtual double eval(const Db* db,int iech) const override = 0;
 
-  int  getRankFex() const { return _rankFex; }
-  void setRankFex(int rankFex) { _rankFex = rankFex; }
-  const EDrift& getType() const { return _type; }
-  void setType(const EDrift& type) { _type = type; }
+  const EDrift&  getDriftType() const { return _type; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
@@ -68,5 +70,4 @@ protected:
 private:
   CovContext  _ctxt;  /* Context (space, number of variables, ...) */
   EDrift _type;       /* Drift function type */
-  int _rankFex;       /* Rank of the external drift */
 };

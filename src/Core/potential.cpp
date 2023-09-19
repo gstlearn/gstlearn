@@ -902,7 +902,7 @@ static int st_update_model(Model *model, Pot_Env *pot_env)
   int nbfl;
 
   nbfl = model->getDriftNumber();
-  if (model->isDriftDefined(EDrift::UC)) nbfl--;
+  if (model->isDriftDefined(VectorInt(), 0)) nbfl--;
   pot_env->order =  model->getDriftMaxIRFOrder();
   pot_env->size_drf = nbfl;
   pot_env->next = pot_env->size_ext = model_nfex(model);
@@ -949,15 +949,15 @@ static int st_update_final(Model *model, Pot_Env *pot_env)
   for (int i = 0; i < 9; i++)
     TAB_DRF[i] = -1;
 
-  if (model->isDriftDefined(EDrift::X))  TAB_DRF[0] = pos++;
-  if (model->isDriftDefined(EDrift::Y))  TAB_DRF[1] = pos++;
-  if (model->isDriftDefined(EDrift::Z))  TAB_DRF[2] = pos++;
-  if (model->isDriftDefined(EDrift::X2)) TAB_DRF[3] = pos++;
-  if (model->isDriftDefined(EDrift::Y2)) TAB_DRF[4] = pos++;
-  if (model->isDriftDefined(EDrift::Z2)) TAB_DRF[5] = pos++;
-  if (model->isDriftDefined(EDrift::XY)) TAB_DRF[6] = pos++;
-  if (model->isDriftDefined(EDrift::XZ)) TAB_DRF[7] = pos++;
-  if (model->isDriftDefined(EDrift::YZ)) TAB_DRF[8] = pos++;
+  if (model->isDriftDefined({1}))     TAB_DRF[0] = pos++;
+  if (model->isDriftDefined({0,1}))   TAB_DRF[1] = pos++;
+  if (model->isDriftDefined({0,0,1})) TAB_DRF[2] = pos++;
+  if (model->isDriftDefined({2}))     TAB_DRF[3] = pos++;
+  if (model->isDriftDefined({0,2}))   TAB_DRF[4] = pos++;
+  if (model->isDriftDefined({0,0,2})) TAB_DRF[5] = pos++;
+  if (model->isDriftDefined({1,1}))   TAB_DRF[6] = pos++;
+  if (model->isDriftDefined({1,0,1})) TAB_DRF[7] = pos++;
+  if (model->isDriftDefined({0,1,1})) TAB_DRF[8] = pos++;
 
   /* Optional output */
 

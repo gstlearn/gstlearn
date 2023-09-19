@@ -14,6 +14,7 @@
 #include "Basic/String.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/ADriftElem.hpp"
+#include "Drifts/DriftList.hpp"
 #include "Drifts/DriftM.hpp"
 #include "Drifts/DriftF.hpp"
 
@@ -25,22 +26,58 @@ ADriftElem* DriftFactory::createDriftByType(const EDrift &type,
 {
   switch(type.toEnum())
   {
-    case EDrift::E_UC:  return new DriftM(VectorInt(), 1., VectorDouble(), ctxt);
-    case EDrift::E_X:   return new DriftM({1},         0., VectorDouble(), ctxt);
-    case EDrift::E_X2:  return new DriftM({2},         0., VectorDouble(), ctxt);
-    case EDrift::E_X2Y: return new DriftM({2,1},       0., VectorDouble(), ctxt);
-    case EDrift::E_X3:  return new DriftM({3},         0., VectorDouble(), ctxt);
-    case EDrift::E_XY:  return new DriftM({1,1},       0., VectorDouble(), ctxt);
-    case EDrift::E_XY2: return new DriftM({1,2},       0., VectorDouble(), ctxt);
-    case EDrift::E_XZ:  return new DriftM({1,0,1},     0., VectorDouble(), ctxt);
-    case EDrift::E_Y:   return new DriftM({0,1},       0., VectorDouble(), ctxt);
-    case EDrift::E_Y2:  return new DriftM({0,2},       0., VectorDouble(), ctxt);
-    case EDrift::E_Y3:  return new DriftM({0,3},       0., VectorDouble(), ctxt);
-    case EDrift::E_YZ:  return new DriftM({0,1,1},     0., VectorDouble(), ctxt);
-    case EDrift::E_Z:   return new DriftM({0,0,1},     0., VectorDouble(), ctxt);
-    case EDrift::E_Z2:  return new DriftM({0,0,2},     0., VectorDouble(), ctxt);
-    case EDrift::E_Z3:  return new DriftM({0,0,3},     0., VectorDouble(), ctxt);
-    case EDrift::E_F:   return new DriftF(rank_fex, ctxt);
+    case EDrift::E_UC:  return new DriftM(VectorInt(), ctxt);
+    case EDrift::E_X:   return new DriftM({1},         ctxt);
+    case EDrift::E_X2:  return new DriftM({2},         ctxt);
+    case EDrift::E_X2Y: return new DriftM({2,1},       ctxt);
+    case EDrift::E_X3:  return new DriftM({3},         ctxt);
+    case EDrift::E_XY:  return new DriftM({1,1},       ctxt);
+    case EDrift::E_XY2: return new DriftM({1,2},       ctxt);
+    case EDrift::E_XZ:  return new DriftM({1,0,1},     ctxt);
+    case EDrift::E_Y:   return new DriftM({0,1},       ctxt);
+    case EDrift::E_Y2:  return new DriftM({0,2},       ctxt);
+    case EDrift::E_Y3:  return new DriftM({0,3},       ctxt);
+    case EDrift::E_YZ:  return new DriftM({0,1,1},     ctxt);
+    case EDrift::E_Z:   return new DriftM({0,0,1},     ctxt);
+    case EDrift::E_Z2:  return new DriftM({0,0,2},     ctxt);
+    case EDrift::E_Z3:  return new DriftM({0,0,3},     ctxt);
+    case EDrift::E_F:   return new DriftF(rank_fex,    ctxt);
+    default: break;
+  }
+  my_throw ("Drift function not yet implemented!");
+  return nullptr;
+}
+
+/**
+ * This Drift identification is used for interpreting old serialized files
+ * where the drift function was encoded by its rank.
+ * @param rank     Rank of the drift function (in the deprecated EDrift Enum)
+ * @param rank_fex Rank of the External Drift variable
+ * @param ctxt     Cov_Context()
+ * @return
+ */
+ADriftElem* DriftFactory::createDriftByRank(int rank,
+                                            int rank_fex,
+                                            const CovContext &ctxt)
+{
+  switch(rank)
+  {
+    case 0:  return new DriftM(VectorInt(), ctxt);
+    case 1:  return new DriftM({1},         ctxt);
+    case 2:  return new DriftM({0,1},       ctxt);
+    case 3:  return new DriftM({0,0,1},     ctxt);
+    case 4:  return new DriftM({2},         ctxt);
+    case 5:  return new DriftM({0,2},       ctxt);
+    case 6:  return new DriftM({1,1},       ctxt);
+    case 7:  return new DriftM({0,0,2},     ctxt);
+    case 8:  return new DriftM({1,0,1},     ctxt);
+    case 9:  return new DriftM({0,1,1},     ctxt);
+    case 10: return new DriftM({3},         ctxt);
+    case 11: return new DriftM({2,1},       ctxt);
+    case 12: return new DriftM({1,2},       ctxt);
+    case 13: return new DriftM({0,3},       ctxt);
+    case 14: return new DriftM({0,0,3},     ctxt);
+    case 15: return new DriftF(rank_fex,    ctxt);
     default: break;
   }
   my_throw ("Drift function not yet implemented!");
@@ -60,29 +97,27 @@ ADriftElem* DriftFactory::createDriftBySymbol(const String &symbol,
   ADriftElem* drift;
 
   String ds = toUpper(symbol);
-  if (ds == "1")    return new DriftM(VectorInt(), 1., VectorDouble(), ctxt);
-  if (ds == "X")    return new DriftM({1},         0., VectorDouble(), ctxt);
-  if (ds == "X2")   return new DriftM({2},         0., VectorDouble(), ctxt);
-  if (ds == "X2Y")  return new DriftM({2,1},       0., VectorDouble(), ctxt);
-  if (ds == "X3")   return new DriftM({3},         0., VectorDouble(), ctxt);
-  if (ds == "XY")   return new DriftM({1,1},       0., VectorDouble(), ctxt);
-  if (ds == "XY2")  return new DriftM({1,2},       0., VectorDouble(), ctxt);
-  if (ds == "XZ")   return new DriftM({1,0,1},     0., VectorDouble(), ctxt);
-  if (ds == "Y")    return new DriftM({0,1},       0., VectorDouble(), ctxt);
-  if (ds == "Y2")   return new DriftM({0,2},       0., VectorDouble(), ctxt);
-  if (ds == "Y3")   return new DriftM({0,3},       0., VectorDouble(), ctxt);
-  if (ds == "YZ")   return new DriftM({0,1,1},     0., VectorDouble(), ctxt);
-  if (ds == "Z")    return new DriftM({0,0,1},     0., VectorDouble(), ctxt);
-  if (ds == "Z2")   return new DriftM({0,0,2},     0., VectorDouble(), ctxt);
-  if (ds == "Z3")   return new DriftM({0,0,3},     0., VectorDouble(), ctxt);
+  if (ds == "1")    return new DriftM(VectorInt(), ctxt);
+  if (ds == "X")    return new DriftM({1},         ctxt);
+  if (ds == "X2")   return new DriftM({2},         ctxt);
+  if (ds == "X2Y")  return new DriftM({2,1},       ctxt);
+  if (ds == "X3")   return new DriftM({3},         ctxt);
+  if (ds == "XY")   return new DriftM({1,1},       ctxt);
+  if (ds == "XY2")  return new DriftM({1,2},       ctxt);
+  if (ds == "XZ")   return new DriftM({1,0,1},     ctxt);
+  if (ds == "Y")    return new DriftM({0,1},       ctxt);
+  if (ds == "Y2")   return new DriftM({0,2},       ctxt);
+  if (ds == "Y3")   return new DriftM({0,3},       ctxt);
+  if (ds == "YZ")   return new DriftM({0,1,1},     ctxt);
+  if (ds == "Z")    return new DriftM({0,0,1},     ctxt);
+  if (ds == "Z2")   return new DriftM({0,0,2},     ctxt);
+  if (ds == "Z3")   return new DriftM({0,0,3},     ctxt);
   if (ds == "F")
   {
-      drift = new DriftF(0, ctxt);
-
       int rank_fex = 0;
       if (decodeInString("F", symbol, &rank_fex, false) == 0)
         rank_fex = rank_fex-1;
-      drift->setRankFex(rank_fex);
+      drift = new DriftF(rank_fex, ctxt);
       return drift;
   }
 
@@ -90,21 +125,108 @@ ADriftElem* DriftFactory::createDriftBySymbol(const String &symbol,
   return nullptr;
 }
 
-/**
- * Prints the list of Drift functions available
- */
-void DriftFactory::displayList(const CovContext& ctxt)
+ADriftElem* DriftFactory::createDriftByIdentifier(const String& driftname,
+                                                  const CovContext &ctxt)
 {
-  message("List of authorized Drift Functions:\n");
-  auto it = EDrift::getIterator();
-  while (it.hasNext())
+  // Look for Universality Condition
+  ADriftElem* drift = new DriftM(VectorInt(), ctxt);
+  String locname = drift->getDriftName();
+  if (driftname.find(locname) == 0) return drift;
+  delete drift;
+
+  // Look for an External Drift (testing the 5 first variable ranks)
+  for (int itest = 0; itest < 5; itest++)
   {
-    if (*it != EDrift::UNKNOWN)
-    {
-      ADriftElem* drift = createDriftByType(*it, 0, ctxt);
-      message("%2d - %s\n", it.getValue(), drift->getDriftName().c_str());
-      delete drift;
-    }
-    it.toNext();
+    ADriftElem* drift = new DriftF(itest, ctxt);
+    String locname = drift->getDriftName();
+    if (driftname.find(locname) == 0) return drift;
+    delete drift;
   }
+
+  // Looking for a standard monomial drift
+  // For simplicity, we only check the 14 first possibilities defined in the
+  // function createDriftByRank
+  for (int itest = 0; itest <= 14; itest++)
+  {
+    ADriftElem* drift = DriftFactory::createDriftByRank(itest,0,ctxt);
+    String locname = drift->getDriftName();
+    if (driftname.find(locname) == 0) return drift;
+    delete drift;
+  }
+
+  messerr("Error: Drift Name(%s) is unknown", driftname);
+  return nullptr;
 }
+
+/**
+ * Creating the list of Drift functions correspondaing to the following constraints:
+ * - Rank of the IRF
+ * - Number of external drift functions
+ * @param order Rank of the IRF
+ * @param nfex  Number of external drift functions
+ * @param ctxt  Cov_context
+ * @return
+ *
+ * @Note: this function is limited to order<=2 and ndim<= 3
+ */
+DriftList* DriftFactory::createDriftListFromIRF(int order,
+                                                int nfex,
+                                                const CovContext &ctxt)
+{
+  DriftList* drifts = new DriftList();
+  int ndim = ctxt.getNDim();
+
+  // Standard monomials
+  switch (order)
+  {
+    case -1:
+      // In the strict stationary case, no drift is defined (even external)
+      return drifts;
+      break;
+
+    case 0:
+      drifts->addDrift(new DriftM());                                         // 1
+      break;
+
+    case 1:
+      drifts->addDrift(new DriftM());                                         // 1
+      if (ndim >= 1)
+        drifts->addDrift(new DriftM(VectorInt({1}), ctxt));                   // X
+      if (ndim >= 2)
+        drifts->addDrift(new DriftM(VectorInt({0,1}), ctxt));                 // Y
+      if (ndim >= 3)
+        drifts->addDrift(new DriftM(VectorInt({0,0,1}), ctxt));               // Z
+      break;
+
+    case 2:
+      drifts->addDrift(new DriftM());                                         // 1
+      if (ndim >= 1)
+      {
+        drifts->addDrift(new DriftM(VectorInt({1}), ctxt));                   // X
+        drifts->addDrift(new DriftM(VectorInt({2}), ctxt));                   // X^2
+      }
+      if (ndim >= 2)
+      {
+        drifts->addDrift(new DriftM(VectorInt({0,1}), ctxt));                 // Y
+        drifts->addDrift(new DriftM(VectorInt({1,1}), ctxt));                 // YX
+        drifts->addDrift(new DriftM(VectorInt({0,2}), ctxt));                 // Y^2
+      }
+      if (ndim >= 3)
+      {
+        drifts->addDrift(new DriftM(VectorInt({0,0,1}), ctxt));               // Z
+        drifts->addDrift(new DriftM(VectorInt({1,0,1}), ctxt));               // ZX
+        drifts->addDrift(new DriftM(VectorInt({0,1,1}), ctxt));               // ZY
+        drifts->addDrift(new DriftM(VectorInt({0,0,2}), ctxt));               // Z^2
+      }
+  }
+
+  if (nfex > 0)
+  {
+    // Adding the external drift(s)
+    for (int ifex = 0; ifex < nfex; ifex++)
+      drifts->addDrift(new DriftF(ifex, ctxt));
+  }
+
+  return drifts;
+}
+

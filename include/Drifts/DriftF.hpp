@@ -24,9 +24,13 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(DriftF)
 
-  String getDriftName() const override { return "External Drift"; }
-  int    getOrderIRF() const override { return 0; }
-  bool   getDriftExternal() const override { return true; }
+  String getDriftName() const override;
+  int    getOrderIRF() const override { return -1; }
+  int    getOrderIRFIdim(int idim) const override { return -1; }
+  bool   isDriftExternal() const override { return true; }
   double eval(const Db* db, int iech) const override;
-};
+  int    getRankFex() const override { return _rankFex; }
 
+private:
+  int _rankFex;       /* Rank of the external drift */
+};

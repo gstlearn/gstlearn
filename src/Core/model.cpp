@@ -922,7 +922,7 @@ int model_drift_mat(Model *model,
         {
           double value = 0.;
           for (int il = 0; il < nbfl; il++)
-            value += drftab[il] * model->getCoefDrift(ivar, il, ib);
+            value += drftab[il] * model->getDriftCoef(ivar, il, ib);
           drfmat[ecr++] = value;
         }
       }
@@ -934,7 +934,7 @@ int model_drift_mat(Model *model,
             int jb = jvar + nvar * jl;
             double value = 0.;
             for (int il = 0; il < nbfl; il++)
-              value += drftab[il] * model->getCoefDrift(ivar, il, jb);
+              value += drftab[il] * model->getDriftCoef(ivar, il, jb);
             drfmat[ecr++] = value;
           }
       }
@@ -981,7 +981,7 @@ int model_drift_vector(Model *model,
     {
       double value = 0.;
       for (int il = 0; il < nbfl; il++)
-        value += drftab[il] * model->getCoefDrift(ivar, il, ib);
+        value += drftab[il] * model->getDriftCoef(ivar, il, ib);
       vector[ecr++] = value;
     }
   return 0;
@@ -1021,7 +1021,7 @@ static void st_drift_modify(Model *model,
 
   /* Patch the drift coefficient */
 
-  model->setCoefDrift(iv, il, ib, model->getCoefDrift(iv, il, ib) + value);
+  model->setDriftCoef(iv, il, ib, model->getDriftCoef(iv, il, ib) + value);
 }
 
 /*****************************************************************************/
@@ -1048,7 +1048,7 @@ static void st_drift_derivative(int iv,
   for (int ib = 0; ib < model->getDriftEquationNumber(); ib++)
     for (int il = 0; il < model->getDriftNumber(); il++)
     {
-      double value = model->getCoefDrift(0, il, ib);
+      double value = model->getDriftCoef(0, il, ib);
       if (value == 0) continue;
 
       EDrift type = model->getDriftType(il);
@@ -1283,9 +1283,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem *newdrft = DriftFactory::createDriftByType(drft->getType(), drft->getRankFex(), ctxt);
-      drifts.addDrift(newdrft);
-      delete newdrft;
+      drifts.addDrift(drft);
       drifts.setFiltered(il, model->isDriftFiltered(il));
     }
     new_model->setDriftList(&drifts);
@@ -1297,7 +1295,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
       int nval = new_nvar * new_model->getDriftEquationNumber()
                  * new_model->getDriftNumber();
       for (int i = 0; i < nval; i++)
-        new_model->setCoefDriftByRank(i, 0.);
+        new_model->setDriftCoefByRank(i, 0.);
       st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
       st_drift_derivative(1, MODEL_DERIVATIVE_X, model, new_model);
       st_drift_derivative(2, MODEL_DERIVATIVE_Y, model, new_model);
@@ -1597,7 +1595,7 @@ double model_drift_evaluate(int /*verbose*/,
   {
     double value = 0.;
     for (int il = 0; il < model->getDriftNumber(); il++)
-      value += drftab[il] * model->getCoefDrift(ivar, il, ib);
+      value += drftab[il] * model->getDriftCoef(ivar, il, ib);
     drift += value * coef[ib];
   }
   return (drift);

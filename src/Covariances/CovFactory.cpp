@@ -135,7 +135,7 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
  *
  * @param ctxt  Context from which we want authorized covariances
  */
-void CovFactory::displayList(const CovContext& ctxt)
+void CovFactory::displayCovList(const CovContext& ctxt)
 {
   message("List of authorized covariance / variogram names:\n");
   auto it = ECov::getIterator();
@@ -208,7 +208,7 @@ ECov CovFactory::identifyCovariance(const String& cov_name,
     it.toNext();
   }
   messerr("Unknown covariance name:%s!", cov_name.c_str());
-  displayList(ctxt);
+  displayCovList(ctxt);
   return ECov::UNKNOWN;
 }
 

@@ -421,16 +421,16 @@ public:
   int getExternalDriftNumber()                     const;
   const EDrift& getDriftType(int il)               const;
   int getRankFext(int il)                          const;
-  const VectorDouble& getCoefDrifts()              const;
-  double getCoefDrift(int ivar, int il, int ib)    const;
+  const VectorDouble& getDriftCoefs()              const;
+  double getDriftCoef(int ivar, int il, int ib)    const;
   int getDriftEquationNumber()                     const;
   bool isDriftFiltered(unsigned int il)            const;
-  bool isDriftDefined(const EDrift& type0)         const;
+  bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const EDrift& type0) const;
   int getDriftMaxIRFOrder(void) const { return _driftList->getDriftMaxIRFOrder(); }
 
-  void setCoefDrift(int ivar, int il, int ib, double coeff)    ;
-  void setCoefDriftByRank(int rank, double coeff)              ;
+  void setDriftCoef(int ivar, int il, int ib, double coeff)    ;
+  void setDriftCoefByRank(int rank, double coeff)              ;
   void setDriftFiltered(int il, bool filtered)                 ;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;

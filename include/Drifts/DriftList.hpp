@@ -45,8 +45,6 @@ public:
 
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
-  // Set the list of drift functions
-  void setDriftList(const DriftList* drifts);
   // Add one elementary drift structure
   void addDrift(const ADriftElem* drift);
   // Remove an elementary drift structure
@@ -54,7 +52,6 @@ public:
   // Remove all elementary drift structures
   void delAllDrifts();
 
-  void setDriftIRF(int order, int nfex, const CovContext& ctxt);
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
   bool isFiltered(int i) const;
@@ -67,13 +64,12 @@ public:
   ////////////////////////////////////////////////
   const ADriftElem*  getDrift(int il) const;
   ADriftElem*        getDrift(int il); /// beurk :(
-  const EDrift&      getType(int il) const;
+  const EDrift&      getDriftType(int il) const;
   int                getRankFex(int il) const;
   String             getDriftName(int il) const;
-  void               setType(int il, const EDrift& type);
   ////////////////////////////////////////////////
 
-  const VectorDouble& getCoefDrift() const { return _coefDrift; }
+  const VectorDouble& getDriftCoef() const { return _driftCoef; }
 
   /**
    *
@@ -82,9 +78,9 @@ public:
    * @param ib Rank of the drift equation (_driftEquationNumber)
    * @return
    */
-  double getCoefDrift(int ivar, int il, int ib) const { return _coefDrift[_getAddress(ivar,il,ib)]; }
-  void setCoefDrift(int ivar, int il, int ib, double value) { _coefDrift[_getAddress(ivar,il,ib)] = value; }
-  void setCoefDriftByRank(int rank, double coeff) { _coefDrift[rank] = coeff; }
+  double getDriftCoef(int ivar, int il, int ib) const { return _driftCoef[_getAddress(ivar,il,ib)]; }
+  void setDriftCoef(int ivar, int il, int ib, double value) { _driftCoef[_getAddress(ivar,il,ib)] = value; }
+  void setDriftCoefByRank(int rank, double coeff) { _driftCoef[rank] = coeff; }
 
   double getDrift(const Db* db, int ib, int iech) const;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;
@@ -95,7 +91,7 @@ public:
                           const VectorDouble& coeffs,
                           bool useSel = false) const;
   int getDriftMaxIRFOrder(void) const;
-  bool isDriftDefined(const EDrift &type0) const;
+  bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const EDrift &type0) const;
 
   void copyCovContext(const CovContext& ctxt);
@@ -109,12 +105,12 @@ private:
   {
     return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
   }
-  void _updateCoefDrift();
+  void _updateDriftCoef();
 
 #ifndef SWIG
 protected:
   bool _flagLinked;
-  VectorDouble             _coefDrift; /* Array of Drift Coefficients */
+  VectorDouble             _driftCoef; /* Array of Drift Coefficients */
   std::vector<ADriftElem*> _drifts;    /* Vector of elementary drift functions */
   VectorBool               _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
 #endif

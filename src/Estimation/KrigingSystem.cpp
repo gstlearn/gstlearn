@@ -446,9 +446,9 @@ double KrigingSystem::_getMean(int ivarCL) const
   return value;
 }
 
-double KrigingSystem::_getCoefDrift(int ivar, int il, int ib) const
+double KrigingSystem::_getDriftCoef(int ivar, int il, int ib) const
 {
-  return _model->getCoefDrift(ivar, il, ib);
+  return _model->getDriftCoef(ivar, il, ib);
 }
 
 void KrigingSystem::_setFlag(int iech, int ivar, int value)
@@ -516,7 +516,7 @@ void KrigingSystem::_flagDefine()
     for (int il = 0; il < _nbfl; il++)
       for (int ivar = 0; ivar < _nvar; ivar++)
       {
-        if (_getCoefDrift(ivar, il, ib) == 0.) continue;
+        if (_getDriftCoef(ivar, il, ib) == 0.) continue;
         for (int iech = 0; iech < _nech; iech++)
           if (!FFFF(_getIvar(_nbgh[iech], ivar))) valid++;
       }
@@ -777,7 +777,7 @@ void KrigingSystem::_lhsCalcul()
       {
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getCoefDrift(ivar, il, ib);
+          value += _drftab[il] * _getDriftCoef(ivar, il, ib);
         _setLHS(iech,ivar,ib,_nvar,value,true);
         _setLHS(ib,_nvar,iech,ivar,value,true);
       }
@@ -1047,7 +1047,7 @@ int KrigingSystem::_rhsCalcul()
       {
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getCoefDrift(ivar, il, ib);
+          value += _drftab[il] * _getDriftCoef(ivar, il, ib);
         _setRHS(ib,_nvar,ivar,value,true);
       }
   }
@@ -1061,7 +1061,7 @@ int KrigingSystem::_rhsCalcul()
         {
           double value = 0.;
           for (int il = 0; il < _nbfl; il++)
-            value += _drftab[il] * _getCoefDrift(jvar, il, ib);
+            value += _drftab[il] * _getDriftCoef(jvar, il, ib);
           value *= _matCL[ivarCL][jvar];
           _setRHS(ib,_nvar,ivarCL,value,true);
         }
@@ -3420,7 +3420,7 @@ void KrigingSystem::_bayesCorrectVariance()
     {
       double value = 0.;
       for (int il = 0; il < _nbfl; il++)
-        value += _drftab[il] * _getCoefDrift(ivar, il, ib);
+        value += _drftab[il] * _getDriftCoef(ivar, il, ib);
       FF0(ib,ivar) = value;
     }
 

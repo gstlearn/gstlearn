@@ -29,6 +29,7 @@
                    XY2,     12, "Drift along XY²", \
                    Y3,      13, "Drift along Y³", \
                    Z3,      14, "Drift along Z³", \
-                   F,       15, "External Drift"
+                   F,       15, "External Drift", \
+                   MONO,    16, "Monomial"
 
 ENUM_DECLARE(ENUM_DRIFT)

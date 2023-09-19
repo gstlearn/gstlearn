@@ -374,15 +374,15 @@ void Model::setDriftList(const DriftList* driftlist)
  */
 void Model::setDriftIRF(int order, int nfex)
 {
-  if (_driftList == nullptr)
-    _driftList = new DriftList();
-  _driftList->setDriftIRF(order, nfex, _ctxt);
+  if (_driftList != nullptr) delete _driftList;
+  _driftList = new DriftList();
+  _driftList = DriftFactory::createDriftListFromIRF(order, nfex);
 }
 
 void Model::addDrift(const ADriftElem *drift)
 {
   if (drift == nullptr) return;
-  if (_driftList == nullptr) return;
+  if (_driftList == nullptr) _driftList = new DriftList();
   _driftList->addDrift(drift);
 }
 
@@ -720,30 +720,30 @@ int Model::getExternalDriftNumber() const
   int nfex = 0;
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    if (getDrift(il)->getType() == EDrift::F) nfex++;
+    if (getDrift(il)->getDriftType() == EDrift::F) nfex++;
   }
   return nfex;
 }
 const EDrift& Model::getDriftType(int il) const
 {
   if (_driftList == nullptr) return EDrift::UNKNOWN;
-  return _driftList->getType(il);
+  return _driftList->getDriftType(il);
 }
 int Model::getRankFext(int il) const
 {
   if (_driftList == nullptr) return ITEST;
   return _driftList->getRankFex(il);
 }
-const VectorDouble& Model::getCoefDrifts() const
+const VectorDouble& Model::getDriftCoefs() const
 {
   if (_driftList == nullptr)
     my_throw("Drift List if empty");
-  return _driftList->getCoefDrift();
+  return _driftList->getDriftCoef();
 }
-double Model::getCoefDrift(int ivar, int il, int ib) const
+double Model::getDriftCoef(int ivar, int il, int ib) const
 {
   if (_driftList == nullptr) return TEST;
-  return _driftList->getCoefDrift(ivar, il, ib);
+  return _driftList->getDriftCoef(ivar, il, ib);
 }
 int Model::getDriftEquationNumber() const
 {
@@ -755,25 +755,25 @@ bool Model::isDriftFiltered(unsigned int il) const
   if (_driftList == nullptr) return false;
   return _driftList->isFiltered(il);
 }
-bool Model::isDriftDefined(const EDrift& type0) const
+bool Model::isDriftDefined(const VectorInt &powers, int rank_fex) const
 {
   if (_driftList == nullptr) return false;
-  return _driftList->isDriftDefined(type0);
+  return _driftList->isDriftDefined(powers, rank_fex);
 }
 bool Model::isDriftDifferentDefined(const EDrift& type0) const
 {
   if (_driftList == nullptr) return false;
   return _driftList->isDriftDifferentDefined(type0);
 }
-void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
+void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr) return;
-  _driftList->setCoefDrift(ivar, il, ib, coeff);
+  _driftList->setDriftCoef(ivar, il, ib, coeff);
 }
-void Model::setCoefDriftByRank(int rank, double coeff)
+void Model::setDriftCoefByRank(int rank, double coeff)
 {
   if (_driftList == nullptr) return;
-  _driftList->setCoefDriftByRank(rank, coeff);
+  _driftList->setDriftCoefByRank(rank, coeff);
 }
 void Model::setDriftFiltered(int il, bool filtered)
 {
@@ -1161,14 +1161,25 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   /* Reading the drift part */
 
   DriftList drifts;
+  ADriftElem* drift;
   for (int ibfl = 0; ret && ibfl < nbfl; ibfl++)
   {
-    ret = ret && _recordRead<int>(is, "Drift Function", type);
-    EDrift dtype = EDrift::fromValue(type);
-    int rank_fex = 0;
-    if (dtype == EDrift::F)
-      ret = ret && _recordRead<int>(is, "External Drift rank", rank_fex);
-    ADriftElem *drift = DriftFactory::createDriftByType(dtype, rank_fex, _ctxt);
+    int type = -1;
+    ret = ret && _recordRead<int>(is, "Drift characteristics", type);
+    if (ret)
+    {
+      int rank_fex = 0;
+      if (type == 15)
+      {
+        ret = ret && _recordRead<int>(is, "External Drift Rank", rank_fex);
+      }
+    }
+    else
+    {
+      String driftname;
+      ret = ret && _recordRead<String>(is, "Drift Identifier", driftname);
+      drift = DriftFactory::createDriftByIdentifier(driftname, _ctxt);
+    }
     drifts.addDrift(drift);
     delete drift;
   }
@@ -1255,9 +1266,10 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   for (int ibfl = 0; ret && ibfl < getDriftNumber(); ibfl++)
   {
     const ADriftElem *drift = getDrift(ibfl);
-    ret = ret && _recordWrite<int>(os,"Drift characteristics", drift->getType().getValue());
-    if (drift->getType() == EDrift::F)
-      ret = ret && _recordWrite<int>(os,"External Drift rank", drift->getRankFex());
+    ret = ret && _recordWrite<String>(os,"Drift Identifier", drift->getDriftName());
+//    ret = ret && _recordWrite<int>(os,"Drift characteristics", drift->getDriftType().getValue());
+//    if (drift->getDriftType() == EDrift::F)
+//      ret = ret && _recordWrite<int>(os,"External Drift rank", drift->getRankFex());
   }
 
   /* Writing the matrix of means (if nbfl <= 0) */
@@ -1611,7 +1623,7 @@ double Model::_evalDriftCoef(const Db* db,
   {
     double value = 0.;
     for (int il = 0; il < getDriftNumber(); il++)
-      value += drftab[il] * getCoefDrift(ivar, il, ib);
+      value += drftab[il] * getDriftCoef(ivar, il, ib);
     drift += value * coef[ib];
   }
   return drift;
@@ -1661,9 +1673,9 @@ bool Model::isValid() const
   if (irf_cova > irf_drift)
   {
     messerr("Model if invalid due to IRF degree inconsistency");
-    messerr("- Covariance implies a degree >= %d", irf_cova);
-    messerr("- Drift implies a degree %d", irf_drift);
-    messerr("(order -1 stands for order-2 stationarity)");
+    messerr("- Covariance implies a order >= %d", irf_cova);
+    messerr("- Drift implies a order %d", irf_drift);
+    messerr("(Order -1 stands for strict stationarity)");
     return false;
   }
 

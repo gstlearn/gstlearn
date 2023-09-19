@@ -23,6 +23,7 @@
 #include "Model/NoStatArray.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftM.hpp"
+#include "Drifts/DriftF.hpp"
 #include "Basic/File.hpp"
 #include "Basic/VectorHelper.hpp"
 
@@ -115,9 +116,9 @@ int main(int argc, char *argv[])
   modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.}, VectorDouble(),
                           {10., 20., 30.});
   modelS->addDrift(new DriftM());
-  modelS->addDrift(new DriftM(1));
-  modelS->addDrift(DriftFactory::createDriftByType(EDrift::F, 0, CovContext()));
-  modelS->addDrift(DriftFactory::createDriftByType(EDrift::F, 1, CovContext()));
+  modelS->addDrift(new DriftM(VectorInt({1})));
+  modelS->addDrift(new DriftF(0, CovContext()));
+  modelS->addDrift(new DriftF(1, CovContext()));
   modelS->display();
   modelS->dumpToNF("Complex");
 

@@ -15,6 +15,7 @@ Release 0.3.4
 - Allow processing target variable with NA in SPDE API functions
 - Suppress class MatrixSquareDiagonalCst
 - Suppress class MatrixSquareDiagonal
+- Important warning: the Drift part of the Model Neutral File has changed.
 
 Release 0.3.3
 =============

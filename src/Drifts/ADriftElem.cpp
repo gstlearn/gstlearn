@@ -18,13 +18,11 @@
 #include "Basic/AException.hpp"
 
 ADriftElem::ADriftElem(const EDrift& type,
-                       int rankFex,
                        const CovContext& ctxt)
     : ADrift(ctxt.getSpace()), /// TODO : shared pointer
       ASerializable(),
       _ctxt(ctxt),
-      _type(type),
-      _rankFex(rankFex)
+      _type(type)
 {
 }
 
@@ -32,8 +30,7 @@ ADriftElem::ADriftElem(const ADriftElem &r)
     : ADrift(r),
       ASerializable(r),
       _ctxt(r._ctxt), /// TODO : shared pointer
-      _type(r._type),
-      _rankFex(r._rankFex)
+      _type(r._type)
 {
 }
 
@@ -45,7 +42,6 @@ ADriftElem& ADriftElem::operator=(const ADriftElem &r)
     ASerializable::operator=(r);
     _ctxt = r._ctxt;
     _type = r._type;
-    _rankFex = r._rankFex;
   }
   return *this;
 }
@@ -63,8 +59,6 @@ String ADriftElem::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << getDriftName();
-  if (getType() == EDrift::F)
-    sstr << " - Rank=" << getRankFex();
   return sstr.str();
 }
 
@@ -74,14 +68,12 @@ bool ADriftElem::_deserialize(std::istream& is, bool /*verbose*/)
   int type = 0;
   ret = ret && _recordRead<int>(is, "Drift Function", type);
   _type = EDrift::fromValue(type);
-  _rankFex = 0;
   return ret;
 }
 
 bool ADriftElem::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<int>(os,"Drift characteristics", getType().getValue());
+  ret = ret && _recordWrite<int>(os,"Drift characteristics", getDriftType().getValue());
   return ret;
 }
-
