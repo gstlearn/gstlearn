@@ -383,8 +383,8 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
   # Representing the Experimental variogram
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg, linetype=linetype), 
-  			na.rm=TRUE, ...))
+  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), 
+  			na.rm=TRUE, linetype=linetype, ...))
   
   # Constructing the Legend
   if (show.legend)
@@ -392,6 +392,10 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
  	legend.name = paste("Vario dir =", 
  		paste(round(vario$getCodirs(idir),3), collapse=' '))
 	p <- append(p, list(labs(linetype = legend.name)))
+  }
+  else
+  {
+    p <- append(p, list(theme(legend.position='none')))
   }
   
   # Representing the number of pairs (by size)
@@ -481,14 +485,18 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   mode$setAsVario(! asCov)
   gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg, linetype=linetype), 
-             na.rm=TRUE, ...))
+  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), 
+             na.rm=TRUE, linetype=linetype, ...))
   
   # Constructing the legend
   if (show.legend)
   {
  	legend.name = paste("Model dir =", paste(round(codir,3), collapse=' '))
 	p <- append(p, list(labs(linetype = legend.name)))
+  }
+  else
+  {
+    p <- append(p, list(theme(legend.position='none')))
   }
   
   # Represent the coregionalization envelop
@@ -1324,7 +1332,9 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
     p <- append(p, list(guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))))
   }
   else
+  {
     p <- append(p, list(theme(legend.position='none')))
+  }
   
   p 
 }
