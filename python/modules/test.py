@@ -46,7 +46,8 @@ def checkEqualityVector(vec1, vec2,
     long1 = len(vec1)
     long2 = len(vec2)
     if long1 != long2:
-        return "Impossible to compare vectors of different dimensions"
+        print(f"{message}: Impossible to compare vectors of different dimensions")
+        return False
     
     # Check is performed on the absolute value of each term of each vector
     if flagAbsolute:
@@ -60,9 +61,10 @@ def checkEqualityVector(vec1, vec2,
     value = np.linalg.norm(diff)
     
     if value >= tolerance:
-        print("Experimental value =",value," is larger than tolerance (",tolerance,")")
-        
-    assert value < tolerance, message
+        print(f"{message}: Experimental value =",value," is larger than tolerance (",tolerance,")")
+        return False
+    
+    return True
 
 def checkEquality(vec1, vec2, 
                   tolerance=gl.EPSILON6,
@@ -92,6 +94,7 @@ def checkEquality(vec1, vec2,
     value = np.linalg.norm(diff)
     
     if value >= tolerance:
-        print("Experimental value =",value," is larger than tolerance (",tolerance,")")
+        print(f" {message}: Experimental value =",value," is larger than tolerance (",tolerance,")")
+        return False
         
-    assert value < tolerance, message
+    return True
