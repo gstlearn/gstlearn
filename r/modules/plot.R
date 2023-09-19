@@ -785,7 +785,8 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param ... List of arguments passed to geom_point()
 #' @return The description of the contents of the graphic layer
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, posX=0, posY=1,
+    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, 
+    color='black', size=0.2, posX=0, posY=1,
     ...) 
 { 
   # Creating the necessary data frame
@@ -811,7 +812,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   df["sizval"] = sizval
   
   layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
-      na.rm=TRUE, ...)
+      color=color, na.rm=TRUE, ...)
   
   layer
 }
@@ -893,8 +894,9 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
     if (! is.null(name_size) && ! flagCst)
       p <- append(p, scale_size_continuous(range = c(sizmin, sizmax)))
       
-	# Palette definition
-   	p <- append(p, .scaleColorFill(palette, ...))
+	# Palette definition (if defined)
+	if (! is.null(palette))
+	  p <- append(p, .scaleColorFill(palette, ...))
     
     # Set the default title
     if (! is.null(name_color))
@@ -1087,8 +1089,9 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
       p <- append(p, list(guides(contour = "none")))
   }  
   
-  # Palette definition
-  p <- append(p, .scaleColorFill(palette, na.value=na.value, limits=limits, ...))
+  # Palette definition (if defined)
+  if (! is.null(palette))
+	p <- append(p, .scaleColorFill(palette, na.value=na.value, limits=limits, ...))
   
   # Decoration
   p <- append(p, plot.decoration(title = title))
