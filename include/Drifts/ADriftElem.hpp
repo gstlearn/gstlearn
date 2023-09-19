@@ -17,7 +17,6 @@
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Covariances/CovContext.hpp"
@@ -27,7 +26,7 @@
 
 class Db;
 
-class GSTLEARN_EXPORT ADriftElem : public ADrift, public ASerializable, public ICloneable
+class GSTLEARN_EXPORT ADriftElem : public ADrift, public ICloneable
 {
 public:
   ADriftElem(const EDrift &type,
@@ -60,12 +59,6 @@ public:
   const EDrift&  getDriftType() const { return _type; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
-
-protected:
-  /// Interface to ASerializable
-  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
-  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
-  String _getNFName() const override { return "Drift"; }
 
 private:
   CovContext  _ctxt;  /* Context (space, number of variables, ...) */

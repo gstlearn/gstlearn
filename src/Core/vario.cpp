@@ -2730,7 +2730,7 @@ static int st_variogram_general(Db *db,
   // Auxiliary check for Drift removal. This is triggered only if the drift
   // contains at least one drift function different from Universality condition
 
-  if (model != nullptr && model->isDriftDifferentDefined(EDrift::UC))
+  if (model != nullptr && model->isDriftDifferentDefined(VectorInt()))
   {
     if (vorder == (Vario_Order*) NULL)
       vorder = vario_order_manage(1, 1, 0, vorder);

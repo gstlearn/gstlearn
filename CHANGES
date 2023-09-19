@@ -2,7 +2,6 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
-
 Release 0.3.4
 =============
 - Update R readme
@@ -16,6 +15,7 @@ Release 0.3.4
 - Suppress class MatrixSquareDiagonalCst
 - Suppress class MatrixSquareDiagonal
 - Important warning: the Drift part of the Model Neutral File has changed.
+- Drift* is not a serializable class anymore (only Model class is)
 
 Release 0.3.3
 =============

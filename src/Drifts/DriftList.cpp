@@ -379,13 +379,20 @@ bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
  * @param type0 Target drift type (EDrift.hpp)
  * @return
  */
-bool DriftList::isDriftDifferentDefined(const EDrift &type0) const
+bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
 {
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    if (_drifts[il]->getDriftType() != type0) return 1;
+    if (_drifts[il]->isDriftExternal())
+    {
+      if (_drifts[il]->getRankFex() != rank_fex) return true;
+    }
+    else
+    {
+      if (_drifts[il]->getPowers() != powers) return true;
+    }
   }
-  return 0;
+  return false;
 }
 
 void DriftList::copyCovContext(const CovContext& ctxt)

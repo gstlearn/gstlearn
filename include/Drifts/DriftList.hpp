@@ -92,7 +92,7 @@ public:
                           bool useSel = false) const;
   int getDriftMaxIRFOrder(void) const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
-  bool isDriftDifferentDefined(const EDrift &type0) const;
+  bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = 0) const;
 
   void copyCovContext(const CovContext& ctxt);
 

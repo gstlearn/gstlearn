@@ -426,7 +426,7 @@ public:
   int getDriftEquationNumber()                     const;
   bool isDriftFiltered(unsigned int il)            const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
-  bool isDriftDifferentDefined(const EDrift& type0) const;
+  bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = 0) const;
   int getDriftMaxIRFOrder(void) const { return _driftList->getDriftMaxIRFOrder(); }
 
   void setDriftCoef(int ivar, int il, int ib, double coeff)    ;

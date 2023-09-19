@@ -720,7 +720,7 @@ int Model::getExternalDriftNumber() const
   int nfex = 0;
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    if (getDrift(il)->getDriftType() == EDrift::F) nfex++;
+    if (getDrift(il)->isDriftExternal()) nfex++;
   }
   return nfex;
 }
@@ -760,10 +760,10 @@ bool Model::isDriftDefined(const VectorInt &powers, int rank_fex) const
   if (_driftList == nullptr) return false;
   return _driftList->isDriftDefined(powers, rank_fex);
 }
-bool Model::isDriftDifferentDefined(const EDrift& type0) const
+bool Model::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
 {
   if (_driftList == nullptr) return false;
-  return _driftList->isDriftDifferentDefined(type0);
+  return _driftList->isDriftDifferentDefined(powers, rank_fex);
 }
 void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
 {
@@ -1164,22 +1164,10 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   ADriftElem* drift;
   for (int ibfl = 0; ret && ibfl < nbfl; ibfl++)
   {
-    int type = -1;
-    ret = ret && _recordRead<int>(is, "Drift characteristics", type);
-    if (ret)
-    {
-      int rank_fex = 0;
-      if (type == 15)
-      {
-        ret = ret && _recordRead<int>(is, "External Drift Rank", rank_fex);
-      }
-    }
-    else
-    {
-      String driftname;
-      ret = ret && _recordRead<String>(is, "Drift Identifier", driftname);
-      drift = DriftFactory::createDriftByIdentifier(driftname, _ctxt);
-    }
+    ret = true; // Reset 'ret' to continue reading after previous error...
+    String driftname;
+    ret = ret && _recordRead<String>(is, "Drift Identifier", driftname);
+    drift = DriftFactory::createDriftByIdentifier(driftname, _ctxt);
     drifts.addDrift(drift);
     delete drift;
   }
@@ -1267,9 +1255,6 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   {
     const ADriftElem *drift = getDrift(ibfl);
     ret = ret && _recordWrite<String>(os,"Drift Identifier", drift->getDriftName());
-//    ret = ret && _recordWrite<int>(os,"Drift characteristics", drift->getDriftType().getValue());
-//    if (drift->getDriftType() == EDrift::F)
-//      ret = ret && _recordWrite<int>(os,"External Drift rank", drift->getRankFex());
   }
 
   /* Writing the matrix of means (if nbfl <= 0) */

@@ -28,11 +28,11 @@ int main(int argc, char *argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str(), argc, argv);
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   bool verbose = true;
   // This crashes under MingGW/Windows due to compatibility issue with getTestData
-  //ASerializable::setContainerName(true,"",verbose);
+  //ASerializable::setContainerName(true); // TODO: check if this is still valid
   //ASerializable::setPrefixName("test_SPDEDrift-");
 
   String filename;
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   DbGrid* grid = DbGrid::createFromNF(filename,verbose);
   grid->display();
 
-  filename = ASerializable::getTestData("Scotland","model.ascii");
+  filename = ASerializable::getTestData("Scotland","model_new.ascii");
   Model* model = Model::createFromNF(filename,verbose);
 
   model->display();

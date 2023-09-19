@@ -62,8 +62,8 @@ Total Sill     =      0.520
 
 Drift Part
 ----------
-Universality Condition
-External Drift - Rank=0
+Universality_Condition
+External_Drift:0
 
 Variogram characteristics
 =========================
@@ -122,8 +122,8 @@ Total Sill     =      0.520
 
 Drift Part
 ----------
-Universality Condition
-External Drift - Rank=0
+Universality_Condition
+External_Drift:0
 
 Unique Neighborhood
 ===================

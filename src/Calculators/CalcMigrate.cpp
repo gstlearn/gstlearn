@@ -72,7 +72,8 @@ bool CalcMigrate::_postprocess()
   int nvar = _getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    _renameVariable(2, 1, _iattOut+ivar, _identifyVariable(_iuids[ivar]), 1, ! _flagLocate, ivar);
+    _renameVariable(2, 1, _iattOut + ivar, _identifyVariable(_iuids[ivar]), 1,
+                    !_flagLocate, ivar);
   }
 
   if (_flagLocate)
