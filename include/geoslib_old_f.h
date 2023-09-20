@@ -770,9 +770,8 @@ GSTLEARN_EXPORT int model_drift_vector(Model *model,
                                         int iech,
                                         double *vector);
 GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter);
-GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
-                                       double ball_radius,
-                                       int mode);
+GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model *model,
+                                       double ball_radius);
 GSTLEARN_EXPORT int model_stabilize(Model *model,
                                     int flag_verbose,
                                     double percent);

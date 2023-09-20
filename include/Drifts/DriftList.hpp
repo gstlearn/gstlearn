@@ -17,6 +17,8 @@
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/VectorHelper.hpp"
+
 
 class ASpace;
 class SpacePoint;
@@ -80,7 +82,7 @@ public:
    */
   double getDriftCoef(int ivar, int il, int ib) const { return _driftCoef[_getAddress(ivar,il,ib)]; }
   void setDriftCoef(int ivar, int il, int ib, double value) { _driftCoef[_getAddress(ivar,il,ib)] = value; }
-  void setDriftCoefByRank(int rank, double coeff) { _driftCoef[rank] = coeff; }
+  void resetDriftCoeff() { VectorHelper::fill(_driftCoef, 0.); }
 
   double getDrift(const Db* db, int ib, int iech) const;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;
@@ -98,6 +100,8 @@ public:
 
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
 
+  void updateDriftList();
+
 private:
   bool _isDriftIndexValid(int i) const;
   bool _isDriftEquationValid(int ib) const;
@@ -105,7 +109,6 @@ private:
   {
     return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
   }
-  void _updateDriftCoef();
 
 #ifndef SWIG
 protected:

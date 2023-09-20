@@ -375,15 +375,16 @@ void Model::setDriftList(const DriftList* driftlist)
 void Model::setDriftIRF(int order, int nfex)
 {
   if (_driftList != nullptr) delete _driftList;
-  _driftList = new DriftList();
-  _driftList = DriftFactory::createDriftListFromIRF(order, nfex);
+  _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
 }
 
 void Model::addDrift(const ADriftElem *drift)
 {
   if (drift == nullptr) return;
   if (_driftList == nullptr) _driftList = new DriftList();
-  _driftList->addDrift(drift);
+  ADriftElem* drift_loc = dynamic_cast<ADriftElem*>(drift->clone());
+  drift_loc->setCtxt(_ctxt);
+  _driftList->addDrift(drift_loc);
 }
 
 void Model::setDrifts(const VectorString &driftSymbols)
@@ -621,7 +622,7 @@ int Model::unsetAnam()
 
 void Model::_copyCovContext()
 {
-  if (_covaList != nullptr) _covaList->copyCovContext(_ctxt);
+  if (_covaList != nullptr)  _covaList->copyCovContext(_ctxt);
   if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
 }
 
@@ -755,6 +756,11 @@ bool Model::isDriftFiltered(unsigned int il) const
   if (_driftList == nullptr) return false;
   return _driftList->isFiltered(il);
 }
+void Model::setDriftFiltered(int il, bool filtered)
+{
+  if (_driftList == nullptr) return;
+  _driftList->setFiltered(il, filtered);
+}
 bool Model::isDriftDefined(const VectorInt &powers, int rank_fex) const
 {
   if (_driftList == nullptr) return false;
@@ -769,16 +775,6 @@ void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr) return;
   _driftList->setDriftCoef(ivar, il, ib, coeff);
-}
-void Model::setDriftCoefByRank(int rank, double coeff)
-{
-  if (_driftList == nullptr) return;
-  _driftList->setDriftCoefByRank(rank, coeff);
-}
-void Model::setDriftFiltered(int il, bool filtered)
-{
-  if (_driftList == nullptr) return;
-  _driftList->setFiltered(il, filtered);
 }
 VectorDouble Model::getDriftByColumn(const Db *db, int ib, bool useSel)
 {

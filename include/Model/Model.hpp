@@ -429,8 +429,8 @@ public:
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = 0) const;
   int getDriftMaxIRFOrder(void) const { return _driftList->getDriftMaxIRFOrder(); }
 
+  void resetDriftCoef() { _driftList->resetDriftCoeff(); }
   void setDriftCoef(int ivar, int il, int ib, double coeff)    ;
-  void setDriftCoefByRank(int rank, double coeff)              ;
   void setDriftFiltered(int il, bool filtered)                 ;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel=true);
   VectorVectorDouble getDrifts(const Db* db, bool useSel=true) ;

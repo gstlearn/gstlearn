@@ -58,7 +58,7 @@ public:
   void setCovar0(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
 
-  void copyCovContext(const CovContext& ctxt);
+  void copyCovContext(const CovContext& ctxt, bool severe = false);
 
 private:
   int           _nVar;         /*! Number of variables */

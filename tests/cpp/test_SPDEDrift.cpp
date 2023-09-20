@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
   DbGrid* grid = DbGrid::createFromNF(filename,verbose);
   grid->display();
 
-  filename = ASerializable::getTestData("Scotland","model_new.ascii");
+  filename = ASerializable::getTestData("Scotland","model.ascii");
   Model* model = Model::createFromNF(filename,verbose);
 
   model->display();

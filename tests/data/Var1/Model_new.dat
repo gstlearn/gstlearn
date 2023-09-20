@@ -1,0 +1,11 @@
+Model 
+2 1 50.000000 # General parameters
+2 # Number of basic covariance terms
+0 # Number of drift terms
+0 0.000000 0.000000 # Covariance characteristics
+0 # Anisotropy Flag
+2 0.200000 0.000000 # Covariance characteristics
+0 # Anisotropy Flag
+0.000000 # Mean
+0.200000 # Matrix of sills
+0.400000 # Matrix of sills

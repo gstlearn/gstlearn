@@ -141,9 +141,7 @@ bool CovContext::isConsistent(const ASpace* space) const
  */
 bool CovContext::isEqual(const CovContext &r) const
 {
-  return (_nVar == r.getNVar()                 &&
-          _space->isEqual(r.getSpace())
-          );
+  return (_nVar == r.getNVar() && _space->isEqual(r.getSpace()));
 }
 
 double CovContext::getMean(int ivar) const
@@ -218,19 +216,20 @@ void CovContext::_update()
  * This operation sets the contents of the current CovContext class
  * by copying the information from a source CovContext
  * @param ctxt Source CovContext
- *
- * @remark: This operation does not allow changing the number of variables
+ * @param severe When severe, does not allow modifying the number of variables
  */
-void CovContext::copyCovContext(const CovContext& ctxt)
+void CovContext::copyCovContext(const CovContext& ctxt, bool severe)
 {
-  if (ctxt._nVar != _nVar)
+  if (severe  && ctxt._nVar != _nVar)
   {
-    messerr("The update of a CovContext does not allow modifying");
-    messerr("the number of variables");
+    messerr("The update of a CovContext does not allow modifying the number of variables (old=%d -> New=%d)",
+            _nVar, ctxt._nVar);
     messerr("Operation is cancelled");
     return;
   }
+  _nVar   = ctxt._nVar;
   _field  = ctxt._field;
   _mean   = ctxt._mean;
   _covar0 = ctxt._covar0;
+  _update();
 }

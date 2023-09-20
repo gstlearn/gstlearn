@@ -25,9 +25,6 @@ public:
   static ADriftElem* createDriftByRank(int rank,
                                        int rank_fex,
                                        const CovContext &ctxt);
-  static ADriftElem* createDriftByType(const EDrift &type,
-                                       int rank_fex = 0,
-                                       const CovContext &ctxt = CovContext());
   static ADriftElem* createDriftBySymbol(const String &symbol,
                                          const CovContext &ctxt = CovContext());
   static ADriftElem* createDriftByIdentifier(const String &driftname,
@@ -35,4 +32,6 @@ public:
   static DriftList* createDriftListFromIRF(int order = 0,
                                            int nfex = 0,
                                            const CovContext &ctxt = CovContext());
+  static DriftList* DriftFactory::createDriftListForGradients(const DriftList& inputlist,
+                                                              const CovContext &ctxt = CovContext());
  };

@@ -77,6 +77,15 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
       sstr << " (This component is filtered)";
     sstr << std::endl;
   }
+
+  for (int ivar = 0; ivar < getNVariables(); ivar++)
+    for (int ib = 0; ib < getDriftEquationNumber(); ib++)
+    {
+      sstr << "ivar = " << ivar << " ib = " << ib << " : ";
+      for (int il = 0; il < getDriftNumber(); il++)
+         sstr << " " << getDriftCoef(ivar, il, ib);
+      sstr << std::endl;
+    }
   return sstr.str();
 }
 
@@ -91,7 +100,7 @@ void DriftList::addDrift(const ADriftElem* drift)
   if (drift == nullptr) return;
   _drifts.push_back(dynamic_cast<ADriftElem*>(drift->clone()));
   _filtered.push_back(false);
-  _updateDriftCoef();
+  updateDriftList();
 }
 
 void DriftList::delDrift(unsigned int i)
@@ -100,7 +109,7 @@ void DriftList::delDrift(unsigned int i)
   if (! _isDriftIndexValid(i)) return;
   _drifts.erase(_drifts.begin() + i);
   _filtered.erase(_filtered.begin() + i);
-  _updateDriftCoef();
+  updateDriftList();
 }
 
 void DriftList::delAllDrifts()
@@ -219,15 +228,15 @@ bool DriftList::_isDriftEquationValid(int ib) const
   return true;
 }
 
-void DriftList::_updateDriftCoef()
+void DriftList::updateDriftList()
 {
   int nvar = getNVariables();
   int nfeq = getDriftEquationNumber();
   int nbfl = getDriftNumber();
-  _driftCoef.resize(nvar * nfeq * nbfl);
 
   /* Copy the coefficients from the old to the new structure */
 
+  _driftCoef.resize(nvar * nfeq * nbfl);
   if (_flagLinked)
   {
     for (int ivar = 0; ivar < nvar; ivar++)
@@ -248,6 +257,11 @@ void DriftList::_updateDriftCoef()
             setDriftCoef(ivar, il, ib, (ivar == jvar && il == jl));
           }
   }
+
+  // Resize the 'filtered' array (if necessary)
+
+  if (nbfl != (int) _filtered.size())
+    _filtered.resize(nbfl, false);
 }
 
 VectorDouble DriftList::getDriftByColumn(const Db* db, int ib, bool useSel) const

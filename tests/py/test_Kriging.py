@@ -8,7 +8,7 @@ def cova(x,sills=1):
 
 A = np.random.normal(size=(3,3))
 sills = gl.VectorDouble((A@A.T).reshape(1,-1)[0])
-model =gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
+model = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
 
 nx = [10,10]
 
@@ -72,12 +72,12 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
         db["z"+str(i)]=vect
           
     db.setLocators(["z*"],gl.ELoc.Z)
-   
+    
     indF = []
-
+    
     for i in range(nvar):
         indF += list(np.array(indList[i]) + ndat * i)
-
+    
     if measurement_error :
         for i in range(nvar):
             db["err"+str(i)] = 0.1 * np.random.uniform(size = ndat)
@@ -92,8 +92,7 @@ def createDbIn(ndat,nvar,percent,ndim=2,selDbin=False,measurement_error=False,nd
     return db,indF
 
 
-def test_kriging(ndat,nx,nvar,percent,
-                 model,cova,
+def test_kriging(ndat,nx,nvar,percent,model,cova,
                  irf=None,drift=False,measurement_error=False,compute_vars = True,
                  selDbin = True, selDbout = True,flag_isotopic=True,
                  seed=1234,tol=1e-12,eps=1e-3,test = True,verbose=False):
@@ -154,7 +153,6 @@ def test_kriging(ndat,nx,nvar,percent,
     if irf is not None:
         modeln.setDriftIRF(irf)
     
-    
     if drift :
         target["ff"] = np.random.normal(size = target.getSampleNumber())
         
@@ -175,24 +173,24 @@ def test_kriging(ndat,nx,nvar,percent,
     target2.setLocator("sel")
     #modeln.covMatrix(vect,db2,None,-1,-1)
     ##########
-
+    
     covgl = np.array(list(vect)).reshape(nvar * db2.getSampleNumber(),-1)[indF,:][:,indF]
-   
+    
     if measurement_error:
         err = db["err*"].T.reshape(-1,)
         np.fill_diagonal(cov,np.diag(cov)+err[indF])
-       
+    
     
     #assert(np.linalg.norm(covgl-cov)<tol)   
     
     vect = gl.VectorDouble(nvar**2 * db2.getSampleNumber() * len(indOut))
     #modeln.covMatrix(vect,db2,target,-1,-1)
     #c0gl = np.array(list(vect)).reshape(nvar*db2.getSampleNumber(),nvar*len(indOut))[indF,:]
-   
+    
     #assert(np.linalg.norm(c0gl-c0)<tol)
     
     neigh = gl.NeighUnique()
-
+    
     if compute_vars:
         gl.kriging(db,target,modeln,neigh,flag_std = True,flag_varz=True)
         #gl.krigingExperimentalEigen(db,target,modeln,flag_std = True,flag_varz=True)
@@ -200,8 +198,6 @@ def test_kriging(ndat,nx,nvar,percent,
         gl.kriging(db,target,modeln,neigh,flag_std = False,flag_varz=False)
         #gl.krigingExperimentalEigen(db,target,modeln,flag_std=False,flag_varz=False)
     
-    
-
     if irf is not None or drift:
         c0t = np.copy(c0)
         driftd = np.kron(np.eye(nvar),modeln.getDrifts(db2, False))[:,indF]
@@ -213,7 +209,7 @@ def test_kriging(ndat,nx,nvar,percent,
         c0t = c0
     
     weights = np.linalg.solve(cov,c0t)
-
+    
     ntarget = target.getSampleNumber(useSel=True)
     krig = (db["z*"].T.reshape(1,-1).T[indF].T@weights).reshape(-1,)
     
@@ -224,7 +220,7 @@ def test_kriging(ndat,nx,nvar,percent,
     c0v = c0v.T.reshape(-1,)
     var = c0v + varest - 2 * np.sum(weights*c0,axis=0).T.reshape(-1,)
     std = np.sqrt(var)
-  
+    
     krigref = target["*estim"][indOut].T.reshape(-1,)
     stdref = target["*stdev"][indOut].T.reshape(-1,)
     varestref = target["*varz"][indOut].T.reshape(-1,)
@@ -242,28 +238,50 @@ def test_kriging(ndat,nx,nvar,percent,
 percent = [0.5,0.9,1.]
 ndat = 40
 nbtests = 0
-for irf in [None,0,1]:
-    for drift in [False,True]:
-        for measurement_error in [True, False]:
-            for selDbin in [True, False]:
-                for selDbout in [True, False]:
-                    for nx in [[5,5]]:
-                        for nvar in [1,2,3]:
-                            isolist = [True, False]
-                            if nvar >1 :
-                                isolist = [True,False]
-                            for iso in isolist:
-                                for cv in [False,True]:
-                                    a = test_kriging(ndat,nx,nvar,percent,
-                                                         model,cova,compute_vars=cv,
-                                                         irf=irf,drift=drift,measurement_error=measurement_error,
-                                                         selDbin=selDbin,selDbout=selDbout,flag_isotopic = iso,
-                                                        seed=1234,tol=1e-8,eps=1e-3,verbose=False)
-                                    nbtests += 1
-print("Number of tests performed =",nbtests)
+verbose = False
+general = True
 
-a = test_kriging(ndat, nx, nvar, percent,
-                 model, cova, compute_vars=cv,
-                 irf=irf, drift=drift, measurement_error=measurement_error,
-                 selDbin=selDbin, selDbout=selDbout, flag_isotopic=iso,
-                 seed=1234, tol=1e-9, eps=1e-3, test=False)
+if general:
+    for irf in [None,0,1]:
+        for drift in [False,True]:
+            for measurement_error in [True, False]:
+                for selDbin in [True, False]:
+                    for selDbout in [True, False]:
+                        for nx in [[5,5]]:
+                            for nvar in [1,2,3]:
+                                isolist = [True, False]
+                                if nvar >1 :
+                                    isolist = [True,False]
+                                for iso in isolist:
+                                    for cv in [False,True]:
+                                        a = test_kriging(ndat,nx,nvar,percent,
+                                                         model,cova,compute_vars=cv,
+                                                         irf=irf,drift=drift,
+                                                         measurement_error=measurement_error,
+                                                         selDbin=selDbin,selDbout=selDbout,
+                                                         flag_isotopic = iso,
+                                                         seed=1234,tol=1e-8,eps=1e-3,verbose=verbose)
+                                        nbtests += 1
+
+    print("Number of tests performed =",nbtests)
+
+# Individual test
+
+if not general:
+    irf = 0
+    drift = False
+    measurement_error = False
+    selDbin = False
+    selDbout = False
+    nx = [5,5]
+    nvar = 2
+    iso = True
+    cv = False
+                                    
+    a = test_kriging(ndat,nx,nvar,percent,
+                     model,cova,compute_vars=cv,
+                     irf=irf,drift=drift,
+                     measurement_error=measurement_error,
+                     selDbin=selDbin,selDbout=selDbout,
+                     flag_isotopic = iso,
+                     seed=1234,tol=1e-8,eps=1e-3,verbose=verbose)

@@ -4,7 +4,6 @@ Model
 2 # Number of drift terms
 2 1000.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
-0 # Drift characteristics
-15 # Drift characteristics
-0 # External Drift Rank
+Universality_Condition # Drift Identifier
+External_Drift:0 # Drift characteristics
 1500.000000 # Matrix of sills

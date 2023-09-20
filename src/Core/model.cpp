@@ -1125,63 +1125,43 @@ static void st_drift_derivative(int iv,
 
 /****************************************************************************/
 /*!
- **  Duplicates a Model from another Model
+ **  Duplicates a Model from another Model for Gradients
  **
  ** \return  The modified Model structure
  **
  ** \param[in]  model       Input Model
  ** \param[in]  ball_radius Radius for Gradient calculation
- ** \param[in]  mode        Type of transformation
- ** \li                     -1 for Data (SK)
- ** \li                      0 for Data
- ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-Model* model_duplicate(const Model *model, double ball_radius, int mode)
+Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
 
 {
   Model *new_model;
   const CovAniso *cova;
-  const ADriftElem *drft;
   int new_nvar, nfact;
   double sill;
-  bool flag_linked, flag_gradient;
+  bool flag_linked;
 
   // Preliminary checks
 
   new_model = nullptr;
-  int nvar = model->getVariableNumber();
-  int ndim = model->getDimensionNumber();
+  int nvar  = model->getVariableNumber();
+  int ndim  = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
-  int nbfl = model->getDriftNumber();
+  int nbfl  = model->getDriftNumber();
   nfact = new_nvar = 0;
   flag_linked = false;
-  flag_gradient = false;
 
   // Create the new model (linked drift functions)
 
-  switch (mode)
+  if (nvar != 1 || ndim != 2)
   {
-    case -1:                    // Data (SK)
-    case 0:                     // Data
-      new_nvar = nvar;
-      nfact = 1;
-      flag_linked = false;
-      flag_gradient = false;
-      break;
-
-    case 1:                     // Data - Gradient
-      if (nvar != 1 || ndim != 2)
-      {
-        messerr("This procedure is limited to a single variable in 2-D");
-        return new_model;
-      }
-      new_nvar = 3;
-      nfact = 6;
-      flag_linked = true;
-      flag_gradient = true;
-      break;
+    messerr("This procedure is limited to a single variable in 2-D");
+    return new_model;
   }
+
+  new_nvar = 3;
+  nfact = 6;
   CovContext ctxt(model->getContext());
   ctxt.setNVar(new_nvar);
   new_model = new Model(ctxt);
@@ -1191,11 +1171,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   // Create the basic covariance structures
   // **************************************
 
-  ACovAnisoList* covs = nullptr;
-  if (flag_gradient)
-    covs = new CovLMGradient();
-  else
-    covs = new CovLMC();
+  ACovAnisoList* covs = new CovLMGradient();
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -1221,49 +1197,37 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
 
       /* Modify the Sill */;
 
-      switch (mode)
+      covnew->initSill(0.);
+      if (ifact == 0)
       {
-        case 0:
-        case -1:
-          for (int ivar = 0; ivar < new_nvar; ivar++)
-            for (int jvar = 0; jvar < new_nvar; jvar++)
-              covnew->setSill(ivar, jvar, cova->getSill(ivar,jvar));
-          break;
-
-        case 1:                   // Data - Gradient
-          covnew->initSill(0.);
-          if (ifact == 0)
-          {
-            covnew->setSill(0, 0,  sill);
-          }
-          else if (ifact == 1)
-          {
-            covnew->setSill(0, 1, -sill);
-            covnew->setSill(1, 0,  sill);
-          }
-          else if (ifact == 2)
-          {
-            covnew->setSill(1, 1,  sill);
-          }
-          else if (ifact == 3)
-          {
-            covnew->setSill(0, 2, -sill);
-            covnew->setSill(2, 0,  sill);
-          }
-          else if (ifact == 4)
-          {
-            covnew->setSill(1, 2, -sill);
-            covnew->setSill(2, 1, -sill);
-          }
-          else if (ifact == 5)
-          {
-            covnew->setSill(2, 2, sill);
-          }
-          else
-          {
-            my_throw("Argument 'ifact' invalid");
-          }
-          break;
+        covnew->setSill(0, 0, sill);
+      }
+      else if (ifact == 1)
+      {
+        covnew->setSill(0, 1, -sill);
+        covnew->setSill(1, 0, sill);
+      }
+      else if (ifact == 2)
+      {
+        covnew->setSill(1, 1, sill);
+      }
+      else if (ifact == 3)
+      {
+        covnew->setSill(0, 2, -sill);
+        covnew->setSill(2, 0, sill);
+      }
+      else if (ifact == 4)
+      {
+        covnew->setSill(1, 2, -sill);
+        covnew->setSill(2, 1, -sill);
+      }
+      else if (ifact == 5)
+      {
+        covnew->setSill(2, 2, sill);
+      }
+      else
+      {
+        my_throw("Argument 'ifact' invalid");
       }
       covs->addCov(covnew);
       delete covnew;
@@ -1276,31 +1240,27 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   // Create the basic drift structures
   // *********************************
 
-  if (mode >= 0)
+  DriftList drifts = DriftList(ctxt.getSpace());
+  drifts.setFlagLinked(flag_linked);
+  for (int il = 0; il < nbfl; il++)
   {
-    DriftList drifts = DriftList(ctxt.getSpace());
-    drifts.setFlagLinked(flag_linked);
-    for (int il = 0; il < nbfl; il++)
-    {
-      drft = model->getDrift(il);
-      drifts.addDrift(drft);
-      drifts.setFiltered(il, model->isDriftFiltered(il));
-    }
-    new_model->setDriftList(&drifts);
-
-    // Update the drift for the derivatives
-
-    if (mode == 1)
-    {
-      int nval = new_nvar * new_model->getDriftEquationNumber()
-                 * new_model->getDriftNumber();
-      for (int i = 0; i < nval; i++)
-        new_model->setDriftCoefByRank(i, 0.);
-      st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
-      st_drift_derivative(1, MODEL_DERIVATIVE_X, model, new_model);
-      st_drift_derivative(2, MODEL_DERIVATIVE_Y, model, new_model);
-    }
+    ADriftElem* drft = dynamic_cast<ADriftElem*>(model->getDrift(il)->clone());
+    drft->setCtxt(ctxt);
+    drifts.addDrift(drft);
+    drifts.setFiltered(il, model->isDriftFiltered(il));
   }
+  new_model->setDriftList(&drifts);
+  for (int il = 0; il < nbfl; il++)
+  {
+    new_model->setDriftFiltered(il, model->isDriftFiltered(il));
+  }
+
+  // Update the drift for the derivatives
+
+  new_model->resetDriftCoef();
+  st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
+  st_drift_derivative(1, MODEL_DERIVATIVE_X,    model, new_model);
+  st_drift_derivative(2, MODEL_DERIVATIVE_Y,    model, new_model);
 
   return (new_model);
 }

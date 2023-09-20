@@ -60,6 +60,8 @@ public:
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
+  void setCtxt(const CovContext &ctxt) { _ctxt = ctxt; }
+
 private:
   CovContext  _ctxt;  /* Context (space, number of variables, ...) */
   EDrift _type;       /* Drift function type */

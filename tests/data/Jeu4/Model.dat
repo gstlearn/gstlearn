@@ -6,6 +6,6 @@ Model
 0 # Anisotropy Flag
 1 4.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
-0 # Drift characteristics
+Universality_Condition # Drift Identifier
 1.000000 # Matrix of sills
 1.000000 # Matrix of sills

@@ -58,11 +58,13 @@ static Model *st_modify(Model *model,
     if (db_gradient_update(db)) return(new_model);
 
     /* Create the new Model */
-    new_model = model_duplicate(model,ball_radius,1);
+    model->display();
+    new_model = model_duplicate_for_gradient(model,ball_radius);
+    new_model->display();
   }
   else
   {
-    new_model = model_duplicate(model,0.,0);
+    new_model = model->clone();
   }
   return(new_model);
 }
@@ -99,7 +101,7 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  StdoutRedirect sr("Result.out");
+//  StdoutRedirect sr("Result.out");
 
   /* Setup constants */
 

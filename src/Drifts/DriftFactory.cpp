@@ -20,34 +20,6 @@
 
 #include <iostream>
 
-ADriftElem* DriftFactory::createDriftByType(const EDrift &type,
-                                            int rank_fex,
-                                            const CovContext &ctxt)
-{
-  switch(type.toEnum())
-  {
-    case EDrift::E_UC:  return new DriftM(VectorInt(), ctxt);
-    case EDrift::E_X:   return new DriftM({1},         ctxt);
-    case EDrift::E_X2:  return new DriftM({2},         ctxt);
-    case EDrift::E_X2Y: return new DriftM({2,1},       ctxt);
-    case EDrift::E_X3:  return new DriftM({3},         ctxt);
-    case EDrift::E_XY:  return new DriftM({1,1},       ctxt);
-    case EDrift::E_XY2: return new DriftM({1,2},       ctxt);
-    case EDrift::E_XZ:  return new DriftM({1,0,1},     ctxt);
-    case EDrift::E_Y:   return new DriftM({0,1},       ctxt);
-    case EDrift::E_Y2:  return new DriftM({0,2},       ctxt);
-    case EDrift::E_Y3:  return new DriftM({0,3},       ctxt);
-    case EDrift::E_YZ:  return new DriftM({0,1,1},     ctxt);
-    case EDrift::E_Z:   return new DriftM({0,0,1},     ctxt);
-    case EDrift::E_Z2:  return new DriftM({0,0,2},     ctxt);
-    case EDrift::E_Z3:  return new DriftM({0,0,3},     ctxt);
-    case EDrift::E_F:   return new DriftF(rank_fex,    ctxt);
-    default: break;
-  }
-  my_throw ("Drift function not yet implemented!");
-  return nullptr;
-}
-
 /**
  * This Drift identification is used for interpreting old serialized files
  * where the drift function was encoded by its rank.
@@ -144,8 +116,7 @@ ADriftElem* DriftFactory::createDriftByIdentifier(const String& driftname,
   }
 
   // Looking for a standard monomial drift
-  // For simplicity, we only check the 14 first possibilities defined in the
-  // function createDriftByRank
+  // For simplicity, we only check the 14 first possibilities defined in the function createDriftByRank
   for (int itest = 0; itest <= 14; itest++)
   {
     ADriftElem* drift = DriftFactory::createDriftByRank(itest,0,ctxt);
@@ -185,11 +156,11 @@ DriftList* DriftFactory::createDriftListFromIRF(int order,
       break;
 
     case 0:
-      drifts->addDrift(new DriftM());                                         // 1
+      drifts->addDrift(new DriftM(VectorInt(), ctxt));                        // 1
       break;
 
     case 1:
-      drifts->addDrift(new DriftM());                                         // 1
+      drifts->addDrift(new DriftM(VectorInt(), ctxt));                        // 1
       if (ndim >= 1)
         drifts->addDrift(new DriftM(VectorInt({1}), ctxt));                   // X
       if (ndim >= 2)
@@ -227,6 +198,54 @@ DriftList* DriftFactory::createDriftListFromIRF(int order,
       drifts->addDrift(new DriftF(ifex, ctxt));
   }
 
+  drifts->updateDriftList();
   return drifts;
 }
 
+/**
+ * Create the list of drift functions for a Cokriging system
+ * starting from a list of initial drift functions
+ * It is implemented for ndim=1 or 2
+ * @param Input list of drift funcitons
+ * @param ctxt CovContext structure
+ * @return
+ */
+DriftList* DriftFactory::createDriftListForGradients(const DriftList& inputlist, const CovContext &ctxt)
+{
+  DriftList* newdrifts = new DriftList();
+  int ndim = ctxt.getNDim();
+
+  int ndrift = driftlist.getDriftNumber();
+
+  drifts.setFlagLinked(flag_linked);
+  for (int il = 0; il < ndrift; il++)
+  {
+    ADriftElem* drft = dynamic_cast<ADriftElem*>(inputlist.getDrift(il)->clone());
+    String drift_name = drft->getDriftName();
+
+    // Creating the Z variable
+
+    newdrifts->addDrift(drift)
+  }
+
+  for (int il = 0; il < nbfl; il++)
+  {
+    ADriftElem* drft = dynamic_cast<ADriftElem*>(model->getDrift(il)->clone());
+    drft->setCtxt(ctxt);
+    drifts.addDrift(drft);
+    drifts.setFiltered(il, model->isDriftFiltered(il));
+  }
+  new_model->setDriftList(&drifts);
+  for (int il = 0; il < nbfl; il++)
+  {
+    new_model->setDriftFiltered(il, model->isDriftFiltered(il));
+  }
+
+  // Update the drift for the derivatives
+
+
+  if (ndim == 1)
+  {
+
+  }
+}
