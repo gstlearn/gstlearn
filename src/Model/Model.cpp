@@ -725,11 +725,6 @@ int Model::getExternalDriftNumber() const
   }
   return nfex;
 }
-const EDrift& Model::getDriftType(int il) const
-{
-  if (_driftList == nullptr) return EDrift::UNKNOWN;
-  return _driftList->getDriftType(il);
-}
 int Model::getRankFext(int il) const
 {
   if (_driftList == nullptr) return ITEST;
@@ -775,6 +770,11 @@ void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr) return;
   _driftList->setDriftCoef(ivar, il, ib, coeff);
+}
+int Model::getDriftMaxIRFOrder(void) const
+{
+  if (_driftList == nullptr) return -1;
+  return _driftList->getDriftMaxIRFOrder();
 }
 VectorDouble Model::getDriftByColumn(const Db *db, int ib, bool useSel)
 {

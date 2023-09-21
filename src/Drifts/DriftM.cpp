@@ -61,13 +61,16 @@ String DriftM::getDriftName() const
   else
   {
     sstr << "Drift:";
+    bool flag_first = true;
     for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
     {
       double locpow = _monomialPower[idim];
       if (locpow > 0)
       {
-        sstr << "x_" << idim+1;
+        if (!flag_first) sstr << "*";
+        sstr << "x" << idim+1;
         if (locpow > 1) sstr << "^" << locpow;
+        flag_first = false;
       }
     }
   }
@@ -76,7 +79,7 @@ String DriftM::getDriftName() const
 
 int DriftM::getOrderIRF() const
 {
-  int irf = 0;
+  int irf = -1;
   for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
   {
     double locpow = _monomialPower[idim];

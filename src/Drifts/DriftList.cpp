@@ -78,6 +78,7 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
     sstr << std::endl;
   }
 
+//   Display the coefficients
   for (int ivar = 0; ivar < getNVariables(); ivar++)
     for (int ib = 0; ib < getDriftEquationNumber(); ib++)
     {
@@ -146,12 +147,6 @@ ADriftElem* DriftList::getDrift(int il)
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
-}
-
-const EDrift& DriftList::getDriftType(int il) const
-{
-  if (! _isDriftIndexValid(il)) return EDrift::UNKNOWN;
-  return _drifts[il]->getDriftType();
 }
 
 int DriftList::getRankFex(int il) const
@@ -292,6 +287,28 @@ VectorDouble DriftList::getDriftBySample(const Db* db, int iech) const
   return vec;
 }
 
+VectorDouble DriftList::getDriftCoefByPart(int ivar, int ib) const
+{
+  int number = getDriftNumber();
+  VectorDouble coef(number,0.);
+  for (int il = 0; il < number; il++)
+    coef[il] = getDriftCoef(ivar, il, ib);
+  return coef;
+}
+
+void DriftList::setDriftCoefByPart(int ivar, int ib, const VectorDouble& coef)
+{
+  int number = getDriftNumber();
+  if (number != (int) coef.size())
+  {
+    messerr("The dimension of 'vec' (%d) is not equal to the number of drift functions (%d)",
+            (int) coef.size(), number);
+    return;
+  }
+  for (int il = 0; il < number; il++)
+    setDriftCoef(ivar, il, ib, coef[il]);
+}
+
 double DriftList::getDrift(const Db* db, int ib, int iech) const
 {
   if (! _isDriftIndexValid(ib)) return TEST;
@@ -356,7 +373,7 @@ VectorDouble DriftList::evalDrifts(const Db* db,
  */
 int DriftList::getDriftMaxIRFOrder(void) const
 {
-  int max_order = -1;
+  int max_order = 0;
   for (int il = 0; il < getDriftNumber(); il++)
   {
     const ADriftElem* drft = _drifts[il];
@@ -390,7 +407,8 @@ bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
 /**
  * Check if at least one drift function exists whose type is different
  * from the target type
- * @param type0 Target drift type (EDrift.hpp)
+ * @param powers Vector of exponent for monomials of a polynomial drift
+ * @param rank_fex Rank of the variable for external Drift
  * @return
  */
 bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
@@ -414,4 +432,13 @@ void DriftList::copyCovContext(const CovContext& ctxt)
   int number = (int) _drifts.size();
   for (int i = 0; i < number; i++)
     _drifts[i]->copyCovContext(ctxt);
+}
+
+bool DriftList::hasExternalDrift() const
+{
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (getDrift(il)->isDriftExternal()) return true;
+  }
+  return false;
 }

@@ -210,42 +210,123 @@ DriftList* DriftFactory::createDriftListFromIRF(int order,
  * @param ctxt CovContext structure
  * @return
  */
-DriftList* DriftFactory::createDriftListForGradients(const DriftList& inputlist, const CovContext &ctxt)
+DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts, const CovContext &ctxt)
 {
+  DriftM drft;
   DriftList* newdrifts = new DriftList();
-  int ndim = ctxt.getNDim();
+  newdrifts->setFlagLinked(true);
+  int ndim  = ctxt.getNDim();
+  int order = olddrifts->getDriftMaxIRFOrder();
 
-  int ndrift = driftlist.getDriftNumber();
-
-  drifts.setFlagLinked(flag_linked);
-  for (int il = 0; il < ndrift; il++)
+  if (olddrifts->hasExternalDrift())
   {
-    ADriftElem* drft = dynamic_cast<ADriftElem*>(inputlist.getDrift(il)->clone());
-    String drift_name = drft->getDriftName();
-
-    // Creating the Z variable
-
-    newdrifts->addDrift(drift)
+    messerr("This method is not valid when an External Drift is present");
+    return newdrifts;
+  }
+  if (ndim != 1 && ndim != 2)
+  {
+    messerr("This method is limited to 2 or 3 space dimension");
+    return newdrifts;
+  }
+  if (order > 2)
+  {
+    messerr("This method is limited to order <= 2");
+    return newdrifts;
   }
 
-  for (int il = 0; il < nbfl; il++)
+  if (order == -1) return newdrifts;
+
+  // Universality condition
+  drft = DriftM(VectorInt(), ctxt);
+  newdrifts->addDrift(&drft);
+
+  if (order >= 1)
   {
-    ADriftElem* drft = dynamic_cast<ADriftElem*>(model->getDrift(il)->clone());
-    drft->setCtxt(ctxt);
-    drifts.addDrift(drft);
-    drifts.setFiltered(il, model->isDriftFiltered(il));
+    // Order-1 drift terms
+    if (ndim >= 1)
+    {
+      drft = DriftM(VectorInt({1}), ctxt);
+      newdrifts->addDrift(&drft);
+    }
+    if (ndim >= 2)
+    {
+      drft = DriftM(VectorInt({0,1}), ctxt);
+      newdrifts->addDrift(&drft);
+    }
   }
-  new_model->setDriftList(&drifts);
-  for (int il = 0; il < nbfl; il++)
+  if (order >= 2)
   {
-    new_model->setDriftFiltered(il, model->isDriftFiltered(il));
+    // Order-2 drift terms
+    if (ndim >= 1)
+    {
+      drft = DriftM(VectorInt({2}), ctxt);
+      newdrifts->addDrift(&drft);
+    }
+    if (ndim >= 2)
+    {
+      drft = DriftM(VectorInt({0,2}), ctxt);
+      newdrifts->addDrift(&drft);
+      drft = DriftM(VectorInt({1,1}), ctxt);
+      newdrifts->addDrift(&drft);
+    }
   }
 
-  // Update the drift for the derivatives
+  // Updating the auxiliary arrays
+  newdrifts->updateDriftList();
 
+  // Defining the coefficients
 
-  if (ndim == 1)
+  if (order == 1)
   {
+    // Order-1 drift terms
+    if (ndim == 1)
+    {
+      newdrifts->setDriftCoefByPart(1, 0, {0, 0}); // d(X) / dX
+      newdrifts->setDriftCoefByPart(1, 1, {1, 0}); // d(X) / dX
+    }
+    if (ndim == 2)
+    {
+      newdrifts->setDriftCoefByPart(1, 0, {0, 0, 0}); // d(1) / dX
+      newdrifts->setDriftCoefByPart(1, 1, {1, 0, 0}); // d(X) / dX
+      newdrifts->setDriftCoefByPart(1, 2, {0, 0, 0}); // d(Y) / dX
 
+      newdrifts->setDriftCoefByPart(2, 0, {0, 0, 0}); // d(1) / dY
+      newdrifts->setDriftCoefByPart(2, 1, {0, 0, 0}); // d(X) / dY
+      newdrifts->setDriftCoefByPart(2, 2, {1, 0, 0}); // d(Y) / dY
+    }
   }
+  if (order == 2)
+  {
+    // Order-2 drift terms
+    if (ndim == 1)
+    {
+      newdrifts->setDriftCoefByPart(1, 0, {0, 0, 0}); // d(1) / dX
+      newdrifts->setDriftCoefByPart(1, 1, {1, 0, 0}); // d(X) / dX
+      newdrifts->setDriftCoefByPart(1, 1, {0, 2, 0}); // d(X^2) / dX
+    }
+    if (ndim == 2)
+    {
+      newdrifts->setDriftCoefByPart(1, 0, {0, 0, 0, 0, 0, 0}); // d(1) / dX
+      newdrifts->setDriftCoefByPart(1, 1, {1, 0, 0, 0, 0, 0}); // d(X) / dX
+      newdrifts->setDriftCoefByPart(1, 2, {0, 0, 0, 0, 0, 0}); // d(Y) / dX
+      newdrifts->setDriftCoefByPart(1, 3, {0, 2, 0, 0, 0, 0}); // d(X^2) / dX
+      newdrifts->setDriftCoefByPart(1, 4, {0, 0, 0, 0, 0, 0}); // d(Y^2) / dX
+      newdrifts->setDriftCoefByPart(1, 5, {0, 0, 1, 0, 0, 0}); // d(XY) / dX
+
+      newdrifts->setDriftCoefByPart(2, 0, {0, 0, 0, 0, 0, 0}); // d(1) / dY
+      newdrifts->setDriftCoefByPart(2, 1, {0, 0, 0, 0, 0, 0}); // d(X) / dY
+      newdrifts->setDriftCoefByPart(2, 2, {1, 0, 0, 0, 0, 0}); // d(Y) / dY
+      newdrifts->setDriftCoefByPart(2, 3, {0, 0, 0, 0, 0, 0}); // d(X^2) / dY
+      newdrifts->setDriftCoefByPart(2, 4, {0, 0, 2, 0, 0, 0}); // d(Y^2) / dY
+      newdrifts->setDriftCoefByPart(2, 5, {0, 1, 0, 0, 0, 0}); // d(XY) / dY
+    }
+  }
+
+  // Copy the 'filter' status
+  for (int il = 0, ndrift = olddrifts->getDriftNumber(); il < ndrift; il++)
+  {
+    newdrifts->setFiltered(il, olddrifts->isFiltered(il));
+  }
+
+  return newdrifts;
 }

@@ -5,6 +5,6 @@ Model
 3 2.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
 Universality_Condition # Drift Identifier
-Drift:x_1 # Drift Identifier
-Drift:x_2 # Drift Identifier
+Drift:x1 # Drift Identifier
+Drift:x2 # Drift Identifier
 1.000000 # Matrix of sills

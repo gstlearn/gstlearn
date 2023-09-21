@@ -123,7 +123,7 @@ Total Sill     =     35.000
 Drift Part
 ----------
 Universality_Condition
-Drift:x_1
+Drift:x1
 External_Drift:0
 External_Drift:1
 
@@ -154,6 +154,6 @@ Total Sill     =     35.000
 Drift Part
 ----------
 Universality_Condition
-Drift:x_1
+Drift:x1
 External_Drift:0
 External_Drift:1

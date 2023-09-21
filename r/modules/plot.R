@@ -347,7 +347,7 @@ plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
 #' @param idir Rank of the direction to be represented 
 #' @param ... Arguments passed to plot.varmod()
 #' @return The ggplot object
-plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
+plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 {
   p = list()
   p = append(p, plot.varmod(vario=vario, ivar=ivar, jvar=jvar, idir=idir,...))
@@ -383,8 +383,8 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
   # Representing the Experimental variogram
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg, linetype=linetype), 
-  			na.rm=TRUE, ...))
+  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), 
+  			linetype=linetype, na.rm=TRUE, ...))
   
   # Constructing the Legend
   if (show.legend)
@@ -403,7 +403,8 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   }
   else if (draw_psize < 0)
   {
-    p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg), na.rm=TRUE, ...))
+    p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg), 
+            na.rm=TRUE, ...))
   }
   
   # Representing the number of pairs (by label)
@@ -481,8 +482,8 @@ plot.vario <- function(vario, ivar=0, jvar=0, idir=0,...)
   mode$setAsVario(! asCov)
   gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg, linetype=linetype), 
-             na.rm=TRUE, ...))
+  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), 
+             linetype=linetype, na.rm=TRUE, ...))
   
   # Constructing the legend
   if (show.legend)

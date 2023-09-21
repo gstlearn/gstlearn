@@ -59,14 +59,13 @@ public:
   bool isFiltered(int i) const;
   void setFiltered(int i, bool filter);
   int  getDriftEquationNumber() const;
-
+  bool hasExternalDrift() const;
   bool isValid() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
   const ADriftElem*  getDrift(int il) const;
   ADriftElem*        getDrift(int il); /// beurk :(
-  const EDrift&      getDriftType(int il) const;
   int                getRankFex(int il) const;
   String             getDriftName(int il) const;
   ////////////////////////////////////////////////
@@ -83,6 +82,8 @@ public:
   double getDriftCoef(int ivar, int il, int ib) const { return _driftCoef[_getAddress(ivar,il,ib)]; }
   void setDriftCoef(int ivar, int il, int ib, double value) { _driftCoef[_getAddress(ivar,il,ib)] = value; }
   void resetDriftCoeff() { VectorHelper::fill(_driftCoef, 0.); }
+  VectorDouble getDriftCoefByPart(int ivar, int ib) const;
+  void setDriftCoefByPart(int ivar, int ib, const VectorDouble& coef);
 
   double getDrift(const Db* db, int ib, int iech) const;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;

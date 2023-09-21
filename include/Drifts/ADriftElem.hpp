@@ -56,8 +56,6 @@ public:
   virtual bool   isDriftExternal() const { return false; }
   virtual double eval(const Db* db,int iech) const override = 0;
 
-  const EDrift&  getDriftType() const { return _type; }
-
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
   void setCtxt(const CovContext &ctxt) { _ctxt = ctxt; }

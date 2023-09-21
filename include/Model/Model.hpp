@@ -419,7 +419,6 @@ public:
   ADriftElem* getDrift(int il)                          ;
   int getDriftNumber()                             const;
   int getExternalDriftNumber()                     const;
-  const EDrift& getDriftType(int il)               const;
   int getRankFext(int il)                          const;
   const VectorDouble& getDriftCoefs()              const;
   double getDriftCoef(int ivar, int il, int ib)    const;
@@ -427,7 +426,7 @@ public:
   bool isDriftFiltered(unsigned int il)            const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = 0) const;
-  int getDriftMaxIRFOrder(void) const { return _driftList->getDriftMaxIRFOrder(); }
+  int getDriftMaxIRFOrder(void) const;
 
   void resetDriftCoef() { _driftList->resetDriftCoeff(); }
   void setDriftCoef(int ivar, int il, int ib, double coeff)    ;

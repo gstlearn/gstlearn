@@ -32,6 +32,6 @@ public:
   static DriftList* createDriftListFromIRF(int order = 0,
                                            int nfex = 0,
                                            const CovContext &ctxt = CovContext());
-  static DriftList* DriftFactory::createDriftListForGradients(const DriftList& inputlist,
-                                                              const CovContext &ctxt = CovContext());
- };
+  static DriftList* createDriftListForGradients(const DriftList* inputlist,
+                                                const CovContext &ctxt = CovContext());
+};

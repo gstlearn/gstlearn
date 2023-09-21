@@ -987,142 +987,6 @@ int model_drift_vector(Model *model,
   return 0;
 }
 
-/*****************************************************************************/
-/*!
- **  Patches the value of the drift coefficient in the model for the
- **  rank of variable 'iv' and of the equation 'ib'. The rank of the
- **  drift function is found by matching the type in the basis of the
- **  drift functions available.
- **  Note : this function is only used when the model has linked
- **  drift functions
- **
- ** \param[in]  model Model structure
- ** \param[in]  iv    rank of the variable
- ** \param[in]  ib    rank of the equation
- ** \param[in]  type  type of the drift function (EDrift)
- ** \param[in]  rank  rank of the external drift
- ** \param[in]  value value to be added to the drift coefficient
- **
- *****************************************************************************/
-static void st_drift_modify(Model *model,
-                            int iv,
-                            int ib,
-                            const EDrift &type,
-                            int rank,
-                            double value)
-{
-  /* Look for the drift function */
-
-  int il = -1;
-  for (int i = 0; i < model->getDriftNumber() && il < 0; i++)
-    if (model->getDriftType(i) == type &&
-        model->getDrift(i)->getRankFex() == rank) il = i;
-  if (il < 0) messageAbort("st_drift_modify");
-
-  /* Patch the drift coefficient */
-
-  model->setDriftCoef(iv, il, ib, model->getDriftCoef(iv, il, ib) + value);
-}
-
-/*****************************************************************************/
-/*!
- **  Updates the drift component of the new_model for the variable
- **  'iv' considered as the derivative along 'mode' of the
- **  first variable in the (old) model
- **
- ** \param[in]  iv    rank of the variable
- ** \param[in]  mode  type of the derivative (::ENUM_MODEL_DERIVATIVES)
- ** \param[in]  model Model structure
- **
- ** \param[out] new_model Model structure
- **
- ** \remark  The new_model must have been dimensioned beforehand
- **
- *****************************************************************************/
-static void st_drift_derivative(int iv,
-                                int mode,
-                                const Model *model,
-                                Model *new_model)
-
-{
-  for (int ib = 0; ib < model->getDriftEquationNumber(); ib++)
-    for (int il = 0; il < model->getDriftNumber(); il++)
-    {
-      double value = model->getDriftCoef(0, il, ib);
-      if (value == 0) continue;
-
-      EDrift type = model->getDriftType(il);
-      int rank = model->getRankFext(il);
-      switch (mode)
-      {
-        case MODEL_DERIVATIVE_NONE: /* Simple copy */
-          st_drift_modify(new_model, iv, ib, type, rank, value);
-          break;
-
-        case MODEL_DERIVATIVE_X: /* Derivative along X */
-          switch (type.toEnum())
-          {
-            case EDrift::E_X:
-              st_drift_modify(new_model, iv, ib, EDrift::UC, 0, value);
-              break;
-            case EDrift::E_X2:
-              st_drift_modify(new_model, iv, ib, EDrift::X, 0, 2. * value);
-              break;
-            case EDrift::E_XY:
-              st_drift_modify(new_model, iv, ib, EDrift::Y, 0, value);
-              break;
-            case EDrift::E_XZ:
-              st_drift_modify(new_model, iv, ib, EDrift::Z, 0, value);
-              break;
-            case EDrift::E_X3:
-              st_drift_modify(new_model, iv, ib, EDrift::X2, 0, 3. * value);
-              break;
-            case EDrift::E_X2Y:
-              st_drift_modify(new_model, iv, ib, EDrift::XY, 0, 2. * value);
-              break;
-            case EDrift::E_XY2:
-              st_drift_modify(new_model, iv, ib, EDrift::Y2, 0, value);
-              break;
-            default:
-              break;
-          }
-          break;
-
-        case MODEL_DERIVATIVE_Y: /* Derivative along Y */
-          switch (type.toEnum())
-          {
-            case EDrift::E_Y:
-              st_drift_modify(new_model, iv, ib, EDrift::UC, 0, value);
-              break;
-            case EDrift::E_Y2:
-              st_drift_modify(new_model, iv, ib, EDrift::Y, 0, 2. * value);
-              break;
-            case EDrift::E_XY:
-              st_drift_modify(new_model, iv, ib, EDrift::X, 0, value);
-              break;
-            case EDrift::E_YZ:
-              st_drift_modify(new_model, iv, ib, EDrift::Z, 0, value);
-              break;
-            case EDrift::E_Y3:
-              st_drift_modify(new_model, iv, ib, EDrift::Y2, 0, 3. * value);
-              break;
-            case EDrift::E_XY2:
-              st_drift_modify(new_model, iv, ib, EDrift::XY, 0, 2. * value);
-              break;
-            case EDrift::E_X2Y:
-              st_drift_modify(new_model, iv, ib, EDrift::X2, 0, value);
-              break;
-            default:
-              break;
-          }
-          break;
-
-        default:
-          break;
-      }
-    }
-}
-
 /****************************************************************************/
 /*!
  **  Duplicates a Model from another Model for Gradients
@@ -1140,7 +1004,6 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   const CovAniso *cova;
   int new_nvar, nfact;
   double sill;
-  bool flag_linked;
 
   // Preliminary checks
 
@@ -1148,9 +1011,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   int nvar  = model->getVariableNumber();
   int ndim  = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
-  int nbfl  = model->getDriftNumber();
   nfact = new_nvar = 0;
-  flag_linked = false;
 
   // Create the new model (linked drift functions)
 
@@ -1181,10 +1042,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
     for (int ifact = 0; ifact < nfact; ifact++, lec++)
     {
       CovAniso* covnew = nullptr;
-      if (flag_gradient)
-        covnew = new CovGradientNumerical(cova->getType(),ball_radius,ctxt);
-      else
-        covnew = new CovAniso(cova->getType(), ctxt);
+      covnew = new CovGradientNumerical(cova->getType(),ball_radius,ctxt);
       covnew->setParam(cova->getParam());
       if (cova->getFlagAniso())
       {
@@ -1240,27 +1098,8 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
   // Create the basic drift structures
   // *********************************
 
-  DriftList drifts = DriftList(ctxt.getSpace());
-  drifts.setFlagLinked(flag_linked);
-  for (int il = 0; il < nbfl; il++)
-  {
-    ADriftElem* drft = dynamic_cast<ADriftElem*>(model->getDrift(il)->clone());
-    drft->setCtxt(ctxt);
-    drifts.addDrift(drft);
-    drifts.setFiltered(il, model->isDriftFiltered(il));
-  }
-  new_model->setDriftList(&drifts);
-  for (int il = 0; il < nbfl; il++)
-  {
-    new_model->setDriftFiltered(il, model->isDriftFiltered(il));
-  }
-
-  // Update the drift for the derivatives
-
-  new_model->resetDriftCoef();
-  st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
-  st_drift_derivative(1, MODEL_DERIVATIVE_X,    model, new_model);
-  st_drift_derivative(2, MODEL_DERIVATIVE_Y,    model, new_model);
+  DriftList* drifts = DriftFactory::createDriftListForGradients(model->getDriftList(), ctxt);
+  new_model->setDriftList(drifts);
 
   return (new_model);
 }

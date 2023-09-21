@@ -971,17 +971,17 @@ void Db::setLocators(const VectorString &names,
 
 /**
  * Define the Locator(s) for the given variable(s)
- * @param names Set of variable names
+ * @param name Variable name
  * @param locatorType Locator Type
  * @param locatorIndex Locator Index (for the first variable) (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
-void Db::setLocator(const String &names,
+void Db::setLocator(const String &name,
                     const ELoc& locatorType,
                     int locatorIndex,
                     bool cleanSameLocator)
 {
-  VectorInt iuids = _ids(names, false);
+  VectorInt iuids = _ids(name, false);
   if (iuids.empty()) return;
 
   if (cleanSameLocator) clearLocators(locatorType);

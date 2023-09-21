@@ -36,5 +36,5 @@ public:
   VectorInt getPowers() const override { return _monomialPower; }
 
 private:
-  VectorInt    _monomialPower;
+  VectorInt _monomialPower;
 };
