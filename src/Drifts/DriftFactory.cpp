@@ -23,7 +23,7 @@
 /**
  * This Drift identification is used for interpreting old serialized files
  * where the drift function was encoded by its rank.
- * @param rank     Rank of the drift function (in the deprecated EDrift Enum)
+ * @param rank     Rank of the drift function (in a deprecated Enum)
  * @param rank_fex Rank of the External Drift variable
  * @param ctxt     Cov_Context()
  * @return
@@ -100,33 +100,18 @@ ADriftElem* DriftFactory::createDriftBySymbol(const String &symbol,
 ADriftElem* DriftFactory::createDriftByIdentifier(const String& driftname,
                                                   const CovContext &ctxt)
 {
-  // Look for Universality Condition
-  ADriftElem* drift = new DriftM(VectorInt(), ctxt);
-  String locname = drift->getDriftName();
-  if (driftname.find(locname) == 0) return drift;
-  delete drift;
+  ADriftElem* drift;
 
-  // Look for an External Drift (testing the 5 first variable ranks)
-  for (int itest = 0; itest < 5; itest++)
-  {
-    ADriftElem* drift = new DriftF(itest, ctxt);
-    String locname = drift->getDriftName();
-    if (driftname.find(locname) == 0) return drift;
-    delete drift;
-  }
+  // Look for a standard monomial drift
+  drift = DriftM::createByIdentifier(driftname, ctxt);
 
-  // Looking for a standard monomial drift
-  // For simplicity, we only check the 14 first possibilities defined in the function createDriftByRank
-  for (int itest = 0; itest <= 14; itest++)
-  {
-    ADriftElem* drift = DriftFactory::createDriftByRank(itest,0,ctxt);
-    String locname = drift->getDriftName();
-    if (driftname.find(locname) == 0) return drift;
-    delete drift;
-  }
+  // Look for an external drift
+  if (drift == nullptr)
+    drift = DriftF::createByIdentifier(driftname, ctxt);
 
-  messerr("Error: Drift Name(%s) is unknown", driftname);
-  return nullptr;
+  if (drift == nullptr)
+    messerr("Error: Drift Name(%s) is unknown", driftname);
+  return drift;
 }
 
 /**

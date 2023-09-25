@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EDrift.hpp"
-
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Basic/ICloneable.hpp"

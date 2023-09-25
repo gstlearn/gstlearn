@@ -18,7 +18,6 @@
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
-#include "Enum/EDrift.hpp"
 #include "Enum/EProcessOper.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Enum/EConsType.hpp"

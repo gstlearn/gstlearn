@@ -8,14 +8,18 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/EDrift.hpp"
+#include <iostream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <iterator>
 
 #include "Drifts/DriftF.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
 
 DriftF::DriftF(int rank_fex, const CovContext& ctxt)
-    : ADriftElem(EDrift::F, ctxt),
+    : ADriftElem(ctxt),
       _rankFex(rank_fex)
 {
 }
@@ -50,4 +54,16 @@ String DriftF::getDriftName() const
   std::stringstream sstr;
   sstr << "External_Drift:" << _rankFex;
   return sstr.str();
+}
+
+DriftF* DriftF::createByIdentifier(const String &driftname,
+                                   const CovContext &ctxt)
+{
+  String substring = {"External_Drift:"};
+
+  std::size_t found = driftname.find(substring);
+  if (found != 0) return nullptr;
+  String string_rank = driftname.substr(substring.size(), driftname.size()-1);
+  int rank_fex = atoi(string_rank.c_str());
+  return new DriftF(rank_fex, ctxt);
 }

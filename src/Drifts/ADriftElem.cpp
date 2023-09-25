@@ -10,25 +10,20 @@
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
-#include "Enum/EDrift.hpp"
-
 #include "Drifts/ADriftElem.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 
-ADriftElem::ADriftElem(const EDrift& type,
-                       const CovContext& ctxt)
+ADriftElem::ADriftElem(const CovContext& ctxt)
     : ADrift(ctxt.getSpace()), /// TODO : shared pointer
-      _ctxt(ctxt),
-      _type(type)
+      _ctxt(ctxt)
 {
 }
 
 ADriftElem::ADriftElem(const ADriftElem &r)
     : ADrift(r),
-      _ctxt(r._ctxt), /// TODO : shared pointer
-      _type(r._type)
+      _ctxt(r._ctxt) /// TODO : shared pointer
 {
 }
 
@@ -38,7 +33,6 @@ ADriftElem& ADriftElem::operator=(const ADriftElem &r)
   {
     ADrift::operator=(r);
     _ctxt = r._ctxt;
-    _type = r._type;
   }
   return *this;
 }

@@ -15,7 +15,6 @@
 
 #include "Enum/ECalcMember.hpp"
 #include "Enum/ECov.hpp"
-#include "Enum/EDrift.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Enum/EModelProperty.hpp"
 

@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EDrift.hpp"
-
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Basic/AStringable.hpp"
@@ -29,8 +27,7 @@ class Db;
 class GSTLEARN_EXPORT ADriftElem : public ADrift, public ICloneable
 {
 public:
-  ADriftElem(const EDrift &type,
-             const CovContext &ctxt = CovContext());
+  ADriftElem(const CovContext &ctxt = CovContext());
   ADriftElem(const ADriftElem &r);
   ADriftElem& operator= (const ADriftElem &r);
   virtual ~ADriftElem();
@@ -62,5 +59,4 @@ public:
 
 private:
   CovContext  _ctxt;  /* Context (space, number of variables, ...) */
-  EDrift _type;       /* Drift function type */
 };

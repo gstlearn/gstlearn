@@ -31,6 +31,9 @@ public:
   double eval(const Db* db, int iech) const override;
   int    getRankFex() const override { return _rankFex; }
 
+  static DriftF* createByIdentifier(const String &driftname,
+                                    const CovContext &ctxt = CovContext());
+
 private:
   int _rankFex;       /* Rank of the external drift */
 };

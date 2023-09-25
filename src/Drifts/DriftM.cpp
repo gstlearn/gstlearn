@@ -8,15 +8,13 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "Enum/EDrift.hpp"
-
 #include "Drifts/DriftM.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
 
 DriftM::DriftM(const VectorInt &powers,
                const CovContext &ctxt)
-    : ADriftElem(EDrift::MONO, ctxt),
+    : ADriftElem(ctxt),
       _monomialPower(powers)
 {
 }
@@ -53,6 +51,29 @@ double DriftM::eval(const Db* db, int iech) const
   return value;
 }
 
+int DriftM::getOrderIRF() const
+{
+  int irf = -1;
+  for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
+  {
+    double locpow = _monomialPower[idim];
+    if (locpow > irf) irf = locpow;
+  }
+  return irf;
+}
+
+int DriftM::getOrderIRFIdim(int idim) const
+{
+  if (idim < getNDim()) return -1;
+  return _monomialPower[idim];
+}
+
+int DriftM::getNDim() const
+{
+  return (int) _monomialPower.size();
+}
+
+
 String DriftM::getDriftName() const
 {
   std::stringstream sstr;
@@ -77,24 +98,66 @@ String DriftM::getDriftName() const
   return sstr.str();
 }
 
-int DriftM::getOrderIRF() const
+DriftM* DriftM::createByIdentifier(const String &driftname,
+                                   const CovContext &ctxt)
 {
-  int irf = -1;
-  for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
+  String input = driftname;
+  String substring;
+  std::size_t found;
+
+  // Looking for Universality Condition
+  substring = {"Universality_Condition"};
+  found = input.find(substring);
+  if (found == 0) return new DriftM();
+
+  // Looking for other drift conditions
+  substring = {"Drift:"};
+  found = input.find(substring);
+  if (found != 0) return nullptr;
+
+  // Decode the rest of the string
+  input = input.substr(substring.size(), input.size()-1);
+
+  // Initiate a vector of powers of the monomials to an extreme dimension: it will be resized at the end
+  VectorInt powers(10, 0);
+  int rank_max = 0;
+  while (input.size() > 0)
   {
-    double locpow = _monomialPower[idim];
-    if (locpow > irf) irf = locpow;
+    // Decode the character "x"
+    substring = {"x"};
+    found = input.find(substring);
+    if (found != 0) return nullptr;
+    input = input.substr(substring.size(), input.size()-1);
+
+    // Decode the power
+    int rank = atoi(input.c_str());
+    input = input.substr(1, input.size()-1);
+    if (rank > rank_max) rank_max = rank;
+
+    // Attempt to read the exponentiation
+    int power = 1;
+    substring = {"^"};
+    found = input.find(substring);
+    if (found == 0)
+    {
+      // Attempt to read the exponent
+      input = input.substr(substring.size(), input.size()-1);
+      power = atoi(input.c_str());
+      input = input.substr(1, input.size()-1);
+    }
+
+    // Attempt to read the character "*"
+    substring = {"*"};
+    found = input.find(substring);
+
+    // Concatenate the results
+    powers[rank-1] = power;
+
+    if (found != 0) break;
+    input = input.substr(substring.size(), input.size()-1);
   }
-  return irf;
-}
 
-int  DriftM::getOrderIRFIdim(int idim) const
-{
-  if (idim < getNDim()) return -1;
-  return _monomialPower[idim];
-}
-
-int  DriftM::getNDim() const
-{
-  return (int) _monomialPower.size();
+  // Final Resizing
+  powers.resize(rank_max);
+  return new DriftM(powers, ctxt);
 }

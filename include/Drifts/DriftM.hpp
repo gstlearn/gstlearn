@@ -35,6 +35,9 @@ public:
   double eval(const Db* db, int iech) const override;
   VectorInt getPowers() const override { return _monomialPower; }
 
+  static DriftM* createByIdentifier(const String &driftname,
+                                    const CovContext &ctxt = CovContext());
+
 private:
   VectorInt _monomialPower;
 };

@@ -385,7 +385,8 @@ int DriftList::getDriftMaxIRFOrder(void) const
 
 /**
  * Check if a given drift type is defined among the drift functions
- * @param type0 Target drift type (EDrift.hpp)
+ * @param powers Vector of exponents for monomials
+ * @param rank_fex Rank of the variable for external dift
  * @return
  */
 bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const

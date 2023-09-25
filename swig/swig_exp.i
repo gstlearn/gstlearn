@@ -47,7 +47,6 @@
 %include Enum/ETape.hpp
 %include Enum/ELoadBy.hpp
 %include Enum/ELoc.hpp
-%include Enum/EDrift.hpp
 %include Enum/EPowerPT.hpp
 %include Enum/ERule.hpp
 %include Enum/EConsElem.hpp

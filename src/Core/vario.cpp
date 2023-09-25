@@ -13,7 +13,6 @@
 
 #include "Enum/EJustify.hpp"
 #include "Enum/ECalcVario.hpp"
-#include "Enum/EDrift.hpp"
 
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"

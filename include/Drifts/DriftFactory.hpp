@@ -12,8 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EDrift.hpp"
-
 #include "Covariances/CovContext.hpp"
 
 class ADriftElem;

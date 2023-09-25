@@ -24,7 +24,6 @@
 #include "Enum/ETape.hpp"
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ELoc.hpp"
-#include "Enum/EDrift.hpp"
 #include "Enum/ERotation.hpp"
 #include "Enum/EPowerPT.hpp"
 #include "Enum/EProcessOper.hpp"
@@ -46,7 +45,6 @@ ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
 ENUM_DEFINE(ENUM_LOC)
 ENUM_DEFINE(ENUM_COV)
-ENUM_DEFINE(ENUM_DRIFT)
 ENUM_DEFINE(ENUM_CALC_VARIO)
 ENUM_DEFINE(ENUM_MODEL_PROPERTY)
 ENUM_DEFINE(ENUM_RULE)
