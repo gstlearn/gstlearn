@@ -76,9 +76,9 @@ point(db, *args, **kwargs)
     flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
     flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
     flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
-    legendNameColor: Title for the Color Legend
-    legendNameSize: Title for the Size legend
-    legendNameLabel: Title for the Label Legend
+    legendNameColor: Title for the Color Legend (set to 'name_color' if not defined)
+    legendNameSize: Title for the Size legend (set to 'name_size' if not defined)
+    legendNameLabel: Title for the Label Legend (set to 'name_label' if not defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     

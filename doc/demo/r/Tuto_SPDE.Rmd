@@ -21,7 +21,6 @@ library(ggpubr)
 library(Matrix)
 set.seed(43243)
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-
 ```
 
 # Parameters
@@ -70,8 +69,6 @@ p = ggDefaultGeographic() +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Limits of the simulations")
 ggPrint(p)
-
-
 ```
 
 ## Model definition
@@ -209,8 +206,7 @@ p = ggDefaultGeographic() +
     plot.grid(grid, name_raster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
             show.legend.raster = TRUE) +
     plot.point(dat, col = "red") +
-    plot.decoration(xlab = "Easting", ylab = "Northing", 
-                  title = "Kriging (Manual)")
+    plot.decoration(xlab = "Easting", ylab = "Northing", title = "Kriging (Manual)")
 ggPrint(p)
 ```
 
@@ -259,23 +255,25 @@ ggPrint(p)
 # cross plot: initial simulation vs. kriging
 p = ggDefault() + 
     plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.simu", asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (Initial simulation)", 
                   title = "Simulation vs. kriging (Manual)")
 ggPrint(p)
 
 # cross plot: conditional simulation vs. kriging
 p = ggDefault() + 
-    plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.cond.simu", asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+    plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.cond.simu", 
+                     asPoint = FALSE, 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (conditional simulation)", 
                   title = "Simulation vs. kriging (Manual)")
 ggPrint(p)
 
 # cross plot: empirical conditional expectation vs. kriging
 p = ggDefault() + 
-    plot.correlation(db1 = grid, namex = "manual.cond.expectation", namey = "manual.kriging", asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+    plot.correlation(db1 = grid, namex = "manual.cond.expectation", namey = "manual.kriging", 
+                     asPoint = FALSE, 
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
                   title = "Kriging vs. conditional expectation (Manual)")
 ggPrint(p)
@@ -287,12 +285,12 @@ ggPrint(p)
 
 ```{r simu_api, echo=TRUE, eval=TRUE}
 # simulation
-err = grid$deleteColumns(names = "spde.simu*")
+err = grid$deleteColumns(names = "spde*")
 iuid  = spde$compute(grid)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde.simu", useSel = TRUE, 
+    plot.grid(grid, name_raster = "spde", useSel = TRUE, 
             show.legend.raster = TRUE, palette = "Spectral") +
   plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non Conditional Simulation (SPDE)")
@@ -307,7 +305,7 @@ err     = model$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
 
 spdeRes = SPDE(model, domain = gridExt, data = dat, calcul = ESPDECalcMode_KRIGING(), mesh = mesh)
 iuid    = spdeRes$compute(grid)
-err = grid$setName(old_name = "spde.manual.simu.kriging", name = "spde.kriging")
+err = grid$setName(old_name = "spde.manual.simu.estim", name = "spde.kriging")
 
 # plot of kriging
 p = ggDefaultGeographic() + 
@@ -321,8 +319,9 @@ ggPrint(p)
 # correlation
 p = ggDefault() + 
     plot.correlation(grid, namex = "spde.kriging", namey = "manual.simu",asPoint = FALSE,
-                     flagDiag = TRUE, diag_color = "red", flagRegr = TRUE, regr_color = "black", regr_line = 2,
-                     flagSameAxes = TRUE
+                     flagDiag = TRUE, diag_color = "red", flagRegr = TRUE, 
+                     regr_color = "black", regr_line = 2,
+                     flagSameAxes = TRUE, bins=100
             ) +
     plot.decoration(xlab = "Estimated value (kriging)", ylab = "Actual value (simulation)", 
                   title = "SPDE")
@@ -331,7 +330,7 @@ ggPrint(p)
 # cross plot
 p = ggDefault() + 
     plot.correlation(db1 = grid, namex = "manual.kriging", namey = "spde.kriging", asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
+                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)
@@ -406,7 +405,8 @@ quad_chol = as.numeric(1/(tau^2) * (sum(t(x)*x) - 1/(tau^2) * (t(y) %*% solve(ch
 quad_api  = spdeRes$computeQuad()
 print(paste0("quad_chol = ", round(quad_chol,4)))
 print(paste0("quad_api  = ", round(quad_api, 4)))
-print(paste0("Quadratic form: relative difference = ", round((quad_api-quad_chol)/quad_chol,6)))
+print(paste0("Quadratic form: relative difference = ", 
+             round(100*(quad_api-quad_chol)/quad_chol,2),"%"))
 
 # -----------------------------------------
 # computing the log determinant
@@ -416,21 +416,21 @@ a = detQ(cholQ_TT)
 b = pcm$computeLogDetOp(nbsimu = nsim, seed = 0)
 print(paste0("log_det_op_chol = ", round(a,4)))
 print(paste0("log_det_op_api  = ", round(b,4)))
-print(paste0("relative difference = ", round((b-a)/a, 4)))
+print(paste0("relative difference = ", round(100*(b-a)/a, 2),"%"))
 
 # Log-determinant of Q
 a = detQ(cholQ)
 b = pcm$computeLogDetQ(nbsimu = nsim, seed = 0)
 print(paste0("log_det_Q_chol = ", round(a,4)))
 print(paste0("log_det_Q_api = ", round(b,4)))
-print(paste0("relative difference = ", round((b-a)/a,4)))
+print(paste0("relative difference = ", round(100*(b-a)/a,2),"%"))
 
 # sum of log var
 a = length(x) * log(tau^2)
 b = pcm$sumLogVar()
 print(paste0("Sum of log var - model = ", round(a,4)))
 print(paste0("Sum of log var - api   = ", round(b,4)))
-print(paste0("relative difference = ", round((b-a)/a,4)))
+print(paste0("relative difference = ", round(100*(b-a)/a,2),"%"))
 
 # TODO: the method sumLogVar returns the sum of the std?
 
@@ -443,7 +443,7 @@ logdet = (detQ(cholQ) - length(x)*log((tau^2)) - detQ(cholQ_TT))
 logdet_api = spdeRes$computeLogDet(nbsimu = nsim, seed = 0)
 print(paste0("log_det_LL_chol = ", round(logdet,4)))
 print(paste0("log_det_LL_api  = ", round(logdet_api,4)))
-print(paste0("relative difference = ", round(logdet_api/logdet-1,4)))
+print(paste0("relative difference = ", round(100*(logdet_api/logdet-1),4),"%"))
 
 #TODO: different values for logdet values (due to sumLogVar ?)
 
@@ -460,7 +460,7 @@ a = - 1/2 * (-logdet + quad)
 b = spdeRes$computeLogLike(nbsimu = nsim, seed = 0)
 print(paste0("likelihood api  = ",round(b,4)))
 print(paste0("likelihood_chol = ",round(a,4)))
-print(paste0(round((b/a-1),4)))
+print(paste0(100*round((b/a-1),2),"%"))
 
 #TODO: different values for LL !
 
@@ -514,7 +514,8 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
 }
 
 # perform a mono-variate sensitivity
-monoSensitivity <- function(name, from, to, ncalc, actual, p0, seed = 0, nsim = 10, flag.verbose = FALSE, 
+monoSensitivity <- function(name, from, to, ncalc, actual, p0, seed = 0, nsim = 10, 
+                            flag.verbose = FALSE, 
                             flag.chol = TRUE, flag.api = TRUE) {
   stopifnot(flag.chol|flag.api)
   res_pp      = seq(from = from, to = to, length.out = ncalc)
@@ -583,7 +584,8 @@ if(flag.test) {
   ll.getModel(param)$display()
   ll.getModel(param, FALSE)$display()
   print(paste0("Using Cholesky: LL = ", computeLL(par = param, flag.chol = TRUE)))
-  print(paste0("Using SPDE api: LL = ", computeLL(par = param, flag.chol = FALSE, nsim = 10, seed = 1212)))
+  print(paste0("Using SPDE api: LL = ", computeLL(par = param, flag.chol = FALSE, nsim = 10, 
+                                                  seed = 1212)))
 }
 ```
 

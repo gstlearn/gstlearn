@@ -68,10 +68,9 @@ Spherical
 Power (Third Parameter = 0.0879341)
 - Slope        =      1.187
 
-
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 NULL
 NULL
 
@@ -94,10 +93,9 @@ Spherical
 Power (Third Parameter = 0.0879341)
 - Slope        =      1.187
 
-
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 NULL
 NULL
 
@@ -134,6 +132,6 @@ Power (Third Parameter = 1.99)
 
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 NULL
 NULL

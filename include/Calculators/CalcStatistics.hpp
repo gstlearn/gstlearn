@@ -38,7 +38,7 @@ public:
   void setOper(const EStatOption &oper) { _oper = oper; }
 
   void setFlagRegr(bool flagRegr) { _flagRegr = flagRegr; }
-  void setFlagCste(bool flagCste) { _flagCste = flagCste; }
+  void setFlagCste(bool flagCst) { _flagCst = flagCst; }
   void setName0(const String &name0) { _name0 = name0; }
   void setNamaux(const VectorString &namaux) { _namaux = namaux; }
   void setRegrMode(int regrMode) { _regrMode = regrMode; }
@@ -60,7 +60,7 @@ private:
   int _radius;
 
   bool _flagRegr;
-  bool _flagCste;
+  bool _flagCst;
   int  _regrMode;
   String _name0;
   VectorString _namaux;
@@ -77,7 +77,7 @@ GSTLEARN_EXPORT int dbRegression(Db *db1,
                                  const String& name0,
                                  const VectorString& namaux,
                                  int mode = 0,
-                                 bool flagCste = true,
+                                 bool flagCst = true,
                                  Db *db2 = nullptr,
                                  const Model* model = nullptr,
                                  const NamingConvention &namconv = NamingConvention(
@@ -86,7 +86,7 @@ GSTLEARN_EXPORT int dbRegressionByColIdx(Db *db1,
                                          int icol0,
                                          const VectorInt &icols,
                                          int mode = 0,
-                                         bool flagCste = true,
+                                         bool flagCst = true,
                                          Db *db2 = nullptr,
                                          const Model *model = nullptr,
                                          const NamingConvention &namconv = NamingConvention(

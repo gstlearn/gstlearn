@@ -290,25 +290,19 @@ Coefficients: b= 3.612 ; a= -0.00906
  ----
 
 
-+*Out[52]:*+
++*Out[53]:*+
 ----
-![png](output_112_0.png)
+![png](output_114_0.png)
 ----
 
 
-+*Out[54]:*+
++*Out[55]:*+
 ----
-![png](output_116_0.png)
+![png](output_117_0.png)
 ----
 
 
 +*Out[56]:*+
-----
-![png](output_119_0.png)
-----
-
-
-+*Out[57]:*+
 ----
 
  Linear Regression
@@ -322,13 +316,13 @@ Coefficients: b= 3.612 ; a= -0.00906
  ----
 
 
++*Out[58]:*+
+----
+![png](output_124_0.png)
+----
+
+
 +*Out[59]:*+
-----
-![png](output_126_0.png)
-----
-
-
-+*Out[60]:*+
 ----
 
  Statistics on the Universal Kriging:
@@ -340,13 +334,13 @@ Coefficients: b= 3.612 ; a= -0.00906
  ----
 
 
++*Out[60]:*+
+----
+![png](output_128_0.png)
+----
+
+
 +*Out[61]:*+
-----
-![png](output_130_0.png)
-----
-
-
-+*Out[62]:*+
 ----
 
  Comparison between Ordinary and Universal kriging predictions:
@@ -358,32 +352,32 @@ Coefficients: b= 3.612 ; a= -0.00906
  ----
 
 
-+*Out[64]:*+
++*Out[63]:*+
 ----
 Mean squared cross-validation error: 0.251
 Mean squared standardized error: 0.855
 ----
 
 
-+*Out[68]:*+
++*Out[67]:*+
 ----
-![png](output_147_0.png)
+![png](output_145_0.png)
 ----
 
 
-+*Out[70]:*+
++*Out[69]:*+
 ----
-![png](output_150_0.png)
+![png](output_148_0.png)
+----
+
+
++*Out[71]:*+
+----
+![png](output_153_0.png)
 ----
 
 
 +*Out[72]:*+
-----
-![png](output_155_0.png)
-----
-
-
-+*Out[73]:*+
 ----
 
  Statistics on the Kriging with External Drift predictions
@@ -395,20 +389,20 @@ Mean squared standardized error: 0.855
  ----
 
 
-+*Out[74]:*+
++*Out[73]:*+
 ----
-![png](output_159_0.png)
+![png](output_157_0.png)
 ----
 
 
-+*Out[76]:*+
++*Out[75]:*+
 ----
 Mean squared cross-validation error: 0.172
 Mean squared standardized error: 1.143
 ----
 
 
-+*Out[77]:*+
++*Out[76]:*+
 ----
 
  Mean-squared cross-validation errors
@@ -422,7 +416,7 @@ Mean squared standardized error: 1.143
  ----
 
 
-+*Out[78]:*+
++*Out[77]:*+
 ----
 
  Statistics of the predictors
@@ -438,7 +432,7 @@ Mean squared standardized error: 1.143
  ----
 
 
-+*Out[79]:*+
++*Out[78]:*+
 ----
 
  Statistics of the standard-deviation of each predictors

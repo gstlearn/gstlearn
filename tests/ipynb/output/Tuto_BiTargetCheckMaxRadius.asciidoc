@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 [cols=",,,,",options="header",]
 |===
@@ -24,7 +24,7 @@
 ----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 Data Base Characteristics
 =========================
@@ -33,26 +33,24 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
+Number of Columns            = 4
 Total number of samples      = 236
-Number of active samples     = 151
 
 Variables
 ---------
 Column = 0 - Name = Longitude - Locator = x1
 Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = NA
-Column = 3 - Name = January_temp - Locator = z1
-Column = 4 - Name = TempOK - Locator = sel----
+Column = 3 - Name = January_temp - Locator = z1----
+
+
++*Out[5]:*+
+----
+![png](output_10_0.png)
+----
 
 
 +*Out[6]:*+
-----
-![png](output_9_0.png)
-----
-
-
-+*Out[7]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -76,13 +74,7 @@ Column = 0 - Name = x1 - Locator = x1
 Column = 1 - Name = x2 - Locator = x2----
 
 
-+*Out[8]:*+
-----
-![png](output_12_0.png)
-----
-
-
-+*Out[9]:*+
++*Out[7]:*+
 ----
 Moving Neighborhood
 ===================
@@ -91,17 +83,17 @@ Maximum number of samples           = 3
 Maximum horizontal distance         = 300----
 
 
-+*Out[10]:*+
++*Out[8]:*+
 ----array([ 23,  75, 143])----
 
 
++*Out[10]:*+
+----
+![png](output_21_0.png)
+----
+
+
 +*Out[11]:*+
-----
-![png](output_19_0.png)
-----
-
-
-+*Out[12]:*+
 ----
 Moving Neighborhood
 ===================
@@ -110,17 +102,17 @@ Maximum number of samples           = 3
 Maximum horizontal distance         = 30----
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----array([143])----
 
 
-+*Out[14]:*+
++*Out[13]:*+
 ----
-![png](output_23_0.png)
+![png](output_27_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 
 Moving Neighborhood
@@ -131,11 +123,11 @@ Maximum horizontal distance         = 300
 This is my Max Radius checker: 30 ----
 
 
-+*Out[17]:*+
++*Out[16]:*+
 ----array([143])----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
-![png](output_31_0.png)
+![png](output_35_0.png)
 ----

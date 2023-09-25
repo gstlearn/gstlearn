@@ -16,6 +16,8 @@ Release 0.3.4
 - Suppress class MatrixSquareDiagonal
 - Important warning: the Drift part of the Model Neutral File has changed.
 - Drift* is not a serializable class anymore (only Model class is)
+_ Adding Legend to plot.varmod for plot.R
+- flagCste replaced by flagCst everywhere
 
 Release 0.3.3
 =============

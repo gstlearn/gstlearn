@@ -6,7 +6,7 @@ output:
     df_print: paged
     toc: true
   pdf_document:
-    toc: true
+    toc: true_variogram_compute
 ---
 
 # Preamble
@@ -166,7 +166,8 @@ Comparing both estimates
 
 ```{r}
 p = ggplot()
-p = p + plot.correlation(grid,namex="*estim",namey="*SPDE.*", asPoint=TRUE)
+p = p + plot.correlation(grid,namex="Kriging.January_temp.estim",
+                         namey="KrigingSPDE.January_temp.estim", asPoint=TRUE)
 p = p + plot.decoration(xlab="Kriging with External Drift", ylab="SPDE Kriging")
 ggPrint(p)
 ```

@@ -49,18 +49,18 @@ grid
 We represent the non-conditional simulations
 
 ```{r Graphic_Non-conditional_simulations}
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.4")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.1")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.2")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.3")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
 Extracting a set of nodes randomly located in order to create a data file which will serve as conditioning. The data is extracted from the first non-conditional simulation.
 
 ```{r Data_extraction}
-data = Db_createSamplingDb(grid, number=100, names=c("x1", "x2", "SimuSPDE.simu.1"))
-err = data$setName("*.simu.1", "data")
+data = Db_createSamplingDb(grid, number=100, names=c("x1", "x2", "SimuSPDE.1"))
+err = data$setName("*SimuSPDE.1", "data")
 data
 ```
 
@@ -78,7 +78,7 @@ grid
 Representing the Estimation obtained on the Grid
 
 ```{r Display_Kriging}
-ggDefaultGeographic() + plot.grid(grid, name_raster="KrigingSPDE.data.kriging")
+ggDefaultGeographic() + plot.grid(grid, name_raster="KrigingSPDE.data.estim")
 ```
 
 Performing several conditional simulation
@@ -92,10 +92,10 @@ grid
 Representing the conditional simulations
 
 ```{r Display_Conditional_Representations}
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.4")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.1")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.2")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.3")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 

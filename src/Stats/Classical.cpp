@@ -355,7 +355,7 @@ bool _regressionLoad(Db *db1,
                      int icol0,
                      const VectorInt &icols,
                      int mode,
-                     int flagCste,
+                     int flagCst,
                      const Model *model,
                      double *value,
                      VectorDouble &x)
@@ -368,7 +368,7 @@ bool _regressionLoad(Db *db1,
   {
     case 0:
       *value = db1->getArray(iech, icol0);
-      if (flagCste) x[ecr++] = 1.;
+      if (flagCst) x[ecr++] = 1.;
       for (int icol = 0; icol < (int) icols.size(); icol++)
         x[ecr++] = db2->getArray(iech, icols[icol]);
       break;
@@ -376,7 +376,7 @@ bool _regressionLoad(Db *db1,
     case 1:
       nfex = db2->getLocNumber(ELoc::F);
       *value = db1->getLocVariable(ELoc::Z,iech, 0);
-      if (flagCste) x[ecr++] = 1.;
+      if (flagCst) x[ecr++] = 1.;
       for (int i = 0; i < nfex; i++)
         x[ecr++] = db2->getLocVariable(ELoc::F,iech, i);
       break;
@@ -402,9 +402,9 @@ void _regrprint(const ResRegr& regr)
 
   int ecr = 0;
   int nvar = regr.nvar;
-  if (regr.flagCste) nvar--;
+  if (regr.flagCst) nvar--;
 
-  if (regr.flagCste)
+  if (regr.flagCst)
     message("- Constant term           = %lf\n",regr.coeffs[ecr++]);
   for (int ivar = 0; ivar < nvar; ivar++)
     message("- Explanatory Variable #%d = %lf\n", ivar+1, regr.coeffs[ecr++]);
@@ -1078,7 +1078,7 @@ ResRegr regression(Db *db1,
                    const String &name0,
                    const VectorString &names,
                    int mode,
-                   bool flagCste,
+                   bool flagCst,
                    Db *db2,
                    const Model *model,
                    bool verbose)
@@ -1089,7 +1089,7 @@ ResRegr regression(Db *db1,
   int icol0 = db1->getUID(name0);
   VectorInt icols;
   if (! names.empty()) icols = db2->getUIDs(names);
-  return regressionByUID(db1, icol0, icols, mode, flagCste, db2, model, verbose);
+  return regressionByUID(db1, icol0, icols, mode, flagCst, db2, model, verbose);
 }
 
 /****************************************************************************/
@@ -1106,7 +1106,7 @@ ResRegr regression(Db *db1,
  ** \li                        0 : standard multivariate case
  ** \li                        1 : using external drifts
  ** \li                        2 : using standard drift functions (in 'model')
- ** \param[in]  flagCste       The constant is added as explanatory variable
+ ** \param[in]  flagCst        The constant is added as explanatory variable
  ** \param[in]  db2            Db descriptor (for auxiliary variables)
  ** \param[in]  model          Model (only used for Drift functions if mode==2)
  ** \param[in]  verbose        Verbose option
@@ -1120,7 +1120,7 @@ ResRegr regressionByUID(Db *db1,
                         int icol0,
                         const VectorInt &icols,
                         int mode,
-                        bool flagCste,
+                        bool flagCst,
                         Db *db2,
                         const Model *model,
                         bool verbose)
@@ -1138,11 +1138,11 @@ ResRegr regressionByUID(Db *db1,
   {
     case 0:
       size = ncol;
-      if (flagCste) size++;
+      if (flagCst) size++;
       break;
     case 1:
       size = nfex;
-      if (flagCste) size++;
+      if (flagCst) size++;
       break;
     case 2:
       size = model->getDriftNumber();
@@ -1172,7 +1172,7 @@ ResRegr regressionByUID(Db *db1,
 
     /* Get the information for the current sample */
 
-    if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model,
+    if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCst, model,
                         &value, x)) continue;
 
     prod += value * value;
@@ -1208,7 +1208,7 @@ ResRegr regressionByUID(Db *db1,
   mean /= number;
   regr.count = number;
   regr.nvar = size;
-  regr.flagCste = flagCste;
+  regr.flagCst = flagCst;
   regr.coeffs = x;
   regr.variance = prod / number - mean * mean;
 
@@ -1247,7 +1247,7 @@ ResRegr regressionByUID(Db *db1,
  ** \li                        0 : standard multivariate case
  ** \li                        1 : using external drifts
  ** \li                        2 : using standard drift functions (mode==2)
- ** \param[in]  flagCste       The constant is added as explanatory variable]
+ ** \param[in]  flagCst        The constant is added as explanatory variable]
  ** \param[in]  db2            Db descriptor (for auxiliary variables)
  ** \param[in]  model          Model structure (used for mode==2)
  **
@@ -1266,7 +1266,7 @@ int regressionApply(Db *db1,
                     const String& name0,
                     const VectorString& names,
                     int mode,
-                    bool flagCste,
+                    bool flagCst,
                     Db *db2,
                     const Model* model)
 {
@@ -1276,7 +1276,7 @@ int regressionApply(Db *db1,
   VectorInt icols;
   if (! names.empty()) icols = db2->getUIDs(names);
 
-  regr = regressionByUID(db1, icol0, icols, mode, flagCste, db2, model);
+  regr = regressionByUID(db1, icol0, icols, mode, flagCst, db2, model);
 
   /* Preliminary checks */
 
@@ -1294,7 +1294,7 @@ int regressionApply(Db *db1,
     {
       /* Get the information for the current sample */
 
-      if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model,
+      if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCst, model,
                           &value, x))
       {
         value = TEST;

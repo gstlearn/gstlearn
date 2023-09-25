@@ -383,12 +383,12 @@ err = dat$setLocator("Temperature",ELoc_Z(),cleanSameLocator=TRUE)
 ```
 
 
-To compute the coefficients $a$ and $b$ of the linear regression between the temperature and the elevation, we can use the `regression` function. We specify the name of response variable (argument `name0`) and the names of the auxiliary variables (argument `names`), and set the argument `mode=0` to specify that we would like to compute a regression defined from the variables with the specified names. We also set the argument `flagCste=TRUE` to specify that we are looking for an affine regression model between the variables (i.e. that includes the bias coefficient `b`).
+To compute the coefficients $a$ and $b$ of the linear regression between the temperature and the elevation, we can use the `regression` function. We specify the name of response variable (argument `name0`) and the names of the auxiliary variables (argument `names`), and set the argument `mode=0` to specify that we would like to compute a regression defined from the variables with the specified names. We also set the argument `flagCst=TRUE` to specify that we are looking for an affine regression model between the variables (i.e. that includes the bias coefficient `b`).
 
 ```{r Regression Temperature - Elevation, echo=TRUE}
 ## Fit regression model
 regr = regression(dat, name0="Temperature", names="Elevation", mode=0,
-                  flagCste=TRUE)
+                  flagCst=TRUE)
 
 ## Extract coefficients
 b = regr$coeffs[1]
@@ -403,7 +403,7 @@ In the next example, we compute the residuals of the linear regression between t
 
 ```{r Residuals of regression Temperature - Elevation}
 err = dbRegression(dat, name0="Temperature", namaux="Elevation", mode=0,
-                   flagCste = TRUE,
+                   flagCst = TRUE,
                    namconv = NamingConvention_create(prefix="RegRes",flag_locator=FALSE))
 ```
 
@@ -534,7 +534,6 @@ As before, in the observation data base, we start by assigning the locator `z` t
 err = dat$setLocator("Temperature",ELoc_Z(),cleanSameLocator=TRUE)
 ```
 
-
 It is possible to directly compute the experimental variogram of the residuals $\varepsilon$. To do so, we start by creating a `Model` object in which we specify, through the `setDriftIRF` method, the (maximal) degree of the polynomial trend `P`. 
 
 Then, computing the (possibly directional) experimental variogram of the residuals is done in the same way as for an "ordinary" experimental variogram, the only difference being that we now add in the `compute` method of the `Vario` class, the `Model` object specifying the polynomial trend (argument `model`). Then, the methods takes care of filtering out of the observations a polynomial trend of the specified degree, before computing the experimental variogram on the remaining residuals.
@@ -551,12 +550,11 @@ vario_res2dir = Vario(varioparam, dat)
 err = vario_res2dir$compute(model=polDriftModel)
 ```
 
-If we now plot the experimental variograms computed on the raw data (dotted lines) and on the residuals from the intrinsic model (dashed line), we see that in the latter case, we now reach a plateau in both directions.
+When plotting the experimental variograms, we notice that in one of the directions, the variogram does not reach a plateau. This suggests that a non-stationary model could be more suited for the analysis of these temperature observations.
 
 ```{r Plot experimental variogram of residuals, message=FALSE}
 p = ggplot()
-p = p + plot.varmod(vario_raw2dir, linetype="dotted")
-p = p + plot.varmod(vario_res2dir, linetype="dashed")
+p = p + plot.varmod(vario_raw2dir)
 p = p + plot.decoration(title="Temperature (°C)") 
 ggPrint(p)
 ```
@@ -708,8 +706,8 @@ As a reference, we plot the experimental variograms computed on the raw temperat
 
 ```{r Plot experimental variogram of residuals - ED, message=FALSE}
 p = ggplot()
-p = p + plot.varmod(vario_raw2dir, linetype="dotted")
-p = p + plot.varmod(varioKED, linetype="dashed")
+p = p + plot.varmod(vario_raw2dir, vario_linetype="dotted")
+p = p + plot.varmod(varioKED, vario_linetype="dashed")
 p = p + plot.decoration(title="Temperature (°C)") 
 ggPrint(p)
 ```

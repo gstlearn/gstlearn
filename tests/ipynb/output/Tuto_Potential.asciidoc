@@ -82,10 +82,10 @@ Total Sill     =      1.000
 
 Drift Part
 ----------
-Universality Condition
-Drift X
-Drift Y
-Drift Z
+Universality_Condition
+Drift:x1
+Drift:x2
+Drift:x3
  ----
 
 

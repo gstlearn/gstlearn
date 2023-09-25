@@ -217,34 +217,10 @@ Total Sill     =      6.900
 
 Drift Part
 ----------
-Universality Condition----
+Universality_Condition----
 
 
-+*Out[15]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 7
-Total number of samples      = 1022
-Number of active samples     = 1007
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = X - Locator = x1
-Column = 2 - Name = Y - Locator = x2
-Column = 3 - Name = Epaisseur - Locator = lower1
-Column = 4 - Name = Epaisseur_1 - Locator = upper1
-Column = 5 - Name = Thickness - Locator = z1
-Column = 6 - Name = Duplicate - Locator = sel----
-
-
-+*Out[17]:*+
++*Out[16]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -283,10 +259,10 @@ Column = 5 - Name = Migrate.v_interp - Locator = NA
 Column = 6 - Name = vec_define - Locator = NA
 Column = 7 - Name = res - Locator = NA
 Column = 8 - Name = angles1 - Locator = nostat1
-Column = 9 - Name = spde.Thickness.kriging - Locator = z1----
+Column = 9 - Name = spde.Thickness.estim - Locator = z1----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 XXX
-![png](output_20_1.png)
+![png](output_19_1.png)
 ----

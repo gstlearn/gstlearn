@@ -865,8 +865,7 @@ def __ax_literal(ax, db, name=None, coorX_name=None, coorY_name=None,
     valid = ~np.isnan(labval)
 
     # We pass 'labval' to scatter function in order to mask undefined values
-    res = ax.scatter(x = tabx[valid], y = taby[valid], 
-                     s=labval[valid], **kwargs)
+    res = ax.scatter(x = tabx[valid], y = taby[valid], **kwargs)
     
     for i, txt in enumerate(labval):
         if not np.isnan(txt):
@@ -1702,7 +1701,7 @@ def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True,
         ax.plot(u,u,color=bissColor,linestyle=bissLineStyle)
 
     if regrLine:
-        regr = gl.regression(db2, namey, [namex], flagCste=True)
+        regr = gl.regression(db2, namey, [namex], flagCst=True)
         if regr.nvar == 0:
             return None
         a = regr.coeffs[0]

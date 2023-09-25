@@ -817,7 +817,7 @@ private:
   const VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
-  void _columnInit(int ncol, int icol0, bool flagCste = true, double valinit = TEST);
+  void _columnInit(int ncol, int icol0, bool flagCst = true, double valinit = TEST);
   double _updateValue(int oper, double oldval, double value);
   String _summaryVariables(void) const;
   String _summaryExtensions(void) const;

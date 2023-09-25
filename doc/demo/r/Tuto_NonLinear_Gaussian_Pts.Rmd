@@ -73,7 +73,7 @@ We will use the Geostatistics library **gstlearn**.
 
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(align="center")
+knitr::opts_chunk$set(fig.align="center")
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)

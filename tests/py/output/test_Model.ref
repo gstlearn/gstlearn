@@ -31,8 +31,8 @@ Total Sill     =      6.600
 Drift Part
 ----------
 Universality_Condition
-Drift:x_1
-Drift:x_2
+Drift:x1
+Drift:x2
  
 Model characteristics
 =====================
@@ -66,8 +66,8 @@ Total Sill     =      6.600
 Drift Part
 ----------
 Universality_Condition
-Drift:x_1
-Drift:x_2
+Drift:x1
+Drift:x2
 External_Drift:0
 External_Drift:1
  

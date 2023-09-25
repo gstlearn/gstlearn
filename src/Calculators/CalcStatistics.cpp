@@ -29,7 +29,7 @@ CalcStatistics::CalcStatistics()
       _oper(EStatOption::UNKNOWN),
       _radius(0),
       _flagRegr(false),
-      _flagCste(false),
+      _flagCst(false),
       _regrMode(0),
       _name0(),
       _namaux(),
@@ -65,7 +65,7 @@ bool CalcStatistics::_check()
 
   if (_flagRegr)
   {
-    if (! _flagCste && _namaux.empty())
+    if (! _flagCst && _namaux.empty())
     {
       messerr("This method requires Explanatory variables and/or constant term");
       return false;
@@ -124,7 +124,7 @@ bool CalcStatistics::_run()
 
   if (_flagRegr)
   {
-    if (regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCste,
+    if (regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCst,
                         getDbout(), _model)) return false;
   }
 
@@ -169,7 +169,7 @@ int dbRegressionByColIdx(Db *db1,
                          int icol0,
                          const VectorInt &icols,
                          int mode,
-                         bool flagCste,
+                         bool flagCst,
                          Db *db2,
                          const Model *model,
                          const NamingConvention &namconv)
@@ -180,14 +180,14 @@ int dbRegressionByColIdx(Db *db1,
   String name0 = db1->getNameByColIdx(icol0);
   VectorString namaux = db2->getNamesByColIdx(icols);
 
-  return dbRegression(db1, name0, namaux, mode, flagCste, db2, model, namconv);
+  return dbRegression(db1, name0, namaux, mode, flagCst, db2, model, namconv);
 }
 
 int dbRegression(Db *db1,
                  const String& name0,
                  const VectorString& namaux,
                  int mode,
-                 bool flagCste,
+                 bool flagCst,
                  Db *db2,
                  const Model* model,
                  const NamingConvention &namconv)
@@ -201,7 +201,7 @@ int dbRegression(Db *db1,
 
   stats.setFlagRegr(true);
   stats.setRegrMode(mode);
-  stats.setFlagCste(flagCste);
+  stats.setFlagCste(flagCst);
   stats.setName0(name0);
   stats.setNamaux(namaux);
   stats.setModel(model);

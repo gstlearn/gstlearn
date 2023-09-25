@@ -343,10 +343,10 @@ spde = SPDE(model = model, domain = gridExt, data = NULL, calcul = ESPDECalcMode
 iuid = spde$compute(dbout = grid, nbsimu = nsim, namconv = NamingConvention("spde"))
 
 # plot
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.simu.1", palette = "Spectral")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.simu.2", palette = "Spectral")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.simu.3", palette = "Spectral")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.simu.4", palette = "Spectral")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.1", palette = "Spectral")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.2", palette = "Spectral")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.3", palette = "Spectral")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
 ```
@@ -354,7 +354,7 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ## Conditional simulations
 
 ```{r cond_simu_api, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = "spde.Z.condSimu.*")
+err = grid$deleteColumns(names = "spde.*")
 # modeling the observation process
 model_obs = model$clone()
 err     = model_obs$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
@@ -365,10 +365,10 @@ spde_obs = SPDE(model = model_obs, domain = gridExt, data = dat, calcul = ESPDEC
 iuid = spde_obs$compute(dbout = grid, nbsimu = nsim, namconv = NamingConvention("spde"))
 
 # plot
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.condSimu.1", palette = "Spectral")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.condSimu.2", palette = "Spectral")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.condSimu.3", palette = "Spectral")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.condSimu.4", palette = "Spectral")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.1", palette = "Spectral")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.2", palette = "Spectral")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.3", palette = "Spectral")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
 ```
@@ -376,28 +376,28 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ## Kriging
 
 ```{r kriging_api, echo=TRUE, eval=TRUE}
-err = grid$deleteColumns(names = c("spde.Z.kriging", "spde.Z.stdev"))
+err = grid$deleteColumns(names = c("spde.Z.estim", "spde.Z.stdev"))
 
 # kriging value
 spdeRes = SPDE(model = model_obs, domain = gridExt, data = dat, calcul = ESPDECalcMode_KRIGING(), mesh = mesh)
-iuid    = spdeRes$compute(grid, namconv = NamingConvention("spde"))
+iuid    = spdeRes$compute(grid, namconv = NamingConvention("spdeK"))
 
 # computing the stdev by Monte Carlo
-tab = matrix(grid$getColumns(names = "spde.Z.condSimu.*", useSel = FALSE), 
+tab = matrix(grid$getColumns(names = "spde.Z.*", useSel = FALSE), 
              nrow = grid$getSampleNumber(FALSE), ncol = nsim)
 val_std = apply(X = tab, MARGIN = 1, FUN = sd)
-err = grid$setColumn(tab = val_std, name = "spde.Z.stdev", useSel = FALSE)
+err = grid$setColumn(tab = val_std, name = "spdeK.Z.stdev", useSel = FALSE)
 
 # plot of Z* ans Std. of the kriging error (Z - Z*)
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.kriging", palette = "Spectral")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.Z.stdev", palette = "Spectral")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spdeK.Z.estim", palette = "Spectral")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spdeK.Z.stdev", palette = "Spectral")
 ggarrange(p1, p2, ncol = 2, nrow = 2)
 
 # cross plot for kriging values
 p = ggDefault() + 
     plot.correlation(db1 = grid, 
                      namex = "manual.kriging", 
-                     namey = "spde.Z.kriging", asPoint = FALSE, 
+                     namey = "spdeK.Z.estim", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
@@ -416,10 +416,10 @@ err = grid$deleteColumns(names = "spde.fn.simu.*")
 err  = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, namconv = NamingConvention("spde.fn"))
 
 # plot
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.simu.1", palette = "Spectral")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.simu.2", palette = "Spectral")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.simu.3", palette = "Spectral")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.simu.4", palette = "Spectral")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.1", palette = "Spectral")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.2", palette = "Spectral")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.3", palette = "Spectral")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
 ```
@@ -432,10 +432,10 @@ err = grid$deleteColumns(names = "spde.fn.Z.condSimu.*")
 err  = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu = nsim, namconv = NamingConvention("spde.fn"))
 
 # plot
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.condSimu.1", palette = "Spectral")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.condSimu.2", palette = "Spectral")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.condSimu.3", palette = "Spectral")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.condSimu.4", palette = "Spectral")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.1", palette = "Spectral")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.2", palette = "Spectral")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.3", palette = "Spectral")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="spde.fn.Z.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 
 ```
@@ -454,7 +454,7 @@ err = krigingSPDE(dbin = dat, dbout = grid, model = model,
 p = ggDefault() + 
     plot.correlation(db1 = grid, 
                      namex = "manual.kriging", 
-                     namey = "spde.fn.Z.kriging", asPoint = FALSE, 
+                     namey = "spde.fn.Z.estim", asPoint = FALSE, 
                      flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Manual", ylab = "SPDE function", 
                   title = "Comparison for Kriging")

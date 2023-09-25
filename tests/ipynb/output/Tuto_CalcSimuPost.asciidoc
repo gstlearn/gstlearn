@@ -37,7 +37,7 @@ Data Base Contents
 
 +*Out[9]:*+
 ----
-![png](output_17_0.png)
+![png](output_18_0.png)
 ----
 
 
@@ -95,7 +95,7 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
 
 +*Out[12]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
@@ -122,7 +122,7 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
 
 +*Out[14]:*+
 ----
-![png](output_24_0.png)
+![png](output_25_0.png)
 ----
 
 
@@ -148,39 +148,6 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
 
 
 +*Out[16]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 17
-Total number of samples      = 10
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x-1 - Locator = x1
-Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = rank.1 - Locator = NA
-Column = 4 - Name = SimuA-1 - Locator = NA
-Column = 5 - Name = SimuA-2 - Locator = NA
-Column = 6 - Name = SimuA-3 - Locator = NA
-Column = 7 - Name = SimuB-1 - Locator = NA
-Column = 8 - Name = SimuB-2 - Locator = NA
-Column = 9 - Name = SimuC-1 - Locator = NA
-Column = 10 - Name = SimuC-2 - Locator = NA
-Column = 11 - Name = Post1.Var1.Mean - Locator = NA
-Column = 12 - Name = Post1.Var1.Variance - Locator = NA
-Column = 13 - Name = Post1.Var2.Mean - Locator = NA
-Column = 14 - Name = Post1.Var2.Variance - Locator = NA
-Column = 15 - Name = Post1.Var3.Mean - Locator = NA
-Column = 16 - Name = Post1.Var3.Variance - Locator = NA----
-
-
-+*Out[17]:*+
 ----
 
 Data Base Characteristics
@@ -224,7 +191,7 @@ Data Base Contents
  ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
 
  Simulation Post-Processing
@@ -245,44 +212,7 @@ Data Base Contents
  ----
 
 
-+*Out[19]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 21
-Total number of samples      = 10
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x-1 - Locator = x1
-Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = rank.1 - Locator = NA
-Column = 4 - Name = SimuA-1 - Locator = NA
-Column = 5 - Name = SimuA-2 - Locator = NA
-Column = 6 - Name = SimuA-3 - Locator = NA
-Column = 7 - Name = SimuB-1 - Locator = NA
-Column = 8 - Name = SimuB-2 - Locator = NA
-Column = 9 - Name = SimuC-1 - Locator = NA
-Column = 10 - Name = SimuC-2 - Locator = NA
-Column = 11 - Name = Post1.Var1.Mean - Locator = NA
-Column = 12 - Name = Post1.Var1.Variance - Locator = NA
-Column = 13 - Name = Post1.Var2.Mean - Locator = NA
-Column = 14 - Name = Post1.Var2.Variance - Locator = NA
-Column = 15 - Name = Post1.Var3.Mean - Locator = NA
-Column = 16 - Name = Post1.Var3.Variance - Locator = NA
-Column = 17 - Name = Post2.Var1.Mean - Locator = NA
-Column = 18 - Name = Post2.Var1.Variance - Locator = NA
-Column = 19 - Name = Post2.Var2.Mean - Locator = NA
-Column = 20 - Name = Post2.Var2.Variance - Locator = NA----
-
-
-+*Out[20]:*+
++*Out[18]:*+
 ----
 
 Data Base Characteristics

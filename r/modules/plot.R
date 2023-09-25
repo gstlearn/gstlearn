@@ -370,10 +370,10 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 #' Draw an elementary experimental variogram
 #' @noRd
 .varioElementary <- function(vario, ivar=0, jvar=0, idir=0, 
-	linetype = "dashed",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     draw_variance = TRUE, draw_post=TRUE, draw_psize = 0, 
-    draw_plabel = FALSE, show.legend=FALSE, flagLimits=TRUE, ...)
+    draw_plabel = FALSE, flagLimits=TRUE, 
+    dir_name="Direction", line_name="Experimental", ...)
 {
   dots = list(...)
   p = list()
@@ -383,16 +383,9 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   df = data.frame(gg = gg, hh = hh, sw = sw)
   
   # Representing the Experimental variogram
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), 
-  			linetype=linetype, na.rm=TRUE, ...))
-  
-  # Constructing the Legend
-  if (show.legend)
-  {
- 	legend.name = paste("Vario dir =", 
- 		paste(round(vario$getCodirs(idir),3), collapse=' '))
-	p <- append(p, list(labs(linetype = legend.name)))
-  }
+  p = append(p, geom_line(data = df, 
+  			mapping=aes(x=hh, y=gg, color=dir_name, linetype=line_name), 
+  			na.rm=TRUE, ...))
   
   # Representing the number of pairs (by size)
   if (draw_psize > 0)
@@ -437,9 +430,9 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 #' Represent an elementary Model
 #' @noRd
 .modelElementary <- function(model, ivar=0, jvar=0, codir=NA,
-	linetype = "solid", 
     nh = 100, hmax = NA, asCov=FALSE, flag_envelop = TRUE, 
-    env_color='black', env_linetype="dashed", env_size=0.5, show.legend=FALSE,
+    env_color='black', env_linetype="dashed", env_size=0.5, 
+    dir_name = "Direction1", line_name="Model",
     ...)
 {
   dots = list(...)
@@ -482,15 +475,9 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   mode$setAsVario(! asCov)
   gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
-  p = append(p, geom_line(data = df, mapping=aes(x=hh, y=gg), 
-             linetype=linetype, na.rm=TRUE, ...))
-  
-  # Constructing the legend
-  if (show.legend)
-  {
- 	legend.name = paste("Model dir =", paste(round(codir,3), collapse=' '))
-	p <- append(p, list(labs(linetype = legend.name)))
-  }
+  p = append(p, geom_line(data = df, 
+  		     mapping=aes(x=hh, y=gg, color=dir_name, linetype=line_name), 
+             na.rm=TRUE, ...))
   
   # Represent the coregionalization envelop
   if (ivar != jvar && flag_envelop)
@@ -509,6 +496,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 }
 
 #' Represent an experimental variogram and overlay the Model calculated in same conditions
+#' on a single figure
 #' 
 #' @param vario An object of the class Vario of gstlearn (optional)
 #' @param model An object of the class Model of gstlearn (optional)
@@ -534,17 +522,18 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
 #' @param show.legend Flag for displaying the legend
 #' @param ... Arguments passed to varioElementary() and modelElementary()
 #' @return The ggplot object
-plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
+plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
     nh = 100, hmax = NA, draw_psize=-1, draw_plabel=FALSE, 
     asCov=FALSE, draw_variance = TRUE, flag_envelop=TRUE, 
     vario_linetype = "dashed", model_linetype = "solid",
     var_color='black', var_linetype="dashed", var_size=0.5, 
     env_color='black', env_linetype="dashed", env_size=0.5,
-    draw_vario=TRUE, show.legend=FALSE, ...)
+    draw_vario=TRUE, show.legend=FALSE, legend_name=NA, ...)
 {
   dots = list(...)
   has_color = "color" %in% names(dots)
   has_codir = "codir" %in% names(dots)
+  linetypes = c(vario_linetype, model_linetype)
   
   p = list()
   ndir = 1
@@ -573,45 +562,43 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
   flag_allow_negative_Y = FALSE
   
   for (ivar in ivarUtil)
+  {
     for (jvar in jvarUtil)
     {
       
       # Define the current plot
       for (idir in idirUtil)
       {
+      	if (! .isNotDef(vario))
+	      dir_name = paste("Vario dir =", paste(round(vario$getCodirs(idir),3), collapse=' '))
+ 	    else
+ 	      dir_name = paste("Direction :",idir)
+    	
         # Plotting the experimental variogram
         if (! .isNotDef(vario) && draw_vario)
         {
           dotloc = dots
-          if (! has_color) dotloc$color=cols[idir+1]
           p = append(p, do.call(.varioElementary, c(list(vario=vario, 
                           ivar=ivar, jvar=jvar, idir=idir, 
-                          linetype = vario_linetype,
                           var_color=var_color, var_linetype=var_linetype, var_size=var_size,
                           draw_variance=draw_variance, draw_psize=draw_psize, 
                           draw_plabel=draw_plabel, 
-                          show.legend=show.legend,  
-                          flagLimits=FALSE), dotloc)))
+                          flagLimits=FALSE, dir_name=dir_name), dotloc)))
         }
         
         # Plotting the Model
         if (! .isNotDef(model))
         {
           dotloc = dots
-          if (! has_color) dotloc$color=cols[idir+1]
           if (! .isNotDef(vario) && ! has_codir) dotloc$codir = vario$getCodirs(idir) 
           p = append(p, do.call(.modelElementary, c(list(model, ivar, jvar,  
-                          linetype = model_linetype,
                           nh = nh, hmax = hmax, asCov=asCov, 
                           flag_envelop=flag_envelop,
                           env_color = env_color, env_linetype = env_linetype, 
-                          env_size=env_size, show.legend=show.legend), dotloc)))
+                          env_size=env_size, dir_name=dir_name), dotloc)))
         }
-        
-        # Adding some decoration
-        p = append(p, plot.decoration(xlab = "Distance", ylab = "Variogram"))
-      }
-      
+      } # End of loop on idir
+             
       # Informing bound criterion
       if (! .isNotDef(vario))
       {
@@ -620,7 +607,18 @@ plot.varmod <- function(vario=NA, model=NA, ivar=-1, jvar=-1, idir=-1,
         if (! vario$drawOnlyPositiveY(ivar, jvar))
           flag_allow_negative_Y = TRUE
       }
-    } 
+    } # End of loop on jvar
+  } # End of loop on ivar
+  
+  # Adding some decoration
+  p = append(p, plot.decoration(xlab = "Distance", ylab = "Variogram"))
+  
+  # Constructing the Legend
+
+  p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
+  p <- append(p, scale_color_manual(name="Directions", values = cols))
+  if (! show.legend)
+	p <- append(p, list(theme(legend.position='none')))
   
   # Tuning the global bounds of graphics
   lower_bound = NA
@@ -786,7 +784,8 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @param ... List of arguments passed to geom_point()
 #' @return The description of the contents of the graphic layer
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
-    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, posX=0, posY=1,
+    flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, 
+    color='black', size=0.2, posX=0, posY=1,
     ...) 
 { 
   # Creating the necessary data frame
@@ -812,7 +811,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   df["sizval"] = sizval
   
   layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
-      na.rm=TRUE, ...)
+      color=color, na.rm=TRUE, ...)
   
   layer
 }
@@ -894,8 +893,9 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
     if (! is.null(name_size) && ! flagCst)
       p <- append(p, scale_size_continuous(range = c(sizmin, sizmax)))
       
-	# Palette definition
-   	p <- append(p, .scaleColorFill(palette, ...))
+	# Palette definition (if defined)
+	if (! is.null(palette))
+	  p <- append(p, .scaleColorFill(palette, ...))
     
     # Set the default title
     if (! is.null(name_color))
@@ -1088,8 +1088,9 @@ plot.grid <- function(dbgrid, name_raster=NULL, name_contour=NULL,
       p <- append(p, list(guides(contour = "none")))
   }  
   
-  # Palette definition
-  p <- append(p, .scaleColorFill(palette, na.value=na.value, limits=limits, ...))
+  # Palette definition (if defined)
+  if (! is.null(palette))
+	p <- append(p, .scaleColorFill(palette, na.value=na.value, limits=limits, ...))
   
   # Decoration
   p <- append(p, plot.decoration(title = title))
@@ -1301,7 +1302,7 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
   
   if (flagRegr)
   {
-    regr = regression(db2, namey, namex, flagCste=TRUE)
+    regr = regression(db2, namey, namex, flagCst=TRUE)
     if (regr$nvar > 0)
     {
       a = regr$coeffs[1]
@@ -1322,7 +1323,9 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
     p <- append(p, list(guides(fill = guide_colorbar(title=legend.name.raster, reverse=FALSE))))
   }
   else
+  {
     p <- append(p, list(theme(legend.position='none')))
+  }
   
   p 
 }

@@ -79,14 +79,14 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
   }
 
 //   Display the coefficients
-  for (int ivar = 0; ivar < getNVariables(); ivar++)
-    for (int ib = 0; ib < getDriftEquationNumber(); ib++)
-    {
-      sstr << "ivar = " << ivar << " ib = " << ib << " : ";
-      for (int il = 0; il < getDriftNumber(); il++)
-         sstr << " " << getDriftCoef(ivar, il, ib);
-      sstr << std::endl;
-    }
+//  for (int ivar = 0; ivar < getNVariables(); ivar++)
+//    for (int ib = 0; ib < getDriftEquationNumber(); ib++)
+//    {
+//      sstr << "ivar = " << ivar << " ib = " << ib << " : ";
+//      for (int il = 0; il < getDriftNumber(); il++)
+//         sstr << " " << getDriftCoef(ivar, il, ib);
+//      sstr << std::endl;
+//    }
   return sstr.str();
 }
 

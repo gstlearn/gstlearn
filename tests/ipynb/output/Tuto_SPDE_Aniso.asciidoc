@@ -152,7 +152,7 @@ Column = 3 - Name = sel - Locator = sel
 Column = 4 - Name = aniso - Locator = nostat1
 Column = 5 - Name = ratio - Locator = nostat2
 Column = 6 - Name = spde.simu - Locator = NA
-Column = 7 - Name = spde.kriging - Locator = z1
+Column = 7 - Name = spde.estim - Locator = z1
  
 ![png](output_31_1.png)
 ----
@@ -187,8 +187,8 @@ Column = 3 - Name = sel - Locator = sel
 Column = 4 - Name = aniso - Locator = nostat1
 Column = 5 - Name = ratio - Locator = nostat2
 Column = 6 - Name = spde.simu - Locator = NA
-Column = 7 - Name = spde.kriging - Locator = NA
-Column = 8 - Name = spde.condSimu - Locator = z1
+Column = 7 - Name = spde.estim - Locator = NA
+Column = 8 - Name = spde.condsimu - Locator = z1
  
 ![png](output_34_1.png)
 ----

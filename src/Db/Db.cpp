@@ -2092,10 +2092,10 @@ bool Db::hasLargerDimension(const Db* dbaux) const
 }
 
 
-void Db::_columnInit(int ncol, int icol0, bool flagCste, double valinit)
+void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
 {
   double value;
-  if (flagCste)
+  if (flagCst)
     value = valinit;
   else
     value = law_gaussian();

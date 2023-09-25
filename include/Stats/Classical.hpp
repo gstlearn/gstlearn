@@ -22,7 +22,7 @@ typedef struct
 {
   int count;
   int nvar;
-  bool flagCste;
+  bool flagCst;
   VectorDouble coeffs;
   double variance;
   double varres;
@@ -211,7 +211,7 @@ GSTLEARN_EXPORT ResRegr regressionByUID(Db *db1,
                                         int icol0,
                                         const VectorInt &icols = VectorInt(),
                                         int mode = 0,
-                                        bool flagCste = false,
+                                        bool flagCst = false,
                                         Db *db2 = nullptr,
                                         const Model *model = nullptr,
                                         bool verbose = false);
@@ -219,7 +219,7 @@ GSTLEARN_EXPORT ResRegr regression(Db *db1,
                                    const String& name0,
                                    const VectorString& names = VectorString(),
                                    int mode = 0,
-                                   bool flagCste = false,
+                                   bool flagCst = false,
                                    Db *db2 = nullptr,
                                    const Model *model = nullptr,
                                    bool verbose = false);
@@ -228,7 +228,7 @@ GSTLEARN_EXPORT int regressionApply(Db *db1,
                                     const String &name0,
                                     const VectorString &names,
                                     int mode = 0,
-                                    bool flagCste = false,
+                                    bool flagCst = false,
                                     Db *db2 = nullptr,
                                     const Model *model = nullptr);
 
