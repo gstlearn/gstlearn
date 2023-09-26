@@ -8,20 +8,20 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+
 #include "Drifts/ADrift.hpp"
-
-#include "Db/Db.hpp"
-#include "Space/SpacePoint.hpp"
+#include "Drifts/DriftFactory.hpp"
+#include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/VectorNumT.hpp"
 
-ADrift::ADrift(const ASpace* space)
-: ASpaceObject(space)
+ADrift::ADrift()
+    : AStringable()
 {
 }
 
 ADrift::ADrift(const ADrift &r)
-: ASpaceObject(r)
+    : AStringable(r)
 {
 }
 
@@ -29,11 +29,18 @@ ADrift& ADrift::operator=(const ADrift &r)
 {
   if (this != &r)
   {
-    ASpaceObject::operator=(r);
+    AStringable::operator=(r);
   }
   return *this;
 }
 
 ADrift::~ADrift()
 {
+}
+
+String ADrift::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+  sstr << getDriftName();
+  return sstr.str();
 }

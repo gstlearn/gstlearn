@@ -252,7 +252,6 @@ set(SRC
   Drifts/DriftF.cpp
   Drifts/DriftFactory.cpp
   Drifts/ADrift.cpp
-  Drifts/ADriftElem.cpp
   Drifts/DriftList.cpp
   Neigh/ANeigh.cpp
   Neigh/NeighUnique.cpp

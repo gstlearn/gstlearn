@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
                           {10., 20., 30.});
   modelS->addDrift(new DriftM());
   modelS->addDrift(new DriftM(VectorInt({1})));
-  modelS->addDrift(new DriftF(0, CovContext()));
-  modelS->addDrift(new DriftF(1, CovContext()));
+  modelS->addDrift(new DriftF(0));
+  modelS->addDrift(new DriftF(1));
   modelS->display();
   modelS->dumpToNF("Complex");
 

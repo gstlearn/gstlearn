@@ -36,7 +36,7 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
-#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADrift.hpp"
 
 #include "Db/Db.hpp"
 
@@ -358,6 +358,9 @@ void Model::setDriftList(const DriftList* driftlist)
   if (driftlist == nullptr) return;
   if (_driftList != nullptr) delete _driftList;
   _driftList = driftlist->clone();
+
+  // Check that the DriftList has the same type of CovContext as the Model
+  _driftList->copyCovContext(_ctxt);
 }
 
 /**
@@ -378,13 +381,15 @@ void Model::setDriftIRF(int order, int nfex)
   _driftList = DriftFactory::createDriftListFromIRF(order, nfex, _ctxt);
 }
 
-void Model::addDrift(const ADriftElem *drift)
+void Model::addDrift(const ADrift *drift)
 {
   if (drift == nullptr) return;
-  if (_driftList == nullptr) _driftList = new DriftList();
-  ADriftElem* drift_loc = dynamic_cast<ADriftElem*>(drift->clone());
-  drift_loc->setCtxt(_ctxt);
+  if (_driftList == nullptr) _driftList = new DriftList(_ctxt);
+  ADrift* drift_loc = dynamic_cast<ADrift*>(drift->clone());
   _driftList->addDrift(drift_loc);
+
+  // Check that the DriftList has the same type of CovContext as the Model
+  _driftList->copyCovContext(_ctxt);
 }
 
 void Model::setDrifts(const VectorString &driftSymbols)
@@ -396,7 +401,7 @@ void Model::setDrifts(const VectorString &driftSymbols)
 
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {
-    ADriftElem *drift = DriftFactory::createDriftBySymbol(driftSymbols[i], _ctxt);
+    ADrift *drift = DriftFactory::createDriftBySymbol(driftSymbols[i]);
     addDrift(drift);
   }
 }
@@ -700,12 +705,12 @@ const DriftList* Model::getDriftList() const
 {
   return _driftList;
 }
-const ADriftElem* Model::getDrift(int il) const
+const ADrift* Model::getDrift(int il) const
 {
   if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
 }
-ADriftElem* Model::getDrift(int il)
+ADrift* Model::getDrift(int il)
 {
   if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
@@ -805,7 +810,7 @@ double Model::evalDrift(const Db *db,
   else
   {
     if (_driftList == nullptr) return TEST;
-    ADriftElem *drift = _driftList->getDrift(il);
+    ADrift *drift = _driftList->getDrift(il);
     if (drift != nullptr) return drift->eval(db, iech);
   }
   return TEST;
@@ -1156,14 +1161,14 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Reading the drift part */
 
-  DriftList drifts;
-  ADriftElem* drift;
+  DriftList drifts(_ctxt);
+  ADrift* drift;
   for (int ibfl = 0; ret && ibfl < nbfl; ibfl++)
   {
     ret = true; // Reset 'ret' to continue reading after previous error...
     String driftname;
     ret = ret && _recordRead<String>(is, "Drift Identifier", driftname);
-    drift = DriftFactory::createDriftByIdentifier(driftname, _ctxt);
+    drift = DriftFactory::createDriftByIdentifier(driftname);
     drifts.addDrift(drift);
     delete drift;
   }
@@ -1249,7 +1254,7 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
 
   for (int ibfl = 0; ret && ibfl < getDriftNumber(); ibfl++)
   {
-    const ADriftElem *drift = getDrift(ibfl);
+    const ADrift *drift = getDrift(ibfl);
     ret = ret && _recordWrite<String>(os,"Drift Identifier", drift->getDriftName());
   }
 
@@ -1297,7 +1302,7 @@ void Model::_create()
   // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
   _covaList = new CovLMC(_ctxt.getSpace());
-  _driftList = new DriftList(_ctxt.getSpace());
+  _driftList = new DriftList(_ctxt);
 }
 
 double Model::getTotalSill(int ivar, int jvar) const

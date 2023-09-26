@@ -70,11 +70,8 @@ bool CalcMigrate::_postprocess()
   _cleanVariableDb(2);
 
   int nvar = _getNVar();
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    _renameVariable(2, 1, _iattOut + ivar, _identifyVariable(_iuids[ivar]), 1,
-                    !_flagLocate, ivar);
-  }
+  _renameVariable(2, getDbin()->getNamesByUID(_iuids), ELoc::UNKNOWN, 1,
+                    _iattOut, String(), 1);
 
   if (_flagLocate)
     getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType);

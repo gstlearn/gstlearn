@@ -262,7 +262,7 @@ int PCA::dbZ2F(Db* db,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
   return 0;
 }
 
@@ -308,7 +308,7 @@ int PCA::dbF2Z(Db* db,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
   return 0;
 }
 

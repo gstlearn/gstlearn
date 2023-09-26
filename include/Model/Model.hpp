@@ -46,7 +46,7 @@ class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
 class ANoStat;
-class ADriftElem;
+class ADrift;
 class AnamContinuous;
 class AnamHermite;
 
@@ -99,7 +99,7 @@ public:
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
   void   setDriftIRF(int order = 0, int nfex = 0);
-  void   addDrift(const ADriftElem* drift);
+  void   addDrift(const ADrift* drift);
   void   setDrifts(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
@@ -414,8 +414,8 @@ public:
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of DriftList)
   const DriftList* getDriftList()                  const;
-  const ADriftElem* getDrift(int il)               const;
-  ADriftElem* getDrift(int il)                          ;
+  const ADrift* getDrift(int il)               const;
+  ADrift* getDrift(int il)                          ;
   int getDriftNumber()                             const;
   int getExternalDriftNumber()                     const;
   int getRankFext(int il)                          const;

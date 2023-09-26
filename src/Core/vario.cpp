@@ -3083,8 +3083,8 @@ static int st_vmap_general(Db *db,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, dbmap, IPTW, "Nb", 1, false);
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, dbmap, IPTV, "Var");
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, dbmap, IPTW, "Nb", 1, false);
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, dbmap, IPTV, "Var");
   error = 0;
 
   label_end: indg0 = db_indg_free(indg0);
@@ -3220,8 +3220,8 @@ static int st_vmap_grid(DbGrid *dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbmap, IPTW, "Nb", 1, false);
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbmap, IPTV, "Var");
+  namconv.setNamesAndLocators(dbgrid, VectorString(), ELoc::Z, -1, dbmap, IPTW, "Nb", 1, false);
+  namconv.setNamesAndLocators(dbgrid, VectorString(), ELoc::Z, -1, dbmap, IPTV, "Var");
   error = 0;
 
   label_end: ind0 = db_indg_free(ind0);
@@ -4169,7 +4169,7 @@ int variogram_cloud(const Db *db,
 
   // Naming of the newly created variables
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, dbgrid, iptr, String(), ndir,
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, dbgrid, iptr, String(), ndir,
                               false);
 
   return (0);
@@ -4959,8 +4959,8 @@ static int st_vmap_grid_fft(DbGrid *dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbmap, IPTW, "Nb", 1, false);
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbmap, IPTV, "Var", 1);
+  namconv.setNamesAndLocators(dbgrid, VectorString(), ELoc::Z, -1, dbmap, IPTW, "Nb", 1, false);
+  namconv.setNamesAndLocators(dbgrid, VectorString(), ELoc::Z, -1, dbmap, IPTV, "Var", 1);
   error = 0;
 
   label_end: st_complex_array_free(ztab);

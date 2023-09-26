@@ -38,12 +38,21 @@ class Db;
  * using the following command:
  *    kriging( ... namconv = NamingConvention("MyPrefix") )
  *
- * Then the 'kriging' procedure generates variables such as:
- *
+ * Then the kriging procedure generates variables such as:
  * - MyPrefix.Pb.estim (estimation of Pb by CoKriging)
  * - MyPrefix.Zn.estim (estimation of Zn by CoKriging)
  * - MyPrefix.Pb.stdev (St. Dev. of estimation error of Pb by CoKriging)
  * - MyPrefix.Zn.stdev (St. Dev. of estimation error of Zn by CoKriging)
+ *
+ * Then the non-conditional simulation procedure generates variables such as:
+ * - MyPrefix.1 (for first simulation)
+ * - MyPrefix.2 (for second simulation)
+ * ...
+ *
+ *  Then the conditional simulation procedure generates variables such as:
+ * - MyPrefix.var.1 (for first simulation)
+ * - MyPrefix.var.2 (for second simulation)
+ * ...
  *
  * Ultimately, the newly created variables are assigned a locator.
  */
@@ -95,6 +104,7 @@ public:
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
+                           const VectorString& names,
                            const ELoc& locatorInType,
                            int nvar,
                            Db* dbout,

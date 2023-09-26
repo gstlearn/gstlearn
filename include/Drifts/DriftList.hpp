@@ -13,19 +13,18 @@
 #include "gstlearn_export.hpp"
 
 #include "Drifts/ADrift.hpp"
-#include "Drifts/ADriftElem.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/VectorHelper.hpp"
-
+#include "Covariances/CovContext.hpp"
 
 class ASpace;
 class SpacePoint;
 class Db;
 
-class GSTLEARN_EXPORT DriftList : public ADrift, public ICloneable
+class GSTLEARN_EXPORT DriftList : public AStringable, public ICloneable
 {
 public:
-  DriftList(const ASpace* space = nullptr);
+  DriftList(const CovContext &ctxt = CovContext());
   DriftList(const DriftList &r);
   DriftList& operator= (const DriftList &r);
   virtual ~DriftList();
@@ -33,20 +32,15 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(DriftList)
 
-  /// ASpaceObject Interface
-  virtual bool isConsistent(const ASpace* space) const override;
-
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ADrift interface */
-  virtual double eval(const Db* db, int iech) const override;
-  int getNVariables() const override;
 
+  int getNVariables() const { return _ctxt.getNVar(); }
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
   // Add one elementary drift structure
-  void addDrift(const ADriftElem* drift);
+  void addDrift(const ADrift* drift);
   // Remove an elementary drift structure
   void delDrift(unsigned int i);
   // Remove all elementary drift structures
@@ -62,8 +56,8 @@ public:
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const ADriftElem*  getDrift(int il) const;
-  ADriftElem*        getDrift(int il); /// beurk :(
+  const ADrift*  getDrift(int il) const;
+  ADrift*        getDrift(int il); /// beurk :(
   int                getRankFex(int il) const;
   String             getDriftName(int il) const;
   ////////////////////////////////////////////////
@@ -95,7 +89,7 @@ public:
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
 
-  void copyCovContext(const CovContext& ctxt);
+  void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
 
@@ -113,7 +107,8 @@ private:
 protected:
   bool _flagLinked;
   VectorDouble             _driftCoef; /* Array of Drift Coefficients */
-  std::vector<ADriftElem*> _drifts;    /* Vector of elementary drift functions */
+  std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
   VectorBool               _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
+  CovContext  _ctxt;  /* Context (space, number of variables, ...) */
 #endif
 };

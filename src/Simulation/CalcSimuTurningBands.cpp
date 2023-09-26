@@ -2614,7 +2614,7 @@ bool CalcSimuTurningBands::_postprocess()
 
   /* Set the error return flag */
 
-  _renameVariable(2, _getNVar(), _iattOut, String(), getNbSimu());
+  _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
 
   if (_flagDGM)
   {

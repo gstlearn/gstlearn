@@ -11,12 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADrift.hpp"
 
-class GSTLEARN_EXPORT DriftF : public ADriftElem
+class GSTLEARN_EXPORT DriftF : public ADrift
 {
 public:
-  DriftF(int rank_fex = 0, const CovContext& ctxt = CovContext());
+  DriftF(int rank_fex = 0);
   DriftF(const DriftF &r);
   DriftF& operator= (const DriftF &r);
   virtual ~DriftF();
@@ -31,8 +31,7 @@ public:
   double eval(const Db* db, int iech) const override;
   int    getRankFex() const override { return _rankFex; }
 
-  static DriftF* createByIdentifier(const String &driftname,
-                                    const CovContext &ctxt = CovContext());
+  static DriftF* createByIdentifier(const String &driftname);
 
 private:
   int _rankFex;       /* Rank of the external drift */

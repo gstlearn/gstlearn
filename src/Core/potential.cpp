@@ -361,7 +361,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
   pot_ext->model->setCovList(&covs);
 
   // Drift part
-  DriftList drifts(ctxt.getSpace());
+  DriftList drifts(ctxt);
   drifts.setFlagLinked(true);
   pot_ext->model->setDriftList(&drifts);
 

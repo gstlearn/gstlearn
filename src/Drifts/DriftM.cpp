@@ -9,18 +9,17 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Drifts/DriftM.hpp"
-#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADrift.hpp"
 #include "Db/Db.hpp"
 
-DriftM::DriftM(const VectorInt &powers,
-               const CovContext &ctxt)
-    : ADriftElem(ctxt),
+DriftM::DriftM(const VectorInt &powers)
+    : ADrift(),
       _monomialPower(powers)
 {
 }
 
 DriftM::DriftM(const DriftM &r)
-    : ADriftElem(r),
+    : ADrift(r),
       _monomialPower(r._monomialPower)
 {
 }
@@ -29,7 +28,7 @@ DriftM& DriftM::operator=(const DriftM &r)
 {
   if (this != &r)
   {
-    ADriftElem::operator =(r);
+    ADrift::operator =(r);
     _monomialPower = r._monomialPower;
   }
   return *this;
@@ -64,15 +63,14 @@ int DriftM::getOrderIRF() const
 
 int DriftM::getOrderIRFIdim(int idim) const
 {
-  if (idim < getNDim()) return -1;
+  if (idim < getDriftNDimMax()) return -1;
   return _monomialPower[idim];
 }
 
-int DriftM::getNDim() const
+int DriftM::getDriftNDimMax() const
 {
   return (int) _monomialPower.size();
 }
-
 
 String DriftM::getDriftName() const
 {
@@ -98,8 +96,7 @@ String DriftM::getDriftName() const
   return sstr.str();
 }
 
-DriftM* DriftM::createByIdentifier(const String &driftname,
-                                   const CovContext &ctxt)
+DriftM* DriftM::createByIdentifier(const String &driftname)
 {
   String input = driftname;
   String substring;
@@ -159,5 +156,5 @@ DriftM* DriftM::createByIdentifier(const String &driftname,
 
   // Final Resizing
   powers.resize(rank_max);
-  return new DriftM(powers, ctxt);
+  return new DriftM(powers);
 }

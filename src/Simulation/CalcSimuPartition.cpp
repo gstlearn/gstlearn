@@ -292,7 +292,7 @@ bool CalcSimuPartition::_postprocess()
   /* Free the temporary variables */
   _cleanVariableDb(2);
 
-  _renameVariable(2, 1, _iattOut, String(), getNbSimu());
+  _renameVariable(2, VectorString(), ELoc::Z, 1, _iattOut, String(), getNbSimu());
   return true;
 }
 

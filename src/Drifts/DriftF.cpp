@@ -15,17 +15,17 @@
 #include <iterator>
 
 #include "Drifts/DriftF.hpp"
-#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADrift.hpp"
 #include "Db/Db.hpp"
 
-DriftF::DriftF(int rank_fex, const CovContext& ctxt)
-    : ADriftElem(ctxt),
+DriftF::DriftF(int rank_fex)
+    : ADrift(),
       _rankFex(rank_fex)
 {
 }
 
 DriftF::DriftF(const DriftF &r)
-    : ADriftElem(r),
+    : ADrift(r),
       _rankFex(r._rankFex)
 {
 }
@@ -34,7 +34,7 @@ DriftF& DriftF::operator=(const DriftF &r)
 {
   if (this != &r)
   {
-    ADriftElem::operator =(r);
+    ADrift::operator =(r);
     _rankFex = r._rankFex;
   }
   return *this;
@@ -56,8 +56,7 @@ String DriftF::getDriftName() const
   return sstr.str();
 }
 
-DriftF* DriftF::createByIdentifier(const String &driftname,
-                                   const CovContext &ctxt)
+DriftF* DriftF::createByIdentifier(const String &driftname)
 {
   String substring = {"External_Drift:"};
 
@@ -65,5 +64,5 @@ DriftF* DriftF::createByIdentifier(const String &driftname,
   if (found != 0) return nullptr;
   String string_rank = driftname.substr(substring.size(), driftname.size()-1);
   int rank_fex = atoi(string_rank.c_str());
-  return new DriftF(rank_fex, ctxt);
+  return new DriftF(rank_fex);
 }

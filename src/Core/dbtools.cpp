@@ -4931,13 +4931,13 @@ int db_model_nostat(Db *db,
   int jptr = iptr;
   for (int idim = 0; idim < ndim; idim++)
     namconv.setNamesAndLocators(
-        nullptr, ELoc::UNKNOWN, -1, db, jptr++,
+        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
         concatenateStrings("-", "Range", toString(idim + 1)));
   for (int idim = 0; idim < ndim; idim++)
     namconv.setNamesAndLocators(
-        nullptr, ELoc::UNKNOWN, -1, db, jptr++,
+        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
         concatenateStrings("-", "Angle", toString(idim + 1)));
-  namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++, "Sill");
+  namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
   namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
 
   (void) manage_nostat_info(-1, model, db, nullptr);
@@ -5968,7 +5968,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbgrid, iatt_out);
+  namconv.setNamesAndLocators(dbgrid, VectorString(), ELoc::Z, -1, dbgrid, iatt_out);
 
   return 0;
 }
@@ -6168,7 +6168,7 @@ int db_proportion_estimate(Db *dbin,
     AprojOut.mesh2point(props[i],propout);
     int iptr = dbout->addColumns(propout,String(),ELoc::UNKNOWN,0,true);
     if (i == 0) iptr0 = iptr;
-    namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
+    namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, dbout, iptr,
                                 concatenateStrings("-", toString(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);

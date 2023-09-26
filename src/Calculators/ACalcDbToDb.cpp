@@ -233,29 +233,34 @@ int ACalcDbToDb::_addVariableDb(int whichDb,
 
 /**
  * Define the characteristics of the variables created by a Db2Db Calculator
- * @param whichDb 1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
- * @param nvar    Naming should be constructed from 'nvar' variables from 'dbin'
- * @param iptr    IUID of the (first) variable to be renamed
- * @param name    Name which will serve as 'qualifier' (when provided)
- * @param count   Number of variable named from the same basic name (using version number)
+ * @param whichDb     1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
+ * @param names       Names of the variables in 'dbin' (or empty)
+ * @param locatorType Locator for the names of input variables (or ELoc::UNKNOWN)
+ * @param nvar        Number of variables (when constructed from locator)
+ * @param iptr        IUID of the (first) variable to be renamed
+ * @param qualifier   Name which will serve as 'qualifier' (when provided)
+ * @param count       Number of variable named from the same basic name (using version number)
  * @param flagSetLocator True if the locator must be defined
  * @param locatorShift Shift to calculate the rank of the locator currently defined
  */
 void ACalcDbToDb::_renameVariable(int whichDb,
+                                  const VectorString& names,
+                                  const ELoc& locatorType,
                                   int nvar,
                                   int iptr,
-                                  const String &name,
+                                  const String &qualifier,
                                   int count,
                                   bool flagSetLocator,
                                   int locatorShift)
 {
-  ELoc locatorType = (nvar <= 0) ? ELoc::UNKNOWN : ELoc::Z; // Dbin not used if nvar<=0
   if (whichDb == 1)
-    _namconv.setNamesAndLocators(_dbin, locatorType, nvar, _dbin, iptr, name, count,
-                                 flagSetLocator, locatorShift);
+    _namconv.setNamesAndLocators(_dbin, names, locatorType, nvar,
+                                 _dbin, iptr, qualifier, count, flagSetLocator,
+                                 locatorShift);
   else
-    _namconv.setNamesAndLocators(_dbin, locatorType, nvar, _dbout, iptr, name, count,
-                                 flagSetLocator, locatorShift);
+    _namconv.setNamesAndLocators(_dbin, names, locatorType, nvar,
+                                 _dbout, iptr, qualifier, count, flagSetLocator,
+                                 locatorShift);
 }
 
 void ACalcDbToDb::_cleanVariableDb(int status)

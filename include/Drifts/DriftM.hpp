@@ -11,16 +11,15 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADrift.hpp"
 
 /**
  * Monomial drift term
  */
-class GSTLEARN_EXPORT DriftM : public ADriftElem
+class GSTLEARN_EXPORT DriftM : public ADrift
 {
 public:
-  DriftM(const VectorInt &powers = VectorInt(),
-         const CovContext &ctxt = CovContext());
+  DriftM(const VectorInt &powers = VectorInt());
   DriftM(const DriftM &r);
   DriftM& operator= (const DriftM &r);
   virtual ~DriftM();
@@ -31,12 +30,11 @@ public:
   String getDriftName() const override;
   int    getOrderIRF()  const override;
   int    getOrderIRFIdim(int idim) const override;
-  int    getNDim()      const override;
+  int    getDriftNDimMax()      const override;
   double eval(const Db* db, int iech) const override;
   VectorInt getPowers() const override { return _monomialPower; }
 
-  static DriftM* createByIdentifier(const String &driftname,
-                                    const CovContext &ctxt = CovContext());
+  static DriftM* createByIdentifier(const String &driftname);
 
 private:
   VectorInt _monomialPower;

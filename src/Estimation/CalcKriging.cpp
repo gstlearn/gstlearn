@@ -165,40 +165,40 @@ bool CalcKriging::_postprocess()
   if (_flagXvalid)
   {
     if (_flagXvalidStd > 0)
-      _renameVariable(2, nvar, _iptrStd, "stderr", 1, false);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stderr", 1, false);
     else if (_flagXvalidStd < 0)
-      _renameVariable(2, nvar, _iptrStd, "stdev", 1, false);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1, false);
 
     if (_flagXvalidEst > 0)
-      _renameVariable(2, nvar, _iptrEst, "esterr", 1);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "esterr", 1);
     else if (_flagXvalidEst < 0)
-      _renameVariable(2, nvar, _iptrEst, "estim", 1);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
 
     if (_flagXvalidVarZ != 0)
-      _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
   }
   else if (_flagNeighOnly)
   {
-    _renameVariable(2, 1, _iptrNeigh  , "Number", 1);
-    _renameVariable(2, 1, _iptrNeigh+1, "MaxDist", 1);
-    _renameVariable(2, 1, _iptrNeigh+2, "MinDist", 1);
-    _renameVariable(2, 1, _iptrNeigh+3, "NbNESect", 1);
-    _renameVariable(2, 1, _iptrNeigh+4, "NbCESect", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh  , "Number", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+1, "MaxDist", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+2, "MinDist", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+3, "NbNESect", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iptrNeigh+4, "NbCESect", 1);
   }
   else if (_flagDGM)
   {
     if (!_nameCoord.empty())
       getDbin()->setLocators(_nameCoord, ELoc::X);
 
-    _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
-    _renameVariable(2, nvar, _iptrStd, "stdev", 1);
-    _renameVariable(2, nvar, _iptrEst, "estim", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
   }
   else
   {
-    _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
-    _renameVariable(2, nvar, _iptrStd, "stdev", 1);
-    _renameVariable(2, nvar, _iptrEst, "estim", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
+    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
   }
 
   return true;

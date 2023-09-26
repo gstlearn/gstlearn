@@ -93,10 +93,10 @@ bool CalcStatistics::_postprocess()
   _cleanVariableDb(2);
 
   if (_flagStats)
-    _renameVariable(2, _getNVar(), _iattOut, String(), 1);
+    _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), 1);
 
   if (_flagRegr)
-    _renameVariable(1, 1, _iattOut, String(), 1);
+    _renameVariable(1, VectorString(), ELoc::Z, 1, _iattOut, String(), 1);
   return true;
 }
 
@@ -163,24 +163,6 @@ int dbStatisticsOnGrid(Db *db,
   // Run the calculator
   int error = (stats.run()) ? 0 : 1;
   return error;
-}
-
-int dbRegressionByColIdx(Db *db1,
-                         int icol0,
-                         const VectorInt &icols,
-                         int mode,
-                         bool flagCst,
-                         Db *db2,
-                         const Model *model,
-                         const NamingConvention &namconv)
-{
-  if (db1 == nullptr) return 1;
-  if (db2 == nullptr) db2 = db1;
-
-  String name0 = db1->getNameByColIdx(icol0);
-  VectorString namaux = db2->getNamesByColIdx(icols);
-
-  return dbRegression(db1, name0, namaux, mode, flagCst, db2, model, namconv);
 }
 
 int dbRegression(Db *db1,

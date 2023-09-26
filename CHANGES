@@ -19,6 +19,7 @@ Release 0.3.4
 - Adding Legend to plot.varmod for plot.R
 - flagCste replaced by flagCst everywhere
 - The Enum called EDrift is abandoned
+- Function dbRegressionByColIdx() has been abandoned (use dbRegression instead)
 
 Release 0.3.3
 =============

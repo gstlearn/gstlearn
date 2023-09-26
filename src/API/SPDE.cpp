@@ -529,7 +529,7 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
   }
 
   if (useVarName)
-    namconv.setNamesAndLocators(_data, ELoc::Z, 1, dbout, iptr, suffix, ncols);
+    namconv.setNamesAndLocators(_data, VectorString(), ELoc::Z, 1, dbout, iptr, suffix, ncols);
   else
     namconv.setNamesAndLocators(dbout, iptr, suffix, ncols);
   return iptr;

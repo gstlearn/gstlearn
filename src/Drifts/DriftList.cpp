@@ -8,36 +8,38 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include <Drifts/ADrift.hpp>
 #include "Drifts/DriftList.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Drifts/ADriftElem.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftF.hpp"
 #include "Drifts/DriftM.hpp"
 #include "Db/Db.hpp"
 
-DriftList::DriftList(const ASpace* space)
-    : ADrift(space),
+DriftList::DriftList(const CovContext &ctxt)
+    : AStringable(),
       _flagLinked(false),
       _driftCoef(),
       _drifts(),
-      _filtered()
+      _filtered(),
+      _ctxt(ctxt)
 {
 }
 
 DriftList::DriftList(const DriftList &r)
-    : ADrift(r),
+    : AStringable(r),
       _flagLinked(r._flagLinked),
       _driftCoef(r._driftCoef),
       _drifts(),
-      _filtered(r._filtered)
+      _filtered(r._filtered),
+      _ctxt(r._ctxt)
 {
   for (auto e: r._drifts)
   {
-    _drifts.push_back(dynamic_cast<ADriftElem*>(e->clone()));
+    _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
   }
 }
 
@@ -45,14 +47,15 @@ DriftList& DriftList::operator=(const DriftList &r)
 {
   if (this != &r)
   {
-    ADrift::operator=(r);
+    AStringable::operator=(r);
     _flagLinked = r._flagLinked;
     _driftCoef  = r._driftCoef;
     for (auto e: r._drifts)
     {
-      _drifts.push_back(dynamic_cast<ADriftElem*>(e->clone()));
+      _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
     }
     _filtered = r._filtered;
+    _ctxt = r._ctxt;
   }
   return *this;
 }
@@ -60,11 +63,6 @@ DriftList& DriftList::operator=(const DriftList &r)
 DriftList::~DriftList()
 {
   delAllDrifts();
-}
-
-bool DriftList::isConsistent(const ASpace* /*space*/) const
-{
-  return true;
 }
 
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
@@ -90,16 +88,10 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-double DriftList::eval(const Db* /*db*/, int /*iech1*/) const
-{
-  double drift = 0;
-  return drift;
-}
-
-void DriftList::addDrift(const ADriftElem* drift)
+void DriftList::addDrift(const ADrift* drift)
 {
   if (drift == nullptr) return;
-  _drifts.push_back(dynamic_cast<ADriftElem*>(drift->clone()));
+  _drifts.push_back(dynamic_cast<ADrift*>(drift->clone()));
   _filtered.push_back(false);
   updateDriftList();
 }
@@ -137,13 +129,13 @@ void DriftList::setFiltered(int i, bool filter)
   _filtered[i] = filter;
 }
 
-const ADriftElem* DriftList::getDrift(int il) const
+const ADrift* DriftList::getDrift(int il) const
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
 }
 
-ADriftElem* DriftList::getDrift(int il)
+ADrift* DriftList::getDrift(int il)
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
@@ -194,13 +186,6 @@ bool DriftList::isValid() const
     }
   }
   return true;
-}
-
-int DriftList::getNVariables() const
-{
-  if (getDriftNumber() > 0)
-    return _drifts[0]->getNVariables();
-  return 0;
 }
 
 bool DriftList::_isDriftIndexValid(int i) const
@@ -376,7 +361,7 @@ int DriftList::getDriftMaxIRFOrder(void) const
   int max_order = 0;
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    const ADriftElem* drft = _drifts[il];
+    const ADrift* drft = _drifts[il];
     int order = drft->getOrderIRF();
     if (order > max_order) max_order = order;
   }
@@ -426,13 +411,6 @@ bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) c
     }
   }
   return false;
-}
-
-void DriftList::copyCovContext(const CovContext& ctxt)
-{
-  int number = (int) _drifts.size();
-  for (int i = 0; i < number; i++)
-    _drifts[i]->copyCovContext(ctxt);
 }
 
 bool DriftList::hasExternalDrift() const

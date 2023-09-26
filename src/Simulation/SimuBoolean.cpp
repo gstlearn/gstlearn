@@ -498,9 +498,9 @@ int simbool(Db* dbin,
   if (iptr_cover >= 0)
     dbin->deleteColumnByUID(iptr_cover);
 
-  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_simu, "Facies", 1,
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, 1, dbout, iptr_simu, "Facies", 1,
                               false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
                               false);
   return 0;
 }

@@ -157,7 +157,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
         target["ff"] = np.random.normal(size = target.getSampleNumber())
         
         target.setLocator("ff",gl.ELoc.F)
-        modeln.addDrift(gl.DriftF(0, modeln.getContext()))
+        modeln.addDrift(gl.DriftF(0))
       
     v = np.array([db["x0"],db["x1"]]).T
     v0 = np.array([target["x1"][indOut],target["x2"][indOut]]).T

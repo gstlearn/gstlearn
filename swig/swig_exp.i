@@ -237,7 +237,6 @@
 %include Covariances/CovHelper.hpp
 
 %include Drifts/ADrift.hpp
-%include Drifts/ADriftElem.hpp
 %include Drifts/DriftList.hpp
 %include Drifts/DriftM.hpp
 %include Drifts/DriftF.hpp

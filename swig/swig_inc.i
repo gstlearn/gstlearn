@@ -17,7 +17,6 @@
 %shared_ptr(ACovFunc)
 %shared_ptr(ACovGradient)
 %shared_ptr(ADrift)
-%shared_ptr(ADriftElem)
 %shared_ptr(AGibbs)
 %shared_ptr(AMatrix)
 %shared_ptr(AMatrixSquare)
@@ -400,7 +399,6 @@
   #include "Covariances/CovHelper.hpp"
   
   #include "Drifts/ADrift.hpp"
-  #include "Drifts/ADriftElem.hpp"
   #include "Drifts/DriftList.hpp"
   #include "Drifts/DriftM.hpp"
   #include "Drifts/DriftF.hpp"

@@ -114,13 +114,13 @@ bool CalcImage::_postprocess()
   _cleanVariableDb(2);
 
   if (_flagFilter)
-    _renameVariable(2, getDbin()->getLocNumber(ELoc::Z), _iattOut, String(), 1);
+    _renameVariable(2, VectorString(), ELoc::Z, getDbin()->getLocNumber(ELoc::Z), _iattOut, String(), 1);
 
   if (_flagMorpho)
-    _renameVariable(2, 1, _iattOut, _oper.getKey(), _nvarMorpho);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iattOut, _oper.getKey(), _nvarMorpho);
 
   if (_flagSmooth)
-    _renameVariable(2, 1, _iattOut, String(), 1);
+    _renameVariable(2, VectorString(), ELoc::Z, 1, _iattOut, String(), 1);
 
   return true;
 }

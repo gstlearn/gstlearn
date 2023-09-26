@@ -57,6 +57,8 @@ protected:
                      int number = 1,
                      double valinit = 0.);
   void _renameVariable(int whichDb,
+                       const VectorString &names,
+                       const ELoc &locatorType,
                        int nvar,
                        int iptr,
                        const String &name,
