@@ -183,7 +183,7 @@ We can impose inequality constraints by using EConsType.LOWER or EConsType.UPPER
 ## Adding a drift
 
 ```{r}
-mymodel$addDrift(DriftM(c(),mymodel$getContext()))
+mymodel$addDrift(DriftM())
 if (verbose)
     mymodel$display()
 ```
