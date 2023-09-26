@@ -183,7 +183,7 @@ int dbRegression(Db *db1,
 
   stats.setFlagRegr(true);
   stats.setRegrMode(mode);
-  stats.setFlagCste(flagCst);
+  stats.setFlagCst(flagCst);
   stats.setName0(name0);
   stats.setNamaux(namaux);
   stats.setModel(model);

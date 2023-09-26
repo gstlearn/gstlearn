@@ -38,7 +38,7 @@ public:
   void setOper(const EStatOption &oper) { _oper = oper; }
 
   void setFlagRegr(bool flagRegr) { _flagRegr = flagRegr; }
-  void setFlagCste(bool flagCst) { _flagCst = flagCst; }
+  void setFlagCst(bool flagCst) { _flagCst = flagCst; }
   void setName0(const String &name0) { _name0 = name0; }
   void setNamaux(const VectorString &namaux) { _namaux = namaux; }
   void setRegrMode(int regrMode) { _regrMode = regrMode; }

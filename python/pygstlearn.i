@@ -709,6 +709,9 @@ void exit_f(void)
 %extend AnamHermite {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend NamingConvention {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //

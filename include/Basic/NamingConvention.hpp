@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Basic/AStringable.hpp"
 
 #include "Enum/ELoc.hpp"
 
@@ -56,7 +57,7 @@ class Db;
  *
  * Ultimately, the newly created variables are assigned a locator.
  */
-class GSTLEARN_EXPORT NamingConvention
+class GSTLEARN_EXPORT NamingConvention: public AStringable
 {
 public:
   NamingConvention(String prefix = String(),
@@ -69,6 +70,9 @@ public:
   NamingConvention(const NamingConvention &m);
   NamingConvention& operator=(const NamingConvention &m);
   virtual ~NamingConvention();
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static NamingConvention* create(String prefix = String(),
                                   bool flag_varname = true,

@@ -431,3 +431,20 @@ VectorString NamingConvention::_createNames(const VectorString &names,
   }
   return outnames;
 }
+
+
+String NamingConvention::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+
+  sstr << toTitle(0, "Naming Convention");
+  sstr << "- Prefix  = " << _prefix << std::endl;
+  sstr << "- Delimitor = '" << _delim << "'" << std::endl;
+  sstr << "- Add the Variable Name = " << _flagVarname << std::endl;
+  sstr << "- Add the Qualifier     = " << _flagQualifier << std::endl;
+  sstr << "- Assign a Locator to output variables = " << _flagLocator << std::endl;
+  sstr << "- Type of assigned locator = " << _locatorOutType.getDescr() << std::endl;
+  sstr << "- Clean any other similar locator = " << _cleanSameLocator << std::endl;
+
+  return sstr.str();
+}
