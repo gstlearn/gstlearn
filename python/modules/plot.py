@@ -1702,10 +1702,10 @@ def __ax_correlation(ax, db, namex, namey, db2=None, useSel=True,
 
     if regrLine:
         regr = gl.regression(db2, namey, [namex], flagCst=True)
-        if regr.nvar == 0:
+        if regr.getNvar() == 0:
             return None
-        a = regr.coeffs[0]
-        b = regr.coeffs[1]
+        a = regr.getCoeff(0)
+        b = regr.getCoeff(1)
         u=[xmin, xmax]
         v=[a+b*xmin, a+b*xmax]
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)

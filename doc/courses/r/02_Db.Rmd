@@ -143,10 +143,14 @@ dbfmt = DbStringFormat_createFromFlags(flag_stats=TRUE, names=c("Elevation", "Ja
 dat$display(dbfmt)
 ```
 
-Monovariate statistics are better displayed using a single function called *dbStatisticsMonoT*. This function waits for a vector of enumerators of type EStatOption as statistic operators. Such vector is created using a static function called *fromKeys* which is available in all enumerators classes (i.e. inherits from *AEnum*).
+Monovariate statistics are better displayed using a single function called
+*dbStatisticsMono*. This function waits for a vector of enumerators of type
+EStatOption as statistic operators. Such vector is created using a static
+function called *fromKeys* which is available in all enumerators classes (i.e.
+inherits from *AEnum*).
 
 ```{r}
-dbStatisticsMonoT(dat,
+dbStatisticsMono(dat,
                   names=c("Elevation", "January_temp"),
                   opers=EStatOption_fromKeys(c("MEAN","MINI","MAXI")))
 ```

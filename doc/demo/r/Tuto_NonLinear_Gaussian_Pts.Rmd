@@ -180,7 +180,7 @@ p = p + plot.decoration(xlab = "Z", title = "Simulated samples (Z variable)")
 ggPrint(p)
 
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-stats = dbStatisticsMonoT(grid, c("Y","Z"), opers=opers)
+stats = dbStatisticsMono(grid, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2,
     caption = "Statistics of the simulated variables on the point support")
 ```
@@ -212,7 +212,7 @@ p = p + plot.hist(data, name = "Z", bins = 100, col = "gray", fill = "orange")
 p = p + plot.decoration(xlab = "Z", title = "Sampled data (Z variable)")
 ggPrint(p)
 
-stats = dbStatisticsMonoT(data, c("Y","Z"), opers=opers)
+stats = dbStatisticsMono(data, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2, 
              caption = "Statistics of the sampled data on the point support")
 
@@ -1001,7 +1001,7 @@ for (est in c("SK", "DK", "CE")){
 }
 
 # Mono variate statistics of the estimators
-knitr::kable(dbStatisticsMonoT(grid, nm, opers=opers)$toTL(), digits=3,
+knitr::kable(dbStatisticsMono(grid, nm, opers=opers)$toTL(), digits=3,
     caption = "Statistics of the estimated values")
 
 # Scoring rules

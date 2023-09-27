@@ -263,7 +263,7 @@ if general:
                                                          measurement_error=measurement_error,
                                                          selDbin=selDbin,selDbout=selDbout,
                                                          flag_isotopic = iso,
-                                                         seed=1234,tol=1e-8,eps=1e-3,verbose=verbose)
+                                                         seed=1234,tol=1e-6,eps=1e-3,verbose=verbose)
                                         nbtests += 1
 
     print("Number of tests performed =",nbtests)

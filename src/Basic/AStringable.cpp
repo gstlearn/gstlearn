@@ -1234,10 +1234,10 @@ String toVector(const String& title, const VectorInt& tab, bool flagOverride)
   return sstr.str();
 }
 
-String toStr(const String& string, const EJustify& justify)
+String toStr(const String& string, const EJustify& justify, int localSize)
 {
   std::stringstream sstr;
-  sstr << _tabPrintString(string, justify);
+  sstr << _tabPrintString(string, justify, localSize);
   return sstr.str();
 }
 

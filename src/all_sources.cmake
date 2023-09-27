@@ -248,6 +248,7 @@ set(SRC
   Stats/PCA.cpp
   Stats/PCAStringFormat.cpp
   Stats/Selectivity.cpp
+  Stats/Regression.cpp
   Drifts/DriftM.cpp
   Drifts/DriftF.cpp
   Drifts/DriftFactory.cpp

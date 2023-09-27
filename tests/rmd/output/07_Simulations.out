@@ -41,7 +41,8 @@ Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel
 Column = 4 - Name = Simu1 - Locator = z1
 NULL
-Mean of observed temperatures: 2.81456953642384
+Mean of observed temperatures: 2.815NULL
+
 Model characteristics
 =====================
 Space dimension              = 2
@@ -64,4 +65,6 @@ Drift Part
 ----------
 Universality_Condition
 External_Drift:0
+NULL
+NULL
 NULL

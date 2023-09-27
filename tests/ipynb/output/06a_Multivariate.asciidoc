@@ -233,8 +233,15 @@ Mean squared standardized error: 1.206
 
 +*Out[37]:*+
 ----
-Coefficients: b= 3.612 ; a= -0.00906
-----
+
+Linear Regression
+-----------------
+- Calculated on151active values
+- Constant term           = 3.61197
+- Explanatory Variable #1 = -0.0090641
+- Initial variance        = 1.01979
+- Variance of residuals   = 0.363298
+ ----
 
 
 +*Out[39]:*+
@@ -305,14 +312,14 @@ Coefficients: b= 3.612 ; a= -0.00906
 +*Out[56]:*+
 ----
 
- Linear Regression
- -----------------
- - Calculated on 151 active values
- - Explanatory Variable #1 = 3.521360
- - Explanatory Variable #2 = -0.007466
- - Explanatory Variable #3 = 0.001978
- - Initial variance        = 1.019788
- - Variance of residuals   = 0.735557
+Linear Regression
+-----------------
+- Calculated on151active values
+- Explanatory Variable #1 = 3.52136
+- Explanatory Variable #2 = -0.00746599
+- Explanatory Variable #3 = 0.00197753
+- Initial variance        = 1.01979
+- Variance of residuals   = 0.735557
  ----
 
 

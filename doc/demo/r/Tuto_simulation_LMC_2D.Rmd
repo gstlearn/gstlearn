@@ -94,18 +94,9 @@ qc_simulations <- function(grid, names, var_model, title, stat_keys) {
 nsim = length(names)
 
 # statistics
-tab = matrix(dbStatisticsMono(grid, names = names, opers = EStatOption_fromKeys(stat_keys)),
-  nrow = nsim, ncol = length(stat_keys), byrow = TRUE
-)
-colnames(tab) <- stat_keys
-rownames(tab) <- names
-
-print(paste("-------------------------------------------") )
-print(paste0(title, ": statistics"))
-print(paste("-------------------------------------------") )
-print(round(tab, digits = 4))
-print(paste("-------------------------------------------") )
-# knitr::kable(tab, caption = paste0(title, ": statistics"), digits = 4)
+tab = dbStatisticsMono(grid, names = names, opers = EStatOption_fromKeys(stat_keys))
+tab$setTitle(paste0(title, ": statistics"))
+tab$display()
 
 # histogram of simulation  #1
 i = 1

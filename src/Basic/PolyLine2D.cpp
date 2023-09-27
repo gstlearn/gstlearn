@@ -15,6 +15,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Stats/Classical.hpp"
+#include "Stats/Regression.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -408,7 +409,7 @@ double PolyLine2D::angleAtPolyline(const PolyPoint2D &pldist, int nb_neigh) cons
     x.push_back(getX(i));
     y.push_back(getY(i));
   }
-  VectorDouble coeffs = regrDeming(x,y);
+  VectorDouble coeffs = regressionDeming(x,y);
   double angle = coeffs[1] * 180. / GV_PI;
 
   return angle;

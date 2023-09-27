@@ -173,7 +173,7 @@ During the estimation, only the contribution of second and third basic structure
 
 ```{r Performing_monovariate_FKA}
 modelP$setCovaFiltered(0, TRUE)
-means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))
+means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))$getValues()
 modelP$setMeans(means)
 modelP
 
@@ -245,7 +245,7 @@ multi.varmod(varioM,modelM)
 modelM$setCovaFiltered(0, TRUE)
 means = dbStatisticsMono(grid,flagIso=TRUE, 
                          names=c("Fill.P","Cr","Ni"),
-                         EStatOption_fromKeys("MEAN"))
+                         EStatOption_fromKeys("MEAN"))$getValues()
 modelM$setMeans(means)
 
 err  = krimage(grid,modelM,neigh,namconv=NamingConvention("Multi"))

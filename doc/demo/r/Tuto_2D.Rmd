@@ -358,8 +358,8 @@ Some statistics on the Conditional simulations in Gaussian scale
 
 ```{r}
 if (verbose)
-  err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+  dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
 We visualize a conditional simulation in Gaussian scale
@@ -388,8 +388,8 @@ We calculate some statistics on the Conditional Simulations in Raw scale.
 
 ```{r}
 if (verbose)
-  err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+  dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
 We visualize a Conditional Simulation in Raw Scale
@@ -408,10 +408,8 @@ if (graphics)
 Let us now average the conditional simulations in order to have a comparison with the estimation by kriging.
 
 ```{r}
-err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-                                 opers = EStatOption_fromKeys(c("MEAN")),
-                                 flagStoreInDb = TRUE,
-                                 verbose = FALSE)
+mygrid$statisticsBySample(mygrid$getNamesByLocator(ELoc_Z()),
+                                 opers = EStatOption_fromKeys(c("MEAN")))
 if (verbose)
     mygrid$display()
 ```
@@ -494,8 +492,8 @@ err = myanamZn$gaussianToRaw(mygrid,"Simu.Y.Zn*")
 err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
 mygrid$deleteColumn("Simu.Y*")
 if (verbose)
-    err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-          opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+    dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+          opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
 # Categorical Variable¶

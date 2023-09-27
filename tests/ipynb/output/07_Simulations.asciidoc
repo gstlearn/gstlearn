@@ -48,7 +48,7 @@ Total Sill     =      1.155
 
 +*Out[13]:*+
 ----
-Mean of observed temperatures: [2.81456954]
+Mean of observed temperatures: 2.815
 ----
 
 

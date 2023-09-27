@@ -20,6 +20,9 @@ Release 0.3.4
 - flagCste replaced by flagCst everywhere
 - The Enum called EDrift is abandoned
 - Function dbRegressionByColIdx() has been abandoned (use dbRegression instead)
+- Function regressionByUID() has been abandoned (use regression instead)
+- Improvement of Table printout (row name not truncated anymore)
+- New class 'ResReg' for storing Regression formula (AStringable)
 
 Release 0.3.3
 =============

@@ -257,7 +257,8 @@ int PCA::dbZ2F(Db* db,
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
-    dbStatisticsPrintByUID(db, cols, {}, 1, 1, "Statistics on Factors","Factor");
+    VectorString names = db->getNamesByUID(cols);
+    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
@@ -303,7 +304,8 @@ int PCA::dbF2Z(Db* db,
   {
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-    dbStatisticsPrintByUID(db, cols, {}, 1, 1, "Statistics on Variables", "Variable");
+    VectorString names = db->getNamesByUID(cols);
+    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */

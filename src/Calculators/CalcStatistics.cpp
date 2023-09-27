@@ -16,6 +16,7 @@
 #include "Calculators/CalcStatistics.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Stats/Classical.hpp"
+#include "Stats/Regression.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 
@@ -31,8 +32,8 @@ CalcStatistics::CalcStatistics()
       _flagRegr(false),
       _flagCst(false),
       _regrMode(0),
-      _name0(),
-      _namaux(),
+      _nameResp(),
+      _nameAux(),
       _model(nullptr)
 {
 }
@@ -65,7 +66,7 @@ bool CalcStatistics::_check()
 
   if (_flagRegr)
   {
-    if (! _flagCst && _namaux.empty())
+    if (! _flagCst && _nameAux.empty())
     {
       messerr("This method requires Explanatory variables and/or constant term");
       return false;
@@ -121,13 +122,13 @@ bool CalcStatistics::_run()
     if (dbStatisticsInGridTool(getDbin(), dbgrid, names, _oper, _radius, _iattOut))
       return false;
   }
-
   if (_flagRegr)
   {
-    if (regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCst,
-                        getDbout(), _model)) return false;
+    Regression reg = regression(getDbin(), _nameResp, _nameAux, _regrMode, _flagCst,
+                                getDbout(), _model);
+    if (reg.apply(getDbin(), _iattOut, _nameResp, _nameAux, _regrMode, _flagCst,
+                  getDbout(), _model)) return false;
   }
-
   return true;
 }
 
@@ -166,8 +167,8 @@ int dbStatisticsOnGrid(Db *db,
 }
 
 int dbRegression(Db *db1,
-                 const String& name0,
-                 const VectorString& namaux,
+                 const String& nameResp,
+                 const VectorString& nameAux,
                  int mode,
                  bool flagCst,
                  Db *db2,
@@ -184,8 +185,8 @@ int dbRegression(Db *db1,
   stats.setFlagRegr(true);
   stats.setRegrMode(mode);
   stats.setFlagCst(flagCst);
-  stats.setName0(name0);
-  stats.setNamaux(namaux);
+  stats.setName0(nameResp);
+  stats.setNamaux(nameAux);
   stats.setModel(model);
 
   // Run the calculator

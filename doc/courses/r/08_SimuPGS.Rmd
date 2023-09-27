@@ -213,8 +213,7 @@ cat("Number of valid simulations =", nb.valid, "out of", nbsimu, "\n")
 Derive the Probability Map
 
 ```{r Probability}
-err = grid$statistics(c("SimuPGS*"),
-                      EStatOption_fromKeys(c("MEAN")), flagStoreInDb=TRUE)
+grid$statisticsBySample(c("SimuPGS*"),EStatOption_fromKeys(c("MEAN")))
 ```
 
 Display

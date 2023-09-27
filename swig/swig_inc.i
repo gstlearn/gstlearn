@@ -159,6 +159,7 @@
 %shared_ptr(PPMT)
 %shared_ptr(ProjConvolution)
 %shared_ptr(ProjMatrix)
+%shared_ptr(Regression)
 %shared_ptr(Rotation)
 %shared_ptr(Rule)
 %shared_ptr(RuleProp)
@@ -447,6 +448,7 @@
   #include "Stats/PCA.hpp"
   #include "Stats/PCAStringFormat.hpp"
   #include "Stats/Selectivity.hpp"
+  #include "Stats/Regression.hpp"
   
   #include "LithoRule/Rule.hpp"
   #include "LithoRule/RuleStringFormat.hpp"

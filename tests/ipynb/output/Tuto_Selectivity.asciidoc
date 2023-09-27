@@ -64,9 +64,8 @@ Geographical defaults:
 
 
 +*Out[8]:*+
-----
-     1.531     1.615
- ----
+----         Mean   Variance
+z1      1.531      1.615----
 
 
 +*Out[10]:*+
@@ -88,9 +87,8 @@ Geographical defaults:
 
 
 +*Out[13]:*+
-----
-     1.531     0.974
- ----
+----         Mean   Variance
+z1      1.531      0.974----
 
 
 +*Out[15]:*+
@@ -106,9 +104,8 @@ Geographical defaults:
 
 
 +*Out[17]:*+
-----
-     1.364     1.165
- ----
+----         Mean   Variance
+z1      1.364      1.165----
 
 
 +*Out[19]:*+

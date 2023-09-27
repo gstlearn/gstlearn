@@ -712,6 +712,9 @@ void exit_f(void)
 %extend NamingConvention {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend Regression {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //

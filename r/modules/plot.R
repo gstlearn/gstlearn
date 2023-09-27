@@ -1303,10 +1303,10 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
   if (flagRegr)
   {
     regr = regression(db2, namey, namex, flagCst=TRUE)
-    if (regr$nvar > 0)
+    if (regr$getNvar() > 0)
     {
-      a = regr$coeffs[1]
-      b = regr$coeffs[2]
+      a = regr$getCoeff(0)
+      b = regr$getCoeff(1)
       ymin = a + b * xmin
       ymax = a + b * xmax
       p <- append(p, geom_segment(aes(x=xmin,y=ymin,xend=xmax,yend=ymax),

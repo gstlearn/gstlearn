@@ -286,6 +286,7 @@
 %include Stats/PCA.hpp
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
+%include Stats/Regression.hpp
 
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleStringFormat.hpp

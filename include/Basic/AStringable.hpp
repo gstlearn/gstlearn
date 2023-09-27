@@ -101,7 +101,8 @@ GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorString& tab,
                                 bool flagOverride = true);
 GSTLEARN_EXPORT String toStr(const String& string,
-                             const EJustify& justify = EJustify::fromKey("RIGHT"));
+                             const EJustify& justify = EJustify::fromKey("RIGHT"),
+                             int localSize = 0);
 GSTLEARN_EXPORT String toDouble(double value,
                                 const EJustify& justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT String toInt(int value,

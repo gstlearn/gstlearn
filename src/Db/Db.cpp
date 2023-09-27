@@ -30,6 +30,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
+#include "Matrix/Table.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
@@ -4052,131 +4053,51 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   }
 }
 
-/**
- * The target variables are referred to by their user-designation ranks
- */
-VectorDouble Db::statisticsByUID(const VectorInt& iuids,
-                                 const std::vector<EStatOption>& opers,
-                                 bool flagIso,
-                                 bool flagStoreInDb,
-                                 bool verbose,
-                                 double proba,
-                                 double vmin,
-                                 double vmax,
-                                 const String& title,
-                                 const NamingConvention& namconv)
-{
-  VectorDouble stats;
-
-  if (iuids.empty()) return stats;
-
-  int noper = (int) opers.size();
-  if (noper <= 0) return stats;
-
-  // Add the variables for PointWise statistics
-  if (flagStoreInDb)
-  {
-    int iuidn = addColumnsByConstant(noper);
-    if (iuidn < 0) return VectorDouble();
-
-    dbStatisticsVariablesByUID(this, iuids, opers, iuidn, proba, vmin, vmax);
-
-    namconv.setNamesAndLocators(this, iuidn);
-    for (int i = 0; i < noper; i++)
-    {
-      EStatOption oper = opers[i];
-      namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
-    }
-    return VectorDouble();
-  }
-  else
-  {
-    stats = dbStatisticsMonoByUID(this, iuids, opers, flagIso, proba, vmin, vmax);
-
-    if (verbose)
-    {
-      VectorString varnames = getNamesByUID(iuids);
-      messageFlush(statisticsMonoPrint(stats, opers, varnames, title));
-      return VectorDouble();
-    }
-  }
-  return stats;
-}
-
-/**
- * The target variables are referred to by their names
- */
-VectorDouble Db::statistics(const VectorString& names,
-                            const std::vector<EStatOption>& opers,
+void Db::statisticsBySample(const VectorString &names,
+                            const std::vector<EStatOption> &opers,
                             bool flagIso,
-                            bool flagStoreInDb,
-                            bool verbose,
                             double proba,
                             double vmin,
                             double vmax,
-                            const String& title,
-                            const NamingConvention& namconv)
+                            const NamingConvention &namconv)
 {
-  VectorInt iuids = _ids(names, false);
-  if (iuids.empty()) return VectorDouble();
-  return statisticsByUID(iuids, opers, flagIso, flagStoreInDb, verbose,
-                         proba, vmin, vmax, title, namconv);
-}
+  if (names.empty()) return;
+  if (opers.empty()) return;
 
-/**
- * The target variables are referred to by their locator
- */
-VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
-                                     const std::vector<EStatOption>& opers,
-                                     bool flagIso,
-                                     bool flagStoreInDb,
-                                     bool verbose,
-                                     double proba,
-                                     double vmin,
-                                     double vmax,
-                                     const String& title,
-                                     const NamingConvention& namconv)
-{
-  VectorInt iuids = getUIDsByLocator(locatorType);
-  if (iuids.empty()) return VectorDouble();
-  return statisticsByUID(iuids, opers, flagIso, flagStoreInDb, verbose,
-                         proba, vmin, vmax, title, namconv);
+  VectorInt iuids = getUIDs(names);
+  int noper = (int) opers.size();
+
+  // Add the variables for PointWise statistics
+  int iuidn = addColumnsByConstant(noper);
+  if (iuidn < 0) return;
+
+  VectorString nameloc = getNamesByUID(iuids);
+  dbStatisticsVariables(this, nameloc, opers, iuidn, proba, vmin, vmax);
+
+  namconv.setNamesAndLocators(this, iuidn);
+  for (int i = 0; i < noper; i++)
+  {
+    EStatOption oper = opers[i];
+    namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
+  }
 }
 
 /**
  * The target variables are referred to by their user-designation ranks
  */
-VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
-                                      bool flagIso,
-                                      bool verbose,
-                                      const String& title)
-{
-  VectorDouble stats;
-
-  if (iuids.empty()) return stats;
-
-  stats = dbStatisticsCorrelByUID(this, iuids, flagIso);
-
-  if (verbose)
-  {
-    VectorString varnames = getNamesByUID(iuids);
-    messageFlush(statisticsMultiPrint(stats, varnames, title));
-  }
-  return stats;
-}
-
-/**
- * The target variables are referred to by their names
- */
-VectorDouble Db::statisticsMulti(const VectorString& names,
+VectorDouble Db::statisticsMulti(const VectorString &names,
                                  bool flagIso,
                                  bool verbose,
-                                 const String& title)
+                                 const String &title)
 {
-  VectorInt iuids = _ids(names, false);
-  if (iuids.empty()) return VectorDouble();
-
-  return statisticsMultiByUID(iuids, flagIso, verbose, title);
+  if (names.empty()) return VectorDouble();
+  Table table = dbStatisticsCorrel(this, names, flagIso);
+  if (verbose)
+  {
+    table.setTitle(title);
+    table.display();
+  }
+  return table.getValues();
 }
 
 /****************************************************************************/

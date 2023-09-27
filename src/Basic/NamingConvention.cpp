@@ -22,7 +22,8 @@ NamingConvention::NamingConvention(String prefix,
                                    const ELoc& locatorOutType,
                                    String delim,
                                    bool cleanSameLocator)
-    : _prefix(prefix),
+    : AStringable(),
+      _prefix(prefix),
       _delim(delim),
       _flagVarname(flag_varname),
       _flagQualifier(flag_qualifier),
@@ -33,7 +34,8 @@ NamingConvention::NamingConvention(String prefix,
 }
 
 NamingConvention::NamingConvention(const NamingConvention &m)
-    : _prefix(m._prefix),
+    : AStringable(m),
+      _prefix(m._prefix),
       _delim(m._delim),
       _flagVarname(m._flagVarname),
       _flagQualifier(m._flagQualifier),
@@ -47,6 +49,7 @@ NamingConvention& NamingConvention::operator=(const NamingConvention &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _prefix = m._prefix;
     _locatorOutType = m._locatorOutType;
     _flagVarname = m._flagVarname;

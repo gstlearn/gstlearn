@@ -152,12 +152,9 @@ Column = 4 - Name = January_temp - Locator = z1
 
 
 +*Out[10]:*+
-----
-Monovariate Statistics on Variables
------------------------------------
-                 Mean    Minimum    Maximum
- Elevation     87.974      3.000    387.000
- *ary_temp      2.815      0.600      5.200----
+----                   Mean    Minimum    Maximum
+   Elevation     87.974      3.000    387.000
+January_temp      2.815      0.600      5.200----
 
 
 +*Out[11]:*+

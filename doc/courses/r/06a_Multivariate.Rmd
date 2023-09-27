@@ -2,11 +2,11 @@
 title: "Multivariate Geostatistics"
 author: "gstlearn Team"
 output:
-  html_document: 
-    toc: yes
-    toc_depth: 4
   pdf_document:
     toc: true
+    toc_depth: 4
+  html_document: 
+    toc: yes
     toc_depth: 4
 ---
 
@@ -166,7 +166,7 @@ We then fit a model on the experimental variogram of raw temperature observation
 fitmod_raw = Model()
 err = fitmod_raw$fit(vario_raw2dir,
                     types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC","LINEAR")))
-fitmod_raw$setDriftIRF(0,0)
+err = fitmod_raw$setDriftIRF(0,0)
 ```
 
 ```{r Plot model fitted on raw variogram}
@@ -264,7 +264,7 @@ To fit a model on the experimental variograms and cross-variograms, we use the s
 fitmod2var = Model()
 err = fitmod2var$fit(varioexp2var,
                      types=ECov_fromKeys(c("NUGGET","EXPONENTIAL","CUBIC","LINEAR")))
-fitmod2var$setDriftIRF(0,0)
+err = fitmod2var$setDriftIRF(0,0)
 ```
 
 ```{r Plot bivariate model}
@@ -383,18 +383,16 @@ err = dat$setLocator("Temperature",ELoc_Z(),cleanSameLocator=TRUE)
 ```
 
 
-To compute the coefficients $a$ and $b$ of the linear regression between the temperature and the elevation, we can use the `regression` function. We specify the name of response variable (argument `name0`) and the names of the auxiliary variables (argument `names`), and set the argument `mode=0` to specify that we would like to compute a regression defined from the variables with the specified names. We also set the argument `flagCst=TRUE` to specify that we are looking for an affine regression model between the variables (i.e. that includes the bias coefficient `b`).
+To compute the coefficients $a$ and $b$ of the linear regression between the temperature and the elevation, we can use the `regression` function. We specify the name of response variable (argument `nameResp`) and the names of the auxiliary variables (argument `nameAux`), and set the argument `mode=0` to specify that we would like to compute a regression defined from the variables with the specified names. We also set the argument `flagCst=TRUE` to specify that we are looking for an affine regression model between the variables (i.e. that includes the bias coefficient `b`).
 
 ```{r Regression Temperature - Elevation, echo=TRUE}
 ## Fit regression model
-regr = regression(dat, name0="Temperature", names="Elevation", mode=0,
-                  flagCst=TRUE)
+regr = regression(dat, nameResp="Temperature", nameAux="Elevation", mode=0, flagCst=TRUE)
+regr$display()
 
 ## Extract coefficients
-b = regr$coeffs[1]
-a = regr$coeffs[2]
-
-cat(c("Coefficents : b=",round(b,3),"; a=",round(a,5)))
+b = regr$getCoeff(0)
+a = regr$getCoeff(1)
 ```
 
 From these regression coefficients obtained above, we can then compute the residuals explicitly as $\varepsilon(x)=Z(x) - (b+a Y(x) )$. An alternative method consists in using the `dbRegression` function: this functions fits a regression model, computes the residuals and add them directly on the data base containing the data. The `dbRegression` function is called in a similar way as the `regression` function.
@@ -402,7 +400,7 @@ From these regression coefficients obtained above, we can then compute the resid
 In the next example, we compute the residuals of the linear regression between the temperature and the elevation and add them to the observation data base (with a name starting with "RegRes"and without changing the locators in the data base).
 
 ```{r Residuals of regression Temperature - Elevation}
-err = dbRegression(dat, name0="Temperature", namaux="Elevation", mode=0,
+err = dbRegression(dat, nameResp="Temperature",nameAux="Elevation", mode=0,
                    flagCst = TRUE,
                    namconv = NamingConvention_create(prefix="RegRes",flag_locator=FALSE))
 ```
@@ -442,7 +440,7 @@ err = varioexpR$compute()
 fitmodR = Model()
 err = fitmodR$fit(varioexpR,
                   types=ECov_fromKeys(c("NUGGET","SPHERICAL","LINEAR")))
-fitmodR$setDriftIRF(0,0)
+err = fitmodR$setDriftIRF(0,0)
 ```
 
 ```{r Plot variogram of residuals}
@@ -575,11 +573,11 @@ ggPrint(p)
 
 Finally, note that it is possible to compute the coefficients of the polynomial trend from the intrinsic model defined above, using the function `regression`. This function allows to perform linear regressions on variables defined in a data base. 
 
-For instance, to fit a linear trend on the temperature observations in the `dat` data base, we specify the name of response variable (argument `name0`) and the drift model (argument `model`), and set the argument `mode=2` to specify that we would like to compute a regression defined from a drift model. Finally we set the argument `verbose=TRUE` to print the results.
+For instance, to fit a linear trend on the temperature observations in the `dat` data base, we specify the name of response variable (argument `nameResp`) and the drift model (argument `model`), and set the argument `mode=2` to specify that we would like to compute a regression defined from a drift model. Finally we set the argument `verbose=TRUE` to print the results.
 
 ```{r Regression}
-regResults = regression(dat, name0="Temperature",  model=polDriftModel, 
-                        mode=2, verbose=TRUE)
+regResults = regression(dat, nameResp="Temperature",  model=polDriftModel, mode=2)
+regResults$display()
 ```
 
 Note: The regression results are stored in an object. We can access the coefficients through the slot `coeffs`, the initial variance of the data through the slot `variance` and the variance of the residuals through the slot `varres`.
@@ -668,12 +666,10 @@ For instance, circling back to our running example, let us assume that we would 
 
 ```{r Locator External Drifts}
 ## Set `z` locator to temperature
-err = dat$setLocator("Temperature",ELoc_Z(),
-                     cleanSameLocator=TRUE)
+err = dat$setLocator("Temperature",ELoc_Z(), cleanSameLocator=TRUE)
 
 ## Set `f` locator to elevation
-err = dat$setLocator("Elevation",ELoc_F(),
-                     cleanSameLocator=TRUE)
+err = dat$setLocator("Elevation",ELoc_F(), cleanSameLocator=TRUE)
 ```
 
 Then, defining and fitting the models on the one hand, and performing kriging predictions on the other hand, is done using the same approach as the one described earlier for models with a polynomial trend.
@@ -702,12 +698,12 @@ varioKED = Vario(varioparam, dat)
 err = varioKED$compute(model=EDmodel)
 ```
 
-As a reference, we plot the experimental variograms computed on the raw temperature data (dotted lines) and on the residuals from the model with external drift (dashed line).
+As a reference, we plot the experimental variograms computed on the raw temperature data (dashed lines) and on the residuals from the model with external drift (solid line).
 
 ```{r Plot experimental variogram of residuals - ED, message=FALSE}
 p = ggplot()
-p = p + plot.varmod(vario_raw2dir, vario_linetype="dotted")
-p = p + plot.varmod(varioKED, vario_linetype="dashed")
+p = p + plot.varmod(vario_raw2dir, vario_linetype="dashed")
+p = p + plot.varmod(varioKED, vario_linetype="solid")
 p = p + plot.decoration(title="Temperature (°C)") 
 ggPrint(p)
 ```
@@ -751,7 +747,7 @@ For this predictor, we get the following statistics:
 
 ```{r Statistics of External Drift prediction}
 opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-dbStatisticsPrint(target, names=(c("KED.T*")), opers=opers,
+err = dbStatisticsPrint(target, names=(c("KED.T*")), opers=opers,
                   title="Statistics on the Kriging with External Drift predictions",
                   radix="")
 ```
@@ -798,7 +794,7 @@ We compare the  Mean Squared cross-validation errors obtained in for the differe
 
 ```{r Comparing all predictors: Cross-validation}
 opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-dbStatisticsPrint(dat, names=(c("CV*.Temperature.esterr")), opers=opers,
+err = dbStatisticsPrint(dat, names=(c("CV*.Temperature.esterr")), opers=opers,
                   title="Mean-squared cross-validation errors",
                   radix="")
 ```
@@ -807,7 +803,7 @@ We then compare various statistics computed for each predictor.
 
 ```{r Comparing all predictors: value, echo = TRUE}
 opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-dbStatisticsPrint(target, names = (c("*.Temperature.estim")), opers=opers,
+err = dbStatisticsPrint(target, names = (c("*.Temperature.estim")), opers=opers,
                   title="Statistics of the predictors",
                   radix="")
 ```
@@ -816,7 +812,7 @@ Finally, we compare various statistics computed for the standard-deviation of ea
 
 ```{r Comparing all predictors: stdev, echo = TRUE}
 opers=EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-dbStatisticsPrint(target, names = (c("*.Temperature.stdev")), opers=opers,
+err = dbStatisticsPrint(target, names = (c("*.Temperature.stdev")), opers=opers,
                   title="Statistics of the standard-deviation of each predictors",
                   radix="")
 ```
