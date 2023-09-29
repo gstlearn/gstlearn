@@ -104,7 +104,6 @@ public:
   void   setDrifts(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
-  int    addNoStat(const ANoStat* anostat);
   int    setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   int    unsetAnam();
   bool   isFlagGradient() const;
@@ -462,8 +461,9 @@ public:
 
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
+  const ANoStat* getNoStat() const;
+  int  addNoStat(const ANoStat* anostat);
   int  isNoStat() const;
-  const ANoStat* getNoStat() const { return _noStat; }
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);
@@ -555,7 +555,7 @@ protected:
   String _getNFName() const override { return "Model"; }
 
   const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
-  ACovAnisoList* _castInCovAnisoList(int icov = -1);
+  ACovAnisoList*       _castInCovAnisoList(int icov = -1); // only used internall as unprotected
 
 private:
   void _clear();
@@ -565,6 +565,5 @@ private:
 private:
   ACov*          _cova;         /* Generic Covariance structure */
   DriftList*     _driftList;    /* Series of Drift functions */
-  ANoStat*       _noStat;       /* Description of Non-stationary Model */
   CovContext     _ctxt;         /* Context */
 };

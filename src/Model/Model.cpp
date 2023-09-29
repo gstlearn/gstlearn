@@ -47,7 +47,6 @@ Model::Model(const CovContext &ctxt)
       ASerializable(),
       _cova(nullptr),
       _driftList(nullptr),
-      _noStat(nullptr),
       _ctxt(ctxt)
 {
   _create();
@@ -58,7 +57,6 @@ Model::Model(int nvar, int ndim)
       ASerializable(),
       _cova(nullptr),
       _driftList(nullptr),
-      _noStat(nullptr),
       _ctxt()
 {
   SpaceRN space = SpaceRN(ndim);
@@ -71,7 +69,6 @@ Model::Model(const Model &m)
       ASerializable(m),
       _cova(nullptr),
       _driftList(nullptr),
-      _noStat(nullptr),
       _ctxt(m._ctxt)
 {
   ACovAnisoList* mcovalist = dynamic_cast<ACovAnisoList*>(m._cova);
@@ -79,8 +76,6 @@ Model::Model(const Model &m)
     _cova = dynamic_cast<ACovAnisoList*>(mcovalist->clone());
   if (m._driftList != nullptr)
     _driftList = m._driftList->clone();
-  if (m._noStat != nullptr)
-    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
 }
 
 Model& Model::operator=(const Model &m)
@@ -94,8 +89,6 @@ Model& Model::operator=(const Model &m)
       _cova = dynamic_cast<ACovAnisoList*>(mcovalist->clone());
     if (m._driftList != nullptr)
       _driftList = m._driftList->clone();
-    if (m._noStat != nullptr)
-      _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
   }
   return (*this);
@@ -223,12 +216,6 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
     sstr << _driftList->toString();
   }
 
-  // Non-stationary parameters
-
-  if (isNoStat())
-  {
-    sstr << _noStat->toString();
-  }
   return sstr.str();
 }
 
@@ -648,36 +635,10 @@ void Model::evalZAndGradients(const VectorDouble &vec,
 int Model::addNoStat(const ANoStat *anostat)
 {
   if (anostat == nullptr) return 0;
-  if (getDimensionNumber() > 3)
-  {
-    messerr("Non stationary model is restricted to Space Dimension <= 3");
-    return 1;
-  }
-
-  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
-  {
-    int icov = getNoStatElemIcov(ipar);
-    EConsElem type = getNoStatElemType(ipar);
-
-    // Check that the Non-stationary parameter is valid with respect
-    // to the Model definition
-
-    if (icov < 0 || icov >= getCovaNumber())
-    {
-      messerr("Invalid Covariance rank (%d) for the Non-Stationary Parameter (%d)",
-              icov, ipar);
-      return 1;
-    }
-    if (type == EConsElem::PARAM)
-    {
-      messerr("The current methodology does not handle constraint on third parameter");
-      return 1;
-    }
-  }
-
-  if (_noStat != nullptr) delete _noStat;
-  _noStat = dynamic_cast<ANoStat*>(anostat->clone());
-  return 0;
+  if (_cova == nullptr) return 1;
+  ACovAnisoList* covalist = _castInCovAnisoList();
+  if (covalist == nullptr) return 1;
+  return covalist->addNoStat(anostat);
 }
 
 /**
@@ -820,13 +781,26 @@ void Model::setField(double field)
 
 int Model::isNoStat() const
 {
-  return _noStat != nullptr;
+  if (_cova == nullptr) return 0;
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return 0;
+  return covalist->isNoStat();
+}
+
+const ANoStat* Model::getNoStat() const
+{
+  if (_cova == nullptr) return nullptr;
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return nullptr;
+  return covalist->getANoStat();
 }
 
 int Model::getNoStatElemNumber() const
 {
   if (!isNoStat()) return 0;
-  return _noStat->getNoStatElemNumber();
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return 0;
+  return covalist->getNoStatElemNumber();
 }
 
 int Model::addNoStatElem(int igrf,
@@ -836,32 +810,43 @@ int Model::addNoStatElem(int igrf,
                          int iv2)
 {
   if (!isNoStat()) return 0;
-  return _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
+  ACovAnisoList* covalist = _castInCovAnisoList();
+  if (covalist == nullptr) return 0;
+  return covalist->addNoStatElem(igrf, icov, type, iv1, iv2);
 }
 
 int Model::addNoStatElems(const VectorString &codes)
 {
   if (!isNoStat()) return 0;
-  return _noStat->addNoStatElems(codes);
+  ACovAnisoList* covalist = _castInCovAnisoList();
+  if (covalist == nullptr) return 0;
+  return covalist->addNoStatElems(codes);
 }
 
 CovParamId Model::getCovParamId(int ipar) const
 {
-  if (!isNoStat())
-    my_throw("Nostat is not defined and cannot be returned");
-  return _noStat->getItems(ipar);
+  if (!isNoStat()) return CovParamId();
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return CovParamId();
+  return covalist->getCovParamId(ipar);
 }
 
 int Model::getNoStatElemIcov(int ipar)
 {
   if (!isNoStat()) return ITEST;
-  return _noStat->getICov(ipar);
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return ITEST;
+  return covalist->getNoStatElemIcov(ipar);
 }
+
 const EConsElem& Model::getNoStatElemType(int ipar)
 {
   if (!isNoStat()) return EConsElem::UNKNOWN;
-  return _noStat->getType(ipar);
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return EConsElem::UNKNOWN;
+  return covalist->getNoStatElemType(ipar);
 }
+
 const DriftList* Model::getDriftList() const
 {
   return _driftList;
@@ -1453,8 +1438,6 @@ void Model::_clear()
   _cova = nullptr;
   delete _driftList;
   _driftList = nullptr;
-  delete _noStat;
-  _noStat = nullptr;
 }
 
 void Model::_create()
