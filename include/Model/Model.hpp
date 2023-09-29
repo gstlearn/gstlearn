@@ -18,6 +18,7 @@
 #include "Enum/EConsElem.hpp"
 #include "Enum/EModelProperty.hpp"
 
+#include "Covariances/ACov.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMGradient.hpp"
@@ -95,7 +96,7 @@ public:
                          const VectorDouble& sills  = VectorDouble(),
                          const VectorDouble& angles = VectorDouble(),
                          bool flagRange = true);
-  void   delCova(int rank);
+  void   delCova(int icov);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
   void   setDriftIRF(int order = 0, int nfex = 0);
@@ -110,50 +111,54 @@ public:
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
-  CovAniso extractCova(int icov) const { return _covaList->extractCova(icov); }
+  CovAniso extractCova(int icov) const;
   void   switchToGradient();
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
-  const ACovAnisoList* getCovAnisoList() const { return _covaList; }
-  ACovAnisoList* getCovAnisoList() { return _covaList; } // Needed for dynamic cast
+  const ACovAnisoList* getCovAnisoList() const;
   const CovAniso* getCova(unsigned int icov) const;
   CovAniso* getCova(unsigned int icov);
   int getCovaNumber() const;
   const ECov& getCovaType(int icov) const;
-  const MatrixSquareSymmetric& getSill(int icov) const;
+  const MatrixSquareSymmetric getSillValues(int icov) const;
   double getSill(int icov, int ivar, int jvar) const;
   double getParam(int icov) const;
   bool isCovaFiltered(int icov) const;
-  bool isStationary() const { return _covaList->isStationary(); }
+  bool isStationary() const;
   String getCovName(int icov) const;
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
-  double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
-  int    getCovaMinIRFOrder() const { return _covaList->getCovaMinIRFOrder(); }
-  bool   hasAnam() const { return _covaList->hasAnam(); }
-  const AAnam* getAnam() const { return _covaList->getAnam(); }
   const AnamHermite* getAnamHermite() const;
-  bool isChangeSupportDefined() const { return _covaList->getAnam()->isChangeSupportDefined(); }
-  void normalize(double sill) { _covaList->normalize(sill); }
-  bool hasNugget() const { return _covaList->hasNugget(); }
-  VectorInt getActiveCovList() const { return _covaList->getActiveCovList(); }
+
+  double getMaximumDistance() const;
+  int getCovaMinIRFOrder() const;
+  bool hasAnam() const;
+  const AAnam* getAnam() const;
+  bool isChangeSupportDefined() const;
+  void normalize(double sill);
+  bool hasNugget() const;
+  VectorInt getActiveCovList() const;
+  void setTapeRange(double range);
+
+  void setIsOptimEnabled(bool flagOptim) { _cova->setIsOptimEnabled(flagOptim); }
+  bool isOptimEnabled() const { return _cova->isOptimEnabled(); }
 
   double eval0(int ivar = 0,
                int jvar = 0,
                const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->eval0(ivar, jvar, mode);
+    return _cova->eval0(ivar, jvar, mode);
   }
   MatrixSquareGeneral eval0Nvar(const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->eval0Mat(mode);
+    return _cova->eval0Mat(mode);
   }
   void eval0MatInPlace(MatrixSquareGeneral &mat,
                        const CovCalcMode *mode = nullptr) const
   {
-    _covaList->eval0MatInPlace(mat, mode);
+    _cova->eval0MatInPlace(mat, mode);
   }
   double eval(const SpacePoint& p1,
               const SpacePoint& p2,
@@ -161,20 +166,20 @@ public:
               int jvar = 0,
               const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->eval(p1, p2, ivar, jvar, mode);
+    return _cova->eval(p1, p2, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalNvarIpas(double step,
                                    const VectorDouble& dir = VectorDouble(),
                                    const VectorDouble& center = VectorDouble(),
                                    const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalNvarIpas(step, dir, center, mode);
+    return _cova->evalNvarIpas(step, dir, center, mode);
   }
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalMat(p1, p2, mode);
+    return _cova->evalMat(p1, p2, mode);
   }
 
   void evalMatInPlace(const SpacePoint &p1,
@@ -182,21 +187,13 @@ public:
                       MatrixSquareGeneral &mat,
                       const CovCalcMode* mode = nullptr) const
   {
-    _covaList->evalMatInPlace(p1, p2, mat, mode);
-  }
-
-  void evalMatOptimInPlace(int iech1,
-                           int iech2,
-                           MatrixSquareGeneral &mat,
-                           const CovCalcMode *mode = nullptr) const
-  {
-    _covaList->evalMatOptimInPlace(iech1, iech2, mat, mode);
+    _cova->evalMatInPlace(p1, p2, mat, mode);
   }
 
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble& dincr,
                                        const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalNvarIpasIncr(dincr, mode);
+    return _cova->evalNvarIpasIncr(dincr, mode);
   }
   VectorDouble evalIvarNpas(const VectorDouble& vec_step,
                             const VectorDouble& dir = VectorDouble(),
@@ -205,7 +202,7 @@ public:
                             const VectorDouble& center = VectorDouble(),
                             const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalIvarNpas(vec_step, dir, ivar, jvar, center, mode);
+    return _cova->evalIvarNpas(vec_step, dir, ivar, jvar, center, mode);
   }
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
@@ -214,7 +211,7 @@ public:
                       const VectorDouble& center = VectorDouble(),
                       const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalIvarIpas(step, dir, ivar, jvar, center, mode);
+    return _cova->evalIvarIpas(step, dir, ivar, jvar, center, mode);
   }
   double evalCvv(const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -223,7 +220,7 @@ public:
                  int jvar = 0,
                  const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
+    return _cova->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
   }
   double evalCvvShift(const VectorDouble& ext,
                       const VectorInt& ndisc,
@@ -233,14 +230,14 @@ public:
                       int jvar = 0,
                       const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
+    return _cova->evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
                                const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalCvvM(ext, ndisc, angles, mode);
+    return _cova->evalCvvM(ext, ndisc, angles, mode);
   }
   double evalCxv(const SpacePoint& p1,
                  const VectorDouble& ext,
@@ -251,7 +248,7 @@ public:
                  int jvar = 0,
                  const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode);
+    return _cova->evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
                                const VectorDouble& ext,
@@ -260,7 +257,7 @@ public:
                                const VectorDouble& x0 = VectorDouble(),
                                const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalCxvM(p1, ext, ndisc, angles, x0, mode);
+    return _cova->evalCxvM(p1, ext, ndisc, angles, x0, mode);
   }
   VectorDouble evalPointToDb(const SpacePoint& p1,
                              const Db* db2,
@@ -270,7 +267,7 @@ public:
                              const VectorInt& nbgh2 = VectorInt(),
                              const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalPointToDb(p1, db2, ivar, jvar, useSel, nbgh2, mode);
+    return _cova->evalPointToDb(p1, db2, ivar, jvar, useSel, nbgh2, mode);
   }
   VectorDouble evalPointToDbAsSP(const std::vector<SpacePoint>& p1s,
                                  const SpacePoint& p2,
@@ -278,7 +275,7 @@ public:
                                  int jvar = 0,
                                  const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalPointToDbAsSP(p1s, p2, ivar, jvar, mode);
+    return _cova->evalPointToDbAsSP(p1s, p2, ivar, jvar, mode);
   }
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,
@@ -286,7 +283,7 @@ public:
                            int jvar = 0,
                            const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
+    return _cova->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
   }
   double evalAverageIncrToIncr(const VectorVectorDouble& d1,
                                const VectorVectorDouble& d2,
@@ -294,7 +291,7 @@ public:
                                int jvar = 0,
                                const CovCalcMode* mode = nullptr) const
   {
-    return _covaList->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
+    return _cova->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
   }
 
   double evalAveragePointToDb(const SpacePoint& p1,
@@ -303,7 +300,7 @@ public:
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
+    return _cova->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
   }
   MatrixRectangular evalCovMatrix(const Db* db1,
                                   const Db* db2 = nullptr,
@@ -313,17 +310,19 @@ public:
                                   const VectorInt& nbgh2 = VectorInt(),
                                   const CovCalcMode* mode = nullptr)
   {
-    return _covaList->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
+    return _cova->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
   }
+
+  void evalMatOptimInPlace(int iech1,
+                           int iech2,
+                           MatrixSquareGeneral &mat,
+                           const CovCalcMode *mode = nullptr) const;
 
   VectorVectorDouble evalCovMatrixOptim(const Db *db1,
                                         const Db *db2 = nullptr,
                                         int ivar = 0,
                                         int jvar = 0,
-                                        const CovCalcMode *mode = nullptr)
-  {
-    return _covaList->evalCovMatrixOptim(db1, db2, ivar, jvar, mode);
-  }
+                                        const CovCalcMode *mode = nullptr);
 
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
@@ -333,7 +332,7 @@ public:
                            int ivar = 0,
                            int jvar = 0)
   {
-    return _covaList->extensionVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+    return _cova->extensionVariance(db, ext, ndisc, angles, x0, ivar, jvar);
   }
   double samplingDensityVariance(const Db* db,
                                  const VectorDouble& ext,
@@ -343,7 +342,7 @@ public:
                                  int ivar = 0,
                                  int jvar = 0) const
   {
-    return _covaList->samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+    return _cova->samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar);
   }
   double specificVolume(const Db *db,
                         double mean,
@@ -354,7 +353,7 @@ public:
                         int ivar = 0,
                         int jvar = 0) const
   {
-    return _covaList->specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
+    return _cova->specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
   double coefficientOfVariation(const Db *db,
                                 double volume,
@@ -366,7 +365,7 @@ public:
                                 int ivar = 0,
                                 int jvar = 0) const
   {
-    return _covaList->coefficientOfVariation(db, volume, mean, ext, ndisc, angles, x0, ivar, jvar);
+    return _cova->coefficientOfVariation(db, volume, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
   double specificVolumeFromCoV(Db *db,
                                double cov,
@@ -378,7 +377,7 @@ public:
                                int ivar = 0,
                                int jvar = 0) const
   {
-    return _covaList->specificVolumeFromCoV(db, cov, mean, ext, ndisc, angles, x0, ivar, jvar);
+    return _cova->specificVolumeFromCoV(db, cov, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,
@@ -386,36 +385,26 @@ public:
                          VectorDouble& covGp,
                          VectorDouble& covGG,
                          const CovCalcMode* mode = nullptr,
-                         bool flagGrad = false) const
-  {
-    CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
-    if (covgrad != nullptr)
-      covgrad->evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
-  }
+                         bool flagGrad = false) const;
   void evalZAndGradients(const VectorDouble& vec,
                          double& covVal,
                          VectorDouble& covGp,
                          VectorDouble& covGG,
                          const CovCalcMode* mode = nullptr,
-                         bool flagGrad = false) const
-  {
-    CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
-    if (covgrad != nullptr)
-      covgrad->evalZAndGradients(vec, covVal, covGp, covGG, mode, flagGrad);
-  }
+                         bool flagGrad = false) const;
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
-  void setActiveFactor(int iclass) { _covaList->setActiveFactor(iclass); }
-  int  getActiveFactor() const { return _covaList->getActiveFactor(); }
-  int  getAnamNClass() const { return _covaList->getAnamNClass(); }
+  void setActiveFactor(int iclass);
+  int getActiveFactor() const;
+  int getAnamNClass() const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of DriftList)
   const DriftList* getDriftList()                  const;
-  const ADrift* getDrift(int il)               const;
-  ADrift* getDrift(int il)                          ;
+  const ADrift* getDrift(int il)                   const;
+  ADrift* getDrift(int il)                              ;
   int getDriftNumber()                             const;
   int getExternalDriftNumber()                     const;
   int getRankFext(int il)                          const;
@@ -565,14 +554,16 @@ protected:
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Model"; }
 
+  const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
+  ACovAnisoList* _castInCovAnisoList(int icov = -1);
+
 private:
   void _clear();
   void _create();
   void _copyCovContext();
 
 private:
-  /// TODO : Transform to ACov in place of ACovAnisoList (to be put in AModel)
-  ACovAnisoList* _covaList;     /* Series of Covariance structures */
+  ACov*          _cova;         /* Generic Covariance structure */
   DriftList*     _driftList;    /* Series of Drift functions */
   ANoStat*       _noStat;       /* Description of Non-stationary Model */
   CovContext     _ctxt;         /* Context */

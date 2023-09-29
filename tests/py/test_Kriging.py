@@ -161,8 +161,8 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
       
     v = np.array([db["x0"],db["x1"]]).T
     v0 = np.array([target["x1"][indOut],target["x2"][indOut]]).T
-    cov =cova(distance_matrix(v,v),modeln.getSill(0).toTL())[indF,:][:,indF]
-    c0 = cova(distance_matrix(v,v0),modeln.getSill(0).toTL())[indF,:]
+    cov = cova(distance_matrix(v,v),modeln.getSillValues(0).toTL())[indF,:][:,indF]
+    c0  = cova(distance_matrix(v,v0),modeln.getSillValues(0).toTL())[indF,:]
     
     #Creation of a db2 without selection to build the complete covariance matrix
     db2 = db.clone()

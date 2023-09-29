@@ -1134,7 +1134,7 @@ int model_normalize(Model *model, int flag_verbose)
     for (int jvar = 0; jvar < nvar; jvar++)
       for (int icov = 0; icov < ncov; icov++)
       {
-        double sill = model->getCova(icov)->getSill(ivar, jvar);
+        double sill = model->getSill(icov,ivar, jvar);
         sill /= total[ivar] * total[jvar];
         model->getCova(icov)->setSill(ivar, jvar, sill);
       }

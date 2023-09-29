@@ -2789,12 +2789,12 @@ bool KrigingSystem::_isCorrect()
       }
 
       // Discard optimization in the non-stationary case
-      _model->getCovAnisoList()->setIsOptimEnabled(false);
+      _model->setIsOptimEnabled(false);
       _optimEnabled = false;
     }
     else
     {
-      _optimEnabled = _model->getCovAnisoList()->isOptimEnabled();
+      _optimEnabled = _model->isOptimEnabled();
     }
   }
 

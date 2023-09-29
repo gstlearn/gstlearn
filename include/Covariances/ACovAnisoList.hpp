@@ -145,4 +145,3 @@ protected:
   mutable MatrixSquareGeneral _matC;
 #endif
 };
-
