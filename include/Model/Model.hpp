@@ -467,8 +467,6 @@ public:
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);
-  int  getNoStatElemIcov(int ipar);
-  const EConsElem& getNoStatElemType(int ipar);
   CovParamId getCovParamId(int ipar) const;
   ////////////////////////////////////////////////
 

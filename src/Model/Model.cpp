@@ -831,22 +831,6 @@ CovParamId Model::getCovParamId(int ipar) const
   return covalist->getCovParamId(ipar);
 }
 
-int Model::getNoStatElemIcov(int ipar)
-{
-  if (!isNoStat()) return ITEST;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return ITEST;
-  return covalist->getNoStatElemIcov(ipar);
-}
-
-const EConsElem& Model::getNoStatElemType(int ipar)
-{
-  if (!isNoStat()) return EConsElem::UNKNOWN;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return EConsElem::UNKNOWN;
-  return covalist->getNoStatElemType(ipar);
-}
-
 const DriftList* Model::getDriftList() const
 {
   return _driftList;
