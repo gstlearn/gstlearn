@@ -10,7 +10,10 @@
 ################################################################################
 #
 # This is a set of functions working with ggplot2() which enable performing
-# plots easily 
+# plots easily.
+# It also requires the packages:
+# - ggnewscale: used to reset color scale
+# - ggrepel: used to take care of placing the labels to minimize overlap 
 #
 
 #' Define the global values in the given environment position (search)
@@ -785,14 +788,14 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 #' @return The description of the contents of the graphic layer
 pointSymbol <- function(db, name_color=NULL, name_size=NULL,
     flagAbsSize = FALSE, flagCst=FALSE, useSel=TRUE, asFactor=FALSE, 
-    color='black', size=0.2, posX=0, posY=1,
+    posX=0, posY=1,
     ...) 
 { 
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
   
   # Color of symbol
-  colval = NULL
+  colval = "constant"
   if (! is.null(name_color)) {
     colval  = db$getColumn(name_color, TRUE)
     if (asFactor) colval = factor(colval)
@@ -800,7 +803,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   df["colval"] = colval 
   
   # Size of symbol
-  sizval = NULL
+  sizval = "constant"
   if (! is.null(name_size)) {
     if (! flagCst)
     {
@@ -811,7 +814,7 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
   df["sizval"] = sizval
   
   layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
-      color=color, na.rm=TRUE, ...)
+      na.rm=TRUE, ...)
   
   layer
 }
@@ -825,7 +828,8 @@ pointSymbol <- function(db, name_color=NULL, name_size=NULL,
 #' @param posY Rank of the coordinate used as the second coordinate
 #' @param ... List of arguments passed to geom_text()
 #' @return The description of the contents of the graphic layer
-pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...) 
+pointLabel <- function(db, name, digit=2, 
+		useSel=TRUE, posX=0, posY=1, ...) 
 {  
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
@@ -834,8 +838,8 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
   labval  = round(db$getColumn(name,TRUE),digit)
   df["labval"] = as.character(labval)
   
-  layer <- geom_text(data = df, mapping=aes(x=x, y=y, label=labval), 
-      na.rm=TRUE, ...)
+  layer <- geom_text_repel(data = df, mapping=aes(x=x, y=y, label=labval, 
+           color=name), na.rm=TRUE, ...)
   
   layer
 }
@@ -862,7 +866,8 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
     sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE, palette=NULL, asFactor=FALSE, 
     show.legend.color=FALSE, show.legend.size=FALSE, show.legend.label=FALSE, 
-    legend.name.color=NULL, legend.name.size=NULL, legend.name.label=NULL, ...)
+    legend.name.color=NULL, legend.name.size=NULL, legend.name.label=NULL, 
+    colorText="black", ...)
 { 
   p = list()
   title = ""
@@ -907,11 +912,11 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
     if (show.legend.color)
     {
     	if (is.null(legend.name.color)) legend.name.color = name_color
-	    p <- append(p, list(labs(colour = legend.name.color)))
+	    p <- append(p, list(labs(color = legend.name.color)))
 	}
 	else
 	{
-		p <- append(p, list(guides(colour = "none")))
+		p <- append(p, list(guides(color = "none")))
 	}
 	if (show.legend.size)
 	{
@@ -926,7 +931,8 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
   
   if (! is.null(name_label))
   {
-    p <- append(p, pointLabel(db, ...))
+    p <- append(p, pointLabel(db, name=name_label, ...))
+    p <- append(p, scale_color_manual(values = colorText))
     
     # Set the title              
     title = paste(title, name_label, sep=" ")
@@ -935,11 +941,11 @@ plot.point <- function(db, name_color=NULL, name_size=NULL, name_label=NULL,
     if (show.legend.label)
     {
     	if (is.null(legend.name.label)) legend.name.label = name_label
-	    p <- append(p, list(labs(label = legend.name.label)))
+	    p <- append(p, list(labs(color = legend.name.label)))
 	}
 		else
 	{
-		p <- append(p, list(guides(label = "none")))
+		p <- append(p, list(guides(color = "none")))
 	}
   }
   
