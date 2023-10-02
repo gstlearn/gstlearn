@@ -196,7 +196,7 @@ data$setLocator("Z", ELoc_Z())
 data$display()
 
 p = ggplot()
-p = p + plot.point(data, name_color = "Z", name_size = "Z", show.legend.size = TRUE)
+p = p + plot.point(data, nameColor = "Z", name_size = "Z", show.legend.size = TRUE)
 ggPrint(p)
 
 p = ggplot()

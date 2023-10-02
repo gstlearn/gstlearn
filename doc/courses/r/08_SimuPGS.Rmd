@@ -70,7 +70,7 @@ Display Data
 # TODO: Utiliser CMAP
 plot.setDefaultGeographic(dims=c(6,6))
 p = ggDefaultGeographic()
-p = p + plot(data, name_color="facies", name_size="connect")
+p = p + plot(data, nameColor="facies", name_size="connect")
 #         edgecolors='black', sizmin=40, cmap=cmap)
 p = p + plot.decoration(title="Conditioning Information")
 ggPrint(p)
@@ -121,16 +121,16 @@ err = simpgs(dbin=data, dbout=grid, ruleprop=ruleprop, model1=model_gaus,
 ```{r Show_several_simulation_outcome}
 p1 = ggDefaultGeographic()
 p1 = p1 + plot(grid, name_raster="SimuPGS.1")
-p1 = p1 + plot(data, name_color="facies", name_size="connect")
+p1 = p1 + plot(data, nameColor="facies", name_size="connect")
 p2 = ggDefaultGeographic()
 p2 = p2 + plot(grid, name_raster="SimuPGS.2")
-p2 = p2 + plot(data, name_color="facies", name_size="connect")
+p2 = p2 + plot(data, nameColor="facies", name_size="connect")
 p3 = ggDefaultGeographic()
 p3 = p3 + plot(grid, name_raster="SimuPGS.3")
-p3 = p3 + plot(data, name_color="facies", name_size="connect")
+p3 = p3 + plot(data, nameColor="facies", name_size="connect")
 p4 = ggDefaultGeographic()
 p4 = p4 + plot(grid, name_raster="SimuPGS.4")
-p4 = p4 + plot(data, name_color="facies", name_size="connect")
+p4 = p4 + plot(data, nameColor="facies", name_size="connect")
 ggarrange(p1,p2,p3,p4, nrow=2, ncol=2)
 ```
 
@@ -221,7 +221,7 @@ Display
 ```{r}
 p = ggDefaultGeographic()
 p = p + plot(grid,"Stats.MEAN")
-p = p + plot(data,name_color="facies", name_size="connect")
+p = p + plot(data,nameColor="facies", name_size="connect")
 p = p + plot.decoration(title="Probability of Connecting Wells")
 ggPrint(p)
 ```

@@ -72,7 +72,7 @@ Display my Data (with samples represented by color and size)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(mydb,name_color="Pb") + plot.decoration(title="Data Set")
+    ggplot() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
 ```
 
 # Variograms

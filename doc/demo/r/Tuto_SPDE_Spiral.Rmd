@@ -65,7 +65,7 @@ data
 ```
 
 ```{r Display_data}
-ggDefaultGeographic() + plot.point(data, name_color="data")
+ggDefaultGeographic() + plot.point(data, nameColor="data")
 ```
 
 Use the previous data set (and the non-stationary Model) in order to perform an estimation

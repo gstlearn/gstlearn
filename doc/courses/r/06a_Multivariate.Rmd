@@ -129,7 +129,7 @@ p = ggDefaultGeographic()
 p = p + plot.grid(target, name_raster="Elevation",
                   show.legend.raster=TRUE,palette="Spectral",
                   legend.name.raster="Elevation (m)")
-p = p + plot.point(dat, name_size="Temperature",
+p = p + plot.point(dat, nameSize="Temperature",
                    sizmin = 0.5, sizmax = 3,
                    show.legend.size=TRUE,legend.name.size="°C")
 ggPrint(p)

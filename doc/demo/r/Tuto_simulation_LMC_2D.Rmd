@@ -102,7 +102,7 @@ tab$display()
 i = 1
 hist(grid[names[i]], xlab = names[i], main = title, nc = 25, col = "orange", bg = "gray")
 # p = ggplot() + 
-#     plot.hist(grid, name = names[i], usesel = TRUE, col = "gray", fill = "orange") +
+#     plot.hist(grid, name = names[i], useSel = TRUE, col = "gray", fill = "orange") +
 #     plot.decoration(xlab = names[i], title = title)
 # ggPrint(p)
 

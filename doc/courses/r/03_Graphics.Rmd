@@ -76,7 +76,7 @@ Displaying the grid nodes only
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", 
+p = p + plot.point(mygrid, nameColor="Simu.1",name_size="Simu.2", 
                    show.legend.color = TRUE,
                    legend.name.color="myColor")
 p = p + plot.decoration(title="Display of Grid Nodes")
@@ -104,7 +104,7 @@ As a set of grid nodes
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(mygrid,name_color="Simu.1", show.legend.color = TRUE)
+p = p + plot.point(mygrid,nameColor="Simu.1", show.legend.color = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 ggPrint(p)
 ```
