@@ -49,10 +49,10 @@ grid
 We represent the non-conditional simulations
 
 ```{r Graphic_Non-conditional_simulations}
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.4")
+p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.1")
+p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.2")
+p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.3")
+p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
@@ -78,7 +78,7 @@ grid
 Representing the Estimation obtained on the Grid
 
 ```{r Display_Kriging}
-ggDefaultGeographic() + plot.grid(grid, name_raster="KrigingSPDE.data.estim")
+ggDefaultGeographic() + plot.grid(grid, nameRaster="KrigingSPDE.data.estim")
 ```
 
 Performing several conditional simulation
@@ -92,10 +92,10 @@ grid
 Representing the conditional simulations
 
 ```{r Display_Conditional_Representations}
-p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.4")
+p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.1")
+p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.2")
+p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.3")
+p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 

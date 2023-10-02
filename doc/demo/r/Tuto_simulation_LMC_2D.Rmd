@@ -108,7 +108,7 @@ hist(grid[names[i]], xlab = names[i], main = title, nc = 25, col = "orange", bg 
 
 # base map
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = names[i], show.legend.raster = TRUE, legend.name.raster = "Y",
+    plot.grid(grid, nameRaster = names[i], flagLegendRaster = TRUE, legendNameRaster = "Y",
               palette = "Spectral") +
     # plot.point(dat, color = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
@@ -243,7 +243,7 @@ neigh = NeighUnique()
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
     plot.correlation(grid, namex = "kriging.Z.estim", namey = "SPDE.Z.estim", 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
     plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Mono structure")
   ggPrint(p)
 
@@ -256,46 +256,46 @@ neigh = NeighUnique()
   grid["SPDE.ZMC.stdev"] = stdev
 
   # conditional simulations
-  p1 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.1", palette = "Spectral")
-  p2 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.2", palette = "Spectral")
-  p3 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.3", palette = "Spectral")
-  p4 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.4", palette = "Spectral")
+  p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.1", palette = "Spectral")
+  p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.2", palette = "Spectral")
+  p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.3", palette = "Spectral")
+  p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.4", palette = "Spectral")
   ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
 
   # estimate by MC
   p = ggplot() + 
     plot.correlation(grid, namex = "SPDE.Z.estim", namey = "SPDE.ZMC.estim", 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
     plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
   ggPrint(p)
 
   # stdev
   p = ggplot() + 
     plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.ZMC.stdev", 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
     plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.", 
                     title = "Mono structure")
   ggPrint(p)
 
   # estimator
   p1 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "kriging.Z.estim", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.grid(grid, nameRaster = "kriging.Z.estim", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "kriging") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   p2 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "SPDE.Z.estim", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.grid(grid, nameRaster = "SPDE.Z.estim", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "SPDE") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   ggarrange(p1, p2, nrow = 1, ncol = 2)
 
   # standard deviation
   p1 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "kriging.Z.stdev", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.grid(grid, nameRaster = "kriging.Z.stdev", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "kriging") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   p2 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "SPDE.ZMC.stdev", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.grid(grid, nameRaster = "SPDE.ZMC.stdev", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "SPDE") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   ggarrange(p1, p2, nrow = 1, ncol = 2)
 ```
@@ -354,7 +354,7 @@ neigh = NeighUnique()
   # cross plot for estimates (SPDE vs. kriging)
   p = ggplot() + 
     plot.correlation(grid, namex = "kriging.Z.estim", namey = "SPDE.Z.estim", 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
     plot.decoration(xlab = "Simple Kriging", ylab = "SPDE estimate", title = "Multi structure")
   ggPrint(p)
 
@@ -367,46 +367,46 @@ neigh = NeighUnique()
   grid["SPDE.ZMC.stdev"] = stdev
 
   # conditional simulations
-  p1 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.1", palette = "Spectral")
-  p2 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.2", palette = "Spectral")
-  p3 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.3", palette = "Spectral")
-  p4 = ggDefaultGeographic() + plot.grid(grid, name_raster = "SPDE.Z.4", palette = "Spectral")
+  p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.1", palette = "Spectral")
+  p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.2", palette = "Spectral")
+  p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.3", palette = "Spectral")
+  p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster = "SPDE.Z.4", palette = "Spectral")
   ggarrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
   
   # estimate by MC
   p = ggplot() + 
     plot.correlation(grid, namex = "SPDE.Z.estim", namey = "SPDE.ZMC.estim", 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
     plot.decoration(xlab = "SPDE Kriging", ylab = "SPDE conditional exp.", title = "Mono structure")
   ggPrint(p)
 
   # stdev
   p = ggplot() + 
     plot.correlation(grid, namex = "kriging.Z.stdev", namey = "SPDE.ZMC.stdev", 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = TRUE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE, bins=100) +
     plot.decoration(xlab = "Simple Kriging Std.", ylab = "SPDE conditional Std.", 
                     title = "Multi structure")
   ggPrint(p)
 
   # estimator
   p1 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "kriging.Z.estim", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.grid(grid, nameRaster = "kriging.Z.estim", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "kriging") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   p2 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "SPDE.ZMC.estim", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.grid(grid, nameRaster = "SPDE.ZMC.estim", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "SPDE") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   ggarrange(p1, p2, nrow = 1, ncol = 2)
 
   # standard deviation
   p1 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "kriging.Z.stdev", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "kriging") +
+    plot.grid(grid, nameRaster = "kriging.Z.stdev", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "kriging") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   p2 = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "SPDE.ZMC.stdev", 
-              palette = "Spectral", show.legend.raster = TRUE, legend.name.raster = "SPDE") +
+    plot.grid(grid, nameRaster = "SPDE.ZMC.stdev", 
+              palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "SPDE") +
     plot.decoration(xlab = "Easting", ylab = "Northing")
   ggarrange(p1, p2, nrow = 1, ncol = 2)
   

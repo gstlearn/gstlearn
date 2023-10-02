@@ -63,13 +63,13 @@ surfaces = DbGrid_create(nx = nx_2d, dx = dx_2d, x0 = x0_2d, angles = angles_2d)
 
 # plots
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "rank", useSel = TRUE, show.legend.raster = FALSE) +
+    plot.grid(grid, nameRaster = "rank", useSel = TRUE, flagLegendRaster = FALSE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = paste0("3D grid and limits"))
 ggPrint(p)
 
 p = ggDefaultGeographic() + 
-    plot.grid(surfaces, name_raster = "rank", useSel = TRUE, show.legend.raster = FALSE) +
+    plot.grid(surfaces, nameRaster = "rank", useSel = TRUE, flagLegendRaster = FALSE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = paste0("2D grid and limits"))
 ggPrint(p)
@@ -99,8 +99,8 @@ val = grid$getOneSlice(name = var_nm, posx = posx - 1, posy = posy - 1 , corner 
                        useSel = TRUE)
 err   = slice$setColumn(tab = val, name = paste0("K = ", k))
 p = ggDefaultGeographic() + 
-    plot.grid(slice, name_raster = paste0("K = ", k), useSel = TRUE, legend.name.raster = var_nm,
-            show.legend.raster = TRUE) +
+    plot.grid(slice, nameRaster = paste0("K = ", k), useSel = TRUE, legendNameRaster = var_nm,
+            flagLegendRaster = TRUE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = xlab, ylab = ylab, 
                   title = paste0("Slice K = ", k))
@@ -135,8 +135,8 @@ for (i in 1:N) {
 # plot of a variable
 var_nm = "Z_1.3"
 p = ggDefaultGeographic() + 
-    plot.grid(surfaces, name_raster = var_nm, useSel = TRUE, legend.name.raster = var_nm,
-            show.legend.raster = TRUE) +
+    plot.grid(surfaces, nameRaster = var_nm, useSel = TRUE, legendNameRaster = var_nm,
+            flagLegendRaster = TRUE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = paste0("2D Surface: variable = ", var_nm))
@@ -223,8 +223,8 @@ err = surfaces$clearSelection()
 err = surfaces$setLocator(name = "inBlock", locatorType = ELoc_SEL(), cleanSameLocator = TRUE)
 var_nm = "Z_1.3"
 p = ggDefaultGeographic() + 
-    plot.grid(surfaces, name_raster = var_nm, useSel = TRUE, legend.name.raster = var_nm,
-            show.legend.raster = TRUE) +
+    plot.grid(surfaces, nameRaster = var_nm, useSel = TRUE, legendNameRaster = var_nm,
+            flagLegendRaster = TRUE) +
     plot.polygon(poly = pol_lim, color = "orange", fill = NA) +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = paste0("2D surface: variable = ", var_nm))

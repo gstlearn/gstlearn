@@ -108,7 +108,7 @@ ggplot() + plot.varmod(varioexp)
 We can also adapt the size of experimental variogram points in the plot so that it is proportional to the number of pairs of points used to compute the value. 
 
 ```{r Plot_Experimental_Variogram_continued}
-ggplot() + plot.varmod(varioexp,draw_psize=TRUE)
+ggplot() + plot.varmod(varioexp,drawPsize=TRUE)
 ```
 
 ---
@@ -265,8 +265,8 @@ grid.vmap = db_vmap_compute(dat)
 ```
 
 ```{r Variogram_Map_Plot}
-p1 = ggplot() + plot.grid(grid.vmap, show.legend.raster=TRUE, legend.name.raster="T°C Var")
-p2 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.January_temp.Nb", show.legend.raster=TRUE, legend.name.raster="# pairs")
+p1 = ggplot() + plot.grid(grid.vmap, flagLegendRaster=TRUE, legendNameRaster="T°C Var")
+p2 = ggplot() + plot.grid(grid.vmap, nameRaster="VMAP.January_temp.Nb", flagLegendRaster=TRUE, legendNameRaster="# pairs")
 ggarrange(p1,p2,nrow=1,ncol=2)
 
 ```
@@ -288,8 +288,8 @@ grid.vmap
 ```
 
 ```{r Fitting_Variogram_Map_Draw_Plot}
-p1 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.January_temp.Var")
-p2 = ggplot() + plot.grid(grid.vmap, name_raster="VMAP.Model")
+p1 = ggplot() + plot.grid(grid.vmap, nameRaster="VMAP.January_temp.Var")
+p2 = ggplot() + plot.grid(grid.vmap, nameRaster="VMAP.Model")
 ggarrange(p1,p2,nrow=1,ncol=2)
 ```
 

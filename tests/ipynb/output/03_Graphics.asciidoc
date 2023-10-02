@@ -55,15 +55,15 @@ point(db, *args, **kwargs)
     ax: matplotlib.Axes
     db: Db containing the variable to be plotted
     nameColor: Name of the variable containing the color per sample
-    name_size: Name of the variable containing the size per sample
-    name_label: Name of the variable containing the label per sample
+    nameSize: Name of the variable containing the size per sample
+    nameLabel: Name of the variable containing the label per sample
     nameCoorX: Name of the variable standing for X coordinate 
     namecoorY: Name of the variable standing for Y coordinate 
     useSel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'nameColor' is not defined)
-    size: Constant size (used if 'name_size' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
-    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
+    size: Constant size (used if 'nameSize' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'nameSize' is defined)
+    sizmax: Size corresponding to the largest value (used if 'nameSize' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
     flagCst: When True, the size is kept constant (equel to 's')
     cmap: Optional Color scale
@@ -74,11 +74,11 @@ point(db, *args, **kwargs)
     colorTangent: Color attached to the Tangent representation
     scaleTangent: Scale of the Tangent representation
     flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
-    flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
-    flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
+    flagLegendSize: Flag for representing the Size legend (only if nameSize is defined)
+    flagLegendLabel: Flag for representing the Label Legend (only if nameLabel is defined)
     legendNameColor: Title for the Color Legend (set to 'nameColor' if not defined)
-    legendNameSize: Title for the Size legend (set to 'name_size' if not defined)
-    legendNameLabel: Title for the Label Legend (set to 'name_label' if not defined)
+    legendNameSize: Title for the Size legend (set to 'nameSize' if not defined)
+    legendNameLabel: Title for the Label Legend (set to 'nameLabel' if not defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     

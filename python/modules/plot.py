@@ -956,7 +956,7 @@ def point(db, *args, **kwargs):
     db: Db containing the variable to be plotted
     nameColor: Name of the variable containing the color per sample
     nameSize: Name of the variable containing the size per sample
-    name_label: Name of the variable containing the label per sample
+    nameLabel: Name of the variable containing the label per sample
     nameCoorX: Name of the variable standing for X coordinate 
     nameCoorY: Name of the variable standing for Y coordinate 
     useSel : Boolean to indicate if the selection has to be considered
@@ -975,10 +975,10 @@ def point(db, *args, **kwargs):
     scaleTangent: Scale of the Tangent representation
     flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
     flagLegendSize: Flag for representing the Size legend (only if nameSize is defined)
-    flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
+    flagLegendLabel: Flag for representing the Label Legend (only if nameLabel is defined)
     legendNameColor: Title for the Color Legend (set to 'nameColor' if not defined)
     legendNameSize: Title for the Size legend (set to 'nameSize' if not defined)
-    legendNameLabel: Title for the Label Legend (set to 'name_label' if not defined)
+    legendNameLabel: Title for the Label Legend (set to 'nameLabel' if not defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
 
@@ -988,7 +988,7 @@ def point(db, *args, **kwargs):
     return __ax_point(ax, db, *args, **kwargs)
     
 def __ax_point(ax, db, 
-               nameColor=None, nameSize=None, name_label=None,
+               nameColor=None, nameSize=None, nameLabel=None,
                nameCoorX=None, nameCoorY=None, useSel=True, 
                color='r', size=20, sizmin=10, sizmax=200, cmap=None,
                flagAbsSize=False, flagCst=False,
@@ -1004,7 +1004,7 @@ def __ax_point(ax, db,
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
     isVarDefined = True
-    if (nameColor is None) and (nameSize is None) and (name_label is None):
+    if (nameColor is None) and (nameSize is None) and (nameLabel is None):
         isVarDefined = False
         nameSize = __defaultVariable(db, None)
         
@@ -1029,12 +1029,12 @@ def __ax_point(ax, db,
             else:
                 title = title + nameSize + " (Size) "
     
-    if name_label is not None:
-        tx = __ax_literal(ax, db, name=name_label, 
+    if nameLabel is not None:
+        tx = __ax_literal(ax, db, name=nameLabel, 
                           nameCoorX=nameCoorX, nameCoorY=nameCoorY, useSel=useSel, 
                           flagLegend=flagLegendLabel, legendName=legendNameLabel,
                           posX=posX, posY=posY, **kwargs)
-        title = title + name_label + " (Label) "
+        title = title + nameLabel + " (Label) "
         
     if flagGradient:
         gr = __ax_gradient(ax, db, nameCoorX=nameCoorX, nameCoorY=nameCoorY, 
@@ -1262,20 +1262,20 @@ def grid(dbgrid, *args, **kwargs):
     Plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: DbGrid containing the variable to be plotted
-    name_raster: Name of the variable to be represented as raster
-    name_contour: Name of the variable tp be represented as contours
+    nameRaster: Name of the variable to be represented as raster
+    nameContour: Name of the variable tp be represented as contours
     useSel : Boolean to indicate if the selection has to be considered
     flagCell: When True, the edge of the grid cells are represented
     flagLegendRaster: Flag for representing the Raster Legend
     flagLegendContour: Flag for representing the Contour Legend
-    legendNameColor: Title for the Raster Legend (set to 'name_raster' if not defined)
-    legendNameSize: Title for the Contour Legend (set to 'name_contour' if not defined)
+    legendNameColor: Title for the Raster Legend (set to 'nameRaster' if not defined)
+    legendNameSize: Title for the Contour Legend (set to 'nameContour' if not defined)
     **kwargs : arguments passed to matplotlib.pyplot.pcolormesh
     '''
     ax = __getNewAxes(None, 1)
     return __ax_grid(ax, dbgrid, *args, **kwargs)
 
-def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, useSel = True, 
+def __ax_grid(ax, dbgrid, nameRaster = None, nameContour = None, useSel = True, 
               posX=0, posY=1, corner=None, flagCell=False,
               flagLegendRaster=False, flagLegendContour=False,
               legendNameRaster=None, legendNameContour=None,
@@ -1285,23 +1285,23 @@ def __ax_grid(ax, dbgrid, name_raster = None, name_contour = None, useSel = True
 
     # If no variable is defined, use the default variable for Raster representation
     # The default variable is the first Z-locator one, or the last variable in the file
-    if (name_raster is None) and (name_contour is None) and (not flagCell):
-        name_raster = __defaultVariable(dbgrid, None)
+    if (nameRaster is None) and (nameContour is None) and (not flagCell):
+        nameRaster = __defaultVariable(dbgrid, None)
 
     title = ""
-    if name_raster is not None:
-        rs = __ax_raster(ax, dbgrid = dbgrid, name = name_raster, useSel = useSel,  
+    if nameRaster is not None:
+        rs = __ax_raster(ax, dbgrid = dbgrid, name = nameRaster, useSel = useSel,  
                          posX=posX, posY=posY, corner=corner, 
                          flagLegend=flagLegendRaster, legendName=legendNameRaster,
                          **kwargs)
-        title = title + name_raster + " (Raster) "
+        title = title + nameRaster + " (Raster) "
     
-    if name_contour is not None:
-        ct = __ax_isoline(ax, dbgrid = dbgrid, name = name_contour, useSel = useSel, 
+    if nameContour is not None:
+        ct = __ax_isoline(ax, dbgrid = dbgrid, name = nameContour, useSel = useSel, 
                           posX=posX, posY=posY, corner=corner, levels=levels, 
                           flagLegend=flagLegendContour, legendName=legendNameContour,
                           **kwargs)
-        title = title + name_contour + " (Isoline) "
+        title = title + nameContour + " (Isoline) "
     
     if flagCell:
         cl = __ax_cell(ax, dbgrid, posX=posX, posY=posY, corner=corner, 
@@ -1366,6 +1366,7 @@ def histogram(db, *args, **kwargs):
     return __ax_histogram(ax, db=db, *args, **kwargs)
     
 def __ax_histogram(ax, db, name, useSel=True, **kwargs):
+    
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
@@ -1456,8 +1457,8 @@ def multisegments(center, data, *args, **kwargs):
     ax = __getNewAxes(None, 1)
     return __ax_multisegments(ax, center=center, data=data, **kwargs)
 
-def __ax_multisegments(ax, center, data, color='black',flagLegend=False, label="segments",
-                       *args, **kwargs):
+def __ax_multisegments(ax, center, data, color='black',flagLegend=False, 
+                       label="segments", *args, **kwargs):
     '''
     Plotting a set of segments joining 'center' to any of vertices
     stored in 'data'.
@@ -1942,7 +1943,8 @@ class PointSelection:
     pickradius : precision of the picker in points (default is 7)
     color : new color for the selected points (default is red)
     """
-    def __init__(self, ax=None, collection=None, mydb=None, pickradius=7, color='r', verbose=False):
+    def __init__(self, ax=None, collection=None, mydb=None, pickradius=7, 
+                 color='r', verbose=False):
         self.ax = ax
         if ax is None and collection is None:
             raise ValueError("ax and collection cannot be None at the same time,"

@@ -162,8 +162,8 @@ err = grid$setColumn(tab = Y_g, name = "manual.simu", useSel = FALSE)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.simu", useSel = TRUE, 
-            show.legend.raster = TRUE, palette = "Spectral") +
+    plot.grid(grid, nameRaster = "manual.simu", useSel = TRUE, 
+            flagLegendRaster = TRUE, palette = "Spectral") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non conditional simulation (Manual)")
 ggPrint(p)
@@ -203,8 +203,8 @@ err = grid$setColumn(name = "manual.kriging", tab = kriging)
 
 # plot of kriging
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
-            show.legend.raster = TRUE) +
+    plot.grid(grid, nameRaster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
+            flagLegendRaster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", title = "Kriging (Manual)")
 ggPrint(p)
@@ -234,8 +234,8 @@ S_g = (A_g %*% Zc)[,1:nsim]
 # storing the results +  plot
 err = grid$setColumn(tab = S_g[,1], name = "manual.cond.simu", useSel = TRUE)
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
-            show.legend.raster = TRUE) +
+    plot.grid(grid, nameRaster = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
+            flagLegendRaster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional simulation (Manual)")
@@ -245,8 +245,8 @@ ggPrint(p)
 ce = apply(X = S_g, MARGIN = 1, FUN = mean)
 err = grid$setColumn(tab = ce, name = "manual.cond.expectation", useSel = TRUE)
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "manual.cond.expectation", useSel = TRUE, palette = "Spectral", 
-            show.legend.raster = TRUE) +
+    plot.grid(grid, nameRaster = "manual.cond.expectation", useSel = TRUE, palette = "Spectral", 
+            flagLegendRaster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional expectation (Manual)")
@@ -255,7 +255,7 @@ ggPrint(p)
 # cross plot: initial simulation vs. kriging
 p = ggDefault() + 
     plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.simu", asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (Initial simulation)", 
                   title = "Simulation vs. kriging (Manual)")
 ggPrint(p)
@@ -264,7 +264,7 @@ ggPrint(p)
 p = ggDefault() + 
     plot.correlation(db1 = grid, namex = "manual.kriging", namey = "manual.cond.simu", 
                      asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (conditional simulation)", 
                   title = "Simulation vs. kriging (Manual)")
 ggPrint(p)
@@ -273,7 +273,7 @@ ggPrint(p)
 p = ggDefault() + 
     plot.correlation(db1 = grid, namex = "manual.cond.expectation", namey = "manual.kriging", 
                      asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
                   title = "Kriging vs. conditional expectation (Manual)")
 ggPrint(p)
@@ -290,8 +290,8 @@ iuid  = spde$compute(grid)
 
 # plot
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde", useSel = TRUE, 
-            show.legend.raster = TRUE, palette = "Spectral") +
+    plot.grid(grid, nameRaster = "spde", useSel = TRUE, 
+            flagLegendRaster = TRUE, palette = "Spectral") +
   plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non Conditional Simulation (SPDE)")
 ggPrint(p)
@@ -309,8 +309,8 @@ err = grid$setName(old_name = "spde.manual.simu.estim", name = "spde.kriging")
 
 # plot of kriging
 p = ggDefaultGeographic() + 
-    plot.grid(grid, name_raster = "spde.kriging", useSel = TRUE, palette = "Spectral",
-            show.legend.raster = TRUE) +
+    plot.grid(grid, nameRaster = "spde.kriging", useSel = TRUE, palette = "Spectral",
+            flagLegendRaster = TRUE) +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Kriging (SPDE)")
@@ -319,8 +319,8 @@ ggPrint(p)
 # correlation
 p = ggDefault() + 
     plot.correlation(grid, namex = "spde.kriging", namey = "manual.simu",asPoint = FALSE,
-                     flagDiag = TRUE, diag_color = "red", flagRegr = TRUE, 
-                     regr_color = "black", regr_line = 2,
+                     flagDiag = TRUE, diagColor = "red", flagRegr = TRUE, 
+                     regrColor = "black", regrLinetype = 2,
                      flagSameAxes = TRUE, bins=100
             ) +
     plot.decoration(xlab = "Estimated value (kriging)", ylab = "Actual value (simulation)", 
@@ -330,7 +330,7 @@ ggPrint(p)
 # cross plot
 p = ggDefault() + 
     plot.correlation(db1 = grid, namex = "manual.kriging", namey = "spde.kriging", asPoint = FALSE, 
-                     flagDiag = TRUE, diag_color = "red", flagSameAxes = FALSE, bins=100) +
+                     flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE, bins=100) +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)

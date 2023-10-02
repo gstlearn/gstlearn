@@ -70,9 +70,9 @@ target
 Let us plot its content.
 
 ```{r Plot elevation grid}
-ggDefaultGeographic() + plot(target, name_raster="Elevation",
-                             show.legend.raster=TRUE,palette="Spectral",
-                             legend.name.raster="Elevation (m)")
+ggDefaultGeographic() + plot(target, nameRaster="Elevation",
+                             flagLegendRaster=TRUE,palette="Spectral",
+                             legendNameRaster="Elevation (m)")
 ```
 
 The `dat` data base contains 236 (point) samples of two variables across Scotland: elevation and temperature.
@@ -126,12 +126,12 @@ To confirm that, we plot the points where the temperature is sampled on top of t
 
 ```{r Plot temperature observations on elevation map}
 p = ggDefaultGeographic()
-p = p + plot.grid(target, name_raster="Elevation",
-                  show.legend.raster=TRUE,palette="Spectral",
-                  legend.name.raster="Elevation (m)")
+p = p + plot.grid(target, nameRaster="Elevation",
+                  flagLegendRaster=TRUE,palette="Spectral",
+                  legendNameRaster="Elevation (m)")
 p = p + plot.point(dat, nameSize="Temperature",
                    sizmin = 0.5, sizmax = 3,
-                   show.legend.size=TRUE,legend.name.size="°C")
+                   flagLegendSize=TRUE,legendNameSize="°C")
 ggPrint(p)
 ```
 
@@ -195,8 +195,8 @@ err = kriging(dbin=dat, dbout=target, model=fitmod_raw,
 ```{r Plot of Ordinary Kriging prediction}
 ## Plot
 p = ggDefaultGeographic()
-p = p + plot.grid(target,name_raster = "OK*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+p = p + plot.grid(target,nameRaster = "OK*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Ordinary Kriging")
 ggPrint(p)
@@ -285,9 +285,9 @@ We can then represent the cokriging predictor for the temperature.
 
 ```{r Cokriging plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(target,name_raster = "COK.Temp*estim",
-                  show.legend.raster = TRUE, 
-                  palette="Spectral",legend.name.raster="°C") 
+p = p + plot.grid(target,nameRaster = "COK.Temp*estim",
+                  flagLegendRaster = TRUE, 
+                  palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - CoKriging")
 ggPrint(p)
@@ -462,8 +462,8 @@ err = kriging(dbin=dat, dbout=target, model=fitmodR,
 
 ```{r Plot Kriging of residuals}
 p = ggDefaultGeographic()
-p = p + plot.grid(target,name_raster = "ROK*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+p = p + plot.grid(target,nameRaster = "ROK*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature residuals - Ordinary Kriging")
 ggPrint(p)
@@ -488,8 +488,8 @@ Let us plot the resulting temperature predictions.
 
 ```{r Plot Predictor from Kriging of residuals}
 p = ggDefaultGeographic()
-p = p + plot.grid(target,name_raster = "KR.T*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+p = p + plot.grid(target,nameRaster = "KR.T*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Ordinary Kriging of the residuals")
 ggPrint(p)
@@ -598,9 +598,9 @@ err = kriging(dbin=dat, dbout=target, model=polDriftModel,
 ```{r Plot of Universal Kriging prediction}
 ## Plot
 p = ggDefaultGeographic()
-p = p + plot.grid(target,name_raster = "UK*estim",
-                  show.legend.raster = TRUE, 
-                  palette="Spectral",legend.name.raster="°C") 
+p = p + plot.grid(target,nameRaster = "UK*estim",
+                  flagLegendRaster = TRUE, 
+                  palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Universal Kriging")
 ggPrint(p)
@@ -702,8 +702,8 @@ As a reference, we plot the experimental variograms computed on the raw temperat
 
 ```{r Plot experimental variogram of residuals - ED, message=FALSE}
 p = ggplot()
-p = p + plot.varmod(vario_raw2dir, vario_linetype="dashed")
-p = p + plot.varmod(varioKED, vario_linetype="solid")
+p = p + plot.varmod(vario_raw2dir, varioLinetype="dashed")
+p = p + plot.varmod(varioKED, varioLinetype="solid")
 p = p + plot.decoration(title="Temperature (°C)") 
 ggPrint(p)
 ```
@@ -736,8 +736,8 @@ err = kriging(dbin=dat, dbout=target, model=EDmodel,
  
 ```{r Plot of KED prediction}
 p = ggDefaultGeographic()
-p = p + plot.grid(target,name_raster = "KED*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+p = p + plot.grid(target,nameRaster = "KED*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1)
 p = p + plot.decoration(title="Temperature - Kriging with external drift")
 ggPrint(p)

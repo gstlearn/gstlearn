@@ -60,8 +60,8 @@ Displaying the grid cells
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
-              show.legend.raster=TRUE, legend.name.raster="ma Legende")
+p = p + plot.grid(mygrid, nameRaster="Simu.1", nameContour="Simu.2", 
+              flagLegendRaster=TRUE, legendNameRaster="ma Legende")
 p = p + plot.decoration(title="Display of Grid Cells")
 ggPrint(p)
 ```
@@ -76,9 +76,9 @@ Displaying the grid nodes only
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(mygrid, nameColor="Simu.1",name_size="Simu.2", 
-                   show.legend.color = TRUE,
-                   legend.name.color="myColor")
+p = p + plot.point(mygrid, nameColor="Simu.1",nameSize="Simu.2", 
+                   flagLegendColor = TRUE,
+                   legendNameColor="myColor")
 p = p + plot.decoration(title="Display of Grid Nodes")
 ggPrint(p)
 ```
@@ -95,7 +95,7 @@ Displaying the cell contents in the rotated grid
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
+p = p + plot.grid(mygrid, nameRaster="Simu.1", flagLegendRaster=FALSE)
 p = p + plot.decoration(title="Display of Rotated Grid")
 ggPrint(p)
 ```
@@ -104,7 +104,7 @@ As a set of grid nodes
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(mygrid,nameColor="Simu.1", show.legend.color = TRUE)
+p = p + plot.point(mygrid,nameColor="Simu.1", flagLegendColor = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 ggPrint(p)
 ```
@@ -170,7 +170,7 @@ ggplot() + plot(model)
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, draw_psize=-1, color="red")
+p = p + plot(vario, drawPsize=-1, color="red")
 p = p + plot.decoration(title="First Variable - First Direction")
 ggPrint(p)
 ```
@@ -245,7 +245,7 @@ Plot a horizontal slice:by default, this corresponds to the first level IZ=1
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank")
+p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank")
 p = p + plot.decoration(title="Horizontal Slice (IZ=1)")
 ggPrint(p)
 ```
@@ -254,7 +254,7 @@ Plot another horizontal slice (IZ=10): the color scale is adapter to the values 
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank", corner=c(0,0,10))
+p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank", corner=c(0,0,10))
 p = p + plot.decoration(title="Horizontal Slice (IZ=10)")
 ggPrint(p)
 ```
@@ -263,7 +263,7 @@ Display a vertical slice (XOZ) for the index IY=3
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank", 
+p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank", 
                   posY=2, corner=c(0,3,0))
 p = p + plot.decoration(title="Vertical Slice XOZ (IY=3)")
 ggPrint(p)

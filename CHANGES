@@ -8,7 +8,7 @@ Release 0.3.4
 - Add severity check for model validity (used before kriging)
 - Standardize graphics in R and Python
 - Rename name1 and name2 into namex and namey for correlation representations
-- Parametrize the amount of Nugget (technically) added in SPDE
+- Parameterize the amount of Nugget (technically) added in SPDE
 - Corrections in the API functions of SPDE method
 - New test (cpp) for benchmarking SPDE features
 - Allow processing target variable with NA in SPDE API functions
@@ -23,6 +23,7 @@ Release 0.3.4
 - Function regressionByUID() has been abandoned (use regression instead)
 - Improvement of Table printout (row name not truncated anymore)
 - New class 'ResReg' for storing Regression formula (AStringable)
+- Names in plot.R and plot.py are standardized: using camel-writing systematically
 
 Release 0.3.3
 =============
