@@ -566,6 +566,10 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   flag_allow_negative_X = FALSE
   flag_allow_negative_Y = FALSE
   
+  # Allow redefining color and linetypes
+  p <- append(p, list(new_scale("color")))
+  p <- append(p, list(new_scale("linetype")))
+ 
   for (ivar in ivarUtil)
   {
     for (jvar in jvarUtil)
@@ -668,7 +672,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5, 
     envColor='black', envLinetype="dashed", envSize=0.5,
-    label=NULL, ...)
+    ...)
 {
   nvar = vario$getVariableNumber()
   
@@ -712,7 +716,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
             varioLinetype=varioLinetype, modelLinetype=modelLinetype,
             varColor=varColor, varLinetype=varLinetype, varSize=varSize, 
             envColor=envColor, envLinetype=envLinetype, envSize=envSize,
-            label=label, ...)
+            ...)
       }
       plot_lst[[index]] <- g
     } 
