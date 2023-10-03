@@ -38,7 +38,7 @@ At this stage:
 ```{r}
 dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
 filepath = "Pollution.dat"
-download.file(dlfile, filepath)
+download.file(dlfile, filepath, quiet=TRUE)
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)
@@ -72,7 +72,7 @@ Display my Data (with samples represented by color and size)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(mydb,name_color="Pb") + plot.decoration(title="Data Set")
+    ggplot() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
 ```
 
 # Variograms
@@ -95,7 +95,7 @@ We recall that the Variogram cloud is calculated by filling an underlying grid w
 
 ```{r}
 if (graphics)
-    ggplot() + plot(dbcloud,name_raster="Cloud*") + plot.decoration(title="Variogram Cloud")
+    ggplot() + plot(dbcloud,nameRaster="Cloud*") + plot.decoration(title="Variogram Cloud")
 ```
 
 Calculating the experimental omni-directional variogram
@@ -143,7 +143,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(myvmap, name_raster="*Var") + 
+    ggplot() + plot(myvmap, nameRaster="*Var") + 
     plot.decoration(title="Variogram Map")
 ```
 
@@ -225,7 +225,7 @@ We can visualize some of the newly created variables, such as:
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Neigh*Number")
+  p = p + plot(mygrid,nameRaster="Neigh*Number")
   p = p + plot.decoration(title="Number of Samples per Neighborhood")
   ggPrint(p)
 }
@@ -237,7 +237,7 @@ if (graphics)
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Neigh*MaxDist")
+  p = p + plot(mygrid,nameRaster="Neigh*MaxDist")
   p = p + plot.decoration(title="Maximum Distance per Neighborhood")
   ggPrint(p)
 }
@@ -282,8 +282,8 @@ Visualizing the results
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Kriging.Pb.estim")
-  p = p + plot(mydb,name_size="Pb", color="yellow")
+  p = p + plot(mygrid,nameRaster="Kriging.Pb.estim")
+  p = p + plot(mydb,nameSize="Pb", color="yellow")
   p = p + plot.decoration(title="Estimate of Pb")
   ggPrint(p)
 }
@@ -293,7 +293,7 @@ if (graphics)
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Kriging.Pb.stdev", show.legend.raster=TRUE)
+  p = p + plot(mygrid,nameRaster="Kriging.Pb.stdev", flagLegendRaster=TRUE)
   p = p + plot(mydb,"Pb", color="yellow", flagCst=TRUE)
   p = p + plot.decoration(title="St. Deviation of Pb")
   ggPrint(p)
@@ -368,7 +368,7 @@ We visualize a conditional simulation in Gaussian scale
 if (graphics)
 {
     p = ggplot()
-    p = p + plot(mygrid,name_raster="Simu.Y.Pb.1")
+    p = p + plot(mygrid,nameRaster="Simu.Y.Pb.1")
     p = p + plot(mydb,"Pb")
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
     ggPrint(p)
@@ -398,7 +398,7 @@ We visualize a Conditional Simulation in Raw Scale
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Z.Simu.Y.Pb.1")
+  p = p + plot(mygrid,nameRaster="Z.Simu.Y.Pb.1")
   p = p + plot(mydb,"Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
   ggPrint(p)
@@ -420,7 +420,7 @@ Displaying the average of the Conditional Simulations
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Stats*MEAN")
+  p = p + plot(mygrid,nameRaster="Stats*MEAN")
   p = p + plot(mydb,"Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
   ggPrint(p)

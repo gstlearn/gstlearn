@@ -113,13 +113,13 @@ ggPrint(p)
 # maps
 p = ggplot()
 p = p + plot.grid(grd,"Z1")
-p = p + plot.point(data, name_color = "Z1")
+p = p + plot.point(data, nameColor = "Z1")
 p = p + plot.decoration(title = "Initial lognormal variable - Z1")
 ggPrint(p)
 
 p = ggplot()
 p = p + plot.grid(grd,"Z2")
-p = p + plot.point(data, name_color = "Z2")
+p = p + plot.point(data, nameColor = "Z2")
 p = p + plot.decoration(title = "Initial lognormal variable - Z2")
 ggPrint(p)
 ```

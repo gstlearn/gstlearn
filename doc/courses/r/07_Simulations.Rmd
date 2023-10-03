@@ -44,14 +44,14 @@ We load two data bases:
 ## Data points
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 
 ## Target grid
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 target = DbGrid_createFromNF(fileNF)
 ```
@@ -104,9 +104,9 @@ target$display()
 
 ```{r Unconditional Simulation with 1 band - Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(target, name_raster = "Simu1",
-            show.legend.raster=TRUE,palette="Spectral",
-            legend.name.raster="Value")
+p = p + plot.grid(target, nameRaster = "Simu1",
+            flagLegendRaster=TRUE,palette="Spectral",
+            legendNameRaster="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
 ```
@@ -122,8 +122,8 @@ err = simtub(dbout=target, model=fitmod,
 
 ```{r Unconditional Simulation with 10 band - Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(target, name_raster = "Simu10",
-            show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p = p + plot.grid(target, nameRaster = "Simu10",
+            flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
 ```
@@ -139,8 +139,8 @@ err = simtub(dbout=target, model=fitmod,
 
 ```{r Unconditional Simulation with 1000 band - Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(target, name_raster = "Simu1000",
-            show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p = p + plot.grid(target, nameRaster = "Simu1000",
+            flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p = p + plot.decoration(title="Simulation with 1 band")
 ggPrint(p)
 ```
@@ -193,20 +193,20 @@ Let us display a few simulation results.
 
 ```{r One_Simulation_Outcome}
 p1 = ggDefaultGeographic()
-p1 = p1 + plot.grid(target, name_raster = "Simu*temp.1",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p1 = p1 + plot.grid(target, nameRaster = "Simu*temp.1",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p1 = p1 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 p2 = ggDefaultGeographic()
-p2 = p2 + plot.grid(target, name_raster = "Simu*temp.2",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p2 = p2 + plot.grid(target, nameRaster = "Simu*temp.2",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p2 = p2 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 p3 = ggDefaultGeographic()
-p3 = p3 + plot.grid(target, name_raster = "Simu*temp.3",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p3 = p3 + plot.grid(target, nameRaster = "Simu*temp.3",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p3 = p3 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 p4 = ggDefaultGeographic()
-p4 = p4 + plot.grid(target, name_raster = "Simu*temp.4",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p4 = p4 + plot.grid(target, nameRaster = "Simu*temp.4",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p4 = p4 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 ```
@@ -248,14 +248,14 @@ Let us build such a model, to illustrate our point. We start by reloading the tw
 ## Data points
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 
 ## Target grid
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 target = DbGrid_createFromNF(fileNF)
 ```
@@ -306,20 +306,20 @@ Let us display a few simulation results.
 
 ```{r Plot simulations - ED}
 p1 = ggDefaultGeographic()
-p1 = p1 + plot.grid(target, name_raster = "Simu*temp.1",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p1 = p1 + plot.grid(target, nameRaster = "Simu*temp.1",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p1 = p1 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 p2 = ggDefaultGeographic()
-p2 = p2 + plot.grid(target, name_raster = "Simu*temp.2",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p2 = p2 + plot.grid(target, nameRaster = "Simu*temp.2",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p2 = p2 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 p3 = ggDefaultGeographic()
-p3 = p3 + plot.grid(target, name_raster = "Simu*temp.3",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p3 = p3 + plot.grid(target, nameRaster = "Simu*temp.3",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p3 = p3 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 p4 = ggDefaultGeographic()
-p4 = p4 + plot.grid(target, name_raster = "Simu*temp.4",
-                    show.legend.raster=TRUE,palette="Spectral",legend.name.raster="Value")
+p4 = p4 + plot.grid(target, nameRaster = "Simu*temp.4",
+                    flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
 p4 = p4 + plot.point(dat,flagCst = T,pch=18,cex=0.5)
 ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 ```
@@ -361,7 +361,7 @@ Let us plot the results.
 
 ```{r Plot probabilities}
 p = ggDefaultGeographic()
-p = p + plot.grid(target, "Proba.MEAN", show.legend.raster=TRUE, legend.name.raster="Probability")
+p = p + plot.grid(target, "Proba.MEAN", flagLegendRaster=TRUE, legendNameRaster="Probability")
 p = p + plot.decoration(title="Probability for positive Temperatures")
 ggPrint(p)
 ```

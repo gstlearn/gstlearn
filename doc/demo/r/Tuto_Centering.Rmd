@@ -160,7 +160,7 @@ Display of the first data set
 ggDefaultGeographic() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
   plot.point(target) +
-  plot.point(data_ini1, col = "grey", size=4) +
+  plot.point(data_ini1, color = "grey", size=4) +
   plot.decoration(title="First Data Set")
 ```
 

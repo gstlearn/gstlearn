@@ -56,7 +56,7 @@ We start by downloading the file called `Scotland_Temperatures.csv` and we store
 ```{r}
 filecsv = "Scotland_Temperatures.csv"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filecsv), filecsv)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filecsv), filecsv, quiet=TRUE)
 }
 datcsv = read.csv(filecsv, na.strings = "MISS")
 ```
@@ -114,7 +114,7 @@ Note that the contents of the Db is slightly different from the result obtained 
 ```{r}
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 dat
@@ -243,18 +243,18 @@ Note: Non availalble values (NaN) are display in gray. This will be tunable in f
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(dat, name_color="January_temp", show.legend.color = TRUE,
-                   legend.name.color="Temperature")
+p = p + plot.point(dat, nameColor="January_temp", flagLegendColor = TRUE,
+                   legendNameColor="Temperature")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```
 
-A more elaborated graphic representation displays the samples with a symbol proportional to the Elevation (**name_size**) and a color representing the Temperature (**name_color**).
+A more elaborated graphic representation displays the samples with a symbol proportional to the Elevation (**nameSize**) and a color representing the Temperature (**nameColor**).
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(dat, name_size="Elevation", name_color="January_temp", show.legend.color = TRUE,
-                   legend.name.color="Temperature", legend.name.size="Elevation")
+p = p + plot.point(dat, nameSize="Elevation", nameColor="January_temp", flagLegendColor = TRUE,
+                   legendNameColor="Temperature", legendNameSize="Elevation")
 p = p + plot.decoration(title="January Temperature", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```
@@ -280,7 +280,7 @@ On the same area, a terrain model is available (as a demonstration file availabl
 ```{r}
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 grid = DbGrid_createFromNF(fileNF)
 grid
@@ -297,7 +297,7 @@ We can check the presence of a variable (called `inshore`) which is assigned to 
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid, name_raster="Elevation", show.legend.raster=TRUE, legend.name.raster="Elevation")
+p = p + plot.grid(grid, nameRaster="Elevation", flagLegendRaster=TRUE, legendNameRaster="Elevation")
 p = p + plot.decoration(title="Elevation", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```
@@ -312,8 +312,8 @@ On this final plot, we combine grid and point representations.
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid, name_raster="Elevation", show.legend.raster=TRUE, legend.name.raster="Elevation")
-p = p + plot.point(dat, name_size="January_temp", show.legend.size=TRUE, legend.name.size="Temperature", sizmin=1, sizmax=3, color="yellow")
+p = p + plot.grid(grid, nameRaster="Elevation", flagLegendRaster=TRUE, legendNameRaster="Elevation")
+p = p + plot.point(dat, nameSize="January_temp", flagLegendSize=TRUE, legendNameSize="Temperature", sizmin=1, sizmax=3, color="yellow")
 p = p + plot.decoration(title="Elevation and Temperatures", xlab="Easting", ylab="Northing")
 ggPrint(p)
 ```

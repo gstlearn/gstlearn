@@ -196,7 +196,7 @@ data$setLocator("Z", ELoc_Z())
 data$display()
 
 p = ggplot()
-p = p + plot.point(data, name_color = "Z", name_size = "Z", show.legend.size = TRUE)
+p = p + plot.point(data, nameColor = "Z", nameSize = "Z", flagLegendSize = TRUE)
 ggPrint(p)
 
 p = ggplot()
@@ -406,13 +406,13 @@ err = kriging(data, blocs, model, neigh,
 
 p = ggplot()
 p = p + plot(blocs, "G_Pts.Gaussian.Z.estim", 
-         show.legend.raster=TRUE, legend.name.raster = "Estimation")
+         flagLegendRaster=TRUE, legendNameRaster = "Estimation")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 ggPrint(p)
 
 p = ggplot()
 p = p + plot(blocs, "G_Pts.Gaussian.Z.stdev", 
-         show.legend.raster=TRUE, legend.name.raster = "Std. Dev.")
+         flagLegendRaster=TRUE, legendNameRaster = "Std. Dev.")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 ggPrint(p)
 ```
@@ -446,20 +446,20 @@ blocs$display()
 # Metal (the anamorphosis is used)
 p = ggplot()
 p = p + plot(blocs, "Pts_Recovery.Q-estim-0",
-         show.legend.raster=TRUE, legend.name.raster= "Q(0.0)")
+         flagLegendRaster=TRUE, legendNameRaster= "Q(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 
 # Tonnage (the anamorphosis is not used)
 p = ggplot()
 p = p + plot(blocs, "Pts_Recovery.T-estim-0",
-         show.legend.raster = TRUE, legend.name.raster = "T(0.0)")
+         flagLegendRaster = TRUE, legendNameRaster = "T(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 
 p = ggplot()
 p = p + plot(blocs, "Pts_Recovery.T-estim-1",
-     show.legend.raster=TRUE, legend.name.raster = "T(1.0)")
+     flagLegendRaster=TRUE, legendNameRaster = "T(1.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 ```
@@ -719,13 +719,13 @@ panels$display()
 
 ```{r dk_panels_map, echo=TRUE, eval=TRUE}
 p = ggplot()
-p = p + plot(panels, "DK_Blk.*.estim", show.legend.raster = TRUE) 
+p = p + plot(panels, "DK_Blk.*.estim", flagLegendRaster = TRUE) 
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
             title = "Estimate of the first factor (panels)")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot(panels, "DK_Blk.*.stdev", show.legend.raster = TRUE)
+p = p + plot(panels, "DK_Blk.*.stdev", flagLegendRaster = TRUE)
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
               title = "Std. of the first factor estimate (panels)")
 ggPrint(p)
@@ -983,7 +983,7 @@ for (est in c("SK", "DK", "CE")){
     
     p = ggplot()
     p = p + plot(grid, paste0(est, ".Z.", type),
-                 show.legend.raster=TRUE, legend.name.raster=type) 
+                 flagLegendRaster=TRUE, legendNameRaster=type) 
     p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
                             title = paste("Estimator = ", est)) 
     ggPrint(p)
