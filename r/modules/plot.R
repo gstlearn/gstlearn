@@ -329,7 +329,8 @@ plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
 #' @param idir Rank of the direction
 #' @param ... Arguments passed to plot.varmod()
 #'
-#' @notes If 'vario' is defined, the calculation direction is given by the definition of direction 'idir' within 'vario' 
+#' If 'vario' is defined, the calculation direction is given by the definition of direction 'idir' within 'vario'
+#' 
 #' @return The ggplot object
 plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
 {
@@ -1486,14 +1487,15 @@ plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black',
 	p
 }
 
-setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
-setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
+# The following code has been moved in rgstlearn.i (to prevent roxygen from crashing
+#setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
+#setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
 
-setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
-setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+#setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
+#setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
 
-setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
-setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
+#setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
+#setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
 
-setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
-setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))
+#setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
+#setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))

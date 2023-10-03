@@ -10,6 +10,7 @@ Suggests:
     ggpubr,
     FNN
 Description: @PROJECT_DESCRIPTION@
+Encoding: UTF-8
 License: GPL v3
 LazyLoad: yes
 Maintainer: Team gstlearn <gstlearn@groupes.mines-paristech.fr>
