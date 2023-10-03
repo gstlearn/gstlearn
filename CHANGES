@@ -23,6 +23,7 @@ Release 0.3.4
 - Function regressionByUID() has been abandoned (use regression instead)
 - Improvement of Table printout (row name not truncated anymore)
 - New class 'ResReg' for storing Regression formula (AStringable)
+- Integrate R documentation for functions in plot.R into the R package
 - Names in plot.R and plot.py are standardized: using camel-writing systematically
 
 Release 0.3.3

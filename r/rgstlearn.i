@@ -903,4 +903,17 @@ function (x,i,j,...,drop=TRUE)
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
 
+
+# Special function overloaded for plot.R
+setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
+setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
+
+setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
+setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+
+setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
+setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
+
+setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
+setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))
 %}

@@ -21,6 +21,17 @@ find_package(SWIG 4.2.0 REQUIRED)
 message(STATUS "Found SWIG: " ${SWIG_EXECUTABLE} " (found version \"" ${SWIG_VERSION} "\")")
 include(${SWIG_USE_FILE})
 
+# Generation folders
+if (IS_MULTI_CONFIG)
+  set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+else()
+  set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+endif()
+set(R_PACKAGE_DESTINATION_FOLDER   ${R_PACKAGE_ROOT_FOLDER}/${R_PACKAGE_NAME})
+set(R_PACKAGE_R_FOLDER             ${R_PACKAGE_DESTINATION_FOLDER}/R)
+set(R_PACKAGE_DATA_FOLDER          ${R_PACKAGE_DESTINATION_FOLDER}/data)
+set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
+
 ######################################  
 # DOCUMENTATION
 #
@@ -43,22 +54,21 @@ include(${SWIG_USE_FILE})
 # Tell that we need to generate doxymentation before building python package
 #add_dependencies(python_doc doxygen)
 
+add_custom_target(r_doc
+  COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing --no-save --no-restore ${CMAKE_CURRENT_SOURCE_DIR}/doc/create_doc.R
+  COMMENT "Generating documentation for R package"
+  WORKING_DIRECTORY ${R_PACKAGE_DESTINATION_FOLDER}
+  VERBATIM
+)
+
+# Tell that we need to generate doxymentation before building R package
+add_dependencies(r_doc doxygen)
+
 ######################################
 # WRAPPER GENERATION & BUILD
 
 # R package interface file
 set(SRC rgstlearn.i)
-
-# Generation folders
-if (IS_MULTI_CONFIG)
-  set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-else()
-  set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-endif()
-set(R_PACKAGE_DESTINATION_FOLDER   ${R_PACKAGE_ROOT_FOLDER}/${R_PACKAGE_NAME})
-set(R_PACKAGE_R_FOLDER             ${R_PACKAGE_DESTINATION_FOLDER}/R)
-set(R_PACKAGE_DATA_FOLDER          ${R_PACKAGE_DESTINATION_FOLDER}/data)
-set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
 
 # Location for SWIG target language code
 set(CMAKE_SWIG_OUTDIR                 ${R_PACKAGE_R_FOLDER})
@@ -125,6 +135,9 @@ target_include_directories(r_build PRIVATE ${R_INCLUDE_DIRS})
 
 # Link to R's libraries (needed for MSYS and MacOS)
 target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
+
+# Tell that we need to generate Rd files before building R package
+add_dependencies(r_build r_doc)
 
 ########################################
 # PACKAGING
