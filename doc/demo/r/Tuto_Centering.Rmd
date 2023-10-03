@@ -18,6 +18,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 library(parallel)
 set.seed(1235)
 ```

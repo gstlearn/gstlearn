@@ -60,6 +60,7 @@ Their is currently no R documentation for the *gstlearn* R package. The user can
 ```{r setup, message=FALSE}
 library(gstlearn)
 library(ggplot2)
+library(ggnewscale)
 ```
 
 Calling the next function (*acknowledge_gstlearn*) at startup is a good practice in order to check the version of **gstlearn** you are currently running:
