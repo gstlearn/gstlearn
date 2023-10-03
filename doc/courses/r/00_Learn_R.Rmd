@@ -161,7 +161,7 @@ Download the ASCII file called *Scotland_Temperatures.csv* and store it on your 
 ```{r Data-Frame-from-File, eval=FALSE}
 filename = "Scotland_Temperatures.csv"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filename), filename)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filename), filename, quiet=TRUE)
 }
 
 temperatures = read.csv(filename,header=TRUE,na="MISS")

@@ -36,7 +36,6 @@ plot.initialize <- function(pos=1)
   if (is.null(arg)) return (TRUE)
   warn.old = options("warn")
   options(warn = -1)
-  
   if (length(arg) == 1)
   {
     if (is.na(arg)) 
@@ -147,28 +146,40 @@ plot.printDefault <- function()
   rcb_num <- 1:18
   
   aes_list = c("colour", "fill")
-  if (length(palette) == 0) {
+  if (length(palette) == 0) 
+  {
     layer = scale_color_gradient(na.value=naColor, ...)
-  } else if(length(palette) == 1) {
-    if (any(palette == rcb) | any(palette == rcb_num)) {
-      layer = scale_color_distiller(palette= palette, aesthetics=aes_list, 
+  }
+  else if(length(palette) == 1) 
+  {
+    if (any(palette == rcb) | any(palette == rcb_num)) 
+    {
+      layer = scale_color_distiller(palette=palette, aesthetics=aes_list, 
  	     na.value=naColor, ...)
-    } else if(any(palette == v)) {
-     layer = scale_color_viridis_c(option= palette, aesthetics=aes_list, 
- 	    na.value = naColor, ...)
     } 
-  } else if(length(palette) == 2) {
+    else if(any(palette == v)) 
+    {
+      layer = scale_color_viridis_c(option=palette, aesthetics=aes_list, 
+ 	     na.value = naColor, ...)
+    } 
+  } 
+  else if(length(palette) == 2) 
+  {
     low = palette[1]
     high = palette[2]
     layer = scale_color_gradient(low= low, high= high, aesthetics=aes_list, 
  	   na.value=naColor, ...)
-  } else if(length(palette) == 3) {
+  } 
+  else if(length(palette) == 3) 
+  {
     low = palette[1]
     mid = palette[2]
     high = palette[3]
     layer = scale_color_gradient2(low= low, mid= mid, high= high, 
  	   aesthetics=aes_list, na.value=naColor, ...)
-  } else {
+  } 
+  else 
+  {
     layer = scale_colour_manual(values= palette, aesthetics=aes_list, 
  	   na.value = naColor, ...)
   }
@@ -246,8 +257,8 @@ ggDefault <- function(figsize=NA)
 .isArray <- function(arg, ndim=NA)
 {
   if (length(arg) <= 1) return (FALSE)
-  
-  if (!.isNotDef(ndim) && length(arg) != ndim) return (FALSE)
+  if (.isNotDef(arg)) return (FALSE)
+  if (length(arg) != ndim) return (FALSE)
   
   TRUE
 }
@@ -294,24 +305,14 @@ plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
       cat("'dims' should be [a,b]. Ignored\n")
   }
   
-  if (length(xlim) > 1)
+  if (.isArray(xlim, 2))
   {
-    if (.isArray(xlim, 2))
-    {
-      p <- append(p, scale_x_continuous(limits=xlim, expand=expand))
-    }
-    else
-      cat("'xlim' should be [a,b] or [NA,b] or [a,NA]. Ignored\n")
+    p <- append(p, scale_x_continuous(limits=xlim, expand=expand))
   }
-  
-  if (length(ylim) > 1)
+
+  if (.isArray(ylim, 2))
   {
-    if (.isArray(ylim, 2))
-    {
-      p <- append(p, scale_y_continuous(limits=ylim, expand=expand))
-    }
-    else
-      cat("'ylim' should be [a,b] or [NA,b] or [a,NA]. Ignored\n")
+    p <- append(p, scale_y_continuous(limits=ylim, expand=expand))
   }
   
   if (!.isNotDef(asp))
@@ -804,17 +805,18 @@ pointSymbol <- function(db, nameColor=NULL, nameSize=NULL,
   
   # Size of symbol
   sizval = "constant"
-  if (! is.null(nameSize)) {
-    if (! flagCst)
-    {
-      sizval  = db$getColumn(nameSize, TRUE)
-      if (flagAbsSize) sizval = abs(sizval)
-    }
+  if (! is.null(nameSize) && ! flagCst) {
+    sizval  = db$getColumn(nameSize, TRUE)
+    if (flagAbsSize) sizval = abs(sizval)
   }
   df["sizval"] = sizval
   
-  layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
-      na.rm=TRUE, ...)
+  if (flagCst)
+ 	 layer <- geom_point(data = df, mapping = aes(x=x, y=y), 
+    		  na.rm=TRUE, ...)
+  else
+  	 layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
+    		  na.rm=TRUE, ...)
   
   layer
 }
@@ -859,14 +861,14 @@ pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...)
 #' @param flagLegendLabel Display the legend for literal representation
 #' @param legendNameColor Name of the Legend for color representation (set to 'nameColor' if not defined)
 #' @param legendNameSize Name of the Legend for proportional representation (set to 'nameSize' if not defined)
-#' @param legendNameLabel Name of the Legend for Literal representation (set to 'name_literam' if not defined)
+#' @param legendNameLabel Name of the Legend for Literal representation (set to 'nameLabel' if not defined)
 #' @param ... List of arguments passed to pointSymbol( ) and pointLabel() 
 #' @return The ggplot object
 plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     sizmin=1, sizmax=5, flagAbsSize = FALSE, flagCst=FALSE, palette=NULL, asFactor=FALSE, 
     flagLegendColor=FALSE, flagLegendSize=FALSE, flagLegendLabel=FALSE, 
     legendNameColor=NULL, legendNameSize=NULL, legendNameLabel=NULL, 
-    colorText="black", ...)
+    textColor="black", ...)
 { 
   p = list()
   title = ""
@@ -888,6 +890,9 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     }
   }
   
+  # Allow redefining color and linetypes
+  p <- append(p, list(new_scale_color()))
+  
   if (! is.null(nameColor) || ! is.null(nameSize))
   {
     p <- append(p, pointSymbol(db, nameColor=nameColor, nameSize=nameSize,
@@ -895,7 +900,9 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
         ...))
     
     if (! is.null(nameSize) && ! flagCst)
+    {
       p <- append(p, scale_size_continuous(range = c(sizmin, sizmax)))
+    }
       
 	# Palette definition (if defined)
 	if (! is.null(palette))
@@ -917,7 +924,7 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
 	{
 		p <- append(p, list(guides(color = "none")))
 	}
-	if (flagLegendSize)
+	if (flagLegendSize && ! flagCst)
 	{
 		if (is.null(legendNameSize)) legendNameSize = nameSize
 	    p <- append(p, list(labs(size = legendNameSize)))
@@ -931,7 +938,7 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
   if (! is.null(nameLabel))
   {
     p <- append(p, pointLabel(db, name=nameLabel, ...))
-    p <- append(p, scale_color_manual(values = colorText))
+    p <- append(p, scale_color_manual(values = textColor))
     
     # Set the title              
     title = paste(title, nameLabel, sep=" ")
@@ -947,11 +954,12 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
 		p <- append(p, list(guides(color = "none")))
 	}
   }
+
   
   # Decoration
   if (flagTitleDefault) title = "Sample Location"
   p <- append(p, plot.decoration(title = title))
-  
+    
   p
 }
 
@@ -1056,6 +1064,9 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   {
   	nameRaster = .getDefaultVariable(dbgrid)
   }
+  
+  # Allow redefining color and linetypes
+  p <- append(p, list(new_scale_color()))
   
   # Raster representation
   if (! is.null(nameRaster))

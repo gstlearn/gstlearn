@@ -56,7 +56,7 @@ We start by downloading the file called `Scotland_Temperatures.csv` and we store
 ```{r}
 filecsv = "Scotland_Temperatures.csv"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filecsv), filecsv)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filecsv), filecsv, quiet=TRUE)
 }
 datcsv = read.csv(filecsv, na.strings = "MISS")
 ```
@@ -114,7 +114,7 @@ Note that the contents of the Db is slightly different from the result obtained 
 ```{r}
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 dat
@@ -280,7 +280,7 @@ On the same area, a terrain model is available (as a demonstration file availabl
 ```{r}
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 grid = DbGrid_createFromNF(fileNF)
 grid

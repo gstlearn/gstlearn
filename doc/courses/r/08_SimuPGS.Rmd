@@ -44,7 +44,7 @@ Downloading the data base (from the distribution **Exdemo_PGS.db**) and creating
 ```{r Creating_Information}
 fileNF = "Data.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/PluriGaussian/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/PluriGaussian/",fileNF), fileNF, quiet=TRUE)
 }
 data = Db_createFromNF(fileNF)
 

@@ -58,7 +58,7 @@ point(db, *args, **kwargs)
     nameSize: Name of the variable containing the size per sample
     nameLabel: Name of the variable containing the label per sample
     nameCoorX: Name of the variable standing for X coordinate 
-    namecoorY: Name of the variable standing for Y coordinate 
+    nameCoorY: Name of the variable standing for Y coordinate 
     useSel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'nameColor' is not defined)
     size: Constant size (used if 'nameSize' is not defined)

@@ -66,10 +66,10 @@ p = p + plot.decoration(title="Display of Grid Cells")
 ggPrint(p)
 ```
 
-Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'na.values' serves for encoding pixels whose values have been left undefined.
+Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'naColor' serves for encoding pixels whose values have been left undefined.
 
 ```{r}
-ggDefaultGeographic() + plot.grid(mygrid, palette=c("yellow","red","blue"), na.value="white")
+ggDefaultGeographic() + plot.grid(mygrid, palette=c("yellow","red","blue"), naColor="white")
 ```
 
 Displaying the grid nodes only
@@ -254,7 +254,7 @@ Plot another horizontal slice (IZ=10): the color scale is adapter to the values 
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank", corner=c(0,0,10))
+p = p + plot.grid(g3D, nameRaster="rank", flagLegendRaster=TRUE, legendNameRaster="Rank", corner=c(0,0,10))
 p = p + plot.decoration(title="Horizontal Slice (IZ=10)")
 ggPrint(p)
 ```
@@ -263,7 +263,7 @@ Display a vertical slice (XOZ) for the index IY=3
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank", 
+p = p + plot.grid(g3D, nameRaster="rank", flagLegendRaster=TRUE, legendNameRaster="Rank", 
                   posY=2, corner=c(0,3,0))
 p = p + plot.decoration(title="Vertical Slice XOZ (IY=3)")
 ggPrint(p)

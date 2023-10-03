@@ -29,6 +29,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 flagInternetAvailable=TRUE
 ```
@@ -46,7 +47,7 @@ We load two data bases:
 ## Data points
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 ### Rename the temperature variable
@@ -55,7 +56,7 @@ dat$setName("*temp", "Temperature")
 ## Target grid
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 target = DbGrid_createFromNF(fileNF)
 ```
@@ -127,8 +128,11 @@ To confirm that, we plot the points where the temperature is sampled on top of t
 ```{r Plot temperature observations on elevation map}
 p = ggDefaultGeographic()
 p = p + plot.grid(target, nameRaster="Elevation",
-                  flagLegendRaster=TRUE,palette="Spectral",
+                  flagLegendRaster=TRUE,
+                  palette="Spectral",
                   legendNameRaster="Elevation (m)")
+#p = p + new_scale_color()
+#p = p + new_scale("linetype")
 p = p + plot.point(dat, nameSize="Temperature",
                    sizmin = 0.5, sizmax = 3,
                    flagLegendSize=TRUE,legendNameSize="°C")
