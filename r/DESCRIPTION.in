@@ -8,6 +8,8 @@ Depends:
 Suggests:
     ggplot2,
     ggpubr,
+    ggrepel,
+    ggnewscale,
     FNN
 Description: @PROJECT_DESCRIPTION@
 Encoding: UTF-8

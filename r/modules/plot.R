@@ -155,12 +155,12 @@ plot.printDefault <- function()
     if (any(palette == rcb) | any(palette == rcb_num)) 
     {
       layer = scale_color_distiller(palette=palette, aesthetics=aes_list, 
- 	     na.value=naColor, ...)
+          na.value=naColor, ...)
     } 
     else if(any(palette == v)) 
     {
       layer = scale_color_viridis_c(option=palette, aesthetics=aes_list, 
- 	     na.value = naColor, ...)
+          na.value = naColor, ...)
     } 
   } 
   else if(length(palette) == 2) 
@@ -168,7 +168,7 @@ plot.printDefault <- function()
     low = palette[1]
     high = palette[2]
     layer = scale_color_gradient(low= low, high= high, aesthetics=aes_list, 
- 	   na.value=naColor, ...)
+        na.value=naColor, ...)
   } 
   else if(length(palette) == 3) 
   {
@@ -176,12 +176,12 @@ plot.printDefault <- function()
     mid = palette[2]
     high = palette[3]
     layer = scale_color_gradient2(low= low, mid= mid, high= high, 
- 	   aesthetics=aes_list, na.value=naColor, ...)
+        aesthetics=aes_list, na.value=naColor, ...)
   } 
   else 
   {
     layer = scale_colour_manual(values= palette, aesthetics=aes_list, 
- 	   na.value = naColor, ...)
+        na.value = naColor, ...)
   }
   layer
 }
@@ -214,13 +214,16 @@ ggPrint <- function(p, flagSuppressWarnings = TRUE)
 #' @note Use printDefault() to visualize them and setDefaultGeographic() to modify them
 ggDefaultGeographic <- function(figsize=NA)
 {
+  if (!require(ggplot2, quietly=TRUE))
+    stop("Package ggplot2 is mandatory to use this function!")
+  
   p <- ggplot()
   mode = 2
   
   if (.isNotDef(figsize))
- 	locdims = plot.defaultDims[[mode]]
+     locdims = plot.defaultDims[[mode]]
   else
-  	locdims = figsize
+      locdims = figsize
    
   p <- p + plot.geometry(dims=locdims, 
                          xlim=plot.defaultXlim[[mode]], 
@@ -235,13 +238,15 @@ ggDefaultGeographic <- function(figsize=NA)
 #' @note Use printDefault() to visualize them and setDefault() to modify them
 ggDefault <- function(figsize=NA)
 {
+  if (!require(ggplot2, quietly=TRUE))
+    stop("Package ggplot2 is mandatory to use this function!")
   p <- ggplot()
   mode = 1
   
   if (.isNotDef(figsize))
- 	locdims = plot.defaultDims[[mode]]
+     locdims = plot.defaultDims[[mode]]
   else
-  	locdims = figsize
+      locdims = figsize
   
   p <- p + plot.geometry(dims=locdims, 
                          xlim=plot.defaultXlim[[mode]], 
@@ -340,7 +345,7 @@ plot.model <- function(model, ivar=0, jvar=0, vario=NA, idir=0, ...)
 {
   p = list()
   p = append(p, plot.varmod(vario=vario, model=model, ivar=ivar, jvar=jvar, idir=idir,
-  			 drawVario=FALSE, ...))
+               drawVario=FALSE, ...))
   p = append(p, plot.decoration(xlab = "Distance", ylab = "Variogram"))
   p  
 }
@@ -389,14 +394,14 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   
   # Representing the Experimental variogram
   p = append(p, geom_line(data = df, 
-  			mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
-  			na.rm=TRUE, ...))
+              mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
+              na.rm=TRUE, ...))
   
   # Representing the number of pairs (by size)
   if (drawPsize > 0)
   {
     p = append(p, geom_point(data = df, mapping=aes(x=hh, y=gg, size=sw), 
-    		na.rm=TRUE, ...))
+            na.rm=TRUE, ...))
     p = append(p, list(labs(size = "Nb. pairs")))
   }
   else if (drawPsize < 0)
@@ -408,7 +413,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   # Representing the number of pairs (by label)
   if (drawPlabel)
     p = append(p, geom_text(data = df, mapping=aes(x=hh, y=gg, 
-    		   label=as.character(sw)), na.rm=TRUE, ...))
+               label=as.character(sw)), na.rm=TRUE, ...))
   
   # Adding the vertical axis at X=0
   p = append(p, geom_vline(xintercept = 0., color='black', size=0.5))
@@ -481,7 +486,7 @@ plot.vario <- function(vario, ivar=-1, jvar=-1, idir=-1,...)
   gg = model$sample(hh, ivar=ivar, jvar=jvar, codir=codir, mode=mode)
   df = data.frame(gg = gg[istart:nh], hh = hh[istart:nh])
   p = append(p, geom_line(data = df, 
-  		     mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
+               mapping=aes(x=hh, y=gg, color=dirName, linetype=lineName), 
              na.rm=TRUE, ...))
   
   # Represent the coregionalization envelop
@@ -535,6 +540,9 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
     envColor='black', envLinetype="dashed", envSize=0.5,
     drawVario=TRUE, flagLegend=FALSE, ...)
 {
+  if (!require(ggnewscale, quietly=TRUE))
+    stop("Package ggnewscale is mandatory to use this function!")
+
   dots = list(...)
   has_color = "color" %in% names(dots)
   has_codir = "codir" %in% names(dots)
@@ -578,11 +586,11 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
       # Define the current plot
       for (idir in idirUtil)
       {
-      	if (! .isNotDef(vario))
-	      dirName = paste("Vario dir =", paste(round(vario$getCodirs(idir),3), collapse=' '))
- 	    else
- 	      dirName = paste("Direction :",idir)
-    	
+          if (! .isNotDef(vario))
+          dirName = paste("Vario dir =", paste(round(vario$getCodirs(idir),3), collapse=' '))
+         else
+           dirName = paste("Direction :",idir)
+        
         # Plotting the experimental variogram
         if (! .isNotDef(vario) && drawVario)
         {
@@ -627,7 +635,7 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
   p <- append(p, scale_linetype_manual(name="Types", values = linetypes))
   p <- append(p, scale_color_manual(name="Directions", values = cols))
   if (! flagLegend)
-	p <- append(p, list(theme(legend.position='none')))
+    p <- append(p, list(theme(legend.position='none')))
   
   # Tuning the global bounds of graphics
   lower_bound = NA
@@ -667,13 +675,15 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
 #' @param ... Arguments passed to varioElementary() and modelElementary()
 #' @return The ggplot object
 multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
-	nh = 100, hmax = NA, drawPsize=-1, drawPlabel=FALSE, 
+    nh = 100, hmax = NA, drawPsize=-1, drawPlabel=FALSE, 
     asCov=FALSE, drawVariance = TRUE, flagEnvelop=TRUE, 
     varioLinetype = "dashed", modelLinetype = "solid",
     varColor='black', varLinetype="dashed", varSize=0.5, 
     envColor='black', envLinetype="dashed", envSize=0.5,
     ...)
 {
+  if (!require(ggpubr, quietly=TRUE))
+    stop("Package ggpubr is mandatory to use this function!")
   nvar = vario$getVariableNumber()
   
   ivarUtil = .selectItemsInList(nvar, ivar)
@@ -734,7 +744,7 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 .readPointCoor <- function(db, useSel=TRUE, posX=0, posY=1)
 {
   if (db$getNDim() > 0) 
-	x = db$getCoordinates(posX,useSel)
+    x = db$getCoordinates(posX,useSel)
   if (db$getNDim() > 1)
     y = db$getCoordinates(posY,useSel)
   df = data.frame(x,y)
@@ -754,23 +764,23 @@ multi.varmod <- function(vario, model=NA, ivar=-1, jvar=-1, idir=-1,
 .readGridCoor <- function(dbgrid, name, useSel= FALSE, posX=0, posY=1, corner=NA)
 {
   if (.isNotDef(corner))
-	corner = rep(0, dbgrid$getNDim())
+    corner = rep(0, dbgrid$getNDim())
   
   if (dbgrid$getNDim() == 1)
   {
-  	data = dbgrid$getColumn(name, useSel, FALSE)
-  	x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
-  	y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
+      data = dbgrid$getColumn(name, useSel, FALSE)
+      x = dbgrid$getColumnByLocator(ELoc_X(), posX, FALSE, FALSE)
+      y = dbgrid$getColumnByLocator(ELoc_X(), posY, FALSE, FALSE)
   }
   else
   {
-  	data = dbgrid$getOneSlice(name, posX, posY, corner, useSel)
-  	nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
-  	x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
-  	nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
-  	y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
+      data = dbgrid$getOneSlice(name, posX, posY, corner, useSel)
+      nameX = dbgrid$getNameByLocator(ELoc_X(), posX)
+      x = dbgrid$getOneSlice(nameX, posX, posY, corner, FALSE)
+      nameY = dbgrid$getNameByLocator(ELoc_X(), posY)
+      y = dbgrid$getOneSlice(nameY, posX, posY, corner, FALSE)
   }
-  	
+      
   if (length(data) != length(x))
   {
     cat("Variable",name,"does not exist or does not have correction dimension\n")
@@ -817,11 +827,11 @@ pointSymbol <- function(db, nameColor=NULL, nameSize=NULL,
   df["sizval"] = sizval
   
   if (flagCst)
- 	 layer <- geom_point(data = df, mapping = aes(x=x, y=y), 
-    		  na.rm=TRUE, ...)
+      layer <- geom_point(data = df, mapping = aes(x=x, y=y), 
+              na.rm=TRUE, ...)
   else
-  	 layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
-    		  na.rm=TRUE, ...)
+       layer <- geom_point(data = df, mapping = aes(x=x, y=y, color=colval, size=sizval), 
+              na.rm=TRUE, ...)
   
   layer
 }
@@ -836,7 +846,10 @@ pointSymbol <- function(db, nameColor=NULL, nameSize=NULL,
 #' @param ... List of arguments passed to geom_text()
 #' @return The description of the contents of the graphic layer
 pointLabel <- function(db, name, digit=2, useSel=TRUE, posX=0, posY=1, ...) 
-{  
+{
+  if (!require(ggrepel, quietly=TRUE))
+    stop("Package ggrepel is mandatory to use this function!")
+  
   # Creating the necessary data frame
   df = .readPointCoor(db, useSel, posX, posY)
   
@@ -874,7 +887,9 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     flagLegendColor=FALSE, flagLegendSize=FALSE, flagLegendLabel=FALSE, 
     legendNameColor=NULL, legendNameSize=NULL, legendNameLabel=NULL, 
     textColor="black", ...)
-{ 
+{
+  if (!require(ggnewscale, quietly=TRUE))
+    stop("Package ggnewscale is mandatory to use this function!")
   p = list()
   title = ""
   
@@ -883,7 +898,7 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
   flagTitleDefault = FALSE
   if (is.null(nameColor) && is.null(nameSize) && is.null(nameLabel))
   {
-  	nameSize = .getDefaultVariable(db)
+      nameSize = .getDefaultVariable(db)
     if (db$getLocNumber(ELoc_Z()) > 0)
       nameSize = db$getNameByLocator(ELoc_Z(),0)
     else 
@@ -909,9 +924,9 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
       p <- append(p, scale_size_continuous(range = c(sizmin, sizmax)))
     }
       
-	# Palette definition (if defined)
-	if (! is.null(palette))
-	  p <- append(p, .scaleColorFill(palette, ...))
+    # Palette definition (if defined)
+    if (! is.null(palette))
+      p <- append(p, .scaleColorFill(palette, ...))
     
     # Set the default title
     if (! is.null(nameColor))
@@ -922,22 +937,22 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     # Set the Legend
     if (flagLegendColor)
     {
-    	if (is.null(legendNameColor)) legendNameColor = nameColor
-	    p <- append(p, list(labs(color = legendNameColor)))
-	}
-	else
-	{
-		p <- append(p, list(guides(color = "none")))
-	}
-	if (flagLegendSize && ! flagCst)
-	{
-		if (is.null(legendNameSize)) legendNameSize = nameSize
-	    p <- append(p, list(labs(size = legendNameSize)))
-	}
-	else
-	{
-		p <- append(p, list(guides(size = "none")))
-	}
+        if (is.null(legendNameColor)) legendNameColor = nameColor
+        p <- append(p, list(labs(color = legendNameColor)))
+    }
+    else
+    {
+        p <- append(p, list(guides(color = "none")))
+    }
+    if (flagLegendSize && ! flagCst)
+    {
+        if (is.null(legendNameSize)) legendNameSize = nameSize
+        p <- append(p, list(labs(size = legendNameSize)))
+    }
+    else
+    {
+        p <- append(p, list(guides(size = "none")))
+    }
   }
   
   if (! is.null(nameLabel))
@@ -951,13 +966,13 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     # Set the legend
     if (flagLegendLabel)
     {
-    	if (is.null(legendNameLabel)) legendNameLabel = nameLabel
-	    p <- append(p, list(labs(color = legendNameLabel)))
-	}
-		else
-	{
-		p <- append(p, list(guides(color = "none")))
-	}
+        if (is.null(legendNameLabel)) legendNameLabel = nameLabel
+        p <- append(p, list(labs(color = legendNameLabel)))
+    }
+        else
+    {
+        p <- append(p, list(guides(color = "none")))
+    }
   }
 
   
@@ -1026,12 +1041,12 @@ gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, 
 #' @noRd
 .getDefaultVariable <- function(db)
 {
-	if (db$getLocNumber(ELoc_Z()) > 0)
-		name = db$getNameByLocator(ELoc_Z(),0)
- 	else
-   	   # if no Z locator, choose the last field
-  		name = db$getLastName()
-  	name
+    if (db$getLocNumber(ELoc_Z()) > 0)
+        name = db$getNameByLocator(ELoc_Z(),0)
+     else
+          # if no Z locator, choose the last field
+          name = db$getLastName()
+      name
 }
 
 #' Plotting a grid data base
@@ -1054,6 +1069,8 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
     legendNameRaster=NULL, legendNameContour=NULL,
     ...)
 {
+  if (!require(ggnewscale, quietly=TRUE))
+    stop("Package ggnewscale is mandatory to use this function!")
   if (! dbgrid$isGrid())
   {
     cat("This function is restricted to Grid Db and cannot be used here\n")
@@ -1067,7 +1084,7 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   # The default variable is the first Z-locator one, or the last variable in the file
   if (is.null(nameRaster) && is.null(nameContour))
   {
-  	nameRaster = .getDefaultVariable(dbgrid)
+      nameRaster = .getDefaultVariable(dbgrid)
   }
   
   # Allow redefining color and linetypes
@@ -1111,7 +1128,7 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   
   # Palette definition (if defined)
   if (! is.null(palette))
-	p <- append(p, .scaleColorFill(palette, naColor=naColor, limits=limits, ...))
+    p <- append(p, .scaleColorFill(palette, naColor=naColor, limits=limits, ...))
   
   # Decoration
   p <- append(p, plot.decoration(title = title))
@@ -1424,7 +1441,7 @@ plot.mesh <- function(mesh, flagFace=FALSE, flagApex=FALSE, rankMeshMax= -1, ...
 #' @return The ggplot object
 plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 {
-	p = list()
+    p = list()
 
     # Identify target location
     target = grid$getSampleCoordinates(node)
@@ -1439,32 +1456,32 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
     # Represent the Neighborhood Ellipsoid
     if (neigh$getType()$getValue() == ENeigh_MOVING()$getValue())
     {
-    	edges = neigh$getEllipsoid(target)
-    	p = append(p, plot.XY(edges[[1]], edges[[2]], ...))
+        edges = neigh$getEllipsoid(target)
+        p = append(p, plot.XY(edges[[1]], edges[[2]], ...))
     }
     
     # Represent the Angular sectors
     if (neigh$getFlagSector())
     {
-    	segments = neigh$getSectors(target)
+        segments = neigh$getSectors(target)
         nseg = length(segments[[1]])
         cx = numeric(2)
         cx[1] = target[1]
         cy = numeric(2)
         cy[1] = target[2]
-	    for (iseg in 1:nseg)
-	    {
-	    	cx[2] = segments[[1]][iseg]
-	    	cy[2] = segments[[2]][iseg]
-       		p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
- 		}
+        for (iseg in 1:nseg)
+        {
+            cx[2] = segments[[1]][iseg]
+            cy[2] = segments[[2]][iseg]
+               p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
+         }
     }
         
     # Zoom to the Maximum radius circle (optional)
     if (flagZoom)
     {
-		limits = neigh$getZoomLimits(target)
-		p <- p + plot.geometry(xlim=limits[[1]], ylim=limits[[2]]) 
+        limits = neigh$getZoomLimits(target)
+        p <- p + plot.geometry(xlim=limits[[1]], ylim=limits[[2]]) 
     }
     p
 }
@@ -1480,31 +1497,33 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
 #' @param ... Arguments passed to geom_segment()
 #' @return The ggplot object to geom_segment()
 plot.modelOnGrid <- function(model, dbgrid, useSel=TRUE, icov=0, color='black', 
-	flagOrtho=TRUE, scale=40, ...)
+    flagOrtho=TRUE, scale=40, ...)
 {
-    # Extracting coordinates
-    tabx = dbgrid$getCoordinates(0,useSel)
-    taby = dbgrid$getCoordinates(1,useSel)
-    
-    # Process the non-stationarity
-    db_model_nostat(dbgrid, model, icov)
-    tabR1 = dbgrid$getColumn("Nostat.Range-1", useSel)
-    tabR2 = dbgrid$getColumn("Nostat.Range-2", useSel)
-    tabA  = dbgrid$getColumn("Nostat.Angle-1", useSel)
-    if (flagOrtho) tabA = 90 + tabA
-    tabA = tabA * pi / 180.
-    
-    tabdx = (tabR1 * cos(tabA) - tabR2 * sin(tabA)) * scale
-    tabdy = (tabR1 * sin(tabA) + tabR2 * cos(tabA)) * scale
-    data = data.frame(x = tabx, y = taby, dx=tabdx, dy=tabdy)
-#    ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
-    
-  	p = ggplot(data = data, aes(x = x, y = y)) + 
- 	   geom_point(size = 1) + 
- 	   geom_segment(aes(xend = x + dx, yend = y + dy),
-                 arrow = arrow(length = unit(0.1, "cm")), ...)
-    
-	p
+  if (!require(ggplot2, quietly=TRUE))
+    stop("Package ggplot2 is mandatory to use this function!")
+  # Extracting coordinates
+  tabx = dbgrid$getCoordinates(0,useSel)
+  taby = dbgrid$getCoordinates(1,useSel)
+  
+  # Process the non-stationarity
+  db_model_nostat(dbgrid, model, icov)
+  tabR1 = dbgrid$getColumn("Nostat.Range-1", useSel)
+  tabR2 = dbgrid$getColumn("Nostat.Range-2", useSel)
+  tabA  = dbgrid$getColumn("Nostat.Angle-1", useSel)
+  if (flagOrtho) tabA = 90 + tabA
+  tabA = tabA * pi / 180.
+  
+  tabdx = (tabR1 * cos(tabA) - tabR2 * sin(tabA)) * scale
+  tabdy = (tabR1 * sin(tabA) + tabR2 * cos(tabA)) * scale
+  data = data.frame(x = tabx, y = taby, dx=tabdx, dy=tabdy)
+  #ax.quiver(tabx, taby, tabR2, tabR2, angles=tabA, color=color, **kwargs)
+  
+  p = ggplot(data = data, aes(x = x, y = y)) + 
+      geom_point(size = 1) + 
+      geom_segment(aes(xend = x + dx, yend = y + dy),
+                   arrow = arrow(length = unit(0.1, "cm")), ...)
+  
+p
 }
 
 # The following code has been moved in rgstlearn.i (to prevent roxygen from crashing
