@@ -544,9 +544,10 @@ plot.varmod <- function(vario=NA, model=NA, ivar=0, jvar=0, idir=-1,
     stop("Package ggnewscale is mandatory to use this function!")
 
   dots = list(...)
-  has_color = "color" %in% names(dots)
   has_codir = "codir" %in% names(dots)
-  linetypes = c(varioLinetype, modelLinetype)
+  linetypes = NULL
+  if (! .isNotDef(vario) && drawVario) linetypes = c(linetypes, varioLinetype)
+  if (! .isNotDef(model)) linetypes = c(linetypes, modelLinetype)
   
   p = list()
   ndir = 1
