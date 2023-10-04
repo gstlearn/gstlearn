@@ -62,7 +62,8 @@ add_custom_target(r_doc
 )
 
 # Tell that we need to generate doxymentation before building R package
-add_dependencies(r_doc doxygen)
+# (not yet)
+#add_dependencies(r_doc doxygen)
 
 ######################################
 # WRAPPER GENERATION & BUILD
