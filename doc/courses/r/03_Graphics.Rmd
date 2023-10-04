@@ -15,6 +15,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 plot.printDefault()
 ```
@@ -170,7 +171,7 @@ ggplot() + plot(model)
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, drawPsize=-1, color="red")
+p = p + plot(vario, ivar=0, jvar=0, idir=0, drawPsize=-1, color="red")
 p = p + plot.decoration(title="First Variable - First Direction")
 ggPrint(p)
 ```
@@ -179,7 +180,7 @@ We display the experimental variogram for the first variable in the second direc
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, idir=1)
+p = p + plot(vario, ivar=0, jvar=0, idir=1)
 p = p + plot.decoration(title="First Variable - Second Direction")
 ggPrint(p)
 ```
@@ -188,8 +189,8 @@ We simply overlay the contents of the two previous plots.
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, color="black")
-p = p + plot(vario, idir=1, color='red')
+p = p + plot(vario, ivar=0, jvar=0, idir=0, color="black")
+p = p + plot(vario, ivar=0, jvar=0, idir=1, color='red')
 p = p + plot.decoration(title="First Variable - Two directions")
 ggPrint(p)
 ```
@@ -199,7 +200,7 @@ We display the cross-variogram between both variables along both directions.
 ```{r}
 p = ggDefault()
 p = p + plot(vario, ivar=1, jvar=0, idir=-1)
-p = p + plot.decoration(title="Cross-variogram - Two directions")
+p = p + plot.decoration(title="Cross-variogram - All directions")
 ggPrint(p)
 ```
 

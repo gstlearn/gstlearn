@@ -29,6 +29,7 @@ library(gstlearn)
 OptCst_defineByKey("ASP",0)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 library(Matrix)
 stat_keys = c("NUM","MINI","MAXI","MEAN","STDV")
 ```

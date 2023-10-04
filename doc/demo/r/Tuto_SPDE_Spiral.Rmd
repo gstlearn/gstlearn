@@ -15,6 +15,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 ```
 
 Defining the Model as a single Bessel structure. This function is defined as anisotropic: we clearly specify the extension of the ranges in the two main directions. The angle does not have to be defined here: it will be overwritten later as the non-stationary parameter. Note that it is essential to define the short range of the anisotropy ellipsoid first (for the definition of angle as defined in the Spiral function used as a function)... otherwise future results will represent the shape otabined as the orthogonal of the spiral.

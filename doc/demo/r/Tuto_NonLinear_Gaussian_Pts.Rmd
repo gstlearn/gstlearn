@@ -78,6 +78,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 ```
 
 ```{r, echo=TRUE, eval=TRUE}
