@@ -172,13 +172,13 @@ python_install: cmake-python
 
 .PHONY: r_doc r_build r_install
 
-r_doc: cmake-r-doxygen
+r_doc: cmake-r #cmake-r-doxygen
 	@cmake --build $(BUILD_DIR) --target r_doc -- --no-print-directory $(N_PROC_OPT)
 
-r_build: cmake-r-doxygen
+r_build: cmake-r #cmake-r-doxygen
 	@cmake --build $(BUILD_DIR) --target r_build -- --no-print-directory $(N_PROC_OPT)
 
-r_install: cmake-r-doxygen
+r_install: cmake-r #cmake-r-doxygen
 	@cmake --build $(BUILD_DIR) --target r_install -- --no-print-directory $(N_PROC_OPT)
 
 
