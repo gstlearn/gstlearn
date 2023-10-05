@@ -41,7 +41,7 @@ Cholesky::Cholesky(const Cholesky &m)
       _matN(nullptr),
       _work()
 {
-  reset(m._mat, m._isDecomposed());
+  reset(m._mat, m.isCholeskyDecomposed());
 }
 
 Cholesky& Cholesky::operator=(const Cholesky &m)
@@ -49,7 +49,7 @@ Cholesky& Cholesky::operator=(const Cholesky &m)
   if (this != &m)
   {
     ALinearOp::operator =(m);
-    reset(m._mat, m._isDecomposed());
+    reset(m._mat, m.isCholeskyDecomposed());
   }
   return *this;
 }
@@ -93,12 +93,12 @@ int Cholesky::getSize() const
 /*!
 **  Evaluate the product: 'outv' = MAT^{-1} * 'inv'
 **
-** \param[in]  inv     Array of input values
+** \param[in]  vecin   Array of input values
 **
-** \param[out] outv    Array of output values
+** \param[out] vecout  Array of output values
 **
 *****************************************************************************/
-void Cholesky::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
+void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) const
 {
   if (!_isDefined())
   {
@@ -111,10 +111,10 @@ void Cholesky::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
 
   int n = getSize();
   for (int i = 0; i < n; i++) _work[i] = 0.;
-  cs_ipvec(n, _matS->Pinv, inv.data(), _work.data());
+  cs_ipvec(n, _matS->Pinv, vecin.data(), _work.data());
   cs_lsolve(_matN->L, _work.data());
   cs_ltsolve(_matN->L, _work.data());
-  cs_pvec(n, _matS->Pinv, _work.data(), outv.data());
+  cs_pvec(n, _matS->Pinv, _work.data(), vecout.data());
 }
 
 /*****************************************************************************/
@@ -173,7 +173,7 @@ void Cholesky::printout(const char *title, bool verbose) const
 void Cholesky::_decompose(bool verbose) const
 {
   if (!_isDefined()) return;
-  if (_isDecomposed()) return;
+  if (isCholeskyDecomposed()) return;
 
   /* Perform the Cholesky decomposition */
 
@@ -207,11 +207,11 @@ void Cholesky::_decompose(bool verbose) const
 /*!
  **  Simulate using Cholesky
  **
- ** \param[out] inv      input Vector
- ** \param[out] outv     Simulated output vector
+ ** \param[out] vecin    input Vector
+ ** \param[out] vecout   Simulated output vector
  **
  *****************************************************************************/
-void Cholesky::simulate(VectorDouble& inv, VectorDouble& outv)
+void Cholesky::simulate(VectorDouble& vecin, VectorDouble& vecout)
 {
   if (!_isDefined())
   {
@@ -223,10 +223,9 @@ void Cholesky::simulate(VectorDouble& inv, VectorDouble& outv)
   _decompose();
 
   int n = getSize();
-  cs_ltsolve(_matN->L, inv.data());
-  cs_pvec(n, _matS->Pinv, inv.data(), outv.data());
+  cs_ltsolve(_matN->L, vecin.data());
+  cs_pvec(n, _matS->Pinv, vecin.data(), vecout.data());
 }
-
 
 /****************************************************************************/
 /*!
@@ -318,7 +317,7 @@ double Cholesky::computeLogDet() const
   }
 
   // Perform Cholesky factorization (if needed)
-   _decompose();
+  _decompose();
 
   VectorDouble diag = csd_extract_diag_VD(_matN->L, 1);
   double det = 0.;

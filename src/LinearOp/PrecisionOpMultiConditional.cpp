@@ -34,6 +34,10 @@ PrecisionOpMultiConditional::PrecisionOpMultiConditional()
 
 }
 
+PrecisionOpMultiConditional::~PrecisionOpMultiConditional()
+{
+}
+
 VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal) const
 {
   VectorVectorDouble rhs(sizes());
@@ -233,13 +237,13 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& inv,
   _init();
   AtA(inv,_work2);
   for (int imod = 0; imod < sizes(); imod++)
-    _multiPrecisionOp[imod]->eval(inv[imod], outv[imod]);
-  sum(_work2,outv, outv);
+    _multiPrecisionOp[imod]->evalDirect(inv[imod], outv[imod]);
+  sum(_work2, outv, outv);
 }
 
 void PrecisionOpMultiConditional::simulateOnMeshings(VectorVectorDouble &result) const
 {
-  for(int icov = 0, ncov = (int) _multiPrecisionOp.size(); icov < ncov; icov++)
+  for (int icov = 0, ncov = (int) _multiPrecisionOp.size(); icov < ncov; icov++)
   {
     simulateOnMeshing(result[icov], icov);
   }
@@ -374,4 +378,3 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   return result;
 }
 
-PrecisionOpMultiConditional::~PrecisionOpMultiConditional(){}

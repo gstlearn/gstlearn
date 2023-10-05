@@ -390,7 +390,7 @@ double OptimCostBinary::_evaluateCost(const VectorDouble& indic,
 
   for (int i=0; i<_projData->getApexNumber(); i++) 
     _lambdav[i] = lambda[i] - _meanPropGaus;
-  _pMat->eval(_lambdav, _workv);
+  _pMat->evalDirect(_lambdav, _workv);
 
   double sum_str = 0.;
   for (int i=0; i<_projData->getApexNumber(); i++)
@@ -433,7 +433,7 @@ void OptimCostBinary::_evaluateGrad(const VectorDouble& indic,
 
   for (int i=0; i<_projData->getApexNumber(); i++) 
     _lambdav[i] = lambda[i] - _meanPropGaus;
-  _pMat->eval(_lambdav,_grad);
+  _pMat->evalDirect(_lambdav,_grad);
 
   // Contribution of the Data
 

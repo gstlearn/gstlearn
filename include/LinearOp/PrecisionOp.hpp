@@ -48,14 +48,15 @@ public:
                              int icov = 0,
                              bool verbose = false);
 
-  int reset(const ShiftOpCs* shiftop,
-            const CovAniso* cova = nullptr,
+  int reset(const ShiftOpCs *shiftop,
+            const CovAniso *cova = nullptr,
             bool verbose = false);
 
   // Interface functions for using PrecisionOp
-  virtual void eval(const VectorDouble &inv, VectorDouble &outv);
-  virtual void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result);
-  virtual void evalInvVect(VectorDouble& in, VectorDouble& result);
+  virtual void evalDirect(const VectorDouble &vecin, VectorDouble &vecout);
+  virtual void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& vecout);
+  virtual void evalInverse(VectorDouble& vecin, VectorDouble& vecout);
+
   virtual double computeLogDet(int nbsimu = 1, int seed = 0);
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,

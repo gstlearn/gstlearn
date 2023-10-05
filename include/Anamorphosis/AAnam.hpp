@@ -56,8 +56,7 @@ public:
   int fit(Db *db, const String& name);
 
   int rawToGaussianByLocator(Db *db,
-                             const NamingConvention &namconv = NamingConvention(
-                                 "Y"));
+                             const NamingConvention &namconv = NamingConvention("Y"));
   int rawToGaussian(Db *db,
                     const String &name,
                     const NamingConvention &namconv = NamingConvention("Y"));

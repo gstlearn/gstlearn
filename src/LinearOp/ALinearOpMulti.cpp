@@ -116,8 +116,8 @@ void ALinearOpMulti::_initPublic() const{
  ** \param[out] outv    Array of output values
  **
  *****************************************************************************/
-void ALinearOpMulti::evalDirect(const VectorVectorDouble& inv,
-                                VectorVectorDouble& outv) const
+void ALinearOpMulti::evalDirect(const VectorVectorDouble &inv,
+                                VectorVectorDouble &outv) const
 {
   try
   {
@@ -338,10 +338,9 @@ double ALinearOpMulti::innerProduct(const VectorVectorDouble& x,
   return s;
 }
 
-
-void ALinearOpMulti::diff(const VectorVectorDouble& in1,
-                           const VectorVectorDouble& in2,
-                           VectorVectorDouble& outv) const
+void ALinearOpMulti::diff(const VectorVectorDouble &in1,
+                          const VectorVectorDouble &in2,
+                          VectorVectorDouble &outv) const
 {
   for(int is = 0;is<sizes();is++)
   {
@@ -353,13 +352,13 @@ void ALinearOpMulti::diff(const VectorVectorDouble& in1,
 }
 
 
-void ALinearOpMulti::sum(const VectorVectorDouble& in1,
-         const VectorVectorDouble& in2,
-         VectorVectorDouble& outv) const
+void ALinearOpMulti::sum(const VectorVectorDouble &in1,
+                         const VectorVectorDouble &in2,
+                         VectorVectorDouble &outv) const
 {
-  for(int is = 0;is<sizes();is++)
+  for (int is = 0; is < sizes(); is++)
   {
-    for(int i = 0;i<size(is);i++)
+    for (int i = 0; i < size(is); i++)
     {
       outv[is][i] = in2[is][i] + in1[is][i];
     }

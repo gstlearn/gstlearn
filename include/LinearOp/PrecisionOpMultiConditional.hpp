@@ -13,10 +13,9 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "ALinearOpMulti.hpp"
-#include "PrecisionOp.hpp"
-#include "ProjMatrix.hpp"
-
+#include "LinearOp/ALinearOpMulti.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 
 #include <vector>
 
@@ -28,7 +27,8 @@ class GSTLEARN_EXPORT PrecisionOpMultiConditional : public ALinearOpMulti {
 
 public:
   PrecisionOpMultiConditional();
-
+  PrecisionOpMultiConditional(const PrecisionOpMultiConditional &m)= delete;
+  PrecisionOpMultiConditional& operator= (const PrecisionOpMultiConditional &m)= delete;
   virtual ~PrecisionOpMultiConditional();
 
   virtual double computeLogDetOp(int nbsimu = 1, int seed = 123) const;
@@ -64,8 +64,8 @@ protected:
   void _allocate(int i) const;
 
 private:
-  std::vector<PrecisionOp*>  _multiPrecisionOp;
-  std::vector<IProjMatrix*>  _multiProjData;
+  std::vector<PrecisionOp*>  _multiPrecisionOp; // Pointers are simply stored; do not delete
+  std::vector<IProjMatrix*>  _multiProjData; // Pointers are simply stored; do not delete
   VectorDouble               _varianceData; //dimension: _ndat
   int                        _ndat;
   int                        _ncova;

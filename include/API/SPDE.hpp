@@ -42,6 +42,11 @@ public:
        const Db* data = nullptr,
        const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
        const AMesh* mesh = nullptr,
+       int useCholesky = 0,
+       int refineK = 11,
+       int refineS = 18,
+       int border = 8,
+       double epsNugget = EPSILON2,
        bool verbose = false);
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
@@ -76,17 +81,8 @@ public:
   const AMesh* getSimuMeshing(int i = 0) const { return _meshingSimu[i]; }
   const Db* getData() const {return  _data;}
 
-  void setRefineK(int refineK)          { _refineK = refineK; }
-  void setRefineS(int refineS)          { _refineS = refineS; }
-  void setBorder(int border)            { _border = border; }
-  void setEpsNugget(double epsNugget)   { _epsNugget = epsNugget; }
-  void setUseCholesky(int useCholesky, bool verbose=false);
-
 private:
-  int _init(Model *model,
-            const Db *domain,
-            const Db *data = nullptr,
-            const ESPDECalcMode &calcul = ESPDECalcMode::fromKey("SIMUCOND"),
+  int _init(const Db *domain,
             const AMesh *mesh = nullptr,
             bool verbose = false);
   void _centerByDrift(const VectorDouble& dataVect,int ivar=0,bool useSel=true) const;
@@ -100,7 +96,7 @@ private:
   void _computeSimuCond() const;
   void _addNuggetOnResult(VectorDouble &result);
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
-  bool _isUseCholesky() const { return _useCholesky; }
+  void _setUseCholesky(int useCholesky = 0, bool verbose = false);
 
 private:
   const Db*_data;

@@ -163,6 +163,7 @@ set(SRC
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
+  LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/Cholesky.cpp

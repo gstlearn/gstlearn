@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
+//  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -57,6 +57,8 @@ int main(int argc, char *argv[])
   // 2: non-conditional simulations
   // 3: conditional simulations
   int mode = 1;
+  int useCholesky = 0;
+  bool verbose = true;
 
   // Generate the data base
   Db* dat = Db::createFillRandom(ndat);
@@ -68,29 +70,29 @@ int main(int argc, char *argv[])
   // Generate the output grid
   DbGrid* grid = DbGrid::create({nxref, nxref}, {1./(nxref-1), 1./(nxref-1)});
 
-  // Evaluate Kriging
+  // Kriging
   if (mode == 0 || mode == 1)
   {
     timer.reset();
-    (void) krigingSPDE(dat, grid, model, true, false, false);
+    (void) krigingSPDE(dat, grid, model, true, false, false, nullptr, useCholesky, 11, 8, 1.e-2, verbose);
     timer.displayIntervalMilliseconds("Kriging", 400);
   }
 
-  // Evaluate non-conditional simulations
+  // Non-conditional simulations
   if (mode == 0 || mode == 2)
   {
     timer.reset();
-    (void) simulateSPDE(NULL, grid, model, nsim, NULL, 0, 11, 18, 8, seed, 1.e-2,
-                        false, NamingConvention("Simu.NC"));
+    (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky, 11, 18, 8, seed, 1.e-2, verbose,
+                        NamingConvention("Simu.NC"));
     timer.displayIntervalMilliseconds("Non-conditional simulations", 1350);
   }
 
-  // Evaluate conditional simulations
+  // Conditional simulations
   if (mode == 0 || mode == 3)
   {
     timer.reset();
-    (void) simulateSPDE(dat, grid, model, nsim, NULL, 0, 11, 18, 8, seed, 1.e-2,
-                        false, NamingConvention("Simu.CD"));
+    (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky, 11, 18, 8, seed, 1.e-2, verbose,
+                        NamingConvention("Simu.CD"));
     timer.displayIntervalMilliseconds("Conditional simulations", 3130);
   }
 

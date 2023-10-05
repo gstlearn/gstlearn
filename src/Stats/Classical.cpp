@@ -1221,7 +1221,7 @@ MatrixRectangular* sphering(const AMatrix* X)
 }
 
 /**
- * \copydoc Stats6
+ * \copydoc Stats3
  * @param name1 Name of the primary variable
  * @param name2 Name of the secondary variable
  */
@@ -1477,7 +1477,7 @@ VectorDouble dbStatisticsPerCell(Db *db,
 }
 
 /**
- * \copydoc Stats5
+ * \copydoc Stats2
  *
  * @return A Table containing the results
  */

@@ -115,7 +115,7 @@ void HessianOp::_evalDirect(const VectorDouble& inv,
 
   // Contribution of the spatial structure
 
-  _pMat->eval(inv,outv);
+  _pMat->evalDirect(inv,outv);
 
   // Contribution of the Data
 

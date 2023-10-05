@@ -25,23 +25,25 @@
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
+                             bool flagDecompose,
                              bool verbose)
     : PrecisionOp(shiftop, cova, verbose),
       _Q(nullptr),
       _qChol()
 {
-  _buildQ();
+  _buildQ(flagDecompose);
 }
 
 PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
                              Model* model,
                              int icov,
+                             bool flagDecompose,
                              bool verbose)
     : PrecisionOp(mesh, model, icov, verbose),
       _Q(nullptr),
       _qChol()
 {
-  _buildQ();
+  _buildQ(flagDecompose);
 }
 
 PrecisionOpCs::~PrecisionOpCs()
@@ -105,42 +107,41 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
   double temp,val;
   int iadress;
 
-  for(int igparam = 0;igparam<getShiftOp()->getNModelGradParam();igparam++)
+  for (int igparam = 0; igparam < getShiftOp()->getNModelGradParam(); igparam++)
   {
-    for(int iapex=0;iapex<getSize();iapex++)
+    for (int iapex = 0; iapex < getSize(); iapex++)
     {
-      iadress = getShiftOp()->getSGradAddress(iapex,igparam);
+      iadress = getShiftOp()->getSGradAddress(iapex, igparam);
       result[iadress] = 0.;
-      if(igparam < getShiftOp()->getLambdaGradSize())
+      if (igparam < getShiftOp()->getLambdaGradSize())
       {
         val = getShiftOp()->getLambda(iapex);
-        temp = getShiftOp()->getLambdaGrad(igparam,iapex);
-        result[iadress]=  (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
-
+        temp = getShiftOp()->getLambdaGrad(igparam, iapex);
+        result[iadress] = (Y[iapex] * _work4[iapex] + X[iapex] * _work3[iapex]) * temp / val;
       }
 
-      evalDerivOptim(_work2,iapex,igparam,power);
-      for(int i = 0;i<getSize();i++)
+      evalDerivOptim(_work2, iapex, igparam, power);
+      for (int i = 0; i < getSize(); i++)
       {
-        result[iadress] += _work2[i]*Y[i];
+        result[iadress] += _work2[i] * Y[i];
       }
     }
   }
 }
 
-void PrecisionOpCs::eval(const VectorDouble &inv, VectorDouble &outv)
+void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
-  _qChol.evalDirect(inv, outv);
+  _qChol.evalDirect(vecin, vecout);
 }
 
-void PrecisionOpCs::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result)
+void PrecisionOpCs::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& vecout)
 {
-  _qChol.simulate(whitenoise, result);
+  _qChol.simulate(whitenoise, vecout);
 }
 
-void PrecisionOpCs::evalInvVect(VectorDouble& in, VectorDouble& result)
+void PrecisionOpCs::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
 {
-  _qChol.evalInverse(in, result);
+  _qChol.evalInverse(vecin, vecout);
 }
 
 double PrecisionOpCs::computeLogDet(int nbsimu, int seed)
@@ -218,7 +219,7 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 //
 //}
 
-void PrecisionOpCs::_buildQ()
+void PrecisionOpCs::_buildQ(bool flagDecompose)
 {
   if (_Q != nullptr) _Q = cs_spfree(_Q);
   if (! isCovaDefined()) return;
@@ -231,5 +232,5 @@ void PrecisionOpCs::_buildQ()
                      static_cast<int>(blin.size()), blin.data());
 
   // Store the Precision matrix for Cholesky decomposition
-  _qChol.reset(_Q, false);
+  _qChol.reset(_Q, flagDecompose);
 }

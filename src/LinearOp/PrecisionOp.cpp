@@ -287,12 +287,12 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
 
 /**
  * Evaluate with power = ONE
- * @param inv Input array
- * @param outv Output array
+ * @param vecin Input array
+ * @param vecout Output array
  */
-void PrecisionOp::eval(const VectorDouble &inv, VectorDouble &outv)
+void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
-  evalPower(inv, outv, EPowerPT::ONE);
+  evalPower(vecin, vecout, EPowerPT::ONE);
 }
 
 void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const EPowerPT& power)
@@ -358,11 +358,11 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
   return 0;
 }
 
-void PrecisionOp::evalInvVect(VectorDouble& in, VectorDouble& result)
+void PrecisionOp::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
 {
-  _shiftOp->prodLambda(in,result,EPowerPT::MINUSONE);
-  _evalPoly(EPowerPT::MINUSONE, result, in);
-  _shiftOp->prodLambda(in, result, EPowerPT::MINUSONE);
+  _shiftOp->prodLambda(vecin,vecout,EPowerPT::MINUSONE);
+  _evalPoly(EPowerPT::MINUSONE, vecout, vecin);
+  _shiftOp->prodLambda(vecin, vecout, EPowerPT::MINUSONE);
 }
 
 VectorDouble PrecisionOp::evalCov(int imesh)
@@ -380,10 +380,10 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   return result;
 }
 
-void PrecisionOp::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result)
+void PrecisionOp::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& vecout)
 {
-  _evalPoly(EPowerPT::MINUSHALF,whitenoise,result);
-  _shiftOp->prodLambda(result, result, EPowerPT::MINUSONE);
+  _evalPoly(EPowerPT::MINUSHALF, whitenoise, vecout);
+  _shiftOp->prodLambda(vecout, vecout, EPowerPT::MINUSONE);
 }
 
 VectorVectorDouble PrecisionOp::simulate(int nbsimu)
