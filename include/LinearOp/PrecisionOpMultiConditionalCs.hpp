@@ -31,9 +31,11 @@ public:
   PrecisionOpMultiConditionalCs& operator= (const PrecisionOpMultiConditionalCs &m)= delete;
   virtual ~PrecisionOpMultiConditionalCs();
 
-  void push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
+  int push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
 
 private:
-  cs* _Q;
+  int _buildQmult();
+
+private:
   Cholesky _qChol;
 };

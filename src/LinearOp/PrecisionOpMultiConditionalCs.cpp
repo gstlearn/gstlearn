@@ -23,24 +23,30 @@
 #include <math.h>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
-    : _Q(nullptr),
-      _qChol()
+    : _qChol()
 {
 
 }
 
 PrecisionOpMultiConditionalCs::~PrecisionOpMultiConditionalCs()
 {
-  _Q = cs_spfree(_Q);
 }
 
-void PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
+int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
 {
   PrecisionOpCs* pmatElemCs = dynamic_cast<PrecisionOpCs*>(pmatElem);
   if (pmatElemCs == nullptr)
   {
     messerr("The first argument of 'push_back' should be a pointer to PrecisionOpCs");
-    return;
+    return 1;
   }
-  PrecisionOpMultiConditional::push_back(pmatElem, projDataElem);
+  return PrecisionOpMultiConditional::push_back(pmatElem, projDataElem);
+}
+
+int PrecisionOpMultiConditionalCs::_buildQmult()
+{
+  cs *Qmult;
+  int number = sizes();
+
+
 }

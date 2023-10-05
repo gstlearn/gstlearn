@@ -42,7 +42,7 @@ public:
        const Db* data = nullptr,
        const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
        const AMesh* mesh = nullptr,
-       int useCholesky = 0,
+       int useCholesky = -1,
        int refineK = 11,
        int refineS = 18,
        int border = 8,
@@ -96,7 +96,7 @@ private:
   void _computeSimuCond() const;
   void _addNuggetOnResult(VectorDouble &result);
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
-  void _setUseCholesky(int useCholesky = 0, bool verbose = false);
+  void _setUseCholesky(int useCholesky = -1, bool verbose = false);
 
 private:
   const Db*_data;
@@ -138,7 +138,7 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 bool flag_std = false,
                                 bool flag_varz = false,
                                 const AMesh* mesh = nullptr,
-                                int useCholesky = 0,
+                                int useCholesky = -1,
                                 int refineK = 11,
                                 int border = 8,
                                 double epsNugget = 1.e-2,
@@ -149,7 +149,7 @@ GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  Model *model,
                                  int nbsimu = 1,
                                  const AMesh *mesh = nullptr,
-                                 int useCholesky = 0,
+                                 int useCholesky = -1,
                                  int refineK = 11,
                                  int refineS = 18,
                                  int border = 8,

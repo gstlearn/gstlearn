@@ -147,12 +147,12 @@ SPDE* SPDE::create(Model *model,
 
 /**
  * Define if Cholesky must be used or not
- * @param useCholesky: 1 for YES; -1 for No; 0: set optimal default
+ * @param useCholesky: 1 for YES; 0 for No; -1: set optimal default
  * @param verbose: Verbose flag
  */
 void SPDE::_setUseCholesky(int useCholesky, bool verbose)
 {
-  if (useCholesky == 0)
+  if (useCholesky == -1)
   {
     if (_model->getDimensionNumber() == 2)
       _useCholesky = true;
@@ -190,8 +190,8 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
       message("- Choice for the Cholesky option = ON");
     else
       message("- Choice for the Cholesky option = OFF");
-    if (useCholesky == 0)
-      message(" (automatic setting)\n");
+    if (useCholesky == -1)
+      message(" (Automatic setting)\n");
     else
       message("\n");
   }
@@ -259,7 +259,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        _precisionsSimu->push_back(precision, proj);
+        if (_precisionsSimu->push_back(precision, proj)) return 1;
         _precisionsSimu->setVarianceDataVector(varianceData);
         _workingSimu.push_back(VectorDouble(precision->getSize()));
       }
@@ -285,7 +285,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
 
         _precisionsKrig->setNIterMax(_nIterMax);
         _precisionsKrig->setEps(_eps);
-        _precisionsKrig->push_back(precision, proj);
+        if (_precisionsKrig->push_back(precision, proj)) return 1;
         _workingKrig.push_back(VectorDouble(precision->getSize()));
       }
     }

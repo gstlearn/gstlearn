@@ -63,19 +63,35 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const VectorDouble& datVal, 
   }
 }
 
-void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem)
+int PrecisionOpMultiConditional::push_back(PrecisionOp *pmatElem,
+                                           IProjMatrix *projDataElem)
 {
   if (sizes() == 0 && projDataElem != nullptr)
   {
+    // From the first element of the list, get the number of data and set _ndat
     _ndat = projDataElem->getPointNumber(); //TODO Vérifier la cohérence. _ndat doit coïncider pour tous les projDataElem.
     _work1.resize(_ndat);
     _workdata.resize(_ndat);
+  }
+
+  // Check that '_ndat' is the same for all IProjMatrix
+
+  for (int i = 0, n = sizes(); i < n; i++)
+  {
+    int ndatloc = _multiProjData[i]->getPointNumber();
+    if (ndatloc != _ndat)
+    {
+      messerr("The Projection matrix for element %d refers to %d data",i,ndatloc);
+      messerr("It should be %d as for the others", _ndat);
+      return 1;
+    }
   }
   _multiPrecisionOp.push_back(pmatElem);
   _work2.push_back(VectorDouble(pmatElem->getSize()));
   _multiProjData.push_back(projDataElem);
   _updated();
   _ncova++;
+  return 0;
 }
 
 std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const

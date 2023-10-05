@@ -32,7 +32,7 @@ public:
   virtual ~PrecisionOpMultiConditional();
 
   virtual double computeLogDetOp(int nbsimu = 1, int seed = 123) const;
-  virtual void push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
+  virtual int push_back(PrecisionOp *pmatElem, IProjMatrix *projDataElem = nullptr);
 
   VectorDouble getAllVarianceData() const {return _varianceData;}
   double getVarianceData(int iech)const {return  _varianceData[iech];}
@@ -57,7 +57,7 @@ public:
   void preparePoly(Chebychev& logPoly) const;
   void AtA(const VectorVectorDouble& inv,VectorVectorDouble& outv) const;
   VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
-  const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*)_multiProjData[i];}
+  const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*) _multiProjData[i];}
 
 protected:
   void _evalDirect(const VectorVectorDouble& inv, VectorVectorDouble& outv) const override;
@@ -66,7 +66,7 @@ protected:
 private:
   std::vector<PrecisionOp*>  _multiPrecisionOp; // Pointers are simply stored; do not delete
   std::vector<IProjMatrix*>  _multiProjData; // Pointers are simply stored; do not delete
-  VectorDouble               _varianceData; //dimension: _ndat
+  VectorDouble               _varianceData; // Dimension: _ndat
   int                        _ndat;
   int                        _ncova;
   mutable VectorDouble       _work1;
