@@ -3,11 +3,15 @@ title: "Tutorial 2D"
 author: "D. Renard"
 date: "25 juin 2022"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 editor_options: 
   chunk_output_type: console
 ---
+
+<!-- KEYWORDS: db variogram model kriging simulation plot -->
+
+<!-- SUMMARY: Standard workflow on a 2-D data set. Performs variography and modeling, estimation and simulation, in a monovariate and bivariate cases.  -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -23,7 +27,7 @@ Global variables
 ```{r}
 verbose = TRUE
 graphics = TRUE
-OptCst_define(ECst_NTCOL(),6)
+err = OptCst_define(ECst_NTCOL(),6)
 ```
 
 # Reading data
@@ -278,6 +282,8 @@ if (verbose)
 ```
 
 Visualizing the results
+
+<!-- FIGURE -->
 
 ```{r}
 if (graphics)
