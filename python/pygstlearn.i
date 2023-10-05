@@ -1017,6 +1017,13 @@ def Db_toTL(self, flagLocate=False):
 
 setattr(gl.Db, "toTL", Db_toTL)
 
+
+def Db_fromTL(df):
+  print("coucou")
+  return Db()
+
+gl.Db.fromTL = staticmethod(Db_fromTL)
+
 def matrix_toTL(self):
   if self.isSparse():
     Acs = self.getCsToTriplet().toTL()
