@@ -41,8 +41,8 @@
 #  - check_test_cpp Execute a single C++ test    (set $TEST variable)
 #
 # Demonstration scripts:
-#  - check_ipynb    Execute demonstration scripts (jupyter notebooks)
-#  - check_rmd      Execute demonstration scripts (R Markdown)
+#  - check_ipynb    Execute demonstration scripts (jupyter notebooks) and check output
+#  - check_rmd      Execute demonstration scripts (R Markdown) and check output
 #  - build_demos    Execute demonstration scripts (jupyter and R Markdown) and build HTMLs
 #  - build_courses  Execute courses scripts (jupyter and R Markdown) and build HTMLs
 #
@@ -169,7 +169,6 @@ python_install: cmake-python
 	@cmake --build $(BUILD_DIR) --target python_install -- --no-print-directory $(N_PROC_OPT)
 
 
-
 .PHONY: r_doc r_build r_install
 
 r_doc: cmake-r #cmake-r-doxygen
@@ -180,7 +179,6 @@ r_build: cmake-r #cmake-r-doxygen
 
 r_install: cmake-r #cmake-r-doxygen
 	@cmake --build $(BUILD_DIR) --target r_install -- --no-print-directory $(N_PROC_OPT)
-
 
 
 .PHONY: check_data check_cpp check_py check_r check check_ipynb check_rmd check_test_cpp check_test_py check_test_r build_demos build_courses
@@ -194,7 +192,7 @@ check_cpp: cmake
 check_py: cmake-python
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_py -- --no-print-directory $(N_PROC_OPT)
 
-check_r: cmake-r-doxygen
+check_r: cmake-r #cmake-r-doxygen
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_r -- --no-print-directory $(N_PROC_OPT)
 
 check: cmake-python-r
@@ -203,7 +201,7 @@ check: cmake-python-r
 check_ipynb: cmake-python
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_ipynb -- --no-print-directory $(N_PROC_OPT)
 
-check_rmd: cmake-r-doxygen
+check_rmd: cmake-r #cmake-r-doxygen
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check_rmd -- --no-print-directory $(N_PROC_OPT)
 
 check_test_cpp: cmake
