@@ -31,10 +31,20 @@ public:
   PrecisionOpMultiConditionalCs& operator= (const PrecisionOpMultiConditionalCs &m)= delete;
   virtual ~PrecisionOpMultiConditionalCs();
 
+  /// Interface to PrecisionOpMultiConditional
+  void makeReady() override;
   int push_back(PrecisionOp* pmatElem, IProjMatrix* projDataElem) override;
 
+  /// Interface to ALinearOp
+  void evalInverse(const VectorVectorDouble &vecin,
+                   VectorVectorDouble &vecout) const override;
+
+  void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
+
 private:
-  int _buildQmult();
+  cs* _buildQmult() const;
+  ProjMatrix* _buildAmult() const;
+  int _buildQpAtA();
 
 private:
   Cholesky _qChol;

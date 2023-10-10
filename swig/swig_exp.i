@@ -154,6 +154,8 @@
 %include Polynomials/MonteCarlo.hpp
 %include Polynomials/Chebychev.hpp
 
+%include LinearOp/CGParam.hpp
+%include LinearOp/LogStats.hpp
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/ShiftOpCs.hpp
@@ -256,6 +258,7 @@
 %include API/PGSSPDE.hpp
 %include API/TestInheritance.hpp
 %include API/Style.hpp
+%include API/SPDEParam.hpp
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp

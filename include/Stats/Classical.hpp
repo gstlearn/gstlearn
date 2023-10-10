@@ -25,22 +25,14 @@ GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& op
 GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
 
 /**
- * \defgroup Stats1 Statistics on variables
+ * \defgroup Stats1 Statistics on variables of a Db
  *
- * \brief Compute one or several statistics (opers) on variables (names) contained in a Db and produce the results
- * in a convenient output format (Vector of values or Table).
+ * \brief Compute one or several statistics (oper/opers) on a set of variables (names)
+ * contained in a Db and produce the results as a Table or as variables added to the input Db
  *
  * @param db         Db structure
  * @param names      Vector of n describing the target variables
- * @param opers      List of the operator ranks
- * @param flagIso    Restrain statistics to isotopic samples
- * @param flagCorrel Print the correlation matrix
- * @param proba      Probability value (between 0 and 1)
- * @param vmin       Minimum threshold
- * @param vmax       Maximum threshold
  * @param title      Title given to the output (if defined)
- * @param radix      Radix given to the printout
- *
  *  @{
  */
 GSTLEARN_EXPORT Table dbStatisticsMono(Db *db,
@@ -62,22 +54,6 @@ GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
                                        bool flagCorrel = false,
                                        const String &title = String(),
                                        const String &radix = String());
-/**@}*/
-
-/**
- * \defgroup Stats2 Multivariate Statistics on variables
- *
- * \brief Compute one multivariate statistics (oper) on variables (names) contained in a Db and produce the results
- * in a convenient output format (Vector of values or Table).
- *
- * @param db         Db structure
- * @param names      Vector of n describing the target variables
- * @param oper       Operator type
- * @param flagMono   When True, statistics by variable; otherwise, statistics by pair of variables
- * @param title      Title given to the output (if defined)
- *
- *  @{
- */
 GSTLEARN_EXPORT Table dbStatisticsMulti(Db *db,
                                         const VectorString &names,
                                         const EStatOption &oper = EStatOption::MEAN,
@@ -87,8 +63,9 @@ GSTLEARN_EXPORT Table dbStatisticsMulti(Db *db,
 /**@}*/
 
 /**
- * \defgroup Stats3 Statistics of points per cell
- * \brief Statistics of points per cell
+ * \defgroup Stats3 Statistics from Db to DbGrid
+ *
+ * \brief Compute Statistics of points per cell
  *
  * @param  db         Input Db
  * @param  dbgrid     Output Grid Db

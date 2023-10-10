@@ -29,9 +29,12 @@ public:
   int getSize() const override;
   void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const override;
 
+  bool isDefined() const { return _mat != nullptr; }
   bool isCholeskyDecomposed() const { return _matS != nullptr && _matN != nullptr; }
 
   int  reset(const cs* mat = nullptr, bool flagDecompose = true);
+  void decompose(bool verbose = false) const;
+
   void simulate(VectorDouble& vecin, VectorDouble& vecout);
   void stdev(VectorDouble& vcur, bool flagStDev = false);
   void printout(const char *title, bool verbose = false) const;
@@ -41,9 +44,7 @@ protected:
   void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
 private:
-  bool _isDefined() const { return _mat != nullptr; }
   void _clean();
-  void _decompose(bool verbose = false) const;
 
 private:
   const cs* _mat; // Copy of the pointer

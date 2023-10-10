@@ -52,11 +52,11 @@ Data Base Statistics
 5 - Name spde - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -3.861
- Maximum value       =      4.022
- Mean value          =     -0.134
- Standard Deviation  =      1.002
- Variance            =      1.003
+ Minimum value       =     -2.633
+ Maximum value       =      3.257
+ Mean value          =      0.299
+ Standard Deviation  =      0.906
+ Variance            =      0.821
 
 Variables
 ---------

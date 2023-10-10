@@ -13,6 +13,7 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Timer.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
@@ -63,6 +64,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int icov,
+                         const CGParam params,
                          bool verbose)
   : _shiftOp(nullptr)
   , _cova(model->getCova(icov))
@@ -75,7 +77,7 @@ PrecisionOp::PrecisionOp(const AMesh* mesh,
   , _work2()
   , _work3()
 {
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,verbose);
+  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,icov,params,verbose);
 
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
@@ -122,7 +124,6 @@ void PrecisionOp::_purge()
       delete e.second;
   }
   _polynomials.clear();
-
 }
 
 PrecisionOp::~PrecisionOp()
@@ -239,16 +240,13 @@ double PrecisionOp::computeLogDet(int nbsimu,int seed)
       val1 += gauss[i] * result[i];
     }
   }
-
   val1 /= nbsimu;
 
   double val2 = 0.;
-
   for (auto &e : _shiftOp->getLambdas())
   {
     val2 += log(e);
   }
-
   val1 += 2. * val2;
 
   return val1;
@@ -292,7 +290,11 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
  */
 void PrecisionOp::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
+  Timer time;
+
   evalPower(vecin, vecout, EPowerPT::ONE);
+
+  getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
 void PrecisionOp::evalPower(const VectorDouble& inv, VectorDouble& outv, const EPowerPT& power)
@@ -360,9 +362,13 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
 
 void PrecisionOp::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
 {
+  Timer time;
+
   _shiftOp->prodLambda(vecin,vecout,EPowerPT::MINUSONE);
   _evalPoly(EPowerPT::MINUSONE, vecout, vecin);
   _shiftOp->prodLambda(vecin, vecout, EPowerPT::MINUSONE);
+
+  getLogStats().incrementStatsInversePoly(time.getIntervalSeconds());
 }
 
 VectorDouble PrecisionOp::evalCov(int imesh)
@@ -380,10 +386,15 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   return result;
 }
 
-void PrecisionOp::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& vecout)
+void PrecisionOp::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
 {
+
+  Timer time;
+
   _evalPoly(EPowerPT::MINUSHALF, whitenoise, vecout);
   _shiftOp->prodLambda(vecout, vecout, EPowerPT::MINUSONE);
+
+  getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
 }
 
 VectorVectorDouble PrecisionOp::simulate(int nbsimu)
@@ -460,18 +471,6 @@ APolynomial* PrecisionOp::getPoly(const EPowerPT& power)
   if (_preparePoly(power))
     my_throw("Problem in function getPoly");
   return _polynomials[power];
-}
-
-void PrecisionOp::setNIterMax(int nitermax)
-{
-  if (_shiftOp != nullptr)
-    _shiftOp->setNIterMax(nitermax);
-}
-
-void PrecisionOp::setEps(double eps)
-{
-  if (_shiftOp != nullptr)
-    _shiftOp->setEps(eps);
 }
 
 VectorDouble PrecisionOp::getCoeffs()

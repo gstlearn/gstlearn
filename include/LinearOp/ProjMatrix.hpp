@@ -65,7 +65,7 @@ public:
   Triplet getAprojToTriplet(bool flag_from_1 = false) const;
 
 private:
-  int  _nPoint;
-  int  _nApices;
+  int  _nPoint; // _nPoint = Number of rows of _Aproj
+  int  _nApices; // _nApices = number of columns of _Aproj
   cs*  _Aproj;
 };

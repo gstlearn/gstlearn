@@ -23,28 +23,27 @@
 
 #include <math.h>
 
-OptimCostBinary::OptimCostBinary() 
-  : IOptimCost()
-  , _isInitialized(false)
-  , _flagSeismic(false)
-  , _meanPropRaw(0.)
-  , _meanPropGaus(0.)
-  , _pMat(nullptr)
-  , _projData(nullptr)
-  , _projSeis(nullptr)
-  , _propSeis()
-  , _varSeis()
-  , _cgMaxIter(100)
-  , _cgEps(1.e-08)
-  , _flagCgPreCond(false)
-  , _chebNcmax(10001)
-  , _chebTol(5.e-3)
-  , _grad()
-  , _workp()
-  , _workx()
-  , _workv()
-  , _lambdav()
-  , _works()
+OptimCostBinary::OptimCostBinary(const CGParam params)
+    : IOptimCost(),
+      _isInitialized(false),
+      _flagSeismic(false),
+      _meanPropRaw(0.),
+      _meanPropGaus(0.),
+      _pMat(nullptr),
+      _projData(nullptr),
+      _projSeis(nullptr),
+      _propSeis(),
+      _varSeis(),
+      _params(params),
+      _flagCgPreCond(false),
+      _chebNcmax(10001),
+      _chebTol(5.e-3),
+      _grad(),
+      _workp(),
+      _workx(),
+      _workv(),
+      _lambdav(),
+      _works()
 {
 }
 
@@ -59,8 +58,7 @@ OptimCostBinary::OptimCostBinary(const OptimCostBinary &m)
       _projSeis(m._projSeis),
       _propSeis(m._propSeis),
       _varSeis(m._varSeis),
-      _cgMaxIter(m._cgMaxIter),
-      _cgEps(m._cgEps),
+      _params(m._params),
       _flagCgPreCond(m._flagCgPreCond),
       _chebNcmax(m._chebNcmax),
       _chebTol(m._chebTol),
@@ -86,8 +84,7 @@ OptimCostBinary& OptimCostBinary::operator = (const OptimCostBinary &m)
     _projSeis = m._projSeis;
     _propSeis = m._propSeis;
     _varSeis = m._varSeis;
-    _cgMaxIter = m._cgMaxIter;
-    _cgEps = m._cgEps;
+    _params = m._params;
     _flagCgPreCond = m._flagCgPreCond;
     _chebNcmax = m._chebNcmax;
     _chebTol = m._chebTol;
@@ -195,13 +192,11 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
 
     // Instantiate the Hessian
 
-    hess = new HessianOp();
+    if (_flagCgPreCond)
+      _params.setPrecond(_pMat->getShiftOp(),-1);
+    hess = new HessianOp(_params);
     if (hess->init(_pMat, _projData, _projSeis, indic, _propSeis, _varSeis)) 
       my_throw("Problem in Hessian init() method");
-    hess->setEps(_cgEps);
-    hess->setNIterMax(_cgMaxIter);
-    if (_flagCgPreCond)
-      hess->setPrecond(_pMat->getShiftOp(),-1);
 
     // Core allocation
 

@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 
   //////////////////////
   /// Kriging using SPDE
-  SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING);
+  int useCholesky = 0;
+  SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING,nullptr,useCholesky);
   VectorDouble coeffs = spde.getCoeffs();
   spde.compute(grid);
 

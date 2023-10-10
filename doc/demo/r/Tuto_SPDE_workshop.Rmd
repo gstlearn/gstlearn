@@ -60,7 +60,6 @@ OptCst_defineByKey("ASP",0)
 
 set.seed(43243)
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-
 ```
 
 ## Parameters of the SPDE model
@@ -117,8 +116,6 @@ p = ggDefaultGeographic() +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Target grid")
 ggPrint(p)
-
-
 ```
 
 ## Model definition
@@ -132,7 +129,8 @@ model = Model_createFromParam(ECov_BESSEL_K(), param=1,range=rangev,sill=sill)
 This covariance function is converted into a SPDE model.
 
 ```{r SPDE_simulation, echo=TRUE, eval=TRUE}
-spde = SPDE_create(model, domain = gridExt, calcul = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
+spde = SPDE_create(model, domain = gridExt, calcul = ESPDECalcMode_SIMUNONCOND(), 
+                   mesh = mesh)
 ```
 
 Possible values for the *calcul* parameter are:
@@ -168,7 +166,7 @@ A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
 
 ```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
 # Cholesky decomposition of precision matrix of the latent vector
-Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
+Q = spde$getPrecisionOpCs()$getQToTriplet()$toTL()
 cholQ =  Cholesky(Q, LDL = FALSE)
 ```
 
@@ -198,7 +196,7 @@ err = grid$setColumn(tab = Y_g, name = "manual.simu", useSel = FALSE)
 # plot
 p = ggDefaultGeographic() + 
     plot.grid(grid, nameRaster = "manual.simu", useSel = TRUE, 
-            flagLegendRaster = TRUE, palette = "Spectral") +
+            flagLegendRaster = TRUE, legendNameRaster = "NC Simu", palette = "Spectral") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Non conditional simulation")
 ggPrint(p)
@@ -244,7 +242,7 @@ err = grid$setColumn(name = "manual.kriging", tab = kriging)
 # plot of kriging
 p = ggDefaultGeographic() + 
     plot.grid(grid, nameRaster = "manual.kriging", useSel = TRUE, palette = "Spectral", 
-            flagLegendRaster = TRUE) +
+            flagLegendRaster = TRUE, legendNameRaster = "Kriging") +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Kriging")
@@ -276,7 +274,7 @@ S_g = (A_g %*% Zc)[,1:nsim]
 err = grid$setColumn(tab = S_g[,1], name = "manual.cond.simu", useSel = TRUE)
 p = ggDefaultGeographic() + 
     plot.grid(grid, nameRaster = "manual.cond.simu", useSel = TRUE, palette = "Spectral", 
-            flagLegendRaster = TRUE) +
+            flagLegendRaster = TRUE, legendNameRaster = "CD. Simu") +
     plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional simulation")
@@ -298,39 +296,44 @@ err = grid$setColumn(tab = ce, name = "manual.cond.std", useSel = TRUE)
 
 # plots
 
-p1 = ggDefaultGeographic() + 
-    plot.grid(grid, nameRaster = "manual.cond.expectation", useSel = TRUE, palette = "Spectral", 
-            flagLegendRaster = TRUE) +
+p = ggDefaultGeographic() + 
+    plot.grid(grid, nameRaster = "manual.cond.expectation", useSel = TRUE, 
+              palette = "Spectral", 
+              flagLegendRaster = TRUE, legendNameRaster = "CD. Exp.") +
     # plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional expectation")
-p2 = ggDefaultGeographic() + 
+ggPrint(p)
+
+p = ggDefaultGeographic() + 
     plot.grid(grid, nameRaster = "manual.cond.std", useSel = TRUE, palette = "Spectral", 
-            flagLegendRaster = TRUE) +
+              flagLegendRaster = TRUE, legendNameRaster = "CD. Std.") +
     # plot.point(dat, col = "red") +
     plot.decoration(xlab = "Easting", ylab = "Northing", 
                   title = "Conditional standard deviation")
-ggarrange(p1, p2, ncol = 2, nrow = 1)
+ggPrint(p)
 
 # cross plot: initial simulation vs. kriging
-p1 = ggDefault() + 
+p = ggDefault() + 
     plot.correlation(db1 = grid, 
                      namex = "manual.kriging", 
-                     namey = "manual.simu", asPoint = FALSE, 
+                     namey = "manual.simu", asPoint = FALSE, bins=100,
                      flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE) +
-    plot.decoration(xlab = "Estimation (Kriging)", ylab = "Actual value (Initial simulation)", 
-                  title = "Simulation vs. kriging")
+    plot.decoration(xlab = "Estimation (Kriging)", 
+                    ylab = "Actual value (Initial simulation)", 
+                    title = "Simulation vs. kriging")
+ggPrint(p)
 
 # cross plot: empirical conditional expectation vs. kriging
-p2 = ggDefault() + 
+p = ggDefault() + 
     plot.correlation(db1 = grid, 
                      namex = "manual.cond.expectation", 
-                     namey = "manual.kriging", asPoint = FALSE, 
+                     namey = "manual.kriging", asPoint = FALSE, bins=100,
                      flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE) +
-    plot.decoration(xlab = "Cond. Expectation", ylab = "Kriging", 
-                  title = "Kriging vs. conditional expectation")
-ggarrange(p1, p2, ncol = 2, nrow = 1)
-
+    plot.decoration(xlab = "Cond. Expectation", 
+                    ylab = "Kriging", 
+                    title = "Kriging vs. conditional expectation")
+ggPrint(p)
 ```
 
 # Using the SPDE api defined in **gstlearn**
@@ -398,7 +401,7 @@ ggarrange(p1, p2, ncol = 2, nrow = 2)
 p = ggDefault() + 
     plot.correlation(db1 = grid, 
                      namex = "manual.kriging", 
-                     namey = "spdeK.Z.estim", asPoint = FALSE, 
+                     namey = "spdeK.Z.estim", asPoint = FALSE, bins=100,
                      flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE) +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
@@ -455,9 +458,9 @@ err = krigingSPDE(dbin = dat, dbout = grid, model = model,
 p = ggDefault() + 
     plot.correlation(db1 = grid, 
                      namex = "manual.kriging", 
-                     namey = "spde.fn.Z.estim", asPoint = FALSE, 
+                     namey = "spde.fn.Z.estim", asPoint = FALSE, bins=100,
                      flagDiag = TRUE, diagColor = "red", flagSameAxes = FALSE) +
-    plot.decoration(xlab = "Manual", ylab = "SPDE function", 
+    plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)
 

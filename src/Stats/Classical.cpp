@@ -455,6 +455,17 @@ void dbStatisticsVariables(Db *db,
   }
 }
 
+/**
+ * \copydoc Stats1
+ *
+ * @param opers      List of the operator ranks
+ * @param flagIso    Restrain statistics to isotopic samples
+ * @param proba      Probability value (between 0 and 1)
+ * @param vmin       Minimum threshold
+ * @param vmax       Maximum threshold
+ *
+ * @return A Table containing the results
+ */
 Table dbStatisticsMono(Db *db,
                        const VectorString &names,
                        const std::vector<EStatOption> &opers,
@@ -676,6 +687,13 @@ double dbStatisticsIndicator(Db *db)
   return prop;
 }
 
+/**
+ * \copydoc Stats1
+ *
+ * @param flagIso    Restrain statistics to isotopic samples
+ *
+ * @return A Table containing the correlation matrix
+ */
 Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const String& title)
 {
   VectorInt iuids = db->getUIDs(names);
@@ -992,6 +1010,14 @@ void _getRowname(const String &radix,
     (void) gslSPrintf(string, "Variable");
 }
 
+/**
+ * \copydoc Stats1
+ *
+ * @param opers      List of the operator ranks
+ * @param flagIso    Restrain statistics to isotopic samples
+ * @param flagCorrel Print the correlation matrix
+ * @param radix      Radix given to the printout
+ */
 void dbStatisticsPrint(const Db *db,
                        const VectorString &names,
                        const std::vector<EStatOption> &opers,
@@ -1476,8 +1502,12 @@ VectorDouble dbStatisticsPerCell(Db *db,
   return result;
 }
 
+
 /**
- * \copydoc Stats2
+ * \copydoc Stats1
+ *
+ * @param oper       Operator
+ * @param flagMono   When True, statistics by variable; otherwise, statistics by pair of variables
  *
  * @return A Table containing the results
  */

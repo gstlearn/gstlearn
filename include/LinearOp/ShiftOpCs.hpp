@@ -41,18 +41,20 @@ class GSTLEARN_EXPORT ShiftOpCs: public ALinearOp
 {
 
 public:
-  ShiftOpCs();
+  ShiftOpCs(const CGParam params = CGParam());
   ShiftOpCs(const AMesh* amesh,
             Model* model,
             const Db* dbout = nullptr,
             int igrf = 0,
             int icov = 0,
+            const CGParam params = CGParam(),
             bool verbose = false);
 #ifndef SWIG
   ShiftOpCs(const cs* S,
             const VectorDouble& TildeC,
             const VectorDouble& Lambda,
             Model* model,
+            const CGParam params = CGParam(),
             bool verbose = false);
 #endif
   ShiftOpCs(const ShiftOpCs &shift);
@@ -66,12 +68,14 @@ public:
                            const Db *dbout = nullptr,
                            int igrf = 0,
                            int icov = 0,
+                           const CGParam params = CGParam(),
                            bool verbose = false);
 #ifndef SWIG
   static ShiftOpCs* createFromSparse(const cs *S,
                                      const VectorDouble &TildeC,
                                      const VectorDouble &Lambda,
                                      Model *model,
+                                     const CGParam params = CGParam(),
                                      bool verbose = false);
 #endif
   int initFromMesh(const AMesh* amesh,

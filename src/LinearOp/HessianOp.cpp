@@ -15,8 +15,8 @@
 
 #include <math.h>
 
-HessianOp::HessianOp() 
-  : ALinearOp()
+HessianOp::HessianOp(const CGParam params)
+  : ALinearOp(params)
   , _isInitialized(false)
   , _flagSeismic(false)
   , _pMat(nullptr)

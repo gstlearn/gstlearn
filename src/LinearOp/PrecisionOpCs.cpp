@@ -38,8 +38,9 @@ PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
                              Model* model,
                              int icov,
                              bool flagDecompose,
+                             const CGParam params,
                              bool verbose)
-    : PrecisionOp(mesh, model, icov, verbose),
+    : PrecisionOp(mesh, model, icov, params, verbose),
       _Q(nullptr),
       _qChol()
 {
@@ -134,7 +135,7 @@ void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
   _qChol.evalDirect(vecin, vecout);
 }
 
-void PrecisionOpCs::simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& vecout)
+void PrecisionOpCs::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
 {
   _qChol.simulate(whitenoise, vecout);
 }
@@ -231,6 +232,13 @@ void PrecisionOpCs::_buildQ(bool flagDecompose)
   _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                      static_cast<int>(blin.size()), blin.data());
 
-  // Store the Precision matrix for Cholesky decomposition
+  // Prepare the Cholesky decomposition
   _qChol.reset(_Q, flagDecompose);
+  _qChol.mustShowStats(getLogStats().isMustPrint());
+}
+
+void PrecisionOpCs::makeReady()
+{
+  // Perform the Cholesky decomposition (if defined but not already performed)
+  if (_qChol.isDefined()) _qChol.decompose();
 }

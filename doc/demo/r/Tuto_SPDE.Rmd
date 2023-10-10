@@ -136,7 +136,7 @@ A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
 
 ```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
 # Cholesky decomposition of precision matrix of the latent vector
-Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
+Q = spde$getPrecisionOpCs()$getQToTriplet()$toTL()
 cholQ =  Cholesky(Q, LDL = FALSE)
 ```
 
@@ -387,7 +387,7 @@ invSigma <- function(tau, Ad, cholQop, x){
 
 # observations and precision kriging
 x    = dat["manual.simu"]
-pcm  = spdeRes$getPrecisionKriging() # What is the precision kriging?
+pcm  = spdeRes$getPrecisionKrig()
 
 # the observations are centred with mu (why?)
 ones = rep(1.0, length(x))
@@ -500,7 +500,7 @@ computeLL <- function(par, flag.chol = TRUE, nsim  = 0, seed = 0) {
 
   # using Cholesky decomposition
   if (flag.chol) {
-    Q = spde$getPrecisionOp()$getQToTriplet()$toTL()
+    Q = spde$getPrecisionOpCs()$getQToTriplet()$toTL()
     cholQ    = Cholesky(Q, LDL = FALSE)
     cholQ_TT = Cholesky(Q + 1/(tau^2) * t(A_d) %*% A_d, LDL = FALSE)
     logdet = detQ(cholQ) - length(x)*log((par$tau^2)) - detQ(cholQ_TT)

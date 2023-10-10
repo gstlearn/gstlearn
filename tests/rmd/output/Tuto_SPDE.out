@@ -1,7 +1,7 @@
 NULL
 [1] "quad_chol = 84.8891"
-[1] "quad_api  = 83.8169"
-[1] "Quadratic form: relative difference = -1.26%"
+[1] "quad_api  = 83.8384"
+[1] "Quadratic form: relative difference = -1.24%"
 [1] "log_det_op_chol = 26060.787"
 [1] "log_det_op_api  = 25947.8238"
 [1] "relative difference = -0.43%"
@@ -14,9 +14,9 @@ NULL
 [1] "log_det_LL_chol = 57.8915"
 [1] "log_det_LL_api  = 358.985"
 [1] "relative difference = 520.1%"
-[1] "likelihood api  = -241.5516"
+[1] "likelihood api  = -241.5624"
 [1] "likelihood_chol = -13.4988"
-[1] "1689%"
+[1] "1690%"
 
 Model characteristics
 =====================
@@ -52,7 +52,7 @@ Nugget Effect
 - Sill         =      0.000
 Total Sill     =      1.000
 [1] "Using Cholesky: LL = -13.4988217677376"
-[1] "Using SPDE api: LL = -217.985578209434"
+[1] "Using SPDE api: LL = -217.996310243654"
 
 
 Table: Maximum of Log-Likelihood for range and sill

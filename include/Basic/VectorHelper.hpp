@@ -93,18 +93,28 @@ public:
                          const double *vecb,
                          double *res,
                          int size);
+  static void addInPlace(const VectorVectorDouble &in1,
+                         const VectorVectorDouble &in2,
+                         VectorVectorDouble &outv);
   static VectorDouble subtract(const VectorDouble& veca, const VectorDouble& vecb);
   static void subtractInPlace(VectorDouble &dest, const VectorDouble &src);
   static void subtractInPlace(VectorInt &dest, const VectorInt &src);
+  static void subtractInPlace(const VectorVectorDouble &in1,
+                              const VectorVectorDouble &in2,
+                              VectorVectorDouble &outv);
 
   static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
 
   static void multiplyConstant(VectorDouble& vec, double v);
   static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
+  static void addMultiplyConstantInPlace(double val1,
+                                         const VectorVectorDouble &in1,
+                                         VectorVectorDouble &outv);
   static void divideConstant(VectorDouble& vec, double v);
   static void copy(const VectorDouble& vecin, VectorDouble& vecout, int size = -1);
   static void copy(const VectorInt &vecin, VectorInt &vecout, int size = -1);
+  static void copy(const VectorVectorDouble &inv, VectorVectorDouble &outv);
   static void addConstant(VectorDouble& vec, double v);
   static void addConstant(VectorInt& vec, int v);
 
@@ -123,6 +133,8 @@ public:
 
   static double innerProduct(const VectorDouble &veca, const VectorDouble &vecb, int size = -1);
   static double innerProduct(const double* veca, const double* vecb, int size);
+  static double innerProduct(const VectorVectorDouble &x,
+                             const VectorVectorDouble &y);
 
   static VectorDouble crossProduct3D(const VectorDouble &veca, const VectorDouble &vecb);
   static void crossProduct3DInPlace(const double *a, const double *b, double *v);
@@ -179,6 +191,14 @@ public:
   static std::pair<double,double> rangeVals(const VectorDouble& vec);
 
   static VectorDouble flatten(const VectorVectorDouble& vvd);
+  static VectorVectorDouble unflatten(const VectorDouble& vd, const VectorInt& sizes);
+  static void flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd);
+  static void unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd);
+  static void linearComb(double val1,
+                         const VectorVectorDouble &in1,
+                         double val2,
+                         const VectorVectorDouble &in2,
+                         VectorVectorDouble &outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
 };

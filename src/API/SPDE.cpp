@@ -22,6 +22,7 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
+#include "LinearOp/PrecisionOpMultiConditionalCs.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -38,11 +39,9 @@
  * @param calcul Option from ESPDECalcMode
  * @param meshUser The mesh for the discretization of the domain
  * @param useCholesky Define the choice regarding Cholesky
- * @param refineK Refinement factor for building internal meshing for Kriging
- * @param refineS Refinement factor for building internal meshing for Simulations
- * @param border Number of nodes used for extending the internal grid
- * @param epsNugget Value for the relaxing nugget effect
+ * @param params Set of SPDE parameters
  * @param verbose  Verbose flag
+ * @param showStats Display statistics for Linear Operations (when deleting the class)
  *
  * @details
  * Either Domain or a Mesh can be provided:
@@ -59,16 +58,11 @@ SPDE::SPDE(Model* model,
            const ESPDECalcMode& calcul,
            const AMesh* meshUser,
            int useCholesky,
-           int refineK,
-           int refineS,
-           int border,
-           double epsNugget,
-           bool verbose)
+           SPDEParam params,
+           bool verbose,
+           bool showStats)
     : _data(data),
       _calcul(calcul),
-      _refineK(refineK),
-      _refineS(refineS),
-      _border(border),
       _precisionsKrig(nullptr),
       _precisionsSimu(nullptr),
       _pilePrecisions(),
@@ -89,13 +83,11 @@ SPDE::SPDE(Model* model,
       _isCoeffsComputed(false),
       _deleteMesh(false),
       _useCholesky(true),
-      _nIterMax(1000),
-      _eps(EPSILON8),
-      _epsNugget(epsNugget)
+      _params(params)
 {
   _setUseCholesky(useCholesky, verbose);
 
-  (void) _init(domain, meshUser, verbose);
+  (void) _init(domain, meshUser, verbose, showStats);
 }
 
 SPDE::~SPDE()
@@ -140,9 +132,12 @@ SPDE* SPDE::create(Model *model,
                    const Db *data,
                    const ESPDECalcMode &calcul,
                    const AMesh* meshUser,
-                   bool verbose)
+                   int useCholesky,
+                   SPDEParam params,
+                   bool verbose,
+                   bool showStats)
 {
-  return new SPDE(model, domain, data, calcul, meshUser, verbose);
+  return new SPDE(model, domain, data, calcul, meshUser, useCholesky, params, verbose, showStats);
 }
 
 /**
@@ -197,13 +192,12 @@ void SPDE::_setUseCholesky(int useCholesky, bool verbose)
   }
 }
 
-int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
+int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool showStats)
 {
   const ANoStat* nostat = nullptr;
   if (_model->isNoStat()) nostat = _model->getNoStat();
 
-  // Preliminary check
-  if (_performKriging() && _data == nullptr)
+  if (_isKrigingRequested() && _data == nullptr)
   {
     messerr("You must define 'data' when performing Kriging or Conditional Simulations");
     return 1;
@@ -219,10 +213,19 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
   _requireCoeffs = _driftTab.size() > 0 && _data != nullptr;
 
   // Allocate the global structures (pointers)
-  if (_performSimulation())
+  if (_isSimulationRequested())
+  {
     _precisionsSimu = new PrecisionOpMultiConditional();
-  if (_performKriging() || _requireCoeffs)
-    _precisionsKrig = new PrecisionOpMultiConditional();
+    _precisionsSimu->mustShowStats(showStats);
+  }
+  if (_isKrigingRequested() || _requireCoeffs)
+  {
+    if (_useCholesky)
+      _precisionsKrig = new PrecisionOpMultiConditionalCs();
+    else
+      _precisionsKrig = new PrecisionOpMultiConditional();
+    _precisionsKrig->mustShowStats(showStats);
+  }
 
   // Loop on the basic structures
   for(int icov = 0 ; icov < _model->getCovaNumber(); icov++)
@@ -240,11 +243,11 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
     {
       totalSill += sill;
 
-      if (_performSimulation())
+      if (_isSimulationRequested())
       {
         if (meshUser == nullptr)
         {
-          mesh = MeshETurbo::createFromCova(*cova, domain, _refineS, _border,
+          mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineS(), _params.getBorder(),
                                             useSel, flagNoStatRot, verbose);
           _deleteMesh = true;
         }
@@ -254,6 +257,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
           precision = new PrecisionOpCs(mesh, _model, icov, true, verbose);
         else
           precision = new PrecisionOp(mesh, _model, icov, verbose);
+        precision->mustShowStats(showStats);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
@@ -264,40 +268,39 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
         _workingSimu.push_back(VectorDouble(precision->getSize()));
       }
 
-      if (_performKriging() || _requireCoeffs)
+      if (_isKrigingRequested() || _requireCoeffs)
       {
         if (meshUser == nullptr)
         {
-          mesh = MeshETurbo::createFromCova(*cova, domain, _refineK, _border,
-                                            useSel, flagNoStatRot, verbose);
+          mesh = MeshETurbo::createFromCova(*cova, domain, _params.getRefineK(),
+                                            _params.getBorder(), useSel, flagNoStatRot, verbose);
           _deleteMesh = true;
         }
         _meshingKrig.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, _params.getCGparams(), verbose);
         else
-          precision = new PrecisionOp(mesh, _model, icov, verbose);
+          precision = new PrecisionOp(mesh, _model, icov, _params.getCGparams(), verbose);
+        precision->mustShowStats(showStats);
         _pilePrecisions.push_back(precision);
 
         proj = new ProjMatrix(_data, mesh, 0);
         _pileProjMatrix.push_back(proj);
 
-        _precisionsKrig->setNIterMax(_nIterMax);
-        _precisionsKrig->setEps(_eps);
         if (_precisionsKrig->push_back(precision, proj)) return 1;
         _workingKrig.push_back(VectorDouble(precision->getSize()));
       }
     }
     else
     {
-      messerr("SPDE is only implemented for Matérn covariances (BESSEL_K) and Markov (MARKOV)");
+      messerr("SPDE is only implemented for Matérn (BESSEL_K) and Markov (MARKOV) covariances");
       return 1;
     }
   }
 
   // Evaluation of the variance at data point
-  if (_performKriging())
+  if (_isKrigingRequested())
   {
     if (_data->getLocNumber(ELoc::V) > 0)
     {
@@ -305,7 +308,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
       // we must intersect it with the definition of the Z-value
       VectorDouble valData = _data->getColumnByLocator(ELoc::Z,0,useSel);
       VectorDouble varData = _data->getColumnByLocator(ELoc::V,0,useSel);
-      double eps_loc = _epsNugget * totalSill;
+      double eps_loc = _params.getEpsNugget() * totalSill;
       for (int iech = 0; iech < _data->getSampleNumber(true); iech++)
       {
         if (FFFF(valData[iech])) continue;
@@ -323,15 +326,13 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose)
     }
     else
     {
-      VH::fill(varianceData, MAX(_nugget, _epsNugget * totalSill),
+      VH::fill(varianceData, MAX(_nugget, _params.getEpsNugget() * totalSill),
                _data->getNumberActiveAndDefined(0));
     }
     _precisionsKrig->setVarianceDataVector(varianceData);
 
-    if (_performSimulation())
-    {
+    if (_isSimulationRequested())
       _precisionsSimu->setVarianceDataVector(varianceData);
-    }
   }
 
   return 0;
@@ -421,7 +422,7 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
   int ivar = 0;
 
   // Preliminary checks
-  if (_performKriging())
+  if (_isKrigingRequested())
   {
     if (_data == nullptr)
     {
@@ -434,11 +435,19 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
       return 1;
     }
   }
-  if (_performSimulation() && nbsimu < 0)
+  if (_isSimulationRequested() && nbsimu < 0)
   {
     messerr("For this option, you must define a positive number of simulations");
     return 1;
   }
+
+  if (_isSimulationRequested())
+    law_set_random_seed(seed);
+
+  if (_isKrigingRequested())
+    _precisionsKrig->makeReady();
+  if (_isSimulationRequested())
+    _precisionsSimu->makeReady();
 
   // Preliminary tasks
   if (_data != nullptr)
@@ -449,12 +458,9 @@ int SPDE::compute(Db *dbout, int nbsimu, int seed, const NamingConvention &namco
     _centerByDrift(dataVect,ivar,useSel);
   }
 
-  if (_performSimulation())
-    law_set_random_seed(seed);
-
   // Add the vectors in the output Db
   int ncols = 1;
-  if (_performSimulation()) ncols = nbsimu;
+  if (_isSimulationRequested()) ncols = nbsimu;
   int iptr = dbout->addColumnsByConstant(ncols);
 
   // Dispatch
@@ -549,13 +555,13 @@ void SPDE::_addNuggetOnResult(VectorDouble &result)
     result[iech] += law_gaussian(0., sqrt(_nugget));
 }
 
-bool SPDE::_performSimulation() const
+bool SPDE::_isSimulationRequested() const
 {
   return _calcul == ESPDECalcMode::SIMUCOND
       || _calcul == ESPDECalcMode::SIMUNONCOND;
 }
 
-bool SPDE::_performKriging() const
+bool SPDE::_isKrigingRequested() const
 {
   return _calcul == ESPDECalcMode::SIMUCOND
       || _calcul == ESPDECalcMode::KRIGING
@@ -564,6 +570,12 @@ bool SPDE::_performKriging() const
 
 double SPDE::computeLogDet(int nbsimu,int seed) const
 {
+  if (_precisionsKrig == nullptr)
+  {
+    messerr("The member '_precisionKrig' must have been calculated beforehand");
+    return TEST;
+  }
+
   double val;
   val = _precisionsKrig->computeTotalLogDet(nbsimu,seed);
   return val;
@@ -571,7 +583,17 @@ double SPDE::computeLogDet(int nbsimu,int seed) const
 
 double SPDE::computeQuad() const
 {
-  if (_data == nullptr) return TEST;
+  if (_data == nullptr)
+  {
+    messerr("The 'data' must have been spcified beforehand");
+    return TEST;
+  }
+  if (_precisionsKrig == nullptr)
+  {
+    messerr("The member '_precisionKrig' must have been calculated beforehand");
+    return TEST;
+  }
+
   int ivar = 0;
   bool useSel = true;
   VectorDouble dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
@@ -581,6 +603,12 @@ double SPDE::computeQuad() const
 
 double SPDE::computeLogLike(int nbsimu, int seed) const
 {
+  if (_precisionsKrig == nullptr)
+  {
+    messerr("The member '_precisionKrig' must have been calculated beforehand");
+    return TEST;
+  }
+
   if (!_isCoeffsComputed)
   {
     _computeDriftCoeffs();
@@ -590,8 +618,9 @@ double SPDE::computeLogLike(int nbsimu, int seed) const
 
 double SPDE::computeProfiledLogLike(int nbsimu, int seed) const
 {
-  _isCoeffsComputed = false; // we assume that covariance parameters have changed when using this function
-  //  so driftCoeffs have to be recomputed
+  // we assume that covariance parameters have changed when using this function:
+  // so driftCoeffs have to be recomputed
+  _isCoeffsComputed = false;
 
   return computeLogLike(nbsimu,seed);
 }
@@ -600,12 +629,13 @@ void SPDE::_computeDriftCoeffs() const
 {
   if (!_isCoeffsComputed)
    {
-    _isCoeffsComputed = true;
     if (_requireCoeffs)
     {
+      _precisionsKrig->makeReady();
       _driftCoeffs = _precisionsKrig->computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),
                                                     _driftTab);
     }
+    _isCoeffsComputed = true;
   }
 }
 
@@ -632,10 +662,9 @@ VectorDouble SPDE::getCoeffs()
  * @param flag_varz True for the variance of the estimator
  * @param mesh Mesh description (optional)
  * @param useCholesky Define the choice regarding Cholesky
- * @param refineK Refinement factor for building internal meshing for Kriging
- * @param border Number of nodes used for extending the internal grid
- * @param epsNugget Value for the relaxing nugget effect
+ * @param params Set of parameters
  * @param verbose Verbose flag
+ * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
  * @return Error return code
  *
@@ -653,10 +682,9 @@ int krigingSPDE(Db *dbin,
                 bool flag_varz,
                 const AMesh *mesh,
                 int useCholesky,
-                int refineK,
-                int border,
-                double epsNugget,
+                SPDEParam params,
                 bool verbose,
+                bool showStats,
                 const NamingConvention &namconv)
 {
   // Preliminary checks
@@ -664,8 +692,7 @@ int krigingSPDE(Db *dbin,
   {
     messerr("These options have not been implemented yet. Not taken into account");
   }
-  SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky,
-            refineK, 18, border, epsNugget, verbose);
+  SPDE spde(model, dbout, dbin, ESPDECalcMode::KRIGING, mesh, useCholesky, params, verbose, showStats);
   return spde.compute(dbout, 0, 0, namconv);
 }
 
@@ -678,12 +705,10 @@ int krigingSPDE(Db *dbin,
  * @param nbsimu Number of simulations
  * @param mesh Mesh description (optional)
  * @param useCholesky Define the choice regarding Cholesky
- * @param refineK Refinement factor for building internal meshing for Kriging
- * @param refineS Refinement factor for building internal meshing for Simulations
- * @param border Number of nodes used for extending the internal grid
+ * @param params Set of parametes
  * @param seed Seed used for the Random Number generator
- * @param epsNugget Value for the relaxing nugget effect
  * @param verbose Verbose flag
+ * @param showStats Show statistics for Linear Operations
  * @param namconv Naming convention
  * @return Error return code
  *
@@ -699,15 +724,13 @@ int simulateSPDE(Db *dbin,
                  int nbsimu,
                  const AMesh *mesh,
                  int useCholesky,
-                 int refineK,
-                 int refineS,
-                 int border,
+                 SPDEParam params,
                  int seed,
-                 double epsNugget,
                  bool verbose,
+                 bool showStats,
                  const NamingConvention &namconv)
 {
   const ESPDECalcMode mode = (dbin == nullptr) ? ESPDECalcMode::SIMUNONCOND : ESPDECalcMode::SIMUCOND;
-  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, refineK, refineS, border, epsNugget, verbose);
+  SPDE spde(model, dbout, dbin, mode, mesh, useCholesky, params, verbose, showStats);
   return spde.compute(dbout, nbsimu, seed, namconv);
 }

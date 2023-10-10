@@ -42,13 +42,13 @@ Column = 1 - Name = Y - Locator = x2
 Column = 2 - Name = LANU - Locator = z1----
 
 
-+*Out[9]:*+
-----
-![png](output_18_0.png)
-----
-
-
 +*Out[10]:*+
+----
+![png](output_19_0.png)
+----
+
+
++*Out[11]:*+
 ----
 Proportion of facies 1 = 0.2726197516262567
 Proportion of facies 2 = 0.46954464813719693
@@ -58,7 +58,7 @@ Proportion of facies 5 = 0.006505026611472502
 ----
 
 
-+*Out[13]:*+
++*Out[14]:*+
 ----
 
 Data Base Grid Characteristics
@@ -70,7 +70,7 @@ File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 8
 Total number of samples      = 4747
-Number of active samples     = 569
+Number of active samples     = 752
 
 Grid characteristics:
 ---------------------
@@ -82,43 +82,43 @@ Data Base Statistics
 --------------------
 4 - Name Prop.1 - Locator p1
  Nb of data          =       4747
- Nb of active values =        569
+ Nb of active values =        752
  Minimum value       =      0.000
- Maximum value       =      0.834
- Mean value          =      0.198
- Standard Deviation  =      0.154
- Variance            =      0.024
+ Maximum value       =      0.867
+ Mean value          =      0.218
+ Standard Deviation  =      0.162
+ Variance            =      0.026
 5 - Name Prop.2 - Locator p2
  Nb of data          =       4747
- Nb of active values =        569
+ Nb of active values =        752
  Minimum value       =      0.000
- Maximum value       =      0.994
- Mean value          =      0.391
- Standard Deviation  =      0.254
- Variance            =      0.065
+ Maximum value       =      0.934
+ Mean value          =      0.415
+ Standard Deviation  =      0.257
+ Variance            =      0.066
 6 - Name Prop.3 - Locator p3
  Nb of data          =       4747
- Nb of active values =        569
+ Nb of active values =        752
  Minimum value       =      0.000
- Maximum value       =      0.261
- Mean value          =      0.034
- Standard Deviation  =      0.037
- Variance            =      0.001
+ Maximum value       =      0.368
+ Mean value          =      0.042
+ Standard Deviation  =      0.046
+ Variance            =      0.002
 7 - Name Prop.4 - Locator p4
  Nb of data          =       4747
- Nb of active values =        569
+ Nb of active values =        752
  Minimum value       =      0.000
- Maximum value       =      0.992
- Mean value          =      0.170
- Standard Deviation  =      0.169
- Variance            =      0.028
+ Maximum value       =      0.967
+ Mean value          =      0.161
+ Standard Deviation  =      0.172
+ Variance            =      0.030
 8 - Name Prop.5 - Locator p5
  Nb of data          =       4747
- Nb of active values =        569
+ Nb of active values =        752
  Minimum value       =      0.000
  Maximum value       =      0.117
- Mean value          =      0.006
- Standard Deviation  =      0.010
+ Mean value          =      0.005
+ Standard Deviation  =      0.011
  Variance            =      0.000
 
 Variables
@@ -134,33 +134,33 @@ Column = 7 - Name = Prop.5 - Locator = p5
  ----
 
 
-+*Out[14]:*+
-----
-![png](output_28_0.png)
-
-![png](output_28_1.png)
-
-![png](output_28_2.png)
-
-![png](output_28_3.png)
-
-![png](output_28_4.png)
-----
-
-
 +*Out[15]:*+
 ----
-Number of GRF = 1
+![png](output_29_0.png)
+
+![png](output_29_1.png)
+
+![png](output_29_2.png)
+
+![png](output_29_3.png)
+
+![png](output_29_4.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_31_0.png)
+Number of GRF = 1
 ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
+----
+![png](output_32_0.png)
+----
+
+
++*Out[19]:*+
 ----
 
 Non-centered Covariance characteristics
@@ -191,25 +191,25 @@ For variable 1
        -12  7363.000 11000.802    -0.017
        -11  6935.000 10007.370    -0.039
        -10  6310.000  9006.739    -0.039
-        -9  5975.000  8003.635    -0.017
-        -8  5615.000  7013.830    -0.039
+        -9  5975.000  8003.635    -0.039
+        -8  5615.000  7013.830    -0.017
         -7  5035.000  6014.805    -0.039
         -6  4397.000  5019.156     0.000
-        -5  3682.000  4012.782    -0.052
-        -4  3011.000  3019.326     0.017
+        -5  3682.000  4012.782    -0.073
+        -4  3011.000  3019.326     0.000
         -3  2345.000  2038.996     0.094
-        -2  1290.000  1055.802     0.275
-        -1   238.000   307.621     0.747
+        -2  1290.000  1055.802     0.253
+        -1   238.000   307.621     0.760
          0  1691.000     0.000     1.000
-         1   238.000  -307.621     0.747
-         2  1290.000 -1055.802     0.275
+         1   238.000  -307.621     0.760
+         2  1290.000 -1055.802     0.253
          3  2345.000 -2038.996     0.094
-         4  3011.000 -3019.326     0.017
-         5  3682.000 -4012.782    -0.052
+         4  3011.000 -3019.326     0.000
+         5  3682.000 -4012.782    -0.073
          6  4397.000 -5019.156     0.000
          7  5035.000 -6014.805    -0.039
-         8  5615.000 -7013.830    -0.039
-         9  5975.000 -8003.635    -0.017
+         8  5615.000 -7013.830    -0.017
+         9  5975.000 -8003.635    -0.039
         10  6310.000 -9006.739    -0.039
         11  6935.000-10007.370    -0.039
         12  7363.000-11000.802    -0.017
@@ -223,7 +223,7 @@ For variable 1
  ----
 
 
-+*Out[20]:*+
++*Out[21]:*+
 ----
 
 Variogram characteristics
@@ -244,15 +244,15 @@ Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0   238.000   307.621     0.253
-         1  1290.000  1055.802     0.725
+         0   238.000   307.621     0.240
+         1  1290.000  1055.802     0.747
          2  2345.000  2038.996     0.906
-         3  3011.000  3019.326     0.983
-         4  3682.000  4012.782     1.052
+         3  3011.000  3019.326     1.000
+         4  3682.000  4012.782     1.073
          5  4397.000  5019.156     1.000
          6  5035.000  6014.805     1.039
-         7  5615.000  7013.830     1.039
-         8  5975.000  8003.635     1.017
+         7  5615.000  7013.830     1.017
+         8  5975.000  8003.635     1.039
          9  6310.000  9006.739     1.039
         10  6935.000 10007.370     1.039
         11  7363.000 11000.802     1.017
@@ -266,7 +266,7 @@ For variable 1
  ----
 
 
-+*Out[21]:*+
++*Out[22]:*+
 ----
 
 Model characteristics
@@ -279,27 +279,27 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 0.687235)
+K-Bessel (Third Parameter = 0.802094)
 - Sill         =      1.000
-- Range        =   1935.376
-- Theo. Range  =    673.941
+- Range        =   1818.905
+- Theo. Range  =    586.283
 Total Sill     =      1.000
  ----
 
 
-+*Out[22]:*+
++*Out[23]:*+
 ----
-![png](output_40_0.png)
-----
-
-
-+*Out[25]:*+
-----
-![png](output_44_0.png)
+![png](output_41_0.png)
 ----
 
 
-+*Out[27]:*+
++*Out[26]:*+
 ----
-![png](output_46_0.png)
+![png](output_45_0.png)
+----
+
+
++*Out[28]:*+
+----
+![png](output_47_0.png)
 ----

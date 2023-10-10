@@ -35,13 +35,15 @@ public:
                 Model* model,
                 int icov = 0,
                 bool flagDecompose = false,
+                const CGParam params = CGParam(),
                 bool verbose = false);
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
   void evalDirect(const VectorDouble &vecin, VectorDouble &vecout) override;
-  void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& vecout) override;
+  void evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout) override;
   void evalInverse(VectorDouble& vecin, VectorDouble& vecout) override;
+  void makeReady() override;
 
   double computeLogDet(int nbsimu = 1, int seed = 0) override;
 

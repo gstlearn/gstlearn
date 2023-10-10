@@ -14,6 +14,7 @@
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
@@ -76,14 +77,14 @@ int Cholesky::reset(const cs* mat, bool flagDecompose)
   _mat = mat;
 
   // Perform the Cholesky decomposition
-  if (flagDecompose) _decompose();
+  if (flagDecompose) decompose();
 
   return 0;
 }
 
 int Cholesky::getSize() const
 {
-  if (! _isDefined())
+  if (! isDefined())
     return 0;
   else
     return cs_getncol(_mat);
@@ -100,21 +101,24 @@ int Cholesky::getSize() const
 *****************************************************************************/
 void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) const
 {
-  if (!_isDefined())
+  if (!isDefined())
   {
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
 
   // Perform Cholesky factorization (if needed)
-  _decompose();
+  decompose();
 
+  Timer time;
   int n = getSize();
   for (int i = 0; i < n; i++) _work[i] = 0.;
   cs_ipvec(n, _matS->Pinv, vecin.data(), _work.data());
   cs_lsolve(_matN->L, _work.data());
   cs_ltsolve(_matN->L, _work.data());
   cs_pvec(n, _matS->Pinv, _work.data(), vecout.data());
+
+  getLogStats().incrementStatsInverseChol(time.getIntervalSeconds());
 }
 
 /*****************************************************************************/
@@ -128,18 +132,21 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 *****************************************************************************/
 void Cholesky::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
 {
-  if (! _isDefined())
+  if (! isDefined())
   {
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
+
+  Timer time;
   int n = getSize();
   cs_vecmult(_mat, n, inv.data(), outv.data());
+  getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
 }
 
 void Cholesky::printout(const char *title, bool verbose) const
 {
-  if (! _isDefined()) return;
+  if (! isDefined()) return;
 
   if (title != NULL) message("%s\n", title);
 
@@ -170,14 +177,15 @@ void Cholesky::printout(const char *title, bool verbose) const
  ** \remarks If the decomposition is already performed, nothing is done
  **
  *****************************************************************************/
-void Cholesky::_decompose(bool verbose) const
+void Cholesky::decompose(bool verbose) const
 {
-  if (!_isDefined()) return;
+  if (!isDefined()) return;
   if (isCholeskyDecomposed()) return;
 
   /* Perform the Cholesky decomposition */
 
   if (verbose) message("  Cholesky Decomposition... ");
+  Timer time;
 
   if (verbose) message("Ordering... ");
   _matS = cs_schol(_mat, 0);
@@ -199,6 +207,7 @@ void Cholesky::_decompose(bool verbose) const
 
   _work.resize(getSize());
 
+  getLogStats().incrementStatsCholesky(time.getIntervalSeconds());
   if (verbose) message("Finished\n");
   return;
 }
@@ -213,14 +222,14 @@ void Cholesky::_decompose(bool verbose) const
  *****************************************************************************/
 void Cholesky::simulate(VectorDouble& vecin, VectorDouble& vecout)
 {
-  if (!_isDefined())
+  if (!isDefined())
   {
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
 
   // Perform Cholesky factorization (if needed)
-  _decompose();
+  decompose();
 
   int n = getSize();
   cs_ltsolve(_matN->L, vecin.data());
@@ -237,14 +246,14 @@ void Cholesky::simulate(VectorDouble& vecin, VectorDouble& vecout)
  *****************************************************************************/
 void Cholesky::stdev(VectorDouble& vcur, bool flagStDev)
 {
-  if (!_isDefined())
+  if (!isDefined())
   {
     messerr("The sparse matrix should be defined beforehand");
     return;
   }
 
   // Perform Cholesky factorization (if needed)
-   _decompose();
+   decompose();
 
   VectorDouble z;
   VectorDouble wz;
@@ -310,14 +319,14 @@ void Cholesky::stdev(VectorDouble& vcur, bool flagStDev)
 
 double Cholesky::computeLogDet() const
 {
-  if (!_isDefined())
+  if (!isDefined())
   {
     messerr("The sparse matrix should be defined beforehand");
     return TEST;
   }
 
   // Perform Cholesky factorization (if needed)
-  _decompose();
+  decompose();
 
   VectorDouble diag = csd_extract_diag_VD(_matN->L, 1);
   double det = 0.;
