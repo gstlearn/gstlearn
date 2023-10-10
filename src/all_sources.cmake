@@ -21,6 +21,7 @@ set(SRC
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
+  API/SPDEParam.cpp
   API/TestInheritance.cpp
   Gibbs/GibbsUPropMono.cpp
   Gibbs/GibbsFactory.cpp
@@ -151,6 +152,8 @@ set(SRC
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
+  LinearOp/LogStats.cpp
+  LinearOp/CGParam.cpp
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
   LinearOp/ProjMatrix.cpp
@@ -163,6 +166,7 @@ set(SRC
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
+  LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/Cholesky.cpp

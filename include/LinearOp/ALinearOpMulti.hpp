@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "LinearOp/LogStats.hpp"
 
 #include <vector>
 
@@ -24,13 +25,12 @@ public:
   ALinearOpMulti& operator=(const ALinearOpMulti &m);
   virtual ~ALinearOpMulti();
 
-  virtual void evalInverse(const VectorVectorDouble &inv,
-                           VectorVectorDouble &outv) const;
+  virtual void evalInverse(const VectorVectorDouble &vecin,
+                           VectorVectorDouble &vecout) const;
 
-  void evalDirect(const VectorVectorDouble& inv,
-                  VectorVectorDouble& outv) const;
-  void initLk(const VectorVectorDouble& inv,
-                           VectorVectorDouble& outv) const;
+  void evalDirect(const VectorVectorDouble &inv,
+                  VectorVectorDouble &outv) const;
+  void initLk(const VectorVectorDouble &inv, VectorVectorDouble &outv) const;
   virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
@@ -38,49 +38,14 @@ public:
   void setEps(double eps) { _eps = eps; }
   void setPrecond(const ALinearOpMulti* precond, int status);
 
-  /*! Reset the Conjugate Gradient statistics */
-  void resetStatCG() const;
+  const LogStats& getLogStats() const { return _logStats; }
 
-  /*! Print out the Conjugate Gradient statistics */
-  void printStatCG() const;
-
-
-  void _linearComb(double val1,
-                   const VectorVectorDouble& in1,
-                   double val2,
-                   const VectorVectorDouble& in2,
-                   VectorVectorDouble& outv) const;
-  void prodScalar(double val,
-                  const VectorVectorDouble& inv,
-                  VectorVectorDouble& outv) const;
-  void  addProdScalar(double val,
-                      const VectorVectorDouble& inv,
-                      VectorVectorDouble& outv) const;
-  void _copyVals(const VectorVectorDouble& inv,
-                 VectorVectorDouble& outv) const;
-  void _updated() const;
-  double innerProduct(const VectorDouble& x,const VectorDouble& y) const;
-  double innerProduct(const VectorVectorDouble& x,
-               const VectorVectorDouble& y) const;
-  double max(const VectorVectorDouble& vect) const;
-  void  fillVal(VectorVectorDouble& vect,double val)const;
-  void diff(const VectorVectorDouble&,
-              const VectorVectorDouble&,
-              VectorVectorDouble&) const;
-
-  void sum(const VectorVectorDouble&,
-                const VectorVectorDouble&,
-                VectorVectorDouble&) const;
-  mutable VectorVectorDouble _temp;
-  mutable VectorVectorDouble _p;
-  mutable VectorVectorDouble _z;
-
-  void _initPublic() const;
+  void prepare() const;
 
 protected:
-  void _init() const;
-  virtual void _evalDirect(const VectorVectorDouble& inv,
-                           VectorVectorDouble& outv) const = 0;
+  virtual void _evalDirect(const VectorVectorDouble &inv,
+                           VectorVectorDouble &outv) const = 0;
+  void _updated() const;
 
 private:
   int                       _nIterMax;
@@ -93,8 +58,11 @@ private:
   mutable bool               _initialized;
   mutable VectorVectorDouble _r;
 
-  // Environment parameters
-  mutable double     _timeCG;
-  mutable int        _niterCG;
-  mutable int        _numberCG;
+public:
+  mutable VectorVectorDouble _temp;
+  mutable VectorVectorDouble _p;
+  mutable VectorVectorDouble _z;
+
+protected:
+  LogStats                   _logStats;
 };

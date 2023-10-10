@@ -24,7 +24,9 @@ Release 0.3.4
 - Improvement of Table printout (row name not truncated anymore)
 - New class 'ResReg' for storing Regression formula (AStringable)
 - Integrate R documentation for functions in plot.R into the R package
-- Names in plot.R and plot.py are standardized: using camel-writing systematically
+- Names in plot.R and plot.py are standardized: using camel-writing systematically 
+- New method Db_fromPanda for creating Db from Panda Frame (numerical columns only)
+- New method Db_fromDF for creating Db from data.frame (numerical columns only)
 
 Release 0.3.3
 =============

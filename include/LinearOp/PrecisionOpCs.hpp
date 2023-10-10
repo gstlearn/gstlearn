@@ -29,17 +29,22 @@ class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
+                bool flagDecompose = false,
                 bool verbose = false);
   PrecisionOpCs(const AMesh* mesh,
                 Model* model,
                 int icov = 0,
+                bool flagDecompose = false,
+                const CGParam params = CGParam(),
                 bool verbose = false);
   virtual ~PrecisionOpCs();
 
   // Interface for PrecisionOp class
-  void eval(const VectorDouble &inv, VectorDouble &outv) override;
-  void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result) override;
-  void evalInvVect(VectorDouble& in, VectorDouble& result) override;
+  void evalDirect(const VectorDouble &vecin, VectorDouble &vecout) override;
+  void evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout) override;
+  void evalInverse(VectorDouble& vecin, VectorDouble& vecout) override;
+  void makeReady() override;
+
   double computeLogDet(int nbsimu = 1, int seed = 0) override;
 
   void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam,const EPowerPT& power) override;
@@ -47,6 +52,7 @@ public:
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
+  bool isCholeskyDecomposed() const { return _qChol.isCholeskyDecomposed(); }
 
 #ifndef SWIG
   const cs* getQ() const { return _Q; }
@@ -54,7 +60,7 @@ public:
   Triplet getQToTriplet(bool flag_from_1 = false) const;
 
 private:
-  void _buildQ();
+  void _buildQ(bool flagDecompose = false);
 
 private:
   cs* _Q;

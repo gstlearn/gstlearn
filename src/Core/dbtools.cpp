@@ -6144,7 +6144,8 @@ int db_proportion_estimate(Db *dbin,
   // Define the environment
 
   MeshETurbo mesh = MeshETurbo(dbout);
-  ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
+  CGParam params = CGParam(200, 1.e-10);
+  ShiftOpCs S = ShiftOpCs(&mesh, model, dbout, 0, 0, params);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0));
   ProjMatrix AprojDat = ProjMatrix(dbin, &mesh);
   ProjMatrix AprojOut = ProjMatrix(dbout, &mesh);
@@ -6154,7 +6155,6 @@ int db_proportion_estimate(Db *dbin,
   VectorDouble propGlob = dbStatisticsFacies(dbin);
   int ncat = static_cast<int>(propGlob.size());
   OptimCostColored Oc = OptimCostColored(ncat, &Qprop, &AprojDat);
-  Oc.setCGParams(200, 1.e-10);
 
   VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
   VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose, niter);

@@ -14,8 +14,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 
-OptimCostColored::OptimCostColored() 
-  : OptimCostBinary()
+OptimCostColored::OptimCostColored(const CGParam params)
+  : OptimCostBinary(params)
   , _nprop(0)
   , _splits()
   , _meanProps()

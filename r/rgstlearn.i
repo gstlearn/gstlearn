@@ -15,7 +15,6 @@
 // https://stackoverflow.com/a/26035360/3952924
 #%import "doc/documentation.i"
 
-//////////////////////////////////////////////////////////////
 //   Ignore functions that are not exportable with SWIG     //
 //////////////////////////////////////////////////////////////
 
@@ -813,6 +812,17 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   df = data.frame(vals)
   names(df) = names
   df
+}
+
+"Db_fromDF" <- function(df)
+{
+	# Create an empty Db
+	dat = Db()
+	# And import all columns in one a loop using [] operator
+	types = unlist(lapply(datcsv, is.numeric))
+	for (field in names(df))
+    	if (types[field] == TRUE) dat[field] = df[field]
+	dat
 }
 
 "Krigtest_Res_toTL" <- function(x)

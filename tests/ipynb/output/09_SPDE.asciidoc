@@ -180,7 +180,7 @@ External_Drift:0
 
 +*Out[9]:*+
 ----
-Trend coefficients: [ 3.96977286 -0.00659747]
+Trend coefficients: [ 3.97005867 -0.00659771]
 ----
 
 

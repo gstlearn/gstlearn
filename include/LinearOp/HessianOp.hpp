@@ -12,13 +12,14 @@
 
 #include "gstlearn_export.hpp"
 
-#include "PrecisionOp.hpp"
-#include "ProjMatrix.hpp"
+#include "LinearOp/CGParam.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 
 class GSTLEARN_EXPORT HessianOp : public ALinearOp {
 
 public:
-	HessianOp();
+	HessianOp(const CGParam params = CGParam());
 	virtual ~HessianOp();
 
   int  init(PrecisionOp*  pmat,
@@ -27,6 +28,7 @@ public:
             const VectorDouble& indic,
             const VectorDouble& propseis,
             const VectorDouble& varseis);
+
   /*!  Returns the dimension of the matrix */
   int  getSize() const override { return _pMat->getSize(); }
   /*!  Set the initial vector */
@@ -38,9 +40,9 @@ protected:
 private:
   bool                 _isInitialized;
   bool                 _flagSeismic;
-  PrecisionOp*   _pMat;
-  const ProjMatrix*    _projData;
-  const ProjMatrix*    _projSeis;
+  PrecisionOp*         _pMat; // External pointer
+  const ProjMatrix*    _projData; // External pointer
+  const ProjMatrix*    _projSeis; // External pointer
   VectorDouble         _indic;
   VectorDouble         _propSeis;
   VectorDouble         _varSeis;

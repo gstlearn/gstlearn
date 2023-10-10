@@ -85,7 +85,7 @@ NamingConvention* NamingConvention::create(String prefix,
                                            bool cleanSameLocator)
 {
   return new NamingConvention(prefix, flag_varname, flag_qualifier,
-    flag_locator, locatorOutType, delim, cleanSameLocator);
+                              flag_locator, locatorOutType, delim, cleanSameLocator);
 }
 
 /**

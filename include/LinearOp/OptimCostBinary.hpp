@@ -13,7 +13,8 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
-#include "IOptimCost.hpp"
+#include "LinearOp/IOptimCost.hpp"
+#include "LinearOp/CGParam.hpp"
 
 class PrecisionOp;
 class ProjMatrix;
@@ -22,7 +23,7 @@ class GSTLEARN_EXPORT OptimCostBinary: public IOptimCost
 {
 
 public:
-  OptimCostBinary();
+  OptimCostBinary(const CGParam params = CGParam());
   OptimCostBinary(const OptimCostBinary &m);
   OptimCostBinary& operator = (const OptimCostBinary &m);
   virtual ~OptimCostBinary();
@@ -40,12 +41,7 @@ public:
                          const VectorDouble& lambda,
                          double* out);
   int setMeanProportion(double meanprop);
-  /*!  Set the constant parameters for internal Conjugate Gradient */
-  void setCGParams(int cgmaxiter = 100, double cgeps = 1.e-08)
-  {
-    _cgMaxIter = cgmaxiter;
-    _cgEps = cgeps;
-  }
+  void setParams(const CGParam &params) { _params = params; }
   /*!  Set the constant parameters for internal Pre-Conditioner */
   void setPreCondParams(int chebncmax = 10001, double chebtol = 5.e-3)
   {
@@ -53,39 +49,34 @@ public:
     _chebNcmax = chebncmax;
     _chebTol = chebtol;
   }
-  /*!  Checks if the Cost Function Optimization has been initialized */
-  int isInitialized()
-  {
-    return _isInitialized;
-  }
+  int isInitialized() { return _isInitialized; }
   int getNPoint() const;
   int getNVertex() const;
   void toggleSeismic(bool status);
 
 private:
   double _evaluateCost(const VectorDouble& indic, const VectorDouble& lambda);
-  void _evaluateGrad(const VectorDouble& indic,
-                     const VectorDouble& lambda,
-                     double* normgrad);
+  void _evaluateGrad(const VectorDouble &indic,
+                     const VectorDouble &lambda,
+                     double *normgrad);
   void _contributeSeismic(const VectorDouble& lambda);
   void _contributeSeismicDerivative(const VectorDouble& lambda);
 
 protected:
 
 private:
-  bool _isInitialized;
-  bool _flagSeismic;
-  double _meanPropRaw;
-  double _meanPropGaus;
-  PrecisionOp* _pMat;
+  bool               _isInitialized;
+  bool               _flagSeismic;
+  double             _meanPropRaw;
+  double             _meanPropGaus;
+  PrecisionOp*       _pMat;
   const ProjMatrix*  _projData;
   const ProjMatrix*  _projSeis;
-  VectorDouble _propSeis;
-  VectorDouble _varSeis;
+  VectorDouble       _propSeis;
+  VectorDouble       _varSeis;
 
   // Parameters for Conjugate Gradient
-  int    _cgMaxIter;
-  double _cgEps;
+  CGParam _params;
 
   // Parameters for Preconditionner (optional)
   bool   _flagCgPreCond;

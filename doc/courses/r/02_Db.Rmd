@@ -76,11 +76,7 @@ datcsv
 The user can then create a database of the **gstlearn** package (*Db* class) directly from the previously imported data.frame.
 
 ```{r}
-# Create an empty Db
-dat = Db()
-# And import all columns in one a loop using [] operator
-for (field in names(datcsv))
-    dat[field] = datcsv[field]
+dat = Db_fromDF(datcsv)
 dat
 ```
 

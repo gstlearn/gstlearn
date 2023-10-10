@@ -20,6 +20,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Timer.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
@@ -35,8 +36,8 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 
-ShiftOpCs::ShiftOpCs()
-    : ALinearOp(),
+ShiftOpCs::ShiftOpCs(const CGParam params)
+    : ALinearOp(params),
       _TildeC(),
       _Lambda(),
       _S(nullptr),
@@ -58,8 +59,9 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
                      const Db* dbout,
                      int igrf,
                      int icov,
+                     const CGParam params,
                      bool verbose)
-    : ALinearOp(),
+    : ALinearOp(params),
       _TildeC(),
       _Lambda(),
       _S(nullptr),
@@ -82,8 +84,9 @@ ShiftOpCs::ShiftOpCs(const cs* S,
                      const VectorDouble& TildeC,
                      const VectorDouble& Lambda,
                      Model* model,
+                     const CGParam params,
                      bool verbose)
-    : ALinearOp(),
+    : ALinearOp(params),
       _TildeC(),
       _Lambda(),
       _S(nullptr),
@@ -137,9 +140,10 @@ ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
                              const Db *dbout,
                              int igrf,
                              int icov,
+                             const CGParam params,
                              bool verbose)
 {
-  return new ShiftOpCs(amesh, model, dbout, igrf, icov, verbose);
+  return new ShiftOpCs(amesh, model, dbout, igrf, icov, params, verbose);
 }
 
 #ifndef SWIG
@@ -147,9 +151,10 @@ ShiftOpCs* ShiftOpCs::createFromSparse(const cs *S,
                                        const VectorDouble &TildeC,
                                        const VectorDouble &Lambda,
                                        Model *model,
+                                       const CGParam params,
                                        bool verbose)
 {
-  return new ShiftOpCs(S, TildeC, Lambda, model, verbose);
+  return new ShiftOpCs(S, TildeC, Lambda, model, params, verbose);
 }
 #endif
 
@@ -436,8 +441,10 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
  *****************************************************************************/
 void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 {
+  Timer time;
   int n = (int) x.size();
   cs_vecmult(_S, n, x.data(), y.data());
+  getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
 void ShiftOpCs::_resetGrad()

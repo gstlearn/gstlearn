@@ -33,7 +33,14 @@ public:
   ProjMatrix& operator= (const ProjMatrix &m);
   virtual ~ProjMatrix();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface for IProjMatrix
+  int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
+  int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
+  int getApexNumber() const override { return _nApices; }
+  int getPointNumber() const override { return _nPoint; }
 
   static ProjMatrix* create(const Db *db,
                             const AMesh *a_mesh,
@@ -51,10 +58,6 @@ public:
                          double radius,
                          int flag_exact = 0,
                          bool verbose = false);
-  int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
-  int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
-  int getApexNumber() const override { return _nApices; }
-  int getPointNumber() const override { return _nPoint; }
 
 #ifndef SWIG
   const cs* getAproj() const { return _Aproj; }
@@ -62,7 +65,7 @@ public:
   Triplet getAprojToTriplet(bool flag_from_1 = false) const;
 
 private:
-  int  _nPoint;
-  int  _nApices;
+  int  _nPoint; // _nPoint = Number of rows of _Aproj
+  int  _nApices; // _nApices = number of columns of _Aproj
   cs*  _Aproj;
 };

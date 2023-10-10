@@ -15,8 +15,8 @@
 
 #include <math.h>
 
-HessianOp::HessianOp() 
-  : ALinearOp()
+HessianOp::HessianOp(const CGParam params)
+  : ALinearOp(params)
   , _isInitialized(false)
   , _flagSeismic(false)
   , _pMat(nullptr)
@@ -115,7 +115,7 @@ void HessianOp::_evalDirect(const VectorDouble& inv,
 
   // Contribution of the spatial structure
 
-  _pMat->eval(inv,outv);
+  _pMat->evalDirect(inv,outv);
 
   // Contribution of the Data
 

@@ -30,7 +30,6 @@
 #include <math.h>
 #include <string.h>
 
-
 // External library /// TODO : Dependency to csparse to be removed
 #include "csparse_d.h"
 #include "csparse_f.h"

@@ -1017,12 +1017,17 @@ def Db_toTL(self, flagLocate=False):
 
 setattr(gl.Db, "toTL", Db_toTL)
 
+def Db_fromPanda(pf):
+	# Create an empty Db
+	dat = Db()
+	# And import all columns in one a loop using [] operator
+	for field in pf.columns :
+		mycol = pf[field]
+		if mycol.dtype == 'float64' or mycol.dtype == 'int64':
+	 		dat[field] = mycol
+	return dat
 
-def Db_fromTL(df):
-  print("coucou")
-  return Db()
-
-gl.Db.fromTL = staticmethod(Db_fromTL)
+gl.Db.fromTL = staticmethod(Db_fromPanda)
 
 def matrix_toTL(self):
   if self.isSparse():
