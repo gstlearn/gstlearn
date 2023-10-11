@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
 
   (void) grid->dumpToNF("grid.ascii");
   DbStringFormat dbfmt(FLAG_STATS,{"spde*"});
+  // To prevent diff between some platforms (round to 10^-2)
+  OptCst::define(ECst::NTDEC, 2);
   grid->display(&dbfmt);
 
   delete dat;
