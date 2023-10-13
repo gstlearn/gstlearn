@@ -43,6 +43,14 @@ int PrecisionOpMultiConditionalCs::push_back(PrecisionOp* pmatElem, IProjMatrix*
   return PrecisionOpMultiConditional::push_back(pmatElem, projDataElem);
 }
 
+double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) const
+{
+  DECLARE_UNUSED(nbsimu);
+  DECLARE_UNUSED(seed);
+
+  return _qChol.computeLogDet();
+}
+
 cs* PrecisionOpMultiConditionalCs::_buildQmult() const
 {
   cs *Qmult = nullptr;

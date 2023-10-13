@@ -175,7 +175,6 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nbsimu, int seed) const
     val += VH::innerProduct(gauss, _work3);
   }
   return val / nbsimu;
-
 }
 
 double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu, int seed) const
@@ -332,13 +331,10 @@ void PrecisionOpMultiConditional::_allocate(int i) const
       _work1ter.resize(_ndat);
     }
   }
-
 }
-
 
 void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& inv, VectorDouble& result) const
 {
-
   _allocate(0);
   _allocate(1);
   _allocate(2);
