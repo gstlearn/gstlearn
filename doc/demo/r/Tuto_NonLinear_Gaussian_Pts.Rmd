@@ -9,6 +9,10 @@ editor_options:
   chunk_output_type: console
 ---
 
+<!-- SUMMARY: Perform estimation using non-linear Geostatistics with a Gaussian Model on a point data set  -->
+
+<!-- CATEGORY: Methodology -->
+
 # Introduction
 
 This case study is meant to demonstrate how to use gstlearn for non-linear geostatistics with the Gaussian model. 

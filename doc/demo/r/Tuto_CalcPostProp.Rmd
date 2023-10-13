@@ -7,6 +7,10 @@ output:
     df_print: paged
 ---
 
+<!-- SUMMARY: Performs proportions by post-processing on several simulations performed on the nodes of a Grid  -->
+
+<!-- CATEGORY: Data_Base_management -->
+
 # Introduction
 
 This R Markdown document tests the utilities developed to compute the layer proportions for each selected cells of a three dimensional grid. The $N$ layers are defined by the elevation of their top limit.

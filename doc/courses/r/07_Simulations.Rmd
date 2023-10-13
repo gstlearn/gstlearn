@@ -9,6 +9,10 @@ output:
     toc: true
 ---
 
+<!-- SUMMARY: Simulations using Turning Bands method: derive the probability of exceeding a threshold. Extension when using an External Drift  -->
+
+<!-- CATGEORY: Courses -->
+
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(

@@ -12,6 +12,10 @@ colortheme: beaver
 fontsize: 8pt
 ---
 
+<!-- SUMMARY: SNormal transform (Gaussian anamorphosis). Deriving conditional expectation of exceeding a threshold  -->
+
+<!-- CATGEORY: Courses -->
+
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 
                       out.width="50%",

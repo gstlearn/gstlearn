@@ -9,9 +9,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-<!-- KEYWORDS: db variogram model kriging simulation plot -->
-
 <!-- SUMMARY: Standard workflow on a 2-D data set. Performs variography and modeling, estimation and simulation, in a monovariate and bivariate cases.  -->
+
+<!-- CATEGORY: Case_studies -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

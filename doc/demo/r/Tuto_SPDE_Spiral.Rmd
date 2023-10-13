@@ -6,6 +6,9 @@ output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
+<!-- SUMMARY: Perform Estimation with non-stationary covariance (anisotropy following a spiral) in the framework of SPDE  -->
+
+<!-- CATEGORY: SPDE -->
 
 In this tutorial, we show how the use of SPDE for Varying Anisotropy when this Anisotropy must follow a Spiral shape (defined as an external function)
 

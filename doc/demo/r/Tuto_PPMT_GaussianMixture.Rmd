@@ -9,6 +9,10 @@ output:
   chunk_output_type: console
 ---
 
+<!-- SUMMARY: Projection Pursuit Multivariate Transform in the case of a Gaussian mixture -->
+
+<!-- CATEGORY: Methodology -->
+
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())

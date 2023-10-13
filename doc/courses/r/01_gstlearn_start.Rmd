@@ -9,6 +9,10 @@ output:
     toc: true
 ---
 
+<!-- SUMMARY: This script is not actually a course. It simply serves to check if gstlearn library has been installed correctly.  -->
+
+<!-- CATGEORY: Courses -->
+
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(

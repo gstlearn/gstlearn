@@ -9,7 +9,9 @@ output:
     toc: true_variogram_compute
 ---
 
-# Preamble
+<!-- SUMMARY: Using Stochastic Partial Derivative Equation framework to perform Estimation (extension to the use of External Drift)  -->
+
+<!-- CATGEORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 
@@ -17,6 +19,7 @@ knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       fig.align = "center") 
 ```
 
+# Preamble
 
 In this preamble, we load the **gstlearn** library, clean the workspace.
 

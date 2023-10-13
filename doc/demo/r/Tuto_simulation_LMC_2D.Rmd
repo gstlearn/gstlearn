@@ -5,6 +5,10 @@ date: "2023-09-05"
 output: pdf_document
 ---
 
+<!-- SUMMARY: Comparing simulations using Turning Bands and SPDE  -->
+
+<!-- CATEGORY: Methodology -->
+
 # Introduction
 
 In this tutorial, we show how to simulated two dimensional stationary Gaussian Random Fields.

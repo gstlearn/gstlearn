@@ -9,6 +9,10 @@ output:
     toc: true
 ---
 
+<!-- SUMMARY: Perform estimation of a target variable using Kriging: various options (simple and ordinary). Cross-validation.  -->
+
+<!-- CATGEORY: Courses -->
+
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(

@@ -8,6 +8,9 @@ output:
 editor_options: 
   chunk_output_type: console
 ---
+<!-- SUMMARY: Polygon definition and usage (for selection)  -->
+
+<!-- CATEGORY: Basic_Objects -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
