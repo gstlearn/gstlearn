@@ -47,19 +47,19 @@ Geographical defaults:
 
 +*Out[5]:*+
 ----
-![png](output_9_0.png)
+![png](output_10_0.png)
 ----
 
 
 +*Out[6]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
 +*Out[7]:*+
 ----
-![png](output_11_0.png)
+![png](output_12_0.png)
 ----
 
 
@@ -70,19 +70,19 @@ z1      1.531      1.615----
 
 +*Out[10]:*+
 ----
-![png](output_15_0.png)
+![png](output_16_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_17_0.png)
+![png](output_18_0.png)
 ----
 
 
@@ -93,13 +93,13 @@ z1      1.531      0.974----
 
 +*Out[15]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_22_0.png)
+![png](output_23_0.png)
 ----
 
 
@@ -114,47 +114,47 @@ z1      1.364      1.165----
 
 +*Out[20]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_31_0.png)
+![png](output_32_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_33_0.png)
+![png](output_34_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_35_0.png)
+![png](output_36_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_37_0.png)
+![png](output_38_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_40_0.png)
+![png](output_41_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_41_0.png)
+![png](output_42_0.png)
 ----
 
 
 +*Out[27]:*+
 ----
-![png](output_43_0.png)
+![png](output_44_0.png)
 ----

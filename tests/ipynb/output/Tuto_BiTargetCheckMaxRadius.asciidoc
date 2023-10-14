@@ -46,7 +46,7 @@ Column = 3 - Name = January_temp - Locator = z1----
 
 +*Out[5]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
@@ -89,7 +89,7 @@ Maximum horizontal distance         = 300----
 
 +*Out[10]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
@@ -108,7 +108,7 @@ Maximum horizontal distance         = 30----
 
 +*Out[13]:*+
 ----
-![png](output_27_0.png)
+![png](output_28_0.png)
 ----
 
 
@@ -129,5 +129,5 @@ This is my Max Radius checker: 30 ----
 
 +*Out[17]:*+
 ----
-![png](output_35_0.png)
+![png](output_36_0.png)
 ----

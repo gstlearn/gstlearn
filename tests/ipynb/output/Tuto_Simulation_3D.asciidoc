@@ -37,5 +37,5 @@ Column = 4 - Name = Simu - Locator = z1
 
 +*Out[6]:*+
 ----
-![png](output_6_0.png)
+![png](output_7_0.png)
 ----

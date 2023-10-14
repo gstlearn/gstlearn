@@ -4,7 +4,7 @@
 
 +*Out[6]:*+
 ----
-![png](output_7_0.png)
+![png](output_8_0.png)
 ----
 
 
@@ -36,59 +36,59 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 
 +*Out[9]:*+
 ----
-![png](output_12_0.png)
+![png](output_13_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_17_0.png)
+![png](output_18_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_22_0.png)
+![png](output_23_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_27_0.png)
+![png](output_28_0.png)
 ----
 
 
 +*Out[19]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_35_0.png)
+![png](output_36_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_36_0.png)
+![png](output_37_0.png)
 ----

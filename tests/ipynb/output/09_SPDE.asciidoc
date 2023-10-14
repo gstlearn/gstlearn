@@ -25,7 +25,7 @@ Column = 3 - Name = Elevation - Locator = f1
 Column = 4 - Name = January_temp - Locator = z1
 Column = 5 - Name = sel - Locator = sel
  
-![png](output_7_1.png)
+![png](output_8_1.png)
 ----
 
 
@@ -56,7 +56,7 @@ Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel
  
-![png](output_9_1.png)
+![png](output_10_1.png)
 ----
 
 
@@ -100,7 +100,7 @@ For variable 1
         16    76.000   399.464     0.802
         17    58.000   426.095     0.677
  
-![png](output_11_1.png)
+![png](output_12_1.png)
 ----
 
 
@@ -144,7 +144,7 @@ For variable 1
         16    76.000   399.464     0.410
         17    58.000   426.095     0.411
  
-![png](output_13_1.png)
+![png](output_14_1.png)
 ----
 
 
@@ -174,7 +174,7 @@ Drift Part
 Universality_Condition
 External_Drift:0
  
-![png](output_15_1.png)
+![png](output_16_1.png)
 ----
 
 
@@ -186,19 +186,19 @@ Trend coefficients: [ 3.97005867 -0.00659771]
 
 +*Out[10]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----
 
 
@@ -234,5 +234,5 @@ Column = 6 - Name = Kriging.January_temp.stdev - Locator = NA----
 
 +*Out[14]:*+
 ----
-![png](output_26_0.png)
+![png](output_27_0.png)
 ----

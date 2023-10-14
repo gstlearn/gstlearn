@@ -1,12 +1,12 @@
 +*Out[7]:*+
 ----
-![png](output_11_0.png)
+![png](output_13_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_16_0.png)
+![png](output_18_0.png)
 ----
 
 
@@ -14,13 +14,13 @@
 ----
 Variance = 1.0167
 
-![png](output_22_1.png)
+![png](output_24_1.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_26_0.png)
+![png](output_28_0.png)
 ----
 
 
@@ -41,8 +41,8 @@ like_chol 100.1087
 +*Out[19]:*+
 ----
 log_det_op_chol 12296.9389
-log_det_op_api 11965.4372
--> Relative difference = -2.7 %
+log_det_op_api 12296.9389
+-> Relative difference = 0.0 %
 ----
 
 
@@ -57,6 +57,6 @@ log_det_Q_api 11255.7151
 +*Out[21]:*+
 ----
 likelihood api 100.1087
-likelihood_chol 21.9772
--> Relative Difference = -78.05 %
+likelihood_chol 99.974
+-> Relative Difference = -0.13 %
 ----

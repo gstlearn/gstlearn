@@ -45,7 +45,7 @@ Column = 3 - Name = Simu - Locator = z1
 
 +*Out[5]:*+
 ----
-![png](output_9_0.png)
+![png](output_10_0.png)
 ----
 
 
@@ -91,7 +91,7 @@ Column = 4 - Name = MovAve.Simu.estim - Locator = z1
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
@@ -127,7 +127,7 @@ Column = 5 - Name = InvDist.Simu.estim - Locator = z1
 
 +*Out[10]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----
 
 
@@ -175,5 +175,5 @@ Column = 6 - Name = LstSqr.Simu.estim - Locator = z1
 
 +*Out[13]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----

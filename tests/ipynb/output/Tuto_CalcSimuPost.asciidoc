@@ -37,7 +37,7 @@ Data Base Contents
 
 +*Out[9]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----
 
 
@@ -55,10 +55,10 @@ Data Base Contents
  Number of Output Variables: 6
  
 == Cell #4/25 (regrouping 2 samples)
-                  Mean   Variance
-     Var 1     -0.170      0.160
-     Var 2    143.343    462.942
-     Var 3     -3.342      0.068
+             Mean   Variance
+Var 1     -0.170      0.160
+Var 2    143.343    462.942
+Var 3     -3.342      0.068
  ----
 
 
@@ -95,7 +95,7 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
 
 +*Out[12]:*+
 ----
-![png](output_22_0.png)
+![png](output_23_0.png)
 ----
 
 
@@ -114,15 +114,15 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
  Number of Output Variables: 4
  
 == Cell #4/25 (regrouping 2 samples)
-                  Mean   Variance
-     Var 1     46.610     51.463
-     Var 2     83.789    154.267
+             Mean   Variance
+Var 1     46.610     51.463
+Var 2     83.789    154.267
  ----
 
 
 +*Out[14]:*+
 ----
-![png](output_25_0.png)
+![png](output_26_0.png)
 ----
 
 
@@ -140,10 +140,10 @@ Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
  Number of Output Variables: 6
  
 == Cell #4/10
-                  Mean   Variance
-     Var 1      0.158      1.380
-     Var 2    146.042   1886.664
-     Var 3     -3.386      0.097
+             Mean   Variance
+Var 1      0.158      1.380
+Var 2    146.042   1886.664
+Var 3     -3.386      0.097
  ----
 
 
@@ -206,9 +206,9 @@ Data Base Contents
  Number of Output Variables: 4
  
 == Cell #4/10
-                  Mean   Variance
-     Var 1     47.605    209.793
-     Var 2     85.271    628.676
+             Mean   Variance
+Var 1     47.605    209.793
+Var 2     85.271    628.676
  ----
 
 

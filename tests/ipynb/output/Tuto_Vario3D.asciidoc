@@ -63,7 +63,7 @@ For variable 1
 
 +*Out[9]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
@@ -124,11 +124,11 @@ For variable 1
 
 +*Out[12]:*+
 ----
-![png](output_20_0.png)
+![png](output_21_0.png)
 ----
 
 
 +*Out[14]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----

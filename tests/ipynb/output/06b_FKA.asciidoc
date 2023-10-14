@@ -63,31 +63,31 @@ Data Base Statistics
 
 +*Out[6]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
 +*Out[7]:*+
 ----
-![png](output_11_0.png)
+![png](output_12_0.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_12_0.png)
+![png](output_13_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
@@ -119,7 +119,7 @@ Universality_Condition----
 
 +*Out[16]:*+
 ----
-![png](output_25_0.png)
+![png](output_26_0.png)
 ----
 
 
@@ -155,13 +155,13 @@ Column = 7 - Name = Mono.Fill.P - Locator = z1----
 
 +*Out[18]:*+
 ----
-![png](output_28_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[20]:*+
 ----
-![png](output_31_0.png)
+![png](output_32_0.png)
 ----
 
 
@@ -206,17 +206,17 @@ Universality_Condition----
 
 +*Out[23]:*+
 ----
-![png](output_37_0.png)
+![png](output_38_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_39_0.png)
+![png](output_40_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_41_0.png)
+![png](output_42_0.png)
 ----

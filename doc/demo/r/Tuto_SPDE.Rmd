@@ -171,7 +171,7 @@ A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
 ```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
 # Cholesky decomposition of precision matrix of the latent vector
 Q = spde$getPrecisionOpCs()$getQToTriplet()$toTL()
-cholQ =  Cholesky(Q, LDL = FALSE)
+cholQ = Cholesky(Q, LDL = FALSE)
 ```
 
 2) Compute the normal Gaussian vector $\mathbf{U \sim N(0, I_n)}$,

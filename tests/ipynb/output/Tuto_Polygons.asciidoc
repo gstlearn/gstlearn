@@ -4,7 +4,7 @@
 
 +*Out[4]:*+
 ----
-![png](output_6_0.png)
+![png](output_7_0.png)
 ----
 
 
@@ -23,7 +23,7 @@ Number of Vertices = 30301
 
 +*Out[7]:*+
 ----
-![png](output_11_0.png)
+![png](output_12_0.png)
 ----
 
 
@@ -42,7 +42,7 @@ Number of Vertices = 1123
 
 +*Out[9]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
@@ -60,5 +60,5 @@ Number of active grid nodes = 1593571
 
 +*Out[12]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----

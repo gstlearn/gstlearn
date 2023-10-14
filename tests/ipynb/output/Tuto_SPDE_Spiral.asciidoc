@@ -30,7 +30,7 @@ Functional
 
 +*Out[5]:*+
 ----
-![png](output_8_0.png)
+![png](output_10_0.png)
 ----
 
 
@@ -65,7 +65,7 @@ Column = 6 - Name = SimuSPDE.4 - Locator = z4----
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_16_0.png)
 ----
 
 
@@ -91,7 +91,7 @@ Column = 3 - Name = data - Locator = z1----
 
 +*Out[10]:*+
 ----
-![png](output_17_0.png)
+![png](output_19_0.png)
 ----
 
 
@@ -127,7 +127,7 @@ Column = 7 - Name = KrigingSPDE.data.estim - Locator = z1----
 
 +*Out[12]:*+
 ----
-![png](output_21_0.png)
+![png](output_23_0.png)
 ----
 
 
@@ -167,5 +167,5 @@ Column = 11 - Name = CondSimu.data.4 - Locator = z4----
 
 +*Out[14]:*+
 ----
-![png](output_25_0.png)
+![png](output_27_0.png)
 ----

@@ -24,27 +24,27 @@ Total Sill     =      5.000----
 
 +*Out[8]:*+
 ----
-![png](output_8_0.png)
+![png](output_9_0.png)
 
-![png](output_8_1.png)
+![png](output_9_1.png)
 ----
 
 
 +*Out[9]:*+
 ----
-![png](output_9_0.png)
+![png](output_10_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_11_0.png)
+![png](output_12_0.png)
 ----
 
 

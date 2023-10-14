@@ -13,13 +13,13 @@ XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC 
 
 +*Out[11]:*+
 ----
-![png](output_13_0.png)
+![png](output_14_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 

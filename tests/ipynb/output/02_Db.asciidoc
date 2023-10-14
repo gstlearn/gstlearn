@@ -330,19 +330,19 @@ Column = 4 - Name = January_temp - Locator = z1----
 
 +*Out[20]:*+
 ----
-![png](output_54_0.png)
+![png](output_55_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_56_0.png)
+![png](output_57_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_58_0.png)
+![png](output_59_0.png)
 ----
 
 
@@ -375,11 +375,11 @@ Column = 3 - Name = inshore - Locator = sel----
 
 +*Out[24]:*+
 ----
-![png](output_65_0.png)
+![png](output_66_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_68_0.png)
+![png](output_69_0.png)
 ----

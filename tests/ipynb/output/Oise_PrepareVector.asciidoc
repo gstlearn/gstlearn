@@ -30,7 +30,7 @@ Column = 6 - Name = Duplicate - Locator = sel
 
 +*Out[7]:*+
 ----
-![png](output_7_0.png)
+![png](output_10_0.png)
 ----
 
 
@@ -45,13 +45,13 @@ Number of Polygon Sets = 1
 
 +*Out[11]:*+
 ----
-![png](output_13_0.png)
+![png](output_16_0.png)
 ----
 
 
 +*Out[13]:*+
 XXX
-![png](output_15_1.png)
+![png](output_18_1.png)
 ----
 
 
@@ -93,7 +93,7 @@ Column = 3 - Name = Polygon - Locator = sel----
 
 +*Out[15]:*+
 XXX
-![png](output_18_1.png)
+![png](output_21_1.png)
 ----
 
 
@@ -214,7 +214,7 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
 
 +*Out[22]:*+
 XXX
-![png](output_25_1.png)
+![png](output_28_1.png)
 ----
 
 
@@ -259,7 +259,7 @@ Column = 6 - Name = vec_define - Locator = sel----
 
 +*Out[24]:*+
 XXX
-![png](output_27_1.png)
+![png](output_30_1.png)
 ----
 
 
@@ -269,7 +269,7 @@ XXX
 
 +*Out[32]:*+
 XXX
-![png](output_37_1.png)
+![png](output_40_1.png)
 ----
 
 

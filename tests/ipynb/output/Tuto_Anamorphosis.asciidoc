@@ -43,13 +43,13 @@ Column = 4 - Name = Pb - Locator = z1
 
 +*Out[4]:*+
 ----
-![png](output_8_0.png)
+![png](output_9_0.png)
 ----
 
 
 +*Out[6]:*+
 ----
-![png](output_11_0.png)
+![png](output_12_0.png)
 ----
 
 
@@ -96,19 +96,19 @@ Column = 5 - Name = NewSel - Locator = sel
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_20_0.png)
+![png](output_21_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_24_0.png)
+![png](output_25_0.png)
 ----
 
 
@@ -168,7 +168,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 
 +*Out[16]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----
 
 
@@ -224,13 +224,13 @@ Column = 6 - Name = Y.Pb - Locator = z1
 
 +*Out[18]:*+
 ----
-![png](output_33_0.png)
+![png](output_34_0.png)
 ----
 
 
 +*Out[20]:*+
 ----
-![png](output_38_0.png)
+![png](output_39_0.png)
 ----
 
 
@@ -295,5 +295,5 @@ Column = 7 - Name = Z.Y.Pb - Locator = z1
 
 +*Out[22]:*+
 ----
-![png](output_43_0.png)
+![png](output_44_0.png)
 ----

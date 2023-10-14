@@ -31,7 +31,7 @@ Column = 3 - Name = inshore - Locator = sel----
 
 +*Out[5]:*+
 ----
-![png](output_12_0.png)
+![png](output_13_0.png)
 ----
 
 
@@ -105,25 +105,25 @@ Column = 4 - Name = Temperature - Locator = z1----
 
 +*Out[11]:*+
 ----
-![png](output_24_0.png)
+![png](output_25_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_26_0.png)
+![png](output_27_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_34_0.png)
+![png](output_35_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_40_0.png)
+![png](output_41_0.png)
 ----
 
 
@@ -171,19 +171,19 @@ Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
 
 +*Out[24]:*+
 ----
-![png](output_53_0.png)
+![png](output_54_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_56_0.png)
+![png](output_57_0.png)
 ----
 
 
 +*Out[28]:*+
 ----
-![png](output_61_0.png)
+![png](output_62_0.png)
 ----
 
 
@@ -201,7 +201,7 @@ Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
 
 +*Out[30]:*+
 ----
-![png](output_65_0.png)
+![png](output_66_0.png)
 ----
 
 
@@ -236,7 +236,7 @@ Mean squared standardized error: 1.206
 
 Linear Regression
 -----------------
-- Calculated on151active values
+- Calculated on 151 active values
 - Constant term           = 3.61197
 - Explanatory Variable #1 = -0.0090641
 - Initial variance        = 1.01979
@@ -257,31 +257,31 @@ Linear Regression
 
 +*Out[40]:*+
 ----
-![png](output_88_0.png)
+![png](output_89_0.png)
 ----
 
 
 +*Out[43]:*+
 ----
-![png](output_93_0.png)
+![png](output_94_0.png)
 ----
 
 
 +*Out[45]:*+
 ----
-![png](output_97_0.png)
+![png](output_98_0.png)
 ----
 
 
 +*Out[47]:*+
 ----
-![png](output_100_0.png)
+![png](output_101_0.png)
 ----
 
 
 +*Out[48]:*+
 ----
-![png](output_102_0.png)
+![png](output_103_0.png)
 ----
 
 
@@ -299,13 +299,13 @@ Linear Regression
 
 +*Out[53]:*+
 ----
-![png](output_114_0.png)
+![png](output_115_0.png)
 ----
 
 
 +*Out[55]:*+
 ----
-![png](output_117_0.png)
+![png](output_118_0.png)
 ----
 
 
@@ -314,7 +314,7 @@ Linear Regression
 
 Linear Regression
 -----------------
-- Calculated on151active values
+- Calculated on 151 active values
 - Explanatory Variable #1 = 3.52136
 - Explanatory Variable #2 = -0.00746599
 - Explanatory Variable #3 = 0.00197753
@@ -325,7 +325,7 @@ Linear Regression
 
 +*Out[58]:*+
 ----
-![png](output_124_0.png)
+![png](output_125_0.png)
 ----
 
 
@@ -343,7 +343,7 @@ Linear Regression
 
 +*Out[60]:*+
 ----
-![png](output_128_0.png)
+![png](output_129_0.png)
 ----
 
 
@@ -368,19 +368,19 @@ Mean squared standardized error: 0.855
 
 +*Out[67]:*+
 ----
-![png](output_145_0.png)
+![png](output_146_0.png)
 ----
 
 
 +*Out[69]:*+
 ----
-![png](output_148_0.png)
+![png](output_149_0.png)
 ----
 
 
 +*Out[71]:*+
 ----
-![png](output_153_0.png)
+![png](output_154_0.png)
 ----
 
 
@@ -398,7 +398,7 @@ Mean squared standardized error: 0.855
 
 +*Out[73]:*+
 ----
-![png](output_157_0.png)
+![png](output_158_0.png)
 ----
 
 

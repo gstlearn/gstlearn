@@ -1,8 +1,8 @@
 +*Out[2]:*+
 ----
-![png](output_3_0.png)
+![png](output_5_0.png)
 
-![png](output_3_1.png)
+![png](output_5_1.png)
 ----
 
 
@@ -53,7 +53,7 @@ Column = 8 - Name = Indicator.Z.Class.4 - Locator = NA
 Column = 9 - Name = Indicator.Z.Mean - Locator = z1
 
 
-![png](output_8_1.png)
+![png](output_10_1.png)
 ----
 
 
@@ -80,7 +80,7 @@ Exponential
 - Theo. Range  =      0.428
 Total Sill     =      0.343
  
-![png](output_10_1.png)
+![png](output_12_1.png)
 ----
 
 
@@ -107,13 +107,13 @@ Exponential
 - Theo. Range  =      0.279
 Total Sill     =      0.140
  
-![png](output_12_1.png)
+![png](output_14_1.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_16_0.png)
 ----
 
 
@@ -174,19 +174,19 @@ Correlation between factors MAF
  [ 0.          0.74338862  0.02459744  5.89971273  0.02594569]
  [-0.         -0.06810601  0.02646471  0.02594569  6.24325564]]
 
-![png](output_19_1.png)
+![png](output_21_1.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_21_0.png)
+![png](output_23_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_23_0.png)
+![png](output_25_0.png)
 ----
 
 
@@ -199,7 +199,7 @@ The number of factors is less than the number of variables. The other factors wi
 
 +*Out[16]:*+
 ----
-![png](output_28_0.png)
+![png](output_30_0.png)
 
-![png](output_28_1.png)
+![png](output_30_1.png)
 ----

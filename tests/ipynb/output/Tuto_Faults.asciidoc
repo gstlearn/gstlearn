@@ -1,6 +1,6 @@
 +*Out[9]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
@@ -39,7 +39,7 @@ For variable 1
 
 +*Out[11]:*+
 ----
-![png](output_24_0.png)
+![png](output_25_0.png)
 ----
 
 
@@ -78,19 +78,19 @@ For variable 1
 
 +*Out[13]:*+
 ----
-![png](output_28_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_33_0.png)
+![png](output_34_0.png)
 ----
 
 
