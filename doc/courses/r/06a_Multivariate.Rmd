@@ -12,7 +12,7 @@ output:
 
 <!-- SUMMARY: Estimation using several variables simultaneously: Cokriging, Kriging with trend, Kriging with External Drift  -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r, include=FALSE}
 ## Global options for code chunks

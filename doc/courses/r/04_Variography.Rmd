@@ -11,7 +11,7 @@ output:
 
 <!-- SUMMARY: Calculate variograms on one or several variables of a Db, for any space dimension. Fit a Model (automatic procedure)  -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r, include=FALSE}
 ## Global options for code chunks

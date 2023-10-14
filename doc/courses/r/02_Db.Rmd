@@ -12,7 +12,7 @@ output:
 
 <!-- SUMMARY: Description of the Data Base (numerical). How to create a Db (from different sources), to use shortcuts (assessors), to assign roles to variables (locators).  -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r, include=FALSE}
 ## Global options for code chunks

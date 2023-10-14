@@ -11,7 +11,7 @@ output:
 
 <!-- SUMMARY: Perform estimation of a target variable using Kriging: various options (simple and ordinary). Cross-validation.  -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r, include=FALSE}
 ## Global options for code chunks

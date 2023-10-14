@@ -11,7 +11,7 @@ output:
 
 <!-- SUMMARY: Using Stochastic Partial Derivative Equation framework to perform Estimation (extension to the use of External Drift)  -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 

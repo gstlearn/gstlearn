@@ -11,7 +11,7 @@ output:
 
 <!-- SUMMARY: Use the library gtlearn.plot (based on matplotlib) to visualize all the objects of gstlearn library   -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)

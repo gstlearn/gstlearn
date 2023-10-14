@@ -14,7 +14,7 @@ colortheme: beaver
 
 <!-- SUMMARY: Filtering images using Factorial Kriging Analysis. Example on a multivariate acquisition  -->
 
-<!-- CATGEORY: Courses -->
+<!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 
