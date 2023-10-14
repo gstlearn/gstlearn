@@ -171,7 +171,7 @@ A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
 ```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
 # Cholesky decomposition of precision matrix of the latent vector
 Q = spde$getPrecisionOpCs()$getQToTriplet()$toTL()
-cholQ = Cholesky(Q, LDL = FALSE)
+cholQ = Matrix::Cholesky(Q, LDL = FALSE)
 ```
 
 2) Compute the normal Gaussian vector $\mathbf{U \sim N(0, I_n)}$,
@@ -236,7 +236,7 @@ Kriging is computed using the Cholesky factorization.
 
 ```{r kriging_manual, echo=TRUE, eval=TRUE}
 Q_TT = Q + 1/(tau^2) * t(A_d) %*% A_d
-cholQ_TT =  Cholesky(Q_TT, LDL = FALSE)
+cholQ_TT =  Matrix::Cholesky(Q_TT, LDL = FALSE)
 
 z_dat = dat["Z"]
 kriging = as.numeric(A_g %*% solve(cholQ_TT, t(A_d) %*% z_dat/(tau^2)))
@@ -347,7 +347,8 @@ ggPrint(p)
 ```{r nc_simu_api, echo=TRUE, eval=TRUE}
 err = grid$deleteColumns(names = "spde.simu.*")
 # non conditional simulations
-spde = SPDE(model = model, domain = gridExt, data = NULL, calcul = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
+spde = SPDE(model = model, domain = gridExt, data = NULL, 
+            calcul = ESPDECalcMode_SIMUNONCOND(), mesh = mesh)
 iuid = spde$compute(dbout = grid, nbsimu = nsim, namconv = NamingConvention("spde"))
 
 # plot
@@ -356,7 +357,6 @@ p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.2", palette = "Spe
 p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.3", palette = "Spectral")
 p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
-
 ```
 
 ## Conditional simulations
@@ -369,7 +369,8 @@ err     = model_obs$addCovFromParam(ECov_NUGGET(),sill=(tau^2))
 model_obs$display()
 
 # conditional simulations
-spde_obs = SPDE(model = model_obs, domain = gridExt, data = dat, calcul = ESPDECalcMode_SIMUCOND(), mesh = mesh)
+spde_obs = SPDE(model = model_obs, domain = gridExt, data = dat, 
+                calcul = ESPDECalcMode_SIMUCOND(), mesh = mesh)
 iuid = spde_obs$compute(dbout = grid, nbsimu = nsim, namconv = NamingConvention("spde"))
 
 # plot
@@ -378,7 +379,6 @@ p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.Z.2", palette = "S
 p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.Z.3", palette = "Spectral")
 p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.Z.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
-
 ```
 
 ## Kriging
@@ -387,7 +387,8 @@ ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 err = grid$deleteColumns(names = c("spde.Z.estim", "spde.Z.stdev"))
 
 # kriging value
-spdeRes = SPDE(model = model_obs, domain = gridExt, data = dat, calcul = ESPDECalcMode_KRIGING(), mesh = mesh)
+spdeRes = SPDE(model = model_obs, domain = gridExt, data = dat, 
+               calcul = ESPDECalcMode_KRIGING(), mesh = mesh)
 iuid    = spdeRes$compute(grid, namconv = NamingConvention("spdeK"))
 
 # computing the stdev by Monte Carlo
@@ -410,7 +411,6 @@ p = ggDefault() +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)
-
 ```
 
 
@@ -421,7 +421,8 @@ ggPrint(p)
 ```{r nc_simu_fn, echo=TRUE, eval=TRUE}
 err = grid$deleteColumns(names = "spde.fn.simu.*")
 # non conditional simulations
-err  = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, namconv = NamingConvention("spde.fn"))
+err  = simulateSPDE(dbin = NULL, dbout = grid, model = model, nbsimu = nsim, 
+                    namconv = NamingConvention("spde.fn"))
 
 # plot
 p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.1", palette = "Spectral")
@@ -429,15 +430,16 @@ p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.2", palette = "
 p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.3", palette = "Spectral")
 p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
-
 ```
 
 ## Conditional simulations
 
 ```{r cond_simu_fn, echo=TRUE, eval=TRUE}
 err = grid$deleteColumns(names = "spde.fn.Z.condSimu.*")
+
 # conditional simulations
-err  = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu = nsim, namconv = NamingConvention("spde.fn"))
+err  = simulateSPDE(dbin = dat, dbout = grid, model = model, nbsimu = nsim, 
+                    namconv = NamingConvention("spde.fn"))
 
 # plot
 p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.Z.1", palette = "Spectral")
@@ -445,7 +447,6 @@ p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.Z.2", palette =
 p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.Z.3", palette = "Spectral")
 p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="spde.fn.Z.4", palette = "Spectral")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
-
 ```
 
 ## Kriging
@@ -467,7 +468,6 @@ p = ggDefault() +
     plot.decoration(xlab = "Manual", ylab = "SPDE", 
                   title = "Comparison for Kriging")
 ggPrint(p)
-
 ```
 
 # References
