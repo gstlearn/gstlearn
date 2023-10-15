@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /*                                                                            */
-/* This file is meant to demonstrate the process of using PGS                 */
+/* This file is meant to establish Bench Mark for Variogram calculations      */
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
