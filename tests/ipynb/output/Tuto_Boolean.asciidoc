@@ -94,28 +94,6 @@ Column = 4 - Name = NC.Rank - Locator = NA----
 ----
 
 
-+*Out[10]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 6
-Total number of samples      = 20
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = rank.1 - Locator = NA
-Column = 2 - Name = x1 - Locator = x1
-Column = 3 - Name = x2 - Locator = x2
-Column = 4 - Name = NC.Facies - Locator = NA
-Column = 5 - Name = NC.Rank - Locator = NA----
-
-
 +*Out[11]:*+
 ----
 ![png](output_22_0.png)
@@ -131,15 +109,15 @@ Column = 5 - Name = NC.Rank - Locator = NA----
  
  Simulating the initial tokens
  -----------------------------
- - Number of grains to be covered    = 12
- - Number of conditioning pores      = 8
- - Number of Initial Objects = 10
- - Number of iterations      = 11
+ - Number of grains to be covered    = 9
+ - Number of conditioning pores      = 11
+ - Number of Initial Objects = 8
+ - Number of iterations      = 8
  
  Simulating the secondary tokens
  -------------------------------
  - Ending number of primary objects  = 0
- - Total number of objects           = 113
+ - Total number of objects           = 93
  
 Data Base Grid Characteristics
 ==============================
@@ -174,30 +152,6 @@ Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
 ----
 
 
-+*Out[15]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 8
-Total number of samples      = 200
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = rank.1 - Locator = NA
-Column = 2 - Name = x1 - Locator = x1
-Column = 3 - Name = x2 - Locator = x2
-Column = 4 - Name = NC.Facies - Locator = NA
-Column = 5 - Name = NC.Rank - Locator = NA
-Column = 6 - Name = CD1.Facies1.Facies - Locator = NA
-Column = 7 - Name = CD1.Facies1.Rank - Locator = NA----
-
-
 +*Out[17]:*+
 ----
 ![png](output_32_0.png)
@@ -213,15 +167,15 @@ Column = 7 - Name = CD1.Facies1.Rank - Locator = NA----
  
  Simulating the initial tokens
  -----------------------------
- - Number of grains to be covered    = 110
- - Number of conditioning pores      = 90
- - Number of Initial Objects = 73
- - Number of iterations      = 107
+ - Number of grains to be covered    = 13
+ - Number of conditioning pores      = 7
+ - Number of Initial Objects = 12
+ - Number of iterations      = 14
  
  Simulating the secondary tokens
  -------------------------------
  - Ending number of primary objects  = 0
- - Total number of objects           = 104
+ - Total number of objects           = 96
  
 Data Base Grid Characteristics
 ==============================
