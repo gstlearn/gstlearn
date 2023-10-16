@@ -46,19 +46,19 @@ GSTLEARN_EXPORT Table dbStatisticsMono(Db *db,
 GSTLEARN_EXPORT Table dbStatisticsCorrel(Db *db,
                                          const VectorString &names,
                                          bool flagIso = true,
-                                         const String& title = String());
+                                         const String& title = "");
 GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
                                        const VectorString &names,
                                        const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
                                        bool flagIso = false,
                                        bool flagCorrel = false,
-                                       const String &title = String(),
-                                       const String &radix = String());
+                                       const String &title = "",
+                                       const String &radix = "");
 GSTLEARN_EXPORT Table dbStatisticsMulti(Db *db,
                                         const VectorString &names,
-                                        const EStatOption &oper = EStatOption::MEAN,
+                                        const EStatOption &oper = EStatOption::fromKey("MEAN"),
                                         bool flagMono = true,
-                                        const String& title = String());
+                                        const String& title = "");
 
 /**@}*/
 
@@ -78,7 +78,7 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsPerCell(Db *db,
                                                  DbGrid *dbgrid,
                                                  const EStatOption &oper,
                                                  const String& name1,
-                                                 const String& name2 = String(),
+                                                 const String& name2 = "",
                                                  const VectorDouble &cuts = VectorDouble());
 /**@}*/
 

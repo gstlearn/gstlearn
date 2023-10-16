@@ -29,7 +29,7 @@
 class GSTLEARN_EXPORT HDF5format
 {
 public:
-  HDF5format(const String& filename = String(), const String& varname = String());
+  HDF5format(const String& filename = "", const String& varname = "");
   HDF5format(const HDF5format &r);
   HDF5format& operator=(const HDF5format &r);
   virtual ~HDF5format();
@@ -56,9 +56,9 @@ public:
 
   int displayNames() const;
 
-  void openFile(const String& filename = String());
+  void openFile(const String& filename = "");
   void openNewFile(const String& filename);
-  void openDataSet(const String& varname = String());
+  void openDataSet(const String& varname = "");
 
 #ifdef _USE_HDF5
   void openNewDataSetInt(const String& varname,

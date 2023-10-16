@@ -60,7 +60,7 @@ class Db;
 class GSTLEARN_EXPORT NamingConvention: public AStringable
 {
 public:
-  NamingConvention(String prefix = String(),
+  NamingConvention(String prefix = "",
                    bool flag_varname = true,
                    bool flag_qualifier = true,
                    bool flag_locator = true,
@@ -74,7 +74,7 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static NamingConvention* create(String prefix = String(),
+  static NamingConvention* create(String prefix = "",
                                   bool flag_varname = true,
                                   bool flag_qualifier = true,
                                   bool flag_locator = true,
@@ -84,14 +84,14 @@ public:
 
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
   void setNamesAndLocators(const VectorString& names,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -103,7 +103,7 @@ public:
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -113,7 +113,7 @@ public:
                            int nvar,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -121,7 +121,7 @@ public:
                            const VectorInt& iatts,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -129,7 +129,7 @@ public:
                            int iatt,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -154,7 +154,7 @@ private:
                  const String& qualifier,
                  int nitems) const;
   VectorString _createNames(const VectorString &names,
-                           const String &qualifier = String(),
+                           const String &qualifier = "",
                            int nitems = 1) const;
 
 private:

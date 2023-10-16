@@ -41,7 +41,7 @@ public:
   static String getTestData(const String& subdir, const String& filename);
   static String getFileIdentity(const String& filename, bool verbose = false);
   static void setContainerName(bool useDefault,
-                               const String& containerName = String(),
+                               const String& containerName = "",
                                bool verbose = false);
   static void unsetContainerName();
   static void setPrefixName(const String& prefixName);

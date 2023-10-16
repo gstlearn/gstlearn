@@ -57,10 +57,10 @@ GSTLEARN_EXPORT String concatenateString(const String &string,
                                          double value,
                                          const String &delim = "-");
 GSTLEARN_EXPORT String concatenateStrings(const String &delimt = ".",
-                                          const String &string1 = String(),
-                                          const String &string2 = String(),
-                                          const String &string3 = String(),
-                                          const String &string4 = String());
+                                          const String &string1 = "",
+                                          const String &string2 = "",
+                                          const String &string3 = "",
+                                          const String &string4 = "");
 
 GSTLEARN_EXPORT VectorString generateMultipleNames(const String &radix,
                                                    int number,
