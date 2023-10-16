@@ -477,6 +477,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axsOld=None, *args, **kwargs):
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multi-directional variograms are represented.
+    flagDrawVariance : Flag to add the variance (default is True)  
     varioLinestyle: Linestyle for representing the experimental variogram
     modelLinestyle: Linestyle for representing the Model
     varColor, varLinestyle: parameters for representing variance-covariance line
@@ -500,6 +501,7 @@ def varmod(vario, model=None, ivar=-1, jvar=-1, axsOld=None, *args, **kwargs):
 
 def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 nh = 100, hmax = None, showPairs=False, asCov=False, 
+                flagDrawVariance = True,
                 varioLinestyle = 'dashed', modelLinestyle = 'solid',
                 varColor='black', varLinestyle="dotted",
                 envColor='black', envLinestyle="dotted",
@@ -558,6 +560,7 @@ def __ax_varmod(axs, vario, model=None, ivar=-1, jvar=-1, idir=-1,
                 
                 __ax_varioElem(ax, vario, iv, jv, idirUtil, 
                                showPairs=showPairs, hmax=hmax,
+                               flagDrawVariance = flagDrawVariance,
                                varColor=varColor, varLinestyle=varLinestyle,  
                                flagLabelDir=flagLabelDir, flagLegend=flagLegend, 
                                **kwargs)
