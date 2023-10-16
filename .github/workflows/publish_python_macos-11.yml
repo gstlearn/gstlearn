@@ -30,8 +30,7 @@ jobs:
           - ["3.10", "1.21.6"]
           - ["3.11", "1.23.5"]
         os:
-          #- [macos-10.15, "macosx_10_15_x86_64"] # no more available
-          - [macos-11,    "macosx_11_0_arm64"]
+          - [macos-11, "macosx_11_0_arm64"]
 
     steps:
     - uses: actions/checkout@v3
@@ -87,7 +86,7 @@ jobs:
 
     - name : Configure Cmake
       # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
-      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DUSE_HDF5=OFF
+      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DBUILD_DOXYGEN=ON
            #cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}
 
 ####################################################################################################
