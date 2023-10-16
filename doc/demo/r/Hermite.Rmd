@@ -31,35 +31,8 @@ Finally it will serve in demonstrating the ability of representing any function 
 
 # Part I
 
-The objective of the first part is to compute
-
-$$
-\psi_1(\alpha,\beta)=\int \phi(\alpha + \beta \, u) \, g(u) \, du
-$$
-
-and
-
-$$
-\psi_2(\alpha,\beta) = \int \phi^2(\alpha + \beta \, u) \, g(u) \, du
-$$
-
-for a function $\phi$ in order to compute the conditional expectation and the conditional variance, usually defined by its expansion in terms of Hermite polynomials:
-
-$$
-\phi(y) = \sum_{n=0}^{N} a_n \eta_n(y)
-$$
-
-In particular, we may be interested in the case where $\alpha=r y$ and $\beta = \sqrt { { 1-r^2 } }$. Note that $|\beta|< 1$.
-
-Many methods can be used to compute these draw.matrix:
-
-* the Monte-Carlo integration (easy)
-
-* the computation of the Hermite coefficient for $\phi$ and $\phi^2$ 
-
-$$
-\int_{-\infty}^{+\infty} \eta_n(\alpha + \beta \, u)\, g(u) \, du = (1-\beta^2)^n \, \eta_n(\frac{\alpha}{\sqrt{1-\beta^2}})
-$$
+```{r child="../../references/Hermite_Polynomials.md"}
+```
 
 # Evaluation on the lognormal case
 
@@ -256,31 +229,8 @@ draw.correlation(calcul=3,flag.est=FALSE,params)
 
 # Part II
 
-We use the lognormal model to test some computations done with Hermite polynomials.
-
-We consider the second order stationary model $Z_{\lambda}(x) = e^{\lambda Y(x) - \frac{1}{2} \lambda^2}$ where $Y(x)$ is a centered Gaussian model with autocorrelation $\rho$:
-
-* $E\{Y\} = 0$
-
-* $Cov(Y(x), Y(x+h)) = E\{Y(x)Y(x+h)\} = \rho(h)$
-
-* $E\{Z_{\lambda}\} = 1$
-
-* $Cov(Z_{\lambda}(x), Z_{\lambda}(x+h)) = E\{Z_{\lambda}(x)Z_{\lambda}(x+h)\} - 1 = e^{\lambda^2\rho(h)} - 1$
-
-
-The anamorphosis $\phi_{\lambda}$ maps the Gaussian field into the lognormal SOS model 
-$Z_{\lambda} = \phi_{\lambda}(Y) = \sum_{n=0}^{+\infty}\phi_n{(\lambda)}H_n(Y)$.
-
-The Hermite coefficients are $\phi_n{(\lambda)} = \frac{(-\lambda)^n}{\sqrt{n!}}$ and we have
-$$
-C_{\lambda}(h) = e^{\lambda^2 \rho } - 1 = \sum_{n = 1}^{+\infty} \phi_n^2(\lambda) \rho^{n}.
-$$
-
-The recursion formula to compute the values of the Hermite polynomials are: $H_0(y) = 1$, $H_1(y)= -y$, and
-$$
-H_{n+1}(y) = -\frac{1}{\sqrt{n+1}} y H_n(y) - \sqrt{\frac{n}{n+1}} H_{n-1}(y)
-$$
+```{r child="../../references/Hermite_Lognormal.md"}
+```
 
 The next lines define some functions which can be explitely written in the lognormal case
 
@@ -429,22 +379,8 @@ The empirical anamorphosis does not reproduce the lognormal transform and the He
 
 # Part III
 
-The observed variable is 
-
-$$
-Y_{y_c} = \phi_{y_c}(Y) = Y\times 1_{Y \geq y_c} + y_c \times 1_{Y < y_c} =
-\sum_{n\geq 0} \phi_n(y_c) \times H_n(Y)
-$$
-
-where normalized Hermite polynomials are $H_n(n) = \frac{1}{\sqrt{n!}} \frac{g^{(n)}(y)}{g(y)}$.
-
-The computation of the coefficients $\phi_n(y_c)$ gives
-
-* $\phi_0(y_c) = g(y_c) + y_c \times G(y_c)$,
-
-* $\phi_1(y_c) = G(y_c) - 1$,
-
-* $\phi_n(y_c) = g(y_c)  \frac{H_{n-2}(y_c)}{\sqrt{n\times(n-1)}}$ for $n > 1$.
+```{r, child="../../references/Hermite_Truncated.md"}
+```
 
 ```{r}
 np <- 1000
