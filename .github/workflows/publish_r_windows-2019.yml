@@ -42,6 +42,9 @@ jobs:
           nuget install Bison -Version 3.7.4  -OutputDirectory ${{env.BISON_ROOT}}
           nuget install PCRE2 -Version 10.39  -OutputDirectory ${{env.PCRE2_ROOT}}
 
+    - name: Install R dependencies
+      run: Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
+      
     - name: Compile and install [customized] SWIG 4.2.0b
       shell: powershell
       # TODO : Use a tagged realease (not the master branch)
