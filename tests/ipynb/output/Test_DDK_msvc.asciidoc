@@ -1,8 +1,8 @@
 +*Out[2]:*+
 ----
-![png](output_3_0.png)
+![png](output_5_0.png)
 
-![png](output_3_1.png)
+![png](output_5_1.png)
 ----
 
 
@@ -37,7 +37,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 10
-Maximum Number of UIDs       = 10
 Total number of samples      = 1000
 
 Variables
@@ -54,7 +53,7 @@ Column = 8 - Name = Indicator.Z.Class.4 - Locator = NA
 Column = 9 - Name = Indicator.Z.Mean - Locator = z1
 
 
-![png](output_8_1.png)
+![png](output_10_1.png)
 ----
 
 
@@ -81,7 +80,7 @@ Exponential
 - Theo. Range  =      0.141
 Total Sill     =      0.294
  
-![png](output_10_1.png)
+![png](output_12_1.png)
 ----
 
 
@@ -108,13 +107,13 @@ Exponential
 - Theo. Range  =      0.275
 Total Sill     =      0.138
  
-![png](output_12_1.png)
+![png](output_14_1.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_16_0.png)
 ----
 
 
@@ -159,6 +158,14 @@ Z = m + Y * MF2Z
 
 
 +*Out[10]:*+
+----array([ 1.        ,  1.        ,  1.        ,  1.        ,  1.        ,
+       -2.47886579, -1.14675353,  0.74915825,  2.16363747,  3.90451299,
+        1.69530309, -0.53389969, -3.60915195, -1.12050033,  5.44119466,
+        1.38301085, -4.18382815, -0.26029577,  2.92073031, -1.10224533,
+       -0.76959185,  2.44777053, -3.38247266,  3.26014991, -2.34212001])----
+
+
++*Out[11]:*+
 ----
 Correlation between factors MAF
 [[ 1.00000000e+00  0.00000000e+00  0.00000000e+00 -0.00000000e+00
@@ -172,32 +179,32 @@ Correlation between factors MAF
  [-0.00000000e+00  3.87818000e-04 -2.16201555e-01 -2.88649327e-02
    6.33848997e+00]]
 
-![png](output_18_1.png)
-----
-
-
-+*Out[11]:*+
-----
-![png](output_20_0.png)
+![png](output_21_1.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_22_0.png)
+![png](output_23_0.png)
 ----
 
 
-+*Out[14]:*+
++*Out[13]:*+
 ----
-The number of factors is less than the number of variables. The other factors will be neglected.
-The number of factors is less than the number of variables. The other factors will be neglected.
+![png](output_25_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_27_0.png)
+The number of factors is less than the number of variables. The other factors will be neglected.
+The number of factors is less than the number of variables. The other factors will be neglected.
+----
 
-![png](output_27_1.png)
+
++*Out[16]:*+
+----
+![png](output_30_0.png)
+
+![png](output_30_1.png)
 ----

@@ -1,0 +1,111 @@
+[[1]]
+[1]  78.2 460.7
+
+[[2]]
+[1]  530.4 1208.9
+
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 11316
+
+Grid characteristics:
+---------------------
+Origin :     65.000   530.000
+Mesh   :      4.940     4.960
+Number :         82       138
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    465.140 - Ext = 400.14
+Coor #2 - Min =    530.000 - Max =   1209.520 - Ext = 679.52
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+NULL
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 236
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = Longitude - Locator = x1
+Column = 2 - Name = Latitude - Locator = x2
+Column = 3 - Name = Elevation - Locator = NA
+Column = 4 - Name = January_temp - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 11316
+
+Grid characteristics:
+---------------------
+Origin :     65.000   530.000
+Mesh   :      4.940     4.960
+Number :         82       138
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = SK.January_temp.estim - Locator = z1
+Column = 4 - Name = SK.January_temp.stdev - Locator = NA
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 11097
+Number of active samples     = 3092
+
+Grid characteristics:
+---------------------
+Origin :     65.000   535.000
+Mesh   :      4.938     4.963
+Number :         81       137
+
+Data Base Extension
+-------------------
+Coor #1 - Min =     65.000 - Max =    455.123 - Ext = 390.123
+Coor #2 - Min =    535.000 - Max =   1200.109 - Ext = 665.109
+
+Variables
+---------
+Column = 0 - Name = Longitude - Locator = x1
+Column = 1 - Name = Latitude - Locator = x2
+Column = 2 - Name = Elevation - Locator = f1
+Column = 3 - Name = inshore - Locator = sel
+NULL
+[1] "Mean cross-validation error:" "-0.0041678715976547"         
+[1] "Mean squared cross-validation error:"
+[2] "0.239372581675654"                   
+[1] "Mean standardized error:" "0.911779356504376"       

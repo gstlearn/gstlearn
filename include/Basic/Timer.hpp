@@ -32,7 +32,7 @@ public:
 
   void reset();
 
-  void displayIntervalSeconds(const String& title = String(),
+  void displayIntervalSeconds(const String& title = "",
                               int expected_time = -1,
                               bool flag_reset = true);
   double getIntervalSeconds(bool flag_reset = true);
@@ -40,7 +40,7 @@ public:
                       double sec,
                       int expected_time = -1);
 
-  void displayIntervalMilliseconds(const String& title = String(),
+  void displayIntervalMilliseconds(const String& title = "",
                                    int expected_time = -1,
                                    bool flag_reset = true);
   double getIntervalMilliseconds(bool flag_reset = true);

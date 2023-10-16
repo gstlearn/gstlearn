@@ -50,10 +50,10 @@ public:
   bool empty() const { return _bounds.empty(); }
 
   int toCategory(Db* db,
-                 const String& name = String(),
+                 const String& name = "",
                  const NamingConvention& namconv = NamingConvention("Category")) const;
   int toIndicator(Db* db,
-                  const String& name = String(),
+                  const String& name = "",
                   int OptionIndicator = 1,
                   bool flagBelow = false,
                   bool flagAbove = false,

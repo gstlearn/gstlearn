@@ -13,7 +13,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 102
 
 Data Base Extension
@@ -48,7 +47,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 6
-Maximum Number of UIDs       = 6
 Total number of samples      = 102
 Number of active samples     = 99
 
@@ -116,13 +114,13 @@ Column = 5 - Name = sel - Locator = sel
 
 +*Out[7]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_20_0.png)
+![png](output_21_0.png)
 ----
 
 
@@ -162,7 +160,7 @@ For variable 1
 
 +*Out[12]:*+
 ----
-![png](output_24_0.png)
+![png](output_25_0.png)
 ----
 
 
@@ -267,7 +265,7 @@ For variable 1
 
 +*Out[14]:*+
 ----
-![png](output_27_0.png)
+![png](output_28_0.png)
 ----
 
 
@@ -282,7 +280,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 5
-Maximum Number of UIDs       = 5
 Total number of samples      = 1681
 
 Grid characteristics:
@@ -303,13 +300,13 @@ Column = 4 - Name = VMAP.Pb.Nb - Locator = NA
 
 +*Out[16]:*+
 ----
-![png](output_30_0.png)
+![png](output_31_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_34_0.png)
+![png](output_35_0.png)
 ----
 
 
@@ -365,7 +362,7 @@ Total Sill     =      2.646
 
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
  ----
 
 
@@ -391,7 +388,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 2
-Maximum Number of UIDs       = 2
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -418,7 +414,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 7
-Maximum Number of UIDs       = 7
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -441,13 +436,13 @@ Column = 6 - Name = Neigh.Pb.NbCESect - Locator = z1
 
 +*Out[24]:*+
 ----
-![png](output_47_0.png)
+![png](output_48_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_49_0.png)
+![png](output_50_0.png)
 ----
 
 
@@ -462,7 +457,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 8
-Maximum Number of UIDs       = 8
 Total number of samples      = 102
 Number of active samples     = 99
 
@@ -481,7 +475,7 @@ Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
 
 +*Out[27]:*+
 ----
-![png](output_52_0.png)
+![png](output_53_0.png)
 ----
 
 
@@ -496,7 +490,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 9
-Maximum Number of UIDs       = 9
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -596,13 +589,13 @@ Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
 
 +*Out[29]:*+
 ----
-![png](output_56_0.png)
+![png](output_57_0.png)
 ----
 
 
 +*Out[30]:*+
 ----
-![png](output_57_0.png)
+![png](output_58_0.png)
 ----
 
 
@@ -634,7 +627,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 
 +*Out[32]:*+
 ----
-![png](output_61_0.png)
+![png](output_62_0.png)
 ----
 
 
@@ -649,7 +642,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 9
-Maximum Number of UIDs       = 9
 Total number of samples      = 102
 Number of active samples     = 99
 
@@ -669,7 +661,7 @@ Column = 8 - Name = Y.Pb - Locator = z1
 
 +*Out[35]:*+
 ----
-![png](output_67_0.png)
+![png](output_68_0.png)
 ----
 
 
@@ -684,7 +676,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 19
-Maximum Number of UIDs       = 19
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -728,7 +719,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 23
-Maximum Number of UIDs       = 23
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -954,7 +944,7 @@ Column = 22 - Name = Stats.STDV - Locator = z1
 
 +*Out[38]:*+
 ----
-![png](output_73_0.png)
+![png](output_74_0.png)
 ----
 
 
@@ -969,7 +959,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 19
-Maximum Number of UIDs       = 33
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1013,7 +1002,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 23
-Maximum Number of UIDs       = 37
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1239,7 +1227,7 @@ Column = 22 - Name = Stats.STDV - Locator = z1
 
 +*Out[41]:*+
 ----
-![png](output_79_0.png)
+![png](output_80_0.png)
 ----
 
 
@@ -1254,7 +1242,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 20
-Maximum Number of UIDs       = 38
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1453,7 +1440,7 @@ Column = 19 - Name = Stats.MEAN - Locator = z1
 
 +*Out[43]:*+
 ----
-![png](output_83_0.png)
+![png](output_84_0.png)
 ----
 
 
@@ -1485,7 +1472,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
 
 +*Out[45]:*+
 ----
-![png](output_86_0.png)
+![png](output_87_0.png)
 ----
 
 
@@ -1500,7 +1487,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 10
-Maximum Number of UIDs       = 20
 Total number of samples      = 102
 Number of active samples     = 99
 
@@ -1521,7 +1507,7 @@ Column = 9 - Name = Y.Zn - Locator = z1
 
 +*Out[47]:*+
 ----
-![png](output_90_0.png)
+![png](output_91_0.png)
 ----
 
 
@@ -1536,7 +1522,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 30
-Maximum Number of UIDs       = 58
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1591,7 +1576,6 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 33
-Maximum Number of UIDs       = 82
 Total number of samples      = 5100
 
 Grid characteristics:
@@ -1924,7 +1908,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 13
-Maximum Number of UIDs       = 43
 Total number of samples      = 102
 Number of active samples     = 99
 
@@ -2051,7 +2034,7 @@ For variable 3
 
 +*Out[53]:*+
 ----
-![png](output_101_0.png)
+![png](output_102_0.png)
 ----
 
 
@@ -2066,7 +2049,6 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of Columns            = 14
-Maximum Number of UIDs       = 44
 Total number of samples      = 102
 Number of active samples     = 99
 
