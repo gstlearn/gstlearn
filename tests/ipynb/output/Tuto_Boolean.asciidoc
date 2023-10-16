@@ -84,13 +84,13 @@ Column = 4 - Name = NC.Rank - Locator = NA----
 
 +*Out[8]:*+
 ----
-![png](output_15_0.png)
+![png](output_16_0.png)
 ----
 
 
 +*Out[9]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 
@@ -118,7 +118,7 @@ Column = 5 - Name = NC.Rank - Locator = NA----
 
 +*Out[11]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
@@ -170,7 +170,7 @@ Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
 
 +*Out[14]:*+
 ----
-![png](output_26_0.png)
+![png](output_27_0.png)
 ----
 
 
@@ -200,7 +200,7 @@ Column = 7 - Name = CD1.Facies1.Rank - Locator = NA----
 
 +*Out[17]:*+
 ----
-![png](output_31_0.png)
+![png](output_32_0.png)
 ----
 
 
@@ -254,5 +254,5 @@ Column = 8 - Name = CD2.Facies2.Rank - Locator = NA----
 
 +*Out[19]:*+
 ----
-![png](output_33_0.png)
+![png](output_34_0.png)
 ----
