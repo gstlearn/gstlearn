@@ -429,6 +429,7 @@ VectorString NamingConvention::_createNames(const VectorString &names,
       String name = concatenateStrings(_delim, _prefix,
                                        loc_varname, loc_qualifier, loc_number);
 
+      if (name.empty()) name = "Dummy";
       outnames.push_back(name);
     }
   }
