@@ -19,7 +19,7 @@ env:
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
   #DOXYGEN_ROOT : Doxygen
-  #DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
+  #DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.8.windows.x64.bin.zip
   
 jobs:
 
