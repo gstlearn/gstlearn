@@ -1,4 +1,4 @@
-name: publish_python_macos-10-11
+name: publish_python_macos-11
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{matrix.python[0]}}
-
+        
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -49,8 +49,8 @@ jobs:
 ####################################################################################################
 # Doxygen
 
-#    - name : Download and install Doxygen
-#      run: brew install doxygen ${{env.PYTHON}}
+    - name : Download and install Doxygen
+      run: brew install doxygen
 
 ####################################################################################################
 # HDF5
@@ -109,12 +109,4 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
         TWINE_REPOSITORY: pypi
-
-
-    
-
-   
-
-
-   
 
