@@ -27,6 +27,8 @@ Release 0.4.0
 - Names in plot.R and plot.py are standardized: using camel-writing systematically 
 - New method Db_fromPanda for creating Db from Panda Frame (numerical columns only)
 - New method Db_fromDF for creating Db from data.frame (numerical columns only)
+- Fix functions having "String()" default value in r (replaced by "")
+- dbStatististics* functions refactoring (same function for printing and calculating)
 
 Release 0.3.3
 =============
