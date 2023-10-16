@@ -2,7 +2,7 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
-Release 0.3.4
+Release 0.4.0
 =============
 - Update R readme
 - Add severity check for model validity (used before kriging)

@@ -1,0 +1,43 @@
++*Out[1]:*+
+----<IPython.core.display.Javascript object>----
+
+
++*Out[5]:*+
+----
+
+
+[[XXX]]
+----
+
+
++*Out[7]:*+
+----
+[[XXX]]
+----
+
+
++*Out[8]:*+
+----
+
+Polygons
+--------
+Number of Polygon Sets = 451
+ ----
+
+
++*Out[10]:*+
+----
+[[XXX]]
+----
+
+
++*Out[13]:*+
+----
+[[XXX]]
+----
+
+
++*Out[18]:*+
+----
+
+----
