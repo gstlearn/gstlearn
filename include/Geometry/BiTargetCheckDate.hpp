@@ -24,7 +24,7 @@ public:
   virtual ~BiTargetCheckDate();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckDate)
+  //IMPLEMENT_CLONING(BiTargetCheckDate)
 
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 

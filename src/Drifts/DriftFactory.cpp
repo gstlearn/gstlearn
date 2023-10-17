@@ -104,7 +104,7 @@ ADrift* DriftFactory::createDriftByIdentifier(const String& driftname)
     drift = DriftF::createByIdentifier(driftname);
 
   if (drift == nullptr)
-    messerr("Error: Drift Name(%s) is unknown", driftname);
+    messerr("Error: Drift Name(%s) is unknown", driftname.c_str());
   return drift;
 }
 

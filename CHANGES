@@ -2,6 +2,11 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 0.4.2
+=============
+- Fix Mac OS compilation
+- Fix python readme
+
 Release 0.4.1
 =============
 - Prevent NamingConvention from creating variables with empty name

@@ -24,7 +24,7 @@ public:
   virtual ~BiTargetCheckFaults();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckFaults)
+  //IMPLEMENT_CLONING(BiTargetCheckFaults)
 
   virtual bool isOK(const SpaceTarget &T1,
                     const SpaceTarget &T2) const override;
