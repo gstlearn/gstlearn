@@ -825,7 +825,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	dat
 }
 
-"Vario_toTL" <- function(x, idir, ivar, jvar)
+"Vario_toTL" <- function(x, idir=0, ivar=0, jvar=0)
 {
   sw = x$getSwVec(idir, ivar, jvar, FALSE)
   hh = x$getHhVec(idir, ivar, jvar, FALSE)
@@ -835,6 +835,24 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   df = data.frame(vals)
   names(df) = c("sw","hh","gg")
   df
+}
+
+"Vario_fromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
+{
+	ndir = vario$getDirectionNumber()
+	nvar = vario$getVariableNumber()
+	if (idir < 0 || idir >= ndir) return 
+	if (ivar < 0 || ivar >= nvar) return 
+	if (jvar < 0 || jvar >= nvar) return 
+	nlag = vario$getLagNumber(idir)
+	if (vario$getFlagAsym()) nlag = 2 * nlag  + 1
+	
+	if (dim(df)[1] != nlag) return 
+	
+	vario$setSwVec(idir, ivar, jvar, df["sw"])
+	vario$setHhVec(idir, ivar, jvar, df["hh"])
+	vario$setGgVec(idir, ivar, jvar, df["gg"])
+	vario
 }
 
 "Krigtest_Res_toTL" <- function(x)
