@@ -3,20 +3,273 @@ Experimental variogram on Data Samples
 --------------------------------------
 - on a Db containing 2000 samples
 - for a variogram calculated in 4 directions with 20 lags
-#NO_DIFF# Variogram on Isolated Points: 3795 ms. (Ref = 3800 ms.)
+#NO_DIFF# Variogram on Isolated Points: 2641 ms. (Ref = 2600 ms.)
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 4
+Space dimension             = 2
+Variance-Covariance Matrix     0.840
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   240.000     0.009     0.026
+         1  1926.000     0.027     0.183
+         2  3684.000     0.051     0.426
+         3  5409.000     0.075     0.598
+         4  6924.000     0.100     0.690
+         5  8364.000     0.125     0.793
+         6  9531.000     0.150     0.814
+         7 10906.000     0.175     0.843
+         8 12065.000     0.200     0.869
+         9 13408.000     0.225     0.890
+        10 14101.000     0.250     0.836
+        11 14996.000     0.275     0.814
+        12 15850.000     0.300     0.831
+        13 16409.000     0.325     0.869
+        14 16799.000     0.350     0.865
+        15 17217.000     0.375     0.877
+        16 17483.000     0.400     0.863
+        17 17508.000     0.425     0.836
+        18 17870.000     0.450     0.807
+        19 17877.000     0.475     0.806
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =      0.707     0.707
+Direction angles (degrees)  =     45.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   278.000     0.008     0.037
+         1  1841.000     0.027     0.201
+         2  3663.000     0.051     0.386
+         3  5402.000     0.076     0.580
+         4  6645.000     0.100     0.692
+         5  8311.000     0.125     0.803
+         6  9342.000     0.150     0.845
+         7 10528.000     0.175     0.838
+         8 11673.000     0.200     0.888
+         9 12386.000     0.225     0.967
+        10 13233.000     0.250     0.975
+        11 14161.000     0.275     0.924
+        12 14689.000     0.300     0.946
+        13 15402.000     0.325     1.011
+        14 15435.000     0.350     0.972
+        15 15813.000     0.375     0.980
+        16 16085.000     0.400     1.009
+        17 16305.000     0.425     0.942
+        18 16516.000     0.450     0.888
+        19 16480.000     0.475     0.893
+
+Direction #3
+------------
+Number of lags              = 20
+Direction coefficients      =      0.000     1.000
+Direction angles (degrees)  =     90.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   267.000     0.008     0.038
+         1  1891.000     0.027     0.168
+         2  3727.000     0.051     0.330
+         3  5422.000     0.075     0.489
+         4  6729.000     0.101     0.613
+         5  8345.000     0.125     0.727
+         6  9525.000     0.150     0.776
+         7 10936.000     0.175     0.837
+         8 12191.000     0.200     0.897
+         9 13171.000     0.225     0.942
+        10 13759.000     0.250     0.954
+        11 14791.000     0.275     0.940
+        12 15428.000     0.300     0.919
+        13 16016.000     0.325     0.931
+        14 16798.000     0.350     0.921
+        15 17376.000     0.375     0.908
+        16 17709.000     0.400     0.881
+        17 17910.000     0.425     0.830
+        18 18037.000     0.450     0.772
+        19 17854.000     0.475     0.757
+
+Direction #4
+------------
+Number of lags              = 20
+Direction coefficients      =     -0.707     0.707
+Direction angles (degrees)  =    135.000     0.000
+Tolerance on direction      =     22.500 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   223.000     0.008     0.041
+         1  1920.000     0.027     0.148
+         2  3633.000     0.051     0.328
+         3  5337.000     0.076     0.521
+         4  6855.000     0.101     0.662
+         5  8051.000     0.125     0.745
+         6  9481.000     0.150     0.810
+         7 10449.000     0.175     0.855
+         8 11531.000     0.200     0.851
+         9 12575.000     0.225     0.867
+        10 13491.000     0.250     0.876
+        11 13843.000     0.275     0.913
+        12 14722.000     0.300     0.931
+        13 15224.000     0.325     0.929
+        14 15521.000     0.350     0.943
+        15 15808.000     0.375     0.974
+        16 16126.000     0.400     0.990
+        17 16374.000     0.425     0.959
+        18 16605.000     0.450     0.951
+        19 16408.000     0.475     0.907
+
+Experimental variogram on Data Samples (with attributes)
+--------------------------------------------------------
+- on a Db containing 2000 samples (with code attribute)
+- taking a Fault System into account
+- for a variogram calculated in 1 direction with 20 lags
+#NO_DIFF# Variogram on Isolated Points (with attributes): 1086 ms. (Ref = 1100 ms.)
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     0.840
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      0.866     0.500
+Direction angles (degrees)  =     30.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =      0.050
+Tolerance on distance       =     50.000 (Percent of the lag value)
+Selection if Codes are close enough (2)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0  1213.000     0.016     0.097
+         1  9418.000     0.054     0.420
+         2 17013.000     0.102     0.692
+         3 22577.000     0.151     0.807
+         4 26962.000     0.200     0.874
+         5 29740.000     0.250     0.877
+         6 30878.000     0.300     0.844
+         7 30335.000     0.350     0.857
+         8 29489.000     0.400     0.852
+         9 28317.000     0.450     0.802
+        10 26972.000     0.500     0.837
+        11 24895.000     0.549     0.864
+        12 21402.000     0.599     0.904
+        13 18430.000     0.649     0.872
+        14 15139.000     0.699     0.861
+        15 12272.000     0.749     0.876
+        16  9910.000     0.799     0.804
+        17  7512.000     0.849     0.720
+        18  5640.000     0.898     0.581
+        19  3630.000     0.948     0.543
 
 Experimental variogram on Grid
 ------------------------------
 - on a grid of 200 by 200 pixels
 - for a variogram calculated along main directions with 20 lags
-#NO_DIFF# Variogram on Regular Grid: 1506 ms. (Ref = 1500 ms.)
+#NO_DIFF# Variogram on Regular Grid: 1415 ms. (Ref = 1500 ms.)
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variance-Covariance Matrix     0.874
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =      0.000 (degrees)
+Calculation lag             =      0.005
+Tolerance on distance       =     50.000 (Percent of the lag value)
+Grid Direction coefficients =          1         0
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1 39800.000     0.005     0.008
+         2 39600.000     0.010     0.031
+         3 39400.000     0.015     0.068
+         4 39200.000     0.020     0.116
+         5 39000.000     0.025     0.171
+         6 38800.000     0.030     0.231
+         7 38600.000     0.035     0.292
+         8 38400.000     0.040     0.351
+         9 38200.000     0.045     0.408
+        10 38000.000     0.050     0.460
+        11 37800.000     0.055     0.509
+        12 37600.000     0.060     0.553
+        13 37400.000     0.065     0.592
+        14 37200.000     0.070     0.627
+        15 37000.000     0.075     0.658
+        16 36800.000     0.080     0.684
+        17 36600.000     0.085     0.704
+        18 36400.000     0.090     0.719
+        19 36200.000     0.095     0.729
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =      0.000     1.000
+Direction angles (degrees)  =     90.000     0.000
+Tolerance on direction      =      0.000 (degrees)
+Calculation lag             =      0.005
+Tolerance on distance       =     50.000 (Percent of the lag value)
+Grid Direction coefficients =          0         1
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1 39800.000     0.005     0.020
+         2 39600.000     0.010     0.047
+         3 39400.000     0.015     0.062
+         4 39200.000     0.020     0.102
+         5 39000.000     0.025     0.156
+         6 38800.000     0.030     0.186
+         7 38600.000     0.035     0.217
+         8 38400.000     0.040     0.274
+         9 38200.000     0.045     0.320
+        10 38000.000     0.050     0.351
+        11 37800.000     0.055     0.406
+        12 37600.000     0.060     0.462
+        13 37400.000     0.065     0.488
+        14 37200.000     0.070     0.514
+        15 37000.000     0.075     0.552
+        16 36800.000     0.080     0.564
+        17 36600.000     0.085     0.564
+        18 36400.000     0.090     0.591
+        19 36200.000     0.095     0.618
 
 Variogram Map on Isolated Data
 ------------------------------
 - on a Db containing 2000 samples
 - for 50 by 50 cells (automatic dimensions)
-#NO_DIFF# Variogram Map on Isolated Points: 2387 ms. (Ref = 2400 ms.)
+#NO_DIFF# Variogram Map on Isolated Points: 2131 ms. (Ref = 2400 ms.)
 
 Variogram Map on Grid
 ---------------------
-#NO_DIFF# Variogram Map on Regular Grid: 76 ms. (Ref = 100 ms.)
+#NO_DIFF# Variogram Map on Regular Grid: 68 ms. (Ref = 100 ms.)

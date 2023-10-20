@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   if (vario != nullptr)
   {
     vario->attachDb(dbin);
-    vario->computeByKey("vg");
+    vario->compute(ECalcVario::VARIOGRAM);
     vario->display();
     ascii_filename("Vario",0,1,filename);
     if (! vario->dumpToNF(filename,verbose))

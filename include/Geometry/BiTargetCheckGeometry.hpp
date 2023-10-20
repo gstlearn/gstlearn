@@ -15,25 +15,44 @@
 #include "Geometry/ABiTargetCheck.hpp"
 #include "Faults/Faults.hpp"
 
-class GSTLEARN_EXPORT BiTargetCheckDate: public ABiTargetCheck
+class GSTLEARN_EXPORT BiTargetCheckGeometry: public ABiTargetCheck
 {
 public:
-  BiTargetCheckDate(double deltamin, double deltamax);
-  BiTargetCheckDate(const BiTargetCheckDate& r);
-  BiTargetCheckDate& operator=(const BiTargetCheckDate& r);
-  virtual ~BiTargetCheckDate();
+  BiTargetCheckGeometry(int ndim,
+                        const VectorDouble &codir = VectorDouble(),
+                        double tolang = 90.,
+                        double bench = 0.,
+                        double cylrad = 0.,
+                        bool flagasym = false);
+  BiTargetCheckGeometry(const BiTargetCheckGeometry& r);
+  BiTargetCheckGeometry& operator=(const BiTargetCheckGeometry& r);
+  virtual ~BiTargetCheckGeometry();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckDate)
+  IMPLEMENT_CLONING(BiTargetCheckGeometry)
 
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static BiTargetCheckDate* create(double deltamin, double deltamax);
+  static BiTargetCheckGeometry* create(int ndim,
+                                       const VectorDouble &codir = VectorDouble(),
+                                       double tolang = 90.,
+                                       double bench = 0.,
+                                       double cylrad = 0.,
+                                       bool flagasym = false);
+
+  double getDist() const { return _dist; }
 
 private:
-  double _deltaMin;
-  double _deltaMax;
+  int _ndim;
+  VectorDouble _codir;
+  double _tolAng;
+  double _bench;
+  double _cylrad;
+  bool   _flagAsym;
+
+  mutable double _psmin;
+  mutable double _dist;
 };

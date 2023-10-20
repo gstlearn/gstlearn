@@ -39,6 +39,11 @@ BiTargetCheckFaults::~BiTargetCheckFaults()
 {
 }
 
+BiTargetCheckFaults* BiTargetCheckFaults::create(const Faults* faults)
+{
+  return new BiTargetCheckFaults(faults);
+}
+
 String BiTargetCheckFaults::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;

@@ -17,6 +17,7 @@
 
 #include "Variogram/VarioParam.hpp"
 #include "Covariances/CovCalcMode.hpp"
+#include "Geometry/BiTargetCheckDistance.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -33,7 +34,8 @@ class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public I
 {
 public:
   Vario(const VarioParam* varioparam,
-        Db* db = nullptr,
+        Db* db,
+        const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"),
         const VectorDouble& means = VectorDouble(),
         const VectorDouble& vars = VectorDouble());
   Vario(const Vario& r);
@@ -44,11 +46,15 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(Vario)
 
+  /// Has a specific implementation in the Target language
+  DECLARE_TOTL;
+
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Vario* create(const VarioParam* varioparam,
                        Db* db = nullptr,
+                       const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"),
                        const VectorDouble& means = VectorDouble(),
                        const VectorDouble& vars = VectorDouble());
   static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
@@ -74,12 +80,14 @@ public:
                              const VectorInt &varcols,
                              const VectorInt &dircols,
                              bool asSymmetric = false);
+
+  static const ECalcVario getCalculType(const String& calcul_name);
+
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
               bool asSymmetric = false);
 
   const ECalcVario& getCalcul() const { return _calcul; }
-  ECalcVario        getCalculType(const String& calcul_name) const;
   bool              getFlagAsym() const { return _flagAsym; }
   bool              drawOnlyPositiveX(int ivar, int jvar) const;
   bool              drawOnlyPositiveY(int ivar, int jvar) const;
@@ -119,10 +127,24 @@ public:
                         int ivar = 0,
                         int jvar = 0,
                         bool asCov = false,
-                        bool flagNormalized = false) const;
-  VectorDouble getHhVec(int idir = 0, int ivar = 0, int jvar = 0) const;
-  VectorDouble getSwVec(int idir = 0, int ivar = 0, int jvar = 0) const;
-  VectorDouble getUtilizeVec(int idir = 0, int ivar = 0, int jvar = 0) const;
+                        bool flagNormalized = false,
+                        bool compress = true) const;
+  VectorDouble getHhVec(int idir = 0,
+                        int ivar = 0,
+                        int jvar = 0,
+                        bool compress = true) const;
+  VectorDouble getSwVec(int idir = 0,
+                        int ivar = 0,
+                        int jvar = 0,
+                        bool compress = true) const;
+  VectorDouble getUtilizeVec(int idir = 0,
+                             int ivar = 0,
+                             int jvar = 0,
+                             bool compress = true) const;
+
+  void setSwVec(int idir, int ivar, int jvar, const VectorDouble& sw);
+  void setHhVec(int idir, int ivar, int jvar, const VectorDouble& hh);
+  void setGgVec(int idir, int ivar, int jvar, const VectorDouble& gg);
 
   VectorDouble getGgs(int idir = 0,
                       int ivar = 0,
@@ -186,19 +208,7 @@ public:
   int attachDb(Db* db,
                const VectorDouble& vars = VectorDouble(),
                const VectorDouble& means = VectorDouble());
-  int computeByKey(const String& calcul_name = "vg",
-                   bool flag_gen = false,
-                   bool flag_sample = false,
-                   bool verr_mode = false,
-                   Model *model = nullptr,
-                   bool verbose = false);
-  int computeIndicByKey(const String& calcul_name = "vg",
-                        bool flag_gen = false,
-                        bool flag_sample = false,
-                        bool verr_mode = false,
-                        Model *model = nullptr,
-                        bool verbose = false,
-                        int nfacmax = -1);
+  int prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), int nvar = 0);
   int compute(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_gen = false,
               bool flag_sample = false,
@@ -249,6 +259,8 @@ public:
   void setCalculName(const String calcul_name);
 
   const VarioParam& getVarioParam() const { return _varioparam; }
+  int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
+  const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
 
 protected:
   /// Interface for ASerializable
@@ -272,6 +284,11 @@ private:
   void _setDPasFromGrid(bool flag_grid);
   void _setFlagAsym();
   VectorDouble _varsFromProportions(VectorDouble props);
+  void _clearBiTargetCheck();
+  void _addBiTargetCheck(ABiTargetCheck* abpc);
+  void _setListBiTargetCheck();
+  int  _getBiPtsNumber() const { return (int) _bipts.size(); }
+  int  _getBiPtsRank(int idir, int rank) const;
 
 private:
   int                _nVar;
@@ -285,5 +302,8 @@ private:
   VectorVectorDouble _gg;      /* Array for average variogram values */
   VectorVectorDouble _hh;      /* Array for average distance values */
   VectorVectorDouble _utilize; /* Array to mention if a lag is used or not */
+
+  int _biPtsPerDirection;
+  std::vector<ABiTargetCheck*> _bipts;
   mutable bool       _flagAsym;
 };

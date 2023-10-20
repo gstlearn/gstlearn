@@ -61,7 +61,9 @@ int main(int argc, char *argv[])
   {
     int number = nech * (ifois + 1);
     timer.reset();
-    Db* data1 = Db::createFillRandom(number, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 131343);
+    Db *data1 = Db::createFillRandom(number, ndim, 1, 0, 0, 0., 0.,
+                                     VectorDouble(), VectorDouble(),
+                                     VectorDouble(), 131343);
     Ball ball(data1);
     times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 
@@ -75,8 +77,12 @@ int main(int argc, char *argv[])
   {
     int number = nech * (ifois + 1);
     timer.reset();
-    Db* data1 = Db::createFillRandom(number, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 131343);
-    Db* data2 = Db::createFillRandom(nech, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 413343);
+    Db *data1 = Db::createFillRandom(number, ndim, 1, 0, 0, 0., 0.,
+                                     VectorDouble(), VectorDouble(),
+                                     VectorDouble(), 131343);
+    Db *data2 = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
+                                     VectorDouble(), VectorDouble(),
+                                     VectorDouble(), 413343);
     (void) migrate(data1, data2, "z", 1, VectorDouble(), true, false, true);
     times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 
@@ -91,8 +97,10 @@ int main(int argc, char *argv[])
   {
     int number = nech * (ifois + 1);
     timer.reset();
-    Db* data1 = Db::createFillRandom(nech, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 131343);
-    Db* data2 = Db::createFillRandom(number, ndim, 1, 0, 0., 0., VectorDouble(), VectorDouble(), VectorDouble(), 413343);
+    Db *data1 = Db::createFillRandom(nech, ndim, 1, 0, 0, 0., 0.,
+                                     VectorDouble(), VectorDouble(), VectorDouble(), 131343);
+    Db *data2 = Db::createFillRandom(number, ndim, 1, 0, 0, 0., 0.,
+                                     VectorDouble(), VectorDouble(), VectorDouble(), 413343);
     (void) migrate(data1, data2, "z", 1, VectorDouble(), true, false, true);
     times[ifois] = timer.getIntervalMilliseconds() / (ifois + 1);
 

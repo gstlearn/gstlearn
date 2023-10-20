@@ -75,6 +75,17 @@ double SpaceRN::getDistance(const SpacePoint &p1,
   return VH::norm(_work2);
 }
 
+double SpaceRN::getDistance1D(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              int idim) const
+{
+  _getIncrementInPlace(p1, p2, _work1);
+  if (idim > (int) getNDim())
+    return TEST;
+  else
+    return _work1[idim];
+}
+
 void SpaceRN::_getIncrementInPlace(const SpacePoint &p1,
                                    const SpacePoint &p2,
                                    VectorDouble &ptemp) const

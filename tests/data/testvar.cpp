@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   if (dbout != (Db *) NULL)
   {
     vario->attachDb(dbout);
-    vario->computeByKey("vg");
+    vario->compute(ECalcVario::VARIOGRAM);
     ascii_filename("Vario",0,1,filename);
     if (! vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");

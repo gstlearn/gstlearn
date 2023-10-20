@@ -715,6 +715,9 @@ void exit_f(void)
 %extend Regression {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend RuleProp {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
@@ -788,7 +791,6 @@ setattr(gl.VectorVectorInt,    "__getitem__", getitem)
 setattr(gl.VectorVectorInt,    "__setitem__", setitem)
 setattr(gl.VectorVectorFloat,  "__getitem__", getitem)
 setattr(gl.VectorVectorFloat,  "__setitem__", setitem)
-
 
 ## Override operator [] for the Db class ##
 ## ------------------------------------- ##
@@ -1067,4 +1069,40 @@ def table_toTL(self):
   return Anp
 
 setattr(gl.Table, "toTL", table_toTL)
+
+def vario_toTL(self, idir, ivar, jvar):
+  sw = self.getSwVec(idir, ivar, jvar, False)
+  hh = self.getHhVec(idir, ivar, jvar, False)
+  gg = self.getGgVec(idir, ivar, jvar, False, False, False)
+  array = np.vstack((sw, hh, gg)).T
+  colnames = np.array(["sw","hh","gg"])
+  df = pd.DataFrame(array, columns = colnames)
+  return df
+
+setattr(gl.Vario, "toTL", vario_toTL)
+
+def Vario_InPanda(self, pf, idir, ivar, jvar):
+	vario = self
+	ndir = vario.getDirectionNumber()
+	nvar = vario.getVariableNumber()
+	if idir < 0 or idir >= ndir:
+	 return vario
+	if ivar < 0 or ivar >= nvar:
+	 return vario
+	if jvar < 0 or jvar >= nvar:
+	 return vario
+	nlag = vario.getLagNumber(idir)
+	if vario.getFlagAsym():
+	 nlag = 2 * nlag  + 1
+	if len(pf.index) != nlag:
+	 return vario
+	
+	vario.setSwVec(idir, ivar, jvar, pf["sw"])
+	vario.setHhVec(idir, ivar, jvar, pf["hh"])
+	vario.setGgVec(idir, ivar, jvar, pf["gg"])
+	return vario
+
+gl.Vario.fromTL = staticmethod(Vario_InPanda)
+
 %}
+

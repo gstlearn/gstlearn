@@ -778,6 +778,57 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
 
 /****************************************************************************/
 /*!
+ **  Check if a pair must be kept according to code criterion
+ **
+ ** \return  1 if the codes are not comparable
+ **
+ ** \param[in]  db1        First Db structure
+ ** \param[in]  db2        Second Db structure
+ ** \param[in]  iech       Rank of the first sample
+ ** \param[in]  jech       Rank of the second sample
+ ** \param[in]  opt_code   code selection option
+ ** \li                     0 : no use of the code selection
+ ** \li                     1 : codes must be close enough
+ ** \li                     2 : codes must be different
+ ** \param[in]  tolcode    Code tolerance
+ **
+ ** \remarks When used in variogram calculation, pairs are discarded then the
+ ** \remarks resulting value is 1.
+ **
+ *****************************************************************************/
+static int _code_comparable(const Db *db1,
+                            const Db *db2,
+                            int iech,
+                            int jech,
+                            int opt_code,
+                            int tolcode)
+{
+  double code1, code2;
+
+  /* Dispatch */
+
+  switch (opt_code)
+  {
+    case 0:
+      break;
+
+    case 1: /* Code must be close */
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
+      if (ABS(code1 - code2) > tolcode) return (1);
+      break;
+
+    case 2: /* Code must be different */
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
+      if (code1 == code2) return (1);
+      break;
+  }
+  return (0);
+}
+
+/****************************************************************************/
+/*!
  **  Look for duplicates
  **
  ** \return  Error return code
@@ -840,7 +891,7 @@ int db_tool_duplicate(Db *db1,
         double v2 = db2->getCoordinate(iech2, idim);
         if (flag_code)
         {
-          if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
+          if (_code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
         double dval = (dist != nullptr) ? dist[idim] : 0.;

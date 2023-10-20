@@ -3427,8 +3427,10 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
 {
   int iech, jech, iiech, jjech, nech, ipas, iad, ivar, jvar, nvar, error;
   Db *db;
-  double psmin, ps, dist, maxdist;
+  double maxdist;
   VectorInt rindex;
+  SpaceTarget T1;
+  SpaceTarget T2;
 
   /* Retrieve information from Local_pgs structure */
 
@@ -3439,10 +3441,10 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
   maxdist = vario->getMaximumDistance(idir);
   const DirParam &dirparam = vario->getDirParam(idir);
 
-  /* Initializations */
-
-  ps = 0.;
-  psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  double dist = 0.;
 
   /* Sort the data */
 
@@ -3453,34 +3455,27 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
   for (iiech = 0; iiech < nech - 1; iiech++)
   {
     iech = rindex[iiech];
-    if (!db->isActive(iech)) continue;
-    if (FFFF(db->getWeight(iech))) continue;
+    if (hasSel && !db->isActive(iech)) continue;
+    if (hasWeight && FFFF(db->getWeight(iech))) continue;
     if (st_discard_point(local_pgs, iech)) continue;
+    db->getSampleAsST(iech, T1);
     mes_process("Calculating Variogram Geometry", nech, iech);
 
     for (jjech = iiech + 1; jjech < nech; jjech++)
     {
       jech = rindex[jjech];
       if (variogram_maximum_dist1D_reached(db, iech, jech, maxdist)) break;
-      if (!db->isActive(jech)) continue;
-      if (FFFF(db->getWeight(jech))) continue;
+      if (hasSel && !db->isActive(jech)) continue;
+      if (hasWeight && FFFF(db->getWeight(jech))) continue;
       if (st_discard_point(local_pgs, jech)) continue;
+      db->getSampleAsST(jech, T2);
 
-      /* Check if the pair must be kept (Code criterion) */
-
-      if (code_comparable(db, db, iech, jech, dirparam.getOptionCode(),
-                          (int) dirparam.getTolCode())) continue;
-
-      /* Check if the pair must be kept */
-
-      dist = distance_intra(db, iech, jech, NULL);
-      if (variogram_reject_pair(db, iech, jech, dist, psmin,
-                                dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodirs(), &ps)) continue;
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (! variogramKeep(vario, idir, T1, T2, &dist)) continue;
 
       /* Get the rank of the lag */
 
-      ipas = variogram_get_lag(dirparam, idir, ps, psmin, &dist, vario->getFlagAsym());
+      ipas = variogram_get_lag(dirparam, dist);
       if (IFFFF(ipas)) continue;
 
       /* Add the sample (only positive lags are of interest) */
@@ -4952,16 +4947,13 @@ Vario* model_pgs(Db *db,
   // Initiate the output class
 
   vario = new Vario(varioparam, db);
-  vario->setCalculName("vg");
-  vario->setNVar(nfacies);
-  vario->internalVariableResize();
-  vario->internalDirectionResize();
+  vario->prepare(ECalcVario::VARIOGRAM, nfacies);
 
   // Calculate the variogram of Indicators
   if (flag_stat)
   {
     varioind = new Vario(varioparam, db);
-    if (varioind->computeIndicByKey("vg")) return nullptr;
+    if (varioind->computeIndic(ECalcVario::VARIOGRAM)) return nullptr;
   }
 
   /* Preliminary checks */
@@ -5213,7 +5205,7 @@ Vario* variogram_pgs(Db *db,
 
     // Calculate the variogram of Indicators
     varioind = new Vario(varioparam, db);
-    if (varioind->computeIndicByKey("covnc")) return nullptr;
+    if (varioind->computeIndic(ECalcVario::COVARIANCE_NC)) return nullptr;
   }
 
   /* Pre-calculation of integrals: Define the structure */
@@ -5224,10 +5216,7 @@ Vario* variogram_pgs(Db *db,
   // Initiate the output class
 
   vario = new Vario(varioparam, db);
-  vario->setCalculName("covnc");
-  vario->setNVar(rule->getGRFNumber());
-  vario->internalVariableResize();
-  vario->internalDirectionResize();
+  vario->prepare(ECalcVario::COVARIANCE_NC, rule->getGRFNumber());
 
   /* Perform the calculations */
 
@@ -5290,7 +5279,6 @@ Rule* _rule_auto(Db *db,
   Rule *rule = nullptr;
   Relem *Pile_Relem = (Relem*) NULL;
   PropDef *propdef = nullptr;
-  String calcName("covnc");
 
   NCOLOR = db->getFaciesNumber();
   NGRF = ngrfmax;
@@ -5312,17 +5300,14 @@ Rule* _rule_auto(Db *db,
   {
     // Calculate the variogram of Indicators
     varioind = new Vario(varioparam, db);
-    if (varioind->computeIndicByKey(calcName)) goto label_end;
+    if (varioind->computeIndic(ECalcVario::COVARIANCE_NC)) goto label_end;
   }
 
   if (st_check_test_discret(ERule::STD, 0)) goto label_end;
   st_manage_pgs(0, &local_pgs);
 
   vario = new Vario(varioparam, db);
-  vario->setCalculName(calcName);
-  vario->setNVar(NGRF);
-  vario->internalVariableResize();
-  vario->internalDirectionResize();
+  vario->prepare(ECalcVario::COVARIANCE_NC, NGRF);
 
   if (st_vario_pgs_check(0, 0, flag_stat, db, NULL, vario, varioind, NULL))
     goto label_end;

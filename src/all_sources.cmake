@@ -221,6 +221,7 @@ set(SRC
   Geometry/BiTargetCheckBench.cpp
   Geometry/BiTargetCheckCode.cpp
   Geometry/BiTargetCheckDate.cpp
+  Geometry/BiTargetCheckGeometry.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp

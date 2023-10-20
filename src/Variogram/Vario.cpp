@@ -29,16 +29,22 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Geometry/BiTargetCheckCode.hpp"
+#include "Geometry/BiTargetCheckDate.hpp"
+#include "Geometry/BiTargetCheckFaults.hpp"
+#include "Geometry/BiTargetCheckGeometry.hpp"
 
 /**
  * Build a Vario object by calculating the experimental variogram
  * @param varioparam VarioParam structure
  * @param db         Db structure (optional)
+ * @param calcul     Choice of the calculation mode (see ECalcVario)
  * @param means      Array of variable means
  * @param vars       Array of variable variances
  */
 Vario::Vario(const VarioParam* varioparam,
              Db* db,
+             const ECalcVario &calcul,
              const VectorDouble& means,
              const VectorDouble& vars)
     : AStringable(),
@@ -55,10 +61,13 @@ Vario::Vario(const VarioParam* varioparam,
       _gg(),
       _hh(),
       _utilize(),
+      _biPtsPerDirection(0),
+      _bipts(),
       _flagAsym(false)
 {
   _varioparam = *varioparam;
   attachDb(db,vars,means);
+  if (db != nullptr) prepare(calcul, 0);
 }
 
 Vario::Vario(const Vario& r)
@@ -75,8 +84,11 @@ Vario::Vario(const Vario& r)
       _gg(r._gg),
       _hh(r._hh),
       _utilize(r._utilize),
+      _biPtsPerDirection(r._biPtsPerDirection),
       _flagAsym(r._flagAsym)
 {
+  for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+    _bipts.push_back(r._bipts[ipt]);
 }
 
 Vario& Vario::operator=(const Vario& r)
@@ -96,7 +108,11 @@ Vario& Vario::operator=(const Vario& r)
     _gg = r._gg;
     _hh = r._hh;
     _utilize = r._utilize;
+    _biPtsPerDirection = r._biPtsPerDirection;
     _flagAsym = r._flagAsym;
+
+    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+      _bipts.push_back(r._bipts[ipt]);
   }
   return *this;
 }
@@ -107,10 +123,11 @@ Vario::~Vario()
 
 Vario* Vario::create(const VarioParam* varioparam,
                      Db* db,
+                     const ECalcVario &calcul,
                      const VectorDouble& means,
                      const VectorDouble& vars)
 {
-  return new Vario(varioparam, db, means, vars);
+  return new Vario(varioparam, db, calcul, means, vars);
 }
 
 Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
@@ -118,7 +135,7 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   Vario* vario = nullptr;
   std::ifstream is;
   VarioParam* varioparam = new VarioParam();
-  vario = new Vario(varioparam);
+  vario = new Vario(varioparam, nullptr);
   bool success = false;
   if (vario->_fileOpenRead(neutralFilename, is, verbose))
   {
@@ -202,22 +219,82 @@ Vario* Vario::createReduce(const Vario *varioIn,
   return varioOut;
 }
 
-int Vario::compute(const ECalcVario &calcul,
-                   bool flag_gen,
-                   bool flag_sample,
-                   bool verr_mode,
-                   Model *model,
-                   bool verbose)
+void Vario::_clearBiTargetCheck()
 {
-  if (_db == nullptr)
+  for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+    delete _bipts[ipt];
+  _bipts.clear();
+  _biPtsPerDirection = 0;
+}
+
+void Vario::_addBiTargetCheck(ABiTargetCheck* abpc)
+{
+  //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(abpc->clone()));
+  _bipts.push_back(abpc);
+}
+
+void Vario::_setListBiTargetCheck()
+{
+  _clearBiTargetCheck();
+  for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
   {
-    messerr("The 'Db' must have been attached beforehand");
-    return 1;
+    const DirParam dirparam = getDirParam(idir);
+    _biPtsPerDirection = 0;
+
+    // Add constraints linked to the Geometry (not performed for a Grid)
+    if (! (_db->isGrid() && isDefinedForGrid() ))
+    {
+      BiTargetCheckGeometry *bipts = BiTargetCheckGeometry::create(_db->getNDim(),
+                                                                   dirparam.getCodirs(),
+                                                                   dirparam.getTolAngle(),
+                                                                   dirparam.getBench(),
+                                                                   dirparam.getCylRad(),
+                                                                   getFlagAsym());
+      _addBiTargetCheck(bipts);
+      _biPtsPerDirection++;
+    }
+
+    // Add constraints linked to the Faults
+    if (_varioparam.hasFaults())
+    {
+      BiTargetCheckFaults* bipts = BiTargetCheckFaults::create(_varioparam.getFaults());
+      _addBiTargetCheck(bipts);
+      _biPtsPerDirection++;
+    }
+
+    // Add constraints linked to the Date
+    if (_varioparam.hasDate())
+    {
+      int idate = getIdate(idir);
+      BiTargetCheckDate *bipts = BiTargetCheckDate::create(_varioparam.getDate(idate, 0),
+                                                           _varioparam.getDate(idate, 1));
+      _addBiTargetCheck(bipts);
+      _biPtsPerDirection++;
+    }
+
+    // Add constraints linked to the Code
+    if (dirparam.getOptionCode() != 0)
+    {
+      BiTargetCheckCode* bipts = BiTargetCheckCode::create(dirparam.getOptionCode(), dirparam.getTolCode());
+      _addBiTargetCheck(bipts);
+      _biPtsPerDirection++;
+    }
   }
-  _nVar = _db->getLocNumber(ELoc::Z);
+}
+
+int Vario::_getBiPtsRank(int idir, int rank) const
+{
+  return (idir * _biPtsPerDirection + rank);
+}
+
+int Vario::prepare(const ECalcVario &calcul, int nvar)
+{
+  // Override the number of variables
+  if (nvar > 0) _nVar = nvar;
+
   if (_nVar <= 0)
   {
-    messerr("The 'db' must contain at least one variable defined");
+    messerr("The number of variables must be positive");
     return 1;
   }
   if (getDirectionNumber() <= 0)
@@ -227,15 +304,33 @@ int Vario::compute(const ECalcVario &calcul,
   }
 
   // Preparation
-
   _calcul = calcul;
   _setFlagAsym();
   _setDPasFromGrid(isDefinedForGrid());
   if (internalVariableResize()) return 1;
   internalDirectionResize();
 
-  if (_variogram_compute(_db, this, flag_gen, flag_sample, verr_mode, model,
-                         verbose))
+  // Define the list of ABiTargetCheckers corresponding to the calculation constraints
+  _setListBiTargetCheck();
+
+  return 0;
+}
+
+int Vario::compute(const ECalcVario &calcul,
+                   bool flag_gen,
+                   bool flag_sample,
+                   bool verr_mode,
+                   Model *model,
+                   bool verbose)
+{
+  if (prepare(calcul, 0)) return 1;
+
+  if (_db == nullptr)
+  {
+    messerr("The '_db' must have been defined beforehand");
+    return 1;
+  }
+  if (_variogram_compute(_db, this, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram");
     return 1;
@@ -243,16 +338,75 @@ int Vario::compute(const ECalcVario &calcul,
   return 0;
 }
 
-int Vario::computeByKey(const String& calcul_name,
+int Vario::computeIndic(const ECalcVario& calcul,
                         bool flag_gen,
                         bool flag_sample,
                         bool verr_mode,
                         Model *model,
-                        bool verbose)
+                        bool verbose,
+                        int nfacmax)
 {
-  ECalcVario calcul = getCalculType(calcul_name);
-  if (calcul == ECalcVario::UNDEFINED) return 1;
-  return compute(calcul, flag_gen, flag_sample, verr_mode, model, verbose);
+  // Preliminary checks
+  if (_db == nullptr)
+  {
+    messerr("The 'Db' must have been attached beforehand");
+    return 1;
+  }
+  int nvar = _db->getLocNumber(ELoc::Z);
+  if (nvar != 1)
+  {
+    messerr("The 'db' must contain ONE variable defined");
+    return 1;
+  }
+
+  // Calculate the number of Facies in 'Db'
+  VectorDouble props = dbStatisticsFacies(_db);
+  int nclass = static_cast<int>(props.size());
+  if (nclass <= 0 || (nfacmax > 0 && nclass > nfacmax))
+  {
+    messerr("The input variable should exhibit Facies");
+    messerr(
+        "Number of Facies (%d) should be positive and smaller than 'nfacmax'",
+        nclass);
+    messerr("Note: the value of 'nfacmax'(%d) can be changed in argument list",
+            nfacmax);
+    return 1;
+  }
+
+  // Translate the 'Facies' into 'categories'   VectorDouble props =
+  Limits limits = Limits(nclass);
+  int iatt = _db->getUIDByLocator(ELoc::Z, 0);
+  if (limits.toIndicatorByAttribute(_db, iatt))
+  {
+    messerr("Problem when translating Facies into Categories");
+    return 1;
+  }
+
+  _calcul = calcul;
+  _nVar  = nclass;
+  _means = props;
+  _vars  = _varsFromProportions(props);
+  _setFlagAsym();
+  _setDPasFromGrid(isDefinedForGrid());
+  if (internalVariableResize()) return 1;
+  internalDirectionResize();
+
+  // Define the list of ABiTargetCheckers corresponding to the calculation constraints
+   _setListBiTargetCheck();
+
+  // Calculate the variogram of indicators
+  if (_variogram_compute(_db, this, flag_gen,
+                         flag_sample, verr_mode, model, verbose))
+  {
+    messerr("Error when calculating the Variogram of Indicators");
+    return 1;
+  }
+
+  // Delete the Indicators (created locally)
+  _db->deleteColumnsByLocator(ELoc::Z);
+  _db->setLocatorByUID(iatt, ELoc::Z);
+
+  return 0;
 }
 
 /**
@@ -262,9 +416,9 @@ int Vario::computeByKey(const String& calcul_name,
  * @param dircols Vector of direction ranks (starting from 0)
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
-void Vario::reduce(const VectorInt& varcols,
-                        const VectorInt& dircols,
-                        bool asSymmetric)
+void Vario::reduce(const VectorInt &varcols,
+                   const VectorInt &dircols,
+                   bool asSymmetric)
 {
   VectorInt selvars;
   VectorInt seldirs;
@@ -397,90 +551,6 @@ void Vario::reduce(const VectorInt& varcols,
         }
     }
   }
-}
-
-int Vario::computeIndic(const ECalcVario& calcul,
-                        bool flag_gen,
-                        bool flag_sample,
-                        bool verr_mode,
-                        Model *model,
-                        bool verbose,
-                        int nfacmax)
-{
-  // Preliminary checks
-  if (_db == nullptr)
-  {
-    messerr("The 'Db' must have been attached beforehand");
-    return 1;
-  }
-  int nvar = _db->getLocNumber(ELoc::Z);
-  if (nvar != 1)
-  {
-    messerr("The 'db' must contain ONE variable defined");
-    return 1;
-  }
-
-  // Calculate the number of Facies in 'Db'
-  VectorDouble props = dbStatisticsFacies(_db);
-  int nclass = static_cast<int>(props.size());
-  if (nclass <= 0 || (nfacmax > 0 && nclass > nfacmax))
-  {
-    messerr("The input variable should exhibit Facies");
-    messerr(
-        "Number of Facies (%d) should be positive and smaller than 'nfacmax'",
-        nclass);
-    messerr("Note: the value of 'nfacmax'(%d) can be changed in argument list",
-            nfacmax);
-    return 1;
-  }
-
-  // Translate the 'Facies' into 'categories'   VectorDouble props =
-  Limits limits = Limits(nclass);
-  int iatt = _db->getUIDByLocator(ELoc::Z, 0);
-  if (limits.toIndicatorByAttribute(_db, iatt))
-  {
-    messerr("Problem when translating Facies into Categories");
-    return 1;
-  }
-
-  // Preparation
-
-  _calcul = calcul;
-  _nVar  = nclass;
-  _means = props;
-  _vars  = _varsFromProportions(props);
-  _setFlagAsym();
-  _setDPasFromGrid(isDefinedForGrid());
-  if (internalVariableResize()) return 1;
-  internalDirectionResize();
-
-  // Calculate the variogram of indicators
-  if (_variogram_compute(_db, this, flag_gen,
-                         flag_sample, verr_mode, model, verbose))
-  {
-    messerr("Error when calculating the Variogram of Indicators");
-    return 1;
-  }
-
-  // Delete the Indicators (created locally)
-  _db->deleteColumnsByLocator(ELoc::Z);
-  _db->setLocatorByUID(iatt, ELoc::Z);
-
-  return 0;
-}
-
-int Vario::computeIndicByKey(const String& calcul_name,
-                             bool flag_gen,
-                             bool flag_sample,
-                             bool verr_mode,
-                             Model *model,
-                             bool verbose,
-                             int nfacmax)
-{
-  ECalcVario calcul = getCalculType(calcul_name);
-  if (calcul == ECalcVario::UNDEFINED) return 1;
-  return computeIndic(calcul, flag_gen, flag_sample, verr_mode,
-                      model, verbose, nfacmax);
 }
 
 /*****************************************************************************/
@@ -670,8 +740,8 @@ int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
   _db = db;
   if (db != nullptr)
   {
-    int nvar = _db->getLocNumber(ELoc::Z);
-    if (nvar <= 0)
+    _nVar = _db->getLocNumber(ELoc::Z);
+    if (_nVar <= 0)
     {
       messerr("Some variables must be defined in the 'Db'");
       return 1;
@@ -687,12 +757,7 @@ int Vario::internalVariableResize() //TODO: to be called when nvar is modified..
   if (! _means.empty())
   {
     int nloc = static_cast<int>(_means.size());
-    if (nloc != _nVar)
-    {
-      messerr("Invalid dimension for 'means' (%d)",nloc);
-      messerr("It should match the number of variables in 'Db' (%d)",_nVar);
-      return 1;
-    }
+    if (nloc != _nVar) _initMeans();
   }
   else
   {
@@ -702,13 +767,7 @@ int Vario::internalVariableResize() //TODO: to be called when nvar is modified..
   if (! _vars.empty())
   {
     int nloc = static_cast<int>(_vars.size());
-    if (nloc != _nVar * _nVar)
-    {
-      messerr("Invalid dimension for 'vars' (%d)",nloc);
-      messerr("It should match the number of variables in 'Db' (squared) (%d)",
-              _nVar * _nVar);
-      return 1;
-    }
+    if (nloc != _nVar * _nVar) _initVars();
   }
   else
   {
@@ -988,7 +1047,7 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, int idir) co
  *
  * @return The corresponding ECalcVario enum
  */
-ECalcVario Vario::getCalculType(const String& calcul_name) const
+const ECalcVario Vario::getCalculType(const String& calcul_name)
 {
   ECalcVario calcul_type;
 
@@ -1067,9 +1126,7 @@ double Vario::getVarIndex(int ijvar) const
 
 void Vario::_initMeans()
 {
-  _means.resize(_nVar);
-  for (int ivar = 0; ivar < _nVar; ivar++)
-    _means[ivar] = 0.;
+  _means.resize(_nVar, 0.);
 }
 
 void Vario::setMeans(const VectorDouble& means)
@@ -1312,13 +1369,15 @@ VectorVectorDouble Vario::getVec(int idir, int ivar, int jvar) const
  * @param jvar Second variable
  * @param asCov True if result should be provided as Covariance, False for Variogram
  * @param flagNorm If the result should be provided as a Normalized covariance / Variogram
- * @return The vector of 'gg' (not calculated lags are suppressed)
+ * @param compress When true, suppress lags where 'sw' <= 0
+ * @return The vector of 'gg'
  */
 VectorDouble Vario::getGgVec(int idir,
                              int ivar,
                              int jvar,
                              bool asCov,
-                             bool flagNorm) const
+                             bool flagNorm,
+                             bool compress) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
@@ -1336,15 +1395,16 @@ VectorDouble Vario::getGgVec(int idir,
     for (int ipas = npas-1; ipas >= 0; ipas--)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
-      if (IFFFF(iad)) continue;
-      if (_sw[idir][iad] <= 0.) continue;
-      double val = _gg[idir][iad];
-      if (asCov && !getFlagAsym()) val = c0 - val;
-      if (flagNorm) val /= c0;
-      gg.push_back(val);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+      {
+        double val = _gg[idir][iad];
+        if (asCov && !getFlagAsym()) val = c0 - val;
+        if (flagNorm) val /= c0;
+        gg.push_back(val);
+      }
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+    if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
     {
       double val = _gg[idir][iad];
       if (asCov && !getFlagAsym()) val = c0 - val;
@@ -1354,7 +1414,7 @@ VectorDouble Vario::getGgVec(int idir,
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
-      if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
       {
         double val = _gg[idir][iad];
         if (asCov && !getFlagAsym()) val = c0 - val;
@@ -1368,7 +1428,7 @@ VectorDouble Vario::getGgVec(int idir,
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
-      if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
       {
         double val = _gg[idir][iad];
         if (asCov && !getFlagAsym()) val = c0 - val;
@@ -1380,14 +1440,52 @@ VectorDouble Vario::getGgVec(int idir,
   return gg;
 }
 
+void Vario::setGgVec(int idir, int ivar, int jvar, const VectorDouble& gg)
+{
+  if (!_isVariableValid(ivar))  return;
+  if (!_isVariableValid(jvar))  return;
+  if (!_isDirectionValid(idir)) return;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  int npas = dirparam.getLagNumber();
+  if (_flagAsym) npas = 2 * npas + 1;
+  if (npas != (int) gg.size()) return;
+
+  int iad;
+  if (_flagAsym)
+  {
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      setGg(idir, ivar, jvar, ipas, gg[iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    setGg(idir, ivar, jvar, 0, gg[iad]);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      setGg(idir, ivar, jvar, ipas, gg[iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      setGg(idir, ivar, jvar, ipas, gg[iad]);
+    }
+  }
+}
+
 /**
  * Returns the vector of distances for a given pair of variables in a given direction
  * @param idir Direction
  * @param ivar First variable
  * @param jvar Second variable
- * @return The vector of 'hh' (not calculated lags are suppressed)
+ * @param compress When true, suppress lags where 'sw' <= 0
+ * @return The vector of 'hh'
  */
-VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
+VectorDouble Vario::getHhVec(int idir, int ivar, int jvar, bool compress) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
@@ -1402,18 +1500,17 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
     for (int ipas = npas - 1; ipas >= 0; ipas--)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
-      if (IFFFF(iad)) continue;
-      if (_sw[idir][iad] > 0) hh.push_back(_hh[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        hh.push_back(_hh[idir][iad]);
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    double value = _hh[idir][iad];
-    if (_sw[idir][iad] <= 0) value = 0.;
-    hh.push_back(value);
+    if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+      hh.push_back(_hh[idir][iad]);
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
-      if (IFFFF(iad)) continue;
-      if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        hh.push_back(_hh[idir][iad]);
     }
   }
   else
@@ -1421,11 +1518,48 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
-      if (IFFFF(iad)) continue;
-      if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        hh.push_back(_hh[idir][iad]);
     }
   }
   return hh;
+}
+
+void Vario::setHhVec(int idir, int ivar, int jvar, const VectorDouble& hh)
+{
+  if (!_isVariableValid(ivar))  return;
+  if (!_isVariableValid(jvar))  return;
+  if (!_isDirectionValid(idir)) return;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  int npas = dirparam.getLagNumber();
+  if (_flagAsym) npas = 2 * npas + 1;
+  if (npas != (int) hh.size()) return;
+
+  int iad;
+  if (_flagAsym)
+  {
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      setHh(idir, ivar, jvar, ipas, hh[iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    setHh(idir, ivar, jvar, 0, hh[iad]);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      setHh(idir, ivar, jvar, ipas, hh[iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      setHh(idir, ivar, jvar, ipas, hh[iad]);
+    }
+  }
 }
 
 /**
@@ -1433,9 +1567,10 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
  * @param idir Direction
  * @param ivar First variable
  * @param jvar Second variable
- * @return The vector of 'sw' (not calculated lags are suppressed)
+ * @param compress When true, suppress lags where 'sw' <= 0
+ * @return The vector of 'sw'
  */
-VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
+VectorDouble Vario::getSwVec(int idir, int ivar, int jvar, bool compress) const
 {
   if (!_isVariableValid(ivar))  return VectorDouble();
   if (!_isVariableValid(jvar))  return VectorDouble();
@@ -1450,14 +1585,17 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
     for (int ipas = npas - 1; ipas >= 0; ipas--)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
-      if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        sw.push_back(_sw[idir][iad]);
     }
     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-    if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+      sw.push_back(_sw[idir][iad]);
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
-      if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        sw.push_back(_sw[idir][iad]);
     }
   }
   else
@@ -1465,11 +1603,48 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
-      if (IFFFF(iad)) continue;
-      if (_sw[idir][iad] > 0.) sw.push_back(_sw[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        sw.push_back(_sw[idir][iad]);
     }
   }
   return sw;
+}
+
+void Vario::setSwVec(int idir, int ivar, int jvar, const VectorDouble& sw)
+{
+  if (!_isVariableValid(ivar))  return;
+  if (!_isVariableValid(jvar))  return;
+  if (!_isDirectionValid(idir)) return;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  int npas = dirparam.getLagNumber();
+  if (_flagAsym) npas = 2 * npas + 1;
+  if (npas != (int) sw.size()) return;
+
+  int iad;
+  if (_flagAsym)
+  {
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      setSw(idir, ivar, jvar, ipas, sw[iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    setSw(idir, ivar, jvar, 0, sw[iad]);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      setSw(idir, ivar, jvar, ipas, sw[iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      setSw(idir, ivar, jvar, ipas, sw[iad]);
+    }
+  }
 }
 
 /**
@@ -1477,9 +1652,10 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
  * @param idir Direction
  * @param ivar First variable
  * @param jvar Second variable
- * @return The vector of 'utilize' (not calculated lags are suppressed)
+ * @param compress When true, suppress lags where 'sw' <= 0
+ * @return The vector of 'utilize'
  */
-VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
+VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar, bool compress) const
 {
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
@@ -1494,14 +1670,17 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
     for (int ipas = npas - 1; ipas >= 0; ipas--)
      {
        iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
-       if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+       if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+         utilize.push_back(_utilize[idir][iad]);
      }
      iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
-     if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+       utilize.push_back(_utilize[idir][iad]);
      for (int ipas = 0; ipas < npas; ipas++)
      {
        iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
-       if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+       if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        utilize.push_back(_utilize[idir][iad]);
      }
   }
   else
@@ -1509,8 +1688,8 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
     for (int ipas = 0; ipas < npas; ipas++)
     {
       iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
-      if (IFFFF(iad)) continue;
-      if (_sw[idir][iad] > 0.) utilize.push_back(_utilize[idir][iad]);
+      if (! (IFFFF(iad) || (compress && _sw[idir][iad] <= 0.)))
+        utilize.push_back(_utilize[idir][iad]);
     }
   }
   return utilize;

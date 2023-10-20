@@ -57,6 +57,11 @@ public:
                              const SpacePoint& p2,
                              const Tensor& tensor) const = 0;
 
+  /// Return the distance along one direction between two space points
+  virtual double getDistance1D(const SpacePoint &p1,
+                               const SpacePoint &p2,
+                               int idim = 0) const = 0;
+
   /// Return the distance in frequential domain between two space points with the given tensor
   virtual double getFrequentialDistance(const SpacePoint& p1,
                                         const SpacePoint& p2,

@@ -42,6 +42,11 @@ BiTargetCheckCode::~BiTargetCheckCode()
 {
 }
 
+BiTargetCheckCode* BiTargetCheckCode::create(int optcode, double tolcode)
+{
+  return new BiTargetCheckCode(optcode, tolcode);
+}
+
 String BiTargetCheckCode::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;

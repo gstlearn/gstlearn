@@ -803,9 +803,9 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "Db_toTL" <- function(x)
 {
-  vals = list()
   names = x$getAllNames()
   nc = x$getColumnNumber()
+  vals = list()
   for (i in seq(0,nc-1)) {
     vals = cbind(vals,x$getColumnsByColIdx(i))
   }
@@ -823,6 +823,18 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	for (field in names(df))
     	if (types[field] == TRUE) dat[field] = df[field]
 	dat
+}
+
+"Vario_toTL" <- function(x, idir, ivar, jvar)
+{
+  sw = x$getSwVec(idir, ivar, jvar, FALSE)
+  hh = x$getHhVec(idir, ivar, jvar, FALSE)
+  gg = x$getGgVec(idir, ivar, jvar, FALSE, FALSE, FALSE)
+  
+  vals = cbind(sw, hh, gg)
+  df = data.frame(vals)
+  names(df) = c("sw","hh","gg")
+  df
 }
 
 "Krigtest_Res_toTL" <- function(x)
@@ -880,8 +892,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   res
 }
 
-"getVarioitem" <-
-function (x,i,j,...,drop=TRUE)
+"getVarioitem" <- function (x,i,j,...,drop=TRUE)
 {
   vario  <- x
   args = list()
@@ -895,8 +906,7 @@ function (x,i,j,...,drop=TRUE)
   values
 }
 
-"setVarioitem" <-
-  function (x,i,j,...,value)
+"setVarioitem" <- function (x,i,j,...,value)
 {
   vario <- x
   args = list()

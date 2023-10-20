@@ -1680,3 +1680,27 @@ VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble& sphPts,
   }
   return res;
 }
+
+/****************************************************************************/
+/*!
+ **  Returns the cosine of the angular tolerance
+ **
+ ** \param[in]  tolang Angular tolerance
+ **
+ *****************************************************************************/
+double GeometryHelper::getCosineAngularTolerance(double tolang)
+
+{
+  double psval;
+
+  if (FFFF(tolang))
+    psval = 0.;
+  else if (tolang == 00.)
+    psval = 1.;
+  else if (tolang == 90.)
+    psval = 0.;
+  else
+    psval = ABS(cos(ut_deg2rad(tolang)));
+  return (psval);
+}
+
