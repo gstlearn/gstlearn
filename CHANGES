@@ -27,6 +27,8 @@ Release 0.3.4
 - Names in plot.R and plot.py are standardized: using camel-writing systematically 
 - New method Db_fromPanda for creating Db from Panda Frame (numerical columns only)
 - New method Db_fromDF for creating Db from data.frame (numerical columns only)
+- New design for VarioParam / Vario
+- Possibility to convert variogram to external language (Python or R) for In and Out
 
 Release 0.3.3
 =============
