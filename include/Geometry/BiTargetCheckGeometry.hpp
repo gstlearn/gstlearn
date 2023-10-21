@@ -28,9 +28,6 @@ public:
   BiTargetCheckGeometry& operator=(const BiTargetCheckGeometry& r);
   virtual ~BiTargetCheckGeometry();
 
-  /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckGeometry)
-
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
   /// Interface to AStringable
