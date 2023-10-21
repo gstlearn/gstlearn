@@ -46,6 +46,7 @@
 %shared_ptr(BiTargetCheckFaults)
 %shared_ptr(BiTargetCheckCode)
 %shared_ptr(BiTargetCheckDate)
+%shared_ptr(BiTargetCheckGeometry)
 %shared_ptr(BooleanObject)
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
@@ -270,6 +271,7 @@
   #include "Geometry/BiTargetCheckFaults.hpp"
   #include "Geometry/BiTargetCheckCode.hpp"
   #include "Geometry/BiTargetCheckDate.hpp"
+  #include "Geometry/BiTargetCheckGeometry.hpp"
   
   #include "Arrays/AArray.hpp"
   #include "Arrays/Array.hpp"

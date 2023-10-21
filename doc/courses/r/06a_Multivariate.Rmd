@@ -164,8 +164,8 @@ We start by computing an experimental directional variogram `vario_raw2dir` of t
 ```{r Experimental directional variograms}
 ## Create experimental variogram on raw data
 varioparam = VarioParam_createMultiple(ndir=2, npas=30, dpas=10)
-vario_raw2dir = Vario(varioparam, dat)
-err = vario_raw2dir$compute()
+vario_raw2dir = Vario(varioparam)
+err = vario_raw2dir$compute(dat)
 ```
 
 We then fit a model on the experimental variogram of raw temperature observations. Since we want to use ordinary kriging, we add a constant drift to the model before.
@@ -256,8 +256,8 @@ dat
 To create experimental (directional) variograms and cross-variograms, we use the same commands as in the univariate case: since the data base `dat` now contains two variables with a `z` locator, the `compute` method automatically computes both variograms and cross-variograms for these variables.
 
 ```{r Experimental cross-variograms, fig.align='center'}
-varioexp2var = Vario_create(varioparam, dat)
-err = varioexp2var$compute()
+varioexp2var = Vario_create(varioparam)
+err = varioexp2var$compute(dat)
 ```
 
 We can then plot the experimental variograms and cross-variograms with a simple command: the plot in the i-th row and j-th column corresponds to the cross-variogram between the variables with locators `zi` and `zj` (hence the diagonal plots correspond to the variograms of each variable).
@@ -441,8 +441,8 @@ Then we can compute an experimental variogram for the residuals and fit a model 
 
 ```{r Variogram of residuals, echo=TRUE}
 ## Compute experimental variogram
-varioexpR = Vario(varioparam, dat)
-err = varioexpR$compute()
+varioexpR = Vario(varioparam)
+err = varioexpR$compute(dat)
 
 ## Fit model
 fitmodR = Model()
@@ -552,8 +552,8 @@ polDriftModel = Model_create()
 err = polDriftModel$setDriftIRF(order=1)
 
 ## Compute variogram of residuals
-vario_res2dir = Vario(varioparam, dat)
-err = vario_res2dir$compute(model=polDriftModel)
+vario_res2dir = Vario(varioparam)
+err = vario_res2dir$compute(dat,model=polDriftModel)
 ```
 
 When plotting the experimental variograms, we notice that in one of the directions, the variogram does not reach a plateau. This suggests that a non-stationary model could be more suited for the analysis of these temperature observations.
@@ -702,8 +702,8 @@ Then, to compute the experimental variogram, we use the same commands as in the 
 
 
 ```{r Variogram of Residuals with ED}
-varioKED = Vario(varioparam, dat)
-err = varioKED$compute(model=EDmodel)
+varioKED = Vario(varioparam)
+err = varioKED$compute(dat,model=EDmodel)
 ```
 
 As a reference, we plot the experimental variograms computed on the raw temperature data (dashed lines) and on the residuals from the model with external drift (solid line).

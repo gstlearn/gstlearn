@@ -142,6 +142,7 @@ public:
                               int ndim = 2,
                               int nvar = 1,
                               int nfex = 0,
+                              int ncode = 0,
                               double varmax = 0.,
                               double selRatio = 0.,
                               const VectorDouble& heteroRatio = VectorDouble(),

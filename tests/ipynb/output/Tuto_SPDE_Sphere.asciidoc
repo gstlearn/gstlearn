@@ -2,7 +2,13 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[10]:*+
++*Out[3]:*+
+----
+../../references/SPDE_Sphere.md
+----
+
+
++*Out[11]:*+
 ----
 
 
@@ -10,31 +16,37 @@
 ----
 
 
-+*Out[14]:*+
++*Out[15]:*+
 ----
 ![png](output_28_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[17]:*+
 ----
 ![png](output_31_0.png)
 ----
 
 
-+*Out[17]:*+
++*Out[18]:*+
+----
+../../references/Covariance_Sphere.md
+----
+
+
++*Out[19]:*+
 ----
 ![png](output_35_0.png)
 ----
 
 
-+*Out[18]:*+
++*Out[20]:*+
 ----
 ![png](output_37_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[21]:*+
 ----
 ![png](output_38_0.png)
 ----

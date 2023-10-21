@@ -55,8 +55,10 @@ int main(int argc, char *argv[])
   DbStringFormat dbfmt(FLAG_STATS);
   db->display(&dbfmt);
 
+  // Create a Grid covering the area
   DbGrid* dbprop = DbGrid::create({100,100},{0.01,0.01});
 
+  // Setting constant global proportions
   VectorDouble props({0.2, 0.5, 0.3});
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
@@ -65,23 +67,15 @@ int main(int argc, char *argv[])
   dbprop->display();
 
   // Creating the Model(s) of the Underlying GRF(s)
-  Model model1(ctxt);
-  CovLMC covs1(ctxt.getSpace());
   double range1 = 0.2;
-  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
-  covs1.addCov(&cova1);
-  model1.setCovList(&covs1);
-  model1.display();
-  (void) model1.dumpToNF("truemodel1.ascii");
+  Model* model1 = Model::createFromParam(ECov::BESSEL_K,range1,1.,1.);
+  model1->display();
+  (void) model1->dumpToNF("truemodel1.ascii");
 
-  Model model2(ctxt);
-  CovLMC covs2(ctxt.getSpace());
   double range2 = 0.3;
-  CovAniso cova2(ECov::EXPONENTIAL,range2,1.,1.,ctxt);
-  covs2.addCov(&cova2);
-  model2.setCovList(&covs2);
-  model2.display();
-  (void) model2.dumpToNF("truemodel2.ascii");
+  Model* model2 = Model::createFromParam(ECov::EXPONENTIAL,range2,1.,1.);
+  model2->display();
+  (void) model2->dumpToNF("truemodel2.ascii");
 
   // Creating the Neighborhood
   NeighUnique* neighU = NeighUnique::create();
@@ -98,7 +92,7 @@ int main(int argc, char *argv[])
     ruleprop = RuleProp::createFromRuleAndDb(rule, dbprop);
 
   // Perform a non-conditional simulation on the Db
-  error = simpgs(nullptr,db,ruleprop,&model1,&model2,neighU);
+  error = simpgs(nullptr,db,ruleprop,model1,model2,neighU);
   db->setLocator(db->getLastName(),ELoc::Z);
   (void) db->dumpToNF("simupgs.ascii");
   db->display(&dbfmt);
@@ -158,8 +152,8 @@ int main(int argc, char *argv[])
   varioDerived->dumpToNF("modelpgs.ascii");
   varioDerived->display();
 
-  Vario varioIndic = Vario(&varioparam1, db);
-  varioIndic.computeIndicByKey("vg");
+  Vario varioIndic = Vario(varioparam1);
+  varioIndic.computeIndic(db, ECalcVario::VARIOGRAM);
   (void) varioIndic.dumpToNF("varioindic.ascii");
 
   modelPGS1.display();
@@ -170,5 +164,7 @@ int main(int argc, char *argv[])
   delete rule;
   delete ruleprop;
   delete ruleprop2;
-  return(error);
+  delete model1;
+  delete model2;
+  return error;
 }

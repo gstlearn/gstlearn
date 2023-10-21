@@ -66,8 +66,8 @@ Calculate the omni-directional variogram of the temperature for 18 lags of 25.
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
 vparam = VarioParam_createOmniDirection(npas=18, dpas=25)
-vario = Vario(vparam,temperatures)
-err = vario$compute()
+vario = Vario(vparam)
+err = vario$compute(temperatures)
 vario$display()
 ```
 
@@ -82,10 +82,10 @@ We calculate the variogram (using the same calculation parameters) based on the 
 
 ```{r}
 vparam = VarioParam_createOmniDirection(npas=18, dpas=25)
-vario = Vario(vparam,temperatures)
+vario = Vario(vparam)
 md = Model()
 md$setDriftIRF(order=0, nfex=1)
-vario$compute(model=md)
+vario$compute(temperatures,model=md)
 vario$display()
 ```
 

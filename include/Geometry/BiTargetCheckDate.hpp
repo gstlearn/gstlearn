@@ -31,10 +31,7 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double getDeltaMax() const { return _deltaMax; }
-  void setDeltaMax(double deltaMax) { _deltaMax = deltaMax; }
-  double getDeltaMin() const { return _deltaMin; }
-  void setDeltaMin(double deltaMin) { _deltaMin = deltaMin; }
+  static BiTargetCheckDate* create(double deltamin, double deltamax);
 
 private:
   double _deltaMin;

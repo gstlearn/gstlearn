@@ -41,6 +41,11 @@ public:
   double getDistance(const SpacePoint &p1,
                      const SpacePoint &p2,
                      const Tensor &tensor) const override;
+  /// Return the distance along one direction between two space points
+  double getDistance1D(const SpacePoint &p1,
+                       const SpacePoint &p2,
+                       int idim = 0) const override;
+
   double getFrequentialDistance(const SpacePoint& p1,
                                 const SpacePoint& p2,
                                 const Tensor& tensor) const override;

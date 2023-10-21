@@ -106,8 +106,8 @@ if (graphics)
 Calculating the experimental omni-directional variogram
 
 ```{r}
-myVarioOmni = Vario(myVarioParamOmni,mydb)
-err = myVarioOmni$compute(ECalcVario_VARIOGRAM())
+myVarioOmni = Vario(myVarioParamOmni)
+err = myVarioOmni$compute(mydb, ECalcVario_VARIOGRAM())
 if (verbose)
     myVarioOmni$display()
 ```
@@ -126,8 +126,8 @@ Calculate a variogram in several directions
 myvarioParam = VarioParam()
 mydirs = DirParam_createMultiple(ndir=4, npas=10, dpas=1.)
 myvarioParam$addMultiDirs(mydirs)
-myvario = Vario(myvarioParam,mydb)
-myvario$compute(ECalcVario_VARIOGRAM())
+myvario = Vario(myvarioParam)
+myvario$compute(mydb,ECalcVario_VARIOGRAM())
 if (verbose)
     myvario$display()
 ```
@@ -340,8 +340,8 @@ We quickly calculate experimental (omni-directional) variograms using the alread
 myvarioParam = VarioParam()
 mydir = DirParam_create(npas=10,dpas=1.)
 myvarioParam$addDir(mydir)
-myVario = Vario(myvarioParam,mydb)
-err = myvario$compute(ECalcVario_VARIOGRAM())
+myVario = Vario(myvarioParam)
+err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
 ```
 
 We fit the model by automatic fit (with the constraints that the total sill be equal to 1).
@@ -470,8 +470,8 @@ We now perform the multivariate variogram calculation
 ```{r}
 mydb$setLocator("Y.Pb",ELoc_Z(),0)
 mydb$setLocator("Y.Zn",ELoc_Z(),1)
-myvario = Vario(myvarioParam,mydb)
-err = myvario$compute(ECalcVario_VARIOGRAM())
+myvario = Vario(myvarioParam)
+err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
 mymodelM = Model_createFromDb(mydb)
 err = mymodelM$fit(myvario,ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
@@ -532,8 +532,8 @@ We calculate the variogram of the Indicators for future use
 ```{r}
 myvarioindParam = VarioParam()
 myvarioindParam$addDir(mydir)
-myvarioInd = Vario(myvarioindParam,mydb)
-err = myvarioInd$compute(ECalcVario_VARIOGRAM())
+myvarioInd = Vario(myvarioindParam)
+err = myvarioInd$compute(mydb,ECalcVario_VARIOGRAM())
 if (verbose)
     myvarioInd$display()
 ```

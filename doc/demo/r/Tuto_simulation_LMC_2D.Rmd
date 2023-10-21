@@ -125,9 +125,9 @@ nlags = grid$getNXs()[1]/2
 varioparam = VarioParam_createMultipleFromGrid(grid, npas = nlags)
 vario_list = list()
 for (i in 1:nsim) {
-  vario = Vario(varioparam, grid)
   err   = grid$setLocator(name = names[i], locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-  err   = vario$compute()
+  vario = Vario(varioparam)
+  err   = vario$compute(grid)
   vario_list[[1 + length(vario_list)]] <- vario
 }
 
@@ -222,7 +222,6 @@ for (idir in 1:ndir) {
                          names = paste(list_key[i], "nc.simu", 1:nsim, sep = "."), 
                          var_model = model, title = list_title[i], stat_keys = stat_keys)
   }
-
 ```
 
 ## Kriging

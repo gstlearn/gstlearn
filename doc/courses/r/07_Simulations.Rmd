@@ -66,8 +66,8 @@ We also compute an experimental variogram on the observations and fit a model on
 ```{r Fit model on obervations}
 ## Define and compute experimental variogram
 varioparam = VarioParam_createOmniDirection(npas=40, dpas=10)
-vario_raw2dir = Vario_create(varioparam, dat)
-err = vario_raw2dir$compute()
+vario_raw2dir = Vario_create(varioparam)
+err = vario_raw2dir$compute(dat)
 
 ## Fit model
 fitmod = Model()
@@ -283,8 +283,8 @@ model_ED = Model()
 err = model_ED$setDriftIRF(order=0,nfex=1)
 
 ## Create experimental variogram of residuals
-vario_resED = Vario_create(varioparam, dat)
-err = vario_resED$compute(model=model_ED)
+vario_resED = Vario_create(varioparam)
+err = vario_resED$compute(dat,model=model_ED)
 
 ## Fit model on experimental variogram 
 err = model_ED$fit(vario_resED, 

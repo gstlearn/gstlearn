@@ -1471,10 +1471,8 @@ int model_sample(Vario *vario, Model *model, const CovCalcMode*  mode)
 
   VectorDouble d1(ndim,0.);
   VectorDouble covtab(nvar * nvar, 0.);
+
   vario->setNVar(nvar);
-
-  // Internal dimensioning
-
   vario->internalVariableResize();
   vario->internalDirectionResize();
 
@@ -1675,6 +1673,7 @@ int model_regularize(Model  *model,
 
   int nech = dbgrid->getSampleNumber();
   int norme = nech * nech;
+
   vario->setNVar(nvar);
   vario->internalVariableResize();
   vario->internalDirectionResize();

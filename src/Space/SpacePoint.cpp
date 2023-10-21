@@ -97,6 +97,11 @@ double SpacePoint::getDistance(const SpacePoint& pt) const
   return ASpaceObject::getDistance(*this, pt);
 }
 
+double SpacePoint::getDistance1D(const SpacePoint &pt, int idim) const
+{
+  return ASpaceObject::getDistance1D(*this, pt, idim);
+}
+
 VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
 {
   return ASpaceObject::getIncrement(*this, pt);
@@ -117,6 +122,42 @@ bool SpacePoint::isFFFF() const
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     if (! FFFF(_coord[idim])) return false;
   return true;
+}
+
+double SpacePoint::getCosineToDirection(const SpacePoint &T2,
+                                        const VectorDouble &codir) const
+{
+  double cosdir = 0.;
+  double dn1 = 0.;
+  double dn2 = 0.;
+  VectorDouble delta = getIncrement(T2);
+  for (int idim = 0; idim < (int) getNDim(); idim++)
+  {
+    cosdir += delta[idim] * codir[idim];
+    dn1 += delta[idim] * delta[idim];
+    dn2 += codir[idim] * codir[idim];
+  }
+  double prod = dn1 * dn2;
+  if (prod <= 0.) return (1.);
+  return (cosdir / sqrt(prod));
+}
+
+double SpacePoint::getOrthogonalDistance(const SpacePoint &P2,
+                                         const VectorDouble &codir) const
+{
+  double dn1 = 0.;
+  double dn2 = 0.;
+  double v = 0.;
+  double dproj = 0.;
+  VectorDouble delta = getIncrement(P2);
+  for (int idim = 0; idim < (int) getNDim(); idim++)
+  {
+    dproj += delta[idim] * codir[idim];
+    dn1 += codir[idim] * codir[idim];
+    dn2 += delta[idim] * delta[idim];
+  }
+  if (dn1 > 0.) v = sqrt(dn2 - dproj * dproj / dn1);
+  return (v);
 }
 
 /**
@@ -146,3 +187,4 @@ void SpacePoint::setCoordFromAngle(const VectorDouble& angles)
     my_throw("Not yet implemented");
   }
 }
+

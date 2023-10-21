@@ -803,9 +803,9 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "Db_toTL" <- function(x)
 {
-  vals = list()
   names = x$getAllNames()
   nc = x$getColumnNumber()
+  vals = list()
   for (i in seq(0,nc-1)) {
     vals = cbind(vals,x$getColumnsByColIdx(i))
   }
@@ -823,6 +823,40 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	for (field in names(df))
     	if (types[field] == TRUE) dat[field] = df[field]
 	dat
+}
+
+#' Convert a variogram into a data.frame
+#'
+#' @param x    Pointer to the Vario 
+#' @param idir Rank of the direction (0 based)
+#' @param ivar Rank of the first variable (0 based)
+#' @param jvar Rank of the second variable (0 based)
+"Vario_toTL" <- function(x, idir=0, ivar=0, jvar=0)
+{
+  sw = x$getSwVec(idir, ivar, jvar, FALSE)
+  hh = x$getHhVec(idir, ivar, jvar, FALSE)
+  gg = x$getGgVec(idir, ivar, jvar, FALSE, FALSE, FALSE)
+  
+  vals = cbind(sw, hh, gg)
+  df = data.frame(vals)
+  names(df) = c("sw","hh","gg")
+  df
+}
+
+"Vario_updateFromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
+{
+	ndir = vario$getDirectionNumber()
+	nvar = vario$getVariableNumber()
+	if (idir < 0 || idir >= ndir) return
+	if (ivar < 0 || ivar >= nvar) return 
+	if (jvar < 0 || jvar >= nvar) return 
+	nlag = vario$getLagTotalNumber(idir)
+	if (dim(df)[1] != nlag) return 
+	
+	vario$setSwVec(idir, ivar, jvar, df$sw)
+	vario$setHhVec(idir, ivar, jvar, df$hh)
+	vario$setGgVec(idir, ivar, jvar, df$gg)
+	vario
 }
 
 "Krigtest_Res_toTL" <- function(x)
@@ -880,8 +914,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   res
 }
 
-"getVarioitem" <-
-function (x,i,j,...,drop=TRUE)
+"getVarioitem" <- function (x,i,j,...,drop=TRUE)
 {
   vario  <- x
   args = list()
@@ -895,8 +928,7 @@ function (x,i,j,...,drop=TRUE)
   values
 }
 
-"setVarioitem" <-
-  function (x,i,j,...,value)
+"setVarioitem" <- function (x,i,j,...,value)
 {
   vario <- x
   args = list()

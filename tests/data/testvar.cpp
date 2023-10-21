@@ -113,8 +113,7 @@ int main(int argc, char *argv[])
   if (vario == (Vario *) NULL) goto label_end;
   if (dbout != (Db *) NULL)
   {
-    vario->attachDb(dbout);
-    vario->computeByKey("vg");
+    vario->compute(dbout, ECalcVario::VARIOGRAM);
     ascii_filename("Vario",0,1,filename);
     if (! vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");

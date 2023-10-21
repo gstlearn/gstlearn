@@ -61,7 +61,6 @@ void _erase_current_string(void);
 /* Prototyping the functions in vario.c */
 /****************************************/
 
-double _variogram_convert_angular_tolerance(double tolang);
 int _variogram_compute(Db *db,
                        Vario *vario,
                        int flag_gen = 0,

@@ -73,8 +73,8 @@ We compute the experimental variogram **vario2dir** (in 2 directions) (cf. [Vari
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
 varioParamMulti = VarioParam_createMultiple(ndir=2, npas=15, dpas=15.)
-vario2dir = Vario(varioParamMulti, dat)
-err = vario2dir$compute()
+vario2dir = Vario(varioParamMulti)
+err = vario2dir$compute(dat)
 ```
 
 We then the fit a model **fitmod**

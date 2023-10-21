@@ -102,8 +102,8 @@ We calculate the experimental directional variogram of the gaussian scores and f
 
 ```{r Fitting_Model}
 varioparam = VarioParam_createMultiple(ndir=2, npas=40, dpas=10)
-vario_gauss2dir = Vario_create(varioparam, dat)
-err = vario_gauss2dir$compute()
+vario_gauss2dir = Vario_create(varioparam)
+err = vario_gauss2dir$compute(dat)
 
 fitmodgauss = Model()
 err = fitmodgauss$fit(vario_gauss2dir, 

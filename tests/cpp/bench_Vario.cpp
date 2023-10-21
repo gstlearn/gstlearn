@@ -8,7 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /*                                                                            */
-/* This file is meant to demonstrate the process of using PGS                 */
+/* This file is meant to establish Bench Mark for Variogram calculations      */
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
@@ -27,14 +27,14 @@
 /****************************************************************************/
 /*!
 ** Main Program for bench marking the variogram calculation
-** - on a set of isolated points
+** - on a set of isolated points (including code, Faulting, ...)
 ** - on a regular grid
 **
 *****************************************************************************/
 int main(int argc, char *argv[])
 {
   Timer timer;
-  bool verbose = false;
+  bool verbose = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -45,7 +45,11 @@ int main(int argc, char *argv[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 2000;
-  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 3242);
+  int nvar = 1;
+  int ncode = 5;
+  int seed = 143421;
+  Db *db = Db::createFillRandom(nech, ndim, nvar, 0, ncode, 0., 0.,
+                                VectorDouble(), VectorDouble(), VectorDouble(), seed, 1);
 
   // Creating a grid covering the same space
   VectorInt nx = { 200, 200 };
@@ -59,6 +63,11 @@ int main(int argc, char *argv[])
   (void) simtub(nullptr,db,model);
   (void) simtub(nullptr,grid,model);
 
+  // Defining a Fault system
+  Faults* faults = new Faults();
+  PolyLine2D polyline({0.1, 0.6, 0.7}, {0.1, 0.4, 0.9});
+  faults->addFault(polyline);
+
   // ===============
   // On Data samples
   // ===============
@@ -71,9 +80,34 @@ int main(int argc, char *argv[])
 
   timer.reset();
   VarioParam* varioparamP = VarioParam::createMultiple(ndir, nlag, 0.5 / nlag);
-  Vario* varioP = Vario::computeFromDb(varioparamP,db,ECalcVario::VARIOGRAM);
-  timer.displayIntervalMilliseconds("Variogram on Isolated Points", 3800);
+  Vario* varioP = Vario::computeFromDb(*varioparamP,db,ECalcVario::VARIOGRAM);
+  timer.displayIntervalMilliseconds("Variogram on Isolated Points", 2600);
   if (verbose) varioP->display();
+
+  // =====================================
+  // On Data samples (with all attributes)
+  // =====================================
+
+  mestitle(1, "Experimental variogram on Data Samples (with attributes)");
+  message("- on a Db containing %d samples (with code attribute)\n", nech);
+  message("- taking a Fault System into account\n");
+  message("- for a variogram calculated in 1 direction with %d lags\n", nlag);
+
+  timer.reset();
+  double dlag = 0.05;
+  double toldis = 0.5;
+  double tolang = 45.;
+  int optcode = 1;
+  double tolcode = 2;
+  double angle2D = 30.;
+  DirParam dirparam = DirParam(nlag, dlag, toldis, tolang, optcode, 0, TEST, TEST, tolcode,
+                                VectorDouble(), VectorDouble(), angle2D);
+  VarioParam varioparamC = VarioParam();
+  varioparamC.addDir(dirparam);
+  varioparamC.addFaults(faults);
+  Vario* varioC = Vario::computeFromDb(varioparamC,db,ECalcVario::VARIOGRAM);
+  timer.displayIntervalMilliseconds("Variogram on Isolated Points (with attributes)", 1100);
+  if (verbose) varioC->display();
 
   // ===============
   // On Grid samples
@@ -85,7 +119,7 @@ int main(int argc, char *argv[])
 
   timer.reset();
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
-  Vario* varioG = Vario::computeFromDb(varioparamG, grid, ECalcVario::VARIOGRAM);
+  Vario* varioG = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Regular Grid", 1500);
   if (verbose) varioG->display();
 
@@ -117,9 +151,11 @@ int main(int argc, char *argv[])
   delete varioparamP;
   delete varioparamG;
   delete varioP;
+  delete varioC;
   delete varioG;
   delete vmapP;
   delete vmapG;
+  delete faults;
 
   return (0);
 }
