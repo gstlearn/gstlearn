@@ -825,6 +825,12 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	dat
 }
 
+#' Convert a variogram into a data.frame
+#'
+#' @param x    Pointer to the Vario 
+#' @param idir Rank of the direction (0 based)
+#' @param ivar Rank of the first variable (0 based)
+#' @param jvar Rank of the second variable (0 based)
 "Vario_toTL" <- function(x, idir=0, ivar=0, jvar=0)
 {
   sw = x$getSwVec(idir, ivar, jvar, FALSE)
@@ -837,21 +843,19 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   df
 }
 
-"Vario_fromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
+"Vario_updateFromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
 {
 	ndir = vario$getDirectionNumber()
 	nvar = vario$getVariableNumber()
-	if (idir < 0 || idir >= ndir) return 
+	if (idir < 0 || idir >= ndir) return
 	if (ivar < 0 || ivar >= nvar) return 
 	if (jvar < 0 || jvar >= nvar) return 
-	nlag = vario$getLagNumber(idir)
-	if (vario$getFlagAsym()) nlag = 2 * nlag  + 1
-	
+	nlag = vario$getLagTotalNumber(idir)
 	if (dim(df)[1] != nlag) return 
 	
-	vario$setSwVec(idir, ivar, jvar, df["sw"])
-	vario$setHhVec(idir, ivar, jvar, df["hh"])
-	vario$setGgVec(idir, ivar, jvar, df["gg"])
+	vario$setSwVec(idir, ivar, jvar, df$sw)
+	vario$setHhVec(idir, ivar, jvar, df$hh)
+	vario$setGgVec(idir, ivar, jvar, df$gg)
 	vario
 }
 

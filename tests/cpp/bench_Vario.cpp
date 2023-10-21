@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
   timer.reset();
   VarioParam* varioparamP = VarioParam::createMultiple(ndir, nlag, 0.5 / nlag);
-  Vario* varioP = Vario::computeFromDb(varioparamP,db,ECalcVario::VARIOGRAM);
+  Vario* varioP = Vario::computeFromDb(*varioparamP,db,ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Isolated Points", 2600);
   if (verbose) varioP->display();
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
   VarioParam varioparamC = VarioParam();
   varioparamC.addDir(dirparam);
   varioparamC.addFaults(faults);
-  Vario* varioC = Vario::computeFromDb(&varioparamC,db,ECalcVario::VARIOGRAM);
+  Vario* varioC = Vario::computeFromDb(varioparamC,db,ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Isolated Points (with attributes)", 1100);
   if (verbose) varioC->display();
 
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
   timer.reset();
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
-  Vario* varioG = Vario::computeFromDb(varioparamG, grid, ECalcVario::VARIOGRAM);
+  Vario* varioG = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   timer.displayIntervalMilliseconds("Variogram on Regular Grid", 1500);
   if (verbose) varioG->display();
 

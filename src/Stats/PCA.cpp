@@ -767,8 +767,9 @@ void PCA::_variogramh(Db *db,
   // Creating a local Vario structure (to constitute the BiTargetCheck list
   if (idir0 >= 0)
   {
-    vario = Vario::create(&varioparam, db);
-    if (vario->prepare(ECalcVario::VARIOGRAM)) return;
+    vario = Vario::create(varioparam);
+    vario->setDb(db);
+    if (vario->prepare()) return;
   }
 
   /* Loop on samples */

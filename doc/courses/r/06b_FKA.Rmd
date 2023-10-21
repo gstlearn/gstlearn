@@ -137,8 +137,8 @@ ggPrint(p)
 
 ```{r Variogram_calculation}
 varioparam = VarioParam_createMultipleFromGrid(grid,npas=100)
-varioP = Vario(varioparam, grid)
-err = varioP$compute()
+varioP = Vario(varioparam)
+err = varioP$compute(grid)
 modelP = Model()
 err = modelP$fit(varioP, 
                  types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
@@ -217,8 +217,8 @@ ggPrint(p)
 ```{r Locate_Multivariate, fig.align='center', fig.height=5}
 grid$setLocators(c("Fill.P", "Cr", "Ni"), ELoc_Z())
 
-varioM = Vario(varioparam, grid)
-err = varioM$compute()
+varioM = Vario(varioparam)
+err = varioM$compute(grid)
 modelM = Model()
 err = modelM$fit(varioM, 
                  types= ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),

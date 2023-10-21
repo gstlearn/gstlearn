@@ -104,13 +104,13 @@ int main(int argc, char *argv[])
   VarioParam varioparam;
   std::vector<DirParam> dirparams = DirParam::createMultipleInSpace(nlag);
   varioparam.addMultiDirs(dirparams);
-  Vario vario(&varioparam,db);
+  Vario vario(varioparam);
   VectorString names = db->getName("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)
   {
     db->clearLocators(ELoc::Z);
     db->setLocator(names[isimu],ELoc::Z);
-    vario.compute(ECalcVario::VARIOGRAM);
+    vario.compute(db, ECalcVario::VARIOGRAM);
     (void) vario.dumpToNF(incrementStringVersion("Vario",isimu+1));
   }
 

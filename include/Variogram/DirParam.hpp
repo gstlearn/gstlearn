@@ -114,7 +114,7 @@ public:
   double getTolDist() const { return _tolDist; }
 
   VectorInt getGrincrs() const { return _grincr; }
-  int getGrincr(int i) const;
+  int    getGrincr(int i) const;
   double getMaximumDistance() const;
 
   int  getBreakNumber() const { return ((int) _breaks.size() / 2); }

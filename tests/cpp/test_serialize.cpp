@@ -117,8 +117,8 @@ int main(int argc, char *argv[])
   VarioParam varioparam1;
   DirParam dirparam(10, 0.02);
   varioparam1.addDir(dirparam);
-  Vario vario1 = Vario(&varioparam1,db1);
-  vario1.compute(ECalcVario::VARIOGRAM);
+  Vario vario1 = Vario(varioparam1);
+  vario1.compute(db1, ECalcVario::VARIOGRAM);
   vario1.display();
 
   // Serialize vario1

@@ -126,8 +126,8 @@ varioparam = VarioParam_createMultipleFromGrid(grid, npas = nlags)
 vario_list = list()
 for (i in 1:nsim) {
   err   = grid$setLocator(name = names[i], locatorType = ELoc_Z(), cleanSameLocator = TRUE)
-  vario = Vario(varioparam, grid)
-  err   = vario$compute()
+  vario = Vario(varioparam)
+  err   = vario$compute(grid)
   vario_list[[1 + length(vario_list)]] <- vario
 }
 

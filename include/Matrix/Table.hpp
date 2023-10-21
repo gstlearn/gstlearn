@@ -42,6 +42,7 @@ public:
   static Table* createFromNames(const VectorString &rownames,
                                 const VectorString &colnames);
   static Table* createFromNF(const String& neutralFilename, bool verbose = true);
+  static Table* createFromTable(const Table& table);
 
   VectorDouble getRange(int icol) const;
   VectorDouble getAllRange() const;

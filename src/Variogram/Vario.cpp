@@ -37,25 +37,17 @@
 /**
  * Build a Vario object by calculating the experimental variogram
  * @param varioparam VarioParam structure
- * @param db         Db structure (optional)
- * @param calcul     Choice of the calculation mode (see ECalcVario)
- * @param means      Array of variable means
- * @param vars       Array of variable variances
  */
-Vario::Vario(const VarioParam* varioparam,
-             Db* db,
-             const ECalcVario &calcul,
-             const VectorDouble& means,
-             const VectorDouble& vars)
+Vario::Vario(const VarioParam& varioparam)
     : AStringable(),
       ASerializable(),
       ICloneable(),
       _nVar(0),
       _varioparam(),
-      _means(means),
-      _vars(vars),
+      _means(),
+      _vars(),
       _calcul(),
-      _flagSample( ),
+      _flagSample(false),
       _db(nullptr),
       _sw(),
       _gg(),
@@ -65,9 +57,7 @@ Vario::Vario(const VarioParam* varioparam,
       _bipts(),
       _flagAsym(false)
 {
-  _varioparam = *varioparam;
-  attachDb(db,vars,means);
-  if (db != nullptr) prepare(calcul, 0);
+  _varioparam = varioparam;
 }
 
 Vario::Vario(const Vario& r)
@@ -121,13 +111,24 @@ Vario::~Vario()
 {
 }
 
-Vario* Vario::create(const VarioParam* varioparam,
-                     Db* db,
-                     const ECalcVario &calcul,
-                     const VectorDouble& means,
-                     const VectorDouble& vars)
+Vario* Vario::create(const VarioParam& varioparam)
 {
-  return new Vario(varioparam, db, calcul, means, vars);
+  return new Vario(varioparam);
+}
+
+Vario* Vario::createSkeleton(const VarioParam &varioparam,
+                             int nvar,
+                             const ECalcVario &calcul,
+                             const VectorDouble &means,
+                             const VectorDouble &vars)
+{
+  Vario* vario = new Vario(varioparam);
+  vario->setNVar(nvar);
+  vario->setMeans(means);
+  vario->setVars(vars);
+
+  if (vario->prepare(calcul, false)) return nullptr;
+  return vario;
 }
 
 Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
@@ -135,7 +136,7 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   Vario* vario = nullptr;
   std::ifstream is;
   VarioParam* varioparam = new VarioParam();
-  vario = new Vario(varioparam, nullptr);
+  vario = new Vario(*varioparam);
   bool success = false;
   if (vario->_fileOpenRead(neutralFilename, is, verbose))
   {
@@ -150,7 +151,7 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   return vario;
 }
 
-Vario* Vario::computeFromDb(const VarioParam* varioparam,
+Vario* Vario::computeFromDb(const VarioParam& varioparam,
                             Db* db,
                             const ECalcVario& calcul,
                             bool flag_gen,
@@ -160,23 +161,23 @@ Vario* Vario::computeFromDb(const VarioParam* varioparam,
                             bool verbose)
 {
   Vario* vario = nullptr;
-  vario = new Vario(varioparam, db);
-  if (vario->compute(calcul, flag_gen, flag_sample, verr_mode, model, verbose))
+  vario = new Vario(varioparam);
+  if (vario->compute(db, calcul, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     return nullptr;
   }
   return vario;
 }
 
-Vario* Vario::createRegularizeFromModel(const Model* model,
-                                        const VarioParam* varioparam,
+Vario* Vario::createRegularizeFromModel(const Model& model,
+                                        const VarioParam& varioparam,
                                         const VectorDouble& ext,
                                         const VectorInt& ndisc,
                                         const VectorDouble& angles,
                                         bool asCov)
 {
   Vario* vario = nullptr;
-  vario = new Vario(varioparam, nullptr);
+  vario = new Vario(varioparam);
   if (vario->modelRegularize(model, ext, ndisc, angles))
   {
     messerr("Error when calculating the regularized variogram");
@@ -185,10 +186,10 @@ Vario* Vario::createRegularizeFromModel(const Model* model,
   return vario;
 }
 
-Vario* Vario::createTransformZToY(const Vario* varioZ,
+Vario* Vario::createTransformZToY(const Vario& varioZ,
                                   const AAnam* anam)
 {
-  Vario* varioY = varioZ->clone();
+  Vario* varioY = new Vario(varioZ);
   if (varioY->transformZToY(anam))
   {
     messerr("Error when transforming Raw Variogram into Gaussian");
@@ -197,10 +198,10 @@ Vario* Vario::createTransformZToY(const Vario* varioZ,
   return varioY;
 }
 
-Vario* Vario::createTransformYToZ(const Vario* varioY,
+Vario* Vario::createTransformYToZ(const Vario& varioY,
                                   const AAnam* anam)
 {
-  Vario* varioZ = varioY->clone();
+  Vario* varioZ = new Vario(varioY);
   if (varioZ->transformYToZ(anam))
   {
     messerr("Error when transforming Gaussian Variogram into Raw");
@@ -209,12 +210,12 @@ Vario* Vario::createTransformYToZ(const Vario* varioY,
   return varioZ;
 }
 
-Vario* Vario::createReduce(const Vario *varioIn,
+Vario* Vario::createReduce(const Vario& varioIn,
                            const VectorInt &varcols,
                            const VectorInt &dircols,
                            bool asSymmetric)
 {
-  Vario* varioOut = varioIn->clone();
+  Vario* varioOut = new Vario(varioIn);
   varioOut->reduce(varcols, dircols, asSymmetric);
   return varioOut;
 }
@@ -287,11 +288,8 @@ int Vario::_getBiPtsRank(int idir, int rank) const
   return (idir * _biPtsPerDirection + rank);
 }
 
-int Vario::prepare(const ECalcVario &calcul, int nvar)
+int Vario::prepare(const ECalcVario &calcul, bool defineList)
 {
-  // Override the number of variables
-  if (nvar > 0) _nVar = nvar;
-
   if (_nVar <= 0)
   {
     messerr("The number of variables must be positive");
@@ -311,25 +309,24 @@ int Vario::prepare(const ECalcVario &calcul, int nvar)
   internalDirectionResize();
 
   // Define the list of ABiTargetCheckers corresponding to the calculation constraints
-  _setListBiTargetCheck();
+  if (defineList) _setListBiTargetCheck();
 
   return 0;
 }
 
-int Vario::compute(const ECalcVario &calcul,
+int Vario::compute(Db* db,
+                   const ECalcVario &calcul,
                    bool flag_gen,
                    bool flag_sample,
                    bool verr_mode,
                    Model *model,
                    bool verbose)
 {
-  if (prepare(calcul, 0)) return 1;
+  _db = db;
+  _nVar = _db->getLocNumber(ELoc::Z);
 
-  if (_db == nullptr)
-  {
-    messerr("The '_db' must have been defined beforehand");
-    return 1;
-  }
+  if (prepare(calcul)) return 1;
+
   if (_variogram_compute(_db, this, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram");
@@ -338,7 +335,8 @@ int Vario::compute(const ECalcVario &calcul,
   return 0;
 }
 
-int Vario::computeIndic(const ECalcVario& calcul,
+int Vario::computeIndic(Db *db,
+                        const ECalcVario& calcul,
                         bool flag_gen,
                         bool flag_sample,
                         bool verr_mode,
@@ -346,12 +344,7 @@ int Vario::computeIndic(const ECalcVario& calcul,
                         bool verbose,
                         int nfacmax)
 {
-  // Preliminary checks
-  if (_db == nullptr)
-  {
-    messerr("The 'Db' must have been attached beforehand");
-    return 1;
-  }
+  _db = db;
   int nvar = _db->getLocNumber(ELoc::Z);
   if (nvar != 1)
   {
@@ -382,17 +375,11 @@ int Vario::computeIndic(const ECalcVario& calcul,
     return 1;
   }
 
-  _calcul = calcul;
   _nVar  = nclass;
   _means = props;
   _vars  = _varsFromProportions(props);
-  _setFlagAsym();
-  _setDPasFromGrid(isDefinedForGrid());
-  if (internalVariableResize()) return 1;
-  internalDirectionResize();
 
-  // Define the list of ABiTargetCheckers corresponding to the calculation constraints
-   _setListBiTargetCheck();
+  if (prepare(calcul)) return 1;
 
   // Calculate the variogram of indicators
   if (_variogram_compute(_db, this, flag_gen,
@@ -512,7 +499,7 @@ void Vario::reduce(const VectorInt &varcols,
   for (int idir0 = 0; idir0 < ndir; idir0++)
   {
     int idir = seldirs[idir0];
-    for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
     {
       for (int ivar0 = 0; ivar0 < _nVar; ivar0++)
         for (int jvar0 = 0; jvar0 < _nVar; jvar0++)
@@ -588,10 +575,10 @@ int Vario::transformZToY(const AAnam *anam)
   {
     /* Loop on the lags */
 
-    for (int i = 0; i < getLagNumber(idir); i++)
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
     {
       // TODO. GG must be a variogram of Zv -> Cv(h)
-      setGgByIndex(idir,i,1. - anamH->invertVariance(cvv-getGgByIndex(idir, i)));
+      setGgByIndex(idir,ipas,1. - anamH->invertVariance(cvv-getGgByIndex(idir, ipas)));
     }
   }
 
@@ -642,7 +629,7 @@ int Vario::transformYToZ(const AAnam *anam)
   {
     /* Loop on the lags */
 
-    for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
     {
       double chh = 1. - getGg(idir, 0, 0, ipas, false);
       double var = anam_hermite->computeVariance(chh);
@@ -668,20 +655,15 @@ int Vario::transformYToZ(const AAnam *anam)
  ** \param[in]  asCov     When true; produces a covariance
  **
  *****************************************************************************/
-int Vario::modelRegularize(const Model* model,
+int Vario::modelRegularize(const Model& model,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
                            const VectorDouble& angles,
                            const CovCalcMode* mode,
                            bool asCov)
 {
-  if (model == nullptr)
-  {
-    messerr("Model must be provided");
-    return 1;
-  }
-  int ndim = model->getDimensionNumber();
-  int nvar = model->getVariableNumber();
+  int ndim = model.getDimensionNumber();
+  int nvar = model.getVariableNumber();
 
   /* Preliminary checks */
 
@@ -698,7 +680,7 @@ int Vario::modelRegularize(const Model* model,
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      double value = model->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
+      double value = model.evalCvv(ext, ndisc, angles, ivar, jvar, mode);
       setVar(value, ivar, jvar);
     }
 
@@ -709,7 +691,7 @@ int Vario::modelRegularize(const Model* model,
 
     /* Loop on the number of lags */
 
-    for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
     {
 
       // Calculate the shift vector
@@ -722,8 +704,8 @@ int Vario::modelRegularize(const Model* model,
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++)
         {
-          double value = model->evalCvvShift(ext, ndisc, shift, angles, ivar,
-                                             jvar, mode);
+          double value = model.evalCvvShift(ext, ndisc, shift, angles, ivar,
+                                            jvar, mode);
           if (! asCov) value = getVar(ivar, jvar) - value;
           int iad = getDirAddress(idir, ivar, jvar, ipas, false, 0);
           setGgByIndex(idir, iad, value);
@@ -735,21 +717,11 @@ int Vario::modelRegularize(const Model* model,
   return 0;
 }
 
-int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
+void Vario::setDb(Db* db)
 {
   _db = db;
   if (db != nullptr)
-  {
     _nVar = _db->getLocNumber(ELoc::Z);
-    if (_nVar <= 0)
-    {
-      messerr("Some variables must be defined in the 'Db'");
-      return 1;
-    }
-  }
-  _means = means;
-  _vars  = vars;
-  return 0;
 }
 
 int Vario::internalVariableResize() //TODO: to be called when nvar is modified...
@@ -1008,8 +980,6 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, int idir) co
 {
   std::stringstream sstr;
 
-  const DirParam dirparam = _varioparam.getDirParam(idir);
-
   /* Print the variogram contents */
 
   for (int ivar = 0; ivar < _nVar; ivar++)
@@ -1031,7 +1001,7 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, int idir) co
       {
         int j = getDirAddress(idir, ivar, jvar, i, true, 0);
         if (_sw[idir][j] <= 0) continue;
-        int rank = (!getFlagAsym()) ? i : i - dirparam.getLagNumber();
+        int rank = (!getFlagAsym()) ? i : i - getLagNumber(idir);
         sstr << toInt(rank);
         sstr << toDouble(_sw[idir][j]);
         sstr << toDouble(_hh[idir][j]);
@@ -1346,9 +1316,8 @@ VectorVectorDouble Vario::getVec(int idir, int ivar, int jvar) const
   if (!_isVariableValid(ivar)) return vec;
   if (!_isVariableValid(jvar)) return vec;
   if (!_isDirectionValid(idir)) return vec;
-  const DirParam dirparam = _varioparam.getDirParam(idir);
 
-  int npas = dirparam.getLagNumber();
+  int npas = getLagNumber(idir);
   vec.resize(3);
   for (int i = 0; i < 3; i++) vec[i].resize(npas);
 
@@ -1382,12 +1351,11 @@ VectorDouble Vario::getGgVec(int idir,
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
   if (!_isDirectionValid(idir)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble gg;
   double c0 = 0.;
   if (asCov || flagNorm) c0 = getVar(ivar, jvar);
-  int npas = dirparam.getLagNumber();
+  int npas = getLagNumber(idir);
 
   int iad;
   if (_flagAsym)
@@ -1445,10 +1413,7 @@ void Vario::setGgVec(int idir, int ivar, int jvar, const VectorDouble& gg)
   if (!_isVariableValid(ivar))  return;
   if (!_isVariableValid(jvar))  return;
   if (!_isDirectionValid(idir)) return;
-  const DirParam dirparam = _varioparam.getDirParam(idir);
-
-  int npas = dirparam.getLagNumber();
-  if (_flagAsym) npas = 2 * npas + 1;
+  int npas = getLagNumber(idir);
   if (npas != (int) gg.size()) return;
 
   int iad;
@@ -1490,10 +1455,9 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar, bool compress) const
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
   if (!_isDirectionValid(idir)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble hh;
-  int npas = dirparam.getLagNumber();
+  int npas = getLagNumber(idir);
   int iad;
   if (_flagAsym)
   {
@@ -1530,10 +1494,8 @@ void Vario::setHhVec(int idir, int ivar, int jvar, const VectorDouble& hh)
   if (!_isVariableValid(ivar))  return;
   if (!_isVariableValid(jvar))  return;
   if (!_isDirectionValid(idir)) return;
-  const DirParam dirparam = _varioparam.getDirParam(idir);
 
-  int npas = dirparam.getLagNumber();
-  if (_flagAsym) npas = 2 * npas + 1;
+  int npas = getLagNumber(idir);
   if (npas != (int) hh.size()) return;
 
   int iad;
@@ -1575,10 +1537,9 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar, bool compress) const
   if (!_isVariableValid(ivar))  return VectorDouble();
   if (!_isVariableValid(jvar))  return VectorDouble();
   if (!_isDirectionValid(idir)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble sw;
-  int npas = dirparam.getLagNumber();
+  int npas = getLagNumber(idir);
   int iad;
   if (_flagAsym)
   {
@@ -1615,10 +1576,7 @@ void Vario::setSwVec(int idir, int ivar, int jvar, const VectorDouble& sw)
   if (!_isVariableValid(ivar))  return;
   if (!_isVariableValid(jvar))  return;
   if (!_isDirectionValid(idir)) return;
-  const DirParam dirparam = _varioparam.getDirParam(idir);
-
-  int npas = dirparam.getLagNumber();
-  if (_flagAsym) npas = 2 * npas + 1;
+  int npas = getLagNumber(idir);
   if (npas != (int) sw.size()) return;
 
   int iad;
@@ -1660,10 +1618,8 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar, bool compress) c
   if (!_isVariableValid(ivar)) return VectorDouble();
   if (!_isVariableValid(jvar)) return VectorDouble();
   if (!_isDirectionValid(idir)) return VectorDouble();
-  const DirParam dirparam = _varioparam.getDirParam(idir);
-
   VectorDouble utilize;
-  int npas = dirparam.getLagNumber();
+  int npas = getLagNumber(idir);
   int iad;
   if (_flagAsym)
   {
@@ -1729,10 +1685,9 @@ int Vario::getNext(int ivar, int jvar, int idir, int shift) const
   if (!_isVariableValid(ivar))  return ITEST;
   if (!_isVariableValid(jvar))  return ITEST;
   if (!_isDirectionValid(idir)) return ITEST;
-  const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble sw;
-  int npas = dirparam.getLagNumber();
+  int npas = getLagNumber(idir);
   int count;
   if (_flagAsym) return ITEST;
   int iad = getDirSize(idir) - 1;
@@ -1792,7 +1747,7 @@ int Vario::getDirAddress(int idir,
     else
     {
       if (! dirparam.isLagValid(ipas, getFlagAsym())) return ITEST;
-      int npas = dirparam.getLagNumber();
+      int npas = getLagNumber(idir);
       switch (sens)
       {
         case 1:
@@ -2176,7 +2131,7 @@ int Vario::_getNVar(const Db* db)
 int Vario::getLagTotalNumber(int idir) const
 {
   if (! _isDirectionValid(idir)) return 0;
-  int npas = getDirParam(idir).getLagNumber();
+  int npas = getLagNumber(idir);
   return ((_flagAsym) ? 2 * npas + 1 : npas);
 }
 
@@ -2192,7 +2147,7 @@ void Vario::setCalculName(const String calcul_name)
  */
 void Vario::_setDPasFromGrid(bool flag_grid)
 {
-  if (_db->isGrid() && flag_grid)
+  if (_db != nullptr && _db->isGrid() && flag_grid)
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(_db);
     for (int idir = 0; idir < getDirectionNumber(); idir++)

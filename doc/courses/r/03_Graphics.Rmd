@@ -156,8 +156,8 @@ We calculate the variogram along the two main directions of the 2-D grid. We com
 
 ```{r}
 varioparam = VarioParam_createMultipleFromGrid(mygrid,npas=10)
-vario = Vario(varioparam, mygrid)
-err = vario$compute(ECalcVario_VARIOGRAM())
+vario = Vario(varioparam)
+err = vario$compute(mygrid,ECalcVario_VARIOGRAM())
 ```
 
 We fit a Model (automatic procedure)

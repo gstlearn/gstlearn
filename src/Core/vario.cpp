@@ -39,7 +39,6 @@
 #include <math.h>
 
 /*! \cond */
-#define VARS(ivar,jvar)     (vario->vars[(ivar) * vario->getNVar() + (jvar)])
 #define POISSON_MEANS(ivar) (VARIO->means[(ivar)])
 #define DATES(idate,i)      (vario->dates[2 * (idate) + (i)])
 #define IAD(ivar,jvar)      ((ivar) * nvar + (jvar))
@@ -3381,9 +3380,10 @@ int correlation_f(Db *db1,
   }
   else
   {
-    // Creating a local Vario structure (to constitute the BiTargetCheck list
-    Vario vario = Vario(varioparam, db1);
-    if (vario.prepare(ECalcVario::VARIOGRAM)) return 1;
+    // Creating a local Vario structure (to constitute the BiTargetCheck list)
+    Vario* vario = Vario::create(*varioparam);
+    vario->setDb(db1);
+    if (vario->prepare()) return 1;
 
     // Local variables to speed up calculations
     bool hasSel = db1->hasLocVariable(ELoc::SEL);
@@ -3403,7 +3403,7 @@ int correlation_f(Db *db1,
         db1->getSampleAsST(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
-        if (! variogramKeep(&vario, 0, T1, T2, &dist)) continue;
+        if (! variogramKeep(vario, 0, T1, T2, &dist)) continue;
 
         /* Check the distance */
         if (dist < dmin || dist > dmax) continue;
@@ -3572,8 +3572,9 @@ static void st_variogram_cloud(Db *db,
   nech = db->getSampleNumber();
 
   // Creating a local Vario structure (to constitute the BiTargetCheck list
-  Vario vario = Vario(varioparam, db);
-  if (vario.prepare(ECalcVario::VARIOGRAM)) return;
+  Vario* vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  if (vario->prepare()) return;
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
@@ -3609,7 +3610,7 @@ static void st_variogram_cloud(Db *db,
       db->getSampleAsST(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
-      if (! variogramKeep(&vario, idir, T1, T2, &dist)) continue;
+      if (! variogramKeep(vario, idir, T1, T2, &dist)) continue;
 
       value = w1 * w2 * (z2 - z1) * (z2 - z1) / 2.;
       igrid = st_update_discretization_grid(dbgrid, dist, value);
@@ -3763,8 +3764,9 @@ static void st_variogram_cloud_dim(Db *db,
   nech = db->getSampleNumber();
 
   // Creating a local Vario structure (to constitute the BiTargetCheck list
-  Vario vario = Vario(varioparam, db);
-  if (vario.prepare(ECalcVario::VARIOGRAM)) return;
+  Vario* vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  if (vario->prepare()) return;
 
   // Local variables to speed up calculations
   bool hasSel = db->hasLocVariable(ELoc::SEL);
@@ -3787,7 +3789,7 @@ static void st_variogram_cloud_dim(Db *db,
       db->getSampleAsST(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
-      if (! variogramKeep(&vario, idir, T1, T2, &dist)) continue;
+      if (! variogramKeep(vario, idir, T1, T2, &dist)) continue;
 
       if (floor(dist / dirparam.getDPas() + 0.5) >= dirparam.getLagNumber())
         continue;
@@ -5417,8 +5419,9 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
   }
 
   // Creating a local Vario structure (to constitute the BiTargetCheck list
-  Vario vario = Vario(varioparam, db);
-  if (vario.prepare(ECalcVario::VARIOGRAM)) return nullptr;
+  Vario* vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  if (vario->prepare()) return nullptr;
 
   // Creating the output Db
   Db* newdb = Db::create();
@@ -5467,7 +5470,7 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
         db->getSampleAsST(jech, T2);
 
         // Reject the point as soon as one BiTargetChecker is not correct
-        if (! variogramKeep(&vario, idir, T1, T2, &dist)) continue;
+        if (! variogramKeep(vario, idir, T1, T2, &dist)) continue;
 
         /* Get the rank of the lag */
 

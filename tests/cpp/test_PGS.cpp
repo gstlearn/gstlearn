@@ -152,8 +152,8 @@ int main(int argc, char *argv[])
   varioDerived->dumpToNF("modelpgs.ascii");
   varioDerived->display();
 
-  Vario varioIndic = Vario(&varioparam1, db);
-  varioIndic.computeIndic(ECalcVario::VARIOGRAM);
+  Vario varioIndic = Vario(varioparam1);
+  varioIndic.computeIndic(db, ECalcVario::VARIOGRAM);
   (void) varioIndic.dumpToNF("varioindic.ascii");
 
   modelPGS1.display();

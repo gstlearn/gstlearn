@@ -810,8 +810,9 @@ def is_list_type(mylist, types):
     return all_type
 
 def check_nrows(db, nrows):
-    """Check if a number of rows matches with the number of samples of a Db, and returns the flag
-    for useSel (whether it matches the number of active samples or the total number of samples)"""
+    """Check if a number of rows matches with the number of samples of a Db, 
+    and returns the flag for useSel (whether it matches the number of active 
+    samples or the total number of samples)"""
     if nrows == db.getActiveSampleNumber() :
         useSel = True
     elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
@@ -1081,7 +1082,7 @@ def vario_toTL(self, idir, ivar, jvar):
 
 setattr(gl.Vario, "toTL", vario_toTL)
 
-def Vario_InPanda(self, pf, idir, ivar, jvar):
+def vario_updateFromPanda(self, pf, idir, ivar, jvar):
 	vario = self
 	ndir = vario.getDirectionNumber()
 	nvar = vario.getVariableNumber()
@@ -1091,9 +1092,7 @@ def Vario_InPanda(self, pf, idir, ivar, jvar):
 	 return vario
 	if jvar < 0 or jvar >= nvar:
 	 return vario
-	nlag = vario.getLagNumber(idir)
-	if vario.getFlagAsym():
-	 nlag = 2 * nlag  + 1
+	nlag = vario.getLagTotalNumber(idir)
 	if len(pf.index) != nlag:
 	 return vario
 	
@@ -1102,7 +1101,7 @@ def Vario_InPanda(self, pf, idir, ivar, jvar):
 	vario.setGgVec(idir, ivar, jvar, pf["gg"])
 	return vario
 
-gl.Vario.fromTL = staticmethod(Vario_InPanda)
+setattr(gl.Vario, "updateFromPanda", vario_updateFromPanda)
 
 %}
 

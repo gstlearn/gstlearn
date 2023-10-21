@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   VarioParam* varioparam = VarioParam::createOmniDirection(10, 0.025);
 
   // Calculate the variogram of the raw variable
-  Vario* vario_raw = Vario::computeFromDb(varioparam, data);
+  Vario* vario_raw = Vario::computeFromDb(*varioparam, data);
   vario_raw->display();
 
   // Fitting the Model on the Raw variable
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
   data->display();
 
   // Calculate the variogram of the Gaussian variable
-  Vario* vario = Vario::computeFromDb(varioparam, data);
+  Vario* vario = Vario::computeFromDb(*varioparam, data);
   vario->display();
 
   // Fitting the Model on the Gaussian transformed variable
@@ -216,9 +216,10 @@ int main(int argc, char *argv[])
   anam_b1->setRCoef(r1);
 
   // Regularization of the point model by the block support
-  Vario* vario_b1_Z = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
-                                                 ndisc_B, blocs->getAngles());
-  Vario* vario_b1_Y = Vario::createTransformZToY(vario_b1_Z, anam);
+  Vario* vario_b1_Z = Vario::createRegularizeFromModel(*model, *varioparam,
+                                                       blocs->getDXs(),
+                                                       ndisc_B, blocs->getAngles());
+  Vario* vario_b1_Y = Vario::createTransformZToY(*vario_b1_Z, anam);
 
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b1_Y = new Model(1, ndim);
@@ -250,7 +251,8 @@ int main(int argc, char *argv[])
   anam_b2->setRCoef(r2);
 
   // Regularization of the point model by the block support
-  Vario* vario_b2_Y = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
+  Vario* vario_b2_Y = Vario::createRegularizeFromModel(*model, *varioparam,
+                                                       blocs->getDXs(),
                                                        ndisc_B, blocs->getAngles());
 
   // Fitting the regularized model on the point Gaussian variable

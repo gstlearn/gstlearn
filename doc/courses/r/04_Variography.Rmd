@@ -79,8 +79,8 @@ ggPrint(p)
 varioParamOmni = VarioParam_createOmniDirection(npas=40, dpas=10,toldis = 0.1) 
 
 dat$setLocator("January_temp",ELoc_Z())
-varioexp = Vario(varioParamOmni, dat)
-err = varioexp$compute()
+varioexp = Vario(varioParamOmni)
+err = varioexp$compute(dat)
 ```
 
 We now print the contents of the newly created experimental variogram. The $40$ experimental variogram values are displayed (Column `Value`), together with the number $\vert \widehat N(h)\vert$ of pairs used to compute the value (Column `Npairs`) and the average distance between the points forming these pairs (Column `Distance`).
@@ -209,8 +209,8 @@ fitmod
 
 ```{r Directional_Variograms}
 varioParamMulti = VarioParam_createMultiple(ndir=4, npas=15, dpas=15.)
-vario.4dir = Vario(varioParamMulti, dat)
-err = vario.4dir$compute()
+vario.4dir = Vario(varioParamMulti)
+err = vario.4dir$compute(dat)
 ```
 
 ```{r Directional_Variograms_Plot}

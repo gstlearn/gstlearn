@@ -1288,12 +1288,8 @@ static double st_rule_calcul(Local_Pgs *local_pgs, int *string)
   local_pgs->rule = st_rule_encode(string);
   local_pgs->ngrf = local_pgs->rule->getGRFNumber();
   local_pgs->vario->setNVar(local_pgs->ngrf);
-  // TODO : ngrf now is 1 (but vario had nvar = 2)
-  // The following instruction provoques a message from Vario.cpp :
-  //     Invalid dimension for 'means' (2)
-  //     It should match the number of variables in 'Db' (1)
-  //local_pgs->vario->internalVariableResize();
-  //local_pgs->vario->internalDirectionResize();
+  local_pgs->vario->internalVariableResize();
+  local_pgs->vario->internalDirectionResize();
   st_retrace_define(local_pgs);
 
   if (local_pgs->flag_stat)
@@ -4946,14 +4942,17 @@ Vario* model_pgs(Db *db,
 
   // Initiate the output class
 
-  vario = new Vario(varioparam, db);
-  vario->prepare(ECalcVario::VARIOGRAM, nfacies);
+  vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  vario->setNVar(nfacies);
+  if (vario->prepare(ECalcVario::VARIOGRAM)) return nullptr;
+
 
   // Calculate the variogram of Indicators
   if (flag_stat)
   {
-    varioind = new Vario(varioparam, db);
-    if (varioind->computeIndic(ECalcVario::VARIOGRAM)) return nullptr;
+    varioind = new Vario(*varioparam);
+    if (varioind->computeIndic(db, ECalcVario::VARIOGRAM)) return nullptr;
   }
 
   /* Preliminary checks */
@@ -5100,8 +5099,7 @@ static int st_variogram_pgs_stat(Db *db,
   label_end: (void) st_extract_trace(&local_pgs);
   st_manage_pgs(-1, &local_pgs, db, rule, vario, varioind, NULL, propdef,
                 flag_stat, 1, 0, ngrf, nfacies, vario->getCalcul());
-  propdef = proportion_manage(-1, 1, 1, ngrf, 0, nfacies, 0,
-  NULL,
+  propdef = proportion_manage(-1, 1, 1, ngrf, 0, nfacies, 0, NULL,
                               NULL, propcst, propdef);
   return (error);
 }
@@ -5204,8 +5202,8 @@ Vario* variogram_pgs(Db *db,
     }
 
     // Calculate the variogram of Indicators
-    varioind = new Vario(varioparam, db);
-    if (varioind->computeIndic(ECalcVario::COVARIANCE_NC)) return nullptr;
+    varioind = new Vario(*varioparam);
+    if (varioind->computeIndic(db, ECalcVario::COVARIANCE_NC)) return nullptr;
   }
 
   /* Pre-calculation of integrals: Define the structure */
@@ -5215,8 +5213,10 @@ Vario* variogram_pgs(Db *db,
 
   // Initiate the output class
 
-  vario = new Vario(varioparam, db);
-  vario->prepare(ECalcVario::COVARIANCE_NC, rule->getGRFNumber());
+  vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  vario->setNVar(rule->getGRFNumber());
+  if (vario->prepare(ECalcVario::COVARIANCE_NC)) return nullptr;
 
   /* Perform the calculations */
 
@@ -5299,15 +5299,17 @@ Rule* _rule_auto(Db *db,
   if (flag_stat)
   {
     // Calculate the variogram of Indicators
-    varioind = new Vario(varioparam, db);
-    if (varioind->computeIndic(ECalcVario::COVARIANCE_NC)) goto label_end;
+    varioind = new Vario(*varioparam);
+    if (varioind->computeIndic(db, ECalcVario::COVARIANCE_NC)) goto label_end;
   }
 
   if (st_check_test_discret(ERule::STD, 0)) goto label_end;
   st_manage_pgs(0, &local_pgs);
 
-  vario = new Vario(varioparam, db);
-  vario->prepare(ECalcVario::COVARIANCE_NC, NGRF);
+  vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  vario->setNVar(NGRF);
+  if (vario->prepare(ECalcVario::COVARIANCE_NC)) return nullptr;
 
   if (st_vario_pgs_check(0, 0, flag_stat, db, NULL, vario, varioind, NULL))
     goto label_end;

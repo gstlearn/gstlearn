@@ -33,11 +33,7 @@ class AAnam;
 class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public ICloneable
 {
 public:
-  Vario(const VarioParam* varioparam,
-        Db* db,
-        const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"),
-        const VectorDouble& means = VectorDouble(),
-        const VectorDouble& vars = VectorDouble());
+  Vario(const VarioParam& varioparam);
   Vario(const Vario& r);
   Vario& operator=(const Vario& r);
   virtual ~Vario();
@@ -52,13 +48,28 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static Vario* create(const VarioParam* varioparam,
-                       Db* db = nullptr,
-                       const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"),
-                       const VectorDouble& means = VectorDouble(),
-                       const VectorDouble& vars = VectorDouble());
+  static Vario* create(const VarioParam& varioparam);
+  static Vario* createSkeleton(const VarioParam& varioparam,
+                               int nvar = 1,
+                               const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"),
+                               const VectorDouble& means = VectorDouble(),
+                               const VectorDouble& vars = VectorDouble());
   static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
-  static Vario* computeFromDb(const VarioParam* varioparam,
+  static Vario* createRegularizeFromModel(const Model& model,
+                                          const VarioParam& varioparam,
+                                          const VectorDouble& ext,
+                                          const VectorInt& ndisc,
+                                          const VectorDouble& angles,
+                                          bool asCov = false);
+  static Vario* createTransformZToY(const Vario& varioZ,
+                                    const AAnam* anam);
+  static Vario* createTransformYToZ(const Vario& varioY,
+                                    const AAnam* anam);
+  static Vario* createReduce(const Vario& varioIn,
+                             const VectorInt &varcols,
+                             const VectorInt &dircols,
+                             bool asSymmetric = false);
+  static Vario* computeFromDb(const VarioParam& varioparam,
                               Db* db,
                               const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                               bool flag_gen = false,
@@ -66,20 +77,6 @@ public:
                               bool verr_mode = false,
                               Model *model = nullptr,
                               bool verbose = false);
-  static Vario* createRegularizeFromModel(const Model* model,
-                                          const VarioParam* varioparam,
-                                          const VectorDouble& ext,
-                                          const VectorInt& ndisc,
-                                          const VectorDouble& angles,
-                                          bool asCov = false);
-  static Vario* createTransformZToY(const Vario* varioZ,
-                                    const AAnam* anam);
-  static Vario* createTransformYToZ(const Vario* varioY,
-                                    const AAnam* anam);
-  static Vario* createReduce(const Vario *varioIn,
-                             const VectorInt &varcols,
-                             const VectorInt &dircols,
-                             bool asSymmetric = false);
 
   static const ECalcVario getCalculType(const String& calcul_name);
 
@@ -104,6 +101,7 @@ public:
   void setVar(double value, int ivar=0, int jvar=0);
   void setVars(const VectorDouble& vars);
   void setVarIndex(int ijvar, double value);
+  void setDb(Db* db);
 
   int getDirSize(int idir) const;
 
@@ -205,17 +203,15 @@ public:
   int getVarAddress(int ivar, int jvar) const;
   int getLagTotalNumber(int idir) const;
 
-  int attachDb(Db* db,
-               const VectorDouble& vars = VectorDouble(),
-               const VectorDouble& means = VectorDouble());
-  int prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), int nvar = 0);
-  int compute(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
+  int compute(Db* db,
+              const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
               Model *model = nullptr,
               bool verbose = false);
-  int computeIndic(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
+  int computeIndic(Db* db,
+                   const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                    bool flag_gen = false,
                    bool flag_sample = false,
                    bool verr_mode = false,
@@ -224,7 +220,7 @@ public:
                    int nfacmax = -1);
   int transformZToY(const AAnam *anam);
   int transformYToZ(const AAnam *anam);
-  int modelRegularize(const Model* model,
+  int modelRegularize(const Model& model,
                       const VectorDouble& ext,
                       const VectorInt& ndisc,
                       const VectorDouble& angles = VectorDouble(),
@@ -257,6 +253,9 @@ public:
 
   void setNVar(int nvar) { _nVar = nvar; }
   void setCalculName(const String calcul_name);
+  void setCalcul(const ECalcVario &calcul) { _calcul = calcul; }
+
+  int  prepare(const ECalcVario &calcul = ECalcVario::fromKey("VARIOGRAM"), bool defineList = true);
 
   const VarioParam& getVarioParam() const { return _varioparam; }
   int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
@@ -267,7 +266,6 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Vario"; }
-  void setCalcul(const ECalcVario &calcul) { _calcul = calcul; }
 
 private:
   bool _isVariableValid(int ivar) const;
@@ -289,6 +287,7 @@ private:
   void _setListBiTargetCheck();
   int  _getBiPtsNumber() const { return (int) _bipts.size(); }
   int  _getBiPtsRank(int idir, int rank) const;
+
 
 private:
   int                _nVar;
