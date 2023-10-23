@@ -156,7 +156,6 @@ When printing the contents of the model, we now notice that it consists of a sup
 fitmod
 ```
 
-
 #### Model Fitting with constraints
 
 It is possible to impose (in)equality constraints on the covariance parameters of the basic structures used in the model fitting procedure. This is done by creating a `Constraints` object that is used to specify the constraints we wish to impose on the parameters of the different basic structures composing the model. To add a constraint to the object, we can use the method `addItemFromParamId`, which takes as arguments the type of parameter for which the constraint applies (given as an `EConsElem` object: run `EConsElem_printAll()` for the list of available options), the index of the basic structure for which the constraint applies (argument `icov`), the type of constraint we wish to apply (argument `type`, given as an `EConsType` object: run `EConsType_printAll()` for the list of available options) and finally the numerical value (argument `value`) defining the constraint.
