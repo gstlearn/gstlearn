@@ -307,7 +307,8 @@ Global_Result global_arithmetic(Db *dbin,
   global.setModel(model);
   global.setFlagArithmetic(true);
 
-  if (! global.run()) gres = global.getGRes();
+  if (global.run())
+    gres = global.getGRes();
   return gres;
 }
 
@@ -324,7 +325,8 @@ Global_Result global_kriging(Db *dbin,
   global.setModel(model);
   global.setFlagKriging(true);
 
-  if (! global.run()) gres = global.getGRes();
+  if (global.run())
+    gres = global.getGRes();
   return gres;
 }
 
