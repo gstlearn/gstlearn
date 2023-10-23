@@ -90,7 +90,7 @@ ggPrint(p)
 
 ## Auxiliary functions
 
-```{r fn_ qc_variogram, echo=TRUE, eval=TRUE }
+```{r fn_qc_variogram, echo=TRUE, eval=TRUE }
 
 # ------------------------------------------------------------
 # QC of simulations
