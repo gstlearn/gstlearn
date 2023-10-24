@@ -4,7 +4,7 @@
 
 +*Out[6]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
@@ -21,19 +21,19 @@ Maximum horizontal distance         = 0.3----
 
 +*Out[9]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_24_0.png)
+![png](output_25_0.png)
 ----
 
 
@@ -46,5 +46,5 @@ Reject samples which do not belong to target Block----
 
 +*Out[16]:*+
 ----
-![png](output_28_0.png)
+![png](output_29_0.png)
 ----

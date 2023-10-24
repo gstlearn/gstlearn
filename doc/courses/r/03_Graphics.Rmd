@@ -9,12 +9,17 @@ output:
     toc: true
 ---
 
+<!-- SUMMARY: Use the library gtlearn.plot (based on matplotlib) to visualize all the objects of gstlearn library   -->
+
+<!-- CATEGORY: Courses -->
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 plot.printDefault()
 ```
@@ -60,25 +65,25 @@ Displaying the grid cells
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(mygrid, name_raster="Simu.1", name_contour="Simu.2", 
-              show.legend.raster=TRUE, legend.name.raster="ma Legende")
+p = p + plot.grid(mygrid, nameRaster="Simu.1", nameContour="Simu.2", 
+              flagLegendRaster=TRUE, legendNameRaster="ma Legende")
 p = p + plot.decoration(title="Display of Grid Cells")
 ggPrint(p)
 ```
 
-Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'na.values' serves for encoding pixels whose values have been left undefined.
+Using another collor scale. Among the different choices, one makes it possible to create a color scale on the fly, specifying the starting (yellow), middle (red) and ending (blue) colors. The color referred to as 'naColor' serves for encoding pixels whose values have been left undefined.
 
 ```{r}
-ggDefaultGeographic() + plot.grid(mygrid, palette=c("yellow","red","blue"), na.value="white")
+ggDefaultGeographic() + plot.grid(mygrid, palette=c("yellow","red","blue"), naColor="white")
 ```
 
 Displaying the grid nodes only
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(mygrid, name_color="Simu.1",name_size="Simu.2", 
-                   show.legend.color = TRUE,
-                   legend.name.color="myColor")
+p = p + plot.point(mygrid, nameColor="Simu.1",nameSize="Simu.2", 
+                   flagLegendColor = TRUE,
+                   legendNameColor="myColor")
 p = p + plot.decoration(title="Display of Grid Nodes")
 ggPrint(p)
 ```
@@ -95,7 +100,7 @@ Displaying the cell contents in the rotated grid
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.grid(mygrid, name_raster="Simu.1", show.legend.raster=FALSE)
+p = p + plot.grid(mygrid, nameRaster="Simu.1", flagLegendRaster=FALSE)
 p = p + plot.decoration(title="Display of Rotated Grid")
 ggPrint(p)
 ```
@@ -104,7 +109,7 @@ As a set of grid nodes
 
 ```{r}
 p = ggDefaultGeographic()
-p = p + plot.point(mygrid,name_color="Simu.1", show.legend.color = TRUE)
+p = p + plot.point(mygrid,nameColor="Simu.1", flagLegendColor = TRUE)
 p = p + plot.decoration(title="Display of Rotated Grid Nodes")
 ggPrint(p)
 ```
@@ -151,8 +156,8 @@ We calculate the variogram along the two main directions of the 2-D grid. We com
 
 ```{r}
 varioparam = VarioParam_createMultipleFromGrid(mygrid,npas=10)
-vario = Vario(varioparam, mygrid)
-err = vario$compute(ECalcVario_VARIOGRAM())
+vario = Vario(varioparam)
+err = vario$compute(mygrid,ECalcVario_VARIOGRAM())
 ```
 
 We fit a Model (automatic procedure)
@@ -170,7 +175,7 @@ ggplot() + plot(model)
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, draw_psize=-1, color="red")
+p = p + plot(vario, ivar=0, jvar=0, idir=0, drawPsize=-1, color="red")
 p = p + plot.decoration(title="First Variable - First Direction")
 ggPrint(p)
 ```
@@ -179,7 +184,7 @@ We display the experimental variogram for the first variable in the second direc
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, idir=1)
+p = p + plot(vario, ivar=0, jvar=0, idir=1)
 p = p + plot.decoration(title="First Variable - Second Direction")
 ggPrint(p)
 ```
@@ -188,8 +193,8 @@ We simply overlay the contents of the two previous plots.
 
 ```{r}
 p = ggDefault()
-p = p + plot(vario, color="black")
-p = p + plot(vario, idir=1, color='red')
+p = p + plot(vario, ivar=0, jvar=0, idir=0, color="black")
+p = p + plot(vario, ivar=0, jvar=0, idir=1, color='red')
 p = p + plot.decoration(title="First Variable - Two directions")
 ggPrint(p)
 ```
@@ -199,7 +204,7 @@ We display the cross-variogram between both variables along both directions.
 ```{r}
 p = ggDefault()
 p = p + plot(vario, ivar=1, jvar=0, idir=-1)
-p = p + plot.decoration(title="Cross-variogram - Two directions")
+p = p + plot.decoration(title="Cross-variogram - All directions")
 ggPrint(p)
 ```
 
@@ -245,7 +250,7 @@ Plot a horizontal slice:by default, this corresponds to the first level IZ=1
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank")
+p = p + plot.grid(g3D, "rank", flagLegendRaster=TRUE, legendNameRaster="Rank")
 p = p + plot.decoration(title="Horizontal Slice (IZ=1)")
 ggPrint(p)
 ```
@@ -254,7 +259,7 @@ Plot another horizontal slice (IZ=10): the color scale is adapter to the values 
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank", corner=c(0,0,10))
+p = p + plot.grid(g3D, nameRaster="rank", flagLegendRaster=TRUE, legendNameRaster="Rank", corner=c(0,0,10))
 p = p + plot.decoration(title="Horizontal Slice (IZ=10)")
 ggPrint(p)
 ```
@@ -263,7 +268,7 @@ Display a vertical slice (XOZ) for the index IY=3
 
 ```{r}
 p = ggDefault()
-p = p + plot.grid(g3D, "rank", show.legend.raster=TRUE, legend.name.raster="Rank", 
+p = p + plot.grid(g3D, nameRaster="rank", flagLegendRaster=TRUE, legendNameRaster="Rank", 
                   posY=2, corner=c(0,3,0))
 p = p + plot.decoration(title="Vertical Slice XOZ (IY=3)")
 ggPrint(p)

@@ -23,7 +23,7 @@ class GSTLEARN_EXPORT CovFactory
 public:
   static ACovFunc*    createCovFunc(const ECov& type, const CovContext& ctxt);
   static ACovFunc*    duplicateCovFunc(const ACovFunc& cov);
-  static void         displayList(const CovContext& ctxt);
+  static void         displayCovList(const CovContext& ctxt);
   static VectorString getCovList(const CovContext& ctxt, int order=3);
   static ECov         identifyCovariance(const String& cov_name,
                                          const CovContext& ctxt);

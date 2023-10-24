@@ -14,7 +14,7 @@ Data OUTSIDE Reservoir
 
 +*Out[7]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
@@ -27904,13 +27904,13 @@ End of Step 5 === After Final Conversion
 
 +*Out[9]:*+
 ----
-![png](output_17_0.png)
+![png](output_18_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----
 
 

@@ -1026,6 +1026,19 @@ void VectorHelper::addInPlace(const double* veca,
     res[i] = veca[i] + vecb[i];
 }
 
+void VectorHelper::addInPlace(const VectorVectorDouble &in1,
+                              const VectorVectorDouble &in2,
+                              VectorVectorDouble &outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    {
+      outv[is][i] = in2[is][i] + in1[is][i];
+    }
+  }
+}
+
 /**
  * Return a vector containing vecb - veca
  * @param veca Input Vector
@@ -1089,6 +1102,20 @@ void VectorHelper::subtractInPlace(VectorInt &dest, const VectorInt &src)
   }
 }
 
+void VectorHelper::subtractInPlace(const VectorVectorDouble &in1,
+                                   const VectorVectorDouble &in2,
+                                   VectorVectorDouble &outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    {
+      outv[is][i] = in2[is][i] - in1[is][i];
+    }
+  }
+}
+
+
 void VectorHelper::multiplyInPlace(VectorDouble &vec, const VectorDouble &v)
 {
   if (vec.size() != v.size())
@@ -1138,6 +1165,19 @@ void VectorHelper::multiplyConstantInPlace(const VectorDouble &vecin, double v, 
   }
 }
 
+void VectorHelper::addMultiplyConstantInPlace(double val1,
+                                              const VectorVectorDouble &in1,
+                                              VectorVectorDouble &outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    {
+      outv[is][i] += val1 * in1[is][i];
+    }
+  }
+}
+
 void VectorHelper::divideConstant(VectorDouble &vec, double v)
 {
   if (ABS(v) < EPSILON10)
@@ -1175,6 +1215,17 @@ void VectorHelper::copy(const VectorInt &vecin, VectorInt &vecout, int size)
     (*itout) = (*itin);
     itin++;
     itout++;
+  }
+}
+
+void VectorHelper::copy(const VectorVectorDouble &inv, VectorVectorDouble &outv)
+{
+  for (int is = 0, ns = (int) inv.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) inv[is].size(); i < n; i++)
+    {
+      outv[is][i] = inv[is][i];
+    }
   }
 }
 
@@ -1596,6 +1647,15 @@ double VectorHelper::innerProduct(const double* veca,
   return prod;
 }
 
+double VectorHelper::innerProduct(const VectorVectorDouble &x,
+                                  const VectorVectorDouble &y)
+{
+  double s = 0.;
+  for (int i = 0, n = (int) x.size(); i < n; i++)
+    s += VH::innerProduct(x[i], y[i]);
+  return s;
+}
+
 /**
  * Cross product (limited to 3D)
  * @param veca First vector
@@ -1637,6 +1697,38 @@ VectorDouble VectorHelper::flatten(const VectorVectorDouble& vvd)
   return vd;
 }
 
+void VectorHelper::flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd)
+{
+  int ecr = 0;
+  for (int i = 0; i < (int) vvd.size(); i++)
+    for (int j = 0; j < (int) vvd[i].size(); j++)
+      vd[ecr++] = (vvd[i][j]);
+}
+
+VectorVectorDouble VectorHelper::unflatten(const VectorDouble& vd, const VectorInt& sizes)
+{
+  VectorVectorDouble vvd;
+
+  int lec = 0;
+  for (int i = 0, n = (int) sizes.size(); i < n; i++)
+  {
+    int lng = sizes[i];
+    VectorDouble local(lng);
+    for (int j = 0; j < lng; j++)
+      local[j] = vd[lec++];
+    vvd.push_back(local);
+  }
+  return vvd;
+}
+
+void VectorHelper::unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd)
+{
+  int lec = 0;
+  for (int i = 0, n = (int) vvd.size(); i < n; i++)
+    for (int j = 0; j < (int) vvd[i].size(); j++)
+      vvd[i][j] = vd[lec++];
+}
+
 VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
 {
   VectorDouble vecout;
@@ -1645,4 +1737,19 @@ VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
     if (! FFFF(vecin[i])) vecout.push_back(vecin[i]);
   }
   return vecout;
+}
+
+void VectorHelper::linearComb(double val1,
+                              const VectorVectorDouble &in1,
+                              double val2,
+                              const VectorVectorDouble &in2,
+                              VectorVectorDouble &outv)
+{
+  for (int is = 0, ns = (int) in1.size(); is < ns; is++)
+  {
+    for (int i = 0, n = (int) in1[is].size(); i < n; i++)
+    {
+      outv[is][i] = val1 * in1[is][i] + val2 * in2[is][i];
+    }
+  }
 }

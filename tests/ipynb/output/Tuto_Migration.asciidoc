@@ -28,7 +28,7 @@ Column = 4 - Name = NewSel - Locator = sel
 
 +*Out[5]:*+
 ----
-![png](output_8_0.png)
+![png](output_9_0.png)
 ----
 
 
@@ -63,29 +63,29 @@ Column = 3 - Name = Hull - Locator = sel
 
 +*Out[7]:*+
 ----
-![png](output_12_0.png)
+![png](output_13_0.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
 +*Out[9]:*+
 ----
-![png](output_17_0.png)
+![png](output_18_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_25_0.png)
+![png](output_26_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----

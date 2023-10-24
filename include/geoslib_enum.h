@@ -83,15 +83,6 @@ typedef enum
 } ENUM_MODEL_CALCULS; // No more needed
 */
 
-#ifndef SWIG
-// Internal enums (currently not exported via SWIG)
-typedef enum
-{
-  MODEL_DERIVATIVE_NONE = 0,  //!< No Derivation
-  MODEL_DERIVATIVE_X = 1,     //!< Derivation along X
-  MODEL_DERIVATIVE_Y = 2,     //!< Derivation along Y
-} ENUM_MODEL_DERIVATIVES;
-#endif
 /*
 typedef enum
 {

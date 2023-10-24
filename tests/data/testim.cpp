@@ -42,27 +42,19 @@
 static Model *st_modify(Model *model,
                         Db    *db)
 {
-  Model *new_model;
+  Model* new_model = nullptr;
   double ball_radius = 0.01;
-
-  /* Initializations */
-
-  new_model = nullptr;
 
   /* Modify the model */
 
   if (db->getLocNumber(ELoc::G) > 0)
   {
-    /* Modify the gradients into standard variables */
-
     if (db_gradient_update(db)) return(new_model);
-
-    /* Create the new Model */
-    new_model = model_duplicate(model,ball_radius,1);
+    new_model = model_duplicate_for_gradient(model,ball_radius);
   }
   else
   {
-    new_model = model_duplicate(model,0.,0);
+    new_model = model->clone();
   }
   return(new_model);
 }
@@ -139,8 +131,7 @@ int main(int argc, char *argv[])
   vario = Vario::createFromNF(filename,verbose);
   if (vario != nullptr)
   {
-    vario->attachDb(dbin);
-    vario->computeByKey("vg");
+    vario->compute(dbin, ECalcVario::VARIOGRAM);
     vario->display();
     ascii_filename("Vario",0,1,filename);
     if (! vario->dumpToNF(filename,verbose))

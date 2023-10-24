@@ -141,8 +141,8 @@ int main()
     {
       db->clearLocators(ELoc::Z);
       db->setLocator(names[isimu], ELoc::Z);
-      Vario vario(&varioparam, db);
-      vario.computeByKey("vg");
+      Vario vario(varioparam);
+      vario.compute(db, ECalcVario::VARIOGRAM);
       (void) vario.dumpToNF(incrementStringVersion("Vario", isimu + 1));
     }
   }

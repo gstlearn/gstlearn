@@ -19,6 +19,7 @@
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Model/ANoStat.hpp"
 
 #include <vector>
 
@@ -29,7 +30,6 @@ class CovAniso;
 class CovContext;
 class AStringFormat;
 class AAnam;
-
 
 // TODO : rename CovAnisoList (this is not an abstract class)
 class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
@@ -125,13 +125,26 @@ public:
                                         int ivar,
                                         int jvar,
                                         const CovCalcMode *mode) const;
-
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
 
   const ACovAnisoList* reduce(const VectorInt &validVars) const;
+
+  const ANoStat* getANoStat() const { return _noStat; }
+  int addNoStat(const ANoStat *anostat);
+  int isNoStat() const;
+  int getNoStatElemNumber() const;
+  const EConsElem& getNoStatElemType(int ipar) const;
+  int addNoStatElem(int igrf,
+                    int icov,
+                    const EConsElem &type,
+                    int iv1,
+                    int iv2);
+  int addNoStatElems(const VectorString &codes);
+  CovParamId getCovParamId(int ipar) const;
+  int getNoStatElemIcov(int ipar) const;
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;
@@ -140,9 +153,9 @@ protected:
 protected:
   std::vector<CovAniso*> _covs;     /// Vector of elementary covariances
   VectorBool             _filtered; /// Vector of filtered flags (size is nb. cova)
+  ANoStat*               _noStat;   /// Description of Non-stationary Model
 
   // Local matrix used to expand the covariance calculations to multivariate
   mutable MatrixSquareGeneral _matC;
 #endif
 };
-

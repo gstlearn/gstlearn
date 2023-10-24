@@ -905,7 +905,7 @@ VectorDouble CalcSimuTurningBands::_createAIC()
   for (int icov = 0; icov < ncova; icov++)
   {
     if (!is_matrix_definite_positive(
-        nvar, getModel()->getCova(icov)->getSill().getValues().data(),
+        nvar, getModel()->getSillValues(icov).getValues().data(),
         valpro.data(), vecpro.data(), 0))
     {
       messerr("Warning: the model is not authorized");
@@ -2614,7 +2614,7 @@ bool CalcSimuTurningBands::_postprocess()
 
   /* Set the error return flag */
 
-  _renameVariable(2, _getNVar(), _iattOut, String(), getNbSimu());
+  _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
 
   if (_flagDGM)
   {

@@ -74,6 +74,13 @@ double SpaceSN::getDistance(const SpacePoint& p1,
                                      p2.getCoord(0), p2.getCoord(1), _radius);
 }
 
+double SpaceSN::getDistance1D(const SpacePoint &p1,
+                              const SpacePoint &p2,
+                              int idim) const
+{
+  return 0;
+}
+
 double SpaceSN::getFrequentialDistance(const SpacePoint& /*p1*/,
                                        const SpacePoint& /*p2*/,
                                        const Tensor& /*tensor*/) const

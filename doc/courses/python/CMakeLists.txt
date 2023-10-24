@@ -14,7 +14,7 @@ file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.ipynb)
 set(COURSES_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(COURSES_SOURCES
-#    ../../doc/courses/python/01_gstlearn_start.ipynb)
+#    01_gstlearn_start.ipynb)
 
 # Generation folder
 cmake_path(APPEND CMAKE_BINARY_DIR courses python

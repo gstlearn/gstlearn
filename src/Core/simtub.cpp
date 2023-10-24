@@ -896,19 +896,19 @@ int simpgs(Db *dbin,
     if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP >= 0)
       dbout->deleteColumnsByLocator(ELoc::P);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS))
       dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrf * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF >= 0)
       dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbout, iptr_RF, String(),
                                   nbsimu);
   }
 
@@ -917,13 +917,13 @@ int simpgs(Db *dbin,
     if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_GAUS))
       dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrf * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF >= 0)
       dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbin, iptr_DF, String(),
                                   nbsimu, false);
 
     dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -1319,19 +1319,19 @@ int simbipgs(Db *dbin,
     if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP >= 0)
       dbout->deleteColumnsByLocator(ELoc::P);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nfactot, false);
 
     if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS) && iptr_RN >= 0)
       dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrftot * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF >= 0)
       dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbout, iptr_RF, String(),
                                   npgs * nbsimu);
   }
 
@@ -1340,13 +1340,13 @@ int simbipgs(Db *dbin,
     if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_GAUS) && iptr_DN >= 0)
       dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrftot * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF >= 0)
       dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
-      namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
+      namconv.setNamesAndLocators(NULL, VectorString(), ELoc::Z, -1, dbin, iptr_DF, String(),
                                   npgs * nbsimu, false);
 
     dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
@@ -1640,7 +1640,7 @@ int gibbs_sampler(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin, ELoc::UNKNOWN, nvar, dbin, iptr, String(),
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::UNKNOWN, nvar, dbin, iptr, String(),
                               nbsimu);
 
 label_end:
@@ -2698,7 +2698,7 @@ int simsph(DbGrid *db,
   SimuSpherical simsphe(1, seed);
   if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
 
-  namconv.setNamesAndLocators(db, ELoc::UNKNOWN, 1, db, iptr, "Simu");
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::UNKNOWN, 1, db, iptr, "Simu");
   return 0;
 }
 

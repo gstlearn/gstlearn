@@ -27,6 +27,7 @@ ACovAnisoList::ACovAnisoList(const ASpace* space)
 : ACov(space),
   _covs(),
   _filtered(),
+  _noStat(),
   _matC()
 {
 }
@@ -35,10 +36,13 @@ ACovAnisoList::ACovAnisoList(const ACovAnisoList &r)
 : ACov(r),
   _covs(),
   _filtered(r._filtered),
+  _noStat(nullptr),
   _matC(r._matC)
 {
   for (auto e: r._covs)
     _covs.push_back(e->clone());
+  if (r._noStat != nullptr)
+    _noStat = dynamic_cast<ANoStat*>(r._noStat->clone());
 }
 
 ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
@@ -49,6 +53,8 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
     for (auto e: r._covs)
       _covs.push_back(e->clone());
     _filtered = r._filtered;
+    if (r._noStat != nullptr)
+      _noStat = dynamic_cast<ANoStat*>(r._noStat->clone());
     _matC = r._matC;
   }
   return *this;
@@ -57,6 +63,8 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
 ACovAnisoList::~ACovAnisoList()
 {
   delAllCov();
+  delete _noStat;
+  _noStat = nullptr;
 }
 
 void ACovAnisoList::addCovList(const ACovAnisoList* covs)
@@ -324,6 +332,13 @@ String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
     }
   }
   sstr << std::endl;
+
+  // Non-stationary parameters
+  if (_noStat != nullptr)
+  {
+    sstr << _noStat->toString();
+  }
+
   return sstr.str();
 }
 
@@ -556,4 +571,88 @@ const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const
     newcovlist->setCova(is,covs->reduce(validVars));
   }
   return newcovlist;
+}
+
+/**
+ * Define Non-stationary parameters
+ * @param anostat ANoStat pointer will be duplicated
+ * @return Error return code
+ */
+int ACovAnisoList::addNoStat(const ANoStat *anostat)
+{
+  if (anostat == nullptr) return 0;
+  if (getNDim() > 3)
+  {
+    messerr("Non stationary model is restricted to Space Dimension <= 3");
+    return 1;
+  }
+
+  for (int ipar = 0; ipar < (int) getNoStatElemNumber(); ipar++)
+  {
+    int icov = getNoStatElemIcov(ipar);
+    EConsElem type = getNoStatElemType(ipar);
+
+    // Check that the Non-stationary parameter is valid with respect
+    // to the Model definition
+
+    if (icov < 0 || icov >= getCovNumber())
+    {
+      messerr("Invalid Covariance rank (%d) for the Non-Stationary Parameter (%d)",
+              icov, ipar);
+      return 1;
+    }
+    if (type == EConsElem::PARAM)
+    {
+      messerr("The current methodology does not handle constraint on third parameter");
+      return 1;
+    }
+  }
+
+  if (_noStat != nullptr) delete _noStat;
+  _noStat = dynamic_cast<ANoStat*>(anostat->clone());
+  return 0;
+}
+
+int ACovAnisoList::isNoStat() const
+{
+  return _noStat != nullptr;
+}
+
+int ACovAnisoList::getNoStatElemNumber() const
+{
+  if (_noStat == nullptr) return 0;
+  return _noStat->getNoStatElemNumber();
+}
+
+int ACovAnisoList::getNoStatElemIcov(int ipar) const
+{
+  if (_noStat == nullptr) return ITEST;
+  return _noStat->getICov(ipar);
+}
+const EConsElem& ACovAnisoList::getNoStatElemType(int ipar) const
+{
+  if (_noStat == nullptr) return EConsElem::UNKNOWN;
+  return _noStat->getType(ipar);
+}
+
+int ACovAnisoList::addNoStatElem(int igrf,
+                                 int icov,
+                                 const EConsElem &type,
+                                 int iv1,
+                                 int iv2)
+{
+  if (_noStat == nullptr) return 0;
+  return _noStat->addNoStatElem(igrf, icov, type, iv1, iv2);
+}
+
+int ACovAnisoList::addNoStatElems(const VectorString &codes)
+{
+  if (_noStat == nullptr) return 0;
+  return _noStat->addNoStatElems(codes);
+}
+
+CovParamId ACovAnisoList::getCovParamId(int ipar) const
+{
+  if (_noStat == nullptr) return CovParamId();
+  return _noStat->getItems(ipar);
 }

@@ -24,17 +24,14 @@ public:
   virtual ~BiTargetCheckDate();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckDate)
+  //IMPLEMENT_CLONING(BiTargetCheckDate)
 
   virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double getDeltaMax() const { return _deltaMax; }
-  void setDeltaMax(double deltaMax) { _deltaMax = deltaMax; }
-  double getDeltaMin() const { return _deltaMin; }
-  void setDeltaMin(double deltaMin) { _deltaMin = deltaMin; }
+  static BiTargetCheckDate* create(double deltamin, double deltamax);
 
 private:
   double _deltaMin;

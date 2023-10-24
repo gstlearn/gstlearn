@@ -195,7 +195,7 @@ void _scaleAndAffect(Db *dbout,
 /*!
  **  Check the operator name is mentioned within a list
  **
- ** \return  1 if the operator is mentioned; 0 otherwise
+ ** \return  true if the operator is mentioned; false otherwise
  **
  ** \param[in]  opers Array of operators
  ** \param[in]  refe  Reference operator
@@ -207,12 +207,12 @@ bool _operExists(const std::vector<EStatOption>& opers,
                  const EStatOption& refe)
 {
   int noper = static_cast<int>(opers.size());
-  if (noper == 0) return (1);
+  if (noper == 0) return true;
   for (int i = 0; i < noper; i++)
   {
-    if (opers[i] == refe) return (1);
+    if (opers[i] == refe) return true;
   }
-  return (0);
+  return false;
 }
 
 /****************************************************************************/
@@ -295,173 +295,6 @@ void _neighboringCell(int ndim,
   }
 }
 
-bool _regressionCheck(Db *db1,
-                      int icol0,
-                      const VectorInt &icols,
-                      int mode,
-                      Db *db2,
-                      const Model *model)
-{
-  int ncol = (int) icols.size();
-  int nfex = db2->getLocNumber(ELoc::F);
-
-  switch (mode)
-  {
-    case 0:
-      if (icol0 < 0 || icol0 >= db1->getUIDMaxNumber())
-      {
-        messerr("The regression requires a valid target variable");
-        return false;
-      }
-      for (int icol = 0; icol < ncol; icol++)
-      {
-        if (icols[icol] < 0 || icols[icol] >= db2->getUIDMaxNumber())
-        {
-          messerr("The regression requires a valid auxiliary variable (#%d)",
-                  icol + 1);
-          return false;
-        }
-      }
-      break;
-
-    case 1:
-      if (nfex <= 0)
-      {
-        messerr("The multivariate regression is designated");
-        messerr("as a function of several drift variables");
-        messerr("The Db contains %d drift variables", nfex);
-        return false;
-      }
-      break;
-
-    case 2:
-      if (model == nullptr)
-      {
-        messerr("Model should be defined");
-        return false;
-      }
-      if (model->getDriftNumber() <= 0)
-      {
-        messerr("The number of Drift equations in the Model should be positive");
-        return false;
-      }
-  }
-  return true;
-}
-
-bool _regressionLoad(Db *db1,
-                     Db *db2,
-                     int iech,
-                     int icol0,
-                     const VectorInt &icols,
-                     int mode,
-                     int flagCste,
-                     const Model *model,
-                     double *value,
-                     VectorDouble &x)
-{
-  int nfex = 0;
-  int nbfl = 0;
-
-  int ecr  = 0;
-  switch (mode)
-  {
-    case 0:
-      *value = db1->getArray(iech, icol0);
-      if (flagCste) x[ecr++] = 1.;
-      for (int icol = 0; icol < (int) icols.size(); icol++)
-        x[ecr++] = db2->getArray(iech, icols[icol]);
-      break;
-
-    case 1:
-      nfex = db2->getLocNumber(ELoc::F);
-      *value = db1->getLocVariable(ELoc::Z,iech, 0);
-      if (flagCste) x[ecr++] = 1.;
-      for (int i = 0; i < nfex; i++)
-        x[ecr++] = db2->getLocVariable(ELoc::F,iech, i);
-      break;
-
-    case 2:
-      nbfl = model->getDriftNumber();
-      *value = db1->getLocVariable(ELoc::Z,iech, 0);
-      for (int i = 0; i < nbfl; i++)
-         x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
-      break;
-  }
-
-  bool flagTest = false;
-  for (int i = 0; i < (int) x.size() && !flagTest; i++)
-    flagTest = FFFF(x[i]);
-  return (FFFF(*value) || flagTest);
-}
-
-void _regrprint(const ResRegr& regr)
-{
-  mestitle(1, "Linear Regression");
-  message("- Calculated on %d active values\n",regr.count);
-
-  int ecr = 0;
-  int nvar = regr.nvar;
-  if (regr.flagCste) nvar--;
-
-  if (regr.flagCste)
-    message("- Constant term           = %lf\n",regr.coeffs[ecr++]);
-  for (int ivar = 0; ivar < nvar; ivar++)
-    message("- Explanatory Variable #%d = %lf\n", ivar+1, regr.coeffs[ecr++]);
-
-  message("- Initial variance        = %lf\n",regr.variance);
-  message("- Variance of residuals   = %lf\n",regr.varres);
-}
-
-/**
- * Calculate the coefficients of the Deming regression (with 2 variables)
- * @param x Vector for the first variable
- * @param y Vector for the second variable
- * @param delta ratio of error variances (s_y^2 / s_x^2)
- * @return Vector of coefficients for the equation
- * @return y = beta[0] + beta[1] * x
- * @remark Both input vectors are assumed to contain valid values
- * @remark From: https://en.wikipedia.org/wiki/Deming_regression
- */
-VectorDouble regrDeming(const VectorDouble &x,
-                        const VectorDouble &y,
-                        double delta)
-{
-  VectorDouble beta(2,TEST);
-  int nech = (int) x.size();
-  if (nech <= 1) return beta;
-
-  double xmean = 0.;
-  double ymean = 0.;
-  for (int iech = 0; iech < nech; iech++)
-  {
-    xmean += x[iech];
-    ymean += y[iech];
-  }
-  xmean /= (double) nech;
-  ymean /= (double) nech;
-
-  double sxx = 0.;
-  double sxy = 0.;
-  double syy = 0.;
-  for (int iech = 0; iech < nech; iech++)
-  {
-    double deltax = (x[iech] - xmean);
-    double deltay = (y[iech] - ymean);
-    sxx += deltax * deltax;
-    sxy += deltax * deltay;
-    syy += deltay * deltay;
-  }
-  sxx /= (double) nech;
-  sxy /= (double) nech;
-  syy /= (double) nech;
-
-  double T = syy - delta * sxx;
-  beta[1] = (T + sqrt(T * T + 4. * delta * sxy * sxy)) / (2. * sxy);
-  beta[0] = ymean - beta[1] * xmean;
-  return beta;
-}
-
 /****************************************************************************/
 /*!
  **  Calculate the quantile which corresponds to a given probability
@@ -521,11 +354,6 @@ std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
   return options;
 }
 
-/**
- * \copydoc Stats1
- * The target variables are specified by their names
- * @param names List of target variables
- */
 void dbStatisticsVariables(Db *db,
                            const VectorString &names,
                            const std::vector<EStatOption> &opers,
@@ -534,27 +362,11 @@ void dbStatisticsVariables(Db *db,
                            double vmin,
                            double vmax)
 {
-  VectorInt iuids = db->getUIDs(names);
-  dbStatisticsVariablesByUID(db, iuids, opers, iptr0, proba, vmin, vmax);
-}
-
-/**
- * \copydoc Stats1
- * The target variables are specified by their UIDS
- * @param iuids List of variable attributes
- */
-void dbStatisticsVariablesByUID(Db *db,
-                                const VectorInt &iuids,
-                                const std::vector<EStatOption> &opers,
-                                int iptr0,
-                                double proba,
-                                double vmin,
-                                double vmax)
-{
   int noper = static_cast<int>(opers.size());
   if (noper <= 0) return;
+  if (names.empty()) return;
+  VectorInt iuids = db->getUIDs(names);
   int niuid = static_cast<int>(iuids.size());
-  if (niuid <= 0) return;
 
   /* Loop on the samples */
 
@@ -644,67 +456,28 @@ void dbStatisticsVariablesByUID(Db *db,
 }
 
 /**
- * \copydoc Stats2
- * @param names Vector of n describing the target variables
- * @return A Vector of values containing the statistics
+ * \copydoc Stats1
+ *
+ * @param opers      List of the operator ranks
+ * @param flagIso    Restrain statistics to isotopic samples
+ * @param proba      Probability value (between 0 and 1)
+ * @param vmin       Minimum threshold
+ * @param vmax       Maximum threshold
+ *
+ * @return A Table containing the results
  */
-VectorDouble dbStatisticsMono(Db *db,
-                              const VectorString& names,
-                              const std::vector<EStatOption> &opers,
-                              bool flagIso,
-                              double proba,
-                              double vmin,
-                              double vmax)
+Table dbStatisticsMono(Db *db,
+                       const VectorString &names,
+                       const std::vector<EStatOption> &opers,
+                       bool flagIso,
+                       double proba,
+                       double vmin,
+                       double vmax,
+                       const String& title)
 {
   VectorInt iuids = db->getUIDs(names);
-  return dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
-}
-
-/**
- * \copydoc Stats2
- * @param names Vector of n describing the target variables
- * @return A Table containing the statistics
- */
-GSTLEARN_EXPORT Table dbStatisticsMonoT(Db *db,
-                                        const VectorString &names,
-                                        const std::vector<EStatOption> &opers,
-                                        bool flagIso,
-                                        double proba,
-                                        double vmin,
-                                        double vmax)
-{
-  VectorInt iuids = db->getUIDs(names);
-  VectorDouble stats = dbStatisticsMonoByUID(db, iuids, opers, flagIso, proba, vmin, vmax);
-  int nrows = (int) iuids.size();
-  int ncols = (int) opers.size();
-  Table table = Table();
-  table.setTitle("Monovariate Statistics on Variables");
-  table.setSkipDescription(true);
-  table.resetFromVD(nrows, ncols, stats, false);
-  for (int irow=0; irow<nrows; irow++)
-    table.setRowName(irow, db->getNameByUID(iuids[irow]));
-
-  for (int icol=0; icol<ncols; icol++)
-    table.setColumnName(icol, opers[icol].getDescr());
-
-  return table;
-}
-
-/**
- * \copydoc Stats2
- * @param iuids Vector of UIDs describing the target variables
- * @return A Vector of values containing the statistics
- */
-VectorDouble dbStatisticsMonoByUID(Db *db,
-                                   const VectorInt &iuids,
-                                   const std::vector<EStatOption> &opers,
-                                   bool flagIso,
-                                   double proba,
-                                   double vmin,
-                                   double vmax)
-{
-  int noper = static_cast<int>(opers.size());
   int niuid = static_cast<int>(iuids.size());
+  int noper = static_cast<int>(opers.size());
   int nech = db->getSampleNumber();
 
   // Find the Isotopic samples (optional)
@@ -812,7 +585,21 @@ VectorDouble dbStatisticsMonoByUID(Db *db,
       }
     }
   }
-  return tab;
+
+  Table table;
+  if (title.empty())
+    table.setSkipTitle(true);
+  else
+    table.setTitle(title);
+  table.setSkipDescription(true);
+  table.resetFromVD(niuid, noper, tab, false);
+
+  for (int irow=0; irow<niuid; irow++)
+    table.setRowName(irow, db->getNameByUID(iuids[irow]));
+  for (int icol=0; icol<noper; icol++)
+    table.setColumnName(icol, opers[icol].getDescr());
+
+  return table;
 }
 
 /****************************************************************************/
@@ -901,55 +688,16 @@ double dbStatisticsIndicator(Db *db)
 }
 
 /**
- * \copydoc Stats3
- * @param names Vector of names for the target variables
+ * \copydoc Stats1
  *
- * @return A vector of values containing the correlation matrix
+ * @param flagIso    Restrain statistics to isotopic samples
+ *
+ * @return A Table containing the correlation matrix
  */
-VectorDouble dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso)
+Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const String& title)
 {
   VectorInt iuids = db->getUIDs(names);
-  return dbStatisticsCorrelByUID(db, iuids, flagIso);
-}
-
-/**
- * \copydoc Stats3
- * @param names Vector of names for the target variables
- *
- * @return A square symmetric matrix
- */
-MatrixSquareSymmetric dbStatisticsCorrelT(Db *db,
-                                         const VectorString &names,
-                                         bool flagIso)
-{
-  VectorInt iuids = db->getUIDs(names);
-  VectorDouble tab = dbStatisticsCorrelByUID(db, iuids, flagIso);
-
-  // Store the results in the symmetric square matrix
-  int nvar = iuids.size();
-  int lec = 0;
-  MatrixSquareSymmetric mat(nvar);
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      mat.setValue(ivar,  jvar, tab[lec++]);
-
-  return mat;
-}
-
-/**
- * \copydoc Stats3
- * @param iuids Vector of UIDs for the target variables
- *
- * @return A vector of values containing the correlation matrix
- */
-VectorDouble dbStatisticsCorrelByUID(Db *db, const VectorInt &iuids, bool flagIso)
-{
   int niuid = static_cast<int>(iuids.size());
-
-  /* Preliminary checks */
-
-  if (niuid <= 1)
-    messerr("Correlation matrix will not be printed for a single variable");
 
   /* Core allocation */
 
@@ -1021,293 +769,24 @@ VectorDouble dbStatisticsCorrelByUID(Db *db, const VectorInt &iuids, bool flagIs
         ijuid++;
       }
   }
-  return cov;
-}
 
-/****************************************************************************/
-/*!
- **  Print the monovariate statistics between different variables of a Db
- **
- ** \return  Error Return code
- **
- ** \param[in]  stats       Array of statistics (organized by variable)
- ** \param[in]  opers       List of the operator ranks
- ** \param[in]  names       List of variables
- ** \param[in]  title       Title for the printout (optional)
- **
- *****************************************************************************/
-String statisticsMonoPrint(const VectorDouble &stats,
-                           const std::vector<EStatOption>& opers,
-                           const VectorString &names,
-                           const String &title)
-{
-  int noper = static_cast<int>(opers.size());
-  int nuid = static_cast<int>(names.size());
-  std::stringstream sstr;
+  // Store the results in the symmetric square matrix
+  VectorString namloc = db->getNames(names);
+  int nvar = namloc.size();
 
-  sstr << toMatrix(title, statOptionToName(opers), names, false, noper, nuid, stats, true);
+  Table table;
+  if (title.empty())
+    table.setSkipTitle(true);
+  else
+    table.setTitle(title);
+  table.setSkipDescription(true);
+  table.resetFromVD(nvar, nvar, cov, false);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    table.setColumnName(ivar, db->getNameByUID(iuids[ivar]));
+  for (int ivar = 0; ivar < nvar; ivar++)
+    table.setRowName(ivar, db->getNameByUID(iuids[ivar]));
 
-  return sstr.str();
-}
-
-/****************************************************************************/
-/*!
- **  Print the multivariate statistics between different variables of a Db
- **
- ** \return  Error Return code
- **
- ** \param[in]  stats       Matrix of variance-covariance
- ** \param[in]  names       Vector of variable names
- ** \param[in]  title       Title for the printout (optional)
- **
- *****************************************************************************/
-String statisticsMultiPrint(const VectorDouble &stats,
-                            const VectorString &names,
-                            const String &title)
-{
-  int nuid = static_cast<int>(names.size());
-  std::stringstream sstr;
-
-  sstr << toMatrix(title, VectorString(), VectorString(), true, nuid, nuid,
-                   stats, true);
-
-  return sstr.str();
-}
-
-ResRegr regression(Db *db1,
-                   const String &name0,
-                   const VectorString &names,
-                   int mode,
-                   bool flagCste,
-                   Db *db2,
-                   const Model *model,
-                   bool verbose)
-{
-  if (db1 == nullptr) return ResRegr();
-  if (db2 == nullptr) db2 = db1;
-
-  int icol0 = db1->getUID(name0);
-  VectorInt icols;
-  if (! names.empty()) icols = db2->getUIDs(names);
-  return regressionByUID(db1, icol0, icols, mode, flagCste, db2, model, verbose);
-}
-
-/****************************************************************************/
-/*!
- **  Evaluate the regression
- **
- ** \return  Error return code
- **
- ** \param[in,out]  db1        Db descriptor (for target variable)
-
- ** \param[in]  icol0          Rank of the target variable
- ** \param[in]  icols          Vector of ranks of the explanatory variables
- ** \param[in]  mode           Type of calculation
- ** \li                        0 : standard multivariate case
- ** \li                        1 : using external drifts
- ** \li                        2 : using standard drift functions (in 'model')
- ** \param[in]  flagCste       The constant is added as explanatory variable
- ** \param[in]  db2            Db descriptor (for auxiliary variables)
- ** \param[in]  model          Model (only used for Drift functions if mode==2)
- ** \param[in]  verbose        Verbose option
- **
- ** \remark  The flag_mode indicates the type of regression calculation:
- ** \remark  0 : V[icol] as a function of V[icols[i]]
- ** \remark  1 : Z1 as a function of the different Fi's
- **
- *****************************************************************************/
-ResRegr regressionByUID(Db *db1,
-                        int icol0,
-                        const VectorInt &icols,
-                        int mode,
-                        bool flagCste,
-                        Db *db2,
-                        const Model *model,
-                        bool verbose)
-{
-  ResRegr regr;
-
-  if (db1 == nullptr) return regr;
-  if (db2 == nullptr) db2 = db1;
-
-  int nfex = db2->getLocNumber(ELoc::F);
-  int nech = db1->getSampleNumber();
-  int ncol = (int) icols.size();
-  int size = 0;
-  switch (mode)
-  {
-    case 0:
-      size = ncol;
-      if (flagCste) size++;
-      break;
-    case 1:
-      size = nfex;
-      if (flagCste) size++;
-      break;
-    case 2:
-      size = model->getDriftNumber();
-      break;
-  }
-
-  /* Preliminary checks */
-
-  if (! _regressionCheck(db1, icol0, icols, mode, db2, model)) return regr;
-
-  /* Core allocation */
-
-  VectorDouble x(size,0.);
-  VectorDouble b(size,0.);
-  MatrixSquareSymmetric a(size);
-
-  /* Loop on the samples */
-
-  int number = 0;
-  double prod = 0.;
-  double mean = 0.;
-  double value = 0.;
-
-  for (int iech=0; iech < nech; iech++)
-  {
-    if (! db1->isActive(iech)) continue;
-
-    /* Get the information for the current sample */
-
-    if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model,
-                        &value, x)) continue;
-
-    prod += value * value;
-    mean += value;
-    number++;
-
-    /* Update the matrices */
-
-    for (int i = 0; i < size; i++)
-    {
-      b[i] += value * x[i];
-      for (int j=0; j<=i; j++)
-        a.setValue(i, j, a.getValue(i,j) + x[i] * x[j]);
-    }
-  }
-
-  if (number <= 0)
-  {
-    messerr("No sample found where variables are defined");
-    return regr;
-  }
-
-  /* Solve the regression system */
-
-  int pivot = a.solve(b, x);
-  if (pivot > 0)
-  {
-    messerr("Error during regression calculation: pivot %d is null", pivot);
-    return regr;
-  }
-
-  // Normalization
-  mean /= number;
-  regr.count = number;
-  regr.nvar = size;
-  regr.flagCste = flagCste;
-  regr.coeffs = x;
-  regr.variance = prod / number - mean * mean;
-
-  /* Calculate the residuals */
-
-  for (int i = 0; i < size; i++)
-  {
-    prod -= 2. * x[i] * b[i];
-    for (int j = 0; j < size; j++)
-      prod += x[i] * x[j] * a.getValue(i,j);
-  }
-  regr.varres = prod / number;
-
-  /************/
-  /* Printout */
-  /************/
-
-  if (verbose)
-  {
-    _regrprint(regr);
-  }
-  return regr;
-}
-
-/****************************************************************************/
-/*!
- **  Evaluate the regression
- **
- ** \return  Error return code
- **
- ** \param[in,out]  db1        Db descriptor (for target variable)
- ** \param[in]  iptr0          Storing address
- ** \param[in]  name0          Name of the target variable
- ** \param[in]  names          Vector of names of the explanatory variables
- ** \param[in]  mode           Type of calculation
- ** \li                        0 : standard multivariate case
- ** \li                        1 : using external drifts
- ** \li                        2 : using standard drift functions (mode==2)
- ** \param[in]  flagCste       The constant is added as explanatory variable]
- ** \param[in]  db2            Db descriptor (for auxiliary variables)
- ** \param[in]  model          Model structure (used for mode==2)
- **
- ** \remark  The flag_mode indicates the type of regression calculation:
- ** \remark  0 : V[icol] as a function of V[icols[i]]
- ** \remark  1 : Z1 as a function of the different Fi's
- **
- ** \remark  The Db1 structure is modified: the column (iptr0) of the Db1
- ** \remark  is added by this function; it contains the value
- ** \remark  of the residuals at each datum (or TEST if the residual has not
- ** \remark  been calculated).
- **
- *****************************************************************************/
-int regressionApply(Db *db1,
-                    int iptr0,
-                    const String& name0,
-                    const VectorString& names,
-                    int mode,
-                    bool flagCste,
-                    Db *db2,
-                    const Model* model)
-{
-  ResRegr regr;
-  if (db2 == nullptr) db2 = db1;
-  int icol0 = db1->getUID(name0);
-  VectorInt icols;
-  if (! names.empty()) icols = db2->getUIDs(names);
-
-  regr = regressionByUID(db1, icol0, icols, mode, flagCste, db2, model);
-
-  /* Preliminary checks */
-
-  if (! _regressionCheck(db1, icol0, icols, mode, db2, model)) return 1;
-
-  /* Store the regression error at sample points */
-
-  int size = (int) regr.coeffs.size();
-  double value = 0;
-  VectorDouble x(size);
-
-  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
-  {
-    if (db1->isActive(iech))
-    {
-      /* Get the information for the current sample */
-
-      if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model,
-                          &value, x))
-      {
-        value = TEST;
-      }
-      else
-      {
-        for (int i = 0; i < size; i++)
-          value -= x[i] * regr.coeffs[i];
-      }
-    }
-    db1->setArray(iech, iptr0, value);
-  }
-  return 0;
+  return table;
 }
 
 /****************************************************************************/
@@ -1532,8 +1011,12 @@ void _getRowname(const String &radix,
 }
 
 /**
- * \copydoc Stats4
- * @param names Vector of names designating the target variables
+ * \copydoc Stats1
+ *
+ * @param opers      List of the operator ranks
+ * @param flagIso    Restrain statistics to isotopic samples
+ * @param flagCorrel Print the correlation matrix
+ * @param radix      Radix given to the printout
  */
 void dbStatisticsPrint(const Db *db,
                        const VectorString &names,
@@ -1544,28 +1027,9 @@ void dbStatisticsPrint(const Db *db,
                        const String &radix)
 {
   VectorInt iuids = db->getUIDs(names);
-  if (iuids.size() <= 0) return;
-  dbStatisticsPrintByUID(db, iuids, opers, flagIso, flagCorrel, title, radix);
-}
+  if (iuids.empty()) return;
 
-/**
- * \copydoc Stats4
- * @param iuids_arg Vector of UIDS designating the target variables
- */
-void dbStatisticsPrintByUID(const Db *db,
-                            const VectorInt &iuids_arg,
-                            const std::vector<EStatOption> &opers,
-                            bool flagIso,
-                            bool flagCorrel,
-                            const String &title,
-                            const String &radix)
-{
   char string[50];
-
-  /* Initializations */
-
-  VectorInt iuids = iuids_arg;
-  if (iuids.empty()) iuids = db->getAllUIDs();
   int ncol = static_cast<int>(iuids.size());
 
   /* Preliminary checks */
@@ -1783,7 +1247,7 @@ MatrixRectangular* sphering(const AMatrix* X)
 }
 
 /**
- * \copydoc Stats6
+ * \copydoc Stats3
  * @param name1 Name of the primary variable
  * @param name2 Name of the secondary variable
  */
@@ -1794,25 +1258,10 @@ VectorDouble dbStatisticsPerCell(Db *db,
                                  const String& name2,
                                  const VectorDouble &cuts)
 {
+  VectorDouble result;
   int iuid = db->getUID(name1);
   int juid = -1;
   if (! name2.empty()) juid = db->getUID(name2);
-  return dbStatisticsPerCellByUID(db, dbgrid, oper, iuid, juid, cuts);
-}
-
-/**
- * \copydoc Stats6
- * @param iuid UID of the primary variable
- * @param juid UID of the secondary variable
- */
-VectorDouble dbStatisticsPerCellByUID(Db *db,
-                                      DbGrid *dbgrid,
-                                      const EStatOption &oper,
-                                      int iuid,
-                                      int juid,
-                                      const VectorDouble &cuts)
-{
-  VectorDouble result;
   double z1 = 0.;
   double z2 = 0.;
   int nxyz = dbgrid->getSampleNumber();
@@ -2053,76 +1502,28 @@ VectorDouble dbStatisticsPerCellByUID(Db *db,
   return result;
 }
 
-/**
- * \copydoc Stats5
- * @param names Vector of target variable names
- *
- * @return the Table containing the results
- */
-Table dbStatisticsMultiT(Db *db,
-                         const VectorString &names,
-                         const EStatOption &oper,
-                         bool flagMono,
-                         bool verbose)
-{
-  VectorInt cols = db->getColIdxs(names);
-  VectorDouble stats = dbStatisticsMultiByColIdx(db, cols, oper, flagMono, verbose);
-
-  int number = (int) cols.size();
-  Table table = Table();
-  table.setTitle(concatenateStrings(":","Multivariate Statistics on Variables",oper.getDescr()));
-
-  if (flagMono)
-  {
-    table.resetFromVD(number, 1, stats, false);
-  }
-  else
-  {
-    table.resetFromVD(number, number, stats, false);
-    for (int icol=0; icol<number; icol++)
-      table.setColumnName(icol, names[icol]);
-  }
-  for (int irow=0; irow<number; irow++)
-      table.setRowName(irow, names[irow]);
-
-  return table;
-}
-
 
 /**
- * \copydoc Stats5
- * @param names Vector of target variable names
+ * \copydoc Stats1
  *
- * @return the vector of results
- */
-VectorDouble dbStatisticsMulti(Db *db,
-                               const VectorString &names,
-                               const EStatOption &oper,
-                               bool flagMono,
-                               bool verbose)
-{
-  VectorInt cols = db->getColIdxs(names);
-  return dbStatisticsMultiByColIdx(db, cols, oper, flagMono, verbose);
-}
-
-/**
- * \copydoc Stats5
- * @param cols Vector of columns of the Target variables
+ * @param oper       Operator
+ * @param flagMono   When True, statistics by variable; otherwise, statistics by pair of variables
  *
- * @return the vector of results
+ * @return A Table containing the results
  */
-VectorDouble dbStatisticsMultiByColIdx(Db *db,
-                                       const VectorInt &cols,
-                                       const EStatOption &oper,
-                                       bool flagMono,
-                                       bool verbose)
+Table dbStatisticsMulti(Db *db,
+                        const VectorString &names,
+                        const EStatOption &oper,
+                        bool flagMono,
+                        const String& title)
 {
   VectorDouble result;
 
   /* Initializations */
 
+  VectorInt cols = db->getUIDs(names);
+  int ncol = (int) cols.size();
   int nech = db->getSampleNumber();
-  int ncol = static_cast<int>(cols.size());
   int ncol2 = ncol * ncol;
 
   /* Check that all variables are defined */
@@ -2133,13 +1534,13 @@ VectorDouble dbStatisticsMultiByColIdx(Db *db,
     if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
-      return result;
+      return Table();
     }
   }
 
   /* Check the validity of the operator */
 
-  if (! _operStatisticsCheck(oper, 0, 1, 0, 0, 0)) return result;
+  if (! _operStatisticsCheck(oper, 0, 1, 0, 0, 0)) return Table();
 
   /* Core allocation */
 
@@ -2273,40 +1674,6 @@ VectorDouble dbStatisticsMultiByColIdx(Db *db,
     ny = ncol;
   }
 
-  /* Optional printout */
-
-  if (verbose)
-  {
-    message("\n");
-    if (oper == EStatOption::NUM)
-      print_matrix("Matrix of Number of defined samples", 0, 1, nx, ny, NULL,
-                   num.data());
-    else if (oper == EStatOption::MEAN)
-      print_matrix("Matrix of Variable Means", 0, 1, nx, ny, NULL, m1.data());
-    else if (oper == EStatOption::VAR)
-      print_matrix("Matrix of Variable Variances", 0, 1, nx, ny, NULL, v12.data());
-    else if (oper == EStatOption::CORR)
-      print_matrix("Matrix of Variable Correlations", 0, 1, nx, ny, NULL, v12.data());
-    else if (oper == EStatOption::STDV)
-      print_matrix("Matrix of Variable Standard Deviations", 0, 1, nx, ny, NULL,
-                   v12.data());
-    else if (oper == EStatOption::MINI)
-      print_matrix("Matrix of Variable Minima", 0, 1, nx, ny, NULL, mini.data());
-    else if (oper == EStatOption::MAXI)
-      print_matrix("Matrix of Variable Maxima", 0, 1, nx, ny, NULL, maxi.data());
-    else if (oper == EStatOption::PLUS)
-      print_matrix("Matrix of Number of positive samples", 0, 1, nx, ny, NULL,
-                   plus.data());
-    else if (oper == EStatOption::MOINS)
-      print_matrix("Matrix of Number of negative samples", 0, 1, nx, ny, NULL,
-                   moins.data());
-    else if (oper == EStatOption::ZERO)
-      print_matrix("Matrix of Number of zero samples", 0, 1, nx, ny, NULL,
-                   zero.data());
-    else
-      messageAbort("This error should never happen");
-  }
-
   /* Set the return array */
 
   if (oper == EStatOption::NUM)
@@ -2332,7 +1699,29 @@ VectorDouble dbStatisticsMultiByColIdx(Db *db,
   else
     messageAbort("This error should never happen");
 
-  return result;
+  // Load the results in a Table
+
+  Table table;
+  if (title.empty())
+    table.setTitle(oper.getDescr());
+  else
+    table.setTitle(concatenateStrings(":",title,oper.getDescr()));
+  table.setSkipDescription(true);
+
+  if (flagMono)
+  {
+    table.resetFromVD(ncol, 1, result, false);
+  }
+  else
+  {
+    table.resetFromVD(ncol, ncol, result, false);
+    for (int icol=0; icol<ncol; icol++)
+      table.setColumnName(icol, db->getNameByUID(cols[icol]));
+  }
+  for (int irow=0; irow<ncol; irow++)
+      table.setRowName(irow, db->getNameByUID(cols[irow]));
+
+  return table;
 }
 
 /****************************************************************************/
@@ -2356,35 +1745,11 @@ int dbStatisticsInGridTool(Db *db,
                            int radius,
                            int iptr0)
 {
-  VectorInt iuids = db->getUIDs(names);
-  return dbStatisticsInGridToolByUID(db, dbgrid, iuids, oper, radius, iptr0);
-}
-
-/****************************************************************************/
-/*!
- **  Calculates the monovariate statistics within cells of a grid
- **
- ** \return  Error return code
- **
- ** \param[in]  db     Db for the points
- ** \param[in]  dbgrid Db for the grid
- ** \param[in]  iuids  Vector of UID for target variable
- ** \param[in]  oper   A EStatOption item
- ** \param[in]  radius Neighborhood radius
- ** \param[in]  iptr0  Storage address (first variable)
- **
- *****************************************************************************/
-int dbStatisticsInGridToolByUID(Db *db,
-                                DbGrid *dbgrid,
-                                const VectorInt &iuids,
-                                const EStatOption &oper,
-                                int radius,
-                                int iptr0)
-{
   int iptm = -1;
   int iptn = -1;
   int nxyz = dbgrid->getSampleNumber();
   int ndim = dbgrid->getNDim();
+  VectorInt iuids = db->getUIDs(names);
   int nuid = (int) iuids.size();
   int count = (int) pow(2. * radius + 1., (double) ndim);
 

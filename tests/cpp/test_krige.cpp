@@ -19,9 +19,7 @@
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Drifts/Drift1.hpp"
-#include "Drifts/DriftX.hpp"
-#include "Drifts/DriftY.hpp"
+#include "Drifts/DriftM.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
@@ -104,14 +102,14 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 
   if (typedrift == 1)
   {
-    Drift1 drift1 = Drift1(ctxt);
+    DriftM drift1 = DriftM();
     model->addDrift(&drift1);
   }
   else if (typedrift == 2)
   {
-    Drift1 drift1 = Drift1(ctxt);
-    DriftX driftx = DriftX(ctxt);
-    DriftY drifty = DriftY(ctxt);
+    DriftM drift1 = DriftM();
+    DriftM driftx = DriftM(VectorInt({1}));
+    DriftM drifty = DriftM({0,1});
     model->addDrift(&drift1);
     model->addDrift(&driftx);
     model->addDrift(&drifty);

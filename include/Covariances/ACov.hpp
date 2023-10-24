@@ -231,7 +231,7 @@ private:
 
 protected:
   bool _isOptimEnabled;
-  // These temporary informary is used to speed up processing (optimization functions)
+  // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
   mutable std::vector<SpacePoint> _p1As;
   mutable SpacePoint _p2A;

@@ -74,12 +74,13 @@ int main(int argc, char *argv[])
   model->addNoStat(&NoStat);
 
   // Simulating variable at data location (using SPDE)
-  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, 0, 11, 18, 8, 13256, 1.e-2, false,
+  int useCholesky = 0;
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
                       NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 
   // Testing Kriging (with SPDE). This serves as a reference
-  (void) krigingSPDE(dat, grid, model);
+  (void) krigingSPDE(dat, grid, model, true, false, false, nullptr, useCholesky, SPDEParam());
 
   // Testing Kriging (traditional method)
   (void) kriging(dat, grid, model, neighU); // TODO: check resemblance with SPDE

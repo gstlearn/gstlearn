@@ -6,10 +6,12 @@ output:
     df_print: paged
     toc: true
   pdf_document:
-    toc: true
+    toc: true_variogram_compute
 ---
 
-# Preamble
+<!-- SUMMARY: Using Stochastic Partial Derivative Equation framework to perform Estimation (extension to the use of External Drift)  -->
+
+<!-- CATEGORY: Courses -->
 
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 
@@ -17,6 +19,7 @@ knitr::opts_chunk$set(fig.width=4, fig.height=4,
                       fig.align = "center") 
 ```
 
+# Preamble
 
 In this preamble, we load the **gstlearn** library, clean the workspace.
 
@@ -25,6 +28,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 flagInternetAvailable=TRUE
 ```
@@ -36,7 +40,7 @@ The input Data Base (called **temperatures**) contains the target variable (**Ja
 ```{r Loading_Data}
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 temperatures = Db_createFromNF(fileNF)
 
@@ -50,7 +54,7 @@ The output file is a grid (called grid). It contains an active selection (inshor
 ```{r Loading_Grid}
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 grid = DbGrid_createFromNF(fileNF)
 grid$display()
@@ -62,8 +66,8 @@ Calculate the omni-directional variogram of the temperature for 18 lags of 25.
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
 vparam = VarioParam_createOmniDirection(npas=18, dpas=25)
-vario = Vario(vparam,temperatures)
-err = vario$compute()
+vario = Vario(vparam)
+err = vario$compute(temperatures)
 vario$display()
 ```
 
@@ -78,10 +82,10 @@ We calculate the variogram (using the same calculation parameters) based on the 
 
 ```{r}
 vparam = VarioParam_createOmniDirection(npas=18, dpas=25)
-vario = Vario(vparam,temperatures)
+vario = Vario(vparam)
 md = Model()
 md$setDriftIRF(order=0, nfex=1)
-vario$compute(model=md)
+vario$compute(temperatures,model=md)
 vario$display()
 ```
 
@@ -166,7 +170,8 @@ Comparing both estimates
 
 ```{r}
 p = ggplot()
-p = p + plot.correlation(grid,namex="*estim",namey="*SPDE.*", asPoint=TRUE)
+p = p + plot.correlation(grid,namex="Kriging.January_temp.estim",
+                         namey="KrigingSPDE.January_temp.estim", asPoint=TRUE)
 p = p + plot.decoration(xlab="Kriging with External Drift", ylab="SPDE Kriging")
 ggPrint(p)
 ```

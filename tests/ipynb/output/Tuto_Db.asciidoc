@@ -23,7 +23,7 @@ Column = 2 - Name = x-2 - Locator = x2----
 
 +*Out[5]:*+
 ----
-![png](output_10_0.png)
+![png](output_11_0.png)
 ----
 
 
@@ -73,7 +73,7 @@ Column = 3 - Name = sel - Locator = NA
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_15_0.png)
 ----
 
 
@@ -85,7 +85,7 @@ Number of selected samples = 100
 
 +*Out[11]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
@@ -112,5 +112,5 @@ Column = 3 - Name = sel - Locator = sel----
 
 +*Out[13]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----

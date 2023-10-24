@@ -144,12 +144,12 @@ bool CalcSimuPost::_postprocess()
   for (int ivar = 0, nvar = _getNEff(); ivar < nvar; ivar++)
     for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
     {
-      std::ostringstream name;
-      name << "Var" << ivar + 1 << "." << _stats[istat].getDescr();
+      std::ostringstream oper;
+      oper << "Var" << ivar + 1 << "." << _stats[istat].getDescr();
       if (_flagUpscale)
-        _renameVariable(2, 0, _iattOut + ecr, name.str(), 1);
+        _renameVariable(2, VectorString(), ELoc::UNKNOWN, 0, _iattOut + ecr, oper.str(), 1);
       else
-        _renameVariable(1, 0, _iattOut + ecr, name.str(), 1);
+        _renameVariable(1, VectorString(), ELoc::UNKNOWN, 0, _iattOut + ecr, oper.str(), 1);
       ecr++;
     }
   return true;

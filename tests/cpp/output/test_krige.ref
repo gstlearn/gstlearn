@@ -80,7 +80,7 @@ Total Sill     =     57.000
 
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 
 Image Neighborhood
 ==================
@@ -513,7 +513,7 @@ Total Sill     =     57.000
 
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 
 <----- Image Filtering ----->
 
@@ -544,10 +544,9 @@ Covariance Part
 Linear
 - Slope        =      1.000
 
-
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 
 <----- Bayesian Kriging in Unique Neighborhood ----->
 
@@ -596,10 +595,9 @@ Covariance Part
 Linear
 - Slope        =      1.000
 
-
 Drift Part
 ----------
-Universality Condition
+Universality_Condition
 
 ---> Kriging in Place (checking Exact Interpolator)
 

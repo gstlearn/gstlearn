@@ -12,6 +12,10 @@ colortheme: beaver
 fontsize: 8pt
 ---
 
+<!-- SUMMARY: SNormal transform (Gaussian anamorphosis). Deriving conditional expectation of exceeding a threshold  -->
+
+<!-- CATEGORY: Courses -->
+
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 
                       out.width="50%",
@@ -25,6 +29,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 flagInternetAvailable=TRUE
 
@@ -34,14 +39,14 @@ flagInternetAvailable=TRUE
 ## Data points
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 
 ## Target grid
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 grid = DbGrid_createFromNF(fileNF)
 ```
@@ -97,8 +102,8 @@ We calculate the experimental directional variogram of the gaussian scores and f
 
 ```{r Fitting_Model}
 varioparam = VarioParam_createMultiple(ndir=2, npas=40, dpas=10)
-vario_gauss2dir = Vario_create(varioparam, dat)
-err = vario_gauss2dir$compute()
+vario_gauss2dir = Vario_create(varioparam)
+err = vario_gauss2dir$compute(dat)
 
 fitmodgauss = Model()
 err = fitmodgauss$fit(vario_gauss2dir, 

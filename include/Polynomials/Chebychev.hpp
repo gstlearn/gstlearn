@@ -30,6 +30,19 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(Chebychev)
 
+  /// Interface for Apolynomial
+#ifndef SWIG
+  void evalOp(cs* Op,const VectorDouble& inv, VectorDouble& outv) const override;
+#endif
+  void evalOp(const ALinearOpMulti *Op,
+              const VectorVectorDouble &inv,
+              VectorVectorDouble &outv) const override;
+  double eval(double x) const override;
+  int fit(std::function<double(double)> f,
+          double a = 0.,
+          double b = 1.,
+          double tol = EPSILON5) override;
+
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
   static Chebychev* createFromCoeffs(const VectorDouble coeffs);
   void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}
@@ -43,19 +56,8 @@ public:
   void setNcMax(int ncMax){_ncMax=ncMax;}
   void setNDisc(int nDisc){_nDisc=nDisc;}
   void setVerbose(bool verbose){_verbose = verbose;}
-#ifndef SWIG
-  void evalOp(cs* Op,const VectorDouble& inv, VectorDouble& outv) const override;
-#endif
-  void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const override;
-  double eval(double x) const override;
-  int fit(std::function<double(double)> f,
-          double a = 0.,
-          double b = 1.,
-          double tol = EPSILON5) override;
-  int fit2(AFunction* f,
-            double a = 0.,
-            double b = 1.,
-            double tol = EPSILON5);
+
+  int fit2(AFunction *f, double a = 0., double b = 1., double tol = EPSILON5);
 
 private:
   bool _isReady() const { return !_coeffs.empty(); }

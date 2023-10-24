@@ -3188,7 +3188,7 @@ int krigsum(Db *dbin,
 
   /* Set the error return flag */
 
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
+  namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iptr_est, "estim");
 
   return 0;
 }

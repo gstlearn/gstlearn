@@ -610,7 +610,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+      sstr << "- Slope        = " << toDouble(getSlope(0, 0));
     }
 
     if (!_aniso.isIsotropic())

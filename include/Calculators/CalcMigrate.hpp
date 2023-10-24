@@ -78,7 +78,7 @@ GSTLEARN_EXPORT int migrateMulti(Db *dbin,
                                  bool flag_inter = false,
                                  bool flag_ball = false,
                                  const NamingConvention &namconv = NamingConvention(
-                                     "Migrate", false));
+                                     "Migrate"));
 GSTLEARN_EXPORT int migrateByAttribute(Db *dbin,
                                        Db *dbout,
                                        const VectorInt &iatts = VectorInt(),
@@ -88,7 +88,7 @@ GSTLEARN_EXPORT int migrateByAttribute(Db *dbin,
                                        bool flag_inter = false,
                                        bool flag_ball = false,
                                        const NamingConvention &namconv = NamingConvention(
-                                           "Migrate", false));
+                                           "Migrate"));
 GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
                                      Db *dbout,
                                      const ELoc &locatorType,
@@ -98,4 +98,4 @@ GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
                                      bool flag_inter = false,
                                      bool flag_ball = false,
                                      const NamingConvention &namconv = NamingConvention(
-                                         "Migrate", false));
+                                         "Migrate"));

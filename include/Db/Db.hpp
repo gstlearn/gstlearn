@@ -142,6 +142,7 @@ public:
                               int ndim = 2,
                               int nvar = 1,
                               int nfex = 0,
+                              int ncode = 0,
                               double varmax = 0.,
                               double selRatio = 0.,
                               const VectorDouble& heteroRatio = VectorDouble(),
@@ -195,7 +196,7 @@ public:
                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                           int locatorIndex = 0,
                           bool cleanSameLocator = false);
-  void setLocator(const String& names,
+  void setLocator(const String& name,
                   const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                   int locatorIndex = 0,
                   bool cleanSameLocator = false);
@@ -702,55 +703,26 @@ public:
    * The resulting values are stored in variables newly created in the same Db.
    *
    * @param names Vector of target variable names
-   * @param iuids Vector of user-designation ranks
-   * @param locatorType Target Locator
    * @param opers Vector of operations to be performed
    * @param flagIso The statistics are calculated only for samples where all target variables have defined values
-   * @param flagStoreInDb When TRUE, the results are stored in the Db; otherwise the statistics are returned
-   * @param verbose Verbose flag
    * @param proba              For 'quant': the quantile for this probability is calculated
    * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
    * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
-   * @param title              If verbose, the title of the printed statistics.
    * @param namconv            Naming Convention used as a radix for the variables newly created in the Db
    * (only used when 'flagStoreInDb' is TRUE)
    *
-   * @return If 'flagStoreInDb' is FALSE, the function returns a vector containing the statistics.
    * @return If there is more than one operator and more than one variable, the statistics are ordered first by variables
    * (all the statistics of the first variable, then all the statistics of the second variable...).
    *
    *  @{
    */
-  VectorDouble statistics(const VectorString& names,
-                          const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+  void statisticsBySample(const VectorString &names,
+                          const std::vector<EStatOption> &opers = EStatOption::fromKeys({ "MEAN" }),
                           bool flagIso = true,
-                          bool flagStoreInDb = false,
-                          bool verbose = true,
                           double vmin = TEST,
                           double vmax = TEST,
                           double proba = TEST,
-                          const String& title = "",
-                          const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble statisticsByLocator(const ELoc& locatorType,
-                                   const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
-                                   bool flagIso = true,
-                                   bool flagStoreInDb = false,
-                                   bool verbose = true,
-                                   double vmin = TEST,
-                                   double vmax = TEST,
-                                   double proba = TEST,
-                                   const String& title = "",
-                                   const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble statisticsByUID(const VectorInt& iuids,
-                               const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
-                               bool flagIso = true,
-                               bool flagStoreInDb = false,
-                               bool verbose = true,
-                               double proba = TEST,
-                               double vmin = TEST,
-                               double vmax = TEST,
-                               const String& title = "",
-                               const NamingConvention& namconv = NamingConvention("Stats"));
+                          const NamingConvention &namconv = NamingConvention("Stats"));
   /**@}*/
 
   /** @addtogroup DB_8 Calculating correlations on variables of a Db
@@ -760,7 +732,6 @@ public:
    * Although the result stands as a matrix, they are returned as a Vector.
    *
    * @param names Vector of target variable names
-   * @param iuids Vector of user-designation ranks
    * @param flagIso The statistics are calculated only for samples where all target variables have defined values
    * @param verbose Verbose flag
    * @param title If verbose, the title of the printed statistics.
@@ -772,10 +743,6 @@ public:
                                bool flagIso = true,
                                bool verbose = false,
                                const String& title = "");
-  VectorDouble statisticsMultiByUID(const VectorInt& iuids,
-                                    bool flagIso = true,
-                                    bool verbose = false,
-                                    const String& title = "");
   /**@}*/
 
   bool areSame(const String& name1,
@@ -817,7 +784,7 @@ private:
   const VectorString _getNames() const { return _colNames; }
   int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
-  void _columnInit(int ncol, int icol0, bool flagCste = true, double valinit = TEST);
+  void _columnInit(int ncol, int icol0, bool flagCst = true, double valinit = TEST);
   double _updateValue(int oper, double oldval, double value);
   String _summaryVariables(void) const;
   String _summaryExtensions(void) const;

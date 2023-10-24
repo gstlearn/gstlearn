@@ -106,7 +106,7 @@ GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
                                             double tolcode,
                                             const VectorDouble &breaks,
                                             const VectorDouble &codir);
-GSTLEARN_EXPORT int variogram_cloud(const Db *db,
+GSTLEARN_EXPORT int variogram_cloud(Db *db,
                                     const VarioParam *varioparam,
                                     DbGrid *dbgrid,
                                     const NamingConvention& namconv = NamingConvention("Cloud"));

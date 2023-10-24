@@ -12,20 +12,36 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Space/ASpaceObject.hpp"
-#include "Space/SpacePoint.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/ICloneable.hpp"
+#include "Basic/VectorNumT.hpp"
+
+/* Elementary Drift function
+ * */
 
 class Db;
 
-class GSTLEARN_EXPORT ADrift : public ASpaceObject
+class GSTLEARN_EXPORT ADrift : public AStringable, public ICloneable
 {
 public:
-  ADrift(const ASpace* space = nullptr);
+  ADrift();
   ADrift(const ADrift &r);
-  ADrift& operator=(const ADrift &r);
+  ADrift& operator= (const ADrift &r);
   virtual ~ADrift();
 
-  virtual int getNVariables() const = 0;
-  /// TODO : Change ADrift::eval args from {Db,iech} to {SpacePoint p1, SpacePoint p2}
-  virtual double eval(const Db* db, int iech) const = 0;
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface for daughter classes
+  virtual VectorInt getPowers() const { return VectorInt(); }
+  virtual int       getRankFex() const { return 0; }
+
+  // ADriftelem Interface
+  virtual String getDriftName() const = 0;
+  virtual int    getOrderIRF() const = 0;
+  virtual int    getOrderIRFIdim(int idim) const = 0;
+  virtual double eval(const Db* db,int iech) const = 0;
+  virtual int    getDriftNDimMax() const { return 0; }
+  virtual bool   isDriftExternal() const { return false; }
+
 };

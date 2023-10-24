@@ -24,65 +24,65 @@ Total Sill     =      1.155
 
 +*Out[7]:*+
 ----
-![png](output_13_0.png)
+![png](output_14_0.png)
 ----
 
 
 +*Out[9]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_22_0.png)
+![png](output_23_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-Mean of observed temperatures: [2.81456954]
+Mean of observed temperatures: 2.815
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_28_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_33_0.png)
+![png](output_34_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_41_0.png)
+![png](output_42_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_45_0.png)
+![png](output_46_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_48_0.png)
+![png](output_49_0.png)
 ----
 
 
 +*Out[28]:*+
 ----
-![png](output_53_0.png)
+![png](output_54_0.png)
 ----

@@ -12,6 +12,10 @@ theme: Boadilla
 colortheme: beaver
 ---
 
+<!-- SUMMARY: Filtering images using Factorial Kriging Analysis. Example on a multivariate acquisition  -->
+
+<!-- CATEGORY: Courses -->
+
 ```{r setup,include=FALSE, fig.show='hide'}
 knitr::opts_chunk$set(fig.width=4, fig.height=4, 
                       out.width="50%",
@@ -25,6 +29,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 flagInternetAvailable=TRUE
 ```
@@ -34,7 +39,7 @@ The Grid containing the information is downloaded from the distribution
 ```{r Loading_Data}
 fileNF = "Image.ascii"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/FKA/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/FKA/",fileNF), fileNF, quiet=TRUE)
 }
 grid = DbGrid_createFromNF(fileNF)
 ndim = 2
@@ -132,8 +137,8 @@ ggPrint(p)
 
 ```{r Variogram_calculation}
 varioparam = VarioParam_createMultipleFromGrid(grid,npas=100)
-varioP = Vario(varioparam, grid)
-err = varioP$compute()
+varioP = Vario(varioparam)
+err = varioP$compute(grid)
 modelP = Model()
 err = modelP$fit(varioP, 
                  types=ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
@@ -173,7 +178,7 @@ During the estimation, only the contribution of second and third basic structure
 
 ```{r Performing_monovariate_FKA}
 modelP$setCovaFiltered(0, TRUE)
-means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))
+means = dbStatisticsMono(grid,"Fill.P",EStatOption_fromKeys("MEAN"))$getValues()
 modelP$setMeans(means)
 modelP
 
@@ -212,8 +217,8 @@ ggPrint(p)
 ```{r Locate_Multivariate, fig.align='center', fig.height=5}
 grid$setLocators(c("Fill.P", "Cr", "Ni"), ELoc_Z())
 
-varioM = Vario(varioparam, grid)
-err = varioM$compute()
+varioM = Vario(varioparam)
+err = varioM$compute(grid)
 modelM = Model()
 err = modelM$fit(varioM, 
                  types= ECov_fromKeys(c("NUGGET", "SPHERICAL", "POWER")),
@@ -245,7 +250,7 @@ multi.varmod(varioM,modelM)
 modelM$setCovaFiltered(0, TRUE)
 means = dbStatisticsMono(grid,flagIso=TRUE, 
                          names=c("Fill.P","Cr","Ni"),
-                         EStatOption_fromKeys("MEAN"))
+                         EStatOption_fromKeys("MEAN"))$getValues()
 modelM$setMeans(means)
 
 err  = krimage(grid,modelM,neigh,namconv=NamingConvention("Multi"))

@@ -17,7 +17,6 @@
 %shared_ptr(ACovFunc)
 %shared_ptr(ACovGradient)
 %shared_ptr(ADrift)
-%shared_ptr(ADriftElem)
 %shared_ptr(AGibbs)
 %shared_ptr(AMatrix)
 %shared_ptr(AMatrixSquare)
@@ -47,6 +46,7 @@
 %shared_ptr(BiTargetCheckFaults)
 %shared_ptr(BiTargetCheckCode)
 %shared_ptr(BiTargetCheckDate)
+%shared_ptr(BiTargetCheckGeometry)
 %shared_ptr(BooleanObject)
 %shared_ptr(CalcAnamTransform)
 %shared_ptr(CalcGridToGrid)
@@ -111,23 +111,9 @@
 %shared_ptr(DbGrid)
 %shared_ptr(DbStringFormat)
 %shared_ptr(DirParam)
-%shared_ptr(Drift1)
+%shared_ptr(DriftM)
 %shared_ptr(DriftF)
 %shared_ptr(DriftList)
-%shared_ptr(DriftX)
-%shared_ptr(DriftX2)
-%shared_ptr(DriftX2Y)
-%shared_ptr(DriftX3)
-%shared_ptr(DriftXY)
-%shared_ptr(DriftXY2)
-%shared_ptr(DriftXZ)
-%shared_ptr(DriftY)
-%shared_ptr(DriftY2)
-%shared_ptr(DriftY3)
-%shared_ptr(DriftYZ)
-%shared_ptr(DriftZ)
-%shared_ptr(DriftZ2)
-%shared_ptr(DriftZ3)
 %shared_ptr(Faults)
 %shared_ptr(FracDesc)
 %shared_ptr(FracEnviron)
@@ -155,6 +141,7 @@
 %shared_ptr(MeshSphericalExt)
 %shared_ptr(Model)
 %shared_ptr(ModelBoolean)
+%shared_ptr(NamingConvention)
 %shared_ptr(NeighBench)
 %shared_ptr(NeighImage)
 %shared_ptr(NeighMoving)
@@ -173,6 +160,7 @@
 %shared_ptr(PPMT)
 %shared_ptr(ProjConvolution)
 %shared_ptr(ProjMatrix)
+%shared_ptr(Regression)
 %shared_ptr(Rotation)
 %shared_ptr(Rule)
 %shared_ptr(RuleProp)
@@ -228,7 +216,6 @@
   #include "Enum/ETape.hpp"
   #include "Enum/ELoadBy.hpp"
   #include "Enum/ELoc.hpp"
-  #include "Enum/EDrift.hpp"
   #include "Enum/EPowerPT.hpp"
   #include "Enum/ERule.hpp"
   #include "Enum/EConsElem.hpp"
@@ -284,6 +271,7 @@
   #include "Geometry/BiTargetCheckFaults.hpp"
   #include "Geometry/BiTargetCheckCode.hpp"
   #include "Geometry/BiTargetCheckDate.hpp"
+  #include "Geometry/BiTargetCheckGeometry.hpp"
   
   #include "Arrays/AArray.hpp"
   #include "Arrays/Array.hpp"
@@ -334,6 +322,8 @@
   #include "Polynomials/Hermite.hpp"
   #include "Polynomials/MonteCarlo.hpp"
   
+  #include "LinearOp/CGParam.hpp"
+  #include "LinearOp/LogStats.hpp"
   #include "LinearOp/ALinearOp.hpp"
   #include "LinearOp/ALinearOpMulti.hpp"
   #include "LinearOp/ShiftOpCs.hpp"
@@ -415,25 +405,10 @@
   #include "Covariances/CovHelper.hpp"
   
   #include "Drifts/ADrift.hpp"
-  #include "Drifts/ADriftElem.hpp"
   #include "Drifts/DriftList.hpp"
-  #include "Drifts/Drift1.hpp"
+  #include "Drifts/DriftM.hpp"
   #include "Drifts/DriftF.hpp"
   #include "Drifts/DriftFactory.hpp"
-  #include "Drifts/DriftX.hpp"
-  #include "Drifts/DriftX2.hpp"
-  #include "Drifts/DriftX2Y.hpp"
-  #include "Drifts/DriftX3.hpp"
-  #include "Drifts/DriftXY.hpp"
-  #include "Drifts/DriftXY2.hpp"
-  #include "Drifts/DriftXZ.hpp"
-  #include "Drifts/DriftY.hpp"
-  #include "Drifts/DriftY2.hpp"
-  #include "Drifts/DriftY3.hpp"
-  #include "Drifts/DriftYZ.hpp"
-  #include "Drifts/DriftZ.hpp"
-  #include "Drifts/DriftZ2.hpp"
-  #include "Drifts/DriftZ3.hpp"
   
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/AMatrixSquare.hpp"
@@ -449,6 +424,7 @@
   #include "API/PGSSPDE.hpp"
   #include "API/TestInheritance.hpp"
   #include "API/Style.hpp"
+  #include "API/SPDEParam.hpp"
   
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
@@ -477,6 +453,7 @@
   #include "Stats/PCA.hpp"
   #include "Stats/PCAStringFormat.hpp"
   #include "Stats/Selectivity.hpp"
+  #include "Stats/Regression.hpp"
   
   #include "LithoRule/Rule.hpp"
   #include "LithoRule/RuleStringFormat.hpp"

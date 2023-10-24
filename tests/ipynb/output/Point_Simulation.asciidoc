@@ -2,13 +2,13 @@
 ----
 The number of samples = 1000
 
-![png](output_4_1.png)
+![png](output_5_1.png)
 ----
 
 
 +*Out[3]:*+
 ----
-![png](output_6_0.png)
+![png](output_7_0.png)
 ----
 
 
@@ -16,7 +16,7 @@ The number of samples = 1000
 ----
 Number of samples = 910
 
-![png](output_8_1.png)
+![png](output_9_1.png)
 ----
 
 
@@ -24,7 +24,7 @@ Number of samples = 910
 ----
 The number of samples = 200
 
-![png](output_10_1.png)
+![png](output_11_1.png)
 ----
 
 
@@ -32,5 +32,5 @@ The number of samples = 200
 ----
 Number of samples = 145
 
-![png](output_12_1.png)
+![png](output_13_1.png)
 ----

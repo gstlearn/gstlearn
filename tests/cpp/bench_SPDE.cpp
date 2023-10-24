@@ -43,6 +43,9 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("BenchSPDE-");
+
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
   int seed = 123;
@@ -56,50 +59,93 @@ int main(int argc, char *argv[])
   // 1: Kriging
   // 2: non-conditional simulations
   // 3: conditional simulations
-  int mode = 1;
+  int mode = 0;
+  bool verbose = false;
+  bool showStats = false;
 
   // Generate the data base
   Db* dat = Db::createFillRandom(ndat);
 
-  // Generate the Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
-                                        { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
-
   // Generate the output grid
   DbGrid* grid = DbGrid::create({nxref, nxref}, {1./(nxref-1), 1./(nxref-1)});
 
-  // Evaluate Kriging
-  if (mode == 0 || mode == 1)
+  // Printout of general environment
+  if (showStats)
   {
-    timer.reset();
-    (void) krigingSPDE(dat, grid, model, true, false, false);
-    timer.displayIntervalMilliseconds("Kriging", 400);
+    mestitle(1, "Statistics");
+    message("- Number of active data  = %d\n", ndat);
+    message("- Number of target sites = %d\n", nxref * nxref);
+    message("- Number of simulations  = %d\n", nsim);
   }
 
-  // Evaluate non-conditional simulations
-  if (mode == 0 || mode == 2)
+  // Loop for usage of Cholesky
+
+  for (int ncov = 0; ncov < 2; ncov++)
   {
-    timer.reset();
-    (void) simulateSPDE(NULL, grid, model, nsim, NULL, 0, 11, 18, 8, seed, 1.e-2,
-                        false, NamingConvention("Simu.NC"));
-    timer.displayIntervalMilliseconds("Non-conditional simulations", 1350);
+    // Generate the Model
+    Model *model;
+    if (ncov >= 0)
+      model = Model::createFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
+                                     { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
+    if (ncov >= 1)
+      model->addCovFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
+                             { 0.3, 0.2 }, VectorDouble(), { -10., 0.});
+    String sncov = (ncov == 0) ? "1" : "2";
+
+    // Printout of general environment
+    if (showStats)
+      message("- Number of covariances  = %d\n", model->getCovaNumber());
+
+    for (int ifois = 0; ifois < 2; ifois++)
+    {
+      int useCholesky = ifois;
+      String option = (useCholesky) ? ".Chol": ".NoChol";
+      if (showStats)
+        message("- Cholesky Option        = %d\n", useCholesky);
+
+      // Kriging
+      if (mode == 0 || mode == 1)
+      {
+        timer.reset();
+        String namconv = "Kriging" + option + sncov;
+        (void) krigingSPDE(dat, grid, model, true, false, false, nullptr,
+                           useCholesky, SPDEParam(), verbose, showStats,
+                           NamingConvention(namconv));
+        timer.displayIntervalMilliseconds(namconv, 400);
+      }
+
+      // Non-conditional simulations
+      if (mode == 0 || mode == 2)
+      {
+        timer.reset();
+        String namconv = "Simu.NC" + option + sncov;
+        (void) simulateSPDE(NULL, grid, model, nsim, NULL, useCholesky,
+                            SPDEParam(), seed, verbose, showStats,
+                            NamingConvention(namconv));
+        timer.displayIntervalMilliseconds(namconv, 1350);
+      }
+
+      // Conditional simulations
+      if (mode == 0 || mode == 3)
+      {
+        timer.reset();
+        String namconv = "Simu.CD" + option + sncov;
+        (void) simulateSPDE(dat, grid, model, nsim, NULL, useCholesky,
+                            SPDEParam(), seed, verbose, showStats,
+                            NamingConvention(namconv));
+        timer.displayIntervalMilliseconds(namconv, 3130);
+      }
+    }
+    delete model;
   }
 
-  // Evaluate conditional simulations
-  if (mode == 0 || mode == 3)
-  {
-    timer.reset();
-    (void) simulateSPDE(dat, grid, model, nsim, NULL, 0, 11, 18, 8, seed, 1.e-2,
-                        false, NamingConvention("Simu.CD"));
-    timer.displayIntervalMilliseconds("Conditional simulations", 3130);
-  }
-
-  // Produce some stats for comparison
-  dbStatisticsPrint(grid, {"Simu*"}, EStatOption::fromKeys({"MEAN", "STDV"}));
+  // Produce some statistics for comparison
+  dbStatisticsPrint(grid, { "Kriging*", "Simu*" },
+                    EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }));
+  (void) grid->dumpToNF("Grid.ascii");
 
   if (dat       != nullptr) delete dat ;
   if (grid      != nullptr) delete grid;
-  if (model     != nullptr) delete model;
 
   return (0);
 }

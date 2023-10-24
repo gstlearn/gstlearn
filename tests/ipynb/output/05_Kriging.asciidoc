@@ -41,7 +41,7 @@ Column = 2 - Name = x2 - Locator = x2
 
 +*Out[9]:*+
 ----
-![png](output_17_0.png)
+![png](output_18_0.png)
 ----
 
 
@@ -95,13 +95,13 @@ Column = 4 - Name = SK.January_temp.stdev - Locator = NA----
 
 +*Out[14]:*+
 ----
-![png](output_28_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_30_0.png)
+![png](output_31_0.png)
 ----
 
 
@@ -136,31 +136,31 @@ Column = 6 - Name = Mean4_SK.January_temp.stdev - Locator = NA----
 
 +*Out[19]:*+
 ----
-![png](output_37_0.png)
+![png](output_38_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_44_0.png)
+![png](output_45_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_46_0.png)
+![png](output_47_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_48_0.png)
+![png](output_49_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_50_0.png)
+![png](output_51_0.png)
 ----
 
 
@@ -200,25 +200,25 @@ Column = 3 - Name = inshore - Locator = sel
 
 +*Out[27]:*+
 ----
-![png](output_55_0.png)
+![png](output_56_0.png)
 ----
 
 
 +*Out[29]:*+
 ----
-![png](output_58_0.png)
+![png](output_59_0.png)
 ----
 
 
 +*Out[31]:*+
 ----
-![png](output_63_0.png)
+![png](output_64_0.png)
 ----
 
 
 +*Out[32]:*+
 ----
-![png](output_65_0.png)
+![png](output_66_0.png)
 ----
 
 
@@ -232,41 +232,41 @@ Mean standardized error: 0.9118
 
 +*Out[34]:*+
 ----
-![png](output_69_0.png)
+![png](output_70_0.png)
 ----
 
 
 +*Out[37]:*+
 ----
-![png](output_75_0.png)
+![png](output_76_0.png)
 ----
 
 
 +*Out[40]:*+
 ----
-![png](output_80_0.png)
+![png](output_81_0.png)
 ----
 
 
 +*Out[43]:*+
 ----
-![png](output_85_0.png)
+![png](output_86_0.png)
 ----
 
 
 +*Out[44]:*+
 ----
-![png](output_87_0.png)
+![png](output_88_0.png)
 ----
 
 
 +*Out[45]:*+
 ----
-![png](output_89_0.png)
+![png](output_90_0.png)
 ----
 
 
 +*Out[46]:*+
 ----
-![png](output_91_0.png)
+![png](output_92_0.png)
 ----

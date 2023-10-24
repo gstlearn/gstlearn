@@ -28,7 +28,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1
  
-![png](output_10_1.png)
+![png](output_11_1.png)
 ----
 
 
@@ -41,115 +41,115 @@ Grain Volume = 6920  / 10000 (pixels)
 
 +*Out[9]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_25_0.png)
+![png](output_26_0.png)
 ----
 
 
 +*Out[14]:*+
 ----
-![png](output_27_0.png)
+![png](output_28_0.png)
 ----
 
 
 +*Out[15]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----
 
 
 +*Out[16]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[17]:*+
 ----
-![png](output_34_0.png)
+![png](output_35_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_35_0.png)
+![png](output_36_0.png)
 ----
 
 
 +*Out[19]:*+
 ----
-![png](output_38_0.png)
+![png](output_39_0.png)
 ----
 
 
 +*Out[20]:*+
 ----
-![png](output_39_0.png)
+![png](output_40_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_40_0.png)
+![png](output_41_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_42_0.png)
+![png](output_43_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_44_0.png)
+![png](output_45_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_46_0.png)
+![png](output_47_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_48_0.png)
+![png](output_49_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_50_0.png)
+![png](output_51_0.png)
 ----
 
 
 +*Out[27]:*+
 ----
-![png](output_51_0.png)
+![png](output_52_0.png)
 ----
 
 

@@ -133,8 +133,8 @@ bool CalcKrigingFactors::_postprocess()
   getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z);
 
   int nfactor = _getNFactors();
-  _renameVariable(2, nfactor, _iptrStd, "stdev", 1);
-  _renameVariable(2, nfactor, _iptrEst, "estim", 1);
+  _renameVariable(2, VectorString(), ELoc::Z, nfactor, _iptrStd, "stdev", 1);
+  _renameVariable(2, VectorString(), ELoc::Z, nfactor, _iptrEst, "estim", 1);
 
   // Centering the information (only when a change of support is defined)
   if (_hasChangeSupport() && ! _nameCoord.empty())

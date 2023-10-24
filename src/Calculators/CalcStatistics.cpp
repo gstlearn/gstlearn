@@ -16,6 +16,7 @@
 #include "Calculators/CalcStatistics.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Stats/Classical.hpp"
+#include "Stats/Regression.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 
@@ -29,10 +30,10 @@ CalcStatistics::CalcStatistics()
       _oper(EStatOption::UNKNOWN),
       _radius(0),
       _flagRegr(false),
-      _flagCste(false),
+      _flagCst(false),
       _regrMode(0),
-      _name0(),
-      _namaux(),
+      _nameResp(),
+      _nameAux(),
       _model(nullptr)
 {
 }
@@ -65,7 +66,7 @@ bool CalcStatistics::_check()
 
   if (_flagRegr)
   {
-    if (! _flagCste && _namaux.empty())
+    if (! _flagCst && _nameAux.empty())
     {
       messerr("This method requires Explanatory variables and/or constant term");
       return false;
@@ -93,10 +94,10 @@ bool CalcStatistics::_postprocess()
   _cleanVariableDb(2);
 
   if (_flagStats)
-    _renameVariable(2, _getNVar(), _iattOut, String(), 1);
+    _renameVariable(2, VectorString(), ELoc::Z, _getNVar(), _iattOut, String(), 1);
 
   if (_flagRegr)
-    _renameVariable(1, 1, _iattOut, String(), 1);
+    _renameVariable(1, VectorString(), ELoc::Z, 1, _iattOut, String(), 1);
   return true;
 }
 
@@ -121,13 +122,13 @@ bool CalcStatistics::_run()
     if (dbStatisticsInGridTool(getDbin(), dbgrid, names, _oper, _radius, _iattOut))
       return false;
   }
-
   if (_flagRegr)
   {
-    if (regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCste,
-                        getDbout(), _model)) return false;
+    Regression reg = regression(getDbin(), _nameResp, _nameAux, _regrMode, _flagCst,
+                                getDbout(), _model);
+    if (reg.apply(getDbin(), _iattOut, _nameResp, _nameAux, _regrMode, _flagCst,
+                  getDbout(), _model)) return false;
   }
-
   return true;
 }
 
@@ -165,29 +166,11 @@ int dbStatisticsOnGrid(Db *db,
   return error;
 }
 
-int dbRegressionByColIdx(Db *db1,
-                         int icol0,
-                         const VectorInt &icols,
-                         int mode,
-                         bool flagCste,
-                         Db *db2,
-                         const Model *model,
-                         const NamingConvention &namconv)
-{
-  if (db1 == nullptr) return 1;
-  if (db2 == nullptr) db2 = db1;
-
-  String name0 = db1->getNameByColIdx(icol0);
-  VectorString namaux = db2->getNamesByColIdx(icols);
-
-  return dbRegression(db1, name0, namaux, mode, flagCste, db2, model, namconv);
-}
-
 int dbRegression(Db *db1,
-                 const String& name0,
-                 const VectorString& namaux,
+                 const String& nameResp,
+                 const VectorString& nameAux,
                  int mode,
-                 bool flagCste,
+                 bool flagCst,
                  Db *db2,
                  const Model* model,
                  const NamingConvention &namconv)
@@ -201,9 +184,9 @@ int dbRegression(Db *db1,
 
   stats.setFlagRegr(true);
   stats.setRegrMode(mode);
-  stats.setFlagCste(flagCste);
-  stats.setName0(name0);
-  stats.setNamaux(namaux);
+  stats.setFlagCst(flagCst);
+  stats.setName0(nameResp);
+  stats.setNamaux(nameAux);
   stats.setModel(model);
 
   // Run the calculator

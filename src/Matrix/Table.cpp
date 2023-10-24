@@ -101,6 +101,11 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   return table;
 }
 
+Table* Table::createFromTable(const Table& table)
+{
+  return new Table(table);
+}
+
 VectorDouble Table::getRange(int icol) const
 {
   VectorDouble vec = getColumn(icol);
@@ -198,10 +203,21 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
     sstr << std::endl;
   }
 
+  // For displaying the Row names, find the optimal dimension
+  int rowLengthMax = 1;
+  if (! _rowNames.empty())
+  {
+    for (int irow = 0; irow < nrows; irow++)
+    {
+      int rowLength = (int) _rowNames[irow].size();
+      if (rowLength > rowLengthMax) rowLengthMax = rowLength;
+    }
+  }
+
   // Print optional header (using Column names if defined)
   if (! _colNames.empty())
   {
-    if (! _rowNames.empty()) sstr << toStr(" ");
+    if (! _rowNames.empty()) sstr << toStr(" ", EJustify::fromKey("RIGHT"), rowLengthMax);
     for (int icol = 0; icol < ncols; icol++)
       sstr << " " << toStr(_colNames[icol]);
     sstr << std::endl;
@@ -210,7 +226,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   // Print the contents of the table
   for (int irow = 0; irow < nrows; irow++)
   {
-    if (! _rowNames.empty()) sstr << toStr(_rowNames[irow]);
+    if (! _rowNames.empty()) sstr << toStr(_rowNames[irow], EJustify::fromKey("RIGHT"), rowLengthMax);
     for (int icol = 0; icol < ncols; icol++)
     {
       sstr << " " << toDouble(getValue(irow, icol));

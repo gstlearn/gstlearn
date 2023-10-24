@@ -69,7 +69,7 @@ data.setLocator('x*',gl.ELoc.X)
 data.setLocator('z',gl.ELoc.Z)
 data
 
-spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND)
+spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND,None,0)
 spde.compute(workingDb)
 
 dbfmt = gl.DbStringFormat()

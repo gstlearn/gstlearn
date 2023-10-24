@@ -1,6 +1,6 @@
 +*Out[1]:*+
 ----
-Requirement already satisfied: gstlearn in /home/drenard/Program/Python-3.10.5/lib/python3.10/site-packages (0.3.4)
+Requirement already satisfied: gstlearn in /home/drenard/Program/Python-3.10.5/lib/python3.10/site-packages (0.4.2)
 Requirement already satisfied: numpy in /home/drenard/Program/Python-3.10.5/lib/python3.10/site-packages (from gstlearn) (1.23.1)
 Requirement already satisfied: matplotlib in /home/drenard/Program/Python-3.10.5/lib/python3.10/site-packages (from gstlearn) (3.5.3)
 Requirement already satisfied: scipy in /home/drenard/Program/Python-3.10.5/lib/python3.10/site-packages (from gstlearn) (1.8.1)
@@ -36,7 +36,7 @@ Requirement already satisfied: setuptools in /home/drenard/Program/Python-3.10.5
 
 +*Out[6]:*+
 ----
-![png](output_16_0.png)
+![png](output_17_0.png)
 ----
 
 

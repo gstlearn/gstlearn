@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
 
   // Calculate the experimental variogram
   VarioParam* varioparam = VarioParam::createOmniDirection(10);
-  Vario* vario = Vario::create(varioparam, db);
-  vario->compute();
+  Vario* vario = Vario::create(*varioparam);
+  vario->compute(db);
   vario->display();
   vario->dumpToNF("Vario2D");
 
@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
 
   // Calculate the experimental variogram
   varioparam = VarioParam::createOmniDirection(20);
-  vario = Vario::create(varioparam, db);
-  vario->compute();
+  vario = Vario::create(*varioparam);
+  vario->compute(db);
   vario->display();
   vario->dumpToNF("Vario4D");
 

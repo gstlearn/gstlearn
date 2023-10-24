@@ -33,10 +33,17 @@ public:
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int icov = 0,
+              const CGParam params = CGParam(),
               bool verbose = false);
   PrecisionOp(const PrecisionOp &m);
   PrecisionOp& operator=(const PrecisionOp &m);
   virtual ~PrecisionOp();
+
+  // Interface functions for using PrecisionOp
+  virtual void evalDirect(const VectorDouble &vecin, VectorDouble &vecout);
+  virtual void evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout);
+  virtual void evalInverse(VectorDouble& vecin, VectorDouble& vecout);
+  virtual void makeReady() {};
 
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
 
@@ -48,14 +55,10 @@ public:
                              int icov = 0,
                              bool verbose = false);
 
-  int reset(const ShiftOpCs* shiftop,
-            const CovAniso* cova = nullptr,
+  int reset(const ShiftOpCs *shiftop,
+            const CovAniso *cova = nullptr,
             bool verbose = false);
 
-  // Interface functions for using PrecisionOp
-  virtual void eval(const VectorDouble &inv, VectorDouble &outv);
-  virtual void simulateOneInPlace(VectorDouble& whitenoise, VectorDouble& result);
-  virtual void evalInvVect(VectorDouble& in, VectorDouble& result);
   virtual double computeLogDet(int nbsimu = 1, int seed = 0);
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,
@@ -93,7 +96,7 @@ public:
   VectorDouble simulateOne();
 
   int  getSize() const { return _shiftOp->getSize(); }
-  bool getTraining()const {return _training;}
+  bool getTraining() const {return _training;}
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
   VectorDouble getPolyCoeffs(EPowerPT power);
@@ -101,9 +104,11 @@ public:
   bool isCovaDefined() const { return _cova != nullptr; }
   VectorDouble getCoeffs();
 
-  // Talking to ShiftOp
-  void setNIterMax(int nitermax);
-  void setEps(double eps);
+  void mustShowStats(bool status) const
+  {
+    _shiftOp->mustShowStats(status);
+  }
+  const LogStats& getLogStats() { return getShiftOp()->getLogStats(); }
 
 protected:
   APolynomial*     getPoly(const EPowerPT& power);
@@ -126,10 +131,10 @@ private:
   bool                             _userPoly;
 
 protected :
-  mutable VectorDouble _work;
-  mutable VectorDouble _work2;
-  mutable VectorDouble _work3;
-  mutable VectorDouble _work4;
-  mutable VectorDouble _work5;
+  mutable VectorDouble       _work;
+  mutable VectorDouble       _work2;
+  mutable VectorDouble       _work3;
+  mutable VectorDouble       _work4;
+  mutable VectorDouble       _work5;
   mutable VectorVectorDouble _workPoly;
 };

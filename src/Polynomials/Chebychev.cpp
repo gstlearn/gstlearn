@@ -12,6 +12,7 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
@@ -219,51 +220,51 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
 }
 
 
-void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const
+void Chebychev::evalOp(const ALinearOpMulti *Op,
+                       const VectorVectorDouble &inv,
+                       VectorVectorDouble &outv) const
 {
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
+
   // Initialization
+  Op->prepare();
+  VectorVectorDouble *tm2 = &Op->_z;
+  VectorVectorDouble *tm1 = &Op->_temp;
+  VectorVectorDouble *t0  = &Op->_p;
+  VectorVectorDouble *swap;
 
-
-  VectorVectorDouble* tm2 = &Op->_z;
-  VectorVectorDouble* tm1 = &Op->_temp;
-  VectorVectorDouble* t0 = &Op->_p;
-  VectorVectorDouble* swap;
-
-  Op->_copyVals(inv,*tm2);
+  VH::copy(inv, *tm2);
   // tm1 = v1 Op tm2 + v2 tm2
-    Op->evalDirect(*tm2,*tm1);
-    Op->_linearComb(v1,*tm1,v2,*tm2,*tm1);
+  Op->evalDirect(*tm2, *tm1);
+  VH::linearComb(v1, *tm1, v2, *tm2, *tm1);
+  VH::linearComb(_coeffs[0], *tm2, _coeffs[1], *tm1, outv);
 
-    Op->_linearComb(_coeffs[0],*tm2,_coeffs[1],*tm1,outv);
+  /* Loop on the Chebychev polynomials */
+  // Op *= 2
+  v1 *= 2.;
+  v2 *= 2.;
 
+  for (int ib = 2; ib < (int) _coeffs.size(); ib++)
+  {
+    // t0 = (v1 Op + v2 I) tm1
+    Op->evalDirect(*tm1, *t0);
+    VH::linearComb(v1, *t0, v2, *tm1, *t0);
 
-   /* Loop on the AChebychev polynomials */
-    // Op * = 2
-    v1 *= 2.;
-    v2 *= 2.;
+    // t0 = 2 * t0 - tm2
+    VH::subtractInPlace(*tm2, *t0, *t0);
 
-    for (int ib=2; ib<(int) _coeffs.size(); ib++)
-    {
-      // t0 = (v1 Op + v2 I) tm1
-      Op->evalDirect(*tm1,*t0);
-      Op->_linearComb(v1, *t0, v2, *tm1, *t0);
+    // outv += coeff * y
+    VH::addMultiplyConstantInPlace(_coeffs[ib], *t0, outv);
 
-      // t0 = 2 * t0 - tm2
-
-      Op->diff(*tm2,*t0,*t0);
-
-      // outv += coeff * y
-      Op->addProdScalar(_coeffs[ib],*t0,outv);
-
-      // swap
-      swap = tm2;
-      tm2 = tm1;
-      tm1 = t0;
-      t0 = swap;
-    }
+    // swap
+    swap = tm2;
+    tm2 = tm1;
+    tm1 = t0;
+    t0 = swap;
+  }
 }
+
 #ifndef SWIG
 void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 {

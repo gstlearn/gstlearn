@@ -30,6 +30,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
+#include "Matrix/Table.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Space/SpaceTarget.hpp"
@@ -689,10 +690,8 @@ void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
  */
 void Db::getSampleAsST(int iech, SpaceTarget& P) const
 {
+  // Load the coordinates
   getSampleCoordinatesAsSP(iech, P);
-//  // Load the coordinates
-//  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-//    P.setCoord(idim, getCoordinate(iech, idim));
 
   // Load the code (optional)
   if (hasLocVariable(ELoc::C))
@@ -971,17 +970,17 @@ void Db::setLocators(const VectorString &names,
 
 /**
  * Define the Locator(s) for the given variable(s)
- * @param names Set of variable names
+ * @param name Variable name
  * @param locatorType Locator Type
  * @param locatorIndex Locator Index (for the first variable) (starting from 0)
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
-void Db::setLocator(const String &names,
+void Db::setLocator(const String &name,
                     const ELoc& locatorType,
                     int locatorIndex,
                     bool cleanSameLocator)
 {
-  VectorInt iuids = _ids(names, false);
+  VectorInt iuids = _ids(name, false);
   if (iuids.empty()) return;
 
   if (cleanSameLocator) clearLocators(locatorType);
@@ -2092,10 +2091,10 @@ bool Db::hasLargerDimension(const Db* dbaux) const
 }
 
 
-void Db::_columnInit(int ncol, int icol0, bool flagCste, double valinit)
+void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
 {
   double value;
-  if (flagCste)
+  if (flagCst)
     value = valinit;
   else
     value = law_gaussian();
@@ -4052,131 +4051,51 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   }
 }
 
-/**
- * The target variables are referred to by their user-designation ranks
- */
-VectorDouble Db::statisticsByUID(const VectorInt& iuids,
-                                 const std::vector<EStatOption>& opers,
-                                 bool flagIso,
-                                 bool flagStoreInDb,
-                                 bool verbose,
-                                 double proba,
-                                 double vmin,
-                                 double vmax,
-                                 const String& title,
-                                 const NamingConvention& namconv)
-{
-  VectorDouble stats;
-
-  if (iuids.empty()) return stats;
-
-  int noper = (int) opers.size();
-  if (noper <= 0) return stats;
-
-  // Add the variables for PointWise statistics
-  if (flagStoreInDb)
-  {
-    int iuidn = addColumnsByConstant(noper);
-    if (iuidn < 0) return VectorDouble();
-
-    dbStatisticsVariablesByUID(this, iuids, opers, iuidn, proba, vmin, vmax);
-
-    namconv.setNamesAndLocators(this, iuidn);
-    for (int i = 0; i < noper; i++)
-    {
-      EStatOption oper = opers[i];
-      namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
-    }
-    return VectorDouble();
-  }
-  else
-  {
-    stats = dbStatisticsMonoByUID(this, iuids, opers, flagIso, proba, vmin, vmax);
-
-    if (verbose)
-    {
-      VectorString varnames = getNamesByUID(iuids);
-      messageFlush(statisticsMonoPrint(stats, opers, varnames, title));
-      return VectorDouble();
-    }
-  }
-  return stats;
-}
-
-/**
- * The target variables are referred to by their names
- */
-VectorDouble Db::statistics(const VectorString& names,
-                            const std::vector<EStatOption>& opers,
+void Db::statisticsBySample(const VectorString &names,
+                            const std::vector<EStatOption> &opers,
                             bool flagIso,
-                            bool flagStoreInDb,
-                            bool verbose,
                             double proba,
                             double vmin,
                             double vmax,
-                            const String& title,
-                            const NamingConvention& namconv)
+                            const NamingConvention &namconv)
 {
-  VectorInt iuids = _ids(names, false);
-  if (iuids.empty()) return VectorDouble();
-  return statisticsByUID(iuids, opers, flagIso, flagStoreInDb, verbose,
-                         proba, vmin, vmax, title, namconv);
-}
+  if (names.empty()) return;
+  if (opers.empty()) return;
 
-/**
- * The target variables are referred to by their locator
- */
-VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
-                                     const std::vector<EStatOption>& opers,
-                                     bool flagIso,
-                                     bool flagStoreInDb,
-                                     bool verbose,
-                                     double proba,
-                                     double vmin,
-                                     double vmax,
-                                     const String& title,
-                                     const NamingConvention& namconv)
-{
-  VectorInt iuids = getUIDsByLocator(locatorType);
-  if (iuids.empty()) return VectorDouble();
-  return statisticsByUID(iuids, opers, flagIso, flagStoreInDb, verbose,
-                         proba, vmin, vmax, title, namconv);
+  VectorInt iuids = getUIDs(names);
+  int noper = (int) opers.size();
+
+  // Add the variables for PointWise statistics
+  int iuidn = addColumnsByConstant(noper);
+  if (iuidn < 0) return;
+
+  VectorString nameloc = getNamesByUID(iuids);
+  dbStatisticsVariables(this, nameloc, opers, iuidn, proba, vmin, vmax);
+
+  namconv.setNamesAndLocators(this, iuidn);
+  for (int i = 0; i < noper; i++)
+  {
+    EStatOption oper = opers[i];
+    namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
+  }
 }
 
 /**
  * The target variables are referred to by their user-designation ranks
  */
-VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
-                                      bool flagIso,
-                                      bool verbose,
-                                      const String& title)
-{
-  VectorDouble stats;
-
-  if (iuids.empty()) return stats;
-
-  stats = dbStatisticsCorrelByUID(this, iuids, flagIso);
-
-  if (verbose)
-  {
-    VectorString varnames = getNamesByUID(iuids);
-    messageFlush(statisticsMultiPrint(stats, varnames, title));
-  }
-  return stats;
-}
-
-/**
- * The target variables are referred to by their names
- */
-VectorDouble Db::statisticsMulti(const VectorString& names,
+VectorDouble Db::statisticsMulti(const VectorString &names,
                                  bool flagIso,
                                  bool verbose,
-                                 const String& title)
+                                 const String &title)
 {
-  VectorInt iuids = _ids(names, false);
-  if (iuids.empty()) return VectorDouble();
-
-  return statisticsMultiByUID(iuids, flagIso, verbose, title);
+  if (names.empty()) return VectorDouble();
+  Table table = dbStatisticsCorrel(this, names, flagIso);
+  if (verbose)
+  {
+    table.setTitle(title);
+    table.display();
+  }
+  return table.getValues();
 }
 
 /****************************************************************************/
@@ -4913,6 +4832,7 @@ VectorInt Db::getSampleRanks() const
  * @param ndim Dimension of the space
  * @param nvar Number of variables
  * @param nfex Number of external drift functions
+ * @param ncode Number of codes (no code when 0)
  * @param varmax Maximum value for the measurement error
  * @param selRatio Percentage of samples that must be masked off
  * @param heteroRatio Vector of proportions of NA to be generated per variable
@@ -4932,6 +4852,7 @@ Db* Db::createFillRandom(int ndat,
                          int ndim,
                          int nvar,
                          int nfex,
+                         int ncode,
                          double varmax,
                          double selRatio,
                          const VectorDouble& heteroRatio,
@@ -5002,6 +4923,15 @@ Db* Db::createFillRandom(int ndat,
     }
   }
   db->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++)
+      codes[idat] = int(codes[idat] * (1.+ncode));
+    db->addColumns(codes, "code", ELoc::C);
+  }
 
   return db;
 }

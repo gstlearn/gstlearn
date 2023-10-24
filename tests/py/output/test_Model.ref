@@ -30,9 +30,9 @@ Total Sill     =      6.600
 
 Drift Part
 ----------
-Universality Condition
-Drift X
-Drift Y
+Universality_Condition
+Drift:x1
+Drift:x2
  
 Model characteristics
 =====================
@@ -65,11 +65,11 @@ Total Sill     =      6.600
 
 Drift Part
 ----------
-Universality Condition
-Drift X
-Drift Y
-External Drift - Rank=0
-External Drift - Rank=1
+Universality_Condition
+Drift:x1
+Drift:x2
+External_Drift:0
+External_Drift:1
  
 Model characteristics
 =====================

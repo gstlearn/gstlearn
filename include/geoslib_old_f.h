@@ -18,7 +18,6 @@
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/ELoc.hpp"
-#include "Enum/EDrift.hpp"
 #include "Enum/EProcessOper.hpp"
 #include "Enum/EConsElem.hpp"
 #include "Enum/EConsType.hpp"
@@ -58,6 +57,7 @@ class SimuRefineParam;
 class EStatOption;
 class Faults;
 class AMesh;
+class SpaceTarget;
 
 class cs;
 class QChol;
@@ -538,32 +538,13 @@ GSTLEARN_EXPORT void variogram_extension(const Vario *vario,
                                          double *hmax,
                                          double *gmin,
                                          double *gmax);
-GSTLEARN_EXPORT int code_comparable(const Db *db1,
-                                    const Db *db2,
-                                    int iech,
-                                    int jech,
-                                    int opt_code,
-                                    int tolcode);
-GSTLEARN_EXPORT int variogram_reject_pair(const Db *db,
-                                          int iech,
-                                          int jech,
-                                          double dist,
-                                          double psmin,
-                                          double bench,
-                                          double cylrad,
-                                          const VectorDouble &codir,
-                                          double *ps);
-GSTLEARN_EXPORT bool variogram_reject_fault(const Db *db,
-                                            int iech,
-                                            int jech,
-                                            const Faults *faults = nullptr);
+GSTLEARN_EXPORT bool variogramKeep(const Vario *vario,
+                               int idir,
+                               SpaceTarget &T1,
+                               SpaceTarget &T2,
+                               double *dist);
 GSTLEARN_EXPORT void variogram_scale(Vario *vario, int idir);
-GSTLEARN_EXPORT int variogram_get_lag(const DirParam& dirparam,
-                                      int idir,
-                                      double ps,
-                                      double psmin,
-                                      double *dist,
-                                      bool flag_asym);
+GSTLEARN_EXPORT int variogram_get_lag(const DirParam &dirparam, double dist);
 GSTLEARN_EXPORT ECalcVario vario_identify_calcul_type(const String &cov_name);
 GSTLEARN_EXPORT void vardir_print(Vario *vario, int idir, int verbose);
 GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,
@@ -580,12 +561,7 @@ GSTLEARN_EXPORT int correlation_f(Db *db1,
                                   int flag_verbose,
                                   double dmin,
                                   double dmax,
-                                  double tolang,
-                                  double slice_bench,
-                                  double slice_radius,
-                                  VectorDouble &codir,
-                                  int flag_code,
-                                  int tolcode,
+                                  VarioParam *varioparam,
                                   int *nindice,
                                   int **indices,
                                   double *correl);
@@ -770,9 +746,8 @@ GSTLEARN_EXPORT int model_drift_vector(Model *model,
                                         int iech,
                                         double *vector);
 GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter);
-GSTLEARN_EXPORT Model* model_duplicate(const Model *model,
-                                       double ball_radius,
-                                       int mode);
+GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model *model,
+                                       double ball_radius);
 GSTLEARN_EXPORT int model_stabilize(Model *model,
                                     int flag_verbose,
                                     double percent);

@@ -4,6 +4,12 @@
 
 +*Out[4]:*+
 ----
+../../references/Variogram_Cloud.md
+----
+
+
++*Out[5]:*+
+----
 
 Data Base Grid Characteristics
 ==============================
@@ -30,13 +36,19 @@ Column = 3 - Name = Cloud.January_temp - Locator = NA
  ----
 
 
-+*Out[5]:*+
++*Out[6]:*+
 ----
-![png](output_10_0.png)
+![png](output_12_0.png)
 ----
 
 
 +*Out[7]:*+
+----
+../../references/Experimental_Variogram.md
+----
+
+
++*Out[9]:*+
 ----
 Variogram characteristics
 =========================
@@ -98,25 +110,25 @@ For variable 1
         39     7.000   389.619     0.731----
 
 
-+*Out[8]:*+
++*Out[10]:*+
 ----
-![png](output_16_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_18_0.png)
+![png](output_19_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_22_0.png)
+![png](output_21_0.png)
 ----
 
 
-+*Out[12]:*+
++*Out[13]:*+
+----
+![png](output_25_0.png)
+----
+
+
++*Out[14]:*+
 ----
 Model characteristics
 =====================
@@ -134,7 +146,7 @@ Spherical
 Total Sill     =      1.123----
 
 
-+*Out[13]:*+
++*Out[15]:*+
 ----
   -2 -     UNKNOWN : Unknown covariance
    -1 -    FUNCTION : External covariance function
@@ -169,13 +181,13 @@ Total Sill     =      1.123----
  ----
 
 
-+*Out[15]:*+
++*Out[17]:*+
 ----
-![png](output_30_0.png)
+![png](output_33_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[18]:*+
 ----
 Model characteristics
 =====================
@@ -196,13 +208,13 @@ Spherical
 Total Sill     =      1.275----
 
 
-+*Out[18]:*+
++*Out[20]:*+
 ----
-![png](output_36_0.png)
+![png](output_39_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[21]:*+
 ----
 Model characteristics
 =====================
@@ -225,13 +237,13 @@ Spherical
 Total Sill     =      1.104----
 
 
-+*Out[21]:*+
++*Out[23]:*+
 ----
-![png](output_41_0.png)
+![png](output_44_0.png)
 ----
 
 
-+*Out[22]:*+
++*Out[24]:*+
 ----
 Model characteristics
 =====================
@@ -254,25 +266,37 @@ Spherical
 Total Sill     =      1.395----
 
 
-+*Out[24]:*+
++*Out[25]:*+
 ----
-![png](output_47_0.png)
+../../references/Directional_Variogram.md
 ----
 
 
-+*Out[26]:*+
++*Out[27]:*+
 ----
 ![png](output_50_0.png)
 ----
 
 
-+*Out[28]:*+
-----
-![png](output_54_0.png)
-----
-
-
 +*Out[29]:*+
+----
+![png](output_53_0.png)
+----
+
+
++*Out[30]:*+
+----
+../../references/Variogram_Map.md
+----
+
+
++*Out[32]:*+
+----
+![png](output_57_0.png)
+----
+
+
++*Out[33]:*+
 ----
 Model characteristics
 =====================
@@ -297,13 +321,13 @@ Cubic
 Total Sill     =      1.200----
 
 
-+*Out[31]:*+
++*Out[35]:*+
 ----
-![png](output_59_0.png)
+![png](output_62_0.png)
 ----
 
 
-+*Out[32]:*+
++*Out[36]:*+
 ----
-![png](output_61_0.png)
+![png](output_64_0.png)
 ----

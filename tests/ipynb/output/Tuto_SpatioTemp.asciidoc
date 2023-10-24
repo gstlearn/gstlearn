@@ -1,19 +1,19 @@
-+*Out[4]:*+
++*Out[2]:*+
+----
+../../references/Spatio_Temporal.md
+----
+
+
++*Out[5]:*+
 ----
 XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC format
   cholP = cholesky(P)
 ----
 
 
-+*Out[6]:*+
++*Out[7]:*+
 ----<IPython.core.display.Javascript object>
 [[XXX]]
-----
-
-
-+*Out[11]:*+
-----
-![png](output_13_0.png)
 ----
 
 
@@ -24,6 +24,12 @@ XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC 
 
 
 +*Out[13]:*+
+----
+![png](output_15_0.png)
+----
+
+
++*Out[14]:*+
 ----array([-1.        , -0.99215686, -0.98431373, -0.97647059, -0.96862745,
        -0.96078431, -0.95294118, -0.94509804, -0.9372549 , -0.92941176,
        -0.92156863, -0.91372549, -0.90588235, -0.89803922, -0.89019608,
@@ -78,5 +84,5 @@ XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC 
         1.        ])----
 
 
-+*Out[14]:*+
++*Out[15]:*+
 ----357.4611315408981----

@@ -19,6 +19,8 @@
 #include "Db/Db.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Geometry/GeometryHelper.hpp"
+#include "Variogram/Vario.hpp"
 
 #include <math.h>
 
@@ -257,12 +259,13 @@ int PCA::dbZ2F(Db* db,
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
-    dbStatisticsPrintByUID(db, cols, {}, 1, 1, "Statistics on Factors","Factor");
+    VectorString names = db->getNamesByUID(cols);
+    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
   return 0;
 }
 
@@ -303,12 +306,13 @@ int PCA::dbF2Z(Db* db,
   {
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-    dbStatisticsPrintByUID(db, cols, {}, 1, 1, "Statistics on Variables", "Variable");
+    VectorString names = db->getNamesByUID(cols);
+    dbStatisticsPrint(db, names, {}, 1, 1, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
   return 0;
 }
 
@@ -681,7 +685,7 @@ int PCA::maf_compute(Db *db,
  **
  ** \remarks This code functions in two modes:
  ** \remarks - either using varioparam, idir0 and ilag0 (if idir0>=0)
- ** \remarks - or using hmin, hmax
+ ** \remarks - or using only hmin, hmax
  **
  *****************************************************************************/
 int PCA::_mafCompute(Db *db,
@@ -744,7 +748,10 @@ void PCA::_variogramh(Db *db,
                       const VectorBool &isoFlag,
                       bool verbose)
 {
-  double ps;
+  double dist;
+  SpaceTarget T1;
+  SpaceTarget T2;
+  Vario* vario = nullptr;
 
   // Initializations
 
@@ -756,6 +763,14 @@ void PCA::_variogramh(Db *db,
 
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
+
+  // Creating a local Vario structure (to constitute the BiTargetCheck list
+  if (idir0 >= 0)
+  {
+    vario = Vario::create(varioparam);
+    vario->setDb(db);
+    if (vario->prepare()) return;
+  }
 
   /* Loop on samples */
 
@@ -773,23 +788,22 @@ void PCA::_variogramh(Db *db,
 
       /* Should the pair be retained */
 
-      double dist = distance_intra(db, iech, jech, NULL);
-
       if (idir0 >= 0)
       {
+        db->getSampleAsST(iech, T1);
+        db->getSampleAsST(jech, T2);
         DirParam dirparam = varioparam.getDirParam(idir0);
-        double psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
+
+        // Reject the point as soon as one BiTargetChecker is not correct
+        if (! variogramKeep(vario, idir0, T1, T2, &dist)) continue;
+
         double lag = dirparam.getDPas();
         double h0  = ilag0 * lag;
         if (dist < h0 - lag/2 || dist > h0 + lag/2) continue;
-        if (code_comparable(db, db, iech, jech, dirparam.getOptionCode(),
-                            (int) dirparam.getTolCode())) continue;
-        if (variogram_reject_pair(db, iech, jech, dist, psmin,
-                                  dirparam.getBench(), dirparam.getCylRad(),
-                                  dirparam.getCodirs(), &ps)) continue;
       }
       else
       {
+        dist = distance_intra(db, iech, jech, NULL);
         if (dist < hmin || dist > hmax) continue;
       }
 

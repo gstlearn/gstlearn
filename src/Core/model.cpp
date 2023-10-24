@@ -12,12 +12,9 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-#include "Enum/EDrift.hpp"
-
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADrift.hpp"
-#include "Drifts/ADriftElem.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
@@ -923,7 +920,7 @@ int model_drift_mat(Model *model,
         {
           double value = 0.;
           for (int il = 0; il < nbfl; il++)
-            value += drftab[il] * model->getCoefDrift(ivar, il, ib);
+            value += drftab[il] * model->getDriftCoef(ivar, il, ib);
           drfmat[ecr++] = value;
         }
       }
@@ -935,7 +932,7 @@ int model_drift_mat(Model *model,
             int jb = jvar + nvar * jl;
             double value = 0.;
             for (int il = 0; il < nbfl; il++)
-              value += drftab[il] * model->getCoefDrift(ivar, il, jb);
+              value += drftab[il] * model->getDriftCoef(ivar, il, jb);
             drfmat[ecr++] = value;
           }
       }
@@ -982,207 +979,48 @@ int model_drift_vector(Model *model,
     {
       double value = 0.;
       for (int il = 0; il < nbfl; il++)
-        value += drftab[il] * model->getCoefDrift(ivar, il, ib);
+        value += drftab[il] * model->getDriftCoef(ivar, il, ib);
       vector[ecr++] = value;
     }
   return 0;
 }
 
-/*****************************************************************************/
-/*!
- **  Patches the value of the drift coefficient in the model for the
- **  rank of variable 'iv' and of the equation 'ib'. The rank of the
- **  drift function is found by matching the type in the basis of the
- **  drift functions available.
- **  Note : this function is only used when the model has linked
- **  drift functions
- **
- ** \param[in]  model Model structure
- ** \param[in]  iv    rank of the variable
- ** \param[in]  ib    rank of the equation
- ** \param[in]  type  type of the drift function (EDrift)
- ** \param[in]  rank  rank of the external drift
- ** \param[in]  value value to be added to the drift coefficient
- **
- *****************************************************************************/
-static void st_drift_modify(Model *model,
-                            int iv,
-                            int ib,
-                            const EDrift &type,
-                            int rank,
-                            double value)
-{
-  /* Look for the drift function */
-
-  int il = -1;
-  for (int i = 0; i < model->getDriftNumber() && il < 0; i++)
-    if (model->getDriftType(i) == type &&
-        model->getDrift(i)->getRankFex() == rank) il = i;
-  if (il < 0) messageAbort("st_drift_modify");
-
-  /* Patch the drift coefficient */
-
-  model->setCoefDrift(iv, il, ib, model->getCoefDrift(iv, il, ib) + value);
-}
-
-/*****************************************************************************/
-/*!
- **  Updates the drift component of the new_model for the variable
- **  'iv' considered as the derivative along 'mode' of the
- **  first variable in the (old) model
- **
- ** \param[in]  iv    rank of the variable
- ** \param[in]  mode  type of the derivative (::ENUM_MODEL_DERIVATIVES)
- ** \param[in]  model Model structure
- **
- ** \param[out] new_model Model structure
- **
- ** \remark  The new_model must have been dimensioned beforehand
- **
- *****************************************************************************/
-static void st_drift_derivative(int iv,
-                                int mode,
-                                const Model *model,
-                                Model *new_model)
-
-{
-  for (int ib = 0; ib < model->getDriftEquationNumber(); ib++)
-    for (int il = 0; il < model->getDriftNumber(); il++)
-    {
-      double value = model->getCoefDrift(0, il, ib);
-      if (value == 0) continue;
-
-      EDrift type = model->getDriftType(il);
-      int rank = model->getRankFext(il);
-      switch (mode)
-      {
-        case MODEL_DERIVATIVE_NONE: /* Simple copy */
-          st_drift_modify(new_model, iv, ib, type, rank, value);
-          break;
-
-        case MODEL_DERIVATIVE_X: /* Derivative along X */
-          switch (type.toEnum())
-          {
-            case EDrift::E_X:
-              st_drift_modify(new_model, iv, ib, EDrift::UC, 0, value);
-              break;
-            case EDrift::E_X2:
-              st_drift_modify(new_model, iv, ib, EDrift::X, 0, 2. * value);
-              break;
-            case EDrift::E_XY:
-              st_drift_modify(new_model, iv, ib, EDrift::Y, 0, value);
-              break;
-            case EDrift::E_XZ:
-              st_drift_modify(new_model, iv, ib, EDrift::Z, 0, value);
-              break;
-            case EDrift::E_X3:
-              st_drift_modify(new_model, iv, ib, EDrift::X2, 0, 3. * value);
-              break;
-            case EDrift::E_X2Y:
-              st_drift_modify(new_model, iv, ib, EDrift::XY, 0, 2. * value);
-              break;
-            case EDrift::E_XY2:
-              st_drift_modify(new_model, iv, ib, EDrift::Y2, 0, value);
-              break;
-            default:
-              break;
-          }
-          break;
-
-        case MODEL_DERIVATIVE_Y: /* Derivative along Y */
-          switch (type.toEnum())
-          {
-            case EDrift::E_Y:
-              st_drift_modify(new_model, iv, ib, EDrift::UC, 0, value);
-              break;
-            case EDrift::E_Y2:
-              st_drift_modify(new_model, iv, ib, EDrift::Y, 0, 2. * value);
-              break;
-            case EDrift::E_XY:
-              st_drift_modify(new_model, iv, ib, EDrift::X, 0, value);
-              break;
-            case EDrift::E_YZ:
-              st_drift_modify(new_model, iv, ib, EDrift::Z, 0, value);
-              break;
-            case EDrift::E_Y3:
-              st_drift_modify(new_model, iv, ib, EDrift::Y2, 0, 3. * value);
-              break;
-            case EDrift::E_XY2:
-              st_drift_modify(new_model, iv, ib, EDrift::XY, 0, 2. * value);
-              break;
-            case EDrift::E_X2Y:
-              st_drift_modify(new_model, iv, ib, EDrift::X2, 0, value);
-              break;
-            default:
-              break;
-          }
-          break;
-
-        default:
-          break;
-      }
-    }
-}
-
 /****************************************************************************/
 /*!
- **  Duplicates a Model from another Model
+ **  Duplicates a Model from another Model for Gradients
  **
  ** \return  The modified Model structure
  **
  ** \param[in]  model       Input Model
  ** \param[in]  ball_radius Radius for Gradient calculation
- ** \param[in]  mode        Type of transformation
- ** \li                     -1 for Data (SK)
- ** \li                      0 for Data
- ** \li                      1 for Data - Gradient
  **
  *****************************************************************************/
-Model* model_duplicate(const Model *model, double ball_radius, int mode)
+Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
 
 {
   Model *new_model;
   const CovAniso *cova;
-  const ADriftElem *drft;
   int new_nvar, nfact;
   double sill;
-  bool flag_linked, flag_gradient;
 
   // Preliminary checks
 
   new_model = nullptr;
-  int nvar = model->getVariableNumber();
-  int ndim = model->getDimensionNumber();
+  int nvar  = model->getVariableNumber();
+  int ndim  = model->getDimensionNumber();
   int ncova = model->getCovaNumber();
-  int nbfl = model->getDriftNumber();
   nfact = new_nvar = 0;
-  flag_linked = false;
-  flag_gradient = false;
 
   // Create the new model (linked drift functions)
 
-  switch (mode)
+  if (nvar != 1 || ndim != 2)
   {
-    case -1:                    // Data (SK)
-    case 0:                     // Data
-      new_nvar = nvar;
-      nfact = 1;
-      flag_linked = false;
-      flag_gradient = false;
-      break;
-
-    case 1:                     // Data - Gradient
-      if (nvar != 1 || ndim != 2)
-      {
-        messerr("This procedure is limited to a single variable in 2-D");
-        return new_model;
-      }
-      new_nvar = 3;
-      nfact = 6;
-      flag_linked = true;
-      flag_gradient = true;
-      break;
+    messerr("This procedure is limited to a single variable in 2-D");
+    return new_model;
   }
+
+  new_nvar = 3;
+  nfact = 6;
   CovContext ctxt(model->getContext());
   ctxt.setNVar(new_nvar);
   new_model = new Model(ctxt);
@@ -1192,11 +1030,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   // Create the basic covariance structures
   // **************************************
 
-  ACovAnisoList* covs = nullptr;
-  if (flag_gradient)
-    covs = new CovLMGradient();
-  else
-    covs = new CovLMC();
+  ACovAnisoList* covs = new CovLMGradient();
 
   int lec = 0;
   for (int icov = 0; icov < ncova; icov++)
@@ -1206,10 +1040,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     for (int ifact = 0; ifact < nfact; ifact++, lec++)
     {
       CovAniso* covnew = nullptr;
-      if (flag_gradient)
-        covnew = new CovGradientNumerical(cova->getType(),ball_radius,ctxt);
-      else
-        covnew = new CovAniso(cova->getType(), ctxt);
+      covnew = new CovGradientNumerical(cova->getType(),ball_radius,ctxt);
       covnew->setParam(cova->getParam());
       if (cova->getFlagAniso())
       {
@@ -1222,49 +1053,37 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
 
       /* Modify the Sill */;
 
-      switch (mode)
+      covnew->initSill(0.);
+      if (ifact == 0)
       {
-        case 0:
-        case -1:
-          for (int ivar = 0; ivar < new_nvar; ivar++)
-            for (int jvar = 0; jvar < new_nvar; jvar++)
-              covnew->setSill(ivar, jvar, cova->getSill(ivar,jvar));
-          break;
-
-        case 1:                   // Data - Gradient
-          covnew->initSill(0.);
-          if (ifact == 0)
-          {
-            covnew->setSill(0, 0,  sill);
-          }
-          else if (ifact == 1)
-          {
-            covnew->setSill(0, 1, -sill);
-            covnew->setSill(1, 0,  sill);
-          }
-          else if (ifact == 2)
-          {
-            covnew->setSill(1, 1,  sill);
-          }
-          else if (ifact == 3)
-          {
-            covnew->setSill(0, 2, -sill);
-            covnew->setSill(2, 0,  sill);
-          }
-          else if (ifact == 4)
-          {
-            covnew->setSill(1, 2, -sill);
-            covnew->setSill(2, 1, -sill);
-          }
-          else if (ifact == 5)
-          {
-            covnew->setSill(2, 2, sill);
-          }
-          else
-          {
-            my_throw("Argument 'ifact' invalid");
-          }
-          break;
+        covnew->setSill(0, 0, sill);
+      }
+      else if (ifact == 1)
+      {
+        covnew->setSill(0, 1, -sill);
+        covnew->setSill(1, 0, sill);
+      }
+      else if (ifact == 2)
+      {
+        covnew->setSill(1, 1, sill);
+      }
+      else if (ifact == 3)
+      {
+        covnew->setSill(0, 2, -sill);
+        covnew->setSill(2, 0, sill);
+      }
+      else if (ifact == 4)
+      {
+        covnew->setSill(1, 2, -sill);
+        covnew->setSill(2, 1, -sill);
+      }
+      else if (ifact == 5)
+      {
+        covnew->setSill(2, 2, sill);
+      }
+      else
+      {
+        my_throw("Argument 'ifact' invalid");
       }
       covs->addCov(covnew);
       delete covnew;
@@ -1277,33 +1096,8 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
   // Create the basic drift structures
   // *********************************
 
-  if (mode >= 0)
-  {
-    DriftList drifts = DriftList(ctxt.getSpace());
-    drifts.setFlagLinked(flag_linked);
-    for (int il = 0; il < nbfl; il++)
-    {
-      drft = model->getDrift(il);
-      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt, drft->getRankFex());
-      drifts.addDrift(newdrft);
-      delete newdrft;
-      drifts.setFiltered(il, model->isDriftFiltered(il));
-    }
-    new_model->setDriftList(&drifts);
-
-    // Update the drift for the derivatives
-
-    if (mode == 1)
-    {
-      int nval = new_nvar * new_model->getDriftEquationNumber()
-                 * new_model->getDriftNumber();
-      for (int i = 0; i < nval; i++)
-        new_model->setCoefDriftByRank(i, 0.);
-      st_drift_derivative(0, MODEL_DERIVATIVE_NONE, model, new_model);
-      st_drift_derivative(1, MODEL_DERIVATIVE_X, model, new_model);
-      st_drift_derivative(2, MODEL_DERIVATIVE_Y, model, new_model);
-    }
-  }
+  DriftList* drifts = DriftFactory::createDriftListForGradients(model->getDriftList(), ctxt);
+  new_model->setDriftList(drifts);
 
   return (new_model);
 }
@@ -1340,7 +1134,7 @@ int model_normalize(Model *model, int flag_verbose)
     for (int jvar = 0; jvar < nvar; jvar++)
       for (int icov = 0; icov < ncov; icov++)
       {
-        double sill = model->getCova(icov)->getSill(ivar, jvar);
+        double sill = model->getSill(icov,ivar, jvar);
         sill /= total[ivar] * total[jvar];
         model->getCova(icov)->setSill(ivar, jvar, sill);
       }
@@ -1598,7 +1392,7 @@ double model_drift_evaluate(int /*verbose*/,
   {
     double value = 0.;
     for (int il = 0; il < model->getDriftNumber(); il++)
-      value += drftab[il] * model->getCoefDrift(ivar, il, ib);
+      value += drftab[il] * model->getDriftCoef(ivar, il, ib);
     drift += value * coef[ib];
   }
   return (drift);
@@ -1677,10 +1471,8 @@ int model_sample(Vario *vario, Model *model, const CovCalcMode*  mode)
 
   VectorDouble d1(ndim,0.);
   VectorDouble covtab(nvar * nvar, 0.);
+
   vario->setNVar(nvar);
-
-  // Internal dimensioning
-
   vario->internalVariableResize();
   vario->internalDirectionResize();
 
@@ -1881,6 +1673,7 @@ int model_regularize(Model  *model,
 
   int nech = dbgrid->getSampleNumber();
   int norme = nech * nech;
+
   vario->setNVar(nvar);
   vario->internalVariableResize();
   vario->internalDirectionResize();

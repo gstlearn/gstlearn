@@ -21,6 +21,7 @@ set(SRC
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
+  API/SPDEParam.cpp
   API/TestInheritance.cpp
   Gibbs/GibbsUPropMono.cpp
   Gibbs/GibbsFactory.cpp
@@ -151,6 +152,8 @@ set(SRC
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
+  LinearOp/LogStats.cpp
+  LinearOp/CGParam.cpp
   LinearOp/PrecisionOp.cpp
   LinearOp/TurboOptimizer.cpp
   LinearOp/ProjMatrix.cpp
@@ -163,6 +166,7 @@ set(SRC
   LinearOp/HessianOp.cpp
   LinearOp/OptimCostBinary.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
+  LinearOp/PrecisionOpMultiConditionalCs.cpp
   LinearOp/OptimCostColored.cpp
   LinearOp/ProjConvolution.cpp
   LinearOp/Cholesky.cpp
@@ -217,6 +221,7 @@ set(SRC
   Geometry/BiTargetCheckBench.cpp
   Geometry/BiTargetCheckCode.cpp
   Geometry/BiTargetCheckDate.cpp
+  Geometry/BiTargetCheckGeometry.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp
@@ -248,25 +253,11 @@ set(SRC
   Stats/PCA.cpp
   Stats/PCAStringFormat.cpp
   Stats/Selectivity.cpp
-  Drifts/DriftX.cpp
-  Drifts/DriftY.cpp
-  Drifts/DriftX2Y.cpp
-  Drifts/DriftZ3.cpp
-  Drifts/Drift1.cpp
-  Drifts/DriftXY.cpp
+  Stats/Regression.cpp
+  Drifts/DriftM.cpp
   Drifts/DriftF.cpp
   Drifts/DriftFactory.cpp
-  Drifts/DriftX3.cpp
-  Drifts/DriftZ.cpp
-  Drifts/DriftX2.cpp
-  Drifts/DriftXZ.cpp
-  Drifts/DriftY2.cpp
-  Drifts/DriftY3.cpp
-  Drifts/DriftXY2.cpp
   Drifts/ADrift.cpp
-  Drifts/DriftZ2.cpp
-  Drifts/ADriftElem.cpp
-  Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
   Neigh/ANeigh.cpp
   Neigh/NeighUnique.cpp

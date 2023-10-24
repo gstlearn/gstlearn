@@ -14,7 +14,7 @@ file(GLOB COURSES_SOURCES ${COURSES_DIR}/*.Rmd)
 set(COURSES_SOURCES ${COURSES_SOURCES})
 # Without GLOB:
 #set(COURSES_SOURCES
-#    ../../doc/courses/r/00_Learn_R.Rmd)
+#    06a_Multivariate.Rmd)
 
 # Generation folder
 cmake_path(APPEND CMAKE_BINARY_DIR courses r
@@ -44,6 +44,7 @@ foreach(COURSES_SOURCE_FILE ${COURSES_SOURCES})
                OUTPUT_VARIABLE COURSES_SOURCE_FILE)
     # Run the courses (and generate html in ${COURSES_DIR})
     # https://stackoverflow.com/a/30554504/3952924
+    # https://unix.stackexchange.com/questions/134816/how-to-remove-all-fifo-files-with-a-shell-command
     add_custom_target(${COURSES_NAME}_rmd_html
                       COMMAND mkfifo ${COURSES_NAME}_fifo
                       COMMAND cat ${COURSES_NAME}_fifo &

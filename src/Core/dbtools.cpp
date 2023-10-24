@@ -778,6 +778,57 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
 
 /****************************************************************************/
 /*!
+ **  Check if a pair must be kept according to code criterion
+ **
+ ** \return  1 if the codes are not comparable
+ **
+ ** \param[in]  db1        First Db structure
+ ** \param[in]  db2        Second Db structure
+ ** \param[in]  iech       Rank of the first sample
+ ** \param[in]  jech       Rank of the second sample
+ ** \param[in]  opt_code   code selection option
+ ** \li                     0 : no use of the code selection
+ ** \li                     1 : codes must be close enough
+ ** \li                     2 : codes must be different
+ ** \param[in]  tolcode    Code tolerance
+ **
+ ** \remarks When used in variogram calculation, pairs are discarded then the
+ ** \remarks resulting value is 1.
+ **
+ *****************************************************************************/
+static int _code_comparable(const Db *db1,
+                            const Db *db2,
+                            int iech,
+                            int jech,
+                            int opt_code,
+                            int tolcode)
+{
+  double code1, code2;
+
+  /* Dispatch */
+
+  switch (opt_code)
+  {
+    case 0:
+      break;
+
+    case 1: /* Code must be close */
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
+      if (ABS(code1 - code2) > tolcode) return (1);
+      break;
+
+    case 2: /* Code must be different */
+      code1 = db1->getLocVariable(ELoc::C,iech,0);
+      code2 = db2->getLocVariable(ELoc::C,jech,0);
+      if (code1 == code2) return (1);
+      break;
+  }
+  return (0);
+}
+
+/****************************************************************************/
+/*!
  **  Look for duplicates
  **
  ** \return  Error return code
@@ -840,7 +891,7 @@ int db_tool_duplicate(Db *db1,
         double v2 = db2->getCoordinate(iech2, idim);
         if (flag_code)
         {
-          if (code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
+          if (_code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
         double dval = (dist != nullptr) ? dist[idim] : 0.;
@@ -4931,13 +4982,13 @@ int db_model_nostat(Db *db,
   int jptr = iptr;
   for (int idim = 0; idim < ndim; idim++)
     namconv.setNamesAndLocators(
-        nullptr, ELoc::UNKNOWN, -1, db, jptr++,
+        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
         concatenateStrings("-", "Range", toString(idim + 1)));
   for (int idim = 0; idim < ndim; idim++)
     namconv.setNamesAndLocators(
-        nullptr, ELoc::UNKNOWN, -1, db, jptr++,
+        nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++,
         concatenateStrings("-", "Angle", toString(idim + 1)));
-  namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, db, jptr++, "Sill");
+  namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
   namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
 
   (void) manage_nostat_info(-1, model, db, nullptr);
@@ -5968,7 +6019,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbgrid, iatt_out);
+  namconv.setNamesAndLocators(dbgrid, VectorString(), ELoc::Z, -1, dbgrid, iatt_out);
 
   return 0;
 }
@@ -6144,7 +6195,8 @@ int db_proportion_estimate(Db *dbin,
   // Define the environment
 
   MeshETurbo mesh = MeshETurbo(dbout);
-  ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
+  CGParam params = CGParam(200, 1.e-10);
+  ShiftOpCs S = ShiftOpCs(&mesh, model, dbout, 0, 0, params);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0));
   ProjMatrix AprojDat = ProjMatrix(dbin, &mesh);
   ProjMatrix AprojOut = ProjMatrix(dbout, &mesh);
@@ -6154,7 +6206,6 @@ int db_proportion_estimate(Db *dbin,
   VectorDouble propGlob = dbStatisticsFacies(dbin);
   int ncat = static_cast<int>(propGlob.size());
   OptimCostColored Oc = OptimCostColored(ncat, &Qprop, &AprojDat);
-  Oc.setCGParams(200, 1.e-10);
 
   VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
   VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose, niter);
@@ -6168,7 +6219,7 @@ int db_proportion_estimate(Db *dbin,
     AprojOut.mesh2point(props[i],propout);
     int iptr = dbout->addColumns(propout,String(),ELoc::UNKNOWN,0,true);
     if (i == 0) iptr0 = iptr;
-    namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
+    namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, dbout, iptr,
                                 concatenateStrings("-", toString(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);

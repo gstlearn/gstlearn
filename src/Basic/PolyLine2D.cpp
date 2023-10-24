@@ -15,6 +15,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Stats/Classical.hpp"
+#include "Stats/Regression.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -408,7 +409,7 @@ double PolyLine2D::angleAtPolyline(const PolyPoint2D &pldist, int nb_neigh) cons
     x.push_back(getX(i));
     y.push_back(getY(i));
   }
-  VectorDouble coeffs = regrDeming(x,y);
+  VectorDouble coeffs = regressionDeming(x,y);
   double angle = coeffs[1] * 180. / GV_PI;
 
   return angle;
@@ -499,7 +500,7 @@ int dbUnfoldPolyline(Db *db,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  namconv.setNamesAndLocators(db, VectorString(), ELoc::Z, -1, db, iptr);
   return 0;
 }
 
@@ -587,7 +588,7 @@ int dbFoldPolyline(DbGrid *dbin,
 
   /* Set the error return code */
 
-  namconv.setNamesAndLocators(dbout, ELoc::Z, -1, dbout, iptr);
+  namconv.setNamesAndLocators(dbout, VectorString(), ELoc::Z, -1, dbout, iptr);
 
   return 0;
 }

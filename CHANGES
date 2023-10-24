@@ -2,19 +2,45 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
+Release 0.4.2
+=============
+- Fix Mac OS compilation
+- Fix python readme
 
-Release 0.3.4
+Release 0.4.1
+=============
+- Prevent NamingConvention from creating variables with empty name
+
+
+Release 0.4.0
 =============
 - Update R readme
 - Add severity check for model validity (used before kriging)
 - Standardize graphics in R and Python
 - Rename name1 and name2 into namex and namey for correlation representations
-- Parametrize the amount of Nugget (technically) added in SPDE
+- Parameterize the amount of Nugget (technically) added in SPDE
 - Corrections in the API functions of SPDE method
 - New test (cpp) for benchmarking SPDE features
 - Allow processing target variable with NA in SPDE API functions
 - Suppress class MatrixSquareDiagonalCst
 - Suppress class MatrixSquareDiagonal
+- Important warning: the Drift part of the Model Neutral File has changed.
+- Drift* is not a serializable class anymore (only Model class is)
+- Adding Legend to plot.varmod for plot.R
+- flagCste replaced by flagCst everywhere
+- The Enum called EDrift is abandoned
+- Function dbRegressionByColIdx() has been abandoned (use dbRegression instead)
+- Function regressionByUID() has been abandoned (use regression instead)
+- Improvement of Table printout (row name not truncated anymore)
+- New class 'ResReg' for storing Regression formula (AStringable)
+- Integrate R documentation for functions in plot.R into the R package
+- Names in plot.R and plot.py are standardized: using camel-writing systematically 
+- New method Db_fromPanda for creating Db from Panda Frame (numerical columns only)
+- New method Db_fromDF for creating Db from data.frame (numerical columns only)
+- Fix functions having "String()" default value in r (replaced by "")
+- dbStatististics* functions refactoring (same function for printing and calculating)
+- New design for VarioParam / Vario
+- Possibility to convert variogram to external language (Python or R) for In and Out
 
 Release 0.3.3
 =============

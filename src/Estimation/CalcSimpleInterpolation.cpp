@@ -16,6 +16,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
+#include "Drifts/DriftFactory.hpp"
 
 CalcSimpleInterpolation::CalcSimpleInterpolation()
     : ACalcInterpolator(),
@@ -95,8 +96,8 @@ bool CalcSimpleInterpolation::_postprocess()
   /* Free the temporary variables */
   _cleanVariableDb(2);
 
-  _renameVariable(2, 1, _iattEst, "estim", 1);
-  _renameVariable(2, 1, _iattStd, "stdev", 1);
+  _renameVariable(2, VectorString(), ELoc::Z, 1, _iattEst, "estim", 1);
+  _renameVariable(2, VectorString(), ELoc::Z, 1, _iattStd, "stdev", 1);
   return true;
 }
 
@@ -500,9 +501,8 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
   int ndim = dbin->getNDim();
   VectorInt nbgh;
   CovContext ctxt(1, ndim);
-  DriftList drft;
-  drft.setDriftIRF(_order, 0, ctxt);
-  int ndrift = drft.getDriftNumber();
+  const DriftList* drft = DriftFactory::createDriftListFromIRF(_order, 0, ctxt);
+  int ndrift = drft->getDriftNumber();
   VectorDouble X(ndrift);
   VectorDouble B(ndrift);
   MatrixSquareSymmetric A(ndrift);
@@ -537,7 +537,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
        int jech1 = nbgh[jech];
        double zval = dbin->getLocVariable(ELoc::Z,jech1, 0);
        if (FFFF(zval)) continue;
-       VectorDouble Vdata = drft.getDriftBySample(dbin, jech1);
+       VectorDouble Vdata = drft->getDriftBySample(dbin, jech1);
 
        // Double loop on the drift terms
        for (int id1 = 0; id1 < ndrift; id1++)
@@ -554,7 +554,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
      if (A.solve(B, X) > 0) continue;
 
      // Evaluate the vector of drift terms at target
-     VectorDouble Vtarget = drft.getDriftBySample(dbout,  iech);
+     VectorDouble Vtarget = drft->getDriftBySample(dbout,  iech);
 
      // Perform the estimation
      double result = VH::innerProduct(X, Vtarget);

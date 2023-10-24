@@ -1,38 +1,4 @@
 NULL
-[1] "quad_chol = 84.8891"
-[1] "quad_api  = 83.8169"
-[1] "Quadratic form: relative difference = -0.012631"
-[1] "log_det_op_chol = 26060.787"
-[1] "log_det_op_api  = 25947.8238"
-[1] "relative difference = -0.0043"
-[1] "log_det_Q_chol = 25197.6444"
-[1] "log_det_Q_api = 25197.6444"
-[1] "relative difference = 0"
-[1] "Sum of log var - model = -921.034"
-[1] "Sum of log var - api   = -460.517"
-[1] "relative difference = -0.5"
-[1] "log_det_LL_chol = 57.8915"
-[1] "log_det_LL_api  = 358.985"
-[1] "relative difference = 5.201"
-[1] "likelihood api  = -241.5516"
-[1] "likelihood_chol = -13.4988"
-[1] "16.8943"
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-K-Bessel (Third Parameter = 1)
-- Sill         =      1.000
-- Range        =      0.200
-- Theo. Range  =      0.058
-Total Sill     =      1.000
 
 Model characteristics
 =====================
@@ -51,13 +17,5 @@ K-Bessel (Third Parameter = 1)
 Nugget Effect
 - Sill         =      0.000
 Total Sill     =      1.000
-[1] "Using Cholesky: LL = -13.4988217677376"
-[1] "Using SPDE api: LL = -217.985578209434"
-
-
-Table: Maximum of Log-Likelihood for range and sill
-
-|        | range|  sill|  tau| LL value|
-|:-------|-----:|-----:|----:|--------:|
-|initial | 0.200| 1.000| 0.01|   41.075|
-|final   | 0.219| 0.903| 0.01|   12.638|
+NULL
+These options have not been implemented yet. Not taken into account

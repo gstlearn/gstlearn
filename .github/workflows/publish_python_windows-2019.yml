@@ -1,0 +1,120 @@
+name: publish_python_windows-2019
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
+
+  BOOST_ROOT: boost
+  BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
+  #HDF5_ROOT : hdf5 #do not use "." in the name
+  #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
+  #HDF5_VERSION : hdf5-1.12.1
+  DOXYGEN_ROOT : Doxygen
+  DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.8.windows.x64.bin.zip
+  
+jobs:
+
+  build:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        # Python version + Numpy version
+        python:
+          - ["3.8",  "1.20.3"]
+          - ["3.9",  "1.20.3"]
+          - ["3.10", "1.21.6"]
+          - ["3.11", "1.23.5"]
+        arch:
+          - ["win_amd64", "x64", "x64"]
+          - ["win32",     "x86", "Win32"]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{matrix.python[0]}}
+        architecture: ${{matrix.arch[1]}}
+
+    - name: Install Python dependencies
+      # Force specific old version for Numpy
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{matrix.python[1]}} twine wheel
+
+#####################################################################################################
+# HDF5 download and install
+
+#    - name : Download and install HDF5
+#      run: | 
+#        mkdir ${{env.HDF5_ROOT}}
+#        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.zip ${{env.HDF5_URL}}	
+#        7z x ${{env.HDF5_ROOT}}/download.zip
+#        cd CMake-${{env.HDF5_VERSION}}
+#        mkdir build
+#        cd build
+#        cmake -G ${{env.COMPILE_VERSION}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
+#        cmake --build . --target all --config Release
+#        cmake --build . --target install --config Release
+
+########################################################################################################
+# Doxygen download and unzip
+
+    - name : Download and install Doxygen
+      run: |
+        mkdir ${{env.DOXYGEN_ROOT}}
+        cd ${{env.DOXYGEN_ROOT}}
+        mkdir bin
+        cd .. 
+        curl --progress-bar --output ${{env.DOXYGEN_ROOT}}/download.zip ${{env.DOXYGEN_URL}}
+        7z -o${{env.DOXYGEN_ROOT}}/bin x ${{env.DOXYGEN_ROOT}}/download.zip
+
+########################################################################################################
+# Boost headers download and unzip
+
+    - name : Download and uncompressed Boost headers
+      run: |
+        mkdir ${{env.BOOST_ROOT}}
+        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+   
+########################################################################################################
+# Configuration to prepare compilation
+
+    - name : Configure CMake
+      run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} 
+           #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} 
+
+########################################################################################################
+# Compilation (gstlearn and python package)
+
+    - name : Python package compilation
+      run : cmake --build ${{env.BUILD_DIR}} --target python_build --config ${{env.BUILD_TYPE}}
+
+########################################################################################################
+# Build and upload wheel
+ 
+    - name : Build and upload wheel
+      run: |
+        cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
+        # Note: wheel must be declared pure (see setup.py)
+        python setup.py bdist_wheel --plat-name=${{matrix.arch[0]}}
+        python -m twine upload dist\*
+
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
+        TWINE_REPOSITORY: pypi
+

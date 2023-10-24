@@ -47,7 +47,6 @@
 %include Enum/ETape.hpp
 %include Enum/ELoadBy.hpp
 %include Enum/ELoc.hpp
-%include Enum/EDrift.hpp
 %include Enum/EPowerPT.hpp
 %include Enum/ERule.hpp
 %include Enum/EConsElem.hpp
@@ -115,6 +114,7 @@
 %include Geometry/BiTargetCheckFaults.hpp
 %include Geometry/BiTargetCheckCode.hpp
 %include Geometry/BiTargetCheckDate.hpp
+%include Geometry/BiTargetCheckGeometry.hpp
 
 %include Arrays/AArray.hpp
 %include Arrays/Array.hpp
@@ -155,6 +155,8 @@
 %include Polynomials/MonteCarlo.hpp
 %include Polynomials/Chebychev.hpp
 
+%include LinearOp/CGParam.hpp
+%include LinearOp/LogStats.hpp
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ALinearOpMulti.hpp
 %include LinearOp/ShiftOpCs.hpp
@@ -238,25 +240,10 @@
 %include Covariances/CovHelper.hpp
 
 %include Drifts/ADrift.hpp
-%include Drifts/ADriftElem.hpp
 %include Drifts/DriftList.hpp
-%include Drifts/Drift1.hpp
+%include Drifts/DriftM.hpp
 %include Drifts/DriftF.hpp
 %include Drifts/DriftFactory.hpp
-%include Drifts/DriftX.hpp
-%include Drifts/DriftX2.hpp
-%include Drifts/DriftX2Y.hpp
-%include Drifts/DriftX3.hpp
-%include Drifts/DriftXY.hpp
-%include Drifts/DriftXY2.hpp
-%include Drifts/DriftXZ.hpp
-%include Drifts/DriftY.hpp
-%include Drifts/DriftY2.hpp
-%include Drifts/DriftY3.hpp
-%include Drifts/DriftYZ.hpp
-%include Drifts/DriftZ.hpp
-%include Drifts/DriftZ2.hpp
-%include Drifts/DriftZ3.hpp
 
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixSquare.hpp
@@ -272,6 +259,7 @@
 %include API/PGSSPDE.hpp
 %include API/TestInheritance.hpp
 %include API/Style.hpp
+%include API/SPDEParam.hpp
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
@@ -302,6 +290,7 @@
 %include Stats/PCA.hpp
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
+%include Stats/Regression.hpp
 
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleStringFormat.hpp

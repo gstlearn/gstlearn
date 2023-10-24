@@ -4,7 +4,7 @@
 
 +*Out[10]:*+
 ----
-![png](output_23_0.png)
+![png](output_24_0.png)
 ----
 
 
@@ -57,7 +57,7 @@ Column = 3 - Name = Potential - Locator = z1----
 
 +*Out[20]:*+
 ----
-![png](output_44_0.png)
+![png](output_45_0.png)
 ----
 
 
@@ -82,10 +82,10 @@ Total Sill     =      1.000
 
 Drift Part
 ----------
-Universality Condition
-Drift X
-Drift Y
-Drift Z
+Universality_Condition
+Drift:x1
+Drift:x2
+Drift:x3
  ----
 
 

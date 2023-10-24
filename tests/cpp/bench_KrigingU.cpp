@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv); // TODO create a Command Line Parser object instead
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);

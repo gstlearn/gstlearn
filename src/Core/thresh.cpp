@@ -1263,7 +1263,7 @@ Model* model_rule_combine(const Model *model1,
 
   if (model1->getVariableNumber() == 2 || ngrf == 1)
   {
-    new_model = model_duplicate(model1, 0., 0);
+    new_model = model1->clone();
     return (new_model);
   }
 
@@ -1273,7 +1273,7 @@ Model* model_rule_combine(const Model *model1,
   {
     if (rule->getModeRule() == ERule::SHIFT)
     {
-      new_model = model_duplicate(model1, 0., 0);
+      new_model = model1->clone();
       return (new_model);
     }
 

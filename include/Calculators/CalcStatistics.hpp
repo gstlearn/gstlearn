@@ -38,9 +38,9 @@ public:
   void setOper(const EStatOption &oper) { _oper = oper; }
 
   void setFlagRegr(bool flagRegr) { _flagRegr = flagRegr; }
-  void setFlagCste(bool flagCste) { _flagCste = flagCste; }
-  void setName0(const String &name0) { _name0 = name0; }
-  void setNamaux(const VectorString &namaux) { _namaux = namaux; }
+  void setFlagCst(bool flagCst) { _flagCst = flagCst; }
+  void setName0(const String &name0) { _nameResp = name0; }
+  void setNamaux(const VectorString &namaux) { _nameAux = namaux; }
   void setRegrMode(int regrMode) { _regrMode = regrMode; }
   void setModel(const Model* model) { _model = model; }
 
@@ -54,16 +54,14 @@ private:
 private:
   int    _iattOut;
   bool   _dboutMustBeGrid;
-
-  bool _flagStats;
+  bool   _flagStats;
   EStatOption _oper;
-  int _radius;
-
-  bool _flagRegr;
-  bool _flagCste;
-  int  _regrMode;
-  String _name0;
-  VectorString _namaux;
+  int    _radius;
+  bool   _flagRegr;
+  bool   _flagCst;
+  int    _regrMode;
+  String _nameResp;
+  VectorString _nameAux;
   const Model* _model;
 };
 
@@ -74,20 +72,11 @@ GSTLEARN_EXPORT int dbStatisticsOnGrid(Db *db,
                                        const NamingConvention &namconv = NamingConvention(
                                            "Stats"));
 GSTLEARN_EXPORT int dbRegression(Db *db1,
-                                 const String& name0,
-                                 const VectorString& namaux,
+                                 const String& nameResp,
+                                 const VectorString& nameAux,
                                  int mode = 0,
-                                 bool flagCste = true,
+                                 bool flagCst = true,
                                  Db *db2 = nullptr,
                                  const Model* model = nullptr,
                                  const NamingConvention &namconv = NamingConvention(
                                      "Regr"));
-GSTLEARN_EXPORT int dbRegressionByColIdx(Db *db1,
-                                         int icol0,
-                                         const VectorInt &icols,
-                                         int mode = 0,
-                                         bool flagCste = true,
-                                         Db *db2 = nullptr,
-                                         const Model *model = nullptr,
-                                         const NamingConvention &namconv = NamingConvention(
-                                             "Regr"));

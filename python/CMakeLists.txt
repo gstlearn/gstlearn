@@ -10,11 +10,11 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # DEPENDENCIES
 
 # Look for Python3
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
 # Look for SWIG 4 [No need for customized swig]
 find_package(SWIG 4.0 REQUIRED)
-message(STATUS "Found SWIG: " ${SWIG_EXECUTABLE} " (found version \"" ${SWIG_VERSION} "\")")
 include(${SWIG_USE_FILE})
 
 # Look for pybind11
@@ -34,7 +34,7 @@ endif()
 # DOCUMENTATION
 
 # Ensure documentation.i is existing
-# TODO : put documentation.i out of the source
+# TODO : put documentation.i out of the source (be careful of pyswigex.i)
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
   COMMENT "Ensure that documentation.i exists")
@@ -118,6 +118,8 @@ target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static Python3::NumPy
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 if (MSVC)
   set(COMP_FLAGS "${COMP_FLAGS} /wd4706 /wd4456 /wd4127 /wd4100") # SWIG generated code warnings
+else ()
+  set(COMP_FLAGS "${COMP_FLAGS} -Wno-unused-parameter -Wno-free-nonheap-object") # Prevent some SWIG C++/Python warnings
 endif()
 if (MSVC)
   # Wrapper source is too big for MSVC !

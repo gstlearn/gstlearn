@@ -41,7 +41,7 @@ Column = 5 - Name = z-3 - Locator = z3----
 
 +*Out[5]:*+
 ----
-![png](output_12_0.png)
+![png](output_14_0.png)
 ----
 
 
@@ -54,16 +54,16 @@ point(db, *args, **kwargs)
     
     ax: matplotlib.Axes
     db: Db containing the variable to be plotted
-    name_color: Name of the variable containing the color per sample
-    name_size: Name of the variable containing the size per sample
-    name_label: Name of the variable containing the label per sample
-    coorX_name: Name of the variable standing for X coordinate 
-    coorY_name: Name of the variable standing for Y coordinate 
+    nameColor: Name of the variable containing the color per sample
+    nameSize: Name of the variable containing the size per sample
+    nameLabel: Name of the variable containing the label per sample
+    nameCoorX: Name of the variable standing for X coordinate 
+    nameCoorY: Name of the variable standing for Y coordinate 
     useSel : Boolean to indicate if the selection has to be considered
-    color: Constant color (used if 'name_color' is not defined)
-    size: Constant size (used if 'name_size' is not defined)
-    sizmin: Size corresponding to the smallest value (used if 'name_size' is defined)
-    sizmax: Size corresponding to the largest value (used if 'name_size' is defined)
+    color: Constant color (used if 'nameColor' is not defined)
+    size: Constant size (used if 'nameSize' is not defined)
+    sizmin: Size corresponding to the smallest value (used if 'nameSize' is defined)
+    sizmax: Size corresponding to the largest value (used if 'nameSize' is defined)
     flagAbsSize: Represent the Absolute value in Size representation
     flagCst: When True, the size is kept constant (equel to 's')
     cmap: Optional Color scale
@@ -74,11 +74,11 @@ point(db, *args, **kwargs)
     colorTangent: Color attached to the Tangent representation
     scaleTangent: Scale of the Tangent representation
     flagLegendColor: Flag for representing the Color Legend (only if name-color is defined)
-    flagLegendSize: Flag for representing the Size legend (only if name_size is defined)
-    flagLegendLabel: Flag for representing the Label Legend (only if name_label is defined)
-    legendNameColor: Title for the Color Legend
-    legendNameSize: Title for the Size legend
-    legendNameLabel: Title for the Label Legend
+    flagLegendSize: Flag for representing the Size legend (only if nameSize is defined)
+    flagLegendLabel: Flag for representing the Label Legend (only if nameLabel is defined)
+    legendNameColor: Title for the Color Legend (set to 'nameColor' if not defined)
+    legendNameSize: Title for the Size legend (set to 'nameSize' if not defined)
+    legendNameLabel: Title for the Label Legend (set to 'nameLabel' if not defined)
     posX: rank of the first coordinate
     posY: rank of the second coordinate
     
@@ -89,43 +89,43 @@ point(db, *args, **kwargs)
 
 +*Out[7]:*+
 ----
-![png](output_17_0.png)
+![png](output_19_0.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_19_0.png)
+![png](output_21_0.png)
 ----
 
 
 +*Out[9]:*+
 ----
-![png](output_21_0.png)
+![png](output_23_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_25_0.png)
+![png](output_27_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_28_0.png)
+![png](output_30_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_30_0.png)
+![png](output_32_0.png)
 ----
 
 
 +*Out[14]:*+
 ----
-![png](output_32_0.png)
+![png](output_34_0.png)
 ----
 
 
@@ -135,7 +135,7 @@ point(db, *args, **kwargs)
 
 +*Out[17]:*+
 ----
-![png](output_38_0.png)
+![png](output_40_0.png)
 ----
 
 
@@ -170,25 +170,25 @@ Column = 4 - Name = Simu.2 - Locator = z2
 
 +*Out[19]:*+
 ----
-![png](output_43_0.png)
+![png](output_45_0.png)
 ----
 
 
 +*Out[20]:*+
 ----
-![png](output_44_0.png)
+![png](output_46_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_45_0.png)
+![png](output_47_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_46_0.png)
+![png](output_48_0.png)
 ----
 
 
@@ -209,43 +209,43 @@ Geographical defaults:
 
 +*Out[25]:*+
 ----
-![png](output_56_0.png)
+![png](output_58_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_58_0.png)
+![png](output_60_0.png)
 ----
 
 
 +*Out[27]:*+
 ----
-![png](output_60_0.png)
+![png](output_62_0.png)
 ----
 
 
 +*Out[28]:*+
 ----
-![png](output_62_0.png)
+![png](output_64_0.png)
 ----
 
 
 +*Out[29]:*+
 ----
-![png](output_64_0.png)
+![png](output_66_0.png)
 ----
 
 
 +*Out[30]:*+
 ----
-![png](output_66_0.png)
+![png](output_68_0.png)
 ----
 
 
 +*Out[31]:*+
 ----
-![png](output_68_0.png)
+![png](output_70_0.png)
 ----
 
 
@@ -277,31 +277,31 @@ Column = 6 - Name = sel - Locator = sel
 
 +*Out[34]:*+
 ----
-![png](output_75_0.png)
+![png](output_77_0.png)
 ----
 
 
 +*Out[36]:*+
 ----
-![png](output_79_0.png)
+![png](output_81_0.png)
 ----
 
 
 +*Out[38]:*+
 ----
-![png](output_83_0.png)
+![png](output_85_0.png)
 ----
 
 
 +*Out[39]:*+
 ----
-![png](output_85_0.png)
+![png](output_87_0.png)
 ----
 
 
 +*Out[40]:*+
 ----
-![png](output_87_0.png)
+![png](output_89_0.png)
 ----
 
 
@@ -336,65 +336,65 @@ Column = 3 - Name = z - Locator = z1
 
 +*Out[42]:*+
 ----
-![png](output_92_0.png)
+![png](output_94_0.png)
 ----
 
 
 +*Out[43]:*+
 ----
-![png](output_94_0.png)
+![png](output_96_0.png)
 ----
 
 
 +*Out[44]:*+
 ----
-![png](output_96_0.png)
+![png](output_98_0.png)
 ----
 
 
 +*Out[47]:*+
 ----
-![png](output_104_0.png)
+![png](output_106_0.png)
 ----
 
 
 +*Out[48]:*+
 ----
-![png](output_106_0.png)
+![png](output_108_0.png)
 ----
 
 
 +*Out[49]:*+
 ----
-![png](output_108_0.png)
+![png](output_110_0.png)
 ----
 
 
 +*Out[50]:*+
 ----
-![png](output_110_0.png)
+![png](output_112_0.png)
 ----
 
 
 +*Out[51]:*+
 ----
-![png](output_113_0.png)
+![png](output_115_0.png)
 ----
 
 
 +*Out[52]:*+
 ----
-![png](output_116_0.png)
+![png](output_118_0.png)
 ----
 
 
 +*Out[53]:*+
 ----
-![png](output_118_0.png)
+![png](output_120_0.png)
 ----
 
 
 +*Out[54]:*+
 ----
-![png](output_121_0.png)
+![png](output_123_0.png)
 ----

@@ -30,7 +30,7 @@ Functional
 
 +*Out[5]:*+
 ----
-![png](output_8_0.png)
+![png](output_10_0.png)
 ----
 
 
@@ -57,15 +57,15 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.simu.1 - Locator = z1
-Column = 4 - Name = SimuSPDE.simu.2 - Locator = z2
-Column = 5 - Name = SimuSPDE.simu.3 - Locator = z3
-Column = 6 - Name = SimuSPDE.simu.4 - Locator = z4----
+Column = 3 - Name = SimuSPDE.1 - Locator = z1
+Column = 4 - Name = SimuSPDE.2 - Locator = z2
+Column = 5 - Name = SimuSPDE.3 - Locator = z3
+Column = 6 - Name = SimuSPDE.4 - Locator = z4----
 
 
 +*Out[8]:*+
 ----
-![png](output_14_0.png)
+![png](output_16_0.png)
 ----
 
 
@@ -91,7 +91,7 @@ Column = 3 - Name = data - Locator = z1----
 
 +*Out[10]:*+
 ----
-![png](output_17_0.png)
+![png](output_19_0.png)
 ----
 
 
@@ -118,16 +118,16 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.simu.1 - Locator = NA
-Column = 4 - Name = SimuSPDE.simu.2 - Locator = NA
-Column = 5 - Name = SimuSPDE.simu.3 - Locator = NA
-Column = 6 - Name = SimuSPDE.simu.4 - Locator = NA
-Column = 7 - Name = KrigingSPDE.data.kriging - Locator = z1----
+Column = 3 - Name = SimuSPDE.1 - Locator = NA
+Column = 4 - Name = SimuSPDE.2 - Locator = NA
+Column = 5 - Name = SimuSPDE.3 - Locator = NA
+Column = 6 - Name = SimuSPDE.4 - Locator = NA
+Column = 7 - Name = KrigingSPDE.data.estim - Locator = z1----
 
 
 +*Out[12]:*+
 ----
-![png](output_21_0.png)
+![png](output_23_0.png)
 ----
 
 
@@ -154,18 +154,18 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = SimuSPDE.simu.1 - Locator = NA
-Column = 4 - Name = SimuSPDE.simu.2 - Locator = NA
-Column = 5 - Name = SimuSPDE.simu.3 - Locator = NA
-Column = 6 - Name = SimuSPDE.simu.4 - Locator = NA
-Column = 7 - Name = KrigingSPDE.data.kriging - Locator = NA
-Column = 8 - Name = SimuSPDE.data.condSimu.1 - Locator = z1
-Column = 9 - Name = SimuSPDE.data.condSimu.2 - Locator = z2
-Column = 10 - Name = SimuSPDE.data.condSimu.3 - Locator = z3
-Column = 11 - Name = SimuSPDE.data.condSimu.4 - Locator = z4----
+Column = 3 - Name = SimuSPDE.1 - Locator = NA
+Column = 4 - Name = SimuSPDE.2 - Locator = NA
+Column = 5 - Name = SimuSPDE.3 - Locator = NA
+Column = 6 - Name = SimuSPDE.4 - Locator = NA
+Column = 7 - Name = KrigingSPDE.data.estim - Locator = NA
+Column = 8 - Name = CondSimu.data.1 - Locator = z1
+Column = 9 - Name = CondSimu.data.2 - Locator = z2
+Column = 10 - Name = CondSimu.data.3 - Locator = z3
+Column = 11 - Name = CondSimu.data.4 - Locator = z4----
 
 
 +*Out[14]:*+
 ----
-![png](output_25_0.png)
+![png](output_27_0.png)
 ----

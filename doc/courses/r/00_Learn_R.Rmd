@@ -24,7 +24,7 @@ library(gstlearn)
 
 # R used as a pocket calculator
 
-```{r Calculator-1}
+```{r Calculator_1}
 1+3
 exp(log(sqrt(2^2)))
 ```
@@ -43,7 +43,7 @@ d
 
 ## Working directory
 
-```{r Working-directory, eval=FALSE}
+```{r Working_directory, eval=FALSE}
 ls()
 rm(d)
 ls()
@@ -76,7 +76,7 @@ class(reponse)
 
 ## Booleans
 
-```{r Boolean-1}
+```{r Boolean_1}
 a = 1
 a < 2
 comp = a < 2
@@ -87,7 +87,7 @@ comp | reponse
 ```
 
 
-```{r Boolean-2}
+```{r Boolean_2}
 a = 1
 a == 1
 a != 1
@@ -97,7 +97,7 @@ a >= 1
 
 ## Vectors
 
-```{r Vectors-1}
+```{r Vectors_1}
 x = c(1,9,2,9,4,5)
 x
 class(x)
@@ -108,7 +108,7 @@ x[-2]
 ```
 
 
-```{r Vectors-2}
+```{r Vectors_2}
 x = c(1,9,2,9,4,5)
 x[2:5]
 selection = x > 2
@@ -136,7 +136,7 @@ dim(M)
 
 ## Data frame
 
-```{r Data-Frames-1}
+```{r Data_Frames_1}
 data = data.frame(M)
 class(data)
 data[,3]
@@ -146,7 +146,7 @@ data
 ```
 
 
-```{r Data-Frames-2}
+```{r Data_Frames_2}
 data
 data$C
 data[data$A>1,]
@@ -156,12 +156,10 @@ data[data$A>1,]
 
 Download the ASCII file called *Scotland_Temperatures.csv* and store it on your disk in the current working directory.
 
-
-
-```{r Data-Frame-from-File, eval=FALSE}
+```{r Data_Frame_from_File, eval=FALSE}
 filename = "Scotland_Temperatures.csv"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filename), filename)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filename), filename, quiet=TRUE)
 }
 
 temperatures = read.csv(filename,header=TRUE,na="MISS")
@@ -171,7 +169,7 @@ names(temperatures)
 
 ## Some functions
 
-```{r Functions-1}
+```{r Functions_1}
 set.seed(123)
 rnorm(3)
 x=c(3,4,7,4,2)
@@ -181,7 +179,7 @@ unique(x)
 ```
 
 
-```{r Functions-2}
+```{r Functions_2}
 x=c(3,4,7,4,2)
 sum(x)
 mean(x)
@@ -199,7 +197,7 @@ Search for help on the function **image**.
 
 To get some help on a class :
 
-```{r Help-on-Class,eval=FALSE}
+```{r Help_on_Class,eval=FALSE}
 class?matrix
 ```
 

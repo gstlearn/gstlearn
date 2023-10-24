@@ -167,6 +167,8 @@ public:
                                         const MatrixRectangular &apices,
                                         const MatrixInt &meshes);
 
+  static double getCosineAngularTolerance(double tolang);
+
 private:
   static void _decodeConvRot(const ERotation &convrot,
                              int *firstaxis,

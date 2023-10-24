@@ -9,6 +9,10 @@ output:
     toc: true
 ---
 
+<!-- SUMMARY: Perform estimation of a target variable using Kriging: various options (simple and ordinary). Cross-validation.  -->
+
+<!-- CATEGORY: Courses -->
+
 ```{r, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
@@ -27,6 +31,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 
 flagInternetAvailable=TRUE
 ```
@@ -36,7 +41,7 @@ Then we download the data base `dat`.
 ```{r Loading_Data}
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 dat = Db_createFromNF(fileNF)
 ```
@@ -68,8 +73,8 @@ We compute the experimental variogram **vario2dir** (in 2 directions) (cf. [Vari
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
 varioParamMulti = VarioParam_createMultiple(ndir=2, npas=15, dpas=15.)
-vario2dir = Vario(varioParamMulti, dat)
-err = vario2dir$compute()
+vario2dir = Vario(varioParamMulti)
+err = vario2dir$compute(dat)
 ```
 
 We then the fit a model **fitmod**
@@ -133,7 +138,7 @@ Finally, we plot the kriging prediction over the grid using the `plot.grid` func
 ```{r Plot_Simple_Kriging}
 p = ggDefaultGeographic()
 p = p + plot.grid(grid,
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Simple Kriging over whole Grid")
 ggPrint(p)
@@ -145,8 +150,8 @@ For instance, we can plot the kriging standard deviation using the following cod
 
 ```{r Simple_Kriging_St_Dev}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="SK.January_temp.stdev",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="SK.January_temp.stdev",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Simple Kriging std-dev over whole Grid")
 ggPrint(p)
@@ -176,7 +181,7 @@ Finally, we plot the new kriging prediction over the grid and the data points.
 ```{r Plot_Simple_Kriging_4}
 p = ggDefaultGeographic()
 p = p + plot.grid(grid,
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Simple Kriging over whole Grid: Mean=4")
 ggPrint(p)
@@ -186,7 +191,7 @@ ggPrint(p)
 
 ### Ordinary kriging
 
-In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift1()` method. 
+In gstlearn, ordinary kriging is seen as the formulation of a kriging predictor on a model with a constant drift. Hence, to perform ordinary kriging, we use the `kriging` function with the same syntax as for simple kriging, but call it with a model that includes a constant drift. Adding a constant drift to a model is done with the `addDrift()` method. 
 
 Note: Removing a drift from a model can be done using the `delDrift` method (while specifying the index of the drift we wish to remove) or using the `delAllDrifts()` (to remove all the drifts at once).
 
@@ -194,7 +199,7 @@ Let us go back to our running example. Considering the model `fitmod` previously
 
 ```{r Model_for_ordinary_kriging}
 fitmodOK = fitmod$clone()
-err = fitmodOK$addDrift(Drift1())
+err = fitmodOK$addDrift(DriftM())
 ```
 
 Then, ordinary kriging is performed using the same command as before, but with the newly created model.
@@ -213,7 +218,7 @@ Finally, we plot the new kriging prediction over the grid and the data points.
 #--- MP ---
 p = ggDefaultGeographic()
 p = p + plot.grid(grid,
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C") 
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Ordinary Kriging over whole Grid")
 ggPrint(p)
@@ -223,8 +228,8 @@ We also plot the kriging standard deviations.
 
 ```{r Ordinary_Kriging_St_Dev}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="OK.January_temp.stdev",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="OK.January_temp.stdev",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Ordinary Kriging std-dev over whole Grid")
 ggPrint(p)
@@ -261,7 +266,7 @@ We now load new grid.
 ```{r}
 fileNF = "Scotland_Elevations.NF"
 if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF)
+  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
 }
 grid = DbGrid_createFromNF(fileNF)
 grid$display(dbfmt)
@@ -272,8 +277,8 @@ This new grid data base contains a variable called `inshore`, with a locator `se
 ```{r Selection}
 #--- MP ---
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="Longitude",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="Longitude",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Longitude values (restricted to the selection)")
 ggPrint(p)
@@ -289,8 +294,8 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neigh=uniqueNeigh,
 
 ```{r Ordinary_Kriging_with_Selection_Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="OK*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="OK*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (restricted to the selection)")
 ggPrint(p)
@@ -344,12 +349,12 @@ print(c("Mean squared cross-validation error:",mean(dat$getColumn("*esterr*")^2,
 print(c("Mean standardized error:",mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)))
 ```
 
-We now plot the absolute value of the cross-validation errors at each point on top of the grid map. We use the argument `flagAbsSize = TRUE` in the `plot.point` function to specify that we want the size of the points to be proportional to the absolute value of the variable specified in the `name_size` argument (here, the cross-validation errors).
+We now plot the absolute value of the cross-validation errors at each point on top of the grid map. We use the argument `flagAbsSize = TRUE` in the `plot.point` function to specify that we want the size of the points to be proportional to the absolute value of the variable specified in the `nameSize` argument (here, the cross-validation errors).
 
 ```{r Cross_Validation_Errors_Display}
 p = ggDefaultGeographic()
 p = p + plot.grid(grid,"inshore")
-p = p + plot.point(dat,name_size="*esterr",sizmax=3,flagAbsSize = TRUE)
+p = p + plot.point(dat,nameSize="*esterr",sizmax=3,flagAbsSize = TRUE)
 p = p + plot.decoration(title="Cross-Validation scores")
 ggPrint(p)
 ```
@@ -379,8 +384,8 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK, neigh=smallNeigh,
 
 ```{r Ordinary_Kriging_Small_Moving_Neighborhood_Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="Small*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="Small*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (Small Neigh.)")
 ggPrint(p)
@@ -402,8 +407,8 @@ err = kriging(dat,grid,fitmodOK,movingNeigh,
 
 ```{r Ordinary_Kriging_Large_Moving_Neighborhood_Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="Reduced*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="Reduced*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
 ggPrint(p)
@@ -427,8 +432,8 @@ err = kriging(dat,grid,fitmodOK,movingNeigh,
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_Plot}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="Moving*estim",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="Moving*estim",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="Estimation by Ordinary Kriging (Moving Neigh.)")
 ggPrint(p)
@@ -438,8 +443,8 @@ And plotting the associated kriging standard-deviations gives:
 
 ```{r Ordinary_Kriging_Moving_Neighborhood_stdev}
 p = ggDefaultGeographic()
-p = p + plot.grid(grid,name_raster="Moving*stdev",
-                  show.legend.raster = TRUE, palette="Spectral",legend.name.raster="°C")
+p = p + plot.grid(grid,nameRaster="Moving*stdev",
+                  flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
 p = p + plot.point(dat,flagCst = T,pch=18,cex=1.5)
 p = p + plot.decoration(title="St. dev. by Ordinary Kriging (Moving Neigh.)")
 ggPrint(p)

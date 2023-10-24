@@ -49,7 +49,7 @@ Column = 3 - Name = Simu - Locator = z1----
 
 +*Out[7]:*+
 ----
-![png](output_13_0.png)
+![png](output_14_0.png)
 ----
 
 
@@ -66,7 +66,7 @@ Maximum horizontal distance         = 30----
 
 +*Out[10]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
@@ -140,13 +140,13 @@ Maximum horizontal distance         = 30----
 
 +*Out[13]:*+
 ----
-![png](output_25_0.png)
+![png](output_26_0.png)
 ----
 
 
 +*Out[14]:*+
 ----
-![png](output_27_0.png)
+![png](output_28_0.png)
 ----
 
 
@@ -220,25 +220,25 @@ Maximum horizontal distance         = 30----
 
 +*Out[17]:*+
 ----
-![png](output_33_0.png)
+![png](output_34_0.png)
 ----
 
 
 +*Out[18]:*+
 ----
-![png](output_35_0.png)
+![png](output_36_0.png)
 ----
 
 
 +*Out[19]:*+
 ----
-![png](output_37_0.png)
+![png](output_38_0.png)
 ----
 
 
 +*Out[20]:*+
 ----
-![png](output_39_0.png)
+![png](output_40_0.png)
 ----
 
 
@@ -253,7 +253,7 @@ Reject samples which do not belong to target Block
 
 +*Out[24]:*+
 ----
-![png](output_49_0.png)
+![png](output_50_0.png)
 ----
 
 
@@ -327,23 +327,23 @@ Reject samples which do not belong to target Block
 
 +*Out[27]:*+
 ----
-![png](output_54_0.png)
+![png](output_55_0.png)
 ----
 
 
 +*Out[28]:*+
 ----
-![png](output_56_0.png)
+![png](output_57_0.png)
 ----
 
 
 +*Out[29]:*+
 ----
-![png](output_58_0.png)
+![png](output_59_0.png)
 ----
 
 
 +*Out[30]:*+
 ----
-![png](output_60_0.png)
+![png](output_61_0.png)
 ----

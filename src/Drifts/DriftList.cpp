@@ -8,34 +8,38 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include <Drifts/ADrift.hpp>
 #include "Drifts/DriftList.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Drifts/ADriftElem.hpp"
 #include "Drifts/DriftFactory.hpp"
+#include "Drifts/DriftF.hpp"
+#include "Drifts/DriftM.hpp"
 #include "Db/Db.hpp"
 
-DriftList::DriftList(const ASpace* space)
-    : ADrift(space),
+DriftList::DriftList(const CovContext &ctxt)
+    : AStringable(),
       _flagLinked(false),
-      _coefDrift(),
+      _driftCoef(),
       _drifts(),
-      _filtered()
+      _filtered(),
+      _ctxt(ctxt)
 {
 }
 
 DriftList::DriftList(const DriftList &r)
-    : ADrift(r),
+    : AStringable(r),
       _flagLinked(r._flagLinked),
-      _coefDrift(r._coefDrift),
+      _driftCoef(r._driftCoef),
       _drifts(),
-      _filtered(r._filtered)
+      _filtered(r._filtered),
+      _ctxt(r._ctxt)
 {
   for (auto e: r._drifts)
   {
-    _drifts.push_back(dynamic_cast<ADriftElem*>(e->clone()));
+    _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
   }
 }
 
@@ -43,14 +47,15 @@ DriftList& DriftList::operator=(const DriftList &r)
 {
   if (this != &r)
   {
-    ADrift::operator=(r);
+    AStringable::operator=(r);
     _flagLinked = r._flagLinked;
-    _coefDrift  = r._coefDrift;
+    _driftCoef  = r._driftCoef;
     for (auto e: r._drifts)
     {
-      _drifts.push_back(dynamic_cast<ADriftElem*>(e->clone()));
+      _drifts.push_back(dynamic_cast<ADrift*>(e->clone()));
     }
     _filtered = r._filtered;
+    _ctxt = r._ctxt;
   }
   return *this;
 }
@@ -58,11 +63,6 @@ DriftList& DriftList::operator=(const DriftList &r)
 DriftList::~DriftList()
 {
   delAllDrifts();
-}
-
-bool DriftList::isConsistent(const ASpace* /*space*/) const
-{
-  return true;
 }
 
 String DriftList::toString(const AStringFormat* /*strfmt*/) const
@@ -75,27 +75,25 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
       sstr << " (This component is filtered)";
     sstr << std::endl;
   }
+
+//   Display the coefficients
+//  for (int ivar = 0; ivar < getNVariables(); ivar++)
+//    for (int ib = 0; ib < getDriftEquationNumber(); ib++)
+//    {
+//      sstr << "ivar = " << ivar << " ib = " << ib << " : ";
+//      for (int il = 0; il < getDriftNumber(); il++)
+//         sstr << " " << getDriftCoef(ivar, il, ib);
+//      sstr << std::endl;
+//    }
   return sstr.str();
 }
 
-double DriftList::eval(const Db* /*db*/, int /*iech1*/) const
+void DriftList::addDrift(const ADrift* drift)
 {
-  double drift = 0;
-  return drift;
-}
-
-void DriftList::setDriftList(const DriftList* drifts)
-{
-  int ndrift = drifts->getDriftNumber();
-  _flagLinked = drifts->isFlagLinked();
-  for (int idrift = 0; idrift < ndrift; idrift++)
-    addDrift(drifts->getDrift(idrift));
-}
-void DriftList::addDrift(const ADriftElem* drift)
-{
-  _drifts.push_back(dynamic_cast<ADriftElem*>(drift->clone()));
+  if (drift == nullptr) return;
+  _drifts.push_back(dynamic_cast<ADrift*>(drift->clone()));
   _filtered.push_back(false);
-  _updateCoefDrift();
+  updateDriftList();
 }
 
 void DriftList::delDrift(unsigned int i)
@@ -104,7 +102,7 @@ void DriftList::delDrift(unsigned int i)
   if (! _isDriftIndexValid(i)) return;
   _drifts.erase(_drifts.begin() + i);
   _filtered.erase(_filtered.begin() + i);
-  _updateCoefDrift();
+  updateDriftList();
 }
 
 void DriftList::delAllDrifts()
@@ -116,7 +114,7 @@ void DriftList::delAllDrifts()
     }
   _drifts.clear();
   _filtered.clear();
-  _coefDrift.clear();
+  _driftCoef.clear();
 }
 
 bool DriftList::isFiltered(int i) const
@@ -131,22 +129,16 @@ void DriftList::setFiltered(int i, bool filter)
   _filtered[i] = filter;
 }
 
-const ADriftElem* DriftList::getDrift(int il) const
+const ADrift* DriftList::getDrift(int il) const
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
 }
 
-ADriftElem* DriftList::getDrift(int il)
+ADrift* DriftList::getDrift(int il)
 {
   if (! _isDriftIndexValid(il)) return nullptr;
   return _drifts[il];
-}
-
-const EDrift& DriftList::getType(int il) const
-{
-  if (! _isDriftIndexValid(il)) return EDrift::UNKNOWN;
-  return _drifts[il]->getType();
 }
 
 int DriftList::getRankFex(int il) const
@@ -159,12 +151,6 @@ String DriftList::getDriftName(int il) const
 {
   if (! _isDriftIndexValid(il)) return String();
   return _drifts[il]->getDriftName();
-}
-
-void DriftList::setType(int il, const EDrift& type)
-{
-  if (! _isDriftIndexValid(il)) return;
-  _drifts[il]->setType(type);
 }
 
 int DriftList::getDriftEquationNumber() const
@@ -186,40 +172,20 @@ bool DriftList::isValid() const
   // Check that the same drift function has not been called twice
   for (int il=0; il<ndrift; il++)
   {
-    const EDrift typei = getType(il);
-    int ranki = getRankFex(il);
+    const String str_il = _drifts[il]->getDriftName();
 
     for (int jl=0; jl<il; jl++)
     {
-      const EDrift typej = getType(jl);
-      int rankj = getRankFex(jl);
+      const String str_jl = _drifts[jl]->getDriftName();
 
-      if (typei == EDrift::F)
+      if (str_il.compare(str_jl) == 0)
       {
-        if (typei.getValue() == typej.getValue() && ranki == rankj)
-        {
-          messerr("Set of drift functions is invalid: %d and %d are similar",il+1,jl+1);
-          return false;
-        }
-      }
-      else
-      {
-        if (typei.getValue() == typej.getValue())
-        {
-          messerr("Set of drift functions is invalid: %d and %d are similar",il+1, jl+1);
-          return false;
-        }
+        messerr("Set of drift functions is invalid: %d and %d are similar",il+1,jl+1);
+        return false;
       }
     }
   }
   return true;
-}
-
-int DriftList::getNVariables() const
-{
-  if (getDriftNumber() > 0)
-    return _drifts[0]->getNVariables();
-  return 0;
 }
 
 bool DriftList::_isDriftIndexValid(int i) const
@@ -242,22 +208,22 @@ bool DriftList::_isDriftEquationValid(int ib) const
   return true;
 }
 
-void DriftList::_updateCoefDrift()
+void DriftList::updateDriftList()
 {
   int nvar = getNVariables();
   int nfeq = getDriftEquationNumber();
   int nbfl = getDriftNumber();
-  _coefDrift.resize(nvar * nfeq * nbfl);
 
   /* Copy the coefficients from the old to the new structure */
 
+  _driftCoef.resize(nvar * nfeq * nbfl);
   if (_flagLinked)
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int ib = 0; ib < nfeq; ib++)
         for (int il = 0; il < nbfl; il++)
         {
-          setCoefDrift(ivar, il, ib, (ib == il));
+          setDriftCoef(ivar, il, ib, (ib == il));
         }
   }
   else
@@ -268,9 +234,14 @@ void DriftList::_updateCoefDrift()
           for (int il = 0; il < nbfl; il++)
           {
             int ib = jvar + nvar * jl;
-            setCoefDrift(ivar, il, ib, (ivar == jvar && il == jl));
+            setDriftCoef(ivar, il, ib, (ivar == jvar && il == jl));
           }
   }
+
+  // Resize the 'filtered' array (if necessary)
+
+  if (nbfl != (int) _filtered.size())
+    _filtered.resize(nbfl, false);
 }
 
 VectorDouble DriftList::getDriftByColumn(const Db* db, int ib, bool useSel) const
@@ -299,6 +270,28 @@ VectorDouble DriftList::getDriftBySample(const Db* db, int iech) const
     vec[ib] = _drifts[ib]->eval(db, iech);
   }
   return vec;
+}
+
+VectorDouble DriftList::getDriftCoefByPart(int ivar, int ib) const
+{
+  int number = getDriftNumber();
+  VectorDouble coef(number,0.);
+  for (int il = 0; il < number; il++)
+    coef[il] = getDriftCoef(ivar, il, ib);
+  return coef;
+}
+
+void DriftList::setDriftCoefByPart(int ivar, int ib, const VectorDouble& coef)
+{
+  int number = getDriftNumber();
+  if (number != (int) coef.size())
+  {
+    messerr("The dimension of 'vec' (%d) is not equal to the number of drift functions (%d)",
+            (int) coef.size(), number);
+    return;
+  }
+  for (int il = 0; il < number; il++)
+    setDriftCoef(ivar, il, ib, coef[il]);
 }
 
 double DriftList::getDrift(const Db* db, int ib, int iech) const
@@ -365,10 +358,10 @@ VectorDouble DriftList::evalDrifts(const Db* db,
  */
 int DriftList::getDriftMaxIRFOrder(void) const
 {
-  int max_order = -1;
+  int max_order = 0;
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    const ADriftElem* drft = _drifts[il];
+    const ADrift* drft = _drifts[il];
     int order = drft->getOrderIRF();
     if (order > max_order) max_order = order;
   }
@@ -377,75 +370,54 @@ int DriftList::getDriftMaxIRFOrder(void) const
 
 /**
  * Check if a given drift type is defined among the drift functions
- * @param type0 Target drift type (EDrift.hpp)
+ * @param powers Vector of exponents for monomials
+ * @param rank_fex Rank of the variable for external dift
  * @return
  */
-bool DriftList::isDriftDefined(const EDrift &type0) const
+bool DriftList::isDriftDefined(const VectorInt &powers, int rank_fex) const
 {
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    if (_drifts[il]->getType() == type0) return 1;
+    if (_drifts[il]->isDriftExternal())
+    {
+      if (_drifts[il]->getRankFex() == rank_fex) return true;
+    }
+    else
+    {
+      if (_drifts[il]->getPowers() == powers) return true;
+    }
   }
-  return 0;
+  return false;
 }
 
 /**
  * Check if at least one drift function exists whose type is different
  * from the target type
- * @param type0 Target drift type (EDrift.hpp)
+ * @param powers Vector of exponent for monomials of a polynomial drift
+ * @param rank_fex Rank of the variable for external Drift
  * @return
  */
-bool DriftList::isDriftDifferentDefined(const EDrift &type0) const
+bool DriftList::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
 {
   for (int il = 0; il < getDriftNumber(); il++)
   {
-    if (_drifts[il]->getType() != type0) return 1;
-  }
-  return 0;
-}
-
-void DriftList::copyCovContext(const CovContext& ctxt)
-{
-  int number = (int) _drifts.size();
-  for (int i = 0; i < number; i++)
-    _drifts[i]->copyCovContext(ctxt);
-}
-
-void DriftList::setDriftIRF(int order, int nfex, const CovContext& ctxt)
-{
-  // Clear already defined Drifts (if any)
-  delAllDrifts();
-
-  // Loop on all possible Drifts (within Factory)
-  // The external Drift is not processed here
-  auto it = EDrift::getIterator();
-  while (it.hasNext())
-  {
-    if (*it != EDrift::UNKNOWN)
+    if (_drifts[il]->isDriftExternal())
     {
-      ADriftElem* drift = DriftFactory::createDriftFunc(*it, ctxt);
-
-      if (drift->getDriftExternal() ||
-          drift->getOrderIRF() > order ||
-          drift->getNDim() > (int) ctxt.getNDim())
-      {
-        delete drift;
-      }
-      else
-      {
-        addDrift(drift);
-      }
+      if (_drifts[il]->getRankFex() != rank_fex) return true;
     }
-    it.toNext();
-  }
-
-  if (nfex > 0)
-  {
-    // Adding the external drift(s)
-    for (int ifex = 0; ifex < nfex; ifex++)
+    else
     {
-      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt, ifex);
-      addDrift(drift);
+      if (_drifts[il]->getPowers() != powers) return true;
     }
   }
+  return false;
+}
+
+bool DriftList::hasExternalDrift() const
+{
+  for (int il = 0; il < getDriftNumber(); il++)
+  {
+    if (getDrift(il)->isDriftExternal()) return true;
+  }
+  return false;
 }

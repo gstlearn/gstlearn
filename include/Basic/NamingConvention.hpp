@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Basic/AStringable.hpp"
 
 #include "Enum/ELoc.hpp"
 
@@ -38,19 +39,28 @@ class Db;
  * using the following command:
  *    kriging( ... namconv = NamingConvention("MyPrefix") )
  *
- * Then the 'kriging' procedure generates variables such as:
- *
+ * Then the kriging procedure generates variables such as:
  * - MyPrefix.Pb.estim (estimation of Pb by CoKriging)
  * - MyPrefix.Zn.estim (estimation of Zn by CoKriging)
  * - MyPrefix.Pb.stdev (St. Dev. of estimation error of Pb by CoKriging)
  * - MyPrefix.Zn.stdev (St. Dev. of estimation error of Zn by CoKriging)
  *
+ * Then the non-conditional simulation procedure generates variables such as:
+ * - MyPrefix.1 (for first simulation)
+ * - MyPrefix.2 (for second simulation)
+ * ...
+ *
+ *  Then the conditional simulation procedure generates variables such as:
+ * - MyPrefix.var.1 (for first simulation)
+ * - MyPrefix.var.2 (for second simulation)
+ * ...
+ *
  * Ultimately, the newly created variables are assigned a locator.
  */
-class GSTLEARN_EXPORT NamingConvention
+class GSTLEARN_EXPORT NamingConvention: public AStringable
 {
 public:
-  NamingConvention(String prefix = String(),
+  NamingConvention(String prefix = "",
                    bool flag_varname = true,
                    bool flag_qualifier = true,
                    bool flag_locator = true,
@@ -61,7 +71,10 @@ public:
   NamingConvention& operator=(const NamingConvention &m);
   virtual ~NamingConvention();
 
-  static NamingConvention* create(String prefix = String(),
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  static NamingConvention* create(String prefix = "",
                                   bool flag_varname = true,
                                   bool flag_qualifier = true,
                                   bool flag_locator = true,
@@ -71,14 +84,14 @@ public:
 
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
   void setNamesAndLocators(const VectorString& names,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -90,16 +103,17 @@ public:
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
+                           const VectorString& names,
                            const ELoc& locatorInType,
                            int nvar,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -107,7 +121,7 @@ public:
                            const VectorInt& iatts,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -115,7 +129,7 @@ public:
                            int iatt,
                            Db* dbout,
                            int iattout_start,
-                           const String& qualifier = String(),
+                           const String& qualifier = "",
                            int nitems = 1,
                            bool flagSetLocator = true,
                            int locatorShift = 0) const;
@@ -140,7 +154,7 @@ private:
                  const String& qualifier,
                  int nitems) const;
   VectorString _createNames(const VectorString &names,
-                           const String &qualifier = String(),
+                           const String &qualifier = "",
                            int nitems = 1) const;
 
 private:

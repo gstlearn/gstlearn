@@ -17,25 +17,25 @@ Markov (Third Parameter = 1)
 
 +*Out[6]:*+
 ----
-![png](output_6_0.png)
+![png](output_8_0.png)
 
-![png](output_6_1.png)
+![png](output_8_1.png)
 ----
 
 
 +*Out[7]:*+
 ----
-![png](output_7_0.png)
+![png](output_9_0.png)
 ----
 
 
 +*Out[9]:*+
 ----
-![png](output_9_0.png)
+![png](output_11_0.png)
 ----
 
 
 +*Out[10]:*+
 ----
-![png](output_11_0.png)
+![png](output_13_0.png)
 ----

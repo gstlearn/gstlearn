@@ -4,7 +4,7 @@ Model
 3 # Number of drift terms
 3 2.000000 0.000000 # Covariance characteristics
 0 # Anisotropy Flag
-0 # Drift characteristics
-1 # Drift characteristics
-2 # Drift characteristics
+Universality_Condition # Drift Identifier
+Drift:x1 # Drift Identifier
+Drift:x2 # Drift Identifier
 1.000000 # Matrix of sills

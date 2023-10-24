@@ -30,54 +30,11 @@ Column = 6 - Name = Duplicate - Locator = sel
 
 +*Out[7]:*+
 ----
-![png](output_7_0.png)
-----
-
-
-+*Out[8]:*+
-----
-![png](output_8_0.png)
-----
-
-
-+*Out[9]:*+
-----(array([ 24.,  64., 148., 219., 219., 156.,  89.,  60.,  29.,  14.]),
- array([ 0.4 ,  1.95,  3.5 ,  5.05,  6.6 ,  8.15,  9.7 , 11.25, 12.8 ,
-        14.35, 15.9 ]),
- <BarContainer object of 10 artists>)
-![png](output_9_1.png)
+![png](output_10_0.png)
 ----
 
 
 +*Out[10]:*+
-----
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 7
-Total number of samples      = 1022
-Number of active samples     = 1007
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = X - Locator = x1
-Column = 2 - Name = Y - Locator = x2
-Column = 3 - Name = Epaisseur - Locator = lower1
-Column = 4 - Name = Epaisseur_1 - Locator = upper1
-Column = 5 - Name = Thickness - Locator = z1
-Column = 6 - Name = Duplicate - Locator = sel----
-
-
-+*Out[11]:*+
-----True----
-
-
-+*Out[13]:*+
 ----
 
 Polygons
@@ -86,19 +43,19 @@ Number of Polygon Sets = 1
  ----
 
 
-+*Out[14]:*+
++*Out[11]:*+
 ----
 ![png](output_16_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[13]:*+
 XXX
 ![png](output_18_1.png)
 ----
 
 
-+*Out[17]:*+
++*Out[14]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -134,13 +91,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = sel----
 
 
-+*Out[18]:*+
++*Out[15]:*+
 XXX
 ![png](output_21_1.png)
 ----
 
 
-+*Out[19]:*+
++*Out[16]:*+
 ----
 [cols=",,",options="header",]
 |===
@@ -162,7 +119,7 @@ XXX
 ----
 
 
-+*Out[21]:*+
++*Out[18]:*+
 ----
 
 Data Base Characteristics
@@ -216,7 +173,7 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+*Out[22]:*+
++*Out[19]:*+
 ----
 
 Data Base Grid Characteristics
@@ -226,7 +183,7 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 4
+Number of Columns            = 6
 Total number of samples      = 1320000
 
 Grid characteristics:
@@ -250,16 +207,18 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = NA
+Column = 4 - Name = Migrate.u_interp - Locator = z1
+Column = 5 - Name = Migrate.v_interp - Locator = z2
  ----
 
 
-+*Out[25]:*+
++*Out[22]:*+
 XXX
 ![png](output_28_1.png)
 ----
 
 
-+*Out[26]:*+
++*Out[23]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -298,21 +257,21 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
 Column = 6 - Name = vec_define - Locator = sel----
 
 
-+*Out[27]:*+
++*Out[24]:*+
 XXX
 ![png](output_30_1.png)
 ----
 
 
-+*Out[28]:*+
++*Out[25]:*+
 ----True----
 
 
-+*Out[35]:*+
++*Out[32]:*+
 XXX
 ![png](output_40_1.png)
 ----
 
 
-+*Out[36]:*+
++*Out[33]:*+
 ----True----

@@ -11,12 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Drifts/ADriftElem.hpp"
+#include "Drifts/ADrift.hpp"
 
-class GSTLEARN_EXPORT DriftF : public ADriftElem
+class GSTLEARN_EXPORT DriftF : public ADrift
 {
 public:
-  DriftF(const CovContext& ctxt = CovContext());
+  DriftF(int rank_fex = 0);
   DriftF(const DriftF &r);
   DriftF& operator= (const DriftF &r);
   virtual ~DriftF();
@@ -24,10 +24,15 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(DriftF)
 
-  String getDriftSymbol() const override { return "f"; }
-  String getDriftName() const override { return "External Drift"; }
-  int getOrderIRF() const override { return 0; }
-  bool getDriftExternal() const override { return true; }
+  String getDriftName() const override;
+  int    getOrderIRF() const override { return -1; }
+  int    getOrderIRFIdim(int idim) const override { return -1; }
+  bool   isDriftExternal() const override { return true; }
   double eval(const Db* db, int iech) const override;
-};
+  int    getRankFex() const override { return _rankFex; }
 
+  static DriftF* createByIdentifier(const String &driftname);
+
+private:
+  int _rankFex;       /* Rank of the external drift */
+};

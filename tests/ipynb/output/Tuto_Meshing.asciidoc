@@ -23,7 +23,7 @@ Column = 2 - Name = x-2 - Locator = x2----
 
 +*Out[4]:*+
 ----
-![png](output_6_0.png)
+![png](output_7_0.png)
 ----
 
 
@@ -53,7 +53,7 @@ Dim #2 - Min:0 - Max:100
 
 +*Out[6]:*+
 ----
-![png](output_11_0.png)
+![png](output_12_0.png)
 ----
 
 
@@ -96,7 +96,7 @@ Grid Masking Indexing
 
 +*Out[11]:*+
 ----
-![png](output_20_0.png)
+![png](output_21_0.png)
 ----
 
 
@@ -208,7 +208,7 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
  
-![png](output_26_1.png)
+![png](output_27_1.png)
 ----
 
 
@@ -273,5 +273,5 @@ Dim #2 - Min:8.76696 - Max:20.767
 
 +*Out[17]:*+
 ----
-![png](output_29_0.png)
+![png](output_30_0.png)
 ----

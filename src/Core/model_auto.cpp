@@ -1430,7 +1430,7 @@ static void st_keypair_sill(int mode, Model *model)
     {
       (void) gslSPrintf(loc_string, "Fitted_Sill_%d", icova + 1);
       set_keypair(loc_string, 1, nvar, nvar,
-                  model->getSill(icova).getValues().data());
+                  model->getSillValues(icova).getValues().data());
     }
   }
 }
@@ -2162,7 +2162,6 @@ static void st_model_auto_strmod_define(StrMod *strmod,
   Model *model;
   CovAniso *cova;
   CovAniso *cova1;
-  CovLMCTapering *covtape;
   Option_VarioFit optvar;
   EConsElem icons;
 
@@ -2241,8 +2240,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
         break;
 
       case EConsElem::E_T_RANGE:
-        covtape = dynamic_cast<CovLMCTapering*>(model->getCovAnisoList());
-        if (covtape != nullptr) covtape->setTapeRange(param[ntot]);
+        model->setTapeRange(param[ntot]);
         break;
 
       default:

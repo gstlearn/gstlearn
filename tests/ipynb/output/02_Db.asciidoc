@@ -152,12 +152,9 @@ Column = 4 - Name = January_temp - Locator = z1
 
 
 +*Out[10]:*+
-----
-Monovariate Statistics on Variables
------------------------------------
-                 Mean    Minimum    Maximum
- Elevation     87.974      3.000    387.000
- *ary_temp      2.815      0.600      5.200----
+----                   Mean    Minimum    Maximum
+   Elevation     87.974      3.000    387.000
+January_temp      2.815      0.600      5.200----
 
 
 +*Out[11]:*+
@@ -333,19 +330,19 @@ Column = 4 - Name = January_temp - Locator = z1----
 
 +*Out[20]:*+
 ----
-![png](output_54_0.png)
+![png](output_55_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_56_0.png)
+![png](output_57_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_58_0.png)
+![png](output_59_0.png)
 ----
 
 
@@ -378,11 +375,11 @@ Column = 3 - Name = inshore - Locator = sel----
 
 +*Out[24]:*+
 ----
-![png](output_65_0.png)
+![png](output_66_0.png)
 ----
 
 
 +*Out[25]:*+
 ----
-![png](output_68_0.png)
+![png](output_69_0.png)
 ----

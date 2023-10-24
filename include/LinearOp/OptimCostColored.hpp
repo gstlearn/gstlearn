@@ -17,7 +17,7 @@
 class GSTLEARN_EXPORT OptimCostColored : public OptimCostBinary
 {
 public:
-  OptimCostColored();
+  OptimCostColored(const CGParam params = CGParam());
   OptimCostColored(int nprop,
                    PrecisionOp* pmat,
                    const ProjMatrix* projdata,

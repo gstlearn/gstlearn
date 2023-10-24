@@ -12,20 +12,19 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EDrift.hpp"
-
 #include "Drifts/ADrift.hpp"
-#include "Drifts/ADriftElem.hpp"
 #include "Basic/ICloneable.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Covariances/CovContext.hpp"
 
 class ASpace;
 class SpacePoint;
 class Db;
 
-class GSTLEARN_EXPORT DriftList : public ADrift, public ICloneable
+class GSTLEARN_EXPORT DriftList : public AStringable, public ICloneable
 {
 public:
-  DriftList(const ASpace* space = nullptr);
+  DriftList(const CovContext &ctxt = CovContext());
   DriftList(const DriftList &r);
   DriftList& operator= (const DriftList &r);
   virtual ~DriftList();
@@ -33,47 +32,37 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(DriftList)
 
-  /// ASpaceObject Interface
-  virtual bool isConsistent(const ASpace* space) const override;
-
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// ADrift interface */
-  virtual double eval(const Db* db, int iech) const override;
-  int getNVariables() const override;
 
+  int getNVariables() const { return _ctxt.getNVar(); }
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
-  // Set the list of drift functions
-  void setDriftList(const DriftList* drifts);
   // Add one elementary drift structure
-  void addDrift(const ADriftElem* drift);
+  void addDrift(const ADrift* drift);
   // Remove an elementary drift structure
   void delDrift(unsigned int i);
   // Remove all elementary drift structures
   void delAllDrifts();
 
-  void setDriftIRF(int order, int nfex, const CovContext& ctxt);
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
   bool isFiltered(int i) const;
   void setFiltered(int i, bool filter);
   int  getDriftEquationNumber() const;
-
+  bool hasExternalDrift() const;
   bool isValid() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const ADriftElem*  getDrift(int il) const;
-  ADriftElem*        getDrift(int il); /// beurk :(
-  const EDrift&      getType(int il) const;
+  const ADrift*  getDrift(int il) const;
+  ADrift*        getDrift(int il); /// beurk :(
   int                getRankFex(int il) const;
   String             getDriftName(int il) const;
-  void               setType(int il, const EDrift& type);
   ////////////////////////////////////////////////
 
-  const VectorDouble& getCoefDrift() const { return _coefDrift; }
+  const VectorDouble& getDriftCoef() const { return _driftCoef; }
 
   /**
    *
@@ -82,9 +71,11 @@ public:
    * @param ib Rank of the drift equation (_driftEquationNumber)
    * @return
    */
-  double getCoefDrift(int ivar, int il, int ib) const { return _coefDrift[_getAddress(ivar,il,ib)]; }
-  void setCoefDrift(int ivar, int il, int ib, double value) { _coefDrift[_getAddress(ivar,il,ib)] = value; }
-  void setCoefDriftByRank(int rank, double coeff) { _coefDrift[rank] = coeff; }
+  double getDriftCoef(int ivar, int il, int ib) const { return _driftCoef[_getAddress(ivar,il,ib)]; }
+  void setDriftCoef(int ivar, int il, int ib, double value) { _driftCoef[_getAddress(ivar,il,ib)] = value; }
+  void resetDriftCoeff() { VectorHelper::fill(_driftCoef, 0.); }
+  VectorDouble getDriftCoefByPart(int ivar, int ib) const;
+  void setDriftCoefByPart(int ivar, int ib, const VectorDouble& coef);
 
   double getDrift(const Db* db, int ib, int iech) const;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;
@@ -95,12 +86,14 @@ public:
                           const VectorDouble& coeffs,
                           bool useSel = false) const;
   int getDriftMaxIRFOrder(void) const;
-  bool isDriftDefined(const EDrift &type0) const;
-  bool isDriftDifferentDefined(const EDrift &type0) const;
+  bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
+  bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
 
-  void copyCovContext(const CovContext& ctxt);
+  void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
   void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
+
+  void updateDriftList();
 
 private:
   bool _isDriftIndexValid(int i) const;
@@ -109,13 +102,13 @@ private:
   {
     return (ib + getDriftEquationNumber() * (il + getDriftNumber() * ivar));
   }
-  void _updateCoefDrift();
 
 #ifndef SWIG
 protected:
   bool _flagLinked;
-  VectorDouble             _coefDrift; /* Array of Drift Coefficients */
-  std::vector<ADriftElem*> _drifts;    /* Vector of elementary drift functions */
+  VectorDouble             _driftCoef; /* Array of Drift Coefficients */
+  std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
   VectorBool               _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
+  CovContext  _ctxt;  /* Context (space, number of variables, ...) */
 #endif
 };

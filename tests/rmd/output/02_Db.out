@@ -345,12 +345,9 @@ Column = 2 - Name = Latitude - Locator = x2
 Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1
 NULL
-
-Monovariate Statistics on Variables
------------------------------------
-                 Mean    Minimum    Maximum
- Elevation     87.974      3.000    387.000
- *ary_temp      2.815      0.600      5.200
+                   Mean    Minimum    Maximum
+   Elevation     87.974      3.000    387.000
+January_temp      2.815      0.600      5.200
     rank Longitude Latitude Elevation January_temp
 0      1     372.1    658.9       255          1.7
 1      2     303.5    665.9       125          2.0

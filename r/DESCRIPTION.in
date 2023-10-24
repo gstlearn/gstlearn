@@ -8,8 +8,11 @@ Depends:
 Suggests:
     ggplot2,
     ggpubr,
+    ggrepel,
+    ggnewscale,
     FNN
 Description: @PROJECT_DESCRIPTION@
+Encoding: UTF-8
 License: GPL v3
 LazyLoad: yes
 Maintainer: Team gstlearn <gstlearn@groupes.mines-paristech.fr>

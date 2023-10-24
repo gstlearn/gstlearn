@@ -22,7 +22,8 @@ NamingConvention::NamingConvention(String prefix,
                                    const ELoc& locatorOutType,
                                    String delim,
                                    bool cleanSameLocator)
-    : _prefix(prefix),
+    : AStringable(),
+      _prefix(prefix),
       _delim(delim),
       _flagVarname(flag_varname),
       _flagQualifier(flag_qualifier),
@@ -33,7 +34,8 @@ NamingConvention::NamingConvention(String prefix,
 }
 
 NamingConvention::NamingConvention(const NamingConvention &m)
-    : _prefix(m._prefix),
+    : AStringable(m),
+      _prefix(m._prefix),
       _delim(m._delim),
       _flagVarname(m._flagVarname),
       _flagQualifier(m._flagQualifier),
@@ -47,6 +49,7 @@ NamingConvention& NamingConvention::operator=(const NamingConvention &m)
 {
   if (this != &m)
   {
+    AStringable::operator=(m);
     _prefix = m._prefix;
     _locatorOutType = m._locatorOutType;
     _flagVarname = m._flagVarname;
@@ -82,7 +85,7 @@ NamingConvention* NamingConvention::create(String prefix,
                                            bool cleanSameLocator)
 {
   return new NamingConvention(prefix, flag_varname, flag_qualifier,
-    flag_locator, locatorOutType, delim, cleanSameLocator);
+                              flag_locator, locatorOutType, delim, cleanSameLocator);
 }
 
 /**
@@ -202,11 +205,13 @@ void NamingConvention::setNamesAndLocators(const String& namin,
 /**
  * Newly created variables are named as follow:
  *
- * 'prefix'.'v_Loc'.'qualifier'.'item_rank'
+ * 'prefix'.'name'.'qualifier'.'item_rank'
  *
- * where 'v_Loc' stands for the name of the variable(s) with locator 'Loc' in 'dbin'
+ * where 'name' stands for the name of the variable(s) in 'names' or, if absent,
+ * the name of the variable with locator 'Loc' in 'dbin'
  *
  * @param dbin  Pointer to the input Db (kept for symmetry)
+ * @param names Vector of names (from 'dbin'). If not defined, use the locator instead
  * @param locatorInType Locator Type of the variables in Input Db
  * @param nvar Number of items belonging to the locatorType
  *             (if -1, all the items available for this locator are used)
@@ -218,6 +223,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  * @param locatorShift Shift to be applied to the locator currently defined
  */
 void NamingConvention::setNamesAndLocators(const Db *dbin,
+                                           const VectorString& names,
                                            const ELoc& locatorInType,
                                            int nvar,
                                            Db* dbout,
@@ -228,19 +234,26 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            int locatorShift) const
 {
   if (iattout_start < 0) return;
-  VectorString names;
-  if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
+  VectorString namloc = names;
+  if (names.empty())
   {
-    names = dbin->getNamesByLocator(locatorInType);
-    if (nvar <= 0) nvar = static_cast<int>(names.size());
+    if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
+    {
+      namloc = dbin->getNamesByLocator(locatorInType);
+      if (nvar <= 0) nvar = static_cast<int>(namloc.size());
+    }
+    else
+    {
+      if (nvar < 0) nvar = 1;
+    }
   }
   else
   {
-    if (nvar < 0) nvar = 1;
+    nvar = namloc.size();
   }
-  if (nvar != static_cast<int>(names.size())) names.resize(nvar);
+  if (nvar != static_cast<int>(namloc.size())) namloc.resize(nvar);
 
-  _setNames(dbout, iattout_start, names, qualifier, nitems);
+  _setNames(dbout, iattout_start, namloc, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
@@ -416,8 +429,26 @@ VectorString NamingConvention::_createNames(const VectorString &names,
       String name = concatenateStrings(_delim, _prefix,
                                        loc_varname, loc_qualifier, loc_number);
 
+      if (name.empty()) name = "Dummy";
       outnames.push_back(name);
     }
   }
   return outnames;
+}
+
+
+String NamingConvention::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+
+  sstr << toTitle(0, "Naming Convention");
+  sstr << "- Prefix  = " << _prefix << std::endl;
+  sstr << "- Delimitor = '" << _delim << "'" << std::endl;
+  sstr << "- Add the Variable Name = " << _flagVarname << std::endl;
+  sstr << "- Add the Qualifier     = " << _flagQualifier << std::endl;
+  sstr << "- Assign a Locator to output variables = " << _flagLocator << std::endl;
+  sstr << "- Type of assigned locator = " << _locatorOutType.getDescr() << std::endl;
+  sstr << "- Clean any other similar locator = " << _cleanSameLocator << std::endl;
+
+  return sstr.str();
 }

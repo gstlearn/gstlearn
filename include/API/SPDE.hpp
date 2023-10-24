@@ -16,6 +16,7 @@
 #include "Enum/ESPDECalcMode.hpp"
 
 #include "Basic/NamingConvention.hpp"
+#include "API/SPDEParam.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
@@ -42,7 +43,10 @@ public:
        const Db* data = nullptr,
        const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
        const AMesh* mesh = nullptr,
-       bool verbose = false);
+       int useCholesky = -1,
+       SPDEParam params = SPDEParam(),
+       bool verbose = false,
+       bool showStats = false);
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
   virtual ~SPDE();
@@ -52,7 +56,10 @@ public:
                       const Db *data = nullptr,
                       const ESPDECalcMode& calcul = ESPDECalcMode::fromKey("SIMUCOND"),
                       const AMesh* mesh = nullptr,
-                      bool verbose = false);
+                      int useCholesky = -1,
+                      SPDEParam params = SPDEParam(),
+                      bool verbose = false,
+                      bool showStats = false);
 
   int compute(Db *dbout,
               int nbsimu = 1,
@@ -66,48 +73,35 @@ public:
   VectorDouble getCoeffs();
 
   void setDriftCoeffs(VectorDouble coeffs);
-  void setEps(double eps) { _eps = eps; }
-  void setNIterMax(int nitermax) { _nIterMax = nitermax; }
 
-  const PrecisionOpCs* getPrecisionOp(int i = 0) const  { return (PrecisionOpCs*)_pilePrecisions[i];}
+  const PrecisionOpCs* getPrecisionOpCs(int i = 0) const  { return (PrecisionOpCs*) _pilePrecisions[i];}
   const ProjMatrix* getProjMatrix(int i = 0) const  { return _pileProjMatrix[i];}
-  const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKrig;}
-  const AMesh* getKrigingMeshing(int i = 0) const { return _meshingKrig[i];}
-  const AMesh* getSimuMeshing(int i = 0) const { return _meshingSimu[i]; }
+  const PrecisionOpMultiConditional* getPrecisionKrig() const { return _precisionsKrig;}
+  const AMesh* getMeshingKrig(int i = 0) const { return _meshingKrig[i];}
+  const AMesh* getMeshingSimu(int i = 0) const { return _meshingSimu[i]; }
   const Db* getData() const {return  _data;}
 
-  void setRefineK(int refineK)          { _refineK = refineK; }
-  void setRefineS(int refineS)          { _refineS = refineS; }
-  void setBorder(int border)            { _border = border; }
-  void setEpsNugget(double epsNugget)   { _epsNugget = epsNugget; }
-  void setUseCholesky(int useCholesky, bool verbose=false);
-
 private:
-  int _init(Model *model,
-            const Db *domain,
-            const Db *data = nullptr,
-            const ESPDECalcMode &calcul = ESPDECalcMode::fromKey("SIMUCOND"),
+  int _init(const Db *domain,
             const AMesh *mesh = nullptr,
-            bool verbose = false);
+            bool verbose = false,
+            bool showStats = false);
   void _centerByDrift(const VectorDouble& dataVect,int ivar=0,bool useSel=true) const;
   void _computeDriftCoeffs() const;
   void _purge();
-  bool _performSimulation() const;
-  bool _performKriging() const;
+  bool _isSimulationRequested() const;
+  bool _isKrigingRequested() const;
   void _computeLk() const;
   void _computeKriging() const;
   void _computeSimuNonCond() const;
   void _computeSimuCond() const;
   void _addNuggetOnResult(VectorDouble &result);
   void _addDrift(Db* db, VectorDouble &result, int ivar = 0, bool useSel = true);
-  bool _isUseCholesky() const { return _useCholesky; }
+  void _setUseCholesky(int useCholesky = -1, bool verbose = false);
 
 private:
-  const Db*_data;
+  const Db*_data; // External Pointer
   ESPDECalcMode _calcul;
-  int _refineK;
-  int _refineS;
-  int _border;
   PrecisionOpMultiConditional* _precisionsKrig;
   PrecisionOpMultiConditional* _precisionsSimu;
   std::vector<PrecisionOp*>    _pilePrecisions; // Dimension: number of valid covariances
@@ -115,7 +109,7 @@ private:
   std::vector<const AMesh*>    _meshingSimu;    // Dimension: number of valid covariances
   std::vector<const AMesh*>    _meshingKrig;    // Dimension: number of valid covariances
   mutable VectorDouble         _driftCoeffs;
-  Model*                       _model;
+  Model*                       _model; // External pointer
   mutable VectorVectorDouble   _workingKrig;     // Number of Mesh apices * Number of valid covariances
   mutable VectorVectorDouble   _workingSimu;     // Number of Mesh apices * Number of valid covariances
   mutable VectorDouble         _workingData;     // Number of valid data
@@ -129,10 +123,7 @@ private:
   bool _deleteMesh;
   bool _useCholesky;
 
-  // Parameters specific invertion using Conjugate Gradient (used for Kriging)
-  int _nIterMax;
-  double _eps;
-  double _epsNugget; // Additional amount of nugget specified as the percentage of total sill (nugget excluded)
+  SPDEParam _params;
 };
 
 GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
@@ -142,22 +133,19 @@ GSTLEARN_EXPORT int krigingSPDE(Db *dbin,
                                 bool flag_std = false,
                                 bool flag_varz = false,
                                 const AMesh* mesh = nullptr,
-                                int useCholesky = 0,
-                                int refineK = 11,
-                                int border = 8,
-                                double epsNugget = 1.e-2,
+                                int useCholesky = -1,
+                                SPDEParam params = SPDEParam(),
                                 bool verbose = false,
+                                bool showStats = false,
                                 const NamingConvention &namconv = NamingConvention("KrigingSPDE"));
 GSTLEARN_EXPORT int simulateSPDE(Db *dbin,
                                  Db *dbout,
                                  Model *model,
                                  int nbsimu = 1,
                                  const AMesh *mesh = nullptr,
-                                 int useCholesky = 0,
-                                 int refineK = 11,
-                                 int refineS = 18,
-                                 int border = 8,
+                                 int useCholesky = -1,
+                                 SPDEParam params = SPDEParam(),
                                  int seed = 121423,
-                                 double epsNugget = 1.e-2,
                                  bool verbose = false,
+                                 bool showStats = false,
                                  const NamingConvention &namconv = NamingConvention("SimuSPDE"));

@@ -57,20 +57,22 @@ int main(int argc, char *argv[])
   int ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 43246);
   VectorDouble z = VH::simulateGaussian(ndata);
-  (void) simulateSPDE(nullptr,dat,model,1, nullptr, 0, 11, 18, 8, 132341, 1.e-2, false,
+  (void) simulateSPDE(nullptr, dat, model, 1, nullptr, 0, SPDEParam(), 132341, false, false,
                       NamingConvention("variable", false, false));
   dat->display();
 
   // Estimation and simulations
-  (void) krigingSPDE(dat,grid,model, true, false, false, nullptr, 0, 11, 8, 1.e-2, false,
+  (void) krigingSPDE(dat,grid,model, true, false, false, nullptr, 0, SPDEParam(), false, false,
                      NamingConvention("K-spirale"));
-  (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, 0, 11, 18, 8, 132341, 1.e-2, false,
+  (void) simulateSPDE(nullptr,grid,model,nbsimu, nullptr, 0, SPDEParam(), 132341, false, false,
                       NamingConvention("NCS-spirale"));
-  (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, 0, 11, 18, 8, 132341, 1.e-2, false,
+  (void) simulateSPDE(dat,grid,model,nbsimu, nullptr, 0, SPDEParam(), 132341,false, false,
                       NamingConvention("CDS-spirale"));
 
   (void) grid->dumpToNF("grid.ascii");
   DbStringFormat dbfmt(FLAG_STATS,{"spde*"});
+  // To prevent diff between some platforms (round to 10^-2)
+  OptCst::define(ECst::NTDEC, 2);
   grid->display(&dbfmt);
 
   delete dat;

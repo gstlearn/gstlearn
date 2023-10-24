@@ -42,6 +42,11 @@ BiTargetCheckDate::~BiTargetCheckDate()
 {
 }
 
+BiTargetCheckDate* BiTargetCheckDate::create(double deltamin, double deltamax)
+{
+  return new BiTargetCheckDate(deltamin, deltamax);
+}
+
 String BiTargetCheckDate::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;

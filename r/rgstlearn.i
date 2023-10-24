@@ -15,7 +15,6 @@
 // https://stackoverflow.com/a/26035360/3952924
 #%import "doc/documentation.i"
 
-//////////////////////////////////////////////////////////////
 //   Ignore functions that are not exportable with SWIG     //
 //////////////////////////////////////////////////////////////
 
@@ -804,15 +803,60 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 
 "Db_toTL" <- function(x)
 {
-  vals = list()
   names = x$getAllNames()
   nc = x$getColumnNumber()
+  vals = list()
   for (i in seq(0,nc-1)) {
     vals = cbind(vals,x$getColumnsByColIdx(i))
   }
   df = data.frame(vals)
   names(df) = names
   df
+}
+
+"Db_fromDF" <- function(df)
+{
+	# Create an empty Db
+	dat = Db()
+	# And import all columns in one a loop using [] operator
+	types = unlist(lapply(datcsv, is.numeric))
+	for (field in names(df))
+    	if (types[field] == TRUE) dat[field] = df[field]
+	dat
+}
+
+#' Convert a variogram into a data.frame
+#'
+#' @param x    Pointer to the Vario 
+#' @param idir Rank of the direction (0 based)
+#' @param ivar Rank of the first variable (0 based)
+#' @param jvar Rank of the second variable (0 based)
+"Vario_toTL" <- function(x, idir=0, ivar=0, jvar=0)
+{
+  sw = x$getSwVec(idir, ivar, jvar, FALSE)
+  hh = x$getHhVec(idir, ivar, jvar, FALSE)
+  gg = x$getGgVec(idir, ivar, jvar, FALSE, FALSE, FALSE)
+  
+  vals = cbind(sw, hh, gg)
+  df = data.frame(vals)
+  names(df) = c("sw","hh","gg")
+  df
+}
+
+"Vario_updateFromDF" <- function(vario, df, idir=0, ivar=0, jvar=0)
+{
+	ndir = vario$getDirectionNumber()
+	nvar = vario$getVariableNumber()
+	if (idir < 0 || idir >= ndir) return
+	if (ivar < 0 || ivar >= nvar) return 
+	if (jvar < 0 || jvar >= nvar) return 
+	nlag = vario$getLagTotalNumber(idir)
+	if (dim(df)[1] != nlag) return 
+	
+	vario$setSwVec(idir, ivar, jvar, df$sw)
+	vario$setHhVec(idir, ivar, jvar, df$hh)
+	vario$setGgVec(idir, ivar, jvar, df$gg)
+	vario
 }
 
 "Krigtest_Res_toTL" <- function(x)
@@ -870,8 +914,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   res
 }
 
-"getVarioitem" <-
-function (x,i,j,...,drop=TRUE)
+"getVarioitem" <- function (x,i,j,...,drop=TRUE)
 {
   vario  <- x
   args = list()
@@ -885,8 +928,7 @@ function (x,i,j,...,drop=TRUE)
   values
 }
 
-"setVarioitem" <-
-  function (x,i,j,...,value)
+"setVarioitem" <- function (x,i,j,...,value)
 {
   vario <- x
   args = list()
@@ -903,4 +945,17 @@ function (x,i,j,...,drop=TRUE)
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
 
+
+# Special function overloaded for plot.R
+setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
+setMethod("plot", signature(x="_p_DbGrid"), function(x,y="missing",...)  plot.grid(x,...))
+
+setMethod("plot", signature(x="_p_Db"), function(x,y=missing,...) plot.point(x,...))
+setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+
+setMethod("plot", signature(x="_p_Vario"), function(x,y=missing,...) plot.vario(x,...))
+setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
+
+setMethod("plot", signature(x="_p_Rule"), function(x,y="missing",...) plot.rule(x,...))
+setMethod("plot", signature(x="_p_AAnam"), function(x,y="missing",...) plot.anam(x,...))
 %}

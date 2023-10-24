@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 
   bool verbose = true;
   // This crashes under MingGW/Windows due to compatibility issue with getTestData
-  //ASerializable::setContainerName(true,"",verbose);
+  //ASerializable::setContainerName(true); // TODO: check if this is still valid
   //ASerializable::setPrefixName("test_SPDEDrift-");
 
   String filename;
@@ -72,7 +72,8 @@ int main(int argc, char *argv[])
 
   //////////////////////
   /// Kriging using SPDE
-  SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING);
+  int useCholesky = 0;
+  SPDE spde(model,grid,temperatures,ESPDECalcMode::KRIGING,nullptr,useCholesky);
   VectorDouble coeffs = spde.getCoeffs();
   spde.compute(grid);
 

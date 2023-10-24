@@ -24,7 +24,7 @@ public:
   virtual ~BiTargetCheckFaults();
 
   /// ICloneable Interface
-  IMPLEMENT_CLONING(BiTargetCheckFaults)
+  //IMPLEMENT_CLONING(BiTargetCheckFaults)
 
   virtual bool isOK(const SpaceTarget &T1,
                     const SpaceTarget &T2) const override;
@@ -32,7 +32,7 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  const Faults* getFaults() const { return _faults; }
+  static BiTargetCheckFaults* create(const Faults* faults);
 
 private:
   const Faults* _faults;

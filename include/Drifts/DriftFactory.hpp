@@ -12,19 +12,20 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Enum/EDrift.hpp"
-
 #include "Covariances/CovContext.hpp"
 
-class ADriftElem;
+class ADrift;
+class DriftList;
 
 class GSTLEARN_EXPORT DriftFactory
 {
 public:
-  static ADriftElem* createDriftFunc(const EDrift &type,
-                                     const CovContext &ctxt = CovContext(),
-                                     int rank_fex = 0);
-  static ADriftElem*  duplicateDriftFunc(const ADriftElem& cov);
-  static void         displayList(const CovContext& ctxt);
-  static EDrift       identifyDrift(const String& symbol, int* rank, const CovContext& ctxt);
- };
+  static ADrift* createDriftByRank(int rank, int rank_fex);
+  static ADrift* createDriftBySymbol(const String &symbol);
+  static ADrift* createDriftByIdentifier(const String &driftname);
+  static DriftList* createDriftListFromIRF(int order = 0,
+                                           int nfex = 0,
+                                           const CovContext &ctxt = CovContext());
+  static DriftList* createDriftListForGradients(const DriftList* inputlist,
+                                                const CovContext &ctxt = CovContext());
+};

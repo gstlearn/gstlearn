@@ -95,13 +95,13 @@ cs* cs_diag(VectorDouble diag, double tol)
 
 // Calculate the norm as follows:
 // mode=1: t(B) %*% diag %*% B (initial form)
-// mode=2: B %*% diag%*% t(B)
+// mode=2: B %*% diag %*% t(B)
 //
-cs* cs_prod_norm_diagonal(int mode, cs *B, VectorDouble diag)
+cs* cs_prod_norm_diagonal(int mode, const cs *B, VectorDouble diag)
 
 {
  cs* diagM = cs_diag(diag);
- cs* Res = cs_prod_norm(mode, diagM,B);
+ cs* Res = cs_prod_norm(mode, diagM, B);
  cs_free(diagM);
  return (Res);
 }
@@ -151,7 +151,8 @@ cs* cs_arrays_to_sparse(int n,
 
   error = 0;
 
-  label_end: Qtriplet = cs_spfree(Qtriplet);
+  label_end:
+  Qtriplet = cs_spfree(Qtriplet);
   if (error) Q = cs_spfree(Q);
   return (Q);
 }
@@ -375,7 +376,7 @@ cs* cs_extract_submatrix_by_color(cs *C,
   for (int i = 0; i < n; i++)
   {
     u_row[i] = -1;
-    if (row_ok && colors[i] != ref_color) continue;
+    if ( row_ok && colors[i] != ref_color) continue;
     if (!row_ok && colors[i] == ref_color) continue;
     u_row[i] = ir++;
   }
@@ -384,7 +385,7 @@ cs* cs_extract_submatrix_by_color(cs *C,
   for (int i = 0; i < n; i++)
   {
     u_col[i] = -1;
-    if (col_ok && colors[i] != ref_color) continue;
+    if ( col_ok && colors[i] != ref_color) continue;
     if (!col_ok && colors[i] == ref_color) continue;
     u_col[i] = ic++;
   }
@@ -3229,8 +3230,7 @@ cs* cs_interpolate(cs *AA, cs *Lt, int *Co)
 // mode=1: t(B) %*% A %*% B (initial form)
 // mode=2: B %*% A %*% t(B)
 //
-cs* cs_prod_norm(int mode, cs *A, cs *B)
-
+cs* cs_prod_norm(int mode, const cs *A, const cs *B)
 {
   cs *Bt, *BtA, *BA, *Res;
 
@@ -3269,7 +3269,6 @@ cs* cs_prod_norm(int mode, cs *A, cs *B)
 // mode=2: B %*% t(B)
 //
 cs* cs_prod_norm_single(int mode, cs *B)
-
 {
   cs *Bt, *Res;
 
@@ -3293,8 +3292,8 @@ cs* cs_prod_norm_single(int mode, cs *B)
     Res = cs_multiply(B, Bt);
     if (Res == nullptr) goto label_end;
   }
-  label_end: Bt = cs_spfree(Bt);
-
+  label_end:
+  Bt = cs_spfree(Bt);
   return (Res);
 }
 
@@ -3927,4 +3926,47 @@ bool cs_are_same(const cs* A, const cs* B, double tol)
       }
     }
   return flag_same;
+}
+
+/**
+ * This method glues two sparse matrices into an output sparse matrix
+ * The second matrix is appended after addresses have been shifted
+ * either by row or by column
+ * @param A1 First sparse matrix
+ * @param A2 Secon sparse matrix
+ * @param shiftRow Shift A2 addresses by the number of rows of A1
+ * @param shiftCol Shift A2 addresses by the number of columns of A1
+ * @return The newly create sparse matrix
+ */
+cs* cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool shiftCol)
+{
+  // Create the output structure in Triplet
+  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+
+  int n1 = 0;
+  int *rows1 = nullptr;
+  int *cols1 = nullptr;
+  double *vals1 = nullptr;
+  cs_sparse_to_triplet(A1, 0, &n1, &cols1, &rows1, &vals1);
+  int addRow =  (shiftRow) ? cs_getnrow(A1) : 0;
+  int addCol =  (shiftCol) ? cs_getncol(A1) : 0;
+
+  int n2 = 0;
+  int *rows2 = nullptr;
+  int *cols2 = nullptr;
+  double *vals2 = nullptr;
+  cs_sparse_to_triplet(A2, 0, &n2, &cols2, &rows2, &vals2);
+
+  // Copy the contents of A1 into triplets
+  for (int i = 0; i < n1; i++)
+    (void) cs_entry(Striplet, rows1[i], cols1[i], vals1[i]);
+
+  // Copy the contents of A2 into triplets
+  for (int i = 0; i < n2; i++)
+    (void) cs_entry(Striplet, rows2[i] + addRow, cols2[i] + addCol, vals2[i]);
+
+  // Transform the output triplet into sparse matrix
+  cs* Q = cs_triplet(Striplet);
+  Striplet = cs_spfree(Striplet);
+  return Q;
 }

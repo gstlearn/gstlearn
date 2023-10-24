@@ -709,6 +709,15 @@ void exit_f(void)
 %extend AnamHermite {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend NamingConvention {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend Regression {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend RuleProp {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
@@ -783,7 +792,6 @@ setattr(gl.VectorVectorInt,    "__setitem__", setitem)
 setattr(gl.VectorVectorFloat,  "__getitem__", getitem)
 setattr(gl.VectorVectorFloat,  "__setitem__", setitem)
 
-
 ## Override operator [] for the Db class ##
 ## ------------------------------------- ##
 # Thanks to Nicolas Desassis:
@@ -802,8 +810,9 @@ def is_list_type(mylist, types):
     return all_type
 
 def check_nrows(db, nrows):
-    """Check if a number of rows matches with the number of samples of a Db, and returns the flag
-    for useSel (whether it matches the number of active samples or the total number of samples)"""
+    """Check if a number of rows matches with the number of samples of a Db, 
+    and returns the flag for useSel (whether it matches the number of active 
+    samples or the total number of samples)"""
     if nrows == db.getActiveSampleNumber() :
         useSel = True
     elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
@@ -1011,6 +1020,18 @@ def Db_toTL(self, flagLocate=False):
 
 setattr(gl.Db, "toTL", Db_toTL)
 
+def Db_fromPanda(pf):
+	# Create an empty Db
+	dat = Db()
+	# And import all columns in one a loop using [] operator
+	for field in pf.columns :
+		mycol = pf[field]
+		if mycol.dtype == 'float64' or mycol.dtype == 'int64':
+	 		dat[field] = mycol
+	return dat
+
+gl.Db.fromTL = staticmethod(Db_fromPanda)
+
 def matrix_toTL(self):
   if self.isSparse():
     Acs = self.getCsToTriplet().toTL()
@@ -1049,4 +1070,38 @@ def table_toTL(self):
   return Anp
 
 setattr(gl.Table, "toTL", table_toTL)
+
+def vario_toTL(self, idir, ivar, jvar):
+  sw = self.getSwVec(idir, ivar, jvar, False)
+  hh = self.getHhVec(idir, ivar, jvar, False)
+  gg = self.getGgVec(idir, ivar, jvar, False, False, False)
+  array = np.vstack((sw, hh, gg)).T
+  colnames = np.array(["sw","hh","gg"])
+  df = pd.DataFrame(array, columns = colnames)
+  return df
+
+setattr(gl.Vario, "toTL", vario_toTL)
+
+def vario_updateFromPanda(self, pf, idir, ivar, jvar):
+	vario = self
+	ndir = vario.getDirectionNumber()
+	nvar = vario.getVariableNumber()
+	if idir < 0 or idir >= ndir:
+	 return vario
+	if ivar < 0 or ivar >= nvar:
+	 return vario
+	if jvar < 0 or jvar >= nvar:
+	 return vario
+	nlag = vario.getLagTotalNumber(idir)
+	if len(pf.index) != nlag:
+	 return vario
+	
+	vario.setSwVec(idir, ivar, jvar, pf["sw"])
+	vario.setHhVec(idir, ivar, jvar, pf["hh"])
+	vario.setGgVec(idir, ivar, jvar, pf["gg"])
+	return vario
+
+setattr(gl.Vario, "updateFromPanda", vario_updateFromPanda)
+
 %}
+
