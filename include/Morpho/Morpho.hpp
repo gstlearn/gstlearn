@@ -18,8 +18,9 @@
 #include "Arrays/BImage.hpp"
 #include "Db/DbGrid.hpp"
 
-struct GSTLEARN_EXPORT Spill_Res
+class GSTLEARN_EXPORT Spill_Res
 {
+public:
   bool   success; // TRUE if algorithm has been successfully performed
   double h;       // Elevation of the spill point
   double th;      // Maximum reservoir thickness

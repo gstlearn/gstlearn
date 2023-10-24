@@ -819,7 +819,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 	# Create an empty Db
 	dat = Db()
 	# And import all columns in one a loop using [] operator
-	types = unlist(lapply(datcsv, is.numeric))
+	types = unlist(lapply(df, is.numeric))
 	for (field in names(df))
     	if (types[field] == TRUE) dat[field] = df[field]
 	dat

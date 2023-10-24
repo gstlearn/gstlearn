@@ -20,8 +20,9 @@ class Db;
 class DbGrid;
 class KrigingSystem;
 
-struct GSTLEARN_EXPORT Krigtest_Res
+class GSTLEARN_EXPORT Krigtest_Res
 {
+public:
   int ndim; // Space dimension
   int nvar; // Number of variables
   int nech; // Number of Neighboring samples
