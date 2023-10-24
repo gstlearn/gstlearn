@@ -54,7 +54,7 @@ hn     = hermiteLognormal(m, sigma, params$nbpoly)
 
 We calculate the various functions (expectation, ore and metal quantity, for expectation and standard deviation) for different values of $y$ varying from -3 to 3 and different values of $r$ varying from 0 to 1. The results are stored in a Db (organized as a matrix) whose parameters are given next.
 
-```{r Grid-Definition}
+```{r Grid_Definition}
 y0  = -3
 dy  = 0.1
 dr  = 0.1
