@@ -20,8 +20,9 @@ class Db;
 class DbGrid;
 class KrigingSystem;
 
-struct GSTLEARN_EXPORT Global_Result
+class GSTLEARN_EXPORT Global_Result
 {
+public:
   int ntot; // Total Number of Data
   int np;   // Number of active Data
   int ng;   // Number of grid nodes for Domain discretization
