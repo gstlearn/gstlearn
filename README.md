@@ -28,6 +28,8 @@ The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www
 
 The *gstlearn* C++ library is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
+The *gstlearn* C++ library comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses). Please take a look [here](doc/data) for credits and licenses of data files.
+
 The *gstlearn* C++ library depends on the following third-party source code compiled in separate libraries (see **3rd-party** folder):
 
 | Name           | License        | URL                                                            | Copyright
