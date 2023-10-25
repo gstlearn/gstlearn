@@ -239,7 +239,7 @@ void ACovAnisoList::evalMatOptimInPlace(int iech1,
   if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
 
   mat.fill(0.);
-  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  if (mode == nullptr)
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
     {

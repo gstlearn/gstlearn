@@ -395,8 +395,8 @@ public:
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   void setActiveFactor(int iclass);
-  int getActiveFactor() const;
-  int getAnamNClass() const;
+  int  getActiveFactor() const;
+  int  getAnamNClass() const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
