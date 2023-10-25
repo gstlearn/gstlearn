@@ -9,17 +9,12 @@ output:
   chunk_output_type: console
 ---
 
-<!-- SUMMARY: Projection Pursuit Multivariate Transform  -->
-
-<!-- CATEGORY: Methodology -->
-
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-library(ggnewscale)
 ```
 
 # General Introduction
@@ -75,6 +70,7 @@ ggPrint(p)
 # maps
 ggplot() + plot.grid(grd, "Y1")
 ggplot() + plot.grid(grd, "Y2")
+
 ```
 
 ```{r}
@@ -84,7 +80,7 @@ m_2 = 0.5; sigma_2 = 0.5
 grd["Z1"] = m_1 * exp(sigma_1 * grd["Y1"] - 1/2 * sigma_1 * sigma_1 )
 grd["Z2"] = m_2 * exp(sigma_2 * grd["Y2"] - 1/2 * sigma_2 * sigma_2 )
 
-dbStatisticsMono(grd,c("Z*","Y*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
+dum = grd$statistics(c("Z*","Y*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
 ggplot() + plot.hist(grd, name = "Z1", color = "gray", fill = "orange")
@@ -97,6 +93,7 @@ ggPrint(p)
 # maps
 ggplot() + plot.grid(grd, "Z1")
 ggplot() + plot.grid(grd, "Z2")
+
 ```
 
 ## Extraction of the dataset
@@ -105,7 +102,7 @@ ggplot() + plot.grid(grd, "Z2")
 nump  = 500
 data = Db_createSamplingDb(grd, number=nump, names = c("x1", "x2", "Z1", "Z2"))
 
-dbStatisticsMono(data,c("Z*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
+dum = data$statistics(c("Z*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # histograms and correlation
 ggplot() + plot.hist(data, name = "Z1", color = "gray", fill = "orange")
@@ -118,13 +115,13 @@ ggPrint(p)
 # maps
 p = ggplot()
 p = p + plot.grid(grd,"Z1")
-p = p + plot.point(data, nameColor = "Z1")
+p = p + plot.point(data, name_color = "Z1")
 p = p + plot.decoration(title = "Initial lognormal variable - Z1")
 ggPrint(p)
 
 p = ggplot()
 p = p + plot.grid(grd,"Z2")
-p = p + plot.point(data, nameColor = "Z2")
+p = p + plot.point(data, name_color = "Z2")
 p = p + plot.decoration(title = "Initial lognormal variable - Z2")
 ggPrint(p)
 ```
@@ -160,12 +157,13 @@ plot(x = 1:niter, y = ppmt$getSerieScore(TRUE), type = "l", col = "black", lty =
      xlab = "Iterations", ylab = "Logarithm of index", main = "Wasserstein distance")
 ```
 
+
 Results
 
 ```{r}
 # adding the results to the data base
 iuid = data$addColumns(Xmat$getValues(), radix = "U")
-dbStatisticsMono(data,c("Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
+dum  = data$statistics(c("Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 
 # Q-Q plots for initial Gaussian
 probas = (1:99)/(1+99)
@@ -209,6 +207,7 @@ p = p + plot.correlation(data, namex = "U-1", namey = "U-2", bins=100, flagDiag 
 p = p + plot.decoration(title = "Final Gaussian variables (data)")
 ggPrint(p)
 ```
+
 
 # Back transform of simulated Gaussian variables
 
@@ -280,6 +279,7 @@ p = p + plot.correlation(simu, namex = "Z.Y1", namey = "Z.Y2", bins=100, flagDia
 p = p + plot.decoration(title = "Simulations of the raw variables")
 ggPrint(p)
 ```
+
 
 # Discussion and further works
 

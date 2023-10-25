@@ -9,16 +9,61 @@ editor_options:
   chunk_output_type: console
 ---
 
-<!-- SUMMARY: Perform estimation using non-linear Geostatistics with a Gaussian Model on a point data set  -->
-
-<!-- CATEGORY: Methodology -->
-
 # Introduction
 
 This case study is meant to demonstrate how to use gstlearn for non-linear geostatistics with the Gaussian model. 
 
-```{r, child="../../references/Non_Linear.md"}
-```
+We consider three supports:
+
+* The support of the samples, considered as **points** and noted $x$,
+
+* The support of the selection, the **bloc**, noted $v$,
+
+* The support of the reporting, the **panels**, noted $V$.
+
+The variable of interest $z$ is defined over the domain $S \subset \mathbb{R}^d$ with $d = 2$. The domain is uniformly divided into panels and each panel is regularly subdivided into blocs, hence defining two regular grids, the grid of panels and the grid of blocs. 
+
+> **Hence, we will have a data set and two grids.**
+
+The regionalised variable $z(x)$ for $x \in D \subset \mathbb{R}^d$ is modeled as a transform of the stationary Gaussian Random Function, $Z(x) = \phi(Y(x))$ where
+
+* $Y(x)$ is a stationary Gaussian function, centered and normalized.
+
+> $E\{Y(x)\} = 0$ and $Cov\{Y(x), Y(x+h)\} = \rho_Y(h) = 1 -\gamma_Y (h)$
+
+* $\phi$ is a continous and one to one and mapping, called the Gaussian anamorphosis.
+
+> As $Var(Z) < +\infty$, $\phi \in L^2(g)$ and 
+> it can be expressed as a linear combination of Hermite polynomials 
+> $\phi(y) = \sum_{n = 1}^{+\infty} \phi_n H_n(y)$.
+
+Non linear Geostatistics implements non linear estimators of non linear transforms of the variable of interest $Z$. Two issues are addressed, the selection and the change of support, with the following tasks common in geosciences (i.e., in a mining context or for environmental studies), 
+
+* predicting recovered quantities with selection over the actual value. 
+
+> For example, recovered mineral resources will be defined by the selected ore at a given cutoff, $T(z_c) = 1_{Z \geq z_c}$, and the metal contained in the selected ore, $Q(z_c) =  Z \times 1_{Z \geq z_c}$.
+
+* taking into account the support of the selection. 
+
+> The average value of the volume $v$ is noted $Z(v) = \frac{1}{|v|} \int_v Z(u) du$. 
+
+A first task is to predict marginal distribution of $Z(v)$, or the histogram, knowing the histogram of $Z$ and its spatial structure. A second task is to predict the conditional distribution of $Z(v)$ given the spatial the prior spatial model and some observations. The first question is referred to as the global recoverable resources, and the second one as the local recoverable resources. 
+
+Three estimators will be illustrated:
+
+* the conditional expectation (**EC**)
+
+* the disjunctive kriging (**DK**)
+
+> EC and DK can be used to evaluate **point** recovery functions at a non observed point $x_0$, $1_{Z(x_0) \geq z_c}$ and $Z(x_0) \times 1_{Z(x_0) \geq z_c}$. 
+> They can also be used to evaluate **bloc** recovery functions for a block $v$, $1_{Z(v) \geq z_c}$ and $Z(v) \times 1_{Z(v) \geq z_c}$.
+> DK can also evaluate recovery functions average on a bigger support, e.g. $\frac{1}{N} \sum_{i=1}^{N} 1_{Z(v_i) \geq z_c}$ is the recovered ore on the panels $V = \cup_{i=1}^{N}v_i$.
+
+* the uniform conditioning (**UC**)
+
+> UC computes block recovery functions averaged on a panel.
+
+Two change of support models are available for a Gaussian model, they are noted respectively $DGM-1$ and $DGM-2$.
 
 Initially, we generate a realization of the variable on a fine grid, modeling the regionalized variable defined on the point support. This realization, or simulation, is sampled to defined ($np$ points uniformly sampled on the domain) the input data set.
 
@@ -28,12 +73,11 @@ We will use the Geostatistics library **gstlearn**.
 
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(fig.align="center")
+knitr::opts_chunk$set(align="center")
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-library(ggnewscale)
 ```
 
 ```{r, echo=TRUE, eval=TRUE}
@@ -136,7 +180,7 @@ p = p + plot.decoration(xlab = "Z", title = "Simulated samples (Z variable)")
 ggPrint(p)
 
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-stats = dbStatisticsMono(grid, c("Y","Z"), opers=opers)
+stats = dbStatisticsMonoT(grid, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2,
     caption = "Statistics of the simulated variables on the point support")
 ```
@@ -152,7 +196,7 @@ data$setLocator("Z", ELoc_Z())
 data$display()
 
 p = ggplot()
-p = p + plot.point(data, nameColor = "Z", nameSize = "Z", flagLegendSize = TRUE)
+p = p + plot.point(data, name_color = "Z", name_size = "Z", show.legend.size = TRUE)
 ggPrint(p)
 
 p = ggplot()
@@ -160,7 +204,6 @@ p = p + plot.hist(data, name = "Y", bins = 100, col = "gray", fill = "skyblue")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot.point(data, nameColor = "Y", nameSize = "Y", flagLegendSize = TRUE)
 p = p + plot.decoration(xlab = "Y", title = "Sampled data (Y variable)")
 ggPrint(p)
 
@@ -169,7 +212,7 @@ p = p + plot.hist(data, name = "Z", bins = 100, col = "gray", fill = "orange")
 p = p + plot.decoration(xlab = "Z", title = "Sampled data (Z variable)")
 ggPrint(p)
 
-stats = dbStatisticsMono(data, c("Y","Z"), opers=opers)
+stats = dbStatisticsMonoT(data, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2, 
              caption = "Statistics of the sampled data on the point support")
 
@@ -363,13 +406,13 @@ err = kriging(data, blocs, model, neigh,
 
 p = ggplot()
 p = p + plot(blocs, "G_Pts.Gaussian.Z.estim", 
-         flagLegendRaster=TRUE, legendNameRaster = "Estimation")
+         show.legend.raster=TRUE, legend.name.raster = "Estimation")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 ggPrint(p)
 
 p = ggplot()
 p = p + plot(blocs, "G_Pts.Gaussian.Z.stdev", 
-         flagLegendRaster=TRUE, legendNameRaster = "Std. Dev.")
+         show.legend.raster=TRUE, legend.name.raster = "Std. Dev.")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 ggPrint(p)
 ```
@@ -403,20 +446,20 @@ blocs$display()
 # Metal (the anamorphosis is used)
 p = ggplot()
 p = p + plot(blocs, "Pts_Recovery.Q-estim-0",
-         flagLegendRaster=TRUE, legendNameRaster= "Q(0.0)")
+         show.legend.raster=TRUE, legend.name.raster= "Q(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 
 # Tonnage (the anamorphosis is not used)
 p = ggplot()
 p = p + plot(blocs, "Pts_Recovery.T-estim-0",
-         flagLegendRaster = TRUE, legendNameRaster = "T(0.0)")
+         show.legend.raster = TRUE, legend.name.raster = "T(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 
 p = ggplot()
 p = p + plot(blocs, "Pts_Recovery.T-estim-1",
-     flagLegendRaster=TRUE, legendNameRaster = "T(1.0)")
+     show.legend.raster=TRUE, legend.name.raster = "T(1.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 ```
@@ -676,13 +719,13 @@ panels$display()
 
 ```{r dk_panels_map, echo=TRUE, eval=TRUE}
 p = ggplot()
-p = p + plot(panels, "DK_Blk.*.estim", flagLegendRaster = TRUE) 
+p = p + plot(panels, "DK_Blk.*.estim", show.legend.raster = TRUE) 
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
             title = "Estimate of the first factor (panels)")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot(panels, "DK_Blk.*.stdev", flagLegendRaster = TRUE)
+p = p + plot(panels, "DK_Blk.*.stdev", show.legend.raster = TRUE)
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
               title = "Std. of the first factor estimate (panels)")
 ggPrint(p)
@@ -940,7 +983,7 @@ for (est in c("SK", "DK", "CE")){
     
     p = ggplot()
     p = p + plot(grid, paste0(est, ".Z.", type),
-                 flagLegendRaster=TRUE, legendNameRaster=type) 
+                 show.legend.raster=TRUE, legend.name.raster=type) 
     p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
                             title = paste("Estimator = ", est)) 
     ggPrint(p)
@@ -958,7 +1001,7 @@ for (est in c("SK", "DK", "CE")){
 }
 
 # Mono variate statistics of the estimators
-knitr::kable(dbStatisticsMono(grid, nm, opers=opers)$toTL(), digits=3,
+knitr::kable(dbStatisticsMonoT(grid, nm, opers=opers)$toTL(), digits=3,
     caption = "Statistics of the estimated values")
 
 # Scoring rules

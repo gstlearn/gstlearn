@@ -5,10 +5,6 @@ date: "2022-11-02"
 output: pdf_document
 ---
 
-<!-- SUMMARY: Generation of Random Directions in a high-dimension space: Van der Corput sequence or Quasi-random model  -->
-
-<!-- CATEGORY: Basic_Calculations -->
-
 # Initialisation
 
 ```{r setup,include=FALSE, fig.show='hide'}
@@ -21,9 +17,19 @@ library("gstlearn")
 
 # The Van de Corput sequence
 
-```{r, child="../../references/Van-der-Corput.md"}
-```
+The van der Corput sequence is the simplest one-dimensional low-discrepancy sequence over the unit interval; it was first described in 1935 by the Dutch mathematician J. G. van der Corput. It is constructed by reversing the base-$p$ representation of the sequence of natural numbers (1, 2, 3, …).
 
+The $p$-ary representation of the positive integer $n (\geq 1)$ is
+
+$$
+n = \sum_{k = 0}^{L-1} d_k(n) \, p^{k}
+$$
+
+where $p$ is the base in which the number $n$ is represented, and $0 \leq d_p(n) < p$, i.e. the k-th digit in the $p$-ary expansion of $n$. The $n$-th number in the van der Corput sequence is
+
+$$
+g_p(n) = \sum_{k = 0}^{L-1} d_k(n) \, \frac{1}{p^{k+1}}
+$$
 # Evaluation of the Van der Corput sequence
 
 ## A single dimension
@@ -87,9 +93,18 @@ lines(1:50, stds , lty = 1, col = "skyblue")
 
 # $n$-sphere and (quasi) random directions
 
-```{r, child="../../references/Random_Directions.md"}
-```
+The $n$-sphere is defined as
+$$
+S^n = \{s \in \mathbb{R}^{n+1} : ||x|| = 1\}
+$$
+and a direction in $\mathbb{R}^{n+1}$ is a point on the half $n$-sphere. 
 
+A simple approach to generating a uniform point on $S^n$ uses the fact that the multivariate normal distribution with independent standardized components is radially symmetric, i.e., it is invariant under orthogonal rotations. Therefore, if 
+$Y \sim \mathcal{N}({\bf 0}_{n+1}, {\bf I}_{n+1})$, then $S_n = Y /||Y||$ has the uniform distribution on the unit $n$-sphere. 
+
+For the simulation of a direction, i.e. a point on $S^n_{+}$, the last axis is selected as a reference and points with a negative coordinate along this axis are replaced by their symmetric points relatively to the origin.
+
+Finally, in order to build a quasi random values on the half $n$-sphere, the normal variables are simulated using the inverse method and the pseudo random generator on $[0,1]^{n+1}$ is replaced by the Van der Corput sequence which is a quasi random generator on $[0,1]^{n+1}$.
 
 ```{r, echo=FALSE}
 plot_dir <- function(np, nd = 3, meth = "vdc", ix = 1, iy = 2, seed=13364)

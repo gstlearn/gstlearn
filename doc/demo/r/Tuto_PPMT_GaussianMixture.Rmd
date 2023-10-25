@@ -9,10 +9,6 @@ output:
   chunk_output_type: console
 ---
 
-<!-- SUMMARY: Projection Pursuit Multivariate Transform in the case of a Gaussian mixture -->
-
-<!-- CATEGORY: Methodology -->
-
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
@@ -65,7 +61,7 @@ data["x1"] <- X[,1]
 data["x2"] <- X[,2]
 data["x3"] <- X[,3]
 
-dbStatisticsMono(data, c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
+dum = data$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 ```
 
 ```{r}
@@ -77,12 +73,10 @@ p = ggplot()
 p = p + plot.correlation(data, namex = "x1", namey = "x2", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
 ggPrint(p)
-
 p = ggplot()
 p = p + plot.correlation(data, namex = "x1", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
 ggPrint(p)
-
 p = ggplot()
 p = p + plot.correlation(data, namex = "x2", namey = "x3", bins=100, flagDiag = TRUE)
 p = p + plot.decoration(title = "Gaussian mixture (data)")
@@ -135,8 +129,9 @@ plot(x = 1:nit, y = log(ppmt$getSerieScore(), base = 10), type = "l", col = "red
 
 # adding the results to the data base
 iuid = data$addColumns(Xmat$getValues(), radix = "U")
-dbStatisticsMono(data, c("x*","Y*","U-*"),
-                       opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
+dum  = data$statistics(c("x*",
+                       "Y*","U-*"),opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
+
 ```
 
 ## Results
@@ -181,6 +176,7 @@ p = p + plot.correlation(data, namex = "Y2", namey = "Y3", bins=100, flagDiag = 
 p = p + plot.decoration(title = "Initial Gaussian variables (data)")
 ggPrint(p)
 ```
+
 
 ### Final Gaussian values
 
@@ -269,7 +265,7 @@ simu["x2"] <- Z[,2]
 simu["x3"] <- Z[,3]
 
 # Results
-dbStatisticsMono(simu, c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))$display()
+dum = simu$statistics(c("x*"), opers=EStatOption_fromKeys(c("MINI","MAXI","MEAN","STDV")))
 ```
 
 ```{r}
