@@ -67,8 +67,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _T1(r._T1),
       _T2(r._T2)
 {
-  int number = _getBiPtsNumber();
-  for (int ipt = 0; ipt < number; ipt++)
+  for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
     //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
     _bipts.push_back(r._bipts[ipt]);
 }
@@ -91,8 +90,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _T1 = r._T1;
     _T2 = r._T2;
 
-    int number = _getBiPtsNumber();
-    for (int ipt = 0; ipt < number; ipt++)
+    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
       //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
       _bipts.push_back(r._bipts[ipt]);
    }
@@ -367,8 +365,7 @@ int NeighMoving::attach(const Db *dbin, const Db *dbout)
 
   _dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
-  int number = _getBiPtsNumber();
-  for (int ipt = 0; ipt < number; ipt++)
+  for (int ipt = 0, nbt = _getBiPtsNumber(); ipt < nbt; ipt++)
   {
     if (! _bipts[ipt]->isValid(dbin, dbout)) return 1;
   }
@@ -551,9 +548,8 @@ int NeighMoving::_moving(int iech_out, VectorInt& ranks, double eps)
     // Reject the point due to BiTargetChecker
     // (other than the one based on distance which must come last)
 
-    int number = _getBiPtsNumber();
     bool reject = false;
-    for (int ipt = 0; ipt < number && ! reject; ipt++)
+    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt && ! reject; ipt++)
     {
       if (! _bipts[ipt]->isOK(_T1, _T2)) reject = true;
     }

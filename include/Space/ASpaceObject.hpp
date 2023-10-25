@@ -67,6 +67,9 @@ public:
   /// Return the distance between two space points for the current space context
   double getDistance(const SpacePoint& p1, const SpacePoint& p2) const;
 
+  /// Return the distance along one direction between two space points
+  double getDistance1D(const SpacePoint& p1, const SpacePoint& p2, int idim) const;
+
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1, const SpacePoint& p2) const;
 

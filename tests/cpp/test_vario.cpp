@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
   mestitle(1, "Experimental variogram on Data Samples");
   int nlag = 20;
   VarioParam* varioparamP = VarioParam::createMultiple(2, nlag, 0.5 / nlag);
-  Vario* variop = Vario::computeFromDb(varioparamP,db,ECalcVario::VARIOGRAM);
+  Vario* variop = Vario::computeFromDb(*varioparamP,db,ECalcVario::VARIOGRAM);
   variop->display();
   message("Maximum Variogram Value = %lf\n",variop->getGmax());
 
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
   mestitle(1, "Experimental variogram on Grid");
   VarioParam* varioparamG = VarioParam::createMultipleFromGrid(grid, nlag);
-  Vario* variog = Vario::computeFromDb(varioparamG, grid, ECalcVario::VARIOGRAM);
+  Vario* variog = Vario::computeFromDb(*varioparamG, grid, ECalcVario::VARIOGRAM);
   variog->display();
 
   // ==========================================

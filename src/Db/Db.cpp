@@ -690,10 +690,8 @@ void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
  */
 void Db::getSampleAsST(int iech, SpaceTarget& P) const
 {
+  // Load the coordinates
   getSampleCoordinatesAsSP(iech, P);
-//  // Load the coordinates
-//  for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
-//    P.setCoord(idim, getCoordinate(iech, idim));
 
   // Load the code (optional)
   if (hasLocVariable(ELoc::C))
@@ -4834,6 +4832,7 @@ VectorInt Db::getSampleRanks() const
  * @param ndim Dimension of the space
  * @param nvar Number of variables
  * @param nfex Number of external drift functions
+ * @param ncode Number of codes (no code when 0)
  * @param varmax Maximum value for the measurement error
  * @param selRatio Percentage of samples that must be masked off
  * @param heteroRatio Vector of proportions of NA to be generated per variable
@@ -4853,6 +4852,7 @@ Db* Db::createFillRandom(int ndat,
                          int ndim,
                          int nvar,
                          int nfex,
+                         int ncode,
                          double varmax,
                          double selRatio,
                          const VectorDouble& heteroRatio,
@@ -4923,6 +4923,15 @@ Db* Db::createFillRandom(int ndat,
     }
   }
   db->addColumnsByVVD(vars, "z", ELoc::Z);
+
+  // Generate the code (optional)
+  if (ncode > 0)
+  {
+    VectorDouble codes = VH::simulateUniform(ndat);
+    for (int idat = 0; idat < ndat; idat++)
+      codes[idat] = int(codes[idat] * (1.+ncode));
+    db->addColumns(codes, "code", ELoc::C);
+  }
 
   return db;
 }

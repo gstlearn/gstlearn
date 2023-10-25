@@ -58,8 +58,8 @@ public:
   ////////////////////////////////////////////////
   const ADrift*  getDrift(int il) const;
   ADrift*        getDrift(int il); /// beurk :(
-  int                getRankFex(int il) const;
-  String             getDriftName(int il) const;
+  int            getRankFex(int il) const;
+  String         getDriftName(int il) const;
   ////////////////////////////////////////////////
 
   const VectorDouble& getDriftCoef() const { return _driftCoef; }
@@ -105,10 +105,10 @@ private:
 
 #ifndef SWIG
 protected:
-  bool _flagLinked;
-  VectorDouble             _driftCoef; /* Array of Drift Coefficients */
+  bool                 _flagLinked;
+  VectorDouble         _driftCoef; /* Array of Drift Coefficients */
   std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
-  VectorBool               _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
-  CovContext  _ctxt;  /* Context (space, number of variables, ...) */
+  VectorBool           _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
+  CovContext           _ctxt;  /* Context (space, number of variables, ...) */
 #endif
 };

@@ -272,7 +272,6 @@ p = p + labs(title = "January Temperature")
 plot(p)
 ```
 
-
 ------------------------------------------------------------------------
 
 ## Grid Data Base
@@ -295,7 +294,6 @@ We can check that the grid is constituted of 81 columns and 137 rows, or 11097 g
 ## Selection
 
 We can check the presence of a variable (called `inshore`) which is assigned to the `sel` locator: this corresponds to a *Selection* which acts as a binary filter: some grid cells are active and others are masked off. The count of active samples is given in the previous printout (3092). This selection remains active until it is replaced or deleted (there may not be more than one selection defined at a time per data base). This is what can be seen in the following display where we represent the `Elevation` only within the `inshore` selection.
-
 
 ```{r}
 p = ggDefaultGeographic()

@@ -101,6 +101,11 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   return table;
 }
 
+Table* Table::createFromTable(const Table& table)
+{
+  return new Table(table);
+}
+
 VectorDouble Table::getRange(int icol) const
 {
   VectorDouble vec = getColumn(icol);

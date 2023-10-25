@@ -15,8 +15,8 @@
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckDistance::BiTargetCheckDistance(double radius,
-                                           const VectorDouble coeffs,
-                                           const VectorDouble angles)
+                                             const VectorDouble coeffs,
+                                             const VectorDouble angles)
     : ABiTargetCheck(),
       _ndim(2),
       _flagAniso(false),

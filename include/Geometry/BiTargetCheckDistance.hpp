@@ -27,8 +27,7 @@ public:
   /// ICloneable Interface
   //IMPLEMENT_CLONING(BiTargetCheckDistance)
 
-  virtual bool isOK(const SpaceTarget &T1,
-                    const SpaceTarget &T2) const override;
+  virtual bool isOK(const SpaceTarget &T1, const SpaceTarget &T2) const override;
 
   static BiTargetCheckDistance* create(double radius = TEST,
                                       const VectorDouble coeffs = VectorDouble(),
@@ -57,7 +56,7 @@ public:
   double getNormalizedDistance(const VectorDouble& dd) const;
 
 private:
-  void   _calculateDistance() const;
+  void _calculateDistance() const;
 
 private:
   int    _ndim;                  /* Space dimension (used for array dimensioning) */

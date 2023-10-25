@@ -42,6 +42,8 @@ Release 0.4.0
 - New method Db_fromDF for creating Db from data.frame (numerical columns only)
 - Fix functions having "String()" default value in r (replaced by "")
 - dbStatististics* functions refactoring (same function for printing and calculating)
+- New design for VarioParam / Vario
+- Possibility to convert variogram to external language (Python or R) for In and Out
 
 Release 0.3.3
 =============

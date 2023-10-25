@@ -32,7 +32,7 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  const Faults* getFaults() const { return _faults; }
+  static BiTargetCheckFaults* create(const Faults* faults);
 
 private:
   const Faults* _faults;

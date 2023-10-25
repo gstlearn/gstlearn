@@ -211,8 +211,8 @@ Nugget Effect
 - Sill         =      2.200
 K-Bessel (Third Parameter = 1)
 - Sill         =      4.700
-- Ranges       =    500.000 10000.000
-- Theo. Ranges =    144.338  2886.751
+- Ranges       =  10000.000   500.000
+- Theo. Ranges =   2886.751   144.338
 Total Sill     =      6.900
 
 Drift Part
@@ -220,7 +220,7 @@ Drift Part
 Universality_Condition----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -262,7 +262,7 @@ Column = 8 - Name = angles1 - Locator = nostat1
 Column = 9 - Name = spde.Thickness.estim - Locator = z1----
 
 
-+*Out[17]:*+
-XXX
-![png](output_21_1.png)
++*Out[16]:*+
+----
+![png](output_20_0.png)
 ----

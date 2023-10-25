@@ -6,9 +6,6 @@ output: pdf_document
 editor_options: 
   chunk_output_type: console
 ---
-<!-- SUMMARY: Perform Estimation with non-stationary covariance (anisotropy following a spiral) in the framework of SPDE  -->
-
-<!-- CATEGORY: SPDE -->
 
 In this tutorial, we show how the use of SPDE for Varying Anisotropy when this Anisotropy must follow a Spiral shape (defined as an external function)
 
@@ -18,7 +15,6 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
-library(ggnewscale)
 ```
 
 Defining the Model as a single Bessel structure. This function is defined as anisotropic: we clearly specify the extension of the ranges in the two main directions. The angle does not have to be defined here: it will be overwritten later as the non-stationary parameter. Note that it is essential to define the short range of the anisotropy ellipsoid first (for the definition of angle as defined in the Spiral function used as a function)... otherwise future results will represent the shape otabined as the orthogonal of the spiral.
@@ -53,23 +49,23 @@ grid
 We represent the non-conditional simulations
 
 ```{r Graphic_Non-conditional_simulations}
-p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.4")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.1")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.2")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.3")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.simu.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 
 Extracting a set of nodes randomly located in order to create a data file which will serve as conditioning. The data is extracted from the first non-conditional simulation.
 
 ```{r Data_extraction}
-data = Db_createSamplingDb(grid, number=100, names=c("x1", "x2", "SimuSPDE.1"))
-err = data$setName("*SimuSPDE.1", "data")
+data = Db_createSamplingDb(grid, number=100, names=c("x1", "x2", "SimuSPDE.simu.1"))
+err = data$setName("*.simu.1", "data")
 data
 ```
 
 ```{r Display_data}
-ggDefaultGeographic() + plot.point(data, nameColor="data")
+ggDefaultGeographic() + plot.point(data, name_color="data")
 ```
 
 Use the previous data set (and the non-stationary Model) in order to perform an estimation
@@ -82,7 +78,7 @@ grid
 Representing the Estimation obtained on the Grid
 
 ```{r Display_Kriging}
-ggDefaultGeographic() + plot.grid(grid, nameRaster="KrigingSPDE.data.estim")
+ggDefaultGeographic() + plot.grid(grid, name_raster="KrigingSPDE.data.kriging")
 ```
 
 Performing several conditional simulation
@@ -96,10 +92,10 @@ grid
 Representing the conditional simulations
 
 ```{r Display_Conditional_Representations}
-p1 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.1")
-p2 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.2")
-p3 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.3")
-p4 = ggDefaultGeographic() + plot.grid(grid, nameRaster="SimuSPDE.data.4")
+p1 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.1")
+p2 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.2")
+p3 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.3")
+p4 = ggDefaultGeographic() + plot.grid(grid, name_raster="SimuSPDE.data.condSimu.4")
 ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 ```
 

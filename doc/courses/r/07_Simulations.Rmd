@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 
 In this preamble, we load the **gstlearn** library and clean the workspace. 
 
-```{r Loading libraries, message=FALSE,results=FALSE}
+```{r Loading_libraries, message=FALSE,results=FALSE}
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
@@ -63,11 +63,11 @@ target = DbGrid_createFromNF(fileNF)
 
 We also compute an experimental variogram on the observations and fit a model on it.
 
-```{r Fit model on obervations}
+```{r Fit_model_on_obervations}
 ## Define and compute experimental variogram
 varioparam = VarioParam_createOmniDirection(npas=40, dpas=10)
-vario_raw2dir = Vario_create(varioparam, dat)
-err = vario_raw2dir$compute()
+vario_raw2dir = Vario_create(varioparam)
+err = vario_raw2dir$compute(dat)
 
 ## Fit model
 fitmod = Model()
@@ -77,7 +77,7 @@ fitmod$display()
 ```
 
 
-```{r Global parameters, message=FALSE}
+```{r Global_parameters, message=FALSE}
 neighU = NeighUnique_create()
 
 ndim = 2
@@ -218,20 +218,20 @@ ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
 Let us now compute the mean of the simulations we just generated. To do so, we use the `statistics` method of the `Db` class.
 
-```{r Compute mean of simulations}
+```{r Compute_mean_of_simulations}
 target$statisticsBySample(names=c("Simu.January_temp*"), 
                         opers=EStatOption_fromKeys(c("MEAN")))
 ```
 
 Let us compare the mean of the simulations with result from a simple kriging prediction of the temperature.
 
-```{r Compute kriging}
+```{r Compute_kriging}
 err = kriging(dat, target, model=fitmod, 
               neigh = neighU,
               namconv=NamingConvention("KS"))
 ```
 
-```{r Plot correlation plot}
+```{r Plot_correlation_plot}
 ## Plot correlation plot
 p = ggplot()
 p = p + plot.correlation(target, "Stats.MEAN", "KS*estim", flagDiag=TRUE, bins=100)
@@ -249,7 +249,7 @@ In this section, we show how to simulate a model with external drifts. To do so,
 
 Let us build such a model, to illustrate our point. We start by reloading the two data bases of the Preambule.
 
-```{r Reload data}
+```{r Reload_data}
 ## Data points
 fileNF = "Scotland_Temperatures.NF"
 if(flagInternetAvailable){
@@ -267,7 +267,7 @@ target = DbGrid_createFromNF(fileNF)
 
 We will consider the temperature as our variable of interest, and the elevation as an external drift. Hence, we set the elevation variable to a `f` locator in both data bases.
 
-```{r Set locators - ED}
+```{r Set_locators-ED}
 ## Set `f` locator to elevation in `dat` data base
 err=dat$setLocator("Elevation", ELoc_F())
 
@@ -277,14 +277,14 @@ err=target$setLocator("Elevation", ELoc_F())
 
 Finally, we create a model with external drift, which we fit on our data.
 
-```{r Fit model - ED}
+```{r Fit_model-ED}
 ## Create with external drift
 model_ED = Model()
 err = model_ED$setDriftIRF(order=0,nfex=1)
 
 ## Create experimental variogram of residuals
-vario_resED = Vario_create(varioparam, dat)
-err = vario_resED$compute(model=model_ED)
+vario_resED = Vario_create(varioparam)
+err = vario_resED$compute(dat,model=model_ED)
 
 ## Fit model on experimental variogram 
 err = model_ED$fit(vario_resED, 
@@ -294,13 +294,13 @@ model_ED$display()
 
 Let us plot the fitted model (solid line) together with the experimental variogram (dashed line).
 
-```{r Plot fitted model - ED}
+```{r Plot_fitted_model-ED}
 ggplot() + plot.varmod(vario_resED, model_ED)
 ```
 
 Now, to generate 10 conditional simulations from the model with external drift that we just create, we call the `simtub` function with the same synthax as before.
 
-```{r Simulations - ED}
+```{r Simulations-ED}
 err = simtub(dbin=dat, dbout=target, model=model_ED, 
              neigh=neighU,
              nbsimu=nbsimu,
@@ -309,7 +309,7 @@ err = simtub(dbin=dat, dbout=target, model=model_ED,
 
 Let us display a few simulation results.
 
-```{r Plot simulations - ED}
+```{r Plotsimulations-ED}
 p1 = ggDefaultGeographic()
 p1 = p1 + plot.grid(target, nameRaster = "Simu*temp.1",
                     flagLegendRaster=TRUE,palette="Spectral",legendNameRaster="Value")
@@ -331,7 +331,7 @@ ggarrange(p1,p2,p3,p4,nrow=2,ncol=2)
 
 Let us now compute the mean of the simulations we just generated, and compare it with a prediction by kriging with external drift.
 
-```{r Compute mean of simulations and compare - ED}
+```{r Compute_mean_of_simulations_and_compare-ED}
 target$statisticsBySample(names=c("Simu.January_temp*"), 
                         opers=EStatOption_fromKeys(c("MEAN")))
 
@@ -341,7 +341,7 @@ err = kriging(dat, target, model=model_ED,
               namconv=NamingConvention("KED"))
 ```
 
-```{r Plot correlation plot - ED}
+```{r Plot_correlation_plot-ED}
 p = ggplot()
 p = p + plot.correlation(target, "Stats.MEAN", "KED*estim", flagDiag=TRUE, bins=100)
 p = p + plot.decoration(xlab="Mean of Simulations", ylab="Kriging with External Drift",title = "Correlation plot")
@@ -352,7 +352,7 @@ ggPrint(p)
 
 As an application, we show how to compute maps probabilities of exceeding a threshold. For instance, to compute the probabilities of being positive, we start by turning the simulation results into binary variables taking the value 1 if the simulated value is positive and 0 otherwise. Then, the probability of being positive is computed as the mean of these binary variables.
 
-```{r Deriving probability to exceed Cutoff}
+```{r Deriving_probability_to_exceed_Cutoff}
 ## Turn simulation results into binary variable
 target["Simu.January_temp*"] = target["Simu.January_temp*"] > 0
 
@@ -364,7 +364,7 @@ target$statisticsBySample(names=c("Simu.January_temp*"),
 
 Let us plot the results.
 
-```{r Plot probabilities}
+```{r Plot_probabilities}
 p = ggDefaultGeographic()
 p = p + plot.grid(target, "Proba.MEAN", flagLegendRaster=TRUE, legendNameRaster="Probability")
 p = p + plot.decoration(title="Probability for positive Temperatures")

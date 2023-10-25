@@ -114,6 +114,7 @@
 %include Geometry/BiTargetCheckFaults.hpp
 %include Geometry/BiTargetCheckCode.hpp
 %include Geometry/BiTargetCheckDate.hpp
+%include Geometry/BiTargetCheckGeometry.hpp
 
 %include Arrays/AArray.hpp
 %include Arrays/Array.hpp

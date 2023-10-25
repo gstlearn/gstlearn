@@ -99,6 +99,11 @@ double ASpaceObject::getDistance(const SpacePoint& p1, const SpacePoint& p2) con
   return (_space->getDistance(p1, p2));
 }
 
+double ASpaceObject::getDistance1D(const SpacePoint& p1, const SpacePoint& p2, int idim) const
+{
+  return (_space->getDistance1D(p1, p2, idim));
+}
+
 VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& p2) const
 {
   return (_space->getIncrement(p1, p2));

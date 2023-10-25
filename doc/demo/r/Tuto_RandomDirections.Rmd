@@ -5,10 +5,6 @@ date: "2022-11-02"
 output: pdf_document
 ---
 
-<!-- SUMMARY: Generation of Random Directions in a high-dimension space: Van der Corput sequence or Quasi-random model  -->
-
-<!-- CATEGORY: Basic_Calculations -->
-
 # Initialisation
 
 ```{r setup,include=FALSE, fig.show='hide'}

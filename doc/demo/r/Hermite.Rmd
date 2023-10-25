@@ -9,10 +9,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-<!-- SUMMARY: Perform the elementary calculation based on Hermite polynomials  -->
-
-<!-- CATEGORY: Basic_Calculations -->
-
 ```{r setup, include=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
@@ -207,7 +203,7 @@ draw.matrix <- function(type,calcul,flag.est,params,flag.cut=TRUE)
   title = get.title(type,calcul,flag.est,params)
   db = calculate.matrix(type,calcul,flag.est,params)
   p = ggplot()
-  p = p + plot.grid(db,nameRaster="psi")
+  p = p + plot.grid(db,name_raster="psi")
   p = p + plot.decoration(title=title)
   if (flag.cut) p <- p + geom_vline(xintercept = params$yc)
   ggPrint(p)
