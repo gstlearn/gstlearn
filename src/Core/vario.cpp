@@ -3753,7 +3753,8 @@ static void st_variogram_cloud_dim(Db *db,
                                    int idir,
                                    double *vmax)
 {
-  double dist, value, w1, w2, z1, z2;
+  double dist = 0;
+  double value, w1, w2, z1, z2;
   int nech, iech, jech, ideb;
   SpaceTarget T1;
   SpaceTarget T2;
