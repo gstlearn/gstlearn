@@ -6,6 +6,9 @@ Release 0.4.2
 =============
 - Fix Mac OS compilation
 - Fix python readme
+- Create Polygons from WKT files (QGIS export)
+- New world.poly data file built from from NaturalEarth.com data
+
 
 Release 0.4.1
 =============
