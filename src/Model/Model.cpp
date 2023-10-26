@@ -563,6 +563,12 @@ VectorInt Model::getActiveCovList() const
   if (covalist == nullptr) return VectorInt();
   return covalist->getActiveCovList();
 }
+VectorInt Model::getAllActiveCovList() const
+{
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return VectorInt();
+  return covalist->getAllActiveCovList();
+}
 void Model::setActiveFactor(int iclass)
 {
   ACovAnisoList* covalist = _castInCovAnisoList();

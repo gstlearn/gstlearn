@@ -18,9 +18,9 @@
 
 #' Define the global values in the given environment position (search)
 #
-#' @param pos Position in the list of packages
-plot.initialize <- function(pos=1) 
+plot.initialize <- function() 
 {
+  pos = match(paste0("package:", "gstlearn"), search())
   assign("plot.defaultDims", list(c(8,8), c(8,8)), pos=pos)
   assign("plot.defaultXlim", list(c(NA,NA), c(NA,NA)), pos=pos)
   assign("plot.defaultYlim", list(c(NA,NA), c(NA,NA)), pos=pos)
@@ -90,14 +90,36 @@ plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
 #' @noRd
 .plot.setDefaultInternal <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
+  pos = match(paste0("package:", "gstlearn"), search())
+  gstlearnEnv = as.environment("package:gstlearn")
   if (!.isNotDef(dims))
-    plot.defaultDims[[mode]] = dims
+  {
+    unlockBinding("plot.defaultDims", env=gstlearnEnv)
+    local.defaultDims = plot.defaultDims
+  	local.defaultDims[[mode]] <- dims
+    assign("plot.defaultDims", local.defaultDims, pos=pos)
+  }
   if (!.isNotDef(xlim))
-    plot.defaultXlim[[mode]] = xlim
+  {
+    unlockBinding("plot.defaultXlim", env=gstlearnEnv)
+    local.defaultXlim = plot.defaultXlim
+    local.defaultXlim[[mode]] <- xlim
+    assign("plot.defaultXlim", local.defaultXlim, pos=pos)
+  }
   if (!.isNotDef(ylim))
-    plot.defaultYlim[[mode]] = ylim    
+  {
+    unlockBinding("plot.defaultYlim", env=gstlearnEnv)
+    local.defaultYlim = plot.defaultYlim
+    local.defaultYlim[[mode]] <- ylim
+    assign("plot.defaultYlim", local.defaultYlim, pos=pos)
+  }    
   if (!.isNotDef(asp))
-    plot.defaultAspect[[mode]] = asp
+  {
+    unlockBinding("plot.defaultAspect", env=gstlearnEnv)
+    local.defaultAspect = plot.defaultAspect
+    local.defaultAspect[[mode]] <- asp
+    assign("plot.defaultAspect",  local.defaultAspect, pos=pos)
+  }
 }
 
 #' Print the Default values for both Geographical and non-geographical subsequent figures
@@ -223,7 +245,7 @@ ggDefaultGeographic <- function(figsize=NA)
   if (.isNotDef(figsize))
      locdims = plot.defaultDims[[mode]]
   else
-      locdims = figsize
+     locdims = figsize
    
   p <- p + plot.geometry(dims=locdims, 
                          xlim=plot.defaultXlim[[mode]], 
@@ -246,7 +268,7 @@ ggDefault <- function(figsize=NA)
   if (.isNotDef(figsize))
      locdims = plot.defaultDims[[mode]]
   else
-      locdims = figsize
+     locdims = figsize
   
   p <- p + plot.geometry(dims=locdims, 
                          xlim=plot.defaultXlim[[mode]], 
@@ -304,7 +326,7 @@ plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
   {
     if (.isArray(dims, 2))
     {
-      options(repr.p.width  = dims[1], repr.p.height = dims[2])
+      options(repr.plot.width  = dims[1], repr.plot.height = dims[2])
     }
     else
       cat("'dims' should be [a,b]. Ignored\n")

@@ -130,11 +130,18 @@ int ACovAnisoList::getNVariables() const
   return 0;
 }
 
+bool ACovAnisoList::_considerAllCovariances(const CovCalcMode* mode) const
+{
+  if (mode == nullptr) return true;
+  if (mode->isAllActiveCov()) return true;
+  return false;
+}
+
 double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
   double cov = 0.;
 
-  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  if (_considerAllCovariances(mode))
   {
     for (int i=0, n=getCovNumber(); i<n; i++)
       cov += _covs[i]->eval0(ivar, jvar, mode);
@@ -142,7 +149,7 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   else
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
-      cov += _covs[mode->getActiveCovRank(i)]->eval0(ivar, jvar, mode);
+      cov += _covs[mode->getActiveCovList(i)]->eval0(ivar, jvar, mode);
   }
   return cov;
 }
@@ -154,7 +161,7 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
   if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
 
   mat.fill(0.);
-  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  if (_considerAllCovariances(mode))
   {
     for (int i=0, n=getCovNumber(); i<n; i++)
     {
@@ -166,7 +173,7 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovRank(i)]->eval0MatInPlace(_matC, mode);
+      _covs[mode->getActiveCovList(i)]->eval0MatInPlace(_matC, mode);
       mat.addMatrix(_matC);
     }
   }
@@ -239,7 +246,7 @@ void ACovAnisoList::evalMatOptimInPlace(int iech1,
   if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
 
   mat.fill(0.);
-  if (mode == nullptr)
+  if (_considerAllCovariances(mode))
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
     {
@@ -251,7 +258,7 @@ void ACovAnisoList::evalMatOptimInPlace(int iech1,
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovRank(i)]->evalMatOptimInPlace(iech1, iech2, _matC, mode);
+      _covs[mode->getActiveCovList(i)]->evalMatOptimInPlace(iech1, iech2, _matC, mode);
       mat.addMatrix(_matC);
     }
   }
@@ -265,7 +272,7 @@ double ACovAnisoList::eval(const SpacePoint& p1,
 {
   double cov = 0.;
 
-  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  if (_considerAllCovariances(mode))
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
@@ -273,7 +280,7 @@ double ACovAnisoList::eval(const SpacePoint& p1,
   else
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
-      cov += _covs[mode->getActiveCovRank(i)]->eval(p1, p2, ivar, jvar, mode);
+      cov += _covs[mode->getActiveCovList(i)]->eval(p1, p2, ivar, jvar, mode);
   }
   return cov;
 }
@@ -287,7 +294,7 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
   if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
 
   mat.fill(0.);
-  if (mode == nullptr || mode->getActiveCovList().size() <= 0)
+  if (_considerAllCovariances(mode))
   {
     for (unsigned int i=0, n=getCovNumber(); i<n; i++)
     {
@@ -299,7 +306,7 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovRank(i)]->evalMatInPlace(p1, p2, _matC, mode);
+      _covs[mode->getActiveCovList(i)]->evalMatInPlace(p1, p2, _matC, mode);
       mat.addMatrix(_matC);
     }
   }
@@ -374,6 +381,16 @@ VectorInt ACovAnisoList::getActiveCovList() const
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {
     if (_filtered[i]) continue;
+    actives.push_back(i);
+  }
+  return actives;
+}
+
+VectorInt ACovAnisoList::getAllActiveCovList() const
+{
+  VectorInt actives;
+  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  {
     actives.push_back(i);
   }
   return actives;

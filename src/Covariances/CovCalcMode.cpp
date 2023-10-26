@@ -18,6 +18,7 @@ CovCalcMode::CovCalcMode(const ECalcMember &member)
       _asVario(false),
       _unitary(false),
       _orderVario(0),
+      _allActiveCov(true),
       _activeCovList()
 {
 }
@@ -28,6 +29,7 @@ CovCalcMode::CovCalcMode(const CovCalcMode &r)
       _asVario(r._asVario),
       _unitary(r._unitary),
       _orderVario(r._orderVario),
+      _allActiveCov(r._allActiveCov),
       _activeCovList(r._activeCovList)
 {
 }
@@ -41,6 +43,7 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
     _asVario = r._asVario;
     _unitary = r._unitary;
     _orderVario = r._orderVario;
+    _allActiveCov = r._allActiveCov;
     _activeCovList = r._activeCovList;
 
   }
@@ -58,11 +61,16 @@ CovCalcMode* CovCalcMode::create(const ECalcMember &member)
 void CovCalcMode::setActiveCovListFromOne(int keepOnlyCovIdx)
 {
   _activeCovList.clear();
-  if (keepOnlyCovIdx >= 0) _activeCovList.push_back(keepOnlyCovIdx);
+  _allActiveCov = true;
+  if (keepOnlyCovIdx >= 0)
+  {
+    _activeCovList.push_back(keepOnlyCovIdx);
+    _allActiveCov = false;
+  }
 }
 
 /**
- * Set the list of active covariances from an intervam
+ * Set the list of active covariances from an interval
  * @param inddeb Lower bound of the interval (included)
  * @param indto  Upper bound of the interval (excluded)
  */
@@ -71,4 +79,5 @@ void CovCalcMode::setActiveCovListFromInterval(int inddeb, int indto)
   _activeCovList.clear();
   for (int i = inddeb; i < indto; i++)
     _activeCovList.push_back(i);
+  _allActiveCov = false;
 }

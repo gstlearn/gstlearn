@@ -91,6 +91,7 @@ public:
   MatrixSquareGeneral getTotalSill() const;
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
+  VectorInt       getAllActiveCovList() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
@@ -148,6 +149,9 @@ public:
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;
+
+private:
+  bool _considerAllCovariances(const CovCalcMode* mode) const;
 
 #ifndef SWIG
 protected:

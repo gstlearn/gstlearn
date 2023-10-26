@@ -1759,6 +1759,14 @@ bool KrigingSystem::isReady()
 {
   if (! _isCorrect()) return false;
 
+  // Define the calculation modes
+  _calcModeLHS = CovCalcMode(ECalcMember::LHS);
+  _calcModeLHS.setActiveCovList(_model->getAllActiveCovList());
+  _calcModeRHS = CovCalcMode(ECalcMember::RHS);
+  _calcModeRHS.setActiveCovList(_model->getActiveCovList());
+  _calcModeVAR = CovCalcMode(ECalcMember::VAR);
+  _calcModeVAR.setActiveCovList(_model->getActiveCovList());
+
   // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)
   {
@@ -1801,13 +1809,6 @@ bool KrigingSystem::isReady()
   // In Bayesian case, calculate the Posterior information
   if (_flagBayes)
     _bayesPreCalculations();
-
-  // Define the calculation modes
-  _calcModeLHS = CovCalcMode(ECalcMember::LHS);
-  _calcModeRHS = CovCalcMode(ECalcMember::RHS);
-  _calcModeRHS.setActiveCovList(_model->getActiveCovList());
-  _calcModeVAR = CovCalcMode(ECalcMember::VAR);
-  _calcModeVAR.setActiveCovList(_model->getActiveCovList());
 
   _isReady = true;
   return _isReady;
