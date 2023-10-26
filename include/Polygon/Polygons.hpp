@@ -37,10 +37,20 @@ public:
                    int verbose = false,
                    int ncol_max = -1,
                    int nrow_max = -1);
+  int resetFromWKT(const String& filename,
+                   const CSVformat& csv,
+                   int verbose = false,
+                   int ncol_max = -1,
+                   int nrow_max = -1);
 
   static Polygons* create();
   static Polygons* createFromNF(const String& neutralFilename, bool verbose = false);
   static Polygons* createFromCSV(const String& filename,
+                                 const CSVformat& csv = CSVformat(),
+                                 int verbose = false,
+                                 int ncol_max = -1,
+                                 int nrow_max = -1);
+  static Polygons* createFromWKT(const String& filename,
                                  const CSVformat& csv = CSVformat(),
                                  int verbose = false,
                                  int ncol_max = -1,
@@ -78,6 +88,7 @@ private:
                           int ifin,
                           int ncol,
                           const VectorDouble &tab);
+  PolyElem _extractFromWKT(const CSVformat& csv, String& polye);
   bool _isValidPolyElemIndex(int ipol) const;
   VectorInt _getHullIndices(const VectorDouble& x, const VectorDouble& y) const;
   void _getExtend(double ext, VectorDouble &x, VectorDouble &y, int nsect = 16);

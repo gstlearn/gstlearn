@@ -102,15 +102,96 @@ int Polygons::resetFromCSV(const String& filename,
     if (FFFF(tab[ncol * i]))
     {
       PolyElem polyelem = _extractFromTab(ideb, i, ncol, tab);
-      addPolyElem(polyelem);
+      addPolyElem(polyelem); // TODO : Prevent copy (optimization)
       ideb = i + 1;
     }
   }
   if (ideb < ifin)
   {
     PolyElem polyelem = _extractFromTab(ideb, nrow, ncol, tab);
-    addPolyElem(polyelem);
+    addPolyElem(polyelem); // TODO : Prevent copy (optimization)
   }
+  return 0;
+ }
+
+/**
+ * Reset the Polygon from a CSV file using WKT format (first column) exported by QGIS
+ * @param filename Filename
+ * @param csv      CSV characteristics
+ * @param verbose  Verbose flag
+ * @param ncol_max Maximum number of columns
+ * @param nrow_max Maximum number of rows
+ * @return
+ */
+int Polygons::resetFromWKT(const String& filename,
+                           const CSVformat& csv,
+                           int verbose,
+                           int ncol_max,
+                           int nrow_max)
+{
+  // Free the previous contents
+
+  _polyelems.clear();
+
+  /* Reading the file line by line, the first column is supposed to be WKT */
+  // Open the journal
+  std::fstream file(filename, std::ios_base::in);
+  if (!file.is_open()) {
+    return 1;
+  }
+
+  std::string line;
+  std::string poly;
+  std::string polyelem;
+  // Has header ?
+  if (csv.getFlagHeader())
+  {
+    int i = 0;
+    // Skip first lines
+    while(std::getline(file, line) && i < csv.getNSkip())
+      i++;
+    // Header too short
+    if (i < csv.getNSkip())
+      return 1;
+  }
+  // Parse next lines
+  while(std::getline(file, line)) {
+    // Cleanup line
+    line = trim(line);
+    // Ignore empty line
+    if (line.length() == 0) continue;
+    // Ignore comments
+    if (line.find_first_of('#') == 0) continue;
+    // Cleanup column header
+    size_t found = line.find("(((");
+    // If there is no "((("
+    if(found == std::string::npos)
+      return 1;
+    poly = line.substr(found+3);
+    // Cleanup trailing stuff
+    found = poly.find(")))");
+    // If there is no ")))"
+    if(found == std::string::npos)
+      return 1;
+    poly = poly.substr(0,found);
+    // Read each polygon elements from the line
+    do
+    {
+      found = poly.find(")),((");
+      if (found != std::string::npos)
+        polyelem = poly.substr(0, found);
+      else
+        polyelem = poly;
+      // Extract coordinates
+      PolyElem pe = _extractFromWKT(csv, polyelem);
+      addPolyElem(pe); // TODO : Prevent copy (optimization)
+      // Look for next polygon element
+      if (found != std::string::npos)
+        poly = poly.substr(found+5);
+    }
+    while(found != std::string::npos);
+  }
+
   return 0;
  }
 
@@ -172,9 +253,9 @@ double Polygons::getSurface() const
 }
 
 PolyElem Polygons::_extractFromTab(int ideb,
-                                  int ifin,
-                                  int ncol,
-                                  const VectorDouble& tab)
+                                   int ifin,
+                                   int ncol,
+                                   const VectorDouble& tab)
 {
   int nval = ifin - ideb;
   VectorDouble x(nval);
@@ -188,6 +269,42 @@ PolyElem Polygons::_extractFromTab(int ideb,
   PolyElem polyelem = PolyElem(x,y);
   return polyelem;
 }
+
+PolyElem Polygons::_extractFromWKT(const CSVformat& csv, String& polye)
+{
+  VectorDouble x;
+  VectorDouble y;
+  size_t found, found2;
+  std::string coords;
+  do
+  {
+    found = polye.find_first_of(csv.getCharSep());
+    if (found != std::string::npos)
+      coords = polye.substr(0, found);
+    else
+      coords = polye;
+    found2 = coords.find_first_of(' ');
+    if (found2 == std::string::npos)
+    {
+      x.clear();
+      y.clear();
+      break;
+    }
+    x.push_back(toDouble(coords.substr(0, found2), csv.getCharDec()));
+    coords = coords.substr(found2+1);
+    found2 = coords.find_first_of(' ');
+    if (found2 != std::string::npos)
+      coords = coords.substr(0, found2);
+    y.push_back(toDouble(coords, csv.getCharDec()));
+    if (found != std::string::npos)
+      polye = polye.substr(found+1);
+  }
+  while (found != std::string::npos);
+
+  PolyElem polyelem = PolyElem(x,y);
+  return polyelem;
+}
+
 
 bool Polygons::_deserialize(std::istream& is, bool verbose)
 {
@@ -210,7 +327,7 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
     ret = ret && polyelem._deserialize(is, verbose);
     if (ret)
     {
-      addPolyElem(polyelem);
+      addPolyElem(polyelem); // TODO : Prevent copy (optimization)
       if (verbose) message("PolyElem #%d - Number of vertices = %d\n",ipol+1, polyelem.getNPoints());
     }
     else
@@ -278,6 +395,23 @@ Polygons* Polygons::createFromCSV(const String& filename,
   }
   return polygons;
 }
+
+Polygons* Polygons::createFromWKT(const String& filename,
+                                  const CSVformat& csv,
+                                  int verbose,
+                                  int ncol_max,
+                                  int nrow_max)
+{
+  Polygons* polygons = new Polygons();
+  if (polygons->resetFromWKT(filename, csv, verbose, ncol_max, nrow_max))
+  {
+    if (verbose) messerr("Problem reading the CSV File (WKT).");
+    delete polygons;
+    return nullptr;
+  }
+  return polygons;
+}
+
 Polygons* Polygons::createFromDb(const Db* db, double dilate, bool verbose)
 {
   Polygons* polygons = new Polygons();

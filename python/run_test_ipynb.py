@@ -48,7 +48,7 @@ elif (out_type == "html"):
 elif (out_type == "pdf"):
     exporter = PDFExporter()
 else:
-    print("Wrong output file type for run_test_ipynb [asciidoc, html, pdf]")
+    print("Wrong output file type for run_test_ipynb.py [asciidoc, html, pdf]")
     
 # Export the notebook
 notebook_node, resources = exporter.from_notebook_node(nb)

@@ -73,7 +73,7 @@ public:
 
   virtual void _getIncrementInPlace(const SpacePoint &p1,
                                     const SpacePoint &p2,
-                                    VectorDouble &ptemp) const { }
+                                    VectorDouble &ptemp) const { DECLARE_UNUSED(p1, p2, ptemp); }
   void _getIncrementInPlaceVect(const SpacePoint &p1,
                                 const std::vector<SpacePoint> &pv,
                                 VectorVectorDouble &res) const;

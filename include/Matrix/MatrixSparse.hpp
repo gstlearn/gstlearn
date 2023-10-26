@@ -96,8 +96,8 @@ protected:
   virtual double& _getValueRef(int irow, int icol) override;
 
 protected:
-  bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
-  bool    _isCompatible(const AMatrix& m) const override { return (isSparse()); }
+  bool    _isPhysicallyPresent(int irow, int icol) const { DECLARE_UNUSED(irow, icol); return true; }
+  bool    _isCompatible(const AMatrix& m) const override { DECLARE_UNUSED(m); return (isSparse()); }
   void    _allocate() override;
   void    _deallocate() override;
 

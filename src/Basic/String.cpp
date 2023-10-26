@@ -21,6 +21,7 @@
 #include <regex>
 #include <locale>
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -818,9 +819,9 @@ VectorInt decodeGridSorting(const String& string,
   while (ind < length)
   {
     int orient = 0;
-    if (string[ind] == '-' && (string[ind+1] == 'x' && std::isdigit(string[ind+2])))
+    if (string[ind] == '-' && (string[ind+1] == 'x' && isdigit(string[ind+2])))
       orient = -1;
-    else if (string[ind] == '+' && (string[ind+1] == 'x' && std::isdigit(string[ind+2])))
+    else if (string[ind] == '+' && (string[ind+1] == 'x' && isdigit(string[ind+2])))
       orient = 1;
     else
       orient = 0;

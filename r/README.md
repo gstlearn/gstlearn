@@ -92,7 +92,7 @@ Note :
 
 #### Linux (Ubuntu)
 
-1. Install *gstlearn* C++ library requirements for Linux [here](https://github.com/gstlearn/gstlearn#Linux (Ubuntu))
+1. Install *gstlearn* C++ library requirements for Linux [here](https://github.com/gstlearn/gstlearn#linux-ubuntu)
 
 2. Remove any previous installation of SWIG (if any)
 
@@ -136,7 +136,7 @@ install.packages(c("ggplot2", "ggpubr", "knitr", "callr"), repos="https://cloud.
 
 #### MacOS
 
-1. Install *gstlearn C++ library* requirements for MacOS [here](https://github.com/gstlearn/gstlearn#MacOS)
+1. Install *gstlearn C++ library* requirements for MacOS [here](https://github.com/gstlearn/gstlearn#macos)
 
 2. Remove any previous installation of SWIG (if any)
 
@@ -243,7 +243,7 @@ git pull
 2. Then, these instructions will compile and install the *gstlearn* R package in your usual R libraries directory:
 
 ````
-cmake -Bbuild -H. -DBUILD_R=ON -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -S. -DBUILD_R=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target r_install
 ````
 

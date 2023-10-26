@@ -50,7 +50,7 @@ protected:
 
 protected:
   virtual int _getTransfoNvar() const { return 0; }
-  virtual void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const { return; }
+  virtual void _transformFunction(const VectorDouble& tabin, VectorDouble& tabout) const { DECLARE_UNUSED(tabin, tabout); return; }
 
   int  _getNVar() const { return (int) _names.size(); }
   int  _getIechout() const { return _iechout; }

@@ -21,7 +21,7 @@
 
 Polygons
 --------
-Number of Polygon Sets = 451
+Number of Polygon Sets = 288
  ----
 
 

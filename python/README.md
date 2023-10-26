@@ -105,7 +105,7 @@ Note :
 
 #### Linux (Ubuntu)
 
-1. Install *gstlearn* C++ library requirements for Linux [here](https://github.com/gstlearn/gstlearn#Linux (Ubuntu))
+1. Install *gstlearn* C++ library requirements for Linux [here](https://github.com/gstlearn/gstlearn#linux-ubuntu)
 
 2. Then, execute the following commands:
 
@@ -125,7 +125,7 @@ python3 -m pip install pypandoc geopandas plotly jupyter scikit-sparse
 
 #### MacOS
 
-1. Install *gstlearn* C++ library requirements for MacOS [here](https://github.com/gstlearn/gstlearn#MacOS)
+1. Install *gstlearn* C++ library requirements for MacOS [here](https://github.com/gstlearn/gstlearn#macos)
 
 2. Then, execute the following commands (Not tested):
 
@@ -203,7 +203,7 @@ git pull
 ...or any other single configuration compilers:
 
 ```
-cmake -Bbuild -H. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -S. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target python_install
 ```
 
@@ -224,7 +224,7 @@ make python_install
 ...or any other multiple configurations compilers:
 
 ```
-cmake -Bbuild -H. -DBUILD_PYTHON=ON
+cmake -Bbuild -S. -DBUILD_PYTHON=ON
 cmake --build build --target python_install --config Release
 ```
 
