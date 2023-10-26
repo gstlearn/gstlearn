@@ -63,7 +63,7 @@ Notes:
 ### Finally, compile gstlearn & RGeostats (obsolete)
 
 cd gstearn
-cmake -Bbuild_msys -H. -G "MSYS Makefiles" -DHDF5_ROOT:PATH=C:\local -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API"
+cmake -Bbuild_msys -S. -G "MSYS Makefiles" -DHDF5_ROOT:PATH=C:\local -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API"
 cmake --build build_msys --target static
 
 cd ../rgeostats

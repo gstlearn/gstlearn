@@ -243,7 +243,7 @@ git pull
 2. Then, these instructions will compile and install the *gstlearn* R package in your usual R libraries directory:
 
 ````
-cmake -Bbuild -H. -DBUILD_R=ON -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -S. -DBUILD_R=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target r_install
 ````
 

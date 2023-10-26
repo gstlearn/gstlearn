@@ -203,7 +203,7 @@ git pull
 ...or any other single configuration compilers:
 
 ```
-cmake -Bbuild -H. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -S. -DBUILD_PYTHON=ON -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target python_install
 ```
 
@@ -224,7 +224,7 @@ make python_install
 ...or any other multiple configurations compilers:
 
 ```
-cmake -Bbuild -H. -DBUILD_PYTHON=ON
+cmake -Bbuild -S. -DBUILD_PYTHON=ON
 cmake --build build --target python_install --config Release
 ```
 

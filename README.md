@@ -28,7 +28,7 @@ The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www
 
 The *gstlearn* C++ library is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
 
-The *gstlearn* C++ library comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses). Please take a look [here](doc/data) for credits and licenses of data files.
+The *gstlearn* C++ library comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses). Please take a look [here](doc/data) for credits and licenses.
 
 The *gstlearn* C++ library depends on the following third-party source code compiled in separate libraries (see **3rd-party** folder):
 
@@ -119,7 +119,7 @@ For compiling and installing the *gstlearn* C++ shared library, execute the foll
 ...or any other single configuration compiler:
 
 ```
-cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
+cmake -Bbuild -S. -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target shared
 cmake --build build --target install
 ```
@@ -135,7 +135,7 @@ make
 ...or any other multiple configurations compiler:
 
 ```
-cmake -Bbuild -H.
+cmake -Bbuild -S.
 cmake --build build --target shared --config Release
 cmake --build build --target install --config Release
 ```
@@ -316,9 +316,7 @@ make clean_all
 * If you plan to generate the documentation, add `-DBUILD_DOXYGEN=ON` to the first cmake command above.
 * If you don't know how to execute github commands or you experience a 'password authentication' problem, you may [read this](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 * Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
-* The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
-   * Define the `GSTLEARN_INSTALL_DIR` environment variable or
-   * Add `-DGSTLEARN_INSTALL_DIR="path/of/gstlearn/install/dir"` to the first cmake command above
+* The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can add `-DCMAKE_INSTALL_PREFIX="path/of/gstlearn/install/dir"` to the first cmake command above.
 * If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
 * Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
 * Using MinGW on a Windows where another compiler is also installed may need to add `-G "MSYS Makefiles"` in the first cmake command above.
@@ -348,7 +346,7 @@ make uninstall
 The Doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
 ```
-cmake -Bbuild -H. -DBUILD_DOXYGEN=ON
+cmake -Bbuild -S. -DBUILD_DOXYGEN=ON
 cmake --build build --target doxygen
 ```
 

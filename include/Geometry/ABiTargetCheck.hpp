@@ -38,7 +38,7 @@ public:
                     const SpaceTarget &T2) const = 0;
 
   // TODO : isValid is not const (should be renamed)
-  virtual bool isValid(const Db* dbin, const Db* dbout) { return true; }
+  virtual bool isValid(const Db* dbin, const Db* dbout) { DECLARE_UNUSED(dbin, dbout); return true; }
 /*
 #ifndef SWIG
   // Implement clone for permitting director feature
