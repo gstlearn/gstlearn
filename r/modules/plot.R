@@ -238,17 +238,17 @@ ggDefaultGeographic <- function(figsize=NA)
 {
   if (!require(ggplot2, quietly=TRUE))
     stop("Package ggplot2 is mandatory to use this function!")
-  
-  p <- ggplot()
+
   mode = 2
-  
+    
   if (.isNotDef(figsize))
      locdims = plot.defaultDims[[mode]]
   else
      locdims = figsize
-   
-  p <- p + plot.geometry(dims=locdims, 
-                         xlim=plot.defaultXlim[[mode]], 
+  
+  p <- plot.extension(dims = locdims)
+
+  p <- p + plot.geometry(xlim=plot.defaultXlim[[mode]], 
                          ylim=plot.defaultYlim[[mode]], 
                          asp=plot.defaultAspect[mode])
   p
@@ -262,7 +262,7 @@ ggDefault <- function(figsize=NA)
 {
   if (!require(ggplot2, quietly=TRUE))
     stop("Package ggplot2 is mandatory to use this function!")
-  p <- ggplot()
+  
   mode = 1
   
   if (.isNotDef(figsize))
@@ -270,8 +270,9 @@ ggDefault <- function(figsize=NA)
   else
      locdims = figsize
   
-  p <- p + plot.geometry(dims=locdims, 
-                         xlim=plot.defaultXlim[[mode]], 
+  p <- plot.extension(dims = locdims)
+
+  p <- p + plot.geometry(xlim=plot.defaultXlim[[mode]], 
                          ylim=plot.defaultYlim[[mode]], 
                          asp=plot.defaultAspect[mode])
   p
@@ -314,14 +315,10 @@ plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
 #' Set the Geometry for the current plot
 #'
 #' @param dims Dimension of the figure
-#' @param xlim Bounds along the horizontal axis
-#' @param ylim Bounds along the vertical axis
-#' @param asp  Aspect Ratio Y/X ("0" for an automatic aspect ratio)
-#' @param expand Adding padding around data
 #' @return The ggplot object
-plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
+plot.extension <- function(dims=NA)
 {
-  p = list()
+
   if (! .isNotDef(dims[1]))
   {
     if (.isArray(dims, 2))
@@ -331,6 +328,19 @@ plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
     else
       cat("'dims' should be [a,b]. Ignored\n")
   }
+  ggplot()
+}
+
+#' Set the Geometry for the current plot
+#'
+#' @param xlim Bounds along the horizontal axis
+#' @param ylim Bounds along the vertical axis
+#' @param asp  Aspect Ratio Y/X ("0" for an automatic aspect ratio)
+#' @param expand Adding padding around data
+#' @return The ggplot object
+plot.geometry <- function(xlim=NA, ylim=NA, asp=NA, expand=waiver())
+{
+  p = list()
   
   if (.isArray(xlim, 2))
   {
