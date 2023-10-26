@@ -101,39 +101,39 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     ndrift = 1 if drift else 0
     modeln = modelReduce(model,range(nvar))
     #### Create the description of the case #####
-    case = "case:\n"
+    casetxt = "case:\n"
     
     inter = ""
     if nvar > 1:
         inter = "co-"
     if irf is None and not drift:
-        case += "- simple "+ inter+ "kriging\n"
+        casetxt += "- simple "+ inter+ "kriging\n"
     else :
         if irf is not None :
-            case += "- KU with drift of degree " + str(irf) + "\n"
+            casetxt += "- KU with drift of degree " + str(irf) + "\n"
         if drift :
-            case +="- with external drift\n"
+            casetxt +="- with external drift\n"
     if nvar>1:
-        case +="- number of covariables for co-kriging " + str(nvar) + "\n"
+        casetxt +="- number of covariables for co-kriging " + str(nvar) + "\n"
         if flag_isotopic:
-            case += "- isotopic case\n"
+            casetxt += "- isotopic case\n"
         else:
-            case += "- heterotopic case\n"
+            casetxt += "- heterotopic case\n"
     if measurement_error:
-        case += "- with measurement error\n"
+        casetxt += "- with measurement error\n"
     else:
-        case += "- without measurement error\n"
+        casetxt += "- without measurement error\n"
     if compute_vars:
-        case += "- no dual form\n"
+        casetxt += "- no dual form\n"
     else:
-        case += "- dual\n"
-    case += "- selection on Dbin " + str(selDbin) + "\n"
-    case += "- selection on Dbout "+ str(selDbout) + "\n"
-    case += "- number of data " + str(ndat) + "\n"
-    case += "- nx = ["+str(nx[0]) +"," + str(nx[1]) + "]\n"
+        casetxt += "- dual\n"
+    casetxt += "- selection on Dbin " + str(selDbin) + "\n"
+    casetxt += "- selection on Dbout "+ str(selDbout) + "\n"
+    casetxt += "- number of data " + str(ndat) + "\n"
+    casetxt += "- nx = ["+str(nx[0]) +"," + str(nx[1]) + "]\n"
     
     if verbose:
-        print(case)
+        print(casetxt)
     ##################################################
     db,indF = createDbIn(ndat,nvar,percent,2,selDbin,measurement_error,ndrift,flag_isotopic,seed)
     
@@ -225,11 +225,11 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     stdref = target["*stdev"][indOut].T.reshape(-1,)
     varestref = target["*varz"][indOut].T.reshape(-1,)
     if test :
-        gt.checkEqualityVector(krigref, krig, tolerance=tol, message=case)
+        gt.checkEqualityVector(krigref, krig, tolerance=tol, message=casetxt)
         if compute_vars:
-            #assert np.linalg.norm((stdref-std)/(eps+std))<tol , "Problem with kriging stdev in " + case
-            #assert np.linalg.norm((varestref-varest)/(eps+varest))<tol, "Problem with kriging variance (var_est) in " + case
-            gt.checkEqualityVector(varestref, varest, tolerance=tol, message=case)
+            #assert np.linalg.norm((stdref-std)/(eps+std))<tol , "Problem with kriging stdev in " + casetxt
+            #assert np.linalg.norm((varestref-varest)/(eps+varest))<tol, "Problem with kriging variance (var_est) in " + casetxt
+            gt.checkEqualityVector(varestref, varest, tolerance=tol, message=casetxt)
     if verbose:
         print("Test Ok")
     return krig,target,indOut,db , varest
