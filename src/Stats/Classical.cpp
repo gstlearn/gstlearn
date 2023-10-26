@@ -772,7 +772,7 @@ Table dbStatisticsCorrel(Db *db, const VectorString &names, bool flagIso, const 
 
   // Store the results in the symmetric square matrix
   VectorString namloc = db->getNames(names);
-  int nvar = namloc.size();
+  int nvar = (int) namloc.size();
 
   Table table;
   if (title.empty())

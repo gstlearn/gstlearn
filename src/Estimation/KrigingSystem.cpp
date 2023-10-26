@@ -1584,6 +1584,9 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
  *****************************************************************************/
 double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
 {
+  DECLARE_UNUSED(ivarCL);
+  DECLARE_UNUSED(jvarCL);
+
   int cumflag = _nred - _nfeq;
 
   double var = 0.;

@@ -129,6 +129,10 @@ int Polygons::resetFromWKT(const String& filename,
                            int ncol_max,
                            int nrow_max)
 {
+  DECLARE_UNUSED(nrow_max);
+  DECLARE_UNUSED(ncol_max);
+  DECLARE_UNUSED(verbose);
+
   // Free the previous contents
 
   _polyelems.clear();
@@ -534,7 +538,7 @@ int dbPolygonDistance(Db *db,
       target[0] = db->getCoordinate(iech, 0);
       target[1] = db->getCoordinate(iech, 1);
       PolyLine2D polyline(polyelem.getX(), polyelem.getY());
-      PolyPoint2D pldist = polyline.getPLIndex(target);
+      pldist = polyline.getPLIndex(target);
       double distloc = pldist.dist;
       if (FFFF(distloc)) continue;
       distmin = db->getArray(iech, iptr);

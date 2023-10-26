@@ -223,8 +223,8 @@ MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
   // Order and shrink the input vectors
   VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
   VectorInt localValidCols = VH::filter(validCols, 0, getNCols());
-  int newNRows = localValidRows.size();
-  int newNCols = localValidCols.size();
+  int newNRows = (int) localValidRows.size();
+  int newNCols = (int) localValidCols.size();
   if (newNRows <= 0)
   {
     messerr("The new Matrix has no Row left");

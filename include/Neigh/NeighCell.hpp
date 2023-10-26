@@ -36,7 +36,10 @@ public:
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
   virtual VectorInt getNeigh(int iech_out) override;
   virtual bool hasChanged(int iech_out) const override;
-  virtual int getMaxSampleNumber(const Db* db) const override { return 0; }
+  virtual int getMaxSampleNumber(const Db* db) const override {
+    DECLARE_UNUSED(db);
+    return 0;
+  }
   virtual ENeigh getType() const override { return ENeigh::fromKey("CELL"); }
 
   /// Interface for AStringable

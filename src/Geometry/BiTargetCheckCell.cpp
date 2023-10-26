@@ -63,6 +63,7 @@ bool BiTargetCheckCell::isOK(const SpaceTarget &T1,
 
 bool BiTargetCheckCell::isValid(const Db* dbin, const Db* dbout)
 {
+  DECLARE_UNUSED(dbin);
   if (! dbout->isGrid()) return false;
   _dbgrid = dynamic_cast<const DbGrid*>(dbout);
   return true;

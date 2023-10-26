@@ -287,6 +287,9 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
                                int jvar,
                                const CovCalcMode* mode) const
 {
+  SpacePoint p11;
+  SpacePoint p22;
+
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
   // performed internally in 'eval' function
 
@@ -300,8 +303,8 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
   }
 
   double cov = 0.;
-  SpacePoint p11(p1);
-  SpacePoint p22(p2);
+  p11 = p1;
+  p22 = p2;
   for (int i1 = 0; i1 < _convNumber; i1++)
   {
     double w1 = _convWeight[i1];
@@ -322,8 +325,8 @@ double CovLMCConvolution::eval(const SpacePoint& p1,
   if (asVario)
   {
     double cov0 = 0.;
-    SpacePoint p11(p1);
-    SpacePoint p22(p1);
+    p11 = p1;
+    p22 = p1;
     for (int i1 = 0; i1 < _convNumber; i1++)
     {
       double w1 = _convWeight[i1];

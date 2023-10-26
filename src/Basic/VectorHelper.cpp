@@ -1445,7 +1445,7 @@ VectorInt VectorHelper::orderRanks(const VectorInt& vecin, bool ascending, int s
 {
   if (vecin.empty()) return VectorInt();
 
-  if (size < 0) size = vecin.size();
+  if (size < 0) size = (int) vecin.size();
   VectorInt idx(size);
   for (int i = 0; i < size; i++) idx[i] = i;
 
@@ -1500,7 +1500,7 @@ VectorInt VectorHelper::orderRanks(const VectorDouble& vecin, bool ascending, in
 VectorInt VectorHelper::sortRanks(const VectorDouble& vecin, bool ascending, int size)
 {
   if (vecin.empty()) return VectorInt();
-  if (size < 0) size = vecin.size();
+  if (size < 0) size = (int) vecin.size();
   VectorInt order = orderRanks(vecin, ascending, size);
   VectorInt idx(size);
   for (int i = 0; i < size; i++) idx[order[i]] = i;
@@ -1732,7 +1732,7 @@ void VectorHelper::unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& 
 VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
 {
   VectorDouble vecout;
-  for (int i = 0, n = vecin.size(); i < n; i++)
+  for (int i = 0, n = (int) vecin.size(); i < n; i++)
   {
     if (! FFFF(vecin[i])) vecout.push_back(vecin[i]);
   }

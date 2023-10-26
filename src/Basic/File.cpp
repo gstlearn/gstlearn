@@ -32,6 +32,7 @@ StdoutRedirect::StdoutRedirect(const String& file, int argc, char* argv[]) :
   _out()
 #endif
 {
+  DECLARE_UNUSED(argv);
   bool flagActive = (argc <= 1);
   if (!file.empty() && flagActive)
     start(file);

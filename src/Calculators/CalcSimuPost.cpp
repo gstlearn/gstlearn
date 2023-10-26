@@ -341,7 +341,7 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble &Y_p,
     stat_table.setSkipTitle(true);
     stat_table.setSkipDescription(true);
 
-    for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
+    for (int istat = 0; istat < nstat; istat++)
       stat_table.setColumnName(istat, _stats[istat].getDescr());
 
     for (int ivar = 0; ivar < _getNEff(); ivar++)
@@ -353,7 +353,7 @@ void CalcSimuPost::_statisticsFunction(const VectorVectorDouble &Y_p,
 
     int lec = 0;
     for (int ivar = 0; ivar < _getNEff(); ivar++)
-      for (int istat = 0, nstat = _getNStats(); istat < nstat; istat++)
+      for (int istat = 0; istat < nstat; istat++)
         stat_table.setValue(ivar, istat, tabout[lec++]);
     stat_table.display();
   }

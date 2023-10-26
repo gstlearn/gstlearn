@@ -177,6 +177,8 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
                             bool flagAdvection,
                             bool verbose)
 {
+  DECLARE_UNUSED(flagAdvection);
+
   // Initializations
 
   _setModel(model);
@@ -311,6 +313,8 @@ int ShiftOpCs::initFromCS(const cs* S,
                           Model* model,
                           bool verbose)
 {
+  DECLARE_UNUSED(verbose);
+
   // Initializations
 
   _setModel(model);
@@ -925,6 +929,7 @@ int ShiftOpCs::_prepareMatricesSphere(const AMesh *amesh,
  */
 int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
 {
+  DECLARE_UNUSED(tol);
   int error = 1;
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();

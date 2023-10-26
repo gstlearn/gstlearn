@@ -58,6 +58,7 @@ String BiTargetCheckBench::toString(const AStringFormat* /*strfmt*/) const
 
 bool BiTargetCheckBench::isValid(const Db* dbin, const Db* dbout)
 {
+  DECLARE_UNUSED(dbout);
   _idimBench = dbin->getNDim() - 1;
   return true;
 }

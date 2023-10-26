@@ -462,6 +462,8 @@ VectorDouble NeighMoving::summary(int iech_out)
 
 bool NeighMoving::hasChanged(int iech_out) const
 {
+  DECLARE_UNUSED(iech_out);
+
   if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
 
   return true;

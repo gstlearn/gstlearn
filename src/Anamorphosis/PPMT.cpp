@@ -350,6 +350,7 @@ void PPMT::_iterationForward(AMatrix *Y, const VectorDouble& N0, int iter)
 
 void PPMT::_iterationBackward(AMatrix *Y, const VectorDouble& N0, int iter)
 {
+  DECLARE_UNUSED(N0);
   int np    = Y->getNRows();
   int idmax = _serieAngle[iter];
   VectorDouble Y0(np, TEST);

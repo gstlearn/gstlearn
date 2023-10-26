@@ -80,12 +80,15 @@ void MatrixSparse::reset(int nrows, int ncols)
 
 void MatrixSparse::reset(int nrows, int ncols, double value)
 {
+  DECLARE_UNUSED(value);
   if (! _isNumbersValid(nrows, ncols)) return;
   _forbiddenForSparse("reset");
 }
 
 void MatrixSparse::reset(int nrows, int ncols, const double* tab, bool byCol)
 {
+  DECLARE_UNUSED(byCol);
+  DECLARE_UNUSED(tab);
   if (! _isNumbersValid(nrows, ncols)) return;
   _forbiddenForSparse("reset");
 }
@@ -155,6 +158,7 @@ MatrixSparse* MatrixSparse::transpose() const
 /*! Gets the value for rank 'rank' */
 double MatrixSparse::_getValue(int rank) const
 {
+  DECLARE_UNUSED(rank);
   _forbiddenForSparse("_getValue (by rank)");
   return TEST;
 }
@@ -168,6 +172,8 @@ double MatrixSparse::_getValue(int irow, int icol) const
 
 void MatrixSparse::_setValue(int rank, double value)
 {
+  DECLARE_UNUSED(rank);
+  DECLARE_UNUSED(value);
   _forbiddenForSparse("_setValue (by rank)");
 }
 
@@ -181,6 +187,8 @@ void MatrixSparse::_setValue(int irow, int icol, double value)
 /*! Gets a reference to the value at row 'irow' and column 'icol' */
 double& MatrixSparse::_getValueRef(int irow, int icol)
 {
+  DECLARE_UNUSED(irow);
+  DECLARE_UNUSED(icol);
   _forbiddenForSparse("_getValueRef");
   return _csMatrix->x[0]; // This is never used
 }
@@ -464,6 +472,9 @@ void MatrixSparse::_forbiddenForSparse(const String& func) const
 
 void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const
 {
+  DECLARE_UNUSED(title);
+  DECLARE_UNUSED(ifrom);
+  DECLARE_UNUSED(ito);
   messerr("This method is not implemented for Sparse Matrix");
 }
 
@@ -506,6 +517,8 @@ Triplet MatrixSparse::getCsToTriplet(bool flag_from_1) const
 
 int MatrixSparse::_getIndexToRank(int irow,int icol) const
 {
+  DECLARE_UNUSED(irow);
+  DECLARE_UNUSED(icol);
   _forbiddenForSparse("_getIndexToRank");
   return ITEST;
 }

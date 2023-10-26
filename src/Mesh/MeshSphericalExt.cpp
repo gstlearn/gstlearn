@@ -165,6 +165,8 @@ AMesh* MeshSphericalExt::spde_mesh_load(Db *dbin,
                                         const String &triswitch,
                                         bool verbose)
 {
+  DECLARE_UNUSED(gext);
+
   int ndim_loc = 0;
   if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
   if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
@@ -177,7 +179,6 @@ AMesh* MeshSphericalExt::spde_mesh_load(Db *dbin,
   if (flag_sphere)
   {
     if (verbose) message("Using Regular Meshing on Sphere\n");
-
     return _load2DSph(verbose, dbin, dbout, triswitch);
   }
   else
@@ -185,7 +186,6 @@ AMesh* MeshSphericalExt::spde_mesh_load(Db *dbin,
     messerr("This method cannot be used for non Spherical Meshing");
     return nullptr;
   }
-  return nullptr;
 }
 
 /****************************************************************************/

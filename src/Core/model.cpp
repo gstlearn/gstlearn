@@ -1892,7 +1892,9 @@ int model_covmat_inchol(int verbose,
     {
       if (flag_incr)
       {
-        double covar1, covar2, covar3;
+        double covar1 = 0.;
+        double covar2 = 0.;
+        double covar3 = 0.;
 
         (void) distance_intra(db, pvec[i], pvec[npivot], d1.data());
         model_calcul_cov(NULL,model, mode, 1, 1., d1, &covar1);
@@ -1928,7 +1930,7 @@ int model_covmat_inchol(int verbose,
     {
       if (flag_incr)
       {
-        double covar2;
+        double covar2 = 0.;
 
         for (int idim = 0; idim < 3; idim++)
           d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];
@@ -2033,7 +2035,8 @@ double model_calcul_stdev(Model* model,
                           double factor,
                           const CovCalcMode*  mode)
 {
-  double c00, cov;
+  double c00 = 0.;
+  double cov = 0.;
 
   /* Covariance at origin */
 

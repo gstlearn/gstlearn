@@ -973,7 +973,7 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
   CovAniso* newCovAniso = this->clone();
 
   // Modify the CovContext
-  int nvar = validVars.size();
+  int nvar = (int) validVars.size();
   CovContext ctxt = CovContext(nvar);
 
   // Modify the Matrix of sills

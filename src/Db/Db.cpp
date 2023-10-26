@@ -1234,7 +1234,7 @@ void Db::addColumnsByVVD(const VectorVectorDouble tab,
                          bool useSel)
 {
   VectorDouble tabv;
-  int nvar = tab.size();
+  int nvar = (int) tab.size();
   for(auto &e : tab)
     for(auto &f : e)
       tabv.push_back(f);
@@ -2109,7 +2109,7 @@ void Db::_columnInit(int ncol, int icol0, bool flagCst, double valinit)
     else
       for (int iech = 0; iech < _nech; iech++)
       {
-        double value = getFromLocator(ELoc::DOM, iech, 0);
+        value = getFromLocator(ELoc::DOM, iech, 0);
         int iad = _getAddress(iech, icol);
         if (GlobalEnvironment::getEnv()->matchDomainReference(value))
           _array[iad] = value;
@@ -4059,6 +4059,7 @@ void Db::statisticsBySample(const VectorString &names,
                             double vmax,
                             const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(flagIso);
   if (names.empty()) return;
   if (opers.empty()) return;
 

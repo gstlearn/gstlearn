@@ -467,7 +467,8 @@ int variogram_get_lag(const DirParam &dirparam, double dist)
   }
   else
   {
-    for (int k = 0, ilag = -1; k < dirparam.getLagNumber() && ilag < 0; k++)
+    ilag = -1;
+    for (int k = 0; k < dirparam.getLagNumber() && ilag < 0; k++)
       if (distloc > dirparam.getBreaks()[k] && distloc
           <= dirparam.getBreaks()[k + 1]) ilag = k;
   }

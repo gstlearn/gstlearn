@@ -55,6 +55,8 @@ Regression::~Regression()
 
 String Regression::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
+
   std::stringstream sstr;
 
   sstr << toTitle(1, "Linear Regression");

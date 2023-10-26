@@ -176,6 +176,7 @@ Vario* Vario::createRegularizeFromModel(const Model& model,
                                         const VectorDouble& angles,
                                         bool asCov)
 {
+  DECLARE_UNUSED(asCov);
   Vario* vario = nullptr;
   vario = new Vario(varioparam);
   if (vario->modelRegularize(model, ext, ndisc, angles))

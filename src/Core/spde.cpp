@@ -2316,8 +2316,8 @@ double* _spde_get_mesh_dimension(AMesh* amesh)
  **
  *****************************************************************************/
 static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
-
 {
+  DECLARE_UNUSED(amesh);
   Model *model = st_get_model();
   const ANoStat *nostat = model->getNoStat();
 
@@ -3188,6 +3188,7 @@ VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
                                const VectorDouble &TildeC)
 {
+  DECLARE_UNUSED(model);
   VectorDouble Lambda;
   int nvertex = amesh->getNApices();
   double sill = st_get_cova_sill(0, 0);
@@ -4757,6 +4758,7 @@ static int st_kriging_several(double *data,
  *****************************************************************************/
 static int st_kriging(AMesh *amesh, double *data, double *zkrig)
 {
+  DECLARE_UNUSED(amesh);
   double *work, *zkdat, *rhs;
   int error, ncur, size, ncova, nvar;
 
@@ -5374,6 +5376,8 @@ static AMesh* st_create_meshes(Db *dbin,
                                const VectorDouble &gext,
                                SPDE_Option &s_option)
 {
+  DECLARE_UNUSED(s_option);
+  DECLARE_UNUSED(gext);
   bool flag_force = (int) get_keypone("Force_Regular_Meshing", 0);
   if (VERBOSE)
   {
@@ -5436,7 +5440,6 @@ static AMesh* st_create_meshes(Db *dbin,
       return nullptr;
     }
   }
-  return nullptr;
 }
 
 /****************************************************************************/
@@ -6291,6 +6294,14 @@ int spde_f(Db *dbin,
            int flag_modif,
            int verbose)
 {
+  DECLARE_UNUSED(verbose);
+  DECLARE_UNUSED(flag_modif);
+  DECLARE_UNUSED(flag_gibbs);
+  DECLARE_UNUSED(flag_std);
+  DECLARE_UNUSED(flag_est);
+  DECLARE_UNUSED(mesh_dbout);
+  DECLARE_UNUSED(mesh_dbin);
+  DECLARE_UNUSED(model);
   int error, iad, nvar, nv_krige;
 
   /* Initializations */
