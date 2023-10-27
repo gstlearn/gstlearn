@@ -48,7 +48,9 @@ Free download from https://gstlearn.org
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib)
 
-Report a bug or contact us:
+## Report a bug
+
+To report a bug or contact us:
 * feel free to post an [issue](https://github.com/gstlearn/gstlearn/issues) or
 * visit our [Help](https://gstlearn.org/?page_id=468) page
 
