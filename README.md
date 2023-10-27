@@ -54,7 +54,9 @@ To report a bug or contact us:
 * feel free to post an [issue](https://github.com/gstlearn/gstlearn/issues) or
 * visit our [Help](https://gstlearn.org/?page_id=468) page
 
-## Requirements
+## Development
+
+### Requirements
 
 This library has been successfully tested with Ubuntu 18/20/22 LTS and Windows 10 (MacOS: not tested).
 For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
@@ -74,7 +76,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 
 See [required tools installation](#required-tools-installation) instructions below
 
-## Get the sources
+### Get the sources
 
 For getting the sources files, just clone the github repository:
 
@@ -91,11 +93,11 @@ git reset --hard
 git pull
 ````
 
-## C++ Library Compilation & Installation
+### C++ Library Compilation & Installation
 
 For compiling and installing the *gstlearn* C++ shared library, execute the following instructions from the *root* directory of *gstlearn*. Please note that you can choose another destination folder (currently named *build*).
 
-### GCC, Clang, MinGW, ...
+#### GCC, Clang, MinGW, ...
 
 ...or any other single configuration compiler:
 
@@ -111,7 +113,7 @@ or even faster:
 make
 ```
 
-### Microsoft Visual Studio, ...
+#### Microsoft Visual Studio, ...
 
 ...or any other multiple configurations compiler:
 
@@ -121,11 +123,11 @@ cmake --build build --target shared --config Release
 cmake --build build --target install --config Release
 ```
 
-## Usage
+### Usage
 
 Please, look at *tests* [C++ code](https://github.com/gstlearn/gstlearn/tree/main/tests) in order to learn how to use the *gstlearn* C++ library. You can generate the source code documentation using [Doxygen](#generate-the-documentation).
 
-## Required Tools Installation
+### Required Tools Installation
 
 These tools are needed for compiling the *gstlearn* C++ library. Please note that HDF5 and Doxygen (and Latex) installation are optional.
 
@@ -135,7 +137,7 @@ Note :
 
 * In case of issues, see [Important Notes below](#important-notes).
 
-### Linux (Ubuntu)
+#### Linux (Ubuntu)
 
 ```
 sudo apt install git
@@ -147,7 +149,7 @@ sudo apt install libboost-all-dev
 sudo apt install libhdf5-dev
 ```
 
-### MacOS
+#### MacOS
 
 ```
 brew install git
@@ -163,11 +165,11 @@ Notes:
 
 * These instructions for MacOS are currently not tested - above packages may not exist
   
-### Windows - Microsoft Visual Studio
+#### Windows - Microsoft Visual Studio
 
 These requirements are also recommended to people who wants to compile *gstlearn* Python package. If you want to compile *gstlearn* R package under Windows, you should look at the next section.
 
-#### Install all tools
+##### Install all tools
 
 Download and install the following tools using default options during installation:
 
@@ -179,7 +181,7 @@ Download and install the following tools using default options during installati
 6. Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder, we assume it is `C:\Program Files\doxygen`)
 7. LaTeX and Ghostscripts following instructions [here](https://www.doxygen.nl/manual/install.html#install_bin_windows)
 
-#### Update the Path environment variable
+##### Update the Path environment variable
 
 The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line:
 
@@ -187,11 +189,11 @@ The *Path* environment variable (*System variables*) must be updated to make *do
 2. Restart Windows
 
 
-### Windows - MinGW (via RTools):
+#### Windows - MinGW (via RTools):
 
 These requirements are also recommended to people who wants to compile *gstlearn* R package. If you want to compile *gstlearn* Python package under Windows, you should look at the previous section. This is not the only way to install MinGW. But using MinGW provided with RTools permits us to also handle *gstlearn* R package compilation.
 
-#### Install R and RTools
+##### Install R and RTools
 
 Remove all R and RTools previous installation and download and install the following tools using default options:
 
@@ -204,14 +206,14 @@ Notes:
 * Instructions in this section are **valid since R v4.2** (for older versions please contact us)
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 
-#### Update the Path environment variable
+##### Update the Path environment variable
 
 The *Path* environment variable (*System variables*) must be updated to make *R.exe* available in the batch command line:
 
 1. Follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable (ie: `C:\Program Files\R\R-4.2.2\bin`)
 2. Restart Windows
 
-#### Add MSYS2 Required Packages
+##### Add MSYS2 Required Packages
 
 1. Edit the `etc/pacman.conf` file in the RTools installation directory (ie: `C:\rtools42`) by changing the `SigLevel` variable to `Never` (otherwise, *git* cannot be installed using *pacman*):
 
@@ -239,8 +241,6 @@ pacman -Sy mingw-w64-x86_64-texlive-latex-recommended
 pacman -Sy mingw-w64-x86_64-texlive-science
 pacman -Sy mingw-w64-x86_64-doxygen
 ````
-
-## Development
 
 ### Execute Non-regression Tests
 
