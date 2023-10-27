@@ -15,8 +15,8 @@ The name 'gstlearn' stands for several purposes:
 * A R package
 
 If you only want to use Python or R packages, you should switch to corresponding README:
-* Python: [README](https://github.com/gstlearn/gstlearn/tree/main/python) or directly [download the package](https://pypi.org/project/gstlearn)
-* R: [README](https://github.com/gstlearn/gstlearn/tree/main/r) or directly [download the package](https://soft.mines-paristech.fr/cran/gstlearn.html)
+* Python: [README](https://github.com/gstlearn/gstlearn/tree/main/python) or directly [install the package](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html)
+* R: [README](https://github.com/gstlearn/gstlearn/tree/main/r) or directly [install the package](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html)
 
 See [https://gstlearn.org](https://gstlearn.org) for more details.
 
