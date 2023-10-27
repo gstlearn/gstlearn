@@ -28,6 +28,7 @@ def get_long_description():
         long_description = fh.read()
     return long_description
 
+# TODO : installation through setup.py will be deprecated ? https://github.com/pypa/pip/issues/8559
 setup(
     name="@PYTHON_PACKAGE_NAME@",
     version="@PROJECT_VERSION@",
