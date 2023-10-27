@@ -8,6 +8,13 @@ Release 0.4.2
 - Fix python readme
 - Create Polygons from WKT files (QGIS export)
 - New world.poly data file built from from NaturalEarth.com data
+- Fix default R plots options usage
+- Update credits in Readmes
+- Fix global estimation result access
+- Factorization of courses content in MD files
+- Fix filtering in kriging feature
+- New function for creating experimental variogram from R data frames (Vario_fromDF)
+- Improve experimental variogram calculation efficiency
 
 
 Release 0.4.1

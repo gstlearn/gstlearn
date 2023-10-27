@@ -28,14 +28,14 @@ The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www
 
 The *gstlearn* C++ library :
 * is a derivative work based on the [*swigex0* project](https://github.com/fabien-ors/swigex0).
+* depends on third-party libraries and source codes
 * comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
-* depends on the third-party libraries and source code
 
 See [credits](#credits) below.
 
 ## How to cite
 
-When using the *gstlearn* C++ Library, please, use this to cite us in any publication or results for which **gstlearn** has been used:
+When using the *gstlearn* C++ Library, please, use the following to cite us in any publication or results for which **gstlearn** has been used:
 
 ```
 --------------------------------------------------
@@ -48,12 +48,14 @@ Free download from https://gstlearn.org
 
 You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib)
 
-Report a bug or contact us: [gstlearn@groupes.mines-paristech.fr](mailto:gstlearn@groupes.mines-paristech.fr)
+Report a bug or contact us:
+* feel free to post an [issue](https://github.com/gstlearn/gstlearn/issues) or
+* visit our [Help](https://gstlearn.org/?page_id=468) page
 
 ## Requirements
 
 This library has been successfully tested with Ubuntu 18/20/22 LTS and Windows 10 (MacOS: not tested).
-For compiling and installing *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
+For **compiling and installing** *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
 * Git client 2.30 or higher
 * CMake tool 3.20 or higher
