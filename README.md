@@ -1,6 +1,6 @@
 ## Overview
 
-**gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES Paris - PSL University. It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
+**gstlearn** is the new cross-platform Geostatistics C++ library proposed by [MINES Paris - PSL University](https://www.minesparis.psl.eu/). It offers to users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
 
 The name 'gstlearn' stands for several purposes:
 
@@ -24,11 +24,11 @@ See [https://gstlearn.org](https://gstlearn.org) for more details.
 
 The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
+The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the Geosciences Center ([MINES Paris - PSL University](https://www.minesparis.psl.eu) - France)
 
 The *gstlearn* C++ library :
 * is a derivative work based on the [*swigex0* project](https://github.com/fabien-ors/swigex0).
-* depends on third-party libraries and source codes
+* depends on third-party libraries and source codes (see [below](#credits)).
 * comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
 
 See [credits](#credits) below.
@@ -46,7 +46,7 @@ Free download from https://gstlearn.org
 --------------------------------------------------
 ```
 
-You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib)
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
 ## Report a bug
 

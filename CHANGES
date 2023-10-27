@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 
 Release 0.4.2
 =============
+- Remove geopandas python package dependency (issue #68) - No more gstlearn.proj module!!
 - Fix Mac OS compilation
 - Fix python readme
 - Create Polygons from WKT files (QGIS export)
@@ -15,6 +16,7 @@ Release 0.4.2
 - Fix filtering in kriging feature
 - New function for creating experimental variogram from R data frames (Vario_fromDF)
 - Improve experimental variogram calculation efficiency
+- Fix initGeographic when using figsize in Python (locdims was not defined) 
 
 
 Release 0.4.1
