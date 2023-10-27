@@ -687,6 +687,8 @@ int krigingSPDE(Db *dbin,
                 bool showStats,
                 const NamingConvention &namconv)
 {
+  DECLARE_UNUSED(flag_est);
+
   // Preliminary checks
   if (flag_std || flag_varz)
   {

@@ -78,6 +78,9 @@ double SpaceSN::getDistance1D(const SpacePoint &p1,
                               const SpacePoint &p2,
                               int idim) const
 {
+  DECLARE_UNUSED(p1);
+  DECLARE_UNUSED(p2);
+  DECLARE_UNUSED(idim);
   return 0;
 }
 

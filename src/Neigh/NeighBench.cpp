@@ -64,6 +64,8 @@ int NeighBench::attach(const Db *dbin, const Db *dbout)
 
 String NeighBench::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
+
   std::stringstream sstr;
 
   sstr << toTitle(0,"Bench Neighborhood");
@@ -75,7 +77,7 @@ String NeighBench::toString(const AStringFormat* strfmt) const
 
 bool NeighBench::_deserialize(std::istream& is, bool verbose)
 {
-  double width;
+  double width = 0.;
   bool ret = true;
   ret = ret && ANeigh::_deserialize(is, verbose);
   ret = ret && _recordRead<double>(is, "Bench Width", width);

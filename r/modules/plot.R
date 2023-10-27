@@ -18,9 +18,9 @@
 
 #' Define the global values in the given environment position (search)
 #
-#' @param pos Position in the list of packages
-plot.initialize <- function(pos=1) 
+plot.initialize <- function() 
 {
+  pos = match(paste0("package:", "gstlearn"), search())
   assign("plot.defaultDims", list(c(8,8), c(8,8)), pos=pos)
   assign("plot.defaultXlim", list(c(NA,NA), c(NA,NA)), pos=pos)
   assign("plot.defaultYlim", list(c(NA,NA), c(NA,NA)), pos=pos)
@@ -90,14 +90,36 @@ plot.setDefault <- function(dims=NA, xlim=NA, ylim=NA, asp=NA)
 #' @noRd
 .plot.setDefaultInternal <- function(mode=1, dims=NA, xlim=NA, ylim=NA, asp=NA)
 {
+  pos = match(paste0("package:", "gstlearn"), search())
+  gstlearnEnv = as.environment("package:gstlearn")
   if (!.isNotDef(dims))
-    plot.defaultDims[[mode]] = dims
+  {
+    unlockBinding("plot.defaultDims", env=gstlearnEnv)
+    local.defaultDims = plot.defaultDims
+  	local.defaultDims[[mode]] <- dims
+    assign("plot.defaultDims", local.defaultDims, pos=pos)
+  }
   if (!.isNotDef(xlim))
-    plot.defaultXlim[[mode]] = xlim
+  {
+    unlockBinding("plot.defaultXlim", env=gstlearnEnv)
+    local.defaultXlim = plot.defaultXlim
+    local.defaultXlim[[mode]] <- xlim
+    assign("plot.defaultXlim", local.defaultXlim, pos=pos)
+  }
   if (!.isNotDef(ylim))
-    plot.defaultYlim[[mode]] = ylim    
+  {
+    unlockBinding("plot.defaultYlim", env=gstlearnEnv)
+    local.defaultYlim = plot.defaultYlim
+    local.defaultYlim[[mode]] <- ylim
+    assign("plot.defaultYlim", local.defaultYlim, pos=pos)
+  }    
   if (!.isNotDef(asp))
-    plot.defaultAspect[[mode]] = asp
+  {
+    unlockBinding("plot.defaultAspect", env=gstlearnEnv)
+    local.defaultAspect = plot.defaultAspect
+    local.defaultAspect[[mode]] <- asp
+    assign("plot.defaultAspect",  local.defaultAspect, pos=pos)
+  }
 }
 
 #' Print the Default values for both Geographical and non-geographical subsequent figures
@@ -216,17 +238,17 @@ ggDefaultGeographic <- function(figsize=NA)
 {
   if (!require(ggplot2, quietly=TRUE))
     stop("Package ggplot2 is mandatory to use this function!")
-  
-  p <- ggplot()
+
   mode = 2
-  
+    
   if (.isNotDef(figsize))
      locdims = plot.defaultDims[[mode]]
   else
-      locdims = figsize
-   
-  p <- p + plot.geometry(dims=locdims, 
-                         xlim=plot.defaultXlim[[mode]], 
+     locdims = figsize
+  
+  p <- plot.extension(dims = locdims)
+
+  p <- p + plot.geometry(xlim=plot.defaultXlim[[mode]], 
                          ylim=plot.defaultYlim[[mode]], 
                          asp=plot.defaultAspect[mode])
   p
@@ -240,16 +262,17 @@ ggDefault <- function(figsize=NA)
 {
   if (!require(ggplot2, quietly=TRUE))
     stop("Package ggplot2 is mandatory to use this function!")
-  p <- ggplot()
+  
   mode = 1
   
   if (.isNotDef(figsize))
      locdims = plot.defaultDims[[mode]]
   else
-      locdims = figsize
+     locdims = figsize
   
-  p <- p + plot.geometry(dims=locdims, 
-                         xlim=plot.defaultXlim[[mode]], 
+  p <- plot.extension(dims = locdims)
+
+  p <- p + plot.geometry(xlim=plot.defaultXlim[[mode]], 
                          ylim=plot.defaultYlim[[mode]], 
                          asp=plot.defaultAspect[mode])
   p
@@ -292,23 +315,32 @@ plot.decoration <- function(xlab = NA, ylab = NA, title = NA)
 #' Set the Geometry for the current plot
 #'
 #' @param dims Dimension of the figure
+#' @return The ggplot object
+plot.extension <- function(dims=NA)
+{
+
+  if (! .isNotDef(dims[1]))
+  {
+    if (.isArray(dims, 2))
+    {
+      options(repr.plot.width  = dims[1], repr.plot.height = dims[2])
+    }
+    else
+      cat("'dims' should be [a,b]. Ignored\n")
+  }
+  ggplot()
+}
+
+#' Set the Geometry for the current plot
+#'
 #' @param xlim Bounds along the horizontal axis
 #' @param ylim Bounds along the vertical axis
 #' @param asp  Aspect Ratio Y/X ("0" for an automatic aspect ratio)
 #' @param expand Adding padding around data
 #' @return The ggplot object
-plot.geometry <- function(dims=NA, xlim=NA, ylim=NA, asp=NA, expand=waiver())
+plot.geometry <- function(xlim=NA, ylim=NA, asp=NA, expand=waiver())
 {
   p = list()
-  if (! .isNotDef(dims[1]))
-  {
-    if (.isArray(dims, 2))
-    {
-      options(repr.p.width  = dims[1], repr.p.height = dims[2])
-    }
-    else
-      cat("'dims' should be [a,b]. Ignored\n")
-  }
   
   if (.isArray(xlim, 2))
   {

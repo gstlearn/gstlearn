@@ -249,7 +249,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   }
   else
   {
-    nvar = namloc.size();
+    nvar = (int) namloc.size();
   }
   if (nvar != static_cast<int>(namloc.size())) namloc.resize(nvar);
 

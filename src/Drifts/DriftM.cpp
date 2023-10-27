@@ -41,7 +41,7 @@ DriftM::~DriftM()
 double DriftM::eval(const Db* db, int iech) const
 {
   double value = 1.;
-  for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
+  for (int idim = 0, ndim = (int) _monomialPower.size(); idim < ndim; idim++)
   {
     double locoor = db->getCoordinate(iech,idim);
     double locpow = _monomialPower[idim];
@@ -53,7 +53,7 @@ double DriftM::eval(const Db* db, int iech) const
 int DriftM::getOrderIRF() const
 {
   int irf = -1;
-  for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
+  for (int idim = 0, ndim = (int) _monomialPower.size(); idim < ndim; idim++)
   {
     double locpow = _monomialPower[idim];
     if (locpow > irf) irf = locpow;
@@ -81,7 +81,7 @@ String DriftM::getDriftName() const
   {
     sstr << "Drift:";
     bool flag_first = true;
-    for (int idim = 0, ndim = _monomialPower.size(); idim < ndim; idim++)
+    for (int idim = 0, ndim = (int) _monomialPower.size(); idim < ndim; idim++)
     {
       double locpow = _monomialPower[idim];
       if (locpow > 0)

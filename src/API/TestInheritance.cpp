@@ -23,6 +23,7 @@ TestInheritance::~TestInheritance()
 
 String TestInheritance::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
   if (nullptr != _iproj)
   {

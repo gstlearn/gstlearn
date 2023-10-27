@@ -248,6 +248,8 @@ static void st_blank_center(SPIMG* image)
  *****************************************************************************/
 static void st_copy_center(int mode, int iatt, SPIMG* image, double defval)
 {
+  DECLARE_UNUSED(mode);
+
   VectorInt ind(2);
   for (int iy = 0; iy < SY; iy++)
     for (int ix = 0; ix < SX; ix++)
@@ -609,6 +611,7 @@ int spill_point(DbGrid *dbgrid,
                 int *ix0,
                 int *iy0)
 {
+  DECLARE_UNUSED(th);
   double *pt_mark, *pt_out, hspill;
   int *x, *y, k, n, iy, ix, found, local;
   static int n4 = 4;

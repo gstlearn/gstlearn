@@ -427,7 +427,6 @@ double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
     }
     return coeff * exp(-li * gamma);
   }
-  return TEST;
 }
 
 double CovLMCAnamorphosis::_evalDiscreteDD0(int /*ivar*/,

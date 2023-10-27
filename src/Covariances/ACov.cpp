@@ -443,7 +443,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
   if (nbgh2.empty())
     nech2 = db2->getSampleNumber();
   else
-    nech2 = nbgh2.size();
+    nech2 = (int) nbgh2.size();
 
   /* Loop on the second sample */
 
@@ -761,8 +761,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   }
   else
   {
-    nechtot1 = nbgh1.size();
-    nsize1 = nbgh1.size();
+    nechtot1 = (int) nbgh1.size();
+    nsize1 = (int) nbgh1.size();
   }
   if (nbgh2.empty())
   {
@@ -771,8 +771,8 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   }
   else
   {
-    nechtot2 = nbgh2.size();
-    nsize2 = nbgh2.size();
+    nechtot2 = (int) nbgh2.size();
+    nsize2 = (int) nbgh2.size();
   }
   MatrixRectangular mat(nsize1, nsize2);
 

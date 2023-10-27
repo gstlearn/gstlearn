@@ -306,6 +306,8 @@ static void st_cov(Model *model,
                    VectorDouble d1loc,
                    double *covtab_loc)
 {
+  DECLARE_UNUSED(nostd);
+  DECLARE_UNUSED(nugget_opt);
 
   /* Initializations */
 

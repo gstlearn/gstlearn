@@ -26,7 +26,10 @@ public:
 
   String getDriftName() const override;
   int    getOrderIRF() const override { return -1; }
-  int    getOrderIRFIdim(int idim) const override { return -1; }
+  int    getOrderIRFIdim(int idim) const override {
+    DECLARE_UNUSED(idim);
+    return -1;
+  }
   bool   isDriftExternal() const override { return true; }
   double eval(const Db* db, int iech) const override;
   int    getRankFex() const override { return _rankFex; }

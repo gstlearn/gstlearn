@@ -56,6 +56,7 @@ SpaceTarget* SpaceTarget::create(const VectorDouble &center,
                                  double date,
                                  const ASpace *space)
 {
+  DECLARE_UNUSED(space);
   SpaceTarget* st = new SpaceTarget();
   st->setCoord(center);
   st->setExtend(extend);

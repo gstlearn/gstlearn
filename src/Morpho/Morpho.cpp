@@ -319,7 +319,7 @@ VectorInt morpho_labelsize(int option, const BImage& imagin)
 {
   VectorInt sizes;
   VectorDouble compnum = morpho_labelling(option, 0, imagin, TEST);
-  int nbcomp = compnum.size();
+  int nbcomp = (int) compnum.size();
   if (nbcomp > 0)
   {
     sizes.resize(nbcomp, 0);

@@ -78,7 +78,7 @@ p = p + plot.decoration(title="Variogram of Temperature (Raw)")
 ggPrint(p)
 ```
 
-We calculate the variogram (using the same calculation parameters) based on the residuals after a trend has been removed. This trend is considered as a linear combinaison of the external drift information.
+We calculate the variogram (using the same calculation parameters) based on the residuals after a trend has been removed. This trend is considered as a linear combination of the external drift information.
 
 ```{r}
 vparam = VarioParam_createOmniDirection(npas=18, dpas=25)

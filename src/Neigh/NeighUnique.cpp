@@ -43,6 +43,7 @@ NeighUnique::~NeighUnique()
 
 String NeighUnique::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << toTitle(0,"Unique Neighborhood");
@@ -105,6 +106,7 @@ int NeighUnique::getMaxSampleNumber(const Db* db) const
 
 bool NeighUnique::hasChanged(int iech_out) const
 {
+  DECLARE_UNUSED(iech_out);
   if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
 
   return false;

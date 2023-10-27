@@ -58,6 +58,8 @@ Indirection::~Indirection()
 
 String Indirection::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
+
   std::stringstream sstr;
 
   if (_mode == 0)

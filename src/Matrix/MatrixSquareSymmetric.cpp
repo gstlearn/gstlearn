@@ -203,6 +203,7 @@ int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
 
 String MatrixSquareSymmetric::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << "- Number of rows    = " <<  getNRows() << std::endl;
@@ -276,7 +277,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows)
 {
   // Order and shrink the input vectors
   VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  int newNRows = localValidRows.size();
+  int newNRows = (int) localValidRows.size();
   if (newNRows <= 0)
   {
     messerr("The new Matrix has no Row left");

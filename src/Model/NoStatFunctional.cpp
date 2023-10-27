@@ -108,6 +108,7 @@ double NoStatFunctional::getValue(const EConsElem &type,
  */
 double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 {
+  DECLARE_UNUSED(ipar);
   if (! _isValid(icas, rank)) return TEST;
 
   // Dispatch

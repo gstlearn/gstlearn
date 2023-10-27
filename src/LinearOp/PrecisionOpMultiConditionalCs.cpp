@@ -102,7 +102,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
 
   else
   {
-    cs* Amult;
+    cs* Amult = nullptr;
     const ProjMatrix* Pref = dynamic_cast<const ProjMatrix*>(getProjMatrix(0));
     int npoint = Pref->getPointNumber();
     int napices = Pref->getApexNumber();

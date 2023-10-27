@@ -14,7 +14,6 @@
 ".onAttach" <- 
 function(libname, pkgname)
 {
-	pos = match(paste0("package:", pkgname), search())
 	#OptDbg_reset() # Remove this as it is obvious and it makes roxygen crashing
-	plot.initialize(pos)
+	plot.initialize()
 }

@@ -48,6 +48,7 @@ NeighImage::~NeighImage()
 
 String NeighImage::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << toTitle(0,"Image Neighborhood");
@@ -131,6 +132,7 @@ int NeighImage::getMaxSampleNumber(const Db* /*db*/) const
 
 bool NeighImage::hasChanged(int iech_out) const
 {
+  DECLARE_UNUSED(iech_out);
   if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
   return false;
 }

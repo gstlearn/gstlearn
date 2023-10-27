@@ -54,8 +54,9 @@ AAnam::~AAnam()
 {
 }
 
-VectorDouble AAnam::z2factor(double /*z*/, const VectorInt& ifacs) const
+VectorDouble AAnam::z2factor(double z, const VectorInt& ifacs) const
 {
+  DECLARE_UNUSED(z);
   DECLARE_UNUSED(ifacs);
   messerr("This function is not programmed yet");
   return VectorDouble();

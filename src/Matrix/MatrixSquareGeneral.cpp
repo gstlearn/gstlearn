@@ -222,7 +222,7 @@ MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) con
 {
   // Order and shrink the input vectors
   VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
-  int newNRows = localValidRows.size();
+  int newNRows = (int) localValidRows.size();
   if (newNRows <= 0)
   {
     messerr("The new Matrix has no Row left");

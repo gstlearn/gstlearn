@@ -563,6 +563,12 @@ VectorInt Model::getActiveCovList() const
   if (covalist == nullptr) return VectorInt();
   return covalist->getActiveCovList();
 }
+VectorInt Model::getAllActiveCovList() const
+{
+  const ACovAnisoList* covalist = _castInCovAnisoListConst();
+  if (covalist == nullptr) return VectorInt();
+  return covalist->getAllActiveCovList();
+}
 void Model::setActiveFactor(int iclass)
 {
   ACovAnisoList* covalist = _castInCovAnisoList();
@@ -1484,11 +1490,10 @@ Model* Model::duplicate() const
   return model;
 }
 
-
 Model* Model::reduce(const VectorInt& validVars) const
 {
   VectorInt localValidVars = VH::filter(validVars, 0, getVariableNumber());
-  int nvar = localValidVars.size();
+  int nvar = (int) localValidVars.size();
   if (nvar <= 0)
   {
     messerr("Your new Model has no variable left");
@@ -1708,7 +1713,7 @@ bool Model::isFlagGradientFunctional() const
 
   // Check is performed on the first covariance
   const ACovAnisoList* covalist = _castInCovAnisoListConst(0);
-  if (covalist == nullptr) return ITEST;
+  if (covalist == nullptr) return false;
   const CovGradientFunctional* cova = dynamic_cast<const CovGradientFunctional*>(covalist->getCova(0));
   if (cova != nullptr) return true;
   return false;

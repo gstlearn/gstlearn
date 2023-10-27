@@ -31,7 +31,8 @@ public:
   bool                  getUnitary()            const { return _unitary; }
   int                   getOrderVario()         const { return _orderVario; }
   const VectorInt&      getActiveCovList()      const { return _activeCovList; }
-  int                   getActiveCovRank(int i) const { return _activeCovList[i]; }
+  int                   getActiveCovList(int i) const { return _activeCovList[i]; }
+  bool                  isAllActiveCov()        const { return _allActiveCov; }
 
   void setAsVario(bool asVario) { _asVario = asVario; }
   void setMember(const ECalcMember& member) { _member = member; }
@@ -47,5 +48,6 @@ private:
   bool          _asVario;        /*! True to calculate variogram instead of covariance */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
+  bool          _allActiveCov;   /*! True if all covariances are active */
   VectorInt     _activeCovList;  /*! List of indices of the active covariances */
 };

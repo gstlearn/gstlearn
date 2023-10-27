@@ -68,6 +68,7 @@ int NeighCell::attach(const Db *dbin, const Db *dbout)
 
 String NeighCell::toString(const AStringFormat* strfmt) const
 {
+  DECLARE_UNUSED(strfmt);
   std::stringstream sstr;
 
   sstr << toTitle(0,"Cell Neighborhood");
@@ -126,6 +127,8 @@ NeighCell* NeighCell::createFromNF(const String& neutralFilename, bool verbose)
 
 bool NeighCell::hasChanged(int iech_out) const
 {
+  DECLARE_UNUSED(iech_out);
+
   if (_iechMemo < 0 || _isNbghMemoEmpty()) return true;
 
   return true;
