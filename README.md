@@ -30,6 +30,7 @@ The *gstlearn* C++ library :
 * is a derivative work based on the [*swigex0* project](https://github.com/fabien-ors/swigex0).
 * comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
 * depends on the third-party libraries and source code
+
 See [credits](#credits) below.
 
 ## How to cite
