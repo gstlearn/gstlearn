@@ -18,7 +18,7 @@ If you only want to use Python or R packages, you should switch to corresponding
 * Python: [README](https://github.com/gstlearn/gstlearn/tree/main/python) or directly [download the package](https://pypi.org/project/gstlearn)
 * R: [README](https://github.com/gstlearn/gstlearn/tree/main/r) or directly [download the package](https://soft.mines-paristech.fr/cran/gstlearn.html)
 
-See https://gstlearn.org for more details.
+See [https://gstlearn.org](https://gstlearn.org) for more details.
 
 ## References
 
@@ -26,35 +26,11 @@ The *gstlearn* C++ library is the successor of the *Geoslib* C/C++ library which
 
 The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
-The *gstlearn* C++ library is a derivative work based on the *swigex0* project: [https://github.com/fabien-ors/swigex0](https://github.com/fabien-ors/swigex0)
-
-The *gstlearn* C++ library comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses). Please take a look [here](doc/data) for credits and licenses.
-
-The *gstlearn* C++ library depends on the following third-party source code compiled in separate libraries (see **3rd-party** folder):
-
-| Name           | License        | URL                                                            | Copyright
-|----------------|----------------|----------------------------------------------------------------|-----------
-| csparse        | LGPL v2.1      | https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html | Copyright 2006, Timothy A. Davis
-| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org                          | Copyright(c) 2020, the GMT Team
-
-
-The *gstlearn* C++ library also includes external source codes (see licenses notices in **doc/licenses**):
-
-| Name                    | License        | URL                                            | Copyright
-|-------------------------|----------------|------------------------------------------------|-----------
-| clustering              | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster | Copyright (C) 2002 Michiel Jan Laurens de Hoon
-| fft                     | see licenses   | https://netlib.org/go/fft-olesen.tar.gz        | Copyright(c)1995,97 Mark Olesen
-| sparseinv (SuiteSparse) | BSD 3-clause   | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
-| vtk (VisIt)             | BSD 3-clause   | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
-
-
-Finally, the *gstlearn* C++ library depends on the following third-party libraries (see licenses notices in **doc/licenses**):
-
-| Name           | License        | URL                                                            | Copyright
-|----------------|----------------|----------------------------------------------------------------|-----------
-| Boost          | see licenses   | https://www.boost.org                                          | see Boost headers
-| HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
-
+The *gstlearn* C++ library :
+* is a derivative work based on the [*swigex0* project](https://github.com/fabien-ors/swigex0).
+* comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
+* depends on the third-party libraries and source code
+See [credits](#credits) below.
 
 ## How to cite
 
@@ -361,6 +337,72 @@ The documentation is then available by opening the following HTML file with your
 ```
 firefox build/doxygen/html/index.html
 ```
+
+## Credits
+
+### Derivative work
+
+The *gstlearn* C++ library is a derivative work based on the *swigex0* project (see license in **doc/licenses**):
+
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| swigex0        | MIT            | https://github.com/fabien-ors/swigex0                          | Copyright 2023, Fabien Ors
+
+
+### Third party libraries
+
+The *gstlearn* C++ library depends on the following third-party source code, slightly modified and compiled in separate libraries (see **3rd-party** folder):
+
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| csparse        | LGPL v2.1      | https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html | Copyright 2006, Timothy A. Davis
+| stripack (GMT) | LGPL v3        | https://www.generic-mapping-tools.org                          | Copyright(c) 2020, the GMT Team
+
+
+### Third party source code
+
+The *gstlearn* C++ library includes external source codes (see licenses notices in **doc/licenses**):
+
+| Name                    | License        | URL                                            | Copyright
+|-------------------------|----------------|------------------------------------------------|-----------
+| clustering              | Python License | http://bonsai.hgc.jp/~mdehoon/software/cluster | Copyright (C) 2002 Michiel Jan Laurens de Hoon
+| fft                     | see licenses   | https://netlib.org/go/fft-olesen.tar.gz        | Copyright(c)1995,97 Mark Olesen
+| ball                    | MIT            | https://42.fr                                  | Copyright(c) 2017 Eung Bum Lee
+| sparseinv (SuiteSparse) | BSD 3-clause   | http://www.suitesparse.com                     | Copyright 2011, Timothy A. Davis
+| vtk (VisIt)             | BSD 3-clause   | https://visit.llnl.gov                         | Copyright (c) 2000 - 2008, Lawrence Livermore National Security, LLC
+
+The *gstlearn* C++ library also depends on the following third-party libraries (see licenses notices in **doc/licenses**):
+
+| Name           | License        | URL                                                            | Copyright
+|----------------|----------------|----------------------------------------------------------------|-----------
+| Boost          | see licenses   | https://www.boost.org                                          | see Boost headers
+| HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
+
+
+### Data files
+
+The *gstlearn* C++ library comes with several data files that are used for our [documentation](https://gstlearn.org/?page_id=50) (tutorials and courses).
+
+Here are the credits and licenses for the different data files available in each directories of **doc/data**:
+
+| Name          | License        | URL                                            | Copyright
+|---------------|----------------|------------------------------------------------|-----------
+| Alluvial      | Etalab v 2.0   | https://infoterre.brgm.fr                      | Copyright (C) Sept. 2021, BRGM
+| benchmark     | see (1)        | http://www.ai-geostats.org                     | Copyright (C) 2003, Dubois, G., Malczewski, J. and De Cort, M.
+| boundaries    | N/A            | https://www.naturalearthdata.com               | Made with Natural Earth
+| BRGM          | ??             | ??                                             | Copyright (C) Sept. 2021, BRGM
+| Chamaya       | CC BY 4.0      | https://gstlearn.org                           | Copyright (C) 2010, Renard, D. & Beucher, H.
+| FKA           | CC BY 4.0      | https://gstlearn.org                           | Copyright (C) 1999, Renard, D.
+| halieutic     | CC BY 4.0      | https://ices-library.figshare.com              | Copyright (C) 2017, ICES see (2)
+| Meshings      | CC0 1.0 Univ.  | https://www.cs.cmu.edu/~kmcrane                | Copyright (C) 2020, Crane, Keenan and Pinkall, Ulrich and Schröder, Peter
+| PluriGaussian | CC BY 4.0      | https://gstlearn.org                           | Copyright (C) 1999, Renard, D.
+| Pollution     | CC BY 4.0      | http://rgeostats.free.fr                       | Copyright (C) 2000, Team RGeostats
+| Scotland      | CC BY 4.0      | http://rgeostats.free.fr                       | Copyright (C) 2000, Team RGeostats
+| Selectivity   | CC BY 4.0      | https://gstlearn.org                           | Copyright (C) 2010, Freulon, X.
+
+(1) Reference: Dubois, G., Malczewski, J. and De Cort, M. (2003). Mapping radioactivity in the environment. Spatial Interpolation Comparison 1997 (Eds.). EUR 20667 EN, EC. 268 p.
+
+(2) ICES. 2017. Handbook of Geostatistics in R for Fisheries and Marine Ecology. ICES COOPERATIVE RESEARCH REPORT. Vol. 338, 184 pp. https://doi.org/10.17895/ices.pub.3717
 
 ---
 

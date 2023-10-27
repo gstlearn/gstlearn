@@ -1,3 +1,11 @@
+/*
+                                      ball
+
+Original Author: Eung Bum Lee
+Website: https://42.fr
+License: MIT
+*/
+
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
@@ -9,6 +17,14 @@
 /*   Updated: 2017/06/28 16:52:59 by elee             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
+/*
+Modified by MINES Paris / ARMINES (2023)
+Authors: gstlearn Team
+Website: https://gstlearn.org
+License: BSD 3-clause
+*/
+
 #include "Tree/ball_algorithm.h"
 #include "Space/SpacePoint.hpp"
 
