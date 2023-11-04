@@ -92,7 +92,7 @@ if (out_type == "asciidoc"):
     notebook_node = re.sub("\\|====+", "|===", notebook_node)
     
     # Remove pip install output
-    notebook_node = re.sub("[notice].*", "#NO_DIFF#XXX", notebook_node)
+    notebook_node = re.sub("\[notice\].*", "#NO_DIFF#XXX", notebook_node)
     notebook_node = re.sub(".*site-packages is not writeable", "#NO_DIFF#XXX", notebook_node)
     notebook_node = re.sub("Requirement already satisfied.*", "#NO_DIFF#XXX", notebook_node)
 

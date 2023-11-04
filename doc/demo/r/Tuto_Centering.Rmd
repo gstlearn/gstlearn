@@ -8,16 +8,20 @@
     editor_options: 
     chunk_output_type: console
 ---
+<!-- SUMMARY: Performs centering of a Point data set on a regular grid (possibly rotated)  -->
+
+<!-- CATEGORY: Data_Base_management -->
 
 # Initialisation
 
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(align="center")
+knitr::opts_chunk$set(fig.align="center")
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 library(parallel)
 set.seed(1235)
 ```
@@ -160,7 +164,7 @@ Display of the first data set
 ggDefaultGeographic() + 
   plot.XY(bb[,1], bb[,2], flagLine=TRUE, color='blue') + 
   plot.point(target) +
-  plot.point(data_ini1, col = "grey", size=4) +
+  plot.point(data_ini1, color = "grey", size=4) +
   plot.decoration(title="First Data Set")
 ```
 

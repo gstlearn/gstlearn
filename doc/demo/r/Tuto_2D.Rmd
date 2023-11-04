@@ -3,11 +3,15 @@ title: "Tutorial 2D"
 author: "D. Renard"
 date: "25 juin 2022"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 editor_options: 
   chunk_output_type: console
 ---
+
+<!-- SUMMARY: Standard workflow on a 2-D data set. Performs variography and modeling, estimation and simulation, in a monovariate and bivariate cases.  -->
+
+<!-- CATEGORY: Case_studies -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -15,6 +19,7 @@ rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 ```
 
 Global variables
@@ -22,7 +27,7 @@ Global variables
 ```{r}
 verbose = TRUE
 graphics = TRUE
-OptCst_define(ECst_NTCOL(),6)
+err = OptCst_define(ECst_NTCOL(),6)
 ```
 
 # Reading data
@@ -38,7 +43,7 @@ At this stage:
 ```{r}
 dlfile = "https://soft.minesparis.psl.eu/gstlearn/data/Pollution/Pollution.dat"
 filepath = "Pollution.dat"
-download.file(dlfile, filepath)
+download.file(dlfile, filepath, quiet=TRUE)
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)
@@ -72,7 +77,7 @@ Display my Data (with samples represented by color and size)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(mydb,name_color="Pb") + plot.decoration(title="Data Set")
+    ggplot() + plot(mydb,nameColor="Pb") + plot.decoration(title="Data Set")
 ```
 
 # Variograms
@@ -95,14 +100,14 @@ We recall that the Variogram cloud is calculated by filling an underlying grid w
 
 ```{r}
 if (graphics)
-    ggplot() + plot(dbcloud,name_raster="Cloud*") + plot.decoration(title="Variogram Cloud")
+    ggplot() + plot(dbcloud,nameRaster="Cloud*") + plot.decoration(title="Variogram Cloud")
 ```
 
 Calculating the experimental omni-directional variogram
 
 ```{r}
-myVarioOmni = Vario(myVarioParamOmni,mydb)
-err = myVarioOmni$compute(ECalcVario_VARIOGRAM())
+myVarioOmni = Vario(myVarioParamOmni)
+err = myVarioOmni$compute(mydb, ECalcVario_VARIOGRAM())
 if (verbose)
     myVarioOmni$display()
 ```
@@ -121,8 +126,8 @@ Calculate a variogram in several directions
 myvarioParam = VarioParam()
 mydirs = DirParam_createMultiple(ndir=4, npas=10, dpas=1.)
 myvarioParam$addMultiDirs(mydirs)
-myvario = Vario(myvarioParam,mydb)
-myvario$compute(ECalcVario_VARIOGRAM())
+myvario = Vario(myvarioParam)
+myvario$compute(mydb, ECalcVario_VARIOGRAM())
 if (verbose)
     myvario$display()
 ```
@@ -143,7 +148,8 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    ggplot() + plot(myvmap, name_raster="*Var") + plot.decoration(title="Variogram Map")
+    ggplot() + plot(myvmap, nameRaster="*Var") + 
+    plot.decoration(title="Variogram Map")
 ```
 
 # Model
@@ -182,7 +188,7 @@ We can impose inequality constraints by using EConsType.LOWER or EConsType.UPPER
 ## Adding a drift
 
 ```{r}
-mymodel$addDrift(Drift1(mymodel$getContext()))
+mymodel$addDrift(DriftM())
 if (verbose)
     mymodel$display()
 ```
@@ -224,7 +230,7 @@ We can visualize some of the newly created variables, such as:
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Neigh*Number")
+  p = p + plot(mygrid,nameRaster="Neigh*Number")
   p = p + plot.decoration(title="Number of Samples per Neighborhood")
   ggPrint(p)
 }
@@ -236,7 +242,7 @@ if (graphics)
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Neigh*MaxDist")
+  p = p + plot(mygrid,nameRaster="Neigh*MaxDist")
   p = p + plot.decoration(title="Maximum Distance per Neighborhood")
   ggPrint(p)
 }
@@ -277,12 +283,14 @@ if (verbose)
 
 Visualizing the results
 
+<!-- FIGURE -->
+
 ```{r}
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Kriging.Pb.estim")
-  p = p + plot(mydb,name_size="Pb", color="yellow")
+  p = p + plot(mygrid,nameRaster="Kriging.Pb.estim")
+  p = p + plot(mydb,nameSize="Pb", color="yellow")
   p = p + plot.decoration(title="Estimate of Pb")
   ggPrint(p)
 }
@@ -292,7 +300,7 @@ if (graphics)
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Kriging.Pb.stdev", show.legend.raster=TRUE)
+  p = p + plot(mygrid,nameRaster="Kriging.Pb.stdev", flagLegendRaster=TRUE)
   p = p + plot(mydb,"Pb", color="yellow", flagCst=TRUE)
   p = p + plot.decoration(title="St. Deviation of Pb")
   ggPrint(p)
@@ -332,8 +340,8 @@ We quickly calculate experimental (omni-directional) variograms using the alread
 myvarioParam = VarioParam()
 mydir = DirParam_create(npas=10,dpas=1.)
 myvarioParam$addDir(mydir)
-myVario = Vario(myvarioParam,mydb)
-err = myvario$compute(ECalcVario_VARIOGRAM())
+myVario = Vario(myvarioParam)
+err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
 ```
 
 We fit the model by automatic fit (with the constraints that the total sill be equal to 1).
@@ -357,8 +365,8 @@ Some statistics on the Conditional simulations in Gaussian scale
 
 ```{r}
 if (verbose)
-  err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+  dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
 We visualize a conditional simulation in Gaussian scale
@@ -367,7 +375,7 @@ We visualize a conditional simulation in Gaussian scale
 if (graphics)
 {
     p = ggplot()
-    p = p + plot(mygrid,name_raster="Simu.Y.Pb.1")
+    p = p + plot(mygrid,nameRaster="Simu.Y.Pb.1")
     p = p + plot(mydb,"Pb")
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
     ggPrint(p)
@@ -387,8 +395,8 @@ We calculate some statistics on the Conditional Simulations in Raw scale.
 
 ```{r}
 if (verbose)
-  err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+  dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+        opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
 We visualize a Conditional Simulation in Raw Scale
@@ -397,7 +405,7 @@ We visualize a Conditional Simulation in Raw Scale
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Z.Simu.Y.Pb.1")
+  p = p + plot(mygrid,nameRaster="Z.Simu.Y.Pb.1")
   p = p + plot(mydb,"Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
   ggPrint(p)
@@ -407,10 +415,8 @@ if (graphics)
 Let us now average the conditional simulations in order to have a comparison with the estimation by kriging.
 
 ```{r}
-err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-                                 opers = EStatOption_fromKeys(c("MEAN")),
-                                 flagStoreInDb = TRUE,
-                                 verbose = FALSE)
+mygrid$statisticsBySample(mygrid$getNamesByLocator(ELoc_Z()),
+                                 opers = EStatOption_fromKeys(c("MEAN")))
 if (verbose)
     mygrid$display()
 ```
@@ -421,7 +427,7 @@ Displaying the average of the Conditional Simulations
 if (graphics)
 {
   p = ggplot()
-  p = p + plot(mygrid,name_raster="Stats*MEAN")
+  p = p + plot(mygrid,nameRaster="Stats*MEAN")
   p = p + plot(mydb,"Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
   ggPrint(p)
@@ -464,17 +470,12 @@ We now perform the multivariate variogram calculation
 ```{r}
 mydb$setLocator("Y.Pb",ELoc_Z(),0)
 mydb$setLocator("Y.Zn",ELoc_Z(),1)
-myvario = Vario(myvarioParam,mydb)
-err = myvario$compute(ECalcVario_VARIOGRAM())
+myvario = Vario(myvarioParam)
+err = myvario$compute(mydb,ECalcVario_VARIOGRAM())
 mymodelM = Model_createFromDb(mydb)
 err = mymodelM$fit(myvario,ECov_fromKeys(c("EXPONENTIAL")))
 if (graphics)
-{
-  p = ggplot()
-  p = p + plot.varmod(myvario,mymodelM)
-  p = p + plot.decoration(title="Multivariate Model")
-  ggPrint(p)
-}
+    multi.varmod(myvario)
 ```
 
 We perform 10 bivariate conditional simulations (deleting the previous monovariate simulation outcomes first for better legibility).
@@ -493,11 +494,11 @@ err = myanamZn$gaussianToRaw(mygrid,"Simu.Y.Zn*")
 err = myanamPb$gaussianToRaw(mygrid,"Simu.Y.Pb*")
 mygrid$deleteColumn("Simu.Y*")
 if (verbose)
-    err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
-          opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))
+    dbStatisticsMono(mygrid, mygrid$getNamesByLocator(ELoc_Z()),
+          opers = EStatOption_fromKeys(c("MEAN","STDV","MINI","MAXI")))$display()
 ```
 
-# Categorical Variable¶
+# Categorical Variable
 
 We compare the initial variable 'Pb' with a set of disjoint intervals. The 'Pb' values varying from 3 to 12.7, we consider three classes:
 
@@ -526,8 +527,8 @@ We calculate the variogram of the Indicators for future use
 ```{r}
 myvarioindParam = VarioParam()
 myvarioindParam$addDir(mydir)
-myvarioInd = Vario(myvarioindParam,mydb)
-err = myvarioInd$compute(ECalcVario_VARIOGRAM())
+myvarioInd = Vario(myvarioindParam)
+err = myvarioInd$compute(mydb,ECalcVario_VARIOGRAM())
 if (verbose)
     myvarioInd$display()
 ```
