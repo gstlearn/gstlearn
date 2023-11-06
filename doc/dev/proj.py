@@ -9,6 +9,12 @@
 #                                                                              #
 ################################################################################
 
+# TODO : 1. geopandas datasets are soon deprecated
+#        2. geopandas dependency should be optionnal (issue #68)
+#            => remove gstlearn.proj module and look for a new solution 
+#            => Do not restore without reading this: https://github.com/gstlearn/gstlearn/issues/68
+
+
 import geopandas as gpd
 from shapely.geometry import Polygon, Point
 

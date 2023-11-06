@@ -9,6 +9,10 @@ editor_options:
   chunk_output_type: console
 ---
 
+<!-- SUMMARY: Perform estimation using non-linear Geostatistics with a Gaussian Model on a point data set  -->
+
+<!-- CATEGORY: Methodology -->
+
 # Introduction
 
 This case study is meant to demonstrate how to use gstlearn for non-linear geostatistics with the Gaussian model. 
@@ -73,11 +77,12 @@ We will use the Geostatistics library **gstlearn**.
 
 ```{r setup, include=FALSE, echo=TRUE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_chunk$set(align="center")
+knitr::opts_chunk$set(fig.align="center")
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(ggnewscale)
 ```
 
 ```{r, echo=TRUE, eval=TRUE}
@@ -180,7 +185,7 @@ p = p + plot.decoration(xlab = "Z", title = "Simulated samples (Z variable)")
 ggPrint(p)
 
 opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
-stats = dbStatisticsMonoT(grid, c("Y","Z"), opers=opers)
+stats = dbStatisticsMono(grid, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2,
     caption = "Statistics of the simulated variables on the point support")
 ```
@@ -196,14 +201,11 @@ data$setLocator("Z", ELoc_Z())
 data$display()
 
 p = ggplot()
-p = p + plot.point(data, name_color = "Z", name_size = "Z", show.legend.size = TRUE)
+p = p + plot.point(data, nameColor = "Z", nameSize = "Z", flagLegendSize = TRUE)
 ggPrint(p)
 
 p = ggplot()
 p = p + plot.hist(data, name = "Y", bins = 100, col = "gray", fill = "skyblue")
-ggPrint(p)
-
-p = ggplot()
 p = p + plot.decoration(xlab = "Y", title = "Sampled data (Y variable)")
 ggPrint(p)
 
@@ -212,7 +214,7 @@ p = p + plot.hist(data, name = "Z", bins = 100, col = "gray", fill = "orange")
 p = p + plot.decoration(xlab = "Z", title = "Sampled data (Z variable)")
 ggPrint(p)
 
-stats = dbStatisticsMonoT(data, c("Y","Z"), opers=opers)
+stats = dbStatisticsMono(data, c("Y","Z"), opers=opers)
 knitr::kable(stats$toTL(), digits=2, 
              caption = "Statistics of the sampled data on the point support")
 
@@ -405,14 +407,14 @@ err = kriging(data, blocs, model, neigh,
               namconv= NamingConvention("G_Pts"))
 
 p = ggplot()
-p = p + plot(blocs, "G_Pts.Gaussian.Z.estim", 
-         show.legend.raster=TRUE, legend.name.raster = "Estimation")
+p = p + plot(blocs, nameRaster="G_Pts.Gaussian.Z.estim", 
+         flagLegendRaster=TRUE, legendNameRaster = "Estimation")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot(blocs, "G_Pts.Gaussian.Z.stdev", 
-         show.legend.raster=TRUE, legend.name.raster = "Std. Dev.")
+p = p + plot(blocs, nameRaster="G_Pts.Gaussian.Z.stdev", 
+         flagLegendRaster=TRUE, legendNameRaster = "Std. Dev.")
 p = p + plot.decoration(title = "Punctual Simple Kriging of Y")
 ggPrint(p)
 ```
@@ -445,21 +447,21 @@ blocs$display()
 # Graphics
 # Metal (the anamorphosis is used)
 p = ggplot()
-p = p + plot(blocs, "Pts_Recovery.Q-estim-0",
-         show.legend.raster=TRUE, legend.name.raster= "Q(0.0)")
+p = p + plot(blocs, nameRaster="Pts_Recovery.Q-estim-0",
+         flagLegendRaster=TRUE, legendNameRaster= "Q(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 
 # Tonnage (the anamorphosis is not used)
 p = ggplot()
-p = p + plot(blocs, "Pts_Recovery.T-estim-0",
-         show.legend.raster = TRUE, legend.name.raster = "T(0.0)")
+p = p + plot(blocs, nameRaster="Pts_Recovery.T-estim-0",
+         flagLegendRaster = TRUE, legendNameRaster = "T(0.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot(blocs, "Pts_Recovery.T-estim-1",
-     show.legend.raster=TRUE, legend.name.raster = "T(1.0)")
+p = p + plot(blocs, nameRaster="Pts_Recovery.T-estim-1",
+     flagLegendRaster=TRUE, legendNameRaster = "T(1.0)")
 p = p + plot.decoration(title = "Point conditional expectation")
 ggPrint(p)
 ```
@@ -719,13 +721,13 @@ panels$display()
 
 ```{r dk_panels_map, echo=TRUE, eval=TRUE}
 p = ggplot()
-p = p + plot(panels, "DK_Blk.*.estim", show.legend.raster = TRUE) 
+p = p + plot(panels, nameRaster="DK_Blk.*.estim", flagLegendRaster = TRUE) 
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
             title = "Estimate of the first factor (panels)")
 ggPrint(p)
 
 p = ggplot()
-p = p + plot(panels, "DK_Blk.*.stdev", show.legend.raster = TRUE)
+p = p + plot(panels, nameRaster="DK_Blk.*.stdev", flagLegendRaster = TRUE)
 p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
               title = "Std. of the first factor estimate (panels)")
 ggPrint(p)
@@ -983,7 +985,7 @@ for (est in c("SK", "DK", "CE")){
     
     p = ggplot()
     p = p + plot(grid, paste0(est, ".Z.", type),
-                 show.legend.raster=TRUE, legend.name.raster=type) 
+                 flagLegendRaster=TRUE, legendNameRaster=type) 
     p = p + plot.decoration(xlab = "Easting", ylab = "Northing", 
                             title = paste("Estimator = ", est)) 
     ggPrint(p)
@@ -1001,7 +1003,7 @@ for (est in c("SK", "DK", "CE")){
 }
 
 # Mono variate statistics of the estimators
-knitr::kable(dbStatisticsMonoT(grid, nm, opers=opers)$toTL(), digits=3,
+knitr::kable(dbStatisticsMono(grid, nm, opers=opers)$toTL(), digits=3,
     caption = "Statistics of the estimated values")
 
 # Scoring rules

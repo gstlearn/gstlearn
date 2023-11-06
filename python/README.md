@@ -28,7 +28,7 @@ Free download from https://gstlearn.org
 --------------------------------------------------
 ```
 
-You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib
 
 ## Installation
 
@@ -95,7 +95,7 @@ For building the *gstlearn* Python package, the requirements for compiling *gstl
 
 * SWIG 4 or higher
 * Python 3 or higher with *pip*, *numpy*, *pandas*, *scipy*, *pybind11[global]* and *matplotlib* modules installed
-* *pypandoc*, *scikit-sparse*, *geopandas*, *plotly* and *jupyter* Python modules [Optional]
+* *pypandoc*, *scikit-sparse*, *plotly* and *jupyter* Python modules [Optional]
 
 If you modified your system, you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' existing source folders (if so).
 
@@ -120,7 +120,7 @@ python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 
 ````
 sudo apt install pandoc jupyter libsuitesparse-dev
-python3 -m pip install pypandoc geopandas plotly jupyter scikit-sparse
+python3 -m pip install pypandoc plotly jupyter scikit-sparse
 ````
 
 #### MacOS
@@ -139,7 +139,7 @@ python3 -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 
 ````
 brew install pandoc jupyter libsuitesparse-dev
-python3 -m pip install pypandoc geopandas plotly jupyter scikit-sparse
+python3 -m pip install pypandoc plotly jupyter scikit-sparse
 ````
 
 Notes:
@@ -167,7 +167,7 @@ python -m pip install "pybind11[global]" numpy pandas scipy matplotlib
 4. Finally, install optional Python modules by running following instructions in a command prompt:
 
 ````
-python -m pip install pypandoc geopandas plotly jupyter scikit-sparse
+python -m pip install pypandoc plotly jupyter scikit-sparse
 ````
 
 ##### Update the Path environment variable

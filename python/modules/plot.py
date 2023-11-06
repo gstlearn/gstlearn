@@ -270,8 +270,7 @@ def __initGeneric(mode=0, nx=1, ny=1, sharex=False, sharey=False, figsize=None):
         if figsize is None:
             locdims = defaultDims[mode]
         else:
-            locdims[0] = figsize[0] / nx
-            locdims[1] = figsize[1] / ny
+            locdims = [figsize[0] / nx, figsize[1] / ny]
             
         geometry(ax,
                  dims = locdims, 

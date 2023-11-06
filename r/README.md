@@ -27,7 +27,7 @@ Free download from https://gstlearn.org
 --------------------------------------------------
 ```
 
-You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/cran/gstlearn.bib)
+You may be interested in the citation file [gstlearn.bib](https://soft.mines-paristech.fr/gstlearn/gstlearn.bib)
 
 ## Installation
 
