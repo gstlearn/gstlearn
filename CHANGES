@@ -17,6 +17,7 @@ Release 0.4.2
 - New function for creating experimental variogram from R data frames (Vario_fromDF)
 - Improve experimental variogram calculation efficiency
 - Fix initGeographic when using figsize in Python (locdims was not defined) 
+- Make db_duplicate and db_tool_duplicate available thru swig
 
 
 Release 0.4.1

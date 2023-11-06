@@ -853,8 +853,8 @@ int db_tool_duplicate(Db *db1,
                       bool verbose,
                       int opt_code,
                       double tolcode,
-                      double *dist,
-                      double *sel)
+                      const VectorDouble& dist,
+                      VectorDouble& sel)
 {
   bool flag_code = db1->hasLocVariable(ELoc::C) && db2->hasLocVariable(ELoc::C);
   int nmerge = 0;
@@ -894,7 +894,7 @@ int db_tool_duplicate(Db *db1,
           if (_code_comparable(db1, db2, iech1, iech2, opt_code, (int) tolcode))
             continue;
         }
-        double dval = (dist != nullptr) ? dist[idim] : 0.;
+        double dval = (!dist.empty()) ? dist[idim] : 0.;
         if (ABS(v1 - v2) > dval) flag_diff = true;
       }
       if (flag_diff) continue;
@@ -945,7 +945,7 @@ int db_tool_duplicate(Db *db1,
  *****************************************************************************/
 int db_duplicate(Db *db,
                  bool verbose,
-                 double *dist,
+                 const VectorDouble& dist,
                  int opt_code,
                  double tolcode,
                  const NamingConvention &namconv)
@@ -962,8 +962,7 @@ int db_duplicate(Db *db,
 
   // Check for duplicates
 
-  if (db_tool_duplicate(db, db, 1, verbose, opt_code, tolcode, dist,
-                        sel.data())) return 1;
+  if (db_tool_duplicate(db, db, 1, verbose, opt_code, tolcode, dist,sel)) return 1;
 
   // Add the variable to the Db
   int iatt = db->addColumns(sel);

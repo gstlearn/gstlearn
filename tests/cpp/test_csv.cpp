@@ -37,6 +37,6 @@ int main(int argc, char *argv[])
 
   // Looking for duplicates
   VectorDouble dist = {0.3, 0.3};
-  db_duplicate(mydb, true, dist.data());
+  db_duplicate(mydb, true, dist);
   return 0;
 }

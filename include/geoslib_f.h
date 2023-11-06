@@ -58,8 +58,7 @@ GSTLEARN_EXPORT void acknowledge_gstlearn(void);
 /* Functions for Basic */
 /***********************/
 
-GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab,
-                                                   const double *rtab);
+GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab, const double *rtab);
 GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
@@ -202,7 +201,7 @@ GSTLEARN_EXPORT int db_grid1D_fill(DbGrid *dbgrid,
                                    const NamingConvention& namconv = NamingConvention("Fill"));
 GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  bool verbose = false,
-                                 double *dist = nullptr,
+                                 const VectorDouble& dist = VectorDouble(),
                                  int opt_code = 0,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", true, true, true,
@@ -348,8 +347,8 @@ GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
                                       bool verbose,
                                       int opt_code,
                                       double tolcode,
-                                      double *dist,
-                                      double *sel);
+                                      const VectorDouble& dist,
+                                      VectorDouble& sel);
 
 /********************************************/
 /* Prototyping the functions in potential.c */
