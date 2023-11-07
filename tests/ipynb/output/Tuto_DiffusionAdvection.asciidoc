@@ -1,4 +1,4 @@
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----
 Markov (Third Parameter = 1)
 - Sill         =      3.000
@@ -7,35 +7,35 @@ Markov (Third Parameter = 1)
  ----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----array([1., 2., 1.])----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----0.24989756768264187----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_8_0.png)
+#NO_DIFF#XXX
 
-![png](output_8_1.png)
-----
-
-
-+*Out[7]:*+
-----
-![png](output_9_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_11_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_13_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

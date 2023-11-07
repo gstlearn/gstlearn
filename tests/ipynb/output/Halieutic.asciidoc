@@ -1,4 +1,4 @@
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----
 [cols=",,,,,,,",options="header",]
 |===
@@ -21,7 +21,7 @@
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_20_0.png)
+#NO_DIFF#XXX
 ----

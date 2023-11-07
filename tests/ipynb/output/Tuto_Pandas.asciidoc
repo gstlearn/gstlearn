@@ -1,4 +1,4 @@
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -19,7 +19,7 @@ Column = 2 - Name = z - Locator = z1
 Column = 3 - Name = sel - Locator = sel----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 [cols=",,,,",options="header",]
 |===
@@ -38,7 +38,7 @@ Column = 3 - Name = sel - Locator = sel----
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
 [cols=",,,,",options="header",]
 |===
@@ -57,5 +57,5 @@ Column = 3 - Name = sel - Locator = sel----
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----'sel'----

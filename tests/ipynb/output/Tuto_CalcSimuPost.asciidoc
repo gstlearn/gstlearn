@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -35,13 +35,13 @@ Data Base Contents
  ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_18_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
 
  Simulation Post-Processing
@@ -62,7 +62,7 @@ Var 3     -3.342      0.068
  ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -93,13 +93,13 @@ Column = 7 - Name = Post1.Var3.Mean - Locator = NA
 Column = 8 - Name = Post1.Var3.Variance - Locator = NA----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_22_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
 
  Simulation Post-Processing
@@ -120,13 +120,13 @@ Var 2     83.789    154.267
  ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_25_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
 ----
 
  Simulation Post-Processing
@@ -147,7 +147,7 @@ Var 3     -3.386      0.097
  ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -191,7 +191,7 @@ Data Base Contents
  ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
 
  Simulation Post-Processing
@@ -212,7 +212,7 @@ Var 2     85.271    628.676
  ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics

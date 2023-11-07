@@ -1,14 +1,14 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 
 ----

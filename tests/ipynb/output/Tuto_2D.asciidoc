@@ -1,8 +1,8 @@
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -30,13 +30,13 @@ Column = 4 - Name = Pb - Locator = p1
  ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 List of all variable names = ('rank', 'X', 'Y', 'Zn', 'Pb')
 ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -112,19 +112,19 @@ Column = 5 - Name = sel - Locator = sel
  ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_14_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_20_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Variogram characteristics
@@ -158,13 +158,13 @@ For variable 1
  ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_24_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
 
 Variogram characteristics
@@ -263,13 +263,13 @@ For variable 1
  ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_27_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -298,19 +298,19 @@ Column = 4 - Name = VMAP.Pb.Nb - Locator = NA
  ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_30_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_34_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -328,7 +328,7 @@ Spherical
 Total Sill     =      2.101----
 
 
-+*Out[19]:*+
++#NO_DIFF#XXX+
 ----
 
 Model characteristics
@@ -366,7 +366,7 @@ Universality_Condition
  ----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
 
 Moving Neighborhood
@@ -377,7 +377,7 @@ Maximum horizontal distance         = 10
  ----
 
 
-+*Out[21]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -403,7 +403,7 @@ Column = 1 - Name = x2 - Locator = x2
  ----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -434,19 +434,19 @@ Column = 6 - Name = Neigh.Pb.NbCESect - Locator = z1
  ----
 
 
-+*Out[23]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_47_0.png)
-----
-
-
-+*Out[24]:*+
-----
-![png](output_49_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[25]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -473,13 +473,13 @@ Column = 7 - Name = Xvalid.Pb.stderr - Locator = NA
  ----
 
 
-+*Out[26]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_52_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[27]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -587,19 +587,19 @@ Column = 8 - Name = Kriging.Pb.stdev - Locator = NA
  ----
 
 
-+*Out[28]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_56_0.png)
-----
-
-
-+*Out[29]:*+
-----
-![png](output_57_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[30]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Hermitian Anamorphosis
@@ -625,13 +625,13 @@ Normalized coefficients for Hermite polynomials (punctual variable)
  ----
 
 
-+*Out[31]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_61_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[32]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -659,13 +659,13 @@ Column = 8 - Name = Y.Pb - Locator = z1
  ----
 
 
-+*Out[34]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_67_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[35]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -708,7 +708,7 @@ Column = 18 - Name = Simu.Y.Pb.10 - Locator = z10
  ----
 
 
-+*Out[36]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -942,13 +942,13 @@ Column = 22 - Name = Stats.STDV - Locator = z1
  ----
 
 
-+*Out[37]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_73_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[38]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -991,7 +991,7 @@ Column = 18 - Name = Z.Simu.Y.Pb.10 - Locator = z10
  ----
 
 
-+*Out[39]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -1225,13 +1225,13 @@ Column = 22 - Name = Stats.STDV - Locator = z1
  ----
 
 
-+*Out[40]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_79_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[41]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -1438,13 +1438,13 @@ Column = 19 - Name = Stats.MEAN - Locator = z1
  ----
 
 
-+*Out[42]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_83_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[43]:*+
++#NO_DIFF#XXX+
 ----
 
 Hermitian Anamorphosis
@@ -1470,13 +1470,13 @@ Normalized coefficients for Hermite polynomials (punctual variable)
  ----
 
 
-+*Out[44]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_86_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[45]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -1505,13 +1505,13 @@ Column = 9 - Name = Y.Zn - Locator = z1
  ----
 
 
-+*Out[46]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_90_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[47]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -1565,7 +1565,7 @@ Column = 29 - Name = Simu.Y.Zn.10 - Locator = z20
  ----
 
 
-+*Out[48]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -1889,7 +1889,7 @@ Column = 32 - Name = Stats.STDV - Locator = z1
  ----
 
 
-+*Out[49]:*+
++#NO_DIFF#XXX+
 ----
 Bound( 1 ) : ] -Inf ; 4 [
 Bound( 2 ) : [ 4 ; 6 [
@@ -1897,7 +1897,7 @@ Bound( 3 ) : [ 6 ;  +Inf [
  ----
 
 
-+*Out[50]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -1929,7 +1929,7 @@ Column = 12 - Name = Indicator.Pb.Class.3 - Locator = z3
  ----
 
 
-+*Out[51]:*+
++#NO_DIFF#XXX+
 ----
 
 Variogram characteristics
@@ -2032,13 +2032,13 @@ For variable 3
  ----
 
 
-+*Out[52]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_101_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[53]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics

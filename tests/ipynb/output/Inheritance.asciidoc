@@ -1,4 +1,4 @@
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 Number of Apices: 12
 Number of Points: 12 ----

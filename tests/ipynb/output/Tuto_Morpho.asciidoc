@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -28,132 +28,132 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1
  
-![png](output_10_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 Grain Volume = 6920  / 10000 (pixels)
 
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_16_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_18_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_21_0.png)
-----
-
-
-+*Out[11]:*+
-----
-![png](output_23_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_25_0.png)
-----
-
-
-+*Out[13]:*+
-----
-![png](output_27_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_29_0.png)
-----
-
-
-+*Out[15]:*+
-----
-![png](output_32_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_34_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_35_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_38_0.png)
-----
-
-
-+*Out[19]:*+
-----
-![png](output_39_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_40_0.png)
-----
-
-
-+*Out[21]:*+
-----
-![png](output_42_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_44_0.png)
-----
-
-
-+*Out[23]:*+
-----
-![png](output_46_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_48_0.png)
-----
-
-
-+*Out[25]:*+
-----
-![png](output_50_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[26]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_51_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[27]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----Array dimension = 2
 - Dimension #1 : 10
 - Dimension #2 : 12
@@ -173,7 +173,7 @@ Grain Volume = 6920  / 10000 (pixels)
 2 0011011111----
 
 
-+*Out[28]:*+
++#NO_DIFF#XXX+
 ----
 Array dimension = 2
 - Dimension #1 : 10
