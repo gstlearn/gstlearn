@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 [cols=",,,,",options="header",]
 |===
@@ -24,7 +24,7 @@
 ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -44,7 +44,7 @@ Column = 2 - Name = Elevation - Locator = NA
 Column = 3 - Name = January_temp - Locator = NA----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -65,7 +65,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = NA----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -86,7 +86,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -109,7 +109,7 @@ Column = 4 - Name = January_temp - Locator = z1
  ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -151,13 +151,13 @@ Column = 4 - Name = January_temp - Locator = z1
  ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----                   Mean    Minimum    Maximum
    Elevation     87.974      3.000    387.000
 January_temp      2.815      0.600      5.200----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----array([[  1. , 372.1, 658.9, 255. ,   1.7],
        [  2. , 303.5, 665.9, 125. ,   2. ],
        [  3. , 218.4, 597.9,   8. ,   4.6],
@@ -167,7 +167,7 @@ January_temp      2.815      0.600      5.200----
        [236. , 260.8, 668.6, 107. ,   2.6]])----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----array([1.7, 2. , 4.6, nan, 3.1, 3.5, 3.4, 3. , 4.9, 2.9, nan, 1.3, nan,
        4. , 1.7, nan, 1.9, 3.3, 2.3, nan, 2.3, 2.6, nan, 2.7, 2.9, nan,
        1. , 1.2, nan, 3.1, nan, 3.7, 2.1, 2.5, 2.9, nan, nan, nan, 3.1,
@@ -189,7 +189,7 @@ January_temp      2.815      0.600      5.200----
        2.1, 2.6])----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----array([[ 11. , 865. ,  37. ],
        [ 12. , 602.6, 242. ],
        [ 13. , 835. , 295. ],
@@ -197,7 +197,7 @@ January_temp      2.815      0.600      5.200----
        [ 15. , 648.8, 183. ]])----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----array([[865. ,  37. ],
        [602.6, 242. ],
        [835. , 295. ],
@@ -205,7 +205,7 @@ January_temp      2.815      0.600      5.200----
        [648.8, 183. ]])----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
 ----
 [cols=",,,,,",options="header",]
 |===
@@ -227,7 +227,7 @@ January_temp      2.815      0.600      5.200----
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -249,7 +249,7 @@ Column = 4 - Name = January_temp - Locator = z1
 Column = 5 - Name = newvar - Locator = NA----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -272,7 +272,7 @@ Column = 4 - Name = January_temp - Locator = z1
  ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -293,7 +293,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
   -1 -     UNKNOWN : Unknown locator
     0 -           X : Coordinate
@@ -328,25 +328,25 @@ Column = 4 - Name = January_temp - Locator = z1----
  ----
 
 
-+*Out[19]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_54_0.png)
-----
-
-
-+*Out[20]:*+
-----
-![png](output_56_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[21]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_58_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -373,13 +373,13 @@ Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel----
 
 
-+*Out[23]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_65_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_68_0.png)
+#NO_DIFF#XXX
 ----

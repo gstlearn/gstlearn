@@ -1,34 +1,34 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_13_0.png)
-----
-
-
-+*Out[10]:*+
-----
-![png](output_18_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Variance = 1.0167
 
-![png](output_24_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_28_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
 logdet_chol -1261.3613
 quad_chol 1061.1439
@@ -36,13 +36,13 @@ like_chol 100.1087
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
 -> Relative difference quadratic = 0.03 %
 ----
 
 
-+*Out[19]:*+
++#NO_DIFF#XXX+
 ----
 log_det_op_chol 12296.9389
 log_det_op_api 12296.9389
@@ -50,7 +50,7 @@ log_det_op_api 12296.9389
 ----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
 log_det_Q_chol 11255.7151
 log_det_Q_api 11255.7151
@@ -58,7 +58,7 @@ log_det_Q_api 11255.7151
 ----
 
 
-+*Out[21]:*+
++#NO_DIFF#XXX+
 ----
 likelihood api 100.1087
 likelihood_chol 99.974

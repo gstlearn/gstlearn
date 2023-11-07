@@ -1,4 +1,4 @@
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -27,7 +27,7 @@ Column = 4 - Name = Simu - Locator = z1
  ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 
@@ -35,7 +35,7 @@ Column = 4 - Name = Simu - Locator = z1
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_7_0.png)
+#NO_DIFF#XXX
 ----

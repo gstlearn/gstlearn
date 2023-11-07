@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -27,7 +27,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -47,13 +47,13 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_13_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 Moving Neighborhood
 ===================
@@ -64,13 +64,13 @@ Maximum number of points per sector = 3
 Maximum horizontal distance         = 30----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_19_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
 
  Target location
@@ -138,19 +138,19 @@ Maximum horizontal distance         = 30----
  ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_25_0.png)
-----
-
-
-+*Out[13]:*+
-----
-![png](output_27_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
  Target location
@@ -218,31 +218,31 @@ Maximum horizontal distance         = 30----
  ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_33_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_35_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_37_0.png)
-----
-
-
-+*Out[19]:*+
-----
-![png](output_39_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[21]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Cell Neighborhood
@@ -251,13 +251,13 @@ Reject samples which do not belong to target Block
  ----
 
 
-+*Out[23]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_49_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[25]:*+
++#NO_DIFF#XXX+
 ----
 
  Target location
@@ -325,25 +325,25 @@ Reject samples which do not belong to target Block
  ----
 
 
-+*Out[26]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_54_0.png)
-----
-
-
-+*Out[27]:*+
-----
-![png](output_56_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[28]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_58_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[29]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_60_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

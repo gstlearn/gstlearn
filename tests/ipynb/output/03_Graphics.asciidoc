@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----
 Non geographical defaults:
 - Figure dimensions = [6, 6]
@@ -17,7 +17,7 @@ Geographical defaults:
 ----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -39,13 +39,13 @@ Column = 4 - Name = z-2 - Locator = z2
 Column = 5 - Name = z-3 - Locator = z3----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_13_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 Help on function point in module gstlearn.plot:
 
@@ -87,59 +87,59 @@ point(db, *args, **kwargs)
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_18_0.png)
-----
-
-
-+*Out[7]:*+
-----
-![png](output_20_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_22_0.png)
-----
-
-
-+*Out[10]:*+
-----
-![png](output_26_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_29_0.png)
-----
-
-
-+*Out[12]:*+
-----
-![png](output_31_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_33_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Latex object>----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_39_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -168,31 +168,31 @@ Column = 4 - Name = Simu.2 - Locator = z2
  ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_44_0.png)
-----
-
-
-+*Out[19]:*+
-----
-![png](output_45_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_46_0.png)
-----
-
-
-+*Out[21]:*+
-----
-![png](output_47_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[23]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Non geographical defaults:
 - Figure dimensions = [6, 6]
@@ -207,49 +207,49 @@ Geographical defaults:
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_57_0.png)
-----
-
-
-+*Out[25]:*+
-----
-![png](output_59_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[26]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_61_0.png)
-----
-
-
-+*Out[27]:*+
-----
-![png](output_63_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[28]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_65_0.png)
-----
-
-
-+*Out[29]:*+
-----
-![png](output_67_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[30]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_69_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[31]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -275,37 +275,37 @@ Column = 6 - Name = sel - Locator = sel
  ----
 
 
-+*Out[33]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_76_0.png)
-----
-
-
-+*Out[35]:*+
-----
-![png](output_80_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[37]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_84_0.png)
-----
-
-
-+*Out[38]:*+
-----
-![png](output_86_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[39]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_88_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[40]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -334,67 +334,67 @@ Column = 3 - Name = z - Locator = z1
  ----
 
 
-+*Out[41]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_93_0.png)
-----
-
-
-+*Out[42]:*+
-----
-![png](output_95_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[43]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_97_0.png)
-----
-
-
-+*Out[46]:*+
-----
-![png](output_105_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[47]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_107_0.png)
-----
-
-
-+*Out[48]:*+
-----
-![png](output_109_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[49]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_111_0.png)
-----
-
-
-+*Out[50]:*+
-----
-![png](output_114_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[51]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_117_0.png)
-----
-
-
-+*Out[52]:*+
-----
-![png](output_119_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[53]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_122_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

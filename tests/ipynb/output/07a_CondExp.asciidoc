@@ -1,14 +1,14 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_7_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 
 Hermitian Anamorphosis
@@ -34,61 +34,61 @@ Normalized coefficients for Hermite polynomials (punctual variable)
  ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_12_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_14_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_17_0.png)
-----
-
-
-+*Out[14]:*+
-----
-![png](output_21_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_22_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_27_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_29_0.png)
-----
-
-
-+*Out[20]:*+
-----
-![png](output_32_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_35_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[23]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_36_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -21,7 +21,7 @@ Data Base Statistics
  ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -61,37 +61,37 @@ Data Base Statistics
  ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_10_0.png)
-----
-
-
-+*Out[6]:*+
-----
-![png](output_11_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_12_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_16_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_19_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -117,13 +117,13 @@ Drift Part
 Universality_Condition----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_25_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -153,19 +153,19 @@ Column = 6 - Name = Fill.P - Locator = NA
 Column = 7 - Name = Mono.Fill.P - Locator = z1----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_28_0.png)
-----
-
-
-+*Out[19]:*+
-----
-![png](output_31_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -204,19 +204,19 @@ Drift Part
 Universality_Condition----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_37_0.png)
-----
-
-
-+*Out[23]:*+
-----
-![png](output_39_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_41_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

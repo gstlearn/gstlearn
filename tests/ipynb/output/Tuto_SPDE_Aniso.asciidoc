@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -30,13 +30,13 @@ Column = 3 - Name = W2 - Locator = z1
  ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_11_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -67,19 +67,19 @@ Column = 5 - Name = ratio - Locator = nostat2
  ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_14_0.png)
-----
-
-
-+*Out[8]:*+
-----
-![png](output_15_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Model characteristics
@@ -105,25 +105,25 @@ Range      : GRF=1 Str=1 V#1=2
  ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_21_0.png)
-----
-
-
-+*Out[14]:*+
-----
-![png](output_26_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_30_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -154,11 +154,11 @@ Column = 5 - Name = ratio - Locator = nostat2
 Column = 6 - Name = spde.simu - Locator = NA
 Column = 7 - Name = spde.estim - Locator = z1
  
-![png](output_32_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -190,5 +190,5 @@ Column = 6 - Name = spde.simu - Locator = NA
 Column = 7 - Name = spde.estim - Locator = NA
 Column = 8 - Name = spde.condsimu - Locator = z1
  
-![png](output_35_1.png)
+#NO_DIFF#XXX
 ----

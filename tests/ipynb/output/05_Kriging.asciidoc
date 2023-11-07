@@ -1,13 +1,13 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----array([[  78.2,  460.7],
        [ 530.4, 1208.9]])----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -39,13 +39,13 @@ Column = 2 - Name = x2 - Locator = x2
  ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_17_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -66,7 +66,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = January_temp - Locator = z1----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -93,19 +93,19 @@ Column = 3 - Name = SK.January_temp.estim - Locator = z1
 Column = 4 - Name = SK.January_temp.stdev - Locator = NA----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_28_0.png)
-----
-
-
-+*Out[14]:*+
-----
-![png](output_30_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -134,37 +134,37 @@ Column = 5 - Name = Mean4_SK.January_temp.estim - Locator = z1
 Column = 6 - Name = Mean4_SK.January_temp.stdev - Locator = NA----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_37_0.png)
-----
-
-
-+*Out[21]:*+
-----
-![png](output_44_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_46_0.png)
-----
-
-
-+*Out[23]:*+
-----
-![png](output_48_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_50_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[25]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -198,31 +198,31 @@ Column = 3 - Name = inshore - Locator = sel
  ----
 
 
-+*Out[26]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_55_0.png)
-----
-
-
-+*Out[28]:*+
-----
-![png](output_58_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[30]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_63_0.png)
-----
-
-
-+*Out[31]:*+
-----
-![png](output_65_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[32]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Mean cross-validation error: -0.0042
 Mean squared cross-validation error: 0.2394
@@ -230,43 +230,43 @@ Mean standardized error: 0.9118
 ----
 
 
-+*Out[33]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_69_0.png)
-----
-
-
-+*Out[36]:*+
-----
-![png](output_75_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[39]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_80_0.png)
-----
-
-
-+*Out[42]:*+
-----
-![png](output_85_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[43]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_87_0.png)
-----
-
-
-+*Out[44]:*+
-----
-![png](output_89_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[45]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_91_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 
 
@@ -10,13 +10,13 @@
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 [[XXX]]
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 
 Polygons
@@ -25,19 +25,19 @@ Number of Polygon Sets = 288
  ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
 [[XXX]]
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
 [[XXX]]
 ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
 [[XXX]]
 ----

@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -25,11 +25,11 @@ Column = 3 - Name = Elevation - Locator = f1
 Column = 4 - Name = January_temp - Locator = z1
 Column = 5 - Name = sel - Locator = sel
  
-![png](output_7_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -56,11 +56,11 @@ Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel
  
-![png](output_9_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 Variogram characteristics
@@ -100,11 +100,11 @@ For variable 1
         16    76.000   399.464     0.802
         17    58.000   426.095     0.677
  
-![png](output_11_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 
 Variogram characteristics
@@ -144,11 +144,11 @@ For variable 1
         16    76.000   399.464     0.410
         17    58.000   426.095     0.411
  
-![png](output_13_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 
 Model characteristics
@@ -174,35 +174,35 @@ Drift Part
 Universality_Condition
 External_Drift:0
  
-![png](output_15_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
 Trend coefficients: [ 3.97005867 -0.00659771]
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_19_0.png)
-----
-
-
-+*Out[10]:*+
-----
-![png](output_21_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_23_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -232,7 +232,7 @@ Column = 5 - Name = Kriging.January_temp.estim - Locator = z1
 Column = 6 - Name = Kriging.January_temp.stdev - Locator = NA----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_26_0.png)
+#NO_DIFF#XXX
 ----

@@ -1,26 +1,26 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=1000, min=10)<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----FloatSlider(value=20.0, continuous_update=False, description='Range', min=5.0, step=1.0)<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----Dropdown(description='Basic Structure', options=('Nugget effect', 'Exponential', 'Spherical', 'Gaussian', 'Cub…<IPython.core.display.Javascript object>
 [[XXX]]
 ----

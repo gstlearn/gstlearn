@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -24,7 +24,7 @@ Column = 4 - Name = bot - Locator = NA
 Column = 5 - Name = appraisal - Locator = NA----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -104,19 +104,19 @@ Column = 5 - Name = appraisal - Locator = NA
  ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_9_0.png)
-----
-
-
-+*Out[5]:*+
-----
-![png](output_11_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -141,25 +141,25 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_15_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_23_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_26_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -182,25 +182,25 @@ Spherical
 Total Sill     =    157.461----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_30_0.png)
-----
-
-
-+*Out[13]:*+
-----
-![png](output_33_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_35_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -232,25 +232,25 @@ Exponential
 Total Sill     =    115.190----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_39_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_42_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_44_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[19]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -273,85 +273,85 @@ Spherical
 Total Sill     =    124.911----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_48_0.png)
-----
-
-
-+*Out[23]:*+
-----
-![png](output_55_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_57_0.png)
-----
-
-
-+*Out[26]:*+
-----
-![png](output_61_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[27]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_62_0.png)
-----
-
-
-+*Out[29]:*+
-----
-![png](output_65_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[30]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_66_0.png)
-----
-
-
-+*Out[32]:*+
-----
-![png](output_70_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[33]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_72_0.png)
-----
-
-
-+*Out[35]:*+
-----
-![png](output_76_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[36]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_78_0.png)
-----
-
-
-+*Out[38]:*+
-----
-![png](output_81_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[39]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_83_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[40]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 
@@ -359,55 +359,55 @@ Total Sill     =    124.911----
 ----
 
 
-+*Out[42]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_90_0.png)
-----
-
-
-+*Out[43]:*+
-----
-![png](output_92_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[44]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_96_0.png)
-----
-
-
-+*Out[45]:*+
-----
-![png](output_98_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[46]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_100_0.png)
-----
-
-
-+*Out[48]:*+
-----
-![png](output_105_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[50]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_109_0.png)
-----
-
-
-+*Out[51]:*+
-----
-![png](output_112_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[53]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -449,19 +449,19 @@ Total Sill
 ----
 
 
-+*Out[54]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_120_0.png)
-----
-
-
-+*Out[56]:*+
-----
-![png](output_125_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[58]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 [[XXX]]
 ----

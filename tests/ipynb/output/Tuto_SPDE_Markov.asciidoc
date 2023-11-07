@@ -1,4 +1,4 @@
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -22,31 +22,31 @@ Markov (Third Parameter = 1)
 Total Sill     =      5.000----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_9_0.png)
+#NO_DIFF#XXX
 
-![png](output_9_1.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_10_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_11_0.png)
-----
-
-
-+*Out[11]:*+
-----
-![png](output_12_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----1.009----
