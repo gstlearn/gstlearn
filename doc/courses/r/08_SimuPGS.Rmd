@@ -27,9 +27,6 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
-
 ```
 
 # Creating the Environment
@@ -47,16 +44,10 @@ cmap   = c('red', 'blue', 'yellow')
 Downloading the data base (from the distribution **Exdemo_PGS.db**) and creating the output Grid, the Model (Cubic) and the Neighborhood (Unique):
 
 ```{r Creating_Information}
-fileNF = "Data.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/PluriGaussian/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("PluriGaussian", "Data.NF")
 data = Db_createFromNF(fileNF)
-
 grid = DbGrid_create(nx=c(110,110))
-
 model = Model_createFromParam(type=ECov_CUBIC(), ranges=c(50,30))
-
 neigh = NeighUnique()
 ```
 

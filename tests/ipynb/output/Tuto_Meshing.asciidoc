@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 Data Base Characteristics
 =========================
@@ -21,13 +21,13 @@ Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2----
 
 
++*Out[3]:*+
+----
+![png](output_6_0.png)
+----
+
+
 +*Out[4]:*+
-----
-![png](output_7_0.png)
-----
-
-
-+*Out[5]:*+
 ----
 
 Grid characteristics:
@@ -51,13 +51,13 @@ Dim #2 - Min:0 - Max:100
  ----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
-![png](output_12_0.png)
+![png](output_11_0.png)
 ----
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
 
 Grid characteristics:
@@ -94,10 +94,47 @@ Grid Masking Indexing
  ----
 
 
++*Out[10]:*+
+----
+![png](output_20_0.png)
+----
+
+
 +*Out[11]:*+
 ----
-![png](output_21_0.png)
-----
+
+Grid characteristics:
+---------------------
+Origin :      0.648     3.385
+Mesh   :      2.892     1.928
+Number :         50        50
+ 
+Turbo Meshing
+=============
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 3481
+Number of Apices          = 1830
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:0.648392 - Max:142.336
+Dim #2 - Min:3.38503 - Max:97.8624
+
+Mask Information
+................
+Mesh Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 4802
+- Number of active positions   = 3481
+
+Grid Masking Indexing
+- Information (AToR) is stored as a Map
+- Number of absolute positions = 2500
+- Number of active positions   = 1830
+
+ ----
 
 
 +*Out[12]:*+
@@ -140,43 +177,6 @@ Grid Masking Indexing
 +*Out[13]:*+
 ----
 
-Grid characteristics:
----------------------
-Origin :      0.648     3.385
-Mesh   :      2.892     1.928
-Number :         50        50
- 
-Turbo Meshing
-=============
-Euclidean Geometry
-Space Dimension           = 2
-Number of Apices per Mesh = 3
-Number of Meshes          = 3481
-Number of Apices          = 1830
-
-Bounding Box Extension
-----------------------
-Dim #1 - Min:0.648392 - Max:142.336
-Dim #2 - Min:3.38503 - Max:97.8624
-
-Mask Information
-................
-Mesh Masking Indexing
-- Information (AToR) is stored as a Map
-- Number of absolute positions = 4802
-- Number of active positions   = 3481
-
-Grid Masking Indexing
-- Information (AToR) is stored as a Map
-- Number of absolute positions = 2500
-- Number of active positions   = 1830
-
- ----
-
-
-+*Out[14]:*+
-----
-
 Data Base Grid Characteristics
 ==============================
 
@@ -208,11 +208,11 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
  
-![png](output_27_1.png)
+![png](output_26_1.png)
 ----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
 
 Model characteristics
@@ -237,7 +237,7 @@ Total Sill     =      1.000
  ----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 
 Grid characteristics:
@@ -271,7 +271,7 @@ Dim #2 - Min:8.76696 - Max:20.767
  ----
 
 
-+*Out[17]:*+
++*Out[16]:*+
 ----
-![png](output_30_0.png)
+![png](output_29_0.png)
 ----

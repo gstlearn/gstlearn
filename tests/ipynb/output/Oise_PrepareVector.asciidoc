@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
 
 Data Base Characteristics
@@ -28,13 +28,13 @@ Column = 6 - Name = Duplicate - Locator = sel
  ----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
-![png](output_10_0.png)
+![png](output_9_0.png)
 ----
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
 
 Polygons
@@ -43,19 +43,19 @@ Number of Polygon Sets = 1
  ----
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
-![png](output_16_0.png)
+![png](output_15_0.png)
+----
+
+
++*Out[12]:*+
+XXX
+![png](output_17_1.png)
 ----
 
 
 +*Out[13]:*+
-XXX
-![png](output_18_1.png)
-----
-
-
-+*Out[14]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -91,13 +91,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Polygon - Locator = sel----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 XXX
-![png](output_21_1.png)
+![png](output_20_1.png)
 ----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 [cols=",,",options="header",]
 |===
@@ -119,7 +119,7 @@ XXX
 ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
 
 Data Base Characteristics
@@ -173,7 +173,7 @@ Column = 3 - Name = Polygon - Locator = NA
  ----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
 
 Data Base Grid Characteristics
@@ -212,13 +212,13 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
  ----
 
 
-+*Out[22]:*+
++*Out[21]:*+
 XXX
-![png](output_28_1.png)
+![png](output_27_1.png)
 ----
 
 
-+*Out[23]:*+
++*Out[22]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -257,21 +257,21 @@ Column = 5 - Name = Migrate.v_interp - Locator = z2
 Column = 6 - Name = vec_define - Locator = sel----
 
 
-+*Out[24]:*+
++*Out[23]:*+
 XXX
-![png](output_30_1.png)
+![png](output_29_1.png)
 ----
 
 
-+*Out[25]:*+
++*Out[24]:*+
 ----True----
 
 
-+*Out[32]:*+
++*Out[31]:*+
 XXX
-![png](output_40_1.png)
+![png](output_39_1.png)
 ----
 
 
-+*Out[33]:*+
++*Out[32]:*+
 ----True----

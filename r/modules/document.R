@@ -33,7 +33,7 @@ isInternetAvailable <- function()
 displayMarkdown <- function(filename)
 {
 	if (isInternetAvailable())
-		cat(readLines(paste0(url,"references/",filename), warn=FALSE), sep="\n")
+		cat(readLines(file.path(url,"references",filename), warn=FALSE), sep="\n")
 	invisible()
 }
 
@@ -44,6 +44,6 @@ displayMarkdown <- function(filename)
 loadData <- function(directory, filename)
 {
 	if (isInternetAvailable())
-		download.file(paste0(url, "data/", directory, "/", filename), filename, quiet=TRUE)
+		download.file(file.path(url, "data", directory, filename), filename, quiet=TRUE)
   	filename
 }

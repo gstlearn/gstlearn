@@ -2,19 +2,19 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[2]:*+
+----
+![png](output_5_0.png)
+----
+
+
 +*Out[3]:*+
 ----
-![png](output_6_0.png)
+![png](output_7_0.png)
 ----
 
 
-+*Out[4]:*+
-----
-![png](output_8_0.png)
-----
-
-
-+*Out[7]:*+
++*Out[6]:*+
 ----
 Data Base Characteristics
 =========================
@@ -38,12 +38,12 @@ Column = 6 - Name = Xvalid2.data.estim - Locator = NA
 Column = 7 - Name = Xvalid2.data.stdev - Locator = NA----
 
 
-+*Out[8]:*+
++*Out[7]:*+
 ----array([ 1.        , 22.70134452, 83.64117505,  2.50180018, -1.95167723,
        -1.09498517,  0.55012296,  1.78237778])----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
 
  Target location
@@ -126,7 +126,7 @@ Column = 7 - Name = Xvalid2.data.stdev - Locator = NA----
  ----
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
 
  Target location
@@ -231,7 +231,7 @@ Column = 7 - Name = Xvalid2.data.stdev - Locator = NA----
  ----
 
 
-+*Out[12]:*+
++*Out[11]:*+
 ----
-![png](output_25_0.png)
+![png](output_24_0.png)
 ----

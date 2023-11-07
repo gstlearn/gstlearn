@@ -6,7 +6,6 @@ output: pdf_document
 
 ```{r setup,echo=FALSE}
 library(knitr)
-flagInternetAvailable=TRUE
 ```
 
 # Introduction
@@ -157,11 +156,7 @@ data[data$A>1,]
 Download the ASCII file called *Scotland_Temperatures.csv* and store it on your disk in the current working directory.
 
 ```{r Data_Frame_from_File, eval=FALSE}
-filename = "Scotland_Temperatures.csv"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filename), filename, quiet=TRUE)
-}
-
+filename = loadData("Scotland", "Scotland_Temperatures.csv")
 temperatures = read.csv(filename,header=TRUE,na="MISS")
 class(temperatures)
 names(temperatures)

@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 
 Data Base Grid Characteristics
@@ -30,13 +30,13 @@ Column = 3 - Name = W2 - Locator = z1
  ----
 
 
++*Out[5]:*+
+----
+![png](output_11_0.png)
+----
+
+
 +*Out[6]:*+
-----
-![png](output_12_0.png)
-----
-
-
-+*Out[7]:*+
 ----
 
 Data Base Grid Characteristics
@@ -67,19 +67,19 @@ Column = 5 - Name = ratio - Locator = nostat2
  ----
 
 
++*Out[7]:*+
+----
+![png](output_14_0.png)
+----
+
+
 +*Out[8]:*+
 ----
 ![png](output_15_0.png)
 ----
 
 
-+*Out[9]:*+
-----
-![png](output_16_0.png)
-----
-
-
-+*Out[11]:*+
++*Out[10]:*+
 ----
 
 Model characteristics
@@ -105,25 +105,25 @@ Range      : GRF=1 Str=1 V#1=2
  ----
 
 
-+*Out[12]:*+
++*Out[11]:*+
 ----
-![png](output_22_0.png)
-----
-
-
-+*Out[15]:*+
-----
-![png](output_27_0.png)
+![png](output_21_0.png)
 ----
 
 
-+*Out[17]:*+
++*Out[14]:*+
 ----
-![png](output_31_0.png)
+![png](output_26_0.png)
 ----
 
 
-+*Out[19]:*+
++*Out[16]:*+
+----
+![png](output_30_0.png)
+----
+
+
++*Out[18]:*+
 ----
 
 Data Base Grid Characteristics
@@ -154,11 +154,11 @@ Column = 5 - Name = ratio - Locator = nostat2
 Column = 6 - Name = spde.simu - Locator = NA
 Column = 7 - Name = spde.estim - Locator = z1
  
-![png](output_33_1.png)
+![png](output_32_1.png)
 ----
 
 
-+*Out[21]:*+
++*Out[20]:*+
 ----
 
 Data Base Grid Characteristics
@@ -190,5 +190,5 @@ Column = 6 - Name = spde.simu - Locator = NA
 Column = 7 - Name = spde.estim - Locator = NA
 Column = 8 - Name = spde.condsimu - Locator = z1
  
-![png](output_36_1.png)
+![png](output_35_1.png)
 ----

@@ -2,10 +2,10 @@
 title: "Tutorial on Variography"
 author: "gstlearn Team"
 output:
+  pdf_document:
+    toc: true
   html_document:
     df_print: paged
-    toc: true
-  pdf_document:
     toc: true
 ---
 
@@ -13,7 +13,7 @@ output:
 
 <!-- CATEGORY: Courses -->
 
-```{r, include=FALSE}
+```{r setup, include=FALSE}
 ## Global options for code chunks
 knitr::opts_chunk$set(
   echo = TRUE, 
@@ -33,17 +33,12 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
 ```
 
 Then the necessary data set is downloaded and named **dat**: the target variable is **January_temp**
 
 ```{r Loading_Data}
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 ```
 
@@ -51,9 +46,9 @@ dat = Db_createFromNF(fileNF)
 
 ### Variogram Cloud
 
-```{r, child="../../references/Variogram_Cloud.md"}
+```{r, echo=FALSE, results='asis'}
+displayMarkdown("Variogram_Cloud.md")
 ```
-
 
 ```{r Variogram_Cloud}
 varioParamOmni = VarioParam_createOmniDirection(npas = 100)
@@ -72,7 +67,8 @@ ggPrint(p)
 
 ### Experimental (isotropic) variograms
 
-```{r, child="../../references/Experimental_Variogram.md"}
+```{r, echo=FALSE, results='asis'}
+displayMarkdown("Experimental_Variogram.md")
 ```
 
 ```{r Experimental_Variogram, results=FALSE}
@@ -203,7 +199,8 @@ fitmod
 
 ### Directional Variograms
 
-```{r, child="../../references/Directional_Variogram.md"}
+```{r, echo=FALSE, results='asis'}
+displayMarkdown("Directional_Variogram.md")
 ```
 
 ```{r Directional_Variograms}
@@ -233,7 +230,8 @@ ggplot() + plot.varmod(vario.4dir, model.4dir)
 
 #### Experimental variogram map
 
-```{r, child="../../references/Variogram_Map.md"}
+```{r, echo=FALSE, results='asis'}
+displayMarkdown("Variogram_Map.md")
 ```
 
 ```{r Variogram_Map}

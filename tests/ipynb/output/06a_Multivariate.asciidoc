@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -29,13 +29,13 @@ Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel----
 
 
++*Out[4]:*+
+----
+![png](output_12_0.png)
+----
+
+
 +*Out[5]:*+
-----
-![png](output_13_0.png)
-----
-
-
-+*Out[6]:*+
 ----
 Data Base Characteristics
 =========================
@@ -56,7 +56,7 @@ Column = 3 - Name = Elevation - Locator = NA
 Column = 4 - Name = Temperature - Locator = z1----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
 
  Number of observations
@@ -68,7 +68,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+*Out[8]:*+
++*Out[7]:*+
 ----
 
  Statistics of observations
@@ -80,7 +80,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
 
  Statistics of target
@@ -91,7 +91,7 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
 
  Filtered statistics of observations
@@ -103,31 +103,31 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
++*Out[10]:*+
+----
+![png](output_24_0.png)
+----
+
+
 +*Out[11]:*+
 ----
-![png](output_25_0.png)
+![png](output_26_0.png)
 ----
 
 
-+*Out[12]:*+
++*Out[14]:*+
 ----
-![png](output_27_0.png)
+![png](output_34_0.png)
 ----
 
 
-+*Out[15]:*+
++*Out[17]:*+
 ----
-![png](output_35_0.png)
+![png](output_40_0.png)
 ----
 
 
 +*Out[18]:*+
-----
-![png](output_41_0.png)
-----
-
-
-+*Out[19]:*+
 ----
 
  Statistics on the Ordinary Kriging:
@@ -139,14 +139,14 @@ Column = 4 - Name = Temperature - Locator = z1----
  ----
 
 
-+*Out[21]:*+
++*Out[20]:*+
 ----
 Mean squared cross-validation error: 0.254
 Mean squared standardized error: 1.117
 ----
 
 
-+*Out[22]:*+
++*Out[21]:*+
 ----
 Data Base Characteristics
 =========================
@@ -169,25 +169,25 @@ Column = 5 - Name = CV_OK.Temperature.esterr - Locator = NA
 Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
 
 
-+*Out[24]:*+
++*Out[23]:*+
 ----
-![png](output_54_0.png)
+![png](output_53_0.png)
 ----
 
 
-+*Out[26]:*+
++*Out[25]:*+
 ----
-![png](output_57_0.png)
+![png](output_56_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_61_0.png)
 ----
 
 
 +*Out[28]:*+
-----
-![png](output_62_0.png)
-----
-
-
-+*Out[29]:*+
 ----
 
  Statistics on the CoKriging predictions
@@ -199,13 +199,13 @@ Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
  ----
 
 
++*Out[29]:*+
+----
+![png](output_65_0.png)
+----
+
+
 +*Out[30]:*+
-----
-![png](output_66_0.png)
-----
-
-
-+*Out[31]:*+
 ----
 
  Comparison between Ordinary and Universal kriging predictions
@@ -217,21 +217,21 @@ Column = 6 - Name = CV_OK.Temperature.stderr - Locator = NA----
  ----
 
 
-+*Out[34]:*+
++*Out[33]:*+
 ----
 Mean squared cross-validation error: 0.279
 Mean squared standardized error: 1.227
 ----
 
 
-+*Out[35]:*+
++*Out[34]:*+
 ----
 Mean squared cross-validation error: 17849.434
 Mean squared standardized error: 1.206
 ----
 
 
-+*Out[37]:*+
++*Out[36]:*+
 ----
 
 Linear Regression
@@ -244,7 +244,7 @@ Linear Regression
  ----
 
 
-+*Out[39]:*+
++*Out[38]:*+
 ----
 
  Statistics on the residuals
@@ -255,37 +255,37 @@ Linear Regression
  ----
 
 
-+*Out[40]:*+
++*Out[39]:*+
 ----
-![png](output_89_0.png)
-----
-
-
-+*Out[43]:*+
-----
-![png](output_94_0.png)
+![png](output_88_0.png)
 ----
 
 
-+*Out[45]:*+
++*Out[42]:*+
 ----
-![png](output_98_0.png)
+![png](output_93_0.png)
+----
+
+
++*Out[44]:*+
+----
+![png](output_97_0.png)
+----
+
+
++*Out[46]:*+
+----
+![png](output_100_0.png)
 ----
 
 
 +*Out[47]:*+
 ----
-![png](output_101_0.png)
+![png](output_102_0.png)
 ----
 
 
 +*Out[48]:*+
-----
-![png](output_103_0.png)
-----
-
-
-+*Out[49]:*+
 ----
 
  Comparison between Ordinary and Residual kriging predictions
@@ -297,19 +297,19 @@ Linear Regression
  ----
 
 
-+*Out[53]:*+
++*Out[52]:*+
 ----
-![png](output_115_0.png)
+![png](output_114_0.png)
+----
+
+
++*Out[54]:*+
+----
+![png](output_117_0.png)
 ----
 
 
 +*Out[55]:*+
-----
-![png](output_118_0.png)
-----
-
-
-+*Out[56]:*+
 ----
 
 Linear Regression
@@ -323,13 +323,13 @@ Linear Regression
  ----
 
 
++*Out[57]:*+
+----
+![png](output_124_0.png)
+----
+
+
 +*Out[58]:*+
-----
-![png](output_125_0.png)
-----
-
-
-+*Out[59]:*+
 ----
 
  Statistics on the Universal Kriging:
@@ -341,13 +341,13 @@ Linear Regression
  ----
 
 
++*Out[59]:*+
+----
+![png](output_128_0.png)
+----
+
+
 +*Out[60]:*+
-----
-![png](output_129_0.png)
-----
-
-
-+*Out[61]:*+
 ----
 
  Comparison between Ordinary and Universal kriging predictions:
@@ -359,32 +359,32 @@ Linear Regression
  ----
 
 
-+*Out[63]:*+
++*Out[62]:*+
 ----
 Mean squared cross-validation error: 0.251
 Mean squared standardized error: 0.855
 ----
 
 
-+*Out[67]:*+
++*Out[66]:*+
 ----
-![png](output_146_0.png)
+![png](output_145_0.png)
 ----
 
 
-+*Out[69]:*+
++*Out[68]:*+
 ----
-![png](output_149_0.png)
+![png](output_148_0.png)
+----
+
+
++*Out[70]:*+
+----
+![png](output_153_0.png)
 ----
 
 
 +*Out[71]:*+
-----
-![png](output_154_0.png)
-----
-
-
-+*Out[72]:*+
 ----
 
  Statistics on the Kriging with External Drift predictions
@@ -396,20 +396,20 @@ Mean squared standardized error: 0.855
  ----
 
 
-+*Out[73]:*+
++*Out[72]:*+
 ----
-![png](output_158_0.png)
+![png](output_157_0.png)
 ----
 
 
-+*Out[75]:*+
++*Out[74]:*+
 ----
 Mean squared cross-validation error: 0.172
 Mean squared standardized error: 1.143
 ----
 
 
-+*Out[76]:*+
++*Out[75]:*+
 ----
 
  Mean-squared cross-validation errors
@@ -423,7 +423,7 @@ Mean squared standardized error: 1.143
  ----
 
 
-+*Out[77]:*+
++*Out[76]:*+
 ----
 
  Statistics of the predictors
@@ -439,7 +439,7 @@ Mean squared standardized error: 1.143
  ----
 
 
-+*Out[78]:*+
++*Out[77]:*+
 ----
 
  Statistics of the standard-deviation of each predictors

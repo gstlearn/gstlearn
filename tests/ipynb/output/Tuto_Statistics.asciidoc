@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -30,7 +30,7 @@ Column = 4 - Name = SG2 - Locator = NA
 Column = 5 - Name = SG3 - Locator = z1----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 Data Base Characteristics
 =========================
@@ -52,27 +52,27 @@ Column = 4 - Name = SD2 - Locator = NA
 Column = 5 - Name = SD3 - Locator = z1----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
-![png](output_11_0.png)
+![png](output_10_0.png)
 ----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----        Number       Mean   St. Dev.
 SD1    100.000      0.161      1.028
 SD2    100.000     -0.293      1.020
 SD3    100.000      0.118      0.910----
 
 
-+*Out[8]:*+
++*Out[7]:*+
 ----           SD1        SD2        SD3
 SD1      1.000     -0.006     -0.186
 SD2     -0.006      1.000      0.002
 SD3     -0.186      0.002      1.000----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
          Number        Mean    St. Dev. 
  SD1         100       0.161       1.028 
@@ -89,7 +89,7 @@ SD3     -0.186      0.002      1.000----
  ----
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
 Mean
 ----
@@ -98,7 +98,7 @@ SD2     -0.293
 SD3      0.118----
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
 Mean
 ----
@@ -108,7 +108,7 @@ SD2     -0.293     -0.293     -0.293
 SD3      0.118      0.118      0.118----
 
 
-+*Out[12]:*+
++*Out[11]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -136,25 +136,25 @@ Column = 4 - Name = SG2 - Locator = NA
 Column = 5 - Name = SG3 - Locator = z1----
 
 
-+*Out[14]:*+
++*Out[13]:*+
 ----
-![png](output_27_0.png)
-----
-
-
-+*Out[16]:*+
-----
-![png](output_31_0.png)
+![png](output_26_0.png)
 ----
 
 
-+*Out[18]:*+
++*Out[15]:*+
 ----
-![png](output_34_0.png)
+![png](output_30_0.png)
 ----
 
 
-+*Out[20]:*+
++*Out[17]:*+
 ----
-![png](output_37_0.png)
+![png](output_33_0.png)
+----
+
+
++*Out[19]:*+
+----
+![png](output_36_0.png)
 ----

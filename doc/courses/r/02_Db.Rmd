@@ -33,8 +33,6 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
 ```
 
 ------------------------------------------------------------------------
@@ -60,10 +58,7 @@ Here is a (non-exhaustive) list of classes of objects in **gstlearn**:
 We start by downloading the file called `Scotland_Temperatures.csv` and we store it in the current working directory. In this example, the file (called `filecsv`) is provided as a *CSV* format file. We load it into a data frame (named `datcsv`) using the relevant R-command. Note that "MISS" keyword is used in this file to indicate a missing value. Such values will be replaced by NA.
 
 ```{r}
-filecsv = "Scotland_Temperatures.csv"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",filecsv), filecsv, quiet=TRUE)
-}
+filecsv = loadData("Scotland", "Scotland_Temperatures.csv")
 datcsv = read.csv(filecsv, na.strings = "MISS")
 ```
 
@@ -114,10 +109,7 @@ These *NF* (or neutral file) are currently used for serialization of the gstlear
 Note that the contents of the Db is slightly different from the result obtained when reading from CSV. Essentially, some variables have a `Locator` field defined, some do not. This concept will be described later in this chapter and the difference can be ignored.
 
 ```{r}
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 dat
 ```
@@ -279,10 +271,7 @@ plot(p)
 On the same area, a terrain model is available (as a demonstration file available in the package distribution). We first download it and create the corresponding data base defined on a grid support (*DbGrid*).
 
 ```{r}
-fileNF = "Scotland_Elevations.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Elevations.NF")
 grid = DbGrid_createFromNF(fileNF)
 grid
 ```

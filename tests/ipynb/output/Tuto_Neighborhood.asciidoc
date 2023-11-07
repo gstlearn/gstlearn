@@ -2,13 +2,13 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[5]:*+
+----
+![png](output_10_0.png)
+----
+
+
 +*Out[6]:*+
-----
-![png](output_11_0.png)
-----
-
-
-+*Out[7]:*+
 ----
 Moving Neighborhood
 ===================
@@ -19,32 +19,32 @@ Maximum number of points per sector = 3
 Maximum horizontal distance         = 0.3----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
-![png](output_17_0.png)
+![png](output_16_0.png)
 ----
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
-![png](output_22_0.png)
+![png](output_21_0.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_24_0.png)
 ----
 
 
 +*Out[13]:*+
-----
-![png](output_25_0.png)
-----
-
-
-+*Out[14]:*+
 ----
 Cell Neighborhood
 =================
 Reject samples which do not belong to target Block----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
-![png](output_29_0.png)
+![png](output_28_0.png)
 ----

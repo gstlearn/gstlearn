@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 
 Data Base Grid Characteristics
@@ -29,7 +29,7 @@ Column = 2 - Name = x2 - Locator = x2
  ----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
 
 Object Model
@@ -55,7 +55,7 @@ Parallelepiped - Proportion=0.6
  ----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -82,25 +82,25 @@ Column = 3 - Name = NC.Facies - Locator = NA
 Column = 4 - Name = NC.Rank - Locator = NA----
 
 
++*Out[7]:*+
+----
+![png](output_15_0.png)
+----
+
+
 +*Out[8]:*+
 ----
 ![png](output_16_0.png)
 ----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----
-![png](output_17_0.png)
-----
-
-
-+*Out[11]:*+
-----
-![png](output_22_0.png)
+![png](output_21_0.png)
 ----
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
 
  Boolean simulation
@@ -146,19 +146,19 @@ Column = 5 - Name = CD1.Facies1.Facies - Locator = NA
 Column = 6 - Name = CD1.Facies1.Rank - Locator = NA----
 
 
-+*Out[14]:*+
++*Out[13]:*+
 ----
-![png](output_27_0.png)
+![png](output_26_0.png)
+----
+
+
++*Out[16]:*+
+----
+![png](output_31_0.png)
 ----
 
 
 +*Out[17]:*+
-----
-![png](output_32_0.png)
-----
-
-
-+*Out[18]:*+
 ----
 
  Boolean simulation
@@ -206,7 +206,7 @@ Column = 7 - Name = CD2.Facies2.Facies - Locator = NA
 Column = 8 - Name = CD2.Facies2.Rank - Locator = NA----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
-![png](output_34_0.png)
+![png](output_33_0.png)
 ----

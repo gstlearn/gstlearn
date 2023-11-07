@@ -2,21 +2,21 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 
 
+[[XXX]]
+----
+
+
++*Out[6]:*+
+----
 [[XXX]]
 ----
 
 
 +*Out[7]:*+
-----
-[[XXX]]
-----
-
-
-+*Out[8]:*+
 ----
 
 Polygons
@@ -25,19 +25,19 @@ Number of Polygon Sets = 288
  ----
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
 [[XXX]]
 ----
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
 [[XXX]]
 ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
 [[XXX]]
 ----

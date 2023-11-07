@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 Non geographical defaults:
 - Figure dimensions = [6, 6]
@@ -17,7 +17,7 @@ Geographical defaults:
 ----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 Data Base Characteristics
 =========================
@@ -39,13 +39,13 @@ Column = 4 - Name = z-2 - Locator = z2
 Column = 5 - Name = z-3 - Locator = z3----
 
 
++*Out[4]:*+
+----
+![png](output_13_0.png)
+----
+
+
 +*Out[5]:*+
-----
-![png](output_14_0.png)
-----
-
-
-+*Out[6]:*+
 ----
 Help on function point in module gstlearn.plot:
 
@@ -87,59 +87,59 @@ point(db, *args, **kwargs)
 ----
 
 
++*Out[6]:*+
+----
+![png](output_18_0.png)
+----
+
+
 +*Out[7]:*+
 ----
-![png](output_19_0.png)
+![png](output_20_0.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_21_0.png)
+![png](output_22_0.png)
 ----
 
 
-+*Out[9]:*+
++*Out[10]:*+
 ----
-![png](output_23_0.png)
+![png](output_26_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_27_0.png)
+![png](output_29_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_30_0.png)
+![png](output_31_0.png)
 ----
 
 
 +*Out[13]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----
 
 
-+*Out[14]:*+
-----
-![png](output_34_0.png)
-----
-
-
-+*Out[16]:*+
++*Out[15]:*+
 ----<IPython.core.display.Latex object>----
 
 
++*Out[16]:*+
+----
+![png](output_39_0.png)
+----
+
+
 +*Out[17]:*+
-----
-![png](output_40_0.png)
-----
-
-
-+*Out[18]:*+
 ----
 
 Data Base Grid Characteristics
@@ -168,6 +168,12 @@ Column = 4 - Name = Simu.2 - Locator = z2
  ----
 
 
++*Out[18]:*+
+----
+![png](output_44_0.png)
+----
+
+
 +*Out[19]:*+
 ----
 ![png](output_45_0.png)
@@ -186,13 +192,7 @@ Column = 4 - Name = Simu.2 - Locator = z2
 ----
 
 
-+*Out[22]:*+
-----
-![png](output_48_0.png)
-----
-
-
-+*Out[24]:*+
++*Out[23]:*+
 ----
 Non geographical defaults:
 - Figure dimensions = [6, 6]
@@ -207,49 +207,49 @@ Geographical defaults:
 ----
 
 
++*Out[24]:*+
+----
+![png](output_57_0.png)
+----
+
+
 +*Out[25]:*+
 ----
-![png](output_58_0.png)
+![png](output_59_0.png)
 ----
 
 
 +*Out[26]:*+
 ----
-![png](output_60_0.png)
+![png](output_61_0.png)
 ----
 
 
 +*Out[27]:*+
 ----
-![png](output_62_0.png)
+![png](output_63_0.png)
 ----
 
 
 +*Out[28]:*+
 ----
-![png](output_64_0.png)
+![png](output_65_0.png)
 ----
 
 
 +*Out[29]:*+
 ----
-![png](output_66_0.png)
+![png](output_67_0.png)
 ----
 
 
 +*Out[30]:*+
 ----
-![png](output_68_0.png)
+![png](output_69_0.png)
 ----
 
 
 +*Out[31]:*+
-----
-![png](output_70_0.png)
-----
-
-
-+*Out[32]:*+
 ----
 
 Data Base Characteristics
@@ -275,37 +275,37 @@ Column = 6 - Name = sel - Locator = sel
  ----
 
 
-+*Out[34]:*+
++*Out[33]:*+
 ----
-![png](output_77_0.png)
+![png](output_76_0.png)
 ----
 
 
-+*Out[36]:*+
++*Out[35]:*+
 ----
-![png](output_81_0.png)
+![png](output_80_0.png)
+----
+
+
++*Out[37]:*+
+----
+![png](output_84_0.png)
 ----
 
 
 +*Out[38]:*+
 ----
-![png](output_85_0.png)
+![png](output_86_0.png)
 ----
 
 
 +*Out[39]:*+
 ----
-![png](output_87_0.png)
+![png](output_88_0.png)
 ----
 
 
 +*Out[40]:*+
-----
-![png](output_89_0.png)
-----
-
-
-+*Out[41]:*+
 ----
 
 Data Base Characteristics
@@ -334,67 +334,67 @@ Column = 3 - Name = z - Locator = z1
  ----
 
 
++*Out[41]:*+
+----
+![png](output_93_0.png)
+----
+
+
 +*Out[42]:*+
 ----
-![png](output_94_0.png)
+![png](output_95_0.png)
 ----
 
 
 +*Out[43]:*+
 ----
-![png](output_96_0.png)
+![png](output_97_0.png)
 ----
 
 
-+*Out[44]:*+
++*Out[46]:*+
 ----
-![png](output_98_0.png)
+![png](output_105_0.png)
 ----
 
 
 +*Out[47]:*+
 ----
-![png](output_106_0.png)
+![png](output_107_0.png)
 ----
 
 
 +*Out[48]:*+
 ----
-![png](output_108_0.png)
+![png](output_109_0.png)
 ----
 
 
 +*Out[49]:*+
 ----
-![png](output_110_0.png)
+![png](output_111_0.png)
 ----
 
 
 +*Out[50]:*+
 ----
-![png](output_112_0.png)
+![png](output_114_0.png)
 ----
 
 
 +*Out[51]:*+
 ----
-![png](output_115_0.png)
+![png](output_117_0.png)
 ----
 
 
 +*Out[52]:*+
 ----
-![png](output_118_0.png)
+![png](output_119_0.png)
 ----
 
 
 +*Out[53]:*+
 ----
-![png](output_120_0.png)
-----
-
-
-+*Out[54]:*+
-----
-![png](output_123_0.png)
+![png](output_122_0.png)
 ----

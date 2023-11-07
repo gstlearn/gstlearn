@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 
 Model characteristics
@@ -22,67 +22,67 @@ Total Sill     =      1.155
  ----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
-![png](output_14_0.png)
+![png](output_13_0.png)
 ----
 
 
-+*Out[9]:*+
++*Out[8]:*+
 ----
-![png](output_17_0.png)
+![png](output_16_0.png)
+----
+
+
++*Out[10]:*+
+----
+![png](output_19_0.png)
 ----
 
 
 +*Out[11]:*+
 ----
-![png](output_20_0.png)
+![png](output_22_0.png)
 ----
 
 
 +*Out[12]:*+
 ----
-![png](output_23_0.png)
-----
-
-
-+*Out[13]:*+
-----
 Mean of observed temperatures: 2.815
 ----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
-![png](output_29_0.png)
-----
-
-
-+*Out[18]:*+
-----
-![png](output_34_0.png)
+![png](output_28_0.png)
 ----
 
 
-+*Out[22]:*+
++*Out[17]:*+
 ----
-![png](output_42_0.png)
-----
-
-
-+*Out[24]:*+
-----
-![png](output_46_0.png)
+![png](output_33_0.png)
 ----
 
 
-+*Out[26]:*+
++*Out[21]:*+
 ----
-![png](output_49_0.png)
+![png](output_41_0.png)
 ----
 
 
-+*Out[28]:*+
++*Out[23]:*+
 ----
-![png](output_54_0.png)
+![png](output_45_0.png)
+----
+
+
++*Out[25]:*+
+----
+![png](output_48_0.png)
+----
+
+
++*Out[27]:*+
+----
+![png](output_53_0.png)
 ----

@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 
 Data Base Grid Characteristics
@@ -30,7 +30,7 @@ Column = 3 - Name = z1 - Locator = z1
  ----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 Non geographical defaults:
 - Figure dimensions = [5, 5]
@@ -42,6 +42,12 @@ Geographical defaults:
 - Limits along X = [-1, 10]
 - Limits along Y = [-1, 10]
 - Aspect = 1
+----
+
+
++*Out[4]:*+
+----
+![png](output_9_0.png)
 ----
 
 
@@ -58,14 +64,14 @@ Geographical defaults:
 
 
 +*Out[7]:*+
-----
-![png](output_12_0.png)
-----
-
-
-+*Out[8]:*+
 ----         Mean   Variance
 z1      1.531      1.615----
+
+
++*Out[9]:*+
+----
+![png](output_15_0.png)
+----
 
 
 +*Out[10]:*+
@@ -81,14 +87,14 @@ z1      1.531      1.615----
 
 
 +*Out[12]:*+
-----
-![png](output_18_0.png)
-----
-
-
-+*Out[13]:*+
 ----         Mean   Variance
 z1      1.531      0.974----
+
+
++*Out[14]:*+
+----
+![png](output_21_0.png)
+----
 
 
 +*Out[15]:*+
@@ -98,47 +104,47 @@ z1      1.531      0.974----
 
 
 +*Out[16]:*+
-----
-![png](output_23_0.png)
-----
-
-
-+*Out[17]:*+
 ----         Mean   Variance
 z1      1.364      1.165----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----('Z-Cut', 'T-estim', 'Q-estim', 'B-estim', 'M-estim')----
+
+
++*Out[19]:*+
+----
+![png](output_29_0.png)
+----
 
 
 +*Out[20]:*+
 ----
-![png](output_30_0.png)
+![png](output_31_0.png)
 ----
 
 
 +*Out[21]:*+
 ----
-![png](output_32_0.png)
+![png](output_33_0.png)
 ----
 
 
 +*Out[22]:*+
 ----
-![png](output_34_0.png)
+![png](output_35_0.png)
 ----
 
 
 +*Out[23]:*+
 ----
-![png](output_36_0.png)
+![png](output_37_0.png)
 ----
 
 
 +*Out[24]:*+
 ----
-![png](output_38_0.png)
+![png](output_40_0.png)
 ----
 
 
@@ -150,11 +156,5 @@ z1      1.364      1.165----
 
 +*Out[26]:*+
 ----
-![png](output_42_0.png)
-----
-
-
-+*Out[27]:*+
-----
-![png](output_44_0.png)
+![png](output_43_0.png)
 ----

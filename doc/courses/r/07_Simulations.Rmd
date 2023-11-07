@@ -34,8 +34,6 @@ library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
 
-flagInternetAvailable=TRUE
-
 ## Global plot option
 plot.setDefaultGeographic(dims=c(8,8))
 ```
@@ -47,17 +45,11 @@ We load two data bases:
 
 ```{r Preamble, message=FALSE}
 ## Data points
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 
 ## Target grid
-fileNF = "Scotland_Elevations.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 ```
 
@@ -251,17 +243,11 @@ Let us build such a model, to illustrate our point. We start by reloading the tw
 
 ```{r Reload_data}
 ## Data points
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 
 ## Target grid
-fileNF = "Scotland_Elevations.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 ```
 

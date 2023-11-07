@@ -30,18 +30,14 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
 ```
 
 The Grid containing the information is downloaded from the distribution
 
 ```{r Loading_Data}
-fileNF = "Image.ascii"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/FKA/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("FKA", "Image.ascii")
 grid = DbGrid_createFromNF(fileNF)
+
 ndim = 2
 defineDefaultSpace(ESpaceType_RN(), ndim)
 ```

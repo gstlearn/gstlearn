@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
 Data Base Characteristics
 =========================
@@ -26,31 +26,31 @@ Column = 5 - Name = sel - Locator = sel
 Column = 6 - Name = connect - Locator = NA----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
-![png](output_12_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_15_0.png)
+![png](output_11_0.png)
 ----
 
 
-+*Out[11]:*+
++*Out[8]:*+
 ----
-![png](output_18_0.png)
-----
-
-
-+*Out[13]:*+
-----
-![png](output_22_0.png)
+![png](output_14_0.png)
 ----
 
 
-+*Out[15]:*+
++*Out[10]:*+
+----
+![png](output_17_0.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_21_0.png)
+----
+
+
++*Out[14]:*+
 ----
 Number of conditioning data = 4
 Their ranks in the input Data Base = [4, 12, 15, 16]
@@ -60,7 +60,7 @@ Acceptation score = True
 ----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 Simulation  SimuPGS.1 is valid
 Simulation  SimuPGS.2 is valid
@@ -75,7 +75,7 @@ Simulation  SimuPGS.19 is valid
 ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
-![png](output_31_0.png)
+![png](output_30_0.png)
 ----

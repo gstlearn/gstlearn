@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 Data Base Characteristics
 =========================
@@ -21,13 +21,13 @@ Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2----
 
 
++*Out[4]:*+
+----
+![png](output_10_0.png)
+----
+
+
 +*Out[5]:*+
-----
-![png](output_11_0.png)
-----
-
-
-+*Out[6]:*+
 ----
 Statistics on the Selection vector
  - Number of samples = 500 / 500
@@ -38,7 +38,7 @@ Statistics on the Selection vector
  ----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
 
 Data Base Characteristics
@@ -71,25 +71,25 @@ Column = 3 - Name = sel - Locator = NA
  ----
 
 
++*Out[7]:*+
+----
+![png](output_14_0.png)
+----
+
+
 +*Out[8]:*+
-----
-![png](output_15_0.png)
-----
-
-
-+*Out[9]:*+
 ----
 Number of selected samples = 100
 ----
 
 
++*Out[10]:*+
+----
+![png](output_19_0.png)
+----
+
+
 +*Out[11]:*+
-----
-![png](output_20_0.png)
-----
-
-
-+*Out[12]:*+
 ----
 Data Base Characteristics
 =========================
@@ -110,7 +110,7 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = sel - Locator = sel----
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
-![png](output_24_0.png)
+![png](output_23_0.png)
 ----

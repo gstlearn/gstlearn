@@ -30,24 +30,15 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
-
 ```
 
 ```{r Preamble, message=FALSE}
 ## Data points
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 
 ## Target grid
-fileNF = "Scotland_Elevations.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Elevations.NF")
 grid = DbGrid_createFromNF(fileNF)
 ```
 

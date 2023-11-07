@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 [cols=",,,,",options="header",]
 |===
@@ -24,7 +24,7 @@
 ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Characteristics
 =========================
@@ -44,13 +44,13 @@ Column = 2 - Name = Elevation - Locator = NA
 Column = 3 - Name = January_temp - Locator = z1----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_11_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -74,7 +74,7 @@ Column = 0 - Name = x1 - Locator = x1
 Column = 1 - Name = x2 - Locator = x2----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 Moving Neighborhood
 ===================
@@ -83,17 +83,17 @@ Maximum number of samples           = 3
 Maximum horizontal distance         = 300----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----array([ 23,  75, 143])----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_22_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
 Moving Neighborhood
 ===================
@@ -102,17 +102,17 @@ Maximum number of samples           = 3
 Maximum horizontal distance         = 30----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----array([143])----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_28_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
 
 Moving Neighborhood
@@ -123,11 +123,11 @@ Maximum horizontal distance         = 300
 This is my Max Radius checker: 30 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----array([143])----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_36_0.png)
+#NO_DIFF#XXX
 ----

@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -27,7 +27,7 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
 Data Base Characteristics
 =========================
@@ -47,7 +47,7 @@ Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = Simu - Locator = z1----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
 Moving Neighborhood
 ===================
@@ -58,7 +58,7 @@ Maximum number of points per sector = 3
 Maximum horizontal distance         = 30----
 
 
-+*Out[8]:*+
++*Out[7]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -85,6 +85,12 @@ Column = 3 - Name = Point_Kriging.Simu.estim - Locator = z1
 Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA----
 
 
++*Out[8]:*+
+----
+![png](output_19_0.png)
+----
+
+
 +*Out[9]:*+
 ----
 ![png](output_20_0.png)
@@ -92,12 +98,6 @@ Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA----
 
 
 +*Out[10]:*+
-----
-![png](output_21_0.png)
-----
-
-
-+*Out[11]:*+
 ----
 
  Target location
@@ -198,7 +198,7 @@ Column = 4 - Name = Point_Kriging.Simu.stdev - Locator = NA----
  ----
 
 
-+*Out[13]:*+
++*Out[12]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -227,6 +227,12 @@ Column = 5 - Name = Block_Kriging.Simu.estim - Locator = z1
 Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
 
 
++*Out[13]:*+
+----
+![png](output_29_0.png)
+----
+
+
 +*Out[14]:*+
 ----
 ![png](output_30_0.png)
@@ -235,7 +241,7 @@ Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
 
 +*Out[15]:*+
 ----
-![png](output_31_0.png)
+![png](output_32_0.png)
 ----
 
 
@@ -246,12 +252,6 @@ Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
 
 
 +*Out[17]:*+
-----
-![png](output_34_0.png)
-----
-
-
-+*Out[18]:*+
 ----
 
  Target location
@@ -352,7 +352,7 @@ Column = 6 - Name = Block_Kriging.Simu.stdev - Locator = NA----
  ----
 
 
-+*Out[21]:*+
++*Out[20]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -385,6 +385,12 @@ Column = 9 - Name = Irregular_Kriging.Simu.estim - Locator = z1
 Column = 10 - Name = Irregular_Kriging.Simu.stdev - Locator = NA----
 
 
++*Out[21]:*+
+----
+![png](output_43_0.png)
+----
+
+
 +*Out[22]:*+
 ----
 ![png](output_44_0.png)
@@ -393,7 +399,7 @@ Column = 10 - Name = Irregular_Kriging.Simu.stdev - Locator = NA----
 
 +*Out[23]:*+
 ----
-![png](output_45_0.png)
+![png](output_46_0.png)
 ----
 
 
@@ -404,12 +410,6 @@ Column = 10 - Name = Irregular_Kriging.Simu.stdev - Locator = NA----
 
 
 +*Out[25]:*+
-----
-![png](output_48_0.png)
-----
-
-
-+*Out[26]:*+
 ----
 
  Target location

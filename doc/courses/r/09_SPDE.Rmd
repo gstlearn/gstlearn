@@ -29,8 +29,6 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
 ```
 
 # Getting the Data Bases from the repository.
@@ -38,10 +36,7 @@ flagInternetAvailable=TRUE
 The input Data Base (called **temperatures**) contains the target variable (**January_temp**). Note that this data base also contains the elevation variable (called **Elevation**) which is assigned the locator **f** (for external drift). We finally add a selection (called **sel**) which only consider the samples where the temperature is actually calculated.
 
 ```{r Loading_Data}
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 temperatures = Db_createFromNF(fileNF)
 
 temperatures$setLocator("Elevation", ELoc_F())
@@ -52,10 +47,7 @@ temperatures$display()
 The output file is a grid (called grid). It contains an active selection (inshore) as well as the elevation over the field (called Elevation). Note that this variable is assigned the locator f (external drift).
 
 ```{r Loading_Grid}
-fileNF = "Scotland_Elevations.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Elevations.NF")
 grid = DbGrid_createFromNF(fileNF)
 grid$display()
 ```

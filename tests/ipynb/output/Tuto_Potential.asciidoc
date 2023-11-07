@@ -2,13 +2,13 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[10]:*+
++*Out[9]:*+
 ----
-![png](output_24_0.png)
+![png](output_23_0.png)
 ----
 
 
-+*Out[16]:*+
++*Out[15]:*+
 ----
 
 Model characteristics
@@ -29,7 +29,7 @@ Total Sill     =      1.000
  ----
 
 
-+*Out[19]:*+
++*Out[18]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -55,13 +55,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = Potential - Locator = z1----
 
 
-+*Out[20]:*+
++*Out[19]:*+
 ----
-![png](output_45_0.png)
+![png](output_44_0.png)
 ----
 
 
-+*Out[26]:*+
++*Out[25]:*+
 ----
 
 Model characteristics
@@ -89,7 +89,7 @@ Drift:x3
  ----
 
 
-+*Out[28]:*+
++*Out[27]:*+
 ----
 
 Data Base Characteristics
@@ -113,7 +113,7 @@ Column = 5 - Name = Potential - Locator = z1
  ----
 
 
-+*Out[29]:*+
++*Out[28]:*+
 ----
 
 

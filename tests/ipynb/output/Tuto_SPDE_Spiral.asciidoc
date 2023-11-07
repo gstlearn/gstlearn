@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 
 Model characteristics
@@ -28,13 +28,13 @@ Functional
  ----
 
 
-+*Out[5]:*+
++*Out[4]:*+
 ----
-![png](output_10_0.png)
+![png](output_9_0.png)
 ----
 
 
-+*Out[7]:*+
++*Out[6]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -63,13 +63,13 @@ Column = 5 - Name = SimuSPDE.3 - Locator = z3
 Column = 6 - Name = SimuSPDE.4 - Locator = z4----
 
 
++*Out[7]:*+
+----
+![png](output_15_0.png)
+----
+
+
 +*Out[8]:*+
-----
-![png](output_16_0.png)
-----
-
-
-+*Out[9]:*+
 ----
 Data Base Characteristics
 =========================
@@ -89,13 +89,13 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = data - Locator = z1----
 
 
++*Out[9]:*+
+----
+![png](output_18_0.png)
+----
+
+
 +*Out[10]:*+
-----
-![png](output_19_0.png)
-----
-
-
-+*Out[11]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -125,13 +125,13 @@ Column = 6 - Name = SimuSPDE.4 - Locator = NA
 Column = 7 - Name = KrigingSPDE.data.estim - Locator = z1----
 
 
++*Out[11]:*+
+----
+![png](output_22_0.png)
+----
+
+
 +*Out[12]:*+
-----
-![png](output_23_0.png)
-----
-
-
-+*Out[13]:*+
 ----
 Data Base Grid Characteristics
 ==============================
@@ -165,7 +165,7 @@ Column = 10 - Name = CondSimu.data.3 - Locator = z3
 Column = 11 - Name = CondSimu.data.4 - Locator = z4----
 
 
-+*Out[14]:*+
++*Out[13]:*+
 ----
-![png](output_27_0.png)
+![png](output_26_0.png)
 ----

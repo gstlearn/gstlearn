@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 
 Option for constructing the covariance spectrum
@@ -21,7 +21,7 @@ Spectrum Tolerance        = 1e-05
  ----
 
 
-+*Out[6]:*+
++*Out[5]:*+
 ----
 
 

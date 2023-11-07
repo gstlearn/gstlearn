@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----
 
 Data Base Characteristics
@@ -41,19 +41,19 @@ Column = 4 - Name = Pb - Locator = z1
  ----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
-![png](output_9_0.png)
+![png](output_8_0.png)
+----
+
+
++*Out[5]:*+
+----
+![png](output_11_0.png)
 ----
 
 
 +*Out[6]:*+
-----
-![png](output_12_0.png)
-----
-
-
-+*Out[7]:*+
 ----
 
 Data Base Characteristics
@@ -94,25 +94,25 @@ Column = 5 - Name = NewSel - Locator = sel
  ----
 
 
-+*Out[8]:*+
++*Out[7]:*+
 ----
-![png](output_15_0.png)
+![png](output_14_0.png)
 ----
 
 
-+*Out[11]:*+
++*Out[10]:*+
 ----
-![png](output_21_0.png)
+![png](output_20_0.png)
+----
+
+
++*Out[12]:*+
+----
+![png](output_24_0.png)
 ----
 
 
 +*Out[13]:*+
-----
-![png](output_25_0.png)
-----
-
-
-+*Out[14]:*+
 ----
 
 Model characteristics
@@ -140,7 +140,7 @@ Universality_Condition
  ----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
 
 Hermitian Anamorphosis
@@ -166,13 +166,13 @@ Normalized coefficients for Hermite polynomials (punctual variable)
  ----
 
 
++*Out[15]:*+
+----
+![png](output_29_0.png)
+----
+
+
 +*Out[16]:*+
-----
-![png](output_30_0.png)
-----
-
-
-+*Out[17]:*+
 ----
 
 Data Base Characteristics
@@ -222,19 +222,19 @@ Column = 6 - Name = Y.Pb - Locator = z1
  ----
 
 
-+*Out[18]:*+
++*Out[17]:*+
 ----
-![png](output_34_0.png)
+![png](output_33_0.png)
+----
+
+
++*Out[19]:*+
+----
+![png](output_38_0.png)
 ----
 
 
 +*Out[20]:*+
-----
-![png](output_39_0.png)
-----
-
-
-+*Out[21]:*+
 ----
 
 Data Base Characteristics
@@ -293,7 +293,7 @@ Column = 7 - Name = Z.Y.Pb - Locator = z1
  ----
 
 
-+*Out[22]:*+
++*Out[21]:*+
 ----
-![png](output_44_0.png)
+![png](output_43_0.png)
 ----

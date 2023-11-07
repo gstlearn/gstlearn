@@ -2,7 +2,7 @@
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++*Out[3]:*+
 ----
 
 Data Base Characteristics
@@ -26,13 +26,13 @@ Column = 4 - Name = NewSel - Locator = sel
  ----
 
 
++*Out[4]:*+
+----
+![png](output_8_0.png)
+----
+
+
 +*Out[5]:*+
-----
-![png](output_9_0.png)
-----
-
-
-+*Out[6]:*+
 ----
 
 Data Base Grid Characteristics
@@ -61,31 +61,31 @@ Column = 3 - Name = Hull - Locator = sel
  ----
 
 
++*Out[6]:*+
+----
+![png](output_12_0.png)
+----
+
+
 +*Out[7]:*+
 ----
-![png](output_13_0.png)
+![png](output_14_0.png)
 ----
 
 
 +*Out[8]:*+
 ----
-![png](output_15_0.png)
+![png](output_17_0.png)
 ----
 
 
-+*Out[9]:*+
++*Out[12]:*+
 ----
-![png](output_18_0.png)
-----
-
-
-+*Out[13]:*+
-----
-![png](output_26_0.png)
+![png](output_25_0.png)
 ----
 
 
-+*Out[15]:*+
++*Out[14]:*+
 ----
-![png](output_30_0.png)
+![png](output_29_0.png)
 ----

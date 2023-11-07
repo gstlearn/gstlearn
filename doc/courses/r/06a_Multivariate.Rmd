@@ -33,8 +33,6 @@ library(gstlearn)
 library(ggplot2)
 library(ggpubr)
 library(ggnewscale)
-
-flagInternetAvailable=TRUE
 ```
 
 ```{r Global_plot_option}
@@ -48,19 +46,13 @@ We load two data bases:
 
 ```{r Loading_data, message=FALSE,results=FALSE}
 ## Data points
-fileNF = "Scotland_Temperatures.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Temperatures.NF")
 dat = Db_createFromNF(fileNF)
 ### Rename the temperature variable
 dat$setName("*temp", "Temperature")
 
 ## Target grid
-fileNF = "Scotland_Elevations.NF"
-if(flagInternetAvailable){
-  download.file(paste0("https://soft.minesparis.psl.eu/gstlearn/data/Scotland/",fileNF), fileNF, quiet=TRUE)
-}
+fileNF = loadData("Scotland", "Scotland_Elevations.NF")
 target = DbGrid_createFromNF(fileNF)
 ```
 ### Exploratory data analysis

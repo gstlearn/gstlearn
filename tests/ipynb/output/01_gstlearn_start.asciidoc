@@ -17,26 +17,20 @@
 #NO_DIFF#XXX
 #NO_DIFF#XXX
 #NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
-#NO_DIFF#XXX
 ----
 
 
-+*Out[3]:*+
++*Out[2]:*+
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[5]:*+
+----
+![png](output_15_0.png)
+----
+
+
 +*Out[6]:*+
-----
-![png](output_17_0.png)
-----
-
-
-+*Out[7]:*+
 ----
 
 Data Base Grid Characteristics

@@ -2,13 +2,13 @@
 ----<IPython.core.display.Javascript object>----
 
 
++*Out[5]:*+
+----
+
+----
+
+
 +*Out[6]:*+
-----
-
-----
-
-
-+*Out[7]:*+
 ----
 
 ----
