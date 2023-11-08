@@ -6,11 +6,11 @@ Release 0.4.2
 =============
 - Remove geopandas python package dependency (issue #68) - No more gstlearn.proj module!!
 - Fix Mac OS compilation
-- Fix python readme
+- Fix python and R readme
 - Create Polygons from WKT files (QGIS export)
 - New world.poly data file built from from NaturalEarth.com data
 - Fix default R plots options usage
-- Update credits in Readmes
+- Update credits in readmes
 - Fix global estimation result access
 - Factorization of courses content in MD files
 - Fix filtering in kriging feature
@@ -18,6 +18,7 @@ Release 0.4.2
 - Improve experimental variogram calculation efficiency
 - Fix initGeographic when using figsize in Python (locdims was not defined) 
 - Make db_duplicate and db_tool_duplicate available thru swig
+- Add loadData, loadDoc and setNoScroll functions in R and Python
 
 
 Release 0.4.1
