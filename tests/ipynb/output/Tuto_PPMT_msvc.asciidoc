@@ -1,44 +1,44 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_9_0.png)
-----
-
-
-+*Out[7]:*+
-----
-![png](output_10_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_11_0.png)
-----
-
-
-+*Out[9]:*+
-----
-![png](output_12_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_13_0.png)
-----
-
-
-+*Out[12]:*+
-----
-![png](output_16_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----      Minimum    Maximum       Mean   St. Dev.
 Z1      0.382      2.456      1.000      0.254
 Z2      0.069      2.833      0.500      0.266
@@ -46,37 +46,37 @@ Y1     -3.719      3.719      0.000      0.999
 Y2     -3.719      3.719      0.000      0.999----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_18_0.png)
-----
-
-
-+*Out[15]:*+
-----
-![png](output_19_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_20_0.png)
-----
-
-
-+*Out[17]:*+
-----
-![png](output_21_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[19]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_24_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[21]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----      Minimum    Maximum       Mean   St. Dev.
 Z1      0.440      2.178      0.996      0.256
 Z2      0.069      2.180      0.498      0.268
@@ -84,97 +84,97 @@ Y1     -2.879      2.879      0.000      0.989
 Y2     -2.879      2.879      0.000      0.989----
 
 
-+*Out[22]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_28_0.png)
-----
-
-
-+*Out[23]:*+
-----
-![png](output_29_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_30_0.png)
-----
-
-
-+*Out[25]:*+
-----
-![png](output_31_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[26]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_32_0.png)
-----
-
-
-+*Out[27]:*+
-----
-![png](output_33_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[28]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----      Minimum    Maximum       Mean   St. Dev.
 Y1     -2.879      2.879      0.000      0.989
 Y2     -2.879      2.879      0.000      0.989----
 
 
-+*Out[30]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_39_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[31]:*+
++#NO_DIFF#XXX+
 ----        Minimum    Maximum       Mean   St. Dev.
 U.Y1     -3.086      3.183      0.000      0.999
 U.Y2     -3.094      3.145      0.001      0.995----
 
 
-+*Out[32]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_43_0.png)
-----
-
-
-+*Out[33]:*+
-----
-![png](output_44_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[34]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_45_0.png)
-----
-
-
-+*Out[35]:*+
-----
-![png](output_46_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[36]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_47_0.png)
-----
-
-
-+*Out[38]:*+
-----
-![png](output_49_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[39]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_50_0.png)
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

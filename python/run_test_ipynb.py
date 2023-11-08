@@ -35,7 +35,6 @@ ep.preprocess(nb)
 if (out_type == "asciidoc"):
     exporter = ASCIIDocExporter()
     exporter.exclude_input = True
-    exporter.exclude_input_prompt = True
     exporter.exclude_markdown = True
     exporter.exclude_raw = True
     exporter.exclude_unknown = True

@@ -1,14 +1,14 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 
 ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics
@@ -36,19 +36,19 @@ Column = 3 - Name = Cloud.January_temp - Locator = NA
  ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_12_0.png)
-----
-
-
-+*Out[7]:*+
-----
-
+#NO_DIFF#XXX
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
+----
+
+----
+
+
++#NO_DIFF#XXX+
 ----
 Variogram characteristics
 =========================
@@ -110,25 +110,25 @@ For variable 1
         39     7.000   389.619     0.731----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_19_0.png)
-----
-
-
-+*Out[11]:*+
-----
-![png](output_21_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[13]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_25_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[14]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -146,7 +146,7 @@ Spherical
 Total Sill     =      1.123----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
 ----
   -2 -     UNKNOWN : Unknown covariance
    -1 -    FUNCTION : External covariance function
@@ -181,13 +181,13 @@ Total Sill     =      1.123----
  ----
 
 
-+*Out[17]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_33_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[18]:*+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -208,13 +208,13 @@ Spherical
 Total Sill     =      1.275----
 
 
-+*Out[20]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_39_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[21]:*+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -237,13 +237,13 @@ Spherical
 Total Sill     =      1.104----
 
 
-+*Out[23]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_44_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[24]:*+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -266,37 +266,37 @@ Spherical
 Total Sill     =      1.395----
 
 
-+*Out[25]:*+
++#NO_DIFF#XXX+
 ----
 
 ----
 
 
-+*Out[27]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_50_0.png)
-----
-
-
-+*Out[29]:*+
-----
-![png](output_53_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[30]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 ----
 
 
-+*Out[32]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_57_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[33]:*+
++#NO_DIFF#XXX+
 ----
 Model characteristics
 =====================
@@ -321,13 +321,13 @@ Cubic
 Total Sill     =      1.200----
 
 
-+*Out[35]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_62_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[36]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_64_0.png)
+#NO_DIFF#XXX
 ----

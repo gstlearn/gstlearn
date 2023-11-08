@@ -92,9 +92,9 @@ foreach(TARGET_EXE ${TARGETS_EXE})
       # Use git diff (cross-platform) with:
       # - no-index (no need to have files under git control)
       # - ignore lines starting with #NO_DIFF#
-      # - ignore whitespaces (-w)
+      # - ignore whitespaces (-w) and blanck lines (-b) TODO : doesn't work ?
       add_test(NAME ${TARGET_EXE}_cmp
-               COMMAND git diff --no-index -I "#NO_DIFF#" -w ${REF_FILE} ${TEST_DST_DIR}/${TARGET_EXE}.out)
+               COMMAND git diff --no-index -I "#NO_DIFF#" -b -w ${REF_FILE} ${TEST_DST_DIR}/${TARGET_EXE}.out)
     endif()
 endforeach(TARGET_EXE ${TARGETS_EXE})
 

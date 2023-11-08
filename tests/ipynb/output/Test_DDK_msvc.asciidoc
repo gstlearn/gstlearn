@@ -1,12 +1,12 @@
-+*Out[2]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_5_0.png)
+#NO_DIFF#XXX
 
-![png](output_5_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[3]:*+
++#NO_DIFF#XXX+
 ----
 
        Coupures sur la variable Z       
@@ -20,13 +20,13 @@ Bound( 4 ) : [ 1.19359 ; 1.71944 [
  ----
 
 
-+*Out[4]:*+
++#NO_DIFF#XXX+
 ----
 Proportions =  [0.3 0.2 0.2 0.2 0.1]
 ----
 
 
-+*Out[5]:*+
++#NO_DIFF#XXX+
 ----
 
 Data Base Characteristics
@@ -53,11 +53,11 @@ Column = 8 - Name = Indicator.Z.Class.4 - Locator = NA
 Column = 9 - Name = Indicator.Z.Mean - Locator = z1
 
 
-![png](output_10_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 
 Model characteristics
@@ -80,11 +80,11 @@ Exponential
 - Theo. Range  =      0.141
 Total Sill     =      0.294
  
-![png](output_12_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
 
 Model characteristics
@@ -107,17 +107,17 @@ Exponential
 - Theo. Range  =      0.275
 Total Sill     =      0.138
  
-![png](output_14_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_16_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
 
 PCA Contents
@@ -157,7 +157,7 @@ Z = m + Y * MF2Z
  ----
 
 
-+*Out[10]:*+
++#NO_DIFF#XXX+
 ----array([ 1.        ,  1.        ,  1.        ,  1.        ,  1.        ,
        -2.47886579, -1.14675353,  0.74915825,  2.16363747,  3.90451299,
         1.69530309, -0.53389969, -3.60915195, -1.12050033,  5.44119466,
@@ -165,7 +165,7 @@ Z = m + Y * MF2Z
        -0.76959185,  2.44777053, -3.38247266,  3.26014991, -2.34212001])----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
 ----
 Correlation between factors MAF
 [[ 1.00000000e+00  0.00000000e+00  0.00000000e+00 -0.00000000e+00
@@ -179,32 +179,32 @@ Correlation between factors MAF
  [-0.00000000e+00  3.87818000e-04 -2.16201555e-01 -2.88649327e-02
    6.33848997e+00]]
 
-![png](output_21_1.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[12]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_23_0.png)
-----
-
-
-+*Out[13]:*+
-----
-![png](output_25_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[15]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 The number of factors is less than the number of variables. The other factors will be neglected.
 The number of factors is less than the number of variables. The other factors will be neglected.
 ----
 
 
-+*Out[16]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_30_0.png)
+#NO_DIFF#XXX
 
-![png](output_30_1.png)
+#NO_DIFF#XXX
 ----

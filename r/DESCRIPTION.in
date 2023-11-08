@@ -10,6 +10,7 @@ Suggests:
     ggpubr,
     ggrepel,
     ggnewscale,
+    lares,
     FNN
 Description: @PROJECT_DESCRIPTION@
 Encoding: UTF-8

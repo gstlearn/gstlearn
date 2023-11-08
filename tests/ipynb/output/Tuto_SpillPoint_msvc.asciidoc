@@ -1,8 +1,8 @@
-+*Out[1]:*+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>----
 
 
-+*Out[6]:*+
++#NO_DIFF#XXX+
 ----
 Data INSIDE Reservoir
 - Coordinates = [1.7 0.8] - Indices = [34 16]
@@ -12,13 +12,13 @@ Data OUTSIDE Reservoir
 ----
 
 
-+*Out[7]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_15_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[8]:*+
++#NO_DIFF#XXX+
 ----
 
  Spill Point environment
@@ -27902,19 +27902,19 @@ End of Step 5 === After Final Conversion
  ----
 
 
-+*Out[9]:*+
++#NO_DIFF#XXX+
 ----
-![png](output_18_0.png)
-----
-
-
-+*Out[10]:*+
-----
-![png](output_19_0.png)
+#NO_DIFF#XXX
 ----
 
 
-+*Out[11]:*+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
 ----
 
 Data Base Grid Characteristics

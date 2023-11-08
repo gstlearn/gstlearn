@@ -19,11 +19,22 @@ import requests
 from os.path import join
 from IPython.display import display, Javascript
 
-url = 'https://soft.minesparis.psl.eu/gstlearn/'
+# The various pieces of documentation are supposed to be located
+# at the following URL
+urlMP = 'https://soft.minesparis.psl.eu/gstlearn'
 
 def isInternetAvailable(timeout=1):
+    '''
+    Check if Internet is available
+    
+    This function requires the package 'requests' to be installed
+    
+    Returns:
+    --------
+    bool: True if Internet is available and False otherwise
+    '''
     try:
-        requests.head(url, timeout=timeout)
+        requests.head(urlMP, timeout=timeout)
         return True
     except requests.ConnectionError:
         return False
@@ -56,7 +67,7 @@ def loadDoc(filename):
     '''
     
     if isInternetAvailable():
-        pathname = join(url, 'references', filename)
+        pathname = urlMP + '/references/' + filename
         filepath, head = urllib.request.urlretrieve(pathname)
     else:
         filepath = join('.', filename)
@@ -73,8 +84,8 @@ def loadData(directory, filename):
     '''
     
     if isInternetAvailable():
-        pathname = join(url, 'data', directory, filename)
+        pathname = urlMP + '/data/' + directory + '/' + filename
         filepath, head = urllib.request.urlretrieve(pathname)
     else:
-        filepath = './' + directory + '/' + filename
+        filepath = join('.', directory, filename)
     return filepath

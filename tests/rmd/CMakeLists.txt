@@ -59,10 +59,18 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_rmd
              COMMAND ${R_EXECUTABLE} CMD BATCH --no-save --no-restore "--args ${TEST_SOURCE_FILE} ${TEST_DST_DIR}" ${RUN_TEST_SCRIPT} ${TEST_DST_DIR}/${TEST_NAME}.Rout)
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+    set(REF_FILE ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out)
+    # Use maybe a specific output log for MinGW
+    if (MINGW)
+      set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}_msys.out)
+      if(EXISTS ${REF_FILE_MSYS})
+        set(REF_FILE ${REF_FILE_MSYS})
+      endif()
+    endif()
     # Use git diff (cross-platform) with:
     # - no-index (no need to have files under git control)
     # - ignore lines starting with #NO_DIFF#
-    # - ignore whitespaces (-w)
+    # - ignore whitespaces (-w) and blanck lines (-b) TODO : doesn't work ?
     add_test(NAME ${TEST_NAME}_rmd_cmp
-             COMMAND git diff --no-index -I "#NO_DIFF#" -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.out ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND git diff --no-index -I "#NO_DIFF#" -b -w ${REF_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})

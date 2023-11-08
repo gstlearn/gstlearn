@@ -5,6 +5,12 @@
 +#NO_DIFF#XXX+
 ----
 
+----
+
+
++#NO_DIFF#XXX+
+----
+
 
 [[XXX]]
 ----
@@ -12,32 +18,35 @@
 
 +#NO_DIFF#XXX+
 ----
-[[XXX]]
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----
 
 
 +#NO_DIFF#XXX+
 ----
 
-Polygons
---------
-Number of Polygon Sets = 288
- ----
-
-
-+#NO_DIFF#XXX+
-----
-[[XXX]]
 ----
 
 
 +#NO_DIFF#XXX+
 ----
-[[XXX]]
+#NO_DIFF#XXX
 ----
 
 
 +#NO_DIFF#XXX+
 ----
-[[XXX]]
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
 ----

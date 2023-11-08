@@ -81,8 +81,9 @@ For building the *gstlearn* R package, the requirements for building *gstlearn C
 * SWIG 4.2.0 **customized by Fabien Ors** (not the official version!)
 * R 4.2 or higher
 * RTools 4.2 or higher (for Windows users only)
-* *ggplot2* and *ggpubr* R packages [Optional] (only for plotting)
-* *FNN*, *Matrix*, *knitr* and *callr* R packages [Optional] (only for testing R Markdown scripts)
+* *devtools* R package (for generating R documentation)
+* *ggplot2*, *ggpubr*, *ggnewscale* R packages [Optional] (only for plotting)
+* *FNN*, *lares*, *Matrix*, *knitr* and *callr* R packages [Optional] (only for testing R Markdown scripts)
 
 If you modified your system (or if you installed a new version or RTools), you must reinstall the requirements from scratch following next instructions. You must delete 'gstlearn' and 'swig' existing source folders (if so).
 
@@ -128,10 +129,12 @@ make
 sudo make install
 ````
 
-6. Finally, install the R optional packages from an R command prompt:
+6. Finally, install the R packages from an R command prompt (only devtools is mandatory):
 
 ````
-install.packages(c("ggplot2", "ggpubr", "knitr", "callr"), repos="https://cloud.r-project.org")
+install.packages(c("devtools"),                                 repos="https://cloud.r-project.org")
+install.packages(c("ggplot2", "ggpubr", "ggnewscale"),          repos="https://cloud.r-project.org")
+install.packages(c("FNN", "lares", "Matrix", "knitr", "callr"), repos="https://cloud.r-project.org")
 ````
 
 #### MacOS
@@ -171,10 +174,12 @@ make
 sudo make install
 ````
 
-6. Finally, install the R optional packages from an R command prompt:
+6. Finally, install the R optional packages from an R command prompt (only devtools is mandatory):
 
 ````
-install.packages(c("ggplot2", "ggpubr", "knitr", "callr"), repos="https://cloud.r-project.org")
+install.packages(c("devtools"),                                 repos="https://cloud.r-project.org")
+install.packages(c("ggplot2", "ggpubr", "ggnewscale"),          repos="https://cloud.r-project.org")
+install.packages(c("FNN", "lares", "Matrix", "knitr", "callr"), repos="https://cloud.r-project.org")
 ````
 
 Note :
@@ -217,10 +222,12 @@ make
 make install
 ````
 
-6. Finally, install the R optional packages from an R command prompt:
+6. Finally, install the R optional packages from an R command prompt (only devtools is mandatory):
 
 ````
-install.packages(c("ggplot2", "ggpubr", "knitr", "callr"), repos="https://cloud.r-project.org")
+install.packages(c("devtools"),                                 repos="https://cloud.r-project.org")
+install.packages(c("ggplot2", "ggpubr", "ggnewscale"),          repos="https://cloud.r-project.org")
+install.packages(c("FNN", "lares", "Matrix", "knitr", "callr"), repos="https://cloud.r-project.org")
 ````
 
 ### Installation from Source
