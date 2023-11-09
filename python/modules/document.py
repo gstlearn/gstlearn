@@ -23,6 +23,12 @@ from IPython.display import display, Javascript
 # at the following URL
 urlMP = 'https://soft.minesparis.psl.eu/gstlearn'
 
+# Next lines are used to decorate the MD files for rendering documentation
+header = [
+  "<style>p { color:gray; background-color:white; }</style>",
+  "<p>\n"]
+trailer = ["</p>"]
+
 def isInternetAvailable(timeout=1):
     '''
     Check if Internet is available
@@ -60,6 +66,7 @@ def setNoScroll():
 def loadDoc(filename):
     '''
     This function displays the contents of the Markdown file named 'filename' (from the web site)
+    The result is decorated so as to appear as a NOTE in HTML
     
     Arguments
     ---------
@@ -71,7 +78,16 @@ def loadDoc(filename):
         filepath, head = urllib.request.urlretrieve(pathname)
     else:
         filepath = join('.', filename)
-    return filepath
+        
+    multilines = open(filepath, 'r').read()
+    lines = multilines.split('\n')
+    for i in range(len(lines)):
+        lines[i] = ">" + lines[i]
+        tata = "\n"
+    new_multilines = tata.join([i for i in lines[0:]])
+
+    decorated_multilines = ''.join(header) + new_multilines + ''.join(trailer)
+    return decorated_multilines
     
 def loadData(directory, filename):
     '''
