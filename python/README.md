@@ -40,6 +40,7 @@ pip install gstlearn
 
 ## Usage
 
+We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/python/01_gstlearn_start.html) for an introduction and important information about Python gstlearn.</br>
 Simply import the *gstlearn* Python package and its plot module, then enjoy:
 
 ```

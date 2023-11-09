@@ -102,7 +102,7 @@ db$display()
 
 For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the description of some new concepts introduced in *gstlearn*. We are currently working hard to improve the user experience. Some of the following differences are drawbacks that will be fixed in a close future.
 
-* The objects manipulated through *gstlearn* R package (Database, Variograms, Polygons, etc...) are now **external pointers*.
+* The objects manipulated through *gstlearn* R package (Database, Variograms, Polygons, etc...) are now **external pointers**.
 
 * If you need to duplicate your objects, a simple assignment (e.g. `db2 = db1`) is not possible. You must use the `clone` method by doing this: `db2 = db1$clone()`. All classes that inherits from `iCloneable` have this capability.
 
@@ -112,12 +112,12 @@ For people who were using [RGeostats](http://cg.ensmp.fr/rgeostats), here is the
 
 ```{r , eval=FALSE}
 # Create a Neutral File storing mygrid content
-db$dumpToNF("toto.backup") # This could produce an error - see below
+db$dumpToNF("mygrid.backup.nf") # This could produce an error - see below
 #...
 # Restart the R session
 #...
 # Load the Neutral File and recreate mygrid
-db = DbGrid_createFromNF("mygrid.backup")
+db = DbGrid_createFromNF("mygrid.backup.nf")
 ```
 
 ### Known caveats
@@ -128,12 +128,12 @@ base::message("Erreur dans validObject(.Object) :
   objet de classe “MethodWithNext” incorrect: Error : C stack usage  7972404 is too close to the limit")
 ```
 
-... there are two possible reasons:
-* You made a mistake in the method name
-* R cannot find the method because it is defined in an inherited class (for example `dumpToNF` is a method from `ASerializable` and currently `mygrid$dumpToNF` produces this error. In that case, you still can use the generic function behind the method by calling:
+... there are **two possible reasons**:
+* You made a mistake in the method name (check [gstlearn API](https://gstlearn.org//?page_id=91))
+* R cannot find the method because it is defined in an inherited class (for example, `dumpToNF` is a method from `ASerializable` and currently `mygrid$dumpToNF` produces this error. In that case, you still can use the generic function behind the method by calling:
 
 ```{r , eval=FALSE}
-ASerializable_dumpToNF(db, "mygrid.backup")
+ASerializable_dumpToNF(db, "mygrid.backup.nf")
 ```
 
 

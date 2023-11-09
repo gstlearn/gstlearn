@@ -45,7 +45,8 @@ options(timeout=1000)
 
 ## Usage
 
-We refer the reader to this [course page](../doc/courses/r/01_gstlearn_start.Rmd) for an introduction and important information about R gstlearn.
+We refer the reader to this [course page](https://soft.mines-paristech.fr/gstlearn/courses-latest/r/01_gstlearn_start.html) for an introduction and important information about R gstlearn.</br>
+Simply load the *gstlearn* and ggplot2 R package, then enjoy:
 
 ```
 # Load gstlearn package

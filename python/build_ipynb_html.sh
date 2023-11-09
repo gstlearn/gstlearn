@@ -3,7 +3,7 @@
 in_dir=$1
 out_dir=$2
 runner=$3
-echo "Processing $in_dir to $out_dir"
+echo "Processing $in_dir to $out_dir using $runner"
 
 if [ -d $out_dir ]
 then
@@ -17,18 +17,18 @@ then
     read -p "Do you want to continue (Y/N) ?" yn
 
     case $yn in 
-	y ) break;;
-	Y ) break;;
-	n ) exit;;
-	N ) exit;;
-	* ) ;;
+        y ) break;;
+        Y ) break;;
+        n ) exit;;
+        N ) exit;;
+        * ) ;;
     esac
   done
 fi
 
 if [ ! -d $in_dir/python ]
 then
-  echo "$in_dir/r doesn't exist. Abort!"
+  echo "$in_dir/python doesn't exist. Abort!"
   exit
 fi
 
