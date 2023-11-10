@@ -12,7 +12,7 @@ on:
     branches: [ main ]
   # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
   schedule:
-    # * is a special character in YAML so you have to quote this string
+    # * is a special character in YAML so you have to quote the string
     - cron:  '30 23 * * *'
   # Permit manual trigger
   workflow_dispatch:
