@@ -11,11 +11,11 @@ The random variables are described using probabilities.
 
 ## A. Discrete variables 
 
-## I. Probability mass function
+## A.1. Probability mass function
 
-To indtroduce the probability mass function, we will give some examples: 
+To introduce the probability mass function, we will give some examples: 
 
-### 1) Head or tail
+### A.1.1) Head or tail
 
 We launch a coin. The result (still unknown) will be equal to
 
@@ -40,7 +40,7 @@ If $p=P(Z=1)$, then $P(Z=0) = 1-p$.
 
 When $H$ only contains 2 values (0 or 1), the variable is binary and its distribution is named Bernouilli with parameter $p=P(Z=1)$.
 
-### 2) Outputs of a dice
+### A.1.2) Outputs of a dice
 
 $H=\{1,2,3,4,5,6\}$
 
@@ -48,7 +48,7 @@ The variable is characterized by the definition of $p_i=P(Z=i)$ for $i=1,\dots,6
 
 We have $p_1+p_2+p_3+p_4+p_5+p_6=1$.
 
-### 3) General case of discrete variable
+### A.1.3) General case of discrete variable
 
 $Z$ is a random variable with values in a countable space $H$. 
 
@@ -57,13 +57,13 @@ $Z$ is characterized by its probability mass function, $p(i)=p_i=P(Z=i)$ for all
 
 ![Description](Figures/pmf.png)
 
-### 4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$
+### A.1.4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$
 
 For all $i=1,\dots,n$, $$p_i=\frac{1}{n}$$
 
 ![Description](Figures/uniformdiscretpmf.png)
 
-### 5) Binomial distribution of parameters $(n,p)$
+### A.1.5) Binomial distribution of parameters $(n,p)$
 
 It models the sum of $n$ independent Bernouilli variables with parameters $p$.
 
@@ -73,7 +73,7 @@ $$p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}$$
 
 ![Description](Figures/binomialpmf.png)
 
-## II. Cumulative distribution 
+## A.2. Cumulative distribution 
 
 Instead of working with the probability mass function, we can use the cumulative distribution function $F$ defined by $$F(i) = P(Z\leq i)$$
 
@@ -84,11 +84,11 @@ We can deduce $F$ from the probability mass function $p$  $$F(i) = \sum_{j=1}^i 
 
 And we can also deduce $p$ from $F$: $$p(i) = P(Z=i) = P(Z\leq i) - P(Z\leq i-1) = F(i)-F(i-1)$$
 
-## III. Property:
+## A.3. Property:
 
 $$P(a<Z \leq b) = F(b)-F(a)$$
 
-## IV. Expectation:
+## A.4. Expectation:
 
 The expectation of a random variable with probability mass function $p$ is given by 
 
@@ -102,11 +102,11 @@ If $Z$ is a Bernouilli variable with parameter $p$, $$E[Z]= 0 \times (1-p) + 1 \
 
 **Expectation of a function** $$E(q(Z))=\sum_{i\in H} q(i) \times P(Z=i)$$
 
-## V. Variance
+## A.5. Variance
 
 $$\textrm{Var(Z)} = E[(Z-E[Z])^2]$$
 
-## VI. Random vectors
+## A.6. Random vectors
 
 If $Z_1$ is a random variable on a countable space $H_1$ and $Z_2$ is another random variable on a countable space $H_2$, if we want to fully describe the pair $(Z_1,Z_2)$, we must define the probabilities of all events $\{Z_1=i, Z_2=j\}$ for all $i\in H_1$ and all $j\in H_2$. We will note $$p_{ij}=P(Z_1=i,Z_2=j).$$
 
