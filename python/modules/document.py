@@ -21,13 +21,13 @@ from IPython.display import display, Javascript
 
 # The various pieces of documentation are supposed to be located
 # at the following URL
-urlMP = 'https://soft.minesparis.psl.eu/gstlearn'
+urlGST = 'https://soft.minesparis.psl.eu/gstlearn'
 
 # Next lines are used to decorate the MD files for rendering documentation
 header = [
-  "<style>p { color:gray; background-color:white; }</style>",
-  "<p>\n"]
-trailer = ["</p>"]
+  "<style>md-block { color:gray; background-color:white; }</style>",
+  "<md-block>\n"]
+trailer = ["</md-block>"]
 
 def isInternetAvailable(timeout=1):
     '''
@@ -40,7 +40,7 @@ def isInternetAvailable(timeout=1):
     bool: True if Internet is available and False otherwise
     '''
     try:
-        requests.head(urlMP, timeout=timeout)
+        requests.head(urlGST, timeout=timeout)
         return True
     except requests.ConnectionError:
         return False
@@ -62,8 +62,24 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 """
 def setNoScroll():
     display(Javascript(disable_js))
+
+def loadFigure(filename):
+    '''
+    This function displays the contents of the figure file named 'filename' (from the web site)
     
-def loadDoc(filename):
+    Arguments
+    ---------
+    filename: Name of the figure of interest
+    '''
+    if isInternetAvailable():
+        pathname = urlGST + '/references' + '/Figures/' + filename
+        filepath, head = urllib.request.urlretrieve(pathname)
+    else:
+        filepath = join('.', filename)
+        
+    return filepath
+    
+def loadDoc(filename, useURL=True):
     '''
     This function displays the contents of the Markdown file named 'filename' (from the web site)
     The result is decorated so as to appear as a NOTE in HTML
@@ -71,23 +87,43 @@ def loadDoc(filename):
     Arguments
     ---------
     filename: Name of the file of interest
+    useURL: TRUE if the file must be found from the WEB; FALSE otherwise
     '''
     
-    if isInternetAvailable():
-        pathname = urlMP + '/references/' + filename
+    if isInternetAvailable() and useURL:
+        pathname = urlGST + '/references/' + filename
         filepath, head = urllib.request.urlretrieve(pathname)
     else:
         filepath = join('.', filename)
         
     multilines = open(filepath, 'r').read()
     lines = multilines.split('\n')
+
+    searchItem = "(Figure"
     for i in range(len(lines)):
-        lines[i] = ">" + lines[i]
-        tata = "\n"
+        targetLine = lines[i]
+    
+        # Look for the graphic dependency
+        if searchItem in targetLine:
+
+            begin = targetLine.index(searchItem) + 1
+            start = begin + len(searchItem) + 1
+            end   = targetLine.index(")")
+        
+            # Extract the name of the Graphic File
+            graphicFile = targetLine[start:end]
+            pathname = urlGST + '/references' + '/Figures/' + graphicFile
+        
+            # Reconstruct the new line
+            targetLine = "<img src='" + pathname + "' />"
+        
+        lines[i] = targetLine
+    
+    tata = "\n"
     new_multilines = tata.join([i for i in lines[0:]])
 
-    decorated_multilines = ''.join(header) + new_multilines + ''.join(trailer)
-    return decorated_multilines
+    result = ''.join(header) + new_multilines + ''.join(trailer)
+    return result
     
 def loadData(directory, filename):
     '''
@@ -100,7 +136,7 @@ def loadData(directory, filename):
     '''
     
     if isInternetAvailable():
-        pathname = urlMP + '/data/' + directory + '/' + filename
+        pathname = urlGST + '/data/' + directory + '/' + filename
         filepath, head = urllib.request.urlretrieve(pathname)
     else:
         filepath = join('.', directory, filename)

@@ -6,4 +6,4 @@ $$\lbrace z_i = z(x_i) : i = 1, ..., n\rbrace.$$
 The variogram cloud is the set of pair of points defined as
 $$ \big\lbrace \big( \Vert x_i - x_j\Vert,  \big\vert z(x_i)-z(x_j)\big\vert^2 \big) \quad\text{where}\quad 1\le i\le j\le n \big\rbrace $$
 
-In **gstlearn**, variogram clouds are computed as grids. We compute the variogram cloud of the dataset.
+In **gstlearn**, variogram clouds are computed as grids.

@@ -21,7 +21,7 @@ Release 1.0.0
 - Make db_duplicate and db_tool_duplicate available thru swig
 - Add loadData, loadDoc and setNoScroll functions in R and Python
 - Fix inline equations rendering in html from jupyter notebooks
-
+- The ways to render MD documentation files has changed in Python and R (as an indented note)
 
 Release 0.4.1
 =============

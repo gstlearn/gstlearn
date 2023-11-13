@@ -155,7 +155,6 @@ Then, $$F(z) = \int_{-\infty}^z f(t)dt$$
 
 All the variables considered in this course will have a density.
 
-
 ### Examples
 
 1) Gaussian distribution:
@@ -259,8 +258,6 @@ It can be computed by
 
 $$f_{Y|X=x}(y)=\frac{f(x,y)}{f(x)}$$
 
-
-
 It can be interpreted as 
 
 $$P(y\leq Y\leq y+dy| x\leq X \leq x+dx) = f_{Y|X=x}(y)dy$$
@@ -268,8 +265,6 @@ $$P(y\leq Y\leq y+dy| x\leq X \leq x+dx) = f_{Y|X=x}(y)dy$$
 ![f](Figures/conditional.png)
 
 The conditional expectation $$E[Y|X=x]=\int_{H_2}yf_{Y|X=x}(y)dy$$
-
-
 
 is the expectation of $Y$ with the conditional distribution.
 
@@ -285,8 +280,3 @@ We can generalize to a set $X_1,\dots,X_p$ of variables by using multivariate de
 $$f(x_1,\dots,x_p)$$
 
 In geostatistics, we often use the multivariate gaussian distribution.
-
-
-```python
-
-```

@@ -47,7 +47,7 @@ dat = Db_createFromNF(fileNF)
 ### Variogram Cloud
 
 ```{r, echo=FALSE, results='asis'}
-displayMarkdown("Variogram_Cloud.md")
+cat(loadDoc("Variogram_Cloud.md"), sep="\n")
 ```
 
 ```{r Variogram_Cloud}
@@ -68,7 +68,7 @@ ggPrint(p)
 ### Experimental (isotropic) variograms
 
 ```{r, echo=FALSE, results='asis'}
-displayMarkdown("Experimental_Variogram.md")
+cat(loadDoc("Experimental_Variogram.md"), sep="\n")
 ```
 
 ```{r Experimental_Variogram, results=FALSE}
@@ -200,7 +200,7 @@ fitmod
 ### Directional Variograms
 
 ```{r, echo=FALSE, results='asis'}
-displayMarkdown("Directional_Variogram.md")
+cat(loadDoc("Directional_Variogram.md"), sep="\n")
 ```
 
 ```{r Directional_Variograms}
@@ -231,7 +231,7 @@ ggplot() + plot.varmod(vario.4dir, model.4dir)
 #### Experimental variogram map
 
 ```{r, echo=FALSE, results='asis'}
-displayMarkdown("Variogram_Map.md")
+cat(loadDoc("Variogram_Map.md"), sep="\n")
 ```
 
 ```{r Variogram_Map}
