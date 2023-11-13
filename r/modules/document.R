@@ -11,8 +11,6 @@
 # This file contains some helping functions used specifically for documentation
 # of gstlearn package for R language.
 
-# Ceci est un test
-
 # The various pieces of documentation are supposed to be located
 # at the following URL
 urlGST = "https://soft.minesparis.psl.eu/gstlearn"
