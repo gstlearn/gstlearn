@@ -32,6 +32,52 @@ isInternetAvailable <- function()
   flag
 }
 
+#'
+#' Return the complete name of a file:
+#' - if Internet is available, the file is retrieved from the web site
+#' - if not, it is assumed to be present locally
+#'    
+#' @param directory: Name of the target directory (used for 'where' = "data", "None" otherwise)
+#' @param filename: Name of the file to be downloaded
+#' @param where: 'data' or 'graphics' or 'mdfile'
+#'    
+#' @remarks
+#' When retrieving file, and according to 'where', the origin is:
+#' - when 'where' == "graphics"
+#'   urlGST + "/references' + '/Figures' + '/'
+#' - when 'where' == "mdfile"
+#'   urlGST + "/references' + '/'
+#' - when 'where' == "data"
+#'   urlGST + "/data" + '/' + directory + '/' + filename
+downloadRemoteFile <- function(directory, filename, where)
+{
+    if (isInternetAvailable())
+	{
+        if (where == 'graphics')
+            pathname = paste0(c(urlGST, 'references',  'Figures', filename), collapse='/')
+        else if (where == 'mdfile')
+            pathname = paste0(c(urlGST, 'references', filename), collapse='/')
+        else if (where == 'data')
+            pathname = paste0(c(urlGST, "data", directory, filename), collapse='/')
+        else
+            print("'downloadRemoteFile' does not know about 'where' = ", where)
+        
+        # The file is loaded in the local environment (with the same name)
+        localname = filename
+        err = download.file(pathname, localname, quiet=TRUE)
+	}
+	else
+	{
+		localname = filename
+	}    
+    localname
+}
+
+loadFigure <- function(filename)
+{
+    downloadRemoteFile(None, filename, "graphics")
+}
+
 #' Returns the decorated documentation (Markdown file) from 'references' directory
 #' @param filename Name of the file containing the text to be displayed
 #' TODO: the color does not function... to be fixed.
@@ -39,12 +85,10 @@ isInternetAvailable <- function()
 #'   {r, echo=FALSE, result='asis'}
 #'    cat(XXX, sep="\n")
 #'   }
-loadDoc <- function(filename, useURL = TRUE)
+loadDoc <- function(filename)
 {
-  if (isInternetAvailable() && useURL)
-    multiline = readLines(paste0(c(urlGST, "references", filename), collapse='/'), warn=FALSE)
-  else
-    multiline = readLines(filename, warn=FALSE)
+  filepath = downloadRemoteFile(NULL, filename, "mdfile")
+  multiline = readLines(filepath, warn=FALSE)
   
   # Loop on the lines to detect graphic
   searchItem = "(Figures/"
@@ -56,8 +100,10 @@ loadDoc <- function(filename, useURL = TRUE)
   	{
       graphicFile = sub(".*Figures/", "", targetLine)[1]         # Extract file name
       graphicFile = substr(graphicFile, 1, nchar(graphicFile)-1) # suppress last character
-      pathname = paste0(c(urlGST, "references","Figures", graphicFile), collapse='/')
-      targetLine = paste0("\n<img src='", pathname, "' />")
+      filefig = downloadRemoteFile(NULL, graphicFile, "graphics")
+      
+      # Reconstruct the output line (MD syntax)
+      targetLine = paste0("\n![Image](", filefig, " 'title')")
   	}
     new_multiline = paste(new_multiline, targetLine, sep="\n")
    }
@@ -71,9 +117,5 @@ loadDoc <- function(filename, useURL = TRUE)
 #' @return The name of the returned data file
 loadData <- function(directory, filename)
 {
-  if (isInternetAvailable())
-    download.file(paste0(c(urlGST, "data", directory, filename), collapse='/'), filename, quiet=TRUE)
-  else
-    filename = file.path('.', "data", directory, filename)
-  filename
+  downloadRemoteFile(directory, filename, "data")
 }
