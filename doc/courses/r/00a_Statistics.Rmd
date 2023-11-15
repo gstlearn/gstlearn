@@ -1,0 +1,27 @@
+---
+title: "Statistics"
+author: "gstlearn Team"
+output:
+  html_document:
+    df_print: paged
+    toc: false
+  pdf_document:
+    toc: false
+---
+
+<!-- SUMMARY: This script gives the information of Basic Statistics.  -->
+
+<!-- CATEGORY: Courses -->
+
+This file gives the elementary information on calculation of basic Statistics.
+
+```{r setup,echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(gstlearn)
+rm(list=ls())
+```
+
+```{r variogram, echo=FALSE, results='asis'}
+cat(loadDoc("Statistics.md"), sep="\n")
+```
