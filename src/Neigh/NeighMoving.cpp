@@ -67,7 +67,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _T1(r._T1),
       _T2(r._T2)
 {
-  for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+  for (int ipt = 0, npt = r._bipts.size(); ipt < npt; ipt++)
     //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
     _bipts.push_back(r._bipts[ipt]);
 }
@@ -90,7 +90,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _T1 = r._T1;
     _T2 = r._T2;
 
-    for (int ipt = 0, npt = _getBiPtsNumber(); ipt < npt; ipt++)
+    for (int ipt = 0, npt = r._bipts.size(); ipt < npt; ipt++)
       //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
       _bipts.push_back(r._bipts[ipt]);
    }
