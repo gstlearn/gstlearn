@@ -13,7 +13,7 @@ The random variables are described using probabilities.
 
 ## A.1. Probability mass function
 
-To introduce the probability mass function, we will give some examples: 
+To introduce the probability mass function, we will give some examples
 
 ### A.1.1) Head or tail
 
