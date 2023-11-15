@@ -54,7 +54,6 @@ $Z$ is a random variable with values in a countable space $H$.
 
 $Z$ is characterized by its probability mass function, $p(i)=p_i=P(Z=i)$ for all $i\in H$.
 
-
 ![Description](Figures/pmf.png)
 
 ### A.1.4) Uniform distribution over a finite output space $H = \{a_1,\dots,a_n\}$

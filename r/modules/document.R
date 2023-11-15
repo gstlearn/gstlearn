@@ -32,6 +32,64 @@ isInternetAvailable <- function()
   flag
 }
 
+#'
+#' Return the complete name of a file:
+#' - if Internet is available, the file is retrieved from the web site
+#' - if not, it is assumed to be present locally
+#'    
+#' @param directory: Name of the target directory (used for 'where' = "data", "None" otherwise)
+#' @param filename: Name of the file to be downloaded
+#' @param where: 'data' or 'graphics' or 'mdfile'
+#'    
+#' @remarks
+#' When retrieving file, and according to 'where', the origin is:
+#' - when 'where' == "graphics"
+#'   urlGST + "/references' + '/Figures' + '/'
+#' - when 'where' == "mdfile"
+#'   urlGST + "/references' + '/'
+#' - when 'where' == "data"
+#'   urlGST + "/data" + '/' + directory + '/' + filename
+downloadRemoteFile <- function(directory, filename, where)
+{
+	# Generate local name
+
+    if (where == 'graphics')
+    {
+        localname = paste0(c('Figures' ,filename), collapse='/')
+        if (!dir.exists('Figures')) {dir.create('Figures')}
+    }
+    else if (where == 'mdfile')
+        localname = paste0(c('.' ,filename), collapse='/')
+    else if (where == 'data')
+        localname = paste0(c('.' ,filename), collapse='/')
+    else
+    {
+        print("'downloadRemoteFile' does not know about 'where' = ", where)
+        exit()
+    }
+
+    if (isInternetAvailable())
+	{
+        if (where == 'graphics')
+            pathname = paste0(c(urlGST, 'references',  'Figures', filename), collapse='/')
+        else if (where == 'mdfile')
+            pathname = paste0(c(urlGST, 'references', filename), collapse='/')
+        else if (where == 'data')
+            pathname = paste0(c(urlGST, "data", directory, filename), collapse='/')
+        else
+            print("'downloadRemoteFile' does not know about 'where' = ", where)
+        
+        # The file is loaded in the local environment
+        err = download.file(pathname, localname, quiet=TRUE)
+	}
+    localname
+}
+
+loadFigure <- function(filename)
+{
+    downloadRemoteFile(None, filename, "graphics")
+}
+
 #' Returns the decorated documentation (Markdown file) from 'references' directory
 #' @param filename Name of the file containing the text to be displayed
 #' TODO: the color does not function... to be fixed.
@@ -39,16 +97,13 @@ isInternetAvailable <- function()
 #'   {r, echo=FALSE, result='asis'}
 #'    cat(XXX, sep="\n")
 #'   }
-loadDoc <- function(filename, useURL = TRUE)
+loadDoc <- function(filename)
 {
-  if (isInternetAvailable() && useURL)
-    multiline = readLines(paste0(c(urlGST, "references", filename), collapse='/'), warn=FALSE)
-  else
-    multiline = readLines(filename, warn=FALSE)
+  filepath = downloadRemoteFile(NULL, filename, "mdfile")
+  multiline = readLines(filepath, warn=FALSE)
   
   # Loop on the lines to detect graphic
   searchItem = "(Figures/"
-  new_multiline = ""
   for (i in 1:length(multiline))
   {
   	targetLine = multiline[i]
@@ -56,12 +111,10 @@ loadDoc <- function(filename, useURL = TRUE)
   	{
       graphicFile = sub(".*Figures/", "", targetLine)[1]         # Extract file name
       graphicFile = substr(graphicFile, 1, nchar(graphicFile)-1) # suppress last character
-      pathname = paste0(c(urlGST, "references","Figures", graphicFile), collapse='/')
-      targetLine = paste0("\n<img src='", pathname, "' />")
+      filefig = downloadRemoteFile(NULL, graphicFile, "graphics")
   	}
-    new_multiline = paste(new_multiline, targetLine, sep="\n")
    }
-  result = c(header, new_multiline, trailer)
+  result = c(header, multiline, trailer)
   result
 }
 
@@ -71,9 +124,19 @@ loadDoc <- function(filename, useURL = TRUE)
 #' @return The name of the returned data file
 loadData <- function(directory, filename)
 {
-  if (isInternetAvailable())
-    download.file(paste0(c(urlGST, "data", directory, filename), collapse='/'), filename, quiet=TRUE)
-  else
-    filename = file.path('.', "data", directory, filename)
-  filename
+  downloadRemoteFile(directory, filename, "data")
+}
+
+#'
+#' This function is used to clean the files loaded for find_statement_documentation
+#' @param filename: Name of the target file
+cleanDoc <- function(filename)
+{     
+    # Remove the target file
+    if (file.exists(filename)) 
+	  file.remove(filename)
+
+    # Remove the downloaded graphic files (in subdirectory 'Figures')
+    if (dir.exists('Figures'))
+      unlink('Figures', recursive=TRUE)
 }

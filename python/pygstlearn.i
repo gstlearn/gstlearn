@@ -718,6 +718,30 @@ void exit_f(void)
 %extend RuleProp {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend BiTargetCheckBench {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend BiTargetCheckCell {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend BiTargetCheckCode {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend BiTargetCheckDate {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend BiTargetCheckDistance {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend BiTargetCheckFaults {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend BiTargetCheckGeometry {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend ABiTargetCheck {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //
