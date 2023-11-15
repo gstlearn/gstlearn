@@ -17,7 +17,7 @@ To introduce the probability mass function, we will give some examples:
 
 ### A.1.1) Head or tail
 
-We launch a coin. The result (still unknown) will be equal to
+We launch a coin. The result (still unknown) will be equal to:
 
 $$Z(\omega) = \left\{\begin{array}{cc}0 &\textrm{ if head}\\
                                  1 &\textrm{ if tail}\\
