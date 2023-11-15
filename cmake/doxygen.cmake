@@ -8,6 +8,7 @@ find_package(Doxygen REQUIRED)
 # Configure doxyfile
 set(DOXYGEN_OUTPUT_DIRECTORY doxygen)
 set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox | <a href=https://gstlearn.org>https://gstlearn.org</a>")
+set(DOXYGEN_PROJECT_LOGO ${CMAKE_SOURCE_DIR}/doc/logos/gstlearn_logo_blue_th.png)
 set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
 set(DOXYGEN_EXTRACT_ALL YES)
 set(DOXYGEN_WARN_NO_PARAMDOC YES)
