@@ -16,6 +16,8 @@ import numpy.ma              as ma
 import gstlearn              as gl
 import urllib.request
 import requests
+import os
+import shutil
 from os.path import join
 from IPython.display import display, Javascript
 
@@ -63,6 +65,9 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 def setNoScroll():
     display(Javascript(disable_js))
 
+def deleteDownload():
+    print("calling deleteDownload")
+    
 def downloadRemoteFile(directory, filename, where):
     '''
     Return the complete name of a file:
@@ -83,6 +88,19 @@ def downloadRemoteFile(directory, filename, where):
     - when 'where' == "data"
         urlGST + "/data" + '/' + directory + '/' + filename
     '''
+    # Construct the local name
+    if where == 'graphics':
+        localname = 'Figures' + '/' + filename
+        if not os.path.isdir('Figures'):
+            os.mkdir('Figures')
+    elif where == 'mdfile':
+        localname = '.' + '/' + filename
+    elif where == 'data':
+        localname = '.' + '/' + filename
+    else:
+        print("'downloadRemoteFile' does not know about 'where' = ", where)
+        return None
+
     if isInternetAvailable:
 
         if where == 'graphics':
@@ -95,10 +113,7 @@ def downloadRemoteFile(directory, filename, where):
             print("'downloadRemoteFile' does not know about 'where' = ", where)
         
         # The file is loaded in the local environment (with the same name)
-        localname, head = urllib.request.urlretrieve(pathname, filename)
-    
-    else:
-        localname = join('.', filename)
+        localname, head = urllib.request.urlretrieve(pathname, localname)
         
     return localname
     
@@ -138,19 +153,11 @@ def loadDoc(filename):
             start = begin + len(searchItem) + 1 
             end   = targetLine.index(")")
         
-            # Extract the name of the Graphic File
+            # Extract the name of the Graphic File and download the file
             graphicFile = targetLine[start:end]
             filefig = downloadRemoteFile(None, graphicFile, "graphics")
-        
-            # Reconstruct the new line (MD syntax) [pay attention to space]
-            targetLine = "![Image](" + filefig + " 'title')"
-        
-        lines[i] = targetLine
     
-    tata = "\n"
-    new_multilines = tata.join([i for i in lines[0:]])
-
-    result = ''.join(header) + new_multilines + ''.join(trailer)
+    result = ''.join(header) + multilines + ''.join(trailer)
     return result
     
 def loadData(directory, filename):
@@ -164,3 +171,20 @@ def loadData(directory, filename):
     '''
     
     return downloadRemoteFile(directory, filename, "data")
+
+def cleanDoc(filename):
+    '''
+    This function is used to clean the files loaded for find_statement_documentation
+    
+    Arguments
+    ---------
+    filename: Name of the target file
+    '''
+    
+    # Remove the target file
+    if os.path.isfile(filename):
+        os.remove(filename)
+    
+    # Remove the downloaded graphic files (in subdirectory 'Figures')
+    if os.path.isdir('Figures'):
+        shutil.rmtree('Figures')

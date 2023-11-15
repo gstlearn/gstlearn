@@ -3,8 +3,10 @@ import sys
 import os
 import re
 
-# This script execute a jupyter notebook test script (argv[1]) and convert it to a file saved in the given directory (argv[2]).
-# The output type of the file [asciidoc, html, pdf] is provided in argv[3]
+# This script:
+# - executes a jupyter notebook test script (argv[1]) 
+# - converts it into a file saved in the given directory (argv[2]).
+# - according to the format [asciidoc, html, pdf] (argv[3])
 python_exe = os.path.realpath(sys.executable)
 test_script = sys.argv[1]
 out_dir = sys.argv[2]
@@ -41,6 +43,8 @@ if (out_type == "asciidoc"):
 # Export to HTML 
 elif (out_type == "html"):
     exporter = HTMLExporter()
+    # Ensure that images are embedded in the output file
+    exporter.embed_images = True
     # Ensure that equations and 3D is well displayed!
     exporter.mathjax_url = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-MML-AM_CHTML"
     exporter.require_js_url = "https://requirejs.org/docs/release/2.3.6/minified/require.js"
@@ -101,6 +105,9 @@ if (out_type == "asciidoc"):
 
     
 # Write to output file
-with open(test_output, "w", encoding='utf8') as f:
-    f.write(notebook_node)
-
+if (out_type == "pdf"):
+    with open(test_output, "wb") as f:
+        f.write(notebook_node)
+else:
+    with open(test_output, "w", encoding='utf8') as f:
+        f.write(notebook_node)

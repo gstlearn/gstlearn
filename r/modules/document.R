@@ -51,6 +51,23 @@ isInternetAvailable <- function()
 #'   urlGST + "/data" + '/' + directory + '/' + filename
 downloadRemoteFile <- function(directory, filename, where)
 {
+	# Generate local name
+
+    if (where == 'graphics')
+    {
+        localname = paste0(c('Figures' ,filename), collapse='/')
+        if (!dir.exists('Figures')) {dir.create('Figures')}
+    }
+    else if (where == 'mdfile')
+        localname = paste0(c('.' ,filename), collapse='/')
+    else if (where == 'data')
+        localname = paste0(c('.' ,filename), collapse='/')
+    else
+    {
+        print("'downloadRemoteFile' does not know about 'where' = ", where)
+        exit()
+    }
+
     if (isInternetAvailable())
 	{
         if (where == 'graphics')
@@ -62,14 +79,9 @@ downloadRemoteFile <- function(directory, filename, where)
         else
             print("'downloadRemoteFile' does not know about 'where' = ", where)
         
-        # The file is loaded in the local environment (with the same name)
-        localname = filename
+        # The file is loaded in the local environment
         err = download.file(pathname, localname, quiet=TRUE)
 	}
-	else
-	{
-		localname = filename
-	}    
     localname
 }
 
@@ -92,7 +104,6 @@ loadDoc <- function(filename)
   
   # Loop on the lines to detect graphic
   searchItem = "(Figures/"
-  new_multiline = ""
   for (i in 1:length(multiline))
   {
   	targetLine = multiline[i]
@@ -101,13 +112,9 @@ loadDoc <- function(filename)
       graphicFile = sub(".*Figures/", "", targetLine)[1]         # Extract file name
       graphicFile = substr(graphicFile, 1, nchar(graphicFile)-1) # suppress last character
       filefig = downloadRemoteFile(NULL, graphicFile, "graphics")
-      
-      # Reconstruct the output line (MD syntax)
-      targetLine = paste0("\n![Image](", filefig, " 'title')")
   	}
-    new_multiline = paste(new_multiline, targetLine, sep="\n")
    }
-  result = c(header, new_multiline, trailer)
+  result = c(header, multiline, trailer)
   result
 }
 
@@ -118,4 +125,18 @@ loadDoc <- function(filename)
 loadData <- function(directory, filename)
 {
   downloadRemoteFile(directory, filename, "data")
+}
+
+#'
+#' This function is used to clean the files loaded for find_statement_documentation
+#' @param filename: Name of the target file
+cleanDoc <- function(filename)
+{     
+    # Remove the target file
+    if (file.exists(filename)) 
+	  file.remove(filename)
+
+    # Remove the downloaded graphic files (in subdirectory 'Figures')
+    if (dir.exists('Figures'))
+      unlink('Figures', recursive=TRUE)
 }
