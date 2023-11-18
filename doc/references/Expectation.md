@@ -198,4 +198,5 @@ Note that $\rho(X,Y)$ can be equal to $0$ even if the variables are strongly lin
 
 The usual example is a variable $X$ with a pair density ($f(-x)=f(x)$) and $Y=X^2$:
 
-$$\textrm{Cov}(X,Y)=\textrm{Cov}(X,X^2)=E[X^3]-E[X]E[X^2]=E[X^3]=\int_\mathbb{R}x^3f(x)dx=0$$
+$$\textrm{Cov}(X,Y)=\textrm{Cov}(X,X^2)=E[X^3]-E[X]E[X^2]=E[X^3]=\int_{\mathbb{R}} x^3f(x)dx =0$$
+

@@ -102,14 +102,14 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget &T1, const SpaceTarget &T2) c
   // Increment between two samples
   VectorDouble delta = T1.getIncrement(T2);
 
-  // Check if the angle of the pair matches the calculation Direction (up to angular tolerance)
+  // Check if the angle of the pair matches the Calculation direction (up to angular tolerance)
   double dproj = 0.;
   double dn1 = 0.;
   double dn2 = 0.;
   for (int idim = 0; idim < _ndim; idim++)
   {
-    dproj += delta[idim] * _codir[idim];
-    dn1   += delta[idim] * delta[idim];
+    dproj +=  delta[idim] * _codir[idim];
+    dn1   +=  delta[idim] *  delta[idim];
     dn2   += _codir[idim] * _codir[idim];
   }
   double prod = dn1 * dn2;
@@ -121,7 +121,7 @@ bool BiTargetCheckGeometry::isOK(const SpaceTarget &T1, const SpaceTarget &T2) c
   if (!FFFF(_cylrad) && _cylrad > 0.)
   {
     double dortho = 0.;
-    if (dn1 > 0.) dortho = sqrt(dn2 - dproj * dproj / dn1);
+    if (prod > 0.) dortho = sqrt(dn1 * (1. - ps * ps));
     if (dortho > _cylrad) return false;
   }
 

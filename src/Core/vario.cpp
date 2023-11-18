@@ -5428,7 +5428,6 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
   // Creating the output Db
   Db* newdb = Db::create();
   int ndim = db->getNDim();
-  VectorVectorDouble coor(ndim);
   VectorVectorDouble ranks(2);
   VectorDouble lags;
   VectorDouble dirs;
@@ -5481,11 +5480,6 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
 
         // The pair is kept
 
-        for (int idim = 0; idim < ndim; idim++)
-        {
-          coor[idim].push_back(vect[idim]);
-          coor[idim].push_back(-vect[idim]);
-        }
         ranks[0].push_back((double) iech);
         ranks[1].push_back((double) jech);
         ranks[0].push_back((double) jech);
@@ -5502,7 +5496,6 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
 
   // Loading the coordinate vectors in the newly created Db
 
-  newdb->addColumnsByVVD(coor,  "Coor", ELoc::X);
   newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNKNOWN);
   newdb->addColumns(lags,  "Lag",ELoc::UNKNOWN);
   newdb->addColumns(dirs,  "Direction",ELoc::UNKNOWN);

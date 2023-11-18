@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleCoordinatesAsSP(i, p2);
+      dbout->getSampleCoordinatesAsSPInPlace(i, p2);
       VectorDouble rhs1 = model->evalPointToDb(p2, dbin);
       VH::addInPlace(cumul, rhs1);
     }
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     timer.reset();
     for (int i = 0; i < nout; i++)
     {
-      dbout->getSampleCoordinatesAsSP(i, p2);
+      dbout->getSampleCoordinatesAsSPInPlace(i, p2);
       VectorDouble rhs2 = model->evalPointToDbAsSP(p1s, p2);
       VH::addInPlace(cumul, rhs2);
     }

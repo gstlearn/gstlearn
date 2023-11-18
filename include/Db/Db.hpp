@@ -360,10 +360,11 @@ public:
   // Accessing elements of the contents
 
   VectorDouble getSampleCoordinates(int iech) const;
-  void getSampleCoordinatesAsSP(int iech, SpacePoint& P) const;
+  void getSampleCoordinatesAsSPInPlace(int iech, SpacePoint& P) const;
   void getSampleAsST(int iech, SpaceTarget& P) const;
   void getSampleCoordinatesInPlace(int iech, VectorDouble& coor) const;
   VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
+  VectorVectorDouble getIncrements(const VectorInt& iechs, const VectorInt& jechs) const;
 
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;

@@ -619,12 +619,12 @@ void KrigingSystem::_covtabCalcul(int iech1,
     else
     {
       if (iech1 >= 0)
-        _dbin->getSampleCoordinatesAsSP(iech1, _p1);
+        _dbin->getSampleCoordinatesAsSPInPlace(iech1, _p1);
       else
         _p1 = _p0;
       SpacePoint p2;
       if (iech2 >= 0)
-        _dbin->getSampleCoordinatesAsSP(iech2, _p2);
+        _dbin->getSampleCoordinatesAsSPInPlace(iech2, _p2);
       else
         _p2 = _p0;
       _model->evalMatInPlace(_p1, _p2, _covref, mode);
@@ -1004,7 +1004,7 @@ void KrigingSystem::_rhsCalculDGM()
  *****************************************************************************/
 int KrigingSystem::_rhsCalcul()
 {
-  _dbout->getSampleCoordinatesAsSP(_iechOut, _p0);
+  _dbout->getSampleCoordinatesAsSPInPlace(_iechOut, _p0);
 
   /* Establish the covariance part */
 
@@ -1602,7 +1602,7 @@ double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
  *****************************************************************************/
 void KrigingSystem::_variance0()
 {
-  _dbout->getSampleCoordinatesAsSP(_iechOut, _p0);
+  _dbout->getSampleCoordinatesAsSPInPlace(_iechOut, _p0);
   if (_optimEnabled)
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 

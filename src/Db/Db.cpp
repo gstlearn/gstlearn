@@ -677,10 +677,41 @@ VectorDouble Db::getSampleCoordinates(int iech) const
   return coor;
 }
 
-void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
+void Db::getSampleCoordinatesAsSPInPlace(int iech, SpacePoint& P) const
 {
   for (int idim = 0, ndim = getNDim(); idim < ndim; idim++)
     P.setCoord(idim, getCoordinate(iech, idim));
+}
+
+VectorVectorDouble Db::getIncrements(const VectorInt& iechs, const VectorInt& jechs) const
+{
+  VectorVectorDouble tab;
+  int ndim = getNDim();
+  SpacePoint P1(ndim);
+  SpacePoint P2(ndim);
+
+  int number = (int) iechs.size();
+  if ((int) jechs.size() != number)
+  {
+    messerr("Arguments 'iechs'(%d) and 'jechs'(%d) should share the same dimension",
+            (int) iechs.size(), (int) jechs.size());
+    return tab;
+  }
+
+  // Dimension the output vector
+  tab.resize(ndim);
+  for (int idim = 0; idim < ndim; idim++) tab[idim].resize(number);
+
+  for (int ip = 0; ip < number; ip++)
+  {
+    getSampleCoordinatesAsSPInPlace(iechs[ip], P1);
+    getSampleCoordinatesAsSPInPlace(jechs[ip], P2);
+    VectorDouble vect = P2.getIncrement(P1);
+
+    for (int idim = 0; idim < ndim; idim++)
+      tab[idim][ip] = vect[idim];
+  }
+  return tab;
 }
 
 /**
@@ -691,7 +722,7 @@ void Db::getSampleCoordinatesAsSP(int iech, SpacePoint& P) const
 void Db::getSampleAsST(int iech, SpaceTarget& P) const
 {
   // Load the coordinates
-  getSampleCoordinatesAsSP(iech, P);
+  getSampleCoordinatesAsSPInPlace(iech, P);
 
   // Load the code (optional)
   if (hasLocVariable(ELoc::C))
@@ -711,7 +742,7 @@ std::vector<SpacePoint> Db::getSamplesAsSP(bool useSel) const
     if (isActive(iech))
     {
       SpacePoint p;
-      getSampleCoordinatesAsSP(iech, p);
+      getSampleCoordinatesAsSPInPlace(iech, p);
       pvec.push_back(p);
     }
     else

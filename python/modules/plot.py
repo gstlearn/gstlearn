@@ -1802,7 +1802,7 @@ def drawDir(angle,col,R=10000):
     a = np.deg2rad(angle)
     u = R*np.array([0,np.cos(a)])
     v = R*np.array([0,np.sin(a)])
-    plt.plot(u,v,c=col)
+    plt.plot( u, v,c=col)
     plt.plot(-u,-v,c=col)
     
 def drawCylrad(angle,cylrad,R=10000,col="purple"):
@@ -1817,34 +1817,16 @@ def drawCylrad(angle,cylrad,R=10000,col="purple"):
     plt.plot( u, (v-x),c=col)
     plt.plot(-u,-(v-x),c=col)
     
-#Function to get the limit for a lag
-def lagf(i,lag,tol=0,plot=True):
-    m = M = i*lag
-    
-    if plot:
-        plt.axvline(x = m, ymin = 0.,c="r")
+# Function to retrieve the limits of a lag
+def lagDefine(i, lag, tol=0):
+    center = mini = maxi = i*lag
     if tol>0:
+        reltol = tol * lag / 100
         if i>0:
-            m = m-tol*lag
-            if plot:
-                plt.axvline(x = m, ymin = 0.,c="g")
-        M = M + tol*lag
-        if plot:
-            plt.axvline(x = M, ymin = 0.,c="g")
-    return m,M
+            mini = center - reltol
+        maxi = maxi + reltol
+    return mini, center, maxi  
 
-def drawTotalDir(lag,nlag,tol,angle,tolangle,cylrad):
-
-    for i in range(nlag):
-        m,M = lagf(i,lag,tol,plot=False)
-        drawCircles(m,M) 
-   
-    drawDir(angle,"black")
-    drawDir(angle+tolangle,"red")
-    drawDir(angle-tolangle,"red")
-    drawCylrad(angle,cylrad)
-    ax=plt.axis("equal")
-    
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     
     filetype = type(object).__name__

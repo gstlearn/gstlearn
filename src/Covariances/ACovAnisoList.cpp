@@ -216,7 +216,7 @@ VectorVectorDouble ACovAnisoList::evalCovMatrixOptim(const Db *db1,
   for (int iech2 = 0; iech2 < nechtot2; iech2++)
   {
     if (!db2->isActive(iech2)) continue;
-    db2->getSampleCoordinatesAsSP(iech2, p2);
+    db2->getSampleCoordinatesAsSPInPlace(iech2, p2);
     optimizationSetTarget(p2);
     evalOptimInPlace(mat[jech2], ivar, jvar, mode);
     jech2++;
