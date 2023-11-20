@@ -56,7 +56,6 @@ grid = DbGrid_create(x0=c(65,530),dx=c(4.94, 4.96),nx=c(82,138))
 We then print a summary of the content of the grid using the `display` method of `Db` class, which we supply with a `DbStringFormat` object specifying that we would like information about the extent of the grid (argument `flag_extend` in the `DbStringFormat_createFromFlags` function).
 
 ```{r Creating_Grid_display_format}
-#--- MP ---
 dbfmt = DbStringFormat_createFromFlags(flag_extend=TRUE) 
 grid$display(dbfmt)
 ```
@@ -210,7 +209,6 @@ err = kriging(dbin=dat, dbout=grid, model=fitmodOK,
 Finally, we plot the new kriging prediction over the grid and the data points. 
 
 ```{r Plot_Ordinary_Kriging}
-#--- MP ---
 p = ggDefaultGeographic()
 p = p + plot.grid(grid,
                   flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C") 
@@ -267,7 +265,6 @@ grid$display(dbfmt)
 This new grid data base contains a variable called `inshore`, with a locator `sel`. This indicates that this variable is a selection, i.e. a binary variable allowing to select some points, called *active cells*, in a data base (by setting them to 1, while the other points will be 0). Selections allow to restrict computations and operations made on a data base to only the active cells. For, when plotting a data base with a selection, only the active cells are represented.
 
 ```{r Selection}
-#--- MP ---
 p = ggDefaultGeographic()
 p = p + plot.grid(grid,nameRaster="Longitude",
                   flagLegendRaster = TRUE, palette="Spectral",legendNameRaster="°C")
@@ -335,7 +332,6 @@ ggPrint(p)
 Finally, we compute a few statistics about these errors.
 
 ```{r}
-#--- MP --- added context
 print(c("Mean cross-validation error:",mean(dat$getColumn("*esterr*"),na.rm=TRUE)))
 print(c("Mean squared cross-validation error:",mean(dat$getColumn("*esterr*")^2,na.rm=TRUE)))
 print(c("Mean standardized error:",mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)))

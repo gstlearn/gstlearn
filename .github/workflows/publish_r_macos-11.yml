@@ -34,7 +34,9 @@ jobs:
         r-version: ${{matrix.r_version}}
         
     - name: Install R dependencies
-      run: Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
+      run: |
+        Rscript -e "install.packages(c('rlang'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
+        Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
 
 ####################################################################################################
 # Doxygen
