@@ -1342,7 +1342,6 @@ def __ax_grid1D(ax, dbgrid, name = None, useSel = True,
             name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
-    
     x0 = dbgrid.getX0(0)
     nx = dbgrid.getNX(0)
     dx = dbgrid.getDX(0)

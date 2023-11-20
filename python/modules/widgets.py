@@ -17,6 +17,14 @@ import re
 from IPython.display import display
 from traitlets import Unicode
 
+# List of Basic widgets
+def boolean(title="", value=False, eventhandler=None):
+    object = ipw.Checkbox(value=value, description=title, disabled=False, indent=False)
+    if eventhandler is not None:
+        object.observe(eventhandler, names='value')
+
+    return object
+
 def sliderInt(title="", value=0, mini=0, maxi=100, step=1, eventhandler=None):
     object  = ipw.IntSlider(min=mini, max=maxi, step=step, value=value,
                                 description=title, continuous_update=False)
@@ -46,6 +54,7 @@ def dropDown(title="", options=['1', '2', '3'], eventhandler=None):
         object.observe(eventhandler, names='value')
     return object
 
+# A Combo widgets: the Model
 class WModel(ipw.VBox):
     value = Unicode()
 
