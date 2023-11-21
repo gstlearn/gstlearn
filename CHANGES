@@ -5,7 +5,8 @@ This file contains the logs between consecutive releases
 Release 1.0.1
 =============
 - Fix issue 88
-
+- Adding new tutorial (with widgets) to describe the calculation of experimental variograms and use of model for Cvv
+- Adding description of main classes (Db, Vario, VarioParam and DirParam)
 
 Release 1.0.0
 =============
