@@ -53,7 +53,20 @@ class AnamHermite;
 
 typedef std::vector<ECov> VectorECov;
 
-/// TODO : Create AModel which inherits from ACov ?
+/**
+ * \brief
+ * Class containing the Model Information describing the formal Spatial (or Temporal) Characteristics
+ * of the (set of) random variable(s) under study.
+ *
+ * The Model is essentially a container with two main contents:
+ * - the **covariance** part: see ACov.hpp for more information
+ * - the **drift** part: see DriftList.hpp for more information
+ *
+ * The additional member **CovContext** only serves in carrying the following information:
+ * - the number of variables: if more than 1, the Model becomes multivariate
+ * - the field extension: this information is needed to get a *stationary* version to any covariance
+ * - the experimental mean vector and the variance-covariance matrix (used to calibrate the Model)
+ */
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ICloneable
 {
 public:

@@ -25,6 +25,17 @@ class Db;
 class DbGrid;
 class MatrixRectangular;
 
+/**
+ * \brief
+ * Class containing the Covariance part of the Model.
+ * of the (set of) random variable(s) under study.
+ *
+ * It is the uppermost class of the Covariance Tree and is conceived as simple as possible on purpose
+ * (in order to let the user defined its own version if necessary): it must simply be able to return its value
+ * between two end-point (see eval method).
+ *
+ * It is mainly implemented in CovAniso.hpp or ACovAnisoList.hpp
+ */
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
 public:

@@ -15,6 +15,6 @@
 
 
 +#NO_DIFF#XXX+
-----WModel(children=(Dropdown(description='Type', options=('Nugget effect', 'Exponential', 'Spherical', 'Gaussian'…<IPython.core.display.Javascript object>
+----WModel(children=(Dropdown(description='Type', index=1, options=('Nugget effect', 'Exponential', 'Spherical', '…<IPython.core.display.Javascript object>
 [[XXX]]
 ----
