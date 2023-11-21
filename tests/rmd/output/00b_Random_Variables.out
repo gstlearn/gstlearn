@@ -1,3 +1,6 @@
+<style>md-block { color:gray; background-color:white; }</style>
+<md-block>
+
 # Random variables 
 
 A **random variable** $Z$ is a function over a sample space $\Omega$ to the space of outputs $H$.
@@ -13,7 +16,7 @@ The random variables are described using probabilities.
 
 ## A.1. Probability mass function
 
-To introduce the probability mass function, we will give some examples
+To introduce the probability mass function, we will give some examples: 
 
 ### A.1.1) Head or tail
 
@@ -279,3 +282,4 @@ We can generalize to a set $X_1,\dots,X_p$ of variables by using multivariate de
 $$f(x_1,\dots,x_p)$$
 
 In geostatistics, we often use the multivariate gaussian distribution.
+</md-block>

@@ -28,7 +28,50 @@ class DirParam;
 class AAnam;
 
 /**
- * Experimental Variogram (not only): TODO : to be improved
+ * \brief
+ * Class containing the Spatial Characteristics as calculated experimentally from the data (contained in a Db).
+ *
+ * The experimental Spatial Characteristics is usually referred to as the experimental **variogram**.
+ * However, note that it can rather calculate other results such as a Covariance or a Madogram. All these
+ * quantities can be regrouped by considering them as **two-points** statistics.
+ * For a complete list of calculation methods, please refer to ECalcVario.hpp.
+ *
+ * This class is composed of two parts:
+ * - the first part describes the rule when comparing two samples from the Db. They are defined by:
+ *
+ *    - the definition of the **Geometry**: e.g. definition of calculation direction, tolerances.
+ * For more information, please refer to VarioParam.hpp
+ *    - the definition of the calculations **Options**: e.g. calculation method.
+ *    - some additional **Conditions** used during calculations: e.g. usage of *Faults*.
+ * For more information, please refer to ABiTargetCheck.hpp.
+ *
+ * - the second part are the results of the calculations
+ *
+ * **Results**
+ *
+ * All the Spatial Characteristics are calculated:
+ * - from the sample values of active samples contained in a Db,
+ * - for all the variables (defined with the locator ELoc.Z): in the multivariate case, simple and
+ * cross-variograms are calculated
+ * - for a series of distance lags.
+ *
+ * They are always expressed as a table with one row per distance lag and three columns containing:
+ * - the number of pairs
+ * - the average value of the distance
+ * - the average value of the two-points statistics
+ *
+ * Note that:
+ * - the lags for which no pair is found are skipped.
+ * - some methods correspond to an **even** function (values are equal whether the distance between
+ * the two end-points is counted positively or negatively: then only one-sided results are stored.
+ * For **odd**, the results of both sides are stored.
+ * - for a number of lags equal to *N*, the number of rows is {N+1} when the function is even and
+ * {2N+1} when the function is odd.
+ * - in the multivariate case (NV variables), the number of rows is multiplied by NV*(NV+1)/2.
+ * In order to avoid any indexing problem, the user should use the assessors provided in order to access to the information
+ * relative to the target pair of variables.
+ .
+ *
  */
 class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public ICloneable
 {

@@ -31,7 +31,34 @@ class ANeigh;
 class SpaceTarget;
 
 /**
- * Class containing a Data Set organized as a regular Grid
+ * \brief
+ * Class containing the Data Information org  nized as a Regular Grid
+ *
+ * This class is derived from the Db class, with a specific decoration: its samples correspond to the nodes
+ * of a regular grid defined in the current space.
+ *
+ * A regular grid is a tessellation of n-dimensional Euclidean space by congruent parallelotopes (e.g. bricks).
+ * The number of meshes along each space direction is defined by NX and the total number of samples is equal to:
+ * NX[1] x NX[2] x ... x NX[NDIM] where NDIM is he space dimension.
+ *
+ * Note that this particular Db does not allow the modification of the sample number by addition or deletion.
+ *
+ * The grid decoration contains the following information:
+ * - the number of meshes per direction (**NX**)
+ * - the coordinates of the grid origin (**X0**) defined as the node located in first position (smallest index)
+ * along each space direction
+ * - the mesh value along each space direction (**DX**)
+ * - the rotation angles around the grid origin (the origin is invariant through this rotation).
+ *
+ * Note that rotation is defined by as many angles as the space dimension. This general property is not valid:
+ * - for 1D where the rotation concept does not make sense
+ * - for 2D where a single angle would be sufficient: however a second dummy angle (always set to 0) is used for generality sake.
+ *
+ * Note that this grid decoration essentially describes the organization of the grid nodes. Then the same grid can be considered
+ * as a grid of points (**punctual** grid) or a grid of cells (**block** grid). In the latter case:
+ * - the origin is (currently) the lower-left corner (for 2D) or the origin cell.
+ * - the extensions of the cells are considered as constant by default and equal to DX. However, they can be replaced
+ * by a set of variables allowing the user to assign a variable cell extension for each cell.
  */
 class GSTLEARN_EXPORT DbGrid: public Db
 {

@@ -1,0 +1,27 @@
+---
+title: "Expectation, Variance and Covariance"
+author: "gstlearn Team"
+output:
+  html_document:
+    df_print: paged
+    toc: false
+  pdf_document:
+    toc: false
+---
+
+<!-- SUMMARY: This script gives the elementary definition of the Expectation, the Variance and Covariance for the Random Variables.  -->
+
+<!-- CATEGORY: Courses -->
+
+This file gives the elementary information on Expectation, Variance and Covariance for the Random Variables.
+
+```{r setup,echo=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(gstlearn)
+rm(list=ls())
+```
+
+```{r variogram, echo=FALSE, results='asis'}
+cat(loadDoc("Expectation.md"), sep="\n")
+```

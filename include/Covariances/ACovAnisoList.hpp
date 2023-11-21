@@ -31,8 +31,18 @@ class CovContext;
 class AStringFormat;
 class AAnam;
 
-// TODO : rename CovAnisoList (this is not an abstract class)
+/**
+ * \brief
+ * This class describes the **Covariance** as a list of elementary covariances (see CovAniso.hpp for more details)
+ * where the calculation rule is simple: the returned value is the **sum** of each elementary (active) covariance function.
+ *
+ * This class also carry two other important informations:
+ * - a vector giving the status of each elementary covariance item: it may be *active* or *filtered*
+ * - a complex structure allowing each parameter (range, sill, anisotropy angle, ...) of each of the elementary covariances
+ * to be non-stationary (to have a value which depends on the location). For more details, see ANoStat.hpp.
+ */
 class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
+// TODO : rename CovAnisoList (this is not an abstract class)
 {
 public:
   ACovAnisoList(const ASpace* space = nullptr);

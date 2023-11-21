@@ -21,6 +21,19 @@ class ASpace;
 class SpacePoint;
 class Db;
 
+/**
+ * \brief
+ * This class provides the information on **Drift** part of the Model. The drift plays the role of the average of the
+ * target Random Function which may be constant or vary as a function with low frequency variations (by opposition to the
+ * complementary part of the Spatial Characteristics which is described by its Covariance)
+ *
+ * This class essentially contains a list of basic (active)e drift functions: see ADrift.hpp for details.
+ *
+ * This class also carry other important informations:
+ * - a vector giving the status of each basic drift functions: it may be *active* or *filtered*
+ * - some additional information defining some relationship between the basic drift function: this is used for the special
+ * case where the different Random Functions obey to algebraic relations.
+ */
 class GSTLEARN_EXPORT DriftList : public AStringable, public ICloneable
 {
 public:

@@ -23,9 +23,18 @@ class Db;
 class Model;
 
 /**
- * Experimental Variogram calculation parameters TODO : to be improved
+ * \brief
+ * Class containing the definition of the criteria for calculating the Spatial (and Temporal) Characteristics
+ * from samples contained in a Db.
+ *
+ * These criteria consist in:
+ * - some criteria based on the **dates**: this information will is used for calculating the Temporal Characteristics
+ * - a collection of definitions of **Calculation Directions** for Spatial Characteristics.
+ * For more information on a Direction definition, please refer to DirParam.hpp
+ *
+ * Note that this class also stores a pointer to any Faults definition, if to be used during the
+ * calculation of the Spatial Characteristics.
  */
-// TODO : Inherits from ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
 class GSTLEARN_EXPORT VarioParam : public AStringable, public ICloneable
 {
 public:

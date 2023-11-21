@@ -1,0 +1,237 @@
++#NO_DIFF#XXX+
+----<IPython.core.display.Javascript object>----
+
+
++#NO_DIFF#XXX+
+----
+# Expectation, Variance, Covariance
+
+== Expectation
+
+=== Definition
+
+If latexmath:[$X$] is a random variable with output space
+latexmath:[$H$] and with density latexmath:[$f(x)$].
+
+Then, latexmath:[\[E[X]=\int_H x f(x) dx\]]
+
+=== Linearity
+
+==== Sum of random variables
+
+If latexmath:[$X$] and latexmath:[$Y$] are two random variables with
+respective outputs spaces latexmath:[$H$] and latexmath:[$K$], with
+respective densities latexmath:[$f$] and latexmath:[$g$], with a joint
+density latexmath:[$f(x,y)$] and with a finite expectation.
+
+We have latexmath:[\[E[X+Y]=E[X]+E[Y]\]]
+
+===== Idea of the proof
+
+Let consider the function latexmath:[$q$] defined by
+latexmath:[$q(x,y)=x+y$]
+
+latexmath:[$E[q(X,Y)] = \int_{H}\int_{K} q(x,y) f(x,y)dx dy$]
+
+latexmath:[$\phantom{E[Z]} = \int_{H}\int_{K} (x+y) f(x,y)dx dy$]
+
+latexmath:[$\phantom{E[Z]} = \int_{H}\int_{K} x f(x,y)dx dy + \int_{H}\int_{K} y f(x,y)dx dy$]
+
+latexmath:[$\phantom{E[Z]} = \int_{H} x\int_{K} f(x,y)dy dx + \int_{K} y\int_{H} f(x,y)dx dy$]
+
+latexmath:[$\phantom{E[Z]} = \int_{H} xf(x) dx + \int_{K} y(y)g(y)dy$]
+
+latexmath:[$\phantom{E[Z]} = E[X]+E[Y]$]
+
+==== Product by a constant
+
+We also have
+
+latexmath:[\[E[aX]=aE[X]\]]
+
+=== Positivity
+
+If latexmath:[$X$] is a positive random variable i.e
+latexmath:[\[P(X\geq 0)=1\]] then
+
+latexmath:[\[E[X]\geq 0\]]
+
+Where latexmath:[$X$] is a positive random variable, if
+latexmath:[$E[X]=0$], then
+
+latexmath:[\[P(X=0)=1\]]
+
+=== Constant
+
+latexmath:[\[E[a] = a\]]
+
+== Covariance and Variance
+
+=== Definition
+
+latexmath:[\[\textrm{Cov}(X,Y) = E[(X-E[X])(Y-E[Y])]\]]
+
+=== Properties
+
+==== Symmetry
+
+latexmath:[\[\textrm{Cov}(X,Y)=\textrm{Cov}(Y,X)\]]
+
+===== Other expression
+
+Sometimes more convenient
+
+latexmath:[\[\textrm{Cov}(X,Y) = E[XY] - E[X]E[Y]\]]
+
+In particular
+
+latexmath:[\[\textrm{Var}(X)  = \textrm{Cov}(X,X) = E[X^2] - E[X]^2\]]
+
+==== Linearity
+
+latexmath:[\[\textrm{Cov}(aX+bY,Z) = a\textrm{Cov}(X,Z)+b\textrm{Cov}(Y,Z)\]]
+
+==== Variance and covariance
+
+latexmath:[\[\textrm{Cov}(X,X) = E[(X-E[X])(X-E[X])]=\textrm{Var}(X)\]]
+
+Note that the variance is always positive (as the expectation of a
+square of a random variable).
+
+==== Covariance between a variable and a constant
+
+latexmath:[\[\textrm{Cov}(X,a) = 0\]]
+
+Consequence :
+
+latexmath:[\[\textrm{Var}(a)=0\]]
+
+Reciprocally, if a random variable has a variance equal to 0, then the
+variable is constant.
+
+==== Variance of a linear combination
+
+latexmath:[\[\textrm{Var}\left(\sum_{i=1}^n\lambda_i Z_i\right) = \sum_{i=1}^n\sum_{j=1}^n \lambda_i\lambda_j\textrm{Cov}(Z_i,Z_j)\]]
+
+===== Applications
+
+latexmath:[\[\textrm{Var}(aX) = a^2 \textrm{Var}(X)\]]
+
+latexmath:[\[\textrm{Var}(aX+bY)=a^2\textrm{Cov}(X,X)+2ab\textrm{Cov}(X,Y)+b^2\textrm{Cov}(Y,Y)\]]
+
+latexmath:[\[\textrm{Var}(aX-bY)=a^2\textrm{Cov}(X,X)-2ab\textrm{Cov}(X,Y)+b^2\textrm{Cov}(Y,Y)\]]
+
+latexmath:[\[\textrm{Var}(X+a) = \textrm{Var}(X)\]]
+
+=== Covariance matrix
+
+When we have a set of random variables latexmath:[$Z_1,\dots,Z_n$].
+
+For each pair latexmath:[$(k,l)$], if we denote
+latexmath:[\[c_{kl} = \textrm{Cov}(Z_k,Z_l)\]]
+
+We can store the latexmath:[$c_{kl}$]’s in a matrix
+latexmath:[\[\Sigma = \left[\begin{array}{ccc}c_{11} &\dots & c_{1n}\\
+c_{21} & \dots & c_{2n}\\
+\vdots & \ddots & \vdots\\
+c_{n1} & \dots & c_{nn}\end{array}\right]\]]
+
+latexmath:[$\Sigma$] is named the covariance matrix of the random vector
+latexmath:[\[Z=\left[\begin{array}{c}Z_1\\ \vdots\\ Z_n\end{array}\right]\]]
+
+Note that we can rewrite
+
+latexmath:[\[\textrm{Var}\left(\sum_{i=1}^n\lambda_iZ_i\right) = \lambda^T \Sigma \lambda\]]
+
+where
+latexmath:[\[\lambda =\left[\begin{array}{c}\lambda_1\\ \vdots\\\lambda_n\end{array}\right]\]]
+
+and latexmath:[$^T$] designates the transposition
+
+latexmath:[\[\lambda^T =\left[\begin{array}{ccc}\lambda_1& \dots & \lambda_n\end{array}\right]\]]
+
+Since a variance is always positive, the variance of any linear
+combination as to be positive. Therefore, a covariance matrix is always
+(semi-)positive definite, i.e
+
+For each latexmath:[$\lambda$]
+latexmath:[\[\lambda^T \Sigma \lambda\geq 0\]]
+
+==== Cross-covariance matrix
+
+Let consider two random vectors latexmath:[$X=(X_1,\dots,X_n)$] and
+latexmath:[$Y=(Y_1,\dots,Y_p)$].
+
+We can consider the cross-covariance matrix
+latexmath:[$\textrm{Cov}(X,Y)$] where element corresponding to the row
+latexmath:[$i$] and the column latexmath:[$j$] is
+latexmath:[$\textrm{Cov}(X_i,Y_j)$]
+
+If latexmath:[$A$] and latexmath:[$B$] are some matrices (of constants)
+
+latexmath:[\[\textrm{Cov}(AX,BY) = A\textrm{Cov}(X,Y)B^T\]]
+
+==== Exercise
+
+Suppose that we want to estimate a quantity modeled by a random variable
+latexmath:[$Z_0$] as a linear combination of known quanties
+latexmath:[$Z_1,\dots, Z_n$] stored in a vector
+latexmath:[\[Z=\left[\begin{array}{c}Z_1\\ \vdots\\ Z_n\end{array}\right]\]]
+
+We will denote
+latexmath:[\[Z_0^\star = \sum_{i=1}^n \lambda_i Z_i = \lambda^T Z\]]
+this (random) estimator.
+
+We know the covariance matrix of the full vector
+latexmath:[$(Z_0,Z_1,\dots,Z_n)$] that we write with blocks for
+convenience:
+
+latexmath:[\[\left[\begin{array}{cc}\sigma_0^2 & c_0^T \\
+c_0 & C\end{array}\right]\]]
+
+where
+
+* latexmath:[$\sigma^2_0 = \textrm{Var}(Z_0)$]
+* latexmath:[$c_0 = \textrm{Cov}(Z,Z_0)$]
+* latexmath:[$C$] is the covariance matrix of latexmath:[$Z$].
+
+Compute the variance of the error latexmath:[\[Z_0^\star-Z_0\]]
+
+===== Solution
+
+latexmath:[$\textrm{Var}(Z_0^\star-Z_0) = \textrm{Cov}(Z_0^\star-Z_0,Z_0^\star-Z_0)$]
+
+latexmath:[$\phantom{\textrm{Var}(Z_0^\star-Z_0)} = \textrm{Var}(Z_0) -2 \textrm{Cov}(Z_0^\star,Z_0) + \textrm{Var}(Z_0)$]
+
+latexmath:[$\phantom{\textrm{Var}(Z_0^\star-Z_0)} = \textrm{Var}(\lambda^TZ) -2 \textrm{Cov}(\lambda^T Z,Z_0) + \sigma_0^2$]
+
+latexmath:[$\phantom{\textrm{Var}(Z_0^\star-Z_0)} = \lambda^T\textrm{Var}(Z)\lambda -2 \lambda^T\textrm{Cov}( Z,Z_0) + \sigma_0^2$]
+
+latexmath:[$\phantom{\textrm{Var}(Z_0^\star-Z_0)} = \lambda^TC\lambda -2 \lambda^Tc_0 + \sigma_0^2$]
+
+=== Correlation coefficient
+
+The covariance is a measure of the link between two variables. However
+it depends on the scale of each variable. To have a similar measure
+which is invariant by rescaling, we can use the correlation coefficient:
+
+latexmath:[\[\rho(X,Y)=\frac{\textrm{Cov}(X,Y)}{\sqrt{\textrm{Var}(X)\textrm{Var}(Y)}}\]]
+
+When the correlation coefficient is equal to latexmath:[$1$] or
+latexmath:[$-1$], we have
+
+latexmath:[\[Y=aX+b\]]
+
+with
+
+* latexmath:[$a>0$] if latexmath:[$\rho(X,Y)=1$]
+* latexmath:[$a<0$] if latexmath:[$\rho(X,Y)=-1$]
+
+Note that latexmath:[$\rho(X,Y)$] can be equal to latexmath:[$0$] even
+if the variables are strongly linked.
+
+The usual example is a variable latexmath:[$X$] with a pair density
+(latexmath:[$f(-x)=f(x)$]) and latexmath:[$Y=X^2$]:
+
+latexmath:[\[\textrm{Cov}(X,Y)=\textrm{Cov}(X,X^2)=E[X^3]-E[X]E[X^2]=E[X^3]=\int_{\mathbb{R}} x^3f(x)dx =0\]]
+----

@@ -9,7 +9,13 @@
 
 
 +#NO_DIFF#XXX+
-----IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=1000, min=10)<IPython.core.display.Javascript object>
+----IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=300, min=10)<IPython.core.display.Javascript object>
+[[XXX]]
+----
+
+
++#NO_DIFF#XXX+
+----IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=300, min=10)<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 
@@ -21,6 +27,18 @@
 
 
 +#NO_DIFF#XXX+
-----Dropdown(description='Basic Structure', options=('Nugget effect', 'Exponential', 'Spherical', 'Gaussian', 'Cub…<IPython.core.display.Javascript object>
+----Dropdown(description='Structure', index=2, options=('Nugget effect', 'Exponential', 'Spherical', 'Gaussian', '…<IPython.core.display.Javascript object>
+[[XXX]]
+----
+
+
++#NO_DIFF#XXX+
+----Checkbox(value=True, description='Draw Title', indent=False)<IPython.core.display.Javascript object>
+[[XXX]]
+----
+
+
++#NO_DIFF#XXX+
+----HBox(children=(IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=300, min=10), FloatS…<IPython.core.display.Javascript object>
 [[XXX]]
 ----
