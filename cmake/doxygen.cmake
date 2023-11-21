@@ -25,7 +25,7 @@ set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_MAX_INITIALIZER_LINES 1000) # For very long macros
 set(DOXYGEN_MACRO_EXPANSION YES)
 set(DOXYGEN_EXPAND_ONLY_PREDEF NO)
-set(DOXYGEN_EXTRACT_PRIVATE YES)
+set(DOXYGEN_EXTRACT_PRIVATE NO)
 set(DOXYGEN_QUIET YES)
 set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or better graphs)
 # Uncomment if you prefer UML graphs (need DOXYGEN_HAVE_DOT YES)

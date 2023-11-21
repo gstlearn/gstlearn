@@ -18,13 +18,13 @@ The random variables are described using probabilities.
 
 == A. Discrete variables
 
-== I. Probability mass function
+== A.1. Probability mass function
 
-To indtroduce the probability mass function, we will give some examples:
+To introduce the probability mass function, we will give some examples
 
-=== 1) Head or tail
+=== A.1.1) Head or tail
 
-We launch a coin. The result (still unknown) will be equal to
+We launch a coin. The result (still unknown) will be equal to:
 
 latexmath:[\[Z(\omega) = \left\{\begin{array}{cc}0 &\textrm{ if head}\\
                                  1 &\textrm{ if tail}\\
@@ -52,7 +52,7 @@ When latexmath:[$H$] only contains 2 values (0 or 1), the variable is
 binary and its distribution is named Bernouilli with parameter
 latexmath:[$p=P(Z=1)$].
 
-=== 2) Outputs of a dice
+=== A.1.2) Outputs of a dice
 
 latexmath:[$H=\{1,2,3,4,5,6\}$]
 
@@ -61,7 +61,7 @@ latexmath:[$p_i=P(Z=i)$] for latexmath:[$i=1,\dots,6$].
 
 We have latexmath:[$p_1+p_2+p_3+p_4+p_5+p_6=1$].
 
-=== 3) General case of discrete variable
+=== A.1.3) General case of discrete variable
 
 latexmath:[$Z$] is a random variable with values in a countable space
 latexmath:[$H$].
@@ -71,13 +71,13 @@ latexmath:[$p(i)=p_i=P(Z=i)$] for all latexmath:[$i\in H$].
 
 image:Figures/pmf.png[Description]
 
-=== 4) Uniform distribution over a finite output space latexmath:[$H = \{a_1,\dots,a_n\}$]
+=== A.1.4) Uniform distribution over a finite output space latexmath:[$H = \{a_1,\dots,a_n\}$]
 
 For all latexmath:[$i=1,\dots,n$], latexmath:[\[p_i=\frac{1}{n}\]]
 
 image:Figures/uniformdiscretpmf.png[Description]
 
-=== 5) Binomial distribution of parameters latexmath:[$(n,p)$]
+=== A.1.5) Binomial distribution of parameters latexmath:[$(n,p)$]
 
 It models the sum of latexmath:[$n$] independent Bernouilli variables
 with parameters latexmath:[$p$].
@@ -88,7 +88,7 @@ latexmath:[\[p_i = \frac{n!}{i!(n-i)!}p^i(1-p)^{n-i}\]]
 
 image:Figures/binomialpmf.png[Description]
 
-== II. Cumulative distribution
+== A.2. Cumulative distribution
 
 Instead of working with the probability mass function, we can use the
 cumulative distribution function latexmath:[$F$] defined by
@@ -103,11 +103,11 @@ image:Figures/discretecdf.png[Description]
 And we can also deduce latexmath:[$p$] from latexmath:[$F$]:
 latexmath:[\[p(i) = P(Z=i) = P(Z\leq i) - P(Z\leq i-1) = F(i)-F(i-1)\]]
 
-== III. Property:
+== A.3. Property:
 
 latexmath:[\[P(a<Z \leq b) = F(b)-F(a)\]]
 
-== IV. Expectation:
+== A.4. Expectation:
 
 The expectation of a random variable with probability mass function
 latexmath:[$p$] is given by
@@ -124,11 +124,11 @@ latexmath:[$p$], latexmath:[\[E[Z]= 0 \times (1-p) + 1 \times p = p\]]
 *Expectation of a function*
 latexmath:[\[E(q(Z))=\sum_{i\in H} q(i) \times P(Z=i)\]]
 
-== V. Variance
+== A.5. Variance
 
 latexmath:[\[\textrm{Var(Z)} = E[(Z-E[Z])^2]\]]
 
-== VI. Random vectors
+== A.6. Random vectors
 
 If latexmath:[$Z_1$] is a random variable on a countable space
 latexmath:[$H_1$] and latexmath:[$Z_2$] is another random variable on a
@@ -339,8 +339,4 @@ We can generalize to a set latexmath:[$X_1,\dots,X_p$] of variables by
 using multivariate densities latexmath:[\[f(x_1,\dots,x_p)\]]
 
 In geostatistics, we often use the multivariate gaussian distribution.
-
-[source,python]
-----
-----
 ----

@@ -31,7 +31,45 @@ class SpacePoint;
 class SpaceTarget;
 
 /**
- * Class containing a Data Set organized as a set of Isolated Points.
+ * \brief
+ * Class containing the Data Information.
+ *
+ * This Data Set benefits from the comparison to an Excel spread sheet:
+ * it can be considered as a Data Frame with a number of rows and a number of columns.
+ * The columns will correspond to **variables** and the rows to **samples**.
+ *
+ * Notes:
+ * - For short, this Data Base organization is referred to as **Db**,
+ * - At any time, variables can be added, renamed or deleted,
+ * - In the current version, this Data Set is currently limited to numerical contents.
+ * The data frame is necessarily completely filled with values: therefore, a specific value
+ * stands for a missing value (printed as **NA**);
+ *
+ * Moreover each variable may be assigned a *role* (or functionality) in the rest of a script.
+ * This role is defined by a **locator**: for example, a variable can serve as a coordinate,
+ * or a target variable. The locators can be viewed in the following list (see ELoc.hpp).
+ * Note that a variable which does not play any role in particular may be assigned to an idle
+ * role (locator NA);
+ * This locator may be modified or cancelled (by the user) at any time.
+ *
+ * There are two status for these locators: **unique** or **multiple**.
+ *
+ * *Unique*. Only one variable can be assigned this unique locator: this is the
+ * case for the selection (*SEL*) as there may be only one current selection activated at a time.
+ *
+ * *Multiple*. Several variable may be assigned the same locator: this is the case for the
+ * coordinates (*X*). In that case, the locator name is followed by its rank (1-based).
+ * Then the first coordinate will correspond to the locator *X1*, the second coordinate to *X2*, ...
+ * Note that:
+ * - for a given locator name, the ranks are always consecutive between 1 and N (if it
+ * happens that you delete X3, the locator X4 is automatically modified into X3, X5 into X4, and
+ * so on up to X{N} into X{N-1}.
+ * - there is no limitation in the number of ranks for a given locator name.
+ *
+ * Each variable (or column) can be designated:
+ * - by its name (unique in the Data Base) or
+ * - by its locator (name and rank) or
+ * - by its rank (0-based): this designation mode is dangerous (and not recommended) as the rank may change over time.
  */
 class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public ICloneable
 {

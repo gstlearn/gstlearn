@@ -21,9 +21,29 @@ class Db;
 class DbGrid;
 
 /**
- * Experimental Variogram calculation direction parameters TODO : to be improved
+ * \brief
+ * Class containing the definition of a **Direction** used for the calculation of the experimental Spatial Characteristics
+ * as calculated experimentally from the data (contained in a Db).
+ * This class corresponds to one item of the list of criteria stored in VarioParam and use for the calculation of Vario.
+ *
+ * The **Direction** consists in a series of rules (some are optional) for comparing two active samples of the Db:
+ * - their distance must be assigned to a lag: i.e. the distance must correspond to a multiple of the lag (**lag**),
+ * up to a tolerance (**tolerance**) expressed as a percentage of the lag. The rank of this multiple must be smaller
+ * than the number of lags (**nlag**).
+ * - the lag definition can be replaced by a series of intervals (**breaks**): the pair is selected if the distance
+ * belongs to one of these intervals.
+ * - the orientation of the segment joining the two points must be assigned to the current direction
+ * characterized by its angle (expressed by its direction coefficients **codir**), up to a tolerance on angle (**tolangle**)
+ * given in degrees.
+ * - the distance between the two points (measured along the axis perpendicular to the direction)
+ * must be smaller than a maximum cylinder distance (**cylrad**).
+ * - the distance between the two points (measured along the highest space dimension) must be smaller than a bench height (**bench**)
+ * - the difference between the code values (locator ELoc::CODE) defined at both samples must be either smaller or larger
+ * than the tolerance on the code (**tolcode**).
+ * - the two saples must share the same data (ELoc::DATE)
+ *
+ * In the case, the Db correspond to a grid, the lag is defined as an increment on the grid meshes (**grincr**)
  */
-// TODO : Inherits from ASpaceParam which inherits from ASPaceObject and AParam, which inherits from ASerializable, AStringable, IClonable
 class GSTLEARN_EXPORT DirParam : public ASpaceObject
 {
 public:

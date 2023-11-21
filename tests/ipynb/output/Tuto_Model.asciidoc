@@ -1,0 +1,20 @@
++#NO_DIFF#XXX+
+----<IPython.core.display.Javascript object>----
+
+
++#NO_DIFF#XXX+
+----('NUGGET',
+ 'EXPONENTIAL',
+ 'SPHERICAL',
+ 'GAUSSIAN',
+ 'CUBIC',
+ 'SINCARD',
+ 'BESSEL_J',
+ 'BESSEL_K',
+ 'STABLE')----
+
+
++#NO_DIFF#XXX+
+----WModel(children=(Dropdown(description='Type', options=('Nugget effect', 'Exponential', 'Spherical', 'Gaussian'…<IPython.core.display.Javascript object>
+[[XXX]]
+----
