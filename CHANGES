@@ -9,6 +9,7 @@ Release 1.0.1
 - Adding description of main classes (Db, Vario and daughter classes, Model and daughter classes).
 - Improve the Tutorial on widgets
 - Improve the Tutorial on Neighborhood to treat data along profiles
+- New extension package (for R only): io.R (interface with 'sf' and 'terra')
 
 Release 1.0.0
 =============

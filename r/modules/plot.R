@@ -237,7 +237,7 @@ ggPrint <- function(p, flagSuppressWarnings = TRUE)
 ggDefaultGeographic <- function(figsize=NA)
 {
   if (!require(ggplot2, quietly=TRUE))
-    stop("Package ggplot2 is mandatory to use this function!")
+    stop("Package 'ggplot2' is mandatory to use this function!")
 
   mode = 2
     
@@ -261,7 +261,7 @@ ggDefaultGeographic <- function(figsize=NA)
 ggDefault <- function(figsize=NA)
 {
   if (!require(ggplot2, quietly=TRUE))
-    stop("Package ggplot2 is mandatory to use this function!")
+    stop("Package 'ggplot2' is mandatory to use this function!")
   
   mode = 1
   
