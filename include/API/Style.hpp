@@ -92,6 +92,7 @@
  * - Add a doxygen section above each method definition in the C++ body
  * - All this except for trivial methods\tooltip{getters, setters and inline functions}, constructors and destructors
  * - Define pointer for ENUM. Example to point to EMorpho Enum:  \link EMorpho.hpp EMorpho \endlink
+ * - In order to avoid having *protected* method listed in Doxygen, use ///@cond and ///@endcond around these functions
  */
 class GSTLEARN_EXPORT Style
 {

@@ -450,7 +450,7 @@ public:
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
-  double _evalDriftCoef(const Db* db,
+  double evalDriftCoef(const Db* db,
                         int iech,
                         int ivar,
                         const double* coef) const;
@@ -561,13 +561,15 @@ public:
   bool isValid() const;
 
 protected:
+  /// @cond
   /// Interface to ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Model"; }
 
   const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
-  ACovAnisoList*       _castInCovAnisoList(int icov = -1); // only used internall as unprotected
+  ACovAnisoList*       _castInCovAnisoList(int icov = -1);
+  /// @endcond
 
 private:
   void _clear();

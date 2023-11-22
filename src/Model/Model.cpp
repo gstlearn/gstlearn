@@ -1729,7 +1729,7 @@ bool Model::isFlagGradientFunctional() const
  ** \param[in]  coef    Array of coefficients
  **
  *****************************************************************************/
-double Model::_evalDriftCoef(const Db* db,
+double Model::evalDriftCoef(const Db* db,
                              int iech,
                              int ivar,
                              const double* coef) const
