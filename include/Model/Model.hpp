@@ -561,7 +561,6 @@ public:
   bool isValid() const;
 
 protected:
-  /// @cond
   /// Interface to ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
@@ -569,7 +568,6 @@ protected:
 
   const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
   ACovAnisoList*       _castInCovAnisoList(int icov = -1);
-  /// @endcond
 
 private:
   void _clear();

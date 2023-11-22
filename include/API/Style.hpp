@@ -61,7 +61,7 @@
  * - Class' methods: lower camel case (ie: loadData, getArmonicMean, isEmpty)
  * - Class' attributes (variables): idem
  * - Anything which is *private* or *protected* in a class starts with underscore (ie: _myMember)
- * - Local variables: lower case separated by underscore (ie: temp_value, color_idx)
+ * - Local variables: lower case separated by underscore (i.e.: temp_value, color_idx)
  *
  * ## C++ coding rules
  *
@@ -92,7 +92,6 @@
  * - Add a doxygen section above each method definition in the C++ body
  * - All this except for trivial methods\tooltip{getters, setters and inline functions}, constructors and destructors
  * - Define pointer for ENUM. Example to point to EMorpho Enum:  \link EMorpho.hpp EMorpho \endlink
- * - In order to avoid having *protected* method listed in Doxygen, use ///@cond and ///@endcond around these functions
  */
 class GSTLEARN_EXPORT Style
 {
@@ -159,4 +158,3 @@ private:
   VectorInt    _argVectorInt;    //!< Private attribute of type `VectorInt`
   VectorDouble _argVectorDouble; //!< Private attribute of type `VectorDouble`
 };
-
