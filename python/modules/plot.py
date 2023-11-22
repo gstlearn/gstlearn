@@ -22,8 +22,6 @@ from plotly.matplotlylib     import mpltools
 import math
 from plotly.validators.layout.scene import aspectratio
 from matplotlib.pyplot import axes
-#from mpl_toolkits.basemap.proj import nx
-#from bleach._vendor.html5lib._ihatexml import name
 
 #Set of global values
 defaultDims = [[5,5], [8,8]]
@@ -38,6 +36,9 @@ def setDefaultGeographic(dims=None, xlim=None, ylim=None, aspect=None):
     xlim: Bounds along the horizontal axis (otherwise: no bound is defined)
     ylim: Bounds along the vertical axis (otherwise: no bound is defined)
     aspect: Ratio between dimensions along bith axes (Y/X)
+    
+    Remark:
+    - to reset the default value for 'xlim' (resp. 'ylim'): set xlim='reset'
     '''
     __setDefaultInternal(1, dims=dims, xlim=xlim, ylim=ylim, aspect=aspect)
     
@@ -60,9 +61,15 @@ def __setDefaultInternal(mode, dims=None, xlim=None, ylim=None, aspect=None):
     if dims is not None:
         defaultDims[mode] = dims
     if xlim is not None:
-        defaultXlim[mode] = xlim
+        if __isArray(xlim, 2):
+            defaultXlim[mode] = xlim
+        elif xlim == 'reset':
+            defaultXlim[mode] = None
     if ylim is not None:
-        defaultYlim[mode] = ylim
+        if __isArray(ylim, 2):
+            defaultYlim[mode] = ylim
+        elif ylim == 'reset':
+            defaultYlim[mode] = None
     if aspect is not None:
         defaultAspect[mode] = aspect
 
@@ -1747,7 +1754,8 @@ def neigh(ax, neigh, grid, node=0, flagCell=False, flagZoom=False, **kwargs):
     __ax_sample(ax, target, **kwargs)
     
     # Represent the edge of the target (if block)
-    __ax_curve(ax, grid.getCellEdges(node), **kwargs)
+    if flagCell and grid.isGrid():
+        __ax_curve(ax, grid.getCellEdges(node), **kwargs)
     
     # Represent the Neighborhood Ellipsoid
     if neigh.getType() == gl.ENeigh.MOVING:

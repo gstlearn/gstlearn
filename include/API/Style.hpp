@@ -61,7 +61,7 @@
  * - Class' methods: lower camel case (ie: loadData, getArmonicMean, isEmpty)
  * - Class' attributes (variables): idem
  * - Anything which is *private* or *protected* in a class starts with underscore (ie: _myMember)
- * - Local variables: lower case separated by underscore (ie: temp_value, color_idx)
+ * - Local variables: lower case separated by underscore (i.e.: temp_value, color_idx)
  *
  * ## C++ coding rules
  *
@@ -158,4 +158,3 @@ private:
   VectorInt    _argVectorInt;    //!< Private attribute of type `VectorInt`
   VectorDouble _argVectorDouble; //!< Private attribute of type `VectorDouble`
 };
-

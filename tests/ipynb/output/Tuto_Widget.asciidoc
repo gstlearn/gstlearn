@@ -3,13 +3,25 @@
 
 
 +#NO_DIFF#XXX+
+----('NUGGET',
+ 'EXPONENTIAL',
+ 'SPHERICAL',
+ 'GAUSSIAN',
+ 'CUBIC',
+ 'SINCARD',
+ 'BESSEL_J',
+ 'BESSEL_K',
+ 'STABLE')----
+
+
++#NO_DIFF#XXX+
 ----<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 
 
 +#NO_DIFF#XXX+
-----IntSlider(value=200, continuous_update=False, description='Nb. Bands', max=300, min=10)<IPython.core.display.Javascript object>
+----HBox(children=(IntSlider(value=10, continuous_update=False, description='Number', min=1), Checkbox(value=False…<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 
@@ -27,7 +39,7 @@
 
 
 +#NO_DIFF#XXX+
-----Dropdown(description='Structure', index=2, options=('Nugget effect', 'Exponential', 'Spherical', 'Gaussian', '…<IPython.core.display.Javascript object>
+----Dropdown(description='Structure', index=1, options=('NUGGET', 'EXPONENTIAL', 'SPHERICAL', 'GAUSSIAN', 'CUBIC',…<IPython.core.display.Javascript object>
 [[XXX]]
 ----
 

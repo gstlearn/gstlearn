@@ -48,3 +48,75 @@ Reject samples which do not belong to target Block----
 ----
 #NO_DIFF#XXX
 ----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 10
+Maximum horizontal distance         = 7----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 10
+Number of angular sectors           = 8
+Maximum number of points per sector = 3
+Maximum horizontal distance         = 7----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 10
+Number of angular sectors           = 8
+Maximum number of points per sector = 3
+Maximum horizontal distance         = 20----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----
+
+
++#NO_DIFF#XXX+
+----
+Moving Neighborhood
+===================
+Minimum number of samples           = 1
+Maximum number of samples           = 20
+Number of angular sectors           = 20
+Maximum number of points per sector = 1
+Maximum horizontal distance         = 20----
+
+
++#NO_DIFF#XXX+
+----
+#NO_DIFF#XXX
+----

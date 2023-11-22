@@ -450,7 +450,7 @@ public:
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
-  double _evalDriftCoef(const Db* db,
+  double evalDriftCoef(const Db* db,
                         int iech,
                         int ivar,
                         const double* coef) const;
@@ -567,7 +567,7 @@ protected:
   String _getNFName() const override { return "Model"; }
 
   const ACovAnisoList* _castInCovAnisoListConst(int icov = -1) const;
-  ACovAnisoList*       _castInCovAnisoList(int icov = -1); // only used internall as unprotected
+  ACovAnisoList*       _castInCovAnisoList(int icov = -1);
 
 private:
   void _clear();

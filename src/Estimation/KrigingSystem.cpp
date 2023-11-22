@@ -1292,7 +1292,7 @@ void KrigingSystem::_simulateCalcul(int status)
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postSimu[isimu].data());
+          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu[isimu].data());
 
         int lec = ivar * _nred;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1303,7 +1303,7 @@ void KrigingSystem::_simulateCalcul(int status)
             double mean = 0.;
             if (_nfeq <= 0) mean = _getMean(jvar);
             if (_flagBayes)
-              mean = _model->_evalDriftCoef(_dbin, jech, jvar,_postSimu[isimu].data());
+              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu[isimu].data());
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
             simu -= _wgt[lec++] * (data + mean);
           }
@@ -1349,7 +1349,7 @@ void KrigingSystem::_estimateCalcul(int status)
       if (status == 0 && (_nred > 0 || _nfeq <= 0 || _flagBayes))
       {
         if (_flagBayes)
-          estim = _model->_evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
+          estim = _model->evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
         estim += VH::innerProduct(_getRHSCAdd(0, ivarCL), _getZamAdd(0), _nred);
       }
       else
@@ -1731,7 +1731,7 @@ void KrigingSystem::_dualCalcul()
       double mean = 0.;
       if (_nfeq <= 0) mean = _getMean(ivar);
       if (_flagBayes)
-        mean = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
+        mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
       _setZEXT(ecr, _getIvar(_nbgh[iech], ivar) - mean);
       ecr++;
     }

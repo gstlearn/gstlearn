@@ -4524,12 +4524,10 @@ int Db::resetReduce(const Db *dbin,
   VectorInt ranksel = ranks;
   if (ranksel.empty())
   {
-    if (!dbin->hasLocVariable(ELoc::SEL))
-    {
-      messerr("You did not provide a vector of sample ranks and the 'db' has no selection");
-      return 1;
-    }
-    ranksel = dbin->getSelectionRanks();
+    if (dbin->hasLocVariable(ELoc::SEL))
+      ranksel = dbin->getSelectionRanks();
+    else
+      ranksel = VH::sequence(dbin->getSampleNumber());
   }
   _nech = static_cast<int> (ranksel.size());
   if (verbose)
