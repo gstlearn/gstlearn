@@ -23,10 +23,10 @@
 #' The crs information is not stored.
 #'
 #' @param x a sf object to be converted
-#' @param verbose a Boolean to control messages
+#' @param quiet a Boolean to control messages
 #'
 #' @value returns the gstlearn object (Polygons or Db)
-sf_to_gstlearn <- function(x, verbose = TRUE)
+sf_to_gstlearn <- function(x, quiet = TRUE)
 {
   if (!require(sf, quietly=TRUE))
     stop("Package 'sf' is mandatory to use this function!")
@@ -36,7 +36,7 @@ sf_to_gstlearn <- function(x, verbose = TRUE)
   # Conversion of polygons
   geo = st_geometry(x)
   if(class(geo)[1] == "sfc_MULTIPOLYGON") {
-    print(paste("Converting polygons..."))
+    if (! quiet) print(paste("Converting polygons..."))
     xy  = st_coordinates(geo)
     idx = sort(unique(xy[,4]))
     val = Polygons()
@@ -49,7 +49,7 @@ sf_to_gstlearn <- function(x, verbose = TRUE)
 
   # conversion of scattered points
   if((class(geo)[1] == "sfc_POINT")) {
-    print(paste("Converting scattered points..."))
+    if (! quiet) print(paste("Converting scattered points..."))
     val = Db()
     xy = st_coordinates(x)
     val[colnames(xy)[1]] <- xy[,1]
@@ -63,7 +63,7 @@ sf_to_gstlearn <- function(x, verbose = TRUE)
       if(is.numeric(values)) {
         val[v] <- values
       } else {
-       print(paste(">>> variable ", v, " is not converted (not numeric)"))  
+        print(paste(">>> variable ", v, " is not converted (not numeric)"))  
       }
     }
   }
@@ -80,13 +80,13 @@ sf_to_gstlearn <- function(x, verbose = TRUE)
 #' (e.g. "EPSG:4326" for long/lat in WGS84)
 #'
 #' @value returns the sf object
-gstlearn_to_sf <- function(x, crs = NA, type = "Unknown")
+gstlearn_to_sf <- function(x, crs = NA)
 {
   if (!require(sf, quietly=TRUE))
     stop("Package 'sf' is mandatory to use this function!")
 
   val = NULL
-  if(type == "Polygons") {
+  if (class(x)[1] == "_p_Polygons") {
       lp = list()
       for (i in 0:(x$getPolyElemNumber()-1)) {
         lp[[1+length(lp)]] <- list(matrix(c(x$getX(i), x$getY(i)),
@@ -96,13 +96,13 @@ gstlearn_to_sf <- function(x, crs = NA, type = "Unknown")
           st_set_crs(crs)
   }
   
-  if(type == "Db") {
+  if (class(x)[1] == "_p_Db") {
     df <- x[]
     val <- st_as_sf(df, coords = x$getNamesByLocator(ELoc_X())) |>
       st_set_crs(crs)
   }
- if (is.null(val)) {
-   print(paste("gstlearn_to_sf: type = ", type, " not yet implemented."))
+  if (is.null(val)) {
+   print(paste("gstlearn_to_sf: class = ", class(x)[1], " not yet implemented."))
  }
  val
 }

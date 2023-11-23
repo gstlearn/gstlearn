@@ -137,17 +137,14 @@ bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
 
   // Loop on the Fault polylines
 
-  for (int ifault = 0; ifault < getNFaults(); ifault++)
+  for (int ifault = 0, nfault = getNFaults(); ifault < nfault; ifault++)
   {
-
     const PolyLine2D& fault = getFault(ifault);
-
-    // Get the fault bounding box
 
     const VectorDouble x = fault.getX();
     const VectorDouble y = fault.getY();
 
-    // Check against the bounding box
+    // Check if bounding boxes overlap
 
     if (VH::maximum(x) < xtmin) continue;
     if (xtmax < VH::minimum(x)) continue;
@@ -156,14 +153,15 @@ bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
 
     // Loop on the segments of the polyline
 
-    for (int ip = 0; ip< fault.getNPoints() - 1; ip++)
+    double x1 = x[0];
+    double y1 = y[0];
+    for (int ip = 1, np = fault.getNPoints(); ip < np; ip++)
     {
-      double x1 = fault.getX(ip);
-      double y1 = fault.getY(ip);
-      double x2 = fault.getX(ip + 1);
-      double y2 = fault.getY(ip + 1);
-      if (GH::isSegmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2))
-        return true;
+      const double x2 = x[ip];
+      const double y2 = y[ip];
+      if (GH::isSegmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2)) return true;
+      x1 = x2;
+      y1 = y2;
     }
   }
   return false;
