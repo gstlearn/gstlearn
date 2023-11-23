@@ -128,12 +128,31 @@ bool Faults::isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const
 
 bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
 {
+  // Segment bounding box
+
+  double xtmin = MIN(xt1, xt2);
+  double xtmax = MAX(xt1, xt2);
+  double ytmin = MIN(yt1, yt2);
+  double ytmax = MAX(yt1, yt2);
+
   // Loop on the Fault polylines
 
   for (int ifault = 0; ifault < getNFaults(); ifault++)
   {
 
-    const PolyLine2D fault = getFault(ifault);
+    const PolyLine2D& fault = getFault(ifault);
+
+    // Get the fault bounding box
+
+    const VectorDouble x = fault.getX();
+    const VectorDouble y = fault.getY();
+
+    // Check against the bounding box
+
+    if (VH::maximum(x) < xtmin) continue;
+    if (xtmax < VH::minimum(x)) continue;
+    if (VH::maximum(y) < ytmin) continue;
+    if (ytmax < VH::minimum(y)) continue;
 
     // Loop on the segments of the polyline
 
