@@ -111,6 +111,4 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
     return (static_cast<AGibbs *>(gibbs));
   }
 
-  messerr("No relevant option found in Gibbs Factory");
-  return nullptr;
 }

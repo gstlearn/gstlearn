@@ -1180,20 +1180,17 @@ double matrix_determinant(int neq, const double *b)
   {
     case 1:
       return B(0,0);
-      break;
 
     case 2:
       return (B(0,0)* B(1,1) - B(1,0) * B(0,1));
-      break;
 
-      case 3:
+    case 3:
       return ((B(0,0) * B(1,1) * B(2,2)
           + B(0,1) * B(1,2) * B(2,0)
           + B(1,0) * B(2,1) * B(0,2)
           - B(2,0) * B(1,1) * B(0,2)
           - B(1,0) * B(0,1) * B(2,2)
           - B(2,1) * B(1,2) * B(0,0)));
-      break;
 
     default:
 
@@ -1217,9 +1214,7 @@ double matrix_determinant(int neq, const double *b)
         deter += pow(-1.0,j1+2.0) * B(0,j1) * matrix_determinant(neqm1,c.data());
       }
       return deter;
-      break;
     }
-  return TEST;
 }
 
 /****************************************************************************/
