@@ -83,10 +83,8 @@ int main(int argc, char *argv[])
   for (int ncov = 0; ncov < 2; ncov++)
   {
     // Generate the Model
-    Model *model;
-    if (ncov >= 0)
-      model = Model::createFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
-                                     { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
+    Model *model = Model::createFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
+                                          { 0.1, 0.3 }, VectorDouble(), { 30., 0. });
     if (ncov >= 1)
       model->addCovFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
                              { 0.3, 0.2 }, VectorDouble(), { -10., 0.});
