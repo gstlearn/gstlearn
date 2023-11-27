@@ -110,7 +110,4 @@ AGibbs* GibbsFactory::createGibbs(Db* db,
     GibbsUMultiMono* gibbs = new GibbsUMultiMono(db, models, rho);
     return (static_cast<AGibbs *>(gibbs));
   }
-
-  messerr("No relevant option found in Gibbs Factory");
-  return nullptr;
 }

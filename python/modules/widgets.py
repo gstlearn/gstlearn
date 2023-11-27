@@ -56,19 +56,19 @@ def dropDown(title="", options=['1', '2', '3'], value=0, eventhandler=None):
 class WModel(ipw.VBox):
     value = Unicode()
 
-    def __init__(self, models, changeCallback, **kwargs):
-        defvalue = list(models.keys())[1]
+    def __init__(self, models, changeCallback, defrank=0, defrange=20, defsill=1, defparam=1, **kwargs):
+        defvalue = list(models.keys())[defrank]
         self.dropType      = dropDown(title='Type', options = models.keys(), value=defvalue,
                                       eventhandler=self.__update_value)
-        self.sliderRangeX  = sliderInt(title='RangeX', value=20, mini=1, maxi=50,
+        self.sliderRangeX  = sliderInt(title='RangeX', value=defrange, mini=1, maxi=50,
                                        eventhandler=self.__update_value)
-        self.sliderRangeY  = sliderInt(title='RangeY', value=20, mini=1, maxi=50,
+        self.sliderRangeY  = sliderInt(title='RangeY', value=defrange, mini=1, maxi=50,
                                        eventhandler=self.__update_value)
-        self.sliderParam   = sliderInt(title='Parameter', value=1, mini=0, maxi=4,
+        self.sliderParam   = sliderInt(title='Parameter', value=defparam, mini=0, maxi=4,
                                        eventhandler=self.__update_value)
         self.sliderAngle   = sliderInt(title='Angle', value=0, mini=0, maxi=180,
                                        eventhandler=self.__update_value)
-        self.sliderSill    = sliderInt(title='Sill', value=1, mini=0, maxi=100,
+        self.sliderSill    = sliderInt(title='Sill', value=defsill, mini=0, maxi=100,
                                        eventhandler=self.__update_value)
         
         self.hb1 = ipw.HBox([self.sliderRangeX, 
@@ -77,7 +77,8 @@ class WModel(ipw.VBox):
         self.hb2 = ipw.HBox((self.sliderAngle, self.sliderSill))
         self.changeCallback = changeCallback
         self.models = models
-        self.monmodel = gl.Model.createFromParam()
+        self.monmodel = gl.Model.createFromParam(type=models[defvalue],range=defrange,sill=defsill,
+                                                 param=defparam)
 
 #        self.__update_value()
         self.observe(self.__update_children, names='value')

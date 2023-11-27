@@ -15,6 +15,32 @@
 
 
 +#NO_DIFF#XXX+
-----WModel(children=(Dropdown(description='Type', index=1, options=('Nugget effect', 'Exponential', 'Spherical', '…<IPython.core.display.Javascript object>
+----WModel(children=(Dropdown(description='Type', index=2, options=('Nugget effect', 'Exponential', 'Spherical', '…<IPython.core.display.Javascript object>
 [[XXX]]
 ----
+
+
++#NO_DIFF#XXX+
+----
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 3
+Number of drift equation(s)  = 3
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.000
+Spherical
+- Sill         =      3.000
+- Range        =     10.000
+Total Sill     =      5.000
+
+Drift Part
+----------
+Universality_Condition
+Drift:x1
+Drift:x2----

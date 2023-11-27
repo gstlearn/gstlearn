@@ -172,20 +172,20 @@ void GeometryHelper::rotation3DMatrixInPlace(double alpha,
   /* Initializations */
 
   GH::rotationGetSinCos(alpha, &ca[0], &sa[0]);
-  GH::rotationGetSinCos(beta,  &ca[1], &sa[1]);
+  GH::rotationGetSinCos(beta, &ca[1], &sa[1]);
   GH::rotationGetSinCos(gamma, &ca[2], &sa[2]);
 
   /* Define the 3-D rotation matrix */
 
-  rot[0] =  ca[0] * ca[1];
-  rot[1] =  sa[0] * ca[1];
+  rot[0] = ca[0] * ca[1];
+  rot[1] = sa[0] * ca[1];
   rot[2] = -sa[1];
   rot[3] = -sa[0] * ca[2] + ca[0] * sa[1] * sa[2];
-  rot[4] =  ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
-  rot[5] =  ca[1] * sa[2];
-  rot[6] =  sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
+  rot[4] = ca[0] * ca[2] + sa[0] * sa[1] * sa[2];
+  rot[5] = ca[1] * sa[2];
+  rot[6] = sa[0] * sa[2] + ca[0] * sa[1] * ca[2];
   rot[7] = -ca[0] * sa[2] + sa[0] * sa[1] * ca[2];
-  rot[8] =  ca[1] * ca[2];
+  rot[8] = ca[1] * ca[2];
 
   return;
 }
@@ -324,9 +324,9 @@ void GeometryHelper::rotationGetAnglesInPlace(int ndim,
   else if (ndim == 3)
   {
     nval = 3;
-    angles[0] = atan2( rot[1], rot[0]);
-    angles[1] = atan2(-rot[2], sqrt(rot[5]*rot[5] + rot[8]*rot[8]));
-    angles[2] = atan2( rot[5], rot[8]);
+    angles[0] = atan2(rot[1], rot[0]);
+    angles[1] = atan2(-rot[2], sqrt(rot[5] * rot[5] + rot[8] * rot[8]));
+    angles[2] = atan2(rot[5], rot[8]);
 
 //    double s1 = -rot[2];
 //    double c1 = sqrt(rot[0] * rot[0] + rot[1] * rot[1]);
@@ -828,109 +828,6 @@ bool GeometryHelper::isInSphericalTriangleOptimized(const double *coor,
 
 /****************************************************************************/
 /*!
- **  Calculate the intersection between two segments
- **
- ** \return 0 there is an intersection; 1 if there is no intersection
- **
- ** \param[in]  xd1,yd1     Starting point for the first segment
- ** \param[in]  xe1,ye1     Ending point for the first segment
- ** \param[in]  xd2,yd2     Starting point for the second segment
- ** \param[in]  xe2,ye2     Ending point for the second segment
- **
- ** \param[out]   xint,yint  Coordinates of the intersection
- **
- *****************************************************************************/
-int GeometryHelper::segmentIntersect(double xd1,
-                                     double yd1,
-                                     double xe1,
-                                     double ye1,
-                                     double xd2,
-                                     double yd2,
-                                     double xe2,
-                                     double ye2,
-                                     double *xint,
-                                     double *yint)
-{
-  double b1 = ye1 - yd1;
-  double b2 = ye2 - yd2;
-
-  /* Case of two horizontal segments */
-
-  if (ABS(b1) < EPSILON10 && ABS(b2) < EPSILON10)
-  {
-    if (ABS(ye1 - ye2) > EPSILON10) return (1);
-    double x1m = MIN(xd1, xe1);
-    double x1M = MAX(xd1, xe1);
-    double x2m = MIN(xd2, xe2);
-    double x2M = MAX(xd2, xe2);
-    if (x1m > x2M || x2m > x1M) return (1);
-    (*xint) = MAX(x1m, x2m);
-    (*yint) = ye1;
-    return (0);
-  }
-
-  /* Case of the horizontal first segment */
-
-  if (ABS(b1) < EPSILON10)
-  {
-    double y = ye1;
-    double x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
-    if ((x - xd1) * (x - xe1) > 0) return (1);
-    if ((y - yd1) * (y - ye1) > 0) return (1);
-    if ((x - xd2) * (x - xe2) > 0) return (1);
-    if ((y - yd2) * (y - ye2) > 0) return (1);
-    (*xint) = x;
-    (*yint) = y;
-    return (0);
-  }
-
-  /* Case of horizontal second segment */
-
-  if (ABS(b2) < EPSILON10)
-  {
-    double y = ye2;
-    double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
-    if ((x - xd1) * (x - xe1) > 0) return (1);
-    if ((y - yd1) * (y - ye1) > 0) return (1);
-    if ((x - xd2) * (x - xe2) > 0) return (1);
-    if ((y - yd2) * (y - ye2) > 0) return (1);
-    (*xint) = x;
-    (*yint) = y;
-    return (0);
-  }
-
-  /* This operation is safe as end-point ordinates cannot be equal */
-
-  double a1 = (xe1 - xd1) / b1;
-  double a2 = (xe2 - xd2) / b2;
-
-  /* Skip the case of parallel fractures */
-
-  if (ABS(a1 - a2) < EPSILON10) return (1);
-  double y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
-
-  /* Discard intersection if located outside the segment */
-
-  if (ABS(b1) > 0)
-  {
-    double testval = (y - yd1) * (y - ye1);
-    if (testval > 0) return (1);
-  }
-  if (ABS(b2) > 0)
-  {
-    double testval = (y - yd2) * (y - ye2);
-    if (testval > 0) return (1);
-  }
-
-  /* Update the endpoint in case of intersection */
-
-  (*xint) = xd1 + a1 * (y - yd1);
-  (*yint) = y;
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Check if two 2-D segments intersect
  **
  ** \return True if there is an intersection; False otherwise
@@ -940,81 +837,100 @@ int GeometryHelper::segmentIntersect(double xd1,
  ** \param[in]  xd2,yd2     Starting point for the second segment
  ** \param[in]  xe2,ye2     Ending point for the second segment
  **
+ ** \param[out]   xint,yint  Coordinates of the intersection
+ **
  *****************************************************************************/
-bool GeometryHelper::isSegmentIntersect(double xd1,
-                                        double yd1,
-                                        double xe1,
-                                        double ye1,
-                                        double xd2,
-                                        double yd2,
-                                        double xe2,
-                                        double ye2)
+bool GeometryHelper::segmentIntersect(double xd1,
+                                      double yd1,
+                                      double xe1,
+                                      double ye1,
+                                      double xd2,
+                                      double yd2,
+                                      double xe2,
+                                      double ye2,
+                                      double *xint,
+                                      double *yint)
 {
-  double b1 = ye1 - yd1;
-  double b2 = ye2 - yd2;
+  *xint = TEST;
+  *yint = TEST;
+
+  if (MAX(xd2, xe2) < MIN(xd1, xe1)) return false;
+  if (MAX(xd1, xe1) < MIN(xd2, xe2)) return false;
+  if (MAX(yd2, ye2) < MIN(yd1, ye1)) return false;
+  if (MAX(yd1, ye1) < MIN(yd2, ye2)) return false;
+
+  const double b1 = ye1 - yd1;
+  const double b2 = ye2 - yd2;
+
+  const bool b1_is_not_zero = b1 * b1 >= EPSILON20;
+  const bool b2_is_not_zero = b2 * b2 >= EPSILON20;
+
+  if (b1_is_not_zero && b2_is_not_zero)
+  {
+
+    /* This operation is safe as end-point coordinates cannot be equal */
+
+    const double a1 = (xe1 - xd1) / b1;
+    const double a2 = (xe2 - xd2) / b2;
+
+    /* Skip the case of parallel segments */
+
+    const double delta_a = a1 - a2;
+    if (delta_a * delta_a < EPSILON20) return false;
+
+    /* Discard intersection if located outside the segment */
+
+    const double y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / delta_a;
+    if ((y - yd1) * (y - ye1) > 0) return false;
+    if ((y - yd2) * (y - ye2) > 0) return false;
+    (*xint) = xd1 + a1 * (y - yd1);
+    (*yint) = y;
+    return true;
+  }
 
   /* Case of two horizontal segments */
 
-  if (ABS(b1) < EPSILON10 && ABS(b2) < EPSILON10)
+  else if (!b1_is_not_zero && !b2_is_not_zero)
   {
-    if (ABS(ye1 - ye2) > EPSILON10) return false;
+    const double delta_y = ye1 - ye2;
+    if (delta_y * delta_y > EPSILON20) return false;
     double x1m = MIN(xd1, xe1);
     double x1M = MAX(xd1, xe1);
     double x2m = MIN(xd2, xe2);
     double x2M = MAX(xd2, xe2);
     if (x1m > x2M || x2m > x1M) return false;
+    (*xint) = MAX(x1m, x2m);
+    (*yint) = ye1;
     return true;
   }
 
   /* Case of the horizontal first segment */
 
-  if (ABS(b1) < EPSILON10)
+  else if (b2_is_not_zero)
   {
-    double y = ye1;
-    double x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
-    if ((x - xd1) * (x - xe1) > 0) return false;
-    if ((y - yd1) * (y - ye1) > 0) return false;
-    if ((x - xd2) * (x - xe2) > 0) return false;
+    const double y = ye1;
     if ((y - yd2) * (y - ye2) > 0) return false;
+    const double x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
+    if ((x - xd1) * (x - xe1) > 0) return false;
+    if ((x - xd2) * (x - xe2) > 0) return false;
+    (*xint) = x;
+    (*yint) = y;
     return true;
   }
 
   /* Case of horizontal second segment */
 
-  if (ABS(b2) < EPSILON10)
+  else  // if (b1_is_not_zero)
   {
-    double y = ye2;
-    double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
-    if ((x - xd1) * (x - xe1) > 0) return false;
+    const double y = ye2;
     if ((y - yd1) * (y - ye1) > 0) return false;
+    const double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
+    if ((x - xd1) * (x - xe1) > 0) return false;
     if ((x - xd2) * (x - xe2) > 0) return false;
-    if ((y - yd2) * (y - ye2) > 0) return false;
+    (*xint) = x;
+    (*yint) = y;
     return true;
   }
-
-  /* This operation is safe as end-point ordinates cannot be equal */
-
-  double a1 = (xe1 - xd1) / b1;
-  double a2 = (xe2 - xd2) / b2;
-
-  /* Skip the case of parallel segments */
-
-  if (ABS(a1 - a2) < EPSILON10) return false;
-  double y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
-
-  /* Discard intersection if located outside the segment */
-
-  if (ABS(b1) > 0)
-  {
-    double testval = (y - yd1) * (y - ye1);
-    if (testval > 0) return false;
-  }
-  if (ABS(b2) > 0)
-  {
-    double testval = (y - yd2) * (y - ye2);
-    if (testval > 0) return false;
-  }
-  return true;
 }
 
 /****************************************************************************/
@@ -1597,7 +1513,7 @@ VectorDouble GeometryHelper::formatAngles(const VectorDouble &anglesin)
   return angles;
 }
 
-VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
+VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble &dir,
                                                   const VectorDouble &v0,
                                                   const VectorDouble &v1,
                                                   const VectorDouble &v2)
@@ -1638,9 +1554,9 @@ VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
  * - 1: rank of the triangle
  * - 2, 3, 4: barycentric coordinates
  */
-VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble& sphPts,
-                                               const MatrixRectangular& apices,
-                                               const MatrixInt& meshes)
+VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble &sphPts,
+                                               const MatrixRectangular &apices,
+                                               const MatrixInt &meshes)
 {
   int np = (int) sphPts.size();
   int nmeshes = meshes.getNRows();
@@ -1658,11 +1574,11 @@ VectorVectorDouble GeometryHelper::sphBarCoord(const VectorVectorDouble& sphPts,
     bool notFound = true;
     int i = 0;
 
-    while(i < nmeshes && notFound)
+    while (i < nmeshes && notFound)
     {
-      iv0 = meshes.getValue(i,0);
-      iv1 = meshes.getValue(i,1);
-      iv2 = meshes.getValue(i,2);
+      iv0 = meshes.getValue(i, 0);
+      iv1 = meshes.getValue(i, 1);
+      iv2 = meshes.getValue(i, 2);
 
       w = rayTriangleIntersect(sphPts[k], apices.getRow(iv0),
                                apices.getRow(iv1), apices.getRow(iv2));

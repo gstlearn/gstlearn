@@ -39,7 +39,10 @@ CovGamma::~CovGamma()
 
 double CovGamma::getScadef() const
 {
-  return (pow(20.,1. / getParam()) - 1.);
+  double param = getParam();
+  if (param < 0.05) param = 1.; // This test is too avoid passing too small number to next line
+  double scadef = pow(20.,1. / param) - 1.;
+  return (scadef);
 }
 
 double CovGamma::_evaluateCov(double h) const
