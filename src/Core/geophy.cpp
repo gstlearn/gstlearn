@@ -490,6 +490,7 @@ static int pre_init(void)
   if (!(ISINF(T3D_INF))) return ERR_INFBUG;
   /* if you encounter this error, it probably means you played */
   /* around with the values of macros FD_HUGE and T3D_INF !   */
+  /* if constexpr() should be used when switching to C++17     */
 
   nmesh_x = nx - 1;
   nmesh_y = ny - 1;
