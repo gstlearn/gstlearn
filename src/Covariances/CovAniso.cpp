@@ -230,7 +230,7 @@ void CovAniso::setRange(int idim, double range)
 void CovAniso::setScale(double scale)
 {
   if (!hasRange()) return;
-  if (scale <= EPSILON20)
+  if (scale <= EPSILON10)
   {
     messerr("A scale should not be too small");
     return;
@@ -245,7 +245,7 @@ void CovAniso::setScales(const VectorDouble &scales)
   if (!hasRange()) return;
   for (unsigned int i = 0; i < scales.size(); i++)
   {
-    if (scales[i] <= EPSILON20)
+    if (scales[i] <= EPSILON10)
     {
       messerr("The scale in Space Dimension (%d) should not be too small", i);
       return;
