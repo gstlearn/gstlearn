@@ -143,8 +143,8 @@ bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
   {
     const PolyLine2D& fault = getFault(ifault);
 
-    const VectorDouble x = fault.getX();
-    const VectorDouble y = fault.getY();
+    const VectorDouble& x = fault.getX();
+    const VectorDouble& y = fault.getY();
 
     // Check if bounding boxes overlap
 

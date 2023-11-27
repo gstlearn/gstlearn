@@ -428,7 +428,7 @@ Polygons* Polygons::createFromDb(const Db* db, double dilate, bool verbose)
   return polygons;
 }
 
-const PolyElem Polygons::getPolyElem(int ipol) const
+const PolyElem& Polygons::getPolyElem(int ipol) const
 {
   if (! _isValidPolyElemIndex(ipol)) return PolyElem();
   return _polyelems[ipol];
@@ -442,13 +442,13 @@ PolyElem Polygons::getClosedPolyElem(int ipol) const
   return polyelem;
 }
 
-const VectorDouble Polygons::getX(int ipol) const
+const VectorDouble& Polygons::getX(int ipol) const
 {
   if (! _isValidPolyElemIndex(ipol)) return VectorDouble();
   return _polyelems[ipol].getX();
 }
 
-const VectorDouble Polygons::getY(int ipol) const
+const VectorDouble& Polygons::getY(int ipol) const
 {
   if (! _isValidPolyElemIndex(ipol)) return VectorDouble();
   return _polyelems[ipol].getY();
