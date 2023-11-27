@@ -185,7 +185,7 @@ void CovAniso::initSill(double value)
 void CovAniso::setRange(double range)
 {
   if (!hasRange()) return;
-  if (range <= EPSILON20)
+  if (range <= EPSILON10)
   {
     messerr("Range is too small (%lf). It has been replaced by 1.", range);
     range = 1;
@@ -204,7 +204,7 @@ void CovAniso::setRanges(const VectorDouble &ranges)
   }
   for (unsigned int i = 0; i < ranges.size(); i++)
   {
-    if (ranges[i] <= EPSILON20)
+    if (ranges[i] <= EPSILON10)
     {
       messerr("The range in Space dimension (%d) should not be too small", i);
     }
@@ -218,7 +218,7 @@ void CovAniso::setRanges(const VectorDouble &ranges)
 void CovAniso::setRange(int idim, double range)
 {
   if (!hasRange()) return;
-  if (range <= EPSILON20)
+  if (range <= EPSILON10)
   {
     messerr("The range should not be too small");
     return;
@@ -230,7 +230,7 @@ void CovAniso::setRange(int idim, double range)
 void CovAniso::setScale(double scale)
 {
   if (!hasRange()) return;
-  if (scale <= EPSILON10)
+  if (scale <= EPSILON20) // should be less selective than setRange
   {
     messerr("A scale should not be too small");
     return;
@@ -245,9 +245,9 @@ void CovAniso::setScales(const VectorDouble &scales)
   if (!hasRange()) return;
   for (unsigned int i = 0; i < scales.size(); i++)
   {
-    if (scales[i] <= EPSILON10)
+    if (scales[i] <= EPSILON20) // should be less strict than setRange
     {
-      messerr("The scale in Space Dimension (%d) should not be too small", i);
+      messerr("The scale along Dimension (%d) should not be too small", i);
       return;
     }
   }
@@ -258,7 +258,7 @@ void CovAniso::setScales(const VectorDouble &scales)
 
 void CovAniso::setScale(int idim, double scale)
 {
-  if (scale <= EPSILON20)
+  if (scale <= EPSILON10)
   {
     messerr("A scale should not be too small");
     return;
