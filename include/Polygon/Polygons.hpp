@@ -61,10 +61,10 @@ public:
   void addPolyElem(const PolyElem& polyelem);
 
   const std::vector<PolyElem>& getPolyElems() const { return _polyelems; }
-  const PolyElem getPolyElem(int ipol) const;
+  const PolyElem& getPolyElem(int ipol) const;
   PolyElem getClosedPolyElem(int ipol) const;
-  const VectorDouble getX(int ipol) const;
-  const VectorDouble getY(int ipol) const;
+  const VectorDouble& getX(int ipol) const;
+  const VectorDouble& getY(int ipol) const;
   void setX(int ipol, const VectorDouble& x);
   void setY(int ipol, const VectorDouble& y);
 
