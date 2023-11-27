@@ -128,6 +128,8 @@ bool Faults::isSplitByFaultSP(const SpacePoint& P1, const SpacePoint& P2) const
 
 bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
 {
+  double xint, yint;
+
   // Segment bounding box
 
   double xtmin = MIN(xt1, xt2);
@@ -159,7 +161,7 @@ bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
     {
       const double x2 = x[ip];
       const double y2 = y[ip];
-      if (GH::isSegmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2)) return true;
+      if (GH::segmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2, &xint, &yint)) return true;
       x1 = x2;
       y1 = y2;
     }

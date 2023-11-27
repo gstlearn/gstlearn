@@ -10,6 +10,7 @@ Release 1.0.1
 - Improve the Tutorial on widgets
 - Improve the Tutorial on Neighborhood to treat data along profiles
 - New extension package (for R only): io.R (interface with 'sf' and 'terra')
+- Improving the Tutorial_Model (building a Model by pieces)
 
 Release 1.0.0
 =============

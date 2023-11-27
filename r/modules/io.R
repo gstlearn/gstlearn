@@ -20,8 +20,8 @@
 #' The POLYGON and MULTIPOLYGON are converted into a Polygons.
 #' The crs information and attributes are not stored.
 #' The POINT and MULTIPOINT are converted into a Db.
-#' The crs information is not stored.
 #'
+
 #' @param x a sf object to be converted
 #' @param quiet a Boolean to control messages
 #'
@@ -63,7 +63,7 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
       if(is.numeric(values)) {
         val[v] <- values
       } else {
-        print(paste(">>> variable ", v, " is not converted (not numeric)"))  
+        if (! quiet) print(paste(">>> variable ", v, " is not converted (not numeric)"))  
       }
     }
   }
@@ -80,6 +80,18 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
 #' (e.g. "EPSG:4326" for long/lat in WGS84)
 #'
 #' @value returns the sf object
+#' 
+#' @remarks
+#' The argument 'crs' defines the type of coordinates ("coordinate Reference System") 
+#' using the format "AUTORITY:code".
+#' For example:
+#' - "EPSG:4326" for long/lat, WGS84, 
+#' - "EPSG:2154" for projected coordinates RGF93 / Lambert 93 for France
+#' - "EPSG:9823" for projected coordinates RGF93 v2 / CC43 
+#'
+#' The EPSG codes can be found at https://epsg.io/ 
+#' Moreover ESRI codes can be found at https://spatialreference.org/ref/esri/
+#'
 gstlearn_to_sf <- function(x, crs = NA)
 {
   if (!require(sf, quietly=TRUE))
