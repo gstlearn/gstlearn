@@ -1483,8 +1483,11 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
     p = append(p, plot.XY(target[1], target[2], flagLine=FALSE, flagPoint=TRUE, ...))
     
     # Represent the edge of the target (if block)
-    edges = grid$getCellEdges(node)
-    p = append(p, plot.XY(edges[[1]], edges[[2]], ...))
+    if (flagCell && grid$isGrid())
+    {
+      edges = grid$getCellEdges(node)
+      p = append(p, plot.XY(edges[[1]], edges[[2]], ...))
+    }  
     
     # Represent the Neighborhood Ellipsoid
     if (neigh$getType()$getValue() == ENeigh_MOVING()$getValue())
