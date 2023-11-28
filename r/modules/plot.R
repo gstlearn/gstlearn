@@ -1491,31 +1491,32 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
     {
         edges = neigh$getEllipsoid(target)
         p = append(p, plot.XY(edges[[1]], edges[[2]], ...))
+    
+      # Represent the Angular sectors
+      if (neigh$getFlagSector())
+      {
+          segments = neigh$getSectors(target)
+          nseg = length(segments[[1]])
+          cx = numeric(2)
+          cx[1] = target[1]
+          cy = numeric(2)
+          cy[1] = target[2]
+          for (iseg in 1:nseg)
+          {
+              cx[2] = segments[[1]][iseg]
+              cy[2] = segments[[2]][iseg]
+                 p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
+           }
+      }
+    
+      # Zoom to the Maximum radius circle (optional)
+      if (flagZoom)
+      {
+          limits = neigh$getZoomLimits(target)
+          p <- p + plot.geometry(xlim=limits[[1]], ylim=limits[[2]]) 
+      }
     }
     
-    # Represent the Angular sectors
-    if (neigh$getFlagSector())
-    {
-        segments = neigh$getSectors(target)
-        nseg = length(segments[[1]])
-        cx = numeric(2)
-        cx[1] = target[1]
-        cy = numeric(2)
-        cy[1] = target[2]
-        for (iseg in 1:nseg)
-        {
-            cx[2] = segments[[1]][iseg]
-            cy[2] = segments[[2]][iseg]
-               p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
-         }
-    }
-        
-    # Zoom to the Maximum radius circle (optional)
-    if (flagZoom)
-    {
-        limits = neigh$getZoomLimits(target)
-        p <- p + plot.geometry(xlim=limits[[1]], ylim=limits[[2]]) 
-    }
     p
 }
 
