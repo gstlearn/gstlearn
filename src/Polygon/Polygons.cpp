@@ -19,14 +19,18 @@
 #include "Polygon/Polygons.hpp"
 
 Polygons::Polygons()
-  : _polyelems()
+  : _polyelems(),
+    _emptyVec(),
+    _emptyElem()
 {
 }
 
 Polygons::Polygons(const Polygons& r)
     : AStringable(r),
       ASerializable(r),
-      _polyelems(r._polyelems)
+      _polyelems(r._polyelems),
+      _emptyVec(r._emptyVec),
+      _emptyElem(r._emptyElem)
 {
 }
 
@@ -37,6 +41,8 @@ Polygons& Polygons::operator=(const Polygons& r)
     AStringable::operator=(r);
     ASerializable::operator=(r);
     _polyelems = r._polyelems;
+    _emptyVec = r._emptyVec;
+    _emptyElem = r._emptyElem;
   }
   return *this;
 }
@@ -365,7 +371,8 @@ Polygons* Polygons::create()
  * @param neutralFilename Name of the Neutral File
  * @param verbose         Verbose flag
  * @return
- */
+ */  VectorDouble _emptyVec; // dummy
+ PolyElem     _emptyElem; // dummy
 Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
 {
   Polygons* polygons = nullptr;
@@ -430,7 +437,7 @@ Polygons* Polygons::createFromDb(const Db* db, double dilate, bool verbose)
 
 const PolyElem& Polygons::getPolyElem(int ipol) const
 {
-  if (! _isValidPolyElemIndex(ipol)) return PolyElem();
+  if (! _isValidPolyElemIndex(ipol)) return _emptyElem;
   return _polyelems[ipol];
 }
 
@@ -444,13 +451,13 @@ PolyElem Polygons::getClosedPolyElem(int ipol) const
 
 const VectorDouble& Polygons::getX(int ipol) const
 {
-  if (! _isValidPolyElemIndex(ipol)) return VectorDouble();
+  if (! _isValidPolyElemIndex(ipol)) return _emptyVec;
   return _polyelems[ipol].getX();
 }
 
 const VectorDouble& Polygons::getY(int ipol) const
 {
-  if (! _isValidPolyElemIndex(ipol)) return VectorDouble();
+  if (! _isValidPolyElemIndex(ipol)) return _emptyVec;
   return _polyelems[ipol].getY();
 }
 
