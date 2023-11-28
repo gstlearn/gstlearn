@@ -1764,11 +1764,11 @@ bool KrigingSystem::isReady()
 
   // Define the calculation modes
   _calcModeLHS = CovCalcMode(ECalcMember::LHS);
-  _calcModeLHS.setActiveCovList(_model->getAllActiveCovList());
+  _calcModeLHS.setActiveCovList(_model->getAllActiveCovList(), true);
   _calcModeRHS = CovCalcMode(ECalcMember::RHS);
-  _calcModeRHS.setActiveCovList(_model->getActiveCovList());
+  _calcModeRHS.setActiveCovList(_model->getActiveCovList(), _model->isAllActiveCovList());
   _calcModeVAR = CovCalcMode(ECalcMember::VAR);
-  _calcModeVAR.setActiveCovList(_model->getActiveCovList());
+  _calcModeVAR.setActiveCovList(_model->getActiveCovList(), _model->isAllActiveCovList());
 
   // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)

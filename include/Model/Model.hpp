@@ -153,6 +153,7 @@ public:
   bool hasNugget() const;
   VectorInt getActiveCovList() const;
   VectorInt getAllActiveCovList() const;
+  bool isAllActiveCovList() const;
   void setTapeRange(double range);
 
   void setIsOptimEnabled(bool flagOptim) { _cova->setIsOptimEnabled(flagOptim); }
