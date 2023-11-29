@@ -931,7 +931,7 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
   flagTitleDefault = FALSE
   if (is.null(nameColor) && is.null(nameSize) && is.null(nameLabel))
   {
-      nameSize = .getDefaultVariable(db)
+    nameSize = .getDefaultVariable(db)
     if (db$getLocNumber(ELoc_Z()) > 0)
       nameSize = db$getNameByLocator(ELoc_Z(),0)
     else 
