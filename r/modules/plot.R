@@ -1508,7 +1508,7 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
           {
               cx[2] = segments[[1]][iseg]
               cy[2] = segments[[2]][iseg]
-                 p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
+              p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
            }
       }
     
