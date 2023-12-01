@@ -1012,14 +1012,10 @@ def __ax_point(ax, db,
 
     # If no variable is defined, use the default variable for Symbol(size) representation
     # The default variable is the first Z-locator one, or the last variable in the file
-    isVarDefined = True
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
-        isVarDefined = False
+        flagCst = True
         nameSize = __defaultVariable(db, None)
         
-    if not isVarDefined:
-        flagCst = True
-
     title = ""
     if (nameColor is not None) or (nameSize is not None):
         pt = __ax_symbol(ax, db, nameColor=nameColor, nameSize=nameSize, 

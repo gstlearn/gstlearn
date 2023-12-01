@@ -926,23 +926,16 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
   p = list()
   title = ""
   
-# If no variable is defined, use the default variable for Symbol(size) representation
-# The default variable is the first Z-locator one, or the last variable in the file
+  # If no variable is defined, use the default variable for Symbol(size) representation
+  # The default variable is the first Z-locator one, or the last variable in the file
   flagTitleDefault = FALSE
   if (is.null(nameColor) && is.null(nameSize) && is.null(nameLabel))
   {
-      nameSize = .getDefaultVariable(db)
-    if (db$getLocNumber(ELoc_Z()) > 0)
-      nameSize = db$getNameByLocator(ELoc_Z(),0)
-    else 
-    {
-      # if no Z locator, choose the last field
-      nameSize = db$getLastName()
-      flagCst = TRUE
-      flagTitleDefault = TRUE
-    }
+    nameSize = .getDefaultVariable(db)
+    flagCst = TRUE
+    flagTitleDefault = TRUE
   }
-  
+
   # Allow redefining color and linetypes
   p <- append(p, list(new_scale_color()))
   
@@ -1074,12 +1067,12 @@ gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, 
 #' @noRd
 .getDefaultVariable <- function(db)
 {
-    if (db$getLocNumber(ELoc_Z()) > 0)
-        name = db$getNameByLocator(ELoc_Z(),0)
-     else
-          # if no Z locator, choose the last field
-          name = db$getLastName()
-      name
+  if (db$getLocNumber(ELoc_Z()) > 0)
+    name = db$getNameByLocator(ELoc_Z(),0)
+  else
+    # if no Z locator, choose the last field
+    name = db$getLastName()
+  name
 }
 
 #' Plotting a grid data base
@@ -1117,7 +1110,7 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   # The default variable is the first Z-locator one, or the last variable in the file
   if (is.null(nameRaster) && is.null(nameContour))
   {
-      nameRaster = .getDefaultVariable(dbgrid)
+    nameRaster = .getDefaultVariable(dbgrid)
   }
   
   # Allow redefining color and linetypes
