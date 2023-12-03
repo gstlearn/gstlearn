@@ -99,6 +99,9 @@ private:
 
 private:
   std::vector<PolyElem> _polyelems;
+
+  VectorDouble _emptyVec; // dummy
+  PolyElem     _emptyElem; // dummy
 };
 
 GSTLEARN_EXPORT void db_polygon(Db *db,

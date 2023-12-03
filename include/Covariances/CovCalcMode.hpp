@@ -41,7 +41,7 @@ public:
 
   void setActiveCovListFromOne(int keepOnlyCovIdx);
   void setActiveCovListFromInterval(int inddeb, int indto);
-  void setActiveCovList(const VectorInt &activeCovList) { _activeCovList = activeCovList; }
+  void setActiveCovList(const VectorInt &activeCovList, bool allActiveCov);
 
 private:
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */

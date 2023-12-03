@@ -395,8 +395,8 @@ void dbStatisticsVariables(Db *db,
       local[neff] = value;
       neff++;
       mean += value;
-      sum += value;
-      var += value * value;
+      sum  += value;
+      var  += value * value;
       if (value < mini) mini = value;
       if (value > maxi) maxi = value;
       if (!FFFF(vmin) && value < vmin) continue;

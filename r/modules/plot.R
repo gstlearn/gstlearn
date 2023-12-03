@@ -291,6 +291,31 @@ ggDefault <- function(figsize=NA)
   TRUE
 }
 
+#' Define the variable used by default (when not explictly defined)
+#' @param db Data base from gstlearn
+#' @param name Proposed input name
+#'
+#' @note The defaulted variable is the first one attached to the locator-Z (if any);
+#' @note otherwise it is the last defined variable within 'db'.
+#' @return Name of the defaulted variable
+#' @noRd
+.defaultVariable <- function(db, name)
+{
+  if (is.null(name))
+  {
+  	if (db$getLocNumber(ELoc_Z()) > 0)
+		name = db$getNameByLocator(ELoc_Z(),0)
+  	else
+	    name = db$getLastName()
+  }
+  else
+  {
+  	if (db$getUID(name) < 0)
+  		name = db$getLastName()
+  }
+  name
+}
+
 #' Draw the decoration of a figure (title, axis labels, ...)
 #'
 #' @param xlab Label along the horizontal axis
@@ -926,14 +951,11 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
   p = list()
   title = ""
   
-  # If no variable is defined, use the default variable for Symbol(size) representation
-  # The default variable is the first Z-locator one, or the last variable in the file
   flagTitleDefault = FALSE
   if (is.null(nameColor) && is.null(nameSize) && is.null(nameLabel))
   {
-    nameSize = .getDefaultVariable(db)
+    nameSize = .defaultVariable(db, NULL)
     flagCst = TRUE
-    flagTitleDefault = TRUE
   }
 
   # Allow redefining color and linetypes
@@ -1059,22 +1081,6 @@ gridContour <- function(dbgrid, name, useSel = TRUE, posX=0, posY=1, corner=NA, 
   layer
 }
 
-#' Define the variable used by default (when not explictly defined)
-#' @param db Data base from gstlearn
-#' @note The defaulted variable is the first one attached to the locator-Z (if any);
-#' @note otherwise it is the last defined variable within 'db'.
-#' @return Name of the defaulted variable
-#' @noRd
-.getDefaultVariable <- function(db)
-{
-  if (db$getLocNumber(ELoc_Z()) > 0)
-    name = db$getNameByLocator(ELoc_Z(),0)
-  else
-    # if no Z locator, choose the last field
-    name = db$getLastName()
-  name
-}
-
 #' Plotting a grid data base
 #' @param dbgrid Grid Data Base containing the information to be displayed
 #' @param nameRaster Name of the variable to be represented as an image
@@ -1106,11 +1112,9 @@ plot.grid <- function(dbgrid, nameRaster=NULL, nameContour=NULL,
   p = list()
   title = ""
   
-  # If no variable is defined, use the default variable for Raster representation
-  # The default variable is the first Z-locator one, or the last variable in the file
   if (is.null(nameRaster) && is.null(nameContour))
   {
-    nameRaster = .getDefaultVariable(dbgrid)
+    nameRaster = .defaultVariable(dbgrid, NULL)
   }
   
   # Allow redefining color and linetypes
@@ -1501,7 +1505,7 @@ plot.neigh <- function(neigh, grid, node=0, flagCell=FALSE, flagZoom=FALSE, ...)
           {
               cx[2] = segments[[1]][iseg]
               cy[2] = segments[[2]][iseg]
-                 p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
+              p = append(p, plot.XY(cx, cy, flagLine=TRUE, flagPoint=FALSE, ...))
            }
       }
     
