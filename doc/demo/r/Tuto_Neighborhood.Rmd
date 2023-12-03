@@ -5,13 +5,9 @@ date: "2023-11-28"
 output: html_document
 ---
 
-Emptying memory 
-```{r}
-rm(list = ls())
-```
-
 Loading libraries 
 ```{r}
+rm(list = ls())
 library("gstlearn")
 library("tidyr") # essentially, for drop_na function 
 ```
@@ -25,17 +21,18 @@ flagGraphic = TRUE
 
 # space dimension 
 ndim = 2
-
 defineDefaultSpace(ESpaceType_RN(),ndim)
 ```
 
 Setting seed for the random number generator
+
 ```{r}
 law_set_random_seed(5584)
 set.seed(13155)
 ```
 
-A Poisson data set will be generated and various neighborhoods will be explored around a specific node of a regular grid 
+A Poisson data set will be generated and various neighborhoods will be explored around a specific node of a regular grid
+
 ```{r}
 dxref = 0.1
 grid = DbGrid_create(nx = c(10,10),
@@ -46,7 +43,8 @@ ylim = grid$getExtrema(1)
 
 ## 1.1 Random Point data set
 
-Setting parameters for the dbgrid hosting the data 
+Setting parameters for the dbgrid hosting the data
+
 ```{r}
 coormin = grid$getCoorMinimum()
 coormax = grid$getCoorMaximum()
@@ -56,16 +54,18 @@ data = Db_createFromBox(nech, coormin, coormax)
 ```
 
 Plotting the data 
-(if need be for more control over the graph parameters, use ggplot instead)
+(if needed for more control over the graph parameters, use ggplot instead)
+
 ```{r}
 ggDefaultGeographic()+
-  plot.point(data)+
+  plot.point(data, flagCst=True)+
   plot.decoration(xlab="Easting", ylab="Northing")
 ```
 
 ### 1.1.1 Standard neighborhood
 
 Defining a standard moving neighborhood
+
 ```{r}
 nmini = 1
 nmaxi = 15
@@ -94,7 +94,9 @@ Plotting the result
 ```{r}
 ggDefaultGeographic()+
   plot.point(data,
-             color = "blue")+
+             color = "red")+
+  plot.point(dataSel,
+             color = "blue") + 
   plot.neigh(neigh = neigh,
              grid = grid, 
              node = node, 
@@ -133,9 +135,6 @@ Until the next gstlearn version release, this needs to be done manually thanks t
 ```{r}
 df = data[]
 colnames(df) = c("rank", "x1", "x2")
-dfSel = dataSel[]
-colnames(dfSel) = c("rank", "x1", "x2", "sel")
-dfSel = dfSel[which(dfSel$sel==1),]
 extensions = data.frame(x = NA, y = NA, node = NA)
 for (node in 1:nech){
   edges = data.frame(grid$getCellEdges(node-1))
@@ -150,10 +149,6 @@ p = ggplot()+
   geom_point(data=df,
              aes(x = x1, y = x2),
              color = "black",
-             size = 1)+
-  geom_point(data = dfSel,
-             aes(x = x1, y = x2),
-             color = "blue",
              size = 1)+
   geom_polygon(data=extensions,
                aes(x=x, y=y, group=node),
@@ -206,6 +201,8 @@ dum = dataSel$addSelectionByRanks(ranks)
 Plotting the result 
 ```{r}
  ggDefaultGeographic()+
+    plot.point(data,
+             color = "red")+
    plot.point(dataSel,
               color='blue')+
    plot.neigh(neigh,

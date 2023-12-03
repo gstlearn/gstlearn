@@ -979,7 +979,7 @@ plot.point <- function(db, nameColor=NULL, nameSize=NULL, nameLabel=NULL,
     # Set the default title
     if (! is.null(nameColor))
       title = paste(title, nameColor, "(color)", sep=" ")
-    if (! is.null(nameSize))
+    if (! is.null(nameSize) && ! flagCst)
       title = paste(title, nameSize, "(size)", sep=" ")
     
     # Set the Legend
