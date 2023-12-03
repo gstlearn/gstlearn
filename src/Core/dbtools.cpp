@@ -842,7 +842,7 @@ static int _code_comparable(const Db *db1,
  ** \li                     1 : codes must be close enough
  ** \li                     2 : codes must be different
  ** \param[in]  tolcode    Code tolerance
- ** \param[in]  dist       Array of the minimum distance (or NULL)
+ ** \param[in]  dist       Array of the minimum distance whose length is the space dimension (or NULL for a  null distance)
  **
  ** \param[out]  sel       Array containing the selection
  **

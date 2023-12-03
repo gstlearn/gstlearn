@@ -862,7 +862,6 @@ def literal(db, *args, **kwargs):
 def __ax_literal(ax, db, name=None, nameCoorX=None, nameCoorY=None, 
                  useSel=True, flagLegend=True, legendName=None, 
                  posX=0, posY=1, **kwargs):
-    
     name = __defaultVariable(db, name)
     
     if len(ax.get_title()) <= 0:
@@ -1010,14 +1009,8 @@ def __ax_point(ax, db,
     if __isNotCorrect(object=db, types=["Db", "DbGrid"]):
         return None
 
-    # If no variable is defined, use the default variable for Symbol(size) representation
-    # The default variable is the first Z-locator one, or the last variable in the file
-    isVarDefined = True
     if (nameColor is None) and (nameSize is None) and (nameLabel is None):
-        isVarDefined = False
         nameSize = __defaultVariable(db, None)
-        
-    if not isVarDefined:
         flagCst = True
 
     title = ""
@@ -1292,8 +1285,6 @@ def __ax_grid(ax, dbgrid, nameRaster = None, nameContour = None, useSel = True,
     if __isNotCorrect(object=dbgrid, types=["DbGrid"]):
         return None
 
-    # If no variable is defined, use the default variable for Raster representation
-    # The default variable is the first Z-locator one, or the last variable in the file
     if (nameRaster is None) and (nameContour is None) and (not flagCell):
         nameRaster = __defaultVariable(dbgrid, None)
 

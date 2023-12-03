@@ -81,3 +81,9 @@ void CovCalcMode::setActiveCovListFromInterval(int inddeb, int indto)
     _activeCovList.push_back(i);
   _allActiveCov = false;
 }
+
+void CovCalcMode::setActiveCovList(const VectorInt &activeCovList, bool allActiveCov)
+{
+  _activeCovList = activeCovList;
+  _allActiveCov = allActiveCov;
+}

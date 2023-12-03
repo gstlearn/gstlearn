@@ -102,6 +102,7 @@ public:
   void            normalize(double sill = 1., int ivar=0, int jvar=0);
   VectorInt       getActiveCovList() const;
   VectorInt       getAllActiveCovList() const;
+  bool            isAllActiveCovList() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////

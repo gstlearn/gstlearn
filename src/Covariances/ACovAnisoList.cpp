@@ -386,6 +386,15 @@ VectorInt ACovAnisoList::getActiveCovList() const
   return actives;
 }
 
+bool ACovAnisoList::isAllActiveCovList() const
+{
+  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  {
+    if (_filtered[i]) return false;
+  }
+  return true;
+}
+
 VectorInt ACovAnisoList::getAllActiveCovList() const
 {
   VectorInt actives;

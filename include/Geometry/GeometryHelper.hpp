@@ -41,8 +41,7 @@ public:
   static bool rotationIsIdentity(int ndim, double *rot, double eps = EPSILON10);
 
   static MatrixSquareGeneral EulerToRotation(const VectorDouble &angles,
-                                             const ERotation &convrot = ERotation::fromKey(
-                                                 "SXYZ"));
+                                             const ERotation &convrot = ERotation::fromKey("SXYZ"));
 
   static void rotationGetRandomDirection(double ct,
                                          double st,
