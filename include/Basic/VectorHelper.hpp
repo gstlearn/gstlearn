@@ -106,8 +106,8 @@ public:
   static void multiplyInPlace(VectorDouble& vec, const VectorDouble& v);
   static void divideInPlace(VectorDouble& vec, const VectorDouble& v);
 
-  static void multiplyConstant(VectorDouble& vec, double v);
-  static void multiplyConstantInPlace(const VectorDouble& vec, double v, VectorDouble& vecout);
+  static void multiplyConstantInPlace(VectorDouble& vec, double v);
+  static void multiplyConstant(const VectorDouble& vec, double v, VectorDouble& vecout);
   static void addMultiplyConstantInPlace(double val1,
                                          const VectorVectorDouble &in1,
                                          VectorVectorDouble &outv);

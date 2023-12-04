@@ -374,7 +374,7 @@ void SPDE::_computeSimuCond() const
 
   // Calculate the simulation error
   _workingData = _workingDataInit;
-  VH::multiplyConstant(temp_dat, -1.);
+  VH::multiplyConstantInPlace(temp_dat, -1.);
   VH::addInPlace(_workingData, temp_dat);
 
   // Conditional Kriging

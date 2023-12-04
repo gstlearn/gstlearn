@@ -140,7 +140,7 @@ double ACov::evalIvarIpas(double step,
     dirloc[0] = 1.;
   }
   VectorDouble vec(dirloc);
-  VH::multiplyConstant(vec, step);
+  VH::multiplyConstantInPlace(vec, step);
   p2.move(vec);
   return eval(p1, p2, ivar, jvar, mode); // pure virtual method
 }

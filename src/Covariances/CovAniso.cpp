@@ -668,7 +668,7 @@ VectorDouble CovAniso::getRanges() const
   VectorDouble range = getScales();
   double scadef = _cova->getScadef();
   if (!hasRange()) scadef = 0.;
-  VH::multiplyConstant(range, scadef);
+  VH::multiplyConstantInPlace(range, scadef);
   return range;
 }
 

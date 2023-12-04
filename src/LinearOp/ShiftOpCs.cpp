@@ -1219,7 +1219,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   VectorDouble sqrtTildeC = VH::power(_TildeC, 0.5);
   VectorDouble invSqrtTildeC = VH::power(_TildeC, -0.5);
   VectorDouble tempVec = VH::inverse(_TildeC);
-  VH::multiplyConstant(tempVec, -0.5);
+  VH::multiplyConstantInPlace(tempVec, -0.5);
 
   int ind = 0;
   cs* tildeCGradMat = nullptr;

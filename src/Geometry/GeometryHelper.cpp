@@ -1617,7 +1617,7 @@ VectorDouble GeometryHelper::rayTriangleIntersect(const VectorDouble& dir,
   if (u < 0 || u > 1) return res;
 
   VectorDouble vm0 = v0;
-  VH::multiplyConstant(vm0, -1.);
+  VH::multiplyConstantInPlace(vm0, -1.);
   VectorDouble qvec = VH::crossProduct3D(vm0, v10);
   double v = VH::innerProduct(dir, qvec) * invDet;
   if (v < 0 || u + v > 1) return res;

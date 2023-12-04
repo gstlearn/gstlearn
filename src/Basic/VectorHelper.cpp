@@ -1147,13 +1147,13 @@ void VectorHelper::divideInPlace(VectorDouble &vec, const VectorDouble &v)
   }
 }
 
-void VectorHelper::multiplyConstant(VectorDouble &vec, double v)
+void VectorHelper::multiplyConstantInPlace(VectorDouble &vec, double v)
 {
   std::for_each(vec.begin(), vec.end(), [v](double &d)
   { d *= v;});
 }
 
-void VectorHelper::multiplyConstantInPlace(const VectorDouble &vecin, double v, VectorDouble& vecout)
+void VectorHelper::multiplyConstant(const VectorDouble &vecin, double v, VectorDouble& vecout)
 {
   VectorDouble::iterator itout(vecout.begin());
   VectorDouble::const_iterator itin(vecin.begin());
