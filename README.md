@@ -10,7 +10,7 @@ The name 'gstlearn' stands for several purposes:
 
 *gstlearn* comes in various forms:
 
-* A C++ library
+* A C++ librar
 * A Python package
 * A R package
 
