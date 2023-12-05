@@ -4026,6 +4026,7 @@ void Db::_createRank(int icol)
   _setNameByColIdx(icol, "rank");
 }
 
+// TODO : this function should be removed.
 void Db::_addRank(int nech)
 {
   VectorDouble ranks = VH::sequence(0., (double) nech - 1.);
