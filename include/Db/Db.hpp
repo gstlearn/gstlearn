@@ -69,7 +69,7 @@ class SpaceTarget;
  * Each variable (or column) can be designated:
  * - by its name (unique in the Data Base) or
  * - by its locator (name and rank) or
- * - by its column index (0-based): this designation mode is dangerous (and not recommended) as the rank may change over time.
+ * - by its column index (0-based): this designation mode is dangerous (and not recommended) as the index may change over time.
  */
 class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public ICloneable
 {
