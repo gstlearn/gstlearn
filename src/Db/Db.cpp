@@ -4012,8 +4012,8 @@ void Db::generateRank(const String& radix)
 }
 
 /**
- * Paint the column 'icol' with sample rank
- * @param icol Rank of the column to be painted
+ * Paint the column 'icol' with sample rank (1-based)
+ * @param icol Index of the column to be painted (0-based)
  */
 void Db::_createRank(int icol)
 {
@@ -4026,9 +4026,16 @@ void Db::_createRank(int icol)
   _setNameByColIdx(icol, "rank");
 }
 
+
+/**
+ * Create the sample rank variable (1-based) assuming that the Db is empty
+ * @param nech Number of samples requested
+ */
 void Db::_addRank(int nech)
 {
-  VectorDouble ranks = VH::sequence(0., (double) nech - 1.);
+  if (getColumnNumber() > 0 || getSampleNumber() > 0)
+    my_throw("Error: the Db should be empty in order to call _addRank");
+  VectorDouble ranks = VH::sequence(1., (double) nech);
   addColumns(ranks, "rank");
 }
 
