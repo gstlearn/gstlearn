@@ -18,11 +18,17 @@
 #include <iostream>
 #include <iomanip>
 
+/**
+ * This function switch ON/OFF the ability to use Eigen library for Algebra
+ */
+static bool globalFlagEigen = true;
+
 AMatrix::AMatrix(int nrow, int ncol)
     : AStringable(),
       _nRows(nrow),
       _nCols(ncol),
-      _flagCheckAddress(false)
+      _flagCheckAddress(false),
+      _nullTerm(0.)
 {
   (void) _isNumbersValid(nrow, ncol);
 }
@@ -30,7 +36,8 @@ AMatrix::AMatrix(const AMatrix &m)
     : AStringable(m),
       _nRows(m._nRows),
       _nCols(m._nCols),
-      _flagCheckAddress(m._flagCheckAddress)
+      _flagCheckAddress(m._flagCheckAddress),
+      _nullTerm(m._nullTerm)
 {
 }
 
@@ -40,6 +47,7 @@ AMatrix& AMatrix::operator=(const AMatrix &m)
   _nRows = m._nRows;
   _nCols = m._nCols;
   _flagCheckAddress = m._flagCheckAddress;
+  _nullTerm = m._nullTerm;
   return *this;
 }
 
@@ -52,6 +60,15 @@ void AMatrix::init(int nrows, int ncols)
   _nRows = nrows;
   _nCols = ncols;
   _allocate();
+}
+
+void AMatrix::_recopy(const AMatrix &m)
+{
+  for (int icol = 0; icol < m.getNCols(); icol++)
+    for (int irow = 0; irow < m.getNRows(); irow++)
+    {
+      setValue(irow, icol, m.getValue(irow, icol));
+    }
 }
 
 bool AMatrix::isSquare(bool printWhyNot) const
@@ -127,7 +144,7 @@ void AMatrix::reset(int nrows, int ncols, double value)
   _nRows = nrows;
   _nCols = ncols;
   _allocate();
-  for (int i=0; i<_getMatrixSize(); i++)
+  for (int i=0; i<_getMatrixPhysicalSize(); i++)
     _setValue(i, value);
   _clearContents();
 }
@@ -318,20 +335,19 @@ void AMatrix::setValue(int irow, int icol, double value)
   return _setValue(irow, icol, value);
 }
 
-/*! Gets a reference to the value at row 'irow' and column 'icol' */
-double& AMatrix::getValueRef(int irow, int icol)
-{
-  return _getValueRef(irow, icol);
-}
-
 /**
  * Fill 'this' with the constant 'value'
  * @param value Constant value used for filling 'this'
  */
 void AMatrix::fill(double value)
 {
-  for (int rank = 0, n = _getMatrixSize(); rank < n; rank++)
+  for (int rank = 0, n = _getMatrixPhysicalSize(); rank < n; rank++)
     _setValue(rank, value);
+}
+
+int AMatrix::_getMatrixPhysicalSize() const
+{
+  return (getNRows() * getNCols());
 }
 
 /**
@@ -344,9 +360,26 @@ void AMatrix::fill(double value)
  * @param byCol true for Column major; false for Row Major
  */
 #ifndef SWIG
-void AMatrix::_setValues(const double* values, bool byCol)
+void AMatrix::_setValues(const double *values, bool byCol)
 {
-  _setValues(values, byCol);
+  if (byCol)
+  {
+    int ecr = 0;
+    for (int icol = 0; icol < getNCols(); icol++)
+      for (int irow = 0; irow < getNRows(); irow++, ecr++)
+      {
+        setValue(irow, icol, values[ecr]);
+      }
+  }
+  else
+  {
+    int ecr = 0;
+    for (int irow = 0; irow < getNRows(); irow++)
+      for (int icol = 0; icol < getNCols(); icol++, ecr++)
+      {
+        setValue(irow, icol, values[ecr]);
+      }
+  }
 }
 #endif
 
@@ -401,7 +434,7 @@ void AMatrix::setIdentity(double value)
 void AMatrix::addScalar(double v)
 {
   if (v == 0.) return;
-  for (int rank = 0; rank < _getMatrixSize(); rank++)
+  for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
   {
     _setValue(rank, _getValue(rank) + v);
   }
@@ -434,7 +467,7 @@ void AMatrix::addScalarDiag(double v)
 void AMatrix::prodScalar(double v)
 {
   if (v == 1.) return;
-  for (int rank = 0; rank < _getMatrixSize(); rank++)
+  for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
     _setValue(rank, _getValue(rank) * v);
 }
 
@@ -553,7 +586,7 @@ void AMatrix::linearCombination(double cx, double cy, const AMatrix& y)
 
   if (!_isCompatible(y))
   my_throw("Matrix 'y' is not compatible with 'this'");
-  for (int rank = 0; rank < _getMatrixSize(); rank++)
+  for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
   {
     double value = _getValue(rank) * cx + cy * y._getValue(rank);
     _setValue(rank, value);
@@ -652,8 +685,14 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
   sstr << "- Number of columns = " <<  _nCols << std::endl;
 
+  bool flagSkipZero = false;
+  if (isFlagEigen() && isSparse())
+  {
+    sstr << "- Sparse Format" << std::endl;
+    flagSkipZero = true;
+  }
   sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
-                   getValues());
+                   getValues(), false, flagSkipZero);
   return sstr.str();
 }
 
@@ -738,7 +777,7 @@ bool AMatrix::_isVectorSizeConsistent(int nrows,
 bool AMatrix::_isRankValid(int rank) const
 {
   if (! _flagCheckAddress) return true;
-  return (rank >= 0 && rank < _getMatrixSize());
+  return (rank >= 0 && rank < _getMatrixPhysicalSize());
 }
 
 void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
@@ -1056,11 +1095,16 @@ double AMatrix::getMaximum() const
   return maximum;
 }
 
+double& AMatrix::_getValueRef(int irow, int icol)
+{
+  return _nullTerm;
+}
+
 void AMatrix::copyReduce(const AMatrix *x,
                          const VectorInt &validRows,
                          const VectorInt &validCols)
 {
-  VH::display("copyreduce validRows",validRows);
+  VH::display("copyReduce validRows",validRows);
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
       setValue(irow, icol, x->getValue(validRows[irow], validCols[icol]));
@@ -1100,3 +1144,12 @@ void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
   delete res;
 }
 
+void setFlagEigen(bool flagEigen)
+{
+  globalFlagEigen = flagEigen;
+}
+
+bool isFlagEigen()
+{
+  return globalFlagEigen;
+}

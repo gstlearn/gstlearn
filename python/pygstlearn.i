@@ -1058,7 +1058,7 @@ gl.Db.fromTL = staticmethod(Db_fromPanda)
 
 def matrix_toTL(self):
   if self.isSparse():
-    Acs = self.getCsToTriplet().toTL()
+    Acs = self.getSparseToTriplet().toTL()
     return Acs
   else:
     Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())

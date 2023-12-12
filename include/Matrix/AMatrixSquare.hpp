@@ -11,23 +11,24 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 /**
  * Square Matrix
  */
-class GSTLEARN_EXPORT AMatrixSquare : public AMatrix {
+class GSTLEARN_EXPORT AMatrixSquare : public MatrixRectangular {
 
-protected:
+public:
   AMatrixSquare(int nrow = 0);
   AMatrixSquare(const AMatrixSquare &m);
   AMatrixSquare& operator= (const AMatrixSquare &r);
-
-public:
 	virtual ~AMatrixSquare();
 
+	/// Interface for AMatrix
+  virtual double determinant(void) const;
+
   /*! Returns the size of the matrix (nrows=ncols) */
-  int  getNSize() const { return getNRows(); }
+  int getNSize() const { return getNRows(); }
   /*! Perform Norm matrix */
   void normMatrix(const AMatrixSquare& x, const AMatrix& y);
   void normTMatrix(const AMatrixSquare& x, const AMatrix& y);
@@ -42,10 +43,7 @@ public:
   void prodDiagByVector(const VectorDouble& diag);
   /*! Divide the diagonal by a vector */
   void divideDiagByVector(const VectorDouble& diag);
-  /*! Returns the Determinant value */
-  virtual double determinant(void) const;
 
 protected:
   void   _setNSize(int nval);
-  bool   _isNumberValid(int nrows,int ncols) const;
 };

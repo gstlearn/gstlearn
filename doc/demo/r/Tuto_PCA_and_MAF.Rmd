@@ -1,0 +1,347 @@
+---
+  title: "Test of PCA and MAF in gstlearn"
+  author: "D. Renard, N. Desassis, X. Freulon"
+  date: "May 31, 2023"
+  output:
+    pdf_document: default
+    html_document: default
+  editor_options: 
+  chunk_output_type: console
+---
+
+# Initialisation
+
+Note: the generalized eigen problem is solved using the function *geigen* in the package *geigen*.
+
+```{r}
+library(geigen)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(align="center")
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+rm(list=ls())
+```
+
+# Data set
+
+Simulation of correlated fields on a grid and extraction of scattered points.
+
+```{r}
+# grid of samples
+nx_S = c(100,100)
+dx_S = c(0.01, 0.01)
+grid = DbGrid_create(nx = nx_S, dx = dx_S)
+grid$display()
+
+np = grid$getSampleNumber()
+nv = 3 # Number of variables
+m_Z = c(1, 2, 3)
+S_Z = c(0.25, 3.0, 1.5)
+
+LM_1 = matrix(c(1.0, 0.5, 0.2, 0.0, sqrt(1-0.5^2), 0.3, 0.0, 0.0, sqrt(1 - 0.2^2 - 0.3^2)), 
+              nrow = nv, ncol = nv, byrow = FALSE)
+LM_2 = matrix(c(1.0, 0.6, 0.5, 0.0, sqrt(1-0.6^2), 0.3, 0.0, 0.0, sqrt(1 - 0.5^2 - 0.3^2)), 
+              nrow = nv, ncol = nv, byrow = FALSE)
+LM_3 = matrix(c(1.0, 0.1, 0.2, 0.0, sqrt(1-0.1^2), 0.3, 0.0, 0.0, sqrt(1 - 0.2^2 - 0.3^2)), 
+              nrow = nv, ncol = nv, byrow = FALSE)
+
+# Simulation of the Gaussian factors for structure #1
+m1 = Model_createFromParam(ECov_NUGGET(), sill= 1.0)
+err = simtub(NULL, grid, m1, nbsimu = nv, namconv=NamingConvention("U1"))
+U1 = matrix(grid$getColumns(names = "U1.*"), nrow = grid$getSampleNumber(), ncol = nv)
+# Simulation of the Gaussian factors for structure #2
+m2 = Model_createFromParam(ECov_EXPONENTIAL(), range=0.1, sill=1.)
+err = simtub(NULL, grid, m2, nbsimu = nv, namconv=NamingConvention("U2"))
+U2 = matrix(grid$getColumns(names = "U2.*"), nrow = grid$getSampleNumber(), ncol = nv)
+# Simulation of the Gaussian factors for structure #2
+m3 = Model_createFromParam(ECov_CUBIC(), range=0.25, sill=1.)
+err = simtub(NULL, grid, m3, nbsimu = nv, namconv=NamingConvention("U3"))
+U3 = matrix(grid$getColumns(names = "U3.*"), nrow = grid$getSampleNumber(), ncol = nv)
+
+# Correlated variables
+Z = outer(X = rep(1, np), Y = m_Z, FUN = "*") + 
+  (U1 %*% t(LM_1) + U2 %*% t(LM_2) + U3 %*% t(LM_3)) %*% diag(S_Z)
+
+grid$setColumn(Z[,1], name = "Z1")
+grid$setColumn(Z[,2], name = "Z2")
+grid$setColumn(Z[,3], name = "Z3")
+
+for (i in 1:nv) {
+  nm_var = paste0("Z", i)
+  p = ggplot() + 
+    plot.grid(grid, nm_var) + 
+    plot.decoration(xlab = "Easting", ylab = "Northing", title = nm_var)
+  ggPrint(p)
+}
+
+# Data extraction
+np = 500
+data = Db_createSamplingDb(grid, number=np, names=c("x1", "x2", "Z1", "Z2", "Z3"))
+data$setLocators("Z*", ELoc_Z())
+data$display()
+```
+
+# Statistics and variography on the data set
+
+```{r}
+# Statistics (vector of means and covariance matrix)
+data_Z = matrix(data$getColumns(names = "Z*"), nrow = data$getSampleNumber(), ncol = nv)
+mZ = apply(X = data_Z, 2, mean)
+varZ = var(data_Z)
+
+# Computing the experimental variogram
+nlag = 10
+lag  = 0.025
+varioparam = VarioParam_createOmniDirection(npas=nlag, dpas=lag)
+vario_raw  = Vario_computeFromDb(varioparam, db=data)
+
+# Fitting the variogram model on the experimental variogram
+model_raw = Model_create()
+err = model_raw$fit(vario_raw, 
+                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "CUBIC"))
+                    )
+model_raw$display()
+multi.varmod(vario_raw, model_raw)
+
+# Variogram matrix for lag 'ilag'
+ilag = 3
+Gamma_h = matrix(NaN, nrow = nv, ncol = nv)
+for (ivar in 1:nv) {
+  for (jvar in 1:nv) {
+    Gamma_h[ivar, jvar] = vario_raw$getGgVec(idir = 0,ivar-1,jvar-1)[ilag]
+  }
+}
+```
+
+# Principal Component Analysis
+
+The vectors $\Phi$ are solution of the Eigen problem:
+
+$$
+\Sigma_0 \Phi = \Phi \Lambda
+$$
+where $\Sigma_0$ is the covariance matrix and $\Lambda$ is the diagonal matrix of the Eigen values.
+
+The linear transform converts the centered data ${ \bf Z}$ into the orthogonal and normalized principal components,  
+${ \bf Y = (Z - m) \times M_{Z \rightarrow PCA}}$. 
+The back transform is defined by ${ \bf Z = m + Y \times M_{PCA \rightarrow Z}}$. 
+
+The transform matrices are:
+
+* ${ \bf M_{Z \rightarrow PCA} = \Phi \Lambda^{-1/2}}$ 
+
+* ${ \bf M_{PCA \rightarrow Z} = \Lambda^{1/2} \Phi^{T}}$
+
+Defining the covariance matrix of the raw data as ${\bf \Sigma_0 = (Z - m)^{T} (Z - m) / np}$, the covariance matrix of the principal components is
+
+$$ 
+{\bf Cov(Y) =  Y^{T} \, Y / np = 
+M_{Z \rightarrow PCA}^T [(Z-m)^T (Z-m) / np] M_{Z \rightarrow PCA} = 
+M_{Z \rightarrow PCA}^T \Sigma_0 M_{Z \rightarrow PCA} = 
+\Lambda^{-1/2} \Phi^T \Sigma_0 \Phi \Lambda^{-1/2} = I
+}
+$$
+Hence, the principal components are orthogonal, normalized, and centered.
+
+```{r computing_PCA}
+data$deleteColumns("U*")
+# linear transform
+res = eigen(varZ)
+M_Z2Y = res$vectors %*% diag(1/sqrt(res$values))
+M_Y2Z = diag(sqrt(res$values)) %*% t(res$vectors)
+round(M_Y2Z %*% M_Z2Y, 8)
+
+# Z -> Y
+data_PCA = (data_Z - outer(X = rep(1.0, np), Y = mZ)) %*% M_Z2Y
+round(var(data_PCA), 8)
+round(apply(data_PCA, 2, mean), 8)
+# factors are centered, normalized, and without correlation (for h = 0)
+
+# Y -> Z
+ZZ = outer(X = rep(1.0, np), Y = mZ) + data_PCA %*% M_Y2Z
+
+# Back transform must give the initial values back
+range(abs(data_Z - ZZ))
+
+# adding the transform to the data base
+data$setColumn(tab = data_PCA[, 1], name = "U1")
+data$setColumn(tab = data_PCA[, 2], name = "U2")
+data$setColumn(tab = data_PCA[, 3], name = "U3")
+data$setLocators("U*", ELoc_Z())
+
+# Fitting the variogram model on the experimental variogram
+vario_PCA  = Vario_computeFromDb(varioparam, db=data)
+model_PCA = Model_create()
+err = model_PCA$fit(vario_PCA, 
+                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "CUBIC"))
+                    )
+model_PCA$display()
+multi.varmod(vario = vario_PCA, model = model_PCA)
+```
+
+# Min/Max Autocorelation factors
+
+The vectors $\Psi$ are solution of the Generalized Eigen problem:
+
+$$
+\Gamma_{\Delta} \Psi = \Sigma_0 \Psi \Lambda
+$$
+where $\Gamma_{\Delta}$ is the variogram matrix at lag $\Delta$, $\Sigma_0$ the covariance matrix, and $\lambda$ is the diagonal matrix of the eigen values. In addition, the solution verifies ${ \bf \Psi^{-1} \Sigma_0 \Psi = I}$.
+
+The linear transform converts the centered data ${ \bf Z}$ into the orthogonal and normalized Min/Max autocorrelation factors,  
+${ \bf F = (Z - m) \times M_{Z \rightarrow F}}$. 
+The back transform is defined by ${ \bf Z = m + F \times M_{F \rightarrow Z}}$. 
+
+The transform matrices are:
+
+* ${ \bf M_{Z \rightarrow F} = \Psi}$ 
+
+* ${ \bf M_{F \rightarrow Z} = \Psi^{-1}}$
+
+The covariance matrix of the MAFs is
+
+$$ 
+{\bf Cov(F) =  F^{T} \, F / np = 
+M_{Z \rightarrow F}^T [(Z-m)^T (Z-m) / np] M_{Z \rightarrow F} = 
+\Psi^T \Sigma_0 \Psi = I
+}
+$$
+Hence, the factors are orthogonal, normalized, and centered.
+
+```{r computing_MAF}
+data$deleteColumns("F*")
+
+# Linear transform MAF
+res_maf = geigen(A = Gamma_h, B = varZ)
+M_Z2F = res_maf$vectors
+M_F2Z = solve(M_Z2F)
+round(M_F2Z %*% M_Z2F, 8)
+
+# Z -> MAF
+data_MAF = (data_Z - outer(X = rep(1.0, np), Y = mZ)) %*% M_Z2F
+round(var(data_MAF), 8)
+round(apply(data_MAF, 2, mean), 8)
+# factors are centered, normalized, and without correlation (for h = 0)
+
+# Y -> Z
+ZZ = outer(X = rep(1.0, np), Y = mZ) + data_MAF %*% M_F2Z
+
+# Back transform must give the initial values back
+range(abs(data_Z - ZZ))
+
+# adding the transform to the data base
+data$setColumn(tab = data_MAF[, 1], name = "F1")
+data$setColumn(tab = data_MAF[, 2], name = "F2")
+data$setColumn(tab = data_MAF[, 3], name = "F3")
+data$setLocators("F*", ELoc_Z())
+
+# Fitting the variogram model on the experimental variogram
+vario_MAF  = Vario_computeFromDb(varioparam, db=data)
+model_MAF = Model_create()
+err = model_MAF$fit(vario_MAF, 
+                    types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "CUBIC"))
+                    )
+model_MAF$display()
+multi.varmod(vario_MAF, model_MAF)
+```
+
+# Linear transform in gstlearn
+
+We now compare with the linear transforms implemented in *gstlearn*.
+
+## PCA
+
+```{r PCA_in_gstlearn}
+err = data$setLocators("Z*", ELoc_Z())
+pca = PCA(nvar = nv)
+err = pca$pca_compute(db = data, verbose = FALSE)
+err = pca$dbZ2F(data, verbose = FALSE, namconv = NamingConvention(prefix = "PCA", FALSE))
+
+# the eigen values are identical
+range(abs(abs(pca$getEigVals()) - abs(res$values)))
+
+# getting the computed factors
+data_gsPCA = matrix(data$getColumns(names = "PCA.*"), nrow = data$getSampleNumber(), ncol = nv)
+
+# Statistics (mean and variance) compared to the values of eigen
+apply(X = data_gsPCA, MARGIN = 2, mean)
+round(t(data_gsPCA) %*% data_gsPCA / (np-1), 8)
+# The factors are centered, normalized, and with a null correlation for h = 0
+
+for (i in 1:nv) {
+  titre = paste0("PCA #", i)
+  p = ggplot() +
+    plot.correlation(data, 
+                   namex = paste0("U",i), 
+                   namey = paste0("PCA.", i), 
+                   asPoint = TRUE, col = "red", 
+                   flagDiag = TRUE) +   
+    plot.decoration(xlab = "Eigen problem", ylab = "gstlearn", title = titre)
+  ggPrint(p)
+}
+
+# Back transform
+err = data$setLocators("PCA*", ELoc_Z())
+err = pca$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.PCA", FALSE))
+for (i in 1:nv) {
+  titre = paste0("Z", i)
+  p = ggplot() +
+    plot.correlation(data, 
+                   namex = paste0("Z",i), 
+                   namey = paste0("ZZ.PCA.", i), 
+                   asPoint = TRUE, col = "red", 
+                   flagDiag = TRUE) +   
+    plot.decoration(xlab = "Initial values", ylab = "Back transformed values", title = titre)
+  ggPrint(p)
+}
+```
+
+## MAF
+
+```{r MAF_in_gstlearn}
+err = data$setLocators(c("Z1", "Z2", "Z3"), ELoc_Z(), cleanSameLocator = TRUE)
+maf = PCA(nvar = nv)
+err = maf$maf_compute(db = data, varioparam = varioparam, ilag0 = ilag-1, verbose = FALSE)
+err = maf$dbZ2F(data, verbose = FALSE, namconv = NamingConvention(prefix = "MAF", FALSE))
+
+# The eigen values are identical (they are between 0 and 1 as 1-lambda is a correlation,
+# ranked in decreasing order)
+range(abs(abs(maf$getEigVals()) - abs(res_maf$values)))
+
+# computing the factors
+data_gsMAF = matrix(data$getColumns(names = "MAF.*"), nrow = data$getSampleNumber(), ncol = nv)
+# Statistics (mean and variance)
+apply(X = data_gsMAF, MARGIN = 2, mean)
+round(t(data_gsMAF) %*% data_gsMAF / (np -1), 8)
+
+for (i in 1:nv) {
+  titre = paste0("MAF #", i)
+  p = ggplot() +
+    plot.correlation(data, 
+                   namex = paste0("F",i), 
+                   namey = paste0("MAF.", i), 
+                   asPoint = TRUE, col = "red", 
+                   flagDiag = TRUE) +   
+    plot.decoration(xlab = "Eigen problem", ylab = "gstlearn", title = titre)
+  ggPrint(p)
+}
+
+# back transform
+err = data$setLocators(paste0("MAF.", 1:nv), ELoc_Z(), cleanSameLocator = TRUE)
+err = maf$dbF2Z(data, verbose = FALSE, namconv = NamingConvention(prefix = "ZZ.MAF", FALSE))
+
+for (i in 1:nv) {
+  titre = paste0("Z", i)
+  p = ggplot() +
+    plot.correlation(data, 
+                   namex = paste0("Z",i), 
+                   namey = paste0("ZZ.MAF.", i), 
+                   asPoint = TRUE, col = "red", 
+                   flagDiag = TRUE) +   
+    plot.decoration(xlab = "Initial values", ylab = "Back transformed values", title = titre)
+  ggPrint(p)
+}
+```
+

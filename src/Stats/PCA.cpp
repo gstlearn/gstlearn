@@ -132,11 +132,15 @@ void PCA::_mafFunctions(bool verbose)
   // Construct F2Z
 
   MatrixSquareGeneral A(nvar);
+//  VH::display("-Z2F",_Z2F); // DR
   A.setValues(_Z2F);
+//  A.display(); // DR
   A.invert();
+//  A.display(); // DR
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      setF2Z(ivar, jvar, A(ivar, jvar));
+      setF2Z(jvar, ivar, A(ivar, jvar));
+//  VH::display("-F2Z",_F2Z); // DR
 
   // Printout of the transition matrices (optional)
 

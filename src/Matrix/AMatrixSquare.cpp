@@ -16,12 +16,12 @@
 #include <math.h>
 
 AMatrixSquare::AMatrixSquare(int nrow)
-  : AMatrix(nrow, nrow)
+  : MatrixRectangular(nrow, nrow)
 {
 }
 
 AMatrixSquare::AMatrixSquare(const AMatrixSquare &r)
-  : AMatrix(r)
+  : MatrixRectangular(r)
 {
 }
 
@@ -29,7 +29,7 @@ AMatrixSquare& AMatrixSquare::operator= (const AMatrixSquare &r)
 {
   if (this != &r)
   {
-    AMatrix::operator=(r);
+    MatrixRectangular::operator=(r);
   }
   return *this;
 }
@@ -158,17 +158,6 @@ void AMatrixSquare::innerMatrix(const AMatrixSquare& x,
       setValue(irow,icol,value);
     }
   }
-}
-
-bool AMatrixSquare::_isNumberValid(int nrows, int ncols) const
-{
-  AMatrix::_isNumbersValid(nrows,ncols);
-  if (nrows != ncols)
-  {
-    messerr("Arguments 'nrows' and 'ncols' should be equal for Square Matrices");
-    return false;
-  }
-  return true;
 }
 
 /*! Multiply the diagonal by a vector */

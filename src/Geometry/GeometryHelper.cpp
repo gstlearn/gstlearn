@@ -1489,27 +1489,33 @@ MatrixRectangular* GeometryHelper::getDirectionsInRn(const MatrixRectangular *U)
   return Y;
 }
 
-double GeometryHelper::formatAngle(double anglein)
+/**
+ * Format an Angle to be lying in [0, basis]
+ * @param anglein Input angle value
+ * @param basis   Basis (should be 360 by default; could be 180 for variogram or covariance)
+ * @return
+ */
+double GeometryHelper::formatAngle(double anglein, double basis)
 {
   double angle = anglein;
   if (angle < 0)
   {
     while (angle < 0.)
-      angle += 360.;
+      angle += basis;
   }
   else
   {
-    while (angle > 360.)
-      angle -= 360.;
+    while (angle > basis)
+      angle -= basis;
   }
   return angle;
 }
 
-VectorDouble GeometryHelper::formatAngles(const VectorDouble &anglesin)
+VectorDouble GeometryHelper::formatAngles(const VectorDouble &anglesin, double basis)
 {
   VectorDouble angles = anglesin;
   for (int idim = 0; idim < (int) angles.size(); idim++)
-    angles[idim] = formatAngle(angles[idim]);
+    angles[idim] = formatAngle(angles[idim], basis);
   return angles;
 }
 

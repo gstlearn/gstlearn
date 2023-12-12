@@ -15,6 +15,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include <Eigen/Sparse>
 
 /**
  * Sparse Matrix
@@ -36,6 +37,22 @@ public:
   /// Cloneable interface
   IMPLEMENT_CLONING(MatrixSparse)
 
+  /// Interface for AMatrix
+  /*! Transpose the matrix and return it as a copy*/
+  virtual MatrixSparse* transpose() const override;
+  /*! Add a value to each matrix component */
+  virtual void addScalar(double v) override;
+  /*! Add value to matrix diagonal */
+  virtual void addScalarDiag(double v) override;
+  /*! Multiply each matrix component by a value */
+  virtual void prodScalar(double v) override;
+  void setValuesByArrays(const VectorInt &irows,
+                         const VectorInt &icols,
+                         const VectorDouble &values) override;
+
+  //// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   void init(int nrows, int ncols);
 
 #ifndef SWIG
@@ -49,7 +66,7 @@ public:
   /*! Returns a pointer to the Sparse storage */
   const cs* getCs() const { return _csMatrix; }
 #endif
-  Triplet getCsToTriplet(bool flag_from_1 = false) const;
+  Triplet getSparseToTriplet(bool flag_from_1 = false) const;
 
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const { return true; }
@@ -63,15 +80,6 @@ public:
              bool byCol = true);
   void reset(const VectorVectorDouble& tab, bool byCol = true);
 
-  /*! Transpose the matrix and return it as a copy*/
-  virtual MatrixSparse* transpose() const override;
-  /*! Add a value to each matrix component */
-  virtual void addScalar(double v) override;
-  /*! Add value to matrix diagonal */
-  virtual void addScalarDiag(double v) override;
-  /*! Multiply each matrix component by a value */
-  virtual void prodScalar(double v) override;
-
   /*! Add a matrix to this component by component */
   void addMatrix(const MatrixSparse& y);
   /*! Multiply a matrix by another and store the result in the current matrix */
@@ -81,50 +89,43 @@ public:
 
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
-  /*! Conversion to a string */
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Set all the values of the Matrix at once */
   void fill(double value);
+  /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
-  void setValuesByArrays(const VectorInt &irows,
-                         const VectorInt &icols,
-                         const VectorDouble &values) override;
+
 
 protected:
-#ifndef SWIG
-  virtual double& _getValueRef(int irow, int icol) override;
-
-protected:
+  /// Interface for AMatrix
   bool    _isPhysicallyPresent(int irow, int icol) const { DECLARE_UNUSED(irow, icol); return true; }
   bool    _isCompatible(const AMatrix& m) const override { DECLARE_UNUSED(m); return (isSparse()); }
   void    _allocate() override;
   void    _deallocate() override;
 
-  /*! Returns the number of elements actually stored as members in subsequent classes */
-  virtual int     _getMatrixSize() const override;
+  virtual double& _getValueRef(int irow, int icol) override;
+  virtual int     _getMatrixPhysicalSize() const override;
   virtual void    _setValue(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
   virtual void    _setValues(const double* values, bool byCol) override;
   virtual double  _getValue(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;
+  virtual int     _getIndexToRank(int irow,int icol) const override;
+
   virtual void    _transposeInPlace() override;
   virtual void    _prodVector(const double *inv,double *outv) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
-  virtual void    _clearContents() {};
-  virtual int     _getIndexToRank(int irow,int icol) const override;
 
   void _clear();
+  bool _isElementPresent(int irow, int icol) const;
 
 private:
-  void _initiateSparse();
-  void _recopySparse(const cs* cs);
   void _forbiddenForSparse(const String& func) const;
 
 private:
-  cs*  _csMatrix;
-#endif
+  cs*  _csMatrix; // Classical storage
+  Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage
 };
 
 /*! Transform any matrix in a Sparse format */

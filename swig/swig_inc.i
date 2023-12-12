@@ -19,7 +19,7 @@
 %shared_ptr(ADrift)
 %shared_ptr(AGibbs)
 %shared_ptr(AMatrix)
-%shared_ptr(AMatrixSquare)
+%shared_ptr(AMatrixDense)
 %shared_ptr(AMesh)
 %shared_ptr(AnamContinuous)
 %shared_ptr(AnamDiscrete)
@@ -132,6 +132,7 @@
 %shared_ptr(Limits)
 %shared_ptr(MatrixInt)
 %shared_ptr(MatrixRectangular)
+%shared_ptr(AMatrixSquare)
 %shared_ptr(MatrixSparse)
 %shared_ptr(MatrixSquareGeneral)
 %shared_ptr(MatrixSquareSymmetric)
@@ -411,10 +412,11 @@
   #include "Drifts/DriftFactory.hpp"
   
   #include "Matrix/AMatrix.hpp"
-  #include "Matrix/AMatrixSquare.hpp"
+  #include "Matrix/AMatrixDense.hpp"
   #include "Matrix/MatrixSparse.hpp"
   #include "Matrix/LinkMatrixSparse.hpp"
   #include "Matrix/MatrixRectangular.hpp"
+  #include "Matrix/AMatrixSquare.hpp"
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
   #include "Matrix/MatrixInt.hpp"

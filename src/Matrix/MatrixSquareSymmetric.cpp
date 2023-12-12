@@ -25,8 +25,10 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
   : AMatrixSquare(r)
+  , _squareSymMatrix()
 {
-  _recopy(r);
+  if (! isFlagEigen())
+    _recopyLocal(r);
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
@@ -55,11 +57,7 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
   _setNRows(m.getNRows());
   _setNCols(m.getNCols());
   _allocate();
-  for (int icol = 0; icol < m.getNCols(); icol++)
-    for (int irow = 0; irow < m.getNRows(); irow++)
-    {
-      setValue(irow,icol,m.getValue(irow,icol));
-    }
+  _recopy(m);
 }
 
 MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)
@@ -68,7 +66,8 @@ MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymme
   {
     _deallocate();
     AMatrixSquare::operator=(r);
-    _recopy(r);
+    if (! isFlagEigen())
+      _recopyLocal(r);
   }
   return *this;
 }
@@ -80,137 +79,115 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  if (! _isIndexValid(irow,icol)) return TEST;
-  int rank = _getIndexToRank(irow,icol);
-  return _squareSymMatrix[rank];
+  if (isFlagEigen())
+    return AMatrixDense::_getValue(irow, icol);
+  else
+    return _getValueLocal(irow, icol);
 }
 
 double MatrixSquareSymmetric::_getValue(int irank) const
 {
-  return _squareSymMatrix[irank];
+  if (isFlagEigen())
+    return AMatrixDense::_getValue(irank);
+  else
+    return _getValueLocal(irank);
+}
+
+double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
+{
+  if (isFlagEigen())
+    return AMatrixDense::_getValueRef(irow, icol);
+  else
+    return _getValueRef(irow, icol);
 }
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
-  int irank = _getIndexToRank(irow, icol);
-  _squareSymMatrix[irank] = value;
+  if (isFlagEigen())
+  {
+    // Do not forget to make a symmetrical call (when stored in an Eigen format)
+    AMatrixDense::_setValue(irow, icol, value);
+    AMatrixDense::_setValue(icol, irow, value);
+  }
+  else
+    _setValueLocal(irow, icol, value);
 }
 
 void MatrixSquareSymmetric::_setValue(int irank, double value)
 {
-  if (! _isRankValid(irank)) return;
-  _squareSymMatrix[irank] = value;
-}
-
-/**
- * Loading values from an Upper Triangular matrix
- * @param nsize
- * @param tab
- */
-void MatrixSquareSymmetric::initMatTri(int nsize, double *tab)
-{
-  _isNumberValid(nsize,nsize);
-  _setNSize(nsize);
-  _allocate();
-  for (int i=0; i<_getMatrixSize(); i++) _squareSymMatrix[i] = tab[i];
+  if (isFlagEigen())
+    AMatrixDense::_setValue(irank, value);
+  else
+    _setValueLocal(irank, value);
 }
 
 void MatrixSquareSymmetric::_prodVector(const double *inv, double *outv) const
 {
-  matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),inv,outv);
+  if (isFlagEigen())
+    AMatrixDense::_prodVector(inv, outv);
+  else
+    _prodVectorLocal(inv, outv);
 }
 
 /**
  * \warning : values is provided as a square complete matrix
  */
-void MatrixSquareSymmetric::_setValues(const double* values, bool /*byCol*/)
+void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 {
-  // Check that the input argument corresponds to a square symmetric matrix
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++)
-    {
-      double val1 = values[icol * getNRows() + irow];
-      double val2 = values[irow * getNCols() + icol];
-      if (ABS(val1 - val2) > EPSILON10)
-      {
-        messerr("Argument 'values' must correspond to a Square Symmetric Matrix");
-        messerr("- Element[%d,%d] = %lf",icol,irow,val1);
-        messerr("- Element(%d,%d) = %lf",irow,icol,val2);
-        messerr("Operation is aborted");
-        return;
-      }
-    }
-
-  int ecr = 0;
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++, ecr++)
-    {
-      setValue(irow, icol, values[ecr]);
-    }
+  if (isFlagEigen())
+    AMatrixDense::_setValues(values, byCol);
+  else
+    _setValuesLocal(values, byCol);
 }
 
 int MatrixSquareSymmetric::_invert()
 {
-  return matrix_invert_triangle(getNRows(),_squareSymMatrix.data(), -1);
-}
-
-double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
-{
-  int rank = _getIndexToRank(irow,icol);
-  return _squareSymMatrix[rank];
+  if (isFlagEigen())
+    return AMatrixDense::_invert();
+  else
+    return _invertLocal();
 }
 
 void MatrixSquareSymmetric::_deallocate()
 {
-}
-
-void MatrixSquareSymmetric::_recopy(const MatrixSquareSymmetric &r)
-{
-  _squareSymMatrix = r._squareSymMatrix;
+  if (isFlagEigen())
+    AMatrixDense::_deallocate();
+  else
+  {
+    // Here should be the code specific to this class
+  }
 }
 
 void MatrixSquareSymmetric::_allocate()
 {
-  _squareSymMatrix.resize(_getMatrixSize());
+  if (isFlagEigen())
+    AMatrixDense::_allocate();
+  else
+    _allocateLocal();
 }
 
 int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 {
-  int rank;
-
-  int n = getNRows();
-  if (irow >= icol)
-    rank = icol * n + irow - icol * (icol + 1) / 2;
+  if (isFlagEigen())
+    return AMatrixDense::_getIndexToRank(irow, icol);
   else
-    rank = irow * n + icol - irow * (irow + 1) / 2;
-  return rank;
+    return _getIndexToRankLocal(irow, icol);
 }
 
-int MatrixSquareSymmetric::_getMatrixSize() const
+int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 {
-  int n = getNRows();
-  int size = n * (n + 1) / 2;
-  return size;
+  if (isFlagEigen())
+    return AMatrixDense::_getMatrixPhysicalSize();
+  else
+    return _getMatrixPhysicalSizeLocal();
 }
 
 int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
 {
-  int pivot;
-  return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
-                      static_cast<int> (b.size()),1,&pivot);
-}
-
-String MatrixSquareSymmetric::toString(const AStringFormat* strfmt) const
-{
-  DECLARE_UNUSED(strfmt);
-  std::stringstream sstr;
-
-  sstr << "- Number of rows    = " <<  getNRows() << std::endl;
-  sstr << "- Number of columns = " <<  getNCols() << std::endl;
-  sstr << toMatrixSymmetric(String(), VectorString(), VectorString(),
-                            true, getNCols(), getValues());
-  return sstr.str();
+  if (isFlagEigen())
+    return AMatrixDense::_solve(b, x);
+  else
+    return _solveLocal(b, x);
 }
 
 bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
@@ -314,4 +291,114 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
   MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
   mat->_fillFromVVD(X);
   return mat;
+}
+
+/// =============================================================================
+/// The subsequent methods rely on the specific local storage ('squareSymMatrix')
+/// =============================================================================
+
+void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
+{
+  _squareSymMatrix = r._squareSymMatrix;
+}
+
+double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
+{
+  if (! _isIndexValid(irow,icol)) return TEST;
+  int rank = _getIndexToRank(irow,icol);
+  return _squareSymMatrix[rank];
+}
+
+double MatrixSquareSymmetric::_getValueLocal(int irank) const
+{
+  return _squareSymMatrix[irank];
+}
+
+double& MatrixSquareSymmetric::_getValueRefLocal(int irow, int icol)
+{
+  int rank = _getIndexToRank(irow, icol);
+  return _squareSymMatrix[rank];
+}
+
+void MatrixSquareSymmetric::_setValueLocal(int irow, int icol, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  int irank = _getIndexToRank(irow, icol);
+  _squareSymMatrix[irank] = value;
+}
+
+void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
+{
+  if (! _isRankValid(irank)) return;
+  _squareSymMatrix[irank] = value;
+}
+
+void MatrixSquareSymmetric::_prodVectorLocal(const double *inv, double *outv) const
+{
+  matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),inv,outv);
+}
+
+/**
+ * \warning : values is provided as a square complete matrix
+ */
+void MatrixSquareSymmetric::_setValuesLocal(const double *values, bool byCol)
+{
+  // Check that the input argument corresponds to a square symmetric matrix
+  for (int icol = 0; icol < getNCols(); icol++)
+    for (int irow = 0; irow < getNRows(); irow++)
+    {
+      double val1 = values[icol * getNRows() + irow];
+      double val2 = values[irow * getNCols() + icol];
+      if (ABS(val1 - val2) > EPSILON10)
+      {
+        messerr(
+            "Argument 'values' must correspond to a Square Symmetric Matrix");
+        messerr("- Element[%d,%d] = %lf", icol, irow, val1);
+        messerr("- Element(%d,%d) = %lf", irow, icol, val2);
+        messerr("Operation is aborted");
+        return;
+      }
+    }
+
+  int ecr = 0;
+  for (int icol = 0; icol < getNCols(); icol++)
+    for (int irow = 0; irow < getNRows(); irow++, ecr++)
+    {
+      setValue(irow, icol, values[ecr]);
+    }
+}
+
+int MatrixSquareSymmetric::_invertLocal()
+{
+  return matrix_invert_triangle(getNRows(),_squareSymMatrix.data(), -1);
+}
+
+void MatrixSquareSymmetric::_allocateLocal()
+{
+  _squareSymMatrix.resize(_getMatrixPhysicalSize());
+}
+
+int MatrixSquareSymmetric::_getIndexToRankLocal(int irow, int icol) const
+{
+  int rank;
+  int n = getNRows();
+  if (irow >= icol)
+    rank = icol * n + irow - icol * (icol + 1) / 2;
+  else
+    rank = irow * n + icol - irow * (irow + 1) / 2;
+  return rank;
+}
+
+int MatrixSquareSymmetric::_getMatrixPhysicalSizeLocal() const
+{
+  int n = getNRows();
+  int size = n * (n + 1) / 2;
+  return size;
+}
+
+int MatrixSquareSymmetric::_solveLocal(const VectorDouble& b, VectorDouble& x) const
+{
+  int pivot;
+  return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
+                      static_cast<int> (b.size()),1,&pivot);
 }

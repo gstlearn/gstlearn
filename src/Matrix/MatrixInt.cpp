@@ -63,7 +63,7 @@ int MatrixInt::getValue(int irank) const
   return _rectMatrix[irank];
 }
 
-int& MatrixInt::getValueRef(int irow, int icol)
+int& MatrixInt::_getValueRef(int irow, int icol)
 {
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];

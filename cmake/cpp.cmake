@@ -50,6 +50,28 @@ endif()
 find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 
+# Look for OpenMP
+FIND_PACKAGE(OpenMP REQUIRED)
+if (OPENMP_FOUND)
+    message(STATUS "OPENMP found")
+    add_definitions(-DOPENMP)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+   if(${APPLE})
+    include_directories(${OpenMP_C_INCLUDE_DIR})
+   	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp")
+   endif()
+endif()
+
+# Look for Eigen
+find_package(Eigen3 REQUIRED) 
+if(EIGEN3_FOUND)
+	message(STATUS "Eigen3 found")
+	message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+	message(STATUS "EIGEN3_USER_DIR: ${EIGEN3_USER_DIR}")
+endif()
+
 # Look for HDF5
 if (USE_HDF5)
   # Use static library for HDF5 under Windows (no more issue with DLL location)
@@ -83,6 +105,9 @@ foreach(FLAVOR ${FLAVORS})
     $<BUILD_INTERFACE: ${INCLUDES}>
     # Add binary directory to find generated version.h and export.hpp
     $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
+    # Add Eigen include directories
+    ${EIGEN3_INCLUDE_DIR}
+    ${EIGEN3_USER_DIR}
   )
 
   # Set some target properties

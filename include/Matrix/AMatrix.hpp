@@ -23,12 +23,10 @@
  */
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
-protected:
+public:
   AMatrix(int nrow = 0, int ncol = 0);
   AMatrix(const AMatrix &m);
   AMatrix& operator= (const AMatrix &m);
-
-public:
   virtual ~AMatrix();
 
   void init(int nrows, int ncols);
@@ -36,6 +34,9 @@ public:
   void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true);
   void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true);
   void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true);
+
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab);
@@ -74,12 +75,8 @@ public:
   virtual void addScalarDiag(double v);
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
-  /*! Conversion to a string */
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   /*! Gets the value at row 'irow' and column 'icol' */
   virtual double getValue(int irow, int icol) const;
-  /*! Gets a reference to the value at row 'irow' and column 'icol' */
-  virtual double& getValueRef(int irow, int icol);
   /*! Sets the value at row 'irow' and column 'icol' */
   virtual void setValue(int irow, int icol, double value);
   /*! Set a set of values simultaneously from an input array */
@@ -99,7 +96,7 @@ public:
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
   bool isEmpty() const { return (_nRows == 0 || _nCols == 0); }
-  /*! Returns the sum of absolute difference between argument and this */
+  /*! Returns the sum of absolute difference betweatrix<int, 5, 1> b {1, 2en argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
   int getNRows() const { return _nRows; }
@@ -141,6 +138,7 @@ public:
   /*! Product of the Matrix by a vector (on its right) */
   void prodVector(const double *inv,double *outv) const;
 #endif
+
   void prodVector(const VectorDouble& inv, VectorDouble& outv) const;
   /*! Multiply a Matrix row-wise */
   void multiplyRow(const VectorDouble& vec);
@@ -176,29 +174,29 @@ public:
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }
   /*! Set value operator override */
-  double &operator()(int row, int col)       { return getValueRef(row, col); }
+  double &operator()(int row, int col)       { return _getValueRef(row, col); }
 
 protected:
   /*! Say if (irow, icol) is stored physically or not */
   virtual bool    _isPhysicallyPresent(int /*irow*/, int /*icol*/) const { return true; }
-  virtual bool    _isCompatible(const AMatrix& m) const = 0;
+  virtual bool    _isCompatible(const AMatrix& m) const { return isSameSize(m); }
+  virtual double& _getValueRef(int irow, int icol);
+  virtual int     _getMatrixPhysicalSize() const;
+  virtual void    _setValues(const double* values, bool byCol);
+  virtual void    _clearContents() {};
+
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
-
-  /*! Returns the number of elements actually stored as members in subsequent classes */
-  virtual int     _getMatrixSize() const = 0;
   virtual void    _setValue(int rank, double value) = 0;
+  virtual double  _getValue(int irow, int icol) const = 0;
   virtual double  _getValue(int rank) const = 0;
   virtual void    _setValue(int irow, int icol, double value) = 0;
-  virtual void    _setValues(const double* values, bool byCol);
-  virtual double  _getValue(int irow, int icol) const = 0;
-  virtual double& _getValueRef(int irow, int icol) = 0;
+  virtual int     _getIndexToRank(int irow,int icol) const = 0;
+
   virtual void    _transposeInPlace() = 0;
   virtual void    _prodVector(const double *inv,double *outv) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
-  virtual int     _getIndexToRank(int irow,int icol) const = 0;
-  virtual void    _clearContents() {};
 
   void _setNCols(int ncols) { _nCols = ncols; }
   void _setNRows(int nrows) { _nRows = nrows; }
@@ -212,6 +210,7 @@ protected:
   bool _isRankValid(int rank) const;
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
+  void _recopy(const AMatrix &m);
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
 
@@ -219,6 +218,7 @@ private:
   int  _nRows;
   int  _nCols;
   bool _flagCheckAddress;
+  double _nullTerm; // Used for returning a null constant address
 #endif
 };
 
@@ -226,3 +226,5 @@ private:
 GSTLEARN_EXPORT AMatrix* transpose(const AMatrix* mat);
 GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);
+GSTLEARN_EXPORT void setFlagEigen(bool flagEigen);
+GSTLEARN_EXPORT bool isFlagEigen();

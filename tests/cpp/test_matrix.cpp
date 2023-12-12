@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
+  setFlagEigen(false); // Use the Eigen library or not
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);
@@ -82,38 +83,29 @@ int main(int argc, char *argv[])
       if (tirage < proba) value = 0.;
       MR.setValue(irow, icol, value);
     }
-
-  // Checking using the operator ()
-
+  message("Matrix MR\n");
   MR.display();
+
+  // Checking using the operator to modify and correct the initial matrix MR()
+
   double memo = MR(1,2);
   message("Initial value of M(1,2) = %lf\n", memo);
-  MR(1,2) = 111.11;
+
+  double new_value = 111.111;
+  MR(1,2) = new_value;
+  message("Modifying it to new value = %lf\n", new_value);
   MR.display();
+
   MR(1,2) = memo; // Set back to initial value
+  message("Resetting to initial value\n");
+  MR.display();
 
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
-  AMatrix* MRt = MR.transpose(); // Using cloneable feature
-  
-  // Equivalent instruction using shortcut function
-  //AMatrix* MRt = transpose(MR);
-
-  // Still equivalent but in two lines
-  //AMatrix* MRt = dynamic_cast<AMAtrix*>(MR.clone());
-  //MRt->transposeInPlace();
-
-  // Still equivalent but with no more pointer
-  //MatrixRectangular MRt = MR;
-  //MRt.transposeInPlace();
-
+  AMatrix* MRt = MR.transpose();
+  MRt->display();
   AMatrix* M = prodMatrix(MRt, &MR);
-
-  // Equivalent but more lengthy (but no more pointer)
-  //MatrixRectangular M;
-  //M.prodMatrix(*MRt, MR);
-
-  message("Matrix M\n");
+  message("Matrix M (should be symmetric)\n");
   M->display();
 
   // Creating two vectors for future use
@@ -145,14 +137,18 @@ int main(int argc, char *argv[])
   MSP->display();
 
   /**
-   * Adding a constant to the diagonal of a matrix
+   * Adding a constant value to the diagonal of a matrix
    */
   double addendum = 1.432;
 
   mestitle(0,"Adding a constant value to the diagonal of a matrix");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-
+  message("Reference MRR (before addition)\n");
+  MRR.display();
   MRR.addScalarDiag(addendum);
+  message("Reference MRR (after addition)\n");
+  MRR.display();
+
   MSG.addScalarDiag(addendum);
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.addScalarDiag(addendum);
@@ -167,8 +163,12 @@ int main(int argc, char *argv[])
 
   mestitle(0,"Multiplying a Matrix by a constant");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-
+  message("Reference MRR (before multiplication)\n");
+  MRR.display();
   MRR.prodScalar(multiply);
+  message("Reference MRR (after multiplication)\n");
+  MRR.display();
+
   MSG.prodScalar(multiply);
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.prodScalar(multiply);
@@ -183,8 +183,12 @@ int main(int argc, char *argv[])
 
   mestitle(0,"Adding a constant value to the whole matrix");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-
+  message("Reference MRR (before addition)\n");
+  MRR.display();
   MRR.addScalar(addendum);
+  message("Reference MRR (after addition)\n");
+  MRR.display();
+
   MSG.addScalar(addendum);
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.addScalar(addendum);
@@ -193,13 +197,17 @@ int main(int argc, char *argv[])
   /**
     * Linear combination
     */
+  double cx =  1.3;
+  double cy = -0.5;
+
   mestitle(0,"Linear combination of matrices");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-
-  double cx =  1.3;
-  double cy = -0.3;
-
+  message("Reference MRR (before linear combination)\n");
+  MRR.display();
   MRR.linearCombination(cx,cy,MRR);
+  message("Reference MRR (after linear combination)\n");
+  MRR.display();
+
   MSG.linearCombination(cx,cy,MSG);
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.linearCombination(cx,cy,MSS);
@@ -217,6 +225,8 @@ int main(int argc, char *argv[])
   message("MRR and MSP matrices are used as Reference\n");
   MRR.display();
   Vref = MRR.getDiagonal();
+  VH::display("Reference Vector", Vref);
+
   V1 = MSP->getDiagonal();
   print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
@@ -240,12 +250,16 @@ int main(int argc, char *argv[])
   /**
    * Product of the matrix by a vector
    */
+  Vref.resize(nrow,0.);
 
   mestitle(0,"Product of the matrix by a vector");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-
-  Vref.resize(nrow,0.);
+  message("Reference Matrix\n");
+  MRR.display();
+  VH::display("Reference Input Vector",V1);
   MRR.prodVector(V1, Vref);
+  VH::display("Reference Output Vector",Vref);
+
   MSG.prodVector(V1, V2);
   message("Are results for MRR and MSG similar: %d\n",VH::isSame(Vref,V2));
   MSS.prodVector(V1, V2);
@@ -257,12 +271,18 @@ int main(int argc, char *argv[])
    * Linear solver
    */
 
+  V3.resize(nrow,0.);
+
   mestitle(0,"Matrix Linear Solver");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
-  V3.resize(nrow,0.);
   message("Solve X from A*X=B. Compute A*X and compare with B\n");
 
+  message("Reference Matrix\n");
+  MSS.display();
+  VH::display("Reference Input Vector",V1);
   MSS.solve(V1, V2);
+  VH::display("Reference Output Vector",V2);
+
   MSS.prodVector(V2, V3);
   message("Are results correct for MSS: %d\n",VH::isSame(V1,V3));
   MSP->solve(V1, V2);
@@ -279,8 +299,12 @@ int main(int argc, char *argv[])
 
   AMatrix* Res;
   MatrixSquareGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
-
+  message("Reference Matrix\n");
+  MSGref.display();
   MSG.invert();
+  message("Inverse Matrix\n", MSG);
+  MSG.display();
+
   Res = prodMatrix(&MSG, &MSGref);
   message("Are results correct for MSG: %d\n",Res->isIdentity());
   delete Res;
@@ -294,6 +318,66 @@ int main(int argc, char *argv[])
   Res = prodMatrix(MSP, &MSGref);
   message("Are results correct for MSP: %d\n",Res->isIdentity());
   delete Res;
+
+  /*
+   * Testing LU
+   */
+
+  int neq = 3;
+  int neq2 = neq * neq;
+  MatrixSquareGeneral mat(neq);
+  VectorDouble tab(neq2);
+
+  MatrixSquareGeneral a(neq);
+  a(0,0) = -1;
+  a(0,1) =  0;
+  a(0,2) =  3;
+  a(1,0) = -2;
+  a(1,1) = -2;
+  a(1,2) =  7;
+  a(2,0) = -5;
+  a(2,1) =  0;
+  a(2,2) = 20;
+  a.display();
+  MatrixSquareGeneral ai(a);
+
+  // LU decomposition
+  VectorDouble tl(neq2,0.);
+  VectorDouble tu(neq2,0.);
+
+  matrix_LU_decompose(neq, a.getValues().data(), tl.data(), tu.data());
+
+  MatrixSquareGeneral atl(neq);
+  atl.resetFromArray(neq, neq, tl.data());
+  atl.display();
+
+  MatrixSquareGeneral atu(neq);
+  atu.resetFromArray(neq, neq, tu.data());
+  atu.display();
+
+  MatrixSquareGeneral res(neq);
+  res.prodMatrix(atl, atu);
+  message("\nChecking the product\n");
+  res.display();
+  message("compared to Initial\n");
+  a.display();
+
+  VectorDouble xtest(neq);
+  VectorDouble x(neq);
+  VectorDouble b = { 2., 7., 0.};
+  VH::display("B",b);
+
+  message("Inverse using LU\n");
+  VectorDouble ais = a.getValues();
+  (void) matrix_LU_invert(neq, ais.data());
+  ai.resetFromArray(neq, neq, ais.data());
+  ai.display();
+
+  message("Inverse using invreal\n");
+  ais = a.getValues();
+  (void) matrix_invreal(ais.data(), neq);
+  ai.resetFromArray(neq, neq, ais.data());
+  ai.display();
 
   // Free the pointers
 

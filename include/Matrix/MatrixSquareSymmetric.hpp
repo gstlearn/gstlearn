@@ -35,52 +35,59 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(MatrixSquareSymmetric)
 
-  /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
+  /// Interface to AMatrix
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const final { return true; }
   /*! Say if the matrix must be diagonal */
   virtual bool mustBeDiagonal() const override { return false; }
   /*! Say if the matrix must be diagonal constant */
   virtual bool mustBeDiagCst() const override { return false; }
-
-  /// TODO : isPositiveDefinite
-
   /// Is the matrix symmetrical ?
   bool isSymmetric(bool printWhyNot = false) const final { DECLARE_UNUSED(printWhyNot); return true; }
 
-  void initMatTri(int nsize,double* tab);
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
   static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble& X);
   MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
 
-protected:
-#ifndef SWIG
-  virtual double& _getValueRef(int irow, int icol) override;
-
 private:
+  /// Interface for AMatrix
   virtual bool   _isCompatible(const AMatrix& m) const override { return (isSameSize(m) && isSymmetric()); }
-  virtual bool   _isPhysicallyPresent(int irow, int icol) const override;
-  virtual int    _getIndexToRank(int irow,int icol) const override;
-  virtual double _getValue(int irow, int icol) const override;
-  virtual double _getValue(int irank) const override;
-  virtual void   _setValue(int irow, int icol, double value) override;
-  virtual void   _setValue(int irank, double value) override;
-  virtual void   _transposeInPlace() override { return ; } // Nothing to do
-  virtual void   _setValues(const double* values, bool byCol = true) override;
-  virtual int    _getMatrixSize() const override;
-  virtual void   _allocate() override;
-  virtual void   _deallocate() override;
-  virtual void   _prodVector(const double *inv,double *outv) const override;
-  virtual int    _invert() override;
-  virtual int    _solve(const VectorDouble& b, VectorDouble& x) const override;
+  virtual int    _getMatrixPhysicalSize() const override;
 
-  void   _recopy(const MatrixSquareSymmetric &r);
+  virtual double& _getValueRef(int irow, int icol) override;
+  virtual bool    _isPhysicallyPresent(int irow, int icol) const override;
+  virtual int     _getIndexToRank(int irow,int icol) const override;
+  virtual void    _allocate() override;
+  virtual void    _deallocate() override;
+  virtual double  _getValue(int irow, int icol) const override;
+  virtual double  _getValue(int irank) const override;
+  virtual void    _setValue(int irow, int icol, double value) override;
+  virtual void    _setValue(int irank, double value) override;
+  virtual void    _setValues(const double* values, bool byCol = true) override;
+
+  virtual void    _transposeInPlace() override { return ; } // Nothing to do
+  virtual void    _prodVector(const double *inv,double *outv) const override;
+  virtual int     _invert() override;
+  virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
 private:
-  VectorDouble _squareSymMatrix;
-#endif
+  // The subsequent methods rely on the specific local storage ('squareSymMatrix')
+  void    _recopyLocal(const MatrixSquareSymmetric& r);
+  double  _getValueLocal(int irow, int icol) const;
+  double  _getValueLocal(int irank) const;
+  double& _getValueRefLocal(int irow, int icol);
+  void    _setValueLocal(int irow, int icol, double value);
+  void    _setValueLocal(int irank, double value);
+  void    _prodVectorLocal(const double *inv, double *outv) const;
+  void    _setValuesLocal(const double *values, bool byCol);
+  int     _invertLocal();
+  void    _allocateLocal();
+  int     _getIndexToRankLocal(int irow, int icol) const;
+  int     _getMatrixPhysicalSizeLocal() const;
+  int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
+
+private:
+  VectorDouble _squareSymMatrix; // Classical storage
 };

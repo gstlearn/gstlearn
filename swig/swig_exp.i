@@ -246,10 +246,11 @@
 %include Drifts/DriftFactory.hpp
 
 %include Matrix/AMatrix.hpp
-%include Matrix/AMatrixSquare.hpp
+%include Matrix/AMatrixDense.hpp
 %include Matrix/LinkMatrixSparse.hpp
 %include Matrix/MatrixSparse.hpp
 %include Matrix/MatrixRectangular.hpp
+%include Matrix/AMatrixSquare.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
 %include Matrix/MatrixInt.hpp
