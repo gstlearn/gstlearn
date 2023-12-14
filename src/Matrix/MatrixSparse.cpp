@@ -856,7 +856,21 @@ MatrixSparse toSparse(const AMatrix* matin)
   VH::display("icols",icols);
   VH::display("values",values);
 
-//  cs_sparse_to_triplet(A, flag_from_1, number, cols, rows, vals)
+  const MatrixSparse* localms = dynamic_cast<const MatrixSparse*>(matin);
+  if (localms != nullptr)
+  {
+    int number = 0;
+    int *cols = nullptr;
+    int *rows = nullptr;
+    double *vals = nullptr;
+    cs_sparse_to_triplet(localms->getCs(), 0, &number, &cols, &rows, &vals);
+    VectorInt local_rows = VH::initVInt(rows, number);
+    VectorInt local_cols = VH::initVInt(cols, number);
+    VectorDouble local_values = VH::initVDouble(vals, number);
+    VH::display("cs irows",local_rows);
+    VH::display("cs icols",local_cols);
+    VH::display("cs values",local_values);
+  }
 
   // Load the triplet information in the cloned matrix
 

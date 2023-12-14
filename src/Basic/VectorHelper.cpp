@@ -61,7 +61,7 @@ VectorInt VectorHelper::initVInt(const int* values, int number)
 VectorDouble VectorHelper::initVDouble(const double* values, int number)
 {
   if (values == nullptr) return VectorDouble();
-  VectorDouble vec;
+  VectorDouble vec(number);
   for (int i = 0; i < number; i++) vec[i] = values[i];
   return vec;
 }
