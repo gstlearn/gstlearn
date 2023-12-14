@@ -60,7 +60,7 @@ Table::~Table()
 {
 }
 
-void Table::_clearContents()
+void Table::_clearDecoration()
 {
   _rowNames.clear();
   _colNames.clear();

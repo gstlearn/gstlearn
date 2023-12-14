@@ -213,4 +213,7 @@ GSTLEARN_EXPORT int     cs_nnz(const cs* A);
 GSTLEARN_EXPORT bool    cs_are_same(const cs* A, const cs* B, double tol = EPSILON10);
 GSTLEARN_EXPORT cs*     cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool shiftCol);
 
+GSTLEARN_EXPORT void    cs_set_status_update_nonzero_value(int status = 2);
+GSTLEARN_EXPORT int     cs_get_status_update_nonzero_value();
+
 #endif // SWIG

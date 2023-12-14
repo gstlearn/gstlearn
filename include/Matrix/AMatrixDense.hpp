@@ -26,15 +26,38 @@ public:
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
 
+  /*! Set the contents of a Column */
+  virtual void setColumn(int icol, const VectorDouble& tab) override;
+  /*! Set the contents of a Row */
+  virtual void setRow(int irow, const VectorDouble& tab) override;
+  /*! Set the contents of the (main) Diagonal */
+  virtual void setDiagonal(const VectorDouble& tab) override;
+  /*! Set the contents of the (main) Diagonal to a constant value */
+  virtual void setDiagonalToConstant(double value = 1.) override;
+  /*! Add a value to each matrix component */
+  virtual void addScalar(double v) override;
+  /*! Add value to matrix diagonal */
+  virtual void addScalarDiag(double v) override;
+  /*! Multiply each matrix component by a value */
+  virtual void prodScalar(double v) override;
+  /*! Add a matrix to this component by component */
+  virtual void addMatrix(const AMatrix& y) override;
+  /*! Multiply a matrix by another and store the result in the current matrix */
+  virtual void prodMatrix(const AMatrix& x, const AMatrix& y) override;
+  /*! Linear combination of matrices */
+  virtual void linearCombination(double cx, double cy, const AMatrix& y) override;
+  /*! Set all the values of the Matrix at once */
+  virtual void fill(double value) override;
+
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
   virtual double& _getValueRef(int irow, int icol) override;
 
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
-  virtual double  _getValue(int rank) const override;
+  virtual double  _getValueByRank(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;
-  virtual void    _setValue(int rank, double value) override;
+  virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
@@ -63,6 +86,18 @@ private:
   double  _getValueLocal(int irank) const;
   double  _getValueLocal(int irow, int icol) const;
 
+  void _setColumnLocal(int icol, const VectorDouble& tab);
+  void _setRowLocal(int irow, const VectorDouble& tab);
+  void _setDiagonalLocal(const VectorDouble& tab);
+  void _setDiagonalToConstantLocal(double value = 1.);
+  void _addScalarLocal(double v);
+  void _addScalarDiagLocal(double v);
+  void _prodScalarLocal(double v);
+  void _addMatrixLocal(const AMatrix& y);
+  void _prodMatrixLocal(const AMatrix& x, const AMatrix& y);
+  void _linearCombinationLocal(double cx, double cy, const AMatrix& y);
+  void _fillLocal(double value);
+
 public:
-  Eigen::MatrixXd _eigenMatrix; // Eigen storage
+  Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };

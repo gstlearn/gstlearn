@@ -31,6 +31,38 @@
 #define MAT(i,j)            (mat[(i) * n + (j)])
 #define DEBUG 0
 
+static int flagUpdateNonzero = 0;
+
+static int _cs_update_nonzero_value(int row, int col, double value)
+{
+  if (flagUpdateNonzero == 0) return 0;
+  if (ABS(value) < EPSILON10) return 0;
+  if (flagUpdateNonzero == 1)
+  {
+    messerr("Attempt to modify a nonzero element (row=%d; col=%d) with value (%lf)", row, col, value);
+    messerr("Action ignored");
+  }
+  else
+  {
+    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
+  }
+  return 1;
+}
+
+/**
+ * Define the status when modifying the value of a nonzero element of the sparse matrix
+ * @param status 0 (no test); 1 (warning issued); 2 (throw issued)
+ */
+void cs_set_status_update_nonzero_value(int status)
+{
+  flagUpdateNonzero = status;
+}
+
+int cs_get_status_update_nonzero_value()
+{
+  return flagUpdateNonzero;
+}
+
 cs* cs_spalloc2(int m, int n, int nzmax, int values, int triplet)
 {
   return cs_spalloc(m, n, nzmax, values, triplet);
@@ -3609,7 +3641,8 @@ void cs_set_value(const cs *A, int row, int col, double value)
   }
   if (value != 0.)
   {
-    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
+    _cs_update_nonzero_value(row, col, value);
+    return;
   }
 }
 
@@ -3970,3 +4003,4 @@ cs* cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool shiftCol)
   Striplet = cs_spfree(Striplet);
   return Q;
 }
+

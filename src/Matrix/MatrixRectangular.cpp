@@ -98,18 +98,18 @@ double MatrixRectangular::_getValue(int irow, int icol) const
     return _getValueLocal(irow, icol);
 }
 
-double MatrixRectangular::_getValue(int irank) const
+double MatrixRectangular::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
-    return AMatrixDense::_getValue(irank);
+    return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
 }
 
-void MatrixRectangular::_setValue(int irank, double value)
+void MatrixRectangular::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
-    AMatrixDense::_setValue(irank, value);
+    AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
 }

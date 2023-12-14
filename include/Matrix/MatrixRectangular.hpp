@@ -62,8 +62,8 @@ private:
   virtual void    _allocate() override;
   virtual void    _deallocate() override;
   virtual double  _getValue(int irow, int icol) const override;
-  virtual double  _getValue(int irank) const override;
-  virtual void    _setValue(int rank, double value) override;
+  virtual double  _getValueByRank(int irank) const override;
+  virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
 
   virtual void    _transposeInPlace() override;

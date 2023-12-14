@@ -684,7 +684,7 @@ void ShiftOpCs::_loadHHGrad(const AMesh *amesh,
     if (igparam < ndim)
     {
       // Derivation with respect to the Range 'igparam'
-      temp.fill(0);
+      temp.fill(0.);
       temp.setValue(igparam, igparam, 2. * cova->getScale(igparam));
       hh.normMatrix(temp, rotmat);
     }

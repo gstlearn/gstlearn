@@ -2023,7 +2023,7 @@ static void st_model_auto_scldef(StrMod *strmod,
  **  Update default values, lower and upper bounds
  **
  ** \param[in]  strmod          StrMod structure
- ** \param[in]  npar            Number of parameters to be inferred_setValues
+ ** \param[in]  npar            Number of parameters to be inferred
  ** \param[in]  constraints     Constraints structure
  **
  ** \param[out]  param          Current values for parameters

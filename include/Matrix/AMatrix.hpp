@@ -38,13 +38,6 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /*! Set the contents of a Column */
-  virtual void setColumn(int icol, const VectorDouble& tab);
-  /*! Set the contents of a Row */
-  virtual void setRow(int irow, const VectorDouble& tab);
-  /*! Set the contents of the (main) Diagonal */
-  virtual void setDiagonal(const VectorDouble& tab);
-  virtual void setDiagonal(double value = 1.);
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const { return false; }
   /*! Check if the matrix is (non empty) square */
@@ -65,6 +58,15 @@ public:
   virtual bool mustBeDiagonal() const { return false; }
   /*! Say if the matrix must be diagonal constant */
   virtual bool mustBeDiagCst() const { return false; }
+
+  /*! Set the contents of a Column */
+  virtual void setColumn(int icol, const VectorDouble& tab);
+  /*! Set the contents of a Row */
+  virtual void setRow(int irow, const VectorDouble& tab);
+  /*! Set the contents of the (main) Diagonal */
+  virtual void setDiagonal(const VectorDouble& tab);
+  /*! Set the contents of the (main) Diagonal to a constant value */
+  virtual void setDiagonalToConstant(double value = 1.);
   /*! Transpose the matrix in place*/
   virtual void transposeInPlace();
   /*! Transpose the matrix and return it as a copy*/
@@ -89,6 +91,8 @@ public:
   virtual void prodMatrix(const AMatrix& x, const AMatrix& y);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrix& y);
+  /*! Set all the values of the Matrix at once */
+  virtual void fill(double value);
 
   /*! Check if a matrix is the same as me (norm L1) */
   bool isSame(const AMatrix& m, double eps = EPSILON10);
@@ -158,8 +162,6 @@ public:
   void dumpElements(const String& title, int ifrom, int ito) const;
   /*! Sets the matrix as Identity */
   void setIdentity(double value = 1.);
-  /*! Set all the values of the Matrix at once */
-  void fill(double value);
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
   void setValues(const VectorDouble& values, bool byCol=true);
   double getMeanByColumn(int icol) const;
@@ -183,13 +185,13 @@ protected:
   virtual double& _getValueRef(int irow, int icol);
   virtual int     _getMatrixPhysicalSize() const;
   virtual void    _setValues(const double* values, bool byCol);
-  virtual void    _clearContents() {};
+  virtual void    _clearDecoration() {};
 
   virtual void    _allocate() = 0;
   virtual void    _deallocate() = 0;
-  virtual void    _setValue(int rank, double value) = 0;
+  virtual void    _setValueByRank(int rank, double value) = 0;
   virtual double  _getValue(int irow, int icol) const = 0;
-  virtual double  _getValue(int rank) const = 0;
+  virtual double  _getValueByRank(int rank) const = 0;
   virtual void    _setValue(int irow, int icol, double value) = 0;
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
@@ -223,7 +225,6 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-GSTLEARN_EXPORT AMatrix* transpose(const AMatrix* mat);
 GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void setFlagEigen(bool flagEigen);

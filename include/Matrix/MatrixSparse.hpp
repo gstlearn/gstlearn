@@ -38,6 +38,14 @@ public:
   IMPLEMENT_CLONING(MatrixSparse)
 
   /// Interface for AMatrix
+  /*! Set the contents of a Column */
+  virtual void setColumn(int icol, const VectorDouble& tab) override;
+  /*! Set the contents of a Row */
+  virtual void setRow(int irow, const VectorDouble& tab) override;
+  /*! Set the contents of the (main) Diagonal */
+  virtual void setDiagonal(const VectorDouble& tab) override;
+  /*! Set the contents of the (main) Diagonal to a constant value */
+  virtual void setDiagonalToConstant(double value = 1.) override;
   /*! Transpose the matrix and return it as a copy*/
   virtual MatrixSparse* transpose() const override;
   /*! Add a value to each matrix component */
@@ -46,6 +54,15 @@ public:
   virtual void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) override;
+  /*! Add a matrix to this component by component */
+  virtual void addMatrix(const AMatrix& y) override;
+  /*! Multiply a matrix by another and store the result in the current matrix */
+  virtual void prodMatrix(const AMatrix& x, const AMatrix& y) override;
+  /*! Linear combination of matrices */
+  virtual void linearCombination(double cx, double cy, const AMatrix& y) override;
+  /*! Set all the values of the Matrix at once */
+  virtual void fill(double value) override;
+
   void setValuesByArrays(const VectorInt &irows,
                          const VectorInt &icols,
                          const VectorDouble &values) override;
@@ -80,18 +97,10 @@ public:
              bool byCol = true);
   void reset(const VectorVectorDouble& tab, bool byCol = true);
 
-  /*! Add a matrix to this component by component */
-  void addMatrix(const MatrixSparse& y);
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  void prodMatrix(const MatrixSparse& x, const MatrixSparse& y);
-  /*! Linear combination of matrices */
-  void linearCombination(double cx, double cy, const MatrixSparse& y);
 
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
 
-  /*! Set all the values of the Matrix at once */
-  void fill(double value);
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
 
@@ -105,14 +114,15 @@ protected:
 
   virtual double& _getValueRef(int irow, int icol) override;
   virtual int     _getMatrixPhysicalSize() const override;
-  virtual void    _setValue(int rank, double value) override;
+  virtual void    _setValueByRank(int rank, double value) override;
   virtual void    _setValue(int irow, int icol, double value) override;
   virtual void    _setValues(const double* values, bool byCol) override;
-  virtual double  _getValue(int rank) const override;
+  virtual double  _getValueByRank(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
-
+  /*! Transpose the matrix in place*/
   virtual void    _transposeInPlace() override;
+
   virtual void    _prodVector(const double *inv,double *outv) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
@@ -124,10 +134,11 @@ private:
   void _forbiddenForSparse(const String& func) const;
 
 private:
-  cs*  _csMatrix; // Classical storage
-  Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage
+  cs*  _csMatrix; // Classical storage for Sparse matrix
+  Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
 };
 
 /*! Transform any matrix in a Sparse format */
-GSTLEARN_EXPORT MatrixSparse* toSparse(const AMatrix* mat);
-
+GSTLEARN_EXPORT MatrixSparse toSparse(const AMatrix* mat);
+GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
+GSTLEARN_EXPORT int getUpdateNonZeroValue();

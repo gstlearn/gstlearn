@@ -72,10 +72,10 @@ double MatrixSquareGeneral::_getValue(int irow, int icol) const
     return _getValueLocal(irow, icol);
 }
 
-double MatrixSquareGeneral::_getValue(int irank) const
+double MatrixSquareGeneral::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
-    return AMatrixDense::_getValue(irank);
+    return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
 }
@@ -96,10 +96,10 @@ void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
-void MatrixSquareGeneral::_setValue(int irank, double value)
+void MatrixSquareGeneral::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
-    AMatrixDense::_setValue(irank, value);
+    AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
 }
@@ -275,7 +275,6 @@ int MatrixSquareGeneral::_invertLocal()
   else
   {
     int error = matrix_LU_invert(getNRows(), _squareMatrix.data());
-//    if (!error) transposeInPlace(); // Modif DR
     return error;
   }
 }

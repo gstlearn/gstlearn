@@ -85,10 +85,10 @@ double MatrixSquareSymmetric::_getValue(int irow, int icol) const
     return _getValueLocal(irow, icol);
 }
 
-double MatrixSquareSymmetric::_getValue(int irank) const
+double MatrixSquareSymmetric::_getValueByRank(int irank) const
 {
   if (isFlagEigen())
-    return AMatrixDense::_getValue(irank);
+    return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
 }
@@ -113,10 +113,10 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
-void MatrixSquareSymmetric::_setValue(int irank, double value)
+void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
 {
   if (isFlagEigen())
-    AMatrixDense::_setValue(irank, value);
+    AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
 }
