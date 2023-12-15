@@ -38,6 +38,9 @@ public:
   IMPLEMENT_CLONING(MatrixSparse)
 
   /// Interface for AMatrix
+  /*! Returns if the current matrix is Sparse */
+  bool isSparse() const { return true; }
+
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
   /*! Set the contents of a Row */
@@ -54,30 +57,39 @@ public:
   virtual void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) override;
-  /*! Add a matrix to this component by component */
-  virtual void addMatrix(const AMatrix& y) override;
+  /*! Set a set of values simultaneously from an input array */
+  void setValuesByArrays(const VectorInt &irows,
+                         const VectorInt &icols,
+                         const VectorDouble &values) override;
+  /*! Add a matrix (multiplied by a constant) */
+  virtual void addMatrix(const AMatrix& y, double value = 1.) override;
   /*! Multiply a matrix by another and store the result in the current matrix */
   virtual void prodMatrix(const AMatrix& x, const AMatrix& y) override;
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrix& y) override;
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) override;
+  /*! Multiply a Matrix row-wise */
+  virtual void multiplyRow(const VectorDouble& vec);
+  /*! Multiply a Matrix column-wise */
+  virtual void multiplyColumn(const VectorDouble& vec);
+  /*! Divide a Matrix row-wise */
+  virtual void divideRow(const VectorDouble& vec);
+  /*! Divide a Matrix column-wise */
+  virtual void divideColumn(const VectorDouble& vec);
 
-  void setValuesByArrays(const VectorInt &irows,
-                         const VectorInt &icols,
-                         const VectorDouble &values) override;
+#ifndef SWIG
+  /*! Extract the contents of the matrix */
+  void getValuesAsTriplets(VectorInt &irows,
+                           VectorInt &icols,
+                           VectorDouble &values) const override;
+#endif
 
   //// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(int nrows, int ncols);
 
-#ifndef SWIG
-  /*! Extract the contents of the matrix */
-  void getValuesAsTriplets(VectorInt &irows,
-                           VectorInt &icols,
-                           VectorDouble &values) const;
-#endif
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
@@ -85,8 +97,6 @@ public:
 #endif
   Triplet getSparseToTriplet(bool flag_from_1 = false) const;
 
-  /*! Returns if the current matrix is Sparse */
-  bool isSparse() const { return true; }
 
   void reset(int nrows, int ncols);
   void reset(int nrows, int ncols, double value);

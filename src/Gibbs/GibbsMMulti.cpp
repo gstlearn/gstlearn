@@ -328,9 +328,9 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
       int ipas = (int) floor(dist / dx + 0.5);
       if (ipas >= 0 && ipas < npas)
       {
-        tabmod.add(ipas, 0, 1.);
-        tabmod.add(ipas, 1, dist);
-        tabmod.add(ipas, 2, value);
+        tabmod.addValue(ipas, 0, 1.);
+        tabmod.addValue(ipas, 1, dist);
+        tabmod.addValue(ipas, 2, value);
       }
     }
 

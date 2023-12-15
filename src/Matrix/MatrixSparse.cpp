@@ -228,8 +228,10 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
+
   if (isFlagEigen())
   {
+    fill(0);
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
     {
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -241,15 +243,26 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
     }
   }
   else
-    AMatrix::setDiagonal(tab);
+  {
+    cs *Mtriplet = cs_spalloc(0, 0, 1, 1, 1);
+    for (int icol = 0; icol < getNCols(); icol++)
+    {
+      if (ABS(tab[icol]) < EPSILON10) continue;
+      (void) cs_entry(Mtriplet, icol, icol, tab[icol]);
+    }
+    _csMatrix = cs_triplet(Mtriplet);
+    Mtriplet = cs_spfree(Mtriplet);
+  }
 }
 
 void MatrixSparse::setDiagonalToConstant(double value)
 {
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
+
   if (isFlagEigen())
   {
+    fill(0);
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
     {
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -261,7 +274,15 @@ void MatrixSparse::setDiagonalToConstant(double value)
     }
   }
   else
-    AMatrix::setDiagonalToConstant(value);
+  {
+    cs *Mtriplet = cs_spalloc(0, 0, 1, 1, 1);
+    for (int icol = 0; icol < getNCols(); icol++)
+    {
+      (void) cs_entry(Mtriplet, icol, icol, value);
+    }
+    _csMatrix = cs_triplet(Mtriplet);
+    Mtriplet = cs_spfree(Mtriplet);
+  }
 }
 
 /*! Gets the value for rank 'rank' */
@@ -339,6 +360,74 @@ void MatrixSparse::fill(double value)
   }
 }
 
+/*! Multiply a Matrix row-wise */
+void MatrixSparse::multiplyRow(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
+        it.valueRef() *= vec[it.row()];
+  }
+  else
+  {
+    cs* temp = cs_matvecR(_csMatrix, vec.data(), 0);
+    cs_spfree(_csMatrix);
+    _csMatrix = temp;
+  }
+}
+
+/*! Multiply a Matrix column-wise */
+void MatrixSparse::multiplyColumn(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
+        it.valueRef() *= vec[it.col()];
+  }
+  else
+  {
+    cs* temp = cs_matvecL(_csMatrix, vec.data(), 0);
+    cs_spfree(_csMatrix);
+    _csMatrix = temp;
+  }
+}
+
+/*! Divide a Matrix row-wise */
+void MatrixSparse::divideRow(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
+        it.valueRef() /= vec[it.row()];
+  }
+  else
+  {
+    cs* temp = cs_matvecR(_csMatrix, vec.data(), 1);
+    cs_spfree(_csMatrix);
+    _csMatrix = temp;
+  }
+}
+
+/*! Divide a Matrix column-wise */
+void MatrixSparse::divideColumn(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    for (int k=0; k < _eigenMatrix.outerSize(); ++k)
+      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
+        it.valueRef() /= vec[it.col()];
+  }
+  else
+  {
+    cs* temp = cs_matvecL(_csMatrix, vec.data(), 1);
+    cs_spfree(_csMatrix);
+    _csMatrix = temp;
+  }
+}
+
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -346,7 +435,7 @@ void MatrixSparse::fill(double value)
  * Kept for compatibility with old code where matrix contents was stored as
  * a double* array
  * @param values Input array (Dimension: nrow * ncol)
- * @param byCol true for Column major; false for Row Major
+ * @param byCol true for Column Major; false for Row Major
  */
 #ifndef SWIG
 void MatrixSparse::_setValues(const double* values, bool byCol)
@@ -356,21 +445,13 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
   {
     if (byCol)
     {
-      for (int icol = 0; icol < getNCols(); icol++)
-        for (int irow = 0; irow < getNRows(); irow++, lec++)
-        {
-          if (ABS(values[lec]) < EPSILON10) continue;
-          _eigenMatrix.coeffRef(irow, icol) = values[lec];
-        }
+      Eigen::Map<const Eigen::MatrixXd> temp(values, getNRows(), getNCols());
+      _eigenMatrix = temp.sparseView(1., EPSILON10);
     }
     else
     {
-      for (int irow = 0; irow < getNRows(); irow++)
-        for (int icol = 0; icol < getNCols(); icol++, lec++)
-        {
-          if (ABS(values[lec]) < EPSILON10) continue;
-          _eigenMatrix.coeffRef(irow, icol) = values[lec];
-        }
+      Eigen::Map<const Eigen::MatrixXd> temp(values, getNCols(), getNRows());
+      _eigenMatrix = temp.transpose().sparseView(1., EPSILON10);
     }
   }
   else
@@ -541,8 +622,9 @@ void MatrixSparse::_prodVector(const double *inv, double *outv) const
 /**
  * Add the matrix 'y' to the current Matrix
  * @param y Matrix to be added
+ * @param value Multiplicative coefficient
  */
-void MatrixSparse::addMatrix(const AMatrix& y)
+void MatrixSparse::addMatrix(const AMatrix& y, double value)
 {
   if (! isSameSize(y))
   {
@@ -551,14 +633,13 @@ void MatrixSparse::addMatrix(const AMatrix& y)
   }
 
   const MatrixSparse dy = toSparse(&y);
-  dy.display();
   if (isFlagEigen())
   {
-    _eigenMatrix += dy._eigenMatrix;
+    _eigenMatrix += dy._eigenMatrix * value;
   }
   else
   {
-    cs *res = cs_add(_csMatrix, dy._csMatrix, 1., 1.);
+    cs *res = cs_add(_csMatrix, dy._csMatrix, 1., value);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
@@ -774,17 +855,14 @@ void MatrixSparse::getValuesAsTriplets(VectorInt &irows,
   }
   else
   {
-    /// TODO : use cs_sparce corresponding function
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++)
-      {
-        if (!isValid(irow, icol)) continue;
-        double value = getValue(irow, icol);
-        if (ABS(value) < EPSILON10) continue;
-        irows.push_back(irow);
-        icols.push_back(icol);
-        values.push_back(value);
-      }
+    int number = 0;
+    int *cols = nullptr;
+    int *rows = nullptr;
+    double *vals = nullptr;
+    cs_sparse_to_triplet(_csMatrix, 0, &number, &cols, &rows, &vals);
+    irows = VH::initVInt(rows, number);
+    icols = VH::initVInt(cols, number);
+    values = VH::initVDouble(vals, number);
   }
 }
 
@@ -851,26 +929,6 @@ MatrixSparse toSparse(const AMatrix* matin)
   VectorInt icols;
   VectorDouble values;
   matin->getValuesAsTriplets(irows, icols, values);
-
-  VH::display("irows",irows);
-  VH::display("icols",icols);
-  VH::display("values",values);
-
-  const MatrixSparse* localms = dynamic_cast<const MatrixSparse*>(matin);
-  if (localms != nullptr)
-  {
-    int number = 0;
-    int *cols = nullptr;
-    int *rows = nullptr;
-    double *vals = nullptr;
-    cs_sparse_to_triplet(localms->getCs(), 0, &number, &cols, &rows, &vals);
-    VectorInt local_rows = VH::initVInt(rows, number);
-    VectorInt local_cols = VH::initVInt(cols, number);
-    VectorDouble local_values = VH::initVDouble(vals, number);
-    VH::display("cs irows",local_rows);
-    VH::display("cs icols",local_cols);
-    VH::display("cs values",local_values);
-  }
 
   // Load the triplet information in the cloned matrix
 

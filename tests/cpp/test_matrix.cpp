@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str(), argc, argv);
-  setFlagEigen(false); // Use the Eigen library or not
+  StdoutRedirect sr(sfn.str(), argc, argv);
+  setFlagEigen(true); // Use the Eigen library or not
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);
@@ -363,16 +363,31 @@ int main(int argc, char *argv[])
   MSG.addMatrix(MSG);
   MSG.display();
 
-  message("Making the product of the matrix by itself\n");
-  MatrixSquareGeneral MSG2(MSG);
-  MSG.prodMatrix(MSG2, MSG2);
-  MSG.display();
-
   cx = 1.2;
   cy = -2.3;
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
   MatrixSquareGeneral MSG3(MSG);
   MSG.linearCombination(cx, cy, MSG3);
+  MSG.display();
+
+  message("Multiplying current matrix column-wise by a vector (sequence)");
+  myCol = VH::sequence(1., (double) nrow);
+  MSG.multiplyColumn(myCol);
+  MSG.display();
+
+  message("Dividing current matrix column-wise by a vector (sequence)");
+  myCol = VH::sequence(1., (double) nrow);
+  MSG.divideColumn(myCol);
+  MSG.display();
+
+  message("Multiplying current matrix row-wise by a vector (sequence)");
+  myRow = VH::sequence(1., (double) ncol);
+  MSG.multiplyRow(myRow);
+  MSG.display();
+
+  message("Dividing current matrix row-wise by a vector (sequence)");
+  myRow = VH::sequence(1., (double) ncol);
+  MSG.divideRow(myRow);
   MSG.display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
@@ -390,25 +405,25 @@ int main(int argc, char *argv[])
   setUpdateNonZeroValue(0); // Allow flexible update of sparse matrix
   MSP.display();
 
-  message("Setting Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
+  message("Setting non-zero terms of Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
   myCol = VH::sequence(1., (double) nrow);
   MSP.setColumn(icol0, myCol);
   MSP.display();
 
-  message("Setting Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
+  message("Setting non-zero terms of Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
   myRow = VH::sequence(1., (double) ncol);
   MSP.setRow(irow0, myRow);
   MSP.display();
 
-  message("Adding constant %lf to all terms of matrix\n", vadd0);
+  message("Adding constant %lf to all non-zero terms of matrix\n", vadd0);
   MSP.addScalar(vadd0);
   MSP.display();
 
-  message("Adding constant %lf to diagonal terms of matrix\n", vadddiag0);
+  message("Adding constant %lf to diagonal non-zero terms of matrix\n", vadddiag0);
   MSP.addScalarDiag(vadddiag0);
   MSP.display();
 
-  message("Product of all terms of matrix by constant %lf\n", vprod0);
+  message("Product of all non-zero terms of matrix by constant %lf\n", vprod0);
   MSP.prodScalar(vprod0);
   MSP.display();
 
@@ -416,14 +431,34 @@ int main(int argc, char *argv[])
   MSP.addMatrix(MSP);
   MSP.display();
 
-  message("Making the product of the matrix by itself\n");
-  MatrixSparse MSP2(MSP);
-  MSP.prodMatrix(MSP2, MSP2);
-  MSP.display();
-
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
   MatrixSparse MSP3(MSP);
   MSP.linearCombination(cx, cy, MSP3);
+  MSP.display();
+
+  message("Multiplying current matrix column-wise by a vector (sequence)");
+  myCol = VH::sequence(1., (double) nrow);
+  MSP.multiplyColumn(myCol);
+  MSP.display();
+
+  message("Dividing current matrix column-wise by a vector (sequence)");
+  myCol = VH::sequence(1., (double) nrow);
+  MSP.divideColumn(myCol);
+  MSP.display();
+
+  message("Multiplying current matrix row-wise by a vector (sequence)");
+  myRow = VH::sequence(1., (double) ncol);
+  MSP.multiplyRow(myRow);
+  MSP.display();
+
+  message("Dividing current matrix row-wise by a vector (sequence)");
+  myRow = VH::sequence(1., (double) ncol);
+  MSP.divideRow(myRow);
+  MSP.display();
+
+  message("Making the product of the matrix by itself\n");
+  MatrixSparse MSP2(MSP);
+  MSP.prodMatrix(MSP2, MSP2);
   MSP.display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);

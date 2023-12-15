@@ -233,12 +233,12 @@ void AMatrixDense::prodScalar(double v)
     AMatrix::prodScalar(v);
 }
 
-void AMatrixDense::addMatrix(const AMatrix& y)
+void AMatrixDense::addMatrix(const AMatrix& y, double value)
 {
   if (isFlagEigen())
     _addMatrixLocal(y);
   else
-    AMatrix::addMatrix(y);
+    AMatrix::addMatrix(y, value);
 }
 
 void AMatrixDense::prodMatrix(const AMatrix& x, const AMatrix& y)
@@ -263,6 +263,58 @@ void AMatrixDense::fill(double value)
     _fillLocal(value);
   else
     AMatrix::fill(value);
+}
+
+/*! Multiply a Matrix row-wise */
+void AMatrixDense::multiplyRow(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    _multiplyRowLocal(vec);
+  }
+  else
+  {
+    AMatrix::multiplyRow(vec);
+  }
+}
+
+/*! Multiply a Matrix column-wise */
+void AMatrixDense::multiplyColumn(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    _multiplyColumnLocal(vec);
+  }
+  else
+  {
+    AMatrix::multiplyColumn(vec);
+  }
+}
+
+/*! Divide a Matrix row-wise */
+void AMatrixDense::divideRow(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    _divideRowLocal(vec);
+  }
+  else
+  {
+    AMatrix::divideRow(vec);
+  }
+}
+
+/*! Divide a Matrix column-wise */
+void AMatrixDense::divideColumn(const VectorDouble& vec)
+{
+  if (isFlagEigen())
+  {
+    _divideColumnLocal(vec);
+  }
+  else
+  {
+    AMatrix::divideColumn(vec);
+  }
 }
 
 /// =========================================================================
@@ -390,11 +442,11 @@ void AMatrixDense::_prodScalarLocal(double v)
   _eigenMatrix.array() *= v;
 }
 
-void AMatrixDense::_addMatrixLocal(const AMatrix& y)
+void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
 {
   VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
   Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), getNRows(), getNCols());
-  _eigenMatrix += ym;
+  _eigenMatrix += ym * value;
 }
 
 void AMatrixDense::_prodMatrixLocal(const AMatrix& x, const AMatrix& y)
@@ -416,4 +468,30 @@ void AMatrixDense::_linearCombinationLocal(double cx, double cy, const AMatrix& 
 void AMatrixDense::_fillLocal(double value)
 {
   _eigenMatrix.setConstant(value);
+}
+
+void AMatrixDense::_multiplyRowLocal(const VectorDouble& vec)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
+  _eigenMatrix = vecm.asDiagonal() * _eigenMatrix;
+}
+
+void AMatrixDense::_multiplyColumnLocal(const VectorDouble& vec)
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
+  _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
+}
+
+void AMatrixDense::_divideRowLocal(const VectorDouble& vec)
+{
+  VectorDouble temp = VH::inverse(vec);
+  Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNCols());
+  _eigenMatrix = vecm.asDiagonal() * _eigenMatrix;
+}
+
+void AMatrixDense::_divideColumnLocal(const VectorDouble& vec)
+{
+  VectorDouble temp = VH::inverse(vec);
+  Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNRows());
+  _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
 }

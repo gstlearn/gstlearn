@@ -77,30 +77,47 @@ public:
   virtual void addScalarDiag(double v);
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
-  /*! Gets the value at row 'irow' and column 'icol' */
-  virtual double getValue(int irow, int icol) const;
-  /*! Sets the value at row 'irow' and column 'icol' */
-  virtual void setValue(int irow, int icol, double value);
   /*! Set a set of values simultaneously from an input array */
   virtual void setValuesByArrays(const VectorInt &irows,
                                  const VectorInt &icols,
                                  const VectorDouble &values);
-  /*! Add a matrix to this component by component */
-  virtual void addMatrix(const AMatrix& y);
+  /*! Add a matrix (multiplied by a constant) */
+  virtual void addMatrix(const AMatrix& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
   virtual void prodMatrix(const AMatrix& x, const AMatrix& y);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrix& y);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
+  /*! Multiply a Matrix row-wise */
+  virtual void multiplyRow(const VectorDouble& vec);
+  /*! Multiply a Matrix column-wise */
+  virtual void multiplyColumn(const VectorDouble& vec);
+  /*! Divide a Matrix row-wise */
+  virtual void divideRow(const VectorDouble& vec);
+  /*! Divide a Matrix column-wise */
+  virtual void divideColumn(const VectorDouble& vec);
 
+#ifndef SWIG
+  /*! Extract the contents of the matrix */
+  virtual void getValuesAsTriplets(VectorInt &irows,
+                                   VectorInt &icols,
+                                   VectorDouble &values) const;
+#endif
+
+  /*! Gets the value at row 'irow' and column 'icol' */
+  double getValue(int irow, int icol) const;
+  /*! Sets the value at row 'irow' and column 'icol' */
+  void setValue(int irow, int icol, double value);
+  /*! Add a value to a matrix term */
+  void addValue(int irow, int icol, double value);
   /*! Check if a matrix is the same as me (norm L1) */
   bool isSame(const AMatrix& m, double eps = EPSILON10);
   /*! Check that both matrix have the same number of rows and columns */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
   bool isEmpty() const { return (_nRows == 0 || _nCols == 0); }
-  /*! Returns the sum of absolute difference betweatrix<int, 5, 1> b {1, 2en argument and this */
+  /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
   int getNRows() const { return _nRows; }
@@ -125,33 +142,9 @@ public:
   int getNumberColumnDefined() const;
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
-  /*! Add a value to a matrix term */
-  void add(int irow, int icol, double value);
-  /*! Add a matrix to this */
-  void add(const AMatrix &tab, double value = 1.);
-  /*! Subtract a matrix to this */
-  void subtract(const AMatrix &tab, double value = 1.);
-#ifndef SWIG
-  /*! Extract the contents of the matrix */
-  void getValuesAsTriplets(VectorInt &irows,
-                           VectorInt &icols,
-                           VectorDouble &values) const;
-#endif
 
-#ifndef SWIG
-  /*! Product of the Matrix by a vector (on its right) */
-  void prodVector(const double *inv,double *outv) const;
-#endif
-
+  /*! Multiply the current matrix by 'inv' and return the result in 'outv' */
   void prodVector(const VectorDouble& inv, VectorDouble& outv) const;
-  /*! Multiply a Matrix row-wise */
-  void multiplyRow(const VectorDouble& vec);
-  /*! Multiply a Matrix column-wise */
-  void multiplyColumn(const VectorDouble& vec);
-  /*! Divide a Matrix row-wise */
-  void divideRow(const VectorDouble& vec);
-  /*! Divide a Matrix column-wise */
-  void divideColumn(const VectorDouble& vec);
   /*! Perform x %*% mat %*% y */
   double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
   /*! Matrix inversion in place */

@@ -331,6 +331,7 @@ double AMatrix::getValue(int irow, int icol) const
 /*! Sets the value at row 'irow' and column 'icol' */
 void AMatrix::setValue(int irow, int icol, double value)
 {
+  if (! _isIndexValid(irow, icol)) return;
   return _setValue(irow, icol, value);
 }
 
@@ -473,13 +474,6 @@ void AMatrix::prodScalar(double v)
  * @param inv Input vector
  * @param outv Output vector obtained by multiplying 'inv' by current Matrix
  */
-#ifndef SWIG
-void AMatrix::prodVector(const double *inv, double *outv) const
-{
-  _prodVector(inv, outv);
-}
-#endif
-
 void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (_flagCheckAddress)
@@ -496,14 +490,15 @@ void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
       return;
     }
   }
-  prodVector(inv.data(), outv.data());
+  _prodVector(inv.data(), outv.data());
 }
 
 /**
  * Add the matrix 'y' to the current Matrix
  * @param y Matrix to be added
+ * @param value Multiplicative parameter
  */
-void AMatrix::addMatrix(const AMatrix& y)
+void AMatrix::addMatrix(const AMatrix& y, double value)
 {
   if (! isSameSize(y))
   {
@@ -520,7 +515,7 @@ void AMatrix::addMatrix(const AMatrix& y)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) + y.getValue(irow, icol));
+      _setValue(irow, icol, _getValue(irow, icol) + value * y.getValue(irow, icol));
     }
 }
 
@@ -794,7 +789,6 @@ void AMatrix::getValuesAsTriplets(VectorInt&    irows,
                                   VectorInt&    icols,
                                   VectorDouble& values) const
 {
-  /// TODO : use cs_sparse corresponding function
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
     {
@@ -1000,44 +994,11 @@ int AMatrix::getNumberRowDefined() const
   return nrow;
 }
 
-/**
- * Perform: this += 'value' * 'tab'
- * @param tab    Current matrix
- * @param value  Multiplicative coefficient  (default = 1)
- */
-void AMatrix::add(const AMatrix& tab, double value)
-{
-  if (! isSameSize(tab))
-    my_throw("Can only add matrices of same dimensions");
-
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-       double oldval = _getValue(irow, icol);
-      _setValue(irow, icol, oldval + value * tab.getValue(irow, icol));
-    }
-}
-
-void AMatrix::add(int irow, int icol, double value)
+void AMatrix::addValue(int irow, int icol, double value)
 {
   double oldval = _getValue(irow, icol);
   if (FFFF(oldval)) return;
   _setValue(irow, icol, oldval + value);
-}
-
-void AMatrix::subtract(const AMatrix& tab, double value)
-{
-  if (! isSameSize(tab))
-    my_throw("Can only add matrices of same dimensions");
-
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-      double oldval = _getValue(irow, icol);
-      _setValue(irow, icol, oldval - value * tab.getValue(irow, icol));
-    }
 }
 
 void AMatrix::_clear()

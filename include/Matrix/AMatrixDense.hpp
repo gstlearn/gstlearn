@@ -40,14 +40,22 @@ public:
   virtual void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) override;
-  /*! Add a matrix to this component by component */
-  virtual void addMatrix(const AMatrix& y) override;
+  /*! Add a matrix (multiplied by a constant) */
+  virtual void addMatrix(const AMatrix& y, double value = 1.) override;
   /*! Multiply a matrix by another and store the result in the current matrix */
   virtual void prodMatrix(const AMatrix& x, const AMatrix& y) override;
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrix& y) override;
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) override;
+  /*! Multiply a Matrix row-wise */
+  virtual void multiplyRow(const VectorDouble& vec);
+  /*! Multiply a Matrix column-wise */
+  virtual void multiplyColumn(const VectorDouble& vec);
+  /*! Divide a Matrix row-wise */
+  virtual void divideRow(const VectorDouble& vec);
+  /*! Divide a Matrix column-wise */
+  virtual void divideColumn(const VectorDouble& vec);
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -93,10 +101,14 @@ private:
   void _addScalarLocal(double v);
   void _addScalarDiagLocal(double v);
   void _prodScalarLocal(double v);
-  void _addMatrixLocal(const AMatrix& y);
+  void _addMatrixLocal(const AMatrix& y, double value = 1.);
   void _prodMatrixLocal(const AMatrix& x, const AMatrix& y);
   void _linearCombinationLocal(double cx, double cy, const AMatrix& y);
   void _fillLocal(double value);
+  void _multiplyRowLocal(const VectorDouble& vec);
+  void _multiplyColumnLocal(const VectorDouble& vec);
+  void _divideRowLocal(const VectorDouble& vec);
+  void _divideColumnLocal(const VectorDouble& vec);
 
 public:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library

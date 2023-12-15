@@ -545,7 +545,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
          B[id1] += zval * Vdata[id1];
          for (int id2 = 0; id2 <= id1; id2++)
          {
-           A.add(id1,  id2, Vdata[id1] * Vdata[id2]);
+           A.addValue(id1,  id2, Vdata[id1] * Vdata[id2]);
          }
        }
      }

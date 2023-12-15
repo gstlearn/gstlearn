@@ -2560,7 +2560,7 @@ static double func3(double x)
 /* (entered as a vector): B = A %*% oper(X) */
 /* 'oper' is Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
 
-cs* cs_matvecR(const cs *A, double *x, int oper)
+cs* cs_matvecR(const cs *A, const double *x, int oper)
 {
   int *Ap, *Ai, n;
   double *Ax, *Bx;
@@ -2596,7 +2596,7 @@ cs* cs_matvecR(const cs *A, double *x, int oper)
 /* (entered as a vector): B = oper(X) %*% A */
 /* 'oper' is Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
 
-cs* cs_matvecL(const cs *A, double *x, int oper)
+cs* cs_matvecL(const cs *A, const double *x, int oper)
 {
   int *Ap, n;
   double *Ax, *Bx;
@@ -3587,9 +3587,9 @@ bool cs_exist(const cs* A, int row, int col)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col) return true;
+    if (Ai[p] == row) return true;
   }
   return false;
 }
@@ -3610,9 +3610,9 @@ double cs_get_value(const cs *A, int row, int col)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col) return Ax[p];
+    if (Ai[p] == row) return Ax[p];
   }
   return 0.;
 }
@@ -3631,9 +3631,9 @@ void cs_set_value(const cs *A, int row, int col, double value)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col)
+    if (Ai[p] == row)
     {
       Ax[p] = value;
       return;
@@ -3660,9 +3660,9 @@ void cs_add_value(const cs *A, int row, int col, double value)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col)
+    if (Ai[p] == row)
     {
       Ax[p] += value;
       return;

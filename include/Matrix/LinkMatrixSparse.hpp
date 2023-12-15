@@ -95,8 +95,8 @@ GSTLEARN_EXPORT void    cs_mulvec_uptri(const cs *A, int nout,
                                         const double *x, double *y, int flag_diag);
 GSTLEARN_EXPORT void    cs_mulvec_lowtri(const cs *A, int nout,
                                          const double *x, double *y, int flag_diag);
-GSTLEARN_EXPORT cs     *cs_matvecR(const cs *A, double *x, int oper);
-GSTLEARN_EXPORT cs     *cs_matvecL(const cs *A, double *x, int oper);
+GSTLEARN_EXPORT cs     *cs_matvecR(const cs *A, const double *x, int oper);
+GSTLEARN_EXPORT cs     *cs_matvecL(const cs *A, const double *x, int oper);
 GSTLEARN_EXPORT cs     *cs_matvecnorm(const cs *A, const double *x, int oper);
 GSTLEARN_EXPORT void    cs_matvecnorm_inplace(cs *A, const double *x, int oper);
 GSTLEARN_EXPORT double *cs_col_sumrow(const cs *A,int *ncol,int *nrow);
