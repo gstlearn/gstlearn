@@ -749,6 +749,96 @@ void krigingExperimental(const Db *dbin,
 
 }
 
+void krigingExperimentalBySample(const Db *dbin,
+                        Db *dbout,
+                        Model *model,
+						bool flag_est,
+                        bool flag_std,
+						bool flag_varz,
+                        const NamingConvention& namconv)
+{
+
+	int nech = dbin->getSampleNumber(true);
+	int nechout = dbout->getSampleNumber(true);
+	int nloc = 0;
+
+	VectorDouble res = VectorDouble(nechout);
+	VectorDouble z = dbin->getColumnByLocator(ELoc::Z, 0, true, false);
+
+	double mean = model->getMean(0);
+	MatrixEigen driftsE;
+	VectorDouble coeffs;
+
+	if ( model->getDriftNumber() == 0)
+	{
+		VH::addConstant(z, -mean);
+	}
+	else
+	{
+		VectorVectorDouble drifts = model->getDrifts(dbin, true);
+		coeffs = VectorDouble(model->getDriftNumber());
+		driftsE = MatrixEigen(drifts,true);
+	}
+
+	auto C  = model->evalCovMatrixEigen(dbin);
+	auto C0 = model->evalCovMatrixEigen(dbin,dbout);
+
+
+	VectorDouble drift;
+	VectorDouble vars;
+	VectorDouble varest;
+
+	if ( model->getDriftNumber() > 0)
+	{
+		VectorDouble tempv = VectorDouble(model->getDriftNumber());
+		auto tempDriftsE = C.solve(driftsE); // C^{-1} F
+		auto temp = MatrixEigen::prodT1(driftsE, tempDriftsE); // F'C^{-1}F   nd x nd
+		tempDriftsE.prodTMatVecInPlace(z,tempv);  //                F'C^{-1}z nd x 1
+		temp.solve(tempv,coeffs);	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
+		drift = model->evalDrifts(dbin, coeffs,0, true);		// F beta = n x 1
+		VH::subtractInPlace(z, drift);							// (z - F beta) = (I - F (F'C^{-1}F)^{-1}F'C^{-1})z
+																// (I - F (F'C^{-1}F)^{-1}F)
+	}
+
+	if (!flag_std && !flag_varz)
+	{
+		VectorDouble dual = VectorDouble(nech);
+		C.solve(z,dual);
+		C0.prodTMatVecInPlace(dual,res);
+	}
+	else
+	{
+		varest.resize(dbout->getSampleNumber(true));
+		auto weights = C.solve(C0);
+		weights.prodTMatVecInPlace(z,res);
+		auto varmat = MatrixEigen::productPointwise(weights, C0);
+		varmat.sumColsInPlace(varest);
+
+
+	}
+
+	if (model->getDriftNumber() == 0)
+	{
+		VH::addConstant(res, mean);
+	}
+	else
+	{
+		drift = model->evalDrifts(dbout, coeffs,0, true);
+		VH::addInPlace(res, drift);
+	}
+	if (flag_est)
+	{
+		dbout->addColumns(res, "r_estim", ELoc::Z, nloc, true, 0.,0);
+		nloc++;
+	}
+
+	if (flag_varz)
+	{
+		dbout->addColumns(varest,  "r_varz", ELoc::Z, nloc, true, 0.,0);
+		nloc++;
+	}
+
+}
 
 
 void krigingExperimentalEigen(const Db *dbin,
