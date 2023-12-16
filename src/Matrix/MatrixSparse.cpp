@@ -428,6 +428,44 @@ void MatrixSparse::divideColumn(const VectorDouble& vec)
   }
 }
 
+/*! Perform M * 'vec' */
+VectorDouble MatrixSparse::prodVector(const VectorDouble& vec) const
+{
+  if (isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
+    Eigen::VectorXd resm = _eigenMatrix * vecm;
+    VectorDouble res(resm.data(), resm.data() + resm.size());
+    return res;
+  }
+  else
+  {
+    int nrow = getNRows();
+    VectorDouble res(nrow);
+    cs_mulvec(_csMatrix, nrow, vec.data(), res.data());
+    return res;
+  }
+}
+
+/*! Perform 'vec'^T * M */
+VectorDouble MatrixSparse::prodTVector(const VectorDouble& vec) const
+{
+  if (isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
+    Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
+    VectorDouble res(resm.data(), resm.data() + resm.size());
+    return res;
+  }
+  else
+  {
+    int ncol = getNCols();
+    VectorDouble res(ncol);
+    cs_tmulvec(_csMatrix, ncol, vec.data(), res.data());
+    return res;
+  }
+}
+
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -604,7 +642,7 @@ void MatrixSparse::prodScalar(double v)
  * @param outv Output vector obtained by multiplying 'inv' by current Matrix
  */
 #ifndef SWIG
-void MatrixSparse::_prodVector(const double *inv, double *outv) const
+void MatrixSparse::_prodVectorInPlace(const double *inv, double *outv) const
 {
   if (isFlagEigen())
   {
@@ -632,17 +670,22 @@ void MatrixSparse::addMatrix(const AMatrix& y, double value)
     return;
   }
 
-  const MatrixSparse dy = toSparse(&y);
+  bool hasCreatedMemory = false;
+  const MatrixSparse* ym = dynamic_cast<const MatrixSparse*>(&y);
+  if (ym == nullptr) { ym = createFromAnyMatrix(&y); hasCreatedMemory = true; }
+
   if (isFlagEigen())
   {
-    _eigenMatrix += dy._eigenMatrix * value;
+    _eigenMatrix += ym->_eigenMatrix * value;
   }
   else
   {
-    cs *res = cs_add(_csMatrix, dy._csMatrix, 1., value);
+    cs *res = cs_add(_csMatrix, ym->_csMatrix, 1., value);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
+
+  if (hasCreatedMemory) delete ym;
 }
 
 /**
@@ -670,18 +713,26 @@ void MatrixSparse::prodMatrix(const AMatrix& x, const AMatrix& y)
     }
   }
 
-  const MatrixSparse dx = toSparse(&x);
-  const MatrixSparse dy = toSparse(&y);
+  bool hasCreatedMemoryDX = false;
+  const MatrixSparse* dx = dynamic_cast<const MatrixSparse*>(&x);
+  if (dx == nullptr) { dx = createFromAnyMatrix(&x); hasCreatedMemoryDX = true; }
+  bool hasCreatedMemoryDY = false;
+  const MatrixSparse* dy = dynamic_cast<const MatrixSparse*>(&y);
+  if (dy == nullptr) { dy = createFromAnyMatrix(&y); hasCreatedMemoryDY = true; }
+
   if (isFlagEigen())
   {
-    _eigenMatrix = dx._eigenMatrix * dy._eigenMatrix;
+    _eigenMatrix = dx->_eigenMatrix * dy->_eigenMatrix;
   }
   else
   {
-    cs* res = cs_multiply(dx._csMatrix, dy._csMatrix);
+    cs* res = cs_multiply(dx->_csMatrix, dy->_csMatrix);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
+
+  if (hasCreatedMemoryDX) delete dx;
+  if (hasCreatedMemoryDY) delete dy;
 }
 
 /*!
@@ -698,17 +749,22 @@ void MatrixSparse::linearCombination(double cx, double cy, const AMatrix& y)
   if (!y.isSparse())
     my_throw("This function can only combine sparse matrices together");
 
-  const MatrixSparse dy = toSparse(&y);
+  bool hasCreatedMemory = false;
+  const MatrixSparse* dy = dynamic_cast<const MatrixSparse*>(&y);
+  if (dy == nullptr) { dy = createFromAnyMatrix(&y); hasCreatedMemory = true; }
+
   if (isFlagEigen())
   {
-    _eigenMatrix = cx * _eigenMatrix + cy * dy._eigenMatrix;
+    _eigenMatrix = cx * _eigenMatrix + cy * dy->_eigenMatrix;
   }
   else
   {
-    cs *res = cs_add(_csMatrix, dy._csMatrix, cx, cy);
+    cs *res = cs_add(_csMatrix, dy->_csMatrix, cx, cy);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
+
+  if (hasCreatedMemory) delete dy;
 }
 
 int MatrixSparse::_invert()
@@ -917,11 +973,11 @@ int MatrixSparse::_getIndexToRank(int irow,int icol) const
   return ITEST;
 }
 
-MatrixSparse toSparse(const AMatrix* matin)
+MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
 {
   // Create the output Sparse Matrix
 
-  MatrixSparse matout = MatrixSparse(matin->getNRows(),matin->getNCols());
+  MatrixSparse* matout = new MatrixSparse(matin->getNRows(),matin->getNCols());
 
   // Create the triplet structure from the non-zero terms of source matrix
 
@@ -932,7 +988,7 @@ MatrixSparse toSparse(const AMatrix* matin)
 
   // Load the triplet information in the cloned matrix
 
-  matout.setValuesByArrays(irows, icols, values);
+  matout->setValuesByArrays(irows, icols, values);
   return matout;
 }
 

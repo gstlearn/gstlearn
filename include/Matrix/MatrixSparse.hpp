@@ -70,13 +70,17 @@ public:
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) override;
   /*! Multiply a Matrix row-wise */
-  virtual void multiplyRow(const VectorDouble& vec);
+  virtual void multiplyRow(const VectorDouble& vec) override;
   /*! Multiply a Matrix column-wise */
-  virtual void multiplyColumn(const VectorDouble& vec);
+  virtual void multiplyColumn(const VectorDouble& vec) override;
   /*! Divide a Matrix row-wise */
-  virtual void divideRow(const VectorDouble& vec);
+  virtual void divideRow(const VectorDouble& vec) override;
   /*! Divide a Matrix column-wise */
-  virtual void divideColumn(const VectorDouble& vec);
+  virtual void divideColumn(const VectorDouble& vec) override;
+  /*! Perform M * 'vec' */
+  virtual VectorDouble prodVector(const VectorDouble& vec) const override;
+  /*! Perform 'vec'^T * M */
+  virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
@@ -133,7 +137,7 @@ protected:
   /*! Transpose the matrix in place*/
   virtual void    _transposeInPlace() override;
 
-  virtual void    _prodVector(const double *inv,double *outv) const override;
+  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -149,6 +153,6 @@ private:
 };
 
 /*! Transform any matrix in a Sparse format */
-GSTLEARN_EXPORT MatrixSparse toSparse(const AMatrix* mat);
+GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat);
 GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();

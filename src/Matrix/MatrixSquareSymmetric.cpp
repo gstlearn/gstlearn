@@ -121,10 +121,10 @@ void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
     _setValueLocal(irank, value);
 }
 
-void MatrixSquareSymmetric::_prodVector(const double *inv, double *outv) const
+void MatrixSquareSymmetric::_prodVectorInPlace(const double *inv, double *outv) const
 {
   if (isFlagEigen())
-    AMatrixDense::_prodVector(inv, outv);
+    AMatrixDense::_prodVectorInPlace(inv, outv);
   else
     _prodVectorLocal(inv, outv);
 }

@@ -151,7 +151,7 @@ void AMatrixDense::_transposeInPlace()
     my_throw("_transposeInPlace should never be called here");
 }
 
-void AMatrixDense::_prodVector(const double *inv, double *outv) const
+void AMatrixDense::_prodVectorInPlace(const double *inv, double *outv) const
 {
   if (isFlagEigen())
     _prodVectorLocal(inv, outv);
@@ -317,6 +317,32 @@ void AMatrixDense::divideColumn(const VectorDouble& vec)
   }
 }
 
+/*! Perform M * 'vec' */
+VectorDouble AMatrixDense::prodVector(const VectorDouble& vec) const
+{
+  if (isFlagEigen())
+  {
+    return _prodVectorLocal(vec);
+  }
+  else
+  {
+    return AMatrix::prodVector(vec);
+  }
+}
+
+/*! Perform 'vec'^T * M */
+VectorDouble AMatrixDense::prodTVector(const VectorDouble& vec) const
+{
+  if (isFlagEigen())
+  {
+    return _prodTVectorLocal(vec);
+  }
+  else
+  {
+    return AMatrix::prodTVector(vec);
+  }
+}
+
 /// =========================================================================
 /// The subsequent methods rely on the specific local storage ('eigenMatrix')
 /// =========================================================================
@@ -328,7 +354,7 @@ int AMatrixDense::_solveLocal(const VectorDouble &b, VectorDouble &x) const
     return 1;
   }
   Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
-  Eigen::Map < Eigen::VectorXd > xm(x.data(), getNRows());
+  Eigen::Map <Eigen::VectorXd> xm(x.data(), getNRows());
   xm = _eigenMatrix.inverse() * bm;
   return 0;
 }
@@ -494,4 +520,20 @@ void AMatrixDense::_divideColumnLocal(const VectorDouble& vec)
   VectorDouble temp = VH::inverse(vec);
   Eigen::Map<const Eigen::VectorXd> vecm(temp.data(), getNRows());
   _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
+}
+
+VectorDouble AMatrixDense::_prodVectorLocal(const VectorDouble& vec) const
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
+  Eigen::VectorXd resm = _eigenMatrix * vecm;
+  VectorDouble res(resm.data(), resm.data() + resm.size());
+  return res;
+}
+
+VectorDouble AMatrixDense::_prodTVectorLocal(const VectorDouble& vec) const
+{
+  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
+  Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
+  VectorDouble res(resm.data(), resm.data() + resm.size());
+  return res;
 }

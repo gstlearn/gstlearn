@@ -24,12 +24,12 @@ void reset_to_initial_contents(AMatrix* M,
                                MatrixRectangular& MRR,
                                MatrixSquareGeneral& MSG,
                                MatrixSquareSymmetric& MSS,
-                               MatrixSparse& MSP)
+                               MatrixSparse* MSP)
 {
   MRR.setValues(M->getValues());
   MSG.setValues(M->getValues());
   MSS.setValues(M->getValues());
-  MSP.setValues(M->getValues());
+  MSP->setValues(M->getValues());
 }
 
 /****************************************************************************/
@@ -132,9 +132,9 @@ int main(int argc, char *argv[])
   MSS.display();
 
   // To a sparse matrix
-  MatrixSparse MSP = toSparse(M);
+  MatrixSparse* MSP = createFromAnyMatrix(M);
   message("Matrix MSP\n");
-  MSP.display();
+  MSP->display();
 
   /**
    * Adding a constant value to the diagonal of a matrix
@@ -153,8 +153,8 @@ int main(int argc, char *argv[])
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.addScalarDiag(addendum);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
-  MSP.addScalarDiag(addendum);
-  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(MSP));
+  MSP->addScalarDiag(addendum);
+  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   /**
    * Multiplying the matrix by a constant
@@ -173,8 +173,8 @@ int main(int argc, char *argv[])
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.prodScalar(multiply);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
-  MSP.prodScalar(multiply);
-  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(MSP));
+  MSP->prodScalar(multiply);
+  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   /**
    * Adding a constant to a matrix
@@ -212,8 +212,8 @@ int main(int argc, char *argv[])
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.linearCombination(cx,cy,MSS);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
-  MSP.linearCombination(cx,cy,MSP);
-  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(MSP));
+  MSP->linearCombination(cx,cy,*MSP);
+  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   /**
    * Extraction of a Vector
@@ -227,23 +227,23 @@ int main(int argc, char *argv[])
   Vref = MRR.getDiagonal();
   VH::display("Reference Vector", Vref);
 
-  V1 = MSP.getDiagonal();
+  V1 = MSP->getDiagonal();
   print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getDiagonal(1);
-  V1 = MSP.getDiagonal(1);
+  V1 = MSP->getDiagonal(1);
   print_vector("Second Diagonal Below",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getDiagonal(-2);
-  V1 = MSP.getDiagonal(-2);
+  V1 = MSP->getDiagonal(-2);
   print_vector("Third Diagonal Above",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getRow(2);
-  V1 = MSP.getRow(2);
+  V1 = MSP->getRow(2);
   print_vector("Third Row",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getColumn(3);
-  V1 = MSP.getColumn(3);
+  V1 = MSP->getColumn(3);
   print_vector("Fourth Column",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
 
@@ -257,14 +257,14 @@ int main(int argc, char *argv[])
   message("Reference Matrix\n");
   MRR.display();
   VH::display("Reference Input Vector",V1);
-  MRR.prodVector(V1, Vref);
+  MRR.prodVectorInPlace(V1, Vref);
   VH::display("Reference Output Vector",Vref);
 
-  MSG.prodVector(V1, V2);
+  MSG.prodVectorInPlace(V1, V2);
   message("Are results for MRR and MSG similar: %d\n",VH::isSame(Vref,V2));
-  MSS.prodVector(V1, V2);
+  MSS.prodVectorInPlace(V1, V2);
   message("Are results for MRR and MSS similar: %d\n",VH::isSame(Vref,V2));
-  MSP.prodVector(V1, V2);
+  MSP->prodVectorInPlace(V1, V2);
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V2));
 
   /**
@@ -283,10 +283,10 @@ int main(int argc, char *argv[])
   MSS.solve(V1, V2);
   VH::display("Reference Output Vector",V2);
 
-  MSS.prodVector(V2, V3);
+  MSS.prodVectorInPlace(V2, V3);
   message("Are results correct for MSS: %d\n",VH::isSame(V1,V3));
-  MSP.solve(V1, V2);
-  MSP.prodVector(V2, V3);
+  MSP->solve(V1, V2);
+  MSP->prodVectorInPlace(V2, V3);
   message("Are results correct for MSP: %d\n",VH::isSame(V1,V3));
 
   /**
@@ -314,8 +314,8 @@ int main(int argc, char *argv[])
   message("Are results correct for MSS: %d\n",Res->isIdentity());
   delete Res;
 
-  MSP.invert();
-  Res = prodMatrix(&MSP, &MSGref);
+  MSP->invert();
+  Res = prodMatrix(MSP, &MSGref);
   message("Are results correct for MSP: %d\n",Res->isIdentity());
   delete Res;
 
@@ -370,24 +370,39 @@ int main(int argc, char *argv[])
   MSG.linearCombination(cx, cy, MSG3);
   MSG.display();
 
-  message("Multiplying current matrix column-wise by a vector (sequence)");
+  message("Multiplying current matrix column-wise by a vector (sequence)\n");
   myCol = VH::sequence(1., (double) nrow);
   MSG.multiplyColumn(myCol);
   MSG.display();
 
-  message("Dividing current matrix column-wise by a vector (sequence)");
+  message("Dividing current matrix column-wise by a vector (sequence)\n");
   myCol = VH::sequence(1., (double) nrow);
   MSG.divideColumn(myCol);
   MSG.display();
 
-  message("Multiplying current matrix row-wise by a vector (sequence)");
+  message("Multiplying current matrix row-wise by a vector (sequence)\n");
   myRow = VH::sequence(1., (double) ncol);
   MSG.multiplyRow(myRow);
   MSG.display();
 
-  message("Dividing current matrix row-wise by a vector (sequence)");
+  message("Dividing current matrix row-wise by a vector (sequence)\n");
   myRow = VH::sequence(1., (double) ncol);
   MSG.divideRow(myRow);
+  MSG.display();
+
+  message("Multiplying current matrix by vector (sequence)\n");
+  myCol = VH::sequence(1., (double) nrow);
+  VectorDouble myRowRes = MSG.prodVector(myCol);
+  VH::display("Resulting Vector", myRowRes);
+
+  message("Multiplying current matrix by vector transposed (sequence)\n");
+  myRow = VH::sequence(1., (double) ncol);
+  VectorDouble myColRes = MSG.prodTVector(myRow);
+  VH::display("Resulting Vector", myColRes);
+
+  message("Making the product of the matrix by itself\n");
+  MatrixSquareGeneral MSG2(MSG);
+  MSG.prodMatrix(MSG2, MSG2);
   MSG.display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
@@ -403,72 +418,82 @@ int main(int argc, char *argv[])
   // For sparse matrix
   message("Reference Sparse matrix\n");
   setUpdateNonZeroValue(0); // Allow flexible update of sparse matrix
-  MSP.display();
+  MSP->display();
 
   message("Setting non-zero terms of Column (%d) to a vector (sequence from 1 to %d)\n", icol0, nrow);
   myCol = VH::sequence(1., (double) nrow);
-  MSP.setColumn(icol0, myCol);
-  MSP.display();
+  MSP->setColumn(icol0, myCol);
+  MSP->display();
 
   message("Setting non-zero terms of Row (%d) to a vector (sequence from 1 to %d)\n", irow0, ncol);
   myRow = VH::sequence(1., (double) ncol);
-  MSP.setRow(irow0, myRow);
-  MSP.display();
+  MSP->setRow(irow0, myRow);
+  MSP->display();
 
   message("Adding constant %lf to all non-zero terms of matrix\n", vadd0);
-  MSP.addScalar(vadd0);
-  MSP.display();
+  MSP->addScalar(vadd0);
+  MSP->display();
 
   message("Adding constant %lf to diagonal non-zero terms of matrix\n", vadddiag0);
-  MSP.addScalarDiag(vadddiag0);
-  MSP.display();
+  MSP->addScalarDiag(vadddiag0);
+  MSP->display();
 
   message("Product of all non-zero terms of matrix by constant %lf\n", vprod0);
-  MSP.prodScalar(vprod0);
-  MSP.display();
+  MSP->prodScalar(vprod0);
+  MSP->display();
 
   message("Adding the matrix to itself\n");
-  MSP.addMatrix(MSP);
-  MSP.display();
+  MSP->addMatrix(*MSP);
+  MSP->display();
 
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
-  MatrixSparse MSP3(MSP);
-  MSP.linearCombination(cx, cy, MSP3);
-  MSP.display();
+  MatrixSparse MSP3(*MSP);
+  MSP->linearCombination(cx, cy, MSP3);
+  MSP->display();
 
-  message("Multiplying current matrix column-wise by a vector (sequence)");
+  message("Multiplying current matrix column-wise by a vector (sequence)\n");
   myCol = VH::sequence(1., (double) nrow);
-  MSP.multiplyColumn(myCol);
-  MSP.display();
+  MSP->multiplyColumn(myCol);
+  MSP->display();
 
-  message("Dividing current matrix column-wise by a vector (sequence)");
+  message("Dividing current matrix column-wise by a vector (sequence)\n");
   myCol = VH::sequence(1., (double) nrow);
-  MSP.divideColumn(myCol);
-  MSP.display();
+  MSP->divideColumn(myCol);
+  MSP->display();
 
-  message("Multiplying current matrix row-wise by a vector (sequence)");
+  message("Multiplying current matrix row-wise by a vector (sequence)\n");
   myRow = VH::sequence(1., (double) ncol);
-  MSP.multiplyRow(myRow);
-  MSP.display();
+  MSP->multiplyRow(myRow);
+  MSP->display();
 
-  message("Dividing current matrix row-wise by a vector (sequence)");
+  message("Dividing current matrix row-wise by a vector (sequence)\n");
   myRow = VH::sequence(1., (double) ncol);
-  MSP.divideRow(myRow);
-  MSP.display();
+  MSP->divideRow(myRow);
+  MSP->display();
+
+  message("Multiplying current matrix by vector (sequence)\n");
+  myCol = VH::sequence(1., (double) nrow);
+  myRowRes = MSP->prodVector(myCol);
+  VH::display("Resulting Vector", myRowRes);
+
+  message("Multiplying current matrix by vector transposed (sequence)\n");
+  myRow = VH::sequence(1., (double) ncol);
+  myColRes = MSP->prodTVector(myRow);
+  VH::display("Resulting Vector", myColRes);
 
   message("Making the product of the matrix by itself\n");
-  MatrixSparse MSP2(MSP);
-  MSP.prodMatrix(MSP2, MSP2);
-  MSP.display();
+  MatrixSparse MSP2(*MSP);
+  MSP->prodMatrix(MSP2, MSP2);
+  MSP->display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
   myDiag = VH::sequence(1., (double) ncol);
-  MSP.setDiagonal(myDiag);
-  MSP.display();
+  MSP->setDiagonal(myDiag);
+  MSP->display();
 
   message("Clearing matrix and Setting Diagonal to %lf\n", vdiag0);
-  MSP.setDiagonalToConstant(vdiag0);
-  MSP.display();
+  MSP->setDiagonalToConstant(vdiag0);
+  MSP->display();
 
   /*
    * Testing LU

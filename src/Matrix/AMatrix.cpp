@@ -474,7 +474,7 @@ void AMatrix::prodScalar(double v)
  * @param inv Input vector
  * @param outv Output vector obtained by multiplying 'inv' by current Matrix
  */
-void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
+void AMatrix::prodVectorInPlace(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (_flagCheckAddress)
   {
@@ -490,7 +490,7 @@ void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
       return;
     }
   }
-  _prodVector(inv.data(), outv.data());
+  _prodVectorInPlace(inv.data(), outv.data());
 }
 
 /**
@@ -631,6 +631,38 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     }
 }
 
+VectorDouble AMatrix::prodVector(const VectorDouble& vec) const
+{
+  if (_nCols != (int) vec.size())
+    my_throw("The size of 'vec' must match the number of columns");
+
+  VectorDouble res(_nRows, 0.);
+  for (int irow = 0; irow < _nRows; irow++)
+  {
+    double value = 0.;
+    for (int icol = 0; icol < _nCols; icol++)
+      value += _getValue(irow, icol) * vec[icol];
+    res[irow] = value;
+  }
+  return res;
+}
+
+VectorDouble AMatrix::prodTVector(const VectorDouble& vec) const
+{
+  if (_nRows != (int) vec.size())
+    my_throw("The size of 'vec' must match the number of rows");
+
+  VectorDouble res(_nCols, 0.);
+  for (int icol = 0; icol < _nCols; icol++)
+  {
+    double value = 0.;
+    for (int irow = 0; irow < _nRows; irow++)
+      value += _getValue(irow, icol) * vec[irow];
+    res[icol] = value;
+  }
+  return res;
+}
+
 double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
 {
   int sizex = (int) x.size();
@@ -645,7 +677,7 @@ double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
   }
 
   VectorDouble left(_nRows);
-  prodVector(y, left);
+  prodVectorInPlace(y, left);
   return VH::innerProduct(x, left);
 }
 

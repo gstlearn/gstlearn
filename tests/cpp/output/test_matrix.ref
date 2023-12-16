@@ -434,7 +434,8 @@ Making the linear combination of the matrix (multiplied by 1.200000) and itself 
      [  4,]   -30.814   -44.880   -36.205   -26.720    21.987   -27.671   -31.581
      [  5,]   -31.703   -47.520   -31.680   -32.904   -27.671    21.172   -31.680
      [  6,]   -31.680   -50.160   -37.461   -32.449   -31.581   -31.680    24.919
-Multiplying current matrix column-wise by a vector (sequence)- Number of rows    = 7
+Multiplying current matrix column-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -68.640   -94.070  -127.860  -154.071  -190.216  -221.760
@@ -444,7 +445,8 @@ Multiplying current matrix column-wise by a vector (sequence)- Number of rows   
      [  4,]   -30.814   -89.760  -108.614  -106.881   109.935  -166.027  -221.066
      [  5,]   -31.703   -95.040   -95.040  -131.615  -138.355   127.033  -221.760
      [  6,]   -31.680  -100.320  -112.384  -129.796  -157.904  -190.080   174.430
-Dividing current matrix column-wise by a vector (sequence)- Number of rows    = 7
+Dividing current matrix column-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
@@ -454,7 +456,8 @@ Dividing current matrix column-wise by a vector (sequence)- Number of rows    = 
      [  4,]   -30.814   -44.880   -36.205   -26.720    21.987   -27.671   -31.581
      [  5,]   -31.703   -47.520   -31.680   -32.904   -27.671    21.172   -31.680
      [  6,]   -31.680   -50.160   -37.461   -32.449   -31.581   -31.680    24.919
-Multiplying current matrix row-wise by a vector (sequence)- Number of rows    = 7
+Multiplying current matrix row-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
@@ -464,7 +467,8 @@ Multiplying current matrix row-wise by a vector (sequence)- Number of rows    = 
      [  4,]  -154.071  -224.400  -181.023  -133.601   109.935  -138.355  -157.904
      [  5,]  -190.216  -285.120  -190.080  -197.423  -166.027   127.033  -190.080
      [  6,]  -221.760  -351.120  -262.230  -227.143  -221.066  -221.760   174.430
-Dividing current matrix row-wise by a vector (sequence)- Number of rows    = 7
+Dividing current matrix row-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]    28.667   -34.320   -31.357   -31.965   -30.814   -31.703   -31.680
@@ -474,6 +478,23 @@ Dividing current matrix row-wise by a vector (sequence)- Number of rows    = 7
      [  4,]   -30.814   -44.880   -36.205   -26.720    21.987   -27.671   -31.581
      [  5,]   -31.703   -47.520   -31.680   -32.904   -27.671    21.172   -31.680
      [  6,]   -31.680   -50.160   -37.461   -32.449   -31.581   -31.680    24.919
+Multiplying current matrix by vector (sequence)
+Resulting Vector
+  -827.950  -756.915 -1074.480  -675.356  -613.227  -586.481  -547.735
+Multiplying current matrix by vector transposed (sequence)
+Resulting Vector
+  -830.791 -1127.280  -773.818  -688.546  -611.056  -604.574  -548.870
+Making the product of the matrix by itself
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]  6952.014  5188.360  3647.575  3603.496  3634.700  3944.001  3977.223
+     [  1,]  3250.150  8437.570  3869.393  3837.115  3513.971  3676.131  3825.689
+     [  2,]  5276.718  8091.706  8805.359  4751.725  4288.287  4511.645  4242.285
+     [  3,]  3604.456  4644.011  4205.998  6763.790  4354.418  4134.828  4179.374
+     [  4,]  3818.080  4370.227  3517.513  4578.861  6916.305  4855.105  4476.361
+     [  5,]  3902.455  4344.561  4148.895  4082.365  4546.865  7369.686  4580.265
+     [  6,]  4172.593  4323.546  3783.985  4418.427  4463.830  4911.499  8146.602
 Clearing matrix and Setting Diagonal to a vector (sequence from 1 to 7)
 - Number of rows    = 7
 - Number of columns = 7
@@ -600,7 +621,8 @@ Making the linear combination of the matrix (multiplied by 1.200000) and itself 
      [  5,]   -31.703   -47.520         .   -32.904   -27.671    21.172         .
      [  6,]         .         .   -37.461   -32.449   -31.581         .    24.919
 
-Multiplying current matrix column-wise by a vector (sequence)- Number of rows    = 7
+Multiplying current matrix column-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
@@ -612,7 +634,8 @@ Multiplying current matrix column-wise by a vector (sequence)- Number of rows   
      [  5,]   -31.703   -95.040         .  -131.615  -138.355   127.033         .
      [  6,]         .         .  -112.384  -129.796  -157.904         .   174.430
 
-Dividing current matrix column-wise by a vector (sequence)- Number of rows    = 7
+Dividing current matrix column-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
@@ -624,7 +647,8 @@ Dividing current matrix column-wise by a vector (sequence)- Number of rows    = 
      [  5,]   -31.703   -47.520         .   -32.904   -27.671    21.172         .
      [  6,]         .         .   -37.461   -32.449   -31.581         .    24.919
 
-Multiplying current matrix row-wise by a vector (sequence)- Number of rows    = 7
+Multiplying current matrix row-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
@@ -636,7 +660,8 @@ Multiplying current matrix row-wise by a vector (sequence)- Number of rows    = 
      [  5,]  -190.216  -285.120         .  -197.423  -166.027   127.033         .
      [  6,]         .         .  -262.230  -227.143  -221.066         .   174.430
 
-Dividing current matrix row-wise by a vector (sequence)- Number of rows    = 7
+Dividing current matrix row-wise by a vector (sequence)
+- Number of rows    = 7
 - Number of columns = 7
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
@@ -648,6 +673,12 @@ Dividing current matrix row-wise by a vector (sequence)- Number of rows    = 7
      [  5,]   -31.703   -47.520         .   -32.904   -27.671    21.172         .
      [  6,]         .         .   -37.461   -32.449   -31.581         .    24.919
 
+Multiplying current matrix by vector (sequence)
+Resulting Vector
+  -606.190  -535.155  -789.360  -675.356  -613.227  -269.681  -225.655
+Multiplying current matrix by vector transposed (sequence)
+Resulting Vector
+  -609.031  -776.160  -583.738  -688.546  -611.056  -240.254  -263.750
 Making the product of the matrix by itself
 - Number of rows    = 7
 - Number of columns = 7

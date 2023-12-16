@@ -122,10 +122,10 @@ void MatrixRectangular::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
-void MatrixRectangular::_prodVector(const double *inv, double *outv) const
+void MatrixRectangular::_prodVectorInPlace(const double *inv, double *outv) const
 {
   if (isFlagEigen())
-    AMatrixDense::_prodVector(inv, outv);
+    AMatrixDense::_prodVectorInPlace(inv, outv);
   else
     _prodVectorLocal(inv, outv);
 }

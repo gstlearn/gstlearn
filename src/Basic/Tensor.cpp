@@ -142,24 +142,24 @@ void Tensor::setRotationAngle(unsigned int idim, double angle)
 VectorDouble Tensor::applyDirect(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  _tensorDirect.prodVector(vec, out);
+  _tensorDirect.prodVectorInPlace(vec, out);
   return out;
 }
 
 void Tensor::applyInverseInPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorInverse.prodVector(vec, out);
+  _tensorInverse.prodVectorInPlace(vec, out);
 }
 
 void Tensor::applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorDirect.prodVector(vec, out);
+  _tensorDirect.prodVectorInPlace(vec, out);
 }
 
 VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  _tensorInverse.prodVector(vec, out);
+  _tensorInverse.prodVectorInPlace(vec, out);
   return out;
 }
 

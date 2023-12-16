@@ -49,13 +49,17 @@ public:
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) override;
   /*! Multiply a Matrix row-wise */
-  virtual void multiplyRow(const VectorDouble& vec);
+  virtual void multiplyRow(const VectorDouble& vec) override;
   /*! Multiply a Matrix column-wise */
-  virtual void multiplyColumn(const VectorDouble& vec);
+  virtual void multiplyColumn(const VectorDouble& vec) override;
   /*! Divide a Matrix row-wise */
-  virtual void divideRow(const VectorDouble& vec);
+  virtual void divideRow(const VectorDouble& vec) override;
   /*! Divide a Matrix column-wise */
-  virtual void divideColumn(const VectorDouble& vec);
+  virtual void divideColumn(const VectorDouble& vec) override;
+  /*! Perform M * 'vec' */
+  virtual VectorDouble prodVector(const VectorDouble& vec) const override;
+  /*! Perform 'vec'^T * M */
+  virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -70,7 +74,7 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
   virtual void    _transposeInPlace() override;
-  virtual void    _prodVector(const double *inv,double *outv) const override;
+  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -109,6 +113,8 @@ private:
   void _multiplyColumnLocal(const VectorDouble& vec);
   void _divideRowLocal(const VectorDouble& vec);
   void _divideColumnLocal(const VectorDouble& vec);
+  VectorDouble _prodVectorLocal(const VectorDouble& vec) const;
+  VectorDouble _prodTVectorLocal(const VectorDouble& vec) const;
 
 public:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library

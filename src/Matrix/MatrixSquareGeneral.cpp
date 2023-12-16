@@ -109,10 +109,10 @@ void MatrixSquareGeneral::_setValueByRank(int irank, double value)
  * @param inv  Input Vector
  * @param outv Output Vector
  */
-void MatrixSquareGeneral::_prodVector(const double *inv, double *outv) const
+void MatrixSquareGeneral::_prodVectorInPlace(const double *inv, double *outv) const
 {
   if (isFlagEigen())
-    AMatrixDense::_prodVector(inv, outv);
+    AMatrixDense::_prodVectorInPlace(inv, outv);
   else
     _prodVectorLocal(inv, outv);
 }

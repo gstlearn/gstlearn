@@ -97,6 +97,10 @@ public:
   virtual void divideRow(const VectorDouble& vec);
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec);
+  /*! Perform M * 'vec' */
+  virtual VectorDouble prodVector(const VectorDouble& vec) const;
+  /*! Perform 'vec'^T * M */
+  virtual VectorDouble prodTVector(const VectorDouble& vec) const;
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
@@ -143,8 +147,8 @@ public:
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
 
-  /*! Multiply the current matrix by 'inv' and return the result in 'outv' */
-  void prodVector(const VectorDouble& inv, VectorDouble& outv) const;
+  /*! Perform 'outv' = M * 'inv' */
+  void prodVectorInPlace(const VectorDouble& inv, VectorDouble& outv) const;
   /*! Perform x %*% mat %*% y */
   double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
   /*! Matrix inversion in place */
@@ -189,7 +193,7 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;
-  virtual void    _prodVector(const double *inv,double *outv) const = 0;
+  virtual void    _prodVectorInPlace(const double *inv,double *outv) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
 

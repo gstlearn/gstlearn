@@ -68,7 +68,7 @@ private:
   virtual void    _setValues(const double* values, bool byCol = true) override;
 
   virtual void    _transposeInPlace() override { return ; } // Nothing to do
-  virtual void    _prodVector(const double *inv,double *outv) const override;
+  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
