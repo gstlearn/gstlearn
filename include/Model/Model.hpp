@@ -512,6 +512,10 @@ public:
   VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
+  void 	preProcess(const std::vector<SpacePoint>& vec) const {//_covaList->preProcess(vec);};
+  }
+
+  void  cleanPreProcessInfo() const {_covaList->cleanPreProcessInfo();}
 
 protected:
   /// Interface to ASerializable

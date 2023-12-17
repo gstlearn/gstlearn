@@ -687,6 +687,25 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
   return mat;
 }
 
+void ACov::preProcessFromDb(const Db* db) const
+{
+	int nechtot1 = db->getSampleNumber(false);
+	int nech1 = db->getSampleNumber(true);
+	std::vector<SpacePoint> pvect(nech1);
+	VectorDouble temp(nech1);
+
+	int jech1 = 0;
+
+	for (int iech1 = 0; iech1 <nechtot1;iech1++)
+	{
+	  if (!db->isActive(iech1)) continue;
+	  pvect[jech1] = db->getSampleCoordinates(iech1);
+	  jech1++;
+	}
+
+	preProcess(pvect);
+
+}
 
 MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
                                      const Db* db2,
@@ -695,24 +714,11 @@ MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
 									 const CovCalcMode& mode) const
 {
 
-	int nechtot1 = db1->getSampleNumber(false);
 	int nech1 = db1->getSampleNumber(true);
-
-
-	std::vector<SpacePoint> pvect(nech1);
 	VectorDouble temp(nech1);
 
-	int jech1 = 0;
-
-	for (int iech1 = 0; iech1 <nechtot1;iech1++)
-	{
-		  if (!db1->isActive(iech1)) continue;
-		  pvect[jech1] = db1->getSampleCoordinates(iech1);
-		  jech1++;
-	}
-
 	MatrixEigen mat;
-	preProcess(pvect);
+	//preProcessFromDb(db1);
 
 	SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
 	SpacePoint ptemp(db1->getSampleCoordinates(0),getSpace());
@@ -739,7 +745,7 @@ MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
 			jech2++;
 		}
 	}
-	 cleanPreProcessInfo();
+	 //cleanPreProcessInfo();
 	 return mat;
 }
 
