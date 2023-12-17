@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
   setFlagEigen(true); // Use the Eigen library or not
+  setMultiThread(8);
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);
