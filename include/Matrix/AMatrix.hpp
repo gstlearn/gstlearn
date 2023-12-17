@@ -226,3 +226,6 @@ GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void setFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isFlagEigen();
+GSTLEARN_EXPORT void setMultiThread(int nthreads);
+GSTLEARN_EXPORT int  getMultiThread();
+GSTLEARN_EXPORT bool isMultiThread();

@@ -420,6 +420,7 @@ double AMatrixDense::_getValueLocal(int irow, int icol) const
 
 void AMatrixDense::_allocateLocal()
 {
+  if (isMultiThread()) omp_set_num_threads(getMultiThread());
   _eigenMatrix = Eigen::MatrixXd::Constant(getNRows(),getNCols(),0.);
 }
 

@@ -22,6 +22,7 @@
  * This function switch ON/OFF the ability to use Eigen library for Algebra
  */
 static bool globalFlagEigen = true;
+static int  globalMultiThread = 0;
 
 AMatrix::AMatrix(int nrow, int ncol)
     : AStringable(),
@@ -1143,4 +1144,19 @@ void setFlagEigen(bool flagEigen)
 bool isFlagEigen()
 {
   return globalFlagEigen;
+}
+
+void setMultiThread(int nthreads)
+{
+  if (nthreads > 0) globalMultiThread = nthreads;
+}
+
+int getMultiThread()
+{
+  return globalMultiThread;
+}
+
+bool isMultiThread()
+{
+  return globalMultiThread > 0;
 }
