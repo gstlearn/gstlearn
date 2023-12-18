@@ -31,7 +31,7 @@ public:
   VectorInt nbgh;    // Ranks of the neighboring samples
   VectorVectorDouble xyz;  // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data; // Usable values at neighboring samples [neq]
-  VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
+  MatrixSquareSymmetric lhs;  // L.H.S. of the Kriging system (neq * neq)
   MatrixRectangular rhs;  // R.H.S. of the Kriging system (neq * nvar)
   MatrixRectangular wgt;  // Vector of weights [nvar][nech]
   VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)

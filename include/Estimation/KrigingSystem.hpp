@@ -16,6 +16,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Enum/EKrigOpt.hpp"
 
@@ -79,18 +80,19 @@ public:
   int  getNech() const;
   int  getNeq()  const;
   int  getNRed() const { return _nred; }
-  VectorInt    getSampleIndices() const { return _nbgh; }
-  VectorVectorDouble getSampleCoordinates() const;
-  VectorDouble getSampleData() const;
-  MatrixRectangular getZam() const { return _zam; }
-  VectorDouble getLHS() const { return _lhs; }
-  VectorDouble getLHSInv() const { return _lhsinv; }
-  MatrixRectangular getRHSC() const { return _rhs; }
-  MatrixRectangular getWeights() const { return _wgt; }
+  VectorInt             getSampleIndices() const { return _nbgh; }
+  VectorVectorDouble    getSampleCoordinates() const;
+  VectorDouble          getSampleData() const;
+  MatrixRectangular     getZam() const { return _zam; }
+  MatrixSquareSymmetric getLHS() const { return _lhs; }
+  MatrixRectangular     getRHSC() const { return _rhs; }
+  MatrixRectangular     getWeights() const { return _wgt; }
   VectorDouble getVariance() const { return _var0.getValues(); }
   double getLTerm() const { return _lterm; }
+
   VectorDouble getRHSC(int ivar) const;
   VectorDouble getZamC() const;
+  VectorDouble getLHSInvC() const { return _lhsinv.getValues(); }
 
 private:
   int    _getNVar() const;
@@ -131,11 +133,6 @@ private:
   VectorVectorDouble _getDISC2s() const;
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
-
-  const double* _getRHSCAdd(int i = 0, int jvCL = 0) const;
-  const double* _getWGTCAdd(int i = 0, int jvCL = 0) const;
-  const double* _getZamAdd(int i = 0) const;
-  const double* _getZextAdd(int i = 0) const;
 
   void _resetMemoryGeneral();
   void _resetMemoryPerNeigh();
@@ -321,8 +318,8 @@ private:
   mutable MatrixSquareGeneral _covtab;
   mutable MatrixSquareGeneral _covref;
   mutable VectorDouble _drftab;
-  mutable VectorDouble _lhs;
-  mutable VectorDouble _lhsinv;
+  mutable MatrixSquareSymmetric _lhs;
+  mutable MatrixSquareSymmetric _lhsinv;
   mutable MatrixRectangular _rhs;
   mutable MatrixRectangular _wgt;
   mutable MatrixRectangular _zam;

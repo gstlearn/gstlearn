@@ -158,7 +158,7 @@ int CalcGlobal::_globalKriging()
   /* Derive the kriging weights */
 
   int nred = ksys.getNRed();
-  VectorDouble lhsinv = ksys.getLHSInv();
+  VectorDouble lhsinv = ksys.getLHSInvC();
   VectorDouble zam = ksys.getZamC();
   VectorDouble wgt(nred);
   matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
