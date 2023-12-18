@@ -302,10 +302,10 @@ void KrigingSystem::_resetMemoryPerNeigh()
 {
   _flag.resize(_neq);
   _lhs.resize (_neq * _neq);
-  _rhs.resize (_neq * _nvarCL);
-  _wgt.resize (_neq * _nvarCL);
-  _zam.resize (_neq);
-  _zext.resize (_neq); // in fact, it should be allocated to _nred <= _neq (unknown at this stage)
+  _rhs.resize (_neq, _nvarCL);
+  _wgt.resize (_neq, _nvarCL);
+  _zam.resize (_neq, 1);
+  _zext.resize(_neq, 1); // in fact, it should be allocated to _nred <= _neq (unknown at this stage)
 }
 
 void KrigingSystem::_resetMemoryGeneral()
@@ -1073,14 +1073,16 @@ int KrigingSystem::_rhsCalcul()
 void KrigingSystem::_rhsIsoToHetero()
 {
   if (_flagIsotopic) return;
-  int lec_rhs = 0;
   int ecr_rhs = 0;
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    for (int i = 0; i < _neq; i++, lec_rhs++)
+  {
+    ecr_rhs = 0;
+    for (int i = 0; i < _neq; i++)
     {
       if (_flag[i] == 0) continue;
-      _rhs[ecr_rhs++] = _rhs[lec_rhs];
+      _rhs.setValue(ecr_rhs++, ivarCL, _rhs.getValue(i, ivarCL));
     }
+  }
   return;
 }
 
@@ -1147,7 +1149,12 @@ void KrigingSystem::_rhsDump()
 
 void KrigingSystem::_wgtCalcul()
 {
-  matrix_product_safe(_nred, _nred, _nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
+  // TODO: replace by correct Matrix algebra
+
+  VectorDouble wgtLocal(_nred * _nvarCL);
+  matrix_product_safe(_nred, _nred, _nvarCL, _lhsinv.data(),
+                      _rhs.getValues().data(), wgtLocal.data());
+  _wgt.setValues(wgtLocal);
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1223,7 +1230,7 @@ void KrigingSystem::_wgtDump(int status)
 
       for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       {
-        double value = (! _wgt.empty() && status == 0 && flag_value) ?
+        double value = (! _wgt.isEmpty() && status == 0 && flag_value) ?
             _getWGTCAdd(0,ivarCL)[cumflag] : TEST;
         if (!FFFF(value)) sum[ivarCL] += value;
         tab_printg(NULL, value);
@@ -1263,7 +1270,7 @@ void KrigingSystem::_wgtDump(int status)
   {
     int iwgt = ib + cumflag;
     tab_printi(NULL, ib + 1);
-    tab_printg(NULL, (status == 0) ? _wgt[iwgt] : TEST);
+    tab_printg(NULL, (status == 0) ? _wgt.getValue(iwgt,0) : TEST);
     if (_flagSimu)
       tab_printg(NULL, 0.);
     else
@@ -1305,7 +1312,7 @@ void KrigingSystem::_simulateCalcul(int status)
             if (_flagBayes)
               mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu[isimu].data());
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
-            simu -= _wgt[lec++] * (data + mean);
+            simu -= _wgt.getValue(lec++,0) * (data + mean);
           }
 
         if (OptDbg::query(EDbg::KRIGING))
@@ -1431,11 +1438,10 @@ void KrigingSystem::_estimateCalcul(int status)
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
-      int lec = ivarCL * _nred;
       for (int i = 0; i < _nech; i++)
       {
         if (status != 0) continue;
-        double wgt = _wgt[lec + i];
+        double wgt = _wgt.getValue(i,ivarCL);
         int iech = _nbgh[i];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
@@ -1513,7 +1519,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           else
           {
             if (_nfeq <= 0) data -= _getMean(jvar);
-            estim += data * _wgt[ecr++];
+            estim += data * _wgt.getValue(ecr++,0);
           }
         }
       }
@@ -1739,7 +1745,10 @@ void KrigingSystem::_dualCalcul()
 
   /* Operate the product : Z * A-1 */
 
-  matrix_product(_nred, _nred, 1, _lhsinv.data(), _getZextAdd(0), _zam.data());
+  // TODO: use proper Matrix algebra
+  VectorDouble zamLocal(_nred);
+  matrix_product(_nred, _nred, 1, _lhsinv.data(), _getZextAdd(0), zamLocal.data());
+  _zam.setValues(zamLocal);
 
   /* Operate the product : Z * A-1 * Z */
 
@@ -2844,20 +2853,17 @@ void KrigingSystem::_prodCOVTAB(double value)
 double KrigingSystem::_getRHS(int iech, int ivar, int jvCL) const
 {
   int ind  = IND(iech, ivar);
-  int iad  = ind + _neq * (jvCL);
   if (_flagCheckAddress)
   {
     _checkAddress("_getRHS","iech",iech, _nech);
     _checkAddress("_getRHS","ivar",ivar,_nvar);
     _checkAddress("_getRHS","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getRHS","address",iad,(int) _rhs.size());
   }
-  return _rhs[iad];
+  return _rhs.getValue(ind, jvCL);
 }
 void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift)
 {
   int ind  = IND(iech,ivar);
-  int iad  = ind + _neq * jvCL;
   if (_flagCheckAddress)
   {
     if (isForDrift)
@@ -2878,49 +2884,46 @@ void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isF
       _checkAddress("_setRHS", "ivar", ivar, _nvar);
     }
     _checkAddress("_setRHS", "jvCL", jvCL, _nvarCL);
-    _checkAddress("_setRHS","address",iad, (int) _rhs.size());
   }
-  _rhs[iad] = value;
+  _rhs.setValue(ind, jvCL, value);
 }
 double KrigingSystem::_getRHSC(int i, int jvCL) const
 {
-  int iad = (i) + _nred * (jvCL);
   if (_flagCheckAddress)
   {
     _checkAddress("_getRHSC","i",i,_nred);
     _checkAddress("_getRHSC","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getRHSC","address",iad, (int) _rhs.size());
   }
-  return _rhs[iad];
+  return _rhs.getValue(i, jvCL);
 }
 const double* KrigingSystem::_getRHSCAdd(int i, int jvCL) const
 {
-  int iad = (i) + _nred * (jvCL);
-  return _rhs.subdata(iad);
+  VectorDouble rhsRes = _rhs.getColumn(jvCL);
+  return rhsRes.data() + i;
 }
 const double* KrigingSystem::_getZamAdd(int i) const
 {
-  return _zam.subdata(i);
+  VectorDouble zamRes = _zam.getColumn(0);
+  return zamRes.data() + i;
 }
 const double* KrigingSystem::_getZextAdd(int i) const
 {
-  return _zext.subdata(i);
+  VectorDouble zextRes = _zext.getColumn(0);
+  return zextRes.data() + i;
 }
 double KrigingSystem::_getWGTC(int i,int jvCL) const
 {
-  int iad = (i) + _nred * (jvCL);
   if (_flagCheckAddress)
   {
     _checkAddress("_getWGTC","i",i,_nred);
     _checkAddress("_getWGTC","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getWGTC","address",iad, (int) _wgt.size());
   }
-  return _wgt[iad];
+  return _wgt.getValue(i, jvCL);
 }
 const double* KrigingSystem::_getWGTCAdd(int i, int jvCL) const
 {
-  int iad = (i) + _nred * (jvCL);
-  return _wgt.subdata(iad);
+  VectorDouble wgtRes = _wgt.getColumn(jvCL);
+  return wgtRes.data() + i;
 }
 
 /**
@@ -3045,15 +3048,15 @@ double KrigingSystem::_getDISC1(int idisc, int idim) const
 }
 double KrigingSystem::_getZAM(int i) const
 {
-  return _zam[i];
+  return _zam.getValue(i,0);
 }
 double KrigingSystem::_getZEXT(int i) const
 {
-  return _zext[i];
+  return _zext.getValue(i,0);
 }
 void KrigingSystem::_setZEXT(int i, double value) const
 {
-  _zext[i] = value;
+  _zext.setValue(i,0,value);
 }
 VectorDouble KrigingSystem::_getDISC1Vec(int idisc) const
 {
@@ -3230,7 +3233,7 @@ void KrigingSystem::_saveWeights(int status)
         for (int ivar = 0; ivar < _nvar; ivar++)
         {
           int iwgt = _nred * ivar + cumflag;
-          double wgtloc = (! _wgt.empty() && flag_value) ? _wgt[iwgt] : TEST;
+          double wgtloc = (! _wgt.isEmpty() && flag_value) ? _wgt.getValue(iwgt,0) : TEST;
           if (!FFFF(wgtloc))
           {
             values[3] = ivar;
@@ -3281,11 +3284,12 @@ VectorDouble KrigingSystem::getSampleData() const
 
 VectorDouble KrigingSystem::getRHSC(int ivar) const
 {
-  VectorDouble vec(_nred);
+  return _rhs.getColumn(ivar);
+}
 
-  for (int i = 0; i < _nred; i++)
-    vec[i] = _getRHSCAdd(0, ivar)[i];
-  return vec;
+VectorDouble KrigingSystem::getZamC() const
+{
+  return _zam.getColumn(0);
 }
 
 /****************************************************************************/

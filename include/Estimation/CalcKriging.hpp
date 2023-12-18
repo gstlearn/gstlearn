@@ -32,10 +32,10 @@ public:
   VectorVectorDouble xyz;  // Coordinates of the neighboring samples [ndim][nech]
   VectorDouble data; // Usable values at neighboring samples [neq]
   VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
-  VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
-  VectorDouble wgt;  // Vector of weights [nvar][nech]
+  MatrixRectangular rhs;  // R.H.S. of the Kriging system (neq * nvar)
+  MatrixRectangular wgt;  // Vector of weights [nvar][nech]
   VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
-  VectorDouble zam;  // Vector of pre-calculations
+  MatrixRectangular zam;  // Vector of pre-calculations
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;

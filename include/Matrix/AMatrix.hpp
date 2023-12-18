@@ -114,6 +114,8 @@ public:
   /*! Linear combination of matrices */
   void linearCombination(double cx, double cy, const AMatrix& y);
 
+  /*! Modify the dimension of the matrix */
+  void resize(int nrows, int ncols);
   /*! Gets the value at row 'irow' and column 'icol' */
   double getValue(int irow, int icol) const;
   /*! Sets the value at row 'irow' and column 'icol' */

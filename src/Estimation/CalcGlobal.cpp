@@ -159,7 +159,7 @@ int CalcGlobal::_globalKriging()
 
   int nred = ksys.getNRed();
   VectorDouble lhsinv = ksys.getLHSInv();
-  VectorDouble zam = ksys.getZam();
+  VectorDouble zam = ksys.getZamC();
   VectorDouble wgt(nred);
   matrix_product_safe(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
 

@@ -16,6 +16,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
@@ -81,14 +82,15 @@ public:
   VectorInt    getSampleIndices() const { return _nbgh; }
   VectorVectorDouble getSampleCoordinates() const;
   VectorDouble getSampleData() const;
-  VectorDouble getZam() const { return _zam; }
+  MatrixRectangular getZam() const { return _zam; }
   VectorDouble getLHS() const { return _lhs; }
   VectorDouble getLHSInv() const { return _lhsinv; }
-  VectorDouble getRHSC() const { return _rhs; }
-  VectorDouble getRHSC(int ivar) const;
-  VectorDouble getWeights() const { return _wgt; }
+  MatrixRectangular getRHSC() const { return _rhs; }
+  MatrixRectangular getWeights() const { return _wgt; }
   VectorDouble getVariance() const { return _var0.getValues(); }
   double getLTerm() const { return _lterm; }
+  VectorDouble getRHSC(int ivar) const;
+  VectorDouble getZamC() const;
 
 private:
   int    _getNVar() const;
@@ -321,10 +323,10 @@ private:
   mutable VectorDouble _drftab;
   mutable VectorDouble _lhs;
   mutable VectorDouble _lhsinv;
-  mutable VectorDouble _rhs;
-  mutable VectorDouble _wgt;
-  mutable VectorDouble _zam;
-  mutable VectorDouble _zext;
+  mutable MatrixRectangular _rhs;
+  mutable MatrixRectangular _wgt;
+  mutable MatrixRectangular _zam;
+  mutable MatrixRectangular _zext;
   mutable MatrixSquareGeneral _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
