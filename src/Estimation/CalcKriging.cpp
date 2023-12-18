@@ -844,7 +844,7 @@ void krigingExperimentalBySample(const Db *dbin,
 			if (!dbout->isActive(iech2)) continue;
 			dbout->getSampleCoordinates(iech2, p1.getCoordM());
 			cov->evalOptimEigen(p1,ptemp,mat,jech2,0,temp);
-			C.solveInPlace(mat,weights);
+			C.solveByChol(mat,weights);
 			res[jech2] = weights.prodTMatVec(z)[0];
 			weights.prodTMatVecInPlace(mat,vartemp);
 			varest[jech2] = vartemp.get(0,0);
