@@ -93,6 +93,7 @@ public:
 		  	  	  	  	  	  SpacePoint& ptemp,
 		  	  	  	  	  	  MatrixEigen& res,
     							  int iech,
+								  int icol,
     							  VectorDouble& temp,
     							  int ivar = 0,
     							  int jvar = 0,
@@ -236,8 +237,7 @@ private:
   double _getDetTensor() const;
   void _evalOptimEigen(
   		  SpacePoint& ptemp,
-  		  MatrixEigen& res,
-  		  int iech,
+  		  double* res,
   		  VectorDouble& temp,
 		  double sill,
   		  const CovCalcMode& mode) const;

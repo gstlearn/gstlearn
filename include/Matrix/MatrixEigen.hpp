@@ -29,7 +29,7 @@ public:
 	void sumRowsInPlace(VectorDouble& res) const;
 	const Eigen::MatrixXd* getMatrix() const {return &_matrix;}
 	Eigen::MatrixXd* getMatrixM() {return &_matrix;}
-
+	double* data(){return _matrix.data();}
 	void setCol(int j,const VectorDouble& vect);
 	void setRow(int j,const VectorDouble& vect);
 	VectorDouble convert2VectorDouble() const;
@@ -42,6 +42,7 @@ public:
 	static MatrixEigen prodT2(const MatrixEigen& mat1,const MatrixEigen& mat2);
 	static MatrixEigen productPointwise(const MatrixEigen& mat1,const MatrixEigen& mat2);
 	double get(int i, int j)const {return _matrix(i,j);}
+	void set(int i, int j, double val){ _matrix(i,j)=val;}
 	MatrixEigen solve(MatrixEigen& rhs) const;
 	void solve(const VectorDouble& rhs,VectorDouble& res) const;
 	void sumElem(int,int,double);

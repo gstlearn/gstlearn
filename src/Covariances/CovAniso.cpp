@@ -407,17 +407,18 @@ void CovAniso::evalOptimEigen(MatrixEigen& res,
 {
 
 	double sill = _sill.getValue(ivar, jvar);
+	double* data;
 	for (int i = 0; i < (int)temp.size(); i++)
 	{
-		_evalOptimEigen(_transformedCoordinates[i], res,i,temp,sill,mode);
+		data = &(res.data()[i*res.rows()]);
+		_evalOptimEigen(_transformedCoordinates[i], data,temp,sill,mode);
 
 	}
 }
 
 void CovAniso::_evalOptimEigen(
 		  SpacePoint& ptemp,
-		  MatrixEigen& res,
-		  int iech,
+		  double* res,
 		  VectorDouble& temp,
 		  double sill,
 		  const CovCalcMode& mode) const
@@ -427,7 +428,7 @@ void CovAniso::_evalOptimEigen(
 
 		  for (int i = 0; i< (int)temp.size();i++)
 		    {
-			    res.sumElem(i,iech,sill *  _cova->evalCov(temp[i]));
+			    res[i]+=sill *  _cova->evalCov(temp[i]);
 		    }
 }
 void CovAniso::evalOptimEigen(
@@ -435,6 +436,7 @@ void CovAniso::evalOptimEigen(
 		  SpacePoint& ptemp,
 		  MatrixEigen& res,
 		  int iech,
+		  int icol,
 		  VectorDouble& temp,
 		  int ivar,
 		  int jvar,
@@ -442,7 +444,8 @@ void CovAniso::evalOptimEigen(
 {
 	 preProcess(pt,ptemp);
 	  double sill = _sill.getValue(ivar, jvar);
-	  _evalOptimEigen(ptemp, res, iech, temp, sill, mode);
+	  double* data = &res.data()[icol*res.rows()];
+	  _evalOptimEigen(ptemp, data, temp, sill, mode);
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const

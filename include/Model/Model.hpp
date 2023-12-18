@@ -277,11 +277,12 @@ public:
 
   MatrixEigen evalCovMatrixEigen(const Db* db1,
                                    const Db* db2 = nullptr,
+								   bool preprocess=true,
                                    int ivar = 0,
                                    int jvar = 0,
                                    const CovCalcMode& mode = CovCalcMode())
    {
-     return _covaList->evalCovMatrixEigen(db1, db2, ivar, jvar, mode);
+     return _covaList->evalCovMatrixEigen(db1, db2,preprocess, ivar, jvar, mode);
    }
 
   double extensionVariance(const Db* db,

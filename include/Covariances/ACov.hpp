@@ -63,6 +63,7 @@ public:
 		  	  	  	  	  	  SpacePoint& ptemp,
 		  	  	  	  	  	  MatrixEigen& res,
   							  int iech,
+							  int icol,
   							  VectorDouble& temp,
   							  int ivar = 0,
   							  int jvar = 0,
@@ -189,6 +190,7 @@ public:
 
  MatrixEigen evalCovMatrixEigen(const Db* db1,
                                      const Db* db2 = nullptr,
+									 bool preprocess = false,
                                      int ivar = 0,
                                      int jvar = 0,
                                      const CovCalcMode& mode = CovCalcMode()) const;

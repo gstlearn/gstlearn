@@ -116,6 +116,7 @@ public:
     						    SpacePoint& ptemp,
     							  MatrixEigen& res,
     							  int iech,
+								  int icol,
     							  VectorDouble& temp,
     							  int ivar = 0,
     							  int jvar = 0,

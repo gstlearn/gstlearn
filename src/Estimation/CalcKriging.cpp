@@ -689,10 +689,10 @@ void krigingExperimental(const Db *dbin,
 		driftsE = MatrixEigen(drifts,true);
 	}
 
-	auto C  = model->evalCovMatrixEigen(dbin);
-	auto C0 = model->evalCovMatrixEigen(dbin,dbout);
-
-
+	auto C  = model->evalCovMatrixEigen(dbin,nullptr,true);
+	auto C0 = model->evalCovMatrixEigen(dbin,dbout,true);
+//
+//
 	VectorDouble drift;
 	VectorDouble vars;
 	VectorDouble varest;
@@ -782,7 +782,7 @@ void krigingExperimentalBySample(const Db *dbin,
 
 	auto cov = model->getCovAnisoList();
 	cov->preProcessFromDb(dbin);
-	auto C  = model->evalCovMatrixEigen(dbin);
+	auto C  = model->evalCovMatrixEigen(dbin,nullptr,false);
 	//auto C0 = model->evalCovMatrixEigen(dbin,dbout);
 
 
@@ -808,21 +808,18 @@ void krigingExperimentalBySample(const Db *dbin,
 
 		int nech1 = dbin->getSampleNumber(true);
 		int nechtot2 = dbout->getSampleNumber(false);
-		VectorDouble zeros(nech1);
-		for(auto &e : zeros){e=0.;}
-
+//
 		MatrixEigen mat = MatrixEigen(nech1,1);
 		SpacePoint p1(dbin->getSampleCoordinates(0),cov->getSpace());
 		SpacePoint ptemp(dbin->getSampleCoordinates(0),cov->getSpace());
 		VectorDouble temp(nech1);
-
+//
 		int jech2 = 0;
 		for (int iech2 =  0; iech2 < nechtot2; iech2++)
 		{
-			mat.setCol(0,zeros);
 			if (!dbout->isActive(iech2)) continue;
 			dbout->getSampleCoordinates(iech2, p1.getCoordM());
-			cov->evalOptimEigen(p1,ptemp,mat,jech2,temp);
+			cov->evalOptimEigen(p1,ptemp,mat,jech2,0,temp);
 			res[jech2] = mat.prodTMatVec(dual)[0];
 			jech2++;
 

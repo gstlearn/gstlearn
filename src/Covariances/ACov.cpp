@@ -709,6 +709,7 @@ void ACov::preProcessFromDb(const Db* db) const
 
 MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
                                      const Db* db2,
+									 bool preprocess,
 									 int ivar,
 									 int jvar,
 									 const CovCalcMode& mode) const
@@ -718,7 +719,8 @@ MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
 	VectorDouble temp(nech1);
 
 	MatrixEigen mat;
-	//preProcessFromDb(db1);
+	if (preprocess)
+		preProcessFromDb(db1);
 
 	SpacePoint p1(db1->getSampleCoordinates(0),getSpace());
 	SpacePoint ptemp(db1->getSampleCoordinates(0),getSpace());
@@ -741,11 +743,12 @@ MatrixEigen ACov::evalCovMatrixEigen(const Db* db1,
 		{
 			if (!db2->isActive(iech2)) continue;
 			db2->getSampleCoordinates(iech2, p1.getCoordM());
-			evalOptimEigen(p1,ptemp,mat,jech2,temp,ivar, jvar, mode);
+			evalOptimEigen(p1,ptemp,mat,jech2,jech2,temp,ivar, jvar, mode);
 			jech2++;
 		}
 	}
-	 //cleanPreProcessInfo();
+	 if (preprocess)
+		 cleanPreProcessInfo();
 	 return mat;
 }
 

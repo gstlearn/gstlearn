@@ -159,6 +159,9 @@ void ACovAnisoList::evalOptimEigen(MatrixEigen& res,
 							  const CovCalcMode& mode) const
 {
 
+	for(int i = 0; i<res.rows();i++)
+		for(int j = 0; j<res.cols();j++)
+			res.set(i,j,0.);
 	for (int icov = 0, n = getCovNumber(); icov<n;icov++)
 	{
 		_covs[icov]->evalOptimEigen(res,temp,ivar,jvar,mode);
@@ -169,15 +172,18 @@ void ACovAnisoList::evalOptimEigen(const SpacePoint& pt,
 							  SpacePoint& ptemp,
 		  	  	  	  	  	  MatrixEigen& res,
 							  int iech,
+							  int icol,
 							  VectorDouble& temp,
 							  int ivar,
 							  int jvar,
 							  const CovCalcMode& mode) const
 {
 
+	for(int i = 0; i<res.rows();i++)
+				res.set(i,icol,0.);
 	for (int icov = 0, n = getCovNumber(); icov<n;icov++)
 	{
-		_covs[icov]->evalOptimEigen(pt,ptemp,res,iech,temp,ivar,jvar,mode);
+		_covs[icov]->evalOptimEigen(pt,ptemp,res,iech,icol,temp,ivar,jvar,mode);
 	}
 }
 
