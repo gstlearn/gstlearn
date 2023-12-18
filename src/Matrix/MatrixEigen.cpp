@@ -122,6 +122,21 @@ void MatrixEigen::prodTMatVecInPlace(VectorDouble& in,VectorDouble& out)const
 	outv.noalias() += _matrix.transpose() * inv;
 }
 
+void MatrixEigen::prodTMatVecInPlace(const MatrixEigen &in,MatrixEigen& out)const
+{
+	out._matrix.noalias() += _matrix.transpose() * in._matrix;
+}
+
+void MatrixEigen::computeInverse() const
+{
+	_prepareInverse();
+}
+
+void MatrixEigen::solveInPlace(const MatrixEigen& in,MatrixEigen& res) const
+{
+	_prepareInverse();
+	res._matrix.noalias() += _inverse * in._matrix;
+}
 MatrixEigen MatrixEigen::solve(MatrixEigen& rhs) const
 {
 
@@ -131,12 +146,40 @@ MatrixEigen MatrixEigen::solve(MatrixEigen& rhs) const
 	return result;
 }
 
-void MatrixEigen::solve(const VectorDouble& rhs,VectorDouble& res) const
+void MatrixEigen::solveByChol(const VectorDouble& rhs,VectorDouble& res) const
 {
-	Eigen::Map<const Eigen::VectorXd> rhsv(rhs.data(), rhs.size());
+	const Eigen::Map<const Eigen::VectorXd> rhsv(rhs.data(), rhs.size());
 	Eigen::Map<Eigen::VectorXd> resv(res.data(), res.size());
+	//TODO : try to call _solve(const Eigen::VectorXd& rhs,Eigen::VectorXd& res)
 	_prepareFactor();
 	resv.noalias() += _factor.solve(rhsv);
+
+
+}
+
+void MatrixEigen::solveByChol(const MatrixEigen& rhs,MatrixEigen& res) const
+{
+
+	_prepareFactor();
+	res._matrix.noalias() += _factor.solve(rhs._matrix);
+	_solveByChol(rhs._matrix,res._matrix);
+}
+
+
+void MatrixEigen::_solveByChol(const Eigen::VectorXd& rhs,Eigen::VectorXd& res) const
+{
+
+	_prepareFactor();
+	res.noalias() += _factor.solve(rhs);
+
+}
+
+
+void MatrixEigen::_solveByChol(const Eigen::MatrixXd& rhs,Eigen::MatrixXd& res) const
+{
+
+	_prepareFactor();
+	res.noalias() += _factor.solve(rhs);
 
 }
 

@@ -37,6 +37,8 @@ public:
 	VectorDouble prodTMatVec(VectorDouble& in)const;
 	void prodMatVecInPlace(VectorDouble& in,VectorDouble& out)const;
 	void prodTMatVecInPlace(VectorDouble& in,VectorDouble& out)const;
+	void prodTMatVecInPlace(const MatrixEigen &in,MatrixEigen& out)const;
+
 	static MatrixEigen prod(const MatrixEigen& mat1,const MatrixEigen& mat2);
 	static MatrixEigen prodT1(const MatrixEigen& mat1,const MatrixEigen& mat2);
 	static MatrixEigen prodT2(const MatrixEigen& mat1,const MatrixEigen& mat2);
@@ -44,14 +46,22 @@ public:
 	double get(int i, int j)const {return _matrix(i,j);}
 	void set(int i, int j, double val){ _matrix(i,j)=val;}
 	MatrixEigen solve(MatrixEigen& rhs) const;
-	void solve(const VectorDouble& rhs,VectorDouble& res) const;
+	void solveByChol(const VectorDouble& rhs,VectorDouble& res) const;
+	void solveByChol(const MatrixEigen& rhs,MatrixEigen& res) const;
 	void sumElem(int,int,double);
 	int rows() const {return _matrix.rows();}
 	int cols() const {return _matrix.cols();}
     virtual ~MatrixEigen();
+    void computeInverse() const;
+
+
+    void solveInPlace(const MatrixEigen& in,MatrixEigen& res) const;
 
 private:
     void _prepareFactor() const;
+    void _solveByChol(const Eigen::VectorXd& rhs,Eigen::VectorXd& res) const;
+    void _solveByChol(const Eigen::MatrixXd& rhs,Eigen::MatrixXd& res) const;
+
     void _prepareInverse()const;
     void _reset();
 

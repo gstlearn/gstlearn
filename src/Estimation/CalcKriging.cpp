@@ -703,7 +703,7 @@ void krigingExperimental(const Db *dbin,
 		auto tempDriftsE = C.solve(driftsE); // C^{-1} F
 		auto temp = MatrixEigen::prodT1(driftsE, tempDriftsE); // F'C^{-1}F   nd x nd
 		tempDriftsE.prodTMatVecInPlace(z,tempv);  //                F'C^{-1}z nd x 1
-		temp.solve(tempv,coeffs);	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
+		temp.solveByChol(tempv,coeffs);	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
 		drift = model->evalDrifts(dbin, coeffs,0, true);		// F beta = n x 1
 		VH::subtractInPlace(z, drift);							// (z - F beta) = (I - F (F'C^{-1}F)^{-1}F'C^{-1})z
 																// (I - F (F'C^{-1}F)^{-1}F)
@@ -712,7 +712,7 @@ void krigingExperimental(const Db *dbin,
 	if (!flag_std && !flag_varz)
 	{
 		VectorDouble dual = VectorDouble(nech);
-		C.solve(z,dual);
+		C.solveByChol(z,dual);
 		C0.prodTMatVecInPlace(dual,res);
 	}
 	else
@@ -783,8 +783,6 @@ void krigingExperimentalBySample(const Db *dbin,
 	auto cov = model->getCovAnisoList();
 	cov->preProcessFromDb(dbin);
 	auto C  = model->evalCovMatrixEigen(dbin,nullptr,false);
-	//auto C0 = model->evalCovMatrixEigen(dbin,dbout);
-
 
 	VectorDouble drift;
 	VectorDouble vars;
@@ -795,7 +793,7 @@ void krigingExperimentalBySample(const Db *dbin,
 		auto tempDriftsE = C.solve(driftsE); // C^{-1} F
 		auto temp = MatrixEigen::prodT1(driftsE, tempDriftsE); // F'C^{-1}F   nd x nd
 		tempDriftsE.prodTMatVecInPlace(z,tempv);  //                F'C^{-1}z nd x 1
-		temp.solve(tempv,coeffs);	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
+		temp.solveByChol(tempv,coeffs);	// beta = (F'C^{-1}F)^{-1}F'C^{-1}z				  nd x 1
 		drift = model->evalDrifts(dbin, coeffs,0, true);		// F beta = n x 1
 		VH::subtractInPlace(z, drift);							// (z - F beta) = (I - F (F'C^{-1}F)^{-1}F'C^{-1})z
 																// (I - F (F'C^{-1}F)^{-1}F)
@@ -804,8 +802,7 @@ void krigingExperimentalBySample(const Db *dbin,
 	if (!flag_std && !flag_varz)
 	{
 		VectorDouble dual = VectorDouble(nech);
-		C.solve(z,dual);
-
+		C.solveByChol(z,dual);
 		int nech1 = dbin->getSampleNumber(true);
 		int nechtot2 = dbout->getSampleNumber(false);
 //
@@ -827,7 +824,35 @@ void krigingExperimentalBySample(const Db *dbin,
 	}
 	else
 	{
-//		varest.resize(dbout->getSampleNumber(true));
+		varest.resize(dbout->getSampleNumber(true));
+
+		int nech1 = dbin->getSampleNumber(true);
+		int nechtot2 = dbout->getSampleNumber(false);
+//
+		MatrixEigen mat = MatrixEigen(nech1,1);
+		MatrixEigen weights = MatrixEigen(nech1,1);
+
+		SpacePoint p1(dbin->getSampleCoordinates(0),cov->getSpace());
+		SpacePoint ptemp(dbin->getSampleCoordinates(0),cov->getSpace());
+		VectorDouble temp(nech1);
+//
+		int jech2 = 0;
+		auto vartemp = MatrixEigen(1,1);
+		//C.computeInverse();
+		for (int iech2 =  0; iech2 < nechtot2; iech2++)
+		{
+			if (!dbout->isActive(iech2)) continue;
+			dbout->getSampleCoordinates(iech2, p1.getCoordM());
+			cov->evalOptimEigen(p1,ptemp,mat,jech2,0,temp);
+			C.solveInPlace(mat,weights);
+			res[jech2] = weights.prodTMatVec(z)[0];
+			weights.prodTMatVecInPlace(mat,vartemp);
+			varest[jech2] = vartemp.get(0,0);
+			//auto varmat = MatrixEigen::productPointwise(weights, mat);
+			//varmat.sumColsInPlace(varest);
+			jech2++;
+
+		}
 //		auto weights = C.solve(C0);
 //		weights.prodTMatVecInPlace(z,res);
 //		auto varmat = MatrixEigen::productPointwise(weights, C0);
