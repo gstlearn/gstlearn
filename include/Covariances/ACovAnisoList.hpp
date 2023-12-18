@@ -58,6 +58,8 @@ public:
 
   /// Interface for ACov
   virtual int    getNVariables() const override;
+  virtual bool   isIndexable() const override { return true; }
+  virtual bool   isNoStat() const override { return _noStat != nullptr; }
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
@@ -146,7 +148,6 @@ public:
 
   const ANoStat* getANoStat() const { return _noStat; }
   int addNoStat(const ANoStat *anostat);
-  int isNoStat() const;
   int getNoStatElemNumber() const;
   const EConsElem& getNoStatElemType(int ipar) const;
   int addNoStatElem(int igrf,

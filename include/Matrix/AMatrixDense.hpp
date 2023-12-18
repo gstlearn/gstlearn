@@ -26,6 +26,10 @@ public:
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
 
+  /// Interface for AMatrix
+  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
+  virtual bool isMatrixDense() const { return true; }
+
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
   /*! Set the contents of a Row */

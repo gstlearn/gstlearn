@@ -18,6 +18,8 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptCustom.hpp"
 
+#include <Eigen/Dense>
+
 #include <string.h>
 #include <algorithm>
 #include <iomanip>
@@ -504,15 +506,25 @@ double VectorHelper::normDistance(const VectorDouble &veca,
                                   const VectorDouble &vecb)
 {
   double prod = 0.;
-  double delta = 0.;
-  const double* ptra = &veca[0];
-  const double* ptrb = &vecb[0];
-  for (int i = 0, n = (int) veca.size(); i < n; i++)
+  if (isFlagEigen())
   {
-    delta = (*ptra) - (*ptrb);
-    prod += delta * delta;
-    ptra++;
-    ptrb++;
+    int size = veca.size();
+    Eigen::Map<const Eigen::VectorXd> vecam(veca.data(), size);
+    Eigen::Map<const Eigen::VectorXd> vecbm(vecb.data(), size);
+    prod = vecam.dot(vecbm);
+  }
+  else
+  {
+    double delta = 0.;
+    const double *ptra = &veca[0];
+    const double *ptrb = &vecb[0];
+    for (int i = 0, n = (int) veca.size(); i < n; i++)
+    {
+      delta = (*ptra) - (*ptrb);
+      prod += delta * delta;
+      ptra++;
+      ptrb++;
+    }
   }
   return sqrt(prod);
 }
@@ -1619,16 +1631,7 @@ double VectorHelper::innerProduct(const VectorDouble &veca,
   if (size > (int) veca.size() || size > (int) vecb.size())
     my_throw("Incompatible sizes");
 
-  double prod = 0.;
-  const double* ptra = &veca[0];
-  const double* ptrb = &vecb[0];
-  for (int i = 0; i < size; i++)
-  {
-    prod += (*ptra) * (*ptrb);
-    ptra++;
-    ptrb++;
-  }
-  return prod;
+  return innerProduct(veca.data(), vecb.data(), size);
 }
 
 double VectorHelper::innerProduct(const double* veca,
@@ -1636,13 +1639,22 @@ double VectorHelper::innerProduct(const double* veca,
                                   int size)
 {
   double prod = 0.;
-  const double* ptra = &veca[0];
-  const double* ptrb = &vecb[0];
-  for (int i = 0; i < size; i++)
+  if (isFlagEigen())
   {
-    prod += (*ptra) * (*ptrb);
-    ptra++;
-    ptrb++;
+    Eigen::Map<const Eigen::VectorXd> vecam(veca, size);
+    Eigen::Map<const Eigen::VectorXd> vecbm(vecb, size);
+    return vecam.dot(vecbm);
+  }
+  else
+  {
+    const double *ptra = &veca[0];
+    const double *ptrb = &vecb[0];
+    for (int i = 0; i < size; i++)
+    {
+      prod += (*ptra) * (*ptrb);
+      ptra++;
+      ptrb++;
+    }
   }
   return prod;
 }
@@ -1666,19 +1678,28 @@ VectorDouble VectorHelper::crossProduct3D(const VectorDouble &veca,
                                           const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
-  my_throw("Wrong size");
-  VectorDouble res;
-  res.push_back(veca[1] * vecb[2] - veca[2] * vecb[1]);
-  res.push_back(veca[2] * vecb[0] - veca[0] * vecb[2]);
-  res.push_back(veca[0] * vecb[1] - veca[1] * vecb[0]);
+    my_throw("Wrong size");
+  VectorDouble res(3);
+  crossProduct3DInPlace(veca.data(), vecb.data(), res.data());
   return res;
 }
 
 void VectorHelper::crossProduct3DInPlace(const double *a, const double *b, double *v)
 {
-  v[0] = a[1] * b[2] - a[2] * b[1];
-  v[1] = a[2] * b[0] - a[0] * b[2];
-  v[2] = a[0] * b[1] - a[1] * b[0];
+  int size = 3;
+  if (isFlagEigen())
+  {
+    Eigen::Map<const Eigen::Vector3d> am(a, size);
+    Eigen::Map<const Eigen::Vector3d> bm(b, size);
+    Eigen::Vector3d resm = am.cross(bm);
+    Eigen::VectorXd::Map(v, resm.rows()) = resm;
+  }
+  else
+  {
+    v[0] = a[1] * b[2] - a[2] * b[1];
+    v[1] = a[2] * b[0] - a[0] * b[2];
+    v[2] = a[0] * b[1] - a[1] * b[0];
+  }
 }
 
 /**

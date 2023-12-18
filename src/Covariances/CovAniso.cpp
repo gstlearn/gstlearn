@@ -1082,18 +1082,21 @@ void CovAniso::evalMatOptimInPlace(int iech1,
 
   // Calculate distance (in anisotropic space)
   double h = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  double sill = 1.;
 
   if (mode == nullptr)
   {
     double cov = _cova->evalCov(h);
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+      {
+        sill = getSill(ivar, jvar);
+        mat.setValue(ivar, jvar, cov * sill);
+      }
   }
   else
   {
     double cov = _calculateCov(h, mode);
-    double sill = 1.;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
       {

@@ -45,6 +45,8 @@ public:
 
   /// ACov Interface
   virtual int getNVariables() const = 0;
+  virtual bool isIndexable() const { return false; }
+  virtual bool isNoStat() const { return false; }
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -241,6 +243,7 @@ private:
 
 protected:
   bool _isOptimEnabled;
+
   // These temporary information is used to speed up processing (optimization functions)
   // They are in a protected section as they may be modified by class hierarchy
   mutable std::vector<SpacePoint> _p1As;

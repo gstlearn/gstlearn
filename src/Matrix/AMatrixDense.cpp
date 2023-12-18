@@ -471,8 +471,7 @@ void AMatrixDense::_prodScalarLocal(double v)
 
 void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
 {
-  const AMatrixDense* ym = dynamic_cast<const AMatrixDense*>(&y);
-  if (ym == nullptr)
+  if (! y.isMatrixDense())
   {
     VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
     Eigen::Map<const Eigen::MatrixXd> ymat(intery.data(), getNRows(), getNCols());
@@ -480,6 +479,7 @@ void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
   }
   else
   {
+    const AMatrixDense* ym = dynamic_cast<const AMatrixDense*>(&y);
     const Eigen::MatrixXd& ymat = ym->_eigenMatrix;
     _eigenMatrix += ymat * value;
   }
@@ -487,6 +487,7 @@ void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
 
 void AMatrixDense::_prodMatrixLocal(const AMatrix& x, const AMatrix& y)
 {
+  // TODO: same as for addMatrixLocal
   VectorDouble interx = x.getValues(); // Performed in 2 lines to avoid non-understandable bug
   Eigen::Map<const Eigen::MatrixXd> xm(interx.data(), x.getNRows(), x.getNCols());
   VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
@@ -496,9 +497,18 @@ void AMatrixDense::_prodMatrixLocal(const AMatrix& x, const AMatrix& y)
 
 void AMatrixDense::_linearCombinationLocal(double cx, double cy, const AMatrix& y)
 {
-  VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), getNRows(), getNCols());
-  _eigenMatrix = cx * _eigenMatrix + cy * ym;
+  if (! y.isMatrixDense())
+  {
+    VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
+    Eigen::Map<const Eigen::MatrixXd> ymat(intery.data(), getNRows(), getNCols());
+    _eigenMatrix = cx * _eigenMatrix + cy * ymat;
+  }
+  else
+  {
+    const AMatrixDense* ym = dynamic_cast<const AMatrixDense*>(&y);
+    const Eigen::MatrixXd& ymat = ym->_eigenMatrix;
+    _eigenMatrix = cx * _eigenMatrix + cy * ymat;
+  }
 }
 
 void AMatrixDense::_fillLocal(double value)

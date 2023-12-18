@@ -794,9 +794,7 @@ void Model::setField(double field)
 int Model::isNoStat() const
 {
   if (_cova == nullptr) return 0;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return 0;
-  return covalist->isNoStat();
+  return _cova->isNoStat();
 }
 
 const ANoStat* Model::getNoStat() const
