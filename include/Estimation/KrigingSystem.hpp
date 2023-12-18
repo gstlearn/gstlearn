@@ -87,7 +87,8 @@ public:
   MatrixSquareSymmetric getLHS() const { return _lhs; }
   MatrixRectangular     getRHSC() const { return _rhs; }
   MatrixRectangular     getWeights() const { return _wgt; }
-  VectorDouble getVariance() const { return _var0.getValues(); }
+  MatrixSquareGeneral   getVariance() const { return _var0; }
+
   double getLTerm() const { return _lterm; }
 
   VectorDouble getRHSC(int ivar) const;
@@ -315,16 +316,16 @@ private:
   mutable bool _flagCheckAddress;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable MatrixSquareGeneral _covtab;
-  mutable MatrixSquareGeneral _covref;
-  mutable VectorDouble _drftab;
+  mutable MatrixSquareGeneral   _covtab;
+  mutable MatrixSquareGeneral   _covref;
+  mutable VectorDouble          _drftab;
   mutable MatrixSquareSymmetric _lhs;
   mutable MatrixSquareSymmetric _lhsinv;
-  mutable MatrixRectangular _rhs;
-  mutable MatrixRectangular _wgt;
-  mutable MatrixRectangular _zam;
-  mutable MatrixRectangular _zext;
-  mutable MatrixSquareGeneral _var0;
+  mutable MatrixRectangular     _rhs;
+  mutable MatrixRectangular     _wgt;
+  mutable MatrixRectangular     _zam;
+  mutable MatrixRectangular     _zext;
+  mutable MatrixSquareGeneral   _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 
