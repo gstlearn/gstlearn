@@ -1828,6 +1828,7 @@ const ACovAnisoList* Model::_castInCovAnisoListConst(int icov) const
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
+  if (icov < 0) return covalist;
 
   // Check the rank
   if (icov >= covalist->getCovNumber())
@@ -1848,6 +1849,7 @@ ACovAnisoList* Model::_castInCovAnisoList(int icov)
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
+  if (icov < 0) return covalist;
 
   // Check the rank
   if (icov >= covalist->getCovNumber())

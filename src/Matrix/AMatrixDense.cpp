@@ -471,9 +471,18 @@ void AMatrixDense::_prodScalarLocal(double v)
 
 void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
 {
-  VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), getNRows(), getNCols());
-  _eigenMatrix += ym * value;
+  const AMatrixDense* ym = dynamic_cast<const AMatrixDense*>(&y);
+  if (ym == nullptr)
+  {
+    VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
+    Eigen::Map<const Eigen::MatrixXd> ymat(intery.data(), getNRows(), getNCols());
+    _eigenMatrix += ymat * value;
+  }
+  else
+  {
+    const Eigen::MatrixXd& ymat = ym->_eigenMatrix;
+    _eigenMatrix += ymat * value;
+  }
 }
 
 void AMatrixDense::_prodMatrixLocal(const AMatrix& x, const AMatrix& y)
