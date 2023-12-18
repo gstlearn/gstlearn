@@ -233,7 +233,7 @@ void AMatrixDense::prodScalar(double v)
     AMatrix::prodScalar(v);
 }
 
-void AMatrixDense::addMatrix(const AMatrix& y, double value)
+void AMatrixDense::addMatrix(const AMatrixDense& y, double value)
 {
   if (isFlagEigen())
     _addMatrixLocal(y);
@@ -241,7 +241,7 @@ void AMatrixDense::addMatrix(const AMatrix& y, double value)
     AMatrix::addMatrix(y, value);
 }
 
-void AMatrixDense::prodMatrix(const AMatrix& x, const AMatrix& y)
+void AMatrixDense::prodMatrix(const AMatrixDense& x, const AMatrixDense& y)
 {
   if (isFlagEigen())
     _prodMatrixLocal(x, y);
@@ -249,7 +249,7 @@ void AMatrixDense::prodMatrix(const AMatrix& x, const AMatrix& y)
     AMatrix::prodMatrix(x, y);
 }
 
-void AMatrixDense::linearCombination(double cx, double cy, const AMatrix& y)
+void AMatrixDense::linearCombination(double cx, double cy, const AMatrixDense& y)
 {
   if (isFlagEigen())
     _linearCombinationLocal(cx, cy, y);
@@ -469,47 +469,20 @@ void AMatrixDense::_prodScalarLocal(double v)
   _eigenMatrix.array() *= v;
 }
 
-void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
+void AMatrixDense::_addMatrixLocal(const AMatrixDense& y, double value)
 {
-  if (! y.isMatrixDense())
-  {
-    VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-    Eigen::Map<const Eigen::MatrixXd> ymat(intery.data(), getNRows(), getNCols());
-    _eigenMatrix += ymat * value;
-  }
-  else
-  {
-    const AMatrixDense* ym = dynamic_cast<const AMatrixDense*>(&y);
-    const Eigen::MatrixXd& ymat = ym->_eigenMatrix;
-    _eigenMatrix += ymat * value;
-  }
+  _eigenMatrix += y._eigenMatrix * value;
 }
 
-void AMatrixDense::_prodMatrixLocal(const AMatrix& x, const AMatrix& y)
+void AMatrixDense::_prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
 {
-  // TODO: same as for addMatrixLocal
-  VectorDouble interx = x.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> xm(interx.data(), x.getNRows(), x.getNCols());
-  VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), y.getNRows(), y.getNCols());
-  _eigenMatrix = xm * ym;
+  _eigenMatrix = x._eigenMatrix * y._eigenMatrix;
 }
 
-void AMatrixDense::_linearCombinationLocal(double cx, double cy, const AMatrix& y)
+void AMatrixDense::_linearCombinationLocal(double cx, double cy, const AMatrixDense& y)
 {
-  if (! y.isMatrixDense())
-  {
-    VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-    Eigen::Map<const Eigen::MatrixXd> ymat(intery.data(), getNRows(), getNCols());
-    _eigenMatrix = cx * _eigenMatrix + cy * ymat;
+    _eigenMatrix = cx * _eigenMatrix + cy * y._eigenMatrix;
   }
-  else
-  {
-    const AMatrixDense* ym = dynamic_cast<const AMatrixDense*>(&y);
-    const Eigen::MatrixXd& ymat = ym->_eigenMatrix;
-    _eigenMatrix = cx * _eigenMatrix + cy * ymat;
-  }
-}
 
 void AMatrixDense::_fillLocal(double value)
 {

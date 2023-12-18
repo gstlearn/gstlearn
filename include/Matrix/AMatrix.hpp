@@ -85,12 +85,6 @@ public:
   virtual void setValuesByArrays(const VectorInt &irows,
                                  const VectorInt &icols,
                                  const VectorDouble &values);
-  /*! Add a matrix (multiplied by a constant) */
-  virtual void addMatrix(const AMatrix& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const AMatrix& x, const AMatrix& y);
-  /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const AMatrix& y);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
   /*! Multiply a Matrix row-wise */
@@ -112,6 +106,13 @@ public:
                                    VectorInt &icols,
                                    VectorDouble &values) const;
 #endif
+
+  /*! Add a matrix (multiplied by a constant) */
+  void addMatrix(const AMatrix& y, double value = 1.);
+  /*! Multiply a matrix by another and store the result in the current matrix */
+  void prodMatrix(const AMatrix& x, const AMatrix& y);
+  /*! Linear combination of matrices */
+  void linearCombination(double cx, double cy, const AMatrix& y);
 
   /*! Gets the value at row 'irow' and column 'icol' */
   double getValue(int irow, int icol) const;
