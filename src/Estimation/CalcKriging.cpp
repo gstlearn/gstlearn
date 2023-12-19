@@ -21,7 +21,7 @@
 #include <Eigen/Cholesky>
 
 #include <math.h>
-
+#include "omp.h"
 CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     : ACalcInterpolator(),
     _flagEst(flag_est),
@@ -812,13 +812,14 @@ void krigingExperimentalBySample(const Db *dbin,
 		VectorDouble temp(nech1);
 //
 		int jech2 = 0;
+		#pragma omp parallel for firstprivate(p1,ptemp,C0,temp,C,cov) schedule(guided)
 		for (int iech2 =  0; iech2 < nechtot2; iech2++)
 		{
 			if (!dbout->isActive(iech2)) continue;
 			dbout->getSampleCoordinates(iech2, p1.getCoordM());
-			cov->evalOptimEigen(p1,ptemp,C0,jech2,0,temp);
-			res[jech2] = C0.prodTMatVec(dual)[0];
-			jech2++;
+			cov->evalOptimEigen(p1,ptemp,C0,iech2,0,temp);
+			res[iech2] = C0.prodTMatVec(dual)[0];
+			//jech2++;
 
 		}
 	}
@@ -839,6 +840,7 @@ void krigingExperimentalBySample(const Db *dbin,
 		int jech2 = 0;
 		auto vartemp = MatrixEigen(1,1);
 		//C.computeInverse();
+
 		for (int iech2 =  0; iech2 < nechtot2; iech2++)
 		{
 			if (!dbout->isActive(iech2)) continue;

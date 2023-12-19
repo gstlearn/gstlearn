@@ -69,6 +69,18 @@ if(EIGEN3_FOUND)
  message(STATUS "EIGEN3_USER_DIR: ${EIGEN3_USER_DIR}")
 endif()
 
+FIND_PACKAGE(OpenMP REQUIRED)
+if (OPENMP_FOUND)
+    message("OPENMP found")
+    add_definitions(-DOPENMP)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+   if(${APPLE})
+    include_directories(${OpenMP_C_INCLUDE_DIR})
+   	  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp")
+   endif()
+endif()
 
 
 # Look for HDF5
