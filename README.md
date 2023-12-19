@@ -381,6 +381,7 @@ The *gstlearn* C++ library also depends on the following third-party libraries (
 | Name           | License        | URL                                                            | Copyright
 |----------------|----------------|----------------------------------------------------------------|-----------
 | Boost          | see licenses   | https://www.boost.org                                          | see Boost headers
+| Eigen          | MPL2           | https://eigen.tuxfamily.org                                    | see Eigen headers
 | HDF5           | see licenses   | https://www.hdfgroup.org                                       | Copyright 2006 by The HDF Group
 
 
