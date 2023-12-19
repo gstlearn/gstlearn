@@ -1617,7 +1617,7 @@ void KrigingSystem::_estimateEstim(int status)
 
   // Calculate the solution
   if (status == 0)
-    estims.prodMatrix(_rhs, _zam);
+    estims.prodTMatrix(_rhs, _zam);
 
   // Loop for writing the estimation
 
@@ -1649,7 +1649,7 @@ void KrigingSystem::_estimateStdv(int status)
 
   // Calculate the solution
   if (status == 0)
-    vars.prodMatrix(_rhs, _wgt);
+    vars.prodTMatrix(_rhs, _wgt);
 
   // Loop for writing the estimation
 

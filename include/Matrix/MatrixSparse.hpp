@@ -94,6 +94,8 @@ public:
   /// rather than manipulating AMatrix. They are no more generic of AMatrix
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMatrix(const MatrixSparse& y, double value = 1.);
+  /*! Multiply transpose of a matrix by another and store the result in the current matrix */
+  virtual void prodTMatrix(const MatrixSparse& x, const MatrixSparse& y);
   /*! Multiply a matrix by another and store the result in the current matrix */
   virtual void prodMatrix(const MatrixSparse& x, const MatrixSparse& y);
   /*! Linear combination of matrices */
