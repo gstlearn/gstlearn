@@ -33,9 +33,9 @@ configure_file(version.h.in version.h)
 get_property(IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
 
 # Activate verbose mode
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 # Debug find package instruction
-set(CMAKE_FIND_DEBUG_MODE TRUE)
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Options
 option(BUILD_PYTHON  "Build Python package"        OFF)
