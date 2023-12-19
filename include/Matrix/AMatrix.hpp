@@ -99,6 +99,10 @@ public:
   virtual VectorDouble prodVector(const VectorDouble& vec) const;
   /*! Perform 'vec'^T * M */
   virtual VectorDouble prodTVector(const VectorDouble& vec) const;
+  /*! Extract a Row */
+  virtual VectorDouble getRow(int irow) const;
+  /*! Extract a Column */
+  virtual VectorDouble getColumn(int icol) const;
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
@@ -141,10 +145,6 @@ public:
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
   VectorDouble getDiagonal(int shift = 0) const;
-  /*! Extract a Row */
-  VectorDouble getRow(int irow) const;
-  /*! Extract a Column */
-  VectorDouble getColumn(int icol) const;
   /*! Checks if a Column is valid (contains a non TEST value) */
   bool isColumnDefined(int icol) const;
   /*! Checks if a Row is valid (contains a non TEST value) */

@@ -172,8 +172,9 @@ private:
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab);
-  double _estimateVarZ(int ivarCL, int jvarCL);
-  double _variance(int ivarCL, int jvarCL);
+  void _estimateVarZ(int status);
+  void _estimateStdv(int status);
+  void _estimateEstim(int status);
   void _variance0();
   void _krigingDump(int status);
   void _simulateDump(int status);

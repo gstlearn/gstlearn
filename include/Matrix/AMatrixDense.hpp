@@ -58,9 +58,14 @@ public:
   virtual VectorDouble prodVector(const VectorDouble& vec) const override;
   /*! Perform 'vec'^T * M */
   virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
+  /*! Extract a Row */
+  virtual VectorDouble getRow(int irow) const override;
+  /*! Extract a Column */
+  virtual VectorDouble getColumn(int icol) const override;
 
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
   /// rather than manipulating AMatrix. They are no more generic of AMatrix
+  /// WARNING: output matrix should not match any of input matrices (speed up).
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMatrix(const AMatrixDense& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
@@ -122,6 +127,8 @@ private:
   void _divideColumnLocal(const VectorDouble& vec);
   VectorDouble _prodVectorLocal(const VectorDouble& vec) const;
   VectorDouble _prodTVectorLocal(const VectorDouble& vec) const;
+  VectorDouble _getRowLocal(int irow) const;
+  VectorDouble _getColumnLocal(int icol) const;
 
 public:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library

@@ -633,9 +633,7 @@ void KrigingSystem::_covtabCalcul(int iech1,
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int jvar = 0; jvar < _nvar; jvar++)
-      _addCOVTAB(ivar,jvar,_covref.getValue(ivar, jvar));
+  _covtab.addMatrix(_covref);
 }
 
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
@@ -1351,55 +1349,17 @@ void KrigingSystem::_simulateCalcul(int status)
 void KrigingSystem::_estimateCalcul(int status)
 {
   if (_flagEst)
-  {
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double estim = 0.;
-      if (_nfeq <= 0) estim = _getMean(ivarCL);
-      if (status == 0 && (_nred > 0 || _nfeq <= 0 || _flagBayes))
-      {
-        if (_flagBayes)
-          estim = _model->evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
-        estim += VH::innerProduct(_rhs.getColumn(ivarCL), _zam.getColumn(0), _nred);
-      }
-      else
-      {
-        // In case of failure with KS, set the result to mean
-        if (_nfeq > 0) estim = TEST;
-      }
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, estim);
-    }
-  }
+    _estimateEstim(status);
 
   /* Variance of the estimation error */
 
   if (_flagStd)
-  {
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double stdv = TEST;
-      if (status == 0 && (_nred > 0 || _nfeq <= 0 || _flagBayes))
-      {
-        stdv = _variance(ivarCL, ivarCL);
-        if (stdv < 0) stdv = 0.;
-        stdv = sqrt(stdv);
-      }
-      _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
-    }
-  }
+    _estimateStdv(status);
 
   /* Variance of the estimator */
 
   if (_flagVarZ != 0)
-  {
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double varZ = TEST;
-      if (status == 0 && (_nred > 0 || _nfeq <= 0))
-        varZ = _estimateVarZ(ivarCL, ivarCL);
-      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
-    }
-  }
+    _estimateVarZ(status);
 
   // Modification specific to Xvalid options
 
@@ -1585,27 +1545,6 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 
 /****************************************************************************/
 /*!
- **  Establish the variance of the estimator
- **
- ** \param[in]  ivarCL    Rank of the target variable
- ** \param[in]  jvarCL  Rank of the auxiliary variable
- **
- *****************************************************************************/
-double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
-{
-  DECLARE_UNUSED(ivarCL);
-  DECLARE_UNUSED(jvarCL);
-
-  int cumflag = _nred - _nfeq;
-
-  double var = 0.;
-  var -= VH::innerProduct(_rhs.getColumn(ivarCL)[cumflag],
-                          _wgt.getColumn(ivarCL)[cumflag], _nfeq);
-  return var;
-}
-
-/****************************************************************************/
-/*!
  **  Establish the constant term for the variance calculation
  **
  *****************************************************************************/
@@ -1663,24 +1602,100 @@ void KrigingSystem::_variance0()
 
 /****************************************************************************/
 /*!
- **  Establish the calculation of variance or standard deviation
+ **  Establish the calculation of estimation
  **
- ** \param[in]  ivarCL  Rank of the target variable
- ** \param[in]  jvarCL  Rank of the auxiliary variable
+ ** \param[in]  status  Kriging error code
  **
  *****************************************************************************/
-double KrigingSystem::_variance(int ivarCL, int jvarCL)
+void KrigingSystem::_estimateEstim(int status)
 {
-  // The Variance at origin must be updated
-  // - in Non-stationary case
-  // - for Block Estimation, when the block size if defined per cell
-  if (_model->isNoStat() || _flagPerCell) _variance0();
+  MatrixRectangular estims(_nvarCL);
 
-  double var = _getVAR0(ivarCL, jvarCL);
-  if (_flagBayes) var += _varCorrec[jvarCL * _nvarCL + ivarCL];
-  var -= VH::innerProduct(_rhs.getColumn(jvarCL), _wgt.getColumn(ivarCL), _nred);
+  // Calculate the solution
+  if (status == 0)
+    estims.prodMatrix(_rhs, _zam);
 
-  return var;
+  // Loop for writing the estimation
+
+  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+  {
+    double estim0 = TEST;
+    if (_nfeq <= 0)
+      estim0 = _getMean(ivarCL);
+    if (_flagBayes)
+      estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean.data());
+
+    if (status == 0)
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, estims.getValue(ivarCL,0) + estim0);
+    else
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, TEST);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the calculation of standard deviation
+ **
+ ** \param[in]  status  Kriging error code
+ **
+ *****************************************************************************/
+void KrigingSystem::_estimateStdv(int status)
+{
+  MatrixRectangular vars(_nvarCL);
+
+  // Calculate the solution
+  if (status == 0)
+    vars.prodMatrix(_rhs, _wgt);
+
+  // Loop for writing the estimation
+
+  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+  {
+    if (status == 0)
+    {
+      // The Variance at origin must be updated
+      // - in Non-stationary case
+      // - for Block Estimation, when the block size if defined per cell
+      if (_model->isNoStat() || _flagPerCell) _variance0();
+
+      double var = _getVAR0(ivarCL, ivarCL);
+      if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
+
+      var -= vars.getValue(ivarCL,0);
+
+      double stdv = 0.;
+      if (var > 0)
+        stdv = sqrt(var);
+
+      _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
+    }
+    else
+      _dbout->setArray(_iechOut, _iptrStd + ivarCL, TEST);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the variance of the estimator
+ **
+ ** \param[in]  status  Kriging error code
+ **
+ *****************************************************************************/
+void KrigingSystem::_estimateVarZ(int status)
+{
+  int cumflag = _nred - _nfeq;
+
+  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+  {
+    if (status == 0)
+    {
+      double varZ = -VH::innerProduct(_rhs.getColumn(ivarCL)[cumflag],
+                                      _wgt.getColumn(ivarCL)[cumflag], _nfeq);
+      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
+    }
+    else
+      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, TEST);
+  }
 }
 
 /****************************************************************************/

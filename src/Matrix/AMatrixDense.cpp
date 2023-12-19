@@ -343,6 +343,32 @@ VectorDouble AMatrixDense::prodTVector(const VectorDouble& vec) const
   }
 }
 
+/*! Extract a Row */
+VectorDouble AMatrixDense::getRow(int irow) const
+{
+  if (isFlagEigen())
+  {
+    return _getRowLocal(irow);
+  }
+  else
+  {
+    return AMatrix::getRow(irow);
+  }
+}
+
+/*! Extract a Column */
+VectorDouble AMatrixDense::getColumn(int icol) const
+{
+  if (isFlagEigen())
+  {
+    return _getColumnLocal(icol);
+  }
+  else
+  {
+    return AMatrix::getColumn(icol);
+  }
+}
+
 /// =========================================================================
 /// The subsequent methods rely on the specific local storage ('eigenMatrix')
 /// =========================================================================
@@ -471,18 +497,18 @@ void AMatrixDense::_prodScalarLocal(double v)
 
 void AMatrixDense::_addMatrixLocal(const AMatrixDense& y, double value)
 {
-  _eigenMatrix += y._eigenMatrix * value;
+  _eigenMatrix.noalias() += y._eigenMatrix * value;
 }
 
 void AMatrixDense::_prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
 {
-  _eigenMatrix = x._eigenMatrix * y._eigenMatrix;
+  _eigenMatrix.noalias() = x._eigenMatrix * y._eigenMatrix;
 }
 
-void AMatrixDense::_linearCombinationLocal(double cx, double cy, const AMatrixDense& y)
+void AMatrixDense::_linearCombinationLocal(double cx, double cy,const AMatrixDense &y)
 {
-    _eigenMatrix = cx * _eigenMatrix + cy * y._eigenMatrix;
-  }
+  _eigenMatrix.noalias() = cx * _eigenMatrix + cy * y._eigenMatrix;
+}
 
 void AMatrixDense::_fillLocal(double value)
 {
@@ -527,6 +553,22 @@ VectorDouble AMatrixDense::_prodTVectorLocal(const VectorDouble& vec) const
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
   Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
+  VectorDouble res(resm.data(), resm.data() + resm.size());
+  return res;
+}
+
+/*! Extract a Row */
+VectorDouble AMatrixDense::_getRowLocal(int irow) const
+{
+  Eigen::VectorXd resm = _eigenMatrix.row(irow);
+  VectorDouble res(resm.data(), resm.data() + resm.size());
+  return res;
+}
+
+/*! Extract a Column */
+VectorDouble AMatrixDense::_getColumnLocal(int icol) const
+{
+  Eigen::VectorXd resm = _eigenMatrix.col(icol);
   VectorDouble res(resm.data(), resm.data() + resm.size());
   return res;
 }
