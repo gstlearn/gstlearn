@@ -594,16 +594,6 @@ int Model::getAnamNClass() const
   return covalist->getAnamNClass();
 }
 
-void Model::evalMatOptimInPlace(int iech1,
-                                int iech2,
-                                MatrixSquareGeneral &mat,
-                                const CovCalcMode *mode) const
-{
-  const ACovAnisoList *covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return;
-  covalist->evalMatOptimInPlace(iech1, iech2, mat, mode);
-}
-
 VectorVectorDouble Model::evalCovMatrixOptim(const Db *db1,
                                              const Db *db2,
                                              int ivar,

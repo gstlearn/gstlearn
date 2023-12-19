@@ -32,10 +32,14 @@
 int main(int argc, char *argv[])
 {
   bool verbose = false;
+  bool graphic = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
+
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("benchKrigingU-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -50,7 +54,14 @@ int main(int argc, char *argv[])
   data->setName("New.4","rainfall");
   data->setLocators({"X","Y"},ELoc::X);
   data->setLocator("rainfall",ELoc::Z);
-  if (verbose) data->display();
+  if (verbose)
+  {
+    DbStringFormat* datafmt = DbStringFormat::create(FLAG_STATS);
+    data->display(datafmt);
+    delete datafmt;
+  }
+  if (graphic)
+    (void) data->dumpToNF("Data.ascii");
 
   // Generate the output grid
   bool flagSmall = false;
@@ -77,9 +88,12 @@ int main(int argc, char *argv[])
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 2400);
 
   // Produce some statistics for comparison
-  DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
-  grid->display(dbfmt);
-  delete dbfmt;
+  DbStringFormat* gridfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
+  grid->display(gridfmt);
+  delete gridfmt;
+
+  if (graphic)
+    (void) grid->dumpToNF("Grid.ascii");
 
   if (neighU    != nullptr) delete neighU;
   if (data      != nullptr) delete data;

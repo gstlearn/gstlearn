@@ -330,7 +330,10 @@ public:
   void evalMatOptimInPlace(int iech1,
                            int iech2,
                            MatrixSquareGeneral &mat,
-                           const CovCalcMode *mode = nullptr) const;
+                           const CovCalcMode *mode = nullptr) const
+  {
+    _cova->evalMatOptimInPlace(iech1, iech2, mat, mode);
+  }
 
   VectorVectorDouble evalCovMatrixOptim(const Db *db1,
                                         const Db *db2 = nullptr,

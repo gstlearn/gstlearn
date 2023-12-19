@@ -120,9 +120,6 @@ private:
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
-  double _getZAM(int i) const;
-  double _getZEXT(int i) const;
-  void   _setZEXT(int i, double value) const;
   VectorDouble _getDISC1Vec(int idisc) const;
   VectorVectorDouble _getDISC1s() const;
   double _getDISC2(int idisc,int idim) const;

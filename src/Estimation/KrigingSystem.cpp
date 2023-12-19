@@ -1279,7 +1279,7 @@ void KrigingSystem::_wgtDump(int status)
     if (_flagSimu)
       tab_printg(NULL, 0.);
     else
-      tab_printg(NULL, (status == 0) ? _getZAM(iwgt) : TEST);
+      tab_printg(NULL, (status == 0) ? _zam.getValue(iwgt,0) : TEST);
     message("\n");
   }
   return;
@@ -1613,7 +1613,7 @@ void KrigingSystem::_variance0()
  *****************************************************************************/
 void KrigingSystem::_estimateEstim(int status)
 {
-  MatrixRectangular estims(_nvarCL);
+  MatrixRectangular estims(_nvarCL, 1);
 
   // Calculate the solution
   if (status == 0)
@@ -1623,7 +1623,7 @@ void KrigingSystem::_estimateEstim(int status)
 
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
   {
-    double estim0 = TEST;
+    double estim0 = 0.;
     if (_nfeq <= 0)
       estim0 = _getMean(ivarCL);
     if (_flagBayes)
@@ -1645,7 +1645,7 @@ void KrigingSystem::_estimateEstim(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateStdv(int status)
 {
-  MatrixRectangular vars(_nvarCL);
+  MatrixRectangular vars(_nvarCL,1);
 
   // Calculate the solution
   if (status == 0)
@@ -1757,10 +1757,11 @@ void KrigingSystem::_dualCalcul()
     {
       if (! _getFLAG(iech, ivar)) continue;
       double mean = 0.;
-      if (_nfeq <= 0) mean = _getMean(ivar);
+      if (_nfeq <= 0)
+        mean = _getMean(ivar);
       if (_flagBayes)
         mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
-      _setZEXT(ecr, _getIvar(_nbgh[iech], ivar) - mean);
+      _zext.setValue(ecr, 0, _getIvar(_nbgh[iech], ivar) - mean);
       ecr++;
     }
   }
@@ -1774,7 +1775,7 @@ void KrigingSystem::_dualCalcul()
   if (_flagLTerm)
   {
     MatrixSquareGeneral lterMat(1);
-    lterMat.prodMatrix(_zam, _zext);
+    lterMat.prodTMatrix(_zam, _zext);
     _lterm = lterMat.getValue(0,0);
   }
 
@@ -2919,18 +2920,6 @@ double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
 double KrigingSystem::_getDISC1(int idisc, int idim) const
 {
   return _disc1[idisc][idim];
-}
-double KrigingSystem::_getZAM(int i) const
-{
-  return _zam.getValue(i,0);
-}
-double KrigingSystem::_getZEXT(int i) const
-{
-  return _zext.getValue(i,0);
-}
-void KrigingSystem::_setZEXT(int i, double value) const
-{
-  _zext.setValue(i,0,value);
 }
 VectorDouble KrigingSystem::_getDISC1Vec(int idisc) const
 {

@@ -32,10 +32,14 @@
 int main(int argc, char *argv[])
 {
   bool verbose = false;
+  bool graphic = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
+
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("benchKrigingM-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -63,6 +67,7 @@ int main(int argc, char *argv[])
   VectorDouble x0 = {-180000, -120000};
   DbGrid* grid = DbGrid::create(nx, dx, x0);
   if (verbose) grid->display();
+  if (graphic) (void) data->dumpToNF("Data.ascii");
 
   // Create the Model
   Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
@@ -73,7 +78,7 @@ int main(int argc, char *argv[])
   int nmini = 2;
   int nsect = 8;
   int nsmax = 3;
-  double radius = 10000;
+  double radius = 50000;
 
   NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius, nmini, nsect, nsmax);
   if (verbose) neighM->display();
@@ -86,6 +91,9 @@ int main(int argc, char *argv[])
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
   grid->display(dbfmt);
   delete dbfmt;
+
+  if (graphic)
+    (void) grid->dumpToNF("Grid.ascii");
 
   if (neighM    != nullptr) delete neighM;
   if (data      != nullptr) delete data;
