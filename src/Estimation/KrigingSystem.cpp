@@ -115,7 +115,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _neq(0),
       _nred(0),
       _flagIsotopic(true),
-      _flagCheckAddress(false),
       _nbgh(),
       _flag(),
       _covtab(),
@@ -643,7 +642,7 @@ void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
 
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
-      _addCOVTAB(ivar,jvar,_model->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode));
+      _covtab(ivar,jvar) += _model->evalAverageIncrToIncr(d1, d2, ivar, jvar, mode);
 }
 
 /****************************************************************************/
@@ -957,7 +956,8 @@ void KrigingSystem::_rhsCalculBlock()
     }
 
     // Normalization
-    if (nscale > 1) _prodCOVTAB(1. / (double) nscale);
+    if (nscale > 1)
+      _covtab.prodScalar(1. / (double) nscale);
 
     _rhsStore(iech);
   }
@@ -2847,81 +2847,28 @@ bool KrigingSystem::_isCorrect()
 int KrigingSystem::_getFLAG(int iech, int ivar) const
 {
   int ind = IND(iech, ivar);
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getFLAG","iech",iech,_nech);
-    _checkAddress("_getFLAG","ivar",ivar,_nvar);
-    _checkAddress("_getFLAG","address",ind,(int) _flag.size());
-  }
   return _flag[ind];
 }
 double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
   return _covtab.getValue(ivar, jvar);
 }
-void KrigingSystem::_addCOVTAB(int ivar,int jvar,double value)
-{
-  _covtab(ivar,jvar) += value;
-}
-void KrigingSystem::_prodCOVTAB(double value)
-{
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int jvar = 0; jvar < _nvar; jvar++)
-      _covtab(ivar, jvar) *= value;
-}
 double KrigingSystem::_getRHS(int iech, int ivar, int jvCL) const
 {
   int ind  = IND(iech, ivar);
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getRHS","iech",iech, _nech);
-    _checkAddress("_getRHS","ivar",ivar,_nvar);
-    _checkAddress("_getRHS","jvCL",jvCL,_nvarCL);
-  }
   return _rhs.getValue(ind, jvCL);
 }
 void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift)
 {
   int ind  = IND(iech,ivar);
-  if (_flagCheckAddress)
-  {
-    if (isForDrift)
-    {
-      if (ivar == _nvar)
-      {
-        _checkAddress("_setRHS", "ib", iech, _nfeq);
-      }
-      else
-      {
-        _checkAddress("_setRHS", "iech", iech, _nech);
-        _checkAddress("_setRHS", "ivar", ivar, _nvar);
-      }
-    }
-    else
-    {
-      _checkAddress("_setRHS", "iech", iech, _nech);
-      _checkAddress("_setRHS", "ivar", ivar, _nvar);
-    }
-    _checkAddress("_setRHS", "jvCL", jvCL, _nvarCL);
-  }
   _rhs.setValue(ind, jvCL, value);
 }
 double KrigingSystem::_getRHSC(int i, int jvCL) const
 {
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getRHSC","i",i,_nred);
-    _checkAddress("_getRHSC","jvCL",jvCL,_nvarCL);
-  }
   return _rhs.getValue(i, jvCL);
 }
 double KrigingSystem::_getWGTC(int i,int jvCL) const
 {
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getWGTC","i",i,_nred);
-    _checkAddress("_getWGTC","jvCL",jvCL,_nvarCL);
-  }
   return _wgt.getValue(i, jvCL);
 }
 
@@ -2941,98 +2888,32 @@ void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-
-  if (_flagCheckAddress)
-  {
-    if (isForDrift)
-    {
-      if (ivar == _nvar)
-      {
-        _checkAddress("_setLHS","ib",iech,_nfeq);
-      }
-      else
-      {
-        _checkAddress("_setLHS","iech",iech,_nech);
-        _checkAddress("_setLHS","ivar",ivar,_nvar);
-      }
-      if (jvar == _nvar)
-      {
-        _checkAddress("_setLHS","jb",jech,_nfeq);
-      }
-      else
-      {
-        _checkAddress("_setLHS","jech",jech,_nech);
-        _checkAddress("_setLHS","jvar",jvar,_nvar);
-      }
-    }
-    else
-    {
-      _checkAddress("_setLHS","iech",iech,_nech);
-      _checkAddress("_setLHS","ivar",ivar,_nvar);
-      _checkAddress("_setLHS","jech",jech,_nech);
-      _checkAddress("_setLHS","jvar",jvar,_nvar);
-    }
-  }
   _lhs.setValue(indi, indj, value);
 }
 void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value)
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_addLHS","iech",iech,_nech);
-    _checkAddress("_addLHS","ivar",ivar,_nvar);
-    _checkAddress("_addLHS","jech",jech,_nech);
-    _checkAddress("_addLHS","jvar",jvar,_nvar);
-  }
   _lhs.setValue(indi, indj, _lhs.getValue(indi, indj) + value);
 }
 double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getLHS","iech",iech,_nech);
-    _checkAddress("_getLHS","ivar",ivar,_nvar);
-    _checkAddress("_getLHS","jech",jech,_nech);
-    _checkAddress("_getLHS","jvar",jvar,_nvar);
-  }
   return _lhs.getValue(indi, indj);
 }
-
 double KrigingSystem::_getLHSC(int i, int j) const
 {
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getLHSC","i",i,_nred);
-    _checkAddress("_getLHSC","j",j,_nred);
-  }
   return _lhs.getValue(i,j);
 }
 double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getLHSINV","iech",iech,_nech);
-    _checkAddress("_getLHSINV","ivar",ivar,_nvar);
-    _checkAddress("_getLHSINV","jech",jech,_nech);
-    _checkAddress("_getLHSINV","jvar",jvar,_nvar);
-  }
   return _lhsinv.getValue(indi, indj);
 }
 double KrigingSystem::_getDISC1(int idisc, int idim) const
 {
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getDISC1","idisc",idisc,_ndiscNumber);
-    _checkAddress("_getDISC1","idim",idim,_ndim);
-  }
   return _disc1[idisc][idim];
 }
 double KrigingSystem::_getZAM(int i) const
@@ -3056,11 +2937,6 @@ VectorDouble KrigingSystem::_getDISC1Vec(int idisc) const
 }
 double KrigingSystem::_getDISC2(int idisc,int idim) const
 {
-  if (_flagCheckAddress)
-  {
-    _checkAddress("_getDISC2","idisc",idisc,_ndiscNumber);
-    _checkAddress("_getDISC2","idim",idim,_ndim);
-  }
   return _disc2[idisc][idim];
 }
 VectorDouble KrigingSystem::_getDISC2Vec(int idisc) const
