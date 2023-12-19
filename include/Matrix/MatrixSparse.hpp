@@ -40,6 +40,8 @@ public:
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const { return true; }
+  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
+  virtual bool isMatrixSparse() const { return true; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -61,12 +63,6 @@ public:
   void setValuesByArrays(const VectorInt &irows,
                          const VectorInt &icols,
                          const VectorDouble &values) override;
-  /*! Add a matrix (multiplied by a constant) */
-  virtual void addMatrix(const AMatrix& y, double value = 1.) override;
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const AMatrix& x, const AMatrix& y) override;
-  /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const AMatrix& y) override;
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) override;
   /*! Multiply a Matrix row-wise */
@@ -94,6 +90,14 @@ public:
 
   void init(int nrows, int ncols);
 
+  /// The next functions use specific definition of matrix (to avoid dynamic_cast)
+  /// rather than manipulating AMatrix. They are no more generic of AMatrix
+  /*! Add a matrix (multiplied by a constant) */
+  virtual void addMatrix(const MatrixSparse& y, double value = 1.);
+  /*! Multiply a matrix by another and store the result in the current matrix */
+  virtual void prodMatrix(const MatrixSparse& x, const MatrixSparse& y);
+  /*! Linear combination of matrices */
+  virtual void linearCombination(double cx, double cy, const MatrixSparse& y);
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */

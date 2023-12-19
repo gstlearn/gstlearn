@@ -38,6 +38,10 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
+  virtual bool isMatrixSparse() const { return false; }
+  /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
+  virtual bool isMatrixDense() const { return false; }
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const { return false; }
   /*! Check if the matrix is (non empty) square */
@@ -81,12 +85,6 @@ public:
   virtual void setValuesByArrays(const VectorInt &irows,
                                  const VectorInt &icols,
                                  const VectorDouble &values);
-  /*! Add a matrix (multiplied by a constant) */
-  virtual void addMatrix(const AMatrix& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const AMatrix& x, const AMatrix& y);
-  /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const AMatrix& y);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
   /*! Multiply a Matrix row-wise */
@@ -101,6 +99,10 @@ public:
   virtual VectorDouble prodVector(const VectorDouble& vec) const;
   /*! Perform 'vec'^T * M */
   virtual VectorDouble prodTVector(const VectorDouble& vec) const;
+  /*! Extract a Row */
+  virtual VectorDouble getRow(int irow) const;
+  /*! Extract a Column */
+  virtual VectorDouble getColumn(int icol) const;
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
@@ -109,6 +111,15 @@ public:
                                    VectorDouble &values) const;
 #endif
 
+  /*! Add a matrix (multiplied by a constant) */
+  void addMatrix(const AMatrix& y, double value = 1.);
+  /*! Multiply a matrix by another and store the result in the current matrix */
+  void prodMatrix(const AMatrix& x, const AMatrix& y);
+  /*! Linear combination of matrices */
+  void linearCombination(double cx, double cy, const AMatrix& y);
+
+  /*! Modify the dimension of the matrix */
+  void resize(int nrows, int ncols);
   /*! Gets the value at row 'irow' and column 'icol' */
   double getValue(int irow, int icol) const;
   /*! Sets the value at row 'irow' and column 'icol' */
@@ -134,10 +145,6 @@ public:
   VectorDouble getValues(bool byCol = true) const;
   /*! Extract a Diagonal (main or secondary) of this */
   VectorDouble getDiagonal(int shift = 0) const;
-  /*! Extract a Row */
-  VectorDouble getRow(int irow) const;
-  /*! Extract a Column */
-  VectorDouble getColumn(int icol) const;
   /*! Checks if a Column is valid (contains a non TEST value) */
   bool isColumnDefined(int icol) const;
   /*! Checks if a Row is valid (contains a non TEST value) */

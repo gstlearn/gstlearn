@@ -301,11 +301,11 @@ int KrigingSystem::_getNDisc() const
 void KrigingSystem::_resetMemoryPerNeigh()
 {
   _flag.resize(_neq);
-  _lhs.resize (_neq * _neq);
-  _rhs.resize (_neq * _nvarCL);
-  _wgt.resize (_neq * _nvarCL);
-  _zam.resize (_neq);
-  _zext.resize (_neq); // in fact, it should be allocated to _nred <= _neq (unknown at this stage)
+  _lhs.resize (_neq, _neq);
+  _rhs.resize (_neq, _nvarCL);
+  _wgt.resize (_neq, _nvarCL);
+  _zam.resize (_neq, 1);
+  _zext.resize(_neq, 1); // in fact, it should be allocated to _nred <= _neq (unknown at this stage)
 }
 
 void KrigingSystem::_resetMemoryGeneral()
@@ -633,9 +633,7 @@ void KrigingSystem::_covtabCalcul(int iech1,
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
-  for (int ivar = 0; ivar < _nvar; ivar++)
-    for (int jvar = 0; jvar < _nvar; jvar++)
-      _addCOVTAB(ivar,jvar,_covref.getValue(ivar, jvar));
+  _covtab.addMatrix(_covref);
 }
 
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
@@ -788,14 +786,22 @@ void KrigingSystem::_lhsCalcul()
 void KrigingSystem::_lhsIsoToHetero()
 {
   if (_flagIsotopic) return;
-  int lec_lhs = 0;
-  int ecr_lhs = 0;
+  int ecri = 0;
+  int ecrj = 0;
+
+  ecri = 0;
   for (int i = 0; i < _neq; i++)
+  {
+    if (_flag[i] == 0) continue;
+    ecrj = 0;
     for (int j = 0; j < _neq; j++)
     {
-      if (_flag[i] != 0 && _flag[j] != 0) _lhs[ecr_lhs++] = _lhs[lec_lhs];
-      lec_lhs++;
+      if (_flag[j] == 0) continue;
+      _lhs.setValue(ecri, ecrj, _lhs.getValue(i,j));
+      ecri++;
     }
+    ecrj++;
+  }
   return;
 }
 
@@ -859,7 +865,7 @@ void KrigingSystem::_lhsDump(int nbypas)
       tab_printi(NULL, i + 1);
       tab_printi(NULL, rel[i]);
       for (int j = ideb; j < ifin; j++)
-        tab_printg(NULL, _lhs[(i) + _nred * (j)]);
+        tab_printg(NULL, _lhs.getValue(i,j));
       message("\n");
     }
   }
@@ -873,7 +879,7 @@ int KrigingSystem::_lhsInvert()
 
   /* Invert the L.H.S. matrix */
 
-  int rank = matrix_invert(_lhsinv.data(), _nred, -1);
+  int rank = _lhsinv.invert();
   if (rank > 0)
   {
     messerr("When estimating Target Site #%d",_iechOut+1);
@@ -1073,14 +1079,16 @@ int KrigingSystem::_rhsCalcul()
 void KrigingSystem::_rhsIsoToHetero()
 {
   if (_flagIsotopic) return;
-  int lec_rhs = 0;
   int ecr_rhs = 0;
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    for (int i = 0; i < _neq; i++, lec_rhs++)
+  {
+    ecr_rhs = 0;
+    for (int i = 0; i < _neq; i++)
     {
       if (_flag[i] == 0) continue;
-      _rhs[ecr_rhs++] = _rhs[lec_rhs];
+      _rhs.setValue(ecr_rhs++, ivarCL, _rhs.getValue(i, ivarCL));
     }
+  }
   return;
 }
 
@@ -1139,7 +1147,7 @@ void KrigingSystem::_rhsDump()
     tab_printi(NULL, i + 1);
     if (! _flag.empty()) tab_printi(NULL, rel[i]);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      tab_printg(NULL, _getRHSCAdd(0,ivarCL)[i]);
+      tab_printg(NULL, _rhs.getValue(i,ivarCL));
     message("\n");
   }
   return;
@@ -1147,7 +1155,7 @@ void KrigingSystem::_rhsDump()
 
 void KrigingSystem::_wgtCalcul()
 {
-  matrix_product_safe(_nred, _nred, _nvarCL, _lhsinv.data(), _rhs.data(), _wgt.data());
+  _wgt.prodMatrix(_lhsinv, _rhs);
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1223,8 +1231,8 @@ void KrigingSystem::_wgtDump(int status)
 
       for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
       {
-        double value = (! _wgt.empty() && status == 0 && flag_value) ?
-            _getWGTCAdd(0,ivarCL)[cumflag] : TEST;
+        double value = (! _wgt.isEmpty() && status == 0 && flag_value) ?
+            _wgt.getValue(cumflag, ivarCL) : TEST;
         if (!FFFF(value)) sum[ivarCL] += value;
         tab_printg(NULL, value);
       }
@@ -1263,7 +1271,7 @@ void KrigingSystem::_wgtDump(int status)
   {
     int iwgt = ib + cumflag;
     tab_printi(NULL, ib + 1);
-    tab_printg(NULL, (status == 0) ? _wgt[iwgt] : TEST);
+    tab_printg(NULL, (status == 0) ? _wgt.getValue(iwgt,0) : TEST);
     if (_flagSimu)
       tab_printg(NULL, 0.);
     else
@@ -1305,7 +1313,7 @@ void KrigingSystem::_simulateCalcul(int status)
             if (_flagBayes)
               mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu[isimu].data());
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
-            simu -= _wgt[lec++] * (data + mean);
+            simu -= _wgt.getValue(lec++,0) * (data + mean);
           }
 
         if (OptDbg::query(EDbg::KRIGING))
@@ -1341,55 +1349,17 @@ void KrigingSystem::_simulateCalcul(int status)
 void KrigingSystem::_estimateCalcul(int status)
 {
   if (_flagEst)
-  {
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double estim = 0.;
-      if (_nfeq <= 0) estim = _getMean(ivarCL);
-      if (status == 0 && (_nred > 0 || _nfeq <= 0 || _flagBayes))
-      {
-        if (_flagBayes)
-          estim = _model->evalDriftCoef(_dbout,_iechOut,ivarCL,_postMean.data());
-        estim += VH::innerProduct(_getRHSCAdd(0, ivarCL), _getZamAdd(0), _nred);
-      }
-      else
-      {
-        // In case of failure with KS, set the result to mean
-        if (_nfeq > 0) estim = TEST;
-      }
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, estim);
-    }
-  }
+    _estimateEstim(status);
 
   /* Variance of the estimation error */
 
   if (_flagStd)
-  {
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double stdv = TEST;
-      if (status == 0 && (_nred > 0 || _nfeq <= 0 || _flagBayes))
-      {
-        stdv = _variance(ivarCL, ivarCL);
-        if (stdv < 0) stdv = 0.;
-        stdv = sqrt(stdv);
-      }
-      _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
-    }
-  }
+    _estimateStdv(status);
 
   /* Variance of the estimator */
 
   if (_flagVarZ != 0)
-  {
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-    {
-      double varZ = TEST;
-      if (status == 0 && (_nred > 0 || _nfeq <= 0))
-        varZ = _estimateVarZ(ivarCL, ivarCL);
-      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
-    }
-  }
+    _estimateVarZ(status);
 
   // Modification specific to Xvalid options
 
@@ -1431,11 +1401,10 @@ void KrigingSystem::_estimateCalcul(int status)
   {
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
     {
-      int lec = ivarCL * _nred;
       for (int i = 0; i < _nech; i++)
       {
         if (status != 0) continue;
-        double wgt = _wgt[lec + i];
+        double wgt = _wgt.getValue(i,ivarCL);
         int iech = _nbgh[i];
         if (_flagSet)
           _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
@@ -1513,7 +1482,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           else
           {
             if (_nfeq <= 0) data -= _getMean(jvar);
-            estim += data * _wgt[ecr++];
+            estim += data * _wgt.getValue(ecr++,0);
           }
         }
       }
@@ -1576,27 +1545,6 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 
 /****************************************************************************/
 /*!
- **  Establish the variance of the estimator
- **
- ** \param[in]  ivarCL    Rank of the target variable
- ** \param[in]  jvarCL  Rank of the auxiliary variable
- **
- *****************************************************************************/
-double KrigingSystem::_estimateVarZ(int ivarCL, int jvarCL)
-{
-  DECLARE_UNUSED(ivarCL);
-  DECLARE_UNUSED(jvarCL);
-
-  int cumflag = _nred - _nfeq;
-
-  double var = 0.;
-  var += VH::innerProduct(_getRHSCAdd(0, ivarCL), _getWGTCAdd(0, ivarCL), cumflag);
-  var -= VH::innerProduct(_getRHSCAdd(cumflag, ivarCL), _getWGTCAdd(cumflag, ivarCL), _nfeq);
-  return var;
-}
-
-/****************************************************************************/
-/*!
  **  Establish the constant term for the variance calculation
  **
  *****************************************************************************/
@@ -1654,24 +1602,100 @@ void KrigingSystem::_variance0()
 
 /****************************************************************************/
 /*!
- **  Establish the calculation of variance or standard deviation
+ **  Establish the calculation of estimation
  **
- ** \param[in]  ivarCL  Rank of the target variable
- ** \param[in]  jvarCL  Rank of the auxiliary variable
+ ** \param[in]  status  Kriging error code
  **
  *****************************************************************************/
-double KrigingSystem::_variance(int ivarCL, int jvarCL)
+void KrigingSystem::_estimateEstim(int status)
 {
-  // The Variance at origin must be updated
-  // - in Non-stationary case
-  // - for Block Estimation, when the block size if defined per cell
-  if (_model->isNoStat() || _flagPerCell) _variance0();
+  MatrixRectangular estims(_nvarCL);
 
-  double var = _getVAR0(ivarCL, jvarCL);
-  if (_flagBayes) var += _varCorrec[jvarCL * _nvarCL + ivarCL];
-  var -= VH::innerProduct(_getRHSCAdd(0,jvarCL), _getWGTCAdd(0,ivarCL), _nred);
+  // Calculate the solution
+  if (status == 0)
+    estims.prodMatrix(_rhs, _zam);
 
-  return var;
+  // Loop for writing the estimation
+
+  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+  {
+    double estim0 = TEST;
+    if (_nfeq <= 0)
+      estim0 = _getMean(ivarCL);
+    if (_flagBayes)
+      estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean.data());
+
+    if (status == 0)
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, estims.getValue(ivarCL,0) + estim0);
+    else
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, TEST);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the calculation of standard deviation
+ **
+ ** \param[in]  status  Kriging error code
+ **
+ *****************************************************************************/
+void KrigingSystem::_estimateStdv(int status)
+{
+  MatrixRectangular vars(_nvarCL);
+
+  // Calculate the solution
+  if (status == 0)
+    vars.prodMatrix(_rhs, _wgt);
+
+  // Loop for writing the estimation
+
+  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+  {
+    if (status == 0)
+    {
+      // The Variance at origin must be updated
+      // - in Non-stationary case
+      // - for Block Estimation, when the block size if defined per cell
+      if (_model->isNoStat() || _flagPerCell) _variance0();
+
+      double var = _getVAR0(ivarCL, ivarCL);
+      if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
+
+      var -= vars.getValue(ivarCL,0);
+
+      double stdv = 0.;
+      if (var > 0)
+        stdv = sqrt(var);
+
+      _dbout->setArray(_iechOut, _iptrStd + ivarCL, stdv);
+    }
+    else
+      _dbout->setArray(_iechOut, _iptrStd + ivarCL, TEST);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the variance of the estimator
+ **
+ ** \param[in]  status  Kriging error code
+ **
+ *****************************************************************************/
+void KrigingSystem::_estimateVarZ(int status)
+{
+  int cumflag = _nred - _nfeq;
+
+  for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+  {
+    if (status == 0)
+    {
+      double varZ = -VH::innerProduct(_rhs.getColumn(ivarCL)[cumflag],
+                                      _wgt.getColumn(ivarCL)[cumflag], _nfeq);
+      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
+    }
+    else
+      _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, TEST);
+  }
 }
 
 /****************************************************************************/
@@ -1739,12 +1763,16 @@ void KrigingSystem::_dualCalcul()
 
   /* Operate the product : Z * A-1 */
 
-  matrix_product(_nred, _nred, 1, _lhsinv.data(), _getZextAdd(0), _zam.data());
+  _zam.prodMatrix(_lhsinv, _zext);
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
-    matrix_product_safe(1, _nred, 1, _getZamAdd(0), _getZextAdd(0), &_lterm);
+  {
+    MatrixSquareGeneral lterMat(1);
+    lterMat.prodMatrix(_zam, _zext);
+    _lterm = lterMat.getValue(0,0);
+  }
 
   // Turn back the flag to OFF in order to avoid provoking
   // the _dualCalcul() calculations again
@@ -2844,20 +2872,17 @@ void KrigingSystem::_prodCOVTAB(double value)
 double KrigingSystem::_getRHS(int iech, int ivar, int jvCL) const
 {
   int ind  = IND(iech, ivar);
-  int iad  = ind + _neq * (jvCL);
   if (_flagCheckAddress)
   {
     _checkAddress("_getRHS","iech",iech, _nech);
     _checkAddress("_getRHS","ivar",ivar,_nvar);
     _checkAddress("_getRHS","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getRHS","address",iad,(int) _rhs.size());
   }
-  return _rhs[iad];
+  return _rhs.getValue(ind, jvCL);
 }
 void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift)
 {
   int ind  = IND(iech,ivar);
-  int iad  = ind + _neq * jvCL;
   if (_flagCheckAddress)
   {
     if (isForDrift)
@@ -2878,49 +2903,26 @@ void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isF
       _checkAddress("_setRHS", "ivar", ivar, _nvar);
     }
     _checkAddress("_setRHS", "jvCL", jvCL, _nvarCL);
-    _checkAddress("_setRHS","address",iad, (int) _rhs.size());
   }
-  _rhs[iad] = value;
+  _rhs.setValue(ind, jvCL, value);
 }
 double KrigingSystem::_getRHSC(int i, int jvCL) const
 {
-  int iad = (i) + _nred * (jvCL);
   if (_flagCheckAddress)
   {
     _checkAddress("_getRHSC","i",i,_nred);
     _checkAddress("_getRHSC","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getRHSC","address",iad, (int) _rhs.size());
   }
-  return _rhs[iad];
-}
-const double* KrigingSystem::_getRHSCAdd(int i, int jvCL) const
-{
-  int iad = (i) + _nred * (jvCL);
-  return _rhs.subdata(iad);
-}
-const double* KrigingSystem::_getZamAdd(int i) const
-{
-  return _zam.subdata(i);
-}
-const double* KrigingSystem::_getZextAdd(int i) const
-{
-  return _zext.subdata(i);
+  return _rhs.getValue(i, jvCL);
 }
 double KrigingSystem::_getWGTC(int i,int jvCL) const
 {
-  int iad = (i) + _nred * (jvCL);
   if (_flagCheckAddress)
   {
     _checkAddress("_getWGTC","i",i,_nred);
     _checkAddress("_getWGTC","jvCL",jvCL,_nvarCL);
-    _checkAddress("_getWGTC","address",iad, (int) _wgt.size());
   }
-  return _wgt[iad];
-}
-const double* KrigingSystem::_getWGTCAdd(int i, int jvCL) const
-{
-  int iad = (i) + _nred * (jvCL);
-  return _wgt.subdata(iad);
+  return _wgt.getValue(i, jvCL);
 }
 
 /**
@@ -2939,7 +2941,6 @@ void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  int iad  = indi + _neq * indj;
 
   if (_flagCheckAddress)
   {
@@ -2971,30 +2972,26 @@ void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value
       _checkAddress("_setLHS","jech",jech,_nech);
       _checkAddress("_setLHS","jvar",jvar,_nvar);
     }
-    _checkAddress("_setLHS","address",iad, (int) _lhs.size());
   }
-  _lhs[iad] = value;
+  _lhs.setValue(indi, indj, value);
 }
 void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value)
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  int iad  = indi + _neq * indj;
   if (_flagCheckAddress)
   {
     _checkAddress("_addLHS","iech",iech,_nech);
     _checkAddress("_addLHS","ivar",ivar,_nvar);
     _checkAddress("_addLHS","jech",jech,_nech);
     _checkAddress("_addLHS","jvar",jvar,_nvar);
-    _checkAddress("_addLHS","address",iad, (int) _lhs.size());
   }
-  _lhs[iad] += value;
+  _lhs.setValue(indi, indj, _lhs.getValue(indi, indj) + value);
 }
 double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  int iad  = indi + _neq * indj;
 
   if (_flagCheckAddress)
   {
@@ -3002,27 +2999,23 @@ double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
     _checkAddress("_getLHS","ivar",ivar,_nvar);
     _checkAddress("_getLHS","jech",jech,_nech);
     _checkAddress("_getLHS","jvar",jvar,_nvar);
-    _checkAddress("_getLHS","address",iad, (int) _lhs.size());
   }
-  return _lhs[iad];
+  return _lhs.getValue(indi, indj);
 }
 
 double KrigingSystem::_getLHSC(int i, int j) const
 {
-  int iad = (i) + _nred * (j);
   if (_flagCheckAddress)
   {
     _checkAddress("_getLHSC","i",i,_nred);
     _checkAddress("_getLHSC","j",j,_nred);
-    _checkAddress("_getLHSC","address",iad, (int) _lhs.size());
   }
-  return _lhs[iad];
+  return _lhs.getValue(i,j);
 }
 double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  int iad  = indi + _neq * indj;
 
   if (_flagCheckAddress)
   {
@@ -3030,9 +3023,8 @@ double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
     _checkAddress("_getLHSINV","ivar",ivar,_nvar);
     _checkAddress("_getLHSINV","jech",jech,_nech);
     _checkAddress("_getLHSINV","jvar",jvar,_nvar);
-    _checkAddress("_getLHSINV","address",iad, (int) _lhsinv.size());
   }
-  return _lhsinv[iad];
+  return _lhsinv.getValue(indi, indj);
 }
 double KrigingSystem::_getDISC1(int idisc, int idim) const
 {
@@ -3045,15 +3037,15 @@ double KrigingSystem::_getDISC1(int idisc, int idim) const
 }
 double KrigingSystem::_getZAM(int i) const
 {
-  return _zam[i];
+  return _zam.getValue(i,0);
 }
 double KrigingSystem::_getZEXT(int i) const
 {
-  return _zext[i];
+  return _zext.getValue(i,0);
 }
 void KrigingSystem::_setZEXT(int i, double value) const
 {
-  _zext[i] = value;
+  _zext.setValue(i,0,value);
 }
 VectorDouble KrigingSystem::_getDISC1Vec(int idisc) const
 {
@@ -3230,7 +3222,7 @@ void KrigingSystem::_saveWeights(int status)
         for (int ivar = 0; ivar < _nvar; ivar++)
         {
           int iwgt = _nred * ivar + cumflag;
-          double wgtloc = (! _wgt.empty() && flag_value) ? _wgt[iwgt] : TEST;
+          double wgtloc = (! _wgt.isEmpty() && flag_value) ? _wgt.getValue(iwgt,0) : TEST;
           if (!FFFF(wgtloc))
           {
             values[3] = ivar;
@@ -3281,11 +3273,12 @@ VectorDouble KrigingSystem::getSampleData() const
 
 VectorDouble KrigingSystem::getRHSC(int ivar) const
 {
-  VectorDouble vec(_nred);
+  return _rhs.getColumn(ivar);
+}
 
-  for (int i = 0; i < _nred; i++)
-    vec[i] = _getRHSCAdd(0, ivar)[i];
-  return vec;
+VectorDouble KrigingSystem::getZamC() const
+{
+  return _zam.getColumn(0);
 }
 
 /****************************************************************************/

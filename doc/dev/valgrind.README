@@ -9,7 +9,7 @@ For example, to test the module 'name.cpp':
   build/tests/cpp/Release
 
 - run valgrind with the following syntax:
-  valgrind --tool=callgrind 'name.out'
+  valgrind --tool=callgrind ./'name.out'
   This creates a local file named 'callgrind.out.xxx'
   
 - check the graphs of time expenses with the following syntax:

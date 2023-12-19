@@ -26,6 +26,10 @@ public:
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
 
+  /// Interface for AMatrix
+  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
+  virtual bool isMatrixDense() const { return true; }
+
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
   /*! Set the contents of a Row */
@@ -40,12 +44,6 @@ public:
   virtual void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) override;
-  /*! Add a matrix (multiplied by a constant) */
-  virtual void addMatrix(const AMatrix& y, double value = 1.) override;
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const AMatrix& x, const AMatrix& y) override;
-  /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const AMatrix& y) override;
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value) override;
   /*! Multiply a Matrix row-wise */
@@ -60,6 +58,20 @@ public:
   virtual VectorDouble prodVector(const VectorDouble& vec) const override;
   /*! Perform 'vec'^T * M */
   virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
+  /*! Extract a Row */
+  virtual VectorDouble getRow(int irow) const override;
+  /*! Extract a Column */
+  virtual VectorDouble getColumn(int icol) const override;
+
+  /// The next functions use specific definition of matrix (to avoid dynamic_cast)
+  /// rather than manipulating AMatrix. They are no more generic of AMatrix
+  /// WARNING: output matrix should not match any of input matrices (speed up).
+  /*! Add a matrix (multiplied by a constant) */
+  virtual void addMatrix(const AMatrixDense& y, double value = 1.);
+  /*! Multiply a matrix by another and store the result in the current matrix */
+  virtual void prodMatrix(const AMatrixDense& x, const AMatrixDense& y);
+  /*! Linear combination of matrices */
+  virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -105,9 +117,9 @@ private:
   void _addScalarLocal(double v);
   void _addScalarDiagLocal(double v);
   void _prodScalarLocal(double v);
-  void _addMatrixLocal(const AMatrix& y, double value = 1.);
-  void _prodMatrixLocal(const AMatrix& x, const AMatrix& y);
-  void _linearCombinationLocal(double cx, double cy, const AMatrix& y);
+  void _addMatrixLocal(const AMatrixDense& y, double value = 1.);
+  void _prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y);
+  void _linearCombinationLocal(double cx, double cy, const AMatrixDense& y);
   void _fillLocal(double value);
   void _multiplyRowLocal(const VectorDouble& vec);
   void _multiplyColumnLocal(const VectorDouble& vec);
@@ -115,6 +127,8 @@ private:
   void _divideColumnLocal(const VectorDouble& vec);
   VectorDouble _prodVectorLocal(const VectorDouble& vec) const;
   VectorDouble _prodTVectorLocal(const VectorDouble& vec) const;
+  VectorDouble _getRowLocal(int irow) const;
+  VectorDouble _getColumnLocal(int icol) const;
 
 public:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library

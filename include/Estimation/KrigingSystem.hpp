@@ -16,6 +16,8 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
@@ -78,17 +80,20 @@ public:
   int  getNech() const;
   int  getNeq()  const;
   int  getNRed() const { return _nred; }
-  VectorInt    getSampleIndices() const { return _nbgh; }
-  VectorVectorDouble getSampleCoordinates() const;
-  VectorDouble getSampleData() const;
-  VectorDouble getZam() const { return _zam; }
-  VectorDouble getLHS() const { return _lhs; }
-  VectorDouble getLHSInv() const { return _lhsinv; }
-  VectorDouble getRHSC() const { return _rhs; }
-  VectorDouble getRHSC(int ivar) const;
-  VectorDouble getWeights() const { return _wgt; }
-  VectorDouble getVariance() const { return _var0.getValues(); }
+  VectorInt             getSampleIndices() const { return _nbgh; }
+  VectorVectorDouble    getSampleCoordinates() const;
+  VectorDouble          getSampleData() const;
+  MatrixRectangular     getZam() const { return _zam; }
+  MatrixSquareSymmetric getLHS() const { return _lhs; }
+  MatrixRectangular     getRHSC() const { return _rhs; }
+  MatrixRectangular     getWeights() const { return _wgt; }
+  MatrixSquareGeneral   getVariance() const { return _var0; }
+
   double getLTerm() const { return _lterm; }
+
+  VectorDouble getRHSC(int ivar) const;
+  VectorDouble getZamC() const;
+  VectorDouble getLHSInvC() const { return _lhsinv.getValues(); }
 
 private:
   int    _getNVar() const;
@@ -130,11 +135,6 @@ private:
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
-  const double* _getRHSCAdd(int i = 0, int jvCL = 0) const;
-  const double* _getWGTCAdd(int i = 0, int jvCL = 0) const;
-  const double* _getZamAdd(int i = 0) const;
-  const double* _getZextAdd(int i = 0) const;
-
   void _resetMemoryGeneral();
   void _resetMemoryPerNeigh();
   void _flagDefine();
@@ -172,8 +172,9 @@ private:
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab);
-  double _estimateVarZ(int ivarCL, int jvarCL);
-  double _variance(int ivarCL, int jvarCL);
+  void _estimateVarZ(int status);
+  void _estimateStdv(int status);
+  void _estimateEstim(int status);
   void _variance0();
   void _krigingDump(int status);
   void _simulateDump(int status);
@@ -316,16 +317,16 @@ private:
   mutable bool _flagCheckAddress;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable MatrixSquareGeneral _covtab;
-  mutable MatrixSquareGeneral _covref;
-  mutable VectorDouble _drftab;
-  mutable VectorDouble _lhs;
-  mutable VectorDouble _lhsinv;
-  mutable VectorDouble _rhs;
-  mutable VectorDouble _wgt;
-  mutable VectorDouble _zam;
-  mutable VectorDouble _zext;
-  mutable MatrixSquareGeneral _var0;
+  mutable MatrixSquareGeneral   _covtab;
+  mutable MatrixSquareGeneral   _covref;
+  mutable VectorDouble          _drftab;
+  mutable MatrixSquareSymmetric _lhs;
+  mutable MatrixSquareSymmetric _lhsinv;
+  mutable MatrixRectangular     _rhs;
+  mutable MatrixRectangular     _wgt;
+  mutable MatrixRectangular     _zam;
+  mutable MatrixRectangular     _zext;
+  mutable MatrixSquareGeneral   _var0;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 

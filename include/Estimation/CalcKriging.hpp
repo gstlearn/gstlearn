@@ -29,13 +29,13 @@ public:
   int neq;  // Number of Equations in the Kriging/CoKriging system
   int nrhs; // Number of R.H.S. vectors (= nvar)
   VectorInt nbgh;    // Ranks of the neighboring samples
-  VectorVectorDouble xyz;  // Coordinates of the neighboring samples [ndim][nech]
-  VectorDouble data; // Usable values at neighboring samples [neq]
-  VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
-  VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
-  VectorDouble wgt;  // Vector of weights [nvar][nech]
-  VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
-  VectorDouble zam;  // Vector of pre-calculations
+  VectorVectorDouble xyz;    // Coordinates of the neighboring samples [ndim][nech]
+  VectorDouble data;         // Usable values at neighboring samples [neq]
+  MatrixSquareSymmetric lhs; // L.H.S. of the Kriging system (neq * neq)
+  MatrixRectangular rhs;     // R.H.S. of the Kriging system (neq * nvar)
+  MatrixRectangular wgt;     // Vector of weights [nvar][nech]
+  MatrixSquareGeneral var;   // Matrix of Target-Target Variance (nvar * nvar)
+  MatrixRectangular zam;     // Vector of pre-calculations
 
   /// Has a specific implementation in the Target language
   DECLARE_TOTL;

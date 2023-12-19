@@ -494,6 +494,17 @@ void AMatrix::prodVectorInPlace(const VectorDouble& inv, VectorDouble& outv) con
   _prodVectorInPlace(inv.data(), outv.data());
 }
 
+void AMatrix::resize(int nrows, int ncols)
+{
+  // Check if nothing to be done
+  if (nrows == getNRows() && ncols == getNCols()) return;
+
+  _deallocate();
+  _setNRows(nrows);
+  _setNCols(ncols);
+  _allocate();
+}
+
 /**
  * Add the matrix 'y' to the current Matrix
  * @param y Matrix to be added

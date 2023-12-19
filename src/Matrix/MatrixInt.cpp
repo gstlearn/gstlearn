@@ -101,7 +101,7 @@ void MatrixInt::fill(int value)
 
 void MatrixInt::_deallocate()
 {
-
+  // Nothing to be done here
 }
 
 void MatrixInt::_allocate()

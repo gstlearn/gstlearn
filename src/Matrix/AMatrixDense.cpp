@@ -233,7 +233,7 @@ void AMatrixDense::prodScalar(double v)
     AMatrix::prodScalar(v);
 }
 
-void AMatrixDense::addMatrix(const AMatrix& y, double value)
+void AMatrixDense::addMatrix(const AMatrixDense& y, double value)
 {
   if (isFlagEigen())
     _addMatrixLocal(y);
@@ -241,7 +241,7 @@ void AMatrixDense::addMatrix(const AMatrix& y, double value)
     AMatrix::addMatrix(y, value);
 }
 
-void AMatrixDense::prodMatrix(const AMatrix& x, const AMatrix& y)
+void AMatrixDense::prodMatrix(const AMatrixDense& x, const AMatrixDense& y)
 {
   if (isFlagEigen())
     _prodMatrixLocal(x, y);
@@ -249,7 +249,7 @@ void AMatrixDense::prodMatrix(const AMatrix& x, const AMatrix& y)
     AMatrix::prodMatrix(x, y);
 }
 
-void AMatrixDense::linearCombination(double cx, double cy, const AMatrix& y)
+void AMatrixDense::linearCombination(double cx, double cy, const AMatrixDense& y)
 {
   if (isFlagEigen())
     _linearCombinationLocal(cx, cy, y);
@@ -340,6 +340,32 @@ VectorDouble AMatrixDense::prodTVector(const VectorDouble& vec) const
   else
   {
     return AMatrix::prodTVector(vec);
+  }
+}
+
+/*! Extract a Row */
+VectorDouble AMatrixDense::getRow(int irow) const
+{
+  if (isFlagEigen())
+  {
+    return _getRowLocal(irow);
+  }
+  else
+  {
+    return AMatrix::getRow(irow);
+  }
+}
+
+/*! Extract a Column */
+VectorDouble AMatrixDense::getColumn(int icol) const
+{
+  if (isFlagEigen())
+  {
+    return _getColumnLocal(icol);
+  }
+  else
+  {
+    return AMatrix::getColumn(icol);
   }
 }
 
@@ -469,27 +495,19 @@ void AMatrixDense::_prodScalarLocal(double v)
   _eigenMatrix.array() *= v;
 }
 
-void AMatrixDense::_addMatrixLocal(const AMatrix& y, double value)
+void AMatrixDense::_addMatrixLocal(const AMatrixDense& y, double value)
 {
-  VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), getNRows(), getNCols());
-  _eigenMatrix += ym * value;
+  _eigenMatrix.noalias() += y._eigenMatrix * value;
 }
 
-void AMatrixDense::_prodMatrixLocal(const AMatrix& x, const AMatrix& y)
+void AMatrixDense::_prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
 {
-  VectorDouble interx = x.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> xm(interx.data(), x.getNRows(), x.getNCols());
-  VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), y.getNRows(), y.getNCols());
-  _eigenMatrix = xm * ym;
+  _eigenMatrix.noalias() = x._eigenMatrix * y._eigenMatrix;
 }
 
-void AMatrixDense::_linearCombinationLocal(double cx, double cy, const AMatrix& y)
+void AMatrixDense::_linearCombinationLocal(double cx, double cy,const AMatrixDense &y)
 {
-  VectorDouble intery = y.getValues(); // Performed in 2 lines to avoid non-understandable bug
-  Eigen::Map<const Eigen::MatrixXd> ym(intery.data(), getNRows(), getNCols());
-  _eigenMatrix = cx * _eigenMatrix + cy * ym;
+  _eigenMatrix.noalias() = cx * _eigenMatrix + cy * y._eigenMatrix;
 }
 
 void AMatrixDense::_fillLocal(double value)
@@ -535,6 +553,22 @@ VectorDouble AMatrixDense::_prodTVectorLocal(const VectorDouble& vec) const
 {
   Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
   Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
+  VectorDouble res(resm.data(), resm.data() + resm.size());
+  return res;
+}
+
+/*! Extract a Row */
+VectorDouble AMatrixDense::_getRowLocal(int irow) const
+{
+  Eigen::VectorXd resm = _eigenMatrix.row(irow);
+  VectorDouble res(resm.data(), resm.data() + resm.size());
+  return res;
+}
+
+/*! Extract a Column */
+VectorDouble AMatrixDense::_getColumnLocal(int icol) const
+{
+  Eigen::VectorXd resm = _eigenMatrix.col(icol);
   VectorDouble res(resm.data(), resm.data() + resm.size());
   return res;
 }

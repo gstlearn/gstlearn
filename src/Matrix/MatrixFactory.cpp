@@ -46,8 +46,8 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
   }
 
   /// TODO : use typeinfo
-  const MatrixSquareSymmetric*   mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-  const MatrixSquareSymmetric*   mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+  const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+  const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
 
   AMatrix* res = nullptr;
 

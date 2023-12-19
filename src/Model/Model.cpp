@@ -794,9 +794,7 @@ void Model::setField(double field)
 int Model::isNoStat() const
 {
   if (_cova == nullptr) return 0;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return 0;
-  return covalist->isNoStat();
+  return _cova->isNoStat();
 }
 
 const ANoStat* Model::getNoStat() const
@@ -1828,6 +1826,7 @@ const ACovAnisoList* Model::_castInCovAnisoListConst(int icov) const
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
+  if (icov < 0) return covalist;
 
   // Check the rank
   if (icov >= covalist->getCovNumber())
@@ -1848,6 +1847,7 @@ ACovAnisoList* Model::_castInCovAnisoList(int icov)
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
+  if (icov < 0) return covalist;
 
   // Check the rank
   if (icov >= covalist->getCovNumber())

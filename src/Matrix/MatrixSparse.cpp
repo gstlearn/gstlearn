@@ -662,7 +662,7 @@ void MatrixSparse::_prodVectorInPlace(const double *inv, double *outv) const
  * @param y Matrix to be added
  * @param value Multiplicative coefficient
  */
-void MatrixSparse::addMatrix(const AMatrix& y, double value)
+void MatrixSparse::addMatrix(const MatrixSparse& y, double value)
 {
   if (! isSameSize(y))
   {
@@ -670,22 +670,16 @@ void MatrixSparse::addMatrix(const AMatrix& y, double value)
     return;
   }
 
-  bool hasCreatedMemory = false;
-  const MatrixSparse* ym = dynamic_cast<const MatrixSparse*>(&y);
-  if (ym == nullptr) { ym = createFromAnyMatrix(&y); hasCreatedMemory = true; }
-
   if (isFlagEigen())
   {
-    _eigenMatrix += ym->_eigenMatrix * value;
+    _eigenMatrix += y._eigenMatrix * value;
   }
   else
   {
-    cs *res = cs_add(_csMatrix, ym->_csMatrix, 1., value);
+    cs *res = cs_add(_csMatrix, y._csMatrix, 1., value);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
-
-  if (hasCreatedMemory) delete ym;
 }
 
 /**
@@ -693,7 +687,7 @@ void MatrixSparse::addMatrix(const AMatrix& y, double value)
  * @param x First Matrix
  * @param y Second matrix
  */
-void MatrixSparse::prodMatrix(const AMatrix& x, const AMatrix& y)
+void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
 {
   if (_getFlagCheckAddress())
   {
@@ -713,26 +707,16 @@ void MatrixSparse::prodMatrix(const AMatrix& x, const AMatrix& y)
     }
   }
 
-  bool hasCreatedMemoryDX = false;
-  const MatrixSparse* dx = dynamic_cast<const MatrixSparse*>(&x);
-  if (dx == nullptr) { dx = createFromAnyMatrix(&x); hasCreatedMemoryDX = true; }
-  bool hasCreatedMemoryDY = false;
-  const MatrixSparse* dy = dynamic_cast<const MatrixSparse*>(&y);
-  if (dy == nullptr) { dy = createFromAnyMatrix(&y); hasCreatedMemoryDY = true; }
-
   if (isFlagEigen())
   {
-    _eigenMatrix = dx->_eigenMatrix * dy->_eigenMatrix;
+    _eigenMatrix = x._eigenMatrix * y._eigenMatrix;
   }
   else
   {
-    cs* res = cs_multiply(dx->_csMatrix, dy->_csMatrix);
+    cs* res = cs_multiply(x._csMatrix, y._csMatrix);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
-
-  if (hasCreatedMemoryDX) delete dx;
-  if (hasCreatedMemoryDY) delete dy;
 }
 
 /*!
@@ -742,29 +726,23 @@ void MatrixSparse::prodMatrix(const AMatrix& x, const AMatrix& y)
  * @param cy Coefficient applied to the Matrix  'y'
  * @param y Second Matrix in the Linear combination
  */
-void MatrixSparse::linearCombination(double cx, double cy, const AMatrix& y)
+void MatrixSparse::linearCombination(double cx, double cy, const MatrixSparse& y)
 {
   if (! isSameSize(y))
     my_throw("Matrices should have same size");
   if (!y.isSparse())
     my_throw("This function can only combine sparse matrices together");
 
-  bool hasCreatedMemory = false;
-  const MatrixSparse* dy = dynamic_cast<const MatrixSparse*>(&y);
-  if (dy == nullptr) { dy = createFromAnyMatrix(&y); hasCreatedMemory = true; }
-
   if (isFlagEigen())
   {
-    _eigenMatrix = cx * _eigenMatrix + cy * dy->_eigenMatrix;
+    _eigenMatrix = cx * _eigenMatrix + cy * y._eigenMatrix;
   }
   else
   {
-    cs *res = cs_add(_csMatrix, dy->_csMatrix, cx, cy);
+    cs *res = cs_add(_csMatrix, y._csMatrix, cx, cy);
     cs_spfree(_csMatrix);
     _csMatrix = res;
   }
-
-  if (hasCreatedMemory) delete dy;
 }
 
 int MatrixSparse::_invert()

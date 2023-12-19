@@ -639,11 +639,6 @@ int ACovAnisoList::addNoStat(const ANoStat *anostat)
   return 0;
 }
 
-int ACovAnisoList::isNoStat() const
-{
-  return _noStat != nullptr;
-}
-
 int ACovAnisoList::getNoStatElemNumber() const
 {
   if (_noStat == nullptr) return 0;
