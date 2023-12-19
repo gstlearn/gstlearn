@@ -696,12 +696,9 @@ void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
         y.getNCols() != getNCols())
     {
       messerr("Incompatible matrix dimensions for matrix product");
-      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(),
-              x.getNCols());
-      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(),
-              y.getNCols());
-      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(),
-              getNCols());
+      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
+      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
+      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
       messerr("Operation is cancelled");
       return;
     }
@@ -716,6 +713,42 @@ void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
     cs* res = cs_multiply(x._csMatrix, y._csMatrix);
     cs_spfree(_csMatrix);
     _csMatrix = res;
+  }
+}
+
+/**
+ * Store the product of 'transpose(x)' by 'y' in this
+ * @param x First Matrix
+ * @param y Second matrix
+ */
+void MatrixSparse::prodTMatrix(const MatrixSparse& x, const MatrixSparse& y)
+{
+  if (_getFlagCheckAddress())
+  {
+    if (x.getNRows() != y.getNRows() ||
+        x.getNCols() != getNRows()   ||
+        y.getNCols() != getNCols())
+    {
+      messerr("Incompatible matrix dimensions for matrix product");
+      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
+      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
+      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
+      messerr("Operation is cancelled");
+      return;
+    }
+  }
+
+  if (isFlagEigen())
+  {
+    _eigenMatrix = x._eigenMatrix.transpose() * y._eigenMatrix;
+  }
+  else
+  {
+    cs* xT = cs_transpose(x._csMatrix, 1);
+    cs* res = cs_multiply(xT, y._csMatrix);
+    cs_spfree(_csMatrix);
+    _csMatrix = res;
+    delete xT;
   }
 }
 

@@ -70,8 +70,6 @@ public:
   int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptNeighOnly(int iptrNeigh);
 
-  void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
-
   bool isReady();
   int  estimate(int iech_out);
   void conclusion();
@@ -112,8 +110,6 @@ private:
   double _getDriftCoef(int ivar, int il, int ib) const;
   int    _getFLAG(int iech,int ivar) const;
   double _getCOVTAB(int ivar,int jvar) const;
-  void   _addCOVTAB(int ivar,int jvar,double value);
-  void   _prodCOVTAB(double value);
   double _getRHS(int iech, int ivar, int jvCL) const;
   void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
   double _getRHSC(int i, int jvCL) const;
@@ -314,7 +310,6 @@ private:
   bool _flagIsotopic;
 
   /// Working arrays
-  mutable bool _flagCheckAddress;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable MatrixSquareGeneral   _covtab;

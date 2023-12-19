@@ -329,25 +329,17 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-
+  mat = _sill;
   if (mode == nullptr)
   {
     double cov = _cova->evalCov(0);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+    mat.prodScalar(cov);
   }
   else
   {
     double cov = _calculateCov(0., mode);
-    double sill = 1.;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        if (! mode->getUnitary()) sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
+    if (mode->getUnitary()) mat.fill(1.);
+    mat.prodScalar(cov);
   }
 }
 

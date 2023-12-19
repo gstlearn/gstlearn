@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
   if (verbose) neighU->display();
 
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false);
+  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false, false);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 2400);
 
   // Produce some statistics for comparison

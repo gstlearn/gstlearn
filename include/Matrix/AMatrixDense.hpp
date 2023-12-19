@@ -70,6 +70,8 @@ public:
   virtual void addMatrix(const AMatrixDense& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
   virtual void prodMatrix(const AMatrixDense& x, const AMatrixDense& y);
+  /*! Multiply the transpose of a matrix by another and store the result in the current matrix */
+  virtual void prodTMatrix(const AMatrixDense& x, const AMatrixDense& y);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
 
@@ -119,6 +121,7 @@ private:
   void _prodScalarLocal(double v);
   void _addMatrixLocal(const AMatrixDense& y, double value = 1.);
   void _prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y);
+  void _prodTMatrixLocal(const AMatrixDense& x, const AMatrixDense& y);
   void _linearCombinationLocal(double cx, double cy, const AMatrixDense& y);
   void _fillLocal(double value);
   void _multiplyRowLocal(const VectorDouble& vec);

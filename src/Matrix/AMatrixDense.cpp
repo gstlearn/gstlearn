@@ -249,6 +249,14 @@ void AMatrixDense::prodMatrix(const AMatrixDense& x, const AMatrixDense& y)
     AMatrix::prodMatrix(x, y);
 }
 
+void AMatrixDense::prodTMatrix(const AMatrixDense& x, const AMatrixDense& y)
+{
+  if (isFlagEigen())
+    _prodTMatrixLocal(x, y);
+  else
+    AMatrix::prodTMatrix(x, y);
+}
+
 void AMatrixDense::linearCombination(double cx, double cy, const AMatrixDense& y)
 {
   if (isFlagEigen())
@@ -503,6 +511,11 @@ void AMatrixDense::_addMatrixLocal(const AMatrixDense& y, double value)
 void AMatrixDense::_prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
 {
   _eigenMatrix.noalias() = x._eigenMatrix * y._eigenMatrix;
+}
+
+void AMatrixDense::_prodTMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
+{
+  _eigenMatrix.noalias() = x._eigenMatrix.transpose() * y._eigenMatrix;
 }
 
 void AMatrixDense::_linearCombinationLocal(double cx, double cy,const AMatrixDense &y)
