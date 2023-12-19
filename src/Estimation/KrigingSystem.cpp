@@ -714,6 +714,7 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
 void KrigingSystem::_lhsCalcul()
 {
   _lhsInit();
+  bool flagVerr = _dbin->hasLocVariable(ELoc::V);
 
   /* Establish the covariance part */
 
@@ -734,31 +735,34 @@ void KrigingSystem::_lhsCalcul()
 
           /* Correction due to measurement errors */
 
-          double verr = 0.;
-          if (_flagCode)
+          if (flagVerr)
           {
-            int code1 = (int) _dbin->getLocVariable(ELoc::C,_nbgh[iech],0);
-            int code2 = (int) _dbin->getLocVariable(ELoc::C,_nbgh[jech],0);
-            if (code1 != 0 && code2 != 0 && code1 == code2)
-              verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], 0);
-          }
-          else
-          {
-            if (iech == jech && ivar == jvar)
+            double verr = 0.;
+            if (_flagCode)
             {
-              verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], ivar);
-
-              if (_neigh->getFlagContinuous())
+              int code1 = (int) _dbin->getLocVariable(ELoc::C,_nbgh[iech],0);
+              int code2 = (int) _dbin->getLocVariable(ELoc::C,_nbgh[jech],0);
+              if (code1 != 0 && code2 != 0 && code1 == code2)
+                verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], 0);
+            }
+            else
+            {
+              if (iech == jech && ivar == jvar)
               {
-                // In the case of continuous Kriging, we must update the LHS
-                // by considering the distance between data and target
+                verr = _dbin->getLocVariable(ELoc::V,_nbgh[iech], ivar);
 
-                double cref = _getLHS(iech, ivar, jech, jvar);
-                verr = cref * _continuousMultiplier(_nbgh[iech], _iechOut);
+                if (_neigh->getFlagContinuous())
+                {
+                  // In the case of continuous Kriging, we must update the LHS
+                  // by considering the distance between data and target
+
+                  double cref = _getLHS(iech, ivar, jech, jvar);
+                  verr = cref * _continuousMultiplier(_nbgh[iech], _iechOut);
+                }
               }
             }
+            if (!FFFF(verr) && verr > 0) _addLHS(iech,ivar,jech,jvar,verr);
           }
-          if (!FFFF(verr) && verr > 0) _addLHS(iech,ivar,jech,jvar,verr);
         }
     }
   }
