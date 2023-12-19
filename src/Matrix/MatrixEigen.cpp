@@ -106,17 +106,17 @@ void MatrixEigen::sumElem(int i,int j,double val)
 	_matrix(i,j) += val;
 }
 
-void MatrixEigen::prodMatVecInPlace(VectorDouble& in,VectorDouble& out)const
+void MatrixEigen::prodMatVecInPlace(const VectorDouble& in,VectorDouble& out)const
 {
 
-	Eigen::Map<Eigen::VectorXd> inv(in.data(), in.size());
+	Eigen::Map<const Eigen::VectorXd> inv(in.data(), in.size());
 	Eigen::Map<Eigen::VectorXd> outv(out.data(), out.size());
 
 	outv.noalias() += _matrix * inv;
 }
-void MatrixEigen::prodTMatVecInPlace(VectorDouble& in,VectorDouble& out)const
+void MatrixEigen::prodTMatVecInPlace(const VectorDouble& in,VectorDouble& out)const
 {
-	Eigen::Map<Eigen::VectorXd> inv(in.data(), in.size());
+	Eigen::Map<const Eigen::VectorXd> inv(in.data(), in.size());
 	Eigen::Map<Eigen::VectorXd> outv(out.data(), out.size());
 
 	outv.noalias() += _matrix.transpose() * inv;
@@ -124,7 +124,7 @@ void MatrixEigen::prodTMatVecInPlace(VectorDouble& in,VectorDouble& out)const
 
 void MatrixEigen::prodTMatVecInPlace(const MatrixEigen &in,MatrixEigen& out)const
 {
-	out._matrix.noalias() += _matrix.transpose() * in._matrix;
+	out._matrix.noalias() = _matrix.transpose() * in._matrix;
 }
 
 void MatrixEigen::computeInverse() const
@@ -135,14 +135,14 @@ void MatrixEigen::computeInverse() const
 void MatrixEigen::solveInPlace(const MatrixEigen& in,MatrixEigen& res) const
 {
 	_prepareInverse();
-	res._matrix.noalias() += _inverse * in._matrix;
+	res._matrix.noalias() = _inverse * in._matrix;
 }
 MatrixEigen MatrixEigen::solve(MatrixEigen& rhs) const
 {
 
 	MatrixEigen result = MatrixEigen(_matrix.rows(),rhs._matrix.cols());
 	_prepareInverse();
-	result._matrix.noalias() += _inverse * rhs._matrix;
+	result._matrix.noalias() = _inverse * rhs._matrix;
 	return result;
 }
 
@@ -200,7 +200,7 @@ VectorDouble MatrixEigen::prodMatVec(VectorDouble& in)const
 	return result;
 }
 
-VectorDouble MatrixEigen::prodTMatVec(VectorDouble& in)const
+VectorDouble MatrixEigen::prodTMatVec(const VectorDouble& in)const
 {
 	VectorDouble result = VectorDouble(_matrix.rows());
 	prodTMatVecInPlace(in, result);

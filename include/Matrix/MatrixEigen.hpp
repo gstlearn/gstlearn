@@ -34,9 +34,9 @@ public:
 	void setRow(int j,const VectorDouble& vect);
 	VectorDouble convert2VectorDouble() const;
 	VectorDouble prodMatVec(VectorDouble& in)const;
-	VectorDouble prodTMatVec(VectorDouble& in)const;
-	void prodMatVecInPlace(VectorDouble& in,VectorDouble& out)const;
-	void prodTMatVecInPlace(VectorDouble& in,VectorDouble& out)const;
+	VectorDouble prodTMatVec(const VectorDouble& in)const;
+	void prodMatVecInPlace(const VectorDouble& in,VectorDouble& out)const;
+	void prodTMatVecInPlace(const VectorDouble& in,VectorDouble& out)const;
 	void prodTMatVecInPlace(const MatrixEigen &in,MatrixEigen& out)const;
 
 	static MatrixEigen prod(const MatrixEigen& mat1,const MatrixEigen& mat2);
@@ -44,7 +44,7 @@ public:
 	static MatrixEigen prodT2(const MatrixEigen& mat1,const MatrixEigen& mat2);
 	static MatrixEigen productPointwise(const MatrixEigen& mat1,const MatrixEigen& mat2);
 	double get(int i, int j)const {return _matrix(i,j);}
-	void set(int i, int j, double val){ _matrix(i,j)=val;}
+	void set(int i, int j, double val){_reset(); _matrix(i,j)=val;}
 	MatrixEigen solve(MatrixEigen& rhs) const;
 	void solveByChol(const VectorDouble& rhs,VectorDouble& res) const;
 	void solveByChol(const MatrixEigen& rhs,MatrixEigen& res) const;

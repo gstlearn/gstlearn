@@ -806,7 +806,7 @@ void krigingExperimentalBySample(const Db *dbin,
 		int nech1 = dbin->getSampleNumber(true);
 		int nechtot2 = dbout->getSampleNumber(false);
 //
-		MatrixEigen mat = MatrixEigen(nech1,1);
+		MatrixEigen C0 = MatrixEigen(nech1,1);
 		SpacePoint p1(dbin->getSampleCoordinates(0),cov->getSpace());
 		SpacePoint ptemp(dbin->getSampleCoordinates(0),cov->getSpace());
 		VectorDouble temp(nech1);
@@ -816,8 +816,8 @@ void krigingExperimentalBySample(const Db *dbin,
 		{
 			if (!dbout->isActive(iech2)) continue;
 			dbout->getSampleCoordinates(iech2, p1.getCoordM());
-			cov->evalOptimEigen(p1,ptemp,mat,jech2,0,temp);
-			res[jech2] = mat.prodTMatVec(dual)[0];
+			cov->evalOptimEigen(p1,ptemp,C0,jech2,0,temp);
+			res[jech2] = C0.prodTMatVec(dual)[0];
 			jech2++;
 
 		}
@@ -829,7 +829,7 @@ void krigingExperimentalBySample(const Db *dbin,
 		int nech1 = dbin->getSampleNumber(true);
 		int nechtot2 = dbout->getSampleNumber(false);
 //
-		MatrixEigen mat = MatrixEigen(nech1,1);
+		MatrixEigen C0 = MatrixEigen(nech1,1);
 		MatrixEigen weights = MatrixEigen(nech1,1);
 
 		SpacePoint p1(dbin->getSampleCoordinates(0),cov->getSpace());
@@ -843,10 +843,10 @@ void krigingExperimentalBySample(const Db *dbin,
 		{
 			if (!dbout->isActive(iech2)) continue;
 			dbout->getSampleCoordinates(iech2, p1.getCoordM());
-			cov->evalOptimEigen(p1,ptemp,mat,jech2,0,temp);
-			C.solveByChol(mat,weights);
+			cov->evalOptimEigen(p1,ptemp,C0,jech2,0,temp);
+			C.solveInPlace(C0,weights);
 			res[jech2] = weights.prodTMatVec(z)[0];
-			weights.prodTMatVecInPlace(mat,vartemp);
+			weights.prodTMatVecInPlace(C0,vartemp);
 			varest[jech2] = vartemp.get(0,0);
 			//auto varmat = MatrixEigen::productPointwise(weights, mat);
 			//varmat.sumColsInPlace(varest);
