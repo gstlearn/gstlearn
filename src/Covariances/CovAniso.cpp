@@ -1031,12 +1031,12 @@ void CovAniso::evalOptimInPlace(VectorDouble &res,
   for (int i = 0; i < (int) _p1As.size(); i++)
   {
     if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-    double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
+    double hoptim = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
 
     if (mode == nullptr)
-      cov = _cova->evalCov(h);
+      cov = _cova->evalCov(hoptim);
     else
-      cov = _calculateCov(h, mode);
+      cov = _calculateCov(hoptim, mode);
 
     res[ecr++] += sill * cov;
   }
@@ -1060,16 +1060,16 @@ void CovAniso::evalMatOptimInPlace(int iech1,
     p2A = &_p2A;
 
   // Calculate distance (in anisotropic space)
-  double h = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
   double cov = 0.;
   mat = _sill;
   if (mode == nullptr)
   {
-    cov = _cova->evalCov(h);
+    cov = _cova->evalCov(hoptim);
   }
   else
   {
-    cov = _calculateCov(h, mode);
+    cov = _calculateCov(hoptim, mode);
     if (mode->getUnitary()) mat.fill(1.);
   }
   mat.prodScalar(cov);
