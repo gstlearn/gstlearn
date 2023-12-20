@@ -841,15 +841,16 @@ void krigingExperimentalBySample(const Db *dbin,
 		auto vartemp = MatrixEigen(1,1);
 		//C.computeInverse();
 
+		#pragma omp parallel for firstprivate(p1,ptemp,C0,temp,C,cov,vartemp,weights) schedule(guided)
 		for (int iech2 =  0; iech2 < nechtot2; iech2++)
 		{
 			if (!dbout->isActive(iech2)) continue;
 			dbout->getSampleCoordinates(iech2, p1.getCoordM());
-			cov->evalOptimEigen(p1,ptemp,C0,jech2,0,temp);
+			cov->evalOptimEigen(p1,ptemp,C0,iech2,0,temp);
 			C.solveInPlace(C0,weights);
-			res[jech2] = weights.prodTMatVec(z)[0];
+			res[iech2] = weights.prodTMatVec(z)[0];
 			weights.prodTMatVecInPlace(C0,vartemp);
-			varest[jech2] = vartemp.get(0,0);
+			varest[iech2] = vartemp.get(0,0);
 			//auto varmat = MatrixEigen::productPointwise(weights, mat);
 			//varmat.sumColsInPlace(varest);
 			jech2++;

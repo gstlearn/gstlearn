@@ -26,6 +26,7 @@
 #include "Matrix/MatrixEigen.hpp"
 #include <math.h>
 #include <functional>
+#include "omp.h"
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
