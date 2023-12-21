@@ -1,4 +1,4 @@
-#NO_DIFF# Kriging in Moving Neighborhood: 2011 ms. (Ref = 2000 ms.)
+#NO_DIFF# Kriging in Moving Neighborhood: 2161 ms. (Ref = 1500 ms.)
 
 Data Base Grid Characteristics
 ==============================
@@ -7,9 +7,9 @@ Data Base Statistics
 --------------------
 4 - Name Kriging.rainfall.estim - Locator z1
  Nb of data          =      86400
- Nb of active values =      86400
- Minimum value       =      0.000
- Maximum value       =    554.989
- Mean value          =     13.741
- Standard Deviation  =     56.136
- Variance            =   3151.288
+ Nb of active values =      71860
+ Minimum value       =    -37.836
+ Maximum value       =    575.929
+ Mean value          =    145.320
+ Standard Deviation  =    101.986
+ Variance            =  10401.175
