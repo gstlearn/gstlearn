@@ -31,15 +31,15 @@
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
-  bool verbose = false;
-  bool graphic = true;
+  bool verbose  = false;
+  bool graphic  = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("benchKrigingU-");
+  ASerializable::setPrefixName("BenchKrigingU-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);

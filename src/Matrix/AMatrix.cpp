@@ -44,11 +44,14 @@ AMatrix::AMatrix(const AMatrix &m)
 
 AMatrix& AMatrix::operator=(const AMatrix &m)
 {
-  AStringable::operator=(m);
-  _nRows = m._nRows;
-  _nCols = m._nCols;
-  _flagCheckAddress = m._flagCheckAddress;
-  _nullTerm = m._nullTerm;
+  if (this != &m)
+  {
+    AStringable::operator=(m);
+    _nRows = m._nRows;
+    _nCols = m._nCols;
+    _flagCheckAddress = m._flagCheckAddress;
+    _nullTerm = m._nullTerm;
+  }
   return *this;
 }
 
@@ -61,15 +64,6 @@ void AMatrix::init(int nrows, int ncols)
   _nRows = nrows;
   _nCols = ncols;
   _allocate();
-}
-
-void AMatrix::_recopy(const AMatrix &m)
-{
-  for (int icol = 0; icol < m.getNCols(); icol++)
-    for (int irow = 0; irow < m.getNRows(); irow++)
-    {
-      setValue(irow, icol, m.getValue(irow, icol));
-    }
 }
 
 bool AMatrix::isSquare(bool printWhyNot) const
@@ -1147,6 +1141,20 @@ void AMatrix::copyReduce(const AMatrix *x,
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
       setValue(irow, icol, x->getValue(validRows[irow], validCols[icol]));
+}
+
+/**
+ * Copy the contents of matrix 'm' into 'this'
+ * Warning: matrices must have the same dimensions (not checked)
+ * @param m Input matrix
+ */
+void AMatrix::copyElements(const AMatrix &m)
+{
+  for (int icol = 0; icol < m.getNCols(); icol++)
+    for (int irow = 0; irow < m.getNRows(); irow++)
+    {
+      setValue(irow, icol, m.getValue(irow, icol));
+    }
 }
 
 /**

@@ -69,8 +69,7 @@ ACovAnisoList::~ACovAnisoList()
 
 void ACovAnisoList::addCovList(const ACovAnisoList* covs)
 {
-  int ncov = covs->getCovNumber();
-  for (int icov = 0; icov < ncov; icov++)
+  for (int icov = 0, ncov = covs->getCovNumber(); icov < ncov; icov++)
     addCov(covs->getCova(icov));
 }
 
@@ -317,7 +316,7 @@ String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   if (getCovNumber() <= 0) return sstr.str();
 
-  for (int icov = 0; icov < getCovNumber(); icov++)
+  for (int icov = 0, ncov = getCovNumber(); icov < ncov; icov++)
   {
     sstr << getCova(icov)->toString();
     if (isFiltered(icov))
@@ -490,7 +489,7 @@ int ACovAnisoList::getGradParamNumber(unsigned int icov) const
 double ACovAnisoList::getTotalSill(int ivar, int jvar) const
 {
   double sill_total = 0.;
-  for (int icov = 0; icov < getCovNumber(); icov++)
+  for (int icov = 0, ncov = getCovNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = getCova(icov);
     if (cova->getMinOrder() >= 0) return TEST;
@@ -527,7 +526,7 @@ double ACovAnisoList::getMaximumDistance() const
 
 {
   double maxdist = 0.;
-  for (int icov = 0; icov < getCovNumber(); icov++)
+  for (int icov = 0, ncov = getCovNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = getCova(icov);
     if (! cova->hasRange()) continue;
@@ -562,7 +561,7 @@ void ACovAnisoList::normalize(double sill, int ivar, int jvar)
 
 bool ACovAnisoList::hasNugget() const
 {
-  for (int is = 0; is < getCovNumber(); is++)
+  for (int is = 0, ns = getCovNumber(); is < ns; is++)
   {
     if (getType(is) == ECov::NUGGET) return true;
   }
@@ -571,19 +570,19 @@ bool ACovAnisoList::hasNugget() const
 
 void ACovAnisoList::optimizationPreProcess(const std::vector<SpacePoint>& vec) const
 {
-	for (int is = 0; is < getCovNumber(); is++)
+	for (int is = 0, ns = getCovNumber(); is < ns; is++)
 		_covs[is]->optimizationPreProcess(vec);
 }
 
 void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
 {
-  for (int is = 0; is < getCovNumber(); is++)
+  for (int is = 0, ns = getCovNumber(); is < ns; is++)
     _covs[is]->optimizationSetTarget(pt);
 }
 
 void ACovAnisoList::optimizationPostProcess() const
 {
-	for (int is = 0; is < getCovNumber(); is++)
+	for (int is = 0, ns = getCovNumber(); is < ns; is++)
 		_covs[is]->optimizationPostProcess();
 }
 
@@ -591,7 +590,7 @@ const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const
 {
   ACovAnisoList* newcovlist = this->clone();
 
-  for (int is = 0; is < getCovNumber(); is++)
+  for (int is = 0, ns = getCovNumber(); is < ns; is++)
   {
     CovAniso* covs = newcovlist->getCova(is);
     newcovlist->setCova(is,covs->reduce(validVars));

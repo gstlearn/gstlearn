@@ -80,7 +80,7 @@ public:
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
   /////////////////////////////////////////////////////////////////////////////////
   ///
-  void setIsOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
+  void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,

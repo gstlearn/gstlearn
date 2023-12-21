@@ -176,6 +176,7 @@ public:
   void copyReduce(const AMatrix *x,
                   const VectorInt &activeRows,
                   const VectorInt &activeCols);
+  void copyElements(const AMatrix &m);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
 #ifndef SWIG
@@ -218,7 +219,7 @@ protected:
   bool _isRankValid(int rank) const;
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
-  void _recopy(const AMatrix &m);
+
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
 

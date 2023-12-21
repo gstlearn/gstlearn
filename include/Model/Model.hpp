@@ -156,7 +156,7 @@ public:
   bool isAllActiveCovList() const;
   void setTapeRange(double range);
 
-  void setIsOptimEnabled(bool flagOptim) { _cova->setIsOptimEnabled(flagOptim); }
+  void setOptimEnabled(bool flagOptim) { _cova->setOptimEnabled(flagOptim); }
   bool isOptimEnabled() const { return _cova->isOptimEnabled(); }
 
   double eval0(int ivar = 0,

@@ -23,6 +23,7 @@ class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 public:
   AMatrixDense(int nrow = 0, int ncol = 0);
   AMatrixDense(const AMatrixDense &m);
+  AMatrixDense(const AMatrix &m);
   AMatrixDense& operator= (const AMatrixDense &r);
 	virtual ~AMatrixDense();
 

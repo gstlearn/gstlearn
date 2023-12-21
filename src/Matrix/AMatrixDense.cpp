@@ -17,13 +17,15 @@
 #include <math.h>
 
 AMatrixDense::AMatrixDense(int nrow, int ncol)
-  : AMatrix(nrow, ncol)
+  : AMatrix(nrow, ncol),
+    _eigenMatrix()
 {
   _allocate();
 }
 
 AMatrixDense::AMatrixDense(const AMatrixDense &r)
-  : AMatrix(r)
+  : AMatrix(r),
+    _eigenMatrix()
 {
   // operator "=" is faster than the copy constructor
   // (see https://stackoverflow.com/questions/47644021/eigen-copy-constructor-vs-operator-performance)
@@ -31,12 +33,25 @@ AMatrixDense::AMatrixDense(const AMatrixDense &r)
   _recopyLocal(r);
 }
 
+AMatrixDense::AMatrixDense(const AMatrix &m)
+    : AMatrix(m),
+      _eigenMatrix()
+{
+  if (m.isEmpty())
+  {
+    messerr("The input matrix should be non-empty");
+    _clear();
+    return;
+  }
+  _allocate();
+  copyElements(m);
+}
+
 AMatrixDense& AMatrixDense::operator= (const AMatrixDense &r)
 {
   if (this != &r)
   {
     AMatrix::operator=(r);
-    _allocate();
     _recopyLocal(r);
   }
   return *this;
@@ -454,7 +469,7 @@ double AMatrixDense::_getValueLocal(int irow, int icol) const
 
 void AMatrixDense::_allocateLocal()
 {
-  if (isMultiThread()) omp_set_num_threads(getMultiThread());
+  if (isMultiThread()) omp_set_num_threads(getMultiThread()); // TODO Move to multithread handling class
   _eigenMatrix = Eigen::MatrixXd::Constant(getNRows(),getNCols(),0.);
 }
 

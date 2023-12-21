@@ -131,14 +131,11 @@ private:
   void _resetMemoryGeneral();
   void _resetMemoryPerNeigh();
   void _flagDefine();
-  void _zextInit();
-  void _lhsInit();
   void _covUpdate(int icas1, int iech1, int icas2, int iech2);
-  void _covtabInit();
+  void _covtab0Calcul(const CovCalcMode *mode);
   void _covtabCalcul(int iech1,
                      int iech2,
-                     const CovCalcMode* mode,
-                     bool flagSameData = false);
+                     const CovCalcMode* mode);
   void _covCvvCalcul(const CovCalcMode* mode);
   int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
@@ -310,7 +307,6 @@ private:
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable MatrixSquareGeneral   _covtab;
-  mutable MatrixSquareGeneral   _covref;
   mutable VectorDouble          _drftab;
   mutable MatrixSquareSymmetric _lhs;
   mutable MatrixSquareSymmetric _lhsinv;

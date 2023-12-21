@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("benchKrigingM-");
+  ASerializable::setPrefixName("BenchKrigingM-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);

@@ -118,7 +118,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _nbgh(),
       _flag(),
       _covtab(),
-      _covref(),
       _drftab(),
       _lhs(),
       _lhsinv(),
@@ -312,7 +311,6 @@ void KrigingSystem::_resetMemoryGeneral()
   _setInternalShortCutVariablesGeneral();
 
   _covtab.reset(_nvar, _nvar);
-  _covref.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
 
@@ -563,21 +561,6 @@ bool KrigingSystem::_isAuthorized()
   return true;
 }
 
-void KrigingSystem::_covtabInit()
-{
-  _covtab.fill(0.);
-}
-
-void KrigingSystem::_zextInit()
-{
-  _zext.fill(0);
-}
-
-void KrigingSystem::_lhsInit()
-{
-  _lhs.fill(0.);
-}
-
 /**
  * Modify the covariance before calling the covariance evaluation
  * This makes sense only when non-stationarity is defined
@@ -593,46 +576,43 @@ void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
 }
 
 /**
+ * Module for calculating the covariance internally (for 0 distance)
+ * @param mode      CovCalcMode structure
+ */
+void KrigingSystem::_covtab0Calcul(const CovCalcMode* mode)
+{
+  _model->eval0MatInPlace(_covtab, mode);
+}
+
+
+/**
  * Module for calculating the covariance internally
  * It is called for LHS (iech1>=0 && iech2>=0), RHS (iech1>=0 && iech2=-1) and VAR (iech1=-1 && iech2=-1)
  * @param iech1     Rank of the first sample (or -1 for target)
  * @param iech2     Rank of the second sample (or -1 for target)
  * @param mode      CovCalcMode structure
- * @param flagSameData True when both Data samples coincide
  */
 void KrigingSystem::_covtabCalcul(int iech1,
                                   int iech2,
-                                  const CovCalcMode* mode,
-                                  bool flagSameData)
+                                  const CovCalcMode* mode)
 {
-  // Evaluate the Model
-
-  if (flagSameData)
-    _model->eval0MatInPlace(_covref, mode);
+  if (_optimEnabled)
+  {
+    _model->evalMatOptimInPlace(iech1, iech2, _covtab, mode);
+  }
   else
   {
-    if (_optimEnabled)
-    {
-      _model->evalMatOptimInPlace(iech1, iech2, _covref, mode);
-    }
+    if (iech1 >= 0)
+      _dbin->getSampleCoordinatesAsSPInPlace(iech1, _p1);
     else
-    {
-      if (iech1 >= 0)
-        _dbin->getSampleCoordinatesAsSPInPlace(iech1, _p1);
-      else
-        _p1 = _p0;
-      SpacePoint p2;
-      if (iech2 >= 0)
-        _dbin->getSampleCoordinatesAsSPInPlace(iech2, _p2);
-      else
-        _p2 = _p0;
-      _model->evalMatInPlace(_p1, _p2, _covref, mode);
-    }
+      _p1 = _p0;
+    SpacePoint p2;
+    if (iech2 >= 0)
+      _dbin->getSampleCoordinatesAsSPInPlace(iech2, _p2);
+    else
+      _p2 = _p0;
+    _model->evalMatInPlace(_p1, _p2, _covtab, mode);
   }
-
-  // Expand the Model to all terms of the LHS of the Kriging System
-
-  _covtab.addMatrix(_covref);
 }
 
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
@@ -713,7 +693,7 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
  *****************************************************************************/
 void KrigingSystem::_lhsCalcul()
 {
-  _lhsInit();
+  _lhs.fill(0.);
   bool flagVerr = _dbin->hasLocVariable(ELoc::V);
 
   /* Establish the covariance part */
@@ -722,11 +702,12 @@ void KrigingSystem::_lhsCalcul()
   {
     for (int jech = 0; jech < _nech; jech++)
     {
-      bool flagSameData = (iech == jech && _model->isStationary());
-
-      _covtabInit();
+      _covtab.fill(0.);
       if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
-      _covtabCalcul(_nbgh[iech], _nbgh[jech], &_calcModeLHS, flagSameData);
+      if (iech == jech && _model->isStationary())
+        _covtab0Calcul(&_calcModeLHS);
+      else
+        _covtabCalcul(_nbgh[iech], _nbgh[jech], &_calcModeLHS);
 
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -927,8 +908,9 @@ void KrigingSystem::_rhsCalculPoint()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    _covtabInit();
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+
+    _covtab.fill(0.);
     _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -945,8 +927,10 @@ void KrigingSystem::_rhsCalculBlock()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    _covtabInit();
+
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+
+    _covtab.fill(0.);
     if (_flagPerCell) _blockDiscretize();
     int nscale = _getNDisc();
 
@@ -979,7 +963,7 @@ void KrigingSystem::_rhsCalculDrift()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    _covtabInit();
+    _covtab.fill(0.);
     _rhsStore(iech);
   }
 }
@@ -996,8 +980,9 @@ void KrigingSystem::_rhsCalculDGM()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    _covtabInit();
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+
+    _covtab.fill(0.);
     _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -1365,7 +1350,7 @@ void KrigingSystem::_estimateCalcul(int status)
   if (_flagVarZ != 0)
     _estimateVarZ(status);
 
-  // Modification specific to Xvalid options
+  // Modification specific to Cross-validation options
 
   if (_neigh->getFlagXvalid())
   {
@@ -1558,26 +1543,24 @@ void KrigingSystem::_variance0()
   if (_optimEnabled)
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
-  _covtabInit();
   if (_model->isNoStat()) _covUpdate(2, _iechOut, 2, _iechOut);
 
+  _covtab.fill(0.);
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      _covtabCalcul(-1, -1, &_calcModeVAR, true);
+      _covtab0Calcul(&_calcModeVAR);
       break;
 
     case EKrigOpt::E_BLOCK:
-    {
       _covCvvCalcul(&_calcModeVAR);
       break;
-    }
 
     case EKrigOpt::E_DRIFT:
       break;
 
     case EKrigOpt::E_DGM:
-      _covtabCalcul(-1, -1, &_calcModeVAR, true);
+      _covtab0Calcul(&_calcModeVAR);
       break;
   }
 
@@ -1587,7 +1570,7 @@ void KrigingSystem::_variance0()
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
-        _setVAR0(ivar,jvar,_getCOVTAB(ivar,jvar));
+        _setVAR0(ivar, jvar, _getCOVTAB(ivar, jvar));
   }
   else
   {
@@ -1598,7 +1581,7 @@ void KrigingSystem::_variance0()
         for (int ivar = 0; ivar < _nvar; ivar++)
           for (int jvar = 0; jvar < _nvar; jvar++)
             value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar) * _matCL[jvarCL][jvar];
-        _setVAR0(ivarCL,jvarCL,value);
+        _setVAR0(ivarCL, jvarCL, value);
       }
   }
   return;
@@ -1746,7 +1729,7 @@ int KrigingSystem::_prepar()
  *****************************************************************************/
 void KrigingSystem::_dualCalcul()
 {
-  _zextInit();
+  _zext.fill(0.);
 
   /* Extract the data */
 
@@ -2826,7 +2809,7 @@ bool KrigingSystem::_isCorrect()
       }
 
       // Discard optimization in the non-stationary case
-      _model->setIsOptimEnabled(false);
+      _model->setOptimEnabled(false);
       _optimEnabled = false;
     }
     else
@@ -3438,7 +3421,7 @@ bool KrigingSystem::_isMatCLempty() const
 {
   if (_matCL.empty()) return true;
   int size = (int) _matCL.size();
-  if (size == 1 && _matCL[0].empty()) return true;
+  if (size == 1 && _matCL.at(0).empty()) return true;
   return false;
 }
 

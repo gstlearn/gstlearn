@@ -25,6 +25,17 @@ AMatrixSquare::AMatrixSquare(const AMatrixSquare &r)
 {
 }
 
+AMatrixSquare::AMatrixSquare(const AMatrix &m)
+  : MatrixRectangular(m)
+{
+  if (!m.isSquare())
+  {
+    messerr("The input matrix should be Square");
+    _clear();
+    return;
+  }
+}
+
 AMatrixSquare& AMatrixSquare::operator= (const AMatrixSquare &r)
 {
   if (this != &r)

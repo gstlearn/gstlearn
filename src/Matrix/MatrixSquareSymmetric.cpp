@@ -27,47 +27,27 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r)
   : AMatrixSquare(r)
   , _squareSymMatrix()
 {
-  if (! isFlagEigen())
-    _recopyLocal(r);
+  _recopyLocal(r);
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
-    : AMatrixSquare(m.getNRows()),
+    : AMatrixSquare(m),
       _squareSymMatrix()
 {
-  if (m.isEmpty())
-  {
-    messerr("The input matrix should be non-empty");
-    _clear();
-    return;
-  }
-  if (!m.isSquare())
-  {
-    messerr("The input matrix should be Square");
-    _clear();
-    return;
-  }
   if (!m.isSymmetric())
   {
     messerr("The input matrix should be Symmetric");
     _clear();
     return;
   }
-
-  _setNRows(m.getNRows());
-  _setNCols(m.getNCols());
-  _allocate();
-  _recopy(m);
 }
 
 MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)
 {
   if (this != &r)
   {
-    _deallocate();
     AMatrixSquare::operator=(r);
-    if (! isFlagEigen())
-      _recopyLocal(r);
+    _recopyLocal(r);
   }
   return *this;
 }
