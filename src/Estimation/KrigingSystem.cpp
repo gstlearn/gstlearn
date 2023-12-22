@@ -133,6 +133,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _p1(),
       _p2(),
       _p0_memo(),
+      _flagNoStat(true),
       _flagNoMatCL(true),
       _flagVerr(false)
 {
@@ -150,6 +151,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
   }
 
   // Define local constants
+  _flagNoStat  = _model->isNoStat();
   _flagNoMatCL = _isMatCLempty();
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
@@ -714,7 +716,7 @@ void KrigingSystem::_lhsCalcul()
   {
     for (int jech = 0; jech < _nech; jech++)
     {
-      if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
+      if (_flagNoStat) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
       if (iech == jech && _model->isStationary())
         _covtab0Calcul(1, &_calcModeLHS);
       else
@@ -919,7 +921,7 @@ void KrigingSystem::_rhsCalculPoint()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
@@ -941,7 +943,7 @@ void KrigingSystem::_rhsCalculBlock()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
     covcum.fill(0.);
     if (_flagPerCell) _blockDiscretize();
@@ -996,7 +998,7 @@ void KrigingSystem::_rhsCalculDGM()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
@@ -1558,7 +1560,7 @@ void KrigingSystem::_variance0()
   if (_optimEnabled)
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
-  if (_model->isNoStat()) _covUpdate(2, _iechOut, 2, _iechOut);
+  if (_flagNoStat) _covUpdate(2, _iechOut, 2, _iechOut);
 
   switch (_calcul.toEnum())
   {
@@ -1657,7 +1659,7 @@ void KrigingSystem::_estimateStdv(int status)
       // The Variance at origin must be updated
       // - in Non-stationary case
       // - for Block Estimation, when the block size if defined per cell
-      if (_model->isNoStat() || _flagPerCell) _variance0();
+      if (_flagNoStat || _flagPerCell) _variance0();
 
       double var = _getVAR0(ivarCL, ivarCL);
       if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
@@ -2806,7 +2808,7 @@ bool KrigingSystem::_isCorrect()
 
   if (_model != nullptr)
   {
-    if (_model->isNoStat())
+    if (_flagNoStat)
     {
       const ANoStat *nostat = _model->getNoStat();
 

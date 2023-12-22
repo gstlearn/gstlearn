@@ -1,4 +1,4 @@
-This doculent describes the use of valgrind to evaluate the time
+This document describes the use of valgrind to evaluate the time
 spent in the different parts of the software.
 
 For example, to test the module 'name.cpp':
