@@ -126,6 +126,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _zam(),
       _zext(),
       _var0(),
+      _results(),
       _dbinUidToBeDeleted(),
       _dboutUidToBeDeleted(),
       _space(2), // empty constructor does not exist. Anyhow it will be overwritten next.
@@ -321,6 +322,7 @@ void KrigingSystem::_resetMemoryGeneral()
   _covtab.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
+  _results(_nvarCL,1);
 
   _space = SpaceRN(_ndim);
   _p0 = SpacePoint(&_space);
@@ -1612,11 +1614,9 @@ void KrigingSystem::_variance0()
  *****************************************************************************/
 void KrigingSystem::_estimateEstim(int status)
 {
-  MatrixRectangular estims(_nvarCL, 1);
-
   // Calculate the solution
   if (status == 0)
-    estims.prodTMatrix(_rhs, _zam);
+    _results.prodTMatrix(_rhs, _zam);
 
   // Loop for writing the estimation
 
@@ -1629,7 +1629,7 @@ void KrigingSystem::_estimateEstim(int status)
       estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean.data());
 
     if (status == 0)
-      _dbout->setArray(_iechOut, _iptrEst + ivarCL, estims.getValueSafe(ivarCL,0) + estim0);
+      _dbout->setArray(_iechOut, _iptrEst + ivarCL, _results.getValueSafe(ivarCL,0) + estim0);
     else
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, TEST);
   }
@@ -1644,11 +1644,9 @@ void KrigingSystem::_estimateEstim(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateStdv(int status)
 {
-  MatrixRectangular vars(_nvarCL,1);
-
   // Calculate the solution
   if (status == 0)
-    vars.prodTMatrix(_rhs, _wgt);
+    _results.prodTMatrix(_rhs, _wgt);
 
   // Loop for writing the estimation
 
@@ -1664,7 +1662,7 @@ void KrigingSystem::_estimateStdv(int status)
       double var = _getVAR0(ivarCL, ivarCL);
       if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
 
-      var -= vars.getValueSafe(ivarCL,0);
+      var -= _results.getValueSafe(ivarCL,0);
 
       double stdv = 0.;
       if (var > 0)

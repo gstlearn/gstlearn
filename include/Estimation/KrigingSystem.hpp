@@ -317,6 +317,7 @@ private:
   mutable MatrixRectangular     _zam;
   mutable MatrixRectangular     _zext;
   mutable MatrixSquareGeneral   _var0;
+  mutable MatrixRectangular     _results;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 
