@@ -571,9 +571,9 @@ bool KrigingSystem::_isAuthorized()
  * Modify the covariance before calling the covariance evaluation
  * This makes sense only when non-stationarity is defined
  * @param icas1     1 for dbin and 2 for Dbout
- * @param iech1     Rank of the first sample (or -1 for target)
+ * @param iech1     Rank of the first sample
  * @param icas2     1 for dbin and 2 for Dbout
- * @param iech2     Rank of the second sample (or -1 for target)
+ * @param iech2     Rank of the second sample
  */
 void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
 {
@@ -583,9 +583,10 @@ void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
 
 /**
  * Module for calculating the covariance internally (for 0 distance)
+ * @param icas      Origin of the sample: & for dbin and 2 for dbout
  * @param mode      CovCalcMode structure
  */
-void KrigingSystem::_covtab0Calcul(const CovCalcMode* mode)
+void KrigingSystem::_covtab0Calcul(int icas, const CovCalcMode* mode)
 {
   _model->eval0MatInPlace(_covtab, mode);
 }
@@ -594,11 +595,15 @@ void KrigingSystem::_covtab0Calcul(const CovCalcMode* mode)
 /**
  * Module for calculating the covariance internally
  * It is called for LHS (iech1>=0 && iech2>=0), RHS (iech1>=0 && iech2=-1) and VAR (iech1=-1 && iech2=-1)
- * @param iech1     Rank of the first sample (or -1 for target)
- * @param iech2     Rank of the second sample (or -1 for target)
+ * @param icas1     Origin of the first sample: 1 for dbin and 2 for dbout
+ * @param iech1     Rank of the first sample
+ * @param icas2     Origin of the second sample: 1 for dbin and 2 for dbout
+ * @param iech2     Rank of the second sample
  * @param mode      CovCalcMode structure
  */
-void KrigingSystem::_covtabCalcul(int iech1,
+void KrigingSystem::_covtabCalcul(int icas1,
+                                  int iech1,
+                                  int icas2,
                                   int iech2,
                                   const CovCalcMode* mode)
 {
@@ -608,12 +613,12 @@ void KrigingSystem::_covtabCalcul(int iech1,
   }
   else
   {
-    if (iech1 >= 0)
+    if (icas1 == 1)
       _dbin->getSampleCoordinatesAsSPInPlace(iech1, _p1);
     else
       _p1 = _p0;
     SpacePoint p2;
-    if (iech2 >= 0)
+    if (icas2 == 1)
       _dbin->getSampleCoordinatesAsSPInPlace(iech2, _p2);
     else
       _p2 = _p0;
@@ -710,9 +715,9 @@ void KrigingSystem::_lhsCalcul()
       _covtab.fill(0.);
       if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
       if (iech == jech && _model->isStationary())
-        _covtab0Calcul(&_calcModeLHS);
+        _covtab0Calcul(1, &_calcModeLHS);
       else
-        _covtabCalcul(_nbgh[iech], _nbgh[jech], &_calcModeLHS);
+        _covtabCalcul(1, _nbgh[iech], 1, _nbgh[jech], &_calcModeLHS);
 
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -916,7 +921,7 @@ void KrigingSystem::_rhsCalculPoint()
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
     _covtab.fill(0.);
-    _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
+    _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -936,7 +941,6 @@ void KrigingSystem::_rhsCalculBlock()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
     covcum.fill(0.);
@@ -950,7 +954,7 @@ void KrigingSystem::_rhsCalculBlock()
       _p0.move(_getDISC1Vec(i));
       if (_optimEnabled)
         _model->getCovAnisoList()->optimizationSetTarget(_p0);
-      _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
+      _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'
       covcum.addMatrix(_covtab);
@@ -997,7 +1001,7 @@ void KrigingSystem::_rhsCalculDGM()
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
     _covtab.fill(0.);
-    _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
+    _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
 }
@@ -1563,7 +1567,7 @@ void KrigingSystem::_variance0()
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      _covtab0Calcul(&_calcModeVAR);
+      _covtab0Calcul(2, &_calcModeVAR);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -1574,7 +1578,7 @@ void KrigingSystem::_variance0()
       break;
 
     case EKrigOpt::E_DGM:
-      _covtab0Calcul(&_calcModeVAR);
+      _covtab0Calcul(2, &_calcModeVAR);
       break;
   }
 

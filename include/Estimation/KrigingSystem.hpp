@@ -132,8 +132,10 @@ private:
   void _resetMemoryPerNeigh();
   void _flagDefine();
   void _covUpdate(int icas1, int iech1, int icas2, int iech2);
-  void _covtab0Calcul(const CovCalcMode *mode);
-  void _covtabCalcul(int iech1,
+  void _covtab0Calcul(int icas, const CovCalcMode *mode);
+  void _covtabCalcul(int icas1,
+                     int iech1,
+                     int icas2,
                      int iech2,
                      const CovCalcMode* mode);
   void _covCvvCalcul(const CovCalcMode* mode);
