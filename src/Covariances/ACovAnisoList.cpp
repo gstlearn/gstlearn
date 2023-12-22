@@ -153,6 +153,11 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   return cov;
 }
 
+/**
+ * Calculate the Matrix of covariance for zero distance
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ */
 void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
                                     const CovCalcMode *mode) const
 {

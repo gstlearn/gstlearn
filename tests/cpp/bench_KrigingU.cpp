@@ -54,12 +54,6 @@ int main(int argc, char *argv[])
   data->setName("New.4","rainfall");
   data->setLocators({"X","Y"},ELoc::X);
   data->setLocator("rainfall",ELoc::Z);
-  if (verbose)
-  {
-    DbStringFormat* datafmt = DbStringFormat::create(FLAG_STATS);
-    data->display(datafmt);
-    delete datafmt;
-  }
   if (graphic)
     (void) data->dumpToNF("Data.ascii");
 

@@ -923,27 +923,36 @@ void KrigingSystem::_rhsCalculPoint()
  *****************************************************************************/
 void KrigingSystem::_rhsCalculBlock()
 {
+  // The Block calculation needs:
+  // - to memorize the location of the target (center) before its randomization
+  // - define a new matrix to cumulate '_covtab'  calculations
   _p0_memo = _p0;
+  MatrixSquareGeneral covcum(_covtab);
 
   for (int iech = 0; iech < _nech; iech++)
   {
 
     if (_model->isNoStat()) _covUpdate(1, _nbgh[iech], 2, _iechOut);
 
-    _covtab.fill(0.);
+    covcum.fill(0.);
     if (_flagPerCell) _blockDiscretize();
     int nscale = _getNDisc();
 
     for (int i = 0; i < nscale; i++)
     {
+      // calculate the Local covariance between data and randomized target
       _p0 = _p0_memo;
       _p0.move(_getDISC1Vec(i));
       if (_optimEnabled)
         _model->getCovAnisoList()->optimizationSetTarget(_p0);
       _covtabCalcul(_nbgh[iech], -1, &_calcModeRHS);
+
+      // Cumulate the Local covariance to '_covtab'
+      covcum.addMatrix(_covtab);
     }
 
     // Normalization
+    _covtab.copyElements(covcum);
     if (nscale > 1)
       _covtab.prodScalar(1. / (double) nscale);
 
@@ -1676,8 +1685,8 @@ void KrigingSystem::_estimateVarZ(int status)
   {
     if (status == 0)
     {
-      double varZ = -VH::innerProduct(_rhs.getColumn(ivarCL)[cumflag],
-                                      _wgt.getColumn(ivarCL)[cumflag], _nfeq);
+      double varZ = VH::innerProduct(_rhs.getColumn(ivarCL),
+                                     _wgt.getColumn(ivarCL), cumflag);
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
     }
     else
