@@ -133,7 +133,8 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _p1(),
       _p2(),
       _p0_memo(),
-      _flagNoMatCL(true)
+      _flagNoMatCL(true),
+      _flagVerr(false)
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
   if (model != nullptr)
@@ -150,6 +151,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
   // Define local constants
   _flagNoMatCL = _isMatCLempty();
+  _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
   _resetMemoryGeneral();
 }
@@ -698,7 +700,6 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
 void KrigingSystem::_lhsCalcul()
 {
   _lhs.fill(0.);
-  bool flagVerr = _dbin->hasLocVariable(ELoc::V);
 
   /* Establish the covariance part */
 
@@ -720,7 +721,7 @@ void KrigingSystem::_lhsCalcul()
 
           /* Correction due to measurement errors */
 
-          if (flagVerr)
+          if (_flagVerr)
           {
             double verr = 0.;
             if (_flagCode)

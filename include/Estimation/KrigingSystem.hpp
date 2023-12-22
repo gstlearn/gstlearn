@@ -327,4 +327,5 @@ private:
 
   /// Some local flags defined in order to speed up the process
   mutable bool _flagNoMatCL;
+  mutable bool _flagVerr;
 };

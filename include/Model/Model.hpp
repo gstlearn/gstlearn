@@ -169,6 +169,14 @@ public:
   {
     return _cova->eval0Mat(mode);
   }
+  int isNoStat() const
+  {
+    return _cova->isNoStat();
+  }
+  const ANoStat* getNoStat() const
+  {
+    return _cova->getNoStat();
+  }
   void eval0MatInPlace(MatrixSquareGeneral &mat,
                        const CovCalcMode *mode = nullptr) const
   {
@@ -479,9 +487,7 @@ public:
 
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
-  const ANoStat* getNoStat() const;
   int  addNoStat(const ANoStat* anostat);
-  int  isNoStat() const;
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);

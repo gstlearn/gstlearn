@@ -781,20 +781,6 @@ void Model::setField(double field)
   _copyCovContext();
 }
 
-int Model::isNoStat() const
-{
-  if (_cova == nullptr) return 0;
-  return _cova->isNoStat();
-}
-
-const ANoStat* Model::getNoStat() const
-{
-  if (_cova == nullptr) return nullptr;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return nullptr;
-  return covalist->getANoStat();
-}
-
 int Model::getNoStatElemNumber() const
 {
   if (!isNoStat()) return 0;

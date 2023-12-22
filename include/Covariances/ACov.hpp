@@ -24,6 +24,7 @@
 class Db;
 class DbGrid;
 class MatrixRectangular;
+class ANoStat;
 
 /**
  * \brief
@@ -47,6 +48,7 @@ public:
   virtual int getNVariables() const = 0;
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
+  virtual const ANoStat* getNoStat() const { return nullptr; }
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
