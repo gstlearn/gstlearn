@@ -324,4 +324,7 @@ private:
   mutable SpacePoint _p1;
   mutable SpacePoint _p2;
   mutable SpacePoint _p0_memo;
+
+  /// Some local flags defined in order to speed up the process
+  mutable bool _flagNoMatCL;
 };

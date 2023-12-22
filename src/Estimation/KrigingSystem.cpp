@@ -132,7 +132,8 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _p0(),
       _p1(),
       _p2(),
-      _p0_memo()
+      _p0_memo(),
+      _flagNoMatCL(true)
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
   if (model != nullptr)
@@ -146,6 +147,9 @@ KrigingSystem::KrigingSystem(Db* dbin,
   {
     neigh->reset();
   }
+
+  // Define local constants
+  _flagNoMatCL = _isMatCLempty();
 
   _resetMemoryGeneral();
 }
@@ -244,7 +248,7 @@ int KrigingSystem::_getNVar() const
 
 int KrigingSystem::_getNVarCL() const
 {
-  if (_isMatCLempty())
+  if (_flagNoMatCL)
     return _getNVar();
   else
     return (int) _matCL.size();
@@ -431,7 +435,7 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
 double KrigingSystem::_getMean(int ivarCL) const
 {
   double value = 0.;
-  if (_isMatCLempty())
+  if (_flagNoMatCL)
   {
     value = _model->getMean(ivarCL);
   }
@@ -877,7 +881,7 @@ int KrigingSystem::_lhsInvert()
 
 void KrigingSystem::_rhsStore(int iech)
 {
-  if (_isMatCLempty())
+  if (_flagNoMatCL)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1044,7 +1048,7 @@ int KrigingSystem::_rhsCalcul()
   if (_nfeq <= 0) return 0;
 
   if (_drftabCalcul(ECalcMember::RHS, -1)) return 1;
-  if (_isMatCLempty())
+  if (_flagNoMatCL)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
@@ -1575,7 +1579,7 @@ void KrigingSystem::_variance0()
 
   /* Storage */
 
-  if (_isMatCLempty())
+  if (_flagNoMatCL)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
@@ -2419,7 +2423,7 @@ int KrigingSystem::setKrigOptImage(int seed)
  */
 int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
 {
-  if (_isMatCLempty()) return 0;
+  if (_flagNoMatCL) return 0;
   _isReady = false;
   int n1 = (int) matCL.size();
   int n2 = (int) matCL[0].size();
