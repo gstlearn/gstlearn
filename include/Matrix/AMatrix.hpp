@@ -122,8 +122,12 @@ public:
 
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
+  /*! Gets the value at row 'irow' and column 'icol' (no test) */
+  double getValueSafe(int irow, int icol) const;
   /*! Gets the value at row 'irow' and column 'icol' */
   double getValue(int irow, int icol) const;
+  /*! Sets the value at row 'irow' and column 'icol' (no test) */
+  void setValueSafe(int irow, int icol, double value);
   /*! Sets the value at row 'irow' and column 'icol' */
   void setValue(int irow, int icol, double value);
   /*! Add a value to a matrix term */
