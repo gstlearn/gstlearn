@@ -797,10 +797,11 @@ void KrigingSystem::_lhsIsoToHetero()
     {
       if (_flag[j] == 0) continue;
       _lhs.setValueSafe(ecri, ecrj, _lhs.getValueSafe(i,j));
-      ecri++;
+      ecrj++;
     }
-    ecrj++;
+    ecri++;
   }
+
   return;
 }
 
@@ -873,7 +874,7 @@ void KrigingSystem::_lhsDump(int nbypas)
 
 int KrigingSystem::_lhsInvert()
 {
-  // Duplicate the whole direct matrix
+  // Duplicate the whole direct matrix before inversion
   _lhsinv = _lhs;
 
   /* Invert the L.H.S. matrix */
@@ -924,7 +925,6 @@ void KrigingSystem::_rhsCalculPoint()
   for (int iech = 0; iech < _nech; iech++)
   {
     if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
-
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -942,14 +942,13 @@ void KrigingSystem::_rhsCalculBlock()
   // - define a new matrix to cumulate '_covtab'  calculations
   _p0_memo = _p0;
   MatrixSquareGeneral covcum(_covtab);
+  int nscale = _getNDisc();
 
   for (int iech = 0; iech < _nech; iech++)
   {
     if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
-
     covcum.fill(0.);
     if (_flagPerCell) _blockDiscretize();
-    int nscale = _getNDisc();
 
     for (int i = 0; i < nscale; i++)
     {
@@ -1001,7 +1000,6 @@ void KrigingSystem::_rhsCalculDGM()
   for (int iech = 0; iech < _nech; iech++)
   {
     if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
-
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -2808,22 +2806,7 @@ bool KrigingSystem::_isCorrect()
   {
     if (_flagNoStat)
     {
-      const ANoStat *nostat = _model->getNoStat();
-
-      if (_dbin != nullptr)
-      {
-        // Attach the Input Db
-        if (nostat->attachToDb(_dbin, 1)) return false;
-      }
-
-      if (_dbout != nullptr)
-      {
-        // Attach the Output Db
-        if (nostat->attachToDb(_dbout, 2)) return false;
-      }
-
-      // Discard optimization in the non-stationary case
-      _model->setOptimEnabled(false);
+      if (! _preparNoStat()) return false;
       _optimEnabled = false;
     }
     else
@@ -2841,6 +2824,28 @@ bool KrigingSystem::_isCorrect()
     messerr("The DGM option is incompatible with 'Block' calculation option");
     return false;
   }
+  return true;
+}
+
+bool KrigingSystem::_preparNoStat()
+{
+  const ANoStat *nostat = _model->getNoStat();
+
+  if (_dbin != nullptr)
+  {
+    // Attach the Input Db
+    if (nostat->attachToDb(_dbin, 1)) return false;
+  }
+
+  if (_dbout != nullptr)
+  {
+    // Attach the Output Db
+    if (nostat->attachToDb(_dbout, 2)) return false;
+  }
+
+  // Discard optimization in the non-stationary case
+  _model->setOptimEnabled(false);
+
   return true;
 }
 

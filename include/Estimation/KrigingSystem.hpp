@@ -173,6 +173,7 @@ private:
   void _saveWeights(int status);
   void _blockDiscretize();
   bool _isCorrect();
+  bool _preparNoStat();
 
   void   _checkAddress(const String& title,
                        const String& theme,
