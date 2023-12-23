@@ -129,7 +129,8 @@ private:
   void   _setVAR0(int ivCL, int jvCL, double value);
 
   void _resetMemoryGeneral();
-  void _resetMemoryPerNeigh();
+  void _resetMemoryFullPerNeigh();
+  void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
   void _covUpdate(int icas1, int iech1, int icas2, int iech2);
   void _covtab0Calcul(int icas, const CovCalcMode *mode);
@@ -171,7 +172,7 @@ private:
   void _krigingDump(int status);
   void _simulateDump(int status);
   void _saveWeights(int status);
-  void _blockDiscretize();
+  void _blockDiscretize(int rank);
   bool _isCorrect();
   bool _preparNoStat();
 

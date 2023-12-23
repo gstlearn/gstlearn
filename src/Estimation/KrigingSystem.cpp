@@ -305,14 +305,18 @@ int KrigingSystem::_getNDisc() const
   return _ndiscNumber;
 }
 
-void KrigingSystem::_resetMemoryPerNeigh()
+void KrigingSystem::_resetMemoryFullPerNeigh()
 {
   _flag.resize(_neq);
   _lhs.resize (_neq, _neq);
   _rhs.resize (_neq, _nvarCL);
-  _wgt.resize (_neq, _nvarCL);
-  _zam.resize (_neq, 1);
-  _zext.resize(_neq, 1); // in fact, it should be allocated to _nred <= _neq (unknown at this stage)
+}
+
+void KrigingSystem::_resetMemoryCompressedPerNeigh()
+{
+  _wgt.resize (_nred, _nvarCL);
+  _zam.resize (_nred, 1);
+  _zext.resize(_nred, 1);
 }
 
 void KrigingSystem::_resetMemoryGeneral()
@@ -592,7 +596,6 @@ void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
  */
 void KrigingSystem::_covtab0Calcul(int icas, const CovCalcMode* mode)
 {
-  _covtab.fill(0.);
   _model->eval0MatInPlace(_covtab, mode);
 }
 
@@ -633,6 +636,8 @@ void KrigingSystem::_covtabCalcul(int icas1,
 
 void KrigingSystem::_covCvvCalcul(const CovCalcMode* mode)
 {
+  if (_flagPerCell) _blockDiscretize(2);
+
   VectorVectorDouble d1 = _getDISC1s();
   VectorVectorDouble d2 = _getDISC2s();
 
@@ -948,7 +953,7 @@ void KrigingSystem::_rhsCalculBlock()
   {
     if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
     covcum.fill(0.);
-    if (_flagPerCell) _blockDiscretize();
+    if (_flagPerCell) _blockDiscretize(1);
 
     for (int i = 0; i < nscale; i++)
     {
@@ -1708,11 +1713,15 @@ int KrigingSystem::_prepar()
 {
   // Resize the internal working arrays
 
-  _resetMemoryPerNeigh();
+  _resetMemoryFullPerNeigh();
 
   /* Define the array flag */
 
   _flagDefine();
+
+  // Complementary memory allocation (with reduced dimensions)
+
+  _resetMemoryCompressedPerNeigh();
 
   /* Check if the number of points is compatible with the model */
 
@@ -2187,11 +2196,21 @@ int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
   return 0;
 }
 
-void KrigingSystem::_blockDiscretize()
+/**
+ * Discretize the block and create the set of discretized points (centered on target)
+ * @param rank 1 for the first discretization; 2 for two sets of discretized points (see remarks)
+ *
+ * @remarks: when calculating variance, we need 2 sets of discretizations. The first is regular
+ * while the second is randomized around the first one
+ */
+void KrigingSystem::_blockDiscretize(int rank)
 {
   const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-  _disc1 = dbgrid->getDiscretizedBlock(_ndiscs, _iechOut, _flagPerCell, false, 1234546);
-  _disc2 = dbgrid->getDiscretizedBlock(_ndiscs, _iechOut, _flagPerCell, true, 1234546);
+
+  _disc1 = dbgrid->getDiscretizedBlock(_ndiscs, _iechOut, _flagPerCell, false);
+
+  if (rank > 1)
+    _disc2 = dbgrid->getDiscretizedBlock(_ndiscs, _iechOut, _flagPerCell, true, 1234546);
 }
 
 int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
@@ -2242,7 +2261,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
 
     // For constant discretization, calculate discretization coordinates
 
-    if (! _flagPerCell) _blockDiscretize();
+    if (! _flagPerCell) _blockDiscretize(2);
   }
   else
   {
