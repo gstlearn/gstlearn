@@ -605,7 +605,6 @@ void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
   _updateCova(cova, imesh);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  //  const MatrixSquareGeneral &rotmat = cova->getAnisoRotMat();
   const MatrixSquareGeneral &rotmat = cova->getAnisoInvMat();
 
   VectorDouble diag = VH::power(cova->getScales(), 2.);

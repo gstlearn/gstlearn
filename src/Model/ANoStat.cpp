@@ -571,7 +571,7 @@ void ANoStat::updateModel(Model* model,
     if (flagRotTwo || flagRangeTwo || flagScaleTwo)
     {
 
-      // Interpolate the tensors (as parameteres are different at two points)
+      // Interpolate the tensors (as parameters are different at two points)
       if (flagRotTwo)   cova->setAnisoAngles(angle1);
       if (flagRangeTwo) cova->setRanges(range1);
       if (flagScaleTwo) cova->setScales(scale1);

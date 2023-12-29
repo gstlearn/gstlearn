@@ -79,11 +79,11 @@ int main(int argc, char *argv[])
                       NamingConvention("Data", true, false));
   (void) dat->dumpToNF("Data.ascii");
 
-  // Testing Kriging (traditional method)
-  (void) kriging(dat, grid, model, neighU); // TODO: check resemblance with SPDE
-
-  // Testing Kriging (with SPDE). This serves as a reference
+  // Testing Kriging (with SPDE)
   (void) krigingSPDE(dat, grid, model, true, false, false, nullptr, useCholesky, SPDEParam());
+
+  // Testing Kriging (traditional method)
+  (void) kriging(dat, grid, model, neighU);
 
   // Printout (optional)
   (void) grid->dumpToNF("Grid.ascii");

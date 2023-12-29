@@ -140,7 +140,6 @@ protected:
   virtual double  _getValueByRank(int rank) const override;
   virtual double  _getValue(int irow, int icol) const override;
   virtual int     _getIndexToRank(int irow,int icol) const override;
-  /*! Transpose the matrix in place*/
   virtual void    _transposeInPlace() override;
 
   virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;

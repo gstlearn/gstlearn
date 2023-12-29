@@ -38,15 +38,15 @@ public:
   void setRotationAngles(const VectorDouble& angles);
   void setRotationAngle(unsigned int idim, double angle);
 
-  const VectorDouble&    getAngles()        const { return  _rotation.getAngles(); }
+  const VectorDouble&        getAngles()        const { return  _rotation.getAngles(); }
   const MatrixSquareGeneral& getTensorDirect()  const { return  _tensorDirect; }
   const MatrixSquareGeneral& getTensorInverse() const { return  _tensorInverse; }
-  const VectorDouble&    getRadius()        const { return  _radius; }
-  const Rotation&        getRotation()      const { return  _rotation; }
+  const VectorDouble&        getRadius()        const { return  _radius; }
+  const Rotation&            getRotation()      const { return  _rotation; }
   const MatrixSquareGeneral& getMatrixDirect()  const { return  _rotation.getMatrixDirect(); }
   const MatrixSquareGeneral& getMatrixInverse() const { return  _rotation.getMatrixInverse(); }
-  bool                   isIsotropic()        const { return  _isotropic; }
-  bool                   hasRotation()      const { return !_rotation.isIdentity(); }
+  bool                       isIsotropic()        const { return  _isotropic; }
+  bool                       hasRotation()      const { return !_rotation.isIdentity(); }
 
   VectorDouble applyDirect (const VectorDouble& vec) const;
   VectorDouble applyInverse(const VectorDouble& vec) const;

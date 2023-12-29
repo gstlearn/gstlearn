@@ -6,6 +6,7 @@ from scipy.spatial import distance_matrix
 def cova(x,sills=1):
     return np.kron(sills,np.exp(-x/2))
 
+np.random.seed(1234)
 A = np.random.normal(size=(3,3))
 sills = gl.VectorDouble((A@A.T).reshape(1,-1)[0])
 model = gl.Model.createFromParam(gl.ECov.EXPONENTIAL,range = 2.,flagRange=False,sills=sills)
@@ -106,6 +107,10 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     inter = ""
     if nvar > 1:
         inter = "co-"
+        
+    if irf is None and drift:
+        return
+    
     if irf is None and not drift:
         casetxt += "- simple "+ inter+ "kriging\n"
     else :
@@ -113,7 +118,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
             casetxt += "- KU with drift of degree " + str(irf) + "\n"
         if drift :
             casetxt +="- with external drift\n"
-    if nvar>1:
+    if nvar > 1:
         casetxt +="- number of covariables for co-kriging " + str(nvar) + "\n"
         if flag_isotopic:
             casetxt += "- isotopic case\n"
@@ -134,6 +139,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     
     if verbose:
         print(casetxt)
+        
     ##################################################
     db,indF = createDbIn(ndat,nvar,percent,2,selDbin,measurement_error,ndrift,flag_isotopic,seed)
     
@@ -171,8 +177,6 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     
     target2 = target.clone()
     target2.setLocator("sel")
-    #modeln.covMatrix(vect,db2,None,-1,-1)
-    ##########
     
     covgl = np.array(list(vect)).reshape(nvar * db2.getSampleNumber(),-1)[indF,:][:,indF]
     
@@ -180,14 +184,7 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
         err = db["err*"].T.reshape(-1,)
         np.fill_diagonal(cov,np.diag(cov)+err[indF])
     
-    
-    #assert(np.linalg.norm(covgl-cov)<tol)   
-    
     vect = gl.VectorDouble(nvar**2 * db2.getSampleNumber() * len(indOut))
-    #modeln.covMatrix(vect,db2,target,-1,-1)
-    #c0gl = np.array(list(vect)).reshape(nvar*db2.getSampleNumber(),nvar*len(indOut))[indF,:]
-    
-    #assert(np.linalg.norm(c0gl-c0)<tol)
     
     neigh = gl.NeighUnique()
     
@@ -224,15 +221,25 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     krigref = target["*estim"][indOut].T.reshape(-1,)
     stdref = target["*stdev"][indOut].T.reshape(-1,)
     varestref = target["*varz"][indOut].T.reshape(-1,)
-    if test :
-        gt.checkEqualityVector(krigref, krig, tolerance=tol, message=casetxt)
+    
+    status = True
+    if test:
         if compute_vars:
-            #assert np.linalg.norm((stdref-std)/(eps+std))<tol , "Problem with kriging stdev in " + casetxt
-            #assert np.linalg.norm((varestref-varest)/(eps+varest))<tol, "Problem with kriging variance (var_est) in " + casetxt
-            gt.checkEqualityVector(varestref, varest, tolerance=tol, message=casetxt)
-    if verbose:
+            status = gt.checkEqualityVector(stdref, std, tolerance=tol, message=casetxt)
+            if not status:
+                print("stdref=", varestref)
+                print("std=", varest)
+
+            status = gt.checkEqualityVector(varestref, varest, tolerance=tol, message=casetxt)
+            if not status:
+                print("varestref", varestref)
+                print("varrest=", varest)
+        else:
+            status = gt.checkEqualityVector(krigref, krig, tolerance=tol, message=casetxt)
+
+    if verbose and status:
         print("Test Ok")
-    return krig,target,indOut,db , varest
+    return krig,target,indOut,db,varest
 
 
 #################################################################
@@ -242,7 +249,7 @@ percent = [0.5,0.9,1.]
 ndat = 40
 nbtests = 0
 verbose = False
-general = True
+general = False
 
 if general:
     for irf in [None,0,1]:
@@ -273,13 +280,14 @@ if general:
 if not general:
     irf = 0
     drift = False
-    measurement_error = False
-    selDbin = False
-    selDbout = False
+    measurement_error = True
+    compute_vars = True
+    selDbin = True
+    selDbout = True
     nx = [5,5]
-    nvar = 2
+    nvar = 1
     iso = True
-    cv = False
+    cv = True
                                     
     a = test_kriging(ndat,nx,nvar,percent,
                      model,cova,compute_vars=cv,

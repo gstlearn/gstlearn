@@ -8,6 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+
+#include "API/SPDE.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -20,9 +22,6 @@
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "LinearOp/PrecisionOp.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
-#include "Mesh/MeshETurbo.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
@@ -39,6 +38,12 @@
 /*!
  ** Main Program
  **
+ ** This test is meant to compare different manners to perform
+ ** a non-conditional simulation using SPDE approach.
+ ** The non-stationarity is provided through the angle of a Spiral which is povided:
+ ** - directly as a pre-programmed non-stationary function (flagDirect = true)
+ ** - by defining a vector containing the non-stationary angle (flagDirect = false and flagByAngle = true)
+ ** - by defining the vector of local tensor matrices (flagDirect = false and flagByAngle = false)
  *****************************************************************************/
 int main(int argc, char *argv[])
 {
@@ -57,58 +62,51 @@ int main(int argc, char *argv[])
   DbGrid* workingDbc = DbGrid::create(nx);
 
   // Creating the Non-stationary Model
-  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {45., 10.});
+  Model* model = Model::createFromParam(ECov::BESSEL_K, 1., 1., 1., {10., 45.});
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
-  VectorDouble angle = spirale.getFunctionValues(workingDbc);
-  MatrixSquareGeneral hh(2);
   CovAniso* cova = model->getCova(0);
 
-  int nech = workingDbc->getSampleNumber();
-  VectorDouble h11(nech);
-  VectorDouble h12(nech);
-  VectorDouble h22(nech);
-  MatrixSquareGeneral rotmat(2);
-  VectorDouble diag = VH::power(cova->getScales(), 2.);
-  MatrixSquareSymmetric temp(2);
-  temp.setDiagonal(diag);
+  bool flagDirect  = true;
+  bool flagByAngle = false;
+  bool flagInquiry = false;
 
-  for (int i = 0; i < nech; i++)
+  if (flagDirect)
   {
-    VectorDouble coor = workingDbc->getSampleCoordinates(i);
-    VectorVectorDouble dirs = spirale.getFunctionVectors(coor);
-
-    rotmat.setValue(0,0,dirs[0][0]);
-    rotmat.setValue(1,0,dirs[1][0]);
-    rotmat.setValue(0,1,dirs[0][1]);
-    rotmat.setValue(1,1,dirs[1][1]);
-
-    hh.normMatrix(temp, rotmat);
-
-    h11[i] = hh.getValue(0,0);
-    h12[i] = hh.getValue(0,1);
-    h22[i] = hh.getValue(1,1);
+    NoStatFunctional noStatFunc(&spirale);
+    model->addNoStat(&noStatFunc);
   }
-  workingDbc->addColumns(h11,"H1-1",ELoc::NOSTAT,0);
-  workingDbc->addColumns(h12,"H1-2",ELoc::NOSTAT,1);
-  workingDbc->addColumns(h22,"H2-2",ELoc::NOSTAT,2);
-  workingDbc->display();
+  else
+  {
+    NoStatArray noStatArray;
+    if (flagByAngle)
+    {
+      VectorDouble angle = spirale.getFunctionValues(workingDbc);
+      workingDbc->addColumns(angle, "Angle", ELoc::NOSTAT, 0);
+      noStatArray = NoStatArray( { "A" }, workingDbc);
+    }
+    else
+    {
+      VectorVectorDouble hh = spirale.getFunctionVectors(workingDbc, cova);
+      workingDbc->addColumns(hh[0], "H1-1", ELoc::NOSTAT, 0);
+      workingDbc->addColumns(hh[1], "H1-2", ELoc::NOSTAT, 1);
+      workingDbc->addColumns(hh[2], "H2-2", ELoc::NOSTAT, 2);
+      noStatArray = NoStatArray( { "H1-1", "H1-2", "H2-2" }, workingDbc);
+    }
+    model->addNoStat(&noStatArray);
+  }
 
   // Inquiry the value of the Non-stationary parameters at a given sample
-  int target = 1000;
-  VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT,target);
-  VH::display("Non-stationary parameters at sample", vect);
+  if (flagInquiry)
+  {
+    int target = 1000;
+    VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT, target);
+    VH::display("Non-stationary parameters at sample", vect);
+  }
 
-  NoStatArray NoStat({"H1-1","H1-2","H2-2"},workingDbc);
-  model->addNoStat(&NoStat);
-  model->display();
-
-  MeshETurbo mesh(workingDbc);
-  ShiftOpCs S(&mesh, model, workingDbc);
-  PrecisionOp Qsimu(&S, cova, false);
-
-  VectorDouble result = Qsimu.simulateOne();
-  workingDbc->addColumns(result,"Simu",ELoc::Z);
+  int useCholesky = 0;
+  (void) simulateSPDE(nullptr, workingDbc, model, 1, nullptr, useCholesky, SPDEParam(), 13256, false, false,
+                      NamingConvention("Simu", true, false));
 
   DbStringFormat dbfmt(FLAG_STATS,{"Simu"});
   workingDbc->display(&dbfmt);

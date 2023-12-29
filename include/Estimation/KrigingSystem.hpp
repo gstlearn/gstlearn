@@ -82,8 +82,8 @@ public:
   VectorVectorDouble    getSampleCoordinates() const;
   VectorDouble          getSampleData() const;
   MatrixRectangular     getZam() const { return _zam; }
-  MatrixSquareSymmetric getLHS() const { return _lhs; }
-  MatrixRectangular     getRHSC() const { return _rhs; }
+  MatrixSquareSymmetric getLHSC() const { return _lhsc; }
+  MatrixRectangular     getRHSC() const { return _rhsc; }
   MatrixRectangular     getWeights() const { return _wgt; }
   MatrixSquareGeneral   getVariance() const { return _var0; }
 
@@ -110,15 +110,12 @@ private:
   double _getDriftCoef(int ivar, int il, int ib) const;
   int    _getFLAG(int iech,int ivar) const;
   double _getCOVTAB(int ivar,int jvar) const;
-  double _getRHS(int iech, int ivar, int jvCL) const;
-  void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
-  double _getRHSC(int i, int jvCL) const;
-  double _getWGTC(int i,int jvCL) const;
-  double _getLHS(int iech, int ivar, int jech, int jvar) const;
+  void   _setRHSF(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
+  double _getLHSF(int iech, int ivar, int jech, int jvar) const;
   double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
-  void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
-  void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
-  double _getLHSC(int i, int j) const;
+  void   _setLHSF(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
+  void   _addLHSF(int iech, int ivar, int jech, int jvar, double value);
+  double _getLHS(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
   VectorDouble _getDISC1Vec(int idisc) const;
   VectorVectorDouble _getDISC1s() const;
@@ -310,16 +307,20 @@ private:
   /// Working arrays
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable MatrixSquareGeneral   _covtab;
-  mutable VectorDouble          _drftab;
-  mutable MatrixSquareSymmetric _lhs;
-  mutable MatrixSquareSymmetric _lhsinv;
-  mutable MatrixRectangular     _rhs;
-  mutable MatrixRectangular     _wgt;
-  mutable MatrixRectangular     _zam;
-  mutable MatrixRectangular     _zext;
-  mutable MatrixSquareGeneral   _var0;
-  mutable MatrixRectangular     _results;
+  mutable MatrixSquareGeneral    _covtab;
+  mutable VectorDouble           _drftab;
+  mutable MatrixSquareSymmetric  _lhsf;
+  mutable MatrixSquareSymmetric  _lhsc;
+  mutable MatrixSquareSymmetric* _lhs;
+  mutable MatrixSquareSymmetric  _lhsinv;
+  mutable MatrixRectangular      _rhsf;
+  mutable MatrixRectangular      _rhsc;
+  mutable MatrixRectangular*     _rhs;
+  mutable MatrixRectangular      _wgt;
+  mutable MatrixRectangular      _zam;
+  mutable MatrixRectangular      _zext;
+  mutable MatrixSquareGeneral    _var0;
+  mutable MatrixRectangular      _results;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 

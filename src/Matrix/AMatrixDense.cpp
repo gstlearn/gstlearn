@@ -533,9 +533,15 @@ void AMatrixDense::_prodTMatrixLocal(const AMatrixDense& x, const AMatrixDense& 
   _eigenMatrix.noalias() = x._eigenMatrix.transpose() * y._eigenMatrix;
 }
 
+/**
+ * Perform: 'this' = cx * 'this' + cy * y (cannot be noalias'ed)
+ * @param cx
+ * @param cy
+ * @param y
+ */
 void AMatrixDense::_linearCombinationLocal(double cx, double cy,const AMatrixDense &y)
 {
-  _eigenMatrix.noalias() = cx * _eigenMatrix + cy * y._eigenMatrix;
+  _eigenMatrix = cx * _eigenMatrix + cy * y._eigenMatrix;
 }
 
 void AMatrixDense::_fillLocal(double value)

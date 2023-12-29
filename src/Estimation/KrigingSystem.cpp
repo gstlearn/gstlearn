@@ -119,9 +119,13 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flag(),
       _covtab(),
       _drftab(),
-      _lhs(),
+      _lhsf(),
+      _lhsc(),
+      _lhs(nullptr),
       _lhsinv(),
-      _rhs(),
+      _rhsf(),
+      _rhsc(),
+      _rhs(nullptr),
       _wgt(),
       _zam(),
       _zext(),
@@ -308,12 +312,17 @@ int KrigingSystem::_getNDisc() const
 void KrigingSystem::_resetMemoryFullPerNeigh()
 {
   _flag.resize(_neq);
-  _lhs.resize (_neq, _neq);
-  _rhs.resize (_neq, _nvarCL);
+  _lhsf.resize (_neq, _neq);
+  _rhsf.resize (_neq, _nvarCL);
+
+  _lhs = &_lhsf;
+  _rhs = &_rhsf;
 }
 
 void KrigingSystem::_resetMemoryCompressedPerNeigh()
 {
+  _lhsc.resize (_nred, _nred);
+  _rhsc.resize (_nred, _nvarCL);
   _wgt.resize (_nred, _nvarCL);
   _zam.resize (_nred, 1);
   _zext.resize(_nred, 1);
@@ -326,7 +335,7 @@ void KrigingSystem::_resetMemoryGeneral()
   _covtab.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
-  _results(_nvarCL,1);
+  _results.reset(_nvarCL,_nvarCL);
 
   _space = SpaceRN(_ndim);
   _p0 = SpacePoint(&_space);
@@ -715,7 +724,7 @@ int KrigingSystem::_drftabCalcul(const ECalcMember &member, int iech)
  *****************************************************************************/
 void KrigingSystem::_lhsCalcul()
 {
-  _lhs.fill(0.);
+  _lhsf.fill(0.);
 
   /* Establish the covariance part */
 
@@ -732,7 +741,7 @@ void KrigingSystem::_lhsCalcul()
       for (int ivar = 0; ivar < _nvar; ivar++)
         for (int jvar = 0; jvar < _nvar; jvar++)
         {
-          _setLHS(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar));
+          _setLHSF(iech,ivar,jech,jvar,_getCOVTAB(ivar, jvar));
 
           /* Correction due to measurement errors */
 
@@ -757,12 +766,12 @@ void KrigingSystem::_lhsCalcul()
                   // In the case of continuous Kriging, we must update the LHS
                   // by considering the distance between data and target
 
-                  double cref = _getLHS(iech, ivar, jech, jvar);
+                  double cref = _getLHSF(iech, ivar, jech, jvar);
                   verr = cref * _continuousMultiplier(_nbgh[iech], _iechOut);
                 }
               }
             }
-            if (!FFFF(verr) && verr > 0) _addLHS(iech,ivar,jech,jvar,verr);
+            if (!FFFF(verr) && verr > 0) _addLHSF(iech,ivar,jech,jvar,verr);
           }
         }
     }
@@ -780,8 +789,8 @@ void KrigingSystem::_lhsCalcul()
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getDriftCoef(ivar, il, ib);
-        _setLHS(iech,ivar,ib,_nvar,value,true);
-        _setLHS(ib,_nvar,iech,ivar,value,true);
+        _setLHSF(iech,ivar,ib,_nvar,value,true);
+        _setLHSF(ib,_nvar,iech,ivar,value,true);
       }
   }
   return;
@@ -801,12 +810,13 @@ void KrigingSystem::_lhsIsoToHetero()
     for (int j = 0; j < _neq; j++)
     {
       if (_flag[j] == 0) continue;
-      _lhs.setValueSafe(ecri, ecrj, _lhs.getValueSafe(i,j));
+      _lhsc.setValueSafe(ecri, ecrj, _lhsf.getValueSafe(i,j));
       ecrj++;
     }
     ecri++;
   }
 
+  _lhs = &_lhsc;
   return;
 }
 
@@ -870,7 +880,7 @@ void KrigingSystem::_lhsDump(int nbypas)
       tab_printi(NULL, i + 1);
       tab_printi(NULL, rel[i]);
       for (int j = ideb; j < ifin; j++)
-        tab_printg(NULL, _lhs.getValueSafe(i,j));
+        tab_printg(NULL, _lhs->getValueSafe(i,j));
       message("\n");
     }
   }
@@ -880,7 +890,7 @@ void KrigingSystem::_lhsDump(int nbypas)
 int KrigingSystem::_lhsInvert()
 {
   // Duplicate the whole direct matrix before inversion
-  _lhsinv = _lhs;
+  _lhsinv = *_lhs;
 
   /* Invert the L.H.S. matrix */
 
@@ -902,7 +912,7 @@ void KrigingSystem::_rhsStore(int iech)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
-        _setRHS(iech, ivar, jvar, _getCOVTAB(ivar, jvar));
+        _setRHSF(iech, ivar, jvar, _getCOVTAB(ivar, jvar));
   }
   else
   {
@@ -912,7 +922,7 @@ void KrigingSystem::_rhsStore(int iech)
         double value = 0.;
         for (int jvar = 0; jvar < _nvar; jvar++)
           value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar);
-        _setRHS(iech, ivar, jvarCL, value);
+        _setRHSF(iech, ivar, jvarCL, value);
       }
   }
 }
@@ -1065,7 +1075,7 @@ int KrigingSystem::_rhsCalcul()
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getDriftCoef(ivar, il, ib);
-        _setRHS(ib,_nvar,ivar,value,true);
+        _setRHSF(ib,_nvar,ivar,value,true);
       }
   }
   else
@@ -1080,7 +1090,7 @@ int KrigingSystem::_rhsCalcul()
           for (int il = 0; il < _nbfl; il++)
             value += _drftab[il] * _getDriftCoef(jvar, il, ib);
           value *= _matCL[ivarCL][jvar];
-          _setRHS(ib,_nvar,ivarCL,value,true);
+          _setRHSF(ib,_nvar,ivarCL,value,true);
         }
     }
   }
@@ -1090,16 +1100,17 @@ int KrigingSystem::_rhsCalcul()
 void KrigingSystem::_rhsIsoToHetero()
 {
   if (_flagIsotopic) return;
-  int ecr_rhs = 0;
   for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
   {
-    ecr_rhs = 0;
+    int ecr_rhs = 0;
     for (int i = 0; i < _neq; i++)
     {
       if (_flag[i] == 0) continue;
-      _rhs.setValueSafe(ecr_rhs++, ivarCL, _rhs.getValueSafe(i, ivarCL));
+      _rhsc.setValueSafe(ecr_rhs++, ivarCL, _rhsf.getValueSafe(i, ivarCL));
     }
   }
+
+  _rhs = &_rhsc;
   return;
 }
 
@@ -1158,7 +1169,7 @@ void KrigingSystem::_rhsDump()
     tab_printi(NULL, i + 1);
     if (! _flag.empty()) tab_printi(NULL, rel[i]);
     for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      tab_printg(NULL, _rhs.getValueSafe(i,ivarCL));
+      tab_printg(NULL, _rhs->getValueSafe(i,ivarCL));
     message("\n");
   }
   return;
@@ -1166,7 +1177,7 @@ void KrigingSystem::_rhsDump()
 
 void KrigingSystem::_wgtCalcul()
 {
-  _wgt.prodMatrix(_lhsinv, _rhs);
+  _wgt.prodMatrix(_lhsinv, *_rhs);
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1619,7 +1630,7 @@ void KrigingSystem::_estimateEstim(int status)
 {
   // Calculate the solution
   if (status == 0)
-    _results.prodTMatrix(_rhs, _zam);
+    _results.prodTMatrix(*_rhs, _zam);
 
   // Loop for writing the estimation
 
@@ -1649,7 +1660,7 @@ void KrigingSystem::_estimateStdv(int status)
 {
   // Calculate the solution
   if (status == 0)
-    _results.prodTMatrix(_rhs, _wgt);
+    _results.prodTMatrix(*_rhs, _wgt);
 
   // Loop for writing the estimation
 
@@ -1665,7 +1676,7 @@ void KrigingSystem::_estimateStdv(int status)
       double var = _getVAR0(ivarCL, ivarCL);
       if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
 
-      var -= _results.getValueSafe(ivarCL,0);
+      var -= _results.getValueSafe(ivarCL,ivarCL);
 
       double stdv = 0.;
       if (var > 0)
@@ -1693,7 +1704,7 @@ void KrigingSystem::_estimateVarZ(int status)
   {
     if (status == 0)
     {
-      double varZ = VH::innerProduct(_rhs.getColumn(ivarCL),
+      double varZ = VH::innerProduct(_rhs->getColumn(ivarCL),
                                      _wgt.getColumn(ivarCL), cumflag);
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
     }
@@ -2879,23 +2890,10 @@ double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
   return _covtab.getValueSafe(ivar, jvar);
 }
-double KrigingSystem::_getRHS(int iech, int ivar, int jvCL) const
-{
-  int ind  = IND(iech, ivar);
-  return _rhs.getValueSafe(ind, jvCL);
-}
-void KrigingSystem::_setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift)
+void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value, bool isForDrift)
 {
   int ind  = IND(iech,ivar);
-  _rhs.setValueSafe(ind, jvCL, value);
-}
-double KrigingSystem::_getRHSC(int i, int jvCL) const
-{
-  return _rhs.getValueSafe(i, jvCL);
-}
-double KrigingSystem::_getWGTC(int i,int jvCL) const
-{
-  return _wgt.getValueSafe(i, jvCL);
+  _rhsf.setValueSafe(ind, jvCL, value);
 }
 
 /**
@@ -2910,27 +2908,27 @@ double KrigingSystem::_getWGTC(int i,int jvCL) const
  * @remark: When used for setting a Drift element (say in 'i'), then:
  * @remark: 'iech' is set for 'ib' (which must be within [0,nfeq[) and 'ivar' is set to 'nvar'
  */
-void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift)
+void KrigingSystem::_setLHSF(int iech, int ivar, int jech, int jvar, double value, bool isForDrift)
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  _lhs.setValueSafe(indi, indj, value);
+  _lhsf.setValueSafe(indi, indj, value);
 }
-void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value)
+void KrigingSystem::_addLHSF(int iech, int ivar, int jech, int jvar, double value)
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  _lhs.setValueSafe(indi, indj, _lhs.getValueSafe(indi, indj) + value);
+  _lhsf.setValueSafe(indi, indj, _lhsf.getValueSafe(indi, indj) + value);
 }
-double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar) const
+double KrigingSystem::_getLHSF(int iech, int ivar, int jech, int jvar) const
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
-  return _lhs.getValueSafe(indi, indj);
+  return _lhsf.getValueSafe(indi, indj);
 }
-double KrigingSystem::_getLHSC(int i, int j) const
+double KrigingSystem::_getLHS(int i, int j) const
 {
-  return _lhs.getValueSafe(i,j);
+  return _lhs->getValueSafe(i,j);
 }
 double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar) const
 {
@@ -3163,7 +3161,7 @@ VectorDouble KrigingSystem::getSampleData() const
 
 VectorDouble KrigingSystem::getRHSC(int ivar) const
 {
-  return _rhs.getColumn(ivar);
+  return _rhs->getColumn(ivar);
 }
 
 VectorDouble KrigingSystem::getZamC() const
@@ -3222,7 +3220,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   for (int il = 0; il < _nfeq; il++)
     for (int ib = 0; ib < shift; ib++)
-      FF(ib,il) = _getLHSC(ib, shift + il);
+      FF(ib,il) = _getLHS(ib, shift + il);
 
   /* Calculate S-1 */
 
@@ -3236,7 +3234,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   for (int ib = 0; ib < shift; ib++)
     for (int jb = 0; jb < shift; jb++)
-      SIGMA(ib,jb) = _getLHSC(ib, jb);
+      SIGMA(ib,jb) = _getLHS(ib, jb);
 
   /* Calculate SIGMA-1 */
 

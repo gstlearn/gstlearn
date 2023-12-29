@@ -230,7 +230,7 @@ void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
   _ktest.xyz  = ksys.getSampleCoordinates();
   _ktest.data = ksys.getSampleData();
   _ktest.zam  = ksys.getZam();
-  _ktest.lhs  = ksys.getLHS();
+  _ktest.lhs  = ksys.getLHSC();
   _ktest.rhs  = ksys.getRHSC();
   _ktest.wgt  = ksys.getWeights();
   _ktest.var  = ksys.getVariance();
