@@ -3899,68 +3899,6 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   return (Q);
 }
 
-bool cs_are_same(const cs* A, const cs* B, double tol)
-{
-  int *Ap, *Ai, *Bp, *Bi;
-  double *Ax, *Bx;
-
-  if (!A || !B) return false;
-  bool flag_same = true;
-
-  /* Loop on the elements of A and check B */
-
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-
-  for (int j = 0; j < cs_getncol(A); j++)
-     for (int p = Ap[j]; p < Ap[j + 1]; p++)
-     {
-       double refval = Ax[p];
-       if (ABS(refval) > tol)
-       {
-         if (! cs_exist(B, j, Ai[p]))
-         {
-           messerr("A(%d,%d)=%lf is a non-zero term ... that is not present in B",
-                   j, Ai[p], refval);
-           flag_same = false;
-         }
-         else
-         {
-           double testval = cs_get_value(B, j, Ai[p]);
-           if (ABS(testval - refval) > tol)
-           {
-             messerr("A(%d,%d) = %f is different from B=%lf",
-                     j, Ai[p], refval, testval);
-             flag_same = false;
-           }
-         }
-       }
-     }
-
-  /* Loop on the elements of B and check A */
-
-  Bp = B->p;
-  Bi = B->i;
-  Bx = B->x;
-
-  for (int j = 0; j < cs_getncol(B); j++)
-    for (int p = Bp[j]; p < Bp[j + 1]; p++)
-    {
-      double refval = Bx[p];
-      if (ABS(refval) > tol)
-      {
-        if (!cs_exist(A, j, Bi[p]))
-        {
-          messerr("B(%d,%d)=%f is a non-zero term ... that is not present in A",
-                  j, Bi[p], refval);
-          flag_same = false;
-        }
-      }
-    }
-  return flag_same;
-}
-
 /**
  * This method glues two sparse matrices into an output sparse matrix
  * The second matrix is appended after addresses have been shifted

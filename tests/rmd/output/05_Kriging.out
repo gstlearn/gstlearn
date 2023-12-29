@@ -105,7 +105,7 @@ Column = 1 - Name = Latitude - Locator = x2
 Column = 2 - Name = Elevation - Locator = f1
 Column = 3 - Name = inshore - Locator = sel
 NULL
-[1] "Mean cross-validation error:" "-0.00416787159765686"        
+[1] "Mean cross-validation error:" "-0.00417"                    
 [1] "Mean squared cross-validation error:"
-[2] "0.239372581676374"                   
-[1] "Mean standardized error:" "0.911779356535533"       
+[2] "0.23937"                             
+[1] "Mean standardized error:" "0.91178"                 

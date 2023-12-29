@@ -421,15 +421,15 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.248
+- Sill         =      0.254
 Cubic
-- Sill         =      0.952
-- Ranges       =    153.251   216.463
-- Angles       =    154.969     0.000
+- Sill         =      0.946
+- Ranges       =    156.331   215.625
+- Angles       =    154.562     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.906     0.423
-     [  1,]    -0.423     0.906
+     [  0,]     0.903     0.430
+     [  1,]    -0.430     0.903
 Total Sill     =      1.200----
 
 

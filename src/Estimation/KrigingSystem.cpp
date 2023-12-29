@@ -1704,8 +1704,10 @@ void KrigingSystem::_estimateVarZ(int status)
   {
     if (status == 0)
     {
-      double varZ = VH::innerProduct(_rhs->getColumn(ivarCL),
-                                     _wgt.getColumn(ivarCL), cumflag);
+      double varZ = 0.;
+      varZ += VH::innerProduct(_rhs->getColumn(ivarCL), _wgt.getColumn(ivarCL), cumflag);
+      if (_nfeq > 0)
+        varZ -= VH::innerProduct(&_rhs->getColumn(ivarCL)[cumflag],&_wgt.getColumn(ivarCL)[cumflag],_nfeq);
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
     }
     else

@@ -218,27 +218,34 @@ def test_kriging(ndat,nx,nvar,percent,model,cova,
     var = c0v + varest - 2 * np.sum(weights*c0,axis=0).T.reshape(-1,)
     std = np.sqrt(var)
     
-    krigref = target["*estim"][indOut].T.reshape(-1,)
-    stdref = target["*stdev"][indOut].T.reshape(-1,)
-    varestref = target["*varz"][indOut].T.reshape(-1,)
-    
     status = True
     if test:
         if compute_vars:
+            stdref = target["*stdev"][indOut].T.reshape(-1,)
             status = gt.checkEqualityVector(stdref, std, tolerance=tol, message=casetxt)
             if not status:
-                print("stdref=", varestref)
-                print("std=", varest)
+                print("Standard Deviation")
+                print("- Reference",stdref)
+                print("- Calculation",std)
 
+            varestref = target["*varz"][indOut].T.reshape(-1,)
             status = gt.checkEqualityVector(varestref, varest, tolerance=tol, message=casetxt)
             if not status:
-                print("varestref", varestref)
-                print("varrest=", varest)
+                print("Variance of Estimate")
+                print("- Reference",varestref)
+                print("- Calculation", varest)
+
         else:
+            krigref = target["*estim"][indOut].T.reshape(-1,)
             status = gt.checkEqualityVector(krigref, krig, tolerance=tol, message=casetxt)
+            if not status:
+                print("Estimation")
+                print("- Reference",krigref)
+                print("- Calculation",krig)
 
     if verbose and status:
         print("Test Ok")
+        
     return krig,target,indOut,db,varest
 
 
@@ -249,7 +256,7 @@ percent = [0.5,0.9,1.]
 ndat = 40
 nbtests = 0
 verbose = False
-general = False
+general = True
 
 if general:
     for irf in [None,0,1]:

@@ -332,9 +332,9 @@ ggPrint(p)
 Finally, we compute a few statistics about these errors.
 
 ```{r}
-print(c("Mean cross-validation error:",mean(dat$getColumn("*esterr*"),na.rm=TRUE)))
-print(c("Mean squared cross-validation error:",mean(dat$getColumn("*esterr*")^2,na.rm=TRUE)))
-print(c("Mean standardized error:",mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)))
+print(c("Mean cross-validation error:",round(mean(dat$getColumn("*esterr*"),na.rm=TRUE),5)))
+print(c("Mean squared cross-validation error:",round(mean(dat$getColumn("*esterr*")^2,na.rm=TRUE),5)))
+print(c("Mean standardized error:",round(mean(dat$getColumn("*stderr*")^2,na.rm=TRUE),5)))
 ```
 
 We now plot the absolute value of the cross-validation errors at each point on top of the grid map. We use the argument `flagAbsSize = TRUE` in the `plot.point` function to specify that we want the size of the points to be proportional to the absolute value of the variable specified in the `nameSize` argument (here, the cross-validation errors).
