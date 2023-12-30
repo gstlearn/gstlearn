@@ -33,6 +33,14 @@ MatrixRectangular::MatrixRectangular(const AMatrix &m)
     : AMatrixDense(m),
       _rectMatrix()
 {
+  const MatrixRectangular* matrixLoc = dynamic_cast<const MatrixRectangular*>(&m);
+  if (matrixLoc != nullptr)
+    _recopyLocal(*matrixLoc);
+  else
+  {
+    _allocate();
+    AMatrix::copyElements(m);
+  }
 }
 
 MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)

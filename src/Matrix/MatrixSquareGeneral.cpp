@@ -32,6 +32,14 @@ MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
   : AMatrixSquare(m),
     _squareMatrix()
 {
+  const MatrixSquareGeneral* matrixLoc = dynamic_cast<const MatrixSquareGeneral*>(&m);
+  if (matrixLoc != nullptr)
+    _recopyLocal(*matrixLoc);
+  else
+  {
+    _allocate();
+    AMatrix::copyElements(m);
+  }
 }
 
 MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &r)

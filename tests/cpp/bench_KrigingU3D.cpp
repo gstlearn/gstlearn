@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
     (void) data->dumpToNF("Data.ascii");
 
   // Generate the output grid
-  bool flagSmall = false;
   VectorInt nx = {100,100,100};
 
   DbGrid* grid = DbGrid::create(nx);

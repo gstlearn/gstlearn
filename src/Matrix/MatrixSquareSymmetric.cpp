@@ -40,6 +40,14 @@ MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
     _clear();
     return;
   }
+  const MatrixSquareSymmetric* matrixLoc = dynamic_cast<const MatrixSquareSymmetric*>(&m);
+  if (matrixLoc != nullptr)
+    _recopyLocal(*matrixLoc);
+  else
+  {
+    _allocate();
+    AMatrix::copyElements(m);
+  }
 }
 
 MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymmetric &r)

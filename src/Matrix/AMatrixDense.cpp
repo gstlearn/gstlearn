@@ -44,7 +44,7 @@ AMatrixDense::AMatrixDense(const AMatrix &m)
     return;
   }
   _allocate();
-  copyElements(m);
+  if (isFlagEigen()) copyElements(m);
 }
 
 AMatrixDense& AMatrixDense::operator= (const AMatrixDense &r)
