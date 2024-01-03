@@ -18,6 +18,7 @@ class GSTLEARN_EXPORT Triplet
 {
 public:
     bool flagFromOne;
+    int number;
     int nrows;
     int ncols;
     VectorInt rows;
@@ -164,7 +165,8 @@ GSTLEARN_EXPORT int     cs_multigrid_process(cs_MGS *mgs, QChol *qctt, int verbo
 GSTLEARN_EXPORT void    cs_multigrid_coarse2fine(cs_MGS *mgs,double *z,double *work);
 
 //
-GSTLEARN_EXPORT Triplet csToTriplet(const cs *A, bool flag_from_1 = false);
+GSTLEARN_EXPORT Triplet csToTriplet(const cs *A, bool flag_from_1 = false, double tol=EPSILON10);
+GSTLEARN_EXPORT Triplet triplet_init(bool flag_from_1);
 GSTLEARN_EXPORT String  toStringDim(const String& title, const cs *A);
 GSTLEARN_EXPORT String  toStringRange(const String& title, const cs *C);
 GSTLEARN_EXPORT bool    cs_isSymmetric(const cs* A, bool verbose = false, bool detail = false);
@@ -173,8 +175,6 @@ GSTLEARN_EXPORT bool    cs_isDefinitePositive(cs* A, bool verbose = false);
 
 GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_ranks(cs *C, int *row_array, int *col_array);
 
-GSTLEARN_EXPORT void    cs_sparse_to_triplet (const cs *A, int flag_from_1,
-                                              int *number,int **cols,int **rows,double ** vals);
 GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
                                              int row_from, int row_length,
                                              int col_from, int col_length);

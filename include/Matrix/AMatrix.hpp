@@ -21,6 +21,9 @@
 /**
  * Matrix
  */
+
+class Triplet;
+
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
@@ -82,9 +85,7 @@ public:
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
   /*! Set a set of values simultaneously from an input array */
-  virtual void setValuesByArrays(const VectorInt &irows,
-                                 const VectorInt &icols,
-                                 const VectorDouble &values);
+  virtual void setValuesFromTriplet(const Triplet& T);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
   /*! Multiply a Matrix row-wise */
@@ -106,17 +107,13 @@ public:
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
-  virtual void getValuesAsTriplets(VectorInt &irows,
-                                   VectorInt &icols,
-                                   VectorDouble &values) const;
+  virtual Triplet getValuesAsTriplets() const;
 #endif
 
   /*! Add a matrix (multiplied by a constant) */
   void addMatrix(const AMatrix& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
   void prodMatrix(const AMatrix& x, const AMatrix& y);
-  /*! Multiply the transpose of a matrix by another and store the result in the current matrix */
-  void prodTMatrix(const AMatrix& x, const AMatrix& y);
   /*! Linear combination of matrices */
   void linearCombination(double cx, double cy, const AMatrix& y);
 

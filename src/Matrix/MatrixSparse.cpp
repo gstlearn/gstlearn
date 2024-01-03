@@ -518,30 +518,19 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
 }
 #endif
 
-void MatrixSparse::setValuesByArrays(const VectorInt &irows,
-                                     const VectorInt &icols,
-                                     const VectorDouble &values)
+void MatrixSparse::setValuesFromTriplet(const Triplet& T)
 {
-  int nelements = static_cast<int> (values.size());
-  if (irows.size() != values.size() ||
-      icols.size() != values.size())
-  {
-    messerr("The arguments 'icols', 'irows' and 'values' should share same positive dimension");
-    messerr("Operation cancelled");
-    return;
-  }
-
   if (isFlagEigen())
   {
-    _eigenMatrix.reserve(nelements);
-    for (int k = 0; k < nelements; k++)
-      _eigenMatrix.insert(irows[k], icols[k]) = values[k];
+    _eigenMatrix.reserve(T.number);
+    for (int k = 0; k < T.number; k++)
+      _eigenMatrix.insert(T.rows[k], T.cols[k]) = T.values[k];
   }
   else
   {
     cs* Mtriplet = cs_spalloc(0,0,1,1,1);
-    for (int i = 0; i < nelements; i++)
-      (void) cs_entry(Mtriplet, irows[i], icols[i], values[i]);
+    for (int i = 0; i < T.number; i++)
+      (void) cs_entry(Mtriplet, T.rows[i], T.cols[i], T.values[i]);
     _csMatrix = cs_triplet(Mtriplet);
     Mtriplet = cs_spfree(Mtriplet);
   }
@@ -715,42 +704,6 @@ void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
   }
 }
 
-/**
- * Store the product of 'transpose(x)' by 'y' in this
- * @param x First Matrix
- * @param y Second matrix
- */
-void MatrixSparse::prodTMatrix(const MatrixSparse& x, const MatrixSparse& y)
-{
-  if (_getFlagCheckAddress())
-  {
-    if (x.getNRows() != y.getNRows() ||
-        x.getNCols() != getNRows()   ||
-        y.getNCols() != getNCols())
-    {
-      messerr("Incompatible matrix dimensions for matrix product");
-      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
-      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
-      messerr("Operation is cancelled");
-      return;
-    }
-  }
-
-  if (isFlagEigen())
-  {
-    _eigenMatrix = x._eigenMatrix.transpose() * y._eigenMatrix;
-  }
-  else
-  {
-    cs* xT = cs_transpose(x._csMatrix, 1);
-    cs* res = cs_multiply(xT, y._csMatrix);
-    cs_spfree(_csMatrix);
-    _csMatrix = res;
-    delete xT;
-  }
-}
-
 /*!
  * Updates the current Matrix as a linear combination of matrices as follows:
  *  this <- cx * this + cy * y
@@ -900,37 +853,32 @@ void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const
  * From a matrix of any type, creates the three vectors of the triplet
  * (specific format for creating efficiently a Sparse matrix)
  * It only takes the only non-zero elements of the matrix
- * @param irows Output array of row indices
- * @param icols Output array of column indices
- * @param values Output array of non-zero values
  */
-void MatrixSparse::getValuesAsTriplets(VectorInt &irows,
-                                       VectorInt &icols,
-                                       VectorDouble &values) const
+Triplet MatrixSparse::getValuesAsTriplets() const
 {
+  Triplet T = triplet_init(0);
   if (isFlagEigen())
   {
+    T.nrows = _eigenMatrix.rows();
+    T.ncols = _eigenMatrix.cols();
+    int ecr = 0;
     for (int k = 0; k < _eigenMatrix.outerSize(); ++k)
     {
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, k); it; ++it)
       {
-        irows.push_back(it.row());
-        icols.push_back(it.col());
-        values.push_back(it.value());
+        T.rows.push_back(it.row());
+        T.cols.push_back(it.col());
+        T.values.push_back(it.value());
+        ecr++;
       }
     }
+    T.number = ecr;
   }
   else
   {
-    int number = 0;
-    int *cols = nullptr;
-    int *rows = nullptr;
-    double *vals = nullptr;
-    cs_sparse_to_triplet(_csMatrix, 0, &number, &cols, &rows, &vals);
-    irows = VH::initVInt(rows, number);
-    icols = VH::initVInt(cols, number);
-    values = VH::initVDouble(vals, number);
+    T = csToTriplet(_csMatrix, 0);
   }
+  return T;
 }
 
 void MatrixSparse::_clear()
@@ -995,11 +943,11 @@ MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
   VectorInt irows;
   VectorInt icols;
   VectorDouble values;
-  matin->getValuesAsTriplets(irows, icols, values);
+  Triplet T = matin->getValuesAsTriplets();
 
   // Load the triplet information in the cloned matrix
 
-  matout->setValuesByArrays(irows, icols, values);
+  matout->setValuesFromTriplet(T);
   return matout;
 }
 

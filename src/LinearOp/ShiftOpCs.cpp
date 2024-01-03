@@ -983,10 +983,6 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
       }
       if (nostat->isDefined(EConsElem::SPHEROT, icov, -1, -1, igrf))
         _loadAux(srot, EConsElem::SPHEROT, imesh);
-
-//      // Tentative code for velocity
-//      if (nostat->isDefined(EConsElem::VELOCITY, icov, -1, -1, igrf))
-//        _loadAux(vel, EConsElem::VELOCITY, imesh);
     }
 
     // Prepare M matrix

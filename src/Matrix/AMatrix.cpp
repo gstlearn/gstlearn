@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -21,7 +22,7 @@
 /**
  * This function switch ON/OFF the ability to use Eigen library for Algebra
  */
-static bool globalFlagEigen = false;
+static bool globalFlagEigen   = false;
 static int  globalMultiThread = 0;
 
 AMatrix::AMatrix(int nrow, int ncol)
@@ -410,21 +411,10 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
   _setValues(values.data(),byCol);
 }
 
-void AMatrix::setValuesByArrays(const VectorInt &irows,
-                                const VectorInt &icols,
-                                const VectorDouble &values)
+void AMatrix::setValuesFromTriplet(const Triplet& T)
 {
-  int nelements = static_cast<int> (values.size());
-  if (irows.size() != values.size() ||
-      icols.size() != values.size())
-  {
-    messerr("The arguments 'icols', 'irows' and 'values' should share same positive dimension");
-    messerr("Operation cancelled");
-    return;
-  }
-
-  for (int i = 0; i < nelements; i++)
-    setValue(irows[i], icols[i], values[i]);
+  for (int i = 0; i < T.number; i++)
+    setValue(T.rows[i], T.cols[i], T.values[i]);
 }
 
 void AMatrix::setIdentity(double value)
@@ -570,45 +560,6 @@ void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
       for (int k = 0; k < n; k++)
       {
         value += x.getValue(irow, k) * y.getValue(k, icol);
-      }
-      setValue(irow, icol, value);
-    }
-  }
-}
-
-/**
- * Store the product of 'transpose(x)' by 'y' in this
- * @param x First Matrix
- * @param y Second matrix
- */
-void AMatrix::prodTMatrix(const AMatrix& x, const AMatrix& y)
-{
-  if (_flagCheckAddress)
-  {
-    if (x.getNRows() != y.getNRows() ||
-        x.getNCols() != getNRows()   ||
-        y.getNCols() != getNCols())
-    {
-      messerr("Incompatible matrix dimensions for matrix product");
-      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
-      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
-      messerr("Operation is cancelled");
-      return;
-    }
-  }
-
-  int n = x.getNCols();
-  for (int irow = 0; irow < _nRows; irow++)
-  {
-    for (int icol = 0; icol < _nCols; icol++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-
-      double value = 0.;
-      for (int k = 0; k < n; k++)
-      {
-        value += x.getValue(k, irow) * y.getValue(k, icol);
       }
       setValue(irow, icol, value);
     }
@@ -867,24 +818,29 @@ void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
  * From a matrix of any type, creates the three vectors of the triplet
  * (specific format for creating efficiently a Sparse matrix)
  * It only takes the only non-zero elements of the matrix
- * @param irows Output array of row indices
- * @param icols Output array of column indices
- * @param values Output array of non-zero values
  */
-void AMatrix::getValuesAsTriplets(VectorInt&    irows,
-                                  VectorInt&    icols,
-                                  VectorDouble& values) const
+Triplet AMatrix::getValuesAsTriplets() const
 {
+  Triplet T = triplet_init(0);
+
+  T.flagFromOne = false;
+  T.nrows = _nRows;
+  T.ncols = _nCols;
+  int ecr = 0;
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
     {
       if (!isValid(irow, icol)) continue;
       double value = getValue(irow, icol);
       if (ABS(value) < EPSILON10) continue;
-      irows.push_back(irow);
-      icols.push_back(icol);
-      values.push_back(value);
+      T.rows.push_back(irow);
+      T.cols.push_back(icol);
+      T.values.push_back(value);
+      ecr++;
     }
+  T.number = ecr;
+
+  return T;
 }
 
 VectorDouble AMatrix::getValues(bool byCol) const

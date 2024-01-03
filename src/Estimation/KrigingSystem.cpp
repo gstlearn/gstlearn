@@ -335,7 +335,7 @@ void KrigingSystem::_resetMemoryGeneral()
   _covtab.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
-  _results.reset(_nvarCL,_nvarCL);
+  _results.reset(_nvarCL,1);
 
   _space = SpaceRN(_ndim);
   _p0 = SpacePoint(&_space);
@@ -1629,8 +1629,10 @@ void KrigingSystem::_variance0()
 void KrigingSystem::_estimateEstim(int status)
 {
   // Calculate the solution
+
   if (status == 0)
-    _results.prodTMatrix(*_rhs, _zam);
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _zam.getColumn(0)));
 
   // Loop for writing the estimation
 
@@ -1660,7 +1662,9 @@ void KrigingSystem::_estimateStdv(int status)
 {
   // Calculate the solution
   if (status == 0)
-    _results.prodTMatrix(*_rhs, _wgt);
+    if (status == 0)
+      for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+        _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _wgt.getColumn(ivarCL)));
 
   // Loop for writing the estimation
 
@@ -1676,7 +1680,7 @@ void KrigingSystem::_estimateStdv(int status)
       double var = _getVAR0(ivarCL, ivarCL);
       if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
 
-      var -= _results.getValueSafe(ivarCL,ivarCL);
+      var -= _results.getValueSafe(ivarCL,0);
 
       double stdv = 0.;
       if (var > 0)
@@ -1792,8 +1796,7 @@ void KrigingSystem::_dualCalcul()
   if (_flagLTerm)
   {
     MatrixSquareGeneral lterMat(1);
-    lterMat.prodTMatrix(_zam, _zext);
-    _lterm = lterMat.getValueSafe(0,0);
+    _lterm = VH::innerProduct(_zam.getColumn(0), _zext.getColumn(0));
   }
 
   // Turn back the flag to OFF in order to avoid provoking

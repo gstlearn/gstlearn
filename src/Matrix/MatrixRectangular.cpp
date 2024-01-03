@@ -322,4 +322,3 @@ int MatrixRectangular::_getIndexToRankLocal(int irow, int icol) const
 {
   return (icol * getNRows() + irow);
 }
-

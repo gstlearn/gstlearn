@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-//  StdoutRedirect sr("Result.out");
+  StdoutRedirect sr("Result.out");
 
   /* Setup constants */
 
