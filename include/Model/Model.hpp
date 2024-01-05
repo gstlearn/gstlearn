@@ -335,12 +335,14 @@ public:
     return _cova->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
   }
 
-  void evalMatOptimInPlace(int iech1,
+  void evalMatOptimInPlace(int icas1,
+                           int iech1,
+                           int icas2,
                            int iech2,
                            MatrixSquareGeneral &mat,
                            const CovCalcMode *mode = nullptr) const
   {
-    _cova->evalMatOptimInPlace(iech1, iech2, mat, mode);
+    _cova->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
   }
 
   VectorVectorDouble evalCovMatrixOptim(const Db *db1,

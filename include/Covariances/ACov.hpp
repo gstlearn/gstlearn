@@ -68,7 +68,9 @@ public:
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const;
   /// Calculate the matrix of covariances between two points given by indices (optim)
-  virtual void evalMatOptimInPlace(int iech1,
+  virtual void evalMatOptimInPlace(int icas1,
+                                   int iech1,
+                                   int icas2,
                                    int iech2,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode = nullptr) const = 0;

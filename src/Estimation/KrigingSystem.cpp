@@ -601,9 +601,10 @@ void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
 /**
  * Module for calculating the covariance internally (for 0 distance)
  * @param icas      Origin of the sample: & for dbin and 2 for dbout
+ * @param iech      Rank of the target sample
  * @param mode      CovCalcMode structure
  */
-void KrigingSystem::_covtab0Calcul(int icas, const CovCalcMode* mode)
+void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   _model->eval0MatInPlace(_covtab, mode);
 }
@@ -626,7 +627,7 @@ void KrigingSystem::_covtabCalcul(int icas1,
 {
   if (_optimEnabled)
   {
-    _model->evalMatOptimInPlace(iech1, iech2, _covtab, mode);
+    _model->evalMatOptimInPlace(icas1, iech1, icas2, iech2, _covtab, mode);
   }
   else
   {
@@ -634,7 +635,6 @@ void KrigingSystem::_covtabCalcul(int icas1,
       _dbin->getSampleCoordinatesAsSPInPlace(iech1, _p1);
     else
       _p1 = _p0;
-    SpacePoint p2;
     if (icas2 == 1)
       _dbin->getSampleCoordinatesAsSPInPlace(iech2, _p2);
     else
@@ -734,7 +734,7 @@ void KrigingSystem::_lhsCalcul()
     {
       if (_flagNoStat) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
       if (iech == jech && _model->isStationary())
-        _covtab0Calcul(1, &_calcModeLHS);
+        _covtab0Calcul(1, _nbgh[iech], &_calcModeLHS);
       else
         _covtabCalcul(1, _nbgh[iech], 1, _nbgh[jech], &_calcModeLHS);
 
@@ -1525,7 +1525,7 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
   int iech  = _iechOut;
   int iiech = _getFlagAddress(iech, 0);
 
-  // Do not process as this sample is either masked or its variable undefined
+  // Do not process as this sample is either masked or its variable is undefined
   if (iiech < 0) return;
 
   double valdat = _dbin->getLocVariable(ELoc::Z,iech, 0);
@@ -1581,7 +1581,7 @@ void KrigingSystem::_variance0()
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_POINT:
-      _covtab0Calcul(2, &_calcModeVAR);
+      _covtab0Calcul(2, _iechOut, &_calcModeVAR);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -1592,7 +1592,7 @@ void KrigingSystem::_variance0()
       break;
 
     case EKrigOpt::E_DGM:
-      _covtab0Calcul(2, &_calcModeVAR);
+      _covtab0Calcul(2, _iechOut, &_calcModeVAR);
       break;
   }
 
@@ -1662,9 +1662,8 @@ void KrigingSystem::_estimateStdv(int status)
 {
   // Calculate the solution
   if (status == 0)
-    if (status == 0)
-      for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-        _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _wgt.getColumn(ivarCL)));
+    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _wgt.getColumn(ivarCL)));
 
   // Loop for writing the estimation
 

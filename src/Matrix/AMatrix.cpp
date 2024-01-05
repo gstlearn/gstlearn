@@ -22,7 +22,7 @@
 /**
  * This function switch ON/OFF the ability to use Eigen library for Algebra
  */
-static bool globalFlagEigen   = false;
+static bool globalFlagEigen   = true;
 static int  globalMultiThread = 0;
 
 AMatrix::AMatrix(int nrow, int ncol)

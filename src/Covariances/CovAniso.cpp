@@ -1042,19 +1042,21 @@ void CovAniso::evalOptimInPlace(VectorDouble &res,
   }
 }
 
-void CovAniso::evalMatOptimInPlace(int iech1,
+void CovAniso::evalMatOptimInPlace(int icas1,
+                                   int iech1,
+                                   int icas2,
                                    int iech2,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode) const
 {
   SpacePoint* p1A;
-  if (iech1 >= 0)
+  if (icas1 == 1)
     p1A = &_p1As[iech1];
   else
     p1A = &_p2A;
 
   SpacePoint* p2A;
-  if (iech2 >= 0)
+  if (icas2 == 1)
     p2A = &_p1As[iech2];
   else
     p2A = &_p2A;

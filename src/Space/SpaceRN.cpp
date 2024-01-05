@@ -108,4 +108,3 @@ VectorDouble SpaceRN::getIncrement(const SpacePoint &p1,
 {
   return VH::subtract(p1.getCoord(), p2.getCoord());
 }
-

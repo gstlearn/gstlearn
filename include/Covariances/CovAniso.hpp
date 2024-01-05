@@ -99,7 +99,9 @@ public:
                         int ivar = 0,
                         int jvar = 0,
                         const CovCalcMode *mode = nullptr) const;
-  void evalMatOptimInPlace(int iech1,
+  void evalMatOptimInPlace(int icas1,
+                           int iech1,
+                           int icas2,
                            int iech2,
                            MatrixSquareGeneral &mat,
                            const CovCalcMode *mode = nullptr) const;

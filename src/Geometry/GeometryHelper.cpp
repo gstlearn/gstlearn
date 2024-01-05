@@ -143,10 +143,10 @@ void GeometryHelper::rotation2DMatrixInPlace(double angle, VectorDouble &rot)
 
   /* Define the 2-D rotation matrix */
 
-  rot[0] = ca;
-  rot[1] = sa;
+  rot[0] =  ca;
+  rot[1] =  sa;
   rot[2] = -sa;
-  rot[3] = ca;
+  rot[3] =  ca;
 
   return;
 }
