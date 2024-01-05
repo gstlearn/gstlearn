@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str(), argc, argv);
+//  StdoutRedirect sr(sfn.str(), argc, argv);
 
   DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
 

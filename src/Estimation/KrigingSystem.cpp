@@ -1751,6 +1751,7 @@ int KrigingSystem::_prepar()
 
   /* Invert the L.H.S. matrix */
 
+  VH::display("lhs dans eigen",_lhsf.getValues());
   if (_lhsInvert()) return 1;
 
   return 0;
