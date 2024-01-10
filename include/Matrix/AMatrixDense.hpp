@@ -71,6 +71,8 @@ public:
   virtual void addMatrix(const AMatrixDense& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
   virtual void prodMatrix(const AMatrixDense& x, const AMatrixDense& y);
+  /*! Multiply the transpose of matrix 'x' by matrix 'y' and store the result in the current matrix */
+  virtual void prodTMatrix(const AMatrixDense& x, const AMatrixDense& y);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
 

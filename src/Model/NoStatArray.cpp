@@ -274,24 +274,6 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
   return 0.;
 }
 
-double NoStatArray::_interpolate(int ipar,
-                                 int icas1,
-                                 int iech1,
-                                 int icas2,
-                                 int iech2) const
-{
-  double val1 = getValueByParam(ipar, icas1, iech1);
-  double val2 = getValueByParam(ipar, icas2, iech2);
-
-  if (! FFFF(val1) && ! FFFF(val2))
-    return sqrt(val1 * val2);
-
-  else if (! FFFF(val1))
-    return val2;
-  else
-    return val1;
-}
-
 String NoStatArray::_displayStats(int ipar, int icas) const
 {
   std::stringstream sstr;

@@ -136,6 +136,7 @@ public:
   void setContext(const CovContext& ctxt);
   void setParam(double param);
   void copyCovContext(const CovContext& ctxt);
+  void setNoStatFactor(double noStatFactor) { _noStatFactor = noStatFactor; }
 
   void setSill(double sill); /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareSymmetric& sill);
@@ -144,7 +145,7 @@ public:
   void initSill(double value = 0.);
 
   /// Practical range
-  void setRange(double range); /// Make the covariance isotropic
+  void setRangeIsotropic(double range);
   void setRange(int idim, double range);
   void setRanges(const VectorDouble& ranges);
 
@@ -156,6 +157,10 @@ public:
   void setAnisoRotation(const VectorDouble& rot);
   void setAnisoAngles(const VectorDouble& angles);
   void setAnisoAngle(int idim, double angle);
+
+  void setRotationAnglesAndRadius(const VectorDouble& angles = VectorDouble(),
+                                  const VectorDouble& ranges = VectorDouble(),
+                                  const VectorDouble& scales = VectorDouble());
 
   const MatrixSquareSymmetric& getSill() const { return _sill; }
   double getSill(int ivar, int jvar) const;
@@ -209,7 +214,6 @@ public:
 
   VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
   Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
-
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
 
@@ -234,8 +238,9 @@ private:
   double _calculateCov(double h, const CovCalcMode *mode) const;
 
 private:
-  CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?
-  ACovFunc*       _cova;   /// Covariance basic function
-  MatrixSquareSymmetric _sill;   /// Sill matrix (nvar x nvar)
-  Tensor          _aniso;  /// Anisotropy parameters
+  CovContext _ctxt;            /// Context (space, number of variables, ...) // TODO : Really store a copy ?
+  ACovFunc *_cova;             /// Covariance basic function
+  MatrixSquareSymmetric _sill; /// Sill matrix (nvar x nvar)
+  Tensor _aniso;               /// Anisotropy parameters
+  double _noStatFactor;        /// Correcting factor for non-stationarity
 };

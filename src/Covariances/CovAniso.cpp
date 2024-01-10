@@ -40,7 +40,8 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _noStatFactor(1.)
 {
   _initFromContext();
 }
@@ -50,7 +51,8 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _ctxt(ctxt),
       _cova(),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _noStatFactor(1.)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
@@ -67,7 +69,8 @@ CovAniso::CovAniso(const ECov &type,
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _noStatFactor(1.)
 {
   if (ctxt.getNVar() != 1)
   {
@@ -80,7 +83,7 @@ CovAniso::CovAniso(const ECov &type,
     _sill.setValue(0, 0, sill);
     setParam(param);
     if (flagRange)
-      setRange(range);
+      setRangeIsotropic(range);
     else
       setScale(range);
   }
@@ -91,7 +94,8 @@ CovAniso::CovAniso(const CovAniso &r)
       _ctxt(r._ctxt),
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
-      _aniso(r._aniso)
+      _aniso(r._aniso),
+      _noStatFactor(r._noStatFactor)
 {
 }
 
@@ -104,6 +108,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
     _aniso = r._aniso;
+    _noStatFactor = r._noStatFactor;
   }
   return *this;
 }
@@ -182,7 +187,7 @@ void CovAniso::initSill(double value)
   _sill.fill(value);
 }
 
-void CovAniso::setRange(double range)
+void CovAniso::setRangeIsotropic(double range)
 {
   if (!hasRange()) return;
   if (range <= EPSILON10)
@@ -235,7 +240,7 @@ void CovAniso::setScale(double scale)
     messerr("A scale should not be too small");
     return;
   }
-  _aniso.setRadius(scale);
+  _aniso.setRadiusIsotropic(scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * scale);
 }
@@ -301,6 +306,62 @@ void CovAniso::setAnisoAngle(int idim, double angle)
   _aniso.setRotationAngle(idim, angle);
 }
 
+void CovAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
+                                          const VectorDouble &ranges,
+                                          const VectorDouble &scales)
+{
+  if (!hasRange()) return;
+
+  VectorDouble scales_local = scales;
+
+  if (! scales.empty())
+  {
+    if (! ranges.empty())
+    {
+      messerr("You cannot define simultaneously 'ranges' and 'scales'");
+      return;
+    }
+
+    if (scales.size() != getNDim())
+    {
+      messerr("Inconsistency on Space Dimension");
+      return;
+    }
+    for (unsigned int i = 0; i < scales.size(); i++)
+    {
+      if (scales[i] <= EPSILON20) // should be less strict than setRange
+      {
+        messerr("The scale along Dimension (%d) should not be too small", i);
+        return;
+      }
+    }
+    scales_local = scales;
+  }
+
+  if (! ranges.empty())
+  {
+    if (ranges.size() != getNDim())
+    {
+      messerr("Inconsistency on Space Dimension");
+      return;
+    }
+    for (unsigned int i = 0; i < ranges.size(); i++)
+    {
+      if (ranges[i] <= EPSILON10)
+      {
+        messerr("The range in Space dimension (%d) should not be too small", i);
+      }
+    }
+    scales_local = ranges;
+    double scadef = _cova->getScadef();
+    VH::divideConstant(scales_local, scadef);
+  }
+
+  // Perform the assignment and update the tensor
+
+  _aniso.setRotationAnglesAndRadius(angles, scales_local);
+}
+
 bool CovAniso::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : check something in CovAniso::isConsistent?
@@ -337,7 +398,8 @@ void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
   else
   {
     cov = _calculateCov(0., mode);
-    if (mode->getUnitary()) mat.fill(1.);
+    if (mode->getUnitary())
+      mat.fill(1.);
   }
   mat.prodScalar(cov);
 }
@@ -418,7 +480,8 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
   else
   {
     cov = _calculateCov(h, mode);
-    if (mode->getUnitary()) mat.fill(1.);
+    if (mode->getUnitary())
+      mat.fill(1.);
   }
   mat.prodScalar(cov);
 }
@@ -551,7 +614,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(getSill(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
 
     // Isotropy vs anisotropy
@@ -621,7 +684,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(getSill(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
   }
 
@@ -630,7 +693,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  return _sill.getValue(ivar, jvar);
+  return _sill.getValue(ivar, jvar) * _noStatFactor;
 }
 
 /**
@@ -643,7 +706,7 @@ double CovAniso::getSlope(int ivar, int jvar) const
 {
   if (hasRange() == 0) return TEST;
   double range = getRange(0);
-  return _sill.getValue(ivar, jvar) / range;
+  return _sill.getValue(ivar, jvar) * _noStatFactor / range;
 }
 
 VectorDouble CovAniso::getRanges() const
@@ -886,7 +949,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext &ctxt,
     return nullptr;
   }
   if (flagRange)
-    cov->setRange(range);
+    cov->setRangeIsotropic(range);
   else
     cov->setScale(range);
   cov->setSill(sills);
@@ -1072,7 +1135,8 @@ void CovAniso::evalMatOptimInPlace(int icas1,
   else
   {
     cov = _calculateCov(hoptim, mode);
-    if (mode->getUnitary()) mat.fill(1.);
+    if (mode->getUnitary())
+      mat.fill(1.);
   }
   mat.prodScalar(cov);
 }

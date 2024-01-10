@@ -46,14 +46,23 @@ int main(int argc, char *argv[])
   /* Initializations */
 
   dbout = (DbGrid *) NULL;
-  vario = (Vario *) NULL;
-  model = (Model *) NULL;
+  vario = (Vario  *) NULL;
+  model = (Model  *) NULL;
   flag_norm_sill = 0;
   flag_goulard_used = 1;
+  setFlagEigen(true);
 
   /* Standard output redirection to file */
 
   StdoutRedirect sr("Result.out");
+
+  /* Create the output name (for storage of dump files) */
+
+  VectorString subparts = separateKeywords(argv[1]);
+  int nargs = subparts.size();
+  String outname = concatenateStrings("", subparts[nargs-2], subparts[nargs-1], "-");
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName(outname);
 
   /* Setup constants */
 
@@ -115,9 +124,9 @@ int main(int argc, char *argv[])
   {
     vario->compute(dbout, ECalcVario::VARIOGRAM);
     ascii_filename("Vario",0,1,filename);
-    if (! vario->dumpToNF(filename,verbose))
-      messageAbort("ascii_vario_write");
   }
+  if (! vario->dumpToNF("Vario.dat",verbose))
+    messageAbort("ascii_vario_write");
   
   /* Fit the model */
 
@@ -129,7 +138,7 @@ int main(int argc, char *argv[])
 // Model is not printed any more to avoid differences among platforms
 //    model->display();
   ascii_filename("Model",0,1,filename);
-  if (! model->dumpToNF(filename,verbose))
+  if (! model->dumpToNF("Model.out",verbose))
     messageAbort("ascii_model_write");
   
   // Produce the Goodness-of-fit score

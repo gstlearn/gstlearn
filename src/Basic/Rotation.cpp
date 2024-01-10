@@ -168,21 +168,13 @@ void Rotation::_recopy(const Rotation &r)
 void Rotation::_directToInverse()
 {
   _rotInv = _rotMat;
-  if (_rotInv.invert())
-  {
-    messerr("Error in the inversion of the rotation matrix");
-    messerr("The Rotation is cancelled");
-  }
+  _rotInv.transposeInPlace();
 }
 
 void Rotation::_inverseToDirect()
 {
   _rotMat = _rotInv;
-  if (_rotMat.invert())
-  {
-    messerr("Error in the inversion of the rotation matrix");
-    messerr("The Rotation is cancelled");
-  }
+  _rotMat.transposeInPlace();
 }
 
 void Rotation::_checkRotForIdentity()

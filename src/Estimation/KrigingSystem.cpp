@@ -585,20 +585,6 @@ bool KrigingSystem::_isAuthorized()
 }
 
 /**
- * Modify the covariance before calling the covariance evaluation
- * This makes sense only when non-stationarity is defined
- * @param icas1     1 for dbin and 2 for Dbout
- * @param iech1     Rank of the first sample
- * @param icas2     1 for dbin and 2 for Dbout
- * @param iech2     Rank of the second sample
- */
-void KrigingSystem::_covUpdate(int icas1, int iech1, int icas2, int iech2)
-{
-  const ANoStat *nostat = _model->getNoStat();
-  nostat->updateModel(_model, icas1, iech1, icas2, iech2);
-}
-
-/**
  * Module for calculating the covariance internally (for 0 distance)
  * @param icas      Origin of the sample: & for dbin and 2 for dbout
  * @param iech      Rank of the target sample
@@ -608,7 +594,6 @@ void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
   _model->eval0MatInPlace(_covtab, mode);
 }
-
 
 /**
  * Module for calculating the covariance internally
@@ -732,7 +717,7 @@ void KrigingSystem::_lhsCalcul()
   {
     for (int jech = 0; jech < _nech; jech++)
     {
-      if (_flagNoStat) _covUpdate(1, _nbgh[iech], 1, _nbgh[jech]);
+      if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
       if (iech == jech && _model->isStationary())
         _covtab0Calcul(1, _nbgh[iech], &_calcModeLHS);
       else
@@ -939,7 +924,7 @@ void KrigingSystem::_rhsCalculPoint()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -961,7 +946,7 @@ void KrigingSystem::_rhsCalculBlock()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     covcum.fill(0.);
     if (_flagPerCell) _blockDiscretize(1);
 
@@ -1014,7 +999,7 @@ void KrigingSystem::_rhsCalculDGM()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    if (_flagNoStat) _covUpdate(1, _nbgh[iech], 2, _iechOut);
+    if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 2, _iechOut);
     _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
     _rhsStore(iech);
   }
@@ -1576,7 +1561,7 @@ void KrigingSystem::_variance0()
   if (_optimEnabled)
     _model->getCovAnisoList()->optimizationSetTarget(_p0);
 
-  if (_flagNoStat) _covUpdate(2, _iechOut, 2, _iechOut);
+  if (_flagNoStat) _model->updateCovByPoints(2, _iechOut, 2, _iechOut);
 
   switch (_calcul.toEnum())
   {
@@ -1751,7 +1736,6 @@ int KrigingSystem::_prepar()
 
   /* Invert the L.H.S. matrix */
 
-  VH::display("lhs dans eigen",_lhsf.getValues());
   if (_lhsInvert()) return 1;
 
   return 0;

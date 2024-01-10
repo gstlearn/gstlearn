@@ -20,6 +20,7 @@
 #include <vector>
 
 class Model;
+class ACov;
 
 /**
  * \brief
@@ -115,12 +116,13 @@ public:
   const std::vector<CovParamId>& getAllItems() const { return _items; }
   const CovParamId getItems(int ipar) const { return _items[ipar]; }
 
-  void updateModel(Model *model,
-                   int icas1,
-                   int iech1,
-                   int icas2,
-                   int iech2) const;
-  void updateModelByMesh(Model* model, int imesh) const;
+  bool getInfoFromDb(int ipar,
+                     int icas1,
+                     int iech1,
+                     int icas2,
+                     int iech2,
+                     double *val1,
+                     double *val2) const;
 
 protected:
   void _setAmesh(const AMesh* amesh) const { _amesh = amesh; }
@@ -136,13 +138,6 @@ private:
                       int *iv1,
                       int *iv2);
   void _updateFromModel(const Model* model);
-  bool _getInfoFromDb(int ipar,
-                      int icas1,
-                      int iech1,
-                      int icas2,
-                      int iech2,
-                      double *val1,
-                      double *val2) const;
   bool _checkConsistency() const;
 
 private:

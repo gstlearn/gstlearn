@@ -422,6 +422,8 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
+  void updateCovByPoints(int icas1, int iech1, int icas2, int iech2);
+  void updateCovByMesh(int imesh);
   void setActiveFactor(int iclass);
   int  getActiveFactor() const;
   int  getAnamNClass() const;

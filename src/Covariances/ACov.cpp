@@ -13,6 +13,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
+#include "Model/ANoStat.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -730,8 +732,8 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 /*!
  **  Establish the covariance matrix between two Dbs
  **
- ** \param[in]  db1   First Db
- ** \param[in]  db2   Second Db (=db1 if absent)
+ ** \param[in]  db1_arg First Db
+ ** \param[in]  db2_arg Second Db (=db1 if absent)
  ** \param[in]  ivar  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar  Rank of the second variable (-1: all variables)
  ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
@@ -743,15 +745,43 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
  ** \remarks ncols is the number of active samples in db2
  **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrix(const Db* db1,
-                                      const Db* db2,
+MatrixRectangular ACov::evalCovMatrix(const Db* db1_arg,
+                                      const Db* db2_arg,
                                       int ivar,
                                       int jvar,
                                       const VectorInt& nbgh1,
                                       const VectorInt& nbgh2,
-                                      const CovCalcMode* mode) const
+                                      const CovCalcMode* mode)
 {
-  if (db2 == nullptr) db2 = db1;
+  const Db* db1 = nullptr;
+  const Db* db2 = nullptr;
+  if (db2_arg == nullptr) db2_arg = db1_arg;
+  if (db1_arg == nullptr || db2_arg == nullptr) return MatrixRectangular();
+  ANoStat *nostat = getNoStatModify();
+
+  if (isNoStat())
+  {
+    Db* db1_copy = db1_arg->clone();
+    if (db1_arg != nullptr)
+    {
+      // Attach the Input Db
+      if (nostat->attachToDb(db1_copy, 1)) return MatrixRectangular();
+    }
+    db1 = db1_copy;
+
+    Db* db2_copy = db2_arg->clone();
+    if (db2_arg != nullptr)
+    {
+      // Attach the Output Db
+      if (nostat->attachToDb(db2_copy, 2)) return MatrixRectangular();
+    }
+    db2 = db2_copy;
+  }
+  else
+  {
+    db1 = db1_arg;
+    db2 = db2_arg;
+  }
 
   int nechtot1, nechtot2, nsize1, nsize2;
   if (nbgh1.empty())
@@ -794,6 +824,10 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
       if (!db2->isActive(iech2)) continue;
       SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
 
+      // Modify the covariance (if non stationary)
+
+      if (isNoStat()) updateCovByPoints(1, iech1, 2, iech2);
+
       /* Loop on the dimension of the space */
 
       double value = eval(p1, p2, ivar, jvar, mode);
@@ -801,6 +835,14 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
       jech2++;
     }
     jech1++;
+  }
+
+  // Free the non-stationary specific allocation
+
+  if (isNoStat())
+  {
+    delete db1;
+    delete db2;
   }
   return mat;
 }

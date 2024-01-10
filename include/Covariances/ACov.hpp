@@ -49,6 +49,7 @@ public:
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
   virtual const ANoStat* getNoStat() const { return nullptr; }
+  virtual ANoStat* getNoStatModify() const { return nullptr; }
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -82,6 +83,8 @@ public:
                                  bool /*normalize*/) const { return TEST; }
   virtual double evalSpectrum(const VectorDouble& /*freq*/,
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) { return; }
+  virtual void updateCovByMesh(int imesh) { return; }
   /////////////////////////////////////////////////////////////////////////////////
   ///
   void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
@@ -193,13 +196,13 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  MatrixRectangular evalCovMatrix(const Db* db1,
-                                  const Db* db2 = nullptr,
+  MatrixRectangular evalCovMatrix(const Db* db1_arg,
+                                  const Db* db2_arg = nullptr,
                                   int ivar = 0,
                                   int jvar = 0,
                                   const VectorInt& nbgh1 = VectorInt(),
                                   const VectorInt& nbgh2 = VectorInt(),
-                                  const CovCalcMode* mode = nullptr) const;
+                                  const CovCalcMode* mode = nullptr);
   double extensionVariance(const Db* db,
                            const VectorDouble& ext,
                            const VectorInt& ndisc,
@@ -240,7 +243,6 @@ public:
                                const VectorDouble &x0 = VectorDouble(),
                                int ivar = 0,
                                int jvar = 0) const;
-
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,

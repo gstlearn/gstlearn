@@ -1731,11 +1731,26 @@ VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
 }
 
 void VectorHelper::linearComb(double val1,
+                              const VectorDouble &in1,
+                              double val2,
+                              const VectorDouble &in2,
+                              VectorDouble &outv)
+{
+  if (in1.empty() || in2.empty()) return;
+  for (int i = 0, n = (int) in1.size(); i < n; i++)
+  {
+    outv[i] = val1 * in1[i] + val2 * in2[i];
+  }
+}
+
+void VectorHelper::linearCombVVD(double val1,
                               const VectorVectorDouble &in1,
                               double val2,
                               const VectorVectorDouble &in2,
                               VectorVectorDouble &outv)
 {
+  if (in1.empty() || in2.empty()) return;
+
   for (int is = 0, ns = (int) in1.size(); is < ns; is++)
   {
     for (int i = 0, n = (int) in1[is].size(); i < n; i++)

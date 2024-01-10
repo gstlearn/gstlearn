@@ -114,6 +114,8 @@ public:
   void addMatrix(const AMatrix& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
   void prodMatrix(const AMatrix& x, const AMatrix& y);
+  /*! Multiply the transpose of matrix 'x' by matrix 'y' and store the result in the current matrix */
+  void prodTMatrix(const AMatrix& x, const AMatrix& y);
   /*! Linear combination of matrices */
   void linearCombination(double cx, double cy, const AMatrix& y);
 

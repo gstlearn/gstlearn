@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-
 /**
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
@@ -26,6 +25,7 @@
 #include "Model/Model.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/OptCst.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Stats/Classical.hpp"
 #include "API/SPDE.hpp"
@@ -53,6 +53,11 @@ int main(int argc, char *argv[])
   int ndat = 50;
   int nxref = 101;
   double matern_param = 1.0;
+
+  setFlagEigen(true);
+  OptCst::define(ECst::NTDEC, 4);
+  OptCst::define(ECst::NTROW, -1);
+  bool flagExhaustiveTest = false;
 
   // Feature to be tested:
   // 0: all of them
@@ -97,8 +102,18 @@ int main(int argc, char *argv[])
 
     for (int ifois = 0; ifois < 2; ifois++)
     {
-      int useCholesky = ifois;
-      String option = (useCholesky) ? ".Chol": ".NoChol";
+      int useCholesky;
+      String option;
+      if (ifois == 0)
+      {
+        useCholesky = 0;
+        option = ".NoChol";
+      }
+      else
+      {
+        useCholesky = 1;
+        option = ".Chol";
+      }
       if (showStats)
         message("- Cholesky Option        = %d\n", useCholesky);
 
@@ -141,6 +156,11 @@ int main(int argc, char *argv[])
   // Produce some statistics for comparison
   dbStatisticsPrint(grid, { "Kriging*", "Simu*" },
                     EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }));
+  if (flagExhaustiveTest)
+  {
+    DbStringFormat *dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);
+    grid->display(dbfmt);
+  }
   (void) grid->dumpToNF("Grid.ascii");
 
   if (dat       != nullptr) delete dat ;

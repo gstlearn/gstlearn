@@ -22,7 +22,7 @@
 /**
  * This function switch ON/OFF the ability to use Eigen library for Algebra
  */
-static bool globalFlagEigen   = false;
+static bool globalFlagEigen   = true;
 static int  globalMultiThread = 0;
 
 AMatrix::AMatrix(int nrow, int ncol)
@@ -566,6 +566,45 @@ void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
   }
 }
 
+/**
+ * Store the product of transpose of 'x' by 'y' in this
+ * @param x First Matrix
+ * @param y Second matrix
+ */
+void AMatrix::prodTMatrix(const AMatrix& x, const AMatrix& y)
+{
+  if (_flagCheckAddress)
+  {
+    if (x.getNRows() != y.getNRows() ||
+        x.getNCols() != getNRows()   ||
+        y.getNCols() != getNCols())
+    {
+      messerr("Incompatible matrix dimensions for matrix product");
+      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
+      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
+      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
+      messerr("Operation is cancelled");
+      return;
+    }
+  }
+
+  int n = x.getNCols();
+  for (int irow = 0; irow < _nRows; irow++)
+  {
+    for (int icol = 0; icol < _nCols; icol++)
+    {
+      if (!_isPhysicallyPresent(irow, icol)) continue;
+
+      double value = 0.;
+      for (int k = 0; k < n; k++)
+      {
+        value += x.getValue(k, irow) * y.getValue(k, icol);
+      }
+      setValue(irow, icol, value);
+    }
+  }
+}
+
 /*!
  * Updates the current Matrix as a linear combination of matrices as follows:
  *  this <- cx * this + cy * y
@@ -582,7 +621,7 @@ void AMatrix::linearCombination(double cx, double cy, const AMatrix& y)
 
   if (!_isCompatible(y))
   my_throw("Matrix 'y' is not compatible with 'this'");
-  for (int rank = 0; rank < _getMatrixPhysicalSize(); rank++)
+  for (int rank = 0, nrank = _getMatrixPhysicalSize(); rank < nrank; rank++)
   {
     double value = _getValueByRank(rank) * cx + cy * y._getValueByRank(rank);
     _setValueByRank(rank, value);

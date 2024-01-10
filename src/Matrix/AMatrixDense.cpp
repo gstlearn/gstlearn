@@ -264,6 +264,14 @@ void AMatrixDense::prodMatrix(const AMatrixDense& x, const AMatrixDense& y)
     AMatrix::prodMatrix(x, y);
 }
 
+void AMatrixDense::prodTMatrix(const AMatrixDense& x, const AMatrixDense& y)
+{
+  if (isFlagEigen())
+    _prodTMatrixLocal(x, y);
+  else
+    AMatrix::prodTMatrix(x, y);
+}
+
 void AMatrixDense::linearCombination(double cx, double cy, const AMatrixDense& y)
 {
   if (isFlagEigen())

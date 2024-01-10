@@ -83,9 +83,8 @@ void model_nostat_update(CovInternal *covint, Model *model)
   if (covint == NULL) return;
   COVINT = covint;
 
-  const ANoStat *nostat = model->getNoStat();
-  nostat->updateModel(model, covint->getIcas1(), covint->getIech1(),
-                      covint->getIcas2(), covint->getIech2());
+  model->updateCovByPoints(covint->getIcas1(), covint->getIech1(), covint->getIcas2(),
+                           covint->getIech2());
 }
 
 /****************************************************************************/
@@ -388,7 +387,7 @@ int model_add_cova(Model *model,
     if (flag_rotation) cova->setAnisoRotation(aniso_rotmat);
   }
   else
-    cova->setRange(range);
+    cova->setRangeIsotropic(range);
 
   if (static_cast<int>(sill.size()) > 0) cova->setSill(sill);
   model->addCov(cova);
@@ -1049,7 +1048,7 @@ Model* model_duplicate_for_gradient(const Model *model, double ball_radius)
           covnew->setAnisoRotation(cova->getAnisoRotation());
       }
       else
-        covnew->setRange(cova->getRange());
+        covnew->setRangeIsotropic(cova->getRange());
 
       /* Modify the Sill */;
 

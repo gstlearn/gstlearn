@@ -237,8 +237,8 @@ void Chebychev::evalOp(const ALinearOpMulti *Op,
   VH::copy(inv, *tm2);
   // tm1 = v1 Op tm2 + v2 tm2
   Op->evalDirect(*tm2, *tm1);
-  VH::linearComb(v1, *tm1, v2, *tm2, *tm1);
-  VH::linearComb(_coeffs[0], *tm2, _coeffs[1], *tm1, outv);
+  VH::linearCombVVD(v1, *tm1, v2, *tm2, *tm1);
+  VH::linearCombVVD(_coeffs[0], *tm2, _coeffs[1], *tm1, outv);
 
   /* Loop on the Chebychev polynomials */
   // Op *= 2
@@ -249,7 +249,7 @@ void Chebychev::evalOp(const ALinearOpMulti *Op,
   {
     // t0 = (v1 Op + v2 I) tm1
     Op->evalDirect(*tm1, *t0);
-    VH::linearComb(v1, *t0, v2, *tm1, *t0);
+    VH::linearCombVVD(v1, *t0, v2, *tm1, *t0);
 
     // t0 = 2 * t0 - tm2
     VH::subtractInPlace(*tm2, *t0, *t0);

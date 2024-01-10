@@ -69,13 +69,13 @@ ACovAnisoList::~ACovAnisoList()
 
 void ACovAnisoList::addCovList(const ACovAnisoList* covs)
 {
-  for (int icov = 0, ncov = covs->getCovNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = covs->getCovaNumber(); icov < ncov; icov++)
     addCov(covs->getCova(icov));
 }
 
 void ACovAnisoList::addCov(const CovAniso* cov)
 {
-  if (getCovNumber() > 0)
+  if (getCovaNumber() > 0)
   {
     // A covariance has already been considered.
     // Check that the current Context is similar to the one of the newly
@@ -124,7 +124,7 @@ bool ACovAnisoList::isConsistent(const ASpace* /*space*/) const
 
 int ACovAnisoList::getNVariables() const
 {
-  if (getCovNumber() > 0)
+  if (getCovaNumber() > 0)
     return _covs[0]->getNVariables();
   return 0;
 }
@@ -142,7 +142,7 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovNumber(); i<n; i++)
+    for (int i=0, n=getCovaNumber(); i<n; i++)
       cov += _covs[i]->eval0(ivar, jvar, mode);
   }
   else
@@ -167,7 +167,7 @@ void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
   mat.fill(0.);
   if (_considerAllCovariances(mode))
   {
-    for (int i=0, n=getCovNumber(); i<n; i++)
+    for (int i=0, n=getCovaNumber(); i<n; i++)
     {
       _covs[i]->eval0MatInPlace(_matC, mode);
       mat.addMatrix(_matC);
@@ -237,7 +237,7 @@ void ACovAnisoList::evalOptimInPlace(VectorDouble &res,
 {
   for (auto &e : res)
     e = 0;
-  for (int i = 0, n = getCovNumber(); i < n; i++)
+  for (int i = 0, n = getCovaNumber(); i < n; i++)
     _covs[i]->evalOptimInPlace(res, ivar, jvar, mode);
 }
 
@@ -254,7 +254,7 @@ void ACovAnisoList::evalMatOptimInPlace(int icas1,
   mat.fill(0.);
   if (_considerAllCovariances(mode))
   {
-    for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     {
       _covs[i]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, _matC, mode);
       mat.addMatrix(_matC);
@@ -280,7 +280,7 @@ double ACovAnisoList::eval(const SpacePoint& p1,
 
   if (_considerAllCovariances(mode))
   {
-    for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
       cov += _covs[i]->eval(p1, p2, ivar, jvar, mode);
   }
   else
@@ -302,7 +302,7 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
   mat.fill(0.);
   if (_considerAllCovariances(mode))
   {
-    for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     {
       _covs[i]->evalMatInPlace(p1, p2, _matC, mode);
       mat.addMatrix(_matC);
@@ -321,9 +321,9 @@ void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
 String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  if (getCovNumber() <= 0) return sstr.str();
+  if (getCovaNumber() <= 0) return sstr.str();
 
-  for (int icov = 0, ncov = getCovNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
   {
     sstr << getCova(icov)->toString();
     if (isFiltered(icov))
@@ -363,7 +363,7 @@ bool ACovAnisoList::isFiltered(unsigned int i) const
 
 bool ACovAnisoList::hasRange() const
 {
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
   {
     if (!getCova(i)->hasRange())
       return false;
@@ -373,7 +373,7 @@ bool ACovAnisoList::hasRange() const
 
 bool ACovAnisoList::isStationary() const
 {
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
   {
     if (getCova(i)->getMinOrder() >= 0)
       return false;
@@ -384,7 +384,7 @@ bool ACovAnisoList::isStationary() const
 VectorInt ACovAnisoList::getActiveCovList() const
 {
   VectorInt actives;
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
   {
     if (_filtered[i]) continue;
     actives.push_back(i);
@@ -394,7 +394,7 @@ VectorInt ACovAnisoList::getActiveCovList() const
 
 bool ACovAnisoList::isAllActiveCovList() const
 {
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
   {
     if (_filtered[i]) return false;
   }
@@ -404,7 +404,7 @@ bool ACovAnisoList::isAllActiveCovList() const
 VectorInt ACovAnisoList::getAllActiveCovList() const
 {
   VectorInt actives;
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
   {
     actives.push_back(i);
   }
@@ -422,7 +422,7 @@ CovAniso ACovAnisoList::extractCova(int icov) const
 int ACovAnisoList::getCovaMinIRFOrder() const
 {
   int nmini = -1;
-  for (unsigned i = 0, n = getCovNumber(); i<n; i++)
+  for (unsigned i = 0, n = getCovaNumber(); i<n; i++)
   {
     int locmini = _covs[i]->getMinOrder();
     if (locmini > nmini) nmini = locmini;
@@ -474,6 +474,11 @@ void ACovAnisoList::setSill(unsigned int icov, int ivar, int jvar, double value)
   if (! _isCovarianceIndexValid(icov)) return;
   _covs[icov]->setSill(ivar, jvar, value);
 }
+void ACovAnisoList::setParam(unsigned int icov, double value)
+{
+  if (! _isCovarianceIndexValid(icov)) return;
+  _covs[icov]->setParam(value);
+}
 
 void ACovAnisoList::setType(unsigned int icov, const ECov& type)
 {
@@ -496,7 +501,7 @@ int ACovAnisoList::getGradParamNumber(unsigned int icov) const
 double ACovAnisoList::getTotalSill(int ivar, int jvar) const
 {
   double sill_total = 0.;
-  for (int icov = 0, ncov = getCovNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = getCova(icov);
     if (cova->getMinOrder() >= 0) return TEST;
@@ -517,9 +522,9 @@ MatrixSquareGeneral ACovAnisoList::getTotalSill() const
 
 bool ACovAnisoList::_isCovarianceIndexValid(unsigned int i) const
 {
-  if (i >= (unsigned int) getCovNumber())
+  if (i >= (unsigned int) getCovaNumber())
   {
-    mesArg("Covariance Index",i,getCovNumber());
+    mesArg("Covariance Index",i,getCovaNumber());
     return false;
   }
   return true;
@@ -533,7 +538,7 @@ double ACovAnisoList::getMaximumDistance() const
 
 {
   double maxdist = 0.;
-  for (int icov = 0, ncov = getCovNumber(); icov < ncov; icov++)
+  for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
   {
     const CovAniso* cova = getCova(icov);
     if (! cova->hasRange()) continue;
@@ -553,13 +558,13 @@ void ACovAnisoList::copyCovContext(const CovContext& ctxt)
 void ACovAnisoList::normalize(double sill, int ivar, int jvar)
 {
   double covval = 0.;
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     covval += _covs[i]->eval0(ivar, jvar);
 
   if (covval <= 0. || covval == sill) return;
   double ratio = sill / covval;
 
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
   {
     CovAniso* cov = _covs[i];
     cov->setSill(cov->getSill(ivar, jvar) * ratio);
@@ -568,7 +573,7 @@ void ACovAnisoList::normalize(double sill, int ivar, int jvar)
 
 bool ACovAnisoList::hasNugget() const
 {
-  for (int is = 0, ns = getCovNumber(); is < ns; is++)
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
   {
     if (getType(is) == ECov::NUGGET) return true;
   }
@@ -577,19 +582,19 @@ bool ACovAnisoList::hasNugget() const
 
 void ACovAnisoList::optimizationPreProcess(const std::vector<SpacePoint>& vec) const
 {
-	for (int is = 0, ns = getCovNumber(); is < ns; is++)
+	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
 		_covs[is]->optimizationPreProcess(vec);
 }
 
 void ACovAnisoList::optimizationSetTarget(const SpacePoint& pt) const
 {
-  for (int is = 0, ns = getCovNumber(); is < ns; is++)
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
     _covs[is]->optimizationSetTarget(pt);
 }
 
 void ACovAnisoList::optimizationPostProcess() const
 {
-	for (int is = 0, ns = getCovNumber(); is < ns; is++)
+	for (int is = 0, ns = getCovaNumber(); is < ns; is++)
 		_covs[is]->optimizationPostProcess();
 }
 
@@ -597,7 +602,7 @@ const ACovAnisoList* ACovAnisoList::reduce(const VectorInt &validVars) const
 {
   ACovAnisoList* newcovlist = this->clone();
 
-  for (int is = 0, ns = getCovNumber(); is < ns; is++)
+  for (int is = 0, ns = getCovaNumber(); is < ns; is++)
   {
     CovAniso* covs = newcovlist->getCova(is);
     newcovlist->setCova(is,covs->reduce(validVars));
@@ -627,7 +632,7 @@ int ACovAnisoList::addNoStat(const ANoStat *anostat)
     // Check that the Non-stationary parameter is valid with respect
     // to the Model definition
 
-    if (icov < 0 || icov >= getCovNumber())
+    if (icov < 0 || icov >= getCovaNumber())
     {
       messerr("Invalid Covariance rank (%d) for the Non-Stationary Parameter (%d)",
               icov, ipar);
@@ -682,4 +687,247 @@ CovParamId ACovAnisoList::getCovParamId(int ipar) const
 {
   if (_noStat == nullptr) return CovParamId();
   return _noStat->getItems(ipar);
+}
+
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param icas1 Type of first Db: 1 for Input; 2 for Output
+ * @param iech1 Rank of the target within Db1 (or -1)
+ * @param icas2 Type of first Db: 1 for Input; 2 for Output
+ * @param iech2 Rank of the target within Dbout (or -2)
+ */
+void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+{
+  double val1, val2;
+
+  // If no non-stationary parameter is defined, simply skip
+  if (! isNoStat()) return;
+  int ndim = getNDim();
+
+  // Loop on the elements that can be updated one-by-one
+
+  for (int ipar = 0, npar = _noStat->getNoStatElemNumber(); ipar < npar; ipar++)
+  {
+    int icov = _noStat->getICov(ipar);
+    EConsElem type = _noStat->getType(ipar);
+
+    if (type == EConsElem::SILL)
+    {
+      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
+      {
+        int iv1  = _noStat->getIV1(ipar);
+        int iv2  = _noStat->getIV2(ipar);
+        setSill(icov, iv1, iv2, sqrt(val1 * val2));
+      }
+    }
+    else if (type == EConsElem::RANGE)
+    {
+      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
+      {
+        int iv1  = _noStat->getIV1(ipar);
+        int iv2  = _noStat->getIV2(ipar);
+        setSill(icov, iv1, iv2, sqrt(val1 * val2));
+      }
+    }
+    else if (type == EConsElem::PARAM)
+    {
+      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
+        setParam(icov, 0.5 * (val1 + val2));
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+  for (int icov = 0, ncov = getCovaNumber(); icov < ncov; icov++)
+  {
+    if (! _noStat->isDefinedforAnisotropy(icov)) continue;
+    CovAniso* cova = getCova(icov);
+
+    VectorDouble angle1;
+    VectorDouble angle2;
+
+    VectorDouble scale1;
+    VectorDouble scale2;
+
+    VectorDouble range1;
+    VectorDouble range2;
+
+    // Define the angles (for all space dimensions)
+    bool flagRotTwo = false;
+    bool flagRotOne = false;
+    if (_noStat->isDefined(EConsElem::ANGLE, icov))
+    {
+      angle1 = cova->getAnisoAngles();
+      angle2 = angle1;
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::ANGLE, icov, idim, 0))
+        {
+          int ipar = _noStat->getRank(EConsElem::ANGLE, icov, idim);
+          if (ipar < 0) continue;
+          flagRotOne = true;
+          if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &angle1[idim], &angle2[idim]))
+            flagRotTwo = true;
+        }
+      }
+    }
+
+    // Define the Theoretical ranges (for all space dimensions)
+
+    bool flagScaleTwo = false;
+    bool flagScaleOne = false;
+    if (_noStat->isDefined(EConsElem::SCALE, icov))
+    {
+      scale1 = cova->getScales();
+      scale2 = scale1;
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::SCALE, icov, idim, 0))
+        {
+          int ipar = _noStat->getRank(EConsElem::SCALE, icov, idim);
+          if (ipar < 0) continue;
+          flagScaleOne = true;
+          if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &scale1[idim], &scale2[idim]))
+            flagScaleTwo = true;
+        }
+      }
+    }
+
+    // Define the Practical ranges (for all space dimensions)
+
+    bool flagRangeTwo = false;
+    bool flagRangeOne = false;
+    if (_noStat->isDefined(EConsElem::RANGE, icov))
+    {
+      range1 = cova->getRanges();
+      range2 = range1;
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::RANGE, icov, idim))
+        {
+          int ipar = _noStat->getRank(EConsElem::RANGE, icov, idim);
+          if (ipar < 0) continue;
+          flagRangeOne = true;
+          if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &range1[idim], &range2[idim]))
+            flagRangeTwo = true;
+        }
+      }
+    }
+
+    // Update the Model
+    double ratio = 1.;
+    if (flagRotTwo || flagRangeTwo || flagScaleTwo)
+    {
+      // Extract the direct tensor at first point and square it
+      cova->setRotationAnglesAndRadius(angle1, range1, scale1);
+      MatrixSquareSymmetric direct1 = cova->getAniso().getTensorDirect2();
+      double det1 = pow(direct1.determinant(), 0.25);
+
+      // Extract the direct tensor at second point and square it
+      cova->setRotationAnglesAndRadius(angle2, range2, scale2);
+      MatrixSquareSymmetric direct2 = cova->getAniso().getTensorDirect2();
+      double det2 = pow(direct2.determinant(), 0.25);
+
+      // Calculate average squared tensor
+      direct2.linearCombination(0.5, 0.5, direct1);
+      double detM = sqrt(direct2.determinant());
+
+      // Update the tensor (squared version)
+      Tensor tensor = cova->getAniso();
+      tensor.setTensorDirect2(direct2);
+      cova->setAniso(tensor);
+      ratio = det1 * det2 / detM;
+    }
+    else if (flagRotOne || flagRangeOne || flagScaleOne)
+    {
+      // Simply update the model with one set of parameters
+      cova->setRotationAnglesAndRadius(angle1, range1, scale1);
+    }
+
+    cova->setNoStatFactor(ratio);
+  }
+}
+
+/**
+ * Update the Model according to the Non-stationary parameters
+ * @param imesh Rank of the target mesh
+ */
+void ACovAnisoList::updateCovByMesh(int imesh)
+{
+  // If no non-stationary parameter is defined, simply skip
+  if (! isNoStat()) return;
+  int ndim = getNDim();
+
+  // Loop on the elements that can be updated one-by-one
+
+  for (int ipar = 0; ipar < _noStat->getNoStatElemNumber(); ipar++)
+  {
+    int icov = _noStat->getICov(ipar);
+    EConsElem type = _noStat->getType(ipar);
+
+    if (type == EConsElem::SILL)
+    {
+      double sill = _noStat->getValueByParam(ipar, 0, imesh);
+      int iv1  = _noStat->getIV1(ipar);
+      int iv2  = _noStat->getIV2(ipar);
+      setSill(icov, iv1, iv2, sill);
+    }
+  }
+
+  // Loop on the other parameters (Anisotropy) that must be processed globally
+
+  for (int icov = 0; icov < getCovaNumber(); icov++)
+  {
+    if (! _noStat->isDefinedforAnisotropy(icov)) continue;
+    CovAniso* cova = getCova(icov);
+
+    VectorDouble angles(cova->getAnisoAngles());
+    VectorDouble scales(cova->getScales());
+    VectorDouble ranges(cova->getRanges());
+
+    // Define the angles (for all space dimensions)
+    if (_noStat->isDefined(EConsElem::ANGLE, icov))
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::ANGLE, icov, idim, 0))
+        {
+          int ipar = _noStat->getRank(EConsElem::ANGLE, icov, idim);
+          if (ipar < 0) continue;
+          angles[idim] = _noStat->getValueByParam(ipar, 0, imesh);
+        }
+      }
+    }
+
+    // Define the Theoretical ranges (for all space dimensions)
+    if (_noStat->isDefined(EConsElem::SCALE, icov))
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::SCALE, icov, idim))
+        {
+          int ipar = _noStat->getRank(EConsElem::SCALE, icov, idim);
+          if (ipar < 0) continue;
+          scales[idim] = _noStat->getValueByParam(ipar, 0, imesh);
+        }
+      }
+    }
+
+    // Define the Practical ranges (for all space dimensions)
+    if (_noStat->isDefined(EConsElem::RANGE, icov))
+    {
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (_noStat->isDefined(EConsElem::RANGE, icov, idim))
+        {
+          int ipar = _noStat->getRank(EConsElem::RANGE, icov, idim);
+          if (ipar < 0) continue;
+          ranges[idim] = _noStat->getValueByParam(ipar, 0, imesh);
+        }
+      }
+    }
+
+    // Exploit the Anisotropy
+    cova->setRotationAnglesAndRadius(angles, ranges, scales);
+  }
 }

@@ -327,7 +327,7 @@ void Model::addCovFromParam(const ECov& type,
   else
   {
     if (flagRange)
-      cov.setRange(range);
+      cov.setRangeIsotropic(range);
     else
       cov.setScale(range);
   }
@@ -432,7 +432,7 @@ int Model::getCovaNumber() const
   if (_cova == nullptr) return 0;
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovNumber();
+  return covalist->getCovaNumber();
 }
 const ECov& Model::getCovaType(int icov) const
 {
@@ -497,6 +497,16 @@ void Model::setSill(int icov, int ivar, int jvar, double value)
   if (covalist == nullptr) return;
   covalist->setSill(icov, ivar, jvar, value);
 }
+void Model::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+{
+  if (_cova == nullptr) return;
+  _cova->updateCovByPoints(icas1, iech1, icas2, iech2);
+}
+void Model::updateCovByMesh(int imesh)
+{
+  if (_cova == nullptr) return;
+  _cova->updateCovByMesh(imesh);
+}
 void Model::setCovaFiltered(int icov, bool filtered)
 {
   if (_cova == nullptr) return;
@@ -509,7 +519,7 @@ int Model::hasExternalCov() const
   if (_cova == nullptr) return 0;
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return 0;
-  for (int icov = 0; icov < (int) covalist->getCovNumber(); icov++)
+  for (int icov = 0; icov < (int) covalist->getCovaNumber(); icov++)
   {
     if (covalist->getType(icov) == ECov::FUNCTION) return 1;
   }
@@ -1270,7 +1280,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
       if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
     }
     else
-      cova.setRange(range);
+      cova.setRangeIsotropic(range);
     covs.addCov(&cova);
   }
   setCovList(&covs);
@@ -1805,10 +1815,10 @@ const ACovAnisoList* Model::_castInCovAnisoListConst(int icov) const
   if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovNumber())
+  if (icov >= covalist->getCovaNumber())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovNumber());
+            icov, covalist->getCovaNumber());
     return nullptr;
   }
   return covalist;
@@ -1826,10 +1836,10 @@ ACovAnisoList* Model::_castInCovAnisoList(int icov)
   if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovNumber())
+  if (icov >= covalist->getCovaNumber())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovNumber());
+            icov, covalist->getCovaNumber());
     return nullptr;
   }
   return covalist;

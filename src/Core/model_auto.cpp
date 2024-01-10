@@ -538,7 +538,7 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
       // Set the default range
 
       CovAniso *cova = model->getCova(icov);
-      cova->setRange(hmax);
+      cova->setRangeIsotropic(hmax);
 
       // Set the default values for the sill matrix
 
@@ -1076,15 +1076,18 @@ static void st_load_ge(const Vario *vario,
             }
             for (int idim = 0; idim < ndim; idim++)
               d1[idim] = dist * vario->getCodir(idir, idim);
-            if (!ge.empty())
-            GE(icov,ijvar,ipadir) = cova->evalIvarIpas(1.,d1,ivar,jvar,VectorDouble(),&mode);
 
-            if (!dd.empty()) for (int idim = 0; idim < ndim; idim++)
-              DD(idim,ijvar,ipadir) = dist * vario->getCodir(idir,idim);
+            if (!ge.empty())
+              GE(icov,ijvar,ipadir) = cova->evalIvarIpas(1.,d1,ivar,jvar,VectorDouble(),&mode);
+
+            if (!dd.empty())
+              for (int idim = 0; idim < ndim; idim++)
+                DD(idim,ijvar,ipadir) = d1[idim];
           }
         }
       }
     }
+
   return;
 }
 
@@ -2192,7 +2195,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       if (optvar.getAuthAniso())
         cova->setRanges(ranges);
       else
-        cova->setRange(ranges[0]);
+        cova->setRangeIsotropic(ranges[0]);
       if (flag_rot) cova->setAnisoAngles(angles);
       if (flag_aic)
       {
@@ -2256,7 +2259,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
     if (optvar.getAuthAniso())
       cova->setRanges(ranges);
     else
-      cova->setRange(ranges[0]);
+      cova->setRangeIsotropic(ranges[0]);
     if (flag_rot) cova->setAnisoAngles(angles);
     if (flag_aic)
     {

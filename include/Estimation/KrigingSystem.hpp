@@ -129,7 +129,6 @@ private:
   void _resetMemoryFullPerNeigh();
   void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
-  void _covUpdate(int icas1, int iech1, int icas2, int iech2);
   void _covtab0Calcul(int icas, int iech, const CovCalcMode *mode);
   void _covtabCalcul(int icas1,
                      int iech1,

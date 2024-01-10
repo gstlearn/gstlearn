@@ -1380,7 +1380,7 @@ static void st_convert_exponential2bessel(CovAniso *cova)
 
   cova->setType(ECov::BESSEL_K);
   cova->setParam(0.5);
-  cova->setRange(range_bes);
+  cova->setRangeIsotropic(range_bes);
 
   /* Optional printout */
 
@@ -2331,7 +2331,7 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
 
   if (nostat->isDefinedforAnisotropy(icov0, igrf0))
   {
-    nostat->updateModelByMesh(model, imesh0);
+    model->updateCovByMesh(imesh0);
     st_compute_hh();
     Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
   }

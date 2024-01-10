@@ -61,6 +61,7 @@ public:
   virtual bool   isIndexable() const override { return true; }
   virtual bool   isNoStat() const override { return _noStat != nullptr; }
   virtual const ANoStat* getNoStat() const override { return _noStat; }
+  virtual ANoStat* getNoStatModify() const override { return _noStat; }
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
@@ -81,6 +82,8 @@ public:
                                    int iech2,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode = nullptr) const override;
+  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) override;
+  virtual void updateCovByMesh(int imesh) override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -101,7 +104,7 @@ public:
   // Filter a covariance
   void setFiltered(unsigned int i, bool filtered);
 
-  int             getCovNumber() const { return (int) _covs.size(); }
+  int             getCovaNumber() const { return (int) _covs.size(); }
   bool            isFiltered(unsigned int i) const;
   bool            hasRange() const;
   bool            isStationary() const;
@@ -126,6 +129,7 @@ public:
   int                getGradParamNumber(unsigned int icov) const;
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
   void               setType(unsigned int icov, const ECov& type);
+  void               setParam(unsigned int icov, double value);
   CovAniso           extractCova(int icov) const;
   int                getCovaMinIRFOrder() const;
 
