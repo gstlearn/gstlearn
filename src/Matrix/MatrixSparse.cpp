@@ -56,7 +56,6 @@ MatrixSparse& MatrixSparse::operator=(const MatrixSparse &m)
   if (this != &m)
   {
     AMatrix::operator=(m);
-    _deallocate();
     if (isFlagEigen())
       _eigenMatrix = m._eigenMatrix;
     else
@@ -874,7 +873,7 @@ void MatrixSparse::_deallocate()
 {
   if (isFlagEigen())
   {
-    // This is where the specific code should take place
+    _eigenMatrix.data().squeeze();
   }
   else
   {

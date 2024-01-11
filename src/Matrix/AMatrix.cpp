@@ -44,11 +44,14 @@ AMatrix::AMatrix(const AMatrix &m)
 
 AMatrix& AMatrix::operator=(const AMatrix &m)
 {
-  AStringable::operator=(m);
-  _nRows = m._nRows;
-  _nCols = m._nCols;
-  _flagCheckAddress = m._flagCheckAddress;
-  _nullTerm = m._nullTerm;
+  if (this != &m)
+  {
+    AStringable::operator=(m);
+    _nRows = m._nRows;
+    _nCols = m._nCols;
+    _flagCheckAddress = m._flagCheckAddress;
+    _nullTerm = m._nullTerm;
+  }
   return *this;
 }
 
@@ -61,15 +64,6 @@ void AMatrix::init(int nrows, int ncols)
   _nRows = nrows;
   _nCols = ncols;
   _allocate();
-}
-
-void AMatrix::_recopy(const AMatrix &m)
-{
-  for (int icol = 0; icol < m.getNCols(); icol++)
-    for (int irow = 0; irow < m.getNRows(); irow++)
-    {
-      setValue(irow, icol, m.getValue(irow, icol));
-    }
 }
 
 bool AMatrix::isSquare(bool printWhyNot) const
@@ -243,7 +237,7 @@ bool AMatrix::isIdentity(bool printWhyNot) const
     for (int icol = 0; icol < getNCols(); icol++)
     {
       double refval = (irow == icol) ? 1. : 0.;
-      if (ABS(getValue(irow, icol) - refval) > EPSILON10)
+      if (ABS(getValueSafe(irow, icol) - refval) > EPSILON10)
       {
         if (printWhyNot)
           messerr("The term (%d,%d) should be equal to %lf (%lf)", irow + 1,
@@ -263,11 +257,11 @@ bool AMatrix::isDiagonal(bool printWhyNot) const
     {
       if (irow != icol)
       {
-        if (ABS(getValue(irow,icol)) > EPSILON10)
+        if (ABS(getValueSafe(irow,icol)) > EPSILON10)
         {
           if (printWhyNot)
             messerr("The element (%d;%d)=%lf should be zero", irow, icol,
-                    getValue(irow, icol));
+                    getValueSafe(irow, icol));
           return false;
         }
       }
@@ -322,11 +316,23 @@ AMatrix* AMatrix::transpose() const
   return mat;
 }
 
+/*! Gets the value at row 'irow' and column 'icol' (no test) */
+double AMatrix::getValueSafe(int irow, int icol) const
+{
+  return _getValue(irow, icol);
+}
+
 /*! Gets the value at row 'irow' and column 'icol' */
 double AMatrix::getValue(int irow, int icol) const
 {
   if (! _isIndexValid(irow, icol)) return TEST;
   return _getValue(irow, icol);
+}
+
+/*! Sets the value at row 'irow' and column 'icol' (no test) */
+void AMatrix::setValueSafe(int irow, int icol, double value)
+{
+  return _setValue(irow, icol, value);
 }
 
 /*! Sets the value at row 'irow' and column 'icol' */
@@ -425,7 +431,7 @@ void AMatrix::setIdentity(double value)
 {
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
-      setValue(irow, icol, value * (irow == icol));
+      setValueSafe(irow, icol, value * (irow == icol));
 }
 
 /**
@@ -891,7 +897,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
       {
-        (*itvect) = getValue(irow, icol);
+        (*itvect) = getValueSafe(irow, icol);
         itvect++;
       }
   }
@@ -900,7 +906,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
     for (int irow = 0; irow < _nRows; irow++)
       for (int icol = 0; icol < _nCols; icol++)
       {
-        (*itvect) = getValue(irow, icol);
+        (*itvect) = getValueSafe(irow, icol);
         itvect++;
       }
   }
@@ -1146,7 +1152,21 @@ void AMatrix::copyReduce(const AMatrix *x,
   VH::display("copyReduce validRows",validRows);
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
-      setValue(irow, icol, x->getValue(validRows[irow], validCols[icol]));
+      setValueSafe(irow, icol, x->getValueSafe(validRows[irow], validCols[icol]));
+}
+
+/**
+ * Copy the contents of matrix 'm' into 'this'
+ * Warning: matrices must have the same dimensions (not checked)
+ * @param m Input matrix
+ */
+void AMatrix::copyElements(const AMatrix &m)
+{
+  for (int icol = 0; icol < m.getNCols(); icol++)
+    for (int irow = 0; irow < m.getNRows(); irow++)
+    {
+      setValueSafe(irow, icol, m.getValueSafe(irow, icol));
+    }
 }
 
 /**

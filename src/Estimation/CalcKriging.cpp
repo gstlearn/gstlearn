@@ -280,7 +280,9 @@ bool CalcKriging::_run()
   }
   if (! ksys.isReady()) return false;
 
+  /***************************************/
   /* Loop on the targets to be processed */
+  /***************************************/
 
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {

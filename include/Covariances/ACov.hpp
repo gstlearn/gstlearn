@@ -24,6 +24,7 @@
 class Db;
 class DbGrid;
 class MatrixRectangular;
+class ANoStat;
 
 /**
  * \brief
@@ -47,6 +48,7 @@ public:
   virtual int getNVariables() const = 0;
   virtual bool isIndexable() const { return false; }
   virtual bool isNoStat() const { return false; }
+  virtual const ANoStat* getNoStat() const { return nullptr; }
   /// Calculate the covariance between two variables for 0-distance (stationary case)
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
@@ -65,6 +67,11 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const;
+  /// Calculate the matrix of covariances between two points given by indices (optim)
+  virtual void evalMatOptimInPlace(int iech1,
+                                   int iech2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode = nullptr) const = 0;
   /// Tell if the use of Optimization is enabled or not
   virtual bool isOptimEnabled() const { return _isOptimEnabled; }
 
@@ -75,7 +82,7 @@ public:
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
   /////////////////////////////////////////////////////////////////////////////////
   ///
-  void setIsOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
+  void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }
   VectorDouble eval(const std::vector<SpacePoint>& vec_p1,
                     const std::vector<SpacePoint>& vec_p2,
                     int ivar = 0,

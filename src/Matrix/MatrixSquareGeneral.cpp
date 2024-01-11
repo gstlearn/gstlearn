@@ -29,30 +29,15 @@ MatrixSquareGeneral::MatrixSquareGeneral(const MatrixSquareGeneral &r)
 }
 
 MatrixSquareGeneral::MatrixSquareGeneral(const AMatrix &m)
+  : AMatrixSquare(m),
+    _squareMatrix()
 {
-  if (m.isEmpty())
-  {
-    messerr("The input matrix should be non-empty");
-    _clear();
-    return;
-  }
-  if (!m.isSquare())
-  {
-    messerr("The input matrix should be Square");
-    _clear();
-    return;
-  }
-  _setNRows(m.getNRows());
-  _setNCols(m.getNCols());
-  _allocate();
-  _recopy(m);
 }
 
 MatrixSquareGeneral& MatrixSquareGeneral::operator= (const MatrixSquareGeneral &r)
 {
   if (this != &r)
   {
-    _deallocate();
     AMatrixSquare::operator=(r);
     _recopyLocal(r);
   }

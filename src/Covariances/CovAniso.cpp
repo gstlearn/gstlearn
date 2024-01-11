@@ -319,7 +319,6 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
   }
   else
   {
-    // Scale by the sill
     if (!mode->getUnitary())
       cov *= getSill(ivar, jvar);;
   }
@@ -329,18 +328,18 @@ double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode) const
 {
-  mat = _sill;
+  double cov = 0.;
+  mat.copyElements(_sill);
   if (mode == nullptr)
   {
-    double cov = _cova->evalCov(0);
-    mat.prodScalar(cov);
+    cov = _cova->evalCov(0);
   }
   else
   {
-    double cov = _calculateCov(0., mode);
+    cov = _calculateCov(0., mode);
     if (mode->getUnitary()) mat.fill(1.);
-    mat.prodScalar(cov);
   }
+  mat.prodScalar(cov);
 }
 
 double CovAniso::_calculateCov(double h, const CovCalcMode *mode) const
@@ -407,29 +406,21 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-
   // Calculate unit distance by applying anisotropy
   double h = getSpace()->getDistance(p1, p2, _aniso);
 
+  mat.copyElements(_sill);
+  double cov = 0.;
   if (mode == nullptr)
   {
-    double cov = _cova->evalCov(h);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
+    cov = _cova->evalCov(h);
   }
   else
   {
-    double cov = _calculateCov(h, mode);
-    double sill = 1.;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        if (! mode->getUnitary()) sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
+    cov = _calculateCov(h, mode);
+    if (mode->getUnitary()) mat.fill(1.);
   }
+  mat.prodScalar(cov);
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
@@ -1030,26 +1021,24 @@ void CovAniso::evalOptimInPlace(VectorDouble &res,
                                 const CovCalcMode *mode) const
 {
   int ecr = 0;
+  double sill = 0.;
   if (mode == nullptr)
-  {
-    double sill = _sill.getValue(ivar, jvar);
-    for (int i = 0; i < (int) _p1As.size(); i++)
-    {
-      if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-      double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-      res[ecr++] += sill * _cova->evalCov(h);
-    }
-  }
+    sill = _sill.getValue(ivar, jvar);
   else
+    sill = (mode->getUnitary()) ? 1. : _sill.getValue(ivar, jvar);
+
+  double cov = 0.;
+  for (int i = 0; i < (int) _p1As.size(); i++)
   {
-    double sill = (mode->getUnitary()) ? 1. : _sill.getValue(ivar, jvar);
-    for (int i = 0; i < (int) _p1As.size(); i++)
-    {
-      if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-      double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-      double cov = _calculateCov(h, mode);
-      res[ecr++] += sill * cov;
-    }
+    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
+    double hoptim = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
+
+    if (mode == nullptr)
+      cov = _cova->evalCov(hoptim);
+    else
+      cov = _calculateCov(hoptim, mode);
+
+    res[ecr++] += sill * cov;
   }
 }
 
@@ -1058,8 +1047,6 @@ void CovAniso::evalMatOptimInPlace(int iech1,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-
   SpacePoint* p1A;
   if (iech1 >= 0)
     p1A = &_p1As[iech1];
@@ -1073,27 +1060,17 @@ void CovAniso::evalMatOptimInPlace(int iech1,
     p2A = &_p2A;
 
   // Calculate distance (in anisotropic space)
-  double h = VH::normDistance(p1A->getCoord(), p2A->getCoord());
-  double sill = 1.;
-
+  double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  double cov = 0.;
+  mat.copyElements(_sill);
   if (mode == nullptr)
   {
-    double cov = _cova->evalCov(h);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
+    cov = _cova->evalCov(hoptim);
   }
   else
   {
-    double cov = _calculateCov(h, mode);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        if (! mode->getUnitary()) sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
+    cov = _calculateCov(hoptim, mode);
+    if (mode->getUnitary()) mat.fill(1.);
   }
+  mat.prodScalar(cov);
 }

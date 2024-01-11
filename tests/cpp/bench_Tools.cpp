@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     }
   }
   timer.displayIntervalMilliseconds("with iterators", 450);
-  if (result != result_ref)
+  if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
     message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using pointers to double\n");
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
     }
   }
   timer.displayIntervalMilliseconds("with pointers", 320);
-  if (result != result_ref)
+  if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
     message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using VectorHelper\n");
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
   for (int itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(a, b);
   timer.displayIntervalMilliseconds("with VectorHelper", 200);
-  if (result != result_ref)
+  if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
     message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using VectorHelper (double)\n");
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
   for (int itime = 0; itime < ntimes; itime++)
     result = VH::innerProduct(ptra, ptrb, nsize);
   timer.displayIntervalMilliseconds("with VectorHelper (double)", 200);
-  if (result != result_ref)
+  if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
     message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   message("- using matrix algebra\n");
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
     result = res(0,0);
   }
   timer.displayIntervalMilliseconds("with algebra", 1700);
-  if (result != result_ref)
+  if (ABS(result - result_ref) > ABS(result_ref) * EPSILON6)
     message("Results are different: Result = %lf; Ref = %lf\n",result, result_ref);
 
   /// Sorting the contents of a vector

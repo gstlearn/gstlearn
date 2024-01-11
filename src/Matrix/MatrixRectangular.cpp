@@ -29,6 +29,12 @@ MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
   _recopyLocal(r);
 }
 
+MatrixRectangular::MatrixRectangular(const AMatrix &m)
+    : AMatrixDense(m),
+      _rectMatrix()
+{
+}
+
 MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
 {
   if (this != &r)
@@ -47,7 +53,7 @@ MatrixRectangular::~MatrixRectangular()
 /**
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
- * @param X Input VectorVectorDouble argument
+ * @param  X Input VectorVectorDouble argument
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading

@@ -39,38 +39,27 @@ int main(int argc, char *argv[])
   StdoutRedirect sr(sfn.str(), argc, argv);
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("BenchKrigingU-");
+  ASerializable::setPrefixName("BenchKrigingU3D-");
 
   // Global parameters
-  defineDefaultSpace(ESpaceType::RN, 2);
+  defineDefaultSpace(ESpaceType::RN, 3);
 
   // Generate the data base
-  String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-  CSVformat csv(false, 6);
-  Db* data = Db::createFromCSV(filename, csv);
-  data->setName("New.1","ID");
-  data->setName("New.2","X");
-  data->setName("New.3","Y");
-  data->setName("New.4","rainfall");
-  data->setLocators({"X","Y"},ELoc::X);
-  data->setLocator("rainfall",ELoc::Z);
+
+  Db* data = Db::createFillRandom(100, 3, 1, 0,0,0,0,VectorDouble(),{0,0,0}, {100,100,100});
+
   if (graphic)
     (void) data->dumpToNF("Data.ascii");
 
   // Generate the output grid
   bool flagSmall = false;
-  VectorInt nx;
-  if (flagSmall)
-    nx = {50,60};
-  else
-    nx = {360,240};
-  VectorDouble dx = {1000, 1000};
-  VectorDouble x0 = {-180000, -120000};
-  DbGrid* grid = DbGrid::create(nx, dx, x0);
+  VectorInt nx = {100,100,100};
+
+  DbGrid* grid = DbGrid::create(nx);
   if (verbose) grid->display();
 
   // Create the Model
-  Model* model = Model::createFromParam(ECov::SPHERICAL, 80000, 14000);
+  Model* model = Model::createFromParam(ECov::EXPONENTIAL, 20);
   if (verbose) model->display();
 
   // Unique Neighborhood

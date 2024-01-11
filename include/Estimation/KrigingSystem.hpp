@@ -120,9 +120,6 @@ private:
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
-  double _getZAM(int i) const;
-  double _getZEXT(int i) const;
-  void   _setZEXT(int i, double value) const;
   VectorDouble _getDISC1Vec(int idisc) const;
   VectorVectorDouble _getDISC1s() const;
   double _getDISC2(int idisc,int idim) const;
@@ -132,16 +129,16 @@ private:
   void   _setVAR0(int ivCL, int jvCL, double value);
 
   void _resetMemoryGeneral();
-  void _resetMemoryPerNeigh();
+  void _resetMemoryFullPerNeigh();
+  void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
-  void _zextInit();
-  void _lhsInit();
   void _covUpdate(int icas1, int iech1, int icas2, int iech2);
-  void _covtabInit();
-  void _covtabCalcul(int iech1,
+  void _covtab0Calcul(int icas, const CovCalcMode *mode);
+  void _covtabCalcul(int icas1,
+                     int iech1,
+                     int icas2,
                      int iech2,
-                     const CovCalcMode* mode,
-                     bool flagSameData = false);
+                     const CovCalcMode* mode);
   void _covCvvCalcul(const CovCalcMode* mode);
   int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
@@ -175,8 +172,9 @@ private:
   void _krigingDump(int status);
   void _simulateDump(int status);
   void _saveWeights(int status);
-  void _blockDiscretize();
+  void _blockDiscretize(int rank);
   bool _isCorrect();
+  bool _preparNoStat();
 
   void   _checkAddress(const String& title,
                        const String& theme,
@@ -313,7 +311,6 @@ private:
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
   mutable MatrixSquareGeneral   _covtab;
-  mutable MatrixSquareGeneral   _covref;
   mutable VectorDouble          _drftab;
   mutable MatrixSquareSymmetric _lhs;
   mutable MatrixSquareSymmetric _lhsinv;
@@ -322,6 +319,7 @@ private:
   mutable MatrixRectangular     _zam;
   mutable MatrixRectangular     _zext;
   mutable MatrixSquareGeneral   _var0;
+  mutable MatrixRectangular     _results;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 
@@ -331,4 +329,9 @@ private:
   mutable SpacePoint _p1;
   mutable SpacePoint _p2;
   mutable SpacePoint _p0_memo;
+
+  /// Some local flags defined in order to speed up the process
+  mutable bool _flagNoStat;
+  mutable bool _flagNoMatCL;
+  mutable bool _flagVerr;
 };

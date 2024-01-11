@@ -122,8 +122,12 @@ public:
 
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
+  /*! Gets the value at row 'irow' and column 'icol' (no test) */
+  double getValueSafe(int irow, int icol) const;
   /*! Gets the value at row 'irow' and column 'icol' */
   double getValue(int irow, int icol) const;
+  /*! Sets the value at row 'irow' and column 'icol' (no test) */
+  void setValueSafe(int irow, int icol, double value);
   /*! Sets the value at row 'irow' and column 'icol' */
   void setValue(int irow, int icol, double value);
   /*! Add a value to a matrix term */
@@ -176,6 +180,7 @@ public:
   void copyReduce(const AMatrix *x,
                   const VectorInt &activeRows,
                   const VectorInt &activeCols);
+  void copyElements(const AMatrix &m);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
 #ifndef SWIG
@@ -218,7 +223,7 @@ protected:
   bool _isRankValid(int rank) const;
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
-  void _recopy(const AMatrix &m);
+
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
 

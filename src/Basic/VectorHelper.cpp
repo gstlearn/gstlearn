@@ -506,25 +506,15 @@ double VectorHelper::normDistance(const VectorDouble &veca,
                                   const VectorDouble &vecb)
 {
   double prod = 0.;
-  if (isFlagEigen())
+  double delta = 0.;
+  const double *ptra = &veca[0];
+  const double *ptrb = &vecb[0];
+  for (int i = 0, n = (int) veca.size(); i < n; i++)
   {
-    int size = veca.size();
-    Eigen::Map<const Eigen::VectorXd> vecam(veca.data(), size);
-    Eigen::Map<const Eigen::VectorXd> vecbm(vecb.data(), size);
-    prod = vecam.dot(vecbm);
-  }
-  else
-  {
-    double delta = 0.;
-    const double *ptra = &veca[0];
-    const double *ptrb = &vecb[0];
-    for (int i = 0, n = (int) veca.size(); i < n; i++)
-    {
-      delta = (*ptra) - (*ptrb);
-      prod += delta * delta;
-      ptra++;
-      ptrb++;
-    }
+    delta = (*ptra) - (*ptrb);
+    prod += delta * delta;
+    ptra++;
+    ptrb++;
   }
   return sqrt(prod);
 }
@@ -1639,22 +1629,13 @@ double VectorHelper::innerProduct(const double* veca,
                                   int size)
 {
   double prod = 0.;
-  if (isFlagEigen())
+  const double *ptra = &veca[0];
+  const double *ptrb = &vecb[0];
+  for (int i = 0; i < size; i++)
   {
-    Eigen::Map<const Eigen::VectorXd> vecam(veca, size);
-    Eigen::Map<const Eigen::VectorXd> vecbm(vecb, size);
-    return vecam.dot(vecbm);
-  }
-  else
-  {
-    const double *ptra = &veca[0];
-    const double *ptrb = &vecb[0];
-    for (int i = 0; i < size; i++)
-    {
-      prod += (*ptra) * (*ptrb);
-      ptra++;
-      ptrb++;
-    }
+    prod += (*ptra) * (*ptrb);
+    ptra++;
+    ptrb++;
   }
   return prod;
 }
@@ -1686,20 +1667,9 @@ VectorDouble VectorHelper::crossProduct3D(const VectorDouble &veca,
 
 void VectorHelper::crossProduct3DInPlace(const double *a, const double *b, double *v)
 {
-  int size = 3;
-  if (isFlagEigen())
-  {
-    Eigen::Map<const Eigen::Vector3d> am(a, size);
-    Eigen::Map<const Eigen::Vector3d> bm(b, size);
-    Eigen::Vector3d resm = am.cross(bm);
-    Eigen::VectorXd::Map(v, resm.rows()) = resm;
-  }
-  else
-  {
-    v[0] = a[1] * b[2] - a[2] * b[1];
-    v[1] = a[2] * b[0] - a[0] * b[2];
-    v[2] = a[0] * b[1] - a[1] * b[0];
-  }
+  v[0] = a[1] * b[2] - a[2] * b[1];
+  v[1] = a[2] * b[0] - a[0] * b[2];
+  v[2] = a[0] * b[1] - a[1] * b[0];
 }
 
 /**

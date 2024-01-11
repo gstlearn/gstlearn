@@ -60,6 +60,7 @@ public:
   virtual int    getNVariables() const override;
   virtual bool   isIndexable() const override { return true; }
   virtual bool   isNoStat() const override { return _noStat != nullptr; }
+  virtual const ANoStat* getNoStat() const override { return _noStat; }
   virtual double eval0(int ivar = 0,
                        int jvar = 0,
                        const CovCalcMode* mode = nullptr) const override;
@@ -74,6 +75,10 @@ public:
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode = nullptr) const override;
+  virtual void evalMatOptimInPlace(int iech1,
+                                   int iech2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode = nullptr) const override;
 
   /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -130,10 +135,6 @@ public:
                         int ivar = 0,
                         int jvar = 0,
                         const CovCalcMode *mode = nullptr) const;
-  void evalMatOptimInPlace(int iech1,
-                           int iech2,
-                           MatrixSquareGeneral &mat,
-                           const CovCalcMode *mode = nullptr) const;
   VectorVectorDouble evalCovMatrixOptim(const Db *db1,
                                         const Db *db2,
                                         int ivar,
@@ -146,7 +147,6 @@ public:
 
   const ACovAnisoList* reduce(const VectorInt &validVars) const;
 
-  const ANoStat* getANoStat() const { return _noStat; }
   int addNoStat(const ANoStat *anostat);
   int getNoStatElemNumber() const;
   const EConsElem& getNoStatElemType(int ipar) const;

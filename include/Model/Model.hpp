@@ -156,7 +156,7 @@ public:
   bool isAllActiveCovList() const;
   void setTapeRange(double range);
 
-  void setIsOptimEnabled(bool flagOptim) { _cova->setIsOptimEnabled(flagOptim); }
+  void setOptimEnabled(bool flagOptim) { _cova->setOptimEnabled(flagOptim); }
   bool isOptimEnabled() const { return _cova->isOptimEnabled(); }
 
   double eval0(int ivar = 0,
@@ -168,6 +168,14 @@ public:
   MatrixSquareGeneral eval0Nvar(const CovCalcMode* mode = nullptr) const
   {
     return _cova->eval0Mat(mode);
+  }
+  int isNoStat() const
+  {
+    return _cova->isNoStat();
+  }
+  const ANoStat* getNoStat() const
+  {
+    return _cova->getNoStat();
   }
   void eval0MatInPlace(MatrixSquareGeneral &mat,
                        const CovCalcMode *mode = nullptr) const
@@ -330,7 +338,10 @@ public:
   void evalMatOptimInPlace(int iech1,
                            int iech2,
                            MatrixSquareGeneral &mat,
-                           const CovCalcMode *mode = nullptr) const;
+                           const CovCalcMode *mode = nullptr) const
+  {
+    _cova->evalMatOptimInPlace(iech1, iech2, mat, mode);
+  }
 
   VectorVectorDouble evalCovMatrixOptim(const Db *db1,
                                         const Db *db2 = nullptr,
@@ -476,9 +487,7 @@ public:
 
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
-  const ANoStat* getNoStat() const;
   int  addNoStat(const ANoStat* anostat);
-  int  isNoStat() const;
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElems(const VectorString& codes);
