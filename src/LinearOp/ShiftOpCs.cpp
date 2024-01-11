@@ -882,8 +882,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matM.transposeInPlace();
-  matP.prodMatrix(matMtM, matM);
+  matP.prodMatrix(matMtM, matM, false, true);
   return 0;
 }
 

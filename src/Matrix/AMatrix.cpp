@@ -528,77 +528,49 @@ void AMatrix::addMatrix(const AMatrix& y, double value)
 }
 
 /**
- * Store the product of 'x' by 'y' in this
+ * Store the product of 'x'(or 't(x)') by 'y' (or 't(y') in this
  * @param x First Matrix
  * @param y Second matrix
+ * @param transposeX True if first matrix must be transposed
+ * @param transposeY True if second matrix must be transposed
  */
-void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
+void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y, bool transposeX, bool transposeY)
 {
+  int ni1 = (transposeX) ? x.getNCols() : x.getNRows();
+  int nm1 = (transposeX) ? x.getNRows() : x.getNCols();
+  int ni2 = (transposeY) ? y.getNRows() : y.getNCols();
+  int nm2 = (transposeY) ? y.getNCols() : y.getNRows();
+
+  if (nm1 != nm2)
+  {
+    messerr("Matrices 'x' and 'y' should have matching dimensions");
+    return;
+  }
   if (_flagCheckAddress)
   {
-    if (x.getNCols() != y.getNRows() ||
-        x.getNRows() != getNRows()   ||
-        y.getNCols() != getNCols())
+    if (nm1 != nm2 || ni1 != getNRows() || ni2 != getNCols())
     {
-      messerr("Incompatible matrix dimensions for matrix product");
+      messerr("Incompatible matrix dimensions for matrix product (before any transpose)");
       messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
       messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
+      messerr("- Result matrix: NRows = %d - NColumns = %d",   getNRows(),   getNCols());
       messerr("Operation is cancelled");
       return;
     }
   }
 
-  int n = x.getNCols();
-  for (int irow = 0; irow < _nRows; irow++)
+  for (int irow = 0; irow < ni1; irow++)
   {
-    for (int icol = 0; icol < _nCols; icol++)
+    for (int icol = 0; icol < ni2; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
 
       double value = 0.;
-      for (int k = 0; k < n; k++)
+      for (int k = 0; k < nm1; k++)
       {
-        value += x.getValue(irow, k) * y.getValue(k, icol);
-      }
-      setValue(irow, icol, value);
-    }
-  }
-}
-
-/**
- * Store the product of transpose of 'x' by 'y' in this
- * @param x First Matrix
- * @param y Second matrix
- */
-void AMatrix::prodTMatrix(const AMatrix& x, const AMatrix& y)
-{
-  if (_flagCheckAddress)
-  {
-    if (x.getNRows() != y.getNRows() ||
-        x.getNCols() != getNRows()   ||
-        y.getNCols() != getNCols())
-    {
-      messerr("Incompatible matrix dimensions for matrix product");
-      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
-      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-      messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
-      messerr("Operation is cancelled");
-      return;
-    }
-  }
-
-  int n = x.getNCols();
-  for (int irow = 0; irow < _nRows; irow++)
-  {
-    for (int icol = 0; icol < _nCols; icol++)
-    {
-      if (!_isPhysicallyPresent(irow, icol)) continue;
-
-      double value = 0.;
-      for (int k = 0; k < n; k++)
-      {
-        value += x.getValue(k, irow) * y.getValue(k, icol);
+        double v1 = (transposeX) ? x.getValue(k, irow) : x.getValue(irow, k);
+        double v2 = (transposeY) ? y.getValue(icol, k) : y.getValue(k, icol);
+        value += v1 * v2;
       }
       setValue(irow, icol, value);
     }

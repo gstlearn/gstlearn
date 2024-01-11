@@ -98,10 +98,8 @@ int Rotation::setAngles(const VectorDouble& angles)
     if (angles.size() > _nDim)
       my_throw("Wrong dimension number for 'angles' argument");
 
+    _angles = angles;
     _angles.resize(_nDim,0.);
-    int nval = MAX((int) _nDim, static_cast<int> (angles.size()));
-    for (int idim = 0; idim < nval; idim++)
-      _angles[idim] = angles[idim];
     if (_nDim == 2) _angles[1] = 0.;
 
     VectorDouble local = VectorDouble(_nDim * _nDim);

@@ -238,7 +238,7 @@ void Tensor::_fillTensors()
 
   // Square of the Direct tensor
   _tensorDirect2 = MatrixSquareSymmetric(_nDim);
-  _tensorDirect2.prodTMatrix(_tensorDirect, _tensorDirect);
+  _tensorDirect2.prodMatrix(_tensorDirect, _tensorDirect, false, true);
 
   // Inverse of the Direct squared tensor
   _direct2ToInverse2();

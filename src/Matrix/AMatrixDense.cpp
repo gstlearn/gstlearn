@@ -256,20 +256,15 @@ void AMatrixDense::addMatrix(const AMatrixDense& y, double value)
     AMatrix::addMatrix(y, value);
 }
 
-void AMatrixDense::prodMatrix(const AMatrixDense& x, const AMatrixDense& y)
+void AMatrixDense::prodMatrix(const AMatrixDense &x,
+                              const AMatrixDense &y,
+                              bool transposeX,
+                              bool transposeY)
 {
   if (isFlagEigen())
-    _prodMatrixLocal(x, y);
+    _prodMatrixLocal(x, y, transposeX, transposeY);
   else
-    AMatrix::prodMatrix(x, y);
-}
-
-void AMatrixDense::prodTMatrix(const AMatrixDense& x, const AMatrixDense& y)
-{
-  if (isFlagEigen())
-    _prodTMatrixLocal(x, y);
-  else
-    AMatrix::prodTMatrix(x, y);
+    AMatrix::prodMatrix(x, y, transposeX, transposeY);
 }
 
 void AMatrixDense::linearCombination(double cx, double cy, const AMatrixDense& y)
@@ -523,14 +518,33 @@ void AMatrixDense::_addMatrixLocal(const AMatrixDense& y, double value)
   _eigenMatrix.noalias() += y._eigenMatrix * value;
 }
 
-void AMatrixDense::_prodMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
+void AMatrixDense::_prodMatrixLocal(const AMatrixDense &x,
+                                    const AMatrixDense &y,
+                                    bool transposeX,
+                                    bool transposeY)
 {
-  _eigenMatrix.noalias() = x._eigenMatrix * y._eigenMatrix;
-}
-
-void AMatrixDense::_prodTMatrixLocal(const AMatrixDense& x, const AMatrixDense& y)
-{
-  _eigenMatrix.noalias() = x._eigenMatrix.transpose() * y._eigenMatrix;
+  if (transposeX)
+  {
+    if (transposeY)
+    {
+      _eigenMatrix.noalias() = x._eigenMatrix.transpose() * y._eigenMatrix.transpose();
+    }
+    else
+    {
+      _eigenMatrix.noalias() = x._eigenMatrix.transpose() * y._eigenMatrix;
+    }
+  }
+  else
+  {
+    if (transposeY)
+    {
+      _eigenMatrix.noalias() = x._eigenMatrix * y._eigenMatrix.transpose();
+    }
+    else
+    {
+      _eigenMatrix.noalias() = x._eigenMatrix * y._eigenMatrix;
+    }
+  }
 }
 
 /**

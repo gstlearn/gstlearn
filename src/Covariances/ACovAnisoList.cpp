@@ -720,16 +720,8 @@ void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2
         setSill(icov, iv1, iv2, sqrt(val1 * val2));
       }
     }
-    else if (type == EConsElem::RANGE)
-    {
-      if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
-      {
-        int iv1  = _noStat->getIV1(ipar);
-        int iv2  = _noStat->getIV2(ipar);
-        setSill(icov, iv1, iv2, sqrt(val1 * val2));
-      }
-    }
     else if (type == EConsElem::PARAM)
+
     {
       if (_noStat->getInfoFromDb(ipar, icas1, iech1, icas2, iech2, &val1, &val2))
         setParam(icov, 0.5 * (val1 + val2));
@@ -843,7 +835,6 @@ void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2
       // Simply update the model with one set of parameters
       cova->setRotationAnglesAndRadius(angle1, range1, scale1);
     }
-
     cova->setNoStatFactor(ratio);
   }
 }

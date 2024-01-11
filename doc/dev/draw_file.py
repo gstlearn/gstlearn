@@ -95,7 +95,7 @@ elif filetype == "DbGrid":
     
     if flagDb:
         if dbgrid.getNDim() > 1:
-            ax = gp.grid(dbgrid, name, flagLegendRaster=True)
+            ax = gp.grid(dbgrid, name, flagLegendRaster=True, legendNameRaster="")
             ax.decoration(title=name)
             plt.show()
         else:
