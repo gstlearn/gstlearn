@@ -145,7 +145,7 @@ foreach(FLAVOR ${FLAVORS})
   endif()
   
   # Exclude [L]GPL features from Eigen
-  target_compile_definitions(${FLAVOR} PUBLIC EIGEN_MPL2_ONLY) 
+  #target_compile_definitions(${FLAVOR} PUBLIC EIGEN_MPL2_ONLY) 
 
   # Link to specific libraries (only for Microsoft Visual Studio)
   if (MSVC)

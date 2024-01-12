@@ -808,8 +808,8 @@ double CalcSimpleInterpolation::_estimCalc(const Db *dbin,
  * @param weights Vector of weights (same dimension as 'nbgh')
  * @return
  */
-double CalcSimpleInterpolation::_stdevCalc(const Db *dbin,
-                                           const Db *dbout,
+double CalcSimpleInterpolation::_stdevCalc(Db *dbin,
+                                           Db *dbout,
                                            const VectorInt &nbgh,
                                            int iechout,
                                            const VectorDouble& weights) const
@@ -835,7 +835,7 @@ double CalcSimpleInterpolation::_stdevCalc(const Db *dbin,
   return sqrt(c00 - 2. * c0x + cxx);
 }
 
-void CalcSimpleInterpolation::_saveResults(const Db* dbin,
+void CalcSimpleInterpolation::_saveResults(Db* dbin,
                                            Db* dbout,
                                            const VectorInt& nbgh,
                                            int iech,

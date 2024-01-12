@@ -85,6 +85,8 @@ public:
   virtual int  attachToDb(Db* db, int icas, bool verbose = false) const;
   virtual void detachFromDb(Db* db, int icas) const;
 
+  int  manageInfo(int mode, Db *dbin, Db *dbout);
+
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
   int  addNoStatElemByItem(const CovParamId& item);
   int  addNoStatElems(const VectorString& codes);

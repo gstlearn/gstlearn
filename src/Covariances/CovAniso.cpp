@@ -608,8 +608,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
     if (getNVariables() > 1)
     {
-      sstr
-          << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
                       getNVariables(), getNVariables(), _sill.getValues());
     }
     else
@@ -628,13 +627,13 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     else
     {
       sstr << toVector("- Ranges       = ", getRanges());
-      if (isAsymptotic()) sstr << toVector("- Theo. Ranges = ", getScales());
+      if (isAsymptotic())
+        sstr << toVector("- Theo. Ranges = ", getScales());
       if (!_aniso.getRotation().isIdentity())
       {
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
         sstr << toVector("- Angles       = ", angles);
-        sstr
-            << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
+        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
                         true, getNDim(), getNDim(), getAnisoRotMatVec());
       }
     }
@@ -650,13 +649,12 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       for (int ivar = 0; ivar < getNVariables(); ivar++)
         for (int jvar = 0; jvar < getNVariables(); jvar++)
           slopes.setValue(ivar, jvar, _sill.getValue(ivar, jvar) / range);
-      sstr
-          << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
+      sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
                       getNVariables(), getNVariables(), slopes.getValues());
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0));
+      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
     }
 
     if (!_aniso.isIsotropic())
@@ -666,8 +664,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       {
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
         sstr << toVector("- Angles       = ", angles);
-        sstr
-            << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
+        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
                         true, getNDim(), getNDim(), getAnisoRotMatVec());
       }
     }
@@ -678,8 +675,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
     if (getNVariables() > 1)
     {
-      sstr
-          << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
                       getNVariables(), getNVariables(), _sill.getValues());
     }
     else

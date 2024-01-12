@@ -177,6 +177,10 @@ public:
   {
     return _cova->getNoStat();
   }
+  ANoStat* getNoStatModify() const
+  {
+    return _cova->getNoStatModify();
+  }
   void eval0MatInPlace(MatrixSquareGeneral &mat,
                        const CovCalcMode *mode = nullptr) const
   {
@@ -324,8 +328,8 @@ public:
   {
     return _cova->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
   }
-  MatrixRectangular evalCovMatrix(const Db* db1,
-                                  const Db* db2 = nullptr,
+  MatrixRectangular evalCovMatrix(Db* db1,
+                                  Db* db2 = nullptr,
                                   int ivar = 0,
                                   int jvar = 0,
                                   const VectorInt& nbgh1 = VectorInt(),

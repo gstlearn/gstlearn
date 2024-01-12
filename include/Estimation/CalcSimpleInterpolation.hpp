@@ -61,12 +61,12 @@ private:
   double _estimCalc(const Db *dbin,
                     const VectorInt &nbgh,
                     const VectorDouble& weights) const;
-  double _stdevCalc(const Db *dbin,
-                    const Db *dbout,
+  double _stdevCalc(Db *dbin,
+                    Db *dbout,
                     const VectorInt &nbgh,
                     int iechout,
                     const VectorDouble& weights) const;
-  void _saveResults(const Db *dbin,
+  void _saveResults(Db *dbin,
                     Db *dbout,
                     const VectorInt &nbgh,
                     int iech,

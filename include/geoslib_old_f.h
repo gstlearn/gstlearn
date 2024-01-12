@@ -1065,10 +1065,6 @@ GSTLEARN_EXPORT int manage_external_info(int mode,
                                          Db *dbin,
                                          Db *dbout,
                                          int *istart);
-GSTLEARN_EXPORT int manage_nostat_info(int mode,
-                                       const ANoStat *nostat,
-                                       Db *dbin,
-                                       Db *dbout);
 GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *dbgrid, double *coor);
 GSTLEARN_EXPORT void db_monostat(Db *db,
                                  int ivar,

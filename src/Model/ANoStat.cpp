@@ -604,3 +604,51 @@ bool ANoStat::_isValid(int icas, int rank) const
   }
   return true;
 }
+
+/*****************************************************************************/
+/*!
+ **  Derive the non-stationary information(s) from the Output db (if Grid)
+ **  to the Input Db
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  mode        1 for allocation; -1 for deallocation
+ ** \param[in]  dbin        Descriptor of the input Db
+ ** \param[in]  dbout       Descriptor of the output Db
+ **
+ *****************************************************************************/
+int ANoStat::manageInfo(int mode, Db *dbin, Db *dbout)
+{
+
+  /* Dispatch */
+
+  if (mode > 0)
+  {
+    if (dbin != nullptr)
+    {
+      // Attach the Input Db
+      if (attachToDb(dbin, 1)) return 1;
+    }
+
+    if (dbout != nullptr)
+    {
+      // Attach the Output Db
+      if (attachToDb(dbout, 2)) return 1;
+    }
+  }
+  else
+  {
+    if (dbin != nullptr)
+    {
+      // Detach the Input Db
+      detachFromDb(dbin, 1);
+    }
+
+    if (dbout != nullptr)
+    {
+      // Detach the output Db
+      detachFromDb(dbout, 2);
+    }
+  }
+  return (0);
+}

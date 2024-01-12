@@ -3091,45 +3091,6 @@ int manage_external_info(int mode,
 
 /*****************************************************************************/
 /*!
- **  Derive the non-stationary information(s) from the Output db (if Grid)
- **  to the Input Db
- **
- ** \return  Error return code
- **
- ** \param[in]  mode        1 for allocation; -1 for deallocation
- ** \param[in]  nostat      Descriptor of the ANostat
- ** \param[in]  dbin        Descriptor of the input Db
- ** \param[in]  dbout       Descriptor of the output Db
- **
- *****************************************************************************/
-int manage_nostat_info(int mode, const ANoStat *nostat, Db *dbin, Db *dbout)
-{
-
-  /* Dispatch */
-
-  if (mode > 0)
-  {
-
-    // Attach the Input Db
-    if (nostat->attachToDb(dbin, 1)) return 1;
-
-    // Attach the Output Db
-    if (nostat->attachToDb(dbout, 2)) return 1;
-  }
-  else
-  {
-
-    // Detach the Input Db
-    nostat->detachFromDb(dbin, 1);
-
-    // Detach the output Db
-    nostat->detachFromDb(dbout, 2);
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
  **  Centers the samples of a Db to the center of blocks of a grid Db
  **
  ** \return  Error return code
@@ -4932,9 +4893,10 @@ int db_model_nostat(Db *db,
 {
   if (icov < 0 || icov >= model->getCovaNumber()) return 1;
   if (!model->isNoStat()) return 0;
+  ANoStat *nostat = model->getNoStatModify();
 
   // The Non-stationary must be defined in the tabulated way
-  if (manage_nostat_info(1, model->getNoStat(), db, nullptr)) return 1;
+  if (nostat->manageInfo(1, db, nullptr)) return 1;
 
   /* Create the new variables */
 
@@ -4986,7 +4948,7 @@ int db_model_nostat(Db *db,
   namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
   namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
 
-  (void) manage_nostat_info(-1, model->getNoStat(), db, nullptr);
+  (void) nostat->manageInfo(-1, db, nullptr);
   return 0;
 }
 

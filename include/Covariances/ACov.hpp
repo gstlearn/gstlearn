@@ -196,8 +196,8 @@ public:
                               int ivar = 0,
                               int jvar = 0,
                               const CovCalcMode* mode = nullptr) const;
-  MatrixRectangular evalCovMatrix(const Db* db1_arg,
-                                  const Db* db2_arg = nullptr,
+  MatrixRectangular evalCovMatrix(Db* db1_arg,
+                                  Db* db2_arg = nullptr,
                                   int ivar = 0,
                                   int jvar = 0,
                                   const VectorInt& nbgh1 = VectorInt(),

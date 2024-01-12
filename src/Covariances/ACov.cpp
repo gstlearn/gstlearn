@@ -732,8 +732,8 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 /*!
  **  Establish the covariance matrix between two Dbs
  **
- ** \param[in]  db1_arg First Db
- ** \param[in]  db2_arg Second Db (=db1 if absent)
+ ** \param[in]  db1   First Db
+ ** \param[in]  db2   Second Db (=db1 if absent)
  ** \param[in]  ivar  Rank of the first variable (-1: all variables)
  ** \param[in]  jvar  Rank of the second variable (-1: all variables)
  ** \param[in]  nbgh1 Vector of indices of active samples in db1 (optional)
@@ -744,43 +744,25 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
  ** \remarks nrows is the number of active samples in db1
  ** \remarks ncols is the number of active samples in db2
  **
+ ** \note 'dbin' and 'dbout' cannot be made 'const' as they can be updated
+ ** \note due to the presence of 'nostat'
+ **
  *****************************************************************************/
-MatrixRectangular ACov::evalCovMatrix(const Db* db1_arg,
-                                      const Db* db2_arg,
+MatrixRectangular ACov::evalCovMatrix(Db* db1,
+                                      Db* db2,
                                       int ivar,
                                       int jvar,
                                       const VectorInt& nbgh1,
                                       const VectorInt& nbgh2,
                                       const CovCalcMode* mode)
 {
-  const Db* db1 = nullptr;
-  const Db* db2 = nullptr;
-  if (db2_arg == nullptr) db2_arg = db1_arg;
-  if (db1_arg == nullptr || db2_arg == nullptr) return MatrixRectangular();
+  if (db2 == nullptr) db2 = db1;
+  if (db1 == nullptr || db2 == nullptr) return MatrixRectangular();
   ANoStat *nostat = getNoStatModify();
 
   if (isNoStat())
   {
-    Db* db1_copy = db1_arg->clone();
-    if (db1_arg != nullptr)
-    {
-      // Attach the Input Db
-      if (nostat->attachToDb(db1_copy, 1)) return MatrixRectangular();
-    }
-    db1 = db1_copy;
-
-    Db* db2_copy = db2_arg->clone();
-    if (db2_arg != nullptr)
-    {
-      // Attach the Output Db
-      if (nostat->attachToDb(db2_copy, 2)) return MatrixRectangular();
-    }
-    db2 = db2_copy;
-  }
-  else
-  {
-    db1 = db1_arg;
-    db2 = db2_arg;
+    if (nostat->manageInfo(1, db1, db2)) return MatrixRectangular();
   }
 
   int nechtot1, nechtot2, nsize1, nsize2;
@@ -841,8 +823,7 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1_arg,
 
   if (isNoStat())
   {
-    delete db1;
-    delete db2;
+    if (nostat->manageInfo(-1, db1, db2)) return MatrixRectangular();
   }
   return mat;
 }
