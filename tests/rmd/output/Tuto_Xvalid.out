@@ -1,0 +1,243 @@
+gstlearn Library (Version:1.0.1 - Date:2023/12/03 - 18:19)
+Authors:
+Didier RENARD    (didier.renard@mines-paristech.fr)
+Nicolas BEZ      (nicolas.bez@ird.fr)
+Nicolas DESASSIS (nicolas.desassis@mines-paristech.fr)
+Helene BEUCHER   (helene.beucher@mines-paristech.fr)
+Fabien ORS       (fabien.ors@mines-paristech.fr)
+Xavier FREULON   (xavier.freulon@mines-paristech.fr)
+NULL
+NULL
+NULL
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = data - Locator = z1
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 8
+Total number of samples      = 10
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = data - Locator = z1
+Column = 4 - Name = Xvalid.data.esterr - Locator = NA
+Column = 5 - Name = Xvalid.data.stderr - Locator = NA
+Column = 6 - Name = Xvalid2.data.estim - Locator = NA
+Column = 7 - Name = Xvalid2.data.stdev - Locator = NA
+[1]  1.000000 22.701345 83.641175  2.501800 -1.951677 -1.094985  0.550123
+[8]  1.782378
+
+Target location
+---------------
+Sample #1 (from 10)
+Coordinate #1 = 22.701345
+Coordinate #2 = 83.641175
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2
+          1          1     22.701     83.641
+          2          2     82.323     43.955
+          3          3     15.270      3.385
+          4          4     55.428     19.935
+          5          5     93.142     79.864
+          6          6     85.694     97.845
+          7          7     73.690     37.455
+          8          8     32.792     43.164
+          9          9     32.178     78.710
+         10         10     64.591     82.042
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 10
+Total number of equations   = 11
+Reduced number of equations = 11
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      4.000      0.000      0.000      0.000      0.000
+          2          2      0.000      4.000      0.000      0.000      0.000
+          3          3      0.000      0.000      4.000      0.000      0.000
+          4          4      0.000      0.000      0.000      4.000      0.000
+          5          5      0.000      0.000      0.000      0.000      4.000
+          6          6      0.000      0.000      0.000      0.000      0.654
+          7          7      0.000      1.932      0.000      0.139      0.000
+          8          8      0.000      0.000      0.000      0.000      0.000
+          9          9      1.954      0.000      0.000      0.000      0.000
+         10         10      0.000      0.000      0.000      0.000      0.012
+         11         11      1.000      1.000      1.000      1.000      1.000
+
+       Rank                     6          7          8          9         10
+                  Flag          6          7          8          9         10
+          1          1      0.000      0.000      0.000      1.954      0.000
+          2          2      0.000      1.932      0.000      0.000      0.000
+          3          3      0.000      0.000      0.000      0.000      0.000
+          4          4      0.000      0.139      0.000      0.000      0.000
+          5          5      0.654      0.000      0.000      0.000      0.012
+          6          6      4.000      0.000      0.000      0.000      0.085
+          7          7      0.000      4.000      0.000      0.000      0.000
+          8          8      0.000      0.000      4.000      0.000      0.000
+          9          9      0.000      0.000      0.000      4.000      0.000
+         10         10      0.085      0.000      0.000      0.000      4.000
+         11         11      1.000      1.000      1.000      1.000      1.000
+
+       Rank                    11
+                  Flag         11
+          1          1      1.000
+          2          2      1.000
+          3          3      1.000
+          4          4      1.000
+          5          5      1.000
+          6          6      1.000
+          7          7      1.000
+          8          8      1.000
+          9          9      1.000
+         10         10      1.000
+         11         11      0.000
+
+Cross-validation results
+========================
+Target Sample = 1
+Variable Z1 
+ - True value        =       2.502
+ - Estimated value   =       0.550
+ - Estimation Error  =      -1.952
+ - Std. deviation    =       1.782
+ - Normalized Error  =      -1.095
+NULL
+
+Target location
+---------------
+Sample #1 (from 10)
+Coordinate #1 = 22.701345
+Coordinate #2 = 83.641175
+
+Data selected in neighborhood
+-----------------------------
+       Rank     Sample         x1         x2     Sector
+          1          2     82.323     43.955          1
+          2          3     15.270      3.385          1
+          3          4     55.428     19.935          1
+          4          5     93.142     79.864          1
+          5          6     85.694     97.845          1
+          6          7     73.690     37.455          1
+          7          8     32.792     43.164          1
+          8          9     32.178     78.710          1
+          9         10     64.591     82.042          1
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 9
+Total number of equations   = 10
+Reduced number of equations = 10
+
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1      4.000      0.000      0.000      0.000      0.000
+          2          2      0.000      4.000      0.000      0.000      0.000
+          3          3      0.000      0.000      4.000      0.000      0.000
+          4          4      0.000      0.000      0.000      4.000      0.654
+          5          5      0.000      0.000      0.000      0.654      4.000
+          6          6      1.932      0.000      0.139      0.000      0.000
+          7          7      0.000      0.000      0.000      0.000      0.000
+          8          8      0.000      0.000      0.000      0.000      0.000
+          9          9      0.000      0.000      0.000      0.012      0.085
+         10         10      1.000      1.000      1.000      1.000      1.000
+
+       Rank                     6          7          8          9         10
+                  Flag          6          7          8          9         10
+          1          1      1.932      0.000      0.000      0.000      1.000
+          2          2      0.000      0.000      0.000      0.000      1.000
+          3          3      0.139      0.000      0.000      0.000      1.000
+          4          4      0.000      0.000      0.000      0.012      1.000
+          5          5      0.000      0.000      0.000      0.085      1.000
+          6          6      4.000      0.000      0.000      0.000      1.000
+          7          7      0.000      4.000      0.000      0.000      1.000
+          8          8      0.000      0.000      4.000      0.000      1.000
+          9          9      0.000      0.000      0.000      4.000      1.000
+         10         10      1.000      1.000      1.000      1.000      0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 9
+Total number of equations   = 10
+Reduced number of equations = 10
+Number of right-hand sides  = 1
+Punctual Estimation
+
+       Rank       Flag          1
+          1          1      0.000
+          2          2      0.000
+          3          3      0.000
+          4          4      0.000
+          5          5      0.000
+          6          6      0.000
+          7          7      0.000
+          8          8      1.954
+          9          9      0.000
+         10         10      1.000
+
+(Co-) Kriging weights
+=====================
+       Rank         x1         x2       Data        Z1*
+          1     82.323     43.955      1.266      0.045
+          2     15.270      3.385      2.184      0.064
+          3     55.428     19.935     -2.917      0.063
+          4     93.142     79.864      0.870      0.055
+          5     85.694     97.845     -0.730      0.054
+          6     73.690     37.455      2.955      0.040
+          7     32.792     43.164     -0.573      0.064
+          8     32.178     78.710      0.824      0.553
+          9     64.591     82.042     -0.157      0.063
+Sum of weights                                    1.000
+
+Drift coefficients
+==================
+       Rank   Lagrange      Coeff
+          1     -0.256      0.289
+
+Cross-validation results
+========================
+Target Sample = 1
+Variable Z1 
+ - True value        =       2.502
+ - Estimated value   =       0.550
+ - Estimation Error  =      -1.952
+ - Std. deviation    =       1.782
+ - Normalized Error  =      -1.095
+NULL
+
+
+Table: Cross validation scores (K  = 10)
+
+|                       | Number| Minimum| Maximum|   Mean| St. Dev.|
+|:----------------------|------:|-------:|-------:|------:|--------:|
+|Y                      |    300|  -2.859|   2.595|  0.081|    0.965|
+|OK.xval.LOO.Y.esterr   |    300|  -1.897|   1.778| -0.011|    0.703|
+|OK.xval.LOO.Y.stderr   |    300|  -2.498|   2.560| -0.007|    1.033|
+|OK.xval.kfold.Y.esterr |    300|  -1.897|   1.890| -0.009|    0.713|
+|OK.xval.kfold.Y.stderr |    300|  -2.498|   2.590| -0.003|    1.038|

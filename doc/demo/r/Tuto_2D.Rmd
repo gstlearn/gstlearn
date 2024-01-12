@@ -3,8 +3,8 @@ title: "Tutorial 2D"
 author: "D. Renard"
 date: "25 juin 2022"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 editor_options: 
   chunk_output_type: console
 ---
@@ -301,7 +301,7 @@ if (graphics)
 {
   p = ggplot()
   p = p + plot(mygrid,nameRaster="Kriging.Pb.stdev", flagLegendRaster=TRUE)
-  p = p + plot(mydb,"Pb", color="yellow", flagCst=TRUE)
+  p = p + plot(mydb,nameSize="Pb", color="yellow", flagCst=TRUE)
   p = p + plot.decoration(title="St. Deviation of Pb")
   ggPrint(p)
 }
@@ -376,7 +376,7 @@ if (graphics)
 {
     p = ggplot()
     p = p + plot(mygrid,nameRaster="Simu.Y.Pb.1")
-    p = p + plot(mydb,"Pb")
+    p = p + plot(mydb,nameColor="Pb",size=3)
     p = p + plot.decoration(title="One Simulation of Pb in Gaussian Scale")
     ggPrint(p)
 }
@@ -406,7 +406,7 @@ if (graphics)
 {
   p = ggplot()
   p = p + plot(mygrid,nameRaster="Z.Simu.Y.Pb.1")
-  p = p + plot(mydb,"Pb")
+  p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="One simulation of Pb in Raw Scale")
   ggPrint(p)
 }
@@ -428,7 +428,7 @@ if (graphics)
 {
   p = ggplot()
   p = p + plot(mygrid,nameRaster="Stats*MEAN")
-  p = p + plot(mydb,"Pb")
+  p = p + plot(mydb,nameColor="Pb")
   p = p + plot.decoration(title="Mean of Pb simulations")
   ggPrint(p)
 }

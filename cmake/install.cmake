@@ -31,6 +31,7 @@ install(
   EXPORT ${PROJECT_NAME}_corelibs
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib
+  ARCHIVE DESTINATION lib
 )
 
 # Install the includes

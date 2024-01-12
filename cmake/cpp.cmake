@@ -121,6 +121,8 @@ foreach(FLAVOR ${FLAVORS})
 
   # Rename the output library name
   set_target_properties(${FLAVOR} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+  # append a 'd' to the output file name of the debug build targets
+  set_target_properties(${FLAVOR} PROPERTIES DEBUG_POSTFIX "d")
   
   # Set library version
   set_target_properties(${FLAVOR} PROPERTIES VERSION ${PROJECT_VERSION})

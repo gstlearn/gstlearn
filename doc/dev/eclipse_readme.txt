@@ -1,5 +1,21 @@
 ################################################
-#                    DEBUG TIPS
+#              THE CRAZY INDEXER
+################################################
+Rebuilding indexer is often necessary
+But if you still have errors in the Problems view:
+
+1- Close eclipse
+
+2- Remove markers from the .metadata directory :
+  
+  .plugins/org.eclipse.core.resources/.projects/gstlearn/.markers
+
+3- Open eclipse
+
+
+
+################################################
+#                 DEBUG TIPS
 ################################################
 
 # Attach to process

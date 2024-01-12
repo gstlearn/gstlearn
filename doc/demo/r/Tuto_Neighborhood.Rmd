@@ -1,0 +1,375 @@
+---
+title: "Neighborhoods"
+author: "Meryem Meziane"
+date: "2023-11-28"
+output: html_document
+---
+
+Loading libraries 
+```{r}
+rm(list = ls())
+library("gstlearn")
+library("tidyr") # essentially, for drop_na function 
+```
+
+# 1. Neighborhood 
+
+Setting global variables 
+```{r}
+verbose = TRUE 
+flagGraphic = TRUE 
+
+# space dimension 
+ndim = 2
+defineDefaultSpace(ESpaceType_RN(),ndim)
+```
+
+Setting seed for the random number generator
+
+```{r}
+law_set_random_seed(5584)
+set.seed(13155)
+```
+
+A Poisson data set will be generated and various neighborhoods will be explored around a specific node of a regular grid
+
+```{r}
+dxref = 0.1
+grid = DbGrid_create(nx = c(10,10),
+                     dx=c(dxref, dxref))
+xlim = grid$getExtrema(0)
+ylim = grid$getExtrema(1)
+```
+
+## 1.1 Random Point data set
+
+Setting parameters for the dbgrid hosting the data
+
+```{r}
+coormin = grid$getCoorMinimum()
+coormax = grid$getCoorMaximum()
+nech = 100
+data = Db_createFromBox(nech, coormin, coormax)
+
+```
+
+Plotting the data 
+(if needed for more control over the graph parameters, use ggplot instead)
+
+```{r}
+ggDefaultGeographic()+
+  plot.point(data, flagCst=True)+
+  plot.decoration(xlab="Easting", ylab="Northing")
+```
+
+### 1.1.1 Standard neighborhood
+
+Defining a standard moving neighborhood
+
+```{r}
+nmini = 1
+nmaxi = 15
+radius = 0.3
+nsect = 8
+nsmax = 3
+neigh = NeighMoving_create(flag_xvalid = FALSE, 
+                           nmaxi = nmaxi,
+                           radius = radius, 
+                           nmini = nmini, 
+                           nsect = nsect, 
+                           nsmax = nsmax)
+neigh
+```
+
+Attaching the neighborhood to the grid and selecting the neighbors retained 
+```{r}
+node = 55
+neigh$attach(data, grid)
+ranks = neigh$select(node)
+dataSel = data$clone()
+dum = dataSel$addSelectionByRanks(ranks)
+```
+
+Plotting the result 
+```{r}
+ggDefaultGeographic()+
+  plot.point(data,
+             color = "red")+
+  plot.point(dataSel,
+             color = "blue") + 
+  plot.neigh(neigh = neigh,
+             grid = grid, 
+             node = node, 
+             flagCell = FALSE)+
+  plot.decoration(title="Standard Neighborhood", 
+                  xlab="Easting",
+                  ylab="Northing")
+```
+
+### 1.1.2 Defining variable block extensions 
+
+In the following chunk, variables are generated in the grid containing the cell extension. This cell extension replaces the constant value of the mesh. The new values define blocks around each sample point that will be represented below 
+```{r}
+# defining the parameters 
+nech = grid$getSampleNumber()
+mini = 0.5
+maxi = 2.5
+blx = numeric()
+bly = numeric()
+
+# adding the random values 
+for (i in 1:nech){
+  blx = append(blx, runif(n = 1, min = mini, max = maxi))
+  bly = append(bly, runif(n = 1, min = mini, max = maxi))
+}
+blx = dxref*blx
+bly = dxref*bly
+
+# incorporating the columns into the data base : 
+dum = grid$addColumns(blx, "X-ext", ELoc_BLEX(), 0)
+dum = grid$addColumns(bly, "Y-ext", ELoc_BLEX(), 1)
+```
+
+Displaying each block and its cell extension
+Until the next gstlearn version release, this needs to be done manually thanks to ggplot 
+```{r}
+df = data[]
+colnames(df) = c("rank", "x1", "x2")
+extensions = data.frame(x = NA, y = NA, node = NA)
+for (node in 1:nech){
+  edges = data.frame(grid$getCellEdges(node-1))
+  edges = cbind(edges,NA)
+  colnames(edges) = c("x","y", "node")
+  extensions = rbind(extensions, edges[1:4,])
+  extensions$node[(4*node-2):(4*node+1)] = node
+}
+extensions = drop_na(extensions)
+
+p = ggplot()+
+  geom_point(data=df,
+             aes(x = x1, y = x2),
+             color = "black",
+             size = 1)+
+  geom_polygon(data=extensions,
+               aes(x=x, y=y, group=node),
+               color = "black",
+               linewidth = 0.2,
+               fill = NA)
+p
+```
+
+Choosing a specific cell again and determining the standard block neighborhood
+```{r}
+node = 56
+neigh$attach(data, grid)
+ranks = neigh$select(node)
+
+dataSel = data$clone()
+dum = dataSel$addSelectionByRanks(ranks)
+```
+
+Plotting (TODO: this currently generates a warning message)
+```{r}
+ggDefaultGeographic()+
+  plot.point(data,
+             color = "red")+
+  plot.point(dataSel,
+             color = 'blue')+
+  plot.neigh(neigh = neigh,
+             grid = grid,
+             node = node,
+             flagCell=TRUE)+
+  plot.decoration(title="Standard Neighborhood")
+```
+
+Using the cell neighborhood to force the selection of all samples belonging to the block 
+```{r}
+nmini = 1
+neigh = NeighCell_create(FALSE, nmini)
+neigh
+```
+
+Attaching the neighborhood to the grid and selecting the neighbors retained 
+```{r}
+node = 56
+neigh$attach(data, grid)
+ranks = neigh$select(node)
+dataSel = data$clone()
+dum = dataSel$addSelectionByRanks(ranks)
+```
+
+Plotting the result 
+```{r}
+ ggDefaultGeographic()+
+    plot.point(data,
+             color = "red")+
+   plot.point(dataSel,
+              color='blue')+
+   plot.neigh(neigh,
+              grid, 
+              node,
+              flagCell=TRUE)+
+   plot.decoration(title="Standard Neighborhood")
+```
+
+## 1.2 Data gathered along lines 
+
+This part is dedicated to data organized along lines, under the assumption that the typical distance between two consecutive flight lines is much larger than the typical distance between two observation along a line. 
+To illustrate this case, data will be generated at the nodes of a regular grid with dx>>dy. 
+The file is converted into a point file to make the rest of the procedure more flexible 
+
+Creating the grid and the point file containing the data 
+```{r}
+grid = DbGrid_create(nx=c(20,100), dx=c(10,1))
+iuid = grid$addColumns(VectorHelper_simulateUniform(grid$getSampleNumber()),"z", ELoc_Z())
+point = Db_createReduce(grid)
+
+ggDefaultGeographic()+
+  plot.point(grid,size=0.3)
+```
+
+Checking the neighborhood search for a target located close to one line, say at coordinates (98,50)
+```{r}
+target = Db_createFromOnePoint(c(98,50))
+# it's basically a db made from one single point 
+```
+
+Creating a standard neighborhood with 10 samples per neighborhood and a radius of 7
+```{r}
+nmini = 1
+nmaxi = 10
+radius = 7 
+neigh = NeighMoving_create(FALSE, nmaxi, radius, nmini)
+neigh
+```
+
+Attaching the neighborhood to the grid and selecting the neighbors retained 
+```{r}
+neigh$attach(point, target)
+ranks = neigh$select(0)
+pointSel = point$clone()
+dum = pointSel$addSelectionByRanks(ranks)
+```
+
+plotting the result
+```{r}
+ggDefaultGeographic()+
+  plot.point(point,
+             color = "black")+
+  plot.point(pointSel,
+             color = "blue")+
+  plot.neigh(neigh = neigh,
+             grid = target,
+             node = 0)+
+  plot.decoration("Standard neighborhood")
+
+```
+
+All samples are gathered on the closest line. This may be a problem when performing kriging on a first order random function. The linear system is singular if all samples are located on a straight line 
+```{r}
+nmini = 1
+nmaxi = 10
+radius = 7
+nsect = 8
+nsmax = 3
+neigh = NeighMoving_create(FALSE, nmaxi, radius, nmini, nsect, nsmax)
+neigh
+```
+
+Attaching the neighborhood to the grid and selecting the neighbors retained 
+```{r}
+neigh$attach(point, target)
+ranks = neigh$select(0)
+pointSel = point$clone()
+dum = pointSel$addSelectionByRanks(ranks)
+```
+
+Plotting the result 
+```{r}
+ggDefaultGeographic()+
+  plot.point(point,
+             size = 0.3,
+             color = "black")+
+  plot.point(pointSel,
+             color = "blue")+
+  plot.neigh(neigh = neigh,
+             grid = target,
+             node = 0)+
+  plot.decoration("Standard Neighborhood")
+```
+
+Despite the use of angular sectors, the samples selected in the neighborhood still belong to a single line. The obvious reason is the size of the neighborhood radius which must be enlarged.
+```{r}
+nmini = 1
+nmaxi = 10
+radius = 20
+nsect = 8
+nsmax = 3
+neigh = NeighMoving_create(FALSE, nmaxi, radius, nmini, nsect, nsmax)
+neigh
+```
+
+```{r}
+neigh$attach(point, target)
+ranks = neigh$select(0)
+pointSel = point$clone()
+dum = pointSel$addSelectionByRanks(ranks)
+```
+
+Plotting the result 
+```{r}
+ggDefaultGeographic()+
+  plot.point(point,
+             color = "red",
+             size = 0.3)+
+  plot.point(pointSel,
+             color = "blue",
+             size = 0.3)+
+  plot.neigh(neigh = neigh, 
+             grid = target,
+             node = 0)+
+  plot.decoration("Standard Nneighborhood with sectors")
+
+```
+
+The rule now is to consider each sector in turn and select, within this sector, the sample(s) closest to the target (there are 10 maximum numbers of sample for 8 sectors so some sectors contain more than one point). 
+Then, by increasing the number of angular sectors, it is possible to achieve a fairer distribution of the retained samples between the lines captured by the neighborhood
+
+Preparing the neighborhood 
+```{r}
+nmini = 1
+nmaxi = 20 
+radius = 20
+nsect = 20
+nsmax = 1
+neigh = NeighMoving_create(flag_xvalid = FALSE,
+                           nmaxi = nmaxi,
+                           radius = radius,
+                           nmini = nmini,
+                           nsect = nsect,
+                           nsmax = nsmax)
+neigh
+```
+
+Attaching the points selected to the neighborhood 
+```{r}
+neigh$attach(point, target)
+ranks = neigh$select(0) #selecting the ranks of the samples captured by neigh
+pointSel = point$clone()
+dum = pointSel$addSelectionByRanks(ranks)   #adding selection on these samples 
+```
+
+Plotting the result 
+```{r}
+ggDefaultGeographic()+
+  plot.point(point, 
+             color = "red",
+             size = 0.3)+
+  plot.point(pointSel,
+             color = "blue",
+             size = 0.3)+
+  plot.neigh(neigh = neigh,
+             grid = target,
+             node = 0)+
+  plot.decoration(title = "Standard neighborhood with more sectors")
+```
