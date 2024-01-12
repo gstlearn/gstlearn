@@ -65,7 +65,7 @@ jobs:
         mkdir ${{env.EIGEN_ROOT}}
         curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
         7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
-        cd ${{env.EIGEN_ROOT}} && cp -r EIGEN_*/* .
+        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
 
     - name: Compile and install [customized] SWIG 4.2.0b
       # TODO : Use a tagged realease (not the master branch)
