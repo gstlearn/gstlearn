@@ -3097,17 +3097,13 @@ int manage_external_info(int mode,
  ** \return  Error return code
  **
  ** \param[in]  mode        1 for allocation; -1 for deallocation
- ** \param[in]  model       Descriptor of the Model
+ ** \param[in]  nostat      Descriptor of the ANostat
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
  **
  *****************************************************************************/
-int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
+int manage_nostat_info(int mode, const ANoStat *nostat, Db *dbin, Db *dbout)
 {
-  VectorDouble tab;
-
-  if (!model->isNoStat()) return 0;
-  const ANoStat *nostat = model->getNoStat();
 
   /* Dispatch */
 
@@ -4938,7 +4934,7 @@ int db_model_nostat(Db *db,
   if (!model->isNoStat()) return 0;
 
   // The Non-stationary must be defined in the tabulated way
-  if (manage_nostat_info(1, model, db, nullptr)) return 1;
+  if (manage_nostat_info(1, model->getNoStat(), db, nullptr)) return 1;
 
   /* Create the new variables */
 
@@ -4990,7 +4986,7 @@ int db_model_nostat(Db *db,
   namconv.setNamesAndLocators(nullptr, VectorString(), ELoc::UNKNOWN, -1, db, jptr++, "Sill");
   namconv.setLocators(db, iptr, 1, 2 * ndim + 1);
 
-  (void) manage_nostat_info(-1, model, db, nullptr);
+  (void) manage_nostat_info(-1, model->getNoStat(), db, nullptr);
   return 0;
 }
 

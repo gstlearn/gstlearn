@@ -715,7 +715,7 @@ void KrigingSystem::_lhsCalcul()
 
   for (int iech = 0; iech < _nech; iech++)
   {
-    for (int jech = 0; jech < _nech; jech++)
+    for (int jech = 0; jech <= iech; jech++)
     {
       if (_flagNoStat) _model->updateCovByPoints(1, _nbgh[iech], 1, _nbgh[jech]);
       if (iech == jech && _model->isStationary())
@@ -1908,6 +1908,9 @@ int KrigingSystem::estimate(int iech_out)
 
   if (caseXvalidUnique) _neigh->setFlagXvalid(false);
   _nbgh = _neigh->select(_iechOut);
+  // This should be optimized for time save
+//  if (_iechOut == 0) _nbgh = _neigh->select(_iechOut);
+//  if (_iechOut > 0) _neigh->setIsChanged(true);
   status = _setInternalShortCutVariablesNeigh();
   if (_flagNeighOnly) goto label_store;
   if (status) goto label_store;

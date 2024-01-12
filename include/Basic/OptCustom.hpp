@@ -16,7 +16,7 @@
 #include <map>
 
 /**
- * Operate the list of Constant options
+ * Operate the list of Constant options (defined by the user within an open list)
  */
 class GSTLEARN_EXPORT OptCustom
 {

@@ -180,7 +180,7 @@ public:
   void copyReduce(const AMatrix *x,
                   const VectorInt &activeRows,
                   const VectorInt &activeCols);
-  void copyElements(const AMatrix &m);
+  void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
 #ifndef SWIG

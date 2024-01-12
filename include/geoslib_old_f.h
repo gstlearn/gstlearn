@@ -28,6 +28,7 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Model/ANoStat.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -1065,7 +1066,7 @@ GSTLEARN_EXPORT int manage_external_info(int mode,
                                          Db *dbout,
                                          int *istart);
 GSTLEARN_EXPORT int manage_nostat_info(int mode,
-                                       Model *model,
+                                       const ANoStat *nostat,
                                        Db *dbin,
                                        Db *dbout);
 GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *dbgrid, double *coor);

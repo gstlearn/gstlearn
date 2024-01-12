@@ -42,7 +42,7 @@ public:
 
   VectorInt select(int iech_out);
   bool isUnchanged() const { return _flagIsUnchanged; }
-  void setIsChanged();
+  void setIsChanged(bool status = false);
   void reset();
 
   bool getFlagXvalid() const { return _flagXvalid; }

@@ -93,9 +93,9 @@ int ANeigh::attach(const Db *dbin, const Db *dbout)
   return 0;
 }
 
-void ANeigh::setIsChanged()
+void ANeigh::setIsChanged(bool status)
 {
-  _flagIsUnchanged = false;
+  _flagIsUnchanged = status;
   _nbghMemo.clear();
 };
 

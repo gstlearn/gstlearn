@@ -127,16 +127,18 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 
     // From Dbin
 
-    for (int idim = 0; idim < _dbin->getNDim(); idim++)
-      vec.push_back(_dbin->getCoordinate(rank, idim));
+    int ndim = _dbin->getNDim();
+    vec.resize(ndim);
+    _dbin->getCoordinatesPerSampleInPlace(rank, vec);
   }
   else if (icas == 2)
   {
 
     // From Dbout
 
-    for (int idim = 0; idim < _dbin->getNDim(); idim++)
-       vec.push_back(_dbout->getCoordinate(rank, idim));
+    int ndim = _dbout->getNDim();
+    vec.resize(ndim);
+    _dbout->getCoordinatesPerSampleInPlace(rank, vec);
   }
   else
   {

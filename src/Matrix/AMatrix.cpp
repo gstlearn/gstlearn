@@ -1126,13 +1126,14 @@ void AMatrix::copyReduce(const AMatrix *x,
  * Copy the contents of matrix 'm' into 'this'
  * Warning: matrices must have the same dimensions (not checked)
  * @param m Input matrix
+ * @param factor Multiplicative factor (applied to each element)
  */
-void AMatrix::copyElements(const AMatrix &m)
+void AMatrix::copyElements(const AMatrix &m, double factor)
 {
   for (int icol = 0; icol < m.getNCols(); icol++)
     for (int irow = 0; irow < m.getNRows(); irow++)
     {
-      setValueSafe(irow, icol, m.getValueSafe(irow, icol));
+      setValueSafe(irow, icol, factor * m.getValueSafe(irow, icol));
     }
 }
 

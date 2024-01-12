@@ -390,7 +390,7 @@ void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode) const
 {
   double cov = 0.;
-  mat.copyElements(_sill);
+  mat.copyElements(_sill, _noStatFactor);
   if (mode == nullptr)
   {
     cov = _cova->evalCov(0);
@@ -471,7 +471,7 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
   // Calculate unit distance by applying anisotropy
   double h = getSpace()->getDistance(p1, p2, _aniso);
 
-  mat.copyElements(_sill);
+  mat.copyElements(_sill, _noStatFactor);
   double cov = 0.;
   if (mode == nullptr)
   {
@@ -1126,8 +1126,8 @@ void CovAniso::evalMatOptimInPlace(int icas1,
 
   // Calculate distance (in anisotropic space)
   double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  mat.copyElements(_sill, _noStatFactor);
   double cov = 0.;
-  mat.copyElements(_sill);
   if (mode == nullptr)
   {
     cov = _cova->evalCov(hoptim);
