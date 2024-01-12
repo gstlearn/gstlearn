@@ -306,4 +306,5 @@ remove.packages("gstlearn")
 ## License
 
 GPL v3
-2023 Team gstlearn
+
+2024 Team gstlearn
