@@ -6,6 +6,7 @@ Release 12.1.1
 
 Miscellaneous :
 ---------------
+- New method 'select' for ANeigh (gain of memory and time)
 - Pluging the library "eigen" for faster and more accurate algebra.
 - Adding the display of known mean (when relevant)
 

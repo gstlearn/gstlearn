@@ -1907,10 +1907,7 @@ int KrigingSystem::estimate(int iech_out)
   // Elaborate the Neighborhood
 
   if (caseXvalidUnique) _neigh->setFlagXvalid(false);
-  _nbgh = _neigh->select(_iechOut);
-  // This should be optimized for time save
-//  if (_iechOut == 0) _nbgh = _neigh->select(_iechOut);
-//  if (_iechOut > 0) _neigh->setIsChanged(true);
+  _neigh->select(_iechOut, _nbgh);
   status = _setInternalShortCutVariablesNeigh();
   if (_flagNeighOnly) goto label_store;
   if (status) goto label_store;
@@ -3045,7 +3042,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
   neighU.attach(dbaux, dbaux);
 
   _iechOut = dbaux->getSampleNumber() / 2;
-  _nbgh = neighU.select(_iechOut);
+  neighU.select(_iechOut, _nbgh);
   bool status = _setInternalShortCutVariablesNeigh();
 
   /* Establish the L.H.S. */
@@ -3172,7 +3169,7 @@ int KrigingSystem::_bayesPreCalculations()
   _iechOut = _dbin->getSampleNumber() / 2;
 
   // Elaborate the (Unique) Neighborhood
-  _nbgh = _neigh->select(_iechOut);
+  _neigh->select(_iechOut, _nbgh);
   if (_setInternalShortCutVariablesNeigh()) return 1;
 
   /* Prepare the Kriging matrix (without correction) */

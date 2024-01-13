@@ -32,10 +32,14 @@
 int main(int argc, char *argv[])
 {
   bool verbose = false;
+  bool graphic = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
+
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("BenchKrigingB-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
@@ -51,6 +55,8 @@ int main(int argc, char *argv[])
   data->setLocators({"X","Y"},ELoc::X);
   data->setLocator("rainfall",ELoc::Z);
   if (verbose) data->display();
+  if (graphic)
+    (void) data->dumpToNF("Data.ascii");
 
   // Generate the output grid
   bool flagSmall = false;
@@ -69,7 +75,7 @@ int main(int argc, char *argv[])
   if (verbose) model->display();
 
   // Bench Neighborhood
-  double width = 30000.;
+  double width = 100000.;
   NeighBench* neighB = NeighBench::create(false, width);
   if (verbose) neighB->display();
 
@@ -81,6 +87,9 @@ int main(int argc, char *argv[])
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
   grid->display(dbfmt);
   delete dbfmt;
+
+  if (graphic)
+    (void) grid->dumpToNF("Grid.ascii");
 
   if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;

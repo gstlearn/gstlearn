@@ -5177,7 +5177,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     // Neighborhood search
 
-    nbgh_ranks = neighU->select(IECH_OUT);
+    neighU->select(IECH_OUT, nbgh_ranks);
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */

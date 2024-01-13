@@ -85,7 +85,8 @@ Attaching the neighborhood to the grid and selecting the neighbors retained
 ```{r}
 node = 55
 neigh$attach(data, grid)
-ranks = neigh$select(node)
+ranks = VectorInt()
+neigh$select(node, ranks)
 dataSel = data$clone()
 dum = dataSel$addSelectionByRanks(ranks)
 ```
@@ -162,7 +163,8 @@ Choosing a specific cell again and determining the standard block neighborhood
 ```{r}
 node = 56
 neigh$attach(data, grid)
-ranks = neigh$select(node)
+ranks = VectorInt()
+neigh$select(node, ranks)
 
 dataSel = data$clone()
 dum = dataSel$addSelectionByRanks(ranks)
@@ -193,7 +195,8 @@ Attaching the neighborhood to the grid and selecting the neighbors retained
 ```{r}
 node = 56
 neigh$attach(data, grid)
-ranks = neigh$select(node)
+ranks = VectorInt()
+neigh$select(node, ranks)
 dataSel = data$clone()
 dum = dataSel$addSelectionByRanks(ranks)
 ```
@@ -246,7 +249,8 @@ neigh
 Attaching the neighborhood to the grid and selecting the neighbors retained 
 ```{r}
 neigh$attach(point, target)
-ranks = neigh$select(0)
+ranks = VectorInt()
+neigh$select(0, ranks)
 pointSel = point$clone()
 dum = pointSel$addSelectionByRanks(ranks)
 ```
@@ -279,7 +283,8 @@ neigh
 Attaching the neighborhood to the grid and selecting the neighbors retained 
 ```{r}
 neigh$attach(point, target)
-ranks = neigh$select(0)
+ranks = VectorInt()
+neigh$select(0, ranks)
 pointSel = point$clone()
 dum = pointSel$addSelectionByRanks(ranks)
 ```
@@ -311,7 +316,8 @@ neigh
 
 ```{r}
 neigh$attach(point, target)
-ranks = neigh$select(0)
+ranks = VectorInt()
+neigh$select(0, ranks)
 pointSel = point$clone()
 dum = pointSel$addSelectionByRanks(ranks)
 ```
@@ -354,7 +360,8 @@ neigh
 Attaching the points selected to the neighborhood 
 ```{r}
 neigh$attach(point, target)
-ranks = neigh$select(0) #selecting the ranks of the samples captured by neigh
+ranks = VectorInt()
+neigh$select(0, ranks)
 pointSel = point$clone()
 dum = pointSel$addSelectionByRanks(ranks)   #adding selection on these samples 
 ```

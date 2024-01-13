@@ -84,7 +84,7 @@ Maximum horizontal distance         = 300----
 
 
 +#NO_DIFF#XXX+
-----array([ 23,  75, 143])----
+----[23 75 143]----
 
 
 +#NO_DIFF#XXX+
@@ -103,7 +103,7 @@ Maximum horizontal distance         = 30----
 
 
 +#NO_DIFF#XXX+
-----array([143])----
+----[143]----
 
 
 +#NO_DIFF#XXX+
@@ -124,7 +124,7 @@ This is my Max Radius checker: 30 ----
 
 
 +#NO_DIFF#XXX+
-----array([143])----
+----[143]----
 
 
 +#NO_DIFF#XXX+

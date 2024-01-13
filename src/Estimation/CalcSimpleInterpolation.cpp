@@ -372,7 +372,7 @@ int CalcSimpleInterpolation::_nearest(Db *dbin,
     VectorDouble weights;
 
     // Find the neighborhood
-    nbgh = neigh->select(iech);
+    neigh->select(iech, nbgh);
 
     // Perform the estimation
     if (nbgh.size() > 0)
@@ -417,7 +417,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
     VectorDouble weights;
 
     // Find the neighborhood
-    nbgh = neigh->select(iech);
+    neigh->select(iech, nbgh);
 
     // Perform the estimation
     for (int i = 0; i < (int) nbgh.size(); i++)
@@ -469,7 +469,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
      VectorInt nbghmed;
 
      // Find the neighborhood
-     nbgh = neigh->select(iech);
+     neigh->select(iech, nbgh);
 
      // Perform the estimation
      if (nbgh.size() > 0)
@@ -521,7 +521,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
      }
 
      // Find the neighborhood
-     nbgh = neigh->select(iech);
+     neigh->select(iech, nbgh);
      int nSize = (int) nbgh.size();
      if (nSize < ndrift)
      {

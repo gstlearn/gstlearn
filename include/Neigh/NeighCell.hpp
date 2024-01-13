@@ -34,7 +34,7 @@ public:
 
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout = nullptr) override;
-  virtual VectorInt getNeigh(int iech_out) override;
+  virtual void getNeigh(int iech_out, VectorInt& ranks) override;
   virtual bool hasChanged(int iech_out) const override;
   virtual int getMaxSampleNumber(const Db* db) const override {
     DECLARE_UNUSED(db);

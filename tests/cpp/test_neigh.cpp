@@ -51,14 +51,18 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
   neighU->attach(db, target);
   neighU->display();
+  VectorInt nbgh;
 
   // Initializing the Neighborhood search
   mestitle(1,"Testing Unique Neighborhood");
 
   // Getting the Neighborhood for various target point
-  VH::display("For Target Point #0", neighU->select(0));
+  nbgh.clear();
+  neighU->select(0, nbgh);
+  VH::display("For Target Point #0", nbgh);
   message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
-  VH::display("For Target Point #1", neighU->select(1));
+  neighU->select(1, nbgh);
+  VH::display("For Target Point #1", nbgh);
   message("Is neighborhood Unchanged since last call = %d\n", neighU->isUnchanged());
   delete neighU;
 
@@ -73,13 +77,18 @@ int main(int argc, char *argv[])
   mestitle(1,"Testing Moving Neighborhood");
 
   // Getting the Neighborhood for various target point
-  VH::display("For Target Point #0", neighM->select(0));
+  nbgh.clear();
+  neighM->select(0, nbgh);
+  VH::display("For Target Point #0", nbgh);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
-  VH::display("For Target Point #1", neighM->select(1));
+  neighM->select(1, nbgh);
+  VH::display("For Target Point #1",nbgh);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
-  VH::display("For Target Point #2", neighM->select(2));
+  neighM->select(2, nbgh);
+  VH::display("For Target Point #2", nbgh);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
-  VH::display("For Target Point #3", neighM->select(3));
+  neighM->select(3, nbgh);
+  VH::display("For Target Point #3", nbgh);
   message("Is neighborhood Unchanged since last call = %d\n", neighM->isUnchanged());
   delete neighM;
 
