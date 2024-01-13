@@ -4,6 +4,11 @@ This file contains the Logs between consecutive releases
 Release 12.1.1
 ==============
 
+Miscellaneous :
+---------------
+- Pluging the library "eigen" for faster and more accurate algebra.
+- Adding the display of known mean (when relevant)
+
 New class :
 -----------
 - The class Neigh/ANeigh is introduced (generic for any neighborhood)
@@ -25,8 +30,8 @@ Modification in functions :
 New Test :
 ----------
 _ Some Performance tests have been added (or renamed) in TestInter such as:
-. testBench_KrigingU.cpp
-. testBench_KrigingI.cpp
+. Bench_KrigingU.cpp
+. Bench_KrigingI.cpp
 
 Release 12.1.0
 ==============

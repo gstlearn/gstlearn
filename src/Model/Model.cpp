@@ -216,6 +216,11 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
     sstr << _driftList->toString();
   }
 
+  /* Mean Part */
+
+  if (getDriftNumber() <= 0)
+    sstr << toVector("Known Mean(s)", getMeans());
+
   return sstr.str();
 }
 

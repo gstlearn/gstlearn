@@ -250,6 +250,7 @@ Spherical
 - Sill         =      0.733
 - Range        =      0.103
 Total Sill     =      0.733
+Known Mean(s)     0.000
 
 Data Base Characteristics
 =========================
@@ -318,6 +319,7 @@ Exponential
 - Range        =      0.121
 - Theo. Range  =      0.040
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Moving Neighborhood
 ===================
@@ -1317,6 +1319,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [  0,]     1.539    -0.792     0.273    -0.061    -0.009     0.032    -0.031
      [  7,]     0.010     0.018    -0.021    -0.001     0.016    -0.009    -0.007
      [ 14,]     0.012     0.000    -0.012     0.004     0.010    -0.006
+Known Mean(s)     0.000
 
 Processing Factor 1 / 1
 
@@ -1550,6 +1553,7 @@ Exponential
 - Range        =      0.260
 - Theo. Range  =      0.087
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -1586,6 +1590,7 @@ Normalized coefficients for Hermite polynomials (punctual variable)
      [  0,]     1.539    -0.792     0.273    -0.061    -0.009     0.032    -0.031
      [  7,]     0.010     0.018    -0.021    -0.001     0.016    -0.009    -0.007
      [ 14,]     0.012     0.000    -0.012     0.004     0.010    -0.006
+Known Mean(s)     0.000
 
 Processing Factor 1 / 1
 

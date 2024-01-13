@@ -15,6 +15,7 @@ Cubic
 Nugget Effect
 - Sill         =      0.500
 Total Sill     =      2.000
+Known Mean(s)     0.000
 
 Statistics on Covariance Matrix
 - Number of samples = 81 / 81
@@ -52,6 +53,7 @@ Nugget Effect
 Total Sill     =      2.000
 Tapering Function     = Storkey
 Tapering Scale        = 4
+Known Mean(s)     0.000
 
 Tapered Model
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
@@ -84,6 +86,7 @@ Convolution type      = Exponential
 Convolution direction = Along X
 Nb. discretization    = 10
 Convolution Scale     = 1
+Known Mean(s)     0.000
 
 Convoluted Model
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]

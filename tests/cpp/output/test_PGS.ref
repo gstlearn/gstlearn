@@ -69,6 +69,7 @@ K-Bessel (Third Parameter = 1)
 - Range        =      0.200
 - Theo. Range  =      0.058
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -85,6 +86,7 @@ Exponential
 - Range        =      0.300
 - Theo. Range  =      0.100
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Unique Neighborhood
 ===================
@@ -374,6 +376,7 @@ K-Bessel (Third Parameter = 99.9048)
 - Range        =      0.145
 - Theo. Range  =      0.004
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -394,6 +397,7 @@ Exponential
 - Range        =      0.092
 - Theo. Range  =      0.031
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Construction of the Tree of candidate Lithotype Rules:
 ------------------------------------------------------
@@ -441,6 +445,7 @@ K-Bessel (Third Parameter = 99.9048)
 - Range        =      0.145
 - Theo. Range  =      0.004
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -457,6 +462,7 @@ K-Bessel (Third Parameter = 99.9048)
 - Range        =      0.145
 - Theo. Range  =      0.004
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Variogram characteristics
 =========================
@@ -625,3 +631,4 @@ K-Bessel (Third Parameter = 99.9048)
 - Range        =      0.145
 - Theo. Range  =      0.004
 Total Sill     =      1.000
+Known Mean(s)     0.000

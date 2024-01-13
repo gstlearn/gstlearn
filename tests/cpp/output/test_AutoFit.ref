@@ -43,6 +43,8 @@ Covariance Part
 Linear
 - Slope        =      0.077
 
+Known Mean(s)     0.000
+
 Testing Model Fitting in 4-D
 ============================
 
@@ -89,3 +91,4 @@ Gaussian
 - Range        =      2.408
 - Theo. Range  =      1.391
 Total Sill     =      1.282
+Known Mean(s)     0.000

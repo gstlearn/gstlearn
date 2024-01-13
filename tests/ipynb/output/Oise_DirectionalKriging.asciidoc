@@ -190,6 +190,7 @@ K-Bessel (Third Parameter = 1)
      [  0,]     0.707    -0.707
      [  1,]     0.707     0.707
 Total Sill     =      6.915
+Known Mean(s)     0.000
  
 #NO_DIFF#XXX
 ----

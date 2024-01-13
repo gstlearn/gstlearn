@@ -26,6 +26,7 @@ Cubic
 - Sill         =      1.000
 - Range        =      8.000
 Total Sill     =      1.000
+Known Mean(s)     0.000
  ----
 
 

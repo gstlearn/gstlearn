@@ -202,7 +202,8 @@ Covariance Part
 Spherical
 - Sill         =      1.123
 - Range        =    129.766
-Total Sill     =      1.123----
+Total Sill     =      1.123
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -264,7 +265,8 @@ Cubic
 Spherical
 - Sill         =      0.904
 - Range        =    237.071
-Total Sill     =      1.275----
+Total Sill     =      1.275
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -293,7 +295,8 @@ Cubic
 Spherical
 - Sill         =      0.989
 - Range        =    144.544
-Total Sill     =      1.104----
+Total Sill     =      1.104
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -322,7 +325,8 @@ Cubic
 Spherical
 - Sill         =      0.994
 - Range        =    112.870
-Total Sill     =      1.395----
+Total Sill     =      1.395
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -430,7 +434,8 @@ Cubic
                [,  0]    [,  1]
      [  0,]     0.905     0.426
      [  1,]    -0.426     0.905
-Total Sill     =      1.200----
+Total Sill     =      1.200
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+

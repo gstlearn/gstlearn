@@ -19,7 +19,8 @@ Markov (Third Parameter = 1)
                [,  0]    [,  1]
      [  0,]     0.866    -0.500
      [  1,]     0.500     0.866
-Total Sill     =      5.000----
+Total Sill     =      5.000
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+

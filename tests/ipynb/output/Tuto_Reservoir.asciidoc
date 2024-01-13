@@ -179,7 +179,8 @@ Spherical
                [,  0]    [,  1]
      [  0,]     0.932    -0.362
      [  1,]     0.362     0.932
-Total Sill     =    157.461----
+Total Sill     =    157.461
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -229,7 +230,8 @@ Exponential
                [,  0]    [,  1]
      [  0,]     0.993     0.122
      [  1,]    -0.122     0.993
-Total Sill     =    142.436----
+Total Sill     =    142.436
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -270,7 +272,8 @@ Spherical
                [,  0]    [,  1]
      [  0,]     0.920    -0.391
      [  1,]     0.391     0.920
-Total Sill     =    124.911----
+Total Sill     =    124.911
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -446,7 +449,8 @@ Total Sill
                [,  0]    [,  1]
      [  0,]   156.491   117.451
      [  1,]   117.451   132.694
-----
+
+Known Mean(s)     0.000     0.000----
 
 
 +#NO_DIFF#XXX+

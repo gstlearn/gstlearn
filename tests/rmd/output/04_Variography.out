@@ -133,6 +133,7 @@ Spherical
 - Sill         =      1.123
 - Range        =    129.766
 Total Sill     =      1.123
+Known Mean(s)     0.000
   -2 -     UNKNOWN : Unknown covariance
   -1 -    FUNCTION : External covariance function
    0 -      NUGGET : Nugget effect
@@ -182,6 +183,7 @@ Spherical
 - Sill         =      0.904
 - Range        =    237.071
 Total Sill     =      1.275
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -202,6 +204,7 @@ Spherical
 - Sill         =      0.989
 - Range        =    144.544
 Total Sill     =      1.104
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -222,6 +225,7 @@ Spherical
 - Sill         =      0.994
 - Range        =    112.870
 Total Sill     =      1.395
+Known Mean(s)     0.000
 <style>md-block { color:gray; background-color:white; }</style>
 <md-block>
 
@@ -275,6 +279,7 @@ Cubic
      [  0,]     0.905     0.426
      [  1,]    -0.426     0.905
 Total Sill     =      1.200
+Known Mean(s)     0.000
 
 Data Base Grid Characteristics
 ==============================
