@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str(), argc, argv);
+  StdoutRedirect sr(sfn.str(), argc, argv);
 
   DbGrid* grid_res  = nullptr;
   DbGrid* image_res = nullptr;
@@ -213,20 +213,6 @@ int main(int argc, char *argv[])
   message("- Number of Neighbors = %d\n",ktest.nech);
   message("- Number of Kriging System equations = %d\n",ktest.neq);
   VH::display("- Neighboring Sample Indices", ktest.nbgh);
-
-  // ====================== Testing Multivariate===============================
-  // Create the Local Data Base
-  nvar = 3;
-  data = createLocalDb(10, 2, 3, 4901);
-  model = createModel(nvar, 1, 0, 0);
-  model->display();
-
-  message("\n<----- Test Kriging Multiple Variables with MATCL ----->\n");
-  grid_res = grid->clone();
-  MatrixRectangular* matCL = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
-  kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false, VectorInt(), VectorInt(),
-          matCL);
-  grid_res->display(&dbfmtKriging);
 
   // ====================== Unique Neighborhood case ===========================
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
@@ -344,6 +330,19 @@ int main(int argc, char *argv[])
   message("\n<----- Test Kriging Anamorphosed Gaussian ----->\n");
   grid_res = grid->clone();
   kriggam(data, grid_res, model, neighU, anam);
+  grid_res->display(&dbfmtKriging);
+
+  // ====================== Testing Multivariate===============================
+  // Create the Local Data Base
+  nvar = 3;
+  data = createLocalDb(10, 2, 3, 4901);
+  model = createModel(nvar, 1, 0, 0);
+
+  message("\n<----- Test Kriging Multiple Variables with matCL ----->\n");
+  grid_res = grid->clone();
+  MatrixRectangular* matCL = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
+  kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false, VectorInt(), VectorInt(),
+          matCL);
   grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================

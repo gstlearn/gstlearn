@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   double matern_param = 1.0;
 
   setFlagEigen(true);
-  OptCst::define(ECst::NTDEC, 4);
+  OptCst::define(ECst::NTDEC, 3);
   OptCst::define(ECst::NTROW, -1);
   bool flagExhaustiveTest = false;
 

@@ -221,7 +221,8 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   if (getDriftNumber() <= 0)
   {
     sstr << toVector("Known Mean(s)", getMeans());
-    sstr << "(Note: Simple Kriging will be used)" << std::endl;
+    // TODO: could be added but changes all non-regression files
+//    sstr << "(Note: Simple Kriging will be used)" << std::endl;
   }
 
   return sstr.str();
