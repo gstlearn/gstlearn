@@ -72,21 +72,27 @@ CovAniso::CovAniso(const ECov &type,
       _aniso(ctxt.getSpace()->getNDim()),
       _noStatFactor(1.)
 {
-  if (ctxt.getNVar() != 1)
-  {
-    messerr("This entry is dedicated to the Monovariate case");
-    messerr("Additional parameters are ignored and stand constructor is used");
-  }
+  _initFromContext();
+
+  // Sill
+  if (ctxt.getNVar() == 1)
+    _sill.setValue(0, 0, sill);
   else
   {
-    _initFromContext();
-    _sill.setValue(0, 0, sill);
-    setParam(param);
-    if (flagRange)
-      setRangeIsotropic(range);
-    else
-      setScale(range);
+    int nvar = ctxt.getNVar();
+    _sill.fill(0);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      _sill.setValue(ivar, ivar, sill);
   }
+
+  // Param
+  setParam(param);
+
+  // Range
+  if (flagRange)
+    setRangeIsotropic(range);
+  else
+    setScale(range);
 }
 
 CovAniso::CovAniso(const CovAniso &r)
@@ -776,7 +782,6 @@ void CovAniso::_initFromContext()
   _sill.reset(nvar, nvar, 1.);
   _aniso.init(ndim);
   _updateFromContext();
-
 }
 
 void CovAniso::_updateFromContext()

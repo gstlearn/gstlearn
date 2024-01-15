@@ -219,7 +219,10 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   /* Mean Part */
 
   if (getDriftNumber() <= 0)
+  {
     sstr << toVector("Known Mean(s)", getMeans());
+    sstr << "(Note: Simple Kriging will be used)" << std::endl;
+  }
 
   return sstr.str();
 }

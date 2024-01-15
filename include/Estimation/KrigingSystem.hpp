@@ -55,7 +55,7 @@ public:
                        int seed = 414371);
   int  setKrigOptImage(int seed = 133271);
   int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
-  int  setKrigOptMatCL(const VectorVectorDouble& matCL);
+  int  setKrigOptMatCL(const MatrixRectangular* matCL);
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
@@ -106,7 +106,7 @@ private:
   double _getFext(int rank, int ibfl) const;
   double _getIvar(int rank, int ivar) const;
   double _getVerr(int rank, int ivar) const;
-  double _getMean(int ivarCL) const;
+  double _getMean(int ivar, bool flagLHS = false) const;
   double _getDriftCoef(int ivar, int il, int ib) const;
   int    _getFLAG(int iech,int ivar) const;
   double _getCOVTAB(int ivar,int jvar) const;
@@ -183,7 +183,6 @@ private:
   void   _bayesCorrectVariance();
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
-  bool   _isMatCLempty() const;
 
   void   _setLocalModel(Model* model);
   void   _setInternalShortCutVariablesGeneral();
@@ -270,7 +269,7 @@ private:
   int _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
-  VectorVectorDouble _matCL;
+  const MatrixRectangular* _matCL;
 
   /// Option for asking for Z * A-1 * Z
   bool   _flagLTerm;

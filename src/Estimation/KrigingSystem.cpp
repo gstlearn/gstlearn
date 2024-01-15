@@ -95,7 +95,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _flagFactorKriging(false),
       _nclasses(0),
-      _matCL(),
+      _matCL(nullptr),
       _flagLTerm(false),
       _lterm(0.),
       _flagAnam(false),
@@ -157,7 +157,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
   // Define local constants
   _flagNoStat  = _model->isNoStat();
-  _flagNoMatCL = _isMatCLempty();
+  _flagNoMatCL = _matCL == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
   _resetMemoryGeneral();
@@ -260,7 +260,7 @@ int KrigingSystem::_getNVarCL() const
   if (_flagNoMatCL)
     return _getNVar();
   else
-    return (int) _matCL.size();
+    return (int) _matCL->getNRows();
 }
 
 int KrigingSystem::_getNbfl() const
@@ -312,8 +312,8 @@ int KrigingSystem::_getNDisc() const
 void KrigingSystem::_resetMemoryFullPerNeigh()
 {
   _flag.resize(_neq);
-  _lhsf.resize (_neq, _neq);
-  _rhsf.resize (_neq, _nvarCL);
+  _lhsf.resize(_neq, _neq);
+  _rhsf.resize(_neq, _nvarCL);
 
   _lhs = &_lhsf;
   _rhs = &_rhsf;
@@ -451,17 +451,27 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
     return _dbout->getLocVariable(ELoc::V,_iechOut, ivar);
   }
 }
-double KrigingSystem::_getMean(int ivarCL) const
+
+/**
+ * Get the value of the Mean
+ * @param ivar    Rank of the variable (see notes)
+ * @param flagLHS True if called for the LHS
+ * @return The mean value
+ *
+ * @remark: When called from the LHS calculation, 'ivarCL' refers to the rank
+ * of the initial variable. Therefore the 'matCL' must not be operated
+ */
+double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 {
   double value = 0.;
-  if (_flagNoMatCL)
+  if (_flagNoMatCL || flagLHS)
   {
-    value = _model->getMean(ivarCL);
+    value = _model->getMean(ivar);
   }
   else
   {
-    for (int ivar = 0; ivar < _nvar; ivar++)
-      value += _matCL[ivarCL][ivar] * _model->getMean(ivar);
+    for (int jvar = 0; jvar < _nvar; jvar++)
+      value += _matCL->getValue(ivar,jvar) * _model->getMean(jvar);
   }
   return value;
 }
@@ -906,7 +916,7 @@ void KrigingSystem::_rhsStore(int iech)
       {
         double value = 0.;
         for (int jvar = 0; jvar < _nvar; jvar++)
-          value += _matCL[jvarCL][jvar] * _getCOVTAB(ivar, jvar);
+          value += _matCL->getValue(jvarCL,jvar) * _getCOVTAB(ivar, jvar);
         _setRHSF(iech, ivar, jvarCL, value);
       }
   }
@@ -1074,7 +1084,7 @@ int KrigingSystem::_rhsCalcul()
           double value = 0.;
           for (int il = 0; il < _nbfl; il++)
             value += _drftab[il] * _getDriftCoef(jvar, il, ib);
-          value *= _matCL[ivarCL][jvar];
+          value *= _matCL->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value,true);
         }
     }
@@ -1528,7 +1538,8 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
       if (iiech != jjech)
-        valest -= _getLHSINV(iiech,0,jjech,0) * variance * (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0));
+        valest -= _getLHSINV(iiech,0,jjech,0) * variance *
+          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0));
       jjech++;
     }
 
@@ -1597,7 +1608,7 @@ void KrigingSystem::_variance0()
         double value = 0.;
         for (int ivar = 0; ivar < _nvar; ivar++)
           for (int jvar = 0; jvar < _nvar; jvar++)
-            value += _matCL[ivarCL][ivar] * _getCOVTAB(ivar, jvar) * _matCL[jvarCL][jvar];
+            value += _matCL->getValue(ivarCL,ivar) * _getCOVTAB(ivar, jvar) * _matCL->getValue(jvarCL,jvar);
         _setVAR0(ivarCL, jvarCL, value);
       }
   }
@@ -1763,7 +1774,7 @@ void KrigingSystem::_dualCalcul()
       if (! _getFLAG(iech, ivar)) continue;
       double mean = 0.;
       if (_nfeq <= 0)
-        mean = _getMean(ivar);
+        mean = _getMean(ivar, true);
       if (_flagBayes)
         mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
       _zext.setValueSafe(ecr, 0, _getIvar(_nbgh[iech], ivar) - mean);
@@ -2439,12 +2450,12 @@ int KrigingSystem::setKrigOptImage(int seed)
  * @remarks The first dimension of 'matCL' is the number of Output variables
  * @remarks The second dimension is the number of input Variables.
  */
-int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
+int KrigingSystem::setKrigOptMatCL(const MatrixRectangular* matCL)
 {
-  if (_flagNoMatCL) return 0;
+  if (matCL == nullptr) return 0;
   _isReady = false;
-  int n1 = (int) matCL.size();
-  int n2 = (int) matCL[0].size();
+  int n1 = (int) matCL->getNRows();
+  int n2 = (int) matCL->getNCols();
 
   if (n1 > _getNVar())
   {
@@ -2461,6 +2472,8 @@ int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
     return 1;
   }
   _matCL = matCL;
+  _flagNoMatCL = false;
+  _resetMemoryGeneral();
   return 0;
 }
 
@@ -3442,14 +3455,6 @@ int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
   return rank;
 }
 
-bool KrigingSystem::_isMatCLempty() const
-{
-  if (_matCL.empty()) return true;
-  int size = (int) _matCL.size();
-  if (size == 1 && _matCL.at(0).empty()) return true;
-  return false;
-}
-
 /**
  * This (internal) method is used to modify the Model locally
  * Note: It also modifies the shortcut variables consequently
@@ -3467,7 +3472,7 @@ void KrigingSystem::_setInternalShortCutVariablesModel()
   _nbfl = _getNbfl();
   _nfeq = _getNFeq();
   _nfex = _getNFex();
-  _neq  = getNeq(); // reset as it depends on nech and Model
+  _neq  =  getNeq(); // reset as it depends on nech and Model
 }
 /**
  * Assign the values to local variables used as shortcuts

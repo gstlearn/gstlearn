@@ -55,6 +55,7 @@ GSTLEARN_EXPORT void argumentTestVectorVectorInt(const VectorVectorInt& values);
 GSTLEARN_EXPORT void argumentTestVectorVectorDouble(const VectorVectorDouble& values);
 GSTLEARN_EXPORT void argumentTestString(const String& value);
 GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values);
+GSTLEARN_EXPORT void argumentTestMatrix(const AMatrix& mat);
 
 GSTLEARN_EXPORT void argumentTestIntOverload(int value);
 GSTLEARN_EXPORT void argumentTestIntOverload(const VectorInt& values);

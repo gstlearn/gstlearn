@@ -26,7 +26,7 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _calcul(EKrigOpt::POINT),
     _ndisc(),
     _rankColCok(),
-    _matCL(),
+    _matCL(nullptr),
     _flagDGM(false),
     _nameCoord(),
     _flagBayes(false),
@@ -211,8 +211,10 @@ void CalcKriging::_rollback()
 
 int CalcKriging::_getNVar() const
 {
-  int nvar = (_matCL.empty() || _matCL[0].empty()) ? getModel()->getVariableNumber() : (int) _matCL.size();
-  return nvar;
+  if (_matCL == nullptr)
+    return getModel()->getVariableNumber();
+  else
+    return _matCL->getNRows();
 }
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
@@ -347,7 +349,7 @@ int kriging(Db *dbin,
             bool flag_varz,
             VectorInt ndisc,
             VectorInt rank_colcok,
-            VectorVectorDouble matCL,
+            MatrixRectangular* matCL,
             const NamingConvention& namconv)
 {
   CalcKriging krige(flag_est, flag_std, flag_varz);
