@@ -19,9 +19,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # Boost is not needed but our cmake for doxygen cannot ignore the dependency yet
+    # Boost and Eigen are not needed but our cmake for doxygen cannot ignore the dependency yet
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq doxygen libboost-all-dev
+      run: sudo apt-get update && sudo apt-get install -yq doxygen libboost-all-dev libeigen3-dev 
 
     - name: Build doxygen documentation and save generated folder name in the environment
       run: |
