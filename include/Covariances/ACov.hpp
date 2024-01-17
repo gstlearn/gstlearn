@@ -83,8 +83,8 @@ public:
                                  bool /*normalize*/) const { return TEST; }
   virtual double evalSpectrum(const VectorDouble& /*freq*/,
                               int /*ivar*/, int /*jvar*/) const { return TEST; }
-  virtual void updateCovByPoints(int icas1, int iech1, int icas2, int iech2) { return; }
-  virtual void updateCovByMesh(int imesh) { return; }
+  virtual void updateCovByPoints(int /*icas1*/, int /*iech1*/, int /*icas2*/, int /*iech2*/) { return; }
+  virtual void updateCovByMesh(int /*imesh*/) { return; }
   /////////////////////////////////////////////////////////////////////////////////
   ///
   void setOptimEnabled(bool isOptimEnabled) { _isOptimEnabled = isOptimEnabled; }

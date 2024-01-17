@@ -102,6 +102,7 @@ Grid::Grid(int ndim,
   , _work1(ndim)
   , _work2(ndim)
 {
+  _allocate();
 }
 
 Grid::Grid(const Grid &r)

@@ -601,6 +601,9 @@ void exit_f(void)
 %extend DbGrid {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend DbGrid {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend Vario {
   std::string __repr__() {  return $self->toString(); }
 }
