@@ -1037,7 +1037,7 @@ int Grid::getMirrorIndex(int idim, int ix) const
 /****************************************************************************/
 /*!
  **  Returns an array giving the ranks of the nodes (according to user's order)
- **  coded with standard ranks (according to gstlearn internal order)
+ **  coded with standard order (according to gstlearn internal order)
  **
  ** \return Array of indices
  **

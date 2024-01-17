@@ -225,12 +225,11 @@ static int st_locate_coor_on_grid(int np,
 static int st_larger_than_dmax(int ndim,
                                const VectorDouble &dvect,
                                int distType,
-                               const VectorDouble &dmax)
+                               const VectorDouble& dmax)
 {
   double ratio, rtot;
 
-  if (dmax.empty())
-    return 0;
+  if (dmax.empty()) return 0;
 
   /* Dispatch according to the type of distance */
 
@@ -284,7 +283,7 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
                                     Db *db_point,
                                     int iatt,
                                     int distType,
-                                    const VectorDouble &dmax,
+                                    const VectorDouble& dmax,
                                     VectorDouble &tab)
 {
   if (!db_grid->hasLargerDimension(db_point)) return 1;
@@ -307,7 +306,7 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
   {
     if (FFFF(tab[iech])) continue;
     int rank = (int) tab[iech];
-    if (!dmax.empty())
+    if (! dmax.empty())
     {
       (void) distance_inter(db_grid, db_point, rank, iech, dvect.data());
       if (st_larger_than_dmax(ndim_min, dvect, distType, dmax)) continue;
@@ -381,7 +380,7 @@ static int st_migrate_point_to_grid(Db *db_point,
                                     DbGrid *db_grid,
                                     int iatt,
                                     int distType,
-                                    const VectorDouble &dmax,
+                                    const VectorDouble& dmax,
                                     VectorDouble &tab)
 {
   if (!db_point->hasLargerDimension(db_grid)) return 1;
@@ -463,7 +462,7 @@ static int st_expand_point_to_point_ball(Db *db1,
                                          Db *db2,
                                          int iatt,
                                          int distType,
-                                         const VectorDouble &dmax,
+                                         const VectorDouble& dmax,
                                          VectorDouble &tab)
 {
   if (! db1->hasSameDimension(db2)) return 1;
@@ -516,7 +515,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
                                    DbGrid *db_gridout,
                                    int iatt,
                                    int distType,
-                                   const VectorDouble &dmax,
+                                   const VectorDouble& dmax,
                                    VectorDouble &tab)
 {
   int error, iech, jech, ndim_min, ndim_max;
@@ -603,7 +602,7 @@ static int st_expand_point_to_point(Db *db1,
                                     Db *db2,
                                     int iatt,
                                     int distType,
-                                    const VectorDouble &dmax,
+                                    const VectorDouble& dmax,
                                     VectorDouble &tab)
 {
   if (!db1->hasLargerDimension(db2)) return 1;
@@ -731,7 +730,7 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
                                   DbGrid *db_gridout,
                                   int iatt,
                                   int distType,
-                                  const VectorDouble &dmax,
+                                  const VectorDouble& dmax,
                                   VectorDouble &tab)
 {
   if (!db_gridin->hasLargerDimension(db_gridout)) return 1;
@@ -2553,7 +2552,7 @@ static void st_shift(int rank,
 static double st_multilinear_interpolation(DbGrid *dbgrid,
                                            int iatt,
                                            int distType,
-                                           const VectorDouble &dmax,
+                                           const VectorDouble& dmax,
                                            double *coor)
 {
   int ndim = dbgrid->getNDim();
@@ -2571,6 +2570,7 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
   /* Calculate distance to lower corner as proportion of the grid mesh */
 
   double rtot = 0.;
+  bool dmaxEmpty = dmax.empty();
   for (int idim = 0; idim < ndim; idim++)
   {
     double mesh = dbgrid->getDX(idim);
@@ -2580,16 +2580,16 @@ static double st_multilinear_interpolation(DbGrid *dbgrid,
       indg[idim]--;
       delta += mesh;
     }
-    if (!dmax.empty() && distType == 1)
+    if (! dmaxEmpty && distType == 1)
     {
       if (dmax[idim] <= 0) return TEST;
       double ratio = delta / dmax[idim];
       rtot += ratio * ratio;
     }
-    if (!dmax.empty() && delta > dmax[idim]) return TEST;
+    if (! dmaxEmpty && delta > dmax[idim]) return TEST;
     prop[idim] = delta / mesh;
   }
-  if (!dmax.empty() && distType == 1 && rtot > 1.) return TEST;
+  if (! dmaxEmpty && distType == 1 && rtot > 1.) return TEST;
 
   /* Calculate the estimation */
 
@@ -2646,7 +2646,7 @@ static int st_interpolate_grid_to_point(DbGrid *db_grid,
                                         Db *db_point,
                                         int iatt,
                                         int distType,
-                                        const VectorDouble &dmax,
+                                        const VectorDouble& dmax,
                                         VectorDouble &tab)
 {
   int iech, error;
@@ -2742,8 +2742,7 @@ int interpolate_variable_to_point(DbGrid *db_grid,
     if (ndim >= 1) coor[0] = xp[ip];
     if (ndim >= 2) coor[1] = yp[ip];
     if (ndim >= 3) coor[2] = zp[ip];
-    tab[ip] = st_multilinear_interpolation(db_grid, iatt, 0, VectorDouble(),
-                                           coor);
+    tab[ip] = st_multilinear_interpolation(db_grid, iatt, 0, VectorDouble(), coor);
   }
 
   /* Set the error return code */
@@ -3068,8 +3067,7 @@ int manage_external_info(int mode,
 
       /* Perform the migration */
 
-      if (st_migrate_grid_to_point(dbgrid, dbin, iatt, 0, VectorDouble(), tab))
-        continue;
+      if (st_migrate_grid_to_point(dbgrid, dbin, iatt, 0, VectorDouble(), tab)) continue;
 
       /* Save the migrated array */
 
@@ -3410,7 +3408,7 @@ int expand_point_to_grid(Db *db_point,
                          int iatt_scalew,
                          int flag_index,
                          int distType,
-                         const VectorDouble &dmax,
+                         const VectorDouble& dmax,
                          VectorDouble &tab)
 {
   double dd1d, ddmin;
@@ -3427,7 +3425,7 @@ int expand_point_to_grid(Db *db_point,
   if (ndim_min >= 3 && iatt_scalew >= 0) flag_aniso = 1;
   int idim_ref = ndim_min - 1;
   double dmax_ref = 1.e30;
-  if (!dmax.empty()) dmax_ref = dmax[idim_ref];
+  if (! dmax.empty()) dmax_ref = dmax[idim_ref];
 
   // Core allocation
 
@@ -3523,7 +3521,7 @@ int expand_point_to_grid(Db *db_point,
 
     /* Truncation by 'dmax' if provided */
 
-    if (!dmax.empty() && ipmin >= 0)
+    if (! dmax.empty() && ipmin >= 0)
     {
       (void) distance_inter(db_grid, db_point, ig, ipmin, dvmin.data());
       if (st_larger_than_dmax(ndim_min, dvmin, distType, dmax)) continue;
@@ -5437,8 +5435,7 @@ double* db_grid_sampling(DbGrid *dbgrid,
 
       for (int idim = 0; idim < ndim; idim++)
       {
-        delta = (v2 > v1) ? (xi2[idim] - xi1[idim]) / (v2 - v1) :
-                            0.;
+        delta = (v2 > v1) ? (xi2[idim] - xi1[idim]) / (v2 - v1) : 0.;
         RES(nval,idim) = xi1[idim] + delta * (cut - v1);
       }
       RES(nval,ndim) = icut + 1;
@@ -6004,7 +6001,7 @@ int _migrate(Db *db1,
              int iatt1,
              int iatt2,
              int distType,
-             const VectorDouble &dmax,
+             const VectorDouble& dmax,
              bool flag_fill,
              bool flag_inter,
              bool flag_ball)

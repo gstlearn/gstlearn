@@ -1215,7 +1215,7 @@ void dbStatisticsPrint(const Db *db,
  */
 MatrixRectangular* sphering(const AMatrix* X)
 {
-  if (X->isEmpty()) return nullptr;
+  if (X->empty()) return nullptr;
   int nech = X->getNRows();
   int nvar = X->getNCols();
 

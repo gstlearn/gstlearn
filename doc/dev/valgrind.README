@@ -9,8 +9,11 @@ For example, to test the module 'name.cpp':
   build/tests/cpp/Release
 
 - run valgrind with the following syntax:
-  valgrind --tool=callgrind ./'name.out'
+  	valgrind --tool=callgrind ./'name.out'
   This creates a local file named 'callgrind.out.xxx'
+  
+  You can avoid creating this file (although you do not save time) by typing:
+  	valgrind --tool=callgrind ./'name.out' --callgrind-out-file=""
   
 - check the graphs of time expenses with the following syntax:
   kcachegrind 'callgrind.out.xxx'

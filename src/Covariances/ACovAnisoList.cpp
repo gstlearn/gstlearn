@@ -27,8 +27,7 @@ ACovAnisoList::ACovAnisoList(const ASpace* space)
 : ACov(space),
   _covs(),
   _filtered(),
-  _noStat(),
-  _matC()
+  _noStat()
 {
 }
 
@@ -36,8 +35,7 @@ ACovAnisoList::ACovAnisoList(const ACovAnisoList &r)
 : ACov(r),
   _covs(),
   _filtered(r._filtered),
-  _noStat(nullptr),
-  _matC(r._matC)
+  _noStat(nullptr)
 {
   for (auto e: r._covs)
     _covs.push_back(e->clone());
@@ -55,7 +53,6 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
     _filtered = r._filtered;
     if (r._noStat != nullptr)
       _noStat = dynamic_cast<ANoStat*>(r._noStat->clone());
-    _matC = r._matC;
   }
   return *this;
 }
@@ -157,28 +154,24 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode* mode) const
  * Calculate the Matrix of covariance for zero distance
  * @param mat   Covariance matrix (Dimension: nvar * nvar)
  * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
  */
 void ACovAnisoList::eval0MatInPlace(MatrixSquareGeneral &mat,
                                     const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-  if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
-
-  mat.fill(0.);
   if (_considerAllCovariances(mode))
   {
     for (int i=0, n=getCovaNumber(); i<n; i++)
     {
-      _covs[i]->eval0MatInPlace(_matC, mode);
-      mat.addMatrix(_matC);
+      _covs[i]->eval0MatInPlace(mat, mode);
     }
   }
   else
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovList(i)]->eval0MatInPlace(_matC, mode);
-      mat.addMatrix(_matC);
+      _covs[mode->getActiveCovList(i)]->eval0MatInPlace(mat, mode);
     }
   }
 }
@@ -240,7 +233,17 @@ void ACovAnisoList::evalOptimInPlace(VectorDouble &res,
   for (int i = 0, n = getCovaNumber(); i < n; i++)
     _covs[i]->evalOptimInPlace(res, ivar, jvar, mode);
 }
-
+/**
+ * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
+ * @param icas1 Origin of the Db containing the first point
+ * @param iech1 Rank of the first point
+ * @param icas2 Origin of the Db containing the second point
+ * @param iech2 Rank of the second point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
 void ACovAnisoList::evalMatOptimInPlace(int icas1,
                                         int iech1,
                                         int icas2,
@@ -248,24 +251,18 @@ void ACovAnisoList::evalMatOptimInPlace(int icas1,
                                         MatrixSquareGeneral &mat,
                                         const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-  if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
-
-  mat.fill(0.);
   if (_considerAllCovariances(mode))
   {
     for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     {
-      _covs[i]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, _matC, mode);
-      mat.addMatrix(_matC);
+      _covs[i]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
     }
   }
   else
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovList(i)]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, _matC, mode);
-      mat.addMatrix(_matC);
+      _covs[mode->getActiveCovList(i)]->evalMatOptimInPlace(icas1, iech1, icas2, iech2, mat, mode);
     }
   }
 }
@@ -291,29 +288,32 @@ double ACovAnisoList::eval(const SpacePoint& p1,
   return cov;
 }
 
+/**
+ * Calculate the Matrix of covariance between two space points
+ * @param p1 Reference of the first space point
+ * @param p2 Reference of the second space point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
 void ACovAnisoList::evalMatInPlace(const SpacePoint &p1,
                                    const SpacePoint &p2,
                                    MatrixSquareGeneral &mat,
                                    const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-  if (_matC.getNRows() != nvar) _matC.reset(nvar,  nvar);
-
-  mat.fill(0.);
   if (_considerAllCovariances(mode))
   {
     for (unsigned int i=0, n=getCovaNumber(); i<n; i++)
     {
-      _covs[i]->evalMatInPlace(p1, p2, _matC, mode);
-      mat.addMatrix(_matC);
+      _covs[i]->evalMatInPlace(p1, p2, mat, mode);
     }
   }
   else
   {
     for (int i=0, n=mode->getActiveCovList().size(); i<n; i++)
     {
-      _covs[mode->getActiveCovList(i)]->evalMatInPlace(p1, p2, _matC, mode);
-      mat.addMatrix(_matC);
+      _covs[mode->getActiveCovList(i)]->evalMatInPlace(p1, p2, mat, mode);
     }
   }
 }

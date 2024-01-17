@@ -176,7 +176,7 @@ int _migrate(Db *db1,
              int iatt1,
              int iatt2,
              int ldmax,
-             const VectorDouble &dmax,
+             const VectorDouble& dmax,
              bool flag_fill,
              bool flag_inter,
              bool flag_ball = false);

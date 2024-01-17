@@ -182,7 +182,7 @@ bool Table::_deserialize(std::istream& is, bool /*verbose*/)
 String Table::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  if (isEmpty()) return sstr.str();
+  if (empty()) return sstr.str();
   int ncols = getNCols();
   int nrows = getNRows();
 
@@ -241,7 +241,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
  */
 void Table::plot(int isimu) const
 {
-  if (isEmpty()) return;
+  if (empty()) return;
   String filename = incrementStringVersion("TableStats",isimu+1);
   (void) dumpToNF(filename);
 }

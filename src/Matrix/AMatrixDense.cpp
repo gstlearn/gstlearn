@@ -37,7 +37,7 @@ AMatrixDense::AMatrixDense(const AMatrix &m)
     : AMatrix(m),
       _eigenMatrix()
 {
-  if (m.isEmpty())
+  if (m.empty())
   {
     messerr("The input matrix should be non-empty");
     _clear();
@@ -251,7 +251,7 @@ void AMatrixDense::prodScalar(double v)
 void AMatrixDense::addMatrix(const AMatrixDense& y, double value)
 {
   if (isFlagEigen())
-    _addMatrixLocal(y);
+    _addMatrixLocal(y, value);
   else
     AMatrix::addMatrix(y, value);
 }

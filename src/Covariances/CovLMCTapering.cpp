@@ -216,14 +216,28 @@ double CovLMCTapering::eval(const SpacePoint& p1,
   if (asVario) cov = cov0 - cov;
   return cov;
 }
-
+/**
+ * Calculate the Matrix of covariance for zero distance
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
 void CovLMCTapering::eval0MatInPlace(MatrixSquareGeneral &mat,
                                      const CovCalcMode *mode) const
 {
   // We do not want to call the optimization of ACovAnisoList
   ACov::eval0MatInPlace(mat, mode);
 }
-
+/**
+ * Calculate the Matrix of covariance between two space points
+ * @param p1 Reference of the first space point
+ * @param p2 Reference of the second space point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
 void CovLMCTapering::evalMatInPlace(const SpacePoint &p1,
                                     const SpacePoint &p2,
                                     MatrixSquareGeneral &mat,

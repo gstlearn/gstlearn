@@ -185,6 +185,9 @@ int main(int argc, char *argv[])
   NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
+  // Block discretization
+  VectorInt ndiscs = {3,3};
+
   // ====================== Testing Neighborhood Storage ===========================
   message("\n---> Testing Neighborhood storage\n");
   grid_res = grid->clone();
@@ -203,7 +206,7 @@ int main(int argc, char *argv[])
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Declustering in Moving Neighborhood ----->\n");
-  declustering(data_res, model, 3, neighM, grid, VectorDouble(), {3,3}, false, true);
+  declustering(data_res, model, 3, neighM, grid, VectorDouble(), ndiscs, false, true);
 
   message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
   grid_res = grid->clone();
@@ -249,12 +252,13 @@ int main(int argc, char *argv[])
   // ====================== Block Kriging case ===========================
   message("\n<----- Block Kriging (fixed size) ----->\n");
   grid_res = grid->clone();
-  kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, {3,3});
+
+  kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, ndiscs);
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Block Kriging (variable size) ----->\n");
   grid_res = grid->clone();
-  krigcell(data, grid_res, model, neighU, 1, 1, {3,3});
+  krigcell(data, grid_res, model, neighU, 1, 1, ndiscs);
   grid_res->display(&dbfmtKriging);
 
   // ====================== Image Neighborhood case ===========================
@@ -341,8 +345,8 @@ int main(int argc, char *argv[])
   message("\n<----- Test Kriging Multiple Variables with matCL ----->\n");
   grid_res = grid->clone();
   MatrixRectangular* matCL = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
-  kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false, VectorInt(), VectorInt(),
-          matCL);
+  kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false,
+          VectorInt(), VectorInt(), matCL);
   grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================

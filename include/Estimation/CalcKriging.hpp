@@ -52,8 +52,8 @@ public:
 
   void setCalcul(const EKrigOpt &calcul);
   void setMatCl(const MatrixRectangular* matCl) { _matCL = matCl; }
-  void setNdisc(const VectorInt &ndisc) { _ndisc = ndisc; }
-  void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
+  void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
+  void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
   void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
   void setPriorCov(const VectorDouble &priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
@@ -89,7 +89,7 @@ private:
   bool _flagVarZ;
 
   EKrigOpt  _calcul;
-  VectorInt _ndisc;
+  VectorInt _ndiscs;
   VectorInt _rankColCok;
   const MatrixRectangular* _matCL;
 
@@ -135,9 +135,9 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             bool flag_est = true,
                             bool flag_std = true,
                             bool flag_varz = false,
-                            VectorInt ndisc = VectorInt(),
-                            VectorInt rank_colcok = VectorInt(),
-                            MatrixRectangular* matCL = nullptr,
+                            const VectorInt& ndiscs = VectorInt(),
+                            const VectorInt& rank_colcok = VectorInt(),
+                            const MatrixRectangular* matCL = nullptr,
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int krigcell(Db *dbin,
                              Db *dbout,
@@ -145,8 +145,8 @@ GSTLEARN_EXPORT int krigcell(Db *dbin,
                              ANeigh *neigh,
                              bool flag_est = true,
                              bool flag_std = true,
-                             VectorInt ndisc = VectorInt(),
-                             VectorInt rank_colcok = VectorInt(),
+                             const VectorInt& ndiscs = VectorInt(),
+                             const VectorInt& rank_colcok = VectorInt(),
                              const NamingConvention& namconv = NamingConvention("KrigCell"));
 GSTLEARN_EXPORT int kribayes(Db *dbin,
                              Db *dbout,
@@ -176,7 +176,7 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       ANeigh *neigh,
                                       int iech0,
                                       const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
-                                      VectorInt ndisc = VectorInt(),
+                                      const VectorInt& ndiscs = VectorInt(),
                                       bool flagPerCell = false,
                                       bool verbose = true);
 GSTLEARN_EXPORT int xvalid(Db *db,
@@ -186,7 +186,7 @@ GSTLEARN_EXPORT int xvalid(Db *db,
                            int flag_xvalid_est = 1,
                            int flag_xvalid_std = 1,
                            int flag_xvalid_varz = 0,
-                           VectorInt rank_colcok = VectorInt(),
+                           const VectorInt& rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT int test_neigh(Db *dbin,
                                Db *dbout,

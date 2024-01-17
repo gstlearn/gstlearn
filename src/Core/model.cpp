@@ -237,7 +237,7 @@ void model_calcul_cov(CovInternal *covint,
 
   // Evaluate the Model
 
-  MatrixSquareGeneral mat = model->evalNvarIpas(1., d1, VectorDouble(), mode);
+  MatrixSquareGeneral mat = model->evalNvarIpas(1., d1, mode);
 
   int nvar = model->getVariableNumber();
   for (int ivar = 0; ivar < nvar; ivar++)

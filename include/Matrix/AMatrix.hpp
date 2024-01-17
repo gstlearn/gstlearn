@@ -122,14 +122,16 @@ public:
 
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
-  /*! Gets the value at row 'irow' and column 'icol' (no test) */
-  double getValueSafe(int irow, int icol) const;
   /*! Gets the value at row 'irow' and column 'icol' */
   double getValue(int irow, int icol) const;
-  /*! Sets the value at row 'irow' and column 'icol' (no test) */
-  void setValueSafe(int irow, int icol, double value);
   /*! Sets the value at row 'irow' and column 'icol' */
   void setValue(int irow, int icol, double value);
+#ifndef SWIG
+  /*! Sets the value at row 'irow' and column 'icol' (no test performed) */
+  void setValue_(int irow, int icol, double value);
+  /*! Gets the value at row 'irow' and column 'icol' (no test) */
+  double getValue_(int irow, int icol) const;
+#endif
   /*! Add a value to a matrix term */
   void addValue(int irow, int icol, double value);
   /*! Check if a matrix is the same as me (norm L1) */
@@ -137,7 +139,7 @@ public:
   /*! Check that both matrix have the same number of rows and columns */
   bool isSameSize(const AMatrix& m) const;
   /*! Returns if the current matrix is Empty */
-  bool isEmpty() const { return (_nRows == 0 || _nCols == 0); }
+  bool empty() const { return (_nRows == 0 || _nCols == 0); }
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;
   /*! Returns the number of rows */
@@ -145,7 +147,8 @@ public:
   /*! Returns the number of columns */
   int getNCols() const { return _nCols; }
   /*! Get the total number of elements of the (full) matrix */
-  int getNTotal() const { return _nRows * _nCols; }
+  /* The name has been chosen by analogy to VectorT class */
+  int size() const { return _nRows * _nCols; }
 
   /*! Returns the contents of the whole matrix as a VectorDouble */
   VectorDouble getValues(bool byCol = true) const;

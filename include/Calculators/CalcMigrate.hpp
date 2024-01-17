@@ -29,7 +29,7 @@ public:
   CalcMigrate& operator=(const CalcMigrate &r) = delete;
   virtual ~CalcMigrate();
 
-  void setDmax(const VectorDouble &dmax) { _dmax = dmax; }
+  void setDmax(const VectorDouble& dmax) { _dmax = dmax; }
   void setFlagFill(bool flagFill) { _flagFill = flagFill; }
   void setFlagInter(bool flagInter) { _flagInter = flagInter; }
   void setFlagBall(bool flagBall) { _flagBall = flagBall; }
@@ -63,7 +63,7 @@ GSTLEARN_EXPORT int migrate(Db *dbin,
                             Db *dbout,
                             const String &name,
                             int dist_type = 1,
-                            const VectorDouble &dmax = VectorDouble(),
+                            const VectorDouble& dmax = VectorDouble(),
                             bool flag_fill = false,
                             bool flag_inter = false,
                             bool flag_ball = false,
@@ -73,7 +73,7 @@ GSTLEARN_EXPORT int migrateMulti(Db *dbin,
                                  Db *dbout,
                                  const VectorString &names,
                                  int dist_type = 1,
-                                 const VectorDouble &dmax = VectorDouble(),
+                                 const VectorDouble& dmax = VectorDouble(),
                                  bool flag_fill = false,
                                  bool flag_inter = false,
                                  bool flag_ball = false,
@@ -83,7 +83,7 @@ GSTLEARN_EXPORT int migrateByAttribute(Db *dbin,
                                        Db *dbout,
                                        const VectorInt &iatts = VectorInt(),
                                        int dist_type = 1,
-                                       const VectorDouble &dmax = VectorDouble(),
+                                       const VectorDouble& dmax = VectorDouble(),
                                        bool flag_fill = false,
                                        bool flag_inter = false,
                                        bool flag_ball = false,
@@ -93,7 +93,7 @@ GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
                                      Db *dbout,
                                      const ELoc &locatorType,
                                      int dist_type = 1,
-                                     const VectorDouble &dmax = VectorDouble(),
+                                     const VectorDouble& dmax = VectorDouble(),
                                      bool flag_fill = false,
                                      bool flag_inter = false,
                                      bool flag_ball = false,

@@ -196,7 +196,7 @@ bool NoStatArray::isEmpty(int icas) const
 
   if (icas == 0)
   {
-    if (_tab.isEmpty()) return true;
+    if (_tab.empty()) return true;
   }
   if (icas == 1)
   {
@@ -281,7 +281,7 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   VectorDouble vec;
   if (icas == 0)
   {
-    if (_tab.isEmpty()) return sstr.str();;
+    if (_tab.empty()) return sstr.str();;
     for (int iech = 0; iech < _tab.getNRows(); iech++)
       vec.push_back(_tab.getValue(iech, ipar));
   }

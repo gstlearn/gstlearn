@@ -41,10 +41,10 @@ public:
 
   void resetFromSpaceDimension(int ndim);
   void resetFromGrid(Grid* grid);
-  int resetFromVector(const VectorInt& nx = VectorInt(),
-                      const VectorDouble& dx = VectorDouble(),
-                      const VectorDouble& x0 = VectorDouble(),
-                      const VectorDouble& angles = VectorDouble());
+  int  resetFromVector(const VectorInt& nx = VectorInt(),
+                       const VectorDouble& dx = VectorDouble(),
+                       const VectorDouble& x0 = VectorDouble(),
+                       const VectorDouble& angles = VectorDouble());
   void    setX0(int idim,double value);
   void    setDX(int idim,double value);
   void    setNX(int idim,int    value);

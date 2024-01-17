@@ -28,9 +28,9 @@ public:
   CalcKrigingFactors& operator=(const CalcKrigingFactors &r) = delete;
   virtual ~CalcKrigingFactors();
 
-  void setCalcul(const EKrigOpt &calcul) { _calcul = calcul; }
-  void setNdisc(const VectorInt &ndisc) { _ndisc = ndisc; }
-  void setIuidFactors(const VectorInt &iuidFactors) { _iuidFactors = iuidFactors; }
+  void setCalcul(const EKrigOpt& calcul) { _calcul = calcul; }
+  void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
+  void setIuidFactors(const VectorInt& iuidFactors) { _iuidFactors = iuidFactors; }
 
 private:
   virtual bool _check() override;
@@ -48,7 +48,7 @@ private:
   bool _flagStd;
 
   EKrigOpt  _calcul;
-  VectorInt _ndisc;
+  VectorInt _ndiscs;
   VectorString _nameCoord;
 
   int _iptrEst;
@@ -62,7 +62,7 @@ GSTLEARN_EXPORT int krigingFactors(Db *dbin,
                                    Model *model,
                                    ANeigh *neigh,
                                    const EKrigOpt &calcul = EKrigOpt::fromKey("POINT"),
-                                   const VectorInt &ndisc = VectorInt(),
+                                   const VectorInt& ndiscs = VectorInt(),
                                    bool flag_est = true,
                                    bool flag_std = true,
                                    const NamingConvention &namconv = NamingConvention("KD"));

@@ -69,7 +69,7 @@ void AMatrix::init(int nrows, int ncols)
 
 bool AMatrix::isSquare(bool printWhyNot) const
 {
-  if (isEmpty()) return false;
+  if (empty()) return false;
   if (_nRows != _nCols)
   {
     if (printWhyNot)
@@ -215,7 +215,7 @@ void AMatrix::fillRandom(int seed, double zeroPercent)
 
 bool AMatrix::isSymmetric(bool printWhyNot) const
 {
-  if (isEmpty() || ! isSquare()) return false;
+  if (empty() || ! isSquare()) return false;
 
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
@@ -238,7 +238,7 @@ bool AMatrix::isIdentity(bool printWhyNot) const
     for (int icol = 0; icol < getNCols(); icol++)
     {
       double refval = (irow == icol) ? 1. : 0.;
-      if (ABS(getValueSafe(irow, icol) - refval) > EPSILON10)
+      if (ABS(getValue_(irow, icol) - refval) > EPSILON10)
       {
         if (printWhyNot)
           messerr("The term (%d,%d) should be equal to %lf (%lf)", irow + 1,
@@ -251,18 +251,18 @@ bool AMatrix::isIdentity(bool printWhyNot) const
 
 bool AMatrix::isDiagonal(bool printWhyNot) const
 {
-  if (isEmpty() || ! isSquare()) return false;
+  if (empty() || ! isSquare()) return false;
 
   for (int irow = 0; irow <_nRows; irow++)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (irow != icol)
       {
-        if (ABS(getValueSafe(irow,icol)) > EPSILON10)
+        if (ABS(getValue_(irow,icol)) > EPSILON10)
         {
           if (printWhyNot)
             messerr("The element (%d;%d)=%lf should be zero", irow, icol,
-                    getValueSafe(irow, icol));
+                    getValue_(irow, icol));
           return false;
         }
       }
@@ -272,7 +272,7 @@ bool AMatrix::isDiagonal(bool printWhyNot) const
 
 bool AMatrix::isDiagCst(bool printWhyNot) const
 {
-  if (isEmpty() || ! isSquare()) return false;
+  if (empty() || ! isSquare()) return false;
 
   double refval = TEST;
   for (int irow = 0; irow <_nRows; irow++)
@@ -318,7 +318,7 @@ AMatrix* AMatrix::transpose() const
 }
 
 /*! Gets the value at row 'irow' and column 'icol' (no test) */
-double AMatrix::getValueSafe(int irow, int icol) const
+double AMatrix::getValue_(int irow, int icol) const
 {
   return _getValue(irow, icol);
 }
@@ -331,7 +331,7 @@ double AMatrix::getValue(int irow, int icol) const
 }
 
 /*! Sets the value at row 'irow' and column 'icol' (no test) */
-void AMatrix::setValueSafe(int irow, int icol, double value)
+void AMatrix::setValue_(int irow, int icol, double value)
 {
   return _setValue(irow, icol, value);
 }
@@ -402,7 +402,7 @@ void AMatrix::_setValues(const double *values, bool byCol)
  */
 void AMatrix::setValues(const VectorDouble& values, bool byCol)
 {
-  if ((int) values.size() != getNTotal())
+  if ((int) values.size() != size())
   {
     messerr("Inconsistency between 'values' and Matrix Dimension");
     messerr("Operation cancelled");
@@ -421,7 +421,7 @@ void AMatrix::setIdentity(double value)
 {
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
-      setValueSafe(irow, icol, value * (irow == icol));
+      setValue_(irow, icol, value * (irow == icol));
 }
 
 /**
@@ -864,7 +864,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
       {
-        (*itvect) = getValueSafe(irow, icol);
+        (*itvect) = getValue_(irow, icol);
         itvect++;
       }
   }
@@ -873,7 +873,7 @@ VectorDouble AMatrix::getValues(bool byCol) const
     for (int irow = 0; irow < _nRows; irow++)
       for (int icol = 0; icol < _nCols; icol++)
       {
-        (*itvect) = getValueSafe(irow, icol);
+        (*itvect) = getValue_(irow, icol);
         itvect++;
       }
   }
@@ -1119,7 +1119,7 @@ void AMatrix::copyReduce(const AMatrix *x,
   VH::display("copyReduce validRows",validRows);
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
-      setValueSafe(irow, icol, x->getValueSafe(validRows[irow], validCols[icol]));
+      setValue_(irow, icol, x->getValue_(validRows[irow], validCols[icol]));
 }
 
 /**
@@ -1133,7 +1133,7 @@ void AMatrix::copyElements(const AMatrix &m, double factor)
   for (int icol = 0; icol < m.getNCols(); icol++)
     for (int irow = 0; irow < m.getNRows(); irow++)
     {
-      setValueSafe(irow, icol, factor * m.getValueSafe(irow, icol));
+      setValue_(irow, icol, factor * m.getValue_(irow, icol));
     }
 }
 

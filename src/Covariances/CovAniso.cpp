@@ -374,122 +374,194 @@ bool CovAniso::isConsistent(const ASpace* /*space*/) const
   return _cova->isConsistent();
 }
 
-double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
-{
-  double cov = _cova->evalCov(0);
-  // Converting into a variogram is ignored as the result is obvious
-  // and this could be not significant most of the time
-
-  if (mode == nullptr)
-  {
-    cov *= getSill(ivar, jvar);
-  }
-  else
-  {
-    if (!mode->getUnitary())
-      cov *= getSill(ivar, jvar);;
-  }
-  return (cov);
-}
-
-void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode) const
+/**
+ * Calculate the value of the covariance from the distance between bi-points
+ * This distance has been calculated beforehand (possibly using anisotropy)
+ * @param h    Input distance
+ * @param mode Pointer to CovCalcMode structure (optional)
+ * @return The covariance value
+ */
+double CovAniso::_evalCovFromH(double h, const CovCalcMode *mode) const
 {
   double cov = 0.;
-  mat.copyElements(_sill, _noStatFactor);
-  if (mode == nullptr)
+  if (mode != nullptr)
   {
-    cov = _cova->evalCov(0);
-  }
-  else
-  {
-    cov = _calculateCov(0., mode);
-    if (mode->getUnitary())
-      mat.fill(1.);
-  }
-  mat.prodScalar(cov);
-}
-
-double CovAniso::_calculateCov(double h, const CovCalcMode *mode) const
-{
-  double cov = 0.;
-
-  int norder = mode->getOrderVario();
-  if (norder > 0)
-  {
-
-    // Calculate High-order Variogram (only valuable when h != 0)
-    for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
+    int norder = mode->getOrderVario();
+    if (norder == 0)
     {
-      double hp = h * (1. + iwgt);
-      cov += COVWGT[norder][iwgt] * _cova->evalCov(hp);
+
+      // Traditional Covariance or Variogram
+      cov = _cova->evalCov(h);
+
+      // Convert into a variogram
+      if (mode->getAsVario()) cov = _cova->evalCov(0) - cov;
     }
-    cov /= NORWGT[norder];
+    else
+    {
+      double covcum = 0.;
+
+      // Calculate High-order Variogram (only valuable when h != 0)
+      for (int iwgt = 1, nwgt = NWGT[norder]; iwgt < nwgt; iwgt++)
+      {
+        double hp = h * (1. + iwgt);
+        covcum += COVWGT[norder][iwgt] * _cova->evalCov(hp);
+      }
+      cov = covcum / NORWGT[norder];
+    }
   }
   else
   {
-
-    // Traditional Covariance or Variogram
-    cov = _cova->evalCov(h);
-
-    // Convert into a variogram
-    if (mode->getAsVario())
-      cov = _cova->evalCov(0) - cov;
+    cov =  _cova->evalCov(h);
   }
   return cov;
 }
 
-// TODO Replace p1 and p2 by SpaceTarget
+double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
+{
+  double cov = _evalCovFromH(0, mode) * _noStatFactor;
+
+  if (mode == nullptr || ! mode->getUnitary())
+    cov *= getSill(ivar, jvar);
+  return (cov);
+}
+
 double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
                       int ivar,
                       int jvar,
                       const CovCalcMode* mode) const
 {
-  double cov = 0.;
-
-  // Calculate unit distance by applying anisotropy
-  /// TODO: if composite space : return h1, h2, ... (number of sub-space)
   double h = getSpace()->getDistance(p1, p2, _aniso);
+  double cov = _evalCovFromH(h, mode) * _noStatFactor;
 
-  // Shortcut
-
-  if (mode == nullptr)
-  {
-    cov = _cova->evalCov(h) * getSill(ivar, jvar);
-  }
-  else
-  {
-    cov = _calculateCov(h, mode);
-
-    // Scale by the sill
-    if (!mode->getUnitary())
-      cov *= getSill(ivar, jvar);
-  }
+  if (mode == nullptr || ! mode->getUnitary())
+    cov *= getSill(ivar, jvar);
   return (cov);
 }
+/**
+ * Calculate the Matrix of covariance for zero distance
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
+void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode) const
+{
+  double cov = _evalCovFromH(0, mode) * _noStatFactor;
 
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatrix(_sill, cov);
+  else
+  {
+    MatrixSquareSymmetric identity = _sill;
+    identity.setIdentity();
+    mat.addMatrix(identity, cov);
+  }
+}
+
+/**
+ * Calculate the Matrix of covariance between two space points
+ * @param p1 Reference of the first space point
+ * @param p2 Reference of the second space point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
 void CovAniso::evalMatInPlace(const SpacePoint &p1,
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode) const
 {
-  // Calculate unit distance by applying anisotropy
   double h = getSpace()->getDistance(p1, p2, _aniso);
+  double cov = _evalCovFromH(h, mode) * _noStatFactor;
 
-  mat.copyElements(_sill, _noStatFactor);
-  double cov = 0.;
-  if (mode == nullptr)
-  {
-    cov = _cova->evalCov(h);
-  }
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatrix(_sill, cov);
   else
   {
-    cov = _calculateCov(h, mode);
-    if (mode->getUnitary())
-      mat.fill(1.);
+    MatrixSquareSymmetric identity = _sill;
+    identity.setIdentity();
+    mat.addMatrix(identity, cov);
   }
-  mat.prodScalar(cov);
+}
+
+/**
+ * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
+ * and the target (recorded in _p2A)
+ * @param res  Vector of covariances
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param mode CovCalcMode structure
+ *
+ * @remark: The optimized version is not compatible with Franck's non-stationarity.
+ * Then no correction must be applied to cov(h)
+ */
+void CovAniso::evalOptimInPlace(VectorDouble &res,
+                                int ivar,
+                                int jvar,
+                                const CovCalcMode *mode) const
+{
+  double sill = 0.;
+  if (mode == nullptr || ! mode->getUnitary())
+    sill = _sill.getValue(ivar, jvar);
+  else
+    sill = 1.;
+
+  int ecr = 0;
+  double cov = 0.;
+  for (int i = 0; i < (int) _p1As.size(); i++)
+  {
+    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
+    double hoptim = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
+    cov = _evalCovFromH(hoptim, mode);
+
+    res[ecr++] += sill * cov;
+  }
+}
+/**
+ * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
+ * @param icas1 Origin of the Db containing the first point
+ * @param iech1 Rank of the first point
+ * @param icas2 Origin of the Db containing the second point
+ * @param iech2 Rank of the second point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
+void CovAniso::evalMatOptimInPlace(int icas1,
+                                   int iech1,
+                                   int icas2,
+                                   int iech2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode) const
+{
+  SpacePoint* p1A;
+  if (icas1 == 1)
+    p1A = &_p1As[iech1];
+  else
+    p1A = &_p2A;
+
+  SpacePoint* p2A;
+  if (icas2 == 1)
+    p2A = &_p1As[iech2];
+  else
+    p2A = &_p2A;
+
+  // Calculate covariance between two points
+  double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  double cov = _evalCovFromH(hoptim, mode) * _noStatFactor;
+
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatrix(_sill, cov);
+  else
+  {
+    MatrixSquareSymmetric identity = _sill;
+    identity.setIdentity();
+    mat.addMatrix(identity, cov);
+  }
 }
 
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
@@ -1071,73 +1143,3 @@ void CovAniso::optimizationPostProcess() const
 	_p1As.clear();
 }
 
-/**
- * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
- * and the target (recorded in _p2A)
- * @param res  Vector of covariances
- * @param ivar Rank of the first variable
- * @param jvar Rank of the second variable
- * @param mode CovCalcMode structure
- */
-void CovAniso::evalOptimInPlace(VectorDouble &res,
-                                int ivar,
-                                int jvar,
-                                const CovCalcMode *mode) const
-{
-  int ecr = 0;
-  double sill = 0.;
-  if (mode == nullptr)
-    sill = _sill.getValue(ivar, jvar);
-  else
-    sill = (mode->getUnitary()) ? 1. : _sill.getValue(ivar, jvar);
-
-  double cov = 0.;
-  for (int i = 0; i < (int) _p1As.size(); i++)
-  {
-    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-    double hoptim = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-
-    if (mode == nullptr)
-      cov = _cova->evalCov(hoptim);
-    else
-      cov = _calculateCov(hoptim, mode);
-
-    res[ecr++] += sill * cov;
-  }
-}
-
-void CovAniso::evalMatOptimInPlace(int icas1,
-                                   int iech1,
-                                   int icas2,
-                                   int iech2,
-                                   MatrixSquareGeneral &mat,
-                                   const CovCalcMode *mode) const
-{
-  SpacePoint* p1A;
-  if (icas1 == 1)
-    p1A = &_p1As[iech1];
-  else
-    p1A = &_p2A;
-
-  SpacePoint* p2A;
-  if (icas2 == 1)
-    p2A = &_p1As[iech2];
-  else
-    p2A = &_p2A;
-
-  // Calculate distance (in anisotropic space)
-  double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
-  mat.copyElements(_sill, _noStatFactor);
-  double cov = 0.;
-  if (mode == nullptr)
-  {
-    cov = _cova->evalCov(hoptim);
-  }
-  else
-  {
-    cov = _calculateCov(hoptim, mode);
-    if (mode->getUnitary())
-      mat.fill(1.);
-  }
-  mat.prodScalar(cov);
-}

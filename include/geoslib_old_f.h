@@ -1029,7 +1029,7 @@ GSTLEARN_EXPORT int expand_point_to_grid(Db *db_point,
                                          int iatt_scalew,
                                          int flag_index,
                                          int ldmax,
-                                         const VectorDouble &dmax,
+                                         const VectorDouble& dmax,
                                          VectorDouble &tab);
 
 GSTLEARN_EXPORT int interpolate_variable_to_point(DbGrid *db_grid,
@@ -1289,7 +1289,7 @@ GSTLEARN_EXPORT int krige_koption_manage(int mode,
                                          int flag_check,
                                          const EKrigOpt &calcul,
                                          int flag_rand,
-                                         VectorInt ndisc);
+                                         const VectorInt& ndiscs = VectorInt());
 GSTLEARN_EXPORT void krige_lhs_print(int nech,
                                      int neq,
                                      int nred,

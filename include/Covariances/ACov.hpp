@@ -98,10 +98,9 @@ public:
                               const SpacePoint& p2,
                               const CovCalcMode* mode = nullptr) const;
   double evalIvarIpas(double step,
-                      const VectorDouble& dir,
+                      const VectorDouble& dir = VectorDouble(),
                       int ivar = 0,
                       int jvar = 0,
-                      const VectorDouble& center = VectorDouble(),
                       const CovCalcMode* mode = nullptr) const;
   double evalIvarIpasIncr(const VectorDouble &dincr,
                           int ivar = 0,
@@ -111,11 +110,9 @@ public:
                             const VectorDouble& dir = VectorDouble(),
                             int ivar = 0,
                             int jvar = 0,
-                            const VectorDouble& center = VectorDouble(),
                             const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalNvarIpas(double step,
-                                   const VectorDouble& dir,
-                                   const VectorDouble& center = VectorDouble(),
+                                   const VectorDouble& dir = VectorDouble(),
                                    const CovCalcMode* mode = nullptr) const;
   MatrixSquareGeneral evalNvarIpasIncr(const VectorDouble &dincr,
                                        const CovCalcMode* mode = nullptr) const;

@@ -181,6 +181,13 @@ public:
   {
     return _cova->getNoStatModify();
   }
+  /**
+   * Calculate the Matrix of covariance for zero distance
+   * @param mat   Covariance matrix (Dimension: nvar * nvar)
+   * @param mode  Calculation Options
+   *
+   * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+   */
   void eval0MatInPlace(MatrixSquareGeneral &mat,
                        const CovCalcMode *mode = nullptr) const
   {
@@ -195,11 +202,10 @@ public:
     return _cova->eval(p1, p2, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalNvarIpas(double step,
-                                   const VectorDouble& dir = VectorDouble(),
-                                   const VectorDouble& center = VectorDouble(),
+                                   const VectorDouble& dir,
                                    const CovCalcMode* mode = nullptr) const
   {
-    return _cova->evalNvarIpas(step, dir, center, mode);
+    return _cova->evalNvarIpas(step, dir, mode);
   }
   MatrixSquareGeneral evalMat(const SpacePoint& p1,
                               const SpacePoint& p2,
@@ -208,6 +214,15 @@ public:
     return _cova->evalMat(p1, p2, mode);
   }
 
+  /**
+   * Calculate the Matrix of covariance between two space points
+   * @param p1 Reference of the first space point
+   * @param p2 Reference of the second space point
+   * @param mat   Covariance matrix (Dimension: nvar * nvar)
+   * @param mode  Calculation Options
+   *
+   * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+   */
   void evalMatInPlace(const SpacePoint &p1,
                       const SpacePoint &p2,
                       MatrixSquareGeneral &mat,
@@ -225,19 +240,17 @@ public:
                             const VectorDouble& dir = VectorDouble(),
                             int ivar = 0,
                             int jvar = 0,
-                            const VectorDouble& center = VectorDouble(),
                             const CovCalcMode* mode = nullptr) const
   {
-    return _cova->evalIvarNpas(vec_step, dir, ivar, jvar, center, mode);
+    return _cova->evalIvarNpas(vec_step, dir, ivar, jvar, mode);
   }
   double evalIvarIpas(double step,
                       const VectorDouble& dir = VectorDouble(),
                       int ivar = 0,
                       int jvar = 0,
-                      const VectorDouble& center = VectorDouble(),
                       const CovCalcMode* mode = nullptr) const
   {
-    return _cova->evalIvarIpas(step, dir, ivar, jvar, center, mode);
+    return _cova->evalIvarIpas(step, dir, ivar, jvar, mode);
   }
   double evalCvv(const VectorDouble& ext,
                  const VectorInt& ndisc,
@@ -338,7 +351,17 @@ public:
   {
     return _cova->evalCovMatrix(db1, db2, ivar, jvar, nbgh1, nbgh2, mode);
   }
-
+  /**
+   * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
+   * @param icas1 Origin of the Db containing the first point
+   * @param iech1 Rank of the first point
+   * @param icas2 Origin of the Db containing the second point
+   * @param iech2 Rank of the second point
+   * @param mat   Covariance matrix (Dimension: nvar * nvar)
+   * @param mode  Calculation Options
+   *
+   * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+   */
   void evalMatOptimInPlace(int icas1,
                            int iech1,
                            int icas2,

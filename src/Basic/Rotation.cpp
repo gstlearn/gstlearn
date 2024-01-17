@@ -62,7 +62,7 @@ void Rotation::resetFromSpaceDimension(unsigned int ndim)
 
 int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
 {
-  if (! rotmat.isEmpty())
+  if (! rotmat.empty())
   {
     if (! _rotMat.isSameSize(rotmat))
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
@@ -80,7 +80,7 @@ int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
 {
   if (! rotmat.empty())
   {
-    if ((int) rotmat.size() != _rotMat.getNTotal())
+    if ((int) rotmat.size() != _rotMat.size())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
     if (! is_matrix_rotation(_nDim, rotmat.data(), 1)) return 1;
     _rotMat.setValues(rotmat);

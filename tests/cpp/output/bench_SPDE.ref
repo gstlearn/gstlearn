@@ -1,98 +1,98 @@
-#NO_DIFF# Kriging.NoChol1: 601 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.NoChol1: 1725 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.NoChol1: 5726 ms. (Ref = 3130 ms.)
-#NO_DIFF# Kriging.Chol1: 302 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.Chol1: 1128 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.Chol1: 1765 ms. (Ref = 3130 ms.)
-#NO_DIFF# Kriging.NoChol2: 823 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.NoChol2: 2719 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.NoChol2: 8473 ms. (Ref = 3130 ms.)
-#NO_DIFF# Kriging.Chol2: 448 ms. (Ref = 400 ms.)
-#NO_DIFF# Simu.NC.Chol2: 1709 ms. (Ref = 1350 ms.)
-#NO_DIFF# Simu.CD.Chol2: 2824 ms. (Ref = 3130 ms.)
+#NO_DIFF# Kriging.NoChol1: 584 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.NoChol1: 1705 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.NoChol1: 5696 ms. (Ref = 3130 ms.)
+#NO_DIFF# Kriging.Chol1: 299 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.Chol1: 1129 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.Chol1: 1800 ms. (Ref = 3130 ms.)
+#NO_DIFF# Kriging.NoChol2: 773 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.NoChol2: 2779 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.NoChol2: 8576 ms. (Ref = 3130 ms.)
+#NO_DIFF# Kriging.Chol2: 461 ms. (Ref = 400 ms.)
+#NO_DIFF# Simu.NC.Chol2: 1750 ms. (Ref = 1350 ms.)
+#NO_DIFF# Simu.CD.Chol2: 2879 ms. (Ref = 3130 ms.)
                            Minimum    Maximum       Mean   St. Dev.
-Kriging.NoChol1.z.estim     -3.234      1.697     -0.278      0.519
-Kriging.Chol1.z.estim       -3.234      1.697     -0.277      0.519
-Kriging.NoChol2.z.estim     -3.272      1.305     -0.341      0.541
-Kriging.Chol2.z.estim       -3.272      1.302     -0.344      0.531
-Simu.NC.NoChol1.1           -3.574      3.099     -0.225      1.036
-Simu.NC.NoChol1.2           -3.220      2.631     -0.080      0.984
-Simu.NC.NoChol1.3           -3.641      3.169      0.035      0.976
-Simu.NC.NoChol1.4           -3.084      3.158     -0.058      1.070
-Simu.NC.NoChol1.5           -3.036      2.679     -0.120      0.951
-Simu.NC.NoChol1.6           -2.777      3.523      0.316      0.943
-Simu.NC.NoChol1.7           -2.910      3.488      0.322      0.978
-Simu.NC.NoChol1.8           -3.492      2.727     -0.191      0.891
-Simu.NC.NoChol1.9           -3.664      2.802     -0.002      1.006
-Simu.NC.NoChol1.10          -3.124      3.511      0.182      0.994
-Simu.CD.NoChol1.z.1         -4.432      2.437     -0.429      1.031
-Simu.CD.NoChol1.z.2         -3.567      2.834     -0.279      0.909
-Simu.CD.NoChol1.z.3         -3.367      3.112     -0.251      0.988
-Simu.CD.NoChol1.z.4         -3.726      2.643     -0.296      0.970
-Simu.CD.NoChol1.z.5         -3.287      2.917     -0.417      0.991
-Simu.CD.NoChol1.z.6         -3.973      3.135     -0.045      1.008
-Simu.CD.NoChol1.z.7         -4.395      3.331     -0.174      1.038
-Simu.CD.NoChol1.z.8         -3.316      2.437     -0.366      0.859
-Simu.CD.NoChol1.z.9         -3.293      2.447     -0.325      0.984
-Simu.CD.NoChol1.z.10        -3.500      3.116     -0.291      0.930
-Simu.NC.Chol1.1             -3.449      3.703     -0.264      1.071
-Simu.NC.Chol1.2             -3.149      2.559     -0.139      0.880
-Simu.NC.Chol1.3             -3.304      3.076     -0.018      1.003
-Simu.NC.Chol1.4             -3.679      2.686     -0.185      0.976
-Simu.NC.Chol1.5             -3.176      3.336     -0.025      1.041
-Simu.NC.Chol1.6             -3.555      3.391     -0.244      0.950
-Simu.NC.Chol1.7             -2.535      3.233      0.238      0.930
-Simu.NC.Chol1.8             -3.462      2.805     -0.308      1.064
-Simu.NC.Chol1.9             -3.501      3.082     -0.060      1.013
-Simu.NC.Chol1.10            -3.554      3.561      0.068      1.043
-Simu.CD.Chol1.z.1           -3.896      2.907     -0.433      1.020
-Simu.CD.Chol1.z.2           -3.358      2.536     -0.324      0.903
-Simu.CD.Chol1.z.3           -3.873      3.255     -0.420      1.056
-Simu.CD.Chol1.z.4           -3.252      2.998     -0.218      0.975
-Simu.CD.Chol1.z.5           -3.549      2.614     -0.492      0.963
-Simu.CD.Chol1.z.6           -3.341      3.400     -0.331      0.955
-Simu.CD.Chol1.z.7           -3.497      3.450     -0.186      0.952
-Simu.CD.Chol1.z.8           -4.476      3.596     -0.441      1.053
-Simu.CD.Chol1.z.9           -3.316      2.608     -0.393      0.976
-Simu.CD.Chol1.z.10          -3.570      3.441     -0.236      0.934
-Simu.NC.NoChol2.1           -4.302      4.327     -0.083      1.390
-Simu.NC.NoChol2.2           -3.978      4.321     -0.048      1.372
-Simu.NC.NoChol2.3           -4.184      5.224      0.106      1.446
-Simu.NC.NoChol2.4           -5.137      4.658      0.187      1.569
-Simu.NC.NoChol2.5           -3.803      4.931      0.165      1.356
-Simu.NC.NoChol2.6           -4.267      3.474     -0.212      1.241
-Simu.NC.NoChol2.7           -3.962      4.911      0.150      1.421
-Simu.NC.NoChol2.8           -5.633      5.203     -0.094      1.643
-Simu.NC.NoChol2.9           -5.054      4.210     -0.433      1.447
-Simu.NC.NoChol2.10          -5.089      4.104     -0.168      1.287
-Simu.CD.NoChol2.z.1         -4.813      3.893     -0.364      1.348
-Simu.CD.NoChol2.z.2         -4.910      3.717     -0.238      1.244
-Simu.CD.NoChol2.z.3         -5.362      4.536     -0.357      1.326
-Simu.CD.NoChol2.z.4         -4.521      4.315     -0.386      1.352
-Simu.CD.NoChol2.z.5         -3.772      3.464     -0.063      1.248
-Simu.CD.NoChol2.z.6         -3.800      3.148     -0.406      1.160
-Simu.CD.NoChol2.z.7         -4.463      3.291     -0.586      1.177
-Simu.CD.NoChol2.z.8         -4.030      3.553     -0.250      1.194
-Simu.CD.NoChol2.z.9         -5.163      3.606     -0.488      1.284
-Simu.CD.NoChol2.z.10        -4.736      3.793     -0.207      1.180
-Simu.NC.Chol2.1             -4.564      5.120     -0.269      1.513
-Simu.NC.Chol2.2             -4.636      5.857     -0.019      1.526
-Simu.NC.Chol2.3             -3.583      4.471      0.363      1.243
-Simu.NC.Chol2.4             -5.754      4.009     -0.059      1.375
-Simu.NC.Chol2.5             -4.884      6.054     -0.266      1.544
-Simu.NC.Chol2.6             -3.615      4.712      0.410      1.374
-Simu.NC.Chol2.7             -4.836      4.333     -0.261      1.355
-Simu.NC.Chol2.8             -3.524      3.787      0.123      1.196
-Simu.NC.Chol2.9             -5.339      4.578     -0.149      1.528
-Simu.NC.Chol2.10            -4.538      3.729     -0.597      1.319
-Simu.CD.Chol2.z.1           -4.178      3.373     -0.535      1.234
-Simu.CD.Chol2.z.2           -4.575      4.917     -0.203      1.228
-Simu.CD.Chol2.z.3           -4.055      4.083     -0.213      1.205
-Simu.CD.Chol2.z.4           -4.237      3.091     -0.653      1.149
-Simu.CD.Chol2.z.5           -4.517      3.916     -0.174      1.278
-Simu.CD.Chol2.z.6           -4.934      3.185     -0.645      1.214
-Simu.CD.Chol2.z.7           -4.818      5.070     -0.428      1.123
-Simu.CD.Chol2.z.8           -4.505      4.732     -0.328      1.335
-Simu.CD.Chol2.z.9           -5.135      3.776     -0.226      1.169
-Simu.CD.Chol2.z.10          -4.458      4.209     -0.657      1.283
+Kriging.NoChol1.z.estim      -3.23       1.70      -0.28       0.52
+Kriging.Chol1.z.estim        -3.23       1.70      -0.28       0.52
+Kriging.NoChol2.z.estim      -3.27       1.31      -0.34       0.54
+Kriging.Chol2.z.estim        -3.27       1.30      -0.34       0.53
+Simu.NC.NoChol1.1            -3.57       3.10      -0.22       1.04
+Simu.NC.NoChol1.2            -3.22       2.63      -0.08       0.98
+Simu.NC.NoChol1.3            -3.64       3.17       0.03       0.98
+Simu.NC.NoChol1.4            -3.08       3.16      -0.06       1.07
+Simu.NC.NoChol1.5            -3.04       2.68      -0.12       0.95
+Simu.NC.NoChol1.6            -2.78       3.52       0.32       0.94
+Simu.NC.NoChol1.7            -2.91       3.49       0.32       0.98
+Simu.NC.NoChol1.8            -3.49       2.73      -0.19       0.89
+Simu.NC.NoChol1.9            -3.66       2.80       0.00       1.01
+Simu.NC.NoChol1.10           -3.12       3.51       0.18       0.99
+Simu.CD.NoChol1.z.1          -4.43       2.44      -0.43       1.03
+Simu.CD.NoChol1.z.2          -3.57       2.83      -0.28       0.91
+Simu.CD.NoChol1.z.3          -3.37       3.11      -0.25       0.99
+Simu.CD.NoChol1.z.4          -3.73       2.64      -0.30       0.97
+Simu.CD.NoChol1.z.5          -3.29       2.92      -0.42       0.99
+Simu.CD.NoChol1.z.6          -3.97       3.14      -0.05       1.01
+Simu.CD.NoChol1.z.7          -4.40       3.33      -0.17       1.04
+Simu.CD.NoChol1.z.8          -3.32       2.44      -0.37       0.86
+Simu.CD.NoChol1.z.9          -3.29       2.45      -0.33       0.98
+Simu.CD.NoChol1.z.10         -3.50       3.12      -0.29       0.93
+Simu.NC.Chol1.1              -3.45       3.70      -0.26       1.07
+Simu.NC.Chol1.2              -3.15       2.56      -0.14       0.88
+Simu.NC.Chol1.3              -3.30       3.08      -0.02       1.00
+Simu.NC.Chol1.4              -3.68       2.69      -0.19       0.98
+Simu.NC.Chol1.5              -3.18       3.34      -0.02       1.04
+Simu.NC.Chol1.6              -3.55       3.39      -0.24       0.95
+Simu.NC.Chol1.7              -2.53       3.23       0.24       0.93
+Simu.NC.Chol1.8              -3.46       2.80      -0.31       1.06
+Simu.NC.Chol1.9              -3.50       3.08      -0.06       1.01
+Simu.NC.Chol1.10             -3.55       3.56       0.07       1.04
+Simu.CD.Chol1.z.1            -3.90       2.91      -0.43       1.02
+Simu.CD.Chol1.z.2            -3.36       2.54      -0.32       0.90
+Simu.CD.Chol1.z.3            -3.87       3.26      -0.42       1.06
+Simu.CD.Chol1.z.4            -3.25       3.00      -0.22       0.97
+Simu.CD.Chol1.z.5            -3.55       2.61      -0.49       0.96
+Simu.CD.Chol1.z.6            -3.34       3.40      -0.33       0.96
+Simu.CD.Chol1.z.7            -3.50       3.45      -0.19       0.95
+Simu.CD.Chol1.z.8            -4.48       3.60      -0.44       1.05
+Simu.CD.Chol1.z.9            -3.32       2.61      -0.39       0.98
+Simu.CD.Chol1.z.10           -3.57       3.44      -0.24       0.93
+Simu.NC.NoChol2.1            -4.30       4.33      -0.08       1.39
+Simu.NC.NoChol2.2            -3.98       4.32      -0.05       1.37
+Simu.NC.NoChol2.3            -4.18       5.22       0.11       1.45
+Simu.NC.NoChol2.4            -5.14       4.66       0.19       1.57
+Simu.NC.NoChol2.5            -3.80       4.93       0.17       1.36
+Simu.NC.NoChol2.6            -4.27       3.47      -0.21       1.24
+Simu.NC.NoChol2.7            -3.96       4.91       0.15       1.42
+Simu.NC.NoChol2.8            -5.63       5.20      -0.09       1.64
+Simu.NC.NoChol2.9            -5.05       4.21      -0.43       1.45
+Simu.NC.NoChol2.10           -5.09       4.10      -0.17       1.29
+Simu.CD.NoChol2.z.1          -4.81       3.89      -0.36       1.35
+Simu.CD.NoChol2.z.2          -4.91       3.72      -0.24       1.24
+Simu.CD.NoChol2.z.3          -5.36       4.54      -0.36       1.33
+Simu.CD.NoChol2.z.4          -4.52       4.32      -0.39       1.35
+Simu.CD.NoChol2.z.5          -3.77       3.46      -0.06       1.25
+Simu.CD.NoChol2.z.6          -3.80       3.15      -0.41       1.16
+Simu.CD.NoChol2.z.7          -4.46       3.29      -0.59       1.18
+Simu.CD.NoChol2.z.8          -4.03       3.55      -0.25       1.19
+Simu.CD.NoChol2.z.9          -5.16       3.61      -0.49       1.28
+Simu.CD.NoChol2.z.10         -4.74       3.79      -0.21       1.18
+Simu.NC.Chol2.1              -4.56       5.12      -0.27       1.51
+Simu.NC.Chol2.2              -4.64       5.86      -0.02       1.53
+Simu.NC.Chol2.3              -3.58       4.47       0.36       1.24
+Simu.NC.Chol2.4              -5.75       4.01      -0.06       1.38
+Simu.NC.Chol2.5              -4.88       6.05      -0.27       1.54
+Simu.NC.Chol2.6              -3.62       4.71       0.41       1.37
+Simu.NC.Chol2.7              -4.84       4.33      -0.26       1.36
+Simu.NC.Chol2.8              -3.52       3.79       0.12       1.20
+Simu.NC.Chol2.9              -5.34       4.58      -0.15       1.53
+Simu.NC.Chol2.10             -4.54       3.73      -0.60       1.32
+Simu.CD.Chol2.z.1            -4.18       3.37      -0.53       1.23
+Simu.CD.Chol2.z.2            -4.58       4.92      -0.20       1.23
+Simu.CD.Chol2.z.3            -4.06       4.08      -0.21       1.21
+Simu.CD.Chol2.z.4            -4.24       3.09      -0.65       1.15
+Simu.CD.Chol2.z.5            -4.52       3.92      -0.17       1.28
+Simu.CD.Chol2.z.6            -4.93       3.19      -0.65       1.21
+Simu.CD.Chol2.z.7            -4.82       5.07      -0.43       1.12
+Simu.CD.Chol2.z.8            -4.50       4.73      -0.33       1.34
+Simu.CD.Chol2.z.9            -5.13       3.78      -0.23       1.17
+Simu.CD.Chol2.z.10           -4.46       4.21      -0.66       1.28
 

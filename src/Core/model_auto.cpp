@@ -995,8 +995,7 @@ static void st_prepar_goulard_vario(int imod)
           }
           else
           {
-            GE(icov,ijvar,ipadir) = model->evalIvarIpas(1., d0, ivar, jvar,
-                VectorDouble(), &mode);
+            GE(icov,ijvar,ipadir) = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
           }
         }
       }
@@ -1051,7 +1050,7 @@ static void st_load_ge(const Vario *vario,
     int ipadir = 0;
     for (int idir = 0; idir < ndir; idir++)
     {
-      for (int ipas = 0; ipas < vario->getLagNumber(idir); ipas++, ipadir++)
+      for (int ipas = 0, npas = vario->getLagNumber(idir); ipas < npas; ipas++, ipadir++)
       {
         int ijvar = 0;
         for (int ivar = 0; ivar < nvar; ivar++)
@@ -1078,7 +1077,7 @@ static void st_load_ge(const Vario *vario,
               d1[idim] = dist * vario->getCodir(idir, idim);
 
             if (!ge.empty())
-              GE(icov,ijvar,ipadir) = cova->evalIvarIpas(1.,d1,ivar,jvar,VectorDouble(),&mode);
+              GE(icov,ijvar,ipadir) = cova->evalIvarIpas(1.,d1,ivar,jvar,&mode);
 
             if (!dd.empty())
               for (int idim = 0; idim < ndim; idim++)
@@ -1584,8 +1583,7 @@ static int st_goulard_without_constraint(const Option_AutoFit &mauto,
       {
         if (FFFF(WT(ijvar, ipadir))) continue;
         temp = GG(ijvar,ipadir) - MP(ijvar,ipadir);
-        value = (ivar != jvar) ? 2. :
-                                 1.;
+        value = (ivar != jvar) ? 2. : 1.;
         crit += value * WT(ijvar, ipadir) * temp * temp;
       }
 
@@ -2378,7 +2376,7 @@ static void st_evaluate_vario(int imod,
 
     for (int idim = 0; idim < ndim; idim++)
       d0[idim] = strexps[i].dd[idim];
-    tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), &mode);
+    tabge[i] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
   }
   return;
 }
@@ -2422,7 +2420,7 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         if (FFFF(DBMAP->getLocVariable(ELoc::Z,iech, ijvar))) continue;
-        tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, VectorDouble(), &mode);
+        tabge[ecr++] = model->evalIvarIpas(1., d0, ivar, jvar, &mode);
       }
   }
   return;
@@ -2430,9 +2428,9 @@ static void st_evaluate_vmap(int imod, StrMod *strmod, VectorDouble &tabge)
 
 /****************************************************************************/
 /*!
- **  Find the rank of the parid which matches several criteria
+ **  Find the rank of the 'parid' which matches several criteria
  **
- ** \return  Rank of the parid or -1 if not found
+ ** \return  Rank of the 'parid' or -1 if not found
  **
  ** \param[in]  strmod      StrMod structure
  ** \param[in]  npar        Number of parid
@@ -4878,7 +4876,6 @@ int model_fitting_sills(Vario *vario,
   /* Load the arrays */
 
   st_load_wt(vario, mauto.getWmode(), npadir, RECINT.wt);
-
   st_load_gg(vario, npadir, strexps, RECINT.gg);
   st_load_ge(vario, model, npadir, RECINT.dd, RECINT.ge);
 
