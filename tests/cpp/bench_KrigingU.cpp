@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 {
   bool verbose  = false;
   bool graphic  = false;
+  bool flag_std = true;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -78,7 +79,7 @@ int main(int argc, char *argv[])
   if (verbose) neighU->display();
 
   Timer timer;
-  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, false, false);
+  kriging(data, grid, model, neighU, EKrigOpt::POINT, true, flag_std, false);
   timer.displayIntervalMilliseconds("Kriging in Unique Neighborhood", 2400);
 
   // Produce some statistics for comparison

@@ -1629,8 +1629,9 @@ void KrigingSystem::_estimateEstim(int status)
   // Calculate the solution
 
   if (status == 0)
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _zam.getColumn(0)));
+//    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
+//      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _zam.getColumn(0)));
+    _results.prodMatrix(*_rhs, _zam, true, false);
 
   // Loop for writing the estimation
 
@@ -1661,8 +1662,7 @@ void KrigingSystem::_estimateStdv(int status)
   // Calculate the solution
 
   if (status == 0)
-    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _wgt.getColumn(ivarCL)));
+    _results.prodMatrix(*_rhs, _wgt, true, false);
 
   // Loop for writing the estimation
 
@@ -1793,8 +1793,9 @@ void KrigingSystem::_dualCalcul()
 
   if (_flagLTerm)
   {
-    MatrixSquareGeneral lterMat(1);
-    _lterm = VH::innerProduct(_zam.getColumn(0), _zext.getColumn(0));
+    MatrixSquareGeneral ltermMat(1);
+    ltermMat.prodMatrix(_zam, _zext, true, false);
+    _lterm = ltermMat.getValue(0,0);
   }
 
   // Turn back the flag to OFF in order to avoid provoking

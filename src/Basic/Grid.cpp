@@ -89,9 +89,9 @@ Grid::Grid(int ndim,
            const VectorDouble &dx)
   : AStringable(),
     _nDim(ndim)
-  , _nx(nx)
-  , _x0(x0)
-  , _dx(dx)
+  , _nx()
+  , _x0()
+  , _dx()
   , _rotation()
   , _iter(0)
   , _nprod(0)
@@ -103,6 +103,9 @@ Grid::Grid(int ndim,
   , _work2(ndim)
 {
   _allocate();
+  if ((int) nx.size() == ndim) _nx = nx;
+  if ((int) dx.size() == ndim) _dx = dx;
+  if ((int) x0.size() == ndim) _x0 = x0;
 }
 
 Grid::Grid(const Grid &r)
