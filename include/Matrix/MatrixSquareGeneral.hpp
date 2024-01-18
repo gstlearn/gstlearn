@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixSquareGeneral : public AMatrixSquare {
 
 public:
-  MatrixSquareGeneral(int nrow = 0);
+  MatrixSquareGeneral(int nrow = 0, int opt_eigen=1);
   MatrixSquareGeneral(const MatrixSquareGeneral &m);
   MatrixSquareGeneral(const AMatrix &m);
   MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);

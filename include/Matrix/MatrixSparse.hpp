@@ -23,9 +23,9 @@
 class GSTLEARN_EXPORT MatrixSparse : public AMatrix {
 
 public:
-  MatrixSparse(int nrow = 0, int ncol = 0);
+  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen=1);
 #ifndef SWIG
-  MatrixSparse(const cs* A);
+  MatrixSparse(const cs* A, int opt_eigen = 1);
 #endif
   MatrixSparse(const MatrixSparse &m);
   MatrixSparse& operator= (const MatrixSparse &m);
@@ -61,15 +61,15 @@ public:
   virtual void prodScalar(double v) override;
   /*! Set a set of values simultaneously from an input array */
   void setValuesFromTriplet(const Triplet& T) override;
-  /*! Set all the values of the Matrix at once */
+  /*! Set all the values of the matrix at once */
   virtual void fill(double value) override;
-  /*! Multiply a Matrix row-wise */
+  /*! Multiply the matrix row-wise */
   virtual void multiplyRow(const VectorDouble& vec) override;
-  /*! Multiply a Matrix column-wise */
+  /*! Multiply the matrix column-wise */
   virtual void multiplyColumn(const VectorDouble& vec) override;
-  /*! Divide a Matrix row-wise */
+  /*! Divide the matrix row-wise */
   virtual void divideRow(const VectorDouble& vec) override;
-  /*! Divide a Matrix column-wise */
+  /*! Divide the matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) override;
   /*! Perform M * 'vec' */
   virtual VectorDouble prodVector(const VectorDouble& vec) const override;
@@ -117,7 +117,6 @@ public:
 
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
-
 
 protected:
   /// Interface for AMatrix

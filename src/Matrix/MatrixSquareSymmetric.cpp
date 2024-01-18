@@ -16,8 +16,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow)
-: AMatrixSquare(nrow)
+MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
+: AMatrixSquare(nrow, opt_eigen)
 , _squareSymMatrix()
 {
   _allocate();
@@ -67,7 +67,7 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValue(irow, icol);
   else
     return _getValueLocal(irow, icol);
@@ -75,7 +75,7 @@ double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 
 double MatrixSquareSymmetric::_getValueByRank(int irank) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
@@ -83,7 +83,7 @@ double MatrixSquareSymmetric::_getValueByRank(int irank) const
 
 double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
     return _getValueRef(irow, icol);
@@ -91,7 +91,7 @@ double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     // Do not forget to make a symmetrical call (when stored in an Eigen format)
     AMatrixDense::_setValue(irow, icol, value);
@@ -103,7 +103,7 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 
 void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
@@ -111,7 +111,7 @@ void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
 
 void MatrixSquareSymmetric::_prodVectorInPlace(const double *inv, double *outv) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_prodVectorInPlace(inv, outv);
   else
     _prodVectorLocal(inv, outv);
@@ -122,7 +122,7 @@ void MatrixSquareSymmetric::_prodVectorInPlace(const double *inv, double *outv) 
  */
 void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_setValues(values, byCol);
   else
     _setValuesLocal(values, byCol);
@@ -130,7 +130,7 @@ void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 
 int MatrixSquareSymmetric::_invert()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_invert();
   else
     return _invertLocal();
@@ -138,7 +138,7 @@ int MatrixSquareSymmetric::_invert()
 
 void MatrixSquareSymmetric::_deallocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_deallocate();
   else
   {
@@ -148,7 +148,7 @@ void MatrixSquareSymmetric::_deallocate()
 
 void MatrixSquareSymmetric::_allocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_allocate();
   else
     _allocateLocal();
@@ -156,7 +156,7 @@ void MatrixSquareSymmetric::_allocate()
 
 int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getIndexToRank(irow, icol);
   else
     return _getIndexToRankLocal(irow, icol);
@@ -164,7 +164,7 @@ int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 
 int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getMatrixPhysicalSize();
   else
     return _getMatrixPhysicalSizeLocal();
@@ -172,7 +172,7 @@ int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 
 int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_solve(b, x);
   else
     return _solveLocal(b, x);

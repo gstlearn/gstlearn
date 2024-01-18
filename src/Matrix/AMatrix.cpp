@@ -25,19 +25,22 @@
 static bool globalFlagEigen   = true;
 static int  globalMultiThread = 0;
 
-AMatrix::AMatrix(int nrow, int ncol)
+AMatrix::AMatrix(int nrow, int ncol, int opt_eigen)
     : AStringable(),
       _nRows(nrow),
       _nCols(ncol),
+      _flagEigen(),
       _flagCheckAddress(false),
       _nullTerm(0.)
 {
   (void) _isNumbersValid(nrow, ncol);
+  _flagEigen = _getFlagEigen(opt_eigen);
 }
 AMatrix::AMatrix(const AMatrix &m)
     : AStringable(m),
       _nRows(m._nRows),
       _nCols(m._nCols),
+      _flagEigen(m._flagEigen),
       _flagCheckAddress(m._flagCheckAddress),
       _nullTerm(m._nullTerm)
 {
@@ -50,6 +53,7 @@ AMatrix& AMatrix::operator=(const AMatrix &m)
     AStringable::operator=(m);
     _nRows = m._nRows;
     _nCols = m._nCols;
+    _flagEigen = m ._flagEigen;
     _flagCheckAddress = m._flagCheckAddress;
     _nullTerm = m._nullTerm;
   }
@@ -60,10 +64,11 @@ AMatrix::~AMatrix()
 {
 }
 
-void AMatrix::init(int nrows, int ncols)
+void AMatrix::init(int nrows, int ncols, int opt_eigen)
 {
   _nRows = nrows;
   _nCols = ncols;
+  _flagEigen = _getFlagEigen(opt_eigen);
   _allocate();
 }
 
@@ -133,23 +138,25 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
   return true;
 }
 
-void AMatrix::reset(int nrows, int ncols, double value)
+void AMatrix::reset(int nrows, int ncols, double value, int opt_eigen)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
   _deallocate();
   _nRows = nrows;
   _nCols = ncols;
+  _flagEigen = _getFlagEigen(opt_eigen);
   _allocate();
   fill(value);
   _clearDecoration();
 }
 
-void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol)
+void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol, int opt_eigen)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
   _deallocate();
   _nRows = nrows;
   _nCols = ncols;
+  _flagEigen = _getFlagEigen(opt_eigen);
   _allocate();
   int lec = 0;
   if (byCol)
@@ -167,18 +174,19 @@ void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol
   _clearDecoration();
 }
 
-void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool byCol)
+void AMatrix::resetFromVD(int nrows, int ncols, const VectorDouble& tab, bool byCol, int opt_eigen)
 {
   if (! _isNumbersValid(nrows, ncols)) return;
-  resetFromArray(nrows, ncols, tab.data(), byCol);
+  resetFromArray(nrows, ncols, tab.data(), byCol, opt_eigen);
 }
 
-void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
+void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol, int opt_eigen)
 {
   if (byCol)
   {
     _nRows = (int) tab.size();
     _nCols = (int) tab[0].size();
+    _flagEigen = _getFlagEigen(opt_eigen);
     _allocate();
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
@@ -188,6 +196,7 @@ void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol)
   {
     _nCols = (int) tab.size();
     _nRows = (int) tab[0].size();
+    _flagEigen = _getFlagEigen(opt_eigen);
     _allocate();
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
@@ -719,15 +728,20 @@ String AMatrix::toString(const AStringFormat* /* strfmt*/) const
 
   sstr << "- Number of rows    = " <<  _nRows << std::endl;
   sstr << "- Number of columns = " <<  _nCols << std::endl;
+  if (_flagEigen)
+    sstr << "  (using Eigen Library)" << std::endl;
+  else
+    sstr << "  (not using Eigen Library)" << std::endl;
 
   bool flagSkipZero = false;
-  if (isFlagEigen() && isSparse())
+  if (isSparse())
   {
     sstr << "- Sparse Format" << std::endl;
     flagSkipZero = true;
   }
   sstr << toMatrix(String(), VectorString(), VectorString(), true, _nCols, _nRows,
                    getValues(), false, flagSkipZero);
+
   return sstr.str();
 }
 
@@ -1150,6 +1164,23 @@ void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
   for (int irow = 0; irow < nrow; irow++)
     for (int icol = 0; icol < ncol; icol++)
       setValue(irow, icol, X[irow][icol]);
+}
+
+/**
+ * Define the use of Eigen Library according to the value of input argulent 'opt_eigen'
+ * @param opt_eigen Choice: 0: Do not use Eigen library; 1; Use Eigen library; -1: use global environment
+ * @return Option for using the Eigen library
+ */
+bool AMatrix::_getFlagEigen(int opt_eigen) const
+{
+  // Dispatch
+
+  if (opt_eigen == 1)
+    return true;
+  else if (opt_eigen == 0)
+    return false;
+  else
+    return globalFlagEigen;
 }
 
 AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)

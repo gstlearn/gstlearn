@@ -15,8 +15,8 @@
 #include "Basic/AException.hpp"
 #include <math.h>
 
-AMatrixSquare::AMatrixSquare(int nrow)
-  : MatrixRectangular(nrow, nrow)
+AMatrixSquare::AMatrixSquare(int nrow, int opt_eigen)
+  : MatrixRectangular(nrow, nrow, opt_eigen)
 {
 }
 

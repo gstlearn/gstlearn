@@ -15,8 +15,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 
-MatrixRectangular::MatrixRectangular(int nrows, int ncols)
-    : AMatrixDense(nrows, ncols),
+MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
+    : AMatrixDense(nrows, ncols, opt_eigen),
       _rectMatrix()
 {
   _allocate();
@@ -106,7 +106,7 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
 
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValue(irow, icol);
   else
     return _getValueLocal(irow, icol);
@@ -114,7 +114,7 @@ double MatrixRectangular::_getValue(int irow, int icol) const
 
 double MatrixRectangular::_getValueByRank(int irank) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
@@ -122,7 +122,7 @@ double MatrixRectangular::_getValueByRank(int irank) const
 
 void MatrixRectangular::_setValueByRank(int irank, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
@@ -130,7 +130,7 @@ void MatrixRectangular::_setValueByRank(int irank, double value)
 
 void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_setValue(irow, icol, value);
   else
     _setValueLocal(irow, icol, value);
@@ -138,7 +138,7 @@ void MatrixRectangular::_setValue(int irow, int icol, double value)
 
 void MatrixRectangular::_prodVectorInPlace(const double *inv, double *outv) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_prodVectorInPlace(inv, outv);
   else
     _prodVectorLocal(inv, outv);
@@ -146,7 +146,7 @@ void MatrixRectangular::_prodVectorInPlace(const double *inv, double *outv) cons
 
 void MatrixRectangular::_transposeInPlace()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_transposeInPlace();
   else
     _transposeInPlaceLocal();
@@ -154,7 +154,7 @@ void MatrixRectangular::_transposeInPlace()
 
 void MatrixRectangular::_deallocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_deallocate();
   else
   {
@@ -164,7 +164,7 @@ void MatrixRectangular::_deallocate()
 
 void MatrixRectangular::_allocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_allocate();
   else
     _allocateLocal();
@@ -172,7 +172,7 @@ void MatrixRectangular::_allocate()
 
 int MatrixRectangular::_getIndexToRank(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getIndexToRank(irow, icol);
   else
     return _getIndexToRankLocal(irow, icol);
@@ -241,7 +241,7 @@ MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
 
 int MatrixRectangular::_getMatrixPhysicalSize() const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getMatrixPhysicalSize();
   else
     return AMatrix::_getMatrixPhysicalSize();
@@ -249,7 +249,7 @@ int MatrixRectangular::_getMatrixPhysicalSize() const
 
 double& MatrixRectangular::_getValueRef(int irow, int icol)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
     return _getValueRefLocal(irow, icol);

@@ -14,8 +14,8 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixSquareGeneral::MatrixSquareGeneral(int nrow)
-  : AMatrixSquare(nrow)
+MatrixSquareGeneral::MatrixSquareGeneral(int nrow, int opt_eigen)
+  : AMatrixSquare(nrow, opt_eigen)
   , _squareMatrix()
 {
   _allocate();
@@ -59,7 +59,7 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
 
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValue(irow, icol);
   else
     return _getValueLocal(irow, icol);
@@ -67,7 +67,7 @@ double MatrixSquareGeneral::_getValue(int irow, int icol) const
 
 double MatrixSquareGeneral::_getValueByRank(int irank) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
@@ -75,7 +75,7 @@ double MatrixSquareGeneral::_getValueByRank(int irank) const
 
 double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
     return _getValueRefLocal(irow, icol);
@@ -83,7 +83,7 @@ double& MatrixSquareGeneral::_getValueRef(int irow, int icol)
 
 void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_setValue(irow, icol, value);
   else
     _setValueLocal(irow, icol, value);
@@ -91,7 +91,7 @@ void MatrixSquareGeneral::_setValue(int irow, int icol, double value)
 
 void MatrixSquareGeneral::_setValueByRank(int irank, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
@@ -104,7 +104,7 @@ void MatrixSquareGeneral::_setValueByRank(int irank, double value)
  */
 void MatrixSquareGeneral::_prodVectorInPlace(const double *inv, double *outv) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_prodVectorInPlace(inv, outv);
   else
     _prodVectorLocal(inv, outv);
@@ -112,7 +112,7 @@ void MatrixSquareGeneral::_prodVectorInPlace(const double *inv, double *outv) co
 
 void MatrixSquareGeneral::_transposeInPlace()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_transposeInPlace();
   else
     _transposeInPlaceLocal();
@@ -120,7 +120,7 @@ void MatrixSquareGeneral::_transposeInPlace()
 
 int MatrixSquareGeneral::_invert()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return AMatrixDense::_invert();
   else
     return _invertLocal();
@@ -128,7 +128,7 @@ int MatrixSquareGeneral::_invert()
 
 void MatrixSquareGeneral::_deallocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_deallocate();
   else
   {
@@ -138,7 +138,7 @@ void MatrixSquareGeneral::_deallocate()
 
 void MatrixSquareGeneral::_allocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     AMatrixDense::_allocate();
   else
     _allocateLocal();

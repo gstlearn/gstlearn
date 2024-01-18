@@ -27,16 +27,16 @@ class Triplet;
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
-  AMatrix(int nrow = 0, int ncol = 0);
+  AMatrix(int nrow = 0, int ncol = 0, int opt_eigen = 1);
   AMatrix(const AMatrix &m);
   AMatrix& operator= (const AMatrix &m);
   virtual ~AMatrix();
 
-  void init(int nrows, int ncols);
-  void reset(int nrows, int ncols, double value = 0.);
-  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true);
-  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true);
-  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true);
+  void init(int nrows, int ncols, int opt_eigen = 1);
+  void reset(int nrows, int ncols, double value = 0., int opt_eigen = 1);
+  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true, int opt_eigen = 1);
+  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true, int opt_eigen = 1);
+  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true, int opt_eigen = 1);
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -112,7 +112,7 @@ public:
 
   /*! Add a matrix (multiplied by a constant) */
   void addMatrix(const AMatrix& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in the current matrix */
+  /*! Multiply a matrix by another and store the result in 'this' */
   void prodMatrix(const AMatrix &x,
                   const AMatrix &y,
                   bool transposeX = false,
@@ -226,13 +226,15 @@ protected:
   bool _isRankValid(int rank) const;
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
-
+  bool _isFlagEigen() const { return _flagEigen; }
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
+  bool _getFlagEigen(int opt_eigen) const;
 
 private:
   int  _nRows;
   int  _nCols;
+  bool _flagEigen;
   bool _flagCheckAddress;
   double _nullTerm; // Used for returning a null constant address
 #endif

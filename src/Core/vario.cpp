@@ -4726,7 +4726,7 @@ void vardir_copy(VarioParam *vario_in,
  *****************************************************************************/
 int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
 {
-  double dist, maxdist;
+  double maxdist;
   int iiech, iech, jjech, jech, nech, ipas, idir, ideb;
   VectorInt rindex;
   SpaceTarget T1;
@@ -4737,6 +4737,7 @@ int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
   if (db == nullptr) return (1);
   if (vario == nullptr) return (1);
   const VarioParam &varioparam = vario->getVarioParam();
+  double dist = 0.;
 
   /* Preliminary checks */
 

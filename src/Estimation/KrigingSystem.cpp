@@ -335,7 +335,11 @@ void KrigingSystem::_resetMemoryGeneral()
   _covtab.reset(_nvar, _nvar);
   _drftab.resize(_nbfl);
   _var0.reset(_nvarCL, _nvarCL);
-  _results.reset(_nvarCL,1);
+
+  // _results serves for internal calculation of estimation and variance of estimation error.
+  // For the latter, the matrix product provides the full variance-covariance matrix:
+  // Only the diagonal terms are used, but the matrix must be square.
+  _results.reset(_nvarCL,_nvarCL);
 
   _space = SpaceRN(_ndim);
   _p0 = SpacePoint(&_space);
@@ -1678,7 +1682,7 @@ void KrigingSystem::_estimateStdv(int status)
       double var = _getVAR0(ivarCL, ivarCL);
       if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
 
-      var -= _results.getValue_(ivarCL,0);
+      var -= _results.getValue_(ivarCL,ivarCL);
 
       double stdv = 0.;
       if (var > 0)

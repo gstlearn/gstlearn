@@ -15,6 +15,7 @@
 #include "geoslib_define.h"
 
 #include "Calculators/ACalcInterpolator.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 class Db;
 class DbGrid;

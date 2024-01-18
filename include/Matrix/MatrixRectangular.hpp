@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixRectangular : public AMatrixDense {
 
 public:
-  MatrixRectangular(int nrow = 0, int ncol = 0);
+  MatrixRectangular(int nrow = 0, int ncol = 0, int opt_eigen=1);
   MatrixRectangular(const MatrixRectangular &m);
   MatrixRectangular(const AMatrix &m);
   MatrixRectangular& operator= (const MatrixRectangular &r);

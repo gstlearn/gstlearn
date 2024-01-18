@@ -23,7 +23,7 @@ class AMatrix;
 class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
-  MatrixSquareSymmetric(int nrow = 0);
+  MatrixSquareSymmetric(int nrow = 0, int opt_eigen = 1);
   MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
   MatrixSquareSymmetric(const AMatrix &m);
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);

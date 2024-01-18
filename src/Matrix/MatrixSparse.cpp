@@ -22,19 +22,19 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 
-MatrixSparse::MatrixSparse(int nrow, int ncol)
-    : AMatrix(nrow, ncol),
+MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
+    : AMatrix(nrow, ncol, opt_eigen),
       _csMatrix(nullptr)
 {
   _allocate();
 }
 
 #ifndef SWIG
-MatrixSparse::MatrixSparse(const cs *A)
-    : AMatrix(0, 0),
+MatrixSparse::MatrixSparse(const cs *A, int opt_eigen)
+    : AMatrix(0, 0, opt_eigen),
       _csMatrix(nullptr)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     my_throw("Cannot copy a cs into an Eigen");
   else
     _csMatrix = cs_duplicate(A);
@@ -45,7 +45,7 @@ MatrixSparse::MatrixSparse(const MatrixSparse &m)
     : AMatrix(m),
       _csMatrix(nullptr)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     _eigenMatrix = m._eigenMatrix;
   else
     _csMatrix = cs_duplicate(m._csMatrix);
@@ -56,7 +56,7 @@ MatrixSparse& MatrixSparse::operator=(const MatrixSparse &m)
   if (this != &m)
   {
     AMatrix::operator=(m);
-    if (isFlagEigen())
+    if (_isFlagEigen())
       _eigenMatrix = m._eigenMatrix;
     else
       _csMatrix = cs_duplicate(m._csMatrix);
@@ -133,7 +133,7 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);
 
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -157,7 +157,7 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
 
 void MatrixSparse::_transposeInPlace()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     Eigen::SparseMatrix<double> temp;
     temp = _eigenMatrix.transpose();
@@ -174,7 +174,7 @@ void MatrixSparse::_transposeInPlace()
 MatrixSparse* MatrixSparse::transpose() const
 {
   MatrixSparse* mat = dynamic_cast<MatrixSparse*>(clone());
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     mat->_eigenMatrix = _eigenMatrix.transpose();
   }
@@ -187,7 +187,7 @@ MatrixSparse* MatrixSparse::transpose() const
 
 void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
     {
@@ -205,7 +205,7 @@ void MatrixSparse::setColumn(int icol, const VectorDouble& tab)
 
 void MatrixSparse::setRow(int irow, const VectorDouble& tab)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
     {
@@ -228,7 +228,7 @@ void MatrixSparse::setDiagonal(const VectorDouble& tab)
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
 
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     fill(0);
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
@@ -259,7 +259,7 @@ void MatrixSparse::setDiagonalToConstant(double value)
   if (! isSquare())
     my_throw("This function is only valid for Square matrices");
 
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     fill(0);
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
@@ -294,7 +294,7 @@ double MatrixSparse::_getValueByRank(int rank) const
 
 double MatrixSparse::_getValue(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     return _eigenMatrix.coeff(irow, icol);
   }
@@ -322,7 +322,7 @@ void MatrixSparse::_setValueByRank(int rank, double value)
 
 void MatrixSparse::_setValue(int irow, int icol, double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     _eigenMatrix.coeffRef(irow, icol) = value;
   }
@@ -335,7 +335,7 @@ void MatrixSparse::_setValue(int irow, int icol, double value)
 
 int MatrixSparse::_getMatrixPhysicalSize() const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
     return _eigenMatrix.nonZeros();
   else
     return cs_nnz(_csMatrix);
@@ -347,7 +347,7 @@ int MatrixSparse::_getMatrixPhysicalSize() const
  */
 void MatrixSparse::fill(double value)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -362,7 +362,7 @@ void MatrixSparse::fill(double value)
 /*! Multiply a Matrix row-wise */
 void MatrixSparse::multiplyRow(const VectorDouble& vec)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -379,7 +379,7 @@ void MatrixSparse::multiplyRow(const VectorDouble& vec)
 /*! Multiply a Matrix column-wise */
 void MatrixSparse::multiplyColumn(const VectorDouble& vec)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -396,7 +396,7 @@ void MatrixSparse::multiplyColumn(const VectorDouble& vec)
 /*! Divide a Matrix row-wise */
 void MatrixSparse::divideRow(const VectorDouble& vec)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -413,7 +413,7 @@ void MatrixSparse::divideRow(const VectorDouble& vec)
 /*! Divide a Matrix column-wise */
 void MatrixSparse::divideColumn(const VectorDouble& vec)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k < _eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -430,7 +430,7 @@ void MatrixSparse::divideColumn(const VectorDouble& vec)
 /*! Perform M * 'vec' */
 VectorDouble MatrixSparse::prodVector(const VectorDouble& vec) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
     Eigen::VectorXd resm = _eigenMatrix * vecm;
@@ -449,7 +449,7 @@ VectorDouble MatrixSparse::prodVector(const VectorDouble& vec) const
 /*! Perform 'vec'^T * M */
 VectorDouble MatrixSparse::prodTVector(const VectorDouble& vec) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
     Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
@@ -478,7 +478,7 @@ VectorDouble MatrixSparse::prodTVector(const VectorDouble& vec) const
 void MatrixSparse::_setValues(const double* values, bool byCol)
 {
   int lec = 0;
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     if (byCol)
     {
@@ -520,7 +520,7 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
 
 void MatrixSparse::setValuesFromTriplet(const Triplet& T)
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     _eigenMatrix.reserve(T.number);
     for (int k = 0; k < T.number; k++)
@@ -538,7 +538,7 @@ void MatrixSparse::setValuesFromTriplet(const Triplet& T)
 
 bool MatrixSparse::_isElementPresent(int irow, int icol) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, icol); it; ++it)
     {
@@ -559,7 +559,7 @@ bool MatrixSparse::_isElementPresent(int irow, int icol) const
 void MatrixSparse::addScalar(double v)
 {
   if (v == 0.) return;
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -584,7 +584,7 @@ void MatrixSparse::addScalarDiag(double v)
 {
   if (v == 0.) return;
 
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -610,7 +610,7 @@ void MatrixSparse::addScalarDiag(double v)
 void MatrixSparse::prodScalar(double v)
 {
   if (v == 1.) return;
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     for (int k=0; k<_eigenMatrix.outerSize(); ++k)
       for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,k); it; ++it)
@@ -632,7 +632,7 @@ void MatrixSparse::prodScalar(double v)
 #ifndef SWIG
 void MatrixSparse::_prodVectorInPlace(const double *inv, double *outv) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     Eigen::Map<const Eigen::VectorXd> inm(inv, getNCols());
     Eigen::Map<Eigen::VectorXd> outm(outv, getNRows());
@@ -658,7 +658,7 @@ void MatrixSparse::addMatrix(const MatrixSparse& y, double value)
     return;
   }
 
-  if (isFlagEigen())
+  if (_isFlagEigen() && y._isFlagEigen())
   {
     _eigenMatrix += y._eigenMatrix * value;
   }
@@ -692,7 +692,7 @@ void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
     }
   }
 
-  if (isFlagEigen())
+  if (_isFlagEigen() && x._isFlagEigen() && y._isFlagEigen())
   {
     _eigenMatrix = x._eigenMatrix * y._eigenMatrix;
   }
@@ -718,7 +718,7 @@ void MatrixSparse::linearCombination(double cx, double cy, const MatrixSparse& y
   if (!y.isSparse())
     my_throw("This function can only combine sparse matrices together");
 
-  if (isFlagEigen())
+  if (_isFlagEigen() && y._isFlagEigen())
   {
     _eigenMatrix = cx * _eigenMatrix + cy * y._eigenMatrix;
   }
@@ -734,7 +734,7 @@ int MatrixSparse::_invert()
 {
   if (!isSquare())
     my_throw("Invert method is restricted to Square matrices");
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     int n = getNCols();
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver;
@@ -761,7 +761,7 @@ int MatrixSparse::_solve(const VectorDouble& b, VectorDouble& x) const
   if ((int) b.size() != getNRows() || (int) x.size() != getNRows())
     my_throw("b' and 'x' should have the same dimension as the Matrix");
 
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     Eigen::SimplicialLLT<Eigen::SparseMatrix<double> > solver;
     Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
@@ -780,7 +780,7 @@ String MatrixSparse::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     sstr << AMatrix::toString(strfmt) << std::endl;
   }
@@ -802,7 +802,7 @@ String MatrixSparse::toString(const AStringFormat* strfmt) const
  */
 void MatrixSparse::_allocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     if (isMultiThread()) omp_set_num_threads(getMultiThread());
     _eigenMatrix = Eigen::SparseMatrix<double, Eigen::ColMajor>(getNRows(),getNCols());
@@ -824,7 +824,7 @@ void MatrixSparse::_allocate()
 
 void MatrixSparse::_deallocate()
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     _eigenMatrix.data().squeeze();
   }
@@ -857,7 +857,7 @@ void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const
 Triplet MatrixSparse::getValuesAsTriplets() const
 {
   Triplet T = triplet_init(0);
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     T.nrows = _eigenMatrix.rows();
     T.ncols = _eigenMatrix.cols();
@@ -890,7 +890,7 @@ void MatrixSparse::_clear()
 
 Triplet MatrixSparse::getSparseToTriplet(bool flag_from_1) const
 {
-  if (isFlagEigen())
+  if (_isFlagEigen())
   {
     Triplet trp;
     trp.flagFromOne = flag_from_1;

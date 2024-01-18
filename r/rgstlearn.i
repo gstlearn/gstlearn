@@ -814,17 +814,6 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   df
 }
 
-"Db_fromDF" <- function(df)
-{
-	# Create an empty Db
-	dat = Db()
-	# And import all columns in one a loop using [] operator
-	types = unlist(lapply(df, is.numeric))
-	for (field in names(df))
-    	if (types[field] == TRUE) dat[field] = df[field]
-	dat
-}
-
 #' Convert a variogram into a data.frame
 #'
 #' @param x    Pointer to the Vario 
@@ -945,6 +934,36 @@ setMethod('[<-',  '_p_Table',               setTableitem)
 setMethod('[',    '_p_Vario',               getVarioitem)
 setMethod('[<-',  '_p_Vario',               setVarioitem)
 
+"MatrixRectangular_fromTL" <- function(Robj)
+{
+	ncol = ncol(Robj)
+	nrow = nrow(Robj)
+	values = as.vector(Robj)
+	gstobj = MatrixRectangular_createFromVD(values, nrow=nrow, ncol=ncol)
+	gstobj
+}
+
+"Db_fromTL" <- function(Robj)
+{
+	dat = Db()
+	types = unlist(lapply(Robj, is.numeric))
+	for (field in names(Robj))
+	   	if (types[field] == TRUE) dat[field] = Robj[field]
+	dat
+}
+
+"fromTL" <- function(Robj)
+{
+	if ("matrix" %in% class(Robj))
+	{
+		gstobj = MatrixRectangular_fromTL(Robj)
+	}
+	else if ("data.frame" %in% class(Robj))
+	{
+		gstobj = Db_fromTL(Robj)
+	}
+	gstobj
+}
 
 # Special function overloaded for plot.R
 setMethod("plot", signature(x="_p_AMesh"), function(x,y=missing,...)   plot.mesh(x,...))
