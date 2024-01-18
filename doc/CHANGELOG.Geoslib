@@ -30,9 +30,13 @@ Modification in functions :
 
 New Test :
 ----------
-_ Some Performance tests have been added (or renamed) in TestInter such as:
+- Some Performance tests have been added (or renamed) in TestInter such as:
 . Bench_KrigingU.cpp
 . Bench_KrigingI.cpp
+
+Interface with R :
+------------------
+- Introducing the generic method "fromTL" to convert R object into gstlearn one
 
 Release 12.1.0
 ==============
