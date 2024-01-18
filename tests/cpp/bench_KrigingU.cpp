@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 {
   bool verbose  = false;
   bool graphic  = false;
-  bool flag_std = true;
+  bool flag_std = false;
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";

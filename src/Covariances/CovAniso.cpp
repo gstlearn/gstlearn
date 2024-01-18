@@ -418,7 +418,7 @@ double CovAniso::_evalCovFromH(double h, const CovCalcMode *mode) const
 
 double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
 {
-  double cov = _evalCovFromH(0, mode) * _noStatFactor;
+  double cov = _evalCovFromH(0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
@@ -432,7 +432,7 @@ double CovAniso::eval(const SpacePoint &p1,
                       const CovCalcMode* mode) const
 {
   double h = getSpace()->getDistance(p1, p2, _aniso);
-  double cov = _evalCovFromH(h, mode) * _noStatFactor;
+  double cov = _evalCovFromH(h, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
     cov *= getSill(ivar, jvar);
@@ -448,10 +448,10 @@ double CovAniso::eval(const SpacePoint &p1,
 void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
                                const CovCalcMode *mode) const
 {
-  double cov = _evalCovFromH(0, mode) * _noStatFactor;
+  double cov = _evalCovFromH(0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatrix(_sill, cov);
+    mat.addMatrix(_sill, cov * _noStatFactor);
   else
   {
     MatrixSquareSymmetric identity = _sill;
@@ -475,10 +475,10 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
                               const CovCalcMode *mode) const
 {
   double h = getSpace()->getDistance(p1, p2, _aniso);
-  double cov = _evalCovFromH(h, mode) * _noStatFactor;
+  double cov = _evalCovFromH(h, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatrix(_sill, cov);
+    mat.addMatrix(_sill, cov * _noStatFactor);
   else
   {
     MatrixSquareSymmetric identity = _sill;
@@ -552,10 +552,10 @@ void CovAniso::evalMatOptimInPlace(int icas1,
 
   // Calculate covariance between two points
   double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
-  double cov = _evalCovFromH(hoptim, mode) * _noStatFactor;
+  double cov = _evalCovFromH(hoptim, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatrix(_sill, cov);
+    mat.addMatrix(_sill, cov * _noStatFactor);
   else
   {
     MatrixSquareSymmetric identity = _sill;
