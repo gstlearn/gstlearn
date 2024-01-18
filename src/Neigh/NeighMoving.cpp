@@ -419,7 +419,8 @@ VectorDouble NeighMoving::summary(int iech_out)
 
   /* Number of selected samples */
 
-  VectorInt nbgh_ranks = select(iech_out);
+  VectorInt nbgh_ranks;
+  select(iech_out, nbgh_ranks);
   int nsel = (int) nbgh_ranks.size();
   tab[0] = (double) nsel;
 
@@ -490,30 +491,31 @@ bool NeighMoving::hasChanged(int iech_out) const
   return true;
 }
 
-/****************************************************************************/
-/*!
- **  Select the neighborhood
- **
- ** \return  Vector of sample ranks in neighborhood (empty when error)
- **
- ** \param[in]  iech_out      Valid Rank of the sample in the output Db
- **
- *****************************************************************************/
-VectorInt NeighMoving::getNeigh(int iech_out)
+/**
+ * Select the neighborhood
+ * @param iech_out Valid Rank of the sample in the output Db
+ * @param ranks Vector of input / output sample ranks
+ *
+ * @return Vector of sample ranks in neighborhood (empty when error)
+ */
+void NeighMoving::getNeigh(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
-  VectorInt ranks(nech, -1);
+  ranks.resize(nech);
+  ranks.fill(-1);
 
   // Select the neighborhood samples as the target sample has changed
-  if (_moving(iech_out, ranks)) return VectorInt();
+  if (_moving(iech_out, ranks))
+  {
+    ranks.clear();
+    return;
+  }
 
   // In case of debug option, dump out neighborhood characteristics
   if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
   // Compress the vector of returned sample ranks
   _neighCompress(ranks);
-
-  return ranks;
 }
 
 /****************************************************************************/

@@ -15,21 +15,32 @@
 #include "Basic/AException.hpp"
 #include <math.h>
 
-AMatrixSquare::AMatrixSquare(int nrow)
-  : AMatrix(nrow, nrow)
+AMatrixSquare::AMatrixSquare(int nrow, int opt_eigen)
+  : MatrixRectangular(nrow, nrow, opt_eigen)
 {
 }
 
 AMatrixSquare::AMatrixSquare(const AMatrixSquare &r)
-  : AMatrix(r)
+  : MatrixRectangular(r)
 {
+}
+
+AMatrixSquare::AMatrixSquare(const AMatrix &m)
+  : MatrixRectangular(m)
+{
+  if (!m.isSquare())
+  {
+    messerr("The input matrix should be Square");
+    _clear();
+    return;
+  }
 }
 
 AMatrixSquare& AMatrixSquare::operator= (const AMatrixSquare &r)
 {
   if (this != &r)
   {
-    AMatrix::operator=(r);
+    MatrixRectangular::operator=(r);
   }
   return *this;
 }
@@ -158,17 +169,6 @@ void AMatrixSquare::innerMatrix(const AMatrixSquare& x,
       setValue(irow,icol,value);
     }
   }
-}
-
-bool AMatrixSquare::_isNumberValid(int nrows, int ncols) const
-{
-  AMatrix::_isNumbersValid(nrows,ncols);
-  if (nrows != ncols)
-  {
-    messerr("Arguments 'nrows' and 'ncols' should be equal for Square Matrices");
-    return false;
-  }
-  return true;
 }
 
 /*! Multiply the diagonal by a vector */

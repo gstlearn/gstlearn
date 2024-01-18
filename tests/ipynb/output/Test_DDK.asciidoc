@@ -79,6 +79,7 @@ Exponential
 - Range        =      1.282
 - Theo. Range  =      0.428
 Total Sill     =      0.343
+Known Mean(s)     0.000
  
 #NO_DIFF#XXX
 ----
@@ -106,6 +107,7 @@ Exponential
 - Range        =      0.837
 - Theo. Range  =      0.279
 Total Sill     =      0.140
+Known Mean(s)     0.000
  
 #NO_DIFF#XXX
 ----

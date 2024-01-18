@@ -195,10 +195,15 @@ public:
   static void flattenInPlace(const VectorVectorDouble& vvd, VectorDouble& vd);
   static void unflattenInPlace(const VectorDouble& vd, VectorVectorDouble& vvd);
   static void linearComb(double val1,
-                         const VectorVectorDouble &in1,
+                         const VectorDouble &in1,
                          double val2,
-                         const VectorVectorDouble &in2,
-                         VectorVectorDouble &outv);
+                         const VectorDouble &in2,
+                         VectorDouble &outv);
+  static void linearCombVVD(double val1,
+                            const VectorVectorDouble &in1,
+                            double val2,
+                            const VectorVectorDouble &in2,
+                            VectorVectorDouble &outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
 };

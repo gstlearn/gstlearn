@@ -33,7 +33,7 @@ jobs:
         python-version: ${{matrix.python[0]}}
 
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev libeigen3-dev libopenmpi-dev
 
     - name: Install Python dependencies
       run: |

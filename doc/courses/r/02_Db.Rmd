@@ -75,7 +75,7 @@ datcsv
 The user can then create a database of the **gstlearn** package (*Db* class) directly from the previously imported data.frame.
 
 ```{r}
-dat = Db_fromDF(datcsv)
+dat = fromTL(datcsv)
 dat
 ```
 

@@ -30,6 +30,7 @@ K-Bessel (Third Parameter = 1)
 - Range        =     20.000
 - Theo. Range  =      5.774
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -46,6 +47,7 @@ K-Bessel (Third Parameter = 2)
 - Range        =     40.000
 - Theo. Range  =      8.165
 Total Sill     =      1.000
+Known Mean(s)     0.000
 The Db is not defined
 
 Data Base Grid Characteristics

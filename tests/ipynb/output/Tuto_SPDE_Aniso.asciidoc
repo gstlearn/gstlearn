@@ -102,6 +102,7 @@ Non-Stationary Parameters
 -------------------------
 Angle      : GRF=1 Str=1 V#1=1
 Range      : GRF=1 Str=1 V#1=2
+Known Mean(s)     0.000
  ----
 
 

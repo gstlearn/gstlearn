@@ -14,7 +14,9 @@ env:
   SWIG_ROOT  : ${{github.workspace}}/swig_420b
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-
+  EIGEN_ROOT : Eigen
+  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  
 jobs:
   build:
     runs-on: ${{matrix.os[0]}}
@@ -55,6 +57,16 @@ jobs:
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
         cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
 
+####################################################################################################
+# Eigen
+
+    - name : Download and uncompressed Eigen headers
+      run: |
+        mkdir ${{env.EIGEN_ROOT}}
+        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
+        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
+        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+
     - name: Compile and install [customized] SWIG 4.2.0b
       # TODO : Use a tagged realease (not the master branch)
       run: |
@@ -68,7 +80,7 @@ jobs:
 
     - name : Build the package and save generated file name in the environment
       run : |
-        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DUSE_HDF5=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DBUILD_DOXYGEN=ON
+        cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DUSE_HDF5=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBUILD_DOXYGEN=ON
         cmake --build ${{env.BUILD_DIR}} --target r_install
         echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.tgz)" >> "$GITHUB_ENV"
 

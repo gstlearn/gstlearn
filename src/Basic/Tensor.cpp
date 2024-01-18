@@ -20,9 +20,12 @@ Tensor::Tensor(unsigned int ndim)
    _nDim(ndim),
    _tensorDirect(),
    _tensorInverse(),
+   _tensorDirect2(),
+   _tensorInverse2(),
    _radius(),
    _rotation(),
-   _isotropic(true)
+   _isotropic(true),
+   _flagDefinedBySquare(false)
 {
   init(ndim);
 }
@@ -32,9 +35,12 @@ Tensor::Tensor(const Tensor& r)
    _nDim(r._nDim),
    _tensorDirect(r._tensorDirect),
    _tensorInverse(r._tensorInverse),
+   _tensorDirect2(r._tensorDirect2),
+   _tensorInverse2(r._tensorInverse2),
    _radius(r._radius),
    _rotation(r._rotation),
-   _isotropic(r._isotropic)
+   _isotropic(r._isotropic),
+   _flagDefinedBySquare(r._flagDefinedBySquare)
 {
 }
 
@@ -46,9 +52,12 @@ Tensor& Tensor::operator=(const Tensor &r)
     _nDim = r._nDim;
     _tensorDirect = r._tensorDirect;
     _tensorInverse = r._tensorInverse;
+    _tensorDirect2 = r._tensorDirect2;
+    _tensorInverse2 = r._tensorInverse2;
     _radius = r._radius;
     _rotation = r._rotation;
     _isotropic = r._isotropic;
+    _flagDefinedBySquare = r._flagDefinedBySquare;
   }
   return *this;
 }
@@ -63,8 +72,11 @@ void Tensor::init(int ndim)
   _radius.resize(_nDim, 1.);
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setIdentity();
-  _tensorDirect  = _rotation.getMatrixDirect();
-  _tensorInverse = _rotation.getMatrixInverse();
+  _tensorDirect   = _rotation.getMatrixDirect();
+  _tensorInverse  = _rotation.getMatrixInverse();
+  // Squared tensor are easy to calculate as rotation is identity and radius is 1
+  _tensorDirect2  = _rotation.getMatrixInverse();
+  _tensorInverse2 = _rotation.getMatrixInverse();
   _isotropic = true;
 }
 
@@ -77,7 +89,7 @@ String Tensor::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-void Tensor::setRadius(double radius)
+void Tensor::setRadiusIsotropic(double radius)
 {
   if (ABS(radius) < EPSILON10)
     my_throw ("Ellipsoid radius cannot be null");
@@ -139,27 +151,63 @@ void Tensor::setRotationAngle(unsigned int idim, double angle)
   _fillTensors();
 }
 
+/**
+ * This functions defines jointly the rotation anisotropy and ranges.
+ * It allows initiating the tensor only once (saves time)
+ * @param angles Vector of rotation angles (optional)
+ * @param radius Vector of ranges (optional)
+ */
+void Tensor::setRotationAnglesAndRadius(const VectorDouble& angles, const VectorDouble& radius)
+{
+  if (! angles.empty())
+  {
+    if (_nDim > 2 && angles.size() != _nDim)
+      my_throw("Dimension of argument 'angles' should match the Space Dimension");
+    _rotation.setAngles(angles);
+  }
+
+  if (!radius.empty())
+  {
+    if (radius.size() != _nDim || radius.size() == 0)
+       my_throw ("Wrong dimension number for argument 'radius'");
+     for (const auto& r : radius)
+     {
+       if (ABS(r) < EPSILON20)
+         my_throw ("Radius cannot be null");
+     }
+     _radius = radius;
+     _updateIsotropic();
+
+  }
+  _fillTensors();
+}
+
 VectorDouble Tensor::applyDirect(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  _tensorDirect.prodVector(vec, out);
+  _tensorDirect.prodVectorInPlace(vec, out);
   return out;
 }
 
 void Tensor::applyInverseInPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorInverse.prodVector(vec, out);
+  _tensorInverse.prodVectorInPlace(vec, out);
+}
+
+void Tensor::applyInverse2InPlace(const VectorDouble &vec, VectorDouble &out) const
+{
+  _tensorInverse2.prodVectorInPlace(vec, out);
 }
 
 void Tensor::applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorDirect.prodVector(vec, out);
+  _tensorDirect.prodVectorInPlace(vec, out);
 }
 
 VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  _tensorInverse.prodVector(vec, out);
+  _tensorInverse.prodVectorInPlace(vec, out);
   return out;
 }
 
@@ -182,9 +230,29 @@ void Tensor::_fillTensors()
 {
   // Tensor = Radius %*% Rotation
   _tensorDirect = _rotation.getMatrixDirect();
-  _tensorDirect.multiplyRow(_radius);
+  _tensorDirect.multiplyColumn(_radius);
 
   // Tensor = t(Rotation) %*% 1/Radius
   _tensorInverse = _rotation.getMatrixInverse();
   _tensorInverse.divideRow(_radius);
+
+  // Square of the Direct tensor
+  _tensorDirect2 = MatrixSquareSymmetric(_nDim);
+  _tensorDirect2.prodMatrix(_tensorDirect, _tensorDirect, false, true);
+
+  // Inverse of the Direct squared tensor
+  _direct2ToInverse2();
+}
+
+void Tensor::_direct2ToInverse2()
+{
+  _tensorInverse2 = _tensorDirect2;
+  _tensorInverse2.invert();
+}
+
+void Tensor::setTensorDirect2(const MatrixSquareSymmetric& tensor)
+{
+  _tensorDirect2 = tensor;
+  _direct2ToInverse2();
+  _flagDefinedBySquare = true;
 }

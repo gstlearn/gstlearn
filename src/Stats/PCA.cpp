@@ -136,7 +136,7 @@ void PCA::_mafFunctions(bool verbose)
   A.invert();
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
-      setF2Z(ivar, jvar, A(ivar, jvar));
+      setF2Z(jvar, ivar, A(ivar, jvar));
 
   // Printout of the transition matrices (optional)
 

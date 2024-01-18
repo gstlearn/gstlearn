@@ -601,6 +601,9 @@ void exit_f(void)
 %extend DbGrid {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend DbGrid {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend Vario {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -1058,7 +1061,7 @@ gl.Db.fromTL = staticmethod(Db_fromPanda)
 
 def matrix_toTL(self):
   if self.isSparse():
-    Acs = self.getCsToTriplet().toTL()
+    Acs = self.getSparseToTriplet().toTL()
     return Acs
   else:
     Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())

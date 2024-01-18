@@ -372,7 +372,7 @@ int CalcSimpleInterpolation::_nearest(Db *dbin,
     VectorDouble weights;
 
     // Find the neighborhood
-    nbgh = neigh->select(iech);
+    neigh->select(iech, nbgh);
 
     // Perform the estimation
     if (nbgh.size() > 0)
@@ -417,7 +417,7 @@ int CalcSimpleInterpolation::_movave(Db* dbin, Db* dbout, ANeigh* neigh)
     VectorDouble weights;
 
     // Find the neighborhood
-    nbgh = neigh->select(iech);
+    neigh->select(iech, nbgh);
 
     // Perform the estimation
     for (int i = 0; i < (int) nbgh.size(); i++)
@@ -469,7 +469,7 @@ int CalcSimpleInterpolation::_movmed(Db* dbin, Db* dbout, ANeigh* neigh)
      VectorInt nbghmed;
 
      // Find the neighborhood
-     nbgh = neigh->select(iech);
+     neigh->select(iech, nbgh);
 
      // Perform the estimation
      if (nbgh.size() > 0)
@@ -521,7 +521,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
      }
 
      // Find the neighborhood
-     nbgh = neigh->select(iech);
+     neigh->select(iech, nbgh);
      int nSize = (int) nbgh.size();
      if (nSize < ndrift)
      {
@@ -545,7 +545,7 @@ int CalcSimpleInterpolation::_lstsqr(Db* dbin, Db* dbout, ANeigh* neigh)
          B[id1] += zval * Vdata[id1];
          for (int id2 = 0; id2 <= id1; id2++)
          {
-           A.add(id1,  id2, Vdata[id1] * Vdata[id2]);
+           A.addValue(id1,  id2, Vdata[id1] * Vdata[id2]);
          }
        }
      }
@@ -808,8 +808,8 @@ double CalcSimpleInterpolation::_estimCalc(const Db *dbin,
  * @param weights Vector of weights (same dimension as 'nbgh')
  * @return
  */
-double CalcSimpleInterpolation::_stdevCalc(const Db *dbin,
-                                           const Db *dbout,
+double CalcSimpleInterpolation::_stdevCalc(Db *dbin,
+                                           Db *dbout,
                                            const VectorInt &nbgh,
                                            int iechout,
                                            const VectorDouble& weights) const
@@ -835,7 +835,7 @@ double CalcSimpleInterpolation::_stdevCalc(const Db *dbin,
   return sqrt(c00 - 2. * c0x + cxx);
 }
 
-void CalcSimpleInterpolation::_saveResults(const Db* dbin,
+void CalcSimpleInterpolation::_saveResults(Db* dbin,
                                            Db* dbout,
                                            const VectorInt& nbgh,
                                            int iech,

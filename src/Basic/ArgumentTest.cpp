@@ -8,6 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
+#include "Matrix/AMatrix.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorNumT.hpp"
@@ -99,6 +100,19 @@ void _printVectorVectorDouble(const VectorVectorDouble& values)
   }
 }
 
+void _printMatrix(const AMatrix& mat)
+{
+  for (int i = 0; i < mat.getNRows(); i++)
+  {
+    for (int j = 0; j < mat.getNCols(); j++)
+    {
+      message("[%d][%d] : ",j+1,i+1);
+      _printDouble(mat.getValue(i,j));
+      _endOfLine();
+    }
+  }
+}
+
 /**
  * Function to test Integer argument
  * @param value Integer input argument
@@ -160,6 +174,13 @@ void argumentTestVectorString(const VectorString& values)
 {
   _introduction("VectorString");
   _printVectorString(values);
+  _endOfLine();
+}
+
+void argumentTestMatrix(const AMatrix& mat)
+{
+  _introduction("Matrix",true);
+  _printMatrix(mat);
   _endOfLine();
 }
 

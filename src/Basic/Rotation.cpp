@@ -62,7 +62,7 @@ void Rotation::resetFromSpaceDimension(unsigned int ndim)
 
 int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
 {
-  if (! rotmat.isEmpty())
+  if (! rotmat.empty())
   {
     if (! _rotMat.isSameSize(rotmat))
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
@@ -80,7 +80,7 @@ int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
 {
   if (! rotmat.empty())
   {
-    if ((int) rotmat.size() != _rotMat.getNTotal())
+    if ((int) rotmat.size() != _rotMat.size())
       my_throw ("The argument 'rotmat' does not have same dimension as 'this'");
     if (! is_matrix_rotation(_nDim, rotmat.data(), 1)) return 1;
     _rotMat.setValues(rotmat);
@@ -98,10 +98,8 @@ int Rotation::setAngles(const VectorDouble& angles)
     if (angles.size() > _nDim)
       my_throw("Wrong dimension number for 'angles' argument");
 
+    _angles = angles;
     _angles.resize(_nDim,0.);
-    int nval = MAX((int) _nDim, static_cast<int> (angles.size()));
-    for (int idim = 0; idim < nval; idim++)
-      _angles[idim] = angles[idim];
     if (_nDim == 2) _angles[1] = 0.;
 
     VectorDouble local = VectorDouble(_nDim * _nDim);
@@ -145,7 +143,7 @@ void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
   if (!_flagRot)
     outv = inv;
   else
-   _rotMat.prodVector(inv, outv);
+   _rotMat.prodVectorInPlace(inv, outv);
 }
 
 void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
@@ -153,7 +151,7 @@ void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
   if (!_flagRot)
     outv = inv;
   else
-    _rotInv.prodVector(inv, outv);
+    _rotInv.prodVectorInPlace(inv, outv);
 }
 
 void Rotation::_recopy(const Rotation &r)
@@ -168,21 +166,13 @@ void Rotation::_recopy(const Rotation &r)
 void Rotation::_directToInverse()
 {
   _rotInv = _rotMat;
-  if (_rotInv.invert())
-  {
-    messerr("Error in the inversion of the rotation matrix");
-    messerr("The Rotation is cancelled");
-  }
+  _rotInv.transposeInPlace();
 }
 
 void Rotation::_inverseToDirect()
 {
   _rotMat = _rotInv;
-  if (_rotMat.invert())
-  {
-    messerr("Error in the inversion of the rotation matrix");
-    messerr("The Rotation is cancelled");
-  }
+  _rotMat.transposeInPlace();
 }
 
 void Rotation::_checkRotForIdentity()

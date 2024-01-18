@@ -139,9 +139,9 @@ Table contents
 - Number of Rows    = 2
 - Number of Columns = 3
 
-                 Col1       Col2       Col3
-      Row1      0.000      0.000      0.000
-      Row2      0.000      0.000      0.000
+           Col1       Col2       Col3
+Row1      0.000      0.000      0.000
+Row2      0.000      0.000      0.000
 [1] "data.frame"
      Col1 Col2 Col3
 Row1    0    0    0
@@ -150,6 +150,7 @@ Row2    0    0    0
 [1] "Case of a Standard Matrix"
 - Number of rows    = 4
 - Number of columns = 5
+  (using Eigen Library)
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]     0.269     0.262     0.214     0.165     0.417
      [  1,]     0.245     0.558     0.457     0.374     0.733
@@ -165,6 +166,7 @@ attr(,"package")
 NULL
 - Number of rows    = 4
 - Number of columns = 5
+  (using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]     0.269     0.262     0.214     0.165     0.417

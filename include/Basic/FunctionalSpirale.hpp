@@ -13,6 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "Basic/AFunctional.hpp"
 
+class MatrixSquareGeneral;
+class CovAniso;
+
 class GSTLEARN_EXPORT FunctionalSpirale : public AFunctional
 {
 public:
@@ -24,7 +27,8 @@ public:
 
   virtual double getFunctionValue(const VectorDouble& coor) const override;
 
-  VectorVectorDouble getFunctionVectors(const VectorDouble& coor) const;
+  MatrixSquareGeneral getFunctionMatrix(const VectorDouble& coor) const;
+  VectorVectorDouble getFunctionVectors(const Db *db, const CovAniso* cova) const;
 
 private:
   double _linearCombination(double x, double y, double a, double b) const;

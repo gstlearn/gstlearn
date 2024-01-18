@@ -51,7 +51,6 @@ public:
 private:
   bool   _checkValid() const;
   int    _getNpoints() const { return _tab.getNRows(); }
-  double _interpolate(int ipar, int icas1, int iech1, int icas2, int iech2) const;
   int    _informField(int ipar,
                       const VectorVectorDouble& coords,
                       VectorDouble& tab,

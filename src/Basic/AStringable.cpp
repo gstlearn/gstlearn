@@ -550,6 +550,7 @@ void AStringable::display(int level) const
  * @param nrows        Number of rows
  * @param tab          VectorDouble containing the values
  * @param flagOverride true to override printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
  */
 String toMatrix(const String& title,
                 const VectorString& colnames,
@@ -558,7 +559,8 @@ String toMatrix(const String& title,
                 int ncols,
                 int nrows,
                 const VectorDouble &tab,
-                bool flagOverride)
+                bool flagOverride,
+                bool flagSkipZero)
 {
   std::stringstream sstr;
   if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
@@ -616,7 +618,10 @@ String toMatrix(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-        sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+        if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
+          sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
+        else
+          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
       }
       sstr << std::endl;
     }
@@ -638,6 +643,7 @@ String toMatrix(const String& title,
  * @param ncols        Number of columns = Number of rows
  * @param tab          VectorDouble containing the values (Dimension: n * (n+1) /2)
  * @param flagOverride Override the printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
  * @return
  */
 String toMatrixSymmetric(const String &title,
@@ -646,7 +652,8 @@ String toMatrixSymmetric(const String &title,
                          bool bycol,
                          int ncols,
                          const VectorDouble &tab,
-                         bool flagOverride)
+                         bool flagOverride,
+                         bool flagSkipZero)
 {
   std::stringstream sstr;
   int nrows = ncols;
@@ -707,7 +714,10 @@ String toMatrixSymmetric(const String &title,
         if (ix <= iy)
          {
            int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-           sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+           if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
+             sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
+           else
+             sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
          }
          else
          {
@@ -732,6 +742,7 @@ String toMatrixSymmetric(const String &title,
  * @param ncols        Number of columns = Number of rows
  * @param tab          VectorDouble containing the values (Dimension: ncols)
  * @param flagOverride Override the printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
  * @return
  */
 String toMatrixDiagonal(const String& title,
@@ -739,7 +750,8 @@ String toMatrixDiagonal(const String& title,
                         const VectorString& rownames,
                         int ncols,
                         const VectorDouble &tab,
-                        bool flagOverride)
+                        bool flagOverride,
+                        bool flagSkipZero)
 {
   std::stringstream sstr;
   int nrows = ncols;
@@ -800,7 +812,10 @@ String toMatrixDiagonal(const String& title,
         if (ix == iy)
         {
           int iad = iy + nrows * ix;
-          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+          if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
+             sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
+          else
+            sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
         }
         else
         {
@@ -825,6 +840,7 @@ String toMatrixDiagonal(const String& title,
  * @param ncols        Number of columns = Number of rows
  * @param tab          VectorDouble containing the values (Dimension: 1)
  * @param flagOverride Override the printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
  * @return
  */
 String toMatrixDiagCst(const String& title,
@@ -832,7 +848,8 @@ String toMatrixDiagCst(const String& title,
                        const VectorString& rownames,
                        int ncols,
                        const VectorDouble &tab,
-                       bool flagOverride)
+                       bool flagOverride,
+                       bool flagSkipZero)
 {
   std::stringstream sstr;
   int nrows = ncols;
@@ -893,7 +910,10 @@ String toMatrixDiagCst(const String& title,
         if (ix == iy)
         {
           int iad = iy + nrows * ix;
-          sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
+          if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
+             sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
+          else
+            sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
         }
         else
         {
@@ -920,6 +940,8 @@ String toMatrixDiagCst(const String& title,
  * @param nrows        Number of rows
  * @param tab          VectorInt containing the values
  * @param flagOverride true to override printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
+ *
  */
 String toMatrix(const String& title,
                 const VectorString& colnames,
@@ -928,7 +950,8 @@ String toMatrix(const String& title,
                 int ncols,
                 int nrows,
                 const VectorInt &tab,
-                bool flagOverride)
+                bool flagOverride,
+                bool flagSkipZero)
 {
   std::stringstream sstr;
   if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
@@ -987,7 +1010,10 @@ String toMatrix(const String& title,
       for (int ix = jdeb; ix < jfin; ix++)
       {
         int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-        sstr << _tabPrintInt(tab[iad], EJustify::RIGHT, colSize);
+        if (flagSkipZero && tab[iad] == 0)
+          sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
+        else
+          sstr << _tabPrintInt(tab[iad], EJustify::RIGHT, colSize);
       }
       sstr << std::endl;
     }

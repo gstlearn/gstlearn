@@ -93,6 +93,7 @@ Total Sill
      [  0,]     2.000     1.000
      [  1,]     1.000     4.000
 
+Known Mean(s)     0.000     0.000
  
 Model characteristics
 =====================
@@ -109,6 +110,7 @@ Gaussian
 - Range        =      5.000
 - Theo. Range  =      2.889
 Total Sill     =      1.000
+Known Mean(s)     0.000
  
 Model characteristics
 =====================
@@ -127,6 +129,7 @@ Exponential
 Total Sill     =      1.500
 Tapering Function     = Storkey
 Tapering Scale        = 2
+Known Mean(s)     0.000
  
 Model characteristics
 =====================
@@ -147,4 +150,5 @@ Convolution type      = Exponential
 Convolution direction = Along X
 Nb. discretization    = 10
 Convolution Scale     = 0.1
+Known Mean(s)     0.000
  Test successfully performed

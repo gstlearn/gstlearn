@@ -22,7 +22,7 @@ CalcKrigingFactors::CalcKrigingFactors(bool flag_est, bool flag_std)
       _flagEst(flag_est),
       _flagStd(flag_std),
       _calcul(EKrigOpt::POINT),
-      _ndisc(),
+      _ndiscs(),
       _nameCoord(),
       _iptrEst(-1),
       _iptrStd(-1),
@@ -65,7 +65,7 @@ bool CalcKrigingFactors::_check()
   // If change of support is defined through the anamorphosis,
   // the calculation option (EKrigOpt) should be set to POINT
   // in order to avoid additional block randomization
-  if (_calcul == EKrigOpt::BLOCK && _ndisc.empty())
+  if (_calcul == EKrigOpt::BLOCK && _ndiscs.empty())
   {
     messerr("For Block estimate, you must specify the discretization");
     return false;
@@ -93,7 +93,7 @@ bool CalcKrigingFactors::_preprocess()
       messerr("Due to change of support, 'dbout' should be a Grid");
       return false;
     }
-    if (_ndisc.empty())
+    if (_ndiscs.empty())
     {
       // Center the information in the blocks of the output grid
       // Duplicating the coordinate variable names before centering
@@ -101,10 +101,10 @@ bool CalcKrigingFactors::_preprocess()
       int error = _centerDataToGrid(dbgrid);
       if (error) return false;
     }
-    if (! _ndisc.empty())
+    if (! _ndiscs.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
-      DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndisc, 1);
+      DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndiscs, 1);
       _nameCoord = getDbin()->getNamesByLocator(ELoc::X);
       int error = _centerDataToGrid(dbsmu);
       delete dbsmu;
@@ -164,7 +164,7 @@ bool CalcKrigingFactors::_run()
 {
   KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeigh());
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, -1)) return 1;
-  if (ksys.setKrigOptCalcul(_calcul, _ndisc)) return 1;
+  if (ksys.setKrigOptCalcul(_calcul, _ndiscs)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -204,7 +204,7 @@ bool CalcKrigingFactors::_run()
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
- ** \param[in]  ndisc      Discretization parameters (or empty)
+ ** \param[in]  ndiscs     Discretization parameters (or empty)
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
  ** \param[in]  namconv    Naming convention
@@ -219,7 +219,7 @@ int krigingFactors(Db *dbin,
                    Model *model,
                    ANeigh *neigh,
                    const EKrigOpt &calcul,
-                   const VectorInt &ndisc,
+                   const VectorInt& ndiscs,
                    bool flag_est,
                    bool flag_std,
                    const NamingConvention &namconv)
@@ -232,7 +232,7 @@ int krigingFactors(Db *dbin,
   krige.setNamingConvention(namconv);
 
   krige.setCalcul(calcul);
-  krige.setNdisc(ndisc);
+  krige.setNdisc(ndiscs);
   krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
 
   // Run the calculator

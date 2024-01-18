@@ -40,7 +40,8 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _noStatFactor(1.)
 {
   _initFromContext();
 }
@@ -50,7 +51,8 @@ CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
       _ctxt(ctxt),
       _cova(),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _noStatFactor(1.)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
@@ -67,23 +69,30 @@ CovAniso::CovAniso(const ECov &type,
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
-      _aniso(ctxt.getSpace()->getNDim())
+      _aniso(ctxt.getSpace()->getNDim()),
+      _noStatFactor(1.)
 {
-  if (ctxt.getNVar() != 1)
-  {
-    messerr("This entry is dedicated to the Monovariate case");
-    messerr("Additional parameters are ignored and stand constructor is used");
-  }
+  _initFromContext();
+
+  // Sill
+  if (ctxt.getNVar() == 1)
+    _sill.setValue(0, 0, sill);
   else
   {
-    _initFromContext();
-    _sill.setValue(0, 0, sill);
-    setParam(param);
-    if (flagRange)
-      setRange(range);
-    else
-      setScale(range);
+    int nvar = ctxt.getNVar();
+    _sill.fill(0);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      _sill.setValue(ivar, ivar, sill);
   }
+
+  // Param
+  setParam(param);
+
+  // Range
+  if (flagRange)
+    setRangeIsotropic(range);
+  else
+    setScale(range);
 }
 
 CovAniso::CovAniso(const CovAniso &r)
@@ -91,7 +100,8 @@ CovAniso::CovAniso(const CovAniso &r)
       _ctxt(r._ctxt),
       _cova(CovFactory::duplicateCovFunc(*r._cova)),
       _sill(r._sill),
-      _aniso(r._aniso)
+      _aniso(r._aniso),
+      _noStatFactor(r._noStatFactor)
 {
 }
 
@@ -104,6 +114,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
     _aniso = r._aniso;
+    _noStatFactor = r._noStatFactor;
   }
   return *this;
 }
@@ -182,7 +193,7 @@ void CovAniso::initSill(double value)
   _sill.fill(value);
 }
 
-void CovAniso::setRange(double range)
+void CovAniso::setRangeIsotropic(double range)
 {
   if (!hasRange()) return;
   if (range <= EPSILON10)
@@ -235,7 +246,7 @@ void CovAniso::setScale(double scale)
     messerr("A scale should not be too small");
     return;
   }
-  _aniso.setRadius(scale);
+  _aniso.setRadiusIsotropic(scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * scale);
 }
@@ -301,142 +312,255 @@ void CovAniso::setAnisoAngle(int idim, double angle)
   _aniso.setRotationAngle(idim, angle);
 }
 
+void CovAniso::setRotationAnglesAndRadius(const VectorDouble &angles,
+                                          const VectorDouble &ranges,
+                                          const VectorDouble &scales)
+{
+  if (!hasRange()) return;
+
+  VectorDouble scales_local = scales;
+
+  if (! scales.empty())
+  {
+    if (! ranges.empty())
+    {
+      messerr("You cannot define simultaneously 'ranges' and 'scales'");
+      return;
+    }
+
+    if (scales.size() != getNDim())
+    {
+      messerr("Inconsistency on Space Dimension");
+      return;
+    }
+    for (unsigned int i = 0; i < scales.size(); i++)
+    {
+      if (scales[i] <= EPSILON20) // should be less strict than setRange
+      {
+        messerr("The scale along Dimension (%d) should not be too small", i);
+        return;
+      }
+    }
+    scales_local = scales;
+  }
+
+  if (! ranges.empty())
+  {
+    if (ranges.size() != getNDim())
+    {
+      messerr("Inconsistency on Space Dimension");
+      return;
+    }
+    for (unsigned int i = 0; i < ranges.size(); i++)
+    {
+      if (ranges[i] <= EPSILON10)
+      {
+        messerr("The range in Space dimension (%d) should not be too small", i);
+      }
+    }
+    scales_local = ranges;
+    double scadef = _cova->getScadef();
+    VH::divideConstant(scales_local, scadef);
+  }
+
+  // Perform the assignment and update the tensor
+
+  _aniso.setRotationAnglesAndRadius(angles, scales_local);
+}
+
 bool CovAniso::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO : check something in CovAniso::isConsistent?
   return _cova->isConsistent();
 }
 
-double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
-{
-  double cov = _cova->evalCov(0);
-  // Converting into a variogram is ignored as the result is obvious
-  // and this could be not significant most of the time
-
-  if (mode == nullptr)
-  {
-    cov *= getSill(ivar, jvar);
-  }
-  else
-  {
-    // Scale by the sill
-    if (!mode->getUnitary())
-      cov *= getSill(ivar, jvar);;
-  }
-  return (cov);
-}
-
-void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
-                               const CovCalcMode *mode) const
-{
-  int nvar = mat.getNRows();
-
-  if (mode == nullptr)
-  {
-    double cov = _cova->evalCov(0);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
-  }
-  else
-  {
-    double cov = _calculateCov(0., mode);
-    double sill = 1.;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        if (! mode->getUnitary()) sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
-  }
-}
-
-double CovAniso::_calculateCov(double h, const CovCalcMode *mode) const
+/**
+ * Calculate the value of the covariance from the distance between bi-points
+ * This distance has been calculated beforehand (possibly using anisotropy)
+ * @param h    Input distance
+ * @param mode Pointer to CovCalcMode structure (optional)
+ * @return The covariance value
+ */
+double CovAniso::_evalCovFromH(double h, const CovCalcMode *mode) const
 {
   double cov = 0.;
-
-  int norder = mode->getOrderVario();
-  if (norder > 0)
+  if (mode != nullptr)
   {
-
-    // Calculate High-order Variogram (only valuable when h != 0)
-    for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
+    int norder = mode->getOrderVario();
+    if (norder == 0)
     {
-      double hp = h * (1. + iwgt);
-      cov += COVWGT[norder][iwgt] * _cova->evalCov(hp);
+
+      // Traditional Covariance or Variogram
+      cov = _cova->evalCov(h);
+
+      // Convert into a variogram
+      if (mode->getAsVario()) cov = _cova->evalCov(0) - cov;
     }
-    cov /= NORWGT[norder];
+    else
+    {
+      double covcum = 0.;
+
+      // Calculate High-order Variogram (only valuable when h != 0)
+      for (int iwgt = 1, nwgt = NWGT[norder]; iwgt < nwgt; iwgt++)
+      {
+        double hp = h * (1. + iwgt);
+        covcum += COVWGT[norder][iwgt] * _cova->evalCov(hp);
+      }
+      cov = covcum / NORWGT[norder];
+    }
   }
   else
   {
-
-    // Traditional Covariance or Variogram
-    cov = _cova->evalCov(h);
-
-    // Convert into a variogram
-    if (mode->getAsVario())
-      cov = _cova->evalCov(0) - cov;
+    cov =  _cova->evalCov(h);
   }
   return cov;
 }
 
-// TODO Replace p1 and p2 by SpaceTarget
+double CovAniso::eval0(int ivar, int jvar, const CovCalcMode* mode) const
+{
+  double cov = _evalCovFromH(0, mode);
+
+  if (mode == nullptr || ! mode->getUnitary())
+    cov *= getSill(ivar, jvar);
+  return (cov);
+}
+
 double CovAniso::eval(const SpacePoint &p1,
                       const SpacePoint &p2,
                       int ivar,
                       int jvar,
                       const CovCalcMode* mode) const
 {
-  double cov = 0.;
-
-  // Calculate unit distance by applying anisotropy
-  /// TODO: if composite space : return h1, h2, ... (number of sub-space)
   double h = getSpace()->getDistance(p1, p2, _aniso);
+  double cov = _evalCovFromH(h, mode);
 
-  // Shortcut
-
-  if (mode == nullptr)
-  {
-    cov = _cova->evalCov(h) * getSill(ivar, jvar);
-  }
-  else
-  {
-    cov = _calculateCov(h, mode);
-
-    // Scale by the sill
-    if (!mode->getUnitary())
-      cov *= getSill(ivar, jvar);
-  }
+  if (mode == nullptr || ! mode->getUnitary())
+    cov *= getSill(ivar, jvar);
   return (cov);
 }
+/**
+ * Calculate the Matrix of covariance for zero distance
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
+void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
+                               const CovCalcMode *mode) const
+{
+  double cov = _evalCovFromH(0, mode);
 
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatrix(_sill, cov * _noStatFactor);
+  else
+  {
+    MatrixSquareSymmetric identity = _sill;
+    identity.setIdentity();
+    mat.addMatrix(identity, cov);
+  }
+}
+
+/**
+ * Calculate the Matrix of covariance between two space points
+ * @param p1 Reference of the first space point
+ * @param p2 Reference of the second space point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
 void CovAniso::evalMatInPlace(const SpacePoint &p1,
                               const SpacePoint &p2,
                               MatrixSquareGeneral &mat,
                               const CovCalcMode *mode) const
 {
-  int nvar = mat.getNRows();
-
-  // Calculate unit distance by applying anisotropy
   double h = getSpace()->getDistance(p1, p2, _aniso);
+  double cov = _evalCovFromH(h, mode);
 
-  if (mode == nullptr)
-  {
-    double cov = _cova->evalCov(h);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
-  }
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatrix(_sill, cov * _noStatFactor);
   else
   {
-    double cov = _calculateCov(h, mode);
-    double sill = 1.;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        if (! mode->getUnitary()) sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
+    MatrixSquareSymmetric identity = _sill;
+    identity.setIdentity();
+    mat.addMatrix(identity, cov);
+  }
+}
+
+/**
+ * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
+ * and the target (recorded in _p2A)
+ * @param res  Vector of covariances
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param mode CovCalcMode structure
+ *
+ * @remark: The optimized version is not compatible with Franck's non-stationarity.
+ * Then no correction must be applied to cov(h)
+ */
+void CovAniso::evalOptimInPlace(VectorDouble &res,
+                                int ivar,
+                                int jvar,
+                                const CovCalcMode *mode) const
+{
+  double sill = 0.;
+  if (mode == nullptr || ! mode->getUnitary())
+    sill = _sill.getValue(ivar, jvar);
+  else
+    sill = 1.;
+
+  int ecr = 0;
+  double cov = 0.;
+  for (int i = 0; i < (int) _p1As.size(); i++)
+  {
+    if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
+    double hoptim = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
+    cov = _evalCovFromH(hoptim, mode);
+
+    res[ecr++] += sill * cov;
+  }
+}
+/**
+ * Calculate the Matrix of covariance between two elements of two Dbs (defined beforehand)
+ * @param icas1 Origin of the Db containing the first point
+ * @param iech1 Rank of the first point
+ * @param icas2 Origin of the Db containing the second point
+ * @param iech2 Rank of the second point
+ * @param mat   Covariance matrix (Dimension: nvar * nvar)
+ * @param mode  Calculation Options
+ *
+ * @remarks: Matrix 'mat' should be dimensioned and initialized beforehand
+ */
+void CovAniso::evalMatOptimInPlace(int icas1,
+                                   int iech1,
+                                   int icas2,
+                                   int iech2,
+                                   MatrixSquareGeneral &mat,
+                                   const CovCalcMode *mode) const
+{
+  SpacePoint* p1A;
+  if (icas1 == 1)
+    p1A = &_p1As[iech1];
+  else
+    p1A = &_p2A;
+
+  SpacePoint* p2A;
+  if (icas2 == 1)
+    p2A = &_p1As[iech2];
+  else
+    p2A = &_p2A;
+
+  // Calculate covariance between two points
+  double hoptim = VH::normDistance(p1A->getCoord(), p2A->getCoord());
+  double cov = _evalCovFromH(hoptim, mode);
+
+  if (mode == nullptr || ! mode->getUnitary())
+    mat.addMatrix(_sill, cov * _noStatFactor);
+  else
+  {
+    MatrixSquareSymmetric identity = _sill;
+    identity.setIdentity();
+    mat.addMatrix(identity, cov);
   }
 }
 
@@ -562,13 +686,12 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
     if (getNVariables() > 1)
     {
-      sstr
-          << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
                       getNVariables(), getNVariables(), _sill.getValues());
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(getSill(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
 
     // Isotropy vs anisotropy
@@ -582,13 +705,13 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     else
     {
       sstr << toVector("- Ranges       = ", getRanges());
-      if (isAsymptotic()) sstr << toVector("- Theo. Ranges = ", getScales());
+      if (isAsymptotic())
+        sstr << toVector("- Theo. Ranges = ", getScales());
       if (!_aniso.getRotation().isIdentity())
       {
-        VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles());
+        VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
         sstr << toVector("- Angles       = ", angles);
-        sstr
-            << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
+        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
                         true, getNDim(), getNDim(), getAnisoRotMatVec());
       }
     }
@@ -604,13 +727,12 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       for (int ivar = 0; ivar < getNVariables(); ivar++)
         for (int jvar = 0; jvar < getNVariables(); jvar++)
           slopes.setValue(ivar, jvar, _sill.getValue(ivar, jvar) / range);
-      sstr
-          << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
+      sstr << toMatrix("- Slope matrix:", VectorString(), VectorString(), 0,
                       getNVariables(), getNVariables(), slopes.getValues());
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0));
+      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
     }
 
     if (!_aniso.isIsotropic())
@@ -618,10 +740,9 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
       sstr << toVector("- Aniso, Coeff = ", _aniso.getRadius());
       if (!_aniso.getRotation().isIdentity())
       {
-        VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles());
+        VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
         sstr << toVector("- Angles       = ", angles);
-        sstr
-            << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
+        sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
                         true, getNDim(), getNDim(), getAnisoRotMatVec());
       }
     }
@@ -632,13 +753,12 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
     if (getNVariables() > 1)
     {
-      sstr
-          << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
+      sstr << toMatrix("- Sill matrix:", VectorString(), VectorString(), 0,
                       getNVariables(), getNVariables(), _sill.getValues());
     }
     else
     {
-      sstr << "- Sill         = " << toDouble(getSill(0, 0)) << std::endl;
+      sstr << "- Sill         = " << toDouble(_sill.getValue(0, 0)) << std::endl;
     }
   }
 
@@ -647,7 +767,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 
 double CovAniso::getSill(int ivar, int jvar) const
 {
-  return _sill.getValue(ivar, jvar);
+  return _sill.getValue(ivar, jvar) * _noStatFactor;
 }
 
 /**
@@ -660,7 +780,7 @@ double CovAniso::getSlope(int ivar, int jvar) const
 {
   if (hasRange() == 0) return TEST;
   double range = getRange(0);
-  return _sill.getValue(ivar, jvar) / range;
+  return _sill.getValue(ivar, jvar) * _noStatFactor / range;
 }
 
 VectorDouble CovAniso::getRanges() const
@@ -734,7 +854,6 @@ void CovAniso::_initFromContext()
   _sill.reset(nvar, nvar, 1.);
   _aniso.init(ndim);
   _updateFromContext();
-
 }
 
 void CovAniso::_updateFromContext()
@@ -903,7 +1022,7 @@ CovAniso* CovAniso::createIsotropicMulti(const CovContext &ctxt,
     return nullptr;
   }
   if (flagRange)
-    cov->setRange(range);
+    cov->setRangeIsotropic(range);
   else
     cov->setScale(range);
   cov->setSill(sills);
@@ -1024,81 +1143,3 @@ void CovAniso::optimizationPostProcess() const
 	_p1As.clear();
 }
 
-/**
- * Fill the vector of covariances between each valid SpacePoint (recorded in _p1As)
- * and the target (recorded in _p2A)
- * @param res  Vector of covariances
- * @param ivar Rank of the first variable
- * @param jvar Rank of the second variable
- * @param mode CovCalcMode structure
- */
-void CovAniso::evalOptimInPlace(VectorDouble &res,
-                                int ivar,
-                                int jvar,
-                                const CovCalcMode *mode) const
-{
-  int ecr = 0;
-  if (mode == nullptr)
-  {
-    double sill = _sill.getValue(ivar, jvar);
-    for (int i = 0; i < (int) _p1As.size(); i++)
-    {
-      if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-      double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-      res[ecr++] += sill * _cova->evalCov(h);
-    }
-  }
-  else
-  {
-    double sill = (mode->getUnitary()) ? 1. : _sill.getValue(ivar, jvar);
-    for (int i = 0; i < (int) _p1As.size(); i++)
-    {
-      if (_p1As[i].isFFFF()) continue; // TODO encapsulate this in future version in order to avoid this convention
-      double h = VH::normDistance(_p1As[i].getCoord(), _p2A.getCoord());
-      double cov = _calculateCov(h, mode);
-      res[ecr++] += sill * cov;
-    }
-  }
-}
-
-void CovAniso::evalMatOptimInPlace(int iech1,
-                                   int iech2,
-                                   MatrixSquareGeneral &mat,
-                                   const CovCalcMode *mode) const
-{
-  int nvar = mat.getNRows();
-
-  SpacePoint* p1A;
-  if (iech1 >= 0)
-    p1A = &_p1As[iech1];
-  else
-    p1A = &_p2A;
-
-  SpacePoint* p2A;
-  if (iech2 >= 0)
-    p2A = &_p1As[iech2];
-  else
-    p2A = &_p2A;
-
-  // Calculate distance (in anisotropic space)
-  double h = VH::normDistance(p1A->getCoord(), p2A->getCoord());
-
-  if (mode == nullptr)
-  {
-    double cov = _cova->evalCov(h);
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-        mat.setValue(ivar, jvar, cov * getSill(ivar, jvar));
-  }
-  else
-  {
-    double cov = _calculateCov(h, mode);
-    double sill = 1.;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
-      {
-        if (! mode->getUnitary()) sill = getSill(ivar, jvar);
-        mat.setValue(ivar, jvar, cov * sill);
-      }
-  }
-}

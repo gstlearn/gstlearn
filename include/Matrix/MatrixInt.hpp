@@ -36,7 +36,7 @@ public:
   void   reset(int nrows, int ncols);
   int    getValue(int irow, int icol) const;
   int    getValue(int irank) const;
-  int&   getValueRef(int irow, int icol);
+
   void   setValue(int rank, int value);
   void   setValue(int irow, int icol, int value);
   int    getMatrixSize() const;
@@ -61,7 +61,7 @@ public:
   /*! Get value operator override */
   int  operator()(int irow, int icol) const { return getValue(irow, icol); }
   /*! Set value operator override */
-  int &operator()(int irow, int icol)       { return getValueRef(irow, icol); }
+  int &operator()(int irow, int icol)       { return _getValueRef(irow, icol); }
 
 private:
   void   _allocate();
@@ -70,6 +70,7 @@ private:
   bool   _isRankValid(int rank) const;
   bool   _isNumbersValid(int nrows, int ncols) const;
   int    _getIndexToRank(int irow,int icol) const;
+  int&   _getValueRef(int irow, int icol);
 
 private:
   int _nRows;

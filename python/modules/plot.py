@@ -1777,7 +1777,7 @@ def neighWeights(ax, res, flagWeights=True,
     # Annotate the weights
     if flagWeights:
         for i in range(nech):
-            ax.annotate(round(100.*res.wgt[i],2), (X[i], Y[i]), 
+            ax.annotate(round(100.*res.wgt.getValue(i,0),2), (X[i], Y[i]), 
                         horizontalalignment=horizontalalignment,
                         verticalalignment=verticalalignment,
                         **kwargs)

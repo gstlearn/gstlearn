@@ -33,16 +33,16 @@ public:
 
   /// Interface for ANeigh
   virtual int attach(const Db *dbin, const Db *dbout);
-  virtual VectorInt getNeigh(int iech_out) = 0;
+  virtual void getNeigh(int iech_out, VectorInt& ranks) = 0;
   virtual int getMaxSampleNumber(const Db* db) const = 0;
   virtual bool hasChanged(int iech_out) const { DECLARE_UNUSED(iech_out); return true; }
   virtual VectorDouble summary(int iech_out) { DECLARE_UNUSED(iech_out); return VectorDouble(); }
   virtual ENeigh getType() const { return ENeigh::fromKey("UNKNOWN"); }
   virtual bool getFlagContinuous() const { return false; }
 
-  VectorInt select(int iech_out);
+  void select(int iech_out, VectorInt& ranks);
   bool isUnchanged() const { return _flagIsUnchanged; }
-  void setIsChanged();
+  void setIsChanged(bool status = false);
   void reset();
 
   bool getFlagXvalid() const { return _flagXvalid; }

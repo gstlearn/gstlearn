@@ -19,7 +19,8 @@ Nugget Effect
 Spherical
 - Sill         =      9.000
 - Range        =    200.000
-Total Sill     =     10.000----
+Total Sill     =     10.000
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+
@@ -63,7 +64,8 @@ Nugget Effect
 Spherical
 - Sill         =      6.000
 - Range        =    200.000
-Total Sill     =     12.000----
+Total Sill     =     12.000
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+

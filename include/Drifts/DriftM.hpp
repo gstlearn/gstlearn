@@ -14,7 +14,12 @@
 #include "Drifts/ADrift.hpp"
 
 /**
- * Monomial drift term
+ * Monomial drift term.
+ * Examples:
+ * - driftM() is the Universality condition
+ * - driftM([2]) (where [] stands for a vector of integers) stands for x_1^2
+ * - driftM([2,3]) stands for x_1^2 * x_2^3
+ * Note: the size of the vector (when defined) must be smaller or equal to the space dimension
  */
 class GSTLEARN_EXPORT DriftM : public ADrift
 {

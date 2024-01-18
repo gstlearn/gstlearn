@@ -147,8 +147,8 @@ public:
   static MatrixRectangular* getDirectionsInR3(const MatrixRectangular *U);
   static MatrixRectangular* getDirectionsInRn(const MatrixRectangular *U);
 
-  static double formatAngle(double anglein);
-  static VectorDouble formatAngles(const VectorDouble &anglesin);
+  static double formatAngle(double anglein, double basis = 360.);
+  static VectorDouble formatAngles(const VectorDouble &anglesin, double basis = 360.);
 
   static VectorDouble rayTriangleIntersect(const VectorDouble &dir,
                                            const VectorDouble &v0,

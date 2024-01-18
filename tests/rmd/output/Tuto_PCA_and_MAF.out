@@ -1,0 +1,209 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+NULL
+NULL
+NULL
+NULL
+NULL
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Z1 - Locator = z1
+Column = 4 - Name = Z2 - Locator = z2
+Column = 5 - Name = Z3 - Locator = z3
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.082     0.196    -0.058
+     [  1,]     0.196     7.524    -1.446
+     [  2,]    -0.058    -1.446     0.283
+Exponential
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.021     0.316     0.267
+     [  1,]     0.316     4.762     4.021
+     [  2,]     0.267     4.021     3.395
+- Range        =      0.022
+- Theo. Range  =      0.007
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.101     0.595     0.134
+     [  1,]     0.595    13.308     1.805
+     [  2,]     0.134     1.805     1.972
+- Range        =      0.210
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.205     1.107     0.343
+     [  1,]     1.107    25.594     4.380
+     [  2,]     0.343     4.380     5.651
+
+Known Mean(s)     0.000     0.000     0.000
+NULL
+NULL
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1
+[1] 0 0 0
+[1] 0.000000e+00 1.065814e-14
+NULL
+NULL
+NULL
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.342     0.015     0.026
+     [  1,]     0.015     0.581    -0.005
+     [  2,]     0.026    -0.005     0.475
+Exponential
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.337    -0.168    -0.038
+     [  1,]    -0.168     0.100     0.002
+     [  2,]    -0.038     0.002     0.023
+- Range        =      0.163
+- Theo. Range  =      0.054
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.314     0.146    -0.004
+     [  1,]     0.146     0.348     0.002
+     [  2,]    -0.004     0.002     0.465
+- Range        =      0.192
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.994    -0.007    -0.016
+     [  1,]    -0.007     1.029    -0.002
+     [  2,]    -0.016    -0.002     0.963
+
+Known Mean(s)     0.000     0.000     0.000
+NULL
+NULL
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1
+[1] 0 0 0
+[1] 0.000000e+00 3.552714e-15
+NULL
+NULL
+NULL
+NULL
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 3
+Number of basic structure(s) = 3
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.415    -0.038    -0.084
+     [  1,]    -0.038     0.288     0.031
+     [  2,]    -0.084     0.031     0.509
+Exponential
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.233     0.077     0.297
+     [  1,]     0.077     0.653    -0.032
+     [  2,]     0.297    -0.032     0.404
+- Range        =      0.207
+- Theo. Range  =      0.069
+Cubic
+- Sill matrix:
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.323    -0.026    -0.206
+     [  1,]    -0.026     0.096     0.002
+     [  2,]    -0.206     0.002     0.134
+- Range        =      0.174
+Total Sill
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.971     0.012     0.006
+     [  1,]     0.012     1.037     0.001
+     [  2,]     0.006     0.001     1.047
+
+Known Mean(s)     0.000     0.000     0.000
+NULL
+[1] 1.942890e-16 1.776357e-14
+[1]  2.354965e-18  7.284727e-16 -3.020831e-15
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1
+[1] 5.551115e-16 1.776357e-15
+[1]  2.004839e-15 -1.821649e-15  1.533723e-15
+     [,1] [,2] [,3]
+[1,]    1    0    0
+[2,]    0    1    0
+[3,]    0    0    1

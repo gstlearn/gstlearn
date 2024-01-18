@@ -3089,8 +3089,7 @@ int seismic_estimate_XZ(DbGrid *db,
     presence[i] = nullptr;
     npres[i] = 0;
   }
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    goto label_end;
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
 
   /* Check that the grid is XZ */
 

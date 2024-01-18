@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
   data->display();
   (void) kriging(data, blocs, model, neighM, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
-                 VectorVectorDouble(), NamingConvention("G_PTS"));
+                 nullptr, NamingConvention("G_PTS"));
 
   // Calculating the Conditional Expectation
   (void) ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
   data->display();
 
   // Simple Point Kriging over the blocks
-  (void) krigingFactors(data, blocs, model, neighM, EKrigOpt::POINT,
-                        VectorInt(), true, true, NamingConvention("DK_Pts"));
+  (void) krigingFactors(data, blocs, model, neighM, EKrigOpt::POINT, VectorInt(),
+                        true, true, NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
   data->display();
   (void) kriging(data, blocs, model, neighM, EKrigOpt::POINT,
                  true, true, false, VectorInt(), VectorInt(),
-                 VectorVectorDouble(), NamingConvention("Z_PTS"));
+                 nullptr, NamingConvention("Z_PTS"));
   blocs->display();
 
   // Perform the Uniform Conditioning over Blocks
@@ -236,9 +236,9 @@ int main(int argc, char *argv[])
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
+  VectorInt ndisc_Bc = { nx_B, nx_B };
   (void) krigingFactors(data, panel, model_b1_Y, neighM, EKrigOpt::BLOCK,
-                        { nx_B, nx_B }, true, true,
-                        NamingConvention("DK_DGM1"));
+                        ndisc_Bc, true, true, NamingConvention("DK_DGM1"));
   panel->display();
 
   // ====================== Block Disjunctive Kriging (DGM-2) =====================
@@ -275,8 +275,7 @@ int main(int argc, char *argv[])
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
   (void) krigingFactors(data, panel, model_b2_Y, neighM, EKrigOpt::BLOCK,
-                        { nx_B, nx_B }, true, true,
-                        NamingConvention("DK_DGM2"));
+                        ndisc_Bc, true, true, NamingConvention("DK_DGM2"));
   panel->display();
 
   // ====================== Selectivity Function ==================================

@@ -4,6 +4,12 @@ This file contains the Logs between consecutive releases
 Release 12.1.1
 ==============
 
+Miscellaneous :
+---------------
+- New method 'select' for ANeigh (gain of memory and time)
+- Pluging the library "eigen" for faster and more accurate algebra.
+- Adding the display of known mean (when relevant)
+
 New class :
 -----------
 - The class Neigh/ANeigh is introduced (generic for any neighborhood)
@@ -24,9 +30,13 @@ Modification in functions :
 
 New Test :
 ----------
-_ Some Performance tests have been added (or renamed) in TestInter such as:
-. testBench_KrigingU.cpp
-. testBench_KrigingI.cpp
+- Some Performance tests have been added (or renamed) in TestInter such as:
+. Bench_KrigingU.cpp
+. Bench_KrigingI.cpp
+
+Interface with R :
+------------------
+- Introducing the generic method "fromTL" to convert R object into gstlearn one
 
 Release 12.1.0
 ==============

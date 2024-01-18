@@ -10,13 +10,14 @@ set(SRC
   Fractures/FracList.cpp
   Matrix/LinkMatrixSparse.cpp
   Matrix/AMatrix.cpp
+  Matrix/AMatrixDense.cpp
   Matrix/MatrixSparse.cpp
-  Matrix/AMatrixSquare.cpp
   Matrix/MatrixInt.cpp
   Matrix/MatrixRectangular.cpp
+  Matrix/AMatrixSquare.cpp
   Matrix/MatrixSquareSymmetric.cpp
-  Matrix/MatrixFactory.cpp
   Matrix/MatrixSquareGeneral.cpp
+  Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp

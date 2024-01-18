@@ -19,6 +19,7 @@ Spherical
 - Sill         =      1.155
 - Range        =    135.133
 Total Sill     =      1.155
+Known Mean(s)     0.000
  ----
 
 

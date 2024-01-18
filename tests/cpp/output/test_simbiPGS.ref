@@ -14,6 +14,7 @@ K-Bessel (Third Parameter = 1)
 - Range        =      0.200
 - Theo. Range  =      0.058
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -30,6 +31,7 @@ Exponential
 - Range        =      0.300
 - Theo. Range  =      0.100
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -46,6 +48,7 @@ K-Bessel (Third Parameter = 1)
 - Range        =      0.200
 - Theo. Range  =      0.058
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -61,6 +64,7 @@ Spherical
 - Sill         =      1.000
 - Range        =      0.100
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Unique Neighborhood
 ===================

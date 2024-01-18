@@ -16,6 +16,8 @@
 #include "Space/SpacePoint.hpp"
 #include "Neigh/ANeigh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
@@ -53,7 +55,7 @@ public:
                        int seed = 414371);
   int  setKrigOptImage(int seed = 133271);
   int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
-  int  setKrigOptMatCL(const VectorVectorDouble& matCL);
+  int  setKrigOptMatCL(const MatrixRectangular* matCL);
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
@@ -68,8 +70,6 @@ public:
   int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptNeighOnly(int iptrNeigh);
 
-  void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
-
   bool isReady();
   int  estimate(int iech_out);
   void conclusion();
@@ -78,17 +78,20 @@ public:
   int  getNech() const;
   int  getNeq()  const;
   int  getNRed() const { return _nred; }
-  VectorInt    getSampleIndices() const { return _nbgh; }
-  VectorVectorDouble getSampleCoordinates() const;
-  VectorDouble getSampleData() const;
-  VectorDouble getZam() const { return _zam; }
-  VectorDouble getLHS() const { return _lhs; }
-  VectorDouble getLHSInv() const { return _lhsinv; }
-  VectorDouble getRHSC() const { return _rhs; }
-  VectorDouble getRHSC(int ivar) const;
-  VectorDouble getWeights() const { return _wgt; }
-  VectorDouble getVariance() const { return _var0.getValues(); }
+  VectorInt             getSampleIndices() const { return _nbgh; }
+  VectorVectorDouble    getSampleCoordinates() const;
+  VectorDouble          getSampleData() const;
+  MatrixRectangular     getZam() const { return _zam; }
+  MatrixSquareSymmetric getLHSC() const { return _lhsc; }
+  MatrixRectangular     getRHSC() const { return _rhsc; }
+  MatrixRectangular     getWeights() const { return _wgt; }
+  MatrixSquareGeneral   getVariance() const { return _var0; }
+
   double getLTerm() const { return _lterm; }
+
+  VectorDouble getRHSC(int ivar) const;
+  VectorDouble getZamC() const;
+  VectorDouble getLHSInvC() const { return _lhsinv.getValues(); }
 
 private:
   int    _getNVar() const;
@@ -103,25 +106,17 @@ private:
   double _getFext(int rank, int ibfl) const;
   double _getIvar(int rank, int ivar) const;
   double _getVerr(int rank, int ivar) const;
-  double _getMean(int ivarCL) const;
+  double _getMean(int ivar, bool flagLHS = false) const;
   double _getDriftCoef(int ivar, int il, int ib) const;
   int    _getFLAG(int iech,int ivar) const;
   double _getCOVTAB(int ivar,int jvar) const;
-  void   _addCOVTAB(int ivar,int jvar,double value);
-  void   _prodCOVTAB(double value);
-  double _getRHS(int iech, int ivar, int jvCL) const;
-  void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
-  double _getRHSC(int i, int jvCL) const;
-  double _getWGTC(int i,int jvCL) const;
-  double _getLHS(int iech, int ivar, int jech, int jvar) const;
+  void   _setRHSF(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
+  double _getLHSF(int iech, int ivar, int jech, int jvar) const;
   double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
-  void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
-  void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
-  double _getLHSC(int i, int j) const;
+  void   _setLHSF(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
+  void   _addLHSF(int iech, int ivar, int jech, int jvar, double value);
+  double _getLHS(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
-  double _getZAM(int i) const;
-  double _getZEXT(int i) const;
-  void   _setZEXT(int i, double value) const;
   VectorDouble _getDISC1Vec(int idisc) const;
   VectorVectorDouble _getDISC1s() const;
   double _getDISC2(int idisc,int idim) const;
@@ -130,22 +125,16 @@ private:
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
 
-  const double* _getRHSCAdd(int i = 0, int jvCL = 0) const;
-  const double* _getWGTCAdd(int i = 0, int jvCL = 0) const;
-  const double* _getZamAdd(int i = 0) const;
-  const double* _getZextAdd(int i = 0) const;
-
   void _resetMemoryGeneral();
-  void _resetMemoryPerNeigh();
+  void _resetMemoryFullPerNeigh();
+  void _resetMemoryCompressedPerNeigh();
   void _flagDefine();
-  void _zextInit();
-  void _lhsInit();
-  void _covUpdate(int icas1, int iech1, int icas2, int iech2);
-  void _covtabInit();
-  void _covtabCalcul(int iech1,
+  void _covtab0Calcul(int icas, int iech, const CovCalcMode *mode);
+  void _covtabCalcul(int icas1,
+                     int iech1,
+                     int icas2,
                      int iech2,
-                     const CovCalcMode* mode,
-                     bool flagSameData = false);
+                     const CovCalcMode* mode);
   void _covCvvCalcul(const CovCalcMode* mode);
   int  _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
@@ -172,14 +161,16 @@ private:
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab);
-  double _estimateVarZ(int ivarCL, int jvarCL);
-  double _variance(int ivarCL, int jvarCL);
+  void _estimateVarZ(int status);
+  void _estimateStdv(int status);
+  void _estimateEstim(int status);
   void _variance0();
   void _krigingDump(int status);
   void _simulateDump(int status);
   void _saveWeights(int status);
-  void _blockDiscretize();
+  void _blockDiscretize(int rank);
   bool _isCorrect();
+  bool _preparNoStat();
 
   void   _checkAddress(const String& title,
                        const String& theme,
@@ -192,7 +183,6 @@ private:
   void   _bayesCorrectVariance();
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
-  bool   _isMatCLempty() const;
 
   void   _setLocalModel(Model* model);
   void   _setInternalShortCutVariablesGeneral();
@@ -279,7 +269,7 @@ private:
   int _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
-  VectorVectorDouble _matCL;
+  const MatrixRectangular* _matCL;
 
   /// Option for asking for Z * A-1 * Z
   bool   _flagLTerm;
@@ -313,19 +303,22 @@ private:
   bool _flagIsotopic;
 
   /// Working arrays
-  mutable bool _flagCheckAddress;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
-  mutable MatrixSquareGeneral _covtab;
-  mutable MatrixSquareGeneral _covref;
-  mutable VectorDouble _drftab;
-  mutable VectorDouble _lhs;
-  mutable VectorDouble _lhsinv;
-  mutable VectorDouble _rhs;
-  mutable VectorDouble _wgt;
-  mutable VectorDouble _zam;
-  mutable VectorDouble _zext;
-  mutable MatrixSquareGeneral _var0;
+  mutable MatrixSquareGeneral    _covtab;
+  mutable VectorDouble           _drftab;
+  mutable MatrixSquareSymmetric  _lhsf;
+  mutable MatrixSquareSymmetric  _lhsc;
+  mutable MatrixSquareSymmetric* _lhs;
+  mutable MatrixSquareSymmetric  _lhsinv;
+  mutable MatrixRectangular      _rhsf;
+  mutable MatrixRectangular      _rhsc;
+  mutable MatrixRectangular*     _rhs;
+  mutable MatrixRectangular      _wgt;
+  mutable MatrixRectangular      _zam;
+  mutable MatrixRectangular      _zext;
+  mutable MatrixSquareGeneral    _var0;
+  mutable MatrixRectangular      _results;
   mutable VectorInt    _dbinUidToBeDeleted;
   mutable VectorInt    _dboutUidToBeDeleted;
 
@@ -335,4 +328,9 @@ private:
   mutable SpacePoint _p1;
   mutable SpacePoint _p2;
   mutable SpacePoint _p0_memo;
+
+  /// Some local flags defined in order to speed up the process
+  mutable bool _flagNoStat;
+  mutable bool _flagNoMatCL;
+  mutable bool _flagVerr;
 };

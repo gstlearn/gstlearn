@@ -79,7 +79,7 @@ print("Matrix MSS")
 err = MSS$display()
 
 # To a sparse matrix
-MSP = toSparse(M)
+MSP = createFromAnyMatrix(M)
 print("Matrix MSP")
 err = MSP$display()
 
@@ -198,12 +198,12 @@ err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 print(paste0("nrow = ", nrow))
 Vref = VectorDouble(nrow)
 V2   = VectorDouble(nrow)
-err = MRR$prodVector(V1, Vref)
-err = MSG$prodVector(V1, V2)
+err = MRR$prodVectorInPlace(V1, Vref)
+err = MSG$prodVectorInPlace(V1, V2)
 print(paste0("Are results for MRR and MSG similar: ",  VectorHelper_isSame(Vref, V2)))
-err = MSS$prodVector(V1, V2)
+err = MSS$prodVectorInPlace(V1, V2)
 print(paste0("Are results for MRR and MSS similar: ",  VectorHelper_isSame(Vref, V2)))
-err = MSP$prodVector(V1, V2)
+err = MSP$prodVectorInPlace(V1, V2)
 print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V2)))
 
 #
@@ -216,11 +216,11 @@ V3 = VectorDouble(rep(0.0, nrow))
 print(paste0("Solve X from A*X=B. Compute A*X and compare with B"))
 
 err = MSS$solve(b = V1, x = V2)
-err = MSS$prodVector(V2, V3)
+err = MSS$prodVectorInPlace(V2, V3)
 print(paste0("Are results correct for MSS: ",  VectorHelper_isSame(V1, V3)))
 
 err = MSP$solve(b = V1, x = V2)
-err = MSP$prodVector(V2, V3)
+err = MSP$prodVectorInPlace(V2, V3)
 print(paste0("Are results correct for MSP: ", VectorHelper_isSame(V1, V3)))
 
 #

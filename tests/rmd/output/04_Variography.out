@@ -133,6 +133,7 @@ Spherical
 - Sill         =      1.123
 - Range        =    129.766
 Total Sill     =      1.123
+Known Mean(s)     0.000
   -2 -     UNKNOWN : Unknown covariance
   -1 -    FUNCTION : External covariance function
    0 -      NUGGET : Nugget effect
@@ -182,6 +183,7 @@ Spherical
 - Sill         =      0.904
 - Range        =    237.071
 Total Sill     =      1.275
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -202,6 +204,7 @@ Spherical
 - Sill         =      0.989
 - Range        =    144.544
 Total Sill     =      1.104
+Known Mean(s)     0.000
 
 Model characteristics
 =====================
@@ -222,6 +225,7 @@ Spherical
 - Sill         =      0.994
 - Range        =    112.870
 Total Sill     =      1.395
+Known Mean(s)     0.000
 <style>md-block { color:gray; background-color:white; }</style>
 <md-block>
 
@@ -265,16 +269,17 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =      0.257
+- Sill         =      0.256
 Cubic
-- Sill         =      0.943
-- Ranges       =    158.007   214.374
-- Angles       =    334.704     0.000
+- Sill         =      0.944
+- Ranges       =    155.954   216.469
+- Angles       =    154.811     0.000
 - Rotation Matrix
                [,  0]    [,  1]
-     [  0,]     0.904     0.427
-     [  1,]    -0.427     0.904
+     [  0,]     0.905     0.426
+     [  1,]    -0.426     0.905
 Total Sill     =      1.200
+Known Mean(s)     0.000
 
 Data Base Grid Characteristics
 ==============================

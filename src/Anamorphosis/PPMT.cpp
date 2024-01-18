@@ -459,7 +459,7 @@ int PPMT::fit(Db *db,
 {
   VectorString exp_names = db->expandNameList(names);
   MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
-  if (Y.isEmpty())
+  if (Y.empty())
   {
     messerr("This Multivariate Transform requires several variables to be defined");
     return 1;
@@ -492,7 +492,7 @@ int PPMT::rawToGaussian(Db *db,
   }
   VectorString exp_names = db->expandNameList(names);
   MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
-  if (Y.isEmpty())
+  if (Y.empty())
   {
     messerr("This Multivariate Transform requires several variables to be defined");
     return 1;
@@ -541,7 +541,7 @@ int PPMT::gaussianToRaw(Db *db,
   }
   VectorString exp_names = db->expandNameList(names);
   MatrixRectangular Y = db->getColumnsAsMatrix(exp_names, true);
-  if (Y.isEmpty())
+  if (Y.empty())
   {
     messerr("This Multivariate Back-Transform requires several variables to be defined");
     return 1;

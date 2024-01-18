@@ -2248,8 +2248,8 @@ int multilayers_kriging(Db *dbin,
 
   error = 0;
 
-  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1,
-                                         VectorInt());
+  label_end:
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
   prop1 = (double*) mem_free((char* ) prop1);
@@ -2927,8 +2927,8 @@ int multilayers_get_prior(Db *dbin,
   *npar_arg = npar;
   error = 0;
 
-  label_end: (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1,
-                                         VectorInt());
+  label_end:
+  (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
   props = (double*) mem_free((char* ) props);

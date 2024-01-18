@@ -68,7 +68,7 @@ print("Matrix MSS")
 MSS.display()
 
 # To a sparse matrix
-MSP = gl.toSparse(M)
+MSP = gl.createFromAnyMatrix(M)
 print("Matrix MSP")
 MSP.display()
 
@@ -177,12 +177,12 @@ reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 Vref = gl.VectorDouble(np.zeros(nrow))
 V2 = gl.VectorDouble(np.zeros(nrow))
-MRR.prodVector(V1, Vref)
-MSG.prodVector(V1, V2)
+MRR.prodVectorInPlace(V1, Vref)
+MSG.prodVectorInPlace(V1, V2)
 print("Are results for MRR and MSG similar: ",gl.VH.isSame(np.array(Vref.getVector()),np.array(V2.getVector())))
-MSS.prodVector(V1, V2)
+MSS.prodVectorInPlace(V1, V2)
 print("Are results for MRR and MSS similar: ",gl.VH.isSame(np.array(Vref.getVector()),np.array(V2.getVector())))
-MSP.prodVector(V1, V2)
+MSP.prodVectorInPlace(V1, V2)
 print("Are results for MRR and MSP similar: ",gl.VH.isSame(np.array(Vref.getVector()),np.array(V2.getVector())))
 
 #
@@ -195,10 +195,10 @@ V3 = gl.VectorDouble(np.zeros(nrow))
 print("Solve X from A*X=B. Compute A*X and compare with B")
 
 MSS.solve(V1, V2)
-MSS.prodVector(np.array(V2.getVector()), V3)
+MSS.prodVectorInPlace(np.array(V2.getVector()), V3)
 print("Are results correct for MSS: ",gl.VH.isSame(V1,np.array(V3.getVector())))
 MSP.solve(V1, V2)
-MSP.prodVector(np.array(V2.getVector()), V3)
+MSP.prodVectorInPlace(np.array(V2.getVector()), V3)
 print("Are results correct for MSP: ",gl.VH.isSame(V1,np.array(V3.getVector())))
 
 #

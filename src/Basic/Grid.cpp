@@ -89,9 +89,9 @@ Grid::Grid(int ndim,
            const VectorDouble &dx)
   : AStringable(),
     _nDim(ndim)
-  , _nx(nx)
-  , _x0(x0)
-  , _dx(dx)
+  , _nx()
+  , _x0()
+  , _dx()
   , _rotation()
   , _iter(0)
   , _nprod(0)
@@ -102,6 +102,10 @@ Grid::Grid(int ndim,
   , _work1(ndim)
   , _work2(ndim)
 {
+  _allocate();
+  if ((int) nx.size() == ndim) _nx = nx;
+  if ((int) dx.size() == ndim) _dx = dx;
+  if ((int) x0.size() == ndim) _x0 = x0;
 }
 
 Grid::Grid(const Grid &r)
@@ -1037,7 +1041,7 @@ int Grid::getMirrorIndex(int idim, int ix) const
 /****************************************************************************/
 /*!
  **  Returns an array giving the ranks of the nodes (according to user's order)
- **  coded with standard ranks (according to gstlearn internal order)
+ **  coded with standard order (according to gstlearn internal order)
  **
  ** \return Array of indices
  **

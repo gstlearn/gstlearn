@@ -325,7 +325,8 @@ Covariance Part
 Spherical
 - Sill         =      2.101
 - Range        =      1.000
-Total Sill     =      2.101----
+Total Sill     =      2.101
+Known Mean(s)     0.000----
 
 
 +#NO_DIFF#XXX+

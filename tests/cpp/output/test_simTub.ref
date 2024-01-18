@@ -73,6 +73,7 @@ Spherical
 - Sill         =      1.000
 - Range        =     10.000
 Total Sill     =      1.000
+Known Mean(s)     0.000
 
 Moving Neighborhood
 ===================
@@ -145,4 +146,4 @@ Data Base Statistics
  Mean value          =     -0.122
  Standard Deviation  =      1.008
  Variance            =      1.016
-#NO_DIFF# Turning Band Simulations: 457 ms. (Ref = 773 ms.)
+#NO_DIFF# Turning Band Simulations: 346 ms. (Ref = 773 ms.)

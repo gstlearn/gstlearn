@@ -9,12 +9,15 @@ Number of angular sectors           = 8
 Maximum number of points per sector = 3
 Maximum horizontal distance         = 0.3
 [1] 0
+NULL
 [1] 0
+NULL
 
 Cell Neighborhood
 =================
 Reject samples which do not belong to target Block
 [1] 0
+NULL
 
 Moving Neighborhood
 ===================
@@ -22,6 +25,7 @@ Minimum number of samples           = 1
 Maximum number of samples           = 10
 Maximum horizontal distance         = 7
 [1] 0
+NULL
 
 Moving Neighborhood
 ===================
@@ -31,6 +35,7 @@ Number of angular sectors           = 8
 Maximum number of points per sector = 3
 Maximum horizontal distance         = 7
 [1] 0
+NULL
 
 Moving Neighborhood
 ===================
@@ -40,6 +45,7 @@ Number of angular sectors           = 8
 Maximum number of points per sector = 3
 Maximum horizontal distance         = 20
 [1] 0
+NULL
 
 Moving Neighborhood
 ===================
@@ -49,3 +55,4 @@ Number of angular sectors           = 20
 Maximum number of points per sector = 1
 Maximum horizontal distance         = 20
 [1] 0
+NULL

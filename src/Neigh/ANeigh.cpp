@@ -93,9 +93,9 @@ int ANeigh::attach(const Db *dbin, const Db *dbout)
   return 0;
 }
 
-void ANeigh::setIsChanged()
+void ANeigh::setIsChanged(bool status)
 {
-  _flagIsUnchanged = false;
+  _flagIsUnchanged = status;
   _nbghMemo.clear();
 };
 
@@ -110,39 +110,57 @@ void ANeigh::reset()
   _flagKFold = false;
 }
 
-VectorInt ANeigh::select(int iech_out)
+/**
+ * Generic function for performing neighborhood selection.
+ * This function ALWAYS modifies (and resizes) the returned array 'ranks'
+ * @param iech_out Rank of the target point (in 'dbout')
+ * @param ranks Input / Output vector of neighboring sample ranks
+ */
+void ANeigh::select(int iech_out, VectorInt& ranks)
 {
+  // Validating the call with respect to the input and output Dbs
   if (_dbin == nullptr || _dbout == nullptr)
   {
     messageAbort("'dbin' and 'dbout' must have been attached beforehand");
-    return VectorInt();
+    return;
   }
-
-  if (! _dbout->isSampleIndexValid(iech_out)) return VectorInt();
-  VectorInt ranks;
+  if (! _dbout->isSampleIndexValid(iech_out))
+  {
+    ranks.clear();
+    return;
+  }
 
   // Check if the current target coincides with the previous one
   // Then do not do anything (even in presence of colocation)
-  if (_isSameTarget(iech_out)) return _nbghMemo;
+  if (_isSameTarget(iech_out))
+  {
+    ranks = _nbghMemo;
+    _flagIsUnchanged = true;
+    return;
+  }
 
-  // Select the neighboring samples
+  // Performing the selection of the neighboring samples
 
   if (hasChanged(iech_out))
-    ranks = getNeigh(iech_out);
+  {
+    getNeigh(iech_out, ranks);
+
+    // Set the flag telling if neighborhood has changed or not
+    // and memorize the new set of ranks
+    _checkUnchanged(iech_out, ranks);
+  }
   else
+  {
     ranks = _nbghMemo;
+    _flagIsUnchanged = true;
+  }
 
   // Stop the neighborhood search if not enough point is available
-  if ((int) ranks.size() <= 0) return ranks;
-
-  // Set the flag telling if neighborhood has changed or not
-  // and memorize the new set of ranks
-  _checkUnchanged(iech_out, ranks);
+  if ((int) ranks.size() <= 0) return;
 
   // Update in case of Colocated option
 
   _updateColCok(ranks, iech_out);
-  return ranks;
 }
 
 /**

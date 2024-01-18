@@ -15,25 +15,40 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 
-MatrixRectangular::MatrixRectangular(int nrows, int ncols)
-    : AMatrix(nrows, ncols),
+MatrixRectangular::MatrixRectangular(int nrows, int ncols, int opt_eigen)
+    : AMatrixDense(nrows, ncols, opt_eigen),
       _rectMatrix()
 {
   _allocate();
 }
 
 MatrixRectangular::MatrixRectangular(const MatrixRectangular &r)
-  : AMatrix(r),
-    _rectMatrix(r._rectMatrix)
+  : AMatrixDense(r),
+    _rectMatrix()
 {
+  _recopyLocal(r);
+}
+
+MatrixRectangular::MatrixRectangular(const AMatrix &m)
+    : AMatrixDense(m),
+      _rectMatrix()
+{
+  const MatrixRectangular* matrixLoc = dynamic_cast<const MatrixRectangular*>(&m);
+  if (matrixLoc != nullptr)
+    _recopyLocal(*matrixLoc);
+  else
+  {
+    _allocate();
+    AMatrix::copyElements(m);
+  }
 }
 
 MatrixRectangular& MatrixRectangular::operator= (const MatrixRectangular &r)
 {
   if (this != &r)
   {
-    AMatrix::operator=(r);
-    _rectMatrix = r._rectMatrix;
+    AMatrixDense::operator=(r);
+    _recopyLocal(r);
   }
   return *this;
 }
@@ -46,7 +61,7 @@ MatrixRectangular::~MatrixRectangular()
 /**
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
- * @param X Input VectorVectorDouble argument
+ * @param  X Input VectorVectorDouble argument
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading
@@ -91,94 +106,76 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
 
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
-  if (! _isIndexValid(irow,icol)) return TEST;
-  int rank = _getIndexToRank(irow,icol);
-  return _rectMatrix[rank];
+  if (_isFlagEigen())
+    return AMatrixDense::_getValue(irow, icol);
+  else
+    return _getValueLocal(irow, icol);
 }
 
-double MatrixRectangular::_getValue(int irank) const
+double MatrixRectangular::_getValueByRank(int irank) const
 {
-  if (! _isRankValid(irank)) return TEST;
-  return _rectMatrix[irank];
+  if (_isFlagEigen())
+    return AMatrixDense::_getValueByRank(irank);
+  else
+    return _getValueLocal(irank);
 }
 
-void MatrixRectangular::_setValue(int irank, double value)
+void MatrixRectangular::_setValueByRank(int irank, double value)
 {
-  if (! _isRankValid(irank)) return;
-  _rectMatrix[irank] = value;
+  if (_isFlagEigen())
+    AMatrixDense::_setValueByRank(irank, value);
+  else
+    _setValueLocal(irank, value);
 }
 
 void MatrixRectangular::_setValue(int irow, int icol, double value)
 {
-  if (! _isIndexValid(irow, icol)) return;
-  int rank = _getIndexToRank(irow, icol);
-  _rectMatrix[rank] = value;
+  if (_isFlagEigen())
+    AMatrixDense::_setValue(irow, icol, value);
+  else
+    _setValueLocal(irow, icol, value);
 }
 
-void MatrixRectangular::_prodVector(const double *inv, double *outv) const
+void MatrixRectangular::_prodVectorInPlace(const double *inv, double *outv) const
 {
-  matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), inv, outv);
+  if (_isFlagEigen())
+    AMatrixDense::_prodVectorInPlace(inv, outv);
+  else
+    _prodVectorLocal(inv, outv);
 }
 
 void MatrixRectangular::_transposeInPlace()
 {
-  VectorDouble old;
-  old.resize(getNRows() * getNCols());
-  matrix_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
-  _rectMatrix = old;
-  int temp = getNCols();
-  _setNCols(getNRows());
-  _setNRows(temp);
-}
-
-void MatrixRectangular::_setValues(const double *values, bool byCol)
-{
-  if (byCol)
-  {
-    int ecr = 0;
-    for (int icol = 0; icol < getNCols(); icol++)
-      for (int irow = 0; irow < getNRows(); irow++, ecr++)
-      {
-        setValue(irow, icol, values[ecr]);
-      }
-  }
+  if (_isFlagEigen())
+    AMatrixDense::_transposeInPlace();
   else
-  {
-    int ecr = 0;
-    for (int irow = 0; irow < getNRows(); irow++)
-      for (int icol = 0; icol < getNCols(); icol++, ecr++)
-      {
-        setValue(irow, icol, values[ecr]);
-      }
-  }
-}
-
-/*! Gets a reference to the value at row 'irow' and column 'icol' */
-double& MatrixRectangular::_getValueRef(int irow, int icol)
-{
-  int rank = _getIndexToRank(irow,icol);
-  return _rectMatrix[rank];
+    _transposeInPlaceLocal();
 }
 
 void MatrixRectangular::_deallocate()
 {
-
+  if (_isFlagEigen())
+    AMatrixDense::_deallocate();
+  else
+  {
+    // Potential code for this class would be located here
+  }
 }
 
 void MatrixRectangular::_allocate()
 {
-  _rectMatrix.resize(_getMatrixSize(),0.);
+  if (_isFlagEigen())
+    AMatrixDense::_allocate();
+  else
+    _allocateLocal();
 }
 
 int MatrixRectangular::_getIndexToRank(int irow, int icol) const
 {
-  int rank = icol * getNRows() + irow;
-  return rank;
-}
-
-int MatrixRectangular::_getMatrixSize() const
-{
-  return (getNRows() * getNCols());
+  if (_isFlagEigen())
+    return AMatrixDense::_getIndexToRank(irow, icol);
+  else
+    return _getIndexToRankLocal(irow, icol);
 }
 
 int MatrixRectangular::_invert()
@@ -240,4 +237,88 @@ MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
   res->copyReduce(this, localValidRows, localValidCols);
 
   return res;
+}
+
+int MatrixRectangular::_getMatrixPhysicalSize() const
+{
+  if (_isFlagEigen())
+    return AMatrixDense::_getMatrixPhysicalSize();
+  else
+    return AMatrix::_getMatrixPhysicalSize();
+}
+
+double& MatrixRectangular::_getValueRef(int irow, int icol)
+{
+  if (_isFlagEigen())
+    return AMatrixDense::_getValueRef(irow, icol);
+  else
+    return _getValueRefLocal(irow, icol);
+}
+
+/// ========================================================================
+/// The subsequent methods rely on the specific local storage ('rectMatrix')
+/// ========================================================================
+
+void MatrixRectangular::_allocateLocal()
+{
+  _rectMatrix.resize(_getMatrixPhysicalSize(),0.);
+}
+
+void MatrixRectangular::_recopyLocal(const MatrixRectangular& r)
+{
+  _rectMatrix = r._rectMatrix;
+}
+
+double MatrixRectangular::_getValueLocal(int irow, int icol) const
+{
+  if (! _isIndexValid(irow,icol)) return TEST;
+  int rank = _getIndexToRank(irow,icol);
+  return _rectMatrix[rank];
+}
+
+double MatrixRectangular::_getValueLocal(int irank) const
+{
+  if (! _isRankValid(irank)) return TEST;
+  return _rectMatrix[irank];
+}
+
+/*! Gets a reference to the value at row 'irow' and column 'icol' */
+double& MatrixRectangular::_getValueRefLocal(int irow, int icol)
+{
+  int rank = _getIndexToRank(irow,icol);
+  return _rectMatrix[rank];
+}
+
+void MatrixRectangular::_setValueLocal(int irank, double value)
+{
+  if (! _isRankValid(irank)) return;
+  _rectMatrix[irank] = value;
+}
+
+void MatrixRectangular::_setValueLocal(int irow, int icol, double value)
+{
+  if (! _isIndexValid(irow, icol)) return;
+  int rank = _getIndexToRank(irow, icol);
+  _rectMatrix[rank] = value;
+}
+
+void MatrixRectangular::_prodVectorLocal(const double *inv, double *outv) const
+{
+  matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), inv, outv);
+}
+
+void MatrixRectangular::_transposeInPlaceLocal()
+{
+  VectorDouble old;
+  old.resize(getNRows() * getNCols());
+  matrix_transpose(getNRows(), getNCols(), _rectMatrix.data(), old.data());
+  _rectMatrix = old;
+  int temp = getNCols();
+  _setNCols(getNRows());
+  _setNRows(temp);
+}
+
+int MatrixRectangular::_getIndexToRankLocal(int irow, int icol) const
+{
+  return (icol * getNRows() + irow);
 }

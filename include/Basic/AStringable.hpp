@@ -55,7 +55,8 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 int ncols,
                                 int nrows,
                                 const VectorDouble &tab,
-                                bool flagOverride = false);
+                                bool flagOverride = false,
+                                bool flagSkipZero = false);
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const VectorString& colnames,
                                 const VectorString& rownames,
@@ -63,26 +64,30 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 int ncols,
                                 int nrows,
                                 const VectorInt &tab,
-                                bool flagOverride = false);
+                                bool flagOverride = false,
+                                bool flagSkipZero = false);
 GSTLEARN_EXPORT String toMatrixSymmetric(const String& title,
                                          const VectorString& colnames,
                                          const VectorString& rownames,
                                          bool bycol,
                                          int ncols,
                                          const VectorDouble &tab,
-                                         bool flagOverride = false);
+                                         bool flagOverride = false,
+                                         bool flagSkipZero = false);
 GSTLEARN_EXPORT String toMatrixDiagonal(const String& title,
                                         const VectorString& colnames,
                                         const VectorString& rownames,
                                         int ncols,
                                         const VectorDouble &tab,
-                                        bool flagOverride = false);
+                                        bool flagOverride = false,
+                                        bool flagSkipZero = false);
 GSTLEARN_EXPORT String toMatrixDiagCst(const String& title,
                                        const VectorString& colnames,
                                        const VectorString& rownames,
                                        int ncols,
                                        const VectorDouble &tab,
-                                       bool flagOverride = false);
+                                       bool flagOverride = false,
+                                       bool flagSkipZero = false);
 #ifndef SWIG
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const cs* A,

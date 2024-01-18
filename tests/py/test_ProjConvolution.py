@@ -1,15 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
-
-
 import gstlearn as gl
 import numpy as np
-
-
-# In[3]:
-
 
 def compute(i,proj):
     mv = gl.VectorDouble(proj.getApexNumber())
@@ -29,10 +22,6 @@ def computeT(i,proj):
     proj.point2mesh(pv,mv)
     return mv
 
-
-# In[4]:
-
-
 wavelet = [-0.000000,-0.010629,0.079015,0.209873,
                               0.278554,0.257160,0.116605,-0.171370,-0.599146,
                               -1.070201,-1.412208,-1.424379,-0.922758,0.193134,
@@ -42,9 +31,6 @@ wavelet = [-0.000000,-0.010629,0.079015,0.209873,
                               0.209873,0.079015,-0.010629,-0.000000]
 
 
-# In[5]:
-
-
 test  = gl.DbGrid.create([5,5,40])
 projc = gl.ProjConvolution(wavelet,test,nodeRes2D=[3,3])
 nrow = test.getSampleNumber()
@@ -52,27 +38,15 @@ ncol = projc.getResolutionGrid().getSampleNumber()
 A = np.zeros(shape=(nrow,ncol))
 B = np.zeros(shape=(ncol,nrow))
 
-
-# In[6]:
-
-
 for k in range(ncol):
     v = compute(k,projc)
     A[:,k]=[i for i in v]
-
-
-# In[7]:
-
 
 for k in range(nrow):
     v = computeT(k,projc)
     B[:,k]=[i for i in v]
 
-
 # The result of the following chunk has to be zero :
-
-# In[10]:
-
 
 assert np.sum(np.abs(A-B.T))==0
 

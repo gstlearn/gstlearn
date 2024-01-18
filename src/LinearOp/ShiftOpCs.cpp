@@ -605,7 +605,6 @@ void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
   _updateCova(cova, imesh);
 
   // Calculate the current HH matrix (using local covariance parameters)
-  //  const MatrixSquareGeneral &rotmat = cova->getAnisoRotMat();
   const MatrixSquareGeneral &rotmat = cova->getAnisoInvMat();
 
   VectorDouble diag = VH::power(cova->getScales(), 2.);
@@ -684,7 +683,7 @@ void ShiftOpCs::_loadHHGrad(const AMesh *amesh,
     if (igparam < ndim)
     {
       // Derivation with respect to the Range 'igparam'
-      temp.fill(0);
+      temp.fill(0.);
       temp.setValue(igparam, igparam, 2. * cova->getScale(igparam));
       hh.normMatrix(temp, rotmat);
     }
@@ -883,8 +882,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matM.transposeInPlace();
-  matP.prodMatrix(matMtM, matM);
+  matP.prodMatrix(matMtM, matM, false, true);
   return 0;
 }
 
@@ -984,10 +982,6 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
       }
       if (nostat->isDefined(EConsElem::SPHEROT, icov, -1, -1, igrf))
         _loadAux(srot, EConsElem::SPHEROT, imesh);
-
-//      // Tentative code for velocity
-//      if (nostat->isDefined(EConsElem::VELOCITY, icov, -1, -1, igrf))
-//        _loadAux(vel, EConsElem::VELOCITY, imesh);
     }
 
     // Prepare M matrix

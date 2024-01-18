@@ -62,6 +62,9 @@
  * - Class' attributes (variables): idem
  * - Anything which is *private* or *protected* in a class starts with underscore (ie: _myMember)
  * - Local variables: lower case separated by underscore (i.e.: temp_value, color_idx)
+ * - Methods naming;
+ *   method _func() is internal to the class (private or protected)
+ *   method func_() is not exported via SWIG
  *
  * ## C++ coding rules
  *

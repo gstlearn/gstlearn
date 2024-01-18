@@ -10,6 +10,10 @@
 /******************************************************************************/
 #include "geoslib_define.h"
 
+#include "Db/Db.hpp"
+#include "Covariances/CovAniso.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/AFunctional.hpp"
 #include <math.h>
@@ -77,7 +81,7 @@ double FunctionalSpirale::_linearCombination(double x, double y, double a, doubl
 }
 
 /**
- * return the angle of the spiral at a given coordinate
+ * Return the angle (in degrees) of the spiral at a given coordinate
  * @param coor 2-D coordinates of the target
  * @return
  */
@@ -100,23 +104,55 @@ double FunctionalSpirale::getFunctionValue(const VectorDouble& coor) const
 }
 
 /**
- * return the anisotropy rotation matrix at a given coordinate
+ * Return the anisotropy rotation matrix at a given coordinate
  * @param coor 2-D coordinates of the target
  * @return
  */
-VectorVectorDouble FunctionalSpirale::getFunctionVectors(const VectorDouble& coor) const
+MatrixSquareGeneral FunctionalSpirale::getFunctionMatrix(const VectorDouble& coor) const
 {
-  double x = coor[0] - _xcenter;
-  double y = coor[1] - _ycenter;
-  double u1 = _linearCombination(x, y, _a, _b);
-  double u2 = _linearCombination(x, y, _c, _d);
-  double norm = sqrt(u1 * u1 + u2 * u2);
-  u1 /= norm;
-  u2 /= norm;
-  VectorDouble vec1 = {  u1, u2 };
-  VectorDouble vec2 = { -u2, u1 };
+  int ndim = 2;
+  MatrixSquareGeneral dirs = MatrixSquareGeneral(ndim);
 
-  VectorVectorDouble vec = { vec1, vec2 };
-  return vec;
+  double angle = getFunctionValue(coor) * GV_PI / 180.;
+  double u1 = cos(angle);
+  double u2 = sin(angle);
+  dirs.setValue(0, 0,  u1);
+  dirs.setValue(1, 0, -u2);
+  dirs.setValue(0, 1,  u2);
+  dirs.setValue(1, 1,  u1);
+  return dirs;
 }
 
+VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const CovAniso* cova) const
+{
+  if (db == nullptr) return VectorVectorDouble();
+  if (getNdim() != db->getNDim())
+  {
+    messerr("You cannot evaluate the function on input Db: they do not have the same Space Dimension");
+    return VectorVectorDouble();
+  }
+
+  int nech = db->getSampleNumber();
+  VectorVectorDouble vec(3);
+  vec[0].resize(nech);
+  vec[1].resize(nech);
+  vec[2].resize(nech);
+
+  MatrixSquareSymmetric temp(2);
+  MatrixSquareGeneral hh(2);
+  VectorDouble diag = VH::power(cova->getScales(), 2.);
+  temp.setDiagonal(diag);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    VectorDouble coor = db->getSampleCoordinates(iech);
+    MatrixSquareGeneral rotmat = getFunctionMatrix(coor);
+    hh.normMatrix(temp, rotmat);
+
+    vec[0][iech] = hh.getValue(0,0);
+    vec[1][iech] = hh.getValue(0,1);
+    vec[2][iech] = hh.getValue(1,1);
+  }
+
+  return vec;
+}

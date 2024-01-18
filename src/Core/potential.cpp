@@ -3068,8 +3068,7 @@ int potential_kriging(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    goto label_end;
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
                        neigh)) goto label_end;
 
@@ -3276,8 +3275,7 @@ int potential_simulate(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    goto label_end;
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
   if (db_extension_diag(dbiso, &delta)) goto label_end;
   delta /= 1000.;
 
@@ -3472,8 +3470,7 @@ int potential_xvalid(Db *dbiso,
 
   // Preliminary checks
 
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    goto label_end;
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
   if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, NULL, model,
                        neigh)) goto label_end;
 

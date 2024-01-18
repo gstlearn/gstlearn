@@ -887,16 +887,16 @@ static int st_krige_manage(int mode,
  **  Allocate the Target discretization
  **
  ** \param[in]  ndim       Space dimension
- ** \param[in]  ndisc      Discretization parameters (or NULL)
+ ** \param[in]  ndiscs     Discretization parameters (or NULL)
  **
  *****************************************************************************/
-static int st_block_discretize_alloc(int ndim, VectorInt ndisc)
+static int st_block_discretize_alloc(int ndim, const VectorInt& ndiscs)
 {
   int ntot;
 
   ntot = 1;
   for (int idim = 0; idim < ndim; idim++)
-    ntot *= ndisc[idim];
+    ntot *= ndiscs[idim];
   if (ntot <= 0) return (1);
   KOPTION->ntot = ntot;
 
@@ -907,7 +907,7 @@ static int st_block_discretize_alloc(int ndim, VectorInt ndisc)
   KOPTION->disc2 = st_core(ndim, ntot);
   if (KOPTION->disc2 == nullptr) return (1);
   for (int idim = 0; idim < ndim; idim++)
-    KOPTION->ndisc[idim] = ndisc[idim];
+    KOPTION->ndisc[idim] = ndiscs[idim];
   return (0);
 }
 
@@ -1019,7 +1019,7 @@ static void st_block_discretize(int mode, int flag_rand, int iech)
  ** \param[in]  calcul      Type of calculation (EKrigOpt)
  ** \param[in]  flag_rand   0 if the second discretization is regular
  **                         1 if the second point must be randomized
- ** \param[in]  ndisc       Discretization parameters (or NULL)
+ ** \param[in]  ndiscs      Discretization parameters (or NULL)
  **
  ** \remark  This function manages the global structure KOPTION
  **
@@ -1028,7 +1028,7 @@ int krige_koption_manage(int mode,
                          int flag_check,
                          const EKrigOpt &calcul,
                          int flag_rand,
-                         VectorInt ndisc)
+                         const VectorInt& ndiscs)
 {
   int ndim, error;
 
@@ -1080,13 +1080,13 @@ int krige_koption_manage(int mode,
           messerr("Discretization is not allowed if the Target is not a Grid");
           goto label_dealloc;
         }
-        if (ndisc.empty())
+        if (ndiscs.empty())
         {
           messerr("For block estimation, Discretization must be provided");
           goto label_dealloc;
         }
 
-        if (st_block_discretize_alloc(ndim, ndisc)) goto label_dealloc;
+        if (st_block_discretize_alloc(ndim, ndiscs)) goto label_dealloc;
 
         st_block_discretize(0, flag_rand, 0);
 
@@ -1102,7 +1102,7 @@ int krige_koption_manage(int mode,
 
     label_dealloc: if (KOPTION != nullptr)
     {
-      KOPTION->ndisc = (int*) mem_free((char* ) KOPTION->ndisc);
+      KOPTION->ndisc = (int*)    mem_free((char* ) KOPTION->ndisc);
       KOPTION->disc1 = (double*) mem_free((char* ) KOPTION->disc1);
       KOPTION->disc2 = (double*) mem_free((char* ) KOPTION->disc2);
       KOPTION->dsize = (double*) mem_free((char* ) KOPTION->dsize);
@@ -2087,8 +2087,7 @@ int anakexp_f(DbGrid *db,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    return (1);
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) return (1);
 
   /* Preliminary checks */
 
@@ -2767,8 +2766,7 @@ int anakexp_3D(DbGrid *db,
 
   /* Prepare the Koption structure */
 
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    return (1);
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) return (1);
 
   /* Preliminary checks */
 
@@ -4170,6 +4168,12 @@ static int st_declustering_1(Db *db, int iptr, const VectorDouble& radius)
   int ndim = db->getNDim();
   VectorDouble vect(ndim);
 
+  if (radius.empty())
+  {
+    messerr("This method requires the definition of 'radius'");
+    return 1;
+  }
+
   /* Loop on the target sample */
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
@@ -4259,7 +4263,7 @@ static int st_declustering_2(Db *db,
  ** \param[in]  dbgrid     output Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neigh      ANeigh structure
- ** \param[in]  ndisc      Array of discretization counts
+ ** \param[in]  ndiscs     Array of discretization counts
  ** \param[in]  iptr       Rank of the declustering weight
  **
  *****************************************************************************/
@@ -4267,7 +4271,7 @@ static int st_declustering_3(Db *db,
                              Db *dbgrid,
                              Model *model,
                              ANeigh *neigh,
-                             const VectorInt& ndisc,
+                             const VectorInt& ndiscs,
                              int iptr)
 {
   // Preliminary checks
@@ -4282,7 +4286,7 @@ static int st_declustering_3(Db *db,
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
-  if (ndisc.empty())
+  if (ndiscs.empty())
   {
     messerr("The Cell discretization must be provided");
     return 1;
@@ -4292,7 +4296,7 @@ static int st_declustering_3(Db *db,
 
   KrigingSystem ksys(db, dbgrid, model, neigh);
   if (ksys.setKrigOptDataWeights(iptr,  false)) return 1;
-  if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndisc)) return 1;
+  if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndiscs)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -4324,7 +4328,7 @@ static int st_declustering_3(Db *db,
  ** \param[in]  neigh      ANeigh structure
  ** \param[in]  dbgrid     Grid auxiliary Db structure
  ** \param[in]  radius     Array of neighborhood radius
- ** \param[in]  ndisc      Array of discretization
+ ** \param[in]  ndiscs     Array of discretization
  ** \param[in]  flag_sel   1 to mask off samples with zero weight
  ** \param[in]  verbose    Verbose option
  **
@@ -4335,7 +4339,7 @@ int declustering(Db *dbin,
                  ANeigh *neigh,
                  DbGrid *dbgrid,
                  const VectorDouble& radius,
-                 const VectorInt& ndisc,
+                 const VectorInt& ndiscs,
                  int flag_sel,
                  bool verbose)
 {
@@ -4378,7 +4382,7 @@ int declustering(Db *dbin,
         messerr("A Model is neede for this declustering method");
         return 1;
       }
-      if (st_declustering_3(dbin, dbgrid, model, neigh, ndisc, iptr))
+      if (st_declustering_3(dbin, dbgrid, model, neigh, ndiscs, iptr))
         return 1;
       break;
     }
@@ -5071,8 +5075,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
   if (st_model_manage(1, model_dat)) goto label_end;
   if (st_krige_manage(1, nvar, model_dat, neighU)) goto label_end;
-  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt()))
-    goto label_end;
+  if (krige_koption_manage(1, 1, EKrigOpt::POINT, 1, VectorInt())) goto label_end;
 
   /* Constitute the Data vector */
 
@@ -5177,7 +5180,7 @@ int inhomogeneous_kriging(Db *dbdat,
 
     // Neighborhood search
 
-    nbgh_ranks = neighU->select(IECH_OUT);
+    neighU->select(IECH_OUT, nbgh_ranks);
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */

@@ -196,7 +196,7 @@ bool NoStatArray::isEmpty(int icas) const
 
   if (icas == 0)
   {
-    if (_tab.isEmpty()) return true;
+    if (_tab.empty()) return true;
   }
   if (icas == 1)
   {
@@ -274,24 +274,6 @@ double NoStatArray::getValueByParam(int ipar, int icas, int rank) const
   return 0.;
 }
 
-double NoStatArray::_interpolate(int ipar,
-                                 int icas1,
-                                 int iech1,
-                                 int icas2,
-                                 int iech2) const
-{
-  double val1 = getValueByParam(ipar, icas1, iech1);
-  double val2 = getValueByParam(ipar, icas2, iech2);
-
-  if (! FFFF(val1) && ! FFFF(val2))
-    return sqrt(val1 * val2);
-
-  else if (! FFFF(val1))
-    return val2;
-  else
-    return val1;
-}
-
 String NoStatArray::_displayStats(int ipar, int icas) const
 {
   std::stringstream sstr;
@@ -299,7 +281,7 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   VectorDouble vec;
   if (icas == 0)
   {
-    if (_tab.isEmpty()) return sstr.str();;
+    if (_tab.empty()) return sstr.str();;
     for (int iech = 0; iech < _tab.getNRows(); iech++)
       vec.push_back(_tab.getValue(iech, ipar));
   }

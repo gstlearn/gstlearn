@@ -800,6 +800,7 @@ char* gslStrncpy(char *dest, const char *src, size_t n)
  ** \remarks which sorting takes place at rank "i". This value is positive
  ** \remarks for increasing order and negative for decreasing order.
  ** \remarks 'order' values start from 1 (for first space dimension)
+ ** \remarks Example: "+x1-x3+x2"
  **
  *****************************************************************************/
 VectorInt decodeGridSorting(const String& string,
@@ -833,6 +834,11 @@ VectorInt decodeGridSorting(const String& string,
 
       ind += 2;
       int num = string[ind] - '0';
+      if (idim >= ndim)
+      {
+        messerr("'order' contains more terms (%d) than the space dimension (%d)", idim+1, ndim);
+        return VectorInt();
+      }
       order[idim] = orient * num;
       if (num > ndim)
       {
@@ -848,12 +854,12 @@ VectorInt decodeGridSorting(const String& string,
     }
   }
 
-  // Check that all indices (below space dimension) have been specified
+  // Check that all indices (within space dimension) have been specified
 
   for (int i = 0; i < ndim; i++)
   {
     if (ranks[i] != 0) continue;
-    messerr("'x%d' is not mentioned in 'order'", i + 1);
+    messerr("'x%d' is not mentioned in the input string", i + 1);
     return VectorInt();
   }
 

@@ -19,7 +19,9 @@ env:
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.8.windows.x64.bin.zip
   BOOST_ROOT : ${{github.workspace}}/boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-
+  EIGEN_ROOT : Eigen
+  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  
 jobs:
   
   build:
@@ -78,9 +80,16 @@ jobs:
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
         cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
 
+    - name : Download and uncompressed Eigen headers
+      run: |
+        mkdir ${{env.EIGEN_ROOT}}
+        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
+        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
+        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+   
     - name : Build the package and save generated file name in the environment
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} 
+        cmake -B${{env.BUILD_DIR}} -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}} 
         cmake --build ${{env.BUILD_DIR}} --target r_install
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.zip" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append

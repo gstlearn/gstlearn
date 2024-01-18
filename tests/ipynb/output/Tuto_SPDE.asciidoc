@@ -4,8 +4,127 @@
 
 +#NO_DIFF#XXX+
 ----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Total number of samples      = 2500
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.020     0.020
+Number :         50        50
+
+Data Base Statistics
+--------------------
+4 - Name spde - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -3.277
+ Maximum value       =      3.379
+ Mean value          =      0.068
+ Standard Deviation  =      1.007
+ Variance            =      1.015
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = spde - Locator = z1
+ ----
+
+
++#NO_DIFF#XXX+
+----
 #NO_DIFF#XXX
 ----
+
+
++#NO_DIFF#XXX+
+----
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Total number of samples      = 1000
+
+Data Base Statistics
+--------------------
+3 - Name spde - Locator z1
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =     -3.183
+ Maximum value       =      3.157
+ Mean value          =      0.038
+ Standard Deviation  =      0.994
+ Variance            =      0.989
+
+Variables
+---------
+Column = 0 - Name = x - Locator = x1
+Column = 1 - Name = y - Locator = x2
+Column = 2 - Name = spde - Locator = z1
+ ----
+
+
++#NO_DIFF#XXX+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Total number of samples      = 2500
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.020     0.020
+Number :         50        50
+
+Data Base Statistics
+--------------------
+4 - Name spde - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -3.277
+ Maximum value       =      3.379
+ Mean value          =      0.068
+ Standard Deviation  =      1.007
+ Variance            =      1.015
+5 - Name spde.spde.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -2.607
+ Maximum value       =      2.911
+ Mean value          =      0.036
+ Standard Deviation  =      0.860
+ Variance            =      0.740
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = spde - Locator = NA
+Column = 4 - Name = spde.spde.estim - Locator = z1
+ ----
 
 
 +#NO_DIFF#XXX+

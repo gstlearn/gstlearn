@@ -28,6 +28,7 @@
 #include "Basic/CSVformat.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
+#include "Model/ANoStat.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -1028,7 +1029,7 @@ GSTLEARN_EXPORT int expand_point_to_grid(Db *db_point,
                                          int iatt_scalew,
                                          int flag_index,
                                          int ldmax,
-                                         const VectorDouble &dmax,
+                                         const VectorDouble& dmax,
                                          VectorDouble &tab);
 
 GSTLEARN_EXPORT int interpolate_variable_to_point(DbGrid *db_grid,
@@ -1064,10 +1065,6 @@ GSTLEARN_EXPORT int manage_external_info(int mode,
                                          Db *dbin,
                                          Db *dbout,
                                          int *istart);
-GSTLEARN_EXPORT int manage_nostat_info(int mode,
-                                       Model *model,
-                                       Db *dbin,
-                                       Db *dbout);
 GSTLEARN_EXPORT int db_locate_in_grid(DbGrid *dbgrid, double *coor);
 GSTLEARN_EXPORT void db_monostat(Db *db,
                                  int ivar,
@@ -1292,7 +1289,7 @@ GSTLEARN_EXPORT int krige_koption_manage(int mode,
                                          int flag_check,
                                          const EKrigOpt &calcul,
                                          int flag_rand,
-                                         VectorInt ndisc);
+                                         const VectorInt& ndiscs = VectorInt());
 GSTLEARN_EXPORT void krige_lhs_print(int nech,
                                      int neq,
                                      int nred,

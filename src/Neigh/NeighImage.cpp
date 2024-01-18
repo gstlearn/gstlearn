@@ -137,19 +137,18 @@ bool NeighImage::hasChanged(int iech_out) const
   return false;
 }
 
-/****************************************************************************/
-/*!
- **  Select the neighborhood
- **
- ** \return  Vector of sample ranks in neighborhood (empty when error)
- **
- ** \param[in]  iech_out      Valid Rank of the sample in the output Db
- **
- *****************************************************************************/
-VectorInt NeighImage::getNeigh(int iech_out)
+/**
+ * Select the neighborhood
+ * @param iech_out Valid Rank of the sample in the output Db
+ * @param ranks Vector of input / output sample ranks
+ *
+ * @return Vector of sample ranks in neighborhood (empty when error)
+ */
+void NeighImage::getNeigh(int iech_out, VectorInt& ranks)
 {
   int nech = _dbin->getSampleNumber();
-  VectorInt ranks(nech, -1);
+  ranks.resize(nech);
+  ranks.fill(-1);
 
   // Select the neighborhood samples as the target sample has changed
   _uimage(iech_out, ranks);
@@ -159,8 +158,6 @@ VectorInt NeighImage::getNeigh(int iech_out)
 
   // Compress the vector of returned sample ranks
   _neighCompress(ranks);
-
-  return ranks;
 }
 
 /****************************************************************************/

@@ -17,7 +17,9 @@ env:
 #  HDF5_ROOT : hdf5 #do not use "." in the name 
 #  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
 #  HDF5_VERSION : hdf5-1.12.1
-
+  EIGEN_ROOT : Eigen
+  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  
 jobs:
   build:
     runs-on: ${{matrix.os[0]}}
@@ -82,12 +84,22 @@ jobs:
         cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
 
 ####################################################################################################
+# Eigen
+
+    - name : Download and uncompressed Eigen headers
+      run: |
+        mkdir ${{env.EIGEN_ROOT}}
+        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
+        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
+        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+
+####################################################################################################
 # Configure compilation
 
     - name : Configure Cmake
       # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
-      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DBUILD_DOXYGEN=ON
-           #cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}
+      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DUSE_HDF5=OFF
+           #cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}
 
 ####################################################################################################
 # Compile library and build python package

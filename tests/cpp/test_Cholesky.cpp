@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
   // Checking Product
 
-  M.prodVector(vecin, vecout1);
+  M.prodVectorInPlace(vecin, vecout1);
   Qchol.evalDirect(vecin, vecout2);
   if (VH::isSame(vecout1,  vecout2))
     message("Product Mat %*% V is validated\n");

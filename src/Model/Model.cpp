@@ -216,6 +216,15 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
     sstr << _driftList->toString();
   }
 
+  /* Mean Part */
+
+  if (getDriftNumber() <= 0)
+  {
+    sstr << toVector("Known Mean(s)", getMeans());
+    // TODO: could be added but changes all non-regression files
+//    sstr << "(Note: Simple Kriging will be used)" << std::endl;
+  }
+
   return sstr.str();
 }
 
@@ -327,7 +336,7 @@ void Model::addCovFromParam(const ECov& type,
   else
   {
     if (flagRange)
-      cov.setRange(range);
+      cov.setRangeIsotropic(range);
     else
       cov.setScale(range);
   }
@@ -432,7 +441,7 @@ int Model::getCovaNumber() const
   if (_cova == nullptr) return 0;
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovNumber();
+  return covalist->getCovaNumber();
 }
 const ECov& Model::getCovaType(int icov) const
 {
@@ -497,6 +506,16 @@ void Model::setSill(int icov, int ivar, int jvar, double value)
   if (covalist == nullptr) return;
   covalist->setSill(icov, ivar, jvar, value);
 }
+void Model::updateCovByPoints(int icas1, int iech1, int icas2, int iech2)
+{
+  if (_cova == nullptr) return;
+  _cova->updateCovByPoints(icas1, iech1, icas2, iech2);
+}
+void Model::updateCovByMesh(int imesh)
+{
+  if (_cova == nullptr) return;
+  _cova->updateCovByMesh(imesh);
+}
 void Model::setCovaFiltered(int icov, bool filtered)
 {
   if (_cova == nullptr) return;
@@ -509,7 +528,7 @@ int Model::hasExternalCov() const
   if (_cova == nullptr) return 0;
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return 0;
-  for (int icov = 0; icov < (int) covalist->getCovNumber(); icov++)
+  for (int icov = 0; icov < (int) covalist->getCovaNumber(); icov++)
   {
     if (covalist->getType(icov) == ECov::FUNCTION) return 1;
   }
@@ -592,16 +611,6 @@ int Model::getAnamNClass() const
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
   return covalist->getAnamNClass();
-}
-
-void Model::evalMatOptimInPlace(int iech1,
-                                int iech2,
-                                MatrixSquareGeneral &mat,
-                                const CovCalcMode *mode) const
-{
-  const ACovAnisoList *covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return;
-  covalist->evalMatOptimInPlace(iech1, iech2, mat, mode);
 }
 
 VectorVectorDouble Model::evalCovMatrixOptim(const Db *db1,
@@ -789,22 +798,6 @@ void Model::setField(double field)
 {
   _ctxt.setField(field);
   _copyCovContext();
-}
-
-int Model::isNoStat() const
-{
-  if (_cova == nullptr) return 0;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return 0;
-  return covalist->isNoStat();
-}
-
-const ANoStat* Model::getNoStat() const
-{
-  if (_cova == nullptr) return nullptr;
-  const ACovAnisoList* covalist = _castInCovAnisoListConst();
-  if (covalist == nullptr) return nullptr;
-  return covalist->getANoStat();
 }
 
 int Model::getNoStatElemNumber() const
@@ -1296,7 +1289,7 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
       if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
     }
     else
-      cova.setRange(range);
+      cova.setRangeIsotropic(range);
     covs.addCov(&cova);
   }
   setCovList(&covs);
@@ -1828,12 +1821,13 @@ const ACovAnisoList* Model::_castInCovAnisoListConst(int icov) const
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
+  if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovNumber())
+  if (icov >= covalist->getCovaNumber())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovNumber());
+            icov, covalist->getCovaNumber());
     return nullptr;
   }
   return covalist;
@@ -1848,12 +1842,13 @@ ACovAnisoList* Model::_castInCovAnisoList(int icov)
     messerr("The member '_cova' in this model cannot be converted into a pointer to CovAnisoList");
     return nullptr;
   }
+  if (icov < 0) return covalist;
 
   // Check the rank
-  if (icov >= covalist->getCovNumber())
+  if (icov >= covalist->getCovaNumber())
   {
     messerr("The rank 'icov' (%d) is not valid. The CovAnisoList contains %d covariances",
-            icov, covalist->getCovNumber());
+            icov, covalist->getCovaNumber());
     return nullptr;
   }
   return covalist;

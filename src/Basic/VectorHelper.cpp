@@ -18,6 +18,8 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptCustom.hpp"
 
+#include <Eigen/Dense>
+
 #include <string.h>
 #include <algorithm>
 #include <iomanip>
@@ -61,7 +63,7 @@ VectorInt VectorHelper::initVInt(const int* values, int number)
 VectorDouble VectorHelper::initVDouble(const double* values, int number)
 {
   if (values == nullptr) return VectorDouble();
-  VectorDouble vec;
+  VectorDouble vec(number);
   for (int i = 0; i < number; i++) vec[i] = values[i];
   return vec;
 }
@@ -505,8 +507,8 @@ double VectorHelper::normDistance(const VectorDouble &veca,
 {
   double prod = 0.;
   double delta = 0.;
-  const double* ptra = &veca[0];
-  const double* ptrb = &vecb[0];
+  const double *ptra = &veca[0];
+  const double *ptrb = &vecb[0];
   for (int i = 0, n = (int) veca.size(); i < n; i++)
   {
     delta = (*ptra) - (*ptrb);
@@ -1619,16 +1621,7 @@ double VectorHelper::innerProduct(const VectorDouble &veca,
   if (size > (int) veca.size() || size > (int) vecb.size())
     my_throw("Incompatible sizes");
 
-  double prod = 0.;
-  const double* ptra = &veca[0];
-  const double* ptrb = &vecb[0];
-  for (int i = 0; i < size; i++)
-  {
-    prod += (*ptra) * (*ptrb);
-    ptra++;
-    ptrb++;
-  }
-  return prod;
+  return innerProduct(veca.data(), vecb.data(), size);
 }
 
 double VectorHelper::innerProduct(const double* veca,
@@ -1636,8 +1629,8 @@ double VectorHelper::innerProduct(const double* veca,
                                   int size)
 {
   double prod = 0.;
-  const double* ptra = &veca[0];
-  const double* ptrb = &vecb[0];
+  const double *ptra = &veca[0];
+  const double *ptrb = &vecb[0];
   for (int i = 0; i < size; i++)
   {
     prod += (*ptra) * (*ptrb);
@@ -1666,11 +1659,9 @@ VectorDouble VectorHelper::crossProduct3D(const VectorDouble &veca,
                                           const VectorDouble &vecb)
 {
   if (veca.size() != vecb.size())
-  my_throw("Wrong size");
-  VectorDouble res;
-  res.push_back(veca[1] * vecb[2] - veca[2] * vecb[1]);
-  res.push_back(veca[2] * vecb[0] - veca[0] * vecb[2]);
-  res.push_back(veca[0] * vecb[1] - veca[1] * vecb[0]);
+    my_throw("Wrong size");
+  VectorDouble res(3);
+  crossProduct3DInPlace(veca.data(), vecb.data(), res.data());
   return res;
 }
 
@@ -1740,11 +1731,26 @@ VectorDouble VectorHelper::suppressTest(const VectorDouble& vecin)
 }
 
 void VectorHelper::linearComb(double val1,
+                              const VectorDouble &in1,
+                              double val2,
+                              const VectorDouble &in2,
+                              VectorDouble &outv)
+{
+  if (in1.empty() || in2.empty()) return;
+  for (int i = 0, n = (int) in1.size(); i < n; i++)
+  {
+    outv[i] = val1 * in1[i] + val2 * in2[i];
+  }
+}
+
+void VectorHelper::linearCombVVD(double val1,
                               const VectorVectorDouble &in1,
                               double val2,
                               const VectorVectorDouble &in2,
                               VectorVectorDouble &outv)
 {
+  if (in1.empty() || in2.empty()) return;
+
   for (int is = 0, ns = (int) in1.size(); is < ns; is++)
   {
     for (int i = 0, n = (int) in1[is].size(); i < n; i++)

@@ -31,6 +31,38 @@
 #define MAT(i,j)            (mat[(i) * n + (j)])
 #define DEBUG 0
 
+static int flagUpdateNonzero = 0;
+
+static int _cs_update_nonzero_value(int row, int col, double value)
+{
+  if (flagUpdateNonzero == 0) return 0;
+  if (ABS(value) < EPSILON10) return 0;
+  if (flagUpdateNonzero == 1)
+  {
+    messerr("Attempt to modify a nonzero element (row=%d; col=%d) with value (%lf)", row, col, value);
+    messerr("Action ignored");
+  }
+  else
+  {
+    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
+  }
+  return 1;
+}
+
+/**
+ * Define the status when modifying the value of a nonzero element of the sparse matrix
+ * @param status 0 (no test); 1 (warning issued); 2 (throw issued)
+ */
+void cs_set_status_update_nonzero_value(int status)
+{
+  flagUpdateNonzero = status;
+}
+
+int cs_get_status_update_nonzero_value()
+{
+  return flagUpdateNonzero;
+}
+
 cs* cs_spalloc2(int m, int n, int nzmax, int values, int triplet)
 {
   return cs_spalloc(m, n, nzmax, values, triplet);
@@ -348,18 +380,16 @@ cs* cs_extract_submatrix_by_color(cs *C,
                                   int col_ok)
 {
   cs *Atriplet, *A;
-  int *cols, *rows, *u_row, *u_col, number, ir, ic, n;
-  double *vals;
+  int *u_row, *u_col, ir, ic, n;
 
   /* Initializations */
 
-  cols = rows = u_row = u_col = nullptr;
-  vals = nullptr;
+  u_row = u_col = nullptr;
   A = Atriplet = nullptr;
 
   /* Convert the contents of the sparse matrix into columns */
 
-  cs_sparse_to_triplet(C, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(C, 0);
 
   /* Initialize the output matrix */
 
@@ -392,21 +422,19 @@ cs* cs_extract_submatrix_by_color(cs *C,
 
   /* Fill the new sparse triplet */
 
-  for (int i = 0; i < number; i++)
+  for (int i = 0; i < T.number; i++)
   {
-    ir = u_row[rows[i]];
-    ic = u_col[cols[i]];
+    ir = u_row[T.rows[i]];
+    ic = u_col[T.cols[i]];
     if (ir < 0 || ic < 0) continue;
-    if (!cs_entry(Atriplet, ir, ic, vals[i])) goto label_end;
+    if (!cs_entry(Atriplet, ir, ic, T.values[i])) goto label_end;
   }
 
   A = cs_triplet(Atriplet);
 
-  label_end: u_row = (int*) mem_free((char* ) u_row);
+  label_end:
+  u_row = (int*) mem_free((char* ) u_row);
   u_col = (int*) mem_free((char* ) u_col);
-  cols = (int*) cs_free((char*) cols);
-  rows = (int*) cs_free((char*) rows);
-  vals = (double*) cs_free((char*) vals);
   Atriplet = cs_spfree(Atriplet);
   return (A);
 }
@@ -1465,7 +1493,7 @@ int cs_multigrid_process(cs_MGS *mgs,
   return (0);
 }
 
-Triplet csToTriplet(const cs *A, bool flagFrom1)
+Triplet csToTriplet(const cs *A, bool flagFrom1, double tol)
 {
   Triplet triplet;
 
@@ -1501,7 +1529,7 @@ Triplet csToTriplet(const cs *A, bool flagFrom1)
       triplet.cols[ecr] = (flagFrom1) ? j + 1 : j;
       triplet.rows[ecr] = (flagFrom1) ? Ai[p] + 1 : Ai[p];
       triplet.values[ecr] = Ax ? Ax[p] : 1;
-      if (ABS(triplet.values[ecr]) <= 0) continue;
+      if (ABS(triplet.values[ecr]) <= tol) continue;
       ecr++;
     }
 
@@ -1511,7 +1539,23 @@ Triplet csToTriplet(const cs *A, bool flagFrom1)
     triplet.rows.resize(ecr);
     triplet.values.resize(ecr);
   }
+  triplet.number = ecr;
   return triplet;
+}
+
+Triplet triplet_init(bool flag_from_1)
+{
+  Triplet T;
+
+  T.flagFromOne = flag_from_1;
+  T.number = 0;
+  T.nrows = 0;
+  T.ncols = 0;
+  T.rows = VectorInt();
+  T.cols = VectorInt();
+  T.values = VectorDouble();
+
+  return T;
 }
 
 String toStringDim(const String &title, const cs *A)
@@ -1534,22 +1578,18 @@ String toStringDim(const String &title, const cs *A)
 String toStringRange(const String &title, const cs *C)
 {
   std::stringstream sstr;
-  int *cols, *rows, number;
-  double *vals;
 
   /* Initializations */
 
   if (C == nullptr) return sstr.str();
-  cols = rows = nullptr;
-  vals = nullptr;
 
   /* Convert the contents of the sparse matrix into columns */
 
-  cs_sparse_to_triplet(C, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(C, 0);
 
   /* Calculate the extreme values */
 
-  StatResults stats = ut_statistics(number, vals);
+  StatResults stats = ut_statistics(T.number, T.values.data());
 
   /* Printout */
 
@@ -1558,17 +1598,10 @@ String toStringRange(const String &title, const cs *C)
   sstr << " Descr: m=" << cs_getnrow(C) << " - n=" << cs_getncol(C) << " - nzmax=" << C->nzmax
   << std::endl;
   sstr << " Range: [" << stats.mini << " ; " << stats.maxi << "] (" << stats.nvalid << " / "
-       << number << ")" << std::endl;
-
-  /* Core deallocation */
-
-  cols = (int*) cs_free((char*) cols);
-  rows = (int*) cs_free((char*) rows);
-  vals = (double*) cs_free((char*) vals);
+       << T.number << ")" << std::endl;
 
   return sstr.str();
 }
-
 
 bool cs_isSymmetric(const cs *A, bool verbose, bool detail)
 {
@@ -1685,55 +1718,6 @@ bool cs_isDefinitePositive(cs *A, bool verbose)
   return error <= 0;
 }
 
-/* compressed-column form into arrays */
-/* number: Number of non-zero terms in the sparse matrix A */
-void cs_sparse_to_triplet(const cs *A,
-                          int flag_from_1,
-                          int *number,
-                          int **cols,
-                          int **rows,
-                          double **vals)
-{
-  int p, j, n, nz, nnz, ecr, *Ap, *Ai, ok;
-  double *Ax;
-
-  *number = 0;
-  *cols = *rows = nullptr;
-  *vals = nullptr;
-  if (!A) return;
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-  nz = A->nz;
-  if (nz >= 0) return;
-
-  nnz = Ap[n];
-  (*cols) = (int*) cs_malloc(nnz, sizeof(int));
-  (*rows) = (int*) cs_malloc(nnz, sizeof(int));
-  (*vals) = (double*) cs_malloc(nnz, sizeof(double));
-
-  ecr = 0;
-  for (j = 0; j < n; j++)
-    for (p = Ap[j]; p < Ap[j + 1]; p++)
-    {
-      (*cols)[ecr] = (flag_from_1) ? j + 1 : j;
-      (*rows)[ecr] = (flag_from_1) ? Ai[p] + 1 : Ai[p];
-      (*vals)[ecr] = Ax ? Ax[p] : 1;
-      if (ABS((*vals)[ecr]) <= 0) continue;
-      ecr++;
-    }
-
-  if (ecr < nnz)
-  {
-    (*cols) = (int*) cs_realloc(*cols, ecr, sizeof(int), &ok);
-    (*rows) = (int*) cs_realloc(*rows, ecr, sizeof(int), &ok);
-    (*vals) = (double*) cs_realloc(*vals, ecr, sizeof(double), &ok);
-  }
-  *number = ecr;
-  return;
-}
-
 /* Extract a sparse submatrix */
 
 // row_from and col_from are given strating from 0
@@ -1744,38 +1728,32 @@ cs* cs_extract_submatrix(cs *C,
                          int col_length)
 {
   cs *Atriplet, *A;
-  int *cols, *rows, number, ir, ic;
-  double *vals;
+  int ir, ic;
 
   /* Initializations */
 
-  cols = rows = nullptr;
-  vals = nullptr;
   A = Atriplet = nullptr;
 
   /* Convert the contents of the sparse matrix into columns */
 
-  cs_sparse_to_triplet(C, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(C, 0);
 
   /* Fill the new sparse triplet */
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
   if (Atriplet == nullptr) goto label_end;
-  for (int i = 0; i < number; i++)
+  for (int i = 0; i < T.number; i++)
   {
-    ic = cols[i] - col_from;
+    ic = T.cols[i] - col_from;
     if (ic < 0 || ic >= col_length) continue;
-    ir = rows[i] - row_from;
+    ir = T.rows[i] - row_from;
     if (ir < 0 || ir >= row_length) continue;
-    if (!cs_entry(Atriplet, ir, ic, vals[i])) goto label_end;
+    if (!cs_entry(Atriplet, ir, ic, T.values[i])) goto label_end;
   }
 
   A = cs_triplet(Atriplet);
 
   label_end: Atriplet = cs_spfree(Atriplet);
-  cols = (int*) cs_free((char*) cols);
-  rows = (int*) cs_free((char*) rows);
-  vals = (double*) cs_free((char*) vals);
   return (A);
 }
 
@@ -1786,18 +1764,15 @@ cs* cs_extract_submatrix(cs *C,
 cs* cs_extract_submatrix_by_ranks(cs *C, int *rank_rows, int *rank_cols)
 {
   cs *Atriplet, *A;
-  int *cols, *rows, number, old_row, old_col, new_row, new_col;
-  double *vals;
+  int old_row, old_col, new_row, new_col;
 
   /* Initializations */
 
-  cols = rows = nullptr;
-  vals = nullptr;
   A = Atriplet = nullptr;
 
   /* Convert the contents of the sparse matrix into columns */
 
-  cs_sparse_to_triplet(C, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(C, 0);
 
   /* Initialize the output matrix */
 
@@ -1806,21 +1781,19 @@ cs* cs_extract_submatrix_by_ranks(cs *C, int *rank_rows, int *rank_cols)
 
   /* Fill the new sparse triplet */
 
-  for (int i = 0; i < number; i++)
+  for (int i = 0; i < T.number; i++)
   {
-    old_row = rows[i];
-    old_col = cols[i];
+    old_row = T.rows[i];
+    old_col = T.cols[i];
     new_row = (rank_rows != nullptr) ? rank_rows[old_row] : old_row;
     new_col = (rank_cols != nullptr) ? rank_cols[old_col] : old_col;
     if (new_row < 0 || new_col < 0) continue;
-    if (!cs_entry(Atriplet, new_row, new_col, vals[i])) goto label_end;
+    if (!cs_entry(Atriplet, new_row, new_col, T.values[i])) goto label_end;
   }
 
   A = cs_triplet(Atriplet);
 
-  label_end: cols = (int*) cs_free((char*) cols);
-  rows = (int*) cs_free((char*) rows);
-  vals = (double*) cs_free((char*) vals);
+  label_end:
   Atriplet = cs_spfree(Atriplet);
   return (A);
 }
@@ -1860,22 +1833,17 @@ void cs_print_dim(const char *title, const cs *A)
 
 void cs_print_range(const char *title, const cs *C)
 {
-  int *cols, *rows, number;
-  double *vals;
-
   /* Initializations */
 
   if (C == nullptr) return;
-  cols = rows = nullptr;
-  vals = nullptr;
 
   /* Convert the contents of the sparse matrix into columns */
 
-  cs_sparse_to_triplet(C, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(C, 0);
 
   /* Calculate the extreme values */
 
-  StatResults stats = ut_statistics(number, vals);
+  StatResults stats = ut_statistics(T.number, T.values.data());
 
   /* Printout */
 
@@ -1884,16 +1852,10 @@ void cs_print_range(const char *title, const cs *C)
   else
     message("Sparse matrix\n");
   message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
-  if (number > 0)
-    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, number);
+  if (T.number > 0)
+    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, T.number);
   else
-    message(" All terms all set to zero\n");
-
-  /* Core deallocation */
-
-  cols = (int*) cs_free((char*) cols);
-  rows = (int*) cs_free((char*) rows);
-  vals = (double*) cs_free((char*) vals);
+    message(" All terms are set to zero\n");
 }
 
 
@@ -2528,7 +2490,7 @@ static double func3(double x)
 /* (entered as a vector): B = A %*% oper(X) */
 /* 'oper' is Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
 
-cs* cs_matvecR(const cs *A, double *x, int oper)
+cs* cs_matvecR(const cs *A, const double *x, int oper)
 {
   int *Ap, *Ai, n;
   double *Ax, *Bx;
@@ -2564,7 +2526,7 @@ cs* cs_matvecR(const cs *A, double *x, int oper)
 /* (entered as a vector): B = oper(X) %*% A */
 /* 'oper' is Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
 
-cs* cs_matvecL(const cs *A, double *x, int oper)
+cs* cs_matvecL(const cs *A, const double *x, int oper)
 {
   int *Ap, n;
   double *Ax, *Bx;
@@ -3466,19 +3428,18 @@ void cs_mulvec_lowtri(const cs *A,
 
 cs* cs_compress(cs *A)
 {
-  int *cols, *rows, number;
-  double *vals, value;
+  double value;
   cs *Q, *Qtriplet;
 
-  cs_sparse_to_triplet(A, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(A, 0);
 
   Q = Qtriplet = nullptr;
   Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
-  for (int i = 0; i < number; i++)
+  for (int i = 0; i < T.number; i++)
   {
-    value = vals[i];
-    if (ABS(value) < 1.e-10) continue;
-    (void) cs_entry(Qtriplet, rows[i], cols[i], value);
+    value = T.values[i];
+    if (ABS(value) < EPSILON10) continue;
+    (void) cs_entry(Qtriplet, T.rows[i], T.cols[i], value);
   }
   Q = cs_triplet(Qtriplet);
   Qtriplet = cs_spfree(Qtriplet);
@@ -3487,39 +3448,25 @@ cs* cs_compress(cs *A)
 
 void cs_keypair(const char *key, cs *A, int flag_from_1)
 {
-  int *rows, *cols, number;
-  double *vals;
   char name[100];
 
-  number = 0;
-  cols = rows = nullptr;
-  vals = nullptr;
   if (A == nullptr) return;
 
-  cs_sparse_to_triplet(A, flag_from_1, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(A, flag_from_1);
 
   (void) gslSPrintf(name, "%s.cols", key);
-  set_keypair_int(name, 1, number, 1, cols);
+  set_keypair_int(name, 1, T.number, 1, T.cols.data());
   (void) gslSPrintf(name, "%s.rows", key);
-  set_keypair_int(name, 1, number, 1, rows);
+  set_keypair_int(name, 1, T.number, 1, T.rows.data());
   (void) gslSPrintf(name, "%s.vals", key);
-  set_keypair(name, 1, number, 1, vals);
-
-  rows = (int*) mem_free((char* ) rows);
-  cols = (int*) mem_free((char* ) cols);
-  vals = (double*) mem_free((char* ) vals);
+  set_keypair(name, 1, T.number, 1, T.values.data());
 }
 
 void cs_print_file(const char *radix, int rank, cs *A)
 {
-  int *rows, *cols, number;
-  double *vals;
   FILE *file;
   char filename[100];
 
-  number = 0;
-  cols = rows = nullptr;
-  vals = nullptr;
   if (A == nullptr) return;
 
   if (!IFFFF(rank))
@@ -3530,18 +3477,14 @@ void cs_print_file(const char *radix, int rank, cs *A)
   file = gslFopen(filename, "w");
   if (file == nullptr) return;
 
-  cs_sparse_to_triplet(A, 0, &number, &cols, &rows, &vals);
+  Triplet T = csToTriplet(A, 0);
 
-  for (int i = 0; i < number; i++)
+  for (int i = 0; i < T.number; i++)
   {
-    fprintf(file, "%10d %10d %20.10lf\n", cols[i], rows[i], vals[i]);
+    fprintf(file, "%10d %10d %20.10lf\n", T.cols[i], T.rows[i], T.values[i]);
   }
 
   (void) fclose(file);
-
-  rows = (int*) mem_free((char* ) rows);
-  cols = (int*) mem_free((char* ) cols);
-  vals = (double*) mem_free((char* ) vals);
 }
 
 /* Check if a value exists */
@@ -3555,9 +3498,9 @@ bool cs_exist(const cs* A, int row, int col)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col) return true;
+    if (Ai[p] == row) return true;
   }
   return false;
 }
@@ -3578,9 +3521,9 @@ double cs_get_value(const cs *A, int row, int col)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col) return Ax[p];
+    if (Ai[p] == row) return Ax[p];
   }
   return 0.;
 }
@@ -3599,9 +3542,9 @@ void cs_set_value(const cs *A, int row, int col, double value)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col)
+    if (Ai[p] == row)
     {
       Ax[p] = value;
       return;
@@ -3609,7 +3552,8 @@ void cs_set_value(const cs *A, int row, int col, double value)
   }
   if (value != 0.)
   {
-    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
+    _cs_update_nonzero_value(row, col, value);
+    return;
   }
 }
 
@@ -3627,17 +3571,15 @@ void cs_add_value(const cs *A, int row, int col, double value)
 
   /* Loop on the elements */
 
-  for (int p = Ap[row]; p < Ap[row + 1]; p++)
+  // Modif DR
+
+  for (int p = Ap[col]; p < Ap[col + 1]; p++)
   {
-    if (Ai[p] == col)
+    if (Ai[p] == row)
     {
       Ax[p] += value;
       return;
     }
-  }
-  if (value != 0.)
-  {
-    my_throw("Sparse matrix: cannot modify a zero-value by a non-zero one");
   }
 }
 
@@ -3655,8 +3597,7 @@ void cs_add_cste(cs *A, double value)
   {
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
-      if (Ax[p] != 0.)
-        Ax[p] += value;
+      Ax[p] += value;
     }
   }
 }
@@ -3675,8 +3616,7 @@ void cs_set_cste(cs *A, double value)
   {
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
-      if (Ax[p] != 0.)
-        Ax[p] = value;
+      Ax[p] = value;
     }
   }
 }
@@ -3866,68 +3806,6 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
   return (Q);
 }
 
-bool cs_are_same(const cs* A, const cs* B, double tol)
-{
-  int *Ap, *Ai, *Bp, *Bi;
-  double *Ax, *Bx;
-
-  if (!A || !B) return false;
-  bool flag_same = true;
-
-  /* Loop on the elements of A and check B */
-
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-
-  for (int j = 0; j < cs_getncol(A); j++)
-     for (int p = Ap[j]; p < Ap[j + 1]; p++)
-     {
-       double refval = Ax[p];
-       if (ABS(refval) > tol)
-       {
-         if (! cs_exist(B, j, Ai[p]))
-         {
-           messerr("A(%d,%d)=%lf is a non-zero term ... that is not present in B",
-                   j, Ai[p], refval);
-           flag_same = false;
-         }
-         else
-         {
-           double testval = cs_get_value(B, j, Ai[p]);
-           if (ABS(testval - refval) > tol)
-           {
-             messerr("A(%d,%d) = %f is different from B=%lf",
-                     j, Ai[p], refval, testval);
-             flag_same = false;
-           }
-         }
-       }
-     }
-
-  /* Loop on the elements of B and check A */
-
-  Bp = B->p;
-  Bi = B->i;
-  Bx = B->x;
-
-  for (int j = 0; j < cs_getncol(B); j++)
-    for (int p = Bp[j]; p < Bp[j + 1]; p++)
-    {
-      double refval = Bx[p];
-      if (ABS(refval) > tol)
-      {
-        if (!cs_exist(A, j, Bi[p]))
-        {
-          messerr("B(%d,%d)=%f is a non-zero term ... that is not present in A",
-                  j, Bi[p], refval);
-          flag_same = false;
-        }
-      }
-    }
-  return flag_same;
-}
-
 /**
  * This method glues two sparse matrices into an output sparse matrix
  * The second matrix is appended after addresses have been shifted
@@ -3943,27 +3821,19 @@ cs* cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool shiftCol)
   // Create the output structure in Triplet
   cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
 
-  int n1 = 0;
-  int *rows1 = nullptr;
-  int *cols1 = nullptr;
-  double *vals1 = nullptr;
-  cs_sparse_to_triplet(A1, 0, &n1, &cols1, &rows1, &vals1);
+  Triplet T1 = csToTriplet(A1, 0);
   int addRow =  (shiftRow) ? cs_getnrow(A1) : 0;
   int addCol =  (shiftCol) ? cs_getncol(A1) : 0;
 
-  int n2 = 0;
-  int *rows2 = nullptr;
-  int *cols2 = nullptr;
-  double *vals2 = nullptr;
-  cs_sparse_to_triplet(A2, 0, &n2, &cols2, &rows2, &vals2);
+  Triplet T2 = csToTriplet(A2, 0);
 
   // Copy the contents of A1 into triplets
-  for (int i = 0; i < n1; i++)
-    (void) cs_entry(Striplet, rows1[i], cols1[i], vals1[i]);
+  for (int i = 0; i < T1.number; i++)
+    (void) cs_entry(Striplet, T1.rows[i], T1.cols[i], T1.values[i]);
 
   // Copy the contents of A2 into triplets
-  for (int i = 0; i < n2; i++)
-    (void) cs_entry(Striplet, rows2[i] + addRow, cols2[i] + addCol, vals2[i]);
+  for (int i = 0; i < T2.number; i++)
+    (void) cs_entry(Striplet, T2.rows[i] + addRow, T2.cols[i] + addCol, T2.values[i]);
 
   // Transform the output triplet into sparse matrix
   cs* Q = cs_triplet(Striplet);

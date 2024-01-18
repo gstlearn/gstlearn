@@ -17,6 +17,8 @@ argumentTestVectorString("my_String")
 argumentTestVectorString(c("my_String1","my_String2","my_String3"))
 argumentTestVectorVectorInt(list( c(2,3),c(1, 5) ))
 argumentTestVectorVectorDouble(list( c(2.,3.),c(1., 5 ) ))
+mat = MatrixRectangular_createFromVD(c(1., 2., 3., 4., 5., 6.),2,3)
+argumentTestMatrix(mat)
 
 # Testing Vector arguments using external factory
 
@@ -76,7 +78,7 @@ argumentDefTestVDbl()
 argumentDefTestVString()
 argumentDefTestVVDbl()
 
-# Specifying empty argument explicitely
+# Specifying empty argument explicitly
 
 argumentDefTestVInt(c())
 argumentDefTestVDbl(c())
