@@ -265,14 +265,14 @@ bool CalcAnamTransform::_postprocess()
   if (_flagVars)
   {
     int nvar = _getNVar();
-    _renameVariable(nvar, _iattVar, String(), 1);
+    _renameVariable(nvar, _iattVar, ELoc::Z, String(), 1);
     return true;
   }
 
   if (_flagToFactors)
   {
     int nfact = _getNfact();
-    _renameVariable(1, _iattFac, String(), nfact);
+    _renameVariable(1, _iattFac, ELoc::Z, String(), nfact);
     return true;
   }
 
@@ -280,7 +280,7 @@ bool CalcAnamTransform::_postprocess()
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel+i, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel+i, ELoc::UNKNOWN, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -288,7 +288,7 @@ bool CalcAnamTransform::_postprocess()
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel+i, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel+i, ELoc::Z, _selectivity->getVariableName(i), 1);
     return true;
   }
 
@@ -296,7 +296,7 @@ bool CalcAnamTransform::_postprocess()
   {
     int nsel = _getNSel();
     for (int i = 0; i < nsel; i++)
-      _renameVariable(1, _iattSel+i, _selectivity->getVariableName(i), 1);
+      _renameVariable(1, _iattSel+i, ELoc::Z, _selectivity->getVariableName(i), 1);
     return true;
   }
 

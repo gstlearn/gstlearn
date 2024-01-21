@@ -449,8 +449,7 @@ int model_update_coreg(Model *model,
   for (int icov = 0; icov < ncova; icov++)
   {
     if (!is_matrix_definite_positive(
-        nvar, model->getCova(icov)->getSill().getValues().data(), valpro,
-        vecpro, 0))
+        nvar, model->getCova(icov)->getSill().getValues().data(), valpro, vecpro, 0))
     {
       messerr("Warning: the model is not authorized");
       messerr("The coregionalization matrix for the structure %d is not definite positive",

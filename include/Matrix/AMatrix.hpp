@@ -27,16 +27,16 @@ class Triplet;
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
-  AMatrix(int nrow = 0, int ncol = 0, int opt_eigen = 1);
+  AMatrix(int nrow = 0, int ncol = 0, int opt_eigen = -1);
   AMatrix(const AMatrix &m);
   AMatrix& operator= (const AMatrix &m);
   virtual ~AMatrix();
 
-  void init(int nrows, int ncols, int opt_eigen = 1);
-  void reset(int nrows, int ncols, double value = 0., int opt_eigen = 1);
-  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true, int opt_eigen = 1);
-  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true, int opt_eigen = 1);
-  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true, int opt_eigen = 1);
+  void init(int nrows, int ncols, int opt_eigen = -1);
+  void reset(int nrows, int ncols, double value = 0., int opt_eigen = -1);
+  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true, int opt_eigen = -1);
+  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true, int opt_eigen = -1);
+  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true, int opt_eigen = -1);
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -185,6 +185,7 @@ public:
                   const VectorInt &activeCols);
   void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
+  bool isNonNegative(bool verbose);
 
 #ifndef SWIG
   /*! Get value operator override */

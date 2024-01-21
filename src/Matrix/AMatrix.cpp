@@ -1183,10 +1183,35 @@ bool AMatrix::_getFlagEigen(int opt_eigen) const
     return globalFlagEigen;
 }
 
+/****************************************************************************/
+/*!
+ **  Check if all the elements of a matrix are non-negative
+ **
+ ** \return  True if the matrix is non-negative; False otherwise
+ **
+ ** \param[in]  verbose  True for the verbose option
+ **
+ *****************************************************************************/
+bool AMatrix::isNonNegative(bool verbose)
+{
+  for (int irow = 0; irow < _nRows; irow++)
+    for (int icol = 0; icol < _nCols; icol++)
+    {
+      double value = getValue(irow,icol);
+      if (value < 0.)
+      {
+        if (verbose) messerr("The matrix term (%d,%d) is not non-negative (%lf)",irow,icol,value);
+        return false;
+      }
+    }
+  return true;
+}
+
 AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
 {
   return MatrixFactory::matProduct(mat1, mat2);
 }
+
 
 void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
 {
@@ -1226,3 +1251,4 @@ bool isMultiThread()
 {
   return globalMultiThread > 0;
 }
+

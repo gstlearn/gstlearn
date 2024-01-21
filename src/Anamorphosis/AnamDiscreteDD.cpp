@@ -92,8 +92,8 @@ void AnamDiscreteDD::reset(int ncut,
                            double scoef,
                            double mu,
                            const VectorDouble &zcut,
-                           const VectorDouble &pcaz2f,
-                           const VectorDouble &pcaf2z,
+                           const MatrixSquareGeneral &pcaz2f,
+                           const MatrixSquareGeneral &pcaf2z,
                            const VectorDouble &stats)
 {
   setNCut(ncut);
@@ -340,7 +340,7 @@ VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
       double prop = getDDStatProp(icut);
       tab[ecr] = ((bval - cval) - prop) / sqrt(prop * (1. - prop));
     }
-  matrix_product_safe(nclass,ncut,ncut,tab.data(),getPcaZ2Fs().data(),maf.data());
+  matrix_product_safe(nclass,ncut,ncut,tab.data(),getPcaZ2Fs().getValues().data(),maf.data());
 
   /* Verbose option */
 
@@ -624,14 +624,14 @@ bool AnamDiscreteDD::_serialize(std::ostream& os, bool verbose) const
   ret = ret && AnamDiscrete::_serialize(os, verbose);
   ret = ret && _recordWrite<double>(os, "Change of support coefficient", getSCoef());
   ret = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
-  ret = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs());
-  ret = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Zs());
+  ret = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2Fs().getValues());
+  ret = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Zs().getValues());
   return ret;
 }
 
 bool AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
 {
-  VectorDouble pcaf2z, pcaz2f;
+  MatrixSquareGeneral pcaf2z, pcaz2f;
   double s = TEST;
   double mu = TEST;
 
@@ -640,16 +640,19 @@ bool AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
   ret = ret && _recordRead<double>(is, "Anamorphosis 's' coefficient", s);
   ret = ret && _recordRead<double>(is, "Anamorphosis 'mu' coefficient", mu);
 
+  int ncut = getNCut();
   if (ret)
   {
-    pcaz2f.resize(getNCut() * getNCut());
-    ret = ret && _tableRead(is, "PCA Z2Y", getNCut() * getNCut(), pcaz2f.data());
+    VectorDouble local(ncut * ncut);
+    ret = ret && _tableRead(is, "PCA Z2Y", getNCut() * getNCut(), local.data());
+    pcaz2f.resetFromVD(ncut, ncut, local);
   }
 
   if (ret)
   {
-    pcaf2z.resize(getNCut() * getNCut());
-    ret = ret && _tableRead(is, "PCA Y2Z", getNCut() * getNCut(), pcaf2z.data());
+    VectorDouble local(ncut * ncut);
+    ret = ret && _tableRead(is, "PCA Y2Z", getNCut() * getNCut(), local.data());
+    pcaf2z.resetFromVD(ncut, ncut, local);
   }
 
   if (ret)

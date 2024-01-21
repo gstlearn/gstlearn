@@ -51,7 +51,7 @@ public:
   int  setKrigOptColCok(const VectorInt& rank_colcok);
   int  setKrigOptBayes(bool flag_bayes,
                        const VectorDouble& prior_mean,
-                       const VectorDouble& prior_cov,
+                       const MatrixSquareSymmetric& prior_cov,
                        int seed = 414371);
   int  setKrigOptImage(int seed = 133271);
   int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
@@ -253,12 +253,12 @@ private:
   /// Option for Bayesian
   bool _flagBayes;
   int  _seedForBayes;
-  VectorDouble _priorMean; // Dimension NF
-  VectorDouble _priorCov;  // Dimension NF * NF
-  VectorDouble _postMean;
-  VectorDouble _postCov;
-  VectorVectorDouble _postSimu;
-  VectorDouble _varCorrec;
+  VectorDouble          _priorMean; // Dimension NF
+  MatrixSquareSymmetric _priorCov;  // Dimension NF * NF
+  VectorDouble          _postMean;
+  MatrixSquareSymmetric _postCov;
+  MatrixRectangular     _postSimu; // Dimension NF * NBSIMU
+  MatrixSquareSymmetric _varCorrec;
   Model* _modelSimple;
 
   /// Option for Discrete Gaussian Model

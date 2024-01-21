@@ -63,21 +63,21 @@ public:
              double scoef,
              double mu,
              const VectorDouble &zcut,
-             const VectorDouble &pcaz2f,
-             const VectorDouble &pcaf2z,
+             const MatrixSquareGeneral &pcaz2f,
+             const MatrixSquareGeneral &pcaf2z,
              const VectorDouble &stats);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
   double getSCoef() const { return _sCoef; }
   const VectorDouble& getI2Chi() const { return _i2Chi; }
-  VectorDouble getPcaZ2Fs() const { return _maf.getZ2Fs(); }
-  VectorDouble getPcaF2Zs() const { return _maf.getF2Zs(); }
+  MatrixSquareGeneral getPcaZ2Fs() const { return _maf.getZ2Fs(); }
+  MatrixSquareGeneral getPcaF2Zs() const { return _maf.getF2Zs(); }
 
   void setMu(double mu) { _mu = mu; }
   void setRCoef(double rcoef) { _sCoef = rcoef; }
-  void setPcaZ2F(VectorDouble pcaz2f) { _maf.setZ2Fs(pcaz2f); }
-  void setPcaF2Z(VectorDouble pcaf2z) { _maf.setF2Zs(pcaf2z); }
+  void setPcaZ2F(MatrixSquareGeneral pcaz2f) { _maf.setZ2Fs(pcaz2f); }
+  void setPcaF2Z(MatrixSquareGeneral pcaf2z) { _maf.setF2Zs(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
 
   int factor2Selectivity(Db *db,

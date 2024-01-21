@@ -23,9 +23,9 @@
 class GSTLEARN_EXPORT MatrixSparse : public AMatrix {
 
 public:
-  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen=1);
+  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen=-1);
 #ifndef SWIG
-  MatrixSparse(const cs* A, int opt_eigen = 1);
+  MatrixSparse(const cs* A, int opt_eigen = -1);
 #endif
   MatrixSparse(const MatrixSparse &m);
   MatrixSparse& operator= (const MatrixSparse &m);

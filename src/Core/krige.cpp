@@ -1567,7 +1567,7 @@ int _krigsim(Db* dbin,
              ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
-             const VectorDouble& dcov,
+             const MatrixSquareSymmetric& dcov,
              int icase,
              int nbsimu,
              bool flag_dgm)
@@ -3186,8 +3186,11 @@ int krigsum(Db *dbin,
     }
   }
 
-  /* Set the error return flag */
+  /* Reset the locators and rename the output variables */
 
+  dbin->clearLocators(ELoc::Z);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    dbin->setLocatorByUID(iuids[ivar], ELoc::Z, ivar);
   namconv.setNamesAndLocators(dbin, VectorString(), ELoc::Z, nvar, dbout, iptr_est, "estim");
 
   return 0;

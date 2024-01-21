@@ -233,25 +233,44 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            bool flagSetLocator,
                                            int locatorShift) const
 {
+  // No variable is concerned: simply return
   if (iattout_start < 0) return;
+
+  // Update the list of variable names
   VectorString namloc = names;
-  if (names.empty())
+  if (namloc.empty())
   {
+    // No list of variable names is provided. Attempt to construct it
     if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
     {
+      // Variables are designated using the locator in a 'db'.
+      // If 'nvar' is not defined, 'namloc' defines the count of variables
+      // If 'nvar' is defined, it prevails.
       namloc = dbin->getNamesByLocator(locatorInType);
-      if (nvar <= 0) nvar = static_cast<int>(namloc.size());
+      if (nvar <= 0)
+        nvar = (int) namloc.size();
+      else
+        namloc.resize(nvar);
     }
     else
     {
-      if (nvar < 0) nvar = 1;
+      // 'namloc' remain empty. Argument 'nvar' prevails. If zero, it is set to 1
+      if (nvar < 0)
+        nvar = 1;
     }
   }
   else
   {
+    // 'namloc' is defined as input argument
+    if ((int) namloc.size() == 1 && nvar > 1)
+    {
+      // Particular case of a single string in 'namloc' but 'nvar' > 1; expand the name
+      namloc = generateMultipleNames(namloc[0], nvar);
+    }
+
+    // The number items in 'namloc' overrides 'nvar'
     nvar = (int) namloc.size();
   }
-  if (nvar != static_cast<int>(namloc.size())) namloc.resize(nvar);
 
   _setNames(dbout, iattout_start, namloc, qualifier, nitems);
 

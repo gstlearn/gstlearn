@@ -196,9 +196,18 @@ bool CalcKriging::_postprocess()
   }
   else
   {
-    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
-    _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+    if (_matCL == nullptr)
+    {
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
+      _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrEst, "estim", 1);
+    }
+    else
+    {
+      _renameVariable(2, {"CL"}, ELoc::UNKNOWN, nvar, _iptrVarZ, "varz", 1);
+      _renameVariable(2, {"CL"}, ELoc::UNKNOWN, nvar, _iptrStd, "stdev", 1);
+      _renameVariable(2, {"CL"}, ELoc::UNKNOWN, nvar, _iptrEst, "estim", 1);
+    }
   }
 
   return true;
@@ -436,7 +445,7 @@ int kribayes(Db *dbin,
              Model *model,
              ANeigh *neigh,
              const VectorDouble& prior_mean,
-             const VectorDouble& prior_cov,
+             const MatrixSquareSymmetric& prior_cov,
              bool flag_est,
              bool flag_std,
              const NamingConvention& namconv)
