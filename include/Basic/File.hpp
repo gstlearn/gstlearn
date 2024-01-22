@@ -66,3 +66,9 @@ GSTLEARN_EXPORT String gslBaseName(const String& path, bool keepExtension = fals
 
 GSTLEARN_EXPORT String gslGetEnv(const String& name);
 
+/**
+ * Get line from an input text stream whatever the end of line convention.
+ * Thanks to: https://stackoverflow.com/a/6089413
+ */
+GSTLEARN_EXPORT std::istream& gslSafeGetline(std::istream& is, String& t);
+

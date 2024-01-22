@@ -13,7 +13,14 @@
 #include "gstlearn_export.hpp"
 #include "Matrix/AMatrix.hpp"
 
+
+#ifdef _MSC_VER
+  #pragma warning(disable:4127)
+#endif
 #include <Eigen/Dense>
+#ifdef _MSC_VER
+  #pragma warning(default:4127)
+#endif
 
 /**
  * Square Matrix

@@ -18,8 +18,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptCustom.hpp"
 
-#include <Eigen/Dense>
-
 #include <string.h>
 #include <algorithm>
 #include <iomanip>
@@ -604,7 +602,7 @@ VectorDouble VectorHelper::normalScore(const VectorDouble &data,
                                        const VectorDouble &wt)
 {
   int nech = (int) data.size();
-  VectorDouble vec = VectorDouble(nech, TEST);
+  VectorDouble vec(nech, TEST);
   if (nech <= 0) return vec;
 
   // Check dimension of vector

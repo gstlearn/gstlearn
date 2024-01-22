@@ -538,6 +538,7 @@ int csv_table_read(const String &filename,
 
   String line;
   String filepath = ASerializable::buildFileName(1, filename, true);
+
   // Open new stream
   std::ifstream file;
   file.open(filepath, std::ios::in);
@@ -560,7 +561,8 @@ int csv_table_read(const String &filename,
   // Define the variable names
   if (flag_header)
   {
-    std::getline(file, line);
+    //std::getline(file, line);
+    gslSafeGetline(file, line);
     if (!line.empty())
     {
       line = trimRight(line);
@@ -586,7 +588,8 @@ int csv_table_read(const String &filename,
     int iskip = 0;
     while (iskip < nskip && !file.eof())
     {
-      std::getline(file, line);
+      //std::getline(file, line);
+      gslSafeGetline(file, line);
       iskip++;
     }
   }
@@ -596,7 +599,8 @@ int csv_table_read(const String &filename,
   int nrow = 0;
   while (!file.eof())
   {
-    std::getline(file, line);
+    //std::getline(file, line);
+    gslSafeGetline(file, line);
     if (!line.empty())
     {
       ncol2 = 0;

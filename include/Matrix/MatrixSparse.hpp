@@ -15,7 +15,14 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+
+#ifdef _MSC_VER
+  #pragma warning(disable:4127)
+#endif
 #include <Eigen/Sparse>
+#ifdef _MSC_VER
+  #pragma warning(default:4127)
+#endif
 
 /**
  * Sparse Matrix
