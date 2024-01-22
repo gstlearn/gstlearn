@@ -41,11 +41,12 @@ public:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
-  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
+  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, int opt_eigen = -1);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
                                          int ncol,
-                                         bool byCol = false);
+                                         bool byCol = false,
+                                         int opt_eigen = -1);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);
@@ -54,7 +55,7 @@ public:
   MatrixRectangular* reduce(const VectorInt& validRows, const VectorInt& validCols) const;
 
 protected:
-  virtual int    _getIndexToRank(int irow,int icol) const override;
+  virtual int _getIndexToRank(int irow,int icol) const override;
 
 private:
   /// Interface for AMatrix

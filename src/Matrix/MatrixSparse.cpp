@@ -19,12 +19,19 @@
 #include <iostream>
 #include <iomanip>
 
+#include <Eigen/SparseCholesky>
+
 #include "csparse_d.h"
 #include "csparse_f.h"
 
 MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
     : AMatrix(nrow, ncol, opt_eigen),
-      _csMatrix(nullptr)
+      _csMatrix(nullptr),
+      _eigenMatrix(),
+      _flagDecomposeCholesky(false),
+      _S(nullptr),
+      _N(nullptr),
+      _cholEigen()
 {
   _allocate();
 }
@@ -32,7 +39,12 @@ MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
 #ifndef SWIG
 MatrixSparse::MatrixSparse(const cs *A, int opt_eigen)
     : AMatrix(0, 0, opt_eigen),
-      _csMatrix(nullptr)
+      _csMatrix(nullptr),
+      _eigenMatrix(),
+      _flagDecomposeCholesky(false), // Note: the class looses the Cholesky decomposition
+      _S(nullptr),
+      _N(nullptr),
+      _cholEigen()
 {
   if (_isFlagEigen())
     my_throw("Cannot copy a cs into an Eigen");
@@ -43,7 +55,12 @@ MatrixSparse::MatrixSparse(const cs *A, int opt_eigen)
 
 MatrixSparse::MatrixSparse(const MatrixSparse &m)
     : AMatrix(m),
-      _csMatrix(nullptr)
+      _csMatrix(nullptr),
+      _eigenMatrix(),
+      _flagDecomposeCholesky(false), // We loose the Cholesky decomposition
+      _S(nullptr),
+      _N(nullptr),
+      _cholEigen()
 {
   if (_isFlagEigen())
     _eigenMatrix = m._eigenMatrix;
@@ -59,8 +76,15 @@ MatrixSparse& MatrixSparse::operator=(const MatrixSparse &m)
     if (_isFlagEigen())
       _eigenMatrix = m._eigenMatrix;
     else
+    {
       _csMatrix = cs_duplicate(m._csMatrix);
+
+      // We loose the Cholesky decomposition when copying
+      _S = nullptr;
+      _N = nullptr;
+    }
   }
+  _flagDecomposeCholesky = false;
   return *this;
 }
 
@@ -153,6 +177,75 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
     _csMatrix = cs_triplet(Atriplet);
     Atriplet = cs_spfree(Atriplet);
   }
+}
+
+int MatrixSparse::computeCholesky()
+{
+  if (! isSquare() || ! isSymmetric())
+  {
+    messerr("The 'Cholesky' decomposition is not possible as the matrix is not square symmetric");
+    return 1;
+  }
+
+  if (_isFlagEigen())
+  {
+    _cholEigen.compute(_eigenMatrix);
+  }
+  else
+  {
+    _S = cs_schol(_csMatrix, 0);
+    if (_S == nullptr)
+    {
+      messerr("Error in cs_schol function");
+      return 1;
+    }
+    _N = cs_chol(_csMatrix, _S);
+    if (_N == nullptr)
+    {
+      messerr("Error in cs_chol function");
+      return 1;
+    }
+  }
+  _flagDecomposeCholesky = true;
+  return 0;
+}
+
+int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
+{
+  if (! _flagDecomposeCholesky)
+  {
+    messerr("You must perform 'computeCholesky' beforehand");
+    return 1;
+  }
+  int ncols = getNCols();
+  if ((int) b.size() != ncols)
+  {
+    messerr("Dimension of input argument 'b' (%d) does not match",(int) b.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+  if ((int) x.size() != ncols)
+  {
+    messerr("Dimension of output argument 'x' (%d) does not match",(int) x.size());
+    messerr("the number of columns of the Matrix 'this' (%d)", ncols);
+    return 1;
+  }
+
+  if (_isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> bm(b.data(), getNCols());
+    Eigen::Map<Eigen::VectorXd> xm(x.data(), getNRows());
+    xm = _cholEigen.solve(bm);
+  }
+  else
+  {
+    VectorDouble work(ncols);
+    cs_ipvec(ncols, _S->Pinv, b.data(), work.data());
+    cs_lsolve(_N->L, work.data());
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(ncols, _S->Pinv, work.data(), x.data());
+  }
+  return 0;
 }
 
 void MatrixSparse::_transposeInPlace()
@@ -518,6 +611,15 @@ void MatrixSparse::_setValues(const double* values, bool byCol)
 }
 #endif
 
+MatrixSparse* MatrixSparse::createFromTriplet(const Triplet& T, int nrow, int ncol, int opt_eigen)
+{
+  MatrixSparse* mat = new MatrixSparse(nrow, ncol, opt_eigen);
+
+  mat->setValuesFromTriplet(T);
+
+  return mat;
+}
+
 void MatrixSparse::setValuesFromTriplet(const Triplet& T)
 {
   if (_isFlagEigen())
@@ -788,6 +890,7 @@ String MatrixSparse::toString(const AStringFormat* strfmt) const
   {
     sstr << "- Number of rows    = " << getNRows() << std::endl;
     sstr << "- Number of columns = " << getNCols() << std::endl;
+    sstr << "  (using Eigen Library)" << std::endl;
     sstr << "- Sparse Format" << std::endl;
     sstr << toMatrix(String(), _csMatrix);
   }
@@ -831,6 +934,9 @@ void MatrixSparse::_deallocate()
   else
   {
     _csMatrix = cs_spfree(_csMatrix);
+    _flagDecomposeCholesky = false;
+    _N = cs_nfree(_N);
+    _S = cs_sfree(_S);
   }
 }
 

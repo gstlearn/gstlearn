@@ -62,16 +62,17 @@ MatrixRectangular::~MatrixRectangular()
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param  X Input VectorVectorDouble argument
+ * @param opt_eigen Option for use of Eigen Library
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
+MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
 
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, opt_eigen);
   mat->_fillFromVVD(X);
   return mat;
 }
@@ -79,14 +80,15 @@ MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
 MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
                                                    int nrow,
                                                    int ncol,
-                                                   bool byCol)
+                                                   bool byCol,
+                                                   int opt_eigen)
 {
   if (nrow * ncol != (int) X.size())
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
     messerr("and the dimension of the input Vector (%d)", (int) X.size());
   }
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, opt_eigen);
 
   int lec = 0;
   if (byCol)

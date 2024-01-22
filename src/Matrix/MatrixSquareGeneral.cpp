@@ -57,6 +57,67 @@ MatrixSquareGeneral::~MatrixSquareGeneral()
   _deallocate();
 }
 
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @param opt_eigen Option for use of Eigen Library
+ * @return The returned square matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow, opt_eigen);
+  mat->_fillFromVVD(X);
+  return mat;
+}
+
+MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
+                                                       int nrow,
+                                                       bool byCol,
+                                                       int opt_eigen,
+                                                       bool invertColumnOrder)
+{
+  int ncol = nrow;
+  if (nrow * ncol != (int) X.size())
+  {
+    messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
+    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+  }
+  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow, opt_eigen);
+
+  int lec = 0;
+  if (byCol)
+  {
+    for (int irow = 0; irow < nrow; irow++)
+      for (int icol = 0; icol < ncol; icol++)
+      {
+        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        mat->setValue(irow, jcol, X[lec++]);
+      }
+  }
+  else
+  {
+    for (int icol = 0; icol < ncol; icol++)
+      for (int irow = 0; irow < nrow; irow++)
+      {
+        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        mat->setValue(irow, jcol, X[lec++]);
+      }
+  }
+  return mat;
+}
+
+
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
   if (_isFlagEigen())
@@ -153,29 +214,6 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
 {
   my_throw("Invert method is limited to Square Symmetrical Matrices");
   return 0;
-}
-
-/**
- * Converts a VectorVectorDouble into a Matrix
- * Note: the input argument is stored by row (if coming from [] specification)
- * @param X Input VectorVectorDouble argument
- * @return The returned matrix
- *
- * @remark: the matrix is transposed implicitly while reading
- */
-MatrixSquareGeneral* MatrixSquareGeneral::createFromVVD(const VectorVectorDouble& X)
-{
-  int nrow = (int) X.size();
-  int ncol = (int) X[0].size();
-  if (nrow != ncol)
-  {
-    messerr("The matrix does not seem to be square");
-    return nullptr;
-  }
-
-  MatrixSquareGeneral* mat = new MatrixSquareGeneral(nrow);
-  mat->_fillFromVVD(X);
-  return mat;
 }
 
 MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) const

@@ -48,8 +48,15 @@ public:
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
-  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble& X);
+  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X, int opt_eigen = -1);
+  static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
+                                             int nrow,
+                                             int opt_eigen = -1);
   MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
+
+  int computeEigen();
+  VectorDouble      getEigenValues();
+  MatrixSquareGeneral* getEigenVectors();
 
 private:
   /// Interface for AMatrix
@@ -87,7 +94,13 @@ private:
   int     _getIndexToRankLocal(int irow, int icol) const;
   int     _getMatrixPhysicalSizeLocal() const;
   int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
+  int     _computeEigenLocal();
+  VectorDouble _getEigenValuesLocal();
+  MatrixSquareGeneral* _getEigenVectorsLocal();
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage
+  bool _flagEigenDecompose;
+  VectorDouble _eigenValues;
+  VectorDouble _eigenVectors;
 };

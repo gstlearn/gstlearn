@@ -13,26 +13,36 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
-: AMatrixSquare(nrow, opt_eigen)
-, _squareSymMatrix()
+    : AMatrixSquare(nrow, opt_eigen),
+      _squareSymMatrix(),
+      _flagEigenDecompose(false),
+      _eigenValues(),
+      _eigenVectors()
 {
   _allocate();
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
-  : AMatrixSquare(r)
-  , _squareSymMatrix()
+  : AMatrixSquare(r),
+   _squareSymMatrix(),
+   _flagEigenDecompose(),
+   _eigenValues(),
+   _eigenVectors()
 {
   _recopyLocal(r);
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
     : AMatrixSquare(m),
-      _squareSymMatrix()
+      _squareSymMatrix(),
+      _flagEigenDecompose(false),
+      _eigenValues(),
+      _eigenVectors()
 {
   if (!m.isSymmetric())
   {
@@ -63,6 +73,58 @@ MatrixSquareSymmetric& MatrixSquareSymmetric::operator= (const MatrixSquareSymme
 MatrixSquareSymmetric::~MatrixSquareSymmetric()
 {
   _deallocate();
+}
+
+/**
+ * Converts a VectorVectorDouble into a Square Symmetric Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param  X Input VectorVectorDouble argument
+ * @param opt_eigen Option for use of Eigen Library
+ * @return The returned square symmetric matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow, opt_eigen);
+  mat->_fillFromVVD(X);
+  return mat;
+}
+
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X,
+                                                           int nrow,
+                                                           int opt_eigen)
+{
+  int ncol = nrow;
+  if (nrow * ncol != (int) X.size())
+  {
+    messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
+    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+  }
+  // Check symmetry
+  MatrixRectangular* mattemp = MatrixRectangular::createFromVD(X, nrow, ncol);
+  if (! mattemp->isSymmetric())
+  {
+    messerr("The input matrix does not seem to be Square and symmetric");
+    delete mattemp;
+    return nullptr;
+  }
+  delete mattemp;
+
+  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(nrow, opt_eigen);
+
+  int lec = 0;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      mat->setValue(irow, icol, X[lec++]);
+  return mat;
 }
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
@@ -255,30 +317,28 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows)
   return res;
 }
 
-/**
- * Converts a VectorVectorDouble into a Matrix
- * Note: the input argument is stored by row (if coming from [] specification)
- * @param X Input VectorVectorDouble argument
- * @return The returned matrix
- *
- * @remark: the matrix is transposed implicitly while reading
- */
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X)
+int MatrixSquareSymmetric::computeEigen()
 {
-  int nrow = (int) X.size();
-  int ncol = (int) X[0].size();
-  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol);
-  if (mattemp->isSymmetric())
-  {
-    messerr("The matrix does not seem to be Square and symmetric");
-    delete mattemp;
-    return nullptr;
-  }
-  delete mattemp;
+  if (_isFlagEigen())
+    return AMatrixDense::_computeEigen();
+  else
+    return _computeEigenLocal();
+}
 
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
-  mat->_fillFromVVD(X);
-  return mat;
+VectorDouble MatrixSquareSymmetric::getEigenValues()
+{
+  if (_isFlagEigen())
+    return AMatrixDense::_getEigenValues();
+  else
+    return _getEigenValuesLocal();
+}
+
+MatrixSquareGeneral* MatrixSquareSymmetric::getEigenVectors()
+{
+  if (_isFlagEigen())
+    return AMatrixDense::_getEigenVectors();
+  else
+    return _getEigenVectorsLocal();
 }
 
 /// =============================================================================
@@ -288,6 +348,9 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
 void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
 {
   _squareSymMatrix = r._squareSymMatrix;
+  _flagEigenDecompose = r._flagEigenDecompose;
+  _eigenValues = r._eigenValues;
+  _eigenVectors = r._eigenVectors;
 }
 
 double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
@@ -389,4 +452,40 @@ int MatrixSquareSymmetric::_solveLocal(const VectorDouble& b, VectorDouble& x) c
   int pivot;
   return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
                       static_cast<int> (b.size()),1,&pivot);
+}
+
+int MatrixSquareSymmetric::_computeEigenLocal()
+{
+  int nrows = getNRows();
+  _flagEigenDecompose = true;
+  _eigenValues = VectorDouble(nrows, 0.);
+  _eigenVectors = VectorDouble(nrows * nrows, 0);
+  VectorDouble local = this->getValues();
+  return matrix_eigen(local.data(), nrows, _eigenValues.data(), _eigenVectors.data());
+}
+
+VectorDouble MatrixSquareSymmetric::_getEigenValuesLocal()
+{
+  if (! _flagEigenDecompose)
+  {
+    messerr("You must call the method 'compute() beforehand");
+    return VectorDouble();
+  }
+  return _eigenValues;
+}
+
+MatrixSquareGeneral* MatrixSquareSymmetric::_getEigenVectorsLocal()
+{
+  if (! _flagEigenDecompose)
+  {
+    messerr("You must call the method 'compte() beforehand");
+    return nullptr;
+  }
+  int nrow = getNRows();
+  int opt_eigen = (_isFlagEigen()) ? 1 : 0;
+
+  MatrixSquareGeneral *mat = MatrixSquareGeneral::createFromVD(_eigenVectors,
+                                                               nrow, false,
+                                                               opt_eigen);
+  return mat;
 }

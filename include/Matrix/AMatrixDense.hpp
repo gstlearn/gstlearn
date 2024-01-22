@@ -14,10 +14,14 @@
 #include "Matrix/AMatrix.hpp"
 
 #include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 
 /**
  * Square Matrix
  */
+
+class MatrixSquareGeneral;
+
 class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
 public:
@@ -95,6 +99,9 @@ protected:
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   bool            _isNumberValid(int nrows,int ncols) const;
+  int             _computeEigen();
+  VectorDouble    _getEigenValues();
+  MatrixSquareGeneral* _getEigenVectors();
 
 private:
   /// =========================================================================
@@ -137,6 +144,13 @@ private:
   VectorDouble _getRowLocal(int irow) const;
   VectorDouble _getColumnLocal(int icol) const;
 
+  int               _computeEigenLocal();
+  VectorDouble      _getEigenValuesLocal();
+  MatrixSquareGeneral* _getEigenVectorsLocal();
+
 public:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
+  bool _flagEigenDecompose;
+  Eigen::VectorXd _eigenValues;
+  Eigen::MatrixXd _eigenVectors;
 };
