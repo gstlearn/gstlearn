@@ -72,7 +72,7 @@ jobs:
     - name : Show some variables
       shell: powershell
       run: |
-        echo ${{EIGEN_ROOT}}
+        echo ${{env.EIGEN_ROOT}}
 
     - name : Download and uncompressed Eigen headers
       run: |
