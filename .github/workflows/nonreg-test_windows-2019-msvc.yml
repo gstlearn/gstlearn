@@ -1,0 +1,89 @@
+name: nonreg-tests_windows-2019-msvc
+
+on:
+  # Deactivate the workflow
+  #push:
+  #  branches-ignore:
+  #    - '**'
+  # Activate the workflow at each push on dev branch
+  push:
+    branches: [ dev ]
+  # Activate the workflow at each pull request on dev branch
+  pull_request:
+    branches: [ dev ]
+  # Permit manual trigger
+  # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote the string
+    - cron:  '30 23 * * *'
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  PYTHON_VERSION : "3.11"
+  NUMPY_VERSION : "1.23.5"
+  COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
+  
+  BOOST_ROOT: boost
+  BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
+  EIGEN_ROOT : Eigen
+  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  
+jobs:
+  
+  build:
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Python Version
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+
+    - name: Install Python dependency
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
+
+########################################################################################################
+# Boost headers download and unzip
+
+    - name : Download and uncompressed Boost headers
+      run: |
+        mkdir ${{env.BOOST_ROOT}}
+        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+   
+########################################################################################################
+# Eigen headers download and unzip
+
+    - name : Download and uncompressed Eigen headers
+      run: |
+        mkdir ${{env.EIGEN_ROOT}}
+        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
+        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
+        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+   
+########################################################################################################
+# Configuration to prepare compilation
+
+    - name: Configure cmake
+      run: cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}}
+
+########################################################################################################
+# Compilation (gstlearn and python package)
+
+    - name: Compile, install packages and execute non-regression tests
+      # Execute tests defined by the CMake configuration.
+      run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
