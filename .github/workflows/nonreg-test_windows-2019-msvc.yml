@@ -31,10 +31,10 @@ env:
   NUMPY_VERSION : "1.23.5"
   COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
   
-  BOOST_ROOT: boost
+  BOOST_ROOT: ${{github.workspace}}/boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  EIGEN_SRC : eigen_src
-  EIGEN_ROOT : eigen
+  EIGEN_SRC : ${{github.workspace}}/eigen_src
+  EIGEN_ROOT : ${{github.workspace}}/eigen
   EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
   
 jobs:
@@ -72,7 +72,7 @@ jobs:
     - name : Show some variables
       shell: powershell
       run: |
-        echo ${GITHUB_WORKSPACE}
+        echo ${{github.workspace}} && echo ${{EIGEN_ROOT}}
 
     - name : Download and uncompressed Eigen headers
       run: |
@@ -82,7 +82,7 @@ jobs:
         cd ${{env.EIGEN_SRC}} && cp -r eigen-*/* .
         mkdir build
         cmake -Bbuild 
-        cmake --build build --target install -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/${{env.EIGEN_ROOT}}
+        cmake --build build --target install -DCMAKE_INSTALL_PREFIX=${{env.EIGEN_ROOT}}
    
 ########################################################################################################
 # Configuration to prepare compilation
