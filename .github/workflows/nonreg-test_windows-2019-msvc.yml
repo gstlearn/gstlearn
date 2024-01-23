@@ -45,26 +45,26 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{env.PYTHON_VERSION}}
-
-    - name: Install Python dependency
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy==${{env.NUMPY_VERSION}}
-
-########################################################################################################
-# Boost: download and unzip headers
-
-    - name : Download and uncompressed Boost headers
-      run: |
-        mkdir ${{env.BOOST_ROOT}}
-        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
-        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+#    - name: Setup Python Version
+#      uses: actions/setup-python@v4
+#      with:
+#        python-version: ${{env.PYTHON_VERSION}}
+#
+#    - name: Install Python dependency
+#      run: |
+#        python -m pip install --upgrade pip
+#        python -m pip install numpy==${{env.NUMPY_VERSION}}
+#
+#########################################################################################################
+## Boost: download and unzip headers
+#
+#    - name : Download and uncompressed Boost headers
+#      run: |
+#        mkdir ${{env.BOOST_ROOT}}
+#        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+#        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+#        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+#        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
    
 ########################################################################################################
 # Eigen: download, unzip and install headers (to build cmake files)
@@ -72,7 +72,6 @@ jobs:
     - name : Show some variables
       shell: powershell
       run: |
-        echo ${HOME}
         echo ${GITHUB_WORKSPACE}
 
     - name : Download and uncompressed Eigen headers
@@ -83,8 +82,7 @@ jobs:
         cd ${{env.EIGEN_SRC}} && cp -r eigen-*/* .
         mkdir build
         cmake -Bbuild 
-        cmake --build build --target install
-#-DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/${{env.EIGEN_ROOT}}
+        cmake --build build --target install -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/${{env.EIGEN_ROOT}}
    
 ########################################################################################################
 # Configuration to prepare compilation
