@@ -82,8 +82,9 @@ jobs:
         7z -o${{env.EIGEN_SRC}} x ${{env.EIGEN_SRC}}/download.zip -y -bd
         cd ${{env.EIGEN_SRC}} && cp -r eigen-*/* .
         mkdir build
-        cmake -Bbuild -S. -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/${{env.EIGEN_SRC}}
+        cmake -Bbuild 
         cmake --build build --target install
+#-DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/${{env.EIGEN_ROOT}}
    
 ########################################################################################################
 # Configuration to prepare compilation
