@@ -71,8 +71,9 @@ jobs:
 
     - name : Show some variables
       shell: powershell
-      run:
+      run: |
         echo ${HOME}
+        echo ${GITHUB_WORKSPACE}
 
     - name : Download and uncompressed Eigen headers
       run: |
@@ -81,9 +82,8 @@ jobs:
         7z -o${{env.EIGEN_SRC}} x ${{env.EIGEN_SRC}}/download.zip -y -bd
         cd ${{env.EIGEN_SRC}} && cp -r eigen-*/* .
         mkdir build
-        cd build
-        cmake .. -DCMAKE_INSTALL_PREFIX=${HOME}/${{env.EIGEN_SRC}}
-        cmake --build . --target install
+        cmake -Bbuild -S. -DCMAKE_INSTALL_PREFIX=${GITHUB_WORKSPACE}/${{env.EIGEN_SRC}}
+        cmake --build build --target install
    
 ########################################################################################################
 # Configuration to prepare compilation
