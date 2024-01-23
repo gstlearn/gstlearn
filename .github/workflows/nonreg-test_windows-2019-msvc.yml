@@ -33,7 +33,8 @@ env:
   
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  EIGEN_ROOT : Eigen
+  EIGEN_SRC : eigen_src
+  EIGEN_ROOT : eigen
   EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
   
 jobs:
@@ -55,7 +56,7 @@ jobs:
         python -m pip install numpy==${{env.NUMPY_VERSION}}
 
 ########################################################################################################
-# Boost headers download and unzip
+# Boost: download and unzip headers
 
     - name : Download and uncompressed Boost headers
       run: |
@@ -66,14 +67,23 @@ jobs:
         cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
    
 ########################################################################################################
-# Eigen headers download and unzip
+# Eigen: download, unzip and install headers (to build cmake files)
+
+    - name : Show some variables
+      shell: powershell
+      run:
+        echo ${HOME}
 
     - name : Download and uncompressed Eigen headers
       run: |
-        mkdir ${{env.EIGEN_ROOT}}
-        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
-        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
-        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+        mkdir ${{env.EIGEN_SRC}}
+        curl --progress-bar --location --output ${{env.EIGEN_SRC}}/download.zip ${{env.EIGEN_URL}}
+        7z -o${{env.EIGEN_SRC}} x ${{env.EIGEN_SRC}}/download.zip -y -bd
+        cd ${{env.EIGEN_SRC}} && cp -r eigen-*/* .
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_INSTALL_PREFIX=${HOME}/${{env.EIGEN_SRC}}
+        cmake --build . --target install
    
 ########################################################################################################
 # Configuration to prepare compilation
