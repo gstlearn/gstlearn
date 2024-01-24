@@ -25,3 +25,5 @@ runs:
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar -y -bd
       cd ${{inputs.boost-root}}
       cp -r boost_*/* .
+      pwd
+      ls

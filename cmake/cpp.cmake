@@ -46,6 +46,9 @@ if (WIN32)
   set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 endif()
 
+# Debug find package instruction
+set(CMAKE_FIND_DEBUG_MODE TRUE)
+
 # Look for Boost
 find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?

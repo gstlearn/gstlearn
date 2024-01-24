@@ -24,13 +24,11 @@ on:
         default: ''
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
-  GENERATOR : '"Visual Studio 16 2019"' #Because cmake -G needs " "
-  
+  GENERATOR : "Visual Studio 16 2019"
   BOOST_ROOT: ${{github.workspace}}/boost
   BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}/eigen
@@ -65,9 +63,10 @@ jobs:
       with:
         eigen-root: ${{env.EIGEN_ROOT}}
         eigen-version: ${{env.EIGEN_VERSION}}
+        generator: ${{env.GENERATOR}}
 
-    - name: Configure cmake
-      run: cmake -B${{env.BUILD_DIR}} -G ${{env.GENERATOR}} -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
+    - name: Configure CMake
+      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
