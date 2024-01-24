@@ -3,9 +3,9 @@ description: "Install the Eigen3 headers under windows"
 author: 'Fabien Ors'
 
 inputs:
-  boost-root:
+  eigen-root:
     description: 'Eigen installation directory'
-  boost-version:
+  eigen-version:
     description: 'Eigen version to be installed'
     default: "3.4.0"
 
