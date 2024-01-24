@@ -17,7 +17,7 @@ runs:
   - name : Download, uncompressed and install Eigen headers
     shell: powershell
     run: |
-      $EIGEN_URL="https://gitlab.com/libeigen/eigen/-/archive/${{inputs.eigen-version}}/eigen-${{inputs.eigen-version}}.zip
+      $EIGEN_URL="https://gitlab.com/libeigen/eigen/-/archive/${{inputs.eigen-version}}/eigen-${{inputs.eigen-version}}.zip"
       mkdir eigen_src
       curl --progress-bar --location --output eigen_src/download.zip $EIGEN_URL
       7z -oeigen_src x eigen_src/download.zip -y -bd
