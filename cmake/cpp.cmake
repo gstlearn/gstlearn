@@ -69,7 +69,7 @@ find_package(Eigen3 REQUIRED)
 if(EIGEN3_FOUND)
   message(STATUS "Eigen3 found")
   message(STATUS "EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
-  message(STATUS "EIGEN3_USER_DIR: ${EIGEN3_USER_DIR}")
+  #message(STATUS "EIGEN3_USER_DIR: ${EIGEN3_USER_DIR}")
 endif()
 
 # Look for HDF5
@@ -106,8 +106,7 @@ foreach(FLAVOR ${FLAVORS})
     # Add binary directory to find generated version.h and export.hpp
     $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
     # Add Eigen include directories
-    ${EIGEN3_INCLUDE_DIR}
-    ${EIGEN3_USER_DIR}
+    $<BUILD_INTERFACE: ${EIGEN3_INCLUDE_DIR}>
   )
 
   # Set some target properties

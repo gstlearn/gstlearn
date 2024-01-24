@@ -29,13 +29,12 @@ env:
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
-  COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
+  GENERATOR : '"Visual Studio 16 2019"' #Because cmake -G needs " "
   
   BOOST_ROOT: ${{github.workspace}}/boost
-  BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  EIGEN_SRC : ${{github.workspace}}/eigen_src
+  BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}/eigen
-  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  EIGEN_VERSION : "3.4.0"
   
 jobs:
   
@@ -55,44 +54,20 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install numpy==${{env.NUMPY_VERSION}}
 
-########################################################################################################
-# Boost: download and unzip headers
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-windows
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
 
-    - name : Download and uncompressed Boost headers
-      run: |
-        mkdir ${{env.BOOST_ROOT}}
-        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
-        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
-   
-########################################################################################################
-# Eigen: download, unzip and install headers (to build cmake files)
-
-    - name : Show some variables
-      shell: powershell
-      run: |
-        echo ${{env.EIGEN_ROOT}}
-
-    - name : Download and uncompressed Eigen headers
-      run: |
-        mkdir ${{env.EIGEN_SRC}}
-        curl --progress-bar --location --output ${{env.EIGEN_SRC}}/download.zip ${{env.EIGEN_URL}}
-        7z -o${{env.EIGEN_SRC}} x ${{env.EIGEN_SRC}}/download.zip -y -bd
-        cd ${{env.EIGEN_SRC}} && cp -r eigen-*/* .
-        mkdir build
-        cmake -Bbuild -DCMAKE_INSTALL_PREFIX="${{env.EIGEN_ROOT}}"
-        cmake --build build --target install
-   
-########################################################################################################
-# Configuration to prepare compilation
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-windows
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
 
     - name: Configure cmake
-      run: cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT="${{env.BOOST_ROOT}}" -DUSE_HDF5=OFF -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
-
-########################################################################################################
-# Compilation (gstlearn and python package)
+      run: cmake -B${{env.BUILD_DIR}} -G ${{env.GENERATOR}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBoost_ROOT="${{env.BOOST_ROOT}}" -DUSE_HDF5=OFF -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
 
     - name: Compile, install packages and execute non-regression tests
-      # Execute tests defined by the CMake configuration.
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
