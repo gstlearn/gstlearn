@@ -44,15 +44,15 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-#    - name: Setup Python Version
-#      uses: actions/setup-python@v4
-#      with:
-#        python-version: ${{env.PYTHON_VERSION}}
-#
-#    - name: Install Python dependency
-#      run: |
-#        python -m pip install --upgrade pip
-#        python -m pip install numpy==${{env.NUMPY_VERSION}}
+    - name: Setup Python Version
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{env.PYTHON_VERSION}}
+
+    - name: Install Python dependency
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy==${{env.NUMPY_VERSION}}
 
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-windows
@@ -67,7 +67,7 @@ jobs:
         eigen-version: ${{env.EIGEN_VERSION}}
 
     - name: Configure cmake
-      run: cmake -B${{env.BUILD_DIR}} -G ${{env.GENERATOR}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DBoost_ROOT="${{env.BOOST_ROOT}}" -DUSE_HDF5=OFF -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
+      run: cmake -B${{env.BUILD_DIR}} -G ${{env.GENERATOR}} -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
