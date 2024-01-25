@@ -118,15 +118,15 @@ jobs:
 ########################################################################################################
 # Build and upload wheel
  
-    - name : Build and upload wheel
-      run: |
-        cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        # Note: wheel must be declared pure (see setup.py)
-        python setup.py bdist_wheel --plat-name=${{matrix.arch[0]}}
-        python -m twine upload dist\*
-
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
-        TWINE_REPOSITORY: pypi
+#    - name : Build and upload wheel
+#      run: |
+#        cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
+#        # Note: wheel must be declared pure (see setup.py)
+#        python setup.py bdist_wheel --plat-name=${{matrix.arch[0]}}
+#        python -m twine upload dist\*
+#
+#      env:
+#        TWINE_USERNAME: __token__
+#        TWINE_PASSWORD: ${{secrets.TWINE_PYPI_PWD}}
+#        TWINE_REPOSITORY: pypi
 
