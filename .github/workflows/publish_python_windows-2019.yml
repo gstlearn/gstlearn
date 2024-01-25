@@ -85,12 +85,16 @@ jobs:
 # Boost headers download and unzip
 
     - name : Download and uncompressed Boost headers
+      shell: powershell
       run: |
         mkdir ${{env.BOOST_ROOT}}
         curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
-        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+        cd ${{env.BOOST_ROOT}}
+        cp -r boost_*/* .
+        pwd
+        ls
    
 ########################################################################################################
 # Eigen headers download and unzip
