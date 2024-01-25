@@ -13,14 +13,14 @@ env:
   BUILD_DIR : build
   COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
 
-  BOOST_ROOT: boost
+  BOOST_ROOT: ${{github.workspace}}\boost
   BOOST_URL: https://netix.dl.sourceforge.net/project/boost/boost/1.72.0/boost_1_72_0.tar.bz2
   #HDF5_ROOT : hdf5 #do not use "." in the name
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
   DOXYGEN_ROOT : Doxygen
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.8.windows.x64.bin.zip
-  EIGEN_ROOT : Eigen
+  EIGEN_ROOT : ${{github.workspace}}\eigen
   EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
   
 jobs:
@@ -103,19 +103,21 @@ jobs:
 # Eigen headers download and unzip
 #
 # Old download command
+#
 #        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
 
     - name : Download and uncompressed Eigen headers
       shell: powershell
       run: |
         mkdir ${{env.EIGEN_ROOT}}
-        Invoke-WebRequest -Uri "${{env.EIGEN_URL}}" -OutFile ${{env.EIGEN_ROOT}}/download.zip
-        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
-        cd ${{env.EIGEN_ROOT}}
+        mkdir eigen_src
+        Invoke-WebRequest -Uri "${{env.EIGEN_URL}}" -OutFile eigen_src/download.zip
+        7z -oeigen_src x eigen_src/download.zip -y -bd
+        cd eigen_src
         cd eigen-*
         cmake -Bbuild -G ${{env.COMPILE_VERSION}} -DCMAKE_INSTALL_PREFIX="${{env.EIGEN_ROOT}}" -DCMAKE_Fortran_COMPILER=""
         cmake --build build --target install
-        cd ..
+        cd ${{env.EIGEN_ROOT}}
         pwd
         ls
    
