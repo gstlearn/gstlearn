@@ -1130,7 +1130,6 @@ void AMatrix::copyReduce(const AMatrix *x,
                          const VectorInt &validRows,
                          const VectorInt &validCols)
 {
-  VH::display("copyReduce validRows",validRows);
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
       setValue_(irow, icol, x->getValue_(validRows[irow], validCols[icol]));
@@ -1146,9 +1145,7 @@ void AMatrix::copyElements(const AMatrix &m, double factor)
 {
   for (int icol = 0; icol < m.getNCols(); icol++)
     for (int irow = 0; irow < m.getNRows(); irow++)
-    {
       setValue_(irow, icol, factor * m.getValue_(irow, icol));
-    }
 }
 
 /**
@@ -1227,12 +1224,12 @@ void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
  * Warning: this must be performed very early in the script in order to forbid mixing two different styles.
  * @param flagEigen True if EIGEN library must be used; False otherwise (old style)
  */
-void setFlagEigen(bool flagEigen)
+void setGlobalFlagEigen(bool flagEigen)
 {
   globalFlagEigen = flagEigen;
 }
 
-bool isFlagEigen()
+bool isGlobalFlagEigen()
 {
   return globalFlagEigen;
 }

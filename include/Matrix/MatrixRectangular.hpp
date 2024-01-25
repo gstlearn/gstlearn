@@ -46,7 +46,8 @@ public:
                                          int nrow,
                                          int ncol,
                                          bool byCol = false,
-                                         int opt_eigen = -1);
+                                         int opt_eigen = -1,
+                                         bool invertColumnOrder = false);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);

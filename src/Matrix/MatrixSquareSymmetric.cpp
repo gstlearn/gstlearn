@@ -19,30 +19,21 @@
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
     : AMatrixSquare(nrow, opt_eigen),
-      _squareSymMatrix(),
-      _flagEigenDecompose(false),
-      _eigenValues(),
-      _eigenVectors()
+      _squareSymMatrix()
 {
   _allocate();
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
   : AMatrixSquare(r),
-   _squareSymMatrix(),
-   _flagEigenDecompose(),
-   _eigenValues(),
-   _eigenVectors()
+   _squareSymMatrix()
 {
   _recopyLocal(r);
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const AMatrix &m)
     : AMatrixSquare(m),
-      _squareSymMatrix(),
-      _flagEigenDecompose(false),
-      _eigenValues(),
-      _eigenVectors()
+      _squareSymMatrix()
 {
   if (!m.isSymmetric())
   {
@@ -204,7 +195,7 @@ void MatrixSquareSymmetric::_deallocate()
     AMatrixDense::_deallocate();
   else
   {
-    // Here should be the code specific to this class
+    delete _eigenVectors;
   }
 }
 
@@ -325,20 +316,12 @@ int MatrixSquareSymmetric::computeEigen()
     return _computeEigenLocal();
 }
 
-VectorDouble MatrixSquareSymmetric::getEigenValues()
+int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b)
 {
   if (_isFlagEigen())
-    return AMatrixDense::_getEigenValues();
+    return AMatrixDense::_computeGeneralizedEigen(b);
   else
-    return _getEigenValuesLocal();
-}
-
-MatrixSquareGeneral* MatrixSquareSymmetric::getEigenVectors()
-{
-  if (_isFlagEigen())
-    return AMatrixDense::_getEigenVectors();
-  else
-    return _getEigenVectorsLocal();
+    return _computeGeneralizedEigenLocal(b);
 }
 
 /// =============================================================================
@@ -350,7 +333,7 @@ void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
   _squareSymMatrix = r._squareSymMatrix;
   _flagEigenDecompose = r._flagEigenDecompose;
   _eigenValues = r._eigenValues;
-  _eigenVectors = r._eigenVectors;
+  if (_eigenVectors != nullptr) _eigenVectors = r._eigenVectors->clone();
 }
 
 double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
@@ -459,33 +442,29 @@ int MatrixSquareSymmetric::_computeEigenLocal()
   int nrows = getNRows();
   _flagEigenDecompose = true;
   _eigenValues = VectorDouble(nrows, 0.);
-  _eigenVectors = VectorDouble(nrows * nrows, 0);
-  VectorDouble local = this->getValues();
-  return matrix_eigen(local.data(), nrows, _eigenValues.data(), _eigenVectors.data());
+  VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
+
+  int err = matrix_eigen(this->getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
+  if (err == 0)
+  {
+    _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, false);
+  }
+
+  return err;
 }
 
-VectorDouble MatrixSquareSymmetric::_getEigenValuesLocal()
+int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b)
 {
-  if (! _flagEigenDecompose)
-  {
-    messerr("You must call the method 'compute() beforehand");
-    return VectorDouble();
-  }
-  return _eigenValues;
-}
+  int nrows = getNRows();
+  _flagEigenDecompose = true;
+  _eigenValues = VectorDouble(nrows, 0.);
+  VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
 
-MatrixSquareGeneral* MatrixSquareSymmetric::_getEigenVectorsLocal()
-{
-  if (! _flagEigenDecompose)
+  int err = matrix_geigen(this->getValues().data(),b.getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
+  if (err == 0)
   {
-    messerr("You must call the method 'compte() beforehand");
-    return nullptr;
+    std::reverse(_eigenValues.begin(), _eigenValues.end());
+    _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, true);
   }
-  int nrow = getNRows();
-  int opt_eigen = (_isFlagEigen()) ? 1 : 0;
-
-  MatrixSquareGeneral *mat = MatrixSquareGeneral::createFromVD(_eigenVectors,
-                                                               nrow, false,
-                                                               opt_eigen);
-  return mat;
+  return err;
 }

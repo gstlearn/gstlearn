@@ -55,8 +55,7 @@ public:
   MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
 
   int computeEigen();
-  VectorDouble      getEigenValues();
-  MatrixSquareGeneral* getEigenVectors();
+  int computeGeneralizedEigen(const MatrixSquareSymmetric& b);
 
 private:
   /// Interface for AMatrix
@@ -95,12 +94,8 @@ private:
   int     _getMatrixPhysicalSizeLocal() const;
   int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
   int     _computeEigenLocal();
-  VectorDouble _getEigenValuesLocal();
-  MatrixSquareGeneral* _getEigenVectorsLocal();
+  int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b);
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage
-  bool _flagEigenDecompose;
-  VectorDouble _eigenValues;
-  VectorDouble _eigenVectors;
 };

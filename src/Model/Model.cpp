@@ -1498,8 +1498,8 @@ Model* Model::reduce(const VectorInt& validVars) const
     messerr("Your new Model has no variable left");
     return nullptr;
   }
-  CovContext ctxt(nvar);
-  Model* model = new Model(ctxt);
+
+  Model* model = new Model(_ctxt.reduce(validVars));
 
   /* Add the list of Covariances */
 

@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   message("Resetting to initial value\n");
   MR.display();
 
-  // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
+  // The symmetric matrix is obtained as M = t(MR) %*% MR
 
   AMatrix* MRt = MR.transpose();
   MRt->display();
@@ -557,10 +557,10 @@ int main(int argc, char *argv[])
 
   // Compare Eigen values calculated using Eigen Library or not (dense matrix only)
 
-  mestitle(0,"Eigen values calcaulation with and without the Eigen Library for Dense matrices");
+  mestitle(0,"Eigen values calculation for Dense matrices");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
 
-  // Get a Dense matrix with Eigen Library or not
+  // Get a Dense matrix
   VectorDouble temp = MSS.getValues();
   int ntemp = MSS.getNRows();
   MatrixSquareSymmetric* MEig   = MatrixSquareSymmetric::createFromVD(temp, ntemp, 1);
@@ -583,12 +583,12 @@ int main(int argc, char *argv[])
   eigNoVec->display();
   delete eigNoVec;
 
-  // Compare Eigen values calculated using Eigen Library or not (dense matrix only)
+  // Compare Cholesky Decomposition calculated using Eigen Library or not (sparse matrix only)
 
-  mestitle(0,"Cholesky Decomposition with and without the Eigen Library for Sparse matrices");
+  mestitle(0,"Cholesky Decomposition for Sparse matrices");
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
 
-  // Compare Cholesky decomposition calculated using Eigen Library or not (sparse matrix only)
+  // Get a Sparse matrix
   Triplet triplet = MSP->getValuesAsTriplets();
   MatrixSparse* MSEig = MatrixSparse::createFromTriplet(triplet, MSP->getNRows(), MSP->getNCols(),1);
   MSEig->display();
@@ -612,6 +612,43 @@ int main(int argc, char *argv[])
   VH::display("Cholesky Solve (No Eigen Library)",XNoEig);
   VectorDouble resNoEig = MSNoEig->prodVector(XNoEig);
   VH::display("Verification (no Eigen Library)",resNoEig);
+
+  // Compare Generalized Eigen values calculated using Eigen Library or not (dense matrix only)
+
+  mestitle(0,"Generalized Eigen values calculation for Dense matrices");
+
+  // We use the Square symmetric matrices created in previous paragraph
+  // We must construct another square symmetric matrix (B)
+  VectorDouble vbh = VH::simulateGaussian(nrow * ncol);
+
+  MatrixRectangular* MREig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 1);
+  AMatrix* MREigt = MREig->transpose();
+  MatrixSquareSymmetric* BEig = (MatrixSquareSymmetric *) prodMatrix(MREig, MREigt);
+  delete MREig;
+  delete MREigt;
+
+  // Extract the Generalized Eigen values and vectors (both matrix types)
+  (void) MEig->computeGeneralizedEigen(*BEig);
+  VectorDouble genEigVal = MEig->getEigenValues();
+  MatrixSquareGeneral* genEigVec = MEig->getEigenVectors();
+  VH::display("Generalized Eigen Values (Eigen Library)", genEigVal);
+  genEigVec->display();
+  delete genEigVec;
+  delete BEig;
+
+  MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 0);
+  AMatrix* MRNoEigt = MRNoEig->transpose();
+  MatrixSquareSymmetric* BNoEig = (MatrixSquareSymmetric *) prodMatrix(MRNoEig, MRNoEigt);
+  delete MRNoEig;
+  delete MRNoEigt;
+
+  (void) MNoEig->computeGeneralizedEigen(*BNoEig);
+  VectorDouble genEigNoVal = MNoEig->getEigenValues();
+  MatrixSquareGeneral* genEigNoVec = MNoEig->getEigenVectors();
+  VH::display("Generalized Eigen Values (no Eigen Library)", genEigNoVal);
+  genEigNoVec->display();
+  delete genEigNoVec;
+  delete BNoEig;
 
   // Free the pointers
 

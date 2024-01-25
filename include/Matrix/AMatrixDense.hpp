@@ -21,6 +21,7 @@
  */
 
 class MatrixSquareGeneral;
+class MatrixSquareSymmetric;
 
 class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
@@ -80,6 +81,8 @@ public:
                           bool transposeY = false);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
+  VectorDouble     getEigenValues();
+  MatrixSquareGeneral* getEigenVectors();
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -100,8 +103,7 @@ protected:
 
   bool            _isNumberValid(int nrows,int ncols) const;
   int             _computeEigen();
-  VectorDouble    _getEigenValues();
-  MatrixSquareGeneral* _getEigenVectors();
+  int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b);
 
 private:
   /// =========================================================================
@@ -144,13 +146,14 @@ private:
   VectorDouble _getRowLocal(int irow) const;
   VectorDouble _getColumnLocal(int icol) const;
 
-  int               _computeEigenLocal();
-  VectorDouble      _getEigenValuesLocal();
-  MatrixSquareGeneral* _getEigenVectorsLocal();
+  int                  _computeEigenLocal();
+  int                  _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b);
 
-public:
-  Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
+protected:
   bool _flagEigenDecompose;
-  Eigen::VectorXd _eigenValues;
-  Eigen::MatrixXd _eigenVectors;
+  VectorDouble _eigenValues;
+  MatrixSquareGeneral* _eigenVectors;
+
+private:
+  Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };

@@ -60,6 +60,8 @@ public:
 
   void copyCovContext(const CovContext& ctxt, bool severe = false);
 
+  const CovContext reduce(const VectorInt &validVars) const;
+
 private:
   int           _nVar;         /*! Number of variables */
   double        _field;        /*! Field maximum size */

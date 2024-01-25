@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Matrix/AMatrixDense.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -19,20 +20,20 @@
 
 AMatrixDense::AMatrixDense(int nrow, int ncol, int opt_eigen)
   : AMatrix(nrow, ncol, opt_eigen),
-    _eigenMatrix(),
     _flagEigenDecompose(false),
     _eigenValues(),
-    _eigenVectors()
+    _eigenVectors(nullptr),
+    _eigenMatrix()
 {
   _allocate();
 }
 
 AMatrixDense::AMatrixDense(const AMatrixDense &r)
   : AMatrix(r),
-    _eigenMatrix(),
     _flagEigenDecompose(false),
     _eigenValues(),
-    _eigenVectors()
+    _eigenVectors(nullptr),
+    _eigenMatrix()
 {
   // operator "=" is faster than the copy constructor
   // (see https://stackoverflow.com/questions/47644021/eigen-copy-constructor-vs-operator-performance)
@@ -42,10 +43,10 @@ AMatrixDense::AMatrixDense(const AMatrixDense &r)
 
 AMatrixDense::AMatrixDense(const AMatrix &m)
     : AMatrix(m),
-      _eigenMatrix(),
       _flagEigenDecompose(false),
       _eigenValues(),
-      _eigenVectors()
+      _eigenVectors(nullptr),
+      _eigenMatrix()
 {
   if (m.empty())
   {
@@ -70,6 +71,7 @@ AMatrixDense& AMatrixDense::operator= (const AMatrixDense &r)
 
 AMatrixDense::~AMatrixDense()
 {
+  delete _eigenVectors;
 }
 
 bool AMatrixDense::_isNumberValid(int nrows, int ncols) const
@@ -413,22 +415,29 @@ int AMatrixDense::_computeEigen()
   return ITEST;
 }
 
-VectorDouble AMatrixDense::_getEigenValues()
+int AMatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric& b)
 {
+  if (!isSquare() || !isSymmetric())
+  {
+    messerr("The current Matrix does not seems to be square and symmetric");
+    return 1;
+  }
+
   if (_isFlagEigen())
-    return _getEigenValuesLocal();
+    return _computeGeneralizedEigenLocal(b);
   else
-    my_throw("'_getEigenValues' should never be called here");
-  return VectorDouble();
+    my_throw("'_computeGeneralizedEigen' should never be called here");
+  return ITEST;
 }
 
-MatrixSquareGeneral* AMatrixDense::_getEigenVectors()
+VectorDouble AMatrixDense::getEigenValues()
 {
-  if (_isFlagEigen())
-    return AMatrixDense::_getEigenVectorsLocal();
-  else
-    my_throw("'_getEigenVectors' should never be called here");
-  return nullptr;
+  return _eigenValues;
+}
+
+MatrixSquareGeneral* AMatrixDense::getEigenVectors()
+{
+  return _eigenVectors;
 }
 
 /// =========================================================================
@@ -517,7 +526,7 @@ void AMatrixDense::_recopyLocal(const AMatrixDense &r)
   _eigenMatrix = r._eigenMatrix;
   _flagEigenDecompose = r._flagEigenDecompose;
   _eigenValues = r._eigenValues;
-  _eigenVectors = r._eigenVectors;
+  if (_eigenVectors != nullptr) _eigenVectors = r._eigenVectors->clone();
 }
 
 void AMatrixDense::_setColumnLocal(int icol, const VectorDouble& tab)
@@ -670,32 +679,45 @@ VectorDouble AMatrixDense::_getColumnLocal(int icol) const
 
 int AMatrixDense::_computeEigenLocal()
 {
-//  Eigen::EigenSolver<Eigen::MatrixXd> eigenValueSolver(_eigenMatrix);
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigenValueSolver(_eigenMatrix);
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(_eigenMatrix);
+
   _flagEigenDecompose = true;
 
-  _eigenValues  = eigenValueSolver.eigenvalues().real();
-  _eigenVectors = eigenValueSolver.eigenvectors().real();
+  Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
+  Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
+
+  int nrows = getNRows();
+  int ncols = getNCols();
+
+  _eigenValues = VectorDouble(nrows);
+  Eigen::Map<Eigen::VectorXd>(&_eigenValues[0], eigenValues.size()) = eigenValues;
+  std::reverse(_eigenValues.begin(), _eigenValues.end());
+
+  VectorDouble vec(nrows * ncols);
+  Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
+  _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
   return 0;
 }
 
-VectorDouble AMatrixDense::_getEigenValuesLocal()
+int AMatrixDense::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b)
 {
-  int nrows = getNRows();
-  VectorDouble vec(nrows);
-  Eigen::Map<Eigen::VectorXd>(&vec[0], _eigenValues.size()) = _eigenValues;
-  std::reverse(vec.begin(), vec.end());
-  return vec;
-}
+  Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(_eigenMatrix, b._eigenMatrix);
 
-MatrixSquareGeneral* AMatrixDense::_getEigenVectorsLocal()
-{
+  _flagEigenDecompose = true;
+
+  Eigen::VectorXd eigenValues  = solver.eigenvalues().real();
+  Eigen::MatrixXd eigenVectors = solver.eigenvectors().real();
+
   int nrows = getNRows();
   int ncols = getNCols();
-  VectorDouble vec(nrows * ncols);
-  Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = _eigenVectors;
 
-  int opt_eigen = (_isFlagEigen()) ? 1 : 0;
-  MatrixSquareGeneral* mat = MatrixSquareGeneral::createFromVD(vec, nrows, false, opt_eigen, true);
-  return mat;
+  _eigenValues = VectorDouble(nrows);
+  Eigen::Map<Eigen::VectorXd>(&_eigenValues[0], eigenValues.size()) = eigenValues;
+  std::reverse(_eigenValues.begin(), _eigenValues.end());
+
+  VectorDouble vec(nrows * ncols);
+  Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
+  _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
+
+  return 0;
 }

@@ -81,7 +81,8 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
                                                    int nrow,
                                                    int ncol,
                                                    bool byCol,
-                                                   int opt_eigen)
+                                                   int opt_eigen,
+                                                   bool invertColumnOrder)
 {
   if (nrow * ncol != (int) X.size())
   {
@@ -95,13 +96,19 @@ MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
   {
     for (int irow = 0; irow < nrow; irow++)
       for (int icol = 0; icol < ncol; icol++)
-        mat->setValue(irow, icol, X[lec++]);
+      {
+        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        mat->setValue(irow, jcol, X[lec++]);
+      }
   }
   else
   {
     for (int icol = 0; icol < ncol; icol++)
       for (int irow = 0; irow < nrow; irow++)
-        mat->setValue(irow, icol, X[lec++]);
+      {
+        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        mat->setValue(irow, jcol, X[lec++]);
+      }
   }
   return mat;
 }

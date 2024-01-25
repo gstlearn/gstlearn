@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
   model = (Model  *) NULL;
   flag_norm_sill = 0;
   flag_goulard_used = 1;
-  setFlagEigen(true);
+  setGlobalFlagEigen(true);
 
   /* Standard output redirection to file */
 
