@@ -14,7 +14,7 @@ env:
   COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
 
   BOOST_ROOT: boost
-  BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
+  BOOST_URL: https://netix.dl.sourceforge.net/project/boost/boost/1.72.0/boost_1_72_0.tar.bz2
   #HDF5_ROOT : hdf5 #do not use "." in the name
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
