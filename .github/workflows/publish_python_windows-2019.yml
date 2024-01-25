@@ -96,19 +96,28 @@ jobs:
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
         cd ${{env.BOOST_ROOT}}
-        cp -r boost_*/* .
         pwd
         ls
    
 ########################################################################################################
 # Eigen headers download and unzip
+#
+# Old download command
+#        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
 
     - name : Download and uncompressed Eigen headers
+      shell: powershell
       run: |
         mkdir ${{env.EIGEN_ROOT}}
-        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
+        Invoke-WebRequest -Uri "${{env.EIGEN_URL}}" -OutFile ${{env.EIGEN_ROOT}}/download.zip
         7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
-        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+        cd ${{env.EIGEN_ROOT}}
+        cd eigen-*
+        cmake -Bbuild -G ${{env.COMPILE_VERSION}} -DCMAKE_INSTALL_PREFIX="${{env.EIGEN_ROOT}}" -DCMAKE_Fortran_COMPILER=""
+        cmake --build build --target install
+        cd ..
+        pwd
+        ls
    
 ########################################################################################################
 # Configuration to prepare compilation
