@@ -29,9 +29,9 @@ env:
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
   GENERATOR : "Visual Studio 16 2019"
-  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_ROOT: ${{github.workspace}}\boost
   BOOST_VERSION: "1.72.0"
-  EIGEN_ROOT : ${{github.workspace}}/eigen
+  EIGEN_ROOT : ${{github.workspace}}\eigen
   EIGEN_VERSION : "3.4.0"
   
 jobs:
