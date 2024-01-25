@@ -66,7 +66,18 @@ jobs:
         generator: ${{env.GENERATOR}}
 
     - name: Configure CMake
-      run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A x64 -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
+      run: |
+        cd ${{env.BOOST_ROOT}}
+        pwd
+        ls
+        cd boost*
+        pwd
+        ls
+        cd boost
+        pwd
+        ls
+        cd ..\..\..
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A x64 -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check

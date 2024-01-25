@@ -26,3 +26,9 @@ runs:
       cd ${{inputs.boost-root}}
       pwd
       ls
+      cd boost*
+      pwd
+      ls
+      cd boost
+      pwd
+      ls
