@@ -92,7 +92,7 @@ jobs:
       shell: powershell
       run: |
         mkdir ${{env.BOOST_ROOT}}
-        Invoke-WebRequest -Uri "$BOOST_URL" -OutFile ${{env.BOOST_ROOT}}/download.tar.bz2
+        Invoke-WebRequest -Uri "${{env.BOOST_URL}}" -OutFile ${{env.BOOST_ROOT}}/download.tar.bz2
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
         cd ${{env.BOOST_ROOT}}
