@@ -1489,7 +1489,7 @@ Model* Model::duplicate() const
   return model;
 }
 
-Model* Model::reduce(const VectorInt& validVars) const
+Model* Model::createReduce(const VectorInt& validVars) const
 {
   VectorInt localValidVars = VH::filter(validVars, 0, getVariableNumber());
   int nvar = (int) localValidVars.size();
@@ -1499,11 +1499,11 @@ Model* Model::reduce(const VectorInt& validVars) const
     return nullptr;
   }
 
-  Model* model = new Model(_ctxt.reduce(validVars));
+  Model* model = new Model(*_ctxt.createReduce(validVars));
 
   /* Add the list of Covariances */
 
-  model->setCovList(getCovAnisoList()->reduce(validVars));
+  model->setCovList(getCovAnisoList()->createReduce(validVars));
 
   /* Add the list of Drifts */
 

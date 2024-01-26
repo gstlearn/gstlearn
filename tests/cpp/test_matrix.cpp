@@ -302,7 +302,7 @@ int main(int argc, char *argv[])
   message("Reference Matrix\n");
   MSGref.display();
   MSG.invert();
-  message("Inverse Matrix\n", MSG);
+  message("Inverse Matrix\n");
   MSG.display();
 
   Res = prodMatrix(&MSG, &MSGref);

@@ -603,6 +603,8 @@ bool KrigingSystem::_isAuthorized()
  */
 void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
+  DECLARE_UNUSED(icas);
+  DECLARE_UNUSED(iech);
   _covtab.fill(0);
   _model->eval0MatInPlace(_covtab, mode);
 }
@@ -787,8 +789,8 @@ void KrigingSystem::_lhsCalcul()
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getDriftCoef(ivar, il, ib);
-        _setLHSF(iech,ivar,ib,_nvar,value,true);
-        _setLHSF(ib,_nvar,iech,ivar,value,true);
+        _setLHSF(iech,ivar,ib,_nvar,value);
+        _setLHSF(ib,_nvar,iech,ivar,value);
       }
   }
   return;
@@ -1073,7 +1075,7 @@ int KrigingSystem::_rhsCalcul()
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getDriftCoef(ivar, il, ib);
-        _setRHSF(ib,_nvar,ivar,value,true);
+        _setRHSF(ib,_nvar,ivar,value);
       }
   }
   else
@@ -1088,7 +1090,7 @@ int KrigingSystem::_rhsCalcul()
           for (int il = 0; il < _nbfl; il++)
             value += _drftab[il] * _getDriftCoef(jvar, il, ib);
           value *= _matCL->getValue(ivarCL,jvar);
-          _setRHSF(ib,_nvar,ivarCL,value,true);
+          _setRHSF(ib,_nvar,ivarCL,value);
         }
     }
   }
@@ -2889,7 +2891,7 @@ double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
   return _covtab.getValue_(ivar, jvar);
 }
-void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value, bool isForDrift)
+void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value)
 {
   int ind  = IND(iech,ivar);
   _rhsf.setValue_(ind, jvCL, value);
@@ -2902,12 +2904,11 @@ void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value, bool is
  * @param jech Rank of the second sample
  * @param jvar Rank of the second variable
  * @param value Assigned value
- * @param isForDrift True is used to set the drift element
  *
  * @remark: When used for setting a Drift element (say in 'i'), then:
  * @remark: 'iech' is set for 'ib' (which must be within [0,nfeq[) and 'ivar' is set to 'nvar'
  */
-void KrigingSystem::_setLHSF(int iech, int ivar, int jech, int jvar, double value, bool isForDrift)
+void KrigingSystem::_setLHSF(int iech, int ivar, int jech, int jvar, double value)
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
@@ -3037,6 +3038,8 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 
 bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 {
+  DECLARE_UNUSED(neighI);
+
   // Save pointers to previous Data Base (must be restored at the end)
   Db* dbin_loc  = _dbin;
   Db* dbout_loc = _dbout;

@@ -217,7 +217,7 @@ Vario* Vario::createReduce(const Vario& varioIn,
                            bool asSymmetric)
 {
   Vario* varioOut = new Vario(varioIn);
-  varioOut->reduce(varcols, dircols, asSymmetric);
+  varioOut->resetReduce(varcols, dircols, asSymmetric);
   return varioOut;
 }
 
@@ -404,7 +404,7 @@ int Vario::computeIndic(Db *db,
  * @param dircols Vector of direction ranks (starting from 0)
  * @param asSymmetric Turn the result into as Symmetrical function (i.e. variogram)
  */
-void Vario::reduce(const VectorInt &varcols,
+void Vario::resetReduce(const VectorInt &varcols,
                    const VectorInt &dircols,
                    bool asSymmetric)
 {

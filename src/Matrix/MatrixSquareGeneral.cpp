@@ -216,7 +216,7 @@ int MatrixSquareGeneral::_solve(const VectorDouble& /*b*/, VectorDouble& /*x*/) 
   return 0;
 }
 
-MatrixSquareGeneral* MatrixSquareGeneral::reduce(const VectorInt &validRows) const
+MatrixSquareGeneral* MatrixSquareGeneral::createReduce(const VectorInt &validRows) const
 {
   // Order and shrink the input vectors
   VectorInt localValidRows = VH::filter(validRows, 0, getNRows());

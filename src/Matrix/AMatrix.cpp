@@ -1123,6 +1123,8 @@ double AMatrix::getMaximum() const
 
 double& AMatrix::_getValueRef(int irow, int icol)
 {
+  DECLARE_UNUSED(irow);
+  DECLARE_UNUSED(icol);
   return _nullTerm;
 }
 

@@ -60,7 +60,7 @@ public:
 
   void copyCovContext(const CovContext& ctxt, bool severe = false);
 
-  const CovContext reduce(const VectorInt &validVars) const;
+  const CovContext* createReduce(const VectorInt &validVars) const;
 
 private:
   int           _nVar;         /*! Number of variables */

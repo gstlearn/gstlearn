@@ -53,7 +53,7 @@ public:
   void addRow(int nrow_added=1);
   void addColumn(int ncolumn_added = 1);
 
-  MatrixRectangular* reduce(const VectorInt& validRows, const VectorInt& validCols) const;
+  MatrixRectangular* createReduce(const VectorInt& validRows, const VectorInt& validCols) const;
 
 protected:
   virtual int _getIndexToRank(int irow,int icol) const override;

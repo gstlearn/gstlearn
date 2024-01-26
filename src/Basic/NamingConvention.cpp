@@ -436,7 +436,8 @@ void NamingConvention::_setNames(Db *dbout,
 /**
  * Defines the names of the output variables.
  *
- * @param names Vector of Names (dimension: nvar)
+ * @param names Vector of Names or empty (dimension: nvar)
+ * @param nvar Number of variables (or 0)
  * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
  *

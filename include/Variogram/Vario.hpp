@@ -123,9 +123,9 @@ public:
 
   static const ECalcVario getCalculType(const String& calcul_name);
 
-  void reduce(const VectorInt& varcols,
-              const VectorInt& dircols,
-              bool asSymmetric = false);
+  void resetReduce(const VectorInt &varcols,
+                   const VectorInt &dircols,
+                   bool asSymmetric = false);
 
   const ECalcVario& getCalcul() const { return _calcul; }
   bool              getFlagAsym() const { return _flagAsym; }

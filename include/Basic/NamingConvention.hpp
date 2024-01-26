@@ -145,7 +145,7 @@ public:
                    int locatorShift = 0) const;
 
   bool isFlagQualifier() const { return _flagQualifier; }
-  bool isFlagVarname() const { return _flagVarname; }
+  bool isFlagVarname()   const { return _flagVarname; }
 
 private:
   void _setNames(Db *dbout,

@@ -49,7 +49,7 @@ public:
                                            bool byCol = false,
                                            int opt_eigen = -1,
                                            bool invertColumnOrder = false);
-  MatrixSquareGeneral* reduce(const VectorInt &validRows) const;
+  MatrixSquareGeneral* createReduce(const VectorInt &validRows) const;
 
 private:
   /// Interface for AMatrix

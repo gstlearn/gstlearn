@@ -223,7 +223,7 @@ public:
   double getFullCorrec() const;
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
-  CovAniso* reduce(const VectorInt &validVars) const;
+  CovAniso* createReduce(const VectorInt &validVars) const;
 
 protected:
   /// Update internal parameters consistency with the context

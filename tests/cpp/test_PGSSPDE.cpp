@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   DbGrid* dbprop = DbGrid::create({100,100},{0.01,0.01});
 
   VectorDouble props({0.2, 0.5, 0.3});
-  int nfac = props.size();
+  int nfac = (int) props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
     dbprop->addColumnsByConstant(1,props[ifac],names[ifac]);

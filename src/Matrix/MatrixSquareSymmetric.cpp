@@ -291,7 +291,7 @@ void MatrixSquareSymmetric::normTSingleMatrix(const AMatrix& x)
   }
 }
 
-MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows) const
+MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &validRows) const
 {
   // Order and shrink the input vectors
   VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
@@ -395,11 +395,18 @@ void MatrixSquareSymmetric::_setValuesLocal(const double *values, bool byCol)
     }
 
   int ecr = 0;
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++, ecr++)
-    {
-      setValue(irow, icol, values[ecr]);
-    }
+  if (byCol)
+  {
+    for (int icol = 0; icol < getNCols(); icol++)
+      for (int irow = 0; irow < getNRows(); irow++)
+        setValue(irow, icol, values[ecr++]);
+  }
+  else
+  {
+    for (int irow = 0; irow < getNRows(); irow++)
+      for (int icol = 0; icol < getNCols(); icol++)
+        setValue(irow, icol, values[ecr++]);
+  }
 }
 
 int MatrixSquareSymmetric::_invertLocal()

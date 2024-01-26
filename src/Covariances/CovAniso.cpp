@@ -1087,7 +1087,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
   return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }
 
-CovAniso* CovAniso::reduce(const VectorInt &validVars) const
+CovAniso* CovAniso::createReduce(const VectorInt &validVars) const
 {
   CovAniso* newCovAniso = this->clone();
 
@@ -1097,7 +1097,7 @@ CovAniso* CovAniso::reduce(const VectorInt &validVars) const
 
   // Modify the Matrix of sills
   newCovAniso->setContext(ctxt);
-  MatrixSquareSymmetric* newsill = _sill.reduce(validVars);
+  MatrixSquareSymmetric* newsill = _sill.createReduce(validVars);
   newCovAniso->setSill(*newsill);
   return newCovAniso;
 }

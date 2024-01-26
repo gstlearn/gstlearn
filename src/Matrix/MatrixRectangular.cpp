@@ -223,7 +223,7 @@ void MatrixRectangular::addColumn(int ncolumn_added)
       setValue(irow, icol, statsSave->getValue(irow, icol));
 }
 
-MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
+MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &validRows,
                                              const VectorInt &validCols) const
 {
   // Order and shrink the input vectors

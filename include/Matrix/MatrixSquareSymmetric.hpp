@@ -52,7 +52,7 @@ public:
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
                                              int nrow,
                                              int opt_eigen = -1);
-  MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
+  MatrixSquareSymmetric* createReduce(const VectorInt &validRows) const;
 
   int computeEigen();
   int computeGeneralizedEigen(const MatrixSquareSymmetric& b);

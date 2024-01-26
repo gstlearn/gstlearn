@@ -234,7 +234,7 @@ void CovContext::copyCovContext(const CovContext& ctxt, bool severe)
   _update();
 }
 
-const CovContext CovContext::reduce(const VectorInt &validVars) const
+const CovContext* CovContext::createReduce(const VectorInt &validVars) const
 {
   int ecr, lec;
   int nvar = (int) validVars.size();
@@ -267,6 +267,6 @@ const CovContext CovContext::reduce(const VectorInt &validVars) const
       lec++;
     }
 
-  CovContext newctxt = CovContext(nvar, ndim, mean, covar0);
+  CovContext* newctxt = new CovContext(nvar, ndim, mean, covar0);
   return newctxt;
 }
