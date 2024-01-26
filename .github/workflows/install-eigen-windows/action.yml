@@ -29,5 +29,3 @@ runs:
       cmake -Bbuild -G "${{inputs.generator}}" -DCMAKE_INSTALL_PREFIX="${{inputs.eigen-root}}" -DCMAKE_Fortran_COMPILER=""
       cmake --build build --target install
       cd "${{inputs.eigen-root}}"
-      pwd
-      ls

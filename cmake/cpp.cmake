@@ -50,7 +50,7 @@ endif()
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Look for Boost
-set(Boost_DEBUG 1)
+#set(Boost_DEBUG 1)
 find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 

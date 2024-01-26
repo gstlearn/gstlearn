@@ -16,8 +16,6 @@ runs:
   - name : Download and uncompressed Boost headers
     shell: powershell
     run: |
-      pwd
-      ls
       $BOOST_VERSION="${{inputs.boost-version}}" -replace '\.','_'
       $BOOST_URL="https://netix.dl.sourceforge.net/project/boost/boost/${{inputs.boost-version}}/boost_$BOOST_VERSION.tar.bz2"
       mkdir ${{inputs.boost-root}}
@@ -25,11 +23,3 @@ runs:
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar.bz2 -y -bd
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar -y -bd
       cd ${{inputs.boost-root}}
-      pwd
-      ls
-      cd boost*
-      pwd
-      ls
-      cd boost
-      pwd
-      ls
