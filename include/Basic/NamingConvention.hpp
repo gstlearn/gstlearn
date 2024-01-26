@@ -151,11 +151,14 @@ private:
   void _setNames(Db *dbout,
                  int iattout_start,
                  const VectorString& names,
+                 int nvar,
                  const String& qualifier,
                  int nitems) const;
   VectorString _createNames(const VectorString &names,
-                           const String &qualifier = "",
-                           int nitems = 1) const;
+                            int nvar,
+                            const String &qualifier = "",
+                            int nitems = 1) const;
+  int _getNameCount(const VectorString& names, int nvar) const;
 
 private:
   String _prefix; //!< String used as 'prefix'

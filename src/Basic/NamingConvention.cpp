@@ -107,7 +107,7 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
                                            bool flagSetLocator,
                                            int locatorShift) const
 {
-  _setNames(dbout, iattout_start, VectorString(), qualifier, nitems);
+  _setNames(dbout, iattout_start, VectorString(), 0, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, 1, nitems, locatorShift);
@@ -138,7 +138,7 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
   int nvar = static_cast<int> (names.size());
   if (nvar <= 0) return;
 
-  _setNames(dbout, iattout_start, names, qualifier, nitems);
+  _setNames(dbout, iattout_start, names, nvar, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
@@ -196,7 +196,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
   VectorString names;
   names.push_back(namin);
 
-  _setNames(dbout, iattout_start, names, qualifier, nitems);
+  _setNames(dbout, iattout_start, names, 0, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, 1, nitems, locatorShift);
@@ -272,7 +272,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
     nvar = (int) namloc.size();
   }
 
-  _setNames(dbout, iattout_start, namloc, qualifier, nitems);
+  _setNames(dbout, iattout_start, namloc, nvar, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
@@ -312,7 +312,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   for (int ivar = 0; ivar < nvar; ivar++)
     names.push_back(dbin->getNameByUID(iatts[ivar]));
 
-  _setNames(dbout, iattout_start, names, qualifier, nitems);
+  _setNames(dbout, iattout_start, names, nvar, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, nvar, nitems, locatorShift);
@@ -347,7 +347,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   VectorString names;
   names.push_back(dbin->getNameByUID(iatt));
 
-  _setNames(dbout, iattout_start, names, qualifier, nitems);
+  _setNames(dbout, iattout_start, names, 0, qualifier, nitems);
 
   if (flagSetLocator)
     setLocators(dbout, iattout_start, 1, nitems, locatorShift);
@@ -372,26 +372,58 @@ void NamingConvention::setLocators(Db *dbout,
 }
 
 /**
+ * Define the rule for defining the number of variables
+ * @param names Vector of variable strings (may be empty)
+ * @param nvar  Number of variables (may be 0)
+ * @return A valid number of variables
+ */
+int NamingConvention::_getNameCount(const VectorString& names, int nvar) const
+{
+  if (nvar <= 0)
+  {
+    // Argument 'nvar' is not defined yet
+    if (names.empty())
+      return 1;
+    else
+      return (int) names.size();
+  }
+  else
+  {
+    // Argument 'nvar' is provided: is it consistent with 'names'
+    if (names.empty())
+      return nvar;
+    else
+    {
+      // Both 'nvar' and 'names' are provided. For safety reasons,
+      // the number of variables is the minimum between the two
+      return MIN(nvar, (int) names.size());
+    }
+  }
+}
+
+/**
  * Defines the names of the output variables. These variables are located
  * in 'dbout'; they have consecutive UIDs, starting from 'iattout_start'
  *
  * @param dbout   Pointer to the output Db structure
  * @param iattout_start Rank of the first variable to be named
- * @param names Vector of Names (dimension: nvar)
+ * @param names Vector of Names or empty (dimension: nvar)
+ * @param nvar Number of variables (if provided)
  * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
  */
 void NamingConvention::_setNames(Db *dbout,
                                  int iattout_start,
                                  const VectorString& names,
+                                 int nvar,
                                  const String& qualifier,
                                  int nitems) const
 {
-  VectorString outnames = _createNames(names, qualifier, nitems);
+  int nloc = _getNameCount(names, nvar);
+  VectorString outnames = _createNames(names, nloc, qualifier, nitems);
 
   int ecr = 0;
-  int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
-  for (int ivar = 0; ivar < nvar; ivar++)
+  for (int ivar = 0; ivar < nloc; ivar++)
   {
     for (int item = 0; item < nitems; item++)
     {
@@ -407,14 +439,15 @@ void NamingConvention::_setNames(Db *dbout,
  * @param names Vector of Names (dimension: nvar)
  * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
+ *
+ * @return outnames An array of variable names (Dimension: nvar * nitems)
  */
 VectorString NamingConvention::_createNames(const VectorString &names,
+                                            int nvar,
                                             const String &qualifier,
                                             int nitems) const
 {
   VectorString outnames;
-
-  int nvar = (names.empty()) ? 1 : static_cast<int>(names.size());
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {

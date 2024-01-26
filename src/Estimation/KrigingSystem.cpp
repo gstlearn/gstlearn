@@ -919,7 +919,7 @@ void KrigingSystem::_rhsStore(int iech)
       {
         double value = 0.;
         for (int jvar = 0; jvar < _nvar; jvar++)
-          value += _matCL->getValue(jvarCL,jvar) * _getCOVTAB(ivar, jvar);
+          value += _matCL->getValue(jvarCL, jvar) * _getCOVTAB(ivar, jvar);
         _setRHSF(iech, ivar, jvarCL, value);
       }
   }
@@ -1501,7 +1501,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           }
           else
           {
-            if (_nfeq <= 0) data -= _getMean(jvar);
+            if (_nfeq <= 0) data -= _getMean(jvar, true);
             estim += data * _wgt.getValue_(ecr++,0);
           }
         }
@@ -1535,14 +1535,14 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
     /* Perform the estimation */
 
     double valest = 0.;
-    if (_nfeq <= 0) valest = _getMean(0);
+    if (_nfeq <= 0) valest = _getMean(0, true);
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
       if (iiech != jjech)
         valest -= _getLHSINV(iiech,0,jjech,0) * variance *
-          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0));
+          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0, true));
       jjech++;
     }
 
@@ -1630,8 +1630,6 @@ void KrigingSystem::_estimateEstim(int status)
   // Calculate the solution
 
   if (status == 0)
-//    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-//      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _zam.getColumn(0)));
     _results.prodMatrix(*_rhs, _zam, true, false);
 
   // Loop for writing the estimation
