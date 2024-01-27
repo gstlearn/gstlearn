@@ -148,7 +148,7 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
   {
     // Do not forget to make a symmetrical call (when stored in an Eigen format)
     AMatrixDense::_setValue(irow, icol, value);
-    AMatrixDense::_setValue(icol, irow, value);
+    if (irow != icol) AMatrixDense::_setValue(icol, irow, value);
   }
   else
     _setValueLocal(irow, icol, value);
