@@ -103,6 +103,7 @@ public:
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
   const cs* getCs() const { return _csMatrix; }
+  cs* getCsUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
 #endif
   Triplet getSparseToTriplet(bool flag_from_1 = false) const;
 
