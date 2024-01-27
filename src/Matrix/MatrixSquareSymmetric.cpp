@@ -308,20 +308,20 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &vali
   return res;
 }
 
-int MatrixSquareSymmetric::computeEigen()
+int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
   if (_isFlagEigen())
-    return AMatrixDense::_computeEigen();
+    return AMatrixDense::_computeEigen(optionPositive);
   else
-    return _computeEigenLocal();
+    return _computeEigenLocal(optionPositive);
 }
 
-int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b)
+int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
   if (_isFlagEigen())
-    return AMatrixDense::_computeGeneralizedEigen(b);
+    return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
   else
-    return _computeGeneralizedEigenLocal(b);
+    return _computeGeneralizedEigenLocal(b, optionPositive);
 }
 
 /// =============================================================================
@@ -444,7 +444,7 @@ int MatrixSquareSymmetric::_solveLocal(const VectorDouble& b, VectorDouble& x) c
                       static_cast<int> (b.size()),1,&pivot);
 }
 
-int MatrixSquareSymmetric::_computeEigenLocal()
+int MatrixSquareSymmetric::_computeEigenLocal(bool optionPositive)
 {
   int nrows = getNRows();
   _flagEigenDecompose = true;
@@ -455,12 +455,14 @@ int MatrixSquareSymmetric::_computeEigenLocal()
   if (err == 0)
   {
     _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, false);
+
+    if (optionPositive) _eigenVectors->makePositiveColumn();
   }
 
   return err;
 }
 
-int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b)
+int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive)
 {
   int nrows = getNRows();
   _flagEigenDecompose = true;
@@ -472,6 +474,8 @@ int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymme
   {
     std::reverse(_eigenValues.begin(), _eigenValues.end());
     _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, true);
+
+    if (optionPositive) _eigenVectors->makePositiveColumn();
   }
   return err;
 }

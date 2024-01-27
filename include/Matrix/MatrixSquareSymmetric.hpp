@@ -54,8 +54,8 @@ public:
                                              int opt_eigen = -1);
   MatrixSquareSymmetric* createReduce(const VectorInt &validRows) const;
 
-  int computeEigen();
-  int computeGeneralizedEigen(const MatrixSquareSymmetric& b);
+  int computeEigen(bool optionPositive = true);
+  int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
   /// Interface for AMatrix
@@ -93,8 +93,8 @@ private:
   int     _getIndexToRankLocal(int irow, int icol) const;
   int     _getMatrixPhysicalSizeLocal() const;
   int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
-  int     _computeEigenLocal();
-  int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b);
+  int     _computeEigenLocal(bool optionPositive = true);
+  int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

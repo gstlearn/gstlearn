@@ -400,7 +400,7 @@ VectorDouble AMatrixDense::getColumn(int icol) const
   }
 }
 
-int AMatrixDense::_computeEigen()
+int AMatrixDense::_computeEigen(bool optionPositive)
 {
   if (!isSquare() || !isSymmetric())
   {
@@ -409,13 +409,13 @@ int AMatrixDense::_computeEigen()
   }
 
   if (_isFlagEigen())
-    return _computeEigenLocal();
+    return _computeEigenLocal(optionPositive);
   else
     my_throw("'_computeEigen' should never be called here");
   return ITEST;
 }
 
-int AMatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric& b)
+int AMatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
   if (!isSquare() || !isSymmetric())
   {
@@ -424,7 +424,7 @@ int AMatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric& b)
   }
 
   if (_isFlagEigen())
-    return _computeGeneralizedEigenLocal(b);
+    return _computeGeneralizedEigenLocal(b, optionPositive);
   else
     my_throw("'_computeGeneralizedEigen' should never be called here");
   return ITEST;
@@ -677,7 +677,7 @@ VectorDouble AMatrixDense::_getColumnLocal(int icol) const
   return res;
 }
 
-int AMatrixDense::_computeEigenLocal()
+int AMatrixDense::_computeEigenLocal(bool optionPositive)
 {
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> solver(_eigenMatrix);
 
@@ -696,10 +696,13 @@ int AMatrixDense::_computeEigenLocal()
   VectorDouble vec(nrows * ncols);
   Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
+
+  if (optionPositive) _eigenVectors->makePositiveColumn();
+
   return 0;
 }
 
-int AMatrixDense::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b)
+int AMatrixDense::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b, bool optionPositive)
 {
   Eigen::GeneralizedSelfAdjointEigenSolver<Eigen::MatrixXd> solver(_eigenMatrix, b._eigenMatrix);
 
@@ -718,6 +721,8 @@ int AMatrixDense::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b)
   VectorDouble vec(nrows * ncols);
   Eigen::Map<Eigen::MatrixXd>(&vec[0], nrows, ncols) = eigenVectors;
   _eigenVectors = MatrixSquareGeneral::createFromVD(vec, nrows, false, 1, true);
+
+  if (optionPositive) _eigenVectors->makePositiveColumn();
 
   return 0;
 }

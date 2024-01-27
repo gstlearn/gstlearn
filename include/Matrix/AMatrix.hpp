@@ -187,6 +187,8 @@ public:
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
   bool isNonNegative(bool verbose);
 
+  void makePositiveColumn();
+
 #ifndef SWIG
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }

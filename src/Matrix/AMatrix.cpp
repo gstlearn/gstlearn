@@ -1206,6 +1206,29 @@ bool AMatrix::isNonNegative(bool verbose)
   return true;
 }
 
+/**
+ * Modify the contents of the matrix so that each column has a positive sum of elements.
+ * If this is not the case, simply invert the sign of the column
+ */
+void AMatrix::makePositiveColumn()
+{
+  for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
+  {
+    // Extract each column
+    VectorDouble column = getColumn(icol);
+
+    // Calculate the sum of the elements
+    double sum = VH::cumul(column);
+    if (sum >= 0) continue;
+
+    // Invert the sign of all its elements
+    VH::multiplyConstant(column, -1.);
+
+    // Replace the column
+    setColumn(icol, column);
+  }
+}
+
 AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
 {
   return MatrixFactory::matProduct(mat1, mat2);

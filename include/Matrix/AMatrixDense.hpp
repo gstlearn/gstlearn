@@ -102,8 +102,8 @@ protected:
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   bool            _isNumberValid(int nrows,int ncols) const;
-  int             _computeEigen();
-  int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b);
+  int             _computeEigen(bool optionPositive = true);
+  int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
   /// =========================================================================
@@ -146,8 +146,8 @@ private:
   VectorDouble _getRowLocal(int irow) const;
   VectorDouble _getColumnLocal(int icol) const;
 
-  int                  _computeEigenLocal();
-  int                  _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b);
+  int _computeEigenLocal(bool optionPositive = true);
+  int _computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b, bool optionPositive = true);
 
 protected:
   bool _flagEigenDecompose;
