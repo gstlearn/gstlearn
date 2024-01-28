@@ -285,11 +285,6 @@ GSTLEARN_EXPORT int matrix_eigen(const double *a,
                                  int neq,
                                  double *value,
                                  double *vector);
-GSTLEARN_EXPORT int matrix_geigen(const double *a,
-                                  const double *b,
-                                  int neq,
-                                  double *value,
-                                  double *vector);
 GSTLEARN_EXPORT void matrix_product(int n1,
                                     int n2,
                                     int n3,
@@ -346,11 +341,6 @@ GSTLEARN_EXPORT void matrix_cholesky_norme(int mode,
                                            const double *tl,
                                            const double *a,
                                            double *b);
-GSTLEARN_EXPORT void matrix_triangular_product(int neq,
-                                               int mode,
-                                               const double *al,
-                                               const double *b,
-                                               double *x);
 GSTLEARN_EXPORT int is_matrix_definite_positive(int neq,
                                                 const double *a,
                                                 double *valpro,
@@ -388,7 +378,6 @@ GSTLEARN_EXPORT void matrix_combine(int nval,
                                     double *b,
                                     double *c);
 GSTLEARN_EXPORT double matrix_norminf(int neq, double *a);
-GSTLEARN_EXPORT void matrix_square(int neq, double *a, double *b);
 GSTLEARN_EXPORT void matrix_product_by_diag(int mode,
                                             int neq,
                                             double *a,

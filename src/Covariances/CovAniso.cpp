@@ -296,7 +296,7 @@ void CovAniso::setAnisoRotation(const VectorDouble &rot)
         (int) rot.size(), ndim);
   }
   Rotation r(ndim);
-  r.setMatrixDirectByVector(rot);
+  r.setMatrixDirectVec(rot);
   _aniso.setRotation(r);
 }
 
@@ -712,7 +712,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
         sstr << toVector("- Angles       = ", angles);
         sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
-                        true, getNDim(), getNDim(), getAnisoRotMatVec());
+                        true, getNDim(), getNDim(), getAnisoRotMat().getValues());
       }
     }
   }
@@ -743,7 +743,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
         VectorDouble angles = GeometryHelper::formatAngles(getAnisoAngles(), 180.);
         sstr << toVector("- Angles       = ", angles);
         sstr << toMatrix("- Rotation Matrix", VectorString(), VectorString(),
-                        true, getNDim(), getNDim(), getAnisoRotMatVec());
+                        true, getNDim(), getNDim(), getAnisoRotMat().getValues());
       }
     }
   }

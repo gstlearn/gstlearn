@@ -55,40 +55,6 @@ void AMatrixSquare::_setNSize(int nval)
   _setNCols(nval);
 }
 
-/**
- * Perform the product: this = t(Y) %*% X %*% Y
- * @param x: Square matrix
- * @param y: Matrix (possibly rectangular)
- * \remarks The number of rows of Y must be equal to the dimension of X
- * \remarks The output matrix is square with dimension equal to the number of columns of Y
- */
-void AMatrixSquare::normMatrix(const AMatrixSquare& x, const AMatrix& y)
-{
-  if (x.getNSize() != y.getNRows())
-  {
-    my_throw("Incompatible matrix dimensions");
-  }
-
-  int n    = x.getNSize();
-  int nout = y.getNCols();
-  for (int irow = 0; irow < nout; irow++)
-  {
-    for (int icol = 0; icol < nout; icol++)
-    {
-      double value = 0.;
-      for (int k = 0; k < n; k++)
-      {
-        for (int l = 0; l < n; l++)
-        {
-          value += y.getValue(k,irow) * x.getValue(k,l) * y.getValue(l,icol);
-        }
-      }
-      setValue(irow,icol,value);
-    }
-  }
-}
-
-
 double AMatrixSquare::trace() const
 {
   double res = 0.;
@@ -97,39 +63,6 @@ double AMatrixSquare::trace() const
   return res;
 
 }
-/**
- * Perform the product: this = Y %*% X %*% t(Y)
- * @param x: Square matrix
- * @param y: Matrix (possibly rectangular)
- * \remarks The number of columns of Y must be equal to the dimension of X
- * \remarks The output matrix is square with dimension equal to the number of rows of Y
- */
-void AMatrixSquare::normTMatrix(const AMatrixSquare& x, const AMatrix& y)
-{
-  if (x.getNSize() != y.getNCols())
-  {
-    my_throw("Incompatible matrix dimensions");
-  }
-
-  int n    = x.getNSize();
-  int nout = y.getNRows();
-  for (int irow = 0; irow < nout; irow++)
-  {
-    for (int icol = 0; icol < nout; icol++)
-    {
-      double value = 0.;
-      for (int k = 0; k < n; k++)
-      {
-        for (int l = 0; l < n; l++)
-        {
-          value += y.getValue(irow,k) * x.getValue(k,l) * y.getValue(icol,l);
-        }
-      }
-      setValue(irow,icol,value);
-    }
-  }
-}
-
 /**
  * Perform the product: this = t(R1) %*% X %*% R2 + t(R2) %*% X %*% R1
  * @param x: Square matrix

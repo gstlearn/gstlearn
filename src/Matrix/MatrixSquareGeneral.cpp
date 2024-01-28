@@ -117,7 +117,6 @@ MatrixSquareGeneral* MatrixSquareGeneral::createFromVD(const VectorDouble &X,
   return mat;
 }
 
-
 double MatrixSquareGeneral::_getValue(int irow, int icol) const
 {
   if (_isFlagEigen())

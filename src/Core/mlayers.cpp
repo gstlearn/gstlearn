@@ -1881,19 +1881,14 @@ static int st_drift_bayes(LMlayers *lmlayers,
 
   for (int ipar = 0; ipar < npar; ipar++)
     for (int jpar = 0; jpar < npar; jpar++)
-      INVS(npar,ipar,jpar) = (ipar == jpar) ? prior_vars[ipar] :
-                                              0.;
+      INVS(npar,ipar,jpar) = (ipar == jpar) ? prior_vars[ipar] : 0.;
 
   /* Optional printout */
 
   if (verbose)
   {
-    print_matrix("Prior Mean", 0, 1, lmlayers->nlayers, lmlayers->nbfl,
-    NULL,
-                 prior_mean);
-    print_matrix("Prior Variance", 0, 1, lmlayers->npar, lmlayers->npar,
-    NULL,
-                 invS);
+    print_matrix("Prior Mean", 0, 1, lmlayers->nlayers, lmlayers->nbfl, NULL, prior_mean);
+    print_matrix("Prior Variance", 0, 1, lmlayers->npar, lmlayers->npar, NULL, invS);
   }
 
   /* Invert the Data Variance-Covariance matrix */

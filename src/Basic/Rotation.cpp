@@ -76,7 +76,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
   return 0;
 }
 
-int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
+int Rotation::setMatrixDirectVec(const VectorDouble& rotmat)
 {
   if (! rotmat.empty())
   {

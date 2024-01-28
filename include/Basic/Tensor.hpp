@@ -52,6 +52,8 @@ public:
   bool                         isIsotropic()       const { return  _isotropic; }
   bool                         hasRotation()       const { return !_rotation.isIdentity(); }
 
+  double getValue(int idim, int jdim) const { return _rotation.getMatrixDirect(idim, jdim); }
+
   VectorDouble applyDirect (const VectorDouble& vec) const;
   VectorDouble applyInverse(const VectorDouble& vec) const;
   void applyInverseInPlace(const VectorDouble& vec, VectorDouble& out) const;

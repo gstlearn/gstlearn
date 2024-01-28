@@ -2291,7 +2291,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
       {
         if (icov == found) continue;
         cova = model->getCova(icov);
-        if (!cova->getAnisoRotMatVec().empty())
+        if (!cova->getAnisoRotMat().empty())
           cova->setAnisoAngles(cova1->getAnisoAngles());
       }
     }

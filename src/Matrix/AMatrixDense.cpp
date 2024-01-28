@@ -430,16 +430,6 @@ int AMatrixDense::_computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool 
   return ITEST;
 }
 
-VectorDouble AMatrixDense::getEigenValues()
-{
-  return _eigenValues;
-}
-
-MatrixSquareGeneral* AMatrixDense::getEigenVectors()
-{
-  return _eigenVectors;
-}
-
 /// =========================================================================
 /// The subsequent methods rely on the specific local storage ('eigenMatrix')
 /// =========================================================================

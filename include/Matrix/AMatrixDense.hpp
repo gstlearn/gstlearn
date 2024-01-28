@@ -16,12 +16,12 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 
+class MatrixSquareGeneral;
+class MatrixSquareSymmetric;
+
 /**
  * Square Matrix
  */
-
-class MatrixSquareGeneral;
-class MatrixSquareSymmetric;
 
 class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
@@ -81,8 +81,9 @@ public:
                           bool transposeY = false);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
-  VectorDouble     getEigenValues();
-  MatrixSquareGeneral* getEigenVectors();
+
+  VectorDouble         getEigenValues()  const { return _eigenValues; }
+  MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -151,7 +152,7 @@ private:
 
 protected:
   bool _flagEigenDecompose;
-  VectorDouble _eigenValues;
+  VectorDouble         _eigenValues;
   MatrixSquareGeneral* _eigenVectors;
 
 private:

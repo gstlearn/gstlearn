@@ -610,7 +610,7 @@ void ShiftOpCs::_loadHHRegular(MatrixSquareSymmetric &hh, int imesh)
   VectorDouble diag = VH::power(cova->getScales(), 2.);
   MatrixSquareSymmetric temp(ndim);
   temp.setDiagonal(diag);
-  hh.normMatrix(temp, rotmat);
+  hh.normMatrix(rotmat, temp);
 
   delete cova;
 }
@@ -685,7 +685,7 @@ void ShiftOpCs::_loadHHGrad(const AMesh *amesh,
       // Derivation with respect to the Range 'igparam'
       temp.fill(0.);
       temp.setValue(igparam, igparam, 2. * cova->getScale(igparam));
-      hh.normMatrix(temp, rotmat);
+      hh.normMatrix(rotmat, temp);
     }
     else
     {
@@ -737,7 +737,7 @@ double ShiftOpCs::_computeGradLogDetHH(const AMesh *amesh,
       }
     }
 
-    work.normMatrix(temp, rotmat);
+    work.normMatrix(rotmat, temp);
     work2.prodMatrix(work, invHH);
     double result = work2.trace();
     delete cova;
@@ -869,7 +869,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
 
   // Calculate M^t %*% M
 
-  matMtM.normSingleMatrix(matM);
+  matMtM.normMatrix(matM);
   *deter = matMtM.determinant();
 
   // Calculate (M^t %*% M)^{-1}
@@ -992,13 +992,13 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
     {
       if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
         my_throw("Matrix inversion");
-      matPinvHPt.normTMatrix(hh, matP);
+      matPinvHPt.normMatrix(matP, hh, true);
     }
     else
     {
       if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
         my_throw("Matrix inversion");
-      matPinvHPt.normTMatrix(hh, matMs);
+      matPinvHPt.normMatrix(matMs, hh, true);
     }
 
     // Storing in the Element of the Sparse Matrix
@@ -1134,14 +1134,14 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
     {
       if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
         my_throw("Matrix inversion");
-      matPHHPt.normTMatrix(hh, matP);
+      matPHHPt.normMatrix(matP, hh, true);
     }
 
     else
     {
       if (_prepareMatricesSphere(amesh, imesh, coords, matMs, &detMtM))
         my_throw("Matrix inversion");
-      matPHHPt.normTMatrix(hh, matMs);
+      matPHHPt.normMatrix(matMs, hh, true);
     }
 
     dethh = 1. / hh.determinant();
@@ -1162,9 +1162,9 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
         gradLogDetHH = _computeGradLogDetHH(amesh,igparam,ipref,hh,work,work2);
 
         if (amesh->getVariety() == 0)
-          matPGradHPt.normTMatrix(hhGrad, matP);
+          matPGradHPt.normMatrix(matP, hhGrad, true);
         else
-          matPGradHPt.normTMatrix(hhGrad, matMs);
+          matPGradHPt.normMatrix(matMs, hhGrad, true);
 
         // Storing in the Map
 

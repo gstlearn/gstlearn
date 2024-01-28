@@ -45,8 +45,7 @@ public:
   /// Is the matrix symmetrical ?
   bool isSymmetric(bool printWhyNot = false) const final { DECLARE_UNUSED(printWhyNot); return true; }
 
-  void normSingleMatrix(const AMatrix& x);
-  void normTSingleMatrix(const AMatrix& x);
+  void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
   static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X, int opt_eigen = -1);
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
@@ -95,6 +94,18 @@ private:
   int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
   int     _computeEigenLocal(bool optionPositive = true);
   int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive = true);
+
+  // Local functions (old style algebra)
+  int _matrix_geigen(const double *a,
+                     const double *b,
+                     int neq,
+                     double *value,
+                     double *vector) const;
+  void _matrix_triangular_product(int neq,
+                                  int mode,
+                                  const double *al,
+                                  const double *b,
+                                  double *x) const;
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

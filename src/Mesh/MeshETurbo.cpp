@@ -904,7 +904,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   rot.rotateDirect(extendMinRot, x0);
   VH::addInPlace(x0, cornerRef);
 
-  initFromGrid(nx,dx,x0,rot.getMatrixDirectByVector(),VectorDouble(),true,verbose);
+  initFromGrid(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),true,verbose);
   return 0;
 }
 

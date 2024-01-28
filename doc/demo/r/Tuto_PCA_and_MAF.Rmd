@@ -11,16 +11,16 @@
 
 # Initialisation
 
-Note: the generalized eigen problem is solved using the function *geigen* in the package *geigen*.
+Note: the Generalized Eigen problem is solved using the function *geigen* in the package *geigen*.
 
 ```{r}
-library(geigen)
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(align="center")
 rm(list=ls())
 library(gstlearn)
 library(ggplot2)
 library(ggpubr)
+library(geigen)
 rm(list=ls())
 ```
 
@@ -344,4 +344,3 @@ for (i in 1:nv) {
   ggPrint(p)
 }
 ```
-

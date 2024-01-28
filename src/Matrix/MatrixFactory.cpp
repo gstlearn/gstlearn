@@ -77,44 +77,6 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
 
 /****************************************************************************/
 /*!
- **  Performs the norm product of matrix V by matrix X: t(Y) * X * Y
- **
- ** \return Pointer to the newly created AMatrix matrix
- **
- ** \param[in]  x          AMatrixSquare matrix
- ** \param[in]  y          Second AMatrix matrix
- **
- *****************************************************************************/
-AMatrixSquare* MatrixFactory::matNorm(const AMatrixSquare *x, const AMatrix *y)
-{
-  if (x->getNCols() != y->getNRows())
-  {
-    my_throw("Incompatible dimensions when making norm product of two matrices");
-  }
-
-  const MatrixSquareSymmetric*     mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-  const MatrixSquareSymmetric*     mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
-
-  AMatrixSquare* res = nullptr;
-
-  if (mxsym != nullptr && mysym != nullptr)
-  {
-    res = new MatrixSquareSymmetric();
-  }
-  else
-  {
-    res = new MatrixSquareGeneral();
-  }
-
-  res->reset(y->getNCols(), y->getNCols());
-  res->normMatrix(*x, *y);
-
-  return res;
-
-}
-
-/****************************************************************************/
-/*!
  **  Create a Matrix similar to the input one with a given row number
  **
  ** \return Pointer to the newly created AMatrix matrix

@@ -1594,7 +1594,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     if (model_add_cova(model, cova->getType(), cova->getFlagAniso(),
                        cova->getFlagRotation(), cova->getRange(),
                        cova->getParam(), cova->getRanges(),
-                       cova->getAnisoRotMatVec(), sill, 0.))
+                       cova->getAnisoRotMat().getValues(), sill, 0.))
     {
       delete model;
       return nullptr;
@@ -1613,7 +1613,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     if (model_add_cova(model, cova->getType(), cova->getFlagAniso(),
                        cova->getFlagRotation(), cova->getRange(),
                        cova->getParam(), cova->getRanges(),
-                       cova->getAnisoRotMatVec(), sill,0.))
+                       cova->getAnisoRotMat().getValues(), sill,0.))
     {
       delete model;
       return nullptr;

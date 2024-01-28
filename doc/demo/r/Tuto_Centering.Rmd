@@ -75,14 +75,14 @@ translate <- function (X, dx) {
 UV_to_XY <- function(target, UV) {
   stopifnot(target$getNDim() == dim(UV)[2])
   rot = Rotation(); rot$setAngles(target$getAngles())
-  r   = t(matrix(rot$getMatrixDirectByVector(), nrow = target$getNDim(), ncol = target$getNDim()))
+  r   = t(matrix(rot$getMatrixDirectVec(), nrow = target$getNDim(), ncol = target$getNDim()))
   translate(UV %*% r, dx = target$getX0s())
 }
 
 XY_to_UV <- function(target, XY) {
   stopifnot(target$getNDim() == dim(XY)[2])
   rot = Rotation(); rot$setAngles(target$getAngles())
-  r   = (matrix(rot$getMatrixDirectByVector(), 
+  r   = (matrix(rot$getMatrixDirectVec(), 
                 nrow = target$getNDim(), ncol = target$getNDim()))
   translate(XY, dx = -target$getX0s()) %*% r 
 }
@@ -104,7 +104,7 @@ bounding_xy <- function(target, delta = 0) {
   bb_uv = bounding_uv(target, delta)
   rot = Rotation()
   rot$setAngles(target$getAngles())
-  bb_uv = bb_uv %*% t(matrix(rot$getMatrixDirectByVector(), nrow = 2, ncol = 2))
+  bb_uv = bb_uv %*% t(matrix(rot$getMatrixDirectVec(), nrow = 2, ncol = 2))
   translate(bb_uv, target$getX0s())
 }
 ```
