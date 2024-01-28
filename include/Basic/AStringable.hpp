@@ -14,13 +14,14 @@
 #include "gstlearn_export.hpp"
 
 #include "Enum/EJustify.hpp"
-
 #include "Basic/AStringFormat.hpp"
 
 #include <sstream>
 #ifndef SWIG
 class cs;
 #endif
+class AMatrix;
+
 class GSTLEARN_EXPORT AStringable
 {
 public:
@@ -48,6 +49,10 @@ GSTLEARN_EXPORT void   messageAbort(const char *format,...);
 GSTLEARN_EXPORT void   mestitle(int level,const char *format,...);
 GSTLEARN_EXPORT void   mes_process(const char *string, int ntot, int iech);
 GSTLEARN_EXPORT String toTitle(int level, const char* format, ...);
+GSTLEARN_EXPORT String toMatrix(const String &title,
+                                const AMatrix &mat,
+                                bool flagOverride = false,
+                                bool flagSkipZero = false);
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const VectorString& colnames,
                                 const VectorString& rownames,
@@ -66,28 +71,6 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const VectorInt &tab,
                                 bool flagOverride = false,
                                 bool flagSkipZero = false);
-GSTLEARN_EXPORT String toMatrixSymmetric(const String& title,
-                                         const VectorString& colnames,
-                                         const VectorString& rownames,
-                                         bool bycol,
-                                         int ncols,
-                                         const VectorDouble &tab,
-                                         bool flagOverride = false,
-                                         bool flagSkipZero = false);
-GSTLEARN_EXPORT String toMatrixDiagonal(const String& title,
-                                        const VectorString& colnames,
-                                        const VectorString& rownames,
-                                        int ncols,
-                                        const VectorDouble &tab,
-                                        bool flagOverride = false,
-                                        bool flagSkipZero = false);
-GSTLEARN_EXPORT String toMatrixDiagCst(const String& title,
-                                       const VectorString& colnames,
-                                       const VectorString& rownames,
-                                       int ncols,
-                                       const VectorDouble &tab,
-                                       bool flagOverride = false,
-                                       bool flagSkipZero = false);
 #ifndef SWIG
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const cs* A,
@@ -146,6 +129,9 @@ GSTLEARN_EXPORT void print_matrix(const char *title,
                                   int ny,
                                   const double *sel,
                                   const double *tab);
+GSTLEARN_EXPORT void print_matrix(const char *title,
+                                  int flag_limit,
+                                  const AMatrix& mat);
 GSTLEARN_EXPORT void print_trimat(const char *title,
                                   int mode,
                                   int neq,

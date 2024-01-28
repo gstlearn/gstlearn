@@ -150,7 +150,6 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
       XS(k,l)= ratio / AT(k,k);
     }
   }
-
   return (0);
 }
 
@@ -1073,10 +1072,7 @@ int is_matrix_definite_positive(int neq,
  ** \param[in]  verbose  1 for the verbose option
  **
  *****************************************************************************/
-int is_matrix_non_negative(int nrow,
-                                           int ncol,
-                                           double *a,
-                                           int verbose)
+int is_matrix_non_negative(int nrow, int ncol, double *a, int verbose)
 {
   int i;
 
@@ -1090,78 +1086,6 @@ int is_matrix_non_negative(int nrow,
   }
 
   return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Check if all the elements of a matrix are null
- **
- ** \return  1 if the matrix is null; 0 otherwise
- **
- ** \param[in]  nrow     Number of rows
- ** \param[in]  ncol     Number of columns
- ** \param[in]  a        Array to be checked
- ** \param[in]  verbose  1 for the verbose option
- **
- *****************************************************************************/
-int is_matrix_null(int nrow, int ncol, const double *a, int verbose)
-{
-  int i;
-
-  for (i = 0; i < nrow * ncol; i++)
-  {
-    if (a[i] != 0.)
-    {
-      if (verbose) messerr("The matrix is not null");
-      return (0);
-    }
-  }
-
-  if (verbose) messerr("The matrix is null");
-  return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Check if a matrix is a correlation matrix
- **
- ** \return  1 if the matrix is a correlation matrix; 0 otherwise
- **
- ** \param[in]  neq    Size of the matrix
- ** \param[in]  a      Symmetric square matrix to be checked
- **
- *****************************************************************************/
-int is_matrix_correlation(int neq, double *a)
-{
-  double *valpro, *vecpro;
-  int i, status;
-
-  /* Initializations */
-
-  status = 0;
-  valpro = (double*) mem_alloc(sizeof(double) * neq, 1);
-  vecpro = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-
-  /* Check that the matrix is definite positive */
-
-  if (!is_matrix_definite_positive(neq, a, valpro, vecpro, 1)) goto label_end;
-
-  /* Check that the diagonal is 1 */
-
-  for (i = 0; i < neq; i++)
-    if (A(i,i)!= 1.) goto label_end;
-
-    /* Set the status */
-
-  status = 1;
-
-  label_end:
-
-  /* Core deallocation */
-
-  valpro = (double*) mem_free((char* ) valpro);
-  vecpro = (double*) mem_free((char* ) vecpro);
-  return (status);
 }
 
 /****************************************************************************/
@@ -1230,7 +1154,7 @@ double matrix_determinant(int neq, const double *b)
  ** \param[out] b      Square cofactor
  **
  *****************************************************************************/
-int matrix_cofactor(int neq, double *a, double *b)
+static int _matrix_cofactor(int neq, double *a, double *b)
 {
   int i, j, ii, jj, i1, j1, neqm1;
   double *c, det;
@@ -1281,28 +1205,6 @@ int matrix_cofactor(int neq, double *a, double *b)
 
   c = (double*) mem_free((char* ) c);
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the determinant of the triangular matrix after Cholesky
- **
- ** \return  Value of the determinant
- **
- ** \param[in]  neq Size of the matrix
- **
- ** \param[in]  tl  Lower triangular matrix defined by column
- **
- *****************************************************************************/
-double matrix_cholesky_determinant(int neq, const double *tl)
-{
-  int i;
-  double deter;
-
-  deter = 1.;
-  for (i = 0; i < neq; i++)
-    deter *= TL(i, i);
-  return (deter);
 }
 
 /****************************************************************************/
@@ -1511,63 +1413,6 @@ void matrix_cholesky_product(int mode,
 
 /*****************************************************************************/
 /*!
- **  Get the solution of a linear system (after Cholesky decomposition)
- **
- ** \return  Error returned code
- ** \return   0 : Success
- ** \return  -1 : Core allocation problem
- ** \return  -2 : Singular matrix (zero pivot)
- **
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  tl   lower triangular matrix define by column
- ** \param[in]  b    matrix (dimension neq)
- **
- ** \param[out] x    resulting matrix (dimension neq)
- **
- *****************************************************************************/
-int matrix_cholesky_solve(int neq, const double *tl, const double *b, double *x)
-{
-  int i, j, error;
-  double sum, pivot, *r;
-
-  /* Core allocation */
-
-  error = -2;
-  r = (double*) mem_alloc(sizeof(double) * neq, 0);
-  if (r == nullptr) return (-1);
-
-  /* Linear system associated to the lower triangular system */
-
-  for (i = 0; i < neq; i++)
-  {
-    sum = b[i];
-    for (j = 0; j < i; j++)
-      sum -= r[j] * TL(i, j);
-    pivot = TL(i, i);
-    if (ABS(pivot) < _getTolInvert()) goto label_end;
-    r[i] = sum / pivot;
-  }
-
-  /* Linear system associated to the upper triangular system */
-
-  for (i = neq - 1; i >= 0; i--)
-  {
-    sum = r[i];
-    for (j = i + 1; j < neq; j++)
-      sum -= x[j] * TL(j, i);
-    x[i] = sum / TL(i, i);
-  }
-
-  /* Set the error returned code */
-
-  error = 0;
-
-  label_end: r = (double*) mem_free((char* ) r);
-  return (error);
-}
-
-/*****************************************************************************/
-/*!
  **  Invert the Cholesky matrix
  **
  ** \param[in]  neq  number of equations in the system
@@ -1647,89 +1492,6 @@ void matrix_cholesky_norme(int mode,
       BS(i,j)= val;
     }
   return;
-}
-
-/*****************************************************************************/
-/*!
- **  Invert the matrix (after Cholesky decomposition)
- **
- ** \return  Error returned code
- ** \return   0 : Success
- ** \return  -1 : Core allocation problem
- ** \return  -2 : Singular matrix (zero pivot)
- **
- ** \param[in]  neq  number of equations in the system
- ** \param[in]  tl   lower triangular matrix defined by column
- **
- ** \param[out] xl   invert lower triangular matrix
- **
- *****************************************************************************/
-int matrix_cholesky_to_invert(int neq, const double *tl, double *xl)
-{
-  int i, j, k, error;
-  double *r, *ek, *res, sum, pivot;
-
-  /* Initializations */
-
-  r = ek = res = nullptr;
-
-  /* Look for a zero pivot */
-
-  for (i = 0; i < neq; i++)
-  {
-    pivot = TL(i, i);
-    if (ABS(pivot) < _getTolInvert()) return (-2);
-  }
-
-  /* Core allocation */
-
-  error = -1;
-  r = (double*) mem_alloc(sizeof(double) * neq, 0);
-  if (r == nullptr) goto label_end;
-  ek = (double*) mem_alloc(sizeof(double) * neq, 0);
-  if (ek == nullptr) goto label_end;
-  res = (double*) mem_alloc(sizeof(double) * neq, 0);
-  if (res == nullptr) goto label_end;
-
-  /* Loop on the canonical basis */
-
-  for (k = 0; k < neq; k++)
-  {
-    for (i = 0; i < neq; i++)
-      ek[i] = 0.;
-    ek[k] = 1.;
-
-    /* Linear system associated to the lower triangular factor */
-
-    for (i = 0; i < neq; i++)
-    {
-      sum = ek[i];
-      for (j = 0; j < i; j++)
-        sum -= r[j] * TL(i, j);
-      pivot = TL(i, i);
-      r[i] = sum / pivot;
-    }
-
-    /* Linear system associated to the upper triangular factor */
-
-    for (i = neq - 1; i >= k; i--)
-    {
-      sum = r[i];
-      for (j = i + 1; j < neq; j++)
-        sum -= res[j] * TL(j, i);
-      res[i] = sum / TL(i, i);
-      XL(i,k)= res[i];
-    }
-  }
-
-  /* Set the error returned code */
-
-  error = 0;
-
-  label_end: r = (double*) mem_free((char* ) r);
-  ek = (double*) mem_free((char* ) ek);
-  res = (double*) mem_free((char* ) res);
-  return (error);
 }
 
 /*****************************************************************************/
@@ -1875,166 +1637,6 @@ double matrix_normA(double *b, double *a, int neq, int subneq)
   return (value);
 }
 
-/****************************************************************************/
-/*!
- **  Perform the partial-pivoting Gaussian elimination
- **
- ** \param[in]  a         Matrix to be inverted
- ** \param[in]  neq       Matrix dimension
- ** \param[in]  indx      Working array (Dimension: neq)
- ** \param[in]  c         Working array (Dimension: neq)
- **
- *****************************************************************************/
-static void st_elgs(double *a, int neq, int *indx, double *c)
-{
-  int i, j, k, itmp;
-  double c1, pi, pi1, pj;
-
-  /* Initialize the index */
-
-  k = 0;
-  for (i = 0; i < neq; i++)
-    indx[i] = i;
-
-  /* Find the rescaling factors, one from each row */
-
-  for (i = 0; i < neq; i++)
-  {
-    c1 = 0;
-    for (j = 0; j < neq; j++)
-    {
-      if (ABS(A(i,j)) > c1) c1 = ABS(A(i,j));
-    }
-    c[i] = c1;
-  }
-
-  /* Search the pivoting (largest) element from each column */
-
-  for (j = 0; j < neq - 1; j++)
-  {
-    pi1 = 0;
-    for (i = j; i < neq; i++)
-    {
-      pi = ABS(A(indx[i],j)) / c[indx[i]];
-      if (pi > pi1)
-      {
-        pi1 = pi;
-        k = i;
-      }
-    }
-
-    /* Interchange the rows via indx[] to record pivoting order */
-
-    itmp = indx[j];
-    indx[j] = indx[k];
-    indx[k] = itmp;
-    for (i = j + 1; i < neq; i++)
-    {
-      pj = A(indx[i],j)/ A(indx[j],j);
-
-      /* Record pivoting ratios below the diagonal */
-
-      A(indx[i],j) = pj;
-
-      /* Modify other elements accordingly */
-
-      for (k = j+1; k < neq; k++)
-      A(indx[i],k) -= pj * A(indx[j],k);
-    }
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Invert a symmetric square matrix
- **
- ** \return  Return code: 0 no error; k if the k-th pivot is zero
- **
- ** \param[in,out] a input matrix, destroyed in computation and replaced by
- **                  resultant inverse
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- *****************************************************************************/
-int matrix_invsym(double *a, int neq)
-{
-  double *x, *b, *c, ratio;
-  int *indx, i, j, k;
-
-  /* Initializations */
-
-  b = c = x = nullptr;
-  indx = nullptr;
-
-  /* Core allocation */
-
-  b = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-  x = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-  c = (double*) mem_alloc(sizeof(double) * neq, 1);
-  indx = (int*) mem_alloc(sizeof(int) * neq, 1);
-
-  /* Processing */
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-      B(i,j)= 0.;
-
-  for (i = 0; i < neq; i++)
-    B(i,i)= 1.;
-
-  st_elgs(a, neq, indx, c);
-
-  for (i = 0; i < neq - 1; i++)
-    for (j = i + 1; j < neq; j++)
-      for (k = 0; k < neq; k++)
-        B(indx[j],k)= B(indx[j],k) - A(indx[j],i) * B(indx[i],k);
-
-  for (i = 0; i < neq; i++)
-  {
-    ratio = A(indx[neq - 1], neq - 1);
-    if (ABS(ratio) < _getTolInvert()) return (neq);
-    X(neq-1,i)= B(indx[neq-1],i) / ratio;
-    for (j = neq - 2; j >= 0; j = j - 1)
-    {
-      X(j,i)= B(indx[j],i);
-      for (k = j+1; k < neq; k++)
-      X(j,i) = X(j,i) - A(indx[j],k) * X(k,i);
-      ratio = A(indx[j],j);
-      if (ABS(ratio) < _getTolInvert()) return(indx[j]+1);
-      X(j,i) /= ratio;
-    }
-  }
-
-  /* Copy the result */
-
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-      A(i,j)= X(i,j);
-
-      /* Core deallocation */
-
-  b = (double*) mem_free((char* ) b);
-  c = (double*) mem_free((char* ) c);
-  c = (double*) mem_free((char* ) x);
-  indx = (int*) mem_free((char* ) indx);
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Invert the sign of a matrix
- **
- ** \param[in]  neq    number of cells in the matrix
- ** \param[in,out] a   input/output matrix
- **
- *****************************************************************************/
-void matrix_invsign(int neq, double *a)
-{
-  int i;
-
-  for (i = 0; i < neq; i++)
-    a[i] = -a[i];
-}
-
 /*****************************************************************************/
 /*!
  **  Fill a square matrix with a triangular matrix
@@ -2076,7 +1678,7 @@ void matrix_triangle_to_square(int mode, int neq, const double *tl, double *a)
    ** \param[out] a      Resulting square matrix
    **
    *****************************************************************************/
-void matrix_tri2sq(int neq, const double *tl, double *a)
+static void _matrix_tri2sq(int neq, const double *tl, double *a)
 {
   int i, j;
 
@@ -2100,7 +1702,7 @@ void matrix_tri2sq(int neq, const double *tl, double *a)
    ** \remark: No test is performed to check that the input matrix is symmetric
    **
    *****************************************************************************/
-void matrix_square_to_triangle(int mode, int neq, const double *a, double *tl)
+static void _matrix_square_to_triangle(int mode, int neq, const double *a, double *tl)
 {
   int i, j;
 
@@ -2163,44 +1765,6 @@ VectorDouble matrix_produit_cholesky_VD(int neq, const double *tl)
 
   matrix_produit_cholesky(neq, tl, a.data());
   return a;
-}
-
-/*****************************************************************************/
-/*!
- **  Checks if the product of the matrix by its inverse
- **  is close enough to the identity
- **
- ** \return  1 if the product is identity; 0 otherwise
- **
- ** \param[in]  a      Matrix
- ** \param[in]  b      Inverse Matrix
- ** \param[in]  neq    number of equations in the system
- **
- ** \param[out] errmax  Maximum error encountered
- **
- *****************************************************************************/
-int is_matrix_product_identity(int neq, double *a, double *b, double *errmax)
-{
-  double *x, compare, valmax;
-  int i, j, error;
-
-  x = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
-
-  matrix_product_safe(neq, neq, neq, a, b, x);
-
-  valmax = 0.;
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
-    {
-      compare = (i == j) ? 1. :
-                           0.;
-      valmax = ABS(X(i,j) - compare);
-    }
-  error = (valmax <= Epsilon);
-
-  *errmax = valmax;
-  x = (double*) mem_free((char* ) x);
-  return (error);
 }
 
 /*****************************************************************************/
@@ -2328,10 +1892,10 @@ static int st_svd(double *a2, double *s, int neq)
  **
  *****************************************************************************/
 void matrix_svd_inverse(int neq,
-                                        double *s,
-                                        double *u,
-                                        double *v,
-                                        double *tabout)
+                        double *s,
+                        double *u,
+                        double *v,
+                        double *tabout)
 {
   int i, j, k, lec, number;
   double maxval, thresh, value;
@@ -2526,11 +2090,11 @@ void matrix_manage(int nrows,
  **
  *****************************************************************************/
 void matrix_combine(int nval,
-                                    double coeffa,
-                                    double *a,
-                                    double coeffb,
-                                    double *b,
-                                    double *c)
+                    double coeffa,
+                    double *a,
+                    double coeffb,
+                    double *b,
+                    double *c)
 {
   int i;
   double value;
@@ -2546,32 +2110,12 @@ void matrix_combine(int nval,
 
 /*****************************************************************************/
 /*!
- **  Fill the matrix to take the symmetry into account
+ **  Calculate the maximum of the absolute values of a vector
  **
- ** \param[in]  neq   matrix dimension
- ** \param[in,out]  a square symmetric matrix (dimension = neq*neq)
- **
- ** \remark  We assume that, in the input matrix, the elements A[i,j] where
- ** \remark  i >= j have already been filled
+ ** \param[in]  nval  vector dimension
+ ** \param[in]  tab   vector
  **
  *****************************************************************************/
-void matrix_fill_symmetry(int neq, double *a)
-{
-  int i, j;
-
-  for (i = 0; i < neq; i++)
-    for (j = i; j < neq; j++)
-      A(j,i)= A(i,j);
-    }
-
-    /*****************************************************************************/
-    /*!
-     **  Calculate the maximum of the absolute values of a vector
-     **
-     ** \param[in]  nval  vector dimension
-     ** \param[in]  tab   vector
-     **
-     *****************************************************************************/
 double matrix_norminf(int nval, double *tab)
 {
   double value, retval;
@@ -2583,25 +2127,6 @@ double matrix_norminf(int nval, double *tab)
     value = ABS(tab[i]);
     if (value > retval) retval = value;
   }
-  return (retval);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the sum of the absolute values of a vector
- **
- ** \param[in]  nval  vector dimension
- ** \param[in]  tab   vector
- **
- *****************************************************************************/
-double matrix_norml1(int nval, double *tab)
-{
-  double retval;
-  int i;
-
-  retval = 0.;
-  for (i = 0; i < nval; i++)
-    retval += ABS(tab[i]);
   return (retval);
 }
 
@@ -2636,35 +2161,6 @@ void matrix_square(int neq, double *a, double *b)
 
 /*****************************************************************************/
 /*!
- **  Performs the B = t(A) %*% A where A is a square matrix
- **
- ** \return the returned VectorDouble
- **
- ** \param[in]  neq matrix dimension for A
- ** \param[in]  a   square matrix (VectorDouble)
- **
- *****************************************************************************/
-VectorDouble matrix_square_VD(int neq, const VectorDouble &a)
-{
-  VectorDouble b;
-  int i1, i2, i3;
-  double value;
-
-  b.resize(neq * neq);
-  for (i1 = 0; i1 < neq; i1++)
-    for (i3 = 0; i3 < neq; i3++)
-    {
-      value = 0.;
-      for (i2 = 0; i2 < neq; i2++)
-        value += A(i1,i2)* A(i3,i2);
-      B(i1,i3)= value;
-    }
-
-  return b;
-}
-
-/*****************************************************************************/
-/*!
  **  Performs the A %*% diag(c) where A is a square matrix and c a vector
  **
  ** \param[in]  mode  0: c as is; 1: sqrt(c); 2: 1/c; 3: 1/sqrt(c)
@@ -2677,11 +2173,7 @@ VectorDouble matrix_square_VD(int neq, const VectorDouble &a)
  ** \remark Matrices a() and b() may coincide
  **
  *****************************************************************************/
-void matrix_product_by_diag(int mode,
-                                            int neq,
-                                            double *a,
-                                            double *c,
-                                            double *b)
+void matrix_product_by_diag(int mode, int neq, double *a, double *c, double *b)
 {
   double val;
   int i1, i2;
@@ -2699,68 +2191,6 @@ void matrix_product_by_diag(int mode,
     }
 
   return;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the A <- A %*% diag(c) where A is a square matrix and c a vector
- **
- ** \param[in]  mode  0: c as is; 1: sqrt(c); 2: 1/c; 3: 1/sqrt(c)
- ** \param[in]  neq   matrix dimension for A
- ** \param[in]  a     square matrix
- ** \param[in]  c     vector
- **
- *****************************************************************************/
-void matrix_product_by_diag_VD(int mode,
-                                               int neq,
-                                               VectorDouble a,
-                                               const VectorDouble &c)
-{
-  double val;
-  int i1, i2;
-
-  for (i1 = 0; i1 < neq; i1++)
-    for (i2 = 0; i2 < neq; i2++)
-    {
-      val = c[i2];
-      if (mode == 1)
-        val = sqrt(val);
-      else if (mode == 2)
-        val = 1. / val;
-      else if (mode == 3) val = 1. / sqrt(val);
-      A(i1,i2)*= val;
-    }
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the a1 * A + b1 * B
- **
- ** \param[in]  neq matrix dimension for A
- ** \param[in]  a1  Coefficient applied to matrix a()
- ** \param[in]  a   square matrix
- ** \param[in]  b1  Coefficient applied to matrix b()
- ** \param[in]  b   square matrix
- **
- ** \param[out] x   square matrix
- **
- ** \remark Matrix x() can coincide with a() or b()
- **
- *****************************************************************************/
-void matrix_linear(int neq,
-                   double a1,
-                   double *a,
-                   double b1,
-                   double *b,
-                   double *x)
-{
-  int i1, i2;
-
-  for (i1 = 0; i1 < neq; i1++)
-    for (i2 = 0; i2 < neq; i2++)
-      X(i1,i2) = a1 * A(i1,i2) + b1 * B(i1,i2);
 }
 
 /*****************************************************************************/
@@ -2896,14 +2326,14 @@ int matrix_qo(int neq, double *hmat, double *gmat, double *xmat)
  **
  *****************************************************************************/
 int matrix_qoc(int flag_invert,
-                               int neq,
-                               double *hmat,
-                               double *gmat,
-                               int na,
-                               double *amat,
-                               double *bmat,
-                               double *xmat,
-                               double *lambda)
+               int neq,
+               double *hmat,
+               double *gmat,
+               int na,
+               double *amat,
+               double *bmat,
+               double *xmat,
+               double *lambda)
 {
   int i, j, k, error, error_int;
   double *ha, *temp, *evec, value, cond;
@@ -3286,49 +2716,6 @@ int matrix_qoci(int neq,
 
 /*****************************************************************************/
 /*!
- **  Calculates the range of values within a rectangular matrix
- **
- ** \param[in]  n1 matrix dimension
- ** \param[in]  n2 matrix dimension
- ** \param[in]  v1 rectangular matrix (n1,n2)
- **
- ** \param[out] mini   Minimum value
- ** \param[out] maxi   Maximum value
- ** \param[out] norme1 Norm L1 of the matrix
- ** \param[out] norme2 Norm L2 of the matrix
- **
- *****************************************************************************/
-void matrix_range(int n1,
-                                  int n2,
-                                  double *v1,
-                                  double *mini,
-                                  double *maxi,
-                                  double *norme1,
-                                  double *norme2)
-{
-  double value;
-  int i1, i2;
-
-  (*mini) = 1.e30;
-  (*maxi) = -1.e30;
-  (*norme1) = 0.;
-  (*norme2) = 0.;
-
-  for (i1 = 0; i1 < n1; i1++)
-    for (i2 = 0; i2 < n2; i2++)
-    {
-      value = V1(i1, i2);
-      if (value < (*mini)) (*mini) = value;
-      if (value > (*maxi)) (*maxi) = value;
-      (*norme1) += ABS(value);
-      (*norme2) += value * value;
-    }
-  (*norme2) = sqrt(*norme2);
-  return;
-}
-
-/*****************************************************************************/
-/*!
  **  Concatenate two matrices
  **
  ** \return Pointer on the newly created concatenated matrix (or NULL)
@@ -3348,14 +2735,14 @@ void matrix_range(int n1,
  **
  *****************************************************************************/
 double* matrix_bind(int mode,
-                                    int n11,
-                                    int n12,
-                                    double *a1,
-                                    int n21,
-                                    int n22,
-                                    double *a2,
-                                    int *n31,
-                                    int *n32)
+                    int n11,
+                    int n12,
+                    double *a1,
+                    int n21,
+                    int n22,
+                    double *a2,
+                    int *n31,
+                    int *n32)
 {
   double *a, *v1, *v2;
   int error, n1, n2, n3, i, j, neq;
@@ -3492,38 +2879,6 @@ int matrix_get_extreme(int mode, int ntab, double *tab)
 
 /*****************************************************************************/
 /*!
- **  Invert a symmetric square matrix
- **  Pivots are assumed to located on the diagonal
- **
- ** \return  Return code: 0 no error; k if the k-th pivot is zero
- **
- ** \param[in]  a    input matrix
- ** \param[in]  neq  number of equations in the matrix 'a'
- **
- ** \param[out] b    output matrix
- **
- ** \remark  The difference with matrix_invert() is that the output
- ** \remark  matrix is different from input matrix
- **
- *****************************************************************************/
-int matrix_invreal_copy(const double *a, int neq, double *b)
-{
-  int i, error;
-
-  /* Copy the input matrix into the output matrix */
-
-  for (i = 0; i < neq * neq; i++)
-    b[i] = a[i];
-
-  /* Invert the matrix */
-
-  error = matrix_invreal(b, neq);
-
-  return (error);
-}
-
-/*****************************************************************************/
-/*!
  **  Invert a square real full matrix
  **
  ** \return  Error return code
@@ -3564,7 +2919,7 @@ int matrix_invreal(double *mat, int neq)
 
     /* Calculate the cofactor */
 
-    if (matrix_cofactor(neq, mat, cofac)) goto label_end;
+    if (_matrix_cofactor(neq, mat, cofac)) goto label_end;
 
     /* Transpose the cofactor to obtain the adjoint matrix */
 
@@ -3582,21 +2937,6 @@ int matrix_invreal(double *mat, int neq)
 
   label_end: cofac = (double*) mem_free((char* ) cofac);
   return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Set a square matrix to Identity
- **
- ** \param[in]  neq  dimension of the matrix
- ** \param[in]  a    Square matrix
- **
- *****************************************************************************/
-void matrix_set_identity(int neq, double *a)
-{
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      A(i,j)= (i == j) ? 1 : 0;
 }
 
 /*****************************************************************************/
@@ -3623,9 +2963,9 @@ int matrix_invert_triangle(int neq, double *tl, int rank)
 
   a = (double*) mem_alloc(sizeof(double) * neq * neq, 1);
 
-  matrix_tri2sq(neq, tl, a);
+  _matrix_tri2sq(neq, tl, a);
   error = matrix_invert(a, neq, rank);
-  matrix_square_to_triangle(0, neq, a, tl);
+  _matrix_square_to_triangle(0, neq, a, tl);
 
   a = (double*) mem_free((char* ) a);
   return error;
@@ -3806,3 +3146,24 @@ int matrix_LU_invert(int neq, double* a)
   for (int i = 0; i < neq2; i++) a[i] = ais[i];
   return 0;
 }
+
+/*****************************************************************************/
+/*!
+ **  Fill the matrix to take the symmetry into account
+ **
+ ** \param[in]  neq   matrix dimension
+ ** \param[in,out]  a square symmetric matrix (dimension = neq*neq)
+ **
+ ** \remark  We assume that, in the input matrix, the elements A[i,j] where
+ ** \remark  i >= j have already been filled
+ **
+ *****************************************************************************/
+void matrix_fill_symmetry(int neq, double *a)
+{
+  int i, j;
+
+  for (i = 0; i < neq; i++)
+    for (j = i; j < neq; j++)
+      A(j,i)= A(i,j);
+    }
+

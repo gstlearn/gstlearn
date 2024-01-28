@@ -9,7 +9,7 @@
 #                                                                              #
 ################################################################################
 #
-# This is a set of functions for interface with between gstlean package
+# This is a set of functions for interface with between gstlearn package
 # and geomatic package. In particular if converts back-and-forth
 # information from
 # - sf
@@ -35,7 +35,7 @@ sf_to_gstlearn <- function(x, quiet = TRUE)
   
   # Conversion of polygons
   geo = st_geometry(x)
-  if(class(geo)[1] == "sfc_MULTIPOLYGON") {
+  if((class(geo)[1] == "sfc_POLYGON")|(class(geo)[1] == "sfc_MULTIPOLYGON")) {
     if (! quiet) print(paste("Converting polygons..."))
     xy  = st_coordinates(geo)
     idx = sort(unique(xy[,4]))

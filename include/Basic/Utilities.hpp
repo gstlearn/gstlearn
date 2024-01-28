@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Basic/VectorNumT.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include <map>
 #include <cmath>
 #include <math.h>
@@ -91,7 +92,7 @@ GSTLEARN_EXPORT void ut_classify(int nech,
                                  int *classe);
 GSTLEARN_EXPORT double ut_median(double *tab, int ntab);
 GSTLEARN_EXPORT double ut_cnp(int n, int k);
-GSTLEARN_EXPORT double* ut_pascal(int ndim);
+GSTLEARN_EXPORT MatrixSquareGeneral ut_pascal(int ndim);
 GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);
 GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
 

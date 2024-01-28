@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixRectangular : public AMatrixDense {
 
 public:
-  MatrixRectangular(int nrow = 0, int ncol = 0, int opt_eigen=1);
+  MatrixRectangular(int nrow = 0, int ncol = 0, int opt_eigen=-1);
   MatrixRectangular(const MatrixRectangular &m);
   MatrixRectangular(const AMatrix &m);
   MatrixRectangular& operator= (const MatrixRectangular &r);
@@ -41,20 +41,22 @@ public:
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return false; }
 
-  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X);
+  static MatrixRectangular* createFromVVD(const VectorVectorDouble& X, int opt_eigen = -1);
   static MatrixRectangular* createFromVD(const VectorDouble &X,
                                          int nrow,
                                          int ncol,
-                                         bool byCol = false);
+                                         bool byCol = false,
+                                         int opt_eigen = -1,
+                                         bool invertColumnOrder = false);
 
   /*! Adding a Row or a Column (at the bottom or right of Rectangular Matrix) */
   void addRow(int nrow_added=1);
   void addColumn(int ncolumn_added = 1);
 
-  MatrixRectangular* reduce(const VectorInt& validRows, const VectorInt& validCols) const;
+  MatrixRectangular* createReduce(const VectorInt& validRows, const VectorInt& validCols) const;
 
 protected:
-  virtual int    _getIndexToRank(int irow,int icol) const override;
+  virtual int _getIndexToRank(int irow,int icol) const override;
 
 private:
   /// Interface for AMatrix

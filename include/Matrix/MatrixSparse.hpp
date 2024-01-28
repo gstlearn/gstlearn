@@ -23,9 +23,9 @@
 class GSTLEARN_EXPORT MatrixSparse : public AMatrix {
 
 public:
-  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen=1);
+  MatrixSparse(int nrow = 0, int ncol = 0, int opt_eigen=-1);
 #ifndef SWIG
-  MatrixSparse(const cs* A, int opt_eigen = 1);
+  MatrixSparse(const cs* A, int opt_eigen = -1);
 #endif
   MatrixSparse(const MatrixSparse &m);
   MatrixSparse& operator= (const MatrixSparse &m);
@@ -84,6 +84,11 @@ public:
   //// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static MatrixSparse* createFromTriplet(const Triplet &T,
+                                         int nrow,
+                                         int ncol,
+                                         int opt_eigen = -1);
+
   void init(int nrows, int ncols);
 
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
@@ -98,9 +103,9 @@ public:
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
   const cs* getCs() const { return _csMatrix; }
+  cs* getCsUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
 #endif
   Triplet getSparseToTriplet(bool flag_from_1 = false) const;
-
 
   void reset(int nrows, int ncols);
   void reset(int nrows, int ncols, double value);
@@ -117,6 +122,9 @@ public:
 
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
+
+  int computeCholesky();
+  int solveCholesky(const VectorDouble& b, VectorDouble& x);
 
 protected:
   /// Interface for AMatrix
@@ -148,6 +156,11 @@ private:
 private:
   cs*  _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
+  bool _flagDecomposeCholesky;
+
+  css *_S; // Cholesky decomposition
+  csn *_N; // Cholesky decomposition
+  Eigen::SimplicialCholesky<Eigen::SparseMatrix<double> > _cholEigen;
 };
 
 /*! Transform any matrix in a Sparse format */

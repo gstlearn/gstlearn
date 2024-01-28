@@ -12,6 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "Variogram/VarioParam.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -33,29 +35,27 @@ public:
 
   const VectorDouble& getEigVals() const { return _eigval; }
   double getEigVal(int ivar) const { return _eigval[ivar]; }
-  const VectorDouble& getEigVecs() const { return _eigvec; }
-  double getEigVec(int ivar, int jvar) const { return _eigvec[_getAddress(ivar,jvar)]; }
-  VectorDouble getVarianceRatio() const;
+  const MatrixRectangular& getEigVecs() const { return _eigvec; }
+  double getEigVec(int ivar, int jvar) const { return _eigvec.getValue(ivar,jvar); }
+  const VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
+  const MatrixSquareGeneral& getC0() const { return _c0; }
   int getNVar() const { return _nVar; }
-  const VectorDouble& getF2Zs() const { return _F2Z; }
-  double getF2Z(int ivar, int jvar) const { return _F2Z[_getAddress(ivar,jvar)]; }
-  const VectorDouble& getZ2Fs() const { return _Z2F; }
-  double getZ2F(int ivar, int jvar) const { return _Z2F[_getAddress(ivar, jvar)]; }
+  const MatrixSquareGeneral& getF2Zs() const { return _F2Z; }
+  const MatrixSquareGeneral& getZ2Fs() const { return _Z2F; }
   const VectorDouble& getSigmas() const { return _sigma; }
   double getSigma(int ivar) const { return _sigma[ivar]; }
 
   void setMeans(const VectorDouble &mean) { _mean = mean; }
   void setSigmas(const VectorDouble &sigma) { _sigma = sigma; }
-  void setZ2Fs(const VectorDouble& z2f) { _Z2F = z2f; }
-  void setZ2F(int ivar, int jvar, double z2f) { _Z2F[_getAddress(ivar,jvar)] = z2f; }
-  void setF2Zs(VectorDouble& f2z) { _F2Z = f2z; }
-  void setF2Z(int ivar, int jvar, double f2z) { _F2Z[_getAddress(ivar,jvar)] = f2z; }
+  void setZ2Fs(const MatrixSquareGeneral& z2f) { _Z2F = z2f; }
+  void setF2Zs(MatrixSquareGeneral& f2z) { _F2Z = f2z; }
+
   void setEigVals(VectorDouble& eigval) { _eigval = eigval; }
   void setEigVal(int ivar, double eigval) { _eigval[ivar] = eigval; }
-  void setEigVecs(const VectorDouble& eigvec) { _eigvec = eigvec; }
-  void setEigVec(int ivar, int jvar, double eigvec) { _eigvec[_getAddress(ivar,jvar)] = eigvec; }
+  void setEigVecs(const MatrixRectangular& eigvec) { _eigvec = eigvec; }
+  void setEigVec(int ivar, int jvar, double eigvec) { _eigvec.setValue(ivar,jvar,eigvec); }
 
   int pca_compute(const Db *db, bool verbose = false);
   int maf_compute(Db *db,
@@ -73,7 +73,11 @@ public:
   VectorDouble mafOfIndex() const;
 
 private:
-  int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }
+  double _getF2Z(int ivar, int ifac) const { return _F2Z.getValue(ivar, ifac); }
+  void   _setF2Z(int ivar, int ifac, double f2z) {  _F2Z.setValue(ivar, ifac, f2z); }
+  double _getZ2F(int ifac, int ivar) const { return _Z2F.getValue(ifac, ivar); }
+  void   _setZ2F(int ifac, int ivar, double z2f) {  _Z2F.setValue(ifac, ivar, z2f); }
+
   VectorBool _getVectorIsotopic(const Db* db);
   void _loadData(const Db* db, int iech, VectorDouble& data);
   int  _calculateEigen(bool verbose = false);
@@ -129,9 +133,9 @@ private:
   VectorDouble _mean;
   VectorDouble _sigma;
   VectorDouble _eigval;
-  VectorDouble _eigvec;
-  VectorDouble _c0;
-  VectorDouble _gh;
-  VectorDouble _Z2F;
-  VectorDouble _F2Z;
+  MatrixRectangular _eigvec;
+  MatrixSquareGeneral _c0;
+  MatrixSquareGeneral _gh;
+  MatrixSquareGeneral _Z2F;
+  MatrixSquareGeneral _F2Z;
 };

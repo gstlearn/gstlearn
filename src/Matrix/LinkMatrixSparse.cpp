@@ -250,7 +250,6 @@ cs* cs_invert(const cs *A, int order, double epsilon)
   return (B);
 }
 
-
 /****************************************************************************/
 /*!
  **  Update the selection vector
@@ -1115,7 +1114,6 @@ void cs_chol_simulate(QChol *qctt, double *simu, double *work)
 
   if (DEBUG) message("Cholesky Simulation\n");
   n = cs_getncol(qctt->Q);
-
   cs_ltsolve(qctt->N->L, work);
   cs_pvec(n, qctt->S->Pinv, work, simu);
 }

@@ -763,17 +763,10 @@ double ut_cnp(int n, int k)
  ** \remarks The calling function must free the returned matrix
  **
  *****************************************************************************/
-double* ut_pascal(int ndim)
+MatrixSquareGeneral ut_pascal(int ndim)
 {
-  double *m;
-#define M(j,i)            (m[(i) * ndim + (j)])
-
-  /* Core allocation */
-
-  m = (double*) mem_alloc(sizeof(double) * ndim * ndim, 0);
-  if (m == nullptr) return (m);
-  for (int i = 0; i < ndim * ndim; i++)
-    m[i] = 0.;
+  MatrixSquareGeneral m(ndim);
+  m.fill(0.);
 
   /* Fill the matrix */
 
@@ -781,12 +774,11 @@ double* ut_pascal(int ndim)
     for (int j = i; j < ndim; j++)
     {
       if (j == 0 || i == 0)
-        M(i,j) = 1.;
+        m.setValue(i, j, 1.);
       else
-        M(i,j) = M(i,j-1) + M(i - 1, j - 1);
+        m.setValue(i, j, m.getValue(i, j - 1) + m.getValue(i - 1, j - 1));
     }
-  return (m);
-#undef M
+  return m;
 }
 
 /****************************************************************************/
@@ -822,8 +814,7 @@ static void st_combinations(int *v,
   if (k > maxk)
   {
     /* insert code here to use combinations as you please */
-    cloc = (int*) mem_realloc((char* ) cloc, sizeof(int) * maxk * (nloc + 1),
-                              1);
+    cloc = (int*) mem_realloc((char* ) cloc, sizeof(int) * maxk * (nloc + 1), 1);
     ndeb = nloc * maxk;
     for (i = 0; i < maxk; i++)
       cloc[ndeb + i] = v[i + 1];

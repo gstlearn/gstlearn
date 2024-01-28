@@ -233,3 +233,40 @@ void CovContext::copyCovContext(const CovContext& ctxt, bool severe)
   _covar0 = ctxt._covar0;
   _update();
 }
+
+const CovContext* CovContext::createReduce(const VectorInt &validVars) const
+{
+  int ecr, lec;
+  int nvar = (int) validVars.size();
+  int ndim = getNDim();
+  VectorBool valids(_nVar, false);
+  for (int ivar = 0; ivar < nvar; ivar++) valids[validVars[ivar]] = true;
+
+  VectorDouble mean(nvar,0);
+  ecr = 0;
+  lec = 0;
+  for (int ivar = 0; ivar < _nVar; ivar++)
+  {
+    if (valids[ivar])
+    {
+      mean[ecr++] = _mean[lec];
+    }
+    lec++;
+  }
+
+  VectorDouble covar0(nvar * nvar,0);
+  ecr = 0;
+  lec = 0;
+  for (int ivar = 0; ivar < _nVar; ivar++)
+    for (int jvar = 0; jvar < _nVar; jvar++)
+    {
+      if (valids[ivar] && valids[jvar])
+      {
+        covar0[ecr++] = _covar0[lec];
+      }
+      lec++;
+    }
+
+  CovContext* newctxt = new CovContext(nvar, ndim, mean, covar0);
+  return newctxt;
+}

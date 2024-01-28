@@ -27,16 +27,16 @@ class Triplet;
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
 public:
-  AMatrix(int nrow = 0, int ncol = 0, int opt_eigen = 1);
+  AMatrix(int nrow = 0, int ncol = 0, int opt_eigen = -1);
   AMatrix(const AMatrix &m);
   AMatrix& operator= (const AMatrix &m);
   virtual ~AMatrix();
 
-  void init(int nrows, int ncols, int opt_eigen = 1);
-  void reset(int nrows, int ncols, double value = 0., int opt_eigen = 1);
-  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true, int opt_eigen = 1);
-  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true, int opt_eigen = 1);
-  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true, int opt_eigen = 1);
+  void init(int nrows, int ncols, int opt_eigen = -1);
+  void reset(int nrows, int ncols, double value = 0., int opt_eigen = -1);
+  void resetFromArray(int nrows, int ncols, const double* tab, bool byCol = true, int opt_eigen = -1);
+  void resetFromVD(int nrows, int ncols, const VectorDouble &tab, bool byCol = true, int opt_eigen = -1);
+  void resetFromVVD(const VectorVectorDouble& tab, bool byCol = true, int opt_eigen = -1);
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -185,6 +185,9 @@ public:
                   const VectorInt &activeCols);
   void copyElements(const AMatrix &m, double factor = 1.);
   void setFlagCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
+  bool isNonNegative(bool verbose);
+
+  void makePositiveColumn();
 
 #ifndef SWIG
   /*! Get value operator override */
@@ -243,8 +246,8 @@ private:
 /* Shortcut functions for C style aficionados */
 GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);
-GSTLEARN_EXPORT void setFlagEigen(bool flagEigen);
-GSTLEARN_EXPORT bool isFlagEigen();
+GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
+GSTLEARN_EXPORT bool isGlobalFlagEigen();
 GSTLEARN_EXPORT void setMultiThread(int nthreads);
 GSTLEARN_EXPORT int  getMultiThread();
 GSTLEARN_EXPORT bool isMultiThread();

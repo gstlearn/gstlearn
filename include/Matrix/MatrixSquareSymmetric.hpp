@@ -23,7 +23,7 @@ class AMatrix;
 class GSTLEARN_EXPORT MatrixSquareSymmetric : public AMatrixSquare {
 
 public:
-  MatrixSquareSymmetric(int nrow = 0, int opt_eigen = 1);
+  MatrixSquareSymmetric(int nrow = 0, int opt_eigen = -1);
   MatrixSquareSymmetric(const MatrixSquareSymmetric &m);
   MatrixSquareSymmetric(const AMatrix &m);
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
@@ -48,8 +48,14 @@ public:
   void normSingleMatrix(const AMatrix& x);
   void normTSingleMatrix(const AMatrix& x);
 
-  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble& X);
-  MatrixSquareSymmetric* reduce(const VectorInt &validRows) const;
+  static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X, int opt_eigen = -1);
+  static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
+                                             int nrow,
+                                             int opt_eigen = -1);
+  MatrixSquareSymmetric* createReduce(const VectorInt &validRows) const;
+
+  int computeEigen(bool optionPositive = true);
+  int computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
   /// Interface for AMatrix
@@ -87,6 +93,8 @@ private:
   int     _getIndexToRankLocal(int irow, int icol) const;
   int     _getMatrixPhysicalSizeLocal() const;
   int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
+  int     _computeEigenLocal(bool optionPositive = true);
+  int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

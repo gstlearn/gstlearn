@@ -70,7 +70,7 @@ bool CalcMigrate::_postprocess()
   _cleanVariableDb(2);
 
   int nvar = _getNVar();
-  _renameVariable(2, getDbin()->getNamesByUID(_iuids), ELoc::UNKNOWN, 1,
+  _renameVariable(2, getDbin()->getNamesByUID(_iuids), ELoc::UNKNOWN, nvar,
                     _iattOut, String(), 1);
 
   if (_flagLocate)
