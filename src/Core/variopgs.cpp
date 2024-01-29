@@ -2761,8 +2761,7 @@ static double st_d2_dkldij(double *lower, double *upper, double *correl)
           flag_out = 0;
           for (i = 0; i < 4 && flag_out == 0; i++)
           {
-            u[i] = (grid[i]) ? upper[i] :
-                               lower[i];
+            u[i] = (grid[i]) ? upper[i] : lower[i];
             flag_out = !IS_GAUSS_DEF(u[i]);
           }
           if (!flag_out)

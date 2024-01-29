@@ -28,6 +28,7 @@ class Selectivity;
 class DbGrid;
 class NeighImage;
 class EMorpho;
+class MatrixSquareSymmetric;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -79,7 +80,7 @@ int _krigsim(Db* dbin,
              ANeigh* neigh,
              bool flag_bayes,
              const VectorDouble& dmean,
-             const VectorDouble& dcov,
+             const MatrixSquareSymmetric& dcov,
              int icase,
              int nbsimu,
              bool flag_dgm);

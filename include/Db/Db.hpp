@@ -301,7 +301,7 @@ public:
                          const String& name = "NewSel",
                          const String& combine = "set");
 
-  int addSamples(int nadd, double valinit);
+  int addSamples(int nadd, double valinit = TEST);
   int deleteSample(int e_del);
   int deleteSamples(const VectorInt& e_dels);
   void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);

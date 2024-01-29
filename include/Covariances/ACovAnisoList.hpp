@@ -151,7 +151,7 @@ public:
   void copyCovContext(const CovContext& ctxt);
   bool hasNugget() const;
 
-  const ACovAnisoList* reduce(const VectorInt &validVars) const;
+  const ACovAnisoList* createReduce(const VectorInt &validVars) const;
 
   int addNoStat(const ANoStat *anostat);
   int getNoStatElemNumber() const;

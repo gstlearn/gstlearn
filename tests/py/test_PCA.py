@@ -20,7 +20,6 @@ ndat = 120
 Xtrain = X[range(ndat),:]
 Xtest = X[range(ndat+1,X.shape[0]),:]
 
-
 # ## Load the values inside a Data Base
 
 # We load the data into the Data Base of gstlearn. This operation creates a Data base with 5 columns (the first one, named*rank* is generated automatically; the other four columns come from the external file).

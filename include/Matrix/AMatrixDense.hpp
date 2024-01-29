@@ -18,6 +18,7 @@
   #pragma warning(disable:4127)
 #endif
 #include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 #ifdef _MSC_VER
   #pragma warning(default:4127)
 #endif
@@ -25,10 +26,14 @@
 /**
  * Square Matrix
  */
+
+class MatrixSquareGeneral;
+class MatrixSquareSymmetric;
+
 class GSTLEARN_EXPORT AMatrixDense : public AMatrix {
 
 public:
-  AMatrixDense(int nrow = 0, int ncol = 0, int opt_eigen=1);
+  AMatrixDense(int nrow = 0, int ncol = 0, int opt_eigen=-1);
   AMatrixDense(const AMatrixDense &m);
   AMatrixDense(const AMatrix &m);
   AMatrixDense& operator= (const AMatrixDense &r);
@@ -83,6 +88,8 @@ public:
                           bool transposeY = false);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
+  VectorDouble     getEigenValues();
+  MatrixSquareGeneral* getEigenVectors();
 
 protected:
   virtual int     _getMatrixPhysicalSize() const override;
@@ -102,6 +109,8 @@ protected:
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   bool            _isNumberValid(int nrows,int ncols) const;
+  int             _computeEigen(bool optionPositive = true);
+  int             _computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive = true);
 
 private:
   /// =========================================================================
@@ -144,6 +153,14 @@ private:
   VectorDouble _getRowLocal(int irow) const;
   VectorDouble _getColumnLocal(int icol) const;
 
-public:
+  int _computeEigenLocal(bool optionPositive = true);
+  int _computeGeneralizedEigenLocal(const MatrixSquareSymmetric &b, bool optionPositive = true);
+
+protected:
+  bool _flagEigenDecompose;
+  VectorDouble _eigenValues;
+  MatrixSquareGeneral* _eigenVectors;
+
+private:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };

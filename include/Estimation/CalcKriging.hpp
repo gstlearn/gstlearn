@@ -56,7 +56,7 @@ public:
   void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
   void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
   void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
-  void setPriorCov(const VectorDouble &priorCov) { _priorCov = priorCov; }
+  void setPriorCov(const MatrixSquareSymmetric &priorCov) { _priorCov = priorCov; }
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setFlagProf(bool flagProf) { _flagProf = flagProf; }
@@ -99,7 +99,7 @@ private:
 
   bool _flagBayes;
   VectorDouble _priorMean;
-  VectorDouble _priorCov;
+  MatrixSquareSymmetric _priorCov;
 
   bool _flagProf;
 
@@ -154,7 +154,7 @@ GSTLEARN_EXPORT int kribayes(Db *dbin,
                              Model *model,
                              ANeigh *neigh,
                              const VectorDouble& prior_mean = VectorDouble(),
-                             const VectorDouble& prior_cov = VectorDouble(),
+                             const MatrixSquareSymmetric& prior_cov = MatrixSquareSymmetric(),
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("Bayes"));

@@ -954,6 +954,7 @@ setMethod('[<-',  '_p_Vario',               setVarioitem)
 
 "fromTL" <- function(Robj)
 {
+	gstobj = NULL
 	if ("matrix" %in% class(Robj))
 	{
 		gstobj = MatrixRectangular_fromTL(Robj)

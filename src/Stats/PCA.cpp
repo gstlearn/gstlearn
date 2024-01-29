@@ -80,14 +80,14 @@ PCA::~PCA()
 void PCA::init(int nvar)
 {
   _nVar = nvar;
-  _mean.resize(nvar);
-  _sigma.resize(nvar,0);
+  _mean.resize  (nvar,0);
+  _sigma.resize (nvar,0);
   _eigval.resize(nvar,0);
-  _eigvec.resize(nvar * nvar,0);
-  _c0.resize(nvar * nvar,0);
-  _gh.resize(nvar * nvar,0);
-  _Z2F.resize(nvar * nvar,0);
-  _F2Z.resize(nvar * nvar,0);
+  _eigvec.resize(nvar, nvar);
+  _c0.resize    (nvar, nvar);
+  _gh.resize    (nvar, nvar);
+  _Z2F.resize   (nvar, nvar);
+  _F2Z.resize   (nvar, nvar);
 }
 
 void PCA::_pcaFunctions(bool verbose)
@@ -96,26 +96,27 @@ void PCA::_pcaFunctions(bool verbose)
 
   // Transpose for getting the F2Z function from Z2F
 
-  matrix_transpose(nvar,  nvar, _eigvec.data(), _F2Z.data());
+  _F2Z = _eigvec;
+  _F2Z.transposeInPlace();
 
   // Construct Z2F
 
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      setZ2F(ivar, jvar, getEigVec(ivar, jvar) / sqrt(_eigval[ivar]));
+  for (int ifac = 0; ifac < nvar; ifac++)
+    for (int ivar = 0; ivar < nvar; ivar++)
+      _setZ2F(ifac, ivar, getEigVec(ifac, ivar) / sqrt(_eigval[ivar]));
 
   // Construct F2Z
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      setF2Z(ivar, jvar, getF2Z(ivar, jvar) * sqrt(_eigval[jvar]));
+    for (int ifac = 0; ifac < nvar; ifac++)
+      _setF2Z(ivar, ifac, _getF2Z(ivar, ifac) * sqrt(_eigval[ivar]));
 
   // Printout of the transition matrices (optional)
 
   if (verbose)
   {
-    print_matrix("PCA Z->F", 0, 1, nvar, nvar, NULL,_Z2F.data());
-    print_matrix("PCA F->Z", 0, 1, nvar, nvar, NULL,_F2Z.data());
+    print_matrix("PCA Z->F", 0, _Z2F);
+    print_matrix("PCA F->Z", 0, _F2Z);
   }
 }
 
@@ -126,24 +127,23 @@ void PCA::_mafFunctions(bool verbose)
   // Construct Z2F
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      setZ2F(ivar, jvar, getEigVec(ivar, jvar));
+    for (int ifac = 0; ifac < nvar; ifac++)
+      _setZ2F(ifac, ivar, getEigVec(ifac, ivar));
 
   // Construct F2Z
 
-  MatrixSquareGeneral A(nvar);
-  A.setValues(_Z2F);
+  MatrixSquareGeneral A(_Z2F);
   A.invert();
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      setF2Z(jvar, ivar, A(ivar, jvar));
+  for (int ifac = 0; ifac < nvar; ifac++)
+    for (int ivar = 0; ivar < nvar; ivar++)
+      _setF2Z(ivar, ifac, A(ivar, ifac));
 
   // Printout of the transition matrices (optional)
 
   if (verbose)
   {
-    print_matrix("MAF Z->F", 0, 1, nvar, nvar, NULL,_Z2F.data());
-    print_matrix("MAF F->Z", 0, 1, nvar, nvar, NULL,_F2Z.data());
+    print_matrix("MAF Z->F", 0, _Z2F);
+    print_matrix("MAF F->Z", 0, _F2Z);
   }
 }
 
@@ -153,14 +153,16 @@ int PCA::_calculateEigen(bool verbose)
 
   // Eigen decomposition
 
-  if (matrix_eigen(_c0.data(), nvar, _eigval.data(), _eigvec.data())) return 1;
+  VectorDouble eigvec(nvar * nvar);
+  if (matrix_eigen(_c0.getValues().data(), nvar, _eigval.data(), eigvec.data())) return 1;
+  _eigvec.resetFromVD(nvar, nvar, eigvec);
 
   // Printout of the eigen results (optional)
 
   if (verbose)
   {
     print_matrix("Eigen values", 0, 1, 1, nvar, NULL, _eigval.data());
-    print_matrix("Eigen Vectors", 0, 1, nvar, nvar, NULL,_eigvec.data());
+    print_matrix("Eigen Vectors", 0, _eigvec);
   }
   return 0;
 }
@@ -171,14 +173,17 @@ int PCA::_calculateGEigen(bool verbose)
 
   // Eigen decomposition
 
-  if (matrix_geigen(_gh.data(), _c0.data(), nvar, _eigval.data(), _eigvec.data())) return 1;
+  VectorDouble eigvec(nvar * nvar);
+  if (matrix_geigen(_gh.getValues().data(), _c0.getValues().data(), nvar,
+                    _eigval.data(), eigvec.data())) return 1;
+  _eigvec.resetFromVD(nvar, nvar, eigvec);
 
   // Printout of the eigen results (optional)
 
   if (verbose)
   {
     print_matrix("GEigen values", 0, 1, 1, nvar, NULL, _eigval.data());
-    print_matrix("GEigen Vectors", 0, 1, nvar, nvar, NULL,_eigvec.data());
+    print_matrix("GEigen Vectors", 0, _eigvec);
   }
   return 0;
 }
@@ -201,21 +206,13 @@ String PCA::toString(const AStringFormat* strfmt) const
   }
   if (dsf.getflagStats())
   {
-    sstr << toMatrix("Covariance Matrix", VectorString(), VectorString(), true, _nVar,
-                     _nVar, _c0);
+    sstr << toMatrix("Covariance Matrix", _c0);
     if (_gh.size() > 0)
-    {
-      sstr << toMatrix("Variogram Matrix at lag h", VectorString(), VectorString(), true, _nVar,
-                       _nVar, _gh);
-    }
+      sstr << toMatrix("Variogram Matrix at lag h", _gh);
 
-    sstr << toMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F",
-                     VectorString(), VectorString(), true,
-                     _nVar, _nVar, _Z2F);
+    sstr << toMatrix("Matrix MZ2F to transform standardized Variables Z into Factors F", _Z2F);
     sstr << "Y = (Z - m) * MZ2F)" << std::endl;
-    sstr << toMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z",
-                     VectorString(), VectorString(), true,
-                     _nVar, _nVar, _F2Z);
+    sstr << toMatrix("Matrix MF2Z to back-transform Factors F into standardized Variables Z",_F2Z);
     sstr << "Z = m + Y * MF2Z" << std::endl;
   }
   return sstr.str();
@@ -316,7 +313,7 @@ int PCA::dbF2Z(Db* db,
   return 0;
 }
 
-VectorDouble PCA::getVarianceRatio() const
+const VectorDouble PCA::getVarianceRatio() const
 {
   double total = VectorHelper::cumul(_eigval);
   VectorDouble eignorm = _eigval;
@@ -406,6 +403,9 @@ void PCA::_covariance0(const Db *db,
   int niso = 0;
   VectorDouble data1(nvar);
 
+	// Initialize the matrix contents
+	_c0.fill(0);
+	
   /* Calculate the variance-covariance matrix at distance 0 */
 
   niso = 0;
@@ -418,7 +418,7 @@ void PCA::_covariance0(const Db *db,
     niso++;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        _c0[ivar * nvar + jvar] += data1[ivar] * data1[jvar];
+        _c0.setValue(jvar, ivar, _c0.getValue(jvar, ivar) + data1[ivar] * data1[jvar]);
   }
 
   /* Normalization */
@@ -426,15 +426,14 @@ void PCA::_covariance0(const Db *db,
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       if (flag_nm1)
-        _c0[ivar * nvar + jvar] /= (niso-1.);
+        _c0.setValue(jvar, ivar, _c0.getValue(jvar, ivar) / (niso-1.));
       else
-        _c0[ivar * nvar + jvar] /= niso;
+        _c0.setValue(jvar, ivar, _c0.getValue(jvar, ivar) / niso);
 
   /* Printout of the covariance matrix (optional) */
 
   if (verbose)
-    print_matrix("Variance-Covariance matrix for distance 0", 0, 1, nvar, nvar,
-                 NULL,_c0.data());
+    print_matrix("Variance-Covariance matrix for distance 0", 0, _c0);
 }
 
 /****************************************************************************/
@@ -514,7 +513,6 @@ void PCA::_pcaZ2F(int iptr,
   int nvar = db->getLocNumber(ELoc::Z);
   int nech = db->getSampleNumber();
   VectorDouble data1(nvar, 0.);
-  VectorDouble data2(nvar, 0.);
 
   /* Loop on the samples */
 
@@ -523,18 +521,8 @@ void PCA::_pcaZ2F(int iptr,
     if (! isoFlag[iech]) continue;
     _loadData(db, iech, data1);
     _center(data1, mean, sigma, true, false);
+    VectorDouble data2 = _Z2F.prodTVector(data1);
 
-    /* Loop on the factors */
-
-    for (int ifac = 0; ifac < nvar; ifac++)
-    {
-      double value = 0.;
-      for (int ivar = 0; ivar < nvar; ivar++)
-        value += getZ2F(ifac, ivar) * data1[ivar];
-      data2[ifac] = value;
-    }
-
-    // Storage
     for (int ifac = 0; ifac < nvar; ifac++)
       db->setArray(iech, ifac + iptr, data2[ifac]);
   }
@@ -568,22 +556,8 @@ void PCA::_pcaF2Z(int iptr,
   {
     if (! isoFlag[iech]) continue;
     _loadData(db, iech, data1);
-
-    /* Loop on the factors */
-
-    for (int ivar = 0; ivar < nvar; ivar++)
-    {
-      // Calculate the projection
-      double value = 0.;
-      for (int ifac = 0; ifac < nvar; ifac++)
-        value += getF2Z(ivar, ifac) * data1[ifac];
-      data2[ivar] = value;
-    }
-
-    // De-normalize
+    data2 = _F2Z.prodTVector(data1);
     _uncenter(data2, mean, sigma, true, false);
-
-    // Storage
 
     for (int ivar = 0; ivar < nvar; ivar++)
       db->setArray(iech, ivar + iptr, data2[ivar]);
@@ -763,6 +737,7 @@ void PCA::_variogramh(Db *db,
 
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
+  _gh.fill(0.);
 
   // Creating a local Vario structure (to constitute the BiTargetCheck list
   if (idir0 >= 0)
@@ -814,7 +789,7 @@ void PCA::_variogramh(Db *db,
         {
           double di = data1[ivar] - data2[ivar];
           double dj = data1[jvar] - data2[jvar];
-          _gh[ivar * nvar + jvar] += di * dj / 2.;
+          _gh.setValue(ivar, jvar, _gh.getValue(ivar, jvar) + di * dj / 2.);
         }
       npairs++;
     }
@@ -825,7 +800,7 @@ void PCA::_variogramh(Db *db,
   if (npairs > 0)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
-        _gh[ivar * nvar + jvar] /= npairs;
+        _gh.setValue(ivar, jvar, _gh.getValue(ivar, jvar) / npairs);
 
   /* Verbose printout */
 
@@ -847,7 +822,7 @@ void PCA::_variogramh(Db *db,
     message("Number of samples in the Db = %d\n", nech);
     message("Number of isotopic pairs    = %d\n", npairs);
     message("\n");
-    print_matrix("Variogram matrix for distance h", 0, 1, nvar, nvar, NULL, _gh.data());
+    print_matrix("Variogram matrix for distance h", 0, _gh);
   }
 }
 
@@ -896,7 +871,8 @@ VectorDouble PCA::mafOfIndex() const
   }
 
   VectorDouble local(nclass * ncut);
-  matrix_product_safe(nclass, ncut, ncut, i_norm_val.getValues().data(), _Z2F.data(), local.data());
+  matrix_product_safe(nclass, ncut, ncut, i_norm_val.getValues().data(),
+                      _Z2F.getValues().data(), local.data());
 
   VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local);
 

@@ -13,19 +13,20 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrixSquare.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
-: AMatrixSquare(nrow, opt_eigen)
-, _squareSymMatrix()
+    : AMatrixSquare(nrow, opt_eigen),
+      _squareSymMatrix()
 {
   _allocate();
 }
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(const MatrixSquareSymmetric &r) 
-  : AMatrixSquare(r)
-  , _squareSymMatrix()
+  : AMatrixSquare(r),
+   _squareSymMatrix()
 {
   _recopyLocal(r);
 }
@@ -65,6 +66,58 @@ MatrixSquareSymmetric::~MatrixSquareSymmetric()
   _deallocate();
 }
 
+/**
+ * Converts a VectorVectorDouble into a Square Symmetric Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param  X Input VectorVectorDouble argument
+ * @param opt_eigen Option for use of Eigen Library
+ * @return The returned square symmetric matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+  if (nrow != ncol)
+  {
+    messerr("The matrix does not seem to be square");
+    return nullptr;
+  }
+  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow, opt_eigen);
+  mat->_fillFromVVD(X);
+  return mat;
+}
+
+MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X,
+                                                           int nrow,
+                                                           int opt_eigen)
+{
+  int ncol = nrow;
+  if (nrow * ncol != (int) X.size())
+  {
+    messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
+    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+  }
+  // Check symmetry
+  MatrixRectangular* mattemp = MatrixRectangular::createFromVD(X, nrow, ncol);
+  if (! mattemp->isSymmetric())
+  {
+    messerr("The input matrix does not seem to be Square and symmetric");
+    delete mattemp;
+    return nullptr;
+  }
+  delete mattemp;
+
+  MatrixSquareSymmetric *mat = new MatrixSquareSymmetric(nrow, opt_eigen);
+
+  int lec = 0;
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      mat->setValue(irow, icol, X[lec++]);
+  return mat;
+}
+
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
   if (_isFlagEigen())
@@ -95,7 +148,7 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
   {
     // Do not forget to make a symmetrical call (when stored in an Eigen format)
     AMatrixDense::_setValue(irow, icol, value);
-    AMatrixDense::_setValue(icol, irow, value);
+    if (irow != icol) AMatrixDense::_setValue(icol, irow, value);
   }
   else
     _setValueLocal(irow, icol, value);
@@ -142,7 +195,7 @@ void MatrixSquareSymmetric::_deallocate()
     AMatrixDense::_deallocate();
   else
   {
-    // Here should be the code specific to this class
+    delete _eigenVectors;
   }
 }
 
@@ -238,7 +291,7 @@ void MatrixSquareSymmetric::normTSingleMatrix(const AMatrix& x)
   }
 }
 
-MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows) const
+MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &validRows) const
 {
   // Order and shrink the input vectors
   VectorInt localValidRows = VH::filter(validRows, 0, getNRows());
@@ -255,30 +308,20 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::reduce(const VectorInt &validRows)
   return res;
 }
 
-/**
- * Converts a VectorVectorDouble into a Matrix
- * Note: the input argument is stored by row (if coming from [] specification)
- * @param X Input VectorVectorDouble argument
- * @return The returned matrix
- *
- * @remark: the matrix is transposed implicitly while reading
- */
-MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDouble& X)
+int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
-  int nrow = (int) X.size();
-  int ncol = (int) X[0].size();
-  MatrixRectangular* mattemp = new MatrixRectangular(nrow, ncol);
-  if (mattemp->isSymmetric())
-  {
-    messerr("The matrix does not seem to be Square and symmetric");
-    delete mattemp;
-    return nullptr;
-  }
-  delete mattemp;
+  if (_isFlagEigen())
+    return AMatrixDense::_computeEigen(optionPositive);
+  else
+    return _computeEigenLocal(optionPositive);
+}
 
-  MatrixSquareSymmetric* mat = new MatrixSquareSymmetric(nrow);
-  mat->_fillFromVVD(X);
-  return mat;
+int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
+{
+  if (_isFlagEigen())
+    return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
+  else
+    return _computeGeneralizedEigenLocal(b, optionPositive);
 }
 
 /// =============================================================================
@@ -288,6 +331,9 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVVD(const VectorVectorDo
 void MatrixSquareSymmetric::_recopyLocal(const MatrixSquareSymmetric& r)
 {
   _squareSymMatrix = r._squareSymMatrix;
+  _flagEigenDecompose = r._flagEigenDecompose;
+  _eigenValues = r._eigenValues;
+  if (_eigenVectors != nullptr) _eigenVectors = r._eigenVectors->clone();
 }
 
 double MatrixSquareSymmetric::_getValueLocal(int irow, int icol) const
@@ -349,11 +395,18 @@ void MatrixSquareSymmetric::_setValuesLocal(const double *values, bool byCol)
     }
 
   int ecr = 0;
-  for (int icol = 0; icol < getNCols(); icol++)
-    for (int irow = 0; irow < getNRows(); irow++, ecr++)
-    {
-      setValue(irow, icol, values[ecr]);
-    }
+  if (byCol)
+  {
+    for (int icol = 0; icol < getNCols(); icol++)
+      for (int irow = 0; irow < getNRows(); irow++)
+        setValue(irow, icol, values[ecr++]);
+  }
+  else
+  {
+    for (int irow = 0; irow < getNRows(); irow++)
+      for (int icol = 0; icol < getNCols(); icol++)
+        setValue(irow, icol, values[ecr++]);
+  }
 }
 
 int MatrixSquareSymmetric::_invertLocal()
@@ -389,4 +442,40 @@ int MatrixSquareSymmetric::_solveLocal(const VectorDouble& b, VectorDouble& x) c
   int pivot;
   return matrix_solve(1,_squareSymMatrix.data(),b.data(),x.data(),
                       static_cast<int> (b.size()),1,&pivot);
+}
+
+int MatrixSquareSymmetric::_computeEigenLocal(bool optionPositive)
+{
+  int nrows = getNRows();
+  _flagEigenDecompose = true;
+  _eigenValues = VectorDouble(nrows, 0.);
+  VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
+
+  int err = matrix_eigen(this->getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
+  if (err == 0)
+  {
+    _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, false);
+
+    if (optionPositive) _eigenVectors->makePositiveColumn();
+  }
+
+  return err;
+}
+
+int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive)
+{
+  int nrows = getNRows();
+  _flagEigenDecompose = true;
+  _eigenValues = VectorDouble(nrows, 0.);
+  VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
+
+  int err = matrix_geigen(this->getValues().data(),b.getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
+  if (err == 0)
+  {
+    std::reverse(_eigenValues.begin(), _eigenValues.end());
+    _eigenVectors = MatrixSquareGeneral::createFromVD(eigenVectors, nrows, false, 0, true);
+
+    if (optionPositive) _eigenVectors->makePositiveColumn();
+  }
+  return err;
 }

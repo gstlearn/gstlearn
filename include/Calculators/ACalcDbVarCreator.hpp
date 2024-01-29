@@ -48,6 +48,7 @@ protected:
                      double valinit = 0.);
   void _renameVariable(int nvar,
                        int iptr,
+                       const ELoc& locatorInType,
                        const String &qualifier,
                        int count);
   void _storeInVariableList(int status, const VectorInt& iuids);

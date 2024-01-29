@@ -77,10 +77,11 @@ int ACalcDbVarCreator::_addVariableDb(int status,
 
 void ACalcDbVarCreator::_renameVariable(int nvar,
                                         int iptr,
+                                        const ELoc& locatorInType,
                                         const String &qualifier,
                                         int count)
 {
-  _namconv.setNamesAndLocators(_db, VectorString(), ELoc::Z, nvar, _db, iptr, qualifier, count);
+  _namconv.setNamesAndLocators(_db, VectorString(), locatorInType, nvar, _db, iptr, qualifier, count);
 }
 
 void ACalcDbVarCreator::_cleanVariableDb(int status)

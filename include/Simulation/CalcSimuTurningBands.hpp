@@ -44,7 +44,7 @@ public:
                int icase,
                int flag_bayes = false,
                const VectorDouble& dmean = VectorDouble(),
-               const VectorDouble& dcov = VectorDouble(),
+               const MatrixSquareSymmetric& dcov = MatrixSquareSymmetric(),
                bool flag_pgs = false,
                bool flag_gibbs = false,
                bool flag_dgm = false);
@@ -57,8 +57,8 @@ public:
 
   static bool isTurningBandsWorkable(const Model *model);
 
-  const VectorDouble& getBayesCov() const { return _bayesCov; }
-  void setBayesCov(const VectorDouble &dcov) { _bayesCov = dcov; }
+  const MatrixSquareSymmetric& getBayesCov() const { return _bayesCov; }
+  void setBayesCov(const MatrixSquareSymmetric &bayes_cov) { _bayesCov = bayes_cov; }
   const VectorDouble& getBayesMean() const { return _bayesMean; }
   void setBayesMean(const VectorDouble &dmean) { _bayesMean = dmean; }
   bool isFlagCheck() const { return _flagCheck; }
@@ -198,7 +198,7 @@ private:
   bool _flagDGM;
   VectorString _nameCoord;
   VectorDouble _bayesMean;
-  VectorDouble _bayesCov;
+  MatrixSquareSymmetric _bayesCov;
   int _npointSimulated;
   double _field;
   double _theta;
@@ -223,7 +223,7 @@ GSTLEARN_EXPORT int simbayes(Db *dbin,
                              int nbsimu = 1,
                              int seed = 132141,
                              const VectorDouble& dmean = VectorDouble(),
-                             const VectorDouble& dcov = VectorDouble(),
+                             const MatrixSquareSymmetric& dcov = MatrixSquareSymmetric(),
                              int nbtuba = 100,
                              bool flag_check = false,
                              const NamingConvention& namconv = NamingConvention("SimBayes"));

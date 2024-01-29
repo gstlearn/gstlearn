@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
   // Setting constant global proportions
   VectorDouble props({0.2, 0.5, 0.3});
-  int nfac = props.size();
+  int nfac = (int) props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
     dbprop->addColumnsByConstant(1,props[ifac],names[ifac],ELoc::P,ifac);
@@ -112,9 +112,9 @@ int main(int argc, char *argv[])
   Vario* vario = variogram_pgs(db,&varioparam1,ruleprop);
   vario->display();
   Vario vario1 = Vario(*vario);
-  vario1.reduce({0},VectorInt(),true);
+  vario1.resetReduce({0},VectorInt(),true);
   Vario vario2 = Vario(*vario);
-  vario2.reduce({1},VectorInt(),true);
+  vario2.resetReduce({1},VectorInt(),true);
   vario1.display();
   vario2.display();
 

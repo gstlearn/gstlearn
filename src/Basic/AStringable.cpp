@@ -543,6 +543,23 @@ void AStringable::display(int level) const
 /**
  * Print the contents of a VectorDouble in a Matrix Form
  * @param title        Title of the printout
+ * @param mat          Contents of a AMatrix
+ * @param flagOverride true to override printout limitations
+ * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
+ */
+String toMatrix(const String &title,
+                const AMatrix &mat,
+                bool flagOverride,
+                bool flagSkipZero)
+{
+  return toMatrix(title, VectorString(), VectorString(), true,
+                  mat.getNRows(), mat.getNCols(), mat.getValues(),
+                  flagOverride, flagSkipZero);
+}
+
+/**
+ * Print the contents of a VectorDouble in a Matrix Form
+ * @param title        Title of the printout
  * @param colnames     Names of the columns (optional)
  * @param rownames     Names of the rows (optional)
  * @param bycol        true if values as sorted by column; false otherwise
@@ -622,303 +639,6 @@ String toMatrix(const String& title,
           sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
         else
           sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
-      }
-      sstr << std::endl;
-    }
-  }
-
-  /* Print the trailer */
-
-  sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
-  return sstr.str();
-}
-
-/**
- * Specific printout dedicated to square symmetrical matrices
- * Only the Upper left side is printed
- * @param title        Title of the printout
- * @param colnames     Names of the columns (optional)
- * @param rownames     Names of the rows (optional)
- * @param bycol        true if values as sorted by column; false otherwise
- * @param ncols        Number of columns = Number of rows
- * @param tab          VectorDouble containing the values (Dimension: n * (n+1) /2)
- * @param flagOverride Override the printout limitations
- * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
- * @return
- */
-String toMatrixSymmetric(const String &title,
-                         const VectorString &colnames,
-                         const VectorString &rownames,
-                         bool bycol,
-                         int ncols,
-                         const VectorDouble &tab,
-                         bool flagOverride,
-                         bool flagSkipZero)
-{
-  std::stringstream sstr;
-  int nrows = ncols;
-  if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
-
-  /* Initializations */
-
-  int ncutil = ncols;
-  int nrutil = nrows;
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
-  bool multi_row = nrutil > 1 || npass > 1;
-
-  int colSize = 0;
-  if (colnames.empty())
-    colSize = _getColumnSize();
-  else
-  {
-    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _getColumnSize());
-  }
-  int rowSize = 0;
-  if (rownames.empty())
-    rowSize = _getColumnSize();
-  else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
-
-  /* Print the title (optional) */
-
-  if (! title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  // Loop on the batches
-
-  for (int ipass = 0; ipass < npass; ipass++)
-  {
-    int jdeb = ipass * _getNBatch();
-    int jfin = MIN(jdeb + _getNBatch(), ncutil);
-
-    /* Print the names of the columns and the column numbers */
-
-    if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
-
-    /* Loop on the rows */
-
-    for (int iy = 0; iy < nrutil; iy++)
-    {
-      if (multi_row) sstr << _printRowHeader(rownames, iy, rowSize);
-
-      /* Loop on the columns */
-      for (int ix = jdeb; ix < jfin; ix++)
-      {
-        if (ix <= iy)
-         {
-           int iad = (bycol) ? iy + nrows * ix : ix + ncols * iy;
-           if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
-             sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
-           else
-             sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
-         }
-         else
-         {
-           sstr << _tabPrintString(" ", EJustify::RIGHT);
-         }
-      }
-      sstr << std::endl;
-    }
-  }
-
-  /* Print the trailer */
-
-  sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
-  return sstr.str();
-}
-
-/**
- * Specific printout dedicated to square diagonal matrices
- * @param title        Title of the printout
- * @param colnames     Names of the columns (optional)
- * @param rownames     Names of the rows (optional)
- * @param ncols        Number of columns = Number of rows
- * @param tab          VectorDouble containing the values (Dimension: ncols)
- * @param flagOverride Override the printout limitations
- * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
- * @return
- */
-String toMatrixDiagonal(const String& title,
-                        const VectorString& colnames,
-                        const VectorString& rownames,
-                        int ncols,
-                        const VectorDouble &tab,
-                        bool flagOverride,
-                        bool flagSkipZero)
-{
-  std::stringstream sstr;
-  int nrows = ncols;
-  if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
-
-  /* Initializations */
-
-  int ncutil = ncols;
-  int nrutil = nrows;
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
-  bool multi_row = nrutil > 1 || npass > 1;
-
-  int colSize = 0;
-  if (colnames.empty())
-    colSize = _getColumnSize();
-  else
-  {
-    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _getColumnSize());
-  }
-  int rowSize = 0;
-  if (rownames.empty())
-    rowSize = _getColumnSize();
-  else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
-
-  /* Print the title (optional) */
-
-  if (! title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  // Loop on the batches
-
-  for (int ipass = 0; ipass < npass; ipass++)
-  {
-    int jdeb = ipass * _getNBatch();
-    int jfin = MIN(jdeb + _getNBatch(), ncutil);
-
-    /* Print the names of the columns and the column numbers */
-
-    if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
-
-    /* Loop on the rows */
-
-    for (int iy = 0; iy < nrutil; iy++)
-    {
-      if (multi_row) sstr << _printRowHeader(rownames, iy, rowSize);
-
-      /* Loop on the columns */
-      for (int ix = jdeb; ix < jfin; ix++)
-      {
-        if (ix == iy)
-        {
-          int iad = iy + nrows * ix;
-          if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
-             sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
-          else
-            sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
-        }
-        else
-        {
-          sstr << _tabPrintString(" ", EJustify::RIGHT);
-        }
-      }
-      sstr << std::endl;
-    }
-  }
-
-  /* Print the trailer */
-
-  sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
-  return sstr.str();
-}
-
-/**
- * Specific printout dedicated to square diagonal matrices
- * @param title        Title of the printout
- * @param colnames     Names of the columns (optional)
- * @param rownames     Names of the rows (optional)
- * @param ncols        Number of columns = Number of rows
- * @param tab          VectorDouble containing the values (Dimension: 1)
- * @param flagOverride Override the printout limitations
- * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
- * @return
- */
-String toMatrixDiagCst(const String& title,
-                       const VectorString& colnames,
-                       const VectorString& rownames,
-                       int ncols,
-                       const VectorDouble &tab,
-                       bool flagOverride,
-                       bool flagSkipZero)
-{
-  std::stringstream sstr;
-  int nrows = ncols;
-  if (tab.empty() || ncols <= 0 || nrows <= 0) return sstr.str();
-
-  /* Initializations */
-
-  int ncutil = ncols;
-  int nrutil = nrows;
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
-  bool multi_row = nrutil > 1 || npass > 1;
-
-  int colSize = 0;
-  if (colnames.empty())
-    colSize = _getColumnSize();
-  else
-  {
-    colSize = MIN(_getColumnName(), getMaxStringSize(colnames) + 1);
-    colSize = MAX(colSize, _getColumnSize());
-  }
-  int rowSize = 0;
-  if (rownames.empty())
-    rowSize = _getColumnSize();
-  else
-    rowSize = MAX(getMaxStringSize(rownames) + 1, _getColumnSize());
-
-  /* Print the title (optional) */
-
-  if (! title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  // Loop on the batches
-
-  for (int ipass = 0; ipass < npass; ipass++)
-  {
-    int jdeb = ipass * _getNBatch();
-    int jfin = MIN(jdeb + _getNBatch(), ncutil);
-
-    /* Print the names of the columns and the column numbers */
-
-    if (multi_row)
-      sstr << _printColumnHeader(colnames, jdeb, jfin, colSize);
-
-    /* Loop on the rows */
-
-    for (int iy = 0; iy < nrutil; iy++)
-    {
-      if (multi_row) sstr << _printRowHeader(rownames, iy, rowSize);
-
-      /* Loop on the columns */
-      for (int ix = jdeb; ix < jfin; ix++)
-      {
-        if (ix == iy)
-        {
-          int iad = iy + nrows * ix;
-          if (flagSkipZero && ABS(tab[iad]) < EPSILON20)
-             sstr << _tabPrintString(".", EJustify::RIGHT, colSize);
-          else
-            sstr << _tabPrintDouble(tab[iad], EJustify::RIGHT, colSize);
-        }
-        else
-        {
-          sstr << _tabPrintString(" ", EJustify::RIGHT);
-        }
       }
       sstr << std::endl;
     }
@@ -1582,6 +1302,13 @@ void print_matrix(const char *title,
       message(",Nrow=%d[from %d])", ny_util, ny);
     message("\n");
   }
+}
+
+void print_matrix(const char *title,
+                  int flag_limit,
+                  const AMatrix &mat)
+{
+  print_matrix(title, flag_limit, true, mat.getNCols(), mat.getNRows(), nullptr, mat.getValues().data());
 }
 
 /****************************************************************************/

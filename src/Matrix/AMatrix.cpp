@@ -1123,6 +1123,8 @@ double AMatrix::getMaximum() const
 
 double& AMatrix::_getValueRef(int irow, int icol)
 {
+  DECLARE_UNUSED(irow);
+  DECLARE_UNUSED(icol);
   return _nullTerm;
 }
 
@@ -1130,7 +1132,6 @@ void AMatrix::copyReduce(const AMatrix *x,
                          const VectorInt &validRows,
                          const VectorInt &validCols)
 {
-  VH::display("copyReduce validRows",validRows);
   for (int irow = 0; irow < (int) validRows.size(); irow++)
     for (int icol = 0; icol < (int) validCols.size(); icol++)
       setValue_(irow, icol, x->getValue_(validRows[irow], validCols[icol]));
@@ -1146,9 +1147,7 @@ void AMatrix::copyElements(const AMatrix &m, double factor)
 {
   for (int icol = 0; icol < m.getNCols(); icol++)
     for (int irow = 0; irow < m.getNRows(); irow++)
-    {
       setValue_(irow, icol, factor * m.getValue_(irow, icol));
-    }
 }
 
 /**
@@ -1183,10 +1182,58 @@ bool AMatrix::_getFlagEigen(int opt_eigen) const
     return globalFlagEigen;
 }
 
+/****************************************************************************/
+/*!
+ **  Check if all the elements of a matrix are non-negative
+ **
+ ** \return  True if the matrix is non-negative; False otherwise
+ **
+ ** \param[in]  verbose  True for the verbose option
+ **
+ *****************************************************************************/
+bool AMatrix::isNonNegative(bool verbose)
+{
+  for (int irow = 0; irow < _nRows; irow++)
+    for (int icol = 0; icol < _nCols; icol++)
+    {
+      double value = getValue(irow,icol);
+      if (value < 0.)
+      {
+        if (verbose) messerr("The matrix term (%d,%d) is not non-negative (%lf)",irow,icol,value);
+        return false;
+      }
+    }
+  return true;
+}
+
+/**
+ * Modify the contents of the matrix so that each column has a positive sum of elements.
+ * If this is not the case, simply invert the sign of the column
+ */
+void AMatrix::makePositiveColumn()
+{
+  for (int icol = 0, ncol = getNCols(); icol < ncol; icol++)
+  {
+    // Extract each column
+    VectorDouble column = getColumn(icol);
+
+    // Calculate the sum of the elements
+    double sum = VH::cumul(column);
+    if (sum >= 0) continue;
+
+    // Invert the sign of all its elements
+    VH::multiplyConstant(column, -1.);
+
+    // Replace the column
+    setColumn(icol, column);
+  }
+}
+
 AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
 {
   return MatrixFactory::matProduct(mat1, mat2);
 }
+
 
 void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
 {
@@ -1202,12 +1249,12 @@ void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
  * Warning: this must be performed very early in the script in order to forbid mixing two different styles.
  * @param flagEigen True if EIGEN library must be used; False otherwise (old style)
  */
-void setFlagEigen(bool flagEigen)
+void setGlobalFlagEigen(bool flagEigen)
 {
   globalFlagEigen = flagEigen;
 }
 
-bool isFlagEigen()
+bool isGlobalFlagEigen()
 {
   return globalFlagEigen;
 }
@@ -1226,3 +1273,4 @@ bool isMultiThread()
 {
   return globalMultiThread > 0;
 }
+

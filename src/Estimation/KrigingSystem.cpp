@@ -41,10 +41,7 @@
 
 #define FF(ib,il)         (ff [(il) * shift + (ib)])
 #define FF0(ib,iv)        (ff0 [(ib) + _nfeq * (iv)])
-#define SIGMA(ib,jb)      (sigma[(jb)    * shift + (ib)])
-#define SMEAN(i,isimu)    (_postSimu[isimu][i])
 #define IND(iech, ivar)   ((iech) + (ivar) * _nech)
-#define IJVAR(ivar,jvar)  ((ivar) + (jvar) * _nvar)
 
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
@@ -606,6 +603,8 @@ bool KrigingSystem::_isAuthorized()
  */
 void KrigingSystem::_covtab0Calcul(int icas, int iech, const CovCalcMode* mode)
 {
+  DECLARE_UNUSED(icas);
+  DECLARE_UNUSED(iech);
   _covtab.fill(0);
   _model->eval0MatInPlace(_covtab, mode);
 }
@@ -790,8 +789,8 @@ void KrigingSystem::_lhsCalcul()
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getDriftCoef(ivar, il, ib);
-        _setLHSF(iech,ivar,ib,_nvar,value,true);
-        _setLHSF(ib,_nvar,iech,ivar,value,true);
+        _setLHSF(iech,ivar,ib,_nvar,value);
+        _setLHSF(ib,_nvar,iech,ivar,value);
       }
   }
   return;
@@ -922,7 +921,7 @@ void KrigingSystem::_rhsStore(int iech)
       {
         double value = 0.;
         for (int jvar = 0; jvar < _nvar; jvar++)
-          value += _matCL->getValue(jvarCL,jvar) * _getCOVTAB(ivar, jvar);
+          value += _matCL->getValue(jvarCL, jvar) * _getCOVTAB(ivar, jvar);
         _setRHSF(iech, ivar, jvarCL, value);
       }
   }
@@ -1076,7 +1075,7 @@ int KrigingSystem::_rhsCalcul()
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
           value += _drftab[il] * _getDriftCoef(ivar, il, ib);
-        _setRHSF(ib,_nvar,ivar,value,true);
+        _setRHSF(ib,_nvar,ivar,value);
       }
   }
   else
@@ -1091,7 +1090,7 @@ int KrigingSystem::_rhsCalcul()
           for (int il = 0; il < _nbfl; il++)
             value += _drftab[il] * _getDriftCoef(jvar, il, ib);
           value *= _matCL->getValue(ivarCL,jvar);
-          _setRHSF(ib,_nvar,ivarCL,value,true);
+          _setRHSF(ib,_nvar,ivarCL,value);
         }
     }
   }
@@ -1323,7 +1322,7 @@ void KrigingSystem::_simulateCalcul(int status)
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu[isimu].data());
+          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu).data());
 
         int lec = ivar * _nred;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1334,7 +1333,7 @@ void KrigingSystem::_simulateCalcul(int status)
             double mean = 0.;
             if (_nfeq <= 0) mean = _getMean(jvar);
             if (_flagBayes)
-              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu[isimu].data());
+              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu).data());
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
             simu -= _wgt.getValue_(lec++,0) * (data + mean);
           }
@@ -1504,7 +1503,7 @@ void KrigingSystem::_estimateCalculImage(int status)
           }
           else
           {
-            if (_nfeq <= 0) data -= _getMean(jvar);
+            if (_nfeq <= 0) data -= _getMean(jvar, true);
             estim += data * _wgt.getValue_(ecr++,0);
           }
         }
@@ -1538,14 +1537,14 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
     /* Perform the estimation */
 
     double valest = 0.;
-    if (_nfeq <= 0) valest = _getMean(0);
+    if (_nfeq <= 0) valest = _getMean(0, true);
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
       int jjech = _getFlagAddress(jech, 0);
       if (jjech < 0) continue;
       if (iiech != jjech)
         valest -= _getLHSINV(iiech,0,jjech,0) * variance *
-          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0));
+          (_dbin->getLocVariable(ELoc::Z, jech, 0) - _getMean(0, true));
       jjech++;
     }
 
@@ -1633,8 +1632,6 @@ void KrigingSystem::_estimateEstim(int status)
   // Calculate the solution
 
   if (status == 0)
-//    for (int ivarCL = 0; ivarCL < _nvarCL; ivarCL++)
-//      _results.setValue(ivarCL, 0, VH::innerProduct(_rhs->getColumn(ivarCL), _zam.getColumn(0)));
     _results.prodMatrix(*_rhs, _zam, true, false);
 
   // Loop for writing the estimation
@@ -1680,7 +1677,7 @@ void KrigingSystem::_estimateStdv(int status)
       if (_flagNoStat || _flagPerCell) _variance0();
 
       double var = _getVAR0(ivarCL, ivarCL);
-      if (_flagBayes) var += _varCorrec[ivarCL * _nvarCL + ivarCL];
+      if (_flagBayes) var += _varCorrec.getValue(ivarCL,ivarCL);
 
       var -= _results.getValue_(ivarCL,ivarCL);
 
@@ -2386,7 +2383,7 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 
 int KrigingSystem::setKrigOptBayes(bool flag_bayes,
                                    const VectorDouble& prior_mean,
-                                   const VectorDouble& prior_cov,
+                                   const MatrixSquareSymmetric& prior_cov,
                                    int seed)
 {
   _isReady = false;
@@ -2394,16 +2391,15 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
   if (flag_bayes)
   {
     VectorDouble local_mean = prior_mean;
-    VectorDouble local_cov  = prior_cov;
+    MatrixSquareSymmetric local_cov  = prior_cov;
 
     if (local_mean.empty())
       local_mean.resize(nfeq, 0.);
     if (local_cov.empty())
     {
-      local_cov.resize(nfeq * nfeq);
+      local_cov.reset(nfeq, nfeq, 0.);
       for (int i = 0; i < nfeq; i++)
-        for (int j = 0; j < nfeq; j++)
-          local_cov[i + j*nfeq] = (i == j) ? 1. : 0.;
+        local_cov.setValue(i,i, 1.);
     }
     if ((int) local_mean.size() != nfeq)
     {
@@ -2418,11 +2414,6 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
               nfeq * nfeq);
       return 1;
     }
-    if (!is_matrix_symmetric(nfeq, local_cov.data(), 1))
-    {
-      messerr("Argument 'prior_cov' should be a symmetric matrix");
-      return 1;
-    }
     if (_neigh->getType() != ENeigh::UNIQUE)
     {
       messerr("The Bayesian Estimation of the Drift Coefficients");
@@ -2433,7 +2424,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
     // Set the parameters
     _priorMean = local_mean;
     _priorCov  = local_cov;
-    _varCorrec.resize(nfeq * nfeq);
+    _varCorrec.resize(_nvarCL, _nvarCL);
 
     // Duplicate the Model and suppress any Drift component
 
@@ -2900,7 +2891,7 @@ double KrigingSystem::_getCOVTAB(int ivar,int jvar) const
 {
   return _covtab.getValue_(ivar, jvar);
 }
-void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value, bool isForDrift)
+void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value)
 {
   int ind  = IND(iech,ivar);
   _rhsf.setValue_(ind, jvCL, value);
@@ -2913,12 +2904,11 @@ void KrigingSystem::_setRHSF(int iech, int ivar, int jvCL, double value, bool is
  * @param jech Rank of the second sample
  * @param jvar Rank of the second variable
  * @param value Assigned value
- * @param isForDrift True is used to set the drift element
  *
  * @remark: When used for setting a Drift element (say in 'i'), then:
  * @remark: 'iech' is set for 'ib' (which must be within [0,nfeq[) and 'ivar' is set to 'nvar'
  */
-void KrigingSystem::_setLHSF(int iech, int ivar, int jech, int jvar, double value, bool isForDrift)
+void KrigingSystem::_setLHSF(int iech, int ivar, int jech, int jvar, double value)
 {
   int indi = IND(iech, ivar);
   int indj = IND(jech, jvar);
@@ -3048,6 +3038,8 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 
 bool KrigingSystem::_prepareForImageKriging(Db* dbaux, const NeighImage* neighI)
 {
+  DECLARE_UNUSED(neighI);
+
   // Save pointers to previous Data Base (must be restored at the end)
   Db* dbin_loc  = _dbin;
   Db* dbout_loc = _dbout;
@@ -3204,8 +3196,8 @@ int KrigingSystem::_bayesPreCalculations()
 
   VectorDouble ff(shift * _nfeq);
   VectorDouble smu(_nfeq);
-  VectorDouble sigma(shift * shift);
   VectorDouble vars(shift);
+  MatrixSquareSymmetric sigma(shift);
 
   // Create the array of variables
 
@@ -3234,33 +3226,32 @@ int KrigingSystem::_bayesPreCalculations()
 
   /* Calculate S-1 */
 
-  if (matrix_invert(_postCov.data(), _nfeq, -1)) return 1;
+  if (_postCov.invert()) return 1;
 
   /* Calculate: SMU = S-1 * MEAN */
 
-  matrix_product_safe(_nfeq, _nfeq, 1, _postCov.data(), _priorMean.data(), smu.data());
+  _postCov.prodVectorInPlace(_priorMean, smu);
 
   /* Covariance matrix SIGMA */
 
   for (int ib = 0; ib < shift; ib++)
     for (int jb = 0; jb < shift; jb++)
-      SIGMA(ib,jb) = _getLHS(ib, jb);
+      sigma.setValue(ib, jb, _getLHS(ib, jb));
 
   /* Calculate SIGMA-1 */
 
-  if (matrix_invert(sigma.data(), shift, -1)) return 1;
+  if (sigma.invert()) return 1;
 
   /* Inverse of posterior covariance matrix: SC-1 = FFt * SIGMA-1 * FF + S-1 */
 
-  int ecr = 0;
   for (int il = 0; il < _nfeq; il++)
     for (int jl = 0; jl < _nfeq; jl++)
     {
       double value = 0.;
       for (int ib=0; ib<shift; ib++)
         for (int jb=0; jb<shift; jb++)
-          value += FF(ib,il) * SIGMA(ib,jb) * FF(jb,jl);
-      _postCov[ecr++] += value;
+          value += FF(ib,il) * sigma.getValue(ib,jb) * FF(jb,jl);
+      _postCov.setValue(il, jl, _postCov.getValue(il, jl) + value);
     }
 
   /* Calculating: SMU = FFt * SIGMA-1 * Z + S-1 * MU */
@@ -3270,24 +3261,24 @@ int KrigingSystem::_bayesPreCalculations()
     double value = 0.;
     for (int ib=0; ib<shift; ib++)
       for (int jb=0; jb<shift; jb++)
-        value += FF(ib,il) * SIGMA(ib,jb) * vars[jb];
+        value += FF(ib,il) * sigma.getValue(ib,jb) * vars[jb];
     smu[il] += value;
   }
 
   /* Posterior mean: _postMean = SC * SMU */
 
-  if (matrix_invert(_postCov.data(), _nfeq, -1)) return 1;
-  matrix_product_safe(_nfeq, _nfeq, 1, _postCov.data(), smu.data(), _postMean.data());
+  if (_postCov.invert()) return 1;
+  _postCov.prodVectorInPlace(smu, _postMean);
 
   if (OptDbg::query(EDbg::BAYES))
   {
     mestitle(0, "Bayesian Drift coefficients");
     print_matrix("Prior Mean", 0, 1, _nfeq, 1, NULL, _priorMean.data());
     print_matrix("Prior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
-                 _priorCov.data());
+                 _priorCov.getValues().data());
     print_matrix("Posterior Mean", 0, 1, _nfeq, 1, NULL, _postMean.data());
     print_matrix("Posterior Variance-Covariance", 0, 1, _nfeq, _nfeq, NULL,
-                 _postCov.data());
+                 _postCov.getValues().data());
     message("\n");
   }
 
@@ -3321,20 +3312,14 @@ void KrigingSystem::_bayesCorrectVariance()
 
   /* Correct the arrays */
 
-  int ecr = 0;
   for (int ivar = 0; ivar < _nvar; ivar++)
     for (int jvar = 0; jvar < _nvar; jvar++)
     {
       double value = 0.;
-      int lec = 0;
       for (int il = 0; il < _nfeq; il++)
         for (int jl = 0; jl < _nfeq; jl++)
-        {
-          value += FF0(il,ivar) * _postCov[lec] * FF0(jl, jvar);
-          lec++;
-        }
-      _varCorrec[ecr] = value;
-      ecr++;
+          value += FF0(il,ivar) * _postCov.getValue(il,jl) * FF0(jl, jvar);
+      _varCorrec.setValue(ivar, jvar, value);
     }
   return;
 }
@@ -3350,9 +3335,8 @@ void KrigingSystem::_bayesPreSimulate()
   int nftri = _nfeq * (_nfeq + 1) / 2;
   int memo = law_get_random_seed();
 
-  // Dimension '_smean' to store simulated posterior mean
-  _postSimu.resize(_nbsimu);
-  for (int isimu = 0; isimu < _nbsimu; isimu++) _postSimu[isimu].resize(_nfeq);
+  // Dimension '_postSimu' to store simulated posterior mean
+  _postSimu.resize(_nfeq, _nbsimu);
 
   /* Core allocation */
 
@@ -3360,11 +3344,11 @@ void KrigingSystem::_bayesPreSimulate()
   VectorDouble rndmat(_nfeq);
   VectorDouble simu(_nfeq);
   // The array _postCov is duplicated as the copy is destroyed by matrix_cholesky_decompose
-  VectorDouble rcov = _postCov;
+  MatrixSquareSymmetric rcov = _postCov;
 
   /* Cholesky decomposition */
 
-  int rank = matrix_cholesky_decompose(rcov.data(), trimat.data(), _nfeq);
+  int rank = matrix_cholesky_decompose(rcov.getValues().data(), trimat.data(), _nfeq);
 
   if (rank > 0)
   {
@@ -3373,7 +3357,7 @@ void KrigingSystem::_bayesPreSimulate()
     messerr("The Drift coefficients have been set to their posterior mean");
     for (int isimu = 0; isimu < _nbsimu; isimu++)
       for (int il = 0; il < _nfeq; il++)
-        SMEAN(il,isimu) = _postMean[il];
+        _postSimu.setValue(il, isimu, _postMean[il]);
   }
   else
   {
@@ -3391,7 +3375,7 @@ void KrigingSystem::_bayesPreSimulate()
       /* Add the mean */
 
       for (int il = 0; il < _nfeq; il++)
-        SMEAN(il,isimu) = simu[il] + _postMean[il];
+        _postSimu.setValue(il, isimu, simu[il] + _postMean[il]);
     }
   }
 
@@ -3405,7 +3389,7 @@ void KrigingSystem::_bayesPreSimulate()
     {
       message(" %3d ", isimu + 1);
       for (int il = 0; il < _nfeq; il++)
-        message(" %lf", SMEAN(il, isimu));
+        message(" %lf", _postSimu.getValue(il, isimu));
       message("\n");
     }
   }

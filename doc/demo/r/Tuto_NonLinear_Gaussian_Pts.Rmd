@@ -443,7 +443,9 @@ err = ConditionalExpectation(db = blocs,
                              namconv = NamingConvention("Pts_Recovery", FALSE))
 
 blocs$display()
+```
 
+```{r}
 # Graphics
 # Metal (the anamorphosis is used)
 p = ggplot()
@@ -801,6 +803,10 @@ err = krigingFactors(dbin   = data,   # Input data set (a Db structure)
                      model  = model, neigh, calcul= EKrigOpt_POINT(),
                      namconv = NamingConvention("SK"))
 
+```
+
+
+```{r}
 # Disjunctive kriging for Z
 err = DisjunctiveKriging(db = grid, 
                          anam = anam, 
@@ -912,8 +918,9 @@ p = p + plot.decoration(xlab = nm_stdev, ylab = nm_qc_stdev,
 ggPrint(p)
 invisible()
 }
+```
 
-
+```{r}
 # QC of the DK
 Hn.est <- matrix(grid$getColumns(names = c("SK.F.*.estim"), useSel = FALSE),
                  ncol = nfactor, nrow = grid$getSampleNumber())

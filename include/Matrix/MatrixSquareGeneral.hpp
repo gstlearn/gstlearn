@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT MatrixSquareGeneral : public AMatrixSquare {
 
 public:
-  MatrixSquareGeneral(int nrow = 0, int opt_eigen=1);
+  MatrixSquareGeneral(int nrow = 0, int opt_eigen=-1);
   MatrixSquareGeneral(const MatrixSquareGeneral &m);
   MatrixSquareGeneral(const AMatrix &m);
   MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);
@@ -43,8 +43,13 @@ public:
   /*! Check if the matrix is (non empty) square */
   bool isSquare(bool printWhyNot = false) const override { DECLARE_UNUSED(printWhyNot); return 1; }
 
-  static MatrixSquareGeneral* createFromVVD(const VectorVectorDouble& X);
-  MatrixSquareGeneral* reduce(const VectorInt &validRows) const;
+  static MatrixSquareGeneral* createFromVVD(const VectorVectorDouble& X, int opt_eigen = -1);
+  static MatrixSquareGeneral* createFromVD(const VectorDouble &X,
+                                           int nrow,
+                                           bool byCol = false,
+                                           int opt_eigen = -1,
+                                           bool invertColumnOrder = false);
+  MatrixSquareGeneral* createReduce(const VectorInt &validRows) const;
 
 private:
   /// Interface for AMatrix

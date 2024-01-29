@@ -449,8 +449,7 @@ int model_update_coreg(Model *model,
   for (int icov = 0; icov < ncova; icov++)
   {
     if (!is_matrix_definite_positive(
-        nvar, model->getCova(icov)->getSill().getValues().data(), valpro,
-        vecpro, 0))
+        nvar, model->getCova(icov)->getSill().getValues().data(), valpro, vecpro, 0))
     {
       messerr("Warning: the model is not authorized");
       messerr("The coregionalization matrix for the structure %d is not definite positive",
@@ -1801,6 +1800,7 @@ int model_covmat_inchol(int verbose,
   pvec = nullptr;
   diag = crit = G = Gmatrix = nullptr;
   flag_incr = (center != nullptr);
+  c00 = 0.;
 
   if (npivot_max <= 0) npivot_max = nech;
   npivot_max = MIN(npivot_max, nech);
@@ -1820,7 +1820,7 @@ int model_covmat_inchol(int verbose,
   {
     if (flag_incr)
     {
-      double covar2;
+      double covar2 = 0.;
 
       for (int idim = 0; idim < 3; idim++)
         d1[idim] = db->getCoordinate(pvec[i], idim) - center[idim];

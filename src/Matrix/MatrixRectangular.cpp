@@ -62,16 +62,17 @@ MatrixRectangular::~MatrixRectangular()
  * Converts a VectorVectorDouble into a Matrix
  * Note: the input argument is stored by row (if coming from [] specification)
  * @param  X Input VectorVectorDouble argument
+ * @param opt_eigen Option for use of Eigen Library
  * @return The returned rectangular matrix
  *
  * @remark: the matrix is transposed implicitly while reading
  */
-MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
+MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X, int opt_eigen)
 {
   int nrow = (int) X.size();
   int ncol = (int) X[0].size();
 
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, opt_eigen);
   mat->_fillFromVVD(X);
   return mat;
 }
@@ -79,27 +80,35 @@ MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
 MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
                                                    int nrow,
                                                    int ncol,
-                                                   bool byCol)
+                                                   bool byCol,
+                                                   int opt_eigen,
+                                                   bool invertColumnOrder)
 {
   if (nrow * ncol != (int) X.size())
   {
     messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
     messerr("and the dimension of the input Vector (%d)", (int) X.size());
   }
-  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol, opt_eigen);
 
   int lec = 0;
   if (byCol)
   {
     for (int irow = 0; irow < nrow; irow++)
       for (int icol = 0; icol < ncol; icol++)
-        mat->setValue(irow, icol, X[lec++]);
+      {
+        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        mat->setValue(irow, jcol, X[lec++]);
+      }
   }
   else
   {
     for (int icol = 0; icol < ncol; icol++)
       for (int irow = 0; irow < nrow; irow++)
-        mat->setValue(irow, icol, X[lec++]);
+      {
+        int jcol = (invertColumnOrder) ? ncol - icol - 1 : icol;
+        mat->setValue(irow, jcol, X[lec++]);
+      }
   }
   return mat;
 }
@@ -214,7 +223,7 @@ void MatrixRectangular::addColumn(int ncolumn_added)
       setValue(irow, icol, statsSave->getValue(irow, icol));
 }
 
-MatrixRectangular* MatrixRectangular::reduce(const VectorInt &validRows,
+MatrixRectangular* MatrixRectangular::createReduce(const VectorInt &validRows,
                                              const VectorInt &validCols) const
 {
   // Order and shrink the input vectors
