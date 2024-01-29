@@ -93,7 +93,7 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         endif()
         # Use maybe a specific output log for MinGW
         if (MINGW)
-          set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/Result_msys.ref)
+          set(REF_FILE_MSYS ${TEST_SRC_DIR}/Result_msys.ref)
           if(EXISTS ${REF_FILE_MSYS})
             set(REF_FILE ${REF_FILE_MSYS})
           endif()
