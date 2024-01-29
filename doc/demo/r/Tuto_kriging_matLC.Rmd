@@ -1,0 +1,842 @@
+---
+  title: "Kriging linear combinations"
+  author: "gstlearn core team"
+  date: "January 31, 2024"
+  output:
+    pdf_document: default
+    html_document: default
+    editor_options: 
+    chunk_output_type: console
+---
+
+# Introduction
+
+This notebook presents examples for the co-kriging of linear combinations. 
+Starting from a set of variables $\mathbf{Z}(\alpha) = (Z_i(\alpha))_{i \in 1:n}$, the task is to compute the co-kriging of a linear combination of the variable at location $\mathbf{o}$:
+$$
+(\beta^T \mathbf{Z}(\mathbf{o}))^{K} = \sum_{i \in 1:n} \sum_{\alpha \in A_i} \lambda_i^{\alpha} Z_i(\alpha)
+$$
+Kriging is linear, hence $(\beta^T \cdot \mathbf{Y}(\mathbf{o}))^{K} = \sum_{i \in 1:p} \beta_i \times Y_i(\mathbf{o})^{K}$ but
+the variance of the kriging error is not easily computable. However, the *matLC* option of the **kriging** function offers the possibility to compute directly the estimate and its kriging variance of any linear combinations.
+The method is evaluated on a simulated data set.
+
+The following cases are considered:
+
+* Ordinary cokriging using a IRF-0 model (Intrinsic Random Function of order 0 with unknown means)
+* Simple cokriging using a SOS model (Second Order Stationary random function with known means)
+* Homotopic data set (both variables are defined for each location)
+* Heterotopic data set (variables may be defined or not at each location)
+* Direct kriging of the linear combination or linear combination of the estimates
+
+In all cases, the results seem consistent with the theory.
+
+Kriging systems when kriging a linear combination are given below:
+
+## Simple kriging with a second order stationary model (SK/SOS)
+
+The expression of the estimator is:
+$$ 
+(\beta^T \, \mathbf{Z_{(o)}})^{SK} = \beta^T \mathbf{m} +\sum_{i \in 1:n} \sum_{\alpha \in A_i} \lambda^{\alpha} (Z_i(\alpha) - m_i)
+$$
+
+There is no bias as:
+$$
+\mathbb{E}\{(\beta^T \, \mathbf{Z_{(o)}})^{SK}\} = \beta^T \mathbf{m} = \mathbb{E}\{\beta^T \, \mathbf{Z_{(o)}}\}.
+$$
+
+The variance of the kriging error is:
+$$
+\begin{array}{cl} 
+\text{Var}\{\beta^T \, \mathbf{Z_{(o)}} - (\beta^T \, \mathbf{Z_{(o)}})^{SK}\} = &
+\beta^T \, \text{Var}\{\mathbf{Z_{(o)}}\} \, \beta \\
+ & - 2 \sum_{k,i \in 1:n} \sum_{\alpha \in A_i} \beta_k \, \lambda^{\alpha} \text{Cov}(Z_k(o),Z_i(\alpha)) \\
+ & + \sum_{i,j \in 1:n} \sum_{\alpha \in A_i, \alpha' \in A_j} \beta_k \, 
+\lambda^{\alpha} \lambda^{\alpha'} \text{Cov}(Z_i(\alpha),Z_j(\alpha')) 
+\end{array}
+$$
+
+Minimizing this variance, we gets the kriging system of for the estimation of the linear combination:
+$$
+\left(
+\text{Cov}(Z_{i}(\alpha),Z_{j}(\alpha')) 
+\right) \Lambda =  \sum_{k\in 1:n} \beta_k \text{Cov}(Z_k(o), Z_i(\alpha))
+$$
+
+The variance of the kriging error boils down to:
+$$
+\text{Var}\{\beta^T \, \mathbf{Z_{(o)}} - (\beta^T \, \mathbf{Z_{(o)}})^{SK}\} = 
+\beta^T \, \text{Var}\{\mathbf{Z_{(o)}}\} \, \beta - 
+\sum_{k,i \in 1:n} \sum_{\alpha \in A_i} \beta_k \text{Cov}(Z_k(o),Z_i(\alpha)) \lambda^{\alpha}
+$$
+
+
+## ordinary kriging with a Intrinsic Random Fonction of order 0 (OK/IRF0)
+
+The expression of the estimator is:
+$$ 
+(\beta^T \, \mathbf{Z_{(o)}})^{OK} = \sum_{i \in 1:n} \sum_{\alpha \in A_i} \lambda^{\alpha} Z_i(\alpha)
+$$
+
+The no-bias conditions are:
+$$
+\sum_{\alpha \in A_i} \lambda^{\alpha} = \beta_i, \text{ for } \forall i \in 1:n.
+$$
+
+The variance of the kriging error is:
+$$
+\begin{array}{cl}
+\text{Var}\{\beta^T \, \mathbf{Z_{(o)}} - (\beta^T \, \mathbf{Z_{(o)}})^{OK}\} = &
+\beta^T \, \text{Var}\{\mathbf{Z_{(o)}}\} \, \beta \\
+ &  - 2 \sum_{k\in 1:n} \sum_{i, \alpha \in A_i} \beta_k \text{Cov}(Z_k(o),Z_i(\alpha)) \, \lambda^{\alpha} \\
+ &   +
+\sum_{i, \alpha \in A_i} \sum_{j, \alpha' \in A_j} \lambda^{\alpha}  \text{Cov}(Z_i(\alpha),Z_j(\alpha')) \lambda^{\alpha'}
+\end{array}
+$$
+
+Minimizing the Lagrangian, 
+$$
+\mathcal{L}(\Lambda, \mu) = \text{Var}\{\beta^T \, \mathbf{Z_{(o)}} - (\beta^T \, \mathbf{Z_{(o)}})^{OK}\} + \sum_{k \in 1:n} \mu_k (\sum_{\alpha \in A_k} \lambda^{\alpha} - \beta_k)
+$$
+
+we gets the kriging system of for the estimation of the linear combination:
+$$
+\left[
+\begin{array}{cc}
+\text{Cov}(Z_i(\alpha), Z_j(\alpha')) & \mathbf{1}_{\alpha \in A_j} \\
+\mathbf{1}_{\alpha' \in A_i} & \mathbf{0}
+\end{array}
+\right]
+\left[
+\begin{array}{c}
+\lambda \\
+\mu
+\end{array}
+\right] =
+\left[
+\begin{array}{c}
+\sum_{k \in 1:n} \beta_k\text{Cov}(Z_k(o), Z_i(\alpha)) \\
+\beta_i
+\end{array}
+\right]
+$$
+
+
+The variance of the kriging error boils down to:
+$$
+\text{Var}\{\beta^T \, \mathbf{Z_{(o)}} - (\beta^T \, \mathbf{Z_{(o)}})^{OK}\} = 
+\beta^T \, \text{Var}\{\mathbf{Z_{(o)}}\} \, \beta - 
+\sum_{k \in 1:n} \sum_{i,\alpha \in A_i} \beta_k \text{Cov}(Z_k(o),Z_i(\alpha))\, \lambda^{\alpha} - \sum_{k \in 1:n} \beta_k \, \mu_k
+$$
+
+
+## Initialisation
+
+```{r setup, include=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(align="center")
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+set.seed(1235)
+OptDbg_setReference(0)
+# Defining a set of statistics
+opers = EStatOption_fromKeys(c("NUM","MINI","MAXI","MEAN","STDV"))
+flag.verbose = FALSE
+ssp = 0.005 # sub sampling proportion
+```
+
+## Simulation of a reference data set
+
+We create a reference data set using the the Turning Bands method (*simtub*):
+
+* the distribution is log normal,
+
+* the stationary covariance function is exponential.
+
+5\% of the two dimensional grid is sampled and considered as the reference data set.
+
+```{r data_set, echo=TRUE, eval=TRUE}
+# parameters for the simulation
+m   = c(1, 2)
+sig = c(0.25, 0.75)
+rho = 0.7
+CO = matrix(c(1, rho, rho, 1), 2, 2)
+# initialization of the grid
+grd = DbGrid_create(x0=c(0.0,0.0), dx=c(0.01,0.01), nx=c(100,100))
+
+# simulation from a model
+model = Model_createFromParam(type = ECov_EXPONENTIAL(), range=0.2, sills = CO)
+err = simtub(dbin = NULL, dbout = grd, model = model, nbsimu = 1)
+err = grd$setName("Simu.1", "Y1")
+err = grd$setName("Simu.2", "Y2")
+grd["Z1"] = m[1] * exp(sig[1] * grd["Y1"] - sig[1]**2 / 2)
+grd["Z2"] = m[2] * exp(sig[2] * grd["Y2"] - sig[2]**2 / 2)
+
+# Data set (ssp proportion of the grid)
+data = Db_createFillRandom(ndat = ssp*grd$getSampleNumber(), nvar = 0)
+err  = data$setName("x-1", "x1")
+err  = data$setName("x-2", "x2")
+err  = migrate(dbin = grd, name = "Z1", dbout = data, dmax = c(0.1, 0.1), 
+               namconv = NamingConvention(""))
+err  = migrate(dbin = grd, name = "Z2", dbout = data, dmax = c(0.1, 0.1), 
+               namconv = NamingConvention(""))
+
+# plots
+p1 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster = "Z1", palette = "Spectral") +
+  plot.point(data, colour = "red") +
+  plot.decoration(title="Z1")
+p2 = ggDefault() +
+  plot.hist(grd, name='Z1',  bins = 25, bg = "orange", color= "gray") +
+  plot.decoration(xlab = "Raw variable", title="Histogram of the initial variable Z1")
+p3 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster = "Z2", palette = "Spectral") +
+  plot.point(data, colour = "red") +
+  plot.decoration(title="Z2")
+p4 = ggDefault() +
+  plot.hist(grd, name='Z2',  bins = 25, bg = "orange", color= "gray") +
+  plot.decoration(xlab = "Raw variable", title="Histogram of the initial variable Z2")
+ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+
+# defining the linear combination
+beta = c(1, -3) # coefficients and computing the linear combination
+nm_var = c("Z1", "Z2")
+nm_LC  = c("LC", "Z1")
+matLC  = matrix(c(beta, 1, 0), nrow = 2, ncol = 2, byrow = TRUE)
+colnames(matLC) <- nm_var
+rownames(matLC) <- nm_LC
+
+# computing the linear computation
+data["LC"] = matrix(data$getColumns(colnames(matLC)), nrow = data$getSampleNumber(), 
+                    ncol = dim(matLC)[2]) %*% t(matLC)[,1]
+grd["LC"]  = matrix(grd$getColumns(colnames(matLC)),  nrow = grd$getSampleNumber(),  
+                    ncol = dim(matLC)[2]) %*% t(matLC)[,1]
+
+# statistics
+tab = rbind(
+  dbStatisticsMono(grd, names = c("Z*", "LC"), opers = opers)$toTL(),
+  dbStatisticsMono(data, names = c("Z*", "LC"), opers = opers)$toTL())
+rownames(tab) <- c(
+  "grid-Z1", "grid-Z2", "grid-LC", 
+  "samples-Z1", "samples-Z2", "samples-LC")
+knitr::kable(tab, caption = "Statistics on the reference data set", digits = 4)
+```
+
+## Global parameters for spatial modelling 
+
+```{r vario_param, echo=TRUE, eval=TRUE}
+
+# Variogram parameters (omnidirectional)
+varioParam = VarioParam_createOmniDirection(npas=10, dpas=0.05)
+# Variogram basic structures
+types = ECov_fromKeys(c("NUGGET", "EXPONENTIAL", "EXPONENTIAL"))
+# types = ECov_fromKeys(c("EXPONENTIAL"))
+# weighted proportional to the number of pairs and inverse proportional to the distance
+opt   = Option_AutoFit()
+err   = opt$setWmode(2) 
+
+#define neighborhood
+neigh = NeighMoving_create(nmaxi=30, radius=0.5)
+
+# Display the kriging system for a fixed target when using kriging
+OptDbg_setReference(0)
+
+# function to compute the model of the linear combination (using a square matrix) 
+# TODO: generalize to rectangular matrix?
+model_of_LC <- function(model, A) {
+  stopifnot(dim(A)[1] == dim(A)[2])
+  nv = model$getVariableNumber()
+  stopifnot(nv == dim(A)[1])
+  ns = model$getCovaNumber()
+  model_LC = model$clone()
+  for (k in 1:ns) {
+    CC = A %*% model$getSillValues(k-1)$toTL() %*% t(A)
+    for (i in 1:nv) {
+      for (j in 1:nv) {
+        err = model_LC$setSill(icov = k-1, ivar=i-1, jvar=j-1, value = CC[i, j])
+        }
+      }
+    }
+  model_LC
+}
+```
+
+# Ordinary kriging (OK)
+
+## Intrinsic Random Function of order 0
+
+```{r OK_modeling, echo=TRUE, eval=TRUE}
+# Locate Z
+err = data$setLocators("Z*", locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+# Compute variogram
+var_Z = Vario_computeFromDb(varioParam, data)
+# fit model
+mod_Z_IRF0 = Model()
+err   = mod_Z_IRF0$fit(var_Z, types = types, mauto = opt)
+
+# setting the drift "unknown mean" for Ordinary Kriging
+err = mod_Z_IRF0$setDriftIRF(order = 0)
+
+# plot
+multi.varmod(var_Z, mod_Z_IRF0, flagLegend=TRUE)
+
+if(flag.verbose) {
+  mod_Z_IRF0
+}
+```
+
+## Ordinary kriging of the raw variables
+
+```{r OK_estimate, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns(paste("OK", nm_var, "*", sep = "."))
+err = grd$deleteColumns(paste("LC", "OK", "*", sep = "."))
+if(flag.verbose) {
+  print(paste0(">>> Ordinary kriging of the raw variables"))
+}
+err = data$setLocators(c("Z1", "Z2"), ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_Z_IRF0, neigh, 
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("OK"))
+
+# computing the LC of kriging
+grd["LC.OK.estim"]  = matrix(grd$getColumns(names = paste("OK", colnames(matLC), "estim", sep = ".")),
+                    nrow = grd$getSampleNumber(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
+
+# statistics
+vn  = c("Z1", paste("OK", "Z1", c("estim", "stdev"), sep = "."),
+        "Z2", paste("OK", "Z2", c("estim", "stdev"), sep = "."))
+tab = dbStatisticsMono(grd, vn, opers = opers)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with the initial model", digits = 4)
+
+# plot of estimated values
+p1 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("OK", "Z1", "estim", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Ordinary coK for Z1"))
+p2 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("OK", "Z1", "stdev", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Ordinary coK for Z1"))
+p3 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("OK", "Z2", "estim", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Ordinary coK for Z2"))
+p4 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("OK", "Z2", "stdev", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Ordinary coK for Z2"))
+ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+
+# plot Z vs. Z*
+p1 = ggDefault() + 
+  plot.correlation(grd, namex = paste("OK", "Z1", "estim", sep = "."), namey = "Z1", asPoint = TRUE, 
+                   flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Ordinary coK of Z1")
+p2 = ggDefault() + 
+  plot.correlation(grd, namex = paste("OK", "Z2", "estim", sep = "."), namey = "Z2", asPoint = TRUE, 
+                   flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Ordinary coK of Z2")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+## Ordinary kriging of a linear combination of the raw variables
+
+```{r OK_LC_estimate, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns("OK-LC*")
+if(flag.verbose) {
+  print(paste0(">>> Ordinary kriging of a linear combination of the variables"))
+}
+
+mod_LC_IRF0 = model_of_LC(mod_Z_IRF0, A = matLC)
+
+# modelling the linear combination
+# Locate Z
+err = data$setLocators(nm_LC, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+# computing the model of the LC from the initial model
+var_LC = Vario_computeFromDb(varioParam, data)
+# setting the drift "unknown mean" for Ordinary Kriging
+err = mod_LC_IRF0$setDriftIRF(order = 0)
+
+# plot
+multi.varmod(var_LC, mod_LC_IRF0, flagLegend=TRUE)
+if(flag.verbose) {
+  mod_LC_IRF0
+}
+
+# kriging the LC variables
+err = data$setLocators(nm_LC, ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_LC_IRF0, neigh, 
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("OK-LC"))
+
+# statistics
+vn = c(
+  paste(c("OK.Z1", "OK-LC.Z1", "OK-LC.LC", "LC.OK"), "estim", sep = "."),
+  paste(c("OK.Z1", "OK-LC.Z1", "OK-LC.LC"), "stdev", sep = ".")
+)
+tab = dbStatisticsMono(grd, names = vn, opers = opers)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with the LC model", 
+             digits = 4)
+
+# plot Z vs. Z*
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("OK", "Z1", "estim", sep = "."), 
+                   namey = paste("OK-LC", "Z1", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Initial estimate", ylab = "Estimate with the LC model", 
+                  title = "Ordinary coK of Z1")
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namey = paste("OK-LC", "LC", "estim", sep = "."), 
+                   namex = paste("LC", "OK", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "LC of the estimates", ylab = "Estimate with the LC model", 
+                  title = "Ordinary coK of CL")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+## Direct computation of linear combination kriging
+
+```{r dOK_LC_estimate, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns("dOK*")
+if(flag.verbose) {
+  print(paste0(">>> Direct computation of linear combination kriging"))
+}
+
+# the R matrix matLC has to be converted into a gstlearn MatrixRectangular:
+# MatrixRectangular_createFromVD(beta, nrow=1, ncol=length(beta))
+# OR
+# beta |> matrix(nrow=1, ncol=length(beta)) |> fromTL()
+# OR
+# fromTL(matrix(beta, nrow=1, ncol=length(beta)))
+
+# kriging LC variables
+err = data$setLocators(nm_var, ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_Z_IRF0, neigh, 
+              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("dOK"))
+
+# statistics
+vn = c(
+  paste(c("OK-LC.LC", "dOK.LC", "LC.OK"), "estim", sep = "."),
+  paste(c("OK-LC.LC", "dOK.LC"), "stdev", sep = ".")
+)
+tab = dbStatisticsMono(grd, names = vn, opers = opers, flagIso = FALSE)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging of LC", digits = 4)
+
+# plot direct LC estimate vs. estimate using the LC model
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("OK-LC", "LC", "estim", sep = "."), 
+                   namey = paste("dOK", "LC", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimate using LC model", ylab = "Direct estimate of the LC", 
+                  title = "Ordinary coK: estimated value")
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("OK-LC", "LC", "stdev", sep = "."), 
+                   namey = paste("dOK", "LC", "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimate using LC model", ylab = "Direct estimate of the LC", 
+                  title = "Ordinary coK: Std. of kriging error")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+```
+
+# Simple kriging (SK)
+
+## Second Order Stationary model of the raw variable Z 
+
+```{r SK_modeling, echo=TRUE, eval=TRUE}
+# copying the IRF0 model into SOS model
+mod_Z_SOS = mod_Z_IRF0$clone()
+err = mod_Z_SOS$setDriftIRF(-1)
+err = mod_Z_SOS$setMeans(m)
+if(flag.verbose) {
+  err = mod_Z_SOS$display()
+}
+
+# defining the model of the LC
+mod_LC_SOS = mod_LC_IRF0$clone()
+err = mod_LC_SOS$setDriftIRF(-1)
+err = mod_LC_SOS$setMeans(as.numeric(matLC %*% m))
+
+if(flag.verbose) {
+  err = mod_LC_SOS$display()
+}
+```
+
+## Simple kriging of the raw variables
+
+```{r SK_estimate, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns(paste("SK", nm_var, "*", sep = "."))
+err = grd$deleteColumns(paste("LC", "SK", "*", sep = "."))
+if(flag.verbose) {
+  print(paste0(">>> Simple kriging of the raw variables"))
+}
+err = data$setLocators(c("Z1", "Z2"), ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_Z_SOS, neigh, 
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("SK"))
+
+# computing the LC of kriging
+grd["LC.SK.estim"]  = matrix(grd$getColumns(names = paste("SK", colnames(matLC), "estim", sep = ".")),
+                    nrow = grd$getSampleNumber(),  ncol = dim(matLC)[2]) %*% t(matLC)[,1]
+
+# statistics
+vn  = c("Z1", paste("SK", "Z1", c("estim", "stdev"), sep = "."),
+        "Z2", paste("SK", "Z2", c("estim", "stdev"), sep = "."))
+tab = dbStatisticsMono(grd, vn, opers = opers)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging with the initial model", 
+             digits = 4)
+
+# plot of estimated values
+p1 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("SK", "Z1", "estim", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Simple coK for Z1"))
+p2 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("SK", "Z1", "stdev", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Simple coK for Z1"))
+p3 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("SK", "Z2", "estim", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "estim") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Simple coK for Z2"))
+p4 = ggDefaultGeographic() + 
+    plot.grid(grd, nameRaster =  paste("SK", "Z2", "stdev", sep = "."),
+            palette = "Spectral", flagLegendRaster = TRUE, legendNameRaster = "stdev") +
+    plot.decoration(xlab = "", ylab = "", title = paste0("Std. of Simple coK for Z2"))
+ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+
+# plot Z vs. Z*
+p1 = ggDefault() + 
+  plot.correlation(grd, namex = paste("SK", "Z1", "estim", sep = "."), namey = "Z1", asPoint = TRUE, 
+                   flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Simple coK of Z1")
+p2 = ggDefault() + 
+  plot.correlation(grd, namex = paste("SK", "Z2", "estim", sep = "."), namey = "Z2", asPoint = TRUE, 
+                   flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimated values", ylab = "Actual values", title = "Simple coK of Z2")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+## Simple kriging of a linear combination of the raw variables
+
+```{r SK_LC_estimate, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns("SK-LC*")
+if(flag.verbose) {
+  print(paste0(">>> Simple kriging of a linear combination of the variables"))
+}
+
+# modelling the linear combination
+# Locate Z
+err = data$setLocators(nm_LC, locatorType = ELoc_Z(), cleanSameLocator = TRUE)
+# computing the model of the LC from the initial model
+var_LC = Vario_computeFromDb(varioParam, data)
+
+# plot
+multi.varmod(var_LC, mod_LC_SOS, flagLegend=TRUE)
+if(flag.verbose) {
+  mod_LC_SOS
+}
+
+# kriging the LC variables
+err = data$setLocators(nm_LC, ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_LC_SOS, neigh, 
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("SK-LC"))
+
+# statistics
+vn = c(
+  paste(c("SK.Z1", "SK-LC.Z1", "SK-LC.LC", "LC.SK"), "estim", sep = "."),
+  paste(c("SK.Z1", "SK-LC.Z1", "SK-LC.LC"), "stdev", sep = ".")
+)
+tab = dbStatisticsMono(grd, names = vn, opers = opers)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging with the LC model", digits = 4)
+
+# plot Z vs. Z*
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK", "Z1", "estim", sep = "."), 
+                   namey = paste("SK-LC", "Z1", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Initial estimate", ylab = "Estimate with the LC model", 
+                  title = "Simple coK of Z1")
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namey = paste("SK-LC", "LC", "estim", sep = "."), 
+                   namex = paste("LC", "SK", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "LC of the estimates", ylab = "Estimate with the LC model", 
+                  title = "Simple coK of CL")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+## Direct computation of linear combination kriging
+
+```{r dSK_LC_estimate, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns("dSK*")
+if(flag.verbose) {
+  print(paste0(">>> Direct computation of linear combination kriging"))
+}
+
+# the R matrix matLC has to be converted into a gstlearn MatrixRectangular:
+# MatrixRectangular_createFromVD(beta, nrow=1, ncol=length(beta))
+# OR
+# beta |> matrix(nrow=1, ncol=length(beta)) |> fromTL()
+# OR
+# fromTL(matrix(beta, nrow=1, ncol=length(beta)))
+
+# kriging LC variables
+err = data$setLocators(nm_var, ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_Z_SOS, neigh, 
+              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("dSK"))
+
+# statistics
+vn = c(
+  paste(c("SK-LC.LC", "dSK.LC", "LC.SK"), "estim", sep = "."),
+  paste(c("SK-LC.LC", "dSK.LC"), "stdev", sep = ".")
+)
+tab = dbStatisticsMono(grd, names = vn, opers = opers, flagIso = FALSE)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Simple Kriging of LC", digits = 4)
+
+# plot direct LC estimate vs. estimate using the LC model
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK-LC", "LC", "estim", sep = "."), 
+                   namey = paste("dSK", "LC", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimate using LC model", ylab = "Direct estimate of the LC", 
+                  title = "Simple coK: estimated value")
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK-LC", "LC", "stdev", sep = "."), 
+                   namey = paste("dSK", "LC", "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Estimate using LC model", ylab = "Direct estimate of the LC", 
+                  title = "Simple coK: Std. of kriging error")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+# Kriging with heterotopic data
+
+## Creating heterotopic variables
+
+```{r heterotopic_data, echo=TRUE, eval=TRUE}
+z1 = data["Z1"]
+z1[sample(c(TRUE, FALSE), size = length(z1), prob = c(0.2, 0.8), replace = TRUE)] <- NaN
+data["Z1_miss"] <- z1
+z2 = data["Z2"]
+z2[sample(c(TRUE, FALSE), size = length(z2), prob = c(0.5, 0.5), replace = TRUE)] <- NaN
+data["Z2_miss"] <- z2
+
+vn = c("Z1", "Z1_miss", "Z2", "Z2_miss")
+tab = dbStatisticsMono(data, names = vn, opers = opers, flagIso = FALSE)$toTL()
+rownames(tab) <- vn
+knitr::kable(tab, caption = "Statistics on the heterotopic data", digits = 4)
+```
+
+## Ordinary Kriging of a linear combination with heterotopic data
+
+```{r heterotopic_dOK, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns("dOK_He*")
+if(flag.verbose) {
+  print(paste0(">>> Direct computation of linear combination kriging with heterotopic data"))
+}
+
+# kriging LC variables
+err = data$setLocators(paste(nm_var, "miss", sep = "_"), ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_Z_IRF0, neigh, 
+              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("dOK_He"))
+
+# statistics
+vn = c(
+  paste(c("dOK_He.LC", "dOK.LC", "LC.OK"), "estim", sep = "."),
+  paste(c("dOK_He.LC", "dOK.LC"), "stdev", sep = ".")
+)
+tab = dbStatisticsMono(grd, names = vn, opers = opers, flagIso = FALSE)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for Ordinary Kriging with heterotopic data",
+             digits = 4)
+
+# plot direct LC estimate: Heterotopic data vs. Homotopic data
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("dOK", "LC", "estim", sep = "."), 
+                   namey = paste("dOK_He", "LC", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Homotopic data", ylab = "Heterotopic data", 
+                  title = "Ordinary coK of LC: estimated value")
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("dOK", "LC", "stdev", sep = "."), 
+                   namey = paste("dOK_He", "LC", "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Homotopic data", ylab = "Heterotopic data", 
+                  title = "Ordinary coK of LC: Std. of kriging error")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+# estimate maps: Heterotopic data vs. Homotopic data
+p1 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dOK", "LC", "estim", sep = "."), 
+            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+            limits = c(-25,0)) +
+  plot.decoration(title = "Estimate: homotopic data")
+p2 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dOK_He", "LC", "estim", sep = "."),
+            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+            limits = c(-25, 0)) +
+  plot.decoration(title = "Estimate: heterotopic data")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+# Std. maps: Heterotopic data vs. Homotopic data
+lim = range(c(grd[paste("dOK", "LC", "stdev", sep = ".")], grd[paste("dOK_He", "LC", "stdev", 
+                                                                     sep = ".")]))
+p1 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dOK", "LC", "stdev", sep = "."), 
+            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.decoration(title = "IRF-0: homotopic data")
+p2 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dOK_He", "LC", "stdev", sep = "."),
+            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.decoration(title = "IRF-0: heterotopic data")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+## Simple Kriging of a linear combination with heterotopic data
+
+```{r heterotopic_dSK, echo=TRUE, eval=TRUE}
+err = grd$deleteColumns("dSK_He*")
+if(flag.verbose) {
+  print(paste0(">>> Direct computation of linear combination simple cokriging with heterotopic data"))
+}
+
+# kriging LC variables
+err = data$setLocators(paste(nm_var, "miss", sep = "_"), ELoc_Z(), cleanSameLocator=TRUE)
+err = kriging(data, grd, mod_Z_SOS, neigh, 
+              matLC = fromTL(matrix(beta, nrow=1, ncol=length(beta))),
+              flag_est = TRUE, flag_std = TRUE,
+              namconv = NamingConvention("dSK_He"))
+
+# statistics
+vn = c(
+  paste(c("dSK_He.LC", "dSK.LC", "LC.SK"), "estim", sep = "."),
+  paste(c("dSK_He.LC", "dSK.LC"), "stdev", sep = ".")
+)
+tab = dbStatisticsMono(grd, names = vn, opers = opers, flagIso = FALSE)$toTL()
+knitr::kable(tab, caption = "Statistics on the grid for simple coKriging with heterotopic data",
+             digits = 4)
+
+# plot direct LC estimate: Heterotopic data vs. Homotopic data
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("dSK", "LC", "estim", sep = "."), 
+                   namey = paste("dSK_He", "LC", "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Homotopic data", ylab = "Heterotopic data", 
+                  title = "Simple coK of LC: estimated value")
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("dSK", "LC", "stdev", sep = "."), 
+                   namey = paste("dSK_He", "LC", "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "Homotopic data", ylab = "Heterotopic data", 
+                  title = "Simple coK of LC: Std. of kriging error")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+# estimate maps: Heterotopic data vs. Homotopic data
+p1 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dSK", "LC", "estim", sep = "."), 
+            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+            limits = c(-25,0)) +
+  plot.decoration(title = "SOS estimate: homotopic data")
+p2 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dSK_He", "LC", "estim", sep = "."),
+            flagLegendRaster = TRUE, legendNameRaster = "Z*", palette = "Spectral", 
+            limits = c(-25, 0)) +
+  plot.decoration(title = "SOS estimate: heterotopic data")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+# Std. maps: Heterotopic data vs. Homotopic data
+lim = range(c(grd[paste("dSK", "LC", "stdev", sep = ".")], grd[paste("dSK_He", "LC", "stdev", 
+                                                                     sep = ".")]))
+p1 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dSK", "LC", "stdev", sep = "."), 
+            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.decoration(title = "SOS: homotopic data")
+p2 = ggDefaultGeographic() + 
+  plot.grid(grd, nameRaster =  paste("dSK_He", "LC", "stdev", sep = "."),
+            flagLegendRaster = TRUE, legendNameRaster = "Std.", palette = "Spectral", limits = lim) +
+  plot.decoration(title = "SOS: heterotopic data")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
+
+# QC OK vs. SK
+
+```{r qc_ok_vs_sk, echo=TRUE, eval=TRUE}
+v = "Z1"
+
+# cross plot: SOS vs. IRF0
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK", v, "estim", sep = "."), 
+                   namey = paste("OK", v, "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
+                  title = paste0(v, " Estimation"))
+
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK", v, "stdev", sep = "."), 
+                   namey = paste("OK", v, "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
+                  title = "Std. of estimation error")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+v = "Z2"
+# cross plot: SOS vs. IRF0
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK", v, "estim", sep = "."), 
+                   namey = paste("OK", v, "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
+                  title = paste0(v, " Estimation"))
+
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("SK", v, "stdev", sep = "."), 
+                   namey = paste("OK", v, "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
+                  title = "Std. of estimation error")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+
+# direct kriging of LC
+v = "LC"
+# cross plot: SOS vs. IRF0
+p1 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("dSK", v, "estim", sep = "."), 
+                   namey = paste("dOK", v, "estim", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
+                  title = "LC estimation (direct)")
+
+p2 = ggDefault() + 
+  plot.correlation(grd, 
+                   namex = paste("dSK", v, "stdev", sep = "."), 
+                   namey = paste("dOK", v, "stdev", sep = "."), 
+                   asPoint = TRUE, flagDiag = TRUE, diagColor = "red", flagSameAxes = TRUE) +
+  plot.decoration(xlab = "SOS model (SK)", ylab = "IRF-0 model (OK)", 
+                  title = "Std. of LC estimation error (direct)")
+ggarrange(p1, p2, ncol = 2, nrow = 1)
+```
