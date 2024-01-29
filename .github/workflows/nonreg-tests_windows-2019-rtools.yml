@@ -28,7 +28,7 @@ env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   R_VERSION  : 4.1.3
-  GENERATOR : "MSYS"
+  GENERATOR : "MSYS Makefiles"
   SWIG_ROOT  : ${{github.workspace}}\swig_420b
   BOOST_ROOT : ${{github.workspace}}\boost
   BOOST_VERSION: "1.72.0"
