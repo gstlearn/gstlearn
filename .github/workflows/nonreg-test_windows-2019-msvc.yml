@@ -13,9 +13,9 @@ on:
     branches: [ dev ]
   # Permit manual trigger
   # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
-  schedule:
-    # * is a special character in YAML so you have to quote the string
-    - cron:  '30 23 * * *'
+  #schedule:
+  #  # * is a special character in YAML so you have to quote the string
+  #  - cron:  '30 23 * * *'
   workflow_dispatch:
     inputs:
       logLevel:
@@ -68,5 +68,5 @@ jobs:
     - name: Configure CMake
       run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -A x64 -DBUILD_PYTHON=ON -DUSE_HDF5=OFF -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT="${{env.BOOST_ROOT}}" -DEigen3_ROOT="${{env.EIGEN_ROOT}}"
 
-    - name: Compile, install packages and execute non-regression tests
+    - name: Compile, install package and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --config ${{env.BUILD_TYPE}} --target check
