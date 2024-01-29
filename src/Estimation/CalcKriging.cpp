@@ -26,7 +26,7 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _calcul(EKrigOpt::POINT),
     _ndiscs(),
     _rankColCok(),
-    _matCL(nullptr),
+    _matLC(nullptr),
     _flagDGM(false),
     _nameCoord(),
     _flagBayes(false),
@@ -196,7 +196,7 @@ bool CalcKriging::_postprocess()
   }
   else
   {
-    if (_matCL == nullptr)
+    if (_matLC == nullptr)
     {
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrVarZ, "varz", 1);
       _renameVariable(2, VectorString(), ELoc::Z, nvar, _iptrStd, "stdev", 1);
@@ -204,9 +204,9 @@ bool CalcKriging::_postprocess()
     }
     else
     {
-      _renameVariable(2, {"CL"}, ELoc::UNKNOWN, nvar, _iptrVarZ, "varz", 1);
-      _renameVariable(2, {"CL"}, ELoc::UNKNOWN, nvar, _iptrStd, "stdev", 1);
-      _renameVariable(2, {"CL"}, ELoc::UNKNOWN, nvar, _iptrEst, "estim", 1);
+      _renameVariable(2, {"LC"}, ELoc::UNKNOWN, nvar, _iptrVarZ, "varz", 1);
+      _renameVariable(2, {"LC"}, ELoc::UNKNOWN, nvar, _iptrStd, "stdev", 1);
+      _renameVariable(2, {"LC"}, ELoc::UNKNOWN, nvar, _iptrEst, "estim", 1);
     }
   }
 
@@ -220,10 +220,10 @@ void CalcKriging::_rollback()
 
 int CalcKriging::_getNVar() const
 {
-  if (_matCL == nullptr)
+  if (_matLC == nullptr)
     return getModel()->getVariableNumber();
   else
-    return _matCL->getNRows();
+    return _matLC->getNRows();
 }
 
 void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
@@ -262,7 +262,7 @@ bool CalcKriging::_run()
   if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (ksys.setKrigOptCalcul(_calcul, _ndiscs, _flagPerCell)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;
-  if (ksys.setKrigOptMatCL(_matCL)) return false;
+  if (ksys.setKrigOptMatLC(_matLC)) return false;
   if (_flagDGM)
   {
     if (ksys.setKrigOptDGM(true)) return false;
@@ -343,8 +343,8 @@ bool CalcKriging::_run()
  ** \param[in]  flag_varz   Option for storing the variance of the estimator
  **                         (only available for stationary model)
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
- ** \param[in]  matCL       Matrix of linear combination (or NULL)
- **                         (Dimension: nvarCL * model->getNVar())
+ ** \param[in]  matLC       Matrix of linear combination (or NULL)
+ **                         (Dimension: nvarLC * model->getNVar())
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
@@ -358,7 +358,7 @@ int kriging(Db *dbin,
             bool flag_varz,
             const VectorInt& ndiscs,
             const VectorInt& rank_colcok,
-            const MatrixRectangular* matCL,
+            const MatrixRectangular* matLC,
             const NamingConvention& namconv)
 {
   CalcKriging krige(flag_est, flag_std, flag_varz);
@@ -371,7 +371,7 @@ int kriging(Db *dbin,
   krige.setCalcul(calcul);
   krige.setNdisc(ndiscs);
   krige.setRankColCok(rank_colcok);
-  krige.setMatCl(matCL);
+  krige.setMatLC(matLC);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;

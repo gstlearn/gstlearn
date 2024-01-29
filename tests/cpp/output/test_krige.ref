@@ -793,7 +793,7 @@ Data Base Statistics
  Standard Deviation  =      0.093
  Variance            =      0.009
 
-<----- Test Kriging Multiple Variables with matCL ----->
+<----- Test Kriging Multiple Variables with matLC ----->
 
 Data Base Grid Characteristics
 ==============================

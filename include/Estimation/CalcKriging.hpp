@@ -52,7 +52,7 @@ public:
   virtual ~CalcKriging();
 
   void setCalcul(const EKrigOpt &calcul);
-  void setMatCl(const MatrixRectangular* matCl) { _matCL = matCl; }
+  void setMatLC(const MatrixRectangular* matLC) { _matLC = matLC; }
   void setNdisc(const VectorInt& ndiscs) { _ndiscs = ndiscs; }
   void setRankColCok(const VectorInt& rankColCok) { _rankColCok = rankColCok; }
   void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
@@ -92,7 +92,7 @@ private:
   EKrigOpt  _calcul;
   VectorInt _ndiscs;
   VectorInt _rankColCok;
-  const MatrixRectangular* _matCL;
+  const MatrixRectangular* _matLC;
 
   bool _flagDGM;
   VectorString _nameCoord;
@@ -138,7 +138,7 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             bool flag_varz = false,
                             const VectorInt& ndiscs = VectorInt(),
                             const VectorInt& rank_colcok = VectorInt(),
-                            const MatrixRectangular* matCL = nullptr,
+                            const MatrixRectangular* matLC = nullptr,
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int krigcell(Db *dbin,
                              Db *dbout,
