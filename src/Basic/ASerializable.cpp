@@ -196,7 +196,7 @@ bool ASerializable::_onlyBlanks(char *string)
  */
 String ASerializable::buildFileName(int status, const String& filename, bool ensureDirExist)
 {
-// TODO: to be restored when boost is usable for pygstlearn
+// TODO: to be restored when boost (or c++14) is usable for gstlearn (is_absolute, path manipulation, etc.)
 //  boost::filesystem::path final;
 //  if (! myContainerName.empty())
 //  {
@@ -216,9 +216,9 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
   // In the case of Output File (2), 'filename' is appended after the 'containerName' and 'prefixName'
   // In the case of Input file (1), the process depends on the contents of 'filename':
-  // - if 'filename' starts with '/', then it is considered that 'filename' contains a complete path: nothing done
+  // - if 'filename' is absolute (starts with '/' or second character is ':'): do nothing
   // - otherwise, add the 'containerName' and 'prefixName' (if defined)
-  if (status == 2 || filename[0] != '/')
+  if (status == 2 || (filename.size() > 2 && filename[0] != '/' && filename[1] != ':'))
   {
     if (!myContainerName.empty())
     {
@@ -280,42 +280,45 @@ String ASerializable::getWorkingDirectory()
 }
 
 /**
- * This method returns the absolute path to a Test Data
+ * This method returns the absolute path to a Test Data file
  * This can only be used in non-regression test (NOT in any Python or R stand-alone script)
+ *
+ * @param subdir Sub directory (in doc/data folder) containing the required file
+ * @param filename Name of the required data file
+ *
  * @return
  */
 String ASerializable::getTestData(const String& subdir, const String& filename)
 {
-  String dirname = getExecDirectory();
-  //std::cout << "dirname=" << dirname << std::endl;
+  String path = getExecDirectory();
+  //std::cout << "path=" << path << std::endl;
+  // TODO : Cross-platform way to build file path (use boost ?)
   // TODO : Find a proper way to register global folders (data, docs etc...)
 #if defined(_WIN32) || defined(_WIN64)
-  dirname += "\\";
-  dirname += "..";
-  dirname += "\\";
-  dirname += "..";
-  dirname += "\\";
-  dirname += "..";
-  dirname += "\\";
-  dirname += "doc";
-  dirname += "\\";
-  dirname += "data";
-  dirname += "\\";
-#else
-  dirname += "../../../doc/data/";
-#endif
-  std::stringstream sstr;
-  // TODO : Cross-platform way to build file path (use boost ?)
-
-  // Concatenate with the Sub-Directory (if defined)
-
-  sstr << String(dirname);
-  sstr << subdir << "/";
-
+  path += "..";
+  path += "\\";
+  path += "..";
+  path += "\\";
+  path += "..";
+  path += "\\";
+  path += "doc";
+  path += "\\";
+  path += "data";
+  path += "\\";
+  // Concatenate with the Sub-Directory
+  path += subdir;
+  path += "\\";
   // Concatenate with the Filename
-  sstr << filename;
-
-  return sstr.str();
+  path += filename;
+#else
+  path += "../../../doc/data/";
+  // Concatenate with the Sub-Directory
+  path += subdir;
+  path += "/";
+  // Concatenate with the Filename
+  path += filename;
+#endif
+  return path;
 }
 
 String ASerializable::getFileIdentity(const String& filename, bool verbose)
@@ -337,7 +340,8 @@ String ASerializable::getFileIdentity(const String& filename, bool verbose)
 
   // Read the File Header
   String filetype;
-  std::getline(file, filetype);
+  //std::getline(file, filetype);
+  gslSafeGetline(file, filetype);
 
   // Suppress trailing blanks
   filetype = trimRight(filetype);

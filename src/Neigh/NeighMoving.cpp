@@ -67,7 +67,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _T1(r._T1),
       _T2(r._T2)
 {
-  for (int ipt = 0, npt = r._bipts.size(); ipt < npt; ipt++)
+  for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
     //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
     _bipts.push_back(r._bipts[ipt]);
 }
@@ -90,7 +90,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _T1 = r._T1;
     _T2 = r._T2;
 
-    for (int ipt = 0, npt = r._bipts.size(); ipt < npt; ipt++)
+    for (int ipt = 0, npt = (int)r._bipts.size(); ipt < npt; ipt++)
       //_bipts.push_back(dynamic_cast<ABiTargetCheck*>(r._bipts[ipt]->clone()));
       _bipts.push_back(r._bipts[ipt]);
    }
@@ -295,7 +295,7 @@ bool NeighMoving::_getAnisotropyElements(double *rx, double *ry, double *cosp, d
   double radius = _getRadius();
   if (FFFF(radius)) return false;
   VectorDouble anisoRatio = getAnisoCoeffs();
-  int ndim = anisoRatio.size();
+  int ndim = (int)anisoRatio.size();
   if (ndim != 2) return false;
   *rx = radius * anisoRatio[0];
   *ry = radius * anisoRatio[1];

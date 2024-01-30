@@ -16,6 +16,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 
 #include <iostream>
 #include <stdarg.h>
@@ -174,7 +175,8 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
         else if (word[0] != '#')
           break; // We found something
         else
-          std::getline(is, word);    // We found comment, eat all the line
+          //std::getline(is, word);    // We found comment, eat all the line
+          gslSafeGetline(is, word);    // We found comment, eat all the line
       }
     }
 
@@ -212,7 +214,8 @@ bool ASerializable::_recordReadVec(std::istream& is,
     // Skip comment or empty lines
     while (is.good())
     {
-      std::getline(is, line);
+      //std::getline(is, line);
+      gslSafeGetline(is, line);
       if (!is.good() && !is.eof())
       {
         messerr("Error while reading %s", title.c_str());

@@ -13,6 +13,7 @@
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AException.hpp"
@@ -158,7 +159,8 @@ int Polygons::resetFromWKT(const String& filename,
   {
     int i = 0;
     // Skip first lines
-    while(std::getline(file, line) && i < csv.getNSkip())
+    //while(std::getline(file, line) && i < csv.getNSkip())
+    while(gslSafeGetline(file, line) && i < csv.getNSkip())
       i++;
     // Header too short
     if (i < csv.getNSkip())
