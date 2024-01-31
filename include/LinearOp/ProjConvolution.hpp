@@ -17,6 +17,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
 /**
@@ -43,7 +44,7 @@ public:
   DbGrid* getResolutionGrid() const;
 
 #ifndef SWIG
-  const cs* getAProjHoriz() const { return _AProjHoriz; }
+  const MatrixSparse* getAProjHoriz() const { return _AProjHoriz; }
 #endif
   Triplet getAProjHorizToTriplet(bool flag_from_1 = false) const;
 
@@ -76,7 +77,7 @@ private:
   VectorInt            _shiftVector;
   DbGrid*              _gridSeis2D;
   DbGrid*              _gridRes2D;
-  cs*                  _AProjHoriz;
+  MatrixSparse*        _AProjHoriz;
   mutable VectorDouble _work;
 };
 

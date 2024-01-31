@@ -45,7 +45,7 @@ double ClassicalPolynomial::eval(double x) const
 // Horner scheme starting from the lowest degree
 // (since it adds the result to the input vector, the classical scheme can t be used)
 #ifndef SWIG
-void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const
+void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const VectorDouble& inv, VectorDouble& outv) const
 {
   int n = static_cast<int> (inv.size());
   VectorDouble work(n);
@@ -60,7 +60,7 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& inv, VectorDou
     outv[i] += _coeffs[0] * inv[i];
   }
 
-  cs_vecmult(Op, (int) swap1->size(), inv.data(), swap1->data());
+  matCS_vecmult(Op, (int) swap1->size(), inv.data(), swap1->data());
 
   for (int j = 1; j < (int) _coeffs.size(); j++)
   {
@@ -71,7 +71,7 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& inv, VectorDou
 
     if (j < (int) _coeffs.size() - 1)
     {
-      cs_vecmult(Op, (int) swap2->size(), swap1->data(), swap2->data());
+      matCS_vecmult(Op, (int) swap2->size(), swap1->data(), swap2->data());
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -80,7 +80,7 @@ void ClassicalPolynomial::evalOpCumul(cs* Op, const VectorDouble& inv, VectorDou
 }
 
 // Classical Hörner scheme starting from the highest degree
-void ClassicalPolynomial::evalOp(cs* Op,
+void ClassicalPolynomial::evalOp(MatrixSparse* Op,
                                  const VectorDouble& inv,
                                  VectorDouble& outv) const
 {
@@ -88,14 +88,12 @@ void ClassicalPolynomial::evalOp(cs* Op,
   VectorDouble work(n);
 
   for (int i = 0; i < n; i++)
-  {
     outv[i] = _coeffs.back() * inv[i];
-  }
 
   int nout = (int) work.size();
   for (int j = static_cast<int>(_coeffs.size()) - 2; j >= 0; j--)
   {
-    cs_vecmult(Op, nout, outv.data(), work.data());
+    matCS_vecmult(Op, nout, outv.data(), work.data());
     for (int i = 0; i < n; i++)
     {
       outv[i] = _coeffs[j] * inv[i] + work[i];
@@ -104,7 +102,10 @@ void ClassicalPolynomial::evalOp(cs* Op,
 }
 
 // Classical Hörner scheme starting from the highest degree
-void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const
+void ClassicalPolynomial::evalOpTraining(MatrixSparse *Op,
+                                         const VectorDouble &inv,
+                                         VectorVectorDouble &store,
+                                         VectorDouble &work) const
 {
   int n = static_cast<int>(inv.size());
 
@@ -121,7 +122,7 @@ void ClassicalPolynomial::evalOpTraining(cs* Op, const VectorDouble& inv,VectorV
   int nout = (int) work.size();
   for (int j = (int) _coeffs.size() - 2; j >= 0; j--)
   {
-    cs_vecmult(Op, nout, store[j + 1].data(), work.data());
+    matCS_vecmult(Op, nout, store[j + 1].data(), work.data());
     for (int i = 0; i < n; i++)
     {
       store[j][i] = _coeffs[j] * inv[i] + work[i];
@@ -141,8 +142,8 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   VectorDouble work(n);
   VectorDouble work2(n);
   VectorDouble *swap1,*swap2,*swap3;
-  cs* Op = shiftOp->getS();
-  cs* derivOp = shiftOp->getSGrad(iapex,igparam);
+  MatrixSparse* Op = shiftOp->getS();
+  MatrixSparse* derivOp = shiftOp->getSGrad(iapex,igparam);
 
   swap1 = &work;
   swap2 = &work2;
@@ -162,14 +163,14 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
   int nout = (int) swap2->size();
   for(int i = 0; i < degree - 1 ;i++)
   {
-    cs_vecmult(derivOp, nout, swap1->data(),swap2->data());
+    matCS_vecmult(derivOp, nout, swap1->data(),swap2->data());
     coeffsCur.erase(coeffsCur.begin());
     polycur->init(coeffsCur);
     polycur->evalOpCumul(Op,*swap2,outv);
 
     if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration
     {
-      cs_vecmult(Op, nout, swap1->data(),swap2->data());
+      matCS_vecmult(Op, nout, swap1->data(),swap2->data());
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -219,16 +220,16 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
 {
   int degree = (int) _coeffs.size();
 
-  cs* S = shiftOp->getS();
-  cs* gradS = shiftOp->getSGrad(iapex,igparam);
+  MatrixSparse* S = shiftOp->getS();
+  MatrixSparse* gradS = shiftOp->getSGrad(iapex,igparam);
 
-  cs_vecmult(shiftOp->getSGrad(iapex, igparam), (int) outv.size(),
+  matCS_vecmult(shiftOp->getSGrad(iapex, igparam), (int) outv.size(),
              workpoly[degree - 1].data(), outv.data());
 
   for (int i = degree - 3; i >= 0; i--)
   {
-    cs_vecmult(S, (int) temp1.size(), outv.data(), temp1.data());
-    cs_vecmult(gradS, (int) temp2.size(),
+    matCS_vecmult(S, (int) temp1.size(), outv.data(), temp1.data());
+    matCS_vecmult(gradS, (int) temp2.size(),
                workpoly[i + 1].data(), temp2.data());
     VH::addInPlace(temp1, temp2, outv);
   }

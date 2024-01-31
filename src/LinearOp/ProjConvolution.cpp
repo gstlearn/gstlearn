@@ -15,6 +15,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 // External library /// TODO : Dependency to csparse to be removed
 #include "csparse_d.h"
@@ -64,7 +65,7 @@ ProjConvolution::~ProjConvolution()
 {
   delete _gridSeis2D;
   delete _gridRes2D;
-  if (_AProjHoriz != nullptr) _AProjHoriz = cs_spfree(_AProjHoriz);
+  if (_AProjHoriz != nullptr) delete _AProjHoriz;
 }
 
 void ProjConvolution::_buildGridSeis2D()
@@ -92,7 +93,7 @@ int ProjConvolution::_buildAprojHoriz()
 
   ProjMatrix* proj = ProjMatrix::create(_gridSeis2D, mesh);
 
-  _AProjHoriz = cs_duplicate(proj->getAproj());
+  _AProjHoriz = proj->getAproj()->clone();
 
   delete mesh;
   delete proj;
@@ -182,7 +183,7 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
    {
      const double* valSS =  &valonseismic.data()[iz * slice_S];
      double* valRS = &_work.data()[iz * slice_R];
-     cs_tmulvec(_AProjHoriz, slice_R, valSS, valRS);
+     cs_tmulvec(_AProjHoriz->getCS(), slice_R, valSS, valRS);
    }
 
    _convolveT(_work,valonvertex);
@@ -217,7 +218,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   {
     const double* valRS = &_work.data()[iz * slice_R];
     double* valSS = &valonseismic.data()[iz * slice_S];
-    cs_mulvec(_AProjHoriz, slice_S, valRS, valSS); // DR: ca devrait etre slice_S d'apres moi
+    matCS_tmulvec(_AProjHoriz, slice_R, valRS, valSS);
   }
 
   return 0;
@@ -348,5 +349,5 @@ int ProjConvolution::getPointNumber() const
 
 Triplet ProjConvolution::getAProjHorizToTriplet(bool flag_from_1) const
 {
-  return csToTriplet(getAProjHoriz(), flag_from_1);
+  return _AProjHoriz->getSparseToTriplet(flag_from_1);
 }

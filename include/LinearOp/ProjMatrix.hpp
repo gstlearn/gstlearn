@@ -16,6 +16,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 class cs; /// TODO : Dependency to csparse to be removed
 class AMesh;
@@ -27,7 +28,7 @@ public:
   ProjMatrix();
   ProjMatrix(const Db* db, const AMesh *a_mesh, int rankZ = -1, bool verbose = false);
 #ifndef SWIG
-  ProjMatrix(int npoint, int napices, const cs *aproj);
+  ProjMatrix(int npoint, int napices, MatrixSparse *aproj);
 #endif
   ProjMatrix(const ProjMatrix &m);
   ProjMatrix& operator= (const ProjMatrix &m);
@@ -51,7 +52,7 @@ public:
                   int rankZ = -1,
                   bool verbose = false);
 #ifndef SWIG
-  int resetFromPoints(int npoint, int napices, const cs *aproj);
+  int resetFromPoints(int npoint, int napices, MatrixSparse *aproj);
 #endif
   int resetFromDbByNeigh(const Db *db,
                          AMesh *amesh,
@@ -60,12 +61,12 @@ public:
                          bool verbose = false);
 
 #ifndef SWIG
-  const cs* getAproj() const { return _Aproj; }
+  MatrixSparse* getAproj() const { return _AprojCS; }
 #endif
   Triplet getAprojToTriplet(bool flag_from_1 = false) const;
 
 private:
   int  _nPoint; // _nPoint = Number of rows of _Aproj
   int  _nApices; // _nApices = number of columns of _Aproj
-  cs*  _Aproj;
+  MatrixSparse* _AprojCS;
 };

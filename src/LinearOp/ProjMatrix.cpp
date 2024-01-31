@@ -23,7 +23,7 @@ ProjMatrix::ProjMatrix()
   : AStringable()
   , _nPoint(0)
   , _nApices(0)
-  , _Aproj(nullptr)
+  , _AprojCS(nullptr)
 {
 }
 
@@ -31,7 +31,7 @@ ProjMatrix::ProjMatrix(const Db *db, const AMesh *a_mesh, int rankZ, bool verbos
   : AStringable()
   , _nPoint(0)
   , _nApices(0)
-  , _Aproj(nullptr)
+  , _AprojCS(nullptr)
 {
   if (resetFromDb(db,a_mesh,rankZ, verbose))
   {
@@ -41,11 +41,11 @@ ProjMatrix::ProjMatrix(const Db *db, const AMesh *a_mesh, int rankZ, bool verbos
 }
 
 #ifndef SWIG
-ProjMatrix::ProjMatrix(int npoint, int napices, const cs *aproj)
+ProjMatrix::ProjMatrix(int npoint, int napices, MatrixSparse *aproj)
   : AStringable()
   , _nPoint(0)
   , _nApices(0)
-  , _Aproj(nullptr)
+  , _AprojCS(nullptr)
 {
   if (resetFromPoints(npoint, napices, aproj))
   {
@@ -59,10 +59,10 @@ ProjMatrix::ProjMatrix(const ProjMatrix &m)
     : AStringable(m),
       _nPoint(m._nPoint),
       _nApices(m._nApices),
-      _Aproj(nullptr)
+      _AprojCS(nullptr)
 {
-  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
-  _Aproj = cs_duplicate(m._Aproj);
+  if (_AprojCS != nullptr) delete _AprojCS;
+  _AprojCS = m._AprojCS->clone();
 }
 
 ProjMatrix& ProjMatrix::operator= (const ProjMatrix &m)
@@ -72,14 +72,14 @@ ProjMatrix& ProjMatrix::operator= (const ProjMatrix &m)
      AStringable::operator =(m);
      _nPoint = m._nPoint;
      _nApices = m._nApices;
-     _Aproj = cs_duplicate(m._Aproj);
+     _AprojCS = m._AprojCS->clone();
    }
   return *this;
 }
 
 ProjMatrix::~ProjMatrix() 
 {
-  _Aproj = cs_spfree(_Aproj);
+  delete _AprojCS;
 }
 
 ProjMatrix* ProjMatrix::create(const Db* db, const AMesh *a_mesh, int rankZ, bool verbose)
@@ -91,14 +91,14 @@ int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int rankZ, bool v
 {
   if (db != nullptr)
   {
-    _Aproj = a_mesh->getMeshToDb(db, rankZ, verbose);
-    if (_Aproj == nullptr) return 1;
-    _nPoint = cs_getnrow(_Aproj);
+    _AprojCS = a_mesh->getMeshToDb(db, rankZ, verbose);
+    if (_AprojCS == nullptr) return 1;
+    _nPoint = _AprojCS->getNRows();
     _nApices = a_mesh->getNApices();
   }
   else
   {
-    _Aproj = nullptr;
+    _AprojCS = nullptr;
     _nPoint = 0;
     _nApices = a_mesh->getNApices();
   }
@@ -106,10 +106,9 @@ int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int rankZ, bool v
 }
 
 #ifndef SWIG
-int ProjMatrix::resetFromPoints(int npoint, int napices, const cs *aproj)
+int ProjMatrix::resetFromPoints(int npoint, int napices, MatrixSparse *aproj)
 {
-  _Aproj = cs_duplicate(aproj);
-  if (_Aproj == nullptr) return 1;
+  _AprojCS = aproj->clone();
   _nPoint  = npoint;
   _nApices = napices;
   return 0;
@@ -143,9 +142,8 @@ int ProjMatrix::resetFromDbByNeigh(const Db *db,
 {
   int nactive;
   int *ranks;
-  _Aproj = db_mesh_neigh(db, amesh, radius, flag_exact, verbose, &nactive,
-                         &ranks);
-  if (_Aproj == nullptr) return 1;
+  _AprojCS = db_mesh_neigh(db, amesh, radius, flag_exact, verbose, &nactive, &ranks);
+  if (_AprojCS == nullptr) return 1;
   if (ranks != nullptr) ranks = (int *) mem_free((char *) ranks);
   _nPoint  = nactive;
   _nApices = amesh->getNMeshes();
@@ -167,7 +165,7 @@ int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
     return 1;
   }
 
-  cs_tmulvec(_Aproj,(int) outv.size(),inv.data(),outv.data());
+  matCS_tmulvec(_AprojCS,(int) outv.size(),inv.data(),outv.data());
   return 0;
 }
 
@@ -186,7 +184,7 @@ int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
     return 1;
   }
 
-  cs_mulvec(_Aproj,_nPoint,inv.data(),outv.data());
+  matCS_mulvec(_AprojCS,_nPoint,inv.data(),outv.data());
   return 0;
 }
 
@@ -194,19 +192,19 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << toStringDim("Projection Matrix",_Aproj);
+  sstr << toStringDim("Projection Matrix",_AprojCS->getCS());
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
   if (sf.getLevel() > 0)
   {
-    sstr << toStringRange(String(),_Aproj);
-    sstr << toMatrix(String(), _Aproj);
+    sstr << toStringRange(String(),_AprojCS->getCS());
+    sstr << toMatrix(String(), _AprojCS->getCS());
   }
   return sstr.str();
 }
 
 Triplet ProjMatrix::getAprojToTriplet(bool flag_from_1) const
 {
-  return csToTriplet(getAproj(), flag_from_1);
+  return getAproj()->getSparseToTriplet(flag_from_1);
 }

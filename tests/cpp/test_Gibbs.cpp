@@ -88,7 +88,7 @@ static void st_print_all(const VectorInt& colors,
                          double *consmin,
                          double *consmax,
                          double *sigma,
-                         cs     *Q)
+                         const cs *Q)
 {
   if (consmin != (double *) NULL)
     print_matrix ("consmin",0,0,1,10,NULL,consmin);
@@ -212,7 +212,7 @@ static int st_gibbs(int  niter,
                     int  ncolor,
                     int  nvertex,
                     const VectorInt& colors,
-                    cs **Qcols,
+                    MatrixSparse **Qcols,
                     double *consmin,
                     double *consmax,
                     double *sigma,
@@ -233,7 +233,7 @@ static int st_gibbs(int  niter,
     for (int icol=0; icol<ncolor; icol++)
     {
       nc = st_vector_compress(nvertex,icol,z,colors,ind,zred);
-      cs_mulvec(Qcols[icol],nc,zred,krig);
+      matCS_mulvec(Qcols[icol],nc,zred,krig);
 
       for (ic=0; ic<nc; ic++)
       {
@@ -258,7 +258,8 @@ int main(int argc, char *argv[])
   DbGrid       *dbgrid;
   Model        *model1,*model2;
   SPDE_Option   s_option;
-  cs           *Q,**Qcols;
+  MatrixSparse* Q = nullptr;
+  MatrixSparse** Qcols = nullptr;
   SPDE_Matelem  Matelem;
   VectorInt     colors;
 
@@ -299,8 +300,6 @@ int main(int argc, char *argv[])
   consmin  = (double      *) NULL;
   consmax  = (double      *) NULL;
   sigma    = (double      *) NULL;
-  Q        = (cs          *) NULL;
-  Qcols    = (cs         **) NULL;
   verbose  = ncolor = 0;
   seed     = 31415;
   ndim     = 2;
@@ -340,12 +339,12 @@ int main(int argc, char *argv[])
 
   Matelem = spde_get_current_matelem(0);
   Q = Matelem.QC->Q;
-  if (Q == (cs *) NULL) goto label_end;
+  if (Q == nullptr) goto label_end;
   nvertex = Matelem.amesh->getNApices();
 
   // Create the color coding 
 
-  colors = cs_color_coding(Q,0,&ncolor);
+  colors = matCS_color_coding(Q,0,&ncolor);
 
   // Core allocation
   
@@ -378,27 +377,27 @@ int main(int argc, char *argv[])
   
   // Creating the variance
   
-  sigma = csd_extract_diag(Q,-2);
+  sigma = matCSD_extract_diag(Q,-2);
   if (sigma == (double *) NULL) goto label_end;
 
   // Scaling the Q matrix
   
-  if (cs_scale(Q)) goto label_end;
+  if (matCS_scale(Q)) goto label_end;
 
   // Check the imported information
 
-  if (flag_print) st_print_all(colors,consmin,consmax,sigma,Q);
+  if (flag_print) st_print_all(colors,consmin,consmax,sigma,Q->getCS());
 
   //----------------//
   // Main Algorithm //
   //----------------//
 
-  Qcols = (cs **) mem_alloc(sizeof(cs *) * ncolor,1);
-  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = (cs *) NULL;
+  Qcols = (MatrixSparse **) mem_alloc(sizeof(MatrixSparse *) * ncolor,1);
+  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = nullptr;
   for (int icol=0; icol<ncolor; icol++)
   {
-    Qcols[icol] = cs_extract_submatrix_by_color(Q,colors,icol,1,0);
-    if (Qcols[icol] == (cs *) NULL) goto label_end;
+    Qcols[icol] = matCS_extract_submatrix_by_color(Q,colors,icol,1,0);
+    if (Qcols[icol] == nullptr) goto label_end;
   }
 
   // Perform the Gibbs sampler
@@ -414,7 +413,8 @@ int main(int argc, char *argv[])
   }
   
 label_end:
-  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree2(Qcols[icol]);
+  for (int icol=0; icol<ncolor; icol++)
+    delete Qcols[icol];
   delete dbgrid;
   delete model1;
   delete model2;

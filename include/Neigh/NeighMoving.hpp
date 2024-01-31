@@ -25,7 +25,6 @@
 #include "Space/SpaceTarget.hpp"
 
 class Db;
-class Faults;
 
 class GSTLEARN_EXPORT NeighMoving: public ANeigh
 {

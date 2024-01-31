@@ -138,18 +138,18 @@ cs* cs_prod_norm_diagonal(int mode, const cs *B, VectorDouble diag)
  return (Res);
 }
 
-cs* cs_arrays_to_sparse(int n,
-                        int nrow,
-                        int ncol,
-                        const double *rows,
-                        const double *cols,
-                        const double *vals)
+MatrixSparse* cs_arrays_to_sparse(int n,
+                                  int nrow,
+                                  int ncol,
+                                  const double *rows,
+                                  const double *cols,
+                                  const double *vals)
 {
-  cs *Q, *Qtriplet;
+  MatrixSparse *Q = nullptr;
+  cs *Qtriplet = nullptr;
   int ip1, ip2, error, row_max, col_max;
 
   error = 1;
-  Q = Qtriplet = nullptr;
 
   row_max = col_max = -1;
   Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
@@ -178,22 +178,26 @@ cs* cs_arrays_to_sparse(int n,
   {
     cs_force_dimension(Qtriplet, nrow, ncol);
   }
-  Q = cs_triplet(Qtriplet);
+  Q = matCS_triplet(Qtriplet);
   if (Q == nullptr) goto label_end;
 
   error = 0;
 
   label_end:
   Qtriplet = cs_spfree(Qtriplet);
-  if (error) Q = cs_spfree(Q);
+  if (error)
+  {
+    delete Q;
+    Q = nullptr;
+  }
   return (Q);
 }
 
-cs* cs_vectors_to_sparse(int nrow,
-                         int ncol,
-                         const VectorDouble &rows,
-                         const VectorDouble &cols,
-                         const VectorDouble &values)
+MatrixSparse* cs_vectors_to_sparse(int nrow,
+                                   int ncol,
+                                   const VectorDouble &rows,
+                                   const VectorDouble &cols,
+                                   const VectorDouble &values)
 {
   int n = (int) rows.size();
   return cs_arrays_to_sparse(n, nrow, ncol, rows.data(), cols.data(), values.data());
@@ -321,7 +325,7 @@ static int st_find_color(int *Qp,
  ** \param[out] ncols    Number of colors
  **
  *****************************************************************************/
-VectorInt cs_color_coding(cs *Q, int start, int *ncols)
+VectorInt cs_color_coding(const cs *Q, int start, int *ncols)
 {
   *ncols = 0;
   int ncolor = 0;
@@ -372,7 +376,7 @@ VectorInt cs_color_coding(cs *Q, int start, int *ncols)
 /* and if */
 /* - the color of its column number is equal to 'ref-color' if 'col_ok'==TRUE*/
 /*   or different if 'col_ok'== FALSE */
-cs* cs_extract_submatrix_by_color(cs *C,
+cs* cs_extract_submatrix_by_color(const cs *C,
                                   const VectorInt& colors,
                                   int ref_color,
                                   int row_ok,
@@ -463,10 +467,10 @@ int qchol_cholesky(int verbose, QChol *QC)
 
   /* Cholesky decomposition is only valid for square matric */
 
-  if (cs_getnrow(QC->Q) != cs_getncol(QC->Q))
+  if (QC->Q->getNRows() != QC->Q->getNCols())
   {
     messerr("You wish to perform a Cholesky Decomposition of a Matrix");
-    messerr("which is not square: %d x %d", cs_getnrow(QC->Q), cs_getncol(QC->Q));
+    messerr("which is not square: %d x %d", QC->Q->getNRows(), QC->Q->getNCols());
     messerr("This must be an error");
     return (1);
   }
@@ -478,7 +482,7 @@ int qchol_cholesky(int verbose, QChol *QC)
   if (QC->S == nullptr)
   {
     if (verbose) message("Ordering... ");
-    QC->S = cs_schol(QC->Q, 0);
+    QC->S = cs_schol(QC->Q->getCS(), 0);
     if (QC->S == nullptr)
     {
       messerr("Error in cs_schol function");
@@ -489,7 +493,7 @@ int qchol_cholesky(int verbose, QChol *QC)
   if (QC->N == nullptr)
   {
     if (verbose) message("Factorization... ");
-    QC->N = cs_chol(QC->Q, QC->S);
+    QC->N = cs_chol(QC->Q->getCS(), QC->S);
     if (QC->N == nullptr)
     {
       messerr("Error in cs_chol function");
@@ -503,13 +507,13 @@ int qchol_cholesky(int verbose, QChol *QC)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::force())
   {
     message("Q Sparse Matrix\n");
-    cs_print(QC->Q, 1);
-    cs_print_range("Q", QC->Q);
+    cs_print(QC->Q->getCS(), 1);
+    cs_print_range("Q", QC->Q->getCS());
   }
   return (0);
 
   label_err: if (verbose)
-    cs_print_nice("Cholesky Decomposition of QC", QC->Q, nmax, nmax);
+    cs_print_nice("Cholesky Decomposition of QC", QC->Q->getCS(), nmax, nmax);
   QC->N = cs_nfree(QC->N);
   QC->S = cs_sfree(QC->S);
   return (1);
@@ -684,7 +688,8 @@ static cs_MG* st_monogrid_manage(int mode, cs_MG *mg)
     if (mg != nullptr)
     {
       mg->sumrow = (double*) mem_free((char* ) mg->sumrow);
-      mg->IhH = cs_spfree(mg->IhH);
+      delete mg->IhH;
+      mg->IhH = nullptr;
       mg->A = qchol_manage(-1, mg->A);
       mg = (cs_MG*) mem_free((char* ) mg);
     }
@@ -759,8 +764,8 @@ static void st_mg_print(cs_MGS *mgs, int rank)
   mestitle(2, "Contents of the MG structure for level %d", rank);
   if (mg->nh > 0 && mg->nH > 0)
     message("Transition between %d and %d vertices\n", mg->nh, mg->nH);
-  if (mg->IhH != NULL) cs_print_range("Range of IhH", mg->IhH);
-  if (mg->A != NULL) cs_print_range("Range of A", mg->A->Q);
+  if (mg->IhH != NULL) cs_print_range("Range of IhH", mg->IhH->getCS());
+  if (mg->A   != NULL) cs_print_range("Range of A",   mg->A->Q->getCS());
   if (mg->sumrow != NULL)
     print_range("Range of sumrow", mg->nh, mg->sumrow, NULL);
 }
@@ -861,7 +866,7 @@ static void st_multigrid_ascent(cs_MGS *mgs,
     message("Ascending from %d to %d (init=%d scale=%d)\n", level + 1, level,
             flag_init, flag_scale);
   mg = mgs->mg[level];
-  cs_tmulvec(mg->IhH, mg->nh, zin, work);
+  matCS_tmulvec(mg->IhH, mg->nh, zin, work);
   if (flag_init)
     for (int icur = 0; icur < mg->nh; icur++)
       zout[icur] = work[icur];
@@ -915,10 +920,10 @@ static void st_multigrid_descent(cs_MGS *mgs,
 
   if (DEBUG) message("Descending from %d to %d\n", level - 1, level);
   mg = mgs->mg[level - 1];
-  cs_mulvec(mg->A->Q, mg->nh, zin, work);
+  matCS_mulvec(mg->A->Q, mg->nh, zin, work);
   for (int icur = 0; icur < mg->nh; icur++)
     work[icur] = rhsin[icur] - work[icur];
-  cs_mulvec(mg->IhH, mg->nH, work, rhsout);
+  matCS_mulvec(mg->IhH, mg->nH, work, rhsout);
 }
 
 /****************************************************************************/
@@ -942,7 +947,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
                        double **sel_arg)
 {
   int *indCo, error, flag_print;
-  cs *L;
+  MatrixSparse *L;
   double *sel;
   cs_MG *mg, *mgold;
 
@@ -954,11 +959,11 @@ int cs_multigrid_setup(cs_MGS *mgs,
   L = nullptr;
   sel = nullptr;
   if (verbose) mestitle(1, "Coarsening %d levels", mgs->nlevels);
-  if (flag_print) cs_print_file("QTT_avant", ITEST, qctt->Q);
+  if (flag_print) cs_print_file("QTT_avant", ITEST, qctt->Q->getCS());
 
   // Define the size of the system
 
-  mgs->ncur = cs_getncol(qctt->Q);
+  mgs->ncur = qctt->Q->getNCols();
 
   // Initialize the Selection vector
 
@@ -974,11 +979,11 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
   if (mgs->nlevels > 0)
   {
-    mgs->diag = csd_extract_diag(qctt->Q, -2);
+    mgs->diag = csd_extract_diag(qctt->Q->getCS(), -2);
     if (mgs->diag == nullptr) return (1);
-    qctt->Q = cs_normalize_by_diag_and_release(qctt->Q, 1);
+    qctt->Q = matCS_normalize_by_diag_and_release(qctt->Q, 1);
   }
-  if (flag_print) cs_print_file("QTT_apres", ITEST, qctt->Q);
+  if (flag_print) cs_print_file("QTT_apres", ITEST, qctt->Q->getCS());
 
   // Loop on the levels
 
@@ -990,36 +995,37 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
     if (ilevel == 0)
     {
-      mg->A->Q = cs_duplicate(qctt->Q);
-      mg->nh = cs_getncol(mg->A->Q);
+      mg->A->Q = qctt->Q;
+      mg->nh = mg->A->Q->getNCols();
     }
     else
     {
       mgold = mgs->mg[ilevel - 1];
-      mg->A->Q = cs_prod_norm(2, mgold->A->Q, mgold->IhH);
+      mg->A->Q = matCS_prod_norm(2, mgold->A->Q, mgold->IhH);
       if (mg->A->Q == nullptr) goto label_end;
     }
-    if (flag_print) cs_print_file("A", ilevel, mg->A->Q);
+    if (flag_print) cs_print_file("A", ilevel, mg->A->Q->getCS());
 
     if (ilevel < mgs->nlevels)
     {
       // Extract the coarse grid
 
-      if (cs_coarsening(mg->A->Q, mgs->type_coarse, &indCo, &L)) goto label_end;
-      if (flag_print) cs_print_file("L", ilevel, L);
-      if (flag_print) for (int ik = 0; ik < cs_getncol(mg->A->Q); ik++)
-        message("indco[%d] = %d\n", ik, indCo[ik]);
+      if (matCS_coarsening(mg->A->Q, mgs->type_coarse, &indCo, &L)) goto label_end;
+      if (flag_print) cs_print_file("L", ilevel, L->getCS());
+      if (flag_print)
+        for (int ik = 0; ik < mg->A->Q->getNCols(); ik++)
+          message("indco[%d] = %d\n", ik, indCo[ik]);
 
       // Interpolation
 
-      mg->IhH = cs_interpolate(mg->A->Q, L, indCo);
+      mg->IhH = matCS_interpolate(mg->A->Q, L, indCo);
       if (mg->IhH == nullptr) goto label_end;
-      if (flag_print) cs_print_file("IhH", ilevel, mg->IhH);
-      L = cs_spfree(L);
+      if (flag_print) cs_print_file("IhH", ilevel, mg->IhH->getCS());
+      delete L;
 
       // Calculate the sum of rows per column
 
-      mg->sumrow = cs_col_sumrow(mg->IhH, &mg->nh, &mg->nH);
+      mg->sumrow = cs_col_sumrow(mg->IhH->getCS(), &mg->nh, &mg->nH);
       if (mg->sumrow == nullptr) goto label_end;
 
       // Update the selection
@@ -1047,11 +1053,11 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
   label_end: if (error) sel = (double*) mem_free((char* ) sel);
   indCo = (int*) mem_free((char* ) indCo);
-  L = cs_spfree(L);
+  delete L;
   return (error);
 }
 
-int cs_scale(cs *A)
+int cs_scale(const cs *A)
 {
   int *Ap, *Ai, n, j, p, error;
   double *Ax, *diag;
@@ -1088,10 +1094,8 @@ int cs_scale(cs *A)
  *****************************************************************************/
 void cs_chol_invert(QChol *qctt, double *xcr, double *rhs, double *work)
 {
-  int n;
-
   if (DEBUG) message("Cholesky Inversion\n");
-  n = cs_getncol(qctt->Q);
+  int n = qctt->Q->getNCols();
   cs_ipvec(n, qctt->S->Pinv, rhs, work);
   cs_lsolve(qctt->N->L, work);
   cs_ltsolve(qctt->N->L, work);
@@ -1110,10 +1114,8 @@ void cs_chol_invert(QChol *qctt, double *xcr, double *rhs, double *work)
  *****************************************************************************/
 void cs_chol_simulate(QChol *qctt, double *simu, double *work)
 {
-  int n;
-
   if (DEBUG) message("Cholesky Simulation\n");
-  n = cs_getncol(qctt->Q);
+  int n = qctt->Q->getNCols();
   cs_ltsolve(qctt->N->L, work);
   cs_pvec(n, qctt->S->Pinv, work, simu);
 }
@@ -1154,10 +1156,10 @@ static void st_relaxation(cs_MGS *mgs,
 
     for (int i = 0; i < mgs->ngs; i++)
     {
-      cs_mulvec_uptri(mg->A->Q, mg->nh, xcr, work, 0);
+      cs_mulvec_uptri(mg->A->Q->getCS(), mg->nh, xcr, work, 0);
       for (int icur = 0; icur < mg->nh; icur++)
         xcr[icur] = rhs[icur] - work[icur];
-      cs_lsolve_lowtri(mg->A->Q, xcr, work);
+      cs_lsolve_lowtri(mg->A->Q->getCS(), xcr, work);
       for (int icur = 0; icur < mg->nh; icur++)
         xcr[icur] = work[icur];
     }
@@ -1170,10 +1172,10 @@ static void st_relaxation(cs_MGS *mgs,
     if (DEBUG) message("Relaxation Ascending\n");
     for (int i = 0; i < mgs->ngs; i++)
     {
-      cs_mulvec_lowtri(mg->A->Q, mg->nh, xcr, work, 0);
+      cs_mulvec_lowtri(mg->A->Q->getCS(), mg->nh, xcr, work, 0);
       for (int icur = 0; icur < mg->nh; icur++)
         xcr[icur] = rhs[icur] - work[icur];
-      cs_lsolve_uptri(mg->A->Q, xcr, work);
+      cs_lsolve_uptri(mg->A->Q->getCS(), xcr, work);
       for (int icur = 0; icur < mg->nh; icur++)
         xcr[icur] = work[icur];
     }
@@ -1260,12 +1262,10 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
           {
             mode = (k > 0) ? mgs->path[k - 1] : 1;
             if (flag_sym) mode = 2 * ifois - 1;
-            st_relaxation(mgs, level, mode, &XCR(level, 0), &RHS(level, 0),
-                          work);
+            st_relaxation(mgs, level, mode, &XCR(level, 0), &RHS(level, 0), work);
           }
           else
-            cs_chol_invert(mgs->mg[level]->A, &XCR(level, 0), &RHS(level, 0),
-                           work);
+            cs_chol_invert(mgs->mg[level]->A, &XCR(level, 0), &RHS(level, 0), work);
 
           level += mgs->path[k];
 
@@ -1288,7 +1288,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
     // Calculate the score
 
     score = 0.;
-    cs_mulvec(mgs->mg[0]->A->Q, cs_getncol(mgs->mg[0]->A->Q), &XCR(0, 0), work);
+    cs_mulvec(mgs->mg[0]->A->Q->getCS(), mgs->mg[0]->A->Q->getNCols(), &XCR(0, 0), work);
     for (int icur = 0; icur < ncur; icur++)
     {
       delta = (b[icur] - work[icur]);
@@ -1370,7 +1370,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   // Calculate initial residual
 
   mg = mgs->mg[0];
-  cs_mulvec(mg->A->Q, mg->nh, x, work);
+  cs_mulvec(mg->A->Q->getCS(), mg->nh, x, work);
   for (int icur = 0; icur < mg->nh; icur++)
     resid[icur] = b[icur] - work[icur];
   for (int icur = 0; icur < ncur; icur++)
@@ -1386,7 +1386,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   for (int iter = 0; iter < mgs->ngc; iter++)
   {
     s = sn;
-    cs_mulvec(mg->A->Q, mg->nh, p, temp);
+    cs_mulvec(mg->A->Q->getCS(), mg->nh, p, temp);
     matrix_product_safe(1, ncur, 1, p, temp, &alpha);
     alpha = s / alpha;
 
@@ -1459,7 +1459,7 @@ int cs_multigrid_process(cs_MGS *mgs,
   }
   else
   {
-    if (mgs->ncur != cs_getncol(qctt->Q))
+    if (mgs->ncur != qctt->Q->getNCols())
       messageAbort("Check that multigrid has been setup up correctly");
   }
 
@@ -1759,7 +1759,7 @@ cs* cs_extract_submatrix(cs *C,
 /* 'rank_rows' and 'rank_cols' must have same dimension as C */
 /* The arrays 'rank_rows' and 'rank_cols' may be absent */
 /* Their value gives the rank of the saved element or -1 */
-cs* cs_extract_submatrix_by_ranks(cs *C, int *rank_rows, int *rank_cols)
+cs* cs_extract_submatrix_by_ranks(const cs *C, int *rank_rows, int *rank_cols)
 {
   cs *Atriplet, *A;
   int old_row, old_col, new_row, new_col;
@@ -1888,7 +1888,7 @@ cs* cs_eye(int number, double value)
 //  2 for squared diagonal
 // -2 for inverse square root of diagonal
 
-cs* cs_extract_diag(cs *C, int mode)
+cs* cs_extract_diag(const cs *C, int mode)
 {
   cs *Atriplet, *A;
   double *Cx, value;
@@ -1945,7 +1945,7 @@ cs* cs_extract_diag(cs *C, int mode)
 //  2 for squared diagonal
 // -2 for inverse square root of diagonal
 
-double* csd_extract_diag(cs *C, int mode)
+double* csd_extract_diag(const cs *C, int mode)
 {
   int *Cp, *Ci, size;
   double *Cx, *diag, value;
@@ -1998,7 +1998,7 @@ double* csd_extract_diag(cs *C, int mode)
   label_end: return (diag);
 }
 
-VectorDouble csd_extract_diag_VD(cs *C, int mode)
+VectorDouble csd_extract_diag_VD(const cs *C, int mode)
 {
   VectorDouble result;
   double* diag = csd_extract_diag(C, mode);
@@ -2256,7 +2256,7 @@ cs* cs_eye_tab(int number, double *values)
   return (A);
 }
 
-cs* cs_multiply_and_release(cs *b1, cs *b2, int flag_release)
+cs* cs_multiply_and_release(cs *b1, const cs *b2, int flag_release)
 {
   cs *bres;
 
@@ -2268,7 +2268,7 @@ cs* cs_multiply_and_release(cs *b1, cs *b2, int flag_release)
 }
 
 cs* cs_add_and_release(cs *b1,
-                       cs *b2,
+                       const cs *b2,
                        double alpha,
                        double beta,
                        int flag_release)
@@ -2769,7 +2769,7 @@ static int st_update_neigh(int *n_arg, int indloc, int *n_tab, int *r_tab)
   return (0);
 }
 
-static int st_coarse_type0(cs *Q,
+static int st_coarse_type0(const cs *Q,
                            int *indUd,
                            int *indFi,
                            int *indCo,
@@ -2962,7 +2962,7 @@ static int st_coarse_typen(cs* /*L*/,
 //    1 for aggressive (type 1)
 //    2 for aggressive (type 2)
 //
-int cs_coarsening(cs *Q, int type, int **indCo_ret, cs **L_ret)
+int cs_coarsening(const cs *Q, int type, int **indCo_ret, cs **L_ret)
 {
   int *indUd, *indCo, *indFi;
   int n, error;
@@ -3011,7 +3011,8 @@ int cs_coarsening(cs *Q, int type, int **indCo_ret, cs **L_ret)
 
   error = 0;
 
-  label_end: indUd = (int*) mem_free((char* ) indUd);
+  label_end:
+  indUd = (int*) mem_free((char* ) indUd);
   indFi = (int*) mem_free((char* ) indFi);
   L = cs_spfree(L);
   if (error)
@@ -3024,7 +3025,7 @@ int cs_coarsening(cs *Q, int type, int **indCo_ret, cs **L_ret)
   return (error);
 }
 
-cs* cs_interpolate(cs *AA, cs *Lt, int *Co)
+cs* cs_interpolate(const cs *AA, const cs *Lt, int *Co)
 {
   cs *IH, *IHtriplet;
   double *u, *AAx, *Ltx, sunip, sunim, supim, supip, alpha, beta, fact, val;
@@ -3228,7 +3229,7 @@ cs* cs_prod_norm(int mode, const cs *A, const cs *B)
 // mode=1: t(B) %*% B (initial form)
 // mode=2: B %*% t(B)
 //
-cs* cs_prod_norm_single(int mode, cs *B)
+cs* cs_prod_norm_single(int mode, const cs *B)
 {
   cs *Bt, *Res;
 
@@ -3460,7 +3461,7 @@ void cs_keypair(const char *key, cs *A, int flag_from_1)
   set_keypair(name, 1, T.number, 1, T.values.data());
 }
 
-void cs_print_file(const char *radix, int rank, cs *A)
+void cs_print_file(const char *radix, int rank, const cs *A)
 {
   FILE *file;
   char filename[100];
@@ -3600,7 +3601,7 @@ void cs_add_cste(cs *A, double value)
   }
 }
 
-void cs_set_cste(cs *A, double value)
+void cs_set_cste(const cs *A, double value)
 {
   int *Ap, n;
   double *Ax;

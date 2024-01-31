@@ -278,10 +278,10 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-cs* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   cs* Atriplet      = nullptr;
-  cs* A             = nullptr;
+  MatrixSparse* A   = nullptr;
   int nmeshes       = getNMeshes();
   int ncorner       = getNApexPerMesh();
 
@@ -370,7 +370,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  A = cs_triplet(Atriplet);
+  A = matCS_triplet(Atriplet);
   Atriplet  = cs_spfree(Atriplet);
   return(A);
 }

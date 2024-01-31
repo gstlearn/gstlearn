@@ -142,5 +142,5 @@ private:
   double                _scale;
   VectorDouble          _dates;
   std::vector<DirParam> _dirparams;
-  const Faults*         _faults;
+  const Faults*         _faults; // Pointer copy
 };

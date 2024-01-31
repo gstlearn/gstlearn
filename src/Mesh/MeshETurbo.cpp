@@ -504,10 +504,10 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   cs* Atriplet = nullptr;
-  cs* A        = nullptr;
+  MatrixSparse* A = nullptr;
   int ndim     = getNDim();
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
@@ -594,7 +594,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
   /* Convert the triplet into a sparse matrix */
 
-  A = cs_triplet(Atriplet);
+  A = matCS_triplet(Atriplet);
 
   // Set the error return code
 

@@ -53,7 +53,7 @@ public:
             bool byCol,
             bool verbose = false);
 #ifndef SWIG
-  cs*     getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
+  MatrixSparse* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
 #endif
   int     getVariety() const { return 1; }
 

@@ -55,7 +55,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 {
   if (_shiftOp != nullptr)
   {
-    _work.resize(_shiftOp->getSize());
+    _work.resize (_shiftOp->getSize());
     _work2.resize(_shiftOp->getSize());
     _work3.resize(_shiftOp->getSize());
   }

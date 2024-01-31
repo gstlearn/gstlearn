@@ -38,7 +38,7 @@ MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
 
 #ifndef SWIG
 MatrixSparse::MatrixSparse(const cs *A, int opt_eigen)
-    : AMatrix(0, 0, opt_eigen),
+    : AMatrix(cs_getnrow(A), cs_getncol(A), opt_eigen),
       _csMatrix(nullptr),
       _eigenMatrix(),
       _flagDecomposeCholesky(false), // Note: the class looses the Cholesky decomposition
@@ -1026,7 +1026,7 @@ Triplet MatrixSparse::getSparseToTriplet(bool flag_from_1) const
   }
   else
   {
-    return csToTriplet(getCs(), flag_from_1);
+    return csToTriplet(getCS(), flag_from_1);
   }
 }
 
@@ -1057,12 +1057,335 @@ MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
   return matout;
 }
 
-GSTLEARN_EXPORT void setUpdateNonZeroValue(int status)
+void setUpdateNonZeroValue(int status)
 {
   cs_set_status_update_nonzero_value(status);
 }
 
-GSTLEARN_EXPORT int getUpdateNonZeroValue()
+int getUpdateNonZeroValue()
 {
   return cs_get_status_update_nonzero_value();
+}
+
+const cs* _getCS(const MatrixSparse* A, bool optional)
+{
+  const cs* matCS = nullptr;
+  if (A == nullptr)
+  {
+    if (optional)
+      return matCS;
+    else
+      my_throw("Argument MatrixSparse is compulsory");
+  }
+  else
+  {
+    matCS = A->getCS();
+    if (matCS == nullptr)
+      my_throw("Argument should have a CS member");
+  }
+  return matCS;
+}
+
+cs* _getCSUnprotected(const MatrixSparse* A, bool optional)
+{
+  cs* matCS = nullptr;
+  if (A == nullptr)
+  {
+    if (optional)
+      return matCS;
+    else
+      my_throw("Argument MatrixSparse is compulsory");
+  }
+  else
+  {
+    matCS = A->getCSUnprotected();
+    if (matCS == nullptr)
+      my_throw("Argument should have a CS member");
+  }
+  return matCS;
+}
+
+MatrixSparse* matCS_glue(const MatrixSparse *A1,
+                         const MatrixSparse *A2,
+                         bool shiftRow,
+                         bool shiftCol)
+{
+  const cs* A1cs = _getCS(A1);
+  const cs* A2cs = _getCS(A2);
+  cs* local = cs_glue(A1cs, A2cs, shiftRow, shiftCol);
+  MatrixSparse* mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_matvecnorm(const MatrixSparse *A, const double *x, int oper)
+{
+  const cs* Acs = _getCS(A);
+  cs* local = cs_matvecnorm(Acs, x, oper);
+  MatrixSparse* mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_prod_norm(int mode, const MatrixSparse *A, const MatrixSparse *B)
+{
+  const cs* Acs = _getCS(A);
+  const cs* Bcs = _getCS(B);
+  cs* local = cs_prod_norm(mode, Acs, Bcs);
+  MatrixSparse* mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_eye_tab(int number, double *values)
+{
+  cs* local = cs_eye_tab(number, values);
+  MatrixSparse* mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_eye(int number, double value)
+{
+  cs* local = cs_eye(number, value);
+  MatrixSparse* mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_triplet(const cs *T)
+{
+  cs* local = cs_triplet(T);
+  MatrixSparse* mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+void matCS_tmulvec(const MatrixSparse *A, int nout, const double *x, double *y)
+{
+  const cs* Acs = _getCS(A);
+  cs_tmulvec(Acs, nout, x, y);
+}
+
+void matCS_mulvec(const MatrixSparse *A, int nout, const double *x, double *y)
+{
+  const cs* Acs = _getCS(A);
+  cs_mulvec(Acs, nout, x, y);
+}
+
+void matCS_vecmult(const MatrixSparse *A, int nout, const double *x, double *y)
+{
+  const cs* Acs = _getCS(A);
+  cs_vecmult(Acs, nout, x, y);
+}
+
+MatrixSparse* matCS_prod_norm_diagonal(int mode, const MatrixSparse *B, VectorDouble diag)
+{
+  const cs* Bcs = _getCS(B);
+  cs *local = cs_prod_norm_diagonal(mode, Bcs, diag);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_transpose(const MatrixSparse *A, int values)
+{
+  const cs* Acs = _getCS(A);
+  cs *local = cs_transpose(Acs, values);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_multiply(const MatrixSparse *A, const MatrixSparse *B)
+{
+  const cs* Acs = _getCS(A);
+  const cs* Bcs = _getCS(B);
+  cs *local = cs_multiply(Acs, Bcs);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_add(const MatrixSparse *A, const MatrixSparse *B, double alpha, double beta)
+{
+  const cs* Acs = _getCS(A);
+  const cs* Bcs = _getCS(B, true);
+  cs *local = cs_add(Acs, Bcs, alpha, beta);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+int matCS_coarsening(MatrixSparse *Q, int type, int **indCo_ret, MatrixSparse **L_ret)
+{
+  const cs* Qcs = _getCS(Q);
+  cs** LCS_ret = nullptr;
+  int err = cs_coarsening(Qcs, type, indCo_ret, LCS_ret);
+  if (err == 0) *L_ret = new MatrixSparse(*LCS_ret, 0);
+  return err;
+}
+
+MatrixSparse* matCS_interpolate(MatrixSparse *AA, MatrixSparse *Lt, int *Co)
+{
+  const cs* AAcs = _getCS(AA);
+  const cs* Ltcs = _getCS(Lt);
+  cs *local = cs_interpolate(AAcs, Ltcs, Co);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_extract_diag(MatrixSparse *C, int mode)
+{
+  const cs* Ccs = _getCS(C);
+  cs* local = cs_extract_diag(Ccs, mode);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_extract_submatrix_by_ranks(MatrixSparse *C, int *rank_rows, int *rank_cols)
+{
+  const cs* Ccs = _getCS(C);
+  cs* local = cs_extract_submatrix_by_ranks(Ccs, rank_rows, rank_cols);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+int matCS_gaxpy(const MatrixSparse *A, const double* x, double* y)
+{
+  const cs* Acs = _getCS(A);
+  return cs_gaxpy(Acs, x, y);
+}
+
+void matCS_matvecnorm_inplace(MatrixSparse *A, const double* x, int oper)
+{
+  cs* Acs = _getCSUnprotected(A);
+  cs_matvecnorm_inplace(Acs, x, oper);
+  A->setCS(Acs);
+}
+
+double matCS_norm(const MatrixSparse *A)
+{
+  cs* Acs = _getCSUnprotected(A);
+  return cs_norm(Acs);
+}
+
+MatrixSparse* matCS_prod_norm_single(int mode, MatrixSparse *B)
+{
+  const cs* Bcs = _getCS(B);
+  cs* local = cs_prod_norm_single(mode, Bcs);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+void matCS_add_value(const MatrixSparse *A, int row, int col, double value)
+{
+  const cs* Acs = _getCS(A);
+  cs_add_value(Acs, row, col, value);
+}
+
+void matCS_set_cste(MatrixSparse *A, double value)
+{
+  const cs* Acs = _getCS(A);
+  cs_set_cste(Acs, value);
+}
+
+VectorDouble  matCSD_extract_diag_VD(MatrixSparse *C, int mode)
+{
+  const cs* Ccs = _getCS(C);
+  return csd_extract_diag_VD(Ccs, mode);
+}
+
+double* matCSD_extract_diag(const MatrixSparse *C, int mode)
+{
+  const cs* Ccs = _getCS(C);
+  return csd_extract_diag(Ccs, mode);
+}
+
+MatrixSparse* matCS_diag(VectorDouble diag, double tol)
+{
+  cs* local = cs_diag(diag, tol);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+int matCS_scale(MatrixSparse *A)
+{
+  const cs* Acs = _getCS(A);
+  return cs_scale(Acs);
+}
+
+double matCS_get_value(const MatrixSparse *A, int row, int col)
+{
+  const cs* Acs = _getCS(A);
+  return cs_get_value(Acs, row, col);
+}
+
+VectorInt matCS_color_coding(MatrixSparse *Q, int start, int *ncols)
+{
+  const cs* Qcs = _getCS(Q);
+  return cs_color_coding(Qcs, start, ncols);
+}
+
+MatrixSparse* matCS_extract_submatrix_by_color(MatrixSparse *C,
+                                               const VectorInt &colors,
+                                               int ref_color,
+                                               int row_ok,
+                                               int col_ok)
+{
+  const cs* Ccs = _getCS(C);
+  cs* local = cs_extract_submatrix_by_color(Ccs, colors, ref_color, row_ok, col_ok);
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_normalize_by_diag_and_release(MatrixSparse *Q, int flag_release)
+{
+  cs* Qcs = _getCSUnprotected(Q);
+  cs *local = cs_normalize_by_diag_and_release(Qcs, flag_release);
+  if (flag_release)
+  {
+    Q->setCS(local);
+  }
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_add_and_release(MatrixSparse *b1,
+                                    MatrixSparse *b2,
+                                    double alpha,
+                                    double beta,
+                                    int flag_release)
+{
+  cs* b1cs = _getCSUnprotected(b1);
+  const cs* b2cs = _getCS(b2, true);
+  cs* local = cs_add_and_release(b1cs, b2cs, alpha, beta, flag_release);
+  if (flag_release)
+  {
+    b1->setCS(local);
+  }
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
+}
+
+MatrixSparse* matCS_multiply_and_release(MatrixSparse *b1, const MatrixSparse *b2,int flag_release)
+{
+  cs* b1cs = _getCSUnprotected(b1);
+  const cs* b2cs = _getCS(b2, true);
+  cs* local = cs_multiply_and_release(b1cs, b2cs, flag_release);
+  if (flag_release)
+  {
+    b1->setCS(local);
+  }
+  MatrixSparse *mat = new MatrixSparse(local, 0);
+  local = cs_spfree(local);
+  return mat;
 }

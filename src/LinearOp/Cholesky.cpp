@@ -25,9 +25,9 @@
 #include "csparse_d.h"
 #include "csparse_f.h"
 
-Cholesky::Cholesky(const cs *mat, bool flagDecompose)
+Cholesky::Cholesky(const MatrixSparse *mat, bool flagDecompose)
     : ALinearOp(),
-      _mat(nullptr),
+      _matCS(nullptr),
       _matS(nullptr),
       _matN(nullptr),
       _work()
@@ -37,12 +37,12 @@ Cholesky::Cholesky(const cs *mat, bool flagDecompose)
 
 Cholesky::Cholesky(const Cholesky &m)
     : ALinearOp(m),
-      _mat(nullptr),
+      _matCS(nullptr),
       _matS(nullptr),
       _matN(nullptr),
       _work()
 {
-  reset(m._mat, m.isCholeskyDecomposed());
+  reset(m._matCS, m.isCholeskyDecomposed());
 }
 
 Cholesky& Cholesky::operator=(const Cholesky &m)
@@ -50,7 +50,7 @@ Cholesky& Cholesky::operator=(const Cholesky &m)
   if (this != &m)
   {
     ALinearOp::operator =(m);
-    reset(m._mat, m.isCholeskyDecomposed());
+    reset(m._matCS, m.isCholeskyDecomposed());
   }
   return *this;
 }
@@ -66,7 +66,7 @@ void Cholesky::_clean()
   _matN = cs_nfree(_matN);
 }
 
-int Cholesky::reset(const cs* mat, bool flagDecompose)
+int Cholesky::reset(const MatrixSparse* mat, bool flagDecompose)
 {
   if (mat == nullptr) return 0;
 
@@ -74,7 +74,7 @@ int Cholesky::reset(const cs* mat, bool flagDecompose)
   _clean();
 
   // Duplicate the sparse matrix
-  _mat = mat;
+  _matCS = mat;
 
   // Perform the Cholesky decomposition
   if (flagDecompose) decompose();
@@ -87,7 +87,7 @@ int Cholesky::getSize() const
   if (! isDefined())
     return 0;
   else
-    return cs_getncol(_mat);
+    return _matCS->getNCols();
 }
 
 /*****************************************************************************/
@@ -140,7 +140,7 @@ void Cholesky::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
 
   Timer time;
   int n = getSize();
-  cs_vecmult(_mat, n, inv.data(), outv.data());
+  matCS_vecmult(_matCS, n, inv.data(), outv.data());
   getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
 }
 
@@ -154,14 +154,14 @@ void Cholesky::printout(const char *title, bool verbose) const
   int ncols = 0;
   int count = 0;
   double percent = 0.;
-  cs_rowcol(_mat, &nrows, &ncols, &count, &percent);
+  cs_rowcol(_matCS->getCS(), &nrows, &ncols, &count, &percent);
   message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf (percent)]", nrows,
           ncols, count, percent);
   if (_matS != nullptr || _matN != nullptr) message(" (Cholesky)");
   message("\n");
 
   if (verbose)
-    cs_print_nice("Symmetric Matrix", _mat);
+    cs_print_nice("Symmetric Matrix", _matCS->getCS());
 
   message("\n");
 }
@@ -188,7 +188,7 @@ void Cholesky::decompose(bool verbose) const
   Timer time;
 
   if (verbose) message("Ordering... ");
-  _matS = cs_schol(_mat, 0);
+  _matS = cs_schol(_matCS->getCS(), 0);
   if (_matS == nullptr)
   {
     messerr("Error in cs_schol function");
@@ -197,7 +197,7 @@ void Cholesky::decompose(bool verbose) const
   }
 
   if (verbose) message("Factorization... ");
-  _matN = cs_chol(_mat, _matS);
+  _matN = cs_chol(_matCS->getCS(), _matS);
   if (_matN == nullptr)
   {
     messerr("Error in cs_chol function");

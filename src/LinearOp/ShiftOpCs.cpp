@@ -80,7 +80,7 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
 }
 
 #ifndef SWIG
-ShiftOpCs::ShiftOpCs(const cs* S,
+ShiftOpCs::ShiftOpCs(const MatrixSparse* S,
                      const VectorDouble& TildeC,
                      const VectorDouble& Lambda,
                      Model* model,
@@ -99,7 +99,7 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _igrf(0),
       _icov(0),
       _ndim(0),
-      _napices(cs_getncol(S))
+      _napices(S->getNCols())
 {
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
 }
@@ -112,6 +112,7 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
       _S(nullptr),
       _nModelGradParam(0),
       _SGrad(),
+      _TildeCGrad(),
       _LambdaGrad(),
       _flagNoStatByHH(false),
       _model(nullptr),
@@ -147,7 +148,7 @@ ShiftOpCs* ShiftOpCs::create(const AMesh *amesh,
 }
 
 #ifndef SWIG
-ShiftOpCs* ShiftOpCs::createFromSparse(const cs *S,
+ShiftOpCs* ShiftOpCs::createFromSparse(const MatrixSparse *S,
                                        const VectorDouble &TildeC,
                                        const VectorDouble &Lambda,
                                        Model *model,
@@ -307,7 +308,7 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
  * @param verbose Verbose flag
  * @return
  */
-int ShiftOpCs::initFromCS(const cs* S,
+int ShiftOpCs::initFromCS(const MatrixSparse* S,
                           const VectorDouble& TildeC,
                           const VectorDouble& Lambda,
                           Model* model,
@@ -325,13 +326,12 @@ int ShiftOpCs::initFromCS(const cs* S,
 
     _TildeC = TildeC;
     _Lambda = Lambda;
-    _ndim = model->getDimensionNumber();
+    _ndim   = model->getDimensionNumber();
 
     // Duplicate the Shift Operator sparse matrix
 
-    _S = cs_duplicate(S);
-    if (_S == nullptr) my_throw("Problem when duplicating S sparse matrix");
-    _napices = cs_getncol(S);
+    _S = S->clone();
+    _napices = S->getNCols();
   }
 
   catch(const AException& e)
@@ -447,7 +447,7 @@ void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 {
   Timer time;
   int n = (int) x.size();
-  cs_vecmult(_S, n, x.data(), y.data());
+  matCS_vecmult(_S, n, x.data(), y.data());
   getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
@@ -455,12 +455,16 @@ void ShiftOpCs::_resetGrad()
 {
   if (_SGrad.empty()) return;
   for (int i = 0; i < (int) _SGrad.size(); i++)
-     _SGrad[i] = cs_spfree(_SGrad[i]);
+  {
+     delete _SGrad[i];
+     _SGrad[i] = nullptr;
+  }
 }
 
 void ShiftOpCs::_reset()
 {
-  _S = cs_spfree(_S);
+  delete _S;
+  _S = nullptr;
   _resetGrad();
 }
 
@@ -468,10 +472,10 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
 {
   _TildeC = shift._TildeC;
   _Lambda = shift._Lambda;
-  _S = cs_duplicate(shift._S);
+  _S = shift._S->clone();
   _nModelGradParam = shift._nModelGradParam;
   for (int i = 0; i < (int) _SGrad.size(); i++)
-    _SGrad[i] = cs_duplicate(shift._SGrad[i]);
+    _SGrad[i] = shift._SGrad[i]->clone();
   for (int i = 0; i < (int) _LambdaGrad.size(); i++)
     _LambdaGrad[i] = shift._LambdaGrad[i];
   _flagNoStatByHH = shift._flagNoStatByHH;
@@ -483,7 +487,7 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
   _napices = shift._napices;
 }
 
-cs* ShiftOpCs::getTildeCGrad(int iapex, int igparam) const
+MatrixSparse* ShiftOpCs::getTildeCGrad(int iapex, int igparam) const
 {
 
   if (_TildeCGrad.empty())
@@ -497,7 +501,7 @@ cs* ShiftOpCs::getTildeCGrad(int iapex, int igparam) const
     return _TildeCGrad[iad];
 }
 
-cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
+MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
 {
   if (_SGrad.empty())
   {
@@ -512,15 +516,15 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
 
 Triplet ShiftOpCs::getSToTriplet(bool flag_from_1) const
 {
-  return csToTriplet(getS(), flag_from_1);
+  return csToTriplet(getS()->getCS(), flag_from_1);
 }
 Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1) const
 {
-  return csToTriplet(getTildeCGrad(iapex, igparam), flag_from_1);
+  return csToTriplet(getTildeCGrad(iapex, igparam)->getCS(), flag_from_1);
 }
 Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam, bool flag_from_1) const
 {
-  return csToTriplet(getSGrad(iapex, igparam), flag_from_1);
+  return csToTriplet(getSGrad(iapex, igparam)->getCS(), flag_from_1);
 }
 
 /**
@@ -815,7 +819,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
   return 0;
 }
 
-cs* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) const
+MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) const
 {
   std::map<int, double>::iterator it;
 
@@ -838,7 +842,7 @@ cs* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) const
 
     /* Optional printout */
 
-  cs* S = cs_triplet(Striplet);
+  MatrixSparse* S = matCS_triplet(Striplet);
   if (S == nullptr) return nullptr;
   Striplet = cs_spfree(Striplet);
 
@@ -961,7 +965,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
   if (! _isNoStat())
     _loadAux(srot, EConsElem::SPHEROT, 0);
 
-  _S = _preparSSparse(amesh);
+  _S = _prepareSparse(amesh);
   if (_S == nullptr) goto label_end;
 
   /* Loop on the active meshes */
@@ -1016,35 +1020,40 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
         int ip1 = amesh->getApex(imesh, j1);
         double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
         s += vald;
-        cs_add_value(_S, ip0, ip1, vald);
+        matCS_add_value(_S, ip0, ip1, vald);
       }
       int ip1 = amesh->getApex(imesh, ncorner - 1);
-      cs_add_value(_S, ip0, ip1, -s);
-      cs_add_value(_S, ip1, ip0, -s);
+      matCS_add_value(_S, ip0, ip1, -s);
+      matCS_add_value(_S, ip1, ip0, -s);
       S += s;
     }
     int ip0 = amesh->getApex(imesh, ncorner - 1);
     _TildeC[ip0] += ratio / 6.;
-    cs_add_value(_S, ip0, ip0, S);
+    matCS_add_value(_S, ip0, ip0, S);
   }
 
   // Ending S construction
 
-  cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
+  matCS_matvecnorm_inplace(_S, _TildeC.data(), 2);
 
   /* Set the error return code */
 
   error = 0;
 
-  label_end: if (error) _S = cs_spfree(_S);
+  label_end:
+  if (error)
+  {
+    delete _S;
+    _S = nullptr;
+  }
   return error;
 }
 
-cs* ShiftOpCs::_preparSSparse(const AMesh *amesh) const
+MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
 {
-  cs *Sret = nullptr;
+  MatrixSparse *Sret = nullptr;
+  MatrixSparse* Sl = nullptr;
   cs* Striplet = nullptr;
-  cs* Sl = nullptr;
   int nmeshes = amesh->getNMeshes();
   int ncorner = amesh->getNApexPerMesh();
 
@@ -1058,18 +1067,18 @@ cs* ShiftOpCs::_preparSSparse(const AMesh *amesh) const
       if (! cs_entry(Striplet, iapex, imesh, 1.)) goto label_end;
     }
   }
-  Sl = cs_triplet(Striplet);
+  Sl = matCS_triplet(Striplet);
   if (Sl == nullptr) goto label_end;
 
   // Operate the product Sl * t(Sl) to get the final matrix Sret
-  Sret = cs_prod_norm_single(2, Sl);
+  Sret = matCS_prod_norm_single(2, Sl);
 
   // Blank out the contents of the sparse matrix
-  cs_set_cste(Sret, 0.);
+  matCS_set_cste(Sret, 0.);
 
 label_end:
   Striplet = cs_spfree(Striplet);
-  Sl = cs_spfree(Sl);
+  delete Sl;
   return Sret;
 }
 
@@ -1216,26 +1225,26 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   VH::multiplyConstant(tempVec, -0.5);
 
   int ind = 0;
-  cs* tildeCGradMat = nullptr;
-  cs* A = nullptr;
-  cs* At = nullptr;
+  MatrixSparse* tildeCGradMat = nullptr;
+  MatrixSparse* A = nullptr;
+  MatrixSparse* At = nullptr;
   for (int ipar = 0; ipar < _nModelGradParam; ipar++)
   {
     for (int iap = 0; iap < getSize(); iap++)
     {
-      VectorDouble tildeCGrad = csd_extract_diag_VD(_TildeCGrad[ind], 1);
+      VectorDouble tildeCGrad = matCSD_extract_diag_VD(_TildeCGrad[ind], 1);
 
       VH::multiplyInPlace(tildeCGrad, tempVec);
-      cs_matvecnorm_inplace(_SGrad[ind], invSqrtTildeC.data(), 0);
+      matCS_matvecnorm_inplace(_SGrad[ind], invSqrtTildeC.data(), 0);
 
-      tildeCGradMat = cs_diag(tildeCGrad);
-      A = cs_multiply(_S, tildeCGradMat);
-      cs_spfree(tildeCGradMat);
-      At = cs_transpose(A, 1);
-      A = cs_add_and_release(A, At, 1., 1., 1);
-      cs_spfree(At);
-      _SGrad[ind] = cs_add_and_release(_SGrad[ind], A, 1., 1., 1);
-      cs_spfree(A);
+      tildeCGradMat = matCS_diag(tildeCGrad);
+      A = matCS_multiply(_S, tildeCGradMat);
+      delete tildeCGradMat;
+      At = matCS_transpose(A, 1);
+      A = matCS_add_and_release(A, At, 1., 1., 1);
+      delete At;
+      _SGrad[ind] = matCS_add_and_release(_SGrad[ind], A, 1., 1., 1);
+      delete A;
 
       ind++;
     }
@@ -1508,7 +1517,7 @@ int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
 
 double ShiftOpCs::getMaxEigenValue() const
 {
-  return cs_norm(getS());
+  return matCS_norm(getS());
 }
 
 bool ShiftOpCs::_isNoStat()
@@ -1558,7 +1567,7 @@ void ShiftOpCs::_mapGradUpdate(std::map<std::pair<int, int>, double> &tab,
  * @param tab   Input Map
  * @return
  */
-cs* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab)
+MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab)
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
@@ -1583,7 +1592,7 @@ cs* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab)
 
   /* Optional printout */
 
-  cs* S = cs_triplet(Striplet);
+  MatrixSparse* S = matCS_triplet(Striplet);
   if (S == nullptr) return nullptr;
 
   Striplet = cs_spfree(Striplet);

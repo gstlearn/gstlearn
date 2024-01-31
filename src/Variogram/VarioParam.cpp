@@ -77,6 +77,7 @@ VarioParam& VarioParam::operator=(const VarioParam& r)
 
 VarioParam::~VarioParam()
 {
+  delete _faults;
 }
 
 bool VarioParam::isDefinedForGrid() const
@@ -203,7 +204,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
  * - the same parameters are used for each direction, such as:
  * @param npas Number of lags
  * @param dpas Value of the lag
- * @param toldis Tolerance on distance
+ * @param toldis Tolerance on distancecomputeFromDb
  * @param tolang Tolerance on angle
  * @param scale Scaling factor
  * @param dates Range of dates
@@ -312,6 +313,11 @@ String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
     sstr << "Number of Date Intervals    = " << getDateNumber() << std::endl;
     sstr << toMatrix("Matrix of Bounds for Data Intervals",VectorString(),VectorString(),
                  false,2,getDateNumber(),getDates());
+  }
+
+  if (hasFaults())
+  {
+    sstr << "Calculation takes Faults into account" << std::endl;
   }
   return sstr.str();
 }

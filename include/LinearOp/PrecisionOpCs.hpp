@@ -55,7 +55,7 @@ public:
   bool isCholeskyDecomposed() const { return _qChol.isCholeskyDecomposed(); }
 
 #ifndef SWIG
-  const cs* getQ() const { return _Q; }
+  MatrixSparse* getQ() const { return _QCS; }
 #endif
   Triplet getQToTriplet(bool flag_from_1 = false) const;
 
@@ -63,6 +63,6 @@ private:
   void _buildQ(bool flagDecompose = false);
 
 private:
-  cs* _Q;
+  MatrixSparse* _QCS;
   Cholesky _qChol;
 };

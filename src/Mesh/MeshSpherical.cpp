@@ -200,18 +200,18 @@ int MeshSpherical::reset(int ndim,
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   bool flag_approx = true;
  
   /* Initializations */
   
-  cs* Atriplet   = nullptr;
-  cs* A          = nullptr;
-  int nmeshes    = getNMeshes();
-  int nvertex    = getNApices();
-  int ncorner    = getNApexPerMesh();
-  int nech       = db->getSampleNumber();
+  cs* Atriplet    = nullptr;
+  MatrixSparse* A = nullptr;
+  int nmeshes     = getNMeshes();
+  int nvertex     = getNApices();
+  int ncorner     = getNApexPerMesh();
+  int nech        = db->getSampleNumber();
 
   // Preliminary checks 
 
@@ -287,7 +287,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  A = cs_triplet(Atriplet);
+  A = matCS_triplet(Atriplet);
   Atriplet = cs_spfree(Atriplet);
   return(A);
 }

@@ -19,6 +19,7 @@
 
 #include <functional>
 
+class MatrixSparse;
 class ALinearOpMulti;
 class cs;
 
@@ -37,14 +38,14 @@ public:
   void init(VectorDouble coeffs);
   virtual double eval(double x) const = 0;
 #ifndef SWIG
-  virtual void evalOp(cs* Op,
+  virtual void evalOp(MatrixSparse* Op,
                       const VectorDouble& inv,
                       VectorDouble& outv) const { DECLARE_UNUSED(Op,inv,outv); };
-  virtual void evalOpTraining(cs* Op,
+  virtual void evalOpTraining(MatrixSparse* Op,
                       const VectorDouble& inv,
                       VectorVectorDouble& outv,
                       VectorDouble& work) const { DECLARE_UNUSED(Op,inv,outv,work); };
-  VectorDouble evalOp(cs* Op, const VectorDouble& inv) const;
+  VectorDouble evalOp(MatrixSparse* Op, const VectorDouble& inv) const;
 #endif
   VectorDouble getCoeffs() const { return _coeffs; }
   void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}

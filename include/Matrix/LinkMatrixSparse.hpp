@@ -40,11 +40,12 @@ class cs;
 class css;
 class csn;
 class csd;
+class MatrixSparse;
 
 class GSTLEARN_EXPORT QChol
 {
 public:
-    cs  *Q;
+    MatrixSparse *Q;
     css *S;
     csn *N;
 };
@@ -55,7 +56,7 @@ public:
     int      nh;
     int      nH;
     double  *sumrow;
-    cs      *IhH;
+    MatrixSparse *IhH;
     QChol   *A;
 };
 
@@ -87,7 +88,7 @@ GSTLEARN_EXPORT cs     *cs_multiply2(const cs *A, const cs *B);
 GSTLEARN_EXPORT int     cs_print2(const cs *A, int brief);
 
 GSTLEARN_EXPORT void    cs_add_cste(cs *A, double value);
-GSTLEARN_EXPORT void    cs_set_cste(cs *A, double value);
+GSTLEARN_EXPORT void    cs_set_cste(const cs *A, double value);
 
 GSTLEARN_EXPORT void    cs_tmulvec(const cs *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT void    cs_mulvec(const cs *A, int nout, const double *x, double *y);
@@ -107,26 +108,28 @@ GSTLEARN_EXPORT void    cs_print_only(const char *title, const cs *A,int nlimit)
 GSTLEARN_EXPORT void    cs_print_nice (const char *title,const cs *A, int maxrow=-1, int maxcol=-1);
 GSTLEARN_EXPORT void    cs_print_dim(const char *title,const cs *A);
 GSTLEARN_EXPORT void    cs_print_short(const char *title, const cs *L, int nmax);
-GSTLEARN_EXPORT void    cs_print_file(const char *radix, int rank, cs *A);
+GSTLEARN_EXPORT void    cs_print_file(const char *radix, int rank, const cs *A);
 GSTLEARN_EXPORT cs     *cs_compress(cs *A);
 
 GSTLEARN_EXPORT void    cs_force_dimension(cs *T, int nrow, int ncol);
 GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag, double tol = EPSILON10);
 
-GSTLEARN_EXPORT VectorInt cs_color_coding(cs *Q,int start,int *ncolor);
-GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(cs *C, const VectorInt& colors,
+GSTLEARN_EXPORT VectorInt cs_color_coding(const cs *Q,int start,int *ncolor);
+GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(const cs *C, const VectorInt& colors,
                                                       int ref_color, int row_ok, int col_ok);
-GSTLEARN_EXPORT VectorDouble csd_extract_diag_VD(cs *C, int mode);
+GSTLEARN_EXPORT VectorDouble csd_extract_diag_VD(const cs *C, int mode);
 GSTLEARN_EXPORT cs     *cs_prod_norm_diagonal(int mode, const cs *B, VectorDouble diag);
-GSTLEARN_EXPORT cs     *cs_arrays_to_sparse(int n, int nrow, int ncol,
-                                            const double *rows,
-                                            const double *cols,
-                                            const double *vals);
-GSTLEARN_EXPORT cs     *cs_vectors_to_sparse(int nrow,
-                                             int ncol,
-                                             const VectorDouble &rows,
-                                             const VectorDouble &cols,
-                                             const VectorDouble &values);
+GSTLEARN_EXPORT MatrixSparse* cs_arrays_to_sparse(int n,
+                                                  int nrow,
+                                                  int ncol,
+                                                  const double *rows,
+                                                  const double *cols,
+                                                  const double *vals);
+GSTLEARN_EXPORT MatrixSparse* cs_vectors_to_sparse(int nrow,
+                                                   int ncol,
+                                                   const VectorDouble &rows,
+                                                   const VectorDouble &cols,
+                                                   const VectorDouble &values);
 GSTLEARN_EXPORT int     cs_lsolve_lowtri( const cs *L, const double *x, double *y);
 GSTLEARN_EXPORT int     cs_lsolve_uptri (const cs *L, const double *x, double *y);
 GSTLEARN_EXPORT cs     *cs_invert(const cs *A, int order, double epsilon = EPSILON6);
@@ -173,7 +176,7 @@ GSTLEARN_EXPORT bool    cs_isSymmetric(const cs* A, bool verbose = false, bool d
 GSTLEARN_EXPORT bool    cs_isDiagonalDominant(cs *A, bool verbose = false, bool detail = false);
 GSTLEARN_EXPORT bool    cs_isDefinitePositive(cs* A, bool verbose = false);
 
-GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_ranks(cs *C, int *row_array, int *col_array);
+GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_ranks(const cs *C, int *row_array, int *col_array);
 
 GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
                                              int row_from, int row_length,
@@ -181,25 +184,25 @@ GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
 GSTLEARN_EXPORT void    cs_print_range(const char *title,const cs *C);
 GSTLEARN_EXPORT cs     *cs_eye(int number,double value);
 GSTLEARN_EXPORT cs     *cs_eye_tab(int number, double *values);
-GSTLEARN_EXPORT cs     *cs_extract_diag(cs *C,int mode);
+GSTLEARN_EXPORT cs     *cs_extract_diag(const cs *C,int mode);
 GSTLEARN_EXPORT void    cs_diag_suppress(cs *C);
-GSTLEARN_EXPORT double *csd_extract_diag(cs *C,int mode);
+GSTLEARN_EXPORT double *csd_extract_diag(const cs *C,int mode);
 GSTLEARN_EXPORT int     cs_sort_i(cs *C);
 
 GSTLEARN_EXPORT void    cs_rowcol(const cs *A,int *nrows,int *ncols,int *count,double *percent);
 GSTLEARN_EXPORT cs     *cs_duplicate(const cs *b1);
-GSTLEARN_EXPORT cs     *cs_multiply_and_release(cs *b1,cs *b2,int flag_rel);
-GSTLEARN_EXPORT cs     *cs_add_and_release(cs *b1, cs *b2, double alpha, double beta,
+GSTLEARN_EXPORT cs     *cs_multiply_and_release(cs *b1, const cs *b2,int flag_rel);
+GSTLEARN_EXPORT cs     *cs_add_and_release(cs *b1, const cs *b2, double alpha, double beta,
                                            int flag_rel);
 GSTLEARN_EXPORT cs     *cs_normalize_by_diag_and_release(cs *Q, int flag_rel);
 GSTLEARN_EXPORT cs     *cs_prod_norm(int mode, const cs *A, const cs *IhH);
-GSTLEARN_EXPORT cs     *cs_prod_norm_single(int mode, cs *B);
+GSTLEARN_EXPORT cs     *cs_prod_norm_single(int mode, const cs *B);
 GSTLEARN_EXPORT cs     *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_rel);
-GSTLEARN_EXPORT int     cs_coarsening(cs *Q,int type,int **indCo,cs **L);
-GSTLEARN_EXPORT cs     *cs_interpolate(cs *AA,cs *LL,int *indCo);
+GSTLEARN_EXPORT int     cs_coarsening(const cs *Q,int type,int **indCo,cs **L);
+GSTLEARN_EXPORT cs     *cs_interpolate(const cs *AA,const cs *LL,int *indCo);
 GSTLEARN_EXPORT cs     *cs_triangle(cs *A, int flag_upper, int flag_diag);
 GSTLEARN_EXPORT void    cs_keypair(const char *key, cs *A, int flag_from_1);
-GSTLEARN_EXPORT int     cs_scale(cs *C);
+GSTLEARN_EXPORT int     cs_scale(const cs *C);
 GSTLEARN_EXPORT int     cs_get_nrow(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncol(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncell(const cs *A);

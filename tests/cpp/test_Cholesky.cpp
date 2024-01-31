@@ -43,14 +43,14 @@ int main(int argc, char *argv[])
       if (icol != irow && tirage > proba) continue;
       (void) cs_entry2(Atriplet, irow, icol, value);
     }
-  cs *A = cs_triplet2(Atriplet);
-  cs_print_dim("Square Initial Matrix", A);
+  MatrixSparse *A = matCS_triplet(Atriplet);
+  cs_print_dim("Square Initial Matrix", A->getCS());
   Atriplet = cs_spfree2(Atriplet);
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
 
-  cs* At = cs_transpose2(A, 1);
-  cs* Q = cs_multiply2(A, At);
+  MatrixSparse* At = matCS_transpose(A, 1);
+  MatrixSparse* Q = matCS_multiply(A, At);
 
   // Create a vector random gaussian values
 
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
-      double value = cs_get_value(Q, irow, icol);
+      double value = matCS_get_value(Q, irow, icol);
       M.setValue(irow, icol, value);
     }
 
@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
 
   // Free the pointers
 
-  A  = cs_spfree2(A);
-  At = cs_spfree2(At);
-  Q  = cs_spfree2(Q);
+  delete A;
+  delete At;
+  delete Q;
   return(0);
 }

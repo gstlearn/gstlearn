@@ -102,8 +102,19 @@ public:
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
-  const cs* getCs() const { return _csMatrix; }
-  cs* getCsUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
+  const cs* getCS() const
+  {
+    return _csMatrix;
+  }
+  void setCS(cs* cs)
+  {
+    _csMatrix = cs_duplicate(cs);
+  }
+  void freeCS()
+  {
+    _csMatrix = cs_spfree2(_csMatrix);
+  }
+  cs* getCSUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
 #endif
   Triplet getSparseToTriplet(bool flag_from_1 = false) const;
 
@@ -163,7 +174,59 @@ private:
   Eigen::SimplicialCholesky<Eigen::SparseMatrix<double> > _cholEigen;
 };
 
-/*! Transform any matrix in a Sparse format */
+/*! Transform any matrix into a Sparse format */
 GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat);
 GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
+
+// The following functions are added while converting cs into MatrixSparse
+GSTLEARN_EXPORT const cs* _getCS(const MatrixSparse* A, bool optional=false);
+GSTLEARN_EXPORT cs* _getCSUnprotected(const MatrixSparse* A, bool optional=false);
+
+GSTLEARN_EXPORT MatrixSparse* matCS_glue(const MatrixSparse *A1,
+                                         const MatrixSparse *A2,
+                                         bool shiftRow,
+                                         bool shiftCol);
+GSTLEARN_EXPORT MatrixSparse* matCS_matvecnorm(const MatrixSparse *A,
+                                               const double *x,
+                                               int oper);
+GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm(int mode,
+                                              const MatrixSparse *A,
+                                              const MatrixSparse *B);
+GSTLEARN_EXPORT MatrixSparse* matCS_eye_tab(int number, double *values);
+GSTLEARN_EXPORT MatrixSparse* matCS_eye(int number, double value);
+GSTLEARN_EXPORT MatrixSparse* matCS_triplet(const cs *T);
+GSTLEARN_EXPORT void          matCS_tmulvec(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_mulvec(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_vecmult(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm_diagonal(int mode, const MatrixSparse *B, VectorDouble diag);
+GSTLEARN_EXPORT MatrixSparse* matCS_transpose(const MatrixSparse *A, int values);
+GSTLEARN_EXPORT MatrixSparse* matCS_multiply(const MatrixSparse *A, const MatrixSparse *B);
+GSTLEARN_EXPORT MatrixSparse* matCS_add(const MatrixSparse *A, const MatrixSparse *B, double alpha, double beta);
+GSTLEARN_EXPORT int           matCS_coarsening(MatrixSparse *Q, int type, int **indCo_ret, MatrixSparse **L_ret);
+GSTLEARN_EXPORT MatrixSparse* matCS_interpolate(MatrixSparse *AA, MatrixSparse *Lt, int *Co);
+GSTLEARN_EXPORT MatrixSparse* matCS_extract_diag(MatrixSparse *C, int mode);
+GSTLEARN_EXPORT MatrixSparse* matCS_extract_submatrix_by_ranks(MatrixSparse *C, int *rank_rows, int *rank_cols);
+GSTLEARN_EXPORT int           matCS_gaxpy(const MatrixSparse *A, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_matvecnorm_inplace(MatrixSparse *A, const double* x, int oper);
+GSTLEARN_EXPORT double        matCS_norm(const MatrixSparse *A);
+GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm_single(int mode, MatrixSparse *B);
+GSTLEARN_EXPORT void          matCS_add_value(const MatrixSparse *A, int row, int col, double value);
+GSTLEARN_EXPORT void          matCS_set_cste(MatrixSparse *A, double value);
+GSTLEARN_EXPORT MatrixSparse* matCS_diag(VectorDouble diag, double tol = EPSILON10);
+GSTLEARN_EXPORT double        matCS_get_value(const MatrixSparse *A, int row, int col);
+GSTLEARN_EXPORT VectorInt     matCS_color_coding(MatrixSparse *Q, int start, int *ncols);
+GSTLEARN_EXPORT MatrixSparse* matCS_extract_submatrix_by_color(MatrixSparse *C,
+                                                               const VectorInt &colors,
+                                                               int ref_color,
+                                                               int row_ok,
+                                                               int col_ok);
+
+GSTLEARN_EXPORT VectorDouble  matCSD_extract_diag_VD(MatrixSparse *C, int mode);
+GSTLEARN_EXPORT double*       matCSD_extract_diag(const MatrixSparse *C, int mode);
+GSTLEARN_EXPORT int           matCS_scale(MatrixSparse *A);
+
+GSTLEARN_EXPORT MatrixSparse* matCS_normalize_by_diag_and_release(MatrixSparse *Q, int flag_release);
+GSTLEARN_EXPORT MatrixSparse* matCS_add_and_release(MatrixSparse *b1, MatrixSparse *b2,
+                                                    double alpha, double beta, int flag_release);
+GSTLEARN_EXPORT MatrixSparse* matCS_multiply_and_release(MatrixSparse *b1, const MatrixSparse *b2,int flag_release);

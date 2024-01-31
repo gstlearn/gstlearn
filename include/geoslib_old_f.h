@@ -1770,7 +1770,7 @@ GSTLEARN_EXPORT int spde_f(Db *dbin,
 #ifndef SWIG
 GSTLEARN_EXPORT int spde_eval(int nblin,
                               double *blin,
-                              cs *S,
+                              MatrixSparse *S,
                               const VectorDouble &Lambda,
                               const VectorDouble &TildeC,
                               double power,
@@ -1781,10 +1781,10 @@ GSTLEARN_EXPORT void spde_external_mesh_define(int icov0, AMesh *mesh);
 GSTLEARN_EXPORT void spde_external_mesh_undefine(int icov0);
 #ifndef SWIG
 GSTLEARN_EXPORT int spde_external_copy(SPDE_Matelem &matelem, int icov0);
-GSTLEARN_EXPORT cs* spde_external_A_define(int icov0, cs *A);
-GSTLEARN_EXPORT cs* spde_external_Q_define(int icov0, cs *Q);
-GSTLEARN_EXPORT cs* spde_external_A_undefine(int icov0);
-GSTLEARN_EXPORT cs* spde_external_Q_undefine(int icov0);
+GSTLEARN_EXPORT MatrixSparse* spde_external_A_define(int icov0, MatrixSparse *A);
+GSTLEARN_EXPORT MatrixSparse* spde_external_Q_define(int icov0, MatrixSparse *Q);
+GSTLEARN_EXPORT MatrixSparse* spde_external_A_undefine(int icov0);
+GSTLEARN_EXPORT MatrixSparse* spde_external_Q_undefine(int icov0);
 #endif
 GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    Model *model,
@@ -1795,13 +1795,13 @@ GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    VectorInt& meshes,
                                    VectorDouble& points);
 #ifndef SWIG
-GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
-                                  AMesh *amesh,
-                                  double radius,
-                                  int flag_exact,
-                                  bool verbose,
-                                  int *nactive,
-                                  int **ranks);
+GSTLEARN_EXPORT MatrixSparse* db_mesh_neigh(const Db *db,
+                                            AMesh *amesh,
+                                            double radius,
+                                            int flag_exact,
+                                            bool verbose,
+                                            int *nactive,
+                                            int **ranks);
 #endif
 GSTLEARN_EXPORT void spde_free_all(void);
 

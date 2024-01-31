@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/ALinearOp.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Basic/VectorNumT.hpp"
 
 class cs; /// TODO : Dependency to csparse to be removed
@@ -21,7 +22,7 @@ class csn;
 class GSTLEARN_EXPORT Cholesky: public ALinearOp
 {
 public:
-  Cholesky(const cs* mat = nullptr, bool flagDecompose=true);
+  Cholesky(const MatrixSparse* mat = nullptr, bool flagDecompose=true);
   Cholesky(const Cholesky &m);
   Cholesky& operator=(const Cholesky &m);
   virtual ~Cholesky();
@@ -29,10 +30,10 @@ public:
   int getSize() const override;
   void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const override;
 
-  bool isDefined() const { return _mat != nullptr; }
+  bool isDefined() const { return _matCS != nullptr; }
   bool isCholeskyDecomposed() const { return _matS != nullptr && _matN != nullptr; }
 
-  int  reset(const cs* mat = nullptr, bool flagDecompose = true);
+  int  reset(const MatrixSparse* mat = nullptr, bool flagDecompose = true);
   void decompose(bool verbose = false) const;
 
   void simulate(VectorDouble& vecin, VectorDouble& vecout);
@@ -47,7 +48,7 @@ private:
   void _clean();
 
 private:
-  const cs* _mat; // Copy of the pointer
+  const MatrixSparse* _matCS; // Copy of the pointer
   mutable css *_matS;
   mutable csn *_matN;
   mutable VectorDouble _work;

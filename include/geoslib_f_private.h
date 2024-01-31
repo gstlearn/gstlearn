@@ -29,6 +29,7 @@ class DbGrid;
 class NeighImage;
 class EMorpho;
 class MatrixSquareSymmetric;
+class MatrixSparse;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -106,12 +107,15 @@ void _morpho_gradients(DbGrid *dbgrid, int iptr0);
 /***************************************/
 
 double* _spde_get_mesh_dimension(AMesh *amesh);
-cs* _spde_fill_S(AMesh *amesh, Model *model, double *units);
+MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units);
 VectorDouble _spde_fill_TildeC(AMesh* amesh, double* units);
 VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
                                const VectorDouble &TildeC);
-cs* _spde_build_Q(cs *S, const VectorDouble &Lambda, int nblin, double *blin);
+MatrixSparse* _spde_build_Q(MatrixSparse *S,
+                            const VectorDouble &Lambda,
+                            int nblin,
+                            double *blin);
 Cheb_Elem* _spde_cheb_duplicate(Cheb_Elem *cheb_in);
 
 /*******************************************/

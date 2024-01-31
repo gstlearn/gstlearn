@@ -51,7 +51,7 @@ APolynomial & APolynomial::operator=(const APolynomial& p)
   return *this;
 }
 #ifndef SWIG
-VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
+VectorDouble APolynomial::evalOp(MatrixSparse* Op, const VectorDouble& in) const
 {
   VectorDouble result(in.size());
   evalOp(Op,in,result);

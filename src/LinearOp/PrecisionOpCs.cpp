@@ -28,7 +28,7 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              bool flagDecompose,
                              bool verbose)
     : PrecisionOp(shiftop, cova, verbose),
-      _Q(nullptr),
+      _QCS(nullptr),
       _qChol()
 {
   _buildQ(flagDecompose);
@@ -41,7 +41,7 @@ PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
                              const CGParam params,
                              bool verbose)
     : PrecisionOp(mesh, model, icov, params, verbose),
-      _Q(nullptr),
+      _QCS(nullptr),
       _qChol()
 {
   _buildQ(flagDecompose);
@@ -49,12 +49,12 @@ PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
 
 PrecisionOpCs::~PrecisionOpCs()
 {
-  _Q = cs_spfree(_Q);
+  delete _QCS;
 }
 
 Triplet PrecisionOpCs::getQToTriplet(bool flag_from_1) const
 {
-  return csToTriplet(getQ(), flag_from_1);
+  return getQ()->getSparseToTriplet(flag_from_1);
 }
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)
@@ -222,18 +222,18 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 
 void PrecisionOpCs::_buildQ(bool flagDecompose)
 {
-  if (_Q != nullptr) _Q = cs_spfree(_Q);
+  if (_QCS != nullptr) delete _QCS;
   if (! isCovaDefined()) return;
 
   // Calculate the Vector of coefficients (blin)
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
-  _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
-                     static_cast<int>(blin.size()), blin.data());
+  _QCS = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
+                       static_cast<int>(blin.size()), blin.data());
 
   // Prepare the Cholesky decomposition
-  _qChol.reset(_Q, flagDecompose);
+  _qChol.reset(_QCS, flagDecompose);
   _qChol.mustShowStats(getLogStats().isMustPrint());
 }
 

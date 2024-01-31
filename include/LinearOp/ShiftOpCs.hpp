@@ -21,6 +21,7 @@
 #include "Model/ANoStat.hpp"
 
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 #include <map>
 
@@ -50,7 +51,7 @@ public:
             const CGParam params = CGParam(),
             bool verbose = false);
 #ifndef SWIG
-  ShiftOpCs(const cs* S,
+  ShiftOpCs(const MatrixSparse* S,
             const VectorDouble& TildeC,
             const VectorDouble& Lambda,
             Model* model,
@@ -71,7 +72,7 @@ public:
                            const CGParam params = CGParam(),
                            bool verbose = false);
 #ifndef SWIG
-  static ShiftOpCs* createFromSparse(const cs *S,
+  static ShiftOpCs* createFromSparse(const MatrixSparse *S,
                                      const VectorDouble &TildeC,
                                      const VectorDouble &Lambda,
                                      Model *model,
@@ -91,7 +92,7 @@ public:
                        int icov = 0,
                        bool verbose = false,
                        double tol = EPSILON10);
-  int initFromCS(const cs* S,
+  int initFromCS(const MatrixSparse* S,
                  const VectorDouble& TildeC,
                  const VectorDouble& Lambda,
                  Model* model,
@@ -110,9 +111,9 @@ public:
                               double puis = 2) const;
   double getMaxEigenValue() const;
 #ifndef SWIG
-  cs* getS() const { return _S; }
-  cs* getTildeCGrad(int iapex, int igparam) const;
-  cs* getSGrad(int iapex, int igparam) const;
+  MatrixSparse* getS() const { return _S; }
+  MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
+  MatrixSparse* getSGrad(int iapex, int igparam) const;
 #endif
   Triplet getSToTriplet(bool flag_from_1 = false) const;
   Triplet getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
@@ -192,24 +193,24 @@ private:
                       int ip1,
                       double value,
                       double tol = EPSILON10);
-  cs* _BuildTildeCGradfromMap(std::map< int, double> &tab) const;
-  cs* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
+  MatrixSparse* _BuildTildeCGradfromMap(std::map< int, double> &tab) const;
+  MatrixSparse* _BuildSGradfromMap(std::map<std::pair<int, int>, double> &tab);
 
   bool _cond(int indref, int igparam, int ipref);
   void _determineFlagNoStatByHH();
   void _updateHH(MatrixSquareSymmetric& hh, int imesh);
-  cs* _preparSSparse(const AMesh *amesh) const;
+  MatrixSparse* _prepareSparse(const AMesh *amesh) const;
 
 private:
-  VectorDouble       _TildeC;
-  VectorDouble       _Lambda;
-  cs*                _S;
+  VectorDouble            _TildeC;
+  VectorDouble            _Lambda;
+  MatrixSparse*           _S;
 
-  int                _nModelGradParam;
-  VectorT<cs *>      _SGrad;
-  VectorT<cs *>      _TildeCGrad;
-  VectorVectorDouble _LambdaGrad;
-  bool               _flagNoStatByHH;
+  int                     _nModelGradParam;
+  VectorT<MatrixSparse *> _SGrad;
+  VectorT<MatrixSparse *> _TildeCGrad;
+  VectorVectorDouble      _LambdaGrad;
+  bool                    _flagNoStatByHH;
 
   // Following list of members are there to ease the manipulation and reduce argument list
   const Model* _model;

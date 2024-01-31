@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Polynomials/Chebychev.hpp"
 
 #include "csparse_f.h"
@@ -51,9 +52,9 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) cons
   return _qChol.computeLogDet();
 }
 
-cs* PrecisionOpMultiConditionalCs::_buildQmult() const
+MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
 {
-  cs *Qmult = nullptr;
+  MatrixSparse* Qmult = nullptr;
   int number = sizes();
   if (number <= 0)
   {
@@ -65,18 +66,18 @@ cs* PrecisionOpMultiConditionalCs::_buildQmult() const
   if (number == 1)
   {
     const PrecisionOpCs* pmatElem = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(0));
-    if (pmatElem != nullptr) Qmult = cs_duplicate(pmatElem->getQ());
+    if (pmatElem != nullptr) Qmult = pmatElem->getQ()->clone();
   }
   else
   {
     const PrecisionOpCs* pmat1 = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(0));
-    const cs* Qref = pmat1->getQ();
+    const MatrixSparse* Qref = pmat1->getQ();
     pmat1->getSize();
 
     for (int is = 1; is < number; is++)
     {
       const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
-      Qmult = cs_glue(Qref, pmataux->getQ(), true, true);
+      Qmult = matCS_glue(Qref, pmataux->getQ(), true, true);
       Qref = Qmult;
     }
   }
@@ -102,17 +103,17 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
 
   else
   {
-    cs* Amult = nullptr;
+    MatrixSparse* Amult = nullptr;
     const ProjMatrix* Pref = dynamic_cast<const ProjMatrix*>(getProjMatrix(0));
     int npoint = Pref->getPointNumber();
     int napices = Pref->getApexNumber();
-    const cs* Aref = Pref->getAproj();
+    const MatrixSparse* Aref = Pref->getAproj();
 
     for (int is = 1; is < number; is++)
     {
       const ProjMatrix* Paux = dynamic_cast<const ProjMatrix*>(getProjMatrix(is));
-      const cs* Aaux = Paux->getAproj();
-      Amult = cs_glue(Aref, Aaux, false, true);
+      const MatrixSparse* Aaux = Paux->getAproj();
+      Amult = matCS_glue(Aref, Aaux, false, true);
       napices += Paux->getApexNumber();
       Aref = Amult;
     }
@@ -130,13 +131,13 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
   if (Amult == nullptr) return 1;
 
   // Build the multiple precision matrix 'Qmult'
-  cs* Qmult = _buildQmult();
+  MatrixSparse* Qmult = _buildQmult();
   if (Qmult == nullptr) return 1;
 
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
-  cs* AtAsVar = cs_prod_norm_diagonal(1, Amult->getAproj(), invsigma);
-  cs* Q = cs_add(Qmult, AtAsVar, 1., 1.);
+  MatrixSparse* AtAsVar = matCS_prod_norm_diagonal(1, Amult->getAproj(), invsigma);
+  MatrixSparse* Q = matCS_add(Qmult, AtAsVar, 1., 1.);
 
   // Prepare the Cholesky decomposition
   _qChol.reset(Q, true);
