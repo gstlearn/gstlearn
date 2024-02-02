@@ -34,7 +34,7 @@ public:
 
   /// Interface for AMatrix
   /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isMatrixDense() const { return true; }
+  virtual bool isDense() const { return true; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;

@@ -2330,6 +2330,13 @@ int simpgs_spde(Db *dbin,
   if (rule->particularities(dbout, dbprop, model1, 1, flag_stat))
     goto label_end;
 
+  if (isGlobalFlagEigen())
+  {
+    messerr("This method is not coded (yet) for Eigen matrices");
+    messerr("Please use setGlobalFlagEigen(false)");
+    goto label_end;
+  }
+
   /**********************/
   /* Preliminary checks */
   /**********************/

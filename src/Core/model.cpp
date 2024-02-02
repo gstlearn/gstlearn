@@ -44,10 +44,6 @@
 
 #include <math.h>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
 #define COVTAB(ivar,jvar)       covtab[AD(ivar,jvar)]
@@ -2126,7 +2122,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
   // Constitute the triplet
 
-  cs* T = cs_spalloc(0, 0, 1, 1, 1);
+  cs* T = cs_spalloc2(0, 0, 1, 1, 1);
   if (T == nullptr) return nullptr;
 
   /* Loop on the number of variables */
@@ -2180,16 +2176,16 @@ cs* model_covmat_by_ranks_cs(Model *model,
           model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
           value = COVTAB(ivar, jvar);
           if (ABS(value) < EPSILON10) continue;
-          if (! cs_entry(T, ecr1, ecr2, value))
+          if (! cs_entry2(T, ecr1, ecr2, value))
           {
-            T = cs_spfree(T);
+            T = cs_spfree2(T);
             return nullptr;
           }
           if (ecr1 != ecr2)
           {
-            if (! cs_entry(T, ecr2, ecr1, value))
+            if (! cs_entry2(T, ecr2, ecr1, value))
             {
-              T = cs_spfree(T);
+              T = cs_spfree2(T);
               return nullptr;
             }
           }
@@ -2200,8 +2196,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
   // Convert from triplet to sparse matrix
 
-  cs* covmat = cs_triplet(T);
-  T = cs_spfree(T);
+  cs* covmat = cs_triplet2(T);
+  T = cs_spfree2(T);
   return (covmat);
 }
 #endif

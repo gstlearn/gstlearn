@@ -32,10 +32,6 @@
 
 #include <math.h>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 ShiftOpCs::ShiftOpCs(const CGParam params)
     : ALinearOp(params),
       _TildeC(),
@@ -823,14 +819,14 @@ MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) co
 {
   std::map<int, double>::iterator it;
 
-  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  cs* Striplet = cs_spalloc2(0, 0, 1, 1, 1);
   int ip1_max = -1;
 
   it = tab.begin();
   while (it != tab.end())
   {
     int ip1 = it->first;
-    if (!cs_entry(Striplet, ip1, ip1, it->second)) return nullptr;
+    if (!cs_entry2(Striplet, ip1, ip1, it->second)) return nullptr;
     if (ip1 > ip1_max) ip1_max = ip1;
     it++;
   }
@@ -844,7 +840,7 @@ MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) co
 
   MatrixSparse* S = matCS_triplet(Striplet);
   if (S == nullptr) return nullptr;
-  Striplet = cs_spfree(Striplet);
+  Striplet = cs_spfree2(Striplet);
 
   return S;
 }
@@ -1058,13 +1054,13 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
   int ncorner = amesh->getNApexPerMesh();
 
   // Define Sl as the sparse matrix giving the clutter of apices among vertices
-  Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  Striplet = cs_spalloc2(0, 0, 1, 1, 1);
   for (int imesh = 0; imesh < nmeshes; imesh++)
   {
     for (int ic = 0; ic < ncorner; ic++)
     {
       int iapex = amesh->getApex(imesh, ic);
-      if (! cs_entry(Striplet, iapex, imesh, 1.)) goto label_end;
+      if (! cs_entry2(Striplet, iapex, imesh, 1.)) goto label_end;
     }
   }
   Sl = matCS_triplet(Striplet);
@@ -1077,7 +1073,7 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
   matCS_set_cste(Sret, 0.);
 
 label_end:
-  Striplet = cs_spfree(Striplet);
+  Striplet = cs_spfree2(Striplet);
   delete Sl;
   return Sret;
 }
@@ -1571,7 +1567,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
-  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  cs* Striplet = cs_spalloc2(0, 0, 1, 1, 1);
   int ip0_max = -1;
   int ip1_max = -1;
 
@@ -1580,7 +1576,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
   {
     int ip0 = it->first.first;
     int ip1 = it->first.second;
-    if (!cs_entry(Striplet, ip0, ip1, it->second)) return nullptr;
+    if (!cs_entry2(Striplet, ip0, ip1, it->second)) return nullptr;
     if (ip0 > ip0_max) ip0_max = ip0;
     if (ip1 > ip1_max) ip1_max = ip1;
     it++;
@@ -1595,7 +1591,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
   MatrixSparse* S = matCS_triplet(Striplet);
   if (S == nullptr) return nullptr;
 
-  Striplet = cs_spfree(Striplet);
+  Striplet = cs_spfree2(Striplet);
 
   return S;
 }

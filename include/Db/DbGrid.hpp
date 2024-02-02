@@ -32,7 +32,7 @@ class SpaceTarget;
 
 /**
  * \brief
- * Class containing the Data Information org  nized as a Regular Grid
+ * Class containing the Data Information organized as a Regular Grid
  *
  * This class is derived from the Db class, with a specific decoration: its samples correspond to the nodes
  * of a regular grid defined in the current space.

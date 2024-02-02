@@ -16,13 +16,13 @@
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 
 #include "geoslib_old_f.h"
 
 #include <set>
 
 // External library
-#include "csparse_d.h"
 #include "csparse_f.h"
 
 #define MAX_NEIGH 100
@@ -71,6 +71,14 @@ cs* cs_spfree2(cs *A)
 {
   return cs_spfree(A);
 }
+css* cs_sfree2(css *S)
+{
+  return cs_sfree(S);
+}
+csn* cs_nfree2(csn *N)
+{
+  return cs_nfree(N);
+}
 int cs_entry2(cs *T, int i, int j, double x)
 {
   return cs_entry(T, i, j, x);
@@ -93,9 +101,9 @@ int cs_print2(const cs *A, int brief)
 }
 void cs_force_dimension(cs *T, int nrow, int ncol)
 {
-  if (cs_getnrow(T) > nrow)
+  if (cs_get_nrow(T) > nrow)
     messageAbort("Forcing CS dimension: NRows current(%d) is larger than forecast(%d)",
-                 cs_getnrow(T), nrow);
+                 cs_get_nrow(T), nrow);
   if (cs_getncol(T) > ncol)
     messageAbort("Forcing CS dimension: NCols current(%d) is larger than forecast(%d)",
                  cs_getncol(T), ncol);
@@ -1799,10 +1807,7 @@ cs* cs_extract_submatrix_by_ranks(const cs *C, int *rank_rows, int *rank_cols)
 int cs_get_nrow(const cs *A)
 {
   if (A == nullptr) return 0;
-  cs *AT = cs_transpose(A, 1);
-  if (AT == nullptr) return 0;
-  int nrow = cs_getncol(AT);
-  AT = cs_spfree(AT);
+  int nrow = cs_getnrow(A);
   return (nrow);
 }
 

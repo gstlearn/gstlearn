@@ -16,8 +16,7 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Basic/VectorNumT.hpp"
 
-class cs; /// TODO : Dependency to csparse to be removed
-class css;
+class css; /// TODO : Dependency to csparse to be removed
 class csn;
 class GSTLEARN_EXPORT Cholesky: public ALinearOp
 {

@@ -17,10 +17,6 @@
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
                                  const VectorInt& nodeRes2D,
@@ -183,7 +179,7 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
    {
      const double* valSS =  &valonseismic.data()[iz * slice_S];
      double* valRS = &_work.data()[iz * slice_R];
-     cs_tmulvec(_AProjHoriz->getCS(), slice_R, valSS, valRS);
+     matCS_tmulvec(_AProjHoriz, slice_R, valSS, valRS);
    }
 
    _convolveT(_work,valonvertex);
@@ -218,7 +214,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   {
     const double* valRS = &_work.data()[iz * slice_R];
     double* valSS = &valonseismic.data()[iz * slice_S];
-    matCS_tmulvec(_AProjHoriz, slice_R, valRS, valSS);
+    matCS_mulvec(_AProjHoriz, slice_R, valRS, valSS);
   }
 
   return 0;

@@ -19,6 +19,7 @@
 
 class Db;
 class Model;
+class cs; // TODO to be removed
 
 class GSTLEARN_EXPORT GibbsMMulti: public GibbsMulti
 {

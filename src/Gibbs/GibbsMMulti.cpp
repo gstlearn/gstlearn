@@ -25,7 +25,6 @@
 #include <math.h>
 
 // External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
 #include "csparse_f.h"
 
 #define WEIGHTS(ivar, jvar, iact)  (_weights[iact + nact * (jvar + ivar * nvar)])
@@ -62,7 +61,7 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
 
 GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
-  , _Ln(r._Ln)
+  , _Ln(cs_duplicate(r._Ln))
   , _Pn(r._Pn)
   , _eps(r._eps)
   , _storeTables(r._storeTables)
@@ -80,7 +79,7 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
   if (this != &r)
   {
     GibbsMulti::operator=(r);
-    _Ln  = r._Ln;
+    _Ln  = cs_duplicate(r._Ln);
     _Pn  = r._Pn;
     _eps = r._eps;
     _storeTables = r._storeTables;
@@ -197,7 +196,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
     if (verbose)
       message("Calculating Reconstructed Covariance\n");
     cs* Lt = cs_transpose(_Ln, 1);
-    cs* Cmat2 = cs_multiply (_Ln, Lt);
+    cs* Cmat2 = cs_multiply(_Ln, Lt);
     _tableStore(2, Cmat2);
     if (verboseTimer)
       timer.displayIntervalMilliseconds("Calculating Reconstructed Covariance");
@@ -300,7 +299,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
 
   // Retrieve the elements from the sparse matrix
 
-  int   n = cs_getncol(A) ;
+  int   n = cs_get_ncol(A) ;
   int* Ap = A->p ;
   int* Ai = A->i ;
   double* Ax = A->x ;

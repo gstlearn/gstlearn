@@ -19,10 +19,6 @@
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
                              bool flagDecompose,

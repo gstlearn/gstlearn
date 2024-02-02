@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Basic/ASerializable.hpp"
 
 /**
@@ -41,9 +42,7 @@ public:
 
   static MeshManifold* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
-#ifndef SWIG
-  cs* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
-#endif
+  MatrixSparse* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
   int getVariety() const { return 2; }
 
   VectorVectorInt getMeshes() const { return _meshes.getMatrix(); }

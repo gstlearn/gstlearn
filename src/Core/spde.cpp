@@ -42,8 +42,6 @@
 #include <math.h>
 #include <string.h>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
 #include "csparse_f.h"
 
 /* Global symbols for SPDE */
@@ -883,8 +881,8 @@ QChol* qchol_manage(int mode, QChol *QC)
     case -1: /* Total deallocation */
       if (QC == nullptr) return (QC);
       delete QC->Q;
-      QC->S = cs_sfree(QC->S);
-      QC->N = cs_nfree(QC->N);
+      QC->S = cs_sfree2(QC->S);
+      QC->N = cs_nfree2(QC->N);
       QC = (QChol*) mem_free((char* ) QC);
       break;
   }
@@ -3411,13 +3409,12 @@ MatrixSparse* _spde_build_Q(MatrixSparse *S,
                             int nblin,
                             double *blin)
 {
-  int error, iterm, nvertex;
+  int iterm, nvertex;
   double *tblin;
   MatrixSparse *Be, *Q, *Bi;
 
   /* Initializations */
 
-  error = 1;
   iterm = 0;
   nvertex = S->getNCols();
   tblin = nullptr;
@@ -3478,18 +3475,7 @@ MatrixSparse* _spde_build_Q(MatrixSparse *S,
 
   matCS_matvecnorm_inplace(Q, Lambda.data(), 0);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  if (error)
-  {
-    delete Q;
-    Q = nullptr;
-  }
   tblin = (double*) mem_free((char* ) tblin);
-
   return Q;
 }
 

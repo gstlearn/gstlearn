@@ -20,10 +20,6 @@
 #include <math.h>
 #include <functional>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 Chebychev::Chebychev()
   : _ncMax(10001)
   , _nDisc(100)

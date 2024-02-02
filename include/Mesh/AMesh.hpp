@@ -20,7 +20,6 @@ class MatrixRectangular;
 class MatrixSparse;
 class MatrixInt;
 class Db;
-class cs; /// TODO : Dependency to csparse to be removed
 
 class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
 {

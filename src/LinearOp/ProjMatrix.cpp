@@ -15,10 +15,6 @@
 #include "geoslib_old_f.h"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 ProjMatrix::ProjMatrix() 
   : AStringable()
   , _nPoint(0)
@@ -199,7 +195,7 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
   if (sf.getLevel() > 0)
   {
     sstr << toStringRange(String(),_AprojCS->getCS());
-    sstr << toMatrix(String(), _AprojCS->getCS());
+    sstr << toMatrix(String(), *_AprojCS);
   }
   return sstr.str();
 }

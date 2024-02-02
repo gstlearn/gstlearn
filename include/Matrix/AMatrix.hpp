@@ -41,10 +41,8 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isMatrixSparse() const { return false; }
   /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
-  virtual bool isMatrixDense() const { return false; }
+  virtual bool isDense() const { return false; }
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const { return false; }
   /*! Check if the matrix is (non empty) square */

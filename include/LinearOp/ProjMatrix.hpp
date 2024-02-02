@@ -18,7 +18,6 @@
 #include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
-class cs; /// TODO : Dependency to csparse to be removed
 class AMesh;
 class Db;
 

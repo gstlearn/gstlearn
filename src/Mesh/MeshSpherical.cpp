@@ -16,16 +16,11 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-
-#include "Matrix/LinkMatrixSparse.hpp"
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 MeshSpherical::MeshSpherical(const MatrixRectangular &apices,
                              const MatrixInt &meshes)
@@ -219,7 +214,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   /* Core allocation */
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
   if (Atriplet == nullptr) return nullptr;
   VectorDouble weight(ncorner,0);
   VectorDouble units = _defineUnits();
@@ -255,9 +250,9 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
       {
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
-        if (! cs_entry(Atriplet,iech,ip,weight[icorn]))
+        if (! cs_entry2(Atriplet,iech,ip,weight[icorn]))
         {
-          Atriplet = cs_spfree(Atriplet);
+          Atriplet = cs_spfree2(Atriplet);
           return nullptr;
         }
       }
@@ -288,7 +283,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
   A = matCS_triplet(Atriplet);
-  Atriplet = cs_spfree(Atriplet);
+  Atriplet = cs_spfree2(Atriplet);
   return(A);
 }
 #endif

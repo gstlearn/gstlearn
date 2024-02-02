@@ -80,6 +80,8 @@ public:
 
 /// TODO : cs_*2 functions to be removed (encapsulation)
 GSTLEARN_EXPORT cs     *cs_spfree2(cs *A);
+GSTLEARN_EXPORT css    *cs_sfree2(css *S);
+GSTLEARN_EXPORT csn    *cs_nfree2(csn *N);
 GSTLEARN_EXPORT cs     *cs_spalloc2(int m, int n, int nzmax, int values, int triplet);
 GSTLEARN_EXPORT int     cs_entry2(cs *T, int i, int j, double x);
 GSTLEARN_EXPORT cs     *cs_triplet2(const cs *T);

@@ -17,8 +17,6 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Polynomials/Chebychev.hpp"
 
-#include "csparse_f.h"
-
 #include <functional>
 
 #include <math.h>

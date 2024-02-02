@@ -21,8 +21,6 @@
 
 #include <iostream>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
 #include "csparse_f.h"
 
 Cholesky::Cholesky(const MatrixSparse *mat, bool flagDecompose)
@@ -154,7 +152,7 @@ void Cholesky::printout(const char *title, bool verbose) const
   int ncols = 0;
   int count = 0;
   double percent = 0.;
-  cs_rowcol(_matCS->getCS(), &nrows, &ncols, &count, &percent);
+  matCS_rowcol(_matCS, &nrows, &ncols, &count, &percent);
   message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf (percent)]", nrows,
           ncols, count, percent);
   if (_matS != nullptr || _matN != nullptr) message(" (Cholesky)");

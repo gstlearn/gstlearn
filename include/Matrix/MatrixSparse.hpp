@@ -15,6 +15,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+
 #include <Eigen/Sparse>
 
 /**
@@ -40,8 +41,6 @@ public:
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const { return true; }
-  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isMatrixSparse() const { return true; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -161,6 +160,10 @@ protected:
   void _clear();
   bool _isElementPresent(int irow, int icol) const;
 
+#ifndef SWIG
+  String _toMatrixLocal(const String& title, bool flagOverride);
+#endif
+
 private:
   void _forbiddenForSparse(const String& func) const;
 
@@ -180,8 +183,10 @@ GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
 
 // The following functions are added while converting cs into MatrixSparse
+#ifndef SWIG
 GSTLEARN_EXPORT const cs* _getCS(const MatrixSparse* A, bool optional=false);
 GSTLEARN_EXPORT cs* _getCSUnprotected(const MatrixSparse* A, bool optional=false);
+#endif
 
 GSTLEARN_EXPORT MatrixSparse* matCS_glue(const MatrixSparse *A1,
                                          const MatrixSparse *A2,
@@ -221,10 +226,17 @@ GSTLEARN_EXPORT MatrixSparse* matCS_extract_submatrix_by_color(MatrixSparse *C,
                                                                int ref_color,
                                                                int row_ok,
                                                                int col_ok);
+GSTLEARN_EXPORT void          matCS_rowcol(const MatrixSparse *A,
+                                           int *nrows,
+                                           int *ncols,
+                                           int *count,
+                                           double *percent);
 
 GSTLEARN_EXPORT VectorDouble  matCSD_extract_diag_VD(MatrixSparse *C, int mode);
 GSTLEARN_EXPORT double*       matCSD_extract_diag(const MatrixSparse *C, int mode);
 GSTLEARN_EXPORT int           matCS_scale(MatrixSparse *A);
+GSTLEARN_EXPORT void          matCS_print_nice(const char *title, const MatrixSparse *A,
+                                               int maxrow, int maxcol);
 
 GSTLEARN_EXPORT MatrixSparse* matCS_normalize_by_diag_and_release(MatrixSparse *Q, int flag_release);
 GSTLEARN_EXPORT MatrixSparse* matCS_add_and_release(MatrixSparse *b1, MatrixSparse *b2,

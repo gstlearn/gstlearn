@@ -25,10 +25,6 @@
 
 #include <math.h>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 MeshETurbo::MeshETurbo(int mode)
     : AMesh(),
       _grid(),
@@ -480,7 +476,7 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
       {
-        if (!cs_entry(Atriplet, iech, indices[icorner], lambda[icorner]))
+        if (!cs_entry2(Atriplet, iech, indices[icorner], lambda[icorner]))
           return false;
       }
       return true;
@@ -518,7 +514,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   // Core allocation
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
   if (Atriplet == nullptr) return NULL;
 
   /* Optional title */
@@ -602,7 +598,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
 
-  Atriplet  = cs_spfree(Atriplet);
+  Atriplet  = cs_spfree2(Atriplet);
   return(A);
 }
 #endif

@@ -21,8 +21,7 @@
 
 #include <Eigen/SparseCholesky>
 
-#include "csparse_d.h"
-#include "csparse_f.h"
+#include <csparse_f.h>
 
 MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
     : AMatrix(nrow, ncol, opt_eigen),
@@ -38,7 +37,7 @@ MatrixSparse::MatrixSparse(int nrow, int ncol, int opt_eigen)
 
 #ifndef SWIG
 MatrixSparse::MatrixSparse(const cs *A, int opt_eigen)
-    : AMatrix(cs_getnrow(A), cs_getncol(A), opt_eigen),
+    : AMatrix(cs_get_nrow(A), cs_get_ncol(A), opt_eigen),
       _csMatrix(nullptr),
       _eigenMatrix(),
       _flagDecomposeCholesky(false), // Note: the class looses the Cholesky decomposition
@@ -166,16 +165,16 @@ void MatrixSparse::fillRandom(int seed, double zeroPercent)
   else
   {
     cs *Atriplet;
-    Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+    Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
     for (int irow = 0; irow < getNRows(); irow++)
       for (int icol = 0; icol < getNCols(); icol++)
       {
         if (!_isPhysicallyPresent(irow, icol)) continue;
         if (!mustBeDiagCst() && law_uniform(0., 1.) < zeroPercent) continue;
-        cs_entry(Atriplet, irow, icol, law_gaussian());
+        cs_entry2(Atriplet, irow, icol, law_gaussian());
       }
-    _csMatrix = cs_triplet(Atriplet);
-    Atriplet = cs_spfree(Atriplet);
+    _csMatrix = cs_triplet2(Atriplet);
+    Atriplet = cs_spfree2(Atriplet);
   }
 }
 
@@ -890,9 +889,9 @@ String MatrixSparse::toString(const AStringFormat* strfmt) const
   {
     sstr << "- Number of rows    = " << getNRows() << std::endl;
     sstr << "- Number of columns = " << getNCols() << std::endl;
-    sstr << "  (using Eigen Library)" << std::endl;
+    sstr << "  (not using Eigen Library)" << std::endl;
     sstr << "- Sparse Format" << std::endl;
-    sstr << toMatrix(String(), _csMatrix);
+    sstr << toMatrix(String(), *this);
   }
   return sstr.str();
 }
@@ -1320,6 +1319,15 @@ int matCS_scale(MatrixSparse *A)
   return cs_scale(Acs);
 }
 
+void matCS_print_nice(const char *title,
+                      const MatrixSparse *A,
+                      int maxrow,
+                      int maxcol)
+{
+  const cs* Acs = _getCS(A);
+  cs_print_nice(title, Acs, maxrow, maxcol);
+}
+
 double matCS_get_value(const MatrixSparse *A, int row, int col)
 {
   const cs* Acs = _getCS(A);
@@ -1343,6 +1351,16 @@ MatrixSparse* matCS_extract_submatrix_by_color(MatrixSparse *C,
   MatrixSparse *mat = new MatrixSparse(local, 0);
   local = cs_spfree(local);
   return mat;
+}
+
+void matCS_rowcol(const MatrixSparse *A,
+                  int *nrows,
+                  int *ncols,
+                  int *count,
+                  double *percent)
+{
+  const cs* Acs = _getCS(A);
+  cs_rowcol(Acs, nrows, ncols, count, percent);
 }
 
 MatrixSparse* matCS_normalize_by_diag_and_release(MatrixSparse *Q, int flag_release)

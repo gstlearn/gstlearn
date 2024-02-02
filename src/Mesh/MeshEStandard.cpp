@@ -11,17 +11,12 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/LinkMatrixSparse.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/AException.hpp"
 #include "Db/Db.hpp"
+#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
-
-#include "Matrix/LinkMatrixSparse.hpp"
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 MeshEStandard::MeshEStandard()
   : AMesh()
@@ -291,7 +286,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   /* Core allocation */
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
   if (Atriplet == nullptr) return nullptr;
   VectorDouble weight(ncorner,0);
   VectorDouble container = _defineContainers();
@@ -338,9 +333,9 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
         if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
-        if (! cs_entry(Atriplet,iech,ip,weight[icorn]))
+        if (! cs_entry2(Atriplet,iech,ip,weight[icorn]))
         {
-          Atriplet  = cs_spfree(Atriplet);
+          Atriplet  = cs_spfree2(Atriplet);
           return nullptr;
         }
       }
@@ -371,7 +366,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
   A = matCS_triplet(Atriplet);
-  Atriplet  = cs_spfree(Atriplet);
+  Atriplet  = cs_spfree2(Atriplet);
   return(A);
 }
 #endif
