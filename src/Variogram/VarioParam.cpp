@@ -77,7 +77,6 @@ VarioParam& VarioParam::operator=(const VarioParam& r)
 
 VarioParam::~VarioParam()
 {
-  delete _faults;
 }
 
 bool VarioParam::isDefinedForGrid() const

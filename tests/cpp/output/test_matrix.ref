@@ -897,7 +897,7 @@ Cholesky Decomposition for Sparse matrices
 
 - Number of rows    = 7
 - Number of columns = 7
-  (using Eigen Library)
+  (not using Eigen Library)
 - Sparse Format
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009         .
@@ -907,7 +907,6 @@ Cholesky Decomposition for Sparse matrices
      [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
      [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
      [  6,]         .         .     2.190     0.291    -0.038         .     1.561
-
 Input vector
      2.165    -0.502    -0.259     0.650     1.364    -0.059     1.768
 Cholesky Solve (Eigen Library)
