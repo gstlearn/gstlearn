@@ -11,8 +11,6 @@
 /* This file is meant to demonstrate the process of using PGS                 */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Enum/ECalcVario.hpp"
 #include "Enum/ECov.hpp"
 

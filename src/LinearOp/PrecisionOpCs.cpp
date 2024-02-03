@@ -17,7 +17,6 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,

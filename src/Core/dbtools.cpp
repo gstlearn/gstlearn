@@ -3089,66 +3089,6 @@ int manage_external_info(int mode,
 
 /*****************************************************************************/
 /*!
- **  Centers the samples of a Db to the center of blocks of a grid Db
- **
- ** \return  Error return code
- **
- ** \param[in]  db_point   descriptor of the point parameters
- ** \param[in]  db_grid    descriptor of the grid parameters
- ** \param[in]  eps_random Randomisation Epsilon
- **
- ** \remark The argument 'eps_random' allows perturbating the centered
- ** \remark coordinate so that it does not lie exactly on the node.
- ** \remark This possibility makes sense in order to identify centered data
- ** \remark from data actually located on the grid center (before migration)
- ** \remark The perturbation is calculated as DX(i) * eps
- **
- *****************************************************************************/
-int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random)
-{
-  if (db_point == nullptr) return 1;
-  if (db_grid == nullptr) return 1;
-  if (!db_point->hasSameDimension(db_grid))
-  {
-    messerr("For centering, 'dbin' and 'dbout' should share the same Space Dimension");
-    return 1;
-  }
-  int ndim = db_point->getNDim();
-
-  /* Core allocation */
-
-  VectorDouble coor(ndim);
-
-  /* Loop on the samples of the Point Db */
-
-  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
-  {
-
-    /* Read the coordinates of the point sample */
-
-    for (int idim = 0; idim < ndim; idim++)
-      coor[idim] = db_point->getCoordinate(iech, idim);
-
-    /* Get the indices of the grid node */
-
-    db_grid->centerCoordinateInPlace(coor, true);
-
-    /* Randomize the processed center */
-
-    if (eps_random > 0)
-      for (int idim = 0; idim < ndim; idim++)
-        coor[idim] += db_grid->getDX(idim) * law_uniform(0., eps_random);
-
-    /* Correct the sample locations */
-
-    for (int idim = 0; idim < ndim; idim++)
-      db_point->setCoordinate(iech, idim, coor[idim]);
-  }
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
  **  Sample a grid into a finer subgrid (all variables)
  **
  ** \return  Error return code

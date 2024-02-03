@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-#include "Matrix/LinkMatrixSparse.hpp"
-
 #include "Enum/ESPDECalcMode.hpp"
 
 #include "Db/Db.hpp"

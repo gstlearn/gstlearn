@@ -13,7 +13,6 @@
 #include "Db/Db.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "geoslib_old_f.h"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 ProjMatrix::ProjMatrix() 
   : AStringable()
@@ -161,7 +160,7 @@ int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
     return 1;
   }
 
-  matCS_tmulvec(_AprojCS,(int) outv.size(),inv.data(),outv.data());
+  _AprojCS->prodMatVec(inv, outv, true);
   return 0;
 }
 
@@ -180,7 +179,7 @@ int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
     return 1;
   }
 
-  matCS_mulvec(_AprojCS,_nPoint,inv.data(),outv.data());
+  _AprojCS->prodMatVec(inv, outv, false);
   return 0;
 }
 

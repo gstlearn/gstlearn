@@ -15,7 +15,6 @@
 #include "IProjMatrix.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 class AMesh;

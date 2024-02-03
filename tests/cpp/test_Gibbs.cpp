@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Enum/ECst.hpp"
@@ -28,7 +26,6 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 /*****************************************************************************/
 /*!
@@ -233,7 +230,7 @@ static int st_gibbs(int  niter,
     for (int icol=0; icol<ncolor; icol++)
     {
       nc = st_vector_compress(nvertex,icol,z,colors,ind,zred);
-      matCS_mulvec(Qcols[icol],nc,zred,krig);
+      matCS_xM(Qcols[icol],nc,zred,krig);
 
       for (ic=0; ic<nc; ic++)
       {

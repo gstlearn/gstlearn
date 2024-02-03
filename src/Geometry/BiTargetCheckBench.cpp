@@ -8,9 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckBench.hpp>
-#include "geoslib_f.h"
-
+#include "Geometry/BiTargetCheckBench.hpp"
+#include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
 
 BiTargetCheckBench::BiTargetCheckBench(int idim_bench, double width)

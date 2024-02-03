@@ -39,7 +39,6 @@
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
 #include <math.h>

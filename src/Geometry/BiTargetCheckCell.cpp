@@ -8,9 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckCell.hpp>
-#include "geoslib_f.h"
-
+#include "Geometry/BiTargetCheckCell.hpp"
+#include "Db/DbGrid.hpp"
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckCell::BiTargetCheckCell(const DbGrid* dbgrid)

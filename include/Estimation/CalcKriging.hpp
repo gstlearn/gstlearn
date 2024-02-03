@@ -14,6 +14,8 @@
 
 #include "geoslib_define.h"
 
+#include "Enum/EKrigOpt.hpp"
+
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 

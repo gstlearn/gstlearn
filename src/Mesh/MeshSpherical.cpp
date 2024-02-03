@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Mesh/MeshSpherical.hpp"
@@ -16,7 +15,6 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/ASpaceObject.hpp"

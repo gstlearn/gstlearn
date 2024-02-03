@@ -54,7 +54,7 @@ for (icol in 1:ncol) {
 
 MRt = MR$transpose() # Using cloneable feature
 
-M = prodMatrix(MRt, MR)
+M = prodMatMat(MRt, MR)
 
 msg = paste0("Matrix M is symmetric? ", M$isSymmetric())
 print(msg)
@@ -198,12 +198,12 @@ err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 print(paste0("nrow = ", nrow))
 Vref = VectorDouble(nrow)
 V2   = VectorDouble(nrow)
-err = MRR$prodVectorInPlace(V1, Vref)
-err = MSG$prodVectorInPlace(V1, V2)
+err = MRR$prodMatVec(V1, Vref)
+err = MSG$prodMatVec(V1, V2)
 print(paste0("Are results for MRR and MSG similar: ",  VectorHelper_isSame(Vref, V2)))
-err = MSS$prodVectorInPlace(V1, V2)
+err = MSS$prodMatVec(V1, V2)
 print(paste0("Are results for MRR and MSS similar: ",  VectorHelper_isSame(Vref, V2)))
-err = MSP$prodVectorInPlace(V1, V2)
+err = MSP$prodMatVec(V1, V2)
 print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V2)))
 
 #
@@ -216,11 +216,11 @@ V3 = VectorDouble(rep(0.0, nrow))
 print(paste0("Solve X from A*X=B. Compute A*X and compare with B"))
 
 err = MSS$solve(b = V1, x = V2)
-err = MSS$prodVectorInPlace(V2, V3)
+err = MSS$prodMatVec(V2, V3)
 print(paste0("Are results correct for MSS: ",  VectorHelper_isSame(V1, V3)))
 
 err = MSP$solve(b = V1, x = V2)
-err = MSP$prodVectorInPlace(V2, V3)
+err = MSP$prodMatVec(V2, V3)
 print(paste0("Are results correct for MSP: ", VectorHelper_isSame(V1, V3)))
 
 #
@@ -234,15 +234,15 @@ print(paste0("Calculate B=A^{-1}. Compute A*B and compare to Identity"))
 MSGref = MSG$clone() # Used to perform A*A-1 and check Identity
 
 err = MSG$invert()
-Res = prodMatrix(MSG, MSGref)
+Res = prodMatMat(MSG, MSGref)
 print(paste0("Are results correct for MSG: ", Res$isIdentity()))
 
 err = MSS$invert()
-Res = prodMatrix(MSS, MSGref)
+Res = prodMatMat(MSS, MSGref)
 print(paste0("Are results correct for MSS: ", Res$isIdentity()))
 
 err = MSP$invert()
-Res = prodMatrix(MSP, MSGref)
+Res = prodMatMat(MSP, MSGref)
 print(paste0("Are results correct for MSP: ", Res$isIdentity()))
 
 print(paste0("Test successfully performed"))

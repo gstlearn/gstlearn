@@ -15,7 +15,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 #include <functional>
@@ -305,7 +304,7 @@ void Chebychev::evalOp(MatrixSparse* S,const VectorDouble& x,VectorDouble& y) co
 
   for (int ib=2; ib<(int) _coeffs.size(); ib++)
   {
-    matCS_mulvec(T1, nvertex, tm1.data(), tx.data());
+    matCS_xM(T1, nvertex, tm1.data(), tx.data());
     for (int i=0; i<nvertex; i++)
     {
       tx[i]  = 2. * tx[i] - tm2[i];

@@ -514,12 +514,18 @@ Dividing current matrix row-wise by a vector (sequence)
      [  4,]   -30.814   -44.880   -36.205   -26.720    21.987   -27.671   -31.581
      [  5,]   -31.703   -47.520   -31.680   -32.904   -27.671    21.172   -31.680
      [  6,]   -31.680   -50.160   -37.461   -32.449   -31.581   -31.680    24.919
-Multiplying current matrix by vector (sequence)
-Resulting Vector
-  -827.950  -756.915 -1074.480  -675.356  -613.227  -586.481  -547.735
-Multiplying current matrix by vector transposed (sequence)
+Multiplying sequence vector by matrix
 Resulting Vector
   -830.791 -1127.280  -773.818  -688.546  -611.056  -604.574  -548.870
+Multiplying matrix (transposed) by sequence vector
+Resulting Vector
+  -830.791 -1127.280  -773.818  -688.546  -611.056  -604.574  -548.870
+Multiplying matrix by sequence vector
+Resulting Vector
+  -827.950  -756.915 -1074.480  -675.356  -613.227  -586.481  -547.735
+Multiplying sequence vector by matrix (transposed)
+Resulting Vector
+  -827.950  -756.915 -1074.480  -675.356  -613.227  -586.481  -547.735
 Making the product of the matrix by itself
 - Number of rows    = 7
 - Number of columns = 7
@@ -724,12 +730,18 @@ Dividing current matrix row-wise by a vector (sequence)
      [  5,]   -31.703   -47.520         .   -32.904   -27.671    21.172         .
      [  6,]         .         .   -37.461   -32.449   -31.581         .    24.919
 
-Multiplying current matrix by vector (sequence)
-Resulting Vector
-  -606.190  -535.155  -789.360  -675.356  -613.227  -269.681  -225.655
-Multiplying current matrix by vector transposed (sequence)
+Multiplying sequence vector by matrix
 Resulting Vector
   -609.031  -776.160  -583.738  -688.546  -611.056  -240.254  -263.750
+Multiplying matrix (transposed) by sequence vector
+Resulting Vector
+  -609.031  -776.160  -583.738  -688.546  -611.056  -240.254  -263.750
+Multiplying matrix by sequence vector
+Resulting Vector
+  -606.190  -535.155  -789.360  -675.356  -613.227  -269.681  -225.655
+Multiplying sequence vector by matrix (transposed)
+Resulting Vector
+  -606.190  -535.155  -789.360  -675.356  -613.227  -269.681  -225.655
 Making the product of the matrix by itself
 - Number of rows    = 7
 - Number of columns = 7

@@ -12,7 +12,6 @@
 // This test is meant to demonstrate the Potential Model
 // through estimation, cross-validation and simulations
 
-#include "geoslib_d.h"
 #include "geoslib_f.h"
 
 #include "Enum/ECov.hpp"

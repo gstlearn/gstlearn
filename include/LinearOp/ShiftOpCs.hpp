@@ -20,7 +20,6 @@
 #include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
 
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 #include <map>

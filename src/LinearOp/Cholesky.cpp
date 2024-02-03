@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-#include "geoslib_f.h"
 
 #include "LinearOp/Cholesky.hpp"
 #include "LinearOp/Identity.hpp"
@@ -137,8 +136,7 @@ void Cholesky::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
   }
 
   Timer time;
-  int n = getSize();
-  matCS_vecmult(_matCS, n, inv.data(), outv.data());
+  _matCS->prodMatVec(inv, outv);
   getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
 }
 

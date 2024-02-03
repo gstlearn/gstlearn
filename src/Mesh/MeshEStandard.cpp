@@ -11,7 +11,6 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Db/Db.hpp"

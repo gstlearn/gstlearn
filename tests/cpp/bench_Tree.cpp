@@ -8,9 +8,6 @@
 /* License: BSD 3 clauses                                                     */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/EKrigOpt.hpp"

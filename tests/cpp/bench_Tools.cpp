@@ -8,9 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-
 #include "Enum/ESpaceType.hpp"
 #include "Enum/ECov.hpp"
 #include "Enum/EKrigOpt.hpp"
@@ -163,7 +160,7 @@ int main(int argc, char *argv[])
   timer.reset();
   for (int itime = 0; itime < ntimes; itime++)
   {
-    res.prodMatrix(mata,  matb);
+    res.prodMatMat(mata,  matb);
     result = res(0,0);
   }
   timer.displayIntervalMilliseconds("with algebra", 1700);

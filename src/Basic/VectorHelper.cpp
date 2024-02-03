@@ -1759,3 +1759,26 @@ void VectorHelper::linearCombVVD(double val1,
     }
   }
 }
+
+/**
+ * Extract the part of a vector 'vecin' (dimensioned to dimension of 'vecout')
+ * starting at address 'istart' and copy it into 'vecout'
+ * @param vecin  Initial vector
+ * @param vecout Resulting vector (already allocated)
+ * @param start  Starting address (within 'vecin')
+ */
+void VectorHelper::extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
+{
+  std::copy(vecin.begin() + start, vecin.begin() + start + vecout.size(), vecout.begin());
+}
+
+/**
+ * Merge 'vecin' into 'vecout' starting at address 'istart'
+ * @param vecin  Initial vector
+ * @param vecout Vector where 'vecin' should be copied
+ * @param start  Starting address (in 'vecout')
+ */
+void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
+{
+  std::copy(vecin.begin(), vecin.end(), vecout.begin() + start);
+}

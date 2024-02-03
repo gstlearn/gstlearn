@@ -70,10 +70,10 @@ public:
   virtual void divideRow(const VectorDouble& vec) override;
   /*! Divide the matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) override;
-  /*! Perform M * 'vec' */
-  virtual VectorDouble prodVector(const VectorDouble& vec) const override;
-  /*! Perform 'vec'^T * M */
-  virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
+  /*! Perform y = x %*% 'this' */
+  virtual VectorDouble prodVecMatInPlace(const VectorDouble& x, bool transpose = false) const override;
+  /*! Perform y = 'this' %*% x */
+  virtual VectorDouble prodMatVecInPlace(const VectorDouble& x, bool transpose = true) const override;
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
@@ -95,7 +95,7 @@ public:
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMatrix(const MatrixSparse& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const MatrixSparse& x, const MatrixSparse& y);
+  virtual void prodMatMat(const MatrixSparse& x, const MatrixSparse& y);
   /*! Linear combination of matrices */
   virtual void linearCombination(double cx, double cy, const MatrixSparse& y);
 
@@ -153,7 +153,7 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const override;
   virtual void    _transposeInPlace() override;
 
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
+  virtual void    _prodMatVec(const double *x, double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -201,9 +201,10 @@ GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm(int mode,
 GSTLEARN_EXPORT MatrixSparse* matCS_eye_tab(int number, double *values);
 GSTLEARN_EXPORT MatrixSparse* matCS_eye(int number, double value);
 GSTLEARN_EXPORT MatrixSparse* matCS_triplet(const cs *T);
-GSTLEARN_EXPORT void          matCS_tmulvec(const MatrixSparse *A, int nout, const double *x, double *y);
-GSTLEARN_EXPORT void          matCS_mulvec(const MatrixSparse *A, int nout, const double *x, double *y);
-GSTLEARN_EXPORT void          matCS_vecmult(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_tMx(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_xM(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_Mx(const MatrixSparse *A, int nout, const double *x, double *y);
+GSTLEARN_EXPORT void          matCS_xtM(const MatrixSparse *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm_diagonal(int mode, const MatrixSparse *B, VectorDouble diag);
 GSTLEARN_EXPORT MatrixSparse* matCS_transpose(const MatrixSparse *A, int values);
 GSTLEARN_EXPORT MatrixSparse* matCS_multiply(const MatrixSparse *A, const MatrixSparse *B);

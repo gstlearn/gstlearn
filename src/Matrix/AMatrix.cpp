@@ -476,27 +476,35 @@ void AMatrix::prodScalar(double v)
 }
 
 /**
- *
- * @param inv Input vector
- * @param outv Output vector obtained by multiplying 'inv' by current Matrix
+ * Returns 'y' = 'this' %*% 'x'
+ * @param x Input vector
+ * @param y Output vector obtained by multiplying 'inv' by current Matrix
+ * @param transpose True if the matrix 'this' must be transposed
  */
-void AMatrix::prodVectorInPlace(const VectorDouble& inv, VectorDouble& outv) const
+void AMatrix::prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose) const
 {
   if (_flagCheckAddress)
   {
-    int sizein = (int) inv.size();
-    int sizeout = (int) outv.size();
-    if (sizein != _nCols || sizeout != _nRows)
+    bool error = false;
+    if (!transpose)
+    {
+      error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
+    }
+    else
+    {
+      error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
+    }
+    if (error)
     {
       messerr("Inconsistency between:");
-      messerr("- the dimension of 'inv' = %d", sizein);
-      messerr("- the dimension of 'outv' = %d", sizeout);
+      messerr("- the dimension of 'x' = %d", (int) x.size());
+      messerr("- the dimension of 'y' = %d", (int) y.size());
       messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows,
               _nCols);
       return;
     }
   }
-  _prodVectorInPlace(inv.data(), outv.data());
+  _prodMatVec(x.data(), y.data(), transpose);
 }
 
 void AMatrix::resize(int nrows, int ncols)
@@ -543,7 +551,7 @@ void AMatrix::addMatrix(const AMatrix& y, double value)
  * @param transposeX True if first matrix must be transposed
  * @param transposeY True if second matrix must be transposed
  */
-void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y, bool transposeX, bool transposeY)
+void AMatrix::prodMatMat(const AMatrix& x, const AMatrix& y, bool transposeX, bool transposeY)
 {
   int ni1 = (transposeX) ? x.getNCols() : x.getNRows();
   int nm1 = (transposeX) ? x.getNRows() : x.getNCols();
@@ -656,36 +664,76 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     }
 }
 
-VectorDouble AMatrix::prodVector(const VectorDouble& vec) const
+VectorDouble AMatrix::prodVecMatInPlace(const VectorDouble& x, bool transpose) const
 {
-  if (_nCols != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of columns");
-
-  VectorDouble res(_nRows, 0.);
-  for (int irow = 0; irow < _nRows; irow++)
+  VectorDouble y;
+  if (! transpose)
   {
-    double value = 0.;
+    if (_nRows != (int) x.size())
+      my_throw("The size of 'x' must match the number of rows");
+
+    y.resize(_nCols, 0.);
     for (int icol = 0; icol < _nCols; icol++)
-      value += _getValue(irow, icol) * vec[icol];
-    res[irow] = value;
+    {
+      double value = 0.;
+      for (int irow = 0; irow < _nRows; irow++)
+        value += _getValue(irow, icol) * x[irow];
+      y[icol] = value;
+    }
   }
-  return res;
+  else
+  {
+    if (_nCols != (int) x.size())
+      my_throw("The size of 'x' must match the number of columns");
+
+    y.resize(_nRows, 0.);
+    for (int irow = 0; irow < _nRows; irow++)
+    {
+      double value = 0.;
+      for (int icol = 0; icol < _nCols; icol++)
+        value += _getValue(irow, icol) * x[icol];
+      y[irow] = value;
+    }
+  }
+  return y;
 }
 
-VectorDouble AMatrix::prodTVector(const VectorDouble& vec) const
+VectorDouble AMatrix::prodMatVecInPlace(const VectorDouble& x, bool transpose) const
 {
-  if (_nRows != (int) vec.size())
-    my_throw("The size of 'vec' must match the number of rows");
-
-  VectorDouble res(_nCols, 0.);
-  for (int icol = 0; icol < _nCols; icol++)
+  VectorDouble y;
+  if (transpose)
   {
-    double value = 0.;
-    for (int irow = 0; irow < _nRows; irow++)
-      value += _getValue(irow, icol) * vec[irow];
-    res[icol] = value;
+    if (_nRows != (int) x.size())
+      my_throw("The size of 'x' must match the number of rows");
+
+    y.resize(_nCols, 0.);
+    for (int icol = 0; icol < _nCols; icol++)
+    {
+      double value = 0.;
+      for (int irow = 0; irow < _nRows; irow++)
+      {
+        value += _getValue(irow, icol) * x[irow];
+      }
+      y[icol] = value;
+    }
   }
-  return res;
+  else
+  {
+    if (_nCols != (int) x.size())
+      my_throw("The size of 'x' must match the number of columns");
+
+    y.resize(_nRows, 0.);
+    for (int irow = 0; irow < _nRows; irow++)
+    {
+      double value = 0.;
+      for (int icol = 0; icol < _nCols; icol++)
+      {
+        value += _getValue(irow, icol) * x[icol];
+      }
+      y[irow] = value;
+    }
+  }
+  return y;
 }
 
 double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
@@ -702,7 +750,7 @@ double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
   }
 
   VectorDouble left(_nRows);
-  prodVectorInPlace(y, left);
+  prodMatVec(y, left, false);
   return VH::innerProduct(x, left);
 }
 
@@ -1229,19 +1277,9 @@ void AMatrix::makePositiveColumn()
   }
 }
 
-AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
+void AMatrix::prodMatMatInPlace(const AMatrix *matY, bool transposeY)
 {
-  return MatrixFactory::matProduct(mat1, mat2);
-}
-
-
-void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2)
-{
-  AMatrix* res = prodMatrix(mat1, mat2);
-  for (int icol = 0; icol < mat1->getNCols(); icol++)
-    for (int irow = 0; irow < mat1->getNRows(); irow++)
-      mat1->setValue(irow, icol, res->getValue(irow, icol));
-  delete res;
+  prodMatMat(*this, *matY, false, transposeY);
 }
 
 /**
@@ -1274,3 +1312,7 @@ bool isMultiThread()
   return globalMultiThread > 0;
 }
 
+AMatrix* prodMatMat(const AMatrix *mat1, const AMatrix *mat2)
+{
+  return MatrixFactory::matProduct(mat1, mat2);
+}

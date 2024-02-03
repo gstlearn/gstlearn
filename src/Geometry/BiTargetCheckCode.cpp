@@ -8,9 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckCode.hpp>
-#include "geoslib_f.h"
-
+#include "Geometry/BiTargetCheckCode.hpp"
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckCode::BiTargetCheckCode(int optcode, double tolcode)

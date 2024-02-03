@@ -17,7 +17,6 @@
 
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
@@ -2034,7 +2033,7 @@ static void st_kriging_one_rhs(QChol *QCtd,
                                int ntarget,
                                double *rhs)
 {
-  matCS_mulvec(QCtd->Q, ntarget, data, rhs);
+  matCS_xM(QCtd->Q, ntarget, data, rhs);
   for (int i = 0; i < ntarget; i++)
     rhs[i] = -rhs[i];
 }
@@ -3949,7 +3948,7 @@ int spde_chebychev_operate(MatrixSparse *S,
 
   for (int ib = 2; ib < ncoeffs; ib++)
   {
-    matCS_mulvec(T1, nvertex, tm1, tx);
+    matCS_xM(T1, nvertex, tm1, tx);
     coeff_ib = coeffs[ib];
     for (int i = 0; i < nvertex; i++)
     {
@@ -4178,12 +4177,12 @@ static int st_kriging_several_rhs(double *data,
           // E_ij * Z_j
           B0 = st_extract_Q1_nugget(ivar, jvar, &nrows, &ncols);
           if (B0 == nullptr) goto label_end;
-          matCS_mulvec(B0, nrows, &DATA(jvar, 0), temp);
+          matCS_xM(B0, nrows, &DATA(jvar, 0), temp);
           for (int i = 0; i < nrows; i++)
             work[i] += temp[i];
           delete B0;
         }
-        matCS_tmulvec(Matelem.Aproj, ncur, work, &RHS(icov, ivar, 0));
+        matCS_tMx(Matelem.Aproj, ncur, work, &RHS(icov, ivar, 0));
       }
     }
     else
@@ -4203,7 +4202,7 @@ static int st_kriging_several_rhs(double *data,
             B0 = st_extract_Q1_hetero(ivar, jvar, 2, 1, &nrows, &ncols);
             if (B0 == nullptr) goto label_end;
             cs_print_dim("Apres extraction de Qtd", B0->getCS());
-            matCS_mulvec(B0, nrows, &DATA(jvar, 0), temp);
+            matCS_xM(B0, nrows, &DATA(jvar, 0), temp);
             for (int i = 0; i < nrows; i++)
               work[i] += temp[i];
             delete B0;
@@ -4219,13 +4218,13 @@ static int st_kriging_several_rhs(double *data,
             // Q1_dd_ij * Z_j
             B0 = st_extract_Q1_hetero(ivar, jvar, 1, 1, &nrows, &ncols);
             if (B0 == nullptr) goto label_end;
-            matCS_mulvec(B0, nrows, &DATA(jvar, 0), temp);
+            matCS_xM(B0, nrows, &DATA(jvar, 0), temp);
             for (int i = 0; i < nrows; i++)
               work[i] += temp[i];
             delete B0;
           }
           // A^t(icov) * sum{ Q1_dd_ij * Z_j } 
-          matCS_tmulvec(Matelem.Aproj, ncur, work, &RHS(icov, ivar, 0));
+          matCS_tMx(Matelem.Aproj, ncur, work, &RHS(icov, ivar, 0));
         }
       }
     }
@@ -4322,7 +4321,7 @@ static int st_kriging_several_loop(int flag_crit,
           if (st_is_model_nugget())
           {
             // Sill(icov)_ij * Q(icov) * X_j
-            matCS_mulvec(Qicov, nicur, &XCUR(icov, jvar, 0), rhsloc);
+            matCS_xM(Qicov, nicur, &XCUR(icov, jvar, 0), rhsloc);
             for (int icur = 0; icur < nicur; icur++)
               rhsloc[icur] *= st_get_isill(icov, ivar, jvar);
           }
@@ -4332,13 +4331,13 @@ static int st_kriging_several_loop(int flag_crit,
             {
               // Q1_tt_ij * X_j
               B0 = st_extract_Q1_hetero(ivar, jvar, 2, 2, &nrows, &ncols);
-              matCS_mulvec(B0, nrows, &XCUR(icov, jvar, 0), rhsloc);
+              matCS_xM(B0, nrows, &XCUR(icov, jvar, 0), rhsloc);
               delete B0;
             }
             else
             {
               // Sill(icov)_ij * Q(icov) * X_j
-              matCS_mulvec(Qicov, nicur, &XCUR(icov, jvar, 0), rhsloc);
+              matCS_xM(Qicov, nicur, &XCUR(icov, jvar, 0), rhsloc);
               for (int icur = 0; icur < nicur; icur++)
                 rhsloc[icur] *= st_get_isill(icov, ivar, jvar);
             }
@@ -4396,8 +4395,8 @@ static int st_kriging_several_loop(int flag_crit,
             if (st_is_model_nugget())
             {
               // A^t(icov) * E_ij * A(jcov) * X_j
-              matCS_mulvec(Ajcov, njcur, &XCUR(jcov, jvar, 0), work);
-              matCS_mulvec(Bf, nicur, work, rhsloc);
+              matCS_xM(Ajcov, njcur, &XCUR(jcov, jvar, 0), work);
+              matCS_xM(Bf, nicur, work, rhsloc);
               signe = 1;
             }
             else
@@ -4406,23 +4405,23 @@ static int st_kriging_several_loop(int flag_crit,
               {
                 // -A^t(icov) * Q1_dt_ij * X_j 
                 B0 = st_extract_Q1_hetero(ivar, jvar, 1, 2, &nrows, &ncols);
-                matCS_mulvec(B0, nrows, &XCUR(jcov, jvar, 0), work);
-                matCS_mulvec(tAicov, nicur, work, rhsloc);
+                matCS_xM(B0, nrows, &XCUR(jcov, jvar, 0), work);
+                matCS_xM(tAicov, nicur, work, rhsloc);
                 delete B0;
                 signe = -1;
               }
               else if (icov == 0 && jcov > 0)
               {
                 // -Q1_td_ij * A(jcov) * X_j
-                matCS_mulvec(Ajcov, njcur, &XCUR(jcov, jvar, 0), work);
-                matCS_mulvec(Bf, nicur, work, rhsloc);
+                matCS_xM(Ajcov, njcur, &XCUR(jcov, jvar, 0), work);
+                matCS_xM(Bf, nicur, work, rhsloc);
                 signe = -1;
               }
               else if (icov > 0 && jcov > 0)
               {
                 // A^t(icov) * Q1_dd_ij * A(jcov) * X_j
-                matCS_mulvec(Ajcov, njcur, &XCUR(jcov, jvar, 0), work);
-                matCS_mulvec(Bf, nicur, work, rhsloc);
+                matCS_xM(Ajcov, njcur, &XCUR(jcov, jvar, 0), work);
+                matCS_xM(Bf, nicur, work, rhsloc);
                 signe = +1;
               }
             }
@@ -6333,17 +6332,9 @@ static void st_product_Q(int nblin,
                          double *x,
                          double *y)
 {
-  double *x1, *x2;
-  int n;
-
-  // Initializations
-
-  n = S->getNCols();
-
-  // Core allocation 
-
-  x1 = (double*) mem_alloc(sizeof(double) * n, 1);
-  x2 = (double*) mem_alloc(sizeof(double) * n, 1);
+  int n = S->getNCols();
+  VectorDouble x1(n);
+  VectorDouble x2(n);
 
   for (int i = 0; i < n; i++)
     y[i] = 0.;
@@ -6354,16 +6345,13 @@ static void st_product_Q(int nblin,
   {
     for (int i = 0; i < n; i++)
       y[i] += blin[ilin] * x1[i];
-    matCS_vecmult(S, n, x1, x2);
+    S->prodMatVec(x1, x2);
     for (int i = 0; i < n; i++)
       x1[i] = x2[i];
   }
 
   for (int i = 0; i < n; i++)
     y[i] *= pow(Lambda[i] / sqrt(TildeC[i]), 2.) * sqrt(TildeC[i]);
-
-  x1 = (double*) mem_free((char* ) x1);
-  x2 = (double*) mem_free((char* ) x2);
 }
 
 #ifndef SWIG
@@ -9135,14 +9123,14 @@ int m2d_gibbs_spde(Db *dbin,
 
           for (int i = 0; i < nvertex; i++)
             zkrig[i] = vwork[i] = 0.;
-          matCS_tmulvec(Matelem.Aproj, nvertex, ydat_loc, rhs);
+          matCS_tMx(Matelem.Aproj, nvertex, ydat_loc, rhs);
           st_kriging_cholesky(Qc, rhs, vwork, zkrig);
           for (int i = 0; i < nvertex; i++)
             yvert_loc[i] += zkrig[i];
 
           // Project the Simulation from the vertices onto the Data
 
-          matCS_mulvec(Matelem.Aproj, nech, yvert_loc, ymean_loc);
+          matCS_xM(Matelem.Aproj, nech, yvert_loc, ymean_loc);
         }
 
         // Perform a Gibbs iteration on the constraints
@@ -9170,7 +9158,7 @@ int m2d_gibbs_spde(Db *dbin,
       /* Project from vertices to grid nodes */
 
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
-        matCS_mulvec(Bproj, ngrid, &YVERT(ilayer, 0), &GWORK(ilayer, 0));
+        matCS_xM(Bproj, ngrid, &YVERT(ilayer, 0), &GWORK(ilayer, 0));
 
       /* Convert from Gaussian to Depth */
 

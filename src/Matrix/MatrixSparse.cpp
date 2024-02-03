@@ -519,41 +519,69 @@ void MatrixSparse::divideColumn(const VectorDouble& vec)
   }
 }
 
-/*! Perform M * 'vec' */
-VectorDouble MatrixSparse::prodVector(const VectorDouble& vec) const
+/*! Perform y = x %*% 'this' */
+VectorDouble MatrixSparse::prodVecMatInPlace(const VectorDouble& x, bool transpose) const
 {
   if (_isFlagEigen())
   {
-    Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
-    Eigen::VectorXd resm = _eigenMatrix * vecm;
-    VectorDouble res(resm.data(), resm.data() + resm.size());
-    return res;
+    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
+    Eigen::VectorXd ym;
+    if (transpose)
+      ym = xm.transpose() * _eigenMatrix.transpose();
+    else
+      ym = xm.transpose() * _eigenMatrix;
+    VectorDouble y(ym.data(), ym.data() + ym.size());
+    return y;
   }
   else
   {
-    int nrow = getNRows();
-    VectorDouble res(nrow);
-    cs_mulvec(_csMatrix, nrow, vec.data(), res.data());
-    return res;
+    VectorDouble y;
+    if (transpose)
+    {
+      int ncol = getNCols();
+      y.resize(ncol);
+      cs_vector_xtM(_csMatrix, ncol, x.data(), y.data());
+    }
+    else
+    {
+      int nrow = getNRows();
+      y.resize(nrow);
+      cs_vector_xM(_csMatrix, nrow, x.data(), y.data());
+    }
+    return y;
   }
 }
 
-/*! Perform 'vec'^T * M */
-VectorDouble MatrixSparse::prodTVector(const VectorDouble& vec) const
+/*! Perform y = 'this' %*% x */
+VectorDouble MatrixSparse::prodMatVecInPlace(const VectorDouble& x, bool transpose) const
 {
   if (_isFlagEigen())
   {
-    Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
-    Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
-    VectorDouble res(resm.data(), resm.data() + resm.size());
-    return res;
+    Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
+    Eigen::VectorXd ym;
+    if (transpose)
+      ym = _eigenMatrix.transpose() * xm;
+    else
+      ym = _eigenMatrix * xm;
+    VectorDouble y(ym.data(), ym.data() + ym.size());
+    return y;
   }
   else
   {
-    int ncol = getNCols();
-    VectorDouble res(ncol);
-    cs_tmulvec(_csMatrix, ncol, vec.data(), res.data());
-    return res;
+    VectorDouble y;
+    if (transpose)
+    {
+      int ncol = getNCols();
+      y.resize(ncol);
+      cs_vector_tMx(_csMatrix, ncol, x.data(), y.data());
+    }
+    else
+    {
+      int nrow = getNRows();
+      y.resize(nrow);
+      cs_vector_Mx(_csMatrix, nrow, x.data(), y.data());
+    }
+    return y;
   }
 }
 
@@ -726,25 +754,30 @@ void MatrixSparse::prodScalar(double v)
 }
 
 /**
- *
- * @param inv Input vector
- * @param outv Output vector obtained by multiplying 'inv' by current Matrix
+ * Returns 'y' = 'this' %*% 'x'
+ * @param x Input vector
+ * @param y Output vector
+ * @param transpose True if the matrix 'this' must be transposed
  */
-#ifndef SWIG
-void MatrixSparse::_prodVectorInPlace(const double *inv, double *outv) const
+void MatrixSparse::_prodMatVec(const double *x, double *y, bool transpose) const
 {
   if (_isFlagEigen())
   {
-    Eigen::Map<const Eigen::VectorXd> inm(inv, getNCols());
-    Eigen::Map<Eigen::VectorXd> outm(outv, getNRows());
-    outm.noalias() = _eigenMatrix * inm;
+    Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+    if (transpose)
+      ym.noalias() = _eigenMatrix * xm;
+    else
+      ym.noalias() = _eigenMatrix.transpose() * xm;
   }
   else
   {
-    cs_vecmult(_csMatrix, getNRows(), inv, outv);
+    if (transpose)
+      cs_vector_tMx(_csMatrix, getNCols(), x, y);
+    else
+      cs_vector_Mx(_csMatrix, getNRows(), x, y);
   }
 }
-#endif
 
 /**
  * Add the matrix 'y' to the current Matrix
@@ -776,7 +809,7 @@ void MatrixSparse::addMatrix(const MatrixSparse& y, double value)
  * @param x First Matrix
  * @param y Second matrix
  */
-void MatrixSparse::prodMatrix(const MatrixSparse& x, const MatrixSparse& y)
+void MatrixSparse::prodMatMat(const MatrixSparse& x, const MatrixSparse& y)
 {
   if (_getFlagCheckAddress())
   {
@@ -1160,22 +1193,28 @@ MatrixSparse* matCS_triplet(const cs *T)
   return mat;
 }
 
-void matCS_tmulvec(const MatrixSparse *A, int nout, const double *x, double *y)
+void matCS_tMx(const MatrixSparse *A, int nout, const double *x, double *y)
 {
   const cs* Acs = _getCS(A);
-  cs_tmulvec(Acs, nout, x, y);
+  cs_vector_tMx(Acs, nout, x, y);
 }
 
-void matCS_mulvec(const MatrixSparse *A, int nout, const double *x, double *y)
+void matCS_xM(const MatrixSparse *A, int nout, const double *x, double *y)
 {
   const cs* Acs = _getCS(A);
-  cs_mulvec(Acs, nout, x, y);
+  cs_vector_xM(Acs, nout, x, y);
 }
 
-void matCS_vecmult(const MatrixSparse *A, int nout, const double *x, double *y)
+void matCS_xtM(const MatrixSparse *A, int nout, const double *x, double *y)
 {
   const cs* Acs = _getCS(A);
-  cs_vecmult(Acs, nout, x, y);
+  cs_vector_xtM(Acs, nout, x, y);
+}
+
+void matCS_Mx(const MatrixSparse *A, int nout, const double *x, double *y)
+{
+  const cs* Acs = _getCS(A);
+  cs_vector_Mx(Acs, nout, x, y);
 }
 
 MatrixSparse* matCS_prod_norm_diagonal(int mode, const MatrixSparse *B, VectorDouble diag)

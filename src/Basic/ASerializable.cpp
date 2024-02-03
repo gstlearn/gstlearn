@@ -318,6 +318,12 @@ String ASerializable::getTestData(const String& subdir, const String& filename)
   return sstr.str();
 }
 
+/**
+ * Returns the Identity of a Neutral File which allows knowing its type
+ * @param filename Name of the Neutral File
+ * @param verbose Verbose flag
+ * @return
+ */
 String ASerializable::getFileIdentity(const String& filename, bool verbose)
 {
   // Preliminary check

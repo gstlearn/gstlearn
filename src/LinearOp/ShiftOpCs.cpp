@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "LinearOp/ShiftOpCs.hpp"
 #include "geoslib_old_f.h"
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -28,7 +27,6 @@
 #include "Model/Model.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 
@@ -442,8 +440,7 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
 void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 {
   Timer time;
-  int n = (int) x.size();
-  matCS_vecmult(_S, n, x.data(), y.data());
+  _S->prodMatVec(x, y);
   getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
@@ -738,7 +735,7 @@ double ShiftOpCs::_computeGradLogDetHH(const AMesh *amesh,
     }
 
     work.normMatrix(rotmat, temp);
-    work2.prodMatrix(work, invHH);
+    work2.prodMatMat(work, invHH);
     double result = work2.trace();
     delete cova;
     return result;
@@ -882,7 +879,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.prodMatrix(matMtM, matM, false, true);
+  matP.prodMatMat(matMtM, matM, false, true);
   return 0;
 }
 

@@ -206,6 +206,8 @@ public:
                             VectorVectorDouble &outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
+  static void extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
+  static void mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
 };
 
 //typedef VectorHelper VH;

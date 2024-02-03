@@ -158,16 +158,17 @@ void MatrixSquareGeneral::_setValueByRank(int irank, double value)
 }
 
 /**
- * Right product of this by in gives out
- * @param inv  Input Vector
- * @param outv Output Vector
+ * Returns 'y' = 'this' %*% 'x'
+ * @param x  Input Vector
+ * @param y Output Vector
+ * @param transpose True if the matrix 'this' must be transposed
  */
-void MatrixSquareGeneral::_prodVectorInPlace(const double *inv, double *outv) const
+void MatrixSquareGeneral::_prodMatVec(const double *x, double *y, bool transpose) const
 {
   if (_isFlagEigen())
-    AMatrixDense::_prodVectorInPlace(inv, outv);
+    AMatrixDense::_prodMatVec(x, y, transpose);
   else
-    _prodVectorLocal(inv, outv);
+    _prodMatVecLocal(x, y, transpose);
 }
 
 void MatrixSquareGeneral::_transposeInPlace()
@@ -281,10 +282,14 @@ void MatrixSquareGeneral::_setValueLocal(int irank, double value)
  * Right product of this by in gives out
  * @param inv  Input Vector
  * @param outv Output Vector
+ * @param transpose True if the matrix 'this' must be transposed
  */
-void MatrixSquareGeneral::_prodVectorLocal(const double *inv, double *outv) const
+void MatrixSquareGeneral::_prodMatVecLocal(const double *inv, double *outv, bool transpose) const
 {
-  matrix_product_safe(getNRows(),getNCols(),1,_squareMatrix.data(),inv,outv);
+  if (transpose)
+    matrix_product_safe(1, getNRows(), getNCols(), inv, _squareMatrix.data(), outv);
+  else
+    matrix_product_safe(getNRows(), getNCols(), 1, _squareMatrix.data(), inv, outv);
 }
 
 void MatrixSquareGeneral::_transposeInPlaceLocal()

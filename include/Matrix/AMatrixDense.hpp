@@ -60,10 +60,10 @@ public:
   virtual void divideRow(const VectorDouble& vec) override;
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) override;
-  /*! Perform M * 'vec' */
-  virtual VectorDouble prodVector(const VectorDouble& vec) const override;
-  /*! Perform 'vec'^T * M */
-  virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
+  /*! Perform 'vec' * 'this' */
+  virtual VectorDouble prodVecMatInPlace(const VectorDouble& x, bool transpose = false) const override;
+  /*! Perform 'this' * 'vec'*/
+  virtual VectorDouble prodMatVecInPlace(const VectorDouble& x, bool transpose = true) const override;
   /*! Extract a Row */
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
@@ -75,7 +75,7 @@ public:
   /*! Add a matrix (multiplied by a constant) */
   virtual void addMatrix(const AMatrixDense& y, double value = 1.);
   /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const AMatrixDense &x,
+  virtual void prodMatMat(const AMatrixDense &x,
                           const AMatrixDense &y,
                           bool transposeX = false,
                           bool transposeY = false);
@@ -98,7 +98,7 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
   virtual void    _transposeInPlace() override;
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
+  virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -114,7 +114,7 @@ private:
   void    _allocateLocal();
   int     _solveLocal(const VectorDouble &b, VectorDouble &x) const;
   int     _invertLocal();
-  void    _prodVectorLocal(const double *inv, double *outv) const;
+  void    _prodMatVecLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
   int     _getIndexToRankLocal(int irow, int icol) const;
   int     _getMatrixPhysicalSizeLocal() const;
@@ -132,7 +132,7 @@ private:
   void _addScalarDiagLocal(double v);
   void _prodScalarLocal(double v);
   void _addMatrixLocal(const AMatrixDense& y, double value = 1.);
-  void _prodMatrixLocal(const AMatrixDense &x,
+  void _prodMatMatLocal(const AMatrixDense &x,
                         const AMatrixDense &y,
                         bool transposeX = false,
                         bool transposeY = false);
@@ -142,8 +142,8 @@ private:
   void _multiplyColumnLocal(const VectorDouble& vec);
   void _divideRowLocal(const VectorDouble& vec);
   void _divideColumnLocal(const VectorDouble& vec);
-  VectorDouble _prodVectorLocal(const VectorDouble& vec) const;
-  VectorDouble _prodTVectorLocal(const VectorDouble& vec) const;
+  VectorDouble _prodMatVecInPlaceLocal(const VectorDouble& x, bool transpose = false) const;
+  VectorDouble _prodVecMatInPlaceLocal(const VectorDouble& x, bool transpose = false) const;
   VectorDouble _getRowLocal(int irow) const;
   VectorDouble _getColumnLocal(int icol) const;
 

@@ -16,7 +16,6 @@
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include "geoslib_old_f.h"
 
@@ -874,7 +873,7 @@ static void st_multigrid_ascent(cs_MGS *mgs,
     message("Ascending from %d to %d (init=%d scale=%d)\n", level + 1, level,
             flag_init, flag_scale);
   mg = mgs->mg[level];
-  matCS_tmulvec(mg->IhH, mg->nh, zin, work);
+  matCS_tMx(mg->IhH, mg->nh, zin, work);
   if (flag_init)
     for (int icur = 0; icur < mg->nh; icur++)
       zout[icur] = work[icur];
@@ -928,10 +927,10 @@ static void st_multigrid_descent(cs_MGS *mgs,
 
   if (DEBUG) message("Descending from %d to %d\n", level - 1, level);
   mg = mgs->mg[level - 1];
-  matCS_mulvec(mg->A->Q, mg->nh, zin, work);
+  matCS_xM(mg->A->Q, mg->nh, zin, work);
   for (int icur = 0; icur < mg->nh; icur++)
     work[icur] = rhsin[icur] - work[icur];
-  matCS_mulvec(mg->IhH, mg->nH, work, rhsout);
+  matCS_xM(mg->IhH, mg->nH, work, rhsout);
 }
 
 /****************************************************************************/
@@ -1296,7 +1295,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
     // Calculate the score
 
     score = 0.;
-    cs_mulvec(mgs->mg[0]->A->Q->getCS(), mgs->mg[0]->A->Q->getNCols(), &XCR(0, 0), work);
+    cs_vector_xM(mgs->mg[0]->A->Q->getCS(), mgs->mg[0]->A->Q->getNCols(), &XCR(0, 0), work);
     for (int icur = 0; icur < ncur; icur++)
     {
       delta = (b[icur] - work[icur]);
@@ -1378,7 +1377,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   // Calculate initial residual
 
   mg = mgs->mg[0];
-  cs_mulvec(mg->A->Q->getCS(), mg->nh, x, work);
+  cs_vector_xM(mg->A->Q->getCS(), mg->nh, x, work);
   for (int icur = 0; icur < mg->nh; icur++)
     resid[icur] = b[icur] - work[icur];
   for (int icur = 0; icur < ncur; icur++)
@@ -1394,7 +1393,7 @@ static int st_multigrid_kriging_cg(cs_MGS *mgs,
   for (int iter = 0; iter < mgs->ngc; iter++)
   {
     s = sn;
-    cs_mulvec(mg->A->Q->getCS(), mg->nh, p, temp);
+    cs_vector_xM(mg->A->Q->getCS(), mg->nh, p, temp);
     matrix_product_safe(1, ncur, 1, p, temp, &alpha);
     alpha = s / alpha;
 
@@ -2387,55 +2386,7 @@ double* cs_col_sumrow(const cs *A, int *ncol, int *nrow)
 
 /* Operate the product of a vector by a sparse matrix */
 /* y = A %*% x */
-void cs_vecmult(const cs *A, int nout, const double *x, double *y)
-{
-  int *Ap, *Ai, n;
-  double *Ax, value;
-
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-
-  for (int j = 0; j < nout; j++)
-    y[j] = 0.;
-
-  for (int j = 0; j < n; j++)
-  {
-    value = 0.;
-    for (int p = Ap[j]; p < Ap[j + 1]; p++)
-      value += Ax[p] * x[Ai[p]];
-    y[j] = value;
-  }
-}
-
-/* Operate the product of a vector by a sparse matrix */
-/* y = t(A) %*% x */
-void cs_tmulvec(const cs *A, int nout, const double *x, double *y)
-{
-  int *Ap, *Ai, n;
-  double *Ax, value;
-
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-
-  for (int j = 0; j < nout; j++)
-    y[j] = 0.;
-
-  for (int j = 0; j < n; j++)
-  {
-    value = 0.;
-    for (int p = Ap[j]; p < Ap[j + 1]; p++)
-      value += Ax[p] * x[Ai[p]];
-    y[j] = value;
-  }
-}
-
-/* Operate the product of a vector by a sparse matrix */
-/* y = x %*% A */
-void cs_mulvec(const cs *A, int nout, const double *x, double *y)
+void cs_vector_Mx(const cs *A, int nout, const double *x, double *y)
 {
   int *Ap, *Ai, n;
   double *Ax;
@@ -2449,12 +2400,68 @@ void cs_mulvec(const cs *A, int nout, const double *x, double *y)
     y[j] = 0.;
 
   for (int j = 0; j < n; j++)
-  {
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
-    {
       y[Ai[p]] += Ax[p] * x[j];
-    }
-  }
+}
+
+/* Operate the product of a vector by a sparse matrix */
+/* y = t(A) %*% x */
+void cs_vector_tMx(const cs *A, int nout, const double *x, double *y)
+{
+  int *Ap, *Ai, n;
+  double *Ax;
+
+  n = cs_getncol(A);
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  for (int j = 0; j < nout; j++)
+    y[j] = 0.;
+
+  for (int j = 0; j < n; j++)
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+      y[j] += Ax[p] * x[Ai[p]];
+}
+
+/* Operate the product of a vector by a sparse matrix */
+/* y = x %*% A */
+void cs_vector_xM(const cs *A, int nout, const double *x, double *y)
+{
+  int *Ap, *Ai, n;
+  double *Ax;
+
+  n = cs_getncol(A);
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  for (int j = 0; j < nout; j++)
+    y[j] = 0.;
+
+  for (int j = 0; j < n; j++)
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+      y[j] += x[Ai[p]] * Ax[p];
+}
+
+/* Operate the product of a vector by a sparse matrix */
+/* y = x %*% t(A) */
+void cs_vector_xtM(const cs *A, int nout, const double *x, double *y)
+{
+  int *Ap, *Ai, n;
+  double *Ax;
+
+  n = cs_getncol(A);
+  Ap = A->p;
+  Ai = A->i;
+  Ax = A->x;
+
+  for (int j = 0; j < nout; j++)
+    y[j] = 0.;
+
+  for (int j = 0; j < n; j++)
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+      y[Ai[p]] += x[j] * Ax[p];
 }
 
 cs* cs_normalize_by_diag_and_release(cs *Q, int flag_release)

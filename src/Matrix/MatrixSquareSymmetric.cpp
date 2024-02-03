@@ -167,12 +167,12 @@ void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
     _setValueLocal(irank, value);
 }
 
-void MatrixSquareSymmetric::_prodVectorInPlace(const double *inv, double *outv) const
+void MatrixSquareSymmetric::_prodMatVec(const double *x, double *y, bool transpose) const
 {
   if (_isFlagEigen())
-    AMatrixDense::_prodVectorInPlace(inv, outv);
+    AMatrixDense::_prodMatVec(x, y, transpose);
   else
-    _prodVectorLocal(inv, outv);
+    _prodMatVecLocal(x, y, transpose);
 }
 
 /**
@@ -401,9 +401,9 @@ void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixSquareSymmetric::_prodVectorLocal(const double *inv, double *outv) const
+void MatrixSquareSymmetric::_prodMatVecLocal(const double *x, double *y, bool transpose) const
 {
-  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),inv,outv);
+  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 
 /**

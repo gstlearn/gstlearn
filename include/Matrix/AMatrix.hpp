@@ -94,10 +94,10 @@ public:
   virtual void divideRow(const VectorDouble& vec);
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec);
-  /*! Perform M * 'vec' */
-  virtual VectorDouble prodVector(const VectorDouble& vec) const;
-  /*! Perform 'vec'^T * M */
-  virtual VectorDouble prodTVector(const VectorDouble& vec) const;
+  /*! Perform 'vec' * 'this' */
+  virtual VectorDouble prodVecMatInPlace(const VectorDouble& x, bool transpose = false) const;
+  /*! Perform 'this' * 'vec' */
+  virtual VectorDouble prodMatVecInPlace(const VectorDouble& x, bool transpose = true) const;
   /*! Extract a Row */
   virtual VectorDouble getRow(int irow) const;
   /*! Extract a Column */
@@ -110,11 +110,13 @@ public:
 
   /*! Add a matrix (multiplied by a constant) */
   void addMatrix(const AMatrix& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in 'this' */
-  void prodMatrix(const AMatrix &x,
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
+  void prodMatMat(const AMatrix &x,
                   const AMatrix &y,
                   bool transposeX = false,
                   bool transposeY = false);
+  /*! Multiply 'this' by matrix 'y' */
+  void prodMatMatInPlace(const AMatrix* matY, bool transposeY = false);
   /*! Linear combination of matrices */
   void linearCombination(double cx, double cy, const AMatrix& y);
 
@@ -161,8 +163,8 @@ public:
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
 
-  /*! Perform 'outv' = M * 'inv' */
-  void prodVectorInPlace(const VectorDouble& inv, VectorDouble& outv) const;
+  /*! Perform 'y' = 'this' * 'x' */
+  void prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
   /*! Perform x %*% mat %*% y */
   double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
   /*! Matrix inversion in place */
@@ -211,7 +213,7 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const = 0;
+  virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
 
@@ -242,8 +244,8 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
-GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);
+GSTLEARN_EXPORT AMatrix* prodMatMat(const AMatrix *mat1, const AMatrix *mat2);
+
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
 GSTLEARN_EXPORT void setMultiThread(int nthreads);

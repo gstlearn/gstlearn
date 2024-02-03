@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -64,7 +63,6 @@ static Model *st_modify(Model *model,
 /*********************/
 
 int main(int argc, char *argv[])
-
 {
   char       filename[BUFFER_LENGTH];
   Db        *dbin;

@@ -145,12 +145,12 @@ void MatrixRectangular::_setValue(int irow, int icol, double value)
     _setValueLocal(irow, icol, value);
 }
 
-void MatrixRectangular::_prodVectorInPlace(const double *inv, double *outv) const
+void MatrixRectangular::_prodMatVec(const double *x, double *y, bool transpose) const
 {
   if (_isFlagEigen())
-    AMatrixDense::_prodVectorInPlace(inv, outv);
+    AMatrixDense::_prodMatVec(x, y, transpose);
   else
-    _prodVectorLocal(inv, outv);
+    _prodMatVecLocal(x, y, transpose);
 }
 
 void MatrixRectangular::_transposeInPlace()
@@ -311,9 +311,12 @@ void MatrixRectangular::_setValueLocal(int irow, int icol, double value)
   _rectMatrix[rank] = value;
 }
 
-void MatrixRectangular::_prodVectorLocal(const double *inv, double *outv) const
+void MatrixRectangular::_prodMatVecLocal(const double *x, double *y, bool transpose) const
 {
-  matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), inv, outv);
+  if (! transpose)
+    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
+  else
+    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
 }
 
 void MatrixRectangular::_transposeInPlaceLocal()

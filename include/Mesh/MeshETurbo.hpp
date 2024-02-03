@@ -20,6 +20,7 @@
 class MatrixRectangular;
 class DbGrid;
 class CovAniso;
+class cs;
 
 /**
  * Meshing defined as a Turbo based on a Regular Grid

@@ -18,7 +18,6 @@
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSparse.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 /**
  * Projection matrix for vertical convolution

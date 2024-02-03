@@ -12,7 +12,6 @@
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
  */
-#include "geoslib_d.h"
 #include "geoslib_f.h"
 
 #include "Enum/ESpaceType.hpp"

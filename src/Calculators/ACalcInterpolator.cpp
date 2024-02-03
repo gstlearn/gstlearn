@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"

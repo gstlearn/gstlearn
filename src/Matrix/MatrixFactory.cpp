@@ -70,7 +70,7 @@ AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
   }
 
   res->reset(x->getNRows(), y->getNCols());
-  res->prodMatrix(*x, *y);
+  res->prodMatMat(*x, *y);
 
   return res;
 }

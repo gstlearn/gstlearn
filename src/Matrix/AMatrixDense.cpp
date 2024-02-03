@@ -179,12 +179,12 @@ void AMatrixDense::_transposeInPlace()
     my_throw("_transposeInPlace should never be called here");
 }
 
-void AMatrixDense::_prodVectorInPlace(const double *inv, double *outv) const
+void AMatrixDense::_prodMatVec(const double *x, double *y, bool transpose) const
 {
   if (_isFlagEigen())
-    _prodVectorLocal(inv, outv);
+    _prodMatVecLocal(x, y, transpose);
   else
-    my_throw("_prodVector should never be called here");
+    my_throw("_prodMatVec should never be called here");
 }
 
 int AMatrixDense::_invert()
@@ -269,15 +269,15 @@ void AMatrixDense::addMatrix(const AMatrixDense& y, double value)
     AMatrix::addMatrix(y, value);
 }
 
-void AMatrixDense::prodMatrix(const AMatrixDense &x,
+void AMatrixDense::prodMatMat(const AMatrixDense &x,
                               const AMatrixDense &y,
                               bool transposeX,
                               bool transposeY)
 {
   if (_isFlagEigen() && x._isFlagEigen() && y._isFlagEigen())
-    _prodMatrixLocal(x, y, transposeX, transposeY);
+    _prodMatMatLocal(x, y, transposeX, transposeY);
   else
-    AMatrix::prodMatrix(x, y, transposeX, transposeY);
+    AMatrix::prodMatMat(x, y, transposeX, transposeY);
 }
 
 void AMatrixDense::linearCombination(double cx, double cy, const AMatrixDense& y)
@@ -348,29 +348,29 @@ void AMatrixDense::divideColumn(const VectorDouble& vec)
   }
 }
 
-/*! Perform M * 'vec' */
-VectorDouble AMatrixDense::prodVector(const VectorDouble& vec) const
+/*! Perform 'vec' * 'this' */
+VectorDouble AMatrixDense::prodVecMatInPlace(const VectorDouble& x, bool transpose) const
 {
   if (_isFlagEigen())
   {
-    return _prodVectorLocal(vec);
+    return _prodVecMatInPlaceLocal(x, transpose);
   }
   else
   {
-    return AMatrix::prodVector(vec);
+    return AMatrix::prodVecMatInPlace(x, transpose);
   }
 }
 
-/*! Perform 'vec'^T * M */
-VectorDouble AMatrixDense::prodTVector(const VectorDouble& vec) const
+/*! Perform 'this' * 'vec' */
+VectorDouble AMatrixDense::prodMatVecInPlace(const VectorDouble& x, bool transpose) const
 {
   if (_isFlagEigen())
   {
-    return _prodTVectorLocal(vec);
+    return _prodMatVecInPlaceLocal(x, transpose);
   }
   else
   {
-    return AMatrix::prodTVector(vec);
+    return AMatrix::prodMatVecInPlace(x, transpose);
   }
 }
 
@@ -457,11 +457,14 @@ int AMatrixDense::_invertLocal()
   return 0;
 }
 
-void AMatrixDense::_prodVectorLocal(const double *inv, double *outv) const
+void AMatrixDense::_prodMatVecLocal(const double *x, double *y, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> inm(inv, getNCols());
-  Eigen::Map<Eigen::VectorXd> outm(outv, getNRows());
-  outm.noalias() = _eigenMatrix * inm;
+  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+  if (transpose)
+    ym.noalias() = _eigenMatrix.transpose() * xm;
+  else
+    ym.noalias() = _eigenMatrix * xm;
 }
 
 void AMatrixDense::_transposeInPlaceLocal()
@@ -564,7 +567,7 @@ void AMatrixDense::_addMatrixLocal(const AMatrixDense& y, double value)
   _eigenMatrix.noalias() += y._eigenMatrix * value;
 }
 
-void AMatrixDense::_prodMatrixLocal(const AMatrixDense &x,
+void AMatrixDense::_prodMatMatLocal(const AMatrixDense &x,
                                     const AMatrixDense &y,
                                     bool transposeX,
                                     bool transposeY)
@@ -635,20 +638,28 @@ void AMatrixDense::_divideColumnLocal(const VectorDouble& vec)
   _eigenMatrix = _eigenMatrix * vecm.asDiagonal();
 }
 
-VectorDouble AMatrixDense::_prodVectorLocal(const VectorDouble& vec) const
+VectorDouble AMatrixDense::_prodMatVecInPlaceLocal(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNCols());
-  Eigen::VectorXd resm = _eigenMatrix * vecm;
-  VectorDouble res(resm.data(), resm.data() + resm.size());
-  return res;
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNCols());
+  Eigen::VectorXd ym;
+  if (transpose)
+    ym = _eigenMatrix.transpose() * xm;
+  else
+    ym = _eigenMatrix * xm;
+  VectorDouble y(ym.data(), ym.data() + ym.size());
+  return y;
 }
 
-VectorDouble AMatrixDense::_prodTVectorLocal(const VectorDouble& vec) const
+VectorDouble AMatrixDense::_prodVecMatInPlaceLocal(const VectorDouble& x, bool transpose) const
 {
-  Eigen::Map<const Eigen::VectorXd> vecm(vec.data(), getNRows());
-  Eigen::VectorXd resm = vecm.transpose() * _eigenMatrix;
-  VectorDouble res(resm.data(), resm.data() + resm.size());
-  return res;
+  Eigen::Map<const Eigen::VectorXd> xm(x.data(), getNRows());
+  Eigen::VectorXd ym;
+  if (transpose)
+    ym = xm.transpose() * _eigenMatrix.transpose();
+  else
+    ym = xm.transpose() * _eigenMatrix;
+  VectorDouble y(ym.data(), ym.data() + ym.size());
+  return y;
 }
 
 /*! Extract a Row */

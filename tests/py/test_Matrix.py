@@ -44,7 +44,7 @@ for icol in range(ncol):
 
 MRt = MR.transpose() # Using cloneable feature
 
-M = gl.prodMatrix(MRt, MR)
+M = gl.prodMatMat(MRt, MR)
 
 print("Matrix M")
 M.display()
@@ -177,12 +177,12 @@ reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 
 Vref = gl.VectorDouble(np.zeros(nrow))
 V2 = gl.VectorDouble(np.zeros(nrow))
-MRR.prodVectorInPlace(V1, Vref)
-MSG.prodVectorInPlace(V1, V2)
+MRR.prodMatVec(V1, Vref)
+MSG.prodMatVec(V1, V2)
 print("Are results for MRR and MSG similar: ",gl.VH.isSame(np.array(Vref.getVector()),np.array(V2.getVector())))
-MSS.prodVectorInPlace(V1, V2)
+MSS.prodMatVec(V1, V2)
 print("Are results for MRR and MSS similar: ",gl.VH.isSame(np.array(Vref.getVector()),np.array(V2.getVector())))
-MSP.prodVectorInPlace(V1, V2)
+MSP.prodMatVec(V1, V2)
 print("Are results for MRR and MSP similar: ",gl.VH.isSame(np.array(Vref.getVector()),np.array(V2.getVector())))
 
 #
@@ -195,10 +195,10 @@ V3 = gl.VectorDouble(np.zeros(nrow))
 print("Solve X from A*X=B. Compute A*X and compare with B")
 
 MSS.solve(V1, V2)
-MSS.prodVectorInPlace(np.array(V2.getVector()), V3)
+MSS.prodMatVec(np.array(V2.getVector()), V3)
 print("Are results correct for MSS: ",gl.VH.isSame(V1,np.array(V3.getVector())))
 MSP.solve(V1, V2)
-MSP.prodVectorInPlace(np.array(V2.getVector()), V3)
+MSP.prodMatVec(np.array(V2.getVector()), V3)
 print("Are results correct for MSP: ",gl.VH.isSame(V1,np.array(V3.getVector())))
 
 #
@@ -213,17 +213,17 @@ MSGref = MSG.clone() # Used to perform A*A-1 and check Identity
 
 # TODO : This doesn't work - no more identity !!!
 MSG.invert()
-Res = gl.prodMatrix(MSG, MSGref)
+Res = gl.prodMatMat(MSG, MSGref)
 #print(Res)
 print("Are results correct for MSG: ",Res.isIdentity())
 
 MSS.invert()
-Res = gl.prodMatrix(MSS, MSGref)
+Res = gl.prodMatMat(MSS, MSGref)
 #print(Res)
 print("Are results correct for MSS: ",Res.isIdentity())
 
 MSP.invert()
-Res = gl.prodMatrix(MSP, MSGref)
+Res = gl.prodMatMat(MSP, MSGref)
 #print(Res)
 print("Are results correct for MSP: ",Res.isIdentity())
 

@@ -21,7 +21,6 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Grid.hpp"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 
@@ -736,7 +735,7 @@ int MeshETurbo::_addWeights(int icas,
   if (lhs.invert()) return 1;
 
   // Calculate the weights
-  lhs.prodVectorInPlace(rhs,lambda);
+  lhs.prodMatVec(rhs,lambda);
 
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)

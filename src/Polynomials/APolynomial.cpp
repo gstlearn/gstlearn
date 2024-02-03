@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/AException.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <string>
 #include <algorithm>

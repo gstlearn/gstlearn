@@ -14,7 +14,6 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSparse.hpp"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
@@ -170,16 +169,18 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
 
    // Get the characteristics of the R-R grid
    int slice_R = _gridRes2D->getSampleNumber();
+   VectorDouble vec_R(slice_R);
 
    // Get the characteristics of the S-S grid
    int slice_S = _gridSeis2D->getSampleNumber();
+   VectorDouble vec_S(slice_S);
 
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
    {
-     const double* valSS =  &valonseismic.data()[iz * slice_S];
-     double* valRS = &_work.data()[iz * slice_R];
-     matCS_tmulvec(_AProjHoriz, slice_R, valSS, valRS);
+     VH::extractInPlace(valonseismic, vec_S, iz * slice_S);
+     _AProjHoriz->prodMatVec(vec_S, vec_R, true);
+     VH::mergeInPlace(vec_R, _work, iz * slice_R);
    }
 
    _convolveT(_work,valonvertex);
@@ -202,9 +203,11 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 
   // Get the characteristics of the R-R grid
   int slice_R = _gridRes2D->getSampleNumber();
+  VectorDouble vec_R(slice_R);
 
   // Get the characteristics of the R-S grid
   int slice_S = _gridSeis2D->getSampleNumber();
+  VectorDouble vec_S(slice_S);
 
   // Convolution
   _convolve(valonvertex, _work);
@@ -212,9 +215,9 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   // Mesh barycenter on 'ndim-1' slices
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    const double* valRS = &_work.data()[iz * slice_R];
-    double* valSS = &valonseismic.data()[iz * slice_S];
-    matCS_mulvec(_AProjHoriz, slice_R, valRS, valSS);
+    VH::extractInPlace(_work, vec_R, iz * slice_R);
+    _AProjHoriz->prodMatVec(vec_R, vec_S, false);
+    VH::mergeInPlace(vec_S, valonseismic, iz * slice_S);
   }
 
   return 0;

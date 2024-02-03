@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
@@ -520,7 +519,7 @@ void PCA::_pcaZ2F(int iptr,
     if (! isoFlag[iech]) continue;
     _loadData(db, iech, data1);
     _center(data1, mean, sigma, true, false);
-    VectorDouble data2 = _Z2F.prodTVector(data1);
+    VectorDouble data2 = _Z2F.prodMatVecInPlace(data1);
 
     for (int ifac = 0; ifac < nvar; ifac++)
       db->setArray(iech, ifac + iptr, data2[ifac]);
@@ -555,7 +554,7 @@ void PCA::_pcaF2Z(int iptr,
   {
     if (! isoFlag[iech]) continue;
     _loadData(db, iech, data1);
-    data2 = _F2Z.prodTVector(data1);
+    data2 = _F2Z.prodMatVecInPlace(data1);
     _uncenter(data2, mean, sigma, true, false);
 
     for (int ivar = 0; ivar < nvar; ivar++)

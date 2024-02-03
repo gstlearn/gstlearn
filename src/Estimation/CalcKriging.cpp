@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
