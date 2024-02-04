@@ -780,6 +780,32 @@ void MatrixSparse::_prodMatVec(const double *x, double *y, bool transpose) const
 }
 
 /**
+ * Returns 'y' = 'x' %*% 'this'
+ * @param x Input vector
+ * @param y Output vector
+ * @param transpose True if the matrix 'this' must be transposed
+ */
+void MatrixSparse::_prodVecMat(const double *x, double *y, bool transpose) const
+{
+  if (_isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+    Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+    if (transpose)
+      ym.noalias() = xm.transpose() * _eigenMatrix * xm;
+    else
+      ym.noalias() = xm.transpose() * _eigenMatrix.transpose();
+  }
+  else
+  {
+    if (transpose)
+      cs_vector_xtM(_csMatrix, getNRows(), x, y);
+    else
+      cs_vector_xM(_csMatrix, getNCols(), x, y);
+  }
+}
+
+/**
  * Add the matrix 'y' to the current Matrix
  * @param y Matrix to be added
  * @param value Multiplicative coefficient
@@ -1191,30 +1217,6 @@ MatrixSparse* matCS_triplet(const cs *T)
   MatrixSparse* mat = new MatrixSparse(local, 0);
   local = cs_spfree(local);
   return mat;
-}
-
-void matCS_tMx(const MatrixSparse *A, int nout, const double *x, double *y)
-{
-  const cs* Acs = _getCS(A);
-  cs_vector_tMx(Acs, nout, x, y);
-}
-
-void matCS_xM(const MatrixSparse *A, int nout, const double *x, double *y)
-{
-  const cs* Acs = _getCS(A);
-  cs_vector_xM(Acs, nout, x, y);
-}
-
-void matCS_xtM(const MatrixSparse *A, int nout, const double *x, double *y)
-{
-  const cs* Acs = _getCS(A);
-  cs_vector_xtM(Acs, nout, x, y);
-}
-
-void matCS_Mx(const MatrixSparse *A, int nout, const double *x, double *y)
-{
-  const cs* Acs = _getCS(A);
-  cs_vector_Mx(Acs, nout, x, y);
 }
 
 MatrixSparse* matCS_prod_norm_diagonal(int mode, const MatrixSparse *B, VectorDouble diag)

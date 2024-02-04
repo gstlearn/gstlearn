@@ -175,6 +175,14 @@ void MatrixSquareSymmetric::_prodMatVec(const double *x, double *y, bool transpo
     _prodMatVecLocal(x, y, transpose);
 }
 
+void MatrixSquareSymmetric::_prodVecMat(const double *x, double *y, bool transpose) const
+{
+  if (_isFlagEigen())
+    AMatrixDense::_prodVecMat(x, y, transpose);
+  else
+    _prodVecMatLocal(x, y, transpose);
+}
+
 /**
  * \warning : values is provided as a square complete matrix
  */
@@ -402,6 +410,11 @@ void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
 }
 
 void MatrixSquareSymmetric::_prodMatVecLocal(const double *x, double *y, bool transpose) const
+{
+  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
+}
+
+void MatrixSquareSymmetric::_prodVecMatLocal(const double *x, double *y, bool transpose) const
 {
   _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }

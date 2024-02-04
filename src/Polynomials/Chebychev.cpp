@@ -304,7 +304,7 @@ void Chebychev::evalOp(MatrixSparse* S,const VectorDouble& x,VectorDouble& y) co
 
   for (int ib=2; ib<(int) _coeffs.size(); ib++)
   {
-    matCS_xM(T1, nvertex, tm1.data(), tx.data());
+    T1->prodVecMatPtr(tm1.data(), tx.data(), false);
     for (int i=0; i<nvertex; i++)
     {
       tx[i]  = 2. * tx[i] - tm2[i];

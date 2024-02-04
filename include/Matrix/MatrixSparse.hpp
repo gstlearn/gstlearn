@@ -154,6 +154,7 @@ protected:
   virtual void    _transposeInPlace() override;
 
   virtual void    _prodMatVec(const double *x, double *y, bool transpose = false) const override;
+  virtual void    _prodVecMat(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -201,10 +202,6 @@ GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm(int mode,
 GSTLEARN_EXPORT MatrixSparse* matCS_eye_tab(int number, double *values);
 GSTLEARN_EXPORT MatrixSparse* matCS_eye(int number, double value);
 GSTLEARN_EXPORT MatrixSparse* matCS_triplet(const cs *T);
-GSTLEARN_EXPORT void          matCS_tMx(const MatrixSparse *A, int nout, const double *x, double *y);
-GSTLEARN_EXPORT void          matCS_xM(const MatrixSparse *A, int nout, const double *x, double *y);
-GSTLEARN_EXPORT void          matCS_Mx(const MatrixSparse *A, int nout, const double *x, double *y);
-GSTLEARN_EXPORT void          matCS_xtM(const MatrixSparse *A, int nout, const double *x, double *y);
 GSTLEARN_EXPORT MatrixSparse* matCS_prod_norm_diagonal(int mode, const MatrixSparse *B, VectorDouble diag);
 GSTLEARN_EXPORT MatrixSparse* matCS_transpose(const MatrixSparse *A, int values);
 GSTLEARN_EXPORT MatrixSparse* matCS_multiply(const MatrixSparse *A, const MatrixSparse *B);

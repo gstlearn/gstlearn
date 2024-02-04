@@ -873,7 +873,7 @@ static void st_multigrid_ascent(cs_MGS *mgs,
     message("Ascending from %d to %d (init=%d scale=%d)\n", level + 1, level,
             flag_init, flag_scale);
   mg = mgs->mg[level];
-  matCS_tMx(mg->IhH, mg->nh, zin, work);
+  mg->IhH->prodMatVecPtr(zin, work, true);
   if (flag_init)
     for (int icur = 0; icur < mg->nh; icur++)
       zout[icur] = work[icur];
@@ -927,10 +927,10 @@ static void st_multigrid_descent(cs_MGS *mgs,
 
   if (DEBUG) message("Descending from %d to %d\n", level - 1, level);
   mg = mgs->mg[level - 1];
-  matCS_xM(mg->A->Q, mg->nh, zin, work);
+  mg->A->Q->prodVecMatPtr(zin, work, false);
   for (int icur = 0; icur < mg->nh; icur++)
     work[icur] = rhsin[icur] - work[icur];
-  matCS_xM(mg->IhH, mg->nH, work, rhsout);
+  mg->IhH->prodVecMatPtr(work, rhsout, false);
 }
 
 /****************************************************************************/

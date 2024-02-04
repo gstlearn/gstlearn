@@ -198,6 +198,7 @@ err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 print(paste0("nrow = ", nrow))
 Vref = VectorDouble(nrow)
 V2   = VectorDouble(nrow)
+
 err = MRR$prodMatVec(V1, Vref)
 err = MSG$prodMatVec(V1, V2)
 print(paste0("Are results for MRR and MSG similar: ",  VectorHelper_isSame(Vref, V2)))

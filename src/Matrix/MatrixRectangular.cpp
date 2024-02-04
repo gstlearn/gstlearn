@@ -153,6 +153,14 @@ void MatrixRectangular::_prodMatVec(const double *x, double *y, bool transpose) 
     _prodMatVecLocal(x, y, transpose);
 }
 
+void MatrixRectangular::_prodVecMat(const double *x, double *y, bool transpose) const
+{
+  if (_isFlagEigen())
+    AMatrixDense::_prodVecMat(x, y, transpose);
+  else
+    _prodVecMatLocal(x, y, transpose);
+}
+
 void MatrixRectangular::_transposeInPlace()
 {
   if (_isFlagEigen())
@@ -317,6 +325,14 @@ void MatrixRectangular::_prodMatVecLocal(const double *x, double *y, bool transp
     matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
   else
     matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
+}
+
+void MatrixRectangular::_prodVecMatLocal(const double *x, double *y, bool transpose) const
+{
+  if (! transpose)
+    matrix_product_safe(1, getNRows(), getNCols(), x, _rectMatrix.data(), y);
+  else
+    matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), x, y);
 }
 
 void MatrixRectangular::_transposeInPlaceLocal()

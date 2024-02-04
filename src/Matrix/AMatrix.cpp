@@ -499,12 +499,46 @@ void AMatrix::prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose)
       messerr("Inconsistency between:");
       messerr("- the dimension of 'x' = %d", (int) x.size());
       messerr("- the dimension of 'y' = %d", (int) y.size());
-      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows,
-              _nCols);
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
       return;
     }
   }
   _prodMatVec(x.data(), y.data(), transpose);
+}
+
+void AMatrix::prodMatVecPtr(const double* x, double* y, bool transpose) const
+{
+  _prodMatVec(x, y, transpose);
+}
+
+void AMatrix::prodVecMat(const VectorDouble& x, VectorDouble& y, bool transpose) const
+{
+  if (_flagCheckAddress)
+  {
+    bool error = false;
+    if (!transpose)
+    {
+      error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
+    }
+    else
+    {
+      error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
+    }
+    if (error)
+    {
+      messerr("Inconsistency between:");
+      messerr("- the dimension of 'x' = %d", (int) x.size());
+      messerr("- the dimension of 'y' = %d", (int) y.size());
+      messerr("- the matrix: number of rows (%d) and columns (%d)", _nRows, _nCols);
+      return;
+    }
+  }
+  _prodVecMat(x.data(), y.data(), transpose);
+}
+
+void AMatrix::prodVecMatPtr(const double* x, double* y, bool transpose) const
+{
+  _prodVecMat(x, y, transpose);
 }
 
 void AMatrix::resize(int nrows, int ncols)

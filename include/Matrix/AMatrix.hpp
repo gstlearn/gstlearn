@@ -165,6 +165,11 @@ public:
 
   /*! Perform 'y' = 'this' * 'x' */
   void prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  void prodMatVecPtr(const double* x, double* y, bool transpose = false) const;
+  /*! Perform 'y' = 'x' * 'this' */
+  void prodVecMat(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  void prodVecMatPtr(const double* x, double* y, bool transpose = false) const;
+
   /*! Perform x %*% mat %*% y */
   double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
   /*! Matrix inversion in place */
@@ -214,6 +219,7 @@ protected:
 
   virtual void    _transposeInPlace() = 0;
   virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const = 0;
+  virtual void    _prodVecMat(const double *x,double *y, bool transpose = false) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
 

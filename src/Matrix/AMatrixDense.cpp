@@ -187,6 +187,14 @@ void AMatrixDense::_prodMatVec(const double *x, double *y, bool transpose) const
     my_throw("_prodMatVec should never be called here");
 }
 
+void AMatrixDense::_prodVecMat(const double *x,double *y, bool transpose) const
+{
+  if (_isFlagEigen())
+    _prodVecMatLocal(x, y, transpose);
+  else
+    my_throw("_prodVecMat should never be called here");
+}
+
 int AMatrixDense::_invert()
 {
   if (_isFlagEigen())
@@ -465,6 +473,16 @@ void AMatrixDense::_prodMatVecLocal(const double *x, double *y, bool transpose) 
     ym.noalias() = _eigenMatrix.transpose() * xm;
   else
     ym.noalias() = _eigenMatrix * xm;
+}
+
+void AMatrixDense::_prodVecMatLocal(const double *x, double *y, bool transpose) const
+{
+  Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
+  Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
+  if (transpose)
+    ym.noalias() = xm.transpose() * _eigenMatrix.transpose();
+  else
+    ym.noalias() = xm.transpose() * _eigenMatrix;
 }
 
 void AMatrixDense::_transposeInPlaceLocal()

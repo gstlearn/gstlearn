@@ -99,6 +99,7 @@ protected:
 
   virtual void    _transposeInPlace() override;
   virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMat(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -115,6 +116,7 @@ private:
   int     _solveLocal(const VectorDouble &b, VectorDouble &x) const;
   int     _invertLocal();
   void    _prodMatVecLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodVecMatLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
   int     _getIndexToRankLocal(int irow, int icol) const;
   int     _getMatrixPhysicalSizeLocal() const;
