@@ -109,14 +109,12 @@ public:
                               VectorDouble& outv,
                               double puis = 2) const;
   double getMaxEigenValue() const;
-#ifndef SWIG
   MatrixSparse* getS() const { return _S; }
   MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
   MatrixSparse* getSGrad(int iapex, int igparam) const;
-#endif
-  Triplet getSToTriplet(bool flag_from_1 = false) const;
-  Triplet getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
-  Triplet getSGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
+  NF_Triplet getSToTriplet(bool flag_from_1 = false) const;
+  NF_Triplet getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
+  NF_Triplet getSGradToTriplet(int iapex, int igparam, bool flag_from_1 = false) const;
 
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambdas() const { return _Lambda; }
@@ -141,6 +139,7 @@ private:
   int  _buildS(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSGrad(const AMesh *amesh, double tol = EPSILON10);
   void _buildLambda(const AMesh *amesh);
+  bool _buildLambdaGrad(const AMesh *amesh);
 
   void _loadAux(VectorDouble &tab, const EConsElem &type, int imesh = 0);
   void _loadHH(const AMesh *amesh, MatrixSquareSymmetric &hh, int imesh = 0);
@@ -154,7 +153,6 @@ private:
                               const MatrixSquareSymmetric& HH,
                               MatrixSquareSymmetric& work,
                               MatrixSquareSymmetric& work2);
-  bool _buildLambdaGrad(const AMesh *amesh);
 
   void _reset();
   void _resetGrad();
@@ -170,6 +168,7 @@ private:
   int _prepareMatricesSVariety(const AMesh *amesh,
                                int imesh,
                                VectorVectorDouble &coords,
+                               MatrixRectangular& matM,
                                MatrixSquareSymmetric& matMtM,
                                AMatrix &matres,
                                double *deter);

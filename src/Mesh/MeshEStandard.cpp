@@ -257,7 +257,6 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -274,8 +273,6 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
 *****************************************************************************/
 MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
-  cs* Atriplet      = nullptr;
-  MatrixSparse* A   = nullptr;
   int nmeshes       = getNMeshes();
   int ncorner       = getNApexPerMesh();
 
@@ -285,8 +282,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   /* Core allocation */
 
-  Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) return nullptr;
+  NF_Triplet NF_T = tripletInit(0);
   VectorDouble weight(ncorner,0);
   VectorDouble container = _defineContainers();
   VectorDouble units = _defineUnits();
@@ -332,11 +328,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
         if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
-        if (! cs_entry2(Atriplet,iech,ip,weight[icorn]))
-        {
-          Atriplet  = cs_spfree2(Atriplet);
-          return nullptr;
-        }
+        tripletAdd(NF_T, iech,ip,weight[icorn]);
       }
       if (verbose) message("\n");
       imesh0 = found = imesh;
@@ -357,18 +349,16 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
   /* Add the extreme value to force dimension */
 
   if (ip_max < getNApices() - 1)
-    cs_force_dimension(Atriplet, nvalid, getNApices());
+    tripletForce(NF_T, nvalid, getNApices());
   
   /* Convert the triplet into a sparse matrix */
 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  A = matCS_triplet(Atriplet);
-  Atriplet  = cs_spfree2(Atriplet);
-  return(A);
+  return MatrixSparse::createFromTriplet(NF_T);
 }
-#endif
+
 /**
  * Create a MeshEStandard by loading the contents of a Neutral File
  *

@@ -254,7 +254,7 @@ int SPDE::_init(const Db *domain, const AMesh *meshUser, bool verbose, bool show
         _meshingSimu.push_back(mesh);
 
         if (_useCholesky)
-          precision = new PrecisionOpCs(mesh, _model, icov, true, verbose);
+          precision = new PrecisionOpCs(mesh, _model, icov, false, verbose);
         else
           precision = new PrecisionOp(mesh, _model, icov, verbose);
         precision->mustShowStats(showStats);

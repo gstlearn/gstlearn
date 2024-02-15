@@ -428,7 +428,7 @@ int PPMT::fitFromMatrix(AMatrix *Y, int niter, bool verbose)
     // Sphering
     if (verbose) message("- Sphering\n");
     _initSphering = sphering(Y);
-    Y->prodMatMatInPlace(_initSphering);
+    Y->prodMatInPlace(_initSphering);
   }
 
   // Loop on the iterations
@@ -513,7 +513,7 @@ int PPMT::rawToGaussian(Db *db,
   if (_flagPreprocessing)
   {
     _initGaussianizeForward(&Y);
-    Y.prodMatMatInPlace(_initSphering);
+    Y.prodMatInPlace(_initSphering);
   }
 
   // Loop on the iterations
@@ -571,7 +571,7 @@ int PPMT::gaussianToRaw(Db *db,
   if (_flagPreprocessing)
   {
     AMatrix* backSphering = _initSphering->transpose();
-    Y.prodMatMatInPlace(backSphering);
+    Y.prodMatInPlace(backSphering);
 
     _initGaussianizeBackward(&Y);
   }

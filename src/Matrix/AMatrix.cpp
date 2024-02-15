@@ -34,8 +34,9 @@ AMatrix::AMatrix(int nrow, int ncol, int opt_eigen)
       _nullTerm(0.)
 {
   (void) _isNumbersValid(nrow, ncol);
-  _flagEigen = _getFlagEigen(opt_eigen);
+  _flagEigen = _defineFlagEigen(opt_eigen);
 }
+
 AMatrix::AMatrix(const AMatrix &m)
     : AStringable(m),
       _nRows(m._nRows),
@@ -68,7 +69,7 @@ void AMatrix::init(int nrows, int ncols, int opt_eigen)
 {
   _nRows = nrows;
   _nCols = ncols;
-  _flagEigen = _getFlagEigen(opt_eigen);
+  _flagEigen = _defineFlagEigen(opt_eigen);
   _allocate();
 }
 
@@ -144,7 +145,7 @@ void AMatrix::reset(int nrows, int ncols, double value, int opt_eigen)
   _deallocate();
   _nRows = nrows;
   _nCols = ncols;
-  _flagEigen = _getFlagEigen(opt_eigen);
+  _flagEigen = _defineFlagEigen(opt_eigen);
   _allocate();
   fill(value);
   _clearDecoration();
@@ -156,7 +157,7 @@ void AMatrix::resetFromArray(int nrows, int ncols, const double* tab, bool byCol
   _deallocate();
   _nRows = nrows;
   _nCols = ncols;
-  _flagEigen = _getFlagEigen(opt_eigen);
+  _flagEigen = _defineFlagEigen(opt_eigen);
   _allocate();
   int lec = 0;
   if (byCol)
@@ -186,7 +187,7 @@ void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol, int opt_ei
   {
     _nRows = (int) tab.size();
     _nCols = (int) tab[0].size();
-    _flagEigen = _getFlagEigen(opt_eigen);
+    _flagEigen = _defineFlagEigen(opt_eigen);
     _allocate();
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
@@ -196,7 +197,7 @@ void AMatrix::resetFromVVD(const VectorVectorDouble& tab, bool byCol, int opt_ei
   {
     _nCols = (int) tab.size();
     _nRows = (int) tab[0].size();
-    _flagEigen = _getFlagEigen(opt_eigen);
+    _flagEigen = _defineFlagEigen(opt_eigen);
     _allocate();
     for (int icol = 0; icol < _nCols; icol++)
       for (int irow = 0; irow < _nRows; irow++)
@@ -420,10 +421,10 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
   _setValues(values.data(),byCol);
 }
 
-void AMatrix::setValuesFromTriplet(const Triplet& T)
+void AMatrix::setValuesFromTriplet(const NF_Triplet& NF_T)
 {
-  for (int i = 0; i < T.number; i++)
-    setValue(T.rows[i], T.cols[i], T.values[i]);
+  for (int i = 0; i < NF_T.number; i++)
+    setValue(NF_T.rows[i], NF_T.cols[i], NF_T.values[i]);
 }
 
 void AMatrix::setIdentity(double value)
@@ -481,7 +482,7 @@ void AMatrix::prodScalar(double v)
  * @param y Output vector obtained by multiplying 'inv' by current Matrix
  * @param transpose True if the matrix 'this' must be transposed
  */
-void AMatrix::prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose) const
+void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
 {
   if (_flagCheckAddress)
   {
@@ -503,27 +504,23 @@ void AMatrix::prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose)
       return;
     }
   }
-  _prodMatVec(x.data(), y.data(), transpose);
+  _prodMatVecInPlacePtr(x.data(), y.data(), transpose);
 }
 
-void AMatrix::prodMatVecPtr(const double* x, double* y, bool transpose) const
+void AMatrix::prodMatVecInPlacePtr(const double* x, double* y, bool transpose) const
 {
-  _prodMatVec(x, y, transpose);
+  _prodMatVecInPlacePtr(x, y, transpose);
 }
 
-void AMatrix::prodVecMat(const VectorDouble& x, VectorDouble& y, bool transpose) const
+void AMatrix::prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose) const
 {
   if (_flagCheckAddress)
   {
     bool error = false;
     if (!transpose)
-    {
       error = ((int) x.size() != _nRows || (int) y.size() != _nCols);
-    }
     else
-    {
       error = ((int) x.size() != _nCols || (int) y.size() != _nRows);
-    }
     if (error)
     {
       messerr("Inconsistency between:");
@@ -533,12 +530,12 @@ void AMatrix::prodVecMat(const VectorDouble& x, VectorDouble& y, bool transpose)
       return;
     }
   }
-  _prodVecMat(x.data(), y.data(), transpose);
+  _prodVecMatInPlacePtr(x.data(), y.data(), transpose);
 }
 
-void AMatrix::prodVecMatPtr(const double* x, double* y, bool transpose) const
+void AMatrix::prodVecMatInPlacePtr(const double* x, double* y, bool transpose) const
 {
-  _prodVecMat(x, y, transpose);
+  _prodVecMatInPlacePtr(x, y, transpose);
 }
 
 void AMatrix::resize(int nrows, int ncols)
@@ -555,9 +552,10 @@ void AMatrix::resize(int nrows, int ncols)
 /**
  * Add the matrix 'y' to the current Matrix
  * @param y Matrix to be added
- * @param value Multiplicative parameter
+ * @param cx Multiplicative parameter for this
+ * @param cy Multiplicative parameter for y
  */
-void AMatrix::addMatrix(const AMatrix& y, double value)
+void AMatrix::addMatInPlace(const AMatrix& y, double cx, double cy)
 {
   if (! isSameSize(y))
   {
@@ -574,7 +572,7 @@ void AMatrix::addMatrix(const AMatrix& y, double value)
     for (int icol = 0; icol < _nCols; icol++)
     {
       if (!_isPhysicallyPresent(irow, icol)) continue;
-      _setValue(irow, icol, _getValue(irow, icol) + value * y.getValue(irow, icol));
+      _setValue(irow, icol, cx * _getValue(irow, icol) + cy * y.getValue(irow, icol));
     }
 }
 
@@ -585,30 +583,24 @@ void AMatrix::addMatrix(const AMatrix& y, double value)
  * @param transposeX True if first matrix must be transposed
  * @param transposeY True if second matrix must be transposed
  */
-void AMatrix::prodMatMat(const AMatrix& x, const AMatrix& y, bool transposeX, bool transposeY)
+void AMatrix::prodMatMatInPlace(const AMatrix *x,
+                                const AMatrix *y,
+                                bool transposeX,
+                                bool transposeY)
 {
-  int ni1 = (transposeX) ? x.getNCols() : x.getNRows();
-  int nm1 = (transposeX) ? x.getNRows() : x.getNCols();
-  int ni2 = (transposeY) ? y.getNRows() : y.getNCols();
-  int nm2 = (transposeY) ? y.getNCols() : y.getNRows();
+  int ni1 = (transposeX) ? x->getNCols() : x->getNRows();
+  int nm1 = (transposeX) ? x->getNRows() : x->getNCols();
+  int ni2 = (transposeY) ? y->getNRows() : y->getNCols();
+  int nm2 = (transposeY) ? y->getNCols() : y->getNRows();
 
   if (nm1 != nm2)
   {
     messerr("Matrices 'x' and 'y' should have matching dimensions");
     return;
   }
-  if (_flagCheckAddress)
-  {
-    if (nm1 != nm2 || ni1 != getNRows() || ni2 != getNCols())
-    {
-      messerr("Incompatible matrix dimensions for matrix product (before any transpose)");
-      messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
-      messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
-      messerr("- Result matrix: NRows = %d - NColumns = %d",   getNRows(),   getNCols());
-      messerr("Operation is cancelled");
-      return;
-    }
-  }
+
+  if (!_checkLink(x->getNRows(), x->getNCols(), transposeX,
+                  y->getNRows(), y->getNCols(), transposeY)) return;
 
   for (int irow = 0; irow < ni1; irow++)
   {
@@ -619,8 +611,8 @@ void AMatrix::prodMatMat(const AMatrix& x, const AMatrix& y, bool transposeX, bo
       double value = 0.;
       for (int k = 0; k < nm1; k++)
       {
-        double v1 = (transposeX) ? x.getValue(k, irow) : x.getValue(irow, k);
-        double v2 = (transposeY) ? y.getValue(icol, k) : y.getValue(k, icol);
+        double v1 = (transposeX) ? x->getValue(k, irow) : x->getValue(irow, k);
+        double v2 = (transposeY) ? y->getValue(icol, k) : y->getValue(k, icol);
         value += v1 * v2;
       }
       setValue(irow, icol, value);
@@ -628,27 +620,61 @@ void AMatrix::prodMatMat(const AMatrix& x, const AMatrix& y, bool transposeX, bo
   }
 }
 
-/*!
- * Updates the current Matrix as a linear combination of matrices as follows:
- *  this <- cx * this + cy * y
- * @param cx Coefficient applied to the current Matrix
- * @param cy Coefficient applied to the Matrix  'y'
- * @param y Second Matrix in the Linear combination
+/**
+ * Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'
+ * @param a Matrix A
+ * @param m Matrix M
+ * @param transpose True for first implementation, False for the second
  */
-void AMatrix::linearCombination(double cx, double cy, const AMatrix& y)
+void AMatrix::prodNormMatMatInPlace(const AMatrix &a,
+                                    const AMatrix &m,
+                                    bool transpose)
 {
-  if (! isSameSize(y))
-  {
-    my_throw("Matrices should have same size");
-  }
+  int n1 = (transpose) ? a.getNCols() : a.getNRows();
+  int n2 = (transpose) ? a.getNRows() : a.getNCols();
 
-  if (!_isCompatible(y))
-  my_throw("Matrix 'y' is not compatible with 'this'");
-  for (int rank = 0, nrank = _getMatrixPhysicalSize(); rank < nrank; rank++)
-  {
-    double value = _getValueByRank(rank) * cx + cy * y._getValueByRank(rank);
-    _setValueByRank(rank, value);
-  }
+  if (!_checkLink(a.getNRows(), a.getNCols(), transpose,
+                  m.getNRows(), m.getNCols(), false,
+                  a.getNRows(), a.getNCols(), !transpose)) return;
+
+  for (int i = 0; i < n1; i++)
+    for (int j = 0; j < n1; j++)
+    {
+      if (!_isPhysicallyPresent(i, j)) continue;
+      double value = 0;
+      for (int k = 0; k < n2; k++)
+        for (int l = 0; l < n2; l++)
+        {
+          double a_ik = (transpose) ? a.getValue(k,i) : a.getValue(i,k);
+          double a_lj = (transpose) ? a.getValue(l,j) : a.getValue(j,l);
+          value += a_ik * m.getValue(k,l) * a_lj;
+        }
+      setValue(i, j, value);
+    }
+}
+
+void AMatrix::prodNormMatInPlace(const AMatrix &a, const VectorDouble& vec, bool transpose)
+{
+  int n1 = (transpose) ? a.getNCols() : a.getNRows();
+  int n2 = (transpose) ? a.getNRows() : a.getNCols();
+
+  if (!_checkLink(getNRows(), getNCols(), a.getNRows(), a.getNCols(), transpose,
+                 vec.size(), 1, false)) return;
+
+  for (int i = 0; i < n1; i++)
+    for (int j = 0; j < n1; j++)
+    {
+      if (!_isPhysicallyPresent(i, j)) continue;
+      double value = 0;
+      for (int k = 0; k < n2; k++)
+      {
+        double a_ik = (transpose) ? a.getValue(k,i) : a.getValue(i,k);
+        double a_kj = (transpose) ? a.getValue(j,k) : a.getValue(k,j);
+        double vecvalue = (vec.empty()) ? 1. : vec[k];
+        value += a_ik * vecvalue * a_kj;
+      }
+      setValue(i, j, value);
+    }
 }
 
 void AMatrix::multiplyRow(const VectorDouble& vec)
@@ -698,93 +724,38 @@ void AMatrix::divideColumn(const VectorDouble& vec)
     }
 }
 
-VectorDouble AMatrix::prodVecMatInPlace(const VectorDouble& x, bool transpose) const
+VectorDouble AMatrix::prodVecMat(const VectorDouble& x, bool transpose) const
 {
   VectorDouble y;
-  if (! transpose)
-  {
-    if (_nRows != (int) x.size())
-      my_throw("The size of 'x' must match the number of rows");
 
-    y.resize(_nCols, 0.);
-    for (int icol = 0; icol < _nCols; icol++)
-    {
-      double value = 0.;
-      for (int irow = 0; irow < _nRows; irow++)
-        value += _getValue(irow, icol) * x[irow];
-      y[icol] = value;
-    }
-  }
-  else
-  {
-    if (_nCols != (int) x.size())
-      my_throw("The size of 'x' must match the number of columns");
+  if (!_checkLink(x.size(), 1, false, getNRows(), getNCols(), transpose)) return y;
 
-    y.resize(_nRows, 0.);
-    for (int irow = 0; irow < _nRows; irow++)
-    {
-      double value = 0.;
-      for (int icol = 0; icol < _nCols; icol++)
-        value += _getValue(irow, icol) * x[icol];
-      y[irow] = value;
-    }
-  }
+  int nval = (! transpose) ? _nCols : _nRows;
+  y.resize(nval, 0.);
+  prodVecMatInPlace(x, y, transpose);
   return y;
 }
 
-VectorDouble AMatrix::prodMatVecInPlace(const VectorDouble& x, bool transpose) const
+VectorDouble AMatrix::prodMatVec(const VectorDouble& x, bool transpose) const
 {
   VectorDouble y;
-  if (transpose)
-  {
-    if (_nRows != (int) x.size())
-      my_throw("The size of 'x' must match the number of rows");
 
-    y.resize(_nCols, 0.);
-    for (int icol = 0; icol < _nCols; icol++)
-    {
-      double value = 0.;
-      for (int irow = 0; irow < _nRows; irow++)
-      {
-        value += _getValue(irow, icol) * x[irow];
-      }
-      y[icol] = value;
-    }
-  }
-  else
-  {
-    if (_nCols != (int) x.size())
-      my_throw("The size of 'x' must match the number of columns");
+  if (!_checkLink(getNRows(), getNCols(), transpose, x.size(), 1, false)) return y;
 
-    y.resize(_nRows, 0.);
-    for (int irow = 0; irow < _nRows; irow++)
-    {
-      double value = 0.;
-      for (int icol = 0; icol < _nCols; icol++)
-      {
-        value += _getValue(irow, icol) * x[icol];
-      }
-      y[irow] = value;
-    }
-  }
+  int nval = (transpose) ? _nCols : _nRows;
+  y.resize(nval, 0.);
+  prodMatVecInPlace(x, y, transpose);
   return y;
 }
 
 double AMatrix::quadraticMatrix(const VectorDouble& x, const VectorDouble& y)
 {
-  int sizex = (int) x.size();
-  int sizey = (int) y.size();
-  if (sizex != _nRows || sizey != _nCols)
-  {
-    messerr("Inconsistency between:");
-    messerr("- the dimension of 'x' = %d",sizex);
-    messerr("- the dimension of 'y' = %d",sizey);
-    messerr("- the matrix: number of rows (%d) and columns (%d)",_nRows,_nCols);
-    return TEST;
-  }
+  if (!_checkLink(x.size(), 1, true,
+                  getNRows(), getNCols(), false,
+                  y.size(), 1, false)) return TEST;
 
   VectorDouble left(_nRows);
-  prodMatVec(y, left, false);
+  prodMatVecInPlace(y, left, false);
   return VH::innerProduct(x, left);
 }
 
@@ -797,8 +768,8 @@ int AMatrix::invert()
 
 int AMatrix::solve(const VectorDouble& b, VectorDouble& x) const
 {
-  if (! isSymmetric())
-    my_throw("Invert method is limited to Square Symmetrical Matrices");
+  if (! isSquare())
+    my_throw("Invert method is limited to Square Matrices");
   if ((int) b.size() != _nRows || (int) x.size() != _nRows)
     my_throw("b' and 'x' should have the same dimension as the Matrix");
   return _solve(b, x);
@@ -922,32 +893,90 @@ void AMatrix::dumpElements(const String& title, int ifrom, int ito) const
 }
 
 /**
+ * Check that a set of matrices (or vectors) has the correct linkage
+ * @param nrow1       Number of rows in the first matrix
+ * @param ncol1       Number of columns in the first matrix
+ * @param transpose1  True if the first matrix must be transposed
+ * @param nrow2       Number of rows in the second matrix
+ * @param ncol2       Number of columns in the second matrix
+ * @param transpose2  True if the second matrix must be transposed
+ * @param nrow3       Number of rows in the third matrix
+ * @param ncol3       Number of Columns in the third matrix
+ * @param transpose3  True if the third matrix must be transposed
+ * @return True if the linkage is correct
+ *
+ * @remark A vector must be defined with its 'ncol' set to 1
+ * @remark If a matrix is missing, set the corresponding 'nrow' to 0
+ * @remark This test is not performed if _getFlagCheckAddress() returns false
+ */
+bool AMatrix::_checkLink(int nrow1,
+                         int ncol1,
+                         bool transpose1,
+                         int nrow2,
+                         int ncol2,
+                         bool transpose2,
+                         int nrow3,
+                         int ncol3,
+                         bool transpose3) const
+{
+  if (! _getFlagCheckAddress()) return true;
+  int level = 0;
+  int ncur = getNRows();
+
+  if (nrow1 > 0)
+  {
+    int nr1 = (!transpose1) ? nrow1 : ncol1;
+    int nc1 = (!transpose1) ? ncol1 : nrow1;
+    if (ncur != nr1) level = 1;
+    ncur = nc1;
+  }
+
+  if (nrow2 > 0)
+  {
+    int nr2 = (!transpose2) ? nrow2 : ncol2;
+    int nc2 = (!transpose2) ? ncol2 : nrow2;
+    if (ncur != nr2) level = 2;
+    ncur = nc2;
+  }
+
+  if (nrow3 > 0)
+  {
+    int nr3 = (!transpose2) ? nrow3 : ncol3;
+    int nc3 = (!transpose2) ? ncol3 : nrow3;
+    if (ncur != nr3) level = 3;
+    ncur = nc3;
+  }
+
+  if (ncur != getNCols()) level = -1;
+
+  if (level != 0)
+  {
+    messerr("Error in the Linkage of matrices: Level = %d", level);
+    messerr("Operation is cancelled");
+  }
+  return level == 0;
+}
+
+/**
  * From a matrix of any type, creates the three vectors of the triplet
  * (specific format for creating efficiently a Sparse matrix)
  * It only takes the only non-zero elements of the matrix
  */
-Triplet AMatrix::getValuesAsTriplets() const
+NF_Triplet AMatrix::getMatrixToTriplets(bool flag_from_1) const
 {
-  Triplet T = triplet_init(0);
+  NF_Triplet NF_T = tripletInit(0);
 
-  T.flagFromOne = false;
-  T.nrows = _nRows;
-  T.ncols = _nCols;
-  int ecr = 0;
+  NF_T.flagFromOne = false;
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
     {
       if (!isValid(irow, icol)) continue;
       double value = getValue(irow, icol);
       if (ABS(value) < EPSILON10) continue;
-      T.rows.push_back(irow);
-      T.cols.push_back(icol);
-      T.values.push_back(value);
-      ecr++;
+      tripletAdd(NF_T, irow, icol, value);
     }
-  T.number = ecr;
 
-  return T;
+  return NF_T;
 }
 
 VectorDouble AMatrix::getValues(bool byCol) const
@@ -1252,7 +1281,7 @@ void AMatrix::_fillFromVVD(const VectorVectorDouble& X)
  * @param opt_eigen Choice: 0: Do not use Eigen library; 1; Use Eigen library; -1: use global environment
  * @return Option for using the Eigen library
  */
-bool AMatrix::_getFlagEigen(int opt_eigen) const
+bool AMatrix::_defineFlagEigen(int opt_eigen) const
 {
   // Dispatch
 
@@ -1311,10 +1340,11 @@ void AMatrix::makePositiveColumn()
   }
 }
 
-void AMatrix::prodMatMatInPlace(const AMatrix *matY, bool transposeY)
+void AMatrix::prodMatInPlace(const AMatrix *matY, bool transposeY)
 {
-  prodMatMat(*this, *matY, false, transposeY);
+  prodMatMatInPlace(this, matY, false, transposeY);
 }
+
 
 /**
  * Modify the parameter for using EIGEN library or not.
@@ -1344,9 +1374,4 @@ int getMultiThread()
 bool isMultiThread()
 {
   return globalMultiThread > 0;
-}
-
-AMatrix* prodMatMat(const AMatrix *mat1, const AMatrix *mat2)
-{
-  return MatrixFactory::matProduct(mat1, mat2);
 }

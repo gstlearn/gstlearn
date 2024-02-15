@@ -16,6 +16,7 @@
 #include "Basic/CSVformat.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Db/DbHelper.hpp"
 
 /**
  * This test is meant to check the CSV loading procedure
@@ -37,6 +38,6 @@ int main(int argc, char *argv[])
 
   // Looking for duplicates
   VectorDouble dist = {0.3, 0.3};
-  db_duplicate(mydb, true, dist);
+  DbHelper::db_duplicate(mydb, true, dist);
   return 0;
 }

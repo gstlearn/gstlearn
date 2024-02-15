@@ -143,7 +143,7 @@ void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
   if (!_flagRot)
     outv = inv;
   else
-   _rotMat.prodMatVec(inv, outv, false);
+   _rotMat.prodMatVecInPlace(inv, outv, false);
 }
 
 void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
@@ -151,7 +151,7 @@ void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
   if (!_flagRot)
     outv = inv;
   else
-    _rotInv.prodMatVec(inv, outv, false);
+    _rotInv.prodMatVecInPlace(inv, outv, false);
 }
 
 void Rotation::_recopy(const Rotation &r)

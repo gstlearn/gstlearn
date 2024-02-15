@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+
+#include "Calculators/CalcMigrate.hpp"
 #include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/OptDbg.hpp"
@@ -2126,7 +2128,7 @@ int multilayers_kriging(Db *dbin,
     messerr("must be equal to %d (nlayers) x %d (nbfl)", nlayers,
             st_get_number_drift(irf_rank, flag_ext));
   }
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
 
   /* Allocating the output variables */
 
@@ -2245,7 +2247,7 @@ int multilayers_kriging(Db *dbin,
 
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
   prop1 = (double*) mem_free((char* ) prop1);
   prop2 = (double*) mem_free((char* ) prop2);
@@ -2578,7 +2580,7 @@ int multilayers_vario(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2636,7 +2638,7 @@ int multilayers_vario(Db *dbin,
 
   error = 0;
 
-  label_end: (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
+  label_end: (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
   prop1 = (double*) mem_free((char* ) prop1);
   zval = (double*) mem_free((char* ) zval);
@@ -2864,7 +2866,7 @@ int multilayers_get_prior(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iptr)) goto label_end;
 
   /* Fill the Multi-Layers internal structure */
 
@@ -2924,7 +2926,7 @@ int multilayers_get_prior(Db *dbin,
 
   label_end:
   (void) krige_koption_manage(-1, 1, EKrigOpt::POINT, 1, VectorInt());
-  (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iptr);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iptr);
   seltab = (int*) mem_free((char* ) seltab);
   props = (double*) mem_free((char* ) props);
   fftab = (double*) mem_free((char* ) fftab);

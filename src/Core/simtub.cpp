@@ -17,6 +17,7 @@
 #include "Enum/EProcessOper.hpp"
 #include "Enum/ERule.hpp"
 
+#include "Calculators/CalcMigrate.hpp"
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
@@ -2548,8 +2549,8 @@ int simcond(Db *dbin,
   NeighUnique* neighU = NeighUnique::create(false, &space);
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
+  if (manageExternalInformation(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
+  if (manageExternalInformation(1, ELoc::NOSTAT, dbin, dbout, &inostat))
     goto label_end;
 
   /* Limitations */
@@ -2649,8 +2650,8 @@ int simcond(Db *dbin,
 
   label_end:
   delete neighU;
-  (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
-  (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
+  (void) manageExternalInformation(-1, ELoc::F, dbin, dbout, &iext);
+  (void) manageExternalInformation(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   return (error);
 }
 

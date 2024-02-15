@@ -160,7 +160,7 @@ int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
     return 1;
   }
 
-  _AprojCS->prodMatVec(inv, outv, true);
+  _AprojCS->prodMatVecInPlace(inv, outv, true);
   return 0;
 }
 
@@ -179,7 +179,7 @@ int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
     return 1;
   }
 
-  _AprojCS->prodMatVec(inv, outv, false);
+  _AprojCS->prodMatVecInPlace(inv, outv, false);
   return 0;
 }
 
@@ -199,7 +199,7 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-Triplet ProjMatrix::getAprojToTriplet(bool flag_from_1) const
+NF_Triplet ProjMatrix::getAprojToTriplet(bool flag_from_1) const
 {
-  return getAproj()->getSparseToTriplet(flag_from_1);
+  return getAproj()->getMatrixToTriplets(flag_from_1);
 }

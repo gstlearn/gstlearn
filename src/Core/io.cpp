@@ -1181,7 +1181,7 @@ int _record_read(FILE *file, const char *format, ...)
  ** \param[in]  sel      (optional) selection
  **
  *****************************************************************************/
-void print_range(const char *title, int ntab, double *tab, double *sel)
+void print_range(const char *title, int ntab, const double *tab, const double *sel)
 {
   if (tab == nullptr || ntab <= 0) return;
   StatResults stats = ut_statistics(ntab, tab, sel);

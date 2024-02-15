@@ -153,6 +153,7 @@ set(SRC
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
+  Db/DbHelper.cpp
   LinearOp/LogStats.cpp
   LinearOp/CGParam.cpp
   LinearOp/PrecisionOp.cpp

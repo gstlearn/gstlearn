@@ -416,7 +416,7 @@ void ut_sort_double(int safe, int nech, int *ind, double *value)
  ** \param[in]  wgt     Array containing the Weights or NULL
  **
  ****************************************************************************/
-StatResults ut_statistics(int nech, double *tab, double *sel, double *wgt)
+StatResults ut_statistics(int nech, const double *tab, const double *sel, const double *wgt)
 {
   StatResults stats;
 
@@ -980,4 +980,68 @@ int getRankMapRelativeToAbsolute(const std::map<int, int>& map, int irel)
   auto it = map.begin();
   std::advance(it, irel);
   return it->first;
+}
+
+/**
+ * Identify the pointer to a function with following functionality:
+ *     y = f(x)
+ * @param oper Gives the type of operation to be performed
+ *             1: returns the value itslef (no change)
+ *            -1: returns its inverse
+ *             2: returns the squared value
+ *            -2: returns the inverse of the squared value
+ *             3: returns its square root
+ *            -3: returns the inverse of the square root
+ * @return Pointer to the specified function
+ */
+operate_function operate_Identify( int oper )
+{
+  double (*oper_choice)(double) = nullptr;
+
+  if (oper == 1)
+    oper_choice = operate_Identity;
+  else if (oper == -1)
+    oper_choice = operate_Inverse;
+  else if (oper == 2)
+    oper_choice = operate_Square;
+  else if (oper == -2)
+    oper_choice = operate_InverseSquare;
+  else if (oper == 3)
+    oper_choice = operate_Sqrt;
+  else if (oper == -3)
+    oper_choice = operate_InverseSqrt;
+  else
+    my_throw("Operate Function is not defined");
+
+  return oper_choice;
+}
+
+double operate_Identity(double x)
+{
+  return x;
+}
+
+double operate_Inverse(double x)
+{
+  return (ABS(x) > EPSILON10) ? 1. / x : TEST;
+}
+
+double operate_Square(double x)
+{
+  return x * x;
+}
+
+double operate_InverseSquare(double x)
+{
+  return (ABS(x) > EPSILON10) ? 1. / (x * x) : TEST;
+}
+
+double operate_Sqrt(double x)
+{
+  return (x >= 0) ? sqrt(x) : TEST;
+}
+
+double operate_InverseSqrt(double x)
+{
+  return (x > 0) ? 1. / sqrt(x) : TEST;
 }

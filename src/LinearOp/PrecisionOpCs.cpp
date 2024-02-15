@@ -23,33 +23,31 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              bool flagDecompose,
                              bool verbose)
     : PrecisionOp(shiftop, cova, verbose),
-      _QCS(nullptr),
-      _qChol()
+      _Q(nullptr)
 {
   _buildQ(flagDecompose);
 }
 
-PrecisionOpCs::PrecisionOpCs(const AMesh* mesh,
-                             Model* model,
+PrecisionOpCs::PrecisionOpCs(const AMesh *mesh,
+                             Model *model,
                              int icov,
                              bool flagDecompose,
                              const CGParam params,
                              bool verbose)
     : PrecisionOp(mesh, model, icov, params, verbose),
-      _QCS(nullptr),
-      _qChol()
+      _Q(nullptr)
 {
   _buildQ(flagDecompose);
 }
 
 PrecisionOpCs::~PrecisionOpCs()
 {
-  delete _QCS;
+  delete _Q;
 }
 
-Triplet PrecisionOpCs::getQToTriplet(bool flag_from_1) const
+NF_Triplet PrecisionOpCs::getQToTriplet(bool flag_from_1) const
 {
-  return getQ()->getSparseToTriplet(flag_from_1);
+  return getQ()->getMatrixToTriplets(flag_from_1);
 }
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)
@@ -127,54 +125,50 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
 
 void PrecisionOpCs::evalDirect(const VectorDouble &vecin, VectorDouble &vecout)
 {
-  _qChol.evalDirect(vecin, vecout);
+  _Q->prodMatVecInPlace(vecin, vecout);
 }
 
 void PrecisionOpCs::evalSimulate(VectorDouble& whitenoise, VectorDouble& vecout)
 {
-  _qChol.simulate(whitenoise, vecout);
+  _Q->simulateCholesky(whitenoise, vecout);
 }
 
 void PrecisionOpCs::evalInverse(VectorDouble& vecin, VectorDouble& vecout)
 {
-  _qChol.evalInverse(vecin, vecout);
+  _Q->solveCholesky(vecin, vecout);
 }
 
-double PrecisionOpCs::computeLogDet(int nbsimu, int seed)
+double PrecisionOpCs::getLogDeterminant(int nbsimu, int seed)
 {
   DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
-  return _qChol.computeLogDet();
+  return _Q->getCholeskyLogDeterminant();
 }
 
 void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam, const EPowerPT& power)
 {
   if (_work.empty()) _work.resize(getSize());
 
-  if(power == EPowerPT::MINUSONE)
-     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
-  if(power == EPowerPT::MINUSHALF)
-     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSHALF'");
-  if(power == EPowerPT::LOG)
-     my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::LOG'");
+  if (power == EPowerPT::MINUSONE)
+  my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSONE'");
+  if (power == EPowerPT::MINUSHALF)
+  my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::MINUSHALF'");
+  if (power == EPowerPT::LOG)
+  my_throw("'evalDeriv' is not yet implemented for 'EPowerPT::LOG'");
 
   // Pre-processing
 
-    getShiftOp()->prodLambda(inv, _work ,EPowerPT::ONE);
+  getShiftOp()->prodLambda(inv, _work, EPowerPT::ONE);
 
   // Polynomial evaluation
 
+  ((ClassicalPolynomial*) getPoly(power))->evalDerivOp(getShiftOp(), _work,
+                                                       outv, iapex, igparam);
 
-    ((ClassicalPolynomial*)getPoly(power))->evalDerivOp(getShiftOp(),
-                                                             _work,
-                                                             outv,
-                                                             iapex,
-                                                             igparam);
+  // Post-processing
 
-    // Post-processing
-
-       getShiftOp()->prodLambda(outv, outv ,EPowerPT::ONE);
+  getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
 void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
@@ -185,19 +179,20 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
   if (_work.empty()) _work3.resize(getSize());
   if (_work5.empty()) _work4.resize(getSize());
 
-  if(power == EPowerPT::MINUSONE)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
-  if(power == EPowerPT::MINUSHALF)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
-  if(power == EPowerPT::LOG)
-     my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
+  if (power == EPowerPT::MINUSONE)
+  my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSONE'");
+  if (power == EPowerPT::MINUSHALF)
+  my_throw("'evalDeriv' is not yet implemented for 'POPT_MINUSHALF'");
+  if (power == EPowerPT::LOG)
+  my_throw("'evalDeriv' is not yet implemented for 'POPT_LOG'");
 
+  ((ClassicalPolynomial*) getPoly(power))->evalDerivOpOptim(getShiftOp(), _work,
+                                                            _work5, outv,
+                                                            _workPoly, iapex,
+                                                            igparam);
 
-  ((ClassicalPolynomial*) getPoly(power))->evalDerivOpOptim(
-      getShiftOp(), _work,_work5,outv,_workPoly, iapex, igparam);
-
-    // Post-processing
-       getShiftOp()->prodLambda(outv, outv ,EPowerPT::ONE);
+  // Post-processing
+  getShiftOp()->prodLambda(outv, outv, EPowerPT::ONE);
 }
 
 
@@ -217,23 +212,23 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
 
 void PrecisionOpCs::_buildQ(bool flagDecompose)
 {
-  if (_QCS != nullptr) delete _QCS;
+  if (_Q != nullptr) delete _Q;
   if (! isCovaDefined()) return;
 
   // Calculate the Vector of coefficients (blin)
   VectorDouble blin = getPoly(EPowerPT::ONE)->getCoeffs();
 
   // Calculate the Precision matrix Q
-  _QCS = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
+  _Q = _spde_build_Q(getShiftOp()->getS(), getShiftOp()->getLambdas(),
                        static_cast<int>(blin.size()), blin.data());
 
   // Prepare the Cholesky decomposition
-  _qChol.reset(_QCS, flagDecompose);
-  _qChol.mustShowStats(getLogStats().isMustPrint());
+  if (flagDecompose) _Q->computeCholesky();
 }
 
 void PrecisionOpCs::makeReady()
 {
   // Perform the Cholesky decomposition (if defined but not already performed)
-  if (_qChol.isDefined()) _qChol.decompose();
+  if (_Q != nullptr)
+    _Q->computeCholesky();
 }

@@ -102,6 +102,7 @@ public:
   void delDir(int rank);
   void delAllDirs();
 
+  const ASpace* getSpace() const { return _dirparams[0].getSpace(); }
   double getScale() const { return _scale; }
   int    getDateNumber() const { return (int) _dates.size() / 2; }
   int    getDirectionNumber() const { return (int) _dirparams.size(); }

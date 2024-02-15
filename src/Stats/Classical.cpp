@@ -1221,7 +1221,7 @@ MatrixRectangular* sphering(const AMatrix* X)
   int nvar = X->getNCols();
 
   AMatrix* TX = X->transpose();
-  AMatrix* prod = MatrixFactory::matProduct(TX, X);
+  AMatrix* prod = MatrixFactory::prodMatMat(TX, X);
   prod->prodScalar(1. / (double) nech);
 
   VectorDouble eigen_values(nvar);

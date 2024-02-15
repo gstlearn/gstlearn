@@ -459,11 +459,11 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   return 0;
 }
 
-bool MeshETurbo::_addElementToCS(cs *Atriplet,
-                                 int iech,
-                                 const VectorDouble &coor,
-                                 const VectorInt &indg0,
-                                 bool verbose) const
+bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
+                                      int iech,
+                                      const VectorDouble &coor,
+                                      const VectorInt &indg0,
+                                      bool verbose) const
 {
   int ncorner = getNApexPerMesh();
   VectorInt indices(ncorner);
@@ -475,8 +475,7 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
       {
-        if (!cs_entry2(Atriplet, iech, indices[icorner], lambda[icorner]))
-          return false;
+        tripletAdd(NF_T, iech, indices[icorner], lambda[icorner]);
       }
       return true;
     }
@@ -501,7 +500,6 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
 *****************************************************************************/
 MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
-  cs* Atriplet = nullptr;
   MatrixSparse* A = nullptr;
   int ndim     = getNDim();
   VectorInt indg0(ndim);
@@ -513,8 +511,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   // Core allocation
 
-  Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) return NULL;
+  NF_Triplet NF_T = tripletInit(0);
 
   /* Optional title */
 
@@ -556,7 +553,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
     // Finding the active mesh to which the sample belongs
 
-    bool found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
+    bool found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
 
     // In the case the target coordinate is on the edge of the grid
     // try to shift the point down by one node
@@ -570,7 +567,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
         flag_correct = true;
       }
       if (flag_correct)
-        found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
+        found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
     }
 
     // The point does not belong to any active mesh, issue a message (optional)
@@ -585,11 +582,11 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   /* Add the extreme value to force dimension */
 
-  cs_force_dimension(Atriplet, nvalid, getNApices());
+  tripletForce(NF_T, nvalid, getNApices());
 
   /* Convert the triplet into a sparse matrix */
 
-  A = matCS_triplet(Atriplet);
+  A = MatrixSparse::createFromTriplet(NF_T);
 
   // Set the error return code
 
@@ -597,7 +594,6 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
 
-  Atriplet  = cs_spfree2(Atriplet);
   return(A);
 }
 #endif
@@ -735,7 +731,7 @@ int MeshETurbo::_addWeights(int icas,
   if (lhs.invert()) return 1;
 
   // Calculate the weights
-  lhs.prodMatVec(rhs,lambda);
+  lhs.prodMatVecInPlace(rhs,lambda);
 
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)

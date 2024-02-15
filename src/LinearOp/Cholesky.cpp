@@ -22,34 +22,13 @@
 
 #include "csparse_f.h"
 
-Cholesky::Cholesky(const MatrixSparse *mat, bool flagDecompose)
+Cholesky::Cholesky(const MatrixSparse* mat)
     : ALinearOp(),
-      _matCS(nullptr),
-      _matS(nullptr),
-      _matN(nullptr),
-      _work()
+      _S(nullptr),
+      _N(nullptr),
+      _matCS(mat)
 {
-  reset(mat, flagDecompose);
-}
-
-Cholesky::Cholesky(const Cholesky &m)
-    : ALinearOp(m),
-      _matCS(nullptr),
-      _matS(nullptr),
-      _matN(nullptr),
-      _work()
-{
-  reset(m._matCS, m.isCholeskyDecomposed());
-}
-
-Cholesky& Cholesky::operator=(const Cholesky &m)
-{
-  if (this != &m)
-  {
-    ALinearOp::operator =(m);
-    reset(m._matCS, m.isCholeskyDecomposed());
-  }
-  return *this;
+  _compute();
 }
 
 Cholesky::~Cholesky()
@@ -59,37 +38,32 @@ Cholesky::~Cholesky()
 
 void Cholesky::_clean()
 {
-  _matS = cs_sfree(_matS);
-  _matN = cs_nfree(_matN);
-}
-
-int Cholesky::reset(const MatrixSparse* mat, bool flagDecompose)
-{
-  if (mat == nullptr) return 0;
-
-  // Clear the already existing contents
-  _clean();
-
-  // Duplicate the sparse matrix
-  _matCS = mat;
-
-  // Perform the Cholesky decomposition
-  if (flagDecompose) decompose();
-
-  return 0;
+  if (_matCS == nullptr) return;
+  if (_matCS->isFlagEigen())
+  {
+    // Nothing to be done
+  }
+  else
+  {
+    _S = cs_sfree2(_S);
+    _S = nullptr;
+    _N = cs_nfree2(_N);
+    _N = nullptr;
+  }
+  _matCS = nullptr;
 }
 
 int Cholesky::getSize() const
 {
-  if (! isDefined())
+  if (_matCS == nullptr)
     return 0;
   else
-    return _matCS->getNCols();
+    return _matCS->getNRows();
 }
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product: 'outv' = MAT^{-1} * 'inv'
+**  Evaluate the product: 'outv' = MAT^{-1} * 'inv' (ALinearOp heritage)
 **
 ** \param[in]  vecin   Array of input values
 **
@@ -98,29 +72,14 @@ int Cholesky::getSize() const
 *****************************************************************************/
 void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) const
 {
-  if (!isDefined())
-  {
-    messerr("The sparse matrix should be defined beforehand");
-    return;
-  }
+  if (! isValid()) return;
 
-  // Perform Cholesky factorization (if needed)
-  decompose();
-
-  Timer time;
-  int n = getSize();
-  for (int i = 0; i < n; i++) _work[i] = 0.;
-  cs_ipvec(n, _matS->Pinv, vecin.data(), _work.data());
-  cs_lsolve(_matN->L, _work.data());
-  cs_ltsolve(_matN->L, _work.data());
-  cs_pvec(n, _matS->Pinv, _work.data(), vecout.data());
-
-  getLogStats().incrementStatsInverseChol(time.getIntervalSeconds());
+  solve(vecin, vecout);
 }
 
 /*****************************************************************************/
 /*!
-**  Operate the operation: 'outv' = MAT * 'inv'
+**  Operate the operation: 'outv' = MAT * 'inv' (ALinearOp heritage)
 **
 ** \param[in]  inv       Array of input values
 **
@@ -129,37 +88,9 @@ void Cholesky::evalInverse(const VectorDouble &vecin, VectorDouble &vecout) cons
 *****************************************************************************/
 void Cholesky::_evalDirect(const VectorDouble &inv, VectorDouble &outv) const
 {
-  if (! isDefined())
-  {
-    messerr("The sparse matrix should be defined beforehand");
-    return;
-  }
+  if (! isValid()) return;
 
-  Timer time;
-  _matCS->prodMatVec(inv, outv);
-  getLogStats().incrementStatsSimulate(time.getIntervalSeconds());
-}
-
-void Cholesky::printout(const char *title, bool verbose) const
-{
-  if (! isDefined()) return;
-
-  if (title != NULL) message("%s\n", title);
-
-  int nrows = 0;
-  int ncols = 0;
-  int count = 0;
-  double percent = 0.;
-  matCS_rowcol(_matCS, &nrows, &ncols, &count, &percent);
-  message("- Nrows(%d) x Ncols(%d) - Non-zeros(%d) [%6.2lf (percent)]", nrows,
-          ncols, count, percent);
-  if (_matS != nullptr || _matN != nullptr) message(" (Cholesky)");
-  message("\n");
-
-  if (verbose)
-    cs_print_nice("Symmetric Matrix", _matCS->getCS());
-
-  message("\n");
+  _matCS->prodMatVecInPlace(inv, outv);
 }
 
 /****************************************************************************/
@@ -167,69 +98,94 @@ void Cholesky::printout(const char *title, bool verbose) const
  **  Finalize the construction of the QChol structure.
  **  Perform the Cholesky decomposition
  **
- ** \param[in]  verbose   Verbose flag
- **
  ** \remarks In case of problem the message is issued in this function
  ** \remarks If the decomposition is already performed, nothing is done
  **
  *****************************************************************************/
-void Cholesky::decompose(bool verbose) const
+void Cholesky::_compute()
 {
-  if (!isDefined()) return;
-  if (isCholeskyDecomposed()) return;
-
-  /* Perform the Cholesky decomposition */
-
-  if (verbose) message("  Cholesky Decomposition... ");
-  Timer time;
-
-  if (verbose) message("Ordering... ");
-  _matS = cs_schol(_matCS->getCS(), 0);
-  if (_matS == nullptr)
+  if (_matCS == nullptr)
   {
-    messerr("Error in cs_schol function");
-    _matN = cs_nfree(_matN);
+    messerr("The argument '_matCS' must be defined");
     return;
   }
-
-  if (verbose) message("Factorization... ");
-  _matN = cs_chol(_matCS->getCS(), _matS);
-  if (_matN == nullptr)
+  if (_matCS->isFlagEigen())
   {
-    messerr("Error in cs_chol function");
-    _matS = cs_sfree(_matS);
-    return;
+    _cholSolver.compute(_matCS->getEigenMatrix());
   }
+  else
+  {
+    _S = cs_schol(_matCS->getCS(), 0);
+    if (_S == nullptr)
+    {
+      messerr("Error in cs_schol function");
+      _clean();
+      return;
+    }
 
-  _work.resize(getSize());
+    _N = cs_chol(_matCS->getCS(), _S);
+    if (_N == nullptr)
+    {
+      messerr("Error in cs_chol function");
+      _clean();
+      return;
+    }
+  }
+}
 
-  getLogStats().incrementStatsCholesky(time.getIntervalSeconds());
-  if (verbose) message("Finished\n");
-  return;
+int Cholesky::solve(const VectorDouble& b, VectorDouble& x) const
+{
+  if (! isValid()) return 1;
+
+  if (_matCS->isFlagEigen())
+  {
+    Eigen::Map<const Eigen::VectorXd> bm(b.data(), _matCS->getNCols());
+    Eigen::Map<Eigen::VectorXd> xm(x.data(), _matCS->getNRows());
+    xm = _cholSolver.solve(bm);
+  }
+  else
+  {
+    int size = _matCS->getNRows();
+    VectorDouble work(size, 0.);
+    cs_ipvec(size, _S->Pinv, b.data(), work.data());
+    cs_lsolve(_N->L, work.data());
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(size, _S->Pinv, work.data(), x.data());
+  }
+  return 0;
 }
 
 /****************************************************************************/
 /*!
  **  Simulate using Cholesky
  **
- ** \param[out] vecin    input Vector
- ** \param[out] vecout   Simulated output vector
+ ** \param[out] b   Input Vector
+ ** \param[out] x   Simulated output vector
  **
  *****************************************************************************/
-void Cholesky::simulate(VectorDouble& vecin, VectorDouble& vecout)
+int Cholesky::simulate(const VectorDouble& b, VectorDouble& x) const
 {
-  if (!isDefined())
+  if (! isValid()) return 1;
+  int size = _matCS->getNRows();
+
+  if (_matCS->isFlagEigen())
   {
-    messerr("The sparse matrix should be defined beforehand");
-    return;
+    Eigen::Map<const Eigen::VectorXd> bm(b.data(), b.size());
+    Eigen::Map<Eigen::VectorXd> xm(x.data(), x.size());
+
+    Eigen::ArrayXd Ddm = 1.0 / _cholSolver.vectorD().array().sqrt();
+    Eigen::VectorXd DW = ((bm.array()) * Ddm).matrix();
+    Eigen::VectorXd Y = _cholSolver.matrixU().solve(DW);
+    xm = _cholSolver.permutationPinv() * Y;
+  }
+  else
+  {
+    VectorDouble work = b; // We must work on a copy of b in order to preserve constness
+    cs_ltsolve(_N->L, work.data());
+    cs_pvec(size, _S->Pinv, work.data(), x.data());
   }
 
-  // Perform Cholesky factorization (if needed)
-  decompose();
-
-  int n = getSize();
-  cs_ltsolve(_matN->L, vecin.data());
-  cs_pvec(n, _matS->Pinv, vecin.data(), vecout.data());
+  return 0;
 }
 
 /****************************************************************************/
@@ -240,94 +196,95 @@ void Cholesky::simulate(VectorDouble& vecin, VectorDouble& vecout)
  ** \param[in]  flagStDev FALSE for a variance calculation, True for StDev.
  **
  *****************************************************************************/
-void Cholesky::stdev(VectorDouble& vcur, bool flagStDev)
+int Cholesky::stdev(VectorDouble& vcur, bool flagStDev) const
 {
-  if (!isDefined())
+  if (! isValid()) return 1;
+
+  if (_matCS->isFlagEigen())
   {
-    messerr("The sparse matrix should be defined beforehand");
-    return;
+    messerr("The calculation of 'stdev' is not yet performed with Eigen Library");
+    return 1;
   }
-
-  // Perform Cholesky factorization (if needed)
-   decompose();
-
-  VectorDouble z;
-  VectorDouble wz;
-  VectorInt wZdiagp;
-  VectorInt wLmunch;
-  VectorDouble d2;
-  VectorDouble diag;
-
-  cs* Dinv = nullptr;
-  cs* LDinv = nullptr;
-  cs* TLDinv = nullptr;
-  cs* Pattern = nullptr;
-
-  int ntarget = getSize();
-  int nzmax = 0;
-
-  /* Pre-processing */
-
-  d2 = csd_extract_diag_VD(_matN->L, 2);
-  Dinv = cs_extract_diag(_matN->L, -1);
-  if (Dinv == nullptr) goto label_end;
-  LDinv = cs_multiply(_matN->L, Dinv);
-  if (LDinv == nullptr) goto label_end;
-  TLDinv = cs_transpose(LDinv, 1);
-  if (TLDinv == nullptr) goto label_end;
-  Pattern = cs_add(LDinv, TLDinv, 1, 1);
-  if (Pattern == nullptr) goto label_end;
-  if (cs_sort_i(Pattern)) goto label_end;
-  if (cs_sort_i(LDinv)) goto label_end;
-
-  /* Core allocation */
-
-  nzmax = Pattern->nzmax;
-  z.resize(ntarget, 0);
-  wz.resize(nzmax, 0);
-  wZdiagp.resize(nzmax, 0);
-  wLmunch.resize(nzmax, 0);
-
-  if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2.data(), LDinv->p, LDinv->i,
-                LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz.data(),
-                wZdiagp.data(), wLmunch.data()) == -1) goto label_end;
-
-  /* Extracting the diagonal of wz */
-
-  diag = csd_extract_diag_VD(Pattern, 1);
-  cs_pvec(ntarget, _matS->Pinv, diag.data(), z.data());
-
-  if (flagStDev)
-    for (int iech = 0; iech < ntarget; iech++)
-      vcur[iech] = sqrt(z[iech]);
   else
-    for (int iech = 0; iech < ntarget; iech++)
-      vcur[iech] = z[iech];
+  {
+    VectorDouble z;
+    VectorDouble wz;
+    VectorInt wZdiagp;
+    VectorInt wLmunch;
+    VectorDouble d2;
+    VectorDouble diag;
 
-  /* Set the error return code */
+    cs *Dinv = nullptr;
+    cs *LDinv = nullptr;
+    cs *TLDinv = nullptr;
+    cs *Pattern = nullptr;
 
-  label_end:
-  Dinv = cs_spfree(Dinv);
-  LDinv = cs_spfree(LDinv);
-  TLDinv = cs_spfree(TLDinv);
-  Pattern = cs_spfree(Pattern);
+    int ntarget = getSize();
+    int nzmax = 0;
+
+    /* Pre-processing */
+
+    d2 = csd_extract_diag_VD(_N->L, 2);
+    Dinv = cs_extract_diag(_N->L, -1);
+    if (Dinv == nullptr) goto label_end;
+    LDinv = cs_multiply(_N->L, Dinv);
+    if (LDinv == nullptr) goto label_end;
+    TLDinv = cs_transpose(LDinv, 1);
+    if (TLDinv == nullptr) goto label_end;
+    Pattern = cs_add(LDinv, TLDinv, 1, 1);
+    if (Pattern == nullptr) goto label_end;
+    if (cs_sort_i(Pattern)) goto label_end;
+    if (cs_sort_i(LDinv)) goto label_end;
+
+    /* Core allocation */
+
+    nzmax = Pattern->nzmax;
+    z.resize(ntarget, 0);
+    wz.resize(nzmax, 0);
+    wZdiagp.resize(nzmax, 0);
+    wLmunch.resize(nzmax, 0);
+
+    if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2.data(), LDinv->p,
+                  LDinv->i, LDinv->x, Pattern->p, Pattern->i, Pattern->x,
+                  wz.data(), wZdiagp.data(), wLmunch.data())
+        == -1) goto label_end;
+
+    /* Extracting the diagonal of wz */
+
+    diag = csd_extract_diag_VD(Pattern, 1);
+    cs_pvec(ntarget, _S->Pinv, diag.data(), z.data());
+
+    if (flagStDev)
+      for (int iech = 0; iech < ntarget; iech++)
+        vcur[iech] = sqrt(z[iech]);
+    else
+      for (int iech = 0; iech < ntarget; iech++)
+        vcur[iech] = z[iech];
+
+    /* Set the error return code */
+
+label_end:
+    Dinv = cs_spfree2(Dinv);
+    LDinv = cs_spfree2(LDinv);
+    TLDinv = cs_spfree2(TLDinv);
+    Pattern = cs_spfree2(Pattern);
+  }
+  return 0;
 }
 
-double Cholesky::computeLogDet() const
+double Cholesky::getLogDeterminant() const
 {
-  if (!isDefined())
+  if (! isValid()) return TEST;
+  if (_matCS->isFlagEigen())
   {
-    messerr("The sparse matrix should be defined beforehand");
-    return TEST;
+    return log(_cholSolver.determinant());
   }
-
-  // Perform Cholesky factorization (if needed)
-  decompose();
-
-  VectorDouble diag = csd_extract_diag_VD(_matN->L, 1);
-  double det = 0.;
-  for (int i = 0; i < (int) diag.size(); i++)
-    det += log(diag[i]);
-
-  return 2. * det;
+  else
+  {
+    VectorDouble diag = csd_extract_diag_VD(_N->L, 1);
+    double det = 0.;
+    for (int i = 0; i < (int) diag.size(); i++)
+      det += log(diag[i]);
+    return 2. * det;
+  }
 }

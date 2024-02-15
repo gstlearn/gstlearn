@@ -65,6 +65,10 @@
  * - Methods naming;
  *   method _func() is internal to the class (private or protected)
  *   method func_() is not exported via SWIG
+ * - Use of "InPlace" suffix:
+ *   It is used in methods that modify either a member of this class or a returned argument.
+ *   Important remark. The member or agument must have been correctly dimensioned beforehand;
+ *   no test will be performed (in order to speed up the processing).
  *
  * ## C++ coding rules
  *

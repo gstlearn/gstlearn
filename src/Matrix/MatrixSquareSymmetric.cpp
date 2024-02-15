@@ -125,7 +125,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getValue(irow, icol);
   else
     return _getValueLocal(irow, icol);
@@ -133,7 +133,7 @@ double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 
 double MatrixSquareSymmetric::_getValueByRank(int irank) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
@@ -141,7 +141,7 @@ double MatrixSquareSymmetric::_getValueByRank(int irank) const
 
 double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
     return _getValueRef(irow, icol);
@@ -149,7 +149,7 @@ double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
   {
     // Do not forget to make a symmetrical call (when stored in an Eigen format)
     AMatrixDense::_setValue(irow, icol, value);
@@ -161,26 +161,26 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 
 void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
 }
 
-void MatrixSquareSymmetric::_prodMatVec(const double *x, double *y, bool transpose) const
+void MatrixSquareSymmetric::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
-  if (_isFlagEigen())
-    AMatrixDense::_prodMatVec(x, y, transpose);
+  if (isFlagEigen())
+    AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
   else
-    _prodMatVecLocal(x, y, transpose);
+    _prodMatVecInPlacePtrLocal(x, y, transpose);
 }
 
-void MatrixSquareSymmetric::_prodVecMat(const double *x, double *y, bool transpose) const
+void MatrixSquareSymmetric::_prodVecMatInPlacePtr(const double *x, double *y, bool transpose) const
 {
-  if (_isFlagEigen())
-    AMatrixDense::_prodVecMat(x, y, transpose);
+  if (isFlagEigen())
+    AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
   else
-    _prodVecMatLocal(x, y, transpose);
+    _prodVecMatInPlacePtrLocal(x, y, transpose);
 }
 
 /**
@@ -188,7 +188,7 @@ void MatrixSquareSymmetric::_prodVecMat(const double *x, double *y, bool transpo
  */
 void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_setValues(values, byCol);
   else
     _setValuesLocal(values, byCol);
@@ -196,7 +196,7 @@ void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 
 int MatrixSquareSymmetric::_invert()
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_invert();
   else
     return _invertLocal();
@@ -204,7 +204,7 @@ int MatrixSquareSymmetric::_invert()
 
 void MatrixSquareSymmetric::_deallocate()
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_deallocate();
   else
   {
@@ -214,7 +214,7 @@ void MatrixSquareSymmetric::_deallocate()
 
 void MatrixSquareSymmetric::_allocate()
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_allocate();
   else
     _allocateLocal();
@@ -222,7 +222,7 @@ void MatrixSquareSymmetric::_allocate()
 
 int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getIndexToRank(irow, icol);
   else
     return _getIndexToRankLocal(irow, icol);
@@ -230,7 +230,7 @@ int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 
 int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getMatrixPhysicalSize();
   else
     return _getMatrixPhysicalSizeLocal();
@@ -238,7 +238,7 @@ int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 
 int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_solve(b, x);
   else
     return _solveLocal(b, x);
@@ -352,7 +352,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &vali
 
 int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_computeEigen(optionPositive);
   else
     return _computeEigenLocal(optionPositive);
@@ -360,7 +360,7 @@ int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 
 int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
   else
     return _computeGeneralizedEigenLocal(b, optionPositive);
@@ -409,12 +409,12 @@ void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixSquareSymmetric::_prodMatVecLocal(const double *x, double *y, bool transpose) const
+void MatrixSquareSymmetric::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
   _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 
-void MatrixSquareSymmetric::_prodVecMatLocal(const double *x, double *y, bool transpose) const
+void MatrixSquareSymmetric::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
   _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }

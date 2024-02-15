@@ -1518,8 +1518,8 @@ static int st_variogram_calcul1(Db *db,
                                 Vario_Order *vorder)
 {
   int iech, jech, ipas, npair, ideb;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   DirParam dirparam = vario->getDirParam(idir);
   int nech = db->getSampleNumber();
@@ -1619,8 +1619,8 @@ static int st_variogram_calcul1(Db *db,
 static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
 {
   int iech, jech, i, ipas, ideb;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Initializations */
 
@@ -1741,8 +1741,8 @@ static int st_variovect_calcul(Db *db,
 {
   int iech, jech, ipas, i, icomp;
   double w1, w2, zi1, zi2, zj1, zj2, v12, v21, di1, di2, dj1, dj2;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   const DirParam &dirparam = vario->getDirParam(idir);
   int nech = db->getSampleNumber();
@@ -1862,8 +1862,8 @@ static int st_variovect_calcul(Db *db,
 static int st_variogram_grid(DbGrid *db, Vario *vario, int idir)
 {
   int *indg1, *indg2, jech;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Initializations */
 
@@ -1960,8 +1960,8 @@ static void st_variogen_line(Db *db, Vario *vario, int idir, int norder)
 {
   int jech, keep, nvar;
   double value, zz;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   int nech = db->getSampleNumber();
   int npas = vario->getLagNumber(idir);
@@ -2045,8 +2045,8 @@ static int st_variogen_grid(DbGrid *db, Vario *vario, int idir, int norder)
   int *indg1, *indg2;
   int jech, nech, idim, error, npas, keep, nvar;
   double zz, value;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Initializations */
 
@@ -3261,238 +3261,181 @@ static int st_update_discretization_grid(DbGrid *db, double x, double y)
 
 /****************************************************************************/
 /*!
- **  Evaluate the correlation (according to argument flag_same):
- **  - the standard correlation (flag_same = 1)
+ **  Evaluate the correlation
  **     Correl(Z1(x) , Z2(x))
- **  - the shifted correlation calculated as follows:
- **     Correl(Z1(x) , Z2(x+h))
  **
  ** \return  Error return code
  **
  ** \param[in]  db1          Db descriptor (first variable)
  ** \param[in]  db2          Db descriptor (second variable for flag.same=T)
- ** \param[in]  dbgrid       Discretization Grid descriptor
- ** \param[in]  flag_same    1 if the two samples must coincide
  ** \param[in]  icol1        Rank of the first column
  ** \param[in]  icol2        Rank of the second column
- ** \param[in]  flag_verbose 1 for a verbose output
- ** \param[in]  dmin         Minimum distance
- ** \param[in]  dmax         Maximum distance
  ** \param[in]  varioparam   pointer to a VarioParam structure
+ ** \param[in]  verbose      Verbose flag
  **
- ** \param[out] nindice      Number of pairs
  ** \param[out] indices      Array of the indices of pairs of samples
  **                          (Dimension: 2 * nindice)
- ** \param[out] correl       Correlation coefficient
  **
  ** \remarks The two input Db must match exactly (same number of samples with
  ** \remarks same set of coordinates and same optional selection)
  **
- ** \remarks The returned array 'indices' contain the set of indices of the
- ** \remarks pairs of samples. Its contents is i1,j1,i2,j2,...
+ ** \remarks The returned Vector of Vector of integer 'indices' contain
+ ** \remarks the set of indices of the pairs of samples.
+ ** \remarks Its contents is i1,j1,i2,j2,...
  ** \remarks The indices are numbered starting from 1
- ** \remarks The number of pairs is 'nindice'.
- ** \remarks This array must be freed by the calling function
  **
  *****************************************************************************/
-int correlation_f(Db *db1,
-                  Db *db2,
-                  DbGrid *dbgrid,
-                  int flag_same,
-                  int icol1,
-                  int icol2,
-                  int flag_verbose,
-                  double dmin,
-                  double dmax,
-                  VarioParam* varioparam,
-                  int *nindice,
-                  int **indices,
-                  double *correl)
+int correlationPairs(Db *db1,
+                     Db *db2,
+                     int icol1,
+                     int icol2,
+                     VarioParam *varioparam,
+                     VectorVectorInt &indices,
+                     bool verbose)
 {
-  int *ind, iech, jech, nech, iptr, igrid, nalloc, npair, error;
-  double dist, val1, val2, m1, m2, v1, v2, v12, nb, rho;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(varioparam->getSpace());
+  SpaceTarget T2(varioparam->getSpace());
 
   /* Initializations */
 
   if (db1 == nullptr) return (1);
   if (db2 == nullptr) return (1);
-  if (dbgrid == nullptr) return (1);
-  nech = db1->getSampleNumber();
-  error = 1;
-  iptr = nalloc = 0;
-  *correl = 0.;
-  *nindice = 0;
-  *indices = ind = nullptr;
-  iptr = dbgrid->addColumnsByConstant(1, 0.);
-  if (iptr < 0) return (1);
-  m1 = m2 = v1 = v2 = v12 = nb = 0.;
+  indices.resize(2);
+  int nech = db1->getSampleNumber();
 
-  /* Initial core allocation */
+  /* Regular correlation */
 
-  npair = 0;
-  nalloc = nech;
-  ind = (int*) mem_alloc(sizeof(int) * 2 * nalloc, 0);
-  if (ind == nullptr) goto label_end;
-
-  /* Dispatch */
-
-  if (flag_same)
+  int nb = 0;
+  for (int iech = 0; iech < nech; iech++)
   {
+    if (!db1->isActive(iech)) continue;
+    double val1 = db1->getArray(iech, icol1);
+    if (FFFF(val1)) continue;
+    double val2 = db2->getArray(iech, icol2);
+    if (FFFF(val2)) continue;
 
-    /* Regular correlation */
+    indices[0].push_back(iech + 1);
+    indices[1].push_back(iech + 1);
+    nb++;
+  }
 
-    for (iech = 0; iech < nech; iech++)
+  /* Calculate the correlation coefficient */
+
+  if (nb <= 0)
+  {
+    messerr("No sample found where all variables are defined");
+    return 0;
+  }
+
+  /* Messages */
+
+  if (verbose)
+  {
+    message("Total number of samples = %d\n", nech);
+    message("Number of samples defined = %d\n", (int) nb);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the shifted correlation calculated as follows:
+ **     Correl(Z1(x) , Z2(x+h))
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db descriptor
+ ** \param[in]  icol1        Rank of the first column
+ ** \param[in]  icol2        Rank of the second column
+ ** \param[in]  dmin         Minimum distance
+ ** \param[in]  dmax         Maximum distance
+ ** \param[in]  varioparam   pointer to a VarioParam structure
+ ** \param[in]  verbose      Verbose flag
+ **
+ ** \param[out] indices      Array of the indices of pairs of samples
+ **                          (Dimension: 2 * nindice)
+ **
+ ** \remarks The two input Db must match exactly (same number of samples with
+ ** \remarks same set of coordinates and same optional selection)
+ **
+ ** \remarks The returned Vector of Vector of integer 'indices' contain
+ ** \remarks the set of indices of the pairs of samples.
+ ** \remarks Its contents is i1,j1,i2,j2,...
+ ** \remarks The indices are numbered starting from 1
+ **
+ *****************************************************************************/
+int hscatterPairs(Db *db,
+                  int icol1,
+                  int icol2,
+                  double dmin,
+                  double dmax,
+                  VarioParam *varioparam,
+                  VectorVectorInt &indices,
+                  bool verbose)
+{
+  double dist = 0.;
+  SpaceTarget T1(varioparam->getSpace());
+  SpaceTarget T2(varioparam->getSpace());
+
+  /* Initializations */
+
+  if (db == nullptr) return (1);
+  int nech = db->getSampleNumber();
+  indices.resize(2);
+
+  // Creating a local Vario structure (to constitute the BiTargetCheck list)
+  Vario *vario = Vario::create(*varioparam);
+  vario->setDb(db);
+  if (vario->prepare()) return 1;
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+
+  int nb = 0;
+  for (int iech = 0; iech < nech - 1; iech++)
+  {
+    if (hasSel && !db->isActive(iech)) continue;
+    double val1 = db->getArray(iech, icol1);
+    if (FFFF(val1)) continue;
+    db->getSampleAsST(iech, T1);
+
+    for (int jech = iech + 1; jech < nech; jech++)
     {
-      if (!db1->isActive(iech)) continue;
-      val1 = db1->getArray(iech, icol1);
-      if (FFFF(val1)) continue;
-      val2 = db2->getArray(iech, icol2);
+      if (hasSel && !db->isActive(jech)) continue;
+      double val2 = db->getArray(jech, icol2);
       if (FFFF(val2)) continue;
+      db->getSampleAsST(jech, T2);
 
-      /* Global statistics */
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (!variogramKeep(vario, 0, T1, T2, &dist)) continue;
 
-      nb += 1.;
-      m1 += val1;
-      m2 += val2;
-      v1 += val1 * val1;
-      v2 += val2 * val2;
-      v12 += val1 * val2;
+      /* Check the distance */
+      if (dist < dmin || dist > dmax) continue;
 
       /* Point update */
 
-      if (npair >= nalloc)
-      {
-        nalloc += nech;
-        ind = (int*) mem_realloc((char* ) ind, 2 * nalloc * sizeof(int), 0);
-        if (ind == nullptr) goto label_end;
-      }
-      ind[2 * npair] = iech + 1;
-      ind[2 * npair + 1] = iech + 1;
-      npair++;
-
-      /* Grid update */
-
-      igrid = st_update_discretization_grid(dbgrid, val1, val2);
-      if (igrid < 0) continue;
-      dbgrid->updArray(igrid, iptr, 0, 1.);
-    }
-  }
-  else
-  {
-    // Creating a local Vario structure (to constitute the BiTargetCheck list)
-    Vario* vario = Vario::create(*varioparam);
-    vario->setDb(db1);
-    if (vario->prepare()) return 1;
-
-    // Local variables to speed up calculations
-    bool hasSel = db1->hasLocVariable(ELoc::SEL);
-
-    for (iech = 0; iech < nech - 1; iech++)
-    {
-      if (hasSel && !db1->isActive(iech)) continue;
-      val1 = db1->getArray(iech, icol1);
-      if (FFFF(val1)) continue;
-      db1->getSampleAsST(iech, T1);
-
-      for (jech = iech + 1; jech < nech; jech++)
-      {
-        if (hasSel && !db1->isActive(jech)) continue;
-        val2 = db1->getArray(jech, icol2);
-        if (FFFF(val2)) continue;
-        db1->getSampleAsST(jech, T2);
-
-        // Reject the point as soon as one BiTargetChecker is not correct
-        if (! variogramKeep(vario, 0, T1, T2, &dist)) continue;
-
-        /* Check the distance */
-        if (dist < dmin || dist > dmax) continue;
-
-        /* Global statistics */
-
-        nb += 1.;
-        m1 += val1;
-        m2 += val2;
-        v1 += val1 * val1;
-        v2 += val2 * val2;
-        v12 += val1 * val2;
-
-        /* Point update */
-
-        if (npair >= nalloc)
-        {
-          nalloc += nech;
-          ind = (int*) mem_realloc((char* ) ind, 2 * nalloc * sizeof(int), 0);
-          if (ind == nullptr) goto label_end;
-        }
-        ind[2 * npair] = iech + 1;
-        ind[2 * npair + 1] = jech + 1;
-        npair++;
-
-        /* Grid update */
-
-        igrid = st_update_discretization_grid(dbgrid, val1, val2);
-        if (igrid < 0) continue;
-        dbgrid->updArray(igrid, iptr, 0, 1.);
-      }
+      indices[0].push_back(iech + 1);
+      indices[1].push_back(jech + 1);
+      nb++;
     }
   }
 
   /* Calculate the correlation coefficient */
 
-  *correl = TEST;
-  if (nb > 0)
-  {
-    m1 /= nb;
-    m2 /= nb;
-    v1 = v1 / nb - m1 * m1;
-    v2 = v2 / nb - m2 * m2;
-    v12 = v12 / nb - m1 * m2;
-    rho = (v1 * v2 > 0) ? v12 / sqrt(v1 * v2) : 1.;
-    if (flag_verbose) message("Correlation coefficient = %lf\n", rho);
-    *correl = rho;
-  }
-  else
+  if (nb <= 0)
   {
     messerr("No sample found where all variables are defined");
-    error = 0;
-    goto label_end;
+    return 0;
   }
-
-  /* Grid case: Convert zero values into TEST on the grid */
-
-  st_final_discretization_grid(dbgrid, iptr);
-
-  /* Point case: core reallocation */
-
-  ind = (int*) mem_realloc((char* ) ind, 2 * npair * sizeof(int), 0);
-  if (ind == nullptr) goto label_end;
 
   /* Messages */
 
-  if (flag_verbose)
+  if (verbose)
   {
     message("Total number of samples = %d\n", nech);
-    if (flag_same)
-      message("Number of samples defined = %d\n", (int) nb);
-    else
-      message("Number of pairs used for translated correlation = %d\n",
-              (int) nb);
+    message("Number of pairs used for translated correlation = %d\n", (int) nb);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error)
-  {
-    ind = (int*) mem_free((char* ) ind);
-    npair = 0;
-  }
-  *nindice = npair;
-  *indices = ind;
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -3565,8 +3508,8 @@ static void st_variogram_cloud(Db *db,
 {
   double dist, value, z1, z2;
   int nech, iech, jech, igrid, ideb;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(varioparam->getSpace());
+  SpaceTarget T2(varioparam->getSpace());
 
   /* Preliminary calculations */
 
@@ -3638,8 +3581,8 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
   double *ids, dist, z1, z2, value;
   int *indg, *rank, nech, iech, jech, igrid, idir, ideb;
   VectorDouble coor;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Initializations */
 
@@ -3757,8 +3700,8 @@ static void st_variogram_cloud_dim(Db *db,
   double dist = 0;
   double value, w1, w2, z1, z2;
   int nech, iech, jech, ideb;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(varioparam->getSpace());
+  SpaceTarget T2(varioparam->getSpace());
 
   /* Preliminary calculations */
 
@@ -4729,8 +4672,8 @@ int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
   double maxdist;
   int iiech, iech, jjech, jech, nech, ipas, idir, ideb;
   VectorInt rindex;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Initializations */
 
@@ -4922,8 +4865,8 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 int variogram_mlayers(Db *db, int *seltab, Vario *vario, Vario_Order *vorder)
 {
   int iiech, iech, jjech, jech, ipas, npair;
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(vario->getSpace());
+  SpaceTarget T2(vario->getSpace());
 
   /* Initializations */
 
@@ -5435,8 +5378,8 @@ Db* db_variogram(Db *db, const VarioParam* varioparam)
   VectorDouble dists;
   VectorDouble vect(ndim);
 
-  SpaceTarget T1;
-  SpaceTarget T2;
+  SpaceTarget T1(varioparam->getSpace());
+  SpaceTarget T2(varioparam->getSpace());
 
   // Calculating the admissible pairs
   VectorInt rindex = db->getSortArray();

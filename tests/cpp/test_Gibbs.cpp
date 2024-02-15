@@ -230,7 +230,7 @@ static int st_gibbs(int  niter,
     for (int icol=0; icol<ncolor; icol++)
     {
       nc = st_vector_compress(nvertex,icol,z,colors,ind,zred);
-      Qcols[icol]->prodVecMatPtr(zred,krig, false);
+      Qcols[icol]->prodVecMatInPlacePtr(zred,krig, false);
 
       for (ic=0; ic<nc; ic++)
       {
@@ -277,7 +277,8 @@ int main(int argc, char *argv[])
   const char triswitch[] = "nqQ";
   int     verbose, seed, ndim, nvertex, ncolor;
   int    *ind, rank;
-  double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
+  double *z, *krig, *zred, *consmin, *consmax;
+  VectorDouble sigma;
   
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
@@ -296,7 +297,6 @@ int main(int argc, char *argv[])
   zred     = (double      *) NULL;
   consmin  = (double      *) NULL;
   consmax  = (double      *) NULL;
-  sigma    = (double      *) NULL;
   verbose  = ncolor = 0;
   seed     = 31415;
   ndim     = 2;
@@ -312,11 +312,12 @@ int main(int argc, char *argv[])
   OptCst::define(ECst::NTCAR,10.);
   OptCst::define(ECst::NTDEC,6.);
   
+  setGlobalFlagEigen(false);
+
   // 2-D grid output file
 
   dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
                           VectorDouble(), VectorString(), VectorString(), 1);
-  db_extension_diag(dbgrid,&diag);
     
   // Model for SPDE
 
@@ -341,7 +342,8 @@ int main(int argc, char *argv[])
 
   // Create the color coding 
 
-  colors = matCS_color_coding(Q,0,&ncolor);
+  colors = Q->colorCoding();
+  ncolor = (int) colors.size();
 
   // Core allocation
   
@@ -374,31 +376,30 @@ int main(int argc, char *argv[])
   
   // Creating the variance
   
-  sigma = matCSD_extract_diag(Q,-2);
-  if (sigma == (double *) NULL) goto label_end;
+  sigma = Q->getDiagonal(0);
+  VH::transformVD(sigma, -3);
 
   // Scaling the Q matrix
   
-  if (matCS_scale(Q)) goto label_end;
+  if (Q->scaleByDiag()) goto label_end;
 
   // Check the imported information
 
-  if (flag_print) st_print_all(colors,consmin,consmax,sigma,Q->getCS());
+  if (flag_print) st_print_all(colors,consmin,consmax,sigma.data(),Q->getCS());
 
   //----------------//
   // Main Algorithm //
   //----------------//
 
   Qcols = (MatrixSparse **) mem_alloc(sizeof(MatrixSparse *) * ncolor,1);
-  for (int icol=0; icol<ncolor; icol++) Qcols[icol] = nullptr;
   for (int icol=0; icol<ncolor; icol++)
   {
-    Qcols[icol] = matCS_extract_submatrix_by_color(Q,colors,icol,1,0);
+    Qcols[icol] = Q->extractSubmatrixByColor(colors, icol, true, false);
     if (Qcols[icol] == nullptr) goto label_end;
   }
 
   // Perform the Gibbs sampler
-  if (st_gibbs(niter,ncolor,nvertex,colors,Qcols,consmin,consmax,sigma,
+  if (st_gibbs(niter,ncolor,nvertex,colors,Qcols,consmin,consmax,sigma.data(),
                z,ind,krig,zred)) goto label_end;
 
   // Add the newly created field to the grid for printout
@@ -421,6 +422,5 @@ label_end:
   zred     = (double *) mem_free((char *) zred);
   consmin  = (double *) mem_free((char *) consmin);
   consmax  = (double *) mem_free((char *) consmax);
-  sigma    = (double *) mem_free((char *) sigma);
   return(0);
 }

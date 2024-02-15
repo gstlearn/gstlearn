@@ -451,12 +451,12 @@ void CovAniso::eval0MatInPlace(MatrixSquareGeneral &mat,
   double cov = _evalCovFromH(0, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatrix(_sill, cov * _noStatFactor);
+    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
   else
   {
     MatrixSquareSymmetric identity = _sill;
     identity.setIdentity();
-    mat.addMatrix(identity, cov);
+    mat.addMatInPlace(identity, 1., cov);
   }
 }
 
@@ -478,12 +478,12 @@ void CovAniso::evalMatInPlace(const SpacePoint &p1,
   double cov = _evalCovFromH(h, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatrix(_sill, cov * _noStatFactor);
+    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
   else
   {
     MatrixSquareSymmetric identity = _sill;
     identity.setIdentity();
-    mat.addMatrix(identity, cov);
+    mat.addMatInPlace(identity, 1., cov);
   }
 }
 
@@ -555,12 +555,12 @@ void CovAniso::evalMatOptimInPlace(int icas1,
   double cov = _evalCovFromH(hoptim, mode);
 
   if (mode == nullptr || ! mode->getUnitary())
-    mat.addMatrix(_sill, cov * _noStatFactor);
+    mat.addMatInPlace(_sill, 1., cov * _noStatFactor);
   else
   {
     MatrixSquareSymmetric identity = _sill;
     identity.setIdentity();
-    mat.addMatrix(identity, cov);
+    mat.addMatInPlace(identity, 1., cov);
   }
 }
 

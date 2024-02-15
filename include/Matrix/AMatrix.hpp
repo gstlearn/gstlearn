@@ -22,7 +22,7 @@
  * Matrix
  */
 
-class Triplet;
+class NF_Triplet;
 
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
@@ -83,7 +83,7 @@ public:
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
   /*! Set a set of values simultaneously from an input array */
-  virtual void setValuesFromTriplet(const Triplet& T);
+  virtual void setValuesFromTriplet(const NF_Triplet& T);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
   /*! Multiply a Matrix row-wise */
@@ -95,30 +95,36 @@ public:
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec);
   /*! Perform 'vec' * 'this' */
-  virtual VectorDouble prodVecMatInPlace(const VectorDouble& x, bool transpose = false) const;
+  virtual VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
   /*! Perform 'this' * 'vec' */
-  virtual VectorDouble prodMatVecInPlace(const VectorDouble& x, bool transpose = true) const;
+  virtual VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
   /*! Extract a Row */
   virtual VectorDouble getRow(int irow) const;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const;
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
+  virtual void prodMatMatInPlace(const AMatrix *x,
+                                 const AMatrix *y,
+                                 bool transposeX = false,
+                                 bool transposeY = false);
 
 #ifndef SWIG
   /*! Extract the contents of the matrix */
-  virtual Triplet getValuesAsTriplets() const;
+  virtual NF_Triplet getMatrixToTriplets(bool flag_from_1 = false) const;
 #endif
 
   /*! Add a matrix (multiplied by a constant) */
-  void addMatrix(const AMatrix& y, double value = 1.);
-  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
-  void prodMatMat(const AMatrix &x,
-                  const AMatrix &y,
-                  bool transposeX = false,
-                  bool transposeY = false);
-  /*! Multiply 'this' by matrix 'y' */
-  void prodMatMatInPlace(const AMatrix* matY, bool transposeY = false);
-  /*! Linear combination of matrices */
-  void linearCombination(double cx, double cy, const AMatrix& y);
+  void addMatInPlace(const AMatrix& y, double cx = 1., double cy = 1.);
+  /*! Multiply 'this' by matrix 'y' and store in 'this'*/
+  void prodMatInPlace(const AMatrix* matY, bool transposeY = false);
+  /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
+  void prodNormMatMatInPlace(const AMatrix &a,
+                             const AMatrix &m,
+                             bool transpose = false);
+  /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
+  void prodNormMatInPlace(const AMatrix &a,
+                          const VectorDouble &vec = VectorDouble(),
+                          bool transpose = false);
 
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
@@ -162,13 +168,15 @@ public:
   int getNumberColumnDefined() const;
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
+  /*! Returns if the Matrix is built using Eigen Library or not */
+  bool isFlagEigen() const { return _flagEigen; }
 
   /*! Perform 'y' = 'this' * 'x' */
-  void prodMatVec(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
-  void prodMatVecPtr(const double* x, double* y, bool transpose = false) const;
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
   /*! Perform 'y' = 'x' * 'this' */
-  void prodVecMat(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
-  void prodVecMatPtr(const double* x, double* y, bool transpose = false) const;
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  void prodVecMatInPlacePtr(const double* x, double* y, bool transpose = false) const;
 
   /*! Perform x %*% mat %*% y */
   double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
@@ -218,8 +226,8 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;
-  virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const = 0;
-  virtual void    _prodVecMat(const double *x,double *y, bool transpose = false) const = 0;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const = 0;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
 
@@ -235,10 +243,19 @@ protected:
   bool _isRankValid(int rank) const;
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
-  bool _isFlagEigen() const { return _flagEigen; }
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
-  bool _getFlagEigen(int opt_eigen) const;
+  bool _defineFlagEigen(int opt_eigen) const;
+
+  bool _checkLink(int nrow1,
+                  int ncol1,
+                  bool transpose1,
+                  int nrow2 = 0,
+                  int ncol2 = 0,
+                  bool transpose2 = false,
+                  int nrow3 = 0,
+                  int ncol3 = 0,
+                  bool transpose3 = false) const;
 
 private:
   int  _nRows;
@@ -250,8 +267,6 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-GSTLEARN_EXPORT AMatrix* prodMatMat(const AMatrix *mat1, const AMatrix *mat2);
-
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
 GSTLEARN_EXPORT void setMultiThread(int nthreads);

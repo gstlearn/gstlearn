@@ -208,6 +208,8 @@ public:
   static VectorDouble suppressTest(const VectorDouble& vecin);
   static void extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
   static void mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
+
+  static void transformVD(VectorDouble& tab, int oper_choice = 1);
 };
 
 //typedef VectorHelper VH;

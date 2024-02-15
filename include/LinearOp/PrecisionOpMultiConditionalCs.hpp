@@ -48,5 +48,5 @@ private:
   int _buildQpAtA();
 
 private:
-  Cholesky _qChol;
+  MatrixSparse* _Q;
 };

@@ -22,7 +22,7 @@
 #include <math.h>
 
 PrecisionOpMultiConditionalCs::PrecisionOpMultiConditionalCs()
-    : _qChol()
+    : _Q(nullptr)
 {
 
 }
@@ -47,7 +47,7 @@ double PrecisionOpMultiConditionalCs::computeLogDetOp(int nbsimu, int seed) cons
   DECLARE_UNUSED(nbsimu);
   DECLARE_UNUSED(seed);
 
-  return _qChol.computeLogDet();
+  return _Q->getCholeskyLogDeterminant();
 }
 
 MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
@@ -70,12 +70,11 @@ MatrixSparse* PrecisionOpMultiConditionalCs::_buildQmult() const
   {
     const PrecisionOpCs* pmat1 = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(0));
     const MatrixSparse* Qref = pmat1->getQ();
-    pmat1->getSize();
 
     for (int is = 1; is < number; is++)
     {
       const PrecisionOpCs* pmataux = dynamic_cast<const PrecisionOpCs*>(getMultiPrecisionOp(is));
-      Qmult = matCS_glue(Qref, pmataux->getQ(), true, true);
+      Qmult = MatrixSparse::glue(Qref, pmataux->getQ(), true, true);
       Qref = Qmult;
     }
   }
@@ -111,7 +110,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
     {
       const ProjMatrix* Paux = dynamic_cast<const ProjMatrix*>(getProjMatrix(is));
       const MatrixSparse* Aaux = Paux->getAproj();
-      Amult = matCS_glue(Aref, Aaux, false, true);
+      Amult = MatrixSparse::glue(Aref, Aaux, false, true);
       napices += Paux->getApexNumber();
       Aref = Amult;
     }
@@ -122,7 +121,7 @@ ProjMatrix* PrecisionOpMultiConditionalCs::_buildAmult() const
 
 int PrecisionOpMultiConditionalCs::_buildQpAtA()
 {
-  if (_qChol.isCholeskyDecomposed()) return 0;
+  if (_Q != nullptr) return 0;
 
   // Build the multiple projection matrix 'Amult'
   ProjMatrix* Amult = _buildAmult();
@@ -134,12 +133,11 @@ int PrecisionOpMultiConditionalCs::_buildQpAtA()
 
   // Create the conditional multiple precision matrix 'Q'
   VectorDouble invsigma = VectorHelper::inverse(getAllVarianceData());
-  MatrixSparse* AtAsVar = matCS_prod_norm_diagonal(1, Amult->getAproj(), invsigma);
-  MatrixSparse* Q = matCS_add(Qmult, AtAsVar, 1., 1.);
+  MatrixSparse* AtAsVar = prodNormMat(*Amult->getAproj(), invsigma, true);
+  _Q = MatrixSparse::addMatMat(Qmult, AtAsVar, 1., 1.);
 
   // Prepare the Cholesky decomposition
-  _qChol.reset(Q, true);
-  _qChol.mustShowStats(getLogStats().isMustPrint());
+  _Q->computeCholesky();
 
   return 0;
 }
@@ -149,12 +147,12 @@ void PrecisionOpMultiConditionalCs::evalInverse(const VectorVectorDouble &vecin,
 {
   VectorDouble locVecin = VectorHelper::flatten(vecin);
   VectorDouble locVecout(locVecin.size());
-  _qChol.evalInverse(locVecin, locVecout);
+  _Q->solveCholesky(locVecin, locVecout);
   VectorHelper::unflattenInPlace(locVecout, vecout);
 }
 
 void PrecisionOpMultiConditionalCs::makeReady()
 {
   // Perform Cholesky decomposition (if not already performed)
-  if (_buildQpAtA()) return;
+  _buildQpAtA();
 }

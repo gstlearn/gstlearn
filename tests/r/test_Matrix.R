@@ -54,7 +54,7 @@ for (icol in 1:ncol) {
 
 MRt = MR$transpose() # Using cloneable feature
 
-M = prodMatMat(MRt, MR)
+M = MatrixFactory_prodMatMat(MRt, MR)
 
 msg = paste0("Matrix M is symmetric? ", M$isSymmetric())
 print(msg)
@@ -140,12 +140,12 @@ err = reset_to_initial_contents(M, MRR, MSG, MSS, MSP)
 cx =  1.3
 cy = -0.3
 
-err = MRR$linearCombination(cx,cy,MRR)
-err = MSG$linearCombination(cx,cy,MSG)
+err = MRR$addMatInPlace(MRR,cx,cy)
+err = MSG$addMatInPlace(MSG,cx,cy)
 print(paste0("Are results for MRR and MSG similar: ", MRR$isSame(MSG)))
-err = MSS$linearCombination(cx,cy,MSS)
+err = MSS$addMatInPlace(MSS,cx,cy)
 print(paste0("Are results for MRR and MSS similar: ", MRR$isSame(MSS)))
-err = MSP$linearCombination(cx,cy,MSP)
+err = MSP$addMatInPlace(MSP,cx,cy)
 print(paste0("Are results for MRR and MSP similar: ", MRR$isSame(MSP)))
 
 #
@@ -199,12 +199,12 @@ print(paste0("nrow = ", nrow))
 Vref = VectorDouble(nrow)
 V2   = VectorDouble(nrow)
 
-err = MRR$prodMatVec(V1, Vref)
-err = MSG$prodMatVec(V1, V2)
+err = MRR$prodMatVecInPlace(V1, Vref)
+err = MSG$prodMatVecInPlace(V1, V2)
 print(paste0("Are results for MRR and MSG similar: ",  VectorHelper_isSame(Vref, V2)))
-err = MSS$prodMatVec(V1, V2)
+err = MSS$prodMatVecInPlace(V1, V2)
 print(paste0("Are results for MRR and MSS similar: ",  VectorHelper_isSame(Vref, V2)))
-err = MSP$prodMatVec(V1, V2)
+err = MSP$prodMatVecInPlace(V1, V2)
 print(paste0("Are results for MRR and MSP similar: ",  VectorHelper_isSame(Vref, V2)))
 
 #
@@ -217,11 +217,11 @@ V3 = VectorDouble(rep(0.0, nrow))
 print(paste0("Solve X from A*X=B. Compute A*X and compare with B"))
 
 err = MSS$solve(b = V1, x = V2)
-err = MSS$prodMatVec(V2, V3)
+err = MSS$prodMatVecInPlace(V2, V3)
 print(paste0("Are results correct for MSS: ",  VectorHelper_isSame(V1, V3)))
 
 err = MSP$solve(b = V1, x = V2)
-err = MSP$prodMatVec(V2, V3)
+err = MSP$prodMatVecInPlace(V2, V3)
 print(paste0("Are results correct for MSP: ", VectorHelper_isSame(V1, V3)))
 
 #
@@ -235,15 +235,15 @@ print(paste0("Calculate B=A^{-1}. Compute A*B and compare to Identity"))
 MSGref = MSG$clone() # Used to perform A*A-1 and check Identity
 
 err = MSG$invert()
-Res = prodMatMat(MSG, MSGref)
+Res = MatrixFactory_prodMatMat(MSG, MSGref)
 print(paste0("Are results correct for MSG: ", Res$isIdentity()))
 
 err = MSS$invert()
-Res = prodMatMat(MSS, MSGref)
+Res = MatrixFactory_prodMatMat(MSS, MSGref)
 print(paste0("Are results correct for MSS: ", Res$isIdentity()))
 
 err = MSP$invert()
-Res = prodMatMat(MSP, MSGref)
+Res = MatrixFactory_prodMatMat(MSP, MSGref)
 print(paste0("Are results correct for MSP: ", Res$isIdentity()))
 
 print(paste0("Test successfully performed"))

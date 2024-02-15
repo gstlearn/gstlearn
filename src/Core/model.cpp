@@ -2056,7 +2056,6 @@ double model_calcul_stdev(Model* model,
   return (stdev);
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs
@@ -2083,16 +2082,16 @@ double model_calcul_stdev(Model* model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-cs* model_covmat_by_ranks_cs(Model *model,
-                             Db *db1,
-                             int nsize1,
-                             const int *ranks1,
-                             Db *db2,
-                             int nsize2,
-                             const int *ranks2,
-                             int ivar0,
-                             int jvar0,
-                             const CovCalcMode*  mode)
+MatrixSparse* model_covmat_by_ranks_cs(Model *model,
+                                       Db *db1,
+                                       int nsize1,
+                                       const int *ranks1,
+                                       Db *db2,
+                                       int nsize2,
+                                       const int *ranks2,
+                                       int ivar0,
+                                       int jvar0,
+                                       const CovCalcMode *mode)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -2121,8 +2120,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
   // Constitute the triplet
 
-  cs* T = cs_spalloc2(0, 0, 1, 1, 1);
-  if (T == nullptr) return nullptr;
+  NF_Triplet NF_T = tripletInit(0);
 
   /* Loop on the number of variables */
 
@@ -2175,19 +2173,9 @@ cs* model_covmat_by_ranks_cs(Model *model,
           model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
           value = COVTAB(ivar, jvar);
           if (ABS(value) < EPSILON10) continue;
-          if (! cs_entry2(T, ecr1, ecr2, value))
-          {
-            T = cs_spfree2(T);
-            return nullptr;
-          }
+          tripletAdd(NF_T, ecr1, ecr2, value);
           if (ecr1 != ecr2)
-          {
-            if (! cs_entry2(T, ecr2, ecr1, value))
-            {
-              T = cs_spfree2(T);
-              return nullptr;
-            }
-          }
+            tripletAdd(NF_T, ecr2, ecr1, value);
         }
       }
     }
@@ -2195,11 +2183,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
   // Convert from triplet to sparse matrix
 
-  cs* covmat = cs_triplet2(T);
-  T = cs_spfree2(T);
-  return (covmat);
+  return MatrixSparse::createFromTriplet(NF_T);
 }
-#endif
 
 /****************************************************************************/
 /*!

@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
   timer.reset();
   for (int itime = 0; itime < ntimes; itime++)
   {
-    res.prodMatMat(mata,  matb);
+    res.prodMatMatInPlace(&mata, &matb);
     result = res(0,0);
   }
   timer.displayIntervalMilliseconds("with algebra", 1700);

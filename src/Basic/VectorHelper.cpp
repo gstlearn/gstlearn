@@ -1744,10 +1744,10 @@ void VectorHelper::linearComb(double val1,
 }
 
 void VectorHelper::linearCombVVD(double val1,
-                              const VectorVectorDouble &in1,
-                              double val2,
-                              const VectorVectorDouble &in2,
-                              VectorVectorDouble &outv)
+                                 const VectorVectorDouble &in1,
+                                 double val2,
+                                 const VectorVectorDouble &in2,
+                                 VectorVectorDouble &outv)
 {
   if (in1.empty() || in2.empty()) return;
 
@@ -1781,4 +1781,18 @@ void VectorHelper::extractInPlace(const VectorDouble& vecin, VectorDouble& vecou
 void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
 {
   std::copy(vecin.begin(), vecin.end(), vecout.begin() + start);
+}
+
+/**
+ * Transform a vector of double values as follows
+ * @param tab  Vector of double values
+ * @param oper_choice Operation on the diagonal term (see Utilities::operate_XXX)
+ * @return
+ */
+void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
+{
+  operate_function oper_func = operate_Identify(oper_choice);
+  int number = (int) tab.size();
+  for (int i = 0; i < number; i++)
+    tab[i] = oper_func(tab[i]);
 }

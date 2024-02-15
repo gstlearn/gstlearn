@@ -12,6 +12,7 @@
 
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -34,23 +35,22 @@ int main(int argc, char *argv[])
 
   // We create a square matrix (not necessarily sparse)
 
-  cs *Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
+  NF_Triplet NF_T = tripletInit(0);
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
       double value = law_gaussian();
       double tirage = law_uniform(0., 1.);
       if (icol != irow && tirage > proba) continue;
-      (void) cs_entry2(Atriplet, irow, icol, value);
+      tripletAdd(NF_T, irow, icol, value);
     }
-  MatrixSparse *A = matCS_triplet(Atriplet);
+  MatrixSparse *A = MatrixSparse::createFromTriplet(NF_T);
   cs_print_dim("Square Initial Matrix", A->getCS());
-  Atriplet = cs_spfree2(Atriplet);
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
 
-  MatrixSparse* At = matCS_transpose(A, 1);
-  MatrixSparse* Q = matCS_multiply(A, At);
+  MatrixSparse* At = A->transpose();
+  MatrixSparse* Q = MatrixFactory::prodMatMat<MatrixSparse>(A, At);
 
   // Create a vector random gaussian values
 
@@ -64,18 +64,19 @@ int main(int argc, char *argv[])
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
-      double value = matCS_get_value(Q, irow, icol);
+      double value = Q->getValue(irow, icol);
       M.setValue(irow, icol, value);
     }
 
   // Create the Cholesky object
 
   Cholesky Qchol(Q);
-  Qchol.printout("Matrix used to demonstrate Cholesky Algebra", false);
+  message("Matrix used to demonstrate Cholesky Algebra\n");
+  Q->display();
 
   // Checking Product
 
-  M.prodMatVec(vecin, vecout1);
+  M.prodMatVecInPlace(vecin, vecout1);
   Qchol.evalDirect(vecin, vecout2);
   if (VH::isSame(vecout1,  vecout2))
     message("Product Mat %*% V is validated\n");
@@ -114,7 +115,7 @@ int main(int argc, char *argv[])
   // Checking the calculation of Log(Det)
 
   double res1 = log(M.determinant());
-  double res2 = Qchol.computeLogDet();
+  double res2 = Qchol.getLogDeterminant();
   if (ABS(res1 - res2) < EPSILON10)
     message("Log(Det) is validated\n");
   else

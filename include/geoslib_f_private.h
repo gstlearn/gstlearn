@@ -150,32 +150,6 @@ int _db_threshold(Db *db,
 /* Prototyping the functions in dbtools.c */
 /******************************************/
 
-int _db_indicator(Db *db,
-                  int iatt,
-                  int flag_disc,
-                  const VectorDouble &mini = VectorDouble(),
-                  const VectorDouble &maxi = VectorDouble(),
-                  const VectorBool &incmini = VectorBool(),
-                  const VectorBool &incmaxi = VectorBool(),
-                  bool flagBelow = false,
-                  bool flagAbove = false,
-                  const NamingConvention& namconv = NamingConvention("Indicator"));
-int _db_category(Db *db,
-                 int ivar,
-                 const VectorDouble &mini = VectorDouble(),
-                 const VectorDouble &maxi = VectorDouble(),
-                 const VectorBool &incmini = VectorBool(),
-                 const VectorBool &incmaxi = VectorBool(),
-                 const NamingConvention& namconv = NamingConvention("Category"));
-VectorDouble _db_limits_statistics(Db *db,
-                                   int iatt,
-                                   const VectorDouble &mini,
-                                   const VectorDouble &maxi,
-                                   const VectorBool &incmini,
-                                   const VectorBool &incmaxi,
-                                   int optionStat,
-                                   bool flagBelow,
-                                   bool flagAbove);
 int _migrate(Db *db1,
              Db *db2,
              int iatt1,

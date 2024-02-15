@@ -111,11 +111,11 @@ void cs_force_dimension(cs *T, int nrow, int ncol)
 }
 
 /* Transform VectorDouble to cs diagonal */
-
 cs* cs_diag(VectorDouble diag, double tol)
 {
-  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
   int number = (int) diag.size();
+
+  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
   for (int i = 0; i < number; i++)
   {
     if (ABS(diag[i]) < tol) continue;
@@ -130,7 +130,6 @@ cs* cs_diag(VectorDouble diag, double tol)
   Striplet = cs_spfree(Striplet);
   return Q;
 }
-
 
 // Calculate the norm as follows:
 // mode=1: t(B) %*% diag %*% B (initial form)
@@ -152,52 +151,34 @@ MatrixSparse* cs_arrays_to_sparse(int n,
                                   const double *cols,
                                   const double *vals)
 {
-  MatrixSparse *Q = nullptr;
-  cs *Qtriplet = nullptr;
-  int ip1, ip2, error, row_max, col_max;
-
-  error = 1;
-
-  row_max = col_max = -1;
-  Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
+  int row_max = -1;
+  int col_max = -1;
+  NF_Triplet Qtriplet = tripletInit(0);
   for (int i = 0; i < n; i++)
   {
-    ip1 = (int) rows[i];
-    ip2 = (int) cols[i];
+    int ip1 = (int) rows[i];
+    int ip2 = (int) cols[i];
     if (ip1 > row_max) row_max = ip1;
     if (ip2 > col_max) col_max = ip2;
-    if (!cs_entry(Qtriplet, ip1, ip2, vals[i])) goto label_end;
+    tripletAdd(Qtriplet, ip1, ip2, vals[i]);
   }
 
   if (nrow > 0 && row_max >= nrow)
   {
     messerr("Inconsistency between number of rows (%d)", nrow);
     messerr("and maximum row index in argument 'rows' (%d)", row_max);
-    goto label_end;
+    return nullptr;
   }
   if (ncol > 0 && col_max >= ncol)
   {
     messerr("Inconsistency between number of columns (%d)", ncol);
     messerr("and maximum column index in argument 'cols' (%d)", col_max);
-    goto label_end;
+    return nullptr;
   }
   if (row_max < nrow - 1 || col_max < ncol - 1)
-  {
-    cs_force_dimension(Qtriplet, nrow, ncol);
-  }
-  Q = matCS_triplet(Qtriplet);
-  if (Q == nullptr) goto label_end;
+    tripletForce(Qtriplet, nrow, ncol);
 
-  error = 0;
-
-  label_end:
-  Qtriplet = cs_spfree(Qtriplet);
-  if (error)
-  {
-    delete Q;
-    Q = nullptr;
-  }
-  return (Q);
+  return MatrixSparse::createFromTriplet(Qtriplet, nrow, ncol);
 }
 
 MatrixSparse* cs_vectors_to_sparse(int nrow,
@@ -285,40 +266,23 @@ static void st_selection_update(int ncur, double *sel, int *indCo)
   }
 }
 
-
-static int st_find_color(int *Qp,
-                         int *Qi,
-                         double *Qx,
-                         int imesh,
-                         int ncolor,
-                         VectorInt& colors,
-                         VectorInt& temp)
+void _updateColors(const VectorInt &temp, VectorInt &colors, int imesh, int *ncolor)
 {
-  int i;
-
-  /* Initializations */
-
-  for (int j = 0; j < ncolor; j++)
-    temp[j] = 0;
-
-  /* Checks the colors of the connected nodes */
-
-  for (int p = Qp[imesh]; p < Qp[imesh + 1]; p++)
+  bool found = false;
+  for (int k = 0; k < (*ncolor) && !found; k++)
   {
-    if (ABS(Qx[p]) <= 0.) continue;
-    i = Qi[p];
-    if (!IFFFF(colors[i])) temp[colors[i] - 1]++;
+    if (temp[k] == 0)
+    {
+      colors[imesh] = k + 1;
+      found = true;
+    }
   }
-
-  /* Look for a free color */
-
-  for (int j = 0; j < ncolor; j++)
+  if (!found)
   {
-    if (temp[j] == 0) return (j + 1);
+    (*ncolor)++;
+    colors[imesh] = (*ncolor);
   }
-  return (-1);
 }
-
 
 /****************************************************************************/
 /*!
@@ -326,15 +290,12 @@ static int st_find_color(int *Qp,
  **
  ** \return  Error return code
  **
- ** \param[in] Q      cs structure
+ ** \param[in] Q        Input sparse matrix (cs format)
  ** \param[in] start    Starting value for colors ranking (usually 0 or 1)
  **
- ** \param[out] ncols    Number of colors
- **
  *****************************************************************************/
-VectorInt cs_color_coding(const cs *Q, int start, int *ncols)
+VectorInt cs_color_coding(const cs *Q, int start)
 {
-  *ncols = 0;
   int ncolor = 0;
   int* Qp = Q->p;
   int* Qi = Q->i;
@@ -343,110 +304,27 @@ VectorInt cs_color_coding(const cs *Q, int start, int *ncols)
 
   /* Core allocation */
 
-  VectorInt colors(nmesh, 0);
-  VectorInt temp(nmesh, 0);
-  for (int i = 0; i < nmesh; i++) colors[i] = ITEST;
+  VectorInt colors(nmesh, ITEST);
+  VectorInt temp(nmesh);
 
   /* Loop on the nodes of the mesh */
 
-  for (int j = 0; j < nmesh; j++)
+  for (int imesh = 0; imesh < nmesh; imesh++)
   {
-    int next_col = st_find_color(Qp, Qi, Qx, j, ncolor, colors, temp);
-    if (next_col < 0)
+    temp.fill(0);
+    for (int p = Qp[imesh]; p < Qp[imesh + 1]; p++)
     {
-      ncolor++;
-      colors[j] = ncolor;
+      if (ABS(Qx[p]) <= 0.) continue;
+      int i = Qi[p];
+      if (!IFFFF(colors[i])) temp[colors[i] - 1]++;
     }
-    else
-    {
-      colors[j] = next_col;
-    }
+    _updateColors(temp, colors, imesh, &ncolor);
   }
 
   /* Update the colors ranking fixing the starting value */
 
-  for (int j = 0; j < nmesh; j++)
-    colors[j] = colors[j] + start - 1;
-
-  /* Set the error return code */
-
-  *ncols = ncolor;
+  VH::addConstant(colors, start-1);
   return colors;
-}
-
-
-/* Extract a sparse submatrix */
-/* The array 'colors' has the same dimension as C */
-/* The element of 'C' must be kept if: */
-/* - the color of its row number is equal to 'ref_color' if 'row_ok'==TRUE */
-/*   or different if 'row_ok'==FALSE */
-/* and if */
-/* - the color of its column number is equal to 'ref-color' if 'col_ok'==TRUE*/
-/*   or different if 'col_ok'== FALSE */
-cs* cs_extract_submatrix_by_color(const cs *C,
-                                  const VectorInt& colors,
-                                  int ref_color,
-                                  int row_ok,
-                                  int col_ok)
-{
-  cs *Atriplet, *A;
-  int *u_row, *u_col, ir, ic, n;
-
-  /* Initializations */
-
-  u_row = u_col = nullptr;
-  A = Atriplet = nullptr;
-
-  /* Convert the contents of the sparse matrix into columns */
-
-  Triplet T = csToTriplet(C, 0);
-
-  /* Initialize the output matrix */
-
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) goto label_end;
-
-  /* Core allocation */
-
-  n = cs_getncol(C);
-  u_row = (int*) mem_alloc(sizeof(int) * n, 1);
-  u_col = (int*) mem_alloc(sizeof(int) * n, 1);
-
-  ir = 0;
-  for (int i = 0; i < n; i++)
-  {
-    u_row[i] = -1;
-    if ( row_ok && colors[i] != ref_color) continue;
-    if (!row_ok && colors[i] == ref_color) continue;
-    u_row[i] = ir++;
-  }
-
-  ic = 0;
-  for (int i = 0; i < n; i++)
-  {
-    u_col[i] = -1;
-    if ( col_ok && colors[i] != ref_color) continue;
-    if (!col_ok && colors[i] == ref_color) continue;
-    u_col[i] = ic++;
-  }
-
-  /* Fill the new sparse triplet */
-
-  for (int i = 0; i < T.number; i++)
-  {
-    ir = u_row[T.rows[i]];
-    ic = u_col[T.cols[i]];
-    if (ir < 0 || ic < 0) continue;
-    if (!cs_entry(Atriplet, ir, ic, T.values[i])) goto label_end;
-  }
-
-  A = cs_triplet(Atriplet);
-
-  label_end:
-  u_row = (int*) mem_free((char* ) u_row);
-  u_col = (int*) mem_free((char* ) u_col);
-  Atriplet = cs_spfree(Atriplet);
-  return (A);
 }
 
 /****************************************************************************/
@@ -873,7 +751,7 @@ static void st_multigrid_ascent(cs_MGS *mgs,
     message("Ascending from %d to %d (init=%d scale=%d)\n", level + 1, level,
             flag_init, flag_scale);
   mg = mgs->mg[level];
-  mg->IhH->prodMatVecPtr(zin, work, true);
+  mg->IhH->prodMatVecInPlacePtr(zin, work, true);
   if (flag_init)
     for (int icur = 0; icur < mg->nh; icur++)
       zout[icur] = work[icur];
@@ -927,10 +805,10 @@ static void st_multigrid_descent(cs_MGS *mgs,
 
   if (DEBUG) message("Descending from %d to %d\n", level - 1, level);
   mg = mgs->mg[level - 1];
-  mg->A->Q->prodVecMatPtr(zin, work, false);
+  mg->A->Q->prodVecMatInPlacePtr(zin, work, false);
   for (int icur = 0; icur < mg->nh; icur++)
     work[icur] = rhsin[icur] - work[icur];
-  mg->IhH->prodVecMatPtr(work, rhsout, false);
+  mg->IhH->prodVecMatInPlacePtr(work, rhsout, false);
 }
 
 /****************************************************************************/
@@ -954,7 +832,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
                        double **sel_arg)
 {
   int *indCo, error, flag_print;
-  MatrixSparse *L;
+  cs *L;
   double *sel;
   cs_MG *mg, *mgold;
 
@@ -986,9 +864,12 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
   if (mgs->nlevels > 0)
   {
-    mgs->diag = csd_extract_diag(qctt->Q->getCS(), -2);
+    mgs->diag = csd_extract_diag(qctt->Q->getCS(), -3);
     if (mgs->diag == nullptr) return (1);
-    qctt->Q = matCS_normalize_by_diag_and_release(qctt->Q, 1);
+    cs* local = cs_normalize_by_diag_and_release(qctt->Q->getCSUnprotected(), 1);
+    qctt->Q->freeCS();
+    qctt->Q->setCS(local);
+    local = cs_spfree(local);
   }
   if (flag_print) cs_print_file("QTT_apres", ITEST, qctt->Q->getCS());
 
@@ -1008,7 +889,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
     else
     {
       mgold = mgs->mg[ilevel - 1];
-      mg->A->Q = matCS_prod_norm(2, mgold->A->Q, mgold->IhH);
+      mg->A->Q = prodNormMatMat(*mgold->A->Q, *mgold->IhH, false);
       if (mg->A->Q == nullptr) goto label_end;
     }
     if (flag_print) cs_print_file("A", ilevel, mg->A->Q->getCS());
@@ -1017,16 +898,15 @@ int cs_multigrid_setup(cs_MGS *mgs,
     {
       // Extract the coarse grid
 
-      if (matCS_coarsening(mg->A->Q, mgs->type_coarse, &indCo, &L)) goto label_end;
-      if (flag_print) cs_print_file("L", ilevel, L->getCS());
+      if (cs_coarsening(mg->A->Q->getCS(), mgs->type_coarse, &indCo, &L)) goto label_end;
+      if (flag_print) cs_print_file("L", ilevel, L);
       if (flag_print)
         for (int ik = 0; ik < mg->A->Q->getNCols(); ik++)
           message("indco[%d] = %d\n", ik, indCo[ik]);
 
       // Interpolation
 
-      mg->IhH = matCS_interpolate(mg->A->Q, L, indCo);
-      if (mg->IhH == nullptr) goto label_end;
+      mg->IhH->setCS(cs_interpolate(mg->A->Q->getCS(), L, indCo));
       if (flag_print) cs_print_file("IhH", ilevel, mg->IhH->getCS());
       delete L;
 
@@ -1066,26 +946,18 @@ int cs_multigrid_setup(cs_MGS *mgs,
 
 int cs_scale(const cs *A)
 {
-  int *Ap, *Ai, n, j, p, error;
-  double *Ax, *diag;
+  int n = cs_getncol(A);
+  int* Ap = A->p;
+  int* Ai = A->i;
+  double* Ax = A->x;
 
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
+  VectorDouble diag = csd_extract_diag_VD(A, 3);
 
-  error = 1;
-  diag = csd_extract_diag(A, 1);
-  if (diag == nullptr) goto label_end;
-
-  for (j = 0; j < n; j++)
-    for (p = Ap[j]; p < Ap[j + 1]; p++)
+  for (int j = 0; j < n; j++)
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
       Ax[p] = -Ax[p] / diag[Ai[p]];
 
-  error = 0;
-
-  label_end: diag = (double*) mem_free((char* ) diag);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1498,69 +1370,97 @@ int cs_multigrid_process(cs_MGS *mgs,
   return (0);
 }
 
-Triplet csToTriplet(const cs *A, bool flagFrom1, double tol)
+NF_Triplet csToTriplet(const cs *A, bool flagFrom1, double tol)
 {
-  Triplet triplet;
+  NF_Triplet NF_T;
 
-  if (!A) return triplet;
+  if (!A) return NF_T;
   int ncols = cs_getncol(A);
 
   cs *AT = cs_transpose(A, 1);
-  int nrows = 0;
   if (AT != nullptr)
   {
-    nrows = cs_getncol(AT);
     AT = cs_spfree(AT);
   }
-
-  triplet.nrows = nrows;
-  triplet.ncols = ncols;
 
   int *Ap = A->p;
   int *Ai = A->i;
   double *Ax = A->x;
   int nz = A->nz;
-  if (nz >= 0) return triplet;
+  if (nz >= 0) return NF_T;
 
   int nnz = Ap[ncols];
-  triplet.rows.resize(nnz);
-  triplet.cols.resize(nnz);
-  triplet.values.resize(nnz);
+  NF_T.rows.resize(nnz);
+  NF_T.cols.resize(nnz);
+  NF_T.values.resize(nnz);
 
   int ecr = 0;
   for (int j = 0; j < ncols; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
-      triplet.cols[ecr] = (flagFrom1) ? j + 1 : j;
-      triplet.rows[ecr] = (flagFrom1) ? Ai[p] + 1 : Ai[p];
-      triplet.values[ecr] = Ax ? Ax[p] : 1;
-      if (ABS(triplet.values[ecr]) <= tol) continue;
+      NF_T.cols[ecr] = (flagFrom1) ? j + 1 : j;
+      NF_T.rows[ecr] = (flagFrom1) ? Ai[p] + 1 : Ai[p];
+      NF_T.values[ecr] = Ax ? Ax[p] : 1;
+      if (ABS(NF_T.values[ecr]) <= tol) continue;
       ecr++;
     }
 
   if (ecr < nnz)
   {
-    triplet.cols.resize(ecr);
-    triplet.rows.resize(ecr);
-    triplet.values.resize(ecr);
+    NF_T.cols.resize(ecr);
+    NF_T.rows.resize(ecr);
+    NF_T.values.resize(ecr);
   }
-  triplet.number = ecr;
-  return triplet;
+  NF_T.number = ecr;
+  return NF_T;
 }
 
-Triplet triplet_init(bool flag_from_1)
+NF_Triplet tripletInit(bool flag_from_1)
 {
-  Triplet T;
+  NF_Triplet NF_T;
 
-  T.flagFromOne = flag_from_1;
-  T.number = 0;
-  T.nrows = 0;
-  T.ncols = 0;
-  T.rows = VectorInt();
-  T.cols = VectorInt();
-  T.values = VectorDouble();
+  NF_T.flagFromOne = flag_from_1;
+  NF_T.number = 0;
+  NF_T.rows = VectorInt();
+  NF_T.cols = VectorInt();
+  NF_T.values = VectorDouble();
 
-  return T;
+  return NF_T;
+}
+
+void tripletAdd(NF_Triplet& NF_T, int irow, int icol, double value, bool flag_from_1)
+{
+  int shift = (flag_from_1) ? 1 : 0;
+  NF_T.number++;
+  NF_T.rows.push_back(irow + shift);
+  NF_T.cols.push_back(icol + shift);
+  NF_T.values.push_back(value);
+}
+
+int tripletMaxCol(const NF_Triplet& NF_T)
+{
+  return VH::maximum(NF_T.cols) + 1;
+}
+
+int tripletMaxRow(const NF_Triplet& NF_T)
+{
+  return VH::maximum(NF_T.rows) + 1;
+}
+
+/**
+ * Force the dimension of the Sparse matrix
+ * This is done by adding a fictitious sample at position 'nrow-1' and 'ncol-1' with value 0
+ * @param NF_T    NF_Triplet structure
+ * @param nrow    Ultimate number of rows
+ * @param ncol    Ultimate number of columns
+ */
+void tripletForce(NF_Triplet& NF_T, int nrow, int ncol)
+{
+  // Check if the maximum positions have been reached
+  int nrow_max = tripletMaxRow(NF_T);
+  int ncol_max = tripletMaxCol(NF_T);
+  if (nrow_max < nrow || ncol_max < ncol)
+    tripletAdd(NF_T, nrow - 1, ncol - 1, 0.);
 }
 
 String toStringDim(const String &title, const cs *A)
@@ -1590,7 +1490,7 @@ String toStringRange(const String &title, const cs *C)
 
   /* Convert the contents of the sparse matrix into columns */
 
-  Triplet T = csToTriplet(C, 0);
+  NF_Triplet T = csToTriplet(C);
 
   /* Calculate the extreme values */
 
@@ -1741,7 +1641,7 @@ cs* cs_extract_submatrix(cs *C,
 
   /* Convert the contents of the sparse matrix into columns */
 
-  Triplet T = csToTriplet(C, 0);
+  NF_Triplet T = csToTriplet(C);
 
   /* Fill the new sparse triplet */
 
@@ -1759,47 +1659,6 @@ cs* cs_extract_submatrix(cs *C,
   A = cs_triplet(Atriplet);
 
   label_end: Atriplet = cs_spfree(Atriplet);
-  return (A);
-}
-
-/* Extract a sparse submatrix */
-/* 'rank_rows' and 'rank_cols' must have same dimension as C */
-/* The arrays 'rank_rows' and 'rank_cols' may be absent */
-/* Their value gives the rank of the saved element or -1 */
-cs* cs_extract_submatrix_by_ranks(const cs *C, int *rank_rows, int *rank_cols)
-{
-  cs *Atriplet, *A;
-  int old_row, old_col, new_row, new_col;
-
-  /* Initializations */
-
-  A = Atriplet = nullptr;
-
-  /* Convert the contents of the sparse matrix into columns */
-
-  Triplet T = csToTriplet(C, 0);
-
-  /* Initialize the output matrix */
-
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) goto label_end;
-
-  /* Fill the new sparse triplet */
-
-  for (int i = 0; i < T.number; i++)
-  {
-    old_row = T.rows[i];
-    old_col = T.cols[i];
-    new_row = (rank_rows != nullptr) ? rank_rows[old_row] : old_row;
-    new_col = (rank_cols != nullptr) ? rank_cols[old_col] : old_col;
-    if (new_row < 0 || new_col < 0) continue;
-    if (!cs_entry(Atriplet, new_row, new_col, T.values[i])) goto label_end;
-  }
-
-  A = cs_triplet(Atriplet);
-
-  label_end:
-  Atriplet = cs_spfree(Atriplet);
   return (A);
 }
 
@@ -1841,7 +1700,7 @@ void cs_print_range(const char *title, const cs *C)
 
   /* Convert the contents of the sparse matrix into columns */
 
-  Triplet T = csToTriplet(C, 0);
+  NF_Triplet T = csToTriplet(C);
 
   /* Calculate the extreme values */
 
@@ -1886,26 +1745,16 @@ cs* cs_eye(int number, double value)
 }
 
 // Build a sparse matrix containing the diagonal of a sparse matrix
-// mode: Operation on the diagonal term
-//  1 for diagonal
-// -1 for inverse diagonal
-//  2 for squared diagonal
-// -2 for inverse square root of diagonal
-
-cs* cs_extract_diag(const cs *C, int mode)
+// oper_choice: Operation on the diagonal term (see Utilities::operate_XXX)
+cs* cs_extract_diag(const cs *C, int oper_choice)
 {
-  cs *Atriplet, *A;
-  double *Cx, value;
-  int *Cp, *Ci;
-
-  /* Initializations */
-
-  A = nullptr;
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  operate_function oper_func = operate_Identify(oper_choice);
+  cs* A = nullptr;
+  cs* Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  int* Cp = C->p;
+  int* Ci = C->i;
+  double* Cx = C->x;
   if (Atriplet == nullptr) goto label_end;
-  Cp = C->p;
-  Ci = C->i;
-  Cx = C->x;
 
   /* Loop on the rows */
 
@@ -1914,53 +1763,26 @@ cs* cs_extract_diag(const cs *C, int mode)
     for (int p = Cp[j]; p < Cp[j + 1]; p++)
     {
       if (Ci[p] != j) continue;
-      value = Cx[p];
-
-      switch (mode)
-      {
-        case 1:
-          if (!cs_entry(Atriplet, j, j, value)) goto label_end;
-          break;
-
-        case -1:
-          if (!cs_entry(Atriplet, j, j, 1. / value)) goto label_end;
-          break;
-
-        case 2:
-          if (!cs_entry(Atriplet, j, j, value * value)) goto label_end;
-          break;
-
-        case -2:
-          if (!cs_entry(Atriplet, j, j, 1. / sqrt(value))) goto label_end;
-          break;
-      }
+      if (!cs_entry(Atriplet, j, j, oper_func(Cx[p]))) goto label_end;
     }
   }
   A = cs_triplet(Atriplet);
 
-  label_end: Atriplet = cs_spfree(Atriplet);
+  label_end:
+  Atriplet = cs_spfree(Atriplet);
   return (A);
 }
 
 // Extract the (transformed) diagonal of a sparse matrix
-// mode: Operation on the diagonal term
-//  1 for diagonal
-// -1 for inverse diagonal
-//  2 for squared diagonal
-// -2 for inverse square root of diagonal
-
-double* csd_extract_diag(const cs *C, int mode)
+// oper_choice: Operation on the diagonal term (see Utilities::operate_XXX)
+double* csd_extract_diag(const cs *C, int oper_choice)
 {
-  int *Cp, *Ci, size;
-  double *Cx, *diag, value;
-
-  /* Initializations */
-
-  diag = nullptr;
-  size = cs_getncol(C);
-  Cp = C->p;
-  Ci = C->i;
-  Cx = C->x;
+  operate_function oper_func = operate_Identify(oper_choice);
+  double* diag = nullptr;
+  int size = cs_getncol(C);
+  int* Cp = C->p;
+  int* Ci = C->i;
+  double* Cx = C->x;
 
   /* Core allocation */
 
@@ -1976,36 +1798,20 @@ double* csd_extract_diag(const cs *C, int mode)
     for (int p = Cp[j]; p < Cp[j + 1]; p++)
     {
       if (Ci[p] != j) continue;
-      value = Cx[p];
-
-      switch (mode)
-      {
-        case 1:
-          diag[j] = value;
-          break;
-
-        case -1:
-          diag[j] = 1. / value;
-          break;
-
-        case 2:
-          diag[j] = value * value;
-          break;
-
-        case -2:
-          diag[j] = 1. / sqrt(value);
-          break;
-      }
+      diag[j] = oper_func(Cx[p]);
     }
   }
 
-  label_end: return (diag);
+  label_end:
+  return (diag);
 }
 
-VectorDouble csd_extract_diag_VD(const cs *C, int mode)
+// Extract the (transformed) diagonal of a sparse matrix
+// oper_choice: Operation on the diagonal term (see Utilities::operate_XXX)
+VectorDouble csd_extract_diag_VD(const cs *C, int oper_choice)
 {
   VectorDouble result;
-  double* diag = csd_extract_diag(C, mode);
+  double* diag = csd_extract_diag(C, oper_choice);
   if (diag == nullptr) return result;
 
   int number = cs_getncol(C);
@@ -2470,7 +2276,7 @@ cs* cs_normalize_by_diag_and_release(cs *Q, int flag_release)
 
   Qp = diag = nullptr;
 
-  diag = cs_extract_diag(Q, -2);
+  diag = cs_extract_diag(Q, -3);
   if (diag == nullptr) goto label_end;
   Qp = cs_prod_norm_and_release(Q, diag, flag_release);
   if (Qp == nullptr) goto label_end;
@@ -2479,52 +2285,18 @@ cs* cs_normalize_by_diag_and_release(cs *Q, int flag_release)
   return (Qp);
 }
 
-static double func0(double x)
-{
-  return (x);
-}
-static double func1(double x)
-{
-  return (1. / x);
-}
-static double func2(double x)
-{
-  return (1 / sqrt(x));
-}
-static double func3(double x)
-{
-  return (sqrt(x));
-}
-
 /* Operate right-product of sparse matrix A by diagonal matrix X */
 /* (entered as a vector): B = A %*% oper(X) */
-/* 'oper' is Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
-
-cs* cs_matvecR(const cs *A, const double *x, int oper)
+/* oper_choice: Operation on the diagonal term (see Utilities::operate_XXX) */
+cs* cs_matvecR(const cs *A, const double *x, int oper_choice)
 {
-  int *Ap, *Ai, n;
-  double *Ax, *Bx;
-  cs *B;
-  double (*oper_func)(double);
-
-  oper_func = NULL;
-  if (oper == 0)
-    oper_func = func0;
-  else if (oper == 1)
-    oper_func = func1;
-  else if (oper == 2)
-    oper_func = func2;
-  else if (oper == 3)
-    oper_func = func3;
-  else
-    messageAbort("Function not found");
-
-  B = cs_duplicate(A);
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-  Bx = B->x;
+  operate_function oper_func = operate_Identify(oper_choice);
+  cs* B = cs_duplicate(A);
+  int n = cs_getncol(A);
+  int* Ap = A->p;
+  int* Ai = A->i;
+  double* Ax = A->x;
+  double* Bx = B->x;
 
   for (int j = 0; j < n; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
@@ -2534,32 +2306,15 @@ cs* cs_matvecR(const cs *A, const double *x, int oper)
 
 /* Operate left-product of sparse matrix A by diagonal matrix X */
 /* (entered as a vector): B = oper(X) %*% A */
-/* 'oper' is Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
-
-cs* cs_matvecL(const cs *A, const double *x, int oper)
+/* oper_choice: Operation on the diagonal term (see Utilities::operate_XXX) */
+cs* cs_matvecL(const cs *A, const double *x, int oper_choice)
 {
-  int *Ap, n;
-  double *Ax, *Bx;
-  cs *B;
-  double (*oper_func)(double);
-
-  oper_func = NULL;
-  if (oper == 0)
-    oper_func = func0;
-  else if (oper == 1)
-    oper_func = func1;
-  else if (oper == 2)
-    oper_func = func2;
-  else if (oper == 3)
-    oper_func = func3;
-  else
-    messageAbort("Function not found");
-
-  B = cs_duplicate(A);
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ax = A->x;
-  Bx = B->x;
+  operate_function oper_func = operate_Identify(oper_choice);
+  cs* B = cs_duplicate(A);
+  int n = cs_getncol(A);
+  int* Ap = A->p;
+  double* Ax = A->x;
+  double* Bx = B->x;
 
   for (int j = 0; j < n; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
@@ -2569,34 +2324,17 @@ cs* cs_matvecL(const cs *A, const double *x, int oper)
 
 /* Operate norm-product of sparse matrix A by diagonal matrix X */
 /* (entered as a vector): B = oper(X) %*% A %*% oper(X) */
-/* 'oper': Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
-
-cs* cs_matvecnorm(const cs *A, const double *x, int oper)
+/* oper_choice: Operation on the diagonal term (see Utilities::operate_XXX) */
+cs* cs_matvecnorm(const cs *A, const double *x, int oper_choice)
 {
-  int *Ap, *Ai, n;
-  double *Ax, *Bx;
-  cs *B;
-  double (*oper_func)(double);
-
-  oper_func = NULL;
-  if (oper == 0)
-    oper_func = func0;
-  else if (oper == 1)
-    oper_func = func1;
-  else if (oper == 2)
-    oper_func = func2;
-  else if (oper == 3)
-    oper_func = func3;
-  else
-    messageAbort("Function not found");
-
-  B = cs_duplicate(A);
+  operate_function oper_func = operate_Identify(oper_choice);
+  cs* B = cs_duplicate(A);
   if (B == nullptr) return (B);
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
-  Bx = B->x;
+  int n = cs_getncol(A);
+  int* Ap = A->p;
+  int* Ai = A->i;
+  double* Ax = A->x;
+  double* Bx = B->x;
 
   for (int j = 0; j < n; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
@@ -2605,30 +2343,14 @@ cs* cs_matvecnorm(const cs *A, const double *x, int oper)
 }
 
 /* Same of cs_matvecnorm ... but in place                                   */
-/* 'oper': Identity(0), Inverse(1), Inverse Square Root(2), Square Root(3) */
-
-void cs_matvecnorm_inplace(cs *A, const double *x, int oper)
+/* oper_choice: Operation on the diagonal term (see Utilities::operate_XXX) */
+void cs_matvecnorm_inplace(cs *A, const double *x, int oper_choice)
 {
-  int *Ap, *Ai, n;
-  double *Ax;
-  double (*oper_func)(double);
-
-  oper_func = NULL;
-  if (oper == 0)
-    oper_func = func0;
-  else if (oper == 1)
-    oper_func = func1;
-  else if (oper == 2)
-    oper_func = func2;
-  else if (oper == 3)
-    oper_func = func3;
-  else
-    messageAbort("Function not found");
-
-  n = cs_getncol(A);
-  Ap = A->p;
-  Ai = A->i;
-  Ax = A->x;
+  operate_function oper_func = operate_Identify(oper_choice);
+  int n = cs_getncol(A);
+  int* Ap = A->p;
+  int* Ai = A->i;
+  double* Ax = A->x;
 
   for (int j = 0; j < n; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
@@ -3442,7 +3164,7 @@ cs* cs_compress(cs *A)
   double value;
   cs *Q, *Qtriplet;
 
-  Triplet T = csToTriplet(A, 0);
+  NF_Triplet T = csToTriplet(A);
 
   Q = Qtriplet = nullptr;
   Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
@@ -3463,7 +3185,7 @@ void cs_keypair(const char *key, cs *A, int flag_from_1)
 
   if (A == nullptr) return;
 
-  Triplet T = csToTriplet(A, flag_from_1);
+  NF_Triplet T = csToTriplet(A, flag_from_1);
 
   (void) gslSPrintf(name, "%s.cols", key);
   set_keypair_int(name, 1, T.number, 1, T.cols.data());
@@ -3488,7 +3210,7 @@ void cs_print_file(const char *radix, int rank, const cs *A)
   file = gslFopen(filename, "w");
   if (file == nullptr) return;
 
-  Triplet T = csToTriplet(A, 0);
+  NF_Triplet T = csToTriplet(A);
 
   for (int i = 0; i < T.number; i++)
   {
@@ -3827,24 +3549,37 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
  * @param shiftCol Shift A2 addresses by the number of columns of A1
  * @return The newly create sparse matrix
  */
-cs* cs_glue(const cs*A1, const cs* A2, bool shiftRow, bool shiftCol)
+cs* cs_glue(const cs* A1, const cs* A2, bool shiftRow, bool shiftCol)
 {
   // Create the output structure in Triplet
   cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
 
-  Triplet T1 = csToTriplet(A1, 0);
+  NF_Triplet T1 = csToTriplet(A1);
   int addRow =  (shiftRow) ? cs_getnrow(A1) : 0;
   int addCol =  (shiftCol) ? cs_getncol(A1) : 0;
+  int row_max = addRow + cs_getnrow(A2) - 1;
+  int col_max = addCol + cs_getncol(A2) - 1;
 
-  Triplet T2 = csToTriplet(A2, 0);
+  NF_Triplet T2 = csToTriplet(A2);
 
   // Copy the contents of A1 into triplets
   for (int i = 0; i < T1.number; i++)
     (void) cs_entry(Striplet, T1.rows[i], T1.cols[i], T1.values[i]);
 
   // Copy the contents of A2 into triplets
+  int row_cur = 0;
+  int col_cur = 0;
   for (int i = 0; i < T2.number; i++)
-    (void) cs_entry(Striplet, T2.rows[i] + addRow, T2.cols[i] + addCol, T2.values[i]);
+  {
+    int row_local = T2.rows[i] + addRow;
+    int col_local = T2.cols[i] + addCol;
+    if (row_local > row_cur) row_cur = row_local;
+    if (col_local > col_cur) col_cur = col_local;
+    (void) cs_entry(Striplet, row_local, col_local, T2.values[i]);
+  }
+
+  if (row_max > row_cur || col_max > col_cur)
+    (void) cs_entry(Striplet, row_max, col_max, 0.);
 
   // Transform the output triplet into sparse matrix
   cs* Q = cs_triplet(Striplet);

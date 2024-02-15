@@ -20,21 +20,16 @@
 #include "Morpho/Morpho.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 #include <math.h>
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_f.h"
 
 #define WEIGHTS(ivar, jvar, iact)  (_weights[iact + nact * (jvar + ivar * nvar)])
 
 GibbsMMulti::GibbsMMulti()
   : GibbsMulti()
-  , _Ln(nullptr)
-  , _Pn()
+  , _Cmat(nullptr)
   , _eps(EPSILON6)
-  , _storeTables(false)
   , _hdf5("Gibbs.hdf5","GibbsSet")
   , _flagStoreInternal(true)
   , _b()
@@ -46,10 +41,8 @@ GibbsMMulti::GibbsMMulti()
 
 GibbsMMulti::GibbsMMulti(Db* db, Model* model)
   : GibbsMulti(db, model)
-  , _Ln(nullptr)
-  , _Pn()
+  , _Cmat(nullptr)
   , _eps(EPSILON6)
-  , _storeTables(false)
   , _hdf5("Gibbs.hdf5","GibbsSet")
   , _flagStoreInternal(true)
   , _b()
@@ -61,10 +54,8 @@ GibbsMMulti::GibbsMMulti(Db* db, Model* model)
 
 GibbsMMulti::GibbsMMulti(const GibbsMMulti &r)
   : GibbsMulti(r)
-  , _Ln(cs_duplicate(r._Ln))
-  , _Pn(r._Pn)
+  , _Cmat(r._Cmat)
   , _eps(r._eps)
-  , _storeTables(r._storeTables)
   , _hdf5(r._hdf5)
   , _flagStoreInternal(r._flagStoreInternal)
   , _b(r._b)
@@ -79,10 +70,8 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
   if (this != &r)
   {
     GibbsMulti::operator=(r);
-    _Ln  = cs_duplicate(r._Ln);
-    _Pn  = r._Pn;
+    _Cmat  = r._Cmat;
     _eps = r._eps;
-    _storeTables = r._storeTables;
     _hdf5 = r._hdf5;
     _flagStoreInternal = r._flagStoreInternal;
     _b = r._b;
@@ -95,8 +84,8 @@ GibbsMMulti& GibbsMMulti::operator=(const GibbsMMulti &r)
 
 GibbsMMulti::~GibbsMMulti()
 {
-  if (_Ln != nullptr)
-    _Ln = cs_spfree(_Ln);
+  if (_Cmat != nullptr)
+    delete _Cmat;
 }
 
 /****************************************************************************/
@@ -115,11 +104,8 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   if (verboseTimer) verbose = true;
   if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
-  cs*  Cmat = nullptr;
-  css* S = nullptr;
-  csn* N = nullptr;
+  MatrixSparse*  Cmat = nullptr;
   int n;
-  int error = 1;
   Db* db = getDb();
   Model* model = getModel();
   int nvar   = _getVariableNumber();
@@ -139,7 +125,6 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   // Core allocation
 
   n = nact * nvar;
-  _Pn.resize(nact);
   _b.resize(n);
   _x.resize(n);
   _weights.resize(nact * nvar * nvar);
@@ -149,12 +134,8 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose)
     message("Building Covariance Sparse Matrix (Dimension = %d)\n",nact);
   Timer timer;
-  Cmat = model_covmat_by_ranks_cs(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1);
-  if (Cmat == nullptr)
-  {
-    messerr("Impossible to create the Total Precision Matrix");
-    goto label_end;
-  }
+  _Cmat = model_covmat_by_ranks_cs(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1);
+  if (_Cmat == nullptr) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Building Covariance");
 
@@ -162,66 +143,27 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   if (verbose)
     message("Cholesky Decomposition of Covariance Matrix\n");
-  S = cs_schol(Cmat, 1);
-  N = cs_chol(Cmat, S);
-  if (S == nullptr || N == nullptr)
+  if (Cmat->computeCholesky())
   {
     messerr("Fail to perform Cholesky decomposition");
-    goto label_end;
+    return 1;
   }
 
-  for (int iact = 0; iact < nact; iact++) _Pn[iact] = S->Pinv[iact];
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Cholesky Decomposition");
-
-  // Store the Initial Covariance in Neutral File (optional)
-
-  if (_storeTables)
-  {
-    if (verbose)
-      message("Storing Initial Covariance\n");
-    _tableStore(1, Cmat);
-    if (verboseTimer)
-      timer.displayIntervalMilliseconds("Storing Initial Covariance");
-  }
-
-  // Stripping the Cholesky decomposition matrix
-
-  _Ln = cs_strip(N->L, _eps, 3, verbose);
-
-  // Store the reconstructed Covariance in Neutral File (optional)
-
-  if (_storeTables)
-  {
-    if (verbose)
-      message("Calculating Reconstructed Covariance\n");
-    cs* Lt = cs_transpose(_Ln, 1);
-    cs* Cmat2 = cs_multiply(_Ln, Lt);
-    _tableStore(2, Cmat2);
-    if (verboseTimer)
-      timer.displayIntervalMilliseconds("Calculating Reconstructed Covariance");
-    Lt = cs_spfree(Lt);
-    Cmat2 = cs_spfree(Cmat2);
-  }
 
   // Evaluate storage capacity and store weights
 
   if (verbose)
     message("Calculating and storing the weights\n");
-  if (_storeAllWeights(verbose)) goto label_end;
+  if (_storeAllWeights(verbose)) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Calculating and storing weights");
 
   // Initialize the statistics (optional)
 
   statsInit();
-  error = 0;
-
- label_end:
-  Cmat = cs_spfree(Cmat);
-  S = cs_sfree(S);
-  N = cs_nfree(N);
-  return error;
+  return 0;
 }
 
 /****************************************************************************/
@@ -283,79 +225,6 @@ int GibbsMMulti::_getVariableNumber() const
   return model->getVariableNumber();
 }
 
-void GibbsMMulti::_tableStore(int mode, const cs* A)
-{
-  if (!A) return;
-  Table table;
-  const Db* db = getDb();
-  const Model* model = getModel();
-
-  // Getting maximum distance for covariance calculation
-
-  double distmax = 1.5 * model->getCova(0)->getRange();
-  double dx = db->getUnit();
-  int npas = (int) ceil(distmax / dx);
-  Table tabmod(npas,3);
-
-  // Retrieve the elements from the sparse matrix
-
-  int   n = cs_get_ncol(A) ;
-  int* Ap = A->p ;
-  int* Ai = A->i ;
-  double* Ax = A->x ;
-
-  /* Loop on the elements */
-
-  int ecr = 0;
-  for (int j = 0 ; j < n; j++)
-    for (int p = Ap [j] ; p < Ap [j+1]; p++)
-    {
-      int iech = j;
-      int jech = Ai[p];
-      double value = Ax[p];
-
-      double dist = db->getDistance(iech, jech);
-      if (dist > distmax) continue;
-
-      // Store the covariance cloud
-      table.addRow();
-      table.setValue(ecr, 0, dist);
-      table.setValue(ecr, 1, value);
-      ecr++;
-
-      // Store the contribution to the covariance model
-      int ipas = (int) floor(dist / dx + 0.5);
-      if (ipas >= 0 && ipas < npas)
-      {
-        tabmod.addValue(ipas, 0, 1.);
-        tabmod.addValue(ipas, 1, dist);
-        tabmod.addValue(ipas, 2, value);
-      }
-    }
-
-  // Serialize the table (as a Covariance Cloud)
-  if (mode == 1)
-    (void) table.dumpToNF("CovInit");
-  else
-    (void) table.dumpToNF("CovBuilt");
-
-  // Serialize the table (as a Experimental Covariance)
-  for (int ipas = 0; ipas < npas; ipas++)
-  {
-    double value = tabmod.getValue(ipas, 0);
-    if (value > 0.)
-    {
-      tabmod.setValue(ipas, 1, tabmod.getValue(ipas, 1) / value);
-      tabmod.setValue(ipas, 2, tabmod.getValue(ipas, 2) / value);
-    }
-  }
-
-  if (mode == 1)
-    (void) tabmod.dumpToNF("CovModInit");
-  else
-    (void) tabmod.dumpToNF("CovModBuilt");
-}
-
 /**
  * Calculate the set of (multivariate) weights for one given sample
  * @param iact0   Rank of the sample
@@ -377,10 +246,7 @@ int GibbsMMulti::_calculateWeights(int iact0, double tol) const
     _b[iact0 + ivar0 * nact] = 1.;
 
     // Solve the linear system and returns the result in 'x'
-    cs_ipvec(nact, _Pn.data(), _b.data(), _x.data()); /* x = P*b */
-    cs_lsolve(_Ln,  _x.data()); /* x = L\x */
-    cs_ltsolve(_Ln, _x.data()); /* x = L'\x */
-    cs_pvec(nact, _Pn.data(), _x.data(), _b.data()); /* b = P'*x */
+    _Cmat->solveCholesky(_b, _x);
 
     // Discarding the values leading to small vector of weights
 

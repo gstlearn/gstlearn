@@ -61,7 +61,7 @@ public:
 #ifndef SWIG
   MatrixSparse* getAproj() const { return _AprojCS; }
 #endif
-  Triplet getAprojToTriplet(bool flag_from_1 = false) const;
+  NF_Triplet getAprojToTriplet(bool flag_from_1 = false) const;
 
 private:
   int  _nPoint; // _nPoint = Number of rows of _Aproj

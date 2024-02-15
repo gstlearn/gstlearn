@@ -20,14 +20,6 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
-MatrixFactory::MatrixFactory()
-{
-}
-
-MatrixFactory::~MatrixFactory()
-{
-}
-
 /****************************************************************************/
 /*!
  **  Performs the product of two matrices: X * Y
@@ -36,41 +28,69 @@ MatrixFactory::~MatrixFactory()
  **
  ** \param[in]  x          First AMatrix matrix
  ** \param[in]  y          Second AMatrix matrix
+ ** \param[in]  transposeX True if First matrix is transposed
+ ** \param[in]  transposeY True if Second matrix is transposed
  **
  *****************************************************************************/
-AMatrix* MatrixFactory::matProduct(const AMatrix* x, const AMatrix* y)
+AMatrix* MatrixFactory::prodMatMat(const AMatrix *x,
+                                   const AMatrix *y,
+                                   bool transposeX,
+                                   bool transposeY)
 {
   if (x->getNCols() != y->getNRows())
   {
     my_throw("Incompatible dimensions when making product of two matrices");
   }
 
-  /// TODO : use typeinfo
-  const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
-  const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+  const MatrixSparse* mxsparse = dynamic_cast<const MatrixSparse*>(x);
+  const MatrixSparse* mysparse = dynamic_cast<const MatrixSparse*>(y);
 
   AMatrix* res = nullptr;
-
-  if (x->getNRows() == y->getNCols())
+  if (mxsparse != nullptr && mysparse != nullptr)
   {
-    // Case of a resulting Square matrix
+    // Case of a resulting Sparse matrix
 
-    if (mxsym != nullptr || mysym != nullptr)
-    {
-      res = new MatrixSquareSymmetric();
-    }
-    else
-    {
-      res = new MatrixSquareGeneral();
-    }
+    res = new MatrixSparse();
   }
   else
   {
-    res = new MatrixRectangular();
+
+    // Case of a resulting Dense matrix
+
+    const MatrixSquareSymmetric* mxsym = dynamic_cast<const MatrixSquareSymmetric*>(x);
+    const MatrixSquareSymmetric* mysym = dynamic_cast<const MatrixSquareSymmetric*>(y);
+
+    if (x->getNRows() == y->getNCols())
+    {
+
+      // Case of a resulting Square matrix
+
+      if (mxsym != nullptr || mysym != nullptr)
+      {
+
+        // Cas of a resulting Square Symmetric matrix
+
+        res = new MatrixSquareSymmetric();
+      }
+      else
+      {
+
+        // Case of a resulting Square general matrix
+
+        res = new MatrixSquareGeneral();
+      }
+    }
+    else
+    {
+
+      // Case of a resulting Rectangular matrix
+
+      res = new MatrixRectangular();
+    }
   }
 
-  res->reset(x->getNRows(), y->getNCols());
-  res->prodMatMat(*x, *y);
+  res->reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
+  res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;
 }

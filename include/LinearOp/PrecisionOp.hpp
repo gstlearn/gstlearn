@@ -59,7 +59,7 @@ public:
             const CovAniso *cova = nullptr,
             bool verbose = false);
 
-  virtual double computeLogDet(int nbsimu = 1, int seed = 0);
+  virtual double getLogDeterminant(int nbsimu = 1, int seed = 0);
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,
                        VectorDouble& /*result*/,

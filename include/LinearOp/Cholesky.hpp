@@ -13,42 +13,43 @@
 #include "gstlearn_export.hpp"
 
 #include "LinearOp/ALinearOp.hpp"
-#include "Matrix/MatrixSparse.hpp"
 #include "Basic/VectorNumT.hpp"
+
+#include <Eigen/Sparse>
 
 class css; /// TODO : Dependency to csparse to be removed
 class csn;
+class MatrixSparse;
+
 class GSTLEARN_EXPORT Cholesky: public ALinearOp
 {
 public:
-  Cholesky(const MatrixSparse* mat = nullptr, bool flagDecompose=true);
-  Cholesky(const Cholesky &m);
-  Cholesky& operator=(const Cholesky &m);
+  Cholesky(const MatrixSparse* mat);
+  Cholesky(const Cholesky &m) = delete;
+  Cholesky& operator=(const Cholesky &m) = delete;
   virtual ~Cholesky();
 
   int getSize() const override;
   void evalInverse(const VectorDouble& vecin, VectorDouble& vecout) const override;
 
-  bool isDefined() const { return _matCS != nullptr; }
-  bool isCholeskyDecomposed() const { return _matS != nullptr && _matN != nullptr; }
+  bool isValid() const { return _matCS != nullptr; }
 
-  int  reset(const MatrixSparse* mat = nullptr, bool flagDecompose = true);
-  void decompose(bool verbose = false) const;
-
-  void simulate(VectorDouble& vecin, VectorDouble& vecout);
-  void stdev(VectorDouble& vcur, bool flagStDev = false);
-  void printout(const char *title, bool verbose = false) const;
-  double computeLogDet() const;
+  int  solve(const VectorDouble& b, VectorDouble& x) const;
+  int  simulate(const VectorDouble& b, VectorDouble& x) const;
+  int  stdev(VectorDouble& vcur, bool flagStDev = false) const;
+  double getLogDeterminant() const;
 
 protected:
   void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
 private:
   void _clean();
+  void _compute();
 
 private:
-  const MatrixSparse* _matCS; // Copy of the pointer
-  mutable css *_matS;
-  mutable csn *_matN;
-  mutable VectorDouble _work;
+  css *_S; // Cholesky decomposition
+  csn *_N; // Cholesky decomposition
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > _cholSolver;
+
+  const MatrixSparse* _matCS; // Stored by compliance with ALinearOp. Not to be deleted
 };

@@ -44,24 +44,20 @@ public:
   void evalInverse(VectorDouble& vecin, VectorDouble& vecout) override;
   void makeReady() override;
 
-  double computeLogDet(int nbsimu = 1, int seed = 0) override;
+  double getLogDeterminant(int nbsimu = 1, int seed = 0) override;
 
   void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam,const EPowerPT& power) override;
   void evalDerivOptim(VectorDouble& outv,int iapex,int igparam, const EPowerPT& power) override;
   //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
-  bool isCholeskyDecomposed() const { return _qChol.isCholeskyDecomposed(); }
 
-#ifndef SWIG
-  MatrixSparse* getQ() const { return _QCS; }
-#endif
-  Triplet getQToTriplet(bool flag_from_1 = false) const;
+  MatrixSparse* getQ() const { return _Q; }
+  NF_Triplet getQToTriplet(bool flag_from_1 = false) const;
 
 private:
   void _buildQ(bool flagDecompose = false);
 
 private:
-  MatrixSparse* _QCS;
-  Cholesky _qChol;
+  MatrixSparse* _Q;
 };

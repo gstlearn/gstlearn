@@ -214,7 +214,7 @@ Performing the centering using gstlearn: this is done in place (coordinates have
 
 ```{r Gstlearn_centering_data1}
 data_auto1 = data_ini1$clone()
-err = db_center_point_to_grid(data_auto1, target)
+err = DbHelper_centerPointToGrid(data_auto1, target)
 ```
 
 Displaying the centered results
@@ -251,7 +251,7 @@ Performing the centering using gstlearn: this is done in place (coordinates have
 
 ```{r Gstlearn_centering_data2}
 data_auto2 = data_ini2$clone()
-err = db_center_point_to_grid(data_auto2, target)
+err = DbHelper_centerPointToGrid(data_auto2, target)
 ```
 
 Displaying the centered results

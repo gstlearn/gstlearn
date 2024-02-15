@@ -198,7 +198,7 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
 }
 
 /**
- * Automatically create a set of calulcation directions for a given Space Direction:
+ * Automatically create a set of calculation directions for a given Space Direction:
  * - one calculation direction per space direction
  * - the same parameters are used for each direction, such as:
  * @param npas Number of lags
@@ -225,7 +225,9 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    DirParam dirparam(npas, dpas, toldis, tolang);
+    DirParam dirparam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
+                      VectorDouble(), VectorDouble(), TEST, space);
+
     VectorDouble codir(ndim,0.);
     codir[idim] = 1.;
     dirparam.setCodir(codir);

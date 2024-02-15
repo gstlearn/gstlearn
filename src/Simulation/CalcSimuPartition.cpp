@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Calculators/CalcMigrate.hpp"
 #include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
@@ -95,7 +96,7 @@ bool CalcSimuPartition::_voronoi()
   /* Expand the data values over the grid nodes */
 
   int iattp = dbpoint->getColumnNumber() - 1;
-  if (expand_point_to_grid(dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0,
+  if (expandPointToGrid(dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0,
                            VectorDouble(), simgrid)) return 1;
 
   /* Save the grid in dbgrid */

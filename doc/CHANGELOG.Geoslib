@@ -34,6 +34,12 @@ New Test :
 . Bench_KrigingU.cpp
 . Bench_KrigingI.cpp
 
+New names :
+-----------
+- db_tool_duplicate() is renamed as DbHelper::findDuplicates()
+- db_normalize() is renamed as DbHelper::normalizeVariables()
+- db_grid_fill() is renamed as DbHelper::gridFilling()
+
 Interface with R :
 ------------------
 - Introducing the generic method "fromTL" to convert R object into gstlearn one

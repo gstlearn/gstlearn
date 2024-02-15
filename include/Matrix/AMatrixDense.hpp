@@ -61,26 +61,32 @@ public:
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) override;
   /*! Perform 'vec' * 'this' */
-  virtual VectorDouble prodVecMatInPlace(const VectorDouble& x, bool transpose = false) const override;
+  virtual VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const override;
   /*! Perform 'this' * 'vec'*/
-  virtual VectorDouble prodMatVecInPlace(const VectorDouble& x, bool transpose = true) const override;
+  virtual VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const override;
   /*! Extract a Row */
   virtual VectorDouble getRow(int irow) const override;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const override;
+  /*! Multiply a matrix by another and stored in 'this' */
+  virtual void prodMatMatInPlace(const AMatrix *x,
+                                 const AMatrix *y,
+                                 bool transposeX = false,
+                                 bool transposeY = false) override;
 
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
-  /// rather than manipulating AMatrix. They are no more generic of AMatrix
+  /// rather than manipulating AMatrix. They are not generic of AMatrix anymore.
   /// WARNING: output matrix should not match any of input matrices (speed up).
   /*! Add a matrix (multiplied by a constant) */
-  virtual void addMatrix(const AMatrixDense& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatMat(const AMatrixDense &x,
-                          const AMatrixDense &y,
-                          bool transposeX = false,
-                          bool transposeY = false);
-  /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const AMatrixDense& y);
+  void addMatInPlace(const AMatrixDense& y, double cx = 1., double cy = 1.);
+  /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
+  virtual void prodNormMatMatInPlace(const AMatrixDense &a,
+                                     const AMatrixDense &m,
+                                     bool transpose = false);
+  /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
+  virtual void prodNormMatInPlace(const AMatrixDense &a,
+                                  const VectorDouble& vec = VectorDouble(),
+                                  bool transpose = false);
 
   VectorDouble         getEigenValues()  const { return _eigenValues; }
   MatrixSquareGeneral* getEigenVectors() const { return _eigenVectors; }
@@ -98,8 +104,8 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const override;
 
   virtual void    _transposeInPlace() override;
-  virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const override;
-  virtual void    _prodVecMat(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -115,8 +121,8 @@ private:
   void    _allocateLocal();
   int     _solveLocal(const VectorDouble &b, VectorDouble &x) const;
   int     _invertLocal();
-  void    _prodMatVecLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
   int     _getIndexToRankLocal(int irow, int icol) const;
   int     _getMatrixPhysicalSizeLocal() const;
@@ -133,19 +139,22 @@ private:
   void _addScalarLocal(double v);
   void _addScalarDiagLocal(double v);
   void _prodScalarLocal(double v);
-  void _addMatrixLocal(const AMatrixDense& y, double value = 1.);
-  void _prodMatMatLocal(const AMatrixDense &x,
-                        const AMatrixDense &y,
-                        bool transposeX = false,
-                        bool transposeY = false);
-  void _linearCombinationLocal(double cx, double cy, const AMatrixDense& y);
+  void _addMatInPlaceLocal(const AMatrixDense& y, double cx = 1., double cy = 1.);
+  void _prodMatMatInPlaceLocal(const AMatrixDense *x,
+                               const AMatrixDense *y,
+                               bool transposeX = false,
+                               bool transposeY = false);
+  void _prodNormMatMatInPlaceLocal(const AMatrixDense& a, const AMatrixDense& m, bool transpose = false);
+  void _prodNormMatInPlaceLocal(const AMatrixDense &a,
+                                const VectorDouble &vec = VectorDouble(),
+                                bool transpose = false);
   void _fillLocal(double value);
   void _multiplyRowLocal(const VectorDouble& vec);
   void _multiplyColumnLocal(const VectorDouble& vec);
   void _divideRowLocal(const VectorDouble& vec);
   void _divideColumnLocal(const VectorDouble& vec);
-  VectorDouble _prodMatVecInPlaceLocal(const VectorDouble& x, bool transpose = false) const;
-  VectorDouble _prodVecMatInPlaceLocal(const VectorDouble& x, bool transpose = false) const;
+  VectorDouble _prodMatVecLocal(const VectorDouble& x, bool transpose = false) const;
+  VectorDouble _prodVecMatLocal(const VectorDouble& x, bool transpose = false) const;
   VectorDouble _getRowLocal(int irow) const;
   VectorDouble _getColumnLocal(int icol) const;
 
@@ -160,3 +169,4 @@ protected:
 private:
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
 };
+

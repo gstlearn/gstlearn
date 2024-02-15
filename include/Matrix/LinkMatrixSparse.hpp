@@ -14,13 +14,11 @@
 
 #include "Basic/VectorNumT.hpp"
 
-class GSTLEARN_EXPORT Triplet
+class GSTLEARN_EXPORT NF_Triplet
 {
 public:
     bool flagFromOne;
     int number;
-    int nrows;
-    int ncols;
     VectorInt rows;
     VectorInt cols;
     VectorDouble values;
@@ -117,10 +115,15 @@ GSTLEARN_EXPORT cs     *cs_compress(cs *A);
 GSTLEARN_EXPORT void    cs_force_dimension(cs *T, int nrow, int ncol);
 GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag, double tol = EPSILON10);
 
-GSTLEARN_EXPORT VectorInt cs_color_coding(const cs *Q,int start,int *ncolor);
+GSTLEARN_EXPORT VectorInt cs_color_coding(const cs *Q, int start);
+GSTLEARN_EXPORT void _updateColors(const VectorInt &temp,
+                                   VectorInt &colors,
+                                   int imesh,
+                                   int *ncolor);
+
 GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(const cs *C, const VectorInt& colors,
                                                       int ref_color, int row_ok, int col_ok);
-GSTLEARN_EXPORT VectorDouble csd_extract_diag_VD(const cs *C, int mode);
+GSTLEARN_EXPORT VectorDouble csd_extract_diag_VD(const cs *C, int oper_choice = 1);
 GSTLEARN_EXPORT cs     *cs_prod_norm_diagonal(int mode, const cs *B, VectorDouble diag);
 GSTLEARN_EXPORT MatrixSparse* cs_arrays_to_sparse(int n,
                                                   int nrow,
@@ -170,16 +173,25 @@ GSTLEARN_EXPORT int     cs_multigrid_process(cs_MGS *mgs, QChol *qctt, int verbo
                                            double *x, double *b, double *work);
 GSTLEARN_EXPORT void    cs_multigrid_coarse2fine(cs_MGS *mgs,double *z,double *work);
 
-//
-GSTLEARN_EXPORT Triplet csToTriplet(const cs *A, bool flag_from_1 = false, double tol=EPSILON10);
-GSTLEARN_EXPORT Triplet triplet_init(bool flag_from_1);
+// Use of Triplet (internla format)
+GSTLEARN_EXPORT NF_Triplet csToTriplet(const cs *A,
+                                       bool flag_from_1 = false,
+                                       double tol = EPSILON10);
+GSTLEARN_EXPORT NF_Triplet tripletInit(bool flag_from_1 = false);
+GSTLEARN_EXPORT void       tripletAdd(NF_Triplet &NF_T,
+                                      int irow,
+                                      int icol,
+                                      double value,
+                                      bool flag_from_1 = false);
+GSTLEARN_EXPORT int        tripletMaxCol(const NF_Triplet& NF_T);
+GSTLEARN_EXPORT int        tripletMaxRow(const NF_Triplet& NF_T);
+GSTLEARN_EXPORT void       tripletForce(NF_Triplet& NF_T, int nrow, int ncol);
+
 GSTLEARN_EXPORT String  toStringDim(const String& title, const cs *A);
 GSTLEARN_EXPORT String  toStringRange(const String& title, const cs *C);
 GSTLEARN_EXPORT bool    cs_isSymmetric(const cs* A, bool verbose = false, bool detail = false);
 GSTLEARN_EXPORT bool    cs_isDiagonalDominant(cs *A, bool verbose = false, bool detail = false);
 GSTLEARN_EXPORT bool    cs_isDefinitePositive(cs* A, bool verbose = false);
-
-GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_ranks(const cs *C, int *row_array, int *col_array);
 
 GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
                                              int row_from, int row_length,
@@ -187,9 +199,9 @@ GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
 GSTLEARN_EXPORT void    cs_print_range(const char *title,const cs *C);
 GSTLEARN_EXPORT cs     *cs_eye(int number,double value);
 GSTLEARN_EXPORT cs     *cs_eye_tab(int number, double *values);
-GSTLEARN_EXPORT cs     *cs_extract_diag(const cs *C,int mode);
+GSTLEARN_EXPORT cs     *cs_extract_diag(const cs *C,int oper_choice = 1);
 GSTLEARN_EXPORT void    cs_diag_suppress(cs *C);
-GSTLEARN_EXPORT double *csd_extract_diag(const cs *C,int mode);
+GSTLEARN_EXPORT double *csd_extract_diag(const cs *C,int oper_choice = 1);
 GSTLEARN_EXPORT int     cs_sort_i(cs *C);
 
 GSTLEARN_EXPORT void    cs_rowcol(const cs *A,int *nrows,int *ncols,int *count,double *percent);
@@ -204,7 +216,7 @@ GSTLEARN_EXPORT cs     *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_re
 GSTLEARN_EXPORT int     cs_coarsening(const cs *Q,int type,int **indCo,cs **L);
 GSTLEARN_EXPORT cs     *cs_interpolate(const cs *AA,const cs *LL,int *indCo);
 GSTLEARN_EXPORT cs     *cs_triangle(cs *A, int flag_upper, int flag_diag);
-GSTLEARN_EXPORT void    cs_keypair(const char *key, cs *A, int flag_from_1);
+GSTLEARN_EXPORT void    cs_keypair(const char *key, cs *A, int flag_from_1 = false);
 GSTLEARN_EXPORT int     cs_scale(const cs *C);
 GSTLEARN_EXPORT int     cs_get_nrow(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncol(const cs *A);

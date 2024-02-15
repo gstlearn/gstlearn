@@ -126,11 +126,11 @@ private:
   void _getGridFromMesh(int imesh, int *node, int *icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
-  bool _addElementToCS(cs *ATriplet,
-                       int iech,
-                       const VectorDouble &coor,
-                       const VectorInt &indg0,
-                       bool verbose) const;
+  bool _addElementToTriplet(NF_Triplet &NF_T,
+                            int iech,
+                            const VectorDouble &coor,
+                            const VectorInt &indg0,
+                            bool verbose) const;
 
 protected:
   /// Interface for ASerializable

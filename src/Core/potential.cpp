@@ -21,6 +21,7 @@
 #include "Drifts/DriftList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbHelper.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
 #include <Simulation/CalcSimuTurningBands.hpp>
@@ -3207,7 +3208,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
   }
 
   // Calculate the distance
-  if (db_grid_fill(dbout, 3, seed, radius)) return (1);
+  if (DbHelper::dbgrid_filling(dbout, 3, seed, radius)) return (1);
 
   law_set_random_seed(memo);
   return (0);

@@ -334,5 +334,3 @@ private:
 private:
   Grid _grid;                //!< Grid characteristics
 };
-
-GSTLEARN_EXPORT int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random=EPSILON6);

@@ -253,6 +253,7 @@
 %include Matrix/AMatrixSquare.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
+%include Matrix/MatrixFactory.hpp
 %include Matrix/MatrixInt.hpp
 %include Matrix/Table.hpp
 
@@ -265,6 +266,7 @@
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
 %include Db/DbStringFormat.hpp
+%include Db/DbHelper.hpp
 
 %include Anamorphosis/CalcAnamTransform.hpp
 %include Anamorphosis/AAnam.hpp

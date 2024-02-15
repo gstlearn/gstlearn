@@ -44,7 +44,6 @@ int main()
   double range  = 10.;
   double bound  = TEST;
   double eps    = EPSILON6;
-  bool storeTables = true;
   bool storeInternal = false; // No HDF5 by default
   bool storeVario = false;
 
@@ -111,7 +110,6 @@ int main()
   gibbs.setOptionStats(2);
   gibbs.setEps(eps);
   gibbs.setFlagStoreInternal(storeInternal);
-  gibbs.setStoreTables(storeTables);
   gibbs.init(1, nvar, nburn, niter,0, true);
 
   // Allocate the Gaussian vector

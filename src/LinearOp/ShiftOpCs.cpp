@@ -9,12 +9,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include "LinearOp/ShiftOpCs.hpp"
-#include "geoslib_old_f.h"
-#include "geoslib_f_private.h"
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
@@ -440,7 +439,7 @@ void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
 void ShiftOpCs::_evalDirect(const VectorDouble& x, VectorDouble& y) const
 {
   Timer time;
-  _S->prodMatVec(x, y);
+  _S->prodMatVecInPlace(x, y);
   getLogStats().incrementStatsDirect(time.getIntervalSeconds());
 }
 
@@ -507,15 +506,15 @@ MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
   return _SGrad[iad];
 }
 
-Triplet ShiftOpCs::getSToTriplet(bool flag_from_1) const
+NF_Triplet ShiftOpCs::getSToTriplet(bool flag_from_1) const
 {
   return csToTriplet(getS()->getCS(), flag_from_1);
 }
-Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1) const
+NF_Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1) const
 {
   return csToTriplet(getTildeCGrad(iapex, igparam)->getCS(), flag_from_1);
 }
-Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam, bool flag_from_1) const
+NF_Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam, bool flag_from_1) const
 {
   return csToTriplet(getSGrad(iapex, igparam)->getCS(), flag_from_1);
 }
@@ -735,7 +734,7 @@ double ShiftOpCs::_computeGradLogDetHH(const AMesh *amesh,
     }
 
     work.normMatrix(rotmat, temp);
-    work2.prodMatMat(work, invHH);
+    work2.prodMatMatInPlace(&work, &invHH);
     double result = work2.trace();
     delete cova;
     return result;
@@ -816,45 +815,40 @@ MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) co
 {
   std::map<int, double>::iterator it;
 
-  cs* Striplet = cs_spalloc2(0, 0, 1, 1, 1);
+  NF_Triplet NF_T = tripletInit(0);
   int ip1_max = -1;
 
   it = tab.begin();
   while (it != tab.end())
   {
     int ip1 = it->first;
-    if (!cs_entry2(Striplet, ip1, ip1, it->second)) return nullptr;
+    tripletAdd(NF_T, ip1, ip1, it->second);
     if (ip1 > ip1_max) ip1_max = ip1;
     it++;
   }
 
+  // Add the fictitious value at maximum sparse matrix dimension
 
-    // Add the fictitious value at maximum sparse matrix dimension
+  tripletForce(NF_T, getSize(), getSize());
 
-  cs_force_dimension(Striplet, getSize(), getSize());
+  /* Optional printout */
 
-    /* Optional printout */
-
-  MatrixSparse* S = matCS_triplet(Striplet);
-  if (S == nullptr) return nullptr;
-  Striplet = cs_spfree2(Striplet);
-
-  return S;
+  return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize(), -1);
 }
 
-int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
-                                         int imesh,
-                                         VectorVectorDouble& coords,
-                                         MatrixSquareSymmetric& matMtM,
-                                         AMatrix& matP,
-                                         double *deter)
+int ShiftOpCs::_prepareMatricesSVariety(const AMesh *amesh,
+                                        int imesh,
+                                        VectorVectorDouble &coords,
+                                        MatrixRectangular& matM,
+                                        MatrixSquareSymmetric &matMtM,
+                                        AMatrix &matP,
+                                        double *deter)
 {
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
 
   amesh->getEmbeddedCoordinatesPerMeshInPlace(imesh, coords);
 
-  MatrixRectangular matM(ndim, ncorner - 1);
   for (int icorn = 0; icorn < ncorner - 1; icorn++)
   {
     for (int idim = 0; idim < ndim; idim++)
@@ -879,7 +873,7 @@ int ShiftOpCs::_prepareMatricesSVariety(const AMesh* amesh,
   }
 
   // Calculate P = (M^t %*% M)^{-1} %*% M^t
-  matP.prodMatMat(matMtM, matM, false, true);
+  matP.prodMatMatInPlace(&matMtM, &matM, false, true);
   return 0;
 }
 
@@ -940,6 +934,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
   MatrixSquareSymmetric hh(ndim);
   MatrixSquareSymmetric matMtM(ncorner-1);
   MatrixRectangular matP(ncorner-1,ndim);
+  MatrixRectangular matM(ndim, ncorner - 1);
   MatrixSquareGeneral matMs(ndim);
   MatrixSquareSymmetric matPinvHPt(ncorner-1);
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
@@ -987,7 +982,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
     flagSphere = false; // Modif DR a valider
     if (! flagSphere)
     {
-      if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matM, matMtM, matP, &detMtM))
         my_throw("Matrix inversion");
       matPinvHPt.normMatrix(matP, hh, true);
     }
@@ -1013,21 +1008,21 @@ int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
         int ip1 = amesh->getApex(imesh, j1);
         double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
         s += vald;
-        matCS_add_value(_S, ip0, ip1, vald);
+        _S->addValue(ip0, ip1, vald);
       }
       int ip1 = amesh->getApex(imesh, ncorner - 1);
-      matCS_add_value(_S, ip0, ip1, -s);
-      matCS_add_value(_S, ip1, ip0, -s);
+      _S->addValue(ip0, ip1, -s);
+      _S->addValue(ip1, ip0, -s);
       S += s;
     }
     int ip0 = amesh->getApex(imesh, ncorner - 1);
     _TildeC[ip0] += ratio / 6.;
-    matCS_add_value(_S, ip0, ip0, S);
+    _S->addValue(ip0, ip0, S);
   }
 
   // Ending S construction
 
-  matCS_matvecnorm_inplace(_S, _TildeC.data(), 2);
+  _S->prodNormDiagVecInPlace(_TildeC, -3);
 
   /* Set the error return code */
 
@@ -1046,32 +1041,28 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
 {
   MatrixSparse *Sret = nullptr;
   MatrixSparse* Sl = nullptr;
-  cs* Striplet = nullptr;
   int nmeshes = amesh->getNMeshes();
   int ncorner = amesh->getNApexPerMesh();
 
   // Define Sl as the sparse matrix giving the clutter of apices among vertices
-  Striplet = cs_spalloc2(0, 0, 1, 1, 1);
+  NF_Triplet NF_T = tripletInit(0);
   for (int imesh = 0; imesh < nmeshes; imesh++)
   {
     for (int ic = 0; ic < ncorner; ic++)
     {
       int iapex = amesh->getApex(imesh, ic);
-      if (! cs_entry2(Striplet, iapex, imesh, 1.)) goto label_end;
+      tripletAdd(NF_T, iapex, imesh, 1.);
     }
   }
-  Sl = matCS_triplet(Striplet);
-  if (Sl == nullptr) goto label_end;
+  Sl = MatrixSparse::createFromTriplet(NF_T);
 
   // Operate the product Sl * t(Sl) to get the final matrix Sret
-  Sret = matCS_prod_norm_single(2, Sl);
+  Sret = prodNormMat(*Sl, VectorDouble(), false);
+  delete Sl;
 
   // Blank out the contents of the sparse matrix
-  matCS_set_cste(Sret, 0.);
+  Sret->setConstant(0.);
 
-label_end:
-  Striplet = cs_spfree2(Striplet);
-  delete Sl;
   return Sret;
 }
 
@@ -1105,6 +1096,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   MatrixSquareSymmetric work(ndim);
   MatrixSquareSymmetric work2(ndim);
   MatrixSquareSymmetric hhGrad(ndim);
+  MatrixRectangular matM(ndim, ncorner - 1);
   MatrixSquareSymmetric matMtM(ncorner-1);
   MatrixRectangular matP(ncorner-1,ndim);
   MatrixSquareGeneral matMs(ndim);
@@ -1134,7 +1126,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
     flagSphere = false; // Modif DR a valider
     if (! flagSphere)
     {
-      if (_prepareMatricesSVariety(amesh, imesh, coords, matMtM, matP, &detMtM))
+      if (_prepareMatricesSVariety(amesh, imesh, coords, matM, matMtM, matP, &detMtM))
         my_throw("Matrix inversion");
       matPHHPt.normMatrix(matP, hh, true);
     }
@@ -1225,20 +1217,19 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   {
     for (int iap = 0; iap < getSize(); iap++)
     {
-      VectorDouble tildeCGrad = matCSD_extract_diag_VD(_TildeCGrad[ind], 1);
+      VectorDouble tildeCGrad = _TildeCGrad[ind]->getDiagonal();
 
       VH::multiplyInPlace(tildeCGrad, tempVec);
-      matCS_matvecnorm_inplace(_SGrad[ind], invSqrtTildeC.data(), 0);
+      _SGrad[ind]->prodNormDiagVecInPlace(invSqrtTildeC, 1);
 
-      tildeCGradMat = matCS_diag(tildeCGrad);
-      A = matCS_multiply(_S, tildeCGradMat);
+      tildeCGradMat = MatrixSparse::diagVec(tildeCGrad);
+      A = MatrixFactory::prodMatMat<MatrixSparse>(_S, tildeCGradMat);
       delete tildeCGradMat;
-      At = matCS_transpose(A, 1);
-      A = matCS_add_and_release(A, At, 1., 1., 1);
+      At = A->transpose();
+      A->addMatInPlace(*At);
+      _SGrad[ind]->addMatInPlace(*A);
       delete At;
-      _SGrad[ind] = matCS_add_and_release(_SGrad[ind], A, 1., 1., 1);
       delete A;
-
       ind++;
     }
   }
@@ -1510,7 +1501,7 @@ int ShiftOpCs::getSGradAddress(int iapex, int igparam) const
 
 double ShiftOpCs::getMaxEigenValue() const
 {
-  return matCS_norm(getS());
+  return getS()->L1Norm();
 }
 
 bool ShiftOpCs::_isNoStat()
@@ -1564,7 +1555,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
-  cs* Striplet = cs_spalloc2(0, 0, 1, 1, 1);
+  NF_Triplet NF_T = tripletInit(0);
   int ip0_max = -1;
   int ip1_max = -1;
 
@@ -1573,7 +1564,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
   {
     int ip0 = it->first.first;
     int ip1 = it->first.second;
-    if (!cs_entry2(Striplet, ip0, ip1, it->second)) return nullptr;
+    tripletAdd(NF_T, ip0, ip1, it->second);
     if (ip0 > ip0_max) ip0_max = ip0;
     if (ip1 > ip1_max) ip1_max = ip1;
     it++;
@@ -1581,16 +1572,11 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
 
   // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
 
-  cs_force_dimension(Striplet, getSize(), getSize());
+  tripletForce(NF_T, getSize(), getSize());
 
   /* Optional printout */
 
-  MatrixSparse* S = matCS_triplet(Striplet);
-  if (S == nullptr) return nullptr;
-
-  Striplet = cs_spfree2(Striplet);
-
-  return S;
+  return MatrixSparse::createFromTriplet(NF_T, getSize(), getSize());
 }
 
 void ShiftOpCs::_determineFlagNoStatByHH()

@@ -11,6 +11,7 @@
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbHelper.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeigh.hpp"
 
@@ -233,5 +234,5 @@ int ACalcInterpolator::_centerDataToGrid(DbGrid* dbgrid)
     getDbin()->duplicateColumnByUID(iuid_in, iuid_out + idim);
     getDbin()->setLocatorByUID(iuid_out + idim, ELoc::X, idim);
   }
-  return db_center_point_to_grid(getDbin(), dbgrid, 0.);
+  return DbH::centerPointToGrid(getDbin(), dbgrid, 0.);
 }

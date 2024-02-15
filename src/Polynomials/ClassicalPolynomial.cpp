@@ -57,7 +57,7 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const VectorDouble& inv,
     outv[i] += _coeffs[0] * inv[i];
   }
 
-  Op->prodMatVec(inv, *swap1);
+  Op->prodMatVecInPlace(inv, *swap1);
 
   for (int j = 1; j < (int) _coeffs.size(); j++)
   {
@@ -68,7 +68,7 @@ void ClassicalPolynomial::evalOpCumul(MatrixSparse* Op, const VectorDouble& inv,
 
     if (j < (int) _coeffs.size() - 1)
     {
-      Op->prodMatVec(*swap1, *swap2);
+      Op->prodMatVecInPlace(*swap1, *swap2);
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -89,7 +89,7 @@ void ClassicalPolynomial::evalOp(MatrixSparse* Op,
 
   for (int j = static_cast<int>(_coeffs.size()) - 2; j >= 0; j--)
   {
-    Op->prodMatVec(outv, work);
+    Op->prodMatVecInPlace(outv, work);
     for (int i = 0; i < n; i++)
     {
       outv[i] = _coeffs[j] * inv[i] + work[i];
@@ -117,7 +117,7 @@ void ClassicalPolynomial::evalOpTraining(MatrixSparse *Op,
 
   for (int j = (int) _coeffs.size() - 2; j >= 0; j--)
   {
-    Op->prodMatVec(store[j + 1], work);
+    Op->prodMatVecInPlace(store[j + 1], work);
     for (int i = 0; i < n; i++)
     {
       store[j][i] = _coeffs[j] * inv[i] + work[i];
@@ -157,14 +157,14 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 
   for(int i = 0; i < degree - 1 ;i++)
   {
-    derivOp->prodMatVec(*swap1,*swap2);
+    derivOp->prodMatVecInPlace(*swap1,*swap2);
     coeffsCur.erase(coeffsCur.begin());
     polycur->init(coeffsCur);
     polycur->evalOpCumul(Op,*swap2,outv);
 
     if(i<degree-2) // to avoid useless and time consuming computation since it prepares next iteration
     {
-      Op->prodMatVec(*swap1,*swap2);
+      Op->prodMatVecInPlace(*swap1,*swap2);
       swap3 = swap1;
       swap1 = swap2;
       swap2 = swap3;
@@ -186,7 +186,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 //  VectorDouble work2(n);
 //  VectorDouble work3(n);
 //  VectorDouble deriv(n);
-//  Op->prodMatVec(in2,work2);
+//  Op->prodMatVecInPlace(in2,work2);
 //
 //    for(int i = 0; i < n ;i++)
 //    {
@@ -196,7 +196,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 //
 //    for(int j = static_cast<int> (_coeffs.size())-2; j >= 0; j--)
 //    {
-//      Op->prodMatVec(work1,work1);
+//      Op->prodMatVecInPlace(work1,work1);
 //      for (int i = 0; i<n ; i++)
 //      {
 //          work1[i] = _coeffs[j] * in1[i] + work1[i];
@@ -217,12 +217,12 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
   MatrixSparse* S = shiftOp->getS();
   MatrixSparse* gradS = shiftOp->getSGrad(iapex,igparam);
 
-  shiftOp->getSGrad(iapex, igparam)->prodMatVec(workpoly[degree - 1], outv);
+  shiftOp->getSGrad(iapex, igparam)->prodMatVecInPlace(workpoly[degree - 1], outv);
 
   for (int i = degree - 3; i >= 0; i--)
   {
-    S->prodMatVec(outv, temp1);
-    gradS->prodMatVec(workpoly[i + 1], temp2);
+    S->prodMatVecInPlace(outv, temp1);
+    gradS->prodMatVecInPlace(workpoly[i + 1], temp2);
     VH::addInPlace(temp1, temp2, outv);
   }
 }

@@ -178,7 +178,6 @@ int MeshSpherical::reset(int ndim,
   return(0);
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -199,8 +198,6 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
  
   /* Initializations */
   
-  cs* Atriplet    = nullptr;
-  MatrixSparse* A = nullptr;
   int nmeshes     = getNMeshes();
   int nvertex     = getNApices();
   int ncorner     = getNApexPerMesh();
@@ -212,8 +209,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   /* Core allocation */
 
-  Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) return nullptr;
+  NF_Triplet NF_T = tripletInit(0);
   VectorDouble weight(ncorner,0);
   VectorDouble units = _defineUnits();
   
@@ -248,11 +244,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
       {
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
-        if (! cs_entry2(Atriplet,iech,ip,weight[icorn]))
-        {
-          Atriplet = cs_spfree2(Atriplet);
-          return nullptr;
-        }
+        tripletAdd(NF_T, iech,ip,weight[icorn]);
       }
       found = imesh;
     }
@@ -272,7 +264,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   if (ip_max < nvertex - 1)
   {
-    cs_force_dimension(Atriplet,nvalid,nvertex);
+    tripletForce(NF_T,nvalid,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */
@@ -280,11 +272,8 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  A = matCS_triplet(Atriplet);
-  Atriplet = cs_spfree2(Atriplet);
-  return(A);
+  return MatrixSparse::createFromTriplet(NF_T);
 }
-#endif
 
 /****************************************************************************/
 /*!

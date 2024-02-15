@@ -975,7 +975,7 @@ void KrigingSystem::_rhsCalculBlock()
       _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'
-      covcum.addMatrix(_covtab);
+      covcum.addMatInPlace(_covtab);
     }
 
     // Normalization
@@ -1177,7 +1177,7 @@ void KrigingSystem::_rhsDump()
 
 void KrigingSystem::_wgtCalcul()
 {
-  _wgt.prodMatMat(_lhsinv, *_rhs);
+  _wgt.prodMatMatInPlace(&_lhsinv, _rhs);
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1632,7 +1632,7 @@ void KrigingSystem::_estimateEstim(int status)
   // Calculate the solution
 
   if (status == 0)
-    _results.prodMatMat(*_rhs, _zam, true, false);
+    _results.prodMatMatInPlace(_rhs, &_zam, true, false);
 
   // Loop for writing the estimation
 
@@ -1663,7 +1663,7 @@ void KrigingSystem::_estimateStdv(int status)
   // Calculate the solution
 
   if (status == 0)
-    _results.prodMatMat(*_rhs, _wgt, true, false);
+    _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
 
   // Loop for writing the estimation
 
@@ -1788,14 +1788,14 @@ void KrigingSystem::_dualCalcul()
 
   /* Operate the product : Z * A-1 */
 
-  _zam.prodMatMat(_lhsinv, _zext);
+  _zam.prodMatMatInPlace(&_lhsinv, &_zext);
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
   {
     MatrixSquareGeneral ltermMat(1);
-    ltermMat.prodMatMat(_zam, _zext, true, false);
+    ltermMat.prodMatMatInPlace(&_zam, &_zext, true, false);
     _lterm = ltermMat.getValue(0,0);
   }
 
@@ -3230,7 +3230,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   /* Calculate: SMU = S-1 * MEAN */
 
-  _postCov.prodMatVec(_priorMean, smu);
+  _postCov.prodMatVecInPlace(_priorMean, smu);
 
   /* Covariance matrix SIGMA */
 
@@ -3268,7 +3268,7 @@ int KrigingSystem::_bayesPreCalculations()
   /* Posterior mean: _postMean = SC * SMU */
 
   if (_postCov.invert()) return 1;
-  _postCov.prodMatVec(smu, _postMean);
+  _postCov.prodMatVecInPlace(smu, _postMean);
 
   if (OptDbg::query(EDbg::BAYES))
   {

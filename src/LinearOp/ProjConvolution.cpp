@@ -179,7 +179,7 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
    {
      VH::extractInPlace(valonseismic, vec_S, iz * slice_S);
-     _AProjHoriz->prodMatVec(vec_S, vec_R, true);
+     _AProjHoriz->prodMatVecInPlace(vec_S, vec_R, true);
      VH::mergeInPlace(vec_R, _work, iz * slice_R);
    }
 
@@ -216,7 +216,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
     VH::extractInPlace(_work, vec_R, iz * slice_R);
-    _AProjHoriz->prodMatVec(vec_R, vec_S, false);
+    _AProjHoriz->prodMatVecInPlace(vec_R, vec_S, false);
     VH::mergeInPlace(vec_S, valonseismic, iz * slice_S);
   }
 
@@ -346,7 +346,7 @@ int ProjConvolution::getPointNumber() const
   return VH::product(nxs);
 }
 
-Triplet ProjConvolution::getAProjHorizToTriplet(bool flag_from_1) const
+NF_Triplet ProjConvolution::getAProjHorizToTriplet(bool flag_from_1) const
 {
-  return _AProjHoriz->getSparseToTriplet(flag_from_1);
+  return _AProjHoriz->getMatrixToTriplets(flag_from_1);
 }

@@ -1061,7 +1061,7 @@ gl.Db.fromTL = staticmethod(Db_fromPanda)
 
 def matrix_toTL(self):
   if self.isSparse():
-    Acs = self.getSparseToTriplet().toTL()
+    Acs = self.getMatrixToTriplets().toTL()
     return Acs
   else:
     Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
@@ -1075,12 +1075,14 @@ setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 
 # TODO : Replace Triplet_toTL by MatrixSparse_toTL
 def Triplet_toTL(self):
+  nrows = np.max(self.rows)+1
+  ncols = np.max(self.cols)+1
   Acs = sc.csc_matrix((np.array(self.values), 
                       (np.array(self.rows), np.array(self.cols))),
-                         shape=(self.nrows, self.ncols))
+                         shape=(nrows, ncols))
   return Acs
 
-setattr(gl.Triplet, "toTL", Triplet_toTL)
+setattr(gl.NF_Triplet, "toTL", Triplet_toTL)
 
 def table_toTL(self):
 # As a Panda Data Frame

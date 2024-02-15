@@ -73,8 +73,8 @@ private:
   virtual void    _setValues(const double* values, bool byCol = true) override;
 
   virtual void    _transposeInPlace() override { return ; } // Nothing to do
-  virtual void    _prodMatVec(const double *x,double *y, bool transpose = false) const override;
-  virtual void    _prodVecMat(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -86,8 +86,8 @@ private:
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
   void    _setValueLocal(int irank, double value);
-  void    _prodMatVecLocal(const double *x, double *y, bool transpose = false) const;
-  void    _prodVecMatLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _setValuesLocal(const double *values, bool byCol);
   int     _invertLocal();
   void    _allocateLocal();

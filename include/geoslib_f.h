@@ -171,38 +171,20 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 GSTLEARN_EXPORT Cheb_Elem* spde_cheb_manage(int mode,
                                             int verbose,
                                             double power,
-                                            int nblin,
-                                            double *blin,
+                                            const VectorDouble& blin,
                                             MatrixSparse *S,
                                             Cheb_Elem *cheb_old);
 GSTLEARN_EXPORT int spde_chebychev_operate(MatrixSparse *S,
                                            Cheb_Elem *cheb_elem,
                                            const VectorDouble &lambda,
-                                           const double *x,
-                                           double *y);
+                                           const VectorDouble& x,
+                                           VectorDouble& y);
 #endif
 
 /**********************************/
 /* High-level Interface Functions */
 /**********************************/
 
-GSTLEARN_EXPORT int db_grid_fill(DbGrid *dbgrid,
-                                 int mode = 0,
-                                 int seed = 34243,
-                                 int radius = 1,
-                                 bool verbose = false,
-                                 const NamingConvention& namconv = NamingConvention("Fill"));
-GSTLEARN_EXPORT int db_grid1D_fill(DbGrid *dbgrid,
-                                   int mode = 0,
-                                   int seed = 34243,
-                                   const NamingConvention& namconv = NamingConvention("Fill"));
-GSTLEARN_EXPORT int db_duplicate(Db *db,
-                                 bool verbose = false,
-                                 const VectorDouble& dist = VectorDouble(),
-                                 int opt_code = 0,
-                                 double tolcode = 0.,
-                                 const NamingConvention& namconv = NamingConvention("Duplicate", true, true, true,
-                                                                                    ELoc::fromKey("SEL")));
 GSTLEARN_EXPORT int krigsum(Db *dbin,
                             Db *dbout,
                             Model *model,
@@ -333,19 +315,6 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   bool flag_cstd,
                                   bool verbose = false,
                                   const NamingConvention& namconv = NamingConvention("Gibbs"));
-
-/*****************/
-/* Various Tools */
-/*****************/
-
-GSTLEARN_EXPORT int db_tool_duplicate(Db *db1,
-                                      Db *db2,
-                                      bool flag_same,
-                                      bool verbose,
-                                      int opt_code,
-                                      double tolcode,
-                                      const VectorDouble& dist,
-                                      VectorDouble& sel);
 
 /********************************************/
 /* Prototyping the functions in potential.c */
