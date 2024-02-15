@@ -12,6 +12,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/File.hpp"
 
 #include <algorithm>
 #include <iomanip>

@@ -5,7 +5,6 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from mlxtend.plotting import scatterplotmatrix
 from mlxtend.data import iris_data
 
 import gstlearn as gl

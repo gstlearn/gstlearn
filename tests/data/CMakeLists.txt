@@ -15,11 +15,16 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 
-# Define the prepare target to copy C++ library in test directory under windows
+# Define the prepare target to create the output directory for logs
 if (WIN32)
   # Need to copy C++ shared library to tests directory
   add_custom_target(prepare_data
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${GLOBAL_DST_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${GLOBAL_DST_DIR}
+  )
+else()
+  add_custom_target(prepare_data
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${GLOBAL_DST_DIR}"
   )
 endif()
 
@@ -35,9 +40,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Link each test to shared library
     target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
     # Trigger the prepare target each time a test is compiled
-    if (WIN32)
-      add_dependencies(${TEST_NAME} prepare_data)
-    endif()
+    add_dependencies(${TEST_NAME} prepare_data)
     # Trigger the build of the test with the target build_tests
     add_dependencies(build_tests ${TEST_NAME})
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
@@ -90,7 +93,7 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         endif()
         # Use maybe a specific output log for MinGW
         if (MINGW)
-          set(REF_FILE_MSYS ${CMAKE_CURRENT_SOURCE_DIR}/output/Result_msys.ref)
+          set(REF_FILE_MSYS ${TEST_SRC_DIR}/Result_msys.ref)
           if(EXISTS ${REF_FILE_MSYS})
             set(REF_FILE ${REF_FILE_MSYS})
           endif()

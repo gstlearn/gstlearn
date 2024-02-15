@@ -17,7 +17,16 @@
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
+<<<<<<< HEAD
+=======
+#ifdef _MSC_VER
+  #pragma warning(disable:4127)
+#endif
+>>>>>>> refs/remotes/origin/dev
 #include <Eigen/Sparse>
+#ifdef _MSC_VER
+  #pragma warning(default:4127)
+#endif
 
 typedef Eigen::Triplet<double> EigT;
 

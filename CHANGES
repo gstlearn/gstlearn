@@ -2,15 +2,20 @@ This file contains the logs between consecutive releases
 ********************************************************
 # Make last version consistent with CMakeLists.txt
 
-Release 1.0.1
+Release 1.1.0
 =============
-- Fix issue 88
+- New dependency: Eigen library for matrices (dense and sparse)
+- Fix issue 88, 98, 102, 101
+- Efficiency improvements (variography, moving neighborhood, kriging systems...)
 - Adding new tutorial (with widgets) to describe the calculation of experimental variograms and use of model for Cvv
 - Adding description of main classes (Db, Vario and daughter classes, Model and daughter classes).
 - Improve the Tutorial on widgets
 - Improve the Tutorial on Neighborhood to treat data along profiles
 - New extension package (for R only): io.R (interface with 'sf' and 'terra')
 - Improving the Tutorial_Model (building a Model by pieces)
+- Fix createFromCSV (accept all end-of-line conventions 'CR', 'LF', 'CRLF')
+- Fix input/output text file path creation under windows (input data CSV files)
+
 
 Release 1.0.0
 =============

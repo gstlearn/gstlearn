@@ -1,0 +1,31 @@
+name: install-eigen-windows
+description: "Install the Eigen3 headers under windows"
+author: 'Fabien Ors'
+
+inputs:
+  eigen-root:
+    description: 'Eigen installation directory'
+  eigen-version:
+    description: 'Eigen version to be installed'
+    default: "3.4.0"
+  generator:
+    description: 'Generator used to configure/install Eigen'
+    default: "Visual Studio 16 2019"
+    
+runs:
+  using: "composite"
+  steps:
+
+  - name : Download, uncompressed and install Eigen headers
+    shell: powershell
+    run: |
+      $EIGEN_URL="https://gitlab.com/libeigen/eigen/-/archive/${{inputs.eigen-version}}/eigen-${{inputs.eigen-version}}.zip"
+      mkdir ${{inputs.eigen-root}}
+      mkdir eigen_src
+      Invoke-WebRequest -Uri "$EIGEN_URL" -OutFile eigen_src/download.zip
+      7z -oeigen_src x eigen_src/download.zip -y -bd
+      cd eigen_src
+      cd eigen-*
+      cmake -Bbuild -G "${{inputs.generator}}" -DCMAKE_INSTALL_PREFIX="${{inputs.eigen-root}}" -DCMAKE_Fortran_COMPILER=""
+      cmake --build build --target install
+      cd "${{inputs.eigen-root}}"
