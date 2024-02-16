@@ -68,21 +68,21 @@ int main(int argc, char *argv[])
   //  1: Kriging
   //  2: non-conditional simulations
   //  3: conditional simulations
-  int mode = -1;
+  int mode = 2;
 
   int nfois = 2;
   // Feature to be tested:
   // -1: all cases
   //  0: not using the Cholesky option
   //  1: using the Cholesky option
-  int ifois_ref = -1;
+  int ifois_ref = 0;
 
   int ncov_tot = 2;
   // Feature to be tested:
   // -1: all the covariances
   //  0: only the case with one covariance
   //  1: only the case with two covariances
-  int ncov_ref = -1;
+  int ncov_ref = 0;
 
   bool verbose = false;
   bool showStats = false;

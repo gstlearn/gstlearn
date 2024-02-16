@@ -1411,18 +1411,35 @@ int getUpdateNonZeroValue()
   return cs_get_status_update_nonzero_value();
 }
 
-/****************************************************************************/
-/*!
- **  Creating the color coding for mesh nodes (in Eigen library)
- **
- ** \return  Error return code
- **
- ** \param[in] start    Starting value for colors ranking (usually 0 or 1)
- **
- *****************************************************************************/
-VectorInt MatrixSparse::_eigen_color_coding(int start)
+int MatrixSparse::_eigen_findColor(int imesh,
+                                   int ncolor,
+                                   VectorInt &colors,
+                                   VectorInt &temp)
 {
-  int ncolor = 0;
+  temp.fill(0);
+
+  /* Checks the colors of the connected nodes */
+
+  for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,imesh); it; ++it)
+  {
+    if (ABS(it.value()) < EPSILON10) continue;
+    int irow = it.row();
+    if (!IFFFF(colors[irow])) temp[colors[irow] - 1]++;
+  }
+
+  /* Look for a free color */
+
+  for (int j = 0; j < ncolor; j++)
+  {
+    if (temp[j] == 0) return (j + 1);
+  }
+  return (-1);
+}
+
+VectorInt MatrixSparse::colorCoding(int *ncolors, int istart)
+{
+  int next_col = 0;
+  int ncol = 0;
   int nmesh = getNCols();
 
   /* Core allocation */
@@ -1434,27 +1451,27 @@ VectorInt MatrixSparse::_eigen_color_coding(int start)
 
   for (int imesh = 0; imesh < nmesh; imesh++)
   {
-    temp.fill(0);
-    for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix,imesh); it; ++it)
+    if (isFlagEigen())
+      next_col = _eigen_findColor(imesh, ncol, colors, temp);
+    else
+      next_col = _cs_findColor(_csMatrix, imesh, ncol, colors, temp);
+
+    if (next_col < 0)
     {
-      if (ABS(it.value()) < EPSILON10) continue;
-      if (!IFFFF(colors[it.row()])) temp[colors[it.row()] - 1]++;
+      ncol++;
+      colors[imesh] = ncol;
     }
-    _updateColors(temp, colors, imesh, &ncolor);
+    else
+    {
+      colors[imesh] = next_col;
+    }
   }
 
   /* Update the colors ranking fixing the starting value */
 
-  VH::addConstant(colors, start-1);
+  VH::addConstant(colors, istart-1);
+  *ncolors = ncol;
   return colors;
-}
-
-VectorInt MatrixSparse::colorCoding(int start)
-{
-  if (isFlagEigen())
-    return _eigen_color_coding(start);
-  else
-    return cs_color_coding(_csMatrix, start);
 }
 
 /**

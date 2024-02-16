@@ -152,7 +152,7 @@ public:
   static VectorDouble simulateGaussian(int n = 1,
                                        double mean = 0.,
                                        double sigma = 1.);
-  static void simulateGaussianInPlace(VectorDouble &vect,
+  static void simulateGaussianInPlace(VectorDouble &vec,
                                       double mean = 0.,
                                       double sigma = 1.);
   static VectorInt sampleRanks(int ntotal,

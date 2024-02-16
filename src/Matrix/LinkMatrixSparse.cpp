@@ -266,65 +266,34 @@ static void st_selection_update(int ncur, double *sel, int *indCo)
   }
 }
 
-void _updateColors(const VectorInt &temp, VectorInt &colors, int imesh, int *ncolor)
+int _cs_findColor(const cs *Q,
+                  int imesh,
+                  int ncolor,
+                  VectorInt &colors,
+                  VectorInt &temp)
 {
-  bool found = false;
-  for (int k = 0; k < (*ncolor) && !found; k++)
-  {
-    if (temp[k] == 0)
-    {
-      colors[imesh] = k + 1;
-      found = true;
-    }
-  }
-  if (!found)
-  {
-    (*ncolor)++;
-    colors[imesh] = (*ncolor);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Creating the color coding for mesh nodes
- **
- ** \return  Error return code
- **
- ** \param[in] Q        Input sparse matrix (cs format)
- ** \param[in] start    Starting value for colors ranking (usually 0 or 1)
- **
- *****************************************************************************/
-VectorInt cs_color_coding(const cs *Q, int start)
-{
-  int ncolor = 0;
+  int i;
   int* Qp = Q->p;
   int* Qi = Q->i;
   double* Qx = Q->x;
-  int nmesh = cs_getncol(Q);
+  temp.fill(0);
 
-  /* Core allocation */
+  /* Checks the colors of the connected nodes */
 
-  VectorInt colors(nmesh, ITEST);
-  VectorInt temp(nmesh);
-
-  /* Loop on the nodes of the mesh */
-
-  for (int imesh = 0; imesh < nmesh; imesh++)
+  for (int p = Qp[imesh]; p < Qp[imesh + 1]; p++)
   {
-    temp.fill(0);
-    for (int p = Qp[imesh]; p < Qp[imesh + 1]; p++)
-    {
-      if (ABS(Qx[p]) <= 0.) continue;
-      int i = Qi[p];
-      if (!IFFFF(colors[i])) temp[colors[i] - 1]++;
-    }
-    _updateColors(temp, colors, imesh, &ncolor);
+    if (ABS(Qx[p]) <= 0.) continue;
+    i = Qi[p];
+    if (!IFFFF(colors[i])) temp[colors[i] - 1]++;
   }
 
-  /* Update the colors ranking fixing the starting value */
+  /* Look for a free color */
 
-  VH::addConstant(colors, start-1);
-  return colors;
+  for (int j = 0; j < ncolor; j++)
+  {
+    if (temp[j] == 0) return (j + 1);
+  }
+  return (-1);
 }
 
 /****************************************************************************/

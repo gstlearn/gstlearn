@@ -115,11 +115,11 @@ GSTLEARN_EXPORT cs     *cs_compress(cs *A);
 GSTLEARN_EXPORT void    cs_force_dimension(cs *T, int nrow, int ncol);
 GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag, double tol = EPSILON10);
 
-GSTLEARN_EXPORT VectorInt cs_color_coding(const cs *Q, int start);
-GSTLEARN_EXPORT void _updateColors(const VectorInt &temp,
-                                   VectorInt &colors,
-                                   int imesh,
-                                   int *ncolor);
+GSTLEARN_EXPORT int     _cs_findColor(const cs *Q,
+                                     int imesh,
+                                     int ncolor,
+                                     VectorInt &colors,
+                                     VectorInt &temp);
 
 GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(const cs *C, const VectorInt& colors,
                                                       int ref_color, int row_ok, int col_ok);

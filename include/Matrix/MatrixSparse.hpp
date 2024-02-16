@@ -186,7 +186,7 @@ public:
                                         int ref_color,
                                         bool row_ok,
                                         bool col_ok);
-  VectorInt colorCoding(int start = 0);
+  VectorInt colorCoding(int *ncolors, int istart = 0);
 
 protected:
   /// Interface for AMatrix
@@ -219,7 +219,10 @@ protected:
 
 private:
   void _forbiddenForSparse(const String& func) const;
-  VectorInt _eigen_color_coding(int start);
+  int _eigen_findColor(int imesh,
+                       int ncolor,
+                       VectorInt &colors,
+                       VectorInt &temp);
 
 private:
   cs*  _csMatrix; // Classical storage for Sparse matrix

@@ -806,21 +806,27 @@ VectorDouble VectorHelper::sequence(double valFrom,
 VectorDouble VectorHelper::simulateUniform(int n, double mini, double maxi)
 {
   VectorDouble vec(n);
-  for (int i = 0; i < n; i++)
-    vec[i] = law_uniform(mini, maxi);
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = law_uniform(mini, maxi);
+    it++;
+  }
   return vec;
 }
 
 VectorDouble VectorHelper::simulateBernoulli(int n, double proba, double vone, double velse)
 {
   VectorDouble vec(n);
-  for (int i = 0; i < n; i++)
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
   {
     double rand = law_uniform(0., 1.);
     if (rand < proba)
-      vec[i] = vone;
+      *it= vone;
     else
-      vec[i] = velse;
+      *it = velse;
+    it++;
   }
   return vec;
 }
@@ -832,13 +838,16 @@ VectorDouble VectorHelper::simulateGaussian(int n, double mean, double sigma)
   return vec;
 }
 
-void VectorHelper::simulateGaussianInPlace(VectorDouble &vect,
+void VectorHelper::simulateGaussianInPlace(VectorDouble &vec,
                                            double mean,
                                            double sigma)
 {
-  int n = (int) vect.size();
-  for (int i = 0; i < n; i++)
-    vect[i] = mean + sigma * law_gaussian();
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it= mean + sigma * law_gaussian();
+    it++;
+  }
 }
 
 VectorDouble VectorHelper::concatenate(const VectorDouble &veca,

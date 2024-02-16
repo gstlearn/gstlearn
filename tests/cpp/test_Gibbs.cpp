@@ -14,6 +14,8 @@
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ESpaceType.hpp"
 
+#include "Mesh/MeshETurbo.hpp"
+#include "Matrix/MatrixSparse.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
@@ -26,6 +28,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
+#include "LinearOp/PrecisionOpCs.hpp"
 
 /*****************************************************************************/
 /*!
@@ -218,9 +221,6 @@ static int st_gibbs(int  niter,
                     double *krig,
                     double *zred)
 {
-  double valmin,valmax;
-  int nc,i,ic;
-  
   mestitle(1,"Entering in Gibbs algorithm with niter=%d and ncolor=%d",
            niter,ncolor);
 
@@ -229,14 +229,14 @@ static int st_gibbs(int  niter,
     if (iter % 1000 == 0) message("Iteration %d\n",iter);
     for (int icol=0; icol<ncolor; icol++)
     {
-      nc = st_vector_compress(nvertex,icol,z,colors,ind,zred);
-      Qcols[icol]->prodVecMatInPlacePtr(zred,krig, false);
+      int nc = st_vector_compress(nvertex,icol,z,colors,ind,zred);
+      Qcols[icol]->prodVecMatInPlacePtr(zred, krig, false);
 
-      for (ic=0; ic<nc; ic++)
+      for (int ic=0; ic<nc; ic++)
       {
-        i      = ind[ic];
-        valmin = (consmin != (double *) NULL) ? consmin[i] : -10.;
-        valmax = (consmax != (double *) NULL) ? consmax[i] : +10.;
+        int i  = ind[ic];
+        double valmin = (consmin != (double *) NULL) ? consmin[i] : -10.;
+        double valmax = (consmax != (double *) NULL) ? consmax[i] : +10.;
         z[i]   = st_simcond(iter,niter,valmin,valmax,krig[ic],sigma[i]);
       }
     }
@@ -255,7 +255,6 @@ int main(int argc, char *argv[])
   DbGrid       *dbgrid;
   Model        *model1,*model2;
   SPDE_Option   s_option;
-  MatrixSparse* Q = nullptr;
   MatrixSparse** Qcols = nullptr;
   SPDE_Matelem  Matelem;
   VectorInt     colors;
@@ -274,7 +273,6 @@ int main(int argc, char *argv[])
   int    niter      = 10000;
   int    flag_print =     0;
   bool   flag_save  =  true;
-  const char triswitch[] = "nqQ";
   int     verbose, seed, ndim, nvertex, ncolor;
   int    *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax;
@@ -312,7 +310,7 @@ int main(int argc, char *argv[])
   OptCst::define(ECst::NTCAR,10.);
   OptCst::define(ECst::NTDEC,6.);
   
-  setGlobalFlagEigen(false);
+  setGlobalFlagEigen(true);
 
   // 2-D grid output file
 
@@ -329,21 +327,25 @@ int main(int argc, char *argv[])
 
   // Creating the meshing for extracting Q
 
-  s_option = spde_option_alloc();
-  spde_option_update(s_option,triswitch);
-  if (spde_check(NULL,dbgrid,model1,NULL,verbose,VectorDouble(),
-                 true, true, false, false, false, false, false)) goto label_end;
-  if (spde_prepar(NULL,dbgrid,VectorDouble(),s_option)) goto label_end;
+  MeshETurbo mesh(dbgrid);
+  auto P = PrecisionOpCs(&mesh, model1);
+  MatrixSparse* Q = P.getQ();
+  nvertex = mesh.getNApices();
 
-  Matelem = spde_get_current_matelem(0);
-  Q = Matelem.QC->Q;
-  if (Q == nullptr) goto label_end;
-  nvertex = Matelem.amesh->getNApices();
+//  s_option = spde_option_alloc();
+//  spde_option_update(s_option,triswitch);
+//  if (spde_check(NULL,dbgrid,model1,NULL,verbose,VectorDouble(),
+//                 true, true, false, false, false, false, false)) goto label_end;
+//  if (spde_prepar(NULL,dbgrid,VectorDouble(),s_option)) goto label_end;
+//
+//  Matelem = spde_get_current_matelem(0);
+//  Q = Matelem.QC->Q;
+//  if (Q == nullptr) goto label_end;
+//  nvertex = Matelem.amesh->getNApices();
 
   // Create the color coding 
 
-  colors = Q->colorCoding();
-  ncolor = (int) colors.size();
+  colors = Q->colorCoding(&ncolor);
 
   // Core allocation
   
