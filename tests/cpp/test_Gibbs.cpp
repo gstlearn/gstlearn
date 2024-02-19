@@ -14,6 +14,9 @@
 #include "Enum/ELoadBy.hpp"
 #include "Enum/ESpaceType.hpp"
 
+#include "API/SPDE.hpp"
+#include "API/SPDEParam.hpp"
+
 #include "Mesh/MeshETurbo.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Basic/Law.hpp"
@@ -36,36 +39,37 @@
 **
 ** \return Error returned code
 **
+** \param[in]  colors   Array giving the color
 ** \param[in]  consmin  Array giving the minimum bounds per pixel (optional)
 ** \param[in]  consmax  Array giving the maximum bounds per pixel (optional)
 ** \param[in]  z        Array giving the simulated field
 **
 *****************************************************************************/
 static int st_save(Db    *dbgrid,
-                   double *consmin,
-                   double *consmax,
-                   double *z)
+                   const VectorInt&    colors,
+                   const VectorDouble& consmin,
+                   const VectorDouble& consmax,
+                   const VectorDouble& z)
 {
-  int nech,iptr;
-
-  /* Initializations */
-  
-  nech = dbgrid->getSampleNumber();
+  int iptr;
+  int nech = dbgrid->getSampleNumber();
 
   /* Add the terms to 'dbgrid' */
   
-  if (db_locator_attribute_add(dbgrid,ELoc::Z,1,0,0.,&iptr)) return(1);
-  for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,z[i]);
-  if (consmin != (double *) NULL)
+  if (! consmin.empty())
   {
     if (db_locator_attribute_add(dbgrid,ELoc::L,1,0,0.,&iptr)) return(1);
     for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,consmin[i]);
   }
-  if (consmax != (double *) NULL)
+  if (! consmax.empty())
   {
     if (db_locator_attribute_add(dbgrid,ELoc::U,1,0,0.,&iptr)) return(1);
     for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,consmax[i]);
   }
+  iptr = dbgrid->addColumnsByConstant(1,0., "Color");
+  for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,colors[i]);
+  if (db_locator_attribute_add(dbgrid,ELoc::Z,1,0,0.,&iptr)) return(1);
+  for (int i=0; i<nech; i++) dbgrid->setArray(i,iptr,z[i]);
 
   /* Save the resulting 'dbgrid' in a neutral file */
 
@@ -85,18 +89,18 @@ static int st_save(Db    *dbgrid,
 **
 *****************************************************************************/
 static void st_print_all(const VectorInt& colors,
-                         double *consmin,
-                         double *consmax,
-                         double *sigma,
-                         const cs *Q)
+                         const VectorDouble& consmin,
+                         const VectorDouble& consmax,
+                         const VectorDouble& sigma,
+                         MatrixSparse *Q)
 {
-  if (consmin != (double *) NULL)
-    print_matrix ("consmin",0,0,1,10,NULL,consmin);
-  if (consmax != (double *) NULL)
-    print_matrix ("consmax",0,0,1,10,NULL,consmax);
-  print_matrix ("sigma"  ,0,0,1,10,NULL,sigma);
+  if (! consmin.empty())
+    print_matrix ("consmin",0,0,1,10,NULL,consmin.data());
+  if (! consmax.empty())
+    print_matrix ("consmax",0,0,1,10,NULL,consmax.data());
+  print_matrix ("sigma"  ,0,0,1,10,NULL,sigma.data());
   print_imatrix("colors" ,0,0,1,10,NULL,colors.data());
-  cs_print_nice("Q",Q,10,10);
+  Q->display();
 }
 
 /*****************************************************************************/
@@ -115,24 +119,22 @@ static void st_print_all(const VectorInt& colors,
 ** \param[out]  zred    Array of output values retained
 **
 *****************************************************************************/
-static int st_vector_compress(int     nvertex,
-                              int     colref,
-                              double *z,
-                              const VectorInt& colors,
-                              int    *ind,
-                              double *zred)
+static void st_vector_compress(int nvertex,
+                               int colref,
+                               const VectorDouble &z,
+                               const VectorInt &colors,
+                               VectorInt &ind,
+                               VectorDouble &zred)
 {
-  int up,nup;
-  
-  up = nup = 0;
+  ind.clear();
+  zred.clear();
   for (int i=0; i<nvertex; i++)
   {
     if (colors[i] != colref) 
-      zred[nup++] = z[i];
+      zred.push_back(z[i]);
     else
-      ind[up++] = i;
+      ind.push_back(i);
   }
-  return(up);
 }
   
 /*****************************************************************************/
@@ -192,19 +194,18 @@ static double st_simcond(int    iter,
 ** \param[in]  ncolor   Total number of different colors (in 'colors')
 ** \param[in]  nvertex  Dimension of the arrays 'z', 'colors', 'cons', 'sigma'
 ** \param[in]  colors   Array giving the colors per pixel
+** \param[in]  colref   Array giving the unique colors
 ** \param[in]  Qcols    Array of 'cs' structures (sparse matrices per color)
 ** \param[in]  consmin  Array giving the minimum bounds per pixel (optional)
 ** \param[in]  consmax  Array giving the maximum bounds per pixel (optional)
 ** \param[in]  sigma    Array giving the st. dev. per pixel
 **
 ** \param[in/out] z     Array of gaussian values simulated
-** \param[out] ind      Working array
 ** \param[out] krig     Working array
-** \param[out] zred     Working array
 **
-** \remarks Arrays 'colors' and 'ind' are integer 
+** \remarks Arrays 'colors' is integer
 ** \remarks        (Dimension 'nvertex')
-** \remarks Arrays 'cons', 'sigma', 'z', 'krig' and 'zred' are double precision
+** \remarks Arrays 'cons', 'sigma', 'z', 'krig' are double precision
 ** \remarks        (Dimension 'nvertex')
 **
 *****************************************************************************/
@@ -212,32 +213,32 @@ static int st_gibbs(int  niter,
                     int  ncolor,
                     int  nvertex,
                     const VectorInt& colors,
+                    const VectorInt& colref,
                     MatrixSparse **Qcols,
-                    double *consmin,
-                    double *consmax,
-                    double *sigma,
-                    double *z,
-                    int    *ind,
-                    double *krig,
-                    double *zred)
+                    const VectorDouble& consmin,
+                    const VectorDouble& consmax,
+                    const VectorDouble& sigma,
+                    VectorDouble& z,
+                    VectorDouble& krig)
 {
-  mestitle(1,"Entering in Gibbs algorithm with niter=%d and ncolor=%d",
-           niter,ncolor);
+  mestitle(1,"Entering in Gibbs algorithm with niter=%d and ncolor=%d",niter,ncolor);
+  VectorInt ind;
+  VectorDouble zred;
 
   for (int iter=0; iter<niter; iter++)
   {
     if (iter % 1000 == 0) message("Iteration %d\n",iter);
     for (int icol=0; icol<ncolor; icol++)
     {
-      int nc = st_vector_compress(nvertex,icol,z,colors,ind,zred);
-      Qcols[icol]->prodVecMatInPlacePtr(zred, krig, false);
+      st_vector_compress(nvertex,colref[icol],z,colors,ind,zred);
+      Qcols[icol]->prodVecMatInPlacePtr(zred.data(), krig.data(), false);
 
-      for (int ic=0; ic<nc; ic++)
+      for (int ic=0, nc = (int) ind.size(); ic<nc; ic++)
       {
         int i  = ind[ic];
-        double valmin = (consmin != (double *) NULL) ? consmin[i] : -10.;
-        double valmax = (consmax != (double *) NULL) ? consmax[i] : +10.;
-        z[i]   = st_simcond(iter,niter,valmin,valmax,krig[ic],sigma[i]);
+        double valmin = (! consmin.empty()) ? consmin[i] : -10.;
+        double valmax = (! consmax.empty()) ? consmax[i] : +10.;
+        z[i] = st_simcond(iter, niter, valmin, valmax, krig[ic], sigma[i]);
       }
     }
   }
@@ -252,32 +253,9 @@ static int st_gibbs(int  niter,
 int main(int argc, char *argv[])
 
 {
-  DbGrid       *dbgrid;
-  Model        *model1,*model2;
-  SPDE_Option   s_option;
-  MatrixSparse** Qcols = nullptr;
-  SPDE_Matelem  Matelem;
-  VectorInt     colors;
-
-  double range_spde =   30.;
-  double param_spde =    1.;
-  double sill_spde  =    1.;
-  double range_cons =   50.;
-  double param_cons =    2.;
-  double sill_cons  =    1.;
-
-  VectorInt nx = { 100, 100 };
-  VectorDouble x0 = { 0., 0. };
-  VectorDouble dx = { 1., 1. };
-
-  int    niter      = 10000;
-  int    flag_print =     0;
+  bool   flag_print =  false;
   bool   flag_save  =  true;
-  int     verbose, seed, ndim, nvertex, ncolor;
-  int    *ind, rank;
-  double *z, *krig, *zred, *consmin, *consmax;
-  VectorDouble sigma;
-  
+
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
@@ -285,20 +263,7 @@ int main(int argc, char *argv[])
   /***********************/
   /* 1 - Initializations */
   /***********************/
-
-  dbgrid   = (DbGrid      *) NULL;
-  model1   = (Model       *) NULL;
-  model2   = (Model       *) NULL;
-  ind      = (int         *) NULL;
-  z        = (double      *) NULL;
-  krig     = (double      *) NULL;
-  zred     = (double      *) NULL;
-  consmin  = (double      *) NULL;
-  consmax  = (double      *) NULL;
-  verbose  = ncolor = 0;
-  seed     = 31415;
-  ndim     = 2;
-
+  int ndim     = 2;
   defineDefaultSpace(ESpaceType::RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
@@ -306,7 +271,6 @@ int main(int argc, char *argv[])
   // Setup constants
 
   OptDbg::reset();
-  law_set_random_seed(seed);
   OptCst::define(ECst::NTCAR,10.);
   OptCst::define(ECst::NTDEC,6.);
   
@@ -314,61 +278,56 @@ int main(int argc, char *argv[])
 
   // 2-D grid output file
 
-  dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
-                          VectorDouble(), VectorString(), VectorString(), 1);
+  VectorInt nx = { 100, 100 };
+  VectorDouble x0 = { 0., 0. };
+  VectorDouble dx = { 1., 1. };
+  DbGrid *dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
+                                  VectorDouble(), VectorString(), VectorString(), 1);
     
   // Model for SPDE
 
-  model1 = Model::createFromParam(ECov::BESSEL_K,range_spde,sill_spde,param_spde);
+  double range_spde =   30.;
+  double param_spde =    1.;
+  double sill_spde  =    1.;
+  Model* model1 = Model::createFromParam(ECov::BESSEL_K,range_spde,sill_spde,param_spde);
 
   // Model for constraints
 
-  model2 = Model::createFromParam(ECov::BESSEL_K,range_cons,sill_cons,param_cons);
+  double range_cons =   50.;
+  double param_cons =    2.;
+  double sill_cons  =    1.;
+  Model* model2 = Model::createFromParam(ECov::BESSEL_K,range_cons,sill_cons,param_cons);
 
   // Creating the meshing for extracting Q
 
   MeshETurbo mesh(dbgrid);
   auto P = PrecisionOpCs(&mesh, model1);
   MatrixSparse* Q = P.getQ();
-  nvertex = mesh.getNApices();
+  int nvertex = mesh.getNApices();
 
-//  s_option = spde_option_alloc();
-//  spde_option_update(s_option,triswitch);
-//  if (spde_check(NULL,dbgrid,model1,NULL,verbose,VectorDouble(),
-//                 true, true, false, false, false, false, false)) goto label_end;
-//  if (spde_prepar(NULL,dbgrid,VectorDouble(),s_option)) goto label_end;
-//
-//  Matelem = spde_get_current_matelem(0);
-//  Q = Matelem.QC->Q;
-//  if (Q == nullptr) goto label_end;
-//  nvertex = Matelem.amesh->getNApices();
+  // Coding the various colors
 
-  // Create the color coding 
-
-  colors = Q->colorCoding(&ncolor);
+  VectorInt colors = Q->colorCoding();
+  VectorInt colref = VH::unique(colors);
+  int ncolor = (int) colref.size();
 
   // Core allocation
   
-  ind     = (int    *) mem_alloc(sizeof(int)    * nvertex,0);
-  if (ind     == (int    *) NULL) goto label_end;
-  z       = (double *) mem_alloc(sizeof(double) * nvertex,0);
-  if (z       == (double *) NULL) goto label_end;
-  krig    = (double *) mem_alloc(sizeof(double) * nvertex,0);
-  if (krig    == (double *) NULL) goto label_end;
-  zred    = (double *) mem_alloc(sizeof(double) * nvertex,0);
-  if (zred    == (double *) NULL) goto label_end;
-  consmin = (double *) mem_alloc(sizeof(double) * nvertex,0);
-  if (consmin == (double *) NULL) goto label_end;
-  consmax = (double *) mem_alloc(sizeof(double) * nvertex,0);
-  if (consmax == (double *) NULL) goto label_end;
+  VectorDouble z(nvertex,0);
+  VectorDouble krig(nvertex,0);
+  VectorDouble consmin(nvertex,0);
+  VectorDouble consmax(nvertex,0);
 
   // Creating the constraints
 
-  if (spde_check(NULL,dbgrid,model2,NULL,verbose,VectorDouble(),
-                 true, true, true, false, false, false, false)) goto label_end;
-  if (spde_f(NULL, dbgrid, model2, VectorDouble(), s_option, 1, 1, seed, 2, 0,
-             0, 0, 0, 0, 0, 0, 0)) goto label_end;
-  rank  = dbgrid->getColumnNumber();
+  bool verbose = false;
+  int seed = 31415;
+  int nsimu = 2;
+  int useCholesky = 1;
+  (void) simulateSPDE(NULL, dbgrid, model2, nsimu, NULL, useCholesky,
+                      SPDEParam(), seed, verbose);
+
+  int rank = dbgrid->getColumnNumber();
   for (int i=0; i<nvertex; i++)
   {
     consmin[i] = MIN(dbgrid->getArray(i,rank-1), dbgrid->getArray(i,rank-2));
@@ -378,51 +337,42 @@ int main(int argc, char *argv[])
   
   // Creating the variance
   
-  sigma = Q->getDiagonal(0);
+  VectorDouble sigma = Q->getDiagonal(0);
   VH::transformVD(sigma, -3);
 
   // Scaling the Q matrix
   
-  if (Q->scaleByDiag()) goto label_end;
+  (void) Q->scaleByDiag();
 
   // Check the imported information
 
-  if (flag_print) st_print_all(colors,consmin,consmax,sigma.data(),Q->getCS());
+  if (flag_print) st_print_all(colors,consmin,consmax,sigma,Q);
 
   //----------------//
   // Main Algorithm //
   //----------------//
 
-  Qcols = (MatrixSparse **) mem_alloc(sizeof(MatrixSparse *) * ncolor,1);
+  MatrixSparse** Qcols = (MatrixSparse **) mem_alloc(sizeof(MatrixSparse *) * ncolor,1);
   for (int icol=0; icol<ncolor; icol++)
-  {
-    Qcols[icol] = Q->extractSubmatrixByColor(colors, icol, true, false);
-    if (Qcols[icol] == nullptr) goto label_end;
-  }
+    Qcols[icol] = Q->extractSubmatrixByColor(colors, colref[icol], true, false);
 
   // Perform the Gibbs sampler
-  if (st_gibbs(niter,ncolor,nvertex,colors,Qcols,consmin,consmax,sigma.data(),
-               z,ind,krig,zred)) goto label_end;
+  int niter = 10000;
+  (void) st_gibbs(niter, ncolor, nvertex, colors, colref, Qcols, consmin, consmax,
+                  sigma, z, krig);
 
   // Add the newly created field to the grid for printout
   if (flag_save)
   {
-    if (st_save(dbgrid,consmin,consmax,z)) goto label_end;
+    (void) st_save(dbgrid,colors,consmin,consmax,z);
     DbStringFormat dbfmt(FLAG_STATS);
     dbgrid->display(&dbfmt);
   }
   
-label_end:
   for (int icol=0; icol<ncolor; icol++)
     delete Qcols[icol];
   delete dbgrid;
   delete model1;
   delete model2;
-  ind      = (int    *) mem_free((char *) ind);
-  z        = (double *) mem_free((char *) z);
-  krig     = (double *) mem_free((char *) krig);
-  zred     = (double *) mem_free((char *) zred);
-  consmin  = (double *) mem_free((char *) consmin);
-  consmax  = (double *) mem_free((char *) consmax);
   return(0);
 }

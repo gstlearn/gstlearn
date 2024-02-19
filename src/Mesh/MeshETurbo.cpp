@@ -12,6 +12,7 @@
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -474,16 +475,13 @@ bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
     if (_addWeights(icas, indg0, coor, indices, lambda, verbose) == 0)
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
-      {
-        tripletAdd(NF_T, iech, indices[icorner], lambda[icorner]);
-      }
+        NF_T.add(iech, indices[icorner], lambda[icorner]);
       return true;
     }
   }
   return false;
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -511,7 +509,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   // Core allocation
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
 
   /* Optional title */
 
@@ -582,7 +580,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   /* Add the extreme value to force dimension */
 
-  tripletForce(NF_T, nvalid, getNApices());
+  NF_T.force(nvalid, getNApices());
 
   /* Convert the triplet into a sparse matrix */
 
@@ -596,7 +594,7 @@ MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) con
 
   return(A);
 }
-#endif
+
 /****************************************************************************/
 /*!
 ** Print the contents of the meshing

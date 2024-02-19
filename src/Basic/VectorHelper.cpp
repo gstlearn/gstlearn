@@ -1331,9 +1331,9 @@ VectorInt VectorHelper::unique(const VectorInt& vecin, int size)
 
   VectorInt vecout = vecin;
   vecout.resize(size);
-  std::vector<int>::iterator it;
-  it = std::unique(vecout.begin(), vecout.begin());
-  vecout.resize(distance(vecout.begin(),it));
+  std::sort(vecout.begin(), vecout.end());
+  auto last = std::unique(vecout.begin(), vecout.end());
+  vecout.erase(last, vecout.end());
   return vecout;
 }
 
@@ -1343,9 +1343,9 @@ VectorDouble VectorHelper::unique(const VectorDouble& vecin, int size)
 
   VectorDouble vecout = vecin;
   vecout.resize(size);
-  std::vector<double>::iterator it;
-  it = std::unique(vecout.begin(), vecout.end());
-  vecout.resize(distance(vecout.begin(),it));
+  std::sort(vecout.begin(), vecout.end());
+  auto last = std::unique(vecout.begin(), vecout.end());
+  vecout.erase(last, vecout.end());
   return vecout;
 }
 

@@ -18,6 +18,7 @@
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -2658,7 +2659,6 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   double value;
   Model *model;
   MatrixSparse **BheteroD, **BheteroT;
-  NF_Triplet Btriplet;
   AMesh *amesh;
 
   /* Initializations */
@@ -2709,17 +2709,17 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    Btriplet = tripletInit(0);
+    NF_Triplet Btriplet;
     for (int i = 0; i < nvertex; i++)
     {
       if (ranks[i] <= 0) continue; // Target or Steiner
       ndata1[ivar]++;
       iech = ranks[i] - 1;
       value = (FFFF(dbin->getLocVariable(ELoc::Z,iech, ivar))) ? 0. : 1.;
-      tripletAdd(Btriplet, iech, i, value);
+      Btriplet.add(iech, i, value);
     }
     // Add a fictitious sample (zero value) as a dimension constraint
-    tripletForce(Btriplet, ndata1[ivar], nvertex);
+    Btriplet.force(ndata1[ivar], nvertex);
     BheteroD[ivar] = MatrixSparse::createFromTriplet(Btriplet);
   }
 
@@ -2737,8 +2737,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    Btriplet = tripletInit(0);
-
+    NF_Triplet Btriplet;
     ecrT = 0;
     for (int i = 0; i < nvertex; i++)
     {
@@ -2762,12 +2761,12 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       }
       if (!flag_add) continue;
       ntarget1[ivar]++;
-      tripletAdd(Btriplet, ecrT, i, 1.);
+      Btriplet.add(ecrT, i, 1.);
       ecrT++;
     }
 
     // Add a fictitious sample (zero value) as a dimension constraint
-    tripletForce(Btriplet, ntarget1[ivar], nvertex);
+    Btriplet.force(ntarget1[ivar], nvertex);
     BheteroT[ivar] = MatrixSparse::createFromTriplet(Btriplet);
   }
 
@@ -2930,7 +2929,6 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
   int ecr, errcod, error, ndim, ncorner, flag_nostat;
   bool flag_sphere;
   long ip1, ip2;
-  NF_Triplet Gtriplet;
   MatrixSparse *G = nullptr;
   std::map<std::pair<int, int>, double> tab;
   std::pair<std::map<std::pair<int, int>, double>::iterator, bool> ret;
@@ -2941,7 +2939,7 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
   error = 1;
   ndim = amesh->getNDim();
   ncorner = amesh->getNApexPerMesh();
-  Gtriplet = tripletInit(0);
+  NF_Triplet Gtriplet;
   model = st_get_model();
   flag_sphere = isDefaultSpaceSphere();
   flag_nostat = model->isNoStat();
@@ -3047,7 +3045,7 @@ MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units)
   {
     ip1 = it->first.first;
     ip2 = it->first.second;
-    tripletAdd(Gtriplet, ip1, ip2, it->second);
+    Gtriplet.add(ip1, ip2, it->second);
     it++;
   }
 
@@ -6075,131 +6073,6 @@ int kriging2D_spde(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Perform Estimation / Simulations using SPDE
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin          Db input structure
- ** \param[in]  dbout         Db output structure
- ** \param[in]  model         Model structure
- ** \param[in]  gext          Array of domain dilation
- ** \param[in]  s_option      SPDE_Option structure
- ** \param[in]  mesh_dbin     1 if Data Samples belong to meshing vertices
- ** \param[in]  mesh_dbout    1 if Target Nodes belong to meshing vertices
- ** \param[in]  seed          Seed value for the random number generator
- ** \param[in]  nbsimu        Number of simulations
- ** \param[in]  ngibbs_burn   Number of iterations (Burning step)
- ** \param[in]  ngibbs_iter   Maximum number of iterations
- ** \param[in]  ngibbs_int    Number of iterations internal to Gibbs (SPDE)
- ** \param[in]  flag_est      1 for estimation
- ** \param[in]  flag_std      1 for standard deviation
- ** \param[in]  flag_gibbs    1 if the iterative Gibbs method must be used
- ** \param[in]  flag_modif    1 if the simulations must be transformed
- ** \param[in]  verbose       1 for a verbose processing
- **
- ** \remarks  If the number of simulations 'nbsimu' is set to 0,
- ** \remarks  the simulation algorithm is turned into a kriging one
- **
- *****************************************************************************/
-int spde_f(Db *dbin,
-           Db *dbout,
-           Model *model,
-           const VectorDouble &gext,
-           SPDE_Option &s_option,
-           int mesh_dbin,
-           int mesh_dbout,
-           int seed,
-           int nbsimu,
-           int ngibbs_burn,
-           int ngibbs_iter,
-           int ngibbs_int,
-           int flag_est,
-           int flag_std,
-           int flag_gibbs,
-           int flag_modif,
-           int verbose)
-{
-  DECLARE_UNUSED(verbose);
-  DECLARE_UNUSED(flag_modif);
-  DECLARE_UNUSED(flag_gibbs);
-  DECLARE_UNUSED(flag_std);
-  DECLARE_UNUSED(flag_est);
-  DECLARE_UNUSED(mesh_dbout);
-  DECLARE_UNUSED(mesh_dbin);
-  DECLARE_UNUSED(model);
-  int error, iad, nvar, nv_krige;
-
-  /* Initializations */
-
-  error = 1;
-
-//  if (spde_check(dbin, dbout, model, NULL, verbose, gext, mesh_dbin, mesh_dbout,
-//                 true, flag_est, flag_std, flag_gibbs, flag_modif)) return (1);
-  simu_define_func_transf(NULL);
-  simu_define_func_update(simu_func_continuous_update);
-  simu_define_func_scale(simu_func_continuous_scale);
-  nvar = S_ENV.nvar;
-
-  /* Preliminary checks */
-
-  nv_krige = 0;
-  if (S_DECIDE.flag_case == CASE_KRIGING)
-  {
-    if (S_DECIDE.flag_est) nv_krige += nvar;
-    if (S_DECIDE.flag_std) nv_krige += nvar;
-  }
-
-  /* Initial assignments */
-
-  law_set_random_seed(seed);
-  if (S_DECIDE.flag_est || S_DECIDE.flag_std) nbsimu = 0;
-
-  /* Add the attributes */
-
-  if (S_DECIDE.flag_case == CASE_SIMULATE)
-  {
-    if (!S_DECIDE.flag_modif)
-    {
-      if (db_locator_attribute_add(dbout, ELoc::SIMU, MAX(1,nbsimu) * nvar, 0,
-                                   0., &iad)) goto label_end;
-    }
-    else
-    {
-      if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar, 0, 0., &iad))
-        goto label_end;
-      if (db_locator_attribute_add(dbout, ELoc::Z, 2 * nvar, 0, 0., &iad))
-        goto label_end;
-    }
-  }
-  else
-  {
-    if (db_locator_attribute_add(dbout, ELoc::Z, nv_krige, 0, 0., &iad))
-      goto label_end;
-  }
-
-  /* Prepare all the material */
-
-  if (spde_prepar(dbin, dbout, gext, s_option)) goto label_end;
-
-  /* Perform the simulation */
-
-  if (spde_process(dbin, dbout, s_option, nbsimu, ngibbs_burn, ngibbs_iter,
-                   ngibbs_int)) goto label_end;
-
-  /* Garbage collector */
-
-  spde_posterior();
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (S_DECIDE.flag_modif) dbout->deleteColumnsByLocator(ELoc::SIMU);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
  **  Perform the product of x by Q using the blin decomposition
  **
  ** \param[in]  blin      Array of coefficients for Linear combinaison
@@ -7900,7 +7773,6 @@ MatrixSparse* db_mesh_neigh(const Db *db,
 {
   double total;
   int error, ncorner, ip, ndimd, ndimv, ndim, jech, jech_max, ip_max, nech, nactive;
-  NF_Triplet Atriplet;
   MatrixSparse *A = nullptr;
   VectorDouble caux;
 
@@ -7913,15 +7785,12 @@ MatrixSparse* db_mesh_neigh(const Db *db,
   ncorner = amesh->getNApexPerMesh();
   nech = db->getSampleNumber();
   bool flag_sphere = isDefaultSpaceSphere();
+  NF_Triplet Atriplet;
   if (flag_sphere)
   {
     messerr("The function 'db_mesh_neigh' is not programmed on sphere");
     goto label_end;
   }
-
-  /* Create the Triplet container */
-
-  Atriplet = tripletInit(0);
 
   /* Core allocation */
 
@@ -8004,7 +7873,7 @@ MatrixSparse* db_mesh_neigh(const Db *db,
     {
       if (pts[ip] <= 0) continue;
       if (ip > ip_max) ip_max = ip;
-      tripletAdd(Atriplet, jech, ip, 1./total);
+      Atriplet.add(jech, ip, 1./total);
     }
     ranks[jech] = iech;
     if (jech > jech_max) jech_max = jech;
@@ -8014,7 +7883,7 @@ MatrixSparse* db_mesh_neigh(const Db *db,
   /* Add the extreme value to force dimension */
 
   if (ip_max < amesh->getNApices() - 1)
-    tripletForce(Atriplet, jech_max, amesh->getNApices());
+    Atriplet.force(jech_max, amesh->getNApices());
 
   /* Core reallocation */
 

@@ -15,6 +15,7 @@
 #include "LinearOp/ProjMatrix.hpp"
 
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
@@ -346,7 +347,7 @@ int ProjConvolution::getPointNumber() const
   return VH::product(nxs);
 }
 
-NF_Triplet ProjConvolution::getAProjHorizToTriplet(bool flag_from_1) const
+NF_Triplet ProjConvolution::getAProjHorizToTriplet() const
 {
-  return _AProjHoriz->getMatrixToTriplets(flag_from_1);
+  return _AProjHoriz->getMatrixToTriplet();
 }

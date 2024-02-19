@@ -14,6 +14,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
@@ -506,17 +507,17 @@ MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
   return _SGrad[iad];
 }
 
-NF_Triplet ShiftOpCs::getSToTriplet(bool flag_from_1) const
+NF_Triplet ShiftOpCs::getSToTriplet() const
 {
-  return csToTriplet(getS()->getCS(), flag_from_1);
+  return csToTriplet(getS()->getCS());
 }
-NF_Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam, bool flag_from_1) const
+NF_Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam) const
 {
-  return csToTriplet(getTildeCGrad(iapex, igparam)->getCS(), flag_from_1);
+  return csToTriplet(getTildeCGrad(iapex, igparam)->getCS());
 }
-NF_Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam, bool flag_from_1) const
+NF_Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam) const
 {
-  return csToTriplet(getSGrad(iapex, igparam)->getCS(), flag_from_1);
+  return csToTriplet(getSGrad(iapex, igparam)->getCS());
 }
 
 /**
@@ -815,21 +816,21 @@ MatrixSparse* ShiftOpCs::_BuildTildeCGradfromMap(std::map< int, double> &tab) co
 {
   std::map<int, double>::iterator it;
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
   int ip1_max = -1;
 
   it = tab.begin();
   while (it != tab.end())
   {
     int ip1 = it->first;
-    tripletAdd(NF_T, ip1, ip1, it->second);
+    NF_T.add(ip1, ip1, it->second);
     if (ip1 > ip1_max) ip1_max = ip1;
     it++;
   }
 
   // Add the fictitious value at maximum sparse matrix dimension
 
-  tripletForce(NF_T, getSize(), getSize());
+  NF_T.force(getSize(), getSize());
 
   /* Optional printout */
 
@@ -1045,13 +1046,13 @@ MatrixSparse* ShiftOpCs::_prepareSparse(const AMesh *amesh) const
   int ncorner = amesh->getNApexPerMesh();
 
   // Define Sl as the sparse matrix giving the clutter of apices among vertices
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
   for (int imesh = 0; imesh < nmeshes; imesh++)
   {
     for (int ic = 0; ic < ncorner; ic++)
     {
       int iapex = amesh->getApex(imesh, ic);
-      tripletAdd(NF_T, iapex, imesh, 1.);
+      NF_T.add(iapex, imesh, 1.);
     }
   }
   Sl = MatrixSparse::createFromTriplet(NF_T);
@@ -1555,7 +1556,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
   int ip0_max = -1;
   int ip1_max = -1;
 
@@ -1564,7 +1565,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
   {
     int ip0 = it->first.first;
     int ip1 = it->first.second;
-    tripletAdd(NF_T, ip0, ip1, it->second);
+    NF_T.add(ip0, ip1, it->second);
     if (ip0 > ip0_max) ip0_max = ip0;
     if (ip1 > ip1_max) ip1_max = ip1;
     it++;
@@ -1572,7 +1573,7 @@ MatrixSparse* ShiftOpCs::_BuildSGradfromMap(std::map<std::pair<int, int>, double
 
   // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
 
-  tripletForce(NF_T, getSize(), getSize());
+  NF_T.force(getSize(), getSize());
 
   /* Optional printout */
 

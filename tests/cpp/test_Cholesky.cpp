@@ -13,6 +13,7 @@
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -35,17 +36,17 @@ int main(int argc, char *argv[])
 
   // We create a square matrix (not necessarily sparse)
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
       double value = law_gaussian();
       double tirage = law_uniform(0., 1.);
       if (icol != irow && tirage > proba) continue;
-      tripletAdd(NF_T, irow, icol, value);
+      NF_T.add(irow, icol, value);
     }
   MatrixSparse *A = MatrixSparse::createFromTriplet(NF_T);
-  cs_print_dim("Square Initial Matrix", A->getCS());
+  A->display();
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
 

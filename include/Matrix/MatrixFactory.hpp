@@ -65,7 +65,7 @@ T* MatrixFactory::prodMatMat(const AMatrix *x,
   }
 
   T* res = new T();
-  res->reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
+  res->AMatrix::reset(x->getNRows(), y->getNCols(), 0., x->isFlagEigen());
   res->prodMatMatInPlace(x, y, transposeX, transposeY);
 
   return res;

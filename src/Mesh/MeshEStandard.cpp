@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Db/Db.hpp"
@@ -282,7 +283,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   /* Core allocation */
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
   VectorDouble weight(ncorner,0);
   VectorDouble container = _defineContainers();
   VectorDouble units = _defineUnits();
@@ -328,7 +329,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
         if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
-        tripletAdd(NF_T, iech,ip,weight[icorn]);
+        NF_T.add(iech,ip,weight[icorn]);
       }
       if (verbose) message("\n");
       imesh0 = found = imesh;
@@ -349,7 +350,7 @@ MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) 
   /* Add the extreme value to force dimension */
 
   if (ip_max < getNApices() - 1)
-    tripletForce(NF_T, nvalid, getNApices());
+    NF_T.force(nvalid, getNApices());
   
   /* Convert the triplet into a sparse matrix */
 

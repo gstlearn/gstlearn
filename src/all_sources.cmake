@@ -19,6 +19,7 @@ set(SRC
   Matrix/MatrixSquareGeneral.cpp
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
+  Matrix/NF_Triplet.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp

@@ -9,6 +9,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
@@ -153,14 +154,14 @@ MatrixSparse* cs_arrays_to_sparse(int n,
 {
   int row_max = -1;
   int col_max = -1;
-  NF_Triplet Qtriplet = tripletInit(0);
+  NF_Triplet NF_T;
   for (int i = 0; i < n; i++)
   {
     int ip1 = (int) rows[i];
     int ip2 = (int) cols[i];
     if (ip1 > row_max) row_max = ip1;
     if (ip2 > col_max) col_max = ip2;
-    tripletAdd(Qtriplet, ip1, ip2, vals[i]);
+    NF_T.add(ip1, ip2, vals[i]);
   }
 
   if (nrow > 0 && row_max >= nrow)
@@ -176,9 +177,9 @@ MatrixSparse* cs_arrays_to_sparse(int n,
     return nullptr;
   }
   if (row_max < nrow - 1 || col_max < ncol - 1)
-    tripletForce(Qtriplet, nrow, ncol);
+    NF_T.force(nrow, ncol);
 
-  return MatrixSparse::createFromTriplet(Qtriplet, nrow, ncol);
+  return MatrixSparse::createFromTriplet(NF_T, nrow, ncol);
 }
 
 MatrixSparse* cs_vectors_to_sparse(int nrow,
@@ -1339,11 +1340,11 @@ int cs_multigrid_process(cs_MGS *mgs,
   return (0);
 }
 
-NF_Triplet csToTriplet(const cs *A, bool flagFrom1, double tol)
+NF_Triplet csToTriplet(const cs *A, int shiftRow, int shiftCol, double tol)
 {
   NF_Triplet NF_T;
 
-  if (!A) return NF_T;
+  if (A == nullptr) return NF_T;
   int ncols = cs_getncol(A);
 
   cs *AT = cs_transpose(A, 1);
@@ -1358,78 +1359,14 @@ NF_Triplet csToTriplet(const cs *A, bool flagFrom1, double tol)
   int nz = A->nz;
   if (nz >= 0) return NF_T;
 
-  int nnz = Ap[ncols];
-  NF_T.rows.resize(nnz);
-  NF_T.cols.resize(nnz);
-  NF_T.values.resize(nnz);
-
-  int ecr = 0;
   for (int j = 0; j < ncols; j++)
     for (int p = Ap[j]; p < Ap[j + 1]; p++)
     {
-      NF_T.cols[ecr] = (flagFrom1) ? j + 1 : j;
-      NF_T.rows[ecr] = (flagFrom1) ? Ai[p] + 1 : Ai[p];
-      NF_T.values[ecr] = Ax ? Ax[p] : 1;
-      if (ABS(NF_T.values[ecr]) <= tol) continue;
-      ecr++;
+      double value = (Ax) ? Ax[p] : 1.;
+      if (ABS(value) <= tol) continue;
+      NF_T.add(Ai[p] + shiftRow, j + shiftCol, value);
     }
-
-  if (ecr < nnz)
-  {
-    NF_T.cols.resize(ecr);
-    NF_T.rows.resize(ecr);
-    NF_T.values.resize(ecr);
-  }
-  NF_T.number = ecr;
   return NF_T;
-}
-
-NF_Triplet tripletInit(bool flag_from_1)
-{
-  NF_Triplet NF_T;
-
-  NF_T.flagFromOne = flag_from_1;
-  NF_T.number = 0;
-  NF_T.rows = VectorInt();
-  NF_T.cols = VectorInt();
-  NF_T.values = VectorDouble();
-
-  return NF_T;
-}
-
-void tripletAdd(NF_Triplet& NF_T, int irow, int icol, double value, bool flag_from_1)
-{
-  int shift = (flag_from_1) ? 1 : 0;
-  NF_T.number++;
-  NF_T.rows.push_back(irow + shift);
-  NF_T.cols.push_back(icol + shift);
-  NF_T.values.push_back(value);
-}
-
-int tripletMaxCol(const NF_Triplet& NF_T)
-{
-  return VH::maximum(NF_T.cols) + 1;
-}
-
-int tripletMaxRow(const NF_Triplet& NF_T)
-{
-  return VH::maximum(NF_T.rows) + 1;
-}
-
-/**
- * Force the dimension of the Sparse matrix
- * This is done by adding a fictitious sample at position 'nrow-1' and 'ncol-1' with value 0
- * @param NF_T    NF_Triplet structure
- * @param nrow    Ultimate number of rows
- * @param ncol    Ultimate number of columns
- */
-void tripletForce(NF_Triplet& NF_T, int nrow, int ncol)
-{
-  // Check if the maximum positions have been reached
-  int nrow_max = tripletMaxRow(NF_T);
-  int ncol_max = tripletMaxCol(NF_T);
-  if (nrow_max < nrow || ncol_max < ncol)
-    tripletAdd(NF_T, nrow - 1, ncol - 1, 0.);
 }
 
 String toStringDim(const String &title, const cs *A)
@@ -1459,11 +1396,11 @@ String toStringRange(const String &title, const cs *C)
 
   /* Convert the contents of the sparse matrix into columns */
 
-  NF_Triplet T = csToTriplet(C);
+  NF_Triplet NF_T = csToTriplet(C);
 
   /* Calculate the extreme values */
 
-  StatResults stats = ut_statistics(T.number, T.values.data());
+  StatResults stats = ut_statistics(NF_T.getNumber(), NF_T.getValues().data());
 
   /* Printout */
 
@@ -1472,7 +1409,7 @@ String toStringRange(const String &title, const cs *C)
   sstr << " Descr: m=" << cs_getnrow(C) << " - n=" << cs_getncol(C) << " - nzmax=" << C->nzmax
   << std::endl;
   sstr << " Range: [" << stats.mini << " ; " << stats.maxi << "] (" << stats.nvalid << " / "
-       << T.number << ")" << std::endl;
+       << NF_T.getNumber() << ")" << std::endl;
 
   return sstr.str();
 }
@@ -1601,34 +1538,22 @@ cs* cs_extract_submatrix(cs *C,
                          int col_from,
                          int col_length)
 {
-  cs *Atriplet, *A;
-  int ir, ic;
+  /* Convert the contents of the sparse matrix into triplet (eigen format) */
 
-  /* Initializations */
-
-  A = Atriplet = nullptr;
-
-  /* Convert the contents of the sparse matrix into columns */
-
-  NF_Triplet T = csToTriplet(C);
+  NF_Triplet NF_T = csToTriplet(C);
 
   /* Fill the new sparse triplet */
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) goto label_end;
-  for (int i = 0; i < T.number; i++)
+  NF_Triplet NF_Tout;
+  for (int i = 0, n = NF_T.getNumber(); i < n; i++)
   {
-    ic = T.cols[i] - col_from;
+    int ic = NF_T.getCol(i) - col_from;
     if (ic < 0 || ic >= col_length) continue;
-    ir = T.rows[i] - row_from;
+    int ir = NF_T.getRow(i) - row_from;
     if (ir < 0 || ir >= row_length) continue;
-    if (!cs_entry(Atriplet, ir, ic, T.values[i])) goto label_end;
+    NF_Tout.add(ir, ic, NF_T.getValue(i));
   }
-
-  A = cs_triplet(Atriplet);
-
-  label_end: Atriplet = cs_spfree(Atriplet);
-  return (A);
+  return NF_Tout.buildCsFromTriplet();
 }
 
 int cs_get_nrow(const cs *A)
@@ -1663,17 +1588,15 @@ void cs_print_dim(const char *title, const cs *A)
 
 void cs_print_range(const char *title, const cs *C)
 {
-  /* Initializations */
-
   if (C == nullptr) return;
 
-  /* Convert the contents of the sparse matrix into columns */
+  /* Convert the contents of the sparse matrix into triplets (eigen formet) */
 
-  NF_Triplet T = csToTriplet(C);
+  NF_Triplet NF_T = csToTriplet(C);
 
   /* Calculate the extreme values */
 
-  StatResults stats = ut_statistics(T.number, T.values.data());
+  StatResults stats = ut_statistics(NF_T.getNumber(), NF_T.getValues().data());
 
   /* Printout */
 
@@ -1682,8 +1605,8 @@ void cs_print_range(const char *title, const cs *C)
   else
     message("Sparse matrix\n");
   message(" Descr: m=%d n=%d nnz=%d\n", cs_getnrow(C), cs_getncol(C), C->nzmax);
-  if (T.number > 0)
-    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, T.number);
+  if (NF_T.getNumber() > 0)
+    message(" Range: [%lf ; %lf] (%d/%d)\n", stats.mini, stats.maxi, stats.nvalid, NF_T.getNumber());
   else
     message(" All terms are set to zero\n");
 }
@@ -3130,38 +3053,16 @@ void cs_mulvec_lowtri(const cs *A,
 
 cs* cs_compress(cs *A)
 {
-  double value;
-  cs *Q, *Qtriplet;
+  NF_Triplet NF_T = csToTriplet(A);
 
-  NF_Triplet T = csToTriplet(A);
-
-  Q = Qtriplet = nullptr;
-  Qtriplet = cs_spalloc(0, 0, 1, 1, 1);
-  for (int i = 0; i < T.number; i++)
+  NF_Triplet NF_Tout;
+  for (int i = 0; i < NF_T.getNumber(); i++)
   {
-    value = T.values[i];
+    double value = NF_T.getValue(i);
     if (ABS(value) < EPSILON10) continue;
-    (void) cs_entry(Qtriplet, T.rows[i], T.cols[i], value);
+    NF_Tout.add(NF_T.getRow(i), NF_T.getCol(i), value);
   }
-  Q = cs_triplet(Qtriplet);
-  Qtriplet = cs_spfree(Qtriplet);
-  return (Q);
-}
-
-void cs_keypair(const char *key, cs *A, int flag_from_1)
-{
-  char name[100];
-
-  if (A == nullptr) return;
-
-  NF_Triplet T = csToTriplet(A, flag_from_1);
-
-  (void) gslSPrintf(name, "%s.cols", key);
-  set_keypair_int(name, 1, T.number, 1, T.cols.data());
-  (void) gslSPrintf(name, "%s.rows", key);
-  set_keypair_int(name, 1, T.number, 1, T.rows.data());
-  (void) gslSPrintf(name, "%s.vals", key);
-  set_keypair(name, 1, T.number, 1, T.values.data());
+  return NF_Tout.buildCsFromTriplet();
 }
 
 void cs_print_file(const char *radix, int rank, const cs *A)
@@ -3179,11 +3080,11 @@ void cs_print_file(const char *radix, int rank, const cs *A)
   file = gslFopen(filename, "w");
   if (file == nullptr) return;
 
-  NF_Triplet T = csToTriplet(A);
+  NF_Triplet NF_T = csToTriplet(A);
 
-  for (int i = 0; i < T.number; i++)
+  for (int i = 0; i < NF_T.getNumber(); i++)
   {
-    fprintf(file, "%10d %10d %20.10lf\n", T.cols[i], T.rows[i], T.values[i]);
+    fprintf(file, "%10d %10d %20.10lf\n", NF_T.getCol(i), NF_T.getRow(i), NF_T.getValue(i));
   }
 
   (void) fclose(file);
@@ -3521,7 +3422,7 @@ cs* cs_strip(cs *A, double eps, int hypothesis, bool verbose)
 cs* cs_glue(const cs* A1, const cs* A2, bool shiftRow, bool shiftCol)
 {
   // Create the output structure in Triplet
-  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  NF_Triplet NF_Tout;
 
   NF_Triplet T1 = csToTriplet(A1);
   int addRow =  (shiftRow) ? cs_getnrow(A1) : 0;
@@ -3532,26 +3433,18 @@ cs* cs_glue(const cs* A1, const cs* A2, bool shiftRow, bool shiftCol)
   NF_Triplet T2 = csToTriplet(A2);
 
   // Copy the contents of A1 into triplets
-  for (int i = 0; i < T1.number; i++)
-    (void) cs_entry(Striplet, T1.rows[i], T1.cols[i], T1.values[i]);
+  for (int i = 0; i < T1.getNumber(); i++)
+    NF_Tout.add(T1.getRow(i), T1.getCol(i), T1.getValue(i));
 
   // Copy the contents of A2 into triplets
-  int row_cur = 0;
-  int col_cur = 0;
-  for (int i = 0; i < T2.number; i++)
-  {
-    int row_local = T2.rows[i] + addRow;
-    int col_local = T2.cols[i] + addCol;
-    if (row_local > row_cur) row_cur = row_local;
-    if (col_local > col_cur) col_cur = col_local;
-    (void) cs_entry(Striplet, row_local, col_local, T2.values[i]);
-  }
+  for (int i = 0; i < T2.getNumber(); i++)
+    NF_Tout.add(T2.getRow(i) + addRow, T2.getCol(i) + addCol, T2.getValue(i));
 
+  int row_cur = NF_Tout.getNRows();
+  int col_cur = NF_Tout.getNCols();
   if (row_max > row_cur || col_max > col_cur)
-    (void) cs_entry(Striplet, row_max, col_max, 0.);
+    NF_Tout.add(row_max, col_max, 0.);
 
   // Transform the output triplet into sparse matrix
-  cs* Q = cs_triplet(Striplet);
-  Striplet = cs_spfree(Striplet);
-  return Q;
+  return NF_Tout.buildCsFromTriplet();
 }

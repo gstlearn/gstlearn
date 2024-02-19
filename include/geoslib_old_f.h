@@ -664,13 +664,13 @@ GSTLEARN_EXPORT double* model_covmat_by_ranks(Model *model,
                                               int ivar0 = -1,
                                               int jvar0 = -1,
                                               const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT MatrixSparse* model_covmat_by_ranks_cs(Model *model,
+GSTLEARN_EXPORT MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
                                                        Db *db1,
                                                        int nsize1,
-                                                       const int *ranks1,
+                                                       const VectorInt& ranks1,
                                                        Db *db2,
                                                        int nsize2,
-                                                       const int *ranks2,
+                                                       const VectorInt& ranks2,
                                                        int ivar0 = -1,
                                                        int jvar0 = -1,
                                                        const CovCalcMode *mode = nullptr);
@@ -1694,24 +1694,6 @@ GSTLEARN_EXPORT void spde_mesh_assign(AMesh *amesh,
                                       int verbose);
 GSTLEARN_EXPORT int spde_build_matrices(Model *model, int verbose);
 GSTLEARN_EXPORT int spde_build_stdev(double *vcur);
-GSTLEARN_EXPORT int spde_f(Db *dbin,
-                           Db *dbout,
-                           Model *model,
-                           const VectorDouble &gext,
-                           SPDE_Option &s_option,
-                           int mesh_dbin,
-                           int mesh_dbout,
-                           int seed,
-                           int nbsimu,
-                           int gibbs_nburn,
-                           int gibbs_niter,
-                           int ngibbs_int,
-                           int flag_est,
-                           int flag_std,
-                           int flag_gibbs,
-                           int flag_modif,
-                           int verbose);
-#ifndef SWIG
 GSTLEARN_EXPORT int spde_eval(const VectorDouble& blin,
                               MatrixSparse *S,
                               const VectorDouble &Lambda,
@@ -1719,7 +1701,6 @@ GSTLEARN_EXPORT int spde_eval(const VectorDouble& blin,
                               double power,
                               VectorDouble& x,
                               VectorDouble& y);
-#endif
 GSTLEARN_EXPORT void spde_external_mesh_define(int icov0, AMesh *mesh);
 GSTLEARN_EXPORT void spde_external_mesh_undefine(int icov0);
 #ifndef SWIG

@@ -40,6 +40,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/NF_Triplet.hpp"
 
 #include <math.h>
 
@@ -2082,16 +2083,16 @@ double model_calcul_stdev(Model* model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-MatrixSparse* model_covmat_by_ranks_cs(Model *model,
-                                       Db *db1,
-                                       int nsize1,
-                                       const int *ranks1,
-                                       Db *db2,
-                                       int nsize2,
-                                       const int *ranks2,
-                                       int ivar0,
-                                       int jvar0,
-                                       const CovCalcMode *mode)
+MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
+                                        Db *db1,
+                                        int nsize1,
+                                        const VectorInt& ranks1,
+                                        Db *db2,
+                                        int nsize2,
+                                        const VectorInt& ranks2,
+                                        int ivar0,
+                                        int jvar0,
+                                        const CovCalcMode *mode)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -2110,8 +2111,8 @@ MatrixSparse* model_covmat_by_ranks_cs(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) return nullptr;
   }
-  if (ranks1 == nullptr) nsize1 = db1->getSampleNumber();
-  if (ranks2 == nullptr) nsize2 = db1->getSampleNumber();
+  if (ranks1.empty()) nsize1 = db1->getSampleNumber();
+  if (ranks2.empty()) nsize2 = db1->getSampleNumber();
 
   /* Core allocation */
 
@@ -2120,7 +2121,7 @@ MatrixSparse* model_covmat_by_ranks_cs(Model *model,
 
   // Constitute the triplet
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
 
   /* Loop on the number of variables */
 
@@ -2132,7 +2133,7 @@ MatrixSparse* model_covmat_by_ranks_cs(Model *model,
 
     for (int i1 = 0; i1 < nsize1; i1++)
     {
-      int iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      int iech1 = (!ranks1.empty()) ? ranks1[i1] : i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -2145,7 +2146,7 @@ MatrixSparse* model_covmat_by_ranks_cs(Model *model,
 
         for (int i2 = 0; i2 < nsize2; i2++)
         {
-          int iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          int iech2 = (!ranks2.empty()) ? ranks2[i2] : i2;
           if (iech2 < 0) continue;
 
           /* Determine the indices */
@@ -2173,9 +2174,9 @@ MatrixSparse* model_covmat_by_ranks_cs(Model *model,
           model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
           value = COVTAB(ivar, jvar);
           if (ABS(value) < EPSILON10) continue;
-          tripletAdd(NF_T, ecr1, ecr2, value);
+          NF_T.add(ecr1, ecr2, value);
           if (ecr1 != ecr2)
-            tripletAdd(NF_T, ecr2, ecr1, value);
+            NF_T.add(ecr2, ecr1, value);
         }
       }
     }

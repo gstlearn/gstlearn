@@ -49,19 +49,15 @@ public:
                   const AMesh *a_mesh,
                   int rankZ = -1,
                   bool verbose = false);
-#ifndef SWIG
   int resetFromPoints(int npoint, int napices, MatrixSparse *aproj);
-#endif
   int resetFromDbByNeigh(const Db *db,
                          AMesh *amesh,
                          double radius,
                          int flag_exact = 0,
                          bool verbose = false);
 
-#ifndef SWIG
   MatrixSparse* getAproj() const { return _AprojCS; }
-#endif
-  NF_Triplet getAprojToTriplet(bool flag_from_1 = false) const;
+  NF_Triplet getAprojToTriplet() const;
 
 private:
   int  _nPoint; // _nPoint = Number of rows of _Aproj

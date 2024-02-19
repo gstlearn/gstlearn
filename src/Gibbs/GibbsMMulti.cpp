@@ -104,7 +104,6 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   if (verboseTimer) verbose = true;
   if (verbose) mestitle(1,"Gibbs using Moving Neighborhood");
-  MatrixSparse*  Cmat = nullptr;
   int n;
   Db* db = getDb();
   Model* model = getModel();
@@ -134,7 +133,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
   if (verbose)
     message("Building Covariance Sparse Matrix (Dimension = %d)\n",nact);
   Timer timer;
-  _Cmat = model_covmat_by_ranks_cs(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1);
+  _Cmat = model_covmat_by_ranks_Mat(model,db,nact,_getRanks(),db,nact,_getRanks(),-1,-1);
   if (_Cmat == nullptr) return 1;
   if (verboseTimer)
     timer.displayIntervalMilliseconds("Building Covariance");
@@ -143,7 +142,7 @@ int GibbsMMulti::covmatAlloc(bool verbose, bool verboseTimer)
 
   if (verbose)
     message("Cholesky Decomposition of Covariance Matrix\n");
-  if (Cmat->computeCholesky())
+  if (_Cmat->computeCholesky())
   {
     messerr("Fail to perform Cholesky decomposition");
     return 1;

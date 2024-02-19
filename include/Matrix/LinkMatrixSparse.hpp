@@ -14,24 +14,6 @@
 
 #include "Basic/VectorNumT.hpp"
 
-class GSTLEARN_EXPORT NF_Triplet
-{
-public:
-    bool flagFromOne;
-    int number;
-    VectorInt rows;
-    VectorInt cols;
-    VectorDouble values;
-
-public:
-    VectorDouble getValues() const { return values; }
-    VectorInt getRows() const { return rows; }
-    VectorInt getCols() const { return cols; }
-
-    /// Has a specific implementation in the Target language
-    DECLARE_TOTL;
-};
-
 #ifndef SWIG
 
 class cs;
@@ -39,6 +21,7 @@ class css;
 class csn;
 class csd;
 class MatrixSparse;
+class NF_Triplet;
 
 class GSTLEARN_EXPORT QChol
 {
@@ -173,19 +156,7 @@ GSTLEARN_EXPORT int     cs_multigrid_process(cs_MGS *mgs, QChol *qctt, int verbo
                                            double *x, double *b, double *work);
 GSTLEARN_EXPORT void    cs_multigrid_coarse2fine(cs_MGS *mgs,double *z,double *work);
 
-// Use of Triplet (internla format)
-GSTLEARN_EXPORT NF_Triplet csToTriplet(const cs *A,
-                                       bool flag_from_1 = false,
-                                       double tol = EPSILON10);
-GSTLEARN_EXPORT NF_Triplet tripletInit(bool flag_from_1 = false);
-GSTLEARN_EXPORT void       tripletAdd(NF_Triplet &NF_T,
-                                      int irow,
-                                      int icol,
-                                      double value,
-                                      bool flag_from_1 = false);
-GSTLEARN_EXPORT int        tripletMaxCol(const NF_Triplet& NF_T);
-GSTLEARN_EXPORT int        tripletMaxRow(const NF_Triplet& NF_T);
-GSTLEARN_EXPORT void       tripletForce(NF_Triplet& NF_T, int nrow, int ncol);
+GSTLEARN_EXPORT NF_Triplet csToTriplet(const cs *A, int shiftRow=0, int shiftCol=0, double tol = EPSILON10);
 
 GSTLEARN_EXPORT String  toStringDim(const String& title, const cs *A);
 GSTLEARN_EXPORT String  toStringRange(const String& title, const cs *C);
@@ -216,7 +187,6 @@ GSTLEARN_EXPORT cs     *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_re
 GSTLEARN_EXPORT int     cs_coarsening(const cs *Q,int type,int **indCo,cs **L);
 GSTLEARN_EXPORT cs     *cs_interpolate(const cs *AA,const cs *LL,int *indCo);
 GSTLEARN_EXPORT cs     *cs_triangle(cs *A, int flag_upper, int flag_diag);
-GSTLEARN_EXPORT void    cs_keypair(const char *key, cs *A, int flag_from_1 = false);
 GSTLEARN_EXPORT int     cs_scale(const cs *C);
 GSTLEARN_EXPORT int     cs_get_nrow(const cs *A);
 GSTLEARN_EXPORT int     cs_get_ncol(const cs *A);

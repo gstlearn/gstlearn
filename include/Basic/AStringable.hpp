@@ -69,7 +69,6 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const VectorInt &tab,
                                 bool flagOverride = false,
                                 bool flagSkipZero = false);
-
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorDouble& tab,
                                 bool flagOverride = true);

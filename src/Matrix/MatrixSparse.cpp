@@ -11,6 +11,7 @@
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "LinearOp/Cholesky.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
@@ -632,12 +633,15 @@ MatrixSparse* MatrixSparse::createFromTriplet(const NF_Triplet &NF_T,
   // If 'nrow' and 'ncol' are not defined, derive them from NF_T
   if (nrow <= 0 || ncol <= 0)
   {
-    nrow = VH::maximum(NF_T.rows) + 1;
-    ncol = VH::maximum(NF_T.cols) + 1;
+    nrow = NF_T.getNRows() + 1;
+    ncol = NF_T.getNCols() + 1;
   }
   MatrixSparse* mat = new MatrixSparse(nrow, ncol, opt_eigen);
 
-  mat->setValuesFromTriplet(NF_T);
+  if (mat->isFlagEigen())
+    mat->_eigenMatrix = NF_T.buildEigenFromTriplet();
+  else
+    mat->_csMatrix = NF_T.buildCsFromTriplet();
 
   return mat;
 }
@@ -709,24 +713,6 @@ MatrixSparse* MatrixSparse::diagMat(MatrixSparse *A, int oper_choice, int opt_ei
   VectorDouble diag = A->getDiagonal();
   VectorHelper::transformVD(diag, oper_choice);
   return MatrixSparse::diagVec(diag, opt_eigen);
-}
-
-void MatrixSparse::setValuesFromTriplet(const NF_Triplet& NF_T)
-{
-  if (isFlagEigen())
-  {
-    _eigenMatrix.reserve(NF_T.number);
-    for (int k = 0; k < NF_T.number; k++)
-      _eigenMatrix.insert(NF_T.rows[k], NF_T.cols[k]) = NF_T.values[k];
-  }
-  else
-  {
-    cs* local = cs_spalloc2(0,0,1,1,1);
-    for (int i = 0; i < NF_T.number; i++)
-      (void) cs_entry2(local, NF_T.rows[i], NF_T.cols[i], NF_T.values[i]);
-    _csMatrix = cs_triplet2(local);
-    local = cs_spfree2(local);
-  }
 }
 
 bool MatrixSparse::_isElementPresent(int irow, int icol) const
@@ -1340,34 +1326,20 @@ void MatrixSparse::dumpElements(const String& title, int ifrom, int ito) const
 }
 
 /**
- * From a matrix of any type, creates the three vectors of the triplet
+ * From a matrix of any type, creates the triplet
  * (specific format for creating efficiently a Sparse matrix)
  * It only takes the only non-zero elements of the matrix
  */
-NF_Triplet MatrixSparse::getMatrixToTriplets(bool flag_from_1) const
+NF_Triplet MatrixSparse::getMatrixToTriplet(int shiftRow, int shiftCol) const
 {
-  NF_Triplet NF_T = tripletInit(flag_from_1);
   if (isFlagEigen())
   {
-    int ecr = 0;
-    int shift = (flag_from_1) ? 1 : 0;
-    for (int k = 0; k < _eigenMatrix.outerSize(); ++k)
-      for (Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, k); it; ++it)
-      {
-        double value = it.value();
-        if (ABS(value) <= EPSILON10) continue;
-        NF_T.rows.push_back(it.row() + shift);
-        NF_T.cols.push_back(it.col() + shift);
-        NF_T.values.push_back(value);
-        ecr++;
-      }
-    NF_T.number = ecr;
+    return NF_Triplet::createFromEigen(_eigenMatrix, shiftRow, shiftCol);
   }
   else
   {
-    NF_T = csToTriplet(_csMatrix, flag_from_1);
+    return NF_Triplet::createFromCs(_csMatrix, shiftRow, shiftCol);
   }
-  return NF_T;
 }
 
 void MatrixSparse::_clear()
@@ -1385,20 +1357,12 @@ int MatrixSparse::_getIndexToRank(int irow,int icol) const
   return ITEST;
 }
 
-MatrixSparse* createFromAnyMatrix(const AMatrix* matin, bool flag_from_1)
+MatrixSparse* createFromAnyMatrix(const AMatrix* matin)
 {
-  // Create the output Sparse Matrix
-
-  MatrixSparse* matout = new MatrixSparse(matin->getNRows(),matin->getNCols());
-
-  // Create the triplet structure from the non-zero terms of source matrix
-
-  NF_Triplet T = matin->getMatrixToTriplets(flag_from_1);
-
-  // Load the triplet information in the cloned matrix
-
-  matout->setValuesFromTriplet(T);
-  return matout;
+  return MatrixSparse::createFromTriplet(matin->getMatrixToTriplet(),
+                                         matin->getNRows(),
+                                         matin->getNCols(),
+                                         matin->isFlagEigen());
 }
 
 void setUpdateNonZeroValue(int status)
@@ -1436,7 +1400,7 @@ int MatrixSparse::_eigen_findColor(int imesh,
   return (-1);
 }
 
-VectorInt MatrixSparse::colorCoding(int *ncolors, int istart)
+VectorInt MatrixSparse::colorCoding()
 {
   int next_col = 0;
   int ncol = 0;
@@ -1466,36 +1430,7 @@ VectorInt MatrixSparse::colorCoding(int *ncolors, int istart)
       colors[imesh] = next_col;
     }
   }
-
-  /* Update the colors ranking fixing the starting value */
-
-  VH::addConstant(colors, istart-1);
-  *ncolors = ncol;
   return colors;
-}
-
-/**
- * Convert Sparse Matrix to Triplet (Eigen format)
- * @param shiftRow Shift the row number (if > 0)
- * @param shiftCol Shift the Column number (if > 0)
- * @return
- */
-std::vector<EigT> MatrixSparse::toTriplet(int shiftRow, int shiftCol) const
-{
-  std::vector<EigT> tripletList;
-  if (!isFlagEigen())
-  {
-    messerr("Method 'toTriplet' is restricted to the Eigen version");
-    return tripletList;
-  }
-
-  int nnz = _eigenMatrix.nonZeros();
-  tripletList.reserve(nnz);
-
-  for (int i = 0; i < _eigenMatrix.outerSize(); i++)
-    for (typename Eigen::SparseMatrix<double>::InnerIterator it(_eigenMatrix, i); it; ++it)
-      tripletList.emplace_back(it.row() + shiftRow, it.col() + shiftCol, it.value());
-  return tripletList;
 }
 
 MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
@@ -1503,38 +1438,24 @@ MatrixSparse* MatrixSparse::glue(const MatrixSparse *A1,
                                  bool flagShiftRow,
                                  bool flagShiftCol)
 {
-  if (A1->isFlagEigen())
-  {
-    int shiftRow =  (flagShiftRow) ? A1->getNRows() : 0;
-    int shiftCol =  (flagShiftCol) ? A1->getNCols() : 0;
+  int shiftRow = (flagShiftRow) ? A1->getNRows() : 0;
+  int shiftCol = (flagShiftCol) ? A1->getNCols() : 0;
 
-    // Create the two triplet lists
-    std::vector<EigT> T1 = A1->toTriplet();
-    std::vector<EigT> T2 = A2->toTriplet(shiftRow, shiftCol);
+  // Create the two triplet lists
+  NF_Triplet T1 = A1->getMatrixToTriplet();
+  NF_Triplet T2 = A2->getMatrixToTriplet(shiftRow, shiftCol);
 
-    // Concatenate the two triplet lists
-    T1.insert( T1.end(), T2.begin(), T2.end() );
+  // Concatenate the two triplet lists
+  T1.appendInPlace(T2);
 
-    // Create the new Eigen matrix from the resulting triplet list
-    int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
-    int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
-    Eigen::SparseMatrix<double> local(nrow,ncol);
-    local.setFromTriplets(T1.begin(), T1.end());
+  // Create the new Eigen matrix from the resulting triplet list
+  int nrow = (flagShiftRow) ? A1->getNRows() + A2->getNRows() : MAX(A1->getNRows(), A2->getNRows());
+  int ncol = (flagShiftCol) ? A1->getNCols() + A2->getNCols() : MAX(A1->getNCols(), A2->getNCols());
 
-    MatrixSparse* mat = new MatrixSparse(nrow, ncol, 1);
-    mat->setEigenMatrix(local);
-    return mat;
-  }
-  else
-  {
-    cs* local = cs_glue(A1->getCS(), A2->getCS(), flagShiftRow, flagShiftCol);
-    MatrixSparse* mat = new MatrixSparse(local, 0);
-    local = cs_spfree2(local);
-    return mat;
-  }
+  return MatrixSparse::createFromTriplet(T1, nrow, ncol, A1->isFlagEigen());
 }
 
-/* Extract a sparse submatrix */
+/* Extract a sparse sub-matrix */
 /* 'rank_rows' and 'rank_cols' must have same dimension as C */
 /* The arrays 'rank_rows' and 'rank_cols' may be absent */
 /* Their value gives the rank of the saved element or -1 */
@@ -1543,19 +1464,19 @@ MatrixSparse* MatrixSparse::extractSubmatrixByRanks(const VectorInt &rank_rows,
 {
   int old_row, old_col, new_row, new_col;
 
-  NF_Triplet NF_Tin = getMatrixToTriplets(false);
-  NF_Triplet NF_Tout = tripletInit(0);
+  NF_Triplet NF_Tin = getMatrixToTriplet();
+  NF_Triplet NF_Tout;
 
   /* Fill the new sparse triplet */
 
-  for (int i = 0; i < NF_Tin.number; i++)
+  for (int i = 0; i < NF_Tin.getNumber(); i++)
   {
-    old_row = NF_Tin.rows[i];
-    old_col = NF_Tin.cols[i];
+    old_row = NF_Tin.getRow(i);
+    old_col = NF_Tin.getCol(i);
     new_row = (!rank_rows.empty()) ? rank_rows[old_row] : old_row;
     new_col = (!rank_cols.empty()) ? rank_cols[old_col] : old_col;
     if (new_row < 0 || new_col < 0) continue;
-    tripletAdd(NF_Tout, new_row, new_col, NF_Tin.values[i]);
+    NF_Tout.add(new_row, new_col, NF_Tin.getValue(i));
   }
 
   return MatrixSparse::createFromTriplet(NF_Tout);
@@ -1576,11 +1497,11 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
 {
   /* Convert the contents of the sparse matrix into columns */
 
-  NF_Triplet NF_Tin = getMatrixToTriplets(false);
+  NF_Triplet NF_Tin = getMatrixToTriplet();
 
   /* Initialize the output matrix */
 
-  NF_Triplet NF_Tout = tripletInit(0);
+  NF_Triplet NF_Tout;
 
   /* Core allocation */
 
@@ -1608,13 +1529,13 @@ MatrixSparse* MatrixSparse::extractSubmatrixByColor(const VectorInt &colors,
 
   /* Fill the new sparse triplet */
 
-  for (int i = 0; i < NF_Tin.number; i++)
+  for (int i = 0; i < NF_Tin.getNumber(); i++)
   {
-    ir = u_row[NF_Tin.rows[i]];
-    ic = u_col[NF_Tin.cols[i]];
+    ir = u_row[NF_Tin.getRow(i)];
+    ic = u_col[NF_Tin.getCol(i)];
     if (ir < 0 || ic < 0) continue;
-    tripletAdd(NF_Tout, ir, ic, NF_Tin.values[i]);
+    NF_Tout.add(ir, ic, NF_Tin.getValue(i));
   }
 
-  return MatrixSparse::createFromTriplet(NF_Tout);
+  return MatrixSparse::createFromTriplet(NF_Tout,0,0,isFlagEigen());
 }

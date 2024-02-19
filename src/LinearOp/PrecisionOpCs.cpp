@@ -17,6 +17,7 @@
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
+#include "Matrix/NF_Triplet.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
                              const CovAniso* cova,
@@ -45,9 +46,9 @@ PrecisionOpCs::~PrecisionOpCs()
   delete _Q;
 }
 
-NF_Triplet PrecisionOpCs::getQToTriplet(bool flag_from_1) const
+NF_Triplet PrecisionOpCs::getQToTriplet() const
 {
-  return getQ()->getMatrixToTriplets(flag_from_1);
+  return getQ()->getMatrixToTriplet();
 }
 
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)

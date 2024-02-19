@@ -714,10 +714,8 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
   {
     if (isNamespaceLoaded("Matrix"))
     {
-      Atr = csToTriplet(x, flag_from_1=TRUE)
-      Q = Atr$toTL()
-#     Q = sparseMatrix(i=Atr$rows, j=Atr$cols, x=Atr$values,
-#                       dims=c(Atr$nrows,Atr$ncols))
+      NF_T = x$getMatrixToTriplet()
+      Q = Triplet_toTL(NF_T)
     }
     else
       cat("This requires the library 'Matrix' to be installed\n")
@@ -787,14 +785,13 @@ function (x,i,j,...,drop=TRUE)
 setMethod('[',    '_p_Table',               getTableitem)
 setMethod('[<-',  '_p_Table',               setTableitem)
 
-# TODO : Replace Triplet_toTL by MatrixSparse_toTL
 "Triplet_toTL" <- function(x)
 {
   Q = NULL
   if (isNamespaceLoaded("Matrix"))
   {
-    Q = sparseMatrix(i=x$rows+1, j=x$cols+1, x=x$values,
-                     dims=c(x$nrows,x$ncols))
+    Q = sparseMatrix(i=x$getNRows(TRUE), j=x$getNCols(TRUE), x=x$getValues(),
+                     dims=c(x$getNRows()+1,x$getNCols()+1))
   }
   else
     cat("This requires the library 'Matrix' to be installed\n")

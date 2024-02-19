@@ -18,11 +18,11 @@
 
 /// TODO : Transform into template for storing something else than double
 
+class NF_Triplet;
+
 /**
  * Matrix
  */
-
-class NF_Triplet;
 
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
@@ -82,8 +82,6 @@ public:
   virtual void addScalarDiag(double v);
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
-  /*! Set a set of values simultaneously from an input array */
-  virtual void setValuesFromTriplet(const NF_Triplet& T);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
   /*! Multiply a Matrix row-wise */
@@ -108,11 +106,8 @@ public:
                                  bool transposeX = false,
                                  bool transposeY = false);
 
-#ifndef SWIG
   /*! Extract the contents of the matrix */
-  virtual NF_Triplet getMatrixToTriplets(bool flag_from_1 = false) const;
-#endif
-
+  virtual NF_Triplet getMatrixToTriplet(int shiftRow=0, int shiftCol=0) const;
   /*! Add a matrix (multiplied by a constant) */
   void addMatInPlace(const AMatrix& y, double cx = 1., double cy = 1.);
   /*! Multiply 'this' by matrix 'y' and store in 'this'*/

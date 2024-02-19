@@ -42,10 +42,8 @@ public:
 
   DbGrid* getResolutionGrid() const;
 
-#ifndef SWIG
   const MatrixSparse* getAProjHoriz() const { return _AProjHoriz; }
-#endif
-  NF_Triplet getAProjHorizToTriplet(bool flag_from_1 = false) const;
+  NF_Triplet getAProjHorizToTriplet() const;
 
   const VectorDouble& getConvolution() const { return _convolution; }
   const VectorInt& getShiftVector() const { return _shiftVector; }

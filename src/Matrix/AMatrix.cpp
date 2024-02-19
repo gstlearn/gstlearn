@@ -11,6 +11,7 @@
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
@@ -79,7 +80,7 @@ bool AMatrix::isSquare(bool printWhyNot) const
   if (_nRows != _nCols)
   {
     if (printWhyNot)
-      messerr("The number of rows (%d) should math the number of columns (%d)",
+      messerr("The number of rows (%d) should match the number of columns (%d)",
               _nRows, _nCols);
     return false;
   }
@@ -419,12 +420,6 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
     return;
   }
   _setValues(values.data(),byCol);
-}
-
-void AMatrix::setValuesFromTriplet(const NF_Triplet& NF_T)
-{
-  for (int i = 0; i < NF_T.number; i++)
-    setValue(NF_T.rows[i], NF_T.cols[i], NF_T.values[i]);
 }
 
 void AMatrix::setIdentity(double value)
@@ -962,18 +957,17 @@ bool AMatrix::_checkLink(int nrow1,
  * (specific format for creating efficiently a Sparse matrix)
  * It only takes the only non-zero elements of the matrix
  */
-NF_Triplet AMatrix::getMatrixToTriplets(bool flag_from_1) const
+NF_Triplet AMatrix::getMatrixToTriplet(int shiftRow, int shiftCol) const
 {
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
 
-  NF_T.flagFromOne = false;
   for (int icol = 0; icol < _nCols; icol++)
     for (int irow = 0; irow < _nRows; irow++)
     {
       if (!isValid(irow, icol)) continue;
       double value = getValue(irow, icol);
       if (ABS(value) < EPSILON10) continue;
-      tripletAdd(NF_T, irow, icol, value);
+      NF_T.add(irow+shiftRow, icol+shiftCol, value);
     }
 
   return NF_T;

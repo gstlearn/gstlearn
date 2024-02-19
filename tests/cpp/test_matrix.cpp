@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
 #include "Matrix/MatrixFactory.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -619,7 +620,7 @@ int main(int argc, char *argv[])
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
 
   // Get a Sparse matrix
-  NF_Triplet triplet = MSP->getMatrixToTriplets();
+  NF_Triplet triplet = MSP->getMatrixToTriplet();
   MatrixSparse* MSEig = MatrixSparse::createFromTriplet(triplet, MSP->getNRows(), MSP->getNCols(),1);
   MSEig->display();
   MatrixSparse* MSNoEig = MatrixSparse::createFromTriplet(triplet, MSP->getNRows(), MSP->getNCols(),0);

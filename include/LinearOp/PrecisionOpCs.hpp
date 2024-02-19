@@ -53,7 +53,7 @@ public:
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result, const EPowerPT& power) override;
 
   MatrixSparse* getQ() const { return _Q; }
-  NF_Triplet getQToTriplet(bool flag_from_1 = false) const;
+  NF_Triplet getQToTriplet() const;
 
 private:
   void _buildQ(bool flagDecompose = false);

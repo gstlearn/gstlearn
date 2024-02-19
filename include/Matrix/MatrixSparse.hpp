@@ -25,8 +25,6 @@
   #pragma warning(default:4127)
 #endif
 
-typedef Eigen::Triplet<double> EigT;
-
 /**
  * Sparse Matrix
  */
@@ -67,8 +65,6 @@ public:
   virtual void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) override;
-  /*! Set a set of values simultaneously from an input array */
-  void setValuesFromTriplet(const NF_Triplet& NF_T) override;
   /*! Set all the values of the matrix at once */
   virtual void fill(double value) override;
   /*! Multiply the matrix row-wise */
@@ -90,7 +86,7 @@ public:
                                  bool transposeY = false) override;
 
   /*! Extract the contents of the matrix */
-  virtual NF_Triplet getMatrixToTriplets(bool flag_from_1 = false) const override;
+  virtual NF_Triplet getMatrixToTriplet(int shiftRow=0, int shiftCol=0) const override;
 
   //// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -178,15 +174,13 @@ public:
   const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
   void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }
 
-  std::vector<EigT> toTriplet(int shiftRow = 0, int shiftCol = 0) const;
-
   MatrixSparse* extractSubmatrixByRanks(const VectorInt &rank_rows,
                                         const VectorInt &rank_cols);
   MatrixSparse* extractSubmatrixByColor(const VectorInt &colors,
                                         int ref_color,
                                         bool row_ok,
                                         bool col_ok);
-  VectorInt colorCoding(int *ncolors, int istart = 0);
+  VectorInt colorCoding();
 
 protected:
   /// Interface for AMatrix
@@ -231,7 +225,7 @@ private:
 };
 
 /*! Transform any matrix into a Sparse format */
-GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat, bool flag_from_1 = false);
+GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat);
 GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
 

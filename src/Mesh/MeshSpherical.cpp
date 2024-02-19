@@ -15,6 +15,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -209,7 +210,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   /* Core allocation */
 
-  NF_Triplet NF_T = tripletInit(0);
+  NF_Triplet NF_T;
   VectorDouble weight(ncorner,0);
   VectorDouble units = _defineUnits();
   
@@ -244,7 +245,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
       {
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
-        tripletAdd(NF_T, iech,ip,weight[icorn]);
+        NF_T.add(iech,ip,weight[icorn]);
       }
       found = imesh;
     }
@@ -264,7 +265,7 @@ MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) 
 
   if (ip_max < nvertex - 1)
   {
-    tripletForce(NF_T,nvalid,nvertex);
+    NF_T.force(nvalid,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */

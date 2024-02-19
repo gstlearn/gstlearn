@@ -12,6 +12,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/MeshEStandard.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "geoslib_old_f.h"
 
 ProjMatrix::ProjMatrix() 
@@ -199,7 +200,7 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-NF_Triplet ProjMatrix::getAprojToTriplet(bool flag_from_1) const
+NF_Triplet ProjMatrix::getAprojToTriplet() const
 {
-  return getAproj()->getMatrixToTriplets(flag_from_1);
+  return getAproj()->getMatrixToTriplet();
 }
