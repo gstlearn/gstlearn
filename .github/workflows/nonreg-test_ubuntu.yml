@@ -28,7 +28,7 @@ env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   PYTHON_VERSION : "3.11"
-  SWIG_ROOT : ${{github.workspace}}\swig_420b
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
 
 jobs:
   build:

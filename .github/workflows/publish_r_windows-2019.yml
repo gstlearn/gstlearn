@@ -12,9 +12,9 @@ env:
   # Customize the CMake build type here (Release, Debug)
   BUILD_TYPE: Release
   BUILD_DIR : build
-  SWIG_ROOT  : ${{github.workspace}}/swig_420b
-  PCRE2_ROOT : ${{github.workspace}}/pcre2
-  BISON_ROOT : ${{github.workspace}}/bison
+  SWIG_ROOT  : ${{github.workspace}}\swig_420b
+  PCRE2_ROOT : ${{github.workspace}}\pcre2
+  BISON_ROOT : ${{github.workspace}}\bison
   DOXYGEN_ROOT : Doxygen
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.8.windows.x64.bin.zip
   BOOST_ROOT : ${{github.workspace}}/boost
@@ -68,9 +68,9 @@ jobs:
         cd swig
         $env:PATH="${{env.BISON_ROOT}}\Bison.3.7.4\bin;" + $env:PATH
         $PCRE_PATH="${{env.PCRE2_ROOT}}\PCRE2.10.39.0"
-        cmake -B${{env.BUILD_DIR}} -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_C_FLAGS="/DPCRE2_STATIC" -DCMAKE_CXX_FLAGS="/DPCRE2_STATIC" -DPCRE2_INCLUDE_DIR="$PCRE_PATH/include" -DPCRE2_LIBRARY="$PCRE_PATH/lib/pcre2-8-static.lib"
-        cmake --build ${{env.BUILD_DIR}} --config Release
-        cmake --install ${{env.BUILD_DIR}} --config Release
+        cmake -Bbuild -G "Visual Studio 16 2019" -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_C_FLAGS="/DPCRE2_STATIC" -DCMAKE_CXX_FLAGS="/DPCRE2_STATIC" -DPCRE2_INCLUDE_DIR="$PCRE_PATH/include" -DPCRE2_LIBRARY="$PCRE_PATH/lib/pcre2-8-static.lib"
+        cmake --build build --config Release
+        cmake --install build --config Release
 
     - name : Download and uncompressed Boost headers
       run: |

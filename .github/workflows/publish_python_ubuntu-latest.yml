@@ -38,14 +38,14 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install numpy==${{matrix.python[1]}} twine wheel
+        python -m pip install numpy==${{matrix.python[1]}} twine wheel setuptools
 
     - name : Create Wheels
       run : |
         cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
-        # Note: wheel must be declared pure (see setup.py)
+        # Note: wheel must be declared not pure (see setup.py)
         python setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
 
     - name : Upload
