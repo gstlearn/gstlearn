@@ -346,8 +346,3 @@ int ProjConvolution::getPointNumber() const
   VectorInt nxs = _gridSeismic->getNXs();
   return VH::product(nxs);
 }
-
-NF_Triplet ProjConvolution::getAProjHorizToTriplet() const
-{
-  return _AProjHoriz->getMatrixToTriplet();
-}

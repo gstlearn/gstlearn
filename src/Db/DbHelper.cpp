@@ -862,11 +862,11 @@ int DbHelper::normalizeVariables(Db *db,
  **
  *****************************************************************************/
 int DbHelper::dbgrid_filling(DbGrid *dbgrid,
-                          int mode,
-                          int seed,
-                          int radius,
-                          bool verbose,
-                          const NamingConvention &namconv)
+                             int mode,
+                             int seed,
+                             int radius,
+                             bool verbose,
+                             const NamingConvention &namconv)
 {
   Skin *skin = nullptr;
   double *tabval;

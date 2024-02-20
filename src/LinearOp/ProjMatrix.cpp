@@ -199,8 +199,3 @@ String ProjMatrix::toString(const AStringFormat* strfmt) const
   }
   return sstr.str();
 }
-
-NF_Triplet ProjMatrix::getAprojToTriplet() const
-{
-  return getAproj()->getMatrixToTriplet();
-}

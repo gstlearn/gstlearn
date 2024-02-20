@@ -43,7 +43,6 @@ public:
   DbGrid* getResolutionGrid() const;
 
   const MatrixSparse* getAProjHoriz() const { return _AProjHoriz; }
-  NF_Triplet getAProjHorizToTriplet() const;
 
   const VectorDouble& getConvolution() const { return _convolution; }
   const VectorInt& getShiftVector() const { return _shiftVector; }

@@ -572,13 +572,11 @@ double SPDE::computeLogDet(int nbsimu,int seed) const
 {
   if (_precisionsKrig == nullptr)
   {
-    messerr("The member '_precisionKrig' must have been calculated beforehand");
+    messerr("The member '_precisionsKrig' must have been calculated beforehand");
     return TEST;
   }
 
-  double val;
-  val = _precisionsKrig->computeTotalLogDet(nbsimu,seed);
-  return val;
+  return _precisionsKrig->computeTotalLogDet(nbsimu,seed);
 }
 
 double SPDE::computeQuad() const
@@ -590,7 +588,7 @@ double SPDE::computeQuad() const
   }
   if (_precisionsKrig == nullptr)
   {
-    messerr("The member '_precisionKrig' must have been calculated beforehand");
+    messerr("The member '_precisionsKrig' must have been calculated beforehand");
     return TEST;
   }
 
@@ -605,7 +603,7 @@ double SPDE::computeLogLike(int nbsimu, int seed) const
 {
   if (_precisionsKrig == nullptr)
   {
-    messerr("The member '_precisionKrig' must have been calculated beforehand");
+    messerr("The member '_precisionsKrig' must have been calculated beforehand");
     return TEST;
   }
 

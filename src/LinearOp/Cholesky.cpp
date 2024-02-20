@@ -277,7 +277,13 @@ double Cholesky::getLogDeterminant() const
   if (! isValid()) return TEST;
   if (_matCS->isFlagEigen())
   {
-    return log(_cholSolver.determinant());
+//    return log(_cholSolver.determinant()); // This should be avoided to prevent overflow for large matrix
+    double det = 0.;
+    auto& diag = _cholSolver.vectorD();
+    for (int i = 0; i < _matCS->getNRows(); ++i)
+      det += log(diag[i]);
+//    det *= 2;
+    return det;
   }
   else
   {

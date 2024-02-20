@@ -728,6 +728,7 @@ setMethod('[<-',  '_p_DbGrid',           setDbitem)
 "MatrixRectangular_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSquareGeneral_toTL" <- function(x) { matrix_toTL(x) }
 "MatrixSquareSymmetric_toTL" <- function(x) { matrix_toTL(x) }
+"MatrixSparse_toTL" <- function(x) { matrix_toTL(x) }
 
 "Table_toTL" <- function(tab)
 {
@@ -790,7 +791,7 @@ setMethod('[<-',  '_p_Table',               setTableitem)
   Q = NULL
   if (isNamespaceLoaded("Matrix"))
   {
-    Q = sparseMatrix(i=x$getNRows(TRUE), j=x$getNCols(TRUE), x=x$getValues(),
+    Q = sparseMatrix(i=x$getRows(TRUE), j=x$getCols(TRUE), x=x$getValues(),
                      dims=c(x$getNRows()+1,x$getNCols()+1))
   }
   else

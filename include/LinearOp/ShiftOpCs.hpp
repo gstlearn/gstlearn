@@ -112,9 +112,6 @@ public:
   MatrixSparse* getS() const { return _S; }
   MatrixSparse* getTildeCGrad(int iapex, int igparam) const;
   MatrixSparse* getSGrad(int iapex, int igparam) const;
-  NF_Triplet getSToTriplet() const;
-  NF_Triplet getTildeCGradToTriplet(int iapex, int igparam) const;
-  NF_Triplet getSGradToTriplet(int iapex, int igparam) const;
 
   const VectorDouble& getTildeC() const { return _TildeC; }
   const VectorDouble& getLambdas() const { return _Lambda; }

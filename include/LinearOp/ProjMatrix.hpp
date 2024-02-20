@@ -57,7 +57,6 @@ public:
                          bool verbose = false);
 
   MatrixSparse* getAproj() const { return _AprojCS; }
-  NF_Triplet getAprojToTriplet() const;
 
 private:
   int  _nPoint; // _nPoint = Number of rows of _Aproj

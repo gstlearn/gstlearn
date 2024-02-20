@@ -175,7 +175,7 @@ int MatrixSparse::computeCholesky()
   }
   if (_factor != nullptr) return 0;
   _factor = new Cholesky(this);
-  return _factor == nullptr;
+  return (_factor == nullptr);
 }
 
 int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
@@ -194,10 +194,7 @@ int MatrixSparse::solveCholesky(const VectorDouble& b, VectorDouble& x)
     return 1;
   }
   if (_factor == nullptr)
-  {
-    messerr("Use 'computeCholesky' beforehand");
-    return 1;
-  }
+    _factor = new Cholesky(this);
   return _factor->solve(b, x);
 }
 
@@ -217,21 +214,14 @@ int MatrixSparse::simulateCholesky(const VectorDouble &b, VectorDouble &x)
     return 1;
   }
   if (_factor == nullptr)
-  {
-    messerr("Use 'computeCholesky' beforehand");
-    return 1;
-  }
-
+    _factor = new Cholesky(this);
   return _factor->simulate(b, x);
 }
 
 double MatrixSparse::getCholeskyLogDeterminant()
 {
   if (_factor == nullptr)
-  {
-    messerr("Use 'computeCholesky' beforehand");
-    return TEST;
-  }
+    _factor = new Cholesky(this);
   return _factor->getLogDeterminant();
 }
 
@@ -1307,7 +1297,11 @@ void MatrixSparse::_deallocate()
   {
     _csMatrix = cs_spfree2(_csMatrix);
   }
-  delete _factor;
+  if (_factor != nullptr)
+  {
+    delete _factor;
+    _factor = nullptr;
+  }
 }
 
 void MatrixSparse::_forbiddenForSparse(const String& func) const

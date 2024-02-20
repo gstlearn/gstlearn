@@ -163,14 +163,14 @@ To compute a non conditional simulation on the grid,
 
 ```{r ncsimu_step_0, echo=TRUE, eval=TRUE}
 # projection matrix of the latent vector on the grid
-A_g  = ProjMatrix(grid, mesh)$getAprojToTriplet()$toTL()
+A_g  = ProjMatrix(grid, mesh)$getAproj()$toTL()
 ```
 
 1) Compute $\mathbf{L}$ the Cholesky decomposition of the sparse precision matrix $\mathbf{Q}$
 
 ```{r ncsimu_step_1, echo=TRUE, eval=TRUE}
 # Cholesky decomposition of precision matrix of the latent vector
-Q = spde$getPrecisionOpCs()$getQToTriplet()$toTL()
+Q = spde$getPrecisionOpCs()$getQ()$toTL()
 cholQ = Matrix::Cholesky(Q, LDL = FALSE)
 ```
 
@@ -224,7 +224,7 @@ err = migrate(dbin = grid, dbout = dat, name = "manual.simu", namconv = NamingCo
 err = dat$setName("manual.simu.*", "Z")
 
 # projection matrix of the latent vector on the data locations
-A_d = ProjMatrix(dat, mesh)$getAprojToTriplet()$toTL()
+A_d = ProjMatrix(dat, mesh)$getAproj()$toTL()
 ```
 
 The $p$ observations are defined by the vector $\mathbf{Y_d = A_d \, Z + \tau \, W_d}$, where $\mathbf{A_d}$ is the projection matrix from the latent vector $\mathbf{Z}$ to the data location, $\tau$ is 

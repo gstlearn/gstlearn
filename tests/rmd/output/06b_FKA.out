@@ -61,12 +61,12 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    273.080
+- Sill         =    274.569
 Spherical
-- Sill         =     56.089
-- Range        =      3.600
-Power (Third Parameter = 0.0879341)
-- Slope        =      1.187
+- Sill         =     56.138
+- Range        =      3.599
+Power (Third Parameter = 0.0893916)
+- Slope        =      1.172
 
 
 Drift Part
@@ -86,13 +86,13 @@ Number of drift equation(s)  = 1
 Covariance Part
 ---------------
 Nugget Effect
-- Sill         =    273.080
+- Sill         =    274.569
   (This component is Filtered)
 Spherical
-- Sill         =     56.089
-- Range        =      3.600
-Power (Third Parameter = 0.0879341)
-- Slope        =      1.187
+- Sill         =     56.138
+- Range        =      3.599
+Power (Third Parameter = 0.0893916)
+- Slope        =      1.172
 
 
 Drift Part
@@ -114,22 +114,22 @@ Covariance Part
 Nugget Effect
 - Sill matrix:
                [,  0]    [,  1]    [,  2]
-     [  0,]   376.850   452.534  -476.811
-     [  1,]   452.534194188.109-11524.845
-     [  2,]  -476.811-11524.845145939.572
+     [  0,]   376.846   453.172  -476.592
+     [  1,]   453.172194188.109-11524.845
+     [  2,]  -476.592-11524.845145939.572
 Spherical
 - Sill matrix:
                [,  0]    [,  1]    [,  2]
-     [  0,]    57.513  5031.290 -4489.149
-     [  1,]  5031.290636076.559-583291.704
-     [  2,] -4489.149-583291.704616673.997
+     [  0,]    57.516  5031.714 -4488.216
+     [  1,]  5031.714636076.559-583291.704
+     [  2,] -4488.216-583291.704616673.997
 - Range        =     12.375
 Power (Third Parameter = 1.99)
 - Slope matrix:
                [,  0]    [,  1]    [,  2]
-     [  0,]     0.263    -0.414     6.133
-     [  1,]    -0.414   145.976    44.478
-     [  2,]     6.133    44.478   163.446
+     [  0,]     0.262    -0.416     6.127
+     [  1,]    -0.416   145.976    44.478
+     [  2,]     6.127    44.478   163.446
 
 
 Drift Part

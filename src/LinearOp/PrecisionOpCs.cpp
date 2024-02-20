@@ -46,11 +46,6 @@ PrecisionOpCs::~PrecisionOpCs()
   delete _Q;
 }
 
-NF_Triplet PrecisionOpCs::getQToTriplet() const
-{
-  return getQ()->getMatrixToTriplet();
-}
-
 void PrecisionOpCs::gradYQX(const VectorDouble & X, const VectorDouble &Y, VectorDouble& result, const EPowerPT& power)
 {
   if (_work2.empty()) _work2.resize(getSize());
@@ -224,7 +219,8 @@ void PrecisionOpCs::_buildQ(bool flagDecompose)
                        static_cast<int>(blin.size()), blin.data());
 
   // Prepare the Cholesky decomposition
-  if (flagDecompose) _Q->computeCholesky();
+  if (flagDecompose)
+    _Q->computeCholesky();
 }
 
 void PrecisionOpCs::makeReady()

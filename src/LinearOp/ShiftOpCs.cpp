@@ -507,19 +507,6 @@ MatrixSparse* ShiftOpCs::getSGrad(int iapex, int igparam) const
   return _SGrad[iad];
 }
 
-NF_Triplet ShiftOpCs::getSToTriplet() const
-{
-  return csToTriplet(getS()->getCS());
-}
-NF_Triplet ShiftOpCs::getTildeCGradToTriplet(int iapex, int igparam) const
-{
-  return csToTriplet(getTildeCGrad(iapex, igparam)->getCS());
-}
-NF_Triplet ShiftOpCs::getSGradToTriplet(int iapex, int igparam) const
-{
-  return csToTriplet(getSGrad(iapex, igparam)->getCS());
-}
-
 /**
  * Locally update the covariance (does nothing in Stationary Case)
  * @param cova Local CovAniso structure (updated here)

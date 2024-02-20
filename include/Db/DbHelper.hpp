@@ -37,9 +37,9 @@ public:
                                 double center,
                                 double stdv);
   static int dbgrid_filling(DbGrid *dbgrid,
-                            int mode,
-                            int seed,
-                            int radius,
+                            int mode = 0,
+                            int seed = 34342,
+                            int radius = 1,
                             bool verbose = false,
                             const NamingConvention &namconv = NamingConvention("Fill"));
   static int db_duplicate(Db *db,

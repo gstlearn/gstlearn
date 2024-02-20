@@ -46,7 +46,6 @@ int main(int argc, char *argv[])
       NF_T.add(irow, icol, value);
     }
   MatrixSparse *A = MatrixSparse::createFromTriplet(NF_T);
-  A->display();
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
 
@@ -73,7 +72,6 @@ int main(int argc, char *argv[])
 
   Cholesky Qchol(Q);
   message("Matrix used to demonstrate Cholesky Algebra\n");
-  Q->display();
 
   // Checking Product
 

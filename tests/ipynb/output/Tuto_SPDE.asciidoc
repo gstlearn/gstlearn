@@ -26,11 +26,11 @@ Data Base Statistics
 4 - Name spde - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.277
- Maximum value       =      3.379
- Mean value          =      0.068
+ Minimum value       =     -3.342
+ Maximum value       =      3.300
+ Mean value          =     -0.121
  Standard Deviation  =      1.007
- Variance            =      1.015
+ Variance            =      1.014
 
 Variables
 ---------
@@ -65,11 +65,11 @@ Data Base Statistics
 3 - Name spde - Locator z1
  Nb of data          =       1000
  Nb of active values =       1000
- Minimum value       =     -3.183
- Maximum value       =      3.157
- Mean value          =      0.038
- Standard Deviation  =      0.994
- Variance            =      0.989
+ Minimum value       =     -2.993
+ Maximum value       =      2.428
+ Mean value          =     -0.157
+ Standard Deviation  =      1.014
+ Variance            =      1.028
 
 Variables
 ---------
@@ -103,19 +103,19 @@ Data Base Statistics
 4 - Name spde - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.277
- Maximum value       =      3.379
- Mean value          =      0.068
+ Minimum value       =     -3.342
+ Maximum value       =      3.300
+ Mean value          =     -0.121
  Standard Deviation  =      1.007
- Variance            =      1.015
+ Variance            =      1.014
 5 - Name spde.spde.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -2.607
- Maximum value       =      2.911
- Mean value          =      0.036
- Standard Deviation  =      0.860
- Variance            =      0.740
+ Minimum value       =     -2.554
+ Maximum value       =      2.026
+ Mean value          =     -0.137
+ Standard Deviation  =      0.885
+ Variance            =      0.784
 
 Variables
 ---------
@@ -135,7 +135,7 @@ Column = 4 - Name = spde.spde.estim - Locator = z1
 
 +#NO_DIFF#XXX+
 ----
-Variance = 1.0167
+Variance = 1.1733
 
 #NO_DIFF#XXX
 ----
@@ -150,14 +150,14 @@ Variance = 1.0167
 +#NO_DIFF#XXX+
 ----
 logdet_chol -1261.3613
-quad_chol 1061.1439
-like_chol 100.1087
+quad_chol 1118.4871
+like_chol 71.4371
 ----
 
 
 +#NO_DIFF#XXX+
 ----
--> Relative difference quadratic = 0.03 %
+-> Relative difference quadratic = 0.01 %
 ----
 
 
@@ -179,7 +179,7 @@ log_det_Q_api 11255.7151
 
 +#NO_DIFF#XXX+
 ----
-likelihood api 100.1087
-likelihood_chol 99.974
--> Relative Difference = -0.13 %
+likelihood api 71.4371
+likelihood_chol 71.3714
+-> Relative Difference = -0.09 %
 ----
