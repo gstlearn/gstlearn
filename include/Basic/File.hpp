@@ -37,6 +37,7 @@ public:
   void stop();
 
 private:
+  bool _flagActive;
 #if defined(_WIN32) || defined(_WIN64)
   // HANDLE _old_stdout;
   void* _old_stdout;

@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   OptCst::define(ECst::NTDEC, 2);
   OptCst::define(ECst::NTROW, -1);
   bool flagExhaustiveTest = false;
-  bool flagStatistics     = false;
+  bool flagStatistics     = true;
 
   // Feature to be tested:
   // -1: all of them
