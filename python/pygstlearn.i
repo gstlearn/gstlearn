@@ -1061,11 +1061,10 @@ gl.Db.fromTL = staticmethod(Db_fromPanda)
 
 def matrix_toTL(self):
   if self.isSparse():
-    Acs = self.getSparseToTriplet().toTL()
-    return Acs
+  	NF_T = self.getMatrixToTriplet()
+  	return Triplet_toTL(NF_T)
   else:
-    Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
-    return Anp
+    return np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
   return
 
 setattr(gl.MatrixRectangular, "toTL", matrix_toTL)
@@ -1073,14 +1072,12 @@ setattr(gl.MatrixSquareGeneral, "toTL", matrix_toTL)
 setattr(gl.MatrixSquareSymmetric, "toTL", matrix_toTL)
 setattr(gl.MatrixSparse, "toTL", matrix_toTL)
 
-# TODO : Replace Triplet_toTL by MatrixSparse_toTL
 def Triplet_toTL(self):
-  Acs = sc.csc_matrix((np.array(self.values), 
-                      (np.array(self.rows), np.array(self.cols))),
-                         shape=(self.nrows, self.ncols))
-  return Acs
+  return sc.csc_matrix((np.array(self.getValues()), 
+                      (np.array(self.getRows()), np.array(self.getCols()))),
+                         shape=(self.getNRows()+1, self.getNCols()+1))
 
-setattr(gl.Triplet, "toTL", Triplet_toTL)
+setattr(gl.NF_Triplet, "toTL", Triplet_toTL)
 
 def table_toTL(self):
 # As a Panda Data Frame
@@ -1092,8 +1089,6 @@ def table_toTL(self):
   	rownames = None
   Anp = pd.DataFrame(self.getValues(False).reshape(self.getNRows(),self.getNCols()),
   columns = colnames, index=rownames)
-# As a simple array
-#  Anp = np.array(self.getValues()).reshape(self.getNRows(),self.getNCols())
   return Anp
 
 setattr(gl.Table, "toTL", table_toTL)
@@ -1104,8 +1099,7 @@ def vario_toTL(self, idir, ivar, jvar):
   gg = self.getGgVec(idir, ivar, jvar, False, False, False)
   array = np.vstack((sw, hh, gg)).T
   colnames = np.array(["sw","hh","gg"])
-  df = pd.DataFrame(array, columns = colnames)
-  return df
+  return pd.DataFrame(array, columns = colnames)
 
 setattr(gl.Vario, "toTL", vario_toTL)
 

@@ -136,6 +136,7 @@
 %shared_ptr(MatrixSparse)
 %shared_ptr(MatrixSquareGeneral)
 %shared_ptr(MatrixSquareSymmetric)
+%shared_ptr(NF_Triplet)
 %shared_ptr(MeshEStandard)
 %shared_ptr(MeshETurbo)
 %shared_ptr(MeshSpherical)
@@ -419,8 +420,10 @@
   #include "Matrix/AMatrixSquare.hpp"
   #include "Matrix/MatrixSquareGeneral.hpp"
   #include "Matrix/MatrixSquareSymmetric.hpp"
+  #include "Matrix/MatrixFactory.hpp"
   #include "Matrix/MatrixInt.hpp"
   #include "Matrix/Table.hpp"
+  #include "Matrix/NF_Triplet.hpp"
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
@@ -431,6 +434,7 @@
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
   #include "Db/DbStringFormat.hpp"
+  #include "Db/DbHelper.hpp"
   
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"

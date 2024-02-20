@@ -76,7 +76,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
   return 0;
 }
 
-int Rotation::setMatrixDirectByVector(const VectorDouble& rotmat)
+int Rotation::setMatrixDirectVec(const VectorDouble& rotmat)
 {
   if (! rotmat.empty())
   {
@@ -143,7 +143,7 @@ void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
   if (!_flagRot)
     outv = inv;
   else
-   _rotMat.prodVectorInPlace(inv, outv);
+   _rotMat.prodMatVecInPlace(inv, outv, false);
 }
 
 void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
@@ -151,7 +151,7 @@ void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
   if (!_flagRot)
     outv = inv;
   else
-    _rotInv.prodVectorInPlace(inv, outv);
+    _rotInv.prodMatVecInPlace(inv, outv, false);
 }
 
 void Rotation::_recopy(const Rotation &r)

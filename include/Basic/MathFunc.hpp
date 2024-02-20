@@ -62,19 +62,15 @@ GSTLEARN_EXPORT double golden_search(double (*func_evaluate)(double test,
                                      double *niter);
 GSTLEARN_EXPORT int ut_chebychev_count(double (*func)(double,
                                                       double,
-                                                      int,
-                                                      double*),
+                                                      const VectorDouble&),
                                        Cheb_Elem *cheb_elem,
                                        double x,
-                                       int nblin,
-                                       double *blin);
+                                       const VectorDouble& blin);
 GSTLEARN_EXPORT int ut_chebychev_coeffs(double (*func)(double,
                                                        double,
-                                                       int,
-                                                       double*),
+                                                       const VectorDouble&),
                                         Cheb_Elem *cheb_elem,
-                                        int nblin,
-                                        double *blin);
+                                        const VectorDouble& blin);
 GSTLEARN_EXPORT void ut_vandercorput(int n,
                                      int flag_sym,
                                      int flag_rot,

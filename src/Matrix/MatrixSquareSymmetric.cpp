@@ -17,6 +17,11 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 
+#define TRI(i)        (((i) * ((i) + 1)) / 2)
+#define SQ(i,j,neq)   ((j) * neq + (i))
+#define AT(i,j)        at[TRI(j)+(i)] /* for j >= i */
+#define AL(i,j)        al[SQ(i,j,neq)-TRI(j)] /* for i >= j */
+
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, int opt_eigen)
     : AMatrixSquare(nrow, opt_eigen),
       _squareSymMatrix()
@@ -120,7 +125,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createFromVD(const VectorDouble &X
 
 double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getValue(irow, icol);
   else
     return _getValueLocal(irow, icol);
@@ -128,7 +133,7 @@ double MatrixSquareSymmetric::_getValue(int irow, int icol) const
 
 double MatrixSquareSymmetric::_getValueByRank(int irank) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getValueByRank(irank);
   else
     return _getValueLocal(irank);
@@ -136,7 +141,7 @@ double MatrixSquareSymmetric::_getValueByRank(int irank) const
 
 double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getValueRef(irow, icol);
   else
     return _getValueRef(irow, icol);
@@ -144,7 +149,7 @@ double& MatrixSquareSymmetric::_getValueRef(int irow, int icol)
 
 void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
   {
     // Do not forget to make a symmetrical call (when stored in an Eigen format)
     AMatrixDense::_setValue(irow, icol, value);
@@ -156,18 +161,26 @@ void MatrixSquareSymmetric::_setValue(int irow, int icol, double value)
 
 void MatrixSquareSymmetric::_setValueByRank(int irank, double value)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_setValueByRank(irank, value);
   else
     _setValueLocal(irank, value);
 }
 
-void MatrixSquareSymmetric::_prodVectorInPlace(const double *inv, double *outv) const
+void MatrixSquareSymmetric::_prodMatVecInPlacePtr(const double *x, double *y, bool transpose) const
 {
-  if (_isFlagEigen())
-    AMatrixDense::_prodVectorInPlace(inv, outv);
+  if (isFlagEigen())
+    AMatrixDense::_prodMatVecInPlacePtr(x, y, transpose);
   else
-    _prodVectorLocal(inv, outv);
+    _prodMatVecInPlacePtrLocal(x, y, transpose);
+}
+
+void MatrixSquareSymmetric::_prodVecMatInPlacePtr(const double *x, double *y, bool transpose) const
+{
+  if (isFlagEigen())
+    AMatrixDense::_prodVecMatInPlacePtr(x, y, transpose);
+  else
+    _prodVecMatInPlacePtrLocal(x, y, transpose);
 }
 
 /**
@@ -175,7 +188,7 @@ void MatrixSquareSymmetric::_prodVectorInPlace(const double *inv, double *outv) 
  */
 void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_setValues(values, byCol);
   else
     _setValuesLocal(values, byCol);
@@ -183,7 +196,7 @@ void MatrixSquareSymmetric::_setValues(const double* values, bool byCol)
 
 int MatrixSquareSymmetric::_invert()
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_invert();
   else
     return _invertLocal();
@@ -191,7 +204,7 @@ int MatrixSquareSymmetric::_invert()
 
 void MatrixSquareSymmetric::_deallocate()
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_deallocate();
   else
   {
@@ -201,7 +214,7 @@ void MatrixSquareSymmetric::_deallocate()
 
 void MatrixSquareSymmetric::_allocate()
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     AMatrixDense::_allocate();
   else
     _allocateLocal();
@@ -209,7 +222,7 @@ void MatrixSquareSymmetric::_allocate()
 
 int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getIndexToRank(irow, icol);
   else
     return _getIndexToRankLocal(irow, icol);
@@ -217,7 +230,7 @@ int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 
 int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_getMatrixPhysicalSize();
   else
     return _getMatrixPhysicalSizeLocal();
@@ -225,7 +238,7 @@ int MatrixSquareSymmetric::_getMatrixPhysicalSize() const
 
 int MatrixSquareSymmetric::_solve(const VectorDouble& b, VectorDouble& x) const
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_solve(b, x);
   else
     return _solveLocal(b, x);
@@ -238,57 +251,86 @@ bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
 }
 
 /**
- * Perform the product: this = t(X) %*% X
- * @param x: Matrix [nrow, ncol] where ncol = this->getNSize()
+ * Perform the product: this = t(Y) %*% X %*% Y (T=false) or Y % X %*% t(Y) (T=true)
+ * @param y: Matrix (possibly rectangular)
+ * @param x: Square matrix (optional)
+ * @param transpose: transposition flag (T in the description)
+ * \remarks The number of rows of Y must be equal to the dimension of X
+ * \remarks The output matrix is square with dimension equal to the number of columns of Y
  */
-void MatrixSquareSymmetric::normSingleMatrix(const AMatrix& x)
+void MatrixSquareSymmetric::normMatrix(const AMatrix& y, const AMatrixSquare& x, bool transpose)
 {
-  if (getNSize() != x.getNCols())
+  bool xEmpty = x.empty();
+  int n = 0;
+
+  if (xEmpty)
   {
-    my_throw("Incompatible matrix dimensions");
+    if (transpose)
+    {
+      if (getNSize() != y.getNRows())
+        my_throw("Incompatible matrix dimensions: y.nrows != this.size");
+      n = y.getNCols();
+    }
+    else
+    {
+      if (getNSize() != y.getNCols())
+        my_throw("Incompatible matrix dimensions: y.ncols != this.size");
+      n = y.getNRows();
+    }
+  }
+  else
+  {
+    if (transpose)
+    {
+      if (y.getNCols() != x.getNSize())
+        my_throw("Incompatible matrix dimensions: y.ncols != x.nsize");
+      n = x.getNSize();
+    }
+    else
+    {
+      if (y.getNRows() != x.getNSize())
+        my_throw("Incompatible matrix dimensions: y.nrows != x.nsize");
+      n = x.getNSize();
+    }
   }
 
   int nout = getNSize();
-  int n = x.getNRows();
   for (int irow = 0; irow < nout; irow++)
-  {
     for (int icol = 0; icol <= irow; icol++)
     {
       double value = 0.;
-      for (int k = 0; k < n; k++)
+
+      if (xEmpty)
       {
-        value += x.getValue(k,irow) * x.getValue(k,icol);
+        if (! transpose)
+        {
+          for (int k = 0; k < n; k++)
+            value += y.getValue(k,irow) * y.getValue(k,icol);
+        }
+        else
+        {
+          for (int k = 0; k < n; k++)
+            value += y.getValue(irow,k) * y.getValue(icol,k);
+        }
       }
+      else
+      {
+        if (!transpose)
+        {
+          for (int k = 0; k < n; k++)
+            for (int l = 0; l < n; l++)
+              value += y.getValue(k, irow) * x.getValue(k, l) * y.getValue(l, icol);
+        }
+        else
+        {
+          for (int k = 0; k < n; k++)
+            for (int l = 0; l < n; l++)
+              value += y.getValue(irow, k) * x.getValue(k, l) * y.getValue(icol, l);
+        }
+      }
+
       setValue(irow,icol,value);
     }
-  }
-}
-
-/**
- * Perform the product: this = X %*% t(X)
- * @param x: Matrix [nrow, ncol] where nrow = this->getNSize()
- */
-void MatrixSquareSymmetric::normTSingleMatrix(const AMatrix& x)
-{
-  if (getNSize() != x.getNRows())
-  {
-    my_throw("Incompatible matrix dimensions");
-  }
-
-  int nout = getNSize();
-  int n = x.getNCols();
-  for (int irow = 0; irow < nout; irow++)
-  {
-    for (int icol = 0; icol <= irow; icol++)
-    {
-      double value = 0.;
-      for (int k = 0; k < n; k++)
-      {
-        value += x.getValue(irow,k) * x.getValue(icol,k);
-      }
-      setValue(irow,icol,value);
-    }
-  }
 }
 
 MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &validRows) const
@@ -310,7 +352,7 @@ MatrixSquareSymmetric* MatrixSquareSymmetric::createReduce(const VectorInt &vali
 
 int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_computeEigen(optionPositive);
   else
     return _computeEigenLocal(optionPositive);
@@ -318,7 +360,7 @@ int MatrixSquareSymmetric::computeEigen(bool optionPositive)
 
 int MatrixSquareSymmetric::computeGeneralizedEigen(const MatrixSquareSymmetric& b, bool optionPositive)
 {
-  if (_isFlagEigen())
+  if (isFlagEigen())
     return AMatrixDense::_computeGeneralizedEigen(b, optionPositive);
   else
     return _computeGeneralizedEigenLocal(b, optionPositive);
@@ -367,9 +409,14 @@ void MatrixSquareSymmetric::_setValueLocal(int irank, double value)
   _squareSymMatrix[irank] = value;
 }
 
-void MatrixSquareSymmetric::_prodVectorLocal(const double *inv, double *outv) const
+void MatrixSquareSymmetric::_prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose) const
 {
-  matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),inv,outv);
+  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
+}
+
+void MatrixSquareSymmetric::_prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose) const
+{
+  _matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),x,y);
 }
 
 /**
@@ -469,7 +516,7 @@ int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymme
   _eigenValues = VectorDouble(nrows, 0.);
   VectorDouble eigenVectors = VectorDouble(nrows * nrows, 0);
 
-  int err = matrix_geigen(this->getValues().data(),b.getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
+  int err = _matrix_geigen(this->getValues().data(),b.getValues().data(), nrows, _eigenValues.data(), eigenVectors.data());
   if (err == 0)
   {
     std::reverse(_eigenValues.begin(), _eigenValues.end());
@@ -478,4 +525,125 @@ int MatrixSquareSymmetric::_computeGeneralizedEigenLocal(const MatrixSquareSymme
     if (optionPositive) _eigenVectors->makePositiveColumn();
   }
   return err;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculates the generalized eigen value problem
+ **           A X = B X l
+ **
+ ** \return  Return code:
+ ** \return   0 no error
+ ** \return   1 convergence problem
+ **
+ ** \param[in]  a     square symmetric matrix (dimension = neq * neq)
+ ** \param[in]  b     square symmetric matrix (dimension = neq * neq)
+ ** \param[in]  neq   matrix dimension
+ **
+ ** \param[out] value  matrix of the eigen values (dimension: neq)
+ ** \param[out] vector matrix of the eigen vectors (dimension: neq*neq)
+ **
+ *****************************************************************************/
+int MatrixSquareSymmetric::_matrix_geigen(const double *a,
+                                          const double *b,
+                                          int neq,
+                                          double *value,
+                                          double *vector) const
+{
+  // Compute eigen decomposition of B
+  VectorDouble LB(neq);
+  VectorDouble PhiB(neq * neq);
+  if (matrix_eigen(b, neq, LB.data(), PhiB.data())) return 1;
+
+  // Compute auxiliary terms
+  VectorDouble PhiBm = PhiB;
+  int ecr = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++, ecr++)
+      PhiBm[ecr] /= sqrt(LB[i]);
+
+  VectorDouble Am(neq * neq, 0.);
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      for (int k = 0; k < neq; k++)
+        for (int l = 0; l < neq; l++)
+          Am[i * neq + j] += PhiBm[i * neq + k] * a[l * neq + k] * PhiBm[j * neq + l];
+
+  // Compute eigen decomposition of Am
+  VectorDouble LA(neq);
+  VectorDouble PhiA(neq * neq);
+  if (matrix_eigen(Am.data(), neq, LA.data(), PhiA.data())) return 1;
+
+  VectorDouble Phi(neq * neq,0.);
+  ecr = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      for (int k = 0; k < neq; k++)
+        Phi[j * neq + i] += PhiBm[k * neq + i] * PhiA[j * neq + k];
+
+  // Sort the eigen values by increasing values
+  VectorInt ranks = VH::sortRanks(LA, true, neq);
+
+  // Ultimate assignments
+  for (int i = 0; i < neq; i++)
+    value[i] = LA[ranks[i]];
+
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
+      vector[i * neq + j] = -Phi[ranks[i] * neq + j];
+
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Performs the product of a symmetric matrix by a vector
+ **
+ ** \param[in]  neq    Dimension of the matrix
+ ** \param[in]  mode   1 if the Lower matrix is stored linewise
+ **                      (or if the Upper matrix is stored columnwise)
+ **                    2 if the Lower matrix is stored columnwise
+ **                      (or the Upper matrix is stored linewise)
+ ** \param[in]  al     Lower triangular matrix defined by column
+ ** \param[in]  b      Vector
+ **
+ ** \param[out] x      Resulting product vector
+ **
+ *****************************************************************************/
+void MatrixSquareSymmetric::_matrix_triangular_product(int neq,
+                                                       int mode,
+                                                       const double *al,
+                                                       const double *b,
+                                                       double *x) const
+{
+  int i, j;
+  const double *at;
+  double value;
+
+  if (mode == 1)
+  {
+    at = al;
+    for (i = 0; i < neq; i++)
+    {
+      value = 0.;
+      for (j = 0; j <= i; j++)
+        value += AT(j,i)* b[j];
+      for (j = i + 1; j < neq; j++)
+        value += AT(i,j)* b[j];
+      x[i] = value;
+    }
+  }
+  else
+  {
+    for (i = 0; i < neq; i++)
+    {
+      value = 0.;
+      for (j = 0; j <= i; j++)
+        value += AL(i,j)* b[j];
+      for (j = i + 1; j < neq; j++)
+        value += AL(j,i)* b[j];
+      x[i] = value;
+    }
+  }
+  return;
 }

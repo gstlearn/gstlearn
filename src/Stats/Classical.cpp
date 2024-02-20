@@ -17,6 +17,7 @@
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
 #include "Model/Model.hpp"
 
 #include <math.h>
@@ -1211,7 +1212,7 @@ void dbStatisticsPrint(const Db *db,
  * @return The Sphering matrix (or nullptr if problem)
  *
  * @remark When performing the (forward) sphering, you must perform the following operation
- * @remark        X <- prodMatrix(X, S)
+ * @remark        X <- prodMatMat(X, S)
  */
 MatrixRectangular* sphering(const AMatrix* X)
 {
@@ -1220,7 +1221,7 @@ MatrixRectangular* sphering(const AMatrix* X)
   int nvar = X->getNCols();
 
   AMatrix* TX = X->transpose();
-  AMatrix* prod = prodMatrix(TX, X);
+  AMatrix* prod = MatrixFactory::prodMatMat(TX, X);
   prod->prodScalar(1. / (double) nech);
 
   VectorDouble eigen_values(nvar);

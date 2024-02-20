@@ -20,7 +20,6 @@ class GSTLEARN_EXPORT SpaceTarget : public SpacePoint
 {
 public:
   SpaceTarget(const ASpace* space = nullptr);
-
   SpaceTarget(const SpaceTarget& r);
   SpaceTarget& operator=(const SpaceTarget& r);
   virtual ~SpaceTarget();

@@ -198,12 +198,12 @@ VarioParam* VarioParam::createMultipleFromGrid(const DbGrid* dbgrid,
 }
 
 /**
- * Automatically create a set of calulcation directions for a given Space Direction:
+ * Automatically create a set of calculation directions for a given Space Direction:
  * - one calculation direction per space direction
  * - the same parameters are used for each direction, such as:
  * @param npas Number of lags
  * @param dpas Value of the lag
- * @param toldis Tolerance on distance
+ * @param toldis Tolerance on distancecomputeFromDb
  * @param tolang Tolerance on angle
  * @param scale Scaling factor
  * @param dates Range of dates
@@ -225,7 +225,9 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    DirParam dirparam(npas, dpas, toldis, tolang);
+    DirParam dirparam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
+                      VectorDouble(), VectorDouble(), TEST, space);
+
     VectorDouble codir(ndim,0.);
     codir[idim] = 1.;
     dirparam.setCodir(codir);
@@ -312,6 +314,11 @@ String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
     sstr << "Number of Date Intervals    = " << getDateNumber() << std::endl;
     sstr << toMatrix("Matrix of Bounds for Data Intervals",VectorString(),VectorString(),
                  false,2,getDateNumber(),getDates());
+  }
+
+  if (hasFaults())
+  {
+    sstr << "Calculation takes Faults into account" << std::endl;
   }
   return sstr.str();
 }

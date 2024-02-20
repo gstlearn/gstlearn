@@ -181,15 +181,15 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble &vecin,
   while (niter < _nIterMax && crit > _eps)
   {
     niter++;
-    evalDirect(_p, _temp);                          // temp = Ap
-    alpha = rsold / VH::innerProduct(_temp, _p);        // r'r/p'Ap
-    VH::linearCombVVD(1., vecout, alpha, _p, vecout);     // x = x+alpha p
-    VH::linearCombVVD(1., _r, -alpha, _temp, _r);         // r = r-alpha*Ap
+    evalDirect(_p, _temp);                                // temp = Ap
+    alpha = rsold / VH::innerProduct(_temp, _p);          // r'r/p'Ap
+    VH::linearCombVVD(1., vecout, alpha, _p, vecout);     // x = x + alpha * p
+    VH::linearCombVVD(1., _r, -alpha, _temp, _r);         // r = r - alpha * Ap
 
     if (_precondStatus)
     {
-      _precond->evalDirect(_r, _temp);               // z = Mr
-      rsnew = VH::innerProduct(_r, _temp);               // r'z
+      _precond->evalDirect(_r, _temp);                     // z = Mr
+      rsnew = VH::innerProduct(_r, _temp);                 // r'z
       VH::linearCombVVD(1., _temp, rsnew / rsold, _p, _p); // p = z+beta p
     }
     else

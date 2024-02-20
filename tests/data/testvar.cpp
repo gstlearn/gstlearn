@@ -8,10 +8,8 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "geoslib_f.h"
 
 #include "Variogram/Vario.hpp"
 #include "Space/ASpaceObject.hpp"

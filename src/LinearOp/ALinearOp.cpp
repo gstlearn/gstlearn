@@ -153,9 +153,7 @@ void ALinearOp::evalInverse(const VectorDouble &inv, VectorDouble &outv) const
 double ALinearOp::_prod(const VectorDouble &x, const VectorDouble &y) const
 {
   double prod = 0.;
-  int n = getSize();
-  
-  for (int i=0; i<n; i++)
+  for (int i=0, n = getSize(); i<n; i++)
     prod += x[i] * y[i];
   return prod;
 }

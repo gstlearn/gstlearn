@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f_private.h"
 #include "Db/Db.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/Interval.hpp"
@@ -226,8 +225,8 @@ int Limits::toCategoryByAttribute(Db* db,
                                   int iatt,
                                   const NamingConvention& namconv) const
 {
-  return _db_category(db, iatt, getLowerBounds(), getUpperBounds(),
-                      getLowerIncluded(), getUpperIncluded(), namconv);
+  return _computeCategory(db, iatt, getLowerBounds(), getUpperBounds(),
+                          getLowerIncluded(), getUpperIncluded(), namconv);
 }
 
 int Limits::toCategory(Db* db,
@@ -280,10 +279,9 @@ int Limits::toIndicatorByAttribute(Db *db,
                                    bool flagAbove,
                                    const NamingConvention &namconv) const
 {
-  return _db_indicator(db, iatt, OptionIndicator,
-                       getLowerBounds(), getUpperBounds(),
-                       getLowerIncluded(), getUpperIncluded(),
-                       flagBelow, flagAbove, namconv);
+  return _computeIndicator(db, iatt, OptionIndicator, getLowerBounds(),
+                           getUpperBounds(), getLowerIncluded(),
+                           getUpperIncluded(), flagBelow, flagAbove, namconv);
 }
 
 /**
@@ -300,8 +298,541 @@ VectorDouble Limits::statistics(Db* db, const String& name,
 {
   int iatt = db->getUID(name);
   if (iatt < 0) return 1;
-  return _db_limits_statistics(db, iatt,
-                               getLowerBounds(), getUpperBounds(),
-                               getLowerIncluded(), getUpperIncluded(),
-                               optionStat, flagBelow, flagAbove);
+  return _computeLimitStatistics(db, iatt, getLowerBounds(), getUpperBounds(),
+                                 getLowerIncluded(), getUpperIncluded(),
+                                 optionStat, flagBelow, flagAbove);
 }
+
+/****************************************************************************/
+/*!
+ **  Convert the contents of the ivar-th continuous variable
+ **  into a categorical array
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  iatt    Rank of the attribute
+ ** \param[in]  mini    Array containing the minima per class
+ ** \param[in]  maxi    Array containing the maxima per class
+ ** \param[in]  incmini Array containing the inclusive flag for minima per class
+ ** \param[in]  incmaxi Array containing the inclusive flag for maxima per class
+ ** \param[in]  namconv Naming convention
+ **
+ ** \remark When the array mini or maxi are not provided, then
+ ** \remark mini[iclass] = int(iclass-1)
+ ** \remark maxi[iclass[ = int(iclass)
+ **
+ *****************************************************************************/
+int Limits::_computeCategory(Db *db,
+                             int iatt,
+                             const VectorDouble &mini,
+                             const VectorDouble &maxi,
+                             const VectorBool &incmini,
+                             const VectorBool &incmaxi,
+                             const NamingConvention &namconv) const
+{
+  // Determination of the number of classes
+
+  int nclass;
+  if (_check_bound_consistency(mini, maxi, incmini, incmaxi, &nclass))
+    return 1;
+
+  /* Create the variable */
+
+  int iptr = db->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return (1);
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    double value = db->getArray(iech, iatt);
+    if (FFFF(value)) continue;
+
+    /* Loop on the limits classes */
+
+    int ival = 0;
+    for (int iclass = 0; iclass < nclass; iclass++)
+    {
+      double minival = (mini.empty()) ? iclass + 0.5 : mini[iclass];
+      double maxival = (maxi.empty()) ? iclass + 1.5 : maxi[iclass];
+      if (!FFFF(minival))
+      {
+        int flag = (incmini.empty()) ? 1 : (int) incmini[iclass];
+        if ((flag == 0 && value <= minival) || (flag == 1 && value < minival))
+          continue;
+      }
+      if (!FFFF(maxival))
+      {
+        int flag = (incmaxi.empty()) ? 0 : (int) incmaxi[iclass];
+        if ((flag == 0 && value >= maxival) || (flag == 1 && value > maxival))
+          continue;
+      }
+      ival = iclass + 1;
+    }
+
+    /* Set the returning value */
+
+    db->setArray(iech, iptr, (double) ival);
+  }
+
+  namconv.setNamesAndLocators(db, iatt, db, iptr);
+
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Create indicator variables
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  iatt    Rank of the target variable
+ ** \param[in]  flag_indic Type of variable(s) to be stored:
+ **                     1 the indicator variable
+ **                     0 the mean variable per class
+ ** \param[in]  mini    Array containing the minima per class
+ ** \param[in]  maxi    Array containing the maxima per class
+ ** \param[in]  incmini Array containing the inclusive flag for minima per class
+ ** \param[in]  incmaxi Array containing the inclusive flag for maxima per class
+ ** \param[in]  flagBelow If True, consider the values below the lower bound
+ ** \param[in]  flagAbove If True, consider the values above the upper bound
+ ** \param[in]  namconv Naming convention
+ **
+ ** \remark When both arrays mini and maxi are not provided, then:
+ ** \remark mini[iclass] = iclass-1
+ ** \remark maxi[iclass[ = iclass
+ **
+ *****************************************************************************/
+int Limits::_computeIndicator(Db *db,
+                              int iatt,
+                              int flag_indic,
+                              const VectorDouble &mini,
+                              const VectorDouble &maxi,
+                              const VectorBool &incmini,
+                              const VectorBool &incmaxi,
+                              bool flagBelow,
+                              bool flagAbove,
+                              const NamingConvention &namconv) const
+{
+  // Determination of the number of classes
+
+  int nclass;
+  if (_check_bound_consistency(mini, maxi, incmini, incmaxi, &nclass))
+    return 1;
+
+  /* Core allocation */
+
+  VectorInt count(nclass);
+  VectorInt flagmin(nclass);
+  VectorInt flagmax(nclass);
+  VectorDouble mean(nclass);
+  VectorDouble minival(nclass);
+  VectorDouble maxival(nclass);
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    count[iclass] = 0;
+    mean[iclass] = 0.;
+    minival[iclass] = (mini.empty()) ? iclass + 0.5 : mini[iclass];
+    maxival[iclass] = (maxi.empty()) ? iclass + 1.5 : maxi[iclass];
+    flagmin[iclass] = (incmini.empty()) ? 1 : (int) incmini[iclass];
+    flagmax[iclass] = (incmaxi.empty()) ? 0 : (int) incmaxi[iclass];
+  }
+  int nbelow = 0;
+  int nabove = 0;
+  double mbelow = 0.;
+  double mabove = 0.;
+
+  /* Find extrema of all classes to sort too small or too large samples */
+
+  double zmini =  1.e30;
+  double zmaxi = -1.e30;
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    if (!FFFF(minival[iclass])) zmini = MIN(zmini, minival[iclass]);
+    if (!FFFF(maxival[iclass])) zmaxi = MAX(zmaxi, maxival[iclass]);
+  }
+  if (FFFF(zmini)) zmini = -1.e30;
+  if (FFFF(zmaxi)) zmaxi =  1.e30;
+
+  /* Create the variables */
+
+  int iptr_indic = -1;
+  int iptr_below = -1;
+  int iptr_above = -1;
+  int iptr_mean  = -1;
+  if (flag_indic)
+  {
+    if (flagBelow)
+    {
+      iptr_below =  db->addColumnsByConstant(1, 0.);
+      if (iptr_below < 0) return 1;
+    }
+    iptr_indic = db->addColumnsByConstant(nclass, 0.);
+    if (iptr_indic < 0) return 1;
+    if (flagAbove)
+    {
+      iptr_above =  db->addColumnsByConstant(1, 0.);
+      if (iptr_above < 0) return 1;
+    }
+  }
+  else
+  {
+    iptr_mean = db->addColumnsByConstant(1, TEST);
+    if (iptr_mean < 0) return 1;
+  }
+
+  /* Loop on the samples */
+
+  int nactive = 0;
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    double value = db->getArray(iech, iatt);
+    if (FFFF(value)) continue;
+
+    /* Loop on the limit classes */
+
+    int found = -1;
+    for (int iclass = 0; iclass < nclass; iclass++)
+    {
+      int belong = 1;
+      if (!FFFF(minival[iclass]))
+      {
+        if ((flagmin[iclass] == 0 && value <= minival[iclass]) ||
+            (flagmin[iclass] == 1 && value <  minival[iclass]))
+          belong = 0;
+      }
+      if (!FFFF(maxival[iclass]))
+      {
+        if ((flagmax[iclass] == 0 && value >= maxival[iclass]) ||
+            (flagmax[iclass] == 1 && value >  maxival[iclass]))
+          belong = 0;
+      }
+
+      /* Store the indicator (if required) */
+
+      if (flag_indic)
+        db->setArray(iech, iptr_indic + iclass, belong);
+
+      if (belong)
+      {
+        mean[iclass] += value;
+        count[iclass]++;
+        found = iclass;
+      }
+    }
+
+    // Store the Below of Above indicator
+
+    if (flag_indic)
+    {
+      if (flagBelow)
+        db->setArray(iech, iptr_below, value < zmini);
+
+      if (flagAbove)
+        db->setArray(iech, iptr_above, value > zmaxi);
+    }
+
+    /* Update the statistics for classes below and above */
+
+    int iclass;
+    if (found < 0)
+    {
+      if (value < zmini)
+      {
+        nbelow += 1;
+        iclass = -1;
+        mbelow += value;
+      }
+      else
+      {
+        nabove += 1;
+        iclass = nclass;
+        mabove += value;
+      }
+    }
+    else
+    {
+      iclass = found;
+    }
+    if (!flag_indic)
+      db->setArray(iech, iptr_mean, (double) iclass);
+    nactive++;
+  }
+
+  /* Calculate the statistics */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    if (count[iclass] <= 0)
+      mean[iclass] = TEST;
+    else
+      mean[iclass] /= (double) count[iclass];
+  }
+  if (nbelow > 0) mbelow /= (double) nbelow;
+  if (nabove > 0) mabove /= (double) nabove;
+  if (! flagBelow) mbelow = TEST;
+  if (! flagAbove) mabove = TEST;
+
+  /* Assign the mean variable per class */
+
+  if (!flag_indic)
+  {
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+      if (! db->isActive(iech)) continue;
+      double value = db->getArray(iech, iptr_mean);
+      if (FFFF(value)) continue;
+      int iclass = (int) value;
+      if (iclass < 0)
+        db->setArray(iech, iptr_mean, mbelow);
+      else if (iclass < nclass)
+        db->setArray(iech, iptr_mean, mean[iclass]);
+      else
+        db->setArray(iech, iptr_mean, mabove);
+    }
+  }
+
+  // Naming convention
+  if (flag_indic == 1)
+  {
+    if (flagBelow)
+      namconv.setNamesAndLocators(db, iatt, db, iptr_below, "Below", 1);
+    namconv.setNamesAndLocators(db, iatt, db, iptr_indic, "Class", nclass);
+    if (flagAbove)
+      namconv.setNamesAndLocators(db, iatt, db, iptr_above, "Above", 1);
+  }
+  else
+    namconv.setNamesAndLocators(db, iatt, db, iptr_mean, "Mean", 1);
+
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate statistics per class
+ **
+ ** \return  Array of statistics
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  iatt    Rank of the target variable
+ ** \param[in]  mini    Array containing the minima per class
+ ** \param[in]  maxi    Array containing the maxima per class
+ ** \param[in]  incmini Array containing the inclusive flag for minima per class
+ ** \param[in]  incmaxi Array containing the inclusive flag for maxima per class
+ ** \param[in]  optionStat 1 for Proportions; 2 for Mean
+ ** \param[in]  flagBelow If True, consider the values below the lower bound
+ ** \param[in]  flagAbove If True, consider the values above the upper bound
+ **
+ *****************************************************************************/
+VectorDouble Limits::_computeLimitStatistics(Db *db,
+                                             int iatt,
+                                             const VectorDouble &mini,
+                                             const VectorDouble &maxi,
+                                             const VectorBool &incmini,
+                                             const VectorBool &incmaxi,
+                                             int optionStat,
+                                             bool flagBelow,
+                                             bool flagAbove)
+{
+  // Determination of the number of classes
+
+  int nclass;
+  if (_check_bound_consistency(mini, maxi, incmini, incmaxi, &nclass))
+    return 1;
+
+  /* Core allocation */
+
+  VectorInt count(nclass);
+  VectorInt flagmin(nclass);
+  VectorInt flagmax(nclass);
+  VectorDouble mean(nclass);
+  VectorDouble minival(nclass);
+  VectorDouble maxival(nclass);
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    count[iclass] = 0;
+    mean[iclass] = 0.;
+    minival[iclass] = (mini.empty()) ? iclass + 0.5 : mini[iclass];
+    maxival[iclass] = (maxi.empty()) ? iclass + 1.5 : maxi[iclass];
+    flagmin[iclass] = (incmini.empty()) ? 1 : (int) incmini[iclass];
+    flagmax[iclass] = (incmaxi.empty()) ? 0 : (int) incmaxi[iclass];
+  }
+  int nbelow = 0;
+  int nabove = 0;
+  double mbelow = 0.;
+  double mabove = 0.;
+
+  /* Find extrema of all classes to sort too small or too large samples */
+
+  double zmini =  1.e30;
+  double zmaxi = -1.e30;
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    if (!FFFF(minival[iclass])) zmini = MIN(zmini, minival[iclass]);
+    if (!FFFF(maxival[iclass])) zmaxi = MAX(zmaxi, maxival[iclass]);
+  }
+  if (FFFF(zmini)) zmini = -1.e30;
+  if (FFFF(zmaxi)) zmaxi =  1.e30;
+
+  /* Loop on the samples */
+
+  int nactive = 0;
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    double value = db->getArray(iech, iatt);
+    if (FFFF(value)) continue;
+
+    /* Loop on the limit classes */
+
+    int found = -1;
+    for (int iclass = 0; iclass < nclass; iclass++)
+    {
+      int belong = 1;
+      if (!FFFF(minival[iclass]))
+      {
+        if ((flagmin[iclass] == 0 && value <= minival[iclass]) ||
+            (flagmin[iclass] == 1 && value <  minival[iclass]))
+          belong = 0;
+      }
+      if (!FFFF(maxival[iclass]))
+      {
+        if ((flagmax[iclass] == 0 && value >= maxival[iclass]) ||
+            (flagmax[iclass] == 1 && value >  maxival[iclass]))
+          belong = 0;
+      }
+
+      if (belong)
+      {
+        mean[iclass] += value;
+        count[iclass]++;
+        found = iclass;
+      }
+    }
+
+    /* Update the statistics for classes below and above */
+
+    if (found < 0)
+    {
+      if (value < zmini)
+      {
+        nbelow += 1;
+        mbelow += value;
+      }
+      else
+      {
+        nabove += 1;
+        mabove += value;
+      }
+    }
+    nactive++;
+  }
+
+  /* Calculate the statistics */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    if (count[iclass] <= 0)
+      mean[iclass] = TEST;
+    else
+      mean[iclass] /= (double) count[iclass];
+  }
+  if (nbelow > 0) mbelow /= (double) nbelow;
+  if (nabove > 0) mabove /= (double) nabove;
+
+  /* Returning the results */
+
+  VectorDouble stats;
+
+  if (optionStat == 1)
+  {
+    if (flagBelow) stats.push_back((double) nbelow / (double) nactive);
+    for (int iclass = 0; iclass < nclass; iclass++)
+      stats.push_back((double) count[iclass] / (double) nactive);
+    if (flagAbove) stats.push_back((double) nabove / (double) nactive);
+  }
+  else
+  {
+    if (flagBelow) stats.push_back(mbelow);
+    for (int iclass = 0; iclass < nclass; iclass++)
+      stats.push_back(mean[iclass]);
+    if (flagAbove) stats.push_back(mabove);
+  }
+  return stats;
+}
+
+/****************************************************************************/
+/*!
+ **  Check consistency between the different bounds vectors
+ **  and returns the number of classes
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  mini    Array containing the minima per class
+ ** \param[in]  maxi    Array containing the maxima per class
+ ** \param[in]  incmini Array containing the inclusive flag for minima per class
+ ** \param[in]  incmaxi Array containing the inclusive flag for maxima per class
+ **
+ ** \param[out] nclass_arg Number of classes
+ **
+ *****************************************************************************/
+int Limits::_check_bound_consistency(const VectorDouble &mini,
+                                     const VectorDouble &maxi,
+                                     const VectorBool &incmini,
+                                     const VectorBool &incmaxi,
+                                     int *nclass_arg) const
+{
+  int nclass = 0;
+  if (!mini.empty())
+  {
+    if (nclass > 0 && nclass != static_cast<int>(mini.size()))
+    {
+      messerr("Wrong dimension of 'mini'(%d). It should be %d",
+              static_cast<int>(mini.size()), nclass);
+      return 1;
+    }
+    nclass = static_cast<int>(mini.size());
+  }
+  if (!maxi.empty())
+  {
+    if (nclass > 0 && nclass != static_cast<int>(maxi.size()))
+    {
+      messerr("Wrong dimension of 'maxi'(%d). It should be %d",
+              static_cast<int>(maxi.size()), nclass);
+      return 1;
+    }
+    nclass = static_cast<int>(maxi.size());
+  }
+  if (!incmini.empty())
+  {
+    if (nclass > 0 && nclass != static_cast<int>(incmini.size()))
+    {
+      messerr("Wrong dimension of 'incmini'(%d). It should be %d",
+              incmini.size(), nclass);
+      return 1;
+    }
+    nclass = static_cast<int>(incmini.size());
+  }
+  if (!incmaxi.empty())
+  {
+    if (nclass > 0 && nclass != static_cast<int>(incmaxi.size()))
+    {
+      messerr("Wrong dimension of 'incmaxi'(%d). It should be %d",
+              incmaxi.size(), nclass);
+      return 1;
+    }
+    nclass = static_cast<int>(incmaxi.size());
+  }
+  if (nclass <= 0)
+  {
+    messerr("You must define at least one valid limit");
+    return 1;
+  }
+  *nclass_arg = nclass;
+  return 0;
+}
+

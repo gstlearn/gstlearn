@@ -92,7 +92,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _flagFactorKriging(false),
       _nclasses(0),
-      _matCL(nullptr),
+      _matLC(nullptr),
       _flagLTerm(false),
       _lterm(0.),
       _flagAnam(false),
@@ -136,7 +136,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _p2(),
       _p0_memo(),
       _flagNoStat(true),
-      _flagNoMatCL(true),
+      _flagNoMatLC(true),
       _flagVerr(false)
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
@@ -154,7 +154,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
   // Define local constants
   _flagNoStat  = _model->isNoStat();
-  _flagNoMatCL = _matCL == nullptr;
+  _flagNoMatLC = _matLC == nullptr;
   _flagVerr    = _dbin->hasLocVariable(ELoc::V);
 
   _resetMemoryGeneral();
@@ -254,10 +254,10 @@ int KrigingSystem::_getNVar() const
 
 int KrigingSystem::_getNVarCL() const
 {
-  if (_flagNoMatCL)
+  if (_flagNoMatLC)
     return _getNVar();
   else
-    return (int) _matCL->getNRows();
+    return (int) _matLC->getNRows();
 }
 
 int KrigingSystem::_getNbfl() const
@@ -460,19 +460,19 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
  * @return The mean value
  *
  * @remark: When called from the LHS calculation, 'ivarCL' refers to the rank
- * of the initial variable. Therefore the 'matCL' must not be operated
+ * of the initial variable. Therefore the 'matLC' must not be operated
  */
 double KrigingSystem::_getMean(int ivar, bool flagLHS) const
 {
   double value = 0.;
-  if (_flagNoMatCL || flagLHS)
+  if (_flagNoMatLC || flagLHS)
   {
     value = _model->getMean(ivar);
   }
   else
   {
     for (int jvar = 0; jvar < _nvar; jvar++)
-      value += _matCL->getValue(ivar,jvar) * _model->getMean(jvar);
+      value += _matLC->getValue(ivar,jvar) * _model->getMean(jvar);
   }
   return value;
 }
@@ -908,7 +908,7 @@ int KrigingSystem::_lhsInvert()
 
 void KrigingSystem::_rhsStore(int iech)
 {
-  if (_flagNoMatCL)
+  if (_flagNoMatLC)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
@@ -921,7 +921,7 @@ void KrigingSystem::_rhsStore(int iech)
       {
         double value = 0.;
         for (int jvar = 0; jvar < _nvar; jvar++)
-          value += _matCL->getValue(jvarCL, jvar) * _getCOVTAB(ivar, jvar);
+          value += _matLC->getValue(jvarCL, jvar) * _getCOVTAB(ivar, jvar);
         _setRHSF(iech, ivar, jvarCL, value);
       }
   }
@@ -975,7 +975,7 @@ void KrigingSystem::_rhsCalculBlock()
       _covtabCalcul(1, _nbgh[iech], 2, -1, &_calcModeRHS);
 
       // Cumulate the Local covariance to '_covtab'
-      covcum.addMatrix(_covtab);
+      covcum.addMatInPlace(_covtab);
     }
 
     // Normalization
@@ -1024,8 +1024,8 @@ void KrigingSystem::_rhsCalculDGM()
 /*!
  **  Establish the kriging R.H.S
  **
- ** \remarks When 'matCL' is provided, 'nvar' stands for the first dimension of
- ** \remarks the matrix 'matCL' (its second dimension is equal to model->getNVar()).
+ ** \remarks When 'matLC' is provided, 'nvar' stands for the first dimension of
+ ** \remarks the matrix 'matLC' (its second dimension is equal to model->getNVar()).
  ** \remarks Otherwise nvar designates model->getNVar()
  **
  *****************************************************************************/
@@ -1067,7 +1067,7 @@ int KrigingSystem::_rhsCalcul()
   if (_nfeq <= 0) return 0;
 
   if (_drftabCalcul(ECalcMember::RHS, -1)) return 1;
-  if (_flagNoMatCL)
+  if (_flagNoMatLC)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int ib = 0; ib < _nfeq; ib++)
@@ -1089,7 +1089,7 @@ int KrigingSystem::_rhsCalcul()
           double value = 0.;
           for (int il = 0; il < _nbfl; il++)
             value += _drftab[il] * _getDriftCoef(jvar, il, ib);
-          value *= _matCL->getValue(ivarCL,jvar);
+          value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
         }
     }
@@ -1177,7 +1177,7 @@ void KrigingSystem::_rhsDump()
 
 void KrigingSystem::_wgtCalcul()
 {
-  _wgt.prodMatrix(_lhsinv, *_rhs);
+  _wgt.prodMatMatInPlace(&_lhsinv, _rhs);
 }
 
 void KrigingSystem::_wgtDump(int status)
@@ -1599,7 +1599,7 @@ void KrigingSystem::_variance0()
 
   /* Storage */
 
-  if (_flagNoMatCL)
+  if (_flagNoMatLC)
   {
     for (int ivar = 0; ivar < _nvar; ivar++)
       for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1613,7 +1613,7 @@ void KrigingSystem::_variance0()
         double value = 0.;
         for (int ivar = 0; ivar < _nvar; ivar++)
           for (int jvar = 0; jvar < _nvar; jvar++)
-            value += _matCL->getValue(ivarCL,ivar) * _getCOVTAB(ivar, jvar) * _matCL->getValue(jvarCL,jvar);
+            value += _matLC->getValue(ivarCL,ivar) * _getCOVTAB(ivar, jvar) * _matLC->getValue(jvarCL,jvar);
         _setVAR0(ivarCL, jvarCL, value);
       }
   }
@@ -1632,7 +1632,7 @@ void KrigingSystem::_estimateEstim(int status)
   // Calculate the solution
 
   if (status == 0)
-    _results.prodMatrix(*_rhs, _zam, true, false);
+    _results.prodMatMatInPlace(_rhs, &_zam, true, false);
 
   // Loop for writing the estimation
 
@@ -1663,7 +1663,7 @@ void KrigingSystem::_estimateStdv(int status)
   // Calculate the solution
 
   if (status == 0)
-    _results.prodMatrix(*_rhs, _wgt, true, false);
+    _results.prodMatMatInPlace(_rhs, &_wgt, true, false);
 
   // Loop for writing the estimation
 
@@ -1788,14 +1788,14 @@ void KrigingSystem::_dualCalcul()
 
   /* Operate the product : Z * A-1 */
 
-  _zam.prodMatrix(_lhsinv, _zext);
+  _zam.prodMatMatInPlace(&_lhsinv, &_zext);
 
   /* Operate the product : Z * A-1 * Z */
 
   if (_flagLTerm)
   {
     MatrixSquareGeneral ltermMat(1);
-    ltermMat.prodMatrix(_zam, _zext, true, false);
+    ltermMat.prodMatMatInPlace(&_zam, &_zext, true, false);
     _lterm = ltermMat.getValue(0,0);
   }
 
@@ -2444,34 +2444,34 @@ int KrigingSystem::setKrigOptImage(int seed)
 
 /**
  * Define the output as Linear Combinations of the Input Variables
- * @param matCL Vector of Vectors of weights (see remarks)
+ * @param matLC Vector of Vectors of weights (see remarks)
  * @return
- * @remarks The first dimension of 'matCL' is the number of Output variables
+ * @remarks The first dimension of 'matLC' is the number of Output variables
  * @remarks The second dimension is the number of input Variables.
  */
-int KrigingSystem::setKrigOptMatCL(const MatrixRectangular* matCL)
+int KrigingSystem::setKrigOptMatLC(const MatrixRectangular* matLC)
 {
-  if (matCL == nullptr) return 0;
+  if (matLC == nullptr) return 0;
   _isReady = false;
-  int n1 = (int) matCL->getNRows();
-  int n2 = (int) matCL->getNCols();
+  int n1 = (int) matLC->getNRows();
+  int n2 = (int) matLC->getNCols();
 
   if (n1 > _getNVar())
   {
-    messerr("First dimension of 'matCL' (%d)",(int) n1);
+    messerr("First dimension of 'matLC' (%d)",(int) n1);
     messerr("should be smaller than the number of variables in the model (%d)",
             _getNVar());
     return 1;
   }
   if (n2 != _getNVar())
   {
-    messerr("Second dimension of 'matCL' (%d)",(int) n2);
+    messerr("Second dimension of 'matLC' (%d)",(int) n2);
     messerr("should be equal to the number of variables in the model (%d)",
             _getNVar());
     return 1;
   }
-  _matCL = matCL;
-  _flagNoMatCL = false;
+  _matLC = matLC;
+  _flagNoMatLC = false;
   _resetMemoryGeneral();
   return 0;
 }
@@ -3230,7 +3230,7 @@ int KrigingSystem::_bayesPreCalculations()
 
   /* Calculate: SMU = S-1 * MEAN */
 
-  _postCov.prodVectorInPlace(_priorMean, smu);
+  _postCov.prodMatVecInPlace(_priorMean, smu);
 
   /* Covariance matrix SIGMA */
 
@@ -3268,7 +3268,7 @@ int KrigingSystem::_bayesPreCalculations()
   /* Posterior mean: _postMean = SC * SMU */
 
   if (_postCov.invert()) return 1;
-  _postCov.prodVectorInPlace(smu, _postMean);
+  _postCov.prodMatVecInPlace(smu, _postMean);
 
   if (OptDbg::query(EDbg::BAYES))
   {

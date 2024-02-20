@@ -70,9 +70,9 @@ template <> inline bool isNA(const float& v)  { return (v == getNA<float>()  || 
 
 GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value);
 GSTLEARN_EXPORT StatResults ut_statistics(int nech,
-                                          double *tab,
-                                          double *sel = nullptr,
-                                          double *wgt = nullptr);
+                                          const double *tab,
+                                          const double *sel = nullptr,
+                                          const double *wgt = nullptr);
 GSTLEARN_EXPORT void ut_stats_mima_print(const char *title, int nech, double *tab, double *sel);
 GSTLEARN_EXPORT void ut_facies_statistics(int nech,
                                           double *tab,
@@ -101,3 +101,12 @@ GSTLEARN_EXPORT std::map<int, int> getMapAbsoluteToRelative(const VectorDouble &
                                                             bool verbose = false);
 GSTLEARN_EXPORT int getRankMapAbsoluteToRelative(const std::map<int, int>& map, int iabs);
 GSTLEARN_EXPORT int getRankMapRelativeToAbsolute(const std::map<int, int>& map, int irel);
+
+typedef double (*operate_function)(double);
+GSTLEARN_EXPORT operate_function operate_Identify( int oper );
+GSTLEARN_EXPORT double operate_Identity(double x);
+GSTLEARN_EXPORT double operate_Inverse(double x);
+GSTLEARN_EXPORT double operate_Square(double x);
+GSTLEARN_EXPORT double operate_InverseSquare(double x);
+GSTLEARN_EXPORT double operate_Sqrt(double x);
+GSTLEARN_EXPORT double operate_InverseSqrt(double x);

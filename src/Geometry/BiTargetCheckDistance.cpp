@@ -8,8 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckDistance.hpp>
-#include "geoslib_f.h"
+#include "Geometry/BiTargetCheckDistance.hpp"
 #include "geoslib_old_f.h"
 
 #include "Space/SpaceTarget.hpp"

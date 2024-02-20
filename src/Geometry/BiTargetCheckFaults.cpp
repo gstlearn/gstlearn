@@ -8,9 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckFaults.hpp>
-#include "geoslib_f.h"
-
+#include "Geometry/BiTargetCheckFaults.hpp"
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckFaults::BiTargetCheckFaults(const Faults* faults)

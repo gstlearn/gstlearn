@@ -39,14 +39,10 @@
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/NF_Triplet.hpp"
 
 #include <math.h>
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 /*! \cond */
 #define AD(ivar,jvar)          (ivar) + nvar * (jvar)
@@ -1594,7 +1590,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     if (model_add_cova(model, cova->getType(), cova->getFlagAniso(),
                        cova->getFlagRotation(), cova->getRange(),
                        cova->getParam(), cova->getRanges(),
-                       cova->getAnisoRotMatVec(), sill, 0.))
+                       cova->getAnisoRotMat().getValues(), sill, 0.))
     {
       delete model;
       return nullptr;
@@ -1613,7 +1609,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
     if (model_add_cova(model, cova->getType(), cova->getFlagAniso(),
                        cova->getFlagRotation(), cova->getRange(),
                        cova->getParam(), cova->getRanges(),
-                       cova->getAnisoRotMatVec(), sill,0.))
+                       cova->getAnisoRotMat().getValues(), sill,0.))
     {
       delete model;
       return nullptr;
@@ -2061,7 +2057,6 @@ double model_calcul_stdev(Model* model,
   return (stdev);
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
  **  Establish the covariance matrix between two Dbs
@@ -2088,16 +2083,16 @@ double model_calcul_stdev(Model* model,
  ** \remarks but only ranks positive or null are considered
  **
  *****************************************************************************/
-cs* model_covmat_by_ranks_cs(Model *model,
-                             Db *db1,
-                             int nsize1,
-                             const int *ranks1,
-                             Db *db2,
-                             int nsize2,
-                             const int *ranks2,
-                             int ivar0,
-                             int jvar0,
-                             const CovCalcMode*  mode)
+MatrixSparse* model_covmat_by_ranks_Mat(Model *model,
+                                        Db *db1,
+                                        int nsize1,
+                                        const VectorInt& ranks1,
+                                        Db *db2,
+                                        int nsize2,
+                                        const VectorInt& ranks2,
+                                        int ivar0,
+                                        int jvar0,
+                                        const CovCalcMode *mode)
 {
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
@@ -2116,8 +2111,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
     nvar2 = 1;
     if (st_check_variable(nvar, jvar0)) return nullptr;
   }
-  if (ranks1 == nullptr) nsize1 = db1->getSampleNumber();
-  if (ranks2 == nullptr) nsize2 = db1->getSampleNumber();
+  if (ranks1.empty()) nsize1 = db1->getSampleNumber();
+  if (ranks2.empty()) nsize2 = db1->getSampleNumber();
 
   /* Core allocation */
 
@@ -2126,8 +2121,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
   // Constitute the triplet
 
-  cs* T = cs_spalloc(0, 0, 1, 1, 1);
-  if (T == nullptr) return nullptr;
+  NF_Triplet NF_T;
 
   /* Loop on the number of variables */
 
@@ -2139,7 +2133,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
     for (int i1 = 0; i1 < nsize1; i1++)
     {
-      int iech1 = (ranks1 != nullptr) ? ranks1[i1] : i1;
+      int iech1 = (!ranks1.empty()) ? ranks1[i1] : i1;
       if (iech1 < 0) continue;
 
       /* Loop on the second variable */
@@ -2152,7 +2146,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
         for (int i2 = 0; i2 < nsize2; i2++)
         {
-          int iech2 = (ranks2 != nullptr) ? ranks2[i2] : i2;
+          int iech2 = (!ranks2.empty()) ? ranks2[i2] : i2;
           if (iech2 < 0) continue;
 
           /* Determine the indices */
@@ -2180,19 +2174,9 @@ cs* model_covmat_by_ranks_cs(Model *model,
           model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab.data());
           value = COVTAB(ivar, jvar);
           if (ABS(value) < EPSILON10) continue;
-          if (! cs_entry(T, ecr1, ecr2, value))
-          {
-            T = cs_spfree(T);
-            return nullptr;
-          }
+          NF_T.add(ecr1, ecr2, value);
           if (ecr1 != ecr2)
-          {
-            if (! cs_entry(T, ecr2, ecr1, value))
-            {
-              T = cs_spfree(T);
-              return nullptr;
-            }
-          }
+            NF_T.add(ecr2, ecr1, value);
         }
       }
     }
@@ -2200,11 +2184,8 @@ cs* model_covmat_by_ranks_cs(Model *model,
 
   // Convert from triplet to sparse matrix
 
-  cs* covmat = cs_triplet(T);
-  T = cs_spfree(T);
-  return (covmat);
+  return MatrixSparse::createFromTriplet(NF_T);
 }
-#endif
 
 /****************************************************************************/
 /*!

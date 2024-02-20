@@ -357,10 +357,10 @@ void TurboOptimizer::_prodMatrix(int size,
     }
 }
 
-void TurboOptimizer::_prodMatVect(int size,
-                                  const VectorDouble& aa,
-                                  const VectorDouble& bb,
-                                  VectorDouble & cc) const
+void TurboOptimizer::_prodMatrixVector(int size,
+                                       const VectorDouble &aa,
+                                       const VectorDouble &bb,
+                                       VectorDouble &cc) const
 {
   for (int i = 0; i < size; i++)
   {
@@ -884,7 +884,7 @@ int TurboOptimizer::_addWeights(int icas,
   _invert_3x3(lhs,lhsinv);
 
   // Calculate the weights
-  _prodMatVect(TO_ncorner,lhsinv,rhs,lambda);
+  _prodMatrixVector(TO_ncorner,lhsinv,rhs,lambda);
 
   // Check that all weights are positive
   for (int idim = 0; idim < TO_ndim; idim++)

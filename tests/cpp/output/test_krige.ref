@@ -793,14 +793,14 @@ Data Base Statistics
  Standard Deviation  =      0.093
  Variance            =      0.009
 
-<----- Test Kriging Multiple Variables with matCL ----->
+<----- Test Kriging Multiple Variables with matLC ----->
 
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-6 - Name Kriging.CL-1.estim - Locator z1
+6 - Name Kriging.LC-1.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =     -0.324
@@ -808,7 +808,7 @@ Data Base Statistics
  Mean value          =      0.016
  Standard Deviation  =      0.123
  Variance            =      0.015
-7 - Name Kriging.CL-2.estim - Locator z2
+7 - Name Kriging.LC-2.estim - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =     -0.425
@@ -816,7 +816,7 @@ Data Base Statistics
  Mean value          =     -0.020
  Standard Deviation  =      0.098
  Variance            =      0.010
-8 - Name Kriging.CL-1.stdev - Locator NA
+8 - Name Kriging.LC-1.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =     13.947
@@ -824,7 +824,7 @@ Data Base Statistics
  Mean value          =     16.675
  Standard Deviation  =      0.418
  Variance            =      0.175
-9 - Name Kriging.CL-2.stdev - Locator NA
+9 - Name Kriging.LC-2.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =     15.278

@@ -41,43 +41,51 @@ Data Base Statistics
  Mean value          =  49.500000
  Standard Deviation  =  28.866070
  Variance            = 833.250000
-4 - Name ncsimu1 - Locator ncsimu1
+4 - Name SimuSPDE.1 - Locator NA
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -3.232455
- Maximum value       =   2.720482
- Mean value          =  -0.027636
- Standard Deviation  =   1.253180
- Variance            =   1.570459
-5 - Name ncsimu2 - Locator ncsimu2
+ Minimum value       =  -2.208432
+ Maximum value       =   2.280843
+ Mean value          =   0.056239
+ Standard Deviation  =   0.786283
+ Variance            =   0.618241
+5 - Name SimuSPDE.2 - Locator z2
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -2.158325
- Maximum value       =   3.574521
- Mean value          =   0.848818
- Standard Deviation  =   1.020880
- Variance            =   1.042196
-6 - Name z1 - Locator z1
+ Minimum value       =  -2.287530
+ Maximum value       =   2.334130
+ Mean value          =   0.211059
+ Standard Deviation  =   0.639021
+ Variance            =   0.408348
+6 - Name lower1 - Locator lower1
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -2.914539
- Maximum value       =   2.695589
- Mean value          =   0.198605
- Standard Deviation  =   1.000066
- Variance            =   1.000133
-7 - Name lower1 - Locator lower1
+ Minimum value       =  -2.287530
+ Maximum value       =   2.158297
+ Mean value          =  -0.210434
+ Standard Deviation  =   0.695913
+ Variance            =   0.484295
+7 - Name upper1 - Locator upper1
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -3.232455
- Maximum value       =   2.677378
- Mean value          =  -0.305355
- Standard Deviation  =   1.112534
- Variance            =   1.237732
-8 - Name upper1 - Locator upper1
+ Minimum value       =  -0.708047
+ Maximum value       =   2.334130
+ Mean value          =   0.477732
+ Standard Deviation  =   0.563464
+ Variance            =   0.317492
+8 - Name Color - Locator NA
  Nb of data          =      10000
  Nb of active values =      10000
- Minimum value       =  -1.053440
- Maximum value       =   3.574521
- Mean value          =   1.126537
- Standard Deviation  =   0.856652
- Variance            =   0.733852
+ Minimum value       =   1.000000
+ Maximum value       =   7.000000
+ Mean value          =   3.607400
+ Standard Deviation  =   1.904696
+ Variance            =   3.627865
+9 - Name z1 - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =  -1.663177
+ Maximum value       =   2.158353
+ Mean value          =   0.092920
+ Standard Deviation  =   0.445861
+ Variance            =   0.198792

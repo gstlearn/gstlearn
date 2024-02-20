@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
-
 #include "Enum/ESpaceType.hpp"
 
 #include "Space/ASpaceObject.hpp"

@@ -185,29 +185,29 @@ void Tensor::setRotationAnglesAndRadius(const VectorDouble& angles, const Vector
 VectorDouble Tensor::applyDirect(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  _tensorDirect.prodVectorInPlace(vec, out);
+  _tensorDirect.prodMatVecInPlace(vec, out);
   return out;
 }
 
 void Tensor::applyInverseInPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorInverse.prodVectorInPlace(vec, out);
+  _tensorInverse.prodMatVecInPlace(vec, out);
 }
 
 void Tensor::applyInverse2InPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorInverse2.prodVectorInPlace(vec, out);
+  _tensorInverse2.prodMatVecInPlace(vec, out);
 }
 
 void Tensor::applyDirectInPlace(const VectorDouble &vec, VectorDouble &out) const
 {
-  _tensorDirect.prodVectorInPlace(vec, out);
+  _tensorDirect.prodMatVecInPlace(vec, out);
 }
 
 VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
 {
   VectorDouble out = vec;
-  _tensorInverse.prodVectorInPlace(vec, out);
+  _tensorInverse.prodMatVecInPlace(vec, out);
   return out;
 }
 
@@ -238,7 +238,7 @@ void Tensor::_fillTensors()
 
   // Square of the Direct tensor
   _tensorDirect2 = MatrixSquareSymmetric(_nDim);
-  _tensorDirect2.prodMatrix(_tensorDirect, _tensorDirect, false, true);
+  _tensorDirect2.prodMatMatInPlace(&_tensorDirect, &_tensorDirect, false, true);
 
   // Inverse of the Direct squared tensor
   _direct2ToInverse2();

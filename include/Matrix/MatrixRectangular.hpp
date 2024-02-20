@@ -70,7 +70,8 @@ private:
   virtual void    _setValue(int irow, int icol, double value) override;
 
   virtual void    _transposeInPlace() override;
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -85,7 +86,8 @@ private:
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irank, double value);
   void    _setValueLocal(int irow, int icol, double value);
-  void    _prodVectorLocal(const double *inv, double *outv) const;
+  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
   int     _getIndexToRankLocal(int irow, int icol) const;
 

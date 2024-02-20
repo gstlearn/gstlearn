@@ -118,6 +118,8 @@ public:
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;
 
+  const ASpace* getSpace() const { return _space; }
+
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
   double getBreak(int i) const;

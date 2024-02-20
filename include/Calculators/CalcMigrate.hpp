@@ -47,6 +47,52 @@ private:
 
   virtual int _getNVar() const override;
 
+  int _migrate(Db *db1,
+               Db *db2,
+               int iatt1,
+               int iatt2,
+               int distType,
+               const VectorDouble &dmax,
+               bool flag_fill,
+               bool flag_inter,
+               bool flag_ball);
+  int _migrate_point_to_grid(Db *db_point,
+                             DbGrid *db_grid,
+                             int iatt,
+                             int distType,
+                             const VectorDouble &dmax,
+                             VectorDouble &tab);
+  int _expand_point_to_point_ball(Db *db1,
+                                  Db *db2,
+                                  int iatt,
+                                  int distType,
+                                  const VectorDouble &dmax,
+                                  VectorDouble &tab);
+  int _migrate_grid_to_grid(DbGrid *db_gridin,
+                            DbGrid *db_gridout,
+                            int iatt,
+                            int distType,
+                            const VectorDouble &dmax,
+                            VectorDouble &tab);
+  int _expand_point_to_point(Db *db1,
+                             Db *db2,
+                             int iatt,
+                             int distType,
+                             const VectorDouble &dmax,
+                             VectorDouble &tab);
+  int _expand_grid_to_grid(DbGrid *db_gridin,
+                           DbGrid *db_gridout,
+                           int iatt,
+                           int distType,
+                           const VectorDouble &dmax,
+                           VectorDouble &tab);
+  int _interpolate_grid_to_point(DbGrid *db_grid,
+                                 Db *db_point,
+                                 int iatt,
+                                 int distType,
+                                 const VectorDouble &dmax,
+                                 VectorDouble &tab);
+
 private:
   int    _iattOut;
   VectorInt _iuids;
@@ -99,3 +145,52 @@ GSTLEARN_EXPORT int migrateByLocator(Db *dbin,
                                      bool flag_ball = false,
                                      const NamingConvention &namconv = NamingConvention(
                                          "Migrate"));
+GSTLEARN_EXPORT int manageExternalInformation(int mode,
+                                              const ELoc &locatorType,
+                                              Db *dbin,
+                                              Db *dbout,
+                                              int *istart);
+GSTLEARN_EXPORT int interpolateVariableToPoint(DbGrid *db_grid,
+                                               int iatt,
+                                               int np,
+                                               double *xp,
+                                               double *yp,
+                                               double *zp,
+                                               double *tab);
+GSTLEARN_EXPORT double* dbgridLineSampling(DbGrid *dbgrid,
+                                       double *x1,
+                                       double *x2,
+                                       int ndisc,
+                                       int ncut,
+                                       double *cuts,
+                                       int *nval_ret);
+GSTLEARN_EXPORT int expandPointToGrid(Db *db_point,
+                                      DbGrid *db_grid,
+                                      int iatt,
+                                      int iatt_time,
+                                      int iatt_angle,
+                                      int iatt_scaleu,
+                                      int iatt_scalev,
+                                      int iatt_scalew,
+                                      int flag_index,
+                                      int distType,
+                                      const VectorDouble &dmax,
+                                      VectorDouble &tab);
+GSTLEARN_EXPORT int pointToBlock(Db *dbpoint,
+                                 DbGrid *dbgrid,
+                                 int option,
+                                 int flag_size,
+                                 int iatt_time,
+                                 int iatt_size,
+                                 int iatt_angle,
+                                 int iatt_scaleu,
+                                 int iatt_scalev,
+                                 int iatt_scalew);
+GSTLEARN_EXPORT int migrateGridToCoor(const DbGrid *db_grid,
+                                      int iatt,
+                                      const VectorVectorDouble &coords,
+                                      VectorDouble &tab);
+GSTLEARN_EXPORT int expandPointToCoor(const Db *db1,
+                                      int iatt,
+                                      const VectorVectorDouble &coords,
+                                      VectorDouble &tab);

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/AException.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <string>
 #include <algorithm>
@@ -51,7 +50,7 @@ APolynomial & APolynomial::operator=(const APolynomial& p)
   return *this;
 }
 #ifndef SWIG
-VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
+VectorDouble APolynomial::evalOp(MatrixSparse* Op, const VectorDouble& in) const
 {
   VectorDouble result(in.size());
   evalOp(Op,in,result);

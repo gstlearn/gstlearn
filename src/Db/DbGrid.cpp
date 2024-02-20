@@ -54,7 +54,7 @@ DbGrid& DbGrid::operator=(const DbGrid& r)
 {
   if (this != &r)
   {
-    DbGrid::operator=(r);
+    Db::operator=(r);
     _grid = r._grid;
   }
   return *this;
@@ -1565,3 +1565,4 @@ VectorVectorDouble DbGrid::getDiscretizedBlock(const VectorInt &ndiscs,
 
   return discs;
 }
+

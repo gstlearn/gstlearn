@@ -29,6 +29,7 @@ class DbGrid;
 class NeighImage;
 class EMorpho;
 class MatrixSquareSymmetric;
+class MatrixSparse;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -106,12 +107,15 @@ void _morpho_gradients(DbGrid *dbgrid, int iptr0);
 /***************************************/
 
 double* _spde_get_mesh_dimension(AMesh *amesh);
-cs* _spde_fill_S(AMesh *amesh, Model *model, double *units);
+MatrixSparse* _spde_fill_S(AMesh *amesh, Model *model, double *units);
 VectorDouble _spde_fill_TildeC(AMesh* amesh, double* units);
 VectorDouble _spde_fill_Lambda(Model *model,
                                AMesh *amesh,
                                const VectorDouble &TildeC);
-cs* _spde_build_Q(cs *S, const VectorDouble &Lambda, int nblin, double *blin);
+MatrixSparse* _spde_build_Q(MatrixSparse *S,
+                            const VectorDouble &Lambda,
+                            int nblin,
+                            double *blin);
 Cheb_Elem* _spde_cheb_duplicate(Cheb_Elem *cheb_in);
 
 /*******************************************/
@@ -146,32 +150,6 @@ int _db_threshold(Db *db,
 /* Prototyping the functions in dbtools.c */
 /******************************************/
 
-int _db_indicator(Db *db,
-                  int iatt,
-                  int flag_disc,
-                  const VectorDouble &mini = VectorDouble(),
-                  const VectorDouble &maxi = VectorDouble(),
-                  const VectorBool &incmini = VectorBool(),
-                  const VectorBool &incmaxi = VectorBool(),
-                  bool flagBelow = false,
-                  bool flagAbove = false,
-                  const NamingConvention& namconv = NamingConvention("Indicator"));
-int _db_category(Db *db,
-                 int ivar,
-                 const VectorDouble &mini = VectorDouble(),
-                 const VectorDouble &maxi = VectorDouble(),
-                 const VectorBool &incmini = VectorBool(),
-                 const VectorBool &incmaxi = VectorBool(),
-                 const NamingConvention& namconv = NamingConvention("Category"));
-VectorDouble _db_limits_statistics(Db *db,
-                                   int iatt,
-                                   const VectorDouble &mini,
-                                   const VectorDouble &maxi,
-                                   const VectorBool &incmini,
-                                   const VectorBool &incmaxi,
-                                   int optionStat,
-                                   bool flagBelow,
-                                   bool flagAbove);
 int _migrate(Db *db1,
              Db *db2,
              int iatt1,

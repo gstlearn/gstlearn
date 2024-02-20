@@ -41,7 +41,7 @@ PrecisionOpMultiConditional::~PrecisionOpMultiConditional()
 VectorVectorDouble PrecisionOpMultiConditional::computeRhs(const VectorDouble& datVal) const
 {
   VectorVectorDouble rhs(sizes());
-  for(int i = 0; i< sizes(); i++)
+  for(int i = 0, n = sizes(); i < n; i++)
   {
     rhs[i].resize(size(i));
   }
@@ -59,13 +59,13 @@ void PrecisionOpMultiConditional::computeRhsInPlace(const VectorDouble& datVal, 
 
   for(int i = 0; i < sizes(); i++)
   {
-    _multiProjData[i]->point2mesh(temp,rhs[i]);
+    _multiProjData[i]->point2mesh(temp, rhs[i]);
   }
 }
 
 void PrecisionOpMultiConditional::makeReady()
 {
-  for (int i = 0; i < sizes(); i++)
+  for (int i = 0, n = sizes(); i < n; i++)
   {
     _multiPrecisionOp[i]->makeReady();
   }
@@ -182,7 +182,7 @@ double PrecisionOpMultiConditional::computeLogDetQ(int nbsimu, int seed) const
   double result = 0.;
   for (auto &e : _multiPrecisionOp)
   {
-    result += e->computeLogDet(nbsimu,seed);
+    result += e->getLogDeterminant(nbsimu,seed);
   }
   return result;
 }

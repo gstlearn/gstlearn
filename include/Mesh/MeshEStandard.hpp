@@ -41,7 +41,7 @@ public:
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  cs*     getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
+  MatrixSparse* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
   static MeshEStandard* createFromExternal(const MatrixRectangular& apices,

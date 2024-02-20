@@ -55,7 +55,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
 {
   if (_shiftOp != nullptr)
   {
-    _work.resize(_shiftOp->getSize());
+    _work.resize (_shiftOp->getSize());
     _work2.resize(_shiftOp->getSize());
     _work3.resize(_shiftOp->getSize());
   }
@@ -217,7 +217,7 @@ int PrecisionOp::_prepareChebychev(const EPowerPT& power)
  * @param seed   Seed for random number generation
  * @return The computed value or TEST if problem
  */
-double PrecisionOp::computeLogDet(int nbsimu,int seed)
+double PrecisionOp::getLogDeterminant(int nbsimu,int seed)
 {
   law_set_random_seed(seed);
 

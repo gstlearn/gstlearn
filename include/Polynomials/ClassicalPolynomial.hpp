@@ -38,8 +38,13 @@ public:
               const VectorVectorDouble& /*inv*/,
               VectorVectorDouble& /*outv*/) const override { }
 #ifndef SWIG
-  void evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const override;
-  void evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const ;
-  void evalOp(cs* Op, const VectorDouble& inv, VectorDouble& outv) const override;
+  void evalOpTraining(MatrixSparse *Op,
+                      const VectorDouble &inv,
+                      VectorVectorDouble &store,
+                      VectorDouble &work) const override;
+  void evalOpCumul(MatrixSparse *Op,
+                   const VectorDouble &inv,
+                   VectorDouble &outv) const;
+  void evalOp(MatrixSparse* Op, const VectorDouble& inv, VectorDouble& outv) const override;
 #endif
 };

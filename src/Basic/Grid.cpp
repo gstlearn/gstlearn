@@ -219,7 +219,7 @@ void Grid::setRotationByVector(const VectorDouble& rotmat)
 {
   if (rotmat.empty()) return;
   _rotation.resetFromSpaceDimension(_nDim);
-  _rotation.setMatrixDirectByVector(rotmat);
+  _rotation.setMatrixDirectVec(rotmat);
 }
 
 void Grid::setRotationByAngles(const VectorDouble angles)

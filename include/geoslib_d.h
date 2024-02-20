@@ -16,6 +16,7 @@
 #include "Enum/EKrigOpt.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Mesh/AMesh.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 class Koption
 {
@@ -130,8 +131,8 @@ class cs_MGS;
 typedef struct
 {
   VectorDouble Lambda;
-  cs *S;
-  cs *Aproj;
+  MatrixSparse *S;
+  MatrixSparse *Aproj;
   QChol *QC;
   QChol **QCov;
   double *Isill;

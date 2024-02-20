@@ -17,9 +17,9 @@
 #include "Basic/ASerializable.hpp"
 
 class MatrixRectangular;
+class MatrixSparse;
 class MatrixInt;
 class Db;
-class cs; /// TODO : Dependency to csparse to be removed
 
 class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
 {
@@ -54,7 +54,7 @@ public:
   virtual double getMeshSize(int imesh) const = 0;
 #ifndef SWIG
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
-  virtual cs* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const = 0;
+  virtual MatrixSparse* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const = 0;
 #endif
   /*! Returns the space variety */
   virtual int  getVariety() const { return 0; }

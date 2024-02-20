@@ -100,8 +100,8 @@ private:
   void _setUseCholesky(int useCholesky = -1, bool verbose = false);
 
 private:
-  const Db*_data; // External Pointer
-  ESPDECalcMode _calcul;
+  const Db*                    _data; // External Pointer
+  ESPDECalcMode                _calcul;
   PrecisionOpMultiConditional* _precisionsKrig;
   PrecisionOpMultiConditional* _precisionsSimu;
   std::vector<PrecisionOp*>    _pilePrecisions; // Dimension: number of valid covariances

@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Covariances/CovHelper.hpp"
 #include "Covariances/ACovFunc.hpp"

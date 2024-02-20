@@ -9,6 +9,8 @@
 /*                                                                            */
 /******************************************************************************/
 #include "Model/NoStatArray.hpp"
+
+#include "Calculators/CalcMigrate.hpp"
 #include "Basic/AException.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -354,11 +356,11 @@ int NoStatArray::_informField(int ipar,
   if (_dbnostat->isGrid())
   {
     const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbnostat);
-    if (migrate_grid_to_coor(dbgrid, iatt, coords, tab)) return 1;
+    if (migrateGridToCoor(dbgrid, iatt, coords, tab)) return 1;
   }
   else
   {
-    if (expand_point_to_coor(_dbnostat, iatt, coords, tab)) return 1;
+    if (expandPointToCoor(_dbnostat, iatt, coords, tab)) return 1;
   }
 
   int ndef = VH::countUndefined(tab);

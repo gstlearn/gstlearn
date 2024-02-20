@@ -113,7 +113,7 @@ Using inverse square distance
 
 ```{r Completing_P}
 grid$setLocator("P",ELoc_Z())
-err = db_grid_fill(grid)
+err = DbHelper_dbgrid_filling(grid)
 ```
 
 We concentrate on the variable of interest **P** (completed) in the next operations

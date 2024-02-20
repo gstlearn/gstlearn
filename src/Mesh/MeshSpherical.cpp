@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Mesh/MeshSpherical.hpp"
@@ -16,16 +15,11 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/GeometryHelper.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-
-#include "Matrix/LinkMatrixSparse.hpp"
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 MeshSpherical::MeshSpherical(const MatrixRectangular &apices,
                              const MatrixInt &meshes)
@@ -185,7 +179,6 @@ int MeshSpherical::reset(int ndim,
   return(0);
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -200,18 +193,16 @@ int MeshSpherical::reset(int ndim,
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+MatrixSparse* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
   bool flag_approx = true;
  
   /* Initializations */
   
-  cs* Atriplet   = nullptr;
-  cs* A          = nullptr;
-  int nmeshes    = getNMeshes();
-  int nvertex    = getNApices();
-  int ncorner    = getNApexPerMesh();
-  int nech       = db->getSampleNumber();
+  int nmeshes     = getNMeshes();
+  int nvertex     = getNApices();
+  int ncorner     = getNApexPerMesh();
+  int nech        = db->getSampleNumber();
 
   // Preliminary checks 
 
@@ -219,8 +210,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
   /* Core allocation */
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) return nullptr;
+  NF_Triplet NF_T;
   VectorDouble weight(ncorner,0);
   VectorDouble units = _defineUnits();
   
@@ -255,11 +245,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
       {
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
-        if (! cs_entry(Atriplet,iech,ip,weight[icorn]))
-        {
-          Atriplet = cs_spfree(Atriplet);
-          return nullptr;
-        }
+        NF_T.add(iech,ip,weight[icorn]);
       }
       found = imesh;
     }
@@ -279,7 +265,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
   if (ip_max < nvertex - 1)
   {
-    cs_force_dimension(Atriplet,nvalid,nvertex);
+    NF_T.force(nvalid,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */
@@ -287,11 +273,8 @@ cs* MeshSpherical::getMeshToDb(const Db *db, int rankZ, bool verbose) const
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  A = cs_triplet(Atriplet);
-  Atriplet = cs_spfree(Atriplet);
-  return(A);
+  return MatrixSparse::createFromTriplet(NF_T);
 }
-#endif
 
 /****************************************************************************/
 /*!

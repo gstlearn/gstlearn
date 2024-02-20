@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
 #include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
