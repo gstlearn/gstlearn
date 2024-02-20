@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
   OptCst::define(ECst::NTDEC, 2);
   OptCst::define(ECst::NTROW, -1);
   bool flagExhaustiveTest = false;
+  bool flagStatistics     = false;
 
   // Feature to be tested:
   // -1: all of them
@@ -179,8 +180,9 @@ int main(int argc, char *argv[])
   }
 
   // Produce some statistics for comparison
-  dbStatisticsPrint(grid, { "Kriging*", "Simu*" },
-                    EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }));
+  if (flagStatistics)
+    dbStatisticsPrint(grid, { "Kriging*", "Simu*" },
+                      EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }));
   if (flagExhaustiveTest)
   {
     DbStringFormat *dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);

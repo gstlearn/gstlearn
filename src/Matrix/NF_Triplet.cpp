@@ -11,8 +11,6 @@
 #include "Matrix/NF_Triplet.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
-#include "csparse_d.h"
-
 NF_Triplet::NF_Triplet()
     : _nrowmax(0),
       _ncolmax(0),
