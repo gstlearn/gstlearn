@@ -1950,7 +1950,7 @@ int point_to_point(Db *db, double *coor)
  ** \param[out] indg          indices of the closest grid node
  **
  *****************************************************************************/
-int point_to_grid(const DbGrid *db, double *coor, int flag_outside, int *indg)
+int point_to_grid(const DbGrid *db, const double *coor, int flag_outside, int *indg)
 {
   int ndim = db->getNDim();
   VectorDouble work1(ndim);

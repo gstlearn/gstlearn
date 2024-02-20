@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
 #include "geoslib_f.h"
 
 #include "Enum/ESpaceType.hpp"
@@ -345,11 +344,11 @@ int main(int argc, char *argv[])
   data = createLocalDb(10, 2, 3, 4901);
   model = createModel(nvar, 1, 0, 0);
 
-  message("\n<----- Test Kriging Multiple Variables with matCL ----->\n");
+  message("\n<----- Test Kriging Multiple Variables with matLC ----->\n");
   grid_res = grid->clone();
-  MatrixRectangular* matCL = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
+  MatrixRectangular* matLC = MatrixRectangular::createFromVD({2., 2., 1., 1., 0., 1.}, 2, 3);
   kriging(data, grid_res, model, neighU, EKrigOpt::POINT, true, true, false,
-          VectorInt(), VectorInt(), matCL);
+          VectorInt(), VectorInt(), matLC);
   grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================

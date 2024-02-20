@@ -30,10 +30,6 @@
 #include <math.h>
 #include <string.h>
 
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
-
 #define CASE_DOUBLE 0
 #define CASE_REAL   1
 #define CASE_INT    2
@@ -546,12 +542,14 @@ void AStringable::display(int level) const
  * @param mat          Contents of a AMatrix
  * @param flagOverride true to override printout limitations
  * @param flagSkipZero when true, skip the zero values (represented by a '.' as for sparse matrix)
+ *                     always true for sparse matrix
  */
 String toMatrix(const String &title,
                 const AMatrix &mat,
                 bool flagOverride,
                 bool flagSkipZero)
 {
+  flagSkipZero = mat.isSparse();
   return toMatrix(title, VectorString(), VectorString(), true,
                   mat.getNRows(), mat.getNCols(), mat.getValues(),
                   flagOverride, flagSkipZero);
@@ -744,79 +742,7 @@ String toMatrix(const String& title,
   sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
   return sstr.str();
 }
-#ifndef SWIG
-String toMatrix(const String& title, const cs* A, bool flagOverride)
-{
-  std::stringstream sstr;
-  int nrows, ncols;
 
-  if (!A) return sstr.str();
-  if (A->nz >= 0) return sstr.str();
-
-  int nrutil = nrows = cs_getnrow(A);
-  int ncutil = ncols = cs_getncol(A);
-  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
-  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
-  int npass = (int) ceil((double) ncutil / (double) _getNBatch());
-  bool multi_row = nrutil > 1 || npass > 1;
-
-  int* Ap = A->p;
-  int* Ai = A->i;
-  double* Ax = A->x;
-
-  /* Print the title (optional) */
-
-  if (! title.empty())
-  {
-    sstr << title;
-    if (multi_row) sstr << std::endl;
-  }
-
-  /* Loop on the passes */
-
-  for (int ipass = 0; ipass < npass; ipass++)
-  {
-    int jdeb = ipass * _getNBatch();
-    int jfin = MIN(jdeb + _getNBatch(), ncutil);
-
-    /* Title of the columns */
-
-    if (multi_row) sstr << _printColumnHeader(VectorString(), jdeb, jfin);
-
-    /* Loop on the lines */
-
-    for (int iy = 0; iy < nrutil; iy++)
-    {
-      if (multi_row) sstr << _printRowHeader(VectorString(), iy);
-
-      /* Loop on the columns */
-
-      for (int ix = jdeb; ix < jfin; ix++)
-      {
-
-        /* Search for the correct line number */
-
-        int found = -1;
-        for (int p = Ap[ix]; p < Ap[ix + 1] && found < 0; p++)
-        {
-          if (Ai[p] == iy) found = p;
-        }
-
-        if (found < 0)
-          sstr << _tabPrintString(".", EJustify::RIGHT, _getColumnSize());
-        else
-          sstr << _tabPrintDouble(Ax[found], EJustify::RIGHT, _getColumnSize());
-      }
-      sstr << std::endl;
-    }
-    sstr << std::endl;
-  }
-
-  // Print the trailer
-  sstr << _printTrailer(ncols, nrows, ncutil, nrutil);
-  return sstr.str();
-}
-#endif
 /**
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)

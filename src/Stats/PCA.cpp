@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
@@ -153,9 +152,9 @@ int PCA::_calculateEigen(bool verbose)
 
   // Eigen decomposition
 
-  VectorDouble eigvec(nvar * nvar);
-  if (matrix_eigen(_c0.getValues().data(), nvar, _eigval.data(), eigvec.data())) return 1;
-  _eigvec.resetFromVD(nvar, nvar, eigvec);
+  if (_c0.computeEigen()) return 1;
+  _eigval = _c0.getEigenValues();
+  _eigvec = *_c0.getEigenVectors();
 
   // Printout of the eigen results (optional)
 
@@ -171,12 +170,11 @@ int PCA::_calculateGEigen(bool verbose)
 {
   int nvar = _nVar;
 
-  // Eigen decomposition
+  // Generalized Eigen decomposition
 
-  VectorDouble eigvec(nvar * nvar);
-  if (matrix_geigen(_gh.getValues().data(), _c0.getValues().data(), nvar,
-                    _eigval.data(), eigvec.data())) return 1;
-  _eigvec.resetFromVD(nvar, nvar, eigvec);
+  if (_gh.computeGeneralizedEigen(_c0)) return 1;
+  _eigval = _gh.getEigenValues();
+  _eigvec = *_gh.getEigenVectors();
 
   // Printout of the eigen results (optional)
 
@@ -417,14 +415,14 @@ void PCA::_covariance0(const Db *db,
 
     niso++;
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
         _c0.setValue(jvar, ivar, _c0.getValue(jvar, ivar) + data1[ivar] * data1[jvar]);
   }
 
   /* Normalization */
 
   for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
       if (flag_nm1)
         _c0.setValue(jvar, ivar, _c0.getValue(jvar, ivar) / (niso-1.));
       else
@@ -521,7 +519,7 @@ void PCA::_pcaZ2F(int iptr,
     if (! isoFlag[iech]) continue;
     _loadData(db, iech, data1);
     _center(data1, mean, sigma, true, false);
-    VectorDouble data2 = _Z2F.prodTVector(data1);
+    VectorDouble data2 = _Z2F.prodMatVec(data1, true);
 
     for (int ifac = 0; ifac < nvar; ifac++)
       db->setArray(iech, ifac + iptr, data2[ifac]);
@@ -556,7 +554,7 @@ void PCA::_pcaF2Z(int iptr,
   {
     if (! isoFlag[iech]) continue;
     _loadData(db, iech, data1);
-    data2 = _F2Z.prodTVector(data1);
+    data2 = _F2Z.prodMatVec(data1, true);
     _uncenter(data2, mean, sigma, true, false);
 
     for (int ivar = 0; ivar < nvar; ivar++)
@@ -785,7 +783,7 @@ void PCA::_variogramh(Db *db,
       /* Update the variance-covariance matrix at distance h */
 
       for (int ivar = 0; ivar < nvar; ivar++)
-        for (int jvar = 0; jvar < nvar; jvar++)
+        for (int jvar = 0; jvar <= ivar; jvar++)
         {
           double di = data1[ivar] - data2[ivar];
           double dj = data1[jvar] - data2[jvar];
@@ -799,7 +797,7 @@ void PCA::_variogramh(Db *db,
 
   if (npairs > 0)
     for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++)
+      for (int jvar = 0; jvar <= ivar; jvar++)
         _gh.setValue(ivar, jvar, _gh.getValue(ivar, jvar) / npairs);
 
   /* Verbose printout */

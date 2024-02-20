@@ -15,14 +15,9 @@
 #include "Basic/VectorHelper.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
 #include <functional>
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 Chebychev::Chebychev()
   : _ncMax(10001)
@@ -266,17 +261,17 @@ void Chebychev::evalOp(const ALinearOpMulti *Op,
 }
 
 #ifndef SWIG
-void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
+void Chebychev::evalOp(MatrixSparse* S,const VectorDouble& x,VectorDouble& y) const
 {
   VectorDouble tm1, tm2, px, tx;
   int nvertex;
-  cs *T1;
+  MatrixSparse *T1;
 
 /* Initializations */
 
   if (!_isReady())
     my_throw("You must use 'initCoeffs' before 'operate'");
-  nvertex = cs_getncol(S);
+  nvertex = S->getNCols();
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
   tm1.resize(nvertex);
@@ -284,12 +279,11 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
   px.resize(nvertex);
   tx.resize(nvertex);
 
-/* Create the T1 sparse matrix */
+  /* Create the T1 sparse matrix */
 
-  T1 = cs_eye(nvertex, 1.);
+  T1 = MatrixSparse::diagConstant(nvertex, 1.);
   if (T1 == nullptr) my_throw("Problem in cs_eye");
-  T1 = cs_add_and_release(T1, S, v2, v1, 1);
-  if (T1 == nullptr) my_throw("Problem in cs_add");
+  T1->addMatInPlace(*S, v2, v1);
 
 /* Initialize the simulation */
 
@@ -298,7 +292,7 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
     tm1[i] = 0.;
     y[i]   = x[i];
   }
-  if (! cs_gaxpy(T1, y.data(), tm1.data())) my_throw("Problem in cs_gaxpy");
+  if (T1->addVecInPlace(y, tm1)) my_throw("Problem in addVecInPlace");
   for (int i=0; i<nvertex; i++)
   {
     px[i]  = _coeffs[0] * y[i] + _coeffs[1] * tm1[i];
@@ -309,7 +303,7 @@ void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const
 
   for (int ib=2; ib<(int) _coeffs.size(); ib++)
   {
-    cs_mulvec(T1, nvertex, tm1.data(), tx.data());
+    T1->prodVecMatInPlacePtr(tm1.data(), tx.data(), false);
     for (int i=0; i<nvertex; i++)
     {
       tx[i]  = 2. * tx[i] - tm2[i];

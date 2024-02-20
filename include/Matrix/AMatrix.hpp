@@ -18,11 +18,11 @@
 
 /// TODO : Transform into template for storing something else than double
 
+class NF_Triplet;
+
 /**
  * Matrix
  */
-
-class Triplet;
 
 class GSTLEARN_EXPORT AMatrix : public AStringable, public ICloneable
 {
@@ -41,10 +41,8 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isMatrixSparse() const { return false; }
   /*! Returns if the matrix belongs to the AMatrixDense class (avoids dynamic_cast) */
-  virtual bool isMatrixDense() const { return false; }
+  virtual bool isDense() const { return false; }
   /*! Returns if the current matrix is Sparse */
   virtual bool isSparse() const { return false; }
   /*! Check if the matrix is (non empty) square */
@@ -84,8 +82,6 @@ public:
   virtual void addScalarDiag(double v);
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
-  /*! Set a set of values simultaneously from an input array */
-  virtual void setValuesFromTriplet(const Triplet& T);
   /*! Set all the values of the Matrix at once */
   virtual void fill(double value);
   /*! Multiply a Matrix row-wise */
@@ -96,29 +92,34 @@ public:
   virtual void divideRow(const VectorDouble& vec);
   /*! Divide a Matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec);
-  /*! Perform M * 'vec' */
-  virtual VectorDouble prodVector(const VectorDouble& vec) const;
-  /*! Perform 'vec'^T * M */
-  virtual VectorDouble prodTVector(const VectorDouble& vec) const;
+  /*! Perform 'vec' * 'this' */
+  virtual VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const;
+  /*! Perform 'this' * 'vec' */
+  virtual VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const;
   /*! Extract a Row */
   virtual VectorDouble getRow(int irow) const;
   /*! Extract a Column */
   virtual VectorDouble getColumn(int icol) const;
+  /*! Multiply matrix 'x' by matrix 'y' and store the result in 'this' */
+  virtual void prodMatMatInPlace(const AMatrix *x,
+                                 const AMatrix *y,
+                                 bool transposeX = false,
+                                 bool transposeY = false);
 
-#ifndef SWIG
   /*! Extract the contents of the matrix */
-  virtual Triplet getValuesAsTriplets() const;
-#endif
-
+  virtual NF_Triplet getMatrixToTriplet(int shiftRow=0, int shiftCol=0) const;
   /*! Add a matrix (multiplied by a constant) */
-  void addMatrix(const AMatrix& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in 'this' */
-  void prodMatrix(const AMatrix &x,
-                  const AMatrix &y,
-                  bool transposeX = false,
-                  bool transposeY = false);
-  /*! Linear combination of matrices */
-  void linearCombination(double cx, double cy, const AMatrix& y);
+  void addMatInPlace(const AMatrix& y, double cx = 1., double cy = 1.);
+  /*! Multiply 'this' by matrix 'y' and store in 'this'*/
+  void prodMatInPlace(const AMatrix* matY, bool transposeY = false);
+  /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
+  void prodNormMatMatInPlace(const AMatrix &a,
+                             const AMatrix &m,
+                             bool transpose = false);
+  /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
+  void prodNormMatInPlace(const AMatrix &a,
+                          const VectorDouble &vec = VectorDouble(),
+                          bool transpose = false);
 
   /*! Modify the dimension of the matrix */
   void resize(int nrows, int ncols);
@@ -162,9 +163,16 @@ public:
   int getNumberColumnDefined() const;
   /*! Define the number of defined rows */
   int getNumberRowDefined() const;
+  /*! Returns if the Matrix is built using Eigen Library or not */
+  bool isFlagEigen() const { return _flagEigen; }
 
-  /*! Perform 'outv' = M * 'inv' */
-  void prodVectorInPlace(const VectorDouble& inv, VectorDouble& outv) const;
+  /*! Perform 'y' = 'this' * 'x' */
+  void prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  void prodMatVecInPlacePtr(const double* x, double* y, bool transpose = false) const;
+  /*! Perform 'y' = 'x' * 'this' */
+  void prodVecMatInPlace(const VectorDouble& x, VectorDouble& y, bool transpose = false) const;
+  void prodVecMatInPlacePtr(const double* x, double* y, bool transpose = false) const;
+
   /*! Perform x %*% mat %*% y */
   double quadraticMatrix(const VectorDouble& x, const VectorDouble& y);
   /*! Matrix inversion in place */
@@ -213,7 +221,8 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const = 0;
 
   virtual void    _transposeInPlace() = 0;
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const = 0;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const = 0;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
 
@@ -229,10 +238,19 @@ protected:
   bool _isRankValid(int rank) const;
   void _clear();
   void _fillFromVVD(const VectorVectorDouble& X);
-  bool _isFlagEigen() const { return _flagEigen; }
 
   bool _getFlagCheckAddress() const { return _flagCheckAddress; }
-  bool _getFlagEigen(int opt_eigen) const;
+  bool _defineFlagEigen(int opt_eigen) const;
+
+  bool _checkLink(int nrow1,
+                  int ncol1,
+                  bool transpose1,
+                  int nrow2 = 0,
+                  int ncol2 = 0,
+                  bool transpose2 = false,
+                  int nrow3 = 0,
+                  int ncol3 = 0,
+                  bool transpose3 = false) const;
 
 private:
   int  _nRows;
@@ -244,8 +262,6 @@ private:
 };
 
 /* Shortcut functions for C style aficionados */
-GSTLEARN_EXPORT AMatrix* prodMatrix(const AMatrix* mat1, const AMatrix* mat2);
-GSTLEARN_EXPORT void prodMatrixInPlace(AMatrix* mat1, const AMatrix* mat2);
 GSTLEARN_EXPORT void setGlobalFlagEigen(bool flagEigen);
 GSTLEARN_EXPORT bool isGlobalFlagEigen();
 GSTLEARN_EXPORT void setMultiThread(int nthreads);

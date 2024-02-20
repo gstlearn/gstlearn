@@ -19,6 +19,7 @@
 
 class Db;
 class Model;
+class cs; // TODO to be removed
 
 class GSTLEARN_EXPORT GibbsMMulti: public GibbsMulti
 {
@@ -36,7 +37,6 @@ public:
   int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
   void setEps(double eps) { _eps = eps; }
-  void setStoreTables(bool storeTables) { _storeTables = storeTables; }
   void cleanup() override;
 
   bool getFlagStoreInternal() const { return _flagStoreInternal; }
@@ -44,7 +44,6 @@ public:
 
 private:
   int  _getVariableNumber() const;
-  void _tableStore(int mode, const cs* Cmat);
   void _getWeights(int iact0) const;
   int  _calculateWeights(int iact0, double tol = EPSILON3) const;
   int  _storeAllWeights(bool verbose = false);
@@ -58,10 +57,8 @@ private:
                     double *vark) const;
 
 private:
-  cs*        _Ln;
-  VectorInt  _Pn;
+  MatrixSparse* _Cmat;
   double     _eps;
-  bool       _storeTables;
   HDF5format _hdf5;
   bool       _flagStoreInternal;
 

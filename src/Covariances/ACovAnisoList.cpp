@@ -821,7 +821,7 @@ void ACovAnisoList::updateCovByPoints(int icas1, int iech1, int icas2, int iech2
       double det2 = pow(direct2.determinant(), 0.25);
 
       // Calculate average squared tensor
-      direct2.linearCombination(0.5, 0.5, direct1);
+      direct2.addMatInPlace(direct1, 0.5, 0.5);
       double detM = sqrt(direct2.determinant());
 
       // Update the tensor (squared version)

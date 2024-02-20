@@ -211,10 +211,10 @@ private:
                    const VectorDouble& aa,
                    const VectorDouble& bb,
                    VectorDouble & cc) const;
-  void _prodMatVect(int size,
-                    const VectorDouble& aa,
-                    const VectorDouble& bb,
-                    VectorDouble & cc) const;
+  void _prodMatrixVector(int size,
+                         const VectorDouble &aa,
+                         const VectorDouble &bb,
+                         VectorDouble &cc) const;
 
   void _updateMargin(int idim0, VectorInt& indice) const;
   void _getRankInTemplate(VectorInt& indice1,

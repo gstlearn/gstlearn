@@ -43,10 +43,10 @@ public:
   void mustShowStats(bool status) const { getLogStats().mustShowStats(status); }
 
 private:
-  cs* _buildQmult() const;
-  ProjMatrix* _buildAmult() const;
+  MatrixSparse* _buildQmult() const;
+  ProjMatrix*   _buildAmult() const;
   int _buildQpAtA();
 
 private:
-  Cholesky _qChol;
+  MatrixSparse* _Q;
 };

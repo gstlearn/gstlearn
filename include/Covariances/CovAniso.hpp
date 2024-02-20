@@ -178,9 +178,7 @@ public:
   double getScale(int idim) const { return getScales()[idim]; }
   const VectorDouble getAnisoAngles() const { return _aniso.getAngles(); }
   const MatrixSquareGeneral& getAnisoRotMat() const { return _aniso.getMatrixDirect(); }
-  const VectorDouble getAnisoRotMatVec() const { return getAnisoRotMat().getValues(); }
   const MatrixSquareGeneral& getAnisoInvMat() const { return _aniso.getMatrixInverse(); }
-  const VectorDouble getAnisoInvMatVec() const { return getAnisoInvMat().getValues(); }
   const VectorDouble getAnisoCoeffs() const;
   double getAnisoAngles(int idim) const { return getAnisoAngles()[idim]; }
   double getAnisoRotMat(int idim, int jdim) const { return _aniso.getMatrixDirect().getValue(idim,jdim); }

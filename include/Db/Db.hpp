@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_d.h"
 
 #include "Enum/ELoadBy.hpp"
 #include "Enum/EStatOption.hpp"

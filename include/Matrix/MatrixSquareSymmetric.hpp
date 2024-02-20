@@ -45,8 +45,7 @@ public:
   /// Is the matrix symmetrical ?
   bool isSymmetric(bool printWhyNot = false) const final { DECLARE_UNUSED(printWhyNot); return true; }
 
-  void normSingleMatrix(const AMatrix& x);
-  void normTSingleMatrix(const AMatrix& x);
+  void normMatrix(const AMatrix& y, const AMatrixSquare& x = AMatrixSquare(), bool transpose = false);
 
   static MatrixSquareSymmetric* createFromVVD(const VectorVectorDouble &X, int opt_eigen = -1);
   static MatrixSquareSymmetric* createFromVD(const VectorDouble &X,
@@ -74,7 +73,8 @@ private:
   virtual void    _setValues(const double* values, bool byCol = true) override;
 
   virtual void    _transposeInPlace() override { return ; } // Nothing to do
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -86,7 +86,8 @@ private:
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
   void    _setValueLocal(int irank, double value);
-  void    _prodVectorLocal(const double *inv, double *outv) const;
+  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _setValuesLocal(const double *values, bool byCol);
   int     _invertLocal();
   void    _allocateLocal();
@@ -95,6 +96,18 @@ private:
   int     _solveLocal(const VectorDouble& b, VectorDouble& x) const;
   int     _computeEigenLocal(bool optionPositive = true);
   int     _computeGeneralizedEigenLocal(const MatrixSquareSymmetric& b, bool optionPositive = true);
+
+  // Local functions (old style algebra)
+  int _matrix_geigen(const double *a,
+                     const double *b,
+                     int neq,
+                     double *value,
+                     double *vector) const;
+  void _matrix_triangular_product(int neq,
+                                  int mode,
+                                  const double *al,
+                                  const double *b,
+                                  double *x) const;
 
 private:
   VectorDouble _squareSymMatrix; // Classical storage

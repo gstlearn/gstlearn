@@ -8,8 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Geometry/ABiTargetCheck.hpp"
 
 ABiTargetCheck::ABiTargetCheck()

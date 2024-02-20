@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
@@ -40,7 +41,7 @@ public:
   const VectorDouble getVarianceRatio() const;
   const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
-  const MatrixSquareGeneral& getC0() const { return _c0; }
+  const MatrixSquareSymmetric& getC0() const { return _c0; }
   int getNVar() const { return _nVar; }
   const MatrixSquareGeneral& getF2Zs() const { return _F2Z; }
   const MatrixSquareGeneral& getZ2Fs() const { return _Z2F; }
@@ -132,10 +133,10 @@ private:
   int          _nVar;
   VectorDouble _mean;
   VectorDouble _sigma;
-  VectorDouble _eigval;
-  MatrixRectangular _eigvec;
-  MatrixSquareGeneral _c0;
-  MatrixSquareGeneral _gh;
-  MatrixSquareGeneral _Z2F;
-  MatrixSquareGeneral _F2Z;
+  VectorDouble          _eigval;
+  MatrixRectangular     _eigvec;
+  MatrixSquareSymmetric _c0;
+  MatrixSquareSymmetric _gh;
+  MatrixSquareGeneral   _Z2F;
+  MatrixSquareGeneral   _F2Z;
 };

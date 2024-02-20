@@ -65,7 +65,8 @@ private:
   virtual void    _setValueByRank(int irank, double value) override;
 
   virtual void    _transposeInPlace() override;
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
+  virtual void    _prodMatVecInPlacePtr(const double *x,double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
@@ -80,10 +81,20 @@ private:
   double& _getValueRefLocal(int irow, int icol);
   void    _setValueLocal(int irow, int icol, double value);
   void    _setValueLocal(int irank, double value);
-  void    _prodVectorLocal(const double *inv, double *outv) const;
+  void    _prodMatVecInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
+  void    _prodVecMatInPlacePtrLocal(const double *x, double *y, bool transpose = false) const;
   void    _transposeInPlaceLocal();
   int     _invertLocal();
 
 private:
   VectorDouble _squareMatrix; // Classical storage
 };
+
+/*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
+GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMatMat(const AMatrixDense &a,
+                                                    const AMatrixDense &m,
+                                                    bool transpose = false);
+/*! Product 't(A)' %*% 'A' or 'A' %*% 't(A)' */
+GSTLEARN_EXPORT MatrixSquareGeneral* prodNormMat(const AMatrixDense &a,
+                                                 const VectorDouble& vec = VectorDouble(),
+                                                 bool transpose = false);

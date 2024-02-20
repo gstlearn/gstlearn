@@ -30,9 +30,6 @@ public:
 
   /*! Returns the size of the matrix (nrows=ncols) */
   int getNSize() const { return getNRows(); }
-  /*! Perform Norm matrix */
-  void normMatrix(const AMatrixSquare& x, const AMatrix& y);
-  void normTMatrix(const AMatrixSquare& x, const AMatrix& y);
 
   double trace() const;
 

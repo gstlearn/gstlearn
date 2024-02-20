@@ -12,6 +12,8 @@
 
 #include "LinearOp/Cholesky.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -34,23 +36,21 @@ int main(int argc, char *argv[])
 
   // We create a square matrix (not necessarily sparse)
 
-  cs *Atriplet = cs_spalloc2(0, 0, 1, 1, 1);
+  NF_Triplet NF_T;
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
       double value = law_gaussian();
       double tirage = law_uniform(0., 1.);
       if (icol != irow && tirage > proba) continue;
-      (void) cs_entry2(Atriplet, irow, icol, value);
+      NF_T.add(irow, icol, value);
     }
-  cs *A = cs_triplet2(Atriplet);
-  cs_print_dim("Square Initial Matrix", A);
-  Atriplet = cs_spfree2(Atriplet);
+  MatrixSparse *A = MatrixSparse::createFromTriplet(NF_T);
 
   // The symmetric matrix is obtained as t(A) %*% A -> M is symmetric
 
-  cs* At = cs_transpose2(A, 1);
-  cs* Q = cs_multiply2(A, At);
+  MatrixSparse* At = A->transpose();
+  MatrixSparse* Q = MatrixFactory::prodMatMat<MatrixSparse>(A, At);
 
   // Create a vector random gaussian values
 
@@ -64,18 +64,18 @@ int main(int argc, char *argv[])
   for (int icol = 0; icol < n; icol++)
     for (int irow = 0; irow < n; irow++)
     {
-      double value = cs_get_value(Q, irow, icol);
+      double value = Q->getValue(irow, icol);
       M.setValue(irow, icol, value);
     }
 
   // Create the Cholesky object
 
   Cholesky Qchol(Q);
-  Qchol.printout("Matrix used to demonstrate Cholesky Algebra", false);
+  message("Matrix used to demonstrate Cholesky Algebra\n");
 
   // Checking Product
 
-  M.prodVectorInPlace(vecin, vecout1);
+  M.prodMatVecInPlace(vecin, vecout1);
   Qchol.evalDirect(vecin, vecout2);
   if (VH::isSame(vecout1,  vecout2))
     message("Product Mat %*% V is validated\n");
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
   // Checking the calculation of Log(Det)
 
   double res1 = log(M.determinant());
-  double res2 = Qchol.computeLogDet();
+  double res2 = Qchol.getLogDeterminant();
   if (ABS(res1 - res2) < EPSILON10)
     message("Log(Det) is validated\n");
   else
@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
 
   // Free the pointers
 
-  A  = cs_spfree2(A);
-  At = cs_spfree2(At);
-  Q  = cs_spfree2(Q);
+  delete A;
+  delete At;
+  delete Q;
   return(0);
 }

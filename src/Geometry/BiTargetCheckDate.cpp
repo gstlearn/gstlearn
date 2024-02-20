@@ -8,9 +8,7 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include <Geometry/BiTargetCheckDate.hpp>
-#include "geoslib_f.h"
-
+#include "Geometry/BiTargetCheckDate.hpp"
 #include "Space/SpaceTarget.hpp"
 
 BiTargetCheckDate::BiTargetCheckDate(double deltamin, double deltamax)

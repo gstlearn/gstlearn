@@ -55,7 +55,7 @@ public:
                        int seed = 414371);
   int  setKrigOptImage(int seed = 133271);
   int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
-  int  setKrigOptMatCL(const MatrixRectangular* matCL);
+  int  setKrigOptMatLC(const MatrixRectangular* matLC);
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
@@ -269,7 +269,7 @@ private:
   int _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
-  const MatrixRectangular* _matCL;
+  const MatrixRectangular* _matLC;
 
   /// Option for asking for Z * A-1 * Z
   bool   _flagLTerm;
@@ -331,6 +331,6 @@ private:
 
   /// Some local flags defined in order to speed up the process
   mutable bool _flagNoStat;
-  mutable bool _flagNoMatCL;
+  mutable bool _flagNoMatLC;
   mutable bool _flagVerr;
 };

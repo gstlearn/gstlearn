@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/VectorNumT.hpp"
+#include "LinearOp/Cholesky.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/LinkMatrixSparse.hpp"
 
@@ -47,8 +48,6 @@ public:
   /// Interface for AMatrix
   /*! Returns if the current matrix is Sparse */
   bool isSparse() const { return true; }
-  /*! Returns if the matrix belongs to the MatrixSparse class (avoids dynamic_cast) */
-  virtual bool isMatrixSparse() const { return true; }
 
   /*! Set the contents of a Column */
   virtual void setColumn(int icol, const VectorDouble& tab) override;
@@ -66,8 +65,6 @@ public:
   virtual void addScalarDiag(double v) override;
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v) override;
-  /*! Set a set of values simultaneously from an input array */
-  void setValuesFromTriplet(const Triplet& T) override;
   /*! Set all the values of the matrix at once */
   virtual void fill(double value) override;
   /*! Multiply the matrix row-wise */
@@ -78,41 +75,70 @@ public:
   virtual void divideRow(const VectorDouble& vec) override;
   /*! Divide the matrix column-wise */
   virtual void divideColumn(const VectorDouble& vec) override;
-  /*! Perform M * 'vec' */
-  virtual VectorDouble prodVector(const VectorDouble& vec) const override;
-  /*! Perform 'vec'^T * M */
-  virtual VectorDouble prodTVector(const VectorDouble& vec) const override;
+  /*! Perform y = x %*% 'this' */
+  virtual VectorDouble prodVecMat(const VectorDouble& x, bool transpose = false) const override;
+  /*! Perform y = 'this' %*% x */
+  virtual VectorDouble prodMatVec(const VectorDouble& x, bool transpose = false) const override;
+  /*! Multiply a matrix by another and stored in 'this' */
+  virtual void prodMatMatInPlace(const AMatrix *x,
+                                 const AMatrix *y,
+                                 bool transposeX = false,
+                                 bool transposeY = false) override;
 
-#ifndef SWIG
   /*! Extract the contents of the matrix */
-  virtual Triplet getValuesAsTriplets() const override;
-#endif
+  virtual NF_Triplet getMatrixToTriplet(int shiftRow=0, int shiftCol=0) const override;
 
   //// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static MatrixSparse* createFromTriplet(const Triplet &T,
-                                         int nrow,
-                                         int ncol,
+  // Static functions
+  static MatrixSparse* createFromTriplet(const NF_Triplet &NF_T,
+                                         int nrow = 0,
+                                         int ncol = 0,
                                          int opt_eigen = -1);
+  static MatrixSparse* addMatMat(const MatrixSparse *x,
+                                 const MatrixSparse *y,
+                                 double cx = 1.,
+                                 double cy = 1.);
+  static MatrixSparse* diagVec(const VectorDouble& vec, int opt_eigen = -1);
+  static MatrixSparse* diagConstant(int number, double value = 1., int opt_eigen = -1);
+  static MatrixSparse* diagMat(MatrixSparse *A, int oper_choice, int opt_eigen = -1);
+  static MatrixSparse* glue(const MatrixSparse *A1,
+                            const MatrixSparse *A2,
+                            bool flagShiftRow,
+                            bool flagShiftCol);
 
   void init(int nrows, int ncols);
 
   /// The next functions use specific definition of matrix (to avoid dynamic_cast)
   /// rather than manipulating AMatrix. They are no more generic of AMatrix
   /*! Add a matrix (multiplied by a constant) */
-  virtual void addMatrix(const MatrixSparse& y, double value = 1.);
-  /*! Multiply a matrix by another and store the result in the current matrix */
-  virtual void prodMatrix(const MatrixSparse& x, const MatrixSparse& y);
-  /*! Linear combination of matrices */
-  virtual void linearCombination(double cx, double cy, const MatrixSparse& y);
+  virtual void addMatInPlace(const MatrixSparse& y, double cx = 1., double cy = 1.);
+  /*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' stored in 'this'*/
+  virtual void prodNormMatMatInPlace(const MatrixSparse &a,
+                                     const MatrixSparse &m,
+                                     bool transpose = false);
+  /*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
+  virtual void prodNormMatInPlace(const MatrixSparse &a,
+                                  const VectorDouble& vec = VectorDouble(),
+                                  bool transpose = false);
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
-  const cs* getCs() const { return _csMatrix; }
-  cs* getCsUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
+  const cs* getCS() const
+  {
+    return _csMatrix;
+  }
+  void setCS(cs* cs)
+  {
+    _csMatrix = cs_duplicate(cs);
+  }
+  void freeCS()
+  {
+    _csMatrix = cs_spfree2(_csMatrix);
+  }
+  cs* getCSUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
 #endif
-  Triplet getSparseToTriplet(bool flag_from_1 = false) const;
 
   void reset(int nrows, int ncols);
   void reset(int nrows, int ncols, double value);
@@ -123,15 +149,38 @@ public:
              bool byCol = true);
   void reset(const VectorVectorDouble& tab, bool byCol = true);
 
-
   /*! Dump a specific range of samples from the internal storage */
   void dumpElements(const String& title, int ifrom, int ito) const;
 
   /*! Set all the values of the Matrix with random values */
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
 
-  int computeCholesky();
-  int solveCholesky(const VectorDouble& b, VectorDouble& x);
+  // Cholesky functions
+  int    computeCholesky();
+  int    solveCholesky(const VectorDouble& b, VectorDouble& x);
+  int    simulateCholesky(const VectorDouble &b, VectorDouble &x);
+  double getCholeskyLogDeterminant();
+
+  void   addValue(int row, int col, double value);
+  double getValue(int row, int col) const;
+  double L1Norm() const;
+  void   getStats(int *nrows, int *ncols, int *count, double *percent) const;
+  int    scaleByDiag();
+  int    addVecInPlace(const VectorDouble& x, VectorDouble& y);
+  void   setConstant(double value);
+  VectorDouble extractDiag(int oper_choice = 1) const;
+  void   prodNormDiagVecInPlace(const VectorDouble &vec, int oper = 1);
+
+  const Eigen::SparseMatrix<double>& getEigenMatrix() const { return _eigenMatrix; }
+  void setEigenMatrix(const Eigen::SparseMatrix<double> &eigenMatrix) { _eigenMatrix = eigenMatrix; }
+
+  MatrixSparse* extractSubmatrixByRanks(const VectorInt &rank_rows,
+                                        const VectorInt &rank_cols);
+  MatrixSparse* extractSubmatrixByColor(const VectorInt &colors,
+                                        int ref_color,
+                                        bool row_ok,
+                                        bool col_ok);
+  VectorInt colorCoding();
 
 protected:
   /// Interface for AMatrix
@@ -150,27 +199,45 @@ protected:
   virtual int     _getIndexToRank(int irow,int icol) const override;
   virtual void    _transposeInPlace() override;
 
-  virtual void    _prodVectorInPlace(const double *inv,double *outv) const override;
+  virtual void    _prodMatVecInPlacePtr(const double *x, double *y, bool transpose = false) const override;
+  virtual void    _prodVecMatInPlacePtr(const double *x,double *y, bool transpose = false) const override;
   virtual int     _invert() override;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const override;
 
   void _clear();
   bool _isElementPresent(int irow, int icol) const;
 
+#ifndef SWIG
+  String _toMatrixLocal(const String& title, bool flagOverride);
+#endif
+
 private:
   void _forbiddenForSparse(const String& func) const;
+  int _eigen_findColor(int imesh,
+                       int ncolor,
+                       VectorInt &colors,
+                       VectorInt &temp);
 
 private:
   cs*  _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
-  bool _flagDecomposeCholesky;
-
-  css *_S; // Cholesky decomposition
-  csn *_N; // Cholesky decomposition
-  Eigen::SimplicialCholesky<Eigen::SparseMatrix<double> > _cholEigen;
+  Cholesky* _factor; // Cholesky decomposition
 };
 
-/*! Transform any matrix in a Sparse format */
+/*! Transform any matrix into a Sparse format */
 GSTLEARN_EXPORT MatrixSparse *createFromAnyMatrix(const AMatrix* mat);
 GSTLEARN_EXPORT void setUpdateNonZeroValue(int status = 2);
 GSTLEARN_EXPORT int getUpdateNonZeroValue();
+
+/*! Product 't(A)' %*% 'M' %*% 'A' or 'A' %*% 'M' %*% 't(A)' */
+GSTLEARN_EXPORT MatrixSparse* prodNormMatMat(const MatrixSparse &a,
+                                             const MatrixSparse &m,
+                                             bool transpose = false);
+/*! Product 't(A)' %*% ['vec'] %*% 'A' or 'A' %*% ['vec'] %*% 't(A)' stored in 'this'*/
+GSTLEARN_EXPORT MatrixSparse* prodNormMat(const MatrixSparse& a,
+                                          const VectorDouble& vec = VectorDouble(),
+                                          bool transpose = false);
+/*! Product 'Diag(vec)' %*% 'A' %*% 'Diag(vec)' */
+GSTLEARN_EXPORT MatrixSparse* prodNormDiagVec(const MatrixSparse& a,
+                                              const VectorDouble& vec,
+                                              int oper_choice = 1);

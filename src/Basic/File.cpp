@@ -25,6 +25,7 @@
 #endif
 
 StdoutRedirect::StdoutRedirect(const String& file, int argc, char* argv[]) :
+  _flagActive(true),
 #if defined(_WIN32) || defined(_WIN64)
   _old_stdout(0)
 #else
@@ -33,14 +34,15 @@ StdoutRedirect::StdoutRedirect(const String& file, int argc, char* argv[]) :
 #endif
 {
   DECLARE_UNUSED(argv);
-  bool flagActive = (argc <= 1);
-  if (!file.empty() && flagActive)
+  _flagActive = (argc <= 1);
+  if (!file.empty() && _flagActive)
     start(file);
 }
 
 StdoutRedirect::~StdoutRedirect()
 {
-  stop();
+  if (_flagActive)
+    stop();
 }
 
 /**

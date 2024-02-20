@@ -12,8 +12,6 @@
 // This test is meant to demonstrate the Eden Simulation
 // which also demonstrates the SKIN methodology
 
-#include "geoslib_d.h"
-
 #include "Enum/ECov.hpp"
 #include "Enum/ESpaceType.hpp"
 

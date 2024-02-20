@@ -11,17 +11,12 @@
 #include "geoslib_old_f.h"
 
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/AException.hpp"
 #include "Db/Db.hpp"
+#include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
-
-#include "Matrix/LinkMatrixSparse.hpp"
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 MeshEStandard::MeshEStandard()
   : AMesh()
@@ -263,7 +258,6 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -278,10 +272,8 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-cs* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+MatrixSparse* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
-  cs* Atriplet      = nullptr;
-  cs* A             = nullptr;
   int nmeshes       = getNMeshes();
   int ncorner       = getNApexPerMesh();
 
@@ -291,8 +283,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
   /* Core allocation */
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) return nullptr;
+  NF_Triplet NF_T;
   VectorDouble weight(ncorner,0);
   VectorDouble container = _defineContainers();
   VectorDouble units = _defineUnits();
@@ -338,11 +329,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
         int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
         if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
-        if (! cs_entry(Atriplet,iech,ip,weight[icorn]))
-        {
-          Atriplet  = cs_spfree(Atriplet);
-          return nullptr;
-        }
+        NF_T.add(iech,ip,weight[icorn]);
       }
       if (verbose) message("\n");
       imesh0 = found = imesh;
@@ -363,18 +350,16 @@ cs* MeshEStandard::getMeshToDb(const Db *db, int rankZ, bool verbose) const
   /* Add the extreme value to force dimension */
 
   if (ip_max < getNApices() - 1)
-    cs_force_dimension(Atriplet, nvalid, getNApices());
+    NF_T.force(nvalid, getNApices());
   
   /* Convert the triplet into a sparse matrix */
 
   if (verbose && nout > 0)
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
-  A = cs_triplet(Atriplet);
-  Atriplet  = cs_spfree(Atriplet);
-  return(A);
+  return MatrixSparse::createFromTriplet(NF_T);
 }
-#endif
+
 /**
  * Create a MeshEStandard by loading the contents of a Neutral File
  *

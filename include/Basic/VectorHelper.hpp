@@ -152,7 +152,7 @@ public:
   static VectorDouble simulateGaussian(int n = 1,
                                        double mean = 0.,
                                        double sigma = 1.);
-  static void simulateGaussianInPlace(VectorDouble &vect,
+  static void simulateGaussianInPlace(VectorDouble &vec,
                                       double mean = 0.,
                                       double sigma = 1.);
   static VectorInt sampleRanks(int ntotal,
@@ -206,6 +206,10 @@ public:
                             VectorVectorDouble &outv);
 
   static VectorDouble suppressTest(const VectorDouble& vecin);
+  static void extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
+  static void mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start);
+
+  static void transformVD(VectorDouble& tab, int oper_choice = 1);
 };
 
 //typedef VectorHelper VH;

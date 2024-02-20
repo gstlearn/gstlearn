@@ -8,7 +8,6 @@
 /* License: BSD 3-clause                                                      */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_d.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
@@ -2443,15 +2442,13 @@ double golden_search(double (*func_evaluate)(double test, void *user_data),
  ** \param[in]  func       Function to be approximated
  ** \param[in]  cheb_elem  Cheb_Elem structure
  ** \param[in]  x          Sampling value
- ** \param[in]  nblin      Number of terms in the polynomial expansion
  ** \param[in]  blin       Array of coefficients for polynomial expansion
  **
  *****************************************************************************/
-int ut_chebychev_count(double (*func)(double, double, int, double*),
+int ut_chebychev_count(double (*func)(double, double, const VectorDouble&),
                        Cheb_Elem *cheb_elem,
                        double x,
-                       int nblin,
-                       double *blin)
+                       const VectorDouble &blin)
 {
   double *coeffs, y, y0, T1, Tx, Tm1, Tm2, power, a, b, tol;
   int ncmax;
@@ -2467,7 +2464,7 @@ int ut_chebychev_count(double (*func)(double, double, int, double*),
 
   /* Get the true value */
 
-  y0 = func(x, power, nblin, blin);
+  y0 = func(x, power, blin);
 
   /* Calculate the approximate value until tolerance is reached */
 
@@ -2496,14 +2493,12 @@ int ut_chebychev_count(double (*func)(double, double, int, double*),
  **
  ** \param[in]  func      Function to be approximated
  ** \param[in]  cheb_elem Cheb_Elem structure
- ** \param[in]  nblin     Number of terms in the polynomial expansion
  ** \param[in]  blin      Array of coefficients for polynomial expansion
  **
  *****************************************************************************/
-int ut_chebychev_coeffs(double (*func)(double, double, int, double*),
+int ut_chebychev_coeffs(double (*func)(double, double, const VectorDouble&),
                         Cheb_Elem *cheb_elem,
-                        int nblin,
-                        double *blin)
+                        const VectorDouble& blin)
 {
   double *coeffs, *x1, *y1, *x2, *y2;
   double minsubdiv, theta, ct, val1, val2, coeff, power, a, b;
@@ -2542,8 +2537,8 @@ int ut_chebychev_coeffs(double (*func)(double, double, int, double*),
   {
     theta = 2. * GV_PI * ((double) i) / ((double) n);
     ct = cos(theta / 2.);
-    val1 = func(((b + a) + (b - a) * ct) / 2., power, nblin, blin);
-    val2 = func(((b + a) - (b - a) * ct) / 2., power, nblin, blin);
+    val1 = func(((b + a) + (b - a) * ct) / 2., power, blin);
+    val2 = func(((b + a) - (b - a) * ct) / 2., power, blin);
     x1[i] = 0.5 * (val1 + val2);
     y1[i] = 0.;
     x2[i] = 0.5 * (val1 - val2) * cos(-theta / 2.);

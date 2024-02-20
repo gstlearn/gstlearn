@@ -139,7 +139,7 @@ target_include_directories(r_build PRIVATE ${R_INCLUDE_DIRS})
 target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
 
 # Tell that we need to generate Rd files before building R package
-add_dependencies(r_build r_doc)
+#add_dependencies(r_build r_doc) // TODO: This line should be uncommented after correction (DR)
 
 ########################################
 # PACKAGING

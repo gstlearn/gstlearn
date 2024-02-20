@@ -12,6 +12,7 @@
 
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -21,13 +22,8 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Grid.hpp"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 #include <math.h>
-
-// External library /// TODO : Dependency to csparse to be removed
-#include "csparse_d.h"
-#include "csparse_f.h"
 
 MeshETurbo::MeshETurbo(int mode)
     : AMesh(),
@@ -464,11 +460,11 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   return 0;
 }
 
-bool MeshETurbo::_addElementToCS(cs *Atriplet,
-                                 int iech,
-                                 const VectorDouble &coor,
-                                 const VectorInt &indg0,
-                                 bool verbose) const
+bool MeshETurbo::_addElementToTriplet(NF_Triplet& NF_T,
+                                      int iech,
+                                      const VectorDouble &coor,
+                                      const VectorInt &indg0,
+                                      bool verbose) const
 {
   int ncorner = getNApexPerMesh();
   VectorInt indices(ncorner);
@@ -479,17 +475,13 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
     if (_addWeights(icas, indg0, coor, indices, lambda, verbose) == 0)
     {
       for (int icorner = 0; icorner < ncorner; icorner++)
-      {
-        if (!cs_entry(Atriplet, iech, indices[icorner], lambda[icorner]))
-          return false;
-      }
+        NF_T.add(iech, indices[icorner], lambda[icorner]);
       return true;
     }
   }
   return false;
 }
 
-#ifndef SWIG
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -504,10 +496,9 @@ bool MeshETurbo::_addElementToCS(cs *Atriplet,
 ** \remarks of the corresponding variable is defined
 **
 *****************************************************************************/
-cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
+MatrixSparse* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 {
-  cs* Atriplet = nullptr;
-  cs* A        = nullptr;
+  MatrixSparse* A = nullptr;
   int ndim     = getNDim();
   VectorInt indg0(ndim);
   VectorDouble coor(ndim);
@@ -518,8 +509,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
   // Core allocation
 
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) return NULL;
+  NF_Triplet NF_T;
 
   /* Optional title */
 
@@ -561,7 +551,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
     // Finding the active mesh to which the sample belongs
 
-    bool found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
+    bool found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
 
     // In the case the target coordinate is on the edge of the grid
     // try to shift the point down by one node
@@ -575,7 +565,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
         flag_correct = true;
       }
       if (flag_correct)
-        found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
+        found = _addElementToTriplet(NF_T, iech, coor, indg0, verbose);
     }
 
     // The point does not belong to any active mesh, issue a message (optional)
@@ -590,11 +580,11 @@ cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
 
   /* Add the extreme value to force dimension */
 
-  cs_force_dimension(Atriplet, nvalid, getNApices());
+  NF_T.force(nvalid, getNApices());
 
   /* Convert the triplet into a sparse matrix */
 
-  A = cs_triplet(Atriplet);
+  A = MatrixSparse::createFromTriplet(NF_T);
 
   // Set the error return code
 
@@ -602,10 +592,9 @@ cs* MeshETurbo::getMeshToDb(const Db *db, int rankZ, bool verbose) const
     messerr("%d / %d samples which do not belong to the Meshing",
             nout, db->getSampleNumber(true));
 
-  Atriplet  = cs_spfree(Atriplet);
   return(A);
 }
-#endif
+
 /****************************************************************************/
 /*!
 ** Print the contents of the meshing
@@ -740,7 +729,7 @@ int MeshETurbo::_addWeights(int icas,
   if (lhs.invert()) return 1;
 
   // Calculate the weights
-  lhs.prodVectorInPlace(rhs,lambda);
+  lhs.prodMatVecInPlace(rhs,lambda);
 
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)
@@ -904,7 +893,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   rot.rotateDirect(extendMinRot, x0);
   VH::addInPlace(x0, cornerRef);
 
-  initFromGrid(nx,dx,x0,rot.getMatrixDirectByVector(),VectorDouble(),true,verbose);
+  initFromGrid(nx,dx,x0,rot.getMatrixDirectVec(),VectorDouble(),true,verbose);
   return 0;
 }
 

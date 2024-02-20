@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Basic/VectorT.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/AStringable.hpp"
@@ -70,6 +71,38 @@ public:
                              bool flagBelow = false,
                              bool flagAbove = false,
                              const NamingConvention& namconv = NamingConvention("Indicator")) const;
+private:
+  int _computeCategory(Db *db,
+                       int iatt,
+                       const VectorDouble &mini,
+                       const VectorDouble &maxi,
+                       const VectorBool &incmini,
+                       const VectorBool &incmaxi,
+                       const NamingConvention &namconv) const;
+  int _computeIndicator(Db *db,
+                        int iatt,
+                        int flag_indic,
+                        const VectorDouble &mini,
+                        const VectorDouble &maxi,
+                        const VectorBool &incmini,
+                        const VectorBool &incmaxi,
+                        bool flagBelow,
+                        bool flagAbove,
+                        const NamingConvention &namconv) const;
+  VectorDouble _computeLimitStatistics(Db *db,
+                                       int iatt,
+                                       const VectorDouble &mini,
+                                       const VectorDouble &maxi,
+                                       const VectorBool &incmini,
+                                       const VectorBool &incmaxi,
+                                       int optionStat,
+                                       bool flagBelow,
+                                       bool flagAbove);
+  int _check_bound_consistency(const VectorDouble &mini,
+                               const VectorDouble &maxi,
+                               const VectorBool &incmini,
+                               const VectorBool &incmaxi,
+                               int *nclass_arg) const;
 
 private:
   std::vector<Interval> _bounds;

@@ -139,7 +139,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
   vec[2].resize(nech);
 
   MatrixSquareSymmetric temp(2);
-  MatrixSquareGeneral hh(2);
+  MatrixSquareSymmetric hh(2);
   VectorDouble diag = VH::power(cova->getScales(), 2.);
   temp.setDiagonal(diag);
 
@@ -147,7 +147,7 @@ VectorVectorDouble FunctionalSpirale::getFunctionVectors(const Db *db, const Cov
   {
     VectorDouble coor = db->getSampleCoordinates(iech);
     MatrixSquareGeneral rotmat = getFunctionMatrix(coor);
-    hh.normMatrix(temp, rotmat);
+    hh.normMatrix(rotmat, temp);
 
     vec[0][iech] = hh.getValue(0,0);
     vec[1][iech] = hh.getValue(0,1);

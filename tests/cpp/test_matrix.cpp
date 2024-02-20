@@ -16,9 +16,12 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSparse.hpp"
+#include "Matrix/MatrixFactory.hpp"
+#include "Matrix/NF_Triplet.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 
 void reset_to_initial_contents(AMatrix* M,
                                MatrixRectangular& MRR,
@@ -43,6 +46,10 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
   setMultiThread(8);
+
+  setGlobalFlagEigen(true); // Check the Eigen version or not. Essential for first part.
+  OptCst::define(ECst::NTCOL, -1);
+  OptCst::define(ECst::NTROW, -1);
 
   message("Cloning Matrix of integers\n");
   MatrixInt mati(2,3);
@@ -104,8 +111,9 @@ int main(int argc, char *argv[])
 
   AMatrix* MRt = MR.transpose();
   MRt->display();
-  AMatrix* M = prodMatrix(MRt, &MR);
-  message("Matrix M (should be symmetric)\n");
+//  AMatrix* M = prodMatMatInPlace(MRt, &MR);
+  AMatrix* M = MatrixFactory::prodMatMat(MRt, &MR);
+  message("Matrix M (should be symmetric). Checking = %d\n", M->isSymmetric());
   M->display();
 
   // Creating two vectors for future use
@@ -204,15 +212,15 @@ int main(int argc, char *argv[])
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
   message("Reference MRR (before linear combination)\n");
   MRR.display();
-  MRR.linearCombination(cx,cy,MRR);
+  MRR.addMatInPlace(MRR, cx, cy);
   message("Reference MRR (after linear combination)\n");
   MRR.display();
 
-  MSG.linearCombination(cx,cy,MSG);
+  MSG.addMatInPlace(MSG, cx, cy);
   message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
-  MSS.linearCombination(cx,cy,MSS);
+  MSS.addMatInPlace(MSS, cx, cy);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
-  MSP->linearCombination(cx,cy,*MSP);
+  MSP->addMatInPlace(*MSP, cx, cy);
   message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   /**
@@ -257,14 +265,14 @@ int main(int argc, char *argv[])
   message("Reference Matrix\n");
   MRR.display();
   VH::display("Reference Input Vector",V1);
-  MRR.prodVectorInPlace(V1, Vref);
+  MRR.prodMatVecInPlace(V1, Vref);
   VH::display("Reference Output Vector",Vref);
 
-  MSG.prodVectorInPlace(V1, V2);
+  MSG.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSG similar: %d\n",VH::isSame(Vref,V2));
-  MSS.prodVectorInPlace(V1, V2);
+  MSS.prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSS similar: %d\n",VH::isSame(Vref,V2));
-  MSP->prodVectorInPlace(V1, V2);
+  MSP->prodMatVecInPlace(V1, V2);
   message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V2));
 
   /**
@@ -283,10 +291,10 @@ int main(int argc, char *argv[])
   MSS.solve(V1, V2);
   VH::display("Reference Output Vector",V2);
 
-  MSS.prodVectorInPlace(V2, V3);
+  MSS.prodMatVecInPlace(V2, V3);
   message("Are results correct for MSS: %d\n",VH::isSame(V1,V3));
   MSP->solve(V1, V2);
-  MSP->prodVectorInPlace(V2, V3);
+  MSP->prodMatVecInPlace(V2, V3);
   message("Are results correct for MSP: %d\n",VH::isSame(V1,V3));
 
   /**
@@ -305,17 +313,17 @@ int main(int argc, char *argv[])
   message("Inverse Matrix\n");
   MSG.display();
 
-  Res = prodMatrix(&MSG, &MSGref);
+  Res = MatrixFactory::prodMatMat(&MSG, &MSGref);
   message("Are results correct for MSG: %d\n",Res->isIdentity());
   delete Res;
 
   MSS.invert();
-  Res = prodMatrix(&MSS, &MSGref);
+  Res = MatrixFactory::prodMatMat(&MSS, &MSGref);
   message("Are results correct for MSS: %d\n",Res->isIdentity());
   delete Res;
 
   MSP->invert();
-  Res = prodMatrix(MSP, &MSGref);
+  Res = MatrixFactory::prodMatMat(MSP, &MSGref);
   message("Are results correct for MSP: %d\n",Res->isIdentity());
   delete Res;
 
@@ -360,14 +368,14 @@ int main(int argc, char *argv[])
   MSG.display();
 
   message("Adding the matrix to itself\n");
-  MSG.addMatrix(MSG);
+  MSG.addMatInPlace(MSG);
   MSG.display();
 
   cx = 1.2;
   cy = -2.3;
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
   MatrixSquareGeneral MSG3(MSG);
-  MSG.linearCombination(cx, cy, MSG3);
+  MSG.addMatInPlace(MSG3, cx, cy);
   MSG.display();
 
   message("Multiplying current matrix column-wise by a vector (sequence)\n");
@@ -390,19 +398,32 @@ int main(int argc, char *argv[])
   MSG.divideRow(myRow);
   MSG.display();
 
-  message("Multiplying current matrix by vector (sequence)\n");
+  VectorDouble myRowRes;
+  VectorDouble myColRes;
+
+  message("Multiplying sequence vector by matrix\n");
   myCol = VH::sequence(1., (double) nrow);
-  VectorDouble myRowRes = MSG.prodVector(myCol);
+  myRowRes = MSG.prodVecMat(myCol, false);
   VH::display("Resulting Vector", myRowRes);
 
-  message("Multiplying current matrix by vector transposed (sequence)\n");
+  message("Multiplying matrix (transposed) by sequence vector\n");
+  myCol = VH::sequence(1., (double) nrow);
+  myRowRes = MSG.prodMatVec(myCol, true);
+  VH::display("Resulting Vector", myRowRes);
+
+  message("Multiplying matrix by sequence vector\n");
   myRow = VH::sequence(1., (double) ncol);
-  VectorDouble myColRes = MSG.prodTVector(myRow);
+  myColRes = MSG.prodMatVec(myRow, false);
+  VH::display("Resulting Vector", myColRes);
+
+  message("Multiplying sequence vector by matrix (transposed)\n");
+  myRow = VH::sequence(1., (double) ncol);
+  myColRes = MSG.prodVecMat(myRow, true);
   VH::display("Resulting Vector", myColRes);
 
   message("Making the product of the matrix by itself\n");
   MatrixSquareGeneral MSG2(MSG);
-  MSG.prodMatrix(MSG2, MSG2);
+  MSG.prodMatMatInPlace(&MSG2, &MSG2);
   MSG.display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
@@ -443,12 +464,12 @@ int main(int argc, char *argv[])
   MSP->display();
 
   message("Adding the matrix to itself\n");
-  MSP->addMatrix(*MSP);
+  MSP->addMatInPlace(*MSP);
   MSP->display();
 
   message("Making the linear combination of the matrix (multiplied by %f) and itself (multiplied by %lf)\n", cx, cy);
   MatrixSparse MSP3(*MSP);
-  MSP->linearCombination(cx, cy, MSP3);
+  MSP->addMatInPlace(MSP3, cx, cy);
   MSP->display();
 
   message("Multiplying current matrix column-wise by a vector (sequence)\n");
@@ -471,19 +492,29 @@ int main(int argc, char *argv[])
   MSP->divideRow(myRow);
   MSP->display();
 
-  message("Multiplying current matrix by vector (sequence)\n");
+  message("Multiplying sequence vector by matrix\n");
   myCol = VH::sequence(1., (double) nrow);
-  myRowRes = MSP->prodVector(myCol);
+  myRowRes = MSP->prodVecMat(myCol, false);
   VH::display("Resulting Vector", myRowRes);
 
-  message("Multiplying current matrix by vector transposed (sequence)\n");
+  message("Multiplying matrix (transposed) by sequence vector\n");
+  myCol = VH::sequence(1., (double) nrow);
+  myRowRes = MSP->prodMatVec(myCol, true);
+  VH::display("Resulting Vector", myRowRes);
+
+  message("Multiplying matrix by sequence vector\n");
   myRow = VH::sequence(1., (double) ncol);
-  myColRes = MSP->prodTVector(myRow);
+  myColRes = MSP->prodMatVec(myRow, false);
+  VH::display("Resulting Vector", myColRes);
+
+  message("Multiplying sequence vector by matrix (transposed)\n");
+  myRow = VH::sequence(1., (double) ncol);
+  myColRes = MSP->prodVecMat(myRow, true);
   VH::display("Resulting Vector", myColRes);
 
   message("Making the product of the matrix by itself\n");
   MatrixSparse MSP2(*MSP);
-  MSP->prodMatrix(MSP2, MSP2);
+  MSP->prodMatMatInPlace(&MSP2, &MSP2);
   MSP->display();
 
   message("Clearing matrix and Setting Diagonal to a vector (sequence from 1 to %d)\n", ncol);
@@ -532,7 +563,7 @@ int main(int argc, char *argv[])
   atu.display();
 
   MatrixSquareGeneral res(neq);
-  res.prodMatrix(atl, atu);
+  res.prodMatMatInPlace(&atl, &atu);
   message("\nChecking the product\n");
   res.display();
   message("compared to Initial\n");
@@ -589,7 +620,7 @@ int main(int argc, char *argv[])
   reset_to_initial_contents(M, MRR, MSG, MSS, MSP);
 
   // Get a Sparse matrix
-  Triplet triplet = MSP->getValuesAsTriplets();
+  NF_Triplet triplet = MSP->getMatrixToTriplet();
   MatrixSparse* MSEig = MatrixSparse::createFromTriplet(triplet, MSP->getNRows(), MSP->getNCols(),1);
   MSEig->display();
   MatrixSparse* MSNoEig = MatrixSparse::createFromTriplet(triplet, MSP->getNRows(), MSP->getNCols(),0);
@@ -604,14 +635,50 @@ int main(int argc, char *argv[])
   MSEig->computeCholesky();
   MSEig->solveCholesky(B, XEig);
   VH::display("Cholesky Solve (Eigen Library)",XEig);
-  VectorDouble resEig = MSEig->prodVector(XEig);
+  VectorDouble resEig = MSEig->prodVecMat(XEig);
   VH::display("Verification (Eigen Library)",resEig);
+  MSEig->simulateCholesky(B, XEig);
+  // Simulation using Cholesky cannot be compared due to different choices in embedded permutations
+  //  VH::display("Cholesky Simulate (Eigen Library)", XEig);
 
   MSNoEig->computeCholesky();
   MSNoEig->solveCholesky(B, XNoEig);
   VH::display("Cholesky Solve (No Eigen Library)",XNoEig);
-  VectorDouble resNoEig = MSNoEig->prodVector(XNoEig);
+  VectorDouble resNoEig = MSNoEig->prodVecMat(XNoEig);
   VH::display("Verification (no Eigen Library)",resNoEig);
+  MSNoEig->simulateCholesky(B, XNoEig);
+  // Simulation using Cholesky cannot be compared due to different choices in embedded permutations
+  //  VH::display("Cholesky Simulate (No Eigen Library)", XNoEig);
+
+  // Log Determinant
+
+  message("Log Determinant (Eigen Library) = %lf\n",    MSEig->getCholeskyLogDeterminant());
+  message("Log Determinant (No Eigen Library) = %lf\n", MSNoEig->getCholeskyLogDeterminant());
+
+  // Product by Diagonal built from a vector
+
+  MatrixSparse* MSNDEig = prodNormDiagVec(*MSEig, B, 1);
+  message("Product by Diagonal from Vector (Eigen)\n");
+  MSNDEig->display();
+  delete MSNDEig;
+  message("Product by Diagonal from Vector In Place with operation (Eigen)\n");
+  MSEig->prodNormDiagVecInPlace(B, 2);
+  MSEig->display();
+
+  MatrixSparse* MSNDNoEig = prodNormDiagVec(*MSNoEig, B, 1);
+  message("Product by Diagonal from Vector (No Eigen)\n");
+  MSNDNoEig->display();
+  delete MSNDNoEig;
+  message("Product by Diagonal from Vector In Place with operation (No Eigen)\n");
+  MSNoEig->prodNormDiagVecInPlace(B, 2);
+  MSNoEig->display();
+
+  // Gluing two sparse matrices
+
+  MatrixSparse* MSGlueEig = MatrixSparse::glue(MSEig, MSEig, true, true);
+  MSGlueEig->display();
+  MatrixSparse* MSGlueNoEig = MatrixSparse::glue(MSNoEig, MSNoEig, true, true);
+  MSGlueNoEig->display();
 
   // Compare Generalized Eigen values calculated using Eigen Library or not (dense matrix only)
 
@@ -623,9 +690,13 @@ int main(int argc, char *argv[])
 
   MatrixRectangular* MREig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 1);
   AMatrix* MREigt = MREig->transpose();
-  MatrixSquareSymmetric* BEig = (MatrixSquareSymmetric *) prodMatrix(MREig, MREigt);
+  MatrixSquareSymmetric* BEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MREig, MREigt);
   delete MREig;
   delete MREigt;
+
+  message("Verify the input for Generalized Eigen calculation\n");
+  MEig->display();
+  BEig->display();
 
   // Extract the Generalized Eigen values and vectors (both matrix types)
   (void) MEig->computeGeneralizedEigen(*BEig);
@@ -638,7 +709,7 @@ int main(int argc, char *argv[])
 
   MatrixRectangular* MRNoEig = MatrixRectangular::createFromVD(vbh, nrow, ncol, false, 0);
   AMatrix* MRNoEigt = MRNoEig->transpose();
-  MatrixSquareSymmetric* BNoEig = (MatrixSquareSymmetric *) prodMatrix(MRNoEig, MRNoEigt);
+  MatrixSquareSymmetric* BNoEig = MatrixFactory::prodMatMat<MatrixSquareSymmetric>(MRNoEig, MRNoEigt);
   delete MRNoEig;
   delete MRNoEigt;
 

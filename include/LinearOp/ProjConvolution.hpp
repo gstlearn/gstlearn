@@ -17,7 +17,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
+#include "Matrix/MatrixSparse.hpp"
 
 /**
  * Projection matrix for vertical convolution
@@ -42,10 +42,7 @@ public:
 
   DbGrid* getResolutionGrid() const;
 
-#ifndef SWIG
-  const cs* getAProjHoriz() const { return _AProjHoriz; }
-#endif
-  Triplet getAProjHorizToTriplet(bool flag_from_1 = false) const;
+  const MatrixSparse* getAProjHoriz() const { return _AProjHoriz; }
 
   const VectorDouble& getConvolution() const { return _convolution; }
   const VectorInt& getShiftVector() const { return _shiftVector; }
@@ -76,7 +73,7 @@ private:
   VectorInt            _shiftVector;
   DbGrid*              _gridSeis2D;
   DbGrid*              _gridRes2D;
-  cs*                  _AProjHoriz;
+  MatrixSparse*        _AProjHoriz;
   mutable VectorDouble _work;
 };
 

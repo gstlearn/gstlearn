@@ -11,8 +11,6 @@
 
 // This test is meant to demonstrate the fracture Simulation
 
-#include "geoslib_d.h"
-
 #include "Enum/ESpaceType.hpp"
 
 #include "Space/ASpaceObject.hpp"

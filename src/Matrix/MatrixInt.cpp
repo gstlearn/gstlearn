@@ -14,7 +14,6 @@
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
 MatrixInt::MatrixInt(int nrows, int ncols)
     : AStringable(),

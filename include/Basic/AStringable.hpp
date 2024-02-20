@@ -17,10 +17,8 @@
 #include "Basic/AStringFormat.hpp"
 
 #include <sstream>
-#ifndef SWIG
-class cs;
-#endif
 class AMatrix;
+class MatrixSparse;
 
 class GSTLEARN_EXPORT AStringable
 {
@@ -71,11 +69,6 @@ GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const VectorInt &tab,
                                 bool flagOverride = false,
                                 bool flagSkipZero = false);
-#ifndef SWIG
-GSTLEARN_EXPORT String toMatrix(const String& title,
-                                const cs* A,
-                                bool  flagOverride = true);
-#endif
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorDouble& tab,
                                 bool flagOverride = true);

@@ -9,7 +9,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_enum.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Anamorphosis/AnamDiscrete.hpp"

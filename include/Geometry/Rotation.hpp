@@ -37,7 +37,7 @@ public:
   void resetFromSpaceDimension(unsigned int ndim);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   int setMatrixDirect(const MatrixSquareGeneral& rotmat);
-  int setMatrixDirectByVector(const VectorDouble& rotmat);
+  int setMatrixDirectVec(const VectorDouble& rotmat);
   int setAngles(const VectorDouble& angles);
   void setIdentity();
   void rotateDirect(const VectorDouble& inv, VectorDouble& outv) const;
@@ -45,8 +45,11 @@ public:
   bool isIdentity() const { return !_flagRot; }
   bool isSame(const Rotation& rot) const;
 
-  VectorDouble getMatrixDirectByVector() const { return _rotMat.getValues(); }
-  VectorDouble getMatrixInverseByVector() const { return _rotInv.getValues(); }
+  VectorDouble getMatrixDirectVec() const { return _rotMat.getValues(); }
+  VectorDouble getMatrixInverseVec() const { return _rotInv.getValues(); }
+
+  double getMatrixDirect(int idim, int jdim)  const { return _rotMat.getValue(idim, jdim); }
+  double getMatrixInverse(int idim, int jdim) const { return _rotInv.getValue(idim, jdim); }
 
 private:
   void _recopy(const Rotation& r);

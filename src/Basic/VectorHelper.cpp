@@ -806,21 +806,27 @@ VectorDouble VectorHelper::sequence(double valFrom,
 VectorDouble VectorHelper::simulateUniform(int n, double mini, double maxi)
 {
   VectorDouble vec(n);
-  for (int i = 0; i < n; i++)
-    vec[i] = law_uniform(mini, maxi);
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it = law_uniform(mini, maxi);
+    it++;
+  }
   return vec;
 }
 
 VectorDouble VectorHelper::simulateBernoulli(int n, double proba, double vone, double velse)
 {
   VectorDouble vec(n);
-  for (int i = 0; i < n; i++)
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
   {
     double rand = law_uniform(0., 1.);
     if (rand < proba)
-      vec[i] = vone;
+      *it= vone;
     else
-      vec[i] = velse;
+      *it = velse;
+    it++;
   }
   return vec;
 }
@@ -832,13 +838,16 @@ VectorDouble VectorHelper::simulateGaussian(int n, double mean, double sigma)
   return vec;
 }
 
-void VectorHelper::simulateGaussianInPlace(VectorDouble &vect,
+void VectorHelper::simulateGaussianInPlace(VectorDouble &vec,
                                            double mean,
                                            double sigma)
 {
-  int n = (int) vect.size();
-  for (int i = 0; i < n; i++)
-    vect[i] = mean + sigma * law_gaussian();
+  VectorDouble::iterator it(vec.begin());
+  while (it < vec.end())
+  {
+    *it= mean + sigma * law_gaussian();
+    it++;
+  }
 }
 
 VectorDouble VectorHelper::concatenate(const VectorDouble &veca,
@@ -1322,9 +1331,9 @@ VectorInt VectorHelper::unique(const VectorInt& vecin, int size)
 
   VectorInt vecout = vecin;
   vecout.resize(size);
-  std::vector<int>::iterator it;
-  it = std::unique(vecout.begin(), vecout.begin());
-  vecout.resize(distance(vecout.begin(),it));
+  std::sort(vecout.begin(), vecout.end());
+  auto last = std::unique(vecout.begin(), vecout.end());
+  vecout.erase(last, vecout.end());
   return vecout;
 }
 
@@ -1334,9 +1343,9 @@ VectorDouble VectorHelper::unique(const VectorDouble& vecin, int size)
 
   VectorDouble vecout = vecin;
   vecout.resize(size);
-  std::vector<double>::iterator it;
-  it = std::unique(vecout.begin(), vecout.end());
-  vecout.resize(distance(vecout.begin(),it));
+  std::sort(vecout.begin(), vecout.end());
+  auto last = std::unique(vecout.begin(), vecout.end());
+  vecout.erase(last, vecout.end());
   return vecout;
 }
 
@@ -1742,10 +1751,10 @@ void VectorHelper::linearComb(double val1,
 }
 
 void VectorHelper::linearCombVVD(double val1,
-                              const VectorVectorDouble &in1,
-                              double val2,
-                              const VectorVectorDouble &in2,
-                              VectorVectorDouble &outv)
+                                 const VectorVectorDouble &in1,
+                                 double val2,
+                                 const VectorVectorDouble &in2,
+                                 VectorVectorDouble &outv)
 {
   if (in1.empty() || in2.empty()) return;
 
@@ -1756,4 +1765,41 @@ void VectorHelper::linearCombVVD(double val1,
       outv[is][i] = val1 * in1[is][i] + val2 * in2[is][i];
     }
   }
+}
+
+/**
+ * Extract the part of a vector 'vecin' (dimensioned to dimension of 'vecout')
+ * starting at address 'istart' and copy it into 'vecout'
+ * @param vecin  Initial vector
+ * @param vecout Resulting vector (already allocated)
+ * @param start  Starting address (within 'vecin')
+ */
+void VectorHelper::extractInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
+{
+  std::copy(vecin.begin() + start, vecin.begin() + start + vecout.size(), vecout.begin());
+}
+
+/**
+ * Merge 'vecin' into 'vecout' starting at address 'istart'
+ * @param vecin  Initial vector
+ * @param vecout Vector where 'vecin' should be copied
+ * @param start  Starting address (in 'vecout')
+ */
+void VectorHelper::mergeInPlace(const VectorDouble& vecin, VectorDouble& vecout, int start)
+{
+  std::copy(vecin.begin(), vecin.end(), vecout.begin() + start);
+}
+
+/**
+ * Transform a vector of double values as follows
+ * @param tab  Vector of double values
+ * @param oper_choice Operation on the diagonal term (see Utilities::operate_XXX)
+ * @return
+ */
+void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
+{
+  operate_function oper_func = operate_Identify(oper_choice);
+  int number = (int) tab.size();
+  for (int i = 0; i < number; i++)
+    tab[i] = oper_func(tab[i]);
 }

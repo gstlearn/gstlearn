@@ -155,74 +155,6 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
 
 /*****************************************************************************/
 /*!
- **  Calculates the generalized eigen value problem
- **           A X = B X l
- **
- ** \return  Return code:
- ** \return   0 no error
- ** \return   1 convergence problem
- **
- ** \param[in]  a     square symmetric matrix (dimension = neq * neq)
- ** \param[in]  b     square symmetric matrix (dimension = neq * neq)
- ** \param[in]  neq   matrix dimension
- **
- ** \param[out] value  matrix of the eigen values (dimension: neq)
- ** \param[out] vector matrix of the eigen vectors (dimension: neq*neq)
- **
- *****************************************************************************/
-int matrix_geigen(const double *a,
-                  const double *b,
-                  int neq,
-                  double *value,
-                  double *vector)
-{
-  // Compute eigen decomposition of B
-  VectorDouble LB(neq);
-  VectorDouble PhiB(neq * neq);
-  if (matrix_eigen(b, neq, LB.data(), PhiB.data())) return 1;
-
-  // Compute auxiliary terms
-  VectorDouble PhiBm = PhiB;
-  int ecr = 0;
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++, ecr++)
-      PhiBm[ecr] /= sqrt(LB[i]);
-
-  VectorDouble Am(neq * neq, 0.);
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      for (int k = 0; k < neq; k++)
-        for (int l = 0; l < neq; l++)
-          Am[i * neq + j] += PhiBm[i * neq + k] * a[l * neq + k] * PhiBm[j * neq + l];
-
-  // Compute eigen decomposition of Am
-  VectorDouble LA(neq);
-  VectorDouble PhiA(neq * neq);
-  if (matrix_eigen(Am.data(), neq, LA.data(), PhiA.data())) return 1;
-
-  VectorDouble Phi(neq * neq,0.);
-  ecr = 0;
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      for (int k = 0; k < neq; k++)
-        Phi[j * neq + i] += PhiBm[k * neq + i] * PhiA[j * neq + k];
-
-  // Sort the eigen values by increasing values
-  VectorInt ranks = VH::sortRanks(LA, true, neq);
-
-  // Ultimate assignments
-  for (int i = 0; i < neq; i++)
-    value[i] = LA[ranks[i]];
-
-  for (int i = 0; i < neq; i++)
-    for (int j = 0; j < neq; j++)
-      vector[i * neq + j] = -Phi[ranks[i] * neq + j];
-
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
  **  Calculates the eigen values and eigen vectors of a symmetric square matrix
  **             A X = X l
  **
@@ -1494,59 +1426,6 @@ void matrix_cholesky_norme(int mode,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Performs the product of a symmetric matrix by a vector
- **
- ** \param[in]  neq    Dimension of the matrix
- ** \param[in]  mode   1 if the Lower matrix is stored linewise
- **                      (or if the Upper matrix is stored columnwise)
- **                    2 if the Lower matrix is stored columnwise
- **                      (or the Upper matrix is stored linewise)
- ** \param[in]  al     Lower triangular matrix defined by column
- ** \param[in]  b      Vector
- **
- ** \param[out] x      Resulting product vector
- **
- *****************************************************************************/
-void matrix_triangular_product(int neq,
-                               int mode,
-                               const double *al,
-                               const double *b,
-                               double *x)
-{
-  int i, j;
-  const double *at;
-  double value;
-
-  if (mode == 1)
-  {
-    at = al;
-    for (i = 0; i < neq; i++)
-    {
-      value = 0.;
-      for (j = 0; j <= i; j++)
-        value += AT(j,i)* b[j];
-      for (j = i + 1; j < neq; j++)
-        value += AT(i,j)* b[j];
-      x[i] = value;
-    }
-  }
-  else
-  {
-    for (i = 0; i < neq; i++)
-    {
-      value = 0.;
-      for (j = 0; j <= i; j++)
-        value += AL(i,j)* b[j];
-      for (j = i + 1; j < neq; j++)
-        value += AL(j,i)* b[j];
-      x[i] = value;
-    }
-  }
-  return;
-}
-
 /****************************************************************************/
 /*!
  **  Calculate the generalized inverse of a square symmetric matrix
@@ -1667,17 +1546,17 @@ void matrix_triangle_to_square(int mode, int neq, const double *tl, double *a)
     }
   }
 
-  /*****************************************************************************/
-  /*!
-   **  Transform a symmetrical matrix (entered as triangle)
-   **  into a square matrix
-   **
-   ** \param[in]  neq    number of equations in the system
-   ** \param[in]  tl     Upper Triangular matrix (columnwise)
-   **
-   ** \param[out] a      Resulting square matrix
-   **
-   *****************************************************************************/
+/*****************************************************************************/
+/*!
+ **  Transform a symmetrical matrix (entered as triangle)
+ **  into a square matrix
+ **
+ ** \param[in]  neq    number of equations in the system
+ ** \param[in]  tl     Upper Triangular matrix (columnwise)
+ **
+ ** \param[out] a      Resulting square matrix
+ **
+ *****************************************************************************/
 static void _matrix_tri2sq(int neq, const double *tl, double *a)
 {
   int i, j;
@@ -1689,20 +1568,20 @@ static void _matrix_tri2sq(int neq, const double *tl, double *a)
     }
   }
 
-  /*****************************************************************************/
-  /*!
-   **  Transform a square symmetric matrix into a triangular one
-   **
-   ** \param[in]  mode   0: TL (upper); 1: TL (lower)
-   ** \param[in]  neq    number of equations in the system
-   ** \param[in]  a      Input square (symmetric) matrix
-   **
-   ** \param[out] tl     Triangular matrix (lower part)
-   **
-   ** \remark: No test is performed to check that the input matrix is symmetric
-   **
-   *****************************************************************************/
-static void _matrix_square_to_triangle(int mode, int neq, const double *a, double *tl)
+/*****************************************************************************/
+/*!
+ **  Transform a square symmetric matrix into a triangular one
+ **
+ ** \param[in]  mode   0: TL (upper); 1: TL (lower)
+ ** \param[in]  neq    number of equations in the system
+ ** \param[in]  a      Input square (symmetric) matrix
+ **
+ ** \param[out] tl     Triangular matrix (lower part)
+ **
+ ** \remark: No test is performed to check that the input matrix is symmetric
+ **
+ *****************************************************************************/
+static void _matrix_sq2tri(int mode, int neq, const double *a, double *tl)
 {
   int i, j;
 
@@ -2128,35 +2007,6 @@ double matrix_norminf(int nval, double *tab)
     if (value > retval) retval = value;
   }
   return (retval);
-}
-
-/*****************************************************************************/
-/*!
- **  Performs the t(A) %*% A where A is a square matrix
- **
- ** \param[in]  neq matrix dimension for A
- ** \param[in]  a   square matrix
- **
- ** \param[out] b   square matrix
- **
- ** \remark Matrices a() and b() may not coincide
- **
- *****************************************************************************/
-void matrix_square(int neq, double *a, double *b)
-{
-  int i1, i2, i3;
-  double value;
-
-  for (i1 = 0; i1 < neq; i1++)
-    for (i3 = 0; i3 < neq; i3++)
-    {
-      value = 0.;
-      for (i2 = 0; i2 < neq; i2++)
-        value += A(i1,i2)* A(i3,i2);
-      B(i1,i3)= value;
-    }
-
-  return;
 }
 
 /*****************************************************************************/
@@ -2965,7 +2815,7 @@ int matrix_invert_triangle(int neq, double *tl, int rank)
 
   _matrix_tri2sq(neq, tl, a);
   error = matrix_invert(a, neq, rank);
-  _matrix_square_to_triangle(0, neq, a, tl);
+  _matrix_sq2tri(0, neq, a, tl);
 
   a = (double*) mem_free((char* ) a);
   return error;

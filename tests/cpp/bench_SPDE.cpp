@@ -12,7 +12,6 @@
  * This function is meant to evaluate the bench marks on the SPDE functionalities
  *
  */
-#include "geoslib_d.h"
 #include "geoslib_f.h"
 
 #include "Enum/ESpaceType.hpp"
@@ -26,8 +25,10 @@
 #include "Basic/File.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptCst.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Stats/Classical.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
 #include "API/SPDE.hpp"
 
 /****************************************************************************/
@@ -43,28 +44,47 @@ int main(int argc, char *argv[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str(), argc, argv);
 
-  ASerializable::setContainerName(true);
+  ASerializable::setContainerName(false);
   ASerializable::setPrefixName("BenchSPDE-");
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
-  int seed = 123;
-  int nsim = 10;
-  int ndat = 50;
+  int seed  = 123;
+  int nsim  = 10;
+  int ndat  = 50;
   int nxref = 101;
   double matern_param = 1.0;
 
   setGlobalFlagEigen(true);
+  message("Use of Eigen Library = %d\n",isGlobalFlagEigen());
+
   OptCst::define(ECst::NTDEC, 2);
   OptCst::define(ECst::NTROW, -1);
   bool flagExhaustiveTest = false;
+  bool flagStatistics     = true;
 
   // Feature to be tested:
-  // 0: all of them
-  // 1: Kriging
-  // 2: non-conditional simulations
-  // 3: conditional simulations
-  int mode = 0;
+  // -1: all of them
+  //  0: Establishing Shift Operator only
+  //  1: Kriging
+  //  2: non-conditional simulations
+  //  3: conditional simulations
+  int mode = -1;
+
+  int nfois = 2;
+  // Feature to be tested:
+  // -1: all cases
+  //  0: not using the Cholesky option
+  //  1: using the Cholesky option
+  int ifois_ref = -1;
+
+  int ncov_tot = 2;
+  // Feature to be tested:
+  // -1: all the covariances
+  //  0: only the case with one covariance
+  //  1: only the case with two covariances
+  int ncov_ref = -1;
+
   bool verbose = false;
   bool showStats = false;
 
@@ -85,8 +105,10 @@ int main(int argc, char *argv[])
 
   // Loop for usage of Cholesky
 
-  for (int ncov = 0; ncov < 2; ncov++)
+  for (int ncov = 0; ncov < ncov_tot; ncov++)
   {
+    if (ncov_ref >= 0 && ncov_ref != ncov) continue;
+
     // Generate the Model
     Model *model;
     model = Model::createFromParam(ECov::BESSEL_K, TEST, 1, matern_param,
@@ -100,25 +122,29 @@ int main(int argc, char *argv[])
     if (showStats)
       message("- Number of covariances  = %d\n", model->getCovaNumber());
 
-    for (int ifois = 0; ifois < 2; ifois++)
+    // Building Shift Operator
+    if (mode < 0 || mode == 0)
     {
-      int useCholesky;
-      String option;
-      if (ifois == 0)
+      MeshETurbo mesh(grid);
+      for (int icov = 0; icov <= ncov; icov++)
       {
-        useCholesky = 0;
-        option = ".NoChol";
+        timer.reset();
+        ShiftOpCs shiftop(&mesh, model, nullptr, 0, icov);
+        timer.displayIntervalMilliseconds("Establishing S", 150);
       }
-      else
-      {
-        useCholesky = 1;
-        option = ".Chol";
-      }
+    }
+
+    for (int ifois = 0; ifois < nfois; ifois++)
+    {
+      if (ifois_ref >= 0 && ifois != ifois_ref) continue;
+
+      int useCholesky = ifois;
+      String option = (ifois == 0) ? ".NoChol" : ".Chol";
       if (showStats)
         message("- Cholesky Option        = %d\n", useCholesky);
 
-      // Kriging
-      if (mode == 0 || mode == 1)
+       // Kriging
+      if (mode < 0 || mode == 1)
       {
         timer.reset();
         String namconv = "Kriging" + option + sncov;
@@ -129,7 +155,7 @@ int main(int argc, char *argv[])
       }
 
       // Non-conditional simulations
-      if (mode == 0 || mode == 2)
+      if (mode < 0 || mode == 2)
       {
         timer.reset();
         String namconv = "Simu.NC" + option + sncov;
@@ -140,7 +166,7 @@ int main(int argc, char *argv[])
       }
 
       // Conditional simulations
-      if (mode == 0 || mode == 3)
+      if (mode < 0 || mode == 3)
       {
         timer.reset();
         String namconv = "Simu.CD" + option + sncov;
@@ -154,8 +180,9 @@ int main(int argc, char *argv[])
   }
 
   // Produce some statistics for comparison
-  dbStatisticsPrint(grid, { "Kriging*", "Simu*" },
-                    EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }));
+  if (flagStatistics)
+    dbStatisticsPrint(grid, { "Kriging*", "Simu*" },
+                      EStatOption::fromKeys( { "MINI", "MAXI", "MEAN", "STDV" }));
   if (flagExhaustiveTest)
   {
     DbStringFormat *dbfmt = DbStringFormat::createFromFlags(false, false, false, false, true);

@@ -341,8 +341,11 @@ void AGibbs::storeResult(const VectorVectorDouble& y,
 
 VectorInt AGibbs::calculateSampleRanks() const
 {
+
+  if (! _db->hasLocVariable(ELoc::SEL))
+    return VH::sequence(_db->getSampleNumber());
+
   VectorInt ranks;
-  if (! _db->hasLocVariable(ELoc::SEL)) return ranks;
   for (int iech = 0; iech < _db->getSampleNumber(); iech++)
   {
     if (_db->isActive(iech)) ranks.push_back(iech);

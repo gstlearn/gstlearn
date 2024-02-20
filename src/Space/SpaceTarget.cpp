@@ -17,11 +17,11 @@
 #include <iostream>
 #include <math.h>
 
-SpaceTarget::SpaceTarget(const ASpace* space)
-: SpacePoint(space),
-  _extend(),
-  _code(TEST),
-  _date(TEST)
+SpaceTarget::SpaceTarget(const ASpace *space)
+    : SpacePoint(space),
+      _extend(),
+      _code(TEST),
+      _date(TEST)
 {
   _initialize();
 }

@@ -20,6 +20,7 @@
 class MatrixRectangular;
 class DbGrid;
 class CovAniso;
+class cs;
 
 /**
  * Meshing defined as a Turbo based on a Regular Grid
@@ -57,9 +58,7 @@ public:
   double  getApexCoor(int i, int idim) const override;
   void    getApexCoordinatesInPlace(int i, VectorDouble& coords) const override;
   double  getMeshSize(int imesh) const override;
-#ifndef SWIG
-  cs* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
-#endif
+  MatrixSparse* getMeshToDb(const Db *db, int rankZ = -1, bool verbose = false) const override;
   void   setPolarized(bool flag) { _isPolarized = flag; }
 
   static MeshETurbo* create(const VectorInt &nx,
@@ -125,11 +124,11 @@ private:
   void _getGridFromMesh(int imesh, int *node, int *icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
-  bool _addElementToCS(cs *ATriplet,
-                       int iech,
-                       const VectorDouble &coor,
-                       const VectorInt &indg0,
-                       bool verbose) const;
+  bool _addElementToTriplet(NF_Triplet &NF_T,
+                            int iech,
+                            const VectorDouble &coor,
+                            const VectorInt &indg0,
+                            bool verbose) const;
 
 protected:
   /// Interface for ASerializable

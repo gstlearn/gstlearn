@@ -19,6 +19,7 @@ set(SRC
   Matrix/MatrixSquareGeneral.cpp
   Matrix/MatrixFactory.cpp
   Matrix/Table.cpp
+  Matrix/NF_Triplet.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   API/Style.cpp
@@ -153,6 +154,7 @@ set(SRC
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
+  Db/DbHelper.cpp
   LinearOp/LogStats.cpp
   LinearOp/CGParam.cpp
   LinearOp/PrecisionOp.cpp
