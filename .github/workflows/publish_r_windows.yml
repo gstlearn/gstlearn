@@ -1,0 +1,112 @@
+name: publish_r_windows
+
+on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  # Customize the CMake build type here (Release, Debug)
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  GENERATOR : "MSYS Makefiles"
+  SWIG_ROOT : ${{github.workspace}}\swig_420b
+  DOXYGEN_ROOT : ${{github.workspace}}\doxygen
+  DOXYGEN_VERSION : "1.9.8"
+  BOOST_ROOT: ${{github.workspace}}\boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}\eigen
+  EIGEN_VERSION : "3.4.0"
+
+jobs:
+  
+  build:
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        # Last releases from here https://cran.r-project.org/src/base/R-4/
+        r_version: [4.0.5, 4.1.3, 4.2.3 , 4.3.2]
+        
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{matrix.r_version}}
+
+    - name: Install devtools
+      run: Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/')"
+
+    - name: Install Doxygen under windows
+      uses: fabien-ors/install-doxygen-windows-action@v1
+      with:
+        doxygen-root: ${{env.DOXYGEN_ROOT}}
+        doxygen-version: ${{env.DOXYGEN_VERSION}}
+
+    - name: Install the customized SWIG from source under windows
+      uses: fabien-ors/install-swig-windows-action@v2
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-windows
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
+
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-windows
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+
+    - name : Build the package and save generated file name in the environment
+      run : |
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}}
+        cmake --build ${{env.BUILD_DIR}} --target r_install
+        $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.zip" -File
+        echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+
+    - uses: actions/upload-artifact@v3
+      # Use specific artifact identifier for publishing all R versions
+      with:
+        name: windows-package-${{matrix.r_version}}
+        path: ${{env.MY_PKG}}
+    
+  publish:
+    needs: build
+    if: ${{inputs.external_call == false}}
+    
+    # Only ubuntu can upload to CRAN easily (ssh)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: fabien-ors/cran-publish-action@v1
+      with:
+        host: ${{secrets.CG_HOST}}
+        username: ${{secrets.CG_USR}}
+        password: ${{secrets.CG_PWD}}
+        repo-path: "/var/www/html/cran"
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: windows-package-*

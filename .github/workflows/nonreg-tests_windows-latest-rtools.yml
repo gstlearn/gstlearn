@@ -1,0 +1,50 @@
+name: nonreg-tests_windows-latest-rtools
+
+on:
+  # Permit calling trigger
+  workflow_call:
+  # Activate the workflow at each push on main branch
+  #push:
+  #  branches: [ main ]
+  # Activate the workflow at each pull request on main branch
+  #pull_request:
+  #  branches: [ main ]
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  # Customize the CMake build type here (Release, Debug)
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  R_VERSION : "4.3.2"
+  SWIG_ROOT : ${{github.workspace}}\swig_420b
+
+jobs:
+  
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{env.R_VERSION}}
+
+    - name: Install the customized SWIG from source under windows
+      uses: fabien-ors/install-swig-windows-action@v2
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Visual Studio 17 2022"
+
+    - name: Configure CMake
+      run: cmake -B${{env.BUILD_DIR}} -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
+
+    - name: Compile, install packages and execute non-regression tests
+      run: cmake --build ${{env.BUILD_DIR}} --target check

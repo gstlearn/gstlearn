@@ -1,0 +1,17 @@
+name: coverage-tests
+
+on:
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+jobs:
+  call-python:
+    uses: ./.github/workflows/coverage-tests_python.yml
+  call-r:
+    uses: ./.github/workflows/coverage-tests_r.yml
+    

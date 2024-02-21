@@ -1,0 +1,126 @@
+name: publish_r_macos
+
+on:
+  # Permit calling the workflow from outside (https://github.com/actions/runner/discussions/1884)
+  workflow_call:
+    inputs:
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: true
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+      external_call:
+        description: 'To distinguish workflow_call from other events'
+        type: boolean
+        required: false
+        default: false
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  SWIG_ROOT : ${{github.workspace}}/swig_420b
+  BOOST_ROOT: boost
+  BOOST_URL : https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
+  EIGEN_ROOT: Eigen
+  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+
+jobs:
+  build:
+    runs-on: ${{matrix.arch[1]}}
+    strategy:
+      matrix:
+        # Last releases from here https://cran.r-project.org/src/base/R-4/
+        r_version: [4.0.5, 4.1.3, 4.2.3, 4.3.2]
+        arch:
+          - [x86_64, macos-12]
+          - [arm64,  macos-14]
+        exclude:
+          - arch: [x86_64, macos-12]
+            r_version: 4.3.2
+          - arch: [arm64,  macos-14]
+            r_version: 4.0.5
+        
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{matrix.r_version}}
+
+    - name: Install R dependencies
+      run: |
+        Rscript -e "install.packages(c('rlang'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
+        Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
+
+    - name : Download and install Doxygen
+      run: brew install doxygen
+
+    # TODO : factorize boost installation action
+    - name : Download and uncompressed Boost headers
+      run: |
+        mkdir ${{env.BOOST_ROOT}}
+        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+
+    # TODO : factorize eigen3 installation action
+    - name : Download and uncompressed Eigen headers
+      run: |
+        mkdir ${{env.EIGEN_ROOT}}
+        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
+        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
+        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+
+    - name: Compile and install [customized] SWIG 4.2.0b
+      # TODO : Use a tagged realease (not the master branch)
+      run: |
+        mkdir swig_src
+        cd swig_src
+        git clone https://github.com/fabien-ors/swig.git
+        cd swig
+        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}}
+        cd build
+        make
+        make install
+
+    - name : Build the package and save generated file name in the environment
+      run : |
+        cmake -B${{env.BUILD_DIR}} -DCMAKE_OSX_ARCHITECTURES=${{matrix.arch[0]}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+        cmake --build ${{env.BUILD_DIR}} --target r_install
+        echo "MY_PKG=$(ls ${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.tgz)" >> "$GITHUB_ENV"
+
+    - uses: actions/upload-artifact@v3
+      # Use specific artifact identifier for publishing all versions
+      with:
+        name: macos-package-${{matrix.arch[0]}}-${{matrix.r_version}}
+        path: ${{env.MY_PKG}}
+    
+  publish:
+    needs: build
+    if: ${{inputs.external_call == false}}
+    
+    # Only ubuntu can upload via ssh
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: fabien-ors/cran-publish-action@v1
+      with:
+        host: ${{secrets.CG_HOST}}
+        username: ${{secrets.CG_USR}}
+        password: ${{secrets.CG_PWD}}
+        repo-path: "/var/www/html/cran"
+
+    # Delete the artifacts (for freeing storage space under github)
+    - uses: geekyeggo/delete-artifact@v2
+      with:
+        name: macos-package-*
+

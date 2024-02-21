@@ -22,4 +22,3 @@ runs:
       Invoke-WebRequest -Uri "$BOOST_URL" -OutFile ${{inputs.boost-root}}/download.tar.bz2
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar.bz2 -y -bd
       7z -o${{inputs.boost-root}} x ${{inputs.boost-root}}/download.tar -y -bd
-      cd ${{inputs.boost-root}}
