@@ -14,6 +14,7 @@
 #include "Enum/EJustify.hpp"
 #include "Enum/ECalcVario.hpp"
 
+#include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Anamorphosis/AAnam.hpp"
@@ -3264,17 +3265,14 @@ static int st_update_discretization_grid(DbGrid *db, double x, double y)
  **  Evaluate the correlation
  **     Correl(Z1(x) , Z2(x))
  **
- ** \return  Error return code
+ ** \return  Array of the indices of pairs of samples (or VectorVectorInt())
  **
  ** \param[in]  db1          Db descriptor (first variable)
  ** \param[in]  db2          Db descriptor (second variable for flag.same=T)
- ** \param[in]  icol1        Rank of the first column
- ** \param[in]  icol2        Rank of the second column
- ** \param[in]  varioparam   pointer to a VarioParam structure
+ ** \param[in]  name1        Name of the first variable
+ ** \param[in]  name2        Name of the second variable
+ ** \param[in]  flagFrom1    Start numbering of indices from 1 if True
  ** \param[in]  verbose      Verbose flag
- **
- ** \param[out] indices      Array of the indices of pairs of samples
- **                          (Dimension: 2 * nindice)
  **
  ** \remarks The two input Db must match exactly (same number of samples with
  ** \remarks same set of coordinates and same optional selection)
@@ -3282,59 +3280,68 @@ static int st_update_discretization_grid(DbGrid *db, double x, double y)
  ** \remarks The returned Vector of Vector of integer 'indices' contain
  ** \remarks the set of indices of the pairs of samples.
  ** \remarks Its contents is i1,j1,i2,j2,...
- ** \remarks The indices are numbered starting from 1
+ ** \remarks The indices are numbered starting from 0
  **
  *****************************************************************************/
-int correlationPairs(Db *db1,
-                     Db *db2,
-                     int icol1,
-                     int icol2,
-                     VarioParam *varioparam,
-                     VectorVectorInt &indices,
-                     bool verbose)
+VectorVectorInt correlationPairs(Db *db1,
+                                 Db *db2,
+                                 const String& name1,
+                                 const String& name2,
+                                 bool flagFrom1,
+                                 bool verbose)
 {
-  SpaceTarget T1(varioparam->getSpace());
-  SpaceTarget T2(varioparam->getSpace());
+  VectorVectorInt indices;
 
   /* Initializations */
 
-  if (db1 == nullptr) return (1);
-  if (db2 == nullptr) return (1);
-  indices.resize(2);
+  if (db1 == nullptr) return indices;
+  if (db2 == nullptr) return indices;
+  if (db1->getNDim() != db2->getNDim() || db1->getActiveSampleNumber() != db2->getActiveSampleNumber())
+  {
+    messerr("The two input 'db' are not compatible");
+    return indices;
+  }
+
   int nech = db1->getSampleNumber();
+  int ndim = db1->getNDim();
+  int shift = (flagFrom1) ? 1 : 0;
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
 
   /* Regular correlation */
 
+  indices.resize(2);
   int nb = 0;
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db1->isActive(iech)) continue;
-    double val1 = db1->getArray(iech, icol1);
+    double val1 = db1->getValue(name1, iech);
     if (FFFF(val1)) continue;
-    double val2 = db2->getArray(iech, icol2);
+    double val2 = db2->getValue(name2, iech);
     if (FFFF(val2)) continue;
 
-    indices[0].push_back(iech + 1);
-    indices[1].push_back(iech + 1);
+    indices[0].push_back(iech + shift);
+    indices[1].push_back(iech + shift);
     nb++;
-  }
-
-  /* Calculate the correlation coefficient */
-
-  if (nb <= 0)
-  {
-    messerr("No sample found where all variables are defined");
-    return 0;
   }
 
   /* Messages */
 
-  if (verbose)
+  if (nb <= 0)
   {
-    message("Total number of samples = %d\n", nech);
-    message("Number of samples defined = %d\n", (int) nb);
+    messerr("No sample found where all variables are defined");
+    return indices;
   }
-  return 0;
+  else
+  {
+    if (verbose)
+    {
+      message("Total number of samples = %d\n", nech);
+      message("Number of samples defined = %d\n", (int) nb);
+    }
+  }
+  return indices;
 }
 
 /****************************************************************************/
@@ -3342,21 +3349,15 @@ int correlationPairs(Db *db1,
  **  Evaluate the shifted correlation calculated as follows:
  **     Correl(Z1(x) , Z2(x+h))
  **
- ** \return  Error return code
+ ** \return  Vector of indices (or VectorVectorInt())
  **
  ** \param[in]  db           Db descriptor
- ** \param[in]  icol1        Rank of the first column
- ** \param[in]  icol2        Rank of the second column
- ** \param[in]  dmin         Minimum distance
- ** \param[in]  dmax         Maximum distance
+ ** \param[in]  name1        Name of the first variable
+ ** \param[in]  name2        Name of the second variable
  ** \param[in]  varioparam   pointer to a VarioParam structure
+ ** \param[in]  ipas         Rank of the lag of interest
+ ** \param[in]  idir         Rank of the direction of interest (within VarioParam)
  ** \param[in]  verbose      Verbose flag
- **
- ** \param[out] indices      Array of the indices of pairs of samples
- **                          (Dimension: 2 * nindice)
- **
- ** \remarks The two input Db must match exactly (same number of samples with
- ** \remarks same set of coordinates and same optional selection)
  **
  ** \remarks The returned Vector of Vector of integer 'indices' contain
  ** \remarks the set of indices of the pairs of samples.
@@ -3364,26 +3365,35 @@ int correlationPairs(Db *db1,
  ** \remarks The indices are numbered starting from 1
  **
  *****************************************************************************/
-int hscatterPairs(Db *db,
-                  int icol1,
-                  int icol2,
-                  double dmin,
-                  double dmax,
-                  VarioParam *varioparam,
-                  VectorVectorInt &indices,
-                  bool verbose)
+VectorVectorInt hscatterPairs(Db *db,
+                              const String& name1,
+                              const String& name2,
+                              VarioParam *varioparam,
+                              int ipas,
+                              int idir,
+                              bool verbose)
 {
+  VectorVectorInt indices;
   double dist = 0.;
-  SpaceTarget T1(varioparam->getSpace());
-  SpaceTarget T2(varioparam->getSpace());
+
+  // Preliminary checks
+
+  if (db == nullptr) return indices;
+  if (varioparam == nullptr) return indices;
+  if (idir < 0 || idir >= varioparam->getDirectionNumber()) return indices;
 
   /* Initializations */
 
-  if (db == nullptr) return (1);
+  const DirParam dirparam = varioparam->getDirParam(idir);
   int nech = db->getSampleNumber();
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
   indices.resize(2);
 
   // Creating a local Vario structure (to constitute the BiTargetCheck list)
+
   Vario *vario = Vario::create(*varioparam);
   vario->setDb(db);
   if (vario->prepare()) return 1;
@@ -3395,47 +3405,49 @@ int hscatterPairs(Db *db,
   for (int iech = 0; iech < nech - 1; iech++)
   {
     if (hasSel && !db->isActive(iech)) continue;
-    double val1 = db->getArray(iech, icol1);
+    double val1 = db->getValue(name1, iech);
     if (FFFF(val1)) continue;
     db->getSampleAsST(iech, T1);
 
     for (int jech = iech + 1; jech < nech; jech++)
     {
       if (hasSel && !db->isActive(jech)) continue;
-      double val2 = db->getArray(jech, icol2);
+      double val2 = db->getValue(name2, jech);
       if (FFFF(val2)) continue;
       db->getSampleAsST(jech, T2);
 
       // Reject the point as soon as one BiTargetChecker is not correct
       if (!variogramKeep(vario, 0, T1, T2, &dist)) continue;
 
-      /* Check the distance */
-      if (dist < dmin || dist > dmax) continue;
+      /* Get the rank of the lag */
+
+      int ipasloc = variogram_get_lag(dirparam, dist);
+      if (IFFFF(ipasloc)) continue;
+      if (ipas != ipasloc) continue;
 
       /* Point update */
 
-      indices[0].push_back(iech + 1);
-      indices[1].push_back(jech + 1);
+      indices[0].push_back(iech);
+      indices[1].push_back(jech);
       nb++;
     }
   }
 
-  /* Calculate the correlation coefficient */
+  /* Messages */
 
   if (nb <= 0)
   {
     messerr("No sample found where all variables are defined");
-    return 0;
   }
-
-  /* Messages */
-
-  if (verbose)
+  else
   {
-    message("Total number of samples = %d\n", nech);
-    message("Number of pairs used for translated correlation = %d\n", (int) nb);
+    if (verbose)
+    {
+      message("Total number of samples = %d\n", nech);
+      message("Number of pairs used for translated correlation = %d\n", (int) nb);
+    }
   }
-  return 0;
+  return indices;
 }
 
 /****************************************************************************/
