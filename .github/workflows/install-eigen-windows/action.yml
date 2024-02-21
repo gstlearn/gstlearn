@@ -10,7 +10,7 @@ inputs:
     default: "3.4.0"
   generator:
     description: 'Generator used to configure/install Eigen'
-    default: "Visual Studio 16 2019"
+    default: "Visual Studio 17 2022"
     
 runs:
   using: "composite"

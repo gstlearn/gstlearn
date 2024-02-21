@@ -88,7 +88,7 @@ jobs:
       with:
         eigen-root: ${{env.EIGEN_ROOT}}
         eigen-version: ${{env.EIGEN_VERSION}}
-        generator: ${{env.GENERATOR}}
+        generator: "Visual Studio 17 2022"
 
 #    - name : Download and install HDF5
 #      run: | 

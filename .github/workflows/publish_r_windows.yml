@@ -65,22 +65,24 @@ jobs:
       uses: fabien-ors/install-swig-windows-action@v2
       with:
         swig-root: ${{env.SWIG_ROOT}}
-
-    - name: Install the Boost headers
-      uses: ./.github/workflows/install-boost-windows
-      with:
-        boost-root: ${{env.BOOST_ROOT}}
-        boost-version: ${{env.BOOST_VERSION}}
-
-    - name: Install the Eigen headers
-      uses: ./.github/workflows/install-eigen-windows
-      with:
-        eigen-root: ${{env.EIGEN_ROOT}}
-        eigen-version: ${{env.EIGEN_VERSION}}
+#
+# Boost and Eigen already provided by Rtools
+#
+#    - name: Install the Boost headers
+#      uses: ./.github/workflows/install-boost-windows
+#      with:
+#        boost-root: ${{env.BOOST_ROOT}}
+#        boost-version: ${{env.BOOST_VERSION}}
+#
+#    - name: Install the Eigen headers
+#      uses: ./.github/workflows/install-eigen-windows
+#      with:
+#        eigen-root: ${{env.EIGEN_ROOT}}
+#        eigen-version: ${{env.EIGEN_VERSION}}
 
     - name : Build the package and save generated file name in the environment
       run : |
-        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}}
+        cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=ON -DUSE_HDF5=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}}
         cmake --build ${{env.BUILD_DIR}} --target r_install
         $PKG_PATH = Get-ChildItem -Path "${{env.BUILD_DIR}}/r/${{env.BUILD_TYPE}}/gstlearn_*.zip" -File
         echo "MY_PKG=$PKG_PATH" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
