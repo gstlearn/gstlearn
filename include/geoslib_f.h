@@ -135,6 +135,19 @@ GSTLEARN_EXPORT Db* db_variogram(Db *db, const VarioParam *varioparam);
 GSTLEARN_EXPORT int dbgrid_model(DbGrid *dbgrid,
                                  Model *model,
                                  const NamingConvention &namconv = NamingConvention("VMAP"));
+GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
+                                                 Db *db2,
+                                                 const String &name1,
+                                                 const String &name2,
+                                                 bool flagFrom1 = false,
+                                                 bool verbose = false);
+GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
+                                              const String &name1,
+                                              const String &name2,
+                                              VarioParam *varioparam,
+                                              int ipas = 0,
+                                              int idir = 0,
+                                              bool verbose = false);
 
 /***********************/
 /* Functions for Model */

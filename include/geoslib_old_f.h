@@ -501,23 +501,6 @@ GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,
                                  VarioParam *vario_out,
                                  int idir_out);
 GSTLEARN_EXPORT void variogram_trans_cut(Vario *vario, int nh, double ycut);
-GSTLEARN_EXPORT int correlationPairs(Db *db1,
-                                  Db *db2,
-                                  int icol1,
-                                  int icol2,
-                                  VarioParam *varioparam,
-                                  VectorVectorInt& indices,
-                                  bool verbose = false);
-GSTLEARN_EXPORT int hscatter(Db *db1,
-                             Db *db2,
-                             DbGrid *dbgrid,
-                             int icol1,
-                             int icol2,
-                             double dmin,
-                             double dmax,
-                             VarioParam *varioparam,
-                             VectorVectorInt &indices,
-                             bool verbose = false);
 GSTLEARN_EXPORT int correlation_ident(Db *db1,
                                       Db *db2,
                                       int icol1,

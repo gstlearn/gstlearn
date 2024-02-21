@@ -1309,7 +1309,6 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 #' @param namex Name of the variable (within 'db1') which will be displayed along the horizontal axis
 #' @param namey Name of the variable (within 'db2') which will be displayed along the vertical axis
 #' @param db2 A second data base from gstlearn. If not defined, it coincides with 'db1'
-#' @param useSel Use of an optional selection (masking off samples)
 #' @param asPoint Represent samples pointwise if TRUE, otherwise as a grid painted with occurrences
 #' @param flagDiag Represent the diagonal of the plot
 #' @param diagColor Color of the diagonal
@@ -1325,7 +1324,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, ...)
 #' @param legendNameRaster Name of the legend when representing grid of occurrences (asPoint = FALSE)
 #' @param ... List of arguments passed to plot.XY() or plot.hist2d()
 #' @return The ggplot object
-plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
+plot.correlation <- function(db1, namex, namey, db2=NULL,
     asPoint=FALSE, 
     flagDiag=FALSE, diagColor = "red", diagLinetype = "solid", 
     flagRegr=FALSE, regrColor = "blue", regrLinetype = "solid", 
@@ -1334,9 +1333,10 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
     ...)
 {
   if (is.null(db2)) db2 = db1
-  x = db1$getColumn(namex, useSel)
-  y = db2$getColumn(namey, useSel)
-  
+  res = correlationPairs(db1, db2, namex, namey)
+  x = db1$getValuesByNames(res[[1]], namex)
+  y = db2$getValuesByNames(res[[2]], namey)
+ 
   p = list()
   if (asPoint)
     p = append(p, plot.XY(x, y, flagLine=FALSE, flagPoint=TRUE, ...))
@@ -1380,6 +1380,83 @@ plot.correlation <- function(db1, namex, namey, db2=NULL, useSel=TRUE,
       p <- append(p, geom_segment(aes(x=xmin,y=ymin,xend=xmax,yend=ymax),
           linetype = regrLinetype, color = regrColor, na.rm=TRUE))
     }
+  }
+  
+  p = append(p, plot.decoration(xlab=namex, ylab=namey))
+  
+  # Set the Legend
+  if (flagLegendRaster)
+  {
+    if (is.null(legendNameRaster)) legendNameRaster = "Count"
+    p <- append(p, list(guides(fill = guide_colorbar(title=legendNameRaster, reverse=FALSE))))
+  }
+  else
+  {
+    p <- append(p, list(theme(legend.position='none')))
+  }
+  
+  p 
+}
+
+#' Representing the H-scatter plot 
+#' @param db A data base from gstlearn library
+#' @param namex Name of the variable (within 'db1') which will be displayed along the horizontal axis
+#' @param namey Name of the variable (within 'db2') which will be displayed along the vertical axis
+#' @varioparam A VarioParam structure describing the calculation criteria
+#' @ipas Rank of the lag to be used for calculations
+#' @idir Rank of the direction to be used for calculations
+#' @param asPoint Represent samples pointwise if TRUE, otherwise as a grid painted with occurrences
+#' @param flagDiag Represent the diagonal of the plot
+#' @param diagColor Color of the diagonal
+#' @param diagLinetype Line type of the diagonal
+#' @param flagBiss Represent the first bisector (Y=X) 
+#' @param bissColor Color of the first bisector (Y=X)
+#' @param bissLinetype Line type of the first bisector (Y=X)
+#' @param flagSameAxes Define the same bounds for horizontal and vertical axes
+#' @param flagLegendRaster Show the legend when representing grid of occurrences (asPoint = FALSE)
+#' @param legendNameRaster Name of the legend when representing grid of occurrences (asPoint = FALSE)
+#' @param ... List of arguments passed to plot.XY() or plot.hist2d()
+#' @return The ggplot object
+plot.hscatter <- function(db, namex, namey, varioparam, ipas=0, idir=0,
+    asPoint=FALSE, 
+    flagDiag=FALSE, diagColor = "red", diagLinetype = "solid", 
+    flagBiss=FALSE, bissColor = "green", bissLinetype = "solid", 
+    flagSameAxes=FALSE, flagLegendRaster = FALSE, legendNameRaster = NULL,
+    ...)
+{
+  res = hscatterPairs(db, namex, namey, varioparam, ipas, idir)
+  x = db$getValuesByNames(res[[1]], namex)
+  y = db$getValuesByNames(res[[2]], namey)
+ 
+  p = list()
+  if (asPoint)
+    p = append(p, plot.XY(x, y, flagLine=FALSE, flagPoint=TRUE, ...))
+  else
+    p = append(p, plot.hist2d(x, y, ...))
+  
+  xmin = min(x, na.rm=TRUE)
+  ymin = min(y, na.rm=TRUE)
+  xmax = max(x, na.rm=TRUE)
+  ymax = max(y, na.rm=TRUE)
+  
+  if (flagSameAxes)
+  {
+    xmin = ymin = min(xmin, ymin) 
+    xmax = ymax = max(xmax, ymax)
+  }
+  
+  if (flagDiag)
+  {
+    p <- append(p, geom_segment(aes(x=xmin,y=ymin,xend=xmax,yend=ymax),
+        linetype = diagLinetype, color = diagColor, na.rm=TRUE))
+  }
+  
+  if (flagBiss)
+  {
+    bmin = min(xmin, ymin)
+    bmax = max(xmax, ymax)
+    p <- append(p, geom_segment(aes(x=bmin,y=bmin,xend=bmax,yend=bmax),
+        linetype = bissLinetype, color = bissColor, na.rm=TRUE))
   }
   
   p = append(p, plot.decoration(xlab=namex, ylab=namey))
