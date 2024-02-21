@@ -25,7 +25,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_DIR : build
-  GENERATOR : "Visual Studio 16 2019"
+  GENERATOR : "Visual Studio 17 2019"
   PYTHON_VERSION : "3.11"
   NUMPY_VERSION : "1.23.5"
   BOOST_ROOT: ${{github.workspace}}\boost
@@ -69,7 +69,7 @@ jobs:
       with:
         eigen-root: ${{env.EIGEN_ROOT}}
         eigen-version: ${{env.EIGEN_VERSION}}
-        generator: "Visual Studio 17 2022"
+        generator: ${{env.GENERATOR}}
 
     - name: Configure CMake
       run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DBUILD_PYTHON=ON -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DEigen3_ROOT=${{env.EIGEN_ROOT}}
