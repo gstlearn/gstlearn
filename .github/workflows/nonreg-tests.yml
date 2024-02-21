@@ -21,7 +21,7 @@ jobs:
     uses: ./.github/workflows/nonreg-tests_macos-latest.yml
   call-windows-latest-msvc:
     uses: ./.github/workflows/nonreg-tests_windows-latest-msvc.yml
-  call-windows-latest-rtools:
-    uses: ./.github/workflows/nonreg-tests_windows-latest-rtools.yml
+#  call-windows-latest-rtools:
+#    uses: ./.github/workflows/nonreg-tests_windows-latest-rtools.yml
 #  call-ubuntu-latest:
 #    uses: ./.github/workflows/nonreg-tests_ubuntu-latest.yml

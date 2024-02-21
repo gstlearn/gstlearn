@@ -61,9 +61,7 @@ jobs:
         Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
 
     - name : Download and install dependencies
-      run: |
-        brew install doxygen
-        brew install clang-omp
+      run: brew install doxygen
 
     # TODO : factorize boost installation action
     - name : Download and uncompressed Boost headers
