@@ -67,7 +67,7 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
   * Linux:
     * GCC 5.4 or higher
   * MacOS:
-    * Clang-OMP 12 (llvm) or higher (not tested)
+    * Clang (from llvm) or higher (not tested)
   * Windows:
     * Python users: Microsoft Visual Studio C++ 14 or higher
     * R users: MinGW 7 (RTools 4.2) or higher
@@ -114,6 +114,10 @@ or even faster:
 ```
 make
 ```
+
+Notes:
+
+* Under MacOS, if you experience "Could NOT find OpenMP_C" error message, you should use the appropriate clang compiler (see [required tools installation](#required-tools-installation) instructions below)
 
 #### Microsoft Visual Studio, ...
 
@@ -203,6 +207,8 @@ sudo apt install libhdf5-dev
 
 #### MacOS
 
+Install the dependencies:
+
 ```
 brew install llvm
 brew install git
@@ -215,9 +221,19 @@ brew install libeigen3-dev
 brew install libhdf5-dev
 ```
 
+Define environment variables for the appropriate clang compiler:
+
+```
+export CC=/usr/local/opt/llvm/bin/clang
+export CXX=/usr/local/opt/llvm/bin/clang++
+```
+
 Notes:
 
 * These instructions for MacOS are currently not tested - above packages may not exist
+* Clang from llvm package is mandatory to support OpenMP
+* If you want to permanently define the `CC` and `CXX` environment variables, follow [this guide](https://phoenixnap.com/kb/set-environment-variable-mac#ftoc-heading-5)
+
   
 #### Windows - Microsoft Visual Studio
 

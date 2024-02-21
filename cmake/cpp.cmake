@@ -63,11 +63,8 @@ if (OPENMP_FOUND)
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
   if(${APPLE})
-    # http://stechschulte.net/2016/03/20/openmp-osx-cmake.html
-    set(CMAKE_C_COMPILER clang-omp CACHE STRING "C compiler" FORCE)
-    set(CMAKE_CXX_COMPILER clang-omp++ CACHE STRING "C++ compiler" FORCE)
-    #include_directories(${OpenMP_C_INCLUDE_DIR})
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp")
+    include_directories(${OpenMP_C_INCLUDE_DIR})
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lomp")
   endif()
 endif()
 
