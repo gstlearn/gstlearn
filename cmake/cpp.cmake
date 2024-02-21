@@ -47,7 +47,7 @@ if (WIN32)
 endif()
 
 # Debug find package instruction
-set(CMAKE_FIND_DEBUG_MODE TRUE)
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
 
 # Look for Boost
 #set(Boost_DEBUG 1)

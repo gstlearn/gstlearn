@@ -14,8 +14,13 @@
 
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
-
+#ifdef _MSC_VER
+  #pragma warning(disable:4127)
+#endif
 #include <Eigen/Sparse>
+#ifdef _MSC_VER
+  #pragma warning(default:4127)
+#endif
 
 class css; /// TODO : Dependency to csparse to be removed
 class csn;

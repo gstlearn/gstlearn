@@ -21,7 +21,13 @@
 #include <iostream>
 #include <iomanip>
 
+#ifdef _MSC_VER
+  #pragma warning(disable:4127)
+#endif
 #include <Eigen/SparseCholesky>
+#ifdef _MSC_VER
+  #pragma warning(default:4127)
+#endif
 
 #include <csparse_f.h>
 
