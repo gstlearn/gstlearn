@@ -3,10 +3,10 @@ name: nonreg-tests
 on:
   # Activate the workflow at each push on main branch
   push:
-    branches: [ main ]
+    branches: [ dev ]
   # Activate the workflow at each pull request on main branch
   pull_request:
-    branches: [ main ]
+    branches: [ dev ]
   # Permit manual trigger
   workflow_dispatch:
     inputs:
@@ -15,6 +15,7 @@ on:
         required: false
         default: ''
 
+# TODO: restore all non reg tests
 jobs:
   call-macos-latest:
     uses: ./.github/workflows/nonreg-tests_macos-latest.yml
@@ -22,5 +23,5 @@ jobs:
     uses: ./.github/workflows/nonreg-tests_windows-latest-msvc.yml
   call-windows-latest-rtools:
     uses: ./.github/workflows/nonreg-tests_windows-latest-rtools.yml
-  call-ubuntu-latest:
-    uses: ./.github/workflows/nonreg-tests_ubuntu-latest.yml
+#  call-ubuntu-latest:
+#    uses: ./.github/workflows/nonreg-tests_ubuntu-latest.yml

@@ -3,12 +3,12 @@ name: nonreg-tests_windows-latest-rtools
 on:
   # Permit calling trigger
   workflow_call:
-  # Activate the workflow at each push on main branch
+  # Activate the workflow at each push on dev branch
   #push:
-  #  branches: [ main ]
-  # Activate the workflow at each pull request on main branch
+  #  branches: [ dev ]
+  # Activate the workflow at each pull request on dev branch
   #pull_request:
-  #  branches: [ main ]
+  #  branches: [ dev ]
   # Permit manual trigger
   workflow_dispatch:
     inputs:

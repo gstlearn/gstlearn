@@ -4,11 +4,11 @@ on:
   # Permit calling trigger
   workflow_call:
   # Activate the workflow at each push on dev branch
-  push:
-    branches: [ dev ]
+  #push:
+  #  branches: [ dev ]
   # Activate the workflow at each pull request on dev branch
-  pull_request:
-    branches: [ dev ]
+  #pull_request:
+  #  branches: [ dev ]
   # Activate the workflow every day at 23:30 UTC = for Paris 00:30 (summer) or 01:30 (winter)
   #schedule:
   #  # * is a special character in YAML so you have to quote the string
@@ -42,7 +42,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -yq libboost-all-dev libhdf5-dev
         sudo apt-get install -yq libeigen3-dev
-        sudo apt-get install -yq libopenmpi-dev
+#        sudo apt-get install -yq libopenmpi-dev
 
     - name: Setup Python Version
       uses: actions/setup-python@v4

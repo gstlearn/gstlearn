@@ -64,9 +64,10 @@ For **compiling and installing** *gstlearn* C++ library, the following tools mus
 * Git client 2.30 or higher
 * CMake tool 3.20 or higher
 * A C++ compiler among:
-  * Linux/MacOS:
+  * Linux:
     * GCC 5.4 or higher
-    * Clang 12 or higher (not tested)
+  * MacOS:
+    * Clang-OMP 12 or higher (not tested)
   * Windows:
     * Python users: Microsoft Visual Studio C++ 14 or higher
     * R users: MinGW 7 (RTools 4.2) or higher
@@ -98,7 +99,7 @@ git pull
 
 For compiling and installing the *gstlearn* C++ shared library, execute the following instructions from the *root* directory of *gstlearn*. Please note that you can choose another destination folder (currently named *build*).
 
-#### GCC, Clang, MinGW, ...
+#### GCC, Clang-OMP, MinGW, ...
 
 ...or any other single configuration compiler:
 
@@ -130,7 +131,7 @@ The `check*` targets bring some required runtime customization, so do not use th
 
 To build and launch non-regression tests, execute the following commands:
 
-#### GCC, Clang, MinGW, ...
+#### GCC, Clang-OMP, MinGW, ...
 
 ...or any other single configuration compiler:
 
@@ -203,6 +204,7 @@ sudo apt install libhdf5-dev
 #### MacOS
 
 ```
+brew install clang-omp
 brew install git
 brew install cmake
 brew install texlive-latex-recommended
