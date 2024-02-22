@@ -31,7 +31,8 @@ env:
   BOOST_ROOT: ${{github.workspace}}\boost
   BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}\eigen
-  EIGEN_VERSION : "3.4.0"  #HDF5_ROOT : hdf5 #do not use "." in the name
+  EIGEN_VERSION : "3.4.0"
+  #HDF5_ROOT : hdf5 #do not use "." in the name
   #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   #HDF5_VERSION : hdf5-1.12.1
 

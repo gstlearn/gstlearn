@@ -31,8 +31,8 @@ env:
   SWIG_ROOT : ${{github.workspace}}/swig_420b
   BOOST_ROOT: boost
   BOOST_URL : https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  EIGEN_ROOT: Eigen
-  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  EIGEN_ROOT : ${{github.workspace}}\eigen
+  EIGEN_VERSION : "3.4.0"
 
 jobs:
   build:
