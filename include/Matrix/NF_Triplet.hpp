@@ -16,13 +16,11 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 
-#ifdef _MSC_VER
-  #pragma warning(disable:4127)
-#endif
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_COND_EXPR_CONSTANT
+DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/Sparse>
-#ifdef _MSC_VER
-  #pragma warning(default:4127)
-#endif
+DISABLE_WARNING_POP
 
 class cs;
 

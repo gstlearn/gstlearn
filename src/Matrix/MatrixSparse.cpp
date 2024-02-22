@@ -21,13 +21,11 @@
 #include <iostream>
 #include <iomanip>
 
-#ifdef _MSC_VER
-  #pragma warning(disable:4127)
-#endif
+DISABLE_WARNING_PUSH
+DISABLE_WARNING_COND_EXPR_CONSTANT
+DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/SparseCholesky>
-#ifdef _MSC_VER
-  #pragma warning(default:4127)
-#endif
+DISABLE_WARNING_POP
 
 #include <csparse_f.h>
 

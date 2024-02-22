@@ -36,6 +36,10 @@
 #include <unistd.h> // for readlink
 #endif
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h> // for _NSGetExecutablePath
+#endif
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
@@ -454,10 +458,16 @@ String ASerializable::getExecDirectory()
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
-  dir = String(buffer);
-#else
+    dir = String(buffer);
+#elif __APPLE__
+  char buffer[PATH_MAX] = "";
+  uint32_t bufsize = PATH_MAX;
+  if(!_NSGetExecutablePath(buffer, &bufsize))
+    puts(buffer);
+#else // __linux__
   char buffer[LONG_SIZE] = "";
-  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1) dir = String(buffer);
+  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
+    dir = String(buffer);
 #endif
   return getDirectory(dir);
 }
