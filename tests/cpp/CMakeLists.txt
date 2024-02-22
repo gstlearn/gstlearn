@@ -2,10 +2,10 @@
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 
 # With GLOB:
-file(GLOB TEST_SOURCES *.cpp)
+#file(GLOB TEST_SOURCES *.cpp)
 # Without GLOB:
-#set(TEST_SOURCES 
-#  test_Anam.cpp)
+set(TEST_SOURCES 
+    bench_KrigingB.cpp)
 #  test_SPDEDrift.cpp)
 
 # Remove test_ppmt (not yet functional)

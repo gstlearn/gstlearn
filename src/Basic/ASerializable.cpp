@@ -441,7 +441,7 @@ bool ASerializable::createDirectory(const String& dir)
 #else
   struct stat sb;
   if ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
-  (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
+      (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
     return true;
 #endif
   return false;
