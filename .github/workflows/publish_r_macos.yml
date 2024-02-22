@@ -26,10 +26,10 @@ env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   SWIG_ROOT : ${{github.workspace}}/swig_420b
-  BOOST_ROOT: boost
-  BOOST_URL : https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  EIGEN_ROOT: Eigen
-  EIGEN_URL : https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip
+  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_VERSION: "1.72.0"
+  EIGEN_ROOT : ${{github.workspace}}/eigen
+  EIGEN_VERSION : "3.4.0"
 
 jobs:
   build:
@@ -65,22 +65,18 @@ jobs:
         Rscript -e "install.packages(c('rlang'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
         Rscript -e "install.packages(c('devtools'), repos='https://cloud.r-project.org/', dependencies = TRUE)"
 
-    # TODO : factorize boost installation action
-    - name : Download and uncompressed Boost headers
-      run: |
-        mkdir ${{env.BOOST_ROOT}}
-        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
-        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-unix
+      with:
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
 
-    # TODO : factorize eigen3 installation action
-    - name : Download and uncompressed Eigen headers
-      run: |
-        mkdir ${{env.EIGEN_ROOT}}
-        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
-        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
-        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
+    - name: Install the Eigen headers
+      uses: ./.github/workflows/install-eigen-unix
+      with:
+        eigen-root: ${{env.EIGEN_ROOT}}
+        eigen-version: ${{env.EIGEN_VERSION}}
+        generator: "Unix Makefiles"
 
     - name: Compile and install [customized] SWIG 4.2.0b
       # TODO : Use a tagged realease (not the master branch)

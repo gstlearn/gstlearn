@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 std::cout << "Coucou 1" << std::endl;
   // Generate the data base
   String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-std::cout << "Coucou 2:" << filename << std::endl;
+std::cout << "Coucou 2: " << filename << std::endl;
   CSVformat csv(false, 6);
   Db* data = Db::createFromCSV(filename, csv);
 std::cout << "Coucou 3" << std::endl;

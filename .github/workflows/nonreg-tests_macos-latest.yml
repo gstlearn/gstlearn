@@ -71,27 +71,12 @@ jobs:
 #        make
 #        make install
 
-#    # TODO : factorize boost installation action
-#    - name : Download and uncompressed Boost headers
-#      run: |
-#        mkdir ${{env.BOOST_ROOT}}
-#        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
-#        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
-#        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
-#        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-unix
       with:
         boost-root: ${{env.BOOST_ROOT}}
         boost-version: ${{env.BOOST_VERSION}}
 
-#    # TODO : factorize eigen3 installation action
-#    - name : Download and uncompressed Eigen headers
-#      run: |
-#        mkdir ${{env.EIGEN_ROOT}}
-#        curl --progress-bar --location --output ${{env.EIGEN_ROOT}}/download.zip ${{env.EIGEN_URL}}
-#        7z -o${{env.EIGEN_ROOT}} x ${{env.EIGEN_ROOT}}/download.zip -y -bd
-#        cd ${{env.EIGEN_ROOT}} && cp -r eigen-*/* .
     - name: Install the Eigen headers
       uses: ./.github/workflows/install-eigen-unix
       with:

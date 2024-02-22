@@ -24,10 +24,11 @@ env:
   GENERATOR : "MSYS Makefiles"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}\swig_420b
-  BOOST_ROOT: ${{github.workspace}}\boost
-  BOOST_VERSION: "1.72.0"
-  EIGEN_ROOT : ${{github.workspace}}\eigen
-  EIGEN_VERSION : "3.4.0"
+# Boost and Eigen already provided by Rtools
+#  BOOST_ROOT: ${{github.workspace}}\boost
+#  BOOST_VERSION: "1.72.0"
+#  EIGEN_ROOT : ${{github.workspace}}\eigen
+#  EIGEN_VERSION : "3.4.0"
 
 jobs:
   
@@ -50,18 +51,18 @@ jobs:
 #
 # Boost and Eigen already provided by Rtools
 #
-    - name: Install the Boost headers
-      uses: ./.github/workflows/install-boost-windows
-      with:
-        boost-root: ${{env.BOOST_ROOT}}
-        boost-version: ${{env.BOOST_VERSION}}
+#    - name: Install the Boost headers
+#      uses: ./.github/workflows/install-boost-windows
+#      with:
+#        boost-root: ${{env.BOOST_ROOT}}
+#        boost-version: ${{env.BOOST_VERSION}}
+#
+#    - name: Install the Eigen headers
+#      uses: ./.github/workflows/install-eigen-windows
+#      with:
+#        eigen-root: ${{env.EIGEN_ROOT}}
+#        eigen-version: ${{env.EIGEN_VERSION}}
 
-    - name: Install the Eigen headers
-      uses: ./.github/workflows/install-eigen-windows
-      with:
-        eigen-root: ${{env.EIGEN_ROOT}}
-        eigen-version: ${{env.EIGEN_VERSION}}
-        
     - name: Configure CMake
       run: cmake -B${{env.BUILD_DIR}} -G "${{env.GENERATOR}}" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_R=ON -DBUILD_PYTHON=OFF -DBUILD_DOXYGEN=OFF -DUSE_HDF5=OFF -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig
 

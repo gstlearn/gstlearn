@@ -537,6 +537,7 @@ int csv_table_read(const String &filename,
   String na_string = csvfmt.getNaString();
 
   String line;
+std::cout << "Sub Coucou0" << std::endl;
   String filepath = ASerializable::buildFileName(1, filename, true);
 std::cout << "Sub Coucou1" << std::endl;
   // Open new stream

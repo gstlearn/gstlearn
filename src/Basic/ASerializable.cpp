@@ -241,6 +241,8 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
   String filePath = fileLocal;
 
+std::cout << "Subsub Coucou1:" << filePath << std::endl;
+
 #if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
   // Check the presence of tilde character
   wordexp_t p;
@@ -249,6 +251,8 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
   filePath = p.we_wordv[p.we_offs];
   wordfree(&p);
 #endif
+
+std::cout << "Subsub Coucou2" << std::endl;
 
   return filePath;
 }
