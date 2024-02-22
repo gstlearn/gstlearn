@@ -19,7 +19,7 @@ runs:
   - name : Download, uncompressed and install Eigen headers
     shell: bash
     run: |
-      $EIGEN_URL="https://gitlab.com/libeigen/eigen/-/archive/${{inputs.eigen-version}}/eigen-${{inputs.eigen-version}}.zip"
+      EIGEN_URL="https://gitlab.com/libeigen/eigen/-/archive/${{inputs.eigen-version}}/eigen-${{inputs.eigen-version}}.zip"
       mkdir ${{inputs.eigen-root}}
       mkdir eigen_src
       curl --progress-bar --location --output eigen_src/download.zip $EIGEN_URL
