@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
-#if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
+#if __linux __
 #include <wordexp.h>
 #endif
 
@@ -243,7 +243,7 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
 std::cout << "Subsub Coucou1:" << filePath << std::endl;
 
-#if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
+#if __linux __
   // Check the presence of tilde character
   wordexp_t p;
   wordexp(fileLocal.c_str(), &p, 0);
