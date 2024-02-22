@@ -463,7 +463,7 @@ String ASerializable::getExecDirectory()
   char buffer[PATH_MAX] = "";
   uint32_t bufsize = PATH_MAX;
   if(!_NSGetExecutablePath(buffer, &bufsize))
-    puts(buffer);
+    dir = String(buffer);
 #else // __linux__
   char buffer[LONG_SIZE] = "";
   if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
