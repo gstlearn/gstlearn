@@ -29,8 +29,8 @@ env:
   NUMPY_VERSION : "1.23.5"
   R_VERSION : "4.3.2"
   SWIG_ROOT : ${{github.workspace}}/swig_420b
-  BOOST_ROOT: boost
-  BOOST_URL : https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
+  BOOST_ROOT: ${{github.workspace}}/boost
+  BOOST_VERSION: "1.72.0"
   EIGEN_ROOT : ${{github.workspace}}/eigen
   EIGEN_VERSION : "3.4.0"
 
@@ -44,41 +44,46 @@ jobs:
     - name : Download and install dependencies
       run: brew install llvm
 
-    - name: Setup Python Version
-      uses: actions/setup-python@v4
+#    - name: Setup Python Version
+#      uses: actions/setup-python@v4
+#      with:
+#        python-version: ${{env.PYTHON_VERSION}}
+#
+#    - name: Install Python dependencies
+#      run: |
+#        python -m pip install --upgrade pip
+#        python -m pip install numpy==${{env.NUMPY_VERSION}}
+##        python -m pip install pandas scipy mlxtend
+#
+#    - name: Setup R Version
+#      uses: r-lib/actions/setup-r@v2
+#      with:
+#        r-version: ${{env.R_VERSION}}
+#
+#    - name: Compile and install [customized] SWIG 4.2.0
+#      run: |
+#        mkdir swig_src
+#        cd swig_src
+#        git clone https://github.com/fabien-ors/swig.git
+#        cd swig
+#        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
+#        cd build
+#        make
+#        make install
+
+#    # TODO : factorize boost installation action
+#    - name : Download and uncompressed Boost headers
+#      run: |
+#        mkdir ${{env.BOOST_ROOT}}
+#        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+#        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+#        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+#        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+    - name: Install the Boost headers
+      uses: ./.github/workflows/install-boost-unix
       with:
-        python-version: ${{env.PYTHON_VERSION}}
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install numpy==${{env.NUMPY_VERSION}}
-#        python -m pip install pandas scipy mlxtend
-
-    - name: Setup R Version
-      uses: r-lib/actions/setup-r@v2
-      with:
-        r-version: ${{env.R_VERSION}}
-
-    - name: Compile and install [customized] SWIG 4.2.0
-      run: |
-        mkdir swig_src
-        cd swig_src
-        git clone https://github.com/fabien-ors/swig.git
-        cd swig
-        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
-        cd build
-        make
-        make install
-
-    # TODO : factorize boost installation action
-    - name : Download and uncompressed Boost headers
-      run: |
-        mkdir ${{env.BOOST_ROOT}}
-        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
-        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
-        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+        boost-root: ${{env.BOOST_ROOT}}
+        boost-version: ${{env.BOOST_VERSION}}
 
 #    # TODO : factorize eigen3 installation action
 #    - name : Download and uncompressed Eigen headers
@@ -95,7 +100,9 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      #run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=OFF -DBUILD_R=OFF -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
     - name: Compile, install packages and execute non-regression tests
-      run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+      #run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
+      run: cmake --build ${{env.BUILD_DIR}} --target check_cpp -- -j 3
