@@ -33,18 +33,6 @@ XXX: CholmodTypeConversionWarning: converting matrix of class csr_matrix to CSC 
 
 
 +#NO_DIFF#XXX+
-----
-#NO_DIFF#XXX
-----
-
-
-+#NO_DIFF#XXX+
-----
-#NO_DIFF#XXX
-----
-
-
-+#NO_DIFF#XXX+
 ----array([-1.        , -0.99215686, -0.98431373, -0.97647059, -0.96862745,
        -0.96078431, -0.95294118, -0.94509804, -0.9372549 , -0.92941176,
        -0.92156863, -0.91372549, -0.90588235, -0.89803922, -0.89019608,

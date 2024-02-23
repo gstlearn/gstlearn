@@ -255,10 +255,10 @@ modelVM
 
 #### Fitting of variogram map
 
-It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `dbgrid_model` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model. 
+It is then possible to plot the variogram map resulting from the fitted model. To do so, we start by evaluating the fitted variogram model on the the experimental variogram map grid. This is done using the function `buildVmapOnDbGrid` which we supply with both the experimental variogram map and the fitted model. This function adds a additional variable to the `Db` containing the experimental variogram map corresponding to the evaluations of the variogram model. 
 
 ```{r Fitting_Variogram_Map_Draw}
-err = dbgrid_model(grid.vmap, modelVM)
+err = modelVM$buildVmapOnDbGrid(grid.vmap)
 grid.vmap
 ```
 

@@ -20,7 +20,6 @@ SpaceRN::SpaceRN(unsigned int ndim)
 {
   if (ndim == 0)
   {
-    messerr("Wrong dimension = %d when creating SpaceRN (ndim set to 2)", ndim);
     _nDim = 2;
   }
 }

@@ -593,6 +593,7 @@ public:
                   Option_VarioFit optvar = Option_VarioFit(),
                   Option_AutoFit mauto = Option_AutoFit(),
                   bool verbose = false);
+  int buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv = NamingConvention("VMAP"));
 
   double gofToVario(const Vario* vario, bool verbose = true);
   void gofDisplay(double gof, bool byValue = true,

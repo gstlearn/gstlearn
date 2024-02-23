@@ -423,3 +423,35 @@ std::vector<DirParam> DirParam::createMultipleInSpace(int npas, double dpas, con
   }
   return dirs;
 }
+
+/****************************************************************************/
+/*!
+ **  Return the rank of the lag
+ **
+ ** \return  Rank of the lag or ITEST
+ **
+ ** \param[in]  dist         Distance
+ **
+ *****************************************************************************/
+int DirParam::getLagRank(double dist) const
+{
+  double distloc = ABS(dist);
+
+  /* Determine the rank of the lag */
+
+  int ilag = -1;
+  if (getFlagRegular())
+  {
+    ilag = (int) floor(distloc / getDPas() + 0.5);
+    if (ABS(distloc - ilag * getDPas()) > getTolDist() * getDPas()) return (ITEST);
+  }
+  else
+  {
+    ilag = -1;
+    for (int k = 0; k < getLagNumber() && ilag < 0; k++)
+      if (distloc > getBreaks()[k] && distloc <= getBreaks()[k + 1]) ilag = k;
+  }
+  if (ilag < 0 || ilag >= getLagNumber()) return (ITEST);
+
+  return ilag;
+}
