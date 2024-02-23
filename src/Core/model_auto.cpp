@@ -4701,7 +4701,7 @@ int model_auto_fit(Vario *vario,
 
   /* Calculate the variogram extension */
 
-  variogram_extension(vario, 0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
+  vario->getExtension(0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
                       &flag_gneg, &c0, &hmin, &hmax, &gmin, &gmax);
   angles.resize(ndim);
   (void) GH::rotationGetAnglesFromCodirInPlace(vario->getCodirs(0), angles);

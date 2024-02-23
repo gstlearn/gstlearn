@@ -407,7 +407,7 @@ public:
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
   void   setCoordinate(int iech, int idim, double value);
 
-  double getDistance1D(int iech, int jech, int idim, bool flagAbs = false) const;
+  double getDistance1D(int iech, int jech, int idim=0, bool flagAbs = false) const;
   double getDistance(int iech, int jech) const;
   int    getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2 = nullptr) const;
 

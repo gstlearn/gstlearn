@@ -162,6 +162,8 @@ public:
   bool isDimensionValid(int idim) const;
   bool isDefinedForGrid() const { return ! _grincr.empty(); }
 
+  int getLagRank(double dist) const;
+
 private:
   void _completeDefinition(double angle2D = TEST);
 

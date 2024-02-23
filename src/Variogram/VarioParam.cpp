@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
+#include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
@@ -395,3 +396,140 @@ int VarioParam::getDimensionNumber() const
   if (getDirectionNumber() <= 0) return 0;
   return _dirparams[0].getNDim();
 }
+
+/****************************************************************************/
+/*!
+ **  Check if dates are involved in the variogram calculation
+ **
+ ** \return  1 if dates are used; 0 otherwise
+ **
+ ** \param[in]  db1        First Db structure
+ ** \param[in]  db2        Second Db structure
+ **
+ *****************************************************************************/
+bool VarioParam::isDateUsed(const Db *db1, const Db *db2) const
+{
+  if (getDates().empty()) return false;
+  if (!db1->hasLocVariable(ELoc::DATE)) return false;
+  if (db2 != nullptr && !db2->hasLocVariable(ELoc::DATE)) return false;
+  return true;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish a new Db containing the pairs of the Variogram
+ **
+ ** \return  Pointer to the newly created Db
+ **
+ ** \param[in]  db           Db structure
+ ** \param[in]  varioparam   VarioParam structure
+ **
+ *****************************************************************************/
+Db* buildDbFromVarioParam(Db *db, const VarioParam& varioparam)
+{
+  if (db == nullptr) return nullptr;
+  if (db->getNDim() != 2 && db->getNDim() != 3)
+  {
+    messerr("This function can only be calculated in dimension equal to 2 or 3");
+    return nullptr;
+  }
+  if (db->getActiveSampleNumber() <= 0)
+  {
+    messerr("This function requires your 'Db' to have some active samples");
+    return nullptr;
+  }
+  if (db->getLocNumber(ELoc::Z) != 1)
+  {
+    messerr("This function is restricted to the Monovariate case");
+    return nullptr;
+  }
+  if (varioparam.getDirectionNumber() <= 0)
+  {
+    messerr("This function requires some direction to be defined in 'VarioParam'");
+    return nullptr;
+  }
+
+  // Creating a local Vario structure (to constitute the BiTargetCheck list
+  Vario vario = Vario(varioparam);
+  vario.setDb(db);
+  if (vario.prepare()) return nullptr;
+
+  // Creating the output Db
+  Db* newdb = Db::create();
+  int ndim = db->getNDim();
+  VectorVectorDouble ranks(2);
+  VectorDouble lags;
+  VectorDouble dirs;
+  VectorDouble dists;
+  VectorDouble vect(ndim);
+
+  SpaceTarget T1(varioparam.getSpace());
+  SpaceTarget T2(varioparam.getSpace());
+
+  // Calculating the admissible pairs
+  VectorInt rindex = db->getSortArray();
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  bool hasDate = varioparam.isDateUsed(db);
+  double dist = 0.;
+
+  for (int idir = 0; idir < varioparam.getDirectionNumber(); idir++)
+  {
+    DirParam dirparam = varioparam.getDirParam(idir);
+    int nech = db->getSampleNumber();
+    double maxdist = dirparam.getMaximumDistance();
+
+    /* Loop on the first point */
+
+    for (int iiech = 0; iiech < nech - 1; iiech++)
+    {
+      int iech = rindex[iiech];
+      if (hasSel && !db->isActive(iech)) continue;
+      if (hasWeight && FFFF(db->getWeight(iech))) continue;
+      db->getSampleAsST(iech, T1);
+
+      int ideb = (hasDate) ? 0 : iiech + 1;
+      for (int jjech = ideb; jjech < nech; jjech++)
+      {
+        int jech = rindex[jjech];
+        if (db->getDistance1D(iech, jech) > maxdist) break;
+        if (hasSel && !db->isActive(jech)) continue;
+        if (hasWeight && FFFF(db->getWeight(jech))) continue;
+        db->getSampleAsST(jech, T2);
+
+        // Reject the point as soon as one BiTargetChecker is not correct
+        if (! vario.keepPair(idir, T1, T2, &dist)) continue;
+
+        /* Get the rank of the lag */
+
+        int ipas = dirparam.getLagRank(dist);
+        if (IFFFF(ipas)) continue;
+
+        // The pair is kept
+
+        ranks[0].push_back((double) iech);
+        ranks[1].push_back((double) jech);
+        ranks[0].push_back((double) jech);
+        ranks[1].push_back((double) iech);
+        dirs.push_back((double) idir);
+        dirs.push_back((double) idir);
+        lags.push_back((double) ipas);
+        lags.push_back((double) ipas);
+        dists.push_back(dist);
+        dists.push_back(dist);
+      }
+    }
+  }
+
+  // Loading the coordinate vectors in the newly created Db
+
+  newdb->addColumnsByVVD(ranks, "Sample", ELoc::UNKNOWN);
+  newdb->addColumns(lags,  "Lag",ELoc::UNKNOWN);
+  newdb->addColumns(dirs,  "Direction",ELoc::UNKNOWN);
+  newdb->addColumns(dists, "Distance",ELoc::UNKNOWN);
+
+  return newdb;
+}
+

@@ -294,8 +294,8 @@ void AMatrixDense::prodMatMatInPlace(const AMatrix* x,
 }
 
 void AMatrixDense::prodNormMatMatInPlace(const AMatrixDense &a,
-                                  const AMatrixDense &m,
-                                  bool transpose)
+                                         const AMatrixDense &m,
+                                         bool transpose)
 {
   if (isFlagEigen() && a.isFlagEigen() && m.isFlagEigen())
     _prodNormMatMatInPlaceLocal(a, m, transpose);

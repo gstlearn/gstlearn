@@ -90,18 +90,6 @@ GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
 /* Functions for Variogram */
 /***************************/
 
-GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
-                                            int npas,
-                                            int opt_code,
-                                            int idate,
-                                            double dpas,
-                                            double toldis,
-                                            double tolang,
-                                            double bench,
-                                            double cylrad,
-                                            double tolcode,
-                                            const VectorDouble &breaks,
-                                            const VectorDouble &codir);
 GSTLEARN_EXPORT int variogram_cloud(Db *db,
                                     const VarioParam *varioparam,
                                     DbGrid *dbgrid,
@@ -131,10 +119,6 @@ GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db,
                                         int radius = 0.,
                                         bool flag_FFT = true,
                                         const NamingConvention& namconv = NamingConvention("VMAP"));
-GSTLEARN_EXPORT Db* db_variogram(Db *db, const VarioParam *varioparam);
-GSTLEARN_EXPORT int dbgrid_model(DbGrid *dbgrid,
-                                 Model *model,
-                                 const NamingConvention &namconv = NamingConvention("VMAP"));
 GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
                                                  Db *db2,
                                                  const String &name1,
@@ -148,6 +132,31 @@ GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
                                               int ipas = 0,
                                               int idir = 0,
                                               bool verbose = false);
+GSTLEARN_EXPORT void manage_drift_removal(int type, Db *db, Model *model);
+GSTLEARN_EXPORT int estimate_drift_coefficients(Db *db, int verbose);
+GSTLEARN_EXPORT void calculate_bias_global(Db *db, VectorDouble d1);
+GSTLEARN_EXPORT double get_bias_value(Db *db, int nbfl, int iiech, int jjech);
+GSTLEARN_EXPORT double get_DRFDIAG(int iech);
+GSTLEARN_EXPORT VectorDouble get_BETA();
+GSTLEARN_EXPORT MatrixSquareGeneral get_DRFXGX();
+GSTLEARN_EXPORT void variogram_evaluate(Db *db,
+                                        const ECalcVario &calcul_type,
+                                        int nvar,
+                                        int iech1,
+                                        int iech2,
+                                        int ipas,
+                                        double dist,
+                                        int do_asym,
+                                        void (*st_generic_set)(const ECalcVario &calcul_type,
+                                                               int nvar,
+                                                               int iadlag,
+                                                               int ivar,
+                                                               int jvar,
+                                                               int orient,
+                                                               double ww,
+                                                               double dist,
+                                                               double value));
+
 
 /***********************/
 /* Functions for Model */

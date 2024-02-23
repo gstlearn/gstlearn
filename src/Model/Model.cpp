@@ -1860,3 +1860,60 @@ CovAniso Model::extractCova(int icov) const
   if (covalist == nullptr) return CovAniso(ECov::UNKNOWN, _ctxt);
   return covalist->extractCova(icov);
 }
+
+/****************************************************************************/
+/*!
+ **  Calculate the variogram map from a Model
+ **  (presented as Variogram, not Covariance)
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbgrid      Grid structure
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv)
+{
+  if (dbgrid == nullptr) return 1;
+
+  /* Initializations */
+
+  int ndim = dbgrid->getNDim();
+  int nvar = dbgrid->getLocNumber(ELoc::Z);
+  int nv2  = nvar * (nvar + 1) / 2;
+
+  /* Create the variables in the Variogram Map file */
+
+  int iptr = dbgrid->addColumnsByConstant(nv2, 0.);
+  if (iptr < 0) return 1;
+
+  /* Loop on the grid nodes */
+
+  CovCalcMode mode(ECalcMember::LHS);
+  mode.setAsVario(true);
+  VectorInt center = dbgrid->getCenterIndices();
+  VectorDouble dincr(ndim);
+  VectorInt indices(ndim);
+  MatrixSquareGeneral mat;
+  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  {
+    if (! dbgrid->isActive(iech)) continue;
+    dbgrid->rankToIndice(iech, indices);
+
+    for (int idim = 0; idim < ndim; idim++)
+      dincr[idim] = (indices[idim] - center[idim]) * dbgrid->getDX(idim);
+
+    // Evaluate the variogram map
+    mat = evalNvarIpasIncr(dincr, &mode);
+
+    int ecr = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar <= ivar; jvar++, ecr++)
+        dbgrid->setArray(iech, iptr+ecr, mat.getValue(ivar, jvar));
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(dbgrid, iptr, "Model", nv2);
+  return 0;
+}

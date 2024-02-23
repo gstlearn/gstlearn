@@ -459,43 +459,7 @@ GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
 /* Prototyping the functions in vario.c */
 /****************************************/
 
-GSTLEARN_EXPORT void vario_fix_codir(int ndim, VectorDouble &codir);
-
-GSTLEARN_EXPORT int variogram_maximum_dist1D_reached(Db *db,
-                                                     int iech,
-                                                     int jech,
-                                                     double maxdist);
-GSTLEARN_EXPORT int geometry_compute(Db *db,
-                                     Vario *vario,
-                                     Vario_Order *vorder,
-                                     int *npair);
 GSTLEARN_EXPORT int variovect_compute(Db *db, Vario *vario, int ncomp);
-GSTLEARN_EXPORT void variogram_extension(const Vario *vario,
-                                         int ivar,
-                                         int jvar,
-                                         int idir0,
-                                         int flag_norm,
-                                         int flag_vars,
-                                         double distmin,
-                                         double distmax,
-                                         double varmin,
-                                         double varmax,
-                                         int *flag_hneg,
-                                         int *flag_gneg,
-                                         double *c0,
-                                         double *hmin,
-                                         double *hmax,
-                                         double *gmin,
-                                         double *gmax);
-GSTLEARN_EXPORT bool variogramKeep(const Vario *vario,
-                               int idir,
-                               SpaceTarget &T1,
-                               SpaceTarget &T2,
-                               double *dist);
-GSTLEARN_EXPORT void variogram_scale(Vario *vario, int idir);
-GSTLEARN_EXPORT int variogram_get_lag(const DirParam &dirparam, double dist);
-GSTLEARN_EXPORT ECalcVario vario_identify_calcul_type(const String &cov_name);
-GSTLEARN_EXPORT void vardir_print(Vario *vario, int idir, int verbose);
 GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,
                                  int idir_in,
                                  VarioParam *vario_out,
@@ -513,17 +477,14 @@ GSTLEARN_EXPORT void variogram_cloud_ident(Db *db,
                                            DbGrid *dbgrid,
                                            Vario *vario,
                                            Polygons *polygon);
-GSTLEARN_EXPORT void condexp(Db *db1,
-                             Db *db2,
-                             int icol1,
-                             int icol2,
-                             double mini,
-                             double maxi,
-                             int nclass,
-                             int verbose,
-                             int *ncond,
-                             double *xcond,
-                             double *ycond);
+GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
+                                           Db *db2,
+                                           int icol1,
+                                           int icol2,
+                                           double mini,
+                                           double maxi,
+                                           int nclass,
+                                           bool verbose = false);
 GSTLEARN_EXPORT int vario_extract(Vario *vario,
                                   ECalcVario *calcul_type,
                                   int *ndim,
@@ -696,8 +657,7 @@ GSTLEARN_EXPORT double model_drift_evaluate(int verbose,
                                             const Db *db,
                                             int iech,
                                             int ivar,
-                                            double *coef,
-                                            double *drftab);
+                                            double *coef);
 GSTLEARN_EXPORT void model_cova_characteristics(const ECov &type,
                                                 char cov_name[STRING_LENGTH],
                                                 int *flag_range,

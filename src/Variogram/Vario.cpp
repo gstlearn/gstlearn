@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
+#include "geoslib_f.h"
 
 #include "Enum/EAnam.hpp"
 
@@ -24,6 +25,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/VectorHelper.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Stats/Classical.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -33,6 +35,18 @@
 #include "Geometry/BiTargetCheckDate.hpp"
 #include "Geometry/BiTargetCheckFaults.hpp"
 #include "Geometry/BiTargetCheckGeometry.hpp"
+
+static Model *MODEL;
+static Vario *VARIO;
+static int IECH1, IECH2, IDIRLOC;
+
+static int NWGT[4] = { 2, 3, 4, 5 };
+static int NORWGT[4] = { 2, 6, 20, 70 };
+static int VARWGT[4][5] = { { 1, -1, 0, 0, 0 },
+                            { 1, -2, 1, 0, 0 },
+                            { 1, -3, 3, -1, 0 },
+                            { 1, -4, 6, -4, 1 } };
+
 
 /**
  * Build a Vario object by calculating the experimental variogram
@@ -328,7 +342,7 @@ int Vario::compute(Db* db,
 
   if (prepare(calcul)) return 1;
 
-  if (_variogram_compute(_db, this, flag_gen, flag_sample, verr_mode, model, verbose))
+  if (_variogram_compute(_db, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram");
     return 1;
@@ -383,8 +397,7 @@ int Vario::computeIndic(Db *db,
   if (prepare(calcul)) return 1;
 
   // Calculate the variogram of indicators
-  if (_variogram_compute(_db, this, flag_gen,
-                         flag_sample, verr_mode, model, verbose))
+  if (_variogram_compute(_db, flag_gen, flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram of Indicators");
     return 1;
@@ -398,7 +411,7 @@ int Vario::computeIndic(Db *db,
 }
 
 /**
- * Reduce this current variogram by keeping a subset of variables and/or directions
+ * Reduce the current variogram by keeping a subset of variables and/or directions
  *
  * @param varcols Vector of variable ranks (starting from 0)
  * @param dircols Vector of direction ranks (starting from 0)
@@ -410,7 +423,7 @@ void Vario::resetReduce(const VectorInt &varcols,
 {
   VectorInt selvars;
   VectorInt seldirs;
-  Vario vario_in(*this); // Copy this as input variogram
+  Vario vario_in(*this); // Copy the current variogram as input variogram
   int nvar_in = vario_in.getVariableNumber();
   int ndir_in = vario_in._varioparam.getDirectionNumber();
 
@@ -554,18 +567,18 @@ int Vario::transformZToY(const AAnam *anam)
 {
   if (anam == nullptr)
   {
-    messerr("This function needs an Anamorphosis");
+    messerr("The function 'transformZToY' needs an Anamorphosis");
     return 1;
   }
   AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam->clone());
   if (anamH == nullptr)
   {
-    messerr("This function needs a Hermite Anamorphosis");
+    messerr("The function 'transformZToY' needs a Hermite Anamorphosis");
     return 1;
   }
   if (getVariableNumber() != 1)
   {
-    messerr("This function is restricted to Monovariate Variogram");
+    messerr("The function 'transformZToY' is restricted to Monovariate Variogram");
     return 1;
   }
 
@@ -608,18 +621,18 @@ int Vario::transformYToZ(const AAnam *anam)
   if (anam == (AAnam*) NULL) return 1;
   if (anam->getType() != EAnam::HERMITIAN)
   {
-    messerr("This function is restricted to Gaussian Anamorphosis");
+    messerr("The function 'transformYToZ' is restricted to Gaussian Anamorphosis");
     return 1;
   }
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam->clone());
   if (anam_hermite == nullptr)
   {
-    messerr("This function needs a Hermite Anamorphosis");
+    messerr("The function 'transformYToZ' needs a Hermite Anamorphosis");
     return 1;
   }
   if (getVariableNumber() != 1)
   {
-    messerr("This function is restricted to Monovariate Variogram");
+    messerr("The function 'transformYToZ' is restricted to Monovariate Variogram");
     return 1;
   }
 
@@ -2234,4 +2247,2264 @@ double Vario::getCodir(int idir, int idim) const
   return getDirParam(idir).getCodir(idim);
 }
 
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental variogram
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db descriptor
+ ** \param[in]  flag_gen     1 for calculation of generalized variogram
+ ** \param[in]  flag_sample  calculate the variogram per sample
+ ** \param[in]  verr_mode    Mode of variogram correction (1, 2 or 3)
+ ** \param[in]  model        Model structure (triggers the KU option)
+ ** \param[in]  verbose      Verbose flag
+ **
+ ** \note The number of iterations in KU is given can be updated using the
+ ** \note keypair technique with name "KU_Niter".
+ **
+ *****************************************************************************/
+int Vario::_variogram_compute(Db *db,
+                              int flag_gen,
+                              int flag_sample,
+                              int verr_mode,
+                              Model *model,
+                              int verbose)
+{
+  int error = 0;
+
+  if (isDefinedForGrid())
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+    if (dbgrid == nullptr)
+    {
+      messerr("'Vario' is defined for Grid but 'db' is not organized as a grid");
+      return 1;
+    }
+    if (flag_gen)
+      error = _variogen_grid_calcul(dbgrid);
+    else
+      error = _variogrid_calcul(dbgrid);
+  }
+  else
+  {
+    if (flag_gen)
+      error = _variogen_line_calcul(db);
+    else
+      error = _variogram_general(db, model, flag_sample, verr_mode, verbose);
+  }
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental variogram on irregular data
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db descriptor
+ ** \param[in]  model        Model structure (triggers the KU option)
+ ** \param[in]  flag_sample  calculate the variogram per sample
+ ** \param[in]  verr_mode    Mode of variogram correction (1, 2 or 3)
+ ** \param[in]  verbose      Verbose flag
+ **
+ ** \note The number of iterations in KU is given can be updated using the
+ ** \note keypair technique with name "KU_Niter".
+ **
+ *****************************************************************************/
+int Vario::_variogram_general(Db *db,
+                              Model *model,
+                              int flag_sample,
+                              int verr_mode,
+                              int verbose)
+{
+  int idir, error, flag_verr, flag_ku, nbfl;
+  Vario_Order *vorder;
+  VectorInt rindex;
+
+  /* Initializations */
+
+  error = 1;
+  MODEL = model;
+  flag_verr = flag_ku = nbfl = 0;
+  if (db == nullptr) return (1);
+  vorder = (Vario_Order*) NULL;
+  manage_drift_removal(0, NULL, NULL);
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != getDimensionNumber() || db->getLocNumber(ELoc::Z) != getVariableNumber())
+  {
+    messerr("Inconsistent parameters:");
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
+            db->getLocNumber(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+            getVariableNumber());
+    goto label_end;
+  }
+  if (_get_generalized_variogram_order() > 0)
+  {
+    messerr("Calculation does not allow generalized variogram definition");
+    goto label_end;
+  }
+
+  /* Particular case of Transitive Covariogram */
+  /* It is only coded in the by_sample case and uses the regression technique */
+
+  if (getCalcul() == ECalcVario::COVARIOGRAM) flag_sample = 1;
+
+  /* Auxiliary check for Variance Measurement Error */
+
+  if (db->getLocNumber(ELoc::V) > 0 && verr_mode > 0)
+  {
+    vorder = vario_order_manage(1, 1, 0, vorder);
+    flag_verr = 1;
+  }
+
+  // Auxiliary check for Drift removal. This is triggered only if the drift
+  // contains at least one drift function different from Universality condition
+
+  if (model != nullptr && model->isDriftDifferentDefined(VectorInt()))
+  {
+    if (vorder == (Vario_Order*) NULL)
+      vorder = vario_order_manage(1, 1, 0, vorder);
+    flag_ku = 1;
+    manage_drift_removal(1, db, model);
+  }
+
+  /* Complementary checks */
+
+  if (flag_verr && flag_ku)
+  {
+    messerr("These two options are incompatible");
+    messerr("- Correction for the Variance of Error Measurements");
+    messerr("- Correction for bias when removing the Drift");
+    goto label_end;
+  }
+  if (flag_verr || flag_ku)
+  {
+    if (flag_sample)
+    {
+      messerr("The special Variogram option is incompatible with flag.sample");
+      goto label_end;
+    }
+    if (!db->isVariableNumberComparedTo(1)) goto label_end;
+  }
+
+  /* Evaluate the drift coefficients */
+
+  if (flag_ku)
+  {
+    if (estimate_drift_coefficients(db, verbose)) goto label_end;
+  }
+
+  /* Update the global statistics */
+
+  _variogram_stats(db);
+
+  /* Loop on the directions to evaluate */
+
+  rindex = db->getSortArray();
+  for (idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    if (!flag_sample)
+    {
+      if (_variogram_calcul1(db, idir, rindex.data(), vorder)) goto label_end;
+    }
+    else
+    {
+      if (_variogram_calcul2(db, idir, rindex.data()))
+        goto label_end;
+    }
+
+    if (vorder != (Vario_Order*) NULL)
+      _variogram_calcul_internal(db, idir, vorder);
+  }
+
+  /* Posterior calculations when presence of Variance of Measurement errors */
+
+  if (flag_verr)
+  {
+    for (idir = 0; idir < getDirectionNumber(); idir++)
+    {
+      if (_update_variogram_verr(db, idir, vorder, verr_mode)) goto label_end;
+    }
+  }
+
+  /* Posterior update when filtering the bias attached to drift removal */
+
+  if (flag_ku)
+  {
+    if (_update_variogram_ku(db, vorder, verbose)) goto label_end;
+  }
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end: vorder = vario_order_manage(-1, 1, 0, vorder);
+  manage_drift_removal(-1, db, model);
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Update the Variogram of Residuals when Drift has been removed
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db         Db description
+ ** \param[in]  vorder     Vario_Order structure
+ ** \param[in]  verbose    Verbose flag
+ **
+ ** \remark The number of iterations used for the debiasing procedure
+ ** \remark in presence of a drift can be defined using:
+ ** \remark set_keypair("KU_Niter",newval)
+ **
+ *****************************************************************************/
+int Vario::_update_variogram_ku(Db *db, Vario_Order *vorder, int verbose)
+{
+  Option_VarioFit optvar;
+  Option_AutoFit mauto;
+  double newval;
+  int ifirst, ilast;
+  Constraints constraints;
+
+  /* Initializations */
+
+  int ndim = MODEL->getDimensionNumber();
+  int nbfl = MODEL->getDriftNumber();
+  int niter_ku = (int) get_keypone("KU_Niter", 0);
+
+  /* Core allocation */
+
+  VectorDouble d1(ndim,0.);
+
+  /* Loop on the iterations */
+
+  for (int iter = 0; iter < niter_ku; iter++)
+  {
+
+    /* Perform the Automatic structure recognition */
+
+    if (MODEL != nullptr)
+    {
+      if (model_auto_fit(this, MODEL, verbose, mauto, constraints, optvar))
+        return 1;
+    }
+
+    /* Calculate the global bias correction terms */
+
+    calculate_bias_global(db, d1);
+
+    /* Optional printout */
+
+    if (verbose)
+    {
+      message("Drift removal at iteration #d/%d\n", iter + 1, niter_ku);
+      print_matrix("Drift Coefficients Matrix", 0, 1, nbfl, nbfl, NULL, get_DRFXGX().getValues().data());
+    }
+
+    /* Loop on the directions */
+
+    for (int idir = 0; idir < getDirectionNumber(); idir++)
+    {
+
+      /* Loop on the lags */
+
+      for (int ipas = 0; ipas < getLagNumber(idir); ipas++)
+      {
+        vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+        if (ifirst > ilast) continue;
+
+        /* Calculate the local bias correction terms */
+
+        newval = _calculate_bias_local(db, vorder, ifirst, ilast);
+
+        /* Patch the new value */
+
+        setGg(idir, 0, 0, ipas, newval);
+      }
+    }
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the local bias terms
+ **
+ ** \param[in]  db        Db description
+ ** \param[in]  vorder    Vario_Order structure
+ ** \param[in]  ifirst    Rank of the first lag
+ ** \param[in]  ilast     Rank of the last lag
+ **
+ *****************************************************************************/
+double Vario::_calculate_bias_local(Db *db,
+                                    Vario_Order *vorder,
+                                    int ifirst,
+                                    int ilast)
+{
+  int iech, jech, iiech, jjech;
+  double dist, diff, tot0, tot1, tot2, totnum, result, v1, v2;
+
+  /* Initializations */
+
+  int nbfl = MODEL->getDriftNumber();
+
+  /* Calculate the first corrected term */
+
+  tot0 = tot1 = tot2 = totnum = 0.;
+  for (int ipair = ifirst; ipair < ilast; ipair++)
+  {
+    vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+    v1 = _get_IVAR(db, iech, 0);
+    v2 = _get_IVAR(db, jech, 0);
+    if (FFFF(v1) || FFFF(v2)) continue;
+
+    iiech = _get_relative_sample_rank(db, iech);
+    jjech = _get_relative_sample_rank(db, jech);
+
+    diff = v1 - v2;
+    tot0 += diff * diff;
+    tot1 += get_bias_value(db, nbfl, iiech, jjech);
+    tot2 += (get_DRFDIAG(iiech) + get_DRFDIAG(jjech)) / 2.;
+    totnum += 1.;
+  }
+
+  tot0 /= 2.;
+  result = tot0 - tot1 + tot2;
+  if (totnum > 0.) result /= totnum;
+
+  return (result);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental generalized variogram along lines
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db descriptor
+ **
+ *****************************************************************************/
+int Vario::_variogen_line_calcul(Db *db)
+{
+  int idir, error, norder;
+
+  /* Initializations */
+
+  error = 1;
+  if (db == nullptr) return (1);
+  norder = _get_generalized_variogram_order();
+  manage_drift_removal(0, NULL, NULL);
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != getDimensionNumber() || db->getLocNumber(ELoc::Z) != getVariableNumber())
+  {
+    messerr("Inconsistent parameters:");
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
+            db->getLocNumber(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+            getVariableNumber());
+    return (1);
+  }
+  if (getVariableNumber() != 1)
+  {
+    messerr("The generalized variogram requires a single variable");
+    return (1);
+  }
+  if (_get_generalized_variogram_order() == 0)
+  {
+    messerr("Calculation requires a generalized variogram definition");
+    return (1);
+  }
+  if (! db->isGrid())
+  {
+    messerr("Calculation facility is dedicated to line architecture");
+    return (1);
+  }
+  if (!db->hasLocVariable(ELoc::C))
+  {
+    messerr("Calculation facility requires the definition of a CODE");
+    return (1);
+  }
+
+  /* Update the global statistics */
+
+  _variogram_stats(db);
+
+  /* Loop on the directions to evaluate */
+
+  for (idir = 0; idir < getDirectionNumber(); idir++)
+    _variogen_line(db, idir, norder);
+
+  /* Set the error return code */
+
+  error = 0;
+
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the generalized variogram along lines
+ **
+ ** \param[in]  db      Db description
+ ** \param[in]  idir    Rank of the Direction
+ ** \param[in]  norder  Order of the generalized variogram
+ **
+ *****************************************************************************/
+void Vario::_variogen_line(Db *db, int idir, int norder)
+{
+  int jech, keep, nvar;
+  double value, zz;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  int nech = db->getSampleNumber();
+  int npas = getLagNumber(idir);
+  double dist0 = 0.;
+  double dist = 0.;
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+
+  /* Loop on the first point */
+
+  for (int iech = 0; iech < nech - 1; iech++)
+  {
+    if (hasSel && !db->isActive(iech)) continue;
+    db->getSampleAsST(iech, T1);
+
+    for (int ipas = 1; ipas < npas; ipas++)
+    {
+      value = _get_IVAR(db, iech, 0);
+      if (FFFF(value)) break;
+      dist0 = 0.;
+
+      for (int iwgt = keep = 1; iwgt < NWGT[norder] && keep; iwgt++)
+      {
+        keep = 0;
+        jech = iech + iwgt * ipas;
+        if (jech < 0 || jech > nech) break;
+        if (hasSel && !db->isActive(jech)) break;
+        db->getSampleAsST(jech, T2);
+
+        // Reject the point as soon as one BiTargetChecker is not correct
+        if (! keepPair(idir, T1, T2, &dist)) continue;
+        if (iwgt == 1) dist0 = dist;
+
+        /* Evaluate the variogram */
+
+        zz = _get_IVAR(db, jech, 0);
+        if (FFFF(zz)) break;
+        keep = 1;
+        value += zz * VARWGT[norder][iwgt];
+      }
+      if (keep)
+      {
+        VARIO = this;
+        value = value * value / NORWGT[norder];
+        nvar = getVariableNumber();
+        variogram_set(getCalcul(), nvar, ipas, 0, 0, 0, 1., dist0, value);
+      }
+    }
+  }
+
+  /* Scale the variogram calculations */
+
+  _variogram_scale(idir);
+
+  /* Center the covariance function */
+
+  _covariance_center(db, idir);
+
+  /* Patch the central value */
+
+  _variogram_patch_c00(db, idir);
+
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Patch the value of C(0) for covariances
+ **
+ ** \param[in]  db    Db descriptor
+ ** \param[in]  idir  Rank of the Direction
+ **
+ *****************************************************************************/
+void Vario::_variogram_patch_c00(Db *db, int idir)
+{
+  double z1, z2, s12w, s12wzz, ww, scale, value, m1, m2, sumw;
+
+  /* Initializations */
+
+  if (!getFlagAsym()) return;
+
+  /* Calculate the C00 term */
+
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      int i = getDirAddress(idir, ivar, jvar, 0, false, 0);
+      setHhByIndex(idir, i, 0.);
+
+      scale = 1.;
+      m1 = m2 = s12w = s12wzz = sumw = 0.;
+
+      /* Calculate the statistics for each variable */
+
+      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      {
+        if (!db->isActive(iech)) continue;
+        ww = db->getWeight(iech);
+        if (FFFF(ww) || ww < 0.) continue;
+        z1 = _get_IVAR(db, iech, ivar);
+        z2 = _get_IVAR(db, iech, jvar);
+        if (FFFF(z1) || FFFF(z2)) continue;
+        m1 += ww * z1;
+        m2 += ww * z2;
+        sumw += ww;
+        value = z1 * z2;
+        if (getCalcul() == ECalcVario::COVARIOGRAM)
+        {
+          scale = ww;
+        }
+        else
+        {
+          scale = ww * ww;
+          s12w += scale;
+        }
+        s12wzz += scale * value;
+        if (OptDbg::query(EDbg::VARIOGRAM))
+          _print_debug(iech, iech, ivar, jvar, i, scale, value);
+      }
+
+      if (sumw > 0 && (getCalcul() == ECalcVario::COVARIANCE
+          || getCalcul() == ECalcVario::COVARIANCE_NC))
+      {
+        m1 /= sumw;
+        m2 /= sumw;
+      }
+
+      /* Final centering and normation */
+
+      setSwByIndex(idir, i, sumw);
+      if (getCalcul() == ECalcVario::COVARIOGRAM)
+        setGgByIndex(idir, i, s12wzz);
+      else if (getCalcul() == ECalcVario::COVARIANCE_NC)
+        setGgByIndex(idir, i, s12wzz / s12w);
+      else
+        setGgByIndex(idir, i, s12wzz / s12w - m1 * m2);
+    }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental generalized variogram on grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db         Db descriptor
+ **
+ *****************************************************************************/
+int Vario::_variogen_grid_calcul(DbGrid *db)
+{
+  int idir, error, norder;
+
+  /* Initializations */
+
+  error = 1;
+  if (db == nullptr) return (1);
+  norder = _get_generalized_variogram_order();
+  manage_drift_removal(0, NULL, NULL);
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != getDimensionNumber() || db->getLocNumber(ELoc::Z) != getVariableNumber())
+  {
+    messerr("Inconsistent parameters:");
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
+            db->getLocNumber(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+            getVariableNumber());
+    return (1);
+  }
+  if (getVariableNumber() != 1)
+  {
+    messerr("The generalized variogram requires a single variable");
+    return (1);
+  }
+  if (_get_generalized_variogram_order() == 0)
+  {
+    messerr("This calculation requires a generalized variogram definition");
+    return (1);
+  }
+  if (! db->isGrid())
+  {
+    messerr("This calculation facility is dedicated to grid architecture");
+    return (1);
+  }
+
+  /* Update the global statistics */
+
+  _variogram_stats(db);
+
+  /* Loop on the directions to evaluate */
+
+  for (idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    error = _variogen_grid(db, idir, norder);
+    if (error) break;
+  }
+
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental variogram on grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db descriptor
+ **
+ *****************************************************************************/
+int Vario::_variogrid_calcul(DbGrid *db)
+{
+  int idir, error, iadd_new, iatt_old, iech;
+  double maille;
+
+  /* Initializations */
+
+  error = 1;
+  iadd_new = iatt_old = -1;
+  if (db == nullptr) return (1);
+  manage_drift_removal(0, NULL, NULL);
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != getDimensionNumber() || db->getLocNumber(ELoc::Z) != getVariableNumber())
+  {
+    messerr("Inconsistent parameters:");
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
+            db->getLocNumber(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+            getVariableNumber());
+    goto label_end;
+  }
+  if (! db->isGrid())
+  {
+    messerr("This calculation facility is dedicated to grid architecture");
+    goto label_end;
+  }
+  if (_get_generalized_variogram_order() > 0)
+  {
+    messerr("This calculation does not allow generalized variogram definition");
+    goto label_end;
+  }
+
+  /* In the case of Covariogram, add the weight set to the scale */
+
+  if (getCalcul() == ECalcVario::COVARIOGRAM)
+  {
+    iatt_old = db_attribute_identify(db, ELoc::W, 0);
+    iadd_new = db->addColumnsByConstant(1, 0.);
+    if (iadd_new < 0) goto label_end;
+    db->setLocatorByUID(iadd_new, ELoc::W);
+    maille = db_grid_maille(db);
+    for (iech = 0; iech < db->getSampleNumber(); iech++)
+      db->setLocVariable(ELoc::W, iech, 0, maille);
+  }
+
+  /* Update the global statistics */
+
+  _variogram_stats(db);
+
+  /* Loop on the directions to evaluate */
+
+  for (idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    error = _variogram_grid(db, idir);
+    if (error) break;
+  }
+
+  /* Delete the additional weight variable (optional) */
+
+  if (getCalcul() == ECalcVario::COVARIOGRAM)
+  {
+    if (iadd_new > 0) db->deleteColumnByUID(iadd_new);
+    if (iatt_old > 0) db->setLocatorByUID(iatt_old, ELoc::W);
+  }
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end:
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Return the Order of the generalized variogram
+ **
+ ** \return Order of the Generalized covariance
+ **
+ *****************************************************************************/
+int Vario::_get_generalized_variogram_order()
+{
+  int norder = 0;
+  if (getCalcul() == ECalcVario::GENERAL1) norder = 1;
+  if (getCalcul() == ECalcVario::GENERAL2) norder = 2;
+  if (getCalcul() == ECalcVario::GENERAL3) norder = 3;
+  return (norder);
+}
+
+/****************************************************************************/
+/*!
+ **  Calculates the statistics for the variogram calculations
+ **
+ ** \param[in]  db      Db descriptor
+ **
+ *****************************************************************************/
+void Vario::_variogram_stats(Db *db)
+{
+  double z1, z2, ww;
+
+  /* Initializations */
+
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+  {
+    setMean(0., ivar);
+    for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
+      setVar(0., ivar, jvar);
+  }
+
+  /* Loop on the variables */
+
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+  {
+    double s1w = 0.;
+    double s1z = 0.;
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+      if (!db->isActive(iech)) continue;
+      ww = db->getWeight(iech);
+      if (FFFF(ww) || ww < 0.) continue;
+      z1 = _get_IVAR(db, iech, ivar);
+      s1w += ww;
+      s1z += z1;
+    }
+
+    if (s1w <= 0.) continue;
+    setMean(s1z / s1w, ivar);
+  }
+
+  for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+
+      /* Loop on the samples */
+
+      double s12w = 0.;
+      double s12wz1 = 0.;
+      double s12wz2 = 0.;
+      double s12wzz = 0.;
+
+      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      {
+        if (!db->isActive(iech)) continue;
+        ww = db->getWeight(iech);
+        if (FFFF(ww) || ww < 0.) continue;
+
+        z1 = _get_IVAR(db, iech, ivar);
+        z2 = _get_IVAR(db, iech, jvar);
+        if (FFFF(z1) || FFFF(z2)) continue;
+
+        s12w += ww;
+        s12wz1 += ww * z1;
+        s12wz2 += ww * z2;
+        s12wzz += ww * z1 * z2;
+      }
+      if (s12w <= 0.) continue;
+
+      if (getCalcul() == ECalcVario::COVARIOGRAM)
+      {
+        setVar(s12wzz, ivar, jvar);
+        setVar(s12wzz, jvar, ivar);
+      }
+      else
+      {
+        setVar(s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w), ivar, jvar);
+        setVar(s12wzz / s12w - (s12wz1 / s12w) * (s12wz2 / s12w), jvar, ivar);
+      }
+    }
+
+  // Modification when the ultimate variogram is a transformed one
+
+  if (getCalcul() == ECalcVario::TRANS1)
+  {
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        double value = -getVar(ivar, jvar) / getVar(jvar, jvar);
+        setVar(value, ivar, jvar);
+        setVar(value, jvar, ivar);
+      }
+  }
+  else if (getCalcul() == ECalcVario::TRANS2)
+  {
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        double value = -getVar(ivar, jvar) / getVar(ivar, ivar);
+        setVar(value, ivar, jvar);
+        setVar(value, jvar, ivar);
+      }
+  }
+  else if (getCalcul() == ECalcVario::BINORMAL)
+  {
+    for (int ivar = 0; ivar < db->getLocNumber(ELoc::Z); ivar++)
+      for (int jvar = 0; jvar < db->getLocNumber(ELoc::Z); jvar++)
+        if (ivar != jvar)
+          setVar(getVar(ivar, jvar) / sqrt(getVar(ivar, ivar) * getVar(jvar, jvar)), ivar, jvar);
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Update the Variogram when Variance of measurement error is available
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db        Db description
+ ** \param[in]  idir      Rank of the direction
+ ** \param[in]  vorder    Vario_Order structure
+ ** \param[in]  verr_mode Mode of variogram correction (1, 2 or 3)
+ **
+ *****************************************************************************/
+int Vario::_update_variogram_verr(Db *db,
+                                  int idir,
+                                  Vario_Order *vorder,
+                                  int verr_mode)
+{
+  int ifirst, ilast, iech, jech, number, nfois;
+  double dist, value, g_old, diff, sumt, sumb, wgt, sval, gval;
+  static double tol = EPSILON5;
+  static int maxiter = 100;
+
+  /* Initializations */
+
+  int npas = getLagNumber(idir);
+
+  /* Loop on the lags */
+
+  for (int ipas = 0; ipas < npas; ipas++)
+  {
+    vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+    if (ifirst > ilast) continue;
+
+    /* Dispatch according to the method */
+
+    switch (verr_mode)
+    {
+
+      case 1: /* Simple bias correction */
+        number = 0;
+        value = 0.;
+        for (int ipair = ifirst; ipair < ilast; ipair++)
+        {
+          vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+          value += _s(db, iech, jech);
+          number++;
+        }
+        value = (number > 0) ? value / number : 0.;
+        setGg(idir, 0, 0, ipas, MAX(0, getGg(idir, 0, 0, ipas) - value));
+        break;
+
+      case 2:
+        nfois = 0;
+        diff = 1.e30;
+        while (diff > tol && nfois < maxiter)
+        {
+          nfois++;
+          g_old = getGg(idir, 0, 0, ipas);
+          sumt = sumb = 0.;
+          for (int ipair = ifirst; ipair < ilast; ipair++)
+          {
+            vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+            sval = _s(db, iech, jech);
+            gval = _g(db, iech, jech);
+            value = sval + getGg(idir, 0, 0, ipas);
+            wgt = 1. / (value * value);
+            sumt += wgt * (gval - sval);
+            sumb += wgt;
+          }
+          setGg(idir, 0, 0, ipas, sumt / sumb);
+          diff = ABS(getGg(idir, 0, 0, ipas) - g_old);
+        }
+        setGg(idir, 0, 0, ipas, MAX(0, getGg(idir, 0, 0, ipas)));
+        if (nfois == maxiter && OptDbg::query(EDbg::CONVERGE))
+          message("Convergence not reached for lag %d\n", ipas + 1);
+        break;
+
+      case 3:
+        nfois = 0;
+        diff = 1.e30;
+        while (diff > tol && nfois < maxiter)
+        {
+          g_old = getGg(idir, 0, 0, ipas);
+          sumt = sumb = 0.;
+          for (int ipair = ifirst; ipair < ilast; ipair++)
+          {
+            vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+            sval = _s(db, iech, jech);
+            gval = _g(db, iech, jech);
+            value = sval + getGgByIndex(idir, ipas);
+            wgt = getGg(idir, 0, 0, ipas) / value;
+            sumt += wgt * gval;
+            sumb += 1.;
+          }
+          setGg(idir, 0, 0, ipas, sumt / sumb);
+          diff = ABS(getGg(idir, 0, 0, ipas) - g_old);
+        }
+        if (nfois == maxiter && OptDbg::query(EDbg::CONVERGE))
+          message("Convergence not reached for lag %d\n", ipas + 1);
+        break;
+
+      default:
+        messerr("The method (%d) for updating the Variogram", verr_mode);
+        messerr("calculated with Variance of Measurement Error is unknown");
+        return (1);
+    }
+  }
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Local function defined as the half-sum of the Variance of Measurement
+ **  Error on the two points constituting a pair
+ **
+ ** \return  Returned value
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  iech   Rank of the first sample
+ ** \param[in]  jech   Rank of the second sample
+ **
+ *****************************************************************************/
+double Vario::_s(Db *db, int iech, int jech)
+{
+  double value = 0.5 * (db->getLocVariable(ELoc::V, iech, 0) +
+                        db->getLocVariable(ELoc::V, jech, 0));
+  return (value);
+}
+
+/****************************************************************************/
+/*!
+ **  Local function defined as the half-sum squared difference of values
+ **  between the two points constituting a pair
+ **
+ ** \return  Returned value
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  iech   Rank of the first sample
+ ** \param[in]  jech   Rank of the second sample
+ **
+ *****************************************************************************/
+double Vario::_g(Db *db, int iech, int jech)
+{
+  double value = _get_IVAR(db, iech, 0) - _get_IVAR(db, jech, 0);
+  value = value * value / 2.;
+  return (value);
+}
+
+/****************************************************************************/
+/*!
+ **  Return the relative sample rank corresponding to an abolsute number
+ **
+ ** \return The corresponding relative sample rank
+ **
+ ** \param[in]  db     Db structure
+ ** \param[in]  iech0  Absolute rank of the first sample
+ **
+ *****************************************************************************/
+int Vario::_get_relative_sample_rank(Db *db, int iech0)
+{
+  int iiech = 0;
+  for (int iech = 0, nech = db->getSampleNumber(); iech < nech; iech++)
+  {
+    if (!db->isActiveAndDefined(iech, 0)) continue;
+    if (iech == iech0) return (iiech);
+    iiech++;
+  }
+  return (-1);
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the Variogram evaluation when the Geometry has been established
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  idir   Rank of the direction
+ ** \param[in]  vorder Vario_Order structure
+ **
+ *****************************************************************************/
+void Vario::_variogram_calcul_internal(Db *db, int idir, Vario_Order *vorder)
+{
+  int iech, jech, ifirst, ilast;
+  double dist;
+
+  /* Initializations */
+
+  int npas = getLagNumber(idir);
+
+  /* Loop on the lags */
+
+  for (int ipas = 0; ipas < npas; ipas++)
+  {
+    vario_order_get_bounds(vorder, idir, ipas, &ifirst, &ilast);
+
+    /* Loop on the pairs contributing to this lag */
+
+    for (int ipair = ifirst; ipair < ilast; ipair++)
+    {
+      vario_order_get_indices(vorder, ipair, &iech, &jech, &dist);
+
+      /* Evaluate the variogram */
+
+      VARIO = this;
+      IDIRLOC = idir;
+      IECH1 = iech;
+      IECH2 = jech;
+      variogram_evaluate(db, getCalcul(), getVariableNumber(), iech, jech, ipas,
+                         dist, 1, variogram_set);
+    }
+  }
+
+  /* Scale the variogram calculations */
+
+  _variogram_scale(idir);
+
+  /* Center the covariance function */
+
+  _covariance_center(db, idir);
+
+  /* Patch the central value */
+
+  _variogram_patch_c00(db, idir);
+
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the variogram using the traditional method
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  idir   Rank of the direction
+ ** \param[in]  rindex Array of sorted samples
+ ** \param[in]  vorder Vario_Order structure
+ **
+ *****************************************************************************/
+int Vario::_variogram_calcul1(Db *db,
+                              int idir,
+                              int *rindex,
+                              Vario_Order *vorder)
+{
+  int iech, jech, ipas, npair, ideb;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  DirParam dirparam = getDirParam(idir);
+  int nech = db->getSampleNumber();
+  double maxdist = getMaximumDistance(idir);
+  const VarioParam& varioparam = getVarioParam();
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  bool hasDate = varioparam.isDateUsed(db);
+  double dist = 0.;
+
+  /* Loop on the first point */
+
+  for (int iiech = 0; iiech < nech - 1; iiech++)
+  {
+    iech = rindex[iiech];
+    if (hasSel && !db->isActive(iech)) continue;
+    if (hasWeight && FFFF(db->getWeight(iech))) continue;
+    db->getSampleAsST(iech, T1);
+
+    ideb = (hasDate) ? 0 : iiech + 1;
+    for (int jjech = ideb; jjech < nech; jjech++)
+    {
+      jech = rindex[jjech];
+      if (db->getDistance1D(iech, jech) > maxdist) break;
+      if (hasSel && !db->isActive(jech)) continue;
+      if (hasWeight && FFFF(db->getWeight(jech))) continue;
+      db->getSampleAsST(jech, T2);
+
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (! keepPair(idir, T1, T2, &dist)) continue;
+
+      /* Get the rank of the lag */
+
+      ipas = dirparam.getLagRank(dist);
+      if (IFFFF(ipas)) continue;
+
+      /* Case of internal storage */
+
+      if (vorder != (Vario_Order*) NULL)
+      {
+        vario_order_add(vorder, iech, jech, NULL, NULL, ipas, idir, dist);
+      }
+      else
+      {
+
+        /* Evaluate the variogram */
+
+        VARIO = this;
+        IDIRLOC = idir;
+        IECH1 = iech;
+        IECH2 = jech;
+        variogram_evaluate(db, getCalcul(), getVariableNumber(), iech, jech,
+                           ipas, dist, 1, variogram_set);
+      }
+    }
+  }
+
+  /* Internal storage */
+
+  if (vorder != (Vario_Order*) NULL)
+  {
+    vorder = vario_order_final(vorder, &npair);
+  }
+  else
+  {
+
+    /* Scale the variogram calculations */
+
+    _variogram_scale(idir);
+
+    /* Center the covariance function */
+
+    _covariance_center(db, idir);
+
+    /* Patch the central value */
+
+    _variogram_patch_c00(db, idir);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the variogram by sample
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db descriptor
+ ** \param[in]  idir   Rank of the direction
+ ** \param[in]  rindex Array of sorted samples
+ **
+ *****************************************************************************/
+int Vario::_variogram_calcul2(Db *db, int idir, int *rindex)
+{
+  int iech, jech, i, ipas, ideb;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  /* Initializations */
+
+  const VarioParam &varioparam = getVarioParam();
+  const DirParam &dirparam = getDirParam(idir);
+  int nech = db->getSampleNumber();
+  int size = getDirSize(idir);
+  double maxdist = getMaximumDistance(idir);
+
+  /* Core allocation */
+
+  VectorDouble gg_sum(size, 0);
+  VectorDouble hh_sum(size, 0);
+  VectorDouble sw_sum(size, 0);
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  bool hasDate = varioparam.isDateUsed(db);
+  double w1 = 1.;
+  double dist = 0.;
+
+  /* Loop on the first sample */
+
+  for (int iiech = 0; iiech < nech; iiech++)
+  {
+    iech = rindex[iiech];
+    if (hasSel && !db->isActive(iech)) continue;
+    if (hasWeight)
+    {
+      w1 = db->getWeight(iech);
+      if (FFFF(w1)) continue;
+    }
+    db->getSampleAsST(iech, T1);
+
+    /* Looking for the second sample */
+
+    ideb = (hasDate) ? 0 : iiech + 1;
+    for (int jjech = ideb; jjech < nech; jjech++)
+    {
+      jech = rindex[jjech];
+      if (db->getDistance1D(iech, jech) > maxdist) break;
+      if (hasSel && !db->isActive(jech)) continue;
+      if (hasWeight && FFFF(db->getWeight(jech))) continue;
+      db->getSampleAsST(jech, T2);
+
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (! keepPair(idir, T1, T2, &dist)) continue;
+
+      /* Get the rank of the lag */
+
+      ipas = dirparam.getLagRank(dist);
+      if (IFFFF(ipas)) continue;
+
+      /* Evaluate the variogram */
+
+      VARIO = this;
+      IECH1 = iech;
+      IECH2 = jech;
+      variogram_evaluate(db, getCalcul(), getVariableNumber(), iech, jech, ipas,
+                         dist, 1, variogram_set);
+    }
+
+    /* Cumulate to the global variogram */
+
+    for (i = 0; i < size; i++)
+    {
+      if (getSwByIndex(idir, i) <= 0) continue;
+      sw_sum[i] += w1;
+      gg_sum[i] += w1 * getGgByIndex(idir, i) / getSwByIndex(idir, i);
+      hh_sum[i] += w1 * getHhByIndex(idir, i) / getSwByIndex(idir, i);
+    }
+  }
+
+  /* Copy the cumulated variogram into the Vario structure */
+
+  for (i = 0; i < size; i++)
+  {
+    setGgByIndex(idir, i, gg_sum[i]);
+    setHhByIndex(idir, i, hh_sum[i]);
+    setSwByIndex(idir, i, sw_sum[i]);
+  }
+
+  /* Scale the variogram calculations */
+
+  _variogram_scale(idir);
+
+  /* Center the covariance function */
+
+  _covariance_center(db, idir);
+
+  /* Patch the central value */
+
+  _variogram_patch_c00(db, idir);
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the variogram on a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db    Db description
+ ** \param[in]  idir  Rank of the Direction
+ **
+ *****************************************************************************/
+int Vario::_variogram_grid(DbGrid *db, int idir)
+{
+  int *indg1, *indg2, jech;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  /* Initializations */
+
+  int error = 1;
+  int nech = db->getSampleNumber();
+  int npas = getLagNumber(idir);
+  const DirParam &dirparam = getDirParam(idir);
+  indg1 = indg2 = nullptr;
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  double dist = 0.;
+
+  /* Core allocation */
+
+  indg1 = db_indg_alloc(db);
+  if (indg1 == nullptr) goto label_end;
+  indg2 = db_indg_alloc(db);
+  if (indg2 == nullptr) goto label_end;
+
+  /* Loop on the first point */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (hasSel && !db->isActive(iech)) continue;
+    if (hasWeight && FFFF(db->getWeight(iech))) continue;
+    db->getSampleAsST(iech, T1);
+    db_index_sample_to_grid(db, iech, indg1);
+
+    for (int ipas = 1; ipas < npas; ipas++)
+    {
+      for (int idim = 0; idim < db->getNDim(); idim++)
+        indg2[idim] = indg1[idim] + (int) (ipas * getGrincr(idir, idim));
+      jech = db_index_grid_to_sample(db, indg2);
+      if (jech < 0) continue;
+
+      if (hasSel && !db->isActive(jech)) continue;
+      if (hasWeight && FFFF(db->getWeight(jech))) continue;
+      db->getSampleAsST(jech, T2);
+
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (! keepPair(idir, T1, T2, &dist)) continue;
+
+      /* Evaluate the variogram */
+
+      VARIO = this;
+      dist = ipas * dirparam.getDPas();
+      IDIRLOC = idir;
+      IECH1 = iech;
+      IECH2 = jech;
+      variogram_evaluate(db, getCalcul(), getVariableNumber(), iech, jech, ipas,
+                         dist, 1, variogram_set);
+    }
+  }
+
+  /* Scale the variogram calculations */
+
+  _variogram_scale(idir);
+
+  /* Center the covariance function */
+
+  _covariance_center(db, idir);
+
+  /* Patch the central value */
+
+  _variogram_patch_c00(db, idir);
+
+  /* Set the error return status */
+
+  error = 0;
+
+  label_end:
+
+  /* Core deallocation */
+
+  indg1 = db_indg_free(indg1);
+  indg2 = db_indg_free(indg2);
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the generalized variogram on a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db      Db description
+ ** \param[in]  idir    Rank of the direction
+ ** \param[in]  norder  Order of the generalized variogram
+ **
+ *****************************************************************************/
+int Vario::_variogen_grid(DbGrid *db, int idir, int norder)
+{
+  int *indg1, *indg2;
+  int jech, nech, idim, error, npas, keep, nvar;
+  double zz, value;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  /* Initializations */
+
+  error = 1;
+  nech = db->getSampleNumber();
+  indg1 = indg2 = nullptr;
+  npas = getLagNumber(idir);
+  const DirParam &dirparam = getDirParam(idir);
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  double dist = 0.;
+
+  /* Core allocation */
+
+  indg1 = db_indg_alloc(db);
+  if (indg1 == nullptr) goto label_end;
+  indg2 = db_indg_alloc(db);
+  if (indg2 == nullptr) goto label_end;
+
+  /* Loop on the first point */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (hasSel && !db->isActive(iech)) continue;
+    db->getSampleAsST(iech, T1);
+    db_index_sample_to_grid(db, iech, indg1);
+
+    for (int ipas = 1; ipas < npas; ipas++)
+    {
+      value = _get_IVAR(db, iech, 0);
+      if (FFFF(value)) break;
+      dist = ipas * getDPas(idir);
+
+      for (int iwgt = keep = 1; iwgt < NWGT[norder] && keep; iwgt++)
+      {
+        keep = 0;
+        for (idim = 0; idim < db->getNDim(); idim++)
+          indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dirparam.getGrincr(idim));
+
+        jech = db_index_grid_to_sample(db, indg2);
+        if (jech < 0) continue;
+        if (hasSel && !db->isActive(jech)) continue;
+        db->getSampleAsST(jech, T2);
+
+        // Reject the point as soon as one BiTargetChecker is not correct
+        if (! keepPair(idir, T1, T2, &dist)) continue;
+
+        /* Evaluate the variogram */
+
+        zz = _get_IVAR(db, jech, 0);
+        if (FFFF(zz)) break;
+        keep = 1;
+        value += zz * VARWGT[norder][iwgt];
+      }
+      if (keep)
+      {
+        VARIO = this;
+        value = value * value / NORWGT[norder];
+        nvar = getVariableNumber();
+        variogram_set(getCalcul(), nvar, ipas, 0, 0, 0, 1., dist, value);
+      }
+    }
+  }
+
+  /* Scale the variogram calculations */
+
+  _variogram_scale(idir);
+
+  /* Center the covariance function */
+
+  _covariance_center(db, idir);
+
+  /* Patch the central value */
+
+  _variogram_patch_c00(db, idir);
+
+  /* Set the error return status */
+
+  error = 0;
+
+  label_end:
+
+  /* Core deallocation */
+
+  indg1 = db_indg_free(indg1);
+  indg2 = db_indg_free(indg2);
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Internal function for setting a variogram value
+ **
+ ** \param[in]  calcul_type Type of calculation (ECalcVario)
+ ** \param[in]  ipas        Rank of the variogram lag
+ ** \param[in]  ivar        Index of the first variable
+ ** \param[in]  jvar        Index of the second variable
+ ** \param[in]  orient      Orientation
+ ** \param[in]  ww          Weight
+ ** \param[in]  dist        Distance
+ ** \param[in]  value       Variogram value
+ **
+ *****************************************************************************/
+void variogram_set(const ECalcVario &calcul_type,
+                   int /*nvar*/,
+                   int ipas,
+                   int ivar,
+                   int jvar,
+                   int orient,
+                   double ww,
+                   double dist,
+                   double value)
+{
+  int i = VARIO->getDirAddress(IDIRLOC, ivar, jvar, ipas, false, orient);
+  VARIO->updateGgByIndex(IDIRLOC, i, ww * value);
+  if (calcul_type == ECalcVario::POISSON)
+    VARIO->updateGgByIndex(IDIRLOC, i, -VARIO->getMean(ivar) / 2.);
+  VARIO->updateHhByIndex(IDIRLOC, i, ww * dist);
+  VARIO->updateSwByIndex(IDIRLOC, i, ww);
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Printout function for Debug case
+ **
+ ** \param[in]  iech1 Rank of the first sample
+ ** \param[in]  iech2 Rank of the second sample
+ ** \param[in]  ivar  Rank of the first variable
+ ** \param[in]  jvar  Rank of the second variable
+ ** \param[in]  ilag  Rank of the Lag
+ ** \param[in]  scale Weighting factor
+ ** \param[in]  value Variogram value
+ **
+ *****************************************************************************/
+void Vario::_print_debug(int iech1,
+                         int iech2,
+                         int ivar,
+                         int jvar,
+                         int ilag,
+                         double scale,
+                         double value)
+{
+  message("Samples: %d/%d - Variables: %d/%d - Weight: %lf - Lag: %d - Variogram: %lf\n",
+          iech1 + 1, iech2 + 1, ivar + 1, jvar + 1, scale, ilag, value);
+}
+
+/****************************************************************************/
+/*!
+ **  Center the covariance calculations
+ **
+ ** \param[in]  db    Db descriptor
+ ** \param[in]  idir  Rank of the direction
+ **
+ *****************************************************************************/
+void Vario::_covariance_center(Db *db, int idir)
+{
+  double m1, m2, sumw, z1, z2, ww;
+  if (!getFlagAsym()) return;
+
+  /* Scale the experimental variogram quantities */
+
+  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      /* Calculate the mean for each variable */
+
+      m1 = m2 = sumw = 0.;
+      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      {
+        if (!db->isActive(iech)) continue;
+        ww = db->getWeight(iech);
+        if (FFFF(ww) || ww < 0.) continue;
+        z1 = _get_IVAR(db, iech, ivar);
+        z2 = _get_IVAR(db, iech, jvar);
+        if (FFFF(z1) || FFFF(z2)) continue;
+        m1 += ww * z1;
+        m2 += ww * z2;
+        sumw += ww;
+      }
+
+      if (sumw > 0 && (getCalcul() == ECalcVario::COVARIANCE
+          || getCalcul() == ECalcVario::COVARIANCE_NC))
+      {
+        m1 /= sumw;
+        m2 /= sumw;
+      }
+
+      /* Perform the Centering */
+
+      if (!(getCalcul() == ECalcVario::COVARIOGRAM || getCalcul() == ECalcVario::COVARIANCE_NC))
+        for (int i = 0; i < getLagTotalNumber(idir); i++)
+        {
+          int j = getDirAddress(idir, ivar, jvar, i, true, 0);
+          if (getSwByIndex(idir, j) > 0)
+            setGgByIndex(idir, j, getGgByIndex(idir, j) - m1 * m2);
+        }
+    }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the geometry for a given direction
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db description
+ **
+ ** \param[out] vorder Vario_Order structure
+ ** \param[out] npair  Number of pairs
+ **
+ *****************************************************************************/
+int Vario::geometryCompute(Db *db, Vario_Order *vorder, int *npair)
+{
+  double maxdist;
+  int iiech, iech, jjech, jech, nech, ipas, idir, ideb;
+  VectorInt rindex;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  /* Initializations */
+
+  if (db == nullptr) return (1);
+  const VarioParam &varioparam = getVarioParam();
+  double dist = 0.;
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != getDimensionNumber() || db->getLocNumber(ELoc::Z) != getVariableNumber())
+  {
+    messerr("Inconsistent parameters:");
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
+            db->getLocNumber(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+            getVariableNumber());
+    return 1;
+  }
+  if (_get_generalized_variogram_order() > 0)
+  {
+    messerr("This calculation does not allow generalized variogram definition");
+    return 1;
+  }
+
+  /* Sort the data */
+  rindex = db->getSortArray();
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  bool hasDate = varioparam.isDateUsed(db);
+  nech = db->getSampleNumber();
+
+  /* Loop on the directions */
+
+  for (idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    const DirParam &dirparam = getDirParam(idir);
+    maxdist = getMaximumDistance(idir);
+
+    /* Loop on the first point */
+
+    for (iiech = 0; iiech < nech - 1; iiech++)
+    {
+      iech = rindex[iiech];
+      if (hasSel && !db->isActive(iech)) continue;
+      if (hasWeight && FFFF(db->getWeight(iech))) continue;
+      db->getSampleAsST(iech, T1);
+
+      ideb = (hasDate) ? 0 : iiech + 1;
+      for (jjech = ideb; jjech < nech; jjech++)
+      {
+        jech = rindex[jjech];
+        if (db->getDistance1D(iech, jech) > maxdist) break;
+        if (hasSel && !db->isActive(jech)) continue;
+        if (hasWeight && FFFF(db->getWeight(jech))) continue;
+        db->getSampleAsST(jech, T2);
+
+        // Reject the point as soon as one BiTargetChecker is not correct
+        if (! keepPair(idir, T1, T2, &dist)) continue;
+
+        /* Get the rank of the lag */
+
+        ipas = dirparam.getLagRank(dist);
+        if (IFFFF(ipas)) continue;
+
+        /* Case of internal storage */
+
+        vario_order_add(vorder, iech, jech, NULL, NULL, ipas, idir, dist);
+      }
+    }
+  }
+
+  /* Sort the geometry */
+
+  vorder = vario_order_final(vorder, npair);
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the variogram extension for a pair of variables
+ **
+ ** \param[in]  ivar      Rank of the first variable
+ ** \param[in]  jvar      Rank of the second variable
+ ** \param[in]  idir0     Rank of the direction (-1 for all)
+ ** \param[in]  flag_norm 1 if the variogram must be normalized by variance
+ ** \param[in]  flag_vars 1 if the global statistics must be taken into account
+ ** \param[in]  distmin   Minimum along the distance axis
+ ** \param[in]  distmax   Maximum along the distance axis
+ ** \param[in]  varmin    Minimum along the variogram (or covariance) axis
+ ** \param[in]  varmax    Maximum along the variogram (or covariance) axis
+ **
+ ** \param[out]  flag_hneg 1 if the distance scale can be negative
+ ** \param[out]  flag_gneg 1 if the variogram scale can be negative
+ ** \param[out]  c0        Value of the variogram at the origin
+ ** \param[out]  hmin      Minimum distance
+ ** \param[out]  hmax      Maximum distance
+ ** \param[out]  gmin      Minimum variogram value
+ ** \param[out]  gmax      Maximum variogram value
+ **
+ *****************************************************************************/
+void Vario::getExtension(int ivar,
+                         int jvar,
+                         int idir0,
+                         int flag_norm,
+                         int flag_vars,
+                         double distmin,
+                         double distmax,
+                         double varmin,
+                         double varmax,
+                         int *flag_hneg,
+                         int *flag_gneg,
+                         double *c0,
+                         double *hmin,
+                         double *hmax,
+                         double *gmin,
+                         double *gmax)
+{
+  double hh, gg;
+  int i, j, idir, jdir, ndir;
+  double tol = 0.1;
+
+  /* Initializations */
+
+  (*hmin) = 0.;
+  (*gmin) = 0.;
+  (*hmax) = -1.e30;
+  (*gmax) = -1.e30;
+  if (getFlagAsym())
+  {
+    *c0 = getGgByIndex(0, getDirAddress(0, ivar, jvar, 0, false, 0));
+  }
+  else
+  {
+    *c0 = getVar(ivar, jvar);
+  }
+  if (_get_generalized_variogram_order() > 0) (*c0) = TEST;
+  if (FFFF(*c0) && flag_norm)
+  {
+    messerr("The Normalization option is discarded for this variogram");
+    messerr("probably as it corresponds to a generalized variogram");
+    flag_norm = 0;
+  }
+  (*flag_hneg) = (ivar != jvar && getFlagAsym());
+  (*flag_gneg) = (ivar != jvar || getFlagAsym());
+
+  /* Loop on the directions */
+
+  ndir = getDirectionNumber();
+  if (idir0 >= 0) ndir = 1;
+  for (jdir = 0; jdir < ndir; jdir++)
+  {
+    idir = (idir0 >= 0) ? idir0 : jdir;
+    for (i = 0; i < getLagTotalNumber(idir); i++)
+    {
+      j = getDirAddress(idir, ivar, jvar, i, true, 0);
+      if (getSwByIndex(idir, j) <= 0) continue;
+      hh = getHhByIndex(idir, j);
+      gg = getGgByIndex(idir, j);
+      if (FFFF(hh) || FFFF(gg)) continue;
+      if (flag_norm) gg /= (*c0);
+      if (!FFFF(distmin) && hh < distmin) continue;
+      if (!FFFF(distmax) && hh > distmax) continue;
+      if (hh < (*hmin)) (*hmin) = hh;
+      if (hh > (*hmax)) (*hmax) = hh;
+      if (gg < (*gmin)) (*gmin) = gg;
+      if (gg > (*gmax)) (*gmax) = gg;
+    }
+  }
+
+  if (flag_norm) (*c0) = 1.;
+  if (!FFFF(*c0) && flag_vars)
+  {
+    if ((*c0) < (*gmin)) (*gmin) = (*c0);
+    if ((*c0) > (*gmax)) (*gmax) = (*c0);
+  }
+
+  /* Expand the vertical graphic scales */
+
+  (*gmax) *= (1. + tol);
+  if ((*gmin) < 0) (*gmin) *= (1. + tol);
+
+  /* Correction due to variogram type */
+
+  if (*flag_hneg)
+  {
+    (*hmax) = MAX(ABS(*hmin), ABS(*hmax));
+    (*hmin) = -(*hmax);
+  }
+
+  if (*flag_gneg)
+  {
+    (*gmax) = MAX(ABS(*gmin), ABS(*gmax));
+    if (ivar != jvar) (*gmin) = -(*gmax);
+  }
+  else
+  {
+    (*gmin) = 0.;
+  }
+
+  /* Truncation to limits provided by the user */
+
+  if (!FFFF(distmax)) (*hmax) = distmax;
+  if (!FFFF(distmin)) (*hmin) = distmin;
+  if (!FFFF(varmax)) (*gmax) = varmax;
+  if (!FFFF(varmin)) (*gmin) = varmin;
+
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the covariance for directional variables
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  idir   Rank of the Direction
+ ** \param[in]  ncomp  Number of components
+ ** \param[in]  rindex Array of sorted samples
+ **
+ *****************************************************************************/
+int Vario::_variovect_calcul(Db *db,
+                             int idir,
+                             int ncomp,
+                             int *rindex)
+{
+  int iech, jech, ipas, i, icomp;
+  double w1, w2, zi1, zi2, zj1, zj2, v12, v21, di1, di2, dj1, dj2;
+  int ndim = db->getNDim();
+  SpaceRN space(ndim);
+  SpaceTarget T1(&space);
+  SpaceTarget T2(&space);
+
+  const DirParam &dirparam = getDirParam(idir);
+  int nech = db->getSampleNumber();
+  int nvar = getVariableNumber();
+  double maxdist = getMaximumDistance(idir);
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  bool hasWeight = db->hasLocVariable(ELoc::W);
+  double dist = 0.;
+
+  /* Loop on the first point */
+
+  for (int iiech = 0; iiech < nech - 1; iiech++)
+  {
+    iech = rindex[iiech];
+    if (hasSel && !db->isActive(iech)) continue;
+    if (hasWeight && FFFF(db->getWeight(iech))) continue;
+    db->getSampleAsST(iech, T1);
+
+    for (int jjech = iiech + 1; jjech < nech; jjech++)
+    {
+      jech = rindex[jjech];
+      if (db->getDistance1D(iech, jech) > maxdist) break;
+      if (hasSel && !db->isActive(jech)) continue;
+      if (hasWeight && FFFF(db->getWeight(jech))) continue;
+      db->getSampleAsST(jech, T2);
+
+      // Reject the point as soon as one BiTargetChecker is not correct
+      if (! keepPair(idir, T1, T2, &dist)) continue;
+
+      /* Get the rank of the lag */
+
+      ipas = dirparam.getLagRank(dist);
+      if (IFFFF(ipas)) continue;
+
+      w1 = db->getWeight(iech);
+      w2 = db->getWeight(jech);
+
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar <= ivar; jvar++)
+        {
+
+          /* Evaluate the variogram */
+
+          v12 = v21 = di1 = di2 = dj1 = dj2 = 0.;
+          for (icomp = 0; icomp < ncomp; icomp++)
+          {
+            zi1 = _get_IVAR(db, iech, ivar * ncomp + icomp);
+            zi2 = _get_IVAR(db, iech, jvar * ncomp + icomp);
+            zj1 = _get_IVAR(db, jech, ivar * ncomp + icomp);
+            zj2 = _get_IVAR(db, jech, jvar * ncomp + icomp);
+            if (FFFF(zi1) || FFFF(zi2) || FFFF(zj1) || FFFF(zj2))
+            {
+              v12 = v21 = TEST;
+              break;
+            }
+            else
+            {
+              v12 += zi1 * zj2;
+              v21 += zi2 * zj1;
+              di1 += zi1 * zi1;
+              di2 += zi2 * zi2;
+              dj1 += zj1 * zj1;
+              dj2 += zj2 * zj2;
+            }
+          }
+          if (FFFF(v12) || FFFF(v21)) continue;
+          if (ABS(di1) < EPSILON8 || ABS(di2) < EPSILON8) continue;
+          if (ABS(dj1) < EPSILON8 || ABS(dj2) < EPSILON8) continue;
+          di1 = sqrt(di1);
+          di2 = sqrt(di2);
+          dj1 = sqrt(dj1);
+          dj2 = sqrt(dj2);
+          v12 = ABS(v12) / (di1 * dj2);
+          v21 = ABS(v21) / (di2 * dj1);
+
+          i = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+          setGgByIndex(idir, i, getGgByIndex(idir, i) + w1 * w2 * v12);
+          setHhByIndex(idir, i, getHhByIndex(idir, i) + w1 * w2 * dist);
+          setSwByIndex(idir, i, getSwByIndex(idir, i) + w1 * w2);
+
+          i = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+          setGgByIndex(idir, i, getGgByIndex(idir, i) + w1 * w2 * v21);
+          setHhByIndex(idir, i, getHhByIndex(idir, i) + w1 * w2 * dist);
+          setSwByIndex(idir, i, getSwByIndex(idir, i) + w1 * w2);
+        }
+    }
+  }
+
+  /* Scale the variogram calculations */
+
+  _variogram_scale(idir);
+
+  /* Center the covariance function */
+
+  _covariance_center(db, idir);
+
+  /* Patch the central value */
+
+  _variogram_patch_c00(db, idir);
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the experimental covariance for directional variables
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db descriptor
+ ** \param[in]  ncomp  Number of components
+ **
+ *****************************************************************************/
+int Vario::variovectCompute(Db *db, int ncomp)
+{
+  if (db == nullptr) return (1);
+  manage_drift_removal(0, NULL, NULL);
+
+  /* Preliminary checks */
+
+  if (db->getNDim() != getDimensionNumber() || db->getLocNumber(ELoc::Z) != getVariableNumber() * ncomp)
+  {
+    messerr("Inconsistent parameters:");
+    messerr("Data Base: NDIM=%d NVAR=%d", db->getNDim(),
+            db->getLocNumber(ELoc::Z));
+    messerr("Variogram: NDIM=%d NVAR=%d", getDimensionNumber(),
+            getVariableNumber());
+    messerr("Number of components = %d", ncomp);
+    return (1);
+  }
+
+  /* Update the global statistics */
+
+  _variovect_stats(db, ncomp);
+
+  /* Loop on the directions to evaluate */
+
+  VectorInt rindex = db->getSortArray();
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    if (_variovect_calcul(db, idir, ncomp, rindex.data())) return 1;
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculates the statistics for the covariance calculations
+ **  for directional variables
+ **
+ ** \param[in]  db     Db descriptor
+ ** \param[in]  ncomp  Number of components
+ **
+ *****************************************************************************/
+void Vario::_variovect_stats(Db *db, int ncomp)
+{
+  double vi, vj, vij, s12ww, s12wzz, zi, zj, ww;
+
+  /* Loop on the variables */
+
+  int nb_neg = 0;
+  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+
+      /* Loop on the samples */
+
+      s12ww = s12wzz = 0.;
+      for (int iech = 0; iech < db->getSampleNumber(); iech++)
+      {
+        if (!db->isActive(iech)) continue;
+        ww = db->getWeight(iech);
+        if (FFFF(ww)) continue;
+        if (ww < 0.)
+        {
+          nb_neg++;
+          continue;
+        }
+
+        /* Loop on the components */
+
+        vi = vj = vij = 0;
+        for (int icomp = 0; icomp < ncomp; icomp++)
+        {
+          zi = _get_IVAR(db, iech, ivar * ncomp + icomp);
+          zj = _get_IVAR(db, iech, jvar * ncomp + icomp);
+          if (!FFFF(zi) && !FFFF(zj))
+          {
+            vi += zi * zi;
+            vj += zj * zj;
+            vij += zi * zj;
+          }
+          else
+          {
+            vij = TEST;
+            break;
+          }
+        }
+        if (ABS(vi * vj) < 1.e-10 || FFFF(vij)) continue;
+        vij = ABS(vij) / sqrt(vi * vj);
+
+        s12ww += ww * ww;
+        s12wzz += ww * ww * vij;
+      }
+      setVar((s12ww > 0) ? s12wzz / s12ww : 0., ivar, jvar);
+      setVar((s12ww > 0) ? s12wzz / s12ww : 0., jvar, ivar);
+    }
+
+  if (nb_neg > 0)
+    message("There were %d negative weights. They have been set to zero\n",
+            nb_neg);
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Scale the variogram calculations
+ **
+ ** \param[in]  idir  Rank of the Direction
+ **
+ *****************************************************************************/
+void Vario::_variogram_scale(int idir)
+{
+  int nvar = getVariableNumber();
+
+  /* Scale the experimental variogram quantities */
+
+  int ecr = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar <= ivar; jvar++)
+    {
+      for (int i = 0; i < getLagTotalNumber(idir); i++, ecr++)
+      {
+        int j = getDirAddress(idir, ivar, jvar, i, true, 0);
+        if (getSwByIndex(idir, j) <= 0)
+        {
+          setHhByIndex(idir, j, TEST);
+          setGgByIndex(idir, j, TEST);
+        }
+        else
+        {
+          setHhByIndex(idir, j, getHhByIndex(idir, j) / getSwByIndex(idir, j));
+          if (getFlagAsym() && i < getLagNumber(idir))
+            setHhByIndex(idir, j, -ABS(getHhByIndex(idir, j)));
+          if (getCalcul() != ECalcVario::COVARIOGRAM)
+            setGgByIndex(idir, j, getGgByIndex(idir, j) / getSwByIndex(idir, j));
+        }
+      }
+    }
+
+  // Process the variogram transformations
+
+  if (getCalcul() == ECalcVario::TRANS1)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        for (int i = 0; i < getLagTotalNumber(idir); i++, ecr++)
+        {
+          int j = getDirAddress(idir, ivar, jvar, i, true, 0);
+          int j0 = getDirAddress(idir, jvar, jvar, i, true, 0);
+          setGgByIndex(idir, j,-getGgByIndex(idir, j) / getGgByIndex(idir, j0));
+        }
+      }
+  }
+  else if (getCalcul() == ECalcVario::TRANS2)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        for (int i = 0; i < getLagTotalNumber(idir); i++, ecr++)
+        {
+          int j = getDirAddress(idir, ivar, jvar, i, true, 0);
+          int j0 = getDirAddress(idir, ivar, ivar, i, true, 0);
+          setGgByIndex(idir, j, -getGgByIndex(idir, j) / getGgByIndex(idir, j0));
+        }
+      }
+  }
+  else if (getCalcul() == ECalcVario::BINORMAL)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < ivar; jvar++)
+      {
+        for (int i = 0; i < getLagTotalNumber(idir); i++, ecr++)
+        {
+          int j = getDirAddress(idir, ivar, jvar, i, true, 0);
+          int j1 = getDirAddress(idir, ivar, ivar, i, true, 0);
+          int j2 = getDirAddress(idir, jvar, jvar, i, true, 0);
+          setGgByIndex(idir, j,
+              getGgByIndex(idir, j) / sqrt(getGgByIndex(idir, j1) * getGgByIndex(idir, j2)));
+        }
+      }
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the data value (possibly after removing the global trend)
+ **
+ ** \return    The data value (or the residual)
+ **
+ ** \param[in]  db      Db descriptor
+ ** \param[in]  iech    Rank of the sample
+ ** \param[in]  ivar    Rank of the variable
+ **
+ ** \remark  The trend removal only applies on the first variable
+ ** \remark  Therefore, if applied on any variable rank other than 0,
+ ** \remark  TEST is returned
+ **
+ *****************************************************************************/
+double Vario::_get_IVAR(const Db *db, int iech, int ivar)
+{
+  double zz = db->getLocVariable(ELoc::Z, iech, ivar);
+  if (FFFF(zz)) return (TEST);
+  if (MODEL == nullptr) return (zz);
+  if (ivar != 0) return (TEST);
+  double drfval = model_drift_evaluate(0, MODEL, db, iech, 0, get_BETA().data());
+  if (FFFF(drfval)) return (TEST);
+  return (zz - drfval);
+}
+
+bool Vario::keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist)
+{
+  for (int ipt = 0, npt = getBiPtsNumberPerDirection(); ipt < npt; ipt++)
+  {
+    const ABiTargetCheck* bipts = getBipts(idir, ipt);
+    if (! bipts->isOK(T1, T2)) return false;
+    const BiTargetCheckGeometry* bigeom = dynamic_cast<const BiTargetCheckGeometry*>(bipts);
+    if (bigeom != nullptr) *dist = bigeom->getDist();
+  }
+  return true;
+}
+
+/****************************************************************************
+ **
+ ** FUNCTION: st_identify_calcul_type
+ **
+ ** PURPOSE:  Identify the type of variogram calculation
+ **
+ ** IN_ARGS:  calcul_name  : Type of the variogram
+ **
+ ** REMARKS:  In case the calculation type is not identified,
+ ** REMARKS:  the routine returns ECalcVario::UNDEFINED
+ ** REMARKS:  The error message is produced internally
+ **
+ *****************************************************************************/
+ECalcVario identifyVarioTypeByName(const String &calcul_name)
+
+{
+  ECalcVario calcul_type;
+
+  if (!strcmp(calcul_name.c_str(), "vg"))
+    calcul_type = ECalcVario::VARIOGRAM;
+  else if (!strcmp(calcul_name.c_str(), "cov"))
+    calcul_type = ECalcVario::COVARIANCE;
+  else if (!strcmp(calcul_name.c_str(), "covnc"))
+    calcul_type = ECalcVario::COVARIANCE_NC;
+  else if (!strcmp(calcul_name.c_str(), "covg"))
+    calcul_type = ECalcVario::COVARIOGRAM;
+  else if (!strcmp(calcul_name.c_str(), "mado"))
+    calcul_type = ECalcVario::MADOGRAM;
+  else if (!strcmp(calcul_name.c_str(), "rodo"))
+    calcul_type = ECalcVario::RODOGRAM;
+  else if (!strcmp(calcul_name.c_str(), "poisson"))
+    calcul_type = ECalcVario::POISSON;
+  else if (!strcmp(calcul_name.c_str(), "general1"))
+    calcul_type = ECalcVario::GENERAL1;
+  else if (!strcmp(calcul_name.c_str(), "general2"))
+    calcul_type = ECalcVario::GENERAL2;
+  else if (!strcmp(calcul_name.c_str(), "general3"))
+    calcul_type = ECalcVario::GENERAL3;
+  else if (!strcmp(calcul_name.c_str(), "order4"))
+    calcul_type = ECalcVario::ORDER4;
+  else if (!strcmp(calcul_name.c_str(), "trans1"))
+    calcul_type = ECalcVario::TRANS1;
+  else if (!strcmp(calcul_name.c_str(), "trans2"))
+    calcul_type = ECalcVario::TRANS2;
+  else if (!strcmp(calcul_name.c_str(), "binormal"))
+    calcul_type = ECalcVario::BINORMAL;
+  else
+  {
+    messerr("Invalid variogram calculation name : %s", calcul_name.c_str());
+    messerr("The only valid names are:");
+    messerr("vg       : Variogram");
+    messerr("cov      : Covariance");
+    messerr("covnc    : Non-centered ergodic covariance");
+    messerr("covg     : Covariogram");
+    messerr("mado     : Madogram");
+    messerr("rodo     : Rodogram");
+    messerr("poisson  : Poisson");
+    messerr("general1 : Generalized variogram of order 1");
+    messerr("general2 : Generalized variogram of order 2");
+    messerr("general3 : Generalized variogram of order 3");
+    messerr("order4   : Variogram of order 4");
+    messerr("trans1   : Cross-to-Simple Variogram G12/G1");
+    messerr("trans2   : Cross-to-Simple Variogram G12/G1");
+    messerr("binormal : Cross-to-Simple Variogram G12/sqrt(G1*G2)");
+
+    calcul_type = ECalcVario::UNDEFINED;
+  }
+  return (calcul_type);
+}
 
