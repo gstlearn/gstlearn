@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
-#if __linux __
+#if __linux__
 #include <wordexp.h>
 #endif
 
@@ -243,7 +243,7 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
 std::cout << "Subsub Coucou1:" << filePath << std::endl;
 
-#if __linux __
+#if __linux__
   // Check the presence of tilde character
   wordexp_t p;
   wordexp(fileLocal.c_str(), &p, 0);
