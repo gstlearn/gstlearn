@@ -40,13 +40,10 @@ int main(int argc, char *argv[])
 
   // Global parameters
   defineDefaultSpace(ESpaceType::RN, 2);
-std::cout << "Coucou 1" << std::endl;
   // Generate the data base
   String filename = ASerializable::getTestData("benchmark","sic_obs.dat");
-std::cout << "Coucou 2: " << filename << std::endl;
   CSVformat csv(false, 6);
   Db* data = Db::createFromCSV(filename, csv);
-std::cout << "Coucou 3" << std::endl;
   data->setName("New.1","ID");
   data->setName("New.2","X");
   data->setName("New.3","Y");
@@ -56,7 +53,6 @@ std::cout << "Coucou 3" << std::endl;
   if (verbose) data->display();
   if (graphic)
     (void) data->dumpToNF("Data.ascii");
-std::cout << "Coucou 4" << std::endl;
   // Generate the output grid
   bool flagSmall = false;
   VectorInt nx;
@@ -81,7 +77,6 @@ std::cout << "Coucou 4" << std::endl;
   Timer timer;
   kriging(data, grid, model, neighB, EKrigOpt::POINT, true, false);
   timer.displayIntervalMilliseconds("Kriging in Bench Neighborhood", 1800);
-std::cout << "Coucou 5" << std::endl;
   // Produce some stats for comparison
   DbStringFormat* dbfmt = DbStringFormat::create(FLAG_STATS, {"*estim"});
   grid->display(dbfmt);
@@ -89,7 +84,6 @@ std::cout << "Coucou 5" << std::endl;
 
   if (graphic)
     (void) grid->dumpToNF("Grid.ascii");
-std::cout << "Coucou 6" << std::endl;
   if (neighB    != nullptr) delete neighB;
   if (data      != nullptr) delete data;
   if (grid      != nullptr) delete grid;

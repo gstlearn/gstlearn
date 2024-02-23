@@ -537,9 +537,7 @@ int csv_table_read(const String &filename,
   String na_string = csvfmt.getNaString();
 
   String line;
-std::cout << "Sub Coucou0" << std::endl;
   String filepath = ASerializable::buildFileName(1, filename, true);
-std::cout << "Sub Coucou1" << std::endl;
   // Open new stream
   std::ifstream file;
   file.open(filepath, std::ios::in);
@@ -550,10 +548,8 @@ std::cout << "Sub Coucou1" << std::endl;
     messerr("Error when opening the CSV file %s for reading", filename.c_str());
     return 1;
   }
-std::cout << "Sub Coucou2" << std::endl;
   // Remove windows stuff at the file beginning
   skipBOM(file);
-std::cout << "Sub Coucou3" << std::endl;
   // Initialization
   names.clear();
   tab.clear();

@@ -24,7 +24,7 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
-#if __linux__
+#if __linux__ // Not operational under MacOS
 #include <wordexp.h>
 #endif
 
@@ -241,9 +241,7 @@ String ASerializable::buildFileName(int status, const String& filename, bool ens
 
   String filePath = fileLocal;
 
-std::cout << "Subsub Coucou1:" << filePath << std::endl;
-
-#if __linux__
+#if __linux__ // Not operational under MacOS
   // Check the presence of tilde character
   wordexp_t p;
   wordexp(fileLocal.c_str(), &p, 0);
@@ -251,8 +249,6 @@ std::cout << "Subsub Coucou1:" << filePath << std::endl;
   filePath = p.we_wordv[p.we_offs];
   wordfree(&p);
 #endif
-
-std::cout << "Subsub Coucou2" << std::endl;
 
   return filePath;
 }
