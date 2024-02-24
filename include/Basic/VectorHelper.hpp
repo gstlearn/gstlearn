@@ -52,6 +52,7 @@ public:
   static double product(const VectorDouble& vec);
   static int countUndefined(const VectorDouble& vec);
   static int countDefined(const VectorDouble& vec);
+  static bool hasUndefined(const VectorDouble& vec);
   static double extensionDiagonal(const VectorDouble& mini, const VectorDouble& maxi);
 
   static int    cumul(const VectorInt& vec);
@@ -160,6 +161,7 @@ public:
                                int number = 0,
                                int seed = 242141,
                                int optSort = 0);
+  static void normalizeCodir(int ndim, VectorDouble &codir);
 
   static bool         isInList(const VectorInt& vec, int item);
   static VectorInt    sort(const VectorInt& vecin, bool ascending = true, int size = -1);

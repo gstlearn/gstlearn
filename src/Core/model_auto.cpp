@@ -1999,7 +1999,7 @@ static void st_model_auto_scldef(StrMod *strmod,
         break;
 
       case EConsElem::E_RANGE:
-        dunit = hmax / model_get_nonugget_cova(model) / 2.;
+        dunit = hmax / model->getCovaNumber(true) / 2.;
         scale[ntot] = dunit;
         break;
 
@@ -2122,7 +2122,7 @@ static void st_model_auto_pardef(StrMod *strmod,
         break;
 
       case EConsElem::E_RANGE:
-        dunit = hmax / model_get_nonugget_cova(model) / 2.;
+        dunit = hmax / model->getCovaNumber(true) / 2.;
         dmin = hmax / 1.e6;
         dist = dunit * (icov + 1 - icovm);
         st_affect(ntot, dist, dmin, TEST, param, lower, upper);
@@ -4424,8 +4424,8 @@ static void st_vario_varchol_manage(const Vario *vario,
 
   if (model->getCovMode() != EModelProperty::NONE)
   {
-    model_nugget = model_default(model->getDimensionNumber(),
-                                 model->getVariableNumber());
+    model_nugget = Model::createNugget(model->getDimensionNumber(),
+                                       model->getVariableNumber());
     model_calcul_cov(NULL,model, nullptr, 1, 1., VectorDouble(), aux.data());
     for (i = 0; i < nvar2; i++)
       aux[i] = vario->getVarIndex(i) / aux[i];

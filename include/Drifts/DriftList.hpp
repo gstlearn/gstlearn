@@ -48,7 +48,6 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-
   int getNVariables() const { return _ctxt.getNVar(); }
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
@@ -75,7 +74,7 @@ public:
   String         getDriftName(int il) const;
   ////////////////////////////////////////////////
 
-  const VectorDouble& getDriftCoef() const { return _driftCoef; }
+  const VectorDouble& getDriftCL() const { return _driftCL; }
 
   /**
    *
@@ -84,20 +83,21 @@ public:
    * @param ib Rank of the drift equation (_driftEquationNumber)
    * @return
    */
-  double getDriftCoef(int ivar, int il, int ib) const { return _driftCoef[_getAddress(ivar,il,ib)]; }
-  void setDriftCoef(int ivar, int il, int ib, double value) { _driftCoef[_getAddress(ivar,il,ib)] = value; }
-  void resetDriftCoeff() { VectorHelper::fill(_driftCoef, 0.); }
-  VectorDouble getDriftCoefByPart(int ivar, int ib) const;
-  void setDriftCoefByPart(int ivar, int ib, const VectorDouble& coef);
+  double getDriftCL(int ivar, int il, int ib) const { return _driftCL[_getAddress(ivar,il,ib)]; }
+  void setDriftCL(int ivar, int il, int ib, double value) { _driftCL[_getAddress(ivar,il,ib)] = value; }
+  void resetDriftCL() { VectorHelper::fill(_driftCL, 0.); }
+  VectorDouble getDriftCLByPart(int ivar, int ib) const;
+  void setDriftCLByPart(int ivar, int ib, const VectorDouble& coef);
 
   double getDrift(const Db* db, int ib, int iech) const;
   VectorDouble getDriftByColumn(const Db* db, int ib, bool useSel = true) const;
   VectorDouble getDriftBySample(const Db* db, int iech) const;
   VectorVectorDouble getDrifts(const Db* db, bool useSel = true) const;
   bool isFlagLinked() const { return _flagLinked; }
-  VectorDouble evalDrifts(const Db* db,
-                          const VectorDouble& coeffs,
-                          bool useSel = false) const;
+  double evalDriftCoef(const Db *db, int iech, const VectorDouble &coeffs) const;
+  VectorDouble evalDriftCoefVec(const Db *db,
+                                const VectorDouble &coeffs,
+                                bool useSel = false) const;
   int getDriftMaxIRFOrder(void) const;
   bool isDriftDefined(const VectorInt &powers, int rank_fex = 0) const;
   bool isDriftDifferentDefined(const VectorInt &powers, int rank_fex = -1) const;
@@ -119,7 +119,7 @@ private:
 #ifndef SWIG
 protected:
   bool                 _flagLinked;
-  VectorDouble         _driftCoef; /* Array of Drift Coefficients */
+  VectorDouble         _driftCL;   /* Linear combination of Drift Coefficients */
   std::vector<ADrift*> _drifts;    /* Vector of elementary drift functions */
   VectorBool           _filtered;  /* Vector of filtered flags (Dimension: as _drifts) */
   CovContext           _ctxt;  /* Context (space, number of variables, ...) */

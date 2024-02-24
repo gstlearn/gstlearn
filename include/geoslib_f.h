@@ -134,7 +134,7 @@ GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
                                               bool verbose = false);
 GSTLEARN_EXPORT void manage_drift_removal(int type, Db *db, Model *model);
 GSTLEARN_EXPORT int estimate_drift_coefficients(Db *db, int verbose);
-GSTLEARN_EXPORT void calculate_bias_global(Db *db, VectorDouble d1);
+GSTLEARN_EXPORT void calculateBiasGlobal(Db *db, VectorDouble d1);
 GSTLEARN_EXPORT double get_bias_value(Db *db, int nbfl, int iiech, int jjech);
 GSTLEARN_EXPORT double get_DRFDIAG(int iech);
 GSTLEARN_EXPORT VectorDouble get_BETA();

@@ -104,7 +104,7 @@ public:
   // Filter a covariance
   void setFiltered(unsigned int i, bool filtered);
 
-  int             getCovaNumber() const { return (int) _covs.size(); }
+  int             getCovaNumber(bool skipNugget = false) const;
   bool            isFiltered(unsigned int i) const;
   bool            hasRange() const;
   bool            isStationary() const;

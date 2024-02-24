@@ -147,7 +147,6 @@ int estimate_drift_coefficients(Db *db, int verbose)
   int iiech;
   int nbfl = MODEL->getDriftNumber();
   int nech = db->getActiveAndDefinedNumber(0);
-  VectorDouble drfloc(nbfl,0.);
   VectorDouble b(nbfl, 0.);
 
   /* Calculate: t(X) %*% X */
@@ -155,7 +154,7 @@ int estimate_drift_coefficients(Db *db, int verbose)
   for (int iech = iiech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActiveAndDefined(iech, 0)) continue;
-    model_calcul_drift(MODEL, ECalcMember::LHS, db, iech, drfloc.data());
+    VectorDouble drfloc = MODEL->evalDriftVec(db, iech, ECalcMember::LHS);
     double zval = db->getLocVariable(ELoc::Z, iech, 0);
 
     for (int il = 0; il < nbfl; il++)
@@ -234,7 +233,7 @@ double get_bias_value(Db *db, int nbfl, int iiech, int jjech)
  ** \param[in]  d1        Working vector (Dimension: ndim)
  **
  *****************************************************************************/
-void calculate_bias_global(Db *db, VectorDouble d1)
+void calculateBiasGlobal(Db *db, VectorDouble d1)
 {
   double c00, covtab, value;
 

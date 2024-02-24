@@ -503,11 +503,6 @@ GSTLEARN_EXPORT int variogram_y2z(Vario *vario, AAnam *anam, Model *model);
 GSTLEARN_EXPORT void model_covtab_init(int flag_init,
                                        Model *model,
                                        double *covtab);
-GSTLEARN_EXPORT Model* model_default(int ndim, int nvar);
-GSTLEARN_EXPORT double model_calcul_basic(Model *model,
-                                          int icov,
-                                          const ECalcMember &member,
-                                          const VectorDouble &d1);
 GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           Db *db1,
                                           int iech1,
@@ -516,11 +511,6 @@ GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           int verbose,
                                           double factor,
                                           const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT void model_calcul_drift(Model *model,
-                                        const ECalcMember &member,
-                                        const Db *db,
-                                        int iech,
-                                        double *drftab);
 GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model);
 GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    const ECov &type,
@@ -640,13 +630,8 @@ GSTLEARN_EXPORT int model_drift_vector(Model *model,
                                         Db *db,
                                         int iech,
                                         double *vector);
-GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter);
 GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model *model,
                                        double ball_radius);
-GSTLEARN_EXPORT int model_stabilize(Model *model,
-                                    int flag_verbose,
-                                    double percent);
-GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose);
 GSTLEARN_EXPORT void model_covupdt(Model *model,
                                    double *c0,
                                    int flag_verbose,
@@ -674,7 +659,6 @@ GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param);
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r);
-GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model);
 GSTLEARN_EXPORT int model_regularize(Model *model,
                                      Vario *vario,
                                      DbGrid *dbgrid,

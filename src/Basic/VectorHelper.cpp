@@ -273,6 +273,13 @@ double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
   return (max);
 }
 
+bool VectorHelper::hasUndefined(const VectorDouble& vec)
+{
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+    if (FFFF(vec[i])) return true;
+  return false;
+}
+
 int VectorHelper::maximum(const VectorInt &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
@@ -1802,4 +1809,33 @@ void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
   int number = (int) tab.size();
   for (int i = 0; i < number; i++)
     tab[i] = oper_func(tab[i]);
+}
+
+/****************************************************************************/
+/*!
+ **  Fix plausible values for the Direction coefficients.
+ **  They must be defined and with norm equal to 1
+ **
+ ** \param[in]  ndim      Space dimension
+ ** \param[in,out]  codir Input/Output Direction coefficients
+ **
+ *****************************************************************************/
+void VectorHelper::normalizeCodir(int ndim, VectorDouble &codir)
+{
+  double norme;
+
+  if (codir.empty()) return;
+  norme = VH::innerProduct(codir, codir, ndim);
+  if (norme <= 0.)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      codir[idim] = 0.;
+    codir[0] = 1.;
+  }
+  else
+  {
+    norme = sqrt(norme);
+    for (int idim = 0; idim < ndim; idim++)
+      codir[idim] /= norme;
+  }
 }

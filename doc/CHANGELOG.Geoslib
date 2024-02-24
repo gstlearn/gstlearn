@@ -23,6 +23,9 @@ New functions :
 - New name for argument of migrate* functions: ldmax -> distType 
   and change type for flag_inter and flag_fill (become boolean)
 - Function db_model() has been renamed as Model::buildVmapOnDbGrid()
+- Function model_stabilize() becomes Model::stabilize()
+- Function model_normalize() becomes Model::standardize()
+- Function model_get_nonugget_cova() is now included in Model::getCovaNumber(true)
 
 Modification in functions :
 ---------------------------

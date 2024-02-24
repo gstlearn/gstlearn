@@ -262,6 +262,9 @@ public:
                    Model *model = nullptr,
                    bool verbose = false,
                    int nfacmax = -1);
+  int computeGeometry(Db *db, Vario_Order *vorder, int *npair);
+  int computeVarioVect(Db *db, int ncomp);
+
   int transformZToY(const AAnam *anam);
   int transformYToZ(const AAnam *anam);
   int modelRegularize(const Model& model,
@@ -270,8 +273,7 @@ public:
                       const VectorDouble& angles = VectorDouble(),
                       const CovCalcMode* mode = nullptr,
                       bool asCov = false);
-  int geometryCompute(Db *db, Vario_Order *vorder, int *npair);
-  int variovectCompute(Db *db, int ncomp);
+
   void getExtension(int ivar,
                     int jvar,
                     int idir0,
@@ -351,56 +353,55 @@ private:
   int  _getBiPtsNumber() const { return (int) _bipts.size(); }
   int  _getBiPtsRank(int idir, int rank) const;
 
-  int _variogram_compute(Db *db,
-                         int flag_gen,
-                         int flag_sample,
-                         int verr_mode,
-                         Model *model,
-                         int verbose);
-  int _variogram_general(Db *db,
-                         Model *model,
-                         int flag_sample,
-                         int verr_mode,
-                         int verbose);
-  int _variogen_line_calcul(Db *db);
-  int _variogen_grid_calcul(DbGrid *db);
-  int _variogrid_calcul(DbGrid *db);
-  void _variogen_line(Db *db, int idir, int norder);
-  int _update_variogram_ku(Db *db, Vario_Order *vorder, int verbose);
-  double _calculate_bias_local(Db *db,
-                               Vario_Order *vorder,
-                               int ifirst,
-                               int ilast);
-  void _variogram_patch_c00(Db *db, int idir);
-  int _get_generalized_variogram_order();
-  void _variogram_stats(Db *db);
-  int _update_variogram_verr(Db *db,
-                             int idir,
-                             Vario_Order *vorder,
-                             int verr_mode);
+  int _compute(Db *db,
+               int flag_gen,
+               int flag_sample,
+               int verr_mode,
+               Model *model,
+               int verbose);
+  int _calculateGeneral(Db *db,
+                        Model *model,
+                        int flag_sample,
+                        int verr_mode,
+                        int verbose);
+  int  _calculateOnLine(Db *db);
+  int  _calculateGenOnGrid(DbGrid *db);
+  int  _calculateOnGrid(DbGrid *db);
+
+  int  _getRelativeSampleRank(Db *db, int iech0);
+  int  _updateUK(Db *db, Vario_Order *vorder, int verbose);
+  void _patchC00(Db *db, int idir);
+  int  _get_generalized_variogram_order();
+  void _getStatistics(Db *db);
+  int  _updateVerr(Db *db, int idir, Vario_Order *vorder, int verr_mode);
   double _s(Db *db, int iech, int jech);
   double _g(Db *db, int iech, int jech);
-  int _get_relative_sample_rank(Db *db, int iech0);
-  void _calculate_bias_global(Db *db, VectorDouble d1);
-  double _get_bias_value(Db *db, int nbfl, int iiech, int jjech);
-  void _variogram_calcul_internal(Db *db, int idir, Vario_Order *vorder);
-  int _variogram_calcul1(Db *db, int idir, int *rindex, Vario_Order *vorder);
-  int _variogram_calcul2(Db *db, int idir, int *rindex);
-  int _variogram_grid(DbGrid *db, int idir);
-  int _variogen_grid(DbGrid *db, int idir, int norder);
+  double _calculateLocalBias(Db *db,
+                             Vario_Order *vorder,
+                             int ifirst,
+                             int ilast);
+  double _getBias(Db *db, int nbfl, int iiech, int jjech);
 
-  void _print_debug(int iech1,
-                    int iech2,
-                    int ivar,
-                    int jvar,
-                    int ilag,
-                    double scale,
-                    double value);
-  void _covariance_center(Db *db, int idir);
-  int _variovect_calcul(Db *db, int idir, int ncomp, int *rindex);
-  void _variovect_stats(Db *db, int ncomp);
-  void _variogram_scale(int idir);
+  void _calculateFromGeometry(Db *db, int idir, Vario_Order *vorder);
+  int  _calculateGeneralSolution1(Db *db, int idir, int *rindex, Vario_Order *vorder);
+  int  _calculateGeneralSolution2(Db *db, int idir, int *rindex);
+  int  _calculateOnGridSolution(DbGrid *db, int idir);
+  int  _calculateGenOnGridSolution(DbGrid *db, int idir, int norder);
+  int  _calculateVarioVectSolution(Db *db, int idir, int ncomp, int *rindex);
+  void _calculateOnLineSolution(Db *db, int idir, int norder);
+
+  void _printDebug(int iech1,
+                   int iech2,
+                   int ivar,
+                   int jvar,
+                   int ilag,
+                   double scale,
+                   double value);
+  void _centerCovariance(Db *db, int idir);
+  void _getVarioVectStatistics(Db *db, int ncomp);
+  void _rescale(int idir);
   double _get_IVAR(const Db *db, int iech, int ivar);
+  bool _isCompatible(const Db *db) const;
 
 private:
   int                _nVar;
@@ -429,4 +430,3 @@ GSTLEARN_EXPORT void variogram_set(const ECalcVario &calcul_type,
                                    double ww,
                                    double dist,
                                    double value);
-GSTLEARN_EXPORT ECalcVario identifyVarioTypeByName(const String &calcul_name);
