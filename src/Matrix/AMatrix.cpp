@@ -481,6 +481,7 @@ void AMatrix::prodMatVecInPlace(const VectorDouble& x, VectorDouble& y, bool tra
 {
   if (_flagCheckAddress)
   {
+    std::cout << "Sub Coucou 0" << std::endl;
     bool error = false;
     if (!transpose)
     {

@@ -74,11 +74,13 @@ std::cout << "Coucou 1" << std::endl;
   message("Matrix used to demonstrate Cholesky Algebra\n");
 
   // Checking Product
-  std::cout << "Coucou 5" << std::endl;
+  std::cout << "Coucou 5a" << std::endl;
   try
   {
     M.prodMatVecInPlace(vecin, vecout1);
+    std::cout << "Coucou 5b" << std::endl;
     Qchol.evalDirect(vecin, vecout2);
+    std::cout << "Coucou 5c" << std::endl;
     if (VH::isSame(vecout1,  vecout2))
       message("Product Mat %*% V is validated\n");
     else

@@ -699,15 +699,18 @@ bool VectorHelper::isConstant(const VectorInt& vect, int refval)
 
 bool VectorHelper::isSame(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
+  std::cout << "Sub Coucou d1" << std::endl;
   if (v1.size() != v2.size()) return false;
   VectorDouble::const_iterator it1(v1.begin());
   VectorDouble::const_iterator it2(v2.begin());
+  std::cout << "Sub Coucou d2" << std::endl;
   while (it1 < v1.end())
   {
     if (ABS(*it1 - *it2) > eps) return false;
     it1++;
     it2++;
   }
+  std::cout << "Sub Coucou d3" << std::endl;
   return true;
 }
 
