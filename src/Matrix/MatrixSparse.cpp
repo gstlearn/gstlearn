@@ -913,24 +913,19 @@ void MatrixSparse::_prodMatVecInPlacePtr(const double *x, double *y, bool transp
   {
     if (transpose)
     {
-      std::cout << "Sub Coucou a1" << std::endl;
       Eigen::Map<const Eigen::VectorXd> xm(x, getNRows());
       Eigen::Map<Eigen::VectorXd> ym(y, getNCols());
       ym = _eigenMatrix.transpose() * xm;
     }
     else
     {
-      std::cout << "Sub Coucou b1" << std::endl;
       Eigen::Map<const Eigen::VectorXd> xm(x, getNCols());
-      std::cout << "Sub Coucou b2" << std::endl;
       Eigen::Map<Eigen::VectorXd> ym(y, getNRows());
-      std::cout << "Sub Coucou b3" << std::endl;
       ym = _eigenMatrix * xm;
     }
   }
   else
   {
-    std::cout << "Sub Coucou a2" << std::endl;
     if (transpose)
       cs_vector_tMx(_csMatrix, getNCols(), x, y);
     else
