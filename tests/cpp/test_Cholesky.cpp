@@ -82,11 +82,13 @@ std::cout << "Coucou 1" << std::endl;
     Qchol.evalDirect(vecin, vecout2);
     std::cout << "Coucou 5c" << std::endl;
     if (VH::isSame(vecout1,  vecout2))
-      message("Product Mat %*% V is validated\n");
+    {
+      message("Product Mat * V is validated\n");
+    }
     else
     {
-      VH::display("Product Mat %*% V (by Matrix)", vecout1);
-      VH::display("Product Mat %*% V (by Cholesky)", vecout2);
+      VH::display("Product Mat * V (by Matrix)", vecout1);
+      VH::display("Product Mat * V (by Cholesky)", vecout2);
     }
   }
   catch(const std::string& str)
