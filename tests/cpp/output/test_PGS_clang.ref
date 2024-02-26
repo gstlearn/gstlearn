@@ -1,0 +1,634 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      1.000
+ Maximum value       =   1000.000
+ Mean value          =    500.500
+ Standard Deviation  =    288.675
+ Variance            =  83333.250
+2 - Name x-1 - Locator x1
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      0.001
+ Maximum value       =      1.000
+ Mean value          =      0.492
+ Standard Deviation  =      0.290
+ Variance            =      0.084
+3 - Name x-2 - Locator x2
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.502
+ Standard Deviation  =      0.290
+ Variance            =      0.084
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Props-1 - Locator = p1
+Column = 4 - Name = Props-2 - Locator = p2
+Column = 5 - Name = Props-3 - Locator = p3
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.000
+- Range        =      0.300
+- Theo. Range  =      0.100
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Unique Neighborhood
+===================
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+
+Node F1 - Facies 1
+Node F2 - Facies 2
+Node F3 - Facies 3
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      1.000
+ Maximum value       =   1000.000
+ Mean value          =    500.500
+ Standard Deviation  =    288.675
+ Variance            =  83333.250
+2 - Name x-1 - Locator x1
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      0.001
+ Maximum value       =      1.000
+ Mean value          =      0.492
+ Standard Deviation  =      0.290
+ Variance            =      0.084
+3 - Name x-2 - Locator x2
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.502
+ Standard Deviation  =      0.290
+ Variance            =      0.084
+4 - Name Facies - Locator z1
+ Nb of data          =       1000
+ Nb of active values =       1000
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      2.086
+ Standard Deviation  =      0.712
+ Variance            =      0.507
+
+Non-centered Covariance characteristics
+=======================================
+Number of variable(s)       = 2
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix
+               [,  0]    [,  1]
+     [  0,]     1.000     0.000
+     [  1,]     0.000     1.000
+
+Direction #1
+------------
+Number of lags              = 19
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.026
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+       -19 17948.000     0.474     0.039
+       -18 18068.000     0.447     0.000
+       -17 18182.000     0.421    -0.017
+       -16 17491.000     0.395    -0.052
+       -15 17246.000     0.369    -0.052
+       -14 17046.000     0.342    -0.052
+       -13 16495.000     0.316    -0.039
+       -12 15769.000     0.289    -0.017
+       -11 14651.000     0.263    -0.052
+       -10 13959.000     0.237    -0.107
+        -9 12879.000     0.211    -0.142
+        -8 11761.000     0.184    -0.142
+        -7 10192.000     0.158    -0.017
+        -6  9094.000     0.132     0.052
+        -5  7553.000     0.106     0.219
+        -4  5931.000     0.079     0.420
+        -3  3964.000     0.053     0.691
+        -2  2009.000     0.029     0.858
+        -1   277.000     0.009     0.983
+         0  1000.000     0.000     1.000
+         1   277.000    -0.009     0.983
+         2  2009.000    -0.029     0.858
+         3  3964.000    -0.053     0.691
+         4  5931.000    -0.079     0.420
+         5  7553.000    -0.106     0.219
+         6  9094.000    -0.132     0.052
+         7 10192.000    -0.158    -0.017
+         8 11761.000    -0.184    -0.142
+         9 12879.000    -0.211    -0.142
+        10 13959.000    -0.237    -0.107
+        11 14651.000    -0.263    -0.052
+        12 15769.000    -0.289    -0.017
+        13 16495.000    -0.316    -0.039
+        14 17046.000    -0.342    -0.052
+        15 17246.000    -0.369    -0.052
+        16 17491.000    -0.395    -0.052
+        17 18182.000    -0.421    -0.017
+        18 18068.000    -0.447     0.000
+        19 17948.000    -0.474     0.039
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+       -19 17948.000     0.474     0.000
+       -18 18068.000     0.447     0.000
+       -17 18182.000     0.421     0.000
+       -16 17491.000     0.395     0.000
+       -15 17246.000     0.369     0.000
+       -14 17046.000     0.342     0.000
+       -13 16495.000     0.316     0.000
+       -12 15769.000     0.289     0.000
+       -11 14651.000     0.263     0.000
+       -10 13959.000     0.237     0.000
+        -9 12879.000     0.211     0.000
+        -8 11761.000     0.184     0.000
+        -7 10192.000     0.158     0.000
+        -6  9094.000     0.132     0.000
+        -5  7553.000     0.106     0.000
+        -4  5931.000     0.079     0.000
+        -3  3964.000     0.053     0.000
+        -2  2009.000     0.029     0.000
+        -1   277.000     0.009     0.000
+         0  1000.000     0.000     0.000
+         1   277.000    -0.009     0.000
+         2  2009.000    -0.029     0.000
+         3  3964.000    -0.053     0.000
+         4  5931.000    -0.079     0.000
+         5  7553.000    -0.106     0.000
+         6  9094.000    -0.132     0.000
+         7 10192.000    -0.158     0.000
+         8 11761.000    -0.184     0.000
+         9 12879.000    -0.211     0.000
+        10 13959.000    -0.237     0.000
+        11 14651.000    -0.263     0.000
+        12 15769.000    -0.289     0.000
+        13 16495.000    -0.316     0.000
+        14 17046.000    -0.342     0.000
+        15 17246.000    -0.369     0.000
+        16 17491.000    -0.395     0.000
+        17 18182.000    -0.421     0.000
+        18 18068.000    -0.447     0.000
+        19 17948.000    -0.474     0.000
+
+For variable 2
+      Rank    Npairs  Distance     Value
+       -19 17948.000     0.474    -0.052
+       -18 18068.000     0.447    -0.073
+       -17 18182.000     0.421    -0.129
+       -16 17491.000     0.395    -0.107
+       -15 17246.000     0.369    -0.073
+       -14 17046.000     0.342    -0.094
+       -13 16495.000     0.316     0.000
+       -12 15769.000     0.289    -0.039
+       -11 14651.000     0.263    -0.039
+       -10 13959.000     0.237    -0.039
+        -9 12879.000     0.211     0.000
+        -8 11761.000     0.184     0.017
+        -7 10192.000     0.158     0.094
+        -6  9094.000     0.132     0.107
+        -5  7553.000     0.106     0.288
+        -4  5931.000     0.079     0.399
+        -3  3964.000     0.053     0.580
+        -2  2009.000     0.029     0.725
+        -1   277.000     0.009     0.871
+         0  1000.000     0.000     1.000
+         1   277.000    -0.009     0.871
+         2  2009.000    -0.029     0.725
+         3  3964.000    -0.053     0.580
+         4  5931.000    -0.079     0.399
+         5  7553.000    -0.106     0.288
+         6  9094.000    -0.132     0.107
+         7 10192.000    -0.158     0.094
+         8 11761.000    -0.184     0.017
+         9 12879.000    -0.211     0.000
+        10 13959.000    -0.237    -0.039
+        11 14651.000    -0.263    -0.039
+        12 15769.000    -0.289    -0.039
+        13 16495.000    -0.316     0.000
+        14 17046.000    -0.342    -0.094
+        15 17246.000    -0.369    -0.073
+        16 17491.000    -0.395    -0.107
+        17 18182.000    -0.421    -0.129
+        18 18068.000    -0.447    -0.073
+        19 17948.000    -0.474    -0.052
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     1.000
+
+Direction #1
+------------
+Number of lags              = 19
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.026
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009     0.017
+         1  2009.000     0.029     0.142
+         2  3964.000     0.053     0.309
+         3  5931.000     0.079     0.580
+         4  7553.000     0.106     0.781
+         5  9094.000     0.132     0.948
+         6 10192.000     0.158     1.017
+         7 11761.000     0.184     1.142
+         8 12879.000     0.211     1.142
+         9 13959.000     0.237     1.107
+        10 14651.000     0.263     1.052
+        11 15769.000     0.289     1.017
+        12 16495.000     0.316     1.039
+        13 17046.000     0.342     1.052
+        14 17246.000     0.369     1.052
+        15 17491.000     0.395     1.052
+        16 18182.000     0.421     1.017
+        17 18068.000     0.447     1.000
+        18 17948.000     0.474     0.961
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     1.000
+
+Direction #1
+------------
+Number of lags              = 19
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.026
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009     0.129
+         1  2009.000     0.029     0.275
+         2  3964.000     0.053     0.420
+         3  5931.000     0.079     0.601
+         4  7553.000     0.106     0.712
+         5  9094.000     0.132     0.893
+         6 10192.000     0.158     0.906
+         7 11761.000     0.184     0.983
+         8 12879.000     0.211     1.000
+         9 13959.000     0.237     1.039
+        10 14651.000     0.263     1.039
+        11 15769.000     0.289     1.039
+        12 16495.000     0.316     1.000
+        13 17046.000     0.342     1.094
+        14 17246.000     0.369     1.073
+        15 17491.000     0.395     1.107
+        16 18182.000     0.421     1.129
+        17 18068.000     0.447     1.073
+        18 17948.000     0.474     1.052
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 99.9077)
+- Sill         =      1.000
+- Range        =      0.145
+- Theo. Range  =      0.004
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 99.0963)
+- Sill         =      0.654
+- Range        =      0.184
+- Theo. Range  =      0.005
+Exponential
+- Sill         =      0.346
+- Range        =      0.092
+- Theo. Range  =      0.031
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Construction of the Tree of candidate Lithotype Rules:
+------------------------------------------------------
+
+List of Rules and corresponding scores:
+---------------------------------------
+Non-stationary case
+   1:  S  1  S  2  3 -> 81400 (   5  22  26 )
+   2:  S  1  S  3  2 -> 81595 (   5  26  22 )
+   3:  S  1  T  2  3 -> 81179 (   5  30  34 )
+   5:  S  2  S  1  3 -> 81394 (  22   5  26 )
+   6:  S  2  S  3  1 -> 81595 (  26   5  22 )
+   7:  S  2  T  1  3 -> 81167 (  30   5  34 )
+   9:  S  3  S  1  2 -> 81394 (  22  26   5 )
+  10:  S  3  S  2  1 -> 81400 (  26  22   5 )
+  11:  S  3  T  1  2 -> 81144 (  30  34   5 )
+
+Optimal Lithotype Rule:
+-----------------------
+  S  3  T  1  2 (  30  34   5 )
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+
+Node F1 - Facies 3
+Node F2 - Facies 1
+Node F3 - Facies 2
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 99.9077)
+- Sill         =      1.000
+- Range        =      0.145
+- Theo. Range  =      0.004
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 99.9077)
+- Sill         =      1.000
+- Range        =      0.145
+- Theo. Range  =      0.004
+Total Sill     =      1.000
+Known Mean(s)     0.000
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 3
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix
+               [,  0]    [,  1]    [,  2]
+     [  0,]     0.000     0.000     0.000
+     [  1,]     0.000     0.000     0.000
+     [  2,]     0.000     0.000     0.000
+
+Direction #1
+------------
+Number of lags              = 19
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      0.026
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009     0.046
+         1  2009.000     0.029     0.081
+         2  3964.000     0.053     0.108
+         3  5931.000     0.079     0.128
+         4  7553.000     0.106     0.142
+         5  9094.000     0.132     0.150
+         6 10192.000     0.158     0.155
+         7 11761.000     0.184     0.158
+         8 12879.000     0.211     0.159
+         9 13959.000     0.237     0.160
+        10 14651.000     0.263     0.160
+        11 15769.000     0.289     0.160
+        12 16495.000     0.316     0.160
+        13 17046.000     0.342     0.160
+        14 17246.000     0.369     0.160
+        15 17491.000     0.395     0.160
+        16 18182.000     0.421     0.160
+        17 18068.000     0.447     0.160
+        18 17948.000     0.474     0.160
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009    -0.039
+         1  2009.000     0.029    -0.062
+         2  3964.000     0.053    -0.075
+         3  5931.000     0.079    -0.084
+         4  7553.000     0.106    -0.089
+         5  9094.000     0.132    -0.093
+         6 10192.000     0.158    -0.096
+         7 11761.000     0.184    -0.098
+         8 12879.000     0.211    -0.099
+         9 13959.000     0.237    -0.100
+        10 14651.000     0.263    -0.100
+        11 15769.000     0.289    -0.100
+        12 16495.000     0.316    -0.100
+        13 17046.000     0.342    -0.100
+        14 17246.000     0.369    -0.100
+        15 17491.000     0.395    -0.100
+        16 18182.000     0.421    -0.100
+        17 18068.000     0.447    -0.100
+        18 17948.000     0.474    -0.100
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009     0.056
+         1  2009.000     0.029     0.109
+         2  3964.000     0.053     0.158
+         3  5931.000     0.079     0.195
+         4  7553.000     0.106     0.221
+         5  9094.000     0.132     0.236
+         6 10192.000     0.158     0.244
+         7 11761.000     0.184     0.247
+         8 12879.000     0.211     0.249
+         9 13959.000     0.237     0.250
+        10 14651.000     0.263     0.250
+        11 15769.000     0.289     0.250
+        12 16495.000     0.316     0.250
+        13 17046.000     0.342     0.250
+        14 17246.000     0.369     0.250
+        15 17491.000     0.395     0.250
+        16 18182.000     0.421     0.250
+        17 18068.000     0.447     0.250
+        18 17948.000     0.474     0.250
+
+For variables 3 and 1
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009    -0.006
+         1  2009.000     0.029    -0.019
+         2  3964.000     0.053    -0.033
+         3  5931.000     0.079    -0.045
+         4  7553.000     0.106    -0.053
+         5  9094.000     0.132    -0.057
+         6 10192.000     0.158    -0.059
+         7 11761.000     0.184    -0.060
+         8 12879.000     0.211    -0.060
+         9 13959.000     0.237    -0.060
+        10 14651.000     0.263    -0.060
+        11 15769.000     0.289    -0.060
+        12 16495.000     0.316    -0.060
+        13 17046.000     0.342    -0.060
+        14 17246.000     0.369    -0.060
+        15 17491.000     0.395    -0.060
+        16 18182.000     0.421    -0.060
+        17 18068.000     0.447    -0.060
+        18 17948.000     0.474    -0.060
+
+For variables 3 and 2
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009    -0.016
+         1  2009.000     0.029    -0.047
+         2  3964.000     0.053    -0.083
+         3  5931.000     0.079    -0.112
+         4  7553.000     0.106    -0.132
+         5  9094.000     0.132    -0.142
+         6 10192.000     0.158    -0.147
+         7 11761.000     0.184    -0.149
+         8 12879.000     0.211    -0.150
+         9 13959.000     0.237    -0.150
+        10 14651.000     0.263    -0.150
+        11 15769.000     0.289    -0.150
+        12 16495.000     0.316    -0.150
+        13 17046.000     0.342    -0.150
+        14 17246.000     0.369    -0.150
+        15 17491.000     0.395    -0.150
+        16 18182.000     0.421    -0.150
+        17 18068.000     0.447    -0.150
+        18 17948.000     0.474    -0.150
+
+For variable 3
+      Rank    Npairs  Distance     Value
+         0   277.000     0.009     0.022
+         1  2009.000     0.029     0.066
+         2  3964.000     0.053     0.116
+         3  5931.000     0.079     0.157
+         4  7553.000     0.106     0.184
+         5  9094.000     0.132     0.199
+         6 10192.000     0.158     0.206
+         7 11761.000     0.184     0.209
+         8 12879.000     0.211     0.210
+         9 13959.000     0.237     0.210
+        10 14651.000     0.263     0.210
+        11 15769.000     0.289     0.210
+        12 16495.000     0.316     0.210
+        13 17046.000     0.342     0.210
+        14 17246.000     0.369     0.210
+        15 17491.000     0.395     0.210
+        16 18182.000     0.421     0.210
+        17 18068.000     0.447     0.210
+        18 17948.000     0.474     0.210
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 99.9077)
+- Sill         =      1.000
+- Range        =      0.145
+- Theo. Range  =      0.004
+Total Sill     =      1.000
+Known Mean(s)     0.000

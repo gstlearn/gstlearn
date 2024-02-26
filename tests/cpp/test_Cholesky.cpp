@@ -75,14 +75,29 @@ std::cout << "Coucou 1" << std::endl;
 
   // Checking Product
   std::cout << "Coucou 5" << std::endl;
-  M.prodMatVecInPlace(vecin, vecout1);
-  Qchol.evalDirect(vecin, vecout2);
-  if (VH::isSame(vecout1,  vecout2))
-    message("Product Mat %*% V is validated\n");
-  else
+  try
   {
-    VH::display("Product Mat %*% V (by Matrix)", vecout1);
-    VH::display("Product Mat %*% V (by Cholesky)", vecout2);
+    M.prodMatVecInPlace(vecin, vecout1);
+    Qchol.evalDirect(vecin, vecout2);
+    if (VH::isSame(vecout1,  vecout2))
+      message("Product Mat %*% V is validated\n");
+    else
+    {
+      VH::display("Product Mat %*% V (by Matrix)", vecout1);
+      VH::display("Product Mat %*% V (by Cholesky)", vecout2);
+    }
+  }
+  catch(const std::string& str)
+  {
+    messerr("String exception catched: %s", str.c_str());
+  }
+  catch(const std::exception& e)
+  {
+    messerr("Operation has failed: %s",e.what());
+  }
+  catch(...)
+  {
+    messerr("Unknown error");
   }
 
   // Checking Inverse

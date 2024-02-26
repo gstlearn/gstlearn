@@ -172,11 +172,12 @@ VectorVectorDouble OptimCostColored::minimize(const VectorDouble& facies,
         _copyMultProportions(level,ip,propfac,propfacs);
     }
   }
-
-  catch(const char * str)
+  catch(const std::string& str)
   {
-    messerr("%s", str);
+    // TODO : Check if std::exception can be used
+    messerr("%s", str.c_str());
   }
+
   return propfacs;
 }
 

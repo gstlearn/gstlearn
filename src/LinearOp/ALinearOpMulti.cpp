@@ -114,10 +114,10 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble &inv,
   {
     _evalDirect(inv,outv);
   }
-  catch(const char * str)
+  catch(const std::string& str)
   {
     // TODO : Check if std::exception can be used
-    messerr("%s", str);
+    messerr("%s", str.c_str());
   }
 }
 

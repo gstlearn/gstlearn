@@ -60,10 +60,10 @@ void ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
   {
     _evalDirect(inv,outv);
   }
-  catch(const char * str)
+  catch(const std::string& str)
   {
     // TODO : Check if std::exception can be used
-    messerr("%s", str);
+    messerr("%s", str.c_str());
   }
 }
 
