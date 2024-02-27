@@ -26,6 +26,7 @@ New functions :
 - Function model_stabilize() becomes Model::stabilize()
 - Function model_normalize() becomes Model::standardize()
 - Function model_get_nonugget_cova() is now included in Model::getCovaNumber(true)
+- Function db_vmap_compute() is renamed into db_vmap()
 
 Modification in functions :
 ---------------------------

@@ -1163,11 +1163,14 @@ int Model::fitFromCovIndices(Vario *vario,
  * Automatic Fitting procedure from an experimental Variogram
  *
  * @param vario       Experimental variogram to be fitted
- * @param types       Vector of ECov
+ * @param types       Vector of ECov (see remarks)
  * @param constraints Set of Constraints
  * @param optvar      Set of options
  * @param mauto       Special parameters for Automatic fitting procedure (instance of Option_AutoFit), for exemple wmode (type of weighting function)
  * @param verbose     Verbose option
+ *
+ * @remarks If no list of specific basic structure is specified, the automatic fitting
+ * is performed using a single spherical structure by default.
  *
  * @return 0 if no error, 1 otherwise
  */

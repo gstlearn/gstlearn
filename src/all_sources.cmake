@@ -179,6 +179,8 @@ set(SRC
   Space/SpaceTarget.cpp
   Space/ASpaceObject.cpp
   Space/ASpace.cpp
+  Variogram/AVario.cpp
+  Variogram/VMap.cpp
   Variogram/Vario.cpp
   Variogram/VarioParam.cpp
   Variogram/DirParam.cpp

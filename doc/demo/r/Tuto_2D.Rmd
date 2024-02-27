@@ -141,7 +141,7 @@ if (graphics)
 Calculating the Variogram Map
 
 ```{r}
-myvmap = db_vmap_compute(db=mydb,calcul_type=ECalcVario_VARIOGRAM(),nxx=c(20,20))
+myvmap = db_vmap(db=mydb,calcul_type=ECalcVario_VARIOGRAM(),nxx=c(20,20))
 if (verbose)
     myvmap$display()
 ```
