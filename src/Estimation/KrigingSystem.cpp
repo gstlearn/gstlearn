@@ -477,9 +477,9 @@ double KrigingSystem::_getMean(int ivar, bool flagLHS) const
   return value;
 }
 
-double KrigingSystem::_getDriftCoef(int ivar, int il, int ib) const
+double KrigingSystem::_getDriftCL(int ivar, int il, int ib) const
 {
-  return _model->getDriftCoef(ivar, il, ib);
+  return _model->getDriftCL(ivar, il, ib);
 }
 
 void KrigingSystem::_setFlag(int iech, int ivar, int value)
@@ -547,7 +547,7 @@ void KrigingSystem::_flagDefine()
     for (int il = 0; il < _nbfl; il++)
       for (int ivar = 0; ivar < _nvar; ivar++)
       {
-        if (_getDriftCoef(ivar, il, ib) == 0.) continue;
+        if (_getDriftCL(ivar, il, ib) == 0.) continue;
         for (int iech = 0; iech < _nech; iech++)
           if (!FFFF(_getIvar(_nbgh[iech], ivar))) valid++;
       }
@@ -788,7 +788,7 @@ void KrigingSystem::_lhsCalcul()
       {
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getDriftCoef(ivar, il, ib);
+          value += _drftab[il] * _getDriftCL(ivar, il, ib);
         _setLHSF(iech,ivar,ib,_nvar,value);
         _setLHSF(ib,_nvar,iech,ivar,value);
       }
@@ -1074,7 +1074,7 @@ int KrigingSystem::_rhsCalcul()
       {
         double value = 0.;
         for (int il = 0; il < _nbfl; il++)
-          value += _drftab[il] * _getDriftCoef(ivar, il, ib);
+          value += _drftab[il] * _getDriftCL(ivar, il, ib);
         _setRHSF(ib,_nvar,ivar,value);
       }
   }
@@ -1088,7 +1088,7 @@ int KrigingSystem::_rhsCalcul()
         {
           double value = 0.;
           for (int il = 0; il < _nbfl; il++)
-            value += _drftab[il] * _getDriftCoef(jvar, il, ib);
+            value += _drftab[il] * _getDriftCL(jvar, il, ib);
           value *= _matLC->getValue(ivarCL,jvar);
           _setRHSF(ib,_nvar,ivarCL,value);
         }
@@ -1322,7 +1322,7 @@ void KrigingSystem::_simulateCalcul(int status)
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu).data());
+          simu = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postSimu.getColumn(isimu));
 
         int lec = ivar * _nred;
         for (int jvar = 0; jvar < _nvar; jvar++)
@@ -1333,7 +1333,7 @@ void KrigingSystem::_simulateCalcul(int status)
             double mean = 0.;
             if (_nfeq <= 0) mean = _getMean(jvar);
             if (_flagBayes)
-              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu).data());
+              mean = _model->evalDriftCoef(_dbin, jech, jvar,_postSimu.getColumn(isimu));
             double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, _nvar);
             simu -= _wgt.getValue_(lec++,0) * (data + mean);
           }
@@ -1642,7 +1642,7 @@ void KrigingSystem::_estimateEstim(int status)
     if (_nfeq <= 0)
       estim0 = _getMean(ivarCL);
     if (_flagBayes)
-      estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean.data());
+      estim0 = _model->evalDriftCoef(_dbout, _iechOut, ivarCL, _postMean);
 
     if (status == 0)
       _dbout->setArray(_iechOut, _iptrEst + ivarCL, _results.getValue_(ivarCL,0) + estim0);
@@ -1780,7 +1780,7 @@ void KrigingSystem::_dualCalcul()
       if (_nfeq <= 0)
         mean = _getMean(ivar, true);
       if (_flagBayes)
-        mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean.data());
+        mean = _model->evalDriftCoef(_dbout, _iechOut, ivar, _postMean);
       _zext.setValue_(ecr, 0, _getIvar(_nbgh[iech], ivar) - mean);
       ecr++;
     }
@@ -3306,7 +3306,7 @@ void KrigingSystem::_bayesCorrectVariance()
     {
       double value = 0.;
       for (int il = 0; il < _nbfl; il++)
-        value += _drftab[il] * _getDriftCoef(ivar, il, ib);
+        value += _drftab[il] * _getDriftCL(ivar, il, ib);
       FF0(ib,ivar) = value;
     }
 

@@ -456,58 +456,12 @@ GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
                                 int *iy0);
 
 /****************************************/
-/* Prototyping the functions in vario.c */
-/****************************************/
-
-GSTLEARN_EXPORT int variovect_compute(Db *db, Vario *vario, int ncomp);
-GSTLEARN_EXPORT void vardir_copy(VarioParam *vario_in,
-                                 int idir_in,
-                                 VarioParam *vario_out,
-                                 int idir_out);
-GSTLEARN_EXPORT void variogram_trans_cut(Vario *vario, int nh, double ycut);
-GSTLEARN_EXPORT int correlation_ident(Db *db1,
-                                      Db *db2,
-                                      int icol1,
-                                      int icol2,
-                                      Polygons *polygon);
-GSTLEARN_EXPORT int variogram_cloud_dim(Db *db,
-                                        const VarioParam *varioparam,
-                                        double *vmax);
-GSTLEARN_EXPORT void variogram_cloud_ident(Db *db,
-                                           DbGrid *dbgrid,
-                                           Vario *vario,
-                                           Polygons *polygon);
-GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
-                                           Db *db2,
-                                           int icol1,
-                                           int icol2,
-                                           double mini,
-                                           double maxi,
-                                           int nclass,
-                                           bool verbose = false);
-GSTLEARN_EXPORT int vario_extract(Vario *vario,
-                                  ECalcVario *calcul_type,
-                                  int *ndim,
-                                  int *nvar,
-                                  int *ndir,
-                                  int *ndate,
-                                  double *scale,
-                                  double **dates);
-GSTLEARN_EXPORT int vario_get_rank(Vario *vario, int idir, int idate);
-GSTLEARN_EXPORT int variogram_y2z(Vario *vario, AAnam *anam, Model *model);
-
-/****************************************/
 /* Prototyping the functions in model.c */
 /****************************************/
 
 GSTLEARN_EXPORT void model_covtab_init(int flag_init,
                                        Model *model,
                                        double *covtab);
-GSTLEARN_EXPORT Model* model_default(int ndim, int nvar);
-GSTLEARN_EXPORT double model_calcul_basic(Model *model,
-                                          int icov,
-                                          const ECalcMember &member,
-                                          const VectorDouble &d1);
 GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           Db *db1,
                                           int iech1,
@@ -516,11 +470,6 @@ GSTLEARN_EXPORT double model_calcul_stdev(Model *model,
                                           int verbose,
                                           double factor,
                                           const CovCalcMode* mode = nullptr);
-GSTLEARN_EXPORT void model_calcul_drift(Model *model,
-                                        const ECalcMember &member,
-                                        const Db *db,
-                                        int iech,
-                                        double *drftab);
 GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model);
 GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    const ECov &type,
@@ -640,13 +589,8 @@ GSTLEARN_EXPORT int model_drift_vector(Model *model,
                                         Db *db,
                                         int iech,
                                         double *vector);
-GSTLEARN_EXPORT void model_drift_filter(Model *model, int rank, int filter);
 GSTLEARN_EXPORT Model* model_duplicate_for_gradient(const Model *model,
                                        double ball_radius);
-GSTLEARN_EXPORT int model_stabilize(Model *model,
-                                    int flag_verbose,
-                                    double percent);
-GSTLEARN_EXPORT int model_normalize(Model *model, int flag_verbose);
 GSTLEARN_EXPORT void model_covupdt(Model *model,
                                    double *c0,
                                    int flag_verbose,
@@ -674,7 +618,6 @@ GSTLEARN_EXPORT double cova_get_scale_factor(const ECov &type, double param);
 GSTLEARN_EXPORT Model* model_combine(const Model *model1,
                                      const Model *model2,
                                      double r);
-GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model);
 GSTLEARN_EXPORT int model_regularize(Model *model,
                                      Vario *vario,
                                      DbGrid *dbgrid,
@@ -815,7 +758,6 @@ GSTLEARN_EXPORT int db_selref(int ndim,
                               int *ref,
                               double *tabin,
                               double *tabout);
-GSTLEARN_EXPORT Db* db_extract(Db *db, int *ranks);
 GSTLEARN_EXPORT Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center);
 GSTLEARN_EXPORT int compat_NDIM(Db *db1, Db *db2);
 GSTLEARN_EXPORT double get_grid_value(DbGrid *dbgrid,
@@ -952,7 +894,7 @@ GSTLEARN_EXPORT int db_count_defined(Db *db, int icol);
 
 GSTLEARN_EXPORT int db_prop_read(DbGrid *db, int ix, int iy, double *props);
 GSTLEARN_EXPORT int db_prop_write(DbGrid *db, int ix, int iy, double *props);
-GSTLEARN_EXPORT int db_resind(Db *db, int ivar, int ncut, double *zcut);
+GSTLEARN_EXPORT int db_resind(Db *db, int ivar, const VectorDouble& zcut);
 GSTLEARN_EXPORT int db_gradient_modang_to_component(Db *db,
                                                     int ang_conv,
                                                     int iad_mod,
@@ -1494,10 +1436,6 @@ GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order *vorder,
 /******************************************/
 /* Prototyping the functions in mlayers.c */
 /******************************************/
-GSTLEARN_EXPORT int variogram_mlayers(Db *db,
-                                      int *seltab,
-                                      Vario *vario,
-                                      Vario_Order *vorder);
 GSTLEARN_EXPORT int multilayers_vario(Db *dbin,
                                       DbGrid *dbout,
                                       Vario *vario,

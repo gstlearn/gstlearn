@@ -120,6 +120,13 @@ Model* Model::createFromEnvironment(int nvar, int ndim)
   return new Model(nvar, ndim);
 }
 
+Model* Model::createNugget(int nvar, int ndim, double sill)
+{
+  Model* model = new Model(nvar, ndim);
+  model->addCovFromParam(ECov::NUGGET, 0., sill);
+  return model;
+}
+
 Model* Model::createFromParam(const ECov& type,
                               double range,
                               double sill,
@@ -436,12 +443,12 @@ CovAniso* Model::getCova(unsigned int icov)
   if (covalist == nullptr) return nullptr;
   return covalist->getCova(icov);
 }
-int Model::getCovaNumber() const
+int Model::getCovaNumber(bool skipNugget) const
 {
   if (_cova == nullptr) return 0;
   const ACovAnisoList* covalist = _castInCovAnisoListConst();
   if (covalist == nullptr) return ITEST;
-  return covalist->getCovaNumber();
+  return covalist->getCovaNumber(skipNugget);
 }
 const ECov& Model::getCovaType(int icov) const
 {
@@ -646,6 +653,20 @@ void Model::evalZAndGradients(const VectorDouble &vec,
   CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_cova);
   if (covgrad != nullptr)
     covgrad->evalZAndGradients(vec, covVal, covGp, covGG, mode, flagGrad);
+}
+
+double Model::evalCov(const VectorDouble &incr,
+                      int icov,
+                      const ECalcMember &member) const
+{
+  if (_cova == nullptr) return TEST;
+  const ACovAnisoList* covalist = _castInCovAnisoListConst(icov);
+  if (covalist == nullptr) return TEST;
+
+  if (member != ECalcMember::LHS && isCovaFiltered(icov))
+    return (0.);
+  else
+    return getCova(icov)->evalIvarIpas(1., incr);
 }
 
 /**
@@ -870,16 +891,16 @@ int Model::getRankFext(int il) const
   if (_driftList == nullptr) return ITEST;
   return _driftList->getRankFex(il);
 }
-const VectorDouble& Model::getDriftCoefs() const
+const VectorDouble& Model::getDriftCLs() const
 {
   if (_driftList == nullptr)
     my_throw("Drift List if empty");
-  return _driftList->getDriftCoef();
+  return _driftList->getDriftCL();
 }
-double Model::getDriftCoef(int ivar, int il, int ib) const
+double Model::getDriftCL(int ivar, int il, int ib) const
 {
   if (_driftList == nullptr) return TEST;
-  return _driftList->getDriftCoef(ivar, il, ib);
+  return _driftList->getDriftCL(ivar, il, ib);
 }
 int Model::getDriftEquationNumber() const
 {
@@ -909,7 +930,7 @@ bool Model::isDriftDifferentDefined(const VectorInt &powers, int rank_fex) const
 void Model::setDriftCoef(int ivar, int il, int ib, double coeff)
 {
   if (_driftList == nullptr) return;
-  _driftList->setDriftCoef(ivar, il, ib, coeff);
+  _driftList->setDriftCL(ivar, il, ib, coeff);
 }
 int Model::getDriftMaxIRFOrder(void) const
 {
@@ -979,23 +1000,23 @@ void Model::evalDriftVecInPlace(const Db* db,
  * @param ivar   Variable rank (used for constant drift value)
  * @param useSel When TRUE, only non masked samples are returned
  * @return The vector of values
- * @remark When no drift is defined, a vector is returned filled to mean
+ * @remark When no drift is defined, a vector is returned filled with the variable mean
  */
-VectorDouble Model::evalDrifts(const Db* db,
-                               const VectorDouble& coeffs,
-                               int ivar,
-                               bool useSel) const
+VectorDouble Model::evalDriftCoefVec(const Db *db,
+                                     const VectorDouble &coeffs,
+                                     int ivar,
+                                     bool useSel) const
 {
   VectorDouble vec;
   if (_driftList == nullptr && db != nullptr)
   {
     int nech = db->getSampleNumber(useSel);
     double mean = getMean(ivar);
-    vec = VectorDouble(nech,mean);
+    vec = VectorDouble(nech, mean);
   }
   else
   {
-    vec = _driftList->evalDrifts(db, coeffs, useSel);
+    vec = _driftList->evalDriftCoefVec(db, coeffs, useSel);
   }
   return vec;
 }
@@ -1142,11 +1163,14 @@ int Model::fitFromCovIndices(Vario *vario,
  * Automatic Fitting procedure from an experimental Variogram
  *
  * @param vario       Experimental variogram to be fitted
- * @param types       Vector of ECov
+ * @param types       Vector of ECov (see remarks)
  * @param constraints Set of Constraints
  * @param optvar      Set of options
  * @param mauto       Special parameters for Automatic fitting procedure (instance of Option_AutoFit), for exemple wmode (type of weighting function)
  * @param verbose     Verbose option
+ *
+ * @remarks If no list of specific basic structure is specified, the automatic fitting
+ * is performed using a single spherical structure by default.
  *
  * @return 0 if no error, 1 otherwise
  */
@@ -1725,21 +1749,20 @@ bool Model::isFlagGradientFunctional() const
  ** \param[in]  db      Db structure
  ** \param[in]  iech    Rank of the sample
  ** \param[in]  ivar    Rank of the variable
- ** \param[in]  coef    Array of coefficients
+ ** \param[in]  coeffs  Vector of coefficients
  **
  *****************************************************************************/
-double Model::evalDriftCoef(const Db* db,
-                             int iech,
-                             int ivar,
-                             const double* coef) const
+double Model::evalDriftCoef(const Db *db,
+                            int iech,
+                            int ivar,
+                            const VectorDouble &coeffs) const
 {
 
   VectorDouble drftab = evalDriftVec(db, iech, ECalcMember::LHS);
 
   /* Check if all the drift terms are defined */
 
-  for (int il = 0; il < getDriftNumber(); il++)
-    if (FFFF(drftab[il])) return TEST;
+  if (VH::hasUndefined(drftab)) return TEST;
 
   /* Perform the correction */
 
@@ -1748,8 +1771,8 @@ double Model::evalDriftCoef(const Db* db,
   {
     double value = 0.;
     for (int il = 0; il < getDriftNumber(); il++)
-      value += drftab[il] * getDriftCoef(ivar, il, ib);
-    drift += value * coef[ib];
+      value += drftab[il] * getDriftCL(ivar, il, ib);
+    drift += value * coeffs[ib];
   }
   return drift;
 }
@@ -1915,5 +1938,105 @@ int Model::buildVmapOnDbGrid(DbGrid *dbgrid, const NamingConvention &namconv)
   /* Set the error return code */
 
   namconv.setNamesAndLocators(dbgrid, iptr, "Model", nv2);
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Stabilize the model (in the monovariate case)
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  percent  Percentage of nugget effect added
+ ** \param[in]  verbose  true for a verbose output
+ **
+ ** \remark  If the model only contains GAUSSIAN structures, add
+ ** \remark  a NUGGET EFFECT structure with a sill equal to a percentage
+ ** \remark  of the total sill of the GAUSSIAN component(s)
+ **
+ ** \remark  This function does not do anything in the multivariate case
+ **
+ *****************************************************************************/
+int Model::stabilize(double percent, bool verbose)
+{
+  int nvar = getVariableNumber();
+  if (nvar > 1) return 0;
+  if (percent <= 0.) return 0;
+  int ncov = getCovaNumber();
+
+  /* Check if the model only contains GAUSSIAN components */
+
+  double total = 0.;
+  for (int icov = 0; icov < ncov; icov++)
+  {
+    if (getCova(icov)->getType() != ECov::GAUSSIAN) return (0);
+    total += getSill(icov, 0, 0);
+  }
+  total = total * percent / 100.;
+
+  /* Update each Gaussian component */
+
+  for (int icov = 0; icov < ncov; icov++)
+    getCova(icov)->setSill(0, 0, 1. - total);
+
+  /* Add a NUGGET EFFECT component */
+
+  addCovFromParam(ECov::NUGGET, 0., total);
+
+  /* Printout */
+
+  if (verbose)
+  {
+    message("The model which only contains Gaussian components\n");
+    message("has been stabilized by adding a small Nugget Effect\n");
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Normalize the model
+ **
+ ** \param[in]  verbose  true for a verbose output
+ **
+ *****************************************************************************/
+int Model::standardize(bool verbose)
+
+{
+  int nvar = getVariableNumber();
+  int ncov = getCovaNumber();
+  VectorDouble total(nvar,0.);
+
+  /* Calculate the total sills for each variable */
+
+  bool flag_norm = false;
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    total[ivar] = getTotalSill(ivar, ivar);
+    if (total[ivar] == 0.) return 1;
+    total[ivar] = sqrt(total[ivar]);
+    if (ABS(total[ivar] - 1.) > EPSILON6) flag_norm = true;
+  }
+
+  /* Scale the different sills for the different variables */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      for (int icov = 0; icov < ncov; icov++)
+      {
+        double sill = getSill(icov,ivar, jvar);
+        sill /= total[ivar] * total[jvar];
+        getCova(icov)->setSill(ivar, jvar, sill);
+      }
+
+  /* Printout */
+
+  if (verbose && flag_norm)
+  {
+    message("The model has been normalized\n");
+    for (int ivar = 0; ivar < nvar; ivar++)
+      message("- Variable %d : Scaling factor = %lf\n", ivar + 1,
+              total[ivar] * total[ivar]);
+  }
   return 0;
 }

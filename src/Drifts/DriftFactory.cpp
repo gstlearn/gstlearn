@@ -260,18 +260,18 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
     // Order-1 drift terms
     if (ndim == 1)
     {
-      newdrifts->setDriftCoefByPart(1, 0, {0, 0}); // d(X) / dX
-      newdrifts->setDriftCoefByPart(1, 1, {1, 0}); // d(X) / dX
+      newdrifts->setDriftCLByPart(1, 0, {0, 0}); // d(X) / dX
+      newdrifts->setDriftCLByPart(1, 1, {1, 0}); // d(X) / dX
     }
     if (ndim == 2)
     {
-      newdrifts->setDriftCoefByPart(1, 0, {0, 0, 0}); // d(1) / dX
-      newdrifts->setDriftCoefByPart(1, 1, {1, 0, 0}); // d(X) / dX
-      newdrifts->setDriftCoefByPart(1, 2, {0, 0, 0}); // d(Y) / dX
+      newdrifts->setDriftCLByPart(1, 0, {0, 0, 0}); // d(1) / dX
+      newdrifts->setDriftCLByPart(1, 1, {1, 0, 0}); // d(X) / dX
+      newdrifts->setDriftCLByPart(1, 2, {0, 0, 0}); // d(Y) / dX
 
-      newdrifts->setDriftCoefByPart(2, 0, {0, 0, 0}); // d(1) / dY
-      newdrifts->setDriftCoefByPart(2, 1, {0, 0, 0}); // d(X) / dY
-      newdrifts->setDriftCoefByPart(2, 2, {1, 0, 0}); // d(Y) / dY
+      newdrifts->setDriftCLByPart(2, 0, {0, 0, 0}); // d(1) / dY
+      newdrifts->setDriftCLByPart(2, 1, {0, 0, 0}); // d(X) / dY
+      newdrifts->setDriftCLByPart(2, 2, {1, 0, 0}); // d(Y) / dY
     }
   }
   if (order == 2)
@@ -279,25 +279,25 @@ DriftList* DriftFactory::createDriftListForGradients(const DriftList* olddrifts,
     // Order-2 drift terms
     if (ndim == 1)
     {
-      newdrifts->setDriftCoefByPart(1, 0, {0, 0, 0}); // d(1) / dX
-      newdrifts->setDriftCoefByPart(1, 1, {1, 0, 0}); // d(X) / dX
-      newdrifts->setDriftCoefByPart(1, 1, {0, 2, 0}); // d(X^2) / dX
+      newdrifts->setDriftCLByPart(1, 0, {0, 0, 0}); // d(1) / dX
+      newdrifts->setDriftCLByPart(1, 1, {1, 0, 0}); // d(X) / dX
+      newdrifts->setDriftCLByPart(1, 1, {0, 2, 0}); // d(X^2) / dX
     }
     if (ndim == 2)
     {
-      newdrifts->setDriftCoefByPart(1, 0, {0, 0, 0, 0, 0, 0}); // d(1) / dX
-      newdrifts->setDriftCoefByPart(1, 1, {1, 0, 0, 0, 0, 0}); // d(X) / dX
-      newdrifts->setDriftCoefByPart(1, 2, {0, 0, 0, 0, 0, 0}); // d(Y) / dX
-      newdrifts->setDriftCoefByPart(1, 3, {0, 2, 0, 0, 0, 0}); // d(X^2) / dX
-      newdrifts->setDriftCoefByPart(1, 4, {0, 0, 0, 0, 0, 0}); // d(Y^2) / dX
-      newdrifts->setDriftCoefByPart(1, 5, {0, 0, 1, 0, 0, 0}); // d(XY) / dX
+      newdrifts->setDriftCLByPart(1, 0, {0, 0, 0, 0, 0, 0}); // d(1) / dX
+      newdrifts->setDriftCLByPart(1, 1, {1, 0, 0, 0, 0, 0}); // d(X) / dX
+      newdrifts->setDriftCLByPart(1, 2, {0, 0, 0, 0, 0, 0}); // d(Y) / dX
+      newdrifts->setDriftCLByPart(1, 3, {0, 2, 0, 0, 0, 0}); // d(X^2) / dX
+      newdrifts->setDriftCLByPart(1, 4, {0, 0, 0, 0, 0, 0}); // d(Y^2) / dX
+      newdrifts->setDriftCLByPart(1, 5, {0, 0, 1, 0, 0, 0}); // d(XY) / dX
 
-      newdrifts->setDriftCoefByPart(2, 0, {0, 0, 0, 0, 0, 0}); // d(1) / dY
-      newdrifts->setDriftCoefByPart(2, 1, {0, 0, 0, 0, 0, 0}); // d(X) / dY
-      newdrifts->setDriftCoefByPart(2, 2, {1, 0, 0, 0, 0, 0}); // d(Y) / dY
-      newdrifts->setDriftCoefByPart(2, 3, {0, 0, 0, 0, 0, 0}); // d(X^2) / dY
-      newdrifts->setDriftCoefByPart(2, 4, {0, 0, 2, 0, 0, 0}); // d(Y^2) / dY
-      newdrifts->setDriftCoefByPart(2, 5, {0, 1, 0, 0, 0, 0}); // d(XY) / dY
+      newdrifts->setDriftCLByPart(2, 0, {0, 0, 0, 0, 0, 0}); // d(1) / dY
+      newdrifts->setDriftCLByPart(2, 1, {0, 0, 0, 0, 0, 0}); // d(X) / dY
+      newdrifts->setDriftCLByPart(2, 2, {1, 0, 0, 0, 0, 0}); // d(Y) / dY
+      newdrifts->setDriftCLByPart(2, 3, {0, 0, 0, 0, 0, 0}); // d(X^2) / dY
+      newdrifts->setDriftCLByPart(2, 4, {0, 0, 2, 0, 0, 0}); // d(Y^2) / dY
+      newdrifts->setDriftCLByPart(2, 5, {0, 1, 0, 0, 0, 0}); // d(XY) / dY
     }
   }
 

@@ -2,28 +2,28 @@ NULL
 Number of conditioning data (connected) = 4 
 Their ranks in the input Data Base = 4 12 15 16 
 Their ranks in the output Data Base = 6000 1270 6648 9712 
-List of their connected components indices = 1 NA NA 1 
+List of their connected components indices = NA 1 1 1 
 Acceptation score = FALSE 
 Connectivity for Simulation #1 : FALSE 
 Simulation SimuPGS.1 is invalid
 Simulation SimuPGS.2 is valid
-Simulation SimuPGS.3 is invalid
-Simulation SimuPGS.4 is valid
-Simulation SimuPGS.5 is invalid
-Simulation SimuPGS.6 is invalid
-Simulation SimuPGS.7 is invalid
-Simulation SimuPGS.8 is invalid
-Simulation SimuPGS.9 is invalid
-Simulation SimuPGS.10 is valid
-Simulation SimuPGS.11 is invalid
-Simulation SimuPGS.12 is invalid
-Simulation SimuPGS.13 is invalid
-Simulation SimuPGS.14 is valid
-Simulation SimuPGS.15 is invalid
-Simulation SimuPGS.16 is invalid
-Simulation SimuPGS.17 is invalid
+Simulation SimuPGS.3 is valid
+Simulation SimuPGS.4 is invalid
+Simulation SimuPGS.5 is valid
+Simulation SimuPGS.6 is valid
+Simulation SimuPGS.7 is valid
+Simulation SimuPGS.8 is valid
+Simulation SimuPGS.9 is valid
+Simulation SimuPGS.10 is invalid
+Simulation SimuPGS.11 is valid
+Simulation SimuPGS.12 is valid
+Simulation SimuPGS.13 is valid
+Simulation SimuPGS.14 is invalid
+Simulation SimuPGS.15 is valid
+Simulation SimuPGS.16 is valid
+Simulation SimuPGS.17 is valid
 Simulation SimuPGS.18 is invalid
-Simulation SimuPGS.19 is invalid
-Simulation SimuPGS.20 is invalid
-Number of valid simulations = 4 out of 20 
+Simulation SimuPGS.19 is valid
+Simulation SimuPGS.20 is valid
+Number of valid simulations = 15 out of 20 
 NULL

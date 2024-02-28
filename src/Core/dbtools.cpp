@@ -755,8 +755,7 @@ void ut_trace_sample(Db *db,
       rks = (int*) mem_realloc((char* ) rks, sizeof(int) * (ns + 1), 1);
       xs[ns] = dd[ipmin];
       ys[ns] = cote;
-      lys[ns] = (FFFF(layer)) ? 1 :
-                                (int) layer + 1;
+      lys[ns] = (FFFF(layer)) ? 1 : (int) layer + 1;
       typ[ns] = 1;
       rks[ns] = iech + 1;
       ns++;
@@ -1046,43 +1045,29 @@ static VectorDouble st_point_init_inhomogeneous(int number,
  **
  ** \param[in]  db      Db structure
  ** \param[in]  ivar    Index of the target variable
- ** \param[in]  ncut    Number of cutoffs
  ** \param[in]  zcut    Array containing the cutoffs
  **
  ** \remarks The array 'zcut' must be provided in increasing order
  **
  *****************************************************************************/
-int db_resind(Db *db, int ivar, int ncut, double *zcut)
+int db_resind(Db *db, int ivar, const VectorDouble& zcut)
 {
-  double *tonnage, value, zval, ind_cut0, ind_cut1, ton_cut0, ton_cut1, ir;
-  int ntot, nech, iptr;
-
-  /* Initializations */
-
-  nech = db->getSampleNumber();
-  iptr = 0;
-  tonnage = nullptr;
-  for (int icut = 1; icut < ncut; icut++)
+  int nech = db->getSampleNumber();
+  int ncut = (int) zcut.size();
+  if (! VH::isSorted(zcut, true))
   {
-    if (zcut[icut] > zcut[icut - 1]) continue;
     messerr("The cutoffs must be provided in increasing order");
-    goto label_end;
+    return 1;
   }
-
-  /* Core allocation */
-
-  tonnage = (double*) mem_alloc(sizeof(double) * ncut, 0);
-  if (tonnage == nullptr) goto label_end;
-  for (int icut = 0; icut < ncut; icut++)
-    tonnage[icut] = 0;
 
   /* Calculate the tonnages */
 
-  ntot = 0;
+  int ntot = 0;
+  VectorDouble tonnage(ncut, 0);
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    value = db->getArray(iech, ivar);
+    double value = db->getArray(iech, ivar);
     if (FFFF(value)) continue;
     ntot++;
 
@@ -1094,35 +1079,32 @@ int db_resind(Db *db, int ivar, int ncut, double *zcut)
 
   /* Create the variables */
 
-  iptr = db->addColumnsByConstant(ncut, TEST);
-  if (iptr < 0) goto label_end;
+  int iptr = db->addColumnsByConstant(ncut, TEST);
+  if (iptr < 0) return 1;
 
   /* Loop on the samples */
 
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    value = db->getArray(iech, ivar);
+    double value = db->getArray(iech, ivar);
     if (FFFF(value)) continue;
 
     /* Loop on the cutoffs */
 
     for (int icut = 0; icut < ncut; icut++)
     {
-      zval = zcut[icut];
-      ind_cut0 = (value > zval);
-      zval = (icut > 0) ? zcut[icut - 1] :
-                          0.;
-      ind_cut1 = (value > zval);
-      ton_cut0 = tonnage[icut];
-      ton_cut1 = (icut > 0) ? tonnage[icut - 1] :
-                              1.;
-      ir = ind_cut0 / ton_cut0 - ind_cut1 / ton_cut1;
+      double zval = zcut[icut];
+      int ind_cut0 = (value > zval);
+      zval = (icut > 0) ? zcut[icut - 1] : 0.;
+      int ind_cut1 = (value > zval);
+      double ton_cut0 = tonnage[icut];
+      double ton_cut1 = (icut > 0) ? tonnage[icut - 1] : 1.;
+      int ir = ind_cut0 / ton_cut0 - ind_cut1 / ton_cut1;
       db->setArray(iech, iptr + icut, ir);
     }
   }
 
-  label_end: tonnage = (double*) mem_free((char* ) tonnage);
   return (0);
 }
 
@@ -1227,12 +1209,10 @@ int db_gradient_components(DbGrid *dbgrid)
           v1 = v2 = 0.;
           if (idim == 0)
           {
-            j1 = (ix + 1 > nmax - 1) ? ix :
-                                       ix + 1;
+            j1 = (ix + 1 > nmax - 1) ? ix : ix + 1;
             v1 = get_grid_value(dbgrid, iptrz, indg, j1, iy, iz);
             if (FFFF(v1)) continue;
-            j2 = (ix - 1 < 0) ? ix :
-                                ix - 1;
+            j2 = (ix - 1 < 0) ? ix : ix - 1;
             v2 = get_grid_value(dbgrid, iptrz, indg, j2, iy, iz);
             if (FFFF(v2)) continue;
             number = j1 - j2;
@@ -1240,12 +1220,10 @@ int db_gradient_components(DbGrid *dbgrid)
 
           if (idim == 1)
           {
-            j1 = (iy + 1 > nmax - 1) ? iy :
-                                       iy + 1;
+            j1 = (iy + 1 > nmax - 1) ? iy : iy + 1;
             v1 = get_grid_value(dbgrid, iptrz, indg, ix, j1, iz);
             if (FFFF(v1)) continue;
-            j2 = (iy - 1 < 0) ? iy :
-                                iy - 1;
+            j2 = (iy - 1 < 0) ? iy : iy - 1;
             v2 = get_grid_value(dbgrid, iptrz, indg, ix, j2, iz);
             if (FFFF(v2)) continue;
             number = j1 - j2;
@@ -1253,12 +1231,10 @@ int db_gradient_components(DbGrid *dbgrid)
 
           if (idim == 2)
           {
-            j1 = (iz + 1 > nmax - 1) ? iz :
-                                       iz + 1;
+            j1 = (iz + 1 > nmax - 1) ? iz : iz + 1;
             v1 = get_grid_value(dbgrid, iptrz, indg, ix, iy, j1);
             if (FFFF(v1)) continue;
-            j2 = (iz - 1 < 0) ? iz :
-                                iz - 1;
+            j2 = (iz - 1 < 0) ? iz : iz - 1;
             v2 = get_grid_value(dbgrid, iptrz, indg, ix, iy, j2);
             if (FFFF(v2)) continue;
             number = j1 - j2;
@@ -1532,8 +1508,7 @@ int db_streamline(DbGrid *dbgrid,
 
   /* Final reallocation */
 
-  line = (double*) mem_realloc((char* ) line, sizeof(double) * npline * nbline,
-                               1);
+  line = (double*) mem_realloc((char* ) line, sizeof(double) * npline * nbline, 1);
 
   /* Set the error return code */
 
@@ -1735,100 +1710,6 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
 
 /*****************************************************************************/
 /*!
- **  Extract a new Db from an old Db using a sample seleciton vector
- **
- ** \return  Pointer to the newly created Db
- **
- ** \param[in]  db          Initial Db
- ** \param[in]  ranks       Vector of selected ranks
- **
- ** \remarks The 'ranks' array is dimensionned to the number of samples of 'db'
- ** \remarks and ranks[i]=1 if the sample 'i' must be kept and 0 otherwise.
- ** \remarks All the variables contained in the input Db are copied into the
- ** \remarks output Db
- ** \remarks This operations is limited to non-grid Db
- ** \remarks Possible selection in the input Db is taken into account
- **
- *****************************************************************************/
-Db* db_extract(Db *db, int *ranks)
-{
-  int *iatts, nech, nech_all, natt, error, ecr;
-  VectorDouble tab;
-  Db *dbnew;
-
-  // Initializations
-
-  error = 1;
-  dbnew = nullptr;
-  iatts = nullptr;
-  if (db == nullptr) return (dbnew);
-  nech_all = db->getSampleNumber();
-  natt = db->getColumnNumber();
-
-  // Count the number of samples in 'ranks'
-  nech = 0;
-  for (int iech = 0; iech < nech_all; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (ranks[iech] != 0) nech++;
-  }
-  if (nech <= 0)
-  {
-    messerr("The extraction failed as no sample is selected");
-    return (dbnew);
-  }
-
-  // Fill the array of selected variables
-  // TODO Enable selecting variables by LOC type
-
-  iatts = (int*) mem_alloc(sizeof(int) * natt, 0);
-  if (iatts == nullptr) goto label_end;
-  for (int iatt = 0; iatt < natt; iatt++)
-    iatts[iatt] = 1;
-
-  // Core allocation 
-
-  tab.resize(nech * natt);
-
-  // Create the extracted array
-
-  ecr = 0;
-  for (int iech = 0; iech < nech_all; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (ranks[iech] == 0) continue;
-    for (int iatt = 0; iatt < natt; iatt++)
-      tab[ecr++] = db->getArray(iech, iatt);
-  }
-
-  // Create the new db
-
-  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, tab, VectorString(),
-                                  VectorString(), 1);
-  if (dbnew == nullptr) goto label_end;
-
-  // Delete the unnecessary variables 
-
-  for (int iatt = natt - 1; iatt >= 0; iatt--)
-  {
-    if (iatts[iatt] != 0) continue;
-    dbnew->deleteColumnByUID(iatt + 1);
-  }
-
-  // Set the error return code
-
-  error = 0;
-
-  label_end: iatts = (int*) mem_free((char* ) iatts);
-  if (error)
-  {
-    if (dbnew != nullptr) delete dbnew;
-  }
-  return (dbnew);
-}
-
-/*****************************************************************************/
-/*!
  **  Regularize variables along vertical wells
  **
  ** \return  Pointer to the newly created Db
@@ -1847,83 +1728,59 @@ Db* db_extract(Db *db, int *ranks)
  *****************************************************************************/
 Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 {
-  int ncode, nvar, nz, ndim, not_defined, ecr, nech, size, ntot, iz, icode;
-  double *wcnt, *wtab, *wcor, *coor, code, ratio;
-  Db *dbnew;
-  VectorDouble wecr;
-  VectorDouble codes;
-
-  // Initializations
-
-  dbnew = nullptr;
-  wtab = wcor = coor = wcnt = nullptr;
-  if (db == nullptr) return (dbnew);
+  Db* dbnew = nullptr;
+  if (db == nullptr) return dbnew;
 
   // Preliminary checks */
 
   if (! dbgrid->isGrid())
   {
     messerr("This function requires 'dbgrid' to correspond to a Grid");
-    return (dbnew);
+    return dbnew;
   }
 
   if (db->getNDim() < 3)
   {
     messerr("This function requires the 'db' to be defined in 3D or more");
-    return (dbnew);
+    return dbnew;
   }
 
   if (dbgrid->getNDim() < 3)
   {
     messerr("This function requires the 'dbgrid' to be defined in 3D or more");
-    return (dbnew);
+    return dbnew;
   }
 
   if (!db->hasLocVariable(ELoc::C))
   {
     messerr("This function requires the definition of a CODE variable in 'db'");
-    return (dbnew);
+    return dbnew;
   }
 
   if (! db->isVariableNumberComparedTo(1,1))
   {
     messerr("You should define some Z-variables in input 'db'");
-    return (dbnew);
+    return dbnew;
   }
 
   // Core allocation 
 
-  nz = dbgrid->getNX(2);
-  nvar = db->getLocNumber(ELoc::Z);
-  ndim = db->getNDim();
-  size = ndim + nvar + 1;
+  int iz = 0;
+  int nz   = dbgrid->getNX(2);
+  int nvar = db->getLocNumber(ELoc::Z);
+  int ndim = db->getNDim();
+  int size = ndim + nvar + 1;
 
-  codes = db->getCodeList();
-  ncode = static_cast<int>(codes.size());
-  coor = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (coor == nullptr) goto label_end;
-
-  wcnt = (double*) mem_alloc(sizeof(double) * ncode * nz, 0);
-  if (wcnt == nullptr) goto label_end;
-
-  wcor = (double*) mem_alloc(sizeof(double) * ncode * nz * ndim, 0);
-  if (wcor == nullptr) goto label_end;
-
-  wtab = (double*) mem_alloc(sizeof(double) * ncode * nz * nvar, 0);
-  if (wtab == nullptr) goto label_end;
-
-  /* Initialize the different arrays */
-
-  for (int i = 0; i < ncode * nz; i++)
-    wcnt[i] = 0.;
-  for (int i = 0; i < ncode * nz * ndim; i++)
-    wcor[i] = 0.;
-  for (int i = 0; i < ncode * nz * nvar; i++)
-    wtab[i] = 0.;
+  VectorDouble codes = db->getCodeList();
+  int ncode = (int) codes.size();
+  VectorDouble coor(ndim, 0);
+  VectorDouble wcnt(ncode * nz, 0);
+  VectorDouble wcor(ncode * nz * ndim, 0);
+  VectorDouble wtab(ncode * nz * nvar, 0);
 
   // Loop on the different samples
 
-  ntot = db->getSampleNumber();
+  int ntot = db->getSampleNumber();
 
   //message("Before regularization: ncode = %d, nz = %d, ntot = %d\n", (int)ncode, (int)nz, (int)ntot);
 
@@ -1931,11 +1788,11 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   {
     if (!db->isActive(iech)) continue;
     mes_process("Regularize Wells", ntot, iech);
-    code = db->getLocVariable(ELoc::C,iech,0);
+    int code = db->getLocVariable(ELoc::C,iech,0);
 
     // Identify the rank of the code
 
-    icode = -1;
+    int icode = -1;
     for (int i = 0; i < ncode && icode < 0; i++)
       if (code == codes[i]) icode = i;
     if (icode < 0) continue;
@@ -1945,13 +1802,13 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     for (int idim = 0; idim < ndim; idim++)
       coor[idim] = db->getCoordinate(iech, idim);
 
-    int err = point_to_bench(dbgrid, coor, 0, &iz);
+    int err = point_to_bench(dbgrid, coor.data(), 0, &iz);
     if (err < 0) continue;
     if (iz < 0 || iz >= nz) continue;
 
     // Check if all variables are defined
 
-    not_defined = 0;
+    int not_defined = 0;
     for (int ivar = 0; ivar < nvar && not_defined == 0; ivar++)
       if (FFFF(db->getLocVariable(ELoc::Z,iech, ivar))) not_defined = 1;
     if (not_defined) continue;
@@ -1967,11 +1824,11 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Normalization
 
-  nech = 0;
-  for (icode = 0; icode < ncode; icode++)
-    for (iz = 0; iz < nz; iz++)
+  int nech = 0;
+  for (int icode = 0; icode < ncode; icode++)
+    for (int iz = 0; iz < nz; iz++)
     {
-      ratio = WCNT(iz, icode);
+      double ratio = WCNT(iz, icode);
       if (ratio <= 0) continue;
       for (int idim = 0; idim < ndim; idim++)
         WCOR(iz,icode,idim) /= ratio;
@@ -1982,17 +1839,15 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
       nech++;
     }
 
-  //message("After normalization: nech = %d, size = %d\n", (int)nech, (int)size);
-
   // Load in storing array
 
-  wecr.resize(size * nech);
+  VectorDouble wecr(size * nech);
 
-  ecr = 0;
-  for (icode = 0; icode < ncode; icode++)
-    for (iz = 0; iz < nz; iz++)
+  int ecr = 0;
+  for (int icode = 0; icode < ncode; icode++)
+    for (int iz = 0; iz < nz; iz++)
     {
-      ratio = WCNT(iz, icode);
+      double ratio = WCNT(iz, icode);
       if (ratio <= 0) continue;
       for (int idim = 0; idim < ndim; idim++)
         wecr[ecr++] = WCOR(iz, icode, idim);
@@ -2003,8 +1858,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Create the new db
 
-  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, wecr, VectorString(),
-                                 VectorString(), 0);
+  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, wecr, VectorString(), VectorString(), 0);
   if (dbnew == nullptr) goto label_end;
 
   ecr = 0;
@@ -2015,11 +1869,8 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z);
   ecr += nvar;
 
-  label_end: coor = (double*) mem_free((char* ) coor);
-  wcnt = (double*) mem_free((char* ) wcnt);
-  wcor = (double*) mem_free((char* ) wcor);
-  wtab = (double*) mem_free((char* ) wtab);
-  return (dbnew);
+  label_end:
+  return dbnew;
 }
 
 /*****************************************************************************/

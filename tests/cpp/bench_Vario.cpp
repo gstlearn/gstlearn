@@ -17,6 +17,7 @@
 #include "Enum/ECov.hpp"
 
 #include "Variogram/Vario.hpp"
+#include "Variogram/VMap.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
@@ -133,7 +134,7 @@ int main(int argc, char *argv[])
   message("- for %d by %d cells (automatic dimensions)\n", ncell, ncell);
 
   timer.reset();
-  Db* vmapP = db_vmap_compute(db, ECalcVario::VARIOGRAM, {ncell,ncell});
+  Db* vmapP = db_vmap(db, ECalcVario::VARIOGRAM, {ncell,ncell});
   timer.displayIntervalMilliseconds("Variogram Map on Isolated Points", 2400);
 
   // =================================
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
 
   mestitle(1, "Variogram Map on Grid");
   timer.reset();
-  Db* vmapG = db_vmap_compute(grid, ECalcVario::VARIOGRAM, {100,100});
+  Db* vmapG = db_vmap(grid, ECalcVario::VARIOGRAM, {100,100});
   timer.displayIntervalMilliseconds("Variogram Map on Regular Grid", 100);
 
   delete db;

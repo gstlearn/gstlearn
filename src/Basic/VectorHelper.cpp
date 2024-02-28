@@ -273,6 +273,13 @@ double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
   return (max);
 }
 
+bool VectorHelper::hasUndefined(const VectorDouble& vec)
+{
+  for (int i = 0, n = (int) vec.size(); i < n; i++)
+    if (FFFF(vec[i])) return true;
+  return false;
+}
+
 int VectorHelper::maximum(const VectorInt &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0;
@@ -1392,6 +1399,31 @@ void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, int size)
   copy(vecout, vecin, size);
 }
 
+bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
+{
+  int nval = (int) vec.size();
+
+  if (ascending)
+  {
+    // Ascending order
+    for (int i = 1; i < nval; i++)
+    {
+      if (vec[i] > vec[i - 1]) continue;
+      return false;
+    }
+  }
+  else
+  {
+    // Descending order
+    for (int i = 1; i < nval; i++)
+    {
+      if (vec[i] < vec[i - 1]) continue;
+      return false;
+    }
+  }
+  return true;
+}
+
 /**
  * From an input list, filter out all the elements which do no lie within [vmin, vmax],
  * suppress double occurrences and sort them out (ascending or descending)
@@ -1802,4 +1834,33 @@ void VectorHelper::transformVD(VectorDouble& tab, int oper_choice)
   int number = (int) tab.size();
   for (int i = 0; i < number; i++)
     tab[i] = oper_func(tab[i]);
+}
+
+/****************************************************************************/
+/*!
+ **  Fix plausible values for the Direction coefficients.
+ **  They must be defined and with norm equal to 1
+ **
+ ** \param[in]  ndim      Space dimension
+ ** \param[in,out]  codir Input/Output Direction coefficients
+ **
+ *****************************************************************************/
+void VectorHelper::normalizeCodir(int ndim, VectorDouble &codir)
+{
+  double norme;
+
+  if (codir.empty()) return;
+  norme = VH::innerProduct(codir, codir, ndim);
+  if (norme <= 0.)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      codir[idim] = 0.;
+    codir[0] = 1.;
+  }
+  else
+  {
+    norme = sqrt(norme);
+    for (int idim = 0; idim < ndim; idim++)
+      codir[idim] /= norme;
+  }
 }

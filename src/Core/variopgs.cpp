@@ -5269,9 +5269,8 @@ Vario* variogram_pgs(Db *db,
     {
       if ((int) propcst.size() != nclass)
       {
-        messerr(
-            "Number of proportions in 'propcst' (%d) should match Number of Facies in 'rule' (%d)",
-            (int) propcst.size(), rule->getFaciesNumber());
+        messerr("Number of proportions in 'propcst' (%d) should match Number of Facies in 'rule' (%d)",
+                (int) propcst.size(), rule->getFaciesNumber());
         return nullptr;
       }
       props = propcst;
@@ -5282,9 +5281,8 @@ Vario* variogram_pgs(Db *db,
       props = dbStatisticsFacies(db);
       if ((int) props.size() != nclass)
       {
-        messerr(
-            "Number of Facies in 'db' (%d) should match Number of facies in 'rule' (%d)",
-            (int) props.size(), rule->getFaciesNumber());
+        messerr("Number of Facies in 'db' (%d) should match Number of facies in 'rule' (%d)",
+                (int) props.size(), rule->getFaciesNumber());
         return nullptr;
       }
     }
@@ -5311,8 +5309,7 @@ Vario* variogram_pgs(Db *db,
   if (flag_stat)
     error = st_variogram_pgs_stat(db, vario, varioind, rule, props);
   else
-    error = st_variogram_pgs_nostat(db, dbprop, vario, rule, props, flag_rho,
-                                    opt_correl);
+    error = st_variogram_pgs_nostat(db, dbprop, vario, rule, props, flag_rho, opt_correl);
 
   /* Final operations */
 

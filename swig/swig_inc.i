@@ -190,8 +190,11 @@
 %shared_ptr(Table)
 %shared_ptr(Tensor)
 %shared_ptr(TestInheritance)
+%shared_ptr(AVario)
 %shared_ptr(Vario)
 %shared_ptr(VarioParam)
+%shared_ptr(VMap)
+%shared_ptr(VCloud)
 %shared_ptr(Ball)
 %shared_ptr(KNN)
 
@@ -348,9 +351,12 @@
   #include "Neigh/NeighBench.hpp"
   #include "Neigh/NeighCell.hpp"
   
+  #include "Variogram/AVario.hpp"
   #include "Variogram/VarioParam.hpp"
   #include "Variogram/Vario.hpp"
   #include "Variogram/DirParam.hpp"
+  #include "Variogram/VMap.hpp"
+  #include "Variogram/VCloud.hpp"
   
   #include "Model/Model.hpp"
   #include "Model/ANoStat.hpp"

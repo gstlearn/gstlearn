@@ -22,7 +22,6 @@ New functions :
 - reduceComplexity in Polygons
 - New name for argument of migrate* functions: ldmax -> distType 
   and change type for flag_inter and flag_fill (become boolean)
-- Function db_model() has been renamed as Model::buildVmapOnDbGrid()
 
 Modification in functions :
 ---------------------------
