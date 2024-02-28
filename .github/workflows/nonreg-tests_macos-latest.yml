@@ -53,23 +53,23 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install numpy==${{env.NUMPY_VERSION}}
-#        python -m pip install pandas scipy mlxtend
+        python -m pip install pandas scipy mlxtend
 
-#    - name: Setup R Version
-#      uses: r-lib/actions/setup-r@v2
-#      with:
-#        r-version: ${{env.R_VERSION}}
-#
-#    - name: Compile and install [customized] SWIG 4.2.0
-#      run: |
-#        mkdir swig_src
-#        cd swig_src
-#        git clone https://github.com/fabien-ors/swig.git
-#        cd swig
-#        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
-#        cd build
-#        make
-#        make install
+    - name: Setup R Version
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: ${{env.R_VERSION}}
+
+    - name: Compile and install [customized] SWIG 4.2.0
+      run: |
+        mkdir swig_src
+        cd swig_src
+        git clone https://github.com/fabien-ors/swig.git
+        cd swig
+        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
+        cd build
+        make
+        make install
 
     - name: Install the Boost headers
       uses: ./.github/workflows/install-boost-unix
@@ -85,9 +85,7 @@ jobs:
         generator: "Unix Makefiles"
 
     - name: Configure CMake
-      #run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
-      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=OFF -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
+      run: CC=/usr/local/opt/llvm/bin/clang CXX=/usr/local/opt/llvm/bin/clang++ cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig -DUSE_HDF5=OFF -DEigen3_ROOT=${{env.EIGEN_ROOT}} -DBoost_ROOT=${{env.BOOST_ROOT}}
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{env.BUILD_DIR}} --target check -- -j 3
-      #run: cmake --build ${{env.BUILD_DIR}} --target check_cpp -- -j 3
