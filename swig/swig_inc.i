@@ -532,6 +532,7 @@
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
 %template(DoNotUseVectorFloatStd)   std::vector< float >;
 %template(DoNotUseVectorUCharStd)   std::vector< unsigned char >; // Keep unsigned char here
+%template(DoNotUseVectorCharStd)    std::vector< char >;
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
@@ -558,6 +559,7 @@
                                String,
                                float,
                                UChar,
+                               char,
                                bool
 {
   try
@@ -573,16 +575,17 @@
 }
 
 // Convert scalar argument by reference
+// Don't add String or char here otherwise "res2 not declared" / "alloc1 not declared"
 %typemap(in, fragment="ToCpp") int*       (int val), const int*       (int val),
                                int&       (int val), const int&       (int val),
                                double* (double val), const double* (double val),
-                               double& (double val), const double& (double val), // Don't add String here otherwise "res2 not declared"
+                               double& (double val), const double& (double val), 
                                float*   (float val), const float*   (float val),
                                float&   (float val), const float&   (float val),
                                UChar*   (UChar val), const UChar*   (UChar val),
                                UChar&   (UChar val), const UChar&   (UChar val),
-                               bool*     (bool val), const bool*    (bool val),
-                               bool&     (bool val), const bool&    (bool val)
+                               bool*     (bool val), const bool*     (bool val),
+                               bool&     (bool val), const bool&     (bool val)
 {
   try
   {
@@ -744,6 +747,7 @@
                                   String,
                                   float,
                                   UChar,
+                                  char,
                                   bool
 {
   $result = objectFromCpp($1);

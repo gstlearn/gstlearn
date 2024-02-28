@@ -106,9 +106,7 @@ FILE* gslFopen(const char* path, const char* mode)
 {
   FILE *file;
 
-#ifdef __unix
-  file = fopen(path, mode);
-#elif defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
   file = fopen(path, mode);
 #else
   errno_t err;
