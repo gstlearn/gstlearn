@@ -4,8 +4,9 @@ This file contains the logs between consecutive releases
 
 Release 1.1.0
 =============
+- MacOS compatibility (Intel and Silicon architectures)
 - New dependency: Eigen library for matrices (dense and sparse)
-- Fix issue 88, 98, 102, 101
+- Fix issue 88, 98, 102, 101, 119, 115, 111
 - Efficiency improvements (variography, moving neighborhood, kriging systems...)
 - Adding new tutorial (with widgets) to describe the calculation of experimental variograms and use of model for Cvv
 - Adding description of main classes (Db, Vario and daughter classes, Model and daughter classes).
