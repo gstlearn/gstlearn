@@ -168,6 +168,7 @@ public:
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true, int size = -1);
   static void         sortInPlace(VectorInt& vecin, bool ascending = true, int size = -1);
   static void         sortInPlace(VectorDouble& vecin, bool ascending = true, int size = -1);
+  static bool         isSorted(const VectorDouble& vec, bool ascending = true);
   static VectorDouble unique(const VectorDouble& vecin, int size = -1);
   static VectorInt    unique(const VectorInt& vecin, int size = -1);
   static VectorInt    orderRanks(const VectorInt& vecin, bool ascending = true, int size = -1);

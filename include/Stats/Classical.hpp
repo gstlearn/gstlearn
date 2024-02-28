@@ -99,6 +99,33 @@ GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
 
 GSTLEARN_EXPORT MatrixRectangular* sphering(const AMatrix* X);
 
+GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
+                                                 Db *db2,
+                                                 const String &name1,
+                                                 const String &name2,
+                                                 bool flagFrom1 = false,
+                                                 bool verbose = false);
+GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
+                                              const String &name1,
+                                              const String &name2,
+                                              VarioParam *varioparam,
+                                              int ipas = 0,
+                                              int idir = 0,
+                                              bool verbose = false);
+GSTLEARN_EXPORT int correlationIdentify(Db *db1,
+                                        Db *db2,
+                                        int icol1,
+                                        int icol2,
+                                        Polygons *polygon);
+GSTLEARN_EXPORT VectorVectorDouble condexp(Db *db1,
+                                           Db *db2,
+                                           int icol1,
+                                           int icol2,
+                                           double mini,
+                                           double maxi,
+                                           int nclass,
+                                           bool verbose = false);
+
 #ifndef SWIG
 // All the following functions assume that the variables in the output Db used to store
 // the results are already created.

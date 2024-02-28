@@ -35,6 +35,7 @@
 #include "Geometry/BiTargetCheckDate.hpp"
 #include "Geometry/BiTargetCheckFaults.hpp"
 #include "Geometry/BiTargetCheckGeometry.hpp"
+#include "Polynomials/Hermite.hpp"
 
 static int IECH1, IECH2, IDIRLOC;
 
@@ -660,6 +661,7 @@ int Vario::transformYToZ(const AAnam *anam)
   }
 
   setVar(c0, 0, 0);
+
   return 0;
 }
 
@@ -2593,7 +2595,7 @@ void Vario::_calculateOnLineSolution(Db *db, int idir, int norder)
       {
         value = value * value / NORWGT[norder];
         nvar = getVariableNumber();
-        _setResult(nvar, ipas, 0, 0, 0, 1., dist0, value);
+        _setResult(iech, iech, nvar, ipas, 0, 0, 0, 1., dist0, value);
       }
     }
   }
@@ -3452,8 +3454,9 @@ int Vario::_calculateOnGridSolution(DbGrid *db, int idir)
 int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 {
   int *indg1, *indg2;
-  int jech, nech, idim, error, npas, keep, nvar;
+  int  idim, keep, nvar;
   double zz, value;
+
   int ndim = db->getNDim();
   SpaceRN space(ndim);
   SpaceTarget T1(&space);
@@ -3461,10 +3464,10 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 
   /* Initializations */
 
-  error = 1;
-  nech = db->getSampleNumber();
+  int error = 1;
+  int nech = db->getSampleNumber();
   indg1 = indg2 = nullptr;
-  npas = getLagNumber(idir);
+  int npas = getLagNumber(idir);
   const DirParam &dirparam = getDirParam(idir);
 
   // Local variables to speed up calculations
@@ -3499,7 +3502,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
         for (idim = 0; idim < db->getNDim(); idim++)
           indg2[idim] = indg1[idim] + (int) (ipas * iwgt * dirparam.getGrincr(idim));
 
-        jech = db_index_grid_to_sample(db, indg2);
+        int jech = db_index_grid_to_sample(db, indg2);
         if (jech < 0) continue;
         if (hasSel && !db->isActive(jech)) continue;
         db->getSampleAsST(jech, T2);
@@ -3518,7 +3521,7 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
       {
         value = value * value / NORWGT[norder];
         nvar = getVariableNumber();
-        _setResult(nvar, ipas, 0, 0, 0, 1., dist, value);
+        _setResult(iech, iech, nvar, ipas, 0, 0, 0, 1., dist, value);
       }
     }
   }
@@ -3552,6 +3555,8 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
 /*!
  **  Internal function for setting a variogram value
  **
+ ** \param[in]  iech1       Rank of the first sample
+ ** \param[in]  iech2       Rank of the second sample
  ** \param[in]  nvar        Number of variables
  ** \param[in]  ipas        Rank of the variogram lag
  ** \param[in]  ivar        Index of the first variable
@@ -3562,7 +3567,9 @@ int Vario::_calculateGenOnGridSolution(DbGrid *db, int idir, int norder)
  ** \param[in]  value       Variogram value
  **
  *****************************************************************************/
-void Vario::_setResult(int nvar,
+void Vario::_setResult(int iech1,
+                       int iech2,
+                       int nvar,
                        int ipas,
                        int ivar,
                        int jvar,
@@ -3571,6 +3578,8 @@ void Vario::_setResult(int nvar,
                        double dist,
                        double value)
 {
+  DECLARE_UNUSED(iech1);
+  DECLARE_UNUSED(iech2);
   DECLARE_UNUSED(nvar);
   int i = getDirAddress(IDIRLOC, ivar, jvar, ipas, false, orient);
   updateGgByIndex(IDIRLOC, i, ww * value);
@@ -4249,6 +4258,33 @@ bool Vario::keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist)
 
 /****************************************************************************/
 /*!
+ **  Ask for the rank of the 'vardir' structure, given direction and date
+ **
+ ** \return  Absolute rank (or -1 for error)
+ **
+ ** \param[in]  idir   Rank for the direction (starting from 0)
+ ** \param[in]  idate  Rank for the Date (starting from 0)
+ **
+ ** \remark  An error occurs if 'idir' is negative or larger than 'ndir'
+ ** \remark  or if 'idate' is negative or larger than 'ndate'
+ **
+ *****************************************************************************/
+int Vario::getRankFromDirAndDate(int idir, int idate)
+{
+  int rank = idir;
+  int ndir = getDirectionNumber();
+  int ndate = getDateNumber();
+  if (idir < 0 || idir >= ndir) return (-1);
+  if (ndate > 0)
+  {
+    if (idate < 0 || idate >= ndate) return (-1);
+    rank = rank * idir + idate;
+  }
+  return (rank);
+}
+
+/****************************************************************************/
+/*!
  **  Manage the drift removal option
  **
  ** \param[in]  db      Db structure
@@ -4359,4 +4395,178 @@ double Vario::_getBias(Db *db, int iiech, int jjech)
     bias2 += _DRFGX.getValue(iiech, il) * _DRFXA.getValue(jjech, il);
 
   return (bias0 - (bias1 + bias2));
+}
+
+/****************************************************************************/
+/*!
+ **  Linear interpolation
+ **
+ ** \return  Interpolated value
+ **
+ ** \param[in]  n      Number of discretization steps
+ ** \param[in]  x      Discretized X (sorted increasingly)
+ ** \param[in]  y      Discretized Y
+ ** \param[in]  x0     Origin
+ **
+ *****************************************************************************/
+double Vario::_linear_interpolate(int n,
+                                  const VectorDouble &x,
+                                  const VectorDouble &y,
+                                  double x0)
+{
+  if (x0 < x[0]) return (y[0]);
+  if (x0 > x[n - 1]) return (y[n - 1]);
+  for (int i = 1; i < n; i++)
+  {
+    if (x0 < x[i - 1]) continue;
+    if (x0 > x[i]) continue;
+    return (y[i - 1] + (y[i] - y[i - 1]) * (x0 - x[i - 1]) / (x[i] - x[i - 1]));
+  }
+  return (TEST);
+}
+
+/****************************************************************************/
+/*!
+ **  Update the experimental variogram of the completed variable starting
+ **  from the experimental variogram of the truncated variable
+ **  This only functions in the monovariate case
+ **
+ ** \param[in]  nh     Number of Hermite polynomials
+ ** \param[in]  ycut   Truncation (lowest) value
+ **
+ ** \return Error return code
+ **
+ *****************************************************************************/
+int Vario::transformCut(int nh, double ycut)
+{
+
+  // Preliminary check
+
+  if (getVariableNumber() != 1)
+  {
+    messerr("The method 'transformCut' is available in the monovariate case only");
+    return 1;
+  }
+  static double disc = 0.01;
+  int ndisc = (int) (2. / disc + 1.);
+
+  /* Core allocation */
+
+  VectorDouble ro(ndisc);
+  VectorDouble covyp(ndisc);
+  for (int idisc = 0; idisc < ndisc; idisc++)
+    ro[idisc] = disc * idisc - 1.;
+
+  /* Calculate the first normalized Hermite polynomials for ycut */
+
+  VectorDouble psic = hermiteCoefLower(ycut, nh);
+
+  /* Variance */
+
+  double variance = 0.;
+  for (int ih = 1; ih < nh; ih++)
+    variance += psic[ih] * psic[ih];
+
+  for (int idisc = 0; idisc < ndisc; idisc++)
+  {
+    double sum = 0.;
+    for (int ih = 1; ih < nh; ih++)
+      sum += psic[ih] * psic[ih] * pow(ro[idisc], ih);
+    covyp[idisc] = sum;
+  }
+
+  /* Loop on the directions */
+
+  for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
+  {
+
+    /* Loop on the lags */
+
+    for (int ipas = 0, npas = getLagNumber(idir); ipas < npas; ipas++)
+    {
+      double cyp = variance - getGg(idir, 0, 0, ipas);
+      double cyy = _linear_interpolate(ndisc, covyp, ro, cyp);
+      setGg(idir, 0, 0, ipas, MAX(0, 1. - cyy));
+    }
+  }
+
+  /* Update the variance */
+
+  setVar(1., 0, 0);
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Determine the samples used for a variogram in multilayers framework
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  seltab Number of sample definition (0, 1 or 2)
+ **
+ ** \param[out]  vorder Vario_Order structure
+ **
+ *****************************************************************************/
+int Vario::computeGeometryMLayers(Db *db,
+                                  VectorInt &seltab,
+                                  Vario_Order *vorder)
+{
+  int iiech, iech, jjech, jech, ipas, npair;
+  SpaceTarget T1(_varioparam.getSpace());
+  SpaceTarget T2(_varioparam.getSpace());
+
+  /* Initializations */
+
+  if (db == nullptr) return 1;
+
+  // Local variables to speed up calculations
+  bool hasSel = db->hasLocVariable(ELoc::SEL);
+  int nech = db->getSampleNumber();
+  double dist = 0.;
+
+  /* Loop on the directions */
+
+  for (int idir = 0, ndir = getDirectionNumber(); idir < ndir; idir++)
+  {
+    const DirParam &dirparam = getDirParam(idir);
+
+    /* Loop on the first point */
+
+    for (iech = iiech = 0; iech < nech; iech++)
+    {
+      if (hasSel && !db->isActive(iech)) continue;
+      db->getSampleAsST(iech, T1);
+
+      if (seltab[iech] == 0) continue;
+      for (int ifois = 0; ifois < seltab[iech]; ifois++, iiech++)
+      {
+        for (jech = jjech = 0; jech < nech; jech++)
+        {
+          if (hasSel && !db->isActive(jech)) continue;
+          if (seltab[jech] == 0) continue;
+          db->getSampleAsST(jech, T2);
+
+          for (int jfois = 0; jfois < seltab[jech]; jfois++, jjech++)
+          {
+
+            // Reject the point as soon as one BiTargetChecker is not correct
+            if (! keepPair(idir, T1, T2, &dist)) continue;
+
+            /* Get the rank of the lag */
+
+            ipas = dirparam.getLagRank(dist);
+            if (IFFFF(ipas)) continue;
+
+            /* Internal storage */
+
+            vario_order_add(vorder, iiech, jjech, &iech, &jech, ipas, idir, ABS(dist));
+          }
+        }
+      }
+    }
+  }
+  vorder = vario_order_final(vorder, &npair);
+  return (0);
 }

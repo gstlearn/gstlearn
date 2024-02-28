@@ -50,8 +50,10 @@ public:
 
   /// AVMap Interface
   double _getIVAR(const Db *db, int iech, int ivar) const override;
-  void _setResult(int nvar,
-                  int iadlag,
+  void _setResult(int iech1,
+                  int iech2,
+                  int nvar,
+                  int ipas,
                   int ivar,
                   int jvar,
                   int orient,
@@ -62,8 +64,8 @@ public:
   int compute(Db *db,
               const ECalcVario &calcul_type,
               int radius,
-              bool flag_FFT,
-              const NamingConvention &namconv);
+              bool flag_FFT = true,
+              const NamingConvention &namconv = NamingConvention("VMAP"));
 
 private:
   int _grid_fft(DbGrid *dbgrid,

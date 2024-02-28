@@ -90,35 +90,11 @@ GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
 /* Functions for Variogram */
 /***************************/
 
-GSTLEARN_EXPORT int variogram_cloud(Db *db,
-                                    const VarioParam *varioparam,
-                                    DbGrid *dbgrid,
-                                    const NamingConvention& namconv = NamingConvention("Cloud"));
-GSTLEARN_EXPORT DbGrid* db_variogram_cloud(Db *db,
-                                           const VarioParam *varioparam,
-                                           double lagmax = TEST,
-                                           double varmax = TEST,
-                                           int lagnb = 100,
-                                           int varnb = 100,
-                                           const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      const VarioParam *varioparam,
                                      const RuleProp *ruleprop,
                                      int flag_rho = false,
                                      int opt_correl = 2);
-GSTLEARN_EXPORT VectorVectorInt correlationPairs(Db *db1,
-                                                 Db *db2,
-                                                 const String &name1,
-                                                 const String &name2,
-                                                 bool flagFrom1 = false,
-                                                 bool verbose = false);
-GSTLEARN_EXPORT VectorVectorInt hscatterPairs(Db *db,
-                                              const String &name1,
-                                              const String &name2,
-                                              VarioParam *varioparam,
-                                              int ipas = 0,
-                                              int idir = 0,
-                                              bool verbose = false);
 
 /***********************/
 /* Functions for Model */

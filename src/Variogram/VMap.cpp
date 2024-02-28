@@ -77,6 +77,8 @@ double VMap::_getIVAR(const Db *db, int iech, int ivar) const
 /*!
  **  Internal function for setting a VMAP value
  **
+ ** \param[in]  iech1       Rank of the first sample
+ ** \param[in]  iech2       Rank of the second sample
  ** \param[in]  nvar        Number of variables
  ** \param[in]  ipas        Rank of the variogram lag
  ** \param[in]  ivar        Index of the first variable
@@ -87,7 +89,9 @@ double VMap::_getIVAR(const Db *db, int iech, int ivar) const
  ** \param[in]  value       Variogram value
  **
  *****************************************************************************/
-void VMap::_setResult(int nvar,
+void VMap::_setResult(int iech1,
+                      int iech2,
+                      int nvar,
                       int ipas,
                       int ivar,
                       int jvar,
@@ -96,6 +100,8 @@ void VMap::_setResult(int nvar,
                       double dist,
                       double value)
 {
+  DECLARE_UNUSED(iech1);
+  DECLARE_UNUSED(iech2);
   DECLARE_UNUSED(orient);
   DECLARE_UNUSED(dist);
   int ijvar = _get_variable_order(nvar, ivar, jvar);

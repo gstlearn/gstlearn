@@ -93,7 +93,7 @@ myVarioParamOmni$addDir(mydir)
 We use the variogram definition in order to calculate the variogram cloud.
 
 ```{r}
-dbcloud = db_variogram_cloud(db=mydb, varioparam=myVarioParamOmni)
+dbcloud = db_vcloud(db=mydb, varioparam=myVarioParamOmni)
 ```
 
 We recall that the Variogram cloud is calculated by filling an underlying grid where each cell is painted according to the number of pairs at the given distance and given variability. Representing the variogram cloud.

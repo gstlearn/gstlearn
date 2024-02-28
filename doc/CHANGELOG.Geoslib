@@ -27,6 +27,11 @@ New functions :
 - Function model_normalize() becomes Model::standardize()
 - Function model_get_nonugget_cova() is now included in Model::getCovaNumber(true)
 - Function db_vmap_compute() is renamed into db_vmap()
+- Function db_variogram_cloud() is renamed as db_vcloud()
+- Function variogram_trans_cut() is renamed as Vario::transformCut()
+- Function correlation_ident() is renamed as correlationIdentify()
+- Function variogram_mlayers() is renamed as Vario::computeGeometryMLayers()
+- Function variovect_compute() is renamed as Vario::computeVarioVect()
 
 Modification in functions :
 ---------------------------

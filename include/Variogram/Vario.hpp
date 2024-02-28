@@ -91,8 +91,10 @@ public:
 
   /// AVario Interface
   double _getIVAR(const Db *db, int iech, int ivar) const override;
-  void _setResult(int nvar,
-                  int iadlag,
+  void _setResult(int iech1,
+                  int iech2,
+                  int nvar,
+                  int ipas,
                   int ivar,
                   int jvar,
                   int orient,
@@ -263,9 +265,8 @@ public:
                    int nfacmax = -1);
   int computeGeometry(Db *db, Vario_Order *vorder, int *npair);
   int computeVarioVect(Db *db, int ncomp);
+  int computeGeometryMLayers(Db *db, VectorInt& seltab, Vario_Order *vorder);
 
-  int transformZToY(const AAnam *anam);
-  int transformYToZ(const AAnam *anam);
   int modelRegularize(const Model& model,
                       const VectorDouble& ext,
                       const VectorInt& ndisc,
@@ -323,6 +324,11 @@ public:
   int getBiPtsNumberPerDirection() const { return _biPtsPerDirection; }
   const ABiTargetCheck* getBipts(int idir, int rank) const { return _bipts[_getBiPtsRank(idir, rank)]; }
   bool keepPair(int idir, SpaceTarget &T1, SpaceTarget &T2, double *dist);
+  int getRankFromDirAndDate(int idir, int idate);
+
+  int transformCut(int nh, double ycut);
+  int transformZToY(const AAnam *anam);
+  int transformYToZ(const AAnam *anam);
 
 protected:
   /// Interface for ASerializable
@@ -401,6 +407,10 @@ private:
   void _getVarioVectStatistics(Db *db, int ncomp);
   void _rescale(int idir);
   bool _isCompatible(const Db *db) const;
+  double _linear_interpolate(int n,
+                             const VectorDouble &x,
+                             const VectorDouble &y,
+                             double x0);
 
 private:
   int                _nVar;

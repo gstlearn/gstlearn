@@ -188,6 +188,7 @@
 %include Variogram/VarioParam.hpp
 %include Variogram/DirParam.hpp
 %include Variogram/VMap.hpp
+%include Variogram/VCloud.hpp
 
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp

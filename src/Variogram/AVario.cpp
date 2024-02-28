@@ -90,7 +90,7 @@ void AVario::evaluate(Db *db,
           if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
           {
             value = (z12 - z11) * (z22 - z21) / 2.;
-            _setResult(nvar, ipas, ivar, jvar, 0, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
           }
         }
       break;
@@ -107,7 +107,7 @@ void AVario::evaluate(Db *db,
           if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
           {
             value = sqrt(ABS((z12 - z11) * (z22 - z21))) / 2.;
-            _setResult(nvar, ipas, ivar, jvar, 0, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
           }
         }
       break;
@@ -125,7 +125,7 @@ void AVario::evaluate(Db *db,
           if (!FFFF(z11) && !FFFF(z21) && !FFFF(z12) && !FFFF(z22))
           {
             value = pow(ABS((z12 - z11) * (z22 - z21)), 0.25) / 2.;
-            _setResult(nvar, ipas, ivar, jvar, 0, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
           }
         }
       break;
@@ -143,7 +143,7 @@ void AVario::evaluate(Db *db,
               && (w1 > 0. && w2 > 0.))
           {
             value = (z12 - z11) * (z22 - z21) / 2.;
-            _setResult(nvar, ipas, ivar, jvar, 0, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
           }
         }
       break;
@@ -161,12 +161,12 @@ void AVario::evaluate(Db *db,
           if (!FFFF(z11) && !FFFF(z22))
           {
             value = z11 * z22;
-            _setResult(nvar, ipas, ivar, jvar, orient, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
           }
           if (!FFFF(z12) && !FFFF(z21) && do_asym)
           {
             value = z12 * z21;
-            _setResult(nvar, ipas, ivar, jvar, -orient, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
           }
         }
       break;
@@ -183,12 +183,12 @@ void AVario::evaluate(Db *db,
           if (!FFFF(z11) && !FFFF(z22))
           {
             value = z11 * z22;
-            _setResult(nvar, ipas, ivar, jvar, orient, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, orient, scale, dist, value);
           }
           if (!FFFF(z12) && !FFFF(z21) && do_asym)
           {
             value = z12 * z21;
-            _setResult(nvar, ipas, ivar, jvar, -orient, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, -orient, scale, dist, value);
           }
         }
       break;
@@ -206,7 +206,7 @@ void AVario::evaluate(Db *db,
           {
             value = (z12 - z11) * (z22 - z21);
             value = value * value / 2.;
-            _setResult(nvar, ipas, ivar, jvar, 0, scale, dist, value);
+            _setResult(iech1, iech2, nvar, ipas, ivar, jvar, 0, scale, dist, value);
           }
         }
       break;

@@ -1399,6 +1399,31 @@ void VectorHelper::sortInPlace(VectorDouble& vecin, bool ascending, int size)
   copy(vecout, vecin, size);
 }
 
+bool VectorHelper::isSorted(const VectorDouble& vec, bool ascending)
+{
+  int nval = (int) vec.size();
+
+  if (ascending)
+  {
+    // Ascending order
+    for (int i = 1; i < nval; i++)
+    {
+      if (vec[i] > vec[i - 1]) continue;
+      return false;
+    }
+  }
+  else
+  {
+    // Descending order
+    for (int i = 1; i < nval; i++)
+    {
+      if (vec[i] < vec[i - 1]) continue;
+      return false;
+    }
+  }
+  return true;
+}
+
 /**
  * From an input list, filter out all the elements which do no lie within [vmin, vmax],
  * suppress double occurrences and sort them out (ascending or descending)

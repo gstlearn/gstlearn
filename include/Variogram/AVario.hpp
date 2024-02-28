@@ -42,8 +42,10 @@ public:
 
 protected:
   virtual double _getIVAR(const Db *db, int iech, int ivar) const = 0;
-  virtual void _setResult(int nvar,
-                          int lag,
+  virtual void _setResult(int iech1,
+                          int iech2,
+                          int nvar,
+                          int ipas,
                           int ivar,
                           int jvar,
                           int orient,
