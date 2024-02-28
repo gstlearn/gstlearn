@@ -60,16 +60,11 @@ jobs:
       with:
         r-version: ${{env.R_VERSION}}
 
-    - name: Compile and install [customized] SWIG 4.2.0
-      run: |
-        mkdir swig_src
-        cd swig_src
-        git clone https://github.com/fabien-ors/swig.git
-        cd swig
-        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}} -DCMAKE_BUILD_TYPE:STRING=Release 
-        cd build
-        make
-        make install
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
 
     - name: Configure CMake
       run: cmake -B ${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON -DBUILD_R=ON -DSWIG_EXECUTABLE=${{env.SWIG_ROOT}}/bin/swig

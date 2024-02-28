@@ -78,17 +78,11 @@ jobs:
         eigen-version: ${{env.EIGEN_VERSION}}
         generator: "Unix Makefiles"
 
-    - name: Compile and install [customized] SWIG 4.2.0b
-      # TODO : Use a tagged realease (not the master branch)
-      run: |
-        mkdir swig_src
-        cd swig_src
-        git clone https://github.com/fabien-ors/swig.git
-        cd swig
-        cmake -Bbuild -DCMAKE_INSTALL_PREFIX:PATH=${{env.SWIG_ROOT}}
-        cd build
-        make
-        make install
+    - name: Install the customized SWIG from source
+      uses: fabien-ors/install-swig-unix-action@v1
+      with:
+        swig-root: ${{env.SWIG_ROOT}}
+        generator: "Unix Makefiles"
 
     - name : Build the package and save generated file name in the environment
       run : |
