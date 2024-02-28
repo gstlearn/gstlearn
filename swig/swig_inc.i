@@ -263,6 +263,7 @@
   #include "Basic/Law.hpp"
   #include "Basic/MathFunc.hpp"
   #include "Basic/Indirection.hpp"
+  #include "Basic/WarningMacro.hpp"
   
   #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"

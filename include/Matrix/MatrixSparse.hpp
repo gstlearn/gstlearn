@@ -12,16 +12,20 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/WarningMacro.hpp"
 #include "Basic/VectorNumT.hpp"
-#include "LinearOp/Cholesky.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Matrix/LinkMatrixSparse.hpp"
 
+#ifndef SWIG
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/Sparse>
 DISABLE_WARNING_POP
+#endif
+
+class Cholesky;
+class cs;
 
 /**
  * Sparse Matrix
@@ -123,19 +127,11 @@ public:
 
 #ifndef SWIG
   /*! Returns a pointer to the Sparse storage */
-  const cs* getCS() const
-  {
-    return _csMatrix;
-  }
-  void setCS(cs* cs)
-  {
-    _csMatrix = cs_duplicate(cs);
-  }
-  void freeCS()
-  {
-    _csMatrix = cs_spfree2(_csMatrix);
-  }
-  cs* getCSUnprotected() const { return _csMatrix; } // Temporary function to get the CS contents of Sparse Matrix
+  const cs* getCS() const;
+  void setCS(cs* cs);
+  void freeCS();
+  /*! Temporary function to get the CS contents of Sparse Matrix */
+  cs* getCSUnprotected() const;
 #endif
 
   void reset(int nrows, int ncols);
@@ -217,8 +213,10 @@ private:
                        VectorInt &temp);
 
 private:
+#ifndef SWIG
   cs*  _csMatrix; // Classical storage for Sparse matrix
   Eigen::SparseMatrix<double> _eigenMatrix; // Eigen storage in Eigen Library (always stored Eigen::ColMajor)
+#endif
   Cholesky* _factor; // Cholesky decomposition
 };
 

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "LinearOp/Cholesky.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
 #include <vector>

@@ -12,14 +12,17 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/WarningMacro.hpp"
 #include "LinearOp/ALinearOp.hpp"
 #include "Basic/VectorNumT.hpp"
 
+#ifndef SWIG
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
 #include <Eigen/Sparse>
 DISABLE_WARNING_POP
+#endif
 
 class css; /// TODO : Dependency to csparse to be removed
 class csn;
@@ -51,9 +54,10 @@ private:
   void _compute();
 
 private:
+#ifndef SWIG
   css *_S; // Cholesky decomposition
   csn *_N; // Cholesky decomposition
   Eigen::SimplicialLDLT<Eigen::SparseMatrix<double> > _cholSolver;
-
+#endif
   const MatrixSparse* _matCS; // Stored by compliance with ALinearOp. Not to be deleted
 };

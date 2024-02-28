@@ -11,15 +11,19 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Matrix/AMatrix.hpp"
+#include "Basic/WarningMacro.hpp"
 
-
+#ifndef SWIG
 DISABLE_WARNING_PUSH
 DISABLE_WARNING_COND_EXPR_CONSTANT
 DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE
+DISABLE_WARNING_MAYBE_UNINITIALIZED
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 DISABLE_WARNING_POP
+#endif
 
 class MatrixSquareGeneral;
 class MatrixSquareSymmetric;
@@ -172,6 +176,8 @@ protected:
   MatrixSquareGeneral* _eigenVectors;
 
 private:
+#ifndef SWIG
   Eigen::MatrixXd _eigenMatrix; // Eigen storage for Dense matrix in Eigen Library
+#endif
 };
 
