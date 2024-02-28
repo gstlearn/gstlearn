@@ -25,6 +25,7 @@ Release 1.1.0
 - Function correlation_ident() is renamed as correlationIdentify()
 - Function variogram_mlayers() is renamed as Vario::computeGeometryMLayers()
 - Function variovect_compute() is renamed as Vario::computeVarioVect()
+- New function for Squeeze-and-Stretch back transform in Grid format: DbGrid::createGrid3DFromBacktransform()
 
 Release 1.0.0
 =============
