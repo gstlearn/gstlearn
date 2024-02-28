@@ -532,7 +532,6 @@
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
 %template(DoNotUseVectorFloatStd)   std::vector< float >;
 %template(DoNotUseVectorUCharStd)   std::vector< unsigned char >; // Keep unsigned char here
-%template(DoNotUseVectorCharStd)    std::vector< char >;
 %template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
@@ -559,7 +558,6 @@
                                String,
                                float,
                                UChar,
-                               char,
                                bool
 {
   try
@@ -747,7 +745,6 @@
                                   String,
                                   float,
                                   UChar,
-                                  char,
                                   bool
 {
   $result = objectFromCpp($1);

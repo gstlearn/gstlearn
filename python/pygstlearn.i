@@ -170,30 +170,6 @@
     }
     return myres;
   }
-  template <> int convertToCpp(PyObject* obj, char& value)
-  {
-    // Test argument
-    if (obj == NULL) return SWIG_TypeError;
-    
-    int v = 0;
-    int myres = SWIG_AsVal_int(obj, &v);
-    //std::cout << "convertToCpp(char): value=" << v << std::endl;
-    if (myres == SWIG_OverflowError || 
-        v < std::numeric_limits<char>::min() ||
-        v > std::numeric_limits<char>::max()) // Out of bound value is error (no NA for char)
-    {
-      myres = SWIG_OverflowError;
-    }
-    else if (!SWIG_IsOK(myres) || v == NPY_INT_NA) // NaN or Inf is error (no NA for char)
-    {
-      myres = SWIG_TypeError;
-    }
-    else
-    {
-      value = static_cast<char>(v);
-    }
-    return myres;
-  }
   template <> int convertToCpp(PyObject* obj, bool& value)
   {
     // Test argument
@@ -291,7 +267,6 @@
 }
 
 %typecheck(SWIG_TYPECHECK_UINT8) UChar {}
-%typecheck(SWIG_TYPECHECK_INT8)  char {}
 
 // Add numerical vector typecheck typemaps for dispatching functions
 %typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_DOUBLE_ARRAY) const VectorInt&,    VectorInt,
@@ -326,7 +301,6 @@
   template <> NPY_TYPES numpyType<String>() { return NPY_STRING; }
   template <> NPY_TYPES numpyType<float>()  { return NPY_FLOAT; }
   template <> NPY_TYPES numpyType<UChar>()  { return NPY_UBYTE; }
-  template <> NPY_TYPES numpyType<char>()   { return NPY_BYTE; }
   template <> NPY_TYPES numpyType<bool>()   { return NPY_BOOL; }
   
   template<typename Type> struct TypeHelper;
@@ -335,7 +309,6 @@
   template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <> struct TypeHelper<float>  { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<UChar>  { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<char>   { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<bool>   { static bool hasFixedSize() { return true; } };
   template <typename Type> bool hasFixedSize() { return TypeHelper<Type>::hasFixedSize(); }
   
@@ -345,7 +318,6 @@
   template <> struct OutTraits<String>  { using OutputType = const char*; };
   template <> struct OutTraits<float>   { using OutputType = float; };
   template <> struct OutTraits<UChar>   { using OutputType = UChar; };
-  template <> struct OutTraits<char>    { using OutputType = char; };
   template <> struct OutTraits<bool>    { using OutputType = bool; };
   
   template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(const Type& value);
@@ -381,11 +353,6 @@
     //std::cout << "convertFromCpp(UChar): value=" << value << std::endl;
     return value; // No special conversion provided
   }
-  template <> char convertFromCpp(const char& value)
-  {
-    //std::cout << "convertFromCpp(char): value=" << value << std::endl;
-    return value; // No special conversion provided
-  }
   template <> bool convertFromCpp(const bool& value)
   {
     //std::cout << "convertFromCpp(bool): value=" << value << std::endl;
@@ -410,10 +377,6 @@
     return PyFloat_FromDouble(static_cast<double>(convertFromCpp(value)));
   }
   template <> PyObject* objectFromCpp(const UChar& value)
-  {
-    return PyLong_FromLong(static_cast<long>(convertFromCpp(value)));
-  }
-  template <> PyObject* objectFromCpp(const char& value)
   {
     return PyLong_FromLong(static_cast<long>(convertFromCpp(value)));
   }
@@ -597,9 +560,6 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorNumT<UChar> {
-  std::string __repr__() {  return $self->toString(); }
-}
-%extend VectorT<char> {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend VectorT<int> {

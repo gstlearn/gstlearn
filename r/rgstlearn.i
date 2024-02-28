@@ -123,34 +123,6 @@
     }
     return myres;
   }
-  template <> int convertToCpp(SEXP obj, char& value)
-  {
-    // Test argument
-    if (obj == NULL) return SWIG_TypeError;
-    
-    int myres = SWIG_TypeError;
-    if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
-    {
-      int v = 0;
-      myres = SWIG_AsVal_int(obj, &v);
-      //std::cout << "convertToCpp(char): value=" << v << std::endl;
-      if (myres == SWIG_OverflowError || 
-          v < std::numeric_limits<char>::min() ||
-          v > std::numeric_limits<char>::max()) // Out of bound value is error (no NA for char)
-      {
-        myres = SWIG_OverflowError;
-      }
-      else if (!SWIG_IsOK(myres) || v == R_NaInt) // NA, NaN or Inf is error (no NA for char)
-      {
-        myres = SWIG_TypeError;
-      }
-      else
-      {
-        value = static_cast<char>(v);
-      }
-    }
-    return myres;
-  }
   template <> int convertToCpp(SEXP obj, bool& value)
   {
     // Test argument
@@ -253,9 +225,8 @@
 %typemap(rtypecheck, noblock=1) const int&, int                               { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const double&, double                         { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const String&, String                         { length($arg) == 1 &&  is.character(unlist($arg)) }
-%typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.character(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.numeric(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const UChar&, UChar                           { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
-%typemap(rtypecheck, noblock=1) const char&, char                             { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
 %typemap(rtypecheck, noblock=1) const bool&, bool                             { length($arg) == 1 &&  is.logical(unlist($arg)) }
 %typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt                   { length($arg) == 0 || (length($arg) > 0 && (is.integer(unlist($arg)) || is.numeric(unlist($arg)))) }
 %typemap(rtypecheck, noblock=1) const VectorDouble&, VectorDouble             { length($arg) == 0 || (length($arg) > 0 &&  is.numeric(unlist($arg))) }
@@ -276,7 +247,6 @@
   template <> struct OutTraits<String>  { using OutputType = String; };
   template <> struct OutTraits<float>   { using OutputType = float; };
   template <> struct OutTraits<UChar>   { using OutputType = UChar; };
-  template <> struct OutTraits<char>    { using OutputType = char; };
   template <> struct OutTraits<bool>    { using OutputType = bool; };
   
   template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(const Type& value);
@@ -311,11 +281,6 @@
     //std::cout << "convertFromCpp(UChar): value=" << value << std::endl;
     return value; // No special conversion provided
   }
-  template <> char convertFromCpp(const char& value)
-  {
-    //std::cout << "convertFromCpp(char): value=" << value << std::endl;
-    return value; // No special conversion provided
-  }
   template <> bool convertFromCpp(const bool& value)
   {
     //std::cout << "convertFromCpp(bool): value=" << value << std::endl;
@@ -340,10 +305,6 @@
     return Rf_ScalarReal(static_cast<double>(convertFromCpp(value)));
   }
   template <> SEXP objectFromCpp(const UChar& value)
-  {
-    return Rf_ScalarInteger(static_cast<int>(convertFromCpp(value)));
-  }
-  template <> SEXP objectFromCpp(const char& value)
   {
     return Rf_ScalarInteger(static_cast<int>(convertFromCpp(value)));
   }
