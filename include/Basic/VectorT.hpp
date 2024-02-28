@@ -294,7 +294,7 @@ VectorT<T>& VectorT<T>::operator<<(const VectorT<T>& v)
 
 //typedef VectorT<bool> VectorBool; TODO : Build a real VectorBool
 // https://stackoverflow.com/a/61158013/3952924
-typedef VectorT<UChar>  VectorBool; // Use UChar because std::vector of bool has a specific implementation
+typedef VectorT<char>   VectorBool; // Use char because std::vector of bool has a specific implementation
 typedef VectorT<String> VectorString;
 
 template <typename T>

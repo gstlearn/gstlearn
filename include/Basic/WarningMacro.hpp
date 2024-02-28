@@ -32,18 +32,11 @@
   #define DISABLE_WARNING_RESTRIC                          // No equivalence?
   // other warnings you want to deactivate...
 
-#elif defined(__GNUC__) || defined(__clang__)
-  #if defined(__GNUC__)
-    #define DO_PRAGMA(X) _Pragma(#X)
-    #define DISABLE_WARNING_PUSH           DO_PRAGMA(GCC diagnostic push)
-    #define DISABLE_WARNING_POP            DO_PRAGMA(GCC diagnostic pop)
-    #define DISABLE_WARNING(warningName)   DO_PRAGMA(GCC diagnostic ignored #warningName)
-  #else // clang
-    #define DO_PRAGMA(X) _Pragma(#X)
-    #define DISABLE_WARNING_PUSH           DO_PRAGMA(clang diagnostic push)
-    #define DISABLE_WARNING_POP            DO_PRAGMA(clang diagnostic pop)
-    #define DISABLE_WARNING(warningName)   DO_PRAGMA(clang diagnostic ignored #warningName)
-  #endif
+#elif defined(__GNUC__)
+  #define DO_PRAGMA(X) _Pragma(#X)
+  #define DISABLE_WARNING_PUSH           DO_PRAGMA(GCC diagnostic push)
+  #define DISABLE_WARNING_POP            DO_PRAGMA(GCC diagnostic pop)
+  #define DISABLE_WARNING(warningName)   DO_PRAGMA(GCC diagnostic ignored #warningName)
 
   #define DISABLE_WARNING_DECLARATION_MASKED               // TODO : Warning equivalence ?
   #define DISABLE_WARNING_EXPR_COND_ASSIGNMENT             //
@@ -51,6 +44,27 @@
   #define DISABLE_WARNING_NOT_EXPORTED_FROM_DLL            //
   #define DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL       //
   #define DISABLE_WARNING_MAYBE_UNINITIALIZED              DISABLE_WARNING(-Wmaybe-uninitialized)
+  #define DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER    DISABLE_WARNING(-Wunused-parameter)
+  #define DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE          DISABLE_WARNING(-Wunused-but-set-variable)
+  #define DISABLE_WARNING_FREE_NON_HEAP_OBJECT             DISABLE_WARNING(-Wfree-nonheap-object)
+  #define DISABLE_WARNING_UNREFERENCED_FUNCTION            DISABLE_WARNING(-Wunused-function)
+  #define DISABLE_WARNING_ARRAY_BOUNDS                     DISABLE_WARNING(-Warray-bounds)
+  #define DISABLE_WARNING_STRIC_OVERFLOW                   DISABLE_WARNING(-Wstrict-overflow)
+  #define DISABLE_WARNING_RESTRIC                          DISABLE_WARNING(-Wrestrict)
+  // other warnings you want to deactivate...
+
+#elif defined(__clang__)
+  #define DO_PRAGMA(X) _Pragma(#X)
+  #define DISABLE_WARNING_PUSH           DO_PRAGMA(clang diagnostic push)
+  #define DISABLE_WARNING_POP            DO_PRAGMA(clang diagnostic pop)
+  #define DISABLE_WARNING(warningName)   DO_PRAGMA(clang diagnostic ignored #warningName)
+
+  #define DISABLE_WARNING_DECLARATION_MASKED               // TODO : Warning equivalence ?
+  #define DISABLE_WARNING_EXPR_COND_ASSIGNMENT             //
+  #define DISABLE_WARNING_COND_EXPR_CONSTANT               //
+  #define DISABLE_WARNING_NOT_EXPORTED_FROM_DLL            //
+  #define DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL       //
+  #define DISABLE_WARNING_MAYBE_UNINITIALIZED              DISABLE_WARNING(-Wuninitialized)
   #define DISABLE_WARNING_UNREFERENCED_FORMAL_PARAMETER    DISABLE_WARNING(-Wunused-parameter)
   #define DISABLE_WARNING_UNUSED_BUT_SET_VARIABLE          DISABLE_WARNING(-Wunused-but-set-variable)
   #define DISABLE_WARNING_FREE_NON_HEAP_OBJECT             DISABLE_WARNING(-Wfree-nonheap-object)
